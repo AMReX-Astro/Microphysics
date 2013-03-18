@@ -31,3 +31,27 @@ are not used:
 
  -- most of the rate_* routines -- we only need the ones specific to this
     network
+
+
+Modifications:
+
+ -- we made a derived type call tf_t that holds all the various
+    temperature factors.  This way we can eliminate those common
+    blocks.
+
+ -- screen5 seems to cache the old temperature information to allow it
+    to save on recomputing the plasma factors.  This is not
+    threadsafe.
+
+    Screening also has init=1 initially and precomputes all of the
+    expensive factors the first time through and then stores these
+    on subsequent calls.  This could be moved to an initialization
+    routine where these are stored in a threadsafe module variable
+
+
+
+Eventual changes:
+
+ -- since we are not using the analytic Jacobian, we can get rid of
+    all of those drate... stuff.
+

@@ -5,14 +5,16 @@ module rates_module
   ! sequence to take the tfactors as an argument, and remove the include
   ! implno statement.
 
+  use tfactors_module
   implicit none
 
 contains
 
-  subroutine rate_c12ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,rev,drevdt,aa,daa,bb,dbb,cc,dcc, &
@@ -77,10 +79,11 @@ contains
   end subroutine rate_c12ag
 
 
-  subroutine rate_tripalf(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,rev,drevdt,r2abe,dr2abedt,rbeac, &
@@ -177,10 +180,11 @@ contains
   end subroutine rate_tripalf
 
 
-  subroutine rate_c12c12(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,t9a,dt9a,t9a13,dt9a13,t9a56,dt9a56, &
@@ -219,10 +223,11 @@ contains
   end subroutine rate_c12c12
 
 
-  subroutine rate_c12o16(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,t9a,dt9a,t9a13,dt9a13,t9a23,dt9a23, &
@@ -281,10 +286,11 @@ contains
   end subroutine rate_c12o16
 
 
-  subroutine rate_o16o16(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt
@@ -313,10 +319,11 @@ contains
   end subroutine rate_o16o16
 
 
-  subroutine rate_o16ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,term1,dterm1,aa,daa,bb,dbb, &
@@ -360,10 +367,11 @@ contains
   end subroutine rate_o16ag
 
 
-  subroutine rate_ne20ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,term1,dterm1,aa,daa,bb,dbb, &
@@ -432,10 +440,11 @@ contains
   end subroutine rate_ne20ag
 
 
-  subroutine rate_mg24ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,bb,dbb,cc,dcc,dd,ddd,ee,dee, &
@@ -488,10 +497,11 @@ contains
   end subroutine rate_mg24ag
 
 
-  subroutine rate_mg24ap(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,bb,dbb,cc,dcc,dd,ddd,ee,dee, &
@@ -557,10 +567,11 @@ contains
   end subroutine rate_mg24ap
 
 
-  subroutine rate_al27pg(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,rev,drevdt,aa,daa,bb,dbb,cc,dcc, &
@@ -611,10 +622,11 @@ contains
   end subroutine rate_al27pg
 
 
-  subroutine rate_al27pg_old(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,bb,dbb,cc,dcc,dd,ddd,ee,dee, &
@@ -680,10 +692,11 @@ contains
   end subroutine rate_al27pg_old
 
 
-  subroutine rate_si28ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -719,10 +732,11 @@ contains
   end subroutine rate_si28ag
 
 
-  subroutine rate_si28ap(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -759,10 +773,11 @@ contains
   end subroutine rate_si28ap
 
 
-  subroutine rate_p31pg(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -799,10 +814,11 @@ contains
   end subroutine rate_p31pg
 
 
-  subroutine rate_s32ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_s32ag(td,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -839,10 +855,11 @@ contains
   end subroutine rate_s32ag
   
 
-  subroutine rate_s32ap(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -879,10 +896,11 @@ contains
   end subroutine rate_s32ap
 
 
-  subroutine rate_cl35pg(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt
@@ -913,10 +931,11 @@ contains
   end subroutine rate_cl35pg
 
 
-  subroutine rate_ar36ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -953,10 +972,11 @@ contains
   end subroutine rate_ar36ag
 
 
-  subroutine rate_ar36ap(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -993,10 +1013,11 @@ contains
   end subroutine rate_ar36ap
 
 
-  subroutine rate_k39pg(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1033,10 +1054,11 @@ contains
   end subroutine rate_k39pg
 
 
-  subroutine rate_ca40ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1073,10 +1095,11 @@ contains
   end subroutine rate_ca40ag
 
 
-  subroutine rate_ca40ap(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1113,10 +1136,11 @@ contains
   end subroutine rate_ca40ap
 
 
-  subroutine rate_sc43pg(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1153,10 +1177,11 @@ contains
   end subroutine rate_sc43pg
 
 
-  subroutine rate_ti44ag(temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1193,14 +1218,15 @@ contains
   end subroutine rate_ti44ag
 
 
-  subroutine rate_ti44ap(temp,den, &
+  subroutine rate_ti44ap(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1237,14 +1263,15 @@ contains
   end subroutine rate_ti44ap
 
 
-  subroutine rate_v47pg(temp,den, &
+  subroutine rate_v47pg(tf,den, &
                         fr,dfrdt,dfrdd, &
                         rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1281,14 +1308,15 @@ contains
   end subroutine rate_v47pg
 
 
-  subroutine rate_cr48ag(temp,den, &
+  subroutine rate_cr48ag(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1325,14 +1353,15 @@ contains
   end subroutine rate_cr48ag
 
 
-  subroutine rate_cr48ap(temp,den, &
+  subroutine rate_cr48ap(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1369,14 +1398,15 @@ contains
   end subroutine rate_cr48ap
 
 
-  subroutine rate_mn51pg(temp,den, &
+  subroutine rate_mn51pg(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
     
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1413,14 +1443,15 @@ contains
   end subroutine rate_mn51pg
 
 
-  subroutine rate_fe52ag(temp,den, &
+  subroutine rate_fe52ag(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1457,14 +1488,15 @@ contains
   end subroutine rate_fe52ag
 
 
-  subroutine rate_fe52ap(temp,den, &
+  subroutine rate_fe52ap(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
+    type (tf_t) :: tf
 
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
@@ -1501,15 +1533,16 @@ contains
   end subroutine rate_fe52ap
   
 
-  subroutine rate_co55pg(temp,den, &
+  subroutine rate_co55pg(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
 
     ! declare the pass
-    double precision temp,den, &
+    double precision den, &
                      fr,dfrdt,dfrdd, &
                      rr,drrdt,drrdd
-    
+    type (tf_t) :: tf
+
     ! locals
     double precision term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
     
