@@ -1,0 +1,25 @@
+This is a rewrite of Frank Timmes' aprox13 network.  The aprox13.tbz
+was downloaded from his website on 2013-03-18.  We want to make it 
+(1) threadsafe, (2) use VODE, and (3) work with an SDC methodology.
+
+We mainly need from his package the following:
+
+  -- RHS routines
+
+  -- screening routines
+
+  -- plasma neutrino loss routines
+
+  -- final energy generation routine
+
+
+We will use a numerical Jacobian with VODE to make things easier.
+
+In particular, the following routines from the original package 
+are not used:
+
+  -- screen6 (never seems to have been called.  screen5 is used instead)
+
+  -- snupp, snucno -- these are neutrino loss routines for H burning -- we
+     are not modeling that
+
