@@ -23,3 +23,11 @@ are not used:
   -- snupp, snucno -- these are neutrino loss routines for H burning -- we
      are not modeling that
 
+ -- netint and all of the ma28 stuff -- we are using VODE
+
+ -- ecapnuc*, mazurek -- no electron captures
+
+ -- *wien*
+
+ -- most of the rate_* routines -- we only need the ones specific to this
+    network
