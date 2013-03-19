@@ -2,6 +2,7 @@ module network_indices
 
   implicit none
 
+  ! ids of the quantities that are integrated
   integer, parameter :: ihe4  = 1
   integer, parameter :: ic12  = 2
   integer, parameter :: io16  = 3
@@ -15,6 +16,10 @@ module network_indices
   integer, parameter :: icr48 = 11
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
+
+  integer, parameter :: itemp = 14
+  integer, parameter :: ienucdot = 15
+
 
   ! set the id numbers of the reaction rates
   integer, parameter :: ir3a   = 1

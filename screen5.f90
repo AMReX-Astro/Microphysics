@@ -1,9 +1,8 @@
       subroutine screen5(temp,den,zbar,abar,z2bar, &
                          z1,a1,z2,a2,jscreen,init, &
                          scor,scordt,scordd)
-      include 'implno.dek'
-      include 'const.dek'
-      include 'network.dek'
+
+        implicit none
 
 ! this subroutine calculates screening factors and their derivatives
 ! for nuclear reaction rates in the weak, intermediate and strong regimes.
@@ -83,14 +82,18 @@
                         blend_frac = 0.05d0)
 
 
-      data     temp_old/-1.0d0/, den_old/-1.0d0/, &
-               zbar_old/-1.0d0/, abar_old/-1.0d0/
+!      data     temp_old/-1.0d0/, den_old/-1.0d0/, &
+!               zbar_old/-1.0d0/, abar_old/-1.0d0/
 
 
 
 
 ! compute and store the more expensive screening factors
-      if (init .eq. 1) then
+
+! MZ: caching this stuff is not threadsafe -- we should precompute this at
+! initialization and store it in a module variable
+
+!      if (init .eq. 1) then
        if (jscreen .gt. nscreen_max) &
        stop 'jscreen > nscreen_max in screen5'
        zs13(jscreen)    = (z1 + z2)**x13
@@ -99,19 +102,24 @@
        zhat2(jscreen)   = (z1 + z2)**x512 - z1**x512 -z2**x512
        lzav(jscreen)    = x53 * log(z1*z2/(z1 + z2))
        aznut(jscreen)   = (z1**2 * z2**2 * a1*a2 / (a1 + a2))**x13
-      endif
+!      endif
 
+
+! MZ: caching this stuff is not threadsafe.  We should create a
+! derived type to hold the plasma parameters and fill it once in the
+! routine that calls the screening for each rate (since they all have
+! the same T and rho)
 
 ! calculate average plasma, if need be
-      if (temp_old .ne. temp .or. &
-          den_old  .ne. den  .or. &
-          zbar_old  .ne. zbar  .or. &
-          abar_old  .ne. abar ) then
+!      if (temp_old .ne. temp .or. &
+!          den_old  .ne. den  .or. &
+!          zbar_old  .ne. zbar  .or. &
+!          abar_old  .ne. abar ) then
 
-       temp_old = temp
-       den_old  = den
-       zbar_old  = zbar
-       abar_old  = abar
+!       temp_old = temp
+!       den_old  = den
+!       zbar_old  = zbar
+!       abar_old  = abar
 
        ytot     = 1.0d0/abar
        rr       = den * ytot
@@ -138,7 +146,7 @@
        aa     = 2.27493d5 * tempi * xni
        daadt  = 2.27493d5 * dtempi * xni
        daadd  = 2.27493d5 * tempi * dxnidd
-      end if
+!      end if
 
 
 ! calculate individual screening factors
