@@ -141,11 +141,11 @@ contains
     ! **NOTE** if you reduce these tolerances, you probably will need
     ! to (a) decrease dT_crit, (b) increase the maximum number of 
     ! steps allowed.
-    atol(1:nspec) = 1.e-12_dp_t    ! mass fractions
+    atol(1:nspec) = 1.e-10_dp_t    ! mass fractions
     atol(itemp) = 1.e-8_dp_t       ! temperature
     atol(ienuc) = 1.e-8_dp_t       ! energy generated
 
-    rtol(1:nspec) = 1.e-12_dp_t    ! mass fractions
+    rtol(1:nspec) = 1.e-10_dp_t    ! mass fractions
     rtol(itemp) = 1.e-5_dp_t       ! temperature
     rtol(ienuc) = 1.e-10_dp_t      ! energy generated
 
