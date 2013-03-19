@@ -1,7 +1,8 @@
       subroutine sneut5(temp,den,abar,zbar, &
                         snu,dsnudt,dsnudd,dsnuda,dsnudz)
-      include 'implno.dek'
-      include 'const.dek'
+
+        use network, only: pi
+        implicit none
 
 ! this routine computes neutrino losses from the analytic fits of
 ! itoh et al. apjs 102, 411, 1996, and also returns their derivatives.
@@ -1184,7 +1185,8 @@
 
 
       double precision function ifermi12(f)
-      include 'implno.dek'
+
+        implicit none
 
 ! this routine applies a rational function expansion to get the inverse
 ! fermi-dirac integral of order 1/2 when it is equal to f.
@@ -1243,7 +1245,8 @@
 
 
       double precision function zfermim12(x)
-      include 'implno.dek'
+
+        implicit none
 
 ! this routine applies a rational function expansion to get the fermi-dirac
 ! integral of order -1/2 evaluated at x. maximum error is 1.23d-12.

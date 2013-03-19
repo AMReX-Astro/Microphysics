@@ -473,6 +473,7 @@ contains
     ! nuclear reaction rates for the aprox13 network.
 
     use tfactors_module
+    use rates_module
 
     double precision btemp, bden
     double precision ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
