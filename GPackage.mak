@@ -6,5 +6,7 @@ f90sources += rhs.f90
 f90sources += screen5.f90
 f90sources += sneut5.f90
 f90sources += tfactors.f90
+f90sources += rpar_indices.f90
+f90sources += f_rhs.f90
 
 

@@ -33,7 +33,7 @@ contains
     !   rho_omegadot = rho dX/dt
     !   rho_Hnuc = - sum_k q_k rho_omegadot_k  [erg / cm^3 / s]
 
-!    use rpar_indices
+    use rpar_indices
     use network_indices
 
     implicit none
@@ -41,8 +41,6 @@ contains
     real(kind=dp_t), intent(in   ) :: dens, temp, Xin(nspec), dt
     real(kind=dp_t), intent(  out) :: Xout(nspec), rho_omegadot(nspec), rho_Hnuc
   
-    real(kind=dp_t) :: dT_crit, T_eos
-
     integer :: n
     real(kind=dp_t) :: enuc, dX
 
@@ -118,6 +116,8 @@ contains
     
     integer :: i
 
+    real(kind=dp_t) :: smallx=1.e-12
+
     logical, save :: firstCall = .true.
 
     if (firstCall) then
@@ -132,20 +132,8 @@ contains
 
     ! allocate storage for rpar -- the scratch array passed into the
     ! rhs and jacobian routines
-!    allocate(rpar(n_rpar_comps))
+    allocate(rpar(n_rpar_comps))
     
-    ! set the parameters regarding how often to re-evaluate the 
-    ! thermodynamics.  T_eos will always store the temperature
-    ! that was used for the last EOS call.  dT_crit is the 
-    ! relative temperature change beyond which we need to re-evaluate
-    ! the thermodynamics
-    !
-    ! **NOTE** if the burner is not converging (and the temperatures
-    ! are shooting up to unrealistically high values), you likely
-    ! need to reduce dT_crit to ensure more frequent EOS calls.
-    T_eos = temp
-    dT_crit = 1.e20_dp_t
-
 
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
@@ -181,10 +169,7 @@ contains
     y(ienuc)   = ZERO
     
 
-    ! set the thermodynamics that are passed via rpar to the RHS routine--
-    ! these will be updated in f_rhs if the relative temperature change 
-    ! exceeds dT_crit
-
+    ! set the thermodynamics that are passed via rpar to the RHS routine
     ! we need the specific heat at constant pressure and dhdX |_p.  Take
     ! T, rho, Xin as input
     eos_state%rho   = dens
@@ -197,15 +182,13 @@ contains
     ! density, specific heat at constant pressure, c_p, and dhdX are needed
     ! in the righthand side routine, so we will pass these in to those routines
     ! via the rpar functionality in VODE.
-    !
-    ! Since evaluating the EOS is expensive, we don't call it for every RHS
-    ! call -- T_eos and dT_crit control the frequency (see above)
-!    rpar(irp_dens) = dens
-!    rpar(irp_cp)   = eos_state%cp
-!    rpar(irp_dhdX:irp_dhdX-1+nspec) = eos_state%dhdX(:)
-!    rpar(irp_Teos) = T_eos
-!    rpar(irp_Tcrit) = dT_crit
-!    rpar(irp_Y56) = Xin(ife56)/aion(ife56)
+
+    rpar(irp_dens) = dens
+    rpar(irp_cp)   = eos_state%cp
+    rpar(irp_dhdX:irp_dhdX-1+nspec) = eos_state%dhdX(:)
+
+    ! this is just used to make sure everything is happy
+    rpar(irp_smallx) = smallx
 
 
     ! call the integration routine
@@ -222,18 +205,16 @@ contains
 
 
     ! store the new mass fractions -- note, we discard the temperature
-    ! here and instead compute the energy release from the binding
-    ! energy -- make sure that they are positive
-    ! 
+    ! here.  Make sure that they are positive
     do n = 1, nspec
-       Xout(n)  = max(y(n), ZERO)
+       Xout(n)  = max(y(n), smallx)
     enddo
 
 
     ! enforce sum{X_k} = 1
     sum = ZERO
     do n = 1, nspec
-       Xout(n) = max(ZERO, min(ONE, Xout(n)))
+       Xout(n) = max(smallx, min(ONE, Xout(n)))
        sum = sum + Xout(n)
     enddo
     Xout(:) = Xout(:)/sum
@@ -249,7 +230,9 @@ contains
        rho_omegadot(n) = dens * dX / dt
     enddo
 
-    ! energy was integrated in the system
+    ! energy was integrated in the system -- we use this integrated
+    ! energy which contains both the reaction energy release and
+    ! neutrino losses
     rho_Hnuc = dens*y(ienuc)/dt
 
     if (verbose) then
@@ -261,8 +244,6 @@ contains
        print *, 'number of f evaluations: ', iwork(12)
     endif
 
-
   end subroutine burner
-
 
 end module burner_module
