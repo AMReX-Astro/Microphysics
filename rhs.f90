@@ -1,11 +1,12 @@
 module rhs_module
 
+  use network
   use network_indices
   implicit none
 
 contains
 
-  subroutine aprox13(tt,temp,dens,y,dydt,enucdot)
+  subroutine aprox13(tt,temp,dens,y,dydt,denucdt,smallx)
 
     ! this routine sets up the system of ode's for the aprox13
     ! nuclear reactions.  this is an alpha chain + heavy ion network
@@ -14,30 +15,36 @@ contains
     ! isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
     !           ar36, ca40, ti44, cr48, fe52, ni56
     
+    ! here the y() that come in are the molar fractions (X/A)
     
 
     ! declare the pass
     double precision :: tt,temp,dens,y(nspec)
-    double precision :: dydt(nspec)
-    
+    double precision :: dydt(nspec), denucdt
+    double precision :: smallx
 
     ! local variables
-    logical          deriva
-    parameter        (deriva = .false.)
+    integer :: i
+    logical, parameter :: deriva = .false.
     
-    double precision :: abar, zbar, ye
+    double precision :: abar, zbar
     
-    
-    ! positive definite mass fractions
-    do i=ionbeg,ionend
-       y(i) = min(1.0d0,max(y(i),smallx))
+    double precision :: ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
+    double precision :: ratdum(nrat), dratdumdt(nrat), dratdumdd(nrat)
+    double precision :: scfac(nrat),  dscfacdt(nrat),  dscfacdd(nrat)    
+
+    double precision :: sneut,dsneutdt,dsneutdd,snuda,snudz    
+    double precision :: enuc
+
+    ! positive definite molar fractions
+    do i=1, nspec
+       y(i) = min(1.0d0,max(y(i),smallx/aion(i)))
     enddo
 
 
     ! generate abar and zbar for this composition
-    abar = 1.0d0/sum(y(ionbeg:ionend))
-    zbar = sum(zion(ionbeg:ionend)*y(ionbeg:ionend)) * abar
-    ye    = zbar/abar
+    abar = 1.0d0/sum(y(1:nspec))
+    zbar = sum(zion(1:nspec)*y(1:nspec)) * abar
     
 
     ! get the raw reaction rates
@@ -52,7 +59,9 @@ contains
     
 
     ! get the right hand side of the odes
-    call rhs(y,ratdum,dydt,deriva)
+    call rhs(y,ratdum,dydt,deriva, &
+             ratraw,dratrawdt,dratrawdd, &
+             ratdum, dratdumdt, dratdumdd)
     
 
     ! instantaneous energy generation rate
@@ -64,14 +73,16 @@ contains
                 sneut,dsneutdt,dsneutdd,snuda,snudz)
 
 
-    ! append an energy equation
-    enucdot = enuc - sneut
+    ! append an energy equation (this is erg/g/s)
+    denucdt = enuc - sneut
 
     return
   end subroutine aprox13
 
 
-  subroutine rhs(y,rate,dydt,deriva)
+  subroutine rhs(y,rate,dydt,deriva, &
+                 ratraw,dratrawdt,dratrawdd, &
+                 ratdum,dratdumdt,dratdumdd)
 
     ! evaluates the right hand side of the aprox13 odes
 
@@ -80,8 +91,9 @@ contains
 
     ! declare the pass
     logical          deriva
-    double precision y(1),rate(1),dydt(1)
-
+    double precision y(nspec),rate(nrat),dydt(nspec)
+    double precision ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
+    double precision ratdum(nrat), dratdumdt(nrat), dratdumdd(nrat)
 
     ! local variables
     integer          i
@@ -90,7 +102,7 @@ contains
 
 
     ! zero the abundance odes
-    dydt(ionbeg:ionend) = 0.0d0
+    dydt(:) = 0.0d0
 
 
     ! set up the system of odes:
@@ -460,10 +472,15 @@ contains
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox13 network.
 
+    use tfactors_module
+
+    double precision btemp, bden
+    double precision ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
+
     ! declare
     integer          i
     double precision rrate,drratedt,drratedd
-
+    type (tf_t) :: tf
 
     ! zero the rates
     do i=1,nrat
@@ -648,16 +665,17 @@ contains
     ! and applies them to the raw reaction rates,
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
-    
-    ! this routine assumes screen_on = 1 or = 0 has been set at a higher
-    ! level presumably in the top level driver
-    
 
-    ! declare the pass
-    double precision y(*)
+    ! declare the pass    
+    double precision :: btemp, bden
+    double precision :: y(nspec)
+    double precision :: ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
+    double precision :: ratdum(nrat), dratdumdt(nrat), dratdumdd(nrat)
+    double precision :: scfac(nrat),  dscfacdt(nrat),  dscfacdd(nrat)
+
     
     ! local variables
-    integer          i,jscr,init
+    integer          i,jscr
     double precision sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
          sc3a,sc3adt,sc3add
     
@@ -667,7 +685,10 @@ contains
                      u1,u1dt,u1dd,v1,v1dt,v1dd,w1,w1dt,w1dd, &
                      x1,x1dt,x1dd,y1,y1dt,y1dd,zz
     
-    data             init/1/
+    ! this flag controls whether screen5 caches the Z factors for
+    ! subsequent calls.  For now, we disable it, but later, we should
+    ! figure out a threadsafe way to do it.
+    integer, parameter :: init = 1
 
 
     ! initialize
@@ -687,7 +708,7 @@ contains
     zbarxx  = 0.0d0
     z2barxx = 0.0d0
     ytot1   = 0.0d0
-    do i=ionbeg,ionend
+    do i=1, nspec
        ytot1    = ytot1 + y(i)
        zbarxx   = zbarxx + zion(i) * y(i)
        z2barxx  = z2barxx + zion(i) * zion(i) * y(i)
@@ -1182,7 +1203,7 @@ contains
     
 
     ! reset the screen initialization flag
-    init = 0
+    !init = 0
 
 
 
