@@ -49,7 +49,7 @@ contains
     logical, parameter :: verbose = .false.
 
     ! set the number of independent variables -- this should be
-    ! temperature, enucdot + the number of species which participate
+    ! temperature, enuc + the number of species which participate
     ! in the evolution equations
     ! 
     integer, parameter :: NEQ = 2 + nspec
@@ -155,11 +155,11 @@ contains
     ! steps allowed.
     atol(1:nspec) = 1.e-12_dp_t    ! mass fractions
     atol(itemp) = 1.e-8_dp_t       ! temperature
-    atol(ienucdot) = 1.e-8_dp_t    ! energy generation rate
+    atol(ienuc) = 1.e-8_dp_t       ! energy generated
 
     rtol(1:nspec) = 1.e-12_dp_t    ! mass fractions
     rtol(itemp) = 1.e-5_dp_t       ! temperature
-    rtol(ienucdot) = 1.e-10_dp_t   ! energy generation rate
+    rtol(ienuc) = 1.e-10_dp_t      ! energy generated
 
     ! we want VODE to re-initialize each time we call it
     istate = 1
@@ -176,8 +176,10 @@ contains
     time = ZERO
 
     ! abundances are the first nspec-1 values and temperature is the last
-    y(1:nspec)  = Xin(:)
-    y(NEQ)   = temp
+    y(1:nspec) = Xin(:)
+    y(itemp)   = temp
+    y(ienuc)   = ZERO
+    
 
     ! set the thermodynamics that are passed via rpar to the RHS routine--
     ! these will be updated in f_rhs if the relative temperature change 
@@ -208,7 +210,7 @@ contains
 
     ! call the integration routine
     call dvode(f_rhs, NEQ, y, time, dt, ITOL, rtol, atol, ITASK, &
-         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_ANALYTIC_JAC,&
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
          rpar, ipar)
 
     if (istate < 0) then
@@ -248,7 +250,7 @@ contains
     enddo
 
     ! energy was integrated in the system
-    rho_Hnuc = dens*y(ienucdot)
+    rho_Hnuc = dens*y(ienuc)/dt
 
     if (verbose) then
 

@@ -2,6 +2,11 @@ This is a rewrite of Frank Timmes' aprox13 network.  The aprox13.tbz
 was downloaded from his website on 2013-03-18.  We want to make it 
 (1) threadsafe, (2) use VODE, and (3) work with an SDC methodology.
 
+This version integrates the 13 species equations, a temperature equation
+(to get the temperature for rate evaluations), and an enuc equation
+(to accumulate the amount of energy generated over the step)
+
+
 We mainly need from his package the following:
 
   -- RHS routines
