@@ -1,5 +1,6 @@
 module rhs_module
 
+  use network_indices
   implicit none
 
 contains
