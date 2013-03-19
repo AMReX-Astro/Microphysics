@@ -22,21 +22,45 @@ module network
 
   implicit none
 
+  ! conversion factors for the nuclear energy generation rate detlap
+  ! is the mass excess of the proton in amu detlan is the mass excess
+  ! of the neutron in amu -- these come from the original const.dek
+  ! from the public network
+  real (kind=dp_t), parameter :: avo     = 6.0221417930d23
+  real (kind=dp_t), parameter :: clight  = 2.99792458d10
+  real (kind=dp_t), parameter :: kerg    = 1.380650424d-16
+  real (kind=dp_t), parameter :: ev2erg  = 1.60217648740d-12
+  real (kind=dp_t), parameter :: kev     = kerg/ev2erg
+  real (kind=dp_t), parameter :: amu     = 1.66053878283d-24
+
+  real (kind=dp_t), parameter :: mn      = 1.67492721184d-24
+  real (kind=dp_t), parameter :: mp      = 1.67262163783d-24
+  real (kind=dp_t), parameter :: me      = 9.1093821545d-28
+
+  real (kind=dp_t), parameter :: deltap     = 7.288969d0
+  real (kind=dp_t), parameter :: deltan     = 8.071323d0
+
+  real (kind=dp_t), parameter :: enuc_conv  = ev2erg*1.0d6*avo
+  real (kind=dp_t), parameter :: enuc_conv2 = -avo*clight*clight
+
+  real(kind=dp_t), parameter :: mev2erg = ev2erg*1.0d6
+  real(kind=dp_t), parameter :: mev2gr  = mev2erg/clight**2
+  
   character (len=*), parameter :: network_name = "aprox13"
 
   integer, parameter :: nspec = 13
   integer, parameter :: naux  = 0
-  integer, parameter :: nrat
+  integer, parameter :: nrat = 67
 
   character (len=16), save :: spec_names(nspec) 
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(kind=dp_t), save :: aion(nspec), zion(nspec)
+  real(kind=dp_t), save :: aion(nspec), zion(nspec), nion(nspec)
+  real(kind=dp_t), save :: bion(nspec), mion(nspec), wion(nspec)
 
+  character (len=16), save :: ratnam(nrat)
 
-  real(kind=dp_t), parameter :: mev2erg = ev2erg*1.0d6
-  real(kind=dp_t), parameter :: mev2gr  = mev2erg/clight**2
 
   logical, save :: network_initialized = .false.
 
@@ -45,6 +69,8 @@ contains
   subroutine network_init()
 
     use network_indices
+
+    integer :: i
 
     ! the following comes directly from init_aprox13
 
@@ -62,7 +88,7 @@ contains
     short_spec_names(ife52) = 'fe52'
     short_spec_names(ini56) = 'ni56'
 
-    spec_names(:) = short_spec_name(:)
+    spec_names(:) = short_spec_names(:)
 
     ! set the number of nucleons in the element
     aion(ihe4)  = 4.0d0
@@ -109,23 +135,16 @@ contains
     bion(ife52) = 447.70800d0
     bion(ini56) = 484.00300d0
 
-    ! set the number of neutrons and mass
-    do i=ionbeg,ionend
+    do i=1, nspec
+       ! set the number of neutrons and mass
        nion(i) = aion(i) - zion(i)
-    enddo
 
-    ! mass of each isotope
-    do i = ionbeg,ionend
        mion(i) = nion(i)*mn + zion(i)*(mp+me) - bion(i)*mev2gr
-    enddo
 
-    ! molar mass
-    do i = ionbeg,ionend
+       ! molar mass
        wion(i) = avo * mion(i)
-    enddo
 
-    ! a common approximation
-    do i = ionbeg,ionend
+       ! a common approximation
        wion(i) = aion(i)
     enddo
     
@@ -199,10 +218,10 @@ contains
     ratnam(irx1)   = 'x1   '
     ratnam(iry1)   = 'y1   '
 
-
     network_initialized = .true.
 
   end subroutine network_init
+
 
   function network_species_index(name) result(r)
 
@@ -220,6 +239,49 @@ contains
     enddo
     return
   end function network_species_index
+
+
+  subroutine ener_gener_rate(dydt,enuc)
+
+    ! computes the instantaneous energy generation rate
+
+    ! declare the pass
+    double precision dydt(nspec), enuc
+    
+    ! local variables
+    integer          i
+    
+    ! instantaneous energy generation rate
+
+    ! this form misses n <-> p differences 
+    
+    ! enuc = 0.0d0 
+    ! do i=1,ionmax 
+    !   enuc = enuc + dydt(i) * bion(i) 
+    ! enddo 
+    ! enuc = enuc * enuc_conv
+
+
+    ! this form gets the n <-> p differences 
+    
+    ! enuc = 0.0d0 
+    ! do i=1,ionmax
+    !      enuc = enuc + dydt(i) * (bion(i) - zion(i)*deltap - nion(i)*deltan)
+    ! enddo 
+    ! enuc = enuc * enuc_conv
+    
+    ! this form is closest to e = m c**2 and gives the same results as
+    ! the form above
+    
+    enuc = 0.0d0
+    do i=1,nspec
+       enuc = enuc + dydt(i) * mion(i)
+    enddo
+    enuc = enuc * enuc_conv2
+    
+    return
+  end subroutine ener_gener_rate
+
 
   subroutine network_finalize()
 

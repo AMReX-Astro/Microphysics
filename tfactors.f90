@@ -1,4 +1,4 @@
-module tfractors_module
+module tfactors_module
 
   implicit none
 
@@ -23,7 +23,7 @@ module tfractors_module
 
 
   type tf_t
-     
+     double precision :: temp
      double precision :: t9
      double precision :: t92
      double precision :: t93
@@ -173,5 +173,5 @@ contains
     return
   end function get_tfactors
 
-end module tfractors_module
+end module tfactors_module
 

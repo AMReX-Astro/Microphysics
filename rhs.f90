@@ -58,6 +58,7 @@ contains
     ! instantaneous energy generation rate
     call ener_gener_rate(dydt,enuc)
     
+
     ! get the neutrino losses
     call sneut5(temp,dens,abar,zbar, &
                 sneut,dsneutdt,dsneutdd,snuda,snudz)
@@ -1293,61 +1294,6 @@ contains
     
     return
   end subroutine screen_aprox13
-
-
-
-  subroutine ener_gener_rate(dydt,enuc)
-    include 'implno.dek'
-    include 'const.dek'
-    include 'network.dek'
-
-    ! computes the instantaneous energy generation rate
-
-    ! declare the pass
-    double precision dydt(1),enuc
-    
-    ! local variables
-    integer          i
-    
-    ! conversion factors for the nuclear energy generation rate detlap
-    ! is the mass excess of the proton in amu detlan is the mass excess
-    ! of the neutron in amu
-    
-    double precision enuc_conv,enuc_conv2,deltap,deltan
-    parameter        (enuc_conv  = ev2erg*1.0d6*avo, &
-                      enuc_conv2 = -avo*clight*clight, &
-                      deltap     = 7.288969d0, &
-                      deltan     = 8.071323d0)
-    ! instantaneous energy generation rate
-
-    ! this form misses n <-> p differences 
-    
-    ! enuc = 0.0d0 
-    ! do i=1,ionmax 
-    !   enuc = enuc + dydt(i) * bion(i) 
-    ! enddo 
-    ! enuc = enuc * enuc_conv
-
-
-    ! this form gets the n <-> p differences 
-    
-    ! enuc = 0.0d0 
-    ! do i=1,ionmax
-    !      enuc = enuc + dydt(i) * (bion(i) - zion(i)*deltap - nion(i)*deltan)
-    ! enddo 
-    ! enuc = enuc * enuc_conv
-    
-    ! this form is closest to e = m c**2 and gives the same results as
-    ! the form above
-    
-    enuc = 0.0d0
-    do i=1,ionmax
-       enuc = enuc + dydt(i) * mion(i)
-    enddo
-    enuc = enuc * enuc_conv2
-    
-    return
-  end subroutine ener_gener_rate
 
 end module rhs_module
 

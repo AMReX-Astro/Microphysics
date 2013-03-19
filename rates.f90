@@ -1577,3 +1577,4 @@ contains
     return
   end subroutine rate_co55pg
 
+end module rates_module
