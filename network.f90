@@ -72,8 +72,11 @@ contains
   subroutine network_init()
 
     use network_indices
+    use rpar_indices
 
     integer :: i
+
+    call init_rpar_indices(nrat, nspec)
 
     ! the following comes directly from init_aprox13
 
