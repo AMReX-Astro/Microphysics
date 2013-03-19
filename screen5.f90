@@ -2,6 +2,7 @@
                          z1,a1,z2,a2,jscreen,init, &
                          scor,scordt,scordd)
 
+        use network
         implicit none
 
 ! this subroutine calculates screening factors and their derivatives
@@ -28,7 +29,7 @@
 ! scordd  = derivative of screening correction with density
 
 
-! declare the pass
+! declare the pass        
       integer          jscreen,init
       double precision temp,den,zbar,abar,z2bar,z1,a1,z2,a2, &
                        scor,scordt,scordd
@@ -60,7 +61,7 @@
 
 
       integer          nscreen_max
-      parameter        (nscreen_max = 2*abignet + 40)
+      parameter        (nscreen_max = 2*nrat + 40)
 
       double precision zs13(nscreen_max),zhat(nscreen_max), &
                        zhat2(nscreen_max),lzav(nscreen_max), &

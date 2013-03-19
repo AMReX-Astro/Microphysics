@@ -19,6 +19,7 @@
 module network
 
   use bl_types
+  use bl_constants_module
 
   implicit none
 
@@ -45,7 +46,9 @@ module network
 
   real(kind=dp_t), parameter :: mev2erg = ev2erg*1.0d6
   real(kind=dp_t), parameter :: mev2gr  = mev2erg/clight**2
-  
+
+  real(kind=dp_t), parameter :: pi = M_PI
+
   character (len=*), parameter :: network_name = "aprox13"
 
   integer, parameter :: nspec = 13
