@@ -1,4 +1,5 @@
-! This module contains the triple-alpha reaction network burner.  
+! This module contains the triple-alpha reaction network burner --
+! this specific version is for Castro
 !
 ! Given the initial state of the system and the right-hand-side (f_rhs.f90) of
 ! a linear system of ODEs, this routine calls VODE to get the updated 
@@ -12,7 +13,7 @@
 ! This burner provides an explicit Jacobian matrix to the DVODE solver.
 !
 
-module burner_module
+module castro_burner_module
 
   use bl_types
   use bl_constants_module
@@ -26,23 +27,22 @@ module burner_module
   
 contains
 
-  subroutine burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
+  subroutine burner(dens, temp, Xin, ein, dt, time, Xout, eout)
 
     ! outputs:
     !   Xout are the mass fractions after burning through timestep dt
-    !   rho_omegadot = rho dX/dt
-    !   rho_Hnuc = - sum_k q_k rho_omegadot_k  [erg / cm^3 / s]
+    !   eout has the energy release added
 
     use rpar_indices
     use network_indices
 
     implicit none
 
-    real(kind=dp_t), intent(in   ) :: dens, temp, Xin(nspec), dt
-    real(kind=dp_t), intent(  out) :: Xout(nspec), rho_omegadot(nspec), rho_Hnuc
+    real(kind=dp_t), intent(in   ) :: dens, temp, Xin(nspec), ein, dt, time
+    real(kind=dp_t), intent(  out) :: Xout(nspec), eout
   
     integer :: n
-    real(kind=dp_t) :: enuc, dX
+    real(kind=dp_t) :: enuc, dX, local_time
 
     logical, parameter :: verbose = .false.
 
@@ -77,9 +77,6 @@ contains
     integer, parameter :: ITOL = 4
     real(kind=dp_t), dimension(NEQ) :: atol, rtol
 
-
-    real(kind=dp_t) :: time
-    
 
     ! we want to do a normal computation, and get the output values of y(t)
     ! after stepping though dt
@@ -161,7 +158,7 @@ contains
 
 
     ! initialize the integration time
-    time = ZERO
+    local_time = ZERO
 
     ! abundances are the first nspec-1 values and temperature is the last
     y(1:nspec) = Xin(:)
@@ -192,14 +189,14 @@ contains
 
 
     ! call the integration routine
-    call dvode(f_rhs, NEQ, y, time, dt, ITOL, rtol, atol, ITASK, &
+    call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
          istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
          rpar, ipar)
 
     if (istate < 0) then
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
-       print *, 'time = ', time
+       print *, 'time = ', local_time
        call bl_error("ERROR in burner: integration failed")
     endif
 
@@ -219,21 +216,11 @@ contains
     enddo
     Xout(:) = Xout(:)/sum
 
-    ! compute the energy release.  Our convention is that the binding
-    ! energies are negative, so the energy release is
-    ! - sum_k { (Xout(k) - Xin(k)) ebin(k) }
-    !
-
-    rho_omegadot(:) = ZERO
-    do n = 1, nspec
-       dX = Xout(n) - Xin(n)
-       rho_omegadot(n) = dens * dX / dt
-    enddo
 
     ! energy was integrated in the system -- we use this integrated
     ! energy which contains both the reaction energy release and
     ! neutrino losses
-    rho_Hnuc = dens*y(ienuc)/dt
+    eout = ein + y(ienuc)
 
     if (verbose) then
 
@@ -246,4 +233,4 @@ contains
 
   end subroutine burner
 
-end module burner_module
+end module castro_burner_module

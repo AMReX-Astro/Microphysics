@@ -94,7 +94,20 @@ contains
     short_spec_names(ife52) = 'fe52'
     short_spec_names(ini56) = 'ni56'
 
-    spec_names(:) = short_spec_names(:)
+    spec_names(ihe4)  = "helium-4"
+    spec_names(ic12)  = "carbon-12"
+    spec_names(io16)  = "oxygen-16"
+    spec_names(ine20) = "neon-20"
+    spec_names(img24) = "magnesium-24"
+    spec_names(isi28) = "silicon-28"
+    spec_names(is32)  = "sulfur-32"
+    spec_names(iar36) = "argon-36"
+    spec_names(ica40) = "calcium-40"
+    spec_names(iti44) = "titanium-44"
+    spec_names(icr48) = "chromium-48"
+    spec_names(ife52) = "iron-52"
+    spec_names(ini56) = "nickel-56"
+    
 
     ! set the number of nucleons in the element
     aion(ihe4)  = 4.0d0
