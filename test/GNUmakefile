@@ -24,7 +24,7 @@ BOXLIB_ONLY := t
 EXTRA_TOP_DIR := $(ASTRODEV_DIR)
 EXTRA_DIR = networks/triple_alpha_plus_cago/test
 
-testAll:
+testAll: table
 
 include $(MAESTRO_TOP_DIR)/GMaestro.mak
 
