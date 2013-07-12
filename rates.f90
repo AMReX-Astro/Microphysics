@@ -25,55 +25,55 @@ contains
 
     ! c12(a,g)o16
     aa   = 1.0d0 + 0.0489d0*tf%t9i23
-    daa  = -twoth*0.0489d0*tf%t9i53
+    !daa  = -twoth*0.0489d0*tf%t9i53
 
     bb   = tf%t92*aa*aa
-    dbb  = 2.0d0*(bb*tf%t9i + tf%t92*aa*daa)
+    !dbb  = 2.0d0*(bb*tf%t9i + tf%t92*aa*daa)
 
     cc   = exp(-32.120d0*tf%t9i13 - tf%t92*q1)
-    dcc  = cc * (oneth*32.120d0*tf%t9i43 - 2.0d0*tf%t9*q1)
+    !dcc  = cc * (oneth*32.120d0*tf%t9i43 - 2.0d0*tf%t9*q1)
 
     dd   = 1.0d0 + 0.2654d0*tf%t9i23
-    ddd  = -twoth*0.2654d0*tf%t9i53
+    !ddd  = -twoth*0.2654d0*tf%t9i53
 
     ee   = tf%t92*dd*dd
-    dee  = 2.0d0*(ee*tf%t9i + tf%t92*dd*ddd)
+    !dee  = 2.0d0*(ee*tf%t9i + tf%t92*dd*ddd)
 
     ff   = exp(-32.120d0*tf%t9i13)
-    dff  = ff * oneth*32.120d0*tf%t9i43
+    !dff  = ff * oneth*32.120d0*tf%t9i43
 
     gg   = 1.25d3 * tf%t9i32 * exp(-27.499*tf%t9i)
-    dgg  = gg*(-1.5d0*tf%t9i + 27.499*tf%t9i2)
+    !dgg  = gg*(-1.5d0*tf%t9i + 27.499*tf%t9i2)
 
     hh   = 1.43d-2 * tf%t95 * exp(-15.541*tf%t9i)
-    dhh  = hh*(5.0d0*tf%t9i + 15.541*tf%t9i2)
+    !dhh  = hh*(5.0d0*tf%t9i + 15.541*tf%t9i2)
 
     zz   = 1.0d0/bb
     f1   = cc*zz
-    df1  = (dcc - f1*dbb)*zz
+    !df1  = (dcc - f1*dbb)*zz
       
     zz   = 1.0d0/ee
     f2   = ff*zz
-    df2  = (dff - f2*dee)*zz
+    !df2  = (dff - f2*dee)*zz
       
     term    = 1.04d8*f1  + 1.76d8*f2 + gg + hh
-    dtermdt = 1.04d8*df1 + 1.76d8*df2 + dgg + dhh
+    !dtermdt = 1.04d8*df1 + 1.76d8*df2 + dgg + dhh
 
 
     ! 1.7 times cf88 value
     term     = 1.7d0 * term
-    dtermdt  = 1.7d0 * dtermdt
+    !dtermdt  = 1.7d0 * dtermdt
 
     fr    = term * den
-    dfrdt = dtermdt * den * 1.0d-9
-    dfrdd = term
+    !dfrdt = dtermdt * den * 1.0d-9
+    !dfrdd = term
 
     rev    = 5.13d10 * tf%t932 * exp(-83.111*tf%t9i)
-    drevdt = rev*(1.5d0*tf%t9i + 83.111*tf%t9i2)
+    !drevdt = rev*(1.5d0*tf%t9i + 83.111*tf%t9i2)
 
     rr     = rev * term
-    drrdt  = (drevdt*term + rev*dtermdt) * 1.0d-9
-    drrdd  = 0.0d0
+    !drrdt  = (drevdt*term + rev*dtermdt) * 1.0d-9
+    !drrdd  = 0.0d0
 
     return
   end subroutine rate_c12ag
@@ -97,67 +97,67 @@ contains
     ! triple alfa to c12
     ! this is a(a,g)be8
     aa    = 7.40d+05 * tf%t9i32 * exp(-1.0663*tf%t9i)
-    daa   = aa*(-1.5d0*tf%t9i  + 1.0663*tf%t9i2)
+    !daa   = aa*(-1.5d0*tf%t9i  + 1.0663*tf%t9i2)
     
     bb    = 4.164d+09 * tf%t9i23 * exp(-13.49*tf%t9i13 - tf%t92*q1)
-    dbb   = bb*(-twoth*tf%t9i + oneth*13.49*tf%t9i43 - 2.0d0*tf%t9*q1)
+    !dbb   = bb*(-twoth*tf%t9i + oneth*13.49*tf%t9i43 - 2.0d0*tf%t9*q1)
     
     cc    = 1.0d0 + 0.031*tf%t913 + 8.009*tf%t923 + 1.732*tf%t9 &
          + 49.883*tf%t943 + 27.426*tf%t953
-    dcc   = oneth*0.031*tf%t9i23 + twoth*8.009*tf%t9i13 + 1.732 &
-         + fourth*49.883*tf%t913 + fiveth*27.426*tf%t923
+    !dcc   = oneth*0.031*tf%t9i23 + twoth*8.009*tf%t9i13 + 1.732 &
+    !     + fourth*49.883*tf%t913 + fiveth*27.426*tf%t923
 
     r2abe    = aa + bb * cc
-    dr2abedt = daa + dbb*cc + bb*dcc
+    !dr2abedt = daa + dbb*cc + bb*dcc
 
 
     ! this is be8(a,g)c12
     dd    = 130.0d0 * tf%t9i32 * exp(-3.3364*tf%t9i)
-    ddd   = dd*(-1.5d0*tf%t9i + 3.3364*tf%t9i2)
+    !ddd   = dd*(-1.5d0*tf%t9i + 3.3364*tf%t9i2)
 
     ee    = 2.510d+07 * tf%t9i23 * exp(-23.57*tf%t9i13 - tf%t92*q2)
-    dee   = ee*(-twoth*tf%t9i + oneth*23.57*tf%t9i43 - 2.0d0*tf%t9*q2)
+    !dee   = ee*(-twoth*tf%t9i + oneth*23.57*tf%t9i43 - 2.0d0*tf%t9*q2)
     
     ff    = 1.0d0 + 0.018*tf%t913 + 5.249*tf%t923 + 0.650*tf%t9 + &
          19.176*tf%t943 + 6.034*tf%t953
-    dff   = oneth*0.018*tf%t9i23 + twoth*5.249*tf%t9i13 + 0.650 &
-         + fourth*19.176*tf%t913 + fiveth*6.034*tf%t923
+    !dff   = oneth*0.018*tf%t9i23 + twoth*5.249*tf%t9i13 + 0.650 &
+    !     + fourth*19.176*tf%t913 + fiveth*6.034*tf%t923
 
     rbeac    = dd + ee * ff
-    drbeacdt = ddd + dee * ff + ee * dff
+    !drbeacdt = ddd + dee * ff + ee * dff
 
 
     ! a factor
     xx    = rc28 * 1.35d-07 * tf%t9i32 * exp(-24.811*tf%t9i)
-    dxx   = xx*(-1.5d0*tf%t9i + 24.811*tf%t9i2)
+    !dxx   = xx*(-1.5d0*tf%t9i + 24.811*tf%t9i2)
 
 
     ! high temperature rate
     if (tf%t9.gt.0.08) then
        term    = 2.90d-16 * r2abe * rbeac + xx
-       dtermdt =   2.90d-16 * dr2abedt * rbeac &
-                 + 2.90d-16 * r2abe * drbeacdt &
-                 + dxx
+       !dtermdt =   2.90d-16 * dr2abedt * rbeac &
+       !          + 2.90d-16 * r2abe * drbeacdt &
+       !          + dxx
 
 
     ! low temperature rate
     else
        uu   = 0.8d0*exp(-(0.025*tf%t9i)**3.263)
        yy   = 0.2d0 + uu
-       ! yy   = 0.01 + 0.2d0 + uu
-       dyy  = uu * 3.263*(0.025*tf%t9i)**2.263 * (0.025*tf%t9i2)
+       !fxt yy   = 0.01 + 0.2d0 + uu
+       !dyy  = uu * 3.263*(0.025*tf%t9i)**2.263 * (0.025*tf%t9i2)
        vv   = 4.0d0*exp(-(tf%t9/0.025)**9.227)
        zz   = 1.0d0 + vv
-       dzz  = vv * 9.227*(tf%t9/0.025)**8.227 * 40.0d0
+       !dzz  = vv * 9.227*(tf%t9/0.025)**8.227 * 40.0d0
        aa   = 1.0d0/zz
        f1   = 0.01d0 + yy * aa
-       ! f1   = yy * aa
-       df1  = (dyy - f1*dzz)*aa
+       !fxt f1   = yy * aa
+       !df1  = (dyy - f1*dzz)*aa
        term = 2.90d-16 * r2abe * rbeac * f1 +  xx
-       dtermdt =   2.90d-16 * dr2abedt * rbeac * f1 &
-                 + 2.90d-16 * r2abe * drbeacdt * f1 &
-                 + 2.90d-16 * r2abe * rbeac * df1 &
-                 + dxx
+       !dtermdt =   2.90d-16 * dr2abedt * rbeac * f1 &
+       !          + 2.90d-16 * r2abe * drbeacdt * f1 &
+       !          + 2.90d-16 * r2abe * rbeac * df1 &
+       !          + dxx
     end if
 
 
@@ -166,15 +166,15 @@ contains
     !      dtermdt = 1.2d0 * term
 
     fr    = term * den * den
-    dfrdt = dtermdt * den * den * 1.0d-9
-    dfrdd = 2.0d0 * term * den
+    !dfrdt = dtermdt * den * den * 1.0d-9
+    !dfrdd = 2.0d0 * term * den
 
     rev    = 2.00d+20*tf%t93*exp(-84.424*tf%t9i)
-    drevdt = rev*(3.0d0*tf%t9i + 84.424*tf%t9i2)
+    !drevdt = rev*(3.0d0*tf%t9i + 84.424*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt*term + rev*dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt*term + rev*dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
 
     return
   end subroutine rate_tripalf
@@ -196,28 +196,28 @@ contains
     zz      = 1.0d0/aa
 
     t9a     = tf%t9*zz
-    dt9a    = (1.0d0 -  t9a*0.0396)*zz
+    !dt9a    = (1.0d0 -  t9a*0.0396)*zz
 
     zz      = dt9a/t9a
     t9a13   = t9a**oneth
-    dt9a13  = oneth*t9a13*zz
+    !dt9a13  = oneth*t9a13*zz
     
     t9a56   = t9a**fivsix
-    dt9a56  = fivsix*t9a56*zz
+    !dt9a56  = fivsix*t9a56*zz
 
     term    = 4.27d+26 * t9a56 * tf%t9i32 * &
          exp(-84.165/t9a13 - 2.12d-03*tf%t93)
-    dtermdt = term*(dt9a56/t9a56 - 1.5d0*tf%t9i &
-         + 84.165/t9a13**2*dt9a13 - 6.36d-3*tf%t92)
+    !dtermdt = term*(dt9a56/t9a56 - 1.5d0*tf%t9i &
+    !     + 84.165/t9a13**2*dt9a13 - 6.36d-3*tf%t92)
 
     ! rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rr    = 0.0d0
-    drrdt = 0.0d0
-    drrdd = 0.0d0
+    !drrdt = 0.0d0
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_c12c12
@@ -240,47 +240,47 @@ contains
        zz     = 1.0d0/aa
 
        t9a    = tf%t9*zz
-       dt9a   = (1.0d0 - t9a*0.055)*zz
+       !dt9a   = (1.0d0 - t9a*0.055)*zz
 
        zz     = dt9a/t9a
        t9a13  = t9a**oneth
-       dt9a13 = oneth*t9a13*zz
+       !dt9a13 = oneth*t9a13*zz
 
        t9a23  = t9a13*t9a13
-       dt9a23 = 2.0d0 * t9a13 * dt9a13
+       !dt9a23 = 2.0d0 * t9a13 * dt9a13
 
        t9a56  = t9a**fivsix
-       dt9a56 = fivsix*t9a56*zz
+       !dt9a56 = fivsix*t9a56*zz
 
        aa      = exp(-0.18*t9a*t9a)
-       daa     = -aa * 0.36 * t9a * dt9a
+       !daa     = -aa * 0.36 * t9a * dt9a
 
        bb      = 1.06d-03*exp(2.562*t9a23)
-       dbb     = bb * 2.562 * dt9a23
+       !dbb     = bb * 2.562 * dt9a23
 
        cc      = aa + bb
-       dcc     = daa + dbb
+       !dcc     = daa + dbb
 
        zz      = 1.0d0/cc
        term    = 1.72d+31 * t9a56 * tf%t9i32 * exp(-106.594/t9a13) * zz
-       dtermdt = term*(dt9a56/t9a56 - 1.5d0*tf%t9i &
-                       + 106.594/t9a23*dt9a13 - zz*dcc)
+       !dtermdt = term*(dt9a56/t9a56 - 1.5d0*tf%t9i &
+       !                + 106.594/t9a23*dt9a13 - zz*dcc)
 
     else
        ! term    = 2.6288035d-29
        term    = 0.0d0
-       dtermdt = 0.0d0
+       !dtermdt = 0.0d0
     endif
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
 
     rr    = 0.0d0
-    drrdt = 0.0d0
-    drrdd = 0.0d0
+    !drrdt = 0.0d0
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_c12o16
@@ -301,19 +301,19 @@ contains
          exp(-135.93 * tf%t9i13 - 0.629*tf%t923 &
          - 0.445*tf%t943 + 0.0103*tf%t9*tf%t9)
 
-    dtermdt = -twoth*term*tf%t9i &
-         + term * (oneth*135.93*tf%t9i43 - twoth*0.629*tf%t9i13 &
-         - fourth*0.445*tf%t913 + 0.0206*tf%t9)
+    !dtermdt = -twoth*term*tf%t9i &
+    !     + term * (oneth*135.93*tf%t9i43 - twoth*0.629*tf%t9i13 &
+    !     - fourth*0.445*tf%t913 + 0.0206*tf%t9)
 
 
     ! rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
 
     rr    = 0.0d0
-    drrdt = 0.0d0
-    drrdd = 0.0d0
+    !drrdt = 0.0d0
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_o16o16
@@ -333,35 +333,35 @@ contains
 
     ! o16(a,g)ne20
     term1   = 9.37d9 * tf%t9i23 * exp(-39.757*tf%t9i13 - tf%t92*q1)
-    dterm1  = term1*(-twoth*tf%t9i + oneth*39.757*tf%t9i43 - 2.0d0*tf%t9*q1)
+    !dterm1  = term1*(-twoth*tf%t9i + oneth*39.757*tf%t9i43 - 2.0d0*tf%t9*q1)
 
     aa      = 62.1 * tf%t9i32 * exp(-10.297*tf%t9i)
-    daa     = aa*(-1.5d0*tf%t9i + 10.297*tf%t9i2)
+    !daa     = aa*(-1.5d0*tf%t9i + 10.297*tf%t9i2)
     
     bb      = 538.0d0 * tf%t9i32 * exp(-12.226*tf%t9i)
-    dbb     = bb*(-1.5d0*tf%t9i + 12.226*tf%t9i2)
+    !dbb     = bb*(-1.5d0*tf%t9i + 12.226*tf%t9i2)
 
     cc      = 13.0d0 * tf%t92 * exp(-20.093*tf%t9i)
-    dcc     = cc*(2.0d0*tf%t9i + 20.093*tf%t9i2)
+    !dcc     = cc*(2.0d0*tf%t9i + 20.093*tf%t9i2)
 
     term2   = aa + bb + cc
-    dterm2  = daa + dbb + dcc
+    !dterm2  = daa + dbb + dcc
 
     term    = term1 + term2
-    dtermdt = dterm1 + dterm2
+    !dtermdt = dterm1 + dterm2
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
 
     rev      = 5.65d+10*tf%t932*exp(-54.937*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 54.937*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 54.937*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
 
     return
   end subroutine rate_o16ag
@@ -382,59 +382,59 @@ contains
 
     ! ne20(a,g)mg24
     aa   = 4.11d+11 * tf%t9i23 * exp(-46.766*tf%t9i13 - tf%t92*q1)
-    daa  = aa*(-twoth*tf%t9i + oneth*46.766*tf%t9i43 - 2.0d0*tf%t9*q1)
+    !daa  = aa*(-twoth*tf%t9i + oneth*46.766*tf%t9i43 - 2.0d0*tf%t9*q1)
 
     bb   = 1.0d0 + 0.009*tf%t913 + 0.882*tf%t923 + 0.055*tf%t9 &
          + 0.749*tf%t943 + 0.119*tf%t953
-    dbb  = oneth*0.009*tf%t9i23 + twoth*0.882*tf%t9i13 + 0.055 &
-         + fourth*0.749*tf%t913 + fiveth*0.119*tf%t923
+    !dbb  = oneth*0.009*tf%t9i23 + twoth*0.882*tf%t9i13 + 0.055 &
+    !     + fourth*0.749*tf%t913 + fiveth*0.119*tf%t923
     
     term1  = aa * bb
-    dterm1 = daa * bb + aa * dbb
+    !dterm1 = daa * bb + aa * dbb
 
     
     aa   = 5.27d+03 * tf%t9i32 * exp(-15.869*tf%t9i)
-    daa  = aa*(-1.5d0*tf%t9i + 15.869*tf%t9i2)
+    !daa  = aa*(-1.5d0*tf%t9i + 15.869*tf%t9i2)
     
     bb   = 6.51d+03 * tf%t912 * exp(-16.223*tf%t9i)
-    dbb  = bb*(0.5d0*tf%t9i + 16.223*tf%t9i2)
+    !dbb  = bb*(0.5d0*tf%t9i + 16.223*tf%t9i2)
 
     term2  = aa + bb
-    dterm2 = daa + dbb
+    !dterm2 = daa + dbb
 
 
     aa   = 42.1 * tf%t9i32 * exp(-9.115*tf%t9i)
-    daa  = aa*(-1.5d0*tf%t9i + 9.115*tf%t9i2)
+    !daa  = aa*(-1.5d0*tf%t9i + 9.115*tf%t9i2)
     
     bb   =  32.0 * tf%t9i23 * exp(-9.383*tf%t9i)
-    dbb  = bb*(-twoth*tf%t9i + 9.383*tf%t9i2)
+    !dbb  = bb*(-twoth*tf%t9i + 9.383*tf%t9i2)
 
     term3  = rc102 * (aa + bb)
-    dterm3 = rc102 * (daa + dbb)
+    !dterm3 = rc102 * (daa + dbb)
 
 
     aa  = 5.0d0*exp(-18.960*tf%t9i)
-    daa = aa*18.960*tf%t9i2
+    !daa = aa*18.960*tf%t9i2
 
     bb  = 1.0d0 + aa
-    dbb = daa
+    !dbb = daa
 
     zz      = 1.0d0/bb
     term    = (term1 + term2 + term3)*zz
-    dtermdt = ((dterm1 + dterm2 + dterm3) - term*dbb)*zz
+    !dtermdt = ((dterm1 + dterm2 + dterm3) - term*dbb)*zz
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.01d+10 * tf%t932 * exp(-108.059*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 108.059*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 108.059*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
 
     return
   end subroutine rate_ne20ag
@@ -454,44 +454,44 @@ contains
 
     ! 24mg(a,g)28si
     aa    = 4.78d+01 * tf%t9i32 * exp(-13.506*tf%t9i)
-    daa   = aa*(-1.5d0*tf%t9i + 13.506*tf%t9i2)
+    !daa   = aa*(-1.5d0*tf%t9i + 13.506*tf%t9i2)
 
     bb    =  2.38d+03 * tf%t9i32 * exp(-15.218*tf%t9i)
-    dbb   = bb*(-1.5d0*tf%t9i + 15.218*tf%t9i2)
+    !dbb   = bb*(-1.5d0*tf%t9i + 15.218*tf%t9i2)
 
     cc    = 2.47d+02 * tf%t932 * exp(-15.147*tf%t9i)
-    dcc   = cc*(1.5d0*tf%t9i + 15.147*tf%t9i2)
+    !dcc   = cc*(1.5d0*tf%t9i + 15.147*tf%t9i2)
 
     dd    = rc121 * 1.72d-09 * tf%t9i32 * exp(-5.028*tf%t9i)
-    ddd   = dd*(-1.5d0*tf%t9i + 5.028*tf%t9i2)
+    !ddd   = dd*(-1.5d0*tf%t9i + 5.028*tf%t9i2)
 
     ee    = rc121* 1.25d-03 * tf%t9i32 * exp(-7.929*tf%t9i)
-    dee   = ee*(-1.5d0*tf%t9i + 7.929*tf%t9i2)
+    !dee   = ee*(-1.5d0*tf%t9i + 7.929*tf%t9i2)
 
     ff    = rc121 * 2.43d+01 * tf%t9i * exp(-11.523*tf%t9i)
-    dff   = ff*(-tf%t9i + 11.523*tf%t9i2)
+    !dff   = ff*(-tf%t9i + 11.523*tf%t9i2)
 
     gg    = 5.0d0*exp(-15.882*tf%t9i)
-    dgg   = gg*15.882*tf%t9i2
+    !dgg   = gg*15.882*tf%t9i2
 
     hh    = 1.0d0 + gg
     hhi   = 1.0d0/hh
 
     term    = (aa + bb + cc + dd + ee + ff) * hhi
-    dtermdt = (daa + dbb + dcc + ddd + dee + dff - term*dgg) * hhi
+    !dtermdt = (daa + dbb + dcc + ddd + dee + dff - term*dgg) * hhi
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.27d+10 * tf%t932 * exp(-115.862*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 115.862*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 115.862*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_mg24ag
@@ -513,55 +513,55 @@ contains
 
     ! 24mg(a,p)al27
     aa     = 1.10d+08 * tf%t9i23 * exp(-23.261*tf%t9i13 - tf%t92*q1)
-    daa    = -twoth*aa*tf%t9i + aa*(23.261*tf%t9i43 - 2.0d0*tf%t9*q1)
+    !daa    = -twoth*aa*tf%t9i + aa*(23.261*tf%t9i43 - 2.0d0*tf%t9*q1)
 
     bb     =  1.0d0 + 0.018*tf%t913 + 12.85*tf%t923 + 1.61*tf%t9 &
          + 89.87*tf%t943 + 28.66*tf%t953
-    dbb    = oneth*0.018*tf%t9i23 + twoth*12.85*tf%t9i13 + 1.61 &
-           + fourth*89.87*tf%t913 + fiveth*28.66*tf%t923
+    !dbb    = oneth*0.018*tf%t9i23 + twoth*12.85*tf%t9i13 + 1.61 &
+    !       + fourth*89.87*tf%t913 + fiveth*28.66*tf%t923
     
     term1  = aa * bb
-    dterm1 = daa * bb + aa * dbb
+    !dterm1 = daa * bb + aa * dbb
 
     aa     = 129.0d0 * tf%t9i32 * exp(-2.517*tf%t9i)
-    daa    = -1.5d0*aa*tf%t9i + aa*2.517*tf%t9i2
+    !daa    = -1.5d0*aa*tf%t9i + aa*2.517*tf%t9i2
     
     bb     = 5660.0d0 * tf%t972 * exp(-3.421*tf%t9i)
-    dbb    = 3.5d0*bb*tf%t9i +  bb*3.421*tf%t9i2
+    !dbb    = 3.5d0*bb*tf%t9i +  bb*3.421*tf%t9i2
     
     cc     = rc148 * 3.89d-08 * tf%t9i32 * exp(-0.853*tf%t9i)
-    dcc    = -1.5d0*cc*tf%t9i + cc*0.853*tf%t9i2
+    !dcc    = -1.5d0*cc*tf%t9i + cc*0.853*tf%t9i2
     
     dd     = rc148 * 8.18d-09 * tf%t9i32 * exp(-1.001*tf%t9i)
-    ddd    = -1.5d0*dd*tf%t9i + dd*1.001*tf%t9i2
+    !ddd    = -1.5d0*dd*tf%t9i + dd*1.001*tf%t9i2
     
     term2  = aa + bb + cc + dd
-    dterm2 = daa + dbb + dcc + ddd
+    !dterm2 = daa + dbb + dcc + ddd
 
     ee     = oneth*exp(-9.792*tf%t9i)
-    dee    = ee*9.792*tf%t9i2
+    !dee    = ee*9.792*tf%t9i2
 
     ff     =  twoth * exp(-11.773*tf%t9i)
-    dff    = ff*11.773*tf%t9i2
+    !dff    = ff*11.773*tf%t9i2
 
     gg     = 1.0d0 + ee + ff
-    dgg    = dee + dff
+    !dgg    = dee + dff
 
     term    = (term1 + term2)/gg
-    dtermdt = ((dterm1 + dterm2) - term*dgg)/gg
+    !dtermdt = ((dterm1 + dterm2) - term*dgg)/gg
 
 
     ! the rates
     rev      = 1.81 * exp(-18.572*tf%t9i)
-    drevdt   = rev*18.572*tf%t9i2
+    !drevdt   = rev*18.572*tf%t9i2
 
     fr    = den * rev * term
-    dfrdt = den * (drevdt * term + rev * dtermdt) * 1.0d-9
-    dfrdd = rev * term
+    !dfrdt = den * (drevdt * term + rev * dtermdt) * 1.0d-9
+    !dfrdd = rev * term
     
     rr    = den * term
-    drrdt = den * dtermdt * 1.0d-9
-    drrdd = term
+    !drrdt = den * dtermdt * 1.0d-9
+    !drrdd = term
     
     return
   end subroutine rate_mg24ap
@@ -582,41 +582,41 @@ contains
     ! champagne 1996
 
     aa  = 1.32d+09 * tf%t9i23 * exp(-23.26*tf%t9i13)
-    daa = aa*(-twoth*tf%t9i + oneth*23.26*tf%t9i43)
+    !daa = aa*(-twoth*tf%t9i + oneth*23.26*tf%t9i43)
 
     bb  = 3.22d-10 * tf%t9i32 * exp(-0.836*tf%t9i)*0.17
-    dbb = bb*(-1.5d0*tf%t9i + 0.836*tf%t9i2)
+    !dbb = bb*(-1.5d0*tf%t9i + 0.836*tf%t9i2)
 
     cc  = 1.74d+00 * tf%t9i32 * exp(-2.269*tf%t9i)
-    dcc = cc*(-1.5d0*tf%t9i + 2.269*tf%t9i2)
+    !dcc = cc*(-1.5d0*tf%t9i + 2.269*tf%t9i2)
 
     dd  = 9.92d+00 * tf%t9i32 * exp(-2.492*tf%t9i)
-    ddd = dd*(-1.5d0*tf%t9i + 2.492*tf%t9i2)
+    !ddd = dd*(-1.5d0*tf%t9i + 2.492*tf%t9i2)
 
     ee  = 4.29d+01 * tf%t9i32 * exp(-3.273*tf%t9i)
-    dee = ee*(-1.5d0*tf%t9i + 3.273*tf%t9i2)
+    !dee = ee*(-1.5d0*tf%t9i + 3.273*tf%t9i2)
 
     ff  = 1.34d+02 * tf%t9i32 * exp(-3.654*tf%t9i)
-    dff = ff*(-1.5d0*tf%t9i + 3.654*tf%t9i2)
+    !dff = ff*(-1.5d0*tf%t9i + 3.654*tf%t9i2)
 
     gg  = 1.77d+04 * (tf%t9**0.53) * exp(-4.588*tf%t9i)
-    dgg = gg*(0.53*tf%t9i + 4.588*tf%t9i2)
+    !dgg = gg*(0.53*tf%t9i + 4.588*tf%t9i2)
 
     term    = aa + bb + cc + dd + ee + ff + gg
-    dtermdt = daa + dbb + dcc + ddd + dee + dff + dgg
+    !dtermdt = daa + dbb + dcc + ddd + dee + dff + dgg
 
 
     ! rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 1.13d+11 * tf%t932 * exp(-134.434*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 134.434*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 134.434*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt*term + rev*dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt*term + rev*dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_al27pg
@@ -637,56 +637,56 @@ contains
 
     ! 27al(p,g)si28  cf88
     aa  = 1.67d+08 * tf%t9i23 * exp(-23.261*tf%t9i13 - tf%t92*q1)
-    daa = aa*(-twoth*tf%t9i + oneth*23.261*tf%t9i43 - 2.0d0*tf%t9*q1)
+    !daa = aa*(-twoth*tf%t9i + oneth*23.261*tf%t9i43 - 2.0d0*tf%t9*q1)
 
     bb  = 1.0d0 + 0.018*tf%t913 + 5.81*tf%t923 + 0.728*tf%t9 &
          + 27.31*tf%t943 + 8.71*tf%t953
-    dbb = oneth*0.018*tf%t9i23 + twoth*5.81*tf%t9i13 + 0.728 &
-         + fourth*27.31*tf%t913 + fiveth*8.71*tf%t923
+    !dbb = oneth*0.018*tf%t9i23 + twoth*5.81*tf%t9i13 + 0.728 &
+    !     + fourth*27.31*tf%t913 + fiveth*8.71*tf%t923
     
     cc  = aa*bb
-    dcc = daa*bb + aa*dbb
+    !dcc = daa*bb + aa*dbb
 
     dd  = 2.20d+00 * tf%t9i32 * exp(-2.269*tf%t9i)
-    ddd = dd*(-1.5d0*tf%t9i + 2.269*tf%t9i2)
+    !ddd = dd*(-1.5d0*tf%t9i + 2.269*tf%t9i2)
 
     ee  = 1.22d+01 * tf%t9i32 * exp(-2.491*tf%t9i)
-    dee = ee*(-1.5d0*tf%t9i + 2.491*tf%t9i2)
+    !dee = ee*(-1.5d0*tf%t9i + 2.491*tf%t9i2)
 
     ff  =  1.50d+04 * tf%t9 * exp(-4.112*tf%t9i)
-    dff = ff*(tf%t9i + 4.112*tf%t9i2)
+    !dff = ff*(tf%t9i + 4.112*tf%t9i2)
 
     gg  = rc147 * 6.50d-10 * tf%t9i32 * exp(-0.853*tf%t9i)
-    dgg = gg*(-1.5d0*tf%t9i + 0.853*tf%t9i2)
+    !dgg = gg*(-1.5d0*tf%t9i + 0.853*tf%t9i2)
 
     hh  = rc147 * 1.63d-10 * tf%t9i32 * exp(-1.001*tf%t9i)
-    dhh = hh*(-1.5d0*tf%t9i + 1.001*tf%t9i2)
+    !dhh = hh*(-1.5d0*tf%t9i + 1.001*tf%t9i2)
 
     xx     = oneth*exp(-9.792*tf%t9i)
-    dxx    = xx*9.792*tf%t9i2
+    !dxx    = xx*9.792*tf%t9i2
 
     yy     =  twoth * exp(-11.773*tf%t9i)
-    dyy    = yy*11.773*tf%t9i2
+    !dyy    = yy*11.773*tf%t9i2
 
     zz     = 1.0d0 + xx + yy
-    dzz    = dxx + dyy
+    !dzz    = dxx + dyy
 
     pp      = 1.0d0/zz
     term    = (cc + dd + ee + ff + gg + hh)*pp
-    dtermdt = ((dcc + ddd + dee + dff + dgg + dhh) - term*dzz)*pp
+    !dtermdt = ((dcc + ddd + dee + dff + dgg + dhh) - term*dzz)*pp
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
 
     rev      = 1.13d+11*tf%t932*exp(-134.434*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 134.434*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 134.434*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
 
     return
   end subroutine rate_al27pg_old
@@ -707,26 +707,26 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 6.340d-2*z + 2.541d-3*z2 - 2.900d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0
-    else
-       daa   = 6.340d-2 + 2.0d0*2.541d-3*tf%t9 - 3.0d0*2.900d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0
+    !else
+    !   daa   = 6.340d-2 + 2.0d0*2.541d-3*tf%t9 - 3.0d0*2.900d-4*tf%t92
+    !end if
     
     term    = 4.82d+22 * tf%t9i23 * exp(-61.015 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 61.015*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 61.015*tf%t9i13*(oneth*tf%t9i*aa - daa))
       
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.461d+10 * tf%t932 * exp(-80.643*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 80.643*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 80.643*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
 
     return
   end subroutine rate_si28ag
@@ -747,27 +747,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 2.798d-3*z + 2.763d-3*z2 - 2.341d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 2.798d-3 + 2.0d0*2.763d-3*tf%t9 - 3.0d0*2.341d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 2.798d-3 + 2.0d0*2.763d-3*tf%t9 - 3.0d0*2.341d-4*tf%t92
+    !end if
     
     term    = 4.16d+13 * tf%t9i23 * exp(-25.631 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*25.631*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*25.631*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
     ! the rates
     rev      = 0.5825d0 * exp(-22.224*tf%t9i)
-    drevdt   = rev*22.224*tf%t9i2
+    !drevdt   = rev*22.224*tf%t9i2
     
     fr    = den * rev * term
-    dfrdt = den * (drevdt * term + rev * dtermdt) * 1.0d-9
-    dfrdd = rev * term
+    !dfrdt = den * (drevdt * term + rev * dtermdt) * 1.0d-9
+    !dfrdd = rev * term
     
     rr    = den * term
-    drrdt = den * dtermdt * 1.0d-9
-    drrdd = term
+    !drrdt = den * dtermdt * 1.0d-9
+    !drrdd = term
     
     return
   end subroutine rate_si28ap
@@ -788,27 +788,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.928d-1*z - 1.540d-2*z2 + 6.444d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.928d-1 - 2.0d0*1.540d-2*tf%t9 + 3.0d0*6.444d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.928d-1 - 2.0d0*1.540d-2*tf%t9 + 3.0d0*6.444d-4*tf%t92
+    !end if
     
     term    = 1.08d+16 * tf%t9i23 * exp(-27.042 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 27.042*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 27.042*tf%t9i13*(oneth*tf%t9i*aa - daa))
     
     
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 3.764d+10 * tf%t932 * exp(-102.865*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 102.865*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 102.865*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_p31pg
@@ -829,27 +829,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 4.913d-2*z + 4.637d-3*z2 - 4.067d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 4.913d-2 + 2.0d0*4.637d-3*tf%t9 - 3.0d0*4.067d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 4.913d-2 + 2.0d0*4.637d-3*tf%t9 - 3.0d0*4.067d-4*tf%t92
+    !end if
     
     term    = 1.16d+24 * tf%t9i23 * exp(-66.690 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 66.690*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 66.690*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.616d+10 * tf%t932 * exp(-77.080*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 77.080*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 77.080*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_s32ag
@@ -870,27 +870,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.041d-1*z - 1.368d-2*z2 + 6.969d-4*z3
-    if (z .eq. 10) then
-       daa = 0.0d0
-    else
-       daa   = 1.041d-1 - 2.0d0*1.368d-2*tf%t9 + 3.0d0*6.969d-4*tf%t92
-    end if
+    !if (z .eq. 10) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.041d-1 - 2.0d0*1.368d-2*tf%t9 + 3.0d0*6.969d-4*tf%t92
+    !end if
     
     term    = 1.27d+16 * tf%t9i23 * exp(-31.044 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*31.044*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*31.044*tf%t9i13*(oneth*tf%t9i*aa - daa)
     
 
     ! the rates
     rev      = 1.144 * exp(-21.643*tf%t9i)
-    drevdt   = rev*21.643*tf%t9i2
+    !drevdt   = rev*21.643*tf%t9i2
     
     fr    = den * rev * term
-    dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
-    dfrdd = rev * term
+    !dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
+    !dfrdd = rev * term
     
     rr    = den * term
-    drrdt = den * dtermdt * 1.0d-9
-    drrdd = term
+    !drrdt = den * dtermdt * 1.0d-9
+    !drrdd = term
     
     return
   end subroutine rate_s32ap
@@ -908,24 +908,24 @@ contains
 
     ! cl35(p,g)ar36
     aa    = 1.0d0 + 1.761d-1*tf%t9 - 1.322d-2*tf%t92 + 5.245d-4*tf%t93
-    daa   = 1.761d-1 - 2.0d0*1.322d-2*tf%t9 + 3.0d0*5.245d-4*tf%t92
+    !daa   = 1.761d-1 - 2.0d0*1.322d-2*tf%t9 + 3.0d0*5.245d-4*tf%t92
       
 
     term    =  4.48d+16 * tf%t9i23 * exp(-29.483 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 29.483*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 29.483*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 7.568d+10*tf%t932*exp(-98.722*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 98.722*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 98.722*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_cl35pg
@@ -946,27 +946,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.458d-1*z - 1.069d-2*z2 + 3.790d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.458d-1 - 2.0d0*1.069d-2*tf%t9 + 3.0d0*3.790d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.458d-1 - 2.0d0*1.069d-2*tf%t9 + 3.0d0*3.790d-4*tf%t92
+    !end if
     
     term    = 2.81d+30 * tf%t9i23 * exp(-78.271 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 78.271*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 78.271*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.740d+10 * tf%t932 * exp(-81.711*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 81.711*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 81.711*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_ar36ag
@@ -987,27 +987,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 4.826d-3*z - 5.534d-3*z2 + 4.021d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 4.826d-3 - 2.0d0*5.534d-3*tf%t9 + 3.0d0*4.021d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 4.826d-3 - 2.0d0*5.534d-3*tf%t9 + 3.0d0*4.021d-4*tf%t92
+    !end if
     
     term    = 2.76d+13 * tf%t9i23 * exp(-34.922 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*34.922*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*34.922*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
     ! the rates
     rev      = 1.128*exp(-14.959*tf%t9i)
-    drevdt   = rev*14.959*tf%t9i2
+    !drevdt   = rev*14.959*tf%t9i2
     
     fr    = den * rev * term
-    dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
-    dfrdd = rev * term
+    !dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
+    !dfrdd = rev * term
     
     rr    = den * term
-    drrdt = den * dtermdt * 1.0d-9
-    drrdd = term
+    !drrdt = den * dtermdt * 1.0d-9
+    !drrdd = term
     
     return
   end subroutine rate_ar36ap
@@ -1028,27 +1028,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.622d-1*z - 1.119d-2*z2 + 3.910d-4*z3
-    if (z .eq. 10) then
-       daa = 0.0d0
-    else
-       daa   = 1.622d-1 - 2.0d0*1.119d-2*tf%t9 + 3.0d0*3.910d-4*tf%t92
-    end if
+    !if (z .eq. 10) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.622d-1 - 2.0d0*1.119d-2*tf%t9 + 3.0d0*3.910d-4*tf%t92
+    !end if
     
     term    = 4.09d+16 * tf%t9i23 * exp(-31.727 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 31.727*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 31.727*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 7.600d+10 * tf%t932 * exp(-96.657*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 96.657*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 96.657*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_k39pg
@@ -1069,27 +1069,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.650d-2*z + 5.973d-3*z2 - 3.889d-04*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.650d-2 + 2.0d0*5.973d-3*tf%t9 - 3.0d0*3.889d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.650d-2 + 2.0d0*5.973d-3*tf%t9 - 3.0d0*3.889d-4*tf%t92
+    !end if
     
     term    = 4.66d+24 * tf%t9i23 * exp(-76.435 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 76.435*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 76.435*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.843d+10 * tf%t932 * exp(-59.510*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 59.510*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 59.510*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_ca40ag
@@ -1110,27 +1110,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 - 1.206d-2*z + 7.753d-3*z2 - 5.071d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = -1.206d-2 + 2.0d0*7.753d-3*tf%t9 - 3.0d0*5.071d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = -1.206d-2 + 2.0d0*7.753d-3*tf%t9 - 3.0d0*5.071d-4*tf%t92
+    !end if
     
     term    = 4.54d+14 * tf%t9i23 * exp(-32.177 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*32.177*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*32.177*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
     ! the rates
     rev      = 2.229 * exp(-40.966*tf%t9i)
-    drevdt   = rev*40.966*tf%t9i2
+    !drevdt   = rev*40.966*tf%t9i2
     
     fr    = den * rev * term
-    dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
-    dfrdd = rev * term
+    !dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
+    !dfrdd = rev * term
     
     rr    = den * term
-    drrdt = den * dtermdt * 1.0d-9
-    drrdd = term
+    !drrdt = den * dtermdt * 1.0d-9
+    !drrdd = term
     
     return
   end subroutine rate_ca40ap
@@ -1151,27 +1151,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.023d-1*z - 2.242d-3*z2 - 5.463d-5*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.023d-1 - 2.0d0*2.242d-3*tf%t9 - 3.0d0*5.463d-5*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.023d-1 - 2.0d0*2.242d-3*tf%t9 - 3.0d0*5.463d-5*tf%t92
+    !end if
     
     term    = 3.85d+16 * tf%t9i23 * exp(-33.234 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 33.234*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 33.234*tf%t9i13*(oneth*tf%t9i*aa - daa))
     
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 1.525d+11 * tf%t932 * exp(-100.475*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 100.475*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 100.475*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_sc43pg
@@ -1192,27 +1192,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.066d-1*z - 1.102d-2*z2 + 5.324d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.066d-1 - 2.0d0*1.102d-2*tf%t9 + 3.0d0*5.324d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.066d-1 - 2.0d0*1.102d-2*tf%t9 + 3.0d0*5.324d-4*tf%t92
+    !end if
     
     term    = 1.37d+26 * tf%t9i23 * exp(-81.227 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 81.227*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 81.227*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 6.928d+10*tf%t932*exp(-89.289*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 89.289*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 89.289*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_ti44ag
@@ -1237,27 +1237,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 2.655d-2*z - 3.947d-3*z2 + 2.522d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 2.655d-2 - 2.0d0*3.947d-3*tf%t9 + 3.0d0*2.522d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 2.655d-2 - 2.0d0*3.947d-3*tf%t9 + 3.0d0*2.522d-4*tf%t92
+    !end if
     
     term    = 6.54d+20 * tf%t9i23 * exp(-66.678 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*66.678*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*66.678*tf%t9i13*(oneth*tf%t9i*aa - daa)
     
     
     ! the rates
     rev      = 1.104 * exp(-4.723*tf%t9i)
-    drevdt   = rev*4.723*tf%t9i2
+    !drevdt   = rev*4.723*tf%t9i2
     
     fr    = den * rev * term
-    dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
-    dfrdd = rev * term
+    !dfrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
+    !dfrdd = rev * term
     
     rr    = den * term
-    drrdt = den * dtermdt * 1.0d-9
-    drrdd = term
+    !drrdt = den * dtermdt * 1.0d-9
+    !drrdd = term
     
     return
   end subroutine rate_ti44ap
@@ -1282,27 +1282,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 9.979d-2*z - 2.269d-3*z2 - 6.662d-5*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 9.979d-2 - 2.0d0*2.269d-3*tf%t9 - 3.0d0*6.662d-5*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 9.979d-2 - 2.0d0*2.269d-3*tf%t9 - 3.0d0*6.662d-5*tf%t92
+    !end if
     
     term    = 2.05d+17 * tf%t9i23 * exp(-35.568 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 35.568*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 35.568*tf%t9i13*(oneth*tf%t9i*aa - daa))
     
     
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 7.649d+10*tf%t932*exp(-93.999*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 93.999*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 93.999*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_v47pg
@@ -1327,27 +1327,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 6.325d-2*z - 5.671d-3*z2 + 2.848d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 6.325d-2 - 2.0d0*5.671d-3*tf%t9 + 3.0d0*2.848d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 6.325d-2 - 2.0d0*5.671d-3*tf%t9 + 3.0d0*2.848d-4*tf%t92
+    !end if
     
     term    = 1.04d+23 * tf%t9i23 * exp(-81.420 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 81.420*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 81.420*tf%t9i13*(oneth*tf%t9i*aa - daa))
     
     
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 7.001d+10 * tf%t932 * exp(-92.177*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 92.177*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 92.177*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_cr48ag
@@ -1372,27 +1372,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.384d-2*z + 1.081d-3*z2 - 5.933d-5*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.384d-2 + 2.0d0*1.081d-3*tf%t9 - 3.0d0*5.933d-5*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.384d-2 + 2.0d0*1.081d-3*tf%t9 - 3.0d0*5.933d-5*tf%t92
+    !end if
     
     term    = 1.83d+26 * tf%t9i23 * exp(-86.741 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*86.741*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*86.741*tf%t9i13*(oneth*tf%t9i*aa - daa)
     
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 0.6087*exp(-6.510*tf%t9i)
-    drevdt   = rev*6.510*tf%t9i2
+    !drevdt   = rev*6.510*tf%t9i2
     
     rr    = den * rev * term
-    drrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
-    drrdd = rev * term
+    !drrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
+    !drrdd = rev * term
     
     return
   end subroutine rate_cr48ap
@@ -1417,27 +1417,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 8.922d-2*z - 1.256d-3*z2 - 9.453d-5*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 8.922d-2 - 2.0d0*1.256d-3*tf%t9 - 3.0d0*9.453d-5*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 8.922d-2 - 2.0d0*1.256d-3*tf%t9 - 3.0d0*9.453d-5*tf%t92
+    !end if
     
     term    = 3.77d+17 * tf%t9i23 * exp(-37.516 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 37.516*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 37.516*tf%t9i13*(oneth*tf%t9i*aa - daa))
     
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 1.150d+11*tf%t932*exp(-85.667*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 85.667*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 85.667*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_mn51pg
@@ -1462,27 +1462,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 7.846d-2*z - 7.430d-3*z2 + 3.723d-4*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 7.846d-2 - 2.0d0*7.430d-3*tf%t9 + 3.0d0*3.723d-4*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 7.846d-2 - 2.0d0*7.430d-3*tf%t9 + 3.0d0*3.723d-4*tf%t92
+    !end if
     
     term    = 1.05d+27 * tf%t9i23 * exp(-91.674 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 91.674*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 91.674*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 7.064d+10*tf%t932*exp(-92.850*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 92.850*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 92.850*tf%t9i2)
 
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_fe52ag
@@ -1507,27 +1507,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 1.367d-2*z + 7.428d-4*z2 - 3.050d-5*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 1.367d-2 + 2.0d0*7.428d-4*tf%t9 - 3.0d0*3.050d-5*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 1.367d-2 + 2.0d0*7.428d-4*tf%t9 - 3.0d0*3.050d-5*tf%t92
+    !end if
     
     term    = 1.30d+27 * tf%t9i23 * exp(-91.674 * tf%t9i13 * aa)
-    dtermdt = -twoth*term*tf%t9i + term*91.674*tf%t9i13*(oneth*tf%t9i*aa - daa)
+    !dtermdt = -twoth*term*tf%t9i + term*91.674*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 0.4597*exp(-9.470*tf%t9i)
-    drevdt   = rev*9.470*tf%t9i2
+    !drevdt   = rev*9.470*tf%t9i2
     
     rr    = den * rev * term
-    drrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
-    drrdd = rev * term
+    !drrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
+    !drrdd = rev * term
     
     return
   end subroutine rate_fe52ap
@@ -1552,27 +1552,27 @@ contains
     z2    = z*z
     z3    = z2*z
     aa    = 1.0d0 + 9.894d-2*z - 3.131d-3*z2 - 2.160d-5*z3
-    if (z .eq. 10.0) then
-       daa = 0.0d0
-    else
-       daa   = 9.894d-2 - 2.0d0*3.131d-3*tf%t9 - 3.0d0*2.160d-5*tf%t92
-    end if
+    !if (z .eq. 10.0) then
+    !   daa = 0.0d0
+    !else
+    !   daa   = 9.894d-2 - 2.0d0*3.131d-3*tf%t9 - 3.0d0*2.160d-5*tf%t92
+    !end if
     
     term    = 1.21d+18 * tf%t9i23 * exp(-39.604 * tf%t9i13 * aa)
-    dtermdt = term*(-twoth*tf%t9i + 39.604*tf%t9i13*(oneth*tf%t9i*aa - daa))
+    !dtermdt = term*(-twoth*tf%t9i + 39.604*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
     ! the rates
     fr    = den * term
-    dfrdt = den * dtermdt * 1.0d-9
-    dfrdd = term
+    !dfrdt = den * dtermdt * 1.0d-9
+    !dfrdd = term
     
     rev      = 1.537d+11*tf%t932*exp(-83.382*tf%t9i)
-    drevdt   = rev*(1.5d0*tf%t9i + 83.382*tf%t9i2)
+    !drevdt   = rev*(1.5d0*tf%t9i + 83.382*tf%t9i2)
     
     rr    = rev * term
-    drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
-    drrdd = 0.0d0
+    !drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
+    !drrdd = 0.0d0
     
     return
   end subroutine rate_co55pg
