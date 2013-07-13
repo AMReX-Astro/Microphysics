@@ -731,16 +731,16 @@ contains
                  jscr,init,sc2a,sc2adt,sc2add)
     
     sc3a   = sc1a * sc2a
-    sc3adt = sc1adt*sc2a + sc1a*sc2adt
-    sc3add = sc1add*sc2a + sc1a*sc2add
+    !sc3adt = sc1adt*sc2a + sc1a*sc2adt
+    !sc3add = sc1add*sc2a + sc1a*sc2add
     
     ratdum(ir3a)    = ratraw(ir3a) * sc3a
-    dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
-    dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
+    !dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
+    !dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
     
     scfac(ir3a)     = sc3a
-    dscfacdt(ir3a)  = sc3adt
-    dscfacdd(ir3a)  = sc3add
+    !dscfacdt(ir3a)  = sc3adt
+    !dscfacdd(ir3a)  = sc3add
     
 
     ! c12 to o16
@@ -750,12 +750,12 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(ircag)     = ratraw(ircag) * sc1a
-    dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
-    dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
+    !dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
+    !dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
     
     scfac(ircag)      = sc1a
-    dscfacdt(ircag)   = sc1adt
-    dscfacdt(ircag)   = sc1add
+    !dscfacdt(ircag)   = sc1adt
+    !dscfacdt(ircag)   = sc1add
     
 
     ! c12 + c12
@@ -765,12 +765,12 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
 
     ratdum(ir1212)    = ratraw(ir1212) * sc1a
-    dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
-    dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
+    !dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
+    !dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
     
     scfac(ir1212)     = sc1a
-    dscfacdt(ir1212)  = sc1adt
-    dscfacdd(ir1212)  = sc1add
+    !dscfacdt(ir1212)  = sc1adt
+    !dscfacdd(ir1212)  = sc1add
     
 
 
@@ -781,12 +781,12 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
-    dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
+    !dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
+    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
     
     scfac(ir1216)     = sc1a
-    dscfacdt(ir1216)  = sc1adt
-    dscfacdd(ir1216)  = sc1add
+    !dscfacdt(ir1216)  = sc1adt
+    !dscfacdd(ir1216)  = sc1add
     
 
   
@@ -797,12 +797,12 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(ir1616)    = ratraw(ir1616) * sc1a
-    dratdumdt(ir1616) = dratrawdt(ir1616)*sc1a + ratraw(ir1616)*sc1adt
-    dratdumdd(ir1616) = dratrawdd(ir1616)*sc1a + ratraw(ir1616)*sc1add
+    !dratdumdt(ir1616) = dratrawdt(ir1616)*sc1a + ratraw(ir1616)*sc1adt
+    !dratdumdd(ir1616) = dratrawdd(ir1616)*sc1a + ratraw(ir1616)*sc1add
     
     scfac(ir1616)     = sc1a
-    dscfacdt(ir1616)  = sc1adt
-    dscfacdd(ir1616)  = sc1add
+    !dscfacdt(ir1616)  = sc1adt
+    !dscfacdd(ir1616)  = sc1add
     
     
     
@@ -813,12 +813,12 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(iroag)    = ratraw(iroag) * sc1a
-    dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
-    dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
+    !dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
+    !dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
     
     scfac(iroag)     = sc1a
-    dscfacdt(iroag)  = sc1adt
-    dscfacdd(iroag)  = sc1add
+    !dscfacdt(iroag)  = sc1adt
+    !dscfacdd(iroag)  = sc1add
 
 
 
@@ -829,12 +829,12 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irneag)    = ratraw(irneag) * sc1a
-    dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
-    dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
+    !dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
+    !dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
     
     scfac(irneag)     = sc1a
-    dscfacdt(irneag)  = sc1adt
-    dscfacdd(irneag)  = sc1add
+    !dscfacdt(irneag)  = sc1adt
+    !dscfacdd(irneag)  = sc1add
     
 
     ! mg24 to si28
@@ -844,20 +844,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irmgag)    = ratraw(irmgag) * sc1a
-    dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
-    dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
+    !dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
+    !dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
     
     scfac(irmgag)     = sc1a
-    dscfacdt(irmgag)  = sc1adt
-    dscfacdd(irmgag)  = sc1add
+    !dscfacdt(irmgag)  = sc1adt
+    !dscfacdd(irmgag)  = sc1add
     
     ratdum(irmgap)    = ratraw(irmgap) * sc1a
-    dratdumdt(irmgap) = dratrawdt(irmgap)*sc1a + ratraw(irmgap)*sc1adt
-    dratdumdd(irmgap) = dratrawdd(irmgap)*sc1a + ratraw(irmgap)*sc1add
+    !dratdumdt(irmgap) = dratrawdt(irmgap)*sc1a + ratraw(irmgap)*sc1adt
+    !dratdumdd(irmgap) = dratrawdd(irmgap)*sc1a + ratraw(irmgap)*sc1add
   
     scfac(irmgap)     = sc1a
-    dscfacdt(irmgap)  = sc1adt
-    dscfacdd(irmgap)  = sc1add
+    !dscfacdt(irmgap)  = sc1adt
+    !dscfacdd(irmgap)  = sc1add
     
 
     jscr = jscr + 1
@@ -866,20 +866,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(iralpa)    = ratraw(iralpa) * sc1a
-    dratdumdt(iralpa) = dratrawdt(iralpa)*sc1a + ratraw(iralpa)*sc1adt
-    dratdumdd(iralpa) = dratrawdd(iralpa)*sc1a + ratraw(iralpa)*sc1add
+    !dratdumdt(iralpa) = dratrawdt(iralpa)*sc1a + ratraw(iralpa)*sc1adt
+    !dratdumdd(iralpa) = dratrawdd(iralpa)*sc1a + ratraw(iralpa)*sc1add
     
     scfac(iralpa)     = sc1a
-    dscfacdt(iralpa)  = sc1adt
-    dscfacdd(iralpa)  = sc1add
+    !dscfacdt(iralpa)  = sc1adt
+    !dscfacdd(iralpa)  = sc1add
     
     ratdum(iralpg)    = ratraw(iralpg) * sc1a
-    dratdumdt(iralpg) = dratrawdt(iralpg)*sc1a + ratraw(iralpg)*sc1adt
-    dratdumdd(iralpg) = dratrawdd(iralpg)*sc1a + ratraw(iralpg)*sc1add
+    !dratdumdt(iralpg) = dratrawdt(iralpg)*sc1a + ratraw(iralpg)*sc1adt
+    !dratdumdd(iralpg) = dratrawdd(iralpg)*sc1a + ratraw(iralpg)*sc1add
     
     scfac(iralpg)     = sc1a
-    dscfacdt(iralpg)  = sc1adt
-    dscfacdd(iralpg)  = sc1add
+    !dscfacdt(iralpg)  = sc1adt
+    !dscfacdd(iralpg)  = sc1add
     
 
 
@@ -890,21 +890,21 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irsiag)    = ratraw(irsiag) * sc1a
-    dratdumdt(irsiag) = dratrawdt(irsiag)*sc1a + ratraw(irsiag)*sc1adt
-    dratdumdd(irsiag) = dratrawdd(irsiag)*sc1a + ratraw(irsiag)*sc1add
+    !dratdumdt(irsiag) = dratrawdt(irsiag)*sc1a + ratraw(irsiag)*sc1adt
+    !dratdumdd(irsiag) = dratrawdd(irsiag)*sc1a + ratraw(irsiag)*sc1add
     
     scfac(irsiag)     = sc1a
-    dscfacdt(irsiag)  = sc1adt
-    dscfacdd(irsiag)  = sc1add
+    !dscfacdt(irsiag)  = sc1adt
+    !dscfacdd(irsiag)  = sc1add
 
 
     ratdum(irsiap)    = ratraw(irsiap) * sc1a
-    dratdumdt(irsiap) = dratrawdt(irsiap)*sc1a + ratraw(irsiap)*sc1adt
-    dratdumdd(irsiap) = dratrawdd(irsiap)*sc1a + ratraw(irsiap)*sc1add
+    !dratdumdt(irsiap) = dratrawdt(irsiap)*sc1a + ratraw(irsiap)*sc1adt
+    !dratdumdd(irsiap) = dratrawdd(irsiap)*sc1a + ratraw(irsiap)*sc1add
 
     scfac(irsiap)     = sc1a
-    dscfacdt(irsiap)  = sc1adt
-    dscfacdd(irsiap)  = sc1add
+    !dscfacdt(irsiap)  = sc1adt
+    !dscfacdd(irsiap)  = sc1add
 
 
     jscr = jscr + 1
@@ -913,20 +913,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irppa)     = ratraw(irppa) * sc1a
-    dratdumdt(irppa)  = dratrawdt(irppa)*sc1a  + ratraw(irppa)*sc1adt
-    dratdumdd(irppa)  = dratrawdd(irppa)*sc1a  + ratraw(irppa)*sc1add
+    !dratdumdt(irppa)  = dratrawdt(irppa)*sc1a  + ratraw(irppa)*sc1adt
+    !dratdumdd(irppa)  = dratrawdd(irppa)*sc1a  + ratraw(irppa)*sc1add
     
     scfac(irppa)      = sc1a
-    dscfacdt(irppa)   = sc1adt
-    dscfacdd(irppa)   = sc1add
+    !dscfacdt(irppa)   = sc1adt
+    !dscfacdd(irppa)   = sc1add
     
     ratdum(irppg)     = ratraw(irppg) * sc1a
-    dratdumdt(irppg)  = dratrawdt(irppg)*sc1a + ratraw(irppg)*sc1adt
-    dratdumdd(irppg)  = dratrawdd(irppg)*sc1a + ratraw(irppg)*sc1add
+    !dratdumdt(irppg)  = dratrawdt(irppg)*sc1a + ratraw(irppg)*sc1adt
+    !dratdumdd(irppg)  = dratrawdd(irppg)*sc1a + ratraw(irppg)*sc1add
     
     scfac(irppg)      = sc1a
-    dscfacdt(irppg)   = sc1adt
-    dscfacdd(irppg)   = sc1add
+    !dscfacdt(irppg)   = sc1adt
+    !dscfacdd(irppg)   = sc1add
     
 
 
@@ -937,20 +937,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irsag)     = ratraw(irsag) * sc1a
-    dratdumdt(irsag)  = dratrawdt(irsag)*sc1a + ratraw(irsag)*sc1adt
-    dratdumdd(irsag)  = dratrawdd(irsag)*sc1a + ratraw(irsag)*sc1add
+    !dratdumdt(irsag)  = dratrawdt(irsag)*sc1a + ratraw(irsag)*sc1adt
+    !dratdumdd(irsag)  = dratrawdd(irsag)*sc1a + ratraw(irsag)*sc1add
     
     scfac(irsag)      = sc1a
-    dscfacdt(irsag)   = sc1adt
-    dscfacdd(irsag)   = sc1add
+    !dscfacdt(irsag)   = sc1adt
+    !dscfacdd(irsag)   = sc1add
     
     ratdum(irsap)     = ratraw(irsap) * sc1a
-    dratdumdt(irsap)  = dratrawdt(irsap)*sc1a + ratraw(irsap)*sc1adt
-    dratdumdd(irsap)  = dratrawdd(irsap)*sc1a + ratraw(irsap)*sc1add
+    !dratdumdt(irsap)  = dratrawdt(irsap)*sc1a + ratraw(irsap)*sc1adt
+    !dratdumdd(irsap)  = dratrawdd(irsap)*sc1a + ratraw(irsap)*sc1add
     
     scfac(irsap)      = sc1a
-    dscfacdt(irsap)   = sc1adt
-    dscfacdd(irsap)   = sc1add
+    !dscfacdt(irsap)   = sc1adt
+    !dscfacdd(irsap)   = sc1add
     
 
     jscr = jscr + 1
@@ -959,20 +959,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irclpa)    = ratraw(irclpa) * sc1a
-    dratdumdt(irclpa) = dratrawdt(irclpa)*sc1a + ratraw(irclpa)*sc1adt
-    dratdumdd(irclpa) = dratrawdd(irclpa)*sc1a + ratraw(irclpa)*sc1add
+    !dratdumdt(irclpa) = dratrawdt(irclpa)*sc1a + ratraw(irclpa)*sc1adt
+    !dratdumdd(irclpa) = dratrawdd(irclpa)*sc1a + ratraw(irclpa)*sc1add
     
     scfac(irclpa)     = sc1a
-    dscfacdt(irclpa)  = sc1adt
-    dscfacdt(irclpa)  = sc1add
+    !dscfacdt(irclpa)  = sc1adt
+    !dscfacdt(irclpa)  = sc1add
     
     ratdum(irclpg)    = ratraw(irclpg) * sc1a
-    dratdumdt(irclpg) = dratrawdt(irclpg)*sc1a + ratraw(irclpg)*sc1adt
-    dratdumdd(irclpg) = dratrawdd(irclpg)*sc1a + ratraw(irclpg)*sc1add
+    !dratdumdt(irclpg) = dratrawdt(irclpg)*sc1a + ratraw(irclpg)*sc1adt
+    !dratdumdd(irclpg) = dratrawdd(irclpg)*sc1a + ratraw(irclpg)*sc1add
     
     scfac(irclpg)     = sc1a
-    dscfacdt(irclpg)  = sc1adt
-    dscfacdd(irclpg)  = sc1add
+    !dscfacdt(irclpg)  = sc1adt
+    !dscfacdd(irclpg)  = sc1add
     
 
 
@@ -983,20 +983,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
 
     ratdum(irarag)    = ratraw(irarag) * sc1a
-    dratdumdt(irarag) = dratrawdt(irarag)*sc1a + ratraw(irarag)*sc1adt
-    dratdumdd(irarag) = dratrawdd(irarag)*sc1a + ratraw(irarag)*sc1add
+    !dratdumdt(irarag) = dratrawdt(irarag)*sc1a + ratraw(irarag)*sc1adt
+    !dratdumdd(irarag) = dratrawdd(irarag)*sc1a + ratraw(irarag)*sc1add
     
     scfac(irarag)     = sc1a
-    dscfacdt(irarag)  = sc1adt
-    dscfacdd(irarag)  = sc1add
+    !dscfacdt(irarag)  = sc1adt
+    !dscfacdd(irarag)  = sc1add
     
     ratdum(irarap)    = ratraw(irarap) * sc1a
-    dratdumdt(irarap) = dratrawdt(irarap)*sc1a + ratraw(irarap)*sc1adt
-    dratdumdd(irarap) = dratrawdd(irarap)*sc1a + ratraw(irarap)*sc1add
+    !dratdumdt(irarap) = dratrawdt(irarap)*sc1a + ratraw(irarap)*sc1adt
+    !dratdumdd(irarap) = dratrawdd(irarap)*sc1a + ratraw(irarap)*sc1add
     
     scfac(irarap)     = sc1a
-    dscfacdt(irarap)  = sc1adt
-    dscfacdd(irarap)  = sc1add
+    !dscfacdt(irarap)  = sc1adt
+    !dscfacdd(irarap)  = sc1add
     
 
     jscr = jscr + 1
@@ -1005,20 +1005,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irkpa)     = ratraw(irkpa) * sc1a
-    dratdumdt(irkpa)  = dratrawdt(irkpa)*sc1a  + ratraw(irkpa)*sc1adt
-    dratdumdd(irkpa)  = dratrawdd(irkpa)*sc1a  + ratraw(irkpa)*sc1add
+    !dratdumdt(irkpa)  = dratrawdt(irkpa)*sc1a  + ratraw(irkpa)*sc1adt
+    !dratdumdd(irkpa)  = dratrawdd(irkpa)*sc1a  + ratraw(irkpa)*sc1add
     
     scfac(irkpa)      = sc1a
-    dscfacdt(irkpa)   = sc1adt
-    dscfacdd(irkpa)   = sc1add
+    !dscfacdt(irkpa)   = sc1adt
+    !dscfacdd(irkpa)   = sc1add
     
     ratdum(irkpg)     = ratraw(irkpg) * sc1a
-    dratdumdt(irkpg)  = dratrawdt(irkpg)*sc1a  + ratraw(irkpg)*sc1adt
-    dratdumdd(irkpg)  = dratrawdd(irkpg)*sc1a  + ratraw(irkpg)*sc1add
+    !dratdumdt(irkpg)  = dratrawdt(irkpg)*sc1a  + ratraw(irkpg)*sc1adt
+    !dratdumdd(irkpg)  = dratrawdd(irkpg)*sc1a  + ratraw(irkpg)*sc1add
     
     scfac(irkpg)      = sc1a
-    dscfacdt(irkpg)   = sc1adt
-    dscfacdd(irkpg)   = sc1add
+    !dscfacdt(irkpg)   = sc1adt
+    !dscfacdd(irkpg)   = sc1add
 
 
 
@@ -1029,20 +1029,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(ircaag)    = ratraw(ircaag) * sc1a
-    dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
-    dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
+    !dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
+    !dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
     
     scfac(ircaag)     = sc1a
-    dscfacdt(ircaag)  = sc1adt
-    dscfacdd(ircaag)  = sc1add
+    !dscfacdt(ircaag)  = sc1adt
+    !dscfacdd(ircaag)  = sc1add
     
     ratdum(ircaap)    = ratraw(ircaap) * sc1a
-    dratdumdt(ircaap) = dratrawdt(ircaap)*sc1a + ratraw(ircaap)*sc1adt
-    dratdumdd(ircaap) = dratrawdd(ircaap)*sc1a + ratraw(ircaap)*sc1add
+    !dratdumdt(ircaap) = dratrawdt(ircaap)*sc1a + ratraw(ircaap)*sc1adt
+    !dratdumdd(ircaap) = dratrawdd(ircaap)*sc1a + ratraw(ircaap)*sc1add
     
     scfac(ircaap)     = sc1a
-    dscfacdt(ircaap)  = sc1adt
-    dscfacdd(ircaap)  = sc1add
+    !dscfacdt(ircaap)  = sc1adt
+    !dscfacdd(ircaap)  = sc1add
     
 
     jscr = jscr + 1
@@ -1051,20 +1051,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irscpa)    = ratraw(irscpa) * sc1a
-    dratdumdt(irscpa) = dratrawdt(irscpa)*sc1a + ratraw(irscpa)*sc1adt
-    dratdumdd(irscpa) = dratrawdd(irscpa)*sc1a + ratraw(irscpa)*sc1add
+    !dratdumdt(irscpa) = dratrawdt(irscpa)*sc1a + ratraw(irscpa)*sc1adt
+    !dratdumdd(irscpa) = dratrawdd(irscpa)*sc1a + ratraw(irscpa)*sc1add
     
     scfac(irscpa)     = sc1a
-    dscfacdt(irscpa)  = sc1adt
-    dscfacdd(irscpa)  = sc1add
+    !dscfacdt(irscpa)  = sc1adt
+    !dscfacdd(irscpa)  = sc1add
     
     ratdum(irscpg)    = ratraw(irscpg) * sc1a
-    dratdumdt(irscpg) = dratrawdt(irscpg)*sc1a + ratraw(irscpg)*sc1adt
-    dratdumdd(irscpg) = dratrawdd(irscpg)*sc1a + ratraw(irscpg)*sc1add
+    !dratdumdt(irscpg) = dratrawdt(irscpg)*sc1a + ratraw(irscpg)*sc1adt
+    !dratdumdd(irscpg) = dratrawdd(irscpg)*sc1a + ratraw(irscpg)*sc1add
     
     scfac(irscpg)     = sc1a
-    dscfacdt(irscpg)  = sc1adt
-    dscfacdd(irscpg)  = sc1add
+    !dscfacdt(irscpg)  = sc1adt
+    !dscfacdd(irscpg)  = sc1add
     
 
 
@@ -1075,20 +1075,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irtiag)    = ratraw(irtiag) * sc1a
-    dratdumdt(irtiag) = dratrawdt(irtiag)*sc1a + ratraw(irtiag)*sc1adt
-    dratdumdd(irtiag) = dratrawdd(irtiag)*sc1a + ratraw(irtiag)*sc1add
+    !dratdumdt(irtiag) = dratrawdt(irtiag)*sc1a + ratraw(irtiag)*sc1adt
+    !dratdumdd(irtiag) = dratrawdd(irtiag)*sc1a + ratraw(irtiag)*sc1add
 
     scfac(irtiag)     = sc1a
-    dscfacdt(irtiag)  = sc1adt
-    dscfacdd(irtiag)  = sc1add
+    !dscfacdt(irtiag)  = sc1adt
+    !dscfacdd(irtiag)  = sc1add
     
     ratdum(irtiap)    = ratraw(irtiap) * sc1a
-    dratdumdt(irtiap) = dratrawdt(irtiap)*sc1a + ratraw(irtiap)*sc1adt
-    dratdumdd(irtiap) = dratrawdd(irtiap)*sc1a + ratraw(irtiap)*sc1add
+    !dratdumdt(irtiap) = dratrawdt(irtiap)*sc1a + ratraw(irtiap)*sc1adt
+    !dratdumdd(irtiap) = dratrawdd(irtiap)*sc1a + ratraw(irtiap)*sc1add
 
     scfac(irtiap)  = sc1a
-    dscfacdt(irtiap)  = sc1adt
-    dscfacdd(irtiap)  = sc1add
+    !dscfacdt(irtiap)  = sc1adt
+    !dscfacdd(irtiap)  = sc1add
 
 
     jscr = jscr + 1
@@ -1097,20 +1097,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irvpa)     = ratraw(irvpa) * sc1a
-    dratdumdt(irvpa)  = dratrawdt(irvpa)*sc1a  + ratraw(irvpa)*sc1adt
-    dratdumdd(irvpa)  = dratrawdd(irvpa)*sc1a  + ratraw(irvpa)*sc1add
+    !dratdumdt(irvpa)  = dratrawdt(irvpa)*sc1a  + ratraw(irvpa)*sc1adt
+    !dratdumdd(irvpa)  = dratrawdd(irvpa)*sc1a  + ratraw(irvpa)*sc1add
     
     scfac(irvpa)      = sc1a
-    dscfacdt(irvpa)   = sc1adt
-    dscfacdd(irvpa)   = sc1add
+    !dscfacdt(irvpa)   = sc1adt
+    !dscfacdd(irvpa)   = sc1add
     
     ratdum(irvpg)     = ratraw(irvpg) * sc1a
-    dratdumdt(irvpg)  = dratrawdt(irvpg)*sc1a  + ratraw(irvpg)*sc1adt
-    dratdumdd(irvpg)  = dratrawdd(irvpg)*sc1a  + ratraw(irvpg)*sc1add
+    !dratdumdt(irvpg)  = dratrawdt(irvpg)*sc1a  + ratraw(irvpg)*sc1adt
+    !dratdumdd(irvpg)  = dratrawdd(irvpg)*sc1a  + ratraw(irvpg)*sc1add
     
     scfac(irvpg)      = sc1a
-    dscfacdt(irvpg)   = sc1adt
-    dscfacdd(irvpg)   = sc1add
+    !dscfacdt(irvpg)   = sc1adt
+    !dscfacdd(irvpg)   = sc1add
 
 
 
@@ -1121,20 +1121,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(ircrag)    = ratraw(ircrag) * sc1a
-    dratdumdt(ircrag) = dratrawdt(ircrag)*sc1a + ratraw(ircrag)*sc1adt
-    dratdumdd(ircrag) = dratrawdd(ircrag)*sc1a + ratraw(ircrag)*sc1add
+    !dratdumdt(ircrag) = dratrawdt(ircrag)*sc1a + ratraw(ircrag)*sc1adt
+    !dratdumdd(ircrag) = dratrawdd(ircrag)*sc1a + ratraw(ircrag)*sc1add
     
     scfac(ircrag)     = sc1a
-    dscfacdt(ircrag)  = sc1adt
-    dscfacdd(ircrag)  = sc1add
+    !dscfacdt(ircrag)  = sc1adt
+    !dscfacdd(ircrag)  = sc1add
     
     ratdum(ircrap)    = ratraw(ircrap) * sc1a
-    dratdumdt(ircrap) = dratrawdt(ircrap)*sc1a + ratraw(ircrap)*sc1adt
-    dratdumdd(ircrap) = dratrawdd(ircrap)*sc1a + ratraw(ircrap)*sc1add
+    !dratdumdt(ircrap) = dratrawdt(ircrap)*sc1a + ratraw(ircrap)*sc1adt
+    !dratdumdd(ircrap) = dratrawdd(ircrap)*sc1a + ratraw(ircrap)*sc1add
     
     scfac(ircrap)     = sc1a
-    dscfacdt(ircrap)  = sc1adt
-    dscfacdd(ircrap)  = sc1add
+    !dscfacdt(ircrap)  = sc1adt
+    !dscfacdd(ircrap)  = sc1add
     
     
     jscr = jscr + 1
@@ -1143,20 +1143,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irmnpa)    = ratraw(irmnpa) * sc1a
-    dratdumdt(irmnpa) = dratrawdt(irmnpa)*sc1a + ratraw(irmnpa)*sc1adt
-    dratdumdd(irmnpa) = dratrawdd(irmnpa)*sc1a + ratraw(irmnpa)*sc1add
+    !dratdumdt(irmnpa) = dratrawdt(irmnpa)*sc1a + ratraw(irmnpa)*sc1adt
+    !dratdumdd(irmnpa) = dratrawdd(irmnpa)*sc1a + ratraw(irmnpa)*sc1add
 
     scfac(irmnpa)     = sc1a
-    dscfacdt(irmnpa)  = sc1adt
-    dscfacdd(irmnpa)  = sc1add
+    !dscfacdt(irmnpa)  = sc1adt
+    !dscfacdd(irmnpa)  = sc1add
     
     ratdum(irmnpg)    = ratraw(irmnpg) * sc1a
-    dratdumdt(irmnpg) = dratrawdt(irmnpg)*sc1a + ratraw(irmnpg)*sc1adt
-    dratdumdd(irmnpg) = dratrawdd(irmnpg)*sc1a + ratraw(irmnpg)*sc1add
+    !dratdumdt(irmnpg) = dratrawdt(irmnpg)*sc1a + ratraw(irmnpg)*sc1adt
+    !dratdumdd(irmnpg) = dratrawdd(irmnpg)*sc1a + ratraw(irmnpg)*sc1add
 
     scfac(irmnpg)     = sc1a
-    dscfacdt(irmnpg)  = sc1adt
-    dscfacdd(irmnpg)  = sc1add
+    !dscfacdt(irmnpg)  = sc1adt
+    !dscfacdd(irmnpg)  = sc1add
 
     
     ! fe52 to ni56
@@ -1166,20 +1166,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(irfeag)    = ratraw(irfeag) * sc1a
-    dratdumdt(irfeag) = dratrawdt(irfeag)*sc1a + ratraw(irfeag)*sc1adt
-    dratdumdd(irfeag) = dratrawdd(irfeag)*sc1a + ratraw(irfeag)*sc1add
+    !dratdumdt(irfeag) = dratrawdt(irfeag)*sc1a + ratraw(irfeag)*sc1adt
+    !dratdumdd(irfeag) = dratrawdd(irfeag)*sc1a + ratraw(irfeag)*sc1add
     
     scfac(irfeag)     = sc1a
-    dscfacdt(irfeag)  = sc1adt
-    dscfacdd(irfeag)  = sc1add
+    !dscfacdt(irfeag)  = sc1adt
+    !dscfacdd(irfeag)  = sc1add
     
     ratdum(irfeap) = ratraw(irfeap) * sc1a
-    dratdumdt(irfeap) = dratrawdt(irfeap)*sc1a + ratraw(irfeap)*sc1adt
-    dratdumdd(irfeap) = dratrawdd(irfeap)*sc1a + ratraw(irfeap)*sc1add
+    !dratdumdt(irfeap) = dratrawdt(irfeap)*sc1a + ratraw(irfeap)*sc1adt
+    !dratdumdd(irfeap) = dratrawdd(irfeap)*sc1a + ratraw(irfeap)*sc1add
     
     scfac(irfeap)     = sc1a
-    dscfacdt(irfeap)  = sc1adt
-    dscfacdd(irfeap)  = sc1add
+    !dscfacdt(irfeap)  = sc1adt
+    !dscfacdd(irfeap)  = sc1add
     
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
@@ -1187,20 +1187,20 @@ contains
                  jscr,init,sc1a,sc1adt,sc1add)
     
     ratdum(ircopa)    = ratraw(ircopa) * sc1a
-    dratdumdt(ircopa) = dratrawdt(ircopa)*sc1a + ratraw(ircopa)*sc1adt
-    dratdumdd(ircopa) = dratrawdd(ircopa)*sc1a + ratraw(ircopa)*sc1add
+    !dratdumdt(ircopa) = dratrawdt(ircopa)*sc1a + ratraw(ircopa)*sc1adt
+    !dratdumdd(ircopa) = dratrawdd(ircopa)*sc1a + ratraw(ircopa)*sc1add
     
     scfac(ircopa)     = sc1a
-    dscfacdt(ircopa)  = sc1adt
-    dscfacdd(ircopa)  = sc1add
+    !dscfacdt(ircopa)  = sc1adt
+    !dscfacdd(ircopa)  = sc1add
     
     ratdum(ircopg)    = ratraw(ircopg) * sc1a
-    dratdumdt(ircopg) = dratrawdt(ircopg)*sc1a + ratraw(ircopg)*sc1adt
-    dratdumdd(ircopg) = dratrawdd(ircopg)*sc1a + ratraw(ircopg)*sc1add
+    !dratdumdt(ircopg) = dratrawdt(ircopg)*sc1a + ratraw(ircopg)*sc1adt
+    !dratdumdd(ircopg) = dratrawdd(ircopg)*sc1a + ratraw(ircopg)*sc1add
     
     scfac(ircopg)     = sc1a
-    dscfacdt(ircopg)  = sc1adt
-    dscfacdd(ircopg)  = sc1add
+    !dscfacdt(ircopg)  = sc1adt
+    !dscfacdd(ircopg)  = sc1add
     
 
     ! reset the screen initialization flag
@@ -1211,107 +1211,107 @@ contains
     ! now form those lovely dummy proton link rates
 
     ratdum(irr1)     = 0.0d0
-    dratdumdt(irr1)  = 0.0d0
-    dratdumdd(irr1)  = 0.0d0
+    !dratdumdt(irr1)  = 0.0d0
+    !dratdumdd(irr1)  = 0.0d0
     denom    = ratdum(iralpa) + ratdum(iralpg)
-    denomdt  = dratdumdt(iralpa) + dratdumdt(iralpg)
-    denomdd  = dratdumdd(iralpa) + dratdumdd(iralpg)
+    !denomdt  = dratdumdt(iralpa) + dratdumdt(iralpg)
+    !denomdd  = dratdumdd(iralpa) + dratdumdd(iralpg)
     if (denom .ne. 0.0) then
        zz = 1.0d0/denom
        ratdum(irr1)    = ratdum(iralpa)*zz
-       dratdumdt(irr1) = (dratdumdt(iralpa) - ratdum(irr1)*denomdt)*zz
-       dratdumdd(irr1) = (dratdumdd(iralpa) - ratdum(irr1)*denomdd)*zz
+       !dratdumdt(irr1) = (dratdumdt(iralpa) - ratdum(irr1)*denomdt)*zz
+       !dratdumdd(irr1) = (dratdumdd(iralpa) - ratdum(irr1)*denomdd)*zz
     end if
 
     ratdum(irs1)     = 0.0d0
-    dratdumdt(irs1)  = 0.0d0
-    dratdumdd(irs1)  = 0.0d0
+    !dratdumdt(irs1)  = 0.0d0
+    !dratdumdd(irs1)  = 0.0d0
     denom    = ratdum(irppa) + ratdum(irppg)
-    denomdt  = dratdumdt(irppa) + dratdumdt(irppg)
-    denomdd  = dratdumdd(irppa) + dratdumdd(irppg)
+    !denomdt  = dratdumdt(irppa) + dratdumdt(irppg)
+    !denomdd  = dratdumdd(irppa) + dratdumdd(irppg)
     if (denom .ne. 0.0) then
        zz = 1.0d0/denom
        ratdum(irs1)    = ratdum(irppa)*zz
-       dratdumdt(irs1) = (dratdumdt(irppa) - ratdum(irs1)*denomdt)*zz
-       dratdumdd(irs1) = (dratdumdd(irppa) - ratdum(irs1)*denomdd)*zz
+       !dratdumdt(irs1) = (dratdumdt(irppa) - ratdum(irs1)*denomdt)*zz
+       !dratdumdd(irs1) = (dratdumdd(irppa) - ratdum(irs1)*denomdd)*zz
     end if
 
     ratdum(irt1)     = 0.0d0
-    dratdumdt(irt1)  = 0.0d0
-    dratdumdd(irt1)  = 0.0d0
+    !dratdumdt(irt1)  = 0.0d0
+    !dratdumdd(irt1)  = 0.0d0
     denom    = ratdum(irclpa) + ratdum(irclpg)
-    denomdt  = dratdumdt(irclpa) + dratdumdt(irclpg)
-    denomdd  = dratdumdd(irclpa) + dratdumdd(irclpg)
+    !denomdt  = dratdumdt(irclpa) + dratdumdt(irclpg)
+    !denomdd  = dratdumdd(irclpa) + dratdumdd(irclpg)
     if (denom .ne. 0.0) then
        zz = 1.0d0/denom
        ratdum(irt1)    = ratdum(irclpa)*zz
-       dratdumdt(irt1) = (dratdumdt(irclpa) - ratdum(irt1)*denomdt)*zz
-       dratdumdd(irt1) = (dratdumdd(irclpa) - ratdum(irt1)*denomdd)*zz
+       !dratdumdt(irt1) = (dratdumdt(irclpa) - ratdum(irt1)*denomdt)*zz
+       !dratdumdd(irt1) = (dratdumdd(irclpa) - ratdum(irt1)*denomdd)*zz
     end if
 
     ratdum(iru1)     = 0.0d0
-    dratdumdt(iru1)  = 0.0d0
-    dratdumdd(iru1)  = 0.0d0
+    !dratdumdt(iru1)  = 0.0d0
+    !dratdumdd(iru1)  = 0.0d0
     denom    = ratdum(irkpa) + ratdum(irkpg)
-    denomdt  = dratdumdt(irkpa) + dratdumdt(irkpg)
-    denomdd  = dratdumdd(irkpa) + dratdumdd(irkpg)
+    !denomdt  = dratdumdt(irkpa) + dratdumdt(irkpg)
+    !denomdd  = dratdumdd(irkpa) + dratdumdd(irkpg)
     if (denom .ne. 0.0) then
        zz   = 1.0d0/denom
        ratdum(iru1)   = ratdum(irkpa)*zz
-       dratdumdt(iru1) = (dratdumdt(irkpa) - ratdum(iru1)*denomdt)*zz
-       dratdumdd(iru1) = (dratdumdd(irkpa) - ratdum(iru1)*denomdd)*zz
+       !dratdumdt(iru1) = (dratdumdt(irkpa) - ratdum(iru1)*denomdt)*zz
+       !dratdumdd(iru1) = (dratdumdd(irkpa) - ratdum(iru1)*denomdd)*zz
     end if
 
     ratdum(irv1)     = 0.0d0
-    dratdumdt(irv1)  = 0.0d0
-    dratdumdd(irv1)  = 0.0d0
+    !dratdumdt(irv1)  = 0.0d0
+    !dratdumdd(irv1)  = 0.0d0
     denom    = ratdum(irscpa) + ratdum(irscpg)
-    denomdt  = dratdumdt(irscpa) + dratdumdt(irscpg)
-    denomdd  = dratdumdd(irscpa) + dratdumdd(irscpg)
+    !denomdt  = dratdumdt(irscpa) + dratdumdt(irscpg)
+    !denomdd  = dratdumdd(irscpa) + dratdumdd(irscpg)
     if (denom .ne. 0.0) then
        zz  = 1.0d0/denom
        ratdum(irv1)    = ratdum(irscpa)*zz
-       dratdumdt(irv1) = (dratdumdt(irscpa) - ratdum(irv1)*denomdt)*zz
-       dratdumdd(irv1) = (dratdumdd(irscpa) - ratdum(irv1)*denomdd)*zz
+       !dratdumdt(irv1) = (dratdumdt(irscpa) - ratdum(irv1)*denomdt)*zz
+       !dratdumdd(irv1) = (dratdumdd(irscpa) - ratdum(irv1)*denomdd)*zz
     end if
     
     ratdum(irw1)    = 0.0d0
-    dratdumdt(irw1) = 0.0d0
-    dratdumdd(irw1) = 0.0d0
+    !dratdumdt(irw1) = 0.0d0
+    !dratdumdd(irw1) = 0.0d0
     denom    = ratdum(irvpa) + ratdum(irvpg)
-    denomdt  = dratdumdt(irvpa) + dratdumdt(irvpg)
-    denomdd  = dratdumdd(irvpa) + dratdumdd(irvpg)
+    !denomdt  = dratdumdt(irvpa) + dratdumdt(irvpg)
+    !denomdd  = dratdumdd(irvpa) + dratdumdd(irvpg)
     if (denom .ne. 0.0) then
        zz = 1.0d0/denom
        ratdum(irw1)    = ratdum(irvpa)*zz
-       dratdumdt(irw1) = (dratdumdt(irvpa) - ratdum(irw1)*denomdt)*zz
-       dratdumdd(irw1) = (dratdumdd(irvpa) - ratdum(irw1)*denomdd)*zz
+       !dratdumdt(irw1) = (dratdumdt(irvpa) - ratdum(irw1)*denomdt)*zz
+       !dratdumdd(irw1) = (dratdumdd(irvpa) - ratdum(irw1)*denomdd)*zz
     end if
     
     ratdum(irx1)    = 0.0d0
-    dratdumdt(irx1) = 0.0d0
-    dratdumdd(irx1) = 0.0d0
+    !dratdumdt(irx1) = 0.0d0
+    !dratdumdd(irx1) = 0.0d0
     denom    = ratdum(irmnpa) + ratdum(irmnpg)
-    denomdt  = dratdumdt(irmnpa) + dratdumdt(irmnpg)
-    denomdd  = dratdumdd(irmnpa) + dratdumdd(irmnpg)
+    !denomdt  = dratdumdt(irmnpa) + dratdumdt(irmnpg)
+    !denomdd  = dratdumdd(irmnpa) + dratdumdd(irmnpg)
     if (denom .ne. 0.0) then
        zz = 1.0d0/denom
        ratdum(irx1)    = ratdum(irmnpa)*zz
-       dratdumdt(irx1) = (dratdumdt(irmnpa) - ratdum(irx1)*denomdt)*zz
-       dratdumdd(irx1) = (dratdumdd(irmnpa) - ratdum(irx1)*denomdd)*zz
+       !dratdumdt(irx1) = (dratdumdt(irmnpa) - ratdum(irx1)*denomdt)*zz
+       !dratdumdd(irx1) = (dratdumdd(irmnpa) - ratdum(irx1)*denomdd)*zz
     endif
     
     ratdum(iry1)    = 0.0d0
-    dratdumdt(iry1) = 0.0d0
-    dratdumdd(iry1) = 0.0d0
+    !dratdumdt(iry1) = 0.0d0
+    !dratdumdd(iry1) = 0.0d0
     denom    = ratdum(ircopa) + ratdum(ircopg)
-    denomdt  = dratdumdt(ircopa) + dratdumdt(ircopg)
-    denomdd  = dratdumdd(ircopa) + dratdumdd(ircopg)
+    !denomdt  = dratdumdt(ircopa) + dratdumdt(ircopg)
+    !denomdd  = dratdumdd(ircopa) + dratdumdd(ircopg)
     if (denom .ne. 0.0) then
        zz = 1.0d0/denom
        ratdum(iry1)    = ratdum(ircopa)*zz
-       dratdumdt(iry1) = (dratdumdt(ircopa) - ratdum(iry1)*denomdt)*zz
-       dratdumdd(iry1) = (dratdumdd(ircopa) - ratdum(iry1)*denomdd)*zz
+       !dratdumdt(iry1) = (dratdumdt(ircopa) - ratdum(iry1)*denomdt)*zz
+       !dratdumdd(iry1) = (dratdumdd(ircopa) - ratdum(iry1)*denomdd)*zz
     end if
     
     return
