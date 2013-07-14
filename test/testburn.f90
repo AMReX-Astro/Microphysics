@@ -7,7 +7,6 @@ program testburn
   use burner_module
 
   implicit none
-  integer :: k
   real(kind=dp_t) :: dens, temp, dt, rho_Hnuc
   real(kind=dp_t), dimension(nspec) :: Xin, Xout, rho_omegadot
 
