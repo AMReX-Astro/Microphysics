@@ -138,9 +138,18 @@ contains
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
     !
-    ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of 
-    ! steps allowed.
+    ! Note: VODE computes the tolerance to compare against for
+    ! convergence as (quoting vode.f):
+    !
+    !      EWT(i) = RTOL*abs(Y(i)) + ATOL(i)  if ITOL = 2.
+    !      Thus the local error test passes if, in each component,
+    !      either the absolute error is less than ATOL (or ATOL(i)),
+    !      or the relative error is less than RTOL.
+    !      Use RTOL = 0.0 for pure absolute error control, and
+    !      use ATOL = 0.0 (or ATOL(i) = 0.0) for pure relative error
+    !      control.  Caution: Actual (global) errors may exceed these
+    !      local tolerances, so choose them conservatively.
+    !
     atol(1:nspec) = 1.e-10_dp_t    ! mass fractions
     atol(itemp) = 1.e-8_dp_t       ! temperature
     atol(ienuc) = 1.e-8_dp_t       ! energy generated
