@@ -197,11 +197,11 @@
       a0     = rm * 1.0d-9
       a1     = a0**oneth
       zeta   = a1 * xlm1
-      zetadt = -a1 * xlm2 * xldt
-      a2     = oneth * a1*rmi * xlm1
-      zetadd = a2 * rmdd
-      zetada = a2 * rmda
-      zetadz = a2 * rmdz
+      !zetadt = -a1 * xlm2 * xldt
+      !a2     = oneth * a1*rmi * xlm1
+      !zetadd = a2 * rmdd
+      !zetada = a2 * rmda
+      !zetadz = a2 * rmdz
 
       zeta2 = zeta * zeta
       zeta3 = zeta2 * zeta
@@ -214,7 +214,7 @@
 
 ! equation 2.8
       gl   = 1.0d0 - 13.04d0*xl2 +133.5d0*xl4 +1534.0d0*xl6 +918.6d0*xl8
-      gldt = xldt*(-26.08d0*xl +534.0d0*xl3 +9204.0d0*xl5 +7348.8d0*xl7)
+      !gldt = xldt*(-26.08d0*xl +534.0d0*xl3 +9204.0d0*xl5 +7348.8d0*xl7)
 
 ! equation 2.7
 
@@ -231,10 +231,10 @@
 
       xnum   = a1 * b1
       c      = a2*b1 + a1*b2
-      xnumdt = c*zetadt
-      xnumdd = c*zetadd
-      xnumda = c*zetada
-      xnumdz = c*zetadz
+      !xnumdt = c*zetadt
+      !xnumdd = c*zetadd
+      !xnumda = c*zetada
+      !xnumdz = c*zetadz
 
       if (t9 .lt. 10.0) then
        a1   = 9.383d-1*xlm1 - 4.141d-1*xlm2 + 5.829d-2*xlm3
@@ -247,24 +247,24 @@
       b1   = 3.0d0*zeta2
 
       xden   = zeta3 + a1
-      xdendt = b1*zetadt + a2*xldt
-      xdendd = b1*zetadd
-      xdenda = b1*zetada
-      xdendz = b1*zetadz
+      !xdendt = b1*zetadt + a2*xldt
+      !xdendd = b1*zetadd
+      !xdenda = b1*zetada
+      !xdendz = b1*zetadz
 
       a1      = 1.0d0/xden
       fpair   = xnum*a1
-      fpairdt = (xnumdt - fpair*xdendt)*a1
-      fpairdd = (xnumdd - fpair*xdendd)*a1
-      fpairda = (xnumda - fpair*xdenda)*a1
-      fpairdz = (xnumdz - fpair*xdendz)*a1
+      !fpairdt = (xnumdt - fpair*xdendt)*a1
+      !fpairdd = (xnumdd - fpair*xdendd)*a1
+      !fpairda = (xnumda - fpair*xdenda)*a1
+      !fpairdz = (xnumdz - fpair*xdendz)*a1
 
 
 ! equation 2.6
       a1     = 10.7480d0*xl2 + 0.3967d0*xlp5 + 1.005d0
       a2     = xldt*(2.0d0*10.7480d0*xl + 0.5d0*0.3967d0*xlmp5)
       xnum   = 1.0d0/a1
-      xnumdt = -xnum*xnum*a2
+      !xnumdt = -xnum*xnum*a2
 
       a1     = 7.692d7*xl3 + 9.715d6*xlp5
       a2     = xldt*(3.0d0*7.692d7*xl2 + 0.5d0*9.715d6*xlmp5)
@@ -275,16 +275,16 @@
       xden   = b1**(-0.3d0)
 
       d      = -0.3d0*xden/b1
-      xdendt = -d*rm*c*c*a2
-      xdendd = d*rmdd*c
-      xdenda = d*rmda*c
-      xdendz = d*rmdz*c
+      !xdendt = -d*rm*c*c*a2
+      !xdendd = d*rmdd*c
+      !xdenda = d*rmda*c
+      !xdendz = d*rmdz*c
 
       qpair   = xnum*xden
-      qpairdt = xnumdt*xden + xnum*xdendt
-      qpairdd = xnum*xdendd
-      qpairda = xnum*xdenda
-      qpairdz = xnum*xdendz
+      !qpairdt = xnumdt*xden + xnum*xdendt
+      !qpairdd = xnum*xdendd
+      !qpairda = xnum*xdenda
+      !qpairdz = xnum*xdendz
 
 
 
@@ -293,27 +293,27 @@
       a2    = a1*2.0d0*xlm2*xldt
 
       spair   = a1*fpair
-      spairdt = a2*fpair + a1*fpairdt
-      spairdd = a1*fpairdd
-      spairda = a1*fpairda
-      spairdz = a1*fpairdz
+      !spairdt = a2*fpair + a1*fpairdt
+      !spairdd = a1*fpairdd
+      !spairda = a1*fpairda
+      !spairdz = a1*fpairdz
 
       a1      = spair
       spair   = gl*a1
-      spairdt = gl*spairdt + gldt*a1
-      spairdd = gl*spairdd
-      spairda = gl*spairda
-      spairdz = gl*spairdz
+      !spairdt = gl*spairdt + gldt*a1
+      !spairdd = gl*spairdd
+      !spairda = gl*spairda
+      !spairdz = gl*spairdz
 
       a1      = tfac4*(1.0d0 + tfac3 * qpair)
       a2      = tfac4*tfac3
 
       a3      = spair
       spair   = a1*a3
-      spairdt = a1*spairdt + a2*qpairdt*a3
-      spairdd = a1*spairdd + a2*qpairdd*a3
-      spairda = a1*spairda + a2*qpairda*a3
-      spairdz = a1*spairdz + a2*qpairdz*a3
+      !spairdt = a1*spairdt + a2*qpairdt*a3
+      !spairdd = a1*spairdd + a2*qpairdd*a3
+      !spairda = a1*spairda + a2*qpairda*a3
+      !spairdz = a1*spairdz + a2*qpairdz*a3
 
 
 
@@ -333,11 +333,11 @@
 
       gl2   = 1.1095d11 * rm * c00
 
-      gl2dt = -2.0d0*gl2*tempi
-      d     = rm*c00*b2*0.5d0*b2*a3*1.019d-6
-      gl2dd = 1.1095d11 * (rmdd*c00  - d*rmdd)
-      gl2da = 1.1095d11 * (rmda*c00  - d*rmda)
-      gl2dz = 1.1095d11 * (rmdz*c00  - d*rmdz)
+      !gl2dt = -2.0d0*gl2*tempi
+      !d     = rm*c00*b2*0.5d0*b2*a3*1.019d-6
+      !gl2dd = 1.1095d11 * (rmdd*c00  - d*rmdd)
+      !gl2da = 1.1095d11 * (rmda*c00  - d*rmda)
+      !gl2dz = 1.1095d11 * (rmdz*c00  - d*rmdz)
 
 
       gl    = sqrt(gl2)
@@ -350,11 +350,11 @@
 ! equation 4.7
       ft   = 2.4d0 + 0.6d0*gl12 + 0.51d0*gl + 1.25d0*gl32
       gum  = 1.0d0/gl2
-      a1   =(0.25d0*0.6d0*gl12 +0.5d0*0.51d0*gl +0.75d0*1.25d0*gl32)*gum
-      ftdt = a1*gl2dt
-      ftdd = a1*gl2dd
-      ftda = a1*gl2da
-      ftdz = a1*gl2dz
+      !a1   =(0.25d0*0.6d0*gl12 +0.5d0*0.51d0*gl +0.75d0*1.25d0*gl32)*gum
+      !ftdt = a1*gl2dt
+      !ftdd = a1*gl2dd
+      !ftda = a1*gl2da
+      !ftdz = a1*gl2dz
 
 
 ! equation 4.8
@@ -368,10 +368,10 @@
       fl   = a1*c
 
       d    = (a2 - fl*b2)*c
-      fldt = d*gl2dt
-      fldd = d*gl2dd
-      flda = d*gl2da
-      fldz = d*gl2dz
+      !fldt = d*gl2dt
+      !fldd = d*gl2dd
+      !flda = d*gl2da
+      !fldz = d*gl2dz
 
 
 ! equation 4.9 and 4.10
@@ -379,17 +379,17 @@
       xlnt = log10(temp)
 
       xnum   = sixth * (17.5d0 + cc - 3.0d0*xlnt)
-      xnumdt = -iln10*0.5d0*tempi
-      a2     = iln10*sixth*rmi
-      xnumdd = a2*rmdd
-      xnumda = a2*rmda
-      xnumdz = a2*rmdz
+      !xnumdt = -iln10*0.5d0*tempi
+      !a2     = iln10*sixth*rmi
+      !xnumdd = a2*rmdd
+      !xnumda = a2*rmda
+      !xnumdz = a2*rmdz
 
       xden   = sixth * (-24.5d0 + cc + 3.0d0*xlnt)
-      xdendt = iln10*0.5d0*tempi
-      xdendd = a2*rmdd
-      xdenda = a2*rmda
-      xdendz = a2*rmdz
+      !xdendt = iln10*0.5d0*tempi
+      !xdendd = a2*rmdd
+      !xdenda = a2*rmda
+      !xdendz = a2*rmdz
 
 
 ! equation 4.11
@@ -409,33 +409,33 @@
        b2  = -b1*2.0d0*(4.5d0*xnum + 0.9d0)*4.5d0
 
        c   = min(0.0d0, xden - 1.6d0 + 1.25d0*xnum)
-       if (c .eq. 0.0) then
-        dumdt = 0.0d0
-        dumdd = 0.0d0
-        dumda = 0.0d0
-        dumdz = 0.0d0
-       else
-        dumdt = xdendt + 1.25d0*xnumdt
-        dumdd = xdendd + 1.25d0*xnumdd
-        dumda = xdenda + 1.25d0*xnumda
-        dumdz = xdendz + 1.25d0*xnumdz
-       end if
+       ! if (c .eq. 0.0) then
+       !  dumdt = 0.0d0
+       !  dumdd = 0.0d0
+       !  dumda = 0.0d0
+       !  dumdz = 0.0d0
+       ! else
+       !  dumdt = xdendt + 1.25d0*xnumdt
+       !  dumdd = xdendd + 1.25d0*xnumdd
+       !  dumda = xdenda + 1.25d0*xnumda
+       !  dumdz = xdendz + 1.25d0*xnumdz
+       ! end if
 
        d   = 0.57d0 - 0.25d0*xnum
        a3  = c/d
        c00 = exp(-1.0d0*a3**2)
 
        f1  = -c00*2.0d0*a3/d
-       c01 = f1*(dumdt + a3*0.25d0*xnumdt)
-       c02 = f1*(dumdd + a3*0.25d0*xnumdd)
-       c03 = f1*(dumda + a3*0.25d0*xnumda)
-       c04 = f1*(dumdz + a3*0.25d0*xnumdz)
+       !c01 = f1*(dumdt + a3*0.25d0*xnumdt)
+       !c02 = f1*(dumdd + a3*0.25d0*xnumdd)
+       !c03 = f1*(dumda + a3*0.25d0*xnumda)
+       !c04 = f1*(dumdz + a3*0.25d0*xnumdz)
 
        fxy   = 1.05d0 + (a1 - b1)*c00
-       fxydt = (a2*xnumdt -  b2*xnumdt)*c00 + (a1-b1)*c01
-       fxydd = (a2*xnumdd -  b2*xnumdd)*c00 + (a1-b1)*c02
-       fxyda = (a2*xnumda -  b2*xnumda)*c00 + (a1-b1)*c03
-       fxydz = (a2*xnumdz -  b2*xnumdz)*c00 + (a1-b1)*c04
+       !fxydt = (a2*xnumdt -  b2*xnumdt)*c00 + (a1-b1)*c01
+       !fxydd = (a2*xnumdd -  b2*xnumdd)*c00 + (a1-b1)*c02
+       !fxyda = (a2*xnumda -  b2*xnumda)*c00 + (a1-b1)*c03
+       !fxydz = (a2*xnumdz -  b2*xnumdz)*c00 + (a1-b1)*c04
 
       end if
 
@@ -443,30 +443,30 @@
 
 ! equation 4.1 and 4.5
       splas   = (ft + fl) * fxy
-      splasdt = (ftdt + fldt)*fxy + (ft+fl)*fxydt
-      splasdd = (ftdd + fldd)*fxy + (ft+fl)*fxydd
-      splasda = (ftda + flda)*fxy + (ft+fl)*fxyda
-      splasdz = (ftdz + fldz)*fxy + (ft+fl)*fxydz
+      !splasdt = (ftdt + fldt)*fxy + (ft+fl)*fxydt
+      !splasdd = (ftdd + fldd)*fxy + (ft+fl)*fxydd
+      !splasda = (ftda + flda)*fxy + (ft+fl)*fxyda
+      !splasdz = (ftdz + fldz)*fxy + (ft+fl)*fxydz
 
       a2      = exp(-gl)
       a3      = -0.5d0*a2*gl*gum
 
       a1      = splas
       splas   = a2*a1
-      splasdt = a2*splasdt + a3*gl2dt*a1
-      splasdd = a2*splasdd + a3*gl2dd*a1
-      splasda = a2*splasda + a3*gl2da*a1
-      splasdz = a2*splasdz + a3*gl2dz*a1
+      !splasdt = a2*splasdt + a3*gl2dt*a1
+      !splasdd = a2*splasdd + a3*gl2dd*a1
+      !splasda = a2*splasda + a3*gl2da*a1
+      !splasdz = a2*splasdz + a3*gl2dz*a1
 
       a2      = gl6
       a3      = 3.0d0*gl6*gum
 
       a1      = splas
       splas   = a2*a1
-      splasdt = a2*splasdt + a3*gl2dt*a1
-      splasdd = a2*splasdd + a3*gl2dd*a1
-      splasda = a2*splasda + a3*gl2da*a1
-      splasdz = a2*splasdz + a3*gl2dz*a1
+      !splasdt = a2*splasdt + a3*gl2dt*a1
+      !splasdd = a2*splasdd + a3*gl2dd*a1
+      !splasda = a2*splasda + a3*gl2da*a1
+      !splasdz = a2*splasdz + a3*gl2dz*a1
 
 
       a2      = 0.93153d0 * 3.0d21 * xl9
@@ -474,10 +474,10 @@
 
       a1      = splas
       splas   = a2*a1
-      splasdt = a2*splasdt + a3*a1
-      splasdd = a2*splasdd
-      splasda = a2*splasda
-      splasdz = a2*splasdz
+      !splasdt = a2*splasdt + a3*a1
+      !splasdd = a2*splasdd
+      !splasda = a2*splasda
+      !splasdz = a2*splasdz
 
 
 
@@ -608,7 +608,7 @@
        dd25 = -2.185d9
       end if
 
-      taudt = iln10*tempi
+      !taudt = iln10*tempi
 
 
 ! equation 3.7, compute the expensive trig functions only one time
@@ -659,83 +659,83 @@
 
 ! equation 3.4
       dum   = a0 + a1*zeta + a2*zeta2
-      dumdt = f0 + f1*zeta + a1*zetadt + f2*zeta2 + 2.0d0*a2*zeta*zetadt
-      dumdd = a1*zetadd + 2.0d0*a2*zeta*zetadd
-      dumda = a1*zetada + 2.0d0*a2*zeta*zetada
-      dumdz = a1*zetadz + 2.0d0*a2*zeta*zetadz
+      !dumdt = f0 + f1*zeta + a1*zetadt + f2*zeta2 + 2.0d0*a2*zeta*zetadt
+      !dumdd = a1*zetadd + 2.0d0*a2*zeta*zetadd
+      !dumda = a1*zetada + 2.0d0*a2*zeta*zetada
+      !dumdz = a1*zetadz + 2.0d0*a2*zeta*zetadz
 
       z      = exp(-cc*zeta)
 
       xnum   = dum*z
-      xnumdt = dumdt*z - dum*z*cc*zetadt
-      xnumdd = dumdd*z - dum*z*cc*zetadd
-      xnumda = dumda*z - dum*z*cc*zetada
-      xnumdz = dumdz*z - dum*z*cc*zetadz
+      !xnumdt = dumdt*z - dum*z*cc*zetadt
+      !xnumdd = dumdd*z - dum*z*cc*zetadd
+      !xnumda = dumda*z - dum*z*cc*zetada
+      !xnumdz = dumdz*z - dum*z*cc*zetadz
 
       xden   = zeta3 + 6.290d-3*xlm1 + 7.483d-3*xlm2 + 3.061d-4*xlm3
 
       dum    = 3.0d0*zeta2
-      xdendt = dum*zetadt - xldt*(6.290d-3*xlm2 &
-               + 2.0d0*7.483d-3*xlm3 + 3.0d0*3.061d-4*xlm4)
-      xdendd = dum*zetadd
-      xdenda = dum*zetada
-      xdendz = dum*zetadz
+      !xdendt = dum*zetadt - xldt*(6.290d-3*xlm2 &
+      !         + 2.0d0*7.483d-3*xlm3 + 3.0d0*3.061d-4*xlm4)
+      !xdendd = dum*zetadd
+      !xdenda = dum*zetada
+      !xdendz = dum*zetadz
 
       dum      = 1.0d0/xden
       fphot   = xnum*dum
-      fphotdt = (xnumdt - fphot*xdendt)*dum
-      fphotdd = (xnumdd - fphot*xdendd)*dum
-      fphotda = (xnumda - fphot*xdenda)*dum
-      fphotdz = (xnumdz - fphot*xdendz)*dum
+      !fphotdt = (xnumdt - fphot*xdendt)*dum
+      !fphotdd = (xnumdd - fphot*xdendd)*dum
+      !fphotda = (xnumda - fphot*xdenda)*dum
+      !fphotdz = (xnumdz - fphot*xdendz)*dum
 
 
 ! equation 3.3
       a0     = 1.0d0 + 2.045d0 * xl
       xnum   = 0.666d0*a0**(-2.066d0)
-      xnumdt = -2.066d0*xnum/a0 * 2.045d0*xldt
+      !xnumdt = -2.066d0*xnum/a0 * 2.045d0*xldt
 
       dum    = 1.875d8*xl + 1.653d8*xl2 + 8.449d8*xl3 - 1.604d8*xl4
-      dumdt  = xldt*(1.875d8 + 2.0d0*1.653d8*xl + 3.0d0*8.449d8*xl2 &
-               - 4.0d0*1.604d8*xl3)
+      !dumdt  = xldt*(1.875d8 + 2.0d0*1.653d8*xl + 3.0d0*8.449d8*xl2 &
+      !         - 4.0d0*1.604d8*xl3)
 
       z      = 1.0d0/dum
       xden   = 1.0d0 + rm*z
-      xdendt =  -rm*z*z*dumdt
-      xdendd =  rmdd*z
-      xdenda =  rmda*z
-      xdendz =  rmdz*z
+      !xdendt =  -rm*z*z*dumdt
+      !xdendd =  rmdd*z
+      !xdenda =  rmda*z
+      !xdendz =  rmdz*z
 
       z      = 1.0d0/xden
       qphot = xnum*z
-      qphotdt = (xnumdt - qphot*xdendt)*z
+      !qphotdt = (xnumdt - qphot*xdendt)*z
       dum      = -qphot*z
-      qphotdd = dum*xdendd
-      qphotda = dum*xdenda
-      qphotdz = dum*xdendz
+      !qphotdd = dum*xdendd
+      !qphotda = dum*xdenda
+      !qphotdz = dum*xdendz
 
 ! equation 3.2
       sphot   = xl5 * fphot
-      sphotdt = 5.0d0*xl4*xldt*fphot + xl5*fphotdt
-      sphotdd = xl5*fphotdd
-      sphotda = xl5*fphotda
-      sphotdz = xl5*fphotdz
+      !sphotdt = 5.0d0*xl4*xldt*fphot + xl5*fphotdt
+      !sphotdd = xl5*fphotdd
+      !sphotda = xl5*fphotda
+      !sphotdz = xl5*fphotdz
 
       a1      = sphot
       sphot   = rm*a1
-      sphotdt = rm*sphotdt
-      sphotdd = rm*sphotdd + rmdd*a1
-      sphotda = rm*sphotda + rmda*a1
-      sphotdz = rm*sphotdz + rmdz*a1
+      !sphotdt = rm*sphotdt
+      !sphotdd = rm*sphotdd + rmdd*a1
+      !sphotda = rm*sphotda + rmda*a1
+      !sphotdz = rm*sphotdz + rmdz*a1
 
       a1      = tfac4*(1.0d0 - tfac3 * qphot)
       a2      = -tfac4*tfac3
 
       a3      = sphot
       sphot   = a1*a3
-      sphotdt = a1*sphotdt + a2*qphotdt*a3
-      sphotdd = a1*sphotdd + a2*qphotdd*a3
-      sphotda = a1*sphotda + a2*qphotda*a3
-      sphotdz = a1*sphotdz + a2*qphotdz*a3
+      !sphotdt = a1*sphotdt + a2*qphotdt*a3
+      !sphotdd = a1*sphotdd + a2*qphotdd*a3
+      !sphotda = a1*sphotda + a2*qphotda*a3
+      !sphotdz = a1*sphotdz + a2*qphotdz*a3
 
       if (sphot .le. 0.0) then
        sphot   = 0.0d0
@@ -777,14 +777,14 @@
 
 ! equation 5.3
        dum   = 7.05d6 * t832 + 5.12d4 * t83
-       dumdt = (1.5d0*7.05d6*t812 + 3.0d0*5.12d4*t82)*1.0d-8
+       !dumdt = (1.5d0*7.05d6*t812 + 3.0d0*5.12d4*t82)*1.0d-8
 
        z     = 1.0d0/dum
        eta   = rm*z
-       etadt = -rm*z*z*dumdt
-       etadd = rmdd*z
-       etada = rmda*z
-       etadz = rmdz*z
+       !etadt = -rm*z*z*dumdt
+       !etadd = rmdd*z
+       !etada = rmda*z
+       !etadz = rmdz*z
 
        etam1 = 1.0d0/eta
        etam2 = etam1 * etam1
@@ -798,10 +798,10 @@
 
        dum   = 1.0d0 + 1.47d0*etam1 + 3.29d-2*etam2
        z     = -1.47d0*etam2 - 2.0d0*3.29d-2*etam3
-       dumdt = z*etadt
-       dumdd = z*etadd
-       dumda = z*etada
-       dumdz = z*etadz
+       !dumdt = z*etadt
+       !dumdd = z*etadd
+       !dumda = z*etada
+       !dumdz = z*etadz
 
        c00   = 1.26d0 * (1.0d0+etam1)
        z     = -1.26d0*etam2
@@ -812,16 +812,16 @@
 
        z      = 1.0d0/dum
        xden   = c00*z
-       xdendt = (c01 - xden*dumdt)*z
-       xdendd = (c02 - xden*dumdd)*z
-       xdenda = (c03 - xden*dumda)*z
-       xdendz = (c04 - xden*dumdz)*z
+       !xdendt = (c01 - xden*dumdt)*z
+       !xdendd = (c02 - xden*dumdd)*z
+       !xdenda = (c03 - xden*dumda)*z
+       !xdendz = (c04 - xden*dumdz)*z
 
        fbrem   = xnum + xden
-       fbremdt = -xnum*xnum*f0 + xdendt
-       fbremdd = xdendd
-       fbremda = xdenda
-       fbremdz = xdendz
+       !fbremdt = -xnum*xnum*f0 + xdendt
+       !fbremdd = xdendd
+       !fbremda = xdenda
+       !fbremdz = xdendz
 
 
 ! equation 5.9
@@ -830,18 +830,18 @@
 
        z     = 1.0d0 + rm*1.0d-9
        dum   = a0*z
-       dumdt = f0*z
-       z     = a0*1.0d-9
-       dumdd = z*rmdd
-       dumda = z*rmda
-       dumdz = z*rmdz
+       !dumdt = f0*z
+       !z     = a0*1.0d-9
+       !dumdd = z*rmdd
+       !dumda = z*rmda
+       !dumdz = z*rmdz
 
        xnum   = 1.0d0/dum
-       z      = -xnum*xnum
-       xnumdt = z*dumdt
-       xnumdd = z*dumdd
-       xnumda = z*dumda
-       xnumdz = z*dumdz
+       !z      = -xnum*xnum
+       !xnumdt = z*dumdt
+       !xnumdd = z*dumdd
+       !xnumda = z*dumda
+       !xnumdz = z*dumdz
 
        c00   = 7.75d5*t832 + 247.0d0*t8**(3.85d0)
        dd00  = (1.5d0*7.75d5*t812 + 3.85d0*247.0d0*t8**(2.85d0))*1.0d-8
@@ -854,39 +854,39 @@
 
        z     = den**(0.656d0)
        dum   = c00*rmi  + c01  + c02*z
-       dumdt = dd00*rmi + dd01 + dd02*z
-       z     = -c00*rmi*rmi
-       dumdd = z*rmdd + 0.656d0*c02*den**(-0.454d0)
-       dumda = z*rmda
-       dumdz = z*rmdz
+       !dumdt = dd00*rmi + dd01 + dd02*z
+       !z     = -c00*rmi*rmi
+       !dumdd = z*rmdd + 0.656d0*c02*den**(-0.454d0)
+       !dumda = z*rmda
+       !dumdz = z*rmdz
 
        xden  = 1.0d0/dum
-       z      = -xden*xden
-       xdendt = z*dumdt
-       xdendd = z*dumdd
-       xdenda = z*dumda
-       xdendz = z*dumdz
+       !z      = -xden*xden
+       !xdendt = z*dumdt
+       !xdendd = z*dumdd
+       !xdenda = z*dumda
+       !xdendz = z*dumdz
 
        gbrem   = xnum + xden
-       gbremdt = xnumdt + xdendt
-       gbremdd = xnumdd + xdendd
-       gbremda = xnumda + xdenda
-       gbremdz = xnumdz + xdendz
+       !gbremdt = xnumdt + xdendt
+       !gbremdd = xnumdd + xdendd
+       !gbremda = xnumda + xdenda
+       !gbremdz = xnumdz + xdendz
 
 
 ! equation 5.1
        dum    = 0.5738d0*zbar*ye*t86*den
-       dumdt  = 0.5738d0*zbar*ye*6.0d0*t85*den*1.0d-8
-       dumdd  = 0.5738d0*zbar*ye*t86
-       dumda  = -dum*abari
-       dumdz  = 0.5738d0*2.0d0*ye*t86*den
+       !dumdt  = 0.5738d0*zbar*ye*6.0d0*t85*den*1.0d-8
+       !dumdd  = 0.5738d0*zbar*ye*t86
+       !dumda  = -dum*abari
+       !dumdz  = 0.5738d0*2.0d0*ye*t86*den
 
        z       = tfac4*fbrem - tfac5*gbrem
        sbrem   = dum * z
-       sbremdt = dumdt*z + dum*(tfac4*fbremdt - tfac5*gbremdt)
-       sbremdd = dumdd*z + dum*(tfac4*fbremdd - tfac5*gbremdd)
-       sbremda = dumda*z + dum*(tfac4*fbremda - tfac5*gbremda)
-       sbremdz = dumdz*z + dum*(tfac4*fbremdz - tfac5*gbremdz)
+       !sbremdt = dumdt*z + dum*(tfac4*fbremdt - tfac5*gbremdt)
+       !sbremdd = dumdd*z + dum*(tfac4*fbremdd - tfac5*gbremdd)
+       !sbremda = dumda*z + dum*(tfac4*fbremda - tfac5*gbremda)
+       !sbremdz = dumdz*z + dum*(tfac4*fbremdz - tfac5*gbremdz)
 
 
 
@@ -976,10 +976,10 @@
 
 
        dum   = 2.275d-1 * zbar * zbar*t8m1 * (den6*abari)**oneth
-       dumdt = -dum*tempi
-       dumdd = oneth*dum*deni
-       dumda = -oneth*dum*abari
-       dumdz = 2.0d0*dum*zbari
+       !dumdt = -dum*tempi
+       !dumdd = oneth*dum*deni
+       !dumda = -oneth*dum*abari
+       !dumdz = 2.0d0*dum*zbari
 
        gm1   = 1.0d0/dum
        gm2   = gm1*gm1
@@ -999,31 +999,31 @@
 
 ! equation 5.19 and 5.20
        fliq   = v*fb + (1.0d0 - v)*ft
-       fliqdt = a0*dumdt*(fb - ft)
-       fliqdd = a0*dumdd*(fb - ft) + v*c00 + (1.0d0 - v)*c01
-       fliqda = a0*dumda*(fb - ft)
-       fliqdz = a0*dumdz*(fb - ft)
+       !fliqdt = a0*dumdt*(fb - ft)
+       !fliqdd = a0*dumdd*(fb - ft) + v*c00 + (1.0d0 - v)*c01
+       !fliqda = a0*dumda*(fb - ft)
+       !fliqdz = a0*dumdz*(fb - ft)
 
        gliq   = w*gb + (1.0d0 - w)*gt
-       gliqdt = a1*dumdt*(gb - gt)
-       gliqdd = a1*dumdd*(gb - gt) + w*c02 + (1.0d0 - w)*c03
-       gliqda = a1*dumda*(gb - gt)
-       gliqdz = a1*dumdz*(gb - gt)
+       !gliqdt = a1*dumdt*(gb - gt)
+       !gliqdd = a1*dumdd*(gb - gt) + w*c02 + (1.0d0 - w)*c03
+       !gliqda = a1*dumda*(gb - gt)
+       !gliqdz = a1*dumdz*(gb - gt)
 
 
 ! equation 5.17
        dum    = 0.5738d0*zbar*ye*t86*den
-       dumdt  = 0.5738d0*zbar*ye*6.0d0*t85*den*1.0d-8
-       dumdd  = 0.5738d0*zbar*ye*t86
-       dumda  = -dum*abari
-       dumdz  = 0.5738d0*2.0d0*ye*t86*den
+       !dumdt  = 0.5738d0*zbar*ye*6.0d0*t85*den*1.0d-8
+       !dumdd  = 0.5738d0*zbar*ye*t86
+       !dumda  = -dum*abari
+       !dumdz  = 0.5738d0*2.0d0*ye*t86*den
 
        z       = tfac4*fliq - tfac5*gliq
        sbrem   = dum * z
-       sbremdt = dumdt*z + dum*(tfac4*fliqdt - tfac5*gliqdt)
-       sbremdd = dumdd*z + dum*(tfac4*fliqdd - tfac5*gliqdd)
-       sbremda = dumda*z + dum*(tfac4*fliqda - tfac5*gliqda)
-       sbremdz = dumdz*z + dum*(tfac4*fliqdz - tfac5*gliqdz)
+       !sbremdt = dumdt*z + dum*(tfac4*fliqdt - tfac5*gliqdt)
+       !sbremdd = dumdd*z + dum*(tfac4*fliqdd - tfac5*gliqdd)
+       !sbremda = dumda*z + dum*(tfac4*fliqda - tfac5*gliqda)
+       !sbremdz = dumdz*z + dum*(tfac4*fliqdz - tfac5*gliqdz)
 
       end if
 
@@ -1034,20 +1034,20 @@
 ! for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e
 ! equation 6.11 solved for nu
       xnum   = 1.10520d8 * den * ye /(temp*sqrt(temp))
-      xnumdt = -1.50d0*xnum*tempi
-      xnumdd = xnum*deni
-      xnumda = -xnum*abari
-      xnumdz = xnum*zbari
+      !xnumdt = -1.50d0*xnum*tempi
+      !xnumdd = xnum*deni
+      !xnumda = -xnum*abari
+      !xnumdz = xnum*zbari
 
 ! the chemical potential
       nu   = ifermi12(xnum)
 
 ! a0 is d(nu)/d(xnum)
       a0 = 1.0d0/(0.5d0*zfermim12(nu))
-      nudt = a0*xnumdt
-      nudd = a0*xnumdd
-      nuda = a0*xnumda
-      nudz = a0*xnumdz
+      !nudt = a0*xnumdt
+      !nudd = a0*xnumdd
+      !nuda = a0*xnumda
+      !nudz = a0*xnumdz
 
       nu2  = nu * nu
       nu3  = nu2 * nu
@@ -1080,18 +1080,18 @@
       if (nu .ge. -20.0  .and.  nu .le. 10.0) then
 
        zeta   = 1.579d5*zbar*zbar*tempi
-       zetadt = -zeta*tempi
-       zetadd = 0.0d0
-       zetada = 0.0d0
-       zetadz = 2.0d0*zeta*zbari
+       !zetadt = -zeta*tempi
+       !zetadd = 0.0d0
+       !zetada = 0.0d0
+       !zetadz = 2.0d0*zeta*zbari
 
        c00    = 1.0d0/(1.0d0 + f1*nu + f2*nu2 + f3*nu3)
        c01    = f1 + f2*2.0d0*nu + f3*3.0d0*nu2
        dum    = zeta*c00
-       dumdt  = zetadt*c00 + zeta*c01*nudt
-       dumdd  = zeta*c01*nudd
-       dumda  = zeta*c01*nuda
-       dumdz  = zetadz*c00 + zeta*c01*nudz
+       !dumdt  = zetadt*c00 + zeta*c01*nudt
+       !dumdd  = zeta*c01*nudd
+       !dumda  = zeta*c01*nuda
+       !dumdz  = zetadz*c00 + zeta*c01*nudz
 
 
        z      = 1.0d0/dum
@@ -1104,20 +1104,20 @@
        z      = exp(c*nu)
        dd00   = b*z*(1.0d0 + d*dum)
        gum    = 1.0d0 + dd00
-       gumdt  = dd00*c*nudt + b*z*d*dumdt
-       gumdd  = dd00*c*nudd + b*z*d*dumdd
-       gumda  = dd00*c*nuda + b*z*d*dumda
-       gumdz  = dd00*c*nudz + b*z*d*dumdz
+       !gumdt  = dd00*c*nudt + b*z*d*dumdt
+       !gumdd  = dd00*c*nudd + b*z*d*dumdd
+       !gumda  = dd00*c*nuda + b*z*d*dumda
+       !gumdz  = dd00*c*nudz + b*z*d*dumdz
 
 
        z   = exp(nu)
        a1  = 1.0d0/gum
 
        bigj   = c00 * z * a1
-       bigjdt = c01*dumdt*z*a1 + c00*z*nudt*a1 - c00*z*a1*a1 * gumdt
-       bigjdd = c01*dumdd*z*a1 + c00*z*nudd*a1 - c00*z*a1*a1 * gumdd
-       bigjda = c01*dumda*z*a1 + c00*z*nuda*a1 - c00*z*a1*a1 * gumda
-       bigjdz = c01*dumdz*z*a1 + c00*z*nudz*a1 - c00*z*a1*a1 * gumdz
+       !bigjdt = c01*dumdt*z*a1 + c00*z*nudt*a1 - c00*z*a1*a1 * gumdt
+       !bigjdd = c01*dumdd*z*a1 + c00*z*nudd*a1 - c00*z*a1*a1 * gumdd
+       !bigjda = c01*dumda*z*a1 + c00*z*nuda*a1 - c00*z*a1*a1 * gumda
+       !bigjdz = c01*dumdz*z*a1 + c00*z*nudz*a1 - c00*z*a1*a1 * gumdz
 
 
 ! equation 6.5
@@ -1127,10 +1127,10 @@
        a2    = 1.0d0/bigj
 
        sreco   = tfac6 * 2.649d-18 * ye * zbar**13 * den * bigj*a1
-       srecodt = sreco*(bigjdt*a2 - z*(zetadt + nudt)*a1)
-       srecodd = sreco*(1.0d0*deni + bigjdd*a2 - z*(zetadd + nudd)*a1)
-       srecoda = sreco*(-1.0d0*abari + bigjda*a2 - z*(zetada+nuda)*a1)
-       srecodz = sreco*(14.0d0*zbari + bigjdz*a2 - z*(zetadz+nudz)*a1)
+       !srecodt = sreco*(bigjdt*a2 - z*(zetadt + nudt)*a1)
+       !srecodd = sreco*(1.0d0*deni + bigjdd*a2 - z*(zetadd + nudd)*a1)
+       !srecoda = sreco*(-1.0d0*abari + bigjda*a2 - z*(zetada+nuda)*a1)
+       !srecodz = sreco*(14.0d0*zbari + bigjdz*a2 - z*(zetadz+nudz)*a1)
 
       end if
 
@@ -1139,42 +1139,42 @@
 ! comment these out to duplicate the itoh et al plots
 
       spair   = spair*deni
-      spairdt = spairdt*deni
-      spairdd = spairdd*deni - spair*deni
-      spairda = spairda*deni
-      spairdz = spairdz*deni
+      !spairdt = spairdt*deni
+      !spairdd = spairdd*deni - spair*deni
+      !spairda = spairda*deni
+      !spairdz = spairdz*deni
 
       splas   = splas*deni
-      splasdt = splasdt*deni
-      splasdd = splasdd*deni - splas*deni
-      splasda = splasda*deni
-      splasdz = splasdz*deni
+      !splasdt = splasdt*deni
+      !splasdd = splasdd*deni - splas*deni
+      !splasda = splasda*deni
+      !splasdz = splasdz*deni
 
       sphot   = sphot*deni
-      sphotdt = sphotdt*deni
-      sphotdd = sphotdd*deni - sphot*deni
-      sphotda = sphotda*deni
-      sphotdz = sphotdz*deni
+      !sphotdt = sphotdt*deni
+      !sphotdd = sphotdd*deni - sphot*deni
+      !sphotda = sphotda*deni
+      !sphotdz = sphotdz*deni
 
       sbrem   = sbrem*deni
-      sbremdt = sbremdt*deni
-      sbremdd = sbremdd*deni - sbrem*deni
-      sbremda = sbremda*deni
-      sbremdz = sbremdz*deni
+      !sbremdt = sbremdt*deni
+      !sbremdd = sbremdd*deni - sbrem*deni
+      !sbremda = sbremda*deni
+      !sbremdz = sbremdz*deni
 
       sreco   = sreco*deni
-      srecodt = srecodt*deni
-      srecodd = srecodd*deni - sreco*deni
-      srecoda = srecoda*deni
-      srecodz = srecodz*deni
+      !srecodt = srecodt*deni
+      !srecodd = srecodd*deni - sreco*deni
+      !srecoda = srecoda*deni
+      !srecodz = srecodz*deni
 
 
 ! the total neutrino loss rate
       snu    =  splas + spair + sphot + sbrem + sreco
-      dsnudt =  splasdt + spairdt + sphotdt + sbremdt + srecodt
-      dsnudd =  splasdd + spairdd + sphotdd + sbremdd + srecodd
-      dsnuda =  splasda + spairda + sphotda + sbremda + srecoda
-      dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz
+      !dsnudt =  splasdt + spairdt + sphotdt + sbremdt + srecodt
+      !dsnudd =  splasdd + spairdd + sphotdd + sbremdd + srecodd
+      !dsnuda =  splasda + spairda + sphotda + sbremda + srecoda
+      !dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz
 
       return
       end
