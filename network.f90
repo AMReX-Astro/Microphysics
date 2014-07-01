@@ -19,7 +19,7 @@
 module network
 
   use bl_types
-  use bl_constants_module
+  !use bl_constants_module
 
   implicit none
 
@@ -28,11 +28,11 @@ module network
   ! of the neutron in amu -- these come from the original const.dek
   ! from the public network
   real (kind=dp_t), parameter :: avo     = 6.0221417930d23
-  real (kind=dp_t), parameter :: clight  = 2.99792458d10
-  real (kind=dp_t), parameter :: kerg    = 1.380650424d-16
+  real (kind=dp_t), parameter :: c_light  = 2.99792458d10
+  !real (kind=dp_t), parameter :: kerg    = 1.380650424d-16
   real (kind=dp_t), parameter :: ev2erg  = 1.60217648740d-12
-  real (kind=dp_t), parameter :: kev     = kerg/ev2erg
-  real (kind=dp_t), parameter :: amu     = 1.66053878283d-24
+  !real (kind=dp_t), parameter :: kev     = kerg/ev2erg
+  !real (kind=dp_t), parameter :: amu     = 1.66053878283d-24
 
   real (kind=dp_t), parameter :: mn      = 1.67492721184d-24
   real (kind=dp_t), parameter :: mp      = 1.67262163783d-24
@@ -42,12 +42,10 @@ module network
   real (kind=dp_t), parameter :: deltan     = 8.071323d0
 
   real (kind=dp_t), parameter :: enuc_conv  = ev2erg*1.0d6*avo
-  real (kind=dp_t), parameter :: enuc_conv2 = -avo*clight*clight
+  real (kind=dp_t), parameter :: enuc_conv2 = -avo*c_light*c_light
 
   real(kind=dp_t), parameter :: mev2erg = ev2erg*1.0d6
-  real(kind=dp_t), parameter :: mev2gr  = mev2erg/clight**2
-
-  real(kind=dp_t), parameter :: pi = M_PI
+  real(kind=dp_t), parameter :: mev2gr  = mev2erg/c_light**2
 
   character (len=*), parameter :: network_name = "aprox13"
 
@@ -67,6 +65,7 @@ module network
 
   logical, save :: network_initialized = .false.
 
+  private avo
 contains
   
   subroutine network_init()

@@ -156,7 +156,7 @@ contains
 
     rtol(1:nspec) = 1.e-10_dp_t    ! mass fractions
     rtol(itemp) = 1.e-5_dp_t       ! temperature
-    rtol(ienuc) = 1.e-10_dp_t      ! energy generated
+    rtol(ienuc) = 1.e-6_dp_t      ! energy generated
 
     ! we want VODE to re-initialize each time we call it
     istate = 1

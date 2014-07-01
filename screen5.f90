@@ -2,6 +2,7 @@
                          z1,a1,z2,a2,jscreen,init, &
                          scor,scordt,scordd)
 
+        use bl_constants_module, only: M_PI
         use network
         implicit none
 
@@ -300,7 +301,7 @@
 ! blend the transition region - from bill paxton
        if (gamefs - gamef .lt. blend_frac*(gamefs - gamefx)) then
          alfa   = (gamefs - gamef) / (blend_frac*(gamefs - gamefx))
-         alfa   = 0.5d0 * (1d0 - cos(pi*alfa))
+         alfa   = 0.5d0 * (1d0 - cos(M_PI*alfa))
          beta   = 1.0d0 - alfa
          h12    = alfa * h12 + beta * h12x
          !dh12dt = alfa * dh12dt + beta * dh12xdt

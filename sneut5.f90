@@ -1,7 +1,7 @@
       subroutine sneut5(temp,den,abar,zbar, &
                         snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
-        use network, only: pi
+        use bl_constants_module, only: M_PI
         implicit none
 
 ! this routine computes neutrino losses from the analytic fits of
@@ -80,9 +80,9 @@
 
 ! numerical constants
       double precision fac1,fac2,fac3,oneth,twoth,con1,sixth,iln10
-      parameter        (fac1   = 5.0d0 * pi / 3.0d0, &
-                        fac2   = 10.0d0 * pi, &
-                        fac3   = pi / 5.0d0, &
+      parameter        (fac1   = 5.0d0 * M_PI / 3.0d0, &
+                        fac2   = 10.0d0 * M_PI, &
+                        fac3   = M_PI / 5.0d0, &
                         oneth  = 1.0d0/3.0d0, &
                         twoth  = 2.0d0/3.0d0, &
                         con1   = 1.0d0/5.9302d0, &
