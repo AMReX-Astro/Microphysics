@@ -1,0 +1,3 @@
+# when evolving the temperature, should we assume a constant pressure (default) 
+# or a constant volume (do_constant_volume_burn = T)?
+do_constant_volume_burn  logical  .false.
