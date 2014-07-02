@@ -194,7 +194,14 @@ contains
 
     rpar(irp_dens) = dens
     rpar(irp_cp)   = eos_state%cp
+    rpar(irp_cv)   = eos_state%cv
+
+    ! dhdX = dh/dX |_{p,T}
     rpar(irp_dhdX:irp_dhdX-1+nspec) = eos_state%dhdX(:)
+
+    ! dedX = de/dX |_{rho, T} -- see paper III, Eq. A7
+    rpar(irp_dedX:irp_dedX-1+nspec) = eos_state%dhdX(:) - &
+         (eos_state%p/dens**2 - eos_state%dedr)*eos_state%dpdx(:)/eos_state%dpdr
 
     ! this is just used to make sure everything is happy
     rpar(irp_smallx) = smallx

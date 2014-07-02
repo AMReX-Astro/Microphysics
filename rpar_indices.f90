@@ -7,7 +7,7 @@ module rpar_indices
 
   integer, save :: n_rpar_comps = 0
 
-  integer, save :: irp_dens, irp_cp, irp_dhdX, irp_smallx
+  integer, save :: irp_dens, irp_cv, irp_cp, irp_dedX, irp_dhdX, irp_smallx
 
 contains
 
@@ -32,6 +32,8 @@ contains
     irp_cp     = get_next_rpar_index(1)
     irp_dhdX   = get_next_rpar_index(nspec)
     irp_smallx = get_next_rpar_index(1)
+    irp_cv     = get_next_rpar_index(1)
+    irp_dedX   = get_next_rpar_index(nspec)
 
   end subroutine init_rpar_indices
 
