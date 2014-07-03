@@ -15,7 +15,9 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   use rpar_indices
   use network_indices
   use rhs_module, only: aprox13
-  use extern_probin_module, only: do_constant_volume_burn
+  use eos_type_module
+  use eos_module
+  use extern_probin_module, only: do_constant_volume_burn, call_eos_in_rhs
   implicit none
 
   integer,         intent(IN   ) :: n, ipar
@@ -31,6 +33,8 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   real(kind=dp_t) :: ymol(nspec), dymoldt(nspec)
   real(kind=dp_t) :: denucdt
   real(kind=dp_t) :: smallx
+
+  type(eos_t) :: eos_state
 
   ! we are integrating a system of
   !
@@ -58,6 +62,23 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   temp = y(itemp)
 
 
+  ! evaluate the thermodynamics -- if desired
+  if (call_eos_in_rhs) then
+     eos_state%rho = dens
+     eos_state%T = temp
+     eos_state%xn(:) = y(1:nspec)
+
+     call eos(eos_input_rt, eos_state, .false.)
+
+     c_p = eos_state%cp
+     c_v = eos_state%cv
+     dhdX(:) = eos_state%dhdX(:)
+     dedX(:) = eos_state%dhdX(:) - &
+         (eos_state%p/dens**2 - eos_state%dedr)*eos_state%dpdx(:)/eos_state%dpdr
+
+  endif
+
+  
   ! calculate molar fractions from the input mass fractions
   do k = 1, nspec
      ymol(k) = y(k) / aion(k)

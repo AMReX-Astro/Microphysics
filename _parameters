@@ -1,3 +1,11 @@
 # when evolving the temperature, should we assume a constant pressure (default) 
 # or a constant volume (do_constant_volume_burn = T)?
-do_constant_volume_burn  logical  .false.
+do_constant_volume_burn  logical   .false.
+
+# do we call the EOS each time we enter the EOS?  This is expensive,
+# but more accurate.  Otherwise, we instead call the EOS at the start
+# of the integration and freeze the thermodynamics throughout the RHS
+# evalulation.  This only affects the temperature integration (which
+# is the input to the rate evaluation)
+call_eos_in_rhs          logical   .false.
+
