@@ -154,7 +154,7 @@ contains
 
 
     ! set the maximum number of steps allowed (the VODE default is 500)
-    iwork(6) = 15000
+    iwork(6) = 150000
 
 
     ! initialize the integration time
