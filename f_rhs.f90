@@ -15,7 +15,7 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   use rpar_indices
   use network_indices
   use rhs_module, only: aprox13
-
+  use extern_probin_module, only: do_constant_volume_burn
   implicit none
 
   integer,         intent(IN   ) :: n, ipar
@@ -27,7 +27,7 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
 
   real(kind=dp_t) :: temp
 
-  real(kind=dp_t) :: dens, c_p, dhdx(nspec)
+  real(kind=dp_t) :: dens, c_p, c_v, dhdX(nspec), dedX(nspec)
   real(kind=dp_t) :: ymol(nspec), dymoldt(nspec)
   real(kind=dp_t) :: denucdt
   real(kind=dp_t) :: smallx
@@ -47,7 +47,9 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   ! thermodynamcis
   dens    = rpar(irp_dens)
   c_p     = rpar(irp_cp)
+  c_v     = rpar(irp_cv)
   dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
+  dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
   smallx  = rpar(irp_smallx)
 
 
@@ -72,15 +74,33 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   ! release when we are all done
   ydot(ienuc) = denucdt
 
-  ! set up the temperature ODE
-  ! dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
-  ydot(itemp) = 0.0d0
-  do k = 1, nspec
-     ydot(itemp) = ydot(itemp) - dhdx(k)*ydot(k) 
-  enddo
-  ydot(itemp) = ydot(itemp) + denucdt
+  ! set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
+  ! evolve :
+  !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
+  ! 
+  ! For constant volume, div{U} = 0, and we evolve:
+  !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
+  !
+  ! see paper III, including Eq. A3 for details.
 
-  ydot(itemp) = ydot(itemp) / c_p
+  if (do_constant_volume_burn) then
+     ydot(itemp) = 0.0d0
+     do k = 1, nspec
+        ydot(itemp) = ydot(itemp) - dedX(k)*ydot(k) 
+     enddo
+     ydot(itemp) = ydot(itemp) + denucdt
+
+     ydot(itemp) = ydot(itemp) / c_v
+
+  else
+     ydot(itemp) = 0.0d0
+     do k = 1, nspec
+        ydot(itemp) = ydot(itemp) - dhdX(k)*ydot(k) 
+     enddo
+     ydot(itemp) = ydot(itemp) + denucdt
+
+     ydot(itemp) = ydot(itemp) / c_p
+  endif
 
   return
 end subroutine f_rhs
