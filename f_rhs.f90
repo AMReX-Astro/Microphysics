@@ -67,9 +67,9 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
      eos_state%rho = dens
      eos_state%T = temp
      eos_state%xn(:) = y(1:nspec)
-
+     
      call eos(eos_input_rt, eos_state, .false.)
-
+     
      c_p = eos_state%cp
      c_v = eos_state%cv
      dhdX(:) = eos_state%dhdX(:)
