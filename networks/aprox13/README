@@ -60,3 +60,6 @@ other changes:
  -- since we are not using the analytic Jacobian, we can get rid of
     all of those drate... stuff.
 
+
+
+We thank Frank for allowing us to redistribute these routines.
