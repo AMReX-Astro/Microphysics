@@ -19,7 +19,11 @@ module eos_module
 
   interface eos
      module procedure scalar_eos
-     module procedure vector_eos
+     module procedure vector1_eos
+     module procedure vector2_eos
+     module procedure vector3_eos
+     module procedure vector4_eos
+     module procedure vector5_eos
   end interface eos
 
 contains
@@ -68,42 +72,32 @@ contains
 
 
 
-  subroutine scalar_eos(input, state, do_eos_diag, pt_index, state_len)
+  subroutine scalar_eos(input, state, do_eos_diag, pt_index)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state
     logical, optional, intent(in   ) :: do_eos_diag
     integer, optional, intent(in   ) :: pt_index(:)
-    integer, optional, intent(in   ) :: state_len
 
     type (eos_t) :: vector_state(1)
-    integer :: vector_state_len
-
-    if (present(state_len)) then
-       if (state_len .ne. 1) then
-          call bl_error("Cannot use a scalar EOS type variable and set state_len /= 1.")
-       endif
-    endif
-
-    vector_state_len = 1
 
     vector_state(1) = state
 
     if (present(do_eos_diag) .and. present(pt_index)) then
 
-       call vector_eos(input, vector_state, do_eos_diag, pt_index, vector_state_len)
+       call vector1_eos(input, vector_state, do_eos_diag, pt_index)
 
     else if (present(do_eos_diag) .and. (.not. present(pt_index))) then
 
-       call vector_eos(input, vector_state, do_eos_diag, state_len=vector_state_len)
+       call vector1_eos(input, vector_state, do_eos_diag)
 
     else if (present(pt_index) .and. (.not. present(do_eos_diag))) then
 
-       call vector_eos(input, vector_state, pt_index=pt_index,state_len=vector_state_len)
+       call vector1_eos(input, vector_state, pt_index=pt_index)
 
     else
 
-       call vector_eos(input, vector_state, state_len=vector_state_len)
+       call vector1_eos(input, vector_state)
 
     endif
 
@@ -116,7 +110,7 @@ contains
   ! The main interface
   !---------------------------------------------------------------------------
 
-  subroutine vector_eos(input, state, do_eos_diag, pt_index, state_len)
+  subroutine vector1_eos(input, state, do_eos_diag, pt_index)
 
     ! A generic wrapper for the Helmholtz electron/positron degenerate EOS.  
 
@@ -128,7 +122,6 @@ contains
     type (eos_t),      intent(inout) :: state(:)
     logical, optional, intent(in   ) :: do_eos_diag
     integer, optional, intent(in   ) :: pt_index(:)
-    integer, optional, intent(in   ) :: state_len
 
     integer :: j, N
 
@@ -141,13 +134,8 @@ contains
 
     integer :: ns, ierr
 
-
-    if(present(state_len)) then
-      N = state_len
-    else
-      N = 1
-    endif
-
+    N = size(state)
+    
     if (.not. initialized) call bl_error('EOS: not initialized')
 
     eos_diag = .false.
@@ -250,7 +238,147 @@ contains
        call composition_derivatives(state(j), .false.)
     enddo
 
-  end subroutine vector_eos
+  end subroutine vector1_eos
+
+
+
+  subroutine vector2_eos(input, state, do_eos_diag, pt_index)
+
+    integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:,:)
+    logical, optional, intent(in   ) :: do_eos_diag
+    integer, optional, intent(in   ) :: pt_index(:)
+
+    type (eos_t) :: vector_state(size(state))
+
+    vector_state(:) = reshape(state(:,:), (/ size(state) /))
+
+    if (present(do_eos_diag) .and. present(pt_index)) then
+
+       call vector1_eos(input, vector_state, do_eos_diag, pt_index)
+
+    else if (present(do_eos_diag) .and. (.not. present(pt_index))) then
+
+       call vector1_eos(input, vector_state, do_eos_diag)
+
+    else if (present(pt_index) .and. (.not. present(do_eos_diag))) then
+
+       call vector1_eos(input, vector_state, pt_index=pt_index)
+
+    else
+
+       call vector1_eos(input, vector_state)
+
+    endif
+
+    state(:,:) = reshape(vector_state, (/ size(state,1),size(state,2) /))
+
+  end subroutine vector2_eos
+
+
+
+  subroutine vector3_eos(input, state, do_eos_diag, pt_index)
+
+    integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:,:,:)
+    logical, optional, intent(in   ) :: do_eos_diag
+    integer, optional, intent(in   ) :: pt_index(:)
+
+    type (eos_t) :: vector_state(size(state))
+
+    vector_state(:) = reshape(state(:,:,:), (/ size(state) /))
+
+    if (present(do_eos_diag) .and. present(pt_index)) then
+
+       call vector1_eos(input, vector_state, do_eos_diag, pt_index)
+
+    else if (present(do_eos_diag) .and. (.not. present(pt_index))) then
+
+       call vector1_eos(input, vector_state, do_eos_diag)
+
+    else if (present(pt_index) .and. (.not. present(do_eos_diag))) then
+
+       call vector1_eos(input, vector_state, pt_index=pt_index)
+
+    else
+
+       call vector1_eos(input, vector_state)
+
+    endif
+
+    state(:,:,:) = reshape(vector_state, (/ size(state,1),size(state,2),size(state,3) /))
+
+  end subroutine vector3_eos
+
+
+
+  subroutine vector4_eos(input, state, do_eos_diag, pt_index)
+
+    integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:,:,:,:)
+    logical, optional, intent(in   ) :: do_eos_diag
+    integer, optional, intent(in   ) :: pt_index(:)
+
+    type (eos_t) :: vector_state(size(state))
+
+    vector_state(:) = reshape(state(:,:,:,:), (/ size(state) /))
+
+    if (present(do_eos_diag) .and. present(pt_index)) then
+
+       call vector1_eos(input, vector_state, do_eos_diag, pt_index)
+
+    else if (present(do_eos_diag) .and. (.not. present(pt_index))) then
+
+       call vector1_eos(input, vector_state, do_eos_diag)
+
+    else if (present(pt_index) .and. (.not. present(do_eos_diag))) then
+
+       call vector1_eos(input, vector_state, pt_index=pt_index)
+
+    else
+
+       call vector1_eos(input, vector_state)
+
+    endif
+
+    state(:,:,:,:) = reshape(vector_state, (/ size(state,1),size(state,2),size(state,3),size(state,4) /))
+
+  end subroutine vector4_eos
+
+
+
+  subroutine vector5_eos(input, state, do_eos_diag, pt_index)
+
+    integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:,:,:,:,:)
+    logical, optional, intent(in   ) :: do_eos_diag
+    integer, optional, intent(in   ) :: pt_index(:)
+
+    type (eos_t) :: vector_state(size(state))
+
+    vector_state(:) = reshape(state(:,:,:,:,:), (/ size(state) /))
+
+    if (present(do_eos_diag) .and. present(pt_index)) then
+
+       call vector1_eos(input, vector_state, do_eos_diag, pt_index)
+
+    else if (present(do_eos_diag) .and. (.not. present(pt_index))) then
+
+       call vector1_eos(input, vector_state, do_eos_diag)
+
+    else if (present(pt_index) .and. (.not. present(do_eos_diag))) then
+
+       call vector1_eos(input, vector_state, pt_index=pt_index)
+
+    else
+
+       call vector1_eos(input, vector_state)
+
+    endif
+
+    state(:,:,:,:,:) = reshape(vector_state, (/ size(state,1),size(state,2),size(state,3),size(state,4),size(state,5) /))
+
+  end subroutine vector5_eos
 
 
 
