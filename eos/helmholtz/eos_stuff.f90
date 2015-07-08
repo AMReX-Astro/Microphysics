@@ -72,28 +72,19 @@ contains
 
 
 
-  subroutine scalar_eos(input, state, do_eos_diag, pt_index)
+  subroutine scalar_eos(input, state, do_eos_diag)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state
     logical, optional, intent(in   ) :: do_eos_diag
-    integer, optional, intent(in   ) :: pt_index(:)
 
     type (eos_t) :: vector_state(1)
 
     vector_state(1) = state
 
-    if (present(do_eos_diag) .and. present(pt_index)) then
-
-       call vector_eos(input, vector_state, do_eos_diag, pt_index)
-
-    else if (present(do_eos_diag) .and. (.not. present(pt_index))) then
+    if (present(do_eos_diag)) then
 
        call vector_eos(input, vector_state, do_eos_diag)
-
-    else if (present(pt_index) .and. (.not. present(do_eos_diag))) then
-
-       call vector_eos(input, vector_state, pt_index=pt_index)
 
     else
 
@@ -110,7 +101,7 @@ contains
   ! The main interface
   !---------------------------------------------------------------------------
 
-  subroutine vector_eos(input, state, do_eos_diag, pt_index)
+  subroutine vector_eos(input, state, do_eos_diag)
 
     ! A generic wrapper for the Helmholtz electron/positron degenerate EOS.  
 
@@ -121,7 +112,6 @@ contains
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state(:)
     logical, optional, intent(in   ) :: do_eos_diag
-    integer, optional, intent(in   ) :: pt_index(:)
 
     integer :: j, N
 
@@ -146,7 +136,7 @@ contains
        ! Check to make sure the composition was set properly.
 
        do ns = 1, nspec
-         if (state(j) % xn(ns) .lt. init_test) call eos_error(ierr_init_xn, input, pt_index)
+         if (state(j) % xn(ns) .lt. init_test) call eos_error(ierr_init_xn, input, state(j) % loc)
        enddo
 
        ! Get abar, zbar, etc.
@@ -194,35 +184,35 @@ contains
 
        if (input .eq. eos_input_rt) then
 
-         if (state(j) % rho .lt. init_test .or. state(j) % T .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % rho .lt. init_test .or. state(j) % T .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_rh) then
 
-         if (state(j) % rho .lt. init_test .or. state(j) % h .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % rho .lt. init_test .or. state(j) % h .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_tp) then
 
-         if (state(j) % T   .lt. init_test .or. state(j) % p .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % T   .lt. init_test .or. state(j) % p .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_rp) then
 
-         if (state(j) % rho .lt. init_test .or. state(j) % p .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % rho .lt. init_test .or. state(j) % p .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_re) then
 
-         if (state(j) % rho .lt. init_test .or. state(j) % e .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % rho .lt. init_test .or. state(j) % e .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_ps) then
 
-         if (state(j) % p   .lt. init_test .or. state(j) % s .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % p   .lt. init_test .or. state(j) % s .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_ph) then
 
-         if (state(j) % p   .lt. init_test .or. state(j) % h .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % p   .lt. init_test .or. state(j) % h .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        elseif (input .eq. eos_input_th) then
 
-         if (state(j) % T   .lt. init_test .or. state(j) % h .lt. init_test) call eos_error(ierr_init, input, pt_index)
+         if (state(j) % T   .lt. init_test .or. state(j) % h .lt. init_test) call eos_error(ierr_init, input, state(j) % loc)
 
        endif
 
@@ -352,7 +342,7 @@ contains
 
     integer,           intent(in) :: err
     integer,           intent(in) :: input
-    integer, optional, intent(in) :: pt_index(:)
+    integer, optional, intent(in) :: pt_index(3)
 
     integer :: dim_ptindex
 
@@ -415,8 +405,18 @@ contains
 1003 format(1x,"zone index info: i = ", i5, '  j = ', i5, '  k = ', i5)
 
     if (present(pt_index)) then
- 
-       dim_ptindex = size(pt_index,dim=1)
+
+       dim_ptindex = 3
+
+       if (pt_index(3) .eq. 0) then
+          dim_ptindex = 2
+          if (pt_index(2) .eq. 0) then
+             dim_ptindex = 1
+             if (pt_index(1) .eq. 0) then
+                dim_ptindex = 0
+             endif
+          endif
+       endif
 
        if (dim_ptindex .eq. 1) then 
           write (zone_string,1001) pt_index(1)
