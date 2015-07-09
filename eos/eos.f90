@@ -30,24 +30,36 @@ contains
 
     implicit none
  
-    double precision, intent(in), optional :: small_temp
-    double precision, intent(in), optional :: small_dens
+    double precision, optional :: small_temp
+    double precision, optional :: small_dens
  
+    ! Set up any specific parameters or initialization steps required by the EOS we are using.
+
+    call specific_eos_init
+
+    ! If they exist, save the minimum permitted user temperature and density.
+    ! These cannot be less than zero and they also cannot be less than the 
+    ! minimum possible EOS quantities.
+
     if (present(small_temp)) then
-      if (small_temp > ZERO) then
-       smallt = small_temp
-      end if
+       if (small_temp > ZERO) then
+          if (small_temp < mintemp) then
+             call bl_warn('EOS: small_temp cannot be less than the mintemp allowed by the EOS. Resetting smallt to mintemp.')
+             small_temp = mintemp
+          endif
+          smallt = small_temp
+       endif
     endif
 
     if (present(small_dens)) then
        if (small_dens > ZERO) then
-         smalld = small_dens
+          if (small_dens < mindens) then
+             call bl_warn('EOS: small_dens cannot be less than the mindens allowed by the EOS. Resetting smalld to mindens.')
+             small_dens = mindens
+          endif
+          smalld = small_dens
        endif
     endif
-
-    ! Set up any specific parameters or initialization steps required by the EOS we are using.
-
-    call specific_eos_init
 
   end subroutine eos_init
 
