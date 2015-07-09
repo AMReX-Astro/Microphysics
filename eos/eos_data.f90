@@ -40,9 +40,10 @@ module eos_data_module
   double precision :: mindens = 1.d-199
   double precision :: maxdens = 1.d199
 
-  ! Smallest possible temperaure and density permitted by the user.
+  ! Smallest possible temperature and density permitted by the user.
 
-  double precision :: smallt, smalld
+  double precision :: smallt = 1.d-199
+  double precision :: smalld = 1.d-199
 
   logical :: initialized = .false.
 

@@ -33,16 +33,12 @@ contains
     double precision, intent(in), optional :: small_temp
     double precision, intent(in), optional :: small_dens
  
-    smallt = 1.d4
-
     if (present(small_temp)) then
       if (small_temp > ZERO) then
        smallt = small_temp
       end if
     endif
 
-    smalld = 1.d-5
- 
     if (present(small_dens)) then
        if (small_dens > ZERO) then
          smalld = small_dens
