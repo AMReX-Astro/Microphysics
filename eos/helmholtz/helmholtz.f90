@@ -1321,6 +1321,12 @@ contains
       asoli3  = asol/3.0d0
       light2  = clight * clight
 
+      ! Set up the minimum and maximum possible densities.
+
+      mintemp = 10.d0**tlo
+      maxtemp = 10.d0**thi
+      mindens = 10.d0**dlo
+      maxdens = 10.d0**dhi
 
       !$acc enter data &                                                                           
       !$acc copyin(msol,rsol,lsol,mearth,rearth,ly,pc,au,secyer) &

@@ -135,34 +135,29 @@ contains
 
     do j = 1, N
 
-       if (state(j) % T   .le. ZERO) then
-          call bl_error('EOS: temp less than 0')
+       if ( state(j) % T .lt. mintemp ) then
+          print *, 'TEMP = ', state(j) % T
+          call bl_error('EOS: temp less than minimum possible temperature.')
+          eosfail = .true.
+          return
        end if
-       if (state(j) % rho .le. ZERO) then
-          call bl_error('EOS: den less than 0')
+       if ( state(j) % T .gt. maxtemp ) then
+          print *, 'TEMP = ', state(j) % T
+          call bl_error('EOS: temp greater than maximum possible temperature.')
+          eosfail = .true.
+          return
        end if
 
-       if ( state(j) % T .lt. 10.0d0**tlo ) then
-          print *, 'TEMP = ', state(j) % T
-          call bl_warn("EOS: temp too cold")
+       if ( state(j) % rho .lt. mindens ) then
+          print *, 'DENS = ', state(j) % rho
+          call bl_error('EOS: dens less than minimum possible density.')
           eosfail = .true.
           return
        end if
-       if ( state(j) % T .gt. 10.0d0**thi ) then
-          print *, 'TEMP = ', state(j) % T
-          call bl_warn("EOS: temp too hot")
+       if ( state(j) % rho .gt. maxdens ) then
+          print *, 'DENS = ', state(j) % rho
+          call bl_error('EOS: dens greater than maximum possible density.')
           eosfail = .true.
-          return
-       end if
-       if ( state(j) % rho * state(j) % zbar / state(j) % abar .gt. 10.0d0**dhi ) then
-          call bl_warn("EOS: ye*den out of bounds")
-          eosfail = .true.
-          return
-       end if
-       if ( state(j) % rho * state(j) % zbar / state(j) % abar .lt. 10.0d0**dlo ) then
-          call bl_warn("EOS: ye*den out of bounds")
-          eosfail = .true.
-          return
        end if
 
        if (input .eq. eos_input_rt) then

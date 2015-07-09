@@ -33,10 +33,18 @@ module eos_data_module
   integer, parameter :: ierr_out_of_bounds   = 11
   integer, parameter :: ierr_not_implemented = 12
 
-  real(kind=dp_t), save :: smallt
-  real(kind=dp_t), save :: smalld
+  ! Minimum and maximum temperature permitted by the EOS.
 
-  logical, save :: initialized = .false.
+  double precision :: mintemp = 1.d-199
+  double precision :: maxtemp = 1.d199
+  double precision :: mindens = 1.d-199
+  double precision :: maxdens = 1.d199
+
+  ! Smallest possible temperaure and density permitted by the user.
+
+  double precision :: smallt, smalld
+
+  logical :: initialized = .false.
 
   public eos_get_small_temp, eos_get_small_dens
 
@@ -44,7 +52,7 @@ contains
 
   subroutine eos_get_small_temp(small_temp_out)
  
-    real(kind=dp_t), intent(out) :: small_temp_out
+    double precision, intent(out) :: small_temp_out
  
     small_temp_out = smallt
  
@@ -52,7 +60,7 @@ contains
  
   subroutine eos_get_small_dens(small_dens_out)
  
-    real(kind=dp_t), intent(out) :: small_dens_out
+    double precision, intent(out) :: small_dens_out
  
     small_dens_out = smalld
  
