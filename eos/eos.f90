@@ -65,25 +65,16 @@ contains
 
 
 
-  subroutine scalar_eos(input, state, do_eos_diag)
+  subroutine scalar_eos(input, state)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state
-    logical, optional, intent(in   ) :: do_eos_diag
 
     type (eos_t) :: vector_state(1)
 
     vector_state(1) = state
 
-    if (present(do_eos_diag)) then
-
-       call vector_eos(input, vector_state, do_eos_diag)
-
-    else
-
-       call vector_eos(input, vector_state)
-
-    endif
+    call vector_eos(input, vector_state)
 
     state = vector_state(1)
 
@@ -94,7 +85,7 @@ contains
   ! The main interface
   !---------------------------------------------------------------------------
 
-  subroutine vector_eos(input, state, do_eos_diag)
+  subroutine vector_eos(input, state)
 
     implicit none
 
@@ -102,7 +93,6 @@ contains
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state(:)
-    logical, optional, intent(in   ) :: do_eos_diag
 
     integer :: j, N
 
@@ -111,17 +101,13 @@ contains
     double precision :: ymass(nspec), ysum, yzsum
     double precision :: e_want, p_want, s_want, h_want
 
-    logical eosfail, eos_diag
+    logical eosfail
 
     integer :: ns, ierr
 
     N = size(state)
     
     if (.not. initialized) call bl_error('EOS: not initialized')
-
-    eos_diag = .false.
-
-    if (present(do_eos_diag)) eos_diag = do_eos_diag
 
     do j = 1, N
        ! Check to make sure the composition was set properly.
@@ -218,25 +204,16 @@ contains
 
 
 
-  subroutine rank2_eos(input, state, do_eos_diag)
+  subroutine rank2_eos(input, state)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state(:,:)
-    logical, optional, intent(in   ) :: do_eos_diag
 
     type (eos_t) :: vector_state(size(state))
 
     vector_state(:) = reshape(state(:,:), (/ size(state) /))
 
-    if (present(do_eos_diag)) then
-
-       call vector_eos(input, vector_state, do_eos_diag)
-
-    else
-
-       call vector_eos(input, vector_state)
-
-    endif
+    call vector_eos(input, vector_state)
 
     state(:,:) = reshape(vector_state, (/ size(state,1),size(state,2) /))
 
@@ -244,25 +221,16 @@ contains
 
 
 
-  subroutine rank3_eos(input, state, do_eos_diag)
+  subroutine rank3_eos(input, state)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state(:,:,:)
-    logical, optional, intent(in   ) :: do_eos_diag
 
     type (eos_t) :: vector_state(size(state))
 
     vector_state(:) = reshape(state(:,:,:), (/ size(state) /))
 
-    if (present(do_eos_diag)) then
-
-       call vector_eos(input, vector_state, do_eos_diag)
-
-    else
-
-       call vector_eos(input, vector_state)
-
-    endif
+    call vector_eos(input, vector_state)
 
     state(:,:,:) = reshape(vector_state, (/ size(state,1),size(state,2),size(state,3) /))
 
@@ -270,25 +238,16 @@ contains
 
 
 
-  subroutine rank4_eos(input, state, do_eos_diag)
+  subroutine rank4_eos(input, state)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state(:,:,:,:)
-    logical, optional, intent(in   ) :: do_eos_diag
 
     type (eos_t) :: vector_state(size(state))
 
     vector_state(:) = reshape(state(:,:,:,:), (/ size(state) /))
 
-    if (present(do_eos_diag)) then
-
-       call vector_eos(input, vector_state, do_eos_diag)
-
-    else
-
-       call vector_eos(input, vector_state)
-
-    endif
+    call vector_eos(input, vector_state)
 
     state(:,:,:,:) = reshape(vector_state, (/ size(state,1),size(state,2),size(state,3),size(state,4) /))
 
@@ -296,25 +255,16 @@ contains
 
 
 
-  subroutine rank5_eos(input, state, do_eos_diag)
+  subroutine rank5_eos(input, state)
 
     integer,           intent(in   ) :: input
     type (eos_t),      intent(inout) :: state(:,:,:,:,:)
-    logical, optional, intent(in   ) :: do_eos_diag
 
     type (eos_t) :: vector_state(size(state))
 
     vector_state(:) = reshape(state(:,:,:,:,:), (/ size(state) /))
 
-    if (present(do_eos_diag)) then
-
-       call vector_eos(input, vector_state, do_eos_diag)
-
-    else
-
-       call vector_eos(input, vector_state)
-
-    endif
+    call vector_eos(input, vector_state)
 
     state(:,:,:,:,:) = reshape(vector_state, (/ size(state,1),size(state,2),size(state,3),size(state,4),size(state,5) /))
 
