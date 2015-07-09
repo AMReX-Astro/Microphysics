@@ -6,15 +6,10 @@ module eos_module
   use network, only: nspec, aion, zion
   use eos_type_module
   use eos_data_module
-  use helmeos_module
+  use specific_eos_module
 
   implicit none
 
-  logical,         save, private :: do_coulomb
-  logical,         save, private :: input_is_constant
-  integer,         save, private :: acc_cutoff
-
-  private itemp, idens, iener, ienth, ientr, ipres 
   public eos_init, eos
 
   interface eos
@@ -28,23 +23,16 @@ module eos_module
 
 contains
 
-  ! EOS initialization routine -- this is used by both MAESTRO and CASTRO
-  ! For this general EOS, this calls helmeos_init() which reads in the 
-  ! table with the electron component's properties.
-  subroutine eos_init(small_temp, small_dens)
+  ! EOS initialization routine: read in general EOS parameters, then 
+  ! call any specific initialization used by the EOS.
 
-    use parallel
-    use extern_probin_module, only: use_eos_coulomb, eos_input_is_constant, eos_acc_cutoff
+  subroutine eos_init(small_temp, small_dens)
 
     implicit none
  
     double precision, intent(in), optional :: small_temp
     double precision, intent(in), optional :: small_dens
  
-    do_coulomb = use_eos_coulomb
-    input_is_constant = eos_input_is_constant 
-    acc_cutoff = eos_acc_cutoff
-
     smallt = 1.d4
 
     if (present(small_temp)) then
@@ -61,12 +49,9 @@ contains
        endif
     endif
 
-    if (parallel_IOProcessor()) print *, 'Initializing helmeos... Coulomb corrections = ', do_coulomb
+    ! Set up any specific parameters or initialization steps required by the EOS we are using.
 
-    ! Call the helmeos initialization routine and read in the table 
-    ! containing the electron contribution.
-
-    call helmeos_init
+    call specific_eos_init
 
   end subroutine eos_init
 
@@ -102,8 +87,6 @@ contains
   !---------------------------------------------------------------------------
 
   subroutine vector_eos(input, state, do_eos_diag)
-
-    ! A generic wrapper for the Helmholtz electron/positron degenerate EOS.  
 
     implicit none
 
@@ -220,7 +203,7 @@ contains
 
     ! Call the EOS.
 
-    call helmeos(do_coulomb, eosfail, state, N, input, input_is_constant, acc_cutoff)
+    call specific_eos(eosfail, state, N, input)
 
     ! Get dpdX, dedX, dhdX.
 
@@ -408,11 +391,11 @@ contains
 
        dim_ptindex = 3
 
-       if (pt_index(3) .eq. 0) then
+       if (pt_index(3) .eq. -99) then
           dim_ptindex = 2
-          if (pt_index(2) .eq. 0) then
+          if (pt_index(2) .eq. -99) then
              dim_ptindex = 1
-             if (pt_index(1) .eq. 0) then
+             if (pt_index(1) .eq. -99) then
                 dim_ptindex = 0
              endif
           endif

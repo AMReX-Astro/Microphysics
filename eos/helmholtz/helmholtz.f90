@@ -1,4 +1,12 @@
-module helmeos_module
+module specific_eos_module
+
+      use eos_data_module
+      use eos_type_module
+
+!..runtime parameters
+      logical do_coulomb
+      logical input_is_constant
+      integer acc_cutoff
 
 !..for the tables, in general
       integer          imax,jmax,itmax,jtmax
@@ -104,14 +112,12 @@ module helmeos_module
 
 contains
 
-      subroutine helmeos(do_coulomb, eosfail, state, N, input, input_is_constant, acc_cutoff)
+      subroutine specific_eos(eosfail, state, N, input)
 
       use meth_params_module, only: do_acc
       use bl_error_module
       use bl_types
       use bl_constants_module
-      use eos_type_module
-      use eos_data_module
 
       implicit none
 
@@ -138,12 +144,10 @@ contains
 !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 !..input arguments
-      logical :: do_coulomb, eosfail
+      logical :: eosfail
       integer :: N
       type (eos_t), dimension(N) :: state
       integer :: input
-      logical :: input_is_constant
-      integer :: acc_cutoff
 
 !..outputs
       double precision temp_row(N), den_row(N), abar_row(N), &
@@ -1172,14 +1176,17 @@ contains
 
       endif
 
-      end subroutine helmeos
+      end subroutine specific_eos
 
-!     -----------------------------------------------------------------
-      subroutine helmeos_init
+
+
+      subroutine specific_eos_init
 
       use bl_error_module
       use eos_data_module
-
+      use extern_probin_module, only: eos_acc_cutoff, eos_input_is_constant, use_eos_coulomb
+      use parallel, only: parallel_IOProcessor
+      
       implicit none
       
       double precision dth, dt2, dti, dt2i
@@ -1188,6 +1195,16 @@ contains
       integer i, j
 
       if ( initialized ) return
+
+      ! Read in the runtime parameters
+
+      acc_cutoff = eos_acc_cutoff
+      input_is_constant = eos_input_is_constant
+      do_coulomb = use_eos_coulomb
+
+      if (parallel_IOProcessor()) print *, 'Initializing helmeos... Coulomb corrections = ', do_coulomb
+
+      ! Read in the table
 
 !..   open the table
       open(unit=2,file='helm_table.dat',status='old',err=1010)
@@ -1321,7 +1338,7 @@ contains
 
       initialized = .true.
     
-      end subroutine helmeos_init
+      end subroutine specific_eos_init
 
 
 
@@ -1454,4 +1471,4 @@ contains
                  + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
       end function
 
-end module helmeos_module
+end module specific_eos_module
