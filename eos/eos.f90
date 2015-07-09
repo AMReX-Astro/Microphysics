@@ -206,7 +206,7 @@ contains
 
     ! Call the EOS.
 
-    call specific_eos(eosfail, state, N, input)
+    call specific_eos(eosfail, state, input)
 
     ! Get dpdX, dedX, dhdX.
 

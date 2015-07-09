@@ -112,7 +112,7 @@ module specific_eos_module
 
 contains
 
-      subroutine specific_eos(eosfail, state, N, input)
+      subroutine specific_eos(eosfail, state, input)
 
       use meth_params_module, only: do_acc
       use bl_error_module
@@ -145,23 +145,22 @@ contains
 
 !..input arguments
       logical :: eosfail
-      integer :: N
-      type (eos_t), dimension(N) :: state
+      type (eos_t) :: state(:)
       integer :: input
 
-!..outputs
-      double precision temp_row(N), den_row(N), abar_row(N), &
-                       zbar_row(N), etot_row(N), ptot_row(N), &
-                       cv_row(N), cp_row(N),  &
-                       xne_row(N), xnp_row(N), etaele_row(N), &
-                       pele_row(N), ppos_row(N), dpd_row(N),  &
-                       dpt_row(N), dpa_row(N), dpz_row(N),  &
-                       ded_row(N), det_row(N), dea_row(N),  &
-                       dez_row(N),  &
-                       stot_row(N), dsd_row(N), dst_row(N), &
-                       htot_row(N), dhd_row(N), dht_row(N), &
-                       dpe_row(N), dpdr_e_row(N), &
-                       gam1_row(N), cs_row(N)
+      double precision :: temp_row(size(state)), den_row(size(state)), &
+                          abar_row(size(state)), zbar_row(size(state)), &
+                          etot_row(size(state)), ptot_row(size(state)), &
+                          cv_row(size(state)), cp_row(size(state)),  &
+                          xne_row(size(state)), xnp_row(size(state)), etaele_row(size(state)), &
+                          pele_row(size(state)), ppos_row(size(state)), dpd_row(size(state)),  &
+                          dpt_row(size(state)), dpa_row(size(state)), dpz_row(size(state)),  &
+                          ded_row(size(state)), det_row(size(state)), dea_row(size(state)),  &
+                          dez_row(size(state)),  &
+                          stot_row(size(state)), dsd_row(size(state)), dst_row(size(state)), &
+                          htot_row(size(state)), dhd_row(size(state)), dht_row(size(state)), &
+                          dpe_row(size(state)), dpdr_e_row(size(state)), &
+                          gam1_row(size(state)), cs_row(size(state))
 
 ! these directives are used by f2py to generate a python wrapper around this
 ! fortran code
@@ -172,12 +171,12 @@ contains
 
 !..declare local variables
 
-      integer j
+      integer :: j, N
 
       logical :: single_iter, double_iter, converged
       logical :: use_acc
       integer :: var, dvar, var1, var2, dvar1, dvar2, iter
-      double precision :: v_want(N), v1_want(N), v2_want(N)
+      double precision :: v_want(size(state)), v1_want(size(state)), v2_want(size(state))
       double precision :: xnew, xtol, dvdx, smallx, error, v
       double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
@@ -226,6 +225,8 @@ contains
                        ecoul,decouldd,decouldt,decoulda,decouldz, &
                        pcoul,dpcouldd,dpcouldt,dpcoulda,dpcouldz, &
                        scoul,dscouldd,dscouldt,dscoulda,dscouldz
+
+      N = size(state)
 
       temp_row = state(:) % T
       den_row  = state(:) % rho
