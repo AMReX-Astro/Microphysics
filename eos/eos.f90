@@ -28,6 +28,8 @@ contains
 
   subroutine eos_init(small_temp, small_dens)
 
+    use extern_probin_module, only: eos_assume_neutral
+
     implicit none
  
     double precision, optional :: small_temp
@@ -60,6 +62,8 @@ contains
           smalld = small_dens
        endif
     endif
+
+    assume_neutral = eos_assume_neutral
 
   end subroutine eos_init
 
@@ -118,7 +122,7 @@ contains
 
        ! Get abar, zbar, etc.
 
-       call composition(state(j), .false.)
+       call composition(state(j))
     enddo
 
     eosfail = .false.

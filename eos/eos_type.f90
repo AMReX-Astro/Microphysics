@@ -48,8 +48,10 @@ module eos_type_module
   ! so that we know if the user forgot to initialize them
   ! when calling the EOS in a particular mode.
 
-  real (kind=dp_t), parameter :: init_num  = -1.0d200
-  real (kind=dp_t), parameter :: init_test = -1.0d199
+  double precision, parameter :: init_num  = -1.0d200
+  double precision, parameter :: init_test = -1.0d199
+
+  logical :: assume_neutral
 
   type eos_t
 
@@ -104,7 +106,7 @@ contains
   ! Given a set of mass fractions, calculate quantities that depend
   ! on the composition like abar and zbar.
 
-  subroutine composition(state, assume_neutral)
+  subroutine composition(state)
 
     use bl_constants_module
     use network
@@ -112,7 +114,6 @@ contains
     implicit none
 
     type (eos_t), intent(inout) :: state
-    logical,      intent(in   ) :: assume_neutral
 
     double precision :: ymass, ysum, yzsum, ysumi
     integer :: n
