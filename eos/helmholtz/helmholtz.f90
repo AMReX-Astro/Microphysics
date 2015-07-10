@@ -133,7 +133,7 @@ contains
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
-    subroutine specific_eos(eosfail, state, input)
+    subroutine specific_eos(input, state)
 
         use meth_params_module, only: do_acc
         use bl_error_module
@@ -143,9 +143,8 @@ contains
         implicit none
 
         !..input arguments
-        logical,      intent(inout) :: eosfail
-        type (eos_t), intent(inout) :: state(:)
         integer,      intent(in   ) :: input
+        type (eos_t), intent(inout) :: state(:)
 
         !..rows to store EOS data
         double precision :: temp_row(size(state)), den_row(size(state)), &
@@ -161,13 +160,6 @@ contains
                             htot_row(size(state)), dhd_row(size(state)), dht_row(size(state)), &
                             dpe_row(size(state)), dpdr_e_row(size(state)), &
                             gam1_row(size(state)), cs_row(size(state))
-
-! these directives are used by f2py to generate a python wrapper around this
-! fortran code
-!
-!f2py intent(in)    :: do_coulomb
-!f2py intent(out)   :: eosfail
-!f2py intent(inout) :: state
 
         !..declare local variables
 

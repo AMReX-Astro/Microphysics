@@ -105,8 +105,6 @@ contains
     double precision :: ymass(nspec), ysum, yzsum
     double precision :: e_want, p_want, s_want, h_want
 
-    logical eosfail
-
     integer :: ns, ierr
 
     N = size(state)
@@ -125,8 +123,6 @@ contains
        call composition(state(j))
     enddo
 
-    eosfail = .false.
-
     ierr = 0
 
     ! Check the inputs, and do initial setup for iterations
@@ -136,40 +132,28 @@ contains
        if ( state(j) % T .lt. mintemp ) then
           print *, 'TEMP = ', state(j) % T
           call bl_error('EOS: temp less than minimum possible temperature.')
-          eosfail = .true.
-          return
        end if
        if ( state(j) % T .gt. maxtemp ) then
           print *, 'TEMP = ', state(j) % T
           call bl_error('EOS: temp greater than maximum possible temperature.')
-          eosfail = .true.
-          return
        end if
 
        if ( state(j) % rho .lt. mindens ) then
           print *, 'DENS = ', state(j) % rho
           call bl_error('EOS: dens less than minimum possible density.')
-          eosfail = .true.
-          return
        end if
        if ( state(j) % rho .gt. maxdens ) then
           print *, 'DENS = ', state(j) % rho
           call bl_error('EOS: dens greater than maximum possible density.')
-          eosfail = .true.
-          return
        end if
 
        if ( state(j) % y_e .lt. minye ) then
           print *, 'Y_E = ', state(j) % y_e
           call bl_error('EOS: y_e less than minimum possible electron fraction.')
-          eosfail = .true.
-          return
        endif
        if ( state(j) % y_e .gt. maxye ) then
           print *, 'Y_E = ', state(j) % y_e
           call bl_error('EOS: y_e greater than maximum possible electron fraction.')
-          eosfail = .true.
-          return
        endif
 
        if (input .eq. eos_input_rt) then
@@ -210,7 +194,7 @@ contains
 
     ! Call the EOS.
 
-    call specific_eos(eosfail, state, input)
+    call specific_eos(input, state)
 
     ! Get dpdX, dedX, dhdX.
 

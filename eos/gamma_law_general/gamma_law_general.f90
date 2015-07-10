@@ -41,15 +41,14 @@ contains
 
 
 
-  subroutine specific_eos(eosfail, state, input)
+  subroutine specific_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
     implicit none
 
-    logical,           intent(inout) :: eosfail
-    type (eos_t),      intent(inout) :: state(:)
     integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:)
 
     ! Local variables
     double precision :: dens, temp

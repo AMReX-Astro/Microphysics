@@ -109,13 +109,12 @@ contains
   !---------------------------------------------------------------------------
   ! The main interface
   !---------------------------------------------------------------------------
-  subroutine specific_eos(eosfail, state, input)
+  subroutine specific_eos(input, state)
 
     implicit none
 
-    logical,           intent(in   ) :: eosfail
-    type (eos_t),      intent(inout) :: state(:)
     integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:)
 
     ! Local variables
     double precision :: dens, temp, enth, pres, eint, entr

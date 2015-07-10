@@ -37,7 +37,7 @@ contains
 
 
 
-  subroutine specific_eos(eosfail, state, input)
+  subroutine specific_eos(input, state)
 
     ! Stellar Collapse EOS
     ! 
@@ -50,9 +50,8 @@ contains
     implicit none
 
     ! Input arguments
-    logical,           intent(inout) :: eosfail
-    type (eos_t),      intent(inout) :: state(:)
     integer,           intent(in   ) :: input
+    type (eos_t),      intent(inout) :: state(:)
 
     ! Local variables and arrays
     double precision :: e_want, p_want, s_want, h_want
