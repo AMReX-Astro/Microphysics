@@ -24,6 +24,7 @@ module eos_type_module
   ! ppos     -- position pressure only
   ! mu       -- mean molecular weight
   ! mu_e     -- mean number of nucleons per electron
+  ! y_e      -- electron fraction == 1 / mu_e
   ! dPdT     -- d pressure/ d temperature
   ! dPdr     -- d pressure/ d density
   ! dedT     -- d energy/ d temperature
@@ -83,6 +84,7 @@ module eos_type_module
      double precision :: ppos        
      double precision :: mu
      double precision :: mu_e
+     double precision :: y_e
      double precision :: dedX(nspec) 
      double precision :: dpdX(nspec) 
      double precision :: dhdX(nspec) 
@@ -115,27 +117,16 @@ contains
 
     type (eos_t), intent(inout) :: state
 
-    double precision :: ymass, ysum, yzsum, ysumi
-    integer :: n
-
-    ysum = ZERO
-    yzsum = ZERO
-    ysumi = ZERO
-
     ! Calculate abar, the mean nucleon number,
     ! zbar, the mean proton number,
-    ! mu, the mean molecular weight, and
-    ! mu_e, the mean number of nucleons per electron.
+    ! mu, the mean molecular weight,
+    ! mu_e, the mean number of nucleons per electron, and
+    ! y_e, the electron fraction.
 
-    do n = 1, nspec
-       ymass = state % xn(n) / aion(n)
-       ysum  = ysum  + ymass
-       yzsum = yzsum + zion(n) * ymass
-    enddo
-
-    state % abar = ONE / ysum
-    state % zbar = yzsum * state % abar
-    state % mu_e = ONE / yzsum
+    state % abar = sum(state % xn(:) * aion(:))
+    state % zbar = sum(state % xn(:) * zion(:))
+    state % y_e  = sum(state % xn(:) * zion(:) / aion(:))
+    state % mu_e = ONE / state % y_e
 
     if (assume_neutral) then
 
@@ -143,19 +134,14 @@ contains
 
     else
 
-       do n = 1, nspec
-          ymass = state % xn(n) / aion(n)
-          ysumi = ysumi + (ONE + zion(n)) * ymass
-       enddo
-
-       state % mu = ONE / ysumi
+       state % mu = ONE / sum( (ONE + zion(:)) * state % xn(:) / aion(:) )
 
     endif
 
   end subroutine composition      
 
 
-  subroutine composition_derivatives(state, assume_neutral)
+  subroutine composition_derivatives(state)
 
     use bl_constants_module
     use network
@@ -163,28 +149,19 @@ contains
     implicit none
 
     type (eos_t), intent(inout) :: state
-    logical,      intent(in   ) :: assume_neutral
 
-    double precision :: dmudX
-    integer :: n
+    state % dpdX(:) = state % dpdA * (state % abar/aion(:)) &
+                    * (aion(:) - state % abar)             &
+                    + state % dpdZ * (state % abar/aion(:)) &
+                    * (zion(:) - state % zbar)
 
-    do n = 1, nspec       
+    state % dEdX(:) = state % dedA * (state % abar/aion(:)) &
+                    * (aion(:) - state % abar)             &
+                    + state % dedZ * (state % abar/aion(:)) &
+                    * (zion(:) - state % zbar)
 
-       state % dpdX(n) = state % dpdA * (state % abar/aion(n)) &
-                       * (aion(n) - state % abar)             &
-                       + state % dpdZ * (state % abar/aion(n)) &
-                       * (zion(n) - state % zbar)
-
-       state % dEdX(n) = state % dedA * (state % abar/aion(n)) &
-                       * (aion(n) - state % abar)             &
-                       + state % dedZ * (state % abar/aion(n)) &
-                       * (zion(n) - state % zbar)
-
-       ! dhdX is at constant pressure -- see paper III for details.
-       state % dhdX(n) = state % dedX(n) + (state % p / state % rho**2 - state % dedr) &
-                                         *  state % dPdX(n) / state % dPdr
-
-    enddo
+    state % dhdX(:) = state % dedX(:) + (state % p / state % rho**2 - state % dedr) &
+                                      *  state % dPdX(:) / state % dPdr
 
   end subroutine composition_derivatives
 

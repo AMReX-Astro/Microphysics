@@ -156,7 +156,21 @@ contains
           print *, 'DENS = ', state(j) % rho
           call bl_error('EOS: dens greater than maximum possible density.')
           eosfail = .true.
+          return
        end if
+
+       if ( state(j) % y_e .lt. minye ) then
+          print *, 'Y_E = ', state(j) % y_e
+          call bl_error('EOS: y_e less than minimum possible electron fraction.')
+          eosfail = .true.
+          return
+       endif
+       if ( state(j) % y_e .gt. maxye ) then
+          print *, 'Y_E = ', state(j) % y_e
+          call bl_error('EOS: y_e greater than maximum possible electron fraction.')
+          eosfail = .true.
+          return
+       endif
 
        if (input .eq. eos_input_rt) then
 
@@ -201,7 +215,7 @@ contains
     ! Get dpdX, dedX, dhdX.
 
     do j = 1, N
-       call composition_derivatives(state(j), .false.)
+       call composition_derivatives(state(j))
     enddo
 
   end subroutine vector_eos
