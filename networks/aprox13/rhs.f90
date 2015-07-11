@@ -2,81 +2,87 @@ module rhs_module
 
   use network
   use network_indices
+  use eos_type_module
+  
   implicit none
 
 contains
 
-  subroutine aprox13(tt,temp,dens,y,dydt,denucdt,smallx)
+  subroutine aprox13(tt,state,dydt)
 
-    ! this routine sets up the system of ode's for the aprox13
-    ! nuclear reactions.  this is an alpha chain + heavy ion network
-    ! with (a,p)(p,g) links
+    use specific_burner_module
+    use extern_probin_module, only: do_constant_volume_burn
+    
+    ! This routine sets up the system of ode's for the aprox13
+    ! nuclear reactions.  This is an alpha chain + heavy ion network
+    ! with (a,p)(p,g) links.
     !     
-    ! isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
+    ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
     !           ar36, ca40, ti44, cr48, fe52, ni56
     
-    ! here the y() that come in are the molar fractions (X/A)
+    ! Here the y() that come in are the molar fractions (X/A).
     
-
-    ! declare the pass
-    double precision :: tt,temp,dens,y(nspec)
-    double precision :: dydt(nspec), denucdt
-    double precision :: smallx
-
-    ! local variables
+    double precision :: tt
+    double precision :: dydt(1:NEQ)
+    type (eos_t)     :: state
+    
+    ! Local variables
     integer :: i
     logical, parameter :: deriva = .false.
     
-    double precision :: abar, zbar
-    
-    double precision :: ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
-    double precision :: ratdum(nrat), dratdumdt(nrat), dratdumdd(nrat)
-    double precision :: scfac(nrat),  dscfacdt(nrat),  dscfacdd(nrat)    
+    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
+    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)    
 
     double precision :: sneut,dsneutdt,dsneutdd,snuda,snudz    
     double precision :: enuc
 
-    ! positive definite molar fractions
-    do i=1, nspec
-       y(i) = min(1.0d0,max(y(i),smallx/aion(i)))
-    enddo
-
-
-    ! generate abar and zbar for this composition
-    abar = 1.0d0/sum(y(1:nspec))
-    zbar = sum(zion(1:nspec)*y(1:nspec)) * abar
+    ! Get the raw reaction rates
+    call aprox13rat(state % T, state % rho, ratraw, dratrawdt, dratrawdd)
     
 
-    ! get the raw reaction rates
-    call aprox13rat(temp, dens, ratraw, dratrawdt, dratrawdd)
-    
-
-    ! do the screening here because the corrections depend on the composition
-    call screen_aprox13(temp, dens, y, &
+    ! Do the screening here because the corrections depend on the composition
+    call screen_aprox13(state % T, state % rho, state % xn / aion, &
                         ratraw, dratrawdt, dratrawdd, &
                         ratdum, dratdumdt, dratdumdd, &
                         scfac, dscfacdt, dscfacdd)
     
 
-    ! get the right hand side of the odes
-    call rhs(y,ratdum,dydt,deriva, &
+    ! Get the right hand side of the ODEs
+    call rhs(state % xn / aion,ratdum,dydt,deriva, &
              ratraw,dratrawdt,dratrawdd, &
              ratdum, dratdumdt, dratdumdd)
     
 
-    ! instantaneous energy generation rate
+    ! Instantaneous energy generation rate
     call ener_gener_rate(dydt,enuc)
     
 
-    ! get the neutrino losses
-    call sneut5(temp,dens,abar,zbar, &
+    ! Get the neutrino losses
+    call sneut5(state % T,state % rho,state % abar,state % zbar, &
                 sneut,dsneutdt,dsneutdd,snuda,snudz)
 
+    ! Go from molar fractions back to mass fractions
+    dydt(1:nspec) = dydt(1:nspec) * aion
 
-    ! append an energy equation (this is erg/g/s)
-    denucdt = enuc - sneut
+    ! Append the energy equation (this is erg/g/s)
+    dydt(net_ienuc) = enuc - sneut
 
-    return
+    ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
+    ! evolve :
+    !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
+    ! 
+    ! For constant volume, div{U} = 0, and we evolve:
+    !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
+    !
+    ! See paper III, including Eq. A3 for details.
+
+    if (do_constant_volume_burn) then
+       dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dEdX(:) * dydt(1:nspec))) / state % cv
+    else
+       dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
+    endif
+
   end subroutine aprox13
 
 
@@ -91,9 +97,9 @@ contains
 
     ! declare the pass
     logical          deriva
-    double precision y(nspec),rate(nrat),dydt(nspec)
-    double precision ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
-    double precision ratdum(nrat), dratdumdt(nrat), dratdumdd(nrat)
+    double precision y(nspec),rate(nrates),dydt(nspec)
+    double precision ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
 
     ! local variables
     integer          i
@@ -463,7 +469,6 @@ contains
             rate(iry1) * ratdum(irnigp))
     end if
   
-    return
   end subroutine rhs
 
 
@@ -476,7 +481,7 @@ contains
     use rates_module
 
     double precision btemp, bden
-    double precision ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
+    double precision ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
 
     ! declare
     integer          i
@@ -484,7 +489,7 @@ contains
     type (tf_t) :: tf
 
     ! zero the rates
-    do i=1,nrat
+    do i=1,nrates
        ratraw(i) = 0.0d0
        dratrawdt(i) = 0.0d0
        dratrawdd(i) = 0.0d0
@@ -670,9 +675,9 @@ contains
     ! declare the pass    
     double precision :: btemp, bden
     double precision :: y(nspec)
-    double precision :: ratraw(nrat), dratrawdt(nrat), dratrawdd(nrat)
-    double precision :: ratdum(nrat), dratdumdt(nrat), dratdumdd(nrat)
-    double precision :: scfac(nrat),  dscfacdt(nrat),  dscfacdd(nrat)
+    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
+    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     
     ! local variables
@@ -693,7 +698,7 @@ contains
 
 
     ! initialize
-    do i=1,nrat
+    do i=1,nrates
        ratdum(i)    = ratraw(i)
        dratdumdt(i) = dratrawdt(i)
        dratdumdd(i) = dratrawdd(i)

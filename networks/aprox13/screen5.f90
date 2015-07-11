@@ -62,7 +62,7 @@
 
 
       integer          nscreen_max
-      parameter        (nscreen_max = 2*nrat + 40)
+      parameter        (nscreen_max = 2*nrates + 40)
 
       double precision zs13(nscreen_max),zhat(nscreen_max), &
                        zhat2(nscreen_max),lzav(nscreen_max), &

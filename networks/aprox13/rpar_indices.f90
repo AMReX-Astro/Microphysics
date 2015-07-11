@@ -24,9 +24,9 @@ contains
   end function get_next_rpar_index
 
 
-  subroutine init_rpar_indices(nrat, nspec)
+  subroutine init_rpar_indices(nrates, nspec)
 
-    integer, intent(in) :: nrat, nspec
+    integer, intent(in) :: nrates, nspec
 
     irp_dens   = get_next_rpar_index(1)
     irp_cp     = get_next_rpar_index(1)

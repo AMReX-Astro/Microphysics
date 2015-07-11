@@ -17,8 +17,8 @@ module network_indices
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  integer, parameter :: itemp = 14
-  integer, parameter :: ienuc = 15
+  integer, parameter :: net_itemp = 14
+  integer, parameter :: net_ienuc = 15
 
 
   ! set the id numbers of the reaction rates
