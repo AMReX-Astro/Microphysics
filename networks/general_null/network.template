@@ -1,0 +1,49 @@
+! An automatically generated "null" network.  This provides the properties
+! of a set of non-reacting species.
+!
+! nspec            -- the number of species
+! naux             -- the number of auxiliary variables
+!
+! aion             -- atomic number
+! zion             -- proton number
+!
+! spec_names       -- the name of the isotope
+! short_spec_names -- an abbreviated form of the species name
+!
+! aux_names        -- the name of the auxiliary variable
+! short_aux_names  -- an abbreviated form of the auxiliary variable
+
+
+module specific_network
+
+  use bl_types
+
+  implicit none
+
+  integer, parameter :: nspec = @@NSPEC@@
+  integer, parameter :: naux =  @@NAUX@@
+
+  character (len=16) :: spec_names(nspec) 
+  character (len= 5) :: short_spec_names(nspec)
+  character (len=16) :: aux_names(naux)
+  character (len= 5) :: short_aux_names(naux)
+
+  double precision   :: aion(nspec), zion(nspec)
+
+contains
+  
+  subroutine specific_network_init
+
+    @@SPEC_NAMES@@
+
+    @@SHORT_SPEC_NAMES@@
+
+    @@AION@@
+
+    @@ZION@@
+
+    @@AUX_NAMES@@
+
+  end subroutine specific_network_init
+
+end module specific_network
