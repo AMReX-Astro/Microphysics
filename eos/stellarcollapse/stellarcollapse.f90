@@ -50,21 +50,25 @@ contains
     implicit none
 
     ! Input arguments
-    integer,           intent(in   ) :: input
-    type (eos_t),      intent(inout) :: state(:)
+    integer,             intent(in   ) :: input
+    type (eos_t_vector), intent(inout) :: state
 
     ! Local variables and arrays
     double precision :: e_want, p_want, s_want, h_want
     double precision, parameter :: tol = 1.0d-8
 
-    integer :: j, N, ierr
+    type (eos_t) :: scalar_state
+    
+    integer :: j, ierr
 
     if (.not. initialized) call bl_error('EOS: not initialized')
 
-    do j = 1, N
+    do j = 1, state % N
 
+       call get_eos_t(state, scalar_state, j)
+       
        ! Convert to the units used by the table.
-       call convert_to_table_format(state(j))
+       call convert_to_table_format(scalar_state)
 
        ierr = 0
 
@@ -85,7 +89,7 @@ contains
 
        case (eos_input_rh)
           ! NOT CURRENTLY IMPLEMENTED
-          call eos_error(ierr_not_implemented, input, state(j) % loc)
+          call eos_type_error(ierr_not_implemented, input)
 
    !---------------------------------------------------------------------------
    ! temp, pres, and ye are inputs; iterate to find density
@@ -94,15 +98,15 @@ contains
        case (eos_input_tp)
 
           ! Make sure the initial density guess is within table
-          state(j)%rho = max(mindens, min(maxdens, state(j)%rho))
+          scalar_state % rho = max(mindens, min(maxdens, scalar_state % rho))
 
           ! We want to converge to the given pressure
-          p_want = state(j) % p
-          if (p_want < ZERO) call eos_error(ierr_neg_p, input, state(j) % loc)
+          p_want = scalar_state % p
+          if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
 
-          call newton_iter(state(j), ierr, ipres, idens, p_want)
+          call newton_iter(scalar_state, ierr, ipres, idens, p_want)
 
-          if (ierr > 0) call eos_error(ierr, input, state(j) % loc)
+          if (ierr > 0) call eos_type_error(ierr, input)
 
 
 
@@ -114,15 +118,15 @@ contains
        case (eos_input_rp)
 
           ! Make sure the initial temperature guess is within the table
-          state(j)%T = max(mintemp, min(maxtemp, state(j)%T))
+          scalar_state % T = max(mintemp, min(maxtemp, scalar_state % T))
 
           ! We want to converge to the given pressure
-          p_want = state(j) % p
-          if (p_want < ZERO) call eos_error(ierr_neg_p, input, state(j) % loc)
+          p_want = scalar_state % p
+          if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
 
-          call newton_iter(state(j), ierr, ipres, itemp, p_want)
+          call newton_iter(scalar_state, ierr, ipres, itemp, p_want)
 
-          if (ierr > 0) call eos_error(ierr, input, state(j) % loc)
+          if (ierr > 0) call eos_type_error(ierr, input)
 
 
 
@@ -133,16 +137,16 @@ contains
        case (eos_input_re)
 
           ! Make sure the initial guess for temperature is within the table
-          state(j)%T = max(mintemp, min(state(j)%T, maxtemp))
+          scalar_state % T = max(mintemp, min(scalar_state % T, maxtemp))
 
           ! We want to converge to the given energy
-          e_want = state(j) % e
-          if (e_want < ZERO) call eos_error(ierr_neg_e, input, state(j) % loc)
+          e_want = scalar_state % e
+          if (e_want < ZERO) call eos_type_error(ierr_neg_e, input)
 
           ! iterate to get the temperature
-          call newton_iter(state(j), ierr, iener, itemp, e_want)
+          call newton_iter(scalar_state, ierr, iener, itemp, e_want)
 
-          if (ierr > 0) call eos_error(ierr, input, state(j) % loc)
+          if (ierr > 0) call eos_type_error(ierr, input)
 
 
 
@@ -152,7 +156,7 @@ contains
 
        case (eos_input_ps)
           ! NOT CURRENTLY IMPLEMENTED
-          call eos_error(ierr_not_implemented, input, state(j) % loc)
+          call eos_type_error(ierr_not_implemented, input)
 
 
    !---------------------------------------------------------------------------
@@ -161,7 +165,7 @@ contains
 
        case (eos_input_ph)
           ! NOT CURRENTLY IMPLEMENTED
-          call eos_error(ierr_not_implemented, input, state(j) % loc)
+          call eos_type_error(ierr_not_implemented, input)
 
 
    !---------------------------------------------------------------------------
@@ -170,7 +174,7 @@ contains
 
        case (eos_input_th)
           ! NOT CURRENTLY IMPLEMENTED
-          call eos_error(ierr_not_implemented, input, state(j) % loc)
+          call eos_type_error(ierr_not_implemented, input)
 
 
    !---------------------------------------------------------------------------
@@ -179,18 +183,20 @@ contains
 
        case default 
 
-          call eos_error(ierr_input, input, state(j) % loc)
+          call eos_type_error(ierr_input, input)
 
        end select
 
        ! Do a final lookup - by now we should have a consistent density and temperature
-       call table_lookup(state(j))
+       call table_lookup(scalar_state)
 
 
        ! Convert back to hydro units from table units.
        ! Also builds some quantities like enthalpy.
-       call convert_from_table_format(state(j))
+       call convert_from_table_format(scalar_state)
 
+       call put_eos_t(state, scalar_state, j)
+       
     enddo
 
   end subroutine specific_eos

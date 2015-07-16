@@ -63,8 +63,8 @@ contains
 
     implicit none
 
-    integer,           intent(in   ) :: input
-    type (eos_t),      intent(inout) :: state(:)
+    integer,             intent(in   ) :: input
+    type (eos_t_vector), intent(inout) :: state
 
     ! Local variables
     double precision :: sumY_gm1, sumYg_gm1
@@ -73,18 +73,16 @@ contains
     ! Get the mass of a nucleon from Avogadro's number.
     double precision, parameter :: m_nucleon = ONE / n_A
 
-    integer :: j, N
-
-    N = size(state)
+    integer :: j
 
     if (.not. initialized) call bl_error('EOS: not initialized')
 
-    do j = 1, N
+    do j = 1, state % N
 
        ! Special gamma factors
 
-       sumY_gm1  = sum(state(j) % xn(:)/(aion(:)*(gammas(:)-ONE)))
-       sumYg_gm1 = sum(state(j) % xn(:)*gammas(:)/(aion(:)*(gammas(:)-ONE)))
+       sumY_gm1  = sum(state % xn(j,:)/(aion(:)*(gammas(:)-ONE)))
+       sumYg_gm1 = sum(state % xn(j,:)*gammas(:)/(aion(:)*(gammas(:)-ONE)))
 
        !-------------------------------------------------------------------------
        ! For all EOS input modes EXCEPT eos_input_rt, first compute dens
@@ -98,8 +96,8 @@ contains
           ! dens, temp and xmass are inputs
 
           ! We don't need to do anything here
-          temp = state(j) % T
-          dens = state(j) % rho
+          temp = state % T(j)
+          dens = state % rho(j)
 
 
        case (eos_input_rh)
@@ -108,8 +106,8 @@ contains
 
           ! Solve for the temperature:
           ! h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
-          dens = state(j) % rho
-          temp = (state(j) % h * m_nucleon / k_B)/sumYg_gm1
+          dens = state % rho(j)
+          temp = (state % h(j) * m_nucleon / k_B)/sumYg_gm1
 
 
        case (eos_input_tp)
@@ -118,8 +116,8 @@ contains
 
           ! Solve for the density:
           ! p = rho k T / (abar m_nucleon)
-          dens = state(j) % p * state(j) % abar * m_nucleon / (k_B * state(j) % T)
-          temp = state(j) % T
+          dens = state % p(j) * state % abar(j) * m_nucleon / (k_B * state % T(j))
+          temp = state % T(j)
 
 
        case (eos_input_rp)
@@ -128,8 +126,8 @@ contains
 
           ! Solve for the temperature:
           ! p = rho k T / (mu m_nucleon)
-          dens = state(j) % rho
-          temp = state(j) % p * state(j) % abar * m_nucleon / (k_B * state(j) % rho)
+          dens = state % rho(j)
+          temp = state % p(j) * state % abar(j) * m_nucleon / (k_B * state % rho(j))
 
 
        case (eos_input_re)
@@ -138,8 +136,8 @@ contains
 
           ! Solve for the temperature
           ! e = k T / [(mu m_nucleon)*(gamma-1)]
-          dens = state(j) % rho
-          temp = state(j) % e * m_nucleon / (k_B * sumY_gm1)
+          dens = state % rho(j)
+          temp = state % e(j) * m_nucleon / (k_B * sumY_gm1)
 
 
        case (eos_input_ps)
@@ -153,8 +151,8 @@ contains
           ! pressure, enthalpy and xmass are inputs
 
           ! Solve for temperature and density
-          dens = state(j) % p * state(j) % abar / state(j) % h * sumYg_gm1
-          temp = state(j) % p * state(j) % abar * m_nucleon / (k_B * dens)
+          dens = state % p(j) * state % abar(j) / state % h(j) * sumYg_gm1
+          temp = state % p(j) * state % abar(j) * m_nucleon / (k_B * dens)
 
 
        case (eos_input_th)
@@ -174,58 +172,58 @@ contains
        ! mu), regardless of the inputs.
        !-------------------------------------------------------------------------
 
-       state(j) % T   = temp
-       state(j) % rho = dens
+       state % T(j)   = temp
+       state % rho(j) = dens
 
        ! Compute the pressure simply from the ideal gas law, and the
        ! specific internal energy using the gamma-law EOS relation.
-       state(j) % p = dens*k_B*temp/(state(j) % abar*m_nucleon)
-       state(j) % e = k_B*temp*sumY_gm1/m_nucleon
+       state % p(j) = dens*k_B*temp/(state % abar(j)*m_nucleon)
+       state % e(j) = k_B*temp*sumY_gm1/m_nucleon
 
        ! Enthalpy is h = e + p/rho
-       state(j) % h = state(j) % e + state(j) % p / dens
+       state % h(j) = state % e(j) + state % p(j) / dens
 
        ! Entropy (per gram) -- not implemented.
-       state(j) % s = ZERO
+       state % s(j) = ZERO
 
        ! Compute the thermodynamic derivatives and specific heats 
-       state(j) % dpdT = state(j) % p / temp
-       state(j) % dpdr = state(j) % p / dens
-       state(j) % dedT = state(j) % e / temp
-       state(j) % dedr = ZERO
-       state(j) % dsdT = ZERO
-       state(j) % dsdr = ZERO
-       state(j) % dhdT = state(j) % dedT + state(j) % dpdT / dens
-       state(j) % dhdr = 0.0d0
+       state % dpdT = state % p(j) / temp
+       state % dpdr = state % p(j) / dens
+       state % dedT(j) = state % e(j) / temp
+       state % dedr(j) = ZERO
+       state % dsdT(j) = ZERO
+       state % dsdr(j) = ZERO
+       state % dhdT(j) = state % dedT(j) + state % dpdT(j) / dens
+       state % dhdr(j) = ZERO
 
-       state(j) % cv = state(j) % dedT
-       state(j) % cp = state(j) % h / state(j) % T
+       state % cv(j) = state % dedT(j)
+       state % cp(j) = state % h(j) / state % T(j)
 
-       state(j) % gam1 = state(j) % cp / state(j) % cv
+       state % gam1(j) = state % cp(j) / state % cv(j)
 
-       state(j) % dpdr_e = state(j) % dpdr - state(j) % dpdT * state(j) % dedr / state(j) % dedT
-       state(j) % dpde   = state(j) % dpdT / state(j) % dedT
+       state % dpdr_e(j) = state % dpdr(j) - state % dpdT(j) * state % dedr(j) / state % dedT(j)
+       state % dpde(j)   = state % dpdT(j) / state % dedT(j)
 
 
        ! These need to be worked out.
-       state(j) % dpdA = ZERO
-       state(j) % dedA = ZERO
+       state % dpdA(j) = ZERO
+       state % dedA(j) = ZERO
 
-       state(j) % dpdZ = ZERO
-       state(j) % dedZ = ZERO
+       state % dpdZ(j) = ZERO
+       state % dedZ(j) = ZERO
 
        ! These expressions will not work at present because we overwrite them
        ! at the end of the EOS call. We need to move the multi-fluid property
        ! up to the main EOS modules.
 
-       state(j) % dpdX(:) = state(j) % rho * k_B * state(j) % T / (m_nucleon * aion(:))
-       state(j) % dedX(:) = k_B * state(j) % T / (m_nucleon * aion(:) * (gammas(:) - ONE))
+       state % dpdX(j,:) = state % rho(j) * k_B * state % T(j) / (m_nucleon * aion(:))
+       state % dedX(j,:) = k_B * state % T(j) / (m_nucleon * aion(:) * (gammas(:) - ONE))
 
-       state(j) % dhdX(:) = state(j) % dedX(:) + (state(j) % p / state(j) % rho**2 - state(j) % dedr) &
-                                            *  state(j) % dpdX(:) / state(j) % dpdr
+       state % dhdX(j,:) = state % dedX(j,:) + (state % p(j) / state % rho(j)**2 - state % dedr(j)) &
+                                            *  state % dpdX(j,:) / state % dpdr(j)
 
        ! Sound speed
-       state(j) % cs = sqrt(state(j) % gam1 * state(j) % p / dens)
+       state % cs(j) = sqrt(state % gam1(j) * state % p(j) / dens)
 
     enddo
 

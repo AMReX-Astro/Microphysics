@@ -6,45 +6,19 @@ module burner_module
   use eos_module
   use specific_burner_module
 
-  interface burner
-     module procedure scalar_burner
-     module procedure vector_burner
-     module procedure rank2_burner
-     module procedure rank3_burner
-  end interface burner
-  
 contains
 
-  subroutine scalar_burner(state_in, state_out, dt, time)
+  subroutine burner(state_in, state_out, dt, time)
 
     implicit none
 
-    type (eos_t), intent(inout) :: state_in
-    type (eos_t), intent(inout) :: state_out
+    class (eos_type), intent(inout)  :: state_in
+    class (eos_type), intent(inout)  :: state_out
     double precision, intent(in) :: dt, time
 
-    type (eos_t) :: vector_state_in(1), vector_state_out(1)
-
-    call vector_burner(vector_state_in, vector_state_out, dt, time)
-
-    state_in  = vector_state_in(1)
-    state_out = vector_state_out(1)
-    
-  end subroutine scalar_burner
-
-
-  
-  subroutine vector_burner(state_in, state_out, dt, time)
-
-    implicit none
-
-    type (eos_t), intent(inout)  :: state_in(:)
-    type (eos_t), intent(inout)  :: state_out(:)
-    double precision, intent(in) :: dt, time
-
-    integer :: j, N
-
-    N = size(state_in)
+    integer :: i
+    type (eos_t_vector) :: state_vector_in
+    type (eos_t_vector) :: state_vector_out
     
     ! Make sure the network has been initialized.
     
@@ -52,78 +26,59 @@ contains
        call bl_error("ERROR in burner: must initialize network first.")
     endif
 
-    ! We assume that the valid quantities coming in are (rho, e); do an EOS call
-    ! to make sure all other variables are consistent.
-
-    call eos(eos_input_re, state_in)
-
     ! Initialize the final state by assuming it does not change.
 
-    state_out = state_in
+    select type (state_in)
+    type is (eos_t_1D)
+       select type (state_out)
+       type is (eos_t_1D)
+          state_out = state_in
+       end select
 
-    call specific_burner(state_in, state_out, dt, time)
+    type is (eos_t_2D)
+       select type (state_out)
+       type is (eos_t_2D)
+          state_out = state_in
+       end select
 
-    do j = 1, N
+    type is (eos_t_3D)
+       select type (state_out)
+       type is (eos_t_3D)
+          state_out = state_in
+       end select
 
-       ! Store the new mass fractions -- note, we discard the temperature
-       ! here.  Make sure that they are positive and less than one.
-       
-       state_out(j) % xn(:) = max(smallx, min(ONE, state_out(j) % xn(:)))
+    end select
 
-       ! Enforce sum{X_k} = 1.
+    ! Get an EOS vector for each case.
 
-       state_out(j) % xn(:) = state_out(j) % xn(:) / sum(state_out(j) % xn(:))
+    call eos_vector_in(state_vector_in, state_in)
+    call eos_vector_in(state_vector_out, state_out)
+
+    ! We assume that the valid quantities coming in are (rho, e); do an EOS call
+    ! to make sure all other variables are consistent. This will also
+    ! properly
+
+    call eos(eos_input_re, state_vector_in)
+
+    ! Do the burning.
+    
+    call specific_burner(state_vector_in, state_vector_out, dt, time)
+
+    ! Normalize the mass fractions: they must be individually positive and less than one,
+    ! and they must all sum to unity.
+    
+    do i = 1, state_vector_out % N
+
+       state_vector_out % xn(i,:) = max(smallx, min(ONE, state_vector_out % xn(i,:)))
+
+       state_vector_out % xn(i,:) = state_vector_out % xn(i,:) / sum(state_vector_out % xn(i,:))
 
     enddo
        
     ! Now update the temperature to match the new internal energy.
 
-    call eos(eos_input_re, state_out)
+    call eos(eos_input_re, state_vector_out)
 
-  end subroutine vector_burner
-
-
-  
-  subroutine rank2_burner(state_in, state_out, dt, time)
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state_in(:,:)
-    type (eos_t), intent(inout) :: state_out(:,:)
-    double precision, intent(in) :: dt, time
-
-    type (eos_t) :: vector_state_in(size(state_in)), vector_state_out(size(state_out))
-
-    vector_state_in(:)  = reshape(state_in(:,:), (/ size(state_in) /))
-    vector_state_out(:) = reshape(state_out(:,:), (/ size(state_out) /))
-    
-    call vector_burner(vector_state_in, vector_state_out, dt, time)
-
-    state_in(:,:)  = reshape(vector_state_in, (/ size(state_in,1),size(state_in,2) /))
-    state_out(:,:) = reshape(vector_state_out, (/ size(state_out,1),size(state_out,2) /))
-    
-  end subroutine rank2_burner
-
-
-
-  subroutine rank3_burner(state_in, state_out, dt, time)
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state_in(:,:,:)
-    type (eos_t), intent(inout) :: state_out(:,:,:)
-    double precision, intent(in) :: dt, time
-
-    type (eos_t) :: vector_state_in(size(state_in)), vector_state_out(size(state_out))
-
-    vector_state_in(:)  = reshape(state_in(:,:,:), (/ size(state_in) /))
-    vector_state_out(:) = reshape(state_out(:,:,:), (/ size(state_out) /))
-    
-    call vector_burner(vector_state_in, vector_state_out, dt, time)
-
-    state_in(:,:,:)  = reshape(vector_state_in, (/ size(state_in,1),size(state_in,2),size(state_in,3) /))
-    state_out(:,:,:) = reshape(vector_state_out, (/ size(state_out,1),size(state_out,2),size(state_out,3) /))
-    
-  end subroutine rank3_burner
+  end subroutine burner
 
 end module burner_module

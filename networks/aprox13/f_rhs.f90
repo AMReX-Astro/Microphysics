@@ -27,7 +27,7 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
 
   integer :: k
 
-  type(eos_t) :: state
+  type (eos_t) :: state
 
   ! We are integrating a system of
   !

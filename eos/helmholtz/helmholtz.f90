@@ -143,32 +143,52 @@ contains
         implicit none
 
         !..input arguments
-        integer,      intent(in   ) :: input
-        type (eos_t), intent(inout) :: state(:)
+        integer,             intent(in   ) :: input
+        type (eos_t_vector), intent(inout) :: state
 
         !..rows to store EOS data
-        double precision :: temp_row(size(state)), den_row(size(state)), &
-                            abar_row(size(state)), zbar_row(size(state)), &
-                            etot_row(size(state)), ptot_row(size(state)), &
-                            cv_row(size(state)), cp_row(size(state)),  &
-                            xne_row(size(state)), xnp_row(size(state)), etaele_row(size(state)), &
-                            pele_row(size(state)), ppos_row(size(state)), dpd_row(size(state)),  &
-                            dpt_row(size(state)), dpa_row(size(state)), dpz_row(size(state)),  &
-                            ded_row(size(state)), det_row(size(state)), dea_row(size(state)),  &
-                            dez_row(size(state)),  &
-                            stot_row(size(state)), dsd_row(size(state)), dst_row(size(state)), &
-                            htot_row(size(state)), dhd_row(size(state)), dht_row(size(state)), &
-                            dpe_row(size(state)), dpdr_e_row(size(state)), &
-                            gam1_row(size(state)), cs_row(size(state))
+        double precision :: temp_row(state % N), &
+                            den_row(state % N), &
+                            abar_row(state % N), &
+                            zbar_row(state % N), &
+                            etot_row(state % N), &
+                            ptot_row(state % N), &
+                            cv_row(state % N), &
+                            cp_row(state % N),  &
+                            xne_row(state % N), &
+                            xnp_row(state % N), &
+                            etaele_row(state % N), &
+                            pele_row(state % N), &
+                            ppos_row(state % N), &
+                            dpd_row(state % N),  &
+                            dpt_row(state % N), &
+                            dpa_row(state % N), &
+                            dpz_row(state % N),  &
+                            ded_row(state % N), &
+                            det_row(state % N), &
+                            dea_row(state % N),  &
+                            dez_row(state % N),  &
+                            stot_row(state % N), &
+                            dsd_row(state % N), &
+                            dst_row(state % N), &
+                            htot_row(state % N), &
+                            dhd_row(state % N), &
+                            dht_row(state % N), &
+                            dpe_row(state % N), &
+                            dpdr_e_row(state % N), &
+                            gam1_row(state % N), &
+                            cs_row(state % N)
 
         !..declare local variables
 
-        integer :: j, N
+        integer :: i,j,k
+        integer :: N(1), N3(3)
 
         logical :: single_iter, double_iter, converged
         logical :: use_acc
         integer :: var, dvar, var1, var2, dvar1, dvar2, iter
-        double precision :: v_want(size(state)), v1_want(size(state)), v2_want(size(state))
+        double precision :: v_want(state % N)
+        double precision :: v1_want(state % N), v2_want(state % N)
         double precision :: xnew, xtol, dvdx, smallx, error, v
         double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
@@ -218,12 +238,10 @@ contains
                             pcoul,dpcouldd,dpcouldt,dpcoulda,dpcouldz, &
                             scoul,dscouldd,dscouldt,dscoulda,dscouldz
 
-        N = size(state)
-
-        temp_row = state(:) % T
-        den_row  = state(:) % rho
-        abar_row = state(:) % abar
-        zbar_row = state(:) % zbar
+        temp_row = state % T
+        den_row  = state % rho
+        abar_row = state % abar
+        zbar_row = state % zbar
 
         ! Initial setup for iterations
 
@@ -234,51 +252,51 @@ contains
         elseif (input .eq. eos_input_rh) then
 
           single_iter = .true.
-          v_want(:) = state(:) % h
+          v_want = state % h
           var  = ienth
           dvar = itemp
 
         elseif (input .eq. eos_input_tp) then
 
           single_iter = .true.
-          v_want(:) = state(:) % p
+          v_want = state % p
           var  = ipres
           dvar = idens
 
         elseif (input .eq. eos_input_rp) then
 
           single_iter = .true.
-          v_want(:) = state(:) % p
+          v_want = state % p
           var  = ipres
           dvar = itemp
 
         elseif (input .eq. eos_input_re) then
 
           single_iter = .true.
-          v_want(:) = state(:) % e
+          v_want = state % e
           var  = iener
           dvar = itemp
 
         elseif (input .eq. eos_input_ps) then
 
           double_iter = .true.
-          v1_want(:) = state(:) % p
-          v2_want(:) = state(:) % s
+          v1_want = state % p
+          v2_want = state % s
           var1 = ipres
           var2 = ientr
 
         elseif (input .eq. eos_input_ph) then
 
           double_iter = .true.
-          v1_want(:) = state(:) % p
-          v2_want(:) = state(:) % h
+          v1_want = state % p
+          v2_want = state % h
           var1 = ipres
           var2 = ienth
 
         elseif (input .eq. eos_input_th) then
 
           single_iter = .true.
-          v_want(:) = state(:) % h
+          v_want = state % h
           var  = ienth
           dvar = idens
 
@@ -319,17 +337,13 @@ contains
         cs_row = 0.0d0
         gam1_row = 0.0d0
 
-        if (N .gt. acc_cutoff .and. do_acc .eq. 1) then
+        if (state % N .gt. acc_cutoff .and. do_acc .eq. 1) then
            use_acc = .true.
         else
            use_acc = .false.
         endif
 
         converged = .false.
-
-        ! Note that for OpenACC, we do not need to have a present clause
-        ! for the various constants and arrays -- the enter data constructs in helm_init
-        ! is enough for the compiler to recognize they are present at runtime.
 
         !$acc parallel loop if(use_acc) &
         !$acc copy(den_row,temp_row) &
@@ -341,7 +355,7 @@ contains
         !$acc copyout(htot_row,dht_row,dhd_row) &
         !$acc copyout(cs_row,cv_row,cp_row,gam1_row) &
         !$acc copyout(etaele_row,pele_row,ppos_row,xne_row,xnp_row)
-        do j = 1, N
+        do j = 1, state % N
 
            converged = .false.
            if (input .eq. eos_input_rt) converged = .true.
@@ -1083,88 +1097,88 @@ contains
         enddo
         !$acc end parallel loop
 
-        state(:) % T    = temp_row
-        state(:) % rho  = den_row
+        state % T    = temp_row
+        state % rho  = den_row
 
-        state(:) % p    = ptot_row(:)
-        state(:) % dpdT = dpt_row(:)
-        state(:) % dpdr = dpd_row(:)
+        state % p    = ptot_row
+        state % dpdT = dpt_row
+        state % dpdr = dpd_row
 
-        state(:) % dpdA = dpa_row(:)
-        state(:) % dpdZ = dpz_row(:)
-        state(:) % dpde = dpe_row(:)
-        state(:) % dpdr_e = dpdr_e_row(:)
+        state % dpdA = dpa_row
+        state % dpdZ = dpz_row
+        state % dpde = dpe_row
+        state % dpdr_e = dpdr_e_row
 
-        state(:) % e    = etot_row(:)
-        state(:) % dedT = det_row(:)
-        state(:) % dedr = ded_row(:)
-        state(:) % dedA = dea_row(:)   
-        state(:) % dedZ = dez_row(:)
+        state % e    = etot_row
+        state % dedT = det_row
+        state % dedr = ded_row
+        state % dedA = dea_row   
+        state % dedZ = dez_row
 
-        state(:) % s    = stot_row(:)
-        state(:) % dsdT = dst_row(:)
-        state(:) % dsdr = dsd_row(:)
+        state % s    = stot_row
+        state % dsdT = dst_row
+        state % dsdr = dsd_row
 
-        state(:) % h    = htot_row(:)
-        state(:) % dhdR = dhd_row(:)
-        state(:) % dhdT = dht_row(:)
+        state % h    = htot_row
+        state % dhdR = dhd_row
+        state % dhdT = dht_row
 
-        state(:) % pele = pele_row(:)
-        state(:) % ppos = ppos_row(:)
+        state % pele = pele_row
+        state % ppos = ppos_row
 
-        state(:) % xne = xne_row(:)
-        state(:) % xnp = xnp_row(:)
+        state % xne = xne_row
+        state % xnp = xnp_row
 
-        state(:) % eta = etaele_row(:)
+        state % eta = etaele_row
 
-        state(:) % cv   = cv_row(:)
-        state(:) % cp   = cp_row(:)
-        state(:) % gam1 = gam1_row(:)
-  !      state(:) % cs   = cs_row
+        state % cv   = cv_row
+        state % cp   = cp_row
+        state % gam1 = gam1_row
+        ! state % cs   = cs_row
 
         ! Take care of final housekeeping.
 
         ! Count the positron contribution in the electron quantities.
 
-        state(:) % xne  = state(:) % xne  + state(:) % xnp
-        state(:) % pele = state(:) % pele + state(:) % ppos
+        state % xne  = state % xne  + state % xnp
+        state % pele = state % pele + state % ppos
 
         ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
         ! This replaces the relativistic version that comes out of helmeos.
 
-        state(:) % cs = sqrt(state(:) % gam1 * state(:) % p / state(:) % rho)
+        state % cs = sqrt(state % gam1 * state % p / state % rho)
 
         if (input_is_constant) then
 
           if (input .eq. eos_input_rh) then
 
-            state(:) % h = v_want(:)
+            state % h = v_want
 
           elseif (input .eq. eos_input_tp) then
 
-            state(:) % p = v_want(:)
+            state % p = v_want
 
           elseif (input .eq. eos_input_rp) then
 
-            state(:) % p = v_want(:)
+            state % p = v_want
 
           elseif (input .eq. eos_input_re) then
 
-            state(:) % e = v_want(:)
+            state % e = v_want
 
           elseif (input .eq. eos_input_ps) then
 
-            state(:) % p = v1_want(:)
-            state(:) % s = v2_want(:)
+            state % p = v1_want
+            state % s = v2_want
 
           elseif (input .eq. eos_input_ph) then
 
-            state(:) % p = v1_want(:)
-            state(:) % h = v2_want(:)
+            state % p = v1_want
+            state % h = v2_want
 
           elseif (input .eq. eos_input_th) then
 
-            state(:) % h = v_want(:)
+            state % h = v_want
 
           endif
 

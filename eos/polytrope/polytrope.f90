@@ -113,26 +113,24 @@ contains
 
     implicit none
 
-    integer,           intent(in   ) :: input
-    type (eos_t),      intent(inout) :: state(:)
+    integer,             intent(in   ) :: input
+    type (eos_t_vector), intent(inout) :: state
 
     ! Local variables
     double precision :: dens, temp, enth, pres, eint, entr
 
-    integer :: j, N
-
-    N = size(state)
+    integer :: j
 
     if (.not. initialized) call bl_error('EOS: not initialized')
 
-    do j = 1, N
+    do j = 1, state % N
 
-       dens = state(j) % rho
-       temp = state(j) % T
-       pres = state(j) % p
-       enth = state(j) % h
-       eint = state(j) % e
-       entr = state(j) % s
+       dens = state % rho(j)
+       temp = state % T(j)
+       pres = state % p(j)
+       enth = state % h(j)
+       eint = state % e(j)
+       entr = state % s(j)
 
        select case (input)
 
@@ -242,38 +240,38 @@ contains
        ! Now we have all relevant quantities, regardless of the inputs.
        !-------------------------------------------------------------------------
 
-       state(j) % T   = temp
-       state(j) % rho = dens
-       state(j) % h   = enth
-       state(j) % s   = entr
-       state(j) % e   = eint
-       state(j) % p   = pres
+       state % T(j)   = temp
+       state % rho(j) = dens
+       state % h(j)   = enth
+       state % s(j)   = entr
+       state % e(j)   = eint
+       state % p(j)   = pres
 
        ! Compute the thermodynamic derivatives and specific heats 
-       state(j) % dPdT = ZERO
-       state(j) % dPdr = gamma_const * pres / dens
-       state(j) % dedT = ZERO
-       state(j) % dedr = pres / (dens * dens)
-       state(j) % dsdT = ZERO
-       state(j) % dsdr = ZERO
-       state(j) % dhdT = ZERO
-       state(j) % dhdr = state(j) % dedr + gm1 * pres / dens**2
+       state % dPdT(j) = ZERO
+       state % dPdr(j) = gamma_const * pres / dens
+       state % dedT(j) = ZERO
+       state % dedr(j) = pres / (dens * dens)
+       state % dsdT(j) = ZERO
+       state % dsdr(j) = ZERO
+       state % dhdT(j) = ZERO
+       state % dhdr(j) = state % dedr(j) + gm1 * pres / dens**2
 
-       state(j) % cv = state(j) % dedT
-       state(j) % cp = gamma_const * state(j) % cv
+       state % cv(j) = state % dedT(j)
+       state % cp(j) = gamma_const * state % cv(j)
 
-       state(j) % gam1 = gamma_const
+       state % gam1(j) = gamma_const
 
        ! Compute dPdX, dedX, dhdX.
 
-       state(j) % dpdA = - state(j) % p / state(j) % abar
-       state(j) % dpdZ =   state(j) % p / (ONE + state(j) % zbar)
+       state % dpdA(j) = - state % p(j) / state % abar(j)
+       state % dpdZ(j) =   state % p(j) / (ONE + state % zbar(j))
 
-       state(j) % dedA = - state(j) % e / state(j) % abar
-       state(j) % dedZ =   state(j) % e / (ONE + state(j) % zbar)
+       state % dedA(j) = - state % e(j) / state % abar(j)
+       state % dedZ(j) =   state % e(j) / (ONE + state % zbar(j))
 
        ! sound speed
-       state(j) % cs = sqrt(gamma_const*pres/dens)
+       state % cs(j) = sqrt(gamma_const*pres/dens)
 
     enddo
 

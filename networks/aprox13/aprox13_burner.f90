@@ -76,11 +76,11 @@ contains
 
     implicit none
 
-    type (eos_t),     intent(in   ) :: state_in(:)
-    type (eos_t),     intent(inout) :: state_out(:)
+    type (eos_t_vector), intent(in   ) :: state_in
+    type (eos_t_vector), intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
     
-    integer :: j, N
+    integer :: j
     double precision :: enuc, dX, local_time
 
     logical, parameter :: verbose = .false.
@@ -103,10 +103,6 @@ contains
 
     EXTERNAL jac, f_rhs
     
-    integer :: i
-
-    N = size(state_in)
-
     ! Allocate storage for rpar -- the scratch array passed into the
     ! rhs and jacobian routines
     allocate(rpar(n_rpar_comps))
@@ -125,7 +121,7 @@ contains
     rtol(net_itemp) = 1.e-5_dp_t   ! temperature
     rtol(net_ienuc) = 1.e-10_dp_t  ! energy generated
 
-    do j = 1, N
+    do j = 1, state_in % N
 
         ! We want VODE to re-initialize each time we call it
        istate = 1
@@ -139,26 +135,26 @@ contains
        ! Initialize the integration time
        local_time = ZERO
 
-       ! Abundances are the first nspec-1 values and temperature is the last
-       y(1:nspec) = state_in(j) % xn(:)
-       y(net_itemp)   = state_in(j) % T
-       y(net_ienuc)   = ZERO
+       ! Abundances are the first nspec values and temperature and energy are the last
+       y(1:nspec)   = state_in % xn(j,:)
+       y(net_itemp) = state_in % T(j)
+       y(net_ienuc) = ZERO
 
        ! Density, specific heat at constant pressure, c_p, and dhdX are needed
        ! in the righthand side routine, so we will pass these in to those routines
        ! via the rpar functionality in VODE.
 
-       rpar(irp_dens) = state_in(j) % rho
-       rpar(irp_cp)   = state_in(j) % cp
-       rpar(irp_cv)   = state_in(j) % cv
+       rpar(irp_dens) = state_in % rho(j)
+       rpar(irp_cp)   = state_in % cp(j)
+       rpar(irp_cv)   = state_in % cv(j)
 
        ! The following thermodynamic derivatives are calculated in the EOS.
 
        ! dhdX = dh/dX |_{p,T}
-       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in(j) % dhdX(:)
+       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(j,:)
 
        ! dedX = de/dX |_{rho, T}
-       rpar(irp_dedX:irp_dedX-1+nspec) = state_in(j) % dEdX(:)
+       rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(j,:)
 
        ! This is just used to make sure everything is happy
        rpar(irp_smallx) = smallx
@@ -180,7 +176,7 @@ contains
        endif
 
        ! Store the new mass fractions.
-       state_out(j) % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
+       state_out % xn(j,:) = max(smallx, min(ONE, y(1:nspec)))    
 
 
        ! Energy was integrated in the system -- we use this integrated
@@ -190,12 +186,12 @@ contains
        ! but we will discard it and the main burner module will do an EOS
        ! call to get a final temperature consistent with this new energy.
 
-       state_out(j) % e = state_in(j) % e + y(net_ienuc)
+       state_out % e(j) = state_in % e(j) + y(net_ienuc)
 
        if (verbose) then
           ! Print out some integration statistics, if desired
           print *, 'integration summary: '
-          print *, 'dens: ', state_out(j) % rho, ' temp: ', state_out(j) % T
+          print *, 'dens: ', state_out % rho, ' temp: ', state_out % T(j)
           print *, 'number of steps taken: ', iwork(11)
           print *, 'number of f evaluations: ', iwork(12)
        endif
