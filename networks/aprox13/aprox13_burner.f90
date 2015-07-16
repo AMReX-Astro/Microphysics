@@ -27,10 +27,6 @@ module specific_burner_module
   ! 
   integer, parameter :: NEQ = 2 + nspec
 
-  ! Allocate storage for the input state
-
-  double precision, dimension(NEQ) :: y
-
   ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian 
   ! function is supplied; 22 means stiff, figure out my jacobian through 
   ! differencing.
@@ -85,6 +81,10 @@ contains
 
     logical, parameter :: verbose = .false.
 
+    ! Allocate storage for the input state
+
+    double precision, dimension(NEQ) :: y
+    
     double precision, dimension(NEQ) :: atol, rtol
 
     double precision, dimension(LRW) :: rwork  
