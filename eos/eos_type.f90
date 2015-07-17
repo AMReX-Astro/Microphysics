@@ -635,14 +635,14 @@ contains
        do i = 1, state % N
 
           state % dpdX(i,:) = state % dpdA(i) * (state % abar(i)/aion(:)) &
-                            * (aion(:) - state % abar)             &
+                            * (aion(:) - state % abar(i))             &
                             + state % dpdZ(i) * (state % abar(i)/aion(:)) &
-                            * (zion(:) - state % zbar)
+                            * (zion(:) - state % zbar(i))
 
           state % dEdX(i,:) = state % dedA(i) * (state % abar(i)/aion(:)) &
-                            * (aion(:) - state % abar)             &
+                            * (aion(:) - state % abar(i))             &
                             + state % dedZ(i) * (state % abar(i)/aion(:)) &
-                            * (zion(:) - state % zbar)
+                            * (zion(:) - state % zbar(i))
 
           state % dhdX(i,:) = state % dedX(i,:) &
                             + (state % p(i) / state % rho(i)**2 - state % dedr(i)) &
@@ -839,7 +839,9 @@ contains
        working_state_1D % dpde(1) = state_in % dpde
        working_state_1D % dpdr_e(1) = state_in % dpdr_e
        working_state_1D % xn(1,:) = state_in % xn
-       working_state_1D % aux(1,:) = state_in % aux
+       if (naux > 0) then
+          working_state_1D % aux(1,:) = state_in % aux
+       endif
        working_state_1D % cv(1) = state_in % cv
        working_state_1D % cp(1) = state_in % cp
        working_state_1D % xne(1) = state_in % xne
@@ -896,7 +898,9 @@ contains
        call c_f_pointer(c_loc(state_in % dpde(lo(1))), state % dpde, state % width)
        call c_f_pointer(c_loc(state_in % dpdr_e(lo(1))), state % dpdr_e, state % width)
        call c_f_pointer(c_loc(state_in % xn(lo(1),1)), state % xn, state % spec_width)
-       call c_f_pointer(c_loc(state_in % aux(lo(1),1)), state % aux, state % aux_width)
+       if (naux > 0) then
+          call c_f_pointer(c_loc(state_in % aux(lo(1),1)), state % aux, state % aux_width)
+       endif
        call c_f_pointer(c_loc(state_in % cv(lo(1))), state % cv, state % width)
        call c_f_pointer(c_loc(state_in % cp(lo(1))), state % cp, state % width)
        call c_f_pointer(c_loc(state_in % xne(lo(1))), state % xne, state % width)
@@ -951,7 +955,9 @@ contains
        call c_f_pointer(c_loc(state_in % dpde(lo(1),lo(2))), state % dpde, state % width)
        call c_f_pointer(c_loc(state_in % dpdr_e(lo(1),lo(2))), state % dpdr_e, state % width)
        call c_f_pointer(c_loc(state_in % xn(lo(1),lo(2),1)), state % xn, state % spec_width)
-       call c_f_pointer(c_loc(state_in % aux(lo(1),lo(2),1)), state % aux, state % aux_width)
+       if (naux > 0) then
+          call c_f_pointer(c_loc(state_in % aux(lo(1),lo(2),1)), state % aux, state % aux_width)
+       endif
        call c_f_pointer(c_loc(state_in % cv(lo(1),lo(2))), state % cv, state % width)
        call c_f_pointer(c_loc(state_in % cp(lo(1),lo(2))), state % cp, state % width)
        call c_f_pointer(c_loc(state_in % xne(lo(1),lo(2))), state % xne, state % width)
@@ -1006,7 +1012,9 @@ contains
        call c_f_pointer(c_loc(state_in % dpde(lo(1),lo(2),lo(3))), state % dpde, state % width)
        call c_f_pointer(c_loc(state_in % dpdr_e(lo(1),lo(2),lo(3))), state % dpdr_e, state % width)
        call c_f_pointer(c_loc(state_in % xn(lo(1),lo(2),lo(3),1)), state % xn, state % spec_width)
-       call c_f_pointer(c_loc(state_in % aux(lo(1),lo(2),lo(3),1)), state % aux, state % aux_width)
+       if (naux > 0) then
+          call c_f_pointer(c_loc(state_in % aux(lo(1),lo(2),lo(3),1)), state % aux, state % aux_width)
+       endif
        call c_f_pointer(c_loc(state_in % cv(lo(1),lo(2),lo(3))), state % cv, state % width)
        call c_f_pointer(c_loc(state_in % cp(lo(1),lo(2),lo(3))), state % cp, state % width)
        call c_f_pointer(c_loc(state_in % xne(lo(1),lo(2),lo(3))), state % xne, state % width)
@@ -1070,7 +1078,9 @@ contains
        state_out % dpde   = state % dpde(1)
        state_out % dpdr_e = state % dpdr_e(1)
        state_out % xn     = state % xn(1,:)
-       state_out % aux    = state % aux(1,:)
+       if (naux > 0) then
+          state_out % aux    = state % aux(1,:)
+       endif
        state_out % cv     = state % cv(1)
        state_out % cp     = state % cp(1)
        state_out % xne    = state % xne(1)
