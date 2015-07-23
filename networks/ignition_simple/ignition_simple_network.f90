@@ -17,7 +17,7 @@
 !  network_species_index -- return the index of the species given its name
 !
 
-module specific_network
+module actual_network
 
   use bl_types
 
@@ -41,7 +41,7 @@ module specific_network
 
 contains
   
-  subroutine specific_network_init
+  subroutine actual_network_init
 
     implicit none
 
@@ -77,6 +77,6 @@ contains
     ebin(io16)  = -7.6959672e18_dp_t     ! 127.62093 MeV
     ebin(img24) = -7.9704080e18_dp_t     ! 198.2579  MeV
 
-  end subroutine specific_network_init
+  end subroutine actual_network_init
 
-end module specific_network
+end module actual_network

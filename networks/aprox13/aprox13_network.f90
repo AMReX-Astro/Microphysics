@@ -1,4 +1,4 @@
-module specific_network
+module actual_network
 
   use bl_types
 
@@ -42,7 +42,7 @@ module specific_network
   
 contains
   
-  subroutine specific_network_init
+  subroutine actual_network_init
 
     use network_indices
     use rpar_indices
@@ -209,7 +209,7 @@ contains
     ratenames(irx1)   = 'x1   '
     ratenames(iry1)   = 'y1   '
 
-  end subroutine specific_network_init
+  end subroutine actual_network_init
 
 
 
@@ -240,4 +240,4 @@ contains
     
   end subroutine ener_gener_rate
 
-end module specific_network
+end module actual_network

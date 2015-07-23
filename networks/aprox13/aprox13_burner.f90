@@ -11,7 +11,7 @@
 !
 ! This burner provides an explicit Jacobian matrix to the DVODE solver.
 
-module specific_burner_module
+module actual_burner_module
 
   use bl_types
   use bl_constants_module
@@ -65,7 +65,7 @@ module specific_burner_module
 
 contains
 
-  subroutine specific_burner(state_in, state_out, dt, time)
+  subroutine actual_burner(state_in, state_out, dt, time)
 
     use rpar_indices
     use network_indices
@@ -74,9 +74,10 @@ contains
 
     type (eos_t_vector), intent(in   ) :: state_in
     type (eos_t_vector), intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time
+    double precision,    intent(in   ) :: dt, time
     
     integer :: j
+
     double precision :: enuc, dX, local_time
 
     logical, parameter :: verbose = .false.
@@ -88,6 +89,7 @@ contains
     double precision, dimension(NEQ) :: atol, rtol
 
     double precision, dimension(LRW) :: rwork  
+
     integer, dimension(LIW) :: iwork
 
     ! istate determines the state of the calculation.  A value of 1 meeans
@@ -191,13 +193,13 @@ contains
        if (verbose) then
           ! Print out some integration statistics, if desired
           print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho, ' temp: ', state_out % T(j)
+          print *, 'dens: ', state_out % rho(j), ' temp: ', state_out % T(j)
           print *, 'number of steps taken: ', iwork(11)
           print *, 'number of f evaluations: ', iwork(12)
        endif
 
     enddo
 
-  end subroutine specific_burner
+  end subroutine actual_burner
 
-end module specific_burner_module
+end module actual_burner_module

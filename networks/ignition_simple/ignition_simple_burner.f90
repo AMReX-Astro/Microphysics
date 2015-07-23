@@ -1,4 +1,4 @@
-module specific_burner_module
+module actual_burner_module
 
   use bl_types
   use bl_constants_module
@@ -52,7 +52,7 @@ module specific_burner_module
 
 contains
 
-  subroutine specific_burner(state_in, state_out, dt, time)
+  subroutine actual_burner(state_in, state_out, dt, time)
 
     use burner_aux_module, only : dens_pass, c_p_pass, dhdx_pass, X_O16_pass
 
@@ -164,6 +164,6 @@ contains
 
     enddo
 
-  end subroutine specific_burner
+  end subroutine actual_burner
 
-end module specific_burner_module
+end module actual_burner_module
