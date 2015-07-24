@@ -10,7 +10,7 @@ contains
 
   subroutine aprox13(tt,state,dydt)
 
-    use specific_burner_module
+    use actual_burner_module
     use extern_probin_module, only: do_constant_volume_burn
     
     ! This routine sets up the system of ode's for the aprox13
