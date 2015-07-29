@@ -50,8 +50,6 @@ contains
 
     idx = network_species_index(species_c_name)
     if (idx > 0) gammas(idx) = species_c_gamma
-
-    initialized = .true.
  
   end subroutine specific_eos_init
 
@@ -74,8 +72,6 @@ contains
     double precision, parameter :: m_nucleon = ONE / n_A
 
     integer :: j
-
-    if (.not. initialized) call bl_error('EOS: not initialized')
 
     do j = 1, state % N
 

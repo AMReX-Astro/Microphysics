@@ -70,8 +70,6 @@ contains
 
     gm1 = gamma_const - ONE
 
-    initialized = .true.
- 
   end subroutine specific_eos_init
 
 
@@ -120,8 +118,6 @@ contains
     double precision :: dens, temp, enth, pres, eint, entr
 
     integer :: j
-
-    if (.not. initialized) call bl_error('EOS: not initialized')
 
     do j = 1, state % N
 

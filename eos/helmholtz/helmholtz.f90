@@ -1203,8 +1203,6 @@ contains
         integer :: i, j
         integer :: status
 
-        if ( initialized ) return
-
         ! Read in the runtime parameters
 
         acc_cutoff = eos_acc_cutoff
@@ -1357,8 +1355,6 @@ contains
         !$acc copyin(eos_input_re,eos_input_ps,eos_input_ph,eos_input_th) &
         !$acc copyin(iener,ienth,itemp,idens,ientr,ipres) &
         !$acc copyin(smallt,smalld,ttol,dtol)
-
-        initialized = .true.
 
     end subroutine specific_eos_init
 

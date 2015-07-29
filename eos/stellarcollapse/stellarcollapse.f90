@@ -31,8 +31,6 @@ contains
     if (parallel_IOProcessor()) print *, 'Reading HDF5 file', eos_file
     call read_stellarcollapse_file(eos_file,use_energy_shift)
 
-    initialized = .true.
- 
   end subroutine specific_eos_init
 
 
@@ -60,8 +58,6 @@ contains
     type (eos_t) :: scalar_state
     
     integer :: j, ierr
-
-    if (.not. initialized) call bl_error('EOS: not initialized')
 
     do j = 1, state % N
 
