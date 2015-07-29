@@ -5,27 +5,37 @@ module rpar_indices
 
   implicit none
 
-  integer, save :: n_rpar_comps = 0
+  integer :: n_rpar_comps = 0
 
-  integer, save :: irp_dens, irp_cv, irp_cp, irp_dedX, irp_dhdX, irp_smallx
+  integer :: irp_dens, irp_cv, irp_cp, irp_dedX, irp_dhdX, irp_smallx
 
 contains
 
   function get_next_rpar_index(num) result (next)
 
-    ! return the next starting index for a plotfile quantity,
-    ! and increment the counter of plotfile quantities by num
-    integer :: num, next
+    implicit none
+    
+    ! Return the next starting index for a plotfile quantity,
+    ! and increment the counter of plotfile quantities by num.
+    
+    integer, intent(in) :: num
+    integer             :: next
+
+   ! Return the value of the first index of this group of data.
 
     next = n_rpar_comps + 1
+
+    ! Update our local record of how many variables we are using.
+    
     n_rpar_comps = n_rpar_comps + num
 
-    return
   end function get_next_rpar_index
 
 
   subroutine init_rpar_indices(nrates, nspec)
 
+    implicit none
+    
     integer, intent(in) :: nrates, nspec
 
     irp_dens   = get_next_rpar_index(1)

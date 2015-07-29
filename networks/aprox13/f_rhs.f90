@@ -9,7 +9,7 @@
 subroutine f_rhs(n, time, y, ydot, rpar, ipar)
 
   use bl_types
-  use bl_constants_module, only: ZERO
+  use bl_constants_module, only: ZERO, ONE
   use network
   use rpar_indices
   use network_indices
@@ -63,7 +63,7 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
      call composition(state)
   endif
 
-  state % xn(:) = min(1.0d0,max(state % xn(:),smallx))
+  state % xn(:) = max(smallx,min(ONE,state % xn(:)))
   
   ! Call the aprox13 routines to get dY/dt and de/dt.
 
@@ -72,13 +72,18 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
 end subroutine f_rhs
   
 
+
+! Analytical Jacobian. This is simply a placeholder for VODE which we do not use
+! because we are computing the Jacobian numerically.
+
 subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
   use bl_types
   use bl_constants_module, only: ZERO
+  
   implicit none
 
-  integer        , intent(IN   ) :: neq, ml, mu, nrpd, ipar
+  integer         , intent(IN   ) :: neq, ml, mu, nrpd, ipar
   double precision, intent(IN   ) :: y(neq), rpar(*), t
   double precision, intent(  OUT) :: pd(neq,neq)
 
