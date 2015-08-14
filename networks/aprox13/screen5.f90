@@ -3,7 +3,7 @@
                          scor,scordt,scordd)
 
         use bl_constants_module, only: M_PI
-        use network
+        use actual_network, only: nrates
         implicit none
 
 ! this subroutine calculates screening factors and their derivatives
