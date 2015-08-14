@@ -4,7 +4,7 @@
 ! Note: at the moment, it is not clear what the proper expression for
 ! a multi-gamma entropy should be, so do not rely on the entropy.
 
-module specific_eos_module
+module actual_eos_module
 
   use bl_types
   use bl_space
@@ -20,7 +20,7 @@ module specific_eos_module
 
 contains
 
-  subroutine specific_eos_init
+  subroutine actual_eos_init
 
     use extern_probin_module, only: eos_gamma_default, &
                                     species_a_name, species_a_gamma, &
@@ -36,7 +36,7 @@ contains
     gammas(:) = eos_gamma_default
 
     print *, ""
-    print *, "In specific_eos_init, species, gamma: "
+    print *, "In actual_eos_init, species, gamma: "
     print *, "species a: ", trim(species_a_name), species_a_gamma
     print *, "species b: ", trim(species_b_name), species_b_gamma
     print *, "species c: ", trim(species_c_name), species_c_gamma
@@ -51,11 +51,11 @@ contains
     idx = network_species_index(species_c_name)
     if (idx > 0) gammas(idx) = species_c_gamma
  
-  end subroutine specific_eos_init
+  end subroutine actual_eos_init
 
 
 
-  subroutine specific_eos(input, state)
+  subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
@@ -223,6 +223,6 @@ contains
 
     enddo
 
-  end subroutine specific_eos
+  end subroutine actual_eos
 
-end module specific_eos_module
+end module actual_eos_module

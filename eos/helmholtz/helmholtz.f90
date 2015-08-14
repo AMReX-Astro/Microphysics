@@ -1,4 +1,4 @@
-module specific_eos_module
+module actual_eos_module
 
     use eos_data_module
     use eos_type_module
@@ -133,7 +133,7 @@ contains
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
-    subroutine specific_eos(input, state)
+    subroutine actual_eos(input, state)
 
         use meth_params_module, only: do_acc
         use bl_error_module
@@ -1184,11 +1184,11 @@ contains
 
         endif
 
-    end subroutine specific_eos
+    end subroutine actual_eos
 
 
 
-    subroutine specific_eos_init
+    subroutine actual_eos_init
 
         use bl_error_module
         use eos_data_module
@@ -1224,7 +1224,7 @@ contains
         !..   open the table
         open(unit=2,file='helm_table.dat',status='old',iostat=status)
         if (status > 0) then
-           call bl_error('specific_eos_init: Failed to open helm_table.dat')
+           call bl_error('actual_eos_init: Failed to open helm_table.dat')
         endif
 
         itmax = imax
@@ -1356,7 +1356,7 @@ contains
         !$acc copyin(iener,ienth,itemp,idens,ientr,ipres) &
         !$acc copyin(smallt,smalld,ttol,dtol)
 
-    end subroutine specific_eos_init
+    end subroutine actual_eos_init
 
 
 
@@ -1489,4 +1489,4 @@ contains
              + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
     end function
 
-end module specific_eos_module
+end module actual_eos_module

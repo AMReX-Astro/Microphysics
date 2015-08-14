@@ -16,7 +16,7 @@
 !
 ! This is assumed to be constant for the degenerate gases.
 
-module specific_eos_module
+module actual_eos_module
 
   use bl_types
   use bl_space
@@ -34,7 +34,7 @@ module specific_eos_module
 
 contains
 
-  subroutine specific_eos_init
+  subroutine actual_eos_init
 
     use extern_probin_module, only: polytrope_gamma, polytrope_K, polytrope_type, polytrope_mu_e
 
@@ -70,7 +70,7 @@ contains
 
     gm1 = gamma_const - ONE
 
-  end subroutine specific_eos_init
+  end subroutine actual_eos_init
 
 
 
@@ -107,7 +107,7 @@ contains
   !---------------------------------------------------------------------------
   ! The main interface
   !---------------------------------------------------------------------------
-  subroutine specific_eos(input, state)
+  subroutine actual_eos(input, state)
 
     implicit none
 
@@ -271,6 +271,6 @@ contains
 
     enddo
 
-  end subroutine specific_eos
+  end subroutine actual_eos
 
-end module specific_eos_module
+end module actual_eos_module

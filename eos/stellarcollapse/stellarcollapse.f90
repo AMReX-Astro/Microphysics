@@ -1,4 +1,4 @@
-module specific_eos_module
+module actual_eos_module
 
   use bl_types
   use bl_error_module
@@ -20,7 +20,7 @@ contains
 
   ! EOS initialization routine 
   ! This reads in the HDF5 file containing the tabulated data
-  subroutine specific_eos_init
+  subroutine actual_eos_init
 
     use parallel
     use extern_probin_module, only: eos_file, use_energy_shift
@@ -31,11 +31,11 @@ contains
     if (parallel_IOProcessor()) print *, 'Reading HDF5 file', eos_file
     call read_stellarcollapse_file(eos_file,use_energy_shift)
 
-  end subroutine specific_eos_init
+  end subroutine actual_eos_init
 
 
 
-  subroutine specific_eos(input, state)
+  subroutine actual_eos(input, state)
 
     ! Stellar Collapse EOS
     ! 
@@ -195,7 +195,7 @@ contains
        
     enddo
 
-  end subroutine specific_eos
+  end subroutine actual_eos
 
 
 
@@ -346,4 +346,4 @@ contains
   end function get_munu
 
 
-end module specific_eos_module
+end module actual_eos_module

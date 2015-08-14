@@ -16,7 +16,7 @@
 ! 
 ! h = e + P / rho
 
-module specific_eos_module
+module actual_eos_module
 
   use bl_types
   use bl_space
@@ -37,7 +37,7 @@ module specific_eos_module
 
 contains
 
-  subroutine specific_eos_init
+  subroutine actual_eos_init
 
     use fundamental_constants_module, only: m_e, m_p, c_light, hplanck
 
@@ -46,11 +46,11 @@ contains
     A = M_PI * m_e**4 * c_light**5 / (THREE * hplanck**3)
     B2 = EIGHT * M_PI * m_e**3 * c_light**3 * m_p  / (THREE * hplanck**3)
 
-  end subroutine specific_eos_init
+  end subroutine actual_eos_init
 
 
 
-  subroutine specific_eos(input, state)
+  subroutine actual_eos(input, state)
 
     implicit none
 
@@ -237,7 +237,7 @@ contains
 
     enddo
 
-  end subroutine specific_eos
+  end subroutine actual_eos
 
 
 
@@ -332,4 +332,4 @@ contains
 
 
 
-end module specific_eos_module
+end module actual_eos_module
