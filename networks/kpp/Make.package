@@ -1,0 +1,4 @@
+f90EXE_sources += kpp_network.f90
+f90EXE_sources += kpp_burner.f90
+f90EXE_sources += f_rhs.f90
+
