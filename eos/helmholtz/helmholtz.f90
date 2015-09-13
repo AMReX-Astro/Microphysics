@@ -9,7 +9,7 @@ module actual_eos_module
     integer :: acc_cutoff
 
     !..for the tables, in general
-    integer, parameter :: imax = 271, jmax = 101
+    integer, parameter, private :: imax = 271, jmax = 101
     integer            :: itmax,jtmax
     double precision   :: d(imax),t(jmax)
 
