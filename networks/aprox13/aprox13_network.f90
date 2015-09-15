@@ -131,7 +131,7 @@ contains
     nion(:) = aion(:) - zion(:)
 
     ! Set the mass
-    mion(:) = nion(:) * mn + zion(i) * (mp + me) - bion(:) * mev2gr
+    mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
 
     ! Molar mass
     wion(:) = avo * mion(:)
