@@ -1,4 +1,4 @@
-module specific_network
+module actual_network
 
   use bl_types
 
@@ -6,7 +6,7 @@ module specific_network
 
 contains
   
-  subroutine specific_network_init
+  subroutine actual_network_init
 
     use extern_probin_module, only: net_name = 
     
@@ -17,7 +17,7 @@ contains
     ! aux variables, and allocate and fill this module's
     ! components appropriately.
     
-    call specific_network_init
+    call actual_network_init
 
     ! Check to make sure, and if not, throw an error.
 
@@ -32,6 +32,6 @@ contains
     
     network_initialized = .true.
 
-  end subroutine specific_network_init
+  end subroutine actual_network_init
 
-end module specific_network
+end module actual_network
