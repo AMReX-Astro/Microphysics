@@ -28,6 +28,8 @@ module actual_eos_module
 
   implicit none
 
+  character (len=64) :: eos_name = "polytrope"
+  
   double precision :: gamma_const, gm1, K_const
   double precision :: mu_e
   integer          :: polytrope

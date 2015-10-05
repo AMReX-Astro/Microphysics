@@ -9,6 +9,8 @@ module actual_eos_module
 
   implicit none
 
+  character (len=64) :: eos_name = "stellarcollapse"
+  
   integer          :: max_newton = 100
 
   double precision :: ttol = 1.0d-8
