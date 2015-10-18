@@ -131,7 +131,7 @@ contains
        ! compute the energy release from the change in fuel mass fractions.
        enuc = -Q_burn*(state_out % xn(j,ifuel_) - state_in % xn(j,ifuel_))
 
-       state_out % e = state_in % e + enuc
+       state_out % e(j) = state_in % e(j) + enuc
 
        if (verbose) then
 
