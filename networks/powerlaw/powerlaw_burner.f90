@@ -8,7 +8,7 @@ module actual_burner_module
   use eos_data_module
   use eos_type_module
   use network
-  use extern_probin_module, only: Q_burn
+  use extern_probin_module, only: specific_q_burn
 
   implicit none
 
@@ -129,7 +129,7 @@ contains
        state_out % xn(j,iash_) = min(y(iash_), ONE)
 
        ! compute the energy release from the change in fuel mass fractions.
-       enuc = -Q_burn*(state_out % xn(j,ifuel_) - state_in % xn(j,ifuel_))
+       enuc = -specific_q_burn*(state_out % xn(j,ifuel_) - state_in % xn(j,ifuel_))
 
        state_out % e(j) = state_in % e(j) + enuc
 
