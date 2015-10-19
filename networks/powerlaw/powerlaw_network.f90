@@ -28,6 +28,8 @@ contains
     short_spec_names(ifuel_)  = "fuel"
     short_spec_names(iash_)  = "ash"
 
+    ! we are modeling a reaction f + f -> a + gamma, so baryon and
+    ! charge conservation require that A_f = A_a / 2 and Z_f = Z_a / 2
     aion(ifuel_)  = 2.0d0
     aion(iash_)  = 4.0d0
     

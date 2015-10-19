@@ -1,6 +1,6 @@
 # We are modeling a reaction of the form 
 #
-#   a + a -> f + gamma
+#   f + f -> a + gamma
 #
 # Baryon conservation requires A_f = A_a / 2, and charge conservation
 # requires Z_f = Z_a / 2
