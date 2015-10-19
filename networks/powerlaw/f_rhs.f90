@@ -21,11 +21,15 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
 
   double precision :: dens, temp, rate
 
+  ! note that we don't really need to integrate this unless we 
+  ! include a temperature-evolution equation in the mix.  Otherwise,
+  ! it is analytic
+
   xfueltmp = max(y(ifuel_),0.d0)
   dens = rpar(irp_dens)
   temp = rpar(irp_temp)
 
-  rate = r0*dens*xfueltmp*temp**nu
+  rate = rtilde*(dens/rho_burn_ref)*xfueltmp**2*(temp/T_burn_ref)**nu
   ydot(ifuel_) = -rate
   ydot(iash_)  =  rate
 
