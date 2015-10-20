@@ -30,6 +30,8 @@ module actual_network
 
   double precision  , save :: aion(nspec), zion(nspec)
 
+  !!acc declare create(aion, zion)
+
 contains
   
   subroutine actual_network_init
@@ -43,6 +45,8 @@ contains
     @@ZION@@
 
     @@AUX_NAMES@@
+
+    !$acc update device(aion, zion)
 
   end subroutine actual_network_init
 
