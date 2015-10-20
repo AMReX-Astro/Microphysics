@@ -5,7 +5,8 @@ module actual_burner_module
   use bl_error_module
   use eos_module, only: eos_input_rt, eos
   use eos_type_module
-  use network
+  use actual_network
+  use network_indices
 
   logical, parameter :: verbose = .false.
 
@@ -55,7 +56,8 @@ contains
     
     implicit none
 
-    type (eos_t_vector) :: state_in, state_out
+    !    type (eos_t_vector) :: state_in, state_out
+    type(eos_t) :: state_in, state_out
     double precision    :: dt, time
 
     double precision :: enuc, local_time
@@ -90,13 +92,6 @@ contains
     call bl_allocate(iwork, 1, LIW)
     call bl_allocate(rpar, 1, n_rpar_comps)
 
-
-
-    ic12 = network_species_index("carbon-12")
-    io16 = network_species_index("oxygen-16")
-    iash = network_species_index("ash")
-
-
     
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
@@ -106,80 +101,77 @@ contains
     rtol(1:nspec_advance) = 1.d-12    ! mass fractions
     rtol(nspec_advance+1) = 1.d-5     ! temperature
 
-    do j = 1, state_in % N
+    ! We want VODE to re-initialize each time we call it.
 
-       ! We want VODE to re-initialize each time we call it.
+    istate = 1
 
-       istate = 1
+    ! Initialize work arrays to zero.
 
-       ! Initialize work arrays to zero.
-       
-       rwork(:) = ZERO
-       iwork(:) = 0
+    rwork(:) = ZERO
+    iwork(:) = 0
 
-       ! Set the maximum number of steps allowed (the VODE default is 500).
-       
-       iwork(6) = 150000
+    ! Set the maximum number of steps allowed (the VODE default is 500).
 
-       ! Initialize the integration time.
-       
-       local_time = ZERO
+    iwork(6) = 150000
 
-       ! Abundances are the first nspec values and temperature and energy are the last.
-       
-       y(1:nspec) = state_in % xn(j,:)
-       y(nspec+1) = state_in % T(j)
+    ! Initialize the integration time.
 
-       rpar(irp_dens) = state_in % rho(j)
-       rpar(irp_cp)   = state_in % cp(j)
-       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(j,:)
-       rpar(irp_o16)  = state_in % xn(j,iO16)
+    local_time = ZERO
+
+    ! Abundances are the first nspec values and temperature and energy are the last.
+
+    y(1:nspec) = state_in % xn(:)
+    y(nspec+1) = state_in % T
+
+    rpar(irp_dens) = state_in % rho
+    rpar(irp_cp)   = state_in % cp
+    rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
+    rpar(irp_o16)  = state_in % xn(iO16_)
 
 
 
-       ! Call the integration routine.
-       
-       call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-            istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
-            rpar, ipar)
+    ! Call the integration routine.
+
+    call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
+         rpar, ipar)
 
 
 
-       if (istate < 0) then
-          print *, 'ERROR: integration failed in net'
-          print *, 'istate = ', istate
-          print *, 'time = ', local_time
-          call bl_error("ERROR in burner: integration failed")
-       endif
+    if (istate < 0) then
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', istate
+       print *, 'time = ', local_time
+       call bl_error("ERROR in burner: integration failed")
+    endif
 
-       ! Store the new mass fractions.
-       state_out % xn(j,iC12) = max(y(iC12), ZERO)
-       state_out % xn(j,iO16) = state_in % xn(j,iO16)
-       state_out % xn(j,iash) = ONE - state_out % xn(j,iC12) - state_out % xn(j,iO16)
+    ! Store the new mass fractions.
+    state_out % xn(iC12_) = max(y(iC12_), ZERO)
+    state_out % xn(iO16_) = state_in % xn(iO16_)
+    state_out % xn(iash_) = ONE - state_out % xn(iC12_) - state_out % xn(iO16_)
 
-       ! Energy was integrated in the system -- we use this integrated
-       ! energy which contains both the reaction energy release and
-       ! neutrino losses. The final energy is the initial energy
-       ! plus this energy release. Note that we get a new temperature too,
-       ! but we will discard it and the main burner module will do an EOS
-       ! call to get a final temperature consistent with this new energy.
+    ! Energy was integrated in the system -- we use this integrated
+    ! energy which contains both the reaction energy release and
+    ! neutrino losses. The final energy is the initial energy
+    ! plus this energy release. Note that we get a new temperature too,
+    ! but we will discard it and the main burner module will do an EOS
+    ! call to get a final temperature consistent with this new energy.
 
-       enuc = get_ebin_value(dens) * (state_out % xn(j,iC12) - state_in % xn(j,iC12))
+    enuc = get_ebin_value(state_in % rho) * &
+         (state_out % xn(iC12_) - state_in % xn(iC12_))
 
-       state_out % e(j) = state_in % e(j) + enuc
+    state_out % e = state_in % e + enuc
 
-       if (verbose) then
+    if (verbose) then
 
-          ! Print out some integration statistics, if desired.
-          
-          print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho(j), ' temp: ', state_out % T(j)
-          print *, 'number of steps taken: ', iwork(11)
-          print *, 'number of f evaluations: ', iwork(12)
-          
-       endif
+       ! Print out some integration statistics, if desired.
 
-    enddo
+       print *, 'integration summary: '
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
+       print *, 'number of steps taken: ', iwork(11)
+       print *, 'number of f evaluations: ', iwork(12)
+
+    endif
     
     call bl_deallocate(y)
     call bl_deallocate(atol)
