@@ -49,7 +49,7 @@ module actual_eos_module
     double precision :: dtol = 1.0d-8
 
     ! 2006 CODATA physical constants                                                                             
-
+private
     ! Math constants                                                                                             
     double precision :: pi       = 3.1415926535897932384d0
     double precision :: eulercon = 0.577215664901532861d0
