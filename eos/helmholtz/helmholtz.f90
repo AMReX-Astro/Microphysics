@@ -137,7 +137,7 @@ contains
 
     subroutine actual_eos(input, state)
 
-        use meth_params_module, only: do_acc
+        use extern_probin_module, only: eos_do_acc
         use bl_error_module
         use bl_types
         use bl_constants_module
@@ -339,7 +339,7 @@ contains
         cs_row = 0.0d0
         gam1_row = 0.0d0
 
-        if (state % N .gt. acc_cutoff .and. do_acc .eq. 1) then
+        if (state % N .gt. acc_cutoff .and. eos_do_acc) then
            use_acc = .true.
         else
            use_acc = .false.
