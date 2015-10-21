@@ -79,4 +79,8 @@ contains
 
   end subroutine actual_network_init
 
+  subroutine network_finalize()
+    ! stub for Maestro
+  end subroutine network_finalize
+
 end module actual_network
