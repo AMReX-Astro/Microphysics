@@ -25,7 +25,7 @@
 !  network_reaction_index -- return the index of the reaction given its name
 !
 
-module network
+module actual_network
 
   use bl_types
 
@@ -48,7 +48,7 @@ module network
 
 contains
 
-  subroutine network_init()
+  subroutine actual_network_init()
 
     use network_indices
     use rpar_indices
@@ -96,27 +96,9 @@ contains
     ! done initializing
     network_initialized = .true.
 
-  end subroutine network_init
+  end subroutine actual_network_init
 
   
-  function network_species_index(name)
-
-    character (len=*) :: name
-    integer :: network_species_index, n
-
-    network_species_index = -1
-
-    do n = 1, nspec
-       if (name == spec_names(n) .or. name == short_spec_names(n)) then
-          network_species_index = n
-          exit
-       endif
-    enddo
-
-    return
-  end function network_species_index
-
-
   function network_reaction_index(name)
     
     character(len=*) :: name
@@ -136,7 +118,7 @@ contains
 
 
   subroutine network_finalize()
-
+    ! stub for MAESTRO
   end subroutine network_finalize
 
-end module network
+end module actual_network

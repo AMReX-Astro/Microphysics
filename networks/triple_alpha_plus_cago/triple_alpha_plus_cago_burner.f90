@@ -12,7 +12,7 @@
 ! This burner provides an explicit Jacobian matrix to the DVODE solver.
 !
 
-module burner_module
+module actual_burner_module
 
   use bl_types
   use bl_constants_module
@@ -26,7 +26,7 @@ module burner_module
   
 contains
 
-  subroutine burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
+  subroutine actual_burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
 
     ! outputs:
     !   Xout are the mass fractions after burning through timestep dt
@@ -281,7 +281,7 @@ contains
     endif
 
 
-  end subroutine burner
+  end subroutine actual_burner
 
 
 
@@ -324,4 +324,4 @@ contains
 
   end subroutine get_enuc_T_sensitivity
 
-end module burner_module
+end module actual_burner_module
