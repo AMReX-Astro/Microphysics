@@ -58,8 +58,9 @@ contains
     
     implicit none
 
-    type (eos_t_vector) :: state_in, state_out
-    double precision    :: dt, time    
+    type (eos_t),     intent(in   ) :: state_in
+    type (eos_t),     intent(inout) :: state_out
+    double precision, intent(in   ) :: dt, time    
     
     double precision :: enuc
 

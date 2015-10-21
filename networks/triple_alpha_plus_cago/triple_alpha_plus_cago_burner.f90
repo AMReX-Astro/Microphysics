@@ -26,7 +26,8 @@ module actual_burner_module
   
 contains
 
-  subroutine actual_burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
+  subroutine actual_burner(state_in, state_out, dt, time)
+!  subroutine actual_burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
 
     ! outputs:
     !   Xout are the mass fractions after burning through timestep dt
@@ -37,13 +38,14 @@ contains
 
     implicit none
 
-    real(kind=dp_t), intent(in   ) :: dens, temp, Xin(nspec), dt
-    real(kind=dp_t), intent(  out) :: Xout(nspec), rho_omegadot(nspec), rho_Hnuc
-  
+    type(eos_t),     intent(in   ) :: state_in
+    type(eos_t),     intent(inout) :: state_out
+    real(kind=dp_t), intent(in   ) :: dt, time
+
     real(kind=dp_t) :: dT_crit, T_eos
 
     integer :: n
-    real(kind=dp_t) :: enuc, dX
+    real(kind=dp_t) :: enuc, dX(nspec)
 
     logical, parameter :: verbose = .false.
 
@@ -112,8 +114,6 @@ contains
     real(kind=dp_t), allocatable :: rpar(:)
     integer :: ipar
 
-    type (eos_t) :: eos_state
-
     real(kind=dp_t) :: sum
 
     EXTERNAL jac, f_rhs
@@ -158,7 +158,7 @@ contains
     ! **NOTE** if the burner is not converging (and the temperatures
     ! are shooting up to unrealistically high values), you likely
     ! need to reduce dT_crit to ensure more frequent EOS calls.
-    T_eos = temp
+    T_eos = state_in % T
     dT_crit = 1.e20_dp_t
 
 
@@ -189,10 +189,10 @@ contains
     time = ZERO
 
     ! abundances are the first nspec-1 values and temperature is the last
-    y(ihe4)  = Xin(ihe4)
-    y(ic12)  = Xin(ic12)
-    y(io16)  = Xin(io16)
-    y(NEQ)   = temp
+    y(ihe4)  = state_in % xn(ihe4)
+    y(ic12)  = state_in % xn(ic12)
+    y(io16)  = state_in % xn(io16)
+    y(NEQ)   = state_in % T
 
     ! set the thermodynamics that are passed via rpar to the RHS routine--
     ! these will be updated in f_rhs if the relative temperature change 
@@ -200,12 +200,7 @@ contains
 
     ! we need the specific heat at constant pressure and dhdX |_p.  Take
     ! T, rho, Xin as input
-    eos_state%rho   = dens
-    eos_state%T     = temp
-    eos_state%xn(:) = Xin(:)
-
-    call eos(eos_input_rt, eos_state)
-
+    call eos(eos_input_rt, state_in)
 
     ! density, specific heat at constant pressure, c_p, and dhdX are needed
     ! in the righthand side routine, so we will pass these in to those routines
@@ -213,12 +208,12 @@ contains
     !
     ! Since evaluating the EOS is expensive, we don't call it for every RHS
     ! call -- T_eos and dT_crit control the frequency (see above)
-    rpar(irp_dens) = dens
-    rpar(irp_cp)   = eos_state%cp
-    rpar(irp_dhdX:irp_dhdX-1+nspec) = eos_state%dhdX(:)
+    rpar(irp_dens) = state_in % rho
+    rpar(irp_cp)   = state_in % cp
+    rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
     rpar(irp_Teos) = T_eos
     rpar(irp_Tcrit) = dT_crit
-    rpar(irp_Y56) = Xin(ife56)/aion(ife56)
+    rpar(irp_Y56) = state_in % xn(ife56) / aion(ife56)
 
 
     ! call the integration routine
@@ -238,38 +233,27 @@ contains
     ! here and instead compute the energy release from the binding
     ! energy -- make sure that they are positive
     ! 
-    Xout(ihe4)  = max(y(ihe4), ZERO)
-    Xout(ic12)  = max(y(ic12), ZERO)
-    Xout(io16)  = max(y(io16), ZERO)
-    Xout(ife56) = Xin(ife56)
+    state_out % xn(ihe4)  = max(y(ihe4), ZERO)
+    state_out % xn(ic12)  = max(y(ic12), ZERO)
+    state_out % xn(io16)  = max(y(io16), ZERO)
+    state_out % xn(ife56) = state_in % xn(ife56)
 
 
     ! enforce sum{X_k} = 1
     sum = ZERO
     do n = 1, nspec
-       Xout(n) = max(ZERO, min(ONE, Xout(n)))
-       sum = sum + Xout(n)
+       state_out % xn(n) = max(ZERO, min(ONE, state_out % xn(n)))
+       sum = sum + state_out % xn(n)
     enddo
-    Xout(:) = Xout(:)/sum
+    state_out % xn(:) = state_out % xn(:)/sum
 
     ! compute the energy release.  Our convention is that the binding
     ! energies are negative, so the energy release is
     ! - sum_k { (Xout(k) - Xin(k)) ebin(k) }
     !
-    enuc = ZERO
-    rho_omegadot(:) = ZERO
-    do n = 1, nspec
-       ! Fe56 doesn't participate in reactions - force this
-       if (n == ife56) continue
-
-       dX = Xout(n) - Xin(n)
-
-       enuc = enuc - dX * ebin(n)
-
-       rho_omegadot(n) = dens * dX / dt
-    enddo
-
-    rho_Hnuc = dens*enuc/dt
+    dX(:) = state_out % xn(:) - state_in % xn(:)
+    enuc = sum(-dX(:) * ebin(:))
+    state_out % e = state_in % e + enuc
 
     if (verbose) then
 
