@@ -84,8 +84,6 @@ contains
     double precision :: rpar
     integer :: ipar
 
-    integer :: j
-
     EXTERNAL jac, f_rhs
     
     ! set the tolerances.  We will be more relaxed on the temperature
@@ -95,8 +93,6 @@ contains
        
     rtol(1:nspec_advance) = 1.d-12    ! mass fractions
     rtol(nspec_advance+1) = 1.d-5     ! temperature
-
-    do j = 1, state_in % N
 
        ! we want VODE to re-initialize each time we call it
        istate = 1
@@ -111,17 +107,17 @@ contains
        integration_time = ZERO
 
        ! abundances are the first nspec_advance values and temperature is the last
-       y(ic12) = state_in % xn(j,ic12)
-       y(nspec_advance+1) = state_in % T(j)
+       y(ic12) = state_in % xn(ic12)
+       y(nspec_advance+1) = state_in % T
 
        ! Density, specific heat at constant pressure, c_p, and dhdX are needed
        ! in the righthand side routine, so we will pass these in through the
        ! burner_aux module.
 
-       dens_pass    = state_in % rho(j)
-       c_p_pass     = state_in % cp(j)
-       dhdx_pass(:) = state_in % dhdX(j,:)
-       X_O16_pass   = state_in % xn(j,io16)
+       dens_pass    = state_in % rho
+       c_p_pass     = state_in % cp
+       dhdx_pass(:) = state_in % dhdX(:)
+       X_O16_pass   = state_in % xn(io16)
 
        ! call the integration routine
        call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
@@ -139,9 +135,9 @@ contains
        ! store the new mass fractions -- note, we discard the temperature
        ! here and instead compute the energy release from the binding
        ! energy -- make sure that they are positive
-       state_out % xn(j,ic12)  = max(y(ic12), ZERO)
-       state_out % xn(j,io16)  = state_in % xn(j,io16)
-       state_out % xn(j,img24) = ONE - state_out % xn(j,ic12) - state_out % xn(j,io16)
+       state_out % xn(ic12)  = max(y(ic12), ZERO)
+       state_out % xn(io16)  = state_in % xn(io16)
+       state_out % xn(img24) = ONE - state_out % xn(ic12) - state_out % xn(io16)
 
        ! compute the energy release and update the enthalpy.  Our convention
        ! is that the binding energies are negative, so the energy release is
@@ -149,15 +145,15 @@ contains
        !
        ! since this version of the network only evolves C12, we can
        ! compute the energy release easily
-       enuc = (ebin(img24) - ebin(ic12))*(state_out % xn(j,ic12) - state_in % xn(j,ic12))
+       enuc = (ebin(img24) - ebin(ic12))*(state_out % xn(ic12) - state_in % xn(ic12))
 
-       state_out % e(j) = state_in % e(j) + enuc
+       state_out % e(j) = state_in % e + enuc
 
        if (verbose) then
 
           ! print out some integration statistics, if desired
           print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho(j), ' temp: ', state_out % T(j)
+          print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
           print *, 'number of steps taken: ', iwork(11)
           print *, 'number of f evaluations: ', iwork(12)
 
