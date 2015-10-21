@@ -94,72 +94,70 @@ contains
     rtol(1:nspec_advance) = 1.d-12    ! mass fractions
     rtol(nspec_advance+1) = 1.d-5     ! temperature
 
-       ! we want VODE to re-initialize each time we call it
-       istate = 1
+    ! we want VODE to re-initialize each time we call it
+    istate = 1
 
-       rwork(:) = ZERO
-       iwork(:) = 0
+    rwork(:) = ZERO
+    iwork(:) = 0
 
-       ! set the maximum number of steps allowed (the VODE default is 500)
-       iwork(6) = 15000
+    ! set the maximum number of steps allowed (the VODE default is 500)
+    iwork(6) = 15000
 
-       ! initialize the integration time
-       integration_time = ZERO
+    ! initialize the integration time
+    integration_time = ZERO
 
-       ! abundances are the first nspec_advance values and temperature is the last
-       y(ic12) = state_in % xn(ic12)
-       y(nspec_advance+1) = state_in % T
+    ! abundances are the first nspec_advance values and temperature is the last
+    y(ic12) = state_in % xn(ic12)
+    y(nspec_advance+1) = state_in % T
 
-       ! Density, specific heat at constant pressure, c_p, and dhdX are needed
-       ! in the righthand side routine, so we will pass these in through the
-       ! burner_aux module.
+    ! Density, specific heat at constant pressure, c_p, and dhdX are needed
+    ! in the righthand side routine, so we will pass these in through the
+    ! burner_aux module.
 
-       dens_pass    = state_in % rho
-       c_p_pass     = state_in % cp
-       dhdx_pass(:) = state_in % dhdX(:)
-       X_O16_pass   = state_in % xn(io16)
+    dens_pass    = state_in % rho
+    c_p_pass     = state_in % cp
+    dhdx_pass(:) = state_in % dhdX(:)
+    X_O16_pass   = state_in % xn(io16)
 
-       ! call the integration routine
-       call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
-                  istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_ANALYTIC_JAC, &
-                  rpar, ipar)
+    ! call the integration routine
+    call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_ANALYTIC_JAC, &
+         rpar, ipar)
 
-       if (istate < 0) then
-          print *, 'ERROR: integration failed in net'
-          print *, 'istate = ', istate
-          print *, 'time = ', integration_time
-          call bl_error("ERROR in burner: integration failed")
-       endif
+    if (istate < 0) then
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', istate
+       print *, 'time = ', integration_time
+       call bl_error("ERROR in burner: integration failed")
+    endif
 
 
-       ! store the new mass fractions -- note, we discard the temperature
-       ! here and instead compute the energy release from the binding
-       ! energy -- make sure that they are positive
-       state_out % xn(ic12)  = max(y(ic12), ZERO)
-       state_out % xn(io16)  = state_in % xn(io16)
-       state_out % xn(img24) = ONE - state_out % xn(ic12) - state_out % xn(io16)
+    ! store the new mass fractions -- note, we discard the temperature
+    ! here and instead compute the energy release from the binding
+    ! energy -- make sure that they are positive
+    state_out % xn(ic12)  = max(y(ic12), ZERO)
+    state_out % xn(io16)  = state_in % xn(io16)
+    state_out % xn(img24) = ONE - state_out % xn(ic12) - state_out % xn(io16)
 
-       ! compute the energy release and update the enthalpy.  Our convention
-       ! is that the binding energies are negative, so the energy release is
-       ! - sum_k { (Xout(k) - Xin(k)) ebin(k) }
-       !
-       ! since this version of the network only evolves C12, we can
-       ! compute the energy release easily
-       enuc = (ebin(img24) - ebin(ic12))*(state_out % xn(ic12) - state_in % xn(ic12))
+    ! compute the energy release and update the enthalpy.  Our convention
+    ! is that the binding energies are negative, so the energy release is
+    ! - sum_k { (Xout(k) - Xin(k)) ebin(k) }
+    !
+    ! since this version of the network only evolves C12, we can
+    ! compute the energy release easily
+    enuc = (ebin(img24) - ebin(ic12))*(state_out % xn(ic12) - state_in % xn(ic12))
 
-       state_out % e(j) = state_in % e + enuc
+    state_out % e = state_in % e + enuc
 
-       if (verbose) then
+    if (verbose) then
 
-          ! print out some integration statistics, if desired
-          print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
-          print *, 'number of steps taken: ', iwork(11)
-          print *, 'number of f evaluations: ', iwork(12)
+       ! print out some integration statistics, if desired
+       print *, 'integration summary: '
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
+       print *, 'number of steps taken: ', iwork(11)
+       print *, 'number of f evaluations: ', iwork(12)
 
-       endif
-
-    enddo
+    endif
 
   end subroutine actual_burner
 
