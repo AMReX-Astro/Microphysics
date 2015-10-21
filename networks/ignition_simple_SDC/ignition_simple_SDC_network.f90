@@ -17,7 +17,7 @@
 !  network_species_index -- return the index of the species given its name
 !
 
-module network
+module actual_network
 
   use bl_types
 
@@ -39,7 +39,7 @@ module network
 
 contains
   
-  subroutine network_init()
+  subroutine actual_network_init()
 
     integer :: ic12, io16, img24
 
@@ -77,27 +77,10 @@ contains
 
     network_initialized = .true.
 
-  end subroutine network_init
-
-  function network_species_index(name) result(r)
-
-    character(len=*) :: name
-    integer :: r, n
-
-    r = -1
-
-    do n = 1, nspec
-       if (name == spec_names(n) .or. name == short_spec_names(n)) then
-          r = n
-          exit
-       endif
-    enddo
-    return
-  end function network_species_index
-
+  end subroutine actual_network_init
   
   subroutine network_finalize()
-
+    ! stub routine for MAESTRO
   end subroutine network_finalize
 
-end module network
+end module actual_network

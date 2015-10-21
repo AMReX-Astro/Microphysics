@@ -1,4 +1,4 @@
-module burner_module
+module acutal_burner_module
 
   use bl_types
   use bl_constants_module
@@ -7,13 +7,14 @@ module burner_module
   use network
 
   private
-  public :: burner
+  public :: actual_burner
 
 
 
 contains
 
-  subroutine burner(rhoXin, rhohin, dt, rhoout, rhoXout, rhohout, sdc_rhoX, sdc_rhoh, p0)
+  subroutine actual_burner(rhoXin, rhohin, dt, rhoout, rhoXout, rhohout, &
+                           sdc_rhoX, sdc_rhoh, p0)
 
     ! outputs:
     !   rhoout is the updated density
@@ -193,4 +194,4 @@ contains
 
   end subroutine burner
 
-end module burner_module
+end module acutal_burner_module
