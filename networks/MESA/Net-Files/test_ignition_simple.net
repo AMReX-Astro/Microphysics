@@ -1,0 +1,6 @@
+# Test file to see if the network.f90 file is generated properly
+
+# name	short-name	aion	zion
+ carbon-12	C12	12.0	6.0
+ oxygen-16	O16	16.0	8.0
+ magnesium-24	Mg24	24.0	12.0
