@@ -67,12 +67,10 @@ contains
     
     implicit none
 
-    type (eos_t_vector), intent(in   ) :: state_in
-    type (eos_t_vector), intent(inout) :: state_out
+    type (eos_t),        intent(in   ) :: state_in
+    type (eos_t),        intent(inout) :: state_out
     double precision,    intent(in   ) :: dt, time
     
-    integer :: j
-
     double precision :: local_time
 
     ! Work arrays
@@ -121,8 +119,6 @@ contains
     rtol(net_itemp) = 1.d-5  ! temperature
     rtol(net_ienuc) = 1.d-10 ! energy generated
 
-    do j = 1, state_in % N
-
        ! We want VODE to re-initialize each time we call it.
 
        istate = 1
@@ -142,27 +138,27 @@ contains
 
        ! Abundances are the first nspec values and temperature and energy are the last.
        
-       y(1:nspec)   = state_in % xn(j,:)
-       y(net_itemp) = state_in % T(j)
+       y(1:nspec)   = state_in % xn(:)
+       y(net_itemp) = state_in % T
        y(net_ienuc) = ZERO
 
        ! Density, specific heat at constant pressure (c_p), and dhdX are needed
        ! in the righthand side routine, so we will pass these in to those routines
        ! via the rpar functionality in VODE.
 
-       rpar(irp_dens) = state_in % rho(j)
-       rpar(irp_cp)   = state_in % cp(j)
-       rpar(irp_cv)   = state_in % cv(j)
+       rpar(irp_dens) = state_in % rho
+       rpar(irp_cp)   = state_in % cp
+       rpar(irp_cv)   = state_in % cv
 
        ! The following thermodynamic derivatives are calculated in the EOS.
 
        ! dhdX = dh/dX |_{p,T}
        
-       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(j,:)
+       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
 
        ! dedX = de/dX |_{rho, T}
        
-       rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(j,:)
+       rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
 
        ! This is just used to make sure everything is happy.
        
@@ -186,7 +182,7 @@ contains
        endif
 
        ! Store the new mass fractions.
-       state_out % xn(j,:) = max(smallx, min(ONE, y(1:nspec)))    
+       state_out % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
 
 
        ! Energy was integrated in the system -- we use this integrated
@@ -196,14 +192,14 @@ contains
        ! but we will discard it and the main burner module will do an EOS
        ! call to get a final temperature consistent with this new energy.
 
-       state_out % e(j) = state_in % e(j) + y(net_ienuc)
+       state_out % e = state_in % e + y(net_ienuc)
 
        if (verbose) then
 
           ! Print out some integration statistics, if desired.
           
           print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho(j), ' temp: ', state_out % T(j)
+          print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
           print *, 'number of steps taken: ', iwork(11)
           print *, 'number of f evaluations: ', iwork(12)
           
