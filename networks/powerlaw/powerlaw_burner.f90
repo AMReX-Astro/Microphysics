@@ -18,8 +18,8 @@ module actual_burner_module
   ! + the number of species
   integer, parameter :: NEQ = nspec
 
-  ! our problem is stiff, tell ODEPACK that. 21 means stiff, jacobian 
-  ! function is supplied, 22 means stiff, figure out my jacobian through 
+  ! our problem is stiff, tell ODEPACK that. 21 means stiff, jacobian
+  ! function is supplied, 22 means stiff, figure out my jacobian through
   ! differencing
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
 
@@ -33,12 +33,12 @@ module actual_burner_module
   !  all variables (1), or to pass an array of absolute tolerances, one
   !  for each variable with a scalar relative tol (2), a scalar absolute
   !  and array of relative tolerances (3), or arrays for both (4)
-  !  
+  !
   !  The error is determined as e(i) = rtol*abs(y(i)) + atol, and must
   !  be > 0.  Since we have some compositions that may be 0 initially,
   !  we will specify both an absolute and a relative tolerance.
   !
-  ! We will use arrays for both the absolute and relative tolerances, 
+  ! We will use arrays for both the absolute and relative tolerances,
   ! since we want to be easier on the temperature than the species
   integer, parameter :: ITOL = 4
 
@@ -48,19 +48,19 @@ module actual_burner_module
 
   integer, parameter :: LIW = 30 + NEQ
 
-  ! we will override the maximum number of steps, so turn on the 
+  ! we will override the maximum number of steps, so turn on the
   ! optional arguments flag
-  integer, parameter :: IOPT = 1  
+  integer, parameter :: IOPT = 1
 
 contains
 
-  subroutine actual_burner(state_in, state_out, dt, time)    
-    
+  subroutine actual_burner(state_in, state_out, dt, time)
+
     implicit none
 
     type (eos_t_vector) :: state_in, state_out
-    double precision    :: dt, time    
-    
+    double precision    :: dt, time
+
     double precision :: enuc
 
     ! allocate storage for the input state
@@ -75,11 +75,11 @@ contains
     ! Note, istate is changed over the course of the calculation, so it
     ! cannot be a parameter
     integer :: istate
-    
+
     double precision, dimension(LRW) :: rwork
-    
+
     integer, dimension(LIW) :: iwork
-  
+
     double precision :: rpar(n_rpar_comps)
     integer :: ipar
 
@@ -87,7 +87,7 @@ contains
 
     EXTERNAL jac, f_rhs
 
-    ! set the tolerances. 
+    ! set the tolerances.
     atol(1:nspec) = 1.d-12    ! mass fractions
 
     rtol(1:nspec) = 1.d-12    ! mass fractions
@@ -127,6 +127,7 @@ contains
        ! store the new mass fractions -- make sure that they are positive
        state_out % xn(j,ifuel_)= max(y(ifuel_), ZERO)
        state_out % xn(j,iash_) = min(y(iash_), ONE)
+       state_out % xn(j,iinert_) = min(y(iinert_), ONE)
 
        ! compute the energy release from the change in fuel mass fractions.
        enuc = -specific_q_burn*(state_out % xn(j,ifuel_) - state_in % xn(j,ifuel_))
