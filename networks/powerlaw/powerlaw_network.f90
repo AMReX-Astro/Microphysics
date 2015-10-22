@@ -37,11 +37,11 @@ contains
     ! reactions
     aion(ifuel_)  = 2.0d0
     aion(iash_)  = 4.0d0
-    aion(iinert_)  = 56.0d0
+    aion(iinert_)  = 8.0d0
     
     zion(ifuel_)  = 1.0d0
     zion(iash_)  = 2.0d0
-    zion(iinert_)  = 28.0d0
+    zion(iinert_)  = 4.0d0
 
     call init_rpar_indices(nspec)
 
