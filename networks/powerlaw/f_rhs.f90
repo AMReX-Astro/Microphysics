@@ -29,7 +29,12 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   dens = rpar(irp_dens)
   temp = rpar(irp_temp)
 
-  rate = rtilde*(dens/rho_burn_ref)*xfueltmp**2*(temp/T_burn_ref)**nu
+  if (temp < f_act*T_burn_ref) then
+     rate = ZERO
+  else
+     rate = rtilde*(dens/rho_burn_ref)*xfueltmp**2*(temp/T_burn_ref)**nu
+  endif
+
   ydot(ifuel_) = -rate
   ydot(iash_)  =  rate
   ydot(iinert_)  =  ZERO
