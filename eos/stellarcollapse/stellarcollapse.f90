@@ -50,152 +50,143 @@ contains
     implicit none
 
     ! Input arguments
-    integer,             intent(in   ) :: input
-    type (eos_t_vector), intent(inout) :: state
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
 
     ! Local variables and arrays
     double precision :: e_want, p_want, s_want, h_want
     double precision, parameter :: tol = 1.0d-8
 
-    type (eos_t) :: scalar_state
-    
-    integer :: j, ierr
+    integer :: ierr
 
-    do j = 1, state % N
+    ! Convert to the units used by the table.
+    call convert_to_table_format(state)
 
-       call get_eos_t(state, scalar_state, j)
+    ierr = 0
+
+    select case (input)
+
+    !---------------------------------------------------------------------------
+    ! dens, temp, and ye are inputs; 
+    ! this is direct table interpolation, so nothing to do here
+    !---------------------------------------------------------------------------
        
-       ! Convert to the units used by the table.
-       call convert_to_table_format(scalar_state)
+    case (eos_input_rt)
 
-       ierr = 0
+       !---------------------------------------------------------------------------
+       ! dens, enthalpy, and xmass are inputs
+       !---------------------------------------------------------------------------
 
-       select case (input)
-
-   !---------------------------------------------------------------------------
-   ! dens, temp, and ye are inputs; 
-   ! this is direct table interpolation, so nothing to do here
-   !---------------------------------------------------------------------------
-
-       case (eos_input_rt)
-
-
-
-   !---------------------------------------------------------------------------
-   ! dens, enthalpy, and xmass are inputs
-   !---------------------------------------------------------------------------
-
-       case (eos_input_rh)
-          ! NOT CURRENTLY IMPLEMENTED
-          call eos_type_error(ierr_not_implemented, input)
-
-   !---------------------------------------------------------------------------
-   ! temp, pres, and ye are inputs; iterate to find density
-   !---------------------------------------------------------------------------
-
-       case (eos_input_tp)
-
-          ! Make sure the initial density guess is within table
-          scalar_state % rho = max(mindens, min(maxdens, scalar_state % rho))
-
-          ! We want to converge to the given pressure
-          p_want = scalar_state % p
-          if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
-
-          call newton_iter(scalar_state, ierr, ipres, idens, p_want)
-
-          if (ierr > 0) call eos_type_error(ierr, input)
-
-
-
-
-   !---------------------------------------------------------------------------
-   ! dens, pres, and ye are inputs; iterate to find the temperature
-   !---------------------------------------------------------------------------
-
-       case (eos_input_rp)
-
-          ! Make sure the initial temperature guess is within the table
-          scalar_state % T = max(mintemp, min(maxtemp, scalar_state % T))
-
-          ! We want to converge to the given pressure
-          p_want = scalar_state % p
-          if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
-
-          call newton_iter(scalar_state, ierr, ipres, itemp, p_want)
-
-          if (ierr > 0) call eos_type_error(ierr, input)
-
-
-
-   !---------------------------------------------------------------------------
-   ! dens, energy, and ye are inputs; iterate to find temperature
-   !---------------------------------------------------------------------------
-
-       case (eos_input_re)
-
-          ! Make sure the initial guess for temperature is within the table
-          scalar_state % T = max(mintemp, min(scalar_state % T, maxtemp))
-
-          ! We want to converge to the given energy
-          e_want = scalar_state % e
-          if (e_want < ZERO) call eos_type_error(ierr_neg_e, input)
-
-          ! iterate to get the temperature
-          call newton_iter(scalar_state, ierr, iener, itemp, e_want)
-
-          if (ierr > 0) call eos_type_error(ierr, input)
-
-
-
-   !---------------------------------------------------------------------------
-   ! pres, entropy, and xmass are inputs
-   !---------------------------------------------------------------------------
-
-       case (eos_input_ps)
-          ! NOT CURRENTLY IMPLEMENTED
-          call eos_type_error(ierr_not_implemented, input)
-
-
-   !---------------------------------------------------------------------------
-   ! pres, enthalpy, and xmass are inputs
-   !---------------------------------------------------------------------------
-
-       case (eos_input_ph)
-          ! NOT CURRENTLY IMPLEMENTED
-          call eos_type_error(ierr_not_implemented, input)
-
-
-   !---------------------------------------------------------------------------
-   ! temp, enthalpy, and xmass are inputs
-   !---------------------------------------------------------------------------
-
-       case (eos_input_th)
-          ! NOT CURRENTLY IMPLEMENTED
-          call eos_type_error(ierr_not_implemented, input)
-
-
-   !---------------------------------------------------------------------------
-   ! The EOS input doesn't match any of the available options.
-   !---------------------------------------------------------------------------
-
-       case default 
-
-          call eos_type_error(ierr_input, input)
-
-       end select
-
-       ! Do a final lookup - by now we should have a consistent density and temperature
-       call table_lookup(scalar_state)
-
-
-       ! Convert back to hydro units from table units.
-       ! Also builds some quantities like enthalpy.
-       call convert_from_table_format(scalar_state)
-
-       call put_eos_t(state, scalar_state, j)
+       continue
        
-    enddo
+    case (eos_input_rh)
+       
+       ! NOT CURRENTLY IMPLEMENTED
+       call eos_type_error(ierr_not_implemented, input)
+
+       !---------------------------------------------------------------------------
+       ! temp, pres, and ye are inputs; iterate to find density
+       !---------------------------------------------------------------------------
+
+    case (eos_input_tp)
+
+       ! Make sure the initial density guess is within table
+       state % rho = max(mindens, min(maxdens, state % rho))
+
+       ! We want to converge to the given pressure
+       p_want = state % p
+       if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
+
+       call newton_iter(state, ierr, ipres, idens, p_want)
+
+       if (ierr > 0) call eos_type_error(ierr, input)
+
+
+
+
+       !---------------------------------------------------------------------------
+       ! dens, pres, and ye are inputs; iterate to find the temperature
+       !---------------------------------------------------------------------------
+
+    case (eos_input_rp)
+
+       ! Make sure the initial temperature guess is within the table
+       state % T = max(mintemp, min(maxtemp, state % T))
+
+       ! We want to converge to the given pressure
+       p_want = state % p
+       if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
+
+       call newton_iter(state, ierr, ipres, itemp, p_want)
+
+       if (ierr > 0) call eos_type_error(ierr, input)
+
+
+
+       !---------------------------------------------------------------------------
+       ! dens, energy, and ye are inputs; iterate to find temperature
+       !---------------------------------------------------------------------------
+
+    case (eos_input_re)
+
+       ! Make sure the initial guess for temperature is within the table
+       state % T = max(mintemp, min(state % T, maxtemp))
+
+       ! We want to converge to the given energy
+       e_want = state % e
+       if (e_want < ZERO) call eos_type_error(ierr_neg_e, input)
+
+       ! iterate to get the temperature
+       call newton_iter(state, ierr, iener, itemp, e_want)
+
+       if (ierr > 0) call eos_type_error(ierr, input)
+
+
+
+       !---------------------------------------------------------------------------
+       ! pres, entropy, and xmass are inputs
+       !---------------------------------------------------------------------------
+
+    case (eos_input_ps)
+       ! NOT CURRENTLY IMPLEMENTED
+       call eos_type_error(ierr_not_implemented, input)
+
+
+       !---------------------------------------------------------------------------
+       ! pres, enthalpy, and xmass are inputs
+       !---------------------------------------------------------------------------
+
+    case (eos_input_ph)
+       ! NOT CURRENTLY IMPLEMENTED
+       call eos_type_error(ierr_not_implemented, input)
+
+
+       !---------------------------------------------------------------------------
+       ! temp, enthalpy, and xmass are inputs
+       !---------------------------------------------------------------------------
+
+    case (eos_input_th)
+       ! NOT CURRENTLY IMPLEMENTED
+       call eos_type_error(ierr_not_implemented, input)
+
+
+       !---------------------------------------------------------------------------
+       ! The EOS input doesn't match any of the available options.
+       !---------------------------------------------------------------------------
+
+    case default 
+
+       call eos_type_error(ierr_input, input)
+
+    end select
+
+    ! Do a final lookup - by now we should have a consistent density and temperature
+    call table_lookup(state)
+
+
+    ! Convert back to hydro units from table units.
+    ! Also builds some quantities like enthalpy.
+    call convert_from_table_format(state)
 
   end subroutine actual_eos
 

@@ -58,9 +58,10 @@ contains
 
     implicit none
 
-    type (eos_t_vector) :: state_in, state_out
-    double precision    :: dt, time
-
+    type (eos_t),     intent(in   ) :: state_in
+    type (eos_t),     intent(inout) :: state_out
+    double precision, intent(in   ) :: dt, time    
+    
     double precision :: enuc
 
     ! allocate storage for the input state
@@ -92,58 +93,53 @@ contains
 
     rtol(1:nspec) = 1.d-12    ! mass fractions
 
-    do j = 1, state_in % N
+    ! we want VODE to re-initialize each time we call it
+    istate = 1
 
-       ! we want VODE to re-initialize each time we call it
-       istate = 1
+    rwork(:) = ZERO
+    iwork(:) = 0
 
-       rwork(:) = ZERO
-       iwork(:) = 0
+    ! set the maximum number of steps allowed (the VODE default is 500)
+    iwork(6) = 15000
 
+    ! initialize the integration time
+    integration_time = ZERO
 
-       ! set the maximum number of steps allowed (the VODE default is 500)
-       iwork(6) = 15000
+    y(:) = state_in % xn(:)
 
-       ! initialize the integration time
-       integration_time = ZERO
+    rpar(irp_dens) = state_in % rho
+    rpar(irp_temp) = state_in % T
 
-       y(:) = state_in % xn(j,:)
+    ! call the integration routine
+    call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC, &
+         rpar, ipar)
 
-       rpar(irp_dens) = state_in % rho(j)
-       rpar(irp_temp) = state_in % T(j)
+    if (istate < 0) then
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', istate
+       print *, 'time = ', integration_time
+       call bl_error("ERROR in burner: integration failed")
+    endif
 
-       ! call the integration routine
-       call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
-                  istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC, &
-                  rpar, ipar)
+    ! store the new mass fractions -- make sure that they are positive
+    state_out % xn(ifuel_)= max(y(ifuel_), ZERO)
+    state_out % xn(iash_) = min(y(iash_), ONE)
+    state_out % xn(iinert_) = min(y(iinert_), ONE)
 
-       if (istate < 0) then
-          print *, 'ERROR: integration failed in net'
-          print *, 'istate = ', istate
-          print *, 'time = ', integration_time
-          call bl_error("ERROR in burner: integration failed")
-       endif
+    ! compute the energy release from the change in fuel mass fractions.
+    enuc = -specific_q_burn*(state_out % xn(ifuel_) - state_in % xn(ifuel_))
 
-       ! store the new mass fractions -- make sure that they are positive
-       state_out % xn(j,ifuel_)= max(y(ifuel_), ZERO)
-       state_out % xn(j,iash_) = min(y(iash_), ONE)
-       state_out % xn(j,iinert_) = min(y(iinert_), ONE)
+    state_out % e = state_in % e + enuc
 
-       ! compute the energy release from the change in fuel mass fractions.
-       enuc = -specific_q_burn*(state_out % xn(j,ifuel_) - state_in % xn(j,ifuel_))
+    if (verbose) then
 
-       state_out % e(j) = state_in % e(j) + enuc
-
-       if (verbose) then
-
-          ! print out some integration statistics, if desired
-          print *, 'integration summary: '
-          print *, 'dens: ', state_in % rho(j), ' temp: ', state_in % T(j)
-          print *, 'number of steps taken: ', iwork(11)
-          print *, 'number of f evaluations: ', iwork(12)
-       endif
-
-    enddo
+       ! print out some integration statistics, if desired
+       print *, 'integration summary: '
+       print *, 'dens: ', state_in % rho, ' temp: ', state_in % T
+       print *, 'number of steps taken: ', iwork(11)
+       print *, 'number of f evaluations: ', iwork(12)
+    endif
 
   end subroutine actual_burner
 

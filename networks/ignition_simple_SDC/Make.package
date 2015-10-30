@@ -1,0 +1,2 @@
+f90EXE_sources += ignition_simple_SDC_network.f90
+f90EXE_sources += ignition_simple_SDC_burner.f90

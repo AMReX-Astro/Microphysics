@@ -1,0 +1,17 @@
+The following burners were tested with OpenMP and found to be
+threadsafe:
+
+ignition_chamulak
+rprox
+triple_alpha_plus_cago
+
+
+The following burners should be threadsafe, but were not tested with
+OpenMP:
+
+ignition_simple
+
+
+A good way to test the threadsafe-ness of a burner is to run the
+MAESTRO/Exec/UNIT_TESTS/test_react problem with OpenMP with 1 thread
+and multiple threads and compare the output using fcompare.

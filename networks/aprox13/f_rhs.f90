@@ -28,7 +28,6 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
   integer :: k
 
   type (eos_t) :: state
-  type (eos_t_vector) :: state_vector
  
   ! We are integrating a system of
   !
@@ -58,12 +57,10 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
   ! that's needed to construct dY/dt. Then make sure
   ! the abundances are safe.
 
-  call eos_vector_in(state_vector, state)
-  
   if (call_eos_in_rhs) then
-     call eos(eos_input_rt, state_vector)
+     call eos(eos_input_rt, state)
   else
-     call composition(state_vector)
+     call composition(state)
   endif
 
   state % xn(:) = max(smallx,min(ONE,state % xn(:)))

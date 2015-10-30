@@ -113,24 +113,20 @@ contains
 
     implicit none
 
-    integer,             intent(in   ) :: input
-    type (eos_t_vector), intent(inout) :: state
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
 
     ! Local variables
     double precision :: dens, temp, enth, pres, eint, entr
 
-    integer :: j
+    dens = state % rho
+    temp = state % T
+    pres = state % p
+    enth = state % h
+    eint = state % e
+    entr = state % s
 
-    do j = 1, state % N
-
-       dens = state % rho(j)
-       temp = state % T(j)
-       pres = state % p(j)
-       enth = state % h(j)
-       eint = state % e(j)
-       entr = state % s(j)
-
-       select case (input)
+    select case (input)
 
        !-------------------------------------------------------------------------
        ! Now do the calculations. In every case,
@@ -142,136 +138,134 @@ contains
        ! e   = h - p / rho = (p / rho) / (gamma - 1)         = h / gamma
        !-------------------------------------------------------------------------
 
-       case (eos_input_rh)
+    case (eos_input_rh)
 
-          ! dens, enthalpy, and xmass are inputs
+       ! dens, enthalpy, and xmass are inputs
 
-          ! Solve for the pressure and energy:
+       ! Solve for the pressure and energy:
 
-          pres = enth * dens * gm1 / gamma_const
-          eint = enth / gamma_const
-
-
-       case (eos_input_rt)
-
-          ! dens, temp, and xmass are inputs
-
-          ! Solve for the pressure, energy and enthalpy:
-
-          pres = K_const * dens**gamma_const
-          enth = pres / dens * gamma_const / gm1
-          eint = enth / gamma_const
+       pres = enth * dens * gm1 / gamma_const
+       eint = enth / gamma_const
 
 
-       case (eos_input_tp)
+    case (eos_input_rt)
 
-          ! temp, pres, and xmass are inputs
+       ! dens, temp, and xmass are inputs
 
-          ! Solve for the density, energy and enthalpy:
+       ! Solve for the pressure, energy and enthalpy:
 
-          dens = (pres / K_const)**(ONE / gamma_const)
-          enth = pres / dens * gamma_const / gm1
-          eint = enth / gamma_const
-
-
-       case (eos_input_rp)
-
-          ! dens, pres, and xmass are inputs
-
-          ! Solve for the enthalpy and energy:
-
-          enth = (pres / dens) * gamma_const / gm1
-          eint = enth / gamma_const
+       pres = K_const * dens**gamma_const
+       enth = pres / dens * gamma_const / gm1
+       eint = enth / gamma_const
 
 
-       case (eos_input_re)
+    case (eos_input_tp)
 
-          ! dens, energy, and xmass are inputs
+       ! temp, pres, and xmass are inputs
 
-          ! Solve for the pressure and enthalpy:
+       ! Solve for the density, energy and enthalpy:
 
-          pres = gm1 * dens * eint
-
-
-       case (eos_input_ps)
-
-          ! pressure, entropy and xmass are inputs
-
-          ! Solve for the density, energy and enthalpy:
-
-          dens = (pres / K_const)**(ONE / gamma_const)
-          enth = pres / dens * gamma_const / gm1
-          eint = enth / gamma_const
+       dens = (pres / K_const)**(ONE / gamma_const)
+       enth = pres / dens * gamma_const / gm1
+       eint = enth / gamma_const
 
 
+    case (eos_input_rp)
 
-       case (eos_input_ph)
+       ! dens, pres, and xmass are inputs
 
-          ! pressure, enthalpy and xmass are inputs
+       ! Solve for the enthalpy and energy:
 
-          ! Solve for the density and energy:
+       enth = (pres / dens) * gamma_const / gm1
+       eint = enth / gamma_const
 
-          eint = enth / gamma_const
-          dens = (pres / K_const)**(ONE / gamma_const)
+
+    case (eos_input_re)
+
+       ! dens, energy, and xmass are inputs
+
+       ! Solve for the pressure and enthalpy:
+
+       pres = gm1 * dens * eint
+
+
+    case (eos_input_ps)
+
+       ! pressure, entropy and xmass are inputs
+
+       ! Solve for the density, energy and enthalpy:
+
+       dens = (pres / K_const)**(ONE / gamma_const)
+       enth = pres / dens * gamma_const / gm1
+       eint = enth / gamma_const
 
 
 
-       case (eos_input_th)
+    case (eos_input_ph)
 
-          ! temperature, enthalpy and xmass are inputs
+       ! pressure, enthalpy and xmass are inputs
 
-          ! Solve for the density, energy and pressure:
+       ! Solve for the density and energy:
 
-          eint = enth / gamma_const
-          dens = (gm1 / gamma_const * enth / K_const)**(ONE / gm1)
-          pres = gm1 * dens * eint
-
+       eint = enth / gamma_const
+       dens = (pres / K_const)**(ONE / gamma_const)
 
 
-       case default
 
-          call bl_error('EOS: invalid input.')
+    case (eos_input_th)
 
-       end select
+       ! temperature, enthalpy and xmass are inputs
 
-       !-------------------------------------------------------------------------
-       ! Now we have all relevant quantities, regardless of the inputs.
-       !-------------------------------------------------------------------------
+       ! Solve for the density, energy and pressure:
 
-       state % T(j)   = temp
-       state % rho(j) = dens
-       state % h(j)   = enth
-       state % s(j)   = entr
-       state % e(j)   = eint
-       state % p(j)   = pres
+       eint = enth / gamma_const
+       dens = (gm1 / gamma_const * enth / K_const)**(ONE / gm1)
+       pres = gm1 * dens * eint
 
-       ! Compute the thermodynamic derivatives and specific heats 
-       state % dPdT(j) = ZERO
-       state % dPdr(j) = gamma_const * pres / dens
-       state % dedT(j) = ZERO
-       state % dedr(j) = pres / (dens * dens)
-       state % dsdT(j) = ZERO
-       state % dsdr(j) = ZERO
-       state % dhdT(j) = ZERO
-       state % dhdr(j) = state % dedr(j) + gm1 * pres / dens**2
 
-       state % cv(j) = state % dedT(j)
-       state % cp(j) = gamma_const * state % cv(j)
 
-       state % gam1(j) = gamma_const
+    case default
 
-       ! Compute dPdX, dedX, dhdX.
+       call bl_error('EOS: invalid input.')
 
-       state % dpdA(j) = - state % p(j) / state % abar(j)
-       state % dpdZ(j) =   state % p(j) / (ONE + state % zbar(j))
+    end select
 
-       state % dedA(j) = - state % e(j) / state % abar(j)
-       state % dedZ(j) =   state % e(j) / (ONE + state % zbar(j))
+    !-------------------------------------------------------------------------
+    ! Now we have all relevant quantities, regardless of the inputs.
+    !-------------------------------------------------------------------------
 
-       ! sound speed
-       state % cs(j) = sqrt(gamma_const*pres/dens)
+    state % T   = temp
+    state % rho = dens
+    state % h   = enth
+    state % s   = entr
+    state % e   = eint
+    state % p   = pres
 
-    enddo
+    ! Compute the thermodynamic derivatives and specific heats 
+    state % dPdT = ZERO
+    state % dPdr = gamma_const * pres / dens
+    state % dedT = ZERO
+    state % dedr = pres / (dens * dens)
+    state % dsdT = ZERO
+    state % dsdr = ZERO
+    state % dhdT = ZERO
+    state % dhdr = state % dedr + gm1 * pres / dens**2
+
+    state % cv = state % dedT
+    state % cp = gamma_const * state % cv
+
+    state % gam1 = gamma_const
+
+    ! Compute dPdX, dedX, dhdX.
+
+    state % dpdA = - state % p / state % abar
+    state % dpdZ =   state % p / (ONE + state % zbar)
+
+    state % dedA = - state % e / state % abar
+    state % dedZ =   state % e / (ONE + state % zbar)
+
+    ! sound speed
+    state % cs = sqrt(gamma_const*pres/dens)
 
   end subroutine actual_eos
 

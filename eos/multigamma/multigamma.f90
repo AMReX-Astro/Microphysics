@@ -63,8 +63,8 @@ contains
 
     implicit none
 
-    integer,             intent(in   ) :: input
-    type (eos_t_vector), intent(inout) :: state
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
 
     ! Local variables
     double precision :: sumY_gm1, sumYg_gm1
@@ -73,157 +73,149 @@ contains
     ! Get the mass of a nucleon from Avogadro's number.
     double precision, parameter :: m_nucleon = ONE / n_A
 
-    integer :: j
+    ! Special gamma factors
+    
+    sumY_gm1  = sum(state % xn(:)/(aion(:)*(gammas(:)-ONE)))
+    sumYg_gm1 = sum(state % xn(:)*gammas(:)/(aion(:)*(gammas(:)-ONE)))
 
-    do j = 1, state % N
+    !-------------------------------------------------------------------------
+    ! For all EOS input modes EXCEPT eos_input_rt, first compute dens
+    ! and temp as needed from the inputs.
+    !-------------------------------------------------------------------------
 
-       ! Special gamma factors
+    select case (input)
 
-       sumY_gm1  = sum(state % xn(j,:)/(aion(:)*(gammas(:)-ONE)))
-       sumYg_gm1 = sum(state % xn(j,:)*gammas(:)/(aion(:)*(gammas(:)-ONE)))
+    case (eos_input_rt)
 
-       !-------------------------------------------------------------------------
-       ! For all EOS input modes EXCEPT eos_input_rt, first compute dens
-       ! and temp as needed from the inputs.
-       !-------------------------------------------------------------------------
+       ! dens, temp and xmass are inputs
 
-       select case (input)
-
-       case (eos_input_rt)
-
-          ! dens, temp and xmass are inputs
-
-          ! We don't need to do anything here
-          temp = state % T(j)
-          dens = state % rho(j)
+       ! We don't need to do anything here
+       temp = state % T
+       dens = state % rho
 
 
-       case (eos_input_rh)
+    case (eos_input_rh)
 
-          ! dens, enthalpy, and xmass are inputs
+       ! dens, enthalpy, and xmass are inputs
 
-          ! Solve for the temperature:
-          ! h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
-          dens = state % rho(j)
-          temp = (state % h(j) * m_nucleon / k_B)/sumYg_gm1
-
-
-       case (eos_input_tp)
-
-          ! temp, pres, and xmass are inputs
-
-          ! Solve for the density:
-          ! p = rho k T / (abar m_nucleon)
-          dens = state % p(j) * state % abar(j) * m_nucleon / (k_B * state % T(j))
-          temp = state % T(j)
+       ! Solve for the temperature:
+       ! h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
+       dens = state % rho
+       temp = (state % h * m_nucleon / k_B)/sumYg_gm1
 
 
-       case (eos_input_rp)
+    case (eos_input_tp)
 
-          ! dens, pres, and xmass are inputs
+       ! temp, pres, and xmass are inputs
 
-          ! Solve for the temperature:
-          ! p = rho k T / (mu m_nucleon)
-          dens = state % rho(j)
-          temp = state % p(j) * state % abar(j) * m_nucleon / (k_B * state % rho(j))
-
-
-       case (eos_input_re)
-
-          ! dens, energy, and xmass are inputs
-
-          ! Solve for the temperature
-          ! e = k T / [(mu m_nucleon)*(gamma-1)]
-          dens = state % rho(j)
-          temp = state % e(j) * m_nucleon / (k_B * sumY_gm1)
+       ! Solve for the density:
+       ! p = rho k T / (abar m_nucleon)
+       dens = state % p * state % abar * m_nucleon / (k_B * state % T)
+       temp = state % T
 
 
-       case (eos_input_ps)
+    case (eos_input_rp)
 
-          ! pressure entropy, and xmass are inputs
-          call bl_error("eos_input_ps is not supported")
+       ! dens, pres, and xmass are inputs
 
-
-       case (eos_input_ph)
-
-          ! pressure, enthalpy and xmass are inputs
-
-          ! Solve for temperature and density
-          dens = state % p(j) * state % abar(j) / state % h(j) * sumYg_gm1
-          temp = state % p(j) * state % abar(j) * m_nucleon / (k_B * dens)
+       ! Solve for the temperature:
+       ! p = rho k T / (mu m_nucleon)
+       dens = state % rho
+       temp = state % p * state % abar * m_nucleon / (k_B * state % rho)
 
 
-       case (eos_input_th)
+    case (eos_input_re)
 
-          ! temperature, enthalpy and xmass are inputs
-          call bl_error("eos_input_th is not supported")
+       ! dens, energy, and xmass are inputs
 
-
-       case default
-
-          call bl_error('EOS: invalid input.')
-
-       end select
-
-       !-------------------------------------------------------------------------
-       ! Now we have the density and temperature (and mass fractions /
-       ! mu), regardless of the inputs.
-       !-------------------------------------------------------------------------
-
-       state % T(j)   = temp
-       state % rho(j) = dens
-
-       ! Compute the pressure simply from the ideal gas law, and the
-       ! specific internal energy using the gamma-law EOS relation.
-       state % p(j) = dens*k_B*temp/(state % abar(j)*m_nucleon)
-       state % e(j) = k_B*temp*sumY_gm1/m_nucleon
-
-       ! Enthalpy is h = e + p/rho
-       state % h(j) = state % e(j) + state % p(j) / dens
-
-       ! Entropy (per gram) -- not implemented.
-       state % s(j) = ZERO
-
-       ! Compute the thermodynamic derivatives and specific heats 
-       state % dpdT = state % p(j) / temp
-       state % dpdr = state % p(j) / dens
-       state % dedT(j) = state % e(j) / temp
-       state % dedr(j) = ZERO
-       state % dsdT(j) = ZERO
-       state % dsdr(j) = ZERO
-       state % dhdT(j) = state % dedT(j) + state % dpdT(j) / dens
-       state % dhdr(j) = ZERO
-
-       state % cv(j) = state % dedT(j)
-       state % cp(j) = state % h(j) / state % T(j)
-
-       state % gam1(j) = state % cp(j) / state % cv(j)
-
-       state % dpdr_e(j) = state % dpdr(j) - state % dpdT(j) * state % dedr(j) / state % dedT(j)
-       state % dpde(j)   = state % dpdT(j) / state % dedT(j)
+       ! Solve for the temperature
+       ! e = k T / [(mu m_nucleon)*(gamma-1)]
+       dens = state % rho
+       temp = state % e * m_nucleon / (k_B * sumY_gm1)
 
 
-       ! These need to be worked out.
-       state % dpdA(j) = ZERO
-       state % dedA(j) = ZERO
+    case (eos_input_ps)
 
-       state % dpdZ(j) = ZERO
-       state % dedZ(j) = ZERO
+       ! pressure entropy, and xmass are inputs
+       call bl_error("eos_input_ps is not supported")
 
-       ! These expressions will not work at present because we overwrite them
-       ! at the end of the EOS call. We need to move the multi-fluid property
-       ! up to the main EOS modules.
 
-       state % dpdX(j,:) = state % rho(j) * k_B * state % T(j) / (m_nucleon * aion(:))
-       state % dedX(j,:) = k_B * state % T(j) / (m_nucleon * aion(:) * (gammas(:) - ONE))
+    case (eos_input_ph)
 
-       state % dhdX(j,:) = state % dedX(j,:) + (state % p(j) / state % rho(j)**2 - state % dedr(j)) &
-                                            *  state % dpdX(j,:) / state % dpdr(j)
+       ! pressure, enthalpy and xmass are inputs
 
-       ! Sound speed
-       state % cs(j) = sqrt(state % gam1(j) * state % p(j) / dens)
+       ! Solve for temperature and density
+       dens = state % p * state % abar / state % h * sumYg_gm1
+       temp = state % p * state % abar * m_nucleon / (k_B * dens)
 
-    enddo
+
+    case (eos_input_th)
+
+       ! temperature, enthalpy and xmass are inputs
+       call bl_error("eos_input_th is not supported")
+
+
+    case default
+
+       call bl_error('EOS: invalid input.')
+
+    end select
+
+    !-------------------------------------------------------------------------
+    ! Now we have the density and temperature (and mass fractions /
+    ! mu), regardless of the inputs.
+    !-------------------------------------------------------------------------
+
+    state % T   = temp
+    state % rho = dens
+
+    ! Compute the pressure simply from the ideal gas law, and the
+    ! specific internal energy using the gamma-law EOS relation.
+    state % p = dens*k_B*temp/(state % abar*m_nucleon)
+    state % e = k_B*temp*sumY_gm1/m_nucleon
+
+    ! Enthalpy is h = e + p/rho
+    state % h = state % e + state % p / dens
+
+    ! Entropy (per gram) -- not implemented.
+    state % s = ZERO
+
+    ! Compute the thermodynamic derivatives and specific heats 
+    state % dpdT = state % p / temp
+    state % dpdr = state % p / dens
+    state % dedT = state % e / temp
+    state % dedr = ZERO
+    state % dsdT = ZERO
+    state % dsdr = ZERO
+    state % dhdT = state % dedT + state % dpdT / dens
+    state % dhdr = ZERO
+
+    state % cv = state % dedT
+    state % cp = state % h / state % T
+
+    state % gam1 = state % cp / state % cv
+
+    state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
+    state % dpde   = state % dpdT / state % dedT
+
+
+    ! These need to be worked out.
+    state % dpdA = ZERO
+    state % dedA = ZERO
+
+    state % dpdZ = ZERO
+    state % dedZ = ZERO
+
+    ! Composition derivatives
+    
+    state % dpdX(:) = state % rho * k_B * state % T / (m_nucleon * aion(:))
+    state % dedX(:) = k_B * state % T / (m_nucleon * aion(:) * (gammas(:) - ONE))
+
+    state % dhdX(:) = state % dedX(:) + (state % p / state % rho**2 - state % dedr) &
+         *  state % dpdX(:) / state % dpdr
+
+    ! Sound speed
+    state % cs = sqrt(state % gam1 * state % p / dens)
 
   end subroutine actual_eos
 

@@ -51,26 +51,21 @@ contains
 
     implicit none
 
-    integer,             intent(in   ) :: input
-    type (eos_t_vector), intent(inout) :: state
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
 
     ! Get the mass of a nucleon from Avogadro's number.
     double precision, parameter :: m_nucleon = ONE / n_A
     double precision, parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5d0
 
-    integer :: j
     double precision :: Tinv, rhoinv
 
     ! Calculate mu.
     
     if (assume_neutral) then
-       do j = 1, state % N
-          state % mu(j) = state % abar(j)
-       enddo
+       state % mu = state % abar
     else
-       do j = 1, state % N
-          state % mu(j) = ONE / sum( (ONE + zion(:)) * state % xn(j,:) / aion(:) )
-       enddo
+       state % mu = ONE / sum( (ONE + zion(:)) * state % xn(:) / aion(:) )
     endif
     
     !-------------------------------------------------------------------------
@@ -93,9 +88,8 @@ contains
 
        ! Solve for the temperature:
        ! h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
-       do j = 1, state % N
-          state % T(j)   = (state % h(j) * state % mu(j) * m_nucleon / k_B)*(gamma_const - ONE)/gamma_const
-       end do
+
+       state % T = (state % h * state % mu * m_nucleon / k_B)*(gamma_const - ONE)/gamma_const
 
     case (eos_input_tp)
 
@@ -103,9 +97,8 @@ contains
        
        ! Solve for the density:
        ! p = rho k T / (mu m_nucleon)
-       do j = 1, state % N
-          state % rho(j) =  state % p(j) * state % mu(j) * m_nucleon / (k_B * state % T(j))
-       end do
+
+       state % rho =  state % p * state % mu * m_nucleon / (k_B * state % T)
 
     case (eos_input_rp)
 
@@ -113,9 +106,8 @@ contains
 
        ! Solve for the temperature:
        ! p = rho k T / (mu m_nucleon)
-       do j = 1, state % N
-          state % T(j)   = state % p(j) * state % mu(j) * m_nucleon / (k_B * state % rho(j))
-       end do
+
+       state % T = state % p * state % mu * m_nucleon / (k_B * state % rho)
 
     case (eos_input_re)
 
@@ -123,9 +115,8 @@ contains
        
        ! Solve for the temperature
        ! e = k T / [(mu m_nucleon)*(gamma-1)]
-       do j = 1, state % N
-          state % T(j)   = state % e(j) * state % mu(j) * m_nucleon * (gamma_const-ONE) / k_B
-       end do
+
+       state % T   = state % e * state % mu * m_nucleon * (gamma_const-ONE) / k_B
 
     case (eos_input_ps)
 
@@ -134,25 +125,24 @@ contains
        ! Solve for the temperature
        ! Invert Sackur-Tetrode eqn (below) using 
        ! rho = p mu m_nucleon / (k T)
-       do j = 1, state % N
-          state % T(j)   = state % p(j)**(TWO/FIVE) * &
-               ( TWO*M_PI*hbar*hbar/(state % mu(j)*m_nucleon) )**(THREE/FIVE) * &
-               dexp(TWO*state % mu(j)*m_nucleon*state % s(j)/(FIVE*k_B) - ONE) / k_B
 
-          ! Solve for the density
-          ! rho = p mu m_nucleon / (k T)
-          state % rho(j) =  state % p(j) * state % mu(j) * m_nucleon / (k_B * state % T(j))
-       end do
+       state % T  = state % p**(TWO/FIVE) * &
+                    ( TWO*M_PI*hbar*hbar/(state % mu*m_nucleon) )**(THREE/FIVE) * &
+                    dexp(TWO*state % mu*m_nucleon*state % s/(FIVE*k_B) - ONE) / k_B
+
+       ! Solve for the density
+       ! rho = p mu m_nucleon / (k T)
+       
+       state % rho =  state % p * state % mu * m_nucleon / (k_B * state % T)
 
     case (eos_input_ph)
 
        ! pressure, enthalpy and xmass are inputs
        
        ! Solve for temperature and density
-       do j = 1, state % N
-          state % rho(j) =  state % p(j) / state % h(j) * gamma_const / (gamma_const - ONE)
-          state % T(j)   = state % p(j) * state % mu(j) * m_nucleon / (k_B * state % rho(j))
-       end do
+
+       state % rho = state % p / state % h * gamma_const / (gamma_const - ONE)
+       state % T   = state % p * state % mu * m_nucleon / (k_B * state % rho)
 
     case (eos_input_th)
 
@@ -172,58 +162,54 @@ contains
     ! Now we have the density and temperature (and mass fractions /
     ! mu), regardless of the inputs.
     !-------------------------------------------------------------------------
-    
-    do j = 1, state % N
-       
-       Tinv = ONE / state % T(j)
-       rhoinv = ONE / state % rho(j)
+           
+    Tinv = ONE / state % T
+    rhoinv = ONE / state % rho
 
-       ! Compute the pressure simply from the ideal gas law, and the
-       ! specific internal energy using the gamma-law EOS relation.
-       state % p(j) = state % rho(j) * state % T(j) * (k_B / (state % mu(j)*m_nucleon))
-       state % e(j) = state % p(j)/(gamma_const - ONE) * rhoinv
+    ! Compute the pressure simply from the ideal gas law, and the
+    ! specific internal energy using the gamma-law EOS relation.
+    state % p = state % rho * state % T * (k_B / (state % mu*m_nucleon))
+    state % e = state % p/(gamma_const - ONE) * rhoinv
 
-       ! enthalpy is h = e + p/rho
-       state % h(j) = state % e(j) + state % p(j) * rhoinv
+    ! enthalpy is h = e + p/rho
+    state % h = state % e + state % p * rhoinv
 
-       ! entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
-       ! NOTE: this expression is only valid for gamma = 5/3.
-       state % s(j) = (k_B/(state % mu(j)*m_nucleon))*(2.5_dp_t + &
-            log( ( (state % mu(j)*m_nucleon)**2.5_dp_t * rhoinv )*(k_B * state % T(j))**1.5_dp_t * fac ) )
+    ! entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
+    ! NOTE: this expression is only valid for gamma = 5/3.
+    state % s = (k_B/(state % mu*m_nucleon))*(2.5_dp_t + &
+         log( ( (state % mu*m_nucleon)**2.5_dp_t * rhoinv )*(k_B * state % T)**1.5_dp_t * fac ) )
 
-       ! Compute the thermodynamic derivatives and specific heats 
-       state % dpdT(j) = state % p(j) * Tinv
-       state % dpdr(j) = state % p(j) * rhoinv
-       state % dedT(j) = state % e(j) * Tinv
-       state % dedr(j) = ZERO
-       state % dsdT(j) = 1.5_dp_t * (k_B / (state % mu(j) * m_nucleon)) * Tinv
-       state % dsdr(j) = - (k_B / (state % mu(j) * m_nucleon)) * rhoinv
-       state % dhdT(j) = state % dedT(j) + state % dpdT(j) * rhoinv
-       state % dhdr(j) = ZERO
+    ! Compute the thermodynamic derivatives and specific heats 
+    state % dpdT = state % p * Tinv
+    state % dpdr = state % p * rhoinv
+    state % dedT = state % e * Tinv
+    state % dedr = ZERO
+    state % dsdT = 1.5_dp_t * (k_B / (state % mu * m_nucleon)) * Tinv
+    state % dsdr = - (k_B / (state % mu * m_nucleon)) * rhoinv
+    state % dhdT = state % dedT + state % dpdT * rhoinv
+    state % dhdr = ZERO
 
-       state % cv(j) = state % dedT(j)
-       state % cp(j) = gamma_const * state % cv(j)
+    state % cv = state % dedT
+    state % cp = gamma_const * state % cv
 
-       state % gam1(j) = gamma_const
+    state % gam1 = gamma_const
 
-       state % dpdr_e(j) = state % dpdr(j) - state % dpdT(j) * state % dedr(j) * (ONE/state % dedT(j))
-       state % dpde(j)   = state % dpdT(j) * (ONE/ state % dedT(j))
+    state % dpdr_e = state % dpdr - state % dpdT * state % dedr * (ONE/state % dedT)
+    state % dpde   = state % dpdT * (ONE/ state % dedT)
 
-       ! sound speed
-       state % cs(j) = sqrt(gamma_const * state % p(j) * rhoinv)
+    ! sound speed
+    state % cs = sqrt(gamma_const * state % p * rhoinv)
 
-       state % dpdA(j) = - state % p(j) * (ONE/state % abar(j))
-       state % dedA(j) = - state % e(j) * (ONE/state % abar(j))
+    state % dpdA = - state % p * (ONE/state % abar)
+    state % dedA = - state % e * (ONE/state % abar)
 
-       if (assume_neutral) then
-         state % dpdZ(j) = ZERO
-         state % dedZ(j) = ZERO
-       else
-         state % dpdZ(j) = state % p(j) * (ONE/(ONE + state % zbar(j)))
-         state % dedZ(j) = state % e(j) * (ONE/(ONE + state % zbar(j)))
-       endif
-
-    enddo
+    if (assume_neutral) then
+      state % dpdZ = ZERO
+      state % dedZ = ZERO
+    else
+      state % dpdZ = state % p * (ONE/(ONE + state % zbar))
+      state % dedZ = state % e * (ONE/(ONE + state % zbar))
+    endif
 
   end subroutine actual_eos
 

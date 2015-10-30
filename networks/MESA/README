@@ -1,0 +1,60 @@
+Routines to incorporate the MESA network into MAESTRO
+
+Routines include:
+	burner.f90
+	burn_solout.f90
+	Do_One_Zone_Burn.f90
+	get_mesa_ebin.f90
+	net_utils.f90
+	setup_mesa_net.f90
+	shutdown_mesa_net.f90
+
+Support Files & Dirs:
+	GPackage.mak
+	NETWORK_REQUIRES
+	network.template.mesa
+	write_network.py
+	Net-Files/
+	scripts/
+
+ROUTINES:
+-----------
+-burner.f90 is the standard MAESTRO interface that calls the MESA network
+
+-Do_One_Zone_Burn is an interface to the MESA one zone burner 
+
+-burn_solout is called after each step of the burn. This subroutine is 
+	responsible for calculating the energy generation rate (borrowed 
+	from MESA source code with very little modification)
+
+-net_utils is a module that holds a variables used by MESA routines
+
+-setup_mesa_net is the setup routine that initializes the MESA network
+
+-shutdown_mesa_net shuts down the network
+
+-get_mesa_ebin.g90 returns binding energy using MESA values
+
+SUPPORT FILES:
+----------------
+Net-Files is a directory which includes net files with lists of isotopes 
+	and their properties to be used in the network. These net files 
+	are read by the write_network.py script at compile time to create 
+	the network.f90 module
+
+write_network.py uses network.template.mesa and an input net file to 
+	generate the network.f90 file which includes the setup_mesa_net 
+	and shutdown_mesa_net subroutine calls and defining of MESA 
+	related variables
+
+network.template.mesa is the network.f90 template used by write_network.py
+
+NETWORK_REQUIRES is an empty file telling MAESTRO that there are no extra 
+	requirements for the MESA network
+
+GPackage.mak is the makefile that defines which routines to add to the f90 
+	sources	list, which directories to include, what libraries to link 
+	and the rules needed to generate the network.f90 module
+
+scripts is a directory that holds useful scripts for compiling either one 
+	or all of the MESA modules

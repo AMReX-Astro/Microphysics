@@ -83,4 +83,8 @@ contains
 
   end function get_ebin_value
 
+  subroutine network_finalize()
+    ! stub routine that Maestro wants
+  end subroutine network_finalize
+
 end module actual_network
