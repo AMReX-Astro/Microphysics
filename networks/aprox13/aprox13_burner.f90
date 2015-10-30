@@ -119,94 +119,92 @@ contains
     rtol(net_itemp) = 1.d-5  ! temperature
     rtol(net_ienuc) = 1.d-10 ! energy generated
 
-       ! We want VODE to re-initialize each time we call it.
-
-       istate = 1
-
-       ! Initialize work arrays to zero.
-       
-       rwork(:) = ZERO
-       iwork(:) = 0
-
-       ! Set the maximum number of steps allowed (the VODE default is 500).
-       
-       iwork(6) = 150000
-
-       ! Initialize the integration time.
-       
-       local_time = ZERO
-
-       ! Abundances are the first nspec values and temperature and energy are the last.
-       
-       y(1:nspec)   = state_in % xn(:)
-       y(net_itemp) = state_in % T
-       y(net_ienuc) = ZERO
-
-       ! Density, specific heat at constant pressure (c_p), and dhdX are needed
-       ! in the righthand side routine, so we will pass these in to those routines
-       ! via the rpar functionality in VODE.
-
-       rpar(irp_dens) = state_in % rho
-       rpar(irp_cp)   = state_in % cp
-       rpar(irp_cv)   = state_in % cv
-
-       ! The following thermodynamic derivatives are calculated in the EOS.
-
-       ! dhdX = dh/dX |_{p,T}
-       
-       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
-
-       ! dedX = de/dX |_{rho, T}
-       
-       rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
-
-       ! This is just used to make sure everything is happy.
-       
-       rpar(irp_smallx) = smallx
-
-
-
-       ! Call the integration routine.
-       
-       call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-            istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
-            rpar, ipar)
-
-
-
-       if (istate < 0) then
-          print *, 'ERROR: integration failed in net'
-          print *, 'istate = ', istate
-          print *, 'time = ', local_time
-          call bl_error("ERROR in burner: integration failed")
-       endif
-
-       ! Store the new mass fractions.
-       state_out % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
-
-
-       ! Energy was integrated in the system -- we use this integrated
-       ! energy which contains both the reaction energy release and
-       ! neutrino losses. The final energy is the initial energy
-       ! plus this energy release. Note that we get a new temperature too,
-       ! but we will discard it and the main burner module will do an EOS
-       ! call to get a final temperature consistent with this new energy.
-
-       state_out % e = state_in % e + y(net_ienuc)
-
-       if (verbose) then
-
-          ! Print out some integration statistics, if desired.
-          
-          print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
-          print *, 'number of steps taken: ', iwork(11)
-          print *, 'number of f evaluations: ', iwork(12)
-          
-       endif
-
-    enddo
+    ! We want VODE to re-initialize each time we call it.
     
+    istate = 1
+
+    ! Initialize work arrays to zero.
+
+    rwork(:) = ZERO
+    iwork(:) = 0
+
+    ! Set the maximum number of steps allowed (the VODE default is 500).
+
+    iwork(6) = 150000
+
+    ! Initialize the integration time.
+
+    local_time = ZERO
+
+    ! Abundances are the first nspec values and temperature and energy are the last.
+
+    y(1:nspec)   = state_in % xn(:)
+    y(net_itemp) = state_in % T
+    y(net_ienuc) = ZERO
+
+    ! Density, specific heat at constant pressure (c_p), and dhdX are needed
+    ! in the righthand side routine, so we will pass these in to those routines
+    ! via the rpar functionality in VODE.
+
+    rpar(irp_dens) = state_in % rho
+    rpar(irp_cp)   = state_in % cp
+    rpar(irp_cv)   = state_in % cv
+
+    ! The following thermodynamic derivatives are calculated in the EOS.
+
+    ! dhdX = dh/dX |_{p,T}
+
+    rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
+
+    ! dedX = de/dX |_{rho, T}
+
+    rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
+
+    ! This is just used to make sure everything is happy.
+
+    rpar(irp_smallx) = smallx
+
+
+
+    ! Call the integration routine.
+
+    call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
+         rpar, ipar)
+
+
+
+    if (istate < 0) then
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', istate
+       print *, 'time = ', local_time
+       call bl_error("ERROR in burner: integration failed")
+    endif
+
+    ! Store the new mass fractions.
+    state_out % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
+
+
+    ! Energy was integrated in the system -- we use this integrated
+    ! energy which contains both the reaction energy release and
+    ! neutrino losses. The final energy is the initial energy
+    ! plus this energy release. Note that we get a new temperature too,
+    ! but we will discard it and the main burner module will do an EOS
+    ! call to get a final temperature consistent with this new energy.
+
+    state_out % e = state_in % e + y(net_ienuc)
+
+    if (verbose) then
+
+       ! Print out some integration statistics, if desired.
+
+       print *, 'integration summary: '
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
+       print *, 'number of steps taken: ', iwork(11)
+       print *, 'number of f evaluations: ', iwork(12)
+
+    endif
+
     call bl_deallocate(y)
     call bl_deallocate(atol)
     call bl_deallocate(rtol)

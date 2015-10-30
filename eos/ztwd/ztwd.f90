@@ -56,27 +56,23 @@ contains
 
     implicit none
 
-    integer,             intent(in   ) :: input
-    type (eos_t_vector), intent(inout) :: state
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
 
     ! Local variables
     double precision :: dens, temp, enth, pres, eint, entr
     double precision :: x, dxdr
 
-    integer :: j
+    dens = state % rho
+    temp = state % T
+    pres = state % p
+    enth = state % h
+    eint = state % e
+    entr = state % s
 
-    do j = 1, state % N
+    B = B2 * state % mu_e
 
-       dens = state % rho(j)
-       temp = state % T(j)
-       pres = state % p(j)
-       enth = state % h(j)
-       eint = state % e(j)
-       entr = state % s(j)
-
-       B = B2 * state % mu_e(j)
-
-       select case (input)
+    select case (input)
 
        !-------------------------------------------------------------------------
        ! Now do the calculations. In every case,
@@ -88,156 +84,154 @@ contains
        ! e   = h - p / rho
        !-------------------------------------------------------------------------
 
-       case (eos_input_rh)
+    case (eos_input_rh)
 
-          ! dens, enthalpy, and xmass are inputs
+       ! dens, enthalpy, and xmass are inputs
 
-          ! Solve for the pressure and energy:
-
-          x = (dens / B)**THIRD
-          pres = pressure(x)
-          eint = enth - pres / dens
-
-
-       case (eos_input_rt)
-
-          ! dens, temp, and xmass are inputs
-
-          ! Solve for the pressure, energy and enthalpy:
-
-          x = (dens / B)**THIRD
-          pres = pressure(x)
-          enth = enthalpy(x)
-          eint = enth - pres / dens
-
-
-       case (eos_input_tp)
-
-          ! temp, pres, and xmass are inputs
-
-          ! Solve for the density, energy and enthalpy:
-
-          call pres_iter(pres, dens)
-
-          x = (dens / B)**THIRD
-          enth = enthalpy(x)
-          eint = enth - pres / dens
-
-
-       case (eos_input_rp)
-
-          ! dens, pres, and xmass are inputs
-
-          ! Solve for the enthalpy and energy:
-
-          x = (dens / B)**THIRD
-          enth = enthalpy(x)
-          eint = enth - pres / dens
-
-
-       case (eos_input_re)
-
-          ! dens, energy, and xmass are inputs
-
-          ! Solve for the pressure and enthalpy:
-
-          x = (dens / B)**THIRD
-          pres = pressure(x)
-          enth = enthalpy(x)
-
-
-       case (eos_input_ps)
-
-          ! pressure, entropy and xmass are inputs
-
-          ! Solve for the density, energy and enthalpy:
-
-          call pres_iter(pres, dens)
-
-          x = (dens / B)**THIRD
-          enth = enthalpy(x)
-          eint = enth - pres / dens
-
-
-       case (eos_input_ph)
-
-          ! pressure, enthalpy and xmass are inputs
-
-          ! Solve for the density and energy:
-
-          x = ( ( (B * enth) / (EIGHT * A) )**2 - ONE )**HALF
-          dens = B * x**3
-          eint = enth - pres / dens
-
-
-       case (eos_input_th)
-
-          ! temperature, enthalpy and xmass are inputs
-
-          ! Solve for the density, energy and pressure:
-
-          x = ( ( (B * enth) / (EIGHT * A) )**2 - ONE )**HALF
-          dens = B * x**3
-          pres = pressure(x)
-          eint = enth - pres / dens
-
-
-       case default
-
-          call bl_error('EOS: invalid input.')
-
-       end select
-
-       !-------------------------------------------------------------------------
-       ! Now we have all relevant quantities, regardless of the inputs.
-       !-------------------------------------------------------------------------
-
-       state % T(j)   = temp
-       state % rho(j) = dens
-       state % h(j)   = enth
-       state % s(j)   = entr
-       state % e(j)   = eint
-       state % p(j)   = pres
-
-       ! All temperature derivatives are zero since the gas is temperature-independent.
-
-       state % dPdT(j) = ZERO
-       state % dhdT(j) = ZERO
-       state % dedT(j) = ZERO
-       state % dsdT(j) = ZERO
-
-       ! Density derivatives are computed using the chain rule, e.g. dPdr = dPdx * dxdr.
+       ! Solve for the pressure and energy:
 
        x = (dens / B)**THIRD
-       dxdr = THIRD * x / dens
+       pres = pressure(x)
+       eint = enth - pres / dens
 
-       state % dPdr(j) = dxdr * dpdx(x)
-       state % dhdr(j) = dxdr * dhdx(x)
-       state % dedr(j) = state % dhdr(j) - state % dpdr(j) / state % rho(j) + state % p(j) / (state % rho(j))**2
-       state % dsdr(j) = ZERO
 
-       ! Heat capacities are zero: the gas properties don't change when the temperature changes.
+    case (eos_input_rt)
 
-       state % cv(j) = ZERO
-       state % cp(j) = ZERO
+       ! dens, temp, and xmass are inputs
 
-       ! Adiabatic gamma_1 == d(log p) / d(log rho) |_s.
+       ! Solve for the pressure, energy and enthalpy:
 
-       state % gam1(j) = state % dpdr(j) * (state % rho(j) / state % p(j))
+       x = (dens / B)**THIRD
+       pres = pressure(x)
+       enth = enthalpy(x)
+       eint = enth - pres / dens
 
-       ! Derivatives with respect to A and Z.
 
-       state % dpdA(j) = - state % p(j) / state % abar(j)
-       state % dpdZ(j) =   state % p(j) / (ONE + state % zbar(j))
+    case (eos_input_tp)
 
-       state % dedA(j) = - state % e(j) / state % abar(j)
-       state % dedZ(j) =   state % e(j) / (ONE + state % zbar(j))
+       ! temp, pres, and xmass are inputs
 
-       ! Sound speed.
+       ! Solve for the density, energy and enthalpy:
 
-       state % cs(j) = sqrt(state % dpdr(j))
+       call pres_iter(pres, dens)
 
-    enddo
+       x = (dens / B)**THIRD
+       enth = enthalpy(x)
+       eint = enth - pres / dens
+
+
+    case (eos_input_rp)
+
+       ! dens, pres, and xmass are inputs
+
+       ! Solve for the enthalpy and energy:
+
+       x = (dens / B)**THIRD
+       enth = enthalpy(x)
+       eint = enth - pres / dens
+
+
+    case (eos_input_re)
+
+       ! dens, energy, and xmass are inputs
+
+       ! Solve for the pressure and enthalpy:
+
+       x = (dens / B)**THIRD
+       pres = pressure(x)
+       enth = enthalpy(x)
+
+
+    case (eos_input_ps)
+
+       ! pressure, entropy and xmass are inputs
+
+       ! Solve for the density, energy and enthalpy:
+
+       call pres_iter(pres, dens)
+
+       x = (dens / B)**THIRD
+       enth = enthalpy(x)
+       eint = enth - pres / dens
+
+
+    case (eos_input_ph)
+
+       ! pressure, enthalpy and xmass are inputs
+
+       ! Solve for the density and energy:
+
+       x = ( ( (B * enth) / (EIGHT * A) )**2 - ONE )**HALF
+       dens = B * x**3
+       eint = enth - pres / dens
+
+
+    case (eos_input_th)
+
+       ! temperature, enthalpy and xmass are inputs
+
+       ! Solve for the density, energy and pressure:
+
+       x = ( ( (B * enth) / (EIGHT * A) )**2 - ONE )**HALF
+       dens = B * x**3
+       pres = pressure(x)
+       eint = enth - pres / dens
+
+
+    case default
+
+       call bl_error('EOS: invalid input.')
+
+    end select
+
+    !-------------------------------------------------------------------------
+    ! Now we have all relevant quantities, regardless of the inputs.
+    !-------------------------------------------------------------------------
+
+    state % T   = temp
+    state % rho = dens
+    state % h   = enth
+    state % s   = entr
+    state % e   = eint
+    state % p   = pres
+
+    ! All temperature derivatives are zero since the gas is temperature-independent.
+
+    state % dPdT = ZERO
+    state % dhdT = ZERO
+    state % dedT = ZERO
+    state % dsdT = ZERO
+
+    ! Density derivatives are computed using the chain rule, e.g. dPdr = dPdx * dxdr.
+
+    x = (dens / B)**THIRD
+    dxdr = THIRD * x / dens
+
+    state % dPdr = dxdr * dpdx(x)
+    state % dhdr = dxdr * dhdx(x)
+    state % dedr = state % dhdr - state % dpdr / state % rho + state % p / (state % rho)**2
+    state % dsdr = ZERO
+
+    ! Heat capacities are zero: the gas properties don't change when the temperature changes.
+
+    state % cv = ZERO
+    state % cp = ZERO
+
+    ! Adiabatic gamma_1 == d(log p) / d(log rho) |_s.
+
+    state % gam1 = state % dpdr * (state % rho / state % p)
+
+    ! Derivatives with respect to A and Z.
+
+    state % dpdA = - state % p / state % abar
+    state % dpdZ =   state % p / (ONE + state % zbar)
+
+    state % dedA = - state % e / state % abar
+    state % dedZ =   state % e / (ONE + state % zbar)
+
+    ! Sound speed.
+
+    state % cs = sqrt(state % dpdr)
 
   end subroutine actual_eos
 
