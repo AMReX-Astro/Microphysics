@@ -112,65 +112,61 @@ contains
     
     rtol(1:nspec) = 1.d-12 ! mass fractions
 
-    do j = 1, state_in % N
-
-       ! We want VODE to re-initialize each time we call it.
-
-       istate = 1
-
-       ! Initialize work arrays to zero.
-       
-       rwork(:) = ZERO
-       iwork(:) = 0
-
-       ! Set the maximum number of steps allowed (the VODE default is 500).
-       
-       iwork(6) = 150000
-
-       ! Initialize the integration time.
-       
-       local_time = ZERO
-
-       ! Fill in abundances.
-       
-       y(:)  = state_in % xn(j,:)
-
-       ! Call the integration routine.
-       
-       call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-            istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
-            rpar, ipar)
-
-       if (istate < 0) then
-          print *, 'ERROR: integration failed in net'
-          print *, 'istate = ', istate
-          print *, 'time = ', local_time
-          call bl_error("ERROR in burner: integration failed")
-       endif
-
-       ! Store the new mass fractions.
-       state_out % xn(j,:) = max(smallx, min(ONE, y(1:nspec)))    
-
-
-       ! Energy was integrated in the system -- we use this integrated
-       ! energy which contains the reaction energy release.
-
-       state_out % e(j) = state_in % e(j) + &
-                          A_burn * (state_out % xn(j,ifuel_) - state_in % xn(j,ifuel_))
-
-       if (verbose) then
-
-          ! Print out some integration statistics, if desired.
-          
-          print *, 'integration summary: '
-          print *, 'dens: ', state_out % rho(j), ' temp: ', state_out % T(j)
-          print *, 'number of steps taken: ', iwork(11)
-          print *, 'number of f evaluations: ', iwork(12)
-          
-       endif
-
-    enddo
+    ! We want VODE to re-initialize each time we call it.
     
+    istate = 1
+
+    ! Initialize work arrays to zero.
+
+    rwork(:) = ZERO
+    iwork(:) = 0
+
+    ! Set the maximum number of steps allowed (the VODE default is 500).
+
+    iwork(6) = 150000
+
+    ! Initialize the integration time.
+
+    local_time = ZERO
+
+    ! Fill in abundances.
+
+    y(:)  = state_in % xn(:)
+
+    ! Call the integration routine.
+
+    call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
+         rpar, ipar)
+
+    if (istate < 0) then
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', istate
+       print *, 'time = ', local_time
+       call bl_error("ERROR in burner: integration failed")
+    endif
+
+    ! Store the new mass fractions.
+    state_out % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
+
+
+    ! Energy was integrated in the system -- we use this integrated
+    ! energy which contains the reaction energy release.
+
+    state_out % e = state_in % e + &
+         A_burn * (state_out % xn(ifuel_) - state_in % xn(ifuel_))
+
+    if (verbose) then
+
+       ! Print out some integration statistics, if desired.
+
+       print *, 'integration summary: '
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
+       print *, 'number of steps taken: ', iwork(11)
+       print *, 'number of f evaluations: ', iwork(12)
+
+    endif
+
     call bl_deallocate(y)
     call bl_deallocate(atol)
     call bl_deallocate(rtol)

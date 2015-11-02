@@ -123,85 +123,81 @@ contains
     rtol(1:nspec) = 1.d-12  ! mass fractions
     rtol(nspec+1) = 1.d-8   ! temperature
 
-    do j = 1, state_in % N
+    ! We want VODE to re-initialize each time we call it.
     
-       ! We want VODE to re-initialize each time we call it.
-       
-       istate = 1
+    istate = 1
 
-       ! Initialize work arrays to zero.       
-       
-       rwork(:) = ZERO
-       iwork(:) = 0
+    ! Initialize work arrays to zero.       
 
-       ! Set the maximum number of steps allowed (the VODE default is 500).
-       
-       iwork(6) = 15000
+    rwork(:) = ZERO
+    iwork(:) = 0
 
-       ! Initialize the integration time.
-       
-       local_time = ZERO
+    ! Set the maximum number of steps allowed (the VODE default is 500).
 
-       ! Temperature (in units of 10**9).
-       
-       T9 = state_in % T(j) * T2T9
+    iwork(6) = 15000
 
-       ! Abundances are the first nspec values and temperature (T9) is the last.
-       
-       y(1:nspec) = state_in % xn(j,:) / aion(:)
-       y(nspec+1) = T9
+    ! Initialize the integration time.
 
-       ! Set the thermodynamics that are passed via rpar to the RHS routine.
-       
-       rpar(irp_dens) = state_in % rho(j)
-       rpar(irp_T9_eos) = T9
-       rpar(irp_dTcrit) = 1.0d15
-       rpar(irp_cp) = state_in % cp(j)
-       rpar(irp_dhdX:irp_dhdX+nspec-1) = state_in % dhdX(j,:)
+    local_time = ZERO
 
-       ! Only burn if 0.2 < T9 < 2.5 or X(H1) > 0.05.
-       ! The last restriction is a kludge based on the last paragraph of WW81.
-       
-       if ((T9 .gt. 0.2d0 .and. T9 .lt. 2.5d0) .or. state_in % xn(j,ih1) > 0.05d0) then
+    ! Temperature (in units of 10**9).
 
-          ! Call the integration routine.
-          
-          call dvode(f_rhs, NEQ, y, time, dt, ITOL, rtol, atol, ITASK, &
-               istate, IOPT, rwork, LRW, iwork, LIW, jac, &
-               !MF_NUMERICAL_JAC, &
-               MF_ANALYTIC_JAC,&
-               rpar, ipar)
+    T9 = state_in % T * T2T9
 
-          if (istate < 0) then
-             print *, 'ERROR: integration failed in net'
-             print *, 'initial T   = ', state_in % T(j)
-             print *, 'initial rho = ', state_in % rho(j)
-             print *, 'iniitial X  = ', state_in % xn(j,:)
-             print *, 'istate = ', istate
-             print *, 'time = ', local_time
-             print *, 'dt = ', dt
-             print *, 'output state = ', y
-             call bl_error("ERROR in burner: integration failed")
-          endif
+    ! Abundances are the first nspec values and temperature (T9) is the last.
 
-          ! Store the new mass fractions.
-          state_out % xn(j,:) = max(smallx, min(ONE, y(1:nspec) * aion(:)))
+    y(1:nspec) = state_in % xn(:) / aion(:)
+    y(nspec+1) = T9
 
-          ! Update the energy.
-          state_out % e(j) = state_in % e(j) + sum((state_in % xn(j,:) - state_out % xn(j,:)) * ebin(:))
+    ! Set the thermodynamics that are passed via rpar to the RHS routine.
 
-          if (verbose) then
-             ! print out some integration statistics, if desired
-             print *, 'integration summary: '
-             print *, 'dens: ', state_in % rho(j), ' temp: ', state_in % T(j)
-             print *, 'number of steps taken: ', iwork(11)
-             print *, 'number of f evaluations: ', iwork(12)
-          endif
+    rpar(irp_dens) = state_in % rho
+    rpar(irp_T9_eos) = T9
+    rpar(irp_dTcrit) = 1.0d15
+    rpar(irp_cp) = state_in % cp
+    rpar(irp_dhdX:irp_dhdX+nspec-1) = state_in % dhdX(:)
 
+    ! Only burn if 0.2 < T9 < 2.5 or X(H1) > 0.05.
+    ! The last restriction is a kludge based on the last paragraph of WW81.
+
+    if ((T9 .gt. 0.2d0 .and. T9 .lt. 2.5d0) .or. state_in % xn(ih1) > 0.05d0) then
+
+       ! Call the integration routine.
+
+       call dvode(f_rhs, NEQ, y, time, dt, ITOL, rtol, atol, ITASK, &
+            istate, IOPT, rwork, LRW, iwork, LIW, jac, &
+                                !MF_NUMERICAL_JAC, &
+            MF_ANALYTIC_JAC,&
+            rpar, ipar)
+
+       if (istate < 0) then
+          print *, 'ERROR: integration failed in net'
+          print *, 'initial T   = ', state_in % T
+          print *, 'initial rho = ', state_in % rho
+          print *, 'iniitial X  = ', state_in % xn(:)
+          print *, 'istate = ', istate
+          print *, 'time = ', local_time
+          print *, 'dt = ', dt
+          print *, 'output state = ', y
+          call bl_error("ERROR in burner: integration failed")
        endif
 
-    enddo
+       ! Store the new mass fractions.
+       state_out % xn(:) = max(smallx, min(ONE, y(1:nspec) * aion(:)))
 
+       ! Update the energy.
+       state_out % e = state_in % e + sum((state_in % xn(:) - state_out % xn(:)) * ebin(:))
+
+       if (verbose) then
+          ! print out some integration statistics, if desired
+          print *, 'integration summary: '
+          print *, 'dens: ', state_in % rho, ' temp: ', state_in % T
+          print *, 'number of steps taken: ', iwork(11)
+          print *, 'number of f evaluations: ', iwork(12)
+       endif
+
+    endif
+    
   end subroutine actual_burner
 
 
