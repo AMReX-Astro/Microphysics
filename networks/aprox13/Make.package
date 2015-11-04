@@ -1,6 +1,8 @@
 f90EXE_sources += aprox13_network.f90
-f90EXE_sources += aprox13_burner.f90
 f90EXE_sources += network_indices.f90
+
+ifeq ($(USE_REACT),TRUE)
+f90EXE_sources += aprox13_burner.f90
 f90EXE_sources += rates.f90
 f90EXE_sources += rhs.f90
 f90EXE_sources += screen5.f90
@@ -8,3 +10,4 @@ f90EXE_sources += sneut5.f90
 f90EXE_sources += tfactors.f90
 f90EXE_sources += rpar_indices.f90
 f90EXE_sources += f_rhs.f90
+endif
