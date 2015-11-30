@@ -54,7 +54,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use burner_aux_module, only : dens_pass, c_p_pass, dhdx_pass, X_O16_pass
+    use rpar_indices
 
     implicit none
 
@@ -81,10 +81,12 @@ contains
     
     integer, dimension(LIW) :: iwork
   
-    double precision :: rpar
+    double precision, pointer :: rpar(:)    
     integer :: ipar
 
     EXTERNAL jac, f_rhs
+
+    call bl_allocate(rpar, 1, n_rpar_comps)    
     
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
@@ -112,12 +114,12 @@ contains
 
     ! Density, specific heat at constant pressure, c_p, and dhdX are needed
     ! in the righthand side routine, so we will pass these in through the
-    ! burner_aux module.
+    ! rpar functionality.
 
-    dens_pass    = state_in % rho
-    c_p_pass     = state_in % cp
-    dhdx_pass(:) = state_in % dhdX(:)
-    X_O16_pass   = state_in % xn(io16)
+    rpar(irp_dens)                  = state_in % rho
+    rpar(irp_cp)                    = state_in % cp
+    rpar(irp_dhdX:irp_dhdX+nspec-1) = state_in % dhdX(:)
+    rpar(irp_O16)                   = state_in % xn(io16)
 
     ! call the integration routine
     call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
@@ -130,7 +132,6 @@ contains
        print *, 'time = ', integration_time
        call bl_error("ERROR in burner: integration failed")
     endif
-
 
     ! store the new mass fractions -- note, we discard the temperature
     ! here and instead compute the energy release from the binding
