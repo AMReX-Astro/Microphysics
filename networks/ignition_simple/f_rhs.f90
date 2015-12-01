@@ -14,7 +14,7 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
 
   double precision :: ymass(nspec)
 
-  double precision :: rpar(*)
+  double precision :: rpar(n_rpar_comps)
   integer :: ipar
 
   double precision :: t
@@ -126,7 +126,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   implicit none
 
   integer         , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-  double precision, intent(IN   ) :: y(neq), rpar(*), t
+  double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), t
   double precision, intent(  OUT) :: pd(neq,neq)
 
   double precision :: dens, c_p, dhdX(nspec), X_O16
