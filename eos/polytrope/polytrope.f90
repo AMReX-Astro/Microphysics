@@ -30,9 +30,11 @@ module actual_eos_module
 
   character (len=64) :: eos_name = "polytrope"
   
-  double precision :: gamma_const, gm1, K_const
-  double precision :: mu_e
-  integer          :: polytrope
+  double precision, save :: gamma_const, K_const
+  double precision, save :: mu_e
+  integer         , save :: polytrope
+
+  double precision, save :: gm1, polytrope_index
 
 contains
 
@@ -71,6 +73,8 @@ contains
     endif
 
     gm1 = gamma_const - ONE
+
+    polytrope_index = ONE / (gamma_const - ONE)
 
   end subroutine actual_eos_init
 
