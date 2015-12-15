@@ -1,9 +1,13 @@
 ! This is the equation of state for a polytropic fluid:
 ! P = K rho^gamma
 !
-! The internal energy and pressure are related via a gamma law:
+! The internal energy is given by a gamma law:
 !
-! P = (gamma - 1) rho e
+! e = (P / rho) * (1 / (gamma - 1))
+!
+! Unlike the gamma law EOS, e is always a dependent variable
+! that is directly determined by the fluid density. This guarantees
+! that the fluid always obeys the polytropic relationship.
 !
 ! gamma and K are fixed quantities for the run, and must either be
 ! supplied by the user or selected from a list of available options.
@@ -190,8 +194,8 @@ contains
 
        ! Solve for the pressure and enthalpy:
 
-       pres = gm1 * dens * eint
-
+       pres = K_const * dens**gamma_const
+       enth = eint * gamma_const
 
     case (eos_input_ps)
 
@@ -211,8 +215,8 @@ contains
 
        ! Solve for the density and energy:
 
-       eint = enth / gamma_const
-       dens = (pres / K_const)**(ONE / gamma_const)
+       dens = (pres / K_const)**(ONE / gamma_const)       
+       eint = (pres / dens) * ONE / gm1
 
 
 
