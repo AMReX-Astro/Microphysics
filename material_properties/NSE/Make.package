@@ -1,6 +1,2 @@
 
 F90EXE_sources += NSE_data.F90
-F90EXE_sources += NSE_finalAtDens.F90
-F90EXE_sources += NSE_finalAtPres.F90
-F90EXE_sources += NSE_init.F90
-F90EXE_sources += NSE_finalize.F90
