@@ -1,0 +1,8 @@
+# The ignition network is used for the SNIa DDT problem.
+# It defines C-12, O-16, and Ne-22
+
+# name       short name    aion     zion
+ carbon-12      C12         12.0     6.0
+ oxygen-16      O16         16.0     8.0
+ neon-22        Ne22        22.0    10.0
+
