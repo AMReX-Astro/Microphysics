@@ -1,0 +1,41 @@
+Author: Ivo Rolf Seitenzahl 
+Date: 11.Jan.2007
+
+This is the code that generates the file hmq_table.txt. The program calculates for a given electron fraction Y_e, 
+enthalpy minus nuclear binding energy per gram (hmq), and pressure what the temperature, density, proton and neutron chemical 
+potentials are for matter in nuclear statistical equilibrium (NSE) at the same pressure and hmq. Temperature dependent 
+nuclear partition functions are used (Rauscher 2000) and coulomb corrections are included using the fitting form from Chabrier & Potekhin 1998. 
+The code calls the Helmholtz equation of state (Timmes 1999). 
+The solution is found via a 4 dimensional newton-raphson iteration. From the solution the massfractions of nuclei in NSE are derived, 
+and from the massfractions the average binding energy per nucleon, the average proton number per nucleus, the average nucleon number 
+per nucleus are calculated. Using a rate table for weak interactions (Langanke & Martinez-Pinedo 2001) the neutrino energy losses and the 
+instantaneous time rate of change of the electron fraction are calculated.
+The program has 3 nested loops. The outer loops over ye, the middle over pressure and the inner loop over hmq. 
+The name of the output file is specified in nse.f90. The range and spacing of the table is specified in init_eos.f90. I use logarithmic spacing in
+the pressure, and linear spacing for hmq and ye. hmq in init_eos.f90 is in units of 10^18 ergs/g.
+
+ 
+Below is a description of the columns in the table:
+
+column 1: Electron fraction Ye 
+column 2: initial (and final) Pressure [barye]
+column 3: initial (and final) hmq [ergs g^{-1}]
+column 4: final density [g cm^{-3}]
+column 5: final temperature [K]
+column 6: final internal energy [ergs g^{-1}]
+column 7: final binding energy per nucleon [MeV per nucleon]
+column 8: average nucleon number per nucleus
+column 9: average proton number per nucleus
+column10: neutrino and anti-neutrino loss rates [ergs g^{-1}]
+column11: rate of change of electron fraction [s^{-1}]
+column12: %error in pressure (pres_i-pres_f)/pres_i --> measure of accuracy of solution
+column13: integer number of newton-loops started (not iteration per loop) --> measure of quality of inital guess and easy of convergence
+
+This are the first three lines of the table:
+
+!    ye        Pres_i       hmq_i       dens_f      temp_f      Ener_f      Bind_f      Abar_f      Zbar_f       E_dot       Ye_dot      %ErPres     j
+4.40000E-01 7.00000E+23 -4.80000E+18 8.02180E+05 3.38903E+09 2.78860E+18 8.76947E+00 5.74279E+01 2.52683E+01  6.47655E+12  3.64200E-06  3.61989E-06   26
+4.40000E-01 7.00000E+23 -4.85000E+18 8.12672E+05 3.38855E+09 2.74988E+18 8.76948E+00 5.74350E+01 2.52714E+01  6.46018E+12  3.63308E-06 -3.01491E-08    1
+
+The program was designed under time constraints and I am aware that is does not exhibit good programming form and style. If you have any questions,
+try to find me and I'll see if I can help. 
