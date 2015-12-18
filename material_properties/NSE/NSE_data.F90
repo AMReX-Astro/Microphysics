@@ -7,34 +7,27 @@ module NSE_data
   !   H-q enthalpy minus nuclear binding energy, both per gram)
   ! we are gridding interpolation in log pressure, linear in the others
   integer,save  :: p_nYe, nlpres, nhmq
-  real,save :: p_dYe, dlpres, dhmq
-  real, save, dimension(:), allocatable :: p_Ye_grid, lpres_grid, hmq_grid
+  double precision,save :: p_dYe, dlpres, dhmq
+  double precision, save, dimension(:), allocatable :: p_Ye_grid, lpres_grid, hmq_grid
   ! all these are stored as log10s and mYedot is log10(-yedot)
   ! the order of indices is hmq, lpres, ye
   ! this matches the order in the datafile
-  real, save, dimension(:,:,:), allocatable :: p_ltemp_tab, p_lqbar_tab, &
+  double precision, save, dimension(:,:,:), allocatable :: p_ltemp_tab, p_lqbar_tab, &
        p_ledot_tab, p_lmYedot_tab, p_lAbar_tab
 
   ! density table  (independent variables Ye, density,
   !   eint-q internal energy minus nuclear binding energy, both per gram)
   ! we are gridding interpolaton in log density, linear in the others
   integer,save  :: d_nYe, nldens, nemq
-  real,save :: d_dYe, dldens, demq
-  real, save, dimension(:), allocatable :: d_Ye_grid, ldens_grid, emq_grid
+  double precision,save :: d_dYe, dldens, demq
+  double precision, save, dimension(:), allocatable :: d_Ye_grid, ldens_grid, emq_grid
   ! the order of indices is emq, ldens, ye
-  real, save, dimension(:,:,:), allocatable :: d_ltemp_tab, d_lqbar_tab, &
+  double precision, save, dimension(:,:,:), allocatable :: d_ltemp_tab, d_lqbar_tab, &
        d_ledot_tab, d_lmYedot_tab, d_lAbar_tab
 
 contains
 
   subroutine NSE_init()
-
-    use NSE_data, ONLY: nemq, emq_grid, ldens_grid, demq, dldens, nldens, &
-         & d_dYe, d_Ye_grid, d_nYe, &
-         & d_ltemp_tab, d_lqbar_tab, d_ledot_tab, d_lmYedot_tab, d_lAbar_tab, &
-         &  nhmq, hmq_grid, lpres_grid, dhmq, dlpres, nlpres, &
-         & p_dYe, p_Ye_grid, p_nYe, p_ltemp_tab, p_lqbar_tab, p_ledot_tab, &
-         & p_lmYedot_tab, p_lAbar_tab
 
     use bl_error_module
 
@@ -42,8 +35,8 @@ contains
 
     character (len=100),save :: prestablename, denstablename
     integer :: i, j, k, istat
-    real    :: rtemp1, rtemp2, rtemp3, rtemp4, rtemp5
-    real    :: rtemp6, rtemp7, rtemp8, rtemp9
+    double precision    :: rtemp1, rtemp2, rtemp3, rtemp4, rtemp5
+    double precision    :: rtemp6, rtemp7, rtemp8, rtemp9
 
 
     ! get table names
@@ -210,25 +203,21 @@ contains
   
   subroutine NSE_finalAtDens(qbar_nse,sumyi_nse,approxtemp,edot,Yedot, Ye, dens, emq)
 
-    use NSE_data, ONLY: nemq, emq_grid, ldens_grid, demq, dldens, nldens, &
-         & d_dYe, d_Ye_grid, d_nYe, &
-         & d_ltemp_tab, d_lqbar_tab, d_ledot_tab, d_lmYedot_tab, d_lAbar_tab
-
     implicit none
 
-    real, intent(IN) :: Ye, dens, emq
-    real, intent(OUT) :: qbar_nse,sumyi_nse,approxtemp,edot,Yedot
+    double precision, intent(IN) :: Ye, dens, emq
+    double precision, intent(OUT) :: qbar_nse,sumyi_nse,approxtemp,edot,Yedot
 
     integer :: emq_a, ldens_a, Ye_a
 
-    real :: ldens, emq_v
-    real :: te111, te211, te121, te112, te221, te212, te122, te222
-    real :: qb111, qb211, qb121, qb112, qb221, qb212, qb122, qb222
-    real :: ed111, ed211, ed121, ed112, ed221, ed212, ed122, ed222
-    real :: yd111, yd211, yd121, yd112, yd221, yd212, yd122, yd222
-    real :: ab111, ab211, ab121, ab112, ab221, ab212, ab122, ab222
+    double precision :: ldens, emq_v
+    double precision :: te111, te211, te121, te112, te221, te212, te122, te222
+    double precision :: qb111, qb211, qb121, qb112, qb221, qb212, qb122, qb222
+    double precision :: ed111, ed211, ed121, ed112, ed221, ed212, ed122, ed222
+    double precision :: yd111, yd211, yd121, yd112, yd221, yd212, yd122, yd222
+    double precision :: ab111, ab211, ab121, ab112, ab221, ab212, ab122, ab222
 
-    real :: c1, c2, c3, abar
+    double precision :: c1, c2, c3, abar
 
 
     !! find the location in the table grid
@@ -445,25 +434,21 @@ contains
 
   subroutine NSE_finalAtPres(qbar_nse,sumyi_nse,approxtemp,edot,Yedot, Ye, pres, hmq)
 
-    use NSE_data, ONLY: nhmq, hmq_grid, lpres_grid, dhmq, dlpres, nlpres, &
-         & p_dYe, p_Ye_grid, p_nYe, p_ltemp_tab, p_lqbar_tab, p_ledot_tab, &
-         & p_lmYedot_tab, p_lAbar_tab
-
     implicit none
 
-    real, intent(IN)    :: Ye, pres, hmq
-    real, intent(OUT)   :: qbar_nse,sumyi_nse,approxtemp,edot,Yedot
+    double precision, intent(IN)    :: Ye, pres, hmq
+    double precision, intent(OUT)   :: qbar_nse,sumyi_nse,approxtemp,edot,Yedot
 
     integer :: hmq_a, lpres_a, Ye_a
 
-    real :: lpres, hmq_v
-    real :: te111, te211, te121, te112, te221, te212, te122, te222
-    real :: qb111, qb211, qb121, qb112, qb221, qb212, qb122, qb222
-    real :: ed111, ed211, ed121, ed112, ed221, ed212, ed122, ed222
-    real :: yd111, yd211, yd121, yd112, yd221, yd212, yd122, yd222
-    real :: ab111, ab211, ab121, ab112, ab221, ab212, ab122, ab222
+    double precision :: lpres, hmq_v
+    double precision :: te111, te211, te121, te112, te221, te212, te122, te222
+    double precision :: qb111, qb211, qb121, qb112, qb221, qb212, qb122, qb222
+    double precision :: ed111, ed211, ed121, ed112, ed221, ed212, ed122, ed222
+    double precision :: yd111, yd211, yd121, yd112, yd221, yd212, yd122, yd222
+    double precision :: ab111, ab211, ab121, ab112, ab221, ab212, ab122, ab222
 
-    real :: c1, c2, c3, abar
+    double precision :: c1, c2, c3, abar
 
 
     !write (6,*) 'working at ye, pres, hmq', Ye, pres, hmq
@@ -678,8 +663,6 @@ contains
 
 
   subroutine NSE_finalize()
-
-    use NSE_data
 
     implicit none
 
