@@ -259,6 +259,9 @@ contains
     state % dhdT = ZERO
     state % dhdr = state % dedr + gm1 * pres / dens**2
 
+    state % dpde = ZERO
+    state % dpdr_e = gamma_const * pres / dens
+    
     state % cv = state % dedT
     state % cp = gamma_const * state % cv
 
