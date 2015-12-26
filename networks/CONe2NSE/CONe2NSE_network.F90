@@ -59,6 +59,7 @@ contains
                                     pbIgnPhfa, pbIgnDist, pbIgnRad, &
                                     pbIgnSep, pbIgnNumMax
     use bl_constants_module, only: ONE
+    use NSE_data, only: NSE_init
 
     implicit none
 
@@ -209,6 +210,10 @@ contains
     yiion(:) = ONE / aion(:)
     yeion(:) = zion(:) / zion(:)
     qion(:)  = bion(:) / aion(:)
+
+    ! Initialize the NSE data
+
+    call NSE_init()
 
   end subroutine actual_network_init
 
