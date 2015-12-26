@@ -42,7 +42,7 @@ contains
     ! get table names
 
     prestablename = "nse_pres_hmq_table.txt"
-    denstablename = "nse_dens_hmq_table.txt"
+    denstablename = "nse_dens_emq_table.txt"
 
 
     !-------------------------------------------------
