@@ -442,7 +442,7 @@ contains
        pres = state_in % p
        
        flame    = state_in % aux(1) ! UFLAM
-       flamedot = state_in % aux(10) ! UFLDT
+       flamedot = state_in % aux(2) ! UFLDT
        
        ! ! --------------------------------
        ! ! check if we are near a detonation point

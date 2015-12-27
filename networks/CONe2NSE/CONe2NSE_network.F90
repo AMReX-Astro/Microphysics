@@ -3,8 +3,20 @@ module actual_network
   use fundamental_constants_module, only: m_e, m_n, n_A, c_light, m_p      
   
   integer, parameter :: nspec  = 6
-  integer, parameter :: naux   = 10
+  integer, parameter :: naux   = 11
   integer, parameter :: nrates = 0
+
+  integer, parameter :: UFLAM = 1
+  integer, parameter :: UFLDT = 2
+  integer, parameter :: UFLSP = 3
+  integer, parameter :: UCI   = 4
+  integer, parameter :: UNEI  = 5
+  integer, parameter :: UPHFA = 6
+  integer, parameter :: UPHAQ = 7
+  integer, parameter :: UPHQN = 8
+  integer, parameter :: UYE   = 9
+  integer, parameter :: UDYQN = 10
+  integer, parameter :: UDQQN = 11
 
   integer, parameter :: iHe4 = 1
   integer, parameter :: iC12 = 2
@@ -210,6 +222,18 @@ contains
     yiion(:) = ONE / aion(:)
     yeion(:) = zion(:) / zion(:)
     qion(:)  = bion(:) / aion(:)
+
+    short_aux_names(UFLAM) = 'UFLAM'
+    short_aux_names(UFLDT) = 'UFLDT'
+    short_aux_names(UFLSP) = 'UFLSP'
+    short_aux_names(UCI  ) = 'UCI  '
+    short_aux_names(UNEI ) = 'UNEI '
+    short_aux_names(UPHFA) = 'UPHFA'
+    short_aux_names(UPHAQ) = 'UPHAQ'
+    short_aux_names(UPHQN) = 'UPhQN'
+    short_aux_names(UYE  ) = 'UYE  '
+    short_aux_names(UDYQN) = 'UDYQN'
+    short_aux_names(UDQQN) = 'UDQQN'
 
     ! Initialize the NSE data
 
