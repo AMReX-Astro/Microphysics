@@ -178,6 +178,11 @@ contains
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', local_time
+       print *, 'dens = ', state_in % rho
+       print *, 'temp start = ', state_in % T
+       print *, 'xn start = ', state_in % xn
+       print *, 'temp current = ', y(net_itemp)
+       print *, 'xn current = ', y(1:nspec)
        call bl_error("ERROR in burner: integration failed")
     endif
 
