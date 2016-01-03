@@ -26,7 +26,7 @@ contains
     integer                    :: istat
     double precision           :: dx
 
-    double precision :: shock
+    logical :: shock
     double precision :: react_proximity
 
     double precision :: flamewidth
@@ -80,17 +80,19 @@ contains
 
     type (eos_t) :: eos_state
 
+    logical, parameter :: useShockBurn = .false.
+
 100 format("*** igniting at ",f7.5,4(1x,es10.3)," ***")
 
     dx = dx_level(1,amr_level) ! also assume square grid
 
     ! shock detect if burning is turned off in shocks
-    !       if (thermalReact .and. (.NOT. useShockBurn)) then
-    !          call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
-    !               xCoord,yCoord,zCoord)
-    !       else
-    !          shock(:,:,:) = 0
-    !       endif
+    if (thermalReact .and. (.NOT. useShockBurn)) then
+       call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
+            xCoord,yCoord,zCoord)
+    else
+       shock = .false.
+    endif
 
     !  Check for proximity of a reacting region for each cell
     !  this is used to help control thermal burning inside flame
@@ -150,11 +152,11 @@ contains
     ! ! evolve progress variables and update NSE grid quantities
     ! ! --------------------------------
 
-    ! if (shock == 1) then
-    !    qdot = 0.0
-    !    edotnu = 0.0
-    !    return
-    ! endif
+    if (shock) then
+       qdot = 0.0
+       edotnu = 0.0
+       return
+    endif
 
     !--------------------------------------------------------
     ! initialize some information
