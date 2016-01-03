@@ -203,6 +203,9 @@ contains
   
   subroutine NSE_finalAtDens(qbar_nse,sumyi_nse,approxtemp,edot,Yedot, Ye, dens, emq)
 
+    use bl_error_module
+    use bl_constants_module
+
     implicit none
 
     double precision, intent(IN) :: Ye, dens, emq
@@ -219,6 +222,11 @@ contains
 
     double precision :: c1, c2, c3, abar
 
+    ! Safety check
+
+    if (dens < ZERO) then
+       call bl_error("Error: negative density in NSE_finalAtDens")
+    endif
 
     !! find the location in the table grid
     !! remember that we use the log of density
@@ -434,6 +442,9 @@ contains
 
   subroutine NSE_finalAtPres(qbar_nse,sumyi_nse,approxtemp,edot,Yedot, Ye, pres, hmq)
 
+    use bl_error_module
+    use bl_constants_module
+
     implicit none
 
     double precision, intent(IN)    :: Ye, pres, hmq
@@ -450,6 +461,11 @@ contains
 
     double precision :: c1, c2, c3, abar
 
+    ! Safety check
+
+    if (pres < ZERO) then
+       call bl_error("Error: negative pressure in NSE_finalAtPres")
+    endif
 
     !write (6,*) 'working at ye, pres, hmq', Ye, pres, hmq
 
