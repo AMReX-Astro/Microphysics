@@ -88,8 +88,8 @@ contains
 
     ! shock detect if burning is turned off in shocks
     if (thermalReact .and. (.NOT. useShockBurn)) then
-       call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
-            xCoord,yCoord,zCoord)
+       ! call Hydro_detectShock(solnData, shock, blkLimits, blkLimitsGC, (/0,0,0/), &
+       !      xCoord,yCoord,zCoord)
     else
        shock = .false.
     endif
@@ -99,7 +99,7 @@ contains
 
     !  proximity is in units of flame width (rounded up to nearest cell)
     ! no need to sqrt react_proximity because we are comparing to 1.0
-    ! react_proximity = 2.0  ! > 1 supresses reaction in flame
+    react_proximity = 2.0  ! > 1 supresses reaction in flame
 
     ! if (thermalReact) then
     !    maxdi = int(ceiling(flamewidth/dx))
