@@ -27,10 +27,6 @@ contains
     double precision           :: dx
 
     logical :: shock
-    double precision :: react_proximity
-
-    double precision :: flamewidth
-    integer :: ii, jj, kk, maxdi
 
     logical :: ignite_detonation
 
@@ -93,27 +89,6 @@ contains
     else
        shock = .false.
     endif
-
-    !  Check for proximity of a reacting region for each cell
-    !  this is used to help control thermal burning inside flame
-
-    !  proximity is in units of flame width (rounded up to nearest cell)
-    ! no need to sqrt react_proximity because we are comparing to 1.0
-    react_proximity = 2.0  ! > 1 supresses reaction in flame
-
-    ! if (thermalReact) then
-    !    maxdi = int(ceiling(flamewidth/dx))
-    !    do ii = -maxdi, maxdi
-    !       do jj = -maxdi*K2D, maxdi*K2D
-    !          do kk = -maxdi*K3D, maxdi*K3D
-    !             if ( solnData(PHFA_MSCALAR,i+ii,j+jj,k+kk) - solnData(FLAM_MSCALAR,i+ii,j+jj,k+kk) &
-    !                  > thermalReactInFlameThreshold ) then
-    !                react_proximity(i,j,k) = min(react_proximity(i,j,k),dble(ii**2+jj**2+kk**2)/maxdi**2)
-    !             endif
-    !          enddo
-    !       enddo
-    !    enddo
-    ! endif
 
     ! --------------------------------
     ! set up internal energy, flame inputs
@@ -277,7 +252,7 @@ contains
     ! thermal burning.  This prevents flame burning from causing thermal reactions
     ! without outside influence (such as an arriving detonation).
     if (thermalReact .and. &
-         .not. ( flame >= inflame_threshold .and. react_proximity > 1.0 ) ) then
+         .not. ( flame >= inflame_threshold .and. state_in % react_proximity > 1.0 ) ) then
        ! away from flame or in flame near other reactions, use thermal reactions
 
        ! first need a temperature
