@@ -9,6 +9,7 @@ contains
     use eos_module
 !    use Hydro_interface, ONLY : Hydro_detectShock
     use network
+    use detonation_module
     use NSE_data
     use fundamental_constants_module
     use meth_params_module, only: small_temp
