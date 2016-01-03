@@ -98,7 +98,7 @@ contains
     short_aux_names(UNEI ) = 'UNEI '
     short_aux_names(UPHFA) = 'UPHFA'
     short_aux_names(UPHAQ) = 'UPHAQ'
-    short_aux_names(UPHQN) = 'UPhQN'
+    short_aux_names(UPHQN) = 'UPHQN'
     short_aux_names(UYE  ) = 'UYE  '
     short_aux_names(UDYQN) = 'UDYQN'
     short_aux_names(UDQQN) = 'UDQQN'
