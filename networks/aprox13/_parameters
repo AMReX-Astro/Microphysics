@@ -13,3 +13,6 @@ call_eos_in_rhs          logical   .false.
 # remain constant), and if 1, a self-heating burn (temperature/energy
 # evolve with the burning).
 burning_mode             integer   1
+
+# Whether to use an analytical or numerical Jacobian. Numerical by default.
+jacobian                 integer   2

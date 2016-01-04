@@ -19,7 +19,6 @@ module actual_burner_module
   ! differencing.
 
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-  integer, parameter :: MF_JAC = MF_NUMERICAL_JAC
   
   ! Tolerance parameters:
   !
@@ -65,6 +64,7 @@ contains
     use rpar_indices
     use network_indices
     use mempool_module, only: bl_allocate, bl_deallocate
+    use extern_probin_module, only: jacobian
     
     implicit none
 
@@ -81,6 +81,8 @@ contains
     double precision, pointer :: rwork(:)
     integer,          pointer :: iwork(:)
 
+    integer :: MF_JAC
+
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
     
@@ -93,6 +95,14 @@ contains
 
     EXTERNAL jac, f_rhs
 
+    if (jacobian == 1) then ! Analytical
+       MF_JAC = MF_ANALYTIC_JAC
+    else if (jacobian == 2) then ! Numerical
+       MF_JAC = MF_NUMERICAL_JAC
+    else
+       call bl_error("Error: unknown Jacobian mode in aprox13_burner.f90.")
+    endif
+    
     ! Allocate storage for work arrays and for rpar, the
     ! array through which we communicate with VODE from the
     ! RHS routines.

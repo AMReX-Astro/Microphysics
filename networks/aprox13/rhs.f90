@@ -11,7 +11,7 @@ contains
   subroutine aprox13(tt,state,dydt,rates,rateflag)
 
     use actual_burner_module
-    use extern_probin_module, only: do_constant_volume_burn, burning_mode
+    use extern_probin_module, only: do_constant_volume_burn, burning_mode, jacobian
     use network
 
     implicit none
@@ -71,7 +71,7 @@ contains
 
     deriva = .false.
     
-    if (MF_JAC == MF_ANALYTIC_JAC .and. flag > 0) then
+    if (jacobian == 1 .and. flag > 0) then
        deriva = .true.
     endif        
     
