@@ -19,7 +19,8 @@ module actual_burner_module
   ! differencing.
 
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-
+  integer, parameter :: MF_JAC = MF_NUMERICAL_JAC
+  
   ! Tolerance parameters:
   !
   !  itol specifies whether to use an single absolute tolerance for
@@ -169,7 +170,7 @@ contains
     ! Call the integration routine.
 
     call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC,&
          rpar, ipar)
 
 
