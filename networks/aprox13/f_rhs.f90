@@ -86,7 +86,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   use rpar_indices
   use rhs_module
   use eos_module
-  use extern_probin_module, only: call_eos_in_rhs, burning_mode
+  use extern_probin_module, only: call_eos_in_rhs, burning_mode, do_constant_volume_burn
   
   implicit none
 
@@ -174,6 +174,26 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
      enddo
      pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
 
+     ! Temperature Jacobian elements
+     
+     if (do_constant_volume_burn) then
+        
+        ! d(itemp)/d(yi)
+        pd(net_itemp,1:nspec) = pd(net_ienuc,1:nspec) / state % cv
+
+        ! d(itemp)/d(temp)
+        pd(net_itemp,net_itemp) = pd(net_ienuc,net_itemp) / state % cv
+     
+     else
+
+        ! d(itemp)/d(yi)
+        pd(net_itemp,1:nspec) = pd(net_ienuc,1:nspec) / state % cp
+
+        ! d(itemp)/d(temp)
+        pd(net_itemp,net_itemp) = pd(net_ienuc,net_itemp) / state % cp
+
+     endif
+        
   endif
      
 end subroutine jac
