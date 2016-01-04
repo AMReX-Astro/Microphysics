@@ -1364,305 +1364,423 @@ contains
     double precision :: y(NEQ),dfdy(neq,neq)
     double precision :: rate(nrates)
 
+    double precision :: b(30)
+    
     ! he4 jacobian elements
-    dfdy(ihe4,ihe4)  = -1.5d0 * y(ihe4) * y(ihe4) * rate(ir3a) &
-         - y(ic12)  * rate(ircag) &
-         - y(io16)  * rate(iroag) &
-         - y(ine20) * rate(irneag) &
-         - y(img24) * rate(irmgag) &
-         - y(isi28) * rate(irsiag) &
-         - y(is32)  * rate(irsag) &
-         - y(iar36) * rate(irarag) &
-         - y(ica40) * rate(ircaag) &
-         - y(iti44) * rate(irtiag) &
-         - y(icr48) * rate(ircrag) &
-         - y(ife52) * rate(irfeag)
+    ! d(he4)/d(he4)
+    b(1)  = -1.5d0 * y(ihe4) * y(ihe4) * rate(ir3a) 
+    b(2)  = -y(ic12)  * rate(ircag) 
+    b(3)  = -y(io16)  * rate(iroag) 
+    b(4)  = -y(ine20) * rate(irneag) 
+    b(5)  = -y(img24) * rate(irmgag) 
+    b(6)  = -y(isi28) * rate(irsiag) 
+    b(7)  = -y(is32)  * rate(irsag) 
+    b(8)  = -y(iar36) * rate(irarag) 
+    b(9)  = -y(ica40) * rate(ircaag) 
+    b(10) = -y(iti44) * rate(irtiag) 
+    b(11) = -y(icr48) * rate(ircrag) 
+    b(12) = -y(ife52) * rate(irfeag)
+    b(13) = -y(img24) * rate(irmgap) * (1.0d0-rate(irr1)) 
+    b(14) = -y(isi28) * rate(irsiap) * (1.0d0-rate(irs1)) 
+    b(15) = -y(is32)  * rate(irsap)  * (1.0d0-rate(irt1)) 
+    b(16) = -y(iar36) * rate(irarap) * (1.0d0-rate(iru1)) 
+    b(17) = -y(ica40) * rate(ircaap) * (1.0d0-rate(irv1)) 
+    b(18) = -y(iti44) * rate(irtiap) * (1.0d0-rate(irw1)) 
+    b(19) = -y(icr48) * rate(ircrap) * (1.0d0-rate(irx1)) 
+    b(20) = -y(ife52) * rate(irfeap) * (1.0d0-rate(iry1))
+    dfdy(ihe4,ihe4) = sum(b(1:20))
 
-    dfdy(ihe4,ihe4)  = dfdy(ihe4,ihe4) &
-         - y(img24) * rate(irmgap) * (1.0d0-rate(irr1)) &
-         - y(isi28) * rate(irsiap) * (1.0d0-rate(irs1)) &
-         - y(is32) * rate(irsap)   * (1.0d0-rate(irt1)) &
-         - y(iar36) * rate(irarap) * (1.0d0-rate(iru1)) &
-         - y(ica40) * rate(ircaap) * (1.0d0-rate(irv1)) &
-         - y(iti44) * rate(irtiap) * (1.0d0-rate(irw1)) &
-         - y(icr48) * rate(ircrap) * (1.0d0-rate(irx1)) &
-         - y(ife52) * rate(irfeap) * (1.0d0-rate(iry1))
 
-    dfdy(ihe4,ic12)  = y(ic12) * rate(ir1212) &
-         + 0.5d0 * y(io16) * rate(ir1216) &
-         + 3.0d0 * rate(irg3a) &
-         - y(ihe4) * rate(ircag)
+    ! d(he4)/d(c12)
+    b(1) =  y(ic12) * rate(ir1212) 
+    b(2) =  0.5d0 * y(io16) * rate(ir1216) 
+    b(3) =  3.0d0 * rate(irg3a) 
+    b(4) = -y(ihe4) * rate(ircag)
+    dfdy(ihe4,ic12) = sum(b(1:4))
 
-    dfdy(ihe4,io16)  = 0.5d0 * y(ic12) * rate(ir1216) &
-         + 1.12d0 * 0.5d0 * y(io16) * rate(ir1616) &
-         + 0.68d0*rate(irs1)*0.5d0*y(io16)*rate(ir1616) &
-         + rate(iroga) &
-         - y(ihe4) * rate(iroag)
+    ! d(he4)/d(o16)
+    b(1) =  0.5d0 * y(ic12) * rate(ir1216) 
+    b(2) =  1.12d0 * 0.5d0*y(io16) * rate(ir1616) 
+    b(3) =  0.68d0 * rate(irs1) * 0.5d0*y(io16) * rate(ir1616) 
+    b(4) =  rate(iroga) 
+    b(5) = -y(ihe4) * rate(iroag) 
+    dfdy(ihe4,io16) = sum(b(1:5))
 
-    dfdy(ihe4,ine20) =  rate(irnega) &
-         - y(ihe4) * rate(irneag)
+    ! d(he4)/d(ne20)
+    b(1) =  rate(irnega) 
+    b(2) = -y(ihe4) * rate(irneag)
+    dfdy(ihe4,ine20) = sum(b(1:2))
 
-    dfdy(ihe4,img24) =   rate(irmgga) &
-         - y(ihe4) * rate(irmgag) &
-         - y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
+    ! d(he4)/d(mg24)
+    b(1) =  rate(irmgga) 
+    b(2) = -y(ihe4) * rate(irmgag) 
+    b(3) = -y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
+    dfdy(ihe4,img24) = sum(b(1:3))
 
-    dfdy(ihe4,isi28) =   rate(irsiga) &
-         - y(ihe4) * rate(irsiag) &
-         - y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1)) &
-         + rate(irr1) * rate(irsigp)
+    ! d(he4)/d(si28)
+    b(1) =  rate(irsiga) 
+    b(2) = -y(ihe4) * rate(irsiag) 
+    b(3) = -y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1)) 
+    b(4) =  rate(irr1) * rate(irsigp)
+    dfdy(ihe4,isi28) = sum(b(1:4))
 
-    dfdy(ihe4,is32)  =   rate(irsga) &
-         - y(ihe4) * rate(irsag) &
-         - y(ihe4) * rate(irsap) * (1.0d0-rate(irt1)) &
-         + rate(irs1) * rate(irsgp)
+    ! d(he4)/d(s32)
+    b(1) =  rate(irsga) 
+    b(2) = -y(ihe4) * rate(irsag) 
+    b(3) = -y(ihe4) * rate(irsap) * (1.0d0-rate(irt1)) 
+    b(4) =  rate(irs1) * rate(irsgp)
+    dfdy(ihe4,is32) = sum(b(1:4))
 
-    dfdy(ihe4,iar36) =   rate(irarga) &
-         - y(ihe4) * rate(irarag) &
-         - y(ihe4) * rate(irarap) * (1.0d0-rate(iru1)) &
-         + rate(irt1) * rate(irargp)
+    ! d(he4)/d(ar36)
+    b(1)  =  rate(irarga) 
+    b(2)  = -y(ihe4) * rate(irarag) 
+    b(3)  = -y(ihe4) * rate(irarap) * (1.0d0-rate(iru1)) 
+    b(4)  =  rate(irt1) * rate(irargp)
+    dfdy(ihe4,iar36) = sum(b(1:4))
 
-    dfdy(ihe4,ica40) =   rate(ircaga) &
-         - y(ihe4) * rate(ircaag) &
-         - y(ihe4) * rate(ircaap) * (1.0d0-rate(irv1)) &
-         + rate(iru1) * rate(ircagp)
+    ! d(he4)/d(ca40)
+    b(1) =  rate(ircaga) 
+    b(2) = -y(ihe4) * rate(ircaag) 
+    b(3) = -y(ihe4) * rate(ircaap) * (1.0d0-rate(irv1)) 
+    b(4) =  rate(iru1) * rate(ircagp)
+    dfdy(ihe4,ica40) = sum(b(1:4))
 
-    dfdy(ihe4,iti44) =   rate(irtiga) &
-         - y(ihe4) * rate(irtiag) &
-         - y(ihe4) * rate(irtiap) * (1.0d0-rate(irw1)) &
-         + rate(irv1) * rate(irtigp)
+    ! d(he4)/d(ti44)
+    b(1) =  rate(irtiga) 
+    b(2) = -y(ihe4) * rate(irtiag) 
+    b(3) = -y(ihe4) * rate(irtiap) * (1.0d0-rate(irw1)) 
+    b(4) =  rate(irv1) * rate(irtigp)
+    dfdy(ihe4,iti44) = sum(b(1:4))
 
-    dfdy(ihe4,icr48) =   rate(ircrga) &
-         - y(ihe4) * rate(ircrag) &
-         - y(ihe4) * rate(ircrap) * (1.0d0-rate(irx1)) &
-         + rate(irw1) * rate(ircrgp)
+    ! d(he4)/d(cr48)
+    b(1) =  rate(ircrga) 
+    b(2) = -y(ihe4) * rate(ircrag) 
+    b(3) = -y(ihe4) * rate(ircrap) * (1.0d0-rate(irx1)) 
+    b(4) =  rate(irw1) * rate(ircrgp)
+    dfdy(ihe4,icr48) = sum(b(1:4))
 
-    dfdy(ihe4,ife52) =   rate(irfega) &
-         - y(ihe4) * rate(irfeag) &
-         - y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1)) &
-         + rate(irx1) * rate(irfegp)
+    ! d(he4)/d(fe52)
+    b(1) =  rate(irfega) 
+    b(2) = -y(ihe4) * rate(irfeag) 
+    b(3) = -y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1)) 
+    b(4) =  rate(irx1) * rate(irfegp)
+    dfdy(ihe4,ife52) = sum(b(1:4))
 
-    dfdy(ihe4,ini56) =   rate(irniga) &
-         + rate(iry1) * rate(irnigp)
+    ! d(he4)/d(ni56)
+    b(1) = rate(irniga) 
+    b(2) = rate(iry1) * rate(irnigp)
+    dfdy(ihe4,ini56) = sum(b(1:2))
 
 
     ! c12 jacobian elements
-    dfdy(ic12,ihe4) = 0.5d0*y(ihe4)*y(ihe4)*rate(ir3a) &
-         - y(ic12) * rate(ircag)
+    ! d(c12)/d(he4)
+    b(1) =  0.5d0 * y(ihe4) * y(ihe4) * rate(ir3a) 
+    b(2) = -y(ic12) * rate(ircag)
+    dfdy(ic12,ihe4) = sum(b(1:2))
 
-    dfdy(ic12,ic12) = -2.0d0 * y(ic12) * rate(ir1212) &
-         - y(io16) * rate(ir1216) &
-         - rate(irg3a) &
-         - y(ihe4) * rate(ircag)
+    ! d(c12)/d(c12)
+    b(1) = -2.0d0 * y(ic12) * rate(ir1212) 
+    b(2) = -y(io16) * rate(ir1216) 
+    b(3) = -rate(irg3a) 
+    b(4) = -y(ihe4) * rate(ircag) 
+    dfdy(ic12,ic12) = sum(b(1:4))
 
-    dfdy(ic12,io16) = -y(ic12) * rate(ir1216) &
-         + rate(iroga)
+    ! d(c12)/d(o16)
+    b(1) = -y(ic12) * rate(ir1216) 
+    b(2) =  rate(iroga)
+    dfdy(ic12,io16) = sum(b(1:2))
 
 
 
     ! o16 jacobian elements
-    dfdy(io16,ihe4) = y(ic12)*rate(ircag) &
-         - y(io16)*rate(iroag)
+    ! d(o16)/d(he4)
+    b(1) =  y(ic12)*rate(ircag) 
+    b(2) = -y(io16)*rate(iroag)
+    dfdy(io16,ihe4) = sum(b(1:2))
 
-    dfdy(io16,ic12) = -y(io16)*rate(ir1216) &
-         + y(ihe4)*rate(ircag)
+    ! d(o16)/d(c12)
+    b(1) = -y(io16)*rate(ir1216) 
+    b(2) =  y(ihe4)*rate(ircag)
+    dfdy(io16,ic12) = sum(b(1:2))
 
-    dfdy(io16,io16) = -y(ic12) * rate(ir1216) &
-         - 2.0d0 * y(io16) * rate(ir1616) &
-         - y(ihe4) * rate(iroag) &
-         - rate(iroga)
+    ! d(o16)/d(o16)
+    b(1) = -y(ic12) * rate(ir1216) 
+    b(2) = -2.0d0 * y(io16) * rate(ir1616) 
+    b(3) = -y(ihe4) * rate(iroag) 
+    b(4) = -rate(iroga) 
+    dfdy(io16,io16) = sum(b(1:4))
 
+    ! d(o16)/d(ne20)
     dfdy(io16,ine20) = rate(irnega)
 
 
 
     ! ne20 jacobian elements
-    dfdy(ine20,ihe4)  = y(io16) * rate(iroag) &
-         - y(ine20) * rate(irneag)
+    ! d(ne20)/d(he4)
+    b(1) =  y(io16) * rate(iroag) 
+    b(2) = -y(ine20) * rate(irneag) 
+    dfdy(ine20,ihe4) = sum(b(1:2))
 
-    dfdy(ine20,ic12)  = y(ic12) * rate(ir1212)
+    ! d(ne20)/d(c12)
+    dfdy(ine20,ic12) = y(ic12) * rate(ir1212)
 
-    dfdy(ine20,io16)  = y(ihe4) * rate(iroag)
+    ! d(ne20)/d(o16)
+    dfdy(ine20,io16) = y(ihe4) * rate(iroag)
 
-    dfdy(ine20,ine20) = -y(ihe4) * rate(irneag) &
-         - rate(irnega)
+    ! d(ne20)/d(ne20)
+    b(1) = -y(ihe4) * rate(irneag) 
+    b(2) = -rate(irnega)
+    dfdy(ine20,ine20) = sum(b(1:2))
 
+    ! d(ne20)/d(mg24)
     dfdy(ine20,img24) = rate(irmgga)
 
 
-
     ! mg24 jacobian elements
-    dfdy(img24,ihe4)  = y(ine20) * rate(irneag) &
-         -y(img24) * rate(irmgag) &
-         -y(img24) * rate(irmgap) * (1.0d0-rate(irr1))
+    ! d(mg24)/d(he4)
+    b(1) =  y(ine20) * rate(irneag) 
+    b(2) = -y(img24) * rate(irmgag) 
+    b(3) = -y(img24) * rate(irmgap) * (1.0d0-rate(irr1))
+    dfdy(img24,ihe4) = sum(b(1:3))
 
-    dfdy(img24,ic12)  = 0.5d0 * y(io16) * rate(ir1216)
+    ! d(mg24)/d(c12)
+    dfdy(img24,ic12) = 0.5d0 * y(io16) * rate(ir1216)
 
-    dfdy(img24,io16)  = 0.5d0 * y(ic12) * rate(ir1216)
+    ! d(mg24)/d(o16)
+    dfdy(img24,io16) = 0.5d0 * y(ic12) * rate(ir1216)
 
+    ! d(mg24)/d(ne20)
     dfdy(img24,ine20) = y(ihe4) * rate(irneag)
 
-    dfdy(img24,img24) = -y(ihe4) * rate(irmgag) &
-         - rate(irmgga) &
-         - y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
+    ! d(mg24)/d(mg24)
+    b(1) = -y(ihe4) * rate(irmgag) 
+    b(2) = -rate(irmgga) 
+    b(3) = -y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
+    dfdy(img24,img24) = sum(b(1:3))
 
-    dfdy(img24,isi28) = rate(irsiga) &
-         + rate(irr1) * rate(irsigp)
-
+    ! d(mg24)/d(si28)
+    b(1) = rate(irsiga) 
+    b(2) = rate(irr1) * rate(irsigp)
+    dfdy(img24,isi28) = sum(b(1:2))
 
 
     ! si28 jacobian elements
-    dfdy(isi28,ihe4)  = y(img24) * rate(irmgag) &
-         - y(isi28) * rate(irsiag) &
-         + y(img24) * rate(irmgap) * (1.0d0-rate(irr1)) &
-         - y(isi28) * rate(irsiap) * (1.0d0-rate(irs1))
+    ! d(si28)/d(he4)
+    b(1) =  y(img24) * rate(irmgag) 
+    b(2) = -y(isi28) * rate(irsiag) 
+    b(3) =  y(img24) * rate(irmgap) * (1.0d0-rate(irr1)) 
+    b(4) = -y(isi28) * rate(irsiap) * (1.0d0-rate(irs1))
+    dfdy(isi28,ihe4) = sum(b(1:4))
 
-    dfdy(isi28,ic12)  = 0.5d0 * y(io16) * rate(ir1216)
+    ! d(si28)/d(c12)
+    dfdy(isi28,ic12) =  0.5d0 * y(io16) * rate(ir1216)
 
-    dfdy(isi28,io16)  =   0.5d0 * y(ic12) * rate(ir1216) &
-         + 1.12d0 * 0.5d0*y(io16) * rate(ir1616) &
-         + 0.68d0*0.5d0*y(io16)*rate(irs1)*rate(ir1616)
+    ! d(si28)/d(o16)
+    b(1) = 0.5d0 * y(ic12) * rate(ir1216) 
+    b(2) = 1.12d0 * 0.5d0*y(io16) * rate(ir1616) 
+    b(3) = 0.68d0 * 0.5d0*y(io16) * rate(irs1) * rate(ir1616)
+    dfdy(isi28,io16) = sum(b(1:3))
 
-    dfdy(isi28,img24) = y(ihe4) * rate(irmgag) &
-         + y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
+    ! d(si28)/d(mg24)
+    b(1) =  y(ihe4) * rate(irmgag) 
+    b(2) =  y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
+    dfdy(isi28,img24) = sum(b(1:2))
 
-    dfdy(isi28,isi28) = -y(ihe4) * rate(irsiag) &
-         - rate(irsiga) &
-         - rate(irr1) * rate(irsigp) &
-         - y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1))
+    ! d(si28)/d(si28)
+    b(1) =  -y(ihe4) * rate(irsiag) 
+    b(2) = -rate(irsiga) 
+    b(3) = -rate(irr1) * rate(irsigp) 
+    b(4) = -y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1))
+    dfdy(isi28,isi28) = sum(b(1:4))
 
-    dfdy(isi28,is32)  = rate(irsga) &
-         + rate(irs1) * rate(irsgp)
-
+    ! d(si28)/d(s32)
+    b(1) = rate(irsga) 
+    b(2) = rate(irs1) * rate(irsgp)
+    dfdy(isi28,is32) = sum(b(1:2))
 
 
     ! s32 jacobian elements
-    dfdy(is32,ihe4)  = y(isi28) * rate(irsiag) &
-         - y(is32) * rate(irsag) &
-         + y(isi28) * rate(irsiap) * (1.0d0-rate(irs1)) &
-         - y(is32) * rate(irsap) * (1.0d0-rate(irt1))
+    ! d(s32)/d(he4)
+    b(1) =  y(isi28) * rate(irsiag) 
+    b(2) = -y(is32) * rate(irsag) 
+    b(3) =  y(isi28) * rate(irsiap) * (1.0d0-rate(irs1)) 
+    b(4) = -y(is32) * rate(irsap) * (1.0d0-rate(irt1))
+    dfdy(is32,ihe4) = sum(b(1:4))
 
-    dfdy(is32,io16)  = 0.68d0*0.5d0*y(io16)*rate(ir1616)*(1.0d0-rate(irs1)) &
-         + 0.2d0 * 0.5d0*y(io16) * rate(ir1616)
+    ! d(s32)/d(o16)
+    b(1) = 0.68d0*0.5d0*y(io16)*rate(ir1616)*(1.0d0-rate(irs1)) 
+    b(2) = 0.2d0 * 0.5d0*y(io16) * rate(ir1616)
+    dfdy(is32,io16) = sum(b(1:2))
 
-    dfdy(is32,isi28) = y(ihe4) * rate(irsiag) &
-         + y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1))
+    ! d(s32)/d(si28)
+    b(1)  =y(ihe4) * rate(irsiag) 
+    b(2) = y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1))
+    dfdy(is32,isi28) = sum(b(1:2))
 
-    dfdy(is32,is32)  = -y(ihe4) * rate(irsag) &
-         - rate(irsga) &
-         - rate(irs1) * rate(irsgp) &
-         - y(ihe4) * rate(irsap) * (1.0d0-rate(irt1))
+    ! d(s32)/d(s32)
+    b(1) = -y(ihe4) * rate(irsag) 
+    b(2) = -rate(irsga) 
+    b(3) = -rate(irs1) * rate(irsgp) 
+    b(4) = -y(ihe4) * rate(irsap) * (1.0d0-rate(irt1))
+    dfdy(is32,is32) = sum(b(1:4))
 
-    dfdy(is32,iar36) = rate(irarga) &
-         + rate(irt1) * rate(irargp)
+    ! d(s32)/d(ar36)
+    b(1) = rate(irarga) 
+    b(2) = rate(irt1) * rate(irargp)
+    dfdy(is32,iar36) = sum(b(1:2))
 
 
     ! ar36 jacobian elements
-    dfdy(iar36,ihe4)  = y(is32)  * rate(irsag) &
-         - y(iar36) * rate(irarag) &
-         + y(is32)  * rate(irsap) * (1.0d0-rate(irt1)) &
-         - y(iar36) * rate(irarap) * (1.0d0-rate(iru1))
+    ! d(ar36)/d(he4)
+    b(1) =  y(is32)  * rate(irsag) 
+    b(2) = -y(iar36) * rate(irarag) 
+    b(3) =  y(is32)  * rate(irsap) * (1.0d0-rate(irt1)) 
+    b(4) = -y(iar36) * rate(irarap) * (1.0d0-rate(iru1))
+    dfdy(iar36,ihe4) = sum(b(1:4))
 
-    dfdy(iar36,is32)  = y(ihe4) * rate(irsag) &
-         + y(ihe4) * rate(irsap) * (1.0d0-rate(irt1))
+    ! d(ar36)/d(s32)
+    b(1) = y(ihe4) * rate(irsag) 
+    b(2) = y(ihe4) * rate(irsap) * (1.0d0-rate(irt1))
+    dfdy(iar36,is32) = sum(b(1:2))
 
-    dfdy(iar36,iar36) = -y(ihe4) * rate(irarag) &
-         - rate(irarga) &
-         - rate(irt1) * rate(irargp) &
-         - y(ihe4) * rate(irarap) * (1.0d0-rate(iru1))
+    ! d(ar36)/d(ar36)
+    b(1) = -y(ihe4) * rate(irarag) 
+    b(2) = -rate(irarga) 
+    b(3) = -rate(irt1) * rate(irargp) 
+    b(4) = -y(ihe4) * rate(irarap) * (1.0d0-rate(iru1))
+    dfdy(iar36,iar36) = sum(b(1:4))
 
-    dfdy(iar36,ica40) = rate(ircaga) &
-         + rate(ircagp) * rate(iru1)
-
+    ! d(ar36)/d(ca40)
+    b(1) = rate(ircaga) 
+    b(2) = rate(ircagp) * rate(iru1)
+    dfdy(iar36,ica40) = sum(b(1:2))
 
 
     ! ca40 jacobian elements
-    dfdy(ica40,ihe4)   = y(iar36) * rate(irarag) &
-         - y(ica40) * rate(ircaag) &
-         + y(iar36) * rate(irarap)*(1.0d0-rate(iru1)) &
-         - y(ica40) * rate(ircaap)*(1.0d0-rate(irv1))
+    ! d(ca40)/d(he4)
+    b(1)  =  y(iar36) * rate(irarag) 
+    b(2)  = -y(ica40) * rate(ircaag) 
+    b(3)  =  y(iar36) * rate(irarap)*(1.0d0-rate(iru1)) 
+    b(4)  = -y(ica40) * rate(ircaap)*(1.0d0-rate(irv1))
+    dfdy(ica40,ihe4) = sum(b(1:4))
 
-    dfdy(ica40,iar36)  = y(ihe4) * rate(irarag) &
-         + y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
+    ! d(ca40)/d(ar36)
+    b(1) =  y(ihe4) * rate(irarag) 
+    b(2) =  y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
+    dfdy(ica40,iar36) = sum(b(1:2))
 
-    dfdy(ica40,ica40)  = -y(ihe4) * rate(ircaag) &
-         - rate(ircaga) &
-         - rate(ircagp) * rate(iru1) &
-         - y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
+    ! d(ca40)/d(ca40)
+    b(1) = -y(ihe4) * rate(ircaag) 
+    b(2) = -rate(ircaga) 
+    b(3) = -rate(ircagp) * rate(iru1) 
+    b(4) = -y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
+    dfdy(ica40,ica40) = sum(b(1:4))
 
-    dfdy(ica40,iti44)  = rate(irtiga) &
-         + rate(irtigp) * rate(irv1)
+    ! d(ca40)/d(ti44)
+    b(1) = rate(irtiga) 
+    b(2) = rate(irtigp) * rate(irv1)
+    dfdy(ica40,iti44) = sum(b(1:2))
 
 
 
     ! ti44 jacobian elements
-    dfdy(iti44,ihe4)   = y(ica40) * rate(ircaag) &
-         - y(iti44) * rate(irtiag) &
-         + y(ica40) * rate(ircaap)*(1.0d0-rate(irv1)) &
-         - y(iti44) * rate(irtiap)*(1.0d0-rate(irw1))
+    ! d(ti44)/d(he4)
+    b(1) =  y(ica40) * rate(ircaag) 
+    b(2) = -y(iti44) * rate(irtiag) 
+    b(3) =  y(ica40) * rate(ircaap)*(1.0d0-rate(irv1)) 
+    b(4) = -y(iti44) * rate(irtiap)*(1.0d0-rate(irw1))
+    dfdy(iti44,ihe4) = sum(b(1:4))
 
-    dfdy(iti44,ica40)  = y(ihe4) * rate(ircaag) &
-         + y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
+    ! d(ti44)/d(ca40)
+    b(1) =  y(ihe4) * rate(ircaag) 
+    b(2) =  y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
+    dfdy(iti44,ica40) = sum(b(1:2))
 
-    dfdy(iti44,iti44)  = -y(ihe4) * rate(irtiag) &
-         - rate(irtiga) &
-         - rate(irv1) * rate(irtigp) &
-         - y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
+    ! d(ti44)/d(ti44)
+    b(1) = -y(ihe4) * rate(irtiag) 
+    b(2) = -rate(irtiga) 
+    b(3) = -rate(irv1) * rate(irtigp) 
+    b(4) = -y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
+    dfdy(iti44,iti44) = sum(b(1:4))
 
-    dfdy(iti44,icr48)  = rate(ircrga) &
-         + rate(irw1) * rate(ircrgp)
+    ! d(ti44)/d(cr48)
+    b(1) = rate(ircrga) 
+    b(2) = rate(irw1) * rate(ircrgp)
+    dfdy(iti44,icr48) = sum(b(1:2))
 
 
 
     ! cr48 jacobian elements
-    dfdy(icr48,ihe4)  = y(iti44) * rate(irtiag) &
-         - y(icr48) * rate(ircrag) &
-         + y(iti44) * rate(irtiap)*(1.0d0-rate(irw1)) &
-         - y(icr48) * rate(ircrap)*(1.0d0-rate(irx1))
+    ! d(cr48)/d(he4)
+    b(1) =  y(iti44) * rate(irtiag) 
+    b(2) = -y(icr48) * rate(ircrag) 
+    b(3) =  y(iti44) * rate(irtiap)*(1.0d0-rate(irw1)) 
+    b(4) = -y(icr48) * rate(ircrap)*(1.0d0-rate(irx1))
+    dfdy(icr48,ihe4) = sum(b(1:4))
 
-    dfdy(icr48,iti44) = y(ihe4) * rate(irtiag) &
-         + y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
+    ! d(cr48)/d(ti44)
+    b(1) =  y(ihe4) * rate(irtiag) 
+    b(2) =  y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
+    dfdy(icr48,iti44) = sum(b(1:2))
 
-    dfdy(icr48,icr48) = -y(ihe4) * rate(ircrag) &
-         - rate(ircrga) &
-         - rate(irw1) * rate(ircrgp) &
-         - y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
+    ! d(cr48)/d(cr48)
+    b(1) = -y(ihe4) * rate(ircrag) 
+    b(2) = -rate(ircrga) 
+    b(3) = -rate(irw1) * rate(ircrgp) 
+    b(4) = -y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
+    dfdy(icr48,icr48) = sum(b(1:4))
 
-    dfdy(icr48,ife52) = rate(irfega) &
-         + rate(irx1) * rate(irfegp)
+    ! d(cr48)/d(fe52)
+    b(1) = rate(irfega) 
+    b(2) = rate(irx1) * rate(irfegp)
+    dfdy(icr48,ife52) = sum(b(1:2))
 
 
 
     ! fe52 jacobian elements
-    dfdy(ife52,ihe4)  = y(icr48) * rate(ircrag) &
-         - y(ife52) * rate(irfeag) &
-         + y(icr48) * rate(ircrap) * (1.0d0-rate(irx1)) &
-         - y(ife52) * rate(irfeap) * (1.0d0-rate(iry1))
+    ! d(fe52)/d(he4)
+    b(1) =  y(icr48) * rate(ircrag) 
+    b(2) = -y(ife52) * rate(irfeag) 
+    b(3) =  y(icr48) * rate(ircrap) * (1.0d0-rate(irx1)) 
+    b(4) = -y(ife52) * rate(irfeap) * (1.0d0-rate(iry1)) 
+    dfdy(ife52,ihe4) = sum(b(1:4))
 
-    dfdy(ife52,icr48) = y(ihe4) * rate(ircrag) &
-         + y(ihe4) * rate(ircrap) * (1.0d0-rate(irx1))
+    ! d(fe52)/d(cr48)
+    b(1) = y(ihe4) * rate(ircrag) 
+    b(2) = y(ihe4) * rate(ircrap) * (1.0d0-rate(irx1))
+    dfdy(ife52,icr48) = sum(b(1:2))
 
-    dfdy(ife52,ife52) = -y(ihe4) * rate(irfeag) &
-         - rate(irfega) &
-         - rate(irx1) * rate(irfegp) &
-         - y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1))
+    ! d(fe52)/d(fe52)
+    b(1) = -y(ihe4) * rate(irfeag) 
+    b(2) = -rate(irfega) 
+    b(3) = -rate(irx1) * rate(irfegp) 
+    b(4) = -y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1))
+    dfdy(ife52,ife52) = sum(b(1:4))
 
-    dfdy(ife52,ini56) = rate(irniga) &
-         + rate(iry1) * rate(irnigp)
-
+    ! d(fe52)/d(ni56)
+    b(1) = rate(irniga) 
+    b(2) = rate(iry1) * rate(irnigp)
+    dfdy(ife52,ini56) = sum(b(1:2))
 
 
     ! ni56 jacobian elements
-    dfdy(ini56,ihe4)  = y(ife52) * rate(irfeag) &
-         + y(ife52) * rate(irfeap) * (1.0d0-rate(iry1))
+    ! d(ni56)/d(he4)
+    b(1) =  y(ife52) * rate(irfeag) 
+    b(2) =  y(ife52) * rate(irfeap) * (1.0d0-rate(iry1))
+    dfdy(ini56,ihe4) = sum(b(1:2))
 
-    dfdy(ini56,ife52) = y(ihe4) * rate(irfeag) &
-         + y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1))
+    ! d(ni56)/d(fe52)
+    b(1) = y(ihe4) * rate(irfeag) 
+    b(2) = y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1)) 
+    dfdy(ini56,ife52) = sum(b(1:2))
 
-    dfdy(ini56,ini56) = -rate(irniga) &
-         - rate(iry1) * rate(irnigp)
+    ! d(ni56)/d(ni56)
+    b(1) = -rate(irniga) 
+    b(2) = -rate(iry1) * rate(irnigp)
+    dfdy(ini56,ini56) = sum(b(1:2))
 
   end subroutine dfdy_isotopes_aprox13
-  
+
 end module rhs_module
 
 
