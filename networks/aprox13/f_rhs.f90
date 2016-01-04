@@ -179,15 +179,19 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
      if (do_constant_volume_burn) then
         
         ! d(itemp)/d(yi)
-        pd(net_itemp,1:nspec) = pd(net_ienuc,1:nspec) / state % cv
-
+        do j = 1, nspec
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dEdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cv
+        enddo
+           
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdx(:) * pd(net_ienuc,1:nspec) ) ) / state % cv
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cv
      
      else
 
         ! d(itemp)/d(yi)
-        pd(net_itemp,1:nspec) = pd(net_ienuc,1:nspec) / state % cp
+        do j = 1, nspec
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dhdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cp
+        enddo
 
         ! d(itemp)/d(temp)
         pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dhdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cp
