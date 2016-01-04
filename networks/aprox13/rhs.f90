@@ -11,7 +11,7 @@ contains
   subroutine aprox13(tt,state,dydt,rates,rateflag)
 
     use actual_burner_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, burning_mode
     use network
 
     implicit none
@@ -77,36 +77,39 @@ contains
     
     call rhs(state % xn / aion,rates,ratdum,dydt,deriva)
     
-
-    ! Instantaneous energy generation rate
-    call ener_gener_rate(dydt,enuc)
+    if (burning_mode == 1) then
+       
+       ! Instantaneous energy generation rate
+       call ener_gener_rate(dydt,enuc)
     
 
-    ! Get the neutrino losses
-    call sneut5(state % T,state % rho,state % abar,state % zbar, &
-                sneut,dsneutdt,dsneutdd,snuda,snudz)
+       ! Get the neutrino losses
+       call sneut5(state % T,state % rho,state % abar,state % zbar, &
+                   sneut,dsneutdt,dsneutdd,snuda,snudz)
 
-    ! Go from molar fractions back to mass fractions
-    dydt(1:nspec) = dydt(1:nspec) * aion
+       ! Go from molar fractions back to mass fractions
+       dydt(1:nspec) = dydt(1:nspec) * aion
 
-    ! Append the energy equation (this is erg/g/s)
-    dydt(net_ienuc) = enuc - sneut
+       ! Append the energy equation (this is erg/g/s)
+       dydt(net_ienuc) = enuc - sneut
 
-    ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
-    ! evolve :
-    !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
-    ! 
-    ! For constant volume, div{U} = 0, and we evolve:
-    !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
-    !
-    ! See paper III, including Eq. A3 for details.
+       ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
+       ! evolve :
+       !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
+       ! 
+       ! For constant volume, div{U} = 0, and we evolve:
+       !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
+       !
+       ! See paper III, including Eq. A3 for details.
+       
+       if (do_constant_volume_burn) then
+          dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dEdX(:) * dydt(1:nspec))) / state % cv
+       else
+          dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
+       endif
 
-    if (do_constant_volume_burn) then
-       dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dEdX(:) * dydt(1:nspec))) / state % cv
-    else
-       dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
     endif
-
+       
     rates = ratdum
     
   end subroutine aprox13

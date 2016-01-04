@@ -86,7 +86,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   use rpar_indices
   use rhs_module
   use eos_module
-  use extern_probin_module, only: call_eos_in_rhs
+  use extern_probin_module, only: call_eos_in_rhs, burning_mode
   
   implicit none
 
@@ -154,22 +154,26 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   ! Species Jacobian elements with respect to temperature
 
   pd(1:nspec,net_itemp) = ydot(1:nspec)
-  
-  ! Energy generation rate Jacobian elements
 
-  do j = 1, nspec
-     call ener_gener_rate(pd(1:nspec,j),pd(net_ienuc,j))
-  enddo
-  call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
+  if (burning_mode == 1) then
+  
+     ! Energy generation rate Jacobian elements
 
-  ! Account for the thermal neutrino losses
-  call sneut5(state % T,state % rho,state % abar,state % zbar, &
-              sneut,dsneutdt,dsneutdd,snuda,snudz)
-  
-  do j = 1, nspec
-     b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
-     pd(net_ienuc,j) = pd(net_ienuc,j) - b1
-  enddo
-  pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
-  
+     do j = 1, nspec
+        call ener_gener_rate(pd(1:nspec,j),pd(net_ienuc,j))
+     enddo
+     call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
+
+     ! Account for the thermal neutrino losses
+     call sneut5(state % T,state % rho,state % abar,state % zbar, &
+          sneut,dsneutdt,dsneutdd,snuda,snudz)
+
+     do j = 1, nspec
+        b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+        pd(net_ienuc,j) = pd(net_ienuc,j) - b1
+     enddo
+     pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
+
+  endif
+     
 end subroutine jac

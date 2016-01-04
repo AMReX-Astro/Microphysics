@@ -9,3 +9,7 @@ do_constant_volume_burn  logical   .false.
 # is the input to the rate evaluation)
 call_eos_in_rhs          logical   .false.
 
+# Integration mode: if 0, a hydrostatic burn (temperature and density
+# remain constant), and if 1, a self-heating burn (temperature/energy
+# evolve with the burning).
+burning_mode             integer   1
