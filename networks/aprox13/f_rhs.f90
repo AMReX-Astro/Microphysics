@@ -182,7 +182,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
         pd(net_itemp,1:nspec) = pd(net_ienuc,1:nspec) / state % cv
 
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = pd(net_ienuc,net_itemp) / state % cv
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdx(:) * pd(net_ienuc,1:nspec) ) ) / state % cv
      
      else
 
@@ -190,7 +190,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
         pd(net_itemp,1:nspec) = pd(net_ienuc,1:nspec) / state % cp
 
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = pd(net_ienuc,net_itemp) / state % cp
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dhdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cp
 
      endif
         
