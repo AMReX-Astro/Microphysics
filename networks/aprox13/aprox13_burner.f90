@@ -53,10 +53,6 @@ module actual_burner_module
   integer, parameter :: LRW = 22 + 9*NEQ + 2*NEQ**2
   integer, parameter :: LIW = 30 + NEQ
 
-  ! Should we print out diagnostic output after the solve?
-  
-  logical, parameter :: verbose = .false.  
-
 contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
@@ -64,7 +60,7 @@ contains
     use rpar_indices
     use network_indices
     use mempool_module, only: bl_allocate, bl_deallocate
-    use extern_probin_module, only: jacobian
+    use extern_probin_module, only: jacobian, burner_verbose
     
     implicit none
 
@@ -210,7 +206,7 @@ contains
 
     state_out % e = state_in % e + y(net_ienuc)
 
-    if (verbose) then
+    if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
 
