@@ -190,6 +190,7 @@ contains
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', y(net_itemp)
        print *, 'xn current = ', y(1:nspec)
+       print *, 'energy generated = ', y(net_ienuc)
        call bl_error("ERROR in burner: integration failed")
     endif
 
