@@ -23,8 +23,6 @@ contains
     ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
     !           ar36, ca40, ti44, cr48, fe52, ni56
     
-    ! Here the y() that come in are the molar fractions (X/A).
-    
     double precision :: tt
     double precision :: dydt(1:NEQ)
     type (eos_t)     :: state
@@ -76,6 +74,9 @@ contains
     endif        
     
     call rhs(state % xn / aion,rates,ratdum,dydt,deriva)
+
+    ! Go from molar fractions back to mass fractions
+    dydt(1:nspec) = dydt(1:nspec) * aion
     
     if (burning_mode == 1) then
        
@@ -86,9 +87,6 @@ contains
        ! Get the neutrino losses
        call sneut5(state % T,state % rho,state % abar,state % zbar, &
                    sneut,dsneutdt,dsneutdd,snuda,snudz)
-
-       ! Go from molar fractions back to mass fractions
-       dydt(1:nspec) = dydt(1:nspec) * aion
 
        ! Append the energy equation (this is erg/g/s)
        dydt(net_ienuc) = enuc - sneut
