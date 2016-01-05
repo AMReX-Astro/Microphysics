@@ -12,6 +12,8 @@ contains
 
   subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    implicit none
+    
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
     type (tf_t) :: tf
@@ -75,12 +77,13 @@ contains
     drrdt  = (drevdt*term + rev*dtermdt) * 1.0d-9
     !drrdd  = 0.0d0
 
-    return
   end subroutine rate_c12ag
 
 
   subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    implicit none
+    
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
     type (tf_t) :: tf
@@ -176,12 +179,13 @@ contains
     drrdt = (drevdt*term + rev*dtermdt) * 1.0d-9
     !drrdd = 0.0d0
 
-    return
   end subroutine rate_tripalf
 
 
   subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    implicit none
+    
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
     type (tf_t) :: tf
@@ -219,11 +223,12 @@ contains
     drrdt = 0.0d0
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_c12c12
 
 
   subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -282,12 +287,13 @@ contains
     drrdt = 0.0d0
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_c12o16
 
 
   subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    implicit none
+    
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
     type (tf_t) :: tf
@@ -315,11 +321,12 @@ contains
     drrdt = 0.0d0
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_o16o16
 
 
   subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -363,11 +370,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
 
-    return
   end subroutine rate_o16ag
 
 
   subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -436,11 +444,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
 
-    return
   end subroutine rate_ne20ag
 
 
   subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -493,11 +502,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_mg24ag
 
 
   subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -563,11 +573,12 @@ contains
     drrdt = den * dtermdt * 1.0d-9
     !drrdd = term
     
-    return
   end subroutine rate_mg24ap
 
 
   subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -618,11 +629,12 @@ contains
     drrdt = (drevdt*term + rev*dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_al27pg
 
 
   subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -688,11 +700,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
 
-    return
   end subroutine rate_al27pg_old
 
 
   subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -728,11 +741,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
 
-    return
   end subroutine rate_si28ag
 
 
   subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -769,11 +783,12 @@ contains
     drrdt = den * dtermdt * 1.0d-9
     !drrdd = term
     
-    return
   end subroutine rate_si28ap
 
 
   subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -810,11 +825,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_p31pg
 
 
   subroutine rate_s32ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -851,11 +867,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_s32ag
   
 
   subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -892,11 +909,12 @@ contains
     drrdt = den * dtermdt * 1.0d-9
     !drrdd = term
     
-    return
   end subroutine rate_s32ap
 
 
   subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -927,11 +945,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_cl35pg
 
 
   subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -968,11 +987,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_ar36ag
 
 
   subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1009,11 +1029,12 @@ contains
     drrdt = den * dtermdt * 1.0d-9
     !drrdd = term
     
-    return
   end subroutine rate_ar36ap
 
 
   subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1050,11 +1071,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_k39pg
 
 
   subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1091,11 +1113,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_ca40ag
 
 
   subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1132,11 +1155,12 @@ contains
     drrdt = den * dtermdt * 1.0d-9
     !drrdd = term
     
-    return
   end subroutine rate_ca40ap
 
 
   subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1173,11 +1197,12 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_sc43pg
 
 
   subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1214,13 +1239,14 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_ti44ag
 
 
   subroutine rate_ti44ap(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1259,13 +1285,14 @@ contains
     drrdt = den * dtermdt * 1.0d-9
     !drrdd = term
     
-    return
   end subroutine rate_ti44ap
 
 
   subroutine rate_v47pg(tf,den, &
                         fr,dfrdt,dfrdd, &
                         rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1304,13 +1331,14 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_v47pg
 
 
   subroutine rate_cr48ag(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1349,13 +1377,14 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_cr48ag
 
 
   subroutine rate_cr48ap(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1394,13 +1423,14 @@ contains
     drrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
     !drrdd = rev * term
     
-    return
   end subroutine rate_cr48ap
 
 
   subroutine rate_mn51pg(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1439,13 +1469,14 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_mn51pg
 
 
   subroutine rate_fe52ag(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1484,13 +1515,14 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_fe52ag
 
 
   subroutine rate_fe52ap(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1529,13 +1561,14 @@ contains
     drrdt = den * (drevdt*term + rev*dtermdt) * 1.0d-9
     !drrdd = rev * term
     
-    return
   end subroutine rate_fe52ap
   
 
   subroutine rate_co55pg(tf,den, &
                          fr,dfrdt,dfrdd, &
                          rr,drrdt,drrdd)
+
+    implicit none
 
     ! declare the pass
     double precision den, &
@@ -1574,7 +1607,6 @@ contains
     drrdt = (drevdt * term + rev * dtermdt) * 1.0d-9
     !drrdd = 0.0d0
     
-    return
   end subroutine rate_co55pg
 
 end module rates_module
