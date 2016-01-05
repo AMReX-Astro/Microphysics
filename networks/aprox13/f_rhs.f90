@@ -65,7 +65,7 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
      call composition(state)
   endif
 
-  state % xn(:) = max(smallx,min(ONE,state % xn(:)))
+  call normalize_abundances(state)
   
   ! Call the aprox13 routines to get dY/dt and de/dt.
 
