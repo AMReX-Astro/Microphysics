@@ -75,15 +75,14 @@ contains
     
     call rhs(state % xn / aion,rates,ratdum,dydt,deriva)
 
-    ! Go from molar fractions back to mass fractions
-    dydt(1:nspec) = dydt(1:nspec) * aion
-    
     if (burning_mode == 1) then
        
-       ! Instantaneous energy generation rate
-       call ener_gener_rate(dydt,enuc)
-    
+       ! Instantaneous energy generation rate -- this needs molar fractions
+       call ener_gener_rate(dydt,enuc)    
 
+       ! Go from molar fractions back to mass fractions
+       dydt(1:nspec) = dydt(1:nspec) * aion
+    
        ! Get the neutrino losses
        call sneut5(state % T,state % rho,state % abar,state % zbar, &
                    sneut,dsneutdt,dsneutdd,snuda,snudz)
@@ -106,6 +105,10 @@ contains
           dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
        endif
 
+    else
+       ! Go from molar fractions back to mass fractions
+       dydt(1:nspec) = dydt(1:nspec) * aion
+    
     endif
        
     rates = ratdum
