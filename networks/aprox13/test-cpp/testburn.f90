@@ -40,8 +40,12 @@ subroutine do_burn() bind (C)
 
   call eos(eos_input_rt, state_in)
 
+  state_out = state_in
+  
   call actual_burner(state_in, state_out, dt, time)
 
+  call eos(eos_input_re, state_out)
+  
   print *, 'done!'
 
   print *, "rho_out: ", state_out % rho
