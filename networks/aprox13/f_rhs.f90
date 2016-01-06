@@ -69,7 +69,7 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
   
   ! Call the aprox13 routines to get dY/dt and de/dt.
 
-  call aprox13(time,state,ydot,rates,rateflag=0)
+  call aprox13(time,state,ydot,rpar)
 
 end subroutine f_rhs
   
@@ -94,7 +94,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), t
   double precision, intent(  OUT) :: pd(neq,neq)
    
-  double precision :: rates(nrates), ydot(neq)
+  double precision :: rates(nrates), ydot(nspec)
 
   double precision :: b1,sneut,dsneutdt,dsneutdd,snuda,snudz  
 
@@ -104,48 +104,12 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   
   pd(:,:) = ZERO
 
- 
-  ! We are integrating a system of
-  !
-  ! y(1:nspec)   = dX/dt  
-  ! y(net_itemp) = dT/dt
-  ! y(net_ienuc) = denuc/dt
+  ! Get the data from rpar
+
+  ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
   
-  ydot = ZERO
-  
-  ! Several thermodynamic quantities come in via rpar -- note: these
-  ! are evaluated at the start of the integration, so if things change
-  ! dramatically, they will fall out of sync with the current
-  ! thermodynamics.
-  state % rho     = rpar(irp_dens)
-  state % cp      = rpar(irp_cp)
-  state % cv      = rpar(irp_cv)
-  state % xn(:)   = y(1:nspec)
-  state % dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
-  state % dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
-
-  ! Temperature is one of the quantities that we are integrating --
-  ! always use the current T.
-  state % T       = y(net_itemp)
-
-  ! Evaluate the thermodynamics -- if desired.
-  ! Otherwise just do the composition calculations since
-  ! that's needed to construct dY/dt. Then make sure
-  ! the abundances are safe.
-
-  if (call_eos_in_rhs) then
-     call eos(eos_input_rt, state)
-  else
-     call composition(state)
-  endif
-
-  call normalize_abundances(state)
-  
-  ! Call the aprox13 routines to get dY/dt and de/dt.
-  ! We're going to evaluate the RHS using d(rates)/dT
-  ! so that we can get the correct Jacobian elements for temperature.
-
-  call aprox13(t,state,ydot,rates,rateflag=1)
+  ydot = rpar(irp_dydt:irp_dydt+nspec-1)
+  rates = rpar(irp_dratesdt:irp_dratesdt+nrates-1)
   
   ! Species Jacobian elements with respect to other species
   
@@ -153,7 +117,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
   ! Species Jacobian elements with respect to temperature
 
-  pd(1:nspec,net_itemp) = ydot(1:nspec)
+  pd(1:nspec,net_itemp) = ydot
 
   if (burning_mode == 1) then
   

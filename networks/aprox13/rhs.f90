@@ -8,8 +8,9 @@ module rhs_module
 
 contains
 
-  subroutine aprox13(tt,state,dydt,rates,rateflag)
+  subroutine aprox13(tt,state,dydt,rpar)
 
+    use rpar_indices
     use actual_burner_module
     use extern_probin_module, only: do_constant_volume_burn, burning_mode, jacobian
     use network
@@ -26,8 +27,7 @@ contains
     double precision :: tt
     double precision :: dydt(1:NEQ)
     type (eos_t)     :: state
-    double precision :: rates(nrates)
-    integer, optional :: rateflag
+    double precision :: rpar(n_rpar_comps)
     
     ! Local variables
     integer :: i
@@ -52,29 +52,21 @@ contains
                         scfac, dscfacdt, dscfacdd)
     
 
-    ! Get the right hand side of the ODEs
-    if (.not. present(rateflag)) then
-       flag = 0
-    endif    
-    
-    if (flag == 0) then
-       rates = ratdum
-    else if (flag == 1) then
-       rates = dratdumdt
-    else if (flag == 2) then
-       rates = dratdumdd
-    else
-       call bl_error("Error: This rate_flag choice does not exist.")
-    endif
+    ! Get the right hand side of the ODEs. First, we'll do it
+    ! using d(rates)/dT to get the data for the Jacobian and store it.
+    ! Then we'll do it using the normal rates.
 
+    if (jacobian == 1) then
+       deriva = .true.
+       call rhs(state % xn / aion,dratdumdt,ratdum,dydt,deriva)
+       rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec) * aion
+       rpar(irp_dratesdt:irp_dratesdt+nrates-1) = dratdumdt
+    endif
+       
     deriva = .false.
     
-    if (jacobian == 1 .and. flag > 0) then
-       deriva = .true.
-    endif        
+    call rhs(state % xn / aion,ratdum,ratdum,dydt,deriva)
     
-    call rhs(state % xn / aion,rates,ratdum,dydt,deriva)
-
     if (burning_mode == 1) then
        
        ! Instantaneous energy generation rate -- this needs molar fractions
@@ -111,8 +103,6 @@ contains
     
     endif
        
-    rates = ratdum
-    
   end subroutine aprox13
 
 
