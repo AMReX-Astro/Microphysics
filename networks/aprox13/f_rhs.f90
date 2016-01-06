@@ -130,7 +130,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
      ! Account for the thermal neutrino losses
      call sneut5(state % T,state % rho,state % abar,state % zbar, &
-          sneut,dsneutdt,dsneutdd,snuda,snudz)
+                 sneut,dsneutdt,dsneutdd,snuda,snudz)
 
      do j = 1, nspec
         b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
@@ -144,21 +144,21 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
         
         ! d(itemp)/d(yi)
         do j = 1, nspec
-           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dEdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cv
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dEdX(:) * pd(1:nspec,j) ) ) / state % cv
         enddo
            
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cv
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdX(:) * pd(1:nspec,net_itemp) ) ) / state % cv
      
      else
 
         ! d(itemp)/d(yi)
         do j = 1, nspec
-           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dhdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cp
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dhdX(:) * pd(1:nspec,j) ) ) / state % cp
         enddo
 
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dhdX(:) * pd(net_ienuc,1:nspec) ) ) / state % cp
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dhdX(:) * pd(1:nspec,net_itemp) ) ) / state % cp
 
      endif
         
