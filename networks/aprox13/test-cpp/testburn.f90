@@ -26,23 +26,23 @@ subroutine do_burn() bind (C)
   call network_init()
   call eos_init()
 
-  state_in % rho = 1.4210128725795556d7
-  state_in % T = 4.7053584415339775d9
-
-  state_in % xn(ihe4) = 3.4573088050620371d-3
-  state_in % xn(ic12) = 2.8224859252252550d-5
-  state_in % xn(io16) = 1.3939441952623305d-4
-  state_in % xn(ine20) = 5.7447866213696762d-7
-  state_in % xn(img24) = 2.7057281109966992d-4
-  state_in % xn(isi28) = 0.35451909718671237d0
-  state_in % xn(is32) = 0.25344593450184338d0
-  state_in % xn(iar36) = 8.3977223489996505d-2
-  state_in % xn(ica40) = 7.4009021542773307d-2
-  state_in % xn(iti44) = 5.8498004479900112d-4
-  state_in % xn(icr48) = 2.5591436360638212d-3
-  state_in % xn(ife52) = 2.1193774212954306d-2
-  state_in % xn(ini56) = 0.20581475041307201d0
-
+  state_in % rho       = 1.4311401611205835d7
+  state_in % T         = 4.6993994016410122d9
+  
+  state_in % xn(ihe4)  = 4.2717633762309063d-3
+  state_in % xn(ic12)  = 2.4502021307478711d-5
+  state_in % xn(io16)  = 1.2059146851610723d-4
+  state_in % xn(ine20) = 5.4419551339421394d-7
+  state_in % xn(img24) = 2.5178594678377961d-4
+  state_in % xn(isi28) = 3.5998829467937532d-1
+  state_in % xn(is32)  = 2.7075529188304326d-1
+  state_in % xn(iar36) = 9.1747472911892503d-2
+  state_in % xn(ica40) = 8.0560189657331735d-2
+  state_in % xn(iti44) = 6.1369127564250370d-4
+  state_in % xn(icr48) = 2.5528582259065832d-3
+  state_in % xn(ife52) = 1.9491916518179594d-2
+  state_in % xn(ini56) = 1.6962109761781674d-1  
+  
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T
   print *, "X_in: ", state_in % xn
