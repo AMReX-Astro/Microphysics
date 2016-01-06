@@ -95,6 +95,8 @@ contains
 
   function get_tfactors(temp) result(tf)
 
+    implicit none
+    
     ! sets various popular temperature factors into common block this
     ! routine must be called before any of the rates are called
 
@@ -179,7 +181,6 @@ contains
     !tf%t9i38 = tf%t9i18*tf%t9i18*tf%t9i18
     !tf%t9i58 = tf%t9i38*tf%t9i18*tf%t9i18
     
-    return
   end function get_tfactors
 
 end module tfactors_module

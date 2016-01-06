@@ -19,7 +19,7 @@ module actual_burner_module
   ! differencing.
 
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-
+  
   ! Tolerance parameters:
   !
   !  itol specifies whether to use an single absolute tolerance for
@@ -53,10 +53,6 @@ module actual_burner_module
   integer, parameter :: LRW = 22 + 9*NEQ + 2*NEQ**2
   integer, parameter :: LIW = 30 + NEQ
 
-  ! Should we print out diagnostic output after the solve?
-  
-  logical, parameter :: verbose = .false.  
-
 contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
@@ -64,6 +60,7 @@ contains
     use rpar_indices
     use network_indices
     use mempool_module, only: bl_allocate, bl_deallocate
+    use extern_probin_module, only: jacobian, burner_verbose
     
     implicit none
 
@@ -80,6 +77,8 @@ contains
     double precision, pointer :: rwork(:)
     integer,          pointer :: iwork(:)
 
+    integer :: MF_JAC
+
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
     
@@ -92,6 +91,14 @@ contains
 
     EXTERNAL jac, f_rhs
 
+    if (jacobian == 1) then ! Analytical
+       MF_JAC = MF_ANALYTIC_JAC
+    else if (jacobian == 2) then ! Numerical
+       MF_JAC = MF_NUMERICAL_JAC
+    else
+       call bl_error("Error: unknown Jacobian mode in aprox13_burner.f90.")
+    endif
+    
     ! Allocate storage for work arrays and for rpar, the
     ! array through which we communicate with VODE from the
     ! RHS routines.
@@ -169,7 +176,7 @@ contains
     ! Call the integration routine.
 
     call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_NUMERICAL_JAC,&
+         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC,&
          rpar, ipar)
 
 
@@ -178,6 +185,12 @@ contains
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', local_time
+       print *, 'dens = ', state_in % rho
+       print *, 'temp start = ', state_in % T
+       print *, 'xn start = ', state_in % xn
+       print *, 'temp current = ', y(net_itemp)
+       print *, 'xn current = ', y(1:nspec)
+       print *, 'energy generated = ', y(net_ienuc)
        call bl_error("ERROR in burner: integration failed")
     endif
 
@@ -194,12 +207,12 @@ contains
 
     state_out % e = state_in % e + y(net_ienuc)
 
-    if (verbose) then
+    if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, ' energy released: ', y(net_ienuc)
        print *, 'number of steps taken: ', iwork(11)
        print *, 'number of f evaluations: ', iwork(12)
 

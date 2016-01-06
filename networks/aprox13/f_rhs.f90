@@ -22,8 +22,10 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
 
   integer,          intent(IN   ) :: n, ipar
   double precision, intent(IN   ) :: time, y(n)
-  double precision, intent(INOUT) :: rpar(*)
+  double precision, intent(INOUT) :: rpar(n_rpar_comps)
   double precision, intent(  OUT) :: ydot(n)
+
+  double precision :: rates(nrates)
 
   integer :: k
 
@@ -63,30 +65,103 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
      call composition(state)
   endif
 
-  state % xn(:) = max(smallx,min(ONE,state % xn(:)))
+  call normalize_abundances(state)
   
   ! Call the aprox13 routines to get dY/dt and de/dt.
 
-  call aprox13(time,state,ydot)
+  call aprox13(time,state,ydot,rpar)
 
 end subroutine f_rhs
   
 
 
-! Analytical Jacobian. This is simply a placeholder for VODE which we do not use
-! because we are computing the Jacobian numerically.
+! Analytical Jacobian
 
 subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
+  use network, only: nrates, nspec
   use bl_types
   use bl_constants_module, only: ZERO
+  use network_indices
+  use rpar_indices
+  use rhs_module
+  use eos_module
+  use extern_probin_module, only: call_eos_in_rhs, burning_mode, do_constant_volume_burn
   
   implicit none
 
   integer         , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-  double precision, intent(IN   ) :: y(neq), rpar(*), t
+  double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), t
   double precision, intent(  OUT) :: pd(neq,neq)
+   
+  double precision :: rates(nrates), ydot(nspec)
 
+  double precision :: b1,sneut,dsneutdt,dsneutdd,snuda,snudz  
+
+  integer :: i, j
+  
+  type (eos_t) :: state
+  
   pd(:,:) = ZERO
 
+  ! Get the data from rpar
+
+  ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
+  
+  ydot = rpar(irp_dydt:irp_dydt+nspec-1)
+  rates = rpar(irp_dratesdt:irp_dratesdt+nrates-1)
+  
+  ! Species Jacobian elements with respect to other species
+  
+  call dfdy_isotopes_aprox13(y, pd, neq, rates)
+
+  ! Species Jacobian elements with respect to temperature
+
+  pd(1:nspec,net_itemp) = ydot
+
+  if (burning_mode == 1) then
+  
+     ! Energy generation rate Jacobian elements
+
+     do j = 1, nspec
+        call ener_gener_rate(pd(1:nspec,j) / aion,pd(net_ienuc,j))
+     enddo
+     call ener_gener_rate(pd(1:nspec,net_itemp) / aion, pd(net_ienuc,net_itemp))
+
+     ! Account for the thermal neutrino losses
+     call sneut5(state % T,state % rho,state % abar,state % zbar, &
+                 sneut,dsneutdt,dsneutdd,snuda,snudz)
+
+     do j = 1, nspec
+        b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+        pd(net_ienuc,j) = pd(net_ienuc,j) - b1
+     enddo
+     pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
+
+     ! Temperature Jacobian elements
+     
+     if (do_constant_volume_burn) then
+        
+        ! d(itemp)/d(yi)
+        do j = 1, nspec
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dEdX(:) * pd(1:nspec,j) ) ) / state % cv
+        enddo
+           
+        ! d(itemp)/d(temp)
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdX(:) * pd(1:nspec,net_itemp) ) ) / state % cv
+     
+     else
+
+        ! d(itemp)/d(yi)
+        do j = 1, nspec
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dhdX(:) * pd(1:nspec,j) ) ) / state % cp
+        enddo
+
+        ! d(itemp)/d(temp)
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dhdX(:) * pd(1:nspec,net_itemp) ) ) / state % cp
+
+     endif
+        
+  endif
+     
 end subroutine jac

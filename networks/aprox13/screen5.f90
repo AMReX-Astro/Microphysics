@@ -131,22 +131,22 @@
 
        pp       = sqrt(rr*tempi*(z2bar + zbar))
        qq       = 0.5d0/pp *(z2bar + zbar)
-       !dppdt    = qq*rr*dtempi
+       dppdt    = qq*rr*dtempi
        !dppdd    = qq*ytot*tempi
 
        qlam0z   = 1.88d8 * tempi * pp
-       !qlam0zdt = 1.88d8 * (dtempi*pp + tempi*dppdt)
+       qlam0zdt = 1.88d8 * (dtempi*pp + tempi*dppdt)
        !qlam0zdd = 1.88d8 * tempi * dppdd
 
        taufac   = co2 * tempi**x13
-       !taufacdt = -x13*taufac*tempi
+       taufacdt = -x13*taufac*tempi
 
        qq      = rr*zbar
        xni     = qq**x13
        !dxnidd  = x13 * xni * deni
 
        aa     = 2.27493d5 * tempi * xni
-       !daadt  = 2.27493d5 * dtempi * xni
+       daadt  = 2.27493d5 * dtempi * xni
        !daadd  = 2.27493d5 * tempi * dxnidd
 !      end if
 
@@ -154,20 +154,20 @@
 ! calculate individual screening factors
       bb       = z1 * z2
       gamp     = aa
-      !gampdt   = daadt
+      gampdt   = daadt
       !gampdd   = daadd
 
       qq       = fact * bb * zs13inv(jscreen)
       gamef    = qq * gamp
-      !gamefdt  = qq * gampdt
+      gamefdt  = qq * gampdt
       !gamefdd  = qq * gampdd
 
       tau12    = taufac * aznut(jscreen)
-      !tau12dt  = taufacdt * aznut(jscreen)
+      tau12dt  = taufacdt * aznut(jscreen)
 
       qq       = 1.0d0/tau12
       alph12   = gamef * qq
-      !alph12dt = (gamefdt - alph12*tau12dt) * qq
+      alph12dt = (gamefdt - alph12*tau12dt) * qq
       !alph12dd = gamefdd * qq
 
 
@@ -176,16 +176,16 @@
 ! this should really be replaced by a pycnonuclear reaction rate formula
       if (alph12 .gt. 1.6) then
        alph12   = 1.6d0
-       !alph12dt = 0.0d0
+       alph12dt = 0.0d0
        !alph12dd = 0.0d0
 
        gamef    = 1.6d0 * tau12
-       !gamefdt  = 1.6d0 * tau12dt
+       gamefdt  = 1.6d0 * tau12dt
        !gamefdd  = 0.0d0
 
        qq       = zs13(jscreen)/(fact * bb)
        gamp     = gamef * qq
-       !gampdt   = gamefdt * qq
+       gampdt   = gamefdt * qq
        !gampdd   = 0.0d0
       end if
 
@@ -193,11 +193,11 @@
 
 ! weak screening regime
       h12w    = bb * qlam0z
-      !dh12wdt = bb * qlam0zdt
+      dh12wdt = bb * qlam0zdt
       !dh12wdd = bb * qlam0zdd
 
       h12     = h12w
-      !dh12dt  = dh12wdt
+      dh12dt  = dh12wdt
       !dh12dd  = dh12wdd
 
 
@@ -208,7 +208,7 @@
        gamp14   = gamp**x14
        rr       = 1.0d0/gamp
        qq       = 0.25d0*gamp14*rr
-       !gamp14dt = qq * gampdt
+       gamp14dt = qq * gampdt
        !gamp14dd = qq * gampdd
 
        cc       =   0.896434d0 * gamp * zhat(jscreen) &
@@ -216,86 +216,86 @@
                   - 0.5551d0   * (log(gamp) + lzav(jscreen)) &
                   - 2.996d0
 
-       !dccdt    =   0.896434d0 * gampdt * zhat(jscreen) &
-       !           - 3.44740d0  * gamp14dt * zhat2(jscreen) &
-       !           - 0.5551d0*rr*gampdt
+       dccdt    =   0.896434d0 * gampdt * zhat(jscreen) &
+                  - 3.44740d0  * gamp14dt * zhat2(jscreen) &
+                  - 0.5551d0*rr*gampdt
 
-       !dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
-       !           - 3.44740d0  * gamp14dd * zhat2(jscreen) &
-       !           - 0.5551d0*rr*gampdd
+       dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
+                  - 3.44740d0  * gamp14dd * zhat2(jscreen) &
+                  - 0.5551d0*rr*gampdd
 
        a3     = alph12 * alph12 * alph12
-       !da3    = 3.0d0 * alph12 * alph12
+       da3    = 3.0d0 * alph12 * alph12
 
        qq     = 0.014d0 + 0.0128d0*alph12
-       !dqqdt  = 0.0128d0*alph12dt
+       dqqdt  = 0.0128d0*alph12dt
        !dqqdd  = 0.0128d0*alph12dd
 
        rr     = x532 - alph12*qq
-       !drrdt  = -(alph12dt*qq + alph12*dqqdt)
+       drrdt  = -(alph12dt*qq + alph12*dqqdt)
        !drrdd  = -(alph12dd*qq + alph12*dqqdd)
 
        ss     = tau12*rr
-       !dssdt  = tau12dt*rr + tau12*drrdt
+       dssdt  = tau12dt*rr + tau12*drrdt
        !dssdd  = tau12*drrdd
 
        tt     =  -0.0098d0 + 0.0048d0*alph12
-       !dttdt  = 0.0048d0*alph12dt
+       dttdt  = 0.0048d0*alph12dt
        !dttdd  = 0.0048d0*alph12dd
 
        uu     =  0.0055d0 + alph12*tt
-       !duudt  = alph12dt*tt + alph12*dttdt
+       duudt  = alph12dt*tt + alph12*dttdt
        !duudd  = alph12dd*tt + alph12*dttdd
 
        vv   = gamef * alph12 * uu
-       !dvvdt= gamefdt*alph12*uu + gamef*alph12dt*uu + gamef*alph12*duudt
+       dvvdt= gamefdt*alph12*uu + gamef*alph12dt*uu + gamef*alph12*duudt
        !dvvdd= gamefdd*alph12*uu + gamef*alph12dd*uu + gamef*alph12*duudd
 
        h12     = cc - a3 * (ss + vv)
        rr      = da3 * (ss + vv)
-       !dh12dt  = dccdt - rr*alph12dt - a3*(dssdt + dvvdt)
+       dh12dt  = dccdt - rr*alph12dt - a3*(dssdt + dvvdt)
        !dh12dd  = dccdd - rr*alph12dd - a3*(dssdd + dvvdd)
 
        rr     =  1.0d0 - 0.0562d0*a3
        ss     =  -0.0562d0*da3
-       !drrdt  = ss*alph12dt
+       drrdt  = ss*alph12dt
        !drrdd  = ss*alph12dd
 
        if (rr .ge. 0.77d0) then
         xlgfac    = rr
-        !dxlgfacdt = drrdt
+        dxlgfacdt = drrdt
         !dxlgfacdd = drrdd
        else
         xlgfac    = 0.77d0
-        !dxlgfacdt = 0.0d0
+        dxlgfacdt = 0.0d0
         !dxlgfacdd = 0.0d0
        end if
 
 
        h12    = log(xlgfac) + h12
        rr     = 1.0d0/xlgfac
-       !dh12dt = rr*dxlgfacdt + dh12dt
+       dh12dt = rr*dxlgfacdt + dh12dt
        !dh12dd = rr*dxlgfacdd + dh12dd
 
 
        if (gamef .le. gamefs) then
         rr     =  2.0d0*(gamefs - gamef)
-        !drrdt  = -2.0d0*gamefdt
+        drrdt  = -2.0d0*gamefdt
         !drrdd  = -2.0d0*gamefdd
 
         ss     = 2.0d0*(gamef - gamefx)
-        !dssdt  = 2.0d0*gamefdt
+        dssdt  = 2.0d0*gamefdt
         !dssdd  = 2.0d0*gamefdd
 
 
 ! store current values for possible blending
         h12x    = h12
-        !dh12xdt = dh12dt
+        dh12xdt = dh12dt
         !dh12xdd = dh12dd
 
         vv     = h12
         h12    = h12w*rr + vv*ss
-        !dh12dt = dh12wdt*rr + h12w*drrdt + dh12dt*ss + vv*dssdt
+        dh12dt = dh12wdt*rr + h12w*drrdt + dh12dt*ss + vv*dssdt
         !dh12dd = dh12wdd*rr + h12w*drrdd + dh12dd*ss + vv*dssdd
 
 ! blend the transition region - from bill paxton
@@ -304,7 +304,7 @@
          alfa   = 0.5d0 * (1d0 - cos(M_PI*alfa))
          beta   = 1.0d0 - alfa
          h12    = alfa * h12 + beta * h12x
-         !dh12dt = alfa * dh12dt + beta * dh12xdt
+         dh12dt = alfa * dh12dt + beta * dh12xdt
          !dh12dd = alfa * dh12dd + beta * dh12xdd
         end if
        end if
@@ -317,13 +317,13 @@
 ! machine limit the output
       h12    = max(min(h12,300.0d0),0.0d0)
       scor   = exp(h12)
-      !if (h12 .eq. 300.0d0) then
-       !scordt = 0.0d0
+      if (h12 .eq. 300.0d0) then
+         scordt = 0.0d0
        !scordd = 0.0d0
-      !else
-       !scordt = scor * dh12dt
+      else
+         scordt = scor * dh12dt
        !scordd = scor * dh12dd
-      !end if
+      end if
 
 !      write(6,111) 'weak =',h12w,' total =',h12,
 !     1             ' 1-ratio =',1.0d0-h12w/h12,' correction',scor
