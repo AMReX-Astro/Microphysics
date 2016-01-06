@@ -139,7 +139,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
      call composition(state)
   endif
 
-  state % xn(:) = max(smallx,min(ONE,state % xn(:)))
+  call normalize_abundances(state)
   
   ! Call the aprox13 routines to get dY/dt and de/dt.
   ! We're going to evaluate the RHS using d(rates)/dT
