@@ -124,9 +124,9 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
      ! Energy generation rate Jacobian elements
 
      do j = 1, nspec
-        call ener_gener_rate(pd(1:nspec,j),pd(net_ienuc,j))
+        call ener_gener_rate(pd(1:nspec,j) / aion,pd(net_ienuc,j))
      enddo
-     call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
+     call ener_gener_rate(pd(1:nspec,net_itemp) / aion, pd(net_ienuc,net_itemp))
 
      ! Account for the thermal neutrino losses
      call sneut5(state % T,state % rho,state % abar,state % zbar, &
