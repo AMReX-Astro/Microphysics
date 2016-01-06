@@ -10,6 +10,8 @@ subroutine do_burn() bind (C)
 
   type (eos_t) :: state_in, state_out
 
+  double precision :: time = 0.0, dt = 1.0d-6
+  
   call network_init()
   call eos_init()
 
@@ -30,15 +32,23 @@ subroutine do_burn() bind (C)
   state_in % xn(ife52) = 2.1193774212954306d-2
   state_in % xn(ini56) = 0.20581475041307201d0
 
+  print *, "rho_in: ", state_in % rho
+  print *, "T_in: ", state_in % T
+  print *, "X_in: ", state_in % xn
+  
   call normalize_abundances(state_in)
 
   call eos(eos_input_rt, state_in)
 
-  call burner(state_in, state_out, 1.0d-6, 0.0d0)
+  call burner(state_in, state_out, dt, time)
 
   print *, 'done!'
 
-  print *, 'Xout: ', state_out%xn(:)
+  print *, "rho_out: ", state_out % rho
+  print *, "T_out: ", state_out % T
+  print *, "X_out: ", state_out % xn
+
+  print *, "Energy change: ", state_out % e - state_in % e
 
 end subroutine do_burn
 
