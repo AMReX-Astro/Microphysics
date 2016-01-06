@@ -212,7 +212,7 @@ contains
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, ' energy released: ', y(net_ienuc)
        print *, 'number of steps taken: ', iwork(11)
        print *, 'number of f evaluations: ', iwork(12)
 
