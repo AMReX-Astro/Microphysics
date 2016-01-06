@@ -1,3 +1,8 @@
 &extern
 
+  jacobian = 1
+  do_constant_volume_burn = T
+  call_eos_in_rhs = T
+  burning_mode = 1
+
 /
