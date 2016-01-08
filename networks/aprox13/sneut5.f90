@@ -4,7 +4,7 @@
         use bl_constants_module, only: M_PI
         implicit none
 
-! this routine computes neutrino losses from the analytic fits of
+! this routine computes thermal neutrino losses from the analytic fits of
 ! itoh et al. apjs 102, 411, 1996, and also returns their derivatives.
 
 ! input:
@@ -561,7 +561,7 @@
        dd13 = -1.839d9
        dd14 = -1.458d9
        dd15 = -8.956d8
-       dd21 = -1.549d10
+       dd21 = -1.548d10
        dd22 = -9.338d9
        dd23 = -5.899d9
        dd24 = -3.035d9
@@ -694,7 +694,7 @@
       xnum   = 0.666d0*a0**(-2.066d0)
       xnumdt = -2.066d0*xnum/a0 * 2.045d0*xldt
 
-      dum    = 1.875d8*xl + 1.653d8*xl2 + 8.449d8*xl3 - 1.604d8*xl4
+      dum    = 1.875d8*xl + 1.653d8*xl2 + 8.499d8*xl3 - 1.604d8*xl4
       dumdt  = xldt*(1.875d8 + 2.0d0*1.653d8*xl + 3.0d0*8.449d8*xl2 &
                - 4.0d0*1.604d8*xl3)
 

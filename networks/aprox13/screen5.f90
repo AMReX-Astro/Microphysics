@@ -315,9 +315,10 @@
 
 
 ! machine limit the output
-      h12    = max(min(h12,300.0d0),0.0d0)
+! further limit to avoid the pycnonuclear regime
+      h12    = max(min(h12,30.0d0),0.0d0)
       scor   = exp(h12)
-      if (h12 .eq. 300.0d0) then
+      if (h12 .eq. 30.0d0) then
          scordt = 0.0d0
        !scordd = 0.0d0
       else
