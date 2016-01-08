@@ -200,7 +200,7 @@ contains
             + y(isi28) * (ratdum(irsigp) * rate(irr1) + &
             rate(irsigp) * ratdum(irr1)) &
             - y(ihe4)*y(isi28)*(rate(irsiap)*(1.0d0 - ratdum(irs1)) &
-            + ratdum(irsiap)*rate(irs1)) &
+            - ratdum(irsiap)*rate(irs1)) &
             + y(is32)  * (ratdum(irsgp) * rate(irs1) + &
             rate(irsgp) * ratdum(irs1))
        

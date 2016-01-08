@@ -1,6 +1,6 @@
 This is a rewrite of Frank Timmes' aprox13 network.  The aprox13.tbz
-was downloaded from his website on 2013-03-18 (though the Jacobian data
-was downloaded on 2016-01-04).  We want to make it 
+was initially downloaded from his website on 2013-03-18, and we last
+synced with the publi cversion on 2016-01-08. We want to make it 
 (1) threadsafe, (2) use VODE, and (3) work with an SDC methodology.
 
 This version integrates the 13 species equations, a temperature equation
