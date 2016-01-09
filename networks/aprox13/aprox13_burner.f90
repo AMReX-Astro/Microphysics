@@ -62,7 +62,8 @@ contains
     use mempool_module, only: bl_allocate, bl_deallocate
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
-                                    atol_spec, atol_temp, atol_enuc
+                                    atol_spec, atol_temp, atol_enuc, &
+                                    burning_mode
     
     implicit none
 
@@ -178,16 +179,34 @@ contains
 
     rpar(irp_smallx) = smallx
 
+    ! Pass through whether we are doing self-heating.
 
-
+    if (burning_mode == 0 .or. burning_mode == 2) then
+       rpar(irp_self_heat) = -ONE
+    else if (burning_mode == 1) then
+       rpar(irp_self_heat) = ONE
+    else
+       call bl_error("Error: unknown burning_mode in aprox13.")
+    endif
+    
     ! Call the integration routine.
 
     call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC,&
-         rpar, ipar)
+               istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
+    ! If we failed, or are using hybrid burning, re-run this in self-heating mode.
+    
+    if ( (burning_mode == 2 .and. y(net_ienuc) < ZERO) .or. istate < 0) then
 
+       rpar(irp_self_heat) = ONE
+       
+       call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+                 istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+       
+    endif
 
+    ! If we still failed, print out the current state of the integration.
+    
     if (istate < 0) then
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
@@ -203,7 +222,6 @@ contains
 
     ! Store the new mass fractions.
     state_out % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
-
 
     ! Energy was integrated in the system -- we use this integrated
     ! energy which contains both the reaction energy release and

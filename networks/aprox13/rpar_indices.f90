@@ -9,6 +9,7 @@ module rpar_indices
 
   integer :: irp_dens, irp_cv, irp_cp, irp_dedX, irp_dhdX, irp_smallx
   integer :: irp_abar, irp_zbar
+  integer :: irp_self_heat
   integer :: irp_dydt, irp_dratesdt
 
 contains
@@ -40,16 +41,17 @@ contains
     
     integer, intent(in) :: nrates, nspec
 
-    irp_dens     = get_next_rpar_index(1)
-    irp_cp       = get_next_rpar_index(1)
-    irp_dhdX     = get_next_rpar_index(nspec)
-    irp_smallx   = get_next_rpar_index(1)
-    irp_cv       = get_next_rpar_index(1)
-    irp_abar     = get_next_rpar_index(1)
-    irp_zbar     = get_next_rpar_index(1)
-    irp_dedX     = get_next_rpar_index(nspec)
-    irp_dydt     = get_next_rpar_index(nspec)
-    irp_dratesdt = get_next_rpar_index(nrates)
+    irp_dens      = get_next_rpar_index(1)
+    irp_cp        = get_next_rpar_index(1)
+    irp_cv        = get_next_rpar_index(1)
+    irp_abar      = get_next_rpar_index(1)
+    irp_zbar      = get_next_rpar_index(1)
+    irp_smallx    = get_next_rpar_index(1)
+    irp_self_heat = get_next_rpar_index(1)
+    irp_dhdX      = get_next_rpar_index(nspec)
+    irp_dedX      = get_next_rpar_index(nspec)
+    irp_dydt      = get_next_rpar_index(nspec)
+    irp_dratesdt  = get_next_rpar_index(nrates)
 
   end subroutine init_rpar_indices
 

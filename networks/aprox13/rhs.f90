@@ -67,7 +67,7 @@ contains
     
     call rhs(state % xn / aion,ratdum,ratdum,dydt,deriva)
     
-    if (burning_mode == 1) then
+    if (rpar(irp_self_heat) > ZERO) then
        
        ! Instantaneous energy generation rate -- this needs molar fractions
        call ener_gener_rate(dydt,enuc)    

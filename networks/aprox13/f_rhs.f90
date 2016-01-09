@@ -95,7 +95,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   use rpar_indices
   use rhs_module
   use eos_module
-  use extern_probin_module, only: call_eos_in_rhs, burning_mode, do_constant_volume_burn
+  use extern_probin_module, only: do_constant_volume_burn
   
   implicit none
 
@@ -138,7 +138,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
   pd(1:nspec,net_itemp) = ydot
 
-  if (burning_mode == 1) then
+  if (rpar(irp_self_heat) > ZERO) then
   
      ! Energy generation rate Jacobian elements
 
