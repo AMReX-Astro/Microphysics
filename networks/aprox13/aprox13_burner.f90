@@ -169,6 +169,11 @@ contains
 
     rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
 
+    ! These composition quantities are also calculated in the EOS.
+    
+    rpar(irp_abar) = state_in % abar
+    rpar(irp_zbar) = state_in % zbar
+    
     ! This is just used to make sure everything is happy.
 
     rpar(irp_smallx) = smallx

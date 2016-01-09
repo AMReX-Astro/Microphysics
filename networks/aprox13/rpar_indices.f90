@@ -8,6 +8,7 @@ module rpar_indices
   integer :: n_rpar_comps = 0
 
   integer :: irp_dens, irp_cv, irp_cp, irp_dedX, irp_dhdX, irp_smallx
+  integer :: irp_abar, irp_zbar
   integer :: irp_dydt, irp_dratesdt
 
 contains
@@ -44,6 +45,8 @@ contains
     irp_dhdX     = get_next_rpar_index(nspec)
     irp_smallx   = get_next_rpar_index(1)
     irp_cv       = get_next_rpar_index(1)
+    irp_abar     = get_next_rpar_index(1)
+    irp_zbar     = get_next_rpar_index(1)
     irp_dedX     = get_next_rpar_index(nspec)
     irp_dydt     = get_next_rpar_index(nspec)
     irp_dratesdt = get_next_rpar_index(nrates)

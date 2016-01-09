@@ -46,6 +46,8 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
   state % rho     = rpar(irp_dens)
   state % cp      = rpar(irp_cp)
   state % cv      = rpar(irp_cv)
+  state % abar    = rpar(irp_abar)
+  state % zbar    = rpar(irp_zbar)
   state % xn(:)   = y(1:nspec)
   state % dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
   state % dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
@@ -65,6 +67,13 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
      call composition(state)
   endif
 
+  rpar(irp_dhdX:irp_dhdX-1+nspec) = state % dhdX
+  rpar(irp_dedX:irp_dedX-1+nspec) = state % dedX
+  rpar(irp_cp) = state % cp
+  rpar(irp_cv) = state % cv
+  rpar(irp_abar) = state % abar
+  rpar(irp_zbar) = state % zbar
+  
   call normalize_abundances(state)
   
   ! Call the aprox13 routines to get dY/dt and de/dt.
@@ -100,12 +109,22 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
   integer :: i, j
   
-  type (eos_t) :: state
+  double precision :: rho, temp, cv, cp, abar, zbar, dEdX(nspec), dhdX(nspec)
   
   pd(:,:) = ZERO
 
+  rho  = rpar(irp_dens)
+  temp = y(net_itemp)
+  cv   = rpar(irp_cv)
+  cp   = rpar(irp_cp)
+  
   ! Get the data from rpar
 
+  dhdX = rpar(irp_dhdX:irp_dhdX+nspec-1)
+  dEdX = rpar(irp_dEdX:irp_dEdX+nspec-1)
+  abar = rpar(irp_abar)
+  zbar = rpar(irp_zbar)
+  
   ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
   
   ydot = rpar(irp_dydt:irp_dydt+nspec-1)
@@ -129,11 +148,10 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
      call ener_gener_rate(pd(1:nspec,net_itemp) / aion, pd(net_ienuc,net_itemp))
 
      ! Account for the thermal neutrino losses
-     call sneut5(state % T,state % rho,state % abar,state % zbar, &
-                 sneut,dsneutdt,dsneutdd,snuda,snudz)
+     call sneut5(T,rho,abar,zbar,sneut,dsneutdt,dsneutdd,snuda,snudz)
 
      do j = 1, nspec
-        b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+        b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
         pd(net_ienuc,j) = pd(net_ienuc,j) - b1
      enddo
      pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
@@ -144,21 +162,21 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
         
         ! d(itemp)/d(yi)
         do j = 1, nspec
-           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dEdX(:) * pd(1:nspec,j) ) ) / state % cv
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dEdX(:) * pd(1:nspec,j) ) ) / cv
         enddo
            
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dEdX(:) * pd(1:nspec,net_itemp) ) ) / state % cv
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdX(:) * pd(1:nspec,net_itemp) ) ) / cv
      
      else
 
         ! d(itemp)/d(yi)
         do j = 1, nspec
-           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( state % dhdX(:) * pd(1:nspec,j) ) ) / state % cp
+           pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dhdX(:) * pd(1:nspec,j) ) ) / cp
         enddo
 
         ! d(itemp)/d(temp)
-        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( state % dhdX(:) * pd(1:nspec,net_itemp) ) ) / state % cp
+        pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdX(:) * pd(1:nspec,net_itemp) ) ) / cp
 
      endif
         
