@@ -134,28 +134,30 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   
   call dfdy_isotopes_aprox13(y, pd, neq, rates)
 
-  ! Species Jacobian elements with respect to temperature
+  ! Energy generation rate Jacobian elements with respect to species
 
-  pd(1:nspec,net_itemp) = ydot
+  do j = 1, nspec
+     call ener_gener_rate(pd(1:nspec,j) / aion,pd(net_ienuc,j))
+  enddo
 
-  if (rpar(irp_self_heat) > ZERO) then
+  ! Account for the thermal neutrino losses
+
+  call sneut5(T,rho,abar,zbar,sneut,dsneutdt,dsneutdd,snuda,snudz)
+
+  do j = 1, nspec
+     b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
+     pd(net_ienuc,j) = pd(net_ienuc,j) - b1
+  enddo
   
-     ! Energy generation rate Jacobian elements
+  if (rpar(irp_self_heat) > ZERO) then
 
-     do j = 1, nspec
-        call ener_gener_rate(pd(1:nspec,j) / aion,pd(net_ienuc,j))
-     enddo
+     ! Jacobian elements with respect to temperature
+
+     pd(1:nspec,net_itemp) = ydot
+
      call ener_gener_rate(pd(1:nspec,net_itemp) / aion, pd(net_ienuc,net_itemp))
-
-     ! Account for the thermal neutrino losses
-     call sneut5(T,rho,abar,zbar,sneut,dsneutdt,dsneutdd,snuda,snudz)
-
-     do j = 1, nspec
-        b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
-        pd(net_ienuc,j) = pd(net_ienuc,j) - b1
-     enddo
      pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
-
+     
      ! Temperature Jacobian elements
      
      if (do_constant_volume_burn) then

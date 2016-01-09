@@ -66,22 +66,22 @@ contains
     deriva = .false.
     
     call rhs(state % xn / aion,ratdum,ratdum,dydt,deriva)
+
+    ! Instantaneous energy generation rate -- this needs molar fractions
+    call ener_gener_rate(dydt,enuc)
+
+    ! Go from molar fractions back to mass fractions
+    dydt(1:nspec) = dydt(1:nspec) * aion    
+
+    ! Get the neutrino losses
+    call sneut5(state % T,state % rho,state % abar,state % zbar, &
+                sneut,dsneutdt,dsneutdd,snuda,snudz)
+    
+    ! Append the energy equation (this is erg/g/s)
+    dydt(net_ienuc) = enuc - sneut    
     
     if (rpar(irp_self_heat) > ZERO) then
        
-       ! Instantaneous energy generation rate -- this needs molar fractions
-       call ener_gener_rate(dydt,enuc)    
-
-       ! Go from molar fractions back to mass fractions
-       dydt(1:nspec) = dydt(1:nspec) * aion
-    
-       ! Get the neutrino losses
-       call sneut5(state % T,state % rho,state % abar,state % zbar, &
-                   sneut,dsneutdt,dsneutdd,snuda,snudz)
-
-       ! Append the energy equation (this is erg/g/s)
-       dydt(net_ienuc) = enuc - sneut
-
        ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
        ! evolve :
        !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
@@ -97,12 +97,10 @@ contains
           dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
        endif
 
-    else
-       ! Go from molar fractions back to mass fractions
-       dydt(1:nspec) = dydt(1:nspec) * aion
-    
     endif
-       
+
+    
+    
   end subroutine aprox13
 
 
