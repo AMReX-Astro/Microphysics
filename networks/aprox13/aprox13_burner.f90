@@ -75,11 +75,12 @@ contains
 
     ! Work arrays
     
-    double precision, pointer :: y(:)
-    double precision, pointer :: atol(:), rtol(:)
-    double precision, pointer :: rwork(:)
-    integer,          pointer :: iwork(:)
-
+    double precision :: y(NEQ)
+    double precision :: atol(NEQ), rtol(NEQ)
+    double precision :: rwork(LRW)
+    integer          :: iwork(LIW)
+    double precision :: rpar(n_rpar_comps)
+    
     integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
@@ -87,7 +88,6 @@ contains
     
     integer :: istate
     
-    double precision, pointer :: rpar(:)
     integer :: ipar
 
     double precision :: sum
@@ -101,18 +101,6 @@ contains
     else
        call bl_error("Error: unknown Jacobian mode in aprox13_burner.f90.")
     endif
-    
-    ! Allocate storage for work arrays and for rpar, the
-    ! array through which we communicate with VODE from the
-    ! RHS routines.
-    
-    call bl_allocate(y, 1, NEQ)
-    call bl_allocate(atol, 1, NEQ)
-    call bl_allocate(rtol, 1, NEQ)
-    call bl_allocate(rwork, 1, LRW)
-    call bl_allocate(iwork, 1, LIW)
-    call bl_allocate(rpar, 1, n_rpar_comps)
-
     
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
@@ -241,7 +229,7 @@ contains
 
     state_out % xn(:) = y(1:nspec)
     
-    call normalize_abundances(state)
+    call normalize_abundances(state_out)
     
     ! Energy was integrated in the system -- we use this integrated
     ! energy which contains both the reaction energy release and
@@ -262,13 +250,6 @@ contains
        print *, 'number of f evaluations: ', iwork(12)
 
     endif
-
-    call bl_deallocate(y)
-    call bl_deallocate(atol)
-    call bl_deallocate(rtol)
-    call bl_deallocate(rwork)
-    call bl_deallocate(iwork)
-    call bl_deallocate(rpar)
     
   end subroutine actual_burner
 
