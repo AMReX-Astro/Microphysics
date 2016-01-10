@@ -1,6 +1,6 @@
 This is a rewrite of Frank Timmes' aprox13 network.  The aprox13.tbz
 was initially downloaded from his website on 2013-03-18, and we last
-synced with the publi cversion on 2016-01-08. We want to make it 
+synced with the public version on 2016-01-08. We want to make it 
 (1) threadsafe, (2) use VODE, and (3) work with an SDC methodology.
 
 This version integrates the 13 species equations, a temperature equation
@@ -18,8 +18,6 @@ We mainly need from his package the following:
 
   -- final energy generation routine
 
-
-We will use a numerical Jacobian with VODE to make things easier.
 
 In particular, the following routines from the original package 
 are not used:
@@ -45,22 +43,13 @@ Modifications:
     temperature factors.  This way we can eliminate those common
     blocks.
 
- -- screen5 seems to cache the old temperature information to allow it
+ -- screen5 caches the old temperature information to allow it
     to save on recomputing the plasma factors.  This is not
-    threadsafe.
+    threadsafe. We created a derived type to store these factors and
+    fill it once upon entering the screening routine.
 
-    Screening also has init=1 initially and precomputes all of the
-    expensive factors the first time through and then stores these
-    on subsequent calls.  This could be moved to an initialization
-    routine where these are stored in a threadsafe module variable
-
-
-
-other changes:
-
- -- since we are not using the analytic Jacobian, we can get rid of
-    all of those drate... stuff.
-
-
+    We also moved it into a screening module that allowed us to store
+    a number of its variables as module data, which are now computed
+    once at the beginning of the simulation.
 
 We thank Frank for allowing us to redistribute these routines.

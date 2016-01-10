@@ -684,7 +684,7 @@ contains
                             ratdum, dratdumdt, dratdumdd, &
                             scfac, dscfacdt, dscfacdd)
 
-    use screening_module, only: screen5
+    use screening_module, only: screen5, plasma_state, fill_plasma_state
     
     implicit none
     
@@ -711,7 +711,9 @@ contains
                         r1,r1dt,r1dd,s1,s1dt,s1dd,t1,t1dt,t1dd, &
                         u1,u1dt,u1dd,v1,v1dt,v1dd,w1,w1dt,w1dd, &
                         x1,x1dt,x1dd,y1,y1dt,y1dd,zz
-    
+
+    type (plasma_state) :: state
+
     ! initialize
     do i=1,nrates
        ratdum(i)    = ratraw(i)
@@ -723,30 +725,19 @@ contains
     end do
 
 
-    ! always screen
+
+    ! Set up the state data, which is the same for all screening factors.
     
-    ! with the passed composition, compute abar,zbar and other variables
-    zbarxx  = 0.0d0
-    z2barxx = 0.0d0
-    ytot1   = 0.0d0
-    do i=1, nspec
-       ytot1    = ytot1 + y(i)
-       zbarxx   = zbarxx + zion(i) * y(i)
-       z2barxx  = z2barxx + zion(i) * zion(i) * y(i)
-    enddo
-    abar   = 1.0d0/ytot1
-    zbar   = zbarxx * abar
-    z2bar  = z2barxx * abar
+    call fill_plasma_state(state, btemp, bden, y(1:nspec))
+
 
 
     ! first the always fun triple alpha and its inverse
     jscr = 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc2a,sc2adt,sc2add)
+    call screen5(state,jscr,sc2a,sc2adt,sc2add)
 
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
@@ -772,8 +763,7 @@ contains
     ! c12 to o16
     ! c12(a,g)o16
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ircag)     = ratraw(ircag) * sc1a
     dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
@@ -794,8 +784,7 @@ contains
 
     ! c12 + c12
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ratdum(ir1212)    = ratraw(ir1212) * sc1a
@@ -810,8 +799,7 @@ contains
 
     ! c12 + o16
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
@@ -824,8 +812,7 @@ contains
 
     ! o16 + o16
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ratdum(ir1616)    = ratraw(ir1616) * sc1a
@@ -840,8 +827,7 @@ contains
 
     ! o16 to ne20
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! o16(a,g)ne20
@@ -864,8 +850,7 @@ contains
 
     ! ne20 to mg24
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! ne20(a,g)mg24
@@ -889,8 +874,7 @@ contains
 
     ! mg24 to si28
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! mg24(a,g)si28
@@ -930,8 +914,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! al27(p,g)si28
     ratdum(iralpg)    = ratraw(iralpg) * sc1a
@@ -953,8 +936,7 @@ contains
 
     ! si28 to s32
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! si28(a,g)s32
@@ -994,8 +976,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! p31(p,g)s32
     ratdum(irppg)     = ratraw(irppg) * sc1a
@@ -1018,8 +999,7 @@ contains
 
     ! s32 to ar36
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! s32(a,g)ar36
@@ -1058,8 +1038,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! cl35(p,g)ar36
     ratdum(irclpg)    = ratraw(irclpg) * sc1a
@@ -1082,8 +1061,7 @@ contains
 
     ! ar36 to ca40
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! ar36(a,g)ca40
@@ -1123,8 +1101,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! k39(p,g)ca40
     ratdum(irkpg)     = ratraw(irkpg) * sc1a
@@ -1147,8 +1124,7 @@ contains
 
     ! ca40 to ti44
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! ca40(a,g)ti44
@@ -1188,8 +1164,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! sc43(p,g)ti44
     ratdum(irscpg)    = ratraw(irscpg) * sc1a
@@ -1212,8 +1187,7 @@ contains
 
     ! ti44 to cr48
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! ti44(a,g)cr48
@@ -1252,8 +1226,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! v47(p,g)cr48
     ratdum(irvpg)     = ratraw(irvpg) * sc1a
@@ -1276,8 +1249,7 @@ contains
 
     ! cr48 to fe52
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! cr48(a,g)fe52
@@ -1317,8 +1289,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! mn51(p,g)fe52
     ratdum(irmnpg)    = ratraw(irmnpg) * sc1a
@@ -1341,8 +1312,7 @@ contains
 
     ! fe52 to ni56
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! fe52(a,g)ni56
@@ -1382,8 +1352,7 @@ contains
 
 
     jscr = jscr + 1
-    call screen5(btemp,bden,zbar,abar,z2bar, &
-                 jscr,sc1a,sc1adt,sc1add)
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
 
     ! co55(p,g)ni56

@@ -5,7 +5,7 @@ module screening_module
   implicit none
 
   private
-  public screen5, add_screening_factor, screening_init
+  public screen5, add_screening_factor, screening_init, plasma_state, fill_plasma_state
   
   integer, parameter :: nscreen_max = 2 * nrates + 40
   integer, save      :: nscreen = 0
@@ -38,6 +38,21 @@ module screening_module
   double precision, save :: zhat2(nscreen_max)
   double precision, save :: lzav(nscreen_max)
   double precision, save :: aznut(nscreen_max)
+
+  type :: plasma_state
+
+     double precision :: qlam0z
+     double precision :: qlam0zdt
+     double precision :: qlam0zdd
+
+     double precision :: taufac
+     double precision :: taufacdt
+
+     double precision :: aa
+     double precision :: daadt
+     double precision :: daadd
+
+  end type plasma_state
   
 contains
 
@@ -80,9 +95,58 @@ contains
   end subroutine add_screening_factor
 
 
+  subroutine fill_plasma_state(state, temp, dens, y)
 
-  subroutine screen5(temp,den,zbar,abar,z2bar, &
-                     jscreen,scor,scordt,scordd)
+    use network, only: nspec, zion
+
+    implicit none
+
+    ! Input variables
+
+    type (plasma_state) :: state
+    double precision :: temp, dens, y(nspec)
+
+    ! Local variables
+
+    double precision :: abar, zbar, z2bar
+    double precision :: ytot, rr, tempi, dtempi, deni
+    double precision :: pp, qq, dppdt, dppdd, xni
+
+    abar   = 1.0d0 / sum(y)
+    zbar   = sum(zion * y) * abar
+    z2bar  = sum(zion**2 * y) * abar    
+    
+    ytot             = 1.0d0 / abar
+    rr               = dens * ytot
+    tempi            = 1.0d0 / temp
+    dtempi           = -tempi * tempi
+    deni             = 1.0d0 / dens
+
+    pp               = sqrt(rr*tempi*(z2bar + zbar))
+    qq               = 0.5d0/pp *(z2bar + zbar)
+    dppdt            = qq*rr*dtempi
+    !dppdd            = qq * ytot * tempi
+
+    state % qlam0z   = 1.88d8 * tempi * pp
+    state % qlam0zdt = 1.88d8 * (dtempi*pp + tempi*dppdt)
+    !state % qlam0zdd = 1.88d8 * tempi * dppdd
+
+    state % taufac   = co2 * tempi**x13
+    state % taufacdt = -x13 * state % taufac * tempi
+
+    qq               = rr * zbar
+    xni              = qq**x13
+    !dxnidd           = x13 * xni * deni
+
+    state % aa       = 2.27493d5 * tempi * xni
+    state % daadt    = 2.27493d5 * dtempi * xni
+    !state % daadd    = 2.27493d5 * tempi * dxnidd
+
+  end subroutine fill_plasma_state
+
+
+
+  subroutine screen5(state,jscreen,scor,scordt,scordd)
 
     use bl_constants_module, only: M_PI
 
@@ -96,13 +160,7 @@ contains
     ! screening.
 
     ! input:
-    ! temp    = temperature
-    ! den     = density
-    ! zbar    = mean charge per nucleus
-    ! abar    = mean number of nucleons per nucleus
-    ! z2bar   = mean square charge per nucleus
-    ! z1 a1   = charge and number in the entrance channel
-    ! z2 a2   = charge and number in the exit channel
+    ! state   = plasma state (T, rho, abar, zbar, etc.)
     ! jscreen = counter of which reaction is being calculated
 
     ! output:
@@ -112,16 +170,18 @@ contains
 
 
     ! declare the pass        
-    integer          :: jscreen
-    double precision :: temp,den,zbar,abar,z2bar,z1,a1,z2,a2, &
-                        scor,scordt,scordd
+    integer             :: jscreen
+    type (plasma_state) :: state
+    double precision    :: scor, scordt, scordd
 
 
     ! local variables
+    double precision :: z1, a1, z2, a2
+    
     double precision :: aa,daadt,daadd,bb,cc,dccdt,dccdd, &
                         pp,dppdt,dppdd,qq,dqqdt,dqqdd,rr,drrdt,drrdd, &
                         ss,dssdt,dssdd,tt,dttdt,dttdd,uu,duudt,duudd, &
-                        vv,dvvdt,dvvdd,a3,da3,tempi,dtempi,deni, &
+                        vv,dvvdt,dvvdd,a3,da3, &
                         qlam0z,qlam0zdt,qlam0zdd, &
                         h12w,dh12wdt,dh12wdd,h12,dh12dt,dh12dd, &
                         h12x,dh12xdt,dh12xdd,alfa,beta, &
@@ -129,75 +189,28 @@ contains
                         gamef,gamefdt,gamefdd, &
                         tau12,tau12dt,alph12,alph12dt,alph12dd, &
                         xlgfac,dxlgfacdt,dxlgfacdd, &
-                        gamp14,gamp14dt,gamp14dd, &
-                        xni,dxnidd,ytot, &
-                        temp_old,den_old,zbar_old,abar_old
-    
-    !      data     temp_old/-1.0d0/, den_old/-1.0d0/, &
-    !               zbar_old/-1.0d0/, abar_old/-1.0d0/
+                        gamp14,gamp14dt,gamp14dd
 
+    ! Get the ion data based on the input index
+    
     z1 = z1scr(jscreen)
     a1 = a1scr(jscreen)
     z2 = z2scr(jscreen)
     a2 = a2scr(jscreen)
 
-    ! MZ: caching this stuff is not threadsafe.  We should create a
-    ! derived type to hold the plasma parameters and fill it once in the
-    ! routine that calls the screening for each rate (since they all have
-    ! the same T and rho)
-
-    ! calculate average plasma, if need be
-    !      if (temp_old .ne. temp .or. &
-    !          den_old  .ne. den  .or. &
-    !          zbar_old  .ne. zbar  .or. &
-    !          abar_old  .ne. abar ) then
-
-    !       temp_old = temp
-    !       den_old  = den
-    !       zbar_old  = zbar
-    !       abar_old  = abar
-
-    ytot     = 1.0d0/abar
-    rr       = den * ytot
-    tempi   = 1.0d0/temp
-    dtempi  = -tempi*tempi
-    deni    = 1.0d0/den
-
-    pp       = sqrt(rr*tempi*(z2bar + zbar))
-    qq       = 0.5d0/pp *(z2bar + zbar)
-    dppdt    = qq*rr*dtempi
-    !dppdd    = qq*ytot*tempi
-
-    qlam0z   = 1.88d8 * tempi * pp
-    qlam0zdt = 1.88d8 * (dtempi*pp + tempi*dppdt)
-    !qlam0zdd = 1.88d8 * tempi * dppdd
-
-    taufac   = co2 * tempi**x13
-    taufacdt = -x13*taufac*tempi
-
-    qq      = rr*zbar
-    xni     = qq**x13
-    !dxnidd  = x13 * xni * deni
-
-    aa     = 2.27493d5 * tempi * xni
-    daadt  = 2.27493d5 * dtempi * xni
-    !daadd  = 2.27493d5 * tempi * dxnidd
-    !      end if
-
-
     ! calculate individual screening factors
     bb       = z1 * z2
-    gamp     = aa
-    gampdt   = daadt
-    !gampdd   = daadd
+    gamp     = state % aa
+    gampdt   = state % daadt
+    !gampdd   = state % daadd
 
     qq       = fact * bb * zs13inv(jscreen)
     gamef    = qq * gamp
     gamefdt  = qq * gampdt
     !gamefdd  = qq * gampdd
 
-    tau12    = taufac * aznut(jscreen)
-    tau12dt  = taufacdt * aznut(jscreen)
+    tau12    = state % taufac * aznut(jscreen)
+    tau12dt  = state % taufacdt * aznut(jscreen)
 
     qq       = 1.0d0/tau12
     alph12   = gamef * qq
@@ -226,8 +239,8 @@ contains
 
 
     ! weak screening regime
-    h12w    = bb * qlam0z
-    dh12wdt = bb * qlam0zdt
+    h12w    = bb * state % qlam0z
+    dh12wdt = bb * state % qlam0zdt
     !dh12wdd = bb * qlam0zdd
 
     h12     = h12w
