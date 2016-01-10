@@ -12,7 +12,7 @@ contains
 
     use rpar_indices
     use actual_burner_module
-    use extern_probin_module, only: do_constant_volume_burn, burning_mode, jacobian
+    use extern_probin_module, only: do_constant_volume_burn, jacobian
     use network
 
     implicit none
@@ -675,9 +675,8 @@ contains
          ratraw(ircopg),dratrawdt(ircopg),dratrawdd(ircopg), &
          ratraw(irnigp),dratrawdt(irnigp),dratrawdd(irnigp))
     
-    
-    return
   end subroutine aprox13rat
+
 
 
   subroutine screen_aprox13(btemp, bden, y, &
@@ -685,6 +684,8 @@ contains
                             ratdum, dratdumdt, dratdumdd, &
                             scfac, dscfacdt, dscfacdd)
 
+    use screening_module, only: screen5
+    
     implicit none
     
     ! this routine computes the screening factors
@@ -701,22 +702,16 @@ contains
 
     
     ! local variables
-    integer          i,jscr
-    double precision sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
-         sc3a,sc3adt,sc3add
+    integer          :: i, jscr
+    double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
+                        sc3a,sc3adt,sc3add
     
-    double precision abar,zbar,z2bar,ytot1,zbarxx,z2barxx, &
-                     denom,denomdt,denomdd, &
-                     r1,r1dt,r1dd,s1,s1dt,s1dd,t1,t1dt,t1dd, &
-                     u1,u1dt,u1dd,v1,v1dt,v1dd,w1,w1dt,w1dd, &
-                     x1,x1dt,x1dd,y1,y1dt,y1dd,zz
+    double precision :: abar,zbar,z2bar,ytot1,zbarxx,z2barxx, &
+                        denom,denomdt,denomdd, &
+                        r1,r1dt,r1dd,s1,s1dt,s1dd,t1,t1dt,t1dd, &
+                        u1,u1dt,u1dd,v1,v1dt,v1dd,w1,w1dt,w1dd, &
+                        x1,x1dt,x1dd,y1,y1dt,y1dd,zz
     
-    ! this flag controls whether screen5 caches the Z factors for
-    ! subsequent calls.  For now, we disable it, but later, we should
-    ! figure out a threadsafe way to do it.
-    integer, parameter :: init = 1
-
-
     ! initialize
     do i=1,nrates
        ratdum(i)    = ratraw(i)
@@ -747,13 +742,11 @@ contains
     ! first the always fun triple alpha and its inverse
     jscr = 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ihe4),aion(ihe4),4.0d0,8.0d0, &
-                 jscr,init,sc2a,sc2adt,sc2add)
+                 jscr,sc2a,sc2adt,sc2add)
 
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
@@ -780,8 +773,7 @@ contains
     ! c12(a,g)o16
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ic12),aion(ic12),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ircag)     = ratraw(ircag) * sc1a
     dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
@@ -803,8 +795,7 @@ contains
     ! c12 + c12
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ic12),aion(ic12),zion(ic12),aion(ic12), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ratdum(ir1212)    = ratraw(ir1212) * sc1a
@@ -820,8 +811,7 @@ contains
     ! c12 + o16
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ic12),aion(ic12),zion(io16),aion(io16), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
@@ -835,8 +825,7 @@ contains
     ! o16 + o16
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(io16),aion(io16),zion(io16),aion(io16), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ratdum(ir1616)    = ratraw(ir1616) * sc1a
@@ -852,8 +841,7 @@ contains
     ! o16 to ne20
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(io16),aion(io16),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! o16(a,g)ne20
@@ -877,8 +865,7 @@ contains
     ! ne20 to mg24
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ine20),aion(ine20),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! ne20(a,g)mg24
@@ -903,8 +890,7 @@ contains
     ! mg24 to si28
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(img24),aion(img24),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! mg24(a,g)si28
@@ -945,8 +931,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 13.0d0,27.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! al27(p,g)si28
     ratdum(iralpg)    = ratraw(iralpg) * sc1a
@@ -969,8 +954,7 @@ contains
     ! si28 to s32
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(isi28),aion(isi28),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! si28(a,g)s32
@@ -1011,8 +995,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 15.0d0,31.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! p31(p,g)s32
     ratdum(irppg)     = ratraw(irppg) * sc1a
@@ -1036,8 +1019,7 @@ contains
     ! s32 to ar36
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(is32),aion(is32),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! s32(a,g)ar36
@@ -1077,8 +1059,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 17.0d0,35.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! cl35(p,g)ar36
     ratdum(irclpg)    = ratraw(irclpg) * sc1a
@@ -1102,8 +1083,7 @@ contains
     ! ar36 to ca40
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(iar36),aion(iar36),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! ar36(a,g)ca40
@@ -1144,8 +1124,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 19.0d0,39.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! k39(p,g)ca40
     ratdum(irkpg)     = ratraw(irkpg) * sc1a
@@ -1169,8 +1148,7 @@ contains
     ! ca40 to ti44
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ica40),aion(ica40),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! ca40(a,g)ti44
@@ -1211,8 +1189,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 21.0d0,43.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! sc43(p,g)ti44
     ratdum(irscpg)    = ratraw(irscpg) * sc1a
@@ -1236,8 +1213,7 @@ contains
     ! ti44 to cr48
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(iti44),aion(iti44),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! ti44(a,g)cr48
@@ -1277,8 +1253,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 23.0d0,47.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! v47(p,g)cr48
     ratdum(irvpg)     = ratraw(irvpg) * sc1a
@@ -1302,8 +1277,7 @@ contains
     ! cr48 to fe52
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(icr48),aion(icr48),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! cr48(a,g)fe52
@@ -1344,8 +1318,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 25.0d0,51.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
     ! mn51(p,g)fe52
     ratdum(irmnpg)    = ratraw(irmnpg) * sc1a
@@ -1369,8 +1342,7 @@ contains
     ! fe52 to ni56
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 zion(ife52),aion(ife52),zion(ihe4),aion(ihe4), &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! fe52(a,g)ni56
@@ -1411,8 +1383,7 @@ contains
 
     jscr = jscr + 1
     call screen5(btemp,bden,zbar,abar,z2bar, &
-                 27.0d0,55.0d0,1.0d0,1.0d0, &
-                 jscr,init,sc1a,sc1adt,sc1add)
+                 jscr,sc1a,sc1adt,sc1add)
 
 
     ! co55(p,g)ni56
@@ -1433,9 +1404,6 @@ contains
     !dscfacdd(irniga)  = sc1add
 
 
-
-    ! reset the screen initialization flag
-    !init = 0
 
     ! now form those lovely dummy proton link rates
     
@@ -1554,7 +1522,7 @@ contains
   end subroutine screen_aprox13
 
 
-  
+
   subroutine dfdy_isotopes_aprox13(y,dfdy,neq,rate)
 
     use network
