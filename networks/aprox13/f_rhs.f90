@@ -56,12 +56,16 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
   ! always use the current T.
   state % T       = y(net_itemp)
 
-  ! Evaluate the thermodynamics -- if desired.
+  ! Evaluate the thermodynamics -- if desired. Note that
+  ! even if this option is selected, we don't need to do it
+  ! for non-self-heating integrations because the temperature
+  ! isn't being updated.
+  
   ! Otherwise just do the composition calculations since
   ! that's needed to construct dY/dt. Then make sure
   ! the abundances are safe.
 
-  if (call_eos_in_rhs) then
+  if (call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
      call eos(eos_input_rt, state)
   else
      call composition(state)

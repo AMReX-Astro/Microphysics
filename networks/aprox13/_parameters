@@ -8,7 +8,8 @@ do_constant_volume_burn  logical   .false.
 # evalulation.  This only affects the temperature integration (which
 # is the input to the rate evaluation). In particular, since we
 # calculate the composition factors either way, this determines
-# whether we're updating the thermodynamic derivatives as we go.
+# whether we're updating the thermodynamic derivatives and other
+# quantities (cp and cv) as we go.
 call_eos_in_rhs          logical   .false.
 
 # Integration mode: if 0, a hydrostatic burn (temperature and density
