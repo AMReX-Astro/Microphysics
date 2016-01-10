@@ -1,17 +1,21 @@
-# when evolving the temperature, should we assume a constant pressure (default) 
+# When evolving the temperature, should we assume a constant pressure (default) 
 # or a constant volume (do_constant_volume_burn = T)?
 do_constant_volume_burn  logical   .false.
 
-# do we call the EOS each time we enter the EOS?  This is expensive,
+# Do we call the EOS each time we enter the EOS?  This is expensive,
 # but more accurate.  Otherwise, we instead call the EOS at the start
 # of the integration and freeze the thermodynamics throughout the RHS
 # evalulation.  This only affects the temperature integration (which
-# is the input to the rate evaluation)
+# is the input to the rate evaluation). In particular, since we
+# calculate the composition factors either way, this determines
+# whether we're updating the thermodynamic derivatives as we go.
 call_eos_in_rhs          logical   .false.
 
 # Integration mode: if 0, a hydrostatic burn (temperature and density
 # remain constant), and if 1, a self-heating burn (temperature/energy
-# evolve with the burning).
+# evolve with the burning). If 2, a hybrid approach presented by Raskin
+# et al. (2010): do hydrostatic everywhere, but if the hydrostatic burn
+# gives us a negative energy change, redo the burn in self-heating mode.
 burning_mode             integer   1
 
 # Whether to use an analytical or numerical Jacobian. Analytical by default.
