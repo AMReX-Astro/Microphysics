@@ -189,6 +189,8 @@ contains
        rwork(:) = ZERO
        iwork(:) = 0
 
+       iwork(6) = 150000
+
        local_time = ZERO
 
        y(1:nspec)   = state_in % xn(:)
