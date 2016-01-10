@@ -6,7 +6,8 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
   use eos_module
   use network_indices
   use rpar_indices
-
+  use screening_module, only: screenz
+  
   implicit none
 
   ! our convention is that y(1:nspec) are the species (in the same

@@ -6,7 +6,6 @@ ifeq ($(USE_REACT),TRUE)
 f90EXE_sources += rhs.f90
 f90EXE_sources += aprox13_burner.f90
 f90EXE_sources += rates.f90
-f90EXE_sources += screening.f90
 f90EXE_sources += sneut5.f90
 f90EXE_sources += tfactors.f90
 f90EXE_sources += f_rhs.f90

@@ -17,6 +17,7 @@ contains
 
   subroutine screen(temp, dens, ymol, rates, dratesdt)
 
+    use screening_module, only: screenz
     use network_indices
 
     real(kind=dp_t), intent(IN   ) :: temp, dens, ymol(nspec)

@@ -4,7 +4,8 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   use bl_constants_module
   use actual_network
   use rpar_indices
-  
+  use screening_module, only: screenz
+
   implicit none
 
   ! our convention is that y(1:nspec) are the species (in the same

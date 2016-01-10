@@ -7,6 +7,7 @@ subroutine f_rhs_instantaneous_reaction_rates(n, t, y, ydot, rho_Hnuc, rpar, ipa
   use eos_type_module
   use bl_error_module
   use probin_module, only: use_tfromp
+  use screening_module, only: screenz
 
   implicit none
 
