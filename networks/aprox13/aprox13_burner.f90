@@ -199,10 +199,31 @@ contains
     if ( (burning_mode == 2 .and. y(net_ienuc) < ZERO) .or. istate < 0) then
 
        rpar(irp_self_heat) = ONE
-       
+
+       istate = 1
+
+       rwork(:) = ZERO
+       iwork(:) = 0
+
+       local_time = ZERO
+
+       y(1:nspec)   = state_in % xn(:)
+       y(net_itemp) = state_in % T
+       y(net_ienuc) = ZERO
+
+       rpar(irp_dens) = state_in % rho
+       rpar(irp_cp)   = state_in % cp
+       rpar(irp_cv)   = state_in % cv
+
+       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
+       rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
+
+       rpar(irp_abar) = state_in % abar
+       rpar(irp_zbar) = state_in % zbar
+
        call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-                 istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
-       
+                  istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+
     endif
 
     ! If we still failed, print out the current state of the integration.
