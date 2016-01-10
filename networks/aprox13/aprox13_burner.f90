@@ -55,6 +55,12 @@ module actual_burner_module
 
 contains
 
+  subroutine actual_burner_init()
+
+  end subroutine actual_burner_init
+
+
+
   subroutine actual_burner(state_in, state_out, dt, time)
 
     use rpar_indices

@@ -26,8 +26,13 @@ module actual_burner_module
   
 contains
 
+  subroutine actual_burner_init()
+
+  end subroutine actual_burner_init
+
+
+
   subroutine actual_burner(state_in, state_out, dt, time)
-!  subroutine actual_burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
 
     ! outputs:
     !   Xout are the mass fractions after burning through timestep dt

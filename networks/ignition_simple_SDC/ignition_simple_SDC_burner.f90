@@ -7,11 +7,15 @@ module acutal_burner_module
   use network
 
   private
-  public :: actual_burner
-
-
+  public :: actual_burner, actual_burner_init
 
 contains
+
+  subroutine actual_burner_init()
+
+  end subroutine actual_burner_init
+
+
 
   subroutine actual_burner(rhoXin, rhohin, dt, rhoout, rhoXout, rhohout, &
                            sdc_rhoX, sdc_rhoh, p0)
