@@ -175,10 +175,6 @@ contains
     rpar(irp_abar) = state_in % abar
     rpar(irp_zbar) = state_in % zbar
     
-    ! This is just used to make sure everything is happy.
-
-    rpar(irp_smallx) = smallx
-
     ! Pass through whether we are doing self-heating.
 
     if (burning_mode == 0 .or. burning_mode == 2) then
@@ -242,8 +238,11 @@ contains
     endif
 
     ! Store the new mass fractions.
-    state_out % xn(:) = max(smallx, min(ONE, y(1:nspec)))    
 
+    state_out % xn(:) = y(1:nspec)
+    
+    call normalize_abundances(state)
+    
     ! Energy was integrated in the system -- we use this integrated
     ! energy which contains both the reaction energy release and
     ! neutrino losses. The final energy is the initial energy
