@@ -14,7 +14,7 @@ USE_OMP = FALSE
 USE_REACT = TRUE
 
 # programs to be compiled
-ALL: testburn.exe table
+ALL: testburn.ex table
 
 EOS_dir := helmholtz
 
@@ -29,7 +29,7 @@ include $(CASTRO_DIR)/Exec/Make.Castro
 
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
 
-testburn.exe: $(objForExecs)
+testburn.ex: $(objForExecs)
 	@echo Linking $@ ...                                                    
 	$(SILENT) $(PRELINK) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(libraries)
 

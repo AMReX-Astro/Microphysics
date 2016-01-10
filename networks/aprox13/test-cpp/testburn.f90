@@ -24,6 +24,7 @@ subroutine do_burn() bind (C)
   call runtime_init(probin_pass(1:len(trim(probin_file))), len(trim(probin_file)))
 
   call network_init()
+  call burner_init()
   call eos_init()
 
   state_in % rho       = 1.4311401611205835d7
