@@ -47,6 +47,8 @@ contains
     use network_indices
     use rpar_indices
 
+    implicit none
+    
     integer :: i
 
     call init_rpar_indices(nrates, nspec)

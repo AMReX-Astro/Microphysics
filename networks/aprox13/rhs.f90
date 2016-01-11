@@ -32,7 +32,6 @@ contains
     ! Local variables
     integer :: i
     logical :: deriva
-    integer :: flag
     
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
@@ -97,10 +96,8 @@ contains
           dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
        endif
 
-    endif
+    endif    
 
-    
-    
   end subroutine aprox13
 
 
@@ -568,19 +565,17 @@ contains
 
     implicit none
     
-    double precision btemp, bden
-    double precision ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision :: btemp, bden
+    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
 
-    ! declare
-    integer          i
-    double precision rrate,drratedt,drratedd
-    type (tf_t) :: tf
+    integer          :: i
+    double precision :: rrate,drratedt,drratedd
+    type (tf_t)      :: tf
 
-    ! zero the rates
     do i=1,nrates
-       ratraw(i) = 0.0d0
-       dratrawdt(i) = 0.0d0
-       dratrawdd(i) = 0.0d0
+       ratraw(i)    = ZERO
+       dratrawdt(i) = ZERO
+       dratrawdd(i) = ZERO
     enddo
   
     if (btemp .lt. 1.0d6) return
@@ -592,158 +587,158 @@ contains
 
     ! c12(a,g)o16
     call rate_c12ag(tf,bden, &
-         ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
-         ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+                    ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
+                    ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
     
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
-         ratraw(ir3a),dratrawdt(ir3a),dratrawdd(ir3a), &
-         ratraw(irg3a),dratrawdt(irg3a),dratrawdd(irg3a))
+                      ratraw(ir3a),dratrawdt(ir3a),dratrawdd(ir3a), &
+                      ratraw(irg3a),dratrawdt(irg3a),dratrawdd(irg3a))
     
     ! c12 + c12
     call rate_c12c12(tf,bden, &
-         ratraw(ir1212),dratrawdt(ir1212),dratrawdd(ir1212), &
-         rrate,drratedt,drratedd)
+                     ratraw(ir1212),dratrawdt(ir1212),dratrawdd(ir1212), &
+                     rrate,drratedt,drratedd)
     
     ! c12 + o16
     call rate_c12o16(tf,bden, &
-         ratraw(ir1216),dratrawdt(ir1216),dratrawdd(ir1216), &
-         rrate,drratedt,drratedd)
+                     ratraw(ir1216),dratrawdt(ir1216),dratrawdd(ir1216), &
+                     rrate,drratedt,drratedd)
     
     ! o16 + o16
     call rate_o16o16(tf,bden, &
-         ratraw(ir1616),dratrawdt(ir1616),dratrawdd(ir1616), &
-         rrate,drratedt,drratedd)
+                     ratraw(ir1616),dratrawdt(ir1616),dratrawdd(ir1616), &
+                     rrate,drratedt,drratedd)
     
     ! o16(a,g)ne20
     call rate_o16ag(tf,bden, &
-         ratraw(iroag),dratrawdt(iroag),dratrawdd(iroag), &
-         ratraw(irnega),dratrawdt(irnega),dratrawdd(irnega))
+                    ratraw(iroag),dratrawdt(iroag),dratrawdd(iroag), &
+                    ratraw(irnega),dratrawdt(irnega),dratrawdd(irnega))
     
     ! ne20(a,g)mg24
     call rate_ne20ag(tf,bden, &
-         ratraw(irneag),dratrawdt(irneag),dratrawdd(irneag), &
-         ratraw(irmgga),dratrawdt(irmgga),dratrawdd(irmgga))
+                     ratraw(irneag),dratrawdt(irneag),dratrawdd(irneag), &
+                     ratraw(irmgga),dratrawdt(irmgga),dratrawdd(irmgga))
     
     ! mg24(a,g)si28
     call rate_mg24ag(tf,bden, &
-         ratraw(irmgag),dratrawdt(irmgag),dratrawdd(irmgag), &
-         ratraw(irsiga),dratrawdt(irsiga),dratrawdd(irsiga))
+                     ratraw(irmgag),dratrawdt(irmgag),dratrawdd(irmgag), &
+                     ratraw(irsiga),dratrawdt(irsiga),dratrawdd(irsiga))
     
     ! mg24(a,p)al27
     call rate_mg24ap(tf,bden, &
-         ratraw(irmgap),dratrawdt(irmgap),dratrawdd(irmgap), &
-         ratraw(iralpa),dratrawdt(iralpa),dratrawdd(iralpa))
+                     ratraw(irmgap),dratrawdt(irmgap),dratrawdd(irmgap), &
+                     ratraw(iralpa),dratrawdt(iralpa),dratrawdd(iralpa))
     
     ! al27(p,g)si28
     call rate_al27pg(tf,bden, &
-         ratraw(iralpg),dratrawdt(iralpg),dratrawdd(iralpg), &
-         ratraw(irsigp),dratrawdt(irsigp),dratrawdd(irsigp))
+                     ratraw(iralpg),dratrawdt(iralpg),dratrawdd(iralpg), &
+                     ratraw(irsigp),dratrawdt(irsigp),dratrawdd(irsigp))
     
     ! si28(a,g)s32
     call rate_si28ag(tf,bden, &
-         ratraw(irsiag),dratrawdt(irsiag),dratrawdd(irsiag), &
-         ratraw(irsga),dratrawdt(irsga),dratrawdd(irsga))
+                     ratraw(irsiag),dratrawdt(irsiag),dratrawdd(irsiag), &
+                     ratraw(irsga),dratrawdt(irsga),dratrawdd(irsga))
     
     ! si28(a,p)p31
     call rate_si28ap(tf,bden, &
-         ratraw(irsiap),dratrawdt(irsiap),dratrawdd(irsiap), &
-         ratraw(irppa),dratrawdt(irppa),dratrawdd(irppa))
+                     ratraw(irsiap),dratrawdt(irsiap),dratrawdd(irsiap), &
+                     ratraw(irppa),dratrawdt(irppa),dratrawdd(irppa))
     
     ! p31(p,g)s32
     call rate_p31pg(tf,bden, &
-         ratraw(irppg),dratrawdt(irppg),dratrawdd(irppg), &
-         ratraw(irsgp),dratrawdt(irsgp),dratrawdd(irsgp))
+                    ratraw(irppg),dratrawdt(irppg),dratrawdd(irppg), &
+                    ratraw(irsgp),dratrawdt(irsgp),dratrawdd(irsgp))
     
     ! s32(a,g)ar36
     call rate_s32ag(tf,bden, &
-         ratraw(irsag),dratrawdt(irsag),dratrawdd(irsag), &
-         ratraw(irarga),dratrawdt(irarga),dratrawdd(irarga))
+                    ratraw(irsag),dratrawdt(irsag),dratrawdd(irsag), &
+                    ratraw(irarga),dratrawdt(irarga),dratrawdd(irarga))
     
     ! s32(a,p)cl35
     call rate_s32ap(tf,bden, &
-         ratraw(irsap),dratrawdt(irsap),dratrawdd(irsap), &
-         ratraw(irclpa),dratrawdt(irclpa),dratrawdd(irclpa))
+                    ratraw(irsap),dratrawdt(irsap),dratrawdd(irsap), &
+                    ratraw(irclpa),dratrawdt(irclpa),dratrawdd(irclpa))
     
     ! cl35(p,g)ar36
     call rate_cl35pg(tf,bden, &
-         ratraw(irclpg),dratrawdt(irclpg),dratrawdd(irclpg), &
-         ratraw(irargp),dratrawdt(irargp),dratrawdd(irargp))
+                     ratraw(irclpg),dratrawdt(irclpg),dratrawdd(irclpg), &
+                     ratraw(irargp),dratrawdt(irargp),dratrawdd(irargp))
     
     ! ar36(a,g)ca40
     call rate_ar36ag(tf,bden, &
-         ratraw(irarag),dratrawdt(irarag),dratrawdd(irarag), &
-         ratraw(ircaga),dratrawdt(ircaga),dratrawdd(ircaga))
+                     ratraw(irarag),dratrawdt(irarag),dratrawdd(irarag), &
+                     ratraw(ircaga),dratrawdt(ircaga),dratrawdd(ircaga))
     
     ! ar36(a,p)k39
     call rate_ar36ap(tf,bden, &
-         ratraw(irarap),dratrawdt(irarap),dratrawdd(irarap), &
-         ratraw(irkpa),dratrawdt(irkpa),dratrawdd(irkpa))
+                     ratraw(irarap),dratrawdt(irarap),dratrawdd(irarap), &
+                     ratraw(irkpa),dratrawdt(irkpa),dratrawdd(irkpa))
     
     ! k39(p,g)ca40
     call rate_k39pg(tf,bden, &
-         ratraw(irkpg),dratrawdt(irkpg),dratrawdd(irkpg), &
-         ratraw(ircagp),dratrawdt(ircagp),dratrawdd(ircagp))
+                    ratraw(irkpg),dratrawdt(irkpg),dratrawdd(irkpg), &
+                    ratraw(ircagp),dratrawdt(ircagp),dratrawdd(ircagp))
     
     ! ca40(a,g)ti44
     call rate_ca40ag(tf,bden, &
-         ratraw(ircaag),dratrawdt(ircaag),dratrawdd(ircaag), &
-         ratraw(irtiga),dratrawdt(irtiga),dratrawdd(irtiga))
+                     ratraw(ircaag),dratrawdt(ircaag),dratrawdd(ircaag), &
+                     ratraw(irtiga),dratrawdt(irtiga),dratrawdd(irtiga))
     
     ! ca40(a,p)sc43
     call rate_ca40ap(tf,bden, &
-         ratraw(ircaap),dratrawdt(ircaap),dratrawdd(ircaap), &
-         ratraw(irscpa),dratrawdt(irscpa),dratrawdd(irscpa))
+                     ratraw(ircaap),dratrawdt(ircaap),dratrawdd(ircaap), &
+                     ratraw(irscpa),dratrawdt(irscpa),dratrawdd(irscpa))
     
     ! sc43(p,g)ti44
     call rate_sc43pg(tf,bden, &
-         ratraw(irscpg),dratrawdt(irscpg),dratrawdd(irscpg), &
-         ratraw(irtigp),dratrawdt(irtigp),dratrawdd(irtigp))
+                     ratraw(irscpg),dratrawdt(irscpg),dratrawdd(irscpg), &
+                     ratraw(irtigp),dratrawdt(irtigp),dratrawdd(irtigp))
     
     ! ti44(a,g)cr48
     call rate_ti44ag(tf,bden, &
-         ratraw(irtiag),dratrawdt(irtiag),dratrawdd(irtiag), &
-         ratraw(ircrga),dratrawdt(ircrga),dratrawdd(ircrga))
+                     ratraw(irtiag),dratrawdt(irtiag),dratrawdd(irtiag), &
+                     ratraw(ircrga),dratrawdt(ircrga),dratrawdd(ircrga))
 
     ! ti44(a,p)v47
     call rate_ti44ap(tf,bden, &
-         ratraw(irtiap),dratrawdt(irtiap),dratrawdd(irtiap), &
-         ratraw(irvpa),dratrawdt(irvpa),dratrawdd(irvpa))
+                     ratraw(irtiap),dratrawdt(irtiap),dratrawdd(irtiap), &
+                     ratraw(irvpa),dratrawdt(irvpa),dratrawdd(irvpa))
     
     ! v47(p,g)cr48
     call rate_v47pg(tf,bden, &
-         ratraw(irvpg),dratrawdt(irvpg),dratrawdd(irvpg), &
-         ratraw(ircrgp),dratrawdt(ircrgp),dratrawdd(ircrgp))
+                    ratraw(irvpg),dratrawdt(irvpg),dratrawdd(irvpg), &
+                    ratraw(ircrgp),dratrawdt(ircrgp),dratrawdd(ircrgp))
     
     ! cr48(a,g)fe52
     call rate_cr48ag(tf,bden, &
-         ratraw(ircrag),dratrawdt(ircrag),dratrawdd(ircrag), &
-         ratraw(irfega),dratrawdt(irfega),dratrawdd(irfega))
+                     ratraw(ircrag),dratrawdt(ircrag),dratrawdd(ircrag), &
+                     ratraw(irfega),dratrawdt(irfega),dratrawdd(irfega))
     
     ! cr48(a,p)mn51
     call rate_cr48ap(tf,bden, &
-         ratraw(ircrap),dratrawdt(ircrap),dratrawdd(ircrap), &
-         ratraw(irmnpa),dratrawdt(irmnpa),dratrawdd(irmnpa))
+                     ratraw(ircrap),dratrawdt(ircrap),dratrawdd(ircrap), &
+                     ratraw(irmnpa),dratrawdt(irmnpa),dratrawdd(irmnpa))
     
     ! mn51(p,g)fe52
     call rate_mn51pg(tf,bden, &
-         ratraw(irmnpg),dratrawdt(irmnpg),dratrawdd(irmnpg), &
-         ratraw(irfegp),dratrawdt(irfegp),dratrawdd(irfegp))
+                     ratraw(irmnpg),dratrawdt(irmnpg),dratrawdd(irmnpg), &
+                     ratraw(irfegp),dratrawdt(irfegp),dratrawdd(irfegp))
     
     ! fe52(a,g)ni56
     call rate_fe52ag(tf,bden, &
-         ratraw(irfeag),dratrawdt(irfeag),dratrawdd(irfeag), &
-         ratraw(irniga),dratrawdt(irniga),dratrawdd(irniga))
+                     ratraw(irfeag),dratrawdt(irfeag),dratrawdd(irfeag), &
+                     ratraw(irniga),dratrawdt(irniga),dratrawdd(irniga))
     
     ! fe52(a,p)co55
     call rate_fe52ap(tf,bden, &
-         ratraw(irfeap),dratrawdt(irfeap),dratrawdd(irfeap), &
-         ratraw(ircopa),dratrawdt(ircopa),dratrawdd(ircopa))
+                     ratraw(irfeap),dratrawdt(irfeap),dratrawdd(irfeap), &
+                     ratraw(ircopa),dratrawdt(ircopa),dratrawdd(ircopa))
     
     ! co55(p,g)ni56
     call rate_co55pg(tf,bden, &
-         ratraw(ircopg),dratrawdt(ircopg),dratrawdd(ircopg), &
-         ratraw(irnigp),dratrawdt(irnigp),dratrawdd(irnigp))
+                     ratraw(ircopg),dratrawdt(ircopg),dratrawdd(ircopg), &
+                     ratraw(irnigp),dratrawdt(irnigp),dratrawdd(irnigp))
     
   end subroutine aprox13rat
 
@@ -754,6 +749,7 @@ contains
                             ratdum, dratdumdt, dratdumdd, &
                             scfac, dscfacdt, dscfacdd)
 
+    use bl_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
     
     implicit none
@@ -763,15 +759,12 @@ contains
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
 
-    ! declare the pass    
     double precision :: btemp, bden
     double precision :: y(nspec)
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
-    
-    ! local variables
     integer          :: i, jscr
     double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
                         sc3a,sc3adt,sc3add
@@ -789,9 +782,9 @@ contains
        ratdum(i)    = ratraw(i)
        dratdumdt(i) = dratrawdt(i)
        dratdumdd(i) = dratrawdd(i)
-       scfac(i)     = 1.0d0
-       dscfacdt(i)  = 0.0d0
-       dscfacdd(i)  = 0.0d0
+       scfac(i)     = ONE
+       dscfacdt(i)  = ZERO
+       dscfacdd(i)  = ZERO
     end do
 
 
@@ -1571,7 +1564,7 @@ contains
     ! this routine sets up the dense aprox13 jacobian for the isotopes
 
     integer          :: neq
-    double precision :: y(NEQ),dfdy(neq,neq)
+    double precision :: y(neq),dfdy(neq,neq)
     double precision :: rate(nrates)
 
     double precision :: b(30)
