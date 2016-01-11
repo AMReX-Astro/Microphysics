@@ -6,6 +6,14 @@ contains
 
   subroutine actual_burner_init()
 
+    use detonation_module, only: detonation_init
+
+    implicit none
+
+    ! Initialize the detonation data, if we have not already done so.
+
+    detonation_init();
+
   end subroutine actual_burner_init
 
 
