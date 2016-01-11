@@ -39,7 +39,7 @@ module tfactors_module
      !double precision :: t96
      double precision :: t912
      double precision :: t932
-     !double precision :: t952
+     double precision :: t952
      double precision :: t972
      double precision :: t913
      double precision :: t923
@@ -117,7 +117,7 @@ contains
     
     tf%t912  = sqrt(tf%t9)
     tf%t932  = tf%t9*tf%t912
-    !tf%t952  = tf%t9*tf%t932
+    tf%t952  = tf%t9*tf%t932
     !tf%t972  = tf%t9*tf%t952
     tf%t972  = tf%t92*tf%t932
     
