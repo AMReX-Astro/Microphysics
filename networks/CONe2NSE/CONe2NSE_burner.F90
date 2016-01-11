@@ -10,9 +10,7 @@ contains
 
     implicit none
 
-    ! Initialize the detonation data, if we have not already done so.
-
-    detonation_init();
+    call detonation_init()
 
   end subroutine actual_burner_init
 
@@ -126,7 +124,7 @@ contains
 
     do l = 1, IgnNum
 
-       dist = sqrt( sum( (IgnLoc(:,l) - loc)**2 ) )
+       dist = sqrt( sum( (IgnLoc(l,:) - loc)**2 ) )
 
        if (.not. autoDDT) radius = IgnR(l)
        if ( IgnTime(l) < time + dt .and. IgnTime(l) >= time &
