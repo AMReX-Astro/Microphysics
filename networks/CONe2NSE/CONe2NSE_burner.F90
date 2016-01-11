@@ -102,17 +102,6 @@ contains
        shock = .false.
     endif
 
-    ! --------------------------------
-    ! set up internal energy, flame inputs
-    ! and check detonation ignition points
-    ! --------------------------------
-
-    eint = state_in % e
-    pres = state_in % p
-
-    flame    = state_in % aux(1) ! UFLAM
-    flamedot = state_in % aux(2) ! UFLDT
-
     ! ! --------------------------------
     ! ! check if we are near a detonation point
     ! ! --------------------------------
@@ -131,7 +120,7 @@ contains
             .and. dist <= radius ) then
           write (6,100) IgnTime(l), IgnLoc(l,1), IgnLoc(l,2), IgnLoc(l,3), radius
           ignite_detonation = .true.
-          phi_fa_det = 1.0e0
+          phi_fa_det = ONE
        endif
     enddo
 
@@ -140,8 +129,8 @@ contains
     ! ! --------------------------------
 
     if (shock) then
-       qdot = 0.0
-       edotnu = 0.0
+       qdot = ZERO
+       edotnu = ZERO
        return
     endif
 
@@ -151,31 +140,42 @@ contains
     !--------------------------------------------------------
 
     ! inverse timestep
-    dti    = 1.e0/dt
+    dti    = ONE / dt
 
-    xc12init = state_in % xn(1)
-    xne22init = state_in % xn(3)
+    dens = state_in % rho
+    temp = state_in % T
+    eint = state_in % e
+    pres = state_in % p
 
-    phi_fa = state_in % aux(4)
-    phi_aq = state_in % aux(5)
-    phi_qn = state_in % aux(6)
-    dyi_qn = state_in % aux(8)       
+    flame     = state_in % aux(UFLAM)
+    flamedot  = state_in % aux(UFLDT)
+    
+    xc12init  = state_in % xn(iC12)
+    xne22init = state_in % xn(iNe22)
 
-    call paraFuelAshProperties(xc12init,xne22init, ye_f, ye_a, yi_f, yi_a, qbar_f, qbar_a)
+    ye        = state_in % aux(UYE)
+
+    phi_fa    = state_in % aux(UPHFA)
+    phi_aq    = state_in % aux(UPHAQ)
+    phi_qn    = state_in % aux(UPHQN)
+    dyi_qn    = state_in % aux(UDYQN)
+    dqbar_qn  = state_in % aux(UDQQN)
+
+    call paraFuelAshProperties(xc12init, xne22init, ye_f, ye_a, yi_f, yi_a, qbar_f, qbar_a)
 
     ! truncate advection errors which might have pushed out of limits
-    phi_fa = max(0.0,min(1.0,phi_fa))
-    phi_aq = max(0.0,min(phi_fa,phi_aq))
-    phi_qn = max(0.0,min(phi_aq,phi_qn))
+    phi_fa = max(ZERO,min(ONE,phi_fa))
+    phi_aq = max(ZERO,min(phi_fa,phi_aq))
+    phi_qn = max(ZERO,min(phi_aq,phi_qn))
 
-    dyi_qn = max(0.0,min(1.0,dyi_qn))
+    dyi_qn = max(ZERO,min(ONE,dyi_qn))
 
     ! initial plasma properties
-    qbar_i  = (1.0-phi_fa)*qbar_f + (phi_fa-phi_aq)*qbar_a + dqbar_qn
+    qbar_i  = (ONE-phi_fa)*qbar_f + (phi_fa-phi_aq)*qbar_a + dqbar_qn
     ye_i  = ye
-    yi_i  = (1.0-phi_fa)*yi_f + (phi_fa-phi_aq)*yi_a + dyi_qn
+    yi_i  = (ONE-phi_fa)*yi_f + (phi_fa-phi_aq)*yi_a + dyi_qn
 
-    dye_n = max( ye - (1.0-phi_qn)*ye_a, 0.0 )
+    dye_n = max( ye - (ONE-phi_qn)*ye_a, ZERO )
 
     pres_i   = pres
     eint_i   = eint
@@ -207,11 +207,11 @@ contains
        call NSE_finalAtPres(qbar_finnse_p, sumyi_finnse_p, temp_finnse_p, edot_p, yedot_p, &
             ye_i, pres_i, eint_i + pres_i/dens - qbar_i*cgsMeVperGram)
        s = (flame - 0.99)/(0.9999-0.99)
-       qbar_finnse = s*qbar_finnse_d + (1.0-s)*qbar_finnse_p
-       sumyi_finnse = 1.0/(s/sumyi_finnse_d + (1.0-s)/sumyi_finnse_p)
-       temp_finnse = s*temp_finnse_d + (1.0-s)*temp_finnse_p
-       edot = s*edot_d + (1.0-s)*edot_p
-       yedot = s*yedot_d + (1.0-s)*yedot_p
+       qbar_finnse = s*qbar_finnse_d + (ONE-s)*qbar_finnse_p
+       sumyi_finnse = ONE/(s/sumyi_finnse_d + (ONE-s)/sumyi_finnse_p)
+       temp_finnse = s*temp_finnse_d + (ONE-s)*temp_finnse_p
+       edot = s*edot_d + (ONE-s)*edot_p
+       yedot = s*yedot_d + (ONE-s)*yedot_p
 
     else
        ! isobaric prediction
@@ -223,35 +223,31 @@ contains
     !   calculate timescale calibrated in Calder etal 2007
     !-------------------------------------------------------------------
 
-    testExp = 182.06e9/temp_finnse - 46.054e0
+    testExp = 182.06e9/temp_finnse - 46.054d0
+
     ! protect from overflow for portability
-    maxExp = log(HUGE(1.0))
+    maxExp = log(HUGE(ONE))
     if (testExp .GE. maxExp) then
-       tau_nsqe_inv = 0.0
+       tau_nsqe_inv = ZERO
     else
        tau_nsqe_inv = exp(-testExp)
     endif
-    ! ajk     log(tau_nse)  = (dens**0.2e0)*exp(179.7e9/temp - 40.5e0)
-    ! fang1   log(tau_nse)  = (dens**0.2e0)*exp(207.76e9/temp - 47.262e0)
-    ! calder etal      log(tau_nse)  = exp(196.02e9/temp_finnse - 41.645e0)
-    ! townsley etal '09 tau_nse = exp(-47.36 + 197.7/T_9)
+
     if ( flame >= 0.9999 .or. &
          ( thermalReact .and. &
          ( flame < inflame_threshold .or. (phi_fa > flame + 0.1) ) ) ) then
        ! use local temperature to get NSE timescale outside flame
        ! (particularly in detonations)
-       !     testExp = 196.02e9/temp - 41.645e0
-       !si     testExp = 197.7e9/temp - 47.36e0
-       testExp = 201.0e9/temp - 46.77e0
+
+       testExp = 201.0d9/temp - 46.77d0
     else
        ! in flame with no apparent thermal burning, use estimated final temperature
        ! this is just a rate, so a discontinuous crossover shouldn't be a big deal
-       !     testExp = 196.02e9/temp_finnse - 41.645e0
-       !si     testExp = 197.7e9/temp_finnse - 47.36e0
-       testExp = 201.0e9/temp_finnse - 46.77e0
+
+       testExp = 201.0d9/temp_finnse - 46.77d0
     endif
     if (testExp .GE. maxExp) then
-       tau_nse_inv = 0.0
+       tau_nse_inv = ZERO
     else
        tau_nse_inv = exp(-testExp)
     endif
@@ -264,11 +260,11 @@ contains
     ! thermal burning.  This prevents flame burning from causing thermal reactions
     ! without outside influence (such as an arriving detonation).
     if (thermalReact .and. &
-         .not. ( flame >= inflame_threshold .and. state_in % react_proximity > 1.0 ) ) then
+         .not. ( flame >= inflame_threshold .and. state_in % react_proximity > ONE ) ) then
        ! away from flame or in flame near other reactions, use thermal reactions
 
        ! first need a temperature
-       if (flame < inflame_threshold .or. phi_fa > (1.e0-inflame_threshold) ) then
+       if (flame < inflame_threshold .or. phi_fa > (ONE-inflame_threshold) ) then
           ! away from flame or with nearly fully burned material ...
           ! burn based on nuclear reaction rate determined by t9
           t9 = temp/1.e9
@@ -280,49 +276,49 @@ contains
           !   (prevents a divide by zero risk below)
           phi_fa = max(phi_fa,inflame_threshold)
           ! x_bnf = fraction of material which was burned, but not by the flame
-          x_bnf = max(0.e0, phi_fa-flame)
+          x_bnf = max(ZERO, phi_fa-flame)
           qbar_unburned =  qbar_f
           yi_unburned =  yi_f
-          qbar_burned = ( qbar_i - qbar_unburned*(1.0-phi_fa) ) / phi_fa
-          yi_burned = ( yi_i - yi_unburned*(1.0-phi_fa) ) / phi_fa
-          qbar_noflame = qbar_unburned*(1.e0-x_bnf) + qbar_burned*x_bnf
-          yi_noflame = yi_unburned*(1.e0-x_bnf) + yi_burned*x_bnf
+          qbar_burned = ( qbar_i - qbar_unburned*(ONE-phi_fa) ) / phi_fa
+          yi_burned = ( yi_i - yi_unburned*(ONE-phi_fa) ) / phi_fa
+          qbar_noflame = qbar_unburned*(ONE-x_bnf) + qbar_burned*x_bnf
+          yi_noflame = yi_unburned*(ONE-x_bnf) + yi_burned*x_bnf
           !ye_noflame   = 0.5*(1-x_bnf) + ye_oldash_i*x_bnf
           ! just use current ye instead
           !ye_noflame = ye_i
           ye_noflame = ye_f
           eint_noflame = eint_i - cgsMeVperGram*(qbar_i-qbar_noflame)
 
-          if (yi_noflame < 0.e0) then
+          if (yi_noflame < ZERO) then
              write (6,*) ' neg sumy', phi_fa, flame, dqbar_qn
           endif
           ! find a floor energy for local material
           eos_state % rho  = dens
           eos_state % T    = small_temp
-          eos_state % abar = 1.e0/yi_noflame
+          eos_state % abar = ONE / yi_noflame
           eos_state % zbar = ye_noflame * eos_state % abar
           eos_state % y_e  = ye_noflame
           call eos(eos_input_rt, eos_state)
           if ( eint_noflame < eos_state % e ) then
-             t9 = small_temp/1.e9
+             t9 = small_temp/1.d9
           else
              eos_state % e = eint_noflame
              eos_state % T = temp ! guess value
              call eos(eos_input_re, eos_state)
-             t9 = eos_state % T / 1.e9
+             t9 = eos_state % T / 1.d9
           endif
        endif
 
        ! thermally burn based on temperature just estimated
        ! From Caughlin & Fowler 1988, ADNDT 40 283
        ! note this is UNSCREENED, should be screened at some point
-       t9a = t9/(1.0+0.0396*t9)
-       nasigmav = 4.27e26*t9a**(5.0/6)*t9**(-1.5)*exp(-84.165*t9a**(-1.0/3.0)-2.12e-3*t9**3)
+       t9a = t9/(ONE+0.0396*t9)
+       nasigmav = 4.27e26*t9a**(5.0/6)*t9**(-1.5)*exp(-84.165*t9a**(-THIRD)-2.12e-3*t9**3)
        ! integrate
        !     phi_fa_dot = dens*xc12init*(1.0-phi_fa)**2/12.0*nasigmav
        ! and add as evolution after flame
        r_c = dens*xc12init/12.0*nasigmav
-       phi_fa = 1.0 - (1.0-phi_fa)/(1.0 + r_c*dt*(1.0-phi_fa))
+       phi_fa = ONE - (ONE-phi_fa)/(ONE + r_c*dt*(ONE-phi_fa))
 
        ! ignition override
        if (ignite_detonation) then
@@ -334,7 +330,7 @@ contains
 
     ! follow flame variable in any case
     ! (second operator split step if thermal burning is activated)
-    phi_fa = max(0.0,min(1.e0,phi_fa+max(0.0e0,flamedot)*dt))
+    phi_fa = max(ZERO,min(ONE,phi_fa+max(ZERO,flamedot)*dt))
 
 
     !------------------------------------------------------
@@ -345,24 +341,24 @@ contains
 
     ! integration of     phi_aq_dot = (phi_fa-phi_aq)/tau_nsqe
     phi_aq = phi_fa - (phi_fa-phi_aq_i)*expq
-    phi_aq = max(0.0,min(phi_fa,phi_aq))
+    phi_aq = max(ZERO,min(phi_fa,phi_aq))
     phi_aq_dot = (phi_aq-phi_aq_i)*dti
 
     ! integration of     phi_qn_dot = (phi_aq-phi_qn)^2/tau_nsqe
     ! assuming phi_aq is constant (i.e. operator split)
     ! need to handle case when phi_aq-phi_qn_i is zero
-    if ((phi_aq-phi_qn_i) == 0.0) then
+    if ((phi_aq-phi_qn_i) == ZERO) then
        phi_qn = phi_aq
     else
-       phi_qn = phi_aq - 1.0/( 1.0/(phi_aq-phi_qn_i) + tau_nse_inv*dt )
+       phi_qn = phi_aq - ONE/( ONE/(phi_aq-phi_qn_i) + tau_nse_inv*dt )
     endif
-    phi_qn = max(0.0,min(phi_aq,phi_qn))
+    phi_qn = max(ZERO,min(phi_aq,phi_qn))
     phi_qn_dot = (phi_qn-phi_qn_i)*dti
 
     ! now update partial properties
     ! operator split to mirror later treatment of dyi_qn
     dqbar_qn = dqbar_qn + phi_aq_dot*dt*236.537/28
-    dqbar_qn = (phi_aq*236.537/28+phi_qn*(qbar_finnse-236.537/28))*(1.0-expq) + dqbar_qn*expq
+    dqbar_qn = (phi_aq*236.537/28+phi_qn*(qbar_finnse-236.537/28))*(ONE-expq) + dqbar_qn*expq
 
     yi_q_est = yiion(iSi28)
 
@@ -371,15 +367,15 @@ contains
     ! two steps, first change due to change of phi_aq, then evolution
     !  better considering operator splitting of phi_qn and phi_aq evolution
     dyi_qn = dyi_qn + phi_aq_dot*dt*yi_q_est
-    dyi_qn = (phi_aq*yi_q_est+phi_qn*(sumyi_finnse-yi_q_est))*(1.0-expq) + dyi_qn*expq
+    dyi_qn = (phi_aq*yi_q_est+phi_qn*(sumyi_finnse-yi_q_est))*(ONE-expq) + dyi_qn*expq
 
     ! implicit update not necessary, but use actual change in phi_qn from above
     !   ( this is like operator splitting it)
     dye_n = dye_n + ye_a*phi_qn_dot*dt + phi_qn*yedot*dt
 
     ! Construct final state
-    qbar  = (1.0-phi_fa)*qbar_f + (phi_fa-phi_aq)*qbar_a + dqbar_qn
-    ye    = (1.0-phi_qn)*ye_a + dye_n
+    qbar  = (ONE-phi_fa)*qbar_f + (phi_fa-phi_aq)*qbar_a + dqbar_qn
+    ye    = (ONE-phi_qn)*ye_a + dye_n
 
     ! calculate energy release including neutrino losses
     ! and rest mass differences
