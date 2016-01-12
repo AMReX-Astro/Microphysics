@@ -36,6 +36,7 @@
 extern "C"
 {
    void do_burn();
+   void test_jacobian();
 }
 
 
@@ -58,6 +59,8 @@ main (int   argc,
       }
     }
 
+    test_jacobian();
+    
     do_burn();
 
     BoxLib::Finalize();
