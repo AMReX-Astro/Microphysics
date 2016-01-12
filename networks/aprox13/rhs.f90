@@ -59,7 +59,7 @@ contains
        deriva = .true.
        call rhs(state % xn / aion,dratdumdt,ratdum,dydt,deriva)
        rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec) * aion
-       rpar(irp_dratesdt:irp_dratesdt+nrates-1) = dratdumdt
+       rpar(irp_rates:irp_rates+nrates-1) = ratdum
     endif
        
     deriva = .false.

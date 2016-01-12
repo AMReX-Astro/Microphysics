@@ -132,7 +132,7 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
   
   ydot = rpar(irp_dydt:irp_dydt+nspec-1)
-  rates = rpar(irp_dratesdt:irp_dratesdt+nrates-1)
+  rates = rpar(irp_rates:irp_rates+nrates-1)
   
   ! Species Jacobian elements with respect to other species
   
