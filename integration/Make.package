@@ -1,9 +1,3 @@
-INTEGRATION_PATH := $(MICROPHYSICS_DIR)/integration
-
-EXTERN_CORE       += $(INTEGRATION_PATH)
-INCLUDE_LOCATIONS += $(INTEGRATION_PATH)
-VPATH_LOCATIONS   += $(INTEGRATION_PATH)
-
 f90EXE_sources += vode_module.f90
 f90EXE_sources += vode_indices.f90
 f90EXE_sources += rhs.f90

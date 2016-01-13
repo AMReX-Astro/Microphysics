@@ -4,4 +4,6 @@ f90EXE_sources += burner_aux.f90
 ifeq ($(USE_REACT),TRUE)
 f90EXE_sources += actual_burner.f90
 f90EXE_sources += f_rhs.f90
+
+USE_SCREENING = TRUE
 endif

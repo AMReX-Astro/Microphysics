@@ -6,4 +6,4 @@ f90sources += dydt.f90
 f90sources += screen_module.f90
 f90sources += rates_module.f90
 
-
+USE_SCREENING = TRUE

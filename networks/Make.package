@@ -1,0 +1,35 @@
+ifeq ($(USE_INTEGRATION), TRUE)
+
+  INTEGRATION_PATH := $(MICROPHYSICS_DIR)/integration
+
+  INCLUDE_LOCATIONS += $(INTEGRATION_PATH)
+  VPATH_LOCATIONS   += $(INTEGRATION_PATH)
+  EXTERN_CORE       += $(INTEGRATION_PATH)
+
+  include $(INTEGRATION_PATH)/Make.package
+
+endif
+
+ifeq ($(USE_RATES), TRUE)
+
+  RATE_PATH := $(MICROPHYSICS_DIR)/rates
+
+  INCLUDE_LOCATIONS += $(RATE_PATH)
+  VPATH_LOCATIONS   += $(RATE_PATH)
+  EXTERN_CORE       += $(RATE_PATH)
+
+  include $(RATE_PATH)/Make.package
+
+endif
+
+ifeq ($(USE_SCREENING), TRUE)
+
+  SCREEN_PATH := $(MICROPHYSICS_DIR)/screening
+
+  INCLUDE_LOCATIONS += $(SCREEN_PATH)
+  VPATH_LOCATIONS   += $(SCREEN_PATH)
+  EXTERN_CORE       += $(SCREEN_PATH)
+
+  include $(SCREEN_PATH)/Make.package
+
+endif
