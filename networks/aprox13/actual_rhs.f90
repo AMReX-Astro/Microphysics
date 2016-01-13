@@ -36,7 +36,7 @@ contains
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)    
 
-    double precision :: sneut,dsneutdt,dsneutdd,snuda,snudz    
+    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
     double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
