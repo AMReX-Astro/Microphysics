@@ -13,15 +13,12 @@ contains
   subroutine actual_burner(state_in, state_out, dt, time)
 
     use vode_module, only: vode_burner
-    use vode_data, only: temp_scale
 
     implicit none
 
     type (eos_t),        intent(in   ) :: state_in
     type (eos_t),        intent(inout) :: state_out
     double precision,    intent(in   ) :: dt, time
-
-    temp_scale = 1.0d9
 
     call vode_burner(state_in, state_out, dt, time)
 
@@ -32,8 +29,11 @@ contains
   subroutine actual_burner_init()
 
     use screening_module, only: screening_init
+    use vode_data, only: temp_scale
 
     implicit none
+
+    temp_scale = 1.0d9
 
     call set_up_screening_factors()
 

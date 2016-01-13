@@ -1,10 +1,6 @@
-  ! The f_rhs routine provides the right-hand-side for the DVODE solver.  It 
-  ! converts the mass fractions into molar abundances before calling the 
-  ! make_rates, screen, and dydt routines.  It also checks to see if the 
-  ! temperature has changed much since the last call - if so, it updates the 
-  ! temperature to get a better estimate of the reaction rates.
-  !
-  ! The jac routine provides an explicit Jacobian to the DVODE solver.
+  ! The f_rhs routine provides the right-hand-side for the DVODE solver.
+  ! This is a generic interface that calls the specific RHS routine in the
+  ! network you're actually using.
 
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
@@ -14,7 +10,8 @@
     use vode_data
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs
+    use extern_probin_module, only: call_eos_in_rhs, do_constant_volume_burn
+    use rpar_indices
 
     implicit none
 
@@ -22,10 +19,6 @@
     double precision, intent(INOUT) :: time, y(neq)
     double precision, intent(INOUT) :: rpar(n_rpar_comps)
     double precision, intent(  OUT) :: ydot(neq)
-
-    double precision :: rates(nrates)
-
-    integer :: k
 
     type (eos_t) :: state
 
@@ -81,19 +74,71 @@
 
 
 
+  ! Sets up the temperature equation. This should be called from
+  ! within the actual_rhs routine but is provided here as a convenience
+  ! since most networks will use the same temperature ODE.
+
+  subroutine temperature_rhs(neq, y, ydot, rpar)
+
+    use network, only: nspec
+    use rpar_indices
+
+    implicit none
+
+    integer          :: neq
+    double precision :: y(neq), ydot(neq)
+    double precision :: rpar(n_rpar_comps)
+
+    double precision :: cv, cp, dhdY(nspec), dedY(nspec)
+
+    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
+    dedY = rpar(irp_dedY:irp_dedY+nspec-1)
+
+    cv   = rpar(irp_cv)
+    cp   = rpar(irp_cp)
+
+    if (rpar(irp_self_heat) > ZERO) then
+
+       ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
+       ! evolve :
+       !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
+       !
+       ! For constant volume, div{U} = 0, and we evolve:
+       !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
+       !
+       ! See paper III, including Eq. A3 for details.
+
+       if (do_constant_volume_burn) then
+          ydot(net_itemp) = ( ydot(net_ienuc) - sum( dedY(:) * ydot(1:nspec) ) ) / cv
+       else
+          ydot(net_itemp) = ( ydot(net_ienuc) - sum( dhdY(:) * ydot(1:nspec) ) ) / cp
+       endif
+
+    endif
+
+  end subroutine temperature_rhs
+
+
+
   ! Analytical Jacobian
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
     use rpar_indices
+    use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
+    use extern_probin_module, only: do_constant_volume_burn
     use vode_data
+    use network, only: nspec
+    use rpar_indices
 
     implicit none
 
     integer         , intent(IN   ) :: neq, ml, mu, nrpd, ipar
     double precision, intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
     double precision, intent(  OUT) :: pd(neq,neq)
+
+    integer          :: j
 
     ! Undo the scaling for the user-facing routines.
 
@@ -107,11 +152,66 @@
     ! Re-apply the scaling.
 
     y(net_itemp)   = y(net_itemp) / temp_scale
-    rpar(irp_dens) = rpar(irp_dens) / dens_scale    
+    rpar(irp_dens) = rpar(irp_dens) / dens_scale
 
     pd(net_itemp,:) = pd(net_itemp,:) / temp_scale
 
   end subroutine jac
+
+
+
+  ! Sets up the temperature entries in the Jacobian. This should be called from
+  ! within the actual_jac routine but is provided here as a convenience
+  ! since most networks will use the same temperature ODE.
+
+  subroutine temperature_jac(neq, y, pd, rpar)
+
+    use network, only: nspec
+    use rpar_indices
+
+    implicit none
+
+    integer          :: neq
+    double precision :: y(neq), pd(neq, neq)
+    double precision :: rpar(n_rpar_comps)
+
+    double precision :: cv, cp, dhdY(nspec), dedY(nspec)
+
+    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
+    dedY = rpar(irp_dedY:irp_dedY+nspec-1)
+
+    cv   = rpar(irp_cv)
+    cp   = rpar(irp_cp)
+
+    ! Temperature Jacobian elements
+
+    if (rpar(irp_self_heat) > ZERO) then
+
+       if (do_constant_volume_burn) then
+
+          ! d(itemp)/d(yi)
+          do j = 1, nspec
+             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dEdY(:) * pd(1:nspec,j) ) ) / cv
+          enddo
+
+          ! d(itemp)/d(temp)
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdY(:) * pd(1:nspec,net_itemp) ) ) / cv
+
+       else
+
+          ! d(itemp)/d(yi)
+          do j = 1, nspec
+             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dhdY(:) * pd(1:nspec,j) ) ) / cp
+          enddo
+
+          ! d(itemp)/d(temp)
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdY(:) * pd(1:nspec,net_itemp) ) ) / cp
+
+       endif
+
+    endif
+
+  end subroutine temperature_jac
 
 
 

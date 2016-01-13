@@ -80,32 +80,20 @@ contains
     call rhs(y(1:nspec), ratdum, ratdum, dydt, deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
+
     call ener_gener_rate(dydt, enuc)
 
     ! Get the neutrino losses
+
     call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
     
     ! Append the energy equation (this is erg/g/s)
-    dydt(net_ienuc) = enuc - sneut    
-    
-    if (rpar(irp_self_heat) > ZERO) then
-       
-       ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
-       ! evolve :
-       !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
-       ! 
-       ! For constant volume, div{U} = 0, and we evolve:
-       !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
-       !
-       ! See paper III, including Eq. A3 for details.
-       
-       if (do_constant_volume_burn) then
-          dydt(net_itemp) = ( dydt(net_ienuc) - sum( dedY(:) * dydt(1:nspec) ) ) / cv
-       else
-          dydt(net_itemp) = ( dydt(net_ienuc) - sum( dhdY(:) * dydt(1:nspec) ) ) / cp
-       endif
 
-    endif    
+    dydt(net_ienuc) = enuc - sneut    
+
+    ! Append the temperature equation
+
+    call temperature_rhs(neq, y, dydt, rpar)
 
   end subroutine actual_rhs
 
@@ -140,11 +128,7 @@ contains
     
     rho  = rpar(irp_dens)
     temp = y(net_itemp)
-    cv   = rpar(irp_cv)
-    cp   = rpar(irp_cp)
 
-    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
-    dEdY = rpar(irp_dEdY:irp_dEdY+nspec-1)
     abar = rpar(irp_abar)
     zbar = rpar(irp_zbar)
 
@@ -172,40 +156,16 @@ contains
        pd(net_ienuc,j) = pd(net_ienuc,j) - b1
     enddo
 
-    if (rpar(irp_self_heat) > ZERO) then
+    ! Jacobian elements with respect to temperature
 
-       ! Jacobian elements with respect to temperature
+    pd(1:nspec,net_itemp) = ydot
 
-       pd(1:nspec,net_itemp) = ydot
+    call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
+    pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
 
-       call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
-       pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
+    ! Temperature Jacobian elements
 
-       ! Temperature Jacobian elements
-
-       if (do_constant_volume_burn) then
-
-          ! d(itemp)/d(yi)
-          do j = 1, nspec
-             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dEdY(:) * pd(1:nspec,j) ) ) / cv
-          enddo
-
-          ! d(itemp)/d(temp)
-          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdY(:) * pd(1:nspec,net_itemp) ) ) / cv
-
-       else
-
-          ! d(itemp)/d(yi)
-          do j = 1, nspec
-             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dhdY(:) * pd(1:nspec,j) ) ) / cp
-          enddo
-
-          ! d(itemp)/d(temp)
-          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdY(:) * pd(1:nspec,net_itemp) ) ) / cp
-
-       endif
-
-    endif
+    call temperature_jac(neq, y, pd, rpar)
 
   end subroutine actual_jac
   
