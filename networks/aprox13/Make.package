@@ -5,4 +5,6 @@ ifeq ($(USE_REACT),TRUE)
 f90EXE_sources += actual_burner.f90
 f90EXE_sources += actual_rhs.f90
 f90EXE_sources += sneut5.f90
+
+include $(MICROPHYSICS_DIR)/integration/Make.package
 endif
