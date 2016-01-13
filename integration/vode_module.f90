@@ -140,35 +140,10 @@ contains
 
     local_time = ZERO
 
-    ! Molar mass fractions are the first nspec values and temperature and energy are the last.
+    ! Convert the EOS state data into the form VODE expects.
 
-    y(1:nspec)   = state_in % xn(:) / aion(:)
-    y(net_itemp) = state_in % T
-    y(net_ienuc) = ZERO
-
-    ! Density, specific heat at constant pressure (c_p), and dhdX are needed
-    ! in the righthand side routine, so we will pass these in to those routines
-    ! via the rpar functionality in VODE.
-
-    rpar(irp_dens) = state_in % rho
-    rpar(irp_cp)   = state_in % cp
-    rpar(irp_cv)   = state_in % cv
-
-    ! The following thermodynamic derivatives are calculated in the EOS.
-
-    ! dhdX = dh/dX |_{p,T}
-
-    rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
-
-    ! dedX = de/dX |_{rho, T}
-
-    rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
-
-    ! These composition quantities are also calculated in the EOS.
-
-    rpar(irp_abar) = state_in % abar
-    rpar(irp_zbar) = state_in % zbar
-
+    call eos_to_vode(state_in, y, rpar)
+    
     ! Pass through whether we are doing self-heating.
 
     if (burning_mode == 0 .or. burning_mode == 2) then
@@ -199,20 +174,8 @@ contains
 
        local_time = ZERO
 
-       y(1:nspec)   = state_in % xn(:) / aion(:)
-       y(net_itemp) = state_in % T
-       y(net_ienuc) = ZERO
-
-       rpar(irp_dens) = state_in % rho
-       rpar(irp_cp)   = state_in % cp
-       rpar(irp_cv)   = state_in % cv
-
-       rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
-       rpar(irp_dedX:irp_dedX-1+nspec) = state_in % dEdX(:)
-
-       rpar(irp_abar) = state_in % abar
-       rpar(irp_zbar) = state_in % zbar
-
+       call eos_to_vode(state_in, y, rpar)
+       
        call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 

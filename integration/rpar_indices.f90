@@ -7,7 +7,7 @@ module rpar_indices
 
   integer :: n_rpar_comps = 0
 
-  integer :: irp_dens, irp_cv, irp_cp, irp_dedX, irp_dhdX
+  integer :: irp_dens, irp_cv, irp_cp, irp_dedY, irp_dhdY
   integer :: irp_abar, irp_zbar
   integer :: irp_self_heat
   integer :: irp_dydt, irp_rates
@@ -47,8 +47,8 @@ contains
     irp_abar      = get_next_rpar_index(1)
     irp_zbar      = get_next_rpar_index(1)
     irp_self_heat = get_next_rpar_index(1)
-    irp_dhdX      = get_next_rpar_index(nspec)
-    irp_dedX      = get_next_rpar_index(nspec)
+    irp_dhdY      = get_next_rpar_index(nspec)
+    irp_dedY      = get_next_rpar_index(nspec)
     irp_dydt      = get_next_rpar_index(nspec)
     irp_rates     = get_next_rpar_index(nrates)
 

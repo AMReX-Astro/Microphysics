@@ -10,7 +10,7 @@ module actual_rhs_module
 
 contains
 
-  subroutine actual_rhs(neq,time,state,y,dydt,rpar)
+  subroutine actual_rhs(neq,time,y,dydt,rpar)
 
     use extern_probin_module, only: do_constant_volume_burn, jacobian
 
@@ -26,7 +26,6 @@ contains
     integer          :: neq
     double precision :: time
     double precision :: y(1:neq), dydt(1:neq)
-    type (eos_t)     :: state
     double precision :: rpar(n_rpar_comps)
     
     ! Local variables
@@ -40,15 +39,29 @@ contains
     double precision :: sneut,dsneutdt,dsneutdd,snuda,snudz    
     double precision :: enuc
 
+    double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
+
+    ! Get the data from rpar and the state
+    
+    rho  = rpar(irp_dens)
+    temp = y(net_itemp)
+    cv   = rpar(irp_cv)
+    cp   = rpar(irp_cp)
+
+    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
+    dEdY = rpar(irp_dEdY:irp_dEdY+nspec-1)
+    abar = rpar(irp_abar)
+    zbar = rpar(irp_zbar)
+    
     ! Get the raw reaction rates
-    call aprox13rat(state % T, state % rho, ratraw, dratrawdt, dratrawdd)
+    call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
     
 
     ! Do the screening here because the corrections depend on the composition
-    call screen_aprox13(state % T, state % rho, state % xn / aion, &
+    call screen_aprox13(temp, rho, y(1:nspec), &
                         ratraw, dratrawdt, dratrawdd, &
                         ratdum, dratdumdt, dratdumdd, &
-                        scfac, dscfacdt, dscfacdd)
+                        scfac,  dscfacdt,  dscfacdd)
     
 
     ! Get the right hand side of the ODEs. First, we'll do it
@@ -57,21 +70,20 @@ contains
 
     if (jacobian == 1) then
        deriva = .true.
-       call rhs(state % xn / aion,dratdumdt,ratdum,dydt,deriva)
+       call rhs(y(1:nspec), dratdumdt, ratdum, dydt, deriva)
        rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec)
        rpar(irp_rates:irp_rates+nrates-1) = ratdum
     endif
        
     deriva = .false.
     
-    call rhs(state % xn / aion,ratdum,ratdum,dydt,deriva)
+    call rhs(y(1:nspec), ratdum, ratdum, dydt, deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
-    call ener_gener_rate(dydt,enuc)
+    call ener_gener_rate(dydt, enuc)
 
     ! Get the neutrino losses
-    call sneut5(state % T,state % rho,state % abar,state % zbar, &
-                sneut,dsneutdt,dsneutdd,snuda,snudz)
+    call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
     
     ! Append the energy equation (this is erg/g/s)
     dydt(net_ienuc) = enuc - sneut    
@@ -88,9 +100,9 @@ contains
        ! See paper III, including Eq. A3 for details.
        
        if (do_constant_volume_burn) then
-          dydt(net_itemp) = ( dydt(net_ienuc) - sum( state % dEdX(:) * dydt(1:nspec) * aion(:) ) ) / state % cv
+          dydt(net_itemp) = ( dydt(net_ienuc) - sum( dedY(:) * dydt(1:nspec) ) ) / cv
        else
-          dydt(net_itemp) = ( dydt(net_ienuc) - sum( state % dhdX(:) * dydt(1:nspec) * aion(:) ) ) / state % cp
+          dydt(net_itemp) = ( dydt(net_ienuc) - sum( dhdY(:) * dydt(1:nspec) ) ) / cp
        endif
 
     endif    
@@ -120,25 +132,25 @@ contains
 
     integer          :: i, j
 
-    double precision :: rho, temp, cv, cp, abar, zbar, dEdX(nspec), dhdX(nspec)
+    double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
 
     pd(:,:) = ZERO
 
+    ! Get the data from rpar and the state
+    
     rho  = rpar(irp_dens)
     temp = y(net_itemp)
     cv   = rpar(irp_cv)
     cp   = rpar(irp_cp)
 
-    ! Get the data from rpar
-
-    dhdX = rpar(irp_dhdX:irp_dhdX+nspec-1)
-    dEdX = rpar(irp_dEdX:irp_dEdX+nspec-1)
+    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
+    dEdY = rpar(irp_dEdY:irp_dEdY+nspec-1)
     abar = rpar(irp_abar)
     zbar = rpar(irp_zbar)
 
     ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
 
-    ydot = rpar(irp_dydt:irp_dydt+nspec-1)
+    ydot  = rpar(irp_dydt:irp_dydt+nspec-1)
     rates = rpar(irp_rates:irp_rates+nrates-1)
 
     ! Species Jacobian elements with respect to other species
@@ -175,21 +187,21 @@ contains
 
           ! d(itemp)/d(yi)
           do j = 1, nspec
-             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dEdX(:) * pd(1:nspec,j) ) ) / cv
+             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dEdY(:) * pd(1:nspec,j) ) ) / cv
           enddo
 
           ! d(itemp)/d(temp)
-          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdX(:) * pd(1:nspec,net_itemp) * aion(:) ) ) / cv
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdY(:) * pd(1:nspec,net_itemp) ) ) / cv
 
        else
 
           ! d(itemp)/d(yi)
           do j = 1, nspec
-             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dhdX(:) * pd(1:nspec,j) ) ) / cp
+             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dhdY(:) * pd(1:nspec,j) ) ) / cp
           enddo
 
           ! d(itemp)/d(temp)
-          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdX(:) * pd(1:nspec,net_itemp) * aion(:) ) ) / cp
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdY(:) * pd(1:nspec,net_itemp) ) ) / cp
 
        endif
 

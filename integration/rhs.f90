@@ -63,7 +63,7 @@
 
     ! Call the specific network routine to get dY/dt and de/dt.
 
-    call actual_rhs(neq,time,state,y,ydot,rpar)
+    call actual_rhs(neq,time,y,ydot,rpar)
 
   end subroutine f_rhs
 
@@ -116,8 +116,8 @@
     state % cv      = rpar(irp_cv)
     state % abar    = rpar(irp_abar)
     state % zbar    = rpar(irp_zbar)
-    state % dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
-    state % dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
+    state % dhdX(:) = rpar(irp_dhdY:irp_dhdY-1+nspec) / aion(:)
+    state % dedX(:) = rpar(irp_dedY:irp_dedY-1+nspec) / aion(:)
 
   end subroutine vode_to_eos
 
@@ -146,7 +146,7 @@
     rpar(irp_cv)                    = state % cv
     rpar(irp_abar)                  = state % abar
     rpar(irp_zbar)                  = state % zbar
-    rpar(irp_dhdX:irp_dhdX+nspec-1) = state % dhdX(:)
-    rpar(irp_dedX:irp_dedX+nspec-1) = state % dedX(:)
+    rpar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:) * aion(:)
+    rpar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:) * aion(:)
 
   end subroutine eos_to_vode
