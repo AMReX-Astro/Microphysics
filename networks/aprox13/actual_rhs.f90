@@ -58,7 +58,7 @@ contains
     if (jacobian == 1) then
        deriva = .true.
        call rhs(state % xn / aion,dratdumdt,ratdum,dydt,deriva)
-       rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec) * aion
+       rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec)
        rpar(irp_rates:irp_rates+nrates-1) = ratdum
     endif
        
@@ -68,9 +68,6 @@ contains
 
     ! Instantaneous energy generation rate -- this needs molar fractions
     call ener_gener_rate(dydt,enuc)
-
-    ! Go from molar fractions back to mass fractions
-    dydt(1:nspec) = dydt(1:nspec) * aion    
 
     ! Get the neutrino losses
     call sneut5(state % T,state % rho,state % abar,state % zbar, &
@@ -91,9 +88,9 @@ contains
        ! See paper III, including Eq. A3 for details.
        
        if (do_constant_volume_burn) then
-          dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dEdX(:) * dydt(1:nspec))) / state % cv
+          dydt(net_itemp) = ( dydt(net_ienuc) - sum( state % dEdX(:) * dydt(1:nspec) * aion(:) ) ) / state % cv
        else
-          dydt(net_itemp) = (dydt(net_ienuc) - sum(state % dhdX(:) * dydt(1:nspec))) / state % cp
+          dydt(net_itemp) = ( dydt(net_ienuc) - sum( state % dhdX(:) * dydt(1:nspec) * aion(:) ) ) / state % cp
        endif
 
     endif    
@@ -151,7 +148,7 @@ contains
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
-       call ener_gener_rate(pd(1:nspec,j) / aion,pd(net_ienuc,j))
+       call ener_gener_rate(pd(1:nspec,j), pd(net_ienuc,j))
     enddo
 
     ! Account for the thermal neutrino losses
@@ -169,7 +166,7 @@ contains
 
        pd(1:nspec,net_itemp) = ydot
 
-       call ener_gener_rate(pd(1:nspec,net_itemp) / aion, pd(net_ienuc,net_itemp))
+       call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
        pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
 
        ! Temperature Jacobian elements
@@ -182,7 +179,7 @@ contains
           enddo
 
           ! d(itemp)/d(temp)
-          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdX(:) * pd(1:nspec,net_itemp) ) ) / cv
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdX(:) * pd(1:nspec,net_itemp) * aion(:) ) ) / cv
 
        else
 
@@ -192,7 +189,7 @@ contains
           enddo
 
           ! d(itemp)/d(temp)
-          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdX(:) * pd(1:nspec,net_itemp) ) ) / cp
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdX(:) * pd(1:nspec,net_itemp) * aion(:) ) ) / cp
 
        endif
 

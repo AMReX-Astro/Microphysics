@@ -57,14 +57,11 @@ module vode_module
 
 contains
 
-
-
   ! Main interface
 
   subroutine vode_burner(state_in, state_out, dt, time)
 
     use rpar_indices
-    use mempool_module, only: bl_allocate, bl_deallocate
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
@@ -143,9 +140,9 @@ contains
 
     local_time = ZERO
 
-    ! Abundances are the first nspec values and temperature and energy are the last.
+    ! Molar mass fractions are the first nspec values and temperature and energy are the last.
 
-    y(1:nspec)   = state_in % xn(:)
+    y(1:nspec)   = state_in % xn(:) / aion(:)
     y(net_itemp) = state_in % T
     y(net_ienuc) = ZERO
 
@@ -202,7 +199,7 @@ contains
 
        local_time = ZERO
 
-       y(1:nspec)   = state_in % xn(:)
+       y(1:nspec)   = state_in % xn(:) / aion(:)
        y(net_itemp) = state_in % T
        y(net_ienuc) = ZERO
 
@@ -238,7 +235,7 @@ contains
 
     ! Store the new mass fractions.
 
-    state_out % xn(:) = y(1:nspec)
+    state_out % xn(:) = y(1:nspec) * aion(:)
 
     call normalize_abundances(state_out)
 

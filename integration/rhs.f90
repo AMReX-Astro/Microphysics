@@ -46,7 +46,7 @@
     state % cv      = rpar(irp_cv)
     state % abar    = rpar(irp_abar)
     state % zbar    = rpar(irp_zbar)
-    state % xn(:)   = y(1:nspec)
+    state % xn(:)   = y(1:nspec) * aion(:)
     state % dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
     state % dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
 
