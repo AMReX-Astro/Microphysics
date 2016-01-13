@@ -3,7 +3,7 @@ module actual_rhs_module
   use network
   use network_indices
   use eos_type_module
-  use vode_indices, only: net_itemp, net_ienuc
+  use vode_data, only: net_itemp, net_ienuc
   use rpar_indices
 
   implicit none

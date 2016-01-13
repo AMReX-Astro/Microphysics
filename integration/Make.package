@@ -1,4 +1,4 @@
 f90EXE_sources += vode_module.f90
-f90EXE_sources += vode_indices.f90
+f90EXE_sources += vode_data.f90
 f90EXE_sources += rhs.f90
 f90EXE_sources += rpar_indices.f90

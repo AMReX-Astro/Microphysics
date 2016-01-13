@@ -11,7 +11,7 @@
     use eos_module
     use bl_types
     use rpar_indices
-    use vode_indices
+    use vode_data
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs
@@ -19,7 +19,7 @@
     implicit none
 
     integer,          intent(IN   ) :: neq, ipar
-    double precision, intent(IN   ) :: time, y(neq)
+    double precision, intent(INOUT) :: time, y(neq)
     double precision, intent(INOUT) :: rpar(n_rpar_comps)
     double precision, intent(  OUT) :: ydot(neq)
 
@@ -61,9 +61,21 @@
 
     call eos_to_vode(state, y, rpar)
 
+    ! Undo the scaling for the user-facing routines.
+
+    y(net_itemp)   = y(net_itemp) * temp_scale
+    rpar(irp_dens) = rpar(irp_dens) * dens_scale
+
     ! Call the specific network routine to get dY/dt and de/dt.
 
     call actual_rhs(neq,time,y,ydot,rpar)
+
+    ! Re-apply the scaling.
+
+    y(net_itemp)   = y(net_itemp) / temp_scale
+    rpar(irp_dens) = rpar(irp_dens) / dens_scale
+
+    ydot(net_itemp) = ydot(net_itemp) / temp_scale
 
   end subroutine f_rhs
 
@@ -73,16 +85,31 @@
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
-    use rpar_indices, only: n_rpar_comps
+    use rpar_indices
     use actual_rhs_module, only: actual_jac
+    use vode_data
 
     implicit none
 
     integer         , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-    double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), time
+    double precision, intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
     double precision, intent(  OUT) :: pd(neq,neq)
 
+    ! Undo the scaling for the user-facing routines.
+
+    y(net_itemp)   = y(net_itemp) * temp_scale
+    rpar(irp_dens) = rpar(irp_dens) * dens_scale
+
+    ! Call the specific network routine to get the Jacobian.
+
     call actual_jac(neq, time, y, pd, rpar)
+
+    ! Re-apply the scaling.
+
+    y(net_itemp)   = y(net_itemp) / temp_scale
+    rpar(irp_dens) = rpar(irp_dens) / dens_scale    
+
+    pd(net_itemp,:) = pd(net_itemp,:) / temp_scale
 
   end subroutine jac
 
@@ -101,7 +128,7 @@
     use eos_type_module, only: eos_t
     use rpar_indices
     use vode_module, only: neq
-    use vode_indices
+    use vode_data
 
     implicit none
 
@@ -109,8 +136,8 @@
     double precision :: rpar(n_rpar_comps)
     double precision :: y(neq)
 
-    state % rho     = rpar(irp_dens)
-    state % T       = y(net_itemp)
+    state % rho     = rpar(irp_dens) * dens_scale
+    state % T       = y(net_itemp) * temp_scale
     state % xn(:)   = y(1:nspec) * aion(:)
     state % cp      = rpar(irp_cp)
     state % cv      = rpar(irp_cv)
@@ -131,7 +158,7 @@
     use eos_type_module, only: eos_t
     use rpar_indices
     use vode_module, only: neq
-    use vode_indices
+    use vode_data
 
     implicit none
 
@@ -139,8 +166,8 @@
     double precision :: rpar(n_rpar_comps)
     double precision :: y(neq)
 
-    rpar(irp_dens)                  = state % rho
-    y(net_itemp)                    = state % T
+    rpar(irp_dens)                  = state % rho / dens_scale
+    y(net_itemp)                    = state % T / temp_scale
     y(1:nspec)                      = state % xn(:) / aion(:)
     rpar(irp_cp)                    = state % cp
     rpar(irp_cv)                    = state % cv

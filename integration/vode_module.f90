@@ -6,7 +6,7 @@ module vode_module
   use eos_module  
   use network
   use rpar_indices
-  use vode_indices
+  use vode_data
   
   implicit none
 
@@ -196,9 +196,9 @@ contains
        call bl_error("ERROR in burner: integration failed")
     endif
 
-    ! Store the new mass fractions.
+    ! Store the final data.
 
-    state_out % xn(:) = y(1:nspec) * aion(:)
+    call vode_to_eos(state_out, y, rpar)
 
     call normalize_abundances(state_out)
 
