@@ -31,7 +31,7 @@
 
     ! We are integrating a system of
     !
-    ! y(1:nspec)   = dX/dt  
+    ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -41,18 +41,8 @@
     ! are evaluated at the start of the integration, so if things change
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
-    state % rho     = rpar(irp_dens)
-    state % cp      = rpar(irp_cp)
-    state % cv      = rpar(irp_cv)
-    state % abar    = rpar(irp_abar)
-    state % zbar    = rpar(irp_zbar)
-    state % xn(:)   = y(1:nspec) * aion(:)
-    state % dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
-    state % dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
 
-    ! Temperature is one of the quantities that we are integrating --
-    ! always use the current T.
-    state % T       = y(net_itemp)
+    call vode_to_eos(state, y, rpar)
 
     ! Evaluate the thermodynamics -- if desired. Note that
     ! even if this option is selected, we don't need to do it
@@ -69,12 +59,7 @@
        call composition(state)
     endif
 
-    rpar(irp_dhdX:irp_dhdX-1+nspec) = state % dhdX
-    rpar(irp_dedX:irp_dedX-1+nspec) = state % dedX
-    rpar(irp_cp) = state % cp
-    rpar(irp_cv) = state % cv
-    rpar(irp_abar) = state % abar
-    rpar(irp_zbar) = state % zbar
+    call eos_to_vode(state, y, rpar)
 
     ! Call the specific network routine to get dY/dt and de/dt.
 
@@ -98,5 +83,70 @@
     double precision, intent(  OUT) :: pd(neq,neq)
 
     call actual_jac(neq, time, y, pd, rpar)
-    
+
   end subroutine jac
+
+
+
+  ! Given an rpar array and the integration state, set up an EOS state.
+  ! We could fill the energy component by storing the initial energy in
+  ! rpar if we wanted, but we won't do that because (1) if we do call the EOS,
+  ! it is always in (rho, T) mode and (2) converting back would imply subtracting
+  ! off the nuclear energy from the zone's internal energy, which could lead to
+  ! issues from roundoff error if the energy released from burning is small.
+
+  subroutine vode_to_eos(state, y, rpar)
+
+    use network, only: nspec, aion
+    use eos_type_module, only: eos_t
+    use rpar_indices
+    use vode_module, only: neq
+    use vode_indices
+
+    implicit none
+
+    type (eos_t)     :: state
+    double precision :: rpar(n_rpar_comps)
+    double precision :: y(neq)
+
+    state % rho     = rpar(irp_dens)
+    state % T       = y(net_itemp)
+    state % xn(:)   = y(1:nspec) * aion(:)
+    state % cp      = rpar(irp_cp)
+    state % cv      = rpar(irp_cv)
+    state % abar    = rpar(irp_abar)
+    state % zbar    = rpar(irp_zbar)
+    state % dhdX(:) = rpar(irp_dhdX:irp_dhdX-1+nspec)
+    state % dedX(:) = rpar(irp_dedX:irp_dedX-1+nspec)
+
+  end subroutine vode_to_eos
+
+
+
+  ! Given an EOS state, fill the rpar and integration state data.
+
+  subroutine eos_to_vode(state, y, rpar)
+
+    use network, only: nspec, aion
+    use eos_type_module, only: eos_t
+    use rpar_indices
+    use vode_module, only: neq
+    use vode_indices
+
+    implicit none
+
+    type (eos_t)     :: state
+    double precision :: rpar(n_rpar_comps)
+    double precision :: y(neq)
+
+    rpar(irp_dens)                  = state % rho
+    y(net_itemp)                    = state % T
+    y(1:nspec)                      = state % xn(:) / aion(:)
+    rpar(irp_cp)                    = state % cp
+    rpar(irp_cv)                    = state % cv
+    rpar(irp_abar)                  = state % abar
+    rpar(irp_zbar)                  = state % zbar
+    rpar(irp_dhdX:irp_dhdX+nspec-1) = state % dhdX(:)
+    rpar(irp_dedX:irp_dedX+nspec-1) = state % dedX(:)
+
+  end subroutine eos_to_vode
