@@ -28,9 +28,9 @@ burner_verbose           logical   .false.
 # Tolerances for VODE (relative and absolute), for the species, temperature,
 # and energy equations.
 rtol_spec                real      1.d-12
-rtol_temp                real      1.d-5
-rtol_enuc                real      1.d-10
+rtol_temp                real      1.d-6
+rtol_enuc                real      1.d-6
 
 atol_spec                real      1.d-12
-atol_temp                real      1.d-8
-atol_enuc                real      1.d-8
+atol_temp                real      1.d-6
+atol_enuc                real      1.d-6
