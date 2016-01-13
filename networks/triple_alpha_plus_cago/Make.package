@@ -1,8 +1,8 @@
-f90EXE_sources += triple_alpha_plus_cago_network.f90
+f90EXE_sources += actual_network.f90
 f90EXE_sources += burner_aux.f90
 
 ifeq ($(USE_REACT),TRUE)
-f90EXE_sources += triple_alpha_plus_cago_burner.f90
+f90EXE_sources += actual_burner.f90
 f90EXE_sources += f_rhs.f90
 f90EXE_sources += dydt.f90
 f90EXE_sources += screen_module.f90

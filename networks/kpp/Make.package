@@ -1,6 +1,6 @@
-f90EXE_sources += kpp_network.f90
+f90EXE_sources += actual_network.f90
 
 ifeq ($(USE_REACT),TRUE)
-f90EXE_sources += kpp_burner.f90
+f90EXE_sources += actual_burner.f90
 f90EXE_sources += f_rhs.f90
 endif
