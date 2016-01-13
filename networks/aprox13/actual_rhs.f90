@@ -1,19 +1,18 @@
-module rhs_module
+module actual_rhs_module
 
   use network
   use network_indices
   use eos_type_module
-  
+  use vode_indices, only: net_itemp, net_ienuc
+  use rpar_indices
+
   implicit none
 
 contains
 
-  subroutine aprox13(tt,state,dydt,rpar)
+  subroutine actual_rhs(neq,time,state,y,dydt,rpar)
 
-    use rpar_indices
-    use actual_burner_module
     use extern_probin_module, only: do_constant_volume_burn, jacobian
-    use network
 
     implicit none
     
@@ -23,9 +22,10 @@ contains
     !     
     ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
     !           ar36, ca40, ti44, cr48, fe52, ni56
-    
-    double precision :: tt
-    double precision :: dydt(1:NEQ)
+
+    integer          :: neq
+    double precision :: time
+    double precision :: y(1:neq), dydt(1:neq)
     type (eos_t)     :: state
     double precision :: rpar(n_rpar_comps)
     
@@ -98,8 +98,108 @@ contains
 
     endif    
 
-  end subroutine aprox13
+  end subroutine actual_rhs
 
+
+
+  ! Analytical Jacobian
+
+  subroutine actual_jac(neq, t, y, pd, rpar)
+
+    use bl_types
+    use bl_constants_module, only: ZERO
+    use eos_module
+    use extern_probin_module, only: do_constant_volume_burn
+
+    implicit none
+
+    integer         , intent(IN   ) :: neq
+    double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), t
+    double precision, intent(  OUT) :: pd(neq,neq)
+
+    double precision :: rates(nrates), ydot(nspec)
+
+    double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz  
+
+    integer          :: i, j
+
+    double precision :: rho, temp, cv, cp, abar, zbar, dEdX(nspec), dhdX(nspec)
+
+    pd(:,:) = ZERO
+
+    rho  = rpar(irp_dens)
+    temp = y(net_itemp)
+    cv   = rpar(irp_cv)
+    cp   = rpar(irp_cp)
+
+    ! Get the data from rpar
+
+    dhdX = rpar(irp_dhdX:irp_dhdX+nspec-1)
+    dEdX = rpar(irp_dEdX:irp_dEdX+nspec-1)
+    abar = rpar(irp_abar)
+    zbar = rpar(irp_zbar)
+
+    ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
+
+    ydot = rpar(irp_dydt:irp_dydt+nspec-1)
+    rates = rpar(irp_rates:irp_rates+nrates-1)
+
+    ! Species Jacobian elements with respect to other species
+
+    call dfdy_isotopes_aprox13(y, pd, neq, rates)
+
+    ! Energy generation rate Jacobian elements with respect to species
+
+    do j = 1, nspec
+       call ener_gener_rate(pd(1:nspec,j) / aion,pd(net_ienuc,j))
+    enddo
+
+    ! Account for the thermal neutrino losses
+
+    call sneut5(T,rho,abar,zbar,sneut,dsneutdt,dsneutdd,snuda,snudz)
+
+    do j = 1, nspec
+       b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
+       pd(net_ienuc,j) = pd(net_ienuc,j) - b1
+    enddo
+
+    if (rpar(irp_self_heat) > ZERO) then
+
+       ! Jacobian elements with respect to temperature
+
+       pd(1:nspec,net_itemp) = ydot
+
+       call ener_gener_rate(pd(1:nspec,net_itemp) / aion, pd(net_ienuc,net_itemp))
+       pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
+
+       ! Temperature Jacobian elements
+
+       if (do_constant_volume_burn) then
+
+          ! d(itemp)/d(yi)
+          do j = 1, nspec
+             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dEdX(:) * pd(1:nspec,j) ) ) / cv
+          enddo
+
+          ! d(itemp)/d(temp)
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dEdX(:) * pd(1:nspec,net_itemp) ) ) / cv
+
+       else
+
+          ! d(itemp)/d(yi)
+          do j = 1, nspec
+             pd(net_itemp,j) = ( pd(net_ienuc,j) - sum( dhdX(:) * pd(1:nspec,j) ) ) / cp
+          enddo
+
+          ! d(itemp)/d(temp)
+          pd(net_itemp,net_itemp) = ( pd(net_ienuc,net_itemp) - sum( dhdX(:) * pd(1:nspec,net_itemp) ) ) / cp
+
+       endif
+
+    endif
+
+  end subroutine actual_jac
+  
 
 
   ! Evaluates the right hand side of the aprox13 ODEs
@@ -1984,6 +2084,4 @@ contains
 
   end subroutine dfdy_isotopes_aprox13
 
-end module rhs_module
-
-
+end module actual_rhs_module
