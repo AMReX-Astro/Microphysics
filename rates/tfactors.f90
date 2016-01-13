@@ -55,7 +55,7 @@ module tfactors_module
      !double precision :: t935
      !double precision :: t945
      !double precision :: t965
-     !double precision :: t917
+     double precision :: t917
      !double precision :: t927
      !double precision :: t947
      !double precision :: t918
@@ -79,8 +79,8 @@ module tfactors_module
      !double precision :: t9i35 
      !double precision :: t9i45
      !double precision :: t9i65
-     !double precision :: t9i17
-     !double precision :: t9i27
+     double precision :: t9i17
+     double precision :: t9i27
      !double precision :: t9i47
      !double precision :: t9i18
      !double precision :: t9i38
@@ -142,7 +142,7 @@ contains
     !tf%t976  = tf%t9 * tf%t916
     !tf%t9i76 = 1.0d0/tf%t976
     
-    !tf%t917  = tf%t9**onesev
+    tf%t917  = tf%t9**onesev
     !tf%t927  = tf%t917*tf%t917
     !tf%t947  = tf%t927*tf%t927
     
@@ -173,8 +173,8 @@ contains
     !tf%t9i45 = tf%t9i15 * tf%t9i35
     !tf%t9i65 = tf%t9i*tf%t9i15
     
-    !tf%t9i17 = 1.0d0/tf%t917
-    !tf%t9i27 = tf%t9i17*tf%t9i17
+    tf%t9i17 = 1.0d0/tf%t917
+    tf%t9i27 = tf%t9i17*tf%t9i17
     !tf%t9i47 = tf%t9i27*tf%t9i27
     
     !tf%t9i18 = 1.0d0/tf%t918
