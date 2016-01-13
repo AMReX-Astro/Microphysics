@@ -76,8 +76,6 @@
     rpar(irp_abar) = state % abar
     rpar(irp_zbar) = state % zbar
 
-    call normalize_abundances(state)
-
     ! Call the specific network routine to get dY/dt and de/dt.
 
     call actual_rhs(neq,time,state,y,ydot,rpar)
