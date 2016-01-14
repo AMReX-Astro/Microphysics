@@ -12,7 +12,7 @@ module vode_data
 
   ! We may want to scale the temperature or density during the integration.
 
-  double precision :: dens_scale = ONE
-  double precision :: temp_scale = ONE  
+  double precision, save :: dens_scale = ONE
+  double precision, save :: temp_scale = ONE  
   
 end module vode_data
