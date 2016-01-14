@@ -10,7 +10,7 @@ subroutine test_jacobian() bind(C)
   use actual_burner_module
   use rpar_indices
   use vode_module
-  use vode_indices
+  use vode_data
   use extern_probin_module, only: jacobian
   
   implicit none
