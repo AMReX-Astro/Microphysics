@@ -143,7 +143,9 @@ contains
     ! Convert the EOS state data into the form VODE expects.
 
     call eos_to_vode(state_in, y, rpar)
-    
+
+    y(net_ienuc) = ZERO
+
     ! Pass through whether we are doing self-heating.
 
     if (burning_mode == 0 .or. burning_mode == 2) then
@@ -175,7 +177,9 @@ contains
        local_time = ZERO
 
        call eos_to_vode(state_in, y, rpar)
-       
+
+       y(net_ienuc) = ZERO
+
        call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
