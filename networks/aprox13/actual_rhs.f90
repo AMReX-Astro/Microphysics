@@ -2,6 +2,7 @@ module actual_rhs_module
 
   use network
   use network_indices
+  use burner_module
   use eos_type_module
   use vode_data, only: net_itemp, net_ienuc
   use rpar_indices

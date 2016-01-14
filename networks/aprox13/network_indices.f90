@@ -2,6 +2,9 @@ module network_indices
 
   implicit none
 
+  ! Data for rpar
+  integer :: irp_dydt, irp_rates  
+  
   ! ids of the quantities that are integrated
   integer, parameter :: ihe4  = 1
   integer, parameter :: ic12  = 2

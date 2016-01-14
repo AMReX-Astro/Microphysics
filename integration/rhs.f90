@@ -80,8 +80,11 @@
 
   subroutine temperature_rhs(neq, y, ydot, rpar)
 
+    use bl_constants_module, only: ZERO
     use network, only: nspec
     use rpar_indices
+    use vode_data
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -166,8 +169,11 @@
 
   subroutine temperature_jac(neq, y, pd, rpar)
 
+    use bl_constants_module, only: ZERO
     use network, only: nspec
     use rpar_indices
+    use vode_data
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -175,6 +181,7 @@
     double precision :: y(neq), pd(neq, neq)
     double precision :: rpar(n_rpar_comps)
 
+    integer          :: j
     double precision :: cv, cp, dhdY(nspec), dedY(nspec)
 
     dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)

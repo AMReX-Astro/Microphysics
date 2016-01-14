@@ -4,54 +4,38 @@ module actual_network
 
   implicit none
 
-  ! Conversion factors for the nuclear energy generation rate detlap
-  ! is the mass excess of the proton in amu detlan is the mass excess
-  ! of the neutron in amu -- these come from the original const.dek
-  ! from the public network.
-  double precision, parameter, private :: avo     = 6.0221417930d23
-  double precision, parameter, private :: c_light  = 2.99792458d10
-  double precision, parameter, private :: ev2erg  = 1.60217648740d-12
+  ! Some fundamental physical constants
 
-  double precision, parameter, private :: mn      = 1.67492721184d-24
-  double precision, parameter, private :: mp      = 1.67262163783d-24
-  double precision, parameter, private :: me      = 9.1093821545d-28
+  double precision, parameter, private :: avo = 6.0221417930d23
+  double precision, parameter, private :: c_light = 2.99792458d10
 
-  double precision, parameter :: deltap     = 7.288969d0
-  double precision, parameter :: deltan     = 8.071323d0
+  double precision, parameter, private :: ev2erg  = 1.60217648740d-12  
+  double precision, parameter, private :: mev2erg = ev2erg*1.0d6
+  double precision, parameter, private :: mev2gr  = mev2erg/c_light**2
 
-  double precision, parameter :: enuc_conv  = ev2erg*1.0d6*avo
-  double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
-
-  double precision, parameter :: mev2erg = ev2erg*1.0d6
-  double precision, parameter :: mev2gr  = mev2erg/c_light**2
+  double precision, parameter, private :: mn = 1.67492721184d-24
+  double precision, parameter, private :: mp = 1.67262163783d-24
+  double precision, parameter, private :: me = 9.1093821545d-28
 
   integer, parameter :: nspec  = 13
   integer, parameter :: naux   = 0
-  integer, parameter :: nrates = 67
-  
+
   double precision :: aion(nspec), zion(nspec), nion(nspec)
   double precision :: bion(nspec), mion(nspec), wion(nspec)
-
-  character (len=16) :: ratenames(nrates)
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
-  
+
   character (len=32) :: network_name = "aprox13"
-  
+
 contains
   
   subroutine actual_network_init
 
     use network_indices
-    use rpar_indices
 
     implicit none
-    
-    integer :: i
-
-    call init_rpar_indices(nrates, nspec)
 
     ! The following comes directly from init_aprox13
 
@@ -140,106 +124,7 @@ contains
 
     ! Common approximation
     wion(:) = aion(:)
-    
-    ! set the names of the reaction rates 
-    ratenames(ir3a)   = 'r3a  '
-    ratenames(irg3a)  = 'rg3a '
-    ratenames(ircag)  = 'rcag '
-    ratenames(ir1212) = 'r1212'
-    ratenames(ir1216) = 'r1216'
-    ratenames(ir1616) = 'r1616'
-    ratenames(iroga)  = 'roga '
-    ratenames(iroag)  = 'roag '
-    ratenames(irnega) = 'rnega'
-    ratenames(irneag) = 'rneag'
-    ratenames(irmgga) = 'rmgga'
-    ratenames(irmgag) = 'rmgag'
-    ratenames(irsiga) = 'rsiga'
-    ratenames(irmgap) = 'rmgap'
-    ratenames(iralpa) = 'ralpa'
-    ratenames(iralpg) = 'ralpg'
-    ratenames(irsigp) = 'rsigp'
-    ratenames(irsiag) = 'rsiag'
-    ratenames(irsga)  = 'rsga '
-    ratenames(irsiap) = 'rsiap'
-    ratenames(irppa)  = 'rppa '
-    ratenames(irppg)  = 'rppg '
-    ratenames(irsgp)  = 'rsgp '
-    ratenames(irsag)  = 'rsag '
-    ratenames(irarga) = 'rarga'
-    ratenames(irsap)  = 'rsap '
-    ratenames(irclpa) = 'rclpa'
-    ratenames(irclpg) = 'rclpg'
-    ratenames(irargp) = 'rargp'
-    ratenames(irarag) = 'rarag'
-    ratenames(ircaga) = 'rcaga'
-    ratenames(irarap) = 'rarap'
-    ratenames(irkpa)  = 'rkpa '
-    ratenames(irkpg)  = 'rkpg '
-    ratenames(ircagp) = 'rcagp'
-    ratenames(ircaag) = 'rcaag'
-    ratenames(irtiga) = 'rtiga'
-    ratenames(ircaap) = 'rcaap'
-    ratenames(irscpa) = 'rscpa'
-    ratenames(irscpg) = 'rscpg'
-    ratenames(irtigp) = 'rtigp'
-    ratenames(irtiag) = 'rtiag'
-    ratenames(ircrga) = 'rcrga'
-    ratenames(irtiap) = 'rtiap'
-    ratenames(irvpa)  = 'rvpa '
-    ratenames(irvpg)  = 'rvpg '
-    ratenames(ircrgp) = 'rcrgp'
-    ratenames(ircrag) = 'rcrag'
-    ratenames(irfega) = 'rfega'
-    ratenames(ircrap) = 'rcrap'
-    ratenames(irmnpa) = 'rmnpa'
-    ratenames(irmnpg) = 'rmnpg'
-    ratenames(irfegp) = 'rfegp'
-    ratenames(irfeag) = 'rfeag'
-    ratenames(irniga) = 'rniga'
-    ratenames(irfeap) = 'rfeap'
-    ratenames(ircopa) = 'rcopa'
-    ratenames(ircopg) = 'rcopg'
-    ratenames(irnigp) = 'rnigp'
-
-    ratenames(irr1)   = 'r1   '
-    ratenames(irs1)   = 's1   '
-    ratenames(irt1)   = 't1   '
-    ratenames(iru1)   = 'u1   '
-    ratenames(irv1)   = 'v1   '
-    ratenames(irw1)   = 'w1   '
-    ratenames(irx1)   = 'x1   '
-    ratenames(iry1)   = 'y1   '
 
   end subroutine actual_network_init
-
-
-
-  subroutine ener_gener_rate(dydt,enuc)
-
-    ! Computes the instantaneous energy generation rate
-
-    ! declare the pass
-    double precision dydt(nspec), enuc
-    
-    ! local variables
-    integer          i
-    
-    ! instantaneous energy generation rate
-
-    ! this form misses n <-> p differences 
-    
-    ! enuc = sum(dydt(:) * bion(:)) * enuc_conv
-
-    ! this form gets the n <-> p differences 
-    
-    ! enuc = sum(dydt(:) * (bion(:) - zion(i) * deltap - nion(:) * deltan) * enuc_cov
-    
-    ! this form is closest to e = m c**2 and gives the same results as
-    ! the form above
-
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
-    
-  end subroutine ener_gener_rate
 
 end module actual_network

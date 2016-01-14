@@ -8,6 +8,16 @@ module actual_burner_module
 
   implicit none
 
+  integer, parameter :: nrates = 67
+
+  character (len=16) :: ratenames(nrates)
+
+  ! Conversion factor for the nuclear energy generation rate.
+
+  double precision, parameter, private :: avo = 6.0221417930d23
+  double precision, parameter, private :: c_light = 2.99792458d10
+  double precision, parameter, private :: enuc_conv2 = -avo*c_light*c_light  
+
 contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
@@ -30,21 +40,101 @@ contains
 
     use screening_module, only: screening_init
     use vode_data, only: temp_scale
+    use rpar_indices
+    use network_indices
 
     implicit none
 
     temp_scale = 1.0d9
 
+    ! Set the names of the reaction rates
+
+    ratenames(ir3a)   = 'r3a  '
+    ratenames(irg3a)  = 'rg3a '
+    ratenames(ircag)  = 'rcag '
+    ratenames(ir1212) = 'r1212'
+    ratenames(ir1216) = 'r1216'
+    ratenames(ir1616) = 'r1616'
+    ratenames(iroga)  = 'roga '
+    ratenames(iroag)  = 'roag '
+    ratenames(irnega) = 'rnega'
+    ratenames(irneag) = 'rneag'
+    ratenames(irmgga) = 'rmgga'
+    ratenames(irmgag) = 'rmgag'
+    ratenames(irsiga) = 'rsiga'
+    ratenames(irmgap) = 'rmgap'
+    ratenames(iralpa) = 'ralpa'
+    ratenames(iralpg) = 'ralpg'
+    ratenames(irsigp) = 'rsigp'
+    ratenames(irsiag) = 'rsiag'
+    ratenames(irsga)  = 'rsga '
+    ratenames(irsiap) = 'rsiap'
+    ratenames(irppa)  = 'rppa '
+    ratenames(irppg)  = 'rppg '
+    ratenames(irsgp)  = 'rsgp '
+    ratenames(irsag)  = 'rsag '
+    ratenames(irarga) = 'rarga'
+    ratenames(irsap)  = 'rsap '
+    ratenames(irclpa) = 'rclpa'
+    ratenames(irclpg) = 'rclpg'
+    ratenames(irargp) = 'rargp'
+    ratenames(irarag) = 'rarag'
+    ratenames(ircaga) = 'rcaga'
+    ratenames(irarap) = 'rarap'
+    ratenames(irkpa)  = 'rkpa '
+    ratenames(irkpg)  = 'rkpg '
+    ratenames(ircagp) = 'rcagp'
+    ratenames(ircaag) = 'rcaag'
+    ratenames(irtiga) = 'rtiga'
+    ratenames(ircaap) = 'rcaap'
+    ratenames(irscpa) = 'rscpa'
+    ratenames(irscpg) = 'rscpg'
+    ratenames(irtigp) = 'rtigp'
+    ratenames(irtiag) = 'rtiag'
+    ratenames(ircrga) = 'rcrga'
+    ratenames(irtiap) = 'rtiap'
+    ratenames(irvpa)  = 'rvpa '
+    ratenames(irvpg)  = 'rvpg '
+    ratenames(ircrgp) = 'rcrgp'
+    ratenames(ircrag) = 'rcrag'
+    ratenames(irfega) = 'rfega'
+    ratenames(ircrap) = 'rcrap'
+    ratenames(irmnpa) = 'rmnpa'
+    ratenames(irmnpg) = 'rmnpg'
+    ratenames(irfegp) = 'rfegp'
+    ratenames(irfeag) = 'rfeag'
+    ratenames(irniga) = 'rniga'
+    ratenames(irfeap) = 'rfeap'
+    ratenames(ircopa) = 'rcopa'
+    ratenames(ircopg) = 'rcopg'
+    ratenames(irnigp) = 'rnigp'
+
+    ratenames(irr1)   = 'r1   '
+    ratenames(irs1)   = 's1   '
+    ratenames(irt1)   = 't1   '
+    ratenames(iru1)   = 'u1   '
+    ratenames(irv1)   = 'v1   '
+    ratenames(irw1)   = 'w1   '
+    ratenames(irx1)   = 'x1   '
+    ratenames(iry1)   = 'y1   '
+
     call set_up_screening_factors()
 
     call screening_init()
+
+    call init_rpar_indices(nrates, nspec)
+
+    ! Add some components to the rpar array
+
+    irp_dydt      = get_next_rpar_index(nspec)
+    irp_rates     = get_next_rpar_index(nrates)
 
   end subroutine actual_burner_init
 
 
 
-  ! Compute and store the more expensive screening factors  
-  
+  ! Compute and store the more expensive screening factors
+
   subroutine set_up_screening_factors()
 
     use screening_module, only: add_screening_factor
@@ -102,5 +192,21 @@ contains
     call add_screening_factor(27.0d0,55.0d0,1.0d0,1.0d0)
 
   end subroutine set_up_screening_factors
-  
+
+
+
+  ! Computes the instantaneous energy generation rate
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    implicit none
+
+    double precision :: dydt(nspec), enuc
+
+    ! This is basically e = m c**2
+
+    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
+
+  end subroutine ener_gener_rate
+
 end module actual_burner_module
