@@ -250,6 +250,8 @@
     state % cv      = rpar(irp_cv)
     state % abar    = rpar(irp_abar)
     state % zbar    = rpar(irp_zbar)
+    state % eta     = rpar(irp_eta)
+    state % y_e     = rpar(irp_ye)
     state % dhdX(:) = rpar(irp_dhdY:irp_dhdY-1+nspec) / aion(:)
     state % dedX(:) = rpar(irp_dedY:irp_dedY-1+nspec) / aion(:)
 
@@ -280,6 +282,8 @@
     rpar(irp_cv)                    = state % cv
     rpar(irp_abar)                  = state % abar
     rpar(irp_zbar)                  = state % zbar
+    rpar(irp_eta)                   = state % eta
+    rpar(irp_ye)                    = state % y_e
     rpar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:) * aion(:)
     rpar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:) * aion(:)
 

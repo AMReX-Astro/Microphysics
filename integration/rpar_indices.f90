@@ -9,6 +9,7 @@ module rpar_indices
 
   integer :: irp_dens, irp_cv, irp_cp, irp_dedY, irp_dhdY
   integer :: irp_abar, irp_zbar
+  integer :: irp_eta, irp_ye
   integer :: irp_self_heat
 
 contains
@@ -45,6 +46,8 @@ contains
     irp_cv        = get_next_rpar_index(1)
     irp_abar      = get_next_rpar_index(1)
     irp_zbar      = get_next_rpar_index(1)
+    irp_eta       = get_next_rpar_index(1)
+    irp_ye        = get_next_rpar_index(1)
     irp_self_heat = get_next_rpar_index(1)
     irp_dhdY      = get_next_rpar_index(nspec)
     irp_dedY      = get_next_rpar_index(nspec)
