@@ -2217,7 +2217,7 @@ contains
     double precision :: y(neq), dfdy(neq,neq)
     double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
 
-    double precision :: b(30)
+    real(qp_t) :: b(30)
     
     ! h1 jacobian elements
     ! d(h1)/d(h1)

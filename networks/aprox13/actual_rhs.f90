@@ -1637,7 +1637,7 @@ contains
     double precision :: y(neq),dfdy(neq,neq)
     double precision :: rate(nrates)
 
-    double precision :: b(30)
+    real(qp_t) :: b(30)
     
     ! he4 jacobian elements
     ! d(he4)/d(he4)
