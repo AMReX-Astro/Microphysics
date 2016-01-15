@@ -2222,6 +2222,49 @@ contains
 
 
 
+  subroutine rate_fe54ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
+
+    double precision :: temp, den, fr, dfrdt, dfrdd, rr, drrdt, drrdd
+    type (tf_t)      :: tf
+
+    double precision :: aa, daa, bb, dbb, term, dtermdt
+
+    ! fe54(n,g)fe55
+    aa   =  2.307390d+01 - 7.931795d-02 * tf%t9i + 7.535681d+00 * tf%t9i13 &
+         - 1.595025d+01 * tf%t913 + 1.377715d+00 * tf%t9 - 1.291479d-01 * tf%t953 &
+         + 6.707473d+00 * log(tf%t9)
+
+    daa  =  7.931795d-02 * tf%t9i2 - oneth * 7.535681d+00 * tf%t9i43 &
+         - oneth * 1.595025d+01 *tf%t9i23 + 1.377715d+00 - fiveth * 1.291479d-01 *tf%t923 &
+         + 6.707473d+00 * tf%t9i
+
+    if (aa .lt. 200.0) then
+       term    = exp(aa)
+       dtermdt = term*daa*1.0d-9
+    else
+       term    = exp(200.0d0)
+       dtermdt = 0.0d0
+    end if
+
+    bb  = 4.800293d+09 * tf%t932 * exp(-1.078986d+02 * tf%t9i)
+    dbb = bb*(1.5d0*tf%t9i + 1.078986d+02 * tf%t9i2)
+
+    ! reverse rate
+    rr    = term*bb
+    drrdt = dtermdt*bb + term*dbb*1.0d-9
+    !drrdd = 0.0d0
+
+    ! forward rate
+    !dfrdd = term
+    fr    = term*den
+    dfrdt = dtermdt*den
+
+  end subroutine rate_fe54ng
+
+
+
   subroutine rate_fe54pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     implicit none
@@ -2263,17 +2306,153 @@ contains
 
 
 
+
+  subroutine rate_fe54ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
+
+    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t)      :: tf
+
+    double precision :: aa,daa,bb,dbb,term,dtermdt
+
+
+    ! fe54(a,p)co57
+    aa   =  3.97474900d+01 - 6.06543100d+00 * tf%t9i + 1.63239600d+02 * tf%t9i13 &
+         - 2.20457700d+02 * tf%t913 + 8.63980400d+00 * tf%t9 - 3.45841300d-01 * tf%t953 &
+         + 1.31464200d+02 * log(tf%t9)
+
+    daa  =  6.06543100d+00 * tf%t9i2 - oneth * 1.63239600d+02 * tf%t9i43 &
+         - oneth * 2.20457700d+02 * tf%t9i23 + 8.63980400d+00 - fiveth * 3.45841300d-01 * tf%t923 &
+         + 1.31464200d+02  * tf%t9i
+
+    if (aa .lt. 200.0) then
+       term    = exp(aa)
+       dtermdt = term*daa*1.0d-9
+    else
+       term    = exp(200.0d0)
+       dtermdt = 0.0d0
+    end if
+
+    bb  = 2.16896000d+00  * exp(-2.05631700d+01 * tf%t9i)
+    dbb = bb * 2.05631700d+01 * tf%t9i2
+
+    ! reverse rate
+    !drrdd = term
+    rr    = term*den
+    drrdt = dtermdt*den
+
+    ! forward rate
+    fr    = rr*bb
+    dfrdt = drrdt*bb + rr*dbb*1.0d-9
+    !dfrdd = drrdd*bb
+
+  end subroutine rate_fe54ap
+
+
+
+  subroutine rate_fe55ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
+
+    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t)      :: tf
+
+    double precision :: aa,daa,bb,dbb,term,dtermdt
+
+
+    ! fe55(n,g)fe56
+    aa   =  1.954115d+01 - 6.834029d-02 * tf%t9i + 5.379859d+00 * tf%t9i13 &
+         - 8.758150d+00 * tf%t913 + 5.285107d-01 * tf%t9 - 4.973739d-02  * tf%t953 &
+         + 4.065564d+00  * log(tf%t9)
+
+    daa  =  6.834029d-02 * tf%t9i2 - oneth * 5.379859d+00 * tf%t9i43 &
+         - oneth * 8.758150d+00 * tf%t9i23 + 5.285107d-01 - fiveth * 4.973739d-02  *tf%t923 &
+         + 4.065564d+00  * tf%t9i
+
+    if (aa .lt. 200.0) then
+       term    = exp(aa)
+       dtermdt = term*daa*1.0d-9
+    else
+       term    = exp(200.0d0)
+       dtermdt = 0.0d0
+    end if
+
+    bb  = 7.684279d+10  * tf%t932 * exp(-1.299472d+02  * tf%t9i)
+    dbb = bb*(1.5d0*tf%t9i + 1.299472d+02 * tf%t9i2)
+
+    ! reverse rate
+    rr    = term*bb
+    drrdt = dtermdt*bb + term*dbb*1.0d-9
+    !drrdd = 0.0d0
+
+    ! forward rate
+    !dfrdd = term
+    fr    = term*den
+    dfrdt = dtermdt*den
+
+  end subroutine rate_fe55ng
+
+
+
+
+  subroutine rate_fe56pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    implicit none
+
+    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t)      :: tf
+
+    double precision :: aa,daa,bb,dbb,term,dtermdt
+
+
+    ! fe56(p,g)co57
+
+    aa   =  1.755960d+02 - 7.018872d+00 * tf%t9i + 2.800131d+02 * tf%t9i13 &
+         - 4.749343d+02 * tf%t913 + 2.683860d+01 * tf%t9 - 1.542324d+00  * tf%t953 &
+         + 2.315911d+02  * log(tf%t9)
+
+    daa  =  7.018872d+00 * tf%t9i2 - oneth * 2.800131d+02 * tf%t9i43 &
+         - oneth * 4.749343d+02 * tf%t9i23 + 2.683860d+01 - fiveth * 1.542324d+00  *tf%t923 &
+         + 2.315911d+02  * tf%t9i
+
+    if (aa .lt. 200.0) then
+       term    = exp(aa)
+       dtermdt = term*daa*1.0d-9
+    else
+       term    = exp(200.0d0)
+       dtermdt = 0.0d0
+    end if
+
+    bb  = 2.402486d+09 * tf%t932 * exp(-6.995192d+01 * tf%t9i)
+    dbb = bb*(1.5d0*tf%t9i + 6.995192d+01 * tf%t9i2)
+
+
+    ! reverse rate
+    rr    = term*bb
+    drrdt = dtermdt*bb + term*dbb*1.0d-9
+    !drrdd = 0.0d0
+
+    ! forward rate
+    !dfrdd = term
+    fr    = term*den
+    dfrdt = dtermdt*den
+
+  end subroutine rate_fe56pg
+
+
+
   ! this routine evaluates mazurel's 1973 fits for the ni56 electron
   ! capture rate rn56ec and neutrino loss rate sn56ec
-  
+
   ! input:
   ! y56 = nickel56 molar abundance
   ! ye  = electron to baryon number, zbar/abar
-  
+
   ! output:
   ! rn56ec = ni56 electron capture rate
   ! sn56ec = ni56 neutrino loss rate
-  
+
   subroutine mazurek(btemp,bden,y56,ye,rn56ec,sn56ec)
 
     implicit none
@@ -2335,7 +2514,7 @@ contains
   ! positron capture on neutrons rnep (captures/sec/neutron),
   ! and their associated neutrino energy loss rates
   ! spenc (erg/sec/proton) and snepc (erg/sec/neutron)
-  
+
   subroutine ecapnuc(etakep,temp,rpen,rnep,spenc,snepc)
 
     implicit none
@@ -2499,5 +2678,5 @@ contains
 506 continue
     return
   end subroutine ecapnuc
-  
+
 end module rates_module
