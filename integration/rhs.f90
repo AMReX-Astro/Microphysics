@@ -141,8 +141,6 @@
     double precision, intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
     double precision, intent(  OUT) :: pd(neq,neq)
 
-    integer          :: j
-
     ! Undo the scaling for the user-facing routines.
 
     y(net_itemp)   = y(net_itemp) * temp_scale
