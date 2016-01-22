@@ -242,6 +242,8 @@ contains
                             pcoul,dpcouldd,dpcouldt,dpcoulda,dpcouldz, &
                             scoul,dscouldd,dscouldt,dscoulda,dscouldz
 
+        double precision :: p_temp, e_temp
+
         temp_row = state % T
         den_row  = state % rho
         abar_row = state % abar
@@ -813,14 +815,13 @@ contains
                  dscouldz = s * plasgdz
               end if
 
-              !...bomb proof
-              x   = prad + pion + pele + pcoul
-              if (x .le. 0.0D0) then
+              ! Disable Coulomb corrections if they cause
+              ! the energy or pressure to go negative.
 
-                 write(6,*) 
-                 write(6,*) 'coulomb corr. are causing a negative pressure'
-                 write(6,*) 'setting all coulomb corrections to zero'
-                 write(6,*) 
+              p_temp = prad + pion + pele + pcoul
+              e_temp = erad + eion + eele + ecoul
+
+              if (p_temp .le. ZERO .or. e_temp .le. ZERO) then
 
                  pcoul    = 0.0d0
                  dpcouldd = 0.0d0
@@ -837,9 +838,9 @@ contains
                  dscouldt = 0.0d0
                  dscoulda = 0.0d0
                  dscouldz = 0.0d0
+
               end if
            end if
-           ! Turn off Coulomb
 
            !..sum all the components
            pres    = prad + pion + pele + pcoul
