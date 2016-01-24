@@ -190,437 +190,419 @@ contains
     ! local variables
     integer          :: i
 
-    ! Quad precision dydt sums
-    ! Note that the qp_t type defined in the bl_types module
-    ! automatically detects whether quad precision is actually
-    ! implemented on the system in question, and if not it
-    ! automatically returns a double precision type.
-
-    real(kind=qp_t) :: qray(nspec)
-    real(kind=qp_t) :: a1,  a2,  a3,  a4,  a5,  a6, &
-                       a7,  a8,  a9,  a10, a11, a12, &
-                       a13, a14, a15, a16, a17
+    double precision :: a(17)
 
     dydt(1:nspec) = ZERO
-    qray(1:nspec) = 0.0_qp_t
-
 
     ! he4 reactions
     ! heavy ion reactions
-    a1  = 0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
-    a2  = 0.5d0 * y(ic12) * y(io16) * rate(ir1216)
-    a3  = 0.56d0 * 0.5d0 * y(io16) * y(io16) * rate(ir1616)
+    a(1)  = 0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
+    a(2)  = 0.5d0 * y(ic12) * y(io16) * rate(ir1216)
+    a(3)  = 0.56d0 * 0.5d0 * y(io16) * y(io16) * rate(ir1616)
 
-    qray(ihe4) = qray(ihe4) + a1 + a2 + a3
+    dydt(ihe4) = dydt(ihe4) + msum(a,3)
 
     ! (a,g) and (g,a) reactions
-    a1  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
-    a2  =  3.0d0 * y(ic12) * rate(irg3a)
-    a3  = -y(ihe4)  * y(ic12) * rate(ircag)
-    a4  =  y(io16)  * rate(iroga)
-    a5  = -y(ihe4)  * y(io16) * rate(iroag)
-    a6  =  y(ine20) * rate(irnega)
-    a7  = -y(ihe4)  * y(ine20) * rate(irneag)
-    a8  =  y(img24) * rate(irmgga)
-    a9  = -y(ihe4)  * y(img24)* rate(irmgag)
-    a10 =  y(isi28) * rate(irsiga)
-    a11 = -y(ihe4)  * y(isi28)*rate(irsiag)
-    a12 =  y(is32)  * rate(irsga)
+    a(1)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
+    a(2)  =  3.0d0 * y(ic12) * rate(irg3a)
+    a(3)  = -y(ihe4)  * y(ic12) * rate(ircag)
+    a(4)  =  y(io16)  * rate(iroga)
+    a(5)  = -y(ihe4)  * y(io16) * rate(iroag)
+    a(6)  =  y(ine20) * rate(irnega)
+    a(7)  = -y(ihe4)  * y(ine20) * rate(irneag)
+    a(8)  =  y(img24) * rate(irmgga)
+    a(9)  = -y(ihe4)  * y(img24)* rate(irmgag)
+    a(10) =  y(isi28) * rate(irsiga)
+    a(11) = -y(ihe4)  * y(isi28)*rate(irsiag)
+    a(12) =  y(is32)  * rate(irsga)
 
-    qray(ihe4) = qray(ihe4) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+    dydt(ihe4) = dydt(ihe4) + msum(a,12)
 
-    a1  = -y(ihe4)  * y(is32) * rate(irsag)
-    a2  =  y(iar36) * rate(irarga)
-    a3  = -y(ihe4)  * y(iar36)*rate(irarag)
-    a4  =  y(ica40) * rate(ircaga)
-    a5  = -y(ihe4)  * y(ica40)*rate(ircaag)
-    a6  =  y(iti44) * rate(irtiga)
-    a7  = -y(ihe4)  * y(iti44)*rate(irtiag)
-    a8  =  y(icr48) * rate(ircrga)
-    a9  = -y(ihe4)  * y(icr48)*rate(ircrag)
-    a10 =  y(ife52) * rate(irfega)
-    a11 = -y(ihe4)  * y(ife52) * rate(irfeag)
-    a12 =  y(ini56) * rate(irniga)
+    a(1)  = -y(ihe4)  * y(is32) * rate(irsag)
+    a(2)  =  y(iar36) * rate(irarga)
+    a(3)  = -y(ihe4)  * y(iar36)*rate(irarag)
+    a(4)  =  y(ica40) * rate(ircaga)
+    a(5)  = -y(ihe4)  * y(ica40)*rate(ircaag)
+    a(6)  =  y(iti44) * rate(irtiga)
+    a(7)  = -y(ihe4)  * y(iti44)*rate(irtiag)
+    a(8)  =  y(icr48) * rate(ircrga)
+    a(9)  = -y(ihe4)  * y(icr48)*rate(ircrag)
+    a(10) =  y(ife52) * rate(irfega)
+    a(11) = -y(ihe4)  * y(ife52) * rate(irfeag)
+    a(12) =  y(ini56) * rate(irniga)
 
-    qray(ihe4) = qray(ihe4) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+    dydt(ihe4) = dydt(ihe4) + msum(a,12)
 
     ! (a,p)(p,g) and (g,p)(p,a) reactions
 
     if (.not.deriva) then
 
-       a1  =  0.34d0*0.5d0*y(io16)*y(io16)*rate(irs1)*rate(ir1616)
-       a2  = -y(ihe4)  * y(img24) * rate(irmgap)*(1.0d0-rate(irr1))
-       a3  =  y(isi28) * rate(irsigp) * rate(irr1)
-       a4  = -y(ihe4)  * y(isi28) * rate(irsiap)*(1.0d0-rate(irs1))
-       a5  =  y(is32)  * rate(irsgp) * rate(irs1)
-       a6  = -y(ihe4)  * y(is32) * rate(irsap)*(1.0d0-rate(irt1))
-       a7  =  y(iar36) * rate(irargp) * rate(irt1)
-       a8  = -y(ihe4)  * y(iar36) * rate(irarap)*(1.0d0-rate(iru1))
-       a9  =  y(ica40) * rate(ircagp) * rate(iru1)
-       a10 = -y(ihe4)  * y(ica40) * rate(ircaap)*(1.0d0-rate(irv1))
-       a11 =  y(iti44) * rate(irtigp) * rate(irv1)
-       a12 = -y(ihe4)  * y(iti44) * rate(irtiap)*(1.0d0-rate(irw1))
-       a13 =  y(icr48) * rate(ircrgp) * rate(irw1)
-       a14 = -y(ihe4)  * y(icr48) * rate(ircrap)*(1.0d0-rate(irx1))
-       a15 =  y(ife52) * rate(irfegp) * rate(irx1)
-       a16 = -y(ihe4)  * y(ife52) * rate(irfeap)*(1.0d0-rate(iry1))
-       a17 =  y(ini56) * rate(irnigp) * rate(iry1)
+       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16)*rate(irs1)*rate(ir1616)
+       a(2)  = -y(ihe4)  * y(img24) * rate(irmgap)*(1.0d0-rate(irr1))
+       a(3)  =  y(isi28) * rate(irsigp) * rate(irr1)
+       a(4)  = -y(ihe4)  * y(isi28) * rate(irsiap)*(1.0d0-rate(irs1))
+       a(5)  =  y(is32)  * rate(irsgp) * rate(irs1)
+       a(6)  = -y(ihe4)  * y(is32) * rate(irsap)*(1.0d0-rate(irt1))
+       a(7)  =  y(iar36) * rate(irargp) * rate(irt1)
+       a(8)  = -y(ihe4)  * y(iar36) * rate(irarap)*(1.0d0-rate(iru1))
+       a(9)  =  y(ica40) * rate(ircagp) * rate(iru1)
+       a(10) = -y(ihe4)  * y(ica40) * rate(ircaap)*(1.0d0-rate(irv1))
+       a(11) =  y(iti44) * rate(irtigp) * rate(irv1)
+       a(12) = -y(ihe4)  * y(iti44) * rate(irtiap)*(1.0d0-rate(irw1))
+       a(13) =  y(icr48) * rate(ircrgp) * rate(irw1)
+       a(14) = -y(ihe4)  * y(icr48) * rate(ircrap)*(1.0d0-rate(irx1))
+       a(15) =  y(ife52) * rate(irfegp) * rate(irx1)
+       a(16) = -y(ihe4)  * y(ife52) * rate(irfeap)*(1.0d0-rate(iry1))
+       a(17) =  y(ini56) * rate(irnigp) * rate(iry1)
 
-       qray(ihe4) = qray(ihe4) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 &
-                               + a11 + a12 + a13 + a14 + a15 + a16 + a17
+       dydt(ihe4) = dydt(ihe4) + msum(a,17)
 
     else
-       a1  =  0.34d0*0.5d0*y(io16)*y(io16) * ratdum(irs1) * rate(ir1616)
-       a2  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(irs1) * ratdum(ir1616)
-       a3  = -y(ihe4)*y(img24) * rate(irmgap)*(1.0d0 - ratdum(irr1))
-       a4  =  y(ihe4)*y(img24) * ratdum(irmgap)*rate(irr1)
-       a5  =  y(isi28) * ratdum(irsigp) * rate(irr1)
-       a6  =  y(isi28) * rate(irsigp) * ratdum(irr1)
-       a7  = -y(ihe4)*y(isi28) * rate(irsiap)*(1.0d0 - ratdum(irs1))
-       a8  =  y(ihe4)*y(isi28) * ratdum(irsiap) * rate(irs1)
-       a9  =  y(is32)  * ratdum(irsgp) * rate(irs1)
-       a10 =  y(is32)  * rate(irsgp) * ratdum(irs1)
+       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * ratdum(irs1) * rate(ir1616)
+       a(2)  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(irs1) * ratdum(ir1616)
+       a(3)  = -y(ihe4)*y(img24) * rate(irmgap)*(1.0d0 - ratdum(irr1))
+       a(4)  =  y(ihe4)*y(img24) * ratdum(irmgap)*rate(irr1)
+       a(5)  =  y(isi28) * ratdum(irsigp) * rate(irr1)
+       a(6)  =  y(isi28) * rate(irsigp) * ratdum(irr1)
+       a(7)  = -y(ihe4)*y(isi28) * rate(irsiap)*(1.0d0 - ratdum(irs1))
+       a(8)  =  y(ihe4)*y(isi28) * ratdum(irsiap) * rate(irs1)
+       a(9)  =  y(is32)  * ratdum(irsgp) * rate(irs1)
+       a(10) =  y(is32)  * rate(irsgp) * ratdum(irs1)
 
-       qray(ihe4) = qray(ihe4) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+       dydt(ihe4) = dydt(ihe4) + msum(a,10)
 
-       a1  = -y(ihe4)*y(is32) * rate(irsap)*(1.0d0 - ratdum(irt1))
-       a2  =  y(ihe4)*y(is32) * ratdum(irsap)*rate(irt1)
-       a3  =  y(iar36) * ratdum(irargp) * rate(irt1)
-       a4  =  y(iar36) * rate(irargp) * ratdum(irt1)
-       a5  = -y(ihe4)*y(iar36) * rate(irarap)*(1.0d0 - ratdum(iru1))
-       a6  =  y(ihe4)*y(iar36) * ratdum(irarap)*rate(iru1)
-       a7  =  y(ica40) * ratdum(ircagp) * rate(iru1)
-       a8  =  y(ica40) * rate(ircagp) * ratdum(iru1)
-       a9  = -y(ihe4)*y(ica40) * rate(ircaap)*(1.0d0-ratdum (irv1))
-       a10 =  y(ihe4)*y(ica40) * ratdum(ircaap)*rate(irv1)
-       a11 =  y(iti44) * ratdum(irtigp) * rate(irv1)
-       a12 =  y(iti44) * rate(irtigp) * ratdum(irv1)
+       a(1)  = -y(ihe4)*y(is32) * rate(irsap)*(1.0d0 - ratdum(irt1))
+       a(2)  =  y(ihe4)*y(is32) * ratdum(irsap)*rate(irt1)
+       a(3)  =  y(iar36) * ratdum(irargp) * rate(irt1)
+       a(4)  =  y(iar36) * rate(irargp) * ratdum(irt1)
+       a(5)  = -y(ihe4)*y(iar36) * rate(irarap)*(1.0d0 - ratdum(iru1))
+       a(6)  =  y(ihe4)*y(iar36) * ratdum(irarap)*rate(iru1)
+       a(7)  =  y(ica40) * ratdum(ircagp) * rate(iru1)
+       a(8)  =  y(ica40) * rate(ircagp) * ratdum(iru1)
+       a(9)  = -y(ihe4)*y(ica40) * rate(ircaap)*(1.0d0-ratdum (irv1))
+       a(10) =  y(ihe4)*y(ica40) * ratdum(ircaap)*rate(irv1)
+       a(11) =  y(iti44) * ratdum(irtigp) * rate(irv1)
+       a(12) =  y(iti44) * rate(irtigp) * ratdum(irv1)
 
-       qray(ihe4) = qray(ihe4) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+       dydt(ihe4) = dydt(ihe4) + msum(a,12)
 
-       a1  = -y(ihe4)*y(iti44) * rate(irtiap)*(1.0d0 - ratdum(irw1))
-       a2  =  y(ihe4)*y(iti44) * ratdum(irtiap)*rate(irw1)
-       a3  =  y(icr48) * ratdum(ircrgp) * rate(irw1)
-       a4  =  y(icr48) * rate(ircrgp) * ratdum(irw1)
-       a5  = -y(ihe4)*y(icr48) * rate(ircrap)*(1.0d0 - ratdum(irx1))
-       a6  =  y(ihe4)*y(icr48) * ratdum(ircrap)*rate(irx1)
-       a7  =  y(ife52) * ratdum(irfegp) * rate(irx1)
-       a8  =  y(ife52) * rate(irfegp) * ratdum(irx1)
-       a9  = -y(ihe4)*y(ife52) * rate(irfeap)*(1.0d0 - ratdum(iry1))
-       a10 =  y(ihe4)*y(ife52) * ratdum(irfeap)*rate(iry1)
-       a11 =  y(ini56) * ratdum(irnigp) * rate(iry1)
-       a12 =  y(ini56) * rate(irnigp) * ratdum(iry1)
+       a(1)  = -y(ihe4)*y(iti44) * rate(irtiap)*(1.0d0 - ratdum(irw1))
+       a(2)  =  y(ihe4)*y(iti44) * ratdum(irtiap)*rate(irw1)
+       a(3)  =  y(icr48) * ratdum(ircrgp) * rate(irw1)
+       a(4)  =  y(icr48) * rate(ircrgp) * ratdum(irw1)
+       a(5)  = -y(ihe4)*y(icr48) * rate(ircrap)*(1.0d0 - ratdum(irx1))
+       a(6)  =  y(ihe4)*y(icr48) * ratdum(ircrap)*rate(irx1)
+       a(7)  =  y(ife52) * ratdum(irfegp) * rate(irx1)
+       a(8)  =  y(ife52) * rate(irfegp) * ratdum(irx1)
+       a(9)  = -y(ihe4)*y(ife52) * rate(irfeap)*(1.0d0 - ratdum(iry1))
+       a(10) =  y(ihe4)*y(ife52) * ratdum(irfeap)*rate(iry1)
+       a(11) =  y(ini56) * ratdum(irnigp) * rate(iry1)
+       a(12) =  y(ini56) * rate(irnigp) * ratdum(iry1)
 
-       qray(ihe4) = qray(ihe4) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+       dydt(ihe4) = dydt(ihe4) + msum(a,12)
     end if
 
 
     ! c12 reactions
-    a1 = -y(ic12) * y(ic12) * rate(ir1212)
-    a2 = -y(ic12) * y(io16) * rate(ir1216)
-    a3 =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
-    a4 = -y(ic12) * rate(irg3a)
-    a5 = -y(ic12) * y(ihe4) * rate(ircag)
-    a6 =  y(io16) * rate(iroga)
+    a(1) = -y(ic12) * y(ic12) * rate(ir1212)
+    a(2) = -y(ic12) * y(io16) * rate(ir1216)
+    a(3) =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
+    a(4) = -y(ic12) * rate(irg3a)
+    a(5) = -y(ic12) * y(ihe4) * rate(ircag)
+    a(6) =  y(io16) * rate(iroga)
 
-    qray(ic12) = qray(ic12) + a1 + a2 + a3 + a4 + a5 + a6
+    dydt(ic12) = dydt(ic12) + msum(a,6)
 
 
     ! o16 reactions
-    a1 = -y(ic12) * y(io16) * rate(ir1216)
-    a2 = -y(io16) * y(io16) * rate(ir1616)
-    a3 =  y(ic12) * y(ihe4) * rate(ircag)
-    a4 = -y(io16) * y(ihe4) * rate(iroag)
-    a5 = -y(io16) * rate(iroga)
-    a6 =  y(ine20) * rate(irnega)
+    a(1) = -y(ic12) * y(io16) * rate(ir1216)
+    a(2) = -y(io16) * y(io16) * rate(ir1616)
+    a(3) =  y(ic12) * y(ihe4) * rate(ircag)
+    a(4) = -y(io16) * y(ihe4) * rate(iroag)
+    a(5) = -y(io16) * rate(iroga)
+    a(6) =  y(ine20) * rate(irnega)
 
-    qray(io16) = qray(io16) + a1 + a2 + a3 + a4 + a5 + a6
+    dydt(io16) = dydt(io16) + msum(a,6)
 
 
     ! ne20 reactions
-    a1 =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
-    a2 =  y(io16) * y(ihe4) * rate(iroag)
-    a3 = -y(ine20) * y(ihe4) * rate(irneag)
-    a4 = -y(ine20) * rate(irnega)
-    a5 =  y(img24) * rate(irmgga)
+    a(1) =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
+    a(2) =  y(io16) * y(ihe4) * rate(iroag)
+    a(3) = -y(ine20) * y(ihe4) * rate(irneag)
+    a(4) = -y(ine20) * rate(irnega)
+    a(5) =  y(img24) * rate(irmgga)
 
-    qray(ine20) = qray(ine20) + a1 + a2 + a3 + a4 + a5
+    dydt(ine20) = dydt(ine20) + msum(a,5)
 
 
     ! mg24 reactions
-    a1 =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
-    a2 =  y(ine20) * y(ihe4) * rate(irneag)
-    a3 = -y(img24) * y(ihe4) * rate(irmgag)
-    a4 = -y(img24) * rate(irmgga)
-    a5 =  y(isi28) * rate(irsiga)
+    a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
+    a(2) =  y(ine20) * y(ihe4) * rate(irneag)
+    a(3) = -y(img24) * y(ihe4) * rate(irmgag)
+    a(4) = -y(img24) * rate(irmgga)
+    a(5) =  y(isi28) * rate(irsiga)
 
-    qray(img24) = qray(img24) + a1 + a2 + a3 + a4 + a5
+    dydt(img24) = dydt(img24) + msum(a,5)
 
     if (.not.deriva) then
-       a1 = -y(img24) * y(ihe4) * rate(irmgap)*(1.0d0-rate(irr1))
-       a2 =  y(isi28) * rate(irr1) * rate(irsigp)
+       a(1) = -y(img24) * y(ihe4) * rate(irmgap)*(1.0d0-rate(irr1))
+       a(2) =  y(isi28) * rate(irr1) * rate(irsigp)
 
-       qray(img24) = qray(img24) + a1 + a2
+       dydt(img24) = dydt(img24) + msum(a,2)
 
     else
-       a1 = -y(img24)*y(ihe4) * rate(irmgap)*(1.0d0 - ratdum(irr1))
-       a2 =  y(img24)*y(ihe4) * ratdum(irmgap)*rate(irr1)
-       a3 =  y(isi28) * ratdum(irr1) * rate(irsigp)
-       a4 =  y(isi28) * rate(irr1) * ratdum(irsigp)
+       a(1) = -y(img24)*y(ihe4) * rate(irmgap)*(1.0d0 - ratdum(irr1))
+       a(2) =  y(img24)*y(ihe4) * ratdum(irmgap)*rate(irr1)
+       a(3) =  y(isi28) * ratdum(irr1) * rate(irsigp)
+       a(4) =  y(isi28) * rate(irr1) * ratdum(irsigp)
 
-       qray(img24) = qray(img24) + a1 + a2 + a3 + a4
+       dydt(img24) = dydt(img24) + msum(a,4)
     end if
 
 
 
     ! si28 reactions
-    a1 =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
-    a2 =  0.56d0 * 0.5d0*y(io16) * y(io16) * rate(ir1616)
-    a3 =  y(img24) * y(ihe4) * rate(irmgag)
-    a4 = -y(isi28) * y(ihe4) * rate(irsiag)
-    a5 = -y(isi28) * rate(irsiga)
-    a6 =  y(is32)  * rate(irsga)
+    a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
+    a(2) =  0.56d0 * 0.5d0*y(io16) * y(io16) * rate(ir1616)
+    a(3) =  y(img24) * y(ihe4) * rate(irmgag)
+    a(4) = -y(isi28) * y(ihe4) * rate(irsiag)
+    a(5) = -y(isi28) * rate(irsiga)
+    a(6) =  y(is32)  * rate(irsga)
 
-    qray(isi28) = qray(isi28) + a1 + a2 + a3 + a4 + a5 + a6
+    dydt(isi28) = dydt(isi28) + msum(a,6)
 
     if (.not.deriva) then
 
-       a1 =  0.34d0*0.5d0*y(io16)*y(io16)*rate(irs1)*rate(ir1616)
-       a2 =  y(img24) * y(ihe4) * rate(irmgap)*(1.0d0-rate(irr1))
-       a3 = -y(isi28) * rate(irr1) * rate(irsigp)
-       a4 = -y(isi28) * y(ihe4) * rate(irsiap)*(1.0d0-rate(irs1))
-       a5 =  y(is32)  * rate(irs1) * rate(irsgp)
+       a(1) =  0.34d0*0.5d0*y(io16)*y(io16)*rate(irs1)*rate(ir1616)
+       a(2) =  y(img24) * y(ihe4) * rate(irmgap)*(1.0d0-rate(irr1))
+       a(3) = -y(isi28) * rate(irr1) * rate(irsigp)
+       a(4) = -y(isi28) * y(ihe4) * rate(irsiap)*(1.0d0-rate(irs1))
+       a(5) =  y(is32)  * rate(irs1) * rate(irsgp)
 
-       qray(isi28) = qray(isi28) + a1 + a2 + a3 + a4 + a5
+       dydt(isi28) = dydt(isi28) + msum(a,5)
 
     else
-       a1  =  0.34d0*0.5d0*y(io16)*y(io16) * ratdum(irs1)*rate(ir1616)
-       a2  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(irs1)*ratdum(ir1616)
-       a3  =  y(img24)*y(ihe4) * rate(irmgap)*(1.0d0 - ratdum(irr1))
-       a4  = -y(img24)*y(ihe4) * ratdum(irmgap)*rate(irr1)
-       a5  = -y(isi28) * ratdum(irr1) * rate(irsigp)
-       a6  = -y(isi28) * rate(irr1) * ratdum(irsigp)
-       a7  = -y(isi28)*y(ihe4) * rate(irsiap)*(1.0d0 - ratdum(irs1))
-       a8  =  y(isi28)*y(ihe4) * ratdum(irsiap)*rate(irs1)
-       a9  = y(is32) * ratdum(irs1) * rate(irsgp)
-       a10 = y(is32) * rate(irs1) * ratdum(irsgp)
+       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * ratdum(irs1)*rate(ir1616)
+       a(2)  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(irs1)*ratdum(ir1616)
+       a(3)  =  y(img24)*y(ihe4) * rate(irmgap)*(1.0d0 - ratdum(irr1))
+       a(4)  = -y(img24)*y(ihe4) * ratdum(irmgap)*rate(irr1)
+       a(5)  = -y(isi28) * ratdum(irr1) * rate(irsigp)
+       a(6)  = -y(isi28) * rate(irr1) * ratdum(irsigp)
+       a(7)  = -y(isi28)*y(ihe4) * rate(irsiap)*(1.0d0 - ratdum(irs1))
+       a(8)  =  y(isi28)*y(ihe4) * ratdum(irsiap)*rate(irs1)
+       a(9)  = y(is32) * ratdum(irs1) * rate(irsgp)
+       a(10) = y(is32) * rate(irs1) * ratdum(irsgp)
 
-       qray(isi28) = qray(isi28) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+       dydt(isi28) = dydt(isi28) + msum(a,10)
     end if
 
 
 
     ! s32 reactions
-    a1 =  0.1d0 * 0.5d0*y(io16) * y(io16) * rate(ir1616)
-    a2 =  y(isi28) * y(ihe4) * rate(irsiag)
-    a3 = -y(is32) * y(ihe4) * rate(irsag)
-    a4 = -y(is32) * rate(irsga)
-    a5 =  y(iar36) * rate(irarga)
+    a(1) =  0.1d0 * 0.5d0*y(io16) * y(io16) * rate(ir1616)
+    a(2) =  y(isi28) * y(ihe4) * rate(irsiag)
+    a(3) = -y(is32) * y(ihe4) * rate(irsag)
+    a(4) = -y(is32) * rate(irsga)
+    a(5) =  y(iar36) * rate(irarga)
 
-    qray(is32) = qray(is32) + a1 + a2 + a3 + a4 + a5
+    dydt(is32) = dydt(is32) + msum(a,5)
 
 
     if (.not.deriva) then
-       a1 =  0.34d0*0.5d0*y(io16)*y(io16)* rate(ir1616)*(1.0d0-rate(irs1))
-       a2 =  y(isi28) * y(ihe4) * rate(irsiap)*(1.0d0-rate(irs1))
-       a3 = -y(is32) * rate(irs1) * rate(irsgp)
-       a4 = -y(is32) * y(ihe4) * rate(irsap)*(1.0d0-rate(irt1))
-       a5 =  y(iar36) * rate(irt1) * rate(irargp)
+       a(1) =  0.34d0*0.5d0*y(io16)*y(io16)* rate(ir1616)*(1.0d0-rate(irs1))
+       a(2) =  y(isi28) * y(ihe4) * rate(irsiap)*(1.0d0-rate(irs1))
+       a(3) = -y(is32) * rate(irs1) * rate(irsgp)
+       a(4) = -y(is32) * y(ihe4) * rate(irsap)*(1.0d0-rate(irt1))
+       a(5) =  y(iar36) * rate(irt1) * rate(irargp)
 
-       qray(is32) = qray(is32) + a1 + a2 + a3 + a4 + a5
+       dydt(is32) = dydt(is32) + msum(a,5)
 
     else
-       a1  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(ir1616)*(1.0d0-ratdum(irs1))
-       a2  = -0.34d0*0.5d0*y(io16)*y(io16) * ratdum(ir1616)*rate(irs1)
-       a3  =  y(isi28)*y(ihe4) * rate(irsiap)*(1.0d0-ratdum(irs1))
-       a4  = -y(isi28)*y(ihe4) * ratdum(irsiap)*rate(irs1)
-       a5  = -y(is32) * ratdum(irs1) * rate(irsgp)
-       a6  = -y(is32) * rate(irs1) * ratdum(irsgp)
-       a7  = -y(is32)*y(ihe4) * rate(irsap)*(1.0d0-ratdum(irt1))
-       a8  =  y(is32)*y(ihe4) * ratdum(irsap)*rate(irt1)
-       a9  =  y(iar36) * ratdum(irt1) * rate(irargp)
-       a10 =  y(iar36) * rate(irt1) * ratdum(irargp)
+       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(ir1616)*(1.0d0-ratdum(irs1))
+       a(2)  = -0.34d0*0.5d0*y(io16)*y(io16) * ratdum(ir1616)*rate(irs1)
+       a(3)  =  y(isi28)*y(ihe4) * rate(irsiap)*(1.0d0-ratdum(irs1))
+       a(4)  = -y(isi28)*y(ihe4) * ratdum(irsiap)*rate(irs1)
+       a(5)  = -y(is32) * ratdum(irs1) * rate(irsgp)
+       a(6)  = -y(is32) * rate(irs1) * ratdum(irsgp)
+       a(7)  = -y(is32)*y(ihe4) * rate(irsap)*(1.0d0-ratdum(irt1))
+       a(8)  =  y(is32)*y(ihe4) * ratdum(irsap)*rate(irt1)
+       a(9)  =  y(iar36) * ratdum(irt1) * rate(irargp)
+       a(10) =  y(iar36) * rate(irt1) * ratdum(irargp)
 
-       qray(is32) = qray(is32) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+       dydt(is32) = dydt(is32) + msum(a,10)
     end if
 
 
     ! ar36 reactions
-    a1 =  y(is32)  * y(ihe4) * rate(irsag)
-    a2 = -y(iar36) * y(ihe4) * rate(irarag)
-    a3 = -y(iar36) * rate(irarga)
-    a4 =  y(ica40) * rate(ircaga)
+    a(1) =  y(is32)  * y(ihe4) * rate(irsag)
+    a(2) = -y(iar36) * y(ihe4) * rate(irarag)
+    a(3) = -y(iar36) * rate(irarga)
+    a(4) =  y(ica40) * rate(ircaga)
 
-    qray(iar36) = qray(iar36) + a1 + a2 + a3 + a4
+    dydt(iar36) = dydt(iar36) + msum(a,4)
 
     if (.not.deriva) then
-       a1 = y(is32)  * y(ihe4) * rate(irsap)*(1.0d0-rate(irt1))
-       a2 = -y(iar36) * rate(irt1) * rate(irargp)
-       a3 = -y(iar36) * y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
-       a4 =  y(ica40) * rate(ircagp) * rate(iru1)
+       a(1) = y(is32)  * y(ihe4) * rate(irsap)*(1.0d0-rate(irt1))
+       a(2) = -y(iar36) * rate(irt1) * rate(irargp)
+       a(3) = -y(iar36) * y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
+       a(4) =  y(ica40) * rate(ircagp) * rate(iru1)
 
-       qray(iar36) = qray(iar36) + a1 + a2 + a3 + a4
+       dydt(iar36) = dydt(iar36) + msum(a,4)
 
     else
-       a1 =  y(is32)*y(ihe4) * rate(irsap)*(1.0d0 - ratdum(irt1))
-       a2 = -y(is32)*y(ihe4) * ratdum(irsap)*rate(irt1)
-       a3 = -y(iar36) * ratdum(irt1) * rate(irargp)
-       a4 = -y(iar36) * rate(irt1) * ratdum(irargp)
-       a5 = -y(iar36)*y(ihe4) * rate(irarap)*(1.0d0-ratdum(iru1))
-       a6 =  y(iar36)*y(ihe4) * ratdum(irarap)*rate(iru1)
-       a7 =  y(ica40) * ratdum(ircagp) * rate(iru1)
-       a8 =  y(ica40) * rate(ircagp) * ratdum(iru1)
+       a(1) =  y(is32)*y(ihe4) * rate(irsap)*(1.0d0 - ratdum(irt1))
+       a(2) = -y(is32)*y(ihe4) * ratdum(irsap)*rate(irt1)
+       a(3) = -y(iar36) * ratdum(irt1) * rate(irargp)
+       a(4) = -y(iar36) * rate(irt1) * ratdum(irargp)
+       a(5) = -y(iar36)*y(ihe4) * rate(irarap)*(1.0d0-ratdum(iru1))
+       a(6) =  y(iar36)*y(ihe4) * ratdum(irarap)*rate(iru1)
+       a(7) =  y(ica40) * ratdum(ircagp) * rate(iru1)
+       a(8) =  y(ica40) * rate(ircagp) * ratdum(iru1)
 
-       qray(iar36) = qray(iar36) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+       dydt(iar36) = dydt(iar36) + msum(a,8)
     end if
 
 
     ! ca40 reactions
-    a1 =  y(iar36) * y(ihe4) * rate(irarag)
-    a2 = -y(ica40) * y(ihe4) * rate(ircaag)
-    a3 = -y(ica40) * rate(ircaga)
-    a4 =  y(iti44) * rate(irtiga)
+    a(1) =  y(iar36) * y(ihe4) * rate(irarag)
+    a(2) = -y(ica40) * y(ihe4) * rate(ircaag)
+    a(3) = -y(ica40) * rate(ircaga)
+    a(4) =  y(iti44) * rate(irtiga)
 
-    qray(ica40) = qray(ica40) + a1 + a2 + a3 + a4
+    dydt(ica40) = dydt(ica40) + msum(a,4)
 
     if (.not.deriva) then
-       a1 =  y(iar36) * y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
-       a2 = -y(ica40) * rate(ircagp) * rate(iru1)
-       a3 = -y(ica40) * y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
-       a4 =  y(iti44) * rate(irtigp) * rate(irv1)
+       a(1) =  y(iar36) * y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
+       a(2) = -y(ica40) * rate(ircagp) * rate(iru1)
+       a(3) = -y(ica40) * y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
+       a(4) =  y(iti44) * rate(irtigp) * rate(irv1)
 
-       qray(ica40) = qray(ica40) + a1 + a2 + a3 + a4
+       dydt(ica40) = dydt(ica40) + msum(a,4)
 
     else
-       a1 =  y(iar36)*y(ihe4) * rate(irarap)*(1.0d0-ratdum(iru1))
-       a2 = -y(iar36)*y(ihe4) * ratdum(irarap)*rate(iru1)
-       a3 = -y(ica40) * ratdum(ircagp) * rate(iru1)
-       a4 = -y(ica40) * rate(ircagp) * ratdum(iru1)
-       a5 = -y(ica40)*y(ihe4) * rate(ircaap)*(1.0d0-ratdum(irv1))
-       a6 =  y(ica40)*y(ihe4) * ratdum(ircaap)*rate(irv1)
-       a7 =  y(iti44) * ratdum(irtigp) * rate(irv1)
-       a8 =  y(iti44) * rate(irtigp) * ratdum(irv1)
+       a(1) =  y(iar36)*y(ihe4) * rate(irarap)*(1.0d0-ratdum(iru1))
+       a(2) = -y(iar36)*y(ihe4) * ratdum(irarap)*rate(iru1)
+       a(3) = -y(ica40) * ratdum(ircagp) * rate(iru1)
+       a(4) = -y(ica40) * rate(ircagp) * ratdum(iru1)
+       a(5) = -y(ica40)*y(ihe4) * rate(ircaap)*(1.0d0-ratdum(irv1))
+       a(6) =  y(ica40)*y(ihe4) * ratdum(ircaap)*rate(irv1)
+       a(7) =  y(iti44) * ratdum(irtigp) * rate(irv1)
+       a(8) =  y(iti44) * rate(irtigp) * ratdum(irv1)
 
-       qray(ica40) = qray(ica40) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+       dydt(ica40) = dydt(ica40) + msum(a,8)
     end if
 
 
     ! ti44 reactions
-    a1 =  y(ica40) * y(ihe4) * rate(ircaag)
-    a2 = -y(iti44) * y(ihe4) * rate(irtiag)
-    a3 = -y(iti44) * rate(irtiga)
-    a4 =  y(icr48) * rate(ircrga)
+    a(1) =  y(ica40) * y(ihe4) * rate(ircaag)
+    a(2) = -y(iti44) * y(ihe4) * rate(irtiag)
+    a(3) = -y(iti44) * rate(irtiga)
+    a(4) =  y(icr48) * rate(ircrga)
 
-    qray(iti44) = qray(iti44) + a1 + a2 + a3 + a4
+    dydt(iti44) = dydt(iti44) + msum(a,4)
 
     if (.not.deriva) then
-       a1 =  y(ica40) * y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
-       a2 = -y(iti44) * rate(irv1) * rate(irtigp)
-       a3 = -y(iti44) * y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
-       a4 =  y(icr48) * rate(irw1) * rate(ircrgp)
+       a(1) =  y(ica40) * y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
+       a(2) = -y(iti44) * rate(irv1) * rate(irtigp)
+       a(3) = -y(iti44) * y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
+       a(4) =  y(icr48) * rate(irw1) * rate(ircrgp)
 
-       qray(iti44) = qray(iti44) + a1 + a2 + a3 + a4
+       dydt(iti44) = dydt(iti44) + msum(a,4)
 
     else
-       a1 =  y(ica40)*y(ihe4) * rate(ircaap)*(1.0d0-ratdum(irv1))
-       a2 = -y(ica40)*y(ihe4) * ratdum(ircaap)*rate(irv1)
-       a3 = -y(iti44) * ratdum(irv1) * rate(irtigp)
-       a4 = -y(iti44) * rate(irv1) * ratdum(irtigp)
-       a5 = -y(iti44)*y(ihe4) * rate(irtiap)*(1.0d0-ratdum(irw1))
-       a6 =  y(iti44)*y(ihe4) * ratdum(irtiap)*rate(irw1)
-       a7 =  y(icr48) * ratdum(irw1) * rate(ircrgp)
-       a8 =  y(icr48) * rate(irw1) * ratdum(ircrgp)
+       a(1) =  y(ica40)*y(ihe4) * rate(ircaap)*(1.0d0-ratdum(irv1))
+       a(2) = -y(ica40)*y(ihe4) * ratdum(ircaap)*rate(irv1)
+       a(3) = -y(iti44) * ratdum(irv1) * rate(irtigp)
+       a(4) = -y(iti44) * rate(irv1) * ratdum(irtigp)
+       a(5) = -y(iti44)*y(ihe4) * rate(irtiap)*(1.0d0-ratdum(irw1))
+       a(6) =  y(iti44)*y(ihe4) * ratdum(irtiap)*rate(irw1)
+       a(7) =  y(icr48) * ratdum(irw1) * rate(ircrgp)
+       a(8) =  y(icr48) * rate(irw1) * ratdum(ircrgp)
 
-       qray(iti44) = qray(iti44) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+       dydt(iti44) = dydt(iti44) + msum(a,8)
     end if
 
 
     ! cr48 reactions
-    a1 =  y(iti44) * y(ihe4) * rate(irtiag)
-    a2 = -y(icr48) * y(ihe4) * rate(ircrag)
-    a3 = -y(icr48) * rate(ircrga)
-    a4 =  y(ife52) * rate(irfega)
+    a(1) =  y(iti44) * y(ihe4) * rate(irtiag)
+    a(2) = -y(icr48) * y(ihe4) * rate(ircrag)
+    a(3) = -y(icr48) * rate(ircrga)
+    a(4) =  y(ife52) * rate(irfega)
 
-    qray(icr48) = qray(icr48) + a1 + a2 + a3 + a4
+    dydt(icr48) = dydt(icr48) + msum(a,4)
 
     if (.not.deriva) then
-       a1 =  y(iti44) * y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
-       a2 = -y(icr48) * rate(irw1) * rate(ircrgp)
-       a3 = -y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
-       a4 =  y(ife52) * rate(irx1) * rate(irfegp)
+       a(1) =  y(iti44) * y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
+       a(2) = -y(icr48) * rate(irw1) * rate(ircrgp)
+       a(3) = -y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
+       a(4) =  y(ife52) * rate(irx1) * rate(irfegp)
 
-       qray(icr48) = qray(icr48) + a1 + a2 + a3 + a4
+       dydt(icr48) = dydt(icr48) + msum(a,4)
 
     else
-       a1 =  y(iti44)*y(ihe4) * rate(irtiap)*(1.0d0-ratdum(irw1))
-       a2 = -y(iti44)*y(ihe4) * ratdum(irtiap)*rate(irw1)
-       a3 = -y(icr48) * ratdum(irw1) * rate(ircrgp)
-       a4 = -y(icr48) * rate(irw1) * ratdum(ircrgp)
-       a5 = -y(icr48)*y(ihe4) * rate(ircrap)*(1.0d0-ratdum(irx1))
-       a6 =  y(icr48)*y(ihe4) * ratdum(ircrap)*rate(irx1)
-       a7 =  y(ife52) * ratdum(irx1) * rate(irfegp)
-       a8 =  y(ife52) * rate(irx1) * ratdum(irfegp)
+       a(1) =  y(iti44)*y(ihe4) * rate(irtiap)*(1.0d0-ratdum(irw1))
+       a(2) = -y(iti44)*y(ihe4) * ratdum(irtiap)*rate(irw1)
+       a(3) = -y(icr48) * ratdum(irw1) * rate(ircrgp)
+       a(4) = -y(icr48) * rate(irw1) * ratdum(ircrgp)
+       a(5) = -y(icr48)*y(ihe4) * rate(ircrap)*(1.0d0-ratdum(irx1))
+       a(6) =  y(icr48)*y(ihe4) * ratdum(ircrap)*rate(irx1)
+       a(7) =  y(ife52) * ratdum(irx1) * rate(irfegp)
+       a(8) =  y(ife52) * rate(irx1) * ratdum(irfegp)
 
-       qray(icr48) = qray(icr48) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+       dydt(icr48) = dydt(icr48) + msum(a,8)
     end if
 
 
     ! fe52 reactions
-    a1 =  y(icr48) * y(ihe4) * rate(ircrag)
-    a2 = -y(ife52) * y(ihe4) * rate(irfeag)
-    a3 = -y(ife52) * rate(irfega)
-    a4 =  y(ini56) * rate(irniga)
+    a(1) =  y(icr48) * y(ihe4) * rate(ircrag)
+    a(2) = -y(ife52) * y(ihe4) * rate(irfeag)
+    a(3) = -y(ife52) * rate(irfega)
+    a(4) =  y(ini56) * rate(irniga)
 
-    qray(ife52) = qray(ife52) + a1 + a2 + a3 + a4
+    dydt(ife52) = dydt(ife52) + msum(a,4)
 
     if (.not.deriva) then
-       a1 =  y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
-       a2 = -y(ife52) * rate(irx1) * rate(irfegp)
-       a3 = -y(ife52) * y(ihe4) * rate(irfeap)*(1.0d0-rate(iry1))
-       a4 =  y(ini56) * rate(iry1) * rate(irnigp)
+       a(1) =  y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
+       a(2) = -y(ife52) * rate(irx1) * rate(irfegp)
+       a(3) = -y(ife52) * y(ihe4) * rate(irfeap)*(1.0d0-rate(iry1))
+       a(4) =  y(ini56) * rate(iry1) * rate(irnigp)
 
-       qray(ife52) = qray(ife52) + a1 + a2 + a3 + a4
+       dydt(ife52) = dydt(ife52) + msum(a,4)
 
     else
-       a1 =  y(icr48)*y(ihe4) * rate(ircrap)*(1.0d0-ratdum(irx1))
-       a2 = -y(icr48)*y(ihe4) * ratdum(ircrap)*rate(irx1)
-       a3 = -y(ife52) * ratdum(irx1) * rate(irfegp)
-       a4 = -y(ife52) * rate(irx1) * ratdum(irfegp)
-       a5 = -y(ife52)*y(ihe4) * rate(irfeap)*(1.0d0-ratdum(iry1))
-       a6 =  y(ife52)*y(ihe4) * ratdum(irfeap)*rate(iry1)
-       a7 =  y(ini56) * ratdum(iry1) * rate(irnigp)
-       a8 =  y(ini56) * rate(iry1) * ratdum(irnigp)
+       a(1) =  y(icr48)*y(ihe4) * rate(ircrap)*(1.0d0-ratdum(irx1))
+       a(2) = -y(icr48)*y(ihe4) * ratdum(ircrap)*rate(irx1)
+       a(3) = -y(ife52) * ratdum(irx1) * rate(irfegp)
+       a(4) = -y(ife52) * rate(irx1) * ratdum(irfegp)
+       a(5) = -y(ife52)*y(ihe4) * rate(irfeap)*(1.0d0-ratdum(iry1))
+       a(6) =  y(ife52)*y(ihe4) * ratdum(irfeap)*rate(iry1)
+       a(7) =  y(ini56) * ratdum(iry1) * rate(irnigp)
+       a(8) =  y(ini56) * rate(iry1) * ratdum(irnigp)
 
-       qray(ife52) = qray(ife52) + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+       dydt(ife52) = dydt(ife52) + msum(a,8)
     end if
 
 
     ! ni56 reactions
-    a1 =  y(ife52) * y(ihe4) * rate(irfeag)
-    a2 = -y(ini56) * rate(irniga)
+    a(1) =  y(ife52) * y(ihe4) * rate(irfeag)
+    a(2) = -y(ini56) * rate(irniga)
 
-    qray(ini56) = qray(ini56) + a1 + a2
+    dydt(ini56) = dydt(ini56) + msum(a,2)
 
     if (.not.deriva) then
-       a1 =  y(ife52) * y(ihe4) * rate(irfeap)*(1.0d0-rate(iry1))
-       a2 = -y(ini56) * rate(iry1) * rate(irnigp)
+       a(1) =  y(ife52) * y(ihe4) * rate(irfeap)*(1.0d0-rate(iry1))
+       a(2) = -y(ini56) * rate(iry1) * rate(irnigp)
 
-       qray(ini56) = qray(ini56) + a1 + a2
+       dydt(ini56) = dydt(ini56) + msum(a,2)
 
     else
-       a1 =  y(ife52)*y(ihe4) * rate(irfeap)*(1.0d0-ratdum(iry1))
-       a2 = -y(ife52)*y(ihe4) * ratdum(irfeap)*rate(iry1)
-       a3 = -y(ini56) * ratdum(iry1) * rate(irnigp)
-       a4 = -y(ini56) * rate(iry1) * ratdum(irnigp)
+       a(1) =  y(ife52)*y(ihe4) * rate(irfeap)*(1.0d0-ratdum(iry1))
+       a(2) = -y(ife52)*y(ihe4) * ratdum(irfeap)*rate(iry1)
+       a(3) = -y(ini56) * ratdum(iry1) * rate(irnigp)
+       a(4) = -y(ini56) * rate(iry1) * ratdum(irnigp)
 
-       qray(ini56) = qray(ini56) + a1 + a2 + a3 + a4
+       dydt(ini56) = dydt(ini56) + msum(a,4)
     end if
-
-
-
-    ! Now set the double precision return argument dydt
-
-    dydt(1:nspec) = qray(1:nspec)
 
   end subroutine rhs
 
@@ -2054,4 +2036,83 @@ contains
 
   end subroutine dfdy_isotopes_aprox13
 
+  ! Implementation of the exact summation routine from:
+  ! https://code.activestate.com/recipes/393090/
+
+  double precision function msum(array,n)
+
+    implicit none
+
+    double precision, intent(in) :: array(:)
+    integer, intent(in)          :: n ! How many terms in array to sum; array must have at least n items
+
+    integer :: p, i, j, k
+
+    double precision :: partials(0:n-1)
+
+    double precision :: x, y, z, hi, lo
+
+    partials = ZERO
+
+    ! p keeps track of how many entries in partials are actually used.
+
+    p = 0
+
+    ! The first partial is just the first term.
+
+    partials(p) = array(1)
+
+    do i = 2, n
+
+       j = 0
+
+       x = array(i)
+
+       do k = 0, p
+
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             
+             ! Swap x, y
+
+             z = y
+             y = x
+             x = z
+
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. ZERO) then
+
+             partials(j) = lo
+             j = j + 1
+
+             if (j > p) then
+                p = p + 1
+
+                if (p > n - 1) then
+                   print *, "Error: too many partials"
+                   stop
+                endif
+
+             endif
+
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+       partials(j+1:n-1) = ZERO
+
+    enddo
+
+    msum = sum(partials(0:p))
+
+  end function msum  
+  
 end module actual_rhs_module
