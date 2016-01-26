@@ -19,7 +19,7 @@ call_eos_in_rhs          logical   .false.
 # gives us a negative energy change, redo the burn in self-heating mode.
 burning_mode             integer   1
 
-# Whether to use an analytical or numerical Jacobian. Analytical by default.
+# Whether to use an analytical or numerical Jacobian. Numerical by default.
 jacobian                 integer   2
 
 # Should we print out diagnostic output after the solve?  
