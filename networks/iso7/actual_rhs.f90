@@ -177,7 +177,7 @@ contains
   subroutine rhs(y, rate, ratdum, dydt, deriva)
 
     use bl_constants_module, only: ZERO, SIXTH
-    use bl_types, only: qp_t
+    use microphysics_math_module, only: esum
 
     implicit none
 
@@ -189,70 +189,83 @@ contains
 
     ! local variables
     integer          :: i
+    double precision :: a(15)
 
     dydt(1:nspec) = ZERO
 
     ! set up the system of ode's :
     ! 4he reactions
-    dydt(ihe4) =  3.0d0 * y(ic12) * rate(irg3a) &
-                - 0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a) &
-                + y(io16) * rate(iroga) &
-                - y(ic12) * y(ihe4) * rate(ircag) &
-                + 0.5d0 * y(ic12) * y(ic12) * rate(ir1212) &
-                + 0.5d0 * y(ic12) * y(io16) * rate(ir1216) &
-                + 0.5d0 * y(io16) * y(io16) * rate(ir1616) &
-                - y(io16) * y(ihe4) * rate(iroag) &
-                + y(ine20) * rate(irnega) &
-                + y(img24) * rate(irmgga) &
-                - y(ine20) * y(ihe4) * rate(irneag) &
-                + y(isi28) * rate(irsiga) &
-                - y(img24) * y(ihe4) * rate(irmgag) &
-                - 7.0e0 * rate(irsi2ni) * y(ihe4) &
-                + 7.0e0 * rate(irni2si) * y(ini56)
+    a(1)  =  3.0d0 * y(ic12) * rate(irg3a)
+    a(2)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
+    a(3)  =  y(io16) * rate(iroga)
+    a(4)  = -y(ic12) * y(ihe4) * rate(ircag)
+    a(5)  =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
+    a(6)  =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
+    a(7)  =  0.5d0 * y(io16) * y(io16) * rate(ir1616)
+    a(8)  = -y(io16) * y(ihe4) * rate(iroag)
+    a(9)  =  y(ine20) * rate(irnega)
+    a(10) =  y(img24) * rate(irmgga)
+    a(11) = -y(ine20) * y(ihe4) * rate(irneag)
+    a(12) =  y(isi28) * rate(irsiga)
+    a(13) = -y(img24) * y(ihe4) * rate(irmgag)
+    a(14) = -7.0d0 * rate(irsi2ni) * y(ihe4)
+    a(15) =  7.0d0 * rate(irni2si) * y(ini56)
 
+    dydt(ihe4) = esum(a,15)
 
     ! 12c reactions
-    dydt(ic12) =   sixth * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a) &
-                 - y(ic12) * rate(irg3a) &
-                 + y(io16) * rate(iroga) &
-                 - y(ic12) * y(ihe4) * rate(ircag) &
-                 - y(ic12) * y(ic12) * rate(ir1212) &
-                 - y(ic12) * y(io16) * rate(ir1216)
+    a(1) =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
+    a(2) = -y(ic12) * rate(irg3a)
+    a(3) =  y(io16) * rate(iroga)
+    a(4) = -y(ic12) * y(ihe4) * rate(ircag)
+    a(5) = -y(ic12) * y(ic12) * rate(ir1212)
+    a(6) = -y(ic12) * y(io16) * rate(ir1216)
+
+    dydt(ic12) = esum(a,6)
 
     ! 16o reactions
-    dydt(io16) = -y(io16) * rate(iroga) &
-                + y(ic12) * y(ihe4) * rate(ircag) &
-                - y(ic12) * y(io16) * rate(ir1216) &
-                - y(io16) * y(io16) * rate(ir1616) &
-                - y(io16) * y(ihe4) * rate(iroag) &
-                + y(ine20) * rate(irnega)
+    a(1) = -y(io16) * rate(iroga)
+    a(2) =  y(ic12) * y(ihe4) * rate(ircag)
+    a(3) = -y(ic12) * y(io16) * rate(ir1216)
+    a(4) = -y(io16) * y(io16) * rate(ir1616)
+    a(5) = -y(io16) * y(ihe4) * rate(iroag)
+    a(6) =  y(ine20) * rate(irnega)
+
+    dydt(io16) = esum(a,6)
 
     ! 20ne reactions
-    dydt(ine20) =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212) &
-                 + y(io16) * y(ihe4) * rate(iroag) &
-                 - y(ine20) * rate(irnega) &
-                 + y(img24) * rate(irmgga) &
-                 - y(ine20) * y(ihe4) * rate(irneag)
+    a(1) =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
+    a(2) =  y(io16) * y(ihe4) * rate(iroag)
+    a(3) = -y(ine20) * rate(irnega)
+    a(4) =  y(img24) * rate(irmgga)
+    a(5) = -y(ine20) * y(ihe4) * rate(irneag)
 
+    dydt(ine20) = esum(a,5)
 
     ! 24mg reactions
-    dydt(img24) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216) &
-                 - y(img24) * rate(irmgga) &
-                 + y(ine20) * y(ihe4) * rate(irneag) &
-                 + y(isi28) * rate(irsiga) &
-                 - y(img24) * y(ihe4) * rate(irmgag)
+    a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
+    a(2) = -y(img24) * rate(irmgga)
+    a(3) =  y(ine20) * y(ihe4) * rate(irneag)
+    a(4) =  y(isi28) * rate(irsiga)
+    a(5) = -y(img24) * y(ihe4) * rate(irmgag)
+
+    dydt(img24) = esum(a,5)
 
     ! 28si reactions
-    dydt(isi28) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216) &
-                 + 0.5d0 * y(io16) * y(io16) * rate(ir1616) &
-                 - y(isi28) * rate(irsiga) &
-                 + y(img24) * y(ihe4) * rate(irmgag) &
-                 - rate(irsi2ni) * y(ihe4) &
-                 + rate(irni2si) * y(ini56)
+    a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
+    a(2) =  0.5d0 * y(io16) * y(io16) * rate(ir1616)
+    a(3) = -y(isi28) * rate(irsiga)
+    a(4) =  y(img24) * y(ihe4) * rate(irmgag)
+    a(5) = -rate(irsi2ni) * y(ihe4)
+    a(6) =  rate(irni2si) * y(ini56)
+
+    dydt(isi28) = esum(a,6)
 
     ! ni56 reactions
-    dydt(ini56) =  rate(irsi2ni) * y(ihe4) &
-                 - rate(irni2si) * y(ini56)
+    a(1) =  rate(irsi2ni) * y(ihe4)
+    a(2) = -rate(irni2si) * y(ini56)
+
+    dydt(ini56) = esum(a,2)
 
   end subroutine rhs
 
@@ -571,6 +584,7 @@ contains
   subroutine dfdy_isotopes_iso7(neq,y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
+    use microphysics_math_module, only: esum
 
     implicit none
 
@@ -580,162 +594,227 @@ contains
     double precision :: y(neq), dfdy(neq,neq)
     double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
 
+    double precision :: b(8)
+    
     ! set up the jacobian
     ! 4he jacobian elements
     ! d(he4)/d(he4)
-    dfdy(ihe4,ihe4) = -1.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a) &
-                      - y(ic12) * ratdum(ircag) &
-                      - y(io16) * ratdum(iroag) &
-                      - y(ine20) * ratdum(irneag) &
-                      - y(img24) * ratdum(irmgag) &
-                      - 7.0d0 * ratdum(irsi2ni) &
-                      - 7.0d0 * dratdumdy1(irsi2ni) * y(ihe4) &
-                      + 7.0d0 * dratdumdy1(irni2si) * y(ini56)
+    b(1) = -1.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a)
+    b(2) = -y(ic12) * ratdum(ircag)
+    b(3) = -y(io16) * ratdum(iroag)
+    b(4) = -y(ine20) * ratdum(irneag)
+    b(5) = -y(img24) * ratdum(irmgag)
+    b(6) = -7.0d0 * ratdum(irsi2ni)
+    b(7) = -7.0d0 * dratdumdy1(irsi2ni) * y(ihe4)
+    b(8) =  7.0d0 * dratdumdy1(irni2si) * y(ini56)
+
+    dfdy(ihe4,ihe4) = esum(b,8)
 
     ! d(he4)/d(c12)
-    dfdy(ihe4,ic12) =  3.0d0 * ratdum(irg3a) &
-                     - y(ihe4) * ratdum(ircag) &
-                     + y(ic12) * ratdum(ir1212) &
-                     + 0.5d0 * y(io16) * ratdum(ir1216)
+    b(1) =  3.0d0 * ratdum(irg3a)
+    b(2) = -y(ihe4) * ratdum(ircag)
+    b(3) =  y(ic12) * ratdum(ir1212)
+    b(4) =  0.5d0 * y(io16) * ratdum(ir1216)
+
+    dfdy(ihe4,ic12) = esum(b,4)
 
     ! d(he4)/d(o16)
-    dfdy(ihe4,io16) =  ratdum(iroga) &
-                     + 0.5d0 * y(ic12) * ratdum(ir1216) &
-                     + y(io16) * ratdum(ir1616) &
-                     - y(ihe4) * ratdum(iroag)
+    b(1) =  ratdum(iroga)
+    b(2) =  0.5d0 * y(ic12) * ratdum(ir1216)
+    b(3) =  y(io16) * ratdum(ir1616)
+    b(4) = -y(ihe4) * ratdum(iroag)
+
+    dfdy(ihe4,io16) = esum(b,4)
 
     ! d(he4)/d(ne20)
-    dfdy(ihe4,ine20) =  ratdum(irnega) &
-                      - y(ihe4) * ratdum(irneag)
+    b(1) =  ratdum(irnega)
+    b(2) = -y(ihe4) * ratdum(irneag)
 
+    dfdy(ihe4,ine20) = esum(b,2)
+                      
     ! d(he4)/d(mg24)
-    dfdy(ihe4,img24) =  ratdum(irmgga) &
-                      - y(ihe4) * ratdum(irmgag)
+    b(1) =  ratdum(irmgga)
+    b(2) = -y(ihe4) * ratdum(irmgag)
+
+    dfdy(ihe4,img24) = esum(b,2)
 
     ! d(he4)/d(si28)
-    dfdy(ihe4,isi28) =  ratdum(irsiga) &
-                      - 7.0d0 * dratdumdy2(irsi2ni) * y(ihe4)
+    b(1) =  ratdum(irsiga)
+    b(2) = -7.0d0 * dratdumdy2(irsi2ni) * y(ihe4)
+
+    dfdy(ihe4,isi28) = esum(b,2)
 
     ! d(he4)/d(ni56)
-    dfdy(ihe4,ini56) =  7.0d0 * ratdum(irni2si)
+    b(1) =  7.0d0 * ratdum(irni2si)
+
+    dfdy(ihe4,ini56) = esum(b,1)
 
 
 
     ! 12c jacobian elements
     ! d(c12)/d(he4)
-    dfdy(ic12,ihe4) =  0.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a) &
-                     - y(ic12) * ratdum(ircag)
+    b(1) =  0.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a)
+    b(2) = -y(ic12) * ratdum(ircag)
+
+    dfdy(ic12,ihe4) = esum(b,2)
 
     ! d(c12)/d(c12)
-    dfdy(ic12,ic12) = -ratdum(irg3a) &
-                      - y(ihe4) * ratdum(ircag) &
-                      - 2.0d0 * y(ic12) * ratdum(ir1212) &
-                      - y(io16) * ratdum(ir1216)
+    b(1) = -ratdum(irg3a)
+    b(2) = -y(ihe4) * ratdum(ircag)
+    b(3) = -2.0d0 * y(ic12) * ratdum(ir1212)
+    b(4) = -y(io16) * ratdum(ir1216)
+
+    dfdy(ic12,ic12) = esum(b,4)
 
     ! d(c12)/d(o16)
-    dfdy(ic12,io16) =  ratdum(iroga) &
-                     - y(ic12) * ratdum(ir1216)
+    b(1) =  ratdum(iroga)
+    b(2) = -y(ic12) * ratdum(ir1216)
 
+    dfdy(ic12,io16) = esum(b,2)
 
 
     ! 16o jacobian elements
     ! d(o16)/d(he4)
-    dfdy(io16,ihe4) =  y(ic12) * ratdum(ircag) &
-                     - y(io16) * ratdum(iroag)
+    b(1) =  y(ic12) * ratdum(ircag)
+    b(2) = -y(io16) * ratdum(iroag)
+
+    dfdy(io16,ihe4) = esum(b,2)
 
     ! d(o16)/d(c12)
-    dfdy(io16,ic12) =  y(ihe4) * ratdum(ircag) &
-                     - y(io16) * ratdum(ir1216)
+    b(1) =  y(ihe4) * ratdum(ircag)
+    b(2) = -y(io16) * ratdum(ir1216)
+
+    dfdy(io16,ic12) = esum(b,2)
 
     ! d(o16)/d(o16)
-    dfdy(io16,io16) = -ratdum(iroga) &
-                     - y(ic12) * ratdum(ir1216) &
-                     - 2.0d0 * y(io16) * ratdum(ir1616) &
-                     - y(ihe4) * ratdum(iroag)
+    b(1) = -ratdum(iroga)
+    b(2) = -y(ic12) * ratdum(ir1216)
+    b(3) = -2.0d0 * y(io16) * ratdum(ir1616)
+    b(4) = -y(ihe4) * ratdum(iroag)
+
+    dfdy(io16,io16) = esum(b,4)
 
     ! d(o16)/d(ne20)
-    dfdy(io16,ine20) =  ratdum(irnega)
+    b(1) =  ratdum(irnega)
 
+    dfdy(io16,ine20) = esum(b,1)
 
 
 
     ! 20ne jacobian elements
     ! d(ne20)/d(he4)
-    dfdy(ine20,ihe4) =  y(io16) * ratdum(iroag) - y(ine20) * ratdum(irneag)
+    b(1) =  y(io16) * ratdum(iroag) - y(ine20) * ratdum(irneag)
+
+    dfdy(ine20,ihe4) = esum(b,1)
 
     ! d(ne20)/d(c12)
-    dfdy(ine20,ic12) =  y(ic12) * ratdum(ir1212)
+    b(1) =  y(ic12) * ratdum(ir1212)
+
+    dfdy(ine20,ic12) = esum(b,1)
 
     ! d(ne20)/d(o16)
-    dfdy(ine20,io16) =  y(ihe4) * ratdum(iroag)
+    b(1) =  y(ihe4) * ratdum(iroag)
+
+    dfdy(ine20,io16) = esum(b,1)
 
     ! d(ne20)/d(ne20)
-    dfdy(ine20,ine20) = -ratdum(irnega) - y(ihe4) * ratdum(irneag)
+    b(1) = -ratdum(irnega) - y(ihe4) * ratdum(irneag)
+
+    dfdy(ine20,ine20) = esum(b,1)
 
     ! d(ne20)/d(mg24)
-    dfdy(ine20,img24) =  ratdum(irmgga)
+    b(1) =  ratdum(irmgga)
 
+    dfdy(ine20,img24) = esum(b,1)
 
 
 
     ! 24mg jacobian elements
     ! d(mg24)/d(he4)
-    dfdy(img24,ihe4) =  y(ine20) * ratdum(irneag) &
-                      - y(img24) * ratdum(irmgag)
+    b(1) =  y(ine20) * ratdum(irneag)
+    b(2) = -y(img24) * ratdum(irmgag)
+
+    dfdy(img24,ihe4) = esum(b,2)
 
     ! d(mg24)/d(c12)
-    dfdy(img24,ic12) =  0.5d0 * y(io16) * ratdum(ir1216)
+    b(1) =  0.5d0 * y(io16) * ratdum(ir1216)
+
+    dfdy(img24,ic12) = esum(b,1)
 
     ! d(mg24)/d(o16)
-    dfdy(img24,io16) =  0.5d0 * y(ic12) * ratdum(ir1216)
+    b(1) =  0.5d0 * y(ic12) * ratdum(ir1216)
+
+    dfdy(img24,io16) = esum(b,1)
 
     ! d(mg24)/d(ne20)
-    dfdy(img24,ine20) =  y(ihe4) * ratdum(irneag)
+    b(1) =  y(ihe4) * ratdum(irneag)
+
+    dfdy(img24,ine20) = esum(b,1)
 
     ! d(mg24)/d(mg24)
-    dfdy(img24,img24) = -ratdum(irmgga) &
-                      - y(ihe4) * ratdum(irmgag)
+    b(1) = -ratdum(irmgga)
+    b(2) = -y(ihe4) * ratdum(irmgag)
+
+    dfdy(img24,img24) = esum(b,2)
 
     ! d(mg24)/d(si28)
-    dfdy(img24,isi28) =  ratdum(irsiga)
+    b(1) =  ratdum(irsiga)
 
+    dfdy(img24,isi28) = esum(b,1)
 
     ! 28si jacobian elements
     ! d(si28)/d(he4)
-    dfdy(isi28,ihe4) =  y(img24) * ratdum(irmgag) &
-                      - ratdum(irsi2ni) &
-                      - dratdumdy1(irsi2ni) * y(ihe4) &
-                      + dratdumdy1(irni2si) * y(ini56)
+    b(1) =  y(img24) * ratdum(irmgag)
+    b(2) = -ratdum(irsi2ni)
+    b(3) = -dratdumdy1(irsi2ni) * y(ihe4)
+    b(4) =  dratdumdy1(irni2si) * y(ini56)
+
+    dfdy(isi28,ihe4) = esum(b,4)
 
     ! d(si28)/d(c12)
-    dfdy(isi28,ic12) =  0.5d0 * y(io16) * ratdum(ir1216)
+    b(1) =  0.5d0 * y(io16) * ratdum(ir1216)
+
+    dfdy(isi28,ic12) = esum(b,1)
 
     ! d(si28)/d(o16)
-    dfdy(isi28,io16) =  y(io16) * ratdum(ir1616) &
-                      + 0.5d0 * y(ic12) * ratdum(ir1216)
+    b(1) =  y(io16) * ratdum(ir1616)
+    b(2) =  0.5d0 * y(ic12) * ratdum(ir1216)
+
+    dfdy(isi28,io16) = esum(b,2)
 
     ! d(si28)/d(mg24)
-    dfdy(isi28,img24) =  y(ihe4) * ratdum(irmgag)
+    b(1) =  y(ihe4) * ratdum(irmgag)
+
+    dfdy(isi28,img24) = esum(b,1)
 
     ! d(si28)/d(si28)
-    dfdy(isi28,isi28) = -ratdum(irsiga) &
-                       - dratdumdy2(irsi2ni) * y(ihe4)
+    b(1) = -ratdum(irsiga)
+    b(2) = -dratdumdy2(irsi2ni) * y(ihe4)
+
+    dfdy(isi28,isi28) = esum(b,2)
 
     ! d(si28)/d(ni56)
-    dfdy(isi28,ini56) =  ratdum(irni2si)
+    b(1) =  ratdum(irni2si)
 
+    dfdy(isi28,ini56) = esum(b,1)
 
     ! ni56 jacobian elements
     ! d(ni56)/d(he4)
-    dfdy(ini56,ihe4) =  ratdum(irsi2ni) &
-                      + dratdumdy1(irsi2ni) * y(ihe4) &
-                      - dratdumdy1(irni2si) * y(ini56)
+    b(1) =  ratdum(irsi2ni)
+    b(2) =  dratdumdy1(irsi2ni) * y(ihe4)
+    b(3) = -dratdumdy1(irni2si) * y(ini56)
+
+    dfdy(ini56,ihe4) = esum(b,3)
 
     ! d(ni56)/d(si28)
-    dfdy(ini56,isi28) = dratdumdy2(irsi2ni) * y(ihe4)
+    b(1) = dratdumdy2(irsi2ni) * y(ihe4)
 
+    dfdy(ini56,isi28) = esum(b,1)
+    
     ! d(ni56)/d(ni56)
-    dfdy(ini56,ini56) = -ratdum(irni2si)
+    b(1) = -ratdum(irni2si)
+
+    dfdy(ini56,ini56) = esum(b,1)
 
   end subroutine dfdy_isotopes_iso7
 
