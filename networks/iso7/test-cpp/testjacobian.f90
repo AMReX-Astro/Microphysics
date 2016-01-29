@@ -63,7 +63,7 @@ subroutine test_jacobian() bind(C)
   state % xn(ini56) = 1.6962109761781674d-1
 
   ! Add the remainder to iron
-  state_in % xn(ini56) = state_in % xn(ini56) + ONE - sum(state_in % xn)  
+  state % xn(ini56) = state % xn(ini56) + ONE - sum(state % xn)
 
   call normalize_abundances(state)
 
