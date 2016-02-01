@@ -6,6 +6,7 @@ module actual_burner_module
   use eos_module
   use eos_data_module
   use eos_type_module
+  use burn_type_module
   use network
 
   implicit none
@@ -64,8 +65,8 @@ contains
 
     implicit none
 
-    type (eos_t),     intent(in   ) :: state_in
-    type (eos_t),     intent(inout) :: state_out
+    type (burn_t),    intent(in   ) :: state_in
+    type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
 
     double precision :: enuc
@@ -90,10 +91,15 @@ contains
     double precision, pointer :: rpar(:)    
     integer :: ipar
 
+    type (eos_t) :: eos_state
+
     EXTERNAL jac, f_rhs
 
-    call bl_allocate(rpar, 1, n_rpar_comps)    
-    
+    call bl_allocate(rpar, 1, n_rpar_comps)
+
+    call burn_to_eos(state_in, eos_state)
+    call eos(eos_input_re, eos_state)
+
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
     atol(1:nspec_advance) = 1.d-12    ! mass fractions
@@ -115,17 +121,17 @@ contains
     integration_time = ZERO
 
     ! abundances are the first nspec_advance values and temperature is the last
-    y(ic12) = state_in % xn(ic12)
-    y(nspec_advance+1) = state_in % T
+    y(ic12) = eos_state % xn(ic12)
+    y(nspec_advance+1) = eos_state % T
 
     ! Density, specific heat at constant pressure, c_p, and dhdX are needed
     ! in the righthand side routine, so we will pass these in through the
     ! rpar functionality.
 
-    rpar(irp_dens)                  = state_in % rho
-    rpar(irp_cp)                    = state_in % cp
-    rpar(irp_dhdX:irp_dhdX+nspec-1) = state_in % dhdX(:)
-    rpar(irp_O16)                   = state_in % xn(io16)
+    rpar(irp_dens)                  = eos_state % rho
+    rpar(irp_cp)                    = eos_state % cp
+    rpar(irp_dhdX:irp_dhdX+nspec-1) = eos_state % dhdX(:)
+    rpar(irp_O16)                   = eos_state % xn(io16)
 
     ! call the integration routine
     call dvode(f_rhs, NEQ, y, integration_time, dt, ITOL, rtol, atol, ITASK, &
@@ -155,6 +161,14 @@ contains
     enuc = (ebin(img24) - ebin(ic12))*(state_out % xn(ic12) - state_in % xn(ic12))
 
     state_out % e = state_in % e + enuc
+
+    call burn_to_eos(state_out, eos_state)
+
+    call normalize_abundances(eos_state)
+
+    call eos(eos_input_re, eos_state)
+
+    call eos_to_burn(eos_state, state_out)
 
     if (verbose) then
 

@@ -3,55 +3,56 @@
 
 module vode_module
 
-  use eos_module  
+  use eos_module
   use network
   use rpar_indices
   use vode_data
-  
+  use burn_type_module
+
   implicit none
 
   ! Set the number of independent variables -- this should be
   ! temperature, enuc + the number of species which participate
   ! in the evolution equations.
-  ! 
+
   integer, parameter :: NEQ = 2 + nspec
 
-  ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian 
-  ! function is supplied; 22 means stiff, figure out my jacobian through 
+  ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
+  ! function is supplied; 22 means stiff, figure out my jacobian through
   ! differencing.
 
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-  
+
   ! Tolerance parameters:
   !
   !  itol specifies whether to use an single absolute tolerance for
   !  all variables (1), or to pass an array of absolute tolerances, one
   !  for each variable with a scalar relative tol (2), a scalar absolute
   !  and array of relative tolerances (3), or arrays for both (4).
-  !  
+  !
   !  The error is determined as e(i) = rtol*abs(y(i)) + atol, and must
   !  be > 0.  Since we have some compositions that may be 0 initially,
   !  we will specify both an absolute and a relative tolerance.
   !
-  ! We will use arrays for both the absolute and relative tolerances, 
+  ! We will use arrays for both the absolute and relative tolerances,
   ! since we want to be easier on the temperature than the species.
 
   integer, parameter :: ITOL = 4
 
   ! We want to do a normal computation, and get the output values of y(t)
   ! after stepping though dt.
-  
+
   integer, PARAMETER :: ITASK = 1
 
-  ! We will override the maximum number of steps, so turn on the 
+  ! We will override the maximum number of steps, so turn on the
   ! optional arguments flag.
-  
+
   integer, parameter :: IOPT = 1
 
   ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
   ! integer work array of size 30 + NEQ. These are VODE constants
   ! that depend on the integration mode we're using -- see dvode.f.
-  
+
   integer, parameter :: LRW = 22 + 9*NEQ + 2*NEQ**2
   integer, parameter :: LIW = 30 + NEQ
 
@@ -65,35 +66,36 @@ contains
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode    
+                                    burning_mode
 
     implicit none
 
     ! Input arguments
 
-    type (eos_t),        intent(in   ) :: state_in
-    type (eos_t),        intent(inout) :: state_out
-    double precision,    intent(in   ) :: dt, time    
+    type (burn_t),       intent(in   ) :: state_in
+    type (burn_t),       intent(inout) :: state_out
+    double precision,    intent(in   ) :: dt, time
 
     ! Local variables
-    
+
     double precision :: local_time
+    type (eos_t)     :: eos_state
 
     ! Work arrays
-    
+
     double precision :: y(NEQ)
     double precision :: atol(NEQ), rtol(NEQ)
     double precision :: rwork(LRW)
     integer          :: iwork(LIW)
     double precision :: rpar(n_rpar_comps)
-    
+
     integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
-    
+
     integer :: istate
-    
+
     integer :: ipar
 
     double precision :: sum
@@ -107,14 +109,14 @@ contains
     else
        call bl_error("Error: unknown Jacobian mode in vode_burner.f90.")
     endif
-    
+
     ! Set the tolerances.  We will be more relaxed on the temperature
-    ! since it is only used in evaluating the rates.  
+    ! since it is only used in evaluating the rates.
     !
     ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of 
+    ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
-    
+
     atol(1:nspec)   = atol_spec ! mass fractions
     atol(net_itemp) = atol_temp ! temperature
     atol(net_ienuc) = atol_enuc ! energy generated
@@ -124,7 +126,7 @@ contains
     rtol(net_ienuc) = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
-    
+
     istate = 1
 
     ! Initialize work arrays to zero.
@@ -140,9 +142,18 @@ contains
 
     local_time = ZERO
 
+    ! Convert our input burn state into an EOS type.
+
+    call burn_to_eos(state_in, eos_state)
+
+    ! We assume that the valid quantities coming in are (rho, e); do an EOS call
+    ! to make sure all other variables are consistent.
+
+    call eos(eos_input_re, eos_state)
+
     ! Convert the EOS state data into the form VODE expects.
 
-    call eos_to_vode(state_in, y, rpar)
+    call eos_to_vode(eos_state, y, rpar)
 
     y(net_ienuc) = ZERO
 
@@ -177,7 +188,7 @@ contains
 
        local_time = ZERO
 
-       call eos_to_vode(state_in, y, rpar)
+       call eos_to_vode(eos_state, y, rpar)
 
        y(net_ienuc) = ZERO
 
@@ -203,18 +214,22 @@ contains
 
     ! Store the final data.
 
-    call vode_to_eos(state_out, y, rpar)
+    call vode_to_eos(eos_state, y, rpar)
 
-    call normalize_abundances(state_out)
+    call normalize_abundances(eos_state)
 
     ! Energy was integrated in the system -- we use this integrated
     ! energy which contains both the reaction energy release and
     ! neutrino losses. The final energy is the initial energy
     ! plus this energy release. Note that we get a new temperature too,
-    ! but we will discard it and the main burner module will do an EOS
-    ! call to get a final temperature consistent with this new energy.
+    ! but we will discard it and call the EOS to get a final temperature
+    ! consistent with this new energy.
 
-    state_out % e = state_in % e + y(net_ienuc)
+    eos_state % e = eos_state % e + y(net_ienuc)
+
+    call eos(eos_input_re, eos_state)
+
+    call eos_to_burn(eos_state, state_out)
 
     if (burner_verbose) then
 

@@ -10,6 +10,7 @@ module actual_burner_module
   use eos_type_module
   use network
   use actual_burner_data
+  use burn_type_module
 
 contains
 
@@ -71,8 +72,8 @@ contains
 
     implicit none
 
-    type (eos_t),     intent(in   ) :: state_in
-    type (eos_t),     intent(inout) :: state_out
+    type (burn_t),    intent(in   ) :: state_in
+    type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time    
 
     double precision :: T9
