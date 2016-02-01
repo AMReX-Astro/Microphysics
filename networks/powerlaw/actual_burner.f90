@@ -8,6 +8,7 @@ module actual_burner_module
   use eos_data_module
   use eos_type_module
   use network
+  use actual_burner_data
   use extern_probin_module, only: specific_q_burn
 
   implicit none
