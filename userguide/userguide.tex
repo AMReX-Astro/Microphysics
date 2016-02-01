@@ -438,15 +438,18 @@ and Itoh 1979) for strong screening.
 
 \section{Network Structure}
 
-There are two primary files within each network directory. The first,
-{\tt network\_name\_network.f90}, supplies the number and names of species and
+There are two primary files within each network directory, each with associated
+data-storing modules. The first pair, {\tt actual\_network.f90} and
+{\tt actual\_network\_data.f90}, supply the number and names of species and
 auxiliary variables, as well as other initializing data, 
 such as their mass numbers, proton numbers, and binding energies. It needs to 
 define the {\tt nspec} and {\tt naux} quantities as integer parameters.
 
-The second, {\tt network\_name\_burner.f90}, contains the burner routine, which takes
-an {\tt eos\_t\_vector} as an input, and returns another as an output. It also takes 
-the current simulation and time, and the integration timestep.
+The second pair, {\tt actual\_burner.f90} and {\tt actual\_burner\_data.f90},
+contains the burner routine, which takes an {\tt eos\_t} as an input, and
+returns another as an output. It also takes the current simulation and time,
+and the integration timestep. It needs to define the {\tt nrates} quantity as
+an integer parameter.
 
 The integration equations are:
 \begin{eqnarray}
@@ -455,7 +458,7 @@ The integration equations are:
 \end{eqnarray}
 We integrate these using the stiff ordinary differential equation integration methods
 provided by the VODE package.  The absolute error tolerances are set
-to $10^{-12}$ for the species, and a relative tolerance of $10^{-5}$
+to $10^{-12}$ for the species, and a relative tolerance of $10^{-6}$
 is used for the temperature.  The integration yields the new values of
 the mass fractions, $X_k^\outp$.  Equation (\ref{eq:tempreactC}) is
 derived from equation (???) by assuming that the pressure is constant
@@ -477,30 +480,3 @@ routine, we compute $T^\outp = T(\rho^\outp,e^{\outp},X_k^\outp)$.
 \bibliography{refs}
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

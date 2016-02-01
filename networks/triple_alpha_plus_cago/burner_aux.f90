@@ -1,24 +1,3 @@
-module network_indices
-
-  ! this module is for use only within this network -- these
-  ! quantities should not be accessed in general MAESTRO routines.
-  ! Instead the species indices should be queried via
-  ! network_species_index()
-
-  implicit none
-
-  ! species
-  integer, parameter :: ihe4_  = 1
-  integer, parameter :: ic12_  = 2
-  integer, parameter :: io16_  = 3
-  integer, parameter :: ife56_ = 4
-
-  ! rates
-  integer, parameter :: ir3a_   = 1
-  integer, parameter :: ircago_ = 2
-
-end module network_indices
-
 
 module rpar_indices
 

@@ -10,7 +10,6 @@ program testjacobian
   use eos_module
   use eos_type_module
   use burner_module
-  use network_indices
   use rpar_indices
 
   implicit none

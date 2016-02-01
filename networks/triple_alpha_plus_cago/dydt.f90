@@ -16,8 +16,6 @@ contains
 
   subroutine dydt(ymol, rates, ydot)
 
-    use network_indices
-
     real(kind=dp_t), intent(IN   ) :: ymol(nspec), rates(nrat)
     real(kind=dp_t), intent(  OUT) :: ydot(nevolve)
 

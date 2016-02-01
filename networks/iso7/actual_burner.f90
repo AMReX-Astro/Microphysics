@@ -5,12 +5,9 @@ module actual_burner_module
   use bl_error_module
   use eos_module
   use network
+  use actual_burner_data
 
   implicit none
-
-  integer, parameter :: nrates = 17
-
-  character (len=20) :: ratenames(nrates)
 
   ! Conversion factor for the nuclear energy generation rate.
 
@@ -40,7 +37,6 @@ contains
 
     use rates_module, only: rates_init
     use screening_module, only: screening_init
-    use network_indices
     use rpar_indices
 
     implicit none
@@ -90,7 +86,6 @@ contains
 
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
-    use network_indices
 
     implicit none
 

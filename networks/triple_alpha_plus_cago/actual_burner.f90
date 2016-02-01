@@ -20,13 +20,16 @@ module actual_burner_module
   use eos_module, only: eos_input_rt, eos
   use eos_type_module
   use network
+  use actual_burner_data
 
-  private
-  public :: burner, get_enuc_T_sensitivity
-  
 contains
 
   subroutine actual_burner_init()
+
+    implicit none
+
+    reac_names(ir3a_)   = "3agc"   !     3 He4 --> C12
+    reac_names(ircago_) = "cago"   ! C12 + He4 --> O16
 
   end subroutine actual_burner_init
 
@@ -294,11 +297,6 @@ contains
     real(kind=dp_t) :: dXdotdT(nspec)
     integer :: k
 
-    ! get the indices
-    if (.not. network_initialized) then
-       call bl_error("ERROR in get_enuc_T_sensitivity: must initialize network first")
-    endif
-
     ! calculate ymol
     ymol = X / aion
 
@@ -308,8 +306,7 @@ contains
     call dydt(ymol, dratesdt, dXdotdT)
 
     ! calculate temperature sensitivity
-    denucdT = - sum(dXdotdT*ebin)
-    
+    denucdT = - sum(dXdotdT*ebin)    
 
   end subroutine get_enuc_T_sensitivity
 

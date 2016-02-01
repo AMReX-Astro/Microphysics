@@ -1,18 +1,6 @@
-module network_indices
+module actual_burner_data
 
-  implicit none
-
-  ! ids of the species
-  
-  integer, parameter :: ihe4  = 1
-  integer, parameter :: ic12  = 2
-  integer, parameter :: io16  = 3
-  integer, parameter :: ine20 = 4
-  integer, parameter :: img24 = 5
-  integer, parameter :: isi28 = 6
-  integer, parameter :: ini56 = 7
-
-  ! set the id numbers of the reaction rates
+  integer, parameter :: nrates  = 17
 
   integer, parameter :: ircag   = 1
   integer, parameter :: iroga   = 2
@@ -29,15 +17,14 @@ module network_indices
   integer, parameter :: irsiga  = 13
   integer, parameter :: ircaag  = 14
   integer, parameter :: irtiga  = 15
-
   integer, parameter :: irsi2ni = 16
   integer, parameter :: irni2si = 17
 
-  ! rpar data
+  character (len=20), save :: ratenames(nrates)
 
-  integer :: irp_dydt
-  integer :: irp_rates
-  integer :: irp_drdy1
-  integer :: irp_drdy2
+  integer, save :: irp_dydt
+  integer, save :: irp_rates
+  integer, save :: irp_drdy1
+  integer, save :: irp_drdy2
 
-end module network_indices
+end module actual_burner_data

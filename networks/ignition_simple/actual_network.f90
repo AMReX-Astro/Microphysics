@@ -1,43 +1,9 @@
-! the network module provides the information about the species we are
-! advecting: 
-!
-! nspec      -- the number of species
-!
-! aion       -- atomic number
-! zion       -- proton number
-! eion       -- nuclear binding energy (in erg/g)
-!
-! spec_names -- the name of the isotope
-! short_spec_names -- the abbreviated name of the isotope
-!
-! This module contains two routines:
-!
-!  network_init()        -- initialize the isotope properties
-!
-!  network_species_index -- return the index of the species given its name
-!
-
 module actual_network
 
   use bl_types
+  use actual_network_data
 
   implicit none
-
-  ! nspec = number of species this network carries
-  ! nspec_advance = the number of species that are explicitly integrated
-  !                 in the ODE solve (the others are solved for 
-  !                 algebraically).
-  integer, parameter :: nspec = 3
-  integer, parameter :: nspec_advance = 1
-  integer, parameter :: naux  = 0
-
-  character (len=16) :: spec_names(nspec) 
-  character (len= 5) :: short_spec_names(nspec)
-  character (len= 5) :: short_aux_names(naux)
-
-  double precision   :: aion(nspec), zion(nspec), ebin(nspec)
-
-  integer            :: ic12, io16, img24
 
 contains
   
@@ -46,12 +12,6 @@ contains
     use rpar_indices
     
     implicit none
-
-    ! integer keys -- for convinence.  In all other places, we will find
-    ! these by querying based on species name using network_species_index
-    ic12  = 1
-    io16  = 2
-    img24 = 3
 
     spec_names(ic12)  = "carbon-12"
     spec_names(io16)  = "oxygen-16"

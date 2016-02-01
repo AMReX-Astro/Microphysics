@@ -1,6 +1,7 @@
 module actual_network
 
   use bl_types
+  use actual_network_data
 
   implicit none
 
@@ -9,7 +10,7 @@ module actual_network
   double precision, parameter, private :: avo = 6.0221417930d23
   double precision, parameter, private :: c_light = 2.99792458d10
 
-  double precision, parameter, private :: ev2erg  = 1.60217648740d-12  
+  double precision, parameter, private :: ev2erg  = 1.60217648740d-12
   double precision, parameter, private :: mev2erg = ev2erg*1.0d6
   double precision, parameter, private :: mev2gr  = mev2erg/c_light**2
 
@@ -17,27 +18,11 @@ module actual_network
   double precision, parameter, private :: mp = 1.67262163783d-24
   double precision, parameter, private :: me = 9.1093821545d-28
 
-  integer, parameter :: nspec  = 13
-  integer, parameter :: naux   = 0
-
-  double precision :: aion(nspec), zion(nspec), nion(nspec)
-  double precision :: bion(nspec), mion(nspec), wion(nspec)
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  character (len=32) :: network_name = "aprox13"
-
 contains
-  
+
   subroutine actual_network_init
 
-    use network_indices
-
     implicit none
-
-    ! The following comes directly from init_aprox13
 
     short_spec_names(ihe4)  = 'he4'
     short_spec_names(ic12)  = 'c12'
@@ -66,7 +51,6 @@ contains
     spec_names(icr48) = "chromium-48"
     spec_names(ife52) = "iron-52"
     spec_names(ini56) = "nickel-56"
-    
 
     ! Set the number of nucleons in the element
     aion(ihe4)  = 4.0d0

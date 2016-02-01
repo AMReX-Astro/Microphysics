@@ -4,7 +4,6 @@
 subroutine test_jacobian() bind(C)
 
   use network
-  use network_indices
   use eos_module
   use burner_module
   use actual_burner_module

@@ -1,35 +1,16 @@
-module network_indices
+module actual_burner_data
 
   implicit none
 
-  ! Data for rpar
-  integer :: irp_dydt, irp_rates  
-  
-  ! ids of the quantities that are integrated
-  integer, parameter :: ihe4  = 1
-  integer, parameter :: ic12  = 2
-  integer, parameter :: io16  = 3
-  integer, parameter :: ine20 = 4
-  integer, parameter :: img24 = 5
-  integer, parameter :: isi28 = 6
-  integer, parameter :: is32  = 7
-  integer, parameter :: iar36 = 8
-  integer, parameter :: ica40 = 9
-  integer, parameter :: iti44 = 10
-  integer, parameter :: icr48 = 11
-  integer, parameter :: ife52 = 12
-  integer, parameter :: ini56 = 13
+  integer, parameter :: nrates = 100
 
-
-
-  ! set the id numbers of the reaction rates
   integer, parameter :: ir3a   = 1
   integer, parameter :: irg3a  = 2
   integer, parameter :: ircag  = 3
-  integer, parameter :: iroga  = 4
-  integer, parameter :: ir1212 = 5
-  integer, parameter :: ir1216 = 6
-  integer, parameter :: ir1616 = 7
+  integer, parameter :: ir1212 = 4
+  integer, parameter :: ir1216 = 5
+  integer, parameter :: ir1616 = 6
+  integer, parameter :: iroga  = 7
   integer, parameter :: iroag  = 8
   integer, parameter :: irnega = 9
   integer, parameter :: irneag = 10
@@ -82,14 +63,54 @@ module network_indices
   integer, parameter :: ircopa = 57
   integer, parameter :: ircopg = 58
   integer, parameter :: irnigp = 59
-  
-  integer, parameter :: irr1   = 60
-  integer, parameter :: irs1   = 61
-  integer, parameter :: irt1   = 62
-  integer, parameter :: iru1   = 63
-  integer, parameter :: irv1   = 64
-  integer, parameter :: irw1   = 65
-  integer, parameter :: irx1   = 66
-  integer, parameter :: iry1   = 67
+  integer, parameter :: ir52ng = 60
+  integer, parameter :: ir53gn = 61
+  integer, parameter :: ir53ng = 62
+  integer, parameter :: ir54gn = 63
+  integer, parameter :: irfepg = 64
+  integer, parameter :: ircogp = 65
+  integer, parameter :: irheng = 66
+  integer, parameter :: irhegn = 67
+  integer, parameter :: irhng  = 68
+  integer, parameter :: irdgn  = 69
+  integer, parameter :: irdpg  = 70
+  integer, parameter :: irhegp = 71
+  integer, parameter :: irpen   = 72
+  integer, parameter :: irnep   = 73
+  integer, parameter :: irn56ec = 74
+  integer, parameter :: irpp    = 75
+  integer, parameter :: ir33    = 76
+  integer, parameter :: irhe3ag = 77
+  integer, parameter :: ircpg  = 78
+  integer, parameter :: irnpg  = 79
+  integer, parameter :: ifa    = 80
+  integer, parameter :: ifg    = 81
+  integer, parameter :: iropg  = 82
+  integer, parameter :: irnag  = 83
+  integer, parameter :: irr1   = 84
+  integer, parameter :: irs1   = 85
+  integer, parameter :: irt1   = 86
+  integer, parameter :: iru1   = 87
+  integer, parameter :: irv1   = 88
+  integer, parameter :: irw1   = 89
+  integer, parameter :: irx1   = 90
+  integer, parameter :: ir1f54 = 91
+  integer, parameter :: ir2f54 = 92
+  integer, parameter :: ir3f54 = 93
+  integer, parameter :: ir4f54 = 94
+  integer, parameter :: ir5f54 = 95
+  integer, parameter :: ir6f54 = 96
+  integer, parameter :: ir7f54 = 97
+  integer, parameter :: ir8f54 = 98
 
-end module network_indices
+  integer, parameter :: iralf1 = 99
+  integer, parameter :: iralf2 = 100
+
+  character (len=16), save :: ratenames(nrates)
+
+  integer, save :: irp_dydt
+  integer, save :: irp_rates
+  integer, save :: irp_drdy1
+  integer, save :: irp_drdy2
+
+end module actual_burner_data

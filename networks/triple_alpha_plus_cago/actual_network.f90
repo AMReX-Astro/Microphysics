@@ -1,56 +1,14 @@
-! the network module provides the information about the species we are 
-! advecting:
-!
-! nspec      -- the number of species in the network
-! nrat       -- the number of reactions in this network
-!
-! nevolve    -- the number of species to actually evolve
-!
-! aion       -- atomic number
-! zion       -- proton number
-! ebin       -- nuclear binding energy
-!
-! spec_names -- the name of the isotope
-! short_spec_names -- abbreviated names
-!
-! reac_names -- the name of the reaction
-!
-!
-! This module contains three routines:
-!
-!  network_init()         -- initialize the isotope properties
-!
-!  network_species_index  -- return the index of the species given its name
-!
-!  network_reaction_index -- return the index of the reaction given its name
-!
-
 module actual_network
 
   use bl_types
+  use actual_network_data
 
   implicit none
-
-  character (len=*), parameter :: network_name = "triple_alpha_plus_cago"
-
-  integer, parameter :: nspec = 4, nrat = 2, nevolve = 3
-  integer, parameter :: naux  = 0
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  character (len=10), save :: reac_names(nrat)
-
-  real(kind=dp_t), save :: aion(nspec), zion(nspec), ebin(nspec)
-
-  logical, save :: network_initialized = .false.
 
 contains
 
   subroutine actual_network_init()
 
-    use network_indices
     use rpar_indices
 
     ! set the names
@@ -64,8 +22,6 @@ contains
     short_spec_names(io16_)  = "O16"
     short_spec_names(ife56_) = "Fe56"
 
-    reac_names(ir3a_)   = "3agc"   !     3 He4 --> C12
-    reac_names(ircago_) = "cago"   ! C12 + He4 --> O16
 
     ! set the species properties
     aion(ihe4_)  =  4.0_dp_t

@@ -1,6 +1,7 @@
 module actual_network
 
   use bl_types
+  use actual_network_data
 
   implicit none
 
@@ -17,23 +18,9 @@ module actual_network
   double precision, parameter, private :: mp = 1.67262163783d-24
   double precision, parameter, private :: me = 9.1093821545d-28
 
-  integer, parameter :: nspec  = 21
-  integer, parameter :: naux   = 0
-
-  double precision :: aion(nspec), zion(nspec), nion(nspec)
-  double precision :: bion(nspec), mion(nspec), wion(nspec)
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  character (len=32) :: network_name = "aprox21"
-
 contains
 
   subroutine actual_network_init
-
-    use network_indices
 
     implicit none
 

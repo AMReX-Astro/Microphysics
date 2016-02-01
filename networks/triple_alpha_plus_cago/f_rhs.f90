@@ -18,7 +18,6 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   use screen_module
   use dydt_module
   use rpar_indices
-  use network_indices
 
   implicit none
 
@@ -113,7 +112,6 @@ subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
   use bl_constants_module
   use network
   use dydt_module
-  use network_indices
   use rpar_indices
 
   implicit none

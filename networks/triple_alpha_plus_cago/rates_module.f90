@@ -22,8 +22,6 @@ contains
 
   subroutine make_rates(temp, dens, rates, dratesdt)
 
-    use network_indices
-
     ! rates given in terms of molar fractions
 
     real(kind=dp_t), intent(IN   ) :: temp, dens

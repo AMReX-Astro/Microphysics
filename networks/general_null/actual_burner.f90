@@ -4,6 +4,7 @@ module actual_burner_module
   use bl_constants_module
   use network
   use eos_type_module
+  use actual_burner_data
   
 contains
 

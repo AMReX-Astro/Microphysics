@@ -5,18 +5,15 @@ module actual_burner_module
   use bl_error_module
   use eos_module
   use network
+  use actual_burner_data
 
   implicit none
-
-  integer, parameter :: nrates = 67
-
-  character (len=16) :: ratenames(nrates)
 
   ! Conversion factor for the nuclear energy generation rate.
 
   double precision, parameter, private :: avo = 6.0221417930d23
   double precision, parameter, private :: c_light = 2.99792458d10
-  double precision, parameter, private :: enuc_conv2 = -avo*c_light*c_light  
+  double precision, parameter, private :: enuc_conv2 = -avo*c_light*c_light
 
 contains
 
@@ -41,13 +38,10 @@ contains
     use screening_module, only: screening_init
     use vode_data, only: temp_scale
     use rpar_indices
-    use network_indices
 
     implicit none
 
     temp_scale = 1.0d9
-
-    ! Set the names of the reaction rates
 
     ratenames(ir3a)   = 'r3a  '
     ratenames(irg3a)  = 'rg3a '
@@ -108,7 +102,6 @@ contains
     ratenames(ircopa) = 'rcopa'
     ratenames(ircopg) = 'rcopg'
     ratenames(irnigp) = 'rnigp'
-
     ratenames(irr1)   = 'r1   '
     ratenames(irs1)   = 's1   '
     ratenames(irt1)   = 't1   '
@@ -139,7 +132,6 @@ contains
 
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
-    use network_indices
 
     implicit none
 
