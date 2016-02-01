@@ -39,11 +39,6 @@ contains
     ebin(io16)  = -7.6959672e18_dp_t     ! 127.62093 MeV
     ebin(img24) = -7.9704080e18_dp_t     ! 198.2579  MeV
 
-    ! rpar is VODE's way of passing information into the RHS and
-    ! jacobian routines.  Here we initialize some indices to make
-    ! sense of what is stored in the rpar() array.
-    call init_rpar_indices(nspec)    
-    
   end subroutine actual_network_init
 
   subroutine network_finalize()
