@@ -1,19 +1,9 @@
 module actual_network
 
   use bl_types
+  use actual_network_data
 
   implicit none
-
-  character (len=32), parameter :: network_name = "rprox"
-
-  integer, parameter :: nspec = 10
-  integer, parameter :: naux  = 0
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
 
   double precision, parameter :: MeV2erg = 1.60217646e-6
   double precision, parameter :: N_A = 6.0221415e23
@@ -23,7 +13,6 @@ contains
   subroutine actual_network_init
 
     use bl_constants_module
-    use network_indices
 
     ! set the names
     spec_names(ic12)  = "carbon-12"

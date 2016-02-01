@@ -9,18 +9,14 @@ module actual_burner_module
   use eos_module
   use eos_type_module
   use network
+  use actual_burner_data
 
-  integer, parameter :: nrates = 18
-
-  character (len=10), save :: reac_names(nrates)
-  
 contains
 
   subroutine actual_burner_init()
 
     use vode_data, only: temp_scale    
     use rpar_indices
-    use network_indices
 
     implicit none
 
@@ -72,7 +68,6 @@ contains
 
     use vode_module, only: vode_burner
     use vode_data, only: temp_scale
-    use network_indices
 
     implicit none
 

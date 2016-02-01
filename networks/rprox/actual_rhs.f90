@@ -1,5 +1,7 @@
 module actual_rhs_module
 
+  use actual_burner_data
+
   implicit none
 
 contains
@@ -14,7 +16,6 @@ contains
     use bl_types
     use bl_constants_module
     use network
-    use network_indices
     use rates_module
     use rpar_indices
     use vode_data
@@ -56,7 +57,6 @@ contains
     use bl_constants_module
     use rates_module
     use network
-    use network_indices
     use burner_module
     use rpar_indices
 
@@ -239,7 +239,6 @@ contains
     use bl_types
     use bl_constants_module
     use network
-    use network_indices
     use rpar_indices
 
     implicit none
@@ -381,7 +380,6 @@ contains
     use bl_types
     use bl_constants_module
     use network
-    use network_indices
     use rpar_indices
     use vode_data
 
