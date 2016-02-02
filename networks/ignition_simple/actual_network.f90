@@ -5,12 +5,23 @@ module actual_network
 
   implicit none
 
+  double precision, parameter, private :: avo = 6.0221417930d23
+  double precision, parameter, private :: c_light = 2.99792458d10
+
+  double precision, parameter, private :: ev2erg  = 1.60217648740d-12
+  double precision, parameter, private :: mev2erg = ev2erg*1.0d6
+  double precision, parameter, private :: mev2gr  = mev2erg/c_light**2
+
+  double precision, parameter, private :: mn = 1.67492721184d-24
+  double precision, parameter, private :: mp = 1.67262163783d-24
+  double precision, parameter, private :: me = 9.1093821545d-28
+
 contains
-  
+
   subroutine actual_network_init
 
     use rpar_indices
-    
+
     implicit none
 
     spec_names(ic12)  = "carbon-12"
@@ -21,23 +32,30 @@ contains
     short_spec_names(io16)  = "O16"
     short_spec_names(img24) = "Mg24"
 
-    aion(ic12)  = 12.0_dp_t
-    aion(io16)  = 16.0_dp_t
-    aion(img24) = 24.0_dp_t
-    
-    zion(ic12)  = 6.0_dp_t
-    zion(io16)  = 8.0_dp_t
-    zion(img24) = 12.0_dp_t
+    aion(ic12)  = 12.0d0
+    aion(io16)  = 16.0d0
+    aion(img24) = 24.0d0
 
-    ! our convention is that the binding energies are negative.  We convert
-    ! from the MeV values that are traditionally written in astrophysics 
-    ! papers by multiplying by 1.e6 eV/MeV * 1.60217646e-12 erg/eV.  The
-    ! MeV values are per nucleus, so we divide by aion to make it per
-    ! nucleon and we multiple by Avogardo's # (6.0221415e23) to get the 
-    ! value in erg/g
-    ebin(ic12)  = -7.4103097e18_dp_t     !  92.16294 MeV
-    ebin(io16)  = -7.6959672e18_dp_t     ! 127.62093 MeV
-    ebin(img24) = -7.9704080e18_dp_t     ! 198.2579  MeV
+    zion(ic12)  = 6.0d0
+    zion(io16)  = 8.0d0
+    zion(img24) = 12.0d0
+
+    ! Binding energies per nucleon in MeV
+    bion(ic12)  = 92.16294d0
+    bion(io16)  = 127.62093d0
+    bion(img24) = 198.2579d0
+
+    ! Set the number of neutrons
+    nion(:) = aion(:) - zion(:)
+
+    ! Set the mass
+    mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
+
+    ! Molar mass
+    wion(:) = avo * mion(:)
+
+    ! Common approximation
+    wion(:) = aion(:)
 
   end subroutine actual_network_init
 

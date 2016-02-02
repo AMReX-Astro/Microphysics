@@ -13,6 +13,7 @@ contains
     use rpar_indices
     use screening_module, only: screenz
     use actual_burner_data
+    use actual_burner_module, only: ener_gener_rate
 
     implicit none
 
@@ -101,7 +102,7 @@ contains
 
     ydot(1:nspec) = ydot(1:nspec) / aion
 
-    ydot(net_ienuc) = -sum(ebin(:) * ydot(1:nspec))
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     call temperature_rhs(neq, y, ydot, rpar)
 
@@ -116,6 +117,7 @@ contains
     use bl_constants_module, only: ZERO, SIXTH, TWELFTH
     use vode_data
     use actual_burner_data
+    use actual_burner_module, only: ener_gener_rate
 
     implicit none
 
@@ -127,7 +129,7 @@ contains
     double precision :: dens
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
-    integer :: itemp
+    integer :: j
 
     ! Get data from the rpar array
 
@@ -148,6 +150,16 @@ contains
     ! add the temperature derivatives: df(y_i) / dT
     pd(ic12, net_itemp)  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
                             dens * scorr * xc12tmp**2 * dratedt )
+
+    ! Energy generation rate Jacobian elements with respect to species
+
+    do j = 1, nspec
+       call ener_gener_rate(pd(1:nspec,j), pd(net_ienuc,j))
+    enddo
+
+    ! Jacobian elements with respect to temperature
+
+    call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
 
     call temperature_jac(neq, y, pd, rpar)
 
