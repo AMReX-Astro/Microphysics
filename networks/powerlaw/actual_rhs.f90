@@ -12,6 +12,7 @@ contains
     use vode_data
     use rpar_indices
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
+    use actual_burner_module, only: ener_gener_rate
 
     implicit none
 
@@ -45,7 +46,7 @@ contains
 
     ydot(1:nspec) = ydot(1:nspec) / aion
     
-    ydot(net_ienuc) = -sum(ebin(:) * ydot(1:nspec))
+!    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     call temperature_rhs(neq, y, ydot, rpar)
 

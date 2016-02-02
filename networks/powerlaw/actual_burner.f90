@@ -40,4 +40,20 @@ contains
 
   end subroutine actual_burner
 
+
+
+  ! Computes the instantaneous energy generation rate
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    implicit none
+
+    double precision :: dydt(nspec), enuc
+
+    ! This is basically e = m c**2
+
+    enuc = sum(dydt(:) * aion(:) * ebin(:))
+
+  end subroutine ener_gener_rate
+
 end module actual_burner_module

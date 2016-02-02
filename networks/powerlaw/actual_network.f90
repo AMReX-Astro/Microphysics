@@ -36,13 +36,9 @@ contains
     ! Binding energies in erg / g
 
     ebin(ifuel_)  = ZERO
-    ebin(iash_)   = -specific_q_burn
+    ebin(iash_)   = specific_q_burn
     ebin(iinert_) = ZERO
 
-    ! Convert to molar form
-
-    ebin(:) = ebin(:) / aion(:)
-    
   end subroutine actual_network_init
 
 end module actual_network
