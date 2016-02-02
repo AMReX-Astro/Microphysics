@@ -79,7 +79,7 @@ contains
     ! Local variables
 
     double precision :: local_time
-    type (eos_t)     :: eos_state
+    type (eos_t)     :: eos_state_in, eos_state_out
 
     ! Work arrays
 
@@ -144,16 +144,21 @@ contains
 
     ! Convert our input burn state into an EOS type.
 
-    call burn_to_eos(state_in, eos_state)
+    call burn_to_eos(state_in, eos_state_in)
 
     ! We assume that the valid quantities coming in are (rho, e); do an EOS call
     ! to make sure all other variables are consistent.
 
-    call eos(eos_input_re, eos_state)
+    call eos(eos_input_re, eos_state_in)
+
+    ! Send this data back to the burn state in case the energy changed
+    ! due to a reset/flooring.
+
+    call eos_to_burn(eos_state_in, state_in)
 
     ! Convert the EOS state data into the form VODE expects.
 
-    call eos_to_vode(eos_state, y, rpar)
+    call eos_to_vode(eos_state_in, y, rpar)
 
     y(net_ienuc) = ZERO
 
@@ -188,7 +193,7 @@ contains
 
        local_time = ZERO
 
-       call eos_to_vode(eos_state, y, rpar)
+       call eos_to_vode(eos_state_in, y, rpar)
 
        y(net_ienuc) = ZERO
 
@@ -214,9 +219,9 @@ contains
 
     ! Store the final data.
 
-    call vode_to_eos(eos_state, y, rpar)
+    call vode_to_eos(eos_state_out, y, rpar)
 
-    call normalize_abundances(eos_state)
+    call normalize_abundances(eos_state_out)
 
     ! Energy was integrated in the system -- we use this integrated
     ! energy which contains both the reaction energy release and
@@ -225,11 +230,13 @@ contains
     ! but we will discard it and call the EOS to get a final temperature
     ! consistent with this new energy.
 
-    eos_state % e = eos_state % e + y(net_ienuc)
+    eos_state_out % e = eos_state_in % e + y(net_ienuc)
 
-    call eos(eos_input_re, eos_state)
+    eos_state_out % reset = .true.
 
-    call eos_to_burn(eos_state, state_out)
+    call eos(eos_input_re, eos_state_out)
+
+    call eos_to_burn(eos_state_out, state_out)
 
     if (burner_verbose) then
 
