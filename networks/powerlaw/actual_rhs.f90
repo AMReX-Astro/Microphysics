@@ -46,7 +46,7 @@ contains
 
     ydot(1:nspec) = ydot(1:nspec) / aion
     
-!    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     call temperature_rhs(neq, y, ydot, rpar)
 
