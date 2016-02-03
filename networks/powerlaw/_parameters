@@ -44,3 +44,7 @@ specific_q_burn        real   10.d0
 T_burn_ref    real   1.0d0     # T_0 in the notation above
 rho_burn_ref  real   1.0d0     # rho_0 in the notation above
 f_act         real   1.0d0     # activation T factor (f_act*T_burn_ref)
+
+# override the default burning mode with a higher priority
+burning_mode             integer   0       100
+
