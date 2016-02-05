@@ -1,6 +1,7 @@
 The following networks are actively maintained and should work
 in CASTRO:
 
+- general_null
 - iso7
 - aprox13
 - aprox19
