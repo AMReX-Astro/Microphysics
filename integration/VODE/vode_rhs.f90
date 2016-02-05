@@ -7,7 +7,6 @@
     use eos_module
     use bl_types
     use rpar_indices
-    use vode_data
     use vode_convert_module
     use burn_type_module
     use bl_constants_module, only: ZERO, ONE
@@ -74,7 +73,6 @@
     use rpar_indices
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
-    use vode_data
     use vode_convert_module
     use burn_type_module
     use network, only: nspec

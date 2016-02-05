@@ -30,7 +30,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use vode_module, only: vode_burner
+    use integration_module, only: do_burn
 
     implicit none
 
@@ -38,7 +38,7 @@ contains
     type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
 
-    call vode_burner(state_in, state_out, dt, time)
+    call do_burn(state_in, state_out, dt, time)
 
   end subroutine actual_burner
 

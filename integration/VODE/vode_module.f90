@@ -6,7 +6,6 @@ module vode_module
   use eos_module
   use network
   use rpar_indices
-  use vode_data
   use vode_convert_module
   use burn_type_module
 

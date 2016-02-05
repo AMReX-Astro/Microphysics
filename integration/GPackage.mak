@@ -9,4 +9,6 @@ include $(INTEGRATION_VODE_PATH)/GPackage.mak
 
 
 
+f90sources += integration.f90
+f90sources += integration_data.f90
 f90sources += temperature_integration.f90

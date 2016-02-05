@@ -1,5 +1,7 @@
 module vode_convert_module
 
+  use integration_data, only: temp_scale, dens_scale
+
   implicit none
 
   public
@@ -18,7 +20,6 @@ contains
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use rpar_indices
-    use vode_data
     use burn_type_module
 
     implicit none
@@ -50,7 +51,7 @@ contains
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use rpar_indices
-    use vode_data
+    use integration_data, only: temp_scale, dens_scale
     use burn_type_module
 
     implicit none
@@ -82,7 +83,6 @@ contains
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use rpar_indices
-    use vode_data
     use burn_type_module
     use bl_constants_module
 
@@ -137,7 +137,6 @@ contains
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use rpar_indices
-    use vode_data
     use burn_type_module
     use bl_constants_module
 

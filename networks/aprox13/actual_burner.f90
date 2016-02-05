@@ -20,7 +20,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use vode_module, only: vode_burner
+    use integration_module, only: do_burn
 
     implicit none
 
@@ -28,7 +28,7 @@ contains
     type (burn_t),       intent(inout) :: state_out
     double precision,    intent(in   ) :: dt, time
 
-    call vode_burner(state_in, state_out, dt, time)
+    call do_burn(state_in, state_out, dt, time)
 
   end subroutine actual_burner
 
@@ -37,7 +37,7 @@ contains
   subroutine actual_burner_init()
 
     use screening_module, only: screening_init
-    use vode_data, only: temp_scale
+    use integration_data, only: temp_scale
     use rpar_indices
 
     implicit none
@@ -112,11 +112,11 @@ contains
     ratenames(irx1)   = 'x1   '
     ratenames(iry1)   = 'y1   '
 
+    call init_rpar_indices(nrates, nspec)
+
     call set_up_screening_factors()
 
     call screening_init()
-
-    call init_rpar_indices(nrates, nspec)
 
   end subroutine actual_burner_init
 

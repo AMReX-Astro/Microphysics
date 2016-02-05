@@ -14,8 +14,6 @@ contains
 
     use bl_constants_module, only: ZERO
     use network, only: nspec, aion
-    use rpar_indices
-    use vode_data
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn
 
@@ -58,7 +56,6 @@ contains
 
     use bl_constants_module, only: ZERO
     use network, only: nspec, aion
-    use vode_data
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn
 

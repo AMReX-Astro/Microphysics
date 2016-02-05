@@ -8,11 +8,6 @@ module actual_rhs_module
 
 contains
 
-  ! The actual_rhs routine provides the right-hand-side for the DVODE solver.
-  ! It deals with molar abundances throughout (we expect that the input
-  ! vector y has molar abundances, Y = X/A) for make_rates, and
-  ! dydt routines.  It also computes the energy release.
-
   subroutine actual_rhs(state)
 
     use bl_types

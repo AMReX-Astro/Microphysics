@@ -9,4 +9,6 @@ include $(INTEGRATION_VODE_PATH)/Make.package
 
 
 
+f90EXE_sources += integration.f90
+f90EXE_sources += integration_data.f90
 f90EXE_sources += temperature_integration.f90

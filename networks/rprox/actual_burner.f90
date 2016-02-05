@@ -16,7 +16,7 @@ contains
 
   subroutine actual_burner_init()
 
-    use vode_data, only: temp_scale    
+    use integration_data, only: temp_scale    
     use rpar_indices
 
     implicit none
@@ -50,8 +50,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)  
 
-    use vode_module, only: vode_burner
-    use vode_data, only: temp_scale
+    use integration_module, only: do_burn
 
     implicit none
 
@@ -70,7 +69,7 @@ contains
 
        ! Call the integration routine.
 
-       call vode_burner(state_in, state_out, dt, time)
+       call do_burn(state_in, state_out, dt, time)
 
     endif
     

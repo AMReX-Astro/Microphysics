@@ -1,4 +1,4 @@
-module vode_data
+module integration_data
 
   use network, only: nspec
   use bl_constants_module, only: ONE
@@ -10,4 +10,4 @@ module vode_data
   double precision, save :: dens_scale = ONE
   double precision, save :: temp_scale = ONE  
   
-end module vode_data
+end module integration_data
