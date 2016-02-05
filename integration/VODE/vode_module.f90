@@ -56,7 +56,7 @@ contains
 
     implicit none
 
-    call init_rpar_indices(nrates, nspec)
+    call init_rpar_indices()
 
   end subroutine vode_init
 

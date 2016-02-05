@@ -18,10 +18,10 @@ contains
   function get_next_rpar_index(num) result (next)
 
     implicit none
-    
+
     ! Return the next starting index for a plotfile quantity,
     ! and increment the counter of plotfile quantities by num.
-    
+
     integer, intent(in) :: num
     integer             :: next
 
@@ -30,19 +30,19 @@ contains
     next = n_rpar_comps + 1
 
     ! Update our local record of how many variables we are using.
-    
+
     n_rpar_comps = n_rpar_comps + num
 
   end function get_next_rpar_index
 
 
-  subroutine init_rpar_indices(nrates, nspec)
+  subroutine init_rpar_indices()
 
+    use network, only: nspec
+    use actual_burner_data, only: nrates
     use burn_type_module, only: num_rate_groups
 
     implicit none
-    
-    integer, intent(in) :: nrates, nspec
 
     irp_dens      = get_next_rpar_index(1)
     irp_cp        = get_next_rpar_index(1)
