@@ -1,7 +1,12 @@
-f90EXE_sources += vode_module.f90
-f90EXE_sources += vode_data.f90
-f90EXE_sources += vode_convert.f90
-f90EXE_sources += vode_rhs.f90
-f90EXE_sources += vode_rpar.f90
+
+INTEGRATION_VODE_PATH := $(MICROPHYSICS_DIR)/integration/VODE
+
+INCLUDE_LOCATIONS += $(INTEGRATION_VODE_PATH)
+VPATH_LOCATIONS   += $(INTEGRATION_VODE_PATH)
+EXTERN_CORE       += $(INTEGRATION_VODE_PATH)
+
+include $(INTEGRATION_VODE_PATH)/Make.package
+
+
 
 f90EXE_sources += temperature_integration.f90

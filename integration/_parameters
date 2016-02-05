@@ -25,8 +25,8 @@ jacobian                 integer   2
 # Should we print out diagnostic output after the solve?  
 burner_verbose           logical   .false.
 
-# Tolerances for VODE (relative and absolute), for the species, temperature,
-# and energy equations.
+# Tolerances for the solver (relative and absolute), for the
+# species, temperature, and energy equations.
 rtol_spec                real      1.d-12
 rtol_temp                real      1.d-6
 rtol_enuc                real      1.d-6
