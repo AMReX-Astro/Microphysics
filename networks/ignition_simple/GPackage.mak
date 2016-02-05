@@ -5,4 +5,3 @@ f90sources += actual_burner_data.f90
 f90sources += actual_rhs.f90
 
 USE_SCREENING = TRUE
-USE_INTEGRATION = TRUE

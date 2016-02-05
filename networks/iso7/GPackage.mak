@@ -5,6 +5,5 @@ f90sources += actual_burner_data.f90
 f90sources += actual_rhs.f90
 f90sources += sneut5.f90
 
-USE_INTEGRATION = TRUE
 USE_RATES       = TRUE
 USE_SCREENING   = TRUE
