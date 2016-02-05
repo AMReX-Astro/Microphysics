@@ -18,11 +18,11 @@ contains
 
   subroutine actual_burner_init()
 
-    use rpar_indices
+    use integration_module, only: integration_init
 
     implicit none
 
-    call init_rpar_indices(nrates, nspec)
+    call integration_init()
 
   end subroutine actual_burner_init
 

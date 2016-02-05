@@ -36,9 +36,9 @@ contains
 
   subroutine actual_burner_init()
 
+    use integration_module, only: integration_init
     use rates_module, only: rates_init
     use screening_module, only: screening_init
-    use rpar_indices
 
     implicit none
 
@@ -159,7 +159,7 @@ contains
     ratenames(iralf1) = 'ralf1'
     ratenames(iralf2) = 'ralf2'    
 
-    call init_rpar_indices(nrates, nspec)
+    call integration_init()
 
     call rates_init()
 

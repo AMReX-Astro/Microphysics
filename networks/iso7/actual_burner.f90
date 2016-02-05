@@ -36,9 +36,9 @@ contains
 
   subroutine actual_burner_init()
 
+    use integration_module, only: integration_init
     use rates_module, only: rates_init
     use screening_module, only: screening_init
-    use rpar_indices
 
     implicit none
 
@@ -62,7 +62,7 @@ contains
     ratenames(irsi2ni) = 'rsi2ni'
     ratenames(irni2si) = 'rni2si'
 
-    call init_rpar_indices(nrates, nspec)
+    call integration_init()
 
     call rates_init()
 

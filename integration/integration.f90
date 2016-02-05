@@ -6,6 +6,27 @@ module integration_module
 
 contains
 
+  subroutine integration_init()
+
+    use extern_probin_module, only: integrator
+    use vode_module, only: vode_init
+
+    implicit none
+
+    if (integrator == 0) then
+
+       call vode_init()
+
+    else
+
+       call bl_error("Error: Unrecognized choice of integrator in do_burn.")
+
+    endif
+
+  end subroutine integration_init
+
+
+
   subroutine do_burn(state_in, state_out, dt, time)
 
     use extern_probin_module, only: integrator

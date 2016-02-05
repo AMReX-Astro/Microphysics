@@ -16,8 +16,8 @@ contains
 
   subroutine actual_burner_init()
 
-    use integration_data, only: temp_scale    
-    use rpar_indices
+    use integration_module, only: integration_init
+    use integration_data, only: temp_scale
 
     implicit none
 
@@ -42,7 +42,7 @@ contains
     reac_names(irLweak)   = "Lweak"
     reac_names(irla2)     = "la2"
 
-    call init_rpar_indices(nrates, nspec)
+    call integration_init()
 
   end subroutine actual_burner_init
 

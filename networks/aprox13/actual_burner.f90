@@ -36,9 +36,10 @@ contains
 
   subroutine actual_burner_init()
 
+    use integration_module, only: integration_init
     use screening_module, only: screening_init
+    use rates_module, only: rates_init
     use integration_data, only: temp_scale
-    use rpar_indices
 
     implicit none
 
@@ -112,7 +113,9 @@ contains
     ratenames(irx1)   = 'x1   '
     ratenames(iry1)   = 'y1   '
 
-    call init_rpar_indices(nrates, nspec)
+    call integration_init()
+
+    call rates_init()
 
     call set_up_screening_factors()
 

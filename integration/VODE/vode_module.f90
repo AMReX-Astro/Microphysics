@@ -52,6 +52,16 @@ module vode_module
 
 contains
 
+  subroutine vode_init()
+
+    implicit none
+
+    call init_rpar_indices(nrates, nspec)
+
+  end subroutine vode_init
+
+
+
   ! Main interface
 
   subroutine vode_burner(state_in, state_out, dt, time)
