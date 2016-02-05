@@ -74,7 +74,4 @@ module actual_burner_data
 
   character (len=16), save :: ratenames(nrates)
 
-  integer, save :: irp_dydt
-  integer, save :: irp_rates
-
 end module actual_burner_data

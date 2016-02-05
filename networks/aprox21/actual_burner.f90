@@ -176,13 +176,6 @@ contains
 
     call init_rpar_indices(nrates, nspec)
 
-    ! Add data to store the rates
-
-    irp_dydt  = get_next_rpar_index(nspec)
-    irp_rates = get_next_rpar_index(nrates)
-    irp_drdy1 = get_next_rpar_index(nrates)
-    irp_drdy2 = get_next_rpar_index(nrates)
-    
     call rates_init()
 
     call set_up_screening_factors()

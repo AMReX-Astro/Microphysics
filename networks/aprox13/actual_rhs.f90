@@ -3,97 +3,81 @@ module actual_rhs_module
   use network
   use burner_module
   use eos_type_module
-  use vode_data, only: net_itemp, net_ienuc
-  use rpar_indices
+  use burn_type_module
+  use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none
 
 contains
 
-  subroutine actual_rhs(neq,time,y,dydt,rpar)
-
-    use extern_probin_module, only: do_constant_volume_burn, jacobian
+  subroutine actual_rhs(state)
 
     implicit none
-    
+
     ! This routine sets up the system of ode's for the aprox13
     ! nuclear reactions.  This is an alpha chain + heavy ion network
     ! with (a,p)(p,g) links.
-    !     
+    !
     ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
     !           ar36, ca40, ti44, cr48, fe52, ni56
 
-    integer          :: neq
-    double precision :: time
-    double precision :: y(1:neq), dydt(1:neq)
-    double precision :: rpar(n_rpar_comps)
-    
-    ! Local variables
-    integer :: i
-    logical :: deriva
-    
+    type (burn_t)    :: state
+
+    logical          :: deriva = .false.
+
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)    
+    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
-    double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
+    double precision :: rho, temp, abar, zbar
 
-    ! Get the data from rpar and the state
-    
-    rho  = rpar(irp_dens)
-    temp = y(net_itemp)
-    cv   = rpar(irp_cv)
-    cp   = rpar(irp_cp)
+    double precision :: y(nspec)
 
-    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
-    dEdY = rpar(irp_dEdY:irp_dEdY+nspec-1)
-    abar = rpar(irp_abar)
-    zbar = rpar(irp_zbar)
-    
+    ! Get the data from the state
+
+    rho  = state % rho
+    temp = state % T
+    abar = state % abar
+    zbar = state % zbar
+    y    = state % xn / aion
+
     ! Get the raw reaction rates
     call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
-    
+
 
     ! Do the screening here because the corrections depend on the composition
-    call screen_aprox13(temp, rho, y(1:nspec), &
+    call screen_aprox13(temp, rho, y,                 &
                         ratraw, dratrawdt, dratrawdd, &
                         ratdum, dratdumdt, dratdumdd, &
                         scfac,  dscfacdt,  dscfacdd)
-    
 
-    ! Get the right hand side of the ODEs. First, we'll do it
-    ! using d(rates)/dT to get the data for the Jacobian and store it.
-    ! Then we'll do it using the normal rates.
+    ! Save the rate data, for the Jacobian later if we need it.
 
-    if (jacobian == 1) then
-       deriva = .true.
-       call rhs(y(1:nspec), dratdumdt, ratdum, dydt, deriva)
-       rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec)
-       rpar(irp_rates:irp_rates+nrates-1) = ratdum
-    endif
-       
-    deriva = .false.
-    
-    call rhs(y(1:nspec), ratdum, ratdum, dydt, deriva)
+    state % rates(1,:) = ratdum
+    state % rates(2,:) = dratdumdt
+
+    ! Call the RHS to actually get dydt.
+
+    call rhs(y, ratdum, ratdum, state % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
-    call ener_gener_rate(dydt, enuc)
+    call ener_gener_rate(state % ydot(1:nspec), enuc)
 
     ! Get the neutrino losses
 
     call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
-    
+
     ! Append the energy equation (this is erg/g/s)
 
-    dydt(net_ienuc) = enuc - sneut    
+    state % ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
 
-    call temperature_rhs(neq, y, dydt, rpar)
+    call temperature_rhs(state)
 
   end subroutine actual_rhs
 
@@ -101,74 +85,70 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(neq, t, y, pd, rpar)
+  subroutine actual_jac(state)
 
     use bl_types
     use bl_constants_module, only: ZERO
     use eos_module
-    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
-    integer         , intent(IN   ) :: neq
-    double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), t
-    double precision, intent(  OUT) :: pd(neq,neq)
+    type (burn_t)    :: state
 
-    double precision :: rates(nrates), ydot(nspec)
+    logical          :: deriva = .true.
 
-    double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz  
+    double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
-    integer          :: i, j
+    integer          :: j
 
-    double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
+    double precision :: rho, temp, cv, cp, abar, zbar
+    double precision :: y(nspec)
 
-    pd(:,:) = ZERO
+    state % jac(:,:) = ZERO
 
-    ! Get the data from rpar and the state
-    
-    rho  = rpar(irp_dens)
-    temp = y(net_itemp)
+    ! Get the data from the state
 
-    abar = rpar(irp_abar)
-    zbar = rpar(irp_zbar)
+    rho  = state % rho
+    temp = state % T
 
-    ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
+    abar = state % abar
+    zbar = state % zbar
 
-    ydot  = rpar(irp_dydt:irp_dydt+nspec-1)
-    rates = rpar(irp_rates:irp_rates+nrates-1)
+    y    = state % xn / aion
 
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_aprox13(y, pd, neq, rates)
+    call dfdy_isotopes_aprox13(y, state % jac(1:nspec,1:nspec), state % rates(1,:))
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
-       call ener_gener_rate(pd(1:nspec,j), pd(net_ienuc,j))
+       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
     enddo
 
     ! Account for the thermal neutrino losses
 
-    call sneut5(T,rho,abar,zbar,sneut,dsneutdt,dsneutdd,snuda,snudz)
+    call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
     do j = 1, nspec
        b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
-       pd(net_ienuc,j) = pd(net_ienuc,j) - b1
+       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
     enddo
 
-    ! Jacobian elements with respect to temperature
+    ! Evaluate the Jacobian elements with respect to temperature by
+    ! calling the RHS using d(ratdum) / dT
 
-    pd(1:nspec,net_itemp) = ydot
+    call rhs(y, state % rates(2,:), state % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
 
-    call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
-    pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
+    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
+    state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
 
     ! Temperature Jacobian elements
 
-    call temperature_jac(neq, y, pd, rpar)
+    call temperature_jac(state)
 
   end subroutine actual_jac
-  
+
 
 
   ! Evaluates the right hand side of the aprox13 ODEs
@@ -179,7 +159,7 @@ contains
     use microphysics_math_module, only: esum
 
     implicit none
-    
+
     ! deriva is used in forming the analytic Jacobian to get
     ! the derivative wrt A
 
@@ -615,7 +595,7 @@ contains
     use rates_module
 
     implicit none
-    
+
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
 
@@ -628,7 +608,7 @@ contains
        dratrawdt(i) = ZERO
        dratrawdd(i) = ZERO
     enddo
-  
+
     if (btemp .lt. 1.0d6) return
 
 
@@ -640,112 +620,112 @@ contains
     call rate_c12ag(tf,bden, &
                     ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
                     ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
-    
+
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
                       ratraw(ir3a),dratrawdt(ir3a),dratrawdd(ir3a), &
                       ratraw(irg3a),dratrawdt(irg3a),dratrawdd(irg3a))
-    
+
     ! c12 + c12
     call rate_c12c12(tf,bden, &
                      ratraw(ir1212),dratrawdt(ir1212),dratrawdd(ir1212), &
                      rrate,drratedt,drratedd)
-    
+
     ! c12 + o16
     call rate_c12o16(tf,bden, &
                      ratraw(ir1216),dratrawdt(ir1216),dratrawdd(ir1216), &
                      rrate,drratedt,drratedd)
-    
+
     ! o16 + o16
     call rate_o16o16(tf,bden, &
                      ratraw(ir1616),dratrawdt(ir1616),dratrawdd(ir1616), &
                      rrate,drratedt,drratedd)
-    
+
     ! o16(a,g)ne20
     call rate_o16ag(tf,bden, &
                     ratraw(iroag),dratrawdt(iroag),dratrawdd(iroag), &
                     ratraw(irnega),dratrawdt(irnega),dratrawdd(irnega))
-    
+
     ! ne20(a,g)mg24
     call rate_ne20ag(tf,bden, &
                      ratraw(irneag),dratrawdt(irneag),dratrawdd(irneag), &
                      ratraw(irmgga),dratrawdt(irmgga),dratrawdd(irmgga))
-    
+
     ! mg24(a,g)si28
     call rate_mg24ag(tf,bden, &
                      ratraw(irmgag),dratrawdt(irmgag),dratrawdd(irmgag), &
                      ratraw(irsiga),dratrawdt(irsiga),dratrawdd(irsiga))
-    
+
     ! mg24(a,p)al27
     call rate_mg24ap(tf,bden, &
                      ratraw(irmgap),dratrawdt(irmgap),dratrawdd(irmgap), &
                      ratraw(iralpa),dratrawdt(iralpa),dratrawdd(iralpa))
-    
+
     ! al27(p,g)si28
     call rate_al27pg(tf,bden, &
                      ratraw(iralpg),dratrawdt(iralpg),dratrawdd(iralpg), &
                      ratraw(irsigp),dratrawdt(irsigp),dratrawdd(irsigp))
-    
+
     ! si28(a,g)s32
     call rate_si28ag(tf,bden, &
                      ratraw(irsiag),dratrawdt(irsiag),dratrawdd(irsiag), &
                      ratraw(irsga),dratrawdt(irsga),dratrawdd(irsga))
-    
+
     ! si28(a,p)p31
     call rate_si28ap(tf,bden, &
                      ratraw(irsiap),dratrawdt(irsiap),dratrawdd(irsiap), &
                      ratraw(irppa),dratrawdt(irppa),dratrawdd(irppa))
-    
+
     ! p31(p,g)s32
     call rate_p31pg(tf,bden, &
                     ratraw(irppg),dratrawdt(irppg),dratrawdd(irppg), &
                     ratraw(irsgp),dratrawdt(irsgp),dratrawdd(irsgp))
-    
+
     ! s32(a,g)ar36
     call rate_s32ag(tf,bden, &
                     ratraw(irsag),dratrawdt(irsag),dratrawdd(irsag), &
                     ratraw(irarga),dratrawdt(irarga),dratrawdd(irarga))
-    
+
     ! s32(a,p)cl35
     call rate_s32ap(tf,bden, &
                     ratraw(irsap),dratrawdt(irsap),dratrawdd(irsap), &
                     ratraw(irclpa),dratrawdt(irclpa),dratrawdd(irclpa))
-    
+
     ! cl35(p,g)ar36
     call rate_cl35pg(tf,bden, &
                      ratraw(irclpg),dratrawdt(irclpg),dratrawdd(irclpg), &
                      ratraw(irargp),dratrawdt(irargp),dratrawdd(irargp))
-    
+
     ! ar36(a,g)ca40
     call rate_ar36ag(tf,bden, &
                      ratraw(irarag),dratrawdt(irarag),dratrawdd(irarag), &
                      ratraw(ircaga),dratrawdt(ircaga),dratrawdd(ircaga))
-    
+
     ! ar36(a,p)k39
     call rate_ar36ap(tf,bden, &
                      ratraw(irarap),dratrawdt(irarap),dratrawdd(irarap), &
                      ratraw(irkpa),dratrawdt(irkpa),dratrawdd(irkpa))
-    
+
     ! k39(p,g)ca40
     call rate_k39pg(tf,bden, &
                     ratraw(irkpg),dratrawdt(irkpg),dratrawdd(irkpg), &
                     ratraw(ircagp),dratrawdt(ircagp),dratrawdd(ircagp))
-    
+
     ! ca40(a,g)ti44
     call rate_ca40ag(tf,bden, &
                      ratraw(ircaag),dratrawdt(ircaag),dratrawdd(ircaag), &
                      ratraw(irtiga),dratrawdt(irtiga),dratrawdd(irtiga))
-    
+
     ! ca40(a,p)sc43
     call rate_ca40ap(tf,bden, &
                      ratraw(ircaap),dratrawdt(ircaap),dratrawdd(ircaap), &
                      ratraw(irscpa),dratrawdt(irscpa),dratrawdd(irscpa))
-    
+
     ! sc43(p,g)ti44
     call rate_sc43pg(tf,bden, &
                      ratraw(irscpg),dratrawdt(irscpg),dratrawdd(irscpg), &
                      ratraw(irtigp),dratrawdt(irtigp),dratrawdd(irtigp))
-    
+
     ! ti44(a,g)cr48
     call rate_ti44ag(tf,bden, &
                      ratraw(irtiag),dratrawdt(irtiag),dratrawdd(irtiag), &
@@ -755,42 +735,42 @@ contains
     call rate_ti44ap(tf,bden, &
                      ratraw(irtiap),dratrawdt(irtiap),dratrawdd(irtiap), &
                      ratraw(irvpa),dratrawdt(irvpa),dratrawdd(irvpa))
-    
+
     ! v47(p,g)cr48
     call rate_v47pg(tf,bden, &
                     ratraw(irvpg),dratrawdt(irvpg),dratrawdd(irvpg), &
                     ratraw(ircrgp),dratrawdt(ircrgp),dratrawdd(ircrgp))
-    
+
     ! cr48(a,g)fe52
     call rate_cr48ag(tf,bden, &
                      ratraw(ircrag),dratrawdt(ircrag),dratrawdd(ircrag), &
                      ratraw(irfega),dratrawdt(irfega),dratrawdd(irfega))
-    
+
     ! cr48(a,p)mn51
     call rate_cr48ap(tf,bden, &
                      ratraw(ircrap),dratrawdt(ircrap),dratrawdd(ircrap), &
                      ratraw(irmnpa),dratrawdt(irmnpa),dratrawdd(irmnpa))
-    
+
     ! mn51(p,g)fe52
     call rate_mn51pg(tf,bden, &
                      ratraw(irmnpg),dratrawdt(irmnpg),dratrawdd(irmnpg), &
                      ratraw(irfegp),dratrawdt(irfegp),dratrawdd(irfegp))
-    
+
     ! fe52(a,g)ni56
     call rate_fe52ag(tf,bden, &
                      ratraw(irfeag),dratrawdt(irfeag),dratrawdd(irfeag), &
                      ratraw(irniga),dratrawdt(irniga),dratrawdd(irniga))
-    
+
     ! fe52(a,p)co55
     call rate_fe52ap(tf,bden, &
                      ratraw(irfeap),dratrawdt(irfeap),dratrawdd(irfeap), &
                      ratraw(ircopa),dratrawdt(ircopa),dratrawdd(ircopa))
-    
+
     ! co55(p,g)ni56
     call rate_co55pg(tf,bden, &
                      ratraw(ircopg),dratrawdt(ircopg),dratrawdd(ircopg), &
                      ratraw(irnigp),dratrawdt(irnigp),dratrawdd(irnigp))
-    
+
   end subroutine aprox13rat
 
 
@@ -802,9 +782,9 @@ contains
 
     use bl_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
-    
+
     implicit none
-    
+
     ! this routine computes the screening factors
     ! and applies them to the raw reaction rates,
     ! producing the final reaction rates used by the
@@ -819,7 +799,7 @@ contains
     integer          :: i, jscr
     double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
                         sc3a,sc3adt,sc3add
-    
+
     double precision :: abar,zbar,z2bar,ytot1,zbarxx,z2barxx, &
                         denom,denomdt,denomdd, &
                         r1,r1dt,r1dd,s1,s1dt,s1dd,t1,t1dt,t1dd, &
@@ -841,7 +821,7 @@ contains
 
 
     ! Set up the state data, which is the same for all screening factors.
-    
+
     call fill_plasma_state(state, btemp, bden, y(1:nspec))
 
 
@@ -1489,7 +1469,7 @@ contains
 
 
     ! now form those lovely dummy proton link rates
-    
+
     ! mg24(a,p)27al(p,g)28si
     ratdum(irr1)     = 0.0d0
     dratdumdt(irr1)  = 0.0d0
@@ -1601,26 +1581,25 @@ contains
        dratdumdt(iry1) = (dratdumdt(ircopa) - ratdum(iry1)*denomdt)*zz
        !dratdumdd(iry1) = (dratdumdd(ircopa) - ratdum(iry1)*denomdd)*zz
     end if
-    
+
   end subroutine screen_aprox13
 
 
 
-  subroutine dfdy_isotopes_aprox13(y,dfdy,neq,rate)
+  subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
 
     use network
     use microphysics_math_module, only: esum
 
     implicit none
-    
+
     ! this routine sets up the dense aprox13 jacobian for the isotopes
 
-    integer          :: neq
-    double precision :: y(neq),dfdy(neq,neq)
+    double precision :: y(nspec),dfdy(nspec,nspec)
     double precision :: rate(nrates)
 
     double precision :: b(30)
-    
+
     ! he4 jacobian elements
     ! d(he4)/d(he4)
     b(1)  = -1.5d0 * y(ihe4) * y(ihe4) * rate(ir3a) 

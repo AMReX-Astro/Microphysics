@@ -1,26 +1,23 @@
 module actual_rhs_module
 
+  use bl_types
+  use bl_constants_module
+  use network
+  use burn_type_module
+  use actual_burner_module, only: ener_gener_rate
+  use temperature_integration_module, only: temperature_rhs, temperature_jac
+
   implicit none
 
 contains
 
-  subroutine actual_rhs(neq, time, y, ydot, rpar)
+  subroutine actual_rhs(state)
 
-    use bl_types
-    use bl_constants_module
-    use network
-    use vode_data
-    use rpar_indices
     use screening_module, only: screenz
-    use actual_burner_data
-    use actual_burner_module, only: ener_gener_rate
 
     implicit none
 
-    integer          :: neq
-    double precision :: time
-    double precision :: y(neq), ydot(neq)
-    double precision :: rpar(n_rpar_comps)
+    type (burn_t)    :: state
 
     double precision :: temp, T9, T9a, dT9dt, dT9adt
 
@@ -31,11 +28,14 @@ contains
 
     double precision :: a, b, dadt, dbdt
 
-    temp    = y(net_itemp)
-    dens    = rpar(irp_dens)
+    double precision :: y(nspec)
+
+    temp = state % T
+    dens = state % rho
+    y    = state % xn / aion
 
     ! call the screening routine
-    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y(1:nspec),aion,zion,nspec,sc1212,dsc1212dt)
+    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,aion,zion,nspec,sc1212,dsc1212dt)
 
     ! compute some often used temperature constants
     T9     = temp/1.d9
@@ -85,83 +85,72 @@ contains
     ! the network module -- this makes things robust to a shuffling of the 
     ! species ordering
 
-    xc12tmp = max(y(ic12) * aion(ic12), ZERO)
-    ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
-    ydot(io16)  = ZERO
-    ydot(img24) = -ydot(ic12)
+    xc12tmp = max(state % xn(ic12), ZERO)
+    state % ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
+    state % ydot(io16)  = ZERO
+    state % ydot(img24) = -state % ydot(ic12)
 
     ! These get sent to the Jacobian
 
-    rpar(irp_rate)      = rate
-    rpar(irp_dratedt)   = dratedt
-    rpar(irp_sc1212)    = sc1212
-    rpar(irp_dsc1212dt) = dsc1212dt
-    rpar(irp_xc12tmp)   = xc12tmp
+    state % rates(1,:)  = rate
+    state % rates(2,:)  = dratedt
+    state % rates(3,:)  = sc1212
+    state % rates(4,:)  = dsc1212dt
 
     ! Convert back to molar form
 
-    ydot(1:nspec) = ydot(1:nspec) / aion
+    state % ydot(1:nspec) = state % ydot(1:nspec) / aion
 
-    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
+    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
 
-    call temperature_rhs(neq, y, ydot, rpar)
+    call temperature_rhs(state)
 
   end subroutine actual_rhs
 
 
 
-  subroutine actual_jac(neq, time, y, pd, rpar)
-
-    use network
-    use rpar_indices
-    use bl_constants_module, only: ZERO, SIXTH, TWELFTH
-    use vode_data
-    use actual_burner_data
-    use actual_burner_module, only: ener_gener_rate
+  subroutine actual_jac(state)
 
     implicit none
 
-    integer          :: neq
-    double precision :: time
-    double precision :: y(neq), pd(neq, neq)
-    double precision :: rpar(n_rpar_comps)
+    type (burn_t)    :: state
 
     double precision :: dens
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
-    integer :: j
+    integer          :: j
 
-    ! Get data from the rpar array
+    ! Get data from the state
 
-    dens     = rpar(irp_dens)
+    dens     = state % rho
 
-    rate     = rpar(irp_rate)     
-    dratedt  = rpar(irp_dratedt)  
-    scorr    = rpar(irp_sc1212)   
-    dscorrdt = rpar(irp_dsc1212dt)
-    xc12tmp  = rpar(irp_xc12tmp)    
+    rate     = state % rates(1,1)
+    dratedt  = state % rates(2,1)
+    scorr    = state % rates(3,1)
+    dscorrdt = state % rates(4,1)
+    xc12tmp  = max(state % xn(ic12), ZERO)
 
     ! initialize
-    pd(:,:)  = ZERO
+    state % jac(:,:)  = ZERO
 
     ! carbon jacobian elements
-    pd(ic12, ic12)  = -SIXTH * dens * scorr * rate * xc12tmp
+    state % jac(ic12, ic12)  = -SIXTH * dens * scorr * rate * xc12tmp
 
     ! add the temperature derivatives: df(y_i) / dT
-    pd(ic12, net_itemp)  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
-                            dens * scorr * xc12tmp**2 * dratedt )
+    state % jac(ic12, net_itemp)  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
+                                     dens * scorr * xc12tmp**2 * dratedt )
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
-       call ener_gener_rate(pd(1:nspec,j), pd(net_ienuc,j))
+       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
+    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
 
-    call temperature_jac(neq, y, pd, rpar)
+    call temperature_jac(state)
 
   end subroutine actual_jac
 

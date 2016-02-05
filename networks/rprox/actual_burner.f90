@@ -44,23 +44,6 @@ contains
 
     call init_rpar_indices(nrates, nspec)
 
-    ! Add some rpar indices for rate-related things
-
-    irp_rates        = get_next_rpar_index(nrates)
-    irp_drtdt        = get_next_rpar_index(nrates)
-
-    irp_dlambCNOdh1  = get_next_rpar_index(1)
-    irp_drs1dhe4     = get_next_rpar_index(1)
-    irp_drr1dh1      = get_next_rpar_index(1)
-    irp_dlambda1dhe4 = get_next_rpar_index(1)
-    irp_dlambda2dhe4 = get_next_rpar_index(1)
-
-    irp_delta1       = get_next_rpar_index(1)
-    irp_delta2       = get_next_rpar_index(1)
-
-    irp_r56eff       = get_next_rpar_index(1)
-    irp_dr56effdt    = get_next_rpar_index(1)
-
   end subroutine actual_burner_init
 
 

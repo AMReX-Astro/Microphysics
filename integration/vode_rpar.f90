@@ -11,6 +11,7 @@ module rpar_indices
   integer :: irp_abar, irp_zbar
   integer :: irp_eta, irp_ye
   integer :: irp_self_heat
+  integer :: irp_rates
 
 contains
 
@@ -37,6 +38,8 @@ contains
 
   subroutine init_rpar_indices(nrates, nspec)
 
+    use burn_type_module, only: num_rate_groups
+
     implicit none
     
     integer, intent(in) :: nrates, nspec
@@ -51,6 +54,7 @@ contains
     irp_self_heat = get_next_rpar_index(1)
     irp_dhdY      = get_next_rpar_index(nspec)
     irp_dedY      = get_next_rpar_index(nspec)
+    irp_rates     = get_next_rpar_index(num_rate_groups * nrates)
 
   end subroutine init_rpar_indices
 

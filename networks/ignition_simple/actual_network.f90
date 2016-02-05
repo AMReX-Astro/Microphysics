@@ -20,8 +20,6 @@ contains
 
   subroutine actual_network_init
 
-    use rpar_indices
-
     implicit none
 
     spec_names(ic12)  = "carbon-12"

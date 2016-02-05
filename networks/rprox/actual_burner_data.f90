@@ -25,16 +25,14 @@ module actual_burner_data
 
   character (len=10), save :: reac_names(nrates)
 
-  integer, save :: irp_rates
-  integer, save :: irp_drtdt
-  integer, save :: irp_dlambCNOdh1
-  integer, save :: irp_drs1dhe4
-  integer, save :: irp_drr1dh1
-  integer, save :: irp_dlambda1dhe4
-  integer, save :: irp_dlambda2dhe4
-  integer, save :: irp_delta1
-  integer, save :: irp_delta2
-  integer, save :: irp_r56eff
-  integer, save :: irp_dr56effdt
+  integer, parameter :: dlambCNOdh1   = 1
+  integer, parameter :: drs1dhe4      = 2
+  integer, parameter :: drr1dh1       = 3
+  integer, parameter :: dlambda1dhe4  = 4
+  integer, parameter :: dlambda2dhe4  = 5
+  integer, parameter :: delta1        = 6
+  integer, parameter :: delta2        = 7
+  integer, parameter :: r56eff        = 8
+  integer, parameter :: dr56effdt     = 9
 
 end module actual_burner_data

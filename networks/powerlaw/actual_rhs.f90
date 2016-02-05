@@ -1,34 +1,32 @@
 module actual_rhs_module
 
+  use bl_types
+  use bl_constants_module
+  use network
+  use burn_type_module
+  use actual_burner_module, only: ener_gener_rate
+  use temperature_integration_module, only: temperature_rhs, temperature_jac
+
   implicit none
 
 contains
 
-  subroutine actual_rhs(neq, time, y, ydot, rpar)
+  subroutine actual_rhs(state)
 
-    use bl_types
-    use bl_constants_module
-    use network
-    use vode_data
-    use rpar_indices
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
-    use actual_burner_module, only: ener_gener_rate
 
     implicit none
 
-    integer          :: neq
-    double precision :: time
-    double precision :: y(neq), ydot(neq)
-    double precision :: rpar(n_rpar_comps)
+    type (burn_t)    :: state
 
     double precision :: xfueltmp
-    double precision :: dens, temp, rate
+    double precision :: dens, temp, rate, y(nspec)
 
-    ydot = ZERO
+    state % ydot = ZERO
 
-    xfueltmp = max(y(ifuel_) * aion(ifuel_), ZERO)
-    dens     = rpar(irp_dens)
-    temp     = y(net_itemp)
+    xfueltmp = max(state % xn(ifuel_), ZERO)
+    dens     = state % rho
+    temp     = state % T
 
     ! Rate is expressed in mass fraction form
     
@@ -38,17 +36,17 @@ contains
        rate = rtilde * (dens/rho_burn_ref) * xfueltmp**2 * (temp/T_burn_ref)**nu
     endif
 
-    ydot(ifuel_)  = -rate
-    ydot(iash_)   =  rate
-    ydot(iinert_) =  ZERO
+    state % ydot(ifuel_)  = -rate
+    state % ydot(iash_)   =  rate
+    state % ydot(iinert_) =  ZERO
 
     ! Convert back to molar form
 
-    ydot(1:nspec) = ydot(1:nspec) / aion
+    state % ydot(1:nspec) = state % ydot(1:nspec) / aion
     
-    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
+    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
 
-    call temperature_rhs(neq, y, ydot, rpar)
+    call temperature_rhs(state)
 
   end subroutine actual_rhs
 
@@ -56,20 +54,13 @@ contains
 
   ! At present the analytical Jacobian is not implemented.
 
-  subroutine actual_jac(neq, time, y, pd, rpar)
-
-    use network
-    use rpar_indices
-    use bl_constants_module, only: ZERO
+  subroutine actual_jac(state)
 
     implicit none
 
-    integer          :: neq
-    double precision :: time
-    double precision :: y(neq), pd(neq, neq)
-    double precision :: rpar(n_rpar_comps)
+    type (burn_t) :: state
 
-    pd(:,:) = ZERO
+    state % jac(:,:) = ZERO
 
   end subroutine actual_jac
 

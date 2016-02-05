@@ -3,8 +3,8 @@ module actual_rhs_module
   use network
   use burner_module
   use eos_type_module
-  use vode_data, only: net_itemp, net_ienuc
-  use rpar_indices
+  use burn_type_module
+  use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none
 
@@ -12,9 +12,7 @@ module actual_rhs_module
 
 contains
 
-  subroutine actual_rhs(neq,time,y,dydt,rpar)
-
-    use extern_probin_module, only: jacobian
+  subroutine actual_rhs(state)
 
     implicit none
 
@@ -24,13 +22,9 @@ contains
     !
     ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
 
-    integer          :: neq
-    double precision :: time
-    double precision :: y(neq), dydt(neq)
-    double precision :: rpar(n_rpar_comps)
+    type (burn_t)    :: state
 
-    integer :: i
-    logical :: deriva
+    logical          :: deriva = .false.
 
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
@@ -40,58 +34,53 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
-    double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
+    double precision :: rho, temp, abar, zbar
+    double precision :: y(nspec)
 
-    ! Get the data from rpar and the state
+    ! Get the data from the state
 
-    rho  = rpar(irp_dens)
-    temp = y(net_itemp)
-    cv   = rpar(irp_cv)
-    cp   = rpar(irp_cp)
-
-    dhdY = rpar(irp_dhdY:irp_dhdY+nspec-1)
-    dEdY = rpar(irp_dEdY:irp_dEdY+nspec-1)
-    abar = rpar(irp_abar)
-    zbar = rpar(irp_zbar)
+    rho  = state % rho
+    temp = state % T
+    abar = state % abar
+    zbar = state % zbar
+    y    = state % xn / aion
 
     ! Get the raw reaction rates
     call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
 
     ! Do the screening here because the corrections depend on the composition
-    call screen_iso7(temp, rho, y(1:nspec),        &
-                        ratraw, dratrawdt, dratrawdd, &
-                        ratdum, dratdumdt, dratdumdd, &
-                        dratdumdy1, dratdumdy2,       &
-                        scfac,  dscfacdt,  dscfacdd)
+    call screen_iso7(temp, rho, y,                 &
+                     ratraw, dratrawdt, dratrawdd, &
+                     ratdum, dratdumdt, dratdumdd, &
+                     dratdumdy1, dratdumdy2,       &
+                     scfac,  dscfacdt,  dscfacdd)
 
-    ! Get the right hand side of the ODEs. First, we'll do it
-    ! using d(rates)/dT to get the data for the Jacobian and store it.
-    ! Then we'll do it using the normal rates.
+    ! Save the rate data, for the Jacobian later if we need it.
 
-    if (jacobian == 1) then
-       deriva = .true.
-       call rhs(y(1:nspec), dratdumdt, ratdum, dydt, deriva)
-       rpar(irp_dydt:irp_dydt+nspec-1) = dydt(1:nspec)
-       rpar(irp_rates:irp_rates+nrates-1) = ratdum
-       rpar(irp_drdy1:irp_drdy1+nrates-1) = dratdumdy1
-       rpar(irp_drdy2:irp_drdy2+nrates-1) = dratdumdy2
-    endif
+    state % rates(1,:) = ratdum
+    state % rates(2,:) = dratdumdt
+    state % rates(3,:) = dratdumdy1
+    state % rates(4,:) = dratdumdy2
 
-    deriva = .false.
+    ! Call the RHS to actually get dydt.
 
-    call rhs(y(1:nspec), ratdum, ratdum, dydt, deriva)
+    call rhs(y, ratdum, ratdum, state % ydot(1:nspec), deriva)
 
-    ! Instantaneous energy generation rate
-    call ener_gener_rate(dydt, enuc)
+    ! Instantaneous energy generation rate -- this needs molar fractions
+
+    call ener_gener_rate(state % ydot(1:nspec), enuc)
 
     ! Get the neutrino losses
+
     call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
     ! Append the energy equation (this is erg/g/s)
-    dydt(net_ienuc) = enuc - sneut
 
-    ! Set up the temperature ODE
-    call temperature_rhs(neq, y, dydt, rpar)
+    state % ydot(net_ienuc) = enuc - sneut
+
+    ! Append the temperature equation
+
+    call temperature_rhs(state)
 
   end subroutine actual_rhs
 
@@ -99,73 +88,62 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(neq, t, y, pd, rpar)
-
-    use bl_types
-    use bl_constants_module, only: ZERO
-    use eos_module
-    use extern_probin_module, only: do_constant_volume_burn
+  subroutine actual_jac(state)
 
     implicit none
 
-    integer         , intent(IN   ) :: neq
-    double precision, intent(IN   ) :: y(neq), rpar(n_rpar_comps), t
-    double precision, intent(  OUT) :: pd(neq,neq)
+    type (burn_t)    :: state
 
-    double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates), ydot(nspec)
+    logical          :: deriva = .true.
 
     double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
-    integer          :: i, j
+    integer          :: j
 
-    double precision :: rho, temp, cv, cp, abar, zbar, dEdY(nspec), dhdY(nspec)
+    double precision :: rho, temp, abar, zbar
+    double precision :: y(nspec)
 
-    pd(:,:) = ZERO
+    state % jac(:,:) = ZERO
 
-    ! Get the data from rpar and the state
+    ! Get the data from the state
 
-    rho  = rpar(irp_dens)
-    temp = y(net_itemp)
-
-    abar = rpar(irp_abar)
-    zbar = rpar(irp_zbar)
-
-    ! Note that this RHS has been evaluated using rates = d(ratdum) / dT
-
-    ydot       = rpar(irp_dydt:irp_dydt+nspec-1)
-    ratdum     = rpar(irp_rates:irp_rates+nrates-1)
-    dratdumdy1 = rpar(irp_drdy1:irp_drdy1+nrates-1)
-    dratdumdy2 = rpar(irp_drdy2:irp_drdy2+nrates-1)
+    rho  = state % rho
+    temp = state % T
+    abar = state % abar
+    zbar = state % zbar
+    y    = state % xn / aion
 
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_iso7(neq, y, pd, ratdum, dratdumdy1, dratdumdy2)
+    call dfdy_isotopes_iso7(y, state % jac(1:nspec,1:nspec), state % rates(1,:), &
+                            state % rates(3,:), state % rates(4,:))
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
-       call ener_gener_rate(pd(1:nspec,j), pd(net_ienuc,j))
+       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
     enddo
 
     ! Account for the thermal neutrino losses
 
-    call sneut5(T,rho,abar,zbar,sneut,dsneutdt,dsneutdd,snuda,snudz)
+    call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
     do j = 1, nspec
        b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
-       pd(net_ienuc,j) = pd(net_ienuc,j) - b1
+       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
     enddo
 
-    ! Jacobian elements with respect to temperature
+    ! Evaluate the Jacobian elements with respect to temperature by
+    ! calling the RHS using d(ratdum) / dT
 
-    pd(1:nspec,net_itemp) = ydot
+    call rhs(y, state % rates(2,:), state % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
 
-    call ener_gener_rate(pd(1:nspec,net_itemp), pd(net_ienuc,net_itemp))
-    pd(net_ienuc,net_itemp) = pd(net_ienuc,net_itemp) - dsneutdt
+    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
+    state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
 
     ! Temperature Jacobian elements
 
-    call temperature_jac(neq, y, pd, rpar)
+    call temperature_jac(state)
 
   end subroutine actual_jac
 
@@ -580,7 +558,7 @@ contains
 
 
 
-  subroutine dfdy_isotopes_iso7(neq,y,dfdy,ratdum,dratdumdy1,dratdumdy2)
+  subroutine dfdy_isotopes_iso7(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
     use microphysics_math_module, only: esum
@@ -589,8 +567,7 @@ contains
 
     ! this routine sets up the dense iso7 jacobian for the isotopes
 
-    integer          :: neq
-    double precision :: y(neq), dfdy(neq,neq)
+    double precision :: y(nspec), dfdy(nspec,nspec)
     double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
 
     double precision :: b(8)

@@ -7,29 +7,23 @@ subroutine test_jacobian() bind(C)
   use eos_module
   use burner_module
   use actual_burner_module
-  use rpar_indices
-  use vode_module
-  use vode_data
-  use extern_probin_module, only: jacobian
+  use actual_rhs_module
+  use burn_type_module
   
   implicit none
 
-  type (eos_t) :: state
+  type (burn_t) :: state, statep, statem
+
+  type (eos_t) :: eos_state
 
   character (len=32) :: probin_file
   integer :: probin_pass(32)
   integer :: i, j
 
-  integer          :: ipar
-  double precision :: y(NEQ), ydot(NEQ), yp(NEQ), ym(NEQ), ydotp(NEQ), ydotm(NEQ), pd(NEQ,NEQ)
-  double precision, allocatable :: rpar(:)
-
   double precision, parameter :: delta = 1.d-6
   double precision, parameter :: SMALL = 1.d-12
   double precision :: num_jac
 
-  integer :: old_jacobian
-  
   character(len=16) :: namei,namej  
   
   probin_file = "probin"
@@ -43,68 +37,57 @@ subroutine test_jacobian() bind(C)
   call burner_init()
   call eos_init()
 
-  ! Allocate rpar. We need to do this after initializing the network
-  ! since that is what sets up the rpar indices.
+  ! Set up state
 
-  allocate(rpar(n_rpar_comps))
+  state % rho   = 2.0d7
+  state % T     = 8.0d9
 
-  ! Set up EOS state
-  
-  state % rho       = 1.4311401611205835d7
-  state % T         = 4.6993994016410122d9
-  
-  state % xn(ihe4)  = 4.2717633762309063d-3
-  state % xn(ic12)  = 2.4502021307478711d-5
-  state % xn(io16)  = 1.2059146851610723d-4
-  state % xn(ine20) = 5.4419551339421394d-7
-  state % xn(img24) = 2.5178594678377961d-4
-  state % xn(isi28) = 3.5998829467937532d-1
-  state % xn(is32)  = 2.7075529188304326d-1
-  state % xn(iar36) = 9.1747472911892503d-2
-  state % xn(ica40) = 8.0560189657331735d-2
-  state % xn(iti44) = 6.1369127564250370d-4
-  state % xn(icr48) = 2.5528582259065832d-3
-  state % xn(ife52) = 1.9491916518179594d-2
-  state % xn(ini56) = 1.6962109761781674d-1  
-  
-  call normalize_abundances(state)
+  state % xn(:) = ONE / nspec
 
-  call eos(eos_input_rt, state)
+  call burn_to_eos(state, eos_state)
+  call normalize_abundances(eos_state)
+  call eos(eos_input_rt, eos_state)
+  call eos_to_burn(eos_state, state)
 
-  ! Set up the integration state
-
-  call eos_to_vode(state, y, rpar)
-  
-  rpar(irp_self_heat) = ONE
+  state % self_heat = .true.
   
   ! Evaluate the analytical Jacobian. Note that we
-  ! need to call f_rhs first because that will fill rpar
-  ! with the rates that the Jacobian needs.
+  ! need to call f_rhs first because that will fill
+  ! the state with the rates that the Jacobian needs.
 
-  old_jacobian = jacobian
-  jacobian = 1
-  
-  call f_rhs(NEQ, ZERO, y, ydot, rpar, ipar)  
-  call jac(NEQ, ZERO, y, 0, 0, pd, NEQ, rpar, ipar)  
+  call actual_rhs(state)
+  call actual_jac(state)  
   
 888 format(a,"-derivatives that don't match:")
 999 format(5x, "df(",a,")/dy(",a,")", g18.10, g18.10, g18.10)
 
   ! Now evaluate a numerical estimate of the Jacobian
   ! using the RHS.
-
-  jacobian = old_jacobian
   
-  do j = 1, NEQ
+  do j = 1, neqs
 
-     yp(:) = y(:)
-     ym(:) = y(:)
+     statep = state
+     statem = state
 
-     yp(j) = (ONE + delta) * y(j) 
-     call f_rhs(NEQ, ZERO, yp, ydotp, rpar, ipar)
+     if (j <= nspec) then
+        statep % xn(j) = (ONE + delta) * state % xn(j)
+     else if (j == net_itemp) then
+        statep % T     = (ONE + delta) * state % T
+     else if (j == net_ienuc) then
+        statep % e     = (ONE + delta) * state % e
+     endif
+
+     call actual_rhs(statep)
      
-     ym(j) = (ONE - delta) * y(j) 
-     call f_rhs(NEQ, ZERO, ym, ydotm, rpar, ipar)        
+     if (j <= nspec) then
+        statem % xn(j) = (ONE - delta) * state % xn(j)
+     else if (j == net_itemp) then
+        statem % T     = (ONE - delta) * state % T
+     else if (j == net_ienuc) then
+        statem % e     = (ONE - delta) * state % e
+     endif
+
+     call actual_rhs(statem)
 
      if (j <= nspec) then
         namej = short_spec_names(j)
@@ -116,9 +99,15 @@ subroutine test_jacobian() bind(C)
 
      write(*,888) trim(namej)
 
-     do i = 2, NEQ
-        
-        num_jac = (ydotp(i) - ydotm(i))/(yp(j) - ym(j) + SMALL)
+     do i = 2, neqs
+
+        if (j <= nspec) then
+           num_jac = (statep % ydot(i) - statem % ydot(i))/(statep % xn(j) - statem % xn(j) + SMALL)
+        else if (j == net_itemp) then
+           num_jac = (statep % ydot(i) - statem % ydot(i))/(statep % T - statem % T + SMALL)
+        else if (j == net_ienuc) then
+           num_jac = (statep % ydot(i) - statem % ydot(i))/(statep % e - statem % e + SMALL)
+        endif
 
         if (i <= nspec) then
            namei = short_spec_names(i)
@@ -129,13 +118,13 @@ subroutine test_jacobian() bind(C)
         endif
 
         ! only dump the ones that don't match
-        if (num_jac /= pd(i,j)) then
+        if (num_jac /= state % jac(i,j)) then
            if (num_jac /= ZERO) then
               write (*,999) trim(namei), &
-                   trim(namej), num_jac, pd(i,j), (num_jac-pd(i,j))/num_jac
+                   trim(namej), num_jac, state % jac(i,j), (num_jac-state % jac(i,j))/num_jac
            else
               write (*,999) trim(namei), &
-                   trim(namej), num_jac, pd(i,j)
+                   trim(namej), num_jac, state % jac(i,j)
            endif
         endif
 

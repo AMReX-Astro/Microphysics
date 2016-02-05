@@ -2,14 +2,9 @@ module actual_burner_module
 
   use bl_types
   use bl_constants_module
-  use bl_error_module
-  use rpar_indices
-  use eos_module
-  use eos_data_module
-  use eos_type_module
   use network
-  use actual_burner_data
   use burn_type_module
+  use actual_burner_data
   use extern_probin_module, only: specific_q_burn
 
   implicit none
@@ -17,6 +12,8 @@ module actual_burner_module
 contains
 
   subroutine actual_burner_init()
+
+    use rpar_indices
 
     implicit none
 

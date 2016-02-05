@@ -7,9 +7,11 @@ subroutine do_burn() bind (C)
 
   implicit none
 
-  type (eos_t) :: state_in, state_out
+  type (burn_t) :: state_in, state_out
 
   double precision :: time = 0.0, dt = 1.0d-6
+
+  type (eos_t) :: eos_state
 
   character (len=32) :: probin_file
   integer :: probin_pass(32)
@@ -46,17 +48,19 @@ subroutine do_burn() bind (C)
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T
   print *, "X_in: ", state_in % xn
-  
-  call normalize_abundances(state_in)
 
-  call eos(eos_input_rt, state_in)
+  ! We need an initial energy consistent with this
+  ! temperature.
+
+  call burn_to_eos(state_in, eos_state)
+  call normalize_abundances(eos_state)
+  call eos(eos_input_rt, eos_state)
+  call eos_to_burn(eos_state, state_in)
 
   state_out = state_in
   
   call actual_burner(state_in, state_out, dt, time)
 
-  call eos(eos_input_re, state_out)
-  
   print *, 'done!'
 
   print *, "rho_out: ", state_out % rho

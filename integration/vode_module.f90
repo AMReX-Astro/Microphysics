@@ -7,15 +7,10 @@ module vode_module
   use network
   use rpar_indices
   use vode_data
+  use vode_convert_module
   use burn_type_module
 
   implicit none
-
-  ! Set the number of independent variables -- this should be
-  ! temperature, enuc + the number of species which participate
-  ! in the evolution equations.
-
-  integer, parameter :: NEQ = 2 + nspec
 
   ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
   ! function is supplied; 22 means stiff, figure out my jacobian through
@@ -53,8 +48,8 @@ module vode_module
   ! integer work array of size 30 + NEQ. These are VODE constants
   ! that depend on the integration mode we're using -- see dvode.f.
 
-  integer, parameter :: LRW = 22 + 9*NEQ + 2*NEQ**2
-  integer, parameter :: LIW = 30 + NEQ
+  integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
+  integer, parameter :: LIW = 30 + neqs
 
 contains
 
@@ -83,8 +78,8 @@ contains
 
     ! Work arrays
 
-    double precision :: y(NEQ)
-    double precision :: atol(NEQ), rtol(NEQ)
+    double precision :: y(neqs)
+    double precision :: atol(neqs), rtol(neqs)
     double precision :: rwork(LRW)
     integer          :: iwork(LIW)
     double precision :: rpar(n_rpar_comps)
@@ -174,7 +169,7 @@ contains
 
     ! Call the integration routine.
 
-    call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+    call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
@@ -197,7 +192,7 @@ contains
 
        y(net_ienuc) = ZERO
 
-       call dvode(f_rhs, NEQ, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+       call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
     endif
@@ -211,7 +206,7 @@ contains
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', y(net_itemp)
+       print *, 'temp current = ', y(net_itemp) * temp_scale
        print *, 'xn current = ', y(1:nspec)
        print *, 'energy generated = ', y(net_ienuc)
        call bl_error("ERROR in burner: integration failed")

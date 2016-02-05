@@ -118,11 +118,6 @@ contains
 
     call init_rpar_indices(nrates, nspec)
 
-    ! Add some components to the rpar array
-
-    irp_dydt      = get_next_rpar_index(nspec)
-    irp_rates     = get_next_rpar_index(nrates)
-
   end subroutine actual_burner_init
 
 
