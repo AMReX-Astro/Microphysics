@@ -5,8 +5,6 @@ module actual_network_data
   integer, parameter :: nspec = 4
   integer, parameter :: naux  = 0
 
-  integer, parameter :: nevolve = 3
-
   integer, parameter :: ihe4_  = 1
   integer, parameter :: ic12_  = 2
   integer, parameter :: io16_  = 3

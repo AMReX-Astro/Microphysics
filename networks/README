@@ -9,6 +9,7 @@ in CASTRO:
 - powerlaw
 - ignition_simple
 - rprox
+- triple_alpha_plus_cago
 
 Other networks should be considered experimental and/or
 have not yet had their interfaces updated from

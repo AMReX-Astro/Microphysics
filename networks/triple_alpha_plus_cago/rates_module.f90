@@ -15,6 +15,7 @@ module rates_module
   use bl_types
   use bl_constants_module
   use network
+  use actual_burner_data
 
   implicit none
 
@@ -25,10 +26,10 @@ contains
     ! rates given in terms of molar fractions
 
     real(kind=dp_t), intent(IN   ) :: temp, dens
-    real(kind=dp_t), intent(  OUT) :: rates(nrat),dratesdt(nrat)
+    real(kind=dp_t), intent(  OUT) :: rates(nrates),dratesdt(nrates)
     
     real(kind=dp_t) :: t9r, t9r32, t9ri, t9ri2, t9, t9i, t913, t9i13, t923, &
-         t9i23, t943, t9i43, t932, t9i32, t953, t9i53, t92, t9i2
+                       t9i23, t943, t9i43, t932, t9i32, t953, t9i53, t92, t9i2
 
     real(kind=dp_t) ::  term,  dtermdt
     real(kind=dp_t) :: r2abe, dr2abedt

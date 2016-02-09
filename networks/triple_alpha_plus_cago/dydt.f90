@@ -9,6 +9,7 @@ module dydt_module
   use bl_types
   use bl_constants_module
   use network
+  use actual_burner_data
 
   implicit none
 
@@ -16,10 +17,8 @@ contains
 
   subroutine dydt(ymol, rates, ydot)
 
-    real(kind=dp_t), intent(IN   ) :: ymol(nspec), rates(nrat)
-    real(kind=dp_t), intent(  OUT) :: ydot(nevolve)
-
-    integer :: i 
+    double precision, intent(IN   ) :: ymol(nspec), rates(nrates)
+    double precision, intent(  OUT) :: ydot(nspec)
 
     ydot(:) = ZERO
 
@@ -34,11 +33,6 @@ contains
     ! O16 reactions
     ydot(io16_) =  ONE * ymol(ic12_) * ymol(ihe4_) * rates(ircago_)
 
-
-    ! switch back to mass fractions
-    ydot = ydot * aion(1:nevolve)
-
-    return
   end subroutine dydt
 
 

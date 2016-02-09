@@ -9,8 +9,6 @@ contains
 
   subroutine actual_network_init()
 
-    use rpar_indices
-
     ! set the names
     spec_names(ihe4_)  = "helium-4"
     spec_names(ic12_)  = "carbon-12"
@@ -43,26 +41,20 @@ contains
     ebin(io16_)  = -7.6959581e18_dp_t    ! 127.62093 MeV / nucleon
     ebin(ife56_) = -8.4813001e18_dp_t    ! 492.25389 MeV / nucleon
 
-    ! rpar is VODE's way of passing information into the RHS and
-    ! jacobian routines.  Here we initialize some indices to make
-    ! sense of what is stored in the rpar() array.
-    call init_rpar_indices(nrat, nspec)
-
-
-    ! done initializing
-    network_initialized = .true.
-
   end subroutine actual_network_init
 
-  
+
+
   function network_reaction_index(name)
-    
+
+    use actual_burner_data
+
     character(len=*) :: name
     integer :: network_reaction_index, n
 
     network_reaction_index = -1
 
-    do n = 1, nrat
+    do n = 1, nrates
        if (name == reac_names(n)) then
           network_reaction_index = n
           exit
