@@ -101,7 +101,7 @@ contains
 
     integer          :: j
 
-    double precision :: rho, temp, cv, cp, abar, zbar
+    double precision :: rho, temp, abar, zbar
     double precision :: y(nspec)
 
     state % jac(:,:) = ZERO
