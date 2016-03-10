@@ -1,24 +1,7 @@
-! This module contains the triple-alpha reaction network burner.  
-!
-! Given the initial state of the system and the right-hand-side (f_rhs.f90) of
-! a linear system of ODEs, this routine calls VODE to get the updated 
-! composition, enthalpy and rho_omegadot.
-! The temperature is evolved (in an isobaric, self-heating formalism) 
-! concurrently with the species to prevent instabilities - see 
-! Muller A&A 162, 103-108 (1986) for a disussion on the formation of 
-! instabilities.  However, at the end of the call, the changes to temperature 
-! are discarded.
-!
-! This burner provides an explicit Jacobian matrix to the DVODE solver.
-!
 
 module actual_burner_module
 
-  use bl_types
-  use bl_constants_module
-  use bl_error_module
-  use eos_module, only: eos_input_rt, eos
-  use eos_type_module
+  use burn_type_module
   use network
   use actual_burner_data
 
@@ -26,10 +9,14 @@ contains
 
   subroutine actual_burner_init()
 
+    use integration_module, only: integration_init
+
     implicit none
 
     reac_names(ir3a_)   = "3agc"   !     3 He4 --> C12
     reac_names(ircago_) = "cago"   ! C12 + He4 --> O16
+
+    call integration_init()
 
   end subroutine actual_burner_init
 
@@ -37,243 +24,29 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    ! outputs:
-    !   Xout are the mass fractions after burning through timestep dt
-    !   rho_omegadot = rho dX/dt
-    !   rho_Hnuc = - sum_k q_k rho_omegadot_k  [erg / cm^3 / s]
-
-    use rpar_indices
+    use integration_module, only: do_burn
 
     implicit none
 
-    type(eos_t),     intent(in   ) :: state_in
-    type(eos_t),     intent(inout) :: state_out
-    real(kind=dp_t), intent(in   ) :: dt, time
+    type (burn_t),    intent(in   ) :: state_in
+    type (burn_t),    intent(inout) :: state_out
+    double precision, intent(in   ) :: dt, time
 
-    real(kind=dp_t) :: dT_crit, T_eos
-
-    integer :: n
-    real(kind=dp_t) :: enuc, dX(nspec)
-
-    logical, parameter :: verbose = .false.
-
-    ! set the number of independent variables -- this should be temperature
-    ! + the number of species which participate in the evolution equations
-    ! 
-    integer, parameter :: NEQ = 1 + nevolve
-
-    ! allocate storage for the input state
-    real(kind=dp_t), dimension(NEQ) :: y
-
-    ! our problem is stiff, tell ODEPACK that. 21 means stiff, jacobian 
-    ! function is supplied, 22 means stiff, figure out my jacobian through 
-    ! differencing
-    integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-
-
-    ! tolerance parameters:
-    !
-    !  itol specifies whether to use an single absolute tolerance for
-    !  all variables (1), or to pass an array of absolute tolerances, one
-    !  for each variable with a scalar relative tol (2), a scalar absolute
-    !  and array of relative tolerances (3), or arrays for both (4)
-    !  
-    !  The error is determined as e(i) = rtol*abs(y(i)) + atol, and must
-    !  be > 0.  Since we have some compositions that may be 0 initially,
-    !  we will specify both an absolute and a relative tolerance.
-    !
-    ! We will use arrays for both the absolute and relative tolerances, 
-    ! since we want to be easier on the temperature than the species
-    integer, parameter :: ITOL = 4
-    real(kind=dp_t), dimension(NEQ) :: atol, rtol
-
-
-    real(kind=dp_t) :: time
-    
-
-    ! we want to do a normal computation, and get the output values of y(t)
-    ! after stepping though dt
-    integer, PARAMETER :: ITASK = 1
-  
-
-    ! istate determines the state of the calculation.  A value of 1 meeans
-    ! this is the first call to the problem -- this is what we will want.
-    ! Note, istate is changed over the course of the calculation, so it
-    ! cannot be a parameter
-    integer :: istate
-
-
-    ! we will override the maximum number of steps, so turn on the 
-    ! optional arguments flag
-    integer, parameter :: IOPT = 1
-    
-    ! declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
-    ! integer work array of since 30 + NEQ
-    integer, parameter :: LRW = 22 + 9*NEQ + 2*NEQ**2
-    real(kind=dp_t), dimension(LRW) :: rwork
-    
-    integer, parameter :: LIW = 30 + NEQ
-    integer, dimension(LIW) :: iwork
-
-    integer, save :: ihe4, ic12, io16, ife56
-    integer, save :: ir3a, ircago
-
-    
-    real(kind=dp_t), allocatable :: rpar(:)
-    integer :: ipar
-
-    real(kind=dp_t) :: sum
-
-    EXTERNAL jac, f_rhs
-    
-    integer :: i
-
-    logical, save :: firstCall = .true.
-
-    if (firstCall) then
-
-       if (.NOT. network_initialized) then
-          call bl_error("ERROR in burner: must initialize network first")
-       endif
-
-       ihe4  = network_species_index("helium-4")
-       ic12  = network_species_index("carbon-12")
-       io16  = network_species_index("oxygen-16")
-       ife56 = network_species_index("iron-56")
-
-       ir3a   = network_reaction_index("3agc")
-       ircago = network_reaction_index("cago")
-       
-
-       if (ihe4 < 0 .or. ic12 < 0 .or. io16 < 0 .or. ife56 < 0 .or. &
-           ir3a < 0 .or. ircago < 0) then
-          call bl_error("ERROR in burner: species undefined")
-       endif
-       
-       firstCall = .false.
-    endif
-
-    ! allocate storage for rpar -- the scratch array passed into the
-    ! rhs and jacobian routines
-    allocate(rpar(n_rpar_comps))
-    
-    ! set the parameters regarding how often to re-evaluate the 
-    ! thermodynamics.  T_eos will always store the temperature
-    ! that was used for the last EOS call.  dT_crit is the 
-    ! relative temperature change beyond which we need to re-evaluate
-    ! the thermodynamics
-    !
-    ! **NOTE** if the burner is not converging (and the temperatures
-    ! are shooting up to unrealistically high values), you likely
-    ! need to reduce dT_crit to ensure more frequent EOS calls.
-    T_eos = state_in % T
-    dT_crit = 1.e20_dp_t
-
-
-    ! set the tolerances.  We will be more relaxed on the temperature
-    ! since it is only used in evaluating the rates.  
-    !
-    ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of 
-    ! steps allowed.
-    atol(1:nevolve) = 1.e-12_dp_t    ! mass fractions
-    atol(NEQ) = 1.e-8_dp_t         ! temperature
-
-    rtol(1:nevolve) = 1.e-12_dp_t    ! mass fractions
-    rtol(NEQ) = 1.e-5_dp_t         ! temperature
-
-    ! we want VODE to re-initialize each time we call it
-    istate = 1
-
-    rwork(:) = ZERO
-    iwork(:) = 0
-
-
-    ! set the maximum number of steps allowed (the VODE default is 500)
-    iwork(6) = 15000
-
-
-    ! initialize the integration time
-    time = ZERO
-
-    ! abundances are the first nspec-1 values and temperature is the last
-    y(ihe4)  = state_in % xn(ihe4)
-    y(ic12)  = state_in % xn(ic12)
-    y(io16)  = state_in % xn(io16)
-    y(NEQ)   = state_in % T
-
-    ! set the thermodynamics that are passed via rpar to the RHS routine--
-    ! these will be updated in f_rhs if the relative temperature change 
-    ! exceeds dT_crit
-
-    ! we need the specific heat at constant pressure and dhdX |_p.  Take
-    ! T, rho, Xin as input
-    call eos(eos_input_rt, state_in)
-
-    ! density, specific heat at constant pressure, c_p, and dhdX are needed
-    ! in the righthand side routine, so we will pass these in to those routines
-    ! via the rpar functionality in VODE.
-    !
-    ! Since evaluating the EOS is expensive, we don't call it for every RHS
-    ! call -- T_eos and dT_crit control the frequency (see above)
-    rpar(irp_dens) = state_in % rho
-    rpar(irp_cp)   = state_in % cp
-    rpar(irp_dhdX:irp_dhdX-1+nspec) = state_in % dhdX(:)
-    rpar(irp_Teos) = T_eos
-    rpar(irp_Tcrit) = dT_crit
-    rpar(irp_Y56) = state_in % xn(ife56) / aion(ife56)
-
-
-    ! call the integration routine
-    call dvode(f_rhs, NEQ, y, time, dt, ITOL, rtol, atol, ITASK, &
-         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_ANALYTIC_JAC,&
-         rpar, ipar)
-
-    if (istate < 0) then
-       print *, 'ERROR: integration failed in net'
-       print *, 'istate = ', istate
-       print *, 'time = ', time
-       call bl_error("ERROR in burner: integration failed")
-    endif
-
-
-    ! store the new mass fractions -- note, we discard the temperature
-    ! here and instead compute the energy release from the binding
-    ! energy -- make sure that they are positive
-    ! 
-    state_out % xn(ihe4)  = max(y(ihe4), ZERO)
-    state_out % xn(ic12)  = max(y(ic12), ZERO)
-    state_out % xn(io16)  = max(y(io16), ZERO)
-    state_out % xn(ife56) = state_in % xn(ife56)
-
-
-    ! enforce sum{X_k} = 1
-    sum = ZERO
-    do n = 1, nspec
-       state_out % xn(n) = max(ZERO, min(ONE, state_out % xn(n)))
-       sum = sum + state_out % xn(n)
-    enddo
-    state_out % xn(:) = state_out % xn(:)/sum
-
-    ! compute the energy release.  Our convention is that the binding
-    ! energies are negative, so the energy release is
-    ! - sum_k { (Xout(k) - Xin(k)) ebin(k) }
-    !
-    dX(:) = state_out % xn(:) - state_in % xn(:)
-    enuc = sum(-dX(:) * ebin(:))
-    state_out % e = state_in % e + enuc
-
-    if (verbose) then
-
-       ! print out some integration statistics, if desired
-       print *, 'integration summary: '
-       print *, 'dens: ', dens, ' temp: ', temp
-       print *, 'number of steps taken: ', iwork(11)
-       print *, 'number of f evaluations: ', iwork(12)
-    endif
-
+    call do_burn(state_in, state_out, dt, time)
 
   end subroutine actual_burner
+
+
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    implicit none
+
+    double precision :: dydt(nspec), enuc
+
+    enuc = sum(dydt(:) * ebin(:))
+
+  end subroutine ener_gener_rate
 
 
 
@@ -293,7 +66,7 @@ contains
     real(kind=dp_t), intent(  OUT) :: denucdT
 
     real(kind=dp_t) :: ymol(nspec)
-    real(kind=dp_t) :: rates(nrat), dratesdt(nrat)
+    real(kind=dp_t) :: rates(nrates), dratesdt(nrates)
     real(kind=dp_t) :: dXdotdT(nspec)
     integer :: k
 
