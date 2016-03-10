@@ -4,7 +4,7 @@ module actual_eos_module
     use eos_type_module
 
     character (len=64) :: eos_name = "helmholtz"
-    
+
     ! Runtime parameters
     logical :: do_coulomb
     logical :: input_is_constant
@@ -48,39 +48,39 @@ module actual_eos_module
     double precision :: ttol = 1.0d-8
     double precision :: dtol = 1.0d-8
 
-    ! 2006 CODATA physical constants                                                                             
+    ! 2006 CODATA physical constants
 private
-    ! Math constants                                                                                             
+    ! Math constants
     double precision :: pi       = 3.1415926535897932384d0
     double precision :: eulercon = 0.577215664901532861d0
-    double precision :: a2rad    
+    double precision :: a2rad
     double precision :: rad2a
 
-    ! Physical constants                                                                                         
+    ! Physical constants
     double precision :: g       = 6.6742867d-8
     double precision :: h       = 6.6260689633d-27
-    double precision :: hbar    
+    double precision :: hbar
     double precision :: qe      = 4.8032042712d-10
     double precision :: avo     = 6.0221417930d23
     double precision :: clight  = 2.99792458d10
     double precision :: kerg    = 1.380650424d-16
     double precision :: ev2erg  = 1.60217648740d-12
-    double precision :: kev     
+    double precision :: kev
     double precision :: amu     = 1.66053878283d-24
     double precision :: mn      = 1.67492721184d-24
     double precision :: mp      = 1.67262163783d-24
     double precision :: me      = 9.1093821545d-28
-    double precision :: rbohr   
-    double precision :: fine    
+    double precision :: rbohr
+    double precision :: fine
     double precision :: hion    = 13.605698140d0
 
     double precision :: ssol    = 5.67051d-5
     double precision :: asol
     double precision :: weinlam
-    double precision :: weinfre 
+    double precision :: weinfre
     double precision :: rhonuc  = 2.342d14
 
-    ! Astronomical constants                                                                                     
+    ! Astronomical constants
     double precision :: msol    = 1.9892d33
     double precision :: rsol    = 6.95997d10
     double precision :: lsol    = 3.8268d33
@@ -93,11 +93,11 @@ private
 
     ! Some other useful combinations of the constants
     double precision :: sioncon
-    double precision :: forth  
-    double precision :: forpi  
+    double precision :: forth
+    double precision :: forpi
     double precision :: kergavo
-    double precision :: ikavo  
-    double precision :: asoli3 
+    double precision :: ikavo
+    double precision :: asoli3
     double precision :: light2
 
     ! Constants used for the Coulomb corrections
@@ -113,20 +113,20 @@ private
     double precision :: esqu
 
 public actual_eos, actual_eos_init
-    
+
 contains
 
     !  Frank Timmes Helmholtz based Equation of State
     !  http://cococubed.asu.edu/
 
-    !..given a temperature temp [K], density den [g/cm**3], and a composition 
-    !..characterized by abar and zbar, this routine returns most of the other 
-    !..thermodynamic quantities. of prime interest is the pressure [erg/cm**3], 
-    !..specific thermal energy [erg/gr], the entropy [erg/g/K], along with 
+    !..given a temperature temp [K], density den [g/cm**3], and a composition
+    !..characterized by abar and zbar, this routine returns most of the other
+    !..thermodynamic quantities. of prime interest is the pressure [erg/cm**3],
+    !..specific thermal energy [erg/gr], the entropy [erg/g/K], along with
     !..their derivatives with respect to temperature, density, abar, and zbar.
     !..other quantites such the normalized chemical potential eta (plus its
-    !..derivatives), number density of electrons and positron pair (along 
-    !..with their derivatives), adiabatic indices, specific heats, and 
+    !..derivatives), number density of electrons and positron pair (along
+    !..with their derivatives), adiabatic indices, specific heats, and
     !..relativistically correct sound speed are also returned.
     !..
     !..this routine assumes planckian photons, an ideal gas of ions,
@@ -366,7 +366,7 @@ contains
 
            !..initialize
            deni    = 1.0d0/den
-           tempi   = 1.0d0/temp 
+           tempi   = 1.0d0/temp
            kt      = kerg * temp
            ktinv   = 1.0d0/kt
 
@@ -397,7 +397,7 @@ contains
            pion    = xni * kt
            dpiondd = dxnidd * kt
            dpiondt = xni * kerg
-           dpionda = dxnida * kt 
+           dpionda = dxnida * kt
            dpiondz = 0.0d0
 
            eion    = 1.5d0 * pion*deni
@@ -422,7 +422,7 @@ contains
            dsiondz = 0.0d0
 
            !..electron-positron section:
-           !..assume complete ionization 
+           !..assume complete ionization
            xnem    = xni * zbar
 
            !..enter the table with ye*den
@@ -560,7 +560,7 @@ contains
                 dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
                 dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
 
-           !..now get the pressure derivative with density, chemical potential, and 
+           !..now get the pressure derivative with density, chemical potential, and
            !..electron positron number densities
            !..get the interpolation weight functions
            si0t   =  xpsi0(xt)
@@ -734,8 +734,8 @@ contains
            dscoulda = 0.0d0
            dscouldz = 0.0d0
 
-           !..uniform background corrections only 
-           !..from yakovlev & shalybkov 1989 
+           !..uniform background corrections only
+           !..from yakovlev & shalybkov 1989
            !..lami is the average ion seperation
            !..plasg is the plasma coupling parameter
            z        = forth * pi
@@ -750,7 +750,7 @@ contains
            lamida   = z * dsda/s
 
            plasg    = zbar*zbar*esqu*ktinv*inv_lami
-           z        = -plasg * inv_lami 
+           z        = -plasg * inv_lami
            plasgdd  = z * lamidd
            plasgda  = z * lamida
            plasgdt  = -plasg*ktinv * kerg
@@ -760,15 +760,15 @@ contains
            if ( do_coulomb ) then
               !...yakovlev & shalybkov 1989 equations 82, 85, 86, 87
               if (plasg .ge. 1.0D0) then
-                 x        = plasg**(0.25d0) 
-                 y        = avo * ytot1 * kerg 
+                 x        = plasg**(0.25d0)
+                 y        = avo * ytot1 * kerg
                  ecoul    = y * temp * (a1*plasg + b1*x + c1/x + d1)
                  pcoul    = onethird * den * ecoul
                  scoul    = -y * (3.0d0*b1*x - 5.0d0*c1/x &
                       + d1 * (log(plasg) - 1.0d0) - e1)
 
                  y        = avo*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
-                 decouldd = y * plasgdd 
+                 decouldd = y * plasgdd
                  decouldt = y * plasgdt + ecoul/temp
                  decoulda = y * plasgda - ecoul/abar
                  decouldz = y * plasgdz
@@ -847,7 +847,7 @@ contains
            ener    = erad + eion + eele + ecoul
            entr    = srad + sion + sele + scoul
 
-           dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd 
+           dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
            dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
            dpresda = dpradda + dpionda + dpepda + dpcoulda
            dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
@@ -862,12 +862,12 @@ contains
            dentrda = dsradda + dsionda + dsepda + dscoulda
            dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
 
-           !..the temperature and density exponents (c&g 9.81 9.82) 
+           !..the temperature and density exponents (c&g 9.81 9.82)
            !..the specific heat at constant volume (c&g 9.92)
            !..the third adiabatic exponent (c&g 9.93)
-           !..the first adiabatic exponent (c&g 9.97) 
+           !..the first adiabatic exponent (c&g 9.97)
            !..the second adiabatic exponent (c&g 9.105)
-           !..the specific heat at constant pressure (c&g 9.98) 
+           !..the specific heat at constant pressure (c&g 9.98)
            !..and relativistic formula for the sound speed (c&g 14.29)
            zz    = pres*deni
            zzi   = den/pres
@@ -952,11 +952,11 @@ contains
                     exit
                  endif
 
-              else ! dvar == density                                                                        
+              else ! dvar == density
 
                  x = den_row
                  smallx = smalld
-                 xtol = dtol                 
+                 xtol = dtol
 
                  if (var .eq. ipres) then
                     v    = ptot_row
@@ -976,17 +976,17 @@ contains
 
               endif
 
-              ! Now do the calculation for the next guess for T/rho                                         
+              ! Now do the calculation for the next guess for T/rho
 
               xnew = x - (v - v_want) / dvdx
 
-              ! Don't let the temperature/density change by more than a factor of two                       
+              ! Don't let the temperature/density change by more than a factor of two
               xnew = max(0.5 * x, min(xnew, 2.0 * x))
 
-              ! Don't let us freeze/evacuate                                                                
+              ! Don't let us freeze/evacuate
               xnew = max(smallx, xnew)
 
-              ! Store the new temperature/density                                                           
+              ! Store the new temperature/density
 
               if (dvar .eq. itemp) then
                  temp_row = xnew
@@ -994,7 +994,7 @@ contains
                  den_row  = xnew
               endif
 
-              ! Compute the error from the last iteration                                                   
+              ! Compute the error from the last iteration
 
               error = abs( (xnew - x) / x )
 
@@ -1101,7 +1101,7 @@ contains
         state % e    = etot_row
         state % dedT = det_row
         state % dedr = ded_row
-        state % dedA = dea_row   
+        state % dedA = dea_row
         state % dedZ = dez_row
 
         state % s    = stot_row
@@ -1272,7 +1272,7 @@ contains
 
         !$acc enter data copyin(xf,xfd,xft,xfdt)
 
-        !..   construct the temperature and density deltas and their inverses 
+        !..   construct the temperature and density deltas and their inverses
         do j = 1, jmax-1
            dth         = t(j+1) - t(j)
            dt2         = dth * dth
@@ -1331,7 +1331,7 @@ contains
         mindens = 10.d0**dlo
         maxdens = 10.d0**dhi
 
-        !$acc enter data &                                                                           
+        !$acc enter data &
         !$acc copyin(msol,rsol,lsol,mearth,rearth,ly,pc,au,secyer) &
         !$acc copyin(ssol,asol,weinlam,weinfre,rhonuc) &
         !$acc copyin(pi,eulercon,a2rad,rad2a) &
@@ -1349,68 +1349,68 @@ contains
 
 
 
-    ! quintic hermite polynomial functions                                                             
-    ! psi0 and its derivatives                                                                                   
+    ! quintic hermite polynomial functions
+    ! psi0 and its derivatives
     function psi0(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, psi0
         psi0 = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
     end function
 
     function dpsi0(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, dpsi0
         dpsi0 = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
     end function
 
     function ddpsi0(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, ddpsi0
         ddpsi0 = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
     end function
 
-    ! psi1 and its derivatives                                                                                   
+    ! psi1 and its derivatives
     function psi1(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, psi1
         psi1 = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
     end function
 
     function dpsi1(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, dpsi1
         dpsi1 = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
     end function
 
     function ddpsi1(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, ddpsi1
         ddpsi1 = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
     end function
 
-    ! psi2  and its derivatives                                                                                  
+    ! psi2  and its derivatives
     function psi2(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, psi2
         psi2 = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
     end function
 
     function dpsi2(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, dpsi2
         dpsi2 = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
     end function
 
     function ddpsi2(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, ddpsi2
         ddpsi2 = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
     end function
 
 
-    ! biquintic hermite polynomial function                                                            
+    ! biquintic hermite polynomial function
     function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: fi(36)
         double precision :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md,h5
 
@@ -1435,37 +1435,37 @@ contains
     end function h5
 
 
-    ! cubic hermite polynomial functions                                                               
-    ! psi0 & derivatives                                                                                         
+    ! cubic hermite polynomial functions
+    ! psi0 & derivatives
     function xpsi0(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, xpsi0
         xpsi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
     end function
 
     function xdpsi0(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, xdpsi0
         xdpsi0 = z * (6.0d0*z - 6.0d0)
     end function
 
 
-    ! psi1 & derivatives                                                                                         
+    ! psi1 & derivatives
     function xpsi1(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, xpsi1
         xpsi1 = z * ( z * (z - 2.0d0) + 1.0d0)
     end function
 
     function xdpsi1(z)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: z, xdpsi1
         xdpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
     end function
 
-    ! bicubic hermite polynomial function                                                              
+    ! bicubic hermite polynomial function
     function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md)
-    !$acc routine vector                                                                                         
+    !$acc routine vector
         double precision :: fi(36)
         double precision :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md,h3
         h3 =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
