@@ -120,7 +120,7 @@ contains
 
     case (eos_input_ps)
 
-       ! pressure entropy, and xmass are inputs
+       ! pressure, entropy, and xmass are inputs
        
        ! Solve for the temperature
        ! Invert Sackur-Tetrode eqn (below) using 
