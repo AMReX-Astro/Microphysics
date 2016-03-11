@@ -251,6 +251,9 @@ contains
 
         ! Initial setup for iterations
 
+        single_iter = .false.
+        double_iter = .false.
+
         if (input .eq. eos_input_rt) then
 
           ! Nothing to do here.
