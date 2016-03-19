@@ -37,3 +37,13 @@ rtol_enuc                real      1.d-6
 atol_spec                real      1.d-12
 atol_temp                real      1.d-6
 atol_enuc                real      1.d-6
+
+# If we fail to find a solution consistent with the tolerances,
+# do we want to try again with a looser tolerance?
+retry_burn               logical   .false.
+
+# If we do retry a burn, by what factor should we loosen the tolerance?
+retry_burn_factor        real      1.25d0
+
+# What is the maximum factor we can increase the original tolerances by?
+retry_burn_max_change    real      1.0d2

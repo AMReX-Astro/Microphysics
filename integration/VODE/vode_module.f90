@@ -70,7 +70,8 @@ contains
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode
+                                    burning_mode, retry_burn, &
+                                    retry_burn_factor, retry_burn_max_change
 
     implicit none
 
@@ -103,6 +104,7 @@ contains
     integer :: ipar
 
     double precision :: sum
+    double precision :: retry_change_factor
 
     EXTERNAL jac, f_rhs
 
@@ -218,7 +220,50 @@ contains
        print *, 'temp current = ', y(net_itemp) * temp_scale
        print *, 'xn current = ', y(1:nspec)
        print *, 'energy generated = ', y(net_ienuc)
-       call bl_error("ERROR in burner: integration failed")
+
+       if (.not. retry_burn) then
+
+          call bl_error("ERROR in burner: integration failed")
+
+       else
+
+          print *, 'Retrying burn with looser tolerances'
+
+          retry_change_factor = ONE
+
+          do while (istate < 0 .and. retry_change_factor <= retry_burn_max_change)
+
+             retry_change_factor = retry_change_factor * retry_burn_factor
+
+             istate = 1
+
+             rwork(:) = ZERO
+             iwork(:) = 0
+
+             atol = atol * retry_burn_factor
+             rtol = rtol * retry_burn_factor
+
+             iwork(6) = 150000
+
+             local_time = ZERO
+
+             call eos_to_vode(eos_state_in, y, rpar)
+
+             y(net_ienuc) = ZERO
+
+             call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+                        istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+
+          enddo
+
+          if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
+
+             call bl_error("ERROR in burner: integration failed")
+
+          endif
+
+       endif
+
     endif
 
     ! Store the final data.
