@@ -11,7 +11,7 @@
     use burn_type_module
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs
+    use extern_probin_module, only: call_eos_in_rhs, renormalize_abundances
     use rpar_indices
 
     implicit none
@@ -27,6 +27,12 @@
     ! Ensure that mass fractions always stay positive.
 
     y(1:nspec) = max(y(1:nspec) * aion, 1.d-200) / aion
+
+    ! Optionally, renormalize them so they sum to unity.
+
+    if (renormalize_abundances) then
+       y(1:nspec) = y(1:nspec) / sum(y(1:nspec) * aion)
+    endif
 
     ! We are integrating a system of
     !
