@@ -24,6 +24,10 @@
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
+    ! Ensure that mass fractions always stay positive.
+
+    y(1:nspec) = max(y(1:nspec) * aion, 1.d-200) / aion
+
     ! We are integrating a system of
     !
     ! y(1:nspec)   = dX/dt
