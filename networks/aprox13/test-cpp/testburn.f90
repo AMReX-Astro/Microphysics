@@ -9,7 +9,7 @@ subroutine do_burn() bind (C)
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 1.0d-6
+  double precision :: time = 0.0, dt = 1.25d-3
 
   type (eos_t) :: eos_state
 
@@ -28,23 +28,24 @@ subroutine do_burn() bind (C)
   call burner_init()
   call eos_init()
 
-  state_in % rho       = 1.4311401611205835d7
-  state_in % T         = 4.6993994016410122d9
-  
-  state_in % xn(ihe4)  = 4.2717633762309063d-3
-  state_in % xn(ic12)  = 2.4502021307478711d-5
-  state_in % xn(io16)  = 1.2059146851610723d-4
-  state_in % xn(ine20) = 5.4419551339421394d-7
-  state_in % xn(img24) = 2.5178594678377961d-4
-  state_in % xn(isi28) = 3.5998829467937532d-1
-  state_in % xn(is32)  = 2.7075529188304326d-1
-  state_in % xn(iar36) = 9.1747472911892503d-2
-  state_in % xn(ica40) = 8.0560189657331735d-2
-  state_in % xn(iti44) = 6.1369127564250370d-4
-  state_in % xn(icr48) = 2.5528582259065832d-3
-  state_in % xn(ife52) = 1.9491916518179594d-2
-  state_in % xn(ini56) = 1.6962109761781674d-1  
-  
+  state_in % rho       = 8.3476247460418558d6
+  state_in % T         = 1.1253503737951503d9
+
+  state_in % xn(ihe4)  = 4.4384367964996223d-9
+  state_in % xn(ic12)  = 4.9936731456374661d-1
+  state_in % xn(io16)  = 4.9957381026327208d-1
+  state_in % xn(ine20) = 1.0581542663100497d-3
+  state_in % xn(img24) = 7.1617670399329966d-7
+  state_in % xn(isi28) = 2.8453065131927444d-10
+  state_in % xn(is32)  = 1.0000113624896530d-12
+  state_in % xn(iar36) = 1.0000000000854599d-12
+  state_in % xn(ica40) = 1.0000000000052922d-12
+  state_in % xn(iti44) = 1.0000000000002189d-12
+  state_in % xn(icr48) = 9.9999999999999998d-13
+  state_in % xn(ife52) = 1.0000000000000081d-12
+  state_in % xn(ini56) = 1.0000000000000010d-12
+
+
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T
   print *, "X_in: ", state_in % xn
@@ -58,7 +59,7 @@ subroutine do_burn() bind (C)
   call eos_to_burn(eos_state, state_in)
 
   state_out = state_in
-  
+
   call actual_burner(state_in, state_out, dt, time)
 
   print *, 'done!'
