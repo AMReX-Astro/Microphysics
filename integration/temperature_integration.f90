@@ -21,7 +21,7 @@ contains
 
     type (burn_t)    :: state
 
-    double precision :: dhdY(nspec), dedY(nspec)
+    double precision :: dhdY(nspec_evolve), dedY(nspec_evolve)
 
     if (state % self_heat) then
 
@@ -35,11 +35,13 @@ contains
        ! See paper III, including Eq. A3 for details.
 
        if (do_constant_volume_burn) then
-          dedY = state % dedX * aion
-          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - sum( dedY(:) * state % ydot(1:nspec) ) ) / state % cv
+          dedY = state % dedX(1:nspec_evolve) * aion(1:nspec_evolve)
+          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - &
+                                      sum( dedY(1:nspec_evolve) * state % ydot(1:nspec_evolve) ) ) / state % cv
        else
-          dhdY = state % dhdX * aion
-          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - sum( dhdY(:) * state % ydot(1:nspec) ) ) / state % cp
+          dhdY = state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve)
+          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - &
+                                      sum( dhdY(1:nspec_evolve) * state % ydot(1:nspec_evolve) ) ) / state % cp
        endif
 
     endif
@@ -64,7 +66,7 @@ contains
     type (burn_t)    :: state
 
     integer          :: j
-    double precision :: dhdY(nspec), dedY(nspec)
+    double precision :: dhdY(nspec_evolve), dedY(nspec_evolve)
 
     ! Temperature Jacobian elements
 
@@ -72,29 +74,29 @@ contains
 
        if (do_constant_volume_burn) then
 
-          dedY = state % dedX * aion
+          dedY = state % dedX(1:nspec_evolve) * aion(1:nspec_evolve)
 
           ! d(itemp)/d(yi)
-          do j = 1, nspec
-             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dEdY(:) * state % jac(1:nspec,j) ) ) / state % cv
+          do j = 1, nspec_evolve
+             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dEdY(:) * state % jac(1:nspec_evolve,j) ) ) / state % cv
           enddo
 
           ! d(itemp)/d(temp)
           state % jac(net_itemp,net_itemp) = ( state % jac(net_ienuc,net_itemp) - &
-                                               sum( dEdY(:) * state % jac(1:nspec,net_itemp) ) ) / state % cv
+                                               sum( dEdY(1:nspec_evolve) * state % jac(1:nspec_evolve,net_itemp) ) ) / state % cv
 
        else
 
-          dhdY = state % dhdX * aion
+          dhdY = state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve)
 
           ! d(itemp)/d(yi)
-          do j = 1, nspec
-             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dhdY(:) * state % jac(1:nspec,j) ) ) / state % cp
+          do j = 1, nspec_evolve
+             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dhdY(:) * state % jac(1:nspec_evolve,j) ) ) / state % cp
           enddo
 
           ! d(itemp)/d(temp)
           state % jac(net_itemp,net_itemp) = ( state % jac(net_ienuc,net_itemp) - &
-                                               sum( dhdY(:) * state % jac(1:nspec,net_itemp) ) ) / state % cp
+                                               sum( dhdY(1:nspec_evolve) * state % jac(1:nspec_evolve,net_itemp) ) ) / state % cp
 
        endif
 

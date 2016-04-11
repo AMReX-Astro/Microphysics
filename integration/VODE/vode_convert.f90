@@ -30,7 +30,8 @@ contains
 
     state % rho     = rpar(irp_dens) * dens_scale
     state % T       = y(net_itemp) * temp_scale
-    state % xn(:)   = y(1:nspec) * aion(:)
+    state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
+    state % xn(nspec_evolve+1:nspec) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec)
     state % cp      = rpar(irp_cp)
     state % cv      = rpar(irp_cv)
     state % abar    = rpar(irp_abar)
@@ -62,7 +63,8 @@ contains
 
     rpar(irp_dens)                  = state % rho / dens_scale
     y(net_itemp)                    = state % T / temp_scale
-    y(1:nspec)                      = state % xn(:) / aion(:)
+    y(1:nspec_evolve)               = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
     rpar(irp_cp)                    = state % cp
     rpar(irp_cv)                    = state % cv
     rpar(irp_abar)                  = state % abar
@@ -97,7 +99,8 @@ contains
 
     rpar(irp_dens)                           = state % rho / dens_scale
     y(net_itemp)                             = state % T / temp_scale
-    y(1:nspec)                               = state % xn(:) / aion(:)
+    y(1:nspec_evolve)                        = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
     rpar(irp_cp)                             = state % cp
     rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
@@ -150,7 +153,8 @@ contains
 
     state % rho      = rpar(irp_dens) * dens_scale
     state % T        = y(net_itemp) * temp_scale
-    state % xn(:)    = y(1:nspec) * aion(:)
+    state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
+    state % xn(nspec_evolve+1:nspec) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec)
     state % cp       = rpar(irp_cp)
     state % cv       = rpar(irp_cv)
     state % abar     = rpar(irp_abar)

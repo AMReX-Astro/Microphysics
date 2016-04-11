@@ -24,14 +24,20 @@
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
+    double precision :: nspec_sum
+
     ! Ensure that mass fractions always stay positive.
 
-    y(1:nspec) = max(y(1:nspec) * aion, 1.d-200) / aion
+    y(1:nspec_evolve) = max(y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-200) / aion(1:nspec_evolve)
 
     ! Optionally, renormalize them so they sum to unity.
 
     if (renormalize_abundances) then
-       y(1:nspec) = y(1:nspec) / sum(y(1:nspec) * aion)
+       nspec_sum = sum(y(1:nspec_evolve) * aion(1:nspec_evolve)) + &
+                   sum(rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec))
+
+       y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
+       rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) / nspec_sum
     endif
 
     ! We are integrating a system of
