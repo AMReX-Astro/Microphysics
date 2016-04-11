@@ -3,6 +3,7 @@ module actual_network_data
   implicit none
 
   integer, parameter :: nspec = 13
+  integer, parameter :: nspec_evolve = 13
   integer, parameter :: naux  = 0
 
   integer, parameter :: ihe4  = 1
