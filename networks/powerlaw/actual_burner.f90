@@ -45,11 +45,11 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    double precision :: dydt(nspec_evolve), enuc
 
     ! This is basically e = m c**2
 
-    enuc = sum(dydt(:) * aion(:) * ebin(:))
+    enuc = sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 
   end subroutine ener_gener_rate
 

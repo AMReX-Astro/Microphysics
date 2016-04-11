@@ -38,13 +38,12 @@ contains
 
     state % ydot(ifuel_)  = -rate
     state % ydot(iash_)   =  rate
-    state % ydot(iinert_) =  ZERO
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec) = state % ydot(1:nspec) / aion
-    
-    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
+    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) / aion(1:nspec_evolve)
+
+    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
 
     call temperature_rhs(state)
 
