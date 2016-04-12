@@ -269,17 +269,14 @@ contains
         xnew = x - (f - f_want) / dfdx
 
         ! Don't let the temperature/density change by more than a factor of two
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! NOTE that temperature is in log(MeV) and can be negative
-        ! account for this by sign check; hopefully we aren't crossing zero...
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (x .lt. ZERO) then
-           xnew = max(TWO * x, min(xnew, HALF * x))
-        else
-           xnew = max(HALF * x, min(xnew, TWO * x))
-        endif
+        ! Note that because temperature/dens are logarithmic we want to do this via
+        ! addition and not multiplication, which differs from how we do it in, say,
+        ! the Helmholtz EOS
+
+        xnew = max(x - dlog10(TWO), min(xnew, x + dlog10(TWO)))
 
         ! Don't let us freeze/evacuate
+
         xnew = max(smallx, xnew)
 
         ! Store the new temperature/density
