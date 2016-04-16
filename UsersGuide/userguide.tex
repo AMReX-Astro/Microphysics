@@ -202,17 +202,19 @@
 
 Welcome to the \microphysics\ User's Guide!
 
-In this User's Guide we describe the microphysics modules designed to support \boxlib\ 
-codes such as \castro\ and \maestro. These all have a consistent interface and 
-are designed to provide the users of those codes an easy experience in moving from 
-the barebones microphysics modules provided in those codes. For the purposes of this 
-user's guide, the microphysical components we currently deal with are the equation 
-of state (EOS) and the nuclear burning network.
+In this User's Guide we describe the microphysics modules designed to
+support \boxlib\ codes such as \castro\ and \maestro. These all have a
+consistent interface and are designed to provide the users of those
+codes an easy experience in moving from the barebones microphysics
+modules provided in those codes. For the purposes of this user's
+guide, the microphysical components we currently deal with are the
+equation of state (EOS) and the nuclear burning network.
 
-\microphysics\ is not a stand-alone code. It is intended to be used in conjuction with 
-\boxlib\ codes and so we do not provide support for running these codes separately. 
-However, in many cases we will provide test modules that demonstrate a minimal working 
-example for how to run the modules.
+\microphysics\ is not a stand-alone code. It is intended to be used in
+conjuction with \boxlib\ codes and so we do not provide support for
+running these codes separately.  However, in many cases we will
+provide test modules that demonstrate a minimal working example for
+how to run the modules.
 
 \clearpage
 
@@ -221,29 +223,34 @@ example for how to run the modules.
 
 \chapter{The Basics}
 
-Getting started with \microphysics is straightforward. Because the modules here are 
-already in a format that the \boxlib\ codes understand, you only need to 
-provide to the code calling these routines their location on your system. The 
-code will do the rest. To do so, define the {\tt MICROPHYSICS\_DIR} 
-environment variable, either at a command line or (if you use the {\tt bash} terminal) 
-through your {\tt $\sim$/.bashrc} profile, e.g.:
+Getting started with \microphysics is straightforward. Because the
+modules here are already in a format that the \boxlib\ codes
+understand, you only need to provide to the code calling these
+routines their location on your system. The code will do the rest. To
+do so, define the {\tt MICROPHYSICS\_DIR} environment variable, either
+at a command line or (if you use the {\tt bash} terminal) through your
+{\tt $\sim$/.bashrc} profile, e.g.:
 \begin{equation*}
   \texttt{export MICROPHYSICS\_DIR = /path/to/Microphysics}
 \end{equation*}
-The calling code will know that when you provide it an {\tt EOS\_dir} and {\tt Network\_dir},
-that it should look in this repository and not in its own microphysics location.
+The calling code will know that when you provide it an {\tt EOS\_dir}
+and {\tt Network\_dir}, that it should look in this repository and not
+in its own microphysics location.
 
 \chapter{Data Structures}
 \label{sec:data_structures}
 
-All of the routines in this software package are standardized so that you interact with them 
-using the same type of data structure. We call this the {\tt eos\_t\_vector}. This is a 
-Fortran 90 derived data type (which, for our purposes, is analogous to a C++ struct). It is 
-a collection of data specifying the microphysical state of the fluid that we are evaluating. 
-This derived type has many components, and in the Fortran syntax we access them with the 
-\% operator. For a particular instantation named {\tt eos\_state}, the most important data is 
-the following. Most of these components are one-dimensional (rank-1) Fortran arrays that 
-consist of pointers to the corresponding data, except for a few with additional information.
+All of the routines in this software package are standardized so that
+you interact with them using the same type of data structure. We call
+this the {\tt eos\_t\_vector}. This is a Fortran 90 derived data type
+(which, for our purposes, is analogous to a C++ struct). It is a
+collection of data specifying the microphysical state of the fluid
+that we are evaluating.  This derived type has many components, and in
+the Fortran syntax we access them with the \% operator. For a
+particular instantation named {\tt eos\_state}, the most important
+data is the following. Most of these components are one-dimensional
+(rank-1) Fortran arrays that consist of pointers to the corresponding
+data, except for a few with additional information.
 \begin{itemize}
   \item {\tt eos\_state \% rho}: density.
   \item {\tt eos\_state \% T}: temperature.
@@ -251,225 +258,28 @@ consist of pointers to the corresponding data, except for a few with additional 
   \item {\tt eos\_state \% e}: internal energy.
   \item {\tt eos\_state \% h}: enthalpy.
   \item {\tt eos\_state \% s}: entropy.
-  \item {\tt eos\_state \% xn}: mass fractions of species (this is a 2D array, where the second 
-                                index has the same number of components as there are fluid species)
-  \item {\tt eos\_state \& aux}: any auxiliary variables carried with the fluid (also a 2D array, where
-                                 the second index has as many components as there are auxiliary variables)
+  \item {\tt eos\_state \% xn}: mass fractions of species (this is a
+    2D array, where the second index has the same number of components
+    as there are fluid species)
+  \item {\tt eos\_state \& aux}: any auxiliary variables carried with
+    the fluid (also a 2D array, where the second index has as many
+    components as there are auxiliary variables)
 \end{itemize}
-There is a lot more information that can be saved here, such as the partial derivatives of the 
-thermodynamic state variables with respect to each other. To see a complete list, examine the 
-{\tt eos\_type.f90} file inside the code calling \microphysics (e.g. {\tt Castro/EOS/eos\_type.f90}.)
+There is a lot more information that can be saved here, such as the
+partial derivatives of the thermodynamic state variables with respect
+to each other. To see a complete list, examine the {\tt eos\_type.f90}
+file inside the code calling \microphysics (e.g. {\tt
+  Castro/EOS/eos\_type.f90}.)
 
 \chapter{Equations of State}
 
-In this chapter on equations of state, we list the EOS routines available for your use, and 
-then we describe the correct structure of an EOS module in case you want to build your own.
-
-\section{EOS List}
-
-Here we list the equations of state provided in this repository.
-
-\begin{itemize}
-
-\item {\tt gamma\_law\_general} represents a gamma law gas, with equation of state:
-\begin{equation}
-  P = (\gamma - 1) \rho e.
-\end{equation}
-The gas is currently assumed to be monatomic and ideal. The entropy comes from the Sackur-Tetrode equation.
-
-\item {\tt polytrope} represents a polytropic fluid, with equation of state:
-\begin{equation}
-  P = K \rho^\gamma.
-\end{equation}
-The gas is also assumed to obey the above gamma law equation of state
-connecting the pressure and internal energy. Therefore $\rho$ is the
-only independent variable; there is no temperature dependence. The
-user either selects from a set of predefined options reflecting
-physical polytropes (e.g. a non-relativistic, fully degenerate
-electron gas) or inputs their own values for $K$ and $\gamma$.
-
-\item {\tt ztwd} is the zero-temperature degenerate electron equation of state 
-of Chandrasekhar (1935), which is designed to describe white dward material. The 
-pressure satisfies the equation:
-\begin{equation}
-  P(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
-\end{equation}
-with $A = \pi m_e^4 c^5 / (3 h^3)$. Here $x$ is a dimensionless measure of density,
-with $\rho = B x^3$ and $B = 8\pi \mu_e m_p m_e^3 c^3 / (3h^3)$, 
-where $\mu_e$ is the electron fraction and $h$ is the Planck constant. The enthalpy 
-was worked out by Hachisu (1986):
-\begin{equation}
-  h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.
-\end{equation}
-The internal energy satisfies the standard relationship to the enthalpy:
-\begin{equation}
-  e = h - p / \rho.
-\end{equation}
-Since the pressure-density relationship does not admit a closed-form 
-solution for the density in terms of the pressure, if we call the EOS 
-with pressure as a primary input then we do Newton-Raphson iteration 
-to find the density that matches this pressure.
-
-\item {\tt multigamma} is an ideal gas equation of state where each
-  species can have a different value of $\gamma$.  This mainly affects
-  how the internal energy is constructed as each species, represented
-  with a mass fraction $X_k$ will have its contribution to the total
-  specific internal energy take the form of $e = p/\rho/(\gamma_k -
-  1)$.  The main thermodynamic quantities take the form:
-\begin{align}
-p &= \frac{\rho k T}{m_u} \sum_k \frac{X_k}{A_k} \\
-e &= \frac{k T}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
-h &= \frac{k T}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}
-\end{align}
-We recognize that the usual astrophysical $\bar{A}^{-1} = \sum_k
-X_k/A_k$, but now we have two other sums that involve different
-$\gamma_k$ weightings.
-
-The specific heats are constructed as usual, 
-\begin{align}
-c_v &= \left . \frac{\partial e}{\partial T} \right |_\rho = 
-    \frac{k}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
-c_p &= \left . \frac{\partial h}{\partial T} \right |_p = 
-    \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} 
-\end{align}
-and it can be seen that the specific gas constant, $R \equiv c_p - c_v$ is
-independent of the $\gamma_i$, and is simply $R = k/m_u\bar{A}$ giving the
-usual relation that $p = R\rho T$.  Furthermore, we can show
-\begin{equation}
-\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =  
-   \left ( \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} \right ) \bigg /
-   \left ( \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \right ) =
-\frac{c_p}{c_v} \equiv \gamma_\mathrm{effective} 
-\end{equation}
-and $p = \rho e (\gamma_\mathrm{effective} - 1)$.
-
-This equation of state takes several runtime parameters that can set the
-$\gamma_i$ for a specific species.  These are set in the {\tt \&extern}
-namelist in the {\tt probin} file.  The parameters are:
-\begin{itemize}
-\item {\tt eos\_gamma\_default}: the default $\gamma$ to apply for
-  all species
-\item {\tt species\_X\_name} and {\tt species\_X\_gamma}: set the $\gamma_i$
-  for the species whose name is given as {\tt species\_X\_name} to the
-  value provided by {\tt species\_X\_gamma}.  Here, {\tt X} can be one
-  of the letters: {\tt a}, {\tt b}, or {\tt c}, allowing us to specify
-  custom $\gamma_i$ for up to three different species.
-\end{itemize}
-
-\item {\tt helmholtz} contains a general, publicly available
-stellar equation of state based on the Helmholtz free energy,
-with contributions from ions, radiation, and electron degeneracy, as
-described in \cite{timmes:1999,timmes:2000,flash}.
-
-We have modified this EOS a bit to fit within the context of our codes. The 
-vectorization is explicitly thread-safe for use with OpenMP and OpenACC.
-In addition, we have added the ability to perform a Newton-Raphson iteration 
-so that if we call the EOS with density and energy (say), then we will 
-iterate over temperature until we find the temperature that matches 
-this density--energy combination. If we cannot find an appropriate temperature,
-we will reset it to {\tt small\_temp}, which needs to be set in the 
-equation of state wrapper module in the code calling this. However, 
-there is a choice of whether to update the energy to match this 
-temperature, respecting thermodynamic consistency, or to leave 
-the energy alone, respecting energy conservation. This is controlled through the 
-\texttt{eos\_input\_is\_constant} parameter in your \texttt{extern}
-namelist in your probin file.
-
-We thank Frank Timmes for permitting us to modify his code and publicly release 
-it in this repository.
-
-\item {\tt stellarcollapse} is the equation of state module provided on 
-\href{stellarcollapse.org}{stellarcollapse.org}. It is designed to be used for 
-core-collapse supernovae and is compatible with a large number of equations of 
-state that are designed to describe matter near nuclear density. You will need to 
-download an appropriate interpolation table from that site to use this.
-
-\end{itemize}
-
-
-
-\section{EOS Structure}
-
-Each EOS should have two main routines by which it interfaces to the
-rest of \castro.  At the beginning of the simulation, {\tt specific\_eos\_init}
-will perform any initialization steps and save EOS variables (mainly
-\texttt{smallt}, the temperature floor, and \texttt{smalld}, the
-density floor). These variables are stored in the main EOS module of the 
-code calling these routines. This would be the appropriate time for, say, 
-loading an interpolation table into memory.
-
-The main evaluation routine is called {\tt specific\_eos}. It should accept 
-an {\tt eos\_input} and an {\tt eos\_state}; see Section \ref{sec:data_structures}.
-
+\input EOS/eos.tex
 
 
 \chapter{Nuclear Networks}
 
-In this chapter on nuclear networks, we list the network routines available for your use, and 
-then we describe the correct structure of a network module in case you want to build your own.
+\input networks/networks.tex
 
-\section{Network List}
-
-\begin{itemize}
-
-\item {\tt general\_null} directory is a bare interface for a
-  nuclear reaction network; no reactions are enabled, and no
-  auxiliary variables are accepted. It contains several sets of
-  isotopes; for example,
-  {\tt Networks/general\_null/triple\_alpha\_plus\_o.net} would describe the
-  triple-$\alpha$ reaction converting helium into carbon, as well as
-  oxygen and iron.
-
-\item {\tt Networks/ignition\_simple} directory contains a single-step
-  $^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}$ reaction.
-  The carbon mass fraction equation appears as
-\begin{equation}
-\frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
-    f_\mathrm{Coul} \left [N_A \left <\sigma v \right > \right]\enskip,
-\end{equation}
-where $N_A \left <\sigma v\right>$ is evaluated using the reaction
-rate from (Caughlan and Fowler 1988).  The Coulomb screening factor,
-$f_\mathrm{Coul}$, is evaluated using the general routine from the
-Kepler stellar evolution code (Weaver 1978), which implements the work
-of (Graboske 1973) for weak screening and the work of (Alastuey 1978
-and Itoh 1979) for strong screening.
-
-\end{itemize}
-
-\section{Network Structure}
-
-There are two primary files within each network directory, each with associated
-data-storing modules. The first pair, {\tt actual\_network.f90} and
-{\tt actual\_network\_data.f90}, supply the number and names of species and
-auxiliary variables, as well as other initializing data, 
-such as their mass numbers, proton numbers, and binding energies. It needs to 
-define the {\tt nspec} and {\tt naux} quantities as integer parameters.
-
-The second pair, {\tt actual\_burner.f90} and {\tt actual\_burner\_data.f90},
-contains the burner routine, which takes an {\tt eos\_t} as an input, and
-returns another as an output. It also takes the current simulation and time,
-and the integration timestep. It needs to define the {\tt nrates} quantity as
-an integer parameter.
-
-The integration equations are:
-\begin{eqnarray}
-\frac{dX_k}{dt} &=& \omegadot_k(\rho,X_k,T)\enskip, \label{eq:VODE1C} \\
-\frac{dT}{dt} &=&\frac{1}{c_p} \left ( -\sum_k \xi_k  \omegadot_k  \right )\enskip. \label{eq:tempreactC}
-\end{eqnarray}
-We integrate these using the stiff ordinary differential equation integration methods
-provided by the VODE package.  The absolute error tolerances are set
-to $10^{-12}$ for the species, and a relative tolerance of $10^{-6}$
-is used for the temperature.  The integration yields the new values of
-the mass fractions, $X_k^\outp$.  Equation (\ref{eq:tempreactC}) is
-derived from equation (???) by assuming that the pressure is constant
-during the burn state.  In evolving these equations, we need to
-evaluate $c_p$ and $\xi_k$.  In theory, this means evaluating the
-equation of state for each right-hand side evaluation that VODE
-requires.  In practice, we freeze $c_p$ and $\xi_k$ at the start of
-the integration time step and compute them using $\rho^\inp,
-X_k^\inp,$ and $T^\inp$ as inputs to the equation of state.  Note that
-the density remains unchanged during the burning.  At the end of the
-routine, we compute $T^\outp = T(\rho^\outp,e^{\outp},X_k^\outp)$.
 
 %------------------------------------------------------------------------------
 \backmatter

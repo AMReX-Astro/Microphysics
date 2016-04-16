@@ -1,0 +1,69 @@
+
+In this chapter on nuclear networks, we list the network routines
+available for your use, and then we describe the correct structure of
+a network module in case you want to build your own.
+
+\section{Network List}
+
+\begin{itemize}
+
+\item {\tt general\_null} directory is a bare interface for a nuclear
+  reaction network; no reactions are enabled, and no auxiliary
+  variables are accepted. It contains several sets of isotopes; for
+  example, {\tt Networks/general\_null/triple\_alpha\_plus\_o.net}
+  would describe the triple-$\alpha$ reaction converting helium into
+  carbon, as well as oxygen and iron.
+
+\item {\tt Networks/ignition\_simple} directory contains a single-step
+  $^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}$ reaction.
+  The carbon mass fraction equation appears as
+\begin{equation}
+\frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
+    f_\mathrm{Coul} \left [N_A \left <\sigma v \right > \right]\enskip,
+\end{equation}
+where $N_A \left <\sigma v\right>$ is evaluated using the reaction
+rate from (Caughlan and Fowler 1988).  The Coulomb screening factor,
+$f_\mathrm{Coul}$, is evaluated using the general routine from the
+Kepler stellar evolution code (Weaver 1978), which implements the work
+of (Graboske 1973) for weak screening and the work of (Alastuey 1978
+and Itoh 1979) for strong screening.
+
+\end{itemize}
+
+\section{Network Structure}
+
+There are two primary files within each network directory, each with
+associated data-storing modules. The first pair, {\tt
+  actual\_network.f90} and {\tt actual\_network\_data.f90}, supply the
+number and names of species and auxiliary variables, as well as other
+initializing data, such as their mass numbers, proton numbers, and
+binding energies. It needs to define the {\tt nspec} and {\tt naux}
+quantities as integer parameters.
+
+The second pair, {\tt actual\_burner.f90} and {\tt
+  actual\_burner\_data.f90}, contains the burner routine, which takes
+an {\tt eos\_t} as an input, and returns another as an output. It also
+takes the current simulation and time, and the integration
+timestep. It needs to define the {\tt nrates} quantity as an integer
+parameter.
+
+The integration equations are:
+\begin{eqnarray}
+\frac{dX_k}{dt} &=& \omegadot_k(\rho,X_k,T)\enskip, \label{eq:VODE1C} \\
+\frac{dT}{dt} &=&\frac{1}{c_p} \left ( -\sum_k \xi_k  \omegadot_k  \right )\enskip. \label{eq:tempreactC}
+\end{eqnarray}
+We integrate these using the stiff ordinary differential equation
+integration methods provided by the VODE package.  The absolute error
+tolerances are set to $10^{-12}$ for the species, and a relative
+tolerance of $10^{-6}$ is used for the temperature.  The integration
+yields the new values of the mass fractions, $X_k^\outp$.  Equation
+(\ref{eq:tempreactC}) is derived from equation (???) by assuming that
+the pressure is constant during the burn state.  In evolving these
+equations, we need to evaluate $c_p$ and $\xi_k$.  In theory, this
+means evaluating the equation of state for each right-hand side
+evaluation that VODE requires.  In practice, we freeze $c_p$ and
+$\xi_k$ at the start of the integration time step and compute them
+using $\rho^\inp, X_k^\inp,$ and $T^\inp$ as inputs to the equation of
+state.  Note that the density remains unchanged during the burning.
+At the end of the routine, we compute $T^\outp =
+T(\rho^\outp,e^{\outp},X_k^\outp)$.
