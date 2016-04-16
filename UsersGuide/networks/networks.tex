@@ -1,22 +1,37 @@
 
+A network both defines the composition advected by the hydro code
+as well as describes the burning processes between those isotopes.
+
 In this chapter on nuclear networks, we list the network routines
 available for your use, and then we describe the correct structure of
 a network module in case you want to build your own.
 
 \section{Network List}
 
-\begin{itemize}
+\subsection{{\tt general\_null}}
 
-\item {\tt general\_null} directory is a bare interface for a nuclear
-  reaction network; no reactions are enabled, and no auxiliary
-  variables are accepted. It contains several sets of isotopes; for
-  example, {\tt Networks/general\_null/triple\_alpha\_plus\_o.net}
-  would describe the triple-$\alpha$ reaction converting helium into
-  carbon, as well as oxygen and iron.
+{\tt general\_null} is a bare interface for a nuclear reaction
+network; no reactions are enabled, and no auxiliary variables are
+accepted. It contains several sets of isotopes; for example, {\tt
+  Networks/general\_null/triple\_alpha\_plus\_o.net} would describe
+the triple-$\alpha$ reaction converting helium into carbon, as well as
+oxygen and iron.
 
-\item {\tt Networks/ignition\_simple} directory contains a single-step
-  $^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}$ reaction.
-  The carbon mass fraction equation appears as
+\subsection{{\tt ignition\_chamulak}}
+
+This network was introduced in our paper on convection in white dwarfs
+as a model of Type Ia supernovae~\cite{wdconvect}.  It models
+carbon burning in a regime appropriate for a simmering white dwarf,
+and captures the effects of a much larger network by setting the ash
+state and energetics to the values suggested in \cite{chamulak:2008}.
+
+
+\subsection{{\tt Networks/ignition\_simple}}
+
+This is the original network used in our white dwarf convection
+studies~\cite{lowMach4}.  It includes a single-step
+$^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}$ reaction.
+The carbon mass fraction equation appears as
 \begin{equation}
 \frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
     f_\mathrm{Coul} \left [N_A \left <\sigma v \right > \right]\enskip,
@@ -28,7 +43,7 @@ Kepler stellar evolution code (Weaver 1978), which implements the work
 of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.
 
-\end{itemize}
+
 
 \section{Network Structure}
 

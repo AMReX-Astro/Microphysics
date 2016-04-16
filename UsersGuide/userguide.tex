@@ -5,6 +5,8 @@
 % for \begin{center}, etc.
 \usepackage[margin=1.0in]{geometry}
 
+\input maestrosymbols
+
 % all kinds of math macros
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -95,15 +97,6 @@
 
 
 
-% special fraction
-\newcommand{\sfrac}[2]{\mathchoice
-  {\kern0em\raise.5ex\hbox{\the\scriptfont0 #1}\kern-.15em/
-   \kern-.15em\lower.25ex\hbox{\the\scriptfont0 #2}}
-  {\kern0em\raise.5ex\hbox{\the\scriptfont0 #1}\kern-.15em/
-   \kern-.15em\lower.25ex\hbox{\the\scriptfont0 #2}}
-  {\kern0em\raise.5ex\hbox{\the\scriptscriptfont0 #1}\kern-.2em/
-   \kern-.15em\lower.25ex\hbox{\the\scriptscriptfont0 #2}}
-  {#1\!/#2}}
 
 \def\Ab {{\bf A}}
 \def\eb {{\bf e}}
@@ -137,14 +130,6 @@
 \def\nph    {{n+\myhalf}}
 
 % codes
-\newcommand{\castro}{{\sf Castro}}
-\newcommand{\maestro}{{\sf Maestro}}
-\newcommand{\boxlib}{{\sf BoxLib}}
-\newcommand{\microphysics}{{\sf Microphysics}}
-\newcommand{\yt}{{\sf yt}}
-\newcommand{\amrvis}{{\sf Amrvis}}
-\newcommand{\visit}{{\sf VisIt}}
-
 \usepackage{listings}
 
 \definecolor{gray}{rgb}       {0.8,0.8,0.8}

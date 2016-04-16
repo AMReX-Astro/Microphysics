@@ -10,7 +10,7 @@ section_sources = userguide.tex \
                   EOS/eos.tex \
                   networks/networks.tex
 
-userguide.pdf: userguide.tex $(pdf_source) $(section_sources) $(pdf_source)
+userguide.pdf: userguide.tex $(pdf_source) $(section_sources) $(pdf_source) refs.bib
 	pdflatex userguide.tex < /dev/null
 	bibtex userguide
 	pdflatex userguide.tex < /dev/null
