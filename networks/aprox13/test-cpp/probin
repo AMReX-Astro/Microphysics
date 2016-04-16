@@ -3,10 +3,11 @@
   use_eos_coulomb = T
   eos_input_is_constant = T
 
-  jacobian = 2
+  jacobian = 1
+  burning_mode = 1
+
   do_constant_volume_burn = T
   call_eos_in_rhs = T
-  burning_mode = 1
 
   burner_verbose = F
 
@@ -20,5 +21,7 @@
   atol_temp = 1.d-6
 
   renormalize_abundances = T
+
+  retry_burn = F
 
 /

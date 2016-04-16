@@ -9,7 +9,7 @@ subroutine do_burn() bind (C)
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 1.25d-3
+  double precision :: time = 0.0, dt = 3.125d-5
 
   type (eos_t) :: eos_state
 
@@ -28,23 +28,22 @@ subroutine do_burn() bind (C)
   call burner_init()
   call eos_init()
 
-  state_in % rho       = 8.3476247460418558d6
-  state_in % T         = 1.1253503737951503d9
+  state_in % rho       = 2.2933907037204478d7
+  state_in % T         = 5.3757726209940176d9
 
-  state_in % xn(ihe4)  = 4.4384367964996223d-9
-  state_in % xn(ic12)  = 4.9936731456374661d-1
-  state_in % xn(io16)  = 4.9957381026327208d-1
-  state_in % xn(ine20) = 1.0581542663100497d-3
-  state_in % xn(img24) = 7.1617670399329966d-7
-  state_in % xn(isi28) = 2.8453065131927444d-10
-  state_in % xn(is32)  = 1.0000113624896530d-12
-  state_in % xn(iar36) = 1.0000000000854599d-12
-  state_in % xn(ica40) = 1.0000000000052922d-12
-  state_in % xn(iti44) = 1.0000000000002189d-12
-  state_in % xn(icr48) = 9.9999999999999998d-13
-  state_in % xn(ife52) = 1.0000000000000081d-12
-  state_in % xn(ini56) = 1.0000000000000010d-12
-
+  state_in % xn(ihe4)  = 5.8278210351460392d-2
+  state_in % xn(ic12)  = 6.8334315299861196d-7
+  state_in % xn(io16)  = 2.4687369464161301d-6
+  state_in % xn(ine20) = 4.0170490921084967d-8
+  state_in % xn(img24) = 1.1540561661029377d-5
+  state_in % xn(isi28) = 1.3242394917027779d-2
+  state_in % xn(is32)  = 2.0543812858533062d-2
+  state_in % xn(iar36) = 1.5796293927450564d-2
+  state_in % xn(ica40) = 2.7812814474560826d-2
+  state_in % xn(iti44) = 7.6968156633668591d-4
+  state_in % xn(icr48) = 5.2978509402914617d-3
+  state_in % xn(ife52) = 6.1483728449529436d-2
+  state_in % xn(ini56) = 7.9676047970255859d-1
 
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T
@@ -71,4 +70,3 @@ subroutine do_burn() bind (C)
   print *, "Energy change: ", state_out % e - state_in % e
 
 end subroutine do_burn
-

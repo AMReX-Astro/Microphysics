@@ -12,16 +12,17 @@ contains
 
   subroutine temperature_rhs(state)
 
-    use bl_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, use_chemical_potential
 
     implicit none
 
     type (burn_t)    :: state
 
-    double precision :: dhdY(nspec_evolve), dedY(nspec_evolve)
+    double precision :: dedt, dhdt
+    double precision :: cvInv, cpInv
 
     if (state % self_heat) then
 
@@ -35,13 +36,33 @@ contains
        ! See paper III, including Eq. A3 for details.
 
        if (do_constant_volume_burn) then
-          dedY = state % dedX(1:nspec_evolve) * aion(1:nspec_evolve)
-          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - &
-                                      sum( dedY(1:nspec_evolve) * state % ydot(1:nspec_evolve) ) ) / state % cv
+
+          cvInv = ONE / state % cv
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             dedt = sum( state % dedX(1:nspec_evolve) * aion(1:nspec_evolve) * state % ydot(1:nspec_evolve) )
+
+             state % ydot(net_itemp) = state % ydot(net_itemp) - dedt * cvInv
+
+          endif
+
        else
-          dhdY = state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve)
-          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - &
-                                      sum( dhdY(1:nspec_evolve) * state % ydot(1:nspec_evolve) ) ) / state % cp
+
+          cpInv = ONE / state % cp
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             dhdt = sum( state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve) * state % ydot(1:nspec_evolve) )
+
+             state % ydot(net_itemp) = state % ydot(net_itemp) - dhdt * cpInv
+
+          endif
+
        endif
 
     endif
@@ -56,17 +77,18 @@ contains
 
   subroutine temperature_jac(state)
 
-    use bl_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, use_chemical_potential
 
     implicit none
 
     type (burn_t)    :: state
 
     integer          :: j
-    double precision :: dhdY(nspec_evolve), dedY(nspec_evolve)
+    double precision :: dedt, dhdt
+    double precision :: cpInv, cvInv
 
     ! Temperature Jacobian elements
 
@@ -74,29 +96,51 @@ contains
 
        if (do_constant_volume_burn) then
 
-          dedY = state % dedX(1:nspec_evolve) * aion(1:nspec_evolve)
+          cvInv = ONE / state % cv
 
           ! d(itemp)/d(yi)
-          do j = 1, nspec_evolve
-             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dEdY(:) * state % jac(1:nspec_evolve,j) ) ) / state % cv
-          enddo
+
+          state % jac(net_itemp,1:nspec_evolve) = state % jac(net_ienuc,1:nspec_evolve) * cvInv
 
           ! d(itemp)/d(temp)
-          state % jac(net_itemp,net_itemp) = ( state % jac(net_ienuc,net_itemp) - &
-                                               sum( dEdY(1:nspec_evolve) * state % jac(1:nspec_evolve,net_itemp) ) ) / state % cv
+
+          state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             do j = 1, nspec_evolve
+                dedt = sum( state % dedX(1:nspec_evolve) * aion(1:nspec_evolve) * state % jac(1:nspec_evolve,j) )
+                state % jac(net_itemp,j) = state % jac(net_itemp,j) - dedt * cvInv
+             enddo
+
+             dedt = sum( state % dedX(1:nspec_evolve) * aion(1:nspec_evolve) * state % jac(1:nspec_evolve,net_itemp) )
+             state % jac(net_itemp,net_itemp) = state % jac(net_itemp,net_itemp) - dedt * cvInv
+
+          endif
 
        else
 
-          dhdY = state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve)
+          cpInv = ONE / state % cp
 
           ! d(itemp)/d(yi)
-          do j = 1, nspec_evolve
-             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dhdY(:) * state % jac(1:nspec_evolve,j) ) ) / state % cp
-          enddo
+
+          state % jac(net_itemp,1:nspec_evolve) = state % jac(net_ienuc,1:nspec_evolve) * cpInv
 
           ! d(itemp)/d(temp)
-          state % jac(net_itemp,net_itemp) = ( state % jac(net_ienuc,net_itemp) - &
-                                               sum( dhdY(1:nspec_evolve) * state % jac(1:nspec_evolve,net_itemp) ) ) / state % cp
+
+          state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             do j = 1, nspec_evolve
+                dhdt = sum( state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve) * state % jac(1:nspec_evolve,j) )
+                state % jac(net_itemp,j) = state % jac(net_itemp,j) - dhdt * cpInv
+             enddo
+
+             dhdt = sum ( state % dhdX(1:nspec_evolve) * aion(1:nspec_evolve) * state % jac(1:nspec_evolve,net_itemp) )
+             state % jac(net_itemp,net_itemp) = state % jac(net_itemp,net_itemp) - dhdt * cpInv
+
+          endif
 
        endif
 
