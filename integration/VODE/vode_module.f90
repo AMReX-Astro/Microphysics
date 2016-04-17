@@ -155,7 +155,7 @@ contains
     ! We assume that the valid quantities coming in are (rho, e); do an EOS call
     ! to make sure all other variables are consistent.
 
-    call eos(eos_input_re, eos_state_in)
+    call eos(eos_input_burn, eos_state_in)
 
     ! Send this data back to the burn state in case the energy changed
     ! due to a reset/flooring.
