@@ -5,6 +5,14 @@
 % for \begin{center}, etc.
 \usepackage[margin=1.0in]{geometry}
 
+% longtable package used to split tables across pages                           
+\usepackage{longtable}                                                          
+                                                                                
+% PDF-aware landscape package, used for rotating tables (including the          
+% longtable)                                                                    
+\usepackage{pdflscape}
+
+
 \input maestrosymbols
 
 % all kinds of math macros
@@ -35,6 +43,12 @@
 
 % color package
 \usepackage[usenames]{color}
+
+% table coloring                                                                
+\usepackage{colortbl}                                                           
+\definecolor{tableShade}{rgb}{0.945,0.961,0.980}                                
+                                                                                
+ 
 
 % make the MarginPars look pretty
 \setlength{\marginparwidth}{0.75in}
@@ -255,6 +269,12 @@ partial derivatives of the thermodynamic state variables with respect
 to each other. To see a complete list, examine the {\tt eos\_type.f90}
 file inside the code calling \microphysics (e.g. {\tt
   Castro/EOS/eos\_type.f90}.)
+
+
+\chapter{Runtime Parameters}
+
+\input runtime_parameters/runtime_parameters.tex
+
 
 \chapter{Equations of State}
 
