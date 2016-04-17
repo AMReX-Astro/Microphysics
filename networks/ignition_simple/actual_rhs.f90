@@ -14,6 +14,7 @@ contains
   subroutine actual_rhs(state)
 
     use screening_module, only: screenz
+    use extern_probin_module, only: do_constant_volume_burn, use_chemical_potential
 
     implicit none
 
@@ -29,6 +30,15 @@ contains
     double precision :: a, b, dadt, dbdt
 
     double precision :: y(nspec)
+
+    double precision :: cvInv, cpInv
+    double precision :: dedt, dhdt
+
+    ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
+
+    state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
+
+    ! Now get the data from the state.
 
     temp = state % T
     dens = state % rho
@@ -87,8 +97,6 @@ contains
 
     xc12tmp = max(state % xn(ic12), ZERO)
     state % ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
-    state % ydot(io16)  = ZERO
-    state % ydot(img24) = -state % ydot(ic12)
 
     ! These get sent to the Jacobian
 
@@ -99,17 +107,54 @@ contains
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec) = state % ydot(1:nspec) / aion
+    state % ydot(ic12) = state % ydot(ic12) / aion(ic12)
 
-    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
+    call ener_gener_rate(state % ydot(ic12), state % ydot(net_ienuc))
 
-    call temperature_rhs(state)
+    ! Do the temperature equation explicitly here since
+    ! the generic form doesn't work when nspec_evolve < nspec.
+
+    if (state % self_heat) then
+
+       if (do_constant_volume_burn) then
+
+          cvInv = ONE / state % cv
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             dedt = (state % dedX(img24) - state % dedX(ic12)) * aion(ic12) * state % ydot(ic12)
+
+             state % ydot(net_itemp) = state % ydot(net_itemp) - dedt * cvInv
+
+          endif
+
+       else
+
+          cpInv = ONE / state % cp
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             dhdt = (state % dhdX(img24) - state % dhdX(ic12)) * aion(ic12) * state % ydot(ic12)
+
+             state % ydot(net_itemp) = state % ydot(net_itemp) - dhdt * cpInv
+
+          endif
+
+       endif
+
+    endif
 
   end subroutine actual_rhs
 
 
 
   subroutine actual_jac(state)
+
+    use extern_probin_module, only: do_constant_volume_burn, use_chemical_potential
 
     implicit none
 
@@ -118,7 +163,8 @@ contains
     double precision :: dens
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
-    integer          :: j
+    double precision :: cvInv, cpInv
+    double precision :: dedt, dhdt
 
     ! Get data from the state
 
@@ -131,7 +177,7 @@ contains
     xc12tmp  = max(state % xn(ic12), ZERO)
 
     ! initialize
-    state % jac(:,:)  = ZERO
+    state % jac(:,:) = ZERO
 
     ! carbon jacobian elements
     state % jac(ic12, ic12)  = -SIXTH * dens * scorr * rate * xc12tmp
@@ -140,17 +186,67 @@ contains
     state % jac(ic12, net_itemp)  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
                                      dens * scorr * xc12tmp**2 * dratedt )
 
+    ! Convert back to molar form
+
+    state % jac(ic12,ic12) = state % jac(ic12,ic12) / aion(ic12)
+
     ! Energy generation rate Jacobian elements with respect to species
 
-    do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
-    enddo
+    call ener_gener_rate(state % jac(ic12,ic12), state % jac(net_ienuc,ic12))
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(state % jac(ic12,net_itemp), state % jac(net_ienuc,net_itemp))
 
-    call temperature_jac(state)
+    if (state % self_heat) then
+
+       if (do_constant_volume_burn) then
+
+          cvInv = ONE / state % cv
+
+          ! d(itemp)/d(yi)
+
+          state % jac(net_itemp,ic12) = state % jac(net_ienuc,ic12) * cvInv
+
+          ! d(itemp)/d(temp)
+
+          state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             dedt = (state % dedX(img24) - state % dedX(ic12)) * aion(ic12) * state % jac(ic12,ic12)
+             state % jac(net_itemp,ic12) = state % jac(net_itemp,ic12) - dedt * cvInv
+
+             dedt = (state % dedX(img24) - state % dedX(ic12)) * aion(ic12) * state % jac(ic12,net_itemp)
+             state % jac(net_itemp,net_itemp) = state % jac(net_itemp,net_itemp) - dedt * cvInv
+
+          endif
+
+       else
+
+          cpInv = ONE / state % cp
+
+          ! d(itemp)/d(yi)
+
+          state % jac(net_itemp,ic12) = state % jac(net_ienuc,ic12) * cpInv
+
+          ! d(itemp)/d(temp)
+
+          state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
+
+          if (use_chemical_potential .eq. 1) then
+
+             dhdt = (state % dhdX(img24) - state % dhdX(ic12)) * aion(ic12) * state % jac(ic12,ic12)
+             state % jac(net_itemp,ic12) = state % jac(net_itemp,ic12) - dhdt * cpInv
+
+             dhdt = (state % dhdX(img24) - state % dhdX(ic12)) * aion(ic12) * state % jac(ic12,net_itemp)
+             state % jac(net_itemp,net_itemp) = state % jac(net_itemp,net_itemp) - dhdt * cpInv
+
+          endif
+
+       endif
+
+    endif
 
   end subroutine actual_jac
 

@@ -50,11 +50,15 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    double precision :: dydt(nspec_evolve), enuc
 
     ! This is basically e = m c**2
 
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
+    ! Note that since we don't explicitly evolve Mg24
+    ! in this network, we need to explicitly add its
+    ! contribution in this routine.
+
+    enuc = dydt(ic12) * (mion(img24) - mion(ic12)) * enuc_conv2
 
   end subroutine ener_gener_rate
 
