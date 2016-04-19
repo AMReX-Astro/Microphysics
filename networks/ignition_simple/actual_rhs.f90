@@ -14,7 +14,7 @@ contains
   subroutine actual_rhs(state)
 
     use screening_module, only: screenz
-    use extern_probin_module, only: do_constant_volume_burn, use_chemical_potential
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -30,9 +30,6 @@ contains
     double precision :: a, b, dadt, dbdt
 
     double precision :: y(nspec)
-
-    double precision :: cvInv, cpInv
-    double precision :: dedt, dhdt
 
     ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
 
@@ -118,31 +115,11 @@ contains
 
        if (do_constant_volume_burn) then
 
-          cvInv = ONE / state % cv
-
-          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
-
-          if (use_chemical_potential .eq. 1) then
-
-             dedt = (state % dedX(img24) - state % dedX(ic12)) * aion(ic12) * state % ydot(ic12)
-
-             state % ydot(net_itemp) = state % ydot(net_itemp) - dedt * cvInv
-
-          endif
+          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
 
        else
 
-          cpInv = ONE / state % cp
-
-          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
-
-          if (use_chemical_potential .eq. 1) then
-
-             dhdt = (state % dhdX(img24) - state % dhdX(ic12)) * aion(ic12) * state % ydot(ic12)
-
-             state % ydot(net_itemp) = state % ydot(net_itemp) - dhdt * cpInv
-
-          endif
+          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
 
        endif
 
@@ -154,7 +131,7 @@ contains
 
   subroutine actual_jac(state)
 
-    use extern_probin_module, only: do_constant_volume_burn, use_chemical_potential
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -164,7 +141,6 @@ contains
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
     double precision :: cvInv, cpInv
-    double precision :: dedt, dhdt
 
     ! Get data from the state
 
@@ -212,16 +188,6 @@ contains
 
           state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
 
-          if (use_chemical_potential .eq. 1) then
-
-             dedt = (state % dedX(img24) - state % dedX(ic12)) * aion(ic12) * state % jac(ic12,ic12)
-             state % jac(net_itemp,ic12) = state % jac(net_itemp,ic12) - dedt * cvInv
-
-             dedt = (state % dedX(img24) - state % dedX(ic12)) * aion(ic12) * state % jac(ic12,net_itemp)
-             state % jac(net_itemp,net_itemp) = state % jac(net_itemp,net_itemp) - dedt * cvInv
-
-          endif
-
        else
 
           cpInv = ONE / state % cp
@@ -233,16 +199,6 @@ contains
           ! d(itemp)/d(temp)
 
           state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
-
-          if (use_chemical_potential .eq. 1) then
-
-             dhdt = (state % dhdX(img24) - state % dhdX(ic12)) * aion(ic12) * state % jac(ic12,ic12)
-             state % jac(net_itemp,ic12) = state % jac(net_itemp,ic12) - dhdt * cpInv
-
-             dhdt = (state % dhdX(img24) - state % dhdX(ic12)) * aion(ic12) * state % jac(ic12,net_itemp)
-             state % jac(net_itemp,net_itemp) = state % jac(net_itemp,net_itemp) - dhdt * cpInv
-
-          endif
 
        endif
 

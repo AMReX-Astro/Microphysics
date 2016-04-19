@@ -25,9 +25,6 @@ burning_mode             integer   1
 # Whether to use an analytical or numerical Jacobian. Numerical by default.
 jacobian                 integer   2
 
-# Should we include the chemical potential terms in the temperature equation?
-use_chemical_potential   integer   1
-
 # Should we print out diagnostic output after the solve?  
 burner_verbose           logical   .false.
 
