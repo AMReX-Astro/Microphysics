@@ -20,6 +20,7 @@ contains
     implicit none
 
     type (burn_t) :: state
+    double precision :: cv, cp, cvInv, cpInv
 
     if (state % self_heat) then
 
@@ -36,11 +37,35 @@ contains
 
        if (do_constant_volume_burn) then
 
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
+          if (state % dcvdt > init_test) then
+
+             cv = state % cv + (state % T - state % T_old) * state % dcvdt
+
+          else
+
+             cv = state % cv
+
+          endif
+
+          cvInv = ONE / cv
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
 
        else
 
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
+          if (state % dcpdt > init_test) then
+
+             cp = state % cp + (state % T - state % T_old) * state % dcpdt
+
+          else
+
+             cp = state % cp
+
+          endif
+
+          cpInv = ONE / cp
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
 
        endif
 
@@ -65,7 +90,7 @@ contains
 
     type (burn_t)    :: state
 
-    double precision :: cpInv, cvInv
+    double precision :: cp, cv, cpInv, cvInv
 
     ! Temperature Jacobian elements
 
@@ -73,7 +98,17 @@ contains
 
        if (do_constant_volume_burn) then
 
-          cvInv = ONE / state % cv
+          if (state % dcvdt > init_test) then
+
+             cv = state % cv + (state % T - state % T_old) * state % dcvdt
+
+          else
+
+             cv = state % cv
+
+          endif
+
+          cvInv = ONE / cv
 
           ! d(itemp)/d(yi)
 
@@ -85,7 +120,17 @@ contains
 
        else
 
-          cpInv = ONE / state % cp
+          if (state % dcpdt > init_test) then
+
+             cp = state % cp + (state % T - state % T_old) * state % dcpdt
+
+          else
+
+             cp = state % cp
+
+          endif
+
+          cpInv = ONE / cp
 
           ! d(itemp)/d(yi)
 

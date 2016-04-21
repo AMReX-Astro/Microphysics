@@ -11,7 +11,7 @@
     use burn_type_module
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, renormalize_abundances
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances
     use rpar_indices
 
     implicit none
@@ -58,16 +58,31 @@
     ! Evaluate the thermodynamics -- if desired. Note that
     ! even if this option is selected, we don't need to do it
     ! for non-self-heating integrations because the temperature
-    ! isn't being updated.
+    ! isn't being updated. Also, if it is, we can optionally
+    ! set a fraction dT_crit such that we don't call the EOS
+    ! if the last temperature we evaluated the EOS at is relatively
+    ! close to the current temperature.
 
     ! Otherwise just do the composition calculations since
     ! that's needed to construct dY/dt. Then make sure
     ! the abundances are safe.
 
     if (call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
+
        call eos(eos_input_burn, eos_state)
+
+    else if (abs(eos_state % T - rpar(irp_Told)) > dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
+
+       call eos(eos_input_rt, eos_state)
+
+       rpar(irp_dcvdt) = (eos_state % cv - rpar(irp_cv)) / (eos_state % T - rpar(irp_Told))
+       rpar(irp_dcpdt) = (eos_state % cp - rpar(irp_cp)) / (eos_state % T - rpar(irp_Told))
+       rpar(irp_Told)  = eos_state % T
+
     else
+
        call composition(eos_state)
+
     endif
 
     call eos_to_vode(eos_state, y, rpar)

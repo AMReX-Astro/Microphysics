@@ -71,7 +71,8 @@ contains
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
-                                    retry_burn_factor, retry_burn_max_change
+                                    retry_burn_factor, retry_burn_max_change, &
+                                    call_eos_in_rhs, dT_crit
 
     implicit none
 
@@ -84,7 +85,7 @@ contains
     ! Local variables
 
     double precision :: local_time
-    type (eos_t)     :: eos_state_in, eos_state_out
+    type (eos_t)     :: eos_state_in, eos_state_out, eos_state_temp
 
     ! Work arrays
 
@@ -176,6 +177,24 @@ contains
        rpar(irp_self_heat) = ONE
     else
        call bl_error("Error: unknown burning_mode in vode_burner.f90.")
+    endif
+
+    ! If we are using the dT_crit functionality and therefore doing a linear
+    ! interpolation of the specific heat in between EOS calls, do a second
+    ! EOS call here to establish an initial slope.
+
+    rpar(irp_Told) = eos_state_in % T
+
+    if (dT_crit < 1.d20) then
+
+       eos_state_temp = eos_state_in
+       eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
+
+       call eos(eos_input_rt, eos_state_temp)
+
+       rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+       rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+
     endif
 
     ! Call the integration routine.

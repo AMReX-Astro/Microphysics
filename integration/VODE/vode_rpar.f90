@@ -13,6 +13,7 @@ module rpar_indices
   integer :: irp_eta, irp_ye
   integer :: irp_self_heat
   integer :: irp_rates
+  integer :: irp_Told, irp_dcvdt, irp_dcpdt
 
 contains
 
@@ -65,6 +66,9 @@ contains
     irp_dhdY      = get_next_rpar_index(nspec)
     irp_dedY      = get_next_rpar_index(nspec)
     irp_rates     = get_next_rpar_index(num_rate_groups * nrates)
+    irp_Told      = get_next_rpar_index(1)
+    irp_dcvdt     = get_next_rpar_index(1)
+    irp_dcpdt     = get_next_rpar_index(1)
 
   end subroutine init_rpar_indices
 

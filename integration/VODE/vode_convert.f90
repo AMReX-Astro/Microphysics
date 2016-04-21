@@ -109,6 +109,9 @@ contains
     rpar(irp_eta)                            = state % eta
     rpar(irp_dhdY:irp_dhdY+nspec-1)          = state % dhdX(:) * aion(:)
     rpar(irp_dedY:irp_dedY+nspec-1)          = state % dedX(:) * aion(:)
+    rpar(irp_Told)                           = state % T_old
+    rpar(irp_dcvdt)                          = state % dcvdt
+    rpar(irp_dcpdt)                          = state % dcpdt
 
     if (present(ydot)) then
        ydot = state % ydot
@@ -163,6 +166,9 @@ contains
     state % eta      = rpar(irp_eta)
     state % dhdX(:)  = rpar(irp_dhdY:irp_dhdY-1+nspec) / aion(:)
     state % dedX(:)  = rpar(irp_dedY:irp_dedY-1+nspec) / aion(:)
+    state % T_old    = rpar(irp_Told)
+    state % dcvdt    = rpar(irp_dcvdt)
+    state % dcpdt    = rpar(irp_dcpdt)
 
     do i = 1, num_rate_groups
        state % rates(i,:) = rpar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1)

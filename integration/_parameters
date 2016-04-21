@@ -15,6 +15,13 @@ do_constant_volume_burn  logical   .false.
 # quantities (cp and cv) as we go.
 call_eos_in_rhs          logical   .false.
 
+# If we want to call the EOS in general, but don't want to overdo it,
+# we can set a fraction dT\_crit such that we only do the EOS call
+# if the temperature has changed by a relative fraction > dT\_crit.
+# If we use this option, we will do a linear fit to c\_v and c\_p
+# in between EOS calls. This will work regardless of call\_eos\_in\_rhs.
+dT_crit                  real      1.0d20
+
 # Integration mode: if 0, a hydrostatic burn (temperature and density
 # remain constant), and if 1, a self-heating burn (temperature/energy
 # evolve with the burning). If 2, a hybrid approach presented by Raskin
