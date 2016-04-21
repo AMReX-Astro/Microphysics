@@ -1,7 +1,7 @@
 ! Common variables and routines for burners
 ! that use VODE for their integration.
 
-module vode_module
+module actual_integrator_module
 
   use eos_module
   use network
@@ -52,19 +52,19 @@ module vode_module
 
 contains
 
-  subroutine vode_init()
+  subroutine actual_integrator_init()
 
     implicit none
 
     call init_rpar_indices()
 
-  end subroutine vode_init
+  end subroutine actual_integrator_init
 
 
 
   ! Main interface
 
-  subroutine vode_burner(state_in, state_out, dt, time)
+  subroutine actual_integrator(state_in, state_out, dt, time)
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
@@ -317,6 +317,6 @@ contains
 
     endif
 
-  end subroutine vode_burner
+  end subroutine actual_integrator
 
-end module vode_module
+end module actual_integrator_module

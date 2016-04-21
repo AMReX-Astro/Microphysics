@@ -1,6 +1,3 @@
-# Choice of integration software to use. Currently we only have VODE (== 0).
-integrator               integer   0
-
 # When evolving the temperature, should we assume a constant pressure (default) 
 # or a constant volume (do\_constant\_volume\_burn = T)?
 do_constant_volume_burn  logical   .false.

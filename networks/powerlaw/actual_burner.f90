@@ -13,11 +13,11 @@ contains
 
   subroutine actual_burner_init()
 
-    use integration_module, only: integration_init
+    use integrator_module, only: integrator_init
 
     implicit none
 
-    call integration_init()
+    call integrator_init()
 
   end subroutine actual_burner_init
 
@@ -25,7 +25,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use integration_module, only: do_burn
+    use integrator_module, only: integrator
 
     implicit none
 

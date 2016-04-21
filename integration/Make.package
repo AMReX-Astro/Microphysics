@@ -1,14 +1,16 @@
 
-INTEGRATION_VODE_PATH := $(MICROPHYSICS_DIR)/integration/VODE
+INTEGRATOR_DIR ?= VODE
 
-INCLUDE_LOCATIONS += $(INTEGRATION_VODE_PATH)
-VPATH_LOCATIONS   += $(INTEGRATION_VODE_PATH)
-EXTERN_CORE       += $(INTEGRATION_VODE_PATH)
+ifeq ($(INTEGRATOR_DIR), VODE)
+  INTEGRATOR_PATH := $(MICROPHYSICS_DIR)/integration/VODE
+endif
 
-include $(INTEGRATION_VODE_PATH)/Make.package
+INCLUDE_LOCATIONS += $(INTEGRATOR_PATH)
+VPATH_LOCATIONS   += $(INTEGRATOR_PATH)
+EXTERN_CORE       += $(INTEGRATOR_PATH)
 
+include $(INTEGRATOR_PATH)/Make.package
 
-
-f90EXE_sources += integration.f90
+f90EXE_sources += integrator.f90
 f90EXE_sources += integration_data.f90
 f90EXE_sources += temperature_integration.f90

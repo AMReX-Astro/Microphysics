@@ -8,11 +8,11 @@ contains
 
   subroutine actual_burner_init()
 
-    use integration_module, only: integration_init
+    use integrator_module, only: integrator_init
 
     implicit none
 
-    call integration_init()
+    call integrator_init()
 
   end subroutine actual_burner_init
 
@@ -20,7 +20,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use integration_module, only: do_burn
+    use integrator_module, only: integrator
 
     implicit none
 
@@ -28,7 +28,7 @@ contains
     type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
 
-    call do_burn(state_in, state_out, dt, time)
+    call integrator(state_in, state_out, dt, time)
 
   end subroutine actual_burner
 
