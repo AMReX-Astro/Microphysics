@@ -185,7 +185,7 @@ contains
 
     rpar(irp_Told) = eos_state_in % T
 
-    if (dT_crit < 1.d20) then
+    if (dT_crit < 1.0d19) then
 
        eos_state_temp = eos_state_in
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))

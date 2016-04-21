@@ -15,7 +15,7 @@ contains
     use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, dT_crit
 
     implicit none
 
@@ -37,7 +37,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (state % dcvdt > init_test) then
+          if (dT_crit < 1.0d19) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -53,7 +53,7 @@ contains
 
        else
 
-          if (state % dcpdt > init_test) then
+          if (dT_crit < 1.0d19) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -84,7 +84,7 @@ contains
     use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, dT_crit
 
     implicit none
 
@@ -98,7 +98,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (state % dcvdt > init_test) then
+          if (dT_crit < 1.0d19) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -120,7 +120,7 @@ contains
 
        else
 
-          if (state % dcpdt > init_test) then
+          if (dT_crit < 1.0d19) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
