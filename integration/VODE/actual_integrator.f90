@@ -114,7 +114,7 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in vode_burner.f90.")
+       call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -176,7 +176,7 @@ contains
     else if (burning_mode == 1) then
        rpar(irp_self_heat) = ONE
     else
-       call bl_error("Error: unknown burning_mode in vode_burner.f90.")
+       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
     endif
 
     ! If we are using the dT_crit functionality and therefore doing a linear
