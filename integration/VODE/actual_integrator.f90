@@ -220,6 +220,15 @@ contains
 
        call eos_to_vode(eos_state_in, y, rpar)
 
+       rpar(irp_Told) = eos_state_in % T
+
+       if (dT_crit < 1.0d19) then
+
+          rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+          rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+
+       endif
+
        y(net_ienuc) = ZERO
 
        call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
@@ -267,6 +276,15 @@ contains
              local_time = ZERO
 
              call eos_to_vode(eos_state_in, y, rpar)
+
+             rpar(irp_Told) = eos_state_in % T
+
+             if (dT_crit < 1.0d19) then
+
+                rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+                rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+
+             endif
 
              y(net_ienuc) = ZERO
 
