@@ -6,7 +6,6 @@
 
     use eos_module
     use bl_types
-    use rpar_indices
     use vode_convert_module
     use burn_type_module
     use bl_constants_module, only: ZERO, ONE
@@ -101,7 +100,6 @@
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
-    use rpar_indices
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use vode_convert_module
