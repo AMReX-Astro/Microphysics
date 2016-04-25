@@ -25,10 +25,6 @@ contains
 
     logical          :: deriva = .false.
 
-    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
-    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
-
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
@@ -36,32 +32,19 @@ contains
 
     double precision :: y(nspec)
 
-    ! Get the data from the state
+    call evaluate_rates(state)
 
     rho  = state % rho
     temp = state % T
+
     abar = state % abar
     zbar = state % zbar
+
     y    = state % xn / aion
-
-    ! Get the raw reaction rates
-    call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
-
-
-    ! Do the screening here because the corrections depend on the composition
-    call screen_aprox13(temp, rho, y,                 &
-                        ratraw, dratrawdt, dratrawdd, &
-                        ratdum, dratdumdt, dratdumdd, &
-                        scfac,  dscfacdt,  dscfacdd)
-
-    ! Save the rate data, for the Jacobian later if we need it.
-
-    state % rates(1,:) = ratdum
-    state % rates(2,:) = dratdumdt
 
     ! Call the RHS to actually get dydt.
 
-    call rhs(y, ratdum, ratdum, state % ydot(1:nspec), deriva)
+    call rhs(y, state % rates(1,:), state % rates(1,:), state % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -106,6 +89,10 @@ contains
 
     state % jac(:,:) = ZERO
 
+    if (.not. state % have_rates) then
+       call evaluate_rates(state)
+    endif
+
     ! Get the data from the state
 
     rho  = state % rho
@@ -148,6 +135,47 @@ contains
     call temperature_jac(state)
 
   end subroutine actual_jac
+
+
+
+
+  subroutine evaluate_rates(state)
+
+    implicit none
+
+    type (burn_t)    :: state
+
+    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
+    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
+
+    double precision :: rho, temp, abar, zbar
+
+    double precision :: y(nspec)
+
+    rho  = state % rho
+    temp = state % T
+    abar = state % abar
+    zbar = state % zbar
+    y    = state % xn / aion
+
+     ! Get the raw reaction rates
+    call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+
+    ! Do the screening here because the corrections depend on the composition
+    call screen_aprox13(temp, rho, y,                 &
+                        ratraw, dratrawdt, dratrawdd, &
+                        ratdum, dratdumdt, dratdumdd, &
+                        scfac,  dscfacdt,  dscfacdd)
+
+    ! Save the rate data in the state.
+
+    state % rates(1,:) = ratdum
+    state % rates(2,:) = dratdumdt
+
+    state % have_rates = .true.
+
+  end subroutine evaluate_rates
 
 
 

@@ -12,6 +12,7 @@ module rpar_indices
   integer :: irp_abar, irp_zbar
   integer :: irp_eta, irp_ye
   integer :: irp_self_heat
+  integer :: irp_have_rates
   integer :: irp_rates
   integer :: irp_Told, irp_dcvdt, irp_dcpdt
 
@@ -65,6 +66,7 @@ contains
     irp_nspec     = get_next_rpar_index(nspec - nspec_evolve)
     irp_dhdY      = get_next_rpar_index(nspec)
     irp_dedY      = get_next_rpar_index(nspec)
+    irp_have_rates = get_next_rpar_index(1)
     irp_rates     = get_next_rpar_index(num_rate_groups * nrates)
     irp_Told      = get_next_rpar_index(1)
     irp_dcvdt     = get_next_rpar_index(1)

@@ -13,7 +13,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    use screening_module, only: screenz
     use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
@@ -31,6 +30,8 @@ contains
 
     double precision :: y(nspec)
 
+    call evaluate_rates(state)
+
     ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
 
     state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
@@ -41,27 +42,10 @@ contains
     dens = state % rho
     y    = state % xn / aion
 
-    ! call the screening routine
-    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,aion,zion,nspec,sc1212,dsc1212dt)
-
-    ! compute some often used temperature constants
-    T9     = temp/1.d9
-    dT9dt  = ONE/1.d9
-    T9a    = T9/(1.0d0 + 0.0396d0*T9)
-    dT9adt = (T9a / T9 - (T9a / (1.0d0 + 0.0396d0*T9)) * 0.0396d0) * dT9dt
-
-    ! compute the CF88 rate
-    scratch    = T9a**THIRD
-    dscratchdt = THIRD * T9a**(-TWO3RD) * dT9adt
-
-    a       = 4.27d26*T9a**(FIVE*SIXTH)*T9**(-1.5d0)
-    dadt    = (FIVE * SIXTH) * (a/T9a) * dT9adt - 1.5d0 * (a/T9) * dT9dt
-
-    b       = dexp(-84.165d0/scratch - 2.12d-3*T9*T9*T9)
-    dbdt    = (84.165d0 * dscratchdt/ scratch**TWO - THREE * 2.12d-3 * T9 * T9 * dT9dt) * b
-
-    rate    = a *  b
-    dratedt = dadt * b + a * dbdt
+    rate      = state % rates(1,1)
+    dratedt   = state % rates(2,1)
+    sc1212    = state % rates(3,1)
+    dsc1212dt = state % rates(4,1)
 
     ! The change in number density of C12 is
     ! d(n12)/dt = - 2 * 1/2 (n12)**2 <sigma v>
@@ -94,13 +78,6 @@ contains
 
     xc12tmp = max(state % xn(ic12), ZERO)
     state % ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
-
-    ! These get sent to the Jacobian
-
-    state % rates(1,:)  = rate
-    state % rates(2,:)  = dratedt
-    state % rates(3,:)  = sc1212
-    state % rates(4,:)  = dsc1212dt
 
     ! Convert back to molar form
 
@@ -141,6 +118,10 @@ contains
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
     double precision :: cvInv, cpInv
+
+    if (.not. state % have_rates) then
+       call evaluate_rates(state)
+    endif
 
     ! Get data from the state
 
@@ -205,5 +186,63 @@ contains
     endif
 
   end subroutine actual_jac
+
+
+
+  subroutine evaluate_rates(state)
+
+    use screening_module, only: screenz
+
+    implicit none
+
+    type (burn_t) :: state
+
+    double precision :: temp, T9, T9a, dT9dt, dT9adt
+
+    double precision :: scratch, dscratchdt
+    double precision :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
+
+    double precision :: dens
+
+    double precision :: a, b, dadt, dbdt
+
+    double precision :: y(nspec)
+
+    temp = state % T
+    dens = state % rho
+    y    = state % xn / aion
+
+    ! call the screening routine
+    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,aion,zion,nspec,sc1212,dsc1212dt)
+
+    ! compute some often used temperature constants
+    T9     = temp/1.d9
+    dT9dt  = ONE/1.d9
+    T9a    = T9/(1.0d0 + 0.0396d0*T9)
+    dT9adt = (T9a / T9 - (T9a / (1.0d0 + 0.0396d0*T9)) * 0.0396d0) * dT9dt
+
+    ! compute the CF88 rate
+    scratch    = T9a**THIRD
+    dscratchdt = THIRD * T9a**(-TWO3RD) * dT9adt
+
+    a       = 4.27d26*T9a**(FIVE*SIXTH)*T9**(-1.5d0)
+    dadt    = (FIVE * SIXTH) * (a/T9a) * dT9adt - 1.5d0 * (a/T9) * dT9dt
+
+    b       = dexp(-84.165d0/scratch - 2.12d-3*T9*T9*T9)
+    dbdt    = (84.165d0 * dscratchdt/ scratch**TWO - THREE * 2.12d-3 * T9 * T9 * dT9dt) * b
+
+    rate    = a *  b
+    dratedt = dadt * b + a * dbdt
+
+    ! These get sent to the Jacobian
+
+    state % rates(1,:)  = rate
+    state % rates(2,:)  = dratedt
+    state % rates(3,:)  = sc1212
+    state % rates(4,:)  = dsc1212dt
+
+    state % have_rates = .true.
+
+  end subroutine evaluate_rates
 
 end module actual_rhs_module

@@ -125,6 +125,12 @@ contains
        jac(net_itemp,:) = jac(net_itemp,:) / temp_scale
     endif
 
+    if (state % have_rates) then
+       rpar(irp_have_rates) = ONE
+    else
+       rpar(irp_have_rates) = -ONE
+    endif
+
     do i = 1, num_rate_groups
        rpar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1) = state % rates(i,:)
     enddo
@@ -173,6 +179,12 @@ contains
     state % T_old    = rpar(irp_Told)
     state % dcvdt    = rpar(irp_dcvdt)
     state % dcpdt    = rpar(irp_dcpdt)
+
+    if (rpar(irp_have_rates) > ZERO) then
+       state % have_rates = .true.
+    else
+       state % have_rates = .false.
+    endif
 
     do i = 1, num_rate_groups
        state % rates(i,:) = rpar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1)

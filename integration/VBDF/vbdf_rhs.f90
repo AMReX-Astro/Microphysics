@@ -84,6 +84,8 @@
 
     call eos_to_vbdf(eos_state, ts)
 
+    burn_state % have_rates = .false.
+
     ! Call the specific network routine to get the RHS.
 
     call vbdf_to_burn(ts, burn_state)
@@ -108,6 +110,8 @@
     type (bdf_ts) :: ts
 
     type (burn_t) :: state
+
+    state % have_rates = .false.
 
     ! Call the specific network routine to get the Jacobian.
 

@@ -123,6 +123,12 @@ contains
     ts % yd(net_ienuc,1) = ts % yd(net_ienuc,1) / ener_scale
     ts % J(net_ienuc,:,1) = ts % J(net_ienuc,:,1) / ener_scale
 
+    if (state % have_rates) then
+       ts % upar(irp_have_rates,1) = ONE
+    else
+       ts % upar(irp_have_rates,1) = -ONE
+    endif
+
     do i = 1, num_rate_groups
        ts % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1,1) = state % rates(i,:)
     enddo
@@ -171,6 +177,12 @@ contains
     state % T_old    = ts % upar(irp_Told,1)
     state % dcvdt    = ts % upar(irp_dcvdt,1)
     state % dcpdt    = ts % upar(irp_dcpdt,1)
+
+    if (ts % upar(irp_have_rates,1) > ZERO) then
+       state % have_rates = .true.
+    else
+       state % have_rates = .false.
+    endif
 
     do i = 1, num_rate_groups
        state % rates(i,:) = ts % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1,1)
