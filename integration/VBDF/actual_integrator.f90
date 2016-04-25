@@ -20,8 +20,6 @@ contains
 
     implicit none
 
-    call init_rpar_indices()
-
   end subroutine actual_integrator_init
 
 
@@ -47,7 +45,6 @@ contains
     type (burn_t),       intent(inout) :: state_out
     double precision,    intent(in   ) :: dt, time
 
-    integer, parameter :: MAX_ORDER = 5   !This is arbitrary, should investigate other values
     logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
     logical, parameter :: REUSE = .false. !.false. means don't reuse the Jacobian
     real(kind=dp_t), parameter :: DT0 = 1.0d-9 !Initial dt to be used in getting from 
@@ -55,12 +52,11 @@ contains
                                                !multiple values should be
                                                !explored.
 
-    !!Local variables
-    integer, parameter :: bdf_npt = 1 ! Number of points for BDF to operate on
+    ! Local variables
     integer :: n, i, j, ierr
 
-    real(kind=dp_t), dimension(neqs) :: atol, rtol   ! input state, abs and rel tolerances
-    real(kind=dp_t), allocatable :: upar(:,:), y0(:,:), y1(:,:)
+    real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
+    real(kind=dp_t) :: y0(neqs,bdf_npt), y1(neqs,bdf_npt)
     real(kind=dp_t) :: t0, t1, enuc, dX
 
     type (eos_t)  :: eos_state_in, eos_state_out, eos_state_temp
@@ -68,6 +64,8 @@ contains
 
     double precision :: sum
     double precision :: retry_change_factor
+
+    call bdf_ts_build(ts)
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
@@ -84,11 +82,8 @@ contains
     rtol(net_itemp) = rtol_temp ! temperature
     rtol(net_ienuc) = rtol_enuc ! energy generated
 
-    allocate(upar(n_rpar_comps, bdf_npt))
-    allocate(y0(neqs, bdf_npt), y1(neqs, bdf_npt))
-
-    ! Build the bdf_ts time-stepper object
-    call bdf_ts_build(ts, neqs, bdf_npt, rtol, atol, MAX_ORDER, upar)
+    ts % atol = atol
+    ts % rtol = rtol
 
     ! Initialize the integration time.
 
@@ -148,8 +143,7 @@ contains
     do n = 1, neqs
        y0(n,1) = ts % y(n,1)
     end do
-    call bdf_advance(ts, neqs, bdf_npt, y0, t0, y1, t1, &
-                     DT0, RESET, REUSE, ierr, .true.)
+    call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
     do n = 1, neqs
        ts % y(n,1) = y1(n,1)
     end do
@@ -168,8 +162,7 @@ contains
        do n = 1, neqs
           y0(n,1) = ts % y(n,1)
        end do
-       call bdf_advance(ts, neqs, bdf_npt, y0, t0, y1, t1, &
-                        DT0, RESET, REUSE, ierr, .true.)
+       call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
        do n = 1, neqs
           ts % y(n,1) = y1(n,1)
        end do
@@ -187,7 +180,7 @@ contains
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', ts % y(net_itemp,1) * temp_scale
        print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
-            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(1:nspec_evolve)
+            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale
 
        if (.not. retry_burn) then
@@ -214,8 +207,7 @@ contains
              do n = 1, neqs
                 y0(n,1) = ts % y(n,1)
              end do
-             call bdf_advance(ts, neqs, bdf_npt, y0, t0, y1, t1, &
-                              DT0, RESET, REUSE, ierr, .true.)
+             call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
              do n = 1, neqs
                 ts % y(n,1) = y1(n,1)
              end do
@@ -265,8 +257,6 @@ contains
        print *, 'number of f evaluations: ', ts % nfe
 
     endif
-
-    call bdf_ts_destroy(ts)
 
   end subroutine actual_integrator
 

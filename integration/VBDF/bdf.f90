@@ -55,13 +55,11 @@ contains
   !
   ! Advance system from t0 to t1.
   !
-  !subroutine bdf_advance(ts, f, Jac, neq, npt, y0, t0, y1, t1, dt0, reset, reuse, ierr, initial_call)
-  subroutine bdf_advance(ts, neq, npt, y0, t0, y1, t1, dt0, reset, reuse, ierr, initial_call)
+  subroutine bdf_advance(ts, y0, t0, y1, t1, dt0, reset, reuse, ierr, initial_call)
     !$acc routine seq
     type(bdf_ts), intent(inout) :: ts
-    integer,      intent(in   ) :: neq, npt
-    real(dp_t),   intent(in   ) :: y0(neq,npt), t0, t1, dt0
-    real(dp_t),   intent(  out) :: y1(neq,npt)
+    real(dp_t),   intent(in   ) :: y0(neqs,bdf_npt), t0, t1, dt0
+    real(dp_t),   intent(  out) :: y1(neqs,bdf_npt)
     logical,      intent(in   ) :: reset, reuse
     integer,      intent(  out) :: ierr
     logical,      intent(in   ) :: initial_call
@@ -74,9 +72,6 @@ contains
     !linitial = initial_call
 
     if (reset) call bdf_reset(ts, y0, dt0, reuse)
-    !do m=1,2
-    !   ts%temp_data(m,1) = y0(m,1)
-    !end do
 
     ierr = BDF_ERR_SUCCESS
 
@@ -782,40 +777,12 @@ contains
   !
   ! Build/destroy BDF time-stepper.
   !
-  subroutine bdf_ts_build(ts, neq, npt, rtol, atol, max_order, upar)
+  subroutine bdf_ts_build(ts)
     type(bdf_ts),   intent(inout) :: ts
-    integer,        intent(in   ) :: max_order, neq, npt
-    real(dp_t),     intent(in   ) :: rtol(neq), atol(neq)
-    real(dp_t),     intent(in   ) :: upar(:,:)
 
-    integer :: U(max_order+1, max_order+1), Uk(max_order+1, max_order+1)
+    integer :: U(bdf_max_order+1, bdf_max_order+1), Uk(bdf_max_order+1, bdf_max_order+1)
     integer :: k, n
 
-
-    allocate(ts%rtol(neq))
-    allocate(ts%atol(neq))
-    allocate(ts%z(neq, npt, 0:max_order))
-    allocate(ts%z0(neq, npt, 0:max_order))
-    allocate(ts%l(0:max_order))
-    allocate(ts%h(0:max_order))
-    allocate(ts%shift(0:max_order))
-    allocate(ts%A(0:max_order, 0:max_order))
-    allocate(ts%P(neq, neq, npt))
-    allocate(ts%J(neq, neq, npt))
-    allocate(ts%y(neq, npt))
-    allocate(ts%yd(neq, npt))
-    allocate(ts%rhs(neq, npt))
-    allocate(ts%e(neq, npt))
-    allocate(ts%e1(neq, npt))
-    allocate(ts%ewt(neq, npt))
-    allocate(ts%b(neq, npt))
-    allocate(ts%ipvt(neq,npt))
-    allocate(ts%upar(size(upar,1),npt))
-    ts%upar = upar
-
-    ts%neq        = neq
-    ts%npt        = npt
-    ts%max_order  = max_order
     ts%max_steps  = 1000000
     ts%max_iters  = 10
     ts%verbose    = 0
@@ -828,11 +795,6 @@ contains
 
     ts%k = -1
 
-    do n = 1, neq
-       ts%rtol(n) = rtol(n)
-       ts%atol(n) = atol(n)
-    end do
-
     ts%J  = 0
     ts%P  = 0
     ts%yd = 0
@@ -844,12 +806,12 @@ contains
 
     ! build pascal matrix A using A = exp(U)
     U = 0
-    do k = 1, max_order
+    do k = 1, bdf_max_order
        U(k,k+1) = k
     end do
     Uk = U
     call eye_i(ts%A)
-    do k = 1, max_order+1
+    do k = 1, bdf_max_order+1
        ts%A  = ts%A + Uk / factorial(k)
        Uk = matmul(U, Uk)
     end do
@@ -857,10 +819,6 @@ contains
 
   subroutine bdf_ts_destroy(ts)
     type(bdf_ts), intent(inout) :: ts
-    deallocate(ts%h,ts%l,ts%shift,ts%ewt,ts%rtol,ts%atol)
-    deallocate(ts%y,ts%yd,ts%z,ts%z0,ts%A)
-    deallocate(ts%P,ts%J,ts%rhs,ts%e,ts%e1,ts%b,ts%ipvt)
-    deallocate(ts%upar)
   end subroutine bdf_ts_destroy
 
   !

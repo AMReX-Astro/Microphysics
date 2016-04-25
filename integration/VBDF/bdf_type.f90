@@ -1,17 +1,22 @@
 module bdf_type_module
 
   use bl_types
+  use burn_type_module, only: neqs
+  use rpar_indices, only: n_rpar_comps
 
   implicit none
+
+  integer, parameter :: bdf_npt = 1         ! number of points
+  integer, parameter :: bdf_max_order = 5   ! maximum order (1 to 6)
 
   !
   ! bdf time-stepper
   !
   type :: bdf_ts
 
-     integer  :: neq                        ! number of equations (degrees of freedom) per point
-     integer  :: npt                        ! number of points
-     integer  :: max_order                  ! maximum order (1 to 6)
+     integer  :: npt = bdf_npt
+     integer  :: neq = neqs
+     integer  :: max_order = bdf_max_order
      integer  :: max_steps                  ! maximum allowable number of steps
      integer  :: max_iters                  ! maximum allowable number of newton iterations
      integer  :: verbose                    ! verbosity level
@@ -25,8 +30,8 @@ module bdf_type_module
      logical  :: debug
      integer  :: dump_unit
 
-     real(dp_t), allocatable :: rtol(:)         ! relative tolerances
-     real(dp_t), allocatable :: atol(:)         ! absolute tolerances
+     real(dp_t) :: rtol(neqs)               ! relative tolerances
+     real(dp_t) :: atol(neqs)               ! absolute tolerances
 
      ! state
      real(dp_t) :: t                        ! current time
@@ -40,30 +45,26 @@ module bdf_type_module
      integer  :: k_age                      ! number of steps taken at current order
      real(dp_t) :: tq(-1:2)                 ! error coefficients (test quality)
      real(dp_t) :: tq2save
-     !real(dp_t) :: temp_data
-     !real(dp_t) :: temp_data(3,1,0:3) !z-like, if max_order=3
-     !real(dp_t) :: temp_data(0:3)     !l-like, if max_order=3
-     real(dp_t) :: temp_data(2,1)
      logical  :: refactor
 
-     real(dp_t), allocatable :: J(:,:,:)        ! Jacobian matrix
-     real(dp_t), allocatable :: P(:,:,:)        ! Newton iteration matrix
-     real(dp_t), allocatable :: z(:,:,:)        ! Nordsieck histroy array, indexed as (dof, p, n)
-     real(dp_t), allocatable :: z0(:,:,:)       ! Nordsieck predictor array
-     real(dp_t), allocatable :: h(:)            ! time steps, h = [ h_n, h_{n-1}, ..., h_{n-k} ]
-     real(dp_t), allocatable :: l(:)            ! predictor/corrector update coefficients
-     real(dp_t), allocatable :: shift(:)        ! scratch array to hold shifted arrays
-     real(dp_t), allocatable :: upar(:,:)       ! array of user parameters (passed to
-     !    user's Jacobian and f)
-     real(dp_t), allocatable :: y(:,:)          ! current y
-     real(dp_t), allocatable :: yd(:,:)         ! current \dot{y}
-     real(dp_t), allocatable :: rhs(:,:)        ! solver rhs
-     real(dp_t), allocatable :: e(:,:)          ! accumulated correction
-     real(dp_t), allocatable :: e1(:,:)         ! accumulated correction, previous step
-     real(dp_t), allocatable :: ewt(:,:)        ! cached error weights
-     real(dp_t), allocatable :: b(:,:)          ! solver work space
-     integer,    allocatable :: ipvt(:,:)         ! pivots (neq,npts)
-     integer,    allocatable :: A(:,:)            ! pascal matrix
+     real(dp_t) :: J(neqs,neqs,bdf_npt)               ! Jacobian matrix
+     real(dp_t) :: P(neqs,neqs,bdf_npt)               ! Newton iteration matrix
+     real(dp_t) :: z(neqs,bdf_npt,0:bdf_max_order)    ! Nordsieck histroy array, indexed as (dof, p, n)
+     real(dp_t) :: z0(neqs,bdf_npt,0:bdf_max_order)   ! Nordsieck predictor array
+     real(dp_t) :: h(0:bdf_max_order)                 ! time steps, h = [ h_n, h_{n-1}, ..., h_{n-k} ]
+     real(dp_t) :: l(0:bdf_max_order)                 ! predictor/corrector update coefficients
+     real(dp_t) :: shift(0:bdf_max_order)             ! scratch array to hold shifted arrays
+     real(dp_t) :: upar(n_rpar_comps,bdf_npt)         ! array of user parameters (passed to
+                                                      !    user's Jacobian and f)
+     real(dp_t) :: y(neqs,bdf_npt)                    ! current y
+     real(dp_t) :: yd(neqs,bdf_npt)                   ! current \dot{y}
+     real(dp_t) :: rhs(neqs,bdf_npt)                  ! solver rhs
+     real(dp_t) :: e(neqs,bdf_npt)                    ! accumulated correction
+     real(dp_t) :: e1(neqs,bdf_npt)                   ! accumulated correction, previous step
+     real(dp_t) :: ewt(neqs,bdf_npt)                  ! cached error weights
+     real(dp_t) :: b(neqs,bdf_npt)                    ! solver work space
+     integer    :: ipvt(neqs,bdf_npt)                 ! pivots (neq,npts)
+     integer    :: A(0:bdf_max_order,0:bdf_max_order) ! pascal matrix
 
      ! counters
      integer :: nfe                         ! number of function evaluations
