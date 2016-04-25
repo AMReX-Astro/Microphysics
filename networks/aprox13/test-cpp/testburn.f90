@@ -9,13 +9,14 @@ subroutine do_burn() bind (C)
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 3.125d-5
+  double precision :: time = 0.0, dt = 2.5d-4
 
   type (eos_t) :: eos_state
 
   character (len=32) :: probin_file
   integer :: probin_pass(32)
   integer :: i
+  double precision :: start, finish
 
   probin_file = "probin"
   do i = 1, len(trim(probin_file))
@@ -28,22 +29,22 @@ subroutine do_burn() bind (C)
   call burner_init()
   call eos_init()
 
-  state_in % rho       = 2.2933907037204478d7
-  state_in % T         = 5.3757726209940176d9
+  state_in % rho       = 19134047.319619529d0
+  state_in % T         = 2091535024.9521415d0
 
-  state_in % xn(ihe4)  = 5.8278210351460392d-2
-  state_in % xn(ic12)  = 6.8334315299861196d-7
-  state_in % xn(io16)  = 2.4687369464161301d-6
-  state_in % xn(ine20) = 4.0170490921084967d-8
-  state_in % xn(img24) = 1.1540561661029377d-5
-  state_in % xn(isi28) = 1.3242394917027779d-2
-  state_in % xn(is32)  = 2.0543812858533062d-2
-  state_in % xn(iar36) = 1.5796293927450564d-2
-  state_in % xn(ica40) = 2.7812814474560826d-2
-  state_in % xn(iti44) = 7.6968156633668591d-4
-  state_in % xn(icr48) = 5.2978509402914617d-3
-  state_in % xn(ife52) = 6.1483728449529436d-2
-  state_in % xn(ini56) = 7.9676047970255859d-1
+  state_in % xn(ihe4)  = 5.7883378521362706d-005
+  state_in % xn(ic12)  = 0.39011705806048469d0
+  state_in % xn(io16)  = 0.45214212005419885d0 
+  state_in % xn(ine20) = 0.12165391998665546d0
+  state_in % xn(img24) = 3.4000133879978744d-002
+  state_in % xn(isi28) = 2.0242732826176763d-003   
+  state_in % xn(is32)  = 4.6061465566806610d-006   
+  state_in % xn(iar36) = 5.2044648939936637d-009
+  state_in % xn(ica40) = 2.5216462475548033d-012   
+  state_in % xn(iti44) = 1.0000646156113865d-012
+  state_in % xn(icr48) = 1.0000116722154411d-012   
+  state_in % xn(ife52) = 1.0000093693211233d-012   
+  state_in % xn(ini56) = 1.0000083281605682d-012
 
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T
