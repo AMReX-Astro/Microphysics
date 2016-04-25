@@ -39,11 +39,12 @@ contains
     use integrator_module, only: integrator_init
     use screening_module, only: screening_init
     use rates_module, only: rates_init
-    use integration_data, only: temp_scale
+    use integration_data, only: temp_scale, ener_scale
 
     implicit none
 
     temp_scale = 1.0d9
+    ener_scale = c_light * c_light
 
     ratenames(ir3a)   = 'r3a  '
     ratenames(irg3a)  = 'rg3a '

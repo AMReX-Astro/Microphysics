@@ -39,8 +39,11 @@ contains
     use integrator_module, only: integrator_init
     use rates_module, only: rates_init
     use screening_module, only: screening_init
+    use integration_data, only: ener_scale
 
     implicit none
+
+    ener_scale = c_light * c_light
 
     ! set the names of the reaction rates
     ratenames(ircag)   = 'rcag '
