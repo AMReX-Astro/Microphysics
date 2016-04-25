@@ -33,7 +33,7 @@ contains
     type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
 
-    call do_burn(state_in, state_out, dt, time)
+    call integrator(state_in, state_out, dt, time)
 
   end subroutine actual_burner
 
