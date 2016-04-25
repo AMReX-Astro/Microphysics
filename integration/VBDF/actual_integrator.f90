@@ -37,6 +37,7 @@ contains
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
+    use integration_data, only: ener_scale
 
     implicit none
 
@@ -68,12 +69,6 @@ contains
     double precision :: sum
     double precision :: retry_change_factor
 
-    allocate(upar(n_rpar_comps, bdf_npt))
-    allocate(y0(neqs, bdf_npt), y1(neqs, bdf_npt))
-
-    ! Build the bdf_ts time-stepper object
-    call bdf_ts_build(ts, neqs, bdf_npt, rtol, atol, MAX_ORDER, upar)
-
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
     !
@@ -89,8 +84,11 @@ contains
     rtol(net_itemp) = rtol_temp ! temperature
     rtol(net_ienuc) = rtol_enuc ! energy generated
 
-    ts % atol = atol
-    ts % rtol = rtol
+    allocate(upar(n_rpar_comps, bdf_npt))
+    allocate(y0(neqs, bdf_npt), y1(neqs, bdf_npt))
+
+    ! Build the bdf_ts time-stepper object
+    call bdf_ts_build(ts, neqs, bdf_npt, rtol, atol, MAX_ORDER, upar)
 
     ! Initialize the integration time.
 
@@ -188,8 +186,9 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', ts % y(net_itemp,1) * temp_scale
-       print *, 'xn current = ', ts % y(1:nspec,1)
-       print *, 'energy generated = ', ts % y(net_ienuc,1)
+       print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
+            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(1:nspec_evolve)
+       print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale
 
        if (.not. retry_burn) then
 
@@ -246,7 +245,7 @@ contains
     ! but we will discard it and call the EOS to get a final temperature
     ! consistent with this new energy.
 
-    eos_state_out % e = eos_state_in % e + ts % y(net_ienuc,1)
+    eos_state_out % e = eos_state_in % e + ts % y(net_ienuc,1) * ener_scale
 
     eos_state_out % reset = .true.
 
@@ -254,18 +253,20 @@ contains
 
     call eos_to_burn(eos_state_out, state_out)
 
-    call bdf_ts_destroy(ts)
-
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, ' energy released: ', ts % y(net_ienuc,1)
+       print *, 'dens: ', state_out % rho
+       print *, ' temp: ', state_out % T
+       print *, ' energy released: ', ts % y(net_ienuc,1) * ener_scale
        print *, 'number of steps taken: ', ts % n
        print *, 'number of f evaluations: ', ts % nfe
 
     endif
+
+    call bdf_ts_destroy(ts)
 
   end subroutine actual_integrator
 

@@ -87,6 +87,7 @@ contains
     use rpar_indices
     use burn_type_module
     use bl_constants_module
+    use integration_data
 
     implicit none
 
@@ -101,6 +102,7 @@ contains
     y(net_itemp)                             = state % T / temp_scale
     y(1:nspec_evolve)                        = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
+    y(net_ienuc)                             = state % e / ener_scale
     rpar(irp_cp)                             = state % cp
     rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
@@ -145,6 +147,7 @@ contains
     use rpar_indices
     use burn_type_module
     use bl_constants_module
+    use integration_data
 
     implicit none
 
@@ -158,6 +161,7 @@ contains
     state % T        = y(net_itemp) * temp_scale
     state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec)
+    state % e        = y(net_ienuc) * ener_scale
     state % cp       = rpar(irp_cp)
     state % cv       = rpar(irp_cv)
     state % abar     = rpar(irp_abar)

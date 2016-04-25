@@ -88,6 +88,7 @@ contains
     use burn_type_module
     use bl_constants_module
     use bdf_type_module
+    use integration_data
 
     implicit none
 
@@ -99,6 +100,7 @@ contains
     ts % upar(irp_dens,1)                           = state % rho / dens_scale
     ts % y(net_itemp,1)                             = state % T / temp_scale
     ts % y(1:nspec_evolve,1)                        = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
+    ts % y(net_ienuc,1)                             = state % e / ener_scale
     ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
     ts % upar(irp_cp,1)                             = state % cp
     ts % upar(irp_cv,1)                             = state % cv
@@ -117,6 +119,9 @@ contains
 
     ts % J(:,:,1) = state % jac
     ts % J(net_itemp,:,1) = ts % J(net_itemp,:,1) / temp_scale
+
+    ts % yd(net_ienuc,1) = ts % yd(net_ienuc,1) / ener_scale
+    ts % J(net_ienuc,:,1) = ts % J(net_ienuc,:,1) / ener_scale
 
     do i = 1, num_rate_groups
        ts % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1,1) = state % rates(i,:)
@@ -141,6 +146,7 @@ contains
     use burn_type_module
     use bl_constants_module
     use bdf_type_module
+    use integration_data
 
     implicit none
 
@@ -151,6 +157,7 @@ contains
 
     state % rho      = ts % upar(irp_dens,1) * dens_scale
     state % T        = ts % y(net_itemp,1) * temp_scale
+    state % e        = ts % y(net_ienuc,1) * ener_scale
     state % xn(1:nspec_evolve) = ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:nspec)
     state % cp       = ts % upar(irp_cp,1)
