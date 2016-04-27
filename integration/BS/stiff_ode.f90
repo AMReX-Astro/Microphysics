@@ -42,7 +42,7 @@ contains
     integer, intent(out) :: ierr
 
     external f_rhs
-  
+
     real(kind=dp_t) :: y(neq), yscal(neq)
 
     ! initialize
@@ -57,22 +57,22 @@ contains
        ! get the scaling
        call f_rhs(t, y, dydt)
        yscal(:) =  abs(y(:)) + abs(dt*dydt(:)) + SMALL
-       
+
        ! make sure we don't overshoot the ending time
        if (t + dt > tmax) dt = tmax - t
-       
+
        ! take a step -- this routine will update the solution vector,
        ! advance the time, and also give an estimate of the next step
        ! size
        call single_step()
-       
+
        ! finished?
        if (t - tmax >= ZERO) then
           yinit(:) = y(:)
           finished = .true.
           exit
        endif
-       
+
        dt = dt_next
 
        if (dt < dt_min) then
@@ -91,7 +91,7 @@ contains
 
   type integrator_t
      logical :: first
-     real(kind=dp_t) :: eps_old 
+     real(kind=dp_t) :: eps_old
      real(kind=dp_t) :: dt_did
      real(kind=dp_t) :: dt_next
      real(kind=dp_t) :: a(KMAXX+1)
@@ -109,7 +109,7 @@ contains
     real(kind=dp_t), intent(in) :: t0, dt_tot
     integer, intent(in) :: N_sub
     real(kind=dp_t), intent(out) :: y_out(neq)
-    
+
     external f_rhs
 
     ! substep size
@@ -159,7 +159,7 @@ contains
   end subroutine semi_implicit_extrap
 
 
-  subroutine single_step(y, dydt, neq, t, dt_try, eps, yscal, int_stat, f_rhs)
+  subroutine single_step(y, dydt, neq, t, dt_try, eps, yscal, int_stat, f_rhs, ierr)
 
     integer, intent(in) :: neq
     real(kind=dp_t), intent(inout) :: y(neq)
@@ -167,6 +167,7 @@ contains
     real(kind=dp_t), intent(in) :: t, dt_try
     real(kind=dp_t), intent(in) :: eps, yscal
     type(integrator_t), intent(inout) :: int_stat
+    integer, intent(out) :: ierr
 
     external f_rhs
 
@@ -196,7 +197,7 @@ contains
        do k = 1, KMAXX
           int_state % a(k+1) = int_state % a(k) + nseq(k+1)
        enddo
-          
+
 
        ! optimal row number
        do kopt = 2, KMAXX-1
@@ -218,43 +219,144 @@ contains
        int_state % kopt = kmax
     endif
 
-    reduct = .false.
+    reduce = .false.
 
     ierr = IERR_NONE
 
     converged = .false.
 
-    do k = 1, kmax
-       tnew = t + dt
-       if (tnew == t) then
-          ierr = IERR_DT_UNDERFLOW
-          break
-       endif
-
-       call semi_implicit_extrap(y_save, dydt, dfdy, neq, t, dt, nseq(k), yseq, f_rhs)
-       
-       xest = (dt/nseq(k))**2
-
-       call pzextr(k, xest, yseq, y, yerr, neq)
-
-       if (k /= 1) then
-          err_max = max(SMALL, abs(yerr(:)/yscal(:)))
-          err_max = err_max / eps
-          km = k - 1
-          err(km) = (err_max/S1)**(1.0/(2*km+1))
-       endif
-
-       if (k /= 1 .and. (k >=  int_stat % kopt-1 .or. int_stat % first)) then
-          if (err_max < 1) then
-             converged = .true.
+    do while (.not. converged .and. ierr == IERR_NONE)
+       do k = 1, kmax
+          int_stat % tnew = t + dt
+          if (int_stat % tnew == t) then
+             ierr = IERR_DT_UNDERFLOW
              break
           endif
 
+          call semi_implicit_extrap(y_save, dydt, dfdy, neq, t, dt, nseq(k), yseq, f_rhs)
+
+          xest = (dt/nseq(k))**2
+
+          call pzextr(k, xest, yseq, y, yerr, neq)
+
+          if (k /= 1) then
+             err_max = max(SMALL, abs(yerr(:)/yscal(:)))
+             err_max = err_max / eps
+             km = k - 1
+             err(km) = (err_max/S1)**(1.0/(2*km+1))
+          endif
+
+          if (k /= 1 .and. (k >=  int_stat % kopt-1 .or. int_stat % first)) then
+             if (err_max < 1) then
+                converged = .true.
+                exit
+             endif
+
+             ! reduce stepsize if necessary
+             if (k == int_stat % kmax .or. k == int_stat % kopt+1) then
+                red = S2/err(km)
+                reduce = .true.
+                exit
+             else if (k == int_stat % kopt) then
+                if (int_stat % alpha(int_stat % kopt-1, int_stat % kopt-1) < err(km)) then
+                   red = ONE/err(km)
+                   reduce = .true.
+                   exit
+                endif
+             else if (int_stat % kopt == int_stat % kmax) then
+                if (int_stat % alpha(km, int_stat % kmax-1) < err(km)) then
+                   red = int_stat % alpha(km, int_stat % kmax-1)*S2/err(km)
+                   reduce = .true.
+                   exit
+                endif
+             else if (int_stat % alpha(km, int_stat % kopt) < err(km)) then
+                red = int_stat % alpha(km, int_stat % kopt - 1)/err(km)
+                reduce = .true.
+                exit
+             endif
+
+          endif
+
+       enddo
+
+       if (.not. converged .and. IERR == IERR_NONE) then
+          red = max(min(red, REDMIN), REDMAX)
+          dt = dt*red
+       else
+          ! we've either converged or hit and error
+          exit
+       endif
+    enddo   ! while loop
+
+    t = int_stat % tnew
+    int_stat % dt_did = dt
+    int_stat % first = .false.
+
+    ! optimal convergence properties
+    work_min = 1.e35
+    do kk = 1, km
+       fac = max(err(kk), SCALMX)
+       work = fac*int_stat % a(kk+1)
+
+       if (work < work_min) then
+          scale = fac
+          work_min = work
+          int_stat % kopt = kk+1
+       endif
+    enddo
+
+    ! increase in order
+    int_stat % dt_next = dt / scale
+
+    if (int_stat % kopt >= k .and. int_stat % kopt /= int_stat % kmax .and. .not. reduce) then
+       fac = max(scale/int_stat % alpha(int_stat % kopt-1, int_stat % kopt), SCALMX)
+       if (int_stat % a(int_stat % kopt+1)*fac <= work_min) then
+          int_stat % dt_next = dt/fac
+          int_stat % kopt = int_stat % kopt + 1
+       endif
+    endif
 
   end subroutine single_step
 
-end module stiff_ode
-  
-  
 
-  
+  subroutine poly_extrap(iest, test, yest, yz, dy, neq)
+
+    integer, intent(in) :: iest, neq
+    real(kind=dp_t), intent(in) :: test, yest(neq)
+    real(kind=dp_t), intent(inout) :: yz(neq), dy(neq)
+
+    ! these are for internal storage to save the state between calls
+    real(kind=dp_t), intent(inout) :: t(KMAXX+1), qcol(neq, KMAXX+1)
+
+    integer :: j, k
+    real(kind=dp_t) :: delta, f1, f2, q, d(neq)
+
+    t(iest) = test
+
+    dy(:) = yest(:)
+    yz(:) = yest(:)
+
+    if (iest == 1) then
+       qcol(:,1) = yest(:)
+    else
+       d(:) = yest(:)
+       do k = 1, iest-1
+          delta = ONE/(t(iest-k)-test)
+          f1 = test*delta
+          f2 = t(iest-k1)*delta
+          do j = 1, nv
+             q = qcol(j,k)
+             qcol(j,k) = dy(j)
+             delta = d(j) - q
+             dy(j) = f1*delta
+             d(j) = f2*delta
+             yz(j) = yz(j) + dy(k)
+          enddo
+       enddo
+       qcol(:,iest) = dy(:)
+    endif
+
+  end subroutine poly_extrap
+
+end module stiff_ode
+
