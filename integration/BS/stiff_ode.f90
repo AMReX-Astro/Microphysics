@@ -8,6 +8,11 @@ module stiff_ode
 
   implicit none
 
+  real(kind=dp_t), parameter :: ZERO = 0.0_dp_t
+  real(kind=dp_t), parameter :: ONE = 1.0_dp_t
+  real(kind=dp_t), parameter :: TWO = 2.0_dp_t
+
+
   real(kind=dp_t), parameter :: dt_min = 1.d-20
   real(kind=dp_t), parameter :: dt_ini = 1.d-10
   real(kind=dp_t), parameter :: SMALL = 1.d-30
@@ -15,8 +20,8 @@ module stiff_ode
   integer, parameter :: MAX_STEPS = 10000
 
   ! BS parameters -- see the discussion in 16.4
-  integer, parameter :: KMAX = 7
-  integer, parameter, dimension(KMAX+1) = [2, 6, 10, 14, 22, 34, 50, 70]
+  integer, parameter :: KMAXX = 7
+  integer, parameter, dimension(KMAXX+1) :: nseq(KMAXX+1) = [2, 6, 10, 14, 22, 34, 50, 70]
 
   ! error codes
   integer, parameter :: IERR_NONE = 0
@@ -28,6 +33,22 @@ module stiff_ode
 
   real(kind=dp_t), parameter :: S1 = 0.25_dp_t
   real(kind=dp_t), parameter :: S2 = 0.7_dp_t
+
+  real(kind=dp_t), parameter :: REDMIN = 0.7_dp_t
+  real(kind=dp_t), parameter :: REDMAX = 1.e-5_dp_t
+  real(kind=dp_t), parameter :: SCALMX = 0.1_dp_t
+
+  type integrator_t
+     logical :: first
+     real(kind=dp_t) :: eps_old
+     real(kind=dp_t) :: dt_did
+     real(kind=dp_t) :: dt_next
+     real(kind=dp_t) :: a(KMAXX+1)
+     real(kind=dp_t) :: alpha(KMAXX, KMAXX)
+     real(kind=dp_t) :: t_new
+     integer :: kmax
+     integer :: kopt
+  end type integrator_t
 
 contains
 
@@ -43,11 +64,12 @@ contains
 
     external f_rhs
 
-    real(kind=dp_t) :: y(neq), yscal(neq)
+    real(kind=dp_t) :: y(neq), yscal(neq), dydt(neq)
+    real(kind=dp_t) :: dt, dt_next
 
     ! initialize
     y(:) = yinit(:)
-    dt = dtini
+    dt = dt_ini
 
     finished = .false.
     ierr = IERR_NONE
@@ -76,7 +98,7 @@ contains
        dt = dt_next
 
        if (dt < dt_min) then
-          ierr = ERR_DT_TOO_SMALL
+          ierr = IERR_DT_TOO_SMALL
           exit
        endif
 
@@ -89,19 +111,6 @@ contains
   end subroutine ode
 
 
-  type integrator_t
-     logical :: first
-     real(kind=dp_t) :: eps_old
-     real(kind=dp_t) :: dt_did
-     real(kind=dp_t) :: dt_next
-     real(kind=dp_t) :: a(KMAXX+1)
-     real(kind=dp_t) :: alpha(KMAXX, KMAXX)
-     real(kind=dp_t) :: t_new
-     integer :: kmax
-     integer :: kopt
-  end type integrator_t
-
-
   subroutine semi_implicit_extrap(y, dydt, J, neq, t0, dt_tot, N_sub, y_out, f_rhs)
 
     integer, intent(in) :: neq
@@ -112,13 +121,21 @@ contains
 
     external f_rhs
 
+    real(kind=dp_t) :: A(neq,neq)
+    real(kind=dp_t) :: del(neq), y_temp(neq), dydt_h(neq)
+    real(kind=dp_t) :: h
+
+    integer :: n
+
+    real(kind=dp_t) :: t
+
     ! substep size
     h = dt_tot/N_sub
 
     ! I - h J
-    a(:,:) = -h*J(:,:)
-    do i = 1, neq
-       a(i,i) = 1.0 + a(i,i)
+    A(:,:) = -h*J(:,:)
+    do n = 1, neq
+       A(n,n) = ONE + A(n,n)
     enddo
 
     ! get the LU decomposition from LAPACK
@@ -145,7 +162,7 @@ contains
        y_temp(:) = y_temp(:) + del(:)
 
        t = t + h
-       call f_rhs(t, y_tmp, dydt_h)
+       call f_rhs(t, y_temp, dydt_h)
     enddo
 
     y_out(:) = h*dydt_h(:) - del(:)
@@ -165,37 +182,50 @@ contains
     real(kind=dp_t), intent(inout) :: y(neq)
     real(kind=dp_t), intent(out) :: dydt(neq)
     real(kind=dp_t), intent(in) :: t, dt_try
-    real(kind=dp_t), intent(in) :: eps, yscal
+    real(kind=dp_t), intent(in) :: eps
+    real(kind=dp_t), intent(in) :: yscal(neq)
     type(integrator_t), intent(inout) :: int_stat
     integer, intent(out) :: ierr
 
     external f_rhs
 
+    real(kind=dp_t) :: y_save(neq), yerr(neq)
+    real(kind=dp_t) :: err(KMAXX)
+
+    real(kind=dp_t) :: dfdy(neq, neq)
+
+    real(kind=dp_t) :: dt, fac, scale, red, err_max, eps1, work, work_min, xest
+
+    logical :: converged, reduce
+
+    integer :: i, k, kk, km, kopt
+
+
     ! reinitialize
-    if (eps /= ini_stat % eps_old) then
-       dt_next = -1.d29
-       int_state % t_new = -1.d29
+    if (eps /= int_stat % eps_old) then
+       int_stat % dt_next = -1.d29
+       int_stat % t_new = -1.d29
        eps1 = S1*eps
 
-       int_state % a(1) = nseq(1)+1
+       int_stat % a(1) = nseq(1)+1
        do k = 1, KMAXX
-          int_state % a(k+1) = int_state % a(k) + nseq(k+1)
+          int_stat % a(k+1) = int_stat % a(k) + nseq(k+1)
        enddo
 
        ! compute alpha coefficients (NR 16.4.10)
        do i = 2, KMAXX
           do k = 1, i-1
-             int_state % alpha(k,i) = &
-                  eps1**((int_state % a(k+1) - int_state % a(i+1)) / &
-                         ((int_state % a(i+1) - int_state % a(1) + ONE)*(2*k+1)))
+             int_stat % alpha(k,i) = &
+                  eps1**((int_stat % a(k+1) - int_stat % a(i+1)) / &
+                         ((int_stat % a(i+1) - int_stat % a(1) + ONE)*(2*k+1)))
           enddo
        enddo
 
        int_stat % eps_old = eps
 
-       int_state % a(1) = neq + int_state % a(1)
+       int_stat % a(1) = neq + int_stat % a(1)
        do k = 1, KMAXX
-          int_state % a(k+1) = int_state % a(k) + nseq(k+1)
+          int_stat % a(k+1) = int_stat % a(k) + nseq(k+1)
        enddo
 
 
@@ -203,8 +233,8 @@ contains
        do kopt = 2, KMAXX-1
           if (a(kopt+1) > a(kopt)*alpha(kopt-1,kopt)) exit
        enddo
-       int_state % kmax = kopt
-       int_state % kopt = kopt
+       int_stat % kmax = int_stat % kopt
+       int_stat % kopt = int_stat % kopt
 
     endif
 
@@ -214,9 +244,9 @@ contains
     ! get the jacobian
     call jac(t, y, dfdy)
 
-    if (dt /= int_state % dt_next .or. t /= t_new) then
-       int_state % first = .true.
-       int_state % kopt = kmax
+    if (dt /= int_stat % dt_next .or. t /= int_stat % t_new) then
+       int_stat % first = .true.
+       int_stat % kopt = int_stat % kmax
     endif
 
     reduce = .false.
@@ -226,11 +256,11 @@ contains
     converged = .false.
 
     do while (.not. converged .and. ierr == IERR_NONE)
-       do k = 1, kmax
-          int_stat % tnew = t + dt
-          if (int_stat % tnew == t) then
+       do k = 1, int_stat % kmax
+          int_stat % t_new = t + dt
+          if (int_stat % t_new == t) then
              ierr = IERR_DT_UNDERFLOW
-             break
+             exit
           endif
 
           call semi_implicit_extrap(y_save, dydt, dfdy, neq, t, dt, nseq(k), yseq, f_rhs)
@@ -288,7 +318,7 @@ contains
        endif
     enddo   ! while loop
 
-    t = int_stat % tnew
+    t = int_stat % t_new
     int_stat % dt_did = dt
     int_stat % first = .false.
 
@@ -319,7 +349,7 @@ contains
   end subroutine single_step
 
 
-  subroutine poly_extrap(iest, test, yest, yz, dy, neq)
+  subroutine poly_extrap(iest, test, yest, yz, dy, neq, t, qcol)
 
     integer, intent(in) :: iest, neq
     real(kind=dp_t), intent(in) :: test, yest(neq)
@@ -343,8 +373,8 @@ contains
        do k = 1, iest-1
           delta = ONE/(t(iest-k)-test)
           f1 = test*delta
-          f2 = t(iest-k1)*delta
-          do j = 1, nv
+          f2 = t(iest-k)*delta
+          do j = 1, neq
              q = qcol(j,k)
              qcol(j,k) = dy(j)
              delta = d(j) - q
