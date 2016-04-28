@@ -3,7 +3,7 @@ FFLAGS = -c
 
 LA_DIRS := $(CASTRO_DIR)/Util/VODE $(CASTRO_DIR)/Util/BLAS
 
-f90sources = stiff_ode.f90 bl_types.f90
+f90sources = stiff_ode.f90 bl_types.f90 f_rhs.f90 test.f90
 f90sources += $(notdir $(wildcard ../LAPACK/*.f90))
 
 fsources += $(notdir $(foreach dir, $(LA_DIRS), $(wildcard $(dir)/*.f)))

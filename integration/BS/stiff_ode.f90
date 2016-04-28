@@ -161,7 +161,7 @@ contains
     y_temp(:) = y(:) + del(:)
 
     t = t + h
-    call f_rhs(t, y_temp, dydt_h)
+    call f_rhs(neq, t, y_temp, dydt_h)
 
     do n = 2, N_sub
        y_out(:) = h*dydt_h(:) - del(:)
@@ -173,7 +173,7 @@ contains
        y_temp(:) = y_temp(:) + del(:)
 
        t = t + h
-       call f_rhs(t, y_temp, dydt_h)
+       call f_rhs(neq, t, y_temp, dydt_h)
     enddo
 
     y_out(:) = h*dydt_h(:) - del(:)
@@ -257,7 +257,7 @@ contains
     y_save(:) = y(:)
 
     ! get the jacobian
-    call jac(t, y, dfdy)
+    call jac(neq, t, y, dfdy)
 
     if (dt /= int_stat % dt_next .or. t /= int_stat % t_new) then
        int_stat % first = .true.
