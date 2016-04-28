@@ -1,5 +1,5 @@
 FC := gfortran
-FFLAGS = -c
+FFLAGS = -c -O2 -g -fbounds-check -fbacktrace -Wuninitialized -Wunused -ffpe-trap=invalid -finit-real=nan
 
 LA_DIRS := $(CASTRO_DIR)/Util/VODE $(CASTRO_DIR)/Util/BLAS
 

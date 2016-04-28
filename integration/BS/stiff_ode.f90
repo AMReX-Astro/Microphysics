@@ -82,7 +82,7 @@ contains
     do n = 1, MAX_STEPS
 
        ! get the scaling
-       call f_rhs(t, y, dydt)
+       call f_rhs(neq, t, y, dydt)
        yscal(:) =  abs(y(:)) + abs(dt*dydt(:)) + SMALL
 
        ! make sure we don't overshoot the ending time
@@ -102,7 +102,7 @@ contains
           exit
        endif
 
-       dt = dt_next
+       dt = int_stat % dt_next
 
        if (dt < dt_min) then
           ierr = IERR_DT_TOO_SMALL
@@ -248,8 +248,9 @@ contains
        do kopt = 2, KMAXX-1
           if (int_stat % a(kopt+1) > int_stat % a(kopt)* int_stat % alpha(kopt-1,kopt)) exit
        enddo
+       int_stat % kopt = kopt
        int_stat % kmax = int_stat % kopt
-       int_stat % kopt = int_stat % kopt
+
 
     endif
 
@@ -271,7 +272,9 @@ contains
     converged = .false.
 
     do while (.not. converged .and. ierr == IERR_NONE)
+
        do k = 1, int_stat % kmax
+
           int_stat % t_new = t + dt
           if (int_stat % t_new == t) then
              ierr = IERR_DT_UNDERFLOW
@@ -395,7 +398,7 @@ contains
              delta = d(j) - q
              dy(j) = f1*delta
              d(j) = f2*delta
-             yz(j) = yz(j) + dy(k)
+             yz(j) = yz(j) + dy(j)
           enddo
        enddo
        qcol(:,iest) = dy(:)

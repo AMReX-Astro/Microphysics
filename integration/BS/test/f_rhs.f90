@@ -13,6 +13,7 @@ end subroutine f_rhs
 subroutine jac(neq, t, y, dfdy)
   integer, intent(in) :: neq
   double precision rpar, t, y(neq), dfdy(neq,neq)
+  dfdy(:,:) = 0.0d0
 
   dfdy(1,1) = -.04d0
   dfdy(1,2) = 1.d4*y(3)
