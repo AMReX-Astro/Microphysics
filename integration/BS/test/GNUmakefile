@@ -1,13 +1,15 @@
 FC := gfortran
 FFLAGS = -c
 
+LA_DIRS := $(CASTRO_DIR)/Util/VODE $(CASTRO_DIR)/Util/BLAS
+
 f90sources = stiff_ode.f90 bl_types.f90
 f90sources += $(notdir $(wildcard ../LAPACK/*.f90))
 
-fsources += $(notdir $(wildcard ../LAPACK/*.f))
+fsources += $(notdir $(foreach dir, $(LA_DIRS), $(wildcard $(dir)/*.f)))
 
 vpath %.f90 . ..
-vpath %.f . .. ../LAPACK
+vpath %.f . .. $(LA_DIRS)
 
 
 ALL: test.ex
