@@ -101,6 +101,8 @@
   subroutine jac(ts)
 
     use actual_rhs_module, only: actual_jac
+    use numerical_jac_module, only: numerical_jac
+    use extern_probin_module, only: jacobian
     use vbdf_convert_module
     use burn_type_module
     use bdf_type_module
@@ -116,7 +118,15 @@
     ! Call the specific network routine to get the Jacobian.
 
     call vbdf_to_burn(ts, state)
-    call actual_jac(state)
+
+    if (jacobian == 1) then
+       call actual_jac(state)
+    elseif (jacobian == 2) then
+       call numerical_jac(state)
+    else
+       call bl_error("Unknown Jacobian choice in subroutine jac.")
+    endif
+
     call burn_to_vbdf(state, ts)
 
   end subroutine jac
