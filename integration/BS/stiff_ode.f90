@@ -134,6 +134,8 @@ contains
 
     integer :: n
 
+    integer :: ipiv(neq, neq), ierr_lapack
+
     real(kind=dp_t) :: t
 
     ! substep size
@@ -146,6 +148,7 @@ contains
     enddo
 
     ! get the LU decomposition from LAPACK
+    call dgetfr(neq, neq, A, neq, ipiv, ierr_lapack)
 
     ! do an Euler step to get the RHS for the first substep
     t = t0
