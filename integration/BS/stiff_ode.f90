@@ -134,7 +134,7 @@ contains
 
     integer :: n
 
-    integer :: ipiv(neq, neq), ierr_lapack
+    integer :: ipiv(neq), ierr_linpack
 
     real(kind=dp_t) :: t
 
@@ -147,15 +147,15 @@ contains
        A(n,n) = ONE + A(n,n)
     enddo
 
-    ! get the LU decomposition from LAPACK
-    call dgetfr(neq, neq, A, neq, ipiv, ierr_lapack)
+    ! get the LU decomposition from LIPACK
+    call dgefa(A, neq, neq, ipiv, ierr_linpack)
 
     ! do an Euler step to get the RHS for the first substep
     t = t0
     y_out(:) = h*dydt(:)
 
     ! solve the first step using the LU solver
-
+    call dgesl(A, neq, neq, ipiv, y_out, 0)
 
     del(:) = y_out(:)
     y_temp(:) = y(:) + del(:)
@@ -167,6 +167,7 @@ contains
        y_out(:) = h*dydt_h(:) - del(:)
 
        ! LU solve
+       call dgesl(A, neq, neq, ipiv, y_out, 0)
 
        del(:) = del(:) + TWO*y_out(:)
        y_temp(:) = y_temp(:) + del(:)
@@ -178,7 +179,7 @@ contains
     y_out(:) = h*dydt_h(:) - del(:)
 
     ! last LU solve
-
+    call dgesl(A, neq, neq, ipiv, y_out, 0)
 
     ! last step
     y_out(:) = y_temp(:) + y_out(:)
