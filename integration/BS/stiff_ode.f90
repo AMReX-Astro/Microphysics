@@ -66,6 +66,11 @@ contains
 
     real(kind=dp_t) :: y(neq), yscal(neq), dydt(neq)
     real(kind=dp_t) :: dt, dt_next
+    logical :: finished
+
+    type (integrator_t) :: int_stat
+
+    integer :: n
 
     ! initialize
     y(:) = yinit(:)
@@ -86,7 +91,9 @@ contains
        ! take a step -- this routine will update the solution vector,
        ! advance the time, and also give an estimate of the next step
        ! size
-       call single_step()
+       call single_step(y, dydt, neq, t, dt, eps, yscal, int_stat, f_rhs, ierr)
+
+       if (.not. ierr == IERR_NONE) exit
 
        ! finished?
        if (t - tmax >= ZERO) then
@@ -181,7 +188,8 @@ contains
     integer, intent(in) :: neq
     real(kind=dp_t), intent(inout) :: y(neq)
     real(kind=dp_t), intent(out) :: dydt(neq)
-    real(kind=dp_t), intent(in) :: t, dt_try
+    real(kind=dp_t), intent(inout) :: t
+    real(kind=dp_t), intent(in) :: dt_try
     real(kind=dp_t), intent(in) :: eps
     real(kind=dp_t), intent(in) :: yscal(neq)
     type(integrator_t), intent(inout) :: int_stat
@@ -189,17 +197,20 @@ contains
 
     external f_rhs
 
-    real(kind=dp_t) :: y_save(neq), yerr(neq)
+    real(kind=dp_t) :: y_save(neq), yerr(neq), yseq(neq)
     real(kind=dp_t) :: err(KMAXX)
 
     real(kind=dp_t) :: dfdy(neq, neq)
 
-    real(kind=dp_t) :: dt, fac, scale, red, err_max, eps1, work, work_min, xest
+    real(kind=dp_t) :: dt, fac, scale, red, eps1, work, work_min, xest
+    real(kind=dp_t) :: err_max
 
     logical :: converged, reduce
 
     integer :: i, k, kk, km, kopt
 
+    ! for internal storage of the polynomial extrapolation
+    real(kind=dp_t) :: t_extrap(KMAXX+1), qcol(neq, KMAXX+1)
 
     ! reinitialize
     if (eps /= int_stat % eps_old) then
@@ -231,7 +242,7 @@ contains
 
        ! optimal row number
        do kopt = 2, KMAXX-1
-          if (a(kopt+1) > a(kopt)*alpha(kopt-1,kopt)) exit
+          if (int_stat % a(kopt+1) > int_stat % a(kopt)* int_stat % alpha(kopt-1,kopt)) exit
        enddo
        int_stat % kmax = int_stat % kopt
        int_stat % kopt = int_stat % kopt
@@ -267,10 +278,10 @@ contains
 
           xest = (dt/nseq(k))**2
 
-          call pzextr(k, xest, yseq, y, yerr, neq)
+          call poly_extrap(k, xest, yseq, y, yerr, neq, t_extrap, qcol)
 
           if (k /= 1) then
-             err_max = max(SMALL, abs(yerr(:)/yscal(:)))
+             err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
              err_max = err_max / eps
              km = k - 1
              err(km) = (err_max/S1)**(1.0/(2*km+1))
