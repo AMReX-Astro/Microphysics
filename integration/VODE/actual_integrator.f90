@@ -73,6 +73,7 @@ contains
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
+    use integration_data, only: ener_scale
 
     implicit none
 
@@ -316,7 +317,7 @@ contains
     ! but we will discard it and call the EOS to get a final temperature
     ! consistent with this new energy.
 
-    eos_state_out % e = eos_state_in % e + y(net_ienuc)
+    eos_state_out % e = eos_state_in % e + y(net_ienuc) * ener_scale
 
     eos_state_out % reset = .true.
 
@@ -329,7 +330,8 @@ contains
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, ' energy released: ', y(net_ienuc)
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
+                ' energy released: ', state_out % e - state_in % e
        print *, 'number of steps taken: ', iwork(11)
        print *, 'number of f evaluations: ', iwork(12)
 
