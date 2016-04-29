@@ -118,11 +118,13 @@ contains
     if (present(ydot)) then
        ydot = state % ydot
        ydot(net_itemp) = ydot(net_itemp) / temp_scale
+       ydot(net_ienuc) = ydot(net_ienuc) / ener_scale
     endif
 
     if (present(jac)) then
        jac = state % jac
        jac(net_itemp,:) = jac(net_itemp,:) / temp_scale
+       jac(net_ienuc,:) = jac(net_ienuc,:) / ener_scale
     endif
 
     if (state % have_rates) then
