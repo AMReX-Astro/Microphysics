@@ -1,0 +1,6 @@
+f90EXE_sources += actual_integrator.f90
+f90EXE_sources += bs_convert.f90
+f90EXE_sources += bs_rhs.f90
+f90EXE_sources += bs_rpar.f90
+f90EXE_sources += stiff_ode.f90
+f90EXE_sources += bs_type.f90
