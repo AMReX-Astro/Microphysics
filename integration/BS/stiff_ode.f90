@@ -34,8 +34,8 @@ module stiff_ode
   real(kind=dp_t), parameter :: S1 = 0.25_dp_t
   real(kind=dp_t), parameter :: S2 = 0.7_dp_t
 
-  real(kind=dp_t), parameter :: REDMIN = 0.7_dp_t
-  real(kind=dp_t), parameter :: REDMAX = 1.e-5_dp_t
+  real(kind=dp_t), parameter :: RED_BIG_FACTOR = 0.7_dp_t
+  real(kind=dp_t), parameter :: RED_SMALL_FACTOR = 1.e-5_dp_t
   real(kind=dp_t), parameter :: SCALMX = 0.1_dp_t
 
   type integrator_t
@@ -118,13 +118,14 @@ contains
   end subroutine ode
 
 
-  subroutine semi_implicit_extrap(y, dydt, J, neq, t0, dt_tot, N_sub, y_out, f_rhs)
+  subroutine semi_implicit_extrap(y, dydt, J, neq, t0, dt_tot, N_sub, y_out, f_rhs, ierr)
 
     integer, intent(in) :: neq
     real(kind=dp_t), intent(in) :: y(neq), dydt(neq), J(neq, neq)
     real(kind=dp_t), intent(in) :: t0, dt_tot
     integer, intent(in) :: N_sub
     real(kind=dp_t), intent(out) :: y_out(neq)
+    integer, intent(out) :: ierr
 
     external f_rhs
 
@@ -138,6 +139,8 @@ contains
 
     real(kind=dp_t) :: t
 
+    ierr = IERR_NONE
+
     ! substep size
     h = dt_tot/N_sub
 
@@ -147,8 +150,12 @@ contains
        A(n,n) = ONE + A(n,n)
     enddo
 
-    ! get the LU decomposition from LIPACK
+    ! get the LU decomposition from LINPACK
     call dgefa(A, neq, neq, ipiv, ierr_linpack)
+
+    if (ierr_linpack /= 0) then
+       ierr = IERR_LU_DECOMPOSITION_ERROR
+    endif
 
     ! do an Euler step to get the RHS for the first substep
     t = t0
@@ -211,7 +218,8 @@ contains
 
     logical :: converged, reduce
 
-    integer :: i, k, kk, km, kopt
+    integer :: i, k, kk, km, ierr_temp
+
 
     ! for internal storage of the polynomial extrapolation
     real(kind=dp_t) :: t_extrap(KMAXX+1), qcol(neq, KMAXX+1)
@@ -243,14 +251,13 @@ contains
           int_stat % a(k+1) = int_stat % a(k) + nseq(k+1)
        enddo
 
-
        ! optimal row number
-       do kopt = 2, KMAXX-1
-          if (int_stat % a(kopt+1) > int_stat % a(kopt)* int_stat % alpha(kopt-1,kopt)) exit
+       do k = 2, KMAXX-1
+          if (int_stat % a(k+1) > int_stat % a(k)* int_stat % alpha(k-1,k)) exit
        enddo
-       int_stat % kopt = kopt
-       int_stat % kmax = int_stat % kopt
 
+       int_stat % kopt = k
+       int_stat % kmax = k
 
     endif
 
@@ -281,7 +288,8 @@ contains
              exit
           endif
 
-          call semi_implicit_extrap(y_save, dydt, dfdy, neq, t, dt, nseq(k), yseq, f_rhs)
+          call semi_implicit_extrap(y_save, dydt, dfdy, neq, t, dt, nseq(k), yseq, f_rhs, ierr_temp)
+          ierr = ierr_temp
 
           xest = (dt/nseq(k))**2
 
@@ -328,7 +336,7 @@ contains
        enddo
 
        if (.not. converged .and. IERR == IERR_NONE) then
-          red = max(min(red, REDMIN), REDMAX)
+          red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
           dt = dt*red
        else
           ! we've either converged or hit and error
@@ -369,6 +377,12 @@ contains
 
   subroutine poly_extrap(iest, test, yest, yz, dy, neq, t, qcol)
 
+    ! this does polynomial extrapolation according to the Neville
+    ! algorithm.  Given test and yest (t and a y-vector), this gives
+    ! the value yz and the error in the extrapolation, dy by
+    ! building a polynomial through the points, where the order
+    ! is iest
+
     integer, intent(in) :: iest, neq
     real(kind=dp_t), intent(in) :: test, yest(neq)
     real(kind=dp_t), intent(inout) :: yz(neq), dy(neq)
@@ -385,13 +399,18 @@ contains
     yz(:) = yest(:)
 
     if (iest == 1) then
+       ! nothing to do -- this is just a constant
        qcol(:,1) = yest(:)
     else
+       ! we have more than 1 point, so build higher order
+       ! polynomials
        d(:) = yest(:)
+
        do k = 1, iest-1
           delta = ONE/(t(iest-k)-test)
           f1 = test*delta
           f2 = t(iest-k)*delta
+
           do j = 1, neq
              q = qcol(j,k)
              qcol(j,k) = dy(j)
@@ -400,6 +419,7 @@ contains
              d(j) = f2*delta
              yz(j) = yz(j) + dy(j)
           enddo
+
        enddo
        qcol(:,iest) = dy(:)
     endif
