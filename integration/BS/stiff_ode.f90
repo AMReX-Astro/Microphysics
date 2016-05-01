@@ -37,8 +37,9 @@ contains
     integer :: n
 
     ! initialize
-    bs % dt = dt_ini
+
     bs % t = t
+    bs % tmax = tmax
 
     finished = .false.
     ierr = IERR_NONE
@@ -57,7 +58,12 @@ contains
        ! a hard-coded parameter odescal.
 
        call f_rhs(bs)
-       yscal(:) =  abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
+
+       if (n .eq. 1) then
+          call initial_timestep(bs)
+       endif
+
+       yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
 
        ! make sure we don't overshoot the ending time
        if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
@@ -91,6 +97,68 @@ contains
     endif
 
   end subroutine ode
+
+
+
+  subroutine initial_timestep(bs)
+
+    type (bs_t), intent(inout) :: bs
+
+    type (bs_t) :: bs_temp
+    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(neqs), eps, yscal(neqs), yddnorm
+    integer :: n
+
+    bs_temp = bs
+
+    eps = maxval(bs % rtol)
+
+    ! Initial lower and upper bounds on the timestep
+
+    hL = 100.0d0 * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
+    hU = 0.1d0 * abs(bs % tmax - bs % t)
+
+    ! Initial guess for the iteration
+
+    h = sqrt(hL * hU)
+
+    ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
+
+    do n = 1, 4
+
+       h_old = h
+
+       ! Get the scaling vector for the purposes of the error estimation.
+       ! We want this to be similar to the scaling vector that will be
+       ! used for the error estimation in the main loop.
+
+       yscal = eps * (abs(bs % y) + h * abs(bs % dydt) + SMALL)
+
+       ! Construct the trial point.
+
+       bs_temp % t = bs % t + h
+       bs_temp % y = bs % y + h * bs % dydt
+
+       ! Call the RHS, then estimate the finite difference.
+
+       call f_rhs(bs_temp)
+       ddydtt = (bs_temp % dydt - bs % dydt) / h
+
+       yddnorm = sqrt( sum( (ddydtt/yscal)**2 ) / neqs )
+       h = sqrt(TWO / yddnorm)
+
+       if (h_old < TWO * h .and. h_old > HALF * h) then
+          exit
+       endif
+
+    enddo
+
+    ! Save the final timestep, with a bias factor.
+
+    bs % dt = h / TWO
+    bs % dt = min(max(h, hL), hU)
+
+  end subroutine initial_timestep
+
 
 
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
