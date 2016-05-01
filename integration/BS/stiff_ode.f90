@@ -43,9 +43,17 @@ contains
     finished = .false.
     ierr = IERR_NONE
 
+    bs % eps_old = ZERO
+
     do n = 1, MAX_STEPS
 
-       ! get the scaling
+       ! Get the scaling.
+       ! Note that this is different from the way Frank Timmes' networks
+       ! do the scaling, even though we use the same underlying integration
+       ! scheme. In particular he does not use dy/dt in estimating the scaling
+       ! vector. Also, he limits the vector so that no element is smaller than
+       ! a hard-coded parameter odescal.
+
        call f_rhs(bs)
        yscal(:) =  abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
 
@@ -257,7 +265,6 @@ contains
           ierr = ierr_temp
 
           xest = (dt/nseq(k))**2
-
           call poly_extrap(k, xest, yseq, bs % y, yerr, neqs, t_extrap, qcol)
 
           if (k /= 1) then
@@ -279,7 +286,7 @@ contains
                 reduce = .true.
                 exit
              else if (k == bs % kopt) then
-                if (bs % alpha(bs % kopt-1, bs % kopt-1) < err(km)) then
+                if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
                    red = ONE/err(km)
                    reduce = .true.
                    exit
@@ -383,6 +390,7 @@ contains
              dy(j) = f1*delta
              d(j) = f2*delta
              yz(j) = yz(j) + dy(j)
+
           enddo
 
        enddo
