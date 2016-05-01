@@ -10,8 +10,8 @@ module stiff_ode
 
   implicit none
 
-  real(kind=dp_t), parameter, private :: dt_min = 1.d-20
-  real(kind=dp_t), parameter, private :: dt_ini = 1.d-10
+  real(kind=dp_t), parameter, private :: dt_min = 1.d-24
+  real(kind=dp_t), parameter, private :: dt_ini = 1.d-16
   real(kind=dp_t), parameter, private :: SMALL = 1.d-30
 
   integer, parameter, private :: MAX_STEPS = 10000
