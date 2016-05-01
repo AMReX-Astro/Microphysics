@@ -116,11 +116,10 @@ contains
 
     ts % yd(:,1) = state % ydot
     ts % yd(net_itemp,1) = ts % yd(net_itemp,1) / temp_scale
+    ts % yd(net_ienuc,1) = ts % yd(net_ienuc,1) / ener_scale
 
     ts % J(:,:,1) = state % jac
     ts % J(net_itemp,:,1) = ts % J(net_itemp,:,1) / temp_scale
-
-    ts % yd(net_ienuc,1) = ts % yd(net_ienuc,1) / ener_scale
     ts % J(net_ienuc,:,1) = ts % J(net_ienuc,:,1) / ener_scale
 
     if (state % have_rates) then
@@ -177,6 +176,14 @@ contains
     state % T_old    = ts % upar(irp_Told,1)
     state % dcvdt    = ts % upar(irp_dcvdt,1)
     state % dcpdt    = ts % upar(irp_dcpdt,1)
+
+    state % ydot = ts % yd(:,1)
+    state % ydot(net_itemp) = state % ydot(net_itemp) / temp_scale
+    state % ydot(net_ienuc) = state % ydot(net_ienuc) / ener_scale
+
+    state % jac = ts % J(:,:,1)
+    state % jac(net_itemp,:) = state % jac(net_itemp,:) / temp_scale
+    state % jac(net_ienuc,:) = state % jac(net_ienuc,:) / ener_scale
 
     if (ts % upar(irp_have_rates,1) > ZERO) then
        state % have_rates = .true.
