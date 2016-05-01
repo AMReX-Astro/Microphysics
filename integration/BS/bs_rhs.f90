@@ -30,7 +30,7 @@
 
     ! Ensure that the temperature always stays within reasonable limits.
 
-    bs % y(net_itemp) = min(1.0d11, max(bs % y(net_itemp), 1.0d4))
+    bs % y(net_itemp) = min(1.0d11 / temp_scale, max(bs % y(net_itemp), 1.0d4 / temp_scale))
 
     ! Optionally, renormalize them so they sum to unity.
 
