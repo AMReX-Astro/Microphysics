@@ -1,6 +1,6 @@
 module bs_convert_module
 
-  use integration_data, only: temp_scale, dens_scale
+  use integration_data, only: temp_scale, dens_scale, ener_scale
 
   implicit none
 
@@ -88,14 +88,13 @@ contains
     use burn_type_module
     use bl_constants_module
     use bs_type_module
-    use integration_data
 
     implicit none
 
     type (burn_t) :: state
     type (bs_t) :: bs
 
-    integer       :: i
+    integer :: i
 
     bs % upar(irp_dens)                           = state % rho / dens_scale
     bs % y(net_itemp)                             = state % T / temp_scale
@@ -114,13 +113,12 @@ contains
     bs % upar(irp_dcvdt)                          = state % dcvdt
     bs % upar(irp_dcpdt)                          = state % dcpdt
 
-    bs % dydt(:) = state % ydot
+    bs % dydt = state % ydot
     bs % dydt(net_itemp) = bs % dydt(net_itemp) / temp_scale
-
-    bs % jac(:,:) = state % jac
-    bs % jac(net_itemp,:) = bs % jac(net_itemp,:) / temp_scale
-
     bs % dydt(net_ienuc) = bs % dydt(net_ienuc) / ener_scale
+
+    bs % jac = state % jac
+    bs % jac(net_itemp,:) = bs % jac(net_itemp,:) / temp_scale
     bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) / ener_scale
 
     if (state % have_rates) then
@@ -153,14 +151,13 @@ contains
     use burn_type_module
     use bl_constants_module
     use bs_type_module
-    use integration_data
 
     implicit none
 
     type (burn_t) :: state
     type (bs_t) :: bs
 
-    integer       :: i
+    integer :: i
 
     state % rho      = bs % upar(irp_dens) * dens_scale
     state % T        = bs % y(net_itemp) * temp_scale
@@ -178,6 +175,14 @@ contains
     state % T_old    = bs % upar(irp_Told)
     state % dcvdt    = bs % upar(irp_dcvdt)
     state % dcpdt    = bs % upar(irp_dcpdt)
+
+    state % ydot = bs % dydt
+    state % ydot(net_itemp) = state % ydot(net_itemp) * temp_scale
+    state % ydot(net_ienuc) = state % ydot(net_ienuc) * ener_scale
+
+    state % jac = bs % jac
+    state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
+    state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
 
     if (bs % upar(irp_have_rates) > ZERO) then
        state % have_rates = .true.
