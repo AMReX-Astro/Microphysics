@@ -26,6 +26,11 @@
     ! Ensure that mass fractions always stay positive.
 
     bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-200) / aion(1:nspec_evolve)
+    bs % y(1:nspec_evolve) = min(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE) / aion(1:nspec_evolve)
+
+    ! Ensure that the temperature always stays within reasonable limits.
+
+    bs % y(net_itemp) = min(1.0d11, max(bs % y(net_itemp), 1.0d4))
 
     ! Optionally, renormalize them so they sum to unity.
 
@@ -118,6 +123,8 @@
     type (burn_t) :: state
 
     state % have_rates = .false.
+
+    bs % jac = ZERO
 
     ! Call the specific network routine to get the Jacobian.
 
