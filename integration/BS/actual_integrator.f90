@@ -233,7 +233,8 @@ contains
        print *, ' temp: ', state_out % T
        print *, ' energy released: ', bs % y(net_ienuc) * ener_scale
        print *, 'number of steps taken: ', bs % n
-!       print *, 'number of f evaluations: ', bs % nfe
+       print *, 'number of RHS evaluations: ', bs % n_rhs
+       print *, 'number of Jacobian evaluations: ', bs % n_jac
 
     endif
 

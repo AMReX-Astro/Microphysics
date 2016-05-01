@@ -92,6 +92,10 @@
     call actual_rhs(burn_state)
     call burn_to_bs(burn_state, bs)
 
+    ! Increment the evaluation counter.
+
+    bs % n_rhs = bs % n_rhs + 1
+
   end subroutine f_rhs
 
 
@@ -128,5 +132,9 @@
     endif
 
     call burn_to_bs(state, bs)
+
+    ! Increment the evaluation counter.
+
+    bs % n_jac = bs % n_jac + 1
 
   end subroutine jac

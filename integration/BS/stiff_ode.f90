@@ -44,6 +44,8 @@ contains
     ierr = IERR_NONE
 
     bs % eps_old = ZERO
+    bs % n_rhs = 0
+    bs % n_jac = 0
 
     do n = 1, MAX_STEPS
 
@@ -93,7 +95,7 @@ contains
 
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
 
-    type (bs_t), intent(in) :: bs
+    type (bs_t), intent(inout) :: bs
     real(kind=dp_t), intent(in) :: y(neqs)
     real(kind=dp_t), intent(in) :: dt_tot
     integer, intent(in) :: N_sub
@@ -133,6 +135,7 @@ contains
     endif
 
     bs_temp = bs
+    bs_temp % n_rhs = 0
 
     ! do an Euler step to get the RHS for the first substep
     t = bs % t
@@ -168,6 +171,10 @@ contains
     ! last step
     y_out(:) = bs_temp % y(:) + y_out(:)
 
+    ! Store the number of function evaluations.
+
+    bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
+
   end subroutine semi_implicit_extrap
 
 
@@ -178,8 +185,6 @@ contains
     real(kind=dp_t), intent(in) :: eps
     real(kind=dp_t), intent(in) :: yscal(neqs)
     integer, intent(out) :: ierr
-
-    external f_rhs, jac
 
     real(kind=dp_t) :: y_save(neqs), yerr(neqs), yseq(neqs)
     real(kind=dp_t) :: err(KMAXX)
