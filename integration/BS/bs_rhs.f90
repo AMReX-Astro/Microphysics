@@ -57,6 +57,11 @@
 
     call bs_to_eos(eos_state, bs)
 
+    ! If the temperature is smaller than the EOS can handle, allow it to
+    ! reset the temperature accordingly.
+
+    eos_state % reset = .true.
+
     ! Evaluate the thermodynamics -- if desired. Note that
     ! even if this option is selected, we don't need to do it
     ! for non-self-heating integrations because the temperature
