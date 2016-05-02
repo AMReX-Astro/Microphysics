@@ -79,6 +79,10 @@ contains
     rtol(net_itemp) = rtol_temp ! temperature
     rtol(net_ienuc) = rtol_enuc ! energy generated
 
+    ! Note that at present, we use a uniform error tolerance chosen
+    ! to be the largest of the relative error tolerances for any
+    ! equation. We may expand this capability in the future.
+
     bs % atol = atol
     bs % rtol = rtol
 
