@@ -55,6 +55,8 @@ contains
     ! Common approximation
     wion(:) = aion(:)
 
+    !$acc update device(aion, zion, bion, nion, mion, wion)
+
   end subroutine actual_network_init
 
   subroutine network_finalize()

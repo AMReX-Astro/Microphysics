@@ -14,7 +14,9 @@ module actual_network_data
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, save :: aion(nspec), zion(nspec), bion(nspec)
-  double precision, save :: nion(nspec), mion(nspec), wion(nspec)
+  double precision :: aion(nspec), zion(nspec), bion(nspec)
+  double precision :: nion(nspec), mion(nspec), wion(nspec)
+
+  !$acc declare create(aion, zion, bion, nion, mion, wion)
 
 end module actual_network_data
