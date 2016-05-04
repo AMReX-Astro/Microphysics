@@ -37,19 +37,6 @@ contains
 
 
 
-  subroutine ener_gener_rate(dydt, enuc)
-
-    implicit none
-
-    double precision :: dydt(nspec), enuc
-
-    enuc = sum(dydt(:) * ebin(:))
-
-  end subroutine ener_gener_rate
-
-
-
-
   subroutine get_enuc_T_sensitivity(dens, temp, X, denucdT)
     
     ! Calculate the energy generation rate's temperature sensitivity

@@ -32,16 +32,4 @@ contains
 
   end subroutine actual_burner
 
-
-
-  subroutine ener_gener_rate(dydt, ebin, enuc)
-
-    implicit none
-
-    double precision :: dydt(nspec), ebin(nspec), enuc
-
-    enuc = sum(dydt(:) * aion(:) * ebin(:))
-
-  end subroutine ener_gener_rate
-
 end module actual_burner_module

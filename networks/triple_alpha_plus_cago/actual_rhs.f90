@@ -2,7 +2,6 @@ module actual_rhs_module
 
   use network
   use burn_type_module
-  use actual_burner_module
   use actual_burner_data
   use screen_module
   use rates_module

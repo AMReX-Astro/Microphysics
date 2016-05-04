@@ -5,7 +5,7 @@ module actual_rhs_module
   use network
   use actual_network_data
   use burn_type_module
-  use actual_burner_module, only: ener_gener_rate
+  use actual_burner_data, only: ener_gener_rate
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none

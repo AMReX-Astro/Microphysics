@@ -10,12 +10,6 @@ module actual_burner_module
 
   implicit none
 
-  ! Conversion factor for the nuclear energy generation rate.
-
-  double precision, parameter, private :: avo = 6.0221417930d23
-  double precision, parameter, private :: c_light = 2.99792458d10
-  double precision, parameter, private :: enuc_conv2 = -avo*c_light*c_light
-
 contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
@@ -269,21 +263,5 @@ contains
     call add_screening_factor(zion(in14),aion(in14),zion(ihe4),aion(ihe4))
 
   end subroutine set_up_screening_factors
-
-
-
-  ! Computes the instantaneous energy generation rate
-
-  subroutine ener_gener_rate(dydt, enuc)
-
-    implicit none
-
-    double precision :: dydt(nspec), enuc
-
-    ! This is basically e = m c**2
-
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
-
-  end subroutine ener_gener_rate
 
 end module actual_burner_module
