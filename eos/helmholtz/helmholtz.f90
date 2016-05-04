@@ -160,7 +160,6 @@ contains
 
         !$acc routine seq
 
-        use extern_probin_module, only: eos_do_acc
         use bl_error_module
         use bl_types
         use bl_constants_module
@@ -366,12 +365,6 @@ contains
         cp_row = 0.0d0
         cs_row = 0.0d0
         gam1_row = 0.0d0
-
-        if (eos_do_acc) then
-           use_acc = .true.
-        else
-           use_acc = .false.
-        endif
 
         converged = .false.
 
@@ -1205,7 +1198,7 @@ contains
 
         use bl_error_module
         use eos_data_module
-        use extern_probin_module, only: eos_acc_cutoff, eos_input_is_constant, use_eos_coulomb
+        use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
         use parallel, only: parallel_IOProcessor
 
         implicit none
