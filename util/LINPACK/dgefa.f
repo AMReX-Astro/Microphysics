@@ -1,6 +1,9 @@
       subroutine dgefa (a,lda,n,ipvt,info)
 
-      !$acc routine seq
+!$acc routine seq
+!$acc routine(daxpy) seq
+!$acc routine(idamax) seq
+!$acc routine(dscal) seq
 
       integer lda,n,ipvt(*),info
       double precision a(lda,*)

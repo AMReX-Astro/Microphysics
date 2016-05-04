@@ -1,6 +1,8 @@
       subroutine dgesl (a,lda,n,ipvt,b,job)
 
-      !$acc routine seq
+!$acc routine seq
+!$acc routine(daxpy) seq
+!$acc routine(vddot) seq
 
       integer lda,n,ipvt(*),job
       double precision a(lda,n),b(*)

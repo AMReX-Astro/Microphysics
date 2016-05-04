@@ -1,6 +1,6 @@
       double precision function vddot (n,dx,incx,dy,incy)
 
-      !$acc routine seq
+!$acc routine seq
 
 c
 c     forms the dot product of two vectors.
