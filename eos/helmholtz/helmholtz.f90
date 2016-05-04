@@ -120,7 +120,7 @@ private
     !$acc create(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
     !$acc create(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
     !$acc create(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
-    !$acc create(smallt, smalld, ttol, dtol, tlo, thi, dlo, dhi) &
+    !$acc create(ttol, dtol, tlo, thi, dlo, dhi) &
     !$acc create(tstp, tstpi, dstp, dstpi) &
     !$acc create(itmax, jtmax, d, t) &
     !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
@@ -950,7 +950,7 @@ contains
               if (dvar .eq. itemp) then
 
                  x = temp_row
-                 smallx = smallt
+                 smallx = state % smallt
                  xtol = ttol
 
                  if (var .eq. ipres) then
@@ -972,7 +972,7 @@ contains
               else ! dvar == density
 
                  x = den_row
-                 smallx = smalld
+                 smallx = state % smalld
                  xtol = dtol
 
                  if (var .eq. ipres) then
@@ -1086,8 +1086,8 @@ contains
               rnew = max(HALF * rold, min(rnew, TWO * rold))
 
               ! Don't let us freeze or evacuate
-              tnew = max(smallt, tnew)
-              rnew = max(smalld, rnew)
+              tnew = max(state % smallt, tnew)
+              rnew = max(state % smalld, rnew)
 
               ! Store the new temperature and density
               den_row  = rnew
@@ -1341,7 +1341,7 @@ contains
         !$acc device(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
         !$acc device(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
         !$acc device(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
-        !$acc device(smallt,smalld,ttol,dtol,tlo,thi,dlo,dhi) &
+        !$acc device(ttol, dtol, tlo, thi, dlo, dhi) &
         !$acc device(tstp, tstpi, dstp, dstpi) &
         !$acc device(itmax, jtmax, d, t) &
         !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
