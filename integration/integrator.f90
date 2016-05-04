@@ -20,6 +20,8 @@ contains
 
   subroutine integrator(state_in, state_out, dt, time)
 
+    !$acc routine seq
+
     use actual_integrator_module, only: actual_integrator
     use bl_error_module, only: bl_error
     use burn_type_module, only: burn_t

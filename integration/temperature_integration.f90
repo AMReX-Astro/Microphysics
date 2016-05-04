@@ -12,6 +12,8 @@ contains
 
   subroutine temperature_rhs(state)
 
+    !$acc routine seq
+
     use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
@@ -80,6 +82,8 @@ contains
   ! since most networks will use the same temperature ODE.
 
   subroutine temperature_jac(state)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
