@@ -6,7 +6,7 @@ module screening_module
   public screen5, screenz, add_screening_factor, screening_init, plasma_state, fill_plasma_state
   
   integer, parameter :: nscreen_max = 500
-  integer, save      :: nscreen = 0
+  integer            :: nscreen = 0
   
   double precision, parameter :: x13        = 1.0d0/3.0d0
   double precision, parameter :: x14        = 1.0d0/4.0d0
@@ -19,10 +19,10 @@ module screening_module
   double precision, parameter :: gamefs     = 0.8d0
   double precision, parameter :: blend_frac = 0.05d0
 
-  double precision, save :: z1scr(nscreen_max)
-  double precision, save :: z2scr(nscreen_max)
-  double precision, save :: a1scr(nscreen_max)
-  double precision, save :: a2scr(nscreen_max)
+  double precision :: z1scr(nscreen_max)
+  double precision :: z2scr(nscreen_max)
+  double precision :: a1scr(nscreen_max)
+  double precision :: a2scr(nscreen_max)
   
   ! zs13    = (z1+z2)**(1./3.)
   ! zhat    = combination of z1 and z2 raised to the 5/3 power
@@ -30,12 +30,12 @@ module screening_module
   ! lzav    = log of effective charge
   ! aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
 
-  double precision, save :: zs13(nscreen_max)
-  double precision, save :: zs13inv(nscreen_max)
-  double precision, save :: zhat(nscreen_max)
-  double precision, save :: zhat2(nscreen_max)
-  double precision, save :: lzav(nscreen_max)
-  double precision, save :: aznut(nscreen_max)
+  double precision :: zs13(nscreen_max)
+  double precision :: zs13inv(nscreen_max)
+  double precision :: zhat(nscreen_max)
+  double precision :: zhat2(nscreen_max)
+  double precision :: lzav(nscreen_max)
+  double precision :: aznut(nscreen_max)
 
   type :: plasma_state
 
@@ -51,7 +51,13 @@ module screening_module
      double precision :: daadd
 
   end type plasma_state
-  
+
+  !$acc declare &
+  !$acc create(nscreen_max, nscreen) &
+  !$acc create(x13, x14, x53, x532, x512, fact, co2, gamefx, gamefs, blend_frac) &
+  !$acc create(z1scr, z2scr, a1scr, a2scr) &
+  !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
+
 contains
 
   ! This routine assumes that we have already filled z1scr, z2scr, a1scr, and a2scr.
@@ -73,6 +79,8 @@ contains
        
     enddo
 
+    !$acc update device(zs13, zs13inv, zhat, zhat2, lzav, aznut)
+
   end subroutine screening_init
 
 
@@ -90,10 +98,14 @@ contains
     z2scr(nscreen) = z2
     a2scr(nscreen) = a2
 
+    !$acc update device(nscreen, z1scr, a1scr, z2scr, a2scr)
+
   end subroutine add_screening_factor
 
 
   subroutine fill_plasma_state(state, temp, dens, y)
+
+    !$acc routine seq
 
     use network, only: nspec, zion
 
@@ -145,6 +157,8 @@ contains
 
 
   subroutine screen5(state,jscreen,scor,scordt,scordd)
+
+    !$acc routine seq
 
     use bl_constants_module, only: M_PI
 
@@ -376,6 +390,8 @@ contains
 
 
   subroutine screenz (t,d,z1,z2,a1,a2,ymass,aion,zion,nion,scfac, dscfacdt)
+
+    !$acc routine seq
 
     implicit none
 
