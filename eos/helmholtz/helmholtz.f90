@@ -8,7 +8,6 @@ module actual_eos_module
     ! Runtime parameters
     logical :: do_coulomb
     logical :: input_is_constant
-    integer :: acc_cutoff
 
     !..for the tables, in general
     integer, parameter, private :: imax = 271, jmax = 101
@@ -112,6 +111,26 @@ private
     double precision :: onethird = 1.0d0/3.0d0
     double precision :: esqu
 
+    !$acc declare &
+    !$acc create(pi, eulercon, a2rad, rad2a) &
+    !$acc create(g, h, hbar, qe, avo, clight, kerg) &
+    !$acc create(ev2erg, kev, amu, mn, mp, me) &
+    !$acc create(rbohr, fine, hion) &
+    !$acc create(ssol, asol, weinlam, weinfre, rhonuc) &
+    !$acc create(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
+    !$acc create(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
+    !$acc create(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
+    !$acc create(smallt, smalld, ttol, dtol, tlo, thi, dlo, dhi) &
+    !$acc create(tstp, tstpi, dstp, dstpi) &
+    !$acc create(itmax, jtmax, d, t) &
+    !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
+    !$acc create(dpdf, dpdfd, dpdft, dpdfdt) &
+    !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+    !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
+    !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
+    !$acc create(do_coulomb, input_is_constant) &
+    !$acc create(max_newton)
+
 public actual_eos, actual_eos_init
 
 contains
@@ -138,6 +157,8 @@ contains
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
     subroutine actual_eos(input, state)
+
+        !$acc routine seq
 
         use extern_probin_module, only: eos_do_acc
         use bl_error_module
@@ -1197,7 +1218,6 @@ contains
 
         ! Read in the runtime parameters
 
-        acc_cutoff = eos_acc_cutoff
         input_is_constant = eos_input_is_constant
         do_coulomb = use_eos_coulomb
 
@@ -1222,8 +1242,6 @@ contains
         itmax = imax
         jtmax = jmax
 
-        !$acc enter data copyin(itmax,jtmax)
-
         !..   read the helmholtz free energy table
         tlo   = 3.0d0
         thi   = 13.0d0
@@ -1244,18 +1262,12 @@ contains
            end do
         end do
 
-        !$acc enter data copyin(tlo,thi,tstp,tstpi,dlo,dhi,dstp,dstpi)
-        !$acc enter data copyin(d,t)
-        !$acc enter data copyin(f,fd,ft,fdd,ftt,fdt,fdtt,fddt,fddtt)
-
         !..   read the pressure derivative with density table
         do j = 1, jmax
            do i = 1, imax
               read(2,*) dpdf(i,j),dpdfd(i,j),dpdft(i,j),dpdfdt(i,j)
            end do
         end do
-
-        !$acc enter data copyin(dpdf,dpdfd,dpdft,dpdfdt)
 
         !..   read the electron chemical potential table
         do j = 1, jmax
@@ -1264,16 +1276,12 @@ contains
            end do
         end do
 
-        !$acc enter data copyin(ef,efd,eft,efdt)
-
         !..   read the number density table
         do j = 1, jmax
            do i = 1, imax
               read(2,*) xf(i,j),xfd(i,j),xft(i,j),xfdt(i,j)
            end do
         end do
-
-        !$acc enter data copyin(xf,xfd,xft,xfdt)
 
         !..   construct the temperature and density deltas and their inverses
         do j = 1, jmax-1
@@ -1296,9 +1304,6 @@ contains
            ddi_sav(i)  = ddi
            dd2i_sav(i) = dd2i
         end do
-
-        !$acc enter data copyin(dt_sav,dt2_sav,dti_sav,dt2i_sav)
-        !$acc enter data copyin(dd_sav,dd2_sav,ddi_sav,dd2i_sav)
 
         close(unit=2)
 
@@ -1334,19 +1339,25 @@ contains
         mindens = 10.d0**dlo
         maxdens = 10.d0**dhi
 
-        !$acc enter data &
-        !$acc copyin(msol,rsol,lsol,mearth,rearth,ly,pc,au,secyer) &
-        !$acc copyin(ssol,asol,weinlam,weinfre,rhonuc) &
-        !$acc copyin(pi,eulercon,a2rad,rad2a) &
-        !$acc copyin(g,h,hbar,qe,avo,clight,kerg,ev2erg,kev,amu,mn,mp,me,rbohr,fine,hion) &
-        !$acc copyin(sioncon,forth,forpi,kergavo,ikavo,asoli3,light2) &
-        !$acc copyin(a1,b1,c1,d1,e1,a2,b2,c2,onethird,esqu)
-
-        !$acc enter data &
-        !$acc copyin(eos_input_rt,eos_input_rh,eos_input_tp,eos_input_rp) &
-        !$acc copyin(eos_input_re,eos_input_ps,eos_input_ph,eos_input_th) &
-        !$acc copyin(iener,ienth,itemp,idens,ientr,ipres) &
-        !$acc copyin(smallt,smalld,ttol,dtol)
+        !$acc update &
+        !$acc device(pi, eulercon, a2rad, rad2a) &
+        !$acc device(g, h, hbar, qe, avo, clight, kerg) &
+        !$acc device(ev2erg, kev, amu, mn, mp, me) &
+        !$acc device(rbohr, fine, hion) &
+        !$acc device(ssol, asol, weinlam, weinfre, rhonuc) &
+        !$acc device(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
+        !$acc device(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
+        !$acc device(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
+        !$acc device(smallt,smalld,ttol,dtol,tlo,thi,dlo,dhi) &
+        !$acc device(tstp, tstpi, dstp, dstpi) &
+        !$acc device(itmax, jtmax, d, t) &
+        !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
+        !$acc device(dpdf, dpdfd, dpdft, dpdfdt) &
+        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt) &
+        !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
+        !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav), &
+        !$acc device(do_coulomb, input_is_constant) &
+        !$acc device(max_newton)
 
     end subroutine actual_eos_init
 
@@ -1355,57 +1366,57 @@ contains
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
     function psi0(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, psi0
         psi0 = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
     end function
 
     function dpsi0(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, dpsi0
         dpsi0 = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
     end function
 
     function ddpsi0(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, ddpsi0
         ddpsi0 = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
     end function
 
     ! psi1 and its derivatives
     function psi1(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, psi1
         psi1 = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
     end function
 
     function dpsi1(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, dpsi1
         dpsi1 = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
     end function
 
     function ddpsi1(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, ddpsi1
         ddpsi1 = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
     end function
 
     ! psi2  and its derivatives
     function psi2(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, psi2
         psi2 = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
     end function
 
     function dpsi2(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, dpsi2
         dpsi2 = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
     end function
 
     function ddpsi2(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, ddpsi2
         ddpsi2 = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
     end function
@@ -1413,7 +1424,7 @@ contains
 
     ! biquintic hermite polynomial function
     function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: fi(36)
         double precision :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md,h5
 
@@ -1441,13 +1452,13 @@ contains
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
     function xpsi0(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, xpsi0
         xpsi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
     end function
 
     function xdpsi0(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, xdpsi0
         xdpsi0 = z * (6.0d0*z - 6.0d0)
     end function
@@ -1455,20 +1466,20 @@ contains
 
     ! psi1 & derivatives
     function xpsi1(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, xpsi1
         xpsi1 = z * ( z * (z - 2.0d0) + 1.0d0)
     end function
 
     function xdpsi1(z)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: z, xdpsi1
         xdpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
     end function
 
     ! bicubic hermite polynomial function
     function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md)
-    !$acc routine vector
+    !$acc routine seq
         double precision :: fi(36)
         double precision :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md,h3
         h3 =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
