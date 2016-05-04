@@ -20,6 +20,10 @@ contains
 
     implicit none
 
+    nseq = [2, 6, 10, 14, 22, 34, 50, 70]
+
+    !$acc update device(nseq)
+
   end subroutine actual_integrator_init
 
 
@@ -27,6 +31,8 @@ contains
   ! Main interface
 
   subroutine actual_integrator(state_in, state_out, dt, time)
+
+    !$acc routine seq
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
@@ -117,8 +123,6 @@ contains
        bs % upar(irp_self_heat) = -ONE
     else if (burning_mode == 1) then
        bs % upar(irp_self_heat) = ONE
-    else
-       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
     endif
 
     ! If we are using the dT_crit functionality and therefore doing a linear
@@ -161,6 +165,8 @@ contains
     ! If we still failed, print out the current state of the integration.
 
     if (ierr /= IERR_NONE) then
+
+#ifndef ACC
        print *, 'ERROR: integration failed in net'
        print *, 'ierr = ', ierr
        print *, 'time = ', bs % t
@@ -171,10 +177,13 @@ contains
        print *, 'xn current = ', bs % y(1:nspec_evolve) * aion(1:nspec_evolve), &
             bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', bs % y(net_ienuc) * ener_scale
+#endif
 
        if (.not. retry_burn) then
 
+#ifndef ACC
           call bl_error("ERROR in burner: integration failed")
+#endif
 
        else
 
@@ -199,7 +208,9 @@ contains
 
           if (retry_change_factor > retry_burn_max_change .and. ierr /= IERR_NONE) then
 
+#ifndef ACC
              call bl_error("ERROR in burner: integration failed")
+#endif
 
           endif
 
@@ -232,6 +243,7 @@ contains
 
        ! Print out some integration statistics, if desired.
 
+#ifndef ACC
        print *, 'integration summary: '
        print *, 'dens: ', state_out % rho
        print *, ' temp: ', state_out % T
@@ -239,6 +251,7 @@ contains
        print *, 'number of steps taken: ', bs % n
        print *, 'number of RHS evaluations: ', bs % n_rhs
        print *, 'number of Jacobian evaluations: ', bs % n_jac
+#endif
 
     endif
 

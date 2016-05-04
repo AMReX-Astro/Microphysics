@@ -17,6 +17,8 @@ contains
 
   subroutine bs_to_eos(state, bs)
 
+    !$acc routine seq
+
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use bs_type_module
@@ -48,6 +50,8 @@ contains
   ! Given an EOS state, fill the rpar and integration state data.
 
   subroutine eos_to_bs(state, bs)
+
+    !$acc routine seq
 
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
@@ -82,6 +86,8 @@ contains
 
   subroutine burn_to_bs(state, bs)
 
+    !$acc routine seq
+
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use rpar_indices
@@ -94,7 +100,7 @@ contains
     type (burn_t) :: state
     type (bs_t) :: bs
 
-    integer :: i
+    integer :: i, n
 
     bs % upar(irp_dens)                           = state % rho / dens_scale
     bs % y(net_itemp)                             = state % T / temp_scale
@@ -117,7 +123,10 @@ contains
     bs % dydt(net_itemp) = bs % dydt(net_itemp) / temp_scale
     bs % dydt(net_ienuc) = bs % dydt(net_ienuc) / ener_scale
 
-    bs % jac = state % jac
+    do n = 1, neqs
+       bs % jac(n,:) = state % jac(n,:)
+    enddo
+
     bs % jac(net_itemp,:) = bs % jac(net_itemp,:) / temp_scale
     bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) / ener_scale
 
@@ -145,6 +154,8 @@ contains
 
   subroutine bs_to_burn(bs, state)
 
+    !$acc routine seq
+
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use rpar_indices
@@ -157,7 +168,7 @@ contains
     type (burn_t) :: state
     type (bs_t) :: bs
 
-    integer :: i
+    integer :: i, n
 
     state % rho      = bs % upar(irp_dens) * dens_scale
     state % T        = bs % y(net_itemp) * temp_scale
@@ -180,7 +191,9 @@ contains
     state % ydot(net_itemp) = state % ydot(net_itemp) * temp_scale
     state % ydot(net_ienuc) = state % ydot(net_ienuc) * ener_scale
 
-    state % jac = bs % jac
+    do n = 1, neqs
+       state % jac(n,:) = bs % jac(n,:)
+    enddo
     state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
     state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
 

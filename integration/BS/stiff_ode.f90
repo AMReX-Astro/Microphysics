@@ -7,6 +7,7 @@ module stiff_ode
   use bl_types
   use burn_type_module
   use bs_type_module
+  use rhs_module
 
   implicit none
 
@@ -22,14 +23,15 @@ contains
 
   subroutine ode(bs, t, tmax, eps, ierr)
 
+    !$acc routine seq
+    !$acc routine(f_rhs) seq
+
     type (bs_t), intent(inout) :: bs
 
     real(kind=dp_t), intent(inout) :: t
     real(kind=dp_t), intent(in) :: tmax
     real(kind=dp_t), intent(in) :: eps
     integer, intent(out) :: ierr
-
-    external f_rhs
 
     real(kind=dp_t) :: y(neqs), yscal(neqs), dydt(neqs)
     logical :: finished
@@ -50,42 +52,42 @@ contains
 
     do n = 1, MAX_STEPS
 
-       ! Get the scaling.
-       ! Note that this is different from the way Frank Timmes' networks
-       ! do the scaling, even though we use the same underlying integration
-       ! scheme. In particular he does not use dy/dt in estimating the scaling
-       ! vector. Also, he limits the vector so that no element is smaller than
-       ! a hard-coded parameter odescal.
+       if (ierr == IERR_NONE .and. .not. finished) then
 
-       call f_rhs(bs)
+          ! Get the scaling.
+          ! Note that this is different from the way Frank Timmes' networks
+          ! do the scaling, even though we use the same underlying integration
+          ! scheme. In particular he does not use dy/dt in estimating the scaling
+          ! vector. Also, he limits the vector so that no element is smaller than
+          ! a hard-coded parameter odescal.
 
-       if (n .eq. 1) then
-          call initial_timestep(bs)
-       endif
+          call f_rhs(bs)
 
-       yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
+          if (n .eq. 1) then
+             call initial_timestep(bs)
+          endif
 
-       ! make sure we don't overshoot the ending time
-       if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
+          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
 
-       ! take a step -- this routine will update the solution vector,
-       ! advance the time, and also give an estimate of the next step
-       ! size
-       call single_step(bs, eps, yscal, ierr)
+          ! make sure we don't overshoot the ending time
+          if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
 
-       if (.not. ierr == IERR_NONE) exit
+          ! take a step -- this routine will update the solution vector,
+          ! advance the time, and also give an estimate of the next step
+          ! size
+          call single_step(bs, eps, yscal, ierr)
 
-       ! finished?
-       if (bs % t - tmax >= ZERO) then
-          finished = .true.
-          exit
-       endif
+          ! finished?
+          if (bs % t - tmax >= ZERO) then
+             finished = .true.
+          endif
 
-       bs % dt = bs % dt_next
+          bs % dt = bs % dt_next
 
-       if (bs % dt < dt_min) then
-          ierr = IERR_DT_TOO_SMALL
-          exit
+          if (bs % dt < dt_min) then
+             ierr = IERR_DT_TOO_SMALL
+          endif
+
        endif
 
     enddo
@@ -101,6 +103,9 @@ contains
 
 
   subroutine initial_timestep(bs)
+
+    !$acc routine seq
+    !$acc routine(f_rhs) seq
 
     type (bs_t), intent(inout) :: bs
 
@@ -120,34 +125,35 @@ contains
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
+    h_old = 10.0 * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
 
     do n = 1, 4
 
-       h_old = h
+       if (.not. (h_old < TWO * h .and. h_old > HALF * h)) then
 
-       ! Get the scaling vector for the purposes of the error estimation.
-       ! We want this to be similar to the scaling vector that will be
-       ! used for the error estimation in the main loop.
+          h_old = h
 
-       yscal = eps * (abs(bs % y) + h * abs(bs % dydt) + SMALL)
+          ! Get the scaling vector for the purposes of the error estimation.
+          ! We want this to be similar to the scaling vector that will be
+          ! used for the error estimation in the main loop.
 
-       ! Construct the trial point.
+          yscal = eps * (abs(bs % y) + h * abs(bs % dydt) + SMALL)
 
-       bs_temp % t = bs % t + h
-       bs_temp % y = bs % y + h * bs % dydt
+          ! Construct the trial point.
 
-       ! Call the RHS, then estimate the finite difference.
+          bs_temp % t = bs % t + h
+          bs_temp % y = bs % y + h * bs % dydt
 
-       call f_rhs(bs_temp)
-       ddydtt = (bs_temp % dydt - bs % dydt) / h
+          ! Call the RHS, then estimate the finite difference.
 
-       yddnorm = sqrt( sum( (ddydtt/yscal)**2 ) / neqs )
-       h = sqrt(TWO / yddnorm)
+          call f_rhs(bs_temp)
+          ddydtt = (bs_temp % dydt - bs % dydt) / h
 
-       if (h_old < TWO * h .and. h_old > HALF * h) then
-          exit
+          yddnorm = sqrt( sum( (ddydtt/yscal)**2 ) / neqs )
+          h = sqrt(TWO / yddnorm)
+
        endif
 
     enddo
@@ -163,14 +169,17 @@ contains
 
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
 
+    !$acc routine seq
+    !$acc routine(f_rhs) seq
+    !$acc routine(dgesl) seq
+    !$acc routine(dgefa) seq
+
     type (bs_t), intent(inout) :: bs
     real(kind=dp_t), intent(in) :: y(neqs)
     real(kind=dp_t), intent(in) :: dt_tot
     integer, intent(in) :: N_sub
     real(kind=dp_t), intent(out) :: y_out(neqs)
     integer, intent(out) :: ierr
-
-    external f_rhs
 
     real(kind=dp_t) :: A(neqs,neqs)
     real(kind=dp_t) :: del(neqs)
@@ -249,6 +258,9 @@ contains
 
   subroutine single_step(bs, eps, yscal, ierr)
 
+    !$acc routine seq
+    !$acc routine(jac) seq
+
     type (bs_t) :: bs
     real(kind=dp_t), intent(in) :: eps
     real(kind=dp_t), intent(in) :: yscal(neqs)
@@ -262,10 +274,10 @@ contains
     real(kind=dp_t) :: dt, fac, scale, red, eps1, work, work_min, xest
     real(kind=dp_t) :: err_max
 
-    logical :: converged, reduce
+    logical :: converged, reduce, loop_flag
 
-    integer :: i, k, kk, km, ierr_temp
-
+    integer :: i, k, n, kk, km, ierr_temp
+    integer, parameter :: max_iters = 10 ! Should not need more than this
 
     ! for internal storage of the polynomial extrapolation
     real(kind=dp_t) :: t_extrap(KMAXX+1), qcol(neqs, KMAXX+1)
@@ -324,70 +336,88 @@ contains
 
     converged = .false.
 
-    do while (.not. converged .and. ierr == IERR_NONE)
-
-       do k = 1, bs % kmax
-
-          bs % t_new = bs % t + dt
-          if (bs % t_new == bs % t) then
-             ierr = IERR_DT_UNDERFLOW
-             exit
-          endif
-
-          call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
-          ierr = ierr_temp
-
-          xest = (dt/nseq(k))**2
-          call poly_extrap(k, xest, yseq, bs % y, yerr, neqs, t_extrap, qcol)
-
-          if (k /= 1) then
-             err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
-             err_max = err_max / eps
-             km = k - 1
-             err(km) = (err_max/S1)**(1.0/(2*km+1))
-          endif
-
-          if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
-             if (err_max < 1) then
-                converged = .true.
-                exit
-             endif
-
-             ! reduce stepsize if necessary
-             if (k == bs % kmax .or. k == bs % kopt+1) then
-                red = S2/err(km)
-                reduce = .true.
-                exit
-             else if (k == bs % kopt) then
-                if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
-                   red = ONE/err(km)
-                   reduce = .true.
-                   exit
-                endif
-             else if (bs % kopt == bs % kmax) then
-                if (bs % alpha(km, bs % kmax-1) < err(km)) then
-                   red = bs % alpha(km, bs % kmax-1)*S2/err(km)
-                   reduce = .true.
-                   exit
-                endif
-             else if (bs % alpha(km, bs % kopt) < err(km)) then
-                red = bs % alpha(km, bs % kopt - 1)/err(km)
-                reduce = .true.
-                exit
-             endif
-
-          endif
-
-       enddo
+    do n = 1, max_iters
 
        if (.not. converged .and. IERR == IERR_NONE) then
-          red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
-          dt = dt*red
-       else
-          ! we've either converged or hit and error
-          exit
+
+          loop_flag = .false.
+
+          do k = 1, bs % kmax
+
+             if (.not. loop_flag) then
+
+                bs % t_new = bs % t + dt
+
+                if (bs % t_new == bs % t) then
+                   ierr = IERR_DT_UNDERFLOW
+                   loop_flag = .true.
+                endif
+
+                call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
+                ierr = ierr_temp
+
+                xest = (dt/nseq(k))**2
+                call poly_extrap(k, xest, yseq, bs % y, yerr, neqs, t_extrap, qcol)
+
+                if (k /= 1) then
+                   err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
+                   err_max = err_max / eps
+                   km = k - 1
+                   err(km) = (err_max/S1)**(1.0/(2*km+1))
+                endif
+
+                if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
+
+                   if (err_max < 1) then
+
+                      converged = .true.
+                      loop_flag = .true.
+
+                   else
+
+                      ! reduce stepsize if necessary
+                      if (k == bs % kmax .or. k == bs % kopt+1) then
+                         red = S2/err(km)
+                         reduce = .true.
+                         loop_flag = .true.
+                      else if (k == bs % kopt) then
+                         if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
+                            red = ONE/err(km)
+                            reduce = .true.
+                            loop_flag = .true.
+                         endif
+                      else if (bs % kopt == bs % kmax) then
+                         if (bs % alpha(km, bs % kmax-1) < err(km)) then
+                            red = bs % alpha(km, bs % kmax-1)*S2/err(km)
+                            reduce = .true.
+                            loop_flag = .true.
+                         endif
+                      else if (bs % alpha(km, bs % kopt) < err(km)) then
+                         red = bs % alpha(km, bs % kopt - 1)/err(km)
+                         reduce = .true.
+                         loop_flag = .true.
+                      endif
+
+                   endif
+
+                endif
+
+             endif
+
+          enddo
+
+          if (.not. converged .and. IERR == IERR_NONE) then
+             red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
+             dt = dt*red
+          endif
+
        endif
+
     enddo   ! while loop
+
+    if (.not. converged) then
+       IERR = IERR_NO_CONVERGENCE
+    endif
 
     bs % t = bs % t_new
     bs % dt_did = dt
@@ -421,6 +451,8 @@ contains
 
 
   subroutine poly_extrap(iest, test, yest, yz, dy, neqs, t, qcol)
+
+    !$acc routine seq
 
     ! this does polynomial extrapolation according to the Neville
     ! algorithm.  Given test and yest (t and a y-vector), this gives

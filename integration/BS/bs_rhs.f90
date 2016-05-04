@@ -1,8 +1,14 @@
+module rhs_module
+
+contains
+
   ! The rhs routine provides the right-hand-side for the BS solver.
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
   subroutine f_rhs(bs)
+
+    !$acc routine seq
 
     use eos_module
     use bl_types
@@ -114,6 +120,8 @@
 
   subroutine jac(bs)
 
+    !$acc routine seq
+
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian
@@ -129,7 +137,7 @@
 
     state % have_rates = .false.
 
-    bs % jac = ZERO
+    bs % jac(:,:) = ZERO
 
     ! Call the specific network routine to get the Jacobian.
 
@@ -139,8 +147,6 @@
        call actual_jac(state)
     elseif (jacobian == 2) then
        call numerical_jac(state)
-    else
-       call bl_error("Unknown Jacobian choice in subroutine jac.")
     endif
 
     call burn_to_bs(state, bs)
@@ -150,3 +156,5 @@
     bs % n_jac = bs % n_jac + 1
 
   end subroutine jac
+
+end module rhs_module

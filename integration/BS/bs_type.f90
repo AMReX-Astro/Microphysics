@@ -8,13 +8,14 @@ module bs_type_module
 
   ! BS parameters -- see the discussion in 16.4
   integer, parameter :: KMAXX = 7
-  integer, parameter, dimension(KMAXX+1) :: nseq(KMAXX+1) = [2, 6, 10, 14, 22, 34, 50, 70]
+  integer :: nseq(KMAXX+1)
 
   ! error codes
   integer, parameter :: IERR_NONE = 0
   integer, parameter :: IERR_DT_TOO_SMALL = -100
   integer, parameter :: IERR_TOO_MANY_STEPS = -101
   integer, parameter :: IERR_DT_UNDERFLOW = -102
+  integer, parameter :: IERR_NO_CONVERGENCE = -103
 
   integer, parameter :: IERR_LU_DECOMPOSITION_ERROR = -200
 
@@ -41,7 +42,9 @@ module bs_type_module
      real(kind=dp_t) :: upar(n_rpar_comps)
      real(kind=dp_t) :: t, dt, tmax
      integer         :: n
-     integer         :: n_rhs = 0, n_jac = 0
+     integer         :: n_rhs, n_jac
   end type bs_t
+
+  !$acc declare create(nseq)
 
 end module bs_type_module
