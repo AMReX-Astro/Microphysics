@@ -52,43 +52,41 @@ contains
 
     do n = 1, MAX_STEPS
 
-       if (ierr == IERR_NONE .and. .not. finished) then
+       ! Get the scaling.
+       ! Note that this is different from the way Frank Timmes' networks
+       ! do the scaling, even though we use the same underlying integration
+       ! scheme. In particular he does not use dy/dt in estimating the scaling
+       ! vector. Also, he limits the vector so that no element is smaller than
+       ! a hard-coded parameter odescal.
 
-          ! Get the scaling.
-          ! Note that this is different from the way Frank Timmes' networks
-          ! do the scaling, even though we use the same underlying integration
-          ! scheme. In particular he does not use dy/dt in estimating the scaling
-          ! vector. Also, he limits the vector so that no element is smaller than
-          ! a hard-coded parameter odescal.
+       call f_rhs(bs)
 
-          call f_rhs(bs)
-
-          if (n .eq. 1) then
-             call initial_timestep(bs)
-          endif
-
-          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
-
-          ! make sure we don't overshoot the ending time
-          if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
-
-          ! take a step -- this routine will update the solution vector,
-          ! advance the time, and also give an estimate of the next step
-          ! size
-          call single_step(bs, eps, yscal, ierr)
-
-          ! finished?
-          if (bs % t - tmax >= ZERO) then
-             finished = .true.
-          endif
-
-          bs % dt = bs % dt_next
-
-          if (bs % dt < dt_min) then
-             ierr = IERR_DT_TOO_SMALL
-          endif
-
+       if (n .eq. 1) then
+          call initial_timestep(bs)
        endif
+
+       yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
+
+       ! make sure we don't overshoot the ending time
+       if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
+
+       ! take a step -- this routine will update the solution vector,
+       ! advance the time, and also give an estimate of the next step
+       ! size
+       call single_step(bs, eps, yscal, ierr)
+
+       ! finished?
+       if (bs % t - tmax >= ZERO) then
+          finished = .true.
+       endif
+
+       bs % dt = bs % dt_next
+
+       if (bs % dt < dt_min) then
+          ierr = IERR_DT_TOO_SMALL
+       endif
+
+       if (finished) exit
 
     enddo
 
@@ -131,30 +129,28 @@ contains
 
     do n = 1, 4
 
-       if (.not. (h_old < TWO * h .and. h_old > HALF * h)) then
+       h_old = h
 
-          h_old = h
+       ! Get the scaling vector for the purposes of the error estimation.
+       ! We want this to be similar to the scaling vector that will be
+       ! used for the error estimation in the main loop.
 
-          ! Get the scaling vector for the purposes of the error estimation.
-          ! We want this to be similar to the scaling vector that will be
-          ! used for the error estimation in the main loop.
+       yscal = eps * (abs(bs % y) + h * abs(bs % dydt) + SMALL)
 
-          yscal = eps * (abs(bs % y) + h * abs(bs % dydt) + SMALL)
+       ! Construct the trial point.
 
-          ! Construct the trial point.
+       bs_temp % t = bs % t + h
+       bs_temp % y = bs % y + h * bs % dydt
 
-          bs_temp % t = bs % t + h
-          bs_temp % y = bs % y + h * bs % dydt
+       ! Call the RHS, then estimate the finite difference.
 
-          ! Call the RHS, then estimate the finite difference.
+       call f_rhs(bs_temp)
+       ddydtt = (bs_temp % dydt - bs % dydt) / h
 
-          call f_rhs(bs_temp)
-          ddydtt = (bs_temp % dydt - bs % dydt) / h
+       yddnorm = sqrt( sum( (ddydtt/yscal)**2 ) / neqs )
+       h = sqrt(TWO / yddnorm)
 
-          yddnorm = sqrt( sum( (ddydtt/yscal)**2 ) / neqs )
-          h = sqrt(TWO / yddnorm)
-
-       endif
+       if (h_old < TWO * h .and. h_old > HALF * h) exit
 
     enddo
 
@@ -206,7 +202,6 @@ contains
 
     ! get the LU decomposition from LINPACK
     call dgefa(A, neqs, neqs, ipiv, ierr_linpack)
-
     if (ierr_linpack /= 0) then
        ierr = IERR_LU_DECOMPOSITION_ERROR
     endif
@@ -338,79 +333,77 @@ contains
 
     do n = 1, max_iters
 
-       if (.not. converged .and. IERR == IERR_NONE) then
+       loop_flag = .false.
 
-          loop_flag = .false.
+       do k = 1, bs % kmax
 
-          do k = 1, bs % kmax
+          if (.not. loop_flag) then
 
-             if (.not. loop_flag) then
+             bs % t_new = bs % t + dt
 
-                bs % t_new = bs % t + dt
+             if (bs % t_new == bs % t) then
+                ierr = IERR_DT_UNDERFLOW
+                loop_flag = .true.
+             endif
 
-                if (bs % t_new == bs % t) then
-                   ierr = IERR_DT_UNDERFLOW
+             call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
+             ierr = ierr_temp
+
+             xest = (dt/nseq(k))**2
+             call poly_extrap(k, xest, yseq, bs % y, yerr, neqs, t_extrap, qcol)
+
+             if (k /= 1) then
+                err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
+                err_max = err_max / eps
+                km = k - 1
+                err(km) = (err_max/S1)**(1.0/(2*km+1))
+             endif
+
+             if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
+
+                if (err_max < 1) then
+
+                   converged = .true.
                    loop_flag = .true.
-                endif
+                   exit
 
-                call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
-                ierr = ierr_temp
+                else
 
-                xest = (dt/nseq(k))**2
-                call poly_extrap(k, xest, yseq, bs % y, yerr, neqs, t_extrap, qcol)
-
-                if (k /= 1) then
-                   err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
-                   err_max = err_max / eps
-                   km = k - 1
-                   err(km) = (err_max/S1)**(1.0/(2*km+1))
-                endif
-
-                if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
-
-                   if (err_max < 1) then
-
-                      converged = .true.
+                   ! reduce stepsize if necessary
+                   if (k == bs % kmax .or. k == bs % kopt+1) then
+                      red = S2/err(km)
+                      reduce = .true.
                       loop_flag = .true.
-
-                   else
-
-                      ! reduce stepsize if necessary
-                      if (k == bs % kmax .or. k == bs % kopt+1) then
-                         red = S2/err(km)
-                         reduce = .true.
-                         loop_flag = .true.
-                      else if (k == bs % kopt) then
-                         if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
-                            red = ONE/err(km)
-                            reduce = .true.
-                            loop_flag = .true.
-                         endif
-                      else if (bs % kopt == bs % kmax) then
-                         if (bs % alpha(km, bs % kmax-1) < err(km)) then
-                            red = bs % alpha(km, bs % kmax-1)*S2/err(km)
-                            reduce = .true.
-                            loop_flag = .true.
-                         endif
-                      else if (bs % alpha(km, bs % kopt) < err(km)) then
-                         red = bs % alpha(km, bs % kopt - 1)/err(km)
+                   else if (k == bs % kopt) then
+                      if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
+                         red = ONE/err(km)
                          reduce = .true.
                          loop_flag = .true.
                       endif
-
+                   else if (bs % kopt == bs % kmax) then
+                      if (bs % alpha(km, bs % kmax-1) < err(km)) then
+                         red = bs % alpha(km, bs % kmax-1)*S2/err(km)
+                         reduce = .true.
+                         loop_flag = .true.
+                      endif
+                   else if (bs % alpha(km, bs % kopt) < err(km)) then
+                      red = bs % alpha(km, bs % kopt - 1)/err(km)
+                      reduce = .true.
+                      loop_flag = .true.
                    endif
-
                 endif
 
              endif
 
-          enddo
-
-          if (.not. converged .and. IERR == IERR_NONE) then
-             red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
-             dt = dt*red
           endif
 
+       enddo
+
+       if (.not. converged .and. IERR == IERR_NONE) then
+          red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
+          dt = dt*red
+       else
+          exit
        endif
 
     enddo   ! while loop
