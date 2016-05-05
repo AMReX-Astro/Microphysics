@@ -9,10 +9,13 @@ contains
   subroutine integrator_init()
 
     use actual_integrator_module, only: actual_integrator_init
+    use integration_data, only: temp_scale, ener_scale, dens_scale
 
     implicit none
 
     call actual_integrator_init()
+
+    !$acc update device(temp_scale, ener_scale, dens_scale)
 
   end subroutine integrator_init
 

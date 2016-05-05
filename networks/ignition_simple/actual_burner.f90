@@ -17,12 +17,10 @@ contains
 
     implicit none
 
-    call integrator_init()
-
     temp_scale = 1.0d10
     ener_scale = c_light * c_light
 
-    !$acc update device(temp_scale, ener_scale)
+    call integrator_init()
 
   end subroutine actual_burner_init
 
