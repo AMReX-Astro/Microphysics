@@ -54,8 +54,8 @@ contains
     r1 = state % rates(1,:)
     r2 = state % rates(1,:)
 
+    ydot = ZERO
     call rhs(y, r1, r2, ydot, deriva)
-
     state % ydot(1:nspec) = ydot
 
     ! Instantaneous energy generation rate -- this needs molar fractions
@@ -123,6 +123,7 @@ contains
 
     ! Species Jacobian elements with respect to other species
 
+    jac = state % jac(1:nspec,1:nspec)
     call dfdy_isotopes_aprox13(y, jac, r1)
     state % jac(1:nspec,1:nspec) = jac
 
