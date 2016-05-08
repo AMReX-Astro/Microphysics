@@ -12,6 +12,9 @@ contains
 
   subroutine actual_rhs(state)
 
+    !$acc routine seq
+    !$acc routine(sneut5) seq
+
     implicit none
 
     ! This routine sets up the system of ode's for the aprox13
@@ -23,14 +26,16 @@ contains
 
     type (burn_t)    :: state
 
-    logical          :: deriva = .false.
+    logical          :: deriva
 
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
     double precision :: rho, temp, abar, zbar
 
-    double precision :: y(nspec)
+    double precision :: y(nspec), ydot(nspec), r1(nrates), r2(nrates)
+
+    integer :: n
 
     call evaluate_rates(state)
 
@@ -42,13 +47,20 @@ contains
 
     y    = state % xn / aion
 
+    deriva = .false.
+
     ! Call the RHS to actually get dydt.
 
-    call rhs(y, state % rates(1,:), state % rates(1,:), state % ydot(1:nspec), deriva)
+    r1 = state % rates(1,:)
+    r2 = state % rates(1,:)
+
+    call rhs(y, r1, r2, ydot, deriva)
+
+    state % ydot(1:nspec) = ydot
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
-    call ener_gener_rate(state % ydot(1:nspec), enuc)
+    call ener_gener_rate(ydot, enuc)
 
     ! Get the neutrino losses
 
@@ -70,6 +82,9 @@ contains
 
   subroutine actual_jac(state)
 
+    !$acc routine seq
+    !$acc routine(sneut5) seq
+
     use bl_types
     use bl_constants_module, only: ZERO
     use eos_module
@@ -78,14 +93,14 @@ contains
 
     type (burn_t)    :: state
 
-    logical          :: deriva = .true.
+    logical          :: deriva
 
     double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
     integer          :: j
 
     double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec)
+    double precision :: y(nspec), jac(nspec, nspec), r1(nrates), r2(nrates)
 
     state % jac(:,:) = ZERO
 
@@ -103,9 +118,13 @@ contains
 
     y    = state % xn / aion
 
+    r1 = state % rates(1,:)
+    r2 = state % rates(2,:)
+
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_aprox13(y, state % jac(1:nspec,1:nspec), state % rates(1,:))
+    call dfdy_isotopes_aprox13(y, jac, r1)
+    state % jac(1:nspec,1:nspec) = jac
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -125,7 +144,9 @@ contains
     ! Evaluate the Jacobian elements with respect to temperature by
     ! calling the RHS using d(ratdum) / dT
 
-    call rhs(y, state % rates(2,:), state % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
+    deriva = .true.
+
+    call rhs(y, r2, r1, state % jac(1:nspec,net_itemp), deriva)
 
     call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
     state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
@@ -140,6 +161,8 @@ contains
 
 
   subroutine evaluate_rates(state)
+
+    !$acc routine seq
 
     implicit none
 
@@ -182,6 +205,8 @@ contains
   ! Evaluates the right hand side of the aprox13 ODEs
 
   subroutine rhs(y,rate,ratdum,dydt,deriva)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum
@@ -616,6 +641,8 @@ contains
 
   subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
+    !$acc routine seq
+
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox13 network.
 
@@ -641,7 +668,7 @@ contains
 
 
     ! get the temperature factors
-    tf = get_tfactors(btemp)
+    call get_tfactors(btemp, tf)
 
 
     ! c12(a,g)o16
@@ -808,6 +835,8 @@ contains
                             ratdum, dratdumdt, dratdumdd, &
                             scfac, dscfacdt, dscfacdd)
 
+    !$acc routine seq
+
     use bl_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
@@ -850,7 +879,7 @@ contains
 
     ! Set up the state data, which is the same for all screening factors.
 
-    call fill_plasma_state(state, btemp, bden, y(1:nspec))
+    call fill_plasma_state(state, btemp, bden, y)
 
 
 
@@ -1615,6 +1644,8 @@ contains
 
 
   subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
+
+    !$acc routine seq
 
     use network
     use microphysics_math_module, only: esum

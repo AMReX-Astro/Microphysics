@@ -274,7 +274,7 @@ contains
 
 
     ! get the temperature factors
-    tf = get_tfactors(btemp)
+    call get_tfactors(btemp, tf)
 
     ! c12(a,g)o16
     call rate_c12ag(tf,bden, &
@@ -368,7 +368,7 @@ contains
     enddo
 
     ! get the temperature factors
-    tf = get_tfactors(btemp)
+    call get_tfactors(btemp, tf)
 
     ! Set up the state data, which is the same for all screening factors.
 

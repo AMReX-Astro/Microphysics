@@ -20,13 +20,15 @@ module actual_network_data
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  double precision, save :: aion(nspec), zion(nspec), nion(nspec)
-  double precision, save :: bion(nspec), mion(nspec), wion(nspec)
+  double precision :: aion(nspec), zion(nspec), nion(nspec)
+  double precision :: bion(nspec), mion(nspec), wion(nspec)
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
   character (len=32), save :: network_name = "aprox13"
+
+  !$acc declare create(aion, zion, nion, bion, mion, wion)
 
 end module actual_network_data

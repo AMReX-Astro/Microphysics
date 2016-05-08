@@ -14,6 +14,8 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
+    !$acc routine seq
+
     use integrator_module, only: integrator
 
     implicit none

@@ -86,6 +86,8 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
+    !$acc routine seq
+
     use network
 
     implicit none

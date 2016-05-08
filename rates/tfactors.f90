@@ -93,7 +93,9 @@ module tfactors_module
 
 contains
 
-  function get_tfactors(temp) result(tf)
+  subroutine get_tfactors(temp, tf)
+
+    !$acc routine seq
 
     implicit none
     
@@ -181,7 +183,6 @@ contains
     !tf%t9i38 = tf%t9i18*tf%t9i18*tf%t9i18
     !tf%t9i58 = tf%t9i38*tf%t9i18*tf%t9i18
     
-  end function get_tfactors
+  end subroutine get_tfactors
 
 end module tfactors_module
-
