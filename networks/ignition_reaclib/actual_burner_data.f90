@@ -16,24 +16,24 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  subroutine ener_gener_rate(dydt, enuc)
+  ! subroutine ener_gener_rate(dydt, enuc)
 
-    use network
+  !   use network
 
-    !$acc routine seq
+  !   !$acc routine seq
 
-    implicit none
+  !   implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+  !   double precision :: dydt(nspec_evolve), enuc
 
-    ! This is basically e = m c**2
+  !   ! This is basically e = m c**2
 
-    ! Note that since we don't explicitly evolve Mg24
-    ! in this network, we need to explicitly add its
-    ! contribution in this routine.
+  !   ! Note that since we don't explicitly evolve Mg24
+  !   ! in this network, we need to explicitly add its
+  !   ! contribution in this routine.
 
-    enuc = dydt(ic12) * (mion(img24) - mion(ic12)) * enuc_conv2
+  !   enuc = dydt(ic12) * (mion(img24) - mion(ic12)) * enuc_conv2
 
-  end subroutine ener_gener_rate
+  ! end subroutine ener_gener_rate
 
 end module actual_burner_data

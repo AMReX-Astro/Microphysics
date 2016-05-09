@@ -32,9 +32,13 @@ subroutine do_burn() bind (C)
   state_in % rho       = 1.0d7
   state_in % T         = 1.0d9
 
-  state_in % xn(1)     = 0.8d0
-  state_in % xn(2)     = 0.1d0
-  state_in % xn(3)     = 0.1d0
+  state_in % xn(1)     = 0.0d0
+  state_in % xn(2)     = 0.0d0
+  state_in % xn(3)     = 0.0d0
+  state_in % xn(4)     = 1.0d0
+  state_in % xn(5)     = 0.0d0
+  state_in % xn(6)     = 0.0d0
+  state_in % xn(7)     = 0.0d0
 
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T

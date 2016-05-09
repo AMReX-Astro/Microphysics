@@ -124,7 +124,7 @@ contains
   end subroutine net_screening_init
 
   subroutine rate_evaluate(pstate, rhoy, temp, iwhich, reactvec)
-    type(plasma_pstate), intent(in) :: pstate
+    type(plasma_state), intent(in) :: pstate
     double precision, intent(in) :: temp, rhoy
     integer, intent(in) :: iwhich
 

@@ -6,6 +6,7 @@ module actual_rhs_module
   use network
   use net_rates, only: nreact, screen_reaclib, rate_evaluate
   use screening_module, only: plasma_state, fill_plasma_state
+  use burn_type_module
 
   implicit none
 
@@ -20,10 +21,10 @@ contains
     implicit none
 
     type(burn_t) :: state
-    type(plasma_pstate) :: pstate
+    type(plasma_state) :: pstate
     double precision, dimension(nspec) :: Y
     integer :: i
-    double precision :: dens, temp, rhoy
+    double precision :: dens, temp, rhoy, ye
 
     ! Set molar abundances and enforce them to be positive
     do i = 1, nspec
@@ -36,13 +37,12 @@ contains
     rhoy = dens*ye
     
     ! Calculate rates
-    call fill_plasma_pstate(pstate, temp, dens, Y(1:nspec))
+    call fill_plasma_state(pstate, temp, dens, Y(1:nspec))
     do i = 1, nreact
        call rate_evaluate(pstate, rhoy, temp, i, state%rates(:,i))
     end do
     state%rates(:,:) = state%rates(1:4,:)
 
-    write(*,*) "RHS Time: ", T
     state%ydot(jn) = ( &
        - Y(jn) * state%rates(i_scor, k_n_p) * state%rates(i_rate, k_n_p) &
        + 5.00000000000000d-01 * dens * Y(jc12)**2 * state%rates(i_scor, k_c12_c12n_mg23) * state%rates(i_rate, k_c12_c12n_mg23) &
@@ -78,7 +78,7 @@ contains
     state%ydot(jenuc) = 0.0d0
     ! ion binding energy contributions
     do i = 1, nspec
-       state%ydot(jenuc) = state%ydot(jenuc) + N_AVO * ebind(i) * state%ydot(i)
+       state%ydot(jenuc) = state%ydot(jenuc) + N_AVO * bion(i) * state%ydot(i)
     end do
 
     ! weak Q-value modification dqweak (density and temperature dependent)
@@ -99,7 +99,7 @@ contains
     implicit none
     
     type(burn_t) :: state
-    type(plasma_pstate) :: pstate
+    type(plasma_state) :: pstate
     double precision :: Y(nspec)
     double precision :: dens, temp, ye, rhoy
     integer :: i, j
@@ -116,208 +116,208 @@ contains
 
     if (.not. state%have_rates) then
        ! Calculate rates
-       call fill_plasma_pstate(pstate, temp, dens, Y(1:nspec))
+       call fill_plasma_state(pstate, temp, dens, Y(1:nspec))
        do i = 1, nreact
           call rate_evaluate(pstate, rhoy, temp, i, state%rates(:,i))
        end do
     end if
     
-    ! DJAC(j, i) = d(YDOT(j))/dY(i)
-    DJAC(jn,jn) = ( &
+    ! state%jac(j, i) = d(YDOT(j))/dY(i)
+    state%jac(jn,jn) = ( &
          -    state%rates(i_scor, k_n_p) * state%rates(i_rate, k_n_p) &
          )
 
-    DJAC(jn,jp) = ( &
+    state%jac(jn,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jn,jhe4) = ( &
+    state%jac(jn,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jn,jc12) = ( &
+    state%jac(jn,jc12) = ( &
          + 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12n_mg23) * state%rates(i_rate, k_c12_c12n_mg23) &
          )
 
-    DJAC(jn,jne20) = ( &
+    state%jac(jn,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jn,jna23) = ( &
+    state%jac(jn,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jn,jmg23) = ( &
+    state%jac(jn,jmg23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jp,jn) = ( &
+    state%jac(jp,jn) = ( &
          +    state%rates(i_scor, k_n_p) * state%rates(i_rate, k_n_p) &
          )
 
-    DJAC(jp,jp) = ( &
+    state%jac(jp,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jp,jhe4) = ( &
+    state%jac(jp,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jp,jc12) = ( &
+    state%jac(jp,jc12) = ( &
          + 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12p_na23) * state%rates(i_rate, k_c12_c12p_na23) &
          )
 
-    DJAC(jp,jne20) = ( &
+    state%jac(jp,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jp,jna23) = ( &
+    state%jac(jp,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jp,jmg23) = ( &
+    state%jac(jp,jmg23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jhe4,jn) = ( &
+    state%jac(jhe4,jn) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jhe4,jp) = ( &
+    state%jac(jhe4,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jhe4,jhe4) = ( &
+    state%jac(jhe4,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jhe4,jc12) = ( &
+    state%jac(jhe4,jc12) = ( &
          + 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12a_ne20) * state%rates(i_rate, k_c12_c12a_ne20) &
          )
 
-    DJAC(jhe4,jne20) = ( &
+    state%jac(jhe4,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jhe4,jna23) = ( &
+    state%jac(jhe4,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jhe4,jmg23) = ( &
+    state%jac(jhe4,jmg23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jc12,jn) = ( &
+    state%jac(jc12,jn) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jc12,jp) = ( &
+    state%jac(jc12,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jc12,jhe4) = ( &
+    state%jac(jc12,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jc12,jc12) = ( &
+    state%jac(jc12,jc12) = ( &
          - 2 * 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12a_ne20) * state%rates(i_rate, k_c12_c12a_ne20) &
          - 2 * 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12n_mg23) * state%rates(i_rate, k_c12_c12n_mg23) &
          - 2 * 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12p_na23) * state%rates(i_rate, k_c12_c12p_na23) &
          )
 
-    DJAC(jc12,jne20) = ( &
+    state%jac(jc12,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jc12,jna23) = ( &
+    state%jac(jc12,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jc12,jmg23) = ( &
+    state%jac(jc12,jmg23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jne20,jn) = ( &
+    state%jac(jne20,jn) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jne20,jp) = ( &
+    state%jac(jne20,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jne20,jhe4) = ( &
+    state%jac(jne20,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jne20,jc12) = ( &
+    state%jac(jne20,jc12) = ( &
          + 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12a_ne20) * state%rates(i_rate, k_c12_c12a_ne20) &
          )
 
-    DJAC(jne20,jne20) = ( &
+    state%jac(jne20,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jne20,jna23) = ( &
+    state%jac(jne20,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jne20,jmg23) = ( &
+    state%jac(jne20,jmg23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jna23,jn) = ( &
+    state%jac(jna23,jn) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jna23,jp) = ( &
+    state%jac(jna23,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jna23,jhe4) = ( &
+    state%jac(jna23,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jna23,jc12) = ( &
+    state%jac(jna23,jc12) = ( &
          + 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12p_na23) * state%rates(i_rate, k_c12_c12p_na23) &
          )
 
-    DJAC(jna23,jne20) = ( &
+    state%jac(jna23,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jna23,jna23) = ( &
+    state%jac(jna23,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jna23,jmg23) = ( &
+    state%jac(jna23,jmg23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jmg23,jn) = ( &
+    state%jac(jmg23,jn) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jmg23,jp) = ( &
+    state%jac(jmg23,jp) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jmg23,jhe4) = ( &
+    state%jac(jmg23,jhe4) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jmg23,jc12) = ( &
+    state%jac(jmg23,jc12) = ( &
          + 5.00000000000000d-01 * dens * 2*Y(jc12) * state%rates(i_scor, k_c12_c12n_mg23) * state%rates(i_rate, k_c12_c12n_mg23) &
          )
 
-    DJAC(jmg23,jne20) = ( &
+    state%jac(jmg23,jne20) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jmg23,jna23) = ( &
+    state%jac(jmg23,jna23) = ( &
          + 0.0d0 &
          )
 
-    DJAC(jmg23,jmg23) = ( &
+    state%jac(jmg23,jmg23) = ( &
          + 0.0d0 &
          )
   end subroutine actual_jac

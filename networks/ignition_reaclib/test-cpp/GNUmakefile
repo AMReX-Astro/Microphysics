@@ -13,14 +13,14 @@ USE_OMP = FALSE
 
 USE_REACT = TRUE
 
-USE_ACC = TRUE
+USE_ACC = FALSE
 
 # programs to be compiled
 ALL: testburn.ex table
 
 EOS_dir := helmholtz
 
-Network_dir := ignition_simple
+Network_dir := ignition_reaclib
 
 INTEGRATOR_DIR := BS
 

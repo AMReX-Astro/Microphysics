@@ -52,7 +52,7 @@ contains
     zion(jmg23)   = 1.200000d+01
     
     do i = 1, nspec
-       bion(i) = bion_per_nucleon(i) * aion(i) * ERG_PER_MeV
+       bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
     end do
 
     ! Set the number of neutrons
