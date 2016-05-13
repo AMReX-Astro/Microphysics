@@ -30,7 +30,8 @@ contains
 
     state % rho     = rpar(irp_dens) * dens_scale
     state % T       = y(net_itemp) * temp_scale
-    state % xn(:)   = y(1:nspec) * aion(:)
+    state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
+    state % xn(nspec_evolve+1:nspec) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec)
     state % cp      = rpar(irp_cp)
     state % cv      = rpar(irp_cv)
     state % abar    = rpar(irp_abar)
@@ -62,7 +63,8 @@ contains
 
     rpar(irp_dens)                  = state % rho / dens_scale
     y(net_itemp)                    = state % T / temp_scale
-    y(1:nspec)                      = state % xn(:) / aion(:)
+    y(1:nspec_evolve)               = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
     rpar(irp_cp)                    = state % cp
     rpar(irp_cv)                    = state % cv
     rpar(irp_abar)                  = state % abar
@@ -85,6 +87,7 @@ contains
     use rpar_indices
     use burn_type_module
     use bl_constants_module
+    use integration_data
 
     implicit none
 
@@ -97,7 +100,9 @@ contains
 
     rpar(irp_dens)                           = state % rho / dens_scale
     y(net_itemp)                             = state % T / temp_scale
-    y(1:nspec)                               = state % xn(:) / aion(:)
+    y(1:nspec_evolve)                        = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
+    y(net_ienuc)                             = state % e / ener_scale
     rpar(irp_cp)                             = state % cp
     rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
@@ -106,15 +111,26 @@ contains
     rpar(irp_eta)                            = state % eta
     rpar(irp_dhdY:irp_dhdY+nspec-1)          = state % dhdX(:) * aion(:)
     rpar(irp_dedY:irp_dedY+nspec-1)          = state % dedX(:) * aion(:)
+    rpar(irp_Told)                           = state % T_old
+    rpar(irp_dcvdt)                          = state % dcvdt
+    rpar(irp_dcpdt)                          = state % dcpdt
 
     if (present(ydot)) then
        ydot = state % ydot
        ydot(net_itemp) = ydot(net_itemp) / temp_scale
+       ydot(net_ienuc) = ydot(net_ienuc) / ener_scale
     endif
 
     if (present(jac)) then
        jac = state % jac
        jac(net_itemp,:) = jac(net_itemp,:) / temp_scale
+       jac(net_ienuc,:) = jac(net_ienuc,:) / ener_scale
+    endif
+
+    if (state % have_rates) then
+       rpar(irp_have_rates) = ONE
+    else
+       rpar(irp_have_rates) = -ONE
     endif
 
     do i = 1, num_rate_groups
@@ -139,6 +155,7 @@ contains
     use rpar_indices
     use burn_type_module
     use bl_constants_module
+    use integration_data
 
     implicit none
 
@@ -150,7 +167,9 @@ contains
 
     state % rho      = rpar(irp_dens) * dens_scale
     state % T        = y(net_itemp) * temp_scale
-    state % xn(:)    = y(1:nspec) * aion(:)
+    state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
+    state % xn(nspec_evolve+1:nspec) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec)
+    state % e        = y(net_ienuc) * ener_scale
     state % cp       = rpar(irp_cp)
     state % cv       = rpar(irp_cv)
     state % abar     = rpar(irp_abar)
@@ -159,6 +178,15 @@ contains
     state % eta      = rpar(irp_eta)
     state % dhdX(:)  = rpar(irp_dhdY:irp_dhdY-1+nspec) / aion(:)
     state % dedX(:)  = rpar(irp_dedY:irp_dedY-1+nspec) / aion(:)
+    state % T_old    = rpar(irp_Told)
+    state % dcvdt    = rpar(irp_dcvdt)
+    state % dcpdt    = rpar(irp_dcpdt)
+
+    if (rpar(irp_have_rates) > ZERO) then
+       state % have_rates = .true.
+    else
+       state % have_rates = .false.
+    endif
 
     do i = 1, num_rate_groups
        state % rates(i,:) = rpar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1)

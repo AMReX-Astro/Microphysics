@@ -20,6 +20,8 @@ EOS_dir := helmholtz
 
 Network_dir := aprox13
 
+INTEGRATOR_DIR := VBDF
+
 f90EXE_sources += testburn.f90
 f90EXE_sources += testjacobian.f90
 

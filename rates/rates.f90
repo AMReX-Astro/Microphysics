@@ -10,9 +10,11 @@ module rates_module
 
   implicit none
 
-  double precision, save :: rv(6), tv(7), datn(2,6,7)
-  double precision, save :: rfdm(4),rfd0(4),rfd1(4),rfd2(4)
-  double precision, save :: tfdm(5),tfd0(5),tfd1(5),tfd2(5)
+  double precision :: rv(6), tv(7), datn(2,6,7)
+  double precision :: rfdm(4),rfd0(4),rfd1(4),rfd2(4)
+  double precision :: tfdm(5),tfd0(5),tfd1(5),tfd2(5)
+
+  !$acc declare create(rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2)
   
 contains
 
@@ -60,11 +62,15 @@ contains
        tfd2(j)=1./((tv(j+2)-tv(j-1))*(tv(j+2)-tv(j))*(tv(j+2)-tv(j+1)))
     enddo
 
+  !$acc update device(rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2)
+
   end subroutine rates_init
 
 
 
   subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -135,6 +141,8 @@ contains
 
 
   subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -237,6 +245,8 @@ contains
 
   subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -279,6 +289,8 @@ contains
 
 
   subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -343,6 +355,8 @@ contains
 
   subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -375,6 +389,8 @@ contains
 
 
   subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -424,6 +440,8 @@ contains
 
 
   subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -499,6 +517,8 @@ contains
 
   subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -556,6 +576,8 @@ contains
 
 
   subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -628,6 +650,8 @@ contains
 
   subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -682,6 +706,8 @@ contains
 
 
   subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -754,6 +780,8 @@ contains
 
   subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -793,6 +821,8 @@ contains
 
 
   subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -835,6 +865,8 @@ contains
 
   subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -875,6 +907,8 @@ contains
 
 
   subroutine rate_s32ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -917,6 +951,8 @@ contains
 
   subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -958,6 +994,8 @@ contains
 
   subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -991,6 +1029,8 @@ contains
 
 
   subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1033,6 +1073,8 @@ contains
 
   subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1073,6 +1115,8 @@ contains
 
 
   subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1115,6 +1159,8 @@ contains
 
   subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1155,6 +1201,8 @@ contains
 
 
   subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1197,6 +1245,8 @@ contains
 
   subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1237,6 +1287,8 @@ contains
 
 
   subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1279,6 +1331,8 @@ contains
 
   subroutine rate_ti44ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1319,6 +1373,8 @@ contains
 
 
   subroutine rate_v47pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1361,6 +1417,8 @@ contains
 
   subroutine rate_cr48ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1401,6 +1459,8 @@ contains
 
 
   subroutine rate_cr48ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1443,6 +1503,8 @@ contains
 
   subroutine rate_mn51pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1483,6 +1545,8 @@ contains
 
 
   subroutine rate_fe52ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1525,6 +1589,8 @@ contains
 
   subroutine rate_fe52ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1565,6 +1631,8 @@ contains
 
 
   subroutine rate_co55pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1607,6 +1675,8 @@ contains
 
   subroutine rate_pp(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1645,6 +1715,8 @@ contains
 
 
   subroutine rate_png(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1696,6 +1768,8 @@ contains
 
   subroutine rate_dpg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1733,6 +1807,8 @@ contains
 
   subroutine rate_he3ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1762,6 +1838,8 @@ contains
 
 
   subroutine rate_he3he3(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1800,6 +1878,8 @@ contains
 
 
   subroutine rate_he3he4(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1846,6 +1926,8 @@ contains
 
 
   subroutine rate_c12pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1897,6 +1979,8 @@ contains
 
   subroutine rate_n14pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -1946,6 +2030,8 @@ contains
 
 
   subroutine rate_n15pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -1999,6 +2085,8 @@ contains
 
 
   subroutine rate_n15pa(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2057,6 +2145,8 @@ contains
 
   subroutine rate_o16pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -2104,6 +2194,8 @@ contains
 
 
   subroutine rate_n14ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2158,6 +2250,8 @@ contains
 
   subroutine rate_fe52ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -2188,6 +2282,8 @@ contains
 
 
   subroutine rate_fe53ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2223,6 +2319,8 @@ contains
 
 
   subroutine rate_fe54ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2267,6 +2365,8 @@ contains
 
   subroutine rate_fe54pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -2308,6 +2408,8 @@ contains
 
 
   subroutine rate_fe54ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2353,6 +2455,8 @@ contains
 
   subroutine rate_fe55ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
+    !$acc routine seq
+
     implicit none
 
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
@@ -2397,6 +2501,8 @@ contains
 
 
   subroutine rate_fe56pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2454,6 +2560,8 @@ contains
   ! sn56ec = ni56 neutrino loss rate
 
   subroutine mazurek(btemp,bden,y56,ye,rn56ec,sn56ec)
+
+    !$acc routine seq
 
     implicit none
 
@@ -2516,6 +2624,8 @@ contains
   ! spenc (erg/sec/proton) and snepc (erg/sec/neutron)
 
   subroutine ecapnuc(etakep,temp,rpen,rnep,spenc,snepc)
+
+    !$acc routine seq
 
     implicit none
 

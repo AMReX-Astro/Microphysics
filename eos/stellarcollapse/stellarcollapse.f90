@@ -82,7 +82,7 @@ contains
     case (eos_input_rh)
        
        ! NOT CURRENTLY IMPLEMENTED
-       call eos_type_error(ierr_not_implemented, input)
+       call bl_error("eos_input_th is not supported")
 
        !---------------------------------------------------------------------------
        ! temp, pres, and ye are inputs; iterate to find density
@@ -91,15 +91,14 @@ contains
     case (eos_input_tp)
 
        ! Make sure the initial density guess is within table
-       state % rho = max(mindens, min(maxdens, state % rho))
+       state % rho = max(mindens_tbl, min(maxdens_tbl, state % rho))
 
        ! We want to converge to the given pressure
        p_want = state % p
-       if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
 
        call newton_iter(state, ierr, ipres, idens, p_want)
 
-       if (ierr > 0) call eos_type_error(ierr, input)
+       if (ierr > 0) call bl_error("Error in Newton iteration")
 
 
 
@@ -111,15 +110,14 @@ contains
     case (eos_input_rp)
 
        ! Make sure the initial temperature guess is within the table
-       state % T = max(mintemp, min(maxtemp, state % T))
+       state % T = max(mintemp_tbl, min(maxtemp_tbl, state % T))
 
        ! We want to converge to the given pressure
        p_want = state % p
-       if (p_want < ZERO) call eos_type_error(ierr_neg_p, input)
 
        call newton_iter(state, ierr, ipres, itemp, p_want)
 
-       if (ierr > 0) call eos_type_error(ierr, input)
+       if (ierr > 0) call bl_error("Error in Newton iteration")
 
 
 
@@ -130,16 +128,15 @@ contains
     case (eos_input_re)
 
        ! Make sure the initial guess for temperature is within the table
-       state % T = max(mintemp, min(state % T, maxtemp))
+       state % T = max(mintemp_tbl, min(state % T, maxtemp_tbl))
 
        ! We want to converge to the given energy
        e_want = state % e
-       if (e_want < ZERO) call eos_type_error(ierr_neg_e, input)
 
        ! iterate to get the temperature
        call newton_iter(state, ierr, iener, itemp, e_want)
 
-       if (ierr > 0) call eos_type_error(ierr, input)
+       if (ierr > 0) call bl_error("Error in Newton iteration")
 
 
 
@@ -149,7 +146,7 @@ contains
 
     case (eos_input_ps)
        ! NOT CURRENTLY IMPLEMENTED
-       call eos_type_error(ierr_not_implemented, input)
+       call bl_error("eos_input_ps is not supported")
 
 
        !---------------------------------------------------------------------------
@@ -158,7 +155,7 @@ contains
 
     case (eos_input_ph)
        ! NOT CURRENTLY IMPLEMENTED
-       call eos_type_error(ierr_not_implemented, input)
+       call bl_error("eos_input_ph is not supported")
 
 
        !---------------------------------------------------------------------------
@@ -167,7 +164,7 @@ contains
 
     case (eos_input_th)
        ! NOT CURRENTLY IMPLEMENTED
-       call eos_type_error(ierr_not_implemented, input)
+       call bl_error("eos_input_th is not supported")
 
 
        !---------------------------------------------------------------------------
@@ -176,7 +173,7 @@ contains
 
     case default 
 
-       call eos_type_error(ierr_input, input)
+       call bl_error("EOS: invalid input")
 
     end select
 
@@ -251,7 +248,7 @@ contains
 
           x = state % T
           ! note that we are in table units
-          smallx = mintemp
+          smallx = mintemp_tbl
           xtol = ttol
 
           dfdx = df(2)
@@ -260,7 +257,7 @@ contains
 
           x = state % rho
           ! note that we are in table units
-          smallx = mindens
+          smallx = mindens_tbl
           xtol = dtol
 
           dfdx = df(1)
@@ -272,17 +269,14 @@ contains
         xnew = x - (f - f_want) / dfdx
 
         ! Don't let the temperature/density change by more than a factor of two
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! NOTE that temperature is in log(MeV) and can be negative
-        ! account for this by sign check; hopefully we aren't crossing zero...
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (x .lt. ZERO) then
-           xnew = max(TWO * x, min(xnew, HALF * x))
-        else
-           xnew = max(HALF * x, min(xnew, TWO * x))
-        endif
+        ! Note that because temperature/dens are logarithmic we want to do this via
+        ! addition and not multiplication, which differs from how we do it in, say,
+        ! the Helmholtz EOS
+
+        xnew = max(x - dlog10(TWO), min(xnew, x + dlog10(TWO)))
 
         ! Don't let us freeze/evacuate
+
         xnew = max(smallx, xnew)
 
         ! Store the new temperature/density

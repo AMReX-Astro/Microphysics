@@ -12,34 +12,63 @@ contains
 
   subroutine temperature_rhs(state)
 
-    use bl_constants_module, only: ZERO
+    !$acc routine seq
+
+    use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
     implicit none
 
-    type (burn_t)    :: state
-
-    double precision :: dhdY(nspec), dedY(nspec)
+    type (burn_t) :: state
+    double precision :: cv, cp, cvInv, cpInv
 
     if (state % self_heat) then
 
        ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
        ! evolve :
-       !    dT/dt = (1/c_p) [ -sum_i (xi_i omega_i) + Hnuc]
+       !    dT/dt = (1/c_p) [ Hnuc ]
        !
        ! For constant volume, div{U} = 0, and we evolve:
-       !    dT/dt = (1/c_v) [ -sum_i ( {e_x}_i omega_i) + Hnuc]
+       !    dT/dt = (1/c_v) [ Hnuc ]
        !
-       ! See paper III, including Eq. A3 for details.
+       ! See low Mach paper III, including Eq. A3 for details.
+       ! Note that we no longer include the chemical potential (dE/dX or dH/dX)
+       ! terms because we believe they analytically should vanish.
 
        if (do_constant_volume_burn) then
-          dedY = state % dedX * aion
-          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - sum( dedY(:) * state % ydot(1:nspec) ) ) / state % cv
+
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+
+             cv = state % cv + (state % T - state % T_old) * state % dcvdt
+
+          else
+
+             cv = state % cv
+
+          endif
+
+          cvInv = ONE / cv
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
+
        else
-          dhdY = state % dhdX * aion
-          state % ydot(net_itemp) = ( state % ydot(net_ienuc) - sum( dhdY(:) * state % ydot(1:nspec) ) ) / state % cp
+
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+
+             cp = state % cp + (state % T - state % T_old) * state % dcpdt
+
+          else
+
+             cp = state % cp
+
+          endif
+
+          cpInv = ONE / cp
+
+          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
+
        endif
 
     endif
@@ -54,17 +83,18 @@ contains
 
   subroutine temperature_jac(state)
 
-    use bl_constants_module, only: ZERO
+    !$acc routine seq
+
+    use bl_constants_module, only: ZERO, ONE
     use network, only: nspec, aion
     use burn_type_module
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
     implicit none
 
     type (burn_t)    :: state
 
-    integer          :: j
-    double precision :: dhdY(nspec), dedY(nspec)
+    double precision :: cp, cv, cpInv, cvInv
 
     ! Temperature Jacobian elements
 
@@ -72,29 +102,47 @@ contains
 
        if (do_constant_volume_burn) then
 
-          dedY = state % dedX * aion
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+
+             cv = state % cv + (state % T - state % T_old) * state % dcvdt
+
+          else
+
+             cv = state % cv
+
+          endif
+
+          cvInv = ONE / cv
 
           ! d(itemp)/d(yi)
-          do j = 1, nspec
-             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dEdY(:) * state % jac(1:nspec,j) ) ) / state % cv
-          enddo
+
+          state % jac(net_itemp,1:nspec_evolve) = state % jac(net_ienuc,1:nspec_evolve) * cvInv
 
           ! d(itemp)/d(temp)
-          state % jac(net_itemp,net_itemp) = ( state % jac(net_ienuc,net_itemp) - &
-                                               sum( dEdY(:) * state % jac(1:nspec,net_itemp) ) ) / state % cv
+
+          state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
 
        else
 
-          dhdY = state % dhdX * aion
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+
+             cp = state % cp + (state % T - state % T_old) * state % dcpdt
+
+          else
+
+             cp = state % cp
+
+          endif
+
+          cpInv = ONE / cp
 
           ! d(itemp)/d(yi)
-          do j = 1, nspec
-             state % jac(net_itemp,j) = ( state % jac(net_ienuc,j) - sum( dhdY(:) * state % jac(1:nspec,j) ) ) / state % cp
-          enddo
+
+          state % jac(net_itemp,1:nspec_evolve) = state % jac(net_ienuc,1:nspec_evolve) * cpInv
 
           ! d(itemp)/d(temp)
-          state % jac(net_itemp,net_itemp) = ( state % jac(net_ienuc,net_itemp) - &
-                                               sum( dhdY(:) * state % jac(1:nspec,net_itemp) ) ) / state % cp
+
+          state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
 
        endif
 

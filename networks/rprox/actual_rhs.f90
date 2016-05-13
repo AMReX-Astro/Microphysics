@@ -50,7 +50,6 @@ contains
     use bl_constants_module
     use rates_module
     use network
-    use burner_module
 
     implicit none
 

@@ -1,0 +1,297 @@
+\documentclass[11pt]{book} 
+
+\tolerance=600
+
+% for \begin{center}, etc.
+\usepackage[margin=1.0in]{geometry}
+
+% longtable package used to split tables across pages                           
+\usepackage{longtable}                                                          
+                                                                                
+% PDF-aware landscape package, used for rotating tables (including the          
+% longtable)                                                                    
+\usepackage{pdflscape}
+
+
+\input maestrosymbols
+
+% all kinds of math macros
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% eps figures
+\usepackage{epsfig}
+
+% chapter title styles
+\usepackage[Sonny]{fncychap}
+\ChNameVar{\LARGE}
+\ChTitleVar{\LARGE\sl}
+
+% part page style see
+% http://tex.stackexchange.com/questions/6609/problems-with-part-labels-using-titlesec
+\usepackage{titlesec}
+
+\titleformat{\part}[display]
+   {\Huge\filcenter}
+   {{\partname{}} \thepart}
+   {0em}
+   {\hrule}
+
+
+% hyperlinks -- load after fncychap
+\usepackage{hyperref}
+
+% color package
+\usepackage[usenames]{color}
+
+% table coloring                                                                
+\usepackage{colortbl}                                                           
+\definecolor{tableShade}{rgb}{0.945,0.961,0.980}                                
+                                                                                
+ 
+
+% make the MarginPars look pretty
+\setlength{\marginparwidth}{0.75in}
+\newcommand{\MarginPar}[1]{\marginpar{\vskip-\baselineskip\raggedright\tiny\sffamily
+\hrule\smallskip{\color{red}#1}\par\smallskip\hrule}}
+
+% to increase the likelihood that floats will occur "here" when you
+% want them to
+\renewcommand{\floatpagefraction}{1.0}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\textfraction}{0.0}
+
+% number subsubsections and put them in the TOC
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+% custom hrule for title page
+\newcommand{\HRule}{\rule{\linewidth}{0.125mm}}
+
+
+% short table of contents
+\usepackage{shorttoc}
+
+% spacing in the table of contents
+\usepackage[titles]{tocloft}
+
+\setlength{\cftbeforechapskip}{2ex}
+\setlength{\cftbeforesecskip}{0.25ex}
+
+% For splitting up lists into multitple columns
+\usepackage{multicol}
+
+% don't put a header on blank pages, see
+% http://www.latex-community.org/forum/viewtopic.php?f=4&p=51559
+% change ``plain'' to ``empty'' to eliminate the page number
+\makeatletter
+\renewcommand*\cleardoublepage{\clearpage\if@twoside
+\ifodd\c@page\else
+\hbox{}
+\thispagestyle{empty}
+\newpage
+\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\makeatother
+
+
+% don't make the chapter/section headings uppercase.  See the fancyhdr
+% documentation (section 9)
+\usepackage{fancyhdr}
+\renewcommand{\chaptermark}[1]{%
+ \markboth{\chaptername
+\ \thechapter.\ #1}{}}
+
+\renewcommand{\sectionmark}[1]{\markright{\thesection---#1}}
+
+\graphicspath{{CastroVerification/}{ConvertCheckpoint/}{Parallel/}{Scaling/}{Visualization/}}
+
+% skip a bit of space between paragraphs, to enhance readability
+\usepackage{parskip}
+
+
+
+
+\def\Ab {{\bf A}}
+\def\eb {{\bf e}}
+\def\Fb {{\bf F}}
+\def\gb {{\bf g}}
+\def\Hb {{\bf H}}
+\def\ib {{\bf i}}
+\def\Ib {{\bf I}}
+\def\Kb {{\bf K}}
+\def\lb {{\bf l}}
+\def\Lb {{\bf L}}
+\def\nb {{\bf n}}
+\def\Pb {{\bf P}}
+\def\Qb {{\bf Q}}
+\def\rb {{\bf r}}
+\def\Rb {{\bf R}}
+\def\Sb {{\bf S}}
+\def\ub {{\bf u}}
+\def\Ub {{\bf U}}
+\def\xb {{\bf x}}
+
+\def\dt       {\Delta t}
+\def\omegadot {\dot\omega}
+
+\def\inp  {{\rm in}}
+\def\outp {{\rm out}}
+\def\sync {{\rm sync}}
+
+\def\half   {\frac{1}{2}}
+\def\myhalf {\sfrac{1}{2}}
+\def\nph    {{n+\myhalf}}
+
+% codes
+\usepackage{listings}
+
+\definecolor{gray}{rgb}       {0.8,0.8,0.8}
+\definecolor{light-blue}{rgb} {0.8,0.8,1.0}
+\definecolor{light-green}{rgb}{0.8,1.0,0.8}
+\definecolor{light-red}{rgb}  {1.0,0.9,0.9}
+
+\lstset{
+  basicstyle=\small\ttfamily,%
+  frame=shadowbox,%
+  rulesepcolor=\color{gray},%
+  backgroundcolor=\color{white}%
+}
+
+
+%------------------------------------------------------------------------------
+\begin{document}
+
+\frontmatter
+
+\begin{titlepage}
+\begin{center}
+\ \\[3in]
+{\sf \Huge Microphysics} 
+
+\begin{minipage}{5.5in}
+\HRule\\[2mm]
+\centering
+{\Large \em A collection of astrophysical microphysics routines \\ with interfaces to the BoxLib codes}
+
+\HRule
+\end{minipage}
+
+\ \\[1 in]
+{\sf \huge User's Guide}
+
+\vfill
+
+{\large \today}
+\end{center}
+
+\end{titlepage}
+
+
+\shorttoc{Chapter Listing}{0}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+\clearpage
+
+\chapter*{Preface}
+\chaptermark{Preface}
+\addcontentsline{toc}{chapter}{preface}
+
+Welcome to the \microphysics\ User's Guide!
+
+In this User's Guide we describe the microphysics modules designed to
+support \boxlib\ codes such as \castro\ and \maestro. These all have a
+consistent interface and are designed to provide the users of those
+codes an easy experience in moving from the barebones microphysics
+modules provided in those codes. For the purposes of this user's
+guide, the microphysical components we currently deal with are the
+equation of state (EOS) and the nuclear burning network.
+
+\microphysics\ is not a stand-alone code. It is intended to be used in
+conjuction with \boxlib\ codes and so we do not provide support for
+running these codes separately.  However, in many cases we will
+provide test modules that demonstrate a minimal working example for
+how to run the modules.
+
+\clearpage
+
+\mainmatter
+
+
+\chapter{The Basics}
+
+Getting started with \microphysics is straightforward. Because the
+modules here are already in a format that the \boxlib\ codes
+understand, you only need to provide to the code calling these
+routines their location on your system. The code will do the rest. To
+do so, define the {\tt MICROPHYSICS\_DIR} environment variable, either
+at a command line or (if you use the {\tt bash} terminal) through your
+{\tt $\sim$/.bashrc} profile, e.g.:
+\begin{equation*}
+  \texttt{export MICROPHYSICS\_DIR = /path/to/Microphysics}
+\end{equation*}
+The calling code will know that when you provide it an {\tt EOS\_dir}
+and {\tt Network\_dir}, that it should look in this repository and not
+in its own microphysics location.
+
+\chapter{Data Structures}
+\label{sec:data_structures}
+
+All of the routines in this software package are standardized so that
+you interact with them using the same type of data structure. We call
+this the {\tt eos\_t\_vector}. This is a Fortran 90 derived data type
+(which, for our purposes, is analogous to a C++ struct). It is a
+collection of data specifying the microphysical state of the fluid
+that we are evaluating.  This derived type has many components, and in
+the Fortran syntax we access them with the \% operator. For a
+particular instantation named {\tt eos\_state}, the most important
+data is the following. Most of these components are one-dimensional
+(rank-1) Fortran arrays that consist of pointers to the corresponding
+data, except for a few with additional information.
+\begin{itemize}
+  \item {\tt eos\_state \% rho}: density.
+  \item {\tt eos\_state \% T}: temperature.
+  \item {\tt eos\_state \% p}: pressure.
+  \item {\tt eos\_state \% e}: internal energy.
+  \item {\tt eos\_state \% h}: enthalpy.
+  \item {\tt eos\_state \% s}: entropy.
+  \item {\tt eos\_state \% xn}: mass fractions of species (this is a
+    2D array, where the second index has the same number of components
+    as there are fluid species)
+  \item {\tt eos\_state \& aux}: any auxiliary variables carried with
+    the fluid (also a 2D array, where the second index has as many
+    components as there are auxiliary variables)
+\end{itemize}
+There is a lot more information that can be saved here, such as the
+partial derivatives of the thermodynamic state variables with respect
+to each other. To see a complete list, examine the {\tt eos\_type.f90}
+file inside the code calling \microphysics (e.g. {\tt
+  Castro/EOS/eos\_type.f90}.)
+
+
+\chapter{Runtime Parameters}
+
+\input runtime_parameters/runtime_parameters.tex
+
+
+\chapter{Equations of State}
+
+\input EOS/eos.tex
+
+
+\chapter{Nuclear Networks}
+
+\input networks/networks.tex
+
+
+%------------------------------------------------------------------------------
+\backmatter
+
+\renewcommand\bibname{References}
+\addcontentsline{toc}{chapter}{References}
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}

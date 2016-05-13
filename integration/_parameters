@@ -1,8 +1,5 @@
-# Choice of integration software to use. Currently we only have VODE (== 0).
-integrator               integer   0
-
 # When evolving the temperature, should we assume a constant pressure (default) 
-# or a constant volume (do_constant_volume_burn = T)?
+# or a constant volume (do\_constant\_volume\_burn = T)?
 do_constant_volume_burn  logical   .false.
 
 # Do we call the EOS each time we enter the EOS?  This is expensive,
@@ -14,6 +11,13 @@ do_constant_volume_burn  logical   .false.
 # whether we're updating the thermodynamic derivatives and other
 # quantities (cp and cv) as we go.
 call_eos_in_rhs          logical   .false.
+
+# If we want to call the EOS in general, but don't want to overdo it,
+# we can set a fraction dT\_crit such that we only do the EOS call
+# if the temperature has changed by a relative fraction > dT\_crit.
+# If we use this option, we will do a linear fit to c\_v and c\_p
+# in between EOS calls. This will work regardless of call\_eos\_in\_rhs.
+dT_crit                  real      1.0d20
 
 # Integration mode: if 0, a hydrostatic burn (temperature and density
 # remain constant), and if 1, a self-heating burn (temperature/energy
@@ -37,3 +41,17 @@ rtol_enuc                real      1.d-6
 atol_spec                real      1.d-12
 atol_temp                real      1.d-6
 atol_enuc                real      1.d-6
+
+# If we fail to find a solution consistent with the tolerances,
+# do we want to try again with a looser tolerance?
+retry_burn               logical   .false.
+
+# If we do retry a burn, by what factor should we loosen the tolerance?
+retry_burn_factor        real      1.25d0
+
+# What is the maximum factor we can increase the original tolerances by?
+retry_burn_max_change    real      1.0d2
+
+# Whether to renormalize the mass fractions at each step in the evolution
+# so that they sum to unity.
+renormalize_abundances   logical   .false.

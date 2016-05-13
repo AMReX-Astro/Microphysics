@@ -1,7 +1,7 @@
 module actual_rhs_module
 
   use network
-  use burner_module
+  use actual_burner_data
   use eos_type_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
@@ -28,17 +28,14 @@ contains
 
     logical          :: deriva = .false.
 
-    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
-    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)    
-
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
     double precision :: rho, temp, abar, zbar
 
     double precision :: y(nspec)
+
+    call evaluate_rates(state)
 
     ! Get the data from the state
 
@@ -48,29 +45,9 @@ contains
     zbar = state % zbar
     y    = state % xn / aion
 
-    ! Get the raw reaction rates
-    call aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd)
-
-    ! Weak screening rates
-    call weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
-
-    ! Do the screening here because the corrections depend on the composition
-    call screen_aprox19(temp, rho, y,                 &
-                        ratraw, dratrawdt, dratrawdd, &
-                        ratdum, dratdumdt, dratdumdd, &
-                        dratdumdy1, dratdumdy2,       &
-                        scfac,  dscfacdt,  dscfacdd)
-
-    ! Save the rate data, for the Jacobian later if we need it.
-
-    state % rates(1,:) = ratdum
-    state % rates(2,:) = dratdumdt
-    state % rates(3,:) = dratdumdy1
-    state % rates(4,:) = dratdumdy2
-
     ! Call the RHS to actually get dydt.
 
-    call rhs(y, ratdum, ratdum, state % ydot(1:nspec), deriva)
+    call rhs(y, state % rates(1,:), state % rates(1,:), state % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -116,6 +93,10 @@ contains
 
     state % jac(:,:) = ZERO
 
+    if (.not. state % have_rates) then
+       call evaluate_rates(state)
+    endif
+
     ! Get the data from the state
     
     rho  = state % rho
@@ -158,6 +139,46 @@ contains
 
   end subroutine actual_jac  
 
+
+
+  subroutine evaluate_rates(state)
+
+    implicit none
+
+    type (burn_t)    :: state
+
+    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
+    double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
+
+    double precision :: rho, temp, abar, zbar
+
+    double precision :: y(nspec)
+
+    ! Get the raw reaction rates
+    call aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+
+    ! Weak screening rates
+    call weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
+
+    ! Do the screening here because the corrections depend on the composition
+    call screen_aprox19(temp, rho, y,                 &
+                        ratraw, dratrawdt, dratrawdd, &
+                        ratdum, dratdumdt, dratdumdd, &
+                        dratdumdy1, dratdumdy2,       &
+                        scfac,  dscfacdt,  dscfacdd)
+
+    ! Save the rate data, for the Jacobian later if we need it.
+
+    state % rates(1,:) = ratdum
+    state % rates(2,:) = dratdumdt
+    state % rates(3,:) = dratdumdy1
+    state % rates(4,:) = dratdumdy2
+
+    state % have_rates = .true.
+
+  end subroutine evaluate_rates
 
 
   ! Evaluates the right hand side of the aprox19 ODEs
@@ -734,7 +755,7 @@ contains
 
 
     ! get the temperature factors
-    tf = get_tfactors(btemp)
+    call get_tfactors(btemp, tf)
 
 
     ! p(p,e+nu)d

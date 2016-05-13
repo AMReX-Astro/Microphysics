@@ -1,7 +1,10 @@
 f90sources += actual_network.f90
 f90sourcse += actual_network_data.f90
-f90sources += actual_burner.f90
-f90sources += actual_burner_data.f90
+
+ifneq ($(USE_REACT), FALSE)
+  f90sources += actual_burner.f90
+  f90sources += actual_burner_data.f90
+endif
 
 # actual_network.f90 is created at build time for this network
 network.f90:   $(GENERAL_NET_INPUTS) $(MICROPHYSICS_DIR)/Microphysics/networks/general_null/network.template

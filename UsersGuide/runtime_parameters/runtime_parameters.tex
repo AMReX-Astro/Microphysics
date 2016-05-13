@@ -1,0 +1,165 @@
+
+\label{ch:parameters}
+
+
+%%%%%%%%%%%%%%%%
+% symbol table
+%%%%%%%%%%%%%%%%
+
+\begin{landscape}
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
+\caption[integration parameters.]{integration parameters.} \label{table: integration parameters. runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
+       \multicolumn{1}{ c|}{\textbf{description}} & 
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
+       \multicolumn{1}{ c|}{\textbf{description}} & 
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline 
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb=  atol_enuc  = &    &  1.d-6 \\
+\verb=  atol_spec  = &    &  1.d-12 \\
+\rowcolor{tableShade}
+\verb=  atol_temp  = &    &  1.d-6 \\
+\verb=  burner_verbose  = &   Should we print out diagnostic output after the solve?  &  .false. \\
+\rowcolor{tableShade}
+\verb=  burning_mode  = &   Integration mode: if 0, a hydrostatic burn (temperature and density remain constant), and if 1, a self-heating burn (temperature/energy evolve with the burning). If 2, a hybrid approach presented by Raskin et al. (2010): do hydrostatic everywhere, but if the hydrostatic burn gives us a negative energy change, redo the burn in self-heating mode.  &  1 \\
+\verb=  call_eos_in_rhs  = &   Do we call the EOS each time we enter the EOS?  This is expensive, but more accurate.  Otherwise, we instead call the EOS at the start of the integration and freeze the thermodynamics throughout the RHS evalulation.  This only affects the temperature integration (which is the input to the rate evaluation). In particular, since we calculate the composition factors either way, this determines whether we're updating the thermodynamic derivatives and other quantities (cp and cv) as we go.  &  .false. \\
+\rowcolor{tableShade}
+\verb=  dT_crit  = &   If we want to call the EOS in general, but don't want to overdo it, we can set a fraction dT\_crit such that we only do the EOS call if the temperature has changed by a relative fraction > dT\_crit. If we use this option, we will do a linear fit to c\_v and c\_p in between EOS calls. This will work regardless of call\_eos\_in\_rhs.  &  1.0d20 \\
+\verb=  do_constant_volume_burn  = &   When evolving the temperature, should we assume a constant pressure (default) or a constant volume (do\_constant\_volume\_burn = T)?  &  .false. \\
+\rowcolor{tableShade}
+\verb=  jacobian  = &   Whether to use an analytical or numerical Jacobian. Numerical by default.  &  2 \\
+\verb=  renormalize_abundances  = &   Whether to renormalize the mass fractions at each step in the evolution so that they sum to unity.  &  .false. \\
+\rowcolor{tableShade}
+\verb=  retry_burn  = &   If we fail to find a solution consistent with the tolerances, do we want to try again with a looser tolerance?  &  .false. \\
+\verb=  retry_burn_factor  = &   If we do retry a burn, by what factor should we loosen the tolerance?  &  1.25d0 \\
+\rowcolor{tableShade}
+\verb=  retry_burn_max_change  = &   What is the maximum factor we can increase the original tolerances by?  &  1.0d2 \\
+\verb=  rtol_enuc  = &    &  1.d-6 \\
+\rowcolor{tableShade}
+\verb=  rtol_spec  = &   Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations.  &  1.d-12 \\
+\verb=  rtol_temp  = &    &  1.d-6 \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
+\caption[multigamma parameters.]{multigamma parameters.} \label{table: multigamma parameters. runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
+       \multicolumn{1}{ c|}{\textbf{description}} & 
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
+       \multicolumn{1}{ c|}{\textbf{description}} & 
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline 
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb=  species_a_gamma  = &    &  1.4 \\
+\verb=  species_a_name  = &    &  "" \\
+\rowcolor{tableShade}
+\verb=  species_b_gamma  = &    &  1.4 \\
+\verb=  species_b_name  = &    &  "" \\
+\rowcolor{tableShade}
+\verb=  species_c_gamma  = &    &  1.4 \\
+\verb=  species_c_name  = &    &  "" \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
+\caption[powerlaw parameters.]{powerlaw parameters.} \label{table: powerlaw parameters. runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
+       \multicolumn{1}{ c|}{\textbf{description}} & 
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
+       \multicolumn{1}{ c|}{\textbf{description}} & 
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline 
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb=  T_burn_ref  = &   reaction thresholds (for the power law)  &  1.0d0 \\
+\verb=  burning_mode  = &   override the default burning mode with a higher priority  &  0 \\
+\rowcolor{tableShade}
+\verb=  f_act  = &    &  1.0d0 \\
+\verb=  nu  = &   exponent for the temperature  &  4.d0 \\
+\rowcolor{tableShade}
+\verb=  rho_burn_ref  = &    &  1.0d0 \\
+\verb=  rtilde  = &   the coefficient for the reaction rate  &  1.d0 \\
+\rowcolor{tableShade}
+\verb=  specific_q_burn  = &   reaction specific q-value (in erg/g)  &  10.d0 \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+\end{landscape}
+
+%
+
+

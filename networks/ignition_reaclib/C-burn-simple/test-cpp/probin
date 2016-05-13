@@ -1,0 +1,27 @@
+&extern
+
+  use_eos_coulomb = T
+  eos_input_is_constant = T
+
+  jacobian = 2 ! (1=analytical, 2=numerical)
+  burning_mode = 1
+
+  do_constant_volume_burn = T
+  call_eos_in_rhs = F
+
+  burner_verbose = T
+
+  rtol_spec = 1.d-10
+  atol_spec = 1.d-10
+
+  rtol_enuc = 1.d-10
+  atol_enuc = 1.d-10
+
+  rtol_temp = 1.d-10
+  atol_temp = 1.d-10
+
+  renormalize_abundances = F
+
+  retry_burn = T
+
+/

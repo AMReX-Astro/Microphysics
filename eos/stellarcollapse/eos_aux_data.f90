@@ -32,6 +32,11 @@ module eos_aux_data_module
   integer, parameter :: izbar = 18
   integer, parameter :: igamma = 19
 
+  double precision, save :: mintemp_tbl, maxtemp_tbl
+  double precision, save :: mindens_tbl, maxdens_tbl
+
+  double precision, save :: temp_conv
+
 contains
 
   subroutine read_stellarcollapse_file(eos_input_file,use_energy_shift)
@@ -278,11 +283,19 @@ contains
     ! cleanup library
     call h5close_f(error)
 
-    mindens = 10.0**eos_logrho(1)
-    maxdens = 10.0**eos_logrho(nrho)
+    temp_conv = k_B / ev2erg / MeV2eV
+
+    mindens_tbl = eos_logrho(1)
+    maxdens_tbl = eos_logrho(nrho)
+
+    mindens = 10.0**mindens_tbl
+    maxdens = 10.0**maxdens_tbl
+
+    mintemp_tbl = eos_logtemp(1)
+    maxtemp_tbl = eos_logtemp(ntemp)
     
-    mintemp = 10.0**eos_logtemp(1) * MeV2eV * ev2erg / k_B
-    maxtemp = 10.0**eos_logtemp(ntemp) * MeV2eV * ev2erg / k_B
+    mintemp = 10.0**mintemp_tbl / temp_conv
+    maxtemp = 10.0**maxtemp_tbl / temp_conv
 
     minye = eos_ye(1)
     maxye = eos_ye(nye)
@@ -295,7 +308,7 @@ contains
 
     use eos_type_module
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
-    use bl_constants_module, only: ONE
+    use bl_constants_module, only: ZERO, ONE
 
     implicit none
 
@@ -304,12 +317,20 @@ contains
     ! the stellarcollapse.org tables use some log10 variables, as well as 
     ! units of MeV for temperature and chemical potential, and k_B / baryon 
     ! for entropy
-    state%rho = dlog10(state%rho)
-    state%p = dlog10(state%p)
-    state%e = dlog10(state%e - energy_shift)
-    state%T = dlog10(state%T * k_B / ev2erg / MeV2eV)
+    if (state % rho > ZERO) then
+       state % rho = dlog10(state % rho)
+    endif
+    if (state % p > ZERO) then
+       state % p = dlog10(state % p)
+    endif
+    if (state % e > ZERO) then
+       state % e = dlog10(state % e - energy_shift)
+    endif
+    if (state % T > ZERO) then
+       state % T = dlog10(state % T * temp_conv)
+    endif
     ! assuming baryon mass to be ~ 1 amu = 1/N_A
-    state%s = state%s * k_B / n_A
+    state % s = state % s * k_B / n_A
 
   end subroutine convert_to_table_format
 
@@ -329,7 +350,7 @@ contains
     state%rho = TEN**state%rho
     state%p   = TEN**state%p
     state%e   = TEN**state%e + energy_shift
-    state%T = (TEN**state%T) * MeV2eV * ev2erg / k_B
+    state%T = (TEN**state%T) / temp_conv
     state%s = state%s * n_A / k_B
 
     ! construct enthalpy
@@ -341,7 +362,8 @@ contains
     ! this routine will populate the (known) state parameters by interpolating
     ! the EOS table, assuming density, temperature and ye are the independent
     ! variables
-    
+
+    use bl_error_module
     use interpolate_module
     use eos_type_module
 

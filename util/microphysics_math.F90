@@ -36,6 +36,8 @@ contains
 
   function esum(array,n)
 
+    !$acc routine seq
+
     use bl_error_module
 
     implicit none
@@ -45,7 +47,7 @@ contains
 
     double precision :: esum
 
-    integer :: p, i, j, k
+    integer :: p, i, j, k, km
 
     double precision :: partials(0:n-1)
 
@@ -67,7 +69,9 @@ contains
 
        x = array(i)
 
-       do k = 0, p
+       km = p
+
+       do k = 0, km
 
           y = partials(k)
 
@@ -105,9 +109,11 @@ contains
 
     enddo
 
+#ifndef ACC
     if (p > n - 1) then
        call bl_error("Error: too many partials created in esum.")
     endif
+#endif
     
     esum = sum(partials(0:p))
 

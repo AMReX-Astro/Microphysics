@@ -4,7 +4,7 @@ module actual_rhs_module
   use bl_constants_module
   use network
   use burn_type_module
-  use actual_burner_module, only: ener_gener_rate
+  use actual_burner_data, only: ener_gener_rate
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none
@@ -38,13 +38,12 @@ contains
 
     state % ydot(ifuel_)  = -rate
     state % ydot(iash_)   =  rate
-    state % ydot(iinert_) =  ZERO
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec) = state % ydot(1:nspec) / aion
-    
-    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
+    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) / aion(1:nspec_evolve)
+
+    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
 
     call temperature_rhs(state)
 

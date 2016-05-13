@@ -1,7 +1,7 @@
 ! Common variables and routines for burners
 ! that use VODE for their integration.
 
-module vode_module
+module actual_integrator_module
 
   use eos_module
   use network
@@ -52,25 +52,28 @@ module vode_module
 
 contains
 
-  subroutine vode_init()
+  subroutine actual_integrator_init()
 
     implicit none
 
     call init_rpar_indices()
 
-  end subroutine vode_init
+  end subroutine actual_integrator_init
 
 
 
   ! Main interface
 
-  subroutine vode_burner(state_in, state_out, dt, time)
+  subroutine actual_integrator(state_in, state_out, dt, time)
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode
+                                    burning_mode, retry_burn, &
+                                    retry_burn_factor, retry_burn_max_change, &
+                                    call_eos_in_rhs, dT_crit
+    use integration_data, only: ener_scale
 
     implicit none
 
@@ -83,7 +86,7 @@ contains
     ! Local variables
 
     double precision :: local_time
-    type (eos_t)     :: eos_state_in, eos_state_out
+    type (eos_t)     :: eos_state_in, eos_state_out, eos_state_temp
 
     ! Work arrays
 
@@ -103,6 +106,7 @@ contains
     integer :: ipar
 
     double precision :: sum
+    double precision :: retry_change_factor
 
     EXTERNAL jac, f_rhs
 
@@ -111,7 +115,7 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in vode_burner.f90.")
+       call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -153,7 +157,7 @@ contains
     ! We assume that the valid quantities coming in are (rho, e); do an EOS call
     ! to make sure all other variables are consistent.
 
-    call eos(eos_input_re, eos_state_in)
+    call eos(eos_input_burn, eos_state_in)
 
     ! Send this data back to the burn state in case the energy changed
     ! due to a reset/flooring.
@@ -173,7 +177,25 @@ contains
     else if (burning_mode == 1) then
        rpar(irp_self_heat) = ONE
     else
-       call bl_error("Error: unknown burning_mode in vode_burner.f90.")
+       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+    endif
+
+    ! If we are using the dT_crit functionality and therefore doing a linear
+    ! interpolation of the specific heat in between EOS calls, do a second
+    ! EOS call here to establish an initial slope.
+
+    rpar(irp_Told) = eos_state_in % T
+
+    if (dT_crit < 1.0d19) then
+
+       eos_state_temp = eos_state_in
+       eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
+
+       call eos(eos_input_rt, eos_state_temp)
+
+       rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+       rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+
     endif
 
     ! Call the integration routine.
@@ -199,6 +221,15 @@ contains
 
        call eos_to_vode(eos_state_in, y, rpar)
 
+       rpar(irp_Told) = eos_state_in % T
+
+       if (dT_crit < 1.0d19) then
+
+          rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+          rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+
+       endif
+
        y(net_ienuc) = ZERO
 
        call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
@@ -218,7 +249,59 @@ contains
        print *, 'temp current = ', y(net_itemp) * temp_scale
        print *, 'xn current = ', y(1:nspec)
        print *, 'energy generated = ', y(net_ienuc)
-       call bl_error("ERROR in burner: integration failed")
+
+       if (.not. retry_burn) then
+
+          call bl_error("ERROR in burner: integration failed")
+
+       else
+
+          print *, 'Retrying burn with looser tolerances'
+
+          retry_change_factor = ONE
+
+          do while (istate < 0 .and. retry_change_factor <= retry_burn_max_change)
+
+             retry_change_factor = retry_change_factor * retry_burn_factor
+
+             istate = 1
+
+             rwork(:) = ZERO
+             iwork(:) = 0
+
+             atol = atol * retry_burn_factor
+             rtol = rtol * retry_burn_factor
+
+             iwork(6) = 150000
+
+             local_time = ZERO
+
+             call eos_to_vode(eos_state_in, y, rpar)
+
+             rpar(irp_Told) = eos_state_in % T
+
+             if (dT_crit < 1.0d19) then
+
+                rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+                rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+
+             endif
+
+             y(net_ienuc) = ZERO
+
+             call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+                        istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+
+          enddo
+
+          if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
+
+             call bl_error("ERROR in burner: integration failed")
+
+          endif
+
+       endif
+
     endif
 
     ! Store the final data.
@@ -234,7 +317,7 @@ contains
     ! but we will discard it and call the EOS to get a final temperature
     ! consistent with this new energy.
 
-    eos_state_out % e = eos_state_in % e + y(net_ienuc)
+    eos_state_out % e = eos_state_in % e + y(net_ienuc) * ener_scale
 
     eos_state_out % reset = .true.
 
@@ -247,12 +330,13 @@ contains
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, ' energy released: ', y(net_ienuc)
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
+                ' energy released: ', state_out % e - state_in % e
        print *, 'number of steps taken: ', iwork(11)
        print *, 'number of f evaluations: ', iwork(12)
 
     endif
 
-  end subroutine vode_burner
+  end subroutine actual_integrator
 
-end module vode_module
+end module actual_integrator_module
