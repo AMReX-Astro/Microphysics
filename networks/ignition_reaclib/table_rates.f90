@@ -182,9 +182,9 @@ contains
     ! This deals with out-of-range inputs via linear extrapolation
     call vector_index_lu(self%rhoy_table, rhoy, irhoy_lo)
     call vector_index_lu(self%temp_table, temp, itemp_lo)
-    write(*,*) 'upper self temp table: ', self%temp_table(39)
-    write(*,*) 'temp: ', temp
-    write(*,*) 'itemp_lo: ', itemp_lo
+    ! write(*,*) 'upper self temp table: ', self%temp_table(39)
+    ! write(*,*) 'temp: ', temp
+    ! write(*,*) 'itemp_lo: ', itemp_lo
     irhoy_hi = irhoy_lo + 1
     itemp_hi = itemp_lo + 1
 
@@ -261,12 +261,15 @@ contains
     end if
   end subroutine get_entries
 
-  subroutine get_reaction(self, rhoy, temp, reactvec)
-    use network, only: nreactvec
+  subroutine get_reaction(self, rhoy, temp, iwhich, reactvec)
+    use burn_type_module, only: num_rate_groups
+    implicit none
+    
     class(table_info) :: self
     double precision, intent(in) :: rhoy, temp
-    double precision, dimension(nreactvec), intent(out) :: reactvec
+    double precision, dimension(num_rate_groups+2), intent(inout) :: reactvec
     double precision, dimension(self%num_vars+add_vars) :: entries
+    integer, intent(in) :: iwhich
     
     ! Get the table entries at this rhoy, temp
     call self%entries(rhoy, temp, entries)

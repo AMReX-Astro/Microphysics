@@ -1,12 +1,15 @@
 PRECISION = DOUBLE
 PROFILE = FALSE
 
-DEBUG = FALSE
+DEBUG = TRUE
 
 DIM = 1
 
-COMP = PGI
-FCOMP = PGI
+#COMP = PGI
+#FCOMP = PGI
+
+COMP = gcc
+FCOMP = gfortran
 
 USE_MPI = FALSE
 USE_OMP = FALSE
@@ -22,7 +25,8 @@ EOS_dir := helmholtz
 
 Network_dir := ignition_reaclib
 
-INTEGRATOR_DIR := BS
+# VODE, BS, VBDF
+INTEGRATOR_DIR := VODE
 
 f90EXE_sources += testburn.f90
 

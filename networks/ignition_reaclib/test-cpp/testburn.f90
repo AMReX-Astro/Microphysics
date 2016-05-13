@@ -4,12 +4,14 @@ subroutine do_burn() bind (C)
   use eos_module
   use burner_module
   use actual_burner_module
+  use terminator_module, only: terminate
+  use actual_network_data, only: nspec, aion
 
   implicit none
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 2.5d-4
+  double precision :: time = 0.0, dt = 1.0d3
 
   type (eos_t) :: eos_state
 
@@ -64,8 +66,20 @@ subroutine do_burn() bind (C)
 
   print *, "rho_out: ", state_out % rho
   print *, "T_out: ", state_out % T
-  print *, "X_out: ", state_out % xn
+  
+  print *, "X_out: "
+  do i = 1, nspec
+     print *, state_out % xn(i)
+  end do
 
+  print *, "Y_out: "
+  do i = 1, nspec
+     print *, state_out % xn(i)/aion(i)
+  end do
+  
   print *, "Energy change: ", state_out % e - state_in % e
 
+  ! Clean up memory
+  call terminate()
+  
 end subroutine do_burn

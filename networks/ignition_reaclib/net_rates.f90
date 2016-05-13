@@ -40,15 +40,6 @@ module net_rates
 
 contains
 
-  subroutine init_reaclib_pars(pfile_unit)
-    integer, intent(in) :: pfile_unit
-    
-    namelist /reaclibpars/ screen_reaclib
-    
-    rewind(unit=pfile_unit)
-    read(unit=pfile_unit, nml=reaclibpars)
-  end subroutine init_reaclib_pars
-
   subroutine init_reaclib()
     allocate( ctemp_rate_1(7, rate_mult(1)) )
     ctemp_point(1)%p => ctemp_rate_1
@@ -98,7 +89,6 @@ contains
         0.000000d+00, &
         0.000000d+00 /)
 
-
   end subroutine init_reaclib
 
   subroutine term_reaclib()
@@ -124,11 +114,15 @@ contains
   end subroutine net_screening_init
 
   subroutine rate_evaluate(pstate, rhoy, temp, iwhich, reactvec)
+    use burn_type_module, only: num_rate_groups
+
+    implicit none
+    
     type(plasma_state), intent(in) :: pstate
     double precision, intent(in) :: temp, rhoy
     integer, intent(in) :: iwhich
 
-    double precision, intent(out), dimension(:) :: reactvec
+    double precision, intent(inout) :: reactvec(num_rate_groups+2)
     ! reactvec(1) = rate     , the reaction rate
     ! reactvec(2) = drate_dt , the Temperature derivative of rate
     ! reactvec(3) = scor     , the screening factor
@@ -152,7 +146,6 @@ contains
     double precision :: ri, T9, T9_exp, lnirate, irate, dirate_dt, dlnirate_dt
     integer :: i, j, m
 
-    
     ri = 0.0d0
     rate = 0.0d0
     drate_dt = 0.0d0
@@ -203,8 +196,19 @@ contains
        ! This is a Table rate (unless m=0)
        ! table_rates returns dq in reactvec(5)
        ! reflecting the dependence of Q on dens*ye and temperature.
-       call table_meta(-m)%reaction(rhoy, temp, reactvec)
+       call table_meta(-m)%reaction(rhoy, temp, iwhich, reactvec)
     end if
+
+    ! write(*,*) '----------------------------------------'
+    ! write(*,*) 'IWHICH: ', iwhich
+    ! write(*,*) 'reactvec(i_rate)', reactvec(i_rate)
+    ! write(*,*) 'reactvec(i_drate_dt)', reactvec(i_drate_dt)
+    ! write(*,*) 'reactvec(i_scor)', reactvec(i_scor)    
+    ! write(*,*) 'reactvec(i_dscor_dt)', reactvec(i_dscor_dt)
+    ! write(*,*) 'reactvec(i_dqweak)', reactvec(i_dqweak)
+    ! write(*,*) 'reactvec(i_epart)', reactvec(i_epart)
+    ! write(*,*) '----------------------------------------'
+
   end subroutine rate_evaluate
   
 end module net_rates

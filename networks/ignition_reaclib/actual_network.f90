@@ -24,16 +24,29 @@ contains
     
     integer :: i
 
-    ! Set spec_names
-    ! Set short_spec_names
+    spec_names(jn) = "neutron"
+    spec_names(jp) = "proton"
+    spec_names(jhe4) = "helium-4"
+    spec_names(jc12) = "carbon-12"
+    spec_names(jne20) = "neon-20"
+    spec_names(jna23) = "sodium-23"
+    spec_names(jmg23) = "magnesium-23"
     
-    ebind_per_nucleon(jn)   = 0.0d0
+    spec_names(jn) = "n"
+    spec_names(jp) = "p"
+    spec_names(jhe4) = "He-4"
+    spec_names(jc12) = "C-12"
+    spec_names(jne20) = "Ne-20"
+    spec_names(jna23) = "Na-23"
+    spec_names(jmg23) = "Mg-23"
+    
+    ebind_per_nucleon(jn)   = 0.782347d0
     ebind_per_nucleon(jp)   = 0.0d0
-    ebind_per_nucleon(jhe4)   = 0.0d0
-    ebind_per_nucleon(jc12)   = 0.0d0
-    ebind_per_nucleon(jne20)   = 0.0d0
-    ebind_per_nucleon(jna23)   = 0.0d0
-    ebind_per_nucleon(jmg23)   = 0.0d0
+    ebind_per_nucleon(jhe4)   = 7.073915d0
+    ebind_per_nucleon(jc12)   = 7.680144d0
+    ebind_per_nucleon(jne20)   = 8.032240d0
+    ebind_per_nucleon(jna23)   = 8.111493d0
+    ebind_per_nucleon(jmg23)   = 7.901104d0
     
     aion(jn)   = 1.000000d+00
     aion(jp)   = 1.000000d+00

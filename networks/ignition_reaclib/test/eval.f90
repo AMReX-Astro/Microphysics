@@ -12,74 +12,35 @@ program testburn
 
   real(kind=dp_t) :: dens, temp
   real(kind=dp_t), dimension(nspec) :: Xin
-  real(kind=dp_t), dimension(nspec_advance+1) :: y, ydot
-  real(kind=dp_t) :: enucdot
-
-  real(kind=dp_t) :: rpar
-  integer :: ipar
-
-  integer :: ic12, io16, img24
+  real(kind=dp_t), dimension(nspec+1) :: y, ydot
+  type(burn_t) :: state
+  
+  integer :: ic12, ine20, ina23
   integer :: n
 
   call network_init()
   call eos_init()
 
   ic12 = network_species_index("carbon-12")
-  io16 = network_species_index("oxygen-16")
-  img24 = network_species_index("magnesium-24")
+  ine20 = network_species_index("neon-20")
+  ina23 = network_species_index("sodium-23")
 
-  if (ic12 < 0 .or. io16 < 0 .or. img24 < 0) then
+  if (ic12 < 0 .or. ine20 < 0 .or. ina23 < 0) then
      call bl_error("ERROR: species index not defined")
   endif
 
-  dens = 2.6e9_dp_t
-  temp = 6.e8_dp_t
-
-  Xin(ic12) = 0.5_dp_t
-  Xin(io16) = 0.5_dp_t
-  Xin(img24) = 0.0_dp_t
-
-
-  den_eos(1) = dens
-  temp_eos(1) = temp
-  xn_eos(1,:) = Xin(:)
-  
-  call eos(eos_input_rt, den_eos, temp_eos, &
-           npts, &
-           xn_eos, &
-           p_eos, h_eos, e_eos, &
-           cv_eos, cp_eos, xne_eos, eta_eos, pele_eos, &
-           dpdt_eos, dpdr_eos, dedt_eos, dedr_eos, &
-           dpdX_eos, dhdX_eos, &
-           gam1_eos, cs_eos, s_eos, &
-           dsdt_eos, dsdr_eos, &
-           .false.)
-
+  state%rho = 1.0e7_dp_t
+  state%T = 1.0e9_dp_t
+  state%y_e = 0.5_dp_t
+  state%xn(:) = 0.0_dp_t
+  state%xn(ic12) = 1.0_dp_t
 
   print *, 'evaluating the RHS...'
 
-  ! load the state
-  y(1) = Xin(ic12)
-  y(nspec_advance+1) = temp
-
-  ! set the burner_aux variables
-  dens_pass = dens
-  c_p_pass = cp_eos(1)
-  dhdx_pass(:) = dhdX_eos(1,:)
-  X_O16_pass = Xin(io16)
-  
-
-  call f_rhs(nspec_advance+1, ZERO, y, ydot, rpar, ipar)
-
+  call actual_rhs(state)
   
   print *, 'done!'
-
-  print *, 'Xin:  ', Xin
+  print *, 'xn:  ', xn
   print *, 'rhs:  ', ydot
-
-  ! compute the energy release/s (erg/g/s)
-  enucdot = (ebin(img24) - ebin(ic12))*ydot(ic12)
-
-  print *, 'enucdot = ', enucdot
 
 end program testburn

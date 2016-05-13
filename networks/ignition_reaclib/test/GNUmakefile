@@ -91,8 +91,6 @@ VPATH_LOCATIONS += $(Fmlocs) $(VPATH_EXTRA_LOCATIONS)
 # list of directories to put in the Fortran include path
 FINCLUDE_LOCATIONS += $(Fmincs)
 
-
-
 # probin stuff
 PROBIN_PARAMETER_DIRS = ./
 PROBIN_PARAMETERS := $(shell $(BOXLIB_HOME)/Tools/F_scripts/findparams.py $(PROBIN_PARAMETER_DIRS))

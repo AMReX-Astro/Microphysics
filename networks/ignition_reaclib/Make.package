@@ -4,6 +4,7 @@ f90EXE_sources += burn_type.f90
 f90EXE_sources += net_rates.f90
 f90EXE_sources += table_rates.f90
 f90EXE_sources += physical_constants.f90
+f90EXE_sources += terminator.f90
 
 ifeq ($(USE_REACT),TRUE)
 f90EXE_sources += actual_burner.f90
@@ -13,6 +14,7 @@ f90EXE_sources += burn_type.f90
 f90EXE_sources += net_rates.f90
 f90EXE_sources += table_rates.f90
 f90EXE_sources += physical_constants.f90
+f90EXE_sources += terminator.f90
 
 USE_SCREENING = TRUE
 endif

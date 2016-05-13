@@ -3,7 +3,7 @@ module actual_network_data
   implicit none
 
   ! Evolution and auxiliary
-  integer, parameter :: nspec_evolve = 1
+  integer, parameter :: nspec_evolve = 7
   integer, parameter :: naux  = 0
 
   ! Number of nuclear species in the network
@@ -15,17 +15,10 @@ module actual_network_data
   ! Binding Energies Per Nucleon (MeV)
   double precision :: ebind_per_nucleon(nspec)
 
-  ! Nucleon mass number A
-  double precision :: aion(nspec)
-
-  ! Nucleon atomic number Z
-  double precision :: zion(nspec)
-
-  ! Nucleon neutron number N
-  double precision :: nion(nspec)
-  
-  ! Binding Energies (ergs)
-  double precision :: bion(nspec)
+  ! aion: Nucleon mass number A
+  ! zion: Nucleon atomic number Z
+  ! nion: Nucleon neutron number N
+  ! bion: Binding Energies (ergs)
 
   ! Nuclides
   integer, parameter :: jn   = 1
@@ -35,8 +28,6 @@ module actual_network_data
   integer, parameter :: jne20   = 5
   integer, parameter :: jna23   = 6
   integer, parameter :: jmg23   = 7
-  ! Energy Generation Rate
-  integer, parameter :: jenuc   = 8
 
   ! Reactions
   integer, parameter :: k_c12_c12a_ne20   = 1
