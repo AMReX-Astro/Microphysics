@@ -23,7 +23,7 @@ ALL: testburn.ex table
 
 EOS_dir := helmholtz
 
-Network_dir := ignition_reaclib
+Network_dir := ignition_reaclib/C-burn-simple
 
 # VODE, BS, VBDF
 INTEGRATOR_DIR := VODE
