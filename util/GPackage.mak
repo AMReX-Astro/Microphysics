@@ -1,1 +1,1 @@
-f90sources += microphysics_math.f90
+F90sources += microphysics_math.F90

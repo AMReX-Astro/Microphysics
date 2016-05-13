@@ -31,7 +31,7 @@ contains
 
     ! Ensure that mass fractions always stay positive.
 
-    bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-200) / aion(1:nspec_evolve)
+    bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-30) / aion(1:nspec_evolve)
     bs % y(1:nspec_evolve) = min(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE) / aion(1:nspec_evolve)
 
     ! Ensure that the temperature always stays within reasonable limits.

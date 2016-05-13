@@ -271,7 +271,7 @@ contains
 
     logical :: converged, reduce, loop_flag
 
-    integer :: i, k, n, kk, km, ierr_temp
+    integer :: i, k, n, kk, km, kstop, ierr_temp
     integer, parameter :: max_iters = 10 ! Should not need more than this
 
     ! for internal storage of the polynomial extrapolation
@@ -364,7 +364,7 @@ contains
                 if (err_max < 1) then
 
                    converged = .true.
-                   loop_flag = .true.
+                   kstop = k
                    exit
 
                 else
@@ -394,6 +394,8 @@ contains
                 endif
 
              endif
+
+             kstop = k
 
           endif
 
@@ -432,7 +434,7 @@ contains
     ! increase in order
     bs % dt_next = dt / scale
 
-    if (bs % kopt >= k .and. bs % kopt /= bs % kmax .and. .not. reduce) then
+    if (bs % kopt >= kstop .and. bs % kopt /= bs % kmax .and. .not. reduce) then
        fac = max(scale/bs % alpha(bs % kopt-1, bs % kopt), SCALMX)
        if (bs % a(bs % kopt+1)*fac <= work_min) then
           bs % dt_next = dt/fac

@@ -759,7 +759,7 @@ contains
 
 
     ! get the temperature factors
-    tf = get_tfactors(btemp)
+    call get_tfactors(btemp, tf)
 
 
     ! p(p,e+nu)d
