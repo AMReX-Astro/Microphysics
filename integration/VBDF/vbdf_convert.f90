@@ -17,6 +17,8 @@ contains
 
   subroutine vbdf_to_eos(state, ts)
 
+    !$acc routine seq
+
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
     use bdf_type_module
@@ -48,6 +50,8 @@ contains
   ! Given an EOS state, fill the rpar and integration state data.
 
   subroutine eos_to_vbdf(state, ts)
+
+    !$acc routine seq
 
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
@@ -81,6 +85,8 @@ contains
   ! Given a burn state, fill the bdf_ts.
 
   subroutine burn_to_vbdf(state, ts)
+
+    !$acc routine seq
 
     use network, only: nspec, aion
     use eos_type_module, only: eos_t
@@ -144,6 +150,8 @@ contains
   ! Given a bdf_ts, set up a burn state.
 
   subroutine vbdf_to_burn(ts, state)
+
+    !$acc routine seq
 
     use network, only: nspec, aion
     use eos_type_module, only: eos_t

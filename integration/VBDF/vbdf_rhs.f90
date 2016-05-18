@@ -4,6 +4,8 @@
 
   subroutine rhs(ts)
 
+    !$acc routine seq
+
     use eos_module
     use bl_types
     use vbdf_convert_module
@@ -99,6 +101,8 @@
   ! Analytical Jacobian
 
   subroutine jac(ts)
+
+    !$acc routine seq
 
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac

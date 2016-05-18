@@ -28,6 +28,8 @@ contains
 
   subroutine actual_integrator(state_in, state_out, dt, time)
 
+    !$acc routine seq
+
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
