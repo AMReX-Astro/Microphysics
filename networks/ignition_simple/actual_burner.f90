@@ -13,12 +13,8 @@ contains
   subroutine actual_burner_init()
 
     use integrator_module, only: integrator_init
-    use integration_data, only: temp_scale, ener_scale
 
     implicit none
-
-    temp_scale = 1.0d10
-    ener_scale = c_light * c_light
 
     call integrator_init()
 

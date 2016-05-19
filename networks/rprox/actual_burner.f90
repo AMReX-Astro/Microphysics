@@ -17,11 +17,8 @@ contains
   subroutine actual_burner_init()
 
     use integrator_module, only: integrator_init
-    use integration_data, only: temp_scale
 
     implicit none
-
-    temp_scale = 1.0d9
 
     reac_names(irlambCNO) = "rlambdaCNO"
     reac_names(irag15o)   = "rag15o"
