@@ -15,15 +15,15 @@
 
     implicit none
 
-    integer,          intent(IN   ) :: neq, ipar
-    double precision, intent(INOUT) :: time, y(neq)
-    double precision, intent(INOUT) :: rpar(n_rpar_comps)
-    double precision, intent(  OUT) :: ydot(neq)
+    integer,    intent(IN   ) :: neq, ipar
+    real(dp_t), intent(INOUT) :: time, y(neq)
+    real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
+    real(dp_t), intent(  OUT) :: ydot(neq)
 
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    double precision :: nspec_sum
+    real(dp_t) :: nspec_sum
 
     ! Ensure that mass fractions always stay positive.
 
@@ -106,12 +106,13 @@
     use burn_type_module
     use network, only: nspec
     use rpar_indices
+    use bl_types, only: dp_t
 
     implicit none
 
-    integer         , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-    double precision, intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-    double precision, intent(  OUT) :: pd(neq,neq)
+    integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
+    real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
+    real(dp_t), intent(  OUT) :: pd(neq,neq)
 
     type (burn_t) :: state
 

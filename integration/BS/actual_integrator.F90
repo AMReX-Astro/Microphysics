@@ -47,9 +47,9 @@ contains
 
     ! Input arguments
 
-    type (burn_t),       intent(in   ) :: state_in
-    type (burn_t),       intent(inout) :: state_out
-    double precision,    intent(in   ) :: dt, time
+    type (burn_t), intent(in   ) :: state_in
+    type (burn_t), intent(inout) :: state_out
+    real(dp_t),    intent(in   ) :: dt, time
 
     logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
     logical, parameter :: REUSE = .false. !.false. means don't reuse the Jacobian
@@ -67,8 +67,8 @@ contains
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
     type (bs_t) :: bs
 
-    double precision :: sum
-    double precision :: retry_change_factor
+    real(dp_t) :: sum
+    real(dp_t) :: retry_change_factor
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.

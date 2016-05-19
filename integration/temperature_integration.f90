@@ -18,11 +18,12 @@ contains
     use network, only: nspec, aion
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
+    use bl_types, only: dp_t
 
     implicit none
 
     type (burn_t) :: state
-    double precision :: cv, cp, cvInv, cpInv
+    real(dp_t) :: cv, cp, cvInv, cpInv
 
     if (state % self_heat) then
 
@@ -89,12 +90,13 @@ contains
     use network, only: nspec, aion
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
+    use bl_types, only: dp_t
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t) :: state
 
-    double precision :: cp, cv, cpInv, cvInv
+    real(dp_t) :: cp, cv, cpInv, cvInv
 
     ! Temperature Jacobian elements
 

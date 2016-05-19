@@ -8,6 +8,7 @@ module actual_integrator_module
   use rpar_indices
   use vode_convert_module
   use burn_type_module
+  use bl_types
 
   implicit none
 
@@ -79,22 +80,22 @@ contains
 
     ! Input arguments
 
-    type (burn_t),       intent(in   ) :: state_in
-    type (burn_t),       intent(inout) :: state_out
-    double precision,    intent(in   ) :: dt, time
+    type (burn_t), intent(in   ) :: state_in
+    type (burn_t), intent(inout) :: state_out
+    real(dp_t),    intent(in   ) :: dt, time
 
     ! Local variables
 
-    double precision :: local_time
-    type (eos_t)     :: eos_state_in, eos_state_out, eos_state_temp
+    real(dp_t) :: local_time
+    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
 
     ! Work arrays
 
-    double precision :: y(neqs)
-    double precision :: atol(neqs), rtol(neqs)
-    double precision :: rwork(LRW)
-    integer          :: iwork(LIW)
-    double precision :: rpar(n_rpar_comps)
+    real(dp_t) :: y(neqs)
+    real(dp_t) :: atol(neqs), rtol(neqs)
+    real(dp_t) :: rwork(LRW)
+    integer    :: iwork(LIW)
+    real(dp_t) :: rpar(n_rpar_comps)
 
     integer :: MF_JAC
 
@@ -105,8 +106,8 @@ contains
 
     integer :: ipar
 
-    double precision :: sum
-    double precision :: retry_change_factor
+    real(dp_t) :: sum
+    real(dp_t) :: retry_change_factor
 
     EXTERNAL jac, f_rhs
 

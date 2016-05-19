@@ -23,7 +23,7 @@
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    double precision :: nspec_sum
+    real(dp_t) :: nspec_sum
 
     ! Ensure that mass fractions always stay positive.
 

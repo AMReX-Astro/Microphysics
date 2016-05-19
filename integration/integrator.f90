@@ -28,12 +28,13 @@ contains
     use actual_integrator_module, only: actual_integrator
     use bl_error_module, only: bl_error
     use burn_type_module, only: burn_t
+    use bl_types, only: dp_t
 
     implicit none
 
-    type (burn_t),       intent(in   ) :: state_in
-    type (burn_t),       intent(inout) :: state_out
-    double precision,    intent(in   ) :: dt, time
+    type (burn_t),  intent(in   ) :: state_in
+    type (burn_t),  intent(inout) :: state_out
+    real(dp_t),     intent(in   ) :: dt, time
 
     call actual_integrator(state_in, state_out, dt, time)
 

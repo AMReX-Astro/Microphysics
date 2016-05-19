@@ -24,7 +24,7 @@ contains
 
     type (burn_t)    :: state_del
 
-    double precision, parameter :: eps = 1.d-8
+    real(dp_t), parameter :: eps = 1.d-8
 
     state % jac(:,:) = ZERO
 

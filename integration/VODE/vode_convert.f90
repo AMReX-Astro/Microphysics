@@ -1,6 +1,7 @@
 module vode_convert_module
 
   use integration_data, only: temp_scale, dens_scale
+  use bl_types, only: dp_t
 
   implicit none
 
@@ -24,9 +25,9 @@ contains
 
     implicit none
 
-    type (eos_t)     :: state
-    double precision :: rpar(n_rpar_comps)
-    double precision :: y(neqs)
+    type (eos_t) :: state
+    real(dp_t)   :: rpar(n_rpar_comps)
+    real(dp_t)   :: y(neqs)
 
     state % rho     = rpar(irp_dens) * dens_scale
     state % T       = y(net_itemp) * temp_scale
@@ -57,9 +58,9 @@ contains
 
     implicit none
 
-    type (eos_t)     :: state
-    double precision :: rpar(n_rpar_comps)
-    double precision :: y(neqs)
+    type (eos_t) :: state
+    real(dp_t)   :: rpar(n_rpar_comps)
+    real(dp_t)   :: y(neqs)
 
     rpar(irp_dens)                  = state % rho / dens_scale
     y(net_itemp)                    = state % T / temp_scale
@@ -91,12 +92,12 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
-    double precision :: rpar(n_rpar_comps)
-    double precision :: y(neqs)
-    double precision, optional :: ydot(neqs), jac(neqs, neqs)
+    type (burn_t) :: state
+    real(dp_t)    :: rpar(n_rpar_comps)
+    real(dp_t)    :: y(neqs)
+    real(dp_t), optional :: ydot(neqs), jac(neqs, neqs)
 
-    integer          :: i
+    integer       :: i
 
     rpar(irp_dens)                           = state % rho / dens_scale
     y(net_itemp)                             = state % T / temp_scale
@@ -159,11 +160,11 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
-    double precision :: rpar(n_rpar_comps)
-    double precision :: y(neqs)
+    type (burn_t) :: state
+    real(dp_t)    :: rpar(n_rpar_comps)
+    real(dp_t)    :: y(neqs)
 
-    integer          :: i
+    integer       :: i
 
     state % rho      = rpar(irp_dens) * dens_scale
     state % T        = y(net_itemp) * temp_scale
