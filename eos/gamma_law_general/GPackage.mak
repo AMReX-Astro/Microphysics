@@ -1,1 +1,1 @@
-f90sources += gamma_law_general.f90
+F90sources += gamma_law_general.F90

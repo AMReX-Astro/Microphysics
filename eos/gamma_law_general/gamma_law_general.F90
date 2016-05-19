@@ -23,7 +23,9 @@ module actual_eos_module
   double precision, save :: gamma_const
   
   logical, save :: assume_neutral
-  
+
+  !$acc declare create(gamma_const, assume_neutral)
+ 
 contains
 
   subroutine actual_eos_init
@@ -40,12 +42,16 @@ contains
     end if
 
     assume_neutral = eos_assume_neutral
+
+    !$acc update device(gamma_const, eos_assume_neutral)
     
   end subroutine actual_eos_init
 
 
 
   subroutine actual_eos(input, state)
+
+    !$acc routine seq
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
@@ -149,12 +155,16 @@ contains
        ! temperature, enthalpy and xmass are inputs
 
        ! This system is underconstrained.
-       
+
+#ifndef ACC 
        call bl_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
+#endif
 
     case default
-       
+
+#ifndef ACC       
        call bl_error('EOS: invalid input.')
+#endif
        
     end select
     
