@@ -5,19 +5,6 @@ module actual_network
 
   implicit none
 
-  ! Some fundamental physical constants
-
-  double precision, parameter, private :: avo = 6.0221417930d23
-  double precision, parameter, private :: c_light = 2.99792458d10
-
-  double precision, parameter, private :: ev2erg  = 1.60217648740d-12  
-  double precision, parameter, private :: mev2erg = ev2erg*1.0d6
-  double precision, parameter, private :: mev2gr  = mev2erg/c_light**2
-
-  double precision, parameter, private :: mn = 1.67492721184d-24
-  double precision, parameter, private :: mp = 1.67262163783d-24
-  double precision, parameter, private :: me = 9.1093821545d-28
-
 contains
   
   subroutine actual_network_init
