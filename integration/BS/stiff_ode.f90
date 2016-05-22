@@ -50,6 +50,8 @@ contains
     bs % n_rhs = 0
     bs % n_jac = 0
 
+    bs % dt = dt_ini
+
     do n = 1, MAX_STEPS
 
        ! Get the scaling.
@@ -60,10 +62,6 @@ contains
        ! a hard-coded parameter odescal.
 
        call f_rhs(bs)
-
-       if (n .eq. 1) then
-          call initial_timestep(bs)
-       endif
 
        yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
 
