@@ -60,15 +60,13 @@ private
     double precision :: h       = 6.6260689633d-27
     double precision :: hbar
     double precision :: qe      = 4.8032042712d-10
-    double precision :: avo     = 6.0221417930d23
+    double precision :: avo_eos = 6.0221417930d23
     double precision :: clight  = 2.99792458d10
     double precision :: kerg    = 1.380650424d-16
-    double precision :: ev2erg  = 1.60217648740d-12
+    double precision :: ev2erg_eos  = 1.60217648740d-12
     double precision :: kev
     double precision :: amu     = 1.66053878283d-24
-    double precision :: mn      = 1.67492721184d-24
-    double precision :: mp      = 1.67262163783d-24
-    double precision :: me      = 9.1093821545d-28
+    double precision :: me_eos  = 9.1093821545d-28
     double precision :: rbohr
     double precision :: fine
     double precision :: hion    = 13.605698140d0
@@ -113,8 +111,8 @@ private
 
     !$acc declare &
     !$acc create(pi, eulercon, a2rad, rad2a) &
-    !$acc create(g, h, hbar, qe, avo, clight, kerg) &
-    !$acc create(ev2erg, kev, amu, mn, mp, me) &
+    !$acc create(g, h, hbar, qe, avo_eos, clight, kerg) &
+    !$acc create(ev2erg_eos, kev, amu, me_eos) &
     !$acc create(rbohr, fine, hion) &
     !$acc create(ssol, asol, weinlam, weinfre, rhonuc) &
     !$acc create(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
@@ -407,8 +405,8 @@ contains
            dsraddz = 0.0d0
 
            !..ion section:
-           xni     = avo * ytot1 * den
-           dxnidd  = avo * ytot1
+           xni     = avo_eos * ytot1 * den
+           dxnidd  = avo_eos * ytot1
            dxnida  = -xni * ytot1
 
            pion    = xni * kt
@@ -423,7 +421,7 @@ contains
            deionda = 1.5d0 * dpionda*deni
            deiondz = 0.0d0
 
-           x       = abar*abar*sqrt(abar) * deni/avo
+           x       = abar*abar*sqrt(abar) * deni/avo_eos
            s       = sioncon * temp
            z       = x * s * sqrt(s)
            y       = log(z)
@@ -433,7 +431,7 @@ contains
            dsiondt = (dpiondt*deni + deiondt)*tempi -  &
                 (pion*deni + eion) * tempi*tempi  &
                 + 1.5d0 * kergavo * tempi*ytot1
-           x       = avo*kerg/abar
+           x       = avo_eos*kerg/abar
            dsionda = (dpionda*deni + deionda)*tempi  &
                 + kergavo*ytot1*ytot1* (2.5d0 - y)
            dsiondz = 0.0d0
@@ -778,13 +776,13 @@ contains
               !...yakovlev & shalybkov 1989 equations 82, 85, 86, 87
               if (plasg .ge. 1.0D0) then
                  x        = plasg**(0.25d0)
-                 y        = avo * ytot1 * kerg
+                 y        = avo_eos * ytot1 * kerg
                  ecoul    = y * temp * (a1*plasg + b1*x + c1/x + d1)
                  pcoul    = onethird * den * ecoul
                  scoul    = -y * (3.0d0*b1*x - 5.0d0*c1/x &
                       + d1 * (log(plasg) - 1.0d0) - e1)
 
-                 y        = avo*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
+                 y        = avo_eos*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
                  decouldd = y * plasgdd
                  decouldt = y * plasgdt + ecoul/temp
                  decoulda = y * plasgda - ecoul/abar
@@ -796,7 +794,7 @@ contains
                  dpcoulda = y * decoulda
                  dpcouldz = y * decouldz
 
-                 y        = -avo*kerg/(abar*plasg)* &
+                 y        = -avo_eos*kerg/(abar*plasg)* &
                       (0.75d0*b1*x+1.25d0*c1/x+d1)
                  dscouldd = y * plasgdd
                  dscouldt = y * plasgdt
@@ -810,7 +808,7 @@ contains
                  z        = c2 * x - onethird * a2 * y
                  pcoul    = -pion * z
                  ecoul    = 3.0d0 * pcoul/den
-                 scoul    = -avo/abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
+                 scoul    = -avo_eos/abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
 
                  s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
                  dpcouldd = -dpiondd*z - pion*s*plasgdd
@@ -824,7 +822,7 @@ contains
                  decoulda = s * dpcoulda
                  decouldz = s * dpcouldz
 
-                 s        = -avo*kerg/(abar*plasg)* &
+                 s        = -avo_eos*kerg/(abar*plasg)* &
                       (1.5d0*c2*x-a2*(b2-1.0d0)*y)
                  dscouldd = s * plasgdd
                  dscouldt = s * plasgdt
@@ -1308,8 +1306,8 @@ contains
         rad2a   = 180.0d0/pi
 
         hbar    = 0.5d0 * h/pi
-        kev     = kerg/ev2erg
-        rbohr   = hbar*hbar/(me * qe * qe)
+        kev     = kerg/ev2erg_eos
+        rbohr   = hbar*hbar/(me_eos * qe * qe)
         fine    = qe*qe/(hbar*clight)
 
         asol    = 4.0d0 * ssol / clight
@@ -1320,7 +1318,7 @@ contains
         sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
         forth   = 4.0d0/3.0d0
         forpi   = 4.0d0 * pi
-        kergavo = kerg * avo
+        kergavo = kerg * avo_eos
         ikavo   = 1.0d0/kergavo
         asoli3  = asol/3.0d0
         light2  = clight * clight
@@ -1334,8 +1332,8 @@ contains
 
         !$acc update &
         !$acc device(pi, eulercon, a2rad, rad2a) &
-        !$acc device(g, h, hbar, qe, avo, clight, kerg) &
-        !$acc device(ev2erg, kev, amu, mn, mp, me) &
+        !$acc device(g, h, hbar, qe, avo_eos, clight, kerg) &
+        !$acc device(ev2erg_eos, kev, amu, me_eos) &
         !$acc device(rbohr, fine, hion) &
         !$acc device(ssol, asol, weinlam, weinfre, rhonuc) &
         !$acc device(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
