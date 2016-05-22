@@ -11,7 +11,7 @@ module microphysics_math_module
   ! increase the size of this parameter (or maybe we can make 
   ! it network-dependent).
 
-  double precision, parameter :: max_esum_size = 30
+  integer, parameter :: max_esum_size = 30
 
 contains
 
