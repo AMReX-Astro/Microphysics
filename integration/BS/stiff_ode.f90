@@ -350,7 +350,7 @@ contains
              ierr = ierr_temp
 
              xest = (dt/nseq(k))**2
-             call poly_extrap(k, xest, yseq, bs % y, yerr, neqs, t_extrap, qcol)
+             call poly_extrap(k, xest, yseq, bs % y, yerr, t_extrap, qcol)
 
              if (k /= 1) then
                 err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
@@ -445,7 +445,7 @@ contains
   end subroutine single_step
 
 
-  subroutine poly_extrap(iest, test, yest, yz, dy, neqs, t, qcol)
+  subroutine poly_extrap(iest, test, yest, yz, dy, t, qcol)
 
     !$acc routine seq
 
@@ -455,7 +455,7 @@ contains
     ! building a polynomial through the points, where the order
     ! is iest
 
-    integer, intent(in) :: iest, neqs
+    integer, intent(in) :: iest
     real(kind=dp_t), intent(in) :: test, yest(neqs)
     real(kind=dp_t), intent(inout) :: yz(neqs), dy(neqs)
 
