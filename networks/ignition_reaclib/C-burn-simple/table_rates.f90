@@ -31,33 +31,30 @@ module table_rates
      integer :: num_rhoy
      integer :: num_temp
      integer :: num_vars
-   contains
-     procedure :: initialize => init_tab_info
-     procedure :: terminate => term_tab_info
-     procedure :: reaction => get_reaction
-     procedure :: entries => get_entries
   end type table_info
 
   type(table_info), target, dimension(num_tables) :: table_meta
+
+  !$acc declare create(table_meta)
 
 contains
 
   subroutine init_table_meta()
     integer :: n
     do n = 1, num_tables
-       call table_meta(n)%initialize()
+       call init_tab_info(table_meta(n))
     end do
   end subroutine init_table_meta
 
   subroutine term_table_meta()
     integer :: n
     do n = 1, num_tables
-       call table_meta(n)%terminate()
+       call term_tab_info(table_meta(n))
     end do
   end subroutine term_table_meta
   
   subroutine init_tab_info(self)
-    class(table_info) :: self
+    type(table_info) :: self
     double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
     integer :: i, j, k
 
@@ -91,7 +88,7 @@ contains
   end subroutine init_tab_info
 
   subroutine term_tab_info(self)
-    class(table_info) :: self
+    type(table_info) :: self
 
     deallocate( self%rate_table )
     deallocate( self%rhoy_table )
@@ -99,6 +96,8 @@ contains
   end subroutine term_tab_info
 
   subroutine vector_index_lu(vector, fvar, index)
+    !$acc routine seq
+
     ! Returns the greatest index of vector for which vector(index) < fvar.
     ! Return 1 if fvar < vector(1)
     ! Return size(vector)-1 if fvar > vector(size(vector))
@@ -132,6 +131,8 @@ contains
   end subroutine vector_index_lu
 
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
+    !$acc routine seq
+    
     ! Perform bilinear interpolation within the interval [xlo, xhi]
     ! where the function values at the endpoints are defined by:
     ! flo = f(xlo)
@@ -151,6 +152,8 @@ contains
   end subroutine bl_clamp
 
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
+    !$acc routine seq
+    
     ! Perform bilinear interpolation within the interval [xlo, xhi]
     ! where the function values at the endpoints are defined by:
     ! flo = f(xlo)
@@ -163,7 +166,9 @@ contains
   end subroutine bl_extrap
   
   subroutine get_entries(self, rhoy, temp, entries)
-    class(table_info) :: self
+    !$acc routine seq
+    
+    type(table_info) :: self
     double precision, intent(in) :: rhoy, temp
 
     double precision, dimension(self%num_vars+1), intent(out) :: entries
@@ -261,18 +266,20 @@ contains
     end if
   end subroutine get_entries
 
-  subroutine get_reaction(self, rhoy, temp, iwhich, reactvec)
+  subroutine get_tabular_reaction(self, rhoy, temp, iwhich, reactvec)
+    !$acc routine seq
+    
     use burn_type_module, only: num_rate_groups
     implicit none
     
-    class(table_info) :: self
+    type(table_info) :: self
     double precision, intent(in) :: rhoy, temp
     double precision, dimension(num_rate_groups+2), intent(inout) :: reactvec
     double precision, dimension(self%num_vars+add_vars) :: entries
     integer, intent(in) :: iwhich
     
     ! Get the table entries at this rhoy, temp
-    call self%entries(rhoy, temp, entries)
+    call get_entries(self, rhoy, temp, entries)
 
     ! Recast entries into reactvec
     reactvec(1) = entries(jtab_rate)
@@ -281,6 +288,6 @@ contains
     reactvec(4) = 0.0d0
     reactvec(5) = entries(jtab_dq) 
     reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
-  end subroutine get_reaction
+  end subroutine get_tabular_reaction
   
 end module table_rates

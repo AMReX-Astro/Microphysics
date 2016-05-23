@@ -47,14 +47,7 @@ contains
     double precision, intent(in   ) :: dt, time
 
     ! Calling integrator ...
-    write(*,*) 'Calling integrator ...'
-    write(*,*) 'xn:'
-    write(*,*) state_in%xn
     call integrator(state_in, state_out, dt, time)
-    ! ... Returned from integrator
-    write(*,*) '... Returned from integrator'
-    write(*,*) 'xn:'
-    write(*,*) state_out%xn
   end subroutine actual_burner
 
 end module actual_burner_module

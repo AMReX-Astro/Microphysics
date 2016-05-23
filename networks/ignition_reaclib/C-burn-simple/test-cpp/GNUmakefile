@@ -5,18 +5,18 @@ DEBUG = TRUE
 
 DIM = 1
 
-#COMP = PGI
-#FCOMP = PGI
+COMP = PGI
+FCOMP = PGI
 
-COMP = gcc
-FCOMP = gfortran
+#COMP = gcc
+#FCOMP = gfortran
 
 USE_MPI = FALSE
 USE_OMP = FALSE
 
 USE_REACT = TRUE
 
-USE_ACC = FALSE
+USE_ACC = TRUE
 
 # programs to be compiled
 ALL: testburn.ex table
@@ -26,7 +26,7 @@ EOS_dir := helmholtz
 Network_dir := ignition_reaclib/C-burn-simple
 
 # VODE, BS, VBDF
-INTEGRATOR_DIR := VODE
+INTEGRATOR_DIR := BS
 
 f90EXE_sources += testburn.f90
 

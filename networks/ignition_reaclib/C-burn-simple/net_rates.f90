@@ -1,35 +1,43 @@
 module net_rates
   use screening_module, only: screen5, add_screening_factor, screening_init, plasma_state, fill_plasma_state
   use network
-  use table_rates
 
   implicit none
 
   integer, parameter :: nreact = 4
-  logical :: screen_reaclib = .true.
+  logical, parameter :: screen_reaclib = .true.
   
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
-  double precision, target, dimension(:,:), allocatable :: ctemp_rate_1
-  double precision, target, dimension(:,:), allocatable :: ctemp_rate_2
-  double precision, target, dimension(:,:), allocatable :: ctemp_rate_3
-  double precision, target, dimension(:,:), allocatable :: ctemp_rate_4
+  double precision, allocatable :: ctemp_rate(:,:)
 
-  type :: ctemp_ptr
-     double precision, dimension(:,:), pointer :: p
-  end type ctemp_ptr
+  ! double precision, target, dimension(:,:), allocatable :: ctemp_rate_1
+  ! double precision, target, dimension(:,:), allocatable :: ctemp_rate_2
+  ! double precision, target, dimension(:,:), allocatable :: ctemp_rate_3
+  ! double precision, target, dimension(:,:), allocatable :: ctemp_rate_4
 
-  ! Declare an array of pointers to ctemp arrays
-  type(ctemp_ptr), dimension(4) :: ctemp_point
+  ! type :: ctemp_ptr
+  !    double precision, dimension(:,:), pointer :: p
+  ! end type ctemp_ptr
+
+  ! ! Declare an array of pointers to ctemp arrays
+  ! type(ctemp_ptr), dimension(4) :: ctemp_point
+
+  ! Index into ctemp_rate, dimension 2, where each rate's coefficients start
+  integer, dimension(nreact) :: rate_start_idx = (/ &
+    1, &
+    2, &
+    3, &
+    4 /)
   
-  ! Reaction multiplicities (how many rates contribute)
+  ! Reaction multiplicities-1 (how many rates contribute - 1)
   ! Array indexed by the Reactions indices above.
   ! If the entry is negative, interpret as an index into table_meta
   ! and calculate the rate using module table_rates.
-  integer, dimension(nreact) :: rate_mult = (/ &
-    1, &
-    1, &
-    1, &
-    1 /)
+  integer, dimension(nreact) :: rate_extra_mult = (/ &
+    0, &
+    0, &
+    0, &
+    0 /)
 
   ! Should these reactions be screened?
   logical, dimension(nreact) :: do_screening = (/ &
@@ -37,14 +45,17 @@ module net_rates
     .true., &
     .true., &
     .false. /)
+  
+  !$acc declare create(ctemp_rate, rate_extra_mult, rate_start_idx, screen_reaclib, do_screening)
 
 contains
 
   subroutine init_reaclib()
-    allocate( ctemp_rate_1(7, rate_mult(1)) )
-    ctemp_point(1)%p => ctemp_rate_1
+
+    allocate( ctemp_rate(7, nreact + sum(rate_extra_mult)) )
+    
     ! c12_c12a_ne20
-    ctemp_rate_1(:, 1) = (/  &
+    ctemp_rate(:, 1) = (/  &
         6.128630d+01, &
         0.000000d+00, &
         -8.416500d+01, &
@@ -53,10 +64,8 @@ contains
         -7.279700d-02, &
         -6.666670d-01 /)
 
-    allocate( ctemp_rate_2(7, rate_mult(2)) )
-    ctemp_point(2)%p => ctemp_rate_2
     ! c12_c12n_mg23
-    ctemp_rate_2(:, 1) = (/  &
+    ctemp_rate(:, 2) = (/  &
         -1.280560d+01, &
         -3.014850d+01, &
         0.000000d+00, &
@@ -65,10 +74,8 @@ contains
         -3.484400d-01, &
         0.000000d+00 /)
 
-    allocate( ctemp_rate_3(7, rate_mult(3)) )
-    ctemp_point(3)%p => ctemp_rate_3
     ! c12_c12p_na23
-    ctemp_rate_3(:, 1) = (/  &
+    ctemp_rate(:, 3) = (/  &
         6.096490d+01, &
         0.000000d+00, &
         -8.416500d+01, &
@@ -77,10 +84,8 @@ contains
         -7.030700d-02, &
         -6.666670d-01 /)
 
-    allocate( ctemp_rate_4(7, rate_mult(4)) )
-    ctemp_point(4)%p => ctemp_rate_4
     ! n_p
-    ctemp_rate_4(:, 1) = (/  &
+    ctemp_rate(:, 4) = (/  &
         -6.781610d+00, &
         0.000000d+00, &
         0.000000d+00, &
@@ -89,13 +94,12 @@ contains
         0.000000d+00, &
         0.000000d+00 /)
 
+    !$acc update device(ctemp_rate)
+    
   end subroutine init_reaclib
 
   subroutine term_reaclib()
-    deallocate( ctemp_rate_1 )
-    deallocate( ctemp_rate_2 )
-    deallocate( ctemp_rate_3 )
-    deallocate( ctemp_rate_4 )
+    deallocate( ctemp_rate )
   end subroutine term_reaclib
 
   subroutine net_screening_init()
@@ -114,6 +118,9 @@ contains
   end subroutine net_screening_init
 
   subroutine rate_evaluate(pstate, rhoy, temp, iwhich, reactvec)
+    !$acc routine seq
+
+    use table_rates, only: table_meta, get_tabular_reaction
     use burn_type_module, only: num_rate_groups
 
     implicit none
@@ -142,9 +149,8 @@ contains
     double precision  :: rate, scor ! Rate and Screening Factor
     double precision  :: drate_dt, dscor_dt ! Temperature derivatives
     double precision :: dscor_dd
-    double precision, pointer :: ctemp(:,:)
     double precision :: ri, T9, T9_exp, lnirate, irate, dirate_dt, dlnirate_dt
-    integer :: i, j, m
+    integer :: i, j, m, istart
 
     ri = 0.0d0
     rate = 0.0d0
@@ -158,18 +164,20 @@ contains
     dscor_dd = 0.0d0
 
     ! Use reaction multiplicities to tell whether the rate is Reaclib
-    m = rate_mult(iwhich)
-    if ( m .gt. 0 ) then
+    m = rate_extra_mult(iwhich)
+    if ( m .ge. 0 ) then
        ! This must be a Reaclib rate
-       ctemp => ctemp_point(iwhich)%p
 
-       do i = 1, m
-          lnirate = ctemp(1,i) + ctemp(7,i) * LOG(T9)
-          dlnirate_dt = ctemp(7,i)/T9
+       istart = rate_start_idx(iwhich)
+
+       do i = 0, m
+          lnirate = ctemp_rate(1, istart+i) + ctemp_rate(7, istart+i) * LOG(T9)
+          dlnirate_dt = ctemp_rate(7, istart+i)/T9
           do j = 2, 6
              T9_exp = (2.0d0*dble(j-1)-5.0d0)/3.0d0 
-             lnirate = lnirate + ctemp(j,i) * T9**T9_exp
-             dlnirate_dt = dlnirate_dt + T9_exp * ctemp(j,i) * T9**(T9_exp-1.0d0)
+             lnirate = lnirate + ctemp_rate(j, istart+i) * T9**T9_exp
+             dlnirate_dt = dlnirate_dt + &
+                  T9_exp * ctemp_rate(j, istart+i) * T9**(T9_exp-1.0d0)
           end do
           ! If the rate will be in the approx. interval [0.0, 1.0E-100], replace by 0.0
           ! This avoids issues with passing very large negative values to EXP
@@ -193,10 +201,10 @@ contains
        reactvec(i_dqweak)   = 0.0d0
        reactvec(i_epart)    = 0.0d0
     else
-       ! This is a Table rate (unless m=0)
+       ! This is a Table rate
        ! table_rates returns dq in reactvec(5)
        ! reflecting the dependence of Q on dens*ye and temperature.
-       call table_meta(-m)%reaction(rhoy, temp, iwhich, reactvec)
+       call get_tabular_reaction(table_meta(-m), rhoy, temp, iwhich, reactvec)
     end if
 
     ! write(*,*) '----------------------------------------'
