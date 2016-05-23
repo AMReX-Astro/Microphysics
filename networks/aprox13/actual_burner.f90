@@ -35,6 +35,8 @@ contains
     use integrator_module, only: integrator_init
     use screening_module, only: screening_init
     use rates_module, only: rates_init
+    use extern_probin_module, only: use_tables
+    use actual_rhs_module, only: create_rates_table
 
     implicit none
 
@@ -113,6 +115,12 @@ contains
     call set_up_screening_factors()
 
     call screening_init()
+
+    if (use_tables) then
+
+       call create_rates_table()
+
+    endif
 
   end subroutine actual_burner_init
 

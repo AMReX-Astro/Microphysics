@@ -113,19 +113,13 @@ module actual_burner_data
   integer, save :: irp_drdy1
   integer, save :: irp_drdy2
 
-  ! Conversion factor for the nuclear energy generation rate.
-
-  double precision, parameter :: avo = 6.0221417930d23
-  double precision, parameter :: c_light = 2.99792458d10
-  double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
-
 contains
 
   ! Computes the instantaneous energy generation rate
 
   subroutine ener_gener_rate(dydt, enuc)
 
-    use network
+    use actual_network_data, only: nspec, mion, enuc_conv2
 
     implicit none
 

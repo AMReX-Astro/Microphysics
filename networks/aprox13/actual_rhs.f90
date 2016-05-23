@@ -165,6 +165,8 @@ contains
 
     !$acc routine seq
 
+    use extern_probin_module, only: use_tables
+
     implicit none
 
     type (burn_t)    :: state
@@ -183,8 +185,12 @@ contains
     zbar = state % zbar
     y    = state % xn / aion
 
-     ! Get the raw reaction rates
-    call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    ! Get the raw reaction rates
+    if (use_tables) then
+       call aprox13tab(temp, rho, ratraw, dratrawdt, dratrawdd)
+    else
+       call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    endif
 
     ! Do the screening here because the corrections depend on the composition
     call screen_aprox13(temp, rho, y,                 &
@@ -200,6 +206,252 @@ contains
     state % have_rates = .true.
 
   end subroutine evaluate_rates
+
+
+
+  subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+
+    integer, parameter :: mp = 4
+
+    integer          :: j, iat
+    double precision :: x, x1, x2, x3, x4
+    double precision :: a, b, c, d, e, f, g, h, p, q
+    double precision :: alfa, beta, gama, delt
+
+    double precision :: dtab(nrates)
+
+    double precision :: z, zm1, t1, t2, t3, t4
+    double precision :: ff1, ff2, ff3, ff4
+    double precision :: g1, g2, g3, g4
+    double precision :: xxbtemp
+
+    ! Set the density dependence vector
+
+    dtab(ircag)  = bden
+    dtab(iroga)  = 1.0d0
+    dtab(ir3a)   = bden*bden
+    dtab(irg3a)  = 1.0d0
+    dtab(ir1212) = bden
+    dtab(ir1216) = bden
+    dtab(ir1616) = bden
+    dtab(iroag)  = bden
+    dtab(irnega) = 1.0d0
+    dtab(irneag) = bden
+    dtab(irmgga) = 1.0d0
+    dtab(irmgag) = bden
+    dtab(irsiga) = 1.0d0
+    dtab(irmgap) = bden
+    dtab(iralpa) = bden
+    dtab(iralpg) = bden
+    dtab(irsigp) = 1.0d0
+    dtab(irsiag) = bden
+    dtab(irsga)  = 1.0d0
+    dtab(irppa)  = bden
+    dtab(irsiap) = bden
+    dtab(irppg)  = bden
+    dtab(irsgp)  = 1.0d0
+    dtab(irsag)  = bden
+    dtab(irarga) = 1.0d0
+    dtab(irsap)  = bden
+    dtab(irclpa) = bden
+    dtab(irclpg) = bden
+    dtab(irargp) = 1.0d0
+    dtab(irarag) = bden
+    dtab(ircaga) = 1.0d0
+    dtab(irarap) = bden
+    dtab(irkpa)  = bden
+    dtab(irkpg)  = bden
+    dtab(ircagp) = 1.0d0
+    dtab(ircaag) = bden
+    dtab(irtiga) = 1.0d0
+    dtab(ircaap) = bden
+    dtab(irscpa) = bden
+    dtab(irscpg) = bden
+    dtab(irtigp) = 1.0d0
+    dtab(irtiag) = bden
+    dtab(ircrga) = 1.0d0
+    dtab(irtiap) = bden
+    dtab(irvpa)  = bden
+    dtab(irvpg)  = bden
+    dtab(ircrgp) = 1.0d0
+    dtab(ircrag) = bden
+    dtab(irfega) = 1.0d0
+    dtab(ircrap) = bden
+    dtab(irmnpa) = bden
+    dtab(irmnpg) = bden
+    dtab(irfegp) = 1.0d0
+    dtab(irfeag) = bden
+    dtab(irniga) = 1.0d0
+    dtab(irfeap) = bden
+    dtab(ircopa) = bden
+    dtab(ircopg) = bden
+    dtab(irnigp) = 1.0d0
+
+    ! hash locate
+    iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
+    iat = max(1, min(iat - mp / 2 + 1, tab_imax - mp + 1))
+
+    ! setup the lagrange interpolation coefficients for a cubic
+    x  = btemp
+    x1 = ttab(iat)
+    x2 = ttab(iat+1)
+    x3 = ttab(iat+2)
+    x4 = ttab(iat+3)
+    a  = x - x1
+    b  = x - x2
+    c  = x - x3
+    d  = x - x4
+    e  = x1 - x2
+    f  = x1 - x3
+    g  = x1 - x4
+    h  = x2 - x3
+    p  = x2 - x4
+    q  = x3 - x4
+    alfa =  b*c*d/(e*f*g)
+    beta = -a*c*d/(e*h*p)
+    gama =  a*b*d/(f*h*q)
+    delt = -a*b*c/(g*p*q)
+
+    ! crank off the raw reaction rates
+    do j = 1, nrates
+
+       ratraw(j) = (alfa * rattab(j,iat) &
+                    + beta * rattab(j,iat+1) &
+                    + gama * rattab(j,iat+2) &
+                    + delt * rattab(j,iat+3) ) * dtab(j)
+
+       dratrawdt(j) = (alfa * drattabdt(j,iat) &
+                       + beta * drattabdt(j,iat+1) &
+                       + gama * drattabdt(j,iat+2) &
+                       + delt * drattabdt(j,iat+3) ) * dtab(j)
+
+       dratrawdd(j) = alfa * drattabdd(j,iat) &
+                    + beta * drattabdd(j,iat+1) &
+                    + gama * drattabdd(j,iat+2) &
+                    + delt * drattabdd(j,iat+3)
+
+    enddo
+
+    ! hand finish the three body reactions
+    dratrawdd(ir3a) = bden * dratrawdd(ir3a)
+
+  end subroutine aprox13tab
+
+
+
+
+  ! Form the table
+
+  subroutine create_rates_table()
+
+    implicit none
+
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+
+    integer :: i, j
+
+    bden = 1.0d0
+
+    do i = 1, tab_imax
+
+       btemp = tab_tlo + dble(i-1) * tab_tstp
+       btemp = 10.0d0**(btemp)
+
+       call aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+       ttab(i) = btemp
+
+       do j = 1, nrates
+
+          rattab(j,i)    = ratraw(j)
+          drattabdt(j,i) = dratrawdt(j)
+          drattabdd(j,i) = dratrawdd(j)
+
+       enddo
+
+    enddo
+
+    !$acc update device(rattab, drattabdt, drattabdd, ttab)
+
+  end subroutine create_rates_table
+
+
+
+  ! Cubic hermite basis functions and their derivatives
+
+  double precision function psi0(z)
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: z
+
+    psi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
+
+  end function psi0
+
+
+
+  double precision function dpsi0(z)
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: z
+
+    dpsi0 = z * (6.0d0*z - 6.0d0)
+
+  end function dpsi0
+
+
+
+  double precision function psi1(z)
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: z
+
+    psi1 = z * ( z * (z - 2.0d0) + 1.0d0)
+
+  end function psi1
+
+
+
+  double precision function dpsi1(z)
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: z
+
+    dpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
+
+  end function dpsi1
+
+
+
+  ! Bicubic hermite polynomial
+
+  double precision function h3(ff1, t1, ff2, t2, ff3, t3, ff4, t4)
+
+    implicit none
+
+    double precision :: ff1, t1, ff2, t2, ff3, t3, ff4, t4
+
+    h3 = ff1*t1 + ff2*t2 + ff3*t3 + ff4*t4
+
+  end function h3
 
 
 

@@ -4,6 +4,15 @@ module microphysics_math_module
 
   public
 
+  ! We hard-code this value to avoid issues with automatic
+  ! array allocation on the GPUs. At present the largest 
+  ! array size that we use has 30 entries (aprox13/19/21).
+  ! If you create a new network that requires more entries,
+  ! increase the size of this parameter (or maybe we can make 
+  ! it network-dependent).
+
+  integer, parameter :: max_esum_size = 30
+
 contains
 
   ! Implementation of the exact summation routine from:
@@ -38,22 +47,23 @@ contains
 
     !$acc routine seq
 
-    use bl_error_module
+    use bl_error_module, only: bl_error
+    use bl_types, only: dp_t
 
     implicit none
 
-    double precision, intent(in) :: array(:)
-    integer, intent(in)          :: n
+    real(dp_t), intent(in) :: array(:)
+    integer, intent(in) :: n
 
-    double precision :: esum
+    real(dp_t) :: esum
 
     integer :: p, i, j, k, km
 
-    double precision :: partials(0:n-1)
+    real(dp_t) :: partials(0:max_esum_size-1)
 
-    double precision :: x, y, z, hi, lo
+    real(dp_t) :: x, y, z, hi, lo
 
-    partials = 0.0d0
+    partials = 0.0_dp_t
 
     ! p keeps track of how many entries in partials are actually used.
 
@@ -88,7 +98,7 @@ contains
           hi = x + y
           lo = y - (hi - x)
 
-          if (lo .ne. 0.0d0) then
+          if (lo .ne. 0.0_dp_t) then
 
              partials(j) = lo
              j = j + 1
@@ -105,7 +115,7 @@ contains
        enddo
 
        partials(j) = x
-       partials(j+1:n-1) = 0.0d0
+       partials(j+1:n-1) = 0.0_dp_t
 
     enddo
 
