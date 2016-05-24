@@ -118,6 +118,8 @@ contains
 
     if (use_tables) then
 
+       print *, "Initializing aprox13 rate table"
+
        call create_rates_table()
 
     endif
