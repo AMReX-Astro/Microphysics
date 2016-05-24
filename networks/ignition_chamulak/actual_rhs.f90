@@ -40,7 +40,7 @@ contains
     y    = state % xn / aion
 
     ! call the screening routine
-    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,aion,zion,nspec,sc1212,dsc1212dt)
+    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,sc1212,dsc1212dt)
 
     ! compute some often used temperature constants
     T9     = temp/1.d9

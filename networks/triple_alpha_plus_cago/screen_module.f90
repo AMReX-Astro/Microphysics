@@ -38,12 +38,12 @@ contains
     call screenz(temp, dens,              &
          zion(ihe4_), zion(ihe4_),          &
          aion(ihe4_), aion(ihe4_),          &
-         ymol, aion, zion, nspec, scorr1, dscorr1dt)
+         ymol, scorr1, dscorr1dt)
 
     call screenz(temp, dens,              &
          zion(ihe4_), FOUR,                &
          aion(ihe4_), EIGHT,               &
-         ymol, aion, zion, nspec, scorr2, dscorr2dt)
+         ymol, scorr2, dscorr2dt)
 
     scorr    = scorr1 * scorr2
     dscorrdt = dscorr1dt * scorr2 + scorr1 * dscorr2dt
@@ -56,7 +56,7 @@ contains
     call screenz(temp, dens,     &
          zion(ic12_), zion(ihe4_), &
          aion(ic12_), aion(ihe4_), &
-         ymol, aion, zion, nspec, scorr, dscorrdt)
+         ymol, scorr, dscorrdt)
 
     rates(ircago_)    = rates_in(ircago_) * scorr
     dratesdt(ircago_) = dratesdt_in(ircago_) * scorr + &

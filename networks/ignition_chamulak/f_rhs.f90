@@ -50,8 +50,7 @@ subroutine f_rhs(n, time, y, ydot, rpar, ipar)
 
 
   ! call the screening routine
-  call screenz(temp,dens,SIX,SIX,TWELVE,TWELVE,ymass,aion,zion,nspec,     &
-               sc1212, dsc1212dt)
+  call screenz(temp,dens,SIX,SIX,TWELVE,TWELVE,ymass,sc1212,dsc1212dt)
 
 
   ! compute some often used temperature constants

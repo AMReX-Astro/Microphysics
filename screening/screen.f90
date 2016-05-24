@@ -389,17 +389,18 @@ contains
 
 
 
-  subroutine screenz (t,d,z1,z2,a1,a2,ymass,aion,zion,nion,scfac, dscfacdt)
+  subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
 
     !$acc routine seq
 
+    use network, only: aion, zion, nspec
+
     implicit none
 
-    integer nion
-    double precision t, d, z1, z2, a1, a2
-    double precision, dimension(nion) :: ymass, aion, zion
-    double precision scfac
-    double precision dscfacdt
+    double precision :: t, d, z1, z2, a1, a2
+    double precision :: ymass(nspec)
+    double precision :: scfac
+    double precision :: dscfacdt
 
     ! this subroutine calculates screening factors for nuclear reaction
     ! rates in the weak, intermediate , and strong regimes given the
@@ -443,7 +444,7 @@ contains
     ytot1=0.d0
     z2bar=0.d0
 
-    do iy = 1, nion
+    do iy = 1, nspec
        ytot1 = ytot1 + ymass(iy)
        z2bar = z2bar + zion(iy)**2*ymass(iy)
        abar = abar + aion(iy)*ymass(iy)

@@ -94,8 +94,7 @@ subroutine f_rhs_instantaneous_reaction_rates(n, t, y, ydot, rho_Hnuc, rpar, ipa
   ymass(io16) = X(2)/aion(io16)
   ymass(img24) = X(3)/aion(img24)
 
-  call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,ymass,aion,zion,nspec,     &
-               sc1212, dsc1212dt)
+  call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,ymass,sc1212,dsc1212dt)
 
   
   ! compute some often used temperature constants
