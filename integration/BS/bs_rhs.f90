@@ -29,8 +29,6 @@ contains
 
     real(dp_t) :: nspec_sum
 
-    !$acc declare present_or_copyin(renormalize_abundances, call_eos_in_rhs, dT_crit)
-
     ! Ensure that mass fractions always stay positive.
 
     bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-30) / aion(1:nspec_evolve)
