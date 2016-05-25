@@ -110,6 +110,7 @@
     use vbdf_convert_module
     use burn_type_module
     use bdf_type_module
+    use bl_error_module
 
     implicit none
 
