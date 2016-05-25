@@ -192,6 +192,10 @@ contains
 
     implicit none
 
+    ! note: it is critical that these are called in the exact order
+    ! that the screening calls are done in the RHS routine, since we
+    ! use that order in the screening
+
     call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
     
     call add_screening_factor(zion(ihe4),aion(ihe4),4.0d0,8.0d0)

@@ -1,20 +1,18 @@
 module screening_module
 
+  use bl_constants_module
+
   implicit none
 
   private
-  public screen5, screenz, add_screening_factor, screening_init, plasma_state, fill_plasma_state
+  public :: screen5, screenz, add_screening_factor, screening_init, &
+            plasma_state, fill_plasma_state
   
   integer, parameter :: nscreen_max = 500
   integer            :: nscreen = 0
   
-  double precision, parameter :: x13        = 1.0d0/3.0d0
-  double precision, parameter :: x14        = 1.0d0/4.0d0
-  double precision, parameter :: x53        = 5.0d0/3.0d0
-  double precision, parameter :: x532       = 5.0d0/32.0d0
-  double precision, parameter :: x512       = 5.0d0/12.0d0
   double precision, parameter :: fact       = 1.25992104989487d0
-  double precision, parameter :: co2        = x13 * 4.248719d3
+  double precision, parameter :: co2        = THIRD * 4.248719d3
   double precision, parameter :: gamefx     = 0.3d0
   double precision, parameter :: gamefs     = 0.8d0
   double precision, parameter :: blend_frac = 0.05d0
@@ -54,28 +52,26 @@ module screening_module
 
   !$acc declare &
   !$acc create(nscreen_max, nscreen) &
-  !$acc create(x13, x14, x53, x532, x512, fact, co2, gamefx, gamefs, blend_frac) &
+  !$acc create(fact, co2, gamefx, gamefs, blend_frac) &
   !$acc create(z1scr, z2scr, a1scr, a2scr) &
   !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
 
 contains
 
-  ! This routine assumes that we have already filled z1scr, z2scr, a1scr, and a2scr.
-  
   subroutine screening_init()
-
-    implicit none
+    ! This routine assumes that we have already filled z1scr, z2scr,
+    ! a1scr, and a2scr.
     
     integer :: i
     
     do i = 1, nscreen
 
-       zs13(i)    = (z1scr(i) + z2scr(i))**x13
-       zs13inv(i) = 1.0d0/zs13(i)
-       zhat(i)    = (z1scr(i) + z2scr(i))**x53  - z1scr(i)**x53 - z2scr(i)**x53
-       zhat2(i)   = (z1scr(i) + z2scr(i))**x512 - z1scr(i)**x512 -z2scr(i)**x512
-       lzav(i)    = x53 * log(z1scr(i)*z2scr(i)/(z1scr(i) + z2scr(i)))
-       aznut(i)   = (z1scr(i)**2 * z2scr(i)**2 * a1scr(i)*a2scr(i) / (a1scr(i) + a2scr(i)))**x13
+       zs13(i)    = (z1scr(i) + z2scr(i))**THIRD
+       zs13inv(i) = ONE/zs13(i)
+       zhat(i)    = (z1scr(i) + z2scr(i))**FIVE3RD  - z1scr(i)**FIVE3RD - z2scr(i)**FIVE3RD
+       zhat2(i)   = (z1scr(i) + z2scr(i))**FIVE12TH - z1scr(i)**FIVE12TH -z2scr(i)**FIVE12TH
+       lzav(i)    = FIVE3RD * log(z1scr(i)*z2scr(i)/(z1scr(i) + z2scr(i)))
+       aznut(i)   = (z1scr(i)**2 * z2scr(i)**2 * a1scr(i)*a2scr(i) / (a1scr(i) + a2scr(i)))**THIRD
        
     enddo
 
@@ -84,10 +80,9 @@ contains
   end subroutine screening_init
 
 
-
   subroutine add_screening_factor(z1, a1, z2, a2)
 
-    implicit none
+    ! this is only called at initialization
 
     double precision :: z1, a1, z2, a2
 
@@ -109,8 +104,6 @@ contains
 
     use network, only: nspec, zion
 
-    implicit none
-
     ! Input variables
 
     type (plasma_state) :: state
@@ -122,18 +115,18 @@ contains
     double precision :: ytot, rr, tempi, dtempi, deni
     double precision :: pp, qq, dppdt, dppdd, xni
 
-    abar   = 1.0d0 / sum(y)
+    abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
     z2bar  = sum(zion**2 * y) * abar    
     
-    ytot             = 1.0d0 / abar
+    ytot             = ONE / abar
     rr               = dens * ytot
-    tempi            = 1.0d0 / temp
+    tempi            = ONE / temp
     dtempi           = -tempi * tempi
-    deni             = 1.0d0 / dens
+    deni             = ONE / dens
 
     pp               = sqrt(rr*tempi*(z2bar + zbar))
-    qq               = 0.5d0/pp *(z2bar + zbar)
+    qq               = HALF/pp *(z2bar + zbar)
     dppdt            = qq*rr*dtempi
     !dppdd            = qq * ytot * tempi
 
@@ -141,12 +134,12 @@ contains
     state % qlam0zdt = 1.88d8 * (dtempi*pp + tempi*dppdt)
     !state % qlam0zdd = 1.88d8 * tempi * dppdd
 
-    state % taufac   = co2 * tempi**x13
-    state % taufacdt = -x13 * state % taufac * tempi
+    state % taufac   = co2 * tempi**THIRD
+    state % taufacdt = -THIRD * state % taufac * tempi
 
     qq               = rr * zbar
-    xni              = qq**x13
-    !dxnidd           = x13 * xni * deni
+    xni              = qq**THIRD
+    !dxnidd           = THIRD * xni * deni
 
     state % aa       = 2.27493d5 * tempi * xni
     state % daadt    = 2.27493d5 * dtempi * xni
@@ -224,7 +217,7 @@ contains
     tau12    = state % taufac * aznut(jscreen)
     tau12dt  = state % taufacdt * aznut(jscreen)
 
-    qq       = 1.0d0/tau12
+    qq       = ONE/tau12
     alph12   = gamef * qq
     alph12dt = (gamefdt - alph12*tau12dt) * qq
     !alph12dd = gamefdd * qq
@@ -235,17 +228,17 @@ contains
     ! this should really be replaced by a pycnonuclear reaction rate formula
     if (alph12 .gt. 1.6) then
        alph12   = 1.6d0
-       alph12dt = 0.0d0
-       !alph12dd = 0.0d0
+       alph12dt = ZERO
+       !alph12dd = ZERO
 
        gamef    = 1.6d0 * tau12
        gamefdt  = 1.6d0 * tau12dt
-       !gamefdd  = 0.0d0
+       !gamefdd  = ZERO
 
        qq       = zs13(jscreen)/(fact * bb)
        gamp     = gamef * qq
        gampdt   = gamefdt * qq
-       !gampdd   = 0.0d0
+       !gampdd   = ZERO
     end if
 
 
@@ -264,8 +257,8 @@ contains
     ! intermediate and strong sceening regime
     if (gamef .gt. gamefx) then
 
-       gamp14   = gamp**x14
-       rr       = 1.0d0/gamp
+       gamp14   = gamp**FOURTH
+       rr       = ONE/gamp
        qq       = 0.25d0*gamp14*rr
        gamp14dt = qq * gampdt
        !gamp14dd = qq * gampdd
@@ -290,7 +283,7 @@ contains
        dqqdt  = 0.0128d0*alph12dt
        !dqqdd  = 0.0128d0*alph12dd
 
-       rr     = x532 - alph12*qq
+       rr     = FIVE32ND - alph12*qq
        drrdt  = -(alph12dt*qq + alph12*dqqdt)
        !drrdd  = -(alph12dd*qq + alph12*dqqdd)
 
@@ -315,7 +308,7 @@ contains
        dh12dt  = dccdt - rr*alph12dt - a3*(dssdt + dvvdt)
        !dh12dd  = dccdd - rr*alph12dd - a3*(dssdd + dvvdd)
 
-       rr     =  1.0d0 - 0.0562d0*a3
+       rr     =  ONE - 0.0562d0*a3
        ss     =  -0.0562d0*da3
        drrdt  = ss*alph12dt
        !drrdd  = ss*alph12dd
@@ -326,13 +319,13 @@ contains
           !dxlgfacdd = drrdd
        else
           xlgfac    = 0.77d0
-          dxlgfacdt = 0.0d0
-          !dxlgfacdd = 0.0d0
+          dxlgfacdt = ZERO
+          !dxlgfacdd = ZERO
        end if
 
 
        h12    = log(xlgfac) + h12
-       rr     = 1.0d0/xlgfac
+       rr     = ONE/xlgfac
        dh12dt = rr*dxlgfacdt + dh12dt
        !dh12dd = rr*dxlgfacdd + dh12dd
 
@@ -360,8 +353,8 @@ contains
           ! blend the transition region - from bill paxton
           if (gamefs - gamef .lt. blend_frac*(gamefs - gamefx)) then
              alfa   = (gamefs - gamef) / (blend_frac*(gamefs - gamefx))
-             alfa   = 0.5d0 * (1d0 - cos(M_PI*alfa))
-             beta   = 1.0d0 - alfa
+             alfa   = HALF * (ONE - cos(M_PI*alfa))
+             beta   = ONE - alfa
              h12    = alfa * h12 + beta * h12x
              dh12dt = alfa * dh12dt + beta * dh12xdt
              !dh12dd = alfa * dh12dd + beta * dh12xdd
@@ -375,19 +368,17 @@ contains
 
     ! machine limit the output
     ! further limit to avoid the pycnonuclear regime
-    h12    = max(min(h12,30.0d0),0.0d0)
+    h12    = max(min(h12, 30.0_dp_t), ZERO)
     scor   = exp(h12)
-    if (h12 .eq. 30.0d0) then
-       scordt = 0.0d0
-       !scordd = 0.0d0
+    if (h12 .eq. 30.0_dp_t) then
+       scordt = ZERO
+       !scordd = ZERO
     else
        scordt = scor * dh12dt
        !scordd = scor * dh12dd
     end if
 
   end subroutine screen5
-
-
 
   subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
 
@@ -471,22 +462,22 @@ contains
        qlam0z=qlam0*ztilda
        dqlam0zdt=ztilda*dqlam0dt
 
-       gamp=2.27493d+5*(d*zbar*ytot1)**x13/t
+       gamp=2.27493d+5*(d*zbar*ytot1)**THIRD/t
        dgampdt=-gamp/t
 
-       taufac=4.248719d+3/t**x13
-       dtaufacdt=-x13*taufac/t
+       taufac=4.248719d+3/t**THIRD
+       dtaufacdt=-THIRD*taufac/t
 
        !.... calculate screening factor
        !.... approx. for strong screening only good for alpha .lt. 1.6
 
-       zhat=(z1+z2)**x53-z1**x53-z2**x53
-       zhat2=(z1+z2)**x512-z1**x512-z2**x512
+       zhat=(z1+z2)**FIVE3RD-z1**FIVE3RD-z2**FIVE3RD
+       zhat2=(z1+z2)**FIVE12TH-z1**FIVE12TH-z2**FIVE12TH
 
-       gamef=2.d0**x13*gamp*z1*z2/(z1+z2)**x13
+       gamef=2.d0**THIRD*gamp*z1*z2/(z1+z2)**THIRD
        dgamefdt=gamef*dgampdt/gamp
 
-       tau12=taufac*(z1**2*z2**2*a1*a2/(a1+a2))**x13
+       tau12=taufac*(z1**2*z2**2*a1*a2/(a1+a2))**THIRD
        dtau12dt=tau12*dtaufacdt/taufac
 
        alph12=3.d0*gamef/tau12
@@ -505,7 +496,7 @@ contains
           gamef=1.6d0*tau12/3.d0
           dgamefdt=gamef*dtau12dt/tau12
 
-          gamp=gamef*(z1+z2)**x13/(2.d0**x13*z1*z2)
+          gamp=gamef*(z1+z2)**THIRD/(2.d0**THIRD*z1*z2)
           dgampdt=gamp*dgamefdt/gamef
 
        endif
@@ -518,11 +509,11 @@ contains
 
        if (gamef > 0.3d0) then 
 
-          c=0.896434d0*gamp*zhat-3.44740d0*gamp**x14*zhat2- &
-               0.5551d0*(log(gamp)+x53*log(z1*z2/(z1+z2)))-2.996d0
+          c=0.896434d0*gamp*zhat-3.44740d0*gamp**FOURTH*zhat2- &
+               0.5551d0*(log(gamp)+FIVE3RD*log(z1*z2/(z1+z2)))-2.996d0
 
           dcdt=0.896434d0*dgampdt*zhat- &
-               3.44740d0*x14*gamp**(x14-1.0d0)*zhat2*dgampdt- &
+               3.44740d0*FOURTH*gamp**(FOURTH-1.0d0)*zhat2*dgampdt- &
                0.5551d0*dgampdt/gamp
 
           h12=c-(tau12/3.d0)*(5.d0*alph12**3/32.d0-0.014d0*alph12**4 &
@@ -575,5 +566,5 @@ contains
 
   end subroutine screenz
   
-  
+
 end module screening_module
