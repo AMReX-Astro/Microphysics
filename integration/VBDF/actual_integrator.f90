@@ -243,7 +243,9 @@ contains
 
     eos_state_out % reset = .true.
 
-    call eos(eos_input_re, eos_state_out)
+    if (eos_on_burn_finalize) then
+       call eos(eos_input_burn, eos_state_out)
+    endif
 
     call eos_to_burn(eos_state_out, state_out)
 

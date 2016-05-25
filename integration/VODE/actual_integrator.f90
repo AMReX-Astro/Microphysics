@@ -155,8 +155,8 @@ contains
 
     call burn_to_eos(state_in, eos_state_in)
 
-    ! We assume that the valid quantities coming in are (rho, e); do an EOS call
-    ! to make sure all other variables are consistent.
+    ! Given the valid thermodynamic quantities coming in from the calling code,
+    ! do an EOS call to make sure all other variables are consistent.
 
     call eos(eos_input_burn, eos_state_in)
 
@@ -322,7 +322,9 @@ contains
 
     eos_state_out % reset = .true.
 
-    call eos(eos_input_re, eos_state_out)
+    if (eos_on_burn_finalize) then
+       call eos(eos_input_burn, eos_state_out)
+    endif
 
     call eos_to_burn(eos_state_out, state_out)
 
