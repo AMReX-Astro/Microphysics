@@ -70,10 +70,8 @@ contains
   end subroutine actual_burner_init
 
 
-
-  ! Compute and store the more expensive screening factors  
-
   subroutine set_up_screening_factors()
+    ! Compute and store the more expensive screening factors  
 
     use screening_module, only: add_screening_factor
     use network, only: aion, zion

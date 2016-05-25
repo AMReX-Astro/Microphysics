@@ -352,7 +352,7 @@ contains
                         t992,t9i92,yeff_ca40,yeff_ca40dt,yeff_ti44,yeff_ti44dt, &
                         denom,denomdt,denomdd,xx,zz
 
-    type (plasma_state) :: state
+    type (plasma_state) :: pstate
     type (tf_t)         :: tf
     
     ! initialize
@@ -372,14 +372,14 @@ contains
 
     ! Set up the state data, which is the same for all screening factors.
 
-    call fill_plasma_state(state, btemp, bden, y(1:nspec))
+    call fill_plasma_state(pstate, btemp, bden, y(1:nspec))
 
     ! first the always fun triple alpha and its inverse
     jscr = 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     jscr = jscr + 1
-    call screen5(state,jscr,sc2a,sc2adt,sc2add)
+    call screen5(pstate,jscr,sc2a,sc2adt,sc2add)
 
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
@@ -396,7 +396,7 @@ contains
 
     ! c12 to o16
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ircag)     = ratraw(ircag) * sc1a
     dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
@@ -410,7 +410,7 @@ contains
 
     ! c12 + c12
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ir1212)    = ratraw(ir1212) * sc1a
     dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
@@ -424,7 +424,7 @@ contains
 
     ! c12 + o16
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
@@ -438,7 +438,7 @@ contains
 
     ! o16 + o16
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
@@ -452,7 +452,7 @@ contains
 
     ! o16 to ne20
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(iroag)    = ratraw(iroag) * sc1a
     dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
@@ -466,7 +466,7 @@ contains
 
     ! o16 to mg24
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(irneag)    = ratraw(irneag) * sc1a
     dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
@@ -479,7 +479,7 @@ contains
 
     ! mg24 to si28
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(irmgag)    = ratraw(irmgag) * sc1a
     dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
@@ -493,7 +493,7 @@ contains
 
     ! ca40 to ti44
     jscr = jscr + 1
-    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
     ratdum(ircaag)    = ratraw(ircaag) * sc1a
     dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
