@@ -43,7 +43,7 @@ contains
     ratenames(ircag)   = 'rcag '
     ratenames(iroga)   = 'roga '
     ratenames(ir3a)    = 'r3a  '
-    ratenames(irg3a)   = 'rg3a '
+    ratenames(irg3a)   = 'rg3a '    ! inverse rate
     ratenames(ir1212)  = 'r1212'
     ratenames(ir1216)  = 'r1216'
     ratenames(ir1616)  = 'r1616'
@@ -80,6 +80,8 @@ contains
 
     implicit none
 
+    ! note: we need to set these up in the same order that we evaluate the
+    ! rates in actual_rhs.f90 (yes, it's ugly)
     call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ihe4),aion(ihe4),4.0d0,8.0d0)
     call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
