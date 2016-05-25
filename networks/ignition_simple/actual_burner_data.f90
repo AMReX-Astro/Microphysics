@@ -10,8 +10,6 @@ module actual_burner_data
   double precision, parameter :: c_light = 2.99792458d10
   double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  !$acc declare create(avo, c_light, enuc_conv2)
-
 contains
 
   ! Computes the instantaneous energy generation rate
