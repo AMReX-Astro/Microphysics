@@ -96,10 +96,10 @@ contains
 
     call burn_to_eos(state_in, eos_state_in)
 
-    ! We assume that the valid quantities coming in are (rho, e); do an EOS call
-    ! to make sure all other variables are consistent.
+    ! We assume that (rho, T) coming in are valid, do an EOS call
+    ! to fill the rest of the thermodynamic variables.
 
-    call eos(eos_input_burn, eos_state_in)
+    call eos(eos_input_rt, eos_state_in)
 
     ! Send this data back to the burn state in case the energy changed
     ! due to a reset/flooring.
