@@ -34,7 +34,6 @@ BLOCS += .
 
 include $(CASTRO_DIR)/Exec/Make.Castro
 
-
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
 
 testburn.ex: $(objForExecs)
