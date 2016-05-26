@@ -9,8 +9,11 @@ module actual_network_data
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 7
 
-  ! Number of entries in reactvec returned by rate_evaluate
-  integer, parameter :: nreactvec = 6
+  ! Number of reaclib rates
+  integer, parameter :: nrat_reaclib = 4
+  
+  ! Number of tabular rates
+  integer, parameter :: nrat_tabular = 0
 
   ! Binding Energies Per Nucleon (MeV)
   double precision :: ebind_per_nucleon(nspec)

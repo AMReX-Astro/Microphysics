@@ -4,9 +4,12 @@ module table_rates
   
   implicit none
 
-  public table_meta
-  
+  public table_meta, tabular_evaluate
 
+  private num_tables, jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
+  private k_drate_dt, add_vars
+  private table_read_meta
+  
   integer, parameter :: num_tables   = 0
   integer, parameter :: jtab_mu      = 1
   integer, parameter :: jtab_dq      = 2
@@ -20,31 +23,51 @@ module table_rates
   ! into the table but into the 'entries' array in, eg. get_entries.
   integer, parameter :: k_drate_dt   = 7
   integer, parameter :: add_vars     = 1 ! 1 Additional Var in entries
-  
+
 
   type :: table_info
      double precision, dimension(:,:,:), allocatable :: rate_table
      double precision, dimension(:), allocatable :: rhoy_table
      double precision, dimension(:), allocatable :: temp_table
-     character(len=50) :: rate_table_file
-     integer :: num_header 
      integer :: num_rhoy
      integer :: num_temp
      integer :: num_vars
   end type table_info
 
-  type(table_info), target, dimension(num_tables) :: table_meta
+  type :: table_read_info
+     character(len=50) :: rate_table_file
+     integer :: num_header 
+  end type table_read_info
 
-  !$acc declare create(table_meta)
+  type(table_info), dimension(num_tables) :: table_meta
+  type(table_read_info), dimension(num_tables) :: table_read_meta
 
+  ! Create the device pointers for this array of derived type.
+  !$acc declare create(table_meta)    
+  
 contains
 
-  subroutine init_table_meta()
+  subroutine init_tabular()
     integer :: n
+
+    
     do n = 1, num_tables
-       call init_tab_info(table_meta(n))
+       call init_tab_info(table_meta(n), table_read_meta(n))
+       ! For scalars or arrays with size known at compile-time, do update device
+       ! to move them to the device and point the derived type pointers at them.
+       !$acc update device(table_meta(n)%num_rhoy)
+       !$acc update device(table_meta(n)%num_temp)
+       !$acc update device(table_meta(n)%num_vars)
+
+       ! For dynamic arrays, do enter data copyin to move their data to the device
+       ! and then point the derived type pointers to these arrays on the device.
+       ! If you do update device instead, the device gets the host memory addresses
+       ! for these dynamic arrays instead of device memory addresses.
+       !$acc enter data copyin(table_meta(n)%rate_table)
+       !$acc enter data copyin(table_meta(n)%rhoy_table)
+       !$acc enter data copyin(table_meta(n)%temp_table)
     end do
-  end subroutine init_table_meta
+  end subroutine init_tabular
 
   subroutine term_table_meta()
     integer :: n
@@ -52,9 +75,10 @@ contains
        call term_tab_info(table_meta(n))
     end do
   end subroutine term_table_meta
-  
-  subroutine init_tab_info(self)
+
+  subroutine init_tab_info(self, self_read)
     type(table_info) :: self
+    type(table_read_info) :: self_read
     double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
     integer :: i, j, k
 
@@ -63,8 +87,8 @@ contains
     allocate( self%temp_table( self%num_temp ) )
     allocate( rate_table_scratch( self%num_temp, self%num_rhoy, self%num_vars+2 ) )
 
-    open(unit=11, file=self%rate_table_file)
-    do i = 1, self%num_header
+    open(unit=11, file=self_read%rate_table_file)
+    do i = 1, self_read%num_header
        read(11,*)
     end do
     do j = 1, self%num_rhoy
@@ -266,7 +290,7 @@ contains
     end if
   end subroutine get_entries
 
-  subroutine get_tabular_reaction(self, rhoy, temp, iwhich, reactvec)
+  subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     
     use burn_type_module, only: num_rate_groups
@@ -276,7 +300,6 @@ contains
     double precision, intent(in) :: rhoy, temp
     double precision, dimension(num_rate_groups+2), intent(inout) :: reactvec
     double precision, dimension(self%num_vars+add_vars) :: entries
-    integer, intent(in) :: iwhich
     
     ! Get the table entries at this rhoy, temp
     call get_entries(self, rhoy, temp, entries)
@@ -288,6 +311,6 @@ contains
     reactvec(4) = 0.0d0
     reactvec(5) = entries(jtab_dq) 
     reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
-  end subroutine get_tabular_reaction
+  end subroutine tabular_evaluate
   
 end module table_rates

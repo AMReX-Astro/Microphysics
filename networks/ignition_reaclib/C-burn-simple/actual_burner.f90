@@ -16,6 +16,7 @@ contains
     use integration_data, only: temp_scale, ener_scale
     use actual_network, only: actual_network_init
     use net_rates, only: init_reaclib, net_screening_init
+    use table_rates, only: init_tabular
 
     implicit none
 
@@ -23,6 +24,7 @@ contains
     
     call actual_network_init()
     call init_reaclib()
+    call init_tabular()
     call net_screening_init()
     
     temp_scale = 1.0d10
