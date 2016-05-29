@@ -160,11 +160,6 @@ contains
 
     call eos(eos_input_rt, eos_state_in)
 
-    ! Send this data back to the burn state in case the energy changed
-    ! due to a reset/flooring.
-
-    call eos_to_burn(eos_state_in, state_in)
-
     ! Convert the EOS state data into the form VODE expects.
 
     call eos_to_vode(eos_state_in, y, rpar)
