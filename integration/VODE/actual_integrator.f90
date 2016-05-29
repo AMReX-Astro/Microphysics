@@ -302,7 +302,7 @@ contains
 
     ! Store the final data, and then normalize abundances.
 
-    call vode_to_burn(state_out, y, rpar)
+    call vode_to_burn(y, rpar, state_out)
 
     call burn_to_eos(state_out, eos_state_out)
     call normalize_abundances(eos_state_out)
