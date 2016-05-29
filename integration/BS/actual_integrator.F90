@@ -213,27 +213,12 @@ contains
 
     endif
 
-    ! Store the final data.
+    ! Store the final data, and then normalize abundances.
 
-    call bs_to_eos(eos_state_out, bs)
+    call bs_to_burn(bs, state_out)
 
+    call burn_to_eos(state_out, eos_state_out)
     call normalize_abundances(eos_state_out)
-
-    ! Energy was integrated in the system -- we use this integrated
-    ! energy which contains both the reaction energy release and
-    ! neutrino losses. The final energy is the initial energy
-    ! plus this energy release. Note that we get a new temperature too,
-    ! but we will discard it and call the EOS to get a final temperature
-    ! consistent with this new energy.
-
-    eos_state_out % e = eos_state_in % e + bs % y(net_ienuc) * ener_scale
-
-    eos_state_out % reset = .true.
-
-    if (eos_on_burn_finalize) then
-       call eos(eos_input_burn, eos_state_out)
-    endif
-
     call eos_to_burn(eos_state_out, state_out)
 
     if (burner_verbose) then
