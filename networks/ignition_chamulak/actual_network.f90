@@ -78,8 +78,12 @@ contains
 
 
 
-  subroutine network_finalize()
-    ! stub routine that Maestro wants
-  end subroutine network_finalize
+  subroutine actual_network_finalize
+
+    implicit none
+
+    ! Nothing to do here.
+
+  end subroutine actual_network_finalize
 
 end module actual_network
