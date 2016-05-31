@@ -27,9 +27,4 @@ module rpar_indices
 
   integer, parameter :: n_rpar_comps = irp_dcpdt
 
-  !$acc declare create(irp_dens, irp_cv, irp_cp, irp_dedY, irp_dhdY)
-  !$acc declare create(irp_nspec, irp_abar, irp_zbar, irp_eta, irp_ye)
-  !$acc declare create(irp_self_heat, irp_have_rates, irp_rates)
-  !$acc declare create(irp_Told, irp_dcvdt, irp_dcpdt, n_rpar_comps)
-
 end module rpar_indices

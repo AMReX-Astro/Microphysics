@@ -126,10 +126,8 @@
 
     if (jacobian == 1) then
        call actual_jac(state)
-    elseif (jacobian == 2) then
-       call numerical_jac(state)
     else
-       call bl_error("Unknown Jacobian choice in subroutine jac.")
+       call numerical_jac(state)
     endif
 
     call burn_to_vbdf(state, ts)
