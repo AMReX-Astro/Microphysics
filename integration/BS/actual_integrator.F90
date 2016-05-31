@@ -225,7 +225,6 @@ contains
 
        ! Print out some integration statistics, if desired.
 
-#ifndef ACC
        print *, 'integration summary: '
        print *, 'dens: ', state_out % rho
        print *, ' temp: ', state_out % T
@@ -233,7 +232,6 @@ contains
        print *, 'number of steps taken: ', bs % n
        print *, 'number of RHS evaluations: ', bs % n_rhs
        print *, 'number of Jacobian evaluations: ', bs % n_jac
-#endif
 
     endif
 
