@@ -147,6 +147,8 @@ contains
        call actual_jac(state)
     elseif (jacobian == 2) then
        call numerical_jac(state)
+    else
+       call bl_error("Unknown Jacobian choice in subroutine jac.")
     endif
 
     call burn_to_bs(state, bs)
