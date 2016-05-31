@@ -1,5 +1,7 @@
 module actual_burner_data
 
+  use actual_network_data, only: nrates
+
   implicit none
 
   ! Table interpolation data
