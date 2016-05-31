@@ -19,4 +19,13 @@ module actual_network_data
 
   character (len=22), parameter :: network_name = "triple_alpha_plus_cago"
 
+  ! Rates data
+
+  integer, parameter :: nrates = 2
+
+  integer, parameter :: ir3a_   = 1
+  integer, parameter :: ircago_ = 2
+
+  character (len=10), save :: reac_names(nrates)
+
 end module actual_network_data

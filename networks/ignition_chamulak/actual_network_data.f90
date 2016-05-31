@@ -17,4 +17,6 @@ module actual_network_data
   double precision, save :: aion(nspec), zion(nspec), bion(nspec)
   double precision, save :: nion(nspec), mion(nspec), wion(nspec)
 
+  integer, parameter :: nrates = 1
+
 end module actual_network_data

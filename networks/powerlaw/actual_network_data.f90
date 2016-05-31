@@ -16,4 +16,6 @@ module actual_network_data
 
   double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
 
+  integer, parameter :: nrates = 0
+
 end module actual_network_data

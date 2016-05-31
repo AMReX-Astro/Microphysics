@@ -2,8 +2,6 @@ module actual_burner_data
 
   implicit none
 
-  integer, parameter :: nrates = 1
-
 contains
 
   subroutine ener_gener_rate(dydt, ebin, enuc)

@@ -2,8 +2,6 @@ module actual_burner_data
 
   implicit none
 
-  integer, parameter :: nrates = 0
-
 contains
 
   ! Computes the instantaneous energy generation rate
