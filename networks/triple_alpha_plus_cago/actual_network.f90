@@ -65,8 +65,13 @@ contains
   end function network_reaction_index
 
 
-  subroutine network_finalize()
-    ! stub for MAESTRO
-  end subroutine network_finalize
+
+  subroutine actual_network_finalize
+
+    implicit none
+
+    ! Nothing to do here.
+
+  end subroutine actual_network_finalize
 
 end module actual_network

@@ -30,7 +30,7 @@ contains
     ! in this network, we need to explicitly add its
     ! contribution in this routine.
 
-    enuc = dydt(ic12) * (mion(img24) - mion(ic12)) * enuc_conv2
+    enuc = dydt(ic12) * (mion(ic12) - mion(img24)) * enuc_conv2
 
   end subroutine ener_gener_rate
 

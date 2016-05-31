@@ -48,3 +48,5 @@ f_act         real   1.0d0     # activation T factor (f_act*T_burn_ref)
 # override the default burning mode with a higher priority
 burning_mode             integer   0       100
 
+# override the default Jacobian mode with a higher priority
+jacobian                 integer   2       100

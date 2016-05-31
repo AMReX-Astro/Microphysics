@@ -68,7 +68,7 @@
 
     if (call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
 
-       call eos(eos_input_burn, eos_state)
+       call eos(eos_input_rt, eos_state)
 
     else if (abs(eos_state % T - rpar(irp_Told)) > dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
 
