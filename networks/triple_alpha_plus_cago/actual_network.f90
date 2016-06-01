@@ -47,7 +47,7 @@ contains
 
   function network_reaction_index(name)
 
-    use actual_burner_data
+    use actual_network_data
 
     character(len=*) :: name
     integer :: network_reaction_index, n
