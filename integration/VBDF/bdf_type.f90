@@ -14,9 +14,9 @@ module bdf_type_module
   !
   type :: bdf_ts
 
-     integer  :: npt = bdf_npt
-     integer  :: neq = neqs
-     integer  :: max_order = bdf_max_order
+     integer  :: npt
+     integer  :: neq
+     integer  :: max_order
      integer  :: max_steps                  ! maximum allowable number of steps
      integer  :: max_iters                  ! maximum allowable number of newton iterations
      integer  :: verbose                    ! verbosity level

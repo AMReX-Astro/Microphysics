@@ -774,13 +774,24 @@ contains
 
   !
   ! Build/destroy BDF time-stepper.
+  ! Note that many operations are explicitly written out
+  ! in this subroutine due to limitations with the PGI
+  ! compiler intrinsics using the accelerator. Make sure to
+  ! try compiling with OpenACC support enabled before
+  ! committing any changes to this subroutine.
   !
   subroutine bdf_ts_build(ts)
+    !$acc routine seq
+    !$acc routine(dgemm) seq
     type(bdf_ts),   intent(inout) :: ts
 
     integer :: U(bdf_max_order+1, bdf_max_order+1), Uk(bdf_max_order+1, bdf_max_order+1)
-    integer :: k, n
+    integer :: Uf(bdf_max_order+1,bdf_max_order+1)
+    integer :: i, j, k, n
 
+    ts%npt = bdf_npt
+    ts%neq = neqs
+    ts%max_order = bdf_max_order
     ts%max_steps  = 1000000
     ts%max_iters  = 10
     ts%verbose    = 0
@@ -793,9 +804,15 @@ contains
 
     ts%k = -1
 
-    ts%J  = 0
-    ts%P  = 0
-    ts%yd = 0
+    do n = 1, ts % npt
+       do k = 1, neqs
+          ts % yd(k,n) = 0.0d0
+          do j = 1, neqs
+             ts % J(j,k,n) = 0.0d0
+             ts % P(j,k,n) = 0.0d0
+          enddo
+       enddo
+    enddo
 
     ts%j_age = 666666666
     ts%p_age = 666666666
@@ -803,16 +820,45 @@ contains
     ts%debug = .false.
 
     ! build pascal matrix A using A = exp(U)
-    U = 0
+    do k = 1, bdf_max_order+1
+       do j = 1, bdf_max_order+1
+          U(j,k) = 0.0d0
+       enddo
+    enddo
+
     do k = 1, bdf_max_order
        U(k,k+1) = k
     end do
-    Uk = U
-    call eye_i(ts%A)
+
+    do k = 1, bdf_max_order+1
+       do j = 1, bdf_max_order+1
+          Uk(j,k) = U(j,k)
+       enddo
+    enddo
+
+    do k = 1, bdf_max_order+1
+       do n = 1, bdf_max_order+1
+          if (k == n) then
+             ts % A(n,k) = 1.0d0
+          else
+             ts % A(n,k) = 0.0d0
+          endif
+       enddo
+    enddo
+
     do k = 1, bdf_max_order+1
        ts%A  = ts%A + Uk / factorial(k)
-       Uk = matmul(U, Uk)
+
+       call dgemm(1,1,bdf_max_order+1,bdf_max_order+1,bdf_max_order+1, &
+                  1.0d0,U,1,Uk,1,1.0d0,Uf,1)
+
+       do j = 1, bdf_max_order+1
+          do i = 1, bdf_max_order+1
+             Uk(i,j) = Uf(i,j)
+          enddo
+       enddo
     end do
+
   end subroutine bdf_ts_build
 
   subroutine bdf_ts_destroy(ts)

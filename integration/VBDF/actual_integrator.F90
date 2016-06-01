@@ -114,7 +114,9 @@ contains
     else if (burning_mode == 1) then
        ts % upar(irp_self_heat,1) = ONE
     else
+#ifndef ACC
        call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+#endif
     endif
 
     ! If we are using the dT_crit functionality and therefore doing a linear
@@ -169,6 +171,7 @@ contains
     ! If we still failed, print out the current state of the integration.
 
     if (ierr /= BDF_ERR_SUCCESS) then
+#ifndef ACC
        print *, 'ERROR: integration failed in net'
        print *, 'ierr = ', ierr
        print *, 'time = ', ts % t
@@ -179,11 +182,11 @@ contains
        print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
             ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale
-
+#endif
        if (.not. retry_burn) then
-
+#ifndef ACC
           call bl_error("ERROR in burner: integration failed")
-
+#endif
        else
 
           print *, 'Retrying burn with looser tolerances'
@@ -212,9 +215,9 @@ contains
           enddo
 
           if (retry_change_factor > retry_burn_max_change .and. ierr /= BDF_ERR_SUCCESS) then
-
+#ifndef ACC
              call bl_error("ERROR in burner: integration failed")
-
+#endif
           endif
 
        endif
