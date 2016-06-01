@@ -21,9 +21,7 @@
 module bdf
 
   use bl_types
-  !use bl_error_module
   use bl_constants_module
-  !use parallel
   use bdf_type_module
 
   implicit none
@@ -255,7 +253,7 @@ contains
     !$acc routine(dgefa) seq
     !$acc routine(dgesl) seq
 
-    EXTERNAL rhs, jac
+    use rhs_module, only: rhs, jac
 
     type(bdf_ts), intent(inout) :: ts
 
@@ -517,13 +515,13 @@ contains
   subroutine bdf_reset(ts, y0, dt, reuse)
     !$acc routine seq
 
+    use rhs_module, only: rhs
+
     type(bdf_ts), intent(inout) :: ts
     real(dp_t),   intent(in   ) :: y0(ts%neq, ts%npt), dt
     logical,      intent(in   ) :: reuse
     
     integer :: p,m,o
-
-    EXTERNAL rhs
 
     ts%nfe = 0
     ts%nje = 0

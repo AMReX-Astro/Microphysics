@@ -1,3 +1,7 @@
+module rhs_module
+
+contains
+
   ! The rhs routine provides the right-hand-side for the VBDF solver.
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
@@ -133,3 +137,5 @@
     call burn_to_vbdf(state, ts)
 
   end subroutine jac
+
+end module rhs_module
