@@ -88,6 +88,8 @@
 
     ! Call the specific network routine to get the RHS.
 
+    rpar(irp_have_rates) = -ONE
+
     call vode_to_burn(y, rpar, burn_state)
     call actual_rhs(burn_state)
     call burn_to_vode(burn_state, y, rpar, ydot = ydot)
