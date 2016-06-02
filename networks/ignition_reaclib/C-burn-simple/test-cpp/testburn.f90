@@ -59,7 +59,10 @@ subroutine do_burn() bind (C)
   !$acc parallel copyin(state_in, dt, time) copy(state_out)
 
   call actual_burner(state_in, state_out, dt, time)
-
+  call burn_to_eos(state_out, eos_state)
+  eos_state % e = state_in % e + state_out % e
+  call eos(eos_input_re, eos_state)
+  call eos_to_burn(eos_state, state_out)
   !$acc end parallel
 
   print *, 'done!'
