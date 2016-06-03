@@ -849,6 +849,12 @@ contains
     do k = 1, bdf_max_order+1
        ts%A  = ts%A + Uk / factorial(k)
 
+       do j = 1, bdf_max_order+1
+          do i = 1, bdf_max_order+1
+             Uf(i,j) = 0.0d0
+          enddo
+       enddo
+
        call dgemm(1,1,bdf_max_order+1,bdf_max_order+1,bdf_max_order+1, &
                   1.0d0,U,1,Uk,1,0.0d0,Uf,1)
 
