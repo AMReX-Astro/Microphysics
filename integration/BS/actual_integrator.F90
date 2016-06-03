@@ -221,6 +221,7 @@ contains
     call normalize_abundances(eos_state_out)
     call eos_to_burn(eos_state_out, state_out)
 
+#ifndef ACC
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
@@ -234,6 +235,7 @@ contains
        print *, 'number of Jacobian evaluations: ', bs % n_jac
 
     endif
+#endif
 
   end subroutine actual_integrator
 
