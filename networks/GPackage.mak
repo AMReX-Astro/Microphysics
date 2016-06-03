@@ -54,3 +54,15 @@ ifeq ($(USE_SCREENING), TRUE)
   include $(SCREEN_PATH)/GPackage.mak
 
 endif
+
+ifeq ($(USE_NEUTRINOS), TRUE)
+
+  NEUTRINO_PATH := $(MICROPHYSICS_DIR)/neutrinos
+
+  FINCLUDE_LOCATIONS    += $(NEUTRINO_PATH)
+  VPATH_LOCATIONS       += $(NEUTRINO_PATH)
+  EXTERN_PARAMETER_DIRS += $(NEUTRINO_PATH)
+
+  include $(NEUTRINO_PATH)/GPackage.mak
+
+endif

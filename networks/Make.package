@@ -54,3 +54,15 @@ ifeq ($(USE_SCREENING), TRUE)
   include $(SCREEN_PATH)/Make.package
 
 endif
+
+ifeq ($(USE_NEUTRINOS), TRUE)
+
+  NEUTRINO_PATH := $(MICROPHYSICS_DIR)/neutrinos
+
+  INCLUDE_LOCATIONS += $(NEUTRINO_PATH)
+  VPATH_LOCATIONS   += $(NEUTRINO_PATH)
+  EXTERN_CORE       += $(NEUTRINO_PATH)
+
+  include $(NEUTRINO_PATH)/Make.package
+
+endif
