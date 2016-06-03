@@ -850,7 +850,7 @@ contains
        ts%A  = ts%A + Uk / factorial(k)
 
        call dgemm(1,1,bdf_max_order+1,bdf_max_order+1,bdf_max_order+1, &
-                  1.0d0,U,1,Uk,1,1.0d0,Uf,1)
+                  1.0d0,U,1,Uk,1,0.0d0,Uf,1)
 
        do j = 1, bdf_max_order+1
           do i = 1, bdf_max_order+1
