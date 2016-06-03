@@ -35,12 +35,12 @@ contains
     !$acc routine seq
 
     use rpar_indices
-    use extern_probin_module, only: jacobian, burner_verbose, &
+    use extern_probin_module, only: burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit
+                                    dT_crit
     use integration_data, only: ener_scale
 
     implicit none
@@ -51,15 +51,8 @@ contains
     type (burn_t), intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
 
-    logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
-    logical, parameter :: REUSE = .false. !.false. means don't reuse the Jacobian
-    real(kind=dp_t), parameter :: DT0 = 1.0d-9 !Initial dt to be used in getting from 
-                                               !t to tout.  Also arbitrary,
-                                               !multiple values should be
-                                               !explored.
-
     ! Local variables
-    integer :: n, i, j, ierr
+    integer :: n, ierr
 
     real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
     real(kind=dp_t) :: t0, t1
@@ -67,7 +60,6 @@ contains
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
     type (bs_t) :: bs
 
-    real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
 
     ! Set the tolerances.  We will be more relaxed on the temperature

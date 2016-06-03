@@ -51,12 +51,10 @@ module actual_eos_module
 private
     ! Math constants
     double precision :: pi       = 3.1415926535897932384d0
-    double precision :: eulercon = 0.577215664901532861d0
     double precision :: a2rad
     double precision :: rad2a
 
     ! Physical constants
-    double precision :: g       = 6.6742867d-8
     double precision :: h       = 6.6260689633d-27
     double precision :: hbar
     double precision :: qe      = 4.8032042712d-10
@@ -69,24 +67,15 @@ private
     double precision :: me_eos  = 9.1093821545d-28
     double precision :: rbohr
     double precision :: fine
-    double precision :: hion    = 13.605698140d0
 
     double precision :: ssol    = 5.67051d-5
     double precision :: asol
     double precision :: weinlam
     double precision :: weinfre
-    double precision :: rhonuc  = 2.342d14
 
     ! Astronomical constants
-    double precision :: msol    = 1.9892d33
-    double precision :: rsol    = 6.95997d10
-    double precision :: lsol    = 3.8268d33
-    double precision :: mearth  = 5.9764d27
-    double precision :: rearth  = 6.37d8
     double precision :: ly      = 9.460528d17
     double precision :: pc
-    double precision :: au      = 1.495978921d13
-    double precision :: secyer  = 3.1558149984d7
 
     ! Some other useful combinations of the constants
     double precision :: sioncon
@@ -110,12 +99,12 @@ private
     double precision :: esqu
 
     !$acc declare &
-    !$acc create(pi, eulercon, a2rad, rad2a) &
-    !$acc create(g, h, hbar, qe, avo_eos, clight, kerg) &
+    !$acc create(pi, a2rad, rad2a) &
+    !$acc create(h, hbar, qe, avo_eos, clight, kerg) &
     !$acc create(ev2erg_eos, kev, amu, me_eos) &
-    !$acc create(rbohr, fine, hion) &
-    !$acc create(ssol, asol, weinlam, weinfre, rhonuc) &
-    !$acc create(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
+    !$acc create(rbohr, fine) &
+    !$acc create(ssol, asol, weinlam, weinfre) &
+    !$acc create(ly, pc) &
     !$acc create(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
     !$acc create(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
     !$acc create(ttol, dtol, tlo, thi, dlo, dhi) &
@@ -203,12 +192,8 @@ contains
 
         !..declare local variables
 
-        integer :: i,j,k
-        integer :: N(1), N3(3)
-
         logical :: single_iter, double_iter, converged
-        logical :: use_acc
-        integer :: var, dvar, var1, var2, dvar1, dvar2, iter
+        integer :: var, dvar, var1, var2, iter
         double precision :: v_want
         double precision :: v1_want, v2_want
         double precision :: xnew, xtol, dvdx, smallx, error, v
@@ -1331,12 +1316,12 @@ contains
         maxdens = 10.d0**dhi
 
         !$acc update &
-        !$acc device(pi, eulercon, a2rad, rad2a) &
-        !$acc device(g, h, hbar, qe, avo_eos, clight, kerg) &
+        !$acc device(pi, a2rad, rad2a) &
+        !$acc device(h, hbar, qe, avo_eos, clight, kerg) &
         !$acc device(ev2erg_eos, kev, amu, me_eos) &
-        !$acc device(rbohr, fine, hion) &
-        !$acc device(ssol, asol, weinlam, weinfre, rhonuc) &
-        !$acc device(msol, rsol, lsol, mearth, rearth, ly, pc, au, secyer) &
+        !$acc device(rbohr, fine) &
+        !$acc device(ssol, asol, weinlam, weinfre) &
+        !$acc device(ly, pc) &
         !$acc device(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
         !$acc device(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
         !$acc device(ttol, dtol, tlo, thi, dlo, dhi) &
