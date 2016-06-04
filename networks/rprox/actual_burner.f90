@@ -9,7 +9,6 @@ module actual_burner_module
   use eos_module
   use eos_type_module
   use network
-  use actual_burner_data
   use burn_type_module
 
 contains

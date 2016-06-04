@@ -4,7 +4,6 @@ module actual_burner_module
   use bl_constants_module
   use network
   use burn_type_module
-  use actual_burner_data
   use extern_probin_module, only: specific_q_burn
 
   implicit none

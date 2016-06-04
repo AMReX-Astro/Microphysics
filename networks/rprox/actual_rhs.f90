@@ -1,6 +1,5 @@
 module actual_rhs_module
 
-  use actual_burner_data
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 

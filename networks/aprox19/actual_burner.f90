@@ -5,7 +5,6 @@ module actual_burner_module
   use bl_error_module
   use eos_module
   use network
-  use actual_burner_data
   use burn_type_module
 
   implicit none
