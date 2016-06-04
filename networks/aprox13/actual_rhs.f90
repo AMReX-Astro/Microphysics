@@ -5,7 +5,7 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use sneut_module, only: sneut5
-  use actual_network_data, only: nrates
+  use actual_network, only: nrates
 
   implicit none
 
@@ -2349,7 +2349,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network_data, only: nspec, mion, enuc_conv2
+    use actual_network, only: nspec, mion, enuc_conv2
 
     implicit none
 

@@ -2906,7 +2906,7 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
-    use actual_network_data, only: nspec, mion, enuc_conv2
+    use actual_network, only: nspec, mion, enuc_conv2
 
     implicit none
 

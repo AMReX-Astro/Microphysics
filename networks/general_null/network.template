@@ -31,7 +31,9 @@ module actual_network
 
   double precision  , save :: aion(nspec), zion(nspec)
 
-  !!acc declare create(aion, zion)
+  !$acc declare create(aion, zion)
+
+  integer, parameter :: nrates = 0
 
 contains
   

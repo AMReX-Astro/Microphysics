@@ -50,7 +50,7 @@ contains
   subroutine init_rpar_indices()
 
     use network, only: nspec, nspec_evolve
-    use actual_network_data, only: nrates
+    use actual_network, only: nrates
     use burn_type_module, only: num_rate_groups
 
     implicit none

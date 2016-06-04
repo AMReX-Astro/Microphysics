@@ -3,7 +3,7 @@ module actual_rhs_module
   use bl_types
   use bl_constants_module
   use network
-  use actual_network_data
+  use actual_network
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
