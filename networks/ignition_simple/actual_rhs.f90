@@ -148,8 +148,9 @@ contains
                                      dens * scorr * xc12tmp**2 * dratedt )
 
     ! Convert back to molar form
+    ! Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
+    ! so this conversion is necessarily only for the temperature derivative.
 
-    state % jac(ic12,ic12) = state % jac(ic12,ic12) / aion(ic12)
     state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) / aion(ic12)
 
     ! Energy generation rate Jacobian elements with respect to species
