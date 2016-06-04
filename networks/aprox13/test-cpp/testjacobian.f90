@@ -96,7 +96,8 @@ subroutine test_jacobian() bind(C)
         if (state_num % jac(i,j) /= state_ana % jac(i,j)) then
            if (state_num % jac(i,j) /= ZERO) then
               write (*,999) trim(namei), &
-                   trim(namej), state_num % jac(i,j), state_ana % jac(i,j), (state_num % jac(i,j)-state_ana % jac(i,j))/state_num % jac(i,j)
+                   trim(namej), state_num % jac(i,j), state_ana % jac(i,j), &
+                   (state_num % jac(i,j)-state_ana % jac(i,j))/state_num % jac(i,j)
            else
               write (*,999) trim(namei), &
                    trim(namej), state_num % jac(i,j), state_ana % jac(i,j)
