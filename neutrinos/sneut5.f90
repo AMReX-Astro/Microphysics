@@ -5,11 +5,12 @@ module sneut_module
 contains
 
   subroutine sneut5(temp,den,abar,zbar, &
-       snu,dsnudt,dsnudd,dsnuda,dsnudz)
+                    snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
     !$acc routine seq
-    
+
     use bl_constants_module, only: M_PI
+
     implicit none
 
     ! this routine computes thermal neutrino losses from the analytic fits of
@@ -30,73 +31,71 @@ contains
 
 
     ! declare the pass
-    double precision temp,den,abar,zbar, &
-         snu,dsnudt,dsnudd,dsnuda,dsnudz
+    double precision :: temp,den,abar,zbar, &
+                        snu,dsnudt,dsnudd,dsnuda,dsnudz
 
     ! local variables
-    double precision spair,spairdt,spairdd,spairda,spairdz, &
-         splas,splasdt,splasdd,splasda,splasdz, &
-         sphot,sphotdt,sphotdd,sphotda,sphotdz, &
-         sbrem,sbremdt,sbremdd,sbremda,sbremdz, &
-         sreco,srecodt,srecodd,srecoda,srecodz
+    double precision :: spair,spairdt,spairdd,spairda,spairdz, &
+                        splas,splasdt,splasdd,splasda,splasdz, &
+                        sphot,sphotdt,sphotdd,sphotda,sphotdz, &
+                        sbrem,sbremdt,sbremdd,sbremda,sbremdz, &
+                        sreco,srecodt,srecodd,srecoda,srecodz
 
-    double precision t9,xl,xldt,xlp5,xl2,xl3,xl4,xl5,xl6,xl7,xl8,xl9, &
-         xlmp5,xlm1,xlm2,xlm3,xlm4,xlnt,cc,den6,tfermi, &
-         a0,a1,a2,a3,b1,b2,c00,c01,c02,c03,c04,c05,c06, &
-         c10,c11,c12,c13,c14,c15,c16,c20,c21,c22,c23,c24, &
-         c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12, &
-         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0, &
-         f1,deni,tempi,abari,zbari,f2,f3,z,xmue,ye, &
-         dum,dumdt,dumdd,dumda,dumdz, &
-         gum,gumdt,gumdd,gumda,gumdz
+    double precision :: t9,xl,xldt,xlp5,xl2,xl3,xl4,xl5,xl6,xl7,xl8,xl9, &
+                        xlmp5,xlm1,xlm2,xlm3,xlm4,xlnt,cc,den6,tfermi, &
+                        a0,a1,a2,a3,b1,b2,c00,c01,c02,c03,c04,c05,c06, &
+                        c10,c11,c12,c13,c14,c15,c16,c20,c21,c22,c23,c24, &
+                        c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12, &
+                        dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0, &
+                        f1,deni,tempi,abari,zbari,f2,f3,z,xmue,ye, &
+                        dum,dumdt,dumdd,dumda,dumdz, &
+                        gum,gumdt,gumdd,gumda,gumdz
 
 
     ! pair production
-    double precision rm,rmdd,rmda,rmdz,rmi,gl,gldt, &
-         zeta,zetadt,zetadd,zetada,zetadz,zeta2,zeta3, &
-         xnum,xnumdt,xnumdd,xnumda,xnumdz, &
-         xden,xdendt,xdendd,xdenda,xdendz, &
-         fpair,fpairdt,fpairdd,fpairda,fpairdz, &
-         qpair,qpairdt,qpairdd,qpairda,qpairdz
+    double precision :: rm,rmdd,rmda,rmdz,rmi,gl,gldt, &
+                        zeta,zetadt,zetadd,zetada,zetadz,zeta2,zeta3, &
+                        xnum,xnumdt,xnumdd,xnumda,xnumdz, &
+                        xden,xdendt,xdendd,xdenda,xdendz, &
+                        fpair,fpairdt,fpairdd,fpairda,fpairdz, &
+                        qpair,qpairdt,qpairdd,qpairda,qpairdz
 
     ! plasma
-    double precision gl2,gl2dt,gl2dd,gl2da,gl2dz,gl12,gl32,gl72,gl6, &
-         ft,ftdt,ftdd,ftda,ftdz,fl,fldt,fldd,flda,fldz, &
-         fxy,fxydt,fxydd,fxyda,fxydz
+    double precision :: gl2,gl2dt,gl2dd,gl2da,gl2dz,gl12,gl32,gl72,gl6, &
+                        ft,ftdt,ftdd,ftda,ftdz,fl,fldt,fldd,flda,fldz, &
+                        fxy,fxydt,fxydd,fxyda,fxydz
 
     ! photo
-    double precision tau,taudt,cos1,cos2,cos3,cos4,cos5,sin1,sin2, &
-         sin3,sin4,sin5,last,xast, &
-         fphot,fphotdt,fphotdd,fphotda,fphotdz, &
-         qphot,qphotdt,qphotdd,qphotda,qphotdz
+    double precision :: tau,taudt,cos1,cos2,cos3,cos4,cos5,sin1,sin2, &
+                        sin3,sin4,sin5,last,xast, &
+                        fphot,fphotdt,fphotdd,fphotda,fphotdz, &
+                        qphot,qphotdt,qphotdd,qphotda,qphotdz
 
     ! brem
-    double precision t8,t812,t832,t82,t83,t85,t86,t8m1,t8m2,t8m3,t8m5, &
-         t8m6, &
-         eta,etadt,etadd,etada,etadz,etam1,etam2,etam3, &
-         fbrem,fbremdt,fbremdd,fbremda,fbremdz, &
-         gbrem,gbremdt,gbremdd,gbremda,gbremdz, &
-         u,gm1,gm2,gm13,gm23,gm43,gm53,v,w,fb,gt,gb, &
-         fliq,fliqdt,fliqdd,fliqda,fliqdz, &
-         gliq,gliqdt,gliqdd,gliqda,gliqdz
+    double precision :: t8,t812,t832,t82,t83,t85,t86,t8m1,t8m2,t8m3,t8m5, &
+                        t8m6, &
+                        eta,etadt,etadd,etada,etadz,etam1,etam2,etam3, &
+                        fbrem,fbremdt,fbremdd,fbremda,fbremdz, &
+                        gbrem,gbremdt,gbremdd,gbremda,gbremdz, &
+                        u,gm1,gm2,gm13,gm23,gm43,gm53,v,w,fb,gt,gb, &
+                        fliq,fliqdt,fliqdd,fliqda,fliqdz, &
+                        gliq,gliqdt,gliqdd,gliqda,gliqdz
 
     ! recomb
-!    double precision ifermi12,zfermim12,
-    double precision nu,nudt,nudd,nuda,nudz, &
-         nu2,nu3,bigj,bigjdt,bigjdd,bigjda,bigjdz
+    double precision :: nu,nudt,nudd,nuda,nudz, &
+                        nu2,nu3,bigj,bigjdt,bigjdd,bigjda,bigjdz
 
 
 
     ! numerical constants
-    double precision fac1,fac2,fac3,oneth,twoth,con1,sixth,iln10
-    parameter        (fac1   = 5.0d0 * M_PI / 3.0d0, &
-         fac2   = 10.0d0 * M_PI, &
-         fac3   = M_PI / 5.0d0, &
-         oneth  = 1.0d0/3.0d0, &
-         twoth  = 2.0d0/3.0d0, &
-         con1   = 1.0d0/5.9302d0, &
-         sixth  = 1.0d0/6.0d0, &
-         iln10  = 4.342944819032518d-1)
+    double precision, parameter :: fac1   = 5.0d0 * M_PI / 3.0d0
+    double precision, parameter :: fac2   = 10.0d0 * M_PI
+    double precision, parameter :: fac3   = M_PI / 5.0d0
+    double precision, parameter :: oneth  = 1.0d0/3.0d0
+    double precision, parameter :: twoth  = 2.0d0/3.0d0
+    double precision, parameter :: con1   = 1.0d0/5.9302d0
+    double precision, parameter :: sixth  = 1.0d0/6.0d0
+    double precision, parameter :: iln10  = 4.342944819032518d-1
 
 
     ! theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
@@ -104,25 +103,18 @@ contains
     ! change theta and xnufam if need be, and the changes will automatically
     ! propagate through the routine. cv and ca are the vector and axial currents.
 
-    double precision theta,xnufam,cv,ca,cvp,cap,tfac1,tfac2,tfac3, &
-         tfac4,tfac5,tfac6
-    parameter        (theta  = 0.2319d0, &
-         xnufam = 3.0d0, &
-         cv     = 0.5d0 + 2.0d0 * theta, &
-         cvp    = 1.0d0 - cv, &
-         ca     = 0.5d0, &
-         cap    = 1.0d0 - ca, &
-         tfac1  = cv*cv + ca*ca + &
-         (xnufam-1.0d0) * (cvp*cvp+cap*cap), &
-         tfac2  = cv*cv - ca*ca + &
-         (xnufam-1.0d0) * (cvp*cvp - cap*cap), &
-         tfac3  = tfac2/tfac1, &
-         tfac4  = 0.5d0 * tfac1, &
-         tfac5  = 0.5d0 * tfac2, &
-         tfac6  = cv*cv + 1.5d0*ca*ca + (xnufam - 1.0d0)* &
-         (cvp*cvp + 1.5d0*cap*cap))
-
-
+    double precision, parameter :: theta  = 0.2319d0
+    double precision, parameter :: xnufam = 3.0d0
+    double precision, parameter :: cv     = 0.5d0 + 2.0d0 * theta
+    double precision, parameter :: cvp    = 1.0d0 - cv
+    double precision, parameter :: ca     = 0.5d0
+    double precision, parameter :: cap    = 1.0d0 - ca
+    double precision, parameter :: tfac1  = cv*cv + ca*ca + (xnufam-1.0d0) * (cvp*cvp+cap*cap)
+    double precision, parameter :: tfac2  = cv*cv - ca*ca + (xnufam-1.0d0) * (cvp*cvp - cap*cap)
+    double precision, parameter :: tfac3  = tfac2/tfac1
+    double precision, parameter :: tfac4  = 0.5d0 * tfac1
+    double precision, parameter :: tfac5  = 0.5d0 * tfac2
+    double precision, parameter :: tfac6  = cv*cv + 1.5d0*ca*ca + (xnufam - 1.0d0)*(cvp*cvp + 1.5d0*cap*cap)
 
     ! initialize
     spair   = 0.0d0
@@ -1036,6 +1028,9 @@ contains
 
     end if
 
+
+
+
     ! recombination neutrino section
     ! for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e
     ! equation 6.11 solved for nu
@@ -1182,11 +1177,11 @@ contains
     !dsnuda =  splasda + spairda + sphotda + sbremda + srecoda
     !dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz
 
-    return
   end subroutine sneut5
 
 
-  function ifermi12(f)
+
+  double precision function ifermi12(f)
 
     !$acc routine seq
 
@@ -1197,26 +1192,42 @@ contains
     ! maximum error is 4.19d-9.   reference: antia apjs 84,101 1993
 
     ! declare
-    double precision ifermi12
-    integer          i,m1,k1,m2,k2
-    double precision f,an,a1(12),b1(12),a2(12),b2(12),rn,den,ff
+    integer          :: i,m1,k1,m2,k2
+    double precision :: f,an,a1(12),b1(12),a2(12),b2(12),rn,den,ff
 
 
     ! load the coefficients of the expansion
-    data  an,m1,k1,m2,k2 /0.5d0, 4, 3, 6, 5/
-    data  (a1(i),i=1,5)/ 1.999266880833d4,   5.702479099336d3, &
-         6.610132843877d2,   3.818838129486d1, &
-         1.0d0/
-    data  (b1(i),i=1,4)/ 1.771804140488d4,  -2.014785161019d3, &
-         9.130355392717d1,  -1.670718177489d0/
-    data  (a2(i),i=1,7)/-1.277060388085d-2,  7.187946804945d-2, &
-         -4.262314235106d-1,  4.997559426872d-1, &
-         -1.285579118012d0,  -3.930805454272d-1, &
-         1.0d0/
-    data  (b2(i),i=1,6)/-9.745794806288d-3,  5.485432756838d-2, &
-         -3.299466243260d-1,  4.077841975923d-1, &
-         -1.145531476975d0,  -6.067091689181d-2/
+    an = 0.5d0
+    m1 = 4
+    k1 = 3
+    m2 = 6
+    k2 = 5
 
+    a1(1) = 1.999266880833d4
+    a1(2) = 5.702479099336d3
+    a1(3) = 6.610132843877d2
+    a1(4) = 3.818838129486d1
+    a1(5) = 1.0d0
+
+    b1(1) = 1.771804140488d4
+    b1(2) = -2.014785161019d3
+    b1(3) = 9.130355392717d1
+    b1(4) = -1.670718177489d0
+
+    a2(1) = -1.277060388085d-2
+    a2(2) = 7.187946804945d-2
+    a2(3) = -4.262314235106d-1
+    a2(4) = 4.997559426872d-1
+    a2(5) = -1.285579118012d0
+    a2(6) = -3.930805454272d-1
+    a2(7) = 1.0d0
+
+    b2(1) = -9.745794806288d-3
+    b2(2) = 5.485432756838d-2
+    b2(3) = -3.299466243260d-1
+    b2(4) = 4.077841975923d-1
+    b2(5) = -1.145531476975d0
+    b2(6) = -6.067091689181d-2
 
     if (f .lt. 4.0d0) then
        rn  = f + a1(m1)
@@ -1241,11 +1252,15 @@ contains
        enddo
        ifermi12 = rn/(den*ff)
     end if
-    return
+
   end function ifermi12
 
 
-  function zfermim12(x)
+
+
+
+
+  double precision function zfermim12(x)
 
     !$acc routine seq
 
@@ -1256,33 +1271,59 @@ contains
     ! reference: antia apjs 84,101 1993
 
     ! declare
-    double precision zfermim12
-    integer          i,m1,k1,m2,k2
-    double precision x,an,a1(12),b1(12),a2(12),b2(12),rn,den,xx
+    integer          :: i,m1,k1,m2,k2
+    double precision :: x,an,a1(12),b1(12),a2(12),b2(12),rn,den,xx
 
     ! load the coefficients of the expansion
-    data  an,m1,k1,m2,k2 /-0.5d0, 7, 7, 11, 11/
-    data  (a1(i),i=1,8)/ 1.71446374704454d7,    3.88148302324068d7, &
-         3.16743385304962d7,    1.14587609192151d7, &
-         1.83696370756153d6,    1.14980998186874d5, &
-         1.98276889924768d3,    1.0d0/
-    data  (b1(i),i=1,8)/ 9.67282587452899d6,    2.87386436731785d7, &
-         3.26070130734158d7,    1.77657027846367d7, &
-         4.81648022267831d6,    6.13709569333207d5, &
-         3.13595854332114d4,    4.35061725080755d2/
-    data (a2(i),i=1,12)/-4.46620341924942d-15, -1.58654991146236d-12, &
-         -4.44467627042232d-10, -6.84738791621745d-8, &
-         -6.64932238528105d-6,  -3.69976170193942d-4, &
-         -1.12295393687006d-2,  -1.60926102124442d-1, &
-         -8.52408612877447d-1,  -7.45519953763928d-1, &
-         2.98435207466372d0,    1.0d0/
-    data (b2(i),i=1,12)/-2.23310170962369d-15, -7.94193282071464d-13, &
-         -2.22564376956228d-10, -3.43299431079845d-8, &
-         -3.33919612678907d-6,  -1.86432212187088d-4, &
-         -5.69764436880529d-3,  -8.34904593067194d-2, &
-         -4.78770844009440d-1,  -4.99759250374148d-1, &
-         1.86795964993052d0,    4.16485970495288d-1/
+    an = -0.5d0
+    m1 = 7
+    k1 = 7
+    m2 = 11
+    k2 = 11
 
+    a1(1) = 1.71446374704454d7
+    a1(2) = 3.88148302324068d7
+    a1(3) = 3.16743385304962d7
+    a1(4) = 1.14587609192151d7
+    a1(5) = 1.83696370756153d6
+    a1(6) = 1.14980998186874d5
+    a1(7) = 1.98276889924768d3
+    a1(8) = 1.0d0
+
+    b1(1) = 9.67282587452899d6
+    b1(2) = 2.87386436731785d7
+    b1(3) = 3.26070130734158d7
+    b1(4) = 1.77657027846367d7
+    b1(5) = 4.81648022267831d6
+    b1(6) = 6.13709569333207d5
+    b1(7) = 3.13595854332114d4
+    b1(8) = 4.35061725080755d2
+
+    a2(1) = -4.46620341924942d-15
+    a2(2) = -1.58654991146236d-12
+    a2(3) = -4.44467627042232d-10
+    a2(4) = -6.84738791621745d-8
+    a2(5) = -6.64932238528105d-6
+    a2(6) = -3.69976170193942d-4
+    a2(7) = -1.12295393687006d-2
+    a2(8) = -1.60926102124442d-1
+    a2(9) = -8.52408612877447d-1
+    a2(10) = -7.45519953763928d-1
+    a2(11) =  2.98435207466372d0
+    a2(12) = 1.0d0
+
+    b2(1) = -2.23310170962369d-15
+    b2(2) = -7.94193282071464d-13
+    b2(3) = -2.22564376956228d-10
+    b2(4) = -3.43299431079845d-8
+    b2(5) = -3.33919612678907d-6
+    b2(6) = -1.86432212187088d-4
+    b2(7) = -5.69764436880529d-3
+    b2(8) = -8.34904593067194d-2
+    b2(9) = -4.78770844009440d-1
+    b2(10) = -4.99759250374148d-1
+    b2(11) =  1.86795964993052d0
+    b2(12) =  4.16485970495288d-1
 
     if (x .lt. 2.0d0) then
        xx = exp(x)
@@ -1295,7 +1336,6 @@ contains
           den = den*xx + b1(i)
        enddo
        zfermim12 = xx * rn/den
-       !
     else
        xx = 1.0d0/(x*x)
        rn = xx + a2(m2)
@@ -1308,7 +1348,7 @@ contains
        enddo
        zfermim12 = sqrt(x)*rn/den
     end if
-    return
+
   end function zfermim12
 
 end module sneut_module
