@@ -2,7 +2,6 @@ module actual_rhs_module
 
   use network
   use burn_type_module
-  use actual_burner_data
   use screen_module
   use rates_module
   use dydt_module
@@ -110,5 +109,19 @@ contains
     call temperature_jac(state)
 
   end subroutine actual_jac
+
+
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    use network
+
+    implicit none
+
+    double precision :: dydt(nspec), enuc
+
+    enuc = sum(dydt(:) * ebin(:))
+
+  end subroutine ener_gener_rate
 
 end module actual_rhs_module

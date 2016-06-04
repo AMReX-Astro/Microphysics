@@ -5,7 +5,6 @@ module actual_rhs_module
   use network
   use actual_network_data
   use burn_type_module
-  use actual_burner_data, only: ener_gener_rate
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none
@@ -161,5 +160,19 @@ contains
     call temperature_jac(state)
 
   end subroutine actual_jac
+
+
+
+  subroutine ener_gener_rate(dydt, ebin, enuc)
+
+    use network
+
+    implicit none
+
+    double precision :: dydt(nspec), ebin(nspec), enuc
+
+    enuc = sum(dydt(:) * aion(:) * ebin(:))
+
+  end subroutine ener_gener_rate
 
 end module actual_rhs_module
