@@ -58,6 +58,8 @@ subroutine do_burn() bind (C)
   call eos(eos_input_rt, eos_state)
   call eos_to_burn(eos_state, state_in)
 
+  state_in % e = 0.0d0
+
   state_out = state_in
 
   call actual_burner(state_in, state_out, dt, time)
