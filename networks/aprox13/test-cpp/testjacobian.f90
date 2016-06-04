@@ -9,10 +9,11 @@ subroutine test_jacobian() bind(C)
   use actual_burner_module
   use actual_rhs_module
   use burn_type_module
+  use numerical_jac_module
   
   implicit none
 
-  type (burn_t) :: state, statep, statem
+  type (burn_t) :: state_ana, state_num
 
   type (eos_t) :: eos_state
 
@@ -39,24 +40,29 @@ subroutine test_jacobian() bind(C)
 
   ! Set up state
 
-  state % rho   = 2.0d7
-  state % T     = 8.0d9
+  state_ana % rho   = 2.0d7
+  state_ana % T     = 8.0d9
 
-  state % xn(:) = ONE / nspec
+  state_ana % xn(:) = ONE / nspec
 
-  call burn_to_eos(state, eos_state)
+  call burn_to_eos(state_ana, eos_state)
   call normalize_abundances(eos_state)
   call eos(eos_input_rt, eos_state)
-  call eos_to_burn(eos_state, state)
+  call eos_to_burn(eos_state, state_ana)
 
-  state % self_heat = .true.
-  
+  state_ana % self_heat = .true.
+
+  state_num = state_ana
+
   ! Evaluate the analytical Jacobian. Note that we
   ! need to call f_rhs first because that will fill
   ! the state with the rates that the Jacobian needs.
 
-  call actual_rhs(state)
-  call actual_jac(state)  
+  call actual_rhs(state_ana)
+  call actual_jac(state_ana)
+
+  call actual_rhs(state_num)
+  call numerical_jac(state_num)
   
 888 format(a,"-derivatives that don't match:")
 999 format(5x, "df(",a,")/dy(",a,")", g18.10, g18.10, g18.10)
@@ -65,31 +71,8 @@ subroutine test_jacobian() bind(C)
   ! using the RHS.
   
   do j = 1, neqs
-
-     statep = state
-     statem = state
-
-     if (j <= nspec) then
-        statep % xn(j) = (ONE + delta) * state % xn(j)
-     else if (j == net_itemp) then
-        statep % T     = (ONE + delta) * state % T
-     else if (j == net_ienuc) then
-        statep % e     = (ONE + delta) * state % e
-     endif
-
-     call actual_rhs(statep)
      
-     if (j <= nspec) then
-        statem % xn(j) = (ONE - delta) * state % xn(j)
-     else if (j == net_itemp) then
-        statem % T     = (ONE - delta) * state % T
-     else if (j == net_ienuc) then
-        statem % e     = (ONE - delta) * state % e
-     endif
-
-     call actual_rhs(statem)
-
-     if (j <= nspec) then
+     if (j <= nspec_evolve) then
         namej = short_spec_names(j)
      else if (j==net_ienuc) then
         namej = "e"
@@ -99,17 +82,9 @@ subroutine test_jacobian() bind(C)
 
      write(*,888) trim(namej)
 
-     do i = 2, neqs
+     do i = 1, neqs
 
-        if (j <= nspec) then
-           num_jac = (statep % ydot(i) - statem % ydot(i))/(statep % xn(j) - statem % xn(j) + SMALL)
-        else if (j == net_itemp) then
-           num_jac = (statep % ydot(i) - statem % ydot(i))/(statep % T - statem % T + SMALL)
-        else if (j == net_ienuc) then
-           num_jac = (statep % ydot(i) - statem % ydot(i))/(statep % e - statem % e + SMALL)
-        endif
-
-        if (i <= nspec) then
+        if (i <= nspec_evolve) then
            namei = short_spec_names(i)
         else if (i==net_ienuc) then
            namei = "e"
@@ -118,13 +93,13 @@ subroutine test_jacobian() bind(C)
         endif
 
         ! only dump the ones that don't match
-        if (num_jac /= state % jac(i,j)) then
-           if (num_jac /= ZERO) then
+        if (state_num % jac(i,j) /= state_ana % jac(i,j)) then
+           if (state_num % jac(i,j) /= ZERO) then
               write (*,999) trim(namei), &
-                   trim(namej), num_jac, state % jac(i,j), (num_jac-state % jac(i,j))/num_jac
+                   trim(namej), state_num % jac(i,j), state_ana % jac(i,j), (state_num % jac(i,j)-state_ana % jac(i,j))/state_num % jac(i,j)
            else
               write (*,999) trim(namei), &
-                   trim(namej), num_jac, state % jac(i,j)
+                   trim(namej), state_num % jac(i,j), state_ana % jac(i,j)
            endif
         endif
 
