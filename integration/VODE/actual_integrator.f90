@@ -57,8 +57,6 @@ contains
 
     implicit none
 
-    call init_rpar_indices()
-
   end subroutine actual_integrator_init
 
 

@@ -1,5 +1,6 @@
-! rpar are the real quantities that are passed through the VODE call to the
-! RHS and Jacobian routines
+! rpar is a set of real quantities that we use to convert auxiliary data back
+! and forth between the Microphysics data format and the specific data format
+! used by the integrators.
 
 module rpar_indices
 
