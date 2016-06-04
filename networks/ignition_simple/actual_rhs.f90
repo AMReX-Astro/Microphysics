@@ -10,6 +10,14 @@ module actual_rhs_module
 
 contains
 
+  subroutine actual_rhs_init()
+
+    implicit none
+
+  end subroutine actual_rhs_init
+
+
+
   subroutine actual_rhs(state)
 
     !$acc routine seq

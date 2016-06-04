@@ -6,13 +6,23 @@ module actual_rhs_module
 
 contains
 
+  subroutine actual_rhs_init()
+
+    implicit none
+
+    ! Do nothing in this RHS.
+
+  end subroutine actual_rhs_init
+
+
+
   subroutine actual_rhs(state)
 
     implicit none
 
     type (burn_t) :: state
 
-    ! Do nothing in this burner.
+    ! Do nothing in this RHS.
 
     state % ydot = ZERO
 
@@ -26,7 +36,7 @@ contains
 
     type (burn_t) :: state
 
-    ! Do nothing in this burner.
+    ! Do nothing in this RHS.
 
     state % jac(:,:) = ZERO
 

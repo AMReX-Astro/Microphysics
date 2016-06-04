@@ -10,6 +10,14 @@ module actual_rhs_module
 
 contains
 
+  subroutine actual_rhs_init()
+
+    implicit none
+
+  end subroutine actual_rhs_init
+
+
+
   subroutine actual_rhs(state)
 
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
