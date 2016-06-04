@@ -5,6 +5,7 @@ module actual_rhs_module
   use eos_type_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use sneut_module, only: sneut5
 
   implicit none  
 

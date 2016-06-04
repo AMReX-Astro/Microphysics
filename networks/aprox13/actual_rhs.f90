@@ -5,6 +5,7 @@ module actual_rhs_module
   use eos_type_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use sneut_module, only: sneut5
 
   implicit none
 
@@ -13,7 +14,6 @@ contains
   subroutine actual_rhs(state)
 
     !$acc routine seq
-    !$acc routine(sneut5) seq
 
     implicit none
 
@@ -83,7 +83,6 @@ contains
   subroutine actual_jac(state)
 
     !$acc routine seq
-    !$acc routine(sneut5) seq
 
     use bl_types
     use bl_constants_module, only: ZERO
