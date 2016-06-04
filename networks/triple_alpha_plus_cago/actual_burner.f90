@@ -11,9 +11,6 @@ contains
 
     implicit none
 
-    reac_names(ir3a_)   = "3agc"   !     3 He4 --> C12
-    reac_names(ircago_) = "cago"   ! C12 + He4 --> O16
-
     call integrator_init()
 
   end subroutine actual_burner_init

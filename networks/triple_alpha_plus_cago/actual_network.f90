@@ -66,6 +66,10 @@ contains
     ebin(io16_)  = -7.6959581e18_dp_t    ! 127.62093 MeV / nucleon
     ebin(ife56_) = -8.4813001e18_dp_t    ! 492.25389 MeV / nucleon
 
+    ! Reaction rate names
+    reac_names(ir3a_)   = "3agc"   !     3 He4 --> C12
+    reac_names(ircago_) = "cago"   ! C12 + He4 --> O16
+
   end subroutine actual_network_init
 
 

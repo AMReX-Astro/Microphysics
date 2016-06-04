@@ -133,6 +133,25 @@ contains
     ! convert to erg / g by multiplying by N_A / aion and converting to erg
     ebin = -ebin * N_A * MeV2erg / aion
 
+    reac_names(irlambCNO) = "rlambdaCNO"
+    reac_names(irag15o)   = "rag15o"
+    reac_names(irr1)      = "rr1"
+    reac_names(irag16o)   = "rag16o"
+    reac_names(irpg16o)   = "rpg16o"
+    reac_names(irpg17f)   = "rpg17f"
+    reac_names(irgp17f)   = "rgp17f"
+    reac_names(irlambda2) = "rlambda2"
+    reac_names(irap14o)   = "rap14o"
+    reac_names(irs1)      = "rs1"
+    reac_names(irlambda1) = "rlambda1"
+    reac_names(ir3a)      = "r3a"
+    reac_names(irpg12c)   = "rpg12c"
+    reac_names(irwk14o)   = "wk14o"
+    reac_names(irwk17f)   = "wk17f"
+    reac_names(irwk15o)   = "wk15o"
+    reac_names(irLweak)   = "Lweak"
+    reac_names(irla2)     = "la2"
+
   end subroutine actual_network_init
 
 

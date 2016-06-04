@@ -38,26 +38,6 @@ contains
 
     ener_scale = c_light * c_light
 
-    ! set the names of the reaction rates
-    ratenames(ircag)   = 'rcag '
-    ratenames(iroga)   = 'roga '
-    ratenames(ir3a)    = 'r3a  '
-    ratenames(irg3a)   = 'rg3a '    ! inverse rate
-    ratenames(ir1212)  = 'r1212'
-    ratenames(ir1216)  = 'r1216'
-    ratenames(ir1616)  = 'r1616'
-    ratenames(iroag)   = 'roag '
-    ratenames(irnega)  = 'rnega'
-    ratenames(irneag)  = 'rneag'
-    ratenames(irmgga)  = 'rmgga'
-    ratenames(irmgag)  = 'rmgag'
-    ratenames(irsiga)  = 'rsiga'
-    ratenames(ircaag)  = 'rcaag'
-    ratenames(irtiga)  = 'rtiga'
-
-    ratenames(irsi2ni) = 'rsi2ni'
-    ratenames(irni2si) = 'rni2si'
-
     call integrator_init()
 
     call rates_init()
