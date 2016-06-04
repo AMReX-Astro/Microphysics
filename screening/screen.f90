@@ -271,9 +271,9 @@ contains
             - 3.44740d0  * gamp14dt * zhat2(jscreen) &
             - 0.5551d0*rr*gampdt
 
-       dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
-            - 3.44740d0  * gamp14dd * zhat2(jscreen) &
-            - 0.5551d0*rr*gampdd
+       !dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
+       !     - 3.44740d0  * gamp14dd * zhat2(jscreen) &
+       !     - 0.5551d0*rr*gampdd
 
        a3     = alph12 * alph12 * alph12
        da3    = 3.0d0 * alph12 * alph12

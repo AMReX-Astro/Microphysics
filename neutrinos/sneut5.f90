@@ -815,9 +815,9 @@ contains
        c00   = 1.26d0 * (1.0d0+etam1)
        z     = -1.26d0*etam2
        c01   = z*etadt
-       c02   = z*etadd
-       c03   = z*etada
-       c04   = z*etadz
+       !c02   = z*etadd
+       !c03   = z*etada
+       !c04   = z*etadz
 
        z      = 1.0d0/dum
        xden   = c00*z
