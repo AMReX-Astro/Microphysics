@@ -4,7 +4,6 @@ module actual_burner_module
   use bl_constants_module
   use bl_error_module
   use eos_module
-  use eos_data_module
   use eos_type_module
   use network
   use extern_probin_module, only: A_burn

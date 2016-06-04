@@ -4,7 +4,6 @@ module actual_eos_module
   use bl_error_module
   use bl_constants_module, only: ZERO, HALF, TWO
   use eos_type_module
-  use eos_data_module
   use eos_aux_data_module
 
   implicit none

@@ -1,6 +1,5 @@
 module actual_eos_module
 
-    use eos_data_module
     use eos_type_module
 
     character (len=64) :: eos_name = "helmholtz"
@@ -1180,7 +1179,6 @@ contains
     subroutine actual_eos_init
 
         use bl_error_module
-        use eos_data_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
         use parallel, only: parallel_IOProcessor
 
