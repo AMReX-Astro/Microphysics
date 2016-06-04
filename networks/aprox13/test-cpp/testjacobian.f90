@@ -35,6 +35,7 @@ subroutine test_jacobian() bind(C)
   call runtime_init(probin_pass(1:len(trim(probin_file))), len(trim(probin_file)))
 
   call network_init()
+  call actual_rhs_init()
   call burner_init()
   call eos_init()
 
