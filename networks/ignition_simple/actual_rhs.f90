@@ -150,6 +150,7 @@ contains
     ! Convert back to molar form
 
     state % jac(ic12,ic12) = state % jac(ic12,ic12) / aion(ic12)
+    state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) / aion(ic12)
 
     ! Energy generation rate Jacobian elements with respect to species
 
