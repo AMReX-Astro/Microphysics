@@ -65,6 +65,11 @@ INT_DIRS += $(MICROPHYSICS_DIR)/util/LINPACK
 MICROPHYS_CORE += $(EOS_DIRS) $(NET_DIRS) $(INT_DIRS)
 
 
+#-----------------------------------------------------------------------------
+# unit testing directories
+UNIT_DIR := $(MICROPHYSICS_DIR)/unit_test
+UNIT_DIR += $(TEST_DIR)     # set by the test itself
+
 
 #-----------------------------------------------------------------------------
 # core BoxLib directories
@@ -74,7 +79,10 @@ Fmincs :=
 
 # auxillary directories
 Fmpack += $(foreach dir, $(MICROPHYS_CORE), $(dir)/GPackage.mak)
+Fmpack += $(foreach dir, $(UNIT_DIR), $(dir)/GPackage.mak)
+
 Fmlocs += $(foreach dir, $(MICROPHYS_CORE), $(dir))
+Fmlocs += $(foreach dir, $(UNIT_DIR), $(dir))
 
 
 # include the necessary GPackage.mak files that define this setup
@@ -83,10 +91,10 @@ include $(Fmpack)
 
 # we need a probin.f90, since the various microphysics routines can
 # have runtime parameters
-#f90sources += probin.f90
+f90sources += probin.f90
 
-#PROBIN_TEMPLATE := $(MAESTRO_TOP_DIR)/Util/parameters/dummy.probin.template
-#PROBIN_PARAMETER_DIRS = $(MAESTRO_TOP_DIR)/Util/initial_models/
+PROBIN_TEMPLATE := $(MICROPHYSICS_DIR)/unit_test/dummy.probin.template
+PROBIN_PARAMETER_DIRS = $(MICROPHYSICS_DIR)/unit_test/
 EXTERN_PARAMETER_DIRS += $(MICROPHYS_CORE)
 
 
