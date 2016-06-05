@@ -5,13 +5,13 @@ module eos_module
   use bl_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
-  use eos_data_module
   use actual_eos_module
-  use parallel
 
   implicit none
 
   public eos_init, eos, eos_get_small_temp, eos_get_small_dens
+
+  logical, save :: initialized = .false.  
 
 contains
 
@@ -41,6 +41,7 @@ contains
   subroutine eos_init(small_temp, small_dens)
 
     use extern_probin_module
+    use parallel
 
     implicit none
 
@@ -54,6 +55,10 @@ contains
     ! If they exist, save the minimum permitted user temperature and density.
     ! These cannot be less than zero and they also cannot be less than the 
     ! minimum possible EOS quantities.
+
+    ! Note that in this routine we use the Fortran-based parallel_IOProcessor()
+    ! command rather than the C++-based version used elsewhere in Castro; this
+    ! ensures compatibility with Fortran-based test programs.
 
     if (present(small_temp)) then
        if (small_temp > ZERO) then
@@ -84,12 +89,8 @@ contains
   end subroutine eos_init
 
 
-  subroutine eos_finalize()
 
-  end subroutine eos_finalize
-
-
-  subroutine eos(input, state, pt_index)
+  subroutine eos(input, state)
 
     implicit none
 
@@ -97,7 +98,8 @@ contains
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
-    integer, optional, intent(in   ) :: pt_index(:)
+
+    logical :: has_been_reset
 
     ! Local variables
 
@@ -114,11 +116,13 @@ contains
 
     ! Check to make sure the inputs are valid.
 
-    call check_inputs(input, state)
+    call check_inputs(input, state, has_been_reset)
 
     ! Call the EOS.
 
-    call actual_eos(input, state)
+    if (.not. has_been_reset) then
+       call actual_eos(input, state)
+    endif
 
     ! Get dpdX, dedX, dhdX.
 
@@ -128,29 +132,38 @@ contains
 
 
 
-  subroutine check_inputs(input, state)
+  subroutine check_inputs(input, state, reset)
 
     implicit none
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     integer :: n
+
+    reset = .false.
 
     ! Check the inputs, and do initial setup for iterations.
 
     do n = 1, nspec
        if (state % xn(n) .lt. init_test) then
-          call bl_error('EOS: data not initialized.')
+          call bl_error('EOS: mass fractions not initialized.')
        endif
     enddo
 
     if ( state % y_e .lt. minye ) then
-       print *, 'Y_E = ', state % y_e
+       print *, 'Y_E  = ', state % y_e
+       print *, 'DENS = ', state % rho
+       print *, 'TEMP = ', state % T
+       print *, 'X    = ', state % xn
        call bl_error('EOS: y_e less than minimum possible electron fraction.')
     endif
     if ( state % y_e .gt. maxye ) then
-       print *, 'Y_E = ', state % y_e
+       print *, 'Y_E  = ', state % y_e
+       print *, 'DENS = ', state % rho
+       print *, 'TEMP = ', state % T
+       print *, 'X    = ', state % xn
        call bl_error('EOS: y_e greater than maximum possible electron fraction.')
     endif
 
@@ -164,43 +177,43 @@ contains
 
     if (input .eq. eos_input_rt) then
 
-       call check_rho(state)
-       call check_T(state)
+       call check_rho(state, reset)
+       call check_T(state, reset)
 
     elseif (input .eq. eos_input_rh) then
 
-       call check_rho(state)
-       call check_h(state)
+       call check_rho(state, reset)
+       call check_h(state, reset)
 
     elseif (input .eq. eos_input_tp) then
 
-       call check_T(state)
-       call check_p(state)
+       call check_T(state, reset)
+       call check_p(state, reset)
 
     elseif (input .eq. eos_input_rp) then
 
-       call check_rho(state)
-       call check_p(state)
+       call check_rho(state, reset)
+       call check_p(state, reset)
 
     elseif (input .eq. eos_input_re) then
 
-       call check_rho(state)
-       call check_e(state)
+       call check_rho(state, reset)
+       call check_e(state, reset)
 
     elseif (input .eq. eos_input_ps) then
 
-       call check_p(state)
-       call check_s(state)
+       call check_p(state, reset)
+       call check_s(state, reset)
 
     elseif (input .eq. eos_input_ph) then
 
-       call check_p(state)
-       call check_h(state)
+       call check_p(state, reset)
+       call check_h(state, reset)
 
     elseif (input .eq. eos_input_th) then
 
-       call check_t(state)
-       call check_h(state)
+       call check_t(state, reset)
+       call check_h(state, reset)
 
     endif
 
@@ -208,11 +221,12 @@ contains
 
 
 
-  subroutine check_rho(state)
+  subroutine check_rho(state, reset)
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     if (state % rho .lt. init_test) then
        call bl_error('EOS: rho not initialized.')
@@ -223,12 +237,16 @@ contains
           state % rho = smalld
        else
           print *, 'DENS = ', state % rho
+          print *, 'TEMP = ', state % T
+          print *, 'X    = ', state % xn
           call bl_error('EOS: rho smaller than small_dens and we have not chosen to reset.')
        endif
     endif
 
     if (state % rho .gt. maxdens) then
        print *, 'DENS = ', state % rho
+       print *, 'TEMP = ', state % T
+       print *, 'X    = ', state % xn
        call bl_error('EOS: dens greater than maximum possible density.')
     endif
 
@@ -236,11 +254,12 @@ contains
 
 
 
-  subroutine check_T(state)
+  subroutine check_T(state, reset)
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     if (state % T .lt. init_test) then
        call bl_error('EOS: T not initialized.')
@@ -251,12 +270,16 @@ contains
           state % T = smallt
        else
           print *, 'TEMP = ', state % T
+          print *, 'DENS = ', state % rho
+          print *, 'X    = ', state % xn
           call bl_error('EOS: T smaller than small_temp and we have not chosen to reset.')
        endif
     endif
 
     if (state % T .gt. maxdens) then
        print *, 'TEMP = ', state % T
+       print *, 'DENS = ', state % rho
+       print *, 'X    = ', state % xn
        call bl_error('EOS: T greater than maximum possible temperature.')
     endif
 
@@ -264,21 +287,24 @@ contains
 
 
 
-  subroutine check_e(state)
+  subroutine check_e(state, reset)
+
+    use meth_params_module, only: allow_negative_energy
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     if (state % e .lt. init_test) then
        call bl_error('EOS: energy not initialized.')
     endif
 
-    if (state % e .lt. ZERO) then
+    if (state % e .lt. ZERO .and. allow_negative_energy .eq. 0) then
        if (state % reset) then
           state % T = max(smallt, state % T)
           state % rho = max(smalld, state % rho)
-          call eos_reset(state)
+          call eos_reset(state, reset)
        else
           call bl_error('EOS: e smaller than zero and we have not chosen to reset.')
        endif
@@ -288,11 +314,12 @@ contains
 
 
 
-  subroutine check_h(state)
+  subroutine check_h(state, reset)
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     if (state % h .lt. init_test) then
        call bl_error('EOS: enthalpy not initialized.')
@@ -302,7 +329,7 @@ contains
        if (state % reset) then
           state % T = max(smallt, state % T)
           state % rho = max(smalld, state % rho)
-          call eos_reset(state)
+          call eos_reset(state, reset)
        else
           call bl_error('EOS: h smaller than zero and we have not chosen to reset.')
        endif
@@ -312,11 +339,12 @@ contains
 
 
 
-  subroutine check_s(state)
+  subroutine check_s(state, reset)
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     if (state % s .lt. init_test) then
        call bl_error('EOS: entropy not initialized.')
@@ -326,7 +354,7 @@ contains
        if (state % reset) then
           state % T = max(smallt, state % T)
           state % rho = max(smalld, state % rho)
-          call eos_reset(state)
+          call eos_reset(state, reset)
        else
           call bl_error('EOS: s smaller than zero and we have not chosen to reset.')
        endif
@@ -336,11 +364,12 @@ contains
 
 
 
-  subroutine check_p(state)
+  subroutine check_p(state, reset)
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     if (state % p .lt. init_test) then
        call bl_error('EOS: pressure not initialized.')
@@ -350,7 +379,7 @@ contains
        if (state % reset) then
           state % T = max(smallt, state % T)
           state % rho = max(smalld, state % rho)
-          call eos_reset(state)
+          call eos_reset(state, reset)
        else
           call bl_error('EOS: p smaller than zero and we have not chosen to reset.')
        endif
@@ -365,18 +394,19 @@ contains
   ! state element and we now want to call the EOS just
   ! on that zone to reset its state values.
 
-  subroutine eos_reset(state)
+  subroutine eos_reset(state, reset)
 
     use actual_eos_module
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+    logical,      intent(inout) :: reset
 
     call actual_eos(eos_input_rt, state)
 
+    reset = .true.
+
   end subroutine eos_reset
-
-
 
 end module eos_module
