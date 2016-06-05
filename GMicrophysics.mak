@@ -68,6 +68,7 @@ MICROPHYS_CORE += $(EOS_DIRS) $(NET_DIRS) $(INT_DIRS)
 #-----------------------------------------------------------------------------
 # unit testing directories
 UNIT_DIR := $(MICROPHYSICS_DIR)/unit_test
+UNIT_DIR += $(MICROPHYSICS_DIR)/interfaces
 UNIT_DIR += $(TEST_DIR)     # set by the test itself
 
 
