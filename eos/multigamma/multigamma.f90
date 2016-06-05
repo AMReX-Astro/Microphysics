@@ -27,6 +27,7 @@ contains
                                     species_a_name, species_a_gamma, &
                                     species_b_name, species_b_gamma, &
                                     species_c_name, species_c_gamma
+    use network, only: network_species_index
 
     implicit none
  
