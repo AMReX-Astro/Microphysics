@@ -1,3 +1,2 @@
-f90EXE_sources += helmholtz.f90
-
+F90EXE_sources += helmholtz.F90
 

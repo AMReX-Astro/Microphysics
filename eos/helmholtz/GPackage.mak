@@ -1,2 +1,2 @@
-f90sources += helmholtz.f90
+F90sources += helmholtz.F90
 

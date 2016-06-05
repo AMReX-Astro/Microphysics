@@ -67,7 +67,11 @@ private
     double precision :: rbohr
     double precision :: fine
 
+#ifdef RADATION
+    double precision :: ssol    = 0.0d0
+#else
     double precision :: ssol    = 5.67051d-5
+#endif
     double precision :: asol
     double precision :: weinlam
     double precision :: weinfre
