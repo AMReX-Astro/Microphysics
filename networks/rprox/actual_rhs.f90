@@ -26,7 +26,7 @@ contains
 
     type (burn_t)    :: state
 
-    double precision :: dens, t9, y(nspec)
+    double precision :: dens, t9, y(nspec), ydot(nspec)
 
     y = state % xn / aion
 
@@ -39,10 +39,12 @@ contains
     call make_rates(t9, dens, y(1:nspec), state)
 
     ! set up the ODEs for the species
-    call make_ydots(y(1:nspec),t9,state,state % ydot(1:nspec),.false.)
+    call make_ydots(y(1:nspec),t9,state,ydot,.false.)
+
+    state % ydot(1:nspec) = ydot
 
     ! Energy release
-    state % ydot(net_ienuc) = -sum( ebin(:) * state % ydot(1:nspec) )
+    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
 
     ! Temperature ODE
     call temperature_rhs(state)
@@ -254,9 +256,12 @@ contains
 
     ! check to see if we are doing this with the t-derivatives
     ! if so, offset our starting index in the rate groups
-    rate_idx = 3
-    if (doing_dratesdt) rate_idx = 2
-    
+
+    if (doing_dratesdt) then
+       rate_idx = 2
+    else
+       rate_idx = 1
+    endif
 
     if (.not. doing_dratesdt) then
        ddelta1 = ZERO
@@ -382,7 +387,7 @@ contains
 
     type (burn_t)    :: state
 
-    double precision :: ymol(nspec), t9
+    double precision :: ymol(nspec), t9, ydot(nspec)
     double precision :: psum
     integer          :: i, j
 
@@ -515,11 +520,38 @@ contains
          -56.0d0*ymol(ini56)*state % rates(3,r56eff)
 
     ! temperature derivatives df(Y)/df(T)
-    call make_ydots(ymol,t9,state,state % jac(1:nspec,net_itemp),.true.)
+    call make_ydots(ymol,t9,state,ydot,.true.)
+
+    state % jac(1:nspec, net_itemp) = ydot
+
+    ! Energy generation rate Jacobian elements with respect to species
+
+    do j = 1, nspec_evolve
+       call ener_gener_rate(state % jac(1:nspec_evolve,j), state % jac(net_ienuc,j))
+    enddo
+
+    ! Jacobian elements with respect to temperature
+
+    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), state % jac(net_ienuc,net_itemp))
 
     ! Temperature Jacobian elements
+
     call temperature_jac(state)
 
   end subroutine actual_jac
+
+
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    use network
+
+    implicit none
+
+    double precision :: dydt(nspec_evolve), enuc
+
+    enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
+
+  end subroutine ener_gener_rate
 
 end module actual_rhs_module
