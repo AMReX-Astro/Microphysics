@@ -46,14 +46,14 @@ contains
 
     call screen(temp, dens, ymol, rates, dratesdt)
 
-    call dydt(ymol, rates, state % ydot(1:nspec))
+    call dydt(ymol, rates, state % ydot(1:nspec_evolve))
 
     state % rates(1,:) = rates(:)
     state % rates(2,:) = dratesdt(:)
 
     ! Energy generation rate
 
-    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
+    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
 
     call temperature_rhs(state)
 
@@ -86,33 +86,34 @@ contains
     ! THESE ARE IN TERMS OF MOLAR FRACTIONS
 
     ! helium jacobian elements
-    state % jac(ihe4_,ihe4_)  = - NINE * ymol(ihe4_) * ymol(ihe4_) * rates(ir3a_) &
-                                - ONE * ymol(ic12_) * rates(ircago_)
-    state % jac(ihe4_,ic12_)  = - ONE * ymol(ihe4_) * rates(ircago_)
+    state % jac(ihe4,ihe4)  = - NINE * ymol(ihe4) * ymol(ihe4) * rates(ir3a) &
+                              - ONE * ymol(ic12) * rates(ircago)
+    state % jac(ihe4,ic12)  = - ONE * ymol(ihe4) * rates(ircago)
 
     ! carbon jacobian elements
-    state % jac(ic12_,ihe4_) =   THREE * ymol(ihe4_) * ymol(ihe4_) * rates(ir3a_) &
-                               - ONE * ymol(ic12_) * rates(ircago_)
-    state % jac(ic12_,ic12_) = - ONE * ymol(ihe4_) * rates(ircago_)
+    state % jac(ic12,ihe4) =   THREE * ymol(ihe4) * ymol(ihe4) * rates(ir3a) &
+                             - ONE * ymol(ic12) * rates(ircago)
+    state % jac(ic12,ic12) = - ONE * ymol(ihe4) * rates(ircago)
 
     ! oxygen jacobian elements
-    state % jac(io16_,ihe4_) = ONE * ymol(ic12_) * rates(ircago_)
-    state % jac(io16_,ic12_) = ONE * ymol(ihe4_) * rates(ircago_)
+    state % jac(io16,ihe4) = ONE * ymol(ic12) * rates(ircago)
+    state % jac(io16,ic12) = ONE * ymol(ihe4) * rates(ircago)
 
     ! ======================================================================
 
-    ! add the temperature derivatives: df(y_i) / dT
-    call dydt(ymol, dratesdt, state % jac(1:nspec,net_itemp))
+    ! Add the temperature derivatives: df(y_i) / dT
+
+    call dydt(ymol, dratesdt, state % jac(1:nspec_evolve,net_itemp))
 
     ! Energy generation rate Jacobian elements with respect to species
 
-    do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
+    do j = 1, nspec_evolve
+       call ener_gener_rate(state % jac(1:nspec_evolve,j), state % jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), state % jac(net_ienuc,net_itemp))
 
     call temperature_jac(state)
 
@@ -126,9 +127,9 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    double precision :: dydt(nspec_evolve), enuc
 
-    enuc = sum(dydt(:) * ebin(:))
+    enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 
   end subroutine ener_gener_rate
 

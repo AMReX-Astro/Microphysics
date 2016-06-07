@@ -1,9 +1,6 @@
 ! This module contains the dydt routine which change in species with respect 
 ! to time based on the reaction rates.
-!
-! Note that the rates are determined in terms of molar fractions and as such
-! must be converted back to mass fractions before exiting.
-!
+
 module dydt_module
 
   use bl_types
@@ -17,22 +14,21 @@ contains
   subroutine dydt(ymol, rates, ydot)
 
     double precision, intent(IN   ) :: ymol(nspec), rates(nrates)
-    double precision, intent(  OUT) :: ydot(nspec)
+    double precision, intent(  OUT) :: ydot(nspec_evolve)
 
     ydot(:) = ZERO
 
     ! He4 reactions
-    ydot(ihe4_) = - THREE * ymol(ihe4_)**THREE * rates(ir3a_)              &
-                 - ONE * ymol(ic12_) * ymol(ihe4_) * rates(ircago_)
+    ydot(ihe4) = - THREE * ymol(ihe4)**THREE * rates(ir3a)              &
+                 - ONE * ymol(ic12) * ymol(ihe4) * rates(ircago)
 
     ! C12 reactions
-    ydot(ic12_) =  ONE * ymol(ihe4_)**THREE * rates(ir3a_)                &
-                 - ONE * ymol(ic12_) * ymol(ihe4_) * rates(ircago_)
+    ydot(ic12) =   ONE * ymol(ihe4)**THREE * rates(ir3a)                &
+                 - ONE * ymol(ic12) * ymol(ihe4) * rates(ircago)
 
     ! O16 reactions
-    ydot(io16_) =  ONE * ymol(ic12_) * ymol(ihe4_) * rates(ircago_)
+    ydot(io16) =  ONE * ymol(ic12) * ymol(ihe4) * rates(ircago)
 
   end subroutine dydt
-
 
 end module dydt_module
