@@ -1,6 +1,7 @@
-module network
+module actual_network
 
   integer, parameter :: nspec = 7
+  integer, parameter :: nspec_evolve = 7
   integer, parameter :: naux = 0
   integer, parameter :: nrates = 6  ! including constant weak rates
 
@@ -13,20 +14,31 @@ module network
 
   character (len=32) :: network_name = "xrb_simple"
 
+  integer, parameter :: ih1 = 1
+  integer, parameter :: ihe4 = 2
+  integer, parameter :: io14 = 3
+  integer, parameter :: io15 = 4
+  integer, parameter :: ine18 = 5
+  integer, parameter :: isi25 = 6
+  integer, parameter :: ife56 = 7
+
+  integer, parameter :: ir3a    = 1
+  integer, parameter :: irag15  = 2
+  integer, parameter :: irap14  = 3
+  integer, parameter :: irap18  = 4
+  integer, parameter :: irwk14o = 5
+  integer, parameter :: irwk15o = 6
+
   ! hard-coded weak rates from Stan; should double check with newer estimates
   double precision, parameter :: wk14o = 9.832d-3
   double precision, parameter :: wk15o = 5.682d-3
 
-  logical, save :: network_initialized
-
 contains
 
-  subroutine network_init()
+  subroutine actual_network_init()
     
-    use network_indices
-    use bl_constants_module
-    use bl_types
-    use rpar_indices
+    use bl_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
+    use bl_types, only: dp_t
 
     real(kind=dp_t), parameter :: MeV2erg = 1.60217646e-6, &
                                   N_A = 6.0221415e23
@@ -77,31 +89,14 @@ contains
     ! convert to erg/g by multiplying by N_A / aion and converting to erg
     bion = -bion * N_A * MeV2erg / aion
 
-    network_initialized = .true.
-
-    call init_rpar_indices(nrates, nspec)
-    
-  end subroutine network_init
-
-  function network_species_index(name) result(r)
-
-    character(len=*) :: name
-    integer :: r, n
-
-    r = -1
-
-    do n = 1, nspec
-       if (name == spec_names(n) .or. name == short_spec_names(n)) then
-          r = n
-          exit
-       endif
-    enddo
-    return
-  end function network_species_index
+  end subroutine actual_network_init
 
 
-  subroutine network_finalize()
 
-  end subroutine network_finalize
+  subroutine actual_network_finalize()
+
+    implicit none
+
+  end subroutine actual_network_finalize
   
-end module network
+end module actual_network
