@@ -1,1 +1,52 @@
+# latex intermediates
+*.aux
+*.log
+*.dvi
+*.toc
+*.bbl
+*.blg
+*.lof
+*.lot
+*.idx
+*.ilg
+*.ind
+Docs/*/*.pdf
+Docs/*/*.ps
+MaestroUsersGuide.out
+MaestroUsersGuide.old
+
+
+# emacs temporaries
 *~
+\#*
+
+
+
+# Files created at compile-time
+probin.f90
+build_info.f90
+
+
+# executable
+*.exe
+gmon.out
+
+
+# build stuff
+t/
+
+
+# runtime files
+maestro-overview.out
+*diag.out
+plt?????
+chk?????
+*plt?????
+*chk?????
+Backtrace.*
+react_*_dtE??
+react_*_mode?
+
+# python
+*.pyc
+Untitled0.ipynb

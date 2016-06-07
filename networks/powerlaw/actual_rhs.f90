@@ -4,12 +4,19 @@ module actual_rhs_module
   use bl_constants_module
   use network
   use burn_type_module
-  use actual_burner_data, only: ener_gener_rate
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none
 
 contains
+
+  subroutine actual_rhs_init()
+
+    implicit none
+
+  end subroutine actual_rhs_init
+
+
 
   subroutine actual_rhs(state)
 
@@ -62,5 +69,23 @@ contains
     state % jac(:,:) = ZERO
 
   end subroutine actual_jac
+
+
+
+  ! Computes the instantaneous energy generation rate
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    use network
+
+    implicit none
+
+    double precision :: dydt(nspec_evolve), enuc
+
+    ! This is basically e = m c**2
+
+    enuc = sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
+
+  end subroutine ener_gener_rate
 
 end module actual_rhs_module

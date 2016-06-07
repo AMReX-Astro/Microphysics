@@ -15,7 +15,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ZERO, ONE
-    use network, only: nspec, aion
+    use network, only: nspec
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
     use bl_types, only: dp_t
@@ -87,7 +87,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ZERO, ONE
-    use network, only: nspec, aion
+    use network, only: nspec
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
     use bl_types, only: dp_t

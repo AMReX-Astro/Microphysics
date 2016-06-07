@@ -183,14 +183,13 @@ contains
     ! local variables
     double precision :: z1, a1, z2, a2
     
-    double precision :: aa,daadt,daadd,bb,cc,dccdt,dccdd, &
-                        pp,dppdt,dppdd,qq,dqqdt,dqqdd,rr,drrdt,drrdd, &
+    double precision :: bb,cc,dccdt,dccdd, &
+                        qq,dqqdt,dqqdd,rr,drrdt,drrdd, &
                         ss,dssdt,dssdd,tt,dttdt,dttdd,uu,duudt,duudd, &
                         vv,dvvdt,dvvdd,a3,da3, &
-                        qlam0z,qlam0zdt,qlam0zdd, &
                         h12w,dh12wdt,dh12wdd,h12,dh12dt,dh12dd, &
                         h12x,dh12xdt,dh12xdd,alfa,beta, &
-                        taufac,taufacdt,gamp,gampdt,gampdd, &
+                        gamp,gampdt,gampdd, &
                         gamef,gamefdt,gamefdd, &
                         tau12,tau12dt,alph12,alph12dt,alph12dd, &
                         xlgfac,dxlgfacdt,dxlgfacdd, &
@@ -272,9 +271,9 @@ contains
             - 3.44740d0  * gamp14dt * zhat2(jscreen) &
             - 0.5551d0*rr*gampdt
 
-       dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
-            - 3.44740d0  * gamp14dd * zhat2(jscreen) &
-            - 0.5551d0*rr*gampdd
+       !dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
+       !     - 3.44740d0  * gamp14dd * zhat2(jscreen) &
+       !     - 0.5551d0*rr*gampdd
 
        a3     = alph12 * alph12 * alph12
        da3    = 3.0d0 * alph12 * alph12

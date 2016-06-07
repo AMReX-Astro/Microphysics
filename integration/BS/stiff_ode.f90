@@ -33,7 +33,7 @@ contains
     real(kind=dp_t), intent(in) :: eps
     integer, intent(out) :: ierr
 
-    real(kind=dp_t) :: y(neqs), yscal(neqs), dydt(neqs)
+    real(kind=dp_t) :: yscal(neqs)
     logical :: finished
 
     integer :: n
@@ -261,8 +261,6 @@ contains
 
     real(kind=dp_t) :: y_save(neqs), yerr(neqs), yseq(neqs)
     real(kind=dp_t) :: err(KMAXX)
-
-    real(kind=dp_t) :: dfdy(neqs, neqs)
 
     real(kind=dp_t) :: dt, fac, scale, red, eps1, work, work_min, xest
     real(kind=dp_t) :: err_max

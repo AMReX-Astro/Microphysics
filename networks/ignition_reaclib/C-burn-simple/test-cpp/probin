@@ -9,7 +9,7 @@
   do_constant_volume_burn = T
   call_eos_in_rhs = F
 
-  burner_verbose = T
+  burner_verbose = F
 
   rtol_spec = 1.d-10
   atol_spec = 1.d-10

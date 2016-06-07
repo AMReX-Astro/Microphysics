@@ -15,7 +15,6 @@ module rates_module
   use bl_types
   use bl_constants_module
   use network
-  use actual_burner_data
 
   implicit none
 
@@ -139,8 +138,8 @@ contains
        dtermdt = dadt * b + a * dbdt + dcdt
     endif
 
-    rates(ir3a_)    = term * (dens * dens) / SIX
-    dratesdt(ir3a_) = dtermdt * T2T9 * (dens * dens) / SIX
+    rates(ir3a)    = term * (dens * dens) / SIX
+    dratesdt(ir3a) = dtermdt * T2T9 * (dens * dens) / SIX
 
 
     ! c12 + he4 to o16
@@ -190,8 +189,8 @@ contains
     term    = 1.7_dp_t * term
     dtermdt = 1.7_dp_t * term
 
-    rates(ircago_)    = term * dens
-    dratesdt(ircago_) = dtermdt * T2T9 * dens
+    rates(ircago)    = term * dens
+    dratesdt(ircago) = dtermdt * T2T9 * dens
 
     return
 

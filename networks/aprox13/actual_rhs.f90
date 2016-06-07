@@ -1,19 +1,61 @@
 module actual_rhs_module
 
   use network
-  use actual_burner_data
   use eos_type_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use sneut_module, only: sneut5
+  use actual_network, only: nrates
 
   implicit none
 
+  ! Table interpolation data
+
+  double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
+  integer, parameter :: tab_per_decade = 500
+  integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
+  integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
+  double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
+
+  double precision :: rattab(nrates, nrattab)
+  double precision :: drattabdt(nrates, nrattab)
+  double precision :: drattabdd(nrates, nrattab)
+  double precision :: ttab(nrattab)
+
+  !$acc declare create(rattab, drattabdt, drattabdd, ttab)
+
 contains
+
+
+  subroutine actual_rhs_init()
+
+    use screening_module, only: screening_init
+    use rates_module, only: rates_init
+    use extern_probin_module, only: use_tables
+
+    implicit none
+
+    call rates_init()
+
+    call set_up_screening_factors()
+
+    call screening_init()
+
+    if (use_tables) then
+
+       print *, "Initializing aprox13 rate table"
+
+       call create_rates_table()
+
+    endif
+
+  end subroutine actual_rhs_init
+
+
 
   subroutine actual_rhs(state)
 
     !$acc routine seq
-    !$acc routine(sneut5) seq
 
     implicit none
 
@@ -83,7 +125,6 @@ contains
   subroutine actual_jac(state)
 
     !$acc routine seq
-    !$acc routine(sneut5) seq
 
     use bl_types
     use bl_constants_module, only: ZERO
@@ -2326,5 +2367,90 @@ contains
     dfdy(ini56,ini56) = esum(b,2)
 
   end subroutine dfdy_isotopes_aprox13
+
+
+
+  ! Computes the instantaneous energy generation rate
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    !$acc routine seq
+
+    use actual_network, only: nspec, mion, enuc_conv2
+
+    implicit none
+
+    double precision :: dydt(nspec), enuc
+
+    ! This is basically e = m c**2
+
+    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
+
+  end subroutine ener_gener_rate
+
+
+
+  ! Compute and store the more expensive screening factors
+
+  subroutine set_up_screening_factors()
+
+    use screening_module, only: add_screening_factor
+    use network, only: aion, zion
+
+    implicit none
+
+    ! note: it is critical that these are called in the exact order
+    ! that the screening calls are done in the RHS routine, since we
+    ! use that order in the screening
+
+    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0d0,8.0d0)
+
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
+
+    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
+
+    call add_screening_factor(zion(io16),aion(io16),zion(io16),aion(io16))
+
+    call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(zion(ine20),aion(ine20),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(13.0d0,27.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(isi28),aion(isi28),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(15.0d0,31.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(is32),aion(is32),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(17.0d0,35.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(iar36),aion(iar36),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(19.0d0,39.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(ica40),aion(ica40),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(21.0d0,43.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(iti44),aion(iti44),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(23.0d0,47.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(icr48),aion(icr48),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(25.0d0,51.0d0,1.0d0,1.0d0)
+
+    call add_screening_factor(zion(ife52),aion(ife52),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(27.0d0,55.0d0,1.0d0,1.0d0)
+
+  end subroutine set_up_screening_factors
 
 end module actual_rhs_module

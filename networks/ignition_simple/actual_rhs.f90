@@ -4,12 +4,19 @@ module actual_rhs_module
   use bl_constants_module
   use network
   use burn_type_module
-  use actual_burner_data, only: ener_gener_rate
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
   implicit none
 
 contains
+
+  subroutine actual_rhs_init()
+
+    implicit none
+
+  end subroutine actual_rhs_init
+
+
 
   subroutine actual_rhs(state)
 
@@ -148,8 +155,10 @@ contains
                                      dens * scorr * xc12tmp**2 * dratedt )
 
     ! Convert back to molar form
+    ! Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
+    ! so this conversion is necessarily only for the temperature derivative.
 
-    state % jac(ic12,ic12) = state % jac(ic12,ic12) / aion(ic12)
+    state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) / aion(ic12)
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -250,5 +259,32 @@ contains
     state % have_rates = .true.
 
   end subroutine evaluate_rates
+
+
+
+  ! Computes the instantaneous energy generation rate
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    use network
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: dydt(nspec_evolve), enuc
+
+    ! This is basically e = m c**2
+
+    ! Note that since we don't explicitly evolve Mg24
+    ! in this network, we need to explicitly add its
+    ! contribution in this routine. We can factor out
+    ! the common factor of dydt(ic12), we just need to
+    ! account for a factor of aion(ic12) / aion(img24)
+    ! for the second term to make the expression work.
+
+    enuc = dydt(ic12) * (mion(ic12) - mion(img24) / 2) * enuc_conv2
+
+  end subroutine ener_gener_rate
 
 end module actual_rhs_module

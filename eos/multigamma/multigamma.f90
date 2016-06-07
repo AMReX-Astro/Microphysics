@@ -12,7 +12,6 @@ module actual_eos_module
   use bl_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
-  use eos_data_module
 
   implicit none
 
@@ -28,6 +27,7 @@ contains
                                     species_a_name, species_a_gamma, &
                                     species_b_name, species_b_gamma, &
                                     species_c_name, species_c_gamma
+    use network, only: network_species_index
 
     implicit none
  

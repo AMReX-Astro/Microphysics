@@ -2,7 +2,6 @@ module actual_burner_module
 
   use burn_type_module
   use network
-  use actual_burner_data
 
 contains
 
@@ -11,9 +10,6 @@ contains
     use integrator_module, only: integrator_init
 
     implicit none
-
-    reac_names(ir3a_)   = "3agc"   !     3 He4 --> C12
-    reac_names(ircago_) = "cago"   ! C12 + He4 --> O16
 
     call integrator_init()
 

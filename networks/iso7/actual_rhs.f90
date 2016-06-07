@@ -1,16 +1,33 @@
 module actual_rhs_module
 
   use network
-  use actual_burner_data
   use eos_type_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use sneut_module, only: sneut5
 
   implicit none
 
   double precision, parameter :: c54 = 56.0d0/54.0d0
 
 contains
+
+  subroutine actual_rhs_init()
+
+    use rates_module, only: rates_init
+    use screening_module, only: screening_init
+
+    implicit none
+
+    call rates_init()
+
+    call set_up_screening_factors()
+
+    call screening_init()
+
+  end subroutine actual_rhs_init
+
+
 
   subroutine actual_rhs(state)
 
@@ -793,5 +810,48 @@ contains
     dfdy(ini56,ini56) = esum(b,1)
 
   end subroutine dfdy_isotopes_iso7
+
+
+
+  ! Computes the instantaneous energy generation rate
+
+  subroutine ener_gener_rate(dydt, enuc)
+
+    use actual_network, only: nspec, mion, enuc_conv2
+
+    implicit none
+
+    double precision :: dydt(nspec), enuc
+
+    ! This is basically e = m c**2
+
+    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
+
+  end subroutine ener_gener_rate
+
+
+
+  subroutine set_up_screening_factors()
+    ! Compute and store the more expensive screening factors  
+
+    use screening_module, only: add_screening_factor
+    use network, only: aion, zion
+
+    implicit none
+
+    ! note: we need to set these up in the same order that we evaluate the
+    ! rates in actual_rhs.f90 (yes, it's ugly)
+    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0d0,8.0d0)
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
+    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
+    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
+    call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(ine20),aion(ine20),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))
+    call add_screening_factor(20.0d0,40.0d0,zion(ihe4),aion(ihe4))
+
+  end subroutine set_up_screening_factors
 
 end module actual_rhs_module

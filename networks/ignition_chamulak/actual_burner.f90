@@ -2,7 +2,6 @@ module actual_burner_module
 
   use burn_type_module
   use actual_network
-  use actual_network_data
 
 contains
 

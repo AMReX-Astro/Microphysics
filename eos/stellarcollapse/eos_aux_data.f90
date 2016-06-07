@@ -44,7 +44,7 @@ contains
     use bl_error_module
     use hdf5
     use parallel
-    use eos_data_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
+    use eos_type_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
 
     implicit none

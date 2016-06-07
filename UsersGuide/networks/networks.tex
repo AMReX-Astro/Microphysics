@@ -47,20 +47,29 @@ and Itoh 1979) for strong screening.
 
 \section{Network Structure}
 
-There are two primary files within each network directory, each with
-associated data-storing modules. The first pair, {\tt
-  actual\_network.f90} and {\tt actual\_network\_data.f90}, supply the
-number and names of species and auxiliary variables, as well as other
-initializing data, such as their mass numbers, proton numbers, and
-binding energies. It needs to define the {\tt nspec} and {\tt naux}
-quantities as integer parameters.
+There are three primary files within each network directory.
 
-The second pair, {\tt actual\_burner.f90} and {\tt
-  actual\_burner\_data.f90}, contains the burner routine, which takes
-an {\tt eos\_t} as an input, and returns another as an output. It also
-takes the current simulation and time, and the integration
-timestep. It needs to define the {\tt nrates} quantity as an integer
-parameter.
+{\tt actual\_network.f90} supplies the number and names of species and
+auxiliary variables, as well as other initializing data, such as their
+mass numbers, proton numbers, and binding energies. It needs to define
+the {\tt nspec} and {\tt naux} quantities as integer parameters. Additionally
+it must define {\tt nspec\_evolve}, the number of species that are actually evolved
+during a burn; in most cases, this should have the same value as {\tt nspec}.
+Finally, it must also define {\tt nrates}, the number of reaction rates
+linking the isotopes in the network.
+
+{\tt actual\_rhs.f90} supplies an interface for computing the right-hand-side
+of the network, the time-derivative of each species (and the temperature and
+nuclear energy release), as well as the Jacobian.
+
+{\tt actual\_burner.f90} contains the interface for doing an actual burn.
+In general, you will want to {\tt call integrator} to use one of the pre-defined
+ODE integrators, but you could also write a custom integration here.
+
+All three have initialization routines ({\tt actual\_network\_init()},
+{\tt actual\_rhs\_init()}, and {\tt actual\_burner\_init()}) which must
+be called upon initialization. These should be not called within
+OpenMP parallel regions, because in general they will modify shared module data.
 
 The integration equations are:
 \begin{eqnarray}

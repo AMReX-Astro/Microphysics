@@ -10,7 +10,6 @@ module screen_module
   use bl_types
   use bl_constants_module
   use network
-  use actual_burner_data
 
   implicit none
 
@@ -36,31 +35,31 @@ contains
     
     ! triple alpha going through compound nucleus channel
     call screenz(temp, dens,              &
-         zion(ihe4_), zion(ihe4_),          &
-         aion(ihe4_), aion(ihe4_),          &
+         zion(ihe4), zion(ihe4),          &
+         aion(ihe4), aion(ihe4),          &
          ymol, scorr1, dscorr1dt)
 
     call screenz(temp, dens,              &
-         zion(ihe4_), FOUR,                &
-         aion(ihe4_), EIGHT,               &
+         zion(ihe4), FOUR,                &
+         aion(ihe4), EIGHT,               &
          ymol, scorr2, dscorr2dt)
 
     scorr    = scorr1 * scorr2
     dscorrdt = dscorr1dt * scorr2 + scorr1 * dscorr2dt
 
-    rates(ir3a_)    = rates_in(ir3a_) * scorr
-    dratesdt(ir3a_) = dratesdt_in(ir3a_) * scorr +                        &
-                     rates_in(ir3a_) * dscorrdt
+    rates(ir3a)    = rates_in(ir3a) * scorr
+    dratesdt(ir3a) = dratesdt_in(ir3a) * scorr +                        &
+                     rates_in(ir3a) * dscorrdt
 
     ! C12 + alpha --> O16
     call screenz(temp, dens,     &
-         zion(ic12_), zion(ihe4_), &
-         aion(ic12_), aion(ihe4_), &
+         zion(ic12), zion(ihe4), &
+         aion(ic12), aion(ihe4), &
          ymol, scorr, dscorrdt)
 
-    rates(ircago_)    = rates_in(ircago_) * scorr
-    dratesdt(ircago_) = dratesdt_in(ircago_) * scorr + &
-                        rates_in(ircago_) * dscorrdt
+    rates(ircago)    = rates_in(ircago) * scorr
+    dratesdt(ircago) = dratesdt_in(ircago) * scorr + &
+                        rates_in(ircago) * dscorrdt
 
     return
 

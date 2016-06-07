@@ -1,12 +1,27 @@
 module actual_network
 
-  use actual_network_data
-
   implicit none
 
   ! M12_chamulak is the effective number of C12 nuclei destroyed per
   ! reaction
   double precision, parameter :: M12_chamulak = 2.93d0
+
+  integer, parameter :: nspec = 3
+  integer, parameter :: nspec_evolve = 3
+  integer, parameter :: naux  = 0
+
+  integer, parameter :: ic12_  = 1
+  integer, parameter :: io16_  = 2
+  integer, parameter :: iash_  = 3
+
+  character (len=16), save :: spec_names(nspec) 
+  character (len= 5), save :: short_spec_names(nspec)
+  character (len= 5), save :: short_aux_names(naux)
+
+  double precision, save :: aion(nspec), zion(nspec), bion(nspec)
+  double precision, save :: nion(nspec), mion(nspec), wion(nspec)
+
+  integer, parameter :: nrates = 1
 
 contains
 

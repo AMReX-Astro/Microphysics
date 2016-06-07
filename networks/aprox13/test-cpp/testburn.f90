@@ -1,6 +1,7 @@
 subroutine do_burn() bind (C)
 
   use network
+  use actual_rhs_module, only: actual_rhs_init
   use eos_module
   use burner_module
   use actual_burner_module
@@ -26,6 +27,7 @@ subroutine do_burn() bind (C)
   call runtime_init(probin_pass(1:len(trim(probin_file))), len(trim(probin_file)))
 
   call network_init()
+  call actual_rhs_init()
   call burner_init()
   call eos_init()
 
@@ -57,6 +59,8 @@ subroutine do_burn() bind (C)
   call normalize_abundances(eos_state)
   call eos(eos_input_rt, eos_state)
   call eos_to_burn(eos_state, state_in)
+
+  state_in % e = 0.0d0
 
   state_out = state_in
 

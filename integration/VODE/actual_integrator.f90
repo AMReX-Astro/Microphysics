@@ -57,8 +57,6 @@ contains
 
     implicit none
 
-    call init_rpar_indices()
-
   end subroutine actual_integrator_init
 
 
@@ -126,13 +124,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec)   = atol_spec ! mass fractions
-    atol(net_itemp) = atol_temp ! temperature
-    atol(net_ienuc) = atol_enuc ! energy generated
+    atol(1:nspec_evolve) = atol_spec ! mass fractions
+    atol(net_itemp)      = atol_temp ! temperature
+    atol(net_ienuc)      = atol_enuc ! energy generated
 
-    rtol(1:nspec)   = rtol_spec ! mass fractions
-    rtol(net_itemp) = rtol_temp ! temperature
-    rtol(net_ienuc) = rtol_enuc ! energy generated
+    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
+    rtol(net_itemp)      = rtol_temp ! temperature
+    rtol(net_ienuc)      = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 

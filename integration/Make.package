@@ -13,3 +13,4 @@ f90EXE_sources += integrator.f90
 f90EXE_sources += integration_data.f90
 f90EXE_sources += temperature_integration.f90
 f90EXE_sources += numerical_jacobian.f90
+f90EXE_sources += rpar.f90
