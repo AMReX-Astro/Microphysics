@@ -73,6 +73,7 @@ contains
 
     ierr = BDF_ERR_SUCCESS
 
+    !print *, 'y0: ', y0
     ts%t1 = t1; ts%t = t0; ts%ncse = 0; ts%ncdtmin = 0;
     do k = 1, bdf_max_iters + 1
        if (ts%n > ts%max_steps .or. k > bdf_max_iters) then
@@ -96,7 +97,9 @@ contains
        !      end do
        !   end do
        !endif
+       !print *, 'b4: ', ts%z0(1,1,0)
        call bdf_solve(ts)         ! solve for y_n based on predicted y and yd
+       !print *, 'af: ', ts%z0(1,1,0)
        call bdf_check(ts, retry, ierr)    ! check for solver errors and test error estimate
 
        !if (ierr /= BDF_ERR_SUCCESS) return
@@ -127,6 +130,7 @@ contains
        end do
     end do
     
+    !print *, 'y1: ', y1
   end subroutine bdf_advance
 
   !
@@ -231,7 +235,7 @@ contains
           end do
           do j = i, ts%k
              do m = 1, ts%neq
-                ts%z0(m,p,i) = ts%z0(m,p,i) + ts%A(i,j) * ts%z(m,p,j)
+                ts%z0(m,p,i) = ts%z0(m,p,i) + A(i,j) * ts%z(m,p,j)
              end do
           end do
        end do
@@ -546,7 +550,9 @@ contains
     ts%dt_nwt   = ts%dt
     ts%refactor = .true.
 
+    !print *, 'yd b4: ', ts%yd
     call rhs(ts)
+    !print *, 'yd af: ', ts%yd
     ts%nfe = ts%nfe + 1
 
     !ts%z(:,:,0) = ts%y
@@ -785,8 +791,6 @@ contains
     !$acc routine(dgemm) seq
     type(bdf_ts),   intent(inout) :: ts
 
-    integer :: U(bdf_max_order+1, bdf_max_order+1), Uk(bdf_max_order+1, bdf_max_order+1)
-    integer :: Uf(bdf_max_order+1,bdf_max_order+1)
     integer :: i, j, k, n
 
     ts%npt = bdf_npt
@@ -818,46 +822,6 @@ contains
     ts%p_age = 666666666
 
     ts%debug = .false.
-
-    ! build pascal matrix A using A = exp(U)
-    do k = 1, bdf_max_order+1
-       do j = 1, bdf_max_order+1
-          U(j,k) = 0.0d0
-       enddo
-    enddo
-
-    do k = 1, bdf_max_order
-       U(k,k+1) = k
-    end do
-
-    do k = 1, bdf_max_order+1
-       do j = 1, bdf_max_order+1
-          Uk(j,k) = U(j,k)
-       enddo
-    enddo
-
-    do k = 1, bdf_max_order+1
-       do n = 1, bdf_max_order+1
-          if (k == n) then
-             ts % A(n,k) = 1.0d0
-          else
-             ts % A(n,k) = 0.0d0
-          endif
-       enddo
-    enddo
-
-    do k = 1, bdf_max_order+1
-       ts%A  = ts%A + Uk / factorial(k)
-
-       call dgemm(1,1,bdf_max_order+1,bdf_max_order+1,bdf_max_order+1, &
-                  1.0d0,U,1,Uk,1,1.0d0,Uf,1)
-
-       do j = 1, bdf_max_order+1
-          do i = 1, bdf_max_order+1
-             Uk(i,j) = Uf(i,j)
-          enddo
-       enddo
-    end do
 
   end subroutine bdf_ts_build
 
@@ -956,5 +920,50 @@ contains
       endif
     enddo
   end function minloc
+
+  !
+  ! Initialize the pascal matrix.  We do this here because we should only do
+  ! it once and use it for all bdf_ts types.
+  !
+  subroutine init_pascal()
+     ! NOTE: bdf_max_order comes in from bdf_type_module
+     integer :: U(bdf_max_order+1, bdf_max_order+1), Uk(bdf_max_order+1, bdf_max_order+1)
+     integer :: k, n, r, c, sum_element
+
+     ! build pascal matrix A using A = exp(U)
+     !U = 0
+     do r = 1, bdf_max_order+1
+        do c = 1, bdf_max_order+1
+           U(r,c) = 0
+        enddo
+     enddo
+     do k = 1, bdf_max_order
+        U(k,k+1) = k
+     end do
+     !Uk = U
+     do r = 1, bdf_max_order+1
+        do c = 1, bdf_max_order+1
+           Uk(r,c) = U(r,c)
+        enddo
+     enddo
+     ! NOTE: A comes in from bdf_type_module
+     call eye_i(A)
+     do k = 1, bdf_max_order+1
+        A  = A + Uk / factorial(k)
+        !TODO: This is an unoptimized, naive matrix multiply, might consider
+        !using optimized.  Can't use Fortran intrinsic matmul() on GPU
+        !Uk = matmul(U, Uk)
+        do r = 1, bdf_max_order+1
+           do c = 1, bdf_max_order+1
+              sum_element = 0
+              do n = 1, bdf_max_order+1
+                 sum_element = sum_element + U(r,n) * Uk(n,c)
+              enddo
+              Uk(r,c) = sum_element
+           enddo
+        enddo
+     end do
+     !$acc update device(A)
+  end subroutine init_pascal
 
 end module bdf

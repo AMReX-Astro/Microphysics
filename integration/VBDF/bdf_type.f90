@@ -8,6 +8,8 @@ module bdf_type_module
 
   integer, parameter :: bdf_npt = 1         ! number of points
   integer, parameter :: bdf_max_order = 5   ! maximum order (1 to 6)
+  integer :: A(0:bdf_max_order, 0:bdf_max_order) ! pascal matrix, shared by all ts
+  !$acc declare create(A)
 
   !
   ! bdf time-stepper
@@ -64,7 +66,6 @@ module bdf_type_module
      real(dp_t) :: ewt(neqs,bdf_npt)                  ! cached error weights
      real(dp_t) :: b(neqs,bdf_npt)                    ! solver work space
      integer    :: ipvt(neqs,bdf_npt)                 ! pivots (neq,npts)
-     integer    :: A(0:bdf_max_order,0:bdf_max_order) ! pascal matrix
 
      ! counters
      integer :: nfe                         ! number of function evaluations
