@@ -131,12 +131,12 @@ contains
 
     !$acc routine seq
 
-    use meth_params_module, only: allow_negative_energy
-
     implicit none
 
     type (burn_t) :: burn_state
     type (eos_t)  :: eos_state
+
+    integer, parameter :: allow_negative_energy = 0
 
     eos_state % rho  = burn_state % rho
     eos_state % T    = burn_state % T

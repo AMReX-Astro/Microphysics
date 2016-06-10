@@ -289,12 +289,14 @@ contains
 
   subroutine check_e(state, reset)
 
-    use meth_params_module, only: allow_negative_energy
+    !use meth_params_module, only: allow_negative_energy
 
     implicit none
 
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: reset
+
+    integer, parameter :: allow_negative_energy = 0
 
     if (state % e .lt. init_test) then
        call bl_error('EOS: energy not initialized.')
