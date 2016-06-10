@@ -1071,6 +1071,7 @@ contains
                             dratdumdy1, dratdumdy2, &
                             scfac, dscfacdt, dscfacdd)
 
+    use bl_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     ! this routine computes the screening factors
