@@ -13,8 +13,9 @@ subroutine varden()
   use runtime_init_module
   use bl_constants_module
   use bl_types
-  use network
   use eos_module
+  use microphysics_module
+  use network
   use variables
 
   !Local variables
@@ -58,8 +59,7 @@ subroutine varden()
   dx(1,:) = ONE
 
   ! microphysics
-  call network_init()
-  call eos_init()
+  call microphysics_init()
 
   ! we'll store everything in a multifab -- inputs and outputs
   call init_variables(pf)

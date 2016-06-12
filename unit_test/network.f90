@@ -28,9 +28,6 @@ contains
 
   subroutine network_init
 
-    use actual_rhs_module, only: actual_rhs_init
-    use actual_burner_module, only: actual_burner_init
-
     implicit none
 
     ! First, we call the specific network initialization.
@@ -40,8 +37,6 @@ contains
     ! as parameters, or else the compiler will throw an error.
 
     call actual_network_init()
-    call actual_rhs_init()
-    call actual_burner_init()
 
     ! Check to make sure, and if not, throw an error.
 
