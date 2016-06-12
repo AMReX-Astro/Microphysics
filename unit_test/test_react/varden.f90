@@ -15,7 +15,6 @@ subroutine varden()
   use bl_types
   use network
   use eos_module
-  use varden_aux
   use variables
 
   !Local variables

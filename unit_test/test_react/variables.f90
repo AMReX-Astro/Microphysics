@@ -5,7 +5,7 @@
 module variables
 
   use bl_types
-  use network, only: nspec
+  use network, only: nspec, spec_names
 
   implicit none
 
@@ -47,6 +47,8 @@ contains
 
     type(plot_t), intent(inout) :: p
 
+    integer :: n
+
     ! variable information
     p % irho      = p % next_index(1)
     p % itemp     = p % next_index(1)
@@ -64,7 +66,6 @@ contains
     enddo
     p % names(p % irho_Hnuc) = "rho_Hnuc"
 
-  end subroutine init_plot_variables
-
+  end subroutine init_variables
 
 end module variables

@@ -1,5 +1,8 @@
 module util_module
 
+  use bl_types
+  use bl_constants_module
+
   implicit none
 
 contains
@@ -19,7 +22,7 @@ contains
     ! read in an inputs file containing the mass fractions.
     ! each species is on its own line.
     ! Allow for comment lines with '#' in the first column
-    open(new_unit=un, file=xin_file, status='old')
+    open(newunit=un, file=xin_file, status='old')
 
     summ = ZERO
 
