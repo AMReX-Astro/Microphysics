@@ -8,6 +8,7 @@ pdf_source = $(eps_source:.eps=.pdf)
 
 section_sources = userguide.tex \
                   EOS/eos.tex \
+                  runtime_parameters/runtime_parameters.tex \
                   networks/networks.tex
 
 userguide.pdf: userguide.tex $(pdf_source) $(section_sources) $(pdf_source) refs.bib

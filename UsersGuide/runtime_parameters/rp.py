@@ -21,7 +21,7 @@ header=r"""
 %
 \begin{center}
 \begin{longtable}{|l|p{5.25in}|l|}
-\caption[@@catname@@]{@@catname@@} \label{table: @@catname@@ runtime} \\
+\caption[@@catname@@]{@@catname@@} \label{table: @@sanitizedcatname@@ runtime} \\
 %
 \hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
        \multicolumn{1}{ c|}{\textbf{description}} & 
@@ -157,7 +157,9 @@ def make_tex_table(param_files):
 
             current_category = param.category
             odd = 1
+            sanitized_cat_name = param.category.replace("\\", "")
             cat_header = header.replace("@@catname@@", param.category + " parameters.")
+            cat_header = cat_header.replace("@@sanitizedcatname@@", sanitized_cat_name)
             print cat_header
             start = 0
 
