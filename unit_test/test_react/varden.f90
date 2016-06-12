@@ -8,8 +8,8 @@ subroutine varden()
   use ml_layout_module
   use multifab_module
   use variables
-  use probin_module, only: small_temp, &
-                           dens_min, base_cutoff_density
+  use probin_module, only: dens_min, dens_max, &
+                           temp_min, temp_max
   use runtime_init_module
   use bl_constants_module
   use bl_types
@@ -21,27 +21,17 @@ subroutine varden()
   implicit none
 
   ! Conventional fluid state multifabs
-  type(multifab) , allocatable :: s(:), snew(:)
-
-  ! react_state output
-  type(multifab) , allocatable :: rho_omegadot(:), rho_Hnuc(:), rho_Hext(:)
-
-  real(kind=dp_t), allocatable :: tempbar(:,:), pbar(:,:)
-
-  real(kind=dp_t), pointer :: dx(:,:)
+  type(multifab) , allocatable :: s(:)
+  
+  real(kind=dp_t) :: dx(1, 3)
 
   type(ml_layout) :: mla
-  type(bc_tower)  :: bct
-
-  character(len=100) :: temp_buf
-
-  real(kind=dp_t) :: m_in, m_out
-
-  integer :: i, n, res
+  
+  integer :: i, n
   integer :: ii, jj, kk
   integer :: nlevs
 
-  logical :: dbo, dho
+  integer :: nrho, nT, nX
 
   type(plot_t) :: pf
 
