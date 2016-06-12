@@ -7,9 +7,9 @@ COMP := gfortran
 MKVERBOSE := t
 
 # programs to be compiled
-#programs += testburn
-programs += eval
-programs += testjacobian
+programs += testburn
+#programs += eval
+#programs += testjacobian
 
 EOS_DIR := helmholtz
 NETWORK_DIR := triple_alpha_plus_cago

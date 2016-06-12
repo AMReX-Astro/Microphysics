@@ -4,22 +4,15 @@ program testburn
   use bl_constants_module
   use network
   use eos_module
-  use burner_module
+  use actual_burner_module
 
   implicit none
   integer :: k
   real(kind=dp_t) :: dens, temp, dt, rho_Hnuc
   real(kind=dp_t), dimension(nspec) :: Xin, Xout, rho_omegadot
 
-  integer :: ihe4, ic12, io16, ife56
-
   call network_init()
   call eos_init()
-
-  ihe4  = network_species_index("helium-4")
-  ic12  = network_species_index("carbon-12")
-  io16  = network_species_index("oxygen-16")
-  ife56 = network_species_index("iron-56")
 
   dens = 1.5e6_dp_t
   temp = 3.0e8_dp_t
