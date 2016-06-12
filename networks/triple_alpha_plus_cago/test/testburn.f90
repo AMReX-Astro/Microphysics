@@ -7,9 +7,10 @@ program testburn
   use actual_burner_module
 
   implicit none
-  integer :: k
-  real(kind=dp_t) :: dens, temp, dt, rho_Hnuc
-  real(kind=dp_t), dimension(nspec) :: Xin, Xout, rho_omegadot
+
+  real(kind=dp_t) :: dens, temp, dt
+  real(kind=dp_t), dimension(nspec) :: Xin
+  type(burn_t) :: state_in, state_out 
 
   call network_init()
   call eos_init()
@@ -22,19 +23,22 @@ program testburn
   Xin(io16)  = ZERO
   Xin(ife56) = ZERO
 
-  dt = 0.0001_dp_t
+  dt = 0.001_dp_t
 
   
   print *, 'calling the burner...'
 
+  state_in % rho = dens
+  state_in % T = temp
+  state_in % e = ZERO
+  state_in % xn(:) = Xin(:)
 
-  call burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
+  call actual_burner(state_in, state_out, dt, ZERO)
 
   print *, 'done!'
 
-  print *, 'Xin:  ', Xin
-  print *, 'Xout: ', Xout
-  print *, 'rho_omegadot: ', rho_omegadot
-  print *, 'rho_Hnuc: ', rho_Hnuc
+  print *, 'Xin:  ', state_in % xn(:)
+  print *, 'Xout: ', state_out % xn(:)
+  print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
 
 end program testburn
