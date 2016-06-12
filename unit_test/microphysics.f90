@@ -1,8 +1,9 @@
 module microphysics_module
 
   use network
-  use actual_rhs_module, only: actual_rhs_init
-  use actual_burner_module, only: actual_burner_init
+  use eos_module, only : eos_init
+  use actual_rhs_module, only : actual_rhs_init
+  use actual_burner_module, only : actual_burner_init
 
   
   implicit none
@@ -21,7 +22,7 @@ contains
 
   subroutine microphysics_finalize()
 
-    call network_finalize()
+    !call network_finalize()
 
   end subroutine microphysics_finalize
 
