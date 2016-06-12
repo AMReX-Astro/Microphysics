@@ -61,7 +61,6 @@ program test_react
 
 
   call runtime_init()
-  call init_variables(pf)
 
   ! initialize a grid -- since we are not doing anything hydroy, set the
   ! periodic mask to true
