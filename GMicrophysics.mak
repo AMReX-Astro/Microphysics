@@ -95,7 +95,7 @@ include $(Fmpack)
 f90sources += probin.f90
 
 PROBIN_TEMPLATE := $(MICROPHYSICS_DIR)/unit_test/dummy.probin.template
-PROBIN_PARAMETER_DIRS = $(MICROPHYSICS_DIR)/unit_test/
+PROBIN_PARAMETER_DIRS += $(MICROPHYSICS_DIR)/unit_test/  
 EXTERN_PARAMETER_DIRS += $(MICROPHYS_CORE)
 
 
