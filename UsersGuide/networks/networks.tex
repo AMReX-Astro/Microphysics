@@ -46,6 +46,7 @@ and Itoh 1979) for strong screening.
 
 
 \section{Network Structure}
+\label{section:network_structure}
 
 There are three primary files within each network directory.
 
@@ -60,34 +61,16 @@ linking the isotopes in the network.
 
 {\tt actual\_rhs.f90} supplies an interface for computing the right-hand-side
 of the network, the time-derivative of each species (and the temperature and
-nuclear energy release), as well as the Jacobian.
+nuclear energy release), as well as the Jacobian. This is covered in more detail
+in Chapter \ref{chapter:burners}.
 
 {\tt actual\_burner.f90} contains the interface for doing an actual burn.
 In general, you will want to {\tt call integrator} to use one of the pre-defined
-ODE integrators, but you could also write a custom integration here.
+ODE integrators, but you could also write a custom integration here. This is
+covered in more detail in Chapter \ref{chapter:burners}.
 
 All three have initialization routines ({\tt actual\_network\_init()},
 {\tt actual\_rhs\_init()}, and {\tt actual\_burner\_init()}) which must
 be called upon initialization. These should be not called within
 OpenMP parallel regions, because in general they will modify shared module data.
 
-The integration equations are:
-\begin{eqnarray}
-\frac{dX_k}{dt} &=& \omegadot_k(\rho,X_k,T)\enskip, \label{eq:VODE1C} \\
-\frac{dT}{dt} &=&\frac{1}{c_p} \left ( -\sum_k \xi_k  \omegadot_k  \right )\enskip. \label{eq:tempreactC}
-\end{eqnarray}
-We integrate these using the stiff ordinary differential equation
-integration methods provided by the VODE package.  The absolute error
-tolerances are set to $10^{-12}$ for the species, and a relative
-tolerance of $10^{-6}$ is used for the temperature.  The integration
-yields the new values of the mass fractions, $X_k^\outp$.  Equation
-(\ref{eq:tempreactC}) is derived from equation (???) by assuming that
-the pressure is constant during the burn state.  In evolving these
-equations, we need to evaluate $c_p$ and $\xi_k$.  In theory, this
-means evaluating the equation of state for each right-hand side
-evaluation that VODE requires.  In practice, we freeze $c_p$ and
-$\xi_k$ at the start of the integration time step and compute them
-using $\rho^\inp, X_k^\inp,$ and $T^\inp$ as inputs to the equation of
-state.  Note that the density remains unchanged during the burning.
-At the end of the routine, we compute $T^\outp =
-T(\rho^\outp,e^{\outp},X_k^\outp)$.
