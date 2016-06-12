@@ -56,7 +56,7 @@ contains
     p % irodot    = p % next_index(nspec)
     p % irho_Hnuc = p % next_index(1)
 
-    allocate(p % names(p % n_plot_comps))
+    allocate(p%names(p%n_plot_comps))
 
     p % names(p % irho) = "density"
     p % names(p % itemp) = "temperature"

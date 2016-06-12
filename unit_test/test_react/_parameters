@@ -8,3 +8,7 @@ react_its     integer    10
 
 xin_file      character  "uniform"
 run_prefix    character  ""
+
+test_set      character  "gr0_3d"
+
+dt            real       0.1d0
