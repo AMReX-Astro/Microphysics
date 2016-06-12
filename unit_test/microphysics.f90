@@ -17,7 +17,7 @@ contains
     call actual_rhs_init()
     call actual_burner_init()
     
-  end subroutine init_microphysics
+  end subroutine microphysics_init
 
   subroutine microphysics_finalize()
 
