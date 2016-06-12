@@ -1,5 +1,5 @@
 ! the network module provides the information about the species we are
-! advecting: 
+! advecting:
 !
 ! nspec      -- the number of species
 !
@@ -19,24 +19,29 @@ module network
 
   use bl_types
   use actual_network
-  
+
   implicit none
 
   logical :: network_initialized = .false.
 
 contains
-  
+
   subroutine network_init
 
+    use actual_rhs_module, only: actual_rhs_init
+    use actual_burner_module, only: actual_burner_init
+
     implicit none
-    
+
     ! First, we call the specific network initialization.
     ! This should set the number of species and number of
     ! aux variables, and the components of the species.
     ! Note that the network MUST define nspec and naux
     ! as parameters, or else the compiler will throw an error.
-    
-    call actual_network_init
+
+    call actual_network_init()
+    call actual_rhs_init()
+    call actual_burner_init()
 
     ! Check to make sure, and if not, throw an error.
 
