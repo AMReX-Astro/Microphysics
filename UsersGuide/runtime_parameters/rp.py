@@ -1,15 +1,10 @@
 #!/usr/bin/env python
-import sys
 import os
+import sys
 
 # tex format stuff
 Mheader=r"""
 \label{ch:parameters}
-
-
-%%%%%%%%%%%%%%%%
-% symbol table
-%%%%%%%%%%%%%%%%
 
 \begin{landscape}
 """
@@ -102,8 +97,16 @@ def make_tex_table(param_files):
         line = f.readline()
         while line:
 
+            # we assume that parameter files have a descriptive heading
+            # before the parameters start in those cases, we want to skip
+            # everything before the first blank line.  the next comment
+            # will then be interpreted either as the category or as the
+            # description for the parameter
+
             if not found_first_param:
                 if line.strip() == "":
+                    # this is the first empty line and we begin reading the file
+                    # from here on out
                     found_first_param = True
                 line = f.readline()
                 continue
@@ -146,7 +149,7 @@ def make_tex_table(param_files):
     print Mheader
 
     # sort the parameters and dump them in latex-fashion.  Group things by category
-    current_category = ""
+    current_category = -1
     start = 1
 
     for param in sorted(params_list):
