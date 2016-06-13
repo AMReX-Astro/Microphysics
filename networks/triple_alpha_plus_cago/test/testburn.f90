@@ -4,7 +4,7 @@ program testburn
   use bl_constants_module
   use network
   use eos_module
-  use burner_module
+  use actual_burner_module
 
   implicit none
   integer :: k

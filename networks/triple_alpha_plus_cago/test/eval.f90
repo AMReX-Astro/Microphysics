@@ -5,7 +5,7 @@ program testburn
   use network
   use eos_module
   use eos_type_module
-  use burner_module
+  use actual_burner_module
   use rpar_indices
   
   implicit none
