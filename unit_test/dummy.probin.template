@@ -34,6 +34,7 @@ end module extern_probin_module
 module runtime_init_module
 
   use bl_types
+  use bl_error_module
   use probin_module
   use extern_probin_module
 
@@ -49,9 +50,43 @@ module runtime_init_module
 
 contains
 
-  subroutine runtime_init()
+  subroutine runtime_init(read_inputs_in)
 
-    
+    logical, intent(in), optional :: read_inputs_in
+
+    integer :: farg, narg
+    character(len=128) :: fname
+    logical    :: lexist
+    integer :: un
+
+    logical :: read_inputs
+
+    narg = command_argument_count()
+
+    if (.not. present(read_inputs_in)) then
+       read_inputs = .false.
+    else
+       read_inputs = read_inputs_in
+    endif
+
+    if (read_inputs) then
+       farg = 1
+       if ( narg >= 1 ) then
+          call get_command_argument(farg, value = fname)
+          inquire(file = fname, exist = lexist )
+          if ( lexist ) then
+             farg = farg + 1
+             open(newunit=un, file = fname, status = 'old', action = 'read')
+             read(unit=un, nml = probin)
+             close(unit=un)
+          else
+             call bl_error("ERROR: inputs file does not exist")
+          endif
+       else
+          call bl_error("ERROR: no inputs file specified")
+       endif
+    endif
+
   end subroutine runtime_init
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
