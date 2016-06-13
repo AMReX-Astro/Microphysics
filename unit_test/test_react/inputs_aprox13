@@ -1,30 +1,14 @@
 &PROBIN
-  dm_in = 3
   test_set = "gr0_3d.small"
-
-  small_temp = 1.d5
-
-xlo_boundary_type = "periodic"
-xhi_boundary_type = "periodic"
-ylo_boundary_type = "periodic"
-yhi_boundary_type = "periodic"
-zlo_boundary_type = "periodic"
-zhi_boundary_type = "periodic"
 
   dens_min   = 1.d4
   dens_max   = 1.d8
   temp_min   = 5.d7
   temp_max   = 5.d8
 
-  min_time_step = 1.0d-10
-  react_its = 7
-
-  do_heating = .false.
+  dt = 1.d-3
 
   xin_file   = "xin.aprox13"
   run_prefix = "react_aprox13_"
-
-  base_cutoff_density = 1.e-5
-
 
 /
