@@ -163,6 +163,7 @@ program test_react
   call destroy(mla)
 
   deallocate(s)
+  deallocate(xn_zone)
 
   call runtime_close()
 
