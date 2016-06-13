@@ -8,6 +8,7 @@ MKVERBOSE := t
 
 programs += main
 
+MICROPHYSICS_DIR := ../..
 
 EOS_DIR := helmholtz
 
