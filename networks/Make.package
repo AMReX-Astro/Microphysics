@@ -33,7 +33,7 @@ endif
 
 ifeq ($(USE_RATES), TRUE)
 
-  RATE_PATH := $(MICROPHYSICS_DIR)/rates
+  RATE_PATH := $(MICROPHYSICS_DIR)/aprox_rates
 
   INCLUDE_LOCATIONS += $(RATE_PATH)
   VPATH_LOCATIONS   += $(RATE_PATH)
