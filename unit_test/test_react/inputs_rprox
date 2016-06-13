@@ -1,0 +1,29 @@
+&PROBIN
+  dm_in = 3
+  test_set = "gr0_3d.small"
+
+  small_temp = 1.d5
+
+xlo_boundary_type = "periodic"
+xhi_boundary_type = "periodic"
+ylo_boundary_type = "periodic"
+yhi_boundary_type = "periodic"
+zlo_boundary_type = "periodic"
+zhi_boundary_type = "periodic"
+
+  dens_min   = 1.d3
+  dens_max   = 1.d7
+  temp_min   = 1.d8
+  temp_max   = 1.d9
+
+  min_time_step = 1.0d-7
+  react_its = 6
+
+  do_heating = .false.
+
+  xin_file   = "xin.rprox"
+  run_prefix = "react_rprox_"
+  
+  base_cutoff_density = 1.e-5
+
+/
