@@ -19,13 +19,14 @@ MaestroUsersGuide.old
 # emacs temporaries
 *~
 \#*
-
+.#*
 
 
 # Files created at compile-time
 probin.f90
 build_info.f90
-
+_build
+*.mod
 
 # executable
 *.exe
@@ -34,6 +35,9 @@ gmon.out
 
 # build stuff
 t/
+d/
+f/
+o/
 
 
 # runtime files

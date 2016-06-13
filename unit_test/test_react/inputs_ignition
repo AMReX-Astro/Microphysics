@@ -1,0 +1,13 @@
+&PROBIN
+  test_set = "gr0_3d.small"
+
+  dens_min   = 1.d8
+  dens_max   = 2.d9
+  temp_min   = 5.d7
+  temp_max   = 7.d8
+
+  dt = 1.0d-1
+
+  xin_file   = "xin.ignition"
+  run_prefix = "react_ignition_"
+/
