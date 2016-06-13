@@ -1,4 +1,4 @@
-e! Setup a 3D grid of smoothly varying rho, T, and user-defined X.  Then
+! Setup a 3D grid of smoothly varying rho, T, and user-defined X.  Then
 ! call react_state() on the grid and output the results.
 
 program test_react
@@ -15,8 +15,6 @@ program test_react
   use probin_module, only: dens_min, dens_max, &
                            temp_min, temp_max, test_set, dt, run_prefix
   use runtime_init_module
-  use eos_module
-  use eos_type_module
   use burn_type_module
   use actual_burner_module
   use microphysics_module
@@ -51,7 +49,6 @@ program test_react
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
   
   type (burn_t) :: burn_state_in, burn_state_out
-  type (eos_t) :: eos_state
 
   real (kind=dp_t) :: dens_zone, temp_zone
   real (kind=dp_t) :: dlogrho, dlogT
@@ -128,9 +125,9 @@ program test_react
 
               burn_state_in % xn(:) = xn_zone(:, kk)
 
-              call burn_to_eos(burn_state_in, eos_state)
-              call eos(eos_input_rt, eos_state)
-              call eos_to_burn(eos_state, burn_state_in)
+              ! the integrator doesn't actually care about the initial internal
+              ! energy.
+              burn_state_in % e = ZERO
 
               call actual_burner(burn_state_in, burn_state_out, dt, ZERO)
 
