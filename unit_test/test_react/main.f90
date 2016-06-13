@@ -153,6 +153,8 @@ program test_react
                                  names=pf%names)
 
 
+  call write_job_info(trim(run_prefix) // "test_react", mla%mba)
+
   ! if you (or a subroutine) built it, destroy it!
   do n = 1,nlevs
     call destroy(s(n))

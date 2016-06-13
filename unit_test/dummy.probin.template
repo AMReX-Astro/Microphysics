@@ -46,7 +46,7 @@ module runtime_init_module
 
   public :: probin
 
-  public :: runtime_init, runtime_close
+  public :: runtime_init, runtime_close, runtime_pretty_print
 
 contains
 
@@ -98,5 +98,19 @@ contains
   end subroutine runtime_close
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  subroutine runtime_pretty_print(unit)
+
+    use bl_constants_module
+    use probin_module
+    use extern_probin_module
+
+    integer, intent(in) :: unit
+
+    write (unit, *) "[*] indicates overridden default"
+
+    @@printing@@
+
+  end subroutine runtime_pretty_print
+
 
 end module runtime_init_module
