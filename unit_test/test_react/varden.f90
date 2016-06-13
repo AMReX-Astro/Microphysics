@@ -60,7 +60,7 @@ program test_react
   call bl_prof_initialize(on = .true.)                                          
 
 
-  call runtime_init()
+  call runtime_init(.true.)
 
   ! initialize a grid -- since we are not doing anything hydroy, set the
   ! periodic mask to true
