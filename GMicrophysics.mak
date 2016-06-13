@@ -111,6 +111,7 @@ build_info.f90:
            --boxlib_home "$(BOXLIB_HOME)" \
            --source_home "$(MICROPHYSICS_DIR)" \
            --network "$(NETWORK_DIR)" \
+           --integrator "$(INTEGRATOR_DIR)" \
            --eos "$(EOS_DIR)" \
 	@echo " "
 
