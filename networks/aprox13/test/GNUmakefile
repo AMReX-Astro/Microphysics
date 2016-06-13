@@ -22,12 +22,3 @@ include $(MICROPHYSICS_DIR)/GMicrophysics.mak
 
 ALL: $(pnames)
 
-
-%.$(suf).exe:%.f90 $(objects)
-ifdef MKVERBOSE
-	$(LINK.f90) -o $@ $< $(objects) $(libraries)
-else
-	@echo "Linking $@ ... "
-	@$(LINK.f90) -o $@ $< $(objects) $(libraries)
-endif
-

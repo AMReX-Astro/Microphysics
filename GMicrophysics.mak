@@ -123,13 +123,19 @@ VPATH_LOCATIONS += $(Fmlocs)
 FINCLUDE_LOCATIONS += $(Fmincs)
 
 
-init_1d.$(suf).exe: $(objects)
-	$(LINK.f90) -o init_1d.$(suf).exe $(objects) $(libraries)
-	@echo SUCCESS
-
 
 # include the fParallel Makefile rules
 include $(BOXLIB_HOME)/Tools/F_mk/GMakerules.mak
+
+
+%.$(suf).exe:%.f90 $(objects)
+ifdef MKVERBOSE
+	$(LINK.f90) -o $@ $< $(objects) $(libraries)
+else
+	@echo "Linking $@ ... "
+	@$(LINK.f90) -o $@ $< $(objects) $(libraries)
+endif
+
 
 
 #-----------------------------------------------------------------------------
