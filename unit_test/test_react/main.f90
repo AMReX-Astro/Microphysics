@@ -1,4 +1,4 @@
-! Setup a 3D grid of smoothly varying rho, T, and user-defined X.  Then
+e! Setup a 3D grid of smoothly varying rho, T, and user-defined X.  Then
 ! call react_state() on the grid and output the results.
 
 program test_react
@@ -13,7 +13,7 @@ program test_react
   use multifab_module
   use variables
   use probin_module, only: dens_min, dens_max, &
-                           temp_min, temp_max, test_set, dt
+                           temp_min, temp_max, test_set, dt, run_prefix
   use runtime_init_module
   use eos_module
   use eos_type_module
@@ -23,6 +23,7 @@ program test_react
   use network
   use util_module
   use variables
+  use fabio_module
 
   !Local variables
   implicit none
@@ -150,6 +151,9 @@ program test_react
 
 
   ! output
+  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), &
+                                 trim(run_prefix) // "test_react", &
+                                 names=pf%names)
 
 
   ! if you (or a subroutine) built it, destroy it!

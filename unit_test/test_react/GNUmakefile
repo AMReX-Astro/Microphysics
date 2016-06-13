@@ -6,7 +6,7 @@ COMP := gfortran
 
 MKVERBOSE := t
 
-programs += varden
+programs += main
 
 
 EOS_DIR := helmholtz
