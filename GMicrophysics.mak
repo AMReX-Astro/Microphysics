@@ -35,15 +35,15 @@ NET_DIRS += $(NETWORK_TOP_DIR)/$(NETWORK_DIR)
 
 include $(NETWORK_TOP_DIR)/$(NETWORK_DIR)/NETWORK_REQUIRES
 
-ifneq ($(USE_SCREENING), FALSE)
+ifeq ($(USE_SCREENING), TRUE)
   NET_DIRS += $(MICROPHYSICS_DIR)/screening
 endif
 
-ifneq ($(USE_RATES), FALSE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/rates
+ifeq ($(USE_RATES), TRUE)
+  NET_DIRS += $(MICROPHYSICS_DIR)/aprox_rates
 endif
 
-ifneq ($(USE_NEUTRINOS), FALSE)
+ifeq ($(USE_NEUTRINOS), TRUE)
   NET_DIRS += $(MICROPHYSICS_DIR)/neutrinos
 endif
 
