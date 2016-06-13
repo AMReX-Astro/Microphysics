@@ -26,45 +26,14 @@ table:
 EOS_DIRS := $(EOS_TOP_DIR)
 EOS_DIRS += $(EOS_TOP_DIR)/$(EOS_DIR)
 
+MICROPHYS_CORE += $(EOS_DIRS) 
+
 
 #-----------------------------------------------------------------------------
-# network
+# network stuff -- specify your particlar network via NETWORK_DIR
+# this will increment MICROPHYS_CORE
 NETWORK_TOP_DIR := $(MICROPHYSICS_DIR)/networks
-NET_DIRS := $(NETWORK_TOP_DIR)
-NET_DIRS += $(NETWORK_TOP_DIR)/$(NETWORK_DIR)
-
-include $(NETWORK_TOP_DIR)/$(NETWORK_DIR)/NETWORK_REQUIRES
-
-ifeq ($(USE_SCREENING), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/screening
-endif
-
-ifeq ($(USE_RATES), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/aprox_rates
-endif
-
-ifeq ($(USE_NEUTRINOS), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/neutrinos
-endif
-
-
-#-----------------------------------------------------------------------------
-# integrator
-
-# the integrator is specified by INTEGRATOR_DIR.  We set the default to VODE
-# here
-INTEGRATOR_DIR ?= VODE
-INT_DIRS := $(MICROPHYSICS_DIR)/integration
-INT_DIRS += $(MICROPHYSICS_DIR)/integration/$(INTEGRATOR_DIR)
-
-# we'll assume that all integrators need the linear algebra packages
-INT_DIRS += $(MICROPHYSICS_DIR)/util/
-INT_DIRS += $(MICROPHYSICS_DIR)/util/BLAS
-INT_DIRS += $(MICROPHYSICS_DIR)/util/LINPACK
-
-
-# add in the network, EOS, and conductivity
-MICROPHYS_CORE += $(EOS_DIRS) $(NET_DIRS) $(INT_DIRS)
+include $(NETWORK_TOP_DIR)/GNetwork.mak
 
 
 #-----------------------------------------------------------------------------
