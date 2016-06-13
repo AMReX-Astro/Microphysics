@@ -17,7 +17,7 @@ subroutine write_job_info(dirname, mba)
                                source_git_hash, boxlib_git_hash, &
                                extra_git_hash, extra_git_hash2, &
                                different_build_tree, build_git_hash, &
-                               eos_dir, network_dir
+                               eos_dir, network_dir, integrator_dir
   use omp_module
   use network
 
@@ -91,6 +91,7 @@ subroutine write_job_info(dirname, mba)
      enddo
      write (99,*) " "
      write (99,1001) "Network:          ", trim(network_dir)
+     write (99,1001) "Integrator:       ", trim(integrator_dir)
      write (99,1001) "EOS:              ", trim(eos_dir)
 
      write (99,*) " "
