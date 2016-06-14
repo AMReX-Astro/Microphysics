@@ -14,7 +14,7 @@ contains
 
   subroutine actual_rhs_init()
 
-    use rates_module, only: rates_init
+    use aprox_rates_module, only: rates_init
     use screening_module, only: screening_init
 
     implicit none
@@ -752,7 +752,7 @@ contains
     ! nuclear reaction rates for the aprox19 network.
 
     use tfactors_module
-    use rates_module
+    use aprox_rates_module
 
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
@@ -1031,7 +1031,7 @@ contains
 
   subroutine weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
 
-    use rates_module, only: ecapnuc, mazurek
+    use aprox_rates_module, only: ecapnuc, mazurek
     
     implicit none
 

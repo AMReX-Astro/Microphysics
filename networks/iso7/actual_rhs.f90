@@ -14,7 +14,7 @@ contains
 
   subroutine actual_rhs_init()
 
-    use rates_module, only: rates_init
+    use aprox_rates_module, only: rates_init
     use screening_module, only: screening_init
 
     implicit none
@@ -271,7 +271,7 @@ contains
     ! nuclear reaction rates for the iso7 network.
 
     use tfactors_module
-    use rates_module
+    use aprox_rates_module
 
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)

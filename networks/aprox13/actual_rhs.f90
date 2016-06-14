@@ -30,7 +30,7 @@ contains
   subroutine actual_rhs_init()
 
     use screening_module, only: screening_init
-    use rates_module, only: rates_init
+    use aprox_rates_module, only: rates_init
     use extern_probin_module, only: use_tables
 
     implicit none
@@ -941,7 +941,7 @@ contains
     ! nuclear reaction rates for the aprox13 network.
 
     use tfactors_module
-    use rates_module
+    use aprox_rates_module
 
     implicit none
 

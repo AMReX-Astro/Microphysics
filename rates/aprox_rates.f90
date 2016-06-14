@@ -1,4 +1,4 @@
-module rates_module
+module aprox_rates_module
 
   ! These rate routines come from the public_aprox13/19/21.f90 files.
   ! Only those used in the networks we have in this repository are kept.
@@ -2789,4 +2789,4 @@ contains
     return
   end subroutine ecapnuc
 
-end module rates_module
+end module aprox_rates_module
