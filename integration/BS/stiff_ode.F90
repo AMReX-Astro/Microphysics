@@ -14,6 +14,7 @@ module stiff_ode
   real(kind=dp_t), parameter, private :: dt_min = 1.d-24
   real(kind=dp_t), parameter, private :: dt_ini = 1.d-16
   real(kind=dp_t), parameter, private :: SMALL = 1.d-30
+  real(kind=dp_t), parameter, private :: odescal = 1.d-6
 
   integer, parameter, private :: MAX_STEPS = 10000
 
@@ -25,6 +26,8 @@ contains
 
     !$acc routine seq
     !$acc routine(f_rhs) seq
+
+    use extern_probin_module, only: scaling_method
 
     type (bs_t), intent(inout) :: bs
 
@@ -63,7 +66,15 @@ contains
 
        call f_rhs(bs)
 
-       yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
+       if (scaling_method == 1) then
+          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
+       else if (scaling_method == 2) then
+          yscal = max(abs(bs % y(:)), odescal)
+#ifndef ACC
+       else
+          call bl_error("Unknown scaling method in subroutine ode.")
+#endif
+       endif
 
        ! make sure we don't overshoot the ending time
        if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
