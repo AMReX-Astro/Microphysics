@@ -22,8 +22,8 @@ program test_react
   use util_module
   use variables
   use fabio_module
+  use build_info_module
 
-  !Local variables
   implicit none
 
   ! Conventional fluid state multifabs
@@ -53,6 +53,8 @@ program test_react
   real (kind=dp_t) :: dens_zone, temp_zone
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
+
+  character (len=256) :: out_name
 
   call boxlib_initialize()
   call bl_prof_initialize(on = .true.)                                          
@@ -148,12 +150,11 @@ program test_react
 
 
   ! output
-  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), &
-                                 trim(run_prefix) // "test_react", &
-                                 names=pf%names)
+  out_name = trim(run_prefix) // "test_react." // trim(integrator_dir)
 
+  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), out_name, names=pf%names)
 
-  call write_job_info(trim(run_prefix) // "test_react", mla%mba)
+  call write_job_info(out_name, mla%mba)
 
   ! if you (or a subroutine) built it, destroy it!
   do n = 1,nlevs
