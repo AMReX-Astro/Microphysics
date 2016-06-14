@@ -28,6 +28,7 @@ contains
     !$acc routine(f_rhs) seq
 
     use extern_probin_module, only: scaling_method
+    use bl_error_module, only: bl_error
 
     type (bs_t), intent(inout) :: bs
 
