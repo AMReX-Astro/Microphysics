@@ -1,22 +1,20 @@
 program testburn
 
-  use eos_module
-!  use eos_type_module
-  use network
-  use burner_module
-  use network_indices
   use bl_types
-  use bl_constants_module, only: ZERO
+  use bl_constants_module
+  use network
+  use eos_module
+  use actual_burner_module
+  use burn_type_module
+  use microphysics_module
 
   implicit none
 
-  type(eos_t) :: state_in, state_out
+  real(kind=dp_t) :: dens, temp, dt
+  real(kind=dp_t), dimension(nspec) :: Xin
+  type(burn_t) :: state_in, state_out
 
-  real(kind=dp_t) :: dens, temp, dt, rho_Hnuc
-  real(kind=dp_t), dimension(nspec) :: Xin, Xout, rho_omegadot
-
-  call network_init()
-  call eos_init()
+  call microphysics_init()
 
   dens = 6.558e5_dp_t
   temp = 7.108e8_dp_t
@@ -30,19 +28,21 @@ program testburn
 
   dt = 0.01_dp_t
 
-  Xout = ZERO
-
   print *, 'calling the burner...'
 
-  call burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
+  state_in % rho = dens
+  state_in % T = temp
+  state_in % e = ZERO
+  state_in % xn(:) = Xin(:)
+
+  call actual_burner(state_in, state_out, dt, ZERO)
 
   print *, 'done!'
 
-  print *, 'Xin:      ', Xin
-  print *, 'sum:      ', sum(Xin)
-  print *, 'Xout:     ', Xout
-  print *, 'sum:      ', sum(Xout)
-  print *, 'rho_Hnuc: ', rho_Hnuc
-  print *, 'enuc:     ', rho_Hnuc*dt/dens
+  print *, 'Xin:      ', state_in % xn(:)
+  print *, 'Xout:     ', state_out % xn(:)
+  print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
+
+  call microphysics_finalize()
 
 end program testburn
