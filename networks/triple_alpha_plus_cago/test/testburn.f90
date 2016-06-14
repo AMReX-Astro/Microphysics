@@ -5,6 +5,7 @@ program testburn
   use network
   use eos_module
   use actual_burner_module
+  use microphysics_module
 
   implicit none
 
@@ -12,8 +13,7 @@ program testburn
   real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out 
 
-  call network_init()
-  call eos_init()
+  call microphysics_init()
 
   dens = 1.5e6_dp_t
   temp = 3.0e8_dp_t
@@ -40,5 +40,7 @@ program testburn
   print *, 'Xin:  ', state_in % xn(:)
   print *, 'Xout: ', state_out % xn(:)
   print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
+
+  call microphysics_finalize()
 
 end program testburn
