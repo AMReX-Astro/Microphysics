@@ -87,7 +87,7 @@ contains
     p % names(p % ih) = "specific_enthalpy"
     p % names(p % ie) = "specific_energy"
     p % names(p % ip) = "pressure"
-    p % names(p % ip) = "specific_entropy"
+    p % names(p % is) = "specific_entropy"
     do n = 0, nspec-1
        p % names(p % ispec + n) = "X_" // adjustl(trim(spec_names(n+1)))
     enddo
