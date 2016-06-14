@@ -8,6 +8,9 @@ to the `Microphysics/` directory.
 
 There are several core types of microphysics routines hosted here:
 
+* `aprox_rates/`: this contains some common rate routines used by the
+  various `aprox` networks
+  
 * `eos/`: these are the equations of state.  All of them use a Fortran
   derived type `eos_t` to pass the thermodynamic state information in
   and out.
@@ -29,9 +32,6 @@ There are several core types of microphysics routines hosted here:
   
 * `NSE/`:
 
-* `rates/`: this contains some common rate routines used by the various
-  `aprox` networks
-  
 * `screening/`: the screening routines for nuclear reactions.  These
   are called by the various networks
   
