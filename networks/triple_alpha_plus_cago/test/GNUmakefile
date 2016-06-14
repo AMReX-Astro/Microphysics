@@ -6,6 +6,8 @@ COMP := gfortran
 
 MKVERBOSE := t
 
+MICROPHYSICS_DIR := ../../..
+
 # programs to be compiled
 programs += testburn
 #programs += eval
