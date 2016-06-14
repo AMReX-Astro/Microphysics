@@ -24,6 +24,8 @@ contains
 
     type (burn_t)    :: state_del
 
+    ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
+    ! this balances truncation vs. roundoff error in the differencing
     real(dp_t), parameter :: eps = 1.d-8
 
     state % jac(:,:) = ZERO
