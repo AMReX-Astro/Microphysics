@@ -167,6 +167,8 @@ program test_react
 
   call runtime_close()
 
+  call microphysics_finalize()
+
   ! end boxlib
   call bl_prof_glean("bl_prof_res")                                             
   call bl_prof_finalize()                                                       
