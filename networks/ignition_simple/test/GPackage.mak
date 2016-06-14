@@ -1,1 +1,1 @@
-# anything extra here
+f90sources += probin.f90

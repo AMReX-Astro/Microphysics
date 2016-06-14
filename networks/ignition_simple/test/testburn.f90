@@ -1,30 +1,18 @@
 program testburn
+
   use bl_types
   use bl_constants_module
-  use bl_error_module
   use network
-  use eos_module
-  use castro_burner_module
+  use microphysics_module
+  use actual_burner_module
 
   implicit none
 
-  real(kind=dp_t) :: dens, temp, t, dt, ein, eout
-  real(kind=dp_t), dimension(nspec) :: Xin, Xout
-  
-  integer :: ic12, io16, img24
+  real(kind=dp_t) :: dens, temp, t, dt
+  real(kind=dp_t), dimension(nspec) :: Xin
+  type(burn_t) :: state_in, state_out
 
-  type (eos_t) :: eos_state
-
-  call network_init()
-  call eos_init()
-
-  ic12 = network_species_index("carbon-12")
-  io16 = network_species_index("oxygen-16")
-  img24 = network_species_index("magnesium-24")
-
-  if (ic12 < 0 .or. io16 < 0 .or. img24 < 0) then
-     call bl_error("ERROR: species index not defined")
-  endif
+  call microphysics_init()
 
   dens = 2.6e9_dp_t
   temp = 6.e8_dp_t
@@ -36,23 +24,17 @@ program testburn
   t = 0.0_dp_t
   dt = 0.06_dp_t
 
-  eos_state%rho = dens
-  eos_state%T = temp
-  eos_state%xn(:) = Xin(:)
+  state_in % rho = dens
+  state_in % T = temp
+  state_in % e = ZERO
+  state_in % xn(:) = Xin(:)
 
-  call eos(eos_input_rt, eos_state)
+  call actual_burner(state_in, state_out, dt, t)
 
-  ein = eos_state%e
+  print *, 'Xin:  ', state_in % xn(:)
+  print *, 'Xout: ', state_out % xn(:)
+  print *, 'rho Hnuc (erg/s/cm**3): ', dens * state_out % e / dt
 
-  print *, 'calling the burner...'
-
-
-  call burner(dens, temp, Xin, ein, dt, t, Xout, eout)
-
-  print *, 'done!'
-
-  print *, 'Xin:  ', Xin
-  print *, 'Xout: ', Xout
-  print *, 'Hnuc (erg/g/s): ', eout-ein
+  call microphysics_finalize()
 
 end program testburn
