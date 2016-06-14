@@ -31,7 +31,7 @@ INT_DIRS += $(MICROPHYSICS_DIR)/util/LINPACK
 
 
 ifeq ($(USE_RATES), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/aprox_rates
+  NET_DIRS += $(MICROPHYSICS_DIR)/rates
 endif
 
 ifeq ($(USE_SCREENING), TRUE)
