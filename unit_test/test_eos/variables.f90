@@ -97,7 +97,7 @@ contains
     p % names(p % ierr_T_eos_rp)   = "err_T_eos_rp"
     p % names(p % ierr_T_eos_re)   = "err_T_eos_re"
     p % names(p % ierr_rho_eos_ps) = "err_rho_eos_ps"
-    p % names(p % ierr_T_eos_ps)   = "err_rT_eos_ps"
+    p % names(p % ierr_T_eos_ps)   = "err_T_eos_ps"
     p % names(p % ierr_rho_eos_ph) = "err_rho_eos_ph"
     p % names(p % ierr_T_eos_ph)   = "err_T_eos_ph"
     p % names(p % ierr_rho_eos_th) = "err_rho_eos_th"
