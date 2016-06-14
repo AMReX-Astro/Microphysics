@@ -911,7 +911,7 @@ contains
            dsd_row = dentrdd
 
            htot_row = ener + pres / den
-           dhd_row = dpresdd / den - pres / den**2
+           dhd_row = denerdd + dpresdd / den - pres / den**2
            dht_row = denerdt + dpresdt / den
 
            pele_row = pele
