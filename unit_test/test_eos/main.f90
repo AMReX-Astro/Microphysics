@@ -14,7 +14,8 @@ program test_react
   use variables
   use probin_module, only: dens_min, dens_max, &
                            temp_min, temp_max, test_set, run_prefix, &
-                           metalicity_max
+                           metalicity_max, &
+                           small_temp, small_dens
   use runtime_init_module
   use microphysics_module
   use network
@@ -79,7 +80,7 @@ program test_react
   dx(1,:) = ONE
 
   ! microphysics
-  call microphysics_init()
+  call microphysics_init(small_temp=small_temp, small_dens=small_dens)
 
   ! we'll store everything in a multifab -- inputs and outputs
   call init_variables(pf)
