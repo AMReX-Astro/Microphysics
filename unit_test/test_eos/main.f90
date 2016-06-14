@@ -13,11 +13,13 @@ program test_react
   use multifab_module
   use variables
   use probin_module, only: dens_min, dens_max, &
-                           temp_min, temp_max, test_set, run_prefix
+                           temp_min, temp_max, test_set, run_prefix, &
+                           metalicity_max
   use runtime_init_module
   use microphysics_module
   use network
-  use util_module
+  use eos_type_module
+  use eos_module
   use variables
   use fabio_module
 
@@ -100,10 +102,6 @@ program test_react
   domlo = lwb(get_pd(get_layout(s(1))))
   domhi = upb(get_pd(get_layout(s(1))))
 
-  allocate(xn_zone(nspec, 0:nX-1))   ! this assumes that lo(3) = 0
-
-  call get_xn(xn_zone, domlo(3), domhi(3))
-
   n = 1  ! single level assumption
   do i = 1, nfabs(s(n))
      sp => dataptr(s(n), i)
@@ -131,7 +129,7 @@ program test_react
               ! store default state
               sp(ii, jj, kk, pf % irho) = dens_zone
               sp(ii, jj, kk, pf % itemp) = temp_zone
-              sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = burn_state_out % xn(:)
+              sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = xn_zone(:)
 
 
               ! call EOS using rho, T
@@ -176,7 +174,7 @@ program test_react
               ! reset T to give it some work to do
               eos_state % T = 100.d0
 
-              call eos(eos_input_rt, eos_state)
+              call eos(eos_input_rp, eos_state)
 
               sp(ii, jj, kk, pf % ierr_T_eos_rp) = &
                    abs(eos_state % T - temp_zone)/temp_zone

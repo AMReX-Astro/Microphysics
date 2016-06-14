@@ -3,6 +3,8 @@ dens_max      real       1.d9
 temp_min      real       1.d6
 temp_max      real       1.d15
 
+metalicity_max  real     0.1d0
+
 xin_file      character  "uniform"
 run_prefix    character  ""
 
