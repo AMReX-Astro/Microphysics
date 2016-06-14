@@ -147,6 +147,10 @@ print-%: ; @echo $* is $($*)
 # cleaning.  Add more actions to 'clean' and 'realclean' to remove
 # probin.f90 and build_info.f90 -- this is where the '::' in make comes
 # in handy
-clean::
+clean ::
 	$(RM) probin.f90
 	$(RM) build_info.f90
+
+
+realclean ::
+	$(RM) helm_table.dat
