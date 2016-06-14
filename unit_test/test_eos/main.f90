@@ -13,7 +13,7 @@ program test_react
   use multifab_module
   use variables
   use probin_module, only: dens_min, dens_max, &
-                           temp_min, temp_max, test_set, run_prefix, &
+                           temp_min, temp_max, test_set, &
                            metalicity_max, &
                            small_temp, small_dens
   use runtime_init_module
@@ -23,8 +23,8 @@ program test_react
   use eos_module
   use variables
   use fabio_module
+  use build_info_module
 
-  !Local variables
   implicit none
 
   ! Conventional fluid state multifabs
@@ -54,6 +54,8 @@ program test_react
   real(kind=dp_t) :: temp_zone, dens_zone, metalicity
   real(kind=dp_t) :: dlogrho, dlogT, dmetal
   real(kind=dp_t) :: xn_zone(nspec)
+
+  character (len=128) :: out_name
 
   call boxlib_initialize()
   call bl_prof_initialize(on = .true.)                                          
@@ -243,16 +245,23 @@ program test_react
 
 
               ! call EOS using T, h
+              ! this doesn't work for all EOSes (where h doesn't depend on T)
 
-              ! reset rho to give it some work to do
-              eos_state % rho = 1.d0
+              if (.not. trim(eos_dir) == "gamma_law_general") then
+                 ! reset rho to give it some work to do -- for helmeos, h is not
+                 ! monotonic, so we only perturb rho slightly here
+                 eos_state % rho = 0.9 * eos_state % rho
 
-              call eos(eos_input_th, eos_state)
+                 call eos(eos_input_th, eos_state)
                  
-              sp(ii, jj, kk, pf % ierr_rho_eos_th) = &
-                   abs(eos_state % rho - dens_zone)/dens_zone
+                 sp(ii, jj, kk, pf % ierr_rho_eos_th) = &
+                      abs(eos_state % rho - dens_zone)/dens_zone
                  
-              eos_state = eos_state_reference
+                 eos_state = eos_state_reference
+
+              else
+                 sp(ii, jj, kk, pf % ierr_rho_eos_th) = ZERO
+              endif
 
            enddo
         enddo
@@ -262,12 +271,11 @@ program test_react
 
 
   ! output
-  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), &
-                                 trim(run_prefix) // "test_react", &
-                                 names=pf%names)
+  out_name = "test_eos." // trim(eos_dir)
 
+  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), out_name, names=pf%names)
+  call write_job_info(out_name, mla%mba)
 
-  call write_job_info(trim(run_prefix) // "test_react", mla%mba)
 
   ! if you (or a subroutine) built it, destroy it!
   do n = 1,nlevs

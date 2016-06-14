@@ -9,5 +9,4 @@
   metalicity_max = 0.1d0
 
   xin_file   = "xin.ignition"
-  run_prefix = "eos_"
 /
