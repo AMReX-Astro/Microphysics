@@ -1,12 +1,12 @@
 &PROBIN
   test_set = "gr0_3d.small"
 
-  dens_min   = 1.d8
-  dens_max   = 2.d9
-  temp_min   = 5.d7
-  temp_max   = 7.d8
+  dens_min   = 10.d0
+  dens_max   = 5.e9
+  temp_min   = 1.d6
+  temp_max   = 1.d10
 
-  metalicity_max = 0.1d0
+  metalicity_max = 0.5d0
 
   xin_file   = "xin.ignition"
 /
