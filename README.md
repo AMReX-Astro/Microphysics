@@ -36,10 +36,19 @@ There are several core types of microphysics routines hosted here:
 * `screening/`: the screening routines for nuclear reactions.  These
   are called by the various networks
   
-* `unit_test/`: code specific to unit tests within this repo
+* `unit_test/`: code specific to unit tests within this repo.  In
+  particular,
 
-* `util`: linear algebra routines for the various integrators (including
-  BLAS and LINPACK)
+  - `test_eos` will test an equation of state by first calling
+    it will (rho, T), and then calling it with other inputs
+	to recover rho and/or T.  A cube of data, with rho, T, and
+	X is tested.
+
+  - `test_react` will call a reaction network on a cube of
+    data (rho, T, X).
+
+* `util`: linear algebra routines for the various integrators
+  (including BLAS and LINPACK)
 
 
 These routines are written to be compatible with:
