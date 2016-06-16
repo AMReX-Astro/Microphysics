@@ -112,7 +112,7 @@ build_info.f90:
            --source_home "$(MICROPHYSICS_DIR)" \
            --network "$(NETWORK_DIR)" \
            --integrator "$(INTEGRATOR_DIR)" \
-           --eos "$(EOS_DIR)" \
+           --eos "$(EOS_DIR)"
 	@echo " "
 
 $(odir)/build_info.o: build_info.f90
