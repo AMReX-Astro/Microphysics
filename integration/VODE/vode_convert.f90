@@ -97,7 +97,7 @@ contains
     real(dp_t)    :: y(neqs)
     real(dp_t), optional :: ydot(neqs), jac(neqs, neqs)
 
-    integer       :: i
+    integer :: n
 
     rpar(irp_dens)                           = state % rho / dens_scale
     y(net_itemp)                             = state % T / temp_scale
@@ -134,8 +134,8 @@ contains
        rpar(irp_have_rates) = -ONE
     endif
 
-    do i = 1, num_rate_groups
-       rpar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1) = state % rates(i,:)
+    do n = 1, nrates
+       rpar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1) = state % rates(:,n)
     enddo
 
     if (state % self_heat) then
@@ -164,7 +164,7 @@ contains
     real(dp_t)    :: rpar(n_rpar_comps)
     real(dp_t)    :: y(neqs)
 
-    integer       :: i
+    integer :: n
 
     state % rho      = rpar(irp_dens) * dens_scale
     state % T        = y(net_itemp) * temp_scale
@@ -189,8 +189,8 @@ contains
        state % have_rates = .false.
     endif
 
-    do i = 1, num_rate_groups
-       state % rates(i,:) = rpar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1)
+    do n = 1, nrates
+       state % rates(:,n) = rpar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1)
     enddo
 
     if (rpar(irp_self_heat) > ZERO) then

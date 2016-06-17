@@ -101,7 +101,7 @@ contains
     type (burn_t) :: state
     type (bdf_ts) :: ts
 
-    integer       :: i
+    integer :: n
 
     ts % upar(irp_dens,1)                           = state % rho / dens_scale
     ts % y(net_itemp,1)                             = state % T / temp_scale
@@ -134,8 +134,8 @@ contains
        ts % upar(irp_have_rates,1) = -ONE
     endif
 
-    do i = 1, num_rate_groups
-       ts % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1,1) = state % rates(i,:)
+    do n = 1, nrates
+       ts % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1,1) = state % rates(:,n)
     enddo
 
     if (state % self_heat) then
@@ -166,7 +166,7 @@ contains
     type (burn_t) :: state
     type (bdf_ts) :: ts
 
-    integer       :: i
+    integer :: n
 
     state % rho      = ts % upar(irp_dens,1) * dens_scale
     state % T        = ts % y(net_itemp,1) * temp_scale
@@ -199,8 +199,8 @@ contains
        state % have_rates = .false.
     endif
 
-    do i = 1, num_rate_groups
-       state % rates(i,:) = ts % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1,1)
+    do n = 1, nrates
+       state % rates(:,n) = ts % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1,1)
     enddo
 
     if (ts % upar(irp_self_heat,1) > ZERO) then
