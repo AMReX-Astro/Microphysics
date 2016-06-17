@@ -100,7 +100,7 @@ contains
     type (burn_t) :: state
     type (bs_t) :: bs
 
-    integer :: i, n
+    integer :: n
 
     bs % upar(irp_dens)                           = state % rho / dens_scale
     bs % y(net_itemp)                             = state % T / temp_scale
@@ -123,7 +123,9 @@ contains
     bs % dydt(net_itemp) = bs % dydt(net_itemp) / temp_scale
     bs % dydt(net_ienuc) = bs % dydt(net_ienuc) / ener_scale
 
-    bs % jac(:,:) = state % jac(:,:)
+    do n = 1, neqs
+       bs % jac(:,n) = state % jac(:,n)
+    enddo
 
     bs % jac(net_itemp,:) = bs % jac(net_itemp,:) / temp_scale
     bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) / ener_scale
@@ -134,8 +136,8 @@ contains
        bs % upar(irp_have_rates) = -ONE
     endif
 
-    do i = 1, num_rate_groups
-       bs % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1) = state % rates(i,:)
+    do n = 1, nrates
+       bs % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1) = state % rates(:,n)
     enddo
 
     if (state % self_heat) then
@@ -166,7 +168,7 @@ contains
     type (burn_t) :: state
     type (bs_t) :: bs
 
-    integer :: i, n
+    integer :: n
 
     state % rho      = bs % upar(irp_dens) * dens_scale
     state % T        = bs % y(net_itemp) * temp_scale
@@ -190,8 +192,9 @@ contains
     state % ydot(net_ienuc) = state % ydot(net_ienuc) * ener_scale
 
     do n = 1, neqs
-       state % jac(n,:) = bs % jac(n,:)
+       state % jac(:,n) = bs % jac(:,n)
     enddo
+
     state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
     state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
 
@@ -201,8 +204,8 @@ contains
        state % have_rates = .false.
     endif
 
-    do i = 1, num_rate_groups
-       state % rates(i,:) = bs % upar(irp_rates+(i-1)*nrates:irp_rates+i*nrates-1)
+    do n = 1, nrates
+       state % rates(:,n) = bs % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1)
     enddo
 
     if (bs % upar(irp_self_heat) > ZERO) then
