@@ -22,6 +22,7 @@ contains
     inv_ener_scale = ONE / ener_scale
 
     !$acc update device(temp_scale, ener_scale, dens_scale)
+    !$acc update device(inv_temp_scale, inv_dens_scale, inv_ener_scale)
 
     aionInv = ONE / aion
 
