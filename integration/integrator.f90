@@ -9,13 +9,23 @@ contains
   subroutine integrator_init()
 
     use actual_integrator_module, only: actual_integrator_init
-    use integration_data, only: temp_scale, ener_scale, dens_scale
+    use integration_data, only: temp_scale, ener_scale, dens_scale, inv_temp_scale, inv_ener_scale, inv_dens_scale, aionInv
+    use actual_network, only: nspec, aion
+    use bl_constants_module, only: ONE
 
     implicit none
 
     call actual_integrator_init()
 
+    inv_temp_scale = ONE / temp_scale
+    inv_dens_scale = ONE / dens_scale
+    inv_ener_scale = ONE / ener_scale
+
     !$acc update device(temp_scale, ener_scale, dens_scale)
+
+    aionInv = ONE / aion
+
+    !$acc update device(aionInv)
 
   end subroutine integrator_init
 

@@ -1,6 +1,6 @@
 module bs_convert_module
 
-  use integration_data, only: temp_scale, dens_scale, ener_scale
+  use integration_data, only: temp_scale, dens_scale, ener_scale, inv_temp_scale, inv_dens_scale, inv_ener_scale, aionInv
 
   implicit none
 
@@ -40,8 +40,8 @@ contains
     state % zbar    = bs % upar(irp_zbar)
     state % eta     = bs % upar(irp_eta)
     state % y_e     = bs % upar(irp_ye)
-    state % dhdX(:) = bs % upar(irp_dhdY:irp_dhdY-1+nspec) / aion(:)
-    state % dedX(:) = bs % upar(irp_dedY:irp_dedY-1+nspec) / aion(:)
+    state % dhdX(:) = bs % upar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
+    state % dedX(:) = bs % upar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
 
   end subroutine bs_to_eos
 
@@ -65,10 +65,10 @@ contains
     type (eos_t)  :: state
     type (bs_t) :: bs
 
-    bs % upar(irp_dens)                  = state % rho / dens_scale
-    bs % y(net_itemp)                    = state % T / temp_scale
-    bs % y(1:nspec_evolve)               = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
-    bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
+    bs % upar(irp_dens)                  = state % rho * inv_dens_scale
+    bs % y(net_itemp)                    = state % T * inv_temp_scale
+    bs % y(1:nspec_evolve)               = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
+    bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
     bs % upar(irp_cp)                    = state % cp
     bs % upar(irp_cv)                    = state % cv
     bs % upar(irp_abar)                  = state % abar
@@ -102,11 +102,11 @@ contains
 
     integer :: n
 
-    bs % upar(irp_dens)                           = state % rho / dens_scale
-    bs % y(net_itemp)                             = state % T / temp_scale
-    bs % y(1:nspec_evolve)                        = state % xn(1:nspec_evolve) / aion(1:nspec_evolve)
-    bs % y(net_ienuc)                             = state % e / ener_scale
-    bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) / aion(nspec_evolve+1:nspec)
+    bs % upar(irp_dens)                           = state % rho * inv_dens_scale
+    bs % y(net_itemp)                             = state % T * inv_temp_scale
+    bs % y(1:nspec_evolve)                        = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
+    bs % y(net_ienuc)                             = state % e * inv_ener_scale
+    bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
     bs % upar(irp_cp)                             = state % cp
     bs % upar(irp_cv)                             = state % cv
     bs % upar(irp_abar)                           = state % abar
@@ -120,15 +120,15 @@ contains
     bs % upar(irp_dcpdt)                          = state % dcpdt
 
     bs % dydt = state % ydot
-    bs % dydt(net_itemp) = bs % dydt(net_itemp) / temp_scale
-    bs % dydt(net_ienuc) = bs % dydt(net_ienuc) / ener_scale
+    bs % dydt(net_itemp) = bs % dydt(net_itemp) * inv_temp_scale
+    bs % dydt(net_ienuc) = bs % dydt(net_ienuc) * inv_ener_scale
 
     do n = 1, neqs
        bs % jac(:,n) = state % jac(:,n)
     enddo
 
-    bs % jac(net_itemp,:) = bs % jac(net_itemp,:) / temp_scale
-    bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) / ener_scale
+    bs % jac(net_itemp,:) = bs % jac(net_itemp,:) * inv_temp_scale
+    bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) * inv_ener_scale
 
     if (state % have_rates) then
        bs % upar(irp_have_rates) = ONE
@@ -181,8 +181,8 @@ contains
     state % zbar     = bs % upar(irp_zbar)
     state % y_e      = bs % upar(irp_ye)
     state % eta      = bs % upar(irp_eta)
-    state % dhdX(:)  = bs % upar(irp_dhdY:irp_dhdY-1+nspec) / aion(:)
-    state % dedX(:)  = bs % upar(irp_dedY:irp_dedY-1+nspec) / aion(:)
+    state % dhdX(:)  = bs % upar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
+    state % dedX(:)  = bs % upar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
     state % T_old    = bs % upar(irp_Told)
     state % dcvdt    = bs % upar(irp_dcvdt)
     state % dcpdt    = bs % upar(irp_dcpdt)
