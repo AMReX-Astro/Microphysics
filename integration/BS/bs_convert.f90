@@ -123,9 +123,7 @@ contains
     bs % dydt(net_itemp) = bs % dydt(net_itemp) / temp_scale
     bs % dydt(net_ienuc) = bs % dydt(net_ienuc) / ener_scale
 
-    do n = 1, neqs
-       bs % jac(n,:) = state % jac(n,:)
-    enddo
+    bs % jac(:,:) = state % jac(:,:)
 
     bs % jac(net_itemp,:) = bs % jac(net_itemp,:) / temp_scale
     bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) / ener_scale
