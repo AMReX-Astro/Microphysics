@@ -59,11 +59,12 @@ contains
 
     integer :: p, i, j, k, km
 
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
     real(dp_t) :: partials(0:max_esum_size-1)
 
     real(dp_t) :: x, y, z, hi, lo
-
-    partials = 0.0_dp_t
 
     ! p keeps track of how many entries in partials are actually used.
 
@@ -105,7 +106,6 @@ contains
 
              if (j > p) then
                 p = p + 1
-
              endif
 
           endif
@@ -124,7 +124,7 @@ contains
        call bl_error("Error: too many partials created in esum.")
     endif
 #endif
-    
+
     esum = sum(partials(0:p))
 
   end function esum
