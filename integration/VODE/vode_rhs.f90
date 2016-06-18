@@ -12,6 +12,7 @@
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances
     use rpar_indices
+    use integration_data, only: aionInv
 
     implicit none
 
@@ -27,7 +28,7 @@
 
     ! Ensure that mass fractions always stay positive.
 
-    y(1:nspec_evolve) = max(y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-200) / aion(1:nspec_evolve)
+    y(1:nspec_evolve) = max(y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-200) * aionInv(1:nspec_evolve)
 
     ! Optionally, renormalize them so they sum to unity.
 
