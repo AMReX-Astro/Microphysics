@@ -219,9 +219,12 @@ contains
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho
-       print *, ' temp: ', state_out % T
-       print *, ' energy released: ', bs % y(net_ienuc) * ener_scale
+       print *, 'dens = ', state_out % rho
+       print *, 'temp start = ', state_in % T
+       print *, 'xn start = ', state_in % xn
+       print *, 'temp final = ', state_out % T
+       print *, 'xn final = ', state_out % xn
+       print *, 'energy generated = ', state_out % e - state_in % e
        print *, 'number of steps taken: ', bs % n
        print *, 'number of RHS evaluations: ', bs % n_rhs
        print *, 'number of Jacobian evaluations: ', bs % n_jac
