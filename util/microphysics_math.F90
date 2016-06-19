@@ -67,6 +67,13 @@ contains
     real(dp_t) :: x, y, z, hi, lo
 
     ! p keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, and ignore
+    ! any data in the remaining indices.
 
     p = 0
 
@@ -115,7 +122,8 @@ contains
        enddo
 
        partials(j) = x
-       partials(j+1:n-1) = 0.0_dp_t
+
+       p = j
 
     enddo
 
