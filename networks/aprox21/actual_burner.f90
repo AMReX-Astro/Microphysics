@@ -30,11 +30,8 @@ contains
   subroutine actual_burner_init()
 
     use integrator_module, only: integrator_init
-    use integration_data, only: ener_scale
 
     implicit none
-
-    ener_scale = c_light * c_light
 
     call integrator_init()
 

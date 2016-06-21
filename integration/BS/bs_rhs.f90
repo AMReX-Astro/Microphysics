@@ -19,6 +19,7 @@ contains
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances
     use rpar_indices
     use bs_type_module
+    use integration_data, only: aionInv
 
     implicit none
 
@@ -31,8 +32,8 @@ contains
 
     ! Ensure that mass fractions always stay positive.
 
-    bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-30) / aion(1:nspec_evolve)
-    bs % y(1:nspec_evolve) = min(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE) / aion(1:nspec_evolve)
+    bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-30) * aionInv(1:nspec_evolve)
+    bs % y(1:nspec_evolve) = min(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE) * aionInv(1:nspec_evolve)
 
     ! Ensure that the temperature always stays within reasonable limits.
 

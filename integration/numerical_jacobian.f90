@@ -15,6 +15,7 @@ contains
 
     use eos_module
     use actual_rhs_module, only: actual_rhs
+    use integration_data, only: aionInv
 
     implicit none
 
@@ -44,7 +45,7 @@ contains
        call actual_rhs(state_del)
 
        do m = 1, neqs
-          state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n) / aion(n))
+          state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n) * aionInv(n))
        enddo
     enddo
 

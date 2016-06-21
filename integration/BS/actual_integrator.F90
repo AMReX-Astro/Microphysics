@@ -62,6 +62,8 @@ contains
 
     real(dp_t) :: retry_change_factor
 
+    double precision :: ener_offset
+
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
     !
@@ -102,7 +104,14 @@ contains
 
     call eos_to_bs(eos_state_in, bs)
 
-    bs % y(net_ienuc) = ZERO
+    ! Get the internal energy e that is consistent with this T.
+    ! We will start the zone with this energy and subtract it at
+    ! the end. This helps a lot with convergence, rather than
+    ! starting e off at zero.
+
+    ener_offset = eos_state_in % e
+
+    bs % y(net_ienuc) = ener_offset / ener_scale
 
     ! Pass through whether we are doing self-heating.
 
@@ -137,13 +146,13 @@ contains
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
 
-    if ( burning_mode == 2 .and. (bs % y(net_ienuc) < ZERO .or. ierr /= IERR_NONE) ) then
+    if ( burning_mode == 2 .and. (bs % y(net_ienuc) * ener_scale - ener_offset < ZERO .or. ierr /= IERR_NONE) ) then
 
        bs % upar(irp_self_heat) = ONE
 
        call eos_to_bs(eos_state_in, bs)
 
-       bs % y(net_ienuc) = ZERO
+       bs % y(net_ienuc) = ener_offset / ener_scale
 
        call ode(bs, t0, t1, maxval(rtol), ierr)
 
@@ -163,7 +172,7 @@ contains
        print *, 'temp current = ', bs % y(net_itemp) * temp_scale
        print *, 'xn current = ', bs % y(1:nspec_evolve) * aion(1:nspec_evolve), &
             bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:)
-       print *, 'energy generated = ', bs % y(net_ienuc) * ener_scale
+       print *, 'energy generated = ', bs % y(net_ienuc) * ener_scale - ener_offset
 #endif
 
        if (.not. retry_burn) then
@@ -187,7 +196,7 @@ contains
 
              call eos_to_bs(eos_state_in, bs)
 
-             bs % y(net_ienuc) = ZERO
+             bs % y(net_ienuc) = ener_offset / ener_scale
 
              call ode(bs, t0, t1, maxval(rtol), ierr)
 
@@ -205,6 +214,10 @@ contains
 
     endif
 
+    ! Subtract the energy offset.
+
+    bs % y(net_ienuc) = bs % y(net_ienuc) * ener_scale - ener_offset
+
     ! Store the final data, and then normalize abundances.
 
     call bs_to_burn(bs, state_out)
@@ -219,9 +232,12 @@ contains
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho
-       print *, ' temp: ', state_out % T
-       print *, ' energy released: ', bs % y(net_ienuc) * ener_scale
+       print *, 'dens = ', state_out % rho
+       print *, 'temp start = ', state_in % T
+       print *, 'xn start = ', state_in % xn
+       print *, 'temp final = ', state_out % T
+       print *, 'xn final = ', state_out % xn
+       print *, 'energy generated = ', state_out % e - state_in % e
        print *, 'number of steps taken: ', bs % n
        print *, 'number of RHS evaluations: ', bs % n_rhs
        print *, 'number of Jacobian evaluations: ', bs % n_jac
