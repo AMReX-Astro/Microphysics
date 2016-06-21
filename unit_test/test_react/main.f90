@@ -56,6 +56,8 @@ program test_react
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
+  real (kind=dp_t) :: sum_X
+
   character (len=256) :: out_name
 
   call boxlib_initialize()
@@ -115,6 +117,12 @@ program test_react
   allocate(xn_zone(nspec, 0:nX-1))   ! this assumes that lo(3) = 0
 
   call get_xn(xn_zone, domlo(3), domhi(3))
+
+  ! normalize -- just in case
+  do kk = domlo(3), domhi(3)
+     sum_X = sum(xn_zone(:, kk))
+     xn_zone(:, kk) = xn_zone(:, kk)/sum_X
+  enddo
 
   n = 1  ! single level assumption
   do i = 1, nfabs(s(n))
