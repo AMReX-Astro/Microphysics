@@ -15,13 +15,13 @@ program testburn
 
   call microphysics_init()
 
-  dens = 1.5e6_dp_t
-  temp = 3.0e8_dp_t
+  dens = 1.e7_dp_t
+  temp = 367821127.2_dp_t
 
-  Xin(ihe4)  = HALF
-  Xin(ic12)  = HALF
-  Xin(io16)  = ZERO
-  Xin(ife56) = ZERO
+  Xin(ihe4)  = 0.8_dp_t
+  Xin(ic12)  = 0.1_dp_t
+  Xin(io16)  = 0.1_dp_t
+  Xin(ife56) = 0.0_dp_t
 
   dt = 0.001_dp_t
 
