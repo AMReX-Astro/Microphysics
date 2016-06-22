@@ -13,6 +13,7 @@ module variables
      integer :: irho = -1
      integer :: itemp = -1
      integer :: ispec = -1
+     integer :: ispec_old = -1
      integer :: irodot = -1
      integer :: irho_Hnuc = -1
 
@@ -53,6 +54,7 @@ contains
     p % irho      = p % next_index(1)
     p % itemp     = p % next_index(1)
     p % ispec     = p % next_index(nspec)
+    p % ispec_old = p % next_index(nspec)
     p % irodot    = p % next_index(nspec)
     p % irho_Hnuc = p % next_index(1)
 
@@ -61,7 +63,8 @@ contains
     p % names(p % irho) = "density"
     p % names(p % itemp) = "temperature"
     do n = 0, nspec-1
-       p % names(p % ispec + n) = "X_" // adjustl(trim(spec_names(n+1)))
+       p % names(p % ispec + n) = "Xnew_" // adjustl(trim(spec_names(n+1)))
+       p % names(p % ispec_old + n) = "Xold_" // adjustl(trim(spec_names(n+1)))
        p % names(p % irodot + n) = "wdot_" // adjustl(trim(spec_names(n+1)))
     enddo
     p % names(p % irho_Hnuc) = "rho_Hnuc"

@@ -152,6 +152,9 @@ program test_react
               ! store
               sp(ii, jj, kk, pf % irho) = dens_zone
               sp(ii, jj, kk, pf % itemp) = temp_zone
+              sp(ii, jj, kk, pf % ispec_old: pf % ispec_old-1+nspec) = &
+                   burn_state_in % xn(:)
+
               sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = burn_state_out % xn(:)
               sp(ii, jj, kk, pf % irodot: pf % irodot-1+nspec) = &
                    (burn_state_out % xn(:) - burn_state_in % xn(:)) / dt
