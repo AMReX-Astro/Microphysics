@@ -12,7 +12,7 @@ program testburn
   real(kind=dp_t) :: dens, temp, dt
   real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
-
+  integer :: i
   call microphysics_init()
 
   dens = 1.5e7_dp_t
@@ -32,7 +32,9 @@ program testburn
   state_in % e = ZERO
   state_in % xn(:) = Xin(:)
 
-  call actual_burner(state_in, state_out, dt, ZERO)
+  do i = 1, 1000
+     call actual_burner(state_in, state_out, dt, ZERO)
+  enddo
 
   print *, 'done!'
 
