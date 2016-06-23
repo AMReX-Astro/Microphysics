@@ -67,6 +67,8 @@ contains
     real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
 
+    double precision :: ener_offset
+
     call bdf_ts_build(ts)
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -105,7 +107,14 @@ contains
 
     call eos_to_vbdf(eos_state_in, ts)
 
-    ts % y(net_ienuc,1) = ZERO
+    ! Get the internal energy e that is consistent with this T.
+    ! We will start the zone with this energy and subtract it at
+    ! the end. This helps a lot with convergence, rather than
+    ! starting e off at zero.
+
+    ener_offset = eos_state_in % e
+
+    ts % y(net_ienuc,1) = ener_offset / ener_scale
 
     ! Pass through whether we are doing self-heating.
 
@@ -150,13 +159,13 @@ contains
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
 
-    if ( burning_mode == 2 .and. (ts % y(net_ienuc,1) < ZERO .or. ierr /= BDF_ERR_SUCCESS) ) then
+    if ( burning_mode == 2 .and. (ts % y(net_ienuc,1) * ener_scale - ener_offset < ZERO .or. ierr /= BDF_ERR_SUCCESS) ) then
 
        ts % upar(irp_self_heat,1) = ONE
 
        call eos_to_vbdf(eos_state_in, ts)
 
-       ts % y(net_ienuc,1) = ZERO
+       ts % y(net_ienuc,1) = ener_offset / ener_scale
 
        do n = 1, neqs
           y0(n,1) = ts % y(n,1)
@@ -181,7 +190,7 @@ contains
        print *, 'temp current = ', ts % y(net_itemp,1) * temp_scale
        print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
             ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:)
-       print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale
+       print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale - ener_offset
 #endif
        if (.not. retry_burn) then
 #ifndef ACC
@@ -202,7 +211,7 @@ contains
 
              call eos_to_vbdf(eos_state_in, ts)
 
-             ts % y(net_ienuc,1) = ZERO
+             ts % y(net_ienuc,1) = ener_offset / ener_scale
 
              do n = 1, neqs
                 y0(n,1) = ts % y(n,1)
@@ -224,6 +233,10 @@ contains
 
     endif
 
+    ! Subtract the energy offset.
+
+    ts % y(net_ienuc,1) = ts % y(net_ienuc,1) * ener_scale - ener_offset
+
     ! Store the final data, and then normalize abundances.
 
     call vbdf_to_burn(ts, state_out)
@@ -239,7 +252,7 @@ contains
        print *, 'integration summary: '
        print *, 'dens: ', state_out % rho
        print *, ' temp: ', state_out % T
-       print *, ' energy released: ', ts % y(net_ienuc,1) * ener_scale
+       print *, ' energy released: ', ts % y(net_ienuc,1) * ener_scale - ener_offset
        print *, 'number of steps taken: ', ts % n
        print *, 'number of f evaluations: ', ts % nfe
 
