@@ -214,6 +214,8 @@ contains
        state % self_heat = .false.
     endif
 
+    state % time = bs % t
+
   end subroutine bs_to_burn
 
 end module bs_convert_module

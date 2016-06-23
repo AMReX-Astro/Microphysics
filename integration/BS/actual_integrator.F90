@@ -88,7 +88,7 @@ contains
 
     ! Initialize the integration time.
 
-    t0 = ZERO
+    t0 = time
     t1 = t0 + dt
 
     ! Convert our input burn state into an EOS type.
