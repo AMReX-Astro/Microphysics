@@ -106,6 +106,9 @@ contains
     ! Call the specific network routine to get the RHS.
 
     call bs_to_burn(bs, burn_state)
+    burn_state % i = bs % i
+    burn_state % j = bs % j
+    burn_state % k = bs % k
     call actual_rhs(burn_state)
     call burn_to_bs(burn_state, bs)
 

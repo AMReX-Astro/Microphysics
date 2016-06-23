@@ -71,6 +71,7 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
+
     atol(1:nspec_evolve) = atol_spec ! mass fractions
     atol(net_itemp)      = atol_temp ! temperature
     atol(net_ienuc)      = atol_enuc ! energy generated
@@ -103,6 +104,10 @@ contains
     ! Convert the EOS state data into the form BS expects.
 
     call eos_to_bs(eos_state_in, bs)
+
+    bs % i = state_in % i
+    bs % j = state_in % j
+    bs % k = state_in % k
 
     ! Get the internal energy e that is consistent with this T.
     ! We will start the zone with this energy and subtract it at
