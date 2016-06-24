@@ -77,15 +77,7 @@ contains
 
     double precision :: y(nspec), ydot(nspec), r1(nrates), r2(nrates)
 
-    integer :: n, lun
-
-    !print *, "here", state % i, state % j
-    ! SDC diagnostics
-    if (state % i == 0 .and. state % j == 128) then
-       open(newunit=lun, file="sdc_diag.out", status="unknown", position="append")
-       write (lun, *) state % time, state % xn(:)
-       close(unit=lun)
-    endif
+    integer :: n
 
     call evaluate_rates(state)
 
