@@ -230,6 +230,7 @@ contains
     bs_temp % y(:) = y(:) + del(:)
 
     t = t + h
+    bs_temp % t = t
     call f_rhs(bs_temp)
 
     do n = 2, N_sub
@@ -242,6 +243,7 @@ contains
        bs_temp % y = bs_temp % y + del(:)
 
        t = t + h
+       bs_temp % t = t
        call f_rhs(bs_temp)
     enddo
 

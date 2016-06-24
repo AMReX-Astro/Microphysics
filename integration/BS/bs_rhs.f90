@@ -109,6 +109,7 @@ contains
     burn_state % i = bs % i
     burn_state % j = bs % j
     burn_state % k = bs % k
+    burn_state % time = bs % t
     call actual_rhs(burn_state)
     call burn_to_bs(burn_state, bs)
 
