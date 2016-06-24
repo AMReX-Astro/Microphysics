@@ -216,6 +216,10 @@ contains
 
     state % time = bs % t
 
+    state % i = bs % i
+    state % j = bs % j
+    state % k = bs % k
+
   end subroutine bs_to_burn
 
 end module bs_convert_module
