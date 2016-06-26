@@ -70,8 +70,6 @@ contains
   subroutine test_numerical_jac(state)
     ! compare the analytic Jacobian to the numerically differenced one
 
-    !$acc routine seq
-
     use actual_rhs_module
     use eos_module
 
