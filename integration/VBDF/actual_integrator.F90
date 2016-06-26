@@ -18,7 +18,11 @@ contains
 
   subroutine actual_integrator_init()
 
+    use bdf, only: init_pascal
+
     implicit none
+
+    call init_pascal()
 
   end subroutine actual_integrator_init
 
