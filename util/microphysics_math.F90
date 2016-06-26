@@ -32,7 +32,7 @@ contains
   ! Fast Robust Geometric Predicates," in Discrete
   ! & Computational Geometry (1997), 18, 305.
   ! http://www.cs.berkeley.edu/~jrs/papers/robustr.pdf
-  
+
   ! This routine should give the same results
   ! (up to the machine epsilon in double precision)
   ! as a summation done at higher precision.
@@ -57,7 +57,7 @@ contains
 
     real(dp_t) :: esum
 
-    integer :: p, i, j, k, km
+    integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
     ! initializing the unused values in this array.
@@ -66,35 +66,35 @@ contains
 
     real(dp_t) :: x, y, z, hi, lo
 
-    ! p keeps track of how many entries in partials are actually used.
+    ! j keeps track of how many entries in partials are actually used.
     ! The algorithm we model this off of, written in Python, simply
     ! deletes array entries at the end of every outer loop iteration.
     ! The Fortran equivalent to this might be to just zero them out,
     ! but this results in a huge performance hit given how often
     ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, and ignore
-    ! any data in the remaining indices.
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
 
-    p = 0
+    j = 0
 
     ! The first partial is just the first term.
 
-    partials(p) = array(1)
+    partials(j) = array(1)
 
     do i = 2, n
+
+       km = j
 
        j = 0
 
        x = array(i)
-
-       km = p
 
        do k = 0, km
 
           y = partials(k)
 
           if (abs(x) < abs(y)) then
-             
+
              ! Swap x, y
 
              z = y
@@ -111,10 +111,6 @@ contains
              partials(j) = lo
              j = j + 1
 
-             if (j > p) then
-                p = p + 1
-             endif
-
           endif
 
           x = hi
@@ -123,17 +119,15 @@ contains
 
        partials(j) = x
 
-       p = j
-
     enddo
 
 #ifndef ACC
-    if (p > n - 1) then
+    if (j > n - 1) then
        call bl_error("Error: too many partials created in esum.")
     endif
 #endif
 
-    esum = sum(partials(0:p))
+    esum = sum(partials(0:j))
 
   end function esum
 
