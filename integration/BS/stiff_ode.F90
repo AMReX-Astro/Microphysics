@@ -351,11 +351,6 @@ contains
 
              bs % t_new = bs % t + dt
 
-             if (bs % t_new == bs % t) then
-                ierr = IERR_DT_UNDERFLOW
-                loop_flag = .true.
-             endif
-
              call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
              ierr = ierr_temp
 
