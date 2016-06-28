@@ -12,7 +12,7 @@ BOXLIB_CORE := Src/F_BaseLib
 
 #-----------------------------------------------------------------------------
 # EOS
-EOS_TOP_DIR := $(MICROPHYSICS_DIR)/eos
+EOS_TOP_DIR := $(MICROPHYSICS_HOME)/eos
 
 # the helmeos has a table
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
@@ -32,14 +32,14 @@ MICROPHYS_CORE += $(EOS_DIRS)
 #-----------------------------------------------------------------------------
 # network stuff -- specify your particlar network via NETWORK_DIR
 # this will increment MICROPHYS_CORE
-NETWORK_TOP_DIR := $(MICROPHYSICS_DIR)/networks
+NETWORK_TOP_DIR := $(MICROPHYSICS_HOME)/networks
 include $(NETWORK_TOP_DIR)/GNetwork.mak
 
 
 #-----------------------------------------------------------------------------
 # unit testing directories
-UNIT_DIR := $(MICROPHYSICS_DIR)/unit_test
-UNIT_DIR += $(MICROPHYSICS_DIR)/interfaces
+UNIT_DIR := $(MICROPHYSICS_HOME)/unit_test
+UNIT_DIR += $(MICROPHYSICS_HOME)/interfaces
 UNIT_DIR += $(TEST_DIR)     # set by the test itself
 
 
@@ -65,8 +65,8 @@ include $(Fmpack)
 # have runtime parameters
 f90sources += probin.f90
 
-PROBIN_TEMPLATE := $(MICROPHYSICS_DIR)/unit_test/dummy.probin.template
-PROBIN_PARAMETER_DIRS += $(MICROPHYSICS_DIR)/unit_test/  
+PROBIN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/dummy.probin.template
+PROBIN_PARAMETER_DIRS += $(MICROPHYSICS_HOME)/unit_test/  
 EXTERN_PARAMETER_DIRS += $(MICROPHYS_CORE)
 
 
@@ -109,7 +109,7 @@ build_info.f90:
            --C_compile_line "$(COMPILE.c)" \
            --link_line "$(LINK.f90)" \
            --boxlib_home "$(BOXLIB_HOME)" \
-           --source_home "$(MICROPHYSICS_DIR)" \
+           --source_home "$(MICROPHYSICS_HOME)" \
            --network "$(NETWORK_DIR)" \
            --integrator "$(INTEGRATOR_DIR)" \
            --eos "$(EOS_DIR)"

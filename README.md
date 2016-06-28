@@ -3,7 +3,7 @@
 *A collection of astrophysical microphysics routines with interfaces to
  the BoxLib codes*
 
-To use this repository with BoxLib codes, set `MICROPHYSICS_DIR` to point
+To use this repository with BoxLib codes, set `MICROPHYSICS_HOME` to point
 to the `Microphysics/` directory.
 
 There are several core types of microphysics routines hosted here:

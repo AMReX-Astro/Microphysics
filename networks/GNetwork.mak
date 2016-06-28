@@ -11,35 +11,35 @@ NET_DIRS += $(NETWORK_TOP_DIR)/$(NETWORK_DIR)
 # the integrator is specified by INTEGRATOR_DIR.  We set the default to VODE
 # here
 INTEGRATOR_DIR ?= VODE
-INT_DIRS := $(MICROPHYSICS_DIR)/integration
-INT_DIRS += $(MICROPHYSICS_DIR)/integration/$(INTEGRATOR_DIR)
+INT_DIRS := $(MICROPHYSICS_HOME)/integration
+INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
 
 ifeq ($(INTEGRATOR_DIR), VODE)
-  INT_DIRS += $(MICROPHYSICS_DIR)/integration/$(INTEGRATOR_DIR)/vode_source
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
 endif
 
 # we'll assume that all integrators need the linear algebra packages
-INT_DIRS += $(MICROPHYSICS_DIR)/util/
+INT_DIRS += $(MICROPHYSICS_HOME)/util/
 
 ifdef SYSTEM_BLAS
   libraries += -lblas
 else
-  INT_DIRS += $(MICROPHYSICS_DIR)/util/BLAS
+  INT_DIRS += $(MICROPHYSICS_HOME)/util/BLAS
 endif
 
-INT_DIRS += $(MICROPHYSICS_DIR)/util/LINPACK
+INT_DIRS += $(MICROPHYSICS_HOME)/util/LINPACK
 
 
 ifeq ($(USE_RATES), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/rates
+  NET_DIRS += $(MICROPHYSICS_HOME)/rates
 endif
 
 ifeq ($(USE_SCREENING), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/screening
+  NET_DIRS += $(MICROPHYSICS_HOME)/screening
 endif
 
 ifeq ($(USE_NEUTRINOS), TRUE)
-  NET_DIRS += $(MICROPHYSICS_DIR)/neutrinos
+  NET_DIRS += $(MICROPHYSICS_HOME)/neutrinos
 endif
 
 

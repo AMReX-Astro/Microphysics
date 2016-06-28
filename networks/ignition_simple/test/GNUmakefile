@@ -14,11 +14,11 @@ programs += testburn
 EOS_DIR := helmholtz
 NETWORK_DIR := ignition_simple
 
-TEST_DIR = $(MICROPHYSICS_DIR)/networks/ignition_simple/test
+TEST_DIR = $(MICROPHYSICS_HOME)/networks/ignition_simple/test
 
 ALL:
 
-include $(MICROPHYSICS_DIR)/GMicrophysics.mak
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
 ALL: $(pnames)
 

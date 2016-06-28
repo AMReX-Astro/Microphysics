@@ -6,7 +6,7 @@ COMP := gfortran
 
 MKVERBOSE := t
 
-MICROPHYSICS_DIR := ../../..
+MICROPHYSICS_HOME := ../../..
 
 # programs to be compiled
 programs += testburn
@@ -16,11 +16,11 @@ programs += testburn
 EOS_DIR := helmholtz
 NETWORK_DIR := triple_alpha_plus_cago
 
-TEST_DIR = $(MICROPHYSICS_DIR)/networks/triple_alpha_plus_cago/test
+TEST_DIR = $(MICROPHYSICS_HOME)/networks/triple_alpha_plus_cago/test
 
 ALL:
 
-include $(MICROPHYSICS_DIR)/GMicrophysics.mak
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
 ALL: $(pnames)
 

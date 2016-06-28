@@ -8,19 +8,19 @@ MKVERBOSE := t
 
 programs += main
 
-MICROPHYSICS_DIR := ../..
+MICROPHYSICS_HOME := ../..
 
 EOS_DIR := helmholtz
 
 NETWORK_DIR := aprox19
 
-TEST_DIR := $(MICROPHYSICS_DIR)/unit_test/test_eos
+TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/test_eos
 
 PROBIN_PARAMETER_DIRS := $(TEST_DIR)
 
 ALL:
 
-include $(MICROPHYSICS_DIR)/GMicrophysics.mak
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
 ALL: $(pnames)
 

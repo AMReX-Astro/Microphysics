@@ -14,11 +14,11 @@ NETWORK_DIR := aprox13
 
 INTEGRATOR_DIR := BS
 
-TEST_DIR = $(MICROPHYSICS_DIR)/networks/aprox13/test
+TEST_DIR = $(MICROPHYSICS_HOME)/networks/aprox13/test
 
 ALL: 
 
-include $(MICROPHYSICS_DIR)/GMicrophysics.mak
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
 ALL: $(pnames)
 
