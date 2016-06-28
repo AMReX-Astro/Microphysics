@@ -1,4 +1,3 @@
-fEXE_sources += vddot.f
 fEXE_sources += daxpy.f
 fEXE_sources += ddot.f
 fEXE_sources += dcopy.f
