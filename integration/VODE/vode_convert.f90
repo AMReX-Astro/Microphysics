@@ -110,6 +110,7 @@ contains
     rpar(irp_zbar)                           = state % zbar
     rpar(irp_ye)                             = state % y_e
     rpar(irp_eta)                            = state % eta
+    rpar(irp_t_sound)                        = state % t_sound
     rpar(irp_dhdY:irp_dhdY+nspec-1)          = state % dhdX(:) * aion(:)
     rpar(irp_dedY:irp_dedY+nspec-1)          = state % dedX(:) * aion(:)
     rpar(irp_Told)                           = state % T_old
@@ -177,6 +178,7 @@ contains
     state % zbar     = rpar(irp_zbar)
     state % y_e      = rpar(irp_ye)
     state % eta      = rpar(irp_eta)
+    state % t_sound  = rpar(irp_t_sound)
     state % dhdX(:)  = rpar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
     state % dedX(:)  = rpar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
     state % T_old    = rpar(irp_Told)

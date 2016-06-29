@@ -122,9 +122,13 @@ contains
 
     if (burning_mode == 0 .or. burning_mode == 2) then
        bs % upar(irp_self_heat) = -ONE
-    else if (burning_mode == 1) then
+    else if (burning_mode == 1 .or. burning_mode == 3) then
        bs % upar(irp_self_heat) = ONE
     endif
+
+    ! Copy in the sound-crossing time.
+
+    bs % upar(irp_t_sound) = state_in % t_sound
 
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second

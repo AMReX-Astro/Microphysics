@@ -124,13 +124,17 @@ contains
 
     if (burning_mode == 0 .or. burning_mode == 2) then
        ts % upar(irp_self_heat,1) = -ONE
-    else if (burning_mode == 1) then
+    else if (burning_mode == 1 .or. burning_mode == 3) then
        ts % upar(irp_self_heat,1) = ONE
     else
 #ifndef ACC
        call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
 #endif
     endif
+
+    ! Copy in the sound-crossing time.
+
+    ts % upar(irp_t_sound,1) = state_in % t_sound
 
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second
