@@ -14,7 +14,7 @@ call_eos_in_rhs          logical   .false.
 
 # If we want to call the EOS in general, but don't want to overdo it,
 # we can set a fraction dT\_crit such that we only do the EOS call
-# if the temperature has changed by a relative fraction > dT\_crit.
+# if the temperature has changed by a relative fraction $>$ dT\_crit.
 # If we use this option, we will do a linear fit to c\_v and c\_p
 # in between EOS calls. This will work regardless of call\_eos\_in\_rhs.
 dT_crit                  real      1.0d20
@@ -24,7 +24,14 @@ dT_crit                  real      1.0d20
 # evolve with the burning). If 2, a hybrid approach presented by Raskin
 # et al. (2010): do hydrostatic everywhere, but if the hydrostatic burn
 # gives us a negative energy change, redo the burn in self-heating mode.
+# If 3, do normal self-heating, but limit all values of the RHS by the
+# same factor $f$ such that $\dot{e} = fe / t_s$, where enuc is the energy
+# injection rate, $e$ is the internal energy of the zone, and $t_s$ is the
+# sound crossing time.
 burning_mode             integer   1
+
+# If we're using burning\_mode == 3, this is the factor $f$ to use.
+burning_mode_factor      real      1.d-1
 
 # Whether to use an analytical or numerical Jacobian.
 # 1 == Analytical

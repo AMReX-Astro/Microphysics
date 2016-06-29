@@ -10,7 +10,8 @@
     use burn_type_module
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
+                                    burning_mode, burning_mode_factor
     use rpar_indices
     use integration_data, only: aionInv
 
@@ -24,7 +25,7 @@
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    real(dp_t) :: nspec_sum
+    real(dp_t) :: nspec_sum, limit_factor, t_sound, t_enuc
 
     ! Ensure that mass fractions always stay positive.
 
@@ -93,6 +94,22 @@
 
     call vode_to_burn(y, rpar, burn_state)
     call actual_rhs(burn_state)
+
+    ! For burning_mode == 3, limit the rates.
+    ! Note that this relies on burn_state % e being a relatively
+    ! decent representation of the zone's current internal energy.
+
+    if (burning_mode == 3) then
+
+       t_enuc = burn_state % e / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
+       t_sound = burn_state % t_sound
+
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+       burn_state % ydot = limit_factor * burn_state % ydot
+
+    endif
+
     call burn_to_vode(burn_state, y, rpar, ydot = ydot)
 
   end subroutine f_rhs
@@ -110,6 +127,7 @@
     use network, only: nspec
     use rpar_indices
     use bl_types, only: dp_t
+    use extern_probin_module, only: burning_mode, burning_mode_factor
 
     implicit none
 
@@ -118,14 +136,28 @@
     real(dp_t), intent(  OUT) :: pd(neq,neq)
 
     type (burn_t) :: state
+    real(dp_t) :: limit_factor, t_sound, t_enuc
 
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
     call actual_jac(state)
+
+    ! For burning_mode == 3, limit the rates.
+    ! Note that this relies on burn_state % e being a relatively
+    ! decent representation of the zone's current internal energy.
+
+    if (burning_mode == 3) then
+
+       t_enuc = state % e / max(abs(state % ydot(net_ienuc)), 1.d-50)
+       t_sound = state % t_sound
+
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+       state % jac = limit_factor * state % jac
+
+    endif
+
     call burn_to_vode(state, y, rpar, jac = pd)
 
   end subroutine jac
-
-
-

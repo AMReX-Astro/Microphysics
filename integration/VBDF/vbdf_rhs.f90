@@ -16,7 +16,8 @@ contains
     use burn_type_module
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
+                                    burning_mode, burning_mode_factor
     use rpar_indices
     use bdf_type_module
     use integration_data, only: aionInv
@@ -28,7 +29,7 @@ contains
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    real(dp_t) :: nspec_sum
+    real(dp_t) :: nspec_sum, limit_factor, t_sound, t_enuc
 
     ! Ensure that mass fractions always stay positive.
 
@@ -97,6 +98,22 @@ contains
 
     call vbdf_to_burn(ts, burn_state)
     call actual_rhs(burn_state)
+
+    ! For burning_mode == 3, limit the rates.
+    ! Note that this relies on burn_state % e being a relatively
+    ! decent representation of the zone's current internal energy.
+
+    if (burning_mode == 3) then
+
+       t_enuc = burn_state % e / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
+       t_sound = burn_state % t_sound
+
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+       burn_state % ydot = limit_factor * burn_state % ydot
+
+    endif
+
     call burn_to_vbdf(burn_state, ts)
 
   end subroutine rhs
@@ -111,7 +128,7 @@ contains
 
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
-    use extern_probin_module, only: jacobian
+    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
     use vbdf_convert_module
     use burn_type_module
     use bdf_type_module
@@ -123,6 +140,8 @@ contains
 
     type (burn_t) :: state
 
+    real(dp_t) :: limit_factor, t_sound, t_enuc
+
     state % have_rates = .false.
 
     ! Call the specific network routine to get the Jacobian.
@@ -133,6 +152,21 @@ contains
        call actual_jac(state)
     else
        call numerical_jac(state)
+    endif
+
+    ! For burning_mode == 3, limit the rates.
+    ! Note that this relies on burn_state % e being a relatively
+    ! decent representation of the zone's current internal energy.
+
+    if (burning_mode == 3) then
+
+       t_enuc = state % e / max(abs(state % ydot(net_ienuc)), 1.d-50)
+       t_sound = state % t_sound
+
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+       state % jac = limit_factor * state % jac
+
     endif
 
     call burn_to_vbdf(state, ts)
