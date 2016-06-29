@@ -40,6 +40,7 @@ contains
     state % zbar    = ts % upar(irp_zbar,1)
     state % eta     = ts % upar(irp_eta,1)
     state % y_e     = ts % upar(irp_ye,1)
+    state % cs      = ts % upar(irp_cs,1)
     state % dhdX(:) = ts % upar(irp_dhdY:irp_dhdY-1+nspec,1) * aionInv(:)
     state % dedX(:) = ts % upar(irp_dedY:irp_dedY-1+nspec,1) * aionInv(:)
 
@@ -75,6 +76,7 @@ contains
     ts % upar(irp_zbar,1)                  = state % zbar
     ts % upar(irp_eta,1)                   = state % eta
     ts % upar(irp_ye,1)                    = state % y_e
+    ts % upar(irp_cs,1)                    = state % cs
     ts % upar(irp_dhdY:irp_dhdY+nspec-1,1) = state % dhdX(:) * aion(:)
     ts % upar(irp_dedY:irp_dedY+nspec-1,1) = state % dedX(:) * aion(:)
 
@@ -114,7 +116,8 @@ contains
     ts % upar(irp_zbar,1)                           = state % zbar
     ts % upar(irp_ye,1)                             = state % y_e
     ts % upar(irp_eta,1)                            = state % eta
-    ts % upar(irp_t_sound,1)                        = state % t_sound
+    ts % upar(irp_cs,1)                             = state % cs
+    ts % upar(irp_dx,1)                             = state % dx
     ts % upar(irp_dhdY:irp_dhdY+nspec-1,1)          = state % dhdX(:) * aion(:)
     ts % upar(irp_dedY:irp_dedY+nspec-1,1)          = state % dedX(:) * aion(:)
     ts % upar(irp_Told,1)                           = state % T_old
@@ -180,7 +183,8 @@ contains
     state % zbar     = ts % upar(irp_zbar,1)
     state % y_e      = ts % upar(irp_ye,1)
     state % eta      = ts % upar(irp_eta,1)
-    state % t_sound  = ts % upar(irp_t_sound,1)
+    state % cs       = ts % upar(irp_cs,1)
+    state % dx       = ts % upar(irp_dx,1)
     state % dhdX(:)  = ts % upar(irp_dhdY:irp_dhdY-1+nspec,1) * aionInv(:)
     state % dedX(:)  = ts % upar(irp_dedY:irp_dedY-1+nspec,1) * aionInv(:)
     state % T_old    = ts % upar(irp_Told,1)

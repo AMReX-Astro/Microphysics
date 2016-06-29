@@ -52,7 +52,8 @@ module burn_type_module
     double precision :: cp               != init_num
     double precision :: y_e              != init_num
     double precision :: eta              != init_num
-    double precision :: t_sound          != init_num
+    double precision :: cs               != init_num
+    double precision :: dx               != init_num
     double precision :: dedX(nspec)      != init_num
     double precision :: dhdX(nspec)      != init_num
     double precision :: abar             != init_num

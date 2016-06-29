@@ -132,9 +132,9 @@ contains
 #endif
     endif
 
-    ! Copy in the sound-crossing time.
+    ! Copy in the zone size.
 
-    ts % upar(irp_t_sound,1) = state_in % t_sound
+    ts % upar(irp_dx,1) = state_in % dx
 
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second

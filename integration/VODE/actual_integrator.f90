@@ -174,9 +174,9 @@ contains
        call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
     endif
 
-    ! Copy in the sound-crossing time.
+    ! Copy in the zone size.
 
-    rpar(irp_t_sound) = state_in % t_sound
+    rpar(irp_dx) = state_in % dx
 
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second

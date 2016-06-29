@@ -102,7 +102,7 @@
     if (burning_mode == 3) then
 
        t_enuc = burn_state % e / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
-       t_sound = burn_state % t_sound
+       t_sound = burn_state % dx / burn_state % cs
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
@@ -150,7 +150,7 @@
     if (burning_mode == 3) then
 
        t_enuc = state % e / max(abs(state % ydot(net_ienuc)), 1.d-50)
-       t_sound = state % t_sound
+       t_sound = state % dx / state % cs
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
