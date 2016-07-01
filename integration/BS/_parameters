@@ -1,4 +1,4 @@
 # Which choice to use for the ODE scaling
 # 1 = |y| + |dy/dt|
 # 2 = max(|y|, K); K == constant
-scaling_method               integer         1
+scaling_method               integer         2
