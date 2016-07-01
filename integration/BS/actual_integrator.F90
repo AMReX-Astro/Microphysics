@@ -174,7 +174,9 @@ contains
 #ifndef ACC
        print *, 'ERROR: integration failed in net'
        print *, 'ierr = ', ierr
-       print *, 'time = ', bs % t
+       print *, 'dt = ', dt
+       print *, 'time start = ', time
+       print *, 'time current = ', bs % t
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
@@ -241,6 +243,9 @@ contains
        ! Print out some integration statistics, if desired.
 
        print *, 'integration summary: '
+       print *, 'dt = ', dt
+       print *, 'time start = ', time
+       print *, 'time final = ', bs % t
        print *, 'dens = ', state_out % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
