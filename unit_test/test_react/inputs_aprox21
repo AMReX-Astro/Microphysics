@@ -1,0 +1,14 @@
+&PROBIN
+  test_set = "gr0_3d.small"
+
+  dens_min   = 1.d5
+  dens_max   = 3.d9
+  temp_min   = 5.d7
+  temp_max   = 6.d9
+
+  dt = 1.d-3
+
+  xin_file   = "xin.aprox21"
+  run_prefix = "react_aprox21_"
+
+/
