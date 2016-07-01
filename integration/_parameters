@@ -38,6 +38,12 @@ burning_mode_factor      real      1.d-1
 # 2 == Numerical
 jacobian                 integer   1
 
+# one-sided numerical jacobian (.False.) or centered-difference
+# Jacobian (.true.).  Note: the centered-difference requires
+# twice as many RHS calls
+centered_diff_jac        logical   .false.
+
+
 # Should we print out diagnostic output after the solve?  
 burner_verbose           logical   .false.
 

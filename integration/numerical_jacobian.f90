@@ -16,6 +16,7 @@ contains
     use eos_module
     use actual_rhs_module, only: actual_rhs
     use integration_data, only: aionInv
+    use extern_probin_module, only : centered_diff_jac
 
     implicit none
 
@@ -23,7 +24,7 @@ contains
 
     integer          :: m, n
 
-    type (burn_t)    :: state_del
+    type (burn_t)    :: state_del, state_delm
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
@@ -34,35 +35,83 @@ contains
     ! default
     call actual_rhs(state)
 
-    state_del = state
 
-    ! species derivatives
-    do n = 1, nspec
-       ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
+    if (centered_diff_jac) then
+       state_del = state
+       state_delm = state
+
+       ! species derivatives
+       do n = 1, nspec
+          ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
+          state_del % xn = state % xn
+          state_del % xn(n) = state % xn(n) * (ONE + eps)
+
+          call actual_rhs(state_del)
+
+          state_delm % xn = state % xn
+          state_delm % xn(n) = state % xn(n) * (ONE - eps)
+
+          call actual_rhs(state_delm)
+
+          do m = 1, neqs
+             state % jac(m,n) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+                  (eps * state % xn(n) * aionInv(n))
+          enddo
+       enddo
+
+       ! temperature derivative
        state_del % xn = state % xn
-       state_del % xn(n) = state % xn(n) * (ONE + eps)
+       state_del % T  = state % T * (ONE + eps)
+
+       call actual_rhs(state_del)
+
+       state_delm % xn = state % xn
+       state_delm % T  = state % T * (ONE - eps)
+
+       call actual_rhs(state_delm)
+
+       do m = 1, neqs
+          state % jac(m,net_itemp) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+               (eps * state % T)
+       enddo
+
+       ! energy derivatives -- these are all 0! (yay!)
+       do m = 1, neqs
+          state % jac(m,net_ienuc) = ZERO
+       enddo
+
+    else
+       state_del = state
+
+       ! species derivatives
+       do n = 1, nspec
+          ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
+          state_del % xn = state % xn
+          state_del % xn(n) = state % xn(n) * (ONE + eps)
+
+          call actual_rhs(state_del)
+
+          do m = 1, neqs
+             state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n) * aionInv(n))
+          enddo
+       enddo
+
+       ! temperature derivative
+       state_del % xn = state % xn
+       state_del % T  = state % T * (ONE + eps)
 
        call actual_rhs(state_del)
 
        do m = 1, neqs
-          state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n) * aionInv(n))
+          state % jac(m,net_itemp) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % T)
        enddo
-    enddo
 
-    ! temperature derivative
-    state_del % xn = state % xn
-    state_del % T  = state % T * (ONE + eps)
+       ! energy derivatives -- these are all 0! (yay!)
+       do m = 1, neqs
+          state % jac(m,net_ienuc) = ZERO
+       enddo
 
-    call actual_rhs(state_del)
-
-    do m = 1, neqs
-       state % jac(m,net_itemp) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % T)
-    enddo
-
-    ! energy derivatives -- these are all 0! (yay!)
-    do m = 1, neqs
-       state % jac(m,net_ienuc) = ZERO
-    enddo
+    endif
 
   end subroutine numerical_jac
 
