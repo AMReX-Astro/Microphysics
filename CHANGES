@@ -1,0 +1,20 @@
+
+changes since last merge:
+
+ -- we now use MICROPHYSICS_HOME instead of MICROPHYSICS_DIR as the
+    environment variable to point to the Microphysics/ directory.
+
+ -- there are now two standalone unit tests, test_react and test_eos
+    that don't need Maestro or Castro to compile.
+
+ -- new burn mode that limits numerically unstable burning.
+
+ -- UsersGuide/ was renamed to Docs/ to be consistent with the other
+    BoxLib codes
+
+ -- the energy equation now uses an offset to help with the BS ODE 
+    integration convergence
+
+ -- the runtime parameter small_x now is owned by the network
+
+ 
