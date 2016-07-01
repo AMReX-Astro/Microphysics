@@ -838,16 +838,16 @@ contains
 
     tot            = ff1 + ff2
     dtotdt         = dff1dt + dff2dt
-    dtotdd         = dff1dd + dff2dd
+    !dtotdd         = dff1dd + dff2dd
     invtot         = 1.0d0/tot
 
     ratraw(ifa)    = ff2 * invtot
     dratrawdt(ifa) = dff2dt * invtot - ff2 * invtot*invtot * dtotdt
-    dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd
+    !dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd
 
     ratraw(ifg)    = 1.0d0 - ratraw(ifa)
     dratrawdt(ifg) = -dratrawdt(ifa)
-    dratrawdd(ifg) = -dratrawdd(ifa)
+    !dratrawdd(ifg) = -dratrawdd(ifa)
 
 
     ! o16(p,g)f17
