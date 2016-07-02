@@ -13,13 +13,13 @@ contains
     use eos_module
     use bl_types
     use vbdf_convert_module
-    use burn_type_module
-    use bl_constants_module, only: ZERO, ONE
+    use burn_type_module, only: burn_t
+    use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
                                     burning_mode, burning_mode_factor
     use rpar_indices
-    use bdf_type_module
+    use bdf_type_module, only: bdf_ts, clean_state, renormalize_species
     use integration_data, only: aionInv
 
     implicit none
@@ -29,21 +29,7 @@ contains
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    real(dp_t) :: nspec_sum, limit_factor, t_sound, t_enuc
-
-    ! Ensure that mass fractions always stay positive.
-
-    ts % y(1:nspec_evolve,1) = max(ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), 1.d-200) * aionInv(1:nspec_evolve)
-
-    ! Optionally, renormalize them so they sum to unity.
-
-    if (renormalize_abundances) then
-       nspec_sum = sum(ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve)) + &
-                   sum(ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:nspec))
-
-       ts % y(1:nspec_evolve,1) = ts % y(1:nspec_evolve,1) / nspec_sum
-       ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) / nspec_sum
-    endif
+    real(dp_t) :: limit_factor, t_sound, t_enuc
 
     ! We are integrating a system of
     !
@@ -52,6 +38,16 @@ contains
     ! y(net_ienuc) = denuc/dt
 
     ts % yd(:,1) = ZERO
+
+    ! Fix the state as necessary.
+
+    call clean_state(ts)
+
+    ! Renormalize the abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(ts)
+    endif
 
     ! Several thermodynamic quantities come in via ts % upar -- note: these
     ! are evaluated at the start of the integration, so if things change

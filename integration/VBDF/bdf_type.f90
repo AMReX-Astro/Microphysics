@@ -1,6 +1,6 @@
 module bdf_type_module
 
-  use bl_types
+  use bl_types, only: dp_t
   use burn_type_module, only: neqs
   use rpar_indices, only: n_rpar_comps
 
@@ -78,5 +78,44 @@ module bdf_type_module
      integer :: ncdtmin                     ! number of consecutive times we tried to shrink beyond the minimum time step
 
   end type bdf_ts
+
+contains
+
+  subroutine clean_state(state)
+
+    use bl_constants_module, only: ONE
+    use actual_network, only: nspec, nspec_evolve, aion
+    use integration_data, only: aionInv, temp_scale
+
+    implicit none
+
+    type (bdf_ts) :: state
+
+    ! Ensure that mass fractions always stay positive.
+
+    state % y(1:nspec_evolve,1) = max(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve), 1.d-200) * aionInv(1:nspec_evolve)
+
+  end subroutine clean_state
+
+  subroutine renormalize_species(state)
+
+    use actual_network, only: nspec, nspec_evolve, aion
+    use rpar_indices, only: irp_nspec
+
+    implicit none
+
+    type (bdf_ts) :: state
+
+    real(dp_t) :: nspec_sum
+
+    ! Optionally, renormalize them so they sum to unity.
+
+    nspec_sum = sum(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve)) + &
+                sum(state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:nspec))
+
+    state % y(1:nspec_evolve,1) = state % y(1:nspec_evolve,1) / nspec_sum
+    state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) / nspec_sum
+
+  end subroutine renormalize_species
 
 end module bdf_type_module

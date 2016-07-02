@@ -12,6 +12,7 @@
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
                                     burning_mode, burning_mode_factor
+    use vode_type_module, only: clean_state, renormalize_species
     use rpar_indices
     use integration_data, only: aionInv
 
@@ -27,20 +28,6 @@
 
     real(dp_t) :: nspec_sum, limit_factor, t_sound, t_enuc
 
-    ! Ensure that mass fractions always stay positive.
-
-    y(1:nspec_evolve) = max(y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-200) * aionInv(1:nspec_evolve)
-
-    ! Optionally, renormalize them so they sum to unity.
-
-    if (renormalize_abundances) then
-       nspec_sum = sum(y(1:nspec_evolve) * aion(1:nspec_evolve)) + &
-                   sum(rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec))
-
-       y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
-       rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = rpar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) / nspec_sum
-    endif
-
     ! We are integrating a system of
     !
     ! y(1:nspec)   = dX/dt
@@ -48,6 +35,16 @@
     ! y(net_ienuc) = denuc/dt
 
     ydot = ZERO
+
+    ! Fix the state as necessary.
+
+    call clean_state(y, rpar)
+
+    ! Renormalize the abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(y, rpar)
+    endif
 
     ! Several thermodynamic quantities come in via rpar -- note: these
     ! are evaluated at the start of the integration, so if things change

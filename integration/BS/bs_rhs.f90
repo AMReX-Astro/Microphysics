@@ -14,12 +14,12 @@ contains
     use bl_types
     use bs_convert_module
     use burn_type_module
-    use bl_constants_module, only: ZERO, ONE
+    use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
                                     burning_mode, burning_mode_factor
     use rpar_indices
-    use bs_type_module
+    use bs_type_module, only: bs_t, clean_state, renormalize_species
     use integration_data, only: aionInv
 
     implicit none
@@ -29,26 +29,7 @@ contains
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    real(dp_t) :: nspec_sum, limit_factor, t_sound, t_enuc
-
-    ! Ensure that mass fractions always stay positive.
-
-    bs % y(1:nspec_evolve) = max(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), 1.d-30) * aionInv(1:nspec_evolve)
-    bs % y(1:nspec_evolve) = min(bs % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE) * aionInv(1:nspec_evolve)
-
-    ! Ensure that the temperature always stays within reasonable limits.
-
-    bs % y(net_itemp) = min(1.0d11 / temp_scale, max(bs % y(net_itemp), 1.0d4 / temp_scale))
-
-    ! Optionally, renormalize them so they sum to unity.
-
-    if (renormalize_abundances) then
-       nspec_sum = sum(bs % y(1:nspec_evolve) * aion(1:nspec_evolve)) + &
-                   sum(bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:nspec))
-
-       bs % y(1:nspec_evolve) = bs % y(1:nspec_evolve) / nspec_sum
-       bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) = bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) / nspec_sum
-    endif
+    real(dp_t) :: limit_factor, t_sound, t_enuc
 
     ! We are integrating a system of
     !
@@ -57,6 +38,16 @@ contains
     ! y(net_ienuc) = denuc/dt
 
     bs % dydt(:) = ZERO
+
+    ! Fix the state as necessary.
+
+    call clean_state(bs)
+
+    ! Renormalize abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(bs)
+    endif
 
     ! Several thermodynamic quantities come in via bs % upar -- note: these
     ! are evaluated at the start of the integration, so if things change
