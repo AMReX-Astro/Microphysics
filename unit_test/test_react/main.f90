@@ -56,7 +56,7 @@ program test_react
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
-  real (kind=dp_t) :: sum_X
+  real (kind=dp_t) :: sum_X, ldt
 
   character (len=256) :: out_name
 
@@ -131,6 +131,10 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
+     ldt = dt
+
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_in,burn_state_out) FIRSTPRIVATE(ldt) &
+     !$OMP SCHEDULE(DYNAMIC,1)
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
@@ -147,7 +151,7 @@ program test_react
               ! energy.
               burn_state_in % e = ZERO
 
-              call actual_burner(burn_state_in, burn_state_out, dt, ZERO)
+              call actual_burner(burn_state_in, burn_state_out, ldt, ZERO)
 
               ! store
               sp(ii, jj, kk, pf % irho) = dens_zone
@@ -157,13 +161,14 @@ program test_react
 
               sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = burn_state_out % xn(:)
               sp(ii, jj, kk, pf % irodot: pf % irodot-1+nspec) = &
-                   (burn_state_out % xn(:) - burn_state_in % xn(:)) / dt
+                   (burn_state_out % xn(:) - burn_state_in % xn(:)) / ldt
               sp(ii, jj, kk, pf % irho_hnuc) = &
-                   dens_zone * (burn_state_out % e - burn_state_in % e) / dt
+                   dens_zone * (burn_state_out % e - burn_state_in % e) / ldt
 
            enddo
         enddo
      enddo
+     !$OMP END PARALLEL DO
 
   enddo
 
