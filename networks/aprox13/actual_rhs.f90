@@ -77,8 +77,6 @@ contains
 
     double precision :: y(nspec), ydot(nspec), r1(nrates), r2(nrates)
 
-    integer :: n
-
     call evaluate_rates(state)
 
     rho  = state % rho
@@ -266,11 +264,6 @@ contains
     double precision :: alfa, beta, gama, delt
 
     double precision :: dtab(nrates)
-
-    double precision :: z, zm1, t1, t2, t3, t4
-    double precision :: ff1, ff2, ff3, ff4
-    double precision :: g1, g2, g3, g4
-    double precision :: xxbtemp
 
     ! Set the density dependence vector
 
@@ -512,9 +505,6 @@ contains
 
     logical          :: deriva
     double precision :: y(nspec),rate(nrates),ratdum(nrates),dydt(nspec)
-
-    ! local variables
-    integer          :: i
 
     double precision :: a(17)
 
@@ -1148,14 +1138,12 @@ contains
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     integer          :: i, jscr
-    double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
-                        sc3a,sc3adt,sc3add
+    double precision :: sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt
+    double precision :: sc1add,sc2add
+!    double precision :: sc3add
 
-    double precision :: abar,zbar,z2bar,ytot1,zbarxx,z2barxx, &
-                        denom,denomdt,denomdd, &
-                        r1,r1dt,r1dd,s1,s1dt,s1dd,t1,t1dt,t1dd, &
-                        u1,u1dt,u1dd,v1,v1dt,v1dd,w1,w1dt,w1dd, &
-                        x1,x1dt,x1dd,y1,y1dt,y1dd,zz
+    double precision :: denom,denomdt,zz
+!    double precision :: denomdd,r1dd,s1dd,t1dd,u1dd,v1dd,w1dd,x1dd,y1dd
 
     type (plasma_state) :: state
 

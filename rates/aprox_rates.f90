@@ -22,7 +22,7 @@ contains
 
     implicit none
 
-    integer :: i, j, k
+    integer :: j, k
 
     rv = (/ 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 /)
     tv = (/ 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0 /)
@@ -2324,7 +2324,7 @@ contains
 
     implicit none
 
-    double precision :: temp, den, fr, dfrdt, dfrdd, rr, drrdt, drrdd
+    double precision :: den, fr, dfrdt, dfrdd, rr, drrdt, drrdd
     type (tf_t)      :: tf
 
     double precision :: aa, daa, bb, dbb, term, dtermdt
@@ -2565,7 +2565,7 @@ contains
 
     implicit none
 
-    integer          :: jp,kp,jr,jd,ii,ik,ij,j,k
+    integer          :: jp,kp,jr,jd
     double precision :: btemp,bden,y56,ye,rn56ec,sn56ec
 
     double precision :: rnt(2),rne(2,7),t9,r,rfm,rf0, &

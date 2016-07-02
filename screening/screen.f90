@@ -113,7 +113,8 @@ contains
 
     double precision :: abar, zbar, z2bar
     double precision :: ytot, rr, tempi, dtempi, deni
-    double precision :: pp, qq, dppdt, dppdd, xni
+    double precision :: pp, qq, dppdt, xni
+!    double precision :: dppdd
 
     abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
@@ -183,17 +184,20 @@ contains
     ! local variables
     double precision :: z1, a1, z2, a2
     
-    double precision :: bb,cc,dccdt,dccdd, &
-                        qq,dqqdt,dqqdd,rr,drrdt,drrdd, &
-                        ss,dssdt,dssdd,tt,dttdt,dttdd,uu,duudt,duudd, &
-                        vv,dvvdt,dvvdd,a3,da3, &
-                        h12w,dh12wdt,dh12wdd,h12,dh12dt,dh12dd, &
-                        h12x,dh12xdt,dh12xdd,alfa,beta, &
-                        gamp,gampdt,gampdd, &
-                        gamef,gamefdt,gamefdd, &
-                        tau12,tau12dt,alph12,alph12dt,alph12dd, &
-                        xlgfac,dxlgfacdt,dxlgfacdd, &
-                        gamp14,gamp14dt,gamp14dd
+    double precision :: bb,cc,dccdt, &
+                        qq,dqqdt,rr,drrdt, &
+                        ss,dssdt,tt,dttdt,uu,duudt, &
+                        vv,dvvdt,a3,da3, &
+                        h12w,dh12wdt,h12,dh12dt, &
+                        h12x,dh12xdt,alfa,beta, &
+                        gamp,gampdt, &
+                        gamef,gamefdt, &
+                        tau12,tau12dt,alph12,alph12dt, &
+                        xlgfac,dxlgfacdt, &
+                        gamp14,gamp14dt
+!    double precision :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
+!    double precision :: dh12dd,dh12wdd,dh12xdd,alph12dd
+!    double precision :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
 
     ! Get the ion data based on the input index
     

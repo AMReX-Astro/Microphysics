@@ -48,42 +48,47 @@ contains
                         c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12, &
                         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0, &
                         f1,deni,tempi,abari,zbari,f2,f3,z,xmue,ye, &
-                        dum,dumdt,dumdd,dumda,dumdz, &
-                        gum,gumdt,gumdd,gumda,gumdz
+                        dum,dumdt,gum,gumdt
+!    double precision :: dumdd,dumda,dumdz,gumdd,gumda,gumdz
 
 
     ! pair production
     double precision :: rm,rmdd,rmda,rmdz,rmi,gl,gldt, &
-                        zeta,zetadt,zetadd,zetada,zetadz,zeta2,zeta3, &
-                        xnum,xnumdt,xnumdd,xnumda,xnumdz, &
-                        xden,xdendt,xdendd,xdenda,xdendz, &
-                        fpair,fpairdt,fpairdd,fpairda,fpairdz, &
-                        qpair,qpairdt,qpairdd,qpairda,qpairdz
+                        zeta,zetadt,zeta2,zeta3, &
+                        xnum,xnumdt,xden,xdendt, &
+                        fpair,fpairdt,qpair,qpairdt
+!    double precision :: fpairdd,fpairda,fpairdz,qpairdd,qpairda,qpairdz
+!    double precision :: rmdd,rmda,rmdz,zetadd,zetada,zetadz
+!    double precision :: xnumdd,xnumda,xnumdz,xdendd,xdenda,xdenz
 
     ! plasma
-    double precision :: gl2,gl2dt,gl2dd,gl2da,gl2dz,gl12,gl32,gl72,gl6, &
-                        ft,ftdt,ftdd,ftda,ftdz,fl,fldt,fldd,flda,fldz, &
-                        fxy,fxydt,fxydd,fxyda,fxydz
+    double precision :: gl2,gl2dt,gl12,gl32,gl72,gl6, &
+                        ft,ftdt,fl,fldt,fxy,fxydt
+!    double precision :: fldd,flda,fldz,ftdd,ftda,ftdz
+!    double precision :: fxydd,fxyda,fxydz,gl2dd,gl2da,gl2dz
 
     ! photo
     double precision :: tau,taudt,cos1,cos2,cos3,cos4,cos5,sin1,sin2, &
                         sin3,sin4,sin5,last,xast, &
-                        fphot,fphotdt,fphotdd,fphotda,fphotdz, &
-                        qphot,qphotdt,qphotdd,qphotda,qphotdz
+                        fphot,fphotdt,qphot,qphotdt
+!    double precision :: fphotdd,fphotda,fphotdz,qphotdd,qphotda,qphotdz
 
     ! brem
     double precision :: t8,t812,t832,t82,t83,t85,t86,t8m1,t8m2,t8m3,t8m5, &
                         t8m6, &
-                        eta,etadt,etadd,etada,etadz,etam1,etam2,etam3, &
-                        fbrem,fbremdt,fbremdd,fbremda,fbremdz, &
-                        gbrem,gbremdt,gbremdd,gbremda,gbremdz, &
+                        eta,etadt,etam1,etam2,etam3, &
+                        fbrem,fbremdt, &
+                        gbrem,gbremdt, &
                         u,gm1,gm2,gm13,gm23,gm43,gm53,v,w,fb,gt,gb, &
-                        fliq,fliqdt,fliqdd,fliqda,fliqdz, &
-                        gliq,gliqdt,gliqdd,gliqda,gliqdz
+                        fliq,fliqdt,gliq,gliqdt
+!    double precision :: etadd,etada,etadz
+!    double precision :: fbremdd,fbremda,fbremdz,gbremdd,gbremda,gbremdz
+!    double precision :: fliqdd,fliqda,fliqdz,gliqdd,gliqda,gliqdz
 
     ! recomb
-    double precision :: nu,nudt,nudd,nuda,nudz, &
-                        nu2,nu3,bigj,bigjdt,bigjdd,bigjda,bigjdz
+    double precision :: nu,nudt,nu2,nu3,bigj,bigjdt
+!    double precision :: nudd,nuda,nudz
+!    double precision :: bigjdd,bigjda,bigjdz
 
 
 
@@ -397,9 +402,9 @@ contains
     if (abs(xnum) .gt. 0.7d0  .or.  xden .lt. 0.0d0) then
        fxy   = 1.0d0
        fxydt = 0.0d0
-       fxydd = 0.0d0
-       fxydz = 0.0d0
-       fxyda = 0.0d0
+!       fxydd = 0.0d0
+!       fxydz = 0.0d0
+!       fxyda = 0.0d0
 
     else
 
