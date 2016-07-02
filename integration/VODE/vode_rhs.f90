@@ -56,6 +56,11 @@
 
     call vode_to_eos(eos_state, y, rpar)
 
+    ! If the temperature is smaller than the EOS can handle, allow it to
+    ! reset the temperature accordingly.
+
+    eos_state % reset = .true.
+
     ! Do not check the validity of inputs going into the EOS call.
     ! Sometimes we may stray into a meaningless state and we want
     ! to be able to get through the EOS call without a failure so
