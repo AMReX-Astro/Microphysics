@@ -12,12 +12,13 @@ contains
 
     use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc
-    use bl_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
     use integration_data, only: aionInv
+    use rpar_indices, only: irp_have_rates
 
     implicit none
 
@@ -32,6 +33,8 @@ contains
     ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
+
+    ! Initialize the RHS to zero.
 
     ts % yd(:,1) = ZERO
 
@@ -49,7 +52,9 @@ contains
 
     call update_thermodynamics(ts)
 
-    burn_state % have_rates = .false.
+    ! Indicate that we don't yet have valid rates.
+
+    ts % upar(irp_have_rates,1) = -ONE
 
     ! Call the specific network routine to get the RHS.
 
@@ -84,12 +89,13 @@ contains
     !$acc routine seq
 
     use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
     use burn_type_module, only: burn_t, net_ienuc
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
+    use rpar_indices, only: irp_have_rates
 
     implicit none
 
@@ -99,7 +105,11 @@ contains
 
     real(dp_t) :: limit_factor, t_sound, t_enuc
 
-    state % have_rates = .false.
+    ! Indicate that we don't yet have valid rates.
+
+    ts % upar(irp_have_rates,1) = -ONE
+
+    ! Initialize the Jacobian to zero.
 
     ts % J(:,:,1) = ZERO
 
