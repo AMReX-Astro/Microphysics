@@ -6,7 +6,6 @@ module actual_integrator_module
   use eos_module
   use network
   use rpar_indices
-  use bs_convert_module
   use burn_type_module
   use bl_types
   use stiff_ode
@@ -41,7 +40,7 @@ contains
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     dT_crit
-    use integration_data, only: ener_scale
+    use integration_data, only: temp_scale, ener_scale
 
     implicit none
 

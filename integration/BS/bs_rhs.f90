@@ -10,23 +10,19 @@ contains
 
     !$acc routine seq
 
-    use eos_module
-    use bl_types
-    use bs_convert_module
-    use burn_type_module
+    use bl_types, only: dp_t
+    use burn_type_module, only: burn_t, net_ienuc
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
-                                    burning_mode, burning_mode_factor
-    use rpar_indices
-    use bs_type_module, only: bs_t, clean_state, renormalize_species
+    use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor
+    use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
+                              burn_to_bs, bs_to_burn
     use integration_data, only: aionInv
 
     implicit none
 
     type (bs_t) :: bs
 
-    type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
     real(dp_t) :: limit_factor, t_sound, t_enuc
@@ -49,56 +45,9 @@ contains
        call renormalize_species(bs)
     endif
 
-    ! Several thermodynamic quantities come in via bs % upar -- note: these
-    ! are evaluated at the start of the integration, so if things change
-    ! dramatically, they will fall out of sync with the current
-    ! thermodynamics.
+    ! Update the thermodynamic quantities as necessary.
 
-    call bs_to_eos(eos_state, bs)
-
-    ! If the temperature is smaller than the EOS can handle, allow it to
-    ! reset the temperature accordingly.
-
-    eos_state % reset = .true.
-
-    ! Do not check the validity of inputs going into the EOS call.
-    ! Sometimes we may stray into a meaningless state and we want
-    ! to be able to get through the EOS call without a failure so
-    ! that we can return to a meaningful state in the convergence.
-
-    eos_state % check_inputs = .false.
-
-    ! Evaluate the thermodynamics -- if desired. Note that
-    ! even if this option is selected, we don't need to do it
-    ! for non-self-heating integrations because the temperature
-    ! isn't being updated. Also, if it is, we can optionally
-    ! set a fraction dT_crit such that we don't call the EOS
-    ! if the last temperature we evaluated the EOS at is relatively
-    ! close to the current temperature.
-
-    ! Otherwise just do the composition calculations since
-    ! that's needed to construct dY/dt. Then make sure
-    ! the abundances are safe.
-
-    if (call_eos_in_rhs .and. bs % upar(irp_self_heat) > ZERO) then
-
-       call eos(eos_input_rt, eos_state)
-
-    else if (abs(eos_state % T - bs % upar(irp_Told)) > dT_crit * eos_state % T .and. bs % upar(irp_self_heat) > ZERO) then
-
-       call eos(eos_input_rt, eos_state)
-
-       bs % upar(irp_dcvdt) = (eos_state % cv - bs % upar(irp_cv)) / (eos_state % T - bs % upar(irp_Told))
-       bs % upar(irp_dcpdt) = (eos_state % cp - bs % upar(irp_cp)) / (eos_state % T - bs % upar(irp_Told))
-       bs % upar(irp_Told)  = eos_state % T
-
-    else
-
-       call composition(eos_state)
-
-    endif
-
-    call eos_to_bs(eos_state, bs)
+    call update_thermodynamics(bs)
 
     burn_state % have_rates = .false.
 
@@ -138,12 +87,13 @@ contains
 
     !$acc routine seq
 
+    use bl_types, only: dp_t
+    use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
-    use bs_convert_module
-    use burn_type_module
-    use bs_type_module
+    use burn_type_module, only: burn_t, net_ienuc
+    use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
 
     implicit none
 
