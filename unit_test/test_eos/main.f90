@@ -136,6 +136,8 @@ program test_react
               sp(ii, jj, kk, pf % itemp) = temp_zone
               sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = xn_zone(:)
 
+              ! make sure inputs are valid for this EOS
+              eos_state % check_inputs = .true.
 
               ! call EOS using rho, T
               call eos(eos_input_rt, eos_state)
