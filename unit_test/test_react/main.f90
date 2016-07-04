@@ -133,7 +133,8 @@ program test_react
 
      ldt = dt
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_in,burn_state_out) FIRSTPRIVATE(ldt) &
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
+     !$OMP FIRSTPRIVATE(burn_state_in, ldt) &
      !$OMP SCHEDULE(DYNAMIC,1)
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)

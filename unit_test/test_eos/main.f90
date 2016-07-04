@@ -112,8 +112,8 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,metalicity,temp_zone,dens_zone,eos_state,eos_state_reference,xn_zone) &
-     !$OMP SCHEDULE(DYNAMIC,1) 
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,metalicity,temp_zone,dens_zone,eos_state_reference,xn_zone) &
+     !$OMP FIRSTPRIVATE (eos_state)
      do kk = lo(3), hi(3)
         ! set the composition -- approximately solar
         metalicity = ZERO + dble(kk)*dmetal
@@ -136,6 +136,8 @@ program test_react
               sp(ii, jj, kk, pf % itemp) = temp_zone
               sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = xn_zone(:)
 
+              ! make sure inputs are valid for this EOS
+              eos_state % check_inputs = .true.
 
               ! call EOS using rho, T
               call eos(eos_input_rt, eos_state)
