@@ -1,0 +1,15 @@
+&PROBIN
+  test_set = "gr0_3d.small"
+
+  dens_min   = 1.d4
+  dens_max   = 1.d7
+  temp_min   = 5.d7
+  temp_max   = 5.d8
+
+  dt = 1.d-3
+
+  xin_file   = "xin.3alpha_plus_o"
+  run_prefix = "react_3alpha_"
+
+  scaling_method = 1
+/
