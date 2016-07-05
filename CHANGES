@@ -1,6 +1,11 @@
 
 changes since last merge:
 
+
+previous changes:
+
+* 16.07
+
  -- we now use MICROPHYSICS_HOME instead of MICROPHYSICS_DIR as the
     environment variable to point to the Microphysics/ directory.
 
