@@ -61,7 +61,7 @@ contains
 
     real(dp_t) :: retry_change_factor
 
-    double precision :: ener_offset
+    real(dp_t) :: ener_offset
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
