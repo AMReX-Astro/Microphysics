@@ -14,9 +14,6 @@ module stiff_ode
   real(kind=dp_t), parameter, private :: dt_min = 1.d-24
   real(kind=dp_t), parameter, private :: dt_ini = 1.d-16
   real(kind=dp_t), parameter, private :: SMALL = 1.d-30
-  real(kind=dp_t), parameter, private :: odescal = 1.d-6
-
-  integer, parameter, private :: MAX_STEPS = 10000
 
 contains
 
@@ -27,7 +24,7 @@ contains
     !$acc routine seq
     !$acc routine(f_rhs) seq
 
-    use extern_probin_module, only: scaling_method
+    use extern_probin_module, only: scaling_method, ode_max_steps, ode_scale_floor
     use bl_error_module, only: bl_error
 
     type (bs_t), intent(inout) :: bs
@@ -56,21 +53,16 @@ contains
 
     bs % dt = dt_ini
 
-    do n = 1, MAX_STEPS
+    do n = 1, ode_max_steps
 
        ! Get the scaling.
-       ! Note that this is different from the way Frank Timmes' networks
-       ! do the scaling, even though we use the same underlying integration
-       ! scheme. In particular he does not use dy/dt in estimating the scaling
-       ! vector. Also, he limits the vector so that no element is smaller than
-       ! a hard-coded parameter odescal.
 
        call f_rhs(bs)
 
        if (scaling_method == 1) then
           yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
        else if (scaling_method == 2) then
-          yscal = max(abs(bs % y(:)), odescal)
+          yscal = max(abs(bs % y(:)), ode_scale_floor)
 #ifndef ACC
        else
           call bl_error("Unknown scaling method in subroutine ode.")
