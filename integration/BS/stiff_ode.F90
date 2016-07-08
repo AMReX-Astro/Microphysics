@@ -27,7 +27,7 @@ contains
     !$acc routine seq
     !$acc routine(f_rhs) seq
 
-    use extern_probin_module, only: scaling_method
+    use extern_probin_module, only: scaling_method, use_timestep_estimator
     use bl_error_module, only: bl_error
 
     type (bs_t), intent(inout) :: bs
@@ -54,7 +54,12 @@ contains
     bs % n_rhs = 0
     bs % n_jac = 0
 
-    bs % dt = dt_ini
+    if (use_timestep_estimator) then
+       call f_rhs(bs)
+       call initial_timestep(bs)
+    else
+       bs % dt = dt_ini
+    endif
 
     do n = 1, MAX_STEPS
 
@@ -118,7 +123,7 @@ contains
     type (bs_t), intent(inout) :: bs
 
     type (bs_t) :: bs_temp
-    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(neqs), eps, yscal(neqs), yddnorm
+    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
     integer :: n
 
     bs_temp = bs
@@ -141,11 +146,10 @@ contains
 
        h_old = h
 
-       ! Get the scaling vector for the purposes of the error estimation.
-       ! We want this to be similar to the scaling vector that will be
-       ! used for the error estimation in the main loop.
+       ! Get the error weighting -- this is similar to VODE's dewset
+       ! routine
 
-       yscal = eps * (abs(bs % y) + h * abs(bs % dydt) + SMALL)
+       ewt = eps * abs(bs % y) + SMALL
 
        ! Construct the trial point.
 
@@ -157,8 +161,13 @@ contains
        call f_rhs(bs_temp)
        ddydtt = (bs_temp % dydt - bs % dydt) / h
 
-       yddnorm = sqrt( sum( (ddydtt/yscal)**2 ) / neqs )
-       h = sqrt(TWO / yddnorm)
+       yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / neqs )
+
+       if (yddnorm*hU*hU > TWO) then
+          h = sqrt(TWO / yddnorm)
+       else
+          h = sqrt(h * hU)
+       endif
 
        if (h_old < TWO * h .and. h_old > HALF * h) exit
 

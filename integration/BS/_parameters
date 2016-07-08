@@ -2,3 +2,7 @@
 # 1 = |y| + |dy/dt|
 # 2 = max(|y|, K); K == constant
 scaling_method               integer         2
+
+
+# use the VODE algorithm's initial timestep estimator?
+use_timestep_estimator       logical         .false.
