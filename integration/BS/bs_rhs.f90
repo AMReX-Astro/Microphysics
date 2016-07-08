@@ -149,47 +149,51 @@ contains
     call bs_to_burn(bs, state)
 
     if (jacobian == 1) then
+
        call actual_jac(state)
+
+       ! Allow integration of X instead of Y.
+
+       if (.not. integrate_molar_fraction) then
+
+          do n = 1, nspec_evolve
+             state % jac(n,:) = state % jac(n,:) * aion(n)
+             state % jac(:,n) = state % jac(:,n) * aionInv(n)
+          enddo
+
+       endif
+
+       ! Allow temperature and energy integration to be disabled.
+
+       if (.not. integrate_temperature) then
+
+          state % jac(net_itemp,:) = ZERO
+
+       endif
+
+       if (.not. integrate_energy) then
+
+          state % jac(net_ienuc,:) = ZERO
+
+       endif
+
+       ! For burning_mode == 3, limit the rates.
+       ! Note that we are limiting with respect to the initial zone energy.
+
+       if (burning_mode == 3) then
+
+          t_enuc = bs % upar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
+          t_sound = bs % upar(irp_t_sound)
+
+          limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+          state % jac = limit_factor * state % jac
+
+       endif
+
     else
+
        call numerical_jac(state)
-    endif
-
-    ! Allow integration of X instead of Y.
-
-    if (.not. integrate_molar_fraction) then
-
-       do n = 1, nspec_evolve
-          state % jac(n,:) = state % jac(n,:) * aion(n)
-          state % jac(:,n) = state % jac(:,n) * aionInv(n)
-       enddo
-
-    endif
-
-    ! Allow temperature and energy integration to be disabled.
-
-    if (.not. integrate_temperature) then
-
-       state % jac(net_itemp,:) = ZERO
-
-    endif
-
-    if (.not. integrate_energy) then
-
-       state % jac(net_ienuc,:) = ZERO
-
-    endif
-
-    ! For burning_mode == 3, limit the rates.
-    ! Note that we are limiting with respect to the initial zone energy.
-
-    if (burning_mode == 3) then
-
-       t_enuc = bs % upar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
-       t_sound = bs % upar(irp_t_sound)
-
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
-
-       state % jac = limit_factor * state % jac
 
     endif
 
