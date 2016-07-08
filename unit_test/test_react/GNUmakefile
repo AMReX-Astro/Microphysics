@@ -26,9 +26,10 @@ PROBIN_PARAMETER_DIRS := $(TEST_DIR)
 
 ALL:
 
-include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
 ALL: $(pnames)
+
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
 
 
