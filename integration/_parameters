@@ -33,6 +33,12 @@ burning_mode             integer   1
 # If we're using burning\_mode == 3, this is the factor $f$ to use.
 burning_mode_factor      real      1.d-1
 
+# Allow the temperature integration to be disabled by setting the RHS to zero.
+integrate_temperature    logical   .true.
+
+# Allow the energy integration to be disabled by setting the RHS to zero.
+integrate_energy         logical   .true.
+
 # Whether to use an analytical or numerical Jacobian.
 # 1 == Analytical
 # 2 == Numerical

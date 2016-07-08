@@ -5,11 +5,12 @@
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
     use bl_types, only: dp_t
-    use burn_type_module, only: burn_t, net_ienuc
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
-                                    burning_mode, burning_mode_factor
+                                    burning_mode, burning_mode_factor, &
+                                    integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
     use rpar_indices, only: n_rpar_comps, irp_have_rates, irp_y_init, irp_t_sound
@@ -55,6 +56,20 @@
     call vode_to_burn(y, rpar, burn_state)
     call actual_rhs(burn_state)
 
+    ! Allow temperature and energy integration to be disabled.
+
+    if (.not. integrate_temperature) then
+
+       burn_state % ydot(net_itemp) = ZERO
+
+    endif
+
+    if (.not. integrate_energy) then
+
+       burn_state % ydot(net_ienuc) = ZERO
+
+    endif
+
     ! For burning_mode == 3, limit the rates.
     ! Note that we are limiting with respect to the initial zone energy.
 
@@ -81,11 +96,12 @@
 
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
-    use burn_type_module, only: burn_t, net_ienuc
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
-    use extern_probin_module, only: burning_mode, burning_mode_factor
+    use extern_probin_module, only: burning_mode, burning_mode_factor, &
+                                    integrate_temperature, integrate_energy
 
     implicit none
 
@@ -100,6 +116,20 @@
 
     call vode_to_burn(y, rpar, state)
     call actual_jac(state)
+
+    ! Allow temperature and energy integration to be disabled.
+
+    if (.not. integrate_temperature) then
+
+       state % jac(net_itemp,:) = ZERO
+
+    endif
+
+    if (.not. integrate_energy) then
+
+       state % jac(net_ienuc,:) = ZERO
+
+    endif
 
     ! For burning_mode == 3, limit the rates.
     ! Note that we are limiting with respect to the initial zone energy.

@@ -11,10 +11,11 @@ contains
     !$acc routine seq
 
     use bl_types, only: dp_t
-    use burn_type_module, only: burn_t, net_ienuc
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor
+    use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor, &
+                                    integrate_temperature, integrate_energy
     use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
                               burn_to_bs, bs_to_burn
     use integration_data, only: aionInv
@@ -61,6 +62,20 @@ contains
     call bs_to_burn(bs, burn_state)
     call actual_rhs(burn_state)
 
+    ! Allow temperature and energy integration to be disabled.
+
+    if (.not. integrate_temperature) then
+
+       burn_state % ydot(net_itemp) = ZERO
+
+    endif
+
+    if (.not. integrate_energy) then
+
+       burn_state % ydot(net_ienuc) = ZERO
+
+    endif
+
     ! For burning_mode == 3, limit the rates.
     ! Note that we are limiting with respect to the initial zone energy.
 
@@ -95,8 +110,9 @@ contains
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
-    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
-    use burn_type_module, only: burn_t, net_ienuc
+    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
+                                    integrate_temperature, integrate_energy
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
     use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
 
@@ -124,6 +140,20 @@ contains
        call actual_jac(state)
     else
        call numerical_jac(state)
+    endif
+
+    ! Allow temperature and energy integration to be disabled.
+
+    if (.not. integrate_temperature) then
+
+       state % jac(net_itemp,:) = ZERO
+
+    endif
+
+    if (.not. integrate_energy) then
+
+       state % jac(net_ienuc,:) = ZERO
+
     endif
 
     ! For burning_mode == 3, limit the rates.
