@@ -135,6 +135,10 @@ contains
 
     ts % upar(irp_dx,1) = state_in % dx
 
+    ! Set the sound crossing time.
+
+    ts % upar(irp_t_sound,1) = state_in % dx / eos_state_in % cs
+
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second
     ! EOS call here to establish an initial slope.
@@ -153,12 +157,18 @@ contains
 
     endif
 
-    ! Call the integration routine.
-
     do n = 1, neqs
        y0(n,1) = ts % y(n,1)
     end do
+
+    ! Save the initial state.
+
+    ts % upar(irp_y_init:irp_y_init + neqs - 1, 1) = y0(:,1)
+
+    ! Call the integration routine.
+
     call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
+
     do n = 1, neqs
        ts % y(n,1) = y1(n,1)
     end do
