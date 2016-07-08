@@ -66,7 +66,7 @@ contains
   subroutine actual_integrator(state_in, state_out, dt, time)
 
     use rpar_indices
-    use extern_probin_module, only: jacobian, burner_verbose, &
+    use extern_probin_module, only: burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
@@ -108,14 +108,6 @@ contains
     real(dp_t) :: retry_change_factor
 
     EXTERNAL jac, f_rhs
-
-    if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC
-    else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC
-    else
-       call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
-    endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
@@ -207,7 +199,7 @@ contains
     ! Call the integration routine.
 
     call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
-               istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+               istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_ANALYTIC_JAC, rpar, ipar)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.

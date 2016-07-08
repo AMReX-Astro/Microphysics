@@ -106,11 +106,12 @@
     use integration_data, only: aionInv
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
+    use numerical_jac_module, only: numerical_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
-    use extern_probin_module, only: burning_mode, burning_mode_factor, &
+    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, integrate_molar_fraction
 
     implicit none
@@ -126,7 +127,12 @@
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
-    call actual_jac(state)
+
+    if (jacobian == 1) then
+       call actual_jac(state)
+    else
+       call numerical_jac(state)
+    endif
 
     ! Allow integration of X instead of Y.
 
