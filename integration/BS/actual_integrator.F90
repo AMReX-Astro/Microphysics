@@ -147,6 +147,10 @@ contains
 
     endif
 
+    ! Save the initial state.
+
+    bs % upar(irp_y_init:irp_y_init + neqs - 1) = bs % y
+    
     ! Call the integration routine.
 
     call ode(bs, t0, t1, maxval(rtol), ierr)

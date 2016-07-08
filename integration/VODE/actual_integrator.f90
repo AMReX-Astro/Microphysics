@@ -196,6 +196,10 @@ contains
 
     endif
 
+    ! Save the initial state.
+
+    rpar(irp_y_init:irp_y_init + neqs - 1) = y
+
     ! Call the integration routine.
 
     call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &

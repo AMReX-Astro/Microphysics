@@ -153,12 +153,18 @@ contains
 
     endif
 
-    ! Call the integration routine.
-
     do n = 1, neqs
        y0(n,1) = ts % y(n,1)
     end do
+
+    ! Save the initial state.
+
+    ts % upar(irp_y_init:irp_y_init + neqs - 1, 1) = y0(:,1)
+
+    ! Call the integration routine.
+
     call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
+
     do n = 1, neqs
        ts % y(n,1) = y1(n,1)
     end do
