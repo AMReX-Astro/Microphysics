@@ -10,15 +10,15 @@ contains
 
     !$acc routine seq
 
+    use actual_network, only: aion, nspec_evolve
     use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+                                    integrate_temperature, integrate_energy, integrate_molar_fraction
     use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
                               burn_to_bs, bs_to_burn
-    use integration_data, only: aionInv
     use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
 
     implicit none
@@ -31,7 +31,7 @@ contains
 
     ! We are integrating a system of
     !
-    ! y(1:nspec)   = dX/dt
+    ! y(1:nspec_evolve) = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -61,6 +61,14 @@ contains
 
     call bs_to_burn(bs, burn_state)
     call actual_rhs(burn_state)
+
+    ! Allow integration of X instead of Y.
+
+    if (.not. integrate_molar_fraction) then
+
+       burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
+    endif
 
     ! Allow temperature and energy integration to be disabled.
 
@@ -106,12 +114,14 @@ contains
 
     !$acc routine seq
 
+    use actual_network, only: aion, nspec_evolve
+    use integration_data, only: aionInv
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+                                    integrate_temperature, integrate_energy, integrate_molar_fraction
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
     use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
@@ -123,6 +133,8 @@ contains
     type (burn_t) :: state
 
     real(dp_t) :: limit_factor, t_sound, t_enuc
+
+    integer :: n
 
     ! Indicate that we don't yet have valid rates.
 
@@ -140,6 +152,17 @@ contains
        call actual_jac(state)
     else
        call numerical_jac(state)
+    endif
+
+    ! Allow integration of X instead of Y.
+
+    if (.not. integrate_molar_fraction) then
+
+       do n = 1, nspec_evolve
+          state % jac(n,:) = state % jac(n,:) * aion(n)
+          state % jac(:,n) = state % jac(:,n) * aionInv(n)
+       enddo
+
     endif
 
     ! Allow temperature and energy integration to be disabled.

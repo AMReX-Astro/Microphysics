@@ -85,18 +85,19 @@
 \verb=  dT_crit  = &   If we want to call the EOS in general, but don't want to overdo it, we can set a fraction dT\_crit such that we only do the EOS call if the temperature has changed by a relative fraction $>$ dT\_crit. If we use this option, we will do a linear fit to c\_v and c\_p in between EOS calls. This will work regardless of call\_eos\_in\_rhs.  &  1.0d20 \\
 \verb=  integrate_energy  = &   Allow the energy integration to be disabled by setting the RHS to zero.  &  .true. \\
 \rowcolor{tableShade}
+\verb=  integrate_molar_fraction  = &   By default we integrate molar fraction Y. Disable this to integrate mass fraction X.  &  .true. \\
 \verb=  integrate_temperature  = &   Allow the temperature integration to be disabled by setting the RHS to zero.  &  .true. \\
+\rowcolor{tableShade}
 \verb=  jacobian  = &   Whether to use an analytical or numerical Jacobian. 1 == Analytical 2 == Numerical  &  1 \\
-\rowcolor{tableShade}
 \verb=  renormalize_abundances  = &   Whether to renormalize the mass fractions at each step in the evolution so that they sum to unity.  &  .false. \\
+\rowcolor{tableShade}
 \verb=  retry_burn  = &   If we fail to find a solution consistent with the tolerances, do we want to try again with a looser tolerance?  &  .false. \\
-\rowcolor{tableShade}
 \verb=  retry_burn_factor  = &   If we do retry a burn, by what factor should we loosen the tolerance?  &  1.25d0 \\
+\rowcolor{tableShade}
 \verb=  retry_burn_max_change  = &   What is the maximum factor we can increase the original tolerances by?  &  1.0d2 \\
-\rowcolor{tableShade}
 \verb=  rtol_enuc  = &    &  1.d-6 \\
-\verb=  rtol_spec  = &   Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations.  &  1.d-12 \\
 \rowcolor{tableShade}
+\verb=  rtol_spec  = &   Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations.  &  1.d-12 \\
 \verb=  rtol_temp  = &    &  1.d-6 \\
 
 

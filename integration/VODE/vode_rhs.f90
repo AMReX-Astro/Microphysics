@@ -4,17 +4,17 @@
 
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
+    use actual_network, only: aion, nspec_evolve
     use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
                                     burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+                                    integrate_temperature, integrate_energy, integrate_molar_fraction
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
     use rpar_indices, only: n_rpar_comps, irp_have_rates, irp_y_init, irp_t_sound
-    use integration_data, only: aionInv
 
     implicit none
 
@@ -29,7 +29,7 @@
 
     ! We are integrating a system of
     !
-    ! y(1:nspec)   = dX/dt
+    ! y(1:nspec_evolve) = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -55,6 +55,14 @@
 
     call vode_to_burn(y, rpar, burn_state)
     call actual_rhs(burn_state)
+
+    ! Allow integration of X instead of Y.
+
+    if (.not. integrate_molar_fraction) then
+
+       burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
+    endif
 
     ! Allow temperature and energy integration to be disabled.
 
@@ -94,6 +102,8 @@
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
+    use actual_network, only: aion, nspec_evolve
+    use integration_data, only: aionInv
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
@@ -101,7 +111,7 @@
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+                                    integrate_temperature, integrate_energy, integrate_molar_fraction
 
     implicit none
 
@@ -111,11 +121,23 @@
 
     type (burn_t) :: state
     real(dp_t) :: limit_factor, t_sound, t_enuc
+    integer :: n
 
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
     call actual_jac(state)
+
+    ! Allow integration of X instead of Y.
+
+    if (.not. integrate_molar_fraction) then
+
+       do n = 1, nspec_evolve
+          state % jac(n,:) = state % jac(n,:) * aion(n)
+          state % jac(:,n) = state % jac(:,n) * aionInv(n)
+       enddo
+
+    endif
 
     ! Allow temperature and energy integration to be disabled.
 
