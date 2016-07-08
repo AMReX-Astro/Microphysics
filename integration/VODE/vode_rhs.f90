@@ -12,7 +12,7 @@
                                     burning_mode, burning_mode_factor
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_have_rates
+    use rpar_indices, only: n_rpar_comps, irp_have_rates, irp_y_init
     use integration_data, only: aionInv
 
     implicit none
@@ -56,12 +56,11 @@
     call actual_rhs(burn_state)
 
     ! For burning_mode == 3, limit the rates.
-    ! Note that this relies on burn_state % e being a relatively
-    ! decent representation of the zone's current internal energy.
+    ! Note that we are limiting with respect to the initial zone energy.
 
     if (burning_mode == 3) then
 
-       t_enuc = burn_state % e / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
+       t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
        t_sound = burn_state % dx / burn_state % cs
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
@@ -84,7 +83,7 @@
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc
     use vode_type_module, only: vode_to_burn, burn_to_vode
-    use rpar_indices, only: n_rpar_comps
+    use rpar_indices, only: n_rpar_comps, irp_y_init
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor
 
@@ -103,12 +102,11 @@
     call actual_jac(state)
 
     ! For burning_mode == 3, limit the rates.
-    ! Note that this relies on burn_state % e being a relatively
-    ! decent representation of the zone's current internal energy.
+    ! Note that we are limiting with respect to the initial zone energy.
 
     if (burning_mode == 3) then
 
-       t_enuc = state % e / max(abs(state % ydot(net_ienuc)), 1.d-50)
+       t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
        t_sound = state % dx / state % cs
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)

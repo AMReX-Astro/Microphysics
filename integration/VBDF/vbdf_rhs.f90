@@ -18,7 +18,7 @@ contains
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
     use integration_data, only: aionInv
-    use rpar_indices, only: irp_have_rates
+    use rpar_indices, only: irp_have_rates, irp_y_init
 
     implicit none
 
@@ -62,12 +62,11 @@ contains
     call actual_rhs(burn_state)
 
     ! For burning_mode == 3, limit the rates.
-    ! Note that this relies on burn_state % e being a relatively
-    ! decent representation of the zone's current internal energy.
+    ! Note that we are limiting with respect to the initial zone energy.
 
     if (burning_mode == 3) then
 
-       t_enuc = burn_state % e / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
+       t_enuc = ts % upar(irp_y_init + net_ienuc - 1,1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
        t_sound = burn_state % dx / burn_state % cs
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
@@ -95,7 +94,7 @@ contains
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
     use burn_type_module, only: burn_t, net_ienuc
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
-    use rpar_indices, only: irp_have_rates
+    use rpar_indices, only: irp_have_rates, irp_y_init
 
     implicit none
 
@@ -124,12 +123,11 @@ contains
     endif
 
     ! For burning_mode == 3, limit the rates.
-    ! Note that this relies on burn_state % e being a relatively
-    ! decent representation of the zone's current internal energy.
+    ! Note that we are limiting with respect to the initial zone energy.
 
     if (burning_mode == 3) then
 
-       t_enuc = state % e / max(abs(state % ydot(net_ienuc)), 1.d-50)
+       t_enuc = ts % upar(irp_y_init + net_ienuc - 1, 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
        t_sound = state % dx / state % cs
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
