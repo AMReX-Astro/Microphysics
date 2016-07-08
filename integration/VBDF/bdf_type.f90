@@ -83,6 +83,8 @@ contains
 
   subroutine clean_state(state)
 
+    !$acc routine seq
+
     use bl_constants_module, only: ONE
     use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: aionInv, temp_scale
@@ -98,6 +100,8 @@ contains
   end subroutine clean_state
 
   subroutine renormalize_species(state)
+
+    !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion
     use rpar_indices, only: irp_nspec
@@ -121,6 +125,8 @@ contains
 
 
   subroutine update_thermodynamics(state)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ZERO
     use eos_type_module, only: eos_t, composition

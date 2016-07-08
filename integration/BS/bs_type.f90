@@ -54,6 +54,8 @@ contains
 
   subroutine clean_state(state)
 
+    !$acc routine seq
+
     use bl_constants_module, only: ONE
     use extern_probin_module, only: renormalize_abundances, small_x
     use actual_network, only: aion, nspec, nspec_evolve
@@ -92,6 +94,8 @@ contains
 
   subroutine renormalize_species(state)
 
+    !$acc routine seq
+
     use actual_network, only: aion, nspec, nspec_evolve
     use rpar_indices, only: irp_nspec
 
@@ -112,6 +116,8 @@ contains
 
 
   subroutine update_thermodynamics(state)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ZERO
     use eos_type_module, only: eos_t, composition

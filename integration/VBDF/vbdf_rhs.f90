@@ -10,15 +10,16 @@ contains
 
     !$acc routine seq
 
+    use actual_network, only: aion, nspec_evolve
     use bl_types, only: dp_t
-    use burn_type_module, only: burn_t, net_ienuc
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor
+    use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor, &
+                                    integrate_temperature, integrate_energy, integrate_molar_fraction
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
-    use integration_data, only: aionInv
-    use rpar_indices, only: irp_have_rates
+    use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
 
     implicit none
 
@@ -30,7 +31,7 @@ contains
 
     ! We are integrating a system of
     !
-    ! y(1:nspec)   = dX/dt
+    ! y(1:nspec_evolve) = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -61,14 +62,35 @@ contains
     call vbdf_to_burn(ts, burn_state)
     call actual_rhs(burn_state)
 
+    ! Allow integration of X instead of Y.
+
+    if (.not. integrate_molar_fraction) then
+
+       burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
+    endif
+
+    ! Allow temperature and energy integration to be disabled.
+
+    if (.not. integrate_temperature) then
+
+       burn_state % ydot(net_itemp) = ZERO
+
+    endif
+
+    if (.not. integrate_energy) then
+
+       burn_state % ydot(net_ienuc) = ZERO
+
+    endif
+
     ! For burning_mode == 3, limit the rates.
-    ! Note that this relies on burn_state % e being a relatively
-    ! decent representation of the zone's current internal energy.
+    ! Note that we are limiting with respect to the initial zone energy.
 
     if (burning_mode == 3) then
 
-       t_enuc = burn_state % e / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
-       t_sound = burn_state % dx / burn_state % cs
+       t_enuc = ts % upar(irp_y_init + net_ienuc - 1,1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
+       t_sound = ts % upar(irp_t_sound,1)
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
@@ -88,14 +110,17 @@ contains
 
     !$acc routine seq
 
+    use actual_network, only: aion, nspec_evolve
+    use integration_data, only: aionInv
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
-    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
-    use burn_type_module, only: burn_t, net_ienuc
+    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
+                                    integrate_temperature, integrate_energy, integrate_molar_fraction
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
-    use rpar_indices, only: irp_have_rates
+    use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
 
     implicit none
 
@@ -104,6 +129,8 @@ contains
     type (burn_t) :: state
 
     real(dp_t) :: limit_factor, t_sound, t_enuc
+
+    integer :: n
 
     ! Indicate that we don't yet have valid rates.
 
@@ -118,23 +145,51 @@ contains
     call vbdf_to_burn(ts, state)
 
     if (jacobian == 1) then
+
        call actual_jac(state)
+
+       ! Allow integration of X instead of Y.
+
+       if (.not. integrate_molar_fraction) then
+
+          do n = 1, nspec_evolve
+             state % jac(n,:) = state % jac(n,:) * aion(n)
+             state % jac(:,n) = state % jac(:,n) * aionInv(n)
+          enddo
+
+       endif
+
+       ! Allow temperature and energy integration to be disabled.
+
+       if (.not. integrate_temperature) then
+
+          state % jac(net_itemp,:) = ZERO
+
+       endif
+
+       if (.not. integrate_energy) then
+
+          state % jac(net_ienuc,:) = ZERO
+
+       endif
+
+       ! For burning_mode == 3, limit the rates.
+       ! Note that we are limiting with respect to the initial zone energy.
+
+       if (burning_mode == 3) then
+
+          t_enuc = ts % upar(irp_y_init + net_ienuc - 1, 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
+          t_sound = ts % upar(irp_t_sound,1)
+
+          limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+          state % jac = limit_factor * state % jac
+
+       endif
+
     else
+
        call numerical_jac(state)
-    endif
-
-    ! For burning_mode == 3, limit the rates.
-    ! Note that this relies on burn_state % e being a relatively
-    ! decent representation of the zone's current internal energy.
-
-    if (burning_mode == 3) then
-
-       t_enuc = state % e / max(abs(state % ydot(net_ienuc)), 1.d-50)
-       t_sound = state % dx / state % cs
-
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
-
-       state % jac = limit_factor * state % jac
 
     endif
 

@@ -136,6 +136,14 @@ program test_react
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
      !$OMP FIRSTPRIVATE(burn_state_in, ldt) &
      !$OMP SCHEDULE(DYNAMIC,1)
+
+     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, ldt) &
+     !$acc      copyout(sp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), :))  
+
+     !$acc parallel
+
+     !$acc loop gang vector collapse(3) private(temp_zone, dens_zone) &
+     !$acc private(burn_state_in, burn_state_out)
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
@@ -169,6 +177,9 @@ program test_react
            enddo
         enddo
      enddo
+     !$acc end parallel
+     !$acc end data
+
      !$OMP END PARALLEL DO
 
   enddo

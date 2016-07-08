@@ -129,6 +129,10 @@ contains
 
     bs % upar(irp_dx) = state_in % dx
 
+    ! Set the sound crossing time.
+
+    bs % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
+
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second
     ! EOS call here to establish an initial slope.
@@ -147,6 +151,10 @@ contains
 
     endif
 
+    ! Save the initial state.
+
+    bs % upar(irp_y_init:irp_y_init + neqs - 1) = bs % y
+    
     ! Call the integration routine.
 
     call ode(bs, t0, t1, maxval(rtol), ierr)

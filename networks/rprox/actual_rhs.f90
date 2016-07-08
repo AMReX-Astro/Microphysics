@@ -33,7 +33,7 @@ contains
     state % ydot = ZERO
 
     dens = state % rho
-    t9   = state % T / 10.0**9
+    t9   = state % T * 1.e-9_dp_t
 
     ! build the rates; weak rates are the wk* variables
     call make_rates(t9, dens, y(1:nspec), state)
@@ -394,7 +394,7 @@ contains
     ! initialize
     state % jac(:,:) = ZERO
     ymol = state % xn / aion
-    t9 = state % T / 10.0**9
+    t9 = state % T * 1.e-9_dp_t
 
     ! carbon-12
     state % jac(ic12,ic12) = -ymol(ih1)*state % rates(1,irpg12c)
