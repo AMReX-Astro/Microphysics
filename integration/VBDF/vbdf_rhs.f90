@@ -18,7 +18,7 @@ contains
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
     use integration_data, only: aionInv
-    use rpar_indices, only: irp_have_rates, irp_y_init
+    use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
 
     implicit none
 
@@ -67,7 +67,7 @@ contains
     if (burning_mode == 3) then
 
        t_enuc = ts % upar(irp_y_init + net_ienuc - 1,1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
-       t_sound = burn_state % dx / burn_state % cs
+       t_sound = ts % upar(irp_t_sound,1)
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
@@ -94,7 +94,7 @@ contains
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor
     use burn_type_module, only: burn_t, net_ienuc
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
-    use rpar_indices, only: irp_have_rates, irp_y_init
+    use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
 
     implicit none
 
@@ -128,7 +128,7 @@ contains
     if (burning_mode == 3) then
 
        t_enuc = ts % upar(irp_y_init + net_ienuc - 1, 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
-       t_sound = state % dx / state % cs
+       t_sound = ts % upar(irp_t_sound,1)
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 

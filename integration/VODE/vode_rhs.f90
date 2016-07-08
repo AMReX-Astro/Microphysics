@@ -12,7 +12,7 @@
                                     burning_mode, burning_mode_factor
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_have_rates, irp_y_init
+    use rpar_indices, only: n_rpar_comps, irp_have_rates, irp_y_init, irp_t_sound
     use integration_data, only: aionInv
 
     implicit none
@@ -61,7 +61,7 @@
     if (burning_mode == 3) then
 
        t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
-       t_sound = burn_state % dx / burn_state % cs
+       t_sound = rpar(irp_t_sound)
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
@@ -83,7 +83,7 @@
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc
     use vode_type_module, only: vode_to_burn, burn_to_vode
-    use rpar_indices, only: n_rpar_comps, irp_y_init
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor
 
@@ -107,7 +107,7 @@
     if (burning_mode == 3) then
 
        t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
-       t_sound = state % dx / state % cs
+       t_sound = rpar(irp_t_sound)
 
        limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
