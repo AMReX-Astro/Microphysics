@@ -1,0 +1,18 @@
+To get the integration going better, the following seems to help:
+
+-- use the numerical jacobian:
+
+   jacobian = 2
+   centered_diff_jac = T
+
+-- turn on temperature evolution by doing 
+
+   burning_mode = 0
+
+-- use scaling_method = 1
+
+-- lower ode_scale_floor to 1.d-12
+
+-- use_timestep_estimator = T
+
+Another thing we should try is to enforce small_x in the burn
