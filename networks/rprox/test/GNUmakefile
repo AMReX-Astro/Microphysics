@@ -1,4 +1,4 @@
-NDEBUG := t
+NDEBUG := 
 MPI    :=
 OMP    :=
 
@@ -13,7 +13,7 @@ programs += testburn
 
 EOS_DIR := helmholtz
 NETWORK_DIR := rprox
-
+INTEGRATOR_DIR := BS
 
 TEST_DIR = $(MICROPHYSICS_HOME)/networks/rprox/test
 

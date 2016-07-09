@@ -7,6 +7,7 @@ program testburn
   use actual_burner_module
   use burn_type_module
   use microphysics_module
+  use extern_probin_module
 
   implicit none
 
@@ -27,9 +28,19 @@ program testburn
   Xin(ihe4) = 0.2624e0_dp_t
   Xin(ih1) = 0.6894e0_dp_t
 
+  dens = 1737938.5689184519
+  temp = 158489319.24611109     
+  Xin = [5.0000000000000003E-002, 0.0000000000000000, 0.0000000000000000, 0.0000000000000000, &
+         0.0000000000000000,      0.0000000000000000, 0.0000000000000000, 0.0000000000000000, &
+         0.25000000000000000,     0.69999999999999996]
+
+
   dt = 0.01_dp_t
 
   print *, 'calling the burner...'
+
+  jacobian = 2
+  centered_diff_jac = .true.
 
   state_in % rho = dens
   state_in % T = temp
