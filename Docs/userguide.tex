@@ -11,7 +11,7 @@
 % PDF-aware landscape package, used for rotating tables (including the          
 % longtable)                                                                    
 \usepackage{pdflscape}
-
+\usepackage{rotating}
 
 \input maestrosymbols
 
@@ -21,6 +21,8 @@
 
 % eps figures
 \usepackage{epsfig}
+
+\usepackage{graphicx}
 
 % chapter title styles
 \usepackage[Sonny]{fncychap}
@@ -104,7 +106,7 @@
 
 \renewcommand{\sectionmark}[1]{\markright{\thesection---#1}}
 
-\graphicspath{{CastroVerification/}{ConvertCheckpoint/}{Parallel/}{Scaling/}{Visualization/}}
+\graphicspath{{networks/}}
 
 % skip a bit of space between paragraphs, to enhance readability
 \usepackage{parskip}
