@@ -7,6 +7,7 @@ eps_source = $(wildcard *.eps) $(wildcard */*.eps)
 pdf_source = $(eps_source:.eps=.pdf)
 
 section_sources = userguide.tex \
+                  basics/basics.tex \
                   EOS/eos.tex \
                   runtime_parameters/runtime_parameters.tex \
                   networks/networks.tex

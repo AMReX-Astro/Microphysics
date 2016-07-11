@@ -1,0 +1,58 @@
+\section{Getting Started}
+
+Getting started with \microphysics\ is straightforward. Because the
+modules here are already in a format that the \boxlib\ codes
+understand, you only need to provide to the code calling these
+routines their location on your system. The code will do the rest. To
+do so, define the {\tt MICROPHYSICS\_HOME} environment variable, either
+at a command line or (if you use the {\tt bash} shell) through your
+{\tt $\sim$/.bashrc} profile, e.g.:
+\begin{equation*}
+  \texttt{export MICROPHYSICS\_HOME = /path/to/Microphysics}
+\end{equation*}
+
+The calling code will know that when you provide it an {\tt
+  EOS\_dir} \MarginPar{this is Castro specific} and {\tt
+  Network\_dir}, that it should look in this repository and not in its
+own microphysics location.
+
+
+\section{Structure}
+
+The high-level directory structure delineates the types of microphysics
+and the generic solvers:
+
+\begin{itemize}
+\item {\tt Docs/}: this User's Guide
+
+\item {\tt EOS/}: the various equations of state
+
+\item {\tt integration/}: the ODE integration routines used for the
+  reaction networks
+
+\item {\tt interfaces/}: copies of the main derived types that are used to
+  interface with the EOS and reaction networks.  Note that most application
+  codes will have their own local copies.  These are provided for unit testing
+  in \microphysics.
+
+\item {\tt networks/}: the nuclear reaction networks.  This is mostly just the
+  righthand side of the network, as the actual integrators are decoupled from
+  the network.
+
+\item {\tt neutrinos/}: neutino loss source terms for the network energy equation.
+
+\item {\tt NSE/}: routines for approximating nuclear statistical equilibrium.
+
+\item {\tt rates/}: common nuclear reaction rate modules used by some of the 
+  networks.
+
+\item {\tt screening/}: common electron screening factors used by some of the 
+  reaction networks.
+
+\item {\tt unit\_test/}: self-contained unit tests for \microphysics.  These don't
+  need any application code to build, but will require \boxlib.
+
+\item {\tt util/}: linear algebra solvers and other routines.
+
+\end{itemize}
+

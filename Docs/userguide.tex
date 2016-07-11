@@ -222,19 +222,8 @@ how to run the modules.
 
 \chapter{The Basics}
 
-Getting started with \microphysics is straightforward. Because the
-modules here are already in a format that the \boxlib\ codes
-understand, you only need to provide to the code calling these
-routines their location on your system. The code will do the rest. To
-do so, define the {\tt MICROPHYSICS\_DIR} environment variable, either
-at a command line or (if you use the {\tt bash} terminal) through your
-{\tt $\sim$/.bashrc} profile, e.g.:
-\begin{equation*}
-  \texttt{export MICROPHYSICS\_DIR = /path/to/Microphysics}
-\end{equation*}
-The calling code will know that when you provide it an {\tt EOS\_dir}
-and {\tt Network\_dir}, that it should look in this repository and not
-in its own microphysics location.
+\input basics/basics
+
 
 \chapter{Data Structures}
 \label{sec:data_structures}
