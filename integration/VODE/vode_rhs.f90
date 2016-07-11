@@ -106,12 +106,11 @@
     use integration_data, only: aionInv
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
-    use numerical_jac_module, only: numerical_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
-    use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
+    use extern_probin_module, only: burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, integrate_molar_fraction
 
     implicit none
@@ -127,53 +126,44 @@
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
+    call actual_jac(state)
 
-    if (jacobian == 1) then
+    ! Allow integration of X instead of Y.
 
-       call actual_jac(state)
+    if (.not. integrate_molar_fraction) then
 
-       ! Allow integration of X instead of Y.
+       do n = 1, nspec_evolve
+          state % jac(n,:) = state % jac(n,:) * aion(n)
+          state % jac(:,n) = state % jac(:,n) * aionInv(n)
+       enddo
 
-       if (.not. integrate_molar_fraction) then
+    endif
 
-          do n = 1, nspec_evolve
-             state % jac(n,:) = state % jac(n,:) * aion(n)
-             state % jac(:,n) = state % jac(:,n) * aionInv(n)
-          enddo
+    ! Allow temperature and energy integration to be disabled.
 
-       endif
+    if (.not. integrate_temperature) then
 
-       ! Allow temperature and energy integration to be disabled.
+       state % jac(net_itemp,:) = ZERO
 
-       if (.not. integrate_temperature) then
+    endif
 
-          state % jac(net_itemp,:) = ZERO
+    if (.not. integrate_energy) then
 
-       endif
+       state % jac(net_ienuc,:) = ZERO
 
-       if (.not. integrate_energy) then
+    endif
 
-          state % jac(net_ienuc,:) = ZERO
+    ! For burning_mode == 3, limit the rates.
+    ! Note that we are limiting with respect to the initial zone energy.
 
-       endif
+    if (burning_mode == 3) then
 
-       ! For burning_mode == 3, limit the rates.
-       ! Note that we are limiting with respect to the initial zone energy.
+       t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
+       t_sound = rpar(irp_t_sound)
 
-       if (burning_mode == 3) then
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
 
-          t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
-          t_sound = rpar(irp_t_sound)
-
-          limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
-
-          state % jac = limit_factor * state % jac
-
-       endif
-
-    else
-
-       call numerical_jac(state)
+       state % jac = limit_factor * state % jac
 
     endif
 
