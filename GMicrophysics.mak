@@ -12,7 +12,7 @@ BOXLIB_CORE := Src/F_BaseLib
 
 #-----------------------------------------------------------------------------
 # EOS
-EOS_TOP_DIR := $(MICROPHYSICS_HOME)/eos
+EOS_TOP_DIR := $(MICROPHYSICS_HOME)/EOS
 
 # the helmeos has a table
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
