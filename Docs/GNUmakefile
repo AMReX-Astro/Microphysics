@@ -10,6 +10,7 @@ section_sources = userguide.tex \
                   basics/basics.tex \
                   data_structures/data_structures.tex \
                   EOS/eos.tex \
+                  runtime_parameters/rp_intro.tex \
                   runtime_parameters/runtime_parameters.tex \
                   networks/networks.tex
 
