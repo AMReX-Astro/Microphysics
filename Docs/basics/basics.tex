@@ -56,3 +56,24 @@ and the generic solvers:
 
 \end{itemize}
 
+
+
+\section{Design Philosophy}
+
+Any application that uses \microphysics\ will at minimum need to
+choose an EOS and a network.  These two components work together and
+depend on one-another.  
+
+The network is meant to store the properties of the species (typically
+nuclear isotopes) including their atomic weights and numbers, and also
+describes any links between the species when burning.
+
+The equation of state relates the thermodynamic properties of the
+material.  It depends on the composition of the material, typically
+specified via mass fractions of the species, and uses the properties
+of the species defined by the network to interpret the state.
+
+We try to maximize code reuse in the \microphysics\ source, so the
+solvers (ODE integration for the network and Newton-Raphson root
+finding for the EOS) is separated from the specific implmentations of
+the microphysics.

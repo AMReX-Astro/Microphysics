@@ -8,6 +8,7 @@ pdf_source = $(eps_source:.eps=.pdf)
 
 section_sources = userguide.tex \
                   basics/basics.tex \
+                  data_structures/data_structures.tex \
                   EOS/eos.tex \
                   runtime_parameters/runtime_parameters.tex \
                   networks/networks.tex
