@@ -8,7 +8,7 @@ to the `Microphysics/` directory.
 
 There are several core types of microphysics routines hosted here:
 
-* `eos/`: these are the equations of state.  All of them use a Fortran
+* `EOS/`: these are the equations of state.  All of them use a Fortran
   derived type `eos_t` to pass the thermodynamic state information in
   and out.
 
