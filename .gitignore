@@ -58,7 +58,7 @@ Untitled0.ipynb
 
 # eos
 helm_table.dat
-!eos/helmholtz//helm_table.dat
+!EOS/helmholtz/helm_table.dat
 
 
 # unit testing
