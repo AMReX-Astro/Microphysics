@@ -61,12 +61,16 @@ and the generic solvers:
 \section{Design Philosophy}
 
 Any application that uses \microphysics\ will at minimum need to
-choose an EOS and a network.  These two components work together and
-depend on one-another.  
+choose an EOS and a network.  These two components work together.  The
+design philosophy is that the EOS depends on the network, but not the
+other way around.  The decision was made for the network to act as the
+core module, and lots of code depends on it.  This avoids circular
+dependencies by having the {\tt eos\_t} and {\tt burn\_t} be built on
+top of the network.
 
 The network is meant to store the properties of the species (typically
 nuclear isotopes) including their atomic weights and numbers, and also
-describes any links between the species when burning.
+describes any links between the species when burning.  
 
 The equation of state relates the thermodynamic properties of the
 material.  It depends on the composition of the material, typically
