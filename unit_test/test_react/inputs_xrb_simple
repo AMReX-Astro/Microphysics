@@ -10,4 +10,7 @@
 
   xin_file   = "xin.xrb_simple"
   run_prefix = "react_xrb_simple_"
+  
+  centered_diff_jac = T
+
 /

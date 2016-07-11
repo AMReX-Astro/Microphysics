@@ -2,7 +2,7 @@
   test_set = "gr0_3d.small"
 
   dens_min   = 5.d4
-  dens_max   = 3.d6
+  dens_max   = 2.d6
   temp_min   = 1.d8
   temp_max   = 1.d9
 
@@ -14,4 +14,6 @@
   jacobian = 2
   centered_diff_jac = T
 
+  small_dens = 1.e5
+  small_temp = 1.e6
 /
