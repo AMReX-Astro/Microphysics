@@ -1,7 +1,122 @@
 \label{ch:unit_tests}
 
+There are 2 unit tests in \microphysics\ that operate on a generic EOS
+or reaction network.  To allow these to compile independent of any
+application code (e.g., \maestro\ or \castro), copies of the EOS
+driver {\tt eos.f90} and network interface {\tt network.f90} are
+provided in {\tt Microphysics/unit\_test/}.  These tests compile using
+the \boxlib\ F90 build system.  The file {\tt
+  Microphysics/GMicrophysics.mak} provides the macros necessary to
+build the executable.  Runtime parameters are parsed in the same
+fashion as in the application codes, using the {\tt write\_probin.py}
+script.
+
 \section{EOS test}
 
+{\tt Microphysics/unit\_test/test\_eos/} is a unit test for the
+equations of state in \microphysics.  It sets up a cube of data, with
+$\rho$, $T$, and $X_k$ varying along the three dimensions, and then
+calls the EOS in each zone.  Calls are done to exercise all modes of
+calling the EOS, in order:
+
+\begin{itemize}
+  \item {\tt eos\_input\_rt}: We call the EOS using $\rho, T$.  this
+    is the reference call, and we save the $h$, $e$, $p$, and $s$ from
+    here to use in subsequent calls.
+
+  \item {\tt eos\_input\_rh}: We call the EOS using $\rho, h$, to
+    recover the original $T$.  To give the root finder some work to
+    do, we perturb the initial temperature.  
+
+    We store the relative error in $T$ in the output file.
+
+  \item {\tt eos\_input\_tp}: We call the EOS using $T, p$, to
+    recover the original $\rho$.  To give the root finder some work to
+    do, we perturb the initial density.
+
+    We store the relative error in $\rho$ in the output file.
+
+  \item {\tt eos\_input\_rp}: We call the EOS using $\rho, p$, to
+    recover the original $T$.  To give the root finder some work to
+    do, we perturb the initial temperature.
+
+    We store the relative error in $T$ in the output file.
+
+  \item {\tt eos\_input\_re}: We call the EOS using $\rho, e$, to
+    recover the original $T$.  To give the root finder some work to
+    do, we perturb the initial temperature.
+
+    We store the relative error in $T$ in the output file.
+
+  \item {\tt eos\_input\_ps}: We call the EOS using $p, s$, to
+    recover the original $\rho, T$.  To give the root finder some work to
+    do, we perturb the initial density and temperature.
+
+    Note: entropy is not well-defined for some EOSs, so we only attempt
+    the root find if $s > 0$. 
+
+    We store the relative error in $\rho, T$ in the output file.
+
+  \item {\tt eos\_input\_ph}: We call the EOS using $p, h$, to
+    recover the original $\rho, T$.  To give the root finder some work to
+    do, we perturb the initial density and temperature.
+
+    We store the relative error in $\rho, T$ in the output file.
+
+  \item {\tt eos\_input\_th}: We call the EOS using $T, h$, to
+    recover the original $\rho$.  To give the root finder some work to
+    do, we perturb the initial density.
+
+    Note: for some EOSs, $h = h(\rho)$ (e.g., and ideal gas), so there
+    is no temperature dependence, and we do not do this test.
+
+    We store the relative error in $\rho$ in the output file.
+
+\end{itemize}
+
+This unit test is marked up with OpenMP directives and therefore also
+tests whether the EOS is threadsafe.
+
+To compile for a specific EOS, e.g., {\tt helmholtz}, do:
+\begin{verbatim}
+make EOS_DIR=helmholtz -j 4
+\end{verbatim}
+
+Examining the output (a \boxlib\ plotfile) will show you how big the
+errors are.  You can use the {\tt BoxLib/Tools/Postprocessing/} too
+{\tt fextrema} to display the maximum error for each variable.
+
+Note: an analogous {\tt test\_eos} exists in \maestro.
 
 \section{Network test}
+
+{\tt Microphysics/unit\_test/test\_react/} is a unit test for the
+nuclear reaction networks in \microphysics.  It sets up a cube of
+data, with $\rho$, $T$, and $X_k$ varying along the three dimensions
+(as a $16^3$ domain), and then calls the EOS in each zone.  
+
+The state in each zone of our data cube is determined by the runtime
+parameters {\tt dens\_min}, {\tt dens\_max}, {\tt temp\_min}, and {\tt
+  temp\_max} for $(\rho, T)$.  Because each network carries different
+compositions, we specify explicitly the mass fraction of each species
+for every step in the composition dimension in a file {\tt xin.*} for
+each network.  Note: it is up to the user to ensure that they species
+are in the proper order in that file and sum to 1.  The name of the
+file to use is specified by the runtime parameter {\tt xin\_file}.
+
+This test calls the network on each zone, running for a time {\tt
+  tmax}.  The full state, including new mass fractions and energy
+release is output to a \boxlib\ plotfile.
+
+You can compile for a specific integrator (e.g., {\tt BS}) or 
+network (e.g., {\tt aprox13}) as:
+\begin{verbatim}
+make NETWORK_DIR=aprox13 INTEGRATOR_DIR=BS -j 4
+\end{verbatim}
+
+The loop over the burner is marked up for both OpenMP and OpenACC and
+therefore this test can be used to assess threadsafety of the burners
+as well as to optimize the GPU performance of the burners.
+
+
 
