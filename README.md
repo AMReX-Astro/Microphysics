@@ -58,3 +58,5 @@ These routines are written to be compatible with:
 * Maestro: http://boxlib-codes.github.io/MAESTRO/
 
 
+A user's guide for Microphysics can be found in `Docs/`.  Type `make`
+to build it from its LaTeX source.
