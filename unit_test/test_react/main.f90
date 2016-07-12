@@ -13,7 +13,7 @@ program test_react
   use multifab_module
   use variables
   use probin_module, only: dens_min, dens_max, &
-                           temp_min, temp_max, test_set, dt, run_prefix, &
+                           temp_min, temp_max, test_set, tmax, run_prefix, &
                            small_temp, small_dens
   use runtime_init_module
   use burn_type_module
@@ -131,7 +131,7 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     ldt = dt
+     ldt = tmax
 
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
      !$OMP FIRSTPRIVATE(burn_state_in, ldt) &
