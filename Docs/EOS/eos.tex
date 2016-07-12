@@ -93,10 +93,10 @@ polytropic relations.  The options are:
   of state of Chandrasekhar (1935), which is designed to describe
   white dward material. The pressure satisfies the equation:
 \begin{equation}
-  P(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
+  p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
 \end{equation}
 with $A = \pi m_e^4 c^5 / (3 h^3)$. Here $x$ is a dimensionless
-measure of density, with $\rho = B x^3$ and $B = 8\pi \mu_e m_p m_e^3
+measure of the Fermi momentum, with $\rho = B x^3$ and $B = 8\pi \mu_e m_p m_e^3
 c^3 / (3h^3)$, where $\mu_e$ is the electron fraction and $h$ is the
 Planck constant. The enthalpy was worked out by Hachisu (1986):
 \begin{equation}
@@ -149,8 +149,7 @@ Furthermore, we can show
 and $p = \rho e (\gamma_\mathrm{effective} - 1)$.
 
 This equation of state takes several runtime parameters that can set
-the $\gamma_i$ for a specific species.  These are set in the {\tt
-  \&extern} namelist in the {\tt probin} file.  The parameters are:
+the $\gamma_i$ for a specific species.  The parameters are:
 \begin{itemize}
 \item {\tt eos\_gamma\_default}: the default $\gamma$ to apply for all
   species
