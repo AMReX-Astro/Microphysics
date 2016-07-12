@@ -1,15 +1,15 @@
-\documentclass[11pt]{book} 
+\documentclass[11pt]{book}
 
 \tolerance=600
 
 % for \begin{center}, etc.
 \usepackage[margin=1.0in]{geometry}
 
-% longtable package used to split tables across pages                           
-\usepackage{longtable}                                                          
-                                                                                
-% PDF-aware landscape package, used for rotating tables (including the          
-% longtable)                                                                    
+% longtable package used to split tables across pages
+\usepackage{longtable}
+
+% PDF-aware landscape package, used for rotating tables (including the
+% longtable)
 \usepackage{pdflscape}
 \usepackage{rotating}
 
@@ -46,11 +46,11 @@
 % color package
 \usepackage[usenames]{color}
 
-% table coloring                                                                
-\usepackage{colortbl}                                                           
-\definecolor{tableShade}{rgb}{0.945,0.961,0.980}                                
-                                                                                
- 
+% table coloring
+\usepackage{colortbl}
+\definecolor{tableShade}{rgb}{0.945,0.961,0.980}
+
+
 
 % make the MarginPars look pretty
 \setlength{\marginparwidth}{0.75in}
@@ -169,7 +169,7 @@
 \begin{titlepage}
 \begin{center}
 \ \\[3in]
-{\sf \Huge Microphysics} 
+{\sf \Huge Microphysics}
 
 \begin{minipage}{5.5in}
 \HRule\\[2mm]
@@ -199,23 +199,11 @@
 
 \chapter*{Preface}
 \chaptermark{Preface}
+
 \addcontentsline{toc}{chapter}{preface}
 
-Welcome to the \microphysics\ User's Guide!
+\input preface/preface.tex
 
-In this User's Guide we describe the microphysics modules designed to
-support \boxlib\ codes such as \castro\ and \maestro. These all have a
-consistent interface and are designed to provide the users of those
-codes an easy experience in moving from the barebones microphysics
-modules provided in those codes. For the purposes of this user's
-guide, the microphysical components we currently deal with are the
-equation of state (EOS) and the nuclear burning network.
-
-\microphysics\ is not a stand-alone code. It is intended to be used in
-conjuction with \boxlib\ codes and so we do not provide support for
-running these codes separately.  However, in many cases we will
-provide test modules that demonstrate a minimal working example for
-how to run the modules.
 
 \clearpage
 

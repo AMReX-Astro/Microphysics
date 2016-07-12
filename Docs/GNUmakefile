@@ -9,6 +9,7 @@ pdf_source = $(eps_source:.eps=.pdf)
 png_source := $(wildcard */*.png)
 
 section_sources = MicrophysicsUsersGuide.tex \
+                  preface/preface.tex \
                   basics/basics.tex \
                   data_structures/data_structures.tex \
                   EOS/eos.tex \
