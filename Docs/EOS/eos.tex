@@ -12,14 +12,16 @@ type.
 
 
 
-\subsection {\tt gamma\_law\_general} 
+\subsection {\tt gamma\_law\_general}
 
 {\tt gamma\_law\_general} represents a gamma law gas, with
   equation of state:
 \begin{equation}
   p = (\gamma - 1) \rho e.
 \end{equation}
-The gas is assumed to be ideal, with the pressure given by 
+$\gamma$ is specified by the runtime parameter {\tt eos\_gamma}.  For
+an ideal gas, this represents the ratio of specific heats.  The gas is
+assumed to be ideal, with the pressure given by
 \begin{equation}
 p = \frac{\rho k T}{\mu m_u}
 \end{equation}
@@ -47,23 +49,45 @@ by the hydrodynamics module in \castro.
 
 
 
-\subsection{\tt polytrope} 
+\subsection{\tt polytrope}
 
 {\tt polytrope} represents a polytropic fluid, with equation of
   state:
 \begin{equation}
-  P = K \rho^\gamma.
+  p = K \rho^\gamma.
 \end{equation}
-The gas is also assumed to obey the above gamma law equation of state
+The gas is also assumed to obey the above gamma law relation
 connecting the pressure and internal energy. Therefore $\rho$ is the
 only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
-electron gas) or inputs their own values for $K$ and $\gamma$.
+electron gas) or inputs their own values for $K$ and $\gamma$
+via {\tt polytrope\_K} and {\tt polytrope\_gamma}.
+
+The runtime parameter {\tt polytrope\_type} selects the pre-defined
+polytropic relations.  The options are:
+\begin{itemize}
+  \item {\tt polytrope\_type = 1}: sets $\gamma = 5/3$ and
+    \begin{equation}
+      K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}
+    \end{equation}
+    where $mu_e$ is the mean molecular weight per electron, specified via {\tt polytrope\_mu\_e}
+
+    This is the form appropriate for a non-relativistic
+    fully-degenerate electron gas.
+
+  \item {\tt polytrope\_type = 2}: sets $\gamma = 4/3$ and
+    \begin{equation}
+      K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}
+    \end{equation}
+
+    This is the form appropriate for a relativistic fully-degenerate
+    electron gas.
+
+\end{itemize}
 
 
-
-\subsection{\tt ztwd} 
+\subsection{\tt ztwd}
 
 {\tt ztwd} is the zero-temperature degenerate electron equation
   of state of Chandrasekhar (1935), which is designed to describe
@@ -88,7 +112,7 @@ with pressure as a primary input then we do Newton-Raphson iteration
 to find the density that matches this pressure.
 
 
-\subsection{\tt multigamma} 
+\subsection{\tt multigamma}
 
 {\tt multigamma} is an ideal gas equation of state where each
   species can have a different value of $\gamma$.  This mainly affects
@@ -107,20 +131,20 @@ $\gamma_k$ weightings.
 
 The specific heats are constructed as usual,
 \begin{align}
-c_v &= \left . \frac{\partial e}{\partial T} \right |_\rho = 
+c_v &= \left . \frac{\partial e}{\partial T} \right |_\rho =
     \frac{k}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
-c_p &= \left . \frac{\partial h}{\partial T} \right |_p = 
-    \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} 
+c_p &= \left . \frac{\partial h}{\partial T} \right |_p =
+    \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}
 \end{align}
 and it can be seen that the specific gas constant, $R \equiv c_p -
 c_v$ is independent of the $\gamma_i$, and is simply $R =
 k/m_u\bar{A}$ giving the usual relation that $p = R\rho T$.
 Furthermore, we can show
 \begin{equation}
-\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =  
+\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =
    \left ( \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} \right ) \bigg /
    \left ( \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \right ) =
-\frac{c_p}{c_v} \equiv \gamma_\mathrm{effective} 
+\frac{c_p}{c_v} \equiv \gamma_\mathrm{effective}
 \end{equation}
 and $p = \rho e (\gamma_\mathrm{effective} - 1)$.
 
@@ -138,7 +162,7 @@ the $\gamma_i$ for a specific species.  These are set in the {\tt
   different species.
 \end{itemize}
 
-\subsection {\tt helmholtz} 
+\subsection {\tt helmholtz}
 
 {\tt helmholtz} contains a general, publicly available stellar
   equation of state based on the Helmholtz free energy, with
@@ -163,7 +187,7 @@ namelist in your probin file.
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
 
-\subsection {\tt stellarcollapse} 
+\subsection {\tt stellarcollapse}
 
 {\tt stellarcollapse} is the equation of state module provided
   on \href{stellarcollapse.org}{stellarcollapse.org}. It is designed
@@ -188,6 +212,3 @@ appropriate time for, say, loading an interpolation table into memory.
 The main evaluation routine is called {\tt specific\_eos}. It should
 accept an {\tt eos\_input} and an {\tt eos\_state}; see Section
 \ref{sec:data_structures}.
-
-
-
