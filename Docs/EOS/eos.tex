@@ -3,21 +3,53 @@ In this chapter on equations of state, we list the EOS routines
 available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.
 
-\section{EOS List}
+\section{Available Equations of State}
 
-Here we list the equations of state provided in this repository.
+The following equations of state are available in \microphysics.
+Except where noted, each of these EOSs will provide the full
+thermodynamic data (including all derivatives) in the {\tt eos\_t}
+type.
 
-\begin{itemize}
 
-\item {\tt gamma\_law\_general} represents a gamma law gas, with
+
+\subsection {\tt gamma\_law\_general} 
+
+{\tt gamma\_law\_general} represents a gamma law gas, with
   equation of state:
 \begin{equation}
-  P = (\gamma - 1) \rho e.
+  p = (\gamma - 1) \rho e.
 \end{equation}
-The gas is currently assumed to be monatomic and ideal. The entropy
-comes from the Sackur-Tetrode equation.
+The gas is assumed to be ideal, with the pressure given by 
+\begin{equation}
+p = \frac{\rho k T}{\mu m_u}
+\end{equation}
+where $k$ is Boltzmann's constant and $\mu$ is the mean molecular
+weight, calculated from the composition, $X_k$.  This EOS assumes
+the gas is either completely neutral ({\tt assume\_neutral = T}),
+giving:
+\begin{equation}
+\mu^{-1} = \sum_k \frac{X_k}{A_k}
+\end{equation}
+or completely ionized ({\tt assume\_neutral = F}), giving:
+\begin{equation}
+\mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}
+\end{equation}
 
-\item {\tt polytrope} represents a polytropic fluid, with equation of
+The entropy comes from the Sackur-Tetrode equation.  Because of the
+complex way that composition enters into the entropy, the entropy
+formulation here is only correct for a $\gamma = 5/3$ gas.
+
+Note that the implementation provided in \microphysics\ is the same as
+the version shipped with \maestro, but more general than the {\tt
+  gamma\_law} EOS provided with \castro.  \castro's default EOS only
+fills the thermodynamic information in {\tt eos\_t} that is required
+by the hydrodynamics module in \castro.
+
+
+
+\subsection{\tt polytrope} 
+
+{\tt polytrope} represents a polytropic fluid, with equation of
   state:
 \begin{equation}
   P = K \rho^\gamma.
@@ -29,7 +61,11 @@ user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
 electron gas) or inputs their own values for $K$ and $\gamma$.
 
-\item {\tt ztwd} is the zero-temperature degenerate electron equation
+
+
+\subsection{\tt ztwd} 
+
+{\tt ztwd} is the zero-temperature degenerate electron equation
   of state of Chandrasekhar (1935), which is designed to describe
   white dward material. The pressure satisfies the equation:
 \begin{equation}
@@ -51,7 +87,10 @@ solution for the density in terms of the pressure, if we call the EOS
 with pressure as a primary input then we do Newton-Raphson iteration
 to find the density that matches this pressure.
 
-\item {\tt multigamma} is an ideal gas equation of state where each
+
+\subsection{\tt multigamma} 
+
+{\tt multigamma} is an ideal gas equation of state where each
   species can have a different value of $\gamma$.  This mainly affects
   how the internal energy is constructed as each species, represented
   with a mass fraction $X_k$ will have its contribution to the total
@@ -99,7 +138,9 @@ the $\gamma_i$ for a specific species.  These are set in the {\tt
   different species.
 \end{itemize}
 
-\item {\tt helmholtz} contains a general, publicly available stellar
+\subsection {\tt helmholtz} 
+
+{\tt helmholtz} contains a general, publicly available stellar
   equation of state based on the Helmholtz free energy, with
   contributions from ions, radiation, and electron degeneracy, as
   described in \cite{timmes:1999,timmes:2000,flash}.
@@ -122,14 +163,15 @@ namelist in your probin file.
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
 
-\item {\tt stellarcollapse} is the equation of state module provided
+\subsection {\tt stellarcollapse} 
+
+{\tt stellarcollapse} is the equation of state module provided
   on \href{stellarcollapse.org}{stellarcollapse.org}. It is designed
   to be used for core-collapse supernovae and is compatible with a
   large number of equations of state that are designed to describe
   matter near nuclear density. You will need to download an
   appropriate interpolation table from that site to use this.
 
-\end{itemize}
 
 
 
