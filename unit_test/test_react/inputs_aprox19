@@ -4,11 +4,12 @@
   dens_min   = 1.d5
   dens_max   = 3.d9
   temp_min   = 5.d7
-  temp_max   = 6.d9
+  temp_max   = 1.d9
 
-  dt = 1.d-3
+  dt = 1.d-5
 
   xin_file   = "xin.aprox19"
   run_prefix = "react_aprox19_"
+ 
 
 /
