@@ -7,7 +7,9 @@ module actual_network
   double precision, parameter :: M12_chamulak = 2.93d0
 
   integer, parameter :: nspec = 3
-  integer, parameter :: nspec_evolve = 3
+
+  ! we are only explicitly evolving C12
+  integer, parameter :: nspec_evolve = 1
   integer, parameter :: naux  = 0
 
   integer, parameter :: ic12_  = 1

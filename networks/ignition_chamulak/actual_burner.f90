@@ -1,5 +1,6 @@
 module actual_burner_module
 
+  use bl_constants_module
   use burn_type_module
   use actual_network
 
@@ -28,6 +29,9 @@ contains
     double precision, intent(in   ) :: dt, time
 
     call integrator(state_in, state_out, dt, time)
+
+    state_out % xn(io16_) = state_in % xn(io16_)
+    state_out % xn(iash_) = (ONE - state_out % xn(ic12_) - state_out % xn(io16_))
 
   end subroutine actual_burner
 

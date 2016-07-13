@@ -18,9 +18,9 @@ contains
   end subroutine actual_rhs_init
 
 
-
   subroutine actual_rhs(state)
 
+    use extern_probin_module, only: do_constant_volume_burn
     use screening_module, only: screenz
 
     implicit none
@@ -44,10 +44,16 @@ contains
 
     temp = state % T
     dens = state % rho
-    y    = state % xn / aion
+    y(ic12_) = state % xn(ic12_) / aion(ic12_)
+
+    ! note that we only update C12, so we need to get the other species accordingly
+    ! O16 never changes in the burn
+    y(io16_) = state % xn(io16_) / aion(io16_)
+    y(iash_) = (ONE - state % xn(ic12_) - state % xn(io16_))/aion(iash_)
 
     ! call the screening routine
-    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,sc1212,dsc1212dt)
+    call screenz(temp, dens, 6.0d0, 6.0d0, 12.0d0, 12.0d0, &
+                 y, sc1212, dsc1212dt)
 
     ! compute some often used temperature constants
     T9     = temp/1.d9
@@ -106,7 +112,16 @@ contains
 
     call ener_gener_rate(state % ydot(1:nspec), ebin, state % ydot(net_ienuc))
 
-    call temperature_rhs(state)
+    if (state % self_heat) then
+
+       if (do_constant_volume_burn) then
+          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
+
+       else
+          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
+
+       endif
+    endif
 
   end subroutine actual_rhs
 
@@ -179,7 +194,7 @@ contains
 
     double precision :: dydt(nspec), ebin(nspec), enuc
 
-    enuc = sum(dydt(:) * aion(:) * ebin(:))
+    enuc = dydt(ic12_) * aion(ic12_) * ebin(ic12_)
 
   end subroutine ener_gener_rate
 

@@ -6,34 +6,24 @@ COMP := gfortran
 
 MKVERBOSE := t
 
-MAESTRO_TOP_DIR := ../../../..
+MICROPHYSICS_HOME := ../../..
 
+# programs to be compiled
 programs += testburn
-programs += eval
-programs += testjacobian
+#programs += eval
+#programs += testjacobian
 
-EOS_DIR := helmeos
-CONDUCTIVITY_DIR := constant
+EOS_DIR := helmholtz
 NETWORK_DIR := ignition_chamulak
 
-BOXLIB_ONLY := t
-EXTRA_DIR = Microphysics/networks/ignition_chamulak/test
+TEST_DIR = $(MICROPHYSICS_HOME)/networks/ignition_chamulak/test
 
-testAll: table
+ALL:
 
-EXTRA_LOCATIONS += $(MAESTRO_TOP_DIR)/Source  # needed for constants.f90
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
-include $(MAESTRO_TOP_DIR)/GMaestro.mak
+ALL: $(pnames)
 
-testAll: $(pnames)
-
-%.$(suf).exe:%.f90 $(objects)
-ifdef MKVERBOSE
-	$(LINK.f90) -o $@ $< $(objects) $(libraries)
-else
-	@echo "Linking $@ ... "
-	@$(LINK.f90) -o $@ $< $(objects) $(libraries)
-endif
-
-
+# include the fParallel Makefile rules
+include $(BOXLIB_HOME)/Tools/F_mk/GMakerules.mak
 
