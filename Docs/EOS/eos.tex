@@ -96,16 +96,21 @@ polytropic relations.  The options are:
   p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
 \end{equation}
 with $A = \pi m_e^4 c^5 / (3 h^3)$. Here $x$ is a dimensionless
-measure of the Fermi momentum, with $\rho = B x^3$ and $B = 8\pi \mu_e m_p m_e^3
-c^3 / (3h^3)$, where $\mu_e$ is the electron fraction and $h$ is the
-Planck constant. The enthalpy was worked out by Hachisu (1986):
+measure of the Fermi momentum, with $\rho = B x^3$ and $B = 8\pi \mu_e
+m_p m_e^3 c^3 / (3h^3)$, where $\mu_e$ is the mean molecular weight
+per electron and $h$ is the Planck constant. 
+
+The enthalpy was worked out by Hachisu (1986):
 \begin{equation}
   h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.
 \end{equation}
-The internal energy satisfies the standard relationship to the enthalpy:
+(note the unfortunate notation here, but this $h$ is specific
+enthalpy).  The specific internal energy satisfies the standard
+relationship to the specific enthalpy:
 \begin{equation}
   e = h - p / \rho.
 \end{equation}
+
 Since the pressure-density relationship does not admit a closed-form
 solution for the density in terms of the pressure, if we call the EOS
 with pressure as a primary input then we do Newton-Raphson iteration
@@ -196,6 +201,10 @@ publicly release it in this repository.
   appropriate interpolation table from that site to use this.
 
 
+\section{Initialization and Cutoff Values}
+
+
+\section{Input Validation}
 
 
 \section{EOS Structure}
