@@ -1,0 +1,95 @@
+\label{sec:data_structures}
+
+All of the routines in this software package are standardized so that
+you interact with them using the same type of data structure, a
+Fortran derived type (which, for our purposes, is analogous to a
+\cpp\ struct).
+
+\section{EOS}
+
+The main data structure for interacting with the EOS is {\tt eos\_t}.
+This is a collection of data specifying the microphysical state of the
+fluid that we are evaluating.  This derived type has many components,
+and in the Fortran syntax we access them with the {\tt \%} operator. For a
+particular instantiation named {\tt eos\_state}, the most important
+data is the following:
+\begin{itemize}
+  \item {\tt eos\_state \% rho}: density [$\mathrm{g~cm^{-3}}$]
+
+  \item {\tt eos\_state \% T}: temperature [K]
+
+  \item {\tt eos\_state \% p}: pressure [$\mathrm{erg~cm^{-3}}$]
+
+  \item {\tt eos\_state \% e}: specific internal energy [$\mathrm{erg~g^{-1}}$]
+
+  \item {\tt eos\_state \% h}: specific enthalpy [$\mathrm{erg~g^{-1}}$]
+
+  \item {\tt eos\_state \% s}: specific entropy [$\mathrm{erg~g^{-1}~K^{-1}}$]
+
+  \item {\tt eos\_state \% xn(:)}: mass fractions of species (this is an
+    array, dimensioned to be the number of species, {\tt nspec})
+
+  \item {\tt eos\_state \% aux(:)}: any auxiliary variables carried with
+    the fluid (this is an array, dimensioned to be the number of 
+    auxiliary quantities, {\tt naux})
+\end{itemize}
+Note that both {\tt nspec} and {\tt naux} are meant to be properties of the
+network, and they will come in through the {\tt network} module.
+
+There is a lot more information that can be saved here, such as the
+partial derivatives of the thermodynamic state variables with respect
+to each other. To see a complete list, examine the {\tt eos\_type.f90}
+file inside the code calling \microphysics\ (e.g. {\tt
+  Castro/EOS/eos\_type.f90}).
+
+
+\section{Networks}
+
+The main data structure for interacting with the reaction networks is
+{\tt burn\_t}.  This holds the composition (mass fractions),
+thermodynamic state, and a lot of internal information used by the
+reaction network (e.g. the righthand side of the ODEs, the Jacobian,
+etc.).  Typically the user will only need to fill/use the following
+information:
+\begin{itemize}
+\item {\tt burn\_state \% rho}: density [$\mathrm{g~cm^{-3}}$]
+
+\item {\tt burn\_state \% T}: temperature [K]
+
+\item {\tt burn\_state \% e}: the specific energy release from the
+  burn---this is not the actual thermodynamic energy [$\mathrm{erg~g^{-1}}$] \MarginPar{clarify}
+
+\item {\tt burn\_state \% h}: not used? \MarginPar{h?}
+
+\item {\tt burn\_state \% xn(:)}: the mass fractions
+
+\item {\tt burn\_state \% aux(:)}: any auxiliary quantities (like $Y_e$)
+
+\item {\tt burn\_state \% i}, {\tt \% j}, {\tt \% k}: hydrodynamic zone i, j, k for
+  bug reporting, diagnostics
+
+\item {\tt burn\_state \% time}: current simulation time
+
+\item {\tt burn\_state \% shock}: are we inside of a hydrodynamic shock (the burner
+  may wish to take action in this case)
+
+\end{itemize}
+
+
+
+
+
+
+\section{Converting Between Types}
+
+There is significant overlap between {\tt eos\_t} and {\tt burn\_t}.
+The {\tt burn\_type\_module} provides two routines, {\tt
+  burn\_to\_eos} and {\tt eos\_to\_burn} that convert a {\tt burn\_t}
+state to an {\tt eos\_t} state, and back.  Only the thermodynamic
+variables that are common in the two types are copied.  This is
+useful, for example, if you have a {\tt burn\_t} state and what to get
+thermodynamic information by calling the EOS.
+
+
+\section{Initial Values and Threadsafety}
+

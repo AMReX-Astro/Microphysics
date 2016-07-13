@@ -3,55 +3,123 @@ In this chapter on equations of state, we list the EOS routines
 available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.
 
-\section{EOS List}
+\section{Available Equations of State}
 
-Here we list the equations of state provided in this repository.
+The following equations of state are available in \microphysics.
+Except where noted, each of these EOSs will provide the full
+thermodynamic data (including all derivatives) in the {\tt eos\_t}
+type.
 
-\begin{itemize}
 
-\item {\tt gamma\_law\_general} represents a gamma law gas, with
+
+\subsection {\tt gamma\_law\_general}
+
+{\tt gamma\_law\_general} represents a gamma law gas, with
   equation of state:
 \begin{equation}
-  P = (\gamma - 1) \rho e.
+  p = (\gamma - 1) \rho e.
 \end{equation}
-The gas is currently assumed to be monatomic and ideal. The entropy
-comes from the Sackur-Tetrode equation.
+$\gamma$ is specified by the runtime parameter {\tt eos\_gamma}.  For
+an ideal gas, this represents the ratio of specific heats.  The gas is
+assumed to be ideal, with the pressure given by
+\begin{equation}
+p = \frac{\rho k T}{\mu m_u}
+\end{equation}
+where $k$ is Boltzmann's constant and $\mu$ is the mean molecular
+weight, calculated from the composition, $X_k$.  This EOS assumes
+the gas is either completely neutral ({\tt assume\_neutral = T}),
+giving:
+\begin{equation}
+\mu^{-1} = \sum_k \frac{X_k}{A_k}
+\end{equation}
+or completely ionized ({\tt assume\_neutral = F}), giving:
+\begin{equation}
+\mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}
+\end{equation}
 
-\item {\tt polytrope} represents a polytropic fluid, with equation of
+The entropy comes from the Sackur-Tetrode equation.  Because of the
+complex way that composition enters into the entropy, the entropy
+formulation here is only correct for a $\gamma = 5/3$ gas.
+
+Note that the implementation provided in \microphysics\ is the same as
+the version shipped with \maestro, but more general than the {\tt
+  gamma\_law} EOS provided with \castro.  \castro's default EOS only
+fills the thermodynamic information in {\tt eos\_t} that is required
+by the hydrodynamics module in \castro.
+
+
+
+\subsection{\tt polytrope}
+
+{\tt polytrope} represents a polytropic fluid, with equation of
   state:
 \begin{equation}
-  P = K \rho^\gamma.
+  p = K \rho^\gamma.
 \end{equation}
-The gas is also assumed to obey the above gamma law equation of state
+The gas is also assumed to obey the above gamma law relation
 connecting the pressure and internal energy. Therefore $\rho$ is the
 only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
-electron gas) or inputs their own values for $K$ and $\gamma$.
+electron gas) or inputs their own values for $K$ and $\gamma$
+via {\tt polytrope\_K} and {\tt polytrope\_gamma}.
 
-\item {\tt ztwd} is the zero-temperature degenerate electron equation
+The runtime parameter {\tt polytrope\_type} selects the pre-defined
+polytropic relations.  The options are:
+\begin{itemize}
+  \item {\tt polytrope\_type = 1}: sets $\gamma = 5/3$ and
+    \begin{equation}
+      K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}
+    \end{equation}
+    where $mu_e$ is the mean molecular weight per electron, specified via {\tt polytrope\_mu\_e}
+
+    This is the form appropriate for a non-relativistic
+    fully-degenerate electron gas.
+
+  \item {\tt polytrope\_type = 2}: sets $\gamma = 4/3$ and
+    \begin{equation}
+      K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}
+    \end{equation}
+
+    This is the form appropriate for a relativistic fully-degenerate
+    electron gas.
+
+\end{itemize}
+
+
+\subsection{\tt ztwd}
+
+{\tt ztwd} is the zero-temperature degenerate electron equation
   of state of Chandrasekhar (1935), which is designed to describe
   white dward material. The pressure satisfies the equation:
 \begin{equation}
-  P(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
+  p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
 \end{equation}
 with $A = \pi m_e^4 c^5 / (3 h^3)$. Here $x$ is a dimensionless
-measure of density, with $\rho = B x^3$ and $B = 8\pi \mu_e m_p m_e^3
-c^3 / (3h^3)$, where $\mu_e$ is the electron fraction and $h$ is the
-Planck constant. The enthalpy was worked out by Hachisu (1986):
+measure of the Fermi momentum, with $\rho = B x^3$ and $B = 8\pi \mu_e
+m_p m_e^3 c^3 / (3h^3)$, where $\mu_e$ is the mean molecular weight
+per electron and $h$ is the Planck constant. 
+
+The enthalpy was worked out by Hachisu (1986):
 \begin{equation}
   h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.
 \end{equation}
-The internal energy satisfies the standard relationship to the enthalpy:
+(note the unfortunate notation here, but this $h$ is specific
+enthalpy).  The specific internal energy satisfies the standard
+relationship to the specific enthalpy:
 \begin{equation}
   e = h - p / \rho.
 \end{equation}
+
 Since the pressure-density relationship does not admit a closed-form
 solution for the density in terms of the pressure, if we call the EOS
 with pressure as a primary input then we do Newton-Raphson iteration
 to find the density that matches this pressure.
 
-\item {\tt multigamma} is an ideal gas equation of state where each
+
+\subsection{\tt multigamma}
+
+{\tt multigamma} is an ideal gas equation of state where each
   species can have a different value of $\gamma$.  This mainly affects
   how the internal energy is constructed as each species, represented
   with a mass fraction $X_k$ will have its contribution to the total
@@ -68,26 +136,25 @@ $\gamma_k$ weightings.
 
 The specific heats are constructed as usual,
 \begin{align}
-c_v &= \left . \frac{\partial e}{\partial T} \right |_\rho = 
+c_v &= \left . \frac{\partial e}{\partial T} \right |_\rho =
     \frac{k}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
-c_p &= \left . \frac{\partial h}{\partial T} \right |_p = 
-    \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} 
+c_p &= \left . \frac{\partial h}{\partial T} \right |_p =
+    \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}
 \end{align}
 and it can be seen that the specific gas constant, $R \equiv c_p -
 c_v$ is independent of the $\gamma_i$, and is simply $R =
 k/m_u\bar{A}$ giving the usual relation that $p = R\rho T$.
 Furthermore, we can show
 \begin{equation}
-\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =  
+\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =
    \left ( \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} \right ) \bigg /
    \left ( \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \right ) =
-\frac{c_p}{c_v} \equiv \gamma_\mathrm{effective} 
+\frac{c_p}{c_v} \equiv \gamma_\mathrm{effective}
 \end{equation}
 and $p = \rho e (\gamma_\mathrm{effective} - 1)$.
 
 This equation of state takes several runtime parameters that can set
-the $\gamma_i$ for a specific species.  These are set in the {\tt
-  \&extern} namelist in the {\tt probin} file.  The parameters are:
+the $\gamma_i$ for a specific species.  The parameters are:
 \begin{itemize}
 \item {\tt eos\_gamma\_default}: the default $\gamma$ to apply for all
   species
@@ -99,7 +166,9 @@ the $\gamma_i$ for a specific species.  These are set in the {\tt
   different species.
 \end{itemize}
 
-\item {\tt helmholtz} contains a general, publicly available stellar
+\subsection {\tt helmholtz}
+
+{\tt helmholtz} contains a general, publicly available stellar
   equation of state based on the Helmholtz free energy, with
   contributions from ions, radiation, and electron degeneracy, as
   described in \cite{timmes:1999,timmes:2000,flash}.
@@ -122,15 +191,22 @@ namelist in your probin file.
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
 
-\item {\tt stellarcollapse} is the equation of state module provided
-  on \href{stellarcollapse.org}{stellarcollapse.org}. It is designed
+\subsection {\tt stellarcollapse}
+
+{\tt stellarcollapse} is the equation of state module provided
+  on \url{http://stellarcollapse.org}. It is designed
   to be used for core-collapse supernovae and is compatible with a
   large number of equations of state that are designed to describe
   matter near nuclear density. You will need to download an
   appropriate interpolation table from that site to use this.
 
-\end{itemize}
 
+\section{Interface and Modes}
+
+\section{Initialization and Cutoff Values}
+
+
+\section{Input Validation}
 
 
 \section{EOS Structure}
@@ -146,6 +222,3 @@ appropriate time for, say, loading an interpolation table into memory.
 The main evaluation routine is called {\tt specific\_eos}. It should
 accept an {\tt eos\_input} and an {\tt eos\_state}; see Section
 \ref{sec:data_structures}.
-
-
-

@@ -173,6 +173,14 @@ contains
 
     double precision :: y(nspec)
 
+    ! Get the data from the state
+
+    rho  = state % rho
+    temp = state % T
+    abar = state % abar
+    zbar = state % zbar
+    y    = state % xn / aion
+
     ! Get the raw reaction rates
     call aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd)
 
@@ -366,7 +374,7 @@ contains
 
     ! cno cycles
     a(1) = y(io16) * y(ih1) * rate(iropg) 
-    a(1) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
+    a(2) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
 
     dydt(ihe4) =  dydt(ihe4) + esum(a,2)
 

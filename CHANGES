@@ -1,6 +1,13 @@
 
 changes since last merge:
 
+ -- Microphysics/eos/ has been renamed Microphysics/EOS/ to better
+    conform to the conventions used in Castro and Maestro
+
+ -- the User's Guide has been extensively updated
+
+ -- OpenMP and OpenACC directives have been added to the unit tests
+
 
 previous changes:
 

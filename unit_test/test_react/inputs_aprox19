@@ -6,7 +6,8 @@
   temp_min   = 5.d7
   temp_max   = 1.d9
 
-  dt = 1.d-5
+
+  tmax = 1.d-5
 
   xin_file   = "xin.aprox19"
   run_prefix = "react_aprox19_"

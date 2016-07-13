@@ -8,7 +8,7 @@ to the `Microphysics/` directory.
 
 There are several core types of microphysics routines hosted here:
 
-* `eos/`: these are the equations of state.  All of them use a Fortran
+* `EOS/`: these are the equations of state.  All of them use a Fortran
   derived type `eos_t` to pass the thermodynamic state information in
   and out.
 
@@ -58,3 +58,5 @@ These routines are written to be compatible with:
 * Maestro: http://boxlib-codes.github.io/MAESTRO/
 
 
+A user's guide for Microphysics can be found in `Docs/`.  Type `make`
+to build it from its LaTeX source.

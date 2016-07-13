@@ -1,17 +1,22 @@
 &PROBIN
   test_set = "gr0_3d.small"
 
-  dens_min   = 5.d4
-  dens_max   = 3.d6
+  dens_min   = 1.d5
+  dens_max   = 2.d6
   temp_min   = 1.d8
   temp_max   = 1.d9
 
-  dt = 1.d-4
+  tmax = 1.d-6
 
   xin_file   = "xin.rprox"
   run_prefix = "react_rprox_"
 
   jacobian = 2
-  centered_diff_jac = T
+  !centered_diff_jac = T
 
+  !ode_scale_floor = 1.d-12
+  !scaling_method = 1
+
+  small_dens = 1.e5
+  small_temp = 1.e6
 /
