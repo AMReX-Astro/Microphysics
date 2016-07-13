@@ -42,14 +42,12 @@ contains
 
     state % ydot = ZERO
 
+    ! we enforce that O16 doesn't change and any C12 change goes to ash
+    state % xn(iash_) = ONE - state % xn(ic12_) - state % xn(io16_)
+
     temp = state % T
     dens = state % rho
-    y(ic12_) = state % xn(ic12_) / aion(ic12_)
-
-    ! note that we only update C12, so we need to get the other species accordingly
-    ! O16 never changes in the burn
-    y(io16_) = state % xn(io16_) / aion(io16_)
-    y(iash_) = (ONE - state % xn(ic12_) - state % xn(io16_))/aion(iash_)
+    y(:) = state % xn(:) / aion(:)
 
     ! call the screening routine
     call screenz(temp, dens, 6.0d0, 6.0d0, 12.0d0, 12.0d0, &
@@ -106,11 +104,11 @@ contains
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec) = state % ydot(1:nspec) / aion
+    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) / aion(1:nspec_evolve)
 
     call get_ebin(dens, ebin)
 
-    call ener_gener_rate(state % ydot(1:nspec), ebin, state % ydot(net_ienuc))
+    call ener_gener_rate(state % ydot(1:nspec_evolve), ebin, state % ydot(net_ienuc))
 
     if (state % self_heat) then
 
@@ -164,7 +162,7 @@ contains
 
     ! Convert back to molar form
 
-    do j = 1, nspec
+    do j = 1, nspec_evolve
        state % jac(j,:) = state % jac(j,:) / aion(j)
     enddo
 
@@ -172,13 +170,13 @@ contains
 
     call get_ebin(dens, ebin)
 
-    do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), ebin, state % jac(net_ienuc,j))
+    do j = 1, nspec_evolve
+       call ener_gener_rate(state % jac(1:nspec_evolve,j), ebin, state % jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec,net_itemp), ebin, state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), ebin, state % jac(net_ienuc,net_itemp))
 
     call temperature_jac(state)
 
@@ -192,7 +190,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec), ebin(nspec), enuc
+    double precision :: dydt(nspec_evolve), ebin(nspec), enuc
 
     enuc = dydt(ic12_) * aion(ic12_) * ebin(ic12_)
 
