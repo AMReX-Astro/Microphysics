@@ -173,6 +173,14 @@ contains
 
     double precision :: y(nspec)
 
+    ! Get the data from the state
+
+    rho  = state % rho
+    temp = state % T
+    abar = state % abar
+    zbar = state % zbar
+    y    = state % xn / aion
+
     ! Get the raw reaction rates
     call aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd)
 
