@@ -16,7 +16,8 @@ section_sources = MicrophysicsUsersGuide.tex \
                   runtime_parameters/rp_intro.tex \
                   runtime_parameters/runtime_parameters.tex \
                   networks/networks.tex \
-                  unit_tests/unit_tests.tex 
+                  unit_tests/unit_tests.tex \
+                  maestrosymbols.tex 
 
 MicrophysicsUsersGuide.pdf: MicrophysicsUsersGuide.tex $(pdf_source) $(section_sources) $(pdf_source) $(png_source) refs.bib
 	pdflatex MicrophysicsUsersGuide.tex < /dev/null

@@ -51,6 +51,29 @@ the reaction rates.
 
 \subsection{{\tt aprox13}, {\tt aprox19}, and {\tt aprox21}}
 
+These are alpha-chains (with some other nuclei) from Frank Timmes.
+These networks share common rates (from {\tt Microphysics/rates}),
+plasma neutrino loses (from {\tt Microphysics/neutrinos}), and
+electron screening (from {\tt Microphysics/screening}).
+
+\paragraph{Energy generation.} These networks store the total binding
+energy of the nucleus in MeV as {\tt bion(:)}.  They then compute the 
+mass of each nucleus in grams as:
+\begin{equation}
+M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k
+\end{equation}
+where $m_n$, $m_p$, and $m_e$ are the neutron, proton, and electron
+masses, $A_k$ and $Z_k$ are the atomic weight and number, and $B_k$
+is the binding energy of the nucleus (converted to grams).  $M_k$
+is stored as {\tt mion(:)} in the network.
+
+The energy release per gram is converted from the rates as:
+\begin{equation}
+\edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edot_\nu
+\end{equation}
+where $N_A$ is Avogadro's number (to convert this to ``per gram'')
+and $\edot_\nu$ is the neutrino loss term.
+
 \subsection{{\tt breakout}}
 
 \subsection{{\tt CONe2NSE}}
