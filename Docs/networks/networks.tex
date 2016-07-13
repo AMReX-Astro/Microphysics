@@ -4,6 +4,48 @@ as well as describes the burning processes between those isotopes.
 Solving a reaction network requires an integrator.  We discuss
 both of these parts of \microphysics\ here.
 
+\section{Network Requirements}
+
+At a minimum, a network needs to provide:
+\begin{itemize}
+ \item {\tt nspec} : the number of species in the network
+
+ \item {\tt nspec\_evolve} : the number of species that are actually
+   integrated in the network.  Usually this is {\tt nspec}, but in general
+   any {\tt nspec\_evolve} $\le$ {\tt nspec} is allowed.  Those species
+   not evolved are held constant in the integration.
+
+   Note that the convention is that the first {\tt nspec\_evolve} out
+   of the {\tt nspec} species are the ones evolved.
+
+ \item {\tt naux} : the number of auxiliary quantities needed by the 
+   network (these are not evolved).  \MarginPar{does any net use these?}
+
+ \item {\tt aion(:)} : the atomic weight (in atomic mass units) of the
+   species
+
+ \item {\tt zion(:)} : the atomic number of the species
+
+ \item {\tt spec\_names(:)} : a descriptive name of the species
+   (e.g. {\tt "hydrogen-1"})
+
+ \item {\tt short\_spec\_names(:)} : a shorten version of the species name
+   (e.g. {\tt "H1"})
+
+ \item {\tt short\_aux\_names(:)} : the names of the auxiliary quantities
+
+ \item {\tt network\_name} : a descriptive name for the network
+
+\end{itemize}
+Most of these quantities are Fortran parameters.
+
+{\bf A convention adopted in \microphysics\ is that each network
+is responsible for determining the energy release from a change 
+in composition}.  Most networks will provide an array of the species
+binding energies and a routine to compute the energy yield from
+the reaction rates.
+
+
 \section{Available Networks}
 
 
@@ -41,6 +83,18 @@ as a model of Type Ia supernovae~\cite{wdconvect}.  It models
 carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in \cite{chamulak:2008}.
+
+Only a single reaction is modeled, converting \isot{C}{12} into ``{\tt
+  ash}''.
+
+\paragraph{Energy generation.} The binding energy, $q$, in this 
+network is interpolated based on the density.  It is stored as the
+binding energy (ergs/g) {\em per nucleon}, with a sign convention that
+binding energies are negative.  The energy generation rate is then:
+\begin{equation}
+\edot = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}
+\end{equation}
+(this is positive since both $q$ and $dY/dt$ are negative)
 
 \subsection{{\tt ignition\_reaclib}}
 
