@@ -366,7 +366,7 @@ contains
 
     ! cno cycles
     a(1) = y(io16) * y(ih1) * rate(iropg) 
-    a(1) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
+    a(2) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
 
     dydt(ihe4) =  dydt(ihe4) + esum(a,2)
 
