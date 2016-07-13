@@ -11,7 +11,7 @@ The main data structure for interacting with the EOS is {\tt eos\_t}.
 This is a collection of data specifying the microphysical state of the
 fluid that we are evaluating.  This derived type has many components,
 and in the Fortran syntax we access them with the {\tt \%} operator. For a
-particular instantation named {\tt eos\_state}, the most important
+particular instantiation named {\tt eos\_state}, the most important
 data is the following:
 \begin{itemize}
   \item {\tt eos\_state \% rho}: density [$\mathrm{g~cm^{-3}}$]
@@ -31,7 +31,7 @@ data is the following:
 
   \item {\tt eos\_state \% aux(:)}: any auxiliary variables carried with
     the fluid (this is an array, dimensioned to be the number of 
-    auxillary quantities, {\tt naux})
+    auxiliary quantities, {\tt naux})
 \end{itemize}
 Note that both {\tt nspec} and {\tt naux} are meant to be properties of the
 network, and they will come in through the {\tt network} module.
@@ -63,9 +63,9 @@ information:
 
 \item {\tt burn\_state \% xn(:)}: the mass fractions
 
-\item {\tt burn\_state \% aux(:)}: any auxillary quantities (like $Y_e$)
+\item {\tt burn\_state \% aux(:)}: any auxiliary quantities (like $Y_e$)
 
-\item {\tt burn\_state \% i}, {\% j}, {\% k}: hydrodynamic zone i, j, k for
+\item {\tt burn\_state \% i}, {\tt \% j}, {\tt \% k}: hydrodynamic zone i, j, k for
   bug reporting, diagnostics
 
 \item {\tt burn\_state \% time}: current simulation time
