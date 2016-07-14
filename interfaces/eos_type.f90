@@ -147,11 +147,14 @@ module eos_type_module
     real(kind=dp_t) :: smallt
     real(kind=dp_t) :: smalld
 
-    logical :: reset                = .false.
-    logical :: check_small          = .true.
-    logical :: check_inputs         = .true.
+    logical :: reset                != .false.
+    logical :: check_small          != .true.
+    logical :: check_inputs         != .true.
 
   end type eos_t
+
+  !$acc declare create(smallt, smalld, smallx)
+  !$acc declare create(mintemp, maxtemp, mindens, maxdens, minye, maxye)
 
 contains
 
@@ -159,6 +162,8 @@ contains
   ! on the composition like abar and zbar.
 
   subroutine composition(state)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ONE
     use network, only: aion, zion
@@ -186,6 +191,8 @@ contains
   ! Compute thermodynamic derivatives with respect to xn(:)
 
   subroutine composition_derivatives(state)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ZERO
     use network, only: aion, zion
@@ -219,6 +226,8 @@ contains
   ! and less than one, and they must all sum to unity.
 
   subroutine normalize_abundances(state)
+
+    !$acc routine seq
 
     use bl_constants_module, only: ONE
     use extern_probin_module, only: small_x

@@ -59,9 +59,9 @@ module burn_type_module
     double precision :: abar             != init_num
     double precision :: zbar             != init_num
 
-    integer :: i = -100
-    integer :: j = -100
-    integer :: k = -100
+    integer :: i != -100
+    integer :: j != -100
+    integer :: k != -100
 
     ! Last temperature we evaluated the EOS at
     double precision :: T_old            != init_num
@@ -96,7 +96,7 @@ module burn_type_module
 
     logical          :: shock            != .false.
 
-    double precision :: time = -1.d0
+    double precision :: time != -1.d0
 
   end type burn_t
 

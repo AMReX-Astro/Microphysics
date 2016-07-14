@@ -11,6 +11,14 @@ BOXLIB_CORE := Src/F_BaseLib
 
 
 #-----------------------------------------------------------------------------
+ifdef ACC
+  ifeq ($(ACC), t)
+    FPP_DEFINES += -DACC -DUSE_ACC
+  endif
+endif
+
+
+#-----------------------------------------------------------------------------
 # EOS
 EOS_TOP_DIR := $(MICROPHYSICS_HOME)/EOS
 
