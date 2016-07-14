@@ -93,7 +93,6 @@ contains
     use bl_types
     use bl_constants_module, only: ZERO
     use eos_module
-    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -222,7 +221,6 @@ contains
     double precision :: y(nspec),rate(nrates),ratdum(nrates),dydt(nspec)
 
     ! local variables
-    integer          :: i
 
     double precision :: a(20)
 
@@ -767,7 +765,8 @@ contains
 
     integer          :: i
     double precision :: rrate,drratedt,drratedd
-    double precision :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
+    double precision :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,invtot
+    !double precision :: dtotdd
     type (tf_t)      :: tf
 
     do i=1,nrates
@@ -843,16 +842,16 @@ contains
 
     tot            = ff1 + ff2
     dtotdt         = dff1dt + dff2dt
-    dtotdd         = dff1dd + dff2dd
+!    dtotdd         = dff1dd + dff2dd
     invtot         = 1.0d0/tot
 
     ratraw(ifa)    = ff2 * invtot
     dratrawdt(ifa) = dff2dt * invtot - ff2 * invtot*invtot * dtotdt
-    dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd
+!    dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd
 
     ratraw(ifg)    = 1.0d0 - ratraw(ifa)
     dratrawdt(ifg) = -dratrawdt(ifa)
-    dratrawdd(ifg) = -dratrawdd(ifa)
+!    dratrawdd(ifg) = -dratrawdd(ifa)
 
 
     ! o16(p,g)f17
@@ -1047,8 +1046,7 @@ contains
     type (burn_t)    :: state
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
 
-    integer          :: i
-    double precision :: xx, rpen, rnep, spen, snep
+    double precision :: xx, spen, snep
 
     ! initialize
     ratraw(irpen)      = 0.0d0
@@ -1095,10 +1093,9 @@ contains
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     integer          :: i, jscr
-    integer          :: maxrate_loc(1),minrate_loc(1)
     double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
-                        sc3a,sc3adt,sc3add,abar,zbar,ye,z2bar, &
-                        denom,denomdt,denomdd,xx,zz
+                        sc3a,sc3adt,denom,denomdt,xx,zz
+    !double precision :: sc3add, denomdd
 
     type (plasma_state) :: state
 
@@ -1831,7 +1828,7 @@ contains
 
     scfac(ir33)     = sc1a
     dscfacdt(ir33)  = sc1adt
-    dscfacdd(ir33)  = sc1add
+!    dscfacdd(ir33)  = sc1add
 
 
     ! he3 + he4
@@ -1842,12 +1839,12 @@ contains
     ratdum(irhe3ag)    = ratraw(irhe3ag) * sc1a
     dratdumdt(irhe3ag) = dratrawdt(irhe3ag)*sc1a &
          + ratraw(irhe3ag)*sc1adt
-    dratdumdd(irhe3ag) = dratrawdd(irhe3ag)*sc1a &
-         + ratraw(irhe3ag)*sc1add
+!    dratdumdd(irhe3ag) = dratrawdd(irhe3ag)*sc1a &
+!         + ratraw(irhe3ag)*sc1add
 
     scfac(irhe3ag)     = sc1a
     dscfacdt(irhe3ag)  = sc1adt
-    dscfacdd(irhe3ag)  = sc1add
+!    dscfacdd(irhe3ag)  = sc1add
 
 
     ! cno cycles
@@ -2141,9 +2138,9 @@ contains
             +  y(ineut) * (dratdumdt(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdt(irdgn)) &
             +  y(ineut)*y(iprot) * (dratdumdt(irheng)*ratdum(irdpg) + ratdum(irheng)*dratdumdt(irdpg))
 
-       denomdd  = dratdumdd(irhegp)*ratdum(irdgn) + ratdum(irhegp)*dratdumdd(irdgn) &
-            +  y(ineut) * (dratdumdd(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdd(irdgn)) &
-            +  y(ineut)*y(iprot) * (dratdumdd(irheng)*ratdum(irdpg) + ratdum(irheng)*dratdumdd(irdpg))
+       !denomdd  = dratdumdd(irhegp)*ratdum(irdgn) + ratdum(irhegp)*dratdumdd(irdgn) &
+       !     +  y(ineut) * (dratdumdd(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdd(irdgn)) &
+       !     +  y(ineut)*y(iprot) * (dratdumdd(irheng)*ratdum(irdpg) + ratdum(irheng)*dratdumdd(irdpg))
 
        zz = 1.0d0/denom
 
