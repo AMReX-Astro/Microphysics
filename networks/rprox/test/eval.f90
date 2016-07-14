@@ -7,6 +7,7 @@ program eval
   use actual_burner_module
   use burn_type_module
   use microphysics_module
+  use actual_network, only: short_spec_names
   use actual_rhs_module, only: actual_rhs
   
   implicit none
@@ -39,7 +40,7 @@ program eval
   call actual_rhs(state_in)
 
   do n = 1, nspec
-     print *, state_in % xn(n), state_in % ydot(n)
+     print *, short_spec_names(n), state_in % xn(n), state_in % ydot(n)
   enddo
 
   call microphysics_finalize()
