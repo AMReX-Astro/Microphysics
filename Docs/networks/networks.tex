@@ -22,6 +22,9 @@ At a minimum, a network needs to provide:
    Note that the convention is that the first {\tt nspec\_evolve} out
    of the {\tt nspec} species are the ones evolved.
 
+ \item {\tt nrates} : the number of reaction rates.  This is used to
+   cache rates for the analytic Jacobian.
+
  \item {\tt naux} : the number of auxiliary quantities needed by the
    network (these are not evolved).  \MarginPar{does any net use these?}
 
@@ -55,32 +58,59 @@ There are three primary files within each network directory.
 
 \item {\tt actual\_network.f90}:
 
- This supplies the number and names of species and
-auxiliary variables, as well as other initializing data, such as their
-mass numbers, proton numbers, and binding energies. It needs to define
-the {\tt nspec} and {\tt naux} quantities as integer parameters. Additionally
-it must define {\tt nspec\_evolve}, the number of species that are actually evolved
-during a burn; in most cases, this should have the same value as {\tt nspec}.
-Finally, it must also define {\tt nrates}, the number of reaction rates
-linking the isotopes in the network.
+  This is the Fortran module {\tt actual\_network} with routines:
+  \begin{itemize}
+  \item {\tt actual\_network\_init()}
+  \item {\tt actual\_network\_finalize()}
+  \end{itemize}
+
+  This supplies the number and names of species and auxiliary
+  variables, as well as other initializing data, such as their mass
+  numbers, proton numbers, and binding energies. It needs to define
+  the {\tt nspec} and {\tt naux} quantities as integer
+  parameters. Additionally it must define {\tt nspec\_evolve}, the
+  number of species that are actually evolved during a burn; in most
+  cases, this should have the same value as {\tt nspec}.  Finally, it
+  must also define {\tt nrates}, the number of reaction rates linking
+  the isotopes in the network.
 
 \item {\tt actual\_rhs.f90}:
 
-This supplies an interface for computing the right-hand-side
-of the network, the time-derivative of each species (and the temperature and
-nuclear energy release), as well as the Jacobian. This is covered in more detail
-in Chapter \ref{chapter:burners}.
+  This is the Fortran module {\tt actual\_rhs\_module}, with routines:
+  \begin{itemize}
+  \item {\tt actual\_rhs\_init()}
+  \item {\tt actual\_rhs(state)}
+  \item {\tt actual\_jac(state)}
+  \end{itemize}
 
-\item {\tt actual\_burner.f90}:
+  This supplies an interface for computing the right-hand-side of the
+  network, the time-derivative of each species (and the temperature
+  and nuclear energy release), as well as the analytic Jacobian.
+  Both {\tt actual\_rhs} and {\tt actual\_jac} take a single argument,
+  a {\tt burn\_t} state.  They set the time-derivates and Jacobian
+  elements in this derived type directly.
 
-This contains the interface for doing an actual burn.
-In general, you will want to {\tt call integrator} to use one of the pre-defined
-ODE integrators, but you could also write a custom integration here. This is
-covered in more detail in Chapter \ref{chapter:burners}.
+  Note: some networks do not provide an analytic Jacobian and instead
+  rely on the numerical difference-approximation to the Jacobian.  In
+  this case, the interface {\tt actual\_jac} is still needed to compile.
+
+\item {\tt actual\_burner}:
+
+  This is the Fortran module {\tt actual\_burner\_module}, with routines:
+  \begin{itemize}
+  \item {\tt actual\_burner\_init()}
+  \item {\tt actual\_burner(state\_in, state\_out, dt, time)}
+  \end{itemize}
+
+  This contains the interface for doing an actual burn.  Here, {\tt
+    state\_in} and {\tt state\_out} are {\tt burn\_t} objects.  In
+  general, you will want to {\tt call integrator} to use one of the
+  pre-defined ODE integrators, but you could also write a custom
+  integration here. This is covered in more detail in \S~\ref{ch:networks:integrators}.
 
 \end{itemize}
 
-All three have initialization routines:
+Notice that all three of these modules have initialization routines:
 \begin{itemize}
   \item {\tt actual\_network\_init()}
   \item {\tt actual\_rhs\_init()}
@@ -381,7 +411,7 @@ handle error tolerances the same way; see Section \ref{sec:stiff_solvers} for
 notes on any differences between them.
 
 \section{Stiff ODE Solvers}
-\label{sec:stiff_solvers}
+\label{ch:networks:integrators}
 
 Let's turn to the set of options we have for evolving our system of coupled,
 stiff ODEs. You can control which integrator you use by setting the

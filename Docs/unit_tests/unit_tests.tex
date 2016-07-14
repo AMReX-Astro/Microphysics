@@ -1,5 +1,7 @@
 \label{ch:unit_tests}
 
+\section{Comprehensive Unit Tests}
+
 There are 2 unit tests in \microphysics\ that operate on a generic EOS
 or reaction network.  To allow these to compile independent of any
 application code (e.g., \maestro\ or \castro), copies of the EOS
@@ -11,7 +13,7 @@ build the executable.  Runtime parameters are parsed in the same
 fashion as in the application codes, using the {\tt write\_probin.py}
 script.
 
-\section{EOS test}
+\subsection{EOS test}
 
 {\tt Microphysics/unit\_test/test\_eos/} is a unit test for the
 equations of state in \microphysics.  It sets up a cube of data, with
@@ -88,7 +90,7 @@ errors are.  You can use the {\tt BoxLib/Tools/Postprocessing/} too
 
 Note: an analogous {\tt test\_eos} exists in \maestro.
 
-\section{Network test}
+\subsection{Network test}
 
 {\tt Microphysics/unit\_test/test\_react/} is a unit test for the
 nuclear reaction networks in \microphysics.  It sets up a cube of
@@ -120,3 +122,22 @@ as well as to optimize the GPU performance of the burners.
 
 
 
+\section{Individual Network Tests}
+
+Many of the networks have a subdirectory {\tt test/} (e.g. {\tt
+  Microphysics/networks/triple\_alpha\_plus\_cago/test/}).  There are
+usually 3 different drivers there that can be used to evaluate the
+network or Jacobian on a single state:
+\begin{itemize}
+  \item {\tt eval.f90}
+
+  \item {\tt testburn.f90}
+
+  \item {\tt testjacobian.f90}
+\end{itemize}
+These all use the F90 \boxlib\ build system and the macros in 
+{\tt GMicrophysics.mak} to build the executable.  To make 
+individual tests you can use the {\tt programs} variable, e.g.,
+\begin{verbatim}
+make programs=eval
+\end{verbatim}
