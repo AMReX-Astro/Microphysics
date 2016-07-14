@@ -73,6 +73,7 @@ contains
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
     use integration_data, only: temp_scale, ener_scale
+    use actual_rhs_module, only : update_unevolved_species
 
     implicit none
 
@@ -311,8 +312,11 @@ contains
     endif
 
     ! Store the final data, and then normalize abundances.
-
     call vode_to_burn(y, rpar, state_out)
+
+    if (nspec_evolve < nspec) then
+       call update_unevolved_species(state_out)
+    endif
 
     call burn_to_eos(state_out, eos_state_out)
     call normalize_abundances(eos_state_out)

@@ -43,8 +43,8 @@ contains
     state % ydot = ZERO
 
     ! we enforce that O16 doesn't change and any C12 change goes to ash
-    state % xn(iash_) = ONE - state % xn(ic12_) - state % xn(io16_)
-
+    call update_unevolved_species(state)
+    print *, "in RHS: ", state % xn(:), sum(state % xn(:)) - ONE
     temp = state % T
     dens = state % rho
     y(:) = state % xn(:) / aion(:)
@@ -203,6 +203,8 @@ contains
     implicit none
 
     type (burn_t)    :: state
+
+    state % xn(iash_) = ONE - state % xn(ic12_) - state % xn(io16_)
 
   end subroutine update_unevolved_species
 
