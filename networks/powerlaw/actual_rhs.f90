@@ -36,7 +36,7 @@ contains
     temp     = state % T
 
     ! Rate is expressed in mass fraction form
-    
+
     if (temp < f_act * T_burn_ref) then
        rate = ZERO
     else
@@ -87,5 +87,15 @@ contains
     enuc = sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 
   end subroutine ener_gener_rate
+
+  subroutine update_unevolved_species(state)
+
+    !$acc routine seq
+
+    implicit none
+
+    type (burn_t)    :: state
+
+  end subroutine update_unevolved_species
 
 end module actual_rhs_module

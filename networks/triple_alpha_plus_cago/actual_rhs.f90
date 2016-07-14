@@ -133,4 +133,14 @@ contains
 
   end subroutine ener_gener_rate
 
+  subroutine update_unevolved_species(state)
+
+    !$acc routine seq
+
+    implicit none
+
+    type (burn_t)    :: state
+
+  end subroutine update_unevolved_species
+
 end module actual_rhs_module

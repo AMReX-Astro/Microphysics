@@ -372,7 +372,7 @@ contains
 
     type (plasma_state) :: pstate
     type (tf_t)         :: tf
-    
+
     ! initialize
     do i = 1, nrates
        ratdum(i)     = ratraw(i)
@@ -523,7 +523,7 @@ contains
 
 
 
-    ! the publication, timmes, woosley & hoffman apjs, 129, 377 
+    ! the publication, timmes, woosley & hoffman apjs, 129, 377
     ! has a typo on page 393, where its says "y(ic12)+y(io16) .gt. 0.004"
     ! it should be less than or equal to, since the idea is this piece
     ! gets activated during silicon buring, after all the c + o from
@@ -589,7 +589,7 @@ contains
     double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
 
     double precision :: b(8)
-    
+
     ! set up the jacobian
     ! 4he jacobian elements
     ! d(he4)/d(he4)
@@ -625,7 +625,7 @@ contains
     b(2) = -y(ihe4) * ratdum(irneag)
 
     dfdy(ihe4,ine20) = esum(b,2)
-                      
+
     ! d(he4)/d(mg24)
     b(1) =  ratdum(irmgga)
     b(2) = -y(ihe4) * ratdum(irmgag)
@@ -804,7 +804,7 @@ contains
     b(1) = dratdumdy2(irsi2ni) * y(ihe4)
 
     dfdy(ini56,isi28) = esum(b,1)
-    
+
     ! d(ni56)/d(ni56)
     b(1) = -ratdum(irni2si)
 
@@ -833,7 +833,7 @@ contains
 
 
   subroutine set_up_screening_factors()
-    ! Compute and store the more expensive screening factors  
+    ! Compute and store the more expensive screening factors
 
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
@@ -854,5 +854,15 @@ contains
     call add_screening_factor(20.0d0,40.0d0,zion(ihe4),aion(ihe4))
 
   end subroutine set_up_screening_factors
+
+  subroutine update_unevolved_species(state)
+
+    !$acc routine seq
+
+    implicit none
+
+    type (burn_t)    :: state
+
+  end subroutine update_unevolved_species
 
 end module actual_rhs_module

@@ -61,7 +61,7 @@ contains
     !
     ! where <sigma v> is the average of the relative velocity times the cross
     ! section for the reaction, and the factor accounting for the total number
-    ! of particle pairs has a 1/2 because we are considering a reaction involving 
+    ! of particle pairs has a 1/2 because we are considering a reaction involving
     ! identical particles (see Clayton p. 293).  Finally, the -2 means that for
     ! each reaction, we lose 2 carbon nuclei.
     !
@@ -82,7 +82,7 @@ contains
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
     ! we will always refer to the species by integer indices that come from
-    ! the network module -- this makes things robust to a shuffling of the 
+    ! the network module -- this makes things robust to a shuffling of the
     ! species ordering
 
     xc12tmp = max(state % xn(ic12), ZERO)
@@ -286,5 +286,15 @@ contains
     enuc = dydt(ic12) * (mion(ic12) - mion(img24) / 2) * enuc_conv2
 
   end subroutine ener_gener_rate
+
+  subroutine update_unevolved_species(state)
+
+    !$acc routine seq
+
+    implicit none
+
+    type (burn_t)    :: state
+
+  end subroutine update_unevolved_species
 
 end module actual_rhs_module

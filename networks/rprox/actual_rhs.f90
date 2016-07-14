@@ -73,10 +73,10 @@ contains
     ! some numbers from appendix C in WW81; these should probably be
     ! updated with current rates
     double precision, parameter :: Lweak = 1.05d0, & ! this is for NS
-                                !  Lweak = 0.107d0, & ! this is for lower 
+                                !  Lweak = 0.107d0, & ! this is for lower
                                                       ! densities
                                    la2 = ONE/FIFTEEN ! mean rate from 30s to 56ni
-                                                     ! from p-capture and beta 
+                                                     ! from p-capture and beta
                                                      ! decays
 
     type (temp_t) :: tfactors
@@ -102,7 +102,7 @@ contains
     state % rates(1,irwk17f) = rate
     ! these weak rates aren't needed outside of this routine
     ! 18ne(beta nu)18f
-    call rate_ne18_to_f18(tfactors,wk18ne,dratedt) 
+    call rate_ne18_to_f18(tfactors,wk18ne,dratedt)
     ! 19ne(beta nu)19f
     call rate_ne19_to_f19(tfactors,wk19ne,dratedt)
 
@@ -169,7 +169,7 @@ contains
        state % rates(1,irlambda1) = -ONE*state % rates(1,irlambda1)
     endif
 
-    ! 30s(...) 56ni 
+    ! 30s(...) 56ni
     ! check if this proceeds via p-captures or (a,p) reactions
     ! use 44ti(a,p)v47 as a typical limiting rate for the (a,p) process
     ! store this in irlambda2; this is lambda2 in WW81
@@ -553,5 +553,15 @@ contains
     enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 
   end subroutine ener_gener_rate
+
+  subroutine update_unevolved_species(state)
+
+    !$acc routine seq
+
+    implicit none
+
+    type (burn_t)    :: state
+
+  end subroutine update_unevolved_species
 
 end module actual_rhs_module
