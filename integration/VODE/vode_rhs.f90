@@ -54,13 +54,16 @@
     rpar(irp_have_rates) = -ONE
 
     call vode_to_burn(y, rpar, burn_state)
+
+    burn_state % time = time
     call actual_rhs(burn_state)
 
     ! Allow integration of X instead of Y.
 
     if (.not. integrate_molar_fraction) then
 
-       burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+       burn_state % ydot(1:nspec_evolve) = &
+            burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     endif
 
@@ -126,6 +129,7 @@
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
+    state % time = time
     call actual_jac(state)
 
     ! Allow integration of X instead of Y.

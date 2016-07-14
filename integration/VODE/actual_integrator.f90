@@ -148,7 +148,7 @@ contains
 
     ! Initialize the integration time.
 
-    local_time = ZERO
+    local_time = time
 
     ! Convert our input burn state into an EOS type.
 
@@ -207,7 +207,8 @@ contains
 
     ! Call the integration routine.
 
-    call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+    call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
+               ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
@@ -224,7 +225,7 @@ contains
 
        iwork(6) = 150000
 
-       local_time = ZERO
+       local_time = time
 
        call eos_to_vode(eos_state_in, y, rpar)
 
@@ -239,7 +240,8 @@ contains
 
        y(net_ienuc) = ZERO
 
-       call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+       call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
+                  ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
     endif
@@ -281,7 +283,7 @@ contains
 
              iwork(6) = 150000
 
-             local_time = ZERO
+             local_time = time
 
              call eos_to_vode(eos_state_in, y, rpar)
 
@@ -296,7 +298,8 @@ contains
 
              y(net_ienuc) = ZERO
 
-             call dvode(f_rhs, neqs, y, local_time, dt, ITOL, rtol, atol, ITASK, &
+             call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
+                        ITOL, rtol, atol, ITASK, &
                         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
           enddo
