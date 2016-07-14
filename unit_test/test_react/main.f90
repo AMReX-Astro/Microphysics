@@ -38,7 +38,7 @@ program test_react
   type(ml_layout) :: mla
   type(ml_boxarray) :: mba
 
-  integer :: i, n
+  integer :: i, j, n
   integer :: ii, jj, kk
   integer :: nrho, nT, nX
 
@@ -74,8 +74,8 @@ program test_react
 
   nlevs = mla % nlevel
   if (nlevs /= 1) then
-      call bl_error("ERROR: only 1 level of refinement currently supported")
-   endif
+     call bl_error("ERROR: only 1 level of refinement currently supported")
+  endif
 
   dm = mla % dim
   if (dm /= 3) then
@@ -168,8 +168,11 @@ program test_react
                    burn_state_in % xn(:)
 
               sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = burn_state_out % xn(:)
-              sp(ii, jj, kk, pf % irodot: pf % irodot-1+nspec) = &
-                   (burn_state_out % xn(:) - burn_state_in % xn(:)) / ldt
+              do j=1, nspec
+                 ! an explicit loop is needed here to keep the GPU happy
+                 sp(ii, jj, kk, pf % irodot + j - 1) = &
+                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / ldt
+              enddo
               sp(ii, jj, kk, pf % irho_hnuc) = &
                    dens_zone * (burn_state_out % e - burn_state_in % e) / ldt
 
