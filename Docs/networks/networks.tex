@@ -107,7 +107,8 @@ carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in \cite{chamulak:2008}.
 
-Only a single reaction is modeled, converting \isot{C}{12} into ``{\tt
+This network has {\tt nspec = 3}, but {\tt nspec\_evolve = 1}.  Only a
+single reaction is modeled, converting \isot{C}{12} into ``{\tt
   ash}''.
 
 \paragraph{Energy generation.} The binding energy, $q$, in this 
@@ -151,6 +152,16 @@ and Itoh 1979) for strong screening.
 \subsection{{\tt rprox}}
 
 This network was used for the X-ray burst studies in \cite{xrb:II,xrb:III}.
+
+
+\subsection{{\tt triple\_alpha\_plus\_cago}}
+
+This is a 2 reaction network for helium burning, capturing the $3$-$\alpha$
+reaction and $\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}$.  Additionally,
+\isot{Fe}{56} is included as an inert species.
+
+This network has {\tt nspec = 4}, but {\tt nspec\_evolve = 3}.
+
 
 
 \subsection{{\tt xrb\_simple}}
