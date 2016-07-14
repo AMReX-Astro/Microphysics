@@ -40,6 +40,7 @@ program testburn
   print *, 'Xout: ', state_out % xn(:)
   print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
   print *, 'Hnuc (erg/g/s): ', (state_out % e - state_in % e) / dt
+
   call microphysics_finalize()
 
 end program testburn

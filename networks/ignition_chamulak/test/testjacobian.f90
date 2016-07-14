@@ -20,12 +20,12 @@ program testjacobian
 
   call microphysics_init()
 
-  dens = 1.0e6_dp_t
-  temp = 2.e8_dp_t
+  dens = 2.6e9_dp_t
+  temp = 6.e8_dp_t
 
-  Xin = 0.0d0
-  Xin(ihe4) = 0.5d0
-  Xin(ic12) = 0.5d0
+  Xin(ic12_)  = 0.5_dp_t
+  Xin(io16_)  = 0.5_dp_t
+  Xin(iash_)  = 0.0_dp_t
 
   state % rho = dens
   state % T = temp
