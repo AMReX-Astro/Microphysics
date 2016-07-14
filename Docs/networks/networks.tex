@@ -1,10 +1,14 @@
 
-A network both defines the composition advected by the hydro code
-as well as describes the burning processes between those isotopes.
-Solving a reaction network requires an integrator.  We discuss
-both of these parts of \microphysics\ here.
 
-\section{Network Requirements}
+\section{Network Requirements and Structure}
+
+A network both defines the composition advected by the hydro code as
+well as describes the burning processes between those isotopes.
+Evolving the species in a network requires an integrator.  The design
+of \microphysics\ decouples the integrator from the network, allowing
+for the ability to swap integrators as desired.  We discuss the
+integrators in a later section.
+
 
 At a minimum, a network needs to provide:
 \begin{itemize}
@@ -18,7 +22,7 @@ At a minimum, a network needs to provide:
    Note that the convention is that the first {\tt nspec\_evolve} out
    of the {\tt nspec} species are the ones evolved.
 
- \item {\tt naux} : the number of auxiliary quantities needed by the 
+ \item {\tt naux} : the number of auxiliary quantities needed by the
    network (these are not evolved).  \MarginPar{does any net use these?}
 
  \item {\tt aion(:)} : the atomic weight (in atomic mass units) of the
@@ -40,10 +44,54 @@ At a minimum, a network needs to provide:
 Most of these quantities are Fortran parameters.
 
 {\bf A convention adopted in \microphysics\ is that each network
-is responsible for determining the energy release from a change 
+is responsible for determining the energy release from a change
 in composition}.  Most networks will provide an array of the species
 binding energies and a routine to compute the energy yield from
 the reaction rates.
+
+There are three primary files within each network directory.
+
+\begin{itemize}
+
+\item {\tt actual\_network.f90}:
+
+ This supplies the number and names of species and
+auxiliary variables, as well as other initializing data, such as their
+mass numbers, proton numbers, and binding energies. It needs to define
+the {\tt nspec} and {\tt naux} quantities as integer parameters. Additionally
+it must define {\tt nspec\_evolve}, the number of species that are actually evolved
+during a burn; in most cases, this should have the same value as {\tt nspec}.
+Finally, it must also define {\tt nrates}, the number of reaction rates
+linking the isotopes in the network.
+
+\item {\tt actual\_rhs.f90}:
+
+This supplies an interface for computing the right-hand-side
+of the network, the time-derivative of each species (and the temperature and
+nuclear energy release), as well as the Jacobian. This is covered in more detail
+in Chapter \ref{chapter:burners}.
+
+\item {\tt actual\_burner.f90}:
+
+This contains the interface for doing an actual burn.
+In general, you will want to {\tt call integrator} to use one of the pre-defined
+ODE integrators, but you could also write a custom integration here. This is
+covered in more detail in Chapter \ref{chapter:burners}.
+
+\end{itemize}
+
+All three have initialization routines:
+\begin{itemize}
+  \item {\tt actual\_network\_init()}
+  \item {\tt actual\_rhs\_init()}
+  \item {\tt actual\_burner\_init()}
+\end{itemize}
+These must be called upon initialization. These should be not called
+within OpenMP parallel regions, because in general they will modify
+shared module data.
+
+Note, depending on the network, some of these may do nothing, but
+these interfaces are all required for maximum flexibility.
 
 
 \section{Available Networks}
@@ -57,7 +105,7 @@ plasma neutrino loses (from {\tt Microphysics/neutrinos}), and
 electron screening (from {\tt Microphysics/screening}).
 
 \paragraph{Energy generation.} These networks store the total binding
-energy of the nucleus in MeV as {\tt bion(:)}.  They then compute the 
+energy of the nucleus in MeV as {\tt bion(:)}.  They then compute the
 mass of each nucleus in grams as:
 \begin{equation}
 M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k
@@ -111,7 +159,7 @@ This network has {\tt nspec = 3}, but {\tt nspec\_evolve = 1}.  Only a
 single reaction is modeled, converting \isot{C}{12} into ``{\tt
   ash}''.
 
-\paragraph{Energy generation.} The binding energy, $q$, in this 
+\paragraph{Energy generation.} The binding energy, $q$, in this
 network is interpolated based on the density.  It is stored as the
 binding energy (ergs/g) {\em per nucleon}, with a sign convention that
 binding energies are negative.  The energy generation rate is then:
@@ -148,10 +196,61 @@ and Itoh 1979) for strong screening.
 
 \subsection{{\tt powerlaw}}
 
+This is a simple single-step reaction rate.
+We will consider only two species, fuel, $f$, and ash, $a$, through
+the reaction: $f + f \rightarrow a + \gamma$.  Baryon conservation
+requres that $A_f = A_a/2$, and charge conservation requires that $Z_f
+= Z_a/2$.  We take
+our reaction rate to be a powerlaw in temperature.  The standard way
+to write this is in terms of the number densities, in which case we
+have
+\begin{equation}
+\frac{d n_f}{d t} = -2\frac{d n_a}{d t} = -r
+\end{equation}
+with
+\begin{equation}
+  r = r_0 n_X^2 \left( \frac{T}{T_0} \right )^\nu
+\end{equation}
+Here, $r_0$ sets the overall rate, with units of
+$[\mathrm{cm^3~s^{-1}}]$, $T_0$ is a reference temperature scale, and
+$\nu$ is the temperature exponent, which will play a role in setting
+the reaction zone thickness.  In terms of mass fractions, $n_f = \rho
+X_a / (A_a m_u)$, our rate equation is
+\begin{eqnarray}
+ \frac{dX_f}{dt} &=& - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f \label{eq:Xf} \\
+ \frac{dX_a}{dt} &=& \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu  \label{eq:Xa}
+\end{eqnarray}
+We define a new rate constant, $\rt$ with units of $[\mathrm{s^{-1}}]$ as
+\begin{equation}
+\rt =  \begin{cases}
+  \dfrac{r_0}{m_u A_f} \rho_0 & \text{if $T \ge T_a$} \\[1em]
+  0                          & \text{if $T < T_a$}
+ \end{cases}
+\end{equation}
+where $\rho_0$ is a reference density and $T_a$ is an activation
+temperature, and then our mass fraction equation is:
+\begin{equation}
+\frac{dX_f}{dt} = -\rt X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu
+\end{equation}
+Finally, for the
+energy generation, we take our reaction to release a specific energy,
+$[\mathrm{erg~g^{-1}}]$, of $\qburn$, and our energy source is
+\begin{equation}
+\epsdot = -\qburn \frac{dX_f}{dt}
+\end{equation}
+
+There are a number of parameters we use to control the constants in
+this network.  This is one of the few networks that was designed
+to work with {\tt gamma\_law\_general} as the EOS.
 
 \subsection{{\tt rprox}}
 
-This network was used for the X-ray burst studies in \cite{xrb:II,xrb:III}.
+This network contains 10 species, approximating hot CNO,
+triple-$\alpha$, and rp-breakout burning up through \isot{Ni}{56},
+using the ideas from \cite{wallacewoosley:1981}, but with modern
+reaction rates from {\sf ReacLib}~\cite{ReacLib} where available.
+This network was used for the X-ray burst studies in
+\cite{xrb:II,xrb:III}, and more details are contained in those papers.
 
 
 \subsection{{\tt triple\_alpha\_plus\_cago}}
@@ -166,46 +265,6 @@ This network has {\tt nspec = 4}, but {\tt nspec\_evolve = 3}.
 
 \subsection{{\tt xrb\_simple}}
 
-
-
-\section{Network Structure}
-\label{section:network_structure}
-
-There are three primary files within each network directory.
-
-\begin{itemize}
-
-\item {\tt actual\_network.f90}:
-
- This supplies the number and names of species and
-auxiliary variables, as well as other initializing data, such as their
-mass numbers, proton numbers, and binding energies. It needs to define
-the {\tt nspec} and {\tt naux} quantities as integer parameters. Additionally
-it must define {\tt nspec\_evolve}, the number of species that are actually evolved
-during a burn; in most cases, this should have the same value as {\tt nspec}.
-Finally, it must also define {\tt nrates}, the number of reaction rates
-linking the isotopes in the network.
-
-\item {\tt actual\_rhs.f90}:
-
-This supplies an interface for computing the right-hand-side
-of the network, the time-derivative of each species (and the temperature and
-nuclear energy release), as well as the Jacobian. This is covered in more detail
-in Chapter \ref{chapter:burners}.
-
-\item {\tt actual\_burner.f90}: 
-
-This contains the interface for doing an actual burn.
-In general, you will want to {\tt call integrator} to use one of the pre-defined
-ODE integrators, but you could also write a custom integration here. This is
-covered in more detail in Chapter \ref{chapter:burners}.
-
-\end{itemize}
-
-All three have initialization routines ({\tt actual\_network\_init()},
-{\tt actual\_rhs\_init()}, and {\tt actual\_burner\_init()}) which must
-be called upon initialization. These should be not called within
-OpenMP parallel regions, because in general they will modify shared module data.
 
 
 \section{Reaction ODE System}
