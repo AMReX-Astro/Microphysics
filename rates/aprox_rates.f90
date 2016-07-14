@@ -15,7 +15,7 @@ module aprox_rates_module
   double precision :: tfdm(5),tfd0(5),tfd1(5),tfd2(5)
 
   !$acc declare create(rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2)
-  
+
 contains
 
   subroutine rates_init()
@@ -35,7 +35,7 @@ contains
                               -1.00, -0.95, -0.54,  0.60,  2.06,  3.58, &
                               -0.52, -0.49, -0.21,  0.79,  2.15,  3.55 /), &
                            (/ 6, 7 /) )
-    
+
     datn(2,:,:) = reshape( (/ -3.68, -2.45, -0.80,  1.12,  3.13,  5.19, &
                               -2.91, -2.05, -0.64,  1.16,  3.14,  5.18, &
                               -1.95, -1.57, -0.40,  1.24,  3.16,  5.18, &
@@ -44,17 +44,17 @@ contains
                                0.14,  0.19,  0.61,  1.78,  3.38,  5.14, &
                                0.75,  0.78,  1.06,  2.07,  3.51,  5.11 /), &
                            (/ 6, 7 /) )
-    
+
     ! Evaluate the cubic interp parameters for ni56 electron capture
-    ! which is used in the mazurek subroutine.    
-    
+    ! which is used in the mazurek subroutine.
+
     do k = 2, 4
        rfdm(k)=1./((rv(k-1)-rv(k))*(rv(k-1)-rv(k+1))*(rv(k-1)-rv(k+2)))
        rfd0(k)=1./((rv(k)-rv(k-1))*(rv(k)-rv(k+1))*(rv(k)-rv(k+2)))
        rfd1(k)=1./((rv(k+1)-rv(k-1))*(rv(k+1)-rv(k))*(rv(k+1)-rv(k+2)))
        rfd2(k)=1./((rv(k+2)-rv(k-1))*(rv(k+2)-rv(k))*(rv(k+2)-rv(k+1)))
     enddo
-    
+
     do j = 2, 5
        tfdm(j)=1./((tv(j-1)-tv(j))*(tv(j-1)-tv(j+1))*(tv(j-1)-tv(j+2)))
        tfd0(j)=1./((tv(j)-tv(j-1))*(tv(j)-tv(j+1))*(tv(j)-tv(j+2)))
@@ -2576,7 +2576,7 @@ contains
     rn56ec = 0.0
     sn56ec = 0.0
     if ( (btemp .lt. 2.0e9) .or. (bden*ye .lt. 1.0e6)) return
-    t9    = max(btemp,1.4d10) * 1.0d-9
+    t9    = min(btemp,1.4d10) * 1.0d-9
     r     = max(6.0d0,min(11.0d0,log10(bden*ye)))
     jp    = min(max(2,int(0.5d0*t9)),5)
     kp    = min(max(2,int(r)-5),4)
