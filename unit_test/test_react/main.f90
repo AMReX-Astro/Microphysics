@@ -146,9 +146,8 @@ program test_react
      !$acc private(burn_state_in, burn_state_out)
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
-           temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-
            do ii = lo(1), hi(1)
+              temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
               dens_zone = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
 
               burn_state_in % rho = dens_zone
