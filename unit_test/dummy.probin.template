@@ -87,6 +87,8 @@ contains
        endif
     endif
 
+    @@acc@@
+
   end subroutine runtime_init
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
