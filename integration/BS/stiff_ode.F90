@@ -25,8 +25,9 @@ contains
     !$acc routine(f_rhs) seq
 
     use extern_probin_module, only: scaling_method, ode_max_steps, ode_scale_floor, use_timestep_estimator
-
+#ifndef ACC
     use bl_error_module, only: bl_error
+#endif
 
     type (bs_t), intent(inout) :: bs
 
@@ -270,6 +271,12 @@ contains
     !$acc routine seq
     !$acc routine(jac) seq
 
+#ifndef ACC
+    use bl_error_module, only: bl_error
+#endif
+
+    implicit none
+
     type (bs_t) :: bs
     real(kind=dp_t), intent(in) :: eps
     real(kind=dp_t), intent(in) :: yscal(neqs)
@@ -342,6 +349,9 @@ contains
     ierr = IERR_NONE
 
     converged = .false.
+
+    km = -1
+    kstop = -1
 
     do n = 1, max_iters
 
@@ -420,6 +430,20 @@ contains
     if (.not. converged) then
        IERR = IERR_NO_CONVERGENCE
     endif
+
+#ifndef ACC
+    ! km and kstop should have been set during the main loop.
+    ! If they never got updated from the original nonsense values,
+    ! that means something went really wrong and we should abort.
+
+    if (km < 0) then
+       call bl_error("Error: km < 0 in subroutine single_step, something has gone wrong.")
+    endif
+
+    if (kstop < 0) then
+       call bl_error("Error: kstop < 0 in subroutine single_step, something has gone wrong.")
+    endif
+#endif
 
     bs % t = bs % t_new
     bs % dt_did = dt

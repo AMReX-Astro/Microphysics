@@ -51,7 +51,7 @@ contains
     real(dp_t),    intent(in   ) :: dt, time
 
     ! Local variables
-    integer :: n, ierr
+    integer :: ierr
 
     real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
     real(kind=dp_t) :: t0, t1
