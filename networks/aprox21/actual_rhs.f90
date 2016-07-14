@@ -163,9 +163,6 @@ contains
     double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
-    double precision :: enuc
-
     double precision :: rho, temp, abar, zbar
     double precision :: y(nspec)
 
@@ -219,7 +216,6 @@ contains
     double precision :: y(nspec),rate(nrates),ratdum(nrates),dydt(nspec)
 
     ! local variables
-    integer          :: i
 
     double precision :: a(20)
 
@@ -763,7 +759,8 @@ contains
 
     integer          :: i
     double precision :: rrate,drratedt,drratedd
-    double precision :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
+    double precision :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,invtot
+    !double precision :: dtotdd
     type (tf_t)      :: tf
 
     do i=1,nrates
@@ -1063,7 +1060,7 @@ contains
     type (burn_t)    :: state
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
 
-    double precision :: xx, rpen, rnep, spen, snep
+    double precision :: xx, spen, snep
 
     ! initialize
     ratraw(irpen)      = 0.0d0
@@ -1111,8 +1108,8 @@ contains
 
     integer          :: i, jscr
     double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
-                        sc3a,sc3adt,sc3add,abar,zbar,ye,z2bar, &
-                        denom,denomdt,denomdd,xx,zz
+                        sc3a,sc3adt,denom,denomdt,xx,zz
+    !double precision :: sc3add, denomdd
 
     type (plasma_state) :: state
 
@@ -1144,7 +1141,7 @@ contains
 
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
-    sc3add = sc1add*sc2a + sc1a*sc2add
+    !sc3add = sc1add*sc2a + sc1a*sc2add
 
     ratdum(ir3a)    = ratraw(ir3a) * sc3a
     dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
