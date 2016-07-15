@@ -1,5 +1,7 @@
 module actual_rhs_module
 
+  use burn_type_module, only: burn_t, net_ienuc
+
   implicit none
 
 contains
@@ -17,7 +19,6 @@ contains
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
     use actual_network, only: nspec, aion
-    use burn_type_module, only: burn_t, net_ienuc
     use temperature_integration_module, only: temperature_rhs
 
     implicit none
