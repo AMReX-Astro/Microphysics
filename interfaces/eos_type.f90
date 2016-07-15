@@ -147,9 +147,9 @@ module eos_type_module
     real(kind=dp_t) :: smallt
     real(kind=dp_t) :: smalld
 
-    logical :: reset                != .false.
-    logical :: check_small          != .true.
-    logical :: check_inputs         != .true.
+    logical :: reset                = .false.
+    logical :: check_small          = .true.
+    logical :: check_inputs         = .true.
 
   end type eos_t
 
