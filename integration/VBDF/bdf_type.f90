@@ -405,6 +405,8 @@ contains
        state % self_heat = .false.
     endif
 
+    state % time = ts % t
+
   end subroutine vbdf_to_burn
 
 end module bdf_type_module
