@@ -347,6 +347,11 @@ yields the new values of the mass fractions, $Y_k^\outp$.
 
 \subsection{{\tt nspec\_evolve} Implementation}
 
+It is important that any algebraic relation connect the 
+explicitly evolved species and unevolved species be applied each
+time they are accessed from the state type.  \MarginPar{should we do this in the conversion to the burn type?}
+
+
 
 \subsection{Single Zone Burn Unit Tests}
 
@@ -413,11 +418,16 @@ notes on any differences between them.
 \section{Stiff ODE Solvers}
 \label{ch:networks:integrators}
 
-Let's turn to the set of options we have for evolving our system of coupled,
-stiff ODEs. You can control which integrator you use by setting the
-\texttt{INTEGRATOR\_DIR} variable in your makefile equal to the name of
-one of the following integrators from the list (this corresponds to the
-directory names in \texttt{integrators/}).
+There are several options for integrators.  Each should be capable of 
+evolving any of the networks, but varying in their approach.  Internally,
+the integrators uses different data structures to store the integration
+progress (from the old-style {\tt rpar} array in {\tt VODE} to derived
+types), and each integrator needs to provide a routine to convert 
+from the integrator's internal representation to the {\tt burn\_t}
+type required by the {\tt actual\_rhs} and {\tt actual\_jac} routine.
+
+The name of the integrator can be selected at compile time using 
+the {\tt INTEGRATOR\_DIR} variable.
 
 \subsection{VODE}
 \label{sec:VODE}
@@ -428,6 +438,8 @@ directory names in \texttt{integrators/}).
 \subsection{BS}
 \label{sec:BS}
 
+
+\subsection{Evolving $X_k$ Instead of $Y_k$}
 
 \begin{sidewaysfigure}
 \centering
