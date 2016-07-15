@@ -44,7 +44,7 @@ contains
 
     ! we enforce that O16 doesn't change and any C12 change goes to ash
     call update_unevolved_species(state)
-    print *, "in RHS: ", state % xn(:), sum(state % xn(:)) - ONE
+
     temp = state % T
     dens = state % rho
     y(:) = state % xn(:) / aion(:)
