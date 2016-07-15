@@ -378,12 +378,12 @@ contains
     state % ydot(net_itemp) = state % ydot(net_itemp) * temp_scale
     state % ydot(net_ienuc) = state % ydot(net_ienuc) * ener_scale
 
-    do n = 1, neqs
-       state % jac(:,n) = bs % jac(:,n)
-    enddo
+    !do n = 1, neqs
+    !   state % jac(:,n) = bs % jac(:,n)
+    !enddo
 
-    state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
-    state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
+    !state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
+    !state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
 
     if (bs % upar(irp_have_rates) > ZERO) then
        state % have_rates = .true.
