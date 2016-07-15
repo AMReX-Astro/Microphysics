@@ -7,7 +7,7 @@
   temp_max   = 5.d8
 
 
-  tmax = 1.d-7
+  tmax = 1.d-9
 
   xin_file   = "xin.aprox19"
   run_prefix = "react_aprox19_"
@@ -15,12 +15,10 @@
   jacobian = 2 
   centered_diff_jac = T
 
-  scaling_method = 1
-
   rtol_spec = 1.d-8
   atol_spec = 1.d-8
 
   call_eos_in_rhs = T
 
-  use_timestep_estimator = T
+  !use_timestep_estimator = T
 /
