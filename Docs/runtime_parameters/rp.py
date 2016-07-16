@@ -6,13 +6,13 @@ import os
 import sys
 
 # tex format stuff
-Mheader=r"""
+Mheader = r"""
 \label{ch:parameters}
 
 \begin{landscape}
 """
 
-header=r"""
+header = r"""
 {\small
 
 \renewcommand{\arraystretch}{1.5}
@@ -41,7 +41,7 @@ header=r"""
 
 """
 
-footer=r"""
+footer = r"""
 
 \end{longtable}
 \end{center}
@@ -49,7 +49,7 @@ footer=r"""
 } % ends \small
 """
 
-Mfooter=r"""
+Mfooter = r"""
 \end{landscape}
 
 %
@@ -61,10 +61,10 @@ class Parameter(object):
     # container class for the parameters
 
     def __init__(self):
-        self.var=""
-        self.default=""
-        self.description=[]
-        self.category=""
+        self.var = ""
+        self.default = ""
+        self.description = []
+        self.category = ""
 
     def value(self):
         """ the value is what we sort based on """
@@ -81,7 +81,7 @@ def make_tex_table(param_files):
     for pf in param_files:
 
         # each file is a category
-        category = os.path.basename(os.path.dirname(pf)).replace("_","\_")
+        category = os.path.basename(os.path.dirname(pf)).replace("_", "\_")
 
         # open the file
         try: f = open(pf, "r")
@@ -123,7 +123,7 @@ def make_tex_table(param_files):
                 line_list = line.split()
 
                 current_param.var = line_list[0]
-                current_param.default = line_list[2].replace("_","\_")
+                current_param.default = line_list[2].replace("_", "\_")
                 current_param.description = descr
                 current_param.category = category
 
@@ -157,18 +157,13 @@ def make_tex_table(param_files):
             start = 0
 
         if odd == 1:
-            print("\\rowcolor{tableShade}")
+            print(r"\rowcolor{tableShade}")
             odd = 0
         else:
             odd = 1
 
-        print("\\verb= ", \
-            param.var, \
-            " = & ", \
-            param.description, \
-            " & ", \
-            param.default, \
-            r"\\")
+        print(r"\verb= {} = & {} & {} \\".format(
+            param.var, param.description, param.default))
 
     # dump the footer
     print(footer)
