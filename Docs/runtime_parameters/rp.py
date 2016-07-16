@@ -103,10 +103,6 @@ def make_tex_table(param_files):
                 line = f.readline()
                 continue
 
-            if line.strip() == "":
-                line = f.readline()
-                continue
-
             if line.startswith("#------"):
                 line = f.readline()
                 continue
