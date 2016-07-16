@@ -146,6 +146,14 @@ contains
 
     iwork(6) = 150000
 
+    ! Disable printing of messages about T + H == T unless we are in verbose mode.
+
+    if (burner_verbose) then
+       iwork(7) = 1
+    else
+       iwork(7) = 0
+    endif
+
     ! Initialize the integration time.
 
     local_time = time

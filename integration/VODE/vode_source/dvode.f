@@ -704,6 +704,10 @@ C MXSTEP  IWORK(6)  Maximum number of (internally defined) steps
 C                   allowed during one call to the solver.
 C                   The default value is 500.
 C
+C                   EDIT 07/16/2016:
+C                   The following logic has been modified; if IWORK(7)
+C                   is equal to zero, then we do not print any messages.
+C
 C MXHNIL  IWORK(7)  Maximum number of messages printed (per problem)
 C                   warning that T + H = T on a step (H = step size).
 C                   This must be positive to result in a non-default
@@ -1200,7 +1204,8 @@ C Next process and check the optional input. ---------------------------
       IF (MXSTEP .EQ. 0) MXSTEP = MXSTP0
       MXHNIL = IWORK(7)
       IF (MXHNIL .LT. 0) GO TO 613
-      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
+C      EDIT 07/16/2016 -- see comments above about MXHNIL
+C      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
       IF (ISTATE .NE. 1) GO TO 50
       H0 = RWORK(5)
       IF ((TOUT - T)*H0 .LT. ZERO) GO TO 614
