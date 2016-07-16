@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -18,22 +21,22 @@ header=r"""
 \begin{longtable}{|l|p{5.25in}|l|}
 \caption[@@catname@@]{@@catname@@} \label{table: @@sanitizedcatname@@ runtime} \\
 %
-\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
-       \multicolumn{1}{ c|}{\textbf{description}} & 
-       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
 \endfirsthead
 
 \multicolumn{3}{c}%
 {{\tablename\ \thetable{}---continued}} \\
-\hline \multicolumn{1}{|c|}{\textbf{parameter}} & 
-       \multicolumn{1}{ c|}{\textbf{description}} & 
-       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline 
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
 \endhead
 
 \multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
 \endfoot
 
-\hline 
+\hline
 \endlastfoot
 
 """
@@ -85,33 +88,22 @@ def make_tex_table(param_files):
         except IOError:
             sys.exit("ERROR: {} does not exist".format(pf))
 
-        descr=r""
+        descr = r""
 
-
-        # read in the file 
-
-        # sometimes we have a descriptive header -- skip all lines
-        # before the first empty line
-        found_first_param = False
-
+        # read in the file
         line = f.readline()
         while line:
 
-            # we assume that parameter files have a descriptive heading
-            # before the parameters start in those cases, we want to skip
-            # everything before the first blank line.  the next comment
-            # will then be interpreted either as the category or as the
-            # description for the parameter
-
-            if not found_first_param:
-                if line.strip() == "":
-                    # this is the first empty line and we begin reading the file
-                    # from here on out
-                    found_first_param = True
+            # we assume that parameters have an optional descriptive
+            # heading before them without any blank line between the
+            # description and the parameter definition.  Therefore,
+            # if we encounter a blank line, zero out the description.
+            if line.strip() == "":
+                descr = r""
                 line = f.readline()
                 continue
 
-            if line.strip() == "": 
+            if line.strip() == "":
                 line = f.readline()
                 continue
 
@@ -119,7 +111,6 @@ def make_tex_table(param_files):
                 line = f.readline()
                 continue
 
-        
             # find the description
             if line.startswith("#"):
                 # handle descriptions here
@@ -136,17 +127,16 @@ def make_tex_table(param_files):
                 current_param.description = descr
                 current_param.category = category
 
-                descr=r""
+                descr = r""
 
-        
                 # store the current parameter in the list
                 params_list.append(current_param)
-                
+
             line = f.readline()
 
-    
+
     # dump the main header
-    print Mheader
+    print(Mheader)
 
     # sort the parameters and dump them in latex-fashion.  Group things by category
     current_category = -1
@@ -156,38 +146,37 @@ def make_tex_table(param_files):
 
         if not param.category == current_category:
             if not start == 1:
-                print footer
+                print(footer)
 
             current_category = param.category
             odd = 1
             sanitized_cat_name = param.category.replace("\\", "")
             cat_header = header.replace("@@catname@@", param.category + " parameters.")
             cat_header = cat_header.replace("@@sanitizedcatname@@", sanitized_cat_name)
-            print cat_header
+            print(cat_header)
             start = 0
 
         if odd == 1:
-            print "\\rowcolor{tableShade}"
+            print("\\rowcolor{tableShade}")
             odd = 0
         else:
             odd = 1
 
-        print "\\verb= ", \
+        print("\\verb= ", \
             param.var, \
             " = & ", \
             param.description, \
             " & ", \
             param.default, \
-            r"\\"
+            r"\\")
 
     # dump the footer
-    print footer
-    print Mfooter
+    print(footer)
+    print(Mfooter)
 
 if __name__ == "__main__":
 
-
-    # find all of the _parameter files 
+    # find all of the _parameter files
     top_dir = "../../"
 
     param_files = []
