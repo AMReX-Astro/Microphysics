@@ -130,19 +130,6 @@ $(odir)/build_info.o: build_info.f90
 
 
 #-----------------------------------------------------------------------------
-
-
-%.$(suf).exe:%.f90 $(objects)
-ifdef MKVERBOSE
-	$(LINK.f90) -o $@ $< $(objects) $(libraries)
-else
-	@echo "Linking $@ ... "
-	@$(LINK.f90) -o $@ $< $(objects) $(libraries)
-endif
-	@echo SUCCESS
-
-
-#-----------------------------------------------------------------------------
 # for debugging.  To see the value of a Makefile variable,
 # e.g. Fmlocs, simply do "make print-Fmlocs".  This will
 # print out the value.
