@@ -14,28 +14,30 @@ program testburn
   real(kind=dp_t) :: dens, temp, dt
   real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
+  integer :: n
 
   call microphysics_init()
 
-  dens = 6.558e5_dp_t
-  temp = 7.108e8_dp_t
-
-  Xin(:) = ZERO
-  Xin(io14) = 1.027e-3_dp_t
-  Xin(io15) = 3.558e-3_dp_t
-  Xin(if17) = 2.788e-2_dp_t
-  Xin(is30) = 1.5735e-2_dp_t
-  Xin(ihe4) = 0.2624e0_dp_t
-  Xin(ih1) = 0.6894e0_dp_t
-
   dens = 1737938.5689184519
   temp = 158489319.24611109     
-  Xin = [5.0000000000000003E-002, 0.0000000000000000, 0.0000000000000000, 0.0000000000000000, &
-         0.0000000000000000,      0.0000000000000000, 0.0000000000000000, 0.0000000000000000, &
-         0.25000000000000000,     0.69999999999999996]
+
+  Xin = [5.0000000000000003E-002, &
+         0.0000000000000000, &
+         0.0000000000000000, &
+         0.0000000000000000, &
+         0.0000000000000000, &
+         0.0000000000000000, &
+         0.0000000000000000, &
+         0.0000000000000000, &
+         0.25000000000000000, &
+         0.69999999999999996]
 
 
-  dt = 0.01_dp_t
+  dt = 1.e-4_dp_t
+  !use_timestep_estimator = .true.
+  !scaling_method = 2
+  !ode_scale_floor = 1.d-12
+  burning_mode = 0
 
   print *, 'calling the burner...'
 
@@ -51,9 +53,14 @@ program testburn
 
   print *, 'done!'
 
-  print *, 'Xin:      ', state_in % xn(:)
-  print *, 'Xout:     ', state_out % xn(:)
-  print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
+1000 format(g20.10, 1x, g20.10)
+
+  print *, 'Xin / Xout:'
+  do n = 1, nspec
+     print 1000, state_in % xn(n), state_out % xn(n)
+  enddo
+
+  print *, 'Hnuc: ', (state_out % e - state_in % e) / dt
 
   call microphysics_finalize()
 

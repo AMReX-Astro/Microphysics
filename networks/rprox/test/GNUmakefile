@@ -13,7 +13,7 @@ programs += testburn
 
 EOS_DIR := helmholtz
 NETWORK_DIR := rprox
-INTEGRATOR_DIR := BS
+INTEGRATOR_DIR := VODE
 
 TEST_DIR = $(MICROPHYSICS_HOME)/networks/rprox/test
 
