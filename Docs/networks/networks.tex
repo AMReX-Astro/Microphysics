@@ -597,13 +597,24 @@ temperature.
 
 \subsubsection{Energy Integration}
 
-The last equation in our system is the specific internal energy evolution,
-$\dot{e}$.  Again, because of the operator-split approach to this ODE system,
-the evolution of $e$ responds only to the nuclear energy release.
+The last equation in our system is the specific internal energy
+evolution, $\dot{e}$.  Again, because of the operator-split approach
+to this ODE system, the evolution of $e$ responds only to the nuclear
+energy release.
 
-{\tt integrate\_energy} and how the final energy release is computed
+At initialization, $e$ is set to the value from the EOS consistent
+with the initial temperature, density, and composition.  As the system
+is integrated, this thermodynamic consistency will no longer be
+maintained (because density doesn't evolve and the $T$ evolution is
+approximate) but $e$ will represent an approximation to the
+current specific internal energy, including the nuclear energy
+generation release. 
 
-zero-point?
+Upon exit, we subtract off this initial offset, so {\tt \% e} in 
+the returned {\tt burn\_t} type from the {\tt actual\_integrator}
+call represents the energy {\em release} during the burn.
+
+
 
 
 \subsection{{\tt nspec\_evolve} Implementation}

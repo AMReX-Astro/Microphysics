@@ -56,10 +56,21 @@ information:
 
 \item {\tt burn\_state \% T}: temperature [K]
 
-\item {\tt burn\_state \% e}: the specific internal energy.  Note: this
-  will be an integration variable and will account for the nuclear
-  energy release.  Due to integration differences, this will not be
-  thermodynamically consistent with $\rho, T$  [$\mathrm{erg~g^{-1}}$]
+\item {\tt burn\_state \% e}: the specific internal energy [$\mathrm{erg~g^{-1}}$]
+
+  Note: this has two different contexts, depending on when it is
+  accessed.
+
+  When you call the integrator and are in the process of integrating
+  the reaction system, {\tt e} will be an integration variable and
+  will account for the nuclear energy release.  Due to the nature 
+  of our ODE system, this will not be thermodynamically consistent with
+  $\rho, T$
+
+  Upon exit of the integration, the initial internal energy (offset)
+  is subtracted off, and {\tt e} now represents the specifc nuclear
+  energy release from the reactions.
+  
 
 \item {\tt burn\_state \% xn(:)}: the mass fractions
 
