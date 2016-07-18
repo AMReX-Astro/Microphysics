@@ -311,10 +311,10 @@ modeled are:
 \item $\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}$
   (limited by $\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}$ rate)
 
-\item $\isotm{O}{14} + p \rightarrow \isotm{O}{15}$ 
+\item $\isotm{O}{14} + p \rightarrow \isotm{O}{15}$
   (limited by $\isotm{O}{14}(e+\nu)\isotm{N}{14}$ rate)
 
-\item $\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha$ 
+\item $\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha$
   (limited by $\isotm{O}{15}(e+\nu)\isotm{N}{15}$ rate)
 \end{itemize}
 All reactions conserve mass.  Where charge is not conserved, fast weak
@@ -328,10 +328,10 @@ strong rates to a power law in $T_9 \in [0.3, 1]$, linear in density.
 The equations we integrate to do a nuclear burn are:
 \begin{eqnarray}
   \frac{dY_k}{dt} &=& \omegadot_k(\rho,Y_k,T), \label{eq:spec_integrate} \\
-  \frac{de}{dt} &=& \sum_k \xi_k A_k \dot{Y}_k \label{eq:enuc_integrate} \\
+  \frac{de}{dt} &=& f(\dot{Y}_k) \label{eq:enuc_integrate} \\
   \frac{dT}{dt} &=&\frac{\dot{e}}{c_x}. \label{eq:temp_integrate}
 \end{eqnarray}
-$Y_k \equiv X_k / A_k$ is the molar fraction of species $k$, where
+Here $Y_k \equiv X_k / A_k$ is the molar fraction of species $k$, where
 $X_k$ is the mass fraction and $A_k$ is the mass number of that species.
 $e$ is the internal energy, $T$ is the temperature\footnote{Note that in
 previous versions of our networks in \castro\ and \maestro,
@@ -342,9 +342,13 @@ for our nuclear networks, and so we no longer think it is correct to
 include a numerical approximation of it in the integration scheme. So
 the current results given by our networks will in general be a little
 different than in the past.}
-, and $c_x$ is the specific heat for the fluid. $\xi_k$ is the energy
-release associated with the destruction of species $k$; normally it
-is given by the (absolute value of the) binding energy for that species.
+, and $c_x$ is the specific heat for the fluid. The function $f$ provides
+the energy release based on the instantaneous reaction terms, $\dot{Y}_k$.
+As noted in the previous section, this is implemented in a network-specific
+manner.
+
+In this system, $e$ is not necessarily the total specific internal energy,
+but rather just captures the energy release during the burn.
 
 {\bf Note that while $Y_k$ is the integration variable, this is invisible to
 the code that calls the burner---it hands the burner the mass fractions $X_k$
@@ -362,16 +366,100 @@ are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.
 
-We integrate these using a stiff ordinary differential equation
-integration solver. The absolute error tolerances are set by default
-to $10^{-12}$ for the species, and a relative tolerance of $10^{-6}$
-is used for the temperature and energy.  The integration
-yields the new values of the mass fractions, $Y_k^\outp$.
+
+\subsection{Interfaces}
+
+The righthand side of the network is implemented by {\tt
+  actual\_rhs()} in {\tt actual\_rhs.f90}, and appears as:
+\begin{lstlisting}[language={[95]fortran}]
+  subroutine actual_rhs(state)
+    implicit none
+    type (burn_t) :: state
+\end{lstlisting}
+
+All of the necessary integration data comes in through {\tt state}, as:
+\begin{itemize}
+\item {\tt state \% xn(:)} : the {\tt nspec} mass fractions (note: for
+  the case that {\tt nspec\_evolve < nspec}, an algebraic constraint
+  may need to be enforced.  See \S~\ref{ch:networks:nspec_evolve}).
+
+\item {\tt state \% e} : the current value of the ODE system's energy 
+  release---note: as discussed above, this is not necessarily the energy
+  you would get by calling the EOS on the state.  It is very rare (never?)
+  that a RHS implementation would need to use this variable.
+
+\item {\tt state \% T} : the current temperature
+
+\item {\tt state \% rho} : the current density
+\end{itemize}
+Note that we come in with the mass fractions, but the molar fractions can
+be computed as:
+\begin{lstlisting}[language={[95]fortran}]
+  double precision :: y(nspec)
+  ...
+  y(:) = state % xn(:) / aion(:)
+\end{lstlisting}
+
+The {\tt actual\_rhs()} routine's job is to fill the righthand side vector
+for the ODE system, {\tt state \% ydot(:)}.  Here, the important
+fields to fill are:
+\begin{itemize}
+\item {\tt state \% ydot(1:nspec\_evolve)} : the change in {\em molar
+  fractions} for the {\tt nspec\_evolve} species that we are evolving,
+  $d({Y}_k)/dt$
+
+\item {\tt state \% ydot(net\_ienuc)} : the change in the energy release 
+  from the net, $de/dt$
+
+\item {\tt state \% ydot(net\_itemp)} : the change in temperature, $dT/dt$
+\end{itemize}
+
+{\color{red} Add description of temporary storage, {\tt state \% rates}.}
+
+The Jacobian is provided by {\tt actual\_jac(state)}, and takes the
+form:
+\begin{lstlisting}[language={[95]fortran}]
+  subroutine actual_jac(state)
+    implicit none
+    type (burn_t) :: state
+\end{lstlisting}
+The Jacobian matrix elements are stored in {\tt state \% jac} as:
+\begin{itemize}
+\item {\tt state \% jac(m, n)} for $\mathrm{m}, \mathrm{n} \in [1, \mathrm{nspec\_evolve}]$ :
+  $d(\dot{Y}_m)/dY_n$
+
+\item {\tt state \% jac(net\_ienuc, n)} for $\mathrm{n} \in [1, \mathrm{nspec\_evolve}]$ :
+  $d(\dot{e})/dY_n$
+
+\item {\tt state \% jac(net\_itemp, n)} for $\mathrm{n} \in [1, \mathrm{nspec\_evolve}]$ :
+  $d(\dot{T})/dY_n$
+
+\item {\tt state \% jac(m, net\_itemp)} for $\mathrm{m} \in [1, \mathrm{nspec\_evolve}]$ :
+  $d(\dot{Y}_m)/dT$
+
+\item {\tt state \% jac(net\_ienuc, net\_itemp)} :
+  $d(\dot{e})/dT$
+
+\item {\tt state \% jac(net\_itemp, net\_itemp)} :
+  $d(\dot{T})/dT$
+
+\item {\tt state \% jac(p, net\_ienuc)} $= 0$ for $p \in [1, \mathrm{neqs}]$, since nothing
+  should depend on the integrated energy release 
+
+\end{itemize}
+
+
+Note: a network is not required to compute a Jacobian if a numerical
+Jacobian is used.  This is set with the runtime parameter {\tt
+  jacobian = 2}, and implemented in {\tt
+  integration/numerical\_jacobian.f90} using finite-differences.
 
 \subsection{Disabling $T$ Evolution}
 
 
 \subsection{{\tt nspec\_evolve} Implementation}
+
+\label{ch:networks:nspec_evolve}
 
 It is important that any algebraic relation connect the
 explicitly evolved species and unevolved species be applied each
@@ -444,6 +532,12 @@ notes on any differences between them.
 \section{Stiff ODE Solvers}
 \label{ch:networks:integrators}
 
+We integrate these using a stiff ordinary differential equation
+integration solver. The absolute error tolerances are set by default
+to $10^{-12}$ for the species, and a relative tolerance of $10^{-6}$
+is used for the temperature and energy.  The integration
+yields the new values of the mass fractions, $Y_k^\outp$.
+
 There are several options for integrators.  Each should be capable of
 evolving any of the networks, but varying in their approach.  Internally,
 the integrators uses different data structures to store the integration
@@ -454,6 +548,9 @@ type required by the {\tt actual\_rhs} and {\tt actual\_jac} routine.
 
 The name of the integrator can be selected at compile time using
 the {\tt INTEGRATOR\_DIR} variable.
+
+energy offset
+
 
 \subsection{VODE}
 \label{sec:VODE}
