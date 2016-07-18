@@ -56,10 +56,10 @@ information:
 
 \item {\tt burn\_state \% T}: temperature [K]
 
-\item {\tt burn\_state \% e}: the specific energy release from the
-  burn---this is not the actual thermodynamic energy [$\mathrm{erg~g^{-1}}$] \MarginPar{clarify}
-
-\item {\tt burn\_state \% h}: not used? \MarginPar{h?}
+\item {\tt burn\_state \% e}: the specific internal energy.  Note: this
+  will be an integration variable and will account for the nuclear
+  energy release.  Due to integration differences, this will not be
+  thermodynamically consistent with $\rho, T$  [$\mathrm{erg~g^{-1}}$]
 
 \item {\tt burn\_state \% xn(:)}: the mass fractions
 

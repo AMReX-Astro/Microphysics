@@ -465,7 +465,26 @@ Jacobian is used.  This is set with the runtime parameter {\tt
 \subsubsection{Burning Mode}
 
 There are several different modes under which the burning can be done, set
-via the {\tt burning\_mode} runtime parameter.
+via the {\tt burning\_mode} runtime parameter:
+\begin{itemize}
+\item {\tt burning\_mode = 0} : hydrostatic burning
+
+  $rho$, $T$ remain constant
+
+\item {\tt burning\_mode = 1} : self-heating burn
+
+  $T$ evolves with the burning according to the temperature evolution equation
+
+\item {\tt burning\_mode = 2} : hybrid approach
+
+  This implements an approach from \cite{raskin:2010} in which we do a 
+  hydrostatic burn everywhere, but if we get a negative energy change,
+  the burning is redone in self-heating mode.
+
+\item {\tt burning\_mode = 3} : limited burning
+
+  This does a self-heating burn, but limits all values of the RHS
+  by a factor $f$, such that $\dot{e} = f e / t_s
 
 
 \subsubsection{EOS Calls}
@@ -528,18 +547,18 @@ filled and simply fills {\tt state \% ydot(net\_itemp)} according to
 the prescription below.
 
 
-We need the specific heat,
-$c_x$.  Note that because we are evaluating the temperature evolution
-independent of any hydrodynamics, we do not incorporate any advective
-or $pdV$ terms in the evolution.  Therefore, for our approximation
-here, we need to decide which specific heat we want---usually either
-the specific heat at constant pressure, $c_p$, or the specific heat at
-constant volume, $c_v$.  The EOS generally will provide both of these
-specific heats; which one to use is a choice the user needs to make
-based on the physics of their problem.  This is controlled by the
-parameter {\tt do\_constant\_volume\_burn}, which will use $c_v$ if
-{\tt .true.}  and $c_p$ is {\tt .false.}.  See \cite{maestro:III} for
-a discussion of the temperature evolution equation.
+We need the specific heat, $c_x$.  Note that because we are evaluating
+the temperature evolution independent of any hydrodynamics, we do not
+incorporate any advective or $pdV$ terms in the evolution.  Therefore,
+for our approximation here, we need to decide which specific heat we
+want---usually either the specific heat at constant pressure, $c_p$,
+or the specific heat at constant volume, $c_v$.  The EOS generally
+will provide both of these specific heats; which one to use is a
+choice the user needs to make based on the physics of their problem.
+This is controlled by the parameter {\tt do\_constant\_volume\_burn},
+which will use $c_v$ if {\tt .true.}  and $c_p$ is {\tt .false.}.  See
+\cite{maestro:III} for a discussion of the temperature evolution
+equation.
 
 A fully accurate integration of Equation \ref{eq:temp_integrate}
 requires an evaluation of the specific heat at each integration step,
@@ -562,6 +581,16 @@ off.
 
 Note: if {\tt state \% self\_heat = F}, then we do not evolve
 temperature.
+
+
+{\color{red} {\tt integrate\_temperature}}
+
+
+\subsubsection{Energy Integration}
+
+{\tt integrate\_energy} and how the final energy release is computed
+
+zero-point?
 
 
 \subsection{{\tt nspec\_evolve} Implementation}
