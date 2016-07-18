@@ -373,7 +373,6 @@ The righthand side of the network is implemented by {\tt
   actual\_rhs()} in {\tt actual\_rhs.f90}, and appears as:
 \begin{lstlisting}[language={[95]fortran}]
   subroutine actual_rhs(state)
-    implicit none
     type (burn_t) :: state
 \end{lstlisting}
 
@@ -425,7 +424,6 @@ The Jacobian is provided by {\tt actual\_jac(state)}, and takes the
 form:
 \begin{lstlisting}[language={[95]fortran}]
   subroutine actual_jac(state)
-    implicit none
     type (burn_t) :: state
 \end{lstlisting}
 The Jacobian matrix elements are stored in {\tt state \% jac} as:
@@ -459,47 +457,107 @@ Jacobian is used.  This is set with the runtime parameter {\tt
   jacobian = 2}, and implemented in {\tt
   integration/numerical\_jacobian.f90} using finite-differences.
 
-\subsection{$T$ Evolution}
+
+
+
+\subsection{Thermodynamics and $T$ Evolution}
+
+\subsubsection{Burning Mode}
+
+There are several different modes under which the burning can be done, set
+via the {\tt burning\_mode} runtime parameter.
+
+
+\subsubsection{EOS Calls}
+
+The evolution of the thermodynamic quantities (like specific heats and
+other partial derivatives) can be frozen during the integration to
+their initial values, updated for every RHS call, or something
+inbetween.  Just before we call the network-specific RHS routine, we
+update the thermodynamics of our state (by calling {\tt
+  update\_thermodynamics})\footnote{Note: each integrator provides its
+  own implementation of this, since it operates on the internal
+  data-structure of the integrator, but the basic procedure is the
+  same.}  The thermodynamic quantity update depends on two runtime
+parameters, {\tt call\_eos\_in\_rhs} and {\tt dT\_crit}:
+\begin{itemize}
+\item {\tt call\_eos\_in\_rhs = T}:
+
+  We call the EOS just before every RHS evaluation, using $\rho, T$ as
+  inputs.  Therefore, the thermodynamic quantities will always be
+  consistent with the input state.  
+
+\item {\tt call\_eos\_in\_rhs = F} 
+  
+  Here we keep track of the temperature, $T_\mathrm{old}$, at 
+  which the EOS was last called (which may be the start of integration).
+  
+  If
+  \begin{equation}
+    \frac{T - T_\mathrm{old}}{T} > \mathtt{dT\_crit}
+    \end{equation}
+  then we update the thermodynamics.  We also compute $d(c_v)/dT$ and
+  $d(c_p)/dT$ via differencing with the old thermodynamic state and
+  store these in the integrator.  If this inequality is not met, then
+  we don't change the thermodynamics, but simply update the
+  composition terms in the EOS state, e.g., $\bar{A}$.
+
+\end{itemize}
+
+
+
+\subsubsection{$T$ Evolution}
 
 A network is free to write their own righthand side for the
 temperature evolution equation in its {\tt actual\_rhs()} routine.
 But since this equation only really needs to know the instantaneous
 energy generation rate, $\dot{e}$, most networks use the helper
-function, {\tt temperature\_rhs(state)} (in {\tt
-  integration/temperature\_integration.f90}).  This function
-assumes that {\tt state \% ydot(net\_ienuc)} is already filled.
+function, {\tt temperature\_rhs} (in {\tt
+  integration/temperature\_integration.f90}):
+\begin{lstlisting}[language={[95]fortran}]
+  subroutine temperature_rhs(state)
+    type (burn_t) :: state
+\end{lstlisting}
+This function assumes that {\tt state \% ydot(net\_ienuc)} is already
+filled and simply fills {\tt state \% ydot(net\_itemp)} according to
+the prescription below.
 
 
-In evolving these equations, we need to evaluate the specific heat,
+We need the specific heat,
 $c_x$.  Note that because we are evaluating the temperature evolution
 independent of any hydrodynamics, we do not incorporate any advective
 or $pdV$ terms in the evolution.  Therefore, for our approximation
 here, we need to decide which specific heat we want---usually either
-the specific heat at constant pressure ($c_p$) or the specific heat at
-constant volume ($c_v$).  The EOS generally will provide both of these
+the specific heat at constant pressure, $c_p$, or the specific heat at
+constant volume, $c_v$.  The EOS generally will provide both of these
 specific heats; which one to use is a choice the user needs to make
 based on the physics of their problem.  This is controlled by the
 parameter {\tt do\_constant\_volume\_burn}, which will use $c_v$ if
 {\tt .true.}  and $c_p$ is {\tt .false.}.  See \cite{maestro:III} for
 a discussion of the temperature evolution equation.
 
-A fully accurate integration of
-Equation \ref{eq:temp_integrate} requires an evaluation of the
-specific heat at each integration step, which involves an EOS call
-given the current temperature.  However, this may add significantly to
-the expense of the calculation, especially for smaller networks where
-construction of the RHS is inexpensive, and the user may decide that
-they are okay with a less accurate integration (or they believe the
-specific heat won't change that much anyway during a burn).  This can
-be enabled or disabled with the parameter \texttt{call\_eos\_in\_rhs}.
-A middle ground between fully on and fully off for this parameter is
-obtained with the runtime parameter \texttt{dT\_crit}, which is the
-fractional change needed in the temperature during a burn to trigger
-an EOS call that updates the thermodynamic variables. Note that this
-is fully independent of \texttt{call\_eos\_in\_rhs}. If you use this
-option, we do a crude prediction of the specific heat in between EOS
-calls using a numerically constructed approximation to the temperature
-derivative of the specific heat.
+A fully accurate integration of Equation \ref{eq:temp_integrate}
+requires an evaluation of the specific heat at each integration step,
+which involves an EOS call given the current temperature.  However,
+this may add significantly to the expense of the calculation,
+especially for smaller networks where construction of the RHS is
+inexpensive, and the user may decide that they are okay with a less
+accurate integration (or they believe the specific heat won't change
+that much anyway during a burn).  This can be enabled or disabled with
+the parameter {\tt call\_eos\_in\_rhs}. 
+
+For {\tt call\_eos\_in\_rhs}, 
+
+
+A middle ground between
+fully on and fully off for this parameter is obtained with the runtime
+parameter {\tt dT\_crit}, which is the fractional change needed in
+the temperature during a burn to trigger an EOS call that updates the
+thermodynamic variables. Note that this is fully independent of
+{\tt call\_eos\_in\_rhs}. If you use this option, we do a crude
+prediction of the specific heat in between EOS calls using a
+numerically constructed approximation to the temperature derivative of
+the specific heat.
 
 Note: if {\tt state \% self\_heat = F}, then we do not evolve
 temperature.
