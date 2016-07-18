@@ -603,12 +603,22 @@ to this ODE system, the evolution of $e$ responds only to the nuclear
 energy release.
 
 At initialization, $e$ is set to the value from the EOS consistent
-with the initial temperature, density, and composition.  As the system
-is integrated, this thermodynamic consistency will no longer be
-maintained (because density doesn't evolve and the $T$ evolution is
-approximate) but $e$ will represent an approximation to the
-current specific internal energy, including the nuclear energy
-generation release. 
+with the initial temperature, density, and composition:
+\begin{equation}
+  e_0 = e(\rho_0, T_0, {X_k}_0)
+\end{equation}
+In the integration routines, this is termed the ``energy offset''.
+
+As the system is integrated, $e$ is updated to account for the
+nuclear energy release,
+\begin{equation}
+e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt
+\end{equation}
+Note that thermodynamic consistency will no
+longer be maintained (because density doesn't evolve and the $T$
+evolution is approximate) but $e$ will represent an approximation to
+the current specific internal energy, including the nuclear energy
+generation release.
 
 Upon exit, we subtract off this initial offset, so {\tt \% e} in 
 the returned {\tt burn\_t} type from the {\tt actual\_integrator}
