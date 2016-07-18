@@ -23,13 +23,13 @@ dT_crit                  real      1.0d20
 
 # Integration mode: if 0, a hydrostatic burn (temperature and density
 # remain constant), and if 1, a self-heating burn (temperature/energy
-# evolve with the burning). If 2, a hybrid approach presented by Raskin
-# et al. (2010): do hydrostatic everywhere, but if the hydrostatic burn
-# gives us a negative energy change, redo the burn in self-heating mode.
-# If 3, do normal self-heating, but limit all values of the RHS by the
-# same factor $f$ such that $\dot{e} = fe / t_s$, where enuc is the energy
-# injection rate, $e$ is the internal energy of the zone, and $t_s$ is the
-# sound crossing time.
+# evolve with the burning). If 2, a hybrid approach presented by
+# Raskin et al. (2010): do hydrostatic everywhere, but if the
+# hydrostatic burn gives us a negative energy change, redo the burn in
+# self-heating mode.  If 3, do normal self-heating, but limit all
+# values of the RHS by the same factor $f$ such that $\dot{e} = fe /
+# t_s$, where $\dot{e}$ is the energy injection rate, $e$ is the
+# internal energy of the zone, and $t_s$ is the sound crossing time.
 burning_mode             integer   1
 
 # If we're using burning\_mode == 3, this is the factor $f$ to use.
