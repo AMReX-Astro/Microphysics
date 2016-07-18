@@ -484,7 +484,15 @@ via the {\tt burning\_mode} runtime parameter:
 \item {\tt burning\_mode = 3} : limited burning
 
   This does a self-heating burn, but limits all values of the RHS
-  by a factor $f$, such that $\dot{e} = f e / t_s
+  by a factor $f$, such that $\dot{e} = f e / t_s$, where $t_s$ is
+  the sound-crossing time of a zone.
+
+\end{itemize}
+
+When the integration is started, the burning mode is used to identify
+whether temperature evolution should take place.  This is used to
+set the {\tt self\_heat} field in the {\tt burn\_t} type passed
+into the RHS and Jacobian functions.
 
 
 \subsubsection{EOS Calls}
@@ -587,6 +595,10 @@ temperature.
 
 
 \subsubsection{Energy Integration}
+
+The last equation in our system is the specific internal energy evolution,
+$\dot{e}$.  Again, because of the operator-split approach to this ODE system,
+the evolution of $e$ responds only to the nuclear energy release.
 
 {\tt integrate\_energy} and how the final energy release is computed
 
