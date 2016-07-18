@@ -141,6 +141,10 @@ contains
 
     type (burn_t)    :: state
 
+    ! although we nspec_evolve < nspec, we never change the Fe56
+    ! abundance, so there is no algebraic relation we need to
+    ! enforce here.
+
   end subroutine update_unevolved_species
 
 end module actual_rhs_module
