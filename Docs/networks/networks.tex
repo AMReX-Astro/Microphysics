@@ -414,6 +414,11 @@ fields to fill are:
 \item {\tt state \% ydot(net\_itemp)} : the change in temperature, $dT/dt$
 \end{itemize}
 
+If the network builds the RHS in terms of mass fractions, $dX_k/dt$, then 
+these will need to be converted to molar fraction rates for storage, e.g.,
+$dY_k/dt = A_k^{-1} dX_k/dt$.
+
+
 {\color{red} Add description of temporary storage, {\tt state \% rates}.}
 
 The Jacobian is provided by {\tt actual\_jac(state)}, and takes the
@@ -443,7 +448,7 @@ The Jacobian matrix elements are stored in {\tt state \% jac} as:
 \item {\tt state \% jac(net\_itemp, net\_itemp)} :
   $d(\dot{T})/dT$
 
-\item {\tt state \% jac(p, net\_ienuc)} $= 0$ for $p \in [1, \mathrm{neqs}]$, since nothing
+\item {\tt state \% jac(p, net\_ienuc)} $= 0$ for $\mathrm{p} \in [1, \mathrm{neqs}]$, since nothing
   should depend on the integrated energy release 
 
 \end{itemize}
@@ -454,7 +459,50 @@ Jacobian is used.  This is set with the runtime parameter {\tt
   jacobian = 2}, and implemented in {\tt
   integration/numerical\_jacobian.f90} using finite-differences.
 
-\subsection{Disabling $T$ Evolution}
+\subsection{$T$ Evolution}
+
+A network is free to write their own righthand side for the
+temperature evolution equation in its {\tt actual\_rhs()} routine.
+But since this equation only really needs to know the instantaneous
+energy generation rate, $\dot{e}$, most networks use the helper
+function, {\tt temperature\_rhs(state)} (in {\tt
+  integration/temperature\_integration.f90}).  This function
+assumes that {\tt state \% ydot(net\_ienuc)} is already filled.
+
+
+In evolving these equations, we need to evaluate the specific heat,
+$c_x$.  Note that because we are evaluating the temperature evolution
+independent of any hydrodynamics, we do not incorporate any advective
+or $pdV$ terms in the evolution.  Therefore, for our approximation
+here, we need to decide which specific heat we want---usually either
+the specific heat at constant pressure ($c_p$) or the specific heat at
+constant volume ($c_v$).  The EOS generally will provide both of these
+specific heats; which one to use is a choice the user needs to make
+based on the physics of their problem.  This is controlled by the
+parameter {\tt do\_constant\_volume\_burn}, which will use $c_v$ if
+{\tt .true.}  and $c_p$ is {\tt .false.}.  See \cite{maestro:III} for
+a discussion of the temperature evolution equation.
+
+A fully accurate integration of
+Equation \ref{eq:temp_integrate} requires an evaluation of the
+specific heat at each integration step, which involves an EOS call
+given the current temperature.  However, this may add significantly to
+the expense of the calculation, especially for smaller networks where
+construction of the RHS is inexpensive, and the user may decide that
+they are okay with a less accurate integration (or they believe the
+specific heat won't change that much anyway during a burn).  This can
+be enabled or disabled with the parameter \texttt{call\_eos\_in\_rhs}.
+A middle ground between fully on and fully off for this parameter is
+obtained with the runtime parameter \texttt{dT\_crit}, which is the
+fractional change needed in the temperature during a burn to trigger
+an EOS call that updates the thermodynamic variables. Note that this
+is fully independent of \texttt{call\_eos\_in\_rhs}. If you use this
+option, we do a crude prediction of the specific heat in between EOS
+calls using a numerically constructed approximation to the temperature
+derivative of the specific heat.
+
+Note: if {\tt state \% self\_heat = F}, then we do not evolve
+temperature.
 
 
 \subsection{{\tt nspec\_evolve} Implementation}
@@ -466,6 +514,7 @@ explicitly evolved species and unevolved species be applied each
 time they are accessed from the state type.  \MarginPar{should we do this in the conversion to the burn type?}
 
 
+\subsection{Evolving Mass Fractions}
 
 \subsection{Single Zone Burn Unit Tests}
 
@@ -476,30 +525,8 @@ The full set of parameters for the integration is listed in Chapter \ref{chapter
 In this section we will explain the most relevant ones in more detail.
 Remember that all of these are controlled by including them in your runtime
 inputs (either with all other parameters in the standard inputs file for
-MAESTRO, or the \texttt{extern} namelist of the probin file for CASTRO).
+\maestro, or the \texttt{extern} namelist of the probin file for \castro).
 
-In evolving these equations, we need to evaluate $c$. This involves two
-issues. First, we need to decide which specific heat we are talking about;
-usually we deal with either the specific heat at constant pressure ($c_p$)
-or the specific heat at constant volume ($c_v$). The EOS generally will
-provide both of these specific heats; which one to use is a choice the user
-needs to make based on the physics of their problem. It is controlled by the
-parameter \texttt{do\_constant\_volume\_burn}, which will use $c_v$ if true
-and $c_p$ is false. Second, a fully accurate integration of Equation
-\ref{eq:temp_integrate} requires an evaluation of the specific heat at
-each integration step, which involves an EOS call given the current temperature.
-However, this may add significantly to the expense of the calculation,
-especially for smaller networks where construction of the RHS is inexpensive,
-and the user may decide that they are OK with a less accurate integration
-(or they believe the specific heat won't change that much anyway during a burn).
-This can be enabled or disabled with the parameter \texttt{call\_eos\_in\_rhs}.
-A middle ground between fully on and fully off for this parameter is obtained
-with the runtime parameter \texttt{dT\_crit}, which is the fractional change
-needed in the temperature during a burn to trigger an EOS call that updates
-the thermodynamic variables. Note that this is fully independent of
-\texttt{call\_eos\_in\_rhs}. If you use this option, we do a crude prediction
-of the specific heat in between EOS calls using a numerically constructed
-approximation to the temperature derivative of the specific heat.
 
 The \texttt{renormalize\_abundances} parameter controls whether we renormalize
 the abundances so that the mass fractions sum to one during a burn. This
@@ -521,16 +548,18 @@ does a hydrostatic burn, but recomputes a self-heating burn if the
 final energy release from the hydrostatic burn was negative (the
 logic being that a negative energy release corresponds to NSE conditions).
 
-The integration tolerances for the burn are controlled by \texttt{rtol\_spec},
-\texttt{rtol\_enuc}, and \texttt{rtol\_temp}, which are the relative error
-tolerances for Equations \ref{eq:spec_integrate}, \ref{eq:enuc_integrate},
-and \ref{eq:temp_integrate}, respectively. There are corresponding \texttt{atol}
-parameters for the absolute error tolerances. Note that not all integrators
-handle error tolerances the same way; see Section \ref{sec:stiff_solvers} for
-notes on any differences between them.
 
 \section{Stiff ODE Solvers}
 \label{ch:networks:integrators}
+
+The integration tolerances for the burn are controlled by
+\texttt{rtol\_spec}, \texttt{rtol\_enuc}, and \texttt{rtol\_temp},
+which are the relative error tolerances for Equations
+\ref{eq:spec_integrate}, \ref{eq:enuc_integrate}, and
+\ref{eq:temp_integrate}, respectively. There are corresponding
+\texttt{atol} parameters for the absolute error tolerances. Note that
+not all integrators handle error tolerances the same way; see Section
+\ref{sec:stiff_solvers} for notes on any differences between them.
 
 We integrate these using a stiff ordinary differential equation
 integration solver. The absolute error tolerances are set by default
