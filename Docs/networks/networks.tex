@@ -502,6 +502,11 @@ parameters, {\tt call\_eos\_in\_rhs} and {\tt dT\_crit}:
   we don't change the thermodynamics, but simply update the
   composition terms in the EOS state, e.g., $\bar{A}$.
 
+We interpret {\tt dT\_crit} as the fractional change needed in the
+temperature during a burn to trigger an EOS call that updates the
+thermodynamic variables.  Note that this is fully independent of {\tt
+  call\_eos\_in\_rhs}.  
+
 \end{itemize}
 
 
@@ -538,26 +543,22 @@ a discussion of the temperature evolution equation.
 
 A fully accurate integration of Equation \ref{eq:temp_integrate}
 requires an evaluation of the specific heat at each integration step,
-which involves an EOS call given the current temperature.  However,
-this may add significantly to the expense of the calculation,
+which involves an EOS call given the current temperature.  This is done
+if {\tt call\_eos\_in\_rhs = T}, as discussed above.
+This may add significantly to the expense of the calculation,
 especially for smaller networks where construction of the RHS is
-inexpensive, and the user may decide that they are okay with a less
-accurate integration (or they believe the specific heat won't change
-that much anyway during a burn).  This can be enabled or disabled with
-the parameter {\tt call\_eos\_in\_rhs}. 
+inexpensive
 
-For {\tt call\_eos\_in\_rhs}, 
-
-
-A middle ground between
-fully on and fully off for this parameter is obtained with the runtime
-parameter {\tt dT\_crit}, which is the fractional change needed in
-the temperature during a burn to trigger an EOS call that updates the
-thermodynamic variables. Note that this is fully independent of
-{\tt call\_eos\_in\_rhs}. If you use this option, we do a crude
-prediction of the specific heat in between EOS calls using a
-numerically constructed approximation to the temperature derivative of
-the specific heat.
+For {\tt call\_eos\_in\_rhs = F}, we can still capture some evolution
+of the specific heat by periodically calling the EOS (using {\tt
+  dT\_crit} as described above) and extrapolating to the current
+temperature as:
+\begin{equation}
+  c_x = (c_x)_0 + \frac{T - T_0}{d(c_x)/dT|_0}
+\end{equation}
+where the `$_0$' quantities are the values from when the EOS was last
+called.  This represents a middle ground between fully on and fully
+off.
 
 Note: if {\tt state \% self\_heat = F}, then we do not evolve
 temperature.
