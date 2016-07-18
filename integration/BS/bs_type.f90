@@ -169,10 +169,14 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-       state % upar(irp_dcvdt) = (eos_state % cv - state % upar(irp_cv)) / (eos_state % T - state % upar(irp_Told))
-       state % upar(irp_dcpdt) = (eos_state % cp - state % upar(irp_cp)) / (eos_state % T - state % upar(irp_Told))
+       state % upar(irp_dcvdt) = (eos_state % cv - state % upar(irp_cv)) / &
+            (eos_state % T - state % upar(irp_Told))
+       state % upar(irp_dcpdt) = (eos_state % cp - state % upar(irp_cp)) / &
+            (eos_state % T - state % upar(irp_Told))
        state % upar(irp_Told)  = eos_state % T
 
+       ! note: the update to state % upar(irp_cv) and irp_cp is done
+       ! in the call to eos_to_bs that follows this block.
     else
 
        call composition(eos_state)
