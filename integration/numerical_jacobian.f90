@@ -41,7 +41,7 @@ contains
        state_delm = state
 
        ! species derivatives
-       do n = 1, nspec
+       do n = 1, nspec_evolve
           ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
           state_del % xn = state % xn
           state_del % xn(n) = state % xn(n) * (ONE + eps)
@@ -89,7 +89,7 @@ contains
        state_del = state
 
        ! species derivatives
-       do n = 1, nspec
+       do n = 1, nspec_evolve
           ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
           state_del % xn = state % xn
           state_del % xn(n) = state % xn(n) * (ONE + eps)
