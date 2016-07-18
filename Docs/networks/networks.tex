@@ -592,7 +592,10 @@ Note: if {\tt state \% self\_heat = F}, then we do not evolve
 temperature.
 
 
-{\color{red} {\tt integrate\_temperature}}
+The runtime parameter {\tt integrate\_temperature} can be used to
+disable temperature evolution (by zeroing out {\tt
+  ydot(net\_itemp)}). \MarginPar{why do this over the hydrostatic burn
+  mode?}
 
 
 \subsubsection{Energy Integration}
@@ -631,14 +634,31 @@ call represents the energy {\em release} during the burn.
 
 \label{ch:networks:nspec_evolve}
 
-It is important that any algebraic relation connect the
-explicitly evolved species and unevolved species be applied each
-time they are accessed from the state type.  \MarginPar{should we do this in the conversion to the burn type?}
+For networks where {\tt nspec\_evolve} $<$ {\tt nspec}, it may be
+necessary to reset the species mass fractions each time you enter the
+RHS routine.  As an example, the network {\tt ignition\_chamulak} has
+3 species, \isot{C}{12}, \isot{O}{16}, and \isot{Mg}{24}.  In this
+network, \isot{O}{16} is not evolved at all and any change in
+\isot{C}{12} is reflected in \isot{Mg}{24}.  So we can evolve only the
+equation for \isot{C}{12}.  The algebraic relation between the
+unevolved mass fractions that must be enforced then is:
+\begin{equation}
+X(\isotm{Mg}{24}) = 1 - X(\isotm{C}{12}) - X(\isotm{O}{16})
+\end{equation}
+This is implemented in the routine {\tt update\_unevolved\_species}:
+\begin{lstlisting}[language={[95]fortran}]
+  subroutine update_unevolved_species(state)
+    type (burn_t) :: state
+\end{lstlisting}
+This needs to be explicitly called in {\tt actual\_rhs} before
+the mass fractions from the input state are accessed.  It is
+also called directly by the integrator at the end of integration,
+to make sure the final state is consistent.
+
+\MarginPar{should we do this in the conversion to the burn type?}
 
 
 \subsection{Evolving Mass Fractions}
-
-\subsection{Single Zone Burn Unit Tests}
 
 
 \subsection{Burn Parameters}
