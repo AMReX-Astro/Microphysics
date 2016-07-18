@@ -481,11 +481,11 @@ via the {\tt burning\_mode} runtime parameter:
   hydrostatic burn everywhere, but if we get a negative energy change,
   the burning is redone in self-heating mode.
 
-\item {\tt burning\_mode = 3} : limited burning
+\item {\tt burning\_mode = 3} : suppressed burning
 
   This does a self-heating burn, but limits all values of the RHS
-  by a factor $f$, such that $\dot{e} = f e / t_s$, where $t_s$ is
-  the sound-crossing time of a zone.
+  by a factor $L = \text{min}(1, f_s (e / \dot{e}) / t_s)$, such
+  that $\dot{e} = f_s\, e / t_s$, where $f_s$ is a safety factor.
 
 \end{itemize}
 
@@ -493,6 +493,8 @@ When the integration is started, the burning mode is used to identify
 whether temperature evolution should take place.  This is used to
 set the {\tt self\_heat} field in the {\tt burn\_t} type passed
 into the RHS and Jacobian functions.
+
+\end{itemize}
 
 
 \subsubsection{EOS Calls}

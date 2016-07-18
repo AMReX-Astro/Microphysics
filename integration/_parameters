@@ -27,12 +27,13 @@ dT_crit                  real      1.0d20
 # Raskin et al. (2010): do hydrostatic everywhere, but if the
 # hydrostatic burn gives us a negative energy change, redo the burn in
 # self-heating mode.  If 3, do normal self-heating, but limit all
-# values of the RHS by the same factor $f$ such that $\dot{e} = fe /
+# values of the RHS by the same factor $L$ such that $\dot{e} = f_s e /
 # t_s$, where $\dot{e}$ is the energy injection rate, $e$ is the
-# internal energy of the zone, and $t_s$ is the sound crossing time.
+# internal energy of the zone, $t_s$ is the sound crossing time, and
+# $f_s$ is a safety factor. $L$ is computed as min(1, $f_s (e / \dot{e}) / t_s$).
 burning_mode             integer   1
 
-# If we're using burning\_mode == 3, this is the factor $f$ to use.
+# If we're using burning\_mode == 3, this is the safety factor $f_s$ to use.
 burning_mode_factor      real      1.d-1
 
 # By default we integrate molar fraction Y. Disable this to integrate mass fraction X.

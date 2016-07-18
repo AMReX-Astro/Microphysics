@@ -88,6 +88,80 @@
 %
 \begin{center}
 \begin{longtable}{|l|p{5.25in}|l|}
+\caption[aprox19 parameters.]{aprox19 parameters.} \label{table: aprox19 runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb= jacobian = &  Default to numerical Jacobian. & 2 \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
+\caption[aprox21 parameters.]{aprox21 parameters.} \label{table: aprox21 runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb= jacobian = &  Default to numerical Jacobian. & 2 \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
 \caption[breakout parameters.]{breakout parameters.} \label{table: breakout runtime} \\
 %
 \hline \multicolumn{1}{|c|}{\textbf{parameter}} &
@@ -201,55 +275,6 @@
 %
 \begin{center}
 \begin{longtable}{|l|p{5.25in}|l|}
-\caption[ignition\_chamulak parameters.]{ignition\_chamulak parameters.} \label{table: ignition_chamulak runtime} \\
-%
-\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
-       \multicolumn{1}{ c|}{\textbf{description}} &
-       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
-\endfirsthead
-
-\multicolumn{3}{c}%
-{{\tablename\ \thetable{}---continued}} \\
-\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
-       \multicolumn{1}{ c|}{\textbf{description}} &
-       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
-\endhead
-
-\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
-\endfoot
-
-\hline
-\endlastfoot
-
-
-\rowcolor{tableShade}
-\verb= atol_enuc = &  & 1.0e-8 \\
-\verb= atol_spec = &  override the default tolerances for backwards compatibility & 1.0e-12 \\
-\rowcolor{tableShade}
-\verb= atol_temp = &  & 1.0e-8 \\
-\verb= burning_mode = &  override the default burning mode with a higher priority & 1 \\
-\rowcolor{tableShade}
-\verb= do_constant_volume_burn = &  we typically run this network for constant-pressure burns & .false. \\
-\verb= jacobian = &  override so that the default is an analytical Jacobian & 1 \\
-\rowcolor{tableShade}
-\verb= rtol_enuc = &  & 1.0e-8 \\
-\verb= rtol_spec = &  & 1.0e-12 \\
-\rowcolor{tableShade}
-\verb= rtol_temp = &  & 1.0e-8 \\
-
-
-\end{longtable}
-\end{center}
-
-} % ends \small
-
-
-{\small
-
-\renewcommand{\arraystretch}{1.5}
-%
-\begin{center}
-\begin{longtable}{|l|p{5.25in}|l|}
 \caption[integration parameters.]{integration parameters.} \label{table: integration runtime} \\
 %
 \hline \multicolumn{1}{|c|}{\textbf{parameter}} &
@@ -278,8 +303,8 @@
 \verb= atol_temp = &  & 1.d-6 \\
 \verb= burner_verbose = &  Should we print out diagnostic output after the solve? & .false. \\
 \rowcolor{tableShade}
-\verb= burning_mode = &  Integration mode: if 0, a hydrostatic burn (temperature and density remain constant), and if 1, a self-heating burn (temperature/energy evolve with the burning). If 2, a hybrid approach presented by Raskin et al. (2010): do hydrostatic everywhere, but if the hydrostatic burn gives us a negative energy change, redo the burn in self-heating mode. If 3, do normal self-heating, but limit all values of the RHS by the same factor $f$ such that $\dot{e} = fe / t_s$, where enuc is the energy injection rate, $e$ is the internal energy of the zone, and $t_s$ is the sound crossing time. & 1 \\
-\verb= burning_mode_factor = &  If we're using burning\_mode == 3, this is the factor $f$ to use. & 1.d-1 \\
+\verb= burning_mode = &  Integration mode: if 0, a hydrostatic burn (temperature and density remain constant), and if 1, a self-heating burn (temperature/energy evolve with the burning). If 2, a hybrid approach presented by Raskin et al. (2010): do hydrostatic everywhere, but if the hydrostatic burn gives us a negative energy change, redo the burn in self-heating mode.  If 3, do normal self-heating, but limit all values of the RHS by the same factor $L$ such that $\dot{e} = f_s e / t_s$, where $\dot{e}$ is the energy injection rate, $e$ is the internal energy of the zone, $t_s$ is the sound crossing time, and $f_s$ is a safety factor. $L$ is computed as min(1, $f_s (e / \dot{e}) / t_s$). & 1 \\
+\verb= burning_mode_factor = &  If we're using burning\_mode == 3, this is the safety factor $f_s$ to use. & 1.d-1 \\
 \rowcolor{tableShade}
 \verb= call_eos_in_rhs = &  Do we call the EOS each time we enter the EOS?  This is expensive, but more accurate.  Otherwise, we instead call the EOS at the start of the integration and freeze the thermodynamics throughout the RHS evalulation.  This only affects the temperature integration (which is the input to the rate evaluation). In particular, since we calculate the composition factors either way, this determines whether we're updating the thermodynamic derivatives and other quantities (cp and cv) as we go. & .false. \\
 \verb= centered_diff_jac = &  one-sided numerical jacobian (.False.) or centered-difference Jacobian (.true.).  Note: the centered-difference requires twice as many RHS calls & .false. \\
