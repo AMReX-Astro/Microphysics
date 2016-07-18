@@ -660,6 +660,12 @@ to make sure the final state is consistent.
 
 \subsection{Evolving Mass Fractions}
 
+The default set of integration variables are $\{Y_k, T, e\}$, but 
+setting the runtime parameter {\tt integrate\_molar\_fraction = F}.
+In this mode, the inputs to {\tt actual\_rhs} and {\tt actual\_jac}
+remain unchanged, but the derivative terms {\tt state \% ydot} and
+{\tt state \% jac} now need to be in terms of $X_k$ instead of $Y_k$.
+Th
 
 \subsection{Burn Parameters}
 
@@ -720,8 +726,6 @@ type required by the {\tt actual\_rhs} and {\tt actual\_jac} routine.
 The name of the integrator can be selected at compile time using
 the {\tt INTEGRATOR\_DIR} variable.
 
-energy offset
-
 
 \subsection{VODE}
 \label{sec:VODE}
@@ -732,8 +736,11 @@ energy offset
 \subsection{BS}
 \label{sec:BS}
 
+\subsection{Retries}
 
-\subsection{Evolving $X_k$ Instead of $Y_k$}
+
+\section{Overriding Defaults on a Network-by-Network Basis}
+
 
 \begin{sidewaysfigure}
 \centering
