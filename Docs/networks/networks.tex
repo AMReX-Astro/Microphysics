@@ -295,6 +295,32 @@ This network has {\tt nspec = 4}, but {\tt nspec\_evolve = 3}.
 
 \subsection{{\tt xrb\_simple}}
 
+This is a simple 7 isotope network approximating the burning that
+takes place in X-ray bursts (6 isotopes participate in reactions, one
+additional, \isot{Fe}{56}, serves as an inert composition).  The 6 reactions
+modeled are:
+\begin{itemize}
+\item $3-\alpha + 2p \rightarrow \isotm{O}{14}$  (limited by the 3-$\alpha$ rate)
+
+\item $\isotm{0}{14} + \alpha \rightarrow \isotm{Ne}{18}$
+  (limited by $\isotm{O}{14}(\alpha,p)\isotm{F}{17}$ rate)
+
+\item $\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}$
+  (limited by $\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}$ rate)
+
+\item $\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}$
+  (limited by $\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}$ rate)
+
+\item $\isotm{O}{14} + p \rightarrow \isotm{O}{15}$ 
+  (limited by $\isotm{O}{14}(e+\nu)\isotm{N}{14}$ rate)
+
+\item $\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha$ 
+  (limited by $\isotm{O}{15}(e+\nu)\isotm{N}{15}$ rate)
+\end{itemize}
+All reactions conserve mass.  Where charge is not conserved, fast weak
+interactions are assumed.  Weak rates are trivial, fits to the 4
+strong rates to a power law in $T_9 \in [0.3, 1]$, linear in density.
+
 
 
 \section{Reaction ODE System}
@@ -347,7 +373,7 @@ yields the new values of the mass fractions, $Y_k^\outp$.
 
 \subsection{{\tt nspec\_evolve} Implementation}
 
-It is important that any algebraic relation connect the 
+It is important that any algebraic relation connect the
 explicitly evolved species and unevolved species be applied each
 time they are accessed from the state type.  \MarginPar{should we do this in the conversion to the burn type?}
 
@@ -418,15 +444,15 @@ notes on any differences between them.
 \section{Stiff ODE Solvers}
 \label{ch:networks:integrators}
 
-There are several options for integrators.  Each should be capable of 
+There are several options for integrators.  Each should be capable of
 evolving any of the networks, but varying in their approach.  Internally,
 the integrators uses different data structures to store the integration
 progress (from the old-style {\tt rpar} array in {\tt VODE} to derived
-types), and each integrator needs to provide a routine to convert 
+types), and each integrator needs to provide a routine to convert
 from the integrator's internal representation to the {\tt burn\_t}
 type required by the {\tt actual\_rhs} and {\tt actual\_jac} routine.
 
-The name of the integrator can be selected at compile time using 
+The name of the integrator can be selected at compile time using
 the {\tt INTEGRATOR\_DIR} variable.
 
 \subsection{VODE}
