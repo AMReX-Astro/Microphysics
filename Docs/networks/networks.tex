@@ -727,15 +727,80 @@ type required by the {\tt actual\_rhs} and {\tt actual\_jac} routine.
 The name of the integrator can be selected at compile time using
 the {\tt INTEGRATOR\_DIR} variable.
 
+The {\tt integration\_data} module defines scalings for $T$ and $e$
+({\tt temp\_scale} and {\tt ener\_scale} respectively) that can be
+used to scale the system such that everything is $\sim
+\mathcal{O}(1)$.  \MarginPar{does anyone use this?}
+ 
+
+\subsection{BS}
+\label{sec:BS}
+
+This integrator is based on the stiff-ODE methods from \cite{NR}, but
+written with reaction network integration in mind (so it knows about
+species), and in a modular / threadsafe fashion to work with our data
+structures.  This integrator appears quite robust.
+
+\paragraph{Error criteria.}  There is a single relative tolerance used 
+for all ODEs, instead of a separate one for species, temperature, and
+energy, it is simply the maximum of \{{\tt rtol\_spec}, {\tt
+  rtol\_temp}, {\tt rtol\_enuc}\}.  The absolute tolerance parameters
+are ignored.
+
+A relative tolerance needs a metric against which to compare.  {\tt BS}
+has two options, chosen by the runtime parameter {\tt scaling\_method}.
+Considering a vector ${\bf y} = (Y_k, e, T)^\intercal$, the scales
+to compare against, ${\bf y}_\mathrm{scal}$, are:
+\begin{itemize}
+\item {\tt scaling\_method = 1} : 
+\begin{equation}
+{\bf y}_\mathrm{scal} = |{\bf y}| + \Delta t  |\dot{\bf y}| + \epsilon
+\end{equation}
+This is an extrapolation of ${\bf y}$ in time.  The quantity
+$\epsilon$ is a small number (hardcoded to $10^{-30}$) to prevent any
+scale from being zero.
+
+
+\item{\tt scaling\_method = 2} :
+\begin{equation}
+({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )
+\end{equation}
+for $j = 1, \ldots, {\tt neq}$.  Here, {\tt ode\_scale\_floor} is a runtime 
+parameter that sets a lower-limit to the scaling for each variable in the 
+vector ${\bf y}_\mathrm{scal}$.  The default value is currently $10^{-6}$
+(although any network can override this using priorities).  The effect of 
+this scaling is that species with an abundance $\ll$ {\tt ode\_scal\_floor}
+will not be used as strongly in assessing the accuracy of a step.
+
+\end{itemize}
+These correspond to the options presented in \cite{NR}.
+
+A final option, {\tt use\_timestep\_estimator} enables the 
+timestep estimator from VODE to determine a good starting
+timestep for integration.
 
 \subsection{VODE}
 \label{sec:VODE}
 
+VODE is a classic integration package described in \cite{vode}.  We use the implicit integration method in the package.
+
+Tolerances
+
+Our copy of VODE is made threadsafe by use of the OpenMP {\tt
+  threadprivate} directive on Fortran common blocks.  However, due to
+the use of computed go tos, we have not ported it to GPUs using
+OpenACC.
+
+
+
 \subsection{VBDF}
 \label{sec:VBDF}
 
-\subsection{BS}
-\label{sec:BS}
+VBDF is a modern implementation of the methods in VODE, written by
+Matt Emmett.  It supports integrating a vector of states, but we do
+not use that capability.  At the moment, this integrator has
+difficulties with many of the networks.
+
 
 \subsection{Retries}
 
