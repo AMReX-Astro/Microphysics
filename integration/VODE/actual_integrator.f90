@@ -329,9 +329,7 @@ contains
        call update_unevolved_species(state_out)
     endif
 
-    call burn_to_eos(state_out, eos_state_out)
-    call normalize_abundances(eos_state_out)
-    call eos_to_burn(eos_state_out, state_out)
+    call normalize_abundances_burn(state_out)
 
     if (burner_verbose) then
 
