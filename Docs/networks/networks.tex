@@ -302,7 +302,7 @@ modeled are:
 \begin{itemize}
 \item $3\alpha + 2p \rightarrow \isotm{O}{14}$  (limited by the 3-$\alpha$ rate)
 
-\item $\isotm{0}{14} + \alpha \rightarrow \isotm{Ne}{18}$
+\item $\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}$
   (limited by $\isotm{O}{14}(\alpha,p)\isotm{F}{17}$ rate)
 
 \item $\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}$
@@ -485,8 +485,10 @@ via the {\tt burning\_mode} runtime parameter:
 
   This does a self-heating burn, but limits all values of the RHS
   by a factor $L = \text{min}(1, f_s (e / \dot{e}) / t_s)$, such
-  that $\dot{e} = f_s\, e / t_s$, where $f_s$ is a safety factor.
+  that $\dot{e} = f_s\, e / t_s$, where $f_s$ is a safety factor,
+  set via {\tt burning\_mode\_factor}.
 
+  
 \end{itemize}
 
 When the integration is started, the burning mode is used to identify
