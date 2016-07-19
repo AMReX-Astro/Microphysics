@@ -17,7 +17,6 @@ contains
   end subroutine actual_rhs_init
 
 
-
   subroutine actual_rhs(state)
 
     !$acc routine seq
@@ -39,11 +38,12 @@ contains
 
     double precision :: y(nspec)
 
-    call evaluate_rates(state)
 
     ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
+    call update_unevolved_species(state)
 
-    state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
+    call evaluate_rates(state)
+
 
     ! Now get the data from the state.
 
@@ -100,19 +100,15 @@ contains
     if (state % self_heat) then
 
        if (do_constant_volume_burn) then
-
           state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
 
        else
-
           state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
 
        endif
-
     endif
 
   end subroutine actual_rhs
-
 
 
   subroutine actual_jac(state)
@@ -294,6 +290,8 @@ contains
     implicit none
 
     type (burn_t)    :: state
+
+    state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
 
   end subroutine update_unevolved_species
 
