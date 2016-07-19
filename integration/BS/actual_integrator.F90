@@ -190,7 +190,7 @@ contains
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', bs % y(net_itemp) * temp_scale
        print *, 'xn current = ', bs % y(1:nspec_evolve) * aion(1:nspec_evolve), &
-            bs % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1) * aion(nspec_evolve+1:)
+            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', bs % y(net_ienuc) * ener_scale - ener_offset
 #endif
 
