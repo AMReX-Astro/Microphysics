@@ -476,7 +476,8 @@ contains
     endif
 
     do n = 1, nrates
-       state % rates(:,n) = bs % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1)
+       state % rates(:,n) = &
+            bs % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1)
     enddo
 
     if (bs % upar(irp_self_heat) > ZERO) then
