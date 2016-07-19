@@ -57,7 +57,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ONE
-    use extern_probin_module, only: renormalize_abundances, small_x, integrate_molar_fraction
+    use extern_probin_module, only: small_x, integrate_molar_fraction
     use actual_network, only: aion, nspec, nspec_evolve
     use integration_data, only: aionInv, temp_scale
     use burn_type_module, only: net_itemp
@@ -135,7 +135,7 @@ contains
     use bl_constants_module, only: ZERO
     use eos_type_module, only: eos_t, composition
     use eos_module, only: eos_input_rt, eos
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, integrate_molar_fraction
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use rpar_indices, only: irp_self_heat, irp_cv, irp_cp, irp_dcvdt, irp_dcpdt, irp_Told
 
     implicit none
