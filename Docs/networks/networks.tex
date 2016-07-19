@@ -473,13 +473,18 @@ via the {\tt burning\_mode} runtime parameter:
 
 \item {\tt burning\_mode = 1} : self-heating burn
 
-  $T$ evolves with the burning according to the temperature evolution equation
-
+  $T$ evolves with the burning according to the temperature evolution
+  equation.  This is the ``usual'' way of thinking of the
+  burning---all three equations (Eqs. \ref{eq:spec_integrate},
+  \ref{eq:enuc_integrate}, and \ref{eq:temp_integrate}) are solved
+  simultaneously.
+   
 \item {\tt burning\_mode = 2} : hybrid approach
 
-  This implements an approach from \cite{raskin:2010} in which we do a 
+  This implements an approach from \cite{raskin:2010} in which we do a
   hydrostatic burn everywhere, but if we get a negative energy change,
-  the burning is redone in self-heating mode.
+  the burning is redone in self-heating mode (the logic being that a
+  negative energy release corresponds to NSE conditions)
 
 \item {\tt burning\_mode = 3} : suppressed burning
 
@@ -662,41 +667,35 @@ to make sure the final state is consistent.
 
 \subsection{Evolving Mass Fractions}
 
-The default set of integration variables are $\{Y_k, T, e\}$, but 
-setting the runtime parameter {\tt integrate\_molar\_fraction = F}.
-In this mode, the inputs to {\tt actual\_rhs} and {\tt actual\_jac}
-remain unchanged, but the derivative terms {\tt state \% ydot} and
-{\tt state \% jac} now need to be in terms of $X_k$ instead of $Y_k$.
-Th
+The default set of integration variables are $\{Y_k, T, e\}$, but the
+system $\{X_k, T, e\}$ can instead be evolved by setting the runtime
+parameter {\tt integrate\_molar\_fraction = F}.  This switches the
+internal integration variables from $Y_k$ to $X_k$.  No
+network-specific routines need to be changed, e.g., inputs to {\tt
+  actual\_rhs} and {\tt actual\_jac} remain unchanged, and still
+return their derivatives {\tt state \% ydot} and {\tt state \% jac} in
+terms of $Y_k$.  These derivatives are converted to be in terms of
+$X_k$ by multiplying / dividing by $A_k$ where appropriate by the
+wrappers that interface with the RHS and Jacobian routines.
 
-\subsection{Burn Parameters}
+Analytically there should be no difference in the result of
+integrating $X_k$ instead of $Y_k$, but numerically, anecdotal
+evidence suggests that some networks meet their tolerances more easily
+when $X_k$ is the integration variable.
 
-The full set of parameters for the integration is listed in Chapter \ref{chapter:parameters}.
-In this section we will explain the most relevant ones in more detail.
-Remember that all of these are controlled by including them in your runtime
-inputs (either with all other parameters in the standard inputs file for
-\maestro, or the \texttt{extern} namelist of the probin file for \castro).
+\subsection{Renormalization}
 
+The {\tt renormalize\_abundances} parameter controls whether we
+renormalize the abundances so that the mass fractions sum to one
+during a burn. This has the positive benefit that in some cases it can
+prevent the integrator from going off to infinity or otherwise go
+crazy; a possible negative benefit is that it may slow down
+convergence because it interferes with the integration
+scheme. Regardless of whether you enable this, we will always ensure
+that the mass fractions stay positive and larger than some floor
+{\tt small\_x}.
 
-The \texttt{renormalize\_abundances} parameter controls whether we renormalize
-the abundances so that the mass fractions sum to one during a burn. This
-has the positive benefit that in some cases it can prevent the integrator
-from going off to infinity or otherwise go crazy; a possible negative benefit
-is that it may slow down convergence because it interferes with the integration
-scheme. Regardless of whether you enable this, we will always ensure that the
-mass fractions stay positive and larger than some floor \texttt{small\_x}.
-
-While we normally evolve all of these equations simultaneously, which is
-usually called a ``self-heating'' burn because the temperature is allowed
-to respond to the reactions as they occur, it is
-sometimes the case that you do not want to update the temperature at all
-during the burn -- this is a so-called ``hydrostatic'' burn. You can
-set the RHS of the temperature equation to zero by setting
-\texttt{burning\_mode = 0}. We also offer the ``hybrid'' burn approach
-(\texttt{burning\_mode = 2}) introduced by \cite{raskin:2010}, which
-does a hydrostatic burn, but recomputes a self-heating burn if the
-final energy release from the hydrostatic burn was negative (the
-logic being that a negative energy release corresponds to NSE conditions).
+\MarginPar{do we always renormalize at the end?}
 
 
 \section{Stiff ODE Solvers}
