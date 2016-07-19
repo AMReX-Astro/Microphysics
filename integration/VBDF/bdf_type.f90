@@ -89,20 +89,39 @@ contains
     use extern_probin_module, only: integrate_molar_fraction
     use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: aionInv, temp_scale
+    use burn_type_module, only: net_itemp
+    use eos_module, only : eos_get_small_temp
 
     implicit none
+
+    ! this should be larger than any reasonable temperature we will encounter
+    real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
+
+    ! this is the absolute cutoff for species -- note that this might
+    ! be larger than small_x that the user set, but the issue is that
+    ! we can have underflow issues if the integrator has to keep track
+    ! of species mass fractions much smaller than this.
+    real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-30
+    real (kind=dp_t) :: small_temp
 
     type (bdf_ts) :: state
 
     ! Ensure that mass fractions always stay positive.
     if (integrate_molar_fraction) then
        state % y(1:nspec_evolve,1) = &
-            max(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
-                1.d-200) * aionInv(1:nspec_evolve)
+            max(min(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve), ONE), &
+                SMALL_X_SAFE) * aionInv(1:nspec_evolve)
     else
        state % y(1:nspec_evolve,1) = &
-            max(state % y(1:nspec_evolve,1), 1.d-200)
+            max(min(state % y(1:nspec_evolve,1), ONE), SMALL_X_SAFE)
     endif
+
+    ! Ensure that the temperature always stays within reasonable limits.
+    call eos_get_small_temp(small_temp)
+
+    state % y(net_itemp,1) = min(MAX_TEMP / temp_scale, &
+                               max(state % y(net_itemp,1), small_temp / temp_scale))
+
 
   end subroutine clean_state
 
