@@ -731,6 +731,7 @@ the allowed options are {\tt BS}, {\tt VBDF}, and {\tt VODE}.
 The entry point to the integrator is {\tt actual\_integrator}:
 \begin{lstlisting}[language={[95]fortran}]
   subroutine actual_integrator(state_in, state_out, dt, time)
+
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
@@ -764,7 +765,32 @@ integrator-specific type implied in these operations):
 \end{itemize}
 
     
+Each integrator does their own thing to construct the solution, 
+but they will all need to assess the RHS in {\tt actual\_rhs},
+which means converting from their internal representation
+to the {\tt burn\_t} type.  This is handled in a file
+called {\tt XX\_rhs.f90}, where {\tt XX} is the integrator name.
+The basic outline of this routine is:
+\begin{itemize}
+\item call {\tt clean\_state}
 
+\item renormalize the species, if {\tt renormalize\_abundances = T}
+\MarginPar{we should put the call to {\tt update\_unevolved\_species} before this, instead of in the {\tt actual\_rhs}}
+
+\item update the thermodynamic quantities if we are doing {\tt
+  call\_eos\_in\_rhs} or the {\tt dT\_crit} requires
+
+\item convert to a {\tt burn\_t} type and call the actual RHS
+
+\item convert derives to mass-fraction-based (if {\tt
+  integrate\_molar\_fraction = F} and zero out the temperature or
+  energy derivatives (if {\tt integrate\_temperature = F} or {\tt
+    integrate\_energy = F}, respectively).
+
+\item limit the rates if {\tt burning\_mode = 3}
+
+\item convert back to the integrator's internal representation
+\end{itemize}
 
 
 \subsection{BS}
