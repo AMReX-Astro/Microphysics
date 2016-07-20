@@ -63,7 +63,6 @@ contains
     do n = 1, ode_max_steps
 
        ! Get the scaling.
-
        call f_rhs(bs)
 
        if (scaling_method == 1) then

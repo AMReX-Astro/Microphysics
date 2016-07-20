@@ -40,14 +40,15 @@ contains
     ! Fix the state as necessary.
     call clean_state(bs)
 
-    ! Renormalize abundances as necessary.
 
+    ! Renormalize abundances as necessary.
     if (renormalize_abundances) then
        call renormalize_species(bs)
     endif
 
     ! Update the thermodynamic quantities as necessary.
     call update_thermodynamics(bs)
+
 
     ! Indicate that we don't yet have valid rates.
     bs % burn_s % have_rates = .false.

@@ -178,6 +178,7 @@ contains
     if (call_eos_in_rhs .and. state % burn_s % self_heat) then
 
        call eos(eos_input_rt, eos_state)
+       call eos_to_bs(eos_state, state)
 
     else if (abs(eos_state % T - state % burn_s % T_old) > &
          dT_crit * eos_state % T .and. state % burn_s % self_heat) then
@@ -191,14 +192,21 @@ contains
        state % burn_s % T_old  = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
-       ! in the call to eos_to_bs that follows this block.
+       ! in the call to eos_to_bs that follows 
+       call eos_to_bs(eos_state, state)
+
     else
 
        call composition(eos_state)
 
+       ! just update what is needed here
+       state % burn_s % y_e = eos_state % y_e
+       state % burn_s % abar = eos_state % abar
+       state % burn_s % zbar = eos_state % zbar
+
     endif
 
-    call eos_to_bs(eos_state, state)
+
 
   end subroutine update_thermodynamics
 
