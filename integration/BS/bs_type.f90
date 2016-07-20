@@ -44,7 +44,7 @@ module bs_type_module
      integer         :: n
      integer         :: n_rhs, n_jac
 
-     type(burn_t) :: burn_state
+     type(burn_t) :: burn_s
 
      integer :: i, j, k
 
