@@ -67,9 +67,11 @@ contains
        call f_rhs(bs)
 
        if (scaling_method == 1) then
-          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % dydt(:)) + SMALL
+          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
+
        else if (scaling_method == 2) then
           yscal = max(abs(bs % y(:)), ode_scale_floor)
+
 #ifndef ACC
        else
           call bl_error("Unknown scaling method in subroutine ode.")
@@ -148,12 +150,12 @@ contains
        ! Construct the trial point.
 
        bs_temp % t = bs % t + h
-       bs_temp % y = bs % y + h * bs % dydt
+       bs_temp % y = bs % y + h * bs % burn_s % ydot
 
        ! Call the RHS, then estimate the finite difference.
-
+       ! FIXME -- don't we need to disable have_rates here?
        call f_rhs(bs_temp)
-       ddydtt = (bs_temp % dydt - bs % dydt) / h
+       ddydtt = (bs_temp % burn_s % ydot - bs % burn_s % ydot) / h
 
        yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / neqs )
 
@@ -208,7 +210,7 @@ contains
     h = dt_tot/N_sub
 
     ! I - h J
-    A(:,:) = -h * bs % jac(:,:)
+    A(:,:) = -h * bs % burn_s % jac(:,:)
     do n = 1, neqs
        A(n,n) = ONE + A(n,n)
     enddo
@@ -224,7 +226,7 @@ contains
 
     ! do an Euler step to get the RHS for the first substep
     t = bs % t
-    y_out(:) = h * bs % dydt(:)
+    y_out(:) = h * bs % burn_s % ydot(:)
 
     ! solve the first step using the LU solver
     call dgesl(A, neqs, neqs, ipiv, y_out, 0)
@@ -237,7 +239,7 @@ contains
     call f_rhs(bs_temp)
 
     do n = 2, N_sub
-       y_out(:) = h * bs_temp % dydt(:) - del(:)
+       y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
 
        ! LU solve
        call dgesl(A, neqs, neqs, ipiv, y_out, 0)
@@ -250,7 +252,7 @@ contains
        call f_rhs(bs_temp)
     enddo
 
-    y_out(:) = h * bs_temp % dydt(:) - del(:)
+    y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
 
     ! last LU solve
     call dgesl(A, neqs, neqs, ipiv, y_out, 0)

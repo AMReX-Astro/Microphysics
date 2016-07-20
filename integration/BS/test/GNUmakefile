@@ -1,37 +1,27 @@
-FC := gfortran
-FFLAGS = -c -O2 -g -fbounds-check -fbacktrace -Wuninitialized -Wunused -ffpe-trap=invalid -finit-real=nan
+NDEBUG := 
+MPI    :=
+OMP    :=
 
-LA_DIRS := $(CASTRO_DIR)/Util/VODE $(CASTRO_DIR)/Util/BLAS
+COMP := gfortran
 
-f90sources = stiff_ode.f90 bl_types.f90 f_rhs.f90 test.f90
-f90sources += $(notdir $(wildcard ../LAPACK/*.f90))
+MKVERBOSE := t
 
-fsources += $(notdir $(foreach dir, $(LA_DIRS), $(wildcard $(dir)/*.f)))
+MICROPHYSICS_HOME := ../../..
 
-vpath %.f90 . ..
-vpath %.f . .. $(LA_DIRS)
+# programs to be compiled
+programs += test
 
+EOS_DIR := helmholtz
+NETWORK_DIR := triple_alpha_plus_cago
 
-ALL: test.ex
+TEST_DIR = $(MICROPHYSICS_HOME)/networks/triple_alpha_plus_cago/test
 
-odir := _build
+ALL:
 
-OBJECTS := $(addprefix $(odir)/, $(f90sources:.f90=.o))
-OBJECTS += $(addprefix $(odir)/, $(fsources:.f=.o))
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 
-print-%: ; @echo $* is $($*)
+ALL: $(pnames)
 
-$(odir)/stiff_ode.o: $(odir)/bl_types.o
-
-$(odir)/%.o: %.f90
-	@if [ ! -d $(odir) ]; then mkdir -p $(odir); fi
-	$(FC) $(FFLAGS) -o $@ $<
-
-$(odir)/%.o: %.f
-	@if [ ! -d $(odir) ]; then mkdir -p $(odir); fi
-	$(FC) $(FFLAGS) -o $@ $<
-
-
-test.ex: $(OBJECTS)
-	$(FC) -o $@ $(OBJECTS)
+# include the fParallel Makefile rules
+include $(BOXLIB_HOME)/Tools/F_mk/GMakerules.mak
 

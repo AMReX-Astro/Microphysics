@@ -1,7 +1,7 @@
 module bs_type_module
 
   use bl_types, only: dp_t
-  use burn_type_module, only: neqs
+  use burn_type_module, only: neqs, burn_t
   use rpar_indices, only: n_rpar_comps
 
   implicit none
@@ -138,7 +138,6 @@ contains
     use eos_type_module, only: eos_t, composition
     use eos_module, only: eos_input_rt, eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
-    use rpar_indices, only: irp_self_heat, irp_cv, irp_cp, irp_dcvdt, irp_dcpdt, irp_Told
 
     implicit none
 
@@ -176,20 +175,20 @@ contains
     ! that's needed to construct dY/dt. Then make sure
     ! the abundances are safe.
 
-    if (call_eos_in_rhs .and. state % burn_s % self_heat > ZERO) then
+    if (call_eos_in_rhs .and. state % burn_s % self_heat) then
 
        call eos(eos_input_rt, eos_state)
 
-    else if (abs(eos_state % T - state % burn_s % Told) > &
-         dT_crit * eos_state % T .and. state % upar(irp_self_heat) > ZERO) then
+    else if (abs(eos_state % T - state % burn_s % T_old) > &
+         dT_crit * eos_state % T .and. state % burn_s % self_heat) then
 
        call eos(eos_input_rt, eos_state)
 
        state % burn_s % dcvdt = (eos_state % cv - state % burn_s % cv) / &
-            (eos_state % T - state % burn_s % Told)
+            (eos_state % T - state % burn_s % T_old)
        state % burn_s % dcpdt = (eos_state % cp - state % burn_s % cp) / &
-            (eos_state % T - state % burn_s % Told)
-       state % burn_s % Told  = eos_state % T
+            (eos_state % T - state % burn_s % T_old)
+       state % burn_s % T_old  = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
        ! in the call to eos_to_bs that follows this block.
@@ -287,7 +286,7 @@ contains
     bs % burn_s % abar = state % abar
     bs % burn_s % zbar = state % zbar
     bs % burn_s % eta = state % eta
-    bs % burn_s % ye = state % y_e
+    bs % burn_s % y_e = state % y_e
     bs % burn_s % cs = state % cs
 
   end subroutine eos_to_bs
@@ -335,8 +334,8 @@ contains
     bs % burn_s % ydot(net_itemp) = bs % burn_s % ydot(net_itemp) * inv_temp_scale
     bs % burn_s % ydot(net_ienuc) = bs % burn_s % ydot(net_ienuc) * inv_ener_scale
 
-    bs % jac(net_itemp,:) = bs % jac(net_itemp,:) * inv_temp_scale
-    bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) * inv_ener_scale
+    bs % burn_s % jac(net_itemp,:) = bs % burn_s % jac(net_itemp,:) * inv_temp_scale
+    bs % burn_s % jac(net_ienuc,:) = bs % burn_s % jac(net_ienuc,:) * inv_ener_scale
 
     ! fixme: net_itemp, net_itemp shouldn't be scaled
 
