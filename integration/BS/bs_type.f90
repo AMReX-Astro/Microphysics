@@ -176,19 +176,20 @@ contains
     ! that's needed to construct dY/dt. Then make sure
     ! the abundances are safe.
 
-    if (call_eos_in_rhs .and. state % upar(irp_self_heat) > ZERO) then
+    if (call_eos_in_rhs .and. state % burn_s % self_heat > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
-    else if (abs(eos_state % T - state % upar(irp_Told)) > dT_crit * eos_state % T .and. state % upar(irp_self_heat) > ZERO) then
+    else if (abs(eos_state % T - state % burn_s % Told) > &
+         dT_crit * eos_state % T .and. state % upar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
-       state % upar(irp_dcvdt) = (eos_state % cv - state % upar(irp_cv)) / &
-            (eos_state % T - state % upar(irp_Told))
-       state % upar(irp_dcpdt) = (eos_state % cp - state % upar(irp_cp)) / &
-            (eos_state % T - state % upar(irp_Told))
-       state % upar(irp_Told)  = eos_state % T
+       state % burn_s % dcvdt = (eos_state % cv - state % burn_s % cv) / &
+            (eos_state % T - state % burn_s % Told)
+       state % burn_s % dcpdt = (eos_state % cp - state % burn_s % cp) / &
+            (eos_state % T - state % burn_s % Told)
+       state % burn_s % Told  = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
        ! in the call to eos_to_bs that follows this block.
@@ -218,9 +219,7 @@ contains
     use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: aionInv, dens_scale, temp_scale
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY, &
-                            n_not_evolved
+    use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -229,7 +228,7 @@ contains
     type (eos_t) :: state
     type (bs_t) :: bs
 
-    state % rho     = bs % upar(irp_dens) * dens_scale
+    state % rho     = bs % burn_s % rho * dens_scale
     state % T       = bs % y(net_itemp) * temp_scale
 
     if (integrate_molar_fraction) then
@@ -242,21 +241,8 @@ contains
             bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
     endif
 
-    state % cp      = bs % upar(irp_cp)
-    state % cv      = bs % upar(irp_cv)
-    state % abar    = bs % upar(irp_abar)
-    state % zbar    = bs % upar(irp_zbar)
-    state % eta     = bs % upar(irp_eta)
-    state % y_e     = bs % upar(irp_ye)
-    state % cs      = bs % upar(irp_cs)
-
-    if (integrate_molar_fraction) then
-       state % dhdX(:) = bs % upar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
-       state % dedX(:) = bs % upar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
-    else
-       state % dhdX(:) = bs % upar(irp_dhdY:irp_dhdY-1+nspec)
-       state % dedX(:) = bs % upar(irp_dedY:irp_dedY-1+nspec)
-    endif
+    ! we don't copy any of the other quantities, since we can always
+    ! access them through the original bs type
 
   end subroutine bs_to_eos
 
@@ -272,7 +258,7 @@ contains
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY, &
+                            irp_eta, irp_ye, irp_cs, &
                             n_not_evolved
     use integration_data, only: temp_scale, dens_scale
     use burn_type_module, only: net_itemp
@@ -283,8 +269,8 @@ contains
     type (eos_t) :: state
     type (bs_t) :: bs
 
-    bs % upar(irp_dens) = state % rho * inv_dens_scale
-    bs % y(net_itemp) = state % T * inv_temp_scale
+    bs % burn_s % rho = state % rho * inv_dens_scale
+    bs % burn_s % T = state % T * inv_temp_scale
 
     if (integrate_molar_fraction) then
        bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
@@ -296,38 +282,28 @@ contains
             state % xn(nspec_evolve+1:nspec) 
     endif
 
-    bs % upar(irp_cp)                    = state % cp
-    bs % upar(irp_cv)                    = state % cv
-    bs % upar(irp_abar)                  = state % abar
-    bs % upar(irp_zbar)                  = state % zbar
-    bs % upar(irp_eta)                   = state % eta
-    bs % upar(irp_ye)                    = state % y_e
-    bs % upar(irp_cs)                    = state % cs
-
-    if (integrate_molar_fraction) then
-       bs % upar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:) * aion(:)
-       bs % upar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:) * aion(:)
-    else
-       bs % upar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:)
-       bs % upar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:)
-    endif
+    bs % burn_s % cp = state % cp
+    bs % burn_s % cv = state % cv
+    bs % burn_s % abar = state % abar
+    bs % burn_s % zbar = state % zbar
+    bs % burn_s % eta = state % eta
+    bs % burn_s % ye = state % y_e
+    bs % burn_s % cs = state % cs
 
   end subroutine eos_to_bs
 
 
 
-  ! Given a burn state, fill the bs_t.
+  subroutine burn_to_bs(bs)
 
-  subroutine burn_to_bs(state, bs)
+    ! Given a burn state, fill the bs_t.  For this implementation, we just
+    ! modify the burn_t that is part of the bs_t, in place
 
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion, nrates
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, irp_dhdY, irp_dedY, &
-                            irp_self_heat, irp_have_rates, irp_rates, irp_Told, irp_dcvdt, irp_dcpdt, &
-                            n_not_evolved
+    use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ONE
     use extern_probin_module, only: integrate_molar_fraction
@@ -339,164 +315,85 @@ contains
 
     integer :: n
 
-    bs % upar(irp_dens) = state % rho * inv_dens_scale
-    bs % y(net_itemp) = state % T * inv_temp_scale
+    bs % burn_s % rho = bs % burn_s % rho * inv_dens_scale
+    bs % y(net_itemp) = bs % burn_s % T * inv_temp_scale
 
     if (integrate_molar_fraction) then
-       bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
+       bs % y(1:nspec_evolve) = bs % burn_s % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
        bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
+            bs % burn_s % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
     else
-       bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+       bs % y(1:nspec_evolve) = bs % burn_s % xn(1:nspec_evolve)
        bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec) 
+            bs % burn_s % xn(nspec_evolve+1:nspec) 
     endif
 
-    bs % y(net_ienuc)                             = state % e * inv_ener_scale
-    bs % upar(irp_cp)                             = state % cp
-    bs % upar(irp_cv)                             = state % cv
-    bs % upar(irp_abar)                           = state % abar
-    bs % upar(irp_zbar)                           = state % zbar
-    bs % upar(irp_ye)                             = state % y_e
-    bs % upar(irp_eta)                            = state % eta
-    bs % upar(irp_cs)                             = state % cs
-    bs % upar(irp_dx)                             = state % dx
+    bs % y(net_ienuc) = bs % burn_s % e * inv_ener_scale
 
-    if (integrate_molar_fraction) then
-       bs % upar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:) * aion(:)
-       bs % upar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:) * aion(:)
-    else
-       bs % upar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:)
-       bs % upar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:)
-    endif
+    ! we don't need to do anything to thermodynamic quantities, cp, cv, ...
 
-    bs % upar(irp_Told)                           = state % T_old
-    bs % upar(irp_dcvdt)                          = state % dcvdt
-    bs % upar(irp_dcpdt)                          = state % dcpdt
-
-    bs % dydt = state % ydot
-    bs % dydt(net_itemp) = bs % dydt(net_itemp) * inv_temp_scale
-    bs % dydt(net_ienuc) = bs % dydt(net_ienuc) * inv_ener_scale
-
-    do n = 1, neqs
-       bs % jac(:,n) = state % jac(:,n)
-    enddo
+    bs % burn_s % ydot(net_itemp) = bs % burn_s % ydot(net_itemp) * inv_temp_scale
+    bs % burn_s % ydot(net_ienuc) = bs % burn_s % ydot(net_ienuc) * inv_ener_scale
 
     bs % jac(net_itemp,:) = bs % jac(net_itemp,:) * inv_temp_scale
     bs % jac(net_ienuc,:) = bs % jac(net_ienuc,:) * inv_ener_scale
 
-    if (state % have_rates) then
-       bs % upar(irp_have_rates) = ONE
-    else
-       bs % upar(irp_have_rates) = -ONE
-    endif
+    ! fixme: net_itemp, net_itemp shouldn't be scaled
 
-    do n = 1, nrates
-       bs % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1) = &
-            state % rates(:,n)
-    enddo
-
-    if (state % self_heat) then
-       bs % upar(irp_self_heat) = ONE
-    else
-       bs % upar(irp_self_heat) = -ONE
-    endif
+    ! we don't need to do anything to have_rates, rates, or self_heat
 
   end subroutine burn_to_bs
 
 
 
-  ! Given a bs_t, set up a burn state.
-
-  subroutine bs_to_burn(bs, state)
-
+  subroutine bs_to_burn(bs)
+    ! Given a bs_t, set up a burn state.  For this implementation, we just
+    ! modify the burn_t that is part of the bs_t, in place
+    
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion, nrates
     use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, irp_dhdY, irp_dedY, &
-                            irp_self_heat, irp_have_rates, irp_rates, irp_Told, irp_dcvdt, irp_dcpdt, &
-                            n_not_evolved
+    use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ZERO, ONE
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
-    type (burn_t) :: state
     type (bs_t) :: bs
 
     integer :: n
 
-    state % rho      = bs % upar(irp_dens) * dens_scale
-    state % T        = bs % y(net_itemp) * temp_scale
-    state % e        = bs % y(net_ienuc) * ener_scale
+    bs % burn_s % rho = bs % burn_s % rho * dens_scale
+    bs % burn_s % T = bs % y(net_itemp) * temp_scale
+    bs % burn_s % e = bs % y(net_ienuc) * ener_scale
 
     if (integrate_molar_fraction) then
-       state % xn(1:nspec_evolve) = bs % y(1:nspec_evolve) * aion(1:nspec_evolve)
-       state % xn(nspec_evolve+1:nspec) = &
+       bs % burn_s % xn(1:nspec_evolve) = bs % y(1:nspec_evolve) * aion(1:nspec_evolve)
+       bs % burn_s % xn(nspec_evolve+1:nspec) = &
             bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:nspec)
     else
-       state % xn(1:nspec_evolve) = bs % y(1:nspec_evolve)
-       state % xn(nspec_evolve+1:nspec) = &
+       bs % burn_s % xn(1:nspec_evolve) = bs % y(1:nspec_evolve)
+       bs % burn_s % xn(nspec_evolve+1:nspec) = &
             bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
     endif
 
-    state % cp       = bs % upar(irp_cp)
-    state % cv       = bs % upar(irp_cv)
-    state % abar     = bs % upar(irp_abar)
-    state % zbar     = bs % upar(irp_zbar)
-    state % y_e      = bs % upar(irp_ye)
-    state % eta      = bs % upar(irp_eta)
-    state % cs       = bs % upar(irp_cs)
-    state % dx       = bs % upar(irp_dx)
+    ! all the other thermodynamic quantities (cp, cv, ...) are already
+    ! in the burn_t
 
-    if (integrate_molar_fraction) then
-       state % dhdX(:)  = bs % upar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
-       state % dedX(:)  = bs % upar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
-    else
-       state % dhdX(:)  = bs % upar(irp_dhdY:irp_dhdY-1+nspec)
-       state % dedX(:)  = bs % upar(irp_dedY:irp_dedY-1+nspec)
-    endif
+    ! fix the scaling of the derivative terms
+    bs % burn_s % ydot(net_itemp) = bs % burn_s % ydot(net_itemp) * temp_scale
+    bs % burn_s % ydot(net_ienuc) = bs % burn_s % ydot(net_ienuc) * ener_scale
 
-    state % T_old    = bs % upar(irp_Told)
-    state % dcvdt    = bs % upar(irp_dcvdt)
-    state % dcpdt    = bs % upar(irp_dcpdt)
+    bs % burn_s % jac(net_itemp,:) = bs % burn_s % jac(net_itemp,:) * temp_scale
+    bs % burn_s % jac(net_ienuc,:) = bs % burn_s % jac(net_ienuc,:) * ener_scale
 
-    state % ydot = bs % dydt
-    state % ydot(net_itemp) = state % ydot(net_itemp) * temp_scale
-    state % ydot(net_ienuc) = state % ydot(net_ienuc) * ener_scale
+    ! have_rates and the rates should already be set
 
-    !do n = 1, neqs
-    !   state % jac(:,n) = bs % jac(:,n)
-    !enddo
+    ! self_heat is already set
 
-    !state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
-    !state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
-
-    if (bs % upar(irp_have_rates) > ZERO) then
-       state % have_rates = .true.
-    else
-       state % have_rates = .false.
-    endif
-
-    do n = 1, nrates
-       state % rates(:,n) = &
-            bs % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1)
-    enddo
-
-    if (bs % upar(irp_self_heat) > ZERO) then
-       state % self_heat = .true.
-    else
-       state % self_heat = .false.
-    endif
-
-    state % time = bs % t
-
-    state % i = bs % i
-    state % j = bs % j
-    state % k = bs % k
+    bs % burn_s % time = bs % t
 
   end subroutine bs_to_burn
 

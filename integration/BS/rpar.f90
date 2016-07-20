@@ -9,9 +9,12 @@ module rpar_indices
 
   implicit none
 
-  integer, parameter :: irp_t_sound = 1
-  integer, parameter :: irp_y_init = irp_t_sound + 1
+  integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
-  integer, parameter :: n_rpar_comps = irp_y_init + nspec
+  integer, parameter :: irp_nspec = 1
+  integer, parameter :: irp_y_init = irp_nspec + n_not_evolved
+  integer, parameter :: irp_t_sound = irp_y_init + nspec
+
+  integer, parameter :: n_rpar_comps = irp_t_sound + 1
 
 end module rpar_indices
