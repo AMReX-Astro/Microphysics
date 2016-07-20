@@ -274,7 +274,10 @@ contains
     type (bs_t) :: bs
 
     bs % burn_s % rho = state % rho * inv_dens_scale
-    bs % burn_s % T = state % T * inv_temp_scale
+
+    ! T is funny -- it is both an integration variable and a member of burn_t
+    bs % y(net_itemp) = state % T * inv_temp_scale
+    bs % burn_s % T = state % T 
 
     if (integrate_molar_fraction) then
        bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
