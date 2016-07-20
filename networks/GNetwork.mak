@@ -11,8 +11,8 @@ NET_DIRS += $(NETWORK_TOP_DIR)/$(NETWORK_DIR)
 # the integrator is specified by INTEGRATOR_DIR.  We set the default to VODE
 # here
 INTEGRATOR_DIR ?= VODE
-INT_DIRS := $(MICROPHYSICS_HOME)/integration
-INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+INT_DIRS := $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+INT_DIRS += $(MICROPHYSICS_HOME)/integration
 
 ifeq ($(INTEGRATOR_DIR), VODE)
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
