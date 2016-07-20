@@ -224,7 +224,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv, dens_scale, temp_scale
+    use integration_data, only: dens_scale, temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
@@ -261,11 +261,10 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion
+    use actual_network, only: nspec, nspec_evolve
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
-    use integration_data, only: temp_scale, dens_scale
     use burn_type_module, only: net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -306,7 +305,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion, nrates
+    use actual_network, only: nspec, nspec_evolve, nrates
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
@@ -315,10 +314,7 @@ contains
 
     implicit none
 
-    type (burn_t) :: state
     type (bs_t) :: bs
-
-    integer :: n
 
     bs % burn_s % rho = bs % burn_s % rho * inv_dens_scale
     bs % y(net_itemp) = bs % burn_s % T * inv_temp_scale
@@ -358,7 +354,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion, nrates
-    use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
+    use integration_data, only: dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ZERO, ONE
@@ -367,8 +363,6 @@ contains
     implicit none
 
     type (bs_t) :: bs
-
-    integer :: n
 
     bs % burn_s % rho = bs % burn_s % rho * dens_scale
     bs % burn_s % T = bs % y(net_itemp) * temp_scale

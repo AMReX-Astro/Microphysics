@@ -57,7 +57,7 @@ contains
     real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
     real(kind=dp_t) :: t0, t1
 
-    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
+    type (eos_t) :: eos_state_in, eos_state_temp
     type (bs_t) :: bs
 
     real(dp_t) :: retry_change_factor
