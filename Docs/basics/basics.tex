@@ -1,21 +1,31 @@
 \section{Getting Started}
 
-Getting started with \microphysics\ is straightforward. Because the
-modules here are already in a format that the \boxlib\ codes
-understand, you only need to provide to the code calling these
-routines their location on your system. The code will do the rest. To
-do so, define the {\tt MICROPHYSICS\_HOME} environment variable, either
-at a command line or (if you use the {\tt bash} shell) through your
-{\tt $\sim$/.bashrc} profile, e.g.:
+Getting started with \microphysics\ using either \castro\ or
+\maestro\ is straightforward. Because the modules here are already in
+a format that the \boxlib\ codes understand, you only need to provide
+to the code calling these routines their location on your system. The
+code will do the rest. To do so, define the {\tt MICROPHYSICS\_HOME}
+environment variable, either at a command line or (if you use the {\tt
+  bash} shell) through your {\tt $\sim$/.bashrc} profile, e.g.:
 \begin{equation*}
   \texttt{export MICROPHYSICS\_HOME = /path/to/Microphysics}
 \end{equation*}
 
-The calling code will know that when you provide it an {\tt
-  EOS\_dir} \MarginPar{this is Castro specific} and {\tt
-  Network\_dir}, that it should look in this repository and not in its
-own microphysics location.
+For \castro\, the name of the EOS and network are set via the make
+variables {\tt EOS\_dir} and {\tt Network\_dir}.  The macros in
+\castro's {\tt Make.Castro} will know to look in \microphysics\ using
+the {\tt MICROPHYSICS\_HOME} variable to find the codes.
 
+For \maestro, the name of the EOS and network are set via the make
+variables {\tt EOS\_DIR} and {\tt NETWORK\_DIR}, and the macros in
+\maestro's {\tt GMaestro.mak} file will find the code, again using the
+           {\tt MICROPHYSICS\_HOME} variable.
+
+For other codes, one can use the interfaces in {\tt
+  Microphysics/interfaces/} and sample routines in {\tt
+  Microphysics/unit\_test/} to incorporate these modules into your
+code.  Note that there are a few \boxlib\ files required at the moment
+(mainly error handling and constants).
 
 \section{Structure}
 
