@@ -102,6 +102,7 @@ contains
     call eos(eos_input_rt, eos_state_in)
 
     ! Convert the EOS state data into the form BS expects.
+
     ! at this point, the burn_t that we care about is part of bs
     call eos_to_bs(eos_state_in, bs)
 
