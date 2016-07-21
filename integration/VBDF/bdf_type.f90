@@ -131,7 +131,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion
-    use rpar_indices, only: irp_nspec
+    use rpar_indices, only: irp_nspec, n_not_evolved
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
@@ -249,7 +249,7 @@ contains
     use integration_data, only: aionInv, dens_scale, temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY
+                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY, n_not_evolved
     use burn_type_module, only: net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -301,7 +301,7 @@ contains
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY
+                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY, n_not_evolved
     use integration_data, only: temp_scale, dens_scale
     use burn_type_module, only: net_itemp
     use extern_probin_module, only: integrate_molar_fraction
@@ -354,7 +354,8 @@ contains
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, irp_dhdY, irp_dedY, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
+                            n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ONE
     use extern_probin_module, only: integrate_molar_fraction
@@ -439,7 +440,8 @@ contains
     use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, irp_dhdY, irp_dedY, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
+                            n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ZERO
     use extern_probin_module, only: integrate_molar_fraction
