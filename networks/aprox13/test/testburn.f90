@@ -32,9 +32,7 @@ program testburn
   state_in % e = ZERO
   state_in % xn(:) = Xin(:)
 
-  do i = 1, 1000
-     call actual_burner(state_in, state_out, dt, ZERO)
-  enddo
+  call actual_burner(state_in, state_out, dt, ZERO)
 
   print *, 'done!'
 
