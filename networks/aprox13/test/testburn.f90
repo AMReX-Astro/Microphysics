@@ -6,13 +6,14 @@ program testburn
   use network
   use eos_module
   use actual_burner_module
+  use extern_probin_module, only : jacobian
 
   implicit none
 
   real(kind=dp_t) :: dens, temp, dt
   real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
-  integer :: i
+
   call microphysics_init()
 
   dens = 1.5e7_dp_t
@@ -22,8 +23,9 @@ program testburn
   Xin(ihe4)  = ONE
   Xin(ic12)  = ZERO
 
-  dt = 0.01_dp_t
+  dt = 0.0001_dp_t
 
+  jacobian = 2
 
   print *, 'calling the burner...'
 
@@ -32,9 +34,7 @@ program testburn
   state_in % e = ZERO
   state_in % xn(:) = Xin(:)
 
-  do i = 1, 1000
-     call actual_burner(state_in, state_out, dt, ZERO)
-  enddo
+  call actual_burner(state_in, state_out, dt, ZERO)
 
   print *, 'done!'
 
