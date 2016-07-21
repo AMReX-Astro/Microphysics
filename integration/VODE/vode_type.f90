@@ -35,7 +35,7 @@ contains
     use actual_network, only: aion, nspec, nspec_evolve
     use integration_data, only: aionInv
     use burn_type_module, only: neqs
-    use rpar_indices, only: n_rpar_comps, irp_nspec
+    use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
@@ -151,7 +151,7 @@ contains
     use integration_data, only: aionInv, dens_scale, temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -195,7 +195,7 @@ contains
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -241,7 +241,7 @@ contains
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
-                            n_rpar_comps
+                            n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -325,7 +325,7 @@ contains
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
-                            n_rpar_comps
+                            n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
     use extern_probin_module, only: integrate_molar_fraction
 
