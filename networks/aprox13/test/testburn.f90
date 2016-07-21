@@ -14,6 +14,8 @@ program testburn
   real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
 
+  integer :: n
+
   call microphysics_init()
 
   dens = 1.5e7_dp_t
@@ -38,8 +40,13 @@ program testburn
 
   print *, 'done!'
 
-  print *, 'Xin:  ', state_in % xn(:)
-  print *, 'Xout: ', state_out % xn(:)
+1000 format(g25.15, 1x, g25.15)
+
+  print *, 'Xin / Xout:'
+  do n = 1, nspec
+     print 1000, state_in % xn(n), state_out % xn(n)
+  enddo
+
   print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) /dt
 
   call microphysics_finalize()
