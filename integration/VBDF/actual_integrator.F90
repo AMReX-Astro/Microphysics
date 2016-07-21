@@ -207,7 +207,7 @@ contains
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', ts % y(net_itemp,1) * temp_scale
        print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
-            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:)
+            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale - ener_offset
 #endif
        if (.not. retry_burn) then
