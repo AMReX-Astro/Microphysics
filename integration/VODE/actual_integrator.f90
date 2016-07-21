@@ -264,7 +264,8 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', y(net_itemp) * temp_scale
-       print *, 'xn current = ', y(1:nspec)
+       print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
+            rpar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', y(net_ienuc)
 
        if (.not. retry_burn) then

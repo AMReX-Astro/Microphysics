@@ -143,16 +143,16 @@ contains
     if (integrate_molar_fraction) then
        nspec_sum = &
             sum(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve)) + &
-            sum(state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:nspec))
+            sum(state % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:nspec))
     else
        nspec_sum = &
             sum(state % y(1:nspec_evolve,1)) + &
-            sum(state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1))
+            sum(state % upar(irp_nspec:irp_nspec+n_not_evolved-1,1))
     endif
 
     state % y(1:nspec_evolve,1) = state % y(1:nspec_evolve,1) / nspec_sum
-    state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = &
-         state % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) / nspec_sum
+    state % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) = &
+         state % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) / nspec_sum
 
   end subroutine renormalize_species
 
@@ -264,11 +264,11 @@ contains
     if (integrate_molar_fraction) then
        state % xn(1:nspec_evolve) = ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve)
        state % xn(nspec_evolve+1:nspec) = &
-            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:nspec)
+            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:nspec)
     else
        state % xn(1:nspec_evolve) = ts % y(1:nspec_evolve,1)
        state % xn(nspec_evolve+1:nspec) = &
-            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1)
+            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
     endif
 
     state % cp      = ts % upar(irp_cp,1)
@@ -316,11 +316,11 @@ contains
 
     if (integrate_molar_fraction) then
        ts % y(1:nspec_evolve,1) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
-       ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = &
+       ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) = &
             state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
     else
        ts % y(1:nspec_evolve,1) = state % xn(1:nspec_evolve)
-       ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = &
+       ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) = &
             state % xn(nspec_evolve+1:nspec)
     endif
 
@@ -371,11 +371,11 @@ contains
 
     if (integrate_molar_fraction) then
        ts % y(1:nspec_evolve,1) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
-       ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = &
+       ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) = &
          state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
     else
        ts % y(1:nspec_evolve,1) = state % xn(1:nspec_evolve)
-       ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) = &
+       ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) = &
          state % xn(nspec_evolve+1:nspec)
     endif
 
@@ -458,11 +458,11 @@ contains
     if (integrate_molar_fraction) then
        state % xn(1:nspec_evolve) = ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve)
        state % xn(nspec_evolve+1:nspec) = &
-            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1) * aion(nspec_evolve+1:nspec)
+            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:nspec)
     else
        state % xn(1:nspec_evolve) = ts % y(1:nspec_evolve,1)
        state % xn(nspec_evolve+1:nspec) = &
-            ts % upar(irp_nspec:irp_nspec+nspec-nspec_evolve-1,1)
+            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
     endif
 
     state % cp       = ts % upar(irp_cp,1)
