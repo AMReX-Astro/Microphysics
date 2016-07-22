@@ -20,7 +20,7 @@ contains
 
     call boxlib_initialize()
 
-    call set_fpe_trap(.true., .true., .true.)
+    !call set_fpe_trap(.true., .true., .true.)
 
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
