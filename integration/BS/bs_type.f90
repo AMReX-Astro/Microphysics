@@ -137,7 +137,11 @@ contains
     use bl_constants_module, only: ZERO
     use eos_type_module, only: eos_t, composition
     use eos_module, only: eos_input_rt, eos
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, integrate_molar_fraction
+    ! these shouldn't be needed
+    use integration_data, only: aionInv, temp_scale
+    use rpar_indices, only: irp_nspec, n_not_evolved
+    use actual_network, only : aion, nspec, nspec_evolve
 
     implicit none
 
@@ -203,6 +207,19 @@ contains
        state % burn_s % y_e = eos_state % y_e
        state % burn_s % abar = eos_state % abar
        state % burn_s % zbar = eos_state % zbar
+
+       ! this shouldn't actually be necessary -- we haven't changed X at all,
+       ! but roundoff in the multiply / divide change answers slightly.  Leaving
+       ! this in for now for the test suite
+       if (integrate_molar_fraction) then
+          state % y(1:nspec_evolve) = eos_state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
+          state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+               eos_state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
+       else
+          state % y(1:nspec_evolve) = eos_state % xn(1:nspec_evolve)
+          state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+               eos_state % xn(nspec_evolve+1:nspec) 
+       endif
 
     endif
 
