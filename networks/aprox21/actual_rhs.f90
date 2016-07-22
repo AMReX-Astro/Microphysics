@@ -65,7 +65,7 @@ contains
 
     ! Call the RHS to actually get dydt.
 
-    call rhs(y(1:nspec), rr % rates(1,:), rr % rates(1,:), rr % ydot(1:nspec), deriva)
+    call rhs(y(1:nspec), rr % rates(1,:), rr % rates(1,:), state % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate
 

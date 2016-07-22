@@ -20,6 +20,8 @@ contains
 
   subroutine get_rates(state, rr)
 
+    use screening_module, only: screenz
+
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -35,8 +37,6 @@ contains
     double precision :: y(nspec)
 
     double precision, parameter :: FIVE6TH = FIVE / SIX
-
-    state % ydot = ZERO
 
     temp = state % T
     dens = state % rho
@@ -77,7 +77,6 @@ contains
   subroutine actual_rhs(state)
 
     use extern_probin_module, only: do_constant_volume_burn
-    use screening_module, only: screenz
 
     implicit none
 
@@ -85,6 +84,7 @@ contains
     type (rate_t)    :: rr
 
     double precision :: temp, xc12tmp, dens
+    double precision :: rate, dratedt, sc1212, dsc1212dt
 
     double precision :: y(nspec), ebin(nspec)
 
@@ -96,6 +96,11 @@ contains
     call update_unevolved_species(state)
 
     call get_rates(state, rr)
+
+    rate = rr % rates(1,1) 
+    dratedt = rr % rates(2,1)
+    sc1212 = rr % rates(3,1)
+    dsc1212dt = rr % rates(4,1)
 
     temp = state % T
     dens = state % rho
@@ -122,7 +127,7 @@ contains
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
     xc12tmp = max(y(ic12_) * aion(ic12_),0.d0)
-    state % ydot(ic12_) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rr % rates(1,1) * xc12tmp**2
+    state % ydot(ic12_) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
 
     ! Convert back to molar form
 

@@ -52,9 +52,12 @@ contains
     type (burn_t) :: state
     type (rate_t) :: rr
 
+    double precision :: ymol(nspec)
     integer :: k
 
     state % ydot = ZERO
+
+    ymol = state % xn / aion
 
     ! set up the species ODEs for the reaction network
     ! species inputs are in molar fractions but come out in mass fractions
