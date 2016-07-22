@@ -1,7 +1,7 @@
 module burn_type_module
 
   use bl_constants_module, only: ZERO
-  use actual_network, only: nspec, nspec_evolve, naux, nrates
+  use actual_network, only: nspec, nspec_evolve, naux
   use eos_module, only: eos_t
 
   implicit none
@@ -25,10 +25,6 @@ module burn_type_module
 
   integer, parameter :: net_itemp = nspec_evolve + 1
   integer, parameter :: net_ienuc = nspec_evolve + 2
-
-  ! Number of rates groups to store.
-
-  integer, parameter :: num_rate_groups = 4
 
   type :: burn_t
 
@@ -66,15 +62,6 @@ module burn_type_module
     ! Temperature derivatives of specific heat
     double precision :: dcvdT            != init_num
     double precision :: dcpdT            != init_num
-
-    ! Do we have valid rates data stored?
-
-    logical          :: have_rates       != .false.
-
-    ! Rates data. We have multiple entries so that
-    ! we can store both the rates and their derivatives.
-
-    double precision :: rates(num_rate_groups, nrates) != init_num
 
     ! The following are the actual integration data.
     ! To avoid potential incompatibilities we won't

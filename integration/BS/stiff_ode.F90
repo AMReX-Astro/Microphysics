@@ -152,7 +152,6 @@ contains
        bs_temp % y = bs % y + h * bs % burn_s % ydot
 
        ! Call the RHS, then estimate the finite difference.
-       ! FIXME -- don't we need to disable have_rates here?
        call f_rhs(bs_temp)
        ddydtt = (bs_temp % burn_s % ydot - bs % burn_s % ydot) / h
 

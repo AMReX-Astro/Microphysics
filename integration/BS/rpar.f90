@@ -4,7 +4,7 @@
 
 module rpar_indices
 
-  use actual_network, only: nspec, nspec_evolve, nrates
+  use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs, num_rate_groups
 
   implicit none

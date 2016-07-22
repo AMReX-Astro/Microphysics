@@ -236,11 +236,11 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
-    use actual_network, only: nspec, nspec_evolve, aion, nrates
+    use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
     use extern_probin_module, only: integrate_molar_fraction
@@ -293,17 +293,6 @@ contains
        jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
     endif
 
-    if (state % have_rates) then
-       rpar(irp_have_rates) = ONE
-    else
-       rpar(irp_have_rates) = -ONE
-    endif
-
-    do n = 1, nrates
-       rpar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1) = &
-            state % rates(:,n)
-    enddo
-
     if (state % self_heat) then
        rpar(irp_self_heat) = ONE
     else
@@ -320,11 +309,11 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
-    use actual_network, only: nspec, nspec_evolve, aion, nrates
+    use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
     use extern_probin_module, only: integrate_molar_fraction
@@ -363,16 +352,6 @@ contains
     state % T_old    = rpar(irp_Told)
     state % dcvdt    = rpar(irp_dcvdt)
     state % dcpdt    = rpar(irp_dcpdt)
-
-    if (rpar(irp_have_rates) > ZERO) then
-       state % have_rates = .true.
-    else
-       state % have_rates = .false.
-    endif
-
-    do n = 1, nrates
-       state % rates(:,n) = rpar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1)
-    enddo
 
     if (rpar(irp_self_heat) > ZERO) then
        state % self_heat = .true.

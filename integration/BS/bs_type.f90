@@ -325,7 +325,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, nrates
+    use actual_network, only: nspec, nspec_evolve
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
@@ -361,7 +361,7 @@ contains
 
     ! fixme: net_itemp, net_itemp shouldn't be scaled
 
-    ! we don't need to do anything to have_rates, rates, or self_heat
+    ! we don't need to do anything to self_heat
 
   end subroutine burn_to_bs
 
@@ -373,7 +373,7 @@ contains
     
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion, nrates
+    use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
@@ -407,8 +407,6 @@ contains
 
     bs % burn_s % jac(net_itemp,:) = bs % burn_s % jac(net_itemp,:) * temp_scale
     bs % burn_s % jac(net_ienuc,:) = bs % burn_s % jac(net_ienuc,:) * ener_scale
-
-    ! have_rates and the rates should already be set
 
     ! self_heat is already set
 

@@ -4,7 +4,7 @@
 
 module rpar_indices
 
-  use actual_network, only: nspec, nspec_evolve, nrates
+  use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs, num_rate_groups
 
   implicit none
@@ -24,9 +24,7 @@ module rpar_indices
   integer, parameter :: irp_t_sound = irp_dx + 1
   integer, parameter :: irp_y_init = irp_t_sound + 1
   integer, parameter :: irp_self_heat = irp_y_init + neqs
-  integer, parameter :: irp_have_rates = irp_self_heat + 1
-  integer, parameter :: irp_rates = irp_have_rates + 1
-  integer, parameter :: irp_Told = irp_rates + num_rate_groups * nrates
+  integer, parameter :: irp_Told = irp_self_heat + 1
   integer, parameter :: irp_dcvdt = irp_Told + 1
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1
 

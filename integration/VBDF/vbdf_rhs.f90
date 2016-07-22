@@ -19,7 +19,7 @@ contains
                                     integrate_temperature, integrate_energy, integrate_molar_fraction
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
-    use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
+    use rpar_indices, only: irp_y_init, irp_t_sound
 
     implicit none
 
@@ -52,10 +52,6 @@ contains
     ! Update the thermodynamics as necessary.
 
     call update_thermodynamics(ts)
-
-    ! Indicate that we don't yet have valid rates.
-
-    ts % upar(irp_have_rates,1) = -ONE
 
     ! Call the specific network routine to get the RHS.
 
@@ -120,7 +116,7 @@ contains
                                     integrate_temperature, integrate_energy, integrate_molar_fraction
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
-    use rpar_indices, only: irp_have_rates, irp_y_init, irp_t_sound
+    use rpar_indices, only: irp_y_init, irp_t_sound
 
     implicit none
 
@@ -131,10 +127,6 @@ contains
     real(dp_t) :: limit_factor, t_sound, t_enuc
 
     integer :: n
-
-    ! Indicate that we don't yet have valid rates.
-
-    ts % upar(irp_have_rates,1) = -ONE
 
     ! Initialize the Jacobian to zero.
 

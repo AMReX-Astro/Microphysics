@@ -14,7 +14,7 @@
                                     integrate_temperature, integrate_energy, integrate_molar_fraction
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_have_rates, irp_y_init, irp_t_sound
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
     implicit none
 
@@ -50,8 +50,6 @@
     call update_thermodynamics(y, rpar)
 
     ! Call the specific network routine to get the RHS.
-
-    rpar(irp_have_rates) = -ONE
 
     call vode_to_burn(y, rpar, burn_state)
 

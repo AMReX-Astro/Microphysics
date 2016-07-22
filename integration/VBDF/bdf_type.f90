@@ -338,7 +338,7 @@ contains
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ONE
@@ -386,17 +386,6 @@ contains
     ts % J(net_itemp,:,1) = ts % J(net_itemp,:,1) * inv_temp_scale
     ts % J(net_ienuc,:,1) = ts % J(net_ienuc,:,1) * inv_ener_scale
 
-    if (state % have_rates) then
-       ts % upar(irp_have_rates,1) = ONE
-    else
-       ts % upar(irp_have_rates,1) = -ONE
-    endif
-
-    do n = 1, nrates
-       ts % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1,1) = &
-            state % rates(:,n)
-    enddo
-
     if (state % self_heat) then
        ts % upar(irp_self_heat,1) = ONE
     else
@@ -416,7 +405,7 @@ contains
     use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
     use bl_constants_module, only: ZERO
@@ -463,17 +452,6 @@ contains
     state % jac = ts % J(:,:,1)
     state % jac(net_itemp,:) = state % jac(net_itemp,:) * temp_scale
     state % jac(net_ienuc,:) = state % jac(net_ienuc,:) * ener_scale
-
-    if (ts % upar(irp_have_rates,1) > ZERO) then
-       state % have_rates = .true.
-    else
-       state % have_rates = .false.
-    endif
-
-    do n = 1, nrates
-       state % rates(:,n) = &
-            ts % upar(irp_rates+(n-1)*num_rate_groups:irp_rates+n*num_rate_groups-1,1)
-    enddo
 
     if (ts % upar(irp_self_heat,1) > ZERO) then
        state % self_heat = .true.

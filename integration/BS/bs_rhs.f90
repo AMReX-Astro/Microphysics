@@ -50,9 +50,6 @@ contains
     call update_thermodynamics(bs)
 
 
-    ! Indicate that we don't yet have valid rates.
-    bs % burn_s % have_rates = .false.
-
     ! Call the specific network routine to get the RHS.
 
     call bs_to_burn(bs)
@@ -124,9 +121,6 @@ contains
     real(dp_t) :: limit_factor, t_sound, t_enuc
 
     integer :: n
-
-    ! Indicate that we don't yet have valid rates.
-    bs % burn_s % have_rates = .false.
 
     ! Initialize the Jacobian to zero.
     bs % burn_s % jac(:,:) = ZERO
