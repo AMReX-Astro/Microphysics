@@ -64,7 +64,7 @@ contains
 
     call get_rates(state, rr)
 
-    call dydt(ymol, rr % rates, state % ydot(1:nspec_evolve))
+    call dydt(ymol, rr % rates(1,:), state % ydot(1:nspec_evolve))
 
     ! Energy generation rate
 
