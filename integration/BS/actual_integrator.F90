@@ -172,11 +172,20 @@ contains
 
        bs % burn_s % self_heat = .true.
 
-       ! FIXME: shouldn't we reset T_old here? and dcvdt, etc.
-
        call eos_to_bs(eos_state_in, bs)
 
        bs % y(net_ienuc) = ener_offset / ener_scale
+
+       ! redo the T_old, cv / cp extrapolation
+       bs % burn_s % T_old = eos_state_in % T
+
+       if (dT_crit < 1.0d19) then
+          bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
+               (eos_state_temp % T - eos_state_in % T)
+
+          bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
+               (eos_state_temp % T - eos_state_in % T)
+       endif
 
        call ode(bs, t0, t1, maxval(rtol), ierr)
 
@@ -223,9 +232,18 @@ contains
 
              call eos_to_bs(eos_state_in, bs)
 
-             ! FIXME: reset T_old et al?
-
              bs % y(net_ienuc) = ener_offset / ener_scale
+
+             ! redo the T_old, cv / cp extrapolation
+             bs % burn_s % T_old = eos_state_in % T
+
+             if (dT_crit < 1.0d19) then
+                bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
+                     (eos_state_temp % T - eos_state_in % T)
+                
+                bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
+                     (eos_state_temp % T - eos_state_in % T)
+             endif
 
              call ode(bs, t0, t1, maxval(rtol), ierr)
 

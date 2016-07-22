@@ -185,6 +185,13 @@ contains
 
        ts % y(net_ienuc,1) = ener_offset / ener_scale
 
+       ts % upar(irp_Told,1) = eos_state_in % T
+
+       if (dT_crit < 1.0d19) then
+          ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+          ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       endif
+
        do n = 1, neqs
           y0(n,1) = ts % y(n,1)
        end do
@@ -230,6 +237,13 @@ contains
              call eos_to_vbdf(eos_state_in, ts)
 
              ts % y(net_ienuc,1) = ener_offset / ener_scale
+
+             ts % upar(irp_Told,1) = eos_state_in % T
+
+             if (dT_crit < 1.0d19) then
+                ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+                ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+             endif
 
              do n = 1, neqs
                 y0(n,1) = ts % y(n,1)
