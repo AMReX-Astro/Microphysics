@@ -1,11 +1,13 @@
 module microphysics_module
 
+  use BoxLib
+  use backtrace_module, only : set_fpe_trap
   use network
   use eos_module, only : eos_init
   use actual_rhs_module, only : actual_rhs_init
   use actual_burner_module, only : actual_burner_init
 
-  
+
   implicit none
 
 contains
@@ -15,6 +17,10 @@ contains
     double precision, optional :: small_temp
     double precision, optional :: small_dens
 
+
+    call boxlib_initialize()
+
+    call set_fpe_trap(.true., .true., .true.)
 
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
@@ -29,7 +35,7 @@ contains
     call network_init()
     call actual_rhs_init()
     call actual_burner_init()
-    
+
   end subroutine microphysics_init
 
   subroutine microphysics_finalize()
@@ -39,4 +45,3 @@ contains
   end subroutine microphysics_finalize
 
 end module microphysics_module
-    

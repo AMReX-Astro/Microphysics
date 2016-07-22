@@ -13,5 +13,5 @@
 
   scaling_method = 1
 
-  use_timestep_estimator = T
+  !use_timestep_estimator = T
 /
