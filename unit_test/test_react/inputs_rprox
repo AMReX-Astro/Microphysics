@@ -12,11 +12,11 @@
   run_prefix = "react_rprox_"
 
   jacobian = 2
-  !centered_diff_jac = T
-
-  !ode_scale_floor = 1.d-12
-  !scaling_method = 1
+  centered_diff_jac = T
 
   small_dens = 1.e5
   small_temp = 1.e6
+
+  call_eos_in_rhs = T
+
 /
