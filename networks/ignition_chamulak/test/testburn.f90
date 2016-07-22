@@ -6,6 +6,7 @@ program testburn
   use eos_module
   use actual_burner_module
   use microphysics_module
+  use extern_probin_module
 
   implicit none
 
@@ -25,12 +26,14 @@ program testburn
   dt = 0.06_dp_t
 
   
-  print *, 'calling the burner...'
+  print *, 'calling the burner...', nspec, nspec_evolve, neqs
 
   state_in % rho = dens
   state_in % T = temp
   state_in % e = ZERO
   state_in % xn(:) = Xin(:)
+
+  jacobian = 2
 
   call actual_burner(state_in, state_out, dt, ZERO)
 

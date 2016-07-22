@@ -57,7 +57,7 @@ contains
     real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
     real(kind=dp_t) :: t0, t1
 
-    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
+    type (eos_t) :: eos_state_in, eos_state_temp
     type (bs_t) :: bs
 
     real(dp_t) :: retry_change_factor
@@ -103,11 +103,12 @@ contains
 
     ! Convert the EOS state data into the form BS expects.
 
+    ! at this point, the burn_t that we care about is part of bs
     call eos_to_bs(eos_state_in, bs)
 
-    bs % i = state_in % i
-    bs % j = state_in % j
-    bs % k = state_in % k
+    bs % burn_s % i = state_in % i
+    bs % burn_s % j = state_in % j
+    bs % burn_s % k = state_in % k
 
     ! Get the internal energy e that is consistent with this T.
     ! We will start the zone with this energy and subtract it at
@@ -121,24 +122,25 @@ contains
     ! Pass through whether we are doing self-heating.
 
     if (burning_mode == 0 .or. burning_mode == 2) then
-       bs % upar(irp_self_heat) = -ONE
+       bs % burn_s % self_heat = .false.
+
     else if (burning_mode == 1 .or. burning_mode == 3) then
-       bs % upar(irp_self_heat) = ONE
+       bs % burn_s % self_heat = .true.
     endif
 
     ! Copy in the zone size.
 
-    bs % upar(irp_dx) = state_in % dx
+    bs % burn_s % dx = state_in % dx
 
     ! Set the sound crossing time.
 
     bs % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
-    ! If we are using the dT_crit functionality and therefore doing a linear
-    ! interpolation of the specific heat in between EOS calls, do a second
-    ! EOS call here to establish an initial slope.
+    ! If we are using the dT_crit functionality and therefore doing a
+    ! linear interpolation of the specific heat in between EOS calls,
+    ! do a second EOS call here to establish an initial slope.
 
-    bs % upar(irp_Told) = eos_state_in % T
+    bs % burn_s % T_old = eos_state_in % T
 
     if (dT_crit < 1.0d19) then
 
@@ -147,25 +149,30 @@ contains
 
        call eos(eos_input_rt, eos_state_temp)
 
-       bs % upar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-       bs % upar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
+            (eos_state_temp % T - eos_state_in % T)
 
+       bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
+            (eos_state_temp % T - eos_state_in % T)
     endif
 
     ! Save the initial state.
 
     bs % upar(irp_y_init:irp_y_init + neqs - 1) = bs % y
-    
-    ! Call the integration routine.
 
+    ! Call the integration routine.
     call ode(bs, t0, t1, maxval(rtol), ierr)
 
-    ! If we are using hybrid burning and the energy release was negative (or we failed),
-    ! re-run this in self-heating mode.
+    ! If we are using hybrid burning and the energy release was
+    ! negative (or we failed), re-run this in self-heating mode.
 
-    if ( burning_mode == 2 .and. (bs % y(net_ienuc) * ener_scale - ener_offset < ZERO .or. ierr /= IERR_NONE) ) then
+    if ( burning_mode == 2 .and. &
+         (bs % y(net_ienuc) * ener_scale - ener_offset < ZERO .or. &
+         ierr /= IERR_NONE) ) then
 
-       bs % upar(irp_self_heat) = ONE
+       bs % burn_s % self_heat = .true.
+
+       ! FIXME: shouldn't we reset T_old here? and dcvdt, etc.
 
        call eos_to_bs(eos_state_in, bs)
 
@@ -206,7 +213,8 @@ contains
 
           retry_change_factor = ONE
 
-          do while (ierr /= IERR_NONE .and. retry_change_factor <= retry_burn_max_change)
+          do while (ierr /= IERR_NONE .and. &
+                    retry_change_factor <= retry_burn_max_change)
 
              retry_change_factor = retry_change_factor * retry_burn_factor
 
@@ -215,13 +223,16 @@ contains
 
              call eos_to_bs(eos_state_in, bs)
 
+             ! FIXME: reset T_old et al?
+
              bs % y(net_ienuc) = ener_offset / ener_scale
 
              call ode(bs, t0, t1, maxval(rtol), ierr)
 
           enddo
 
-          if (retry_change_factor > retry_burn_max_change .and. ierr /= IERR_NONE) then
+          if (retry_change_factor > retry_burn_max_change .and. &
+               ierr /= IERR_NONE) then
 
 #ifndef ACC
              call bl_error("ERROR in burner: integration failed")
@@ -238,7 +249,9 @@ contains
     bs % y(net_ienuc) = bs % y(net_ienuc) * ener_scale - ener_offset
 
     ! Store the final data, and then normalize abundances.
-    call bs_to_burn(bs, state_out)
+    call bs_to_burn(bs)
+
+    state_out = bs % burn_s
 
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)

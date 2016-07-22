@@ -53,8 +53,6 @@ module burn_type_module
     double precision :: eta              != init_num
     double precision :: cs               != init_num
     double precision :: dx               != init_num
-    double precision :: dedX(nspec)      != init_num
-    double precision :: dhdX(nspec)      != init_num
     double precision :: abar             != init_num
     double precision :: zbar             != init_num
 
@@ -123,8 +121,6 @@ contains
     burn_state % cp   = eos_state % cp
     burn_state % y_e  = eos_state % y_e
     burn_state % eta  = eos_state % eta
-    burn_state % dedX = eos_state % dedX
-    burn_state % dhdX = eos_state % dhdX
     burn_state % abar = eos_state % abar
     burn_state % zbar = eos_state % zbar
 
@@ -156,8 +152,6 @@ contains
     eos_state % cp   = burn_state % cp
     eos_state % y_e  = burn_state % y_e
     eos_state % eta  = burn_state % eta
-    eos_state % dedX = burn_state % dedX
-    eos_state % dhdX = burn_state % dhdX
     eos_state % abar = burn_state % abar
     eos_state % zbar = burn_state % zbar
 

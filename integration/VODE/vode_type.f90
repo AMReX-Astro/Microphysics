@@ -151,8 +151,7 @@ contains
     use integration_data, only: aionInv, dens_scale, temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY, &
-                            n_rpar_comps, n_not_evolved
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -183,14 +182,6 @@ contains
     state % y_e     = rpar(irp_ye)
     state % cs      = rpar(irp_cs)
 
-    if (integrate_molar_fraction) then
-       state % dhdX(:) = rpar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
-       state % dedX(:) = rpar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
-    else
-       state % dhdX(:) = rpar(irp_dhdY:irp_dhdY-1+nspec)
-       state % dedX(:) = rpar(irp_dedY:irp_dedY-1+nspec)
-    endif
-
   end subroutine vode_to_eos
 
 
@@ -204,8 +195,7 @@ contains
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, irp_dhdY, irp_dedY, &
-                            n_rpar_comps, n_not_evolved
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -236,14 +226,6 @@ contains
     rpar(irp_ye)                    = state % y_e
     rpar(irp_cs)                    = state % cs
 
-    if (integrate_molar_fraction) then
-       rpar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:) * aion(:)
-       rpar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:) * aion(:)
-    else
-       rpar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:)
-       rpar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:)
-    endif
-
   end subroutine eos_to_vode
 
 
@@ -257,7 +239,7 @@ contains
     use actual_network, only: nspec, nspec_evolve, aion, nrates
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, irp_dhdY, irp_dedY, &
+                            irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
@@ -294,14 +276,6 @@ contains
     rpar(irp_eta)                            = state % eta
     rpar(irp_cs)                             = state % cs
     rpar(irp_dx)                             = state % dx
-
-    if (integrate_molar_fraction) then
-       rpar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:) * aion(:)
-       rpar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:) * aion(:)
-    else
-       rpar(irp_dhdY:irp_dhdY+nspec-1) = state % dhdX(:)
-       rpar(irp_dedY:irp_dedY+nspec-1) = state % dedX(:)
-    endif
 
     rpar(irp_Told)                           = state % T_old
     rpar(irp_dcvdt)                          = state % dcvdt
@@ -349,7 +323,7 @@ contains
     use actual_network, only: nspec, nspec_evolve, aion, nrates
     use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, irp_dhdY, irp_dedY, &
+                            irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, irp_have_rates, irp_rates, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
@@ -385,14 +359,6 @@ contains
     state % eta      = rpar(irp_eta)
     state % cs       = rpar(irp_cs)
     state % dx       = rpar(irp_dx)
-
-    if (integrate_molar_fraction) then
-       state % dhdX(:)  = rpar(irp_dhdY:irp_dhdY-1+nspec) * aionInv(:)
-       state % dedX(:)  = rpar(irp_dedY:irp_dedY-1+nspec) * aionInv(:)
-    else
-       state % dhdX(:)  = rpar(irp_dhdY:irp_dhdY-1+nspec)
-       state % dedX(:)  = rpar(irp_dedY:irp_dedY-1+nspec)
-    endif
 
     state % T_old    = rpar(irp_Told)
     state % dcvdt    = rpar(irp_dcvdt)

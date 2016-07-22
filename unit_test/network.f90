@@ -19,6 +19,7 @@ module network
 
   use bl_types
   use actual_network
+  use bl_error_module
 
   implicit none
 

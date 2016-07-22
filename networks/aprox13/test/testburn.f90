@@ -7,6 +7,7 @@ program testburn
   use eos_module
   use actual_burner_module
   use extern_probin_module, only : jacobian
+  use runtime_init_module, only : runtime_pretty_print
 
   implicit none
 
@@ -15,6 +16,7 @@ program testburn
   type(burn_t) :: state_in, state_out
 
   integer :: n
+  integer :: of
 
   call microphysics_init()
 
@@ -25,9 +27,22 @@ program testburn
   Xin(ihe4)  = ONE
   Xin(ic12)  = ZERO
 
+  dens = 100000000.d0
+  temp = 2705847633.d0
+
+  Xin(:) = ZERO
+  Xin(ihe4) = 0.45d0
+  Xin(ic12) = 0.2d0
+  Xin(io16) = 0.2d0
+  Xin(ine20) = 0.15d0
+
   dt = 0.0001_dp_t
 
   jacobian = 2
+
+  open(newunit=of, file="testburn-params.out", status="replace", action="write")
+  call runtime_pretty_print(of)
+  close(unit=of)
 
   print *, 'calling the burner...'
 
