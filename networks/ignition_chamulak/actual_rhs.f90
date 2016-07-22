@@ -6,6 +6,7 @@ module actual_rhs_module
   use actual_network
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use rate_type_module
 
   implicit none
 
@@ -17,15 +18,10 @@ contains
 
   end subroutine actual_rhs_init
 
+  subroutine get_rates(state, rr)
 
-  subroutine actual_rhs(state)
-
-    use extern_probin_module, only: do_constant_volume_burn
-    use screening_module, only: screenz
-
-    implicit none
-
-    type (burn_t)    :: state
+    type (burn_t), intent(in) :: state
+    type (rate_t), intent(out) :: rr
 
     double precision :: temp, T9, T9a, dT9dt, dT9adt
 
@@ -36,14 +32,11 @@ contains
 
     double precision :: a, b, dadt, dbdt
 
-    double precision :: y(nspec), ebin(nspec)
+    double precision :: y(nspec)
 
     double precision, parameter :: FIVE6TH = FIVE / SIX
 
     state % ydot = ZERO
-
-    ! we enforce that O16 doesn't change and any C12 change goes to ash
-    call update_unevolved_species(state)
 
     temp = state % T
     dens = state % rho
@@ -73,6 +66,42 @@ contains
     rate    = a *  b
     dratedt = dadt * b + a * dbdt
 
+    ! Save the rate data, for the Jacobian.
+    rr % rates(1,:)  = rate
+    rr % rates(2,:)  = dratedt
+    rr % rates(3,:)  = sc1212
+    rr % rates(4,:)  = dsc1212dt
+
+  end subroutine get_rates
+
+  subroutine actual_rhs(state)
+
+    use extern_probin_module, only: do_constant_volume_burn
+    use screening_module, only: screenz
+
+    implicit none
+
+    type (burn_t)    :: state
+    type (rate_t)    :: rr
+
+    double precision :: temp, xc12tmp, dens
+
+    double precision :: y(nspec), ebin(nspec)
+
+    double precision, parameter :: FIVE6TH = FIVE / SIX
+
+    state % ydot = ZERO
+
+    ! we enforce that O16 doesn't change and any C12 change goes to ash
+    call update_unevolved_species(state)
+
+    call get_rates(state, rr)
+
+    temp = state % T
+    dens = state % rho
+    y(:) = state % xn(:) / aion(:)
+
+
     ! The change in number density of C12 is
     ! d(n12)/dt = - M12_chamulak * 1/2 (n12)**2 <sigma v>
     !
@@ -93,14 +122,7 @@ contains
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
     xc12tmp = max(y(ic12_) * aion(ic12_),0.d0)
-    state % ydot(ic12_) = -TWELFTH*HALF*M12_chamulak*dens*sc1212*rate*xc12tmp**2
-
-    ! Save the rate data, for the Jacobian.
-
-    state % rates(1,:)  = rate
-    state % rates(2,:)  = dratedt
-    state % rates(3,:)  = sc1212
-    state % rates(4,:)  = dsc1212dt
+    state % ydot(ic12_) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rr % rates(1,1) * xc12tmp**2
 
     ! Convert back to molar form
 
@@ -130,6 +152,7 @@ contains
     implicit none
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     double precision :: dens
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
@@ -141,13 +164,14 @@ contains
     state % jac(:,:)  = ZERO
 
     ! Get data from the state
+    call get_rates(state, rr)
 
     dens     = state % rho
 
-    rate     = state % rates(1,1)
-    dratedt  = state % rates(2,1)
-    scorr    = state % rates(3,1)
-    dscorrdt = state % rates(4,1)
+    rate     = rr % rates(1,1)
+    dratedt  = rr % rates(2,1)
+    scorr    = rr % rates(3,1)
+    dscorrdt = rr % rates(4,1)
     xc12tmp  = max(state % xn(ic12_), ZERO)
 
     ! carbon jacobian elements

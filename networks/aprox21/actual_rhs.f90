@@ -5,6 +5,7 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use sneut_module, only: sneut5
+  use rate_type_module
 
   implicit none
 
@@ -42,6 +43,7 @@ contains
     !           ar36, ca40, ti44, cr48, fe52, fe54, cr56, fe56, ni56, neut, prot
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     logical          :: deriva = .false.
 
@@ -51,7 +53,7 @@ contains
     double precision :: rho, temp, abar, zbar
     double precision :: y(nspec)
 
-    call evaluate_rates(state)
+    call evaluate_rates(state, rr)
 
     ! Get the data from the state
 
@@ -63,7 +65,7 @@ contains
 
     ! Call the RHS to actually get dydt.
 
-    call rhs(y(1:nspec), state % rates(1,:), state % rates(1,:), state % ydot(1:nspec), deriva)
+    call rhs(y(1:nspec), rr % rates(1,:), rr % rates(1,:), rr % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate
 
@@ -92,6 +94,7 @@ contains
     implicit none
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     logical          :: deriva = .true.
 
@@ -104,9 +107,7 @@ contains
 
     state % jac(:,:) = ZERO
 
-    if (.not. state % have_rates) then
-       call evaluate_rates(state)
-    endif
+    call evaluate_rates(state, rr)
 
     ! Get the data from the state
 
@@ -118,8 +119,8 @@ contains
 
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_aprox21(y, state % jac(1:nspec,1:nspec), state % rates(1,:), &
-                               state % rates(3,:), state % rates(4,:))
+    call dfdy_isotopes_aprox21(y, state % jac(1:nspec,1:nspec), rr % rates(1,:), &
+                               rr % rates(3,:), rr % rates(4,:))
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -139,7 +140,7 @@ contains
     ! Evaluate the Jacobian elements with respect to temperature by
     ! calling the RHS using d(ratdum) / dT
 
-    call rhs(y, state % rates(2,:), state % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
+    call rhs(y, rr % rates(2,:), rr % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
 
     call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
     state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
@@ -152,11 +153,12 @@ contains
 
 
 
-  subroutine evaluate_rates(state)
+  subroutine evaluate_rates(state, rr)
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)  :: state
+    type (rate_t), intent(out) :: rr
 
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
@@ -189,12 +191,10 @@ contains
 
     ! Save the rate data, for the Jacobian later if we need it.
 
-    state % rates(1,:) = ratdum
-    state % rates(2,:) = dratdumdt
-    state % rates(3,:) = dratdumdy1
-    state % rates(4,:) = dratdumdy2
-
-    state % have_rates = .true.
+    rr % rates(1,:) = ratdum
+    rr % rates(2,:) = dratdumdt
+    rr % rates(3,:) = dratdumdy1
+    rr % rates(4,:) = dratdumdy2
 
   end subroutine evaluate_rates
 

@@ -5,6 +5,7 @@ module actual_rhs_module
   use network
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use rate_type_module
 
   implicit none
 
@@ -26,6 +27,7 @@ contains
     implicit none
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     double precision :: temp, T9, T9a, dT9dt, dT9adt
 
@@ -42,7 +44,7 @@ contains
     ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
     call update_unevolved_species(state)
 
-    call evaluate_rates(state)
+    call evaluate_rates(state, rr)
 
 
     ! Now get the data from the state.
@@ -51,10 +53,10 @@ contains
     dens = state % rho
     y    = state % xn / aion
 
-    rate      = state % rates(1,1)
-    dratedt   = state % rates(2,1)
-    sc1212    = state % rates(3,1)
-    dsc1212dt = state % rates(4,1)
+    rate      = rr % rates(1,1)
+    dratedt   = rr % rates(2,1)
+    sc1212    = rr % rates(3,1)
+    dsc1212dt = rr % rates(4,1)
 
     ! The change in number density of C12 is
     ! d(n12)/dt = - 2 * 1/2 (n12)**2 <sigma v>
@@ -120,24 +122,23 @@ contains
     implicit none
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     double precision :: dens
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
     double precision :: cvInv, cpInv
 
-    if (.not. state % have_rates) then
-       call evaluate_rates(state)
-    endif
+    call evaluate_rates(state, rr)
 
     ! Get data from the state
 
     dens     = state % rho
 
-    rate     = state % rates(1,1)
-    dratedt  = state % rates(2,1)
-    scorr    = state % rates(3,1)
-    dscorrdt = state % rates(4,1)
+    rate     = rr % rates(1,1)
+    dratedt  = rr % rates(2,1)
+    scorr    = rr % rates(3,1)
+    dscorrdt = rr % rates(4,1)
     xc12tmp  = max(state % xn(ic12), ZERO)
 
     ! initialize
@@ -198,7 +199,7 @@ contains
 
 
 
-  subroutine evaluate_rates(state)
+  subroutine evaluate_rates(state, rr)
 
     !$acc routine seq
 
@@ -206,7 +207,8 @@ contains
 
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    type (rate_t), intent(out) :: rr
 
     double precision :: temp, T9, T9a, dT9dt, dT9adt
 
@@ -247,12 +249,10 @@ contains
 
     ! These get sent to the Jacobian
 
-    state % rates(1,:)  = rate
-    state % rates(2,:)  = dratedt
-    state % rates(3,:)  = sc1212
-    state % rates(4,:)  = dsc1212dt
-
-    state % have_rates = .true.
+    rr % rates(1,:)  = rate
+    rr % rates(2,:)  = dratedt
+    rr % rates(3,:)  = sc1212
+    rr % rates(4,:)  = dsc1212dt
 
   end subroutine evaluate_rates
 

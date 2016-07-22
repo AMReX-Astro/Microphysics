@@ -6,6 +6,7 @@ module actual_rhs_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use sneut_module, only: sneut5
   use actual_network, only: nrates
+  use rate_type_module
 
   implicit none
 
@@ -67,6 +68,7 @@ contains
     !           ar36, ca40, ti44, cr48, fe52, ni56
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     logical          :: deriva
 
@@ -77,7 +79,7 @@ contains
 
     double precision :: y(nspec), ydot(nspec), r1(nrates), r2(nrates)
 
-    call evaluate_rates(state)
+    call evaluate_rates(state, rr)
 
     rho  = state % rho
     temp = state % T
@@ -91,8 +93,8 @@ contains
 
     ! Call the RHS to actually get dydt.
 
-    r1 = state % rates(1,:)
-    r2 = state % rates(1,:)
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(1,:)
 
     ydot = ZERO
     call rhs(y, r1, r2, ydot, deriva)
@@ -131,6 +133,7 @@ contains
     implicit none
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     logical          :: deriva
 
@@ -143,9 +146,7 @@ contains
 
     state % jac(:,:) = ZERO
 
-    if (.not. state % have_rates) then
-       call evaluate_rates(state)
-    endif
+    call evaluate_rates(state, rr)
 
     ! Get the data from the state
 
@@ -157,8 +158,8 @@ contains
 
     y    = state % xn / aion
 
-    r1 = state % rates(1,:)
-    r2 = state % rates(2,:)
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(2,:)
 
     ! Species Jacobian elements with respect to other species
 
@@ -200,7 +201,7 @@ contains
 
 
 
-  subroutine evaluate_rates(state)
+  subroutine evaluate_rates(state, rr)
 
     !$acc routine seq
 
@@ -208,7 +209,8 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    type (rate_t), intent(out) :: rr
 
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
@@ -239,10 +241,8 @@ contains
 
     ! Save the rate data in the state.
 
-    state % rates(1,:) = ratdum
-    state % rates(2,:) = dratdumdt
-
-    state % have_rates = .true.
+    rr % rates(1,:) = ratdum
+    rr % rates(2,:) = dratdumdt
 
   end subroutine evaluate_rates
 

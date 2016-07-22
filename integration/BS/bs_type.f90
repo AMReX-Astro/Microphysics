@@ -328,7 +328,7 @@ contains
     use actual_network, only: nspec, nspec_evolve
     use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
-    use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
+    use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ONE
     use extern_probin_module, only: integrate_molar_fraction
 
@@ -376,7 +376,7 @@ contains
     use actual_network, only: nspec, nspec_evolve, aion
     use integration_data, only: dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
-    use burn_type_module, only: burn_t, net_itemp, net_ienuc, num_rate_groups
+    use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ZERO, ONE
     use extern_probin_module, only: integrate_molar_fraction
 

@@ -5,6 +5,7 @@ module actual_rhs_module
   use screen_module
   use rates_module
   use dydt_module
+  use rate_type_module
 
   implicit none
 
@@ -19,6 +20,28 @@ contains
   end subroutine actual_rhs_init
 
 
+  subroutine get_rates(state, rr)
+
+    type (burn_t), intent(in) :: state
+    type (rate_t), intent(out) :: rr
+
+    double precision :: temp, dens
+    double precision :: ymol(nspec)
+
+    double precision :: rates(nrates), dratesdt(nrates)
+
+    temp = state % T
+    dens = state % rho
+    ymol = state % xn / aion
+
+    call make_rates(temp, dens, rates, dratesdt)
+    call screen(temp, dens, ymol, rates, dratesdt)
+    
+    rr % rates(1,:) = rates(:)
+    rr % rates(2,:) = dratesdt(:)
+
+  end subroutine get_rates
+    
 
   subroutine actual_rhs(state)
 
@@ -27,29 +50,18 @@ contains
     implicit none
 
     type (burn_t) :: state
+    type (rate_t) :: rr
 
     integer :: k
 
-    double precision :: temp, dens
-    double precision :: rates(nrates), dratesdt(nrates)
-    double precision :: ymol(nspec)
-
     state % ydot = ZERO
-
-    temp = state % T
-    dens = state % rho
-    ymol = state % xn / aion
 
     ! set up the species ODEs for the reaction network
     ! species inputs are in molar fractions but come out in mass fractions
-    call make_rates(temp, dens, rates, dratesdt)
 
-    call screen(temp, dens, ymol, rates, dratesdt)
+    call get_rates(state, rr)
 
-    call dydt(ymol, rates, state % ydot(1:nspec_evolve))
-
-    state % rates(1,:) = rates(:)
-    state % rates(2,:) = dratesdt(:)
+    call dydt(ymol, rr % rates, state % ydot(1:nspec_evolve))
 
     ! Energy generation rate
 
@@ -68,14 +80,17 @@ contains
     implicit none
 
     type (burn_t) :: state
+    type (rate_t) :: rr
 
     double precision :: ymol(nspec)
     double precision :: rates(nrates), dratesdt(nrates)
 
     integer :: i, j
 
-    rates(:)    = state % rates(1,:)
-    dratesdt(:) = state % rates(2,:)
+    call get_rates(state, rr)
+
+    rates(:)    = rr % rates(1,:)
+    dratesdt(:) = rr % rates(2,:)
 
     ! initialize
     state % jac = ZERO

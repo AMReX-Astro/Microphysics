@@ -242,7 +242,7 @@ contains
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
+    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
@@ -315,7 +315,7 @@ contains
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, num_rate_groups
+    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
