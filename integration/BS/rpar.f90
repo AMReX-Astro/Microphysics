@@ -14,7 +14,8 @@ module rpar_indices
   integer, parameter :: irp_nspec = 1
   integer, parameter :: irp_y_init = irp_nspec + n_not_evolved
   integer, parameter :: irp_t_sound = irp_y_init + nspec
+  integer, parameter :: irp_t0 = irp_t_sound + 1
 
-  integer, parameter :: n_rpar_comps = irp_t_sound + 1
+  integer, parameter :: n_rpar_comps = irp_t0 + 1
 
 end module rpar_indices

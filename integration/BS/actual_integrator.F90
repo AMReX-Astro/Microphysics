@@ -88,8 +88,7 @@ contains
     bs % rtol = rtol
 
     ! Initialize the integration time.
-
-    t0 = time
+    t0 = ZERO
     t1 = t0 + dt
 
     ! Convert our input burn state into an EOS type.
@@ -135,6 +134,12 @@ contains
     ! Set the sound crossing time.
 
     bs % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
+
+    ! set the time offset -- we integrate from 0 to dt, so this
+    ! is the offset to simulation time
+    
+    bs % upar(irp_t0) = time
+
 
     ! If we are using the dT_crit functionality and therefore doing a
     ! linear interpolation of the specific heat in between EOS calls,
