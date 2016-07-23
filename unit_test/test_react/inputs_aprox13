@@ -11,5 +11,4 @@
   xin_file   = "xin.aprox13"
   run_prefix = "react_aprox13_"
 
-  jacobian = 2
 /
