@@ -27,7 +27,8 @@ module rpar_indices
   integer, parameter :: irp_Told = irp_self_heat + 1
   integer, parameter :: irp_dcvdt = irp_Told + 1
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1
+  integer, parameter :: irp_t0 = irp_dcpdt + 1
 
-  integer, parameter :: n_rpar_comps = irp_dcpdt
+  integer, parameter :: n_rpar_comps = irp_t0 + 1
 
 end module rpar_indices
