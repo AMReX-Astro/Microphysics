@@ -7,6 +7,8 @@ module rate_type_module
   integer, parameter :: num_rate_groups = 4
 
   type :: rate_t
+     ! the temperature at which the rates were evaluated
+     double precision :: T_eval
      double precision :: rates(num_rate_groups, nrates)
   end type rate_t
 

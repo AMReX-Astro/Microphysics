@@ -15,6 +15,7 @@ programs += testburn
 
 EOS_DIR := helmholtz
 NETWORK_DIR := ignition_simple
+INTEGRATOR_DIR := BS
 
 TEST_DIR = $(MICROPHYSICS_HOME)/networks/ignition_simple/test
 

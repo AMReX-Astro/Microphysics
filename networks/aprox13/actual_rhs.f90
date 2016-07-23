@@ -240,7 +240,7 @@ contains
                         scfac,  dscfacdt,  dscfacdd)
 
     ! Save the rate data in the state.
-
+    rr % T_eval = temp
     rr % rates(1,:) = ratdum
     rr % rates(2,:) = dratdumdt
 

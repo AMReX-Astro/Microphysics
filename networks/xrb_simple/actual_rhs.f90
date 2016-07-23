@@ -102,6 +102,7 @@ contains
 
     ! zero the rates
     rr % rates(:,:) = ZERO
+    rr % T_eval = t9 * 1.e9_dp_t
 
     !**********************************************************************
     ! Start the rate calculations

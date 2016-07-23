@@ -84,6 +84,8 @@ contains
 
     rr % rates(:,:) = ZERO ! Zero out rates
 
+    rr % T_eval = T9 * 1.e9_dp_T
+
     tfactors = calc_tfactors(t9)
 
     ! some common parameters

@@ -65,6 +65,8 @@ contains
     rr % rates(3,:) = dratdumdy1
     rr % rates(4,:) = dratdumdy2
 
+    rr % T_eval = temp
+
   end subroutine get_rates
 
 
