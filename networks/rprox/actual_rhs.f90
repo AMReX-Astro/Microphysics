@@ -39,7 +39,7 @@ contains
     call make_rates(t9, dens, y(1:nspec), state, rr)
 
     ! set up the ODEs for the species
-    call make_ydots(y(1:nspec), t9, state, rr, ydot,.false.)
+    call make_ydots(y(1:nspec), t9, state, rr, ydot, .false.)
 
     state % ydot(1:nspec) = ydot
 
@@ -250,7 +250,7 @@ contains
     double precision, intent(IN   ) :: ymol(nspec), t9
     logical ,         intent(IN   ) :: doing_dratesdt
     type(burn_t),     intent(INOUT) :: state
-    type(rate_t),     intent(in)    :: rr
+    type(rate_t),     intent(inout) :: rr
     double precision, intent(  OUT) :: dydt(nspec)
 
     integer          :: rate_idx
@@ -534,7 +534,7 @@ contains
          -56.0d0*ymol(ini56)*rr % rates(3,r56eff)
 
     ! temperature derivatives df(Y)/df(T)
-    call make_ydots(ymol,t9,state,ydot,.true.)
+    call make_ydots(ymol, t9, state, rr, ydot, .true.)
 
     state % jac(1:nspec, net_itemp) = ydot
 
