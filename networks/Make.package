@@ -17,17 +17,22 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
 
 include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
 
+VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
+f90EXE_sources += rate_type.f90
+
 endif
 
 ifeq ($(USE_REACT), TRUE)
+
+  # we need the actual integrator in the VPATH before the
+  # integration/ dir to get overrides correct
+  include $(MICROPHYSICS_HOME)/integration/Make.package
 
   INTEGRATION_PATH := $(MICROPHYSICS_HOME)/integration
 
   INCLUDE_LOCATIONS += $(INTEGRATION_PATH)
   VPATH_LOCATIONS   += $(INTEGRATION_PATH)
   EXTERN_CORE       += $(INTEGRATION_PATH)
-
-  include $(INTEGRATION_PATH)/Make.package
 
 endif
 
@@ -67,4 +72,3 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
 endif
 
-f90EXE_sources += rate_type.f90
