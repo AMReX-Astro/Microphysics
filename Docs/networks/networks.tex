@@ -418,8 +418,6 @@ these will need to be converted to molar fraction rates for storage, e.g.,
 $dY_k/dt = A_k^{-1} dX_k/dt$.
 
 
-{\color{red} Add description of temporary storage, {\tt state \% rates}.}
-
 The Jacobian is provided by {\tt actual\_jac(state)}, and takes the
 form:
 \begin{lstlisting}[language={[95]fortran}]
@@ -800,6 +798,10 @@ This integrator is based on the stiff-ODE methods from \cite{NR}, but
 written with reaction network integration in mind (so it knows about
 species), and in a modular / threadsafe fashion to work with our data
 structures.  This integrator appears quite robust.
+
+\paragraph{{\tt bs\_t} data structure.}
+
+rpar stuff?
 
 \paragraph{Error criteria.}  There is a single relative tolerance used
 for all ODEs, instead of a separate one for species, temperature, and

@@ -45,6 +45,8 @@ file inside the code calling \microphysics\ (e.g. {\tt
 
 \section{Networks}
 
+\subsection{{\tt burn\_t}}
+
 The main data structure for interacting with the reaction networks is
 {\tt burn\_t}.  This holds the composition (mass fractions),
 thermodynamic state, and a lot of internal information used by the
@@ -79,7 +81,13 @@ information:
 \item {\tt burn\_state \% i}, {\tt \% j}, {\tt \% k}: hydrodynamic zone i, j, k for
   bug reporting, diagnostics
 
-\item {\tt burn\_state \% time}: current simulation time
+\item {\tt burn\_state \% time}: the time since the start of the
+  integration [s]
+
+  Note this is not the same as the simulation time.  Each integrator
+  will also store the simulation time at the start of integration
+  in their local storage---this can be used as an offset to convert
+  between integration and simulation time.
 
 \item {\tt burn\_state \% shock}: are we inside of a hydrodynamic shock (the burner
   may wish to take action in this case)
@@ -87,8 +95,19 @@ information:
 \end{itemize}
 
 
+\subsection{{\tt rate\_t}}
 
 
+
+\section{Integrators}
+
+Each integrator also has their own internal data structure that holds
+the information needed for the integration.  Meta-data that is not
+part of the integration vector of ODEs is stored in an array that can
+be passed into the righthand side routine.  The different fields are
+accessed through the integer indices in the {\tt rpar\_indices}
+Fortran module.  The details of this storage is given for each
+integrator below.
 
 
 \section{Converting Between Types}
