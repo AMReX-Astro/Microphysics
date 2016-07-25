@@ -19,6 +19,8 @@ module actual_network
 
   double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
 
+  !$acc declare create(aion, zion, ebin)
+  
   character (len=22), parameter :: network_name = "triple_alpha_plus_cago"
 
   ! Rates data
@@ -70,6 +72,8 @@ contains
     reac_names(ir3a)   = "3agc"   !     3 He4 --> C12
     reac_names(ircago) = "cago"   ! C12 + He4 --> O16
 
+    !$acc update device(aion, zion, ebin)
+    
   end subroutine actual_network_init
 
 
