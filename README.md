@@ -62,4 +62,4 @@ A user's guide for Microphysics can be found in `Docs/`.  Type `make`
 to build it from its LaTeX source.
 
 A PDF of the user's guide is available here:
-http://bender.astro.sunysb.edu/Castro/staging/Microphysics/Docs/userguide.pdf
+http://bender.astro.sunysb.edu/Castro/staging/Microphysics/Docs/MicrophysicsUsersGuide.pdf
