@@ -103,8 +103,9 @@ information:
 
 Each integrator also has their own internal data structure that holds
 the information needed for the integration.  Meta-data that is not
-part of the integration vector of ODEs is stored in an array that can
-be passed into the righthand side routine.  The different fields are
+part of the integration vector of ODEs, but is attached to a
+particular state ($Y_k$, $T$, $e$), is stored in an array that can be
+passed into the righthand side routine.  The different fields are
 accessed through the integer indices in the {\tt rpar\_indices}
 Fortran module.  The details of this storage is given for each
 integrator below.

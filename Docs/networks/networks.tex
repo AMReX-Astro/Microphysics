@@ -772,6 +772,14 @@ The basic outline of this routine is:
 \begin{itemize}
 \item call {\tt clean\_state}
 
+This function operates on the ODE integrator vector directly
+(accessing it from the integrator's internal data structure).  It
+makes sure that the mass fractions lie between $[10^{-30}, 1]$ and
+that the temperature lies between $[{\tt small\_temp}, 10^11]$.  The
+latter upper limit is arbirary, but is safe for the types of problems
+we support with these networks.
+
+
 \item renormalize the species, if {\tt renormalize\_abundances = T}
 \MarginPar{we should put the call to {\tt update\_unevolved\_species} before this, instead of in the {\tt actual\_rhs}}
 
@@ -801,7 +809,41 @@ structures.  This integrator appears quite robust.
 
 \paragraph{{\tt bs\_t} data structure.}
 
-rpar stuff?
+The {\tt bs\_t} type is the main data structure for the BS integrator.
+This holds the integration variables (as {\tt y(1:neqs)}) and data
+associated with the timestepping.  It also holds a {\tt burn\_t} type
+as {\tt bs\_t \% burn\_s}.  This component is used to interface with
+the networks.  The conversion routines {\tt bs\_to\_burn} and {\tt
+  burn\_to\_bs} simply sync up {\tt bs\_t \% y(:)} and {\tt bs\_t \%
+  burn\_s}.
+
+The {\tt upar(:)} component contains the meta-data that is not held in
+the {\tt burn\_t} but nevertheless is associate with the current
+state.  This is an array that can be indexed via the integers define
+in the {\tt rpar\_indices} module.  Note that because the {\tt bs\_t}
+contains its own {\tt burn\_t} type, the BS integrator does not need
+as much metadata as some other integrators.  The fields of {\tt upar}
+are:
+\begin{itemize}
+\item {\tt bs\_t \% upar(irp\_nspec\,:\,irp\_nspec-1+n\_not\_evolved)}
+
+  These are the mass fractions of the {\tt nspec - nspec\_evolve} 
+  species that are not evolved in the ODE system.
+
+\item {\tt bs\_t \% upar(irp\_y\_init\,:\,irp\_y\_init-1+neqs)}
+
+  This is the initial values of the ODE integration vector.
+
+\item {\tt bs\_t \% upar(irp\_t\_sound)}
+
+  This is the sound-crossing time for a zone.
+
+\item {\tt bs\_t \% upar(irp\_t0)}
+
+  This is the simulation time at the start of integration.  This can
+  be used as an offset to convert between simulation time and
+  integration time (we always start the integration at $t = 0$).
+\end{itemize}
 
 \paragraph{Error criteria.}  There is a single relative tolerance used
 for all ODEs, instead of a separate one for species, temperature, and
