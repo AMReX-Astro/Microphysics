@@ -46,8 +46,6 @@ module bs_type_module
 
      type(burn_t) :: burn_s
 
-     integer :: i, j, k
-
   end type bs_t
 
   !$acc declare create(nseq)
