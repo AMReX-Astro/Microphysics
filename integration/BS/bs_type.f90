@@ -67,6 +67,8 @@ contains
 
     implicit none
 
+    type (bs_t), intent(inout) :: state
+
     ! this should be larger than any reasonable temperature we will encounter
     real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
 
@@ -76,8 +78,6 @@ contains
     ! of species mass fractions much smaller than this.
     real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-30
     real (kind=dp_t) :: small_temp
-
-    type (bs_t) :: state
 
     ! Ensure that mass fractions always stay positive.
     if (integrate_molar_fraction) then
