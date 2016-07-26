@@ -24,7 +24,7 @@ contains
     !$acc routine seq
     !$acc routine(f_rhs) seq
 
-    use extern_probin_module, only: scaling_method, ode_max_steps, ode_scale_floor, use_timestep_estimator
+    use extern_probin_module, only: ode_max_steps, use_timestep_estimator
 #ifndef ACC
     use bl_error_module, only: bl_error
 #endif
@@ -65,17 +65,7 @@ contains
        ! Get the scaling.
        call f_rhs(bs)
 
-       if (scaling_method == 1) then
-          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
-
-       else if (scaling_method == 2) then
-          yscal = max(abs(bs % y(:)), ode_scale_floor)
-
-#ifndef ACC
-       else
-          call bl_error("Unknown scaling method in subroutine ode.")
-#endif
-       endif
+       call get_scaling_vector(yscal, bs)
 
        ! make sure we don't overshoot the ending time
        if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t

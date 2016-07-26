@@ -184,4 +184,37 @@ contains
 
   end subroutine jac
 
+
+
+  subroutine get_scaling_vector(yscal, bs)
+
+    use bl_types, only: dp_t
+    use bs_type_module, only: bs_t
+    use extern_probin_module, only: scaling_method, ode_scale_floor
+    use burn_type_module, only: neqs
+#ifndef ACC
+    use bl_error_module, only: bl_error
+#endif
+
+    implicit none
+
+    real(kind=dp_t) :: yscal(neqs)
+    type (bs_t) :: bs
+
+    real(kind=dp_t), parameter :: SMALL = 1.d-30
+
+    if (scaling_method == 1) then
+       yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
+
+    else if (scaling_method == 2) then
+       yscal = max(abs(bs % y(:)), ode_scale_floor)
+
+#ifndef ACC
+    else
+       call bl_error("Unknown scaling method in subroutine ode.")
+#endif
+    endif
+
+  end subroutine get_scaling_vector
+
 end module rhs_module
