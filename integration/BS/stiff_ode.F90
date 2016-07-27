@@ -8,6 +8,7 @@ module stiff_ode
   use burn_type_module
   use bs_type_module
   use rhs_module
+  use jac_module
 
   implicit none
 
