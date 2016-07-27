@@ -10,6 +10,8 @@ module bs_type_module
   integer, parameter :: KMAXX = 7
   integer :: nseq(KMAXX+1)
 
+  integer, parameter :: bs_neqs = neqs
+
   ! error codes
   integer, parameter :: IERR_NONE = 0
   integer, parameter :: IERR_DT_TOO_SMALL = -100

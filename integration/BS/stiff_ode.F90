@@ -24,7 +24,7 @@ contains
     !$acc routine seq
     !$acc routine(f_rhs) seq
 
-    use extern_probin_module, only: ode_max_steps, use_timestep_estimator
+    use extern_probin_module, only: ode_max_steps, use_timestep_estimator, scaling_method, ode_scale_floor
 #ifndef ACC
     use bl_error_module, only: bl_error
 #endif
@@ -36,7 +36,7 @@ contains
     real(kind=dp_t), intent(in) :: eps
     integer, intent(out) :: ierr
 
-    real(kind=dp_t) :: yscal(neqs)
+    real(kind=dp_t) :: yscal(bs_neqs)
     logical :: finished
 
     integer :: n
@@ -65,7 +65,21 @@ contains
        ! Get the scaling.
        call f_rhs(bs)
 
-       call get_scaling_vector(yscal, bs)
+       if (scaling_method == 1) then
+#ifdef SDC
+          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % ydot(:)) + SMALL
+#else
+          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
+#endif
+
+       else if (scaling_method == 2) then
+          yscal = max(abs(bs % y(:)), ode_scale_floor)
+
+#ifndef ACC
+       else
+          call bl_error("Unknown scaling method in subroutine get_scaling_vector.")
+#endif
+       endif
 
        ! make sure we don't overshoot the ending time
        if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
@@ -108,7 +122,7 @@ contains
     type (bs_t), intent(inout) :: bs
 
     type (bs_t) :: bs_temp
-    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
+    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(bs_neqs), eps, ewt(bs_neqs), yddnorm
     integer :: n
 
     bs_temp = bs
@@ -139,13 +153,21 @@ contains
        ! Construct the trial point.
 
        bs_temp % t = bs % t + h
+#ifdef SDC
+       bs_temp % y = bs % y + h * bs % ydot
+#else
        bs_temp % y = bs % y + h * bs % burn_s % ydot
+#endif
 
        ! Call the RHS, then estimate the finite difference.
        call f_rhs(bs_temp)
+#ifdef SDC
+       ddydtt = (bs_temp % ydot - bs % ydot) / h
+#else
        ddydtt = (bs_temp % burn_s % ydot - bs % burn_s % ydot) / h
+#endif
 
-       yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / neqs )
+       yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / bs_neqs )
 
        if (yddnorm*hU*hU > TWO) then
           h = sqrt(TWO / yddnorm)
@@ -174,19 +196,19 @@ contains
     !$acc routine(dgefa) seq
 
     type (bs_t), intent(inout) :: bs
-    real(kind=dp_t), intent(in) :: y(neqs)
+    real(kind=dp_t), intent(in) :: y(bs_neqs)
     real(kind=dp_t), intent(in) :: dt_tot
     integer, intent(in) :: N_sub
-    real(kind=dp_t), intent(out) :: y_out(neqs)
+    real(kind=dp_t), intent(out) :: y_out(bs_neqs)
     integer, intent(out) :: ierr
 
-    real(kind=dp_t) :: A(neqs,neqs)
-    real(kind=dp_t) :: del(neqs)
+    real(kind=dp_t) :: A(bs_neqs,bs_neqs)
+    real(kind=dp_t) :: del(bs_neqs)
     real(kind=dp_t) :: h
 
     integer :: n
 
-    integer :: ipiv(neqs), ierr_linpack
+    integer :: ipiv(bs_neqs), ierr_linpack
 
     type (bs_t) :: bs_temp
 
@@ -198,13 +220,17 @@ contains
     h = dt_tot/N_sub
 
     ! I - h J
+#ifdef SDC
+    A(:,:) = -h * bs % jac(:,:)
+#else
     A(:,:) = -h * bs % burn_s % jac(:,:)
-    do n = 1, neqs
+#endif
+    do n = 1, bs_neqs
        A(n,n) = ONE + A(n,n)
     enddo
 
     ! get the LU decomposition from LINPACK
-    call dgefa(A, neqs, neqs, ipiv, ierr_linpack)
+    call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
     if (ierr_linpack /= 0) then
        ierr = IERR_LU_DECOMPOSITION_ERROR
     endif
@@ -214,10 +240,14 @@ contains
 
     ! do an Euler step to get the RHS for the first substep
     t = bs % t
+#ifdef SDC
+    y_out(:) = h * bs % ydot(:)
+#else
     y_out(:) = h * bs % burn_s % ydot(:)
+#endif
 
     ! solve the first step using the LU solver
-    call dgesl(A, neqs, neqs, ipiv, y_out, 0)
+    call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
 
     del(:) = y_out(:)
     bs_temp % y(:) = y(:) + del(:)
@@ -227,10 +257,14 @@ contains
     call f_rhs(bs_temp)
 
     do n = 2, N_sub
+#ifdef SDC
+       y_out(:) = h * bs_temp % ydot(:) - del(:)
+#else
        y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
+#endif
 
        ! LU solve
-       call dgesl(A, neqs, neqs, ipiv, y_out, 0)
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
 
        del(:) = del(:) + TWO * y_out(:)
        bs_temp % y = bs_temp % y + del(:)
@@ -240,10 +274,14 @@ contains
        call f_rhs(bs_temp)
     enddo
 
+#ifdef SDC
+    y_out(:) = h * bs_temp % ydot(:) - del(:)
+#else
     y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
+#endif
 
     ! last LU solve
-    call dgesl(A, neqs, neqs, ipiv, y_out, 0)
+    call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
 
     ! last step
     y_out(:) = bs_temp % y(:) + y_out(:)
@@ -269,10 +307,10 @@ contains
 
     type (bs_t) :: bs
     real(kind=dp_t), intent(in) :: eps
-    real(kind=dp_t), intent(in) :: yscal(neqs)
+    real(kind=dp_t), intent(in) :: yscal(bs_neqs)
     integer, intent(out) :: ierr
 
-    real(kind=dp_t) :: y_save(neqs), yerr(neqs), yseq(neqs)
+    real(kind=dp_t) :: y_save(bs_neqs), yerr(bs_neqs), yseq(bs_neqs)
     real(kind=dp_t) :: err(KMAXX)
 
     real(kind=dp_t) :: dt, fac, scale, red, eps1, work, work_min, xest
@@ -284,7 +322,7 @@ contains
     integer, parameter :: max_iters = 10 ! Should not need more than this
 
     ! for internal storage of the polynomial extrapolation
-    real(kind=dp_t) :: t_extrap(KMAXX+1), qcol(neqs, KMAXX+1)
+    real(kind=dp_t) :: t_extrap(KMAXX+1), qcol(bs_neqs, KMAXX+1)
 
     ! reinitialize
     if (eps /= bs % eps_old) then
@@ -308,7 +346,7 @@ contains
 
        bs % eps_old = eps
 
-       bs % a(1) = neqs + bs % a(1)
+       bs % a(1) = bs_neqs + bs % a(1)
        do k = 1, KMAXX
           bs % a(k+1) = bs % a(k) + nseq(k+1)
        enddo
@@ -477,14 +515,14 @@ contains
     ! is iest
 
     integer, intent(in) :: iest
-    real(kind=dp_t), intent(in) :: test, yest(neqs)
-    real(kind=dp_t), intent(inout) :: yz(neqs), dy(neqs)
+    real(kind=dp_t), intent(in) :: test, yest(bs_neqs)
+    real(kind=dp_t), intent(inout) :: yz(bs_neqs), dy(bs_neqs)
 
     ! these are for internal storage to save the state between calls
-    real(kind=dp_t), intent(inout) :: t(KMAXX+1), qcol(neqs, KMAXX+1)
+    real(kind=dp_t), intent(inout) :: t(KMAXX+1), qcol(bs_neqs, KMAXX+1)
 
     integer :: j, k
-    real(kind=dp_t) :: delta, f1, f2, q, d(neqs)
+    real(kind=dp_t) :: delta, f1, f2, q, d(bs_neqs)
 
     t(iest) = test
 
@@ -504,7 +542,7 @@ contains
           f1 = test*delta
           f2 = t(iest-k)*delta
 
-          do j = 1, neqs
+          do j = 1, bs_neqs
              q = qcol(j,k)
              qcol(j,k) = dy(j)
              delta = d(j) - q
