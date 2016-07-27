@@ -226,7 +226,7 @@ contains
     use bl_constants_module, only: HALF, ONE
     use bl_types, only: dp_t
     use eos_type_module, only: eos_input_re, eos_t
-    use eos_module, only: eos
+    use eos_module, only: eos, eos_get_small_temp, eos_get_max_temp
     use sdc_type_module, only: SRHO, SMX, SMZ, SEDEN, SEINT, SFS
 
     implicit none
@@ -235,22 +235,30 @@ contains
     type (burn_t) :: burn
     type (eos_t) :: eos_state
 
-    real(kind=dp_t) :: e, rhoInv
+    real(kind=dp_t) :: rhoInv, min_temp, max_temp
 
     rhoInv = ONE / bs % y(SRHO)
 
-    burn % rho = bs % y(SRHO)
-    burn % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
+    eos_state % rho = bs % y(SRHO)
+    eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
     if (bs % T_from_eden) then
 
-       e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % y(SMX:SMZ)**2))
+       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % y(SMX:SMZ)**2))
 
     else
 
-       e = bs % y(SEINT) * rhoInv
+       eos_state % e = bs % y(SEINT) * rhoInv
 
     endif
+
+    ! Give the temperature an initial guess -- use the geometric mean
+    ! of the minimum and maximum temperatures.
+
+    call eos_get_small_temp(min_temp)
+    call eos_get_max_temp(max_temp)
+
+    eos_state % T = sqrt(min_temp * max_temp)
 
     ! If the temperature is smaller than the EOS can handle, allow it to
     ! reset the temperature accordingly.
@@ -264,7 +272,6 @@ contains
 
     eos_state % check_inputs = .false.
 
-    call burn_to_eos(burn, eos_state)
     call eos(eos_input_re, eos_state)
     call eos_to_burn(eos_state, burn)
 
