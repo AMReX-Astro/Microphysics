@@ -80,30 +80,31 @@ contains
     type (bs_t) :: bs
     type (burn_t) :: burn
 
-    ! Indicate that we don't yet have valid rates.
-
-    burn % have_rates = .false.
-
     ! Initialize the Jacobian to zero.
 
-    burn % jac = ZERO
     bs % jac = ZERO
 
     ! Call the specific network routine to get the Jacobian.
 
-    call bs_to_burn(bs, burn)
-
     if (jacobian == 1) then
+
+       burn % jac = ZERO
+
+       ! Indicate that we don't yet have valid rates.
+
+       burn % have_rates = .false.
+
+       call bs_to_burn(bs, burn)
 
        call actual_jac(burn)
 
+       call jac_to_bs(bs, burn)
+
     else
 
-       call numerical_jac(burn)
+       call numerical_jac(bs)
 
     endif
-
-    call jac_to_bs(bs, burn)
 
     ! Increment the evaluation counter.
 
