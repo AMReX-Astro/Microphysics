@@ -14,7 +14,7 @@ contains
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: renormalize_abundances
-    use bs_type_module, only: bs_t, clean_state, renormalize_species, burn_to_bs, bs_to_burn
+    use bs_type_module, only: bs_t, clean_state, renormalize_species, rhs_to_bs, bs_to_burn
 
     implicit none
 
@@ -52,7 +52,7 @@ contains
 
     ! Feed the network evaluation into the integration.
 
-    call burn_to_bs(bs, burn)
+    call rhs_to_bs(bs, burn)
 
     ! Increment the evaluation counter.
 
@@ -73,7 +73,7 @@ contains
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian
     use burn_type_module, only: burn_t
-    use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
+    use bs_type_module, only: bs_t, bs_to_burn, jac_to_bs
 
     implicit none
 
@@ -103,7 +103,7 @@ contains
 
     endif
 
-    call burn_to_bs(bs, burn)
+    call jac_to_bs(bs, burn)
 
     ! Increment the evaluation counter.
 

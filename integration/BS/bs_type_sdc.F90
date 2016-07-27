@@ -72,7 +72,7 @@ contains
 
     type (bs_t) :: state
 
-    ! Ensure that mass fractions always stay positive.
+    ! Ensure that mass fractions always stay positive and less than one.
 
     state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), state % y(SRHO)), &
                                      state % y(SRHO) * SMALL_X_SAFE)
@@ -144,7 +144,7 @@ contains
 
 
 
-  subroutine burn_to_bs(bs, burn)
+  subroutine rhs_to_bs(bs, burn)
 
     !$acc routine seq
 
@@ -156,6 +156,8 @@ contains
 
     type (bs_t) :: bs
     type (burn_t) :: burn
+
+    integer :: n
 
     ! Start with the contribution from the non-reacting sources
 
@@ -169,7 +171,49 @@ contains
     bs % ydot(SEINT) = bs % ydot(SEINT) + bs % y(SRHO) * burn % ydot(net_ienuc)
     bs % ydot(SEDEN) = bs % ydot(SEDEN) + bs % y(SRHO) * burn % ydot(net_ienuc)
 
-  end subroutine burn_to_bs
+  end subroutine rhs_to_bs
+
+
+
+  subroutine jac_to_bs(bs, burn)
+
+    !$acc routine seq
+
+    use actual_network, only: nspec_evolve, aion
+    use burn_type_module, only: burn_t, net_ienuc
+    use sdc_type_module, only: SRHO, SEDEN, SEINT, SFS
+
+    implicit none
+
+    type (bs_t) :: bs
+    type (burn_t) :: burn
+
+    integer :: n
+
+    ! Copy the Jacobian from the burn
+
+    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn % jac(1:nspec_evolve,1:nspec_evolve)
+    bs % jac(SFS:SFS+nspec_evolve-1,SEDEN) = burn % jac(1:nspec_evolve,net_ienuc)
+    bs % jac(SFS:SFS+nspec_evolve-1,SEINT) = burn % jac(1:nspec_evolve,net_ienuc)
+
+    bs % jac(SEDEN,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SEDEN,SEDEN) = burn % jac(net_ienuc,net_ienuc)
+    bs % jac(SEDEN,SEINT) = burn % Jac(net_ienuc,net_ienuc)
+
+    bs % jac(SEINT,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SEINT,SEDEN) = burn % jac(net_ienuc,net_ienuc)
+    bs % jac(SEINT,SEINT) = burn % jac(net_ienuc,net_ienuc)
+
+    ! Scale it to match our variables. We don't need to worry about the rho
+    ! dependence, since every one of the SDC variables is linear in rho, so
+    ! we just need to focus on the Y --> X conversion.
+
+    do n = 1, nspec_evolve
+       bs % jac(SFS+n-1,:) = bs % jac(SFS+n-1,:) * aion(n)
+       bs % jac(:,SFS+n-1) = bs % jac(:,SFS+n-1) / aion(n)
+    enddo
+
+  end subroutine jac_to_bs
 
 
 
