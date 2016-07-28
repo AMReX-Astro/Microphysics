@@ -13,8 +13,7 @@ contains
     use burn_type_module, only: burn_t
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: renormalize_abundances
-    use bs_type_module, only: bs_t, clean_state, renormalize_species, rhs_to_bs, bs_to_burn
+    use bs_type_module, only: bs_t, clean_state, rhs_to_bs, bs_to_burn
 
     implicit none
 
@@ -29,12 +28,6 @@ contains
     ! Fix the state as necessary.
 
     call clean_state(bs)
-
-    ! Renormalize abundances as necessary.
-
-    if (renormalize_abundances) then
-       call renormalize_species(bs)
-    endif
 
     ! Tell the burn_t what it needs to know about
     ! the current integration state. This also does

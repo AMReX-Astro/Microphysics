@@ -59,8 +59,12 @@ contains
 
     !$acc routine seq
 
+    use bl_constants_module, only: HALF
     use actual_network, only: nspec
-    use sdc_type_module, only: SRHO, SFS
+    use sdc_type_module, only: SRHO, SFS, SEDEN, SEINT, SMX, SMZ
+    use eos_module, only: eos_get_small_dens, eos_get_max_dens, eos
+    use eos_type_module, only: eos_input_rt, eos_t
+    use extern_probin_module, only: renormalize_abundances
 
     implicit none
 
@@ -68,14 +72,54 @@ contains
     ! be larger than small_x that the user set, but the issue is that
     ! we can have underflow issues if the integrator has to keep track
     ! of species mass fractions much smaller than this.
+
     real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-30
 
+    ! this should be larger than any reasonable temperature we will encounter
+
+    real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
+
+    real (kind=dp_t) :: min_dens, max_dens, max_e, ke
+
     type (bs_t) :: state
+
+    type (eos_t) :: eos_state
+
+    ! Ensure that density stays within the limits set by the EOS.
+
+    call eos_get_small_dens(min_dens)
+    call eos_get_max_dens(max_dens)
+
+    state % y(SRHO) = max(min(state % y(SRHO), max_dens), min_dens)
 
     ! Ensure that mass fractions always stay positive and less than one.
 
     state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), state % y(SRHO)), &
                                      state % y(SRHO) * SMALL_X_SAFE)
+
+    ! Renormalize abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(state)
+    endif
+
+    ! Ensure that internal energy never goes above the maximum limit
+    ! provided by the EOS. Same for the internal energy implied by the
+    ! total energy (which we get by subtracting kinetic energy).
+
+    eos_state % rho = state % y(SRHO)
+    eos_state % T = MAX_TEMP
+    eos_state % xn = state % y(SFS:SFS+nspec-1) / state % y(SRHO)
+
+    call eos(eos_input_rt, eos_state)
+
+    max_e = eos_state % e
+
+    state % y(SEINT) = min(state % y(SRHO) * max_e, state % y(SEINT))
+
+    ke = state % y(SEDEN) - HALF * sum(state % y(SMX:SMZ)**2) / state % y(SRHO)
+
+    state % y(SEDEN) = min(state % y(SRHO) * max_e + ke, state % y(SEDEN))
 
   end subroutine clean_state
 
