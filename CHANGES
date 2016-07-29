@@ -8,6 +8,35 @@ changes since last merge:
 
  -- OpenMP and OpenACC directives have been added to the unit tests
 
+ -- the BS integrator's type, bs_t, has now contains a burn_t 
+    internally, simplifying the conversion from bs_t to call the 
+    actual_rhs/jac
+
+ -- the rates() component of burn_t was removed.  We no longer
+    rely on rate caching
+
+ -- we now store the simulation time at the start of the burn as
+    t0 in the rpar storage to use as an offset to the integration
+    time
+
+ -- the species derivatives (dh/dX and de/dX) and enthalpy were
+    removed from the burn_t
+
+ -- a new option to integrate of X instead of Y was added
+    (integrate_molar_fraction = F)
+
+ -- integration of networks with nspec_evolve < nspec were fixed
+    to now apply the algrebic constraint relating mass fractions
+    through a new update_unevolved_species() function
+
+ -- the electron capture rate on Ni56 used by aprox19 and aprox21 was
+    fixed
+
+ -- the BS integrator can now use the initial timestep estimation
+    algorithm that VODE uses 9use_timestep_estimator = T)
+
+ -- a centered difference numerical Jacobian option was added
+
 
 previous changes:
 

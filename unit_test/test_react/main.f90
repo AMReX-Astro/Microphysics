@@ -194,6 +194,11 @@ program test_react
 
   call write_job_info(out_name, mla%mba)
 
+  
+  ! diagnostics
+  print *, "number of RHS evaluations: ", burn_state_out % n_rhs
+  print *, "number of Jacobian evaluations: ", burn_state_out % n_jac
+
   ! if you (or a subroutine) built it, destroy it!
   do n = 1,nlevs
     call destroy(s(n))
