@@ -87,7 +87,7 @@ There are three primary files within each network directory.
   network, the time-derivative of each species (and the temperature
   and nuclear energy release), as well as the analytic Jacobian.
   Both {\tt actual\_rhs} and {\tt actual\_jac} take a single argument,
-  a {\tt burn\_t} state.  They set the time-derivates and Jacobian
+  a {\tt burn\_t} state.  They set the time-derivatives and Jacobian
   elements in this derived type directly.
 
   Note: some networks do not provide an analytic Jacobian and instead
@@ -506,7 +506,7 @@ into the RHS and Jacobian functions.
 The evolution of the thermodynamic quantities (like specific heats and
 other partial derivatives) can be frozen during the integration to
 their initial values, updated for every RHS call, or something
-inbetween.  Just before we call the network-specific RHS routine, we
+in-between.  Just before we call the network-specific RHS routine, we
 update the thermodynamics of our state (by calling {\tt
   update\_thermodynamics})\footnote{Note: each integrator provides its
   own implementation of this, since it operates on the internal
@@ -776,7 +776,7 @@ This function operates on the ODE integrator vector directly
 (accessing it from the integrator's internal data structure).  It
 makes sure that the mass fractions lie between $[10^{-30}, 1]$ and
 that the temperature lies between $[{\tt small\_temp}, 10^11]$.  The
-latter upper limit is arbirary, but is safe for the types of problems
+latter upper limit is arbitrary, but is safe for the types of problems
 we support with these networks.
 
 
@@ -822,7 +822,7 @@ the {\tt burn\_t} but nevertheless is associate with the current
 state.  This is an array that can be indexed via the integers define
 in the {\tt rpar\_indices} module.  Note that because the {\tt bs\_t}
 contains its own {\tt burn\_t} type, the BS integrator does not need
-as much metadata as some other integrators.  The fields of {\tt upar}
+as much meta-data as some other integrators.  The fields of {\tt upar}
 are:
 \begin{itemize}
 \item {\tt bs\_t \% upar(irp\_nspec\,:\,irp\_nspec-1+n\_not\_evolved)}
@@ -917,7 +917,19 @@ used to scale the system such that everything is $\sim
 \mathcal{O}(1)$.  \MarginPar{does anyone use this?}
 
 
-\section{Overriding Defaults on a Network-by-Network Basis}
+\section{Overriding Parameter Defaults on a Network-by-Network Basis}
+
+Any network can override or add to any of the existing runtime
+parameters by creating a {\tt \_parameters} file in the network
+directory (e.g., {\tt
+  networks/triple\_alpha\_plus\_cago/\_parameters}).  As noted in
+Chapter \label{chapter:parameters}, the fourth column in the {\tt
+  \_parameter} file definition is the {\em priority}.  When a
+duplicate parameter is encountered by the scripts writing the {\tt
+  extern\_probin\_module}, the value of the parameter with the highest
+priority is used.  So picking a large integer value for the priority
+in a network's {\tt \_parameter} file will ensure that it takes
+precedence.
 
 
 \begin{sidewaysfigure}

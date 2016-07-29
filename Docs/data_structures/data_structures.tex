@@ -97,6 +97,14 @@ information:
 
 \subsection{{\tt rate\_t}}
 
+The {\tt rate\_t} structure is used internally in a network to pass
+the raw reaction rate information (usually just the
+temperature-dependent terms) between various subroutines.  It does not
+come out of the network-specific righthand side or Jacobian routines.
+
+This main component of this is simply an array of dimension {\tt
+  rates(num\_rate\_groups, nrates)}---both of the parameters
+used in dimensioning this are network-dependent.
 
 
 \section{Integrators}
