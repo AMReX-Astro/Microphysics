@@ -30,7 +30,7 @@ program test_react
 
   ! Conventional fluid state multifabs
   type(multifab) , allocatable :: s(:)
-  
+
   real(kind=dp_t) :: dx(1, MAX_SPACEDIM)
 
   logical :: pmask(MAX_SPACEDIM)
@@ -46,10 +46,10 @@ program test_react
 
   type(plot_t) :: pf
 
-  real(kind=dp_t), pointer :: sp(:,:,:,:)                                  
-  integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)                     
+  real(kind=dp_t), pointer :: sp(:,:,:,:)
+  integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
-  
+
   type (burn_t) :: burn_state_in, burn_state_out
 
   real (kind=dp_t) :: dens_zone, temp_zone
@@ -61,7 +61,7 @@ program test_react
   character (len=256) :: out_name
 
   call boxlib_initialize()
-  call bl_prof_initialize(on = .true.)                                          
+  call bl_prof_initialize(on = .true.)
 
 
   call runtime_init(.true.)
@@ -138,7 +138,7 @@ program test_react
      !$OMP SCHEDULE(DYNAMIC,1)
 
      !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, ldt) &
-     !$acc      copyout(sp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), :))  
+     !$acc      copyout(sp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), :))
 
      !$acc parallel
 
@@ -194,10 +194,6 @@ program test_react
 
   call write_job_info(out_name, mla%mba)
 
-  
-  ! diagnostics
-  print *, "number of RHS evaluations: ", burn_state_out % n_rhs
-  print *, "number of Jacobian evaluations: ", burn_state_out % n_jac
 
   ! if you (or a subroutine) built it, destroy it!
   do n = 1,nlevs
@@ -214,8 +210,8 @@ program test_react
   call microphysics_finalize()
 
   ! end boxlib
-  call bl_prof_glean("bl_prof_res")                                             
-  call bl_prof_finalize()                                                       
-  call boxlib_finalize()                                                        
+  call bl_prof_glean("bl_prof_res")
+  call bl_prof_finalize()
+  call boxlib_finalize()
 
 end program test_react
