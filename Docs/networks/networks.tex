@@ -23,7 +23,10 @@ At a minimum, a network needs to provide:
    of the {\tt nspec} species are the ones evolved.
 
  \item {\tt nrates} : the number of reaction rates.  This is used to
-   cache rates for the analytic Jacobian.
+   allocate space in the {\tt rate\_t} type
+
+ \item {\tt num_rate_groups} : the number of components for each reaction
+   rate we want to store in the {\tt rate\_t} type
 
  \item {\tt naux} : the number of auxiliary quantities needed by the
    network (these are not evolved).  \MarginPar{does any net use these?}
