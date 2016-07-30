@@ -33,6 +33,7 @@ module actual_network
   ! Rates data
 
   integer, parameter :: nrates    = 18
+  integer, parameter :: num_rate_groups = 3
 
   integer, parameter :: irlambCNO = 1
   integer, parameter :: irag15o   = 2

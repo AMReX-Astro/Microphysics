@@ -19,6 +19,7 @@ module actual_network
   double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
 
   integer, parameter :: nrates = 0
+  integer, parameter :: num_rate_groups = 0
 
 contains
   

@@ -17,6 +17,7 @@ module actual_network
   integer, parameter :: naux  = 2
   integer, parameter :: nspec_evolve = 1
   integer, parameter :: nrates = 0
+  integer, parameter :: num_rate_groups = 0
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)

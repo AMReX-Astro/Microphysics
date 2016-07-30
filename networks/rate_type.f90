@@ -1,10 +1,8 @@
 module rate_type_module
 
-  use actual_network, only : nrates
+  use actual_network, only : nrates, num_rate_groups
 
   implicit none
-
-  integer, parameter :: num_rate_groups = 4
 
   type :: rate_t
      ! the temperature at which the rates were evaluated

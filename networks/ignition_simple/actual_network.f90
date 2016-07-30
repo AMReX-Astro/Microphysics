@@ -31,6 +31,7 @@ module actual_network
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
   integer, parameter :: nrates = 1
+  integer, parameter :: num_rate_groups = 4
 
   ! Conversion factor for the nuclear energy generation rate.
 

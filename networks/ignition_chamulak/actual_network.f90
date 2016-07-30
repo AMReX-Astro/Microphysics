@@ -24,6 +24,7 @@ module actual_network
   double precision, save :: nion(nspec), mion(nspec), wion(nspec)
 
   integer, parameter :: nrates = 1
+  integer, parameter :: num_rate_groups = 4
 
 contains
 

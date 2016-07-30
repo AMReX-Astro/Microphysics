@@ -4,6 +4,7 @@ module actual_network
   integer, parameter :: nspec_evolve = 7
   integer, parameter :: naux = 0
   integer, parameter :: nrates = 6  ! including constant weak rates
+  integer, parameter :: num_rate_groups = 1
 
   double precision, save :: aion(nspec), zion(nspec), bion(nspec)
   double precision :: rates(nrates)

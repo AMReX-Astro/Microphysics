@@ -53,6 +53,7 @@ module actual_network
   ! Rates data
 
   integer, parameter :: nrates = 67
+  integer, parameter :: num_rate_groups = 2
 
   integer, parameter :: ir3a   = 1
   integer, parameter :: irg3a  = 2
