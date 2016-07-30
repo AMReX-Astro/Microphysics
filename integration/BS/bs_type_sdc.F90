@@ -86,11 +86,18 @@ contains
     type (eos_t) :: eos_state
 
     ! Ensure that density stays within the limits set by the EOS.
+    ! If we do rescale the density, we should rescale all other
+    ! variables by the same factor since they're all linearly
+    ! proportional to rho.
 
     call eos_get_small_dens(min_dens)
     call eos_get_max_dens(max_dens)
 
-    state % y(SRHO) = max(min(state % y(SRHO), max_dens), min_dens)
+    if (state % y(SRHO) > max_dens) then
+       state % y = state % y * (max_dens / state % y(SRHO))
+    else if (state % y(SRHO) < min_dens) then
+       state % y = state % y * (min_dens / state % y(SRHO))
+    endif
 
     ! Ensure that mass fractions always stay positive and less than one.
 
@@ -110,6 +117,9 @@ contains
     eos_state % rho = state % y(SRHO)
     eos_state % T = MAX_TEMP
     eos_state % xn = state % y(SFS:SFS+nspec-1) / state % y(SRHO)
+
+    eos_state % reset = .true.
+    eos_state % check_inputs = .false.
 
     call eos(eos_input_rt, eos_state)
 
