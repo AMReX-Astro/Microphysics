@@ -34,6 +34,7 @@ module actual_network
   !$acc declare create(aion, zion)
 
   integer, parameter :: nrates = 0
+  integer, parameter :: num_rate_groups = 0
 
 contains
   
