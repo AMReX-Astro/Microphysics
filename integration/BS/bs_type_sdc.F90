@@ -1,7 +1,8 @@
 module bs_type_module
 
   use bl_types, only: dp_t
-  use sdc_type_module, only: SVAR
+  use sdc_type_module, only: SVAR, SVAR_EVOLVE
+  use rpar_indices, only: n_rpar_comps
 
   implicit none
 
@@ -9,7 +10,7 @@ module bs_type_module
   integer, parameter :: KMAXX = 7
   integer :: nseq(KMAXX+1)
 
-  integer, parameter :: bs_neqs = SVAR
+  integer, parameter :: bs_neqs = SVAR_EVOLVE
 
   ! error codes
   integer, parameter :: IERR_NONE = 0
@@ -39,9 +40,11 @@ module bs_type_module
      integer :: kmax
      integer :: kopt
 
-     real(kind=dp_t) :: y(SVAR), ydot(SVAR), jac(SVAR, SVAR)
-     real(kind=dp_t) :: ydot_a(SVAR)
-     real(kind=dp_t) :: atol(SVAR), rtol(SVAR)
+     real(kind=dp_t) :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE), jac(SVAR_EVOLVE, SVAR_EVOLVE)
+     real(kind=dp_t) :: ydot_a(SVAR_EVOLVE)
+     real(kind=dp_t) :: atol(SVAR_EVOLVE), rtol(SVAR_EVOLVE)
+     real(kind=dp_t) :: y_init(SVAR_EVOLVE)
+     real(kind=dp_t) :: u(n_rpar_comps), u_init(n_rpar_comps), udot_a(n_rpar_comps)
      real(kind=dp_t) :: t, dt, tmax
      integer         :: n
      integer         :: n_rhs, n_jac
@@ -61,7 +64,8 @@ contains
 
     use bl_constants_module, only: HALF
     use actual_network, only: nspec
-    use sdc_type_module, only: SRHO, SFS, SEDEN, SEINT, SMX, SMZ
+    use sdc_type_module, only: SFS, SEDEN, SEINT
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
     use eos_module, only: eos_get_small_dens, eos_get_max_dens, eos
     use eos_type_module, only: eos_input_rt, eos_t
     use extern_probin_module, only: renormalize_abundances
@@ -79,30 +83,20 @@ contains
 
     real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
 
-    real (kind=dp_t) :: min_dens, max_dens, max_e, ke
+    real (kind=dp_t) :: max_e, ke
 
     type (bs_t) :: state
 
     type (eos_t) :: eos_state
 
-    ! Ensure that density stays within the limits set by the EOS.
-    ! If we do rescale the density, we should rescale all other
-    ! variables by the same factor since they're all linearly
-    ! proportional to rho.
+    ! Update rho, rho*u, etc.
 
-    call eos_get_small_dens(min_dens)
-    call eos_get_max_dens(max_dens)
-
-    if (state % y(SRHO) > max_dens) then
-       state % y = state % y * (max_dens / state % y(SRHO))
-    else if (state % y(SRHO) < min_dens) then
-       state % y = state % y * (min_dens / state % y(SRHO))
-    endif
+    call fill_unevolved_variables(state)
 
     ! Ensure that mass fractions always stay positive and less than one.
 
-    state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), state % y(SRHO)), &
-                                     state % y(SRHO) * SMALL_X_SAFE)
+    state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), state % u(irp_SRHO)), &
+                                     state % u(irp_SRHO) * SMALL_X_SAFE)
 
     ! Renormalize abundances as necessary.
 
@@ -114,9 +108,9 @@ contains
     ! provided by the EOS. Same for the internal energy implied by the
     ! total energy (which we get by subtracting kinetic energy).
 
-    eos_state % rho = state % y(SRHO)
+    eos_state % rho = state % u(irp_SRHO)
     eos_state % T = MAX_TEMP
-    eos_state % xn = state % y(SFS:SFS+nspec-1) / state % y(SRHO)
+    eos_state % xn = state % y(SFS:SFS+nspec-1) / state % u(irp_SRHO)
 
     eos_state % reset = .true.
     eos_state % check_inputs = .false.
@@ -125,13 +119,31 @@ contains
 
     max_e = eos_state % e
 
-    state % y(SEINT) = min(state % y(SRHO) * max_e, state % y(SEINT))
+    state % y(SEINT) = min(state % u(irp_SRHO) * max_e, state % y(SEINT))
 
-    ke = state % y(SEDEN) - HALF * sum(state % y(SMX:SMZ)**2) / state % y(SRHO)
+    ke = state % y(SEDEN) - HALF * sum(state % u(irp_SMX:irp_SMZ)**2) / state % u(irp_SRHO)
 
-    state % y(SEDEN) = min(state % y(SRHO) * max_e + ke, state % y(SEDEN))
+    state % y(SEDEN) = min(state % u(irp_SRHO) * max_e + ke, state % y(SEDEN))
 
   end subroutine clean_state
+
+
+
+  subroutine fill_unevolved_variables(state)
+
+    !$acc routine seq
+
+    use sdc_type_module, only: SRHO, SMX, SMZ
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+
+    implicit none
+
+    type (bs_t) :: state
+
+    state % u(irp_SRHO) = state % u_init(irp_SRHO) + state % udot_a(irp_SRHO) * state % t
+    state % u(irp_SMX:irp_SMZ) = state % u_init(irp_SMX:irp_SMZ) + state % udot_a(irp_SMX:irp_SMZ) * state % t
+
+  end subroutine fill_unevolved_variables
 
 
 
@@ -139,8 +151,9 @@ contains
 
     !$acc routine seq
 
-    use sdc_type_module, only: SRHO, SFS
+    use sdc_type_module, only: SFS
     use actual_network, only: nspec
+    use rpar_indices, only: irp_SRHO
 
     implicit none
 
@@ -148,7 +161,11 @@ contains
 
     real(dp_t) :: nspec_sum
 
-    nspec_sum = sum(state % y(SFS:SFS+nspec-1)) / state % y(SRHO)
+    ! Update rho, rho*u, etc.
+
+    call fill_unevolved_variables(state)
+
+    nspec_sum = sum(state % y(SFS:SFS+nspec-1)) / state % u(irp_SRHO)
 
     state % y(SFS:SFS+nspec-1) = state % y(SFS:SFS+nspec-1) / nspec_sum
 
@@ -160,18 +177,27 @@ contains
 
     !$acc routine seq
 
-    use sdc_type_module, only: sdc_t
+    use sdc_type_module, only: sdc_t, SVAR_EVOLVE, SRHO, SMX, SMZ
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
     type (sdc_t) :: sdc
     type (bs_t) :: bs
 
-    bs % y = sdc % y
+    bs % y = sdc % y(1:SVAR_EVOLVE)
+    bs % y_init = bs % y
+    bs % ydot_a = sdc % ydot_a(1:SVAR_EVOLVE)
 
-    bs % ydot_a = sdc % ydot_a
+    bs % u(irp_SRHO) = sdc % y(SRHO)
+    bs % u(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
 
-    bs % i = sdc % i
+    bs % udot_a(irp_SRHO) = sdc % ydot_a(SRHO)
+    bs % udot_a(irp_SMX:irp_SMZ) = sdc % ydot_a(SMX:SMZ)
+
+    bs % u_init = bs % u
+
+    BS % i = sdc % i
     bs % j = sdc % j
     bs % k = sdc % k
 
@@ -185,14 +211,18 @@ contains
 
     !$acc routine seq
 
-    use sdc_type_module, only: sdc_t
+    use sdc_type_module, only: sdc_t, SRHO, SMX, SMZ
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
     type (sdc_t) :: sdc
     type (bs_t) :: bs
 
-    sdc % y = bs % y
+    sdc % y(1:SVAR_EVOLVE) = bs % y
+
+    sdc % y(SRHO) = bs % u(irp_SRHO)
+    sdc % y(SMX:SMZ) = bs % u(irp_SMX:irp_SMZ)
 
   end subroutine bs_to_sdc
 
@@ -204,7 +234,8 @@ contains
 
     use actual_network, only: nspec_evolve, aion
     use burn_type_module, only: burn_t, net_ienuc
-    use sdc_type_module, only: SRHO, SEDEN, SEINT, SFS
+    use sdc_type_module, only: SVAR_EVOLVE, SEDEN, SEINT, SFS
+    use rpar_indices, only: irp_SRHO
 
     implicit none
 
@@ -213,17 +244,19 @@ contains
 
     integer :: n
 
+    call fill_unevolved_variables(bs)
+
     ! Start with the contribution from the non-reacting sources
 
-    bs % ydot = bs % ydot_a
+    bs % ydot = bs % ydot_a(1:SVAR_EVOLVE)
 
     ! Add in the reacting terms from the burn_t
 
     bs % ydot(SFS:SFS+nspec_evolve-1) = bs % ydot(SFS:SFS+nspec_evolve-1) + &
-                                        bs % y(SRHO) * burn % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+                                        bs % u(irp_SRHO) * burn % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
-    bs % ydot(SEINT) = bs % ydot(SEINT) + bs % y(SRHO) * burn % ydot(net_ienuc)
-    bs % ydot(SEDEN) = bs % ydot(SEDEN) + bs % y(SRHO) * burn % ydot(net_ienuc)
+    bs % ydot(SEINT) = bs % ydot(SEINT) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
+    bs % ydot(SEDEN) = bs % ydot(SEDEN) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
 
   end subroutine rhs_to_bs
 
@@ -235,7 +268,7 @@ contains
 
     use actual_network, only: nspec_evolve, aion
     use burn_type_module, only: burn_t, net_ienuc
-    use sdc_type_module, only: SRHO, SEDEN, SEINT, SFS
+    use sdc_type_module, only: SEDEN, SEINT, SFS
 
     implicit none
 
@@ -252,7 +285,7 @@ contains
 
     bs % jac(SEDEN,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
     bs % jac(SEDEN,SEDEN) = burn % jac(net_ienuc,net_ienuc)
-    bs % jac(SEDEN,SEINT) = burn % Jac(net_ienuc,net_ienuc)
+    bs % jac(SEDEN,SEINT) = burn % jac(net_ienuc,net_ienuc)
 
     bs % jac(SEINT,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
     bs % jac(SEINT,SEDEN) = burn % jac(net_ienuc,net_ienuc)
@@ -272,7 +305,7 @@ contains
 
 
   subroutine bs_to_burn(bs, burn)
-    
+
     !$acc routine seq
 
     use actual_network, only: nspec
@@ -281,7 +314,8 @@ contains
     use bl_types, only: dp_t
     use eos_type_module, only: eos_input_re, eos_t
     use eos_module, only: eos, eos_get_small_temp, eos_get_max_temp
-    use sdc_type_module, only: SRHO, SMX, SMZ, SEDEN, SEINT, SFS
+    use sdc_type_module, only: SEDEN, SEINT, SFS
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
@@ -291,14 +325,18 @@ contains
 
     real(kind=dp_t) :: rhoInv, min_temp, max_temp
 
-    rhoInv = ONE / bs % y(SRHO)
+    ! Update rho, rho*u, etc.
 
-    eos_state % rho = bs % y(SRHO)
+    call fill_unevolved_variables(bs)
+
+    rhoInv = ONE / bs % u(irp_SRHO)
+
+    eos_state % rho = bs % u(irp_SRHO)
     eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
     if (bs % T_from_eden) then
 
-       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % y(SMX:SMZ)**2))
+       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2))
 
     else
 

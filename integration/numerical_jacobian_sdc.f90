@@ -10,7 +10,7 @@ contains
 
     use rhs_module, only: f_rhs
     use extern_probin_module, only: centered_diff_jac
-    use sdc_type_module, only: sdc_t, SVAR
+    use sdc_type_module, only: sdc_t, SVAR_EVOLVE
     use bs_type_module, only: bs_t
     use bl_constants_module, only: ZERO, HALF, ONE
     use bl_types, only: dp_t
@@ -36,7 +36,7 @@ contains
        state_delp = state
        state_delm = state
 
-       do n = 1, SVAR
+       do n = 1, SVAR_EVOLVE
 
           state_delp % y = state % y
           state_delp % y(n) = state % y(n) * (ONE + eps) + SMALL
@@ -48,7 +48,7 @@ contains
 
           call f_rhs(state_delm)
 
-          do m = 1, SVAR
+          do m = 1, SVAR_EVOLVE
 
              state % jac(m,n) = (state_delp % ydot(m) - state_delm % ydot(m)) / (state_delp % y(n) - state_delm % y(n))
 
@@ -60,14 +60,14 @@ contains
 
        state_delp = state
 
-       do n = 1, SVAR
+       do n = 1, SVAR_EVOLVE
 
           state_delp % y = state % y
           state_delp % y(n) = state % y(n) * (ONE + eps) + SMALL
 
           call f_rhs(state_delp)
 
-          do m = 1, SVAR
+          do m = 1, SVAR_EVOLVE
 
              state % jac(m,n) = (state_delp % ydot(m) - state % ydot(m)) / (state_delp % y(n) - state % y(n))
 

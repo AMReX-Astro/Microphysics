@@ -4,11 +4,16 @@
 
 module rpar_indices
 
+#ifndef SDC
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
+#else
+  use sdc_type_module, only: SVAR_EVOLVE
+#endif
 
   implicit none
 
+#ifndef SDC
   integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
   integer, parameter :: irp_nspec = 1
@@ -17,5 +22,12 @@ module rpar_indices
   integer, parameter :: irp_t0 = irp_t_sound + 1
 
   integer, parameter :: n_rpar_comps = irp_t0 + 1
+#else
+  integer, parameter :: irp_SRHO = 1
+  integer, parameter :: irp_SMX  = 2
+  integer, parameter :: irp_SMY  = 3
+  integer, parameter :: irp_SMZ  = 4
+  integer, parameter :: n_rpar_comps = irp_SMZ
+#endif
 
 end module rpar_indices

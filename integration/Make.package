@@ -18,4 +18,4 @@ else
 endif
 f90EXE_sources += integration_data.f90
 f90EXE_sources += temperature_integration.f90
-f90EXE_sources += rpar.f90
+F90EXE_sources += rpar.F90
