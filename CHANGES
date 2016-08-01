@@ -1,6 +1,12 @@
 
 changes since last merge:
 
+
+previous changes:
+
+
+* 16.08
+
  -- Microphysics/eos/ has been renamed Microphysics/EOS/ to better
     conform to the conventions used in Castro and Maestro
 
@@ -37,8 +43,6 @@ changes since last merge:
 
  -- a centered difference numerical Jacobian option was added
 
-
-previous changes:
 
 * 16.07
 
