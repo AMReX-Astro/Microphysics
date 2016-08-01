@@ -1,6 +1,7 @@
 
 changes since last merge:
 
+ -- num_rate_groups is now a property of the individual networks
 
 previous changes:
 
