@@ -42,8 +42,6 @@ module eos_type_module
   real(kind=dp_t), save :: smallt = 1.d-200
   real(kind=dp_t), save :: smalld = 1.d-200
 
-  real(kind=dp_t), save :: smallx = 1.d-200
-
   ! Minimum and maximum temperature, density, and ye permitted by the EOS.
 
   real(kind=dp_t), save :: mintemp = 1.d-200
@@ -153,7 +151,7 @@ module eos_type_module
 
   end type eos_t
 
-  !$acc declare create(smallt, smalld, smallx)
+  !$acc declare create(smallt, smalld)
   !$acc declare create(mintemp, maxtemp, mindens, maxdens, minye, maxye)
 
 contains
