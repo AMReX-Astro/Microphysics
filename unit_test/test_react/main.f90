@@ -19,7 +19,7 @@ program test_react
   use burn_type_module
   use actual_burner_module
   use microphysics_module
-  use eos_module, only : eos_get_small_temp, eos_get_small_dens
+  use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
   use network
   use util_module
   use variables

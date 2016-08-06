@@ -761,6 +761,7 @@ contains
 
     use tfactors_module
     use aprox_rates_module
+    use bl_constants_module, only: ZERO
 
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)

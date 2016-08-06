@@ -81,6 +81,7 @@ contains
     ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     logical          :: deriva = .false.
 
@@ -129,9 +130,12 @@ contains
 
   subroutine actual_jac(state)
 
+    use bl_constants_module, only: ZERO
+
     implicit none
 
     type (burn_t)    :: state
+    type (rate_t)    :: rr
 
     logical          :: deriva = .true.
 
@@ -296,6 +300,7 @@ contains
 
     use tfactors_module
     use aprox_rates_module
+    use bl_constants_module, only: ZERO
 
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)

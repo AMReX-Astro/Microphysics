@@ -58,6 +58,8 @@ contains
 
     !$acc routine seq
 
+    use bl_constants_module, only: ZERO
+
     implicit none
 
     ! This routine sets up the system of ode's for the aprox13
@@ -932,6 +934,7 @@ contains
 
     use tfactors_module
     use aprox_rates_module
+    use bl_constants_module, only: ZERO
 
     implicit none
 

@@ -250,6 +250,11 @@ contains
 
         double precision :: p_temp, e_temp
 
+        double precision :: smallt, smalld
+
+        call eos_get_small_temp(smallt)
+        call eos_get_small_dens(smalld)
+
         temp_row = state % T
         den_row  = state % rho
         abar_row = state % abar
@@ -936,7 +941,7 @@ contains
               if (dvar .eq. itemp) then
 
                  x = temp_row
-                 smallx = state % smallt
+                 smallx = smallt
                  xtol = ttol
 
                  if (var .eq. ipres) then
@@ -958,7 +963,7 @@ contains
               else ! dvar == density
 
                  x = den_row
-                 smallx = state % smalld
+                 smallx = smalld
                  xtol = dtol
 
                  if (var .eq. ipres) then
@@ -1072,8 +1077,8 @@ contains
               rnew = max(HALF * rold, min(rnew, TWO * rold))
 
               ! Don't let us freeze or evacuate
-              tnew = max(state % smallt, tnew)
-              rnew = max(state % smalld, rnew)
+              tnew = max(smallt, tnew)
+              rnew = max(smalld, rnew)
 
               ! Store the new temperature and density
               den_row  = rnew

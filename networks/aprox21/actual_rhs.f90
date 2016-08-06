@@ -91,6 +91,8 @@ contains
 
   subroutine actual_jac(state)
 
+    use bl_constants_module, only: ZERO
+
     implicit none
 
     type (burn_t)    :: state
@@ -755,6 +757,7 @@ contains
 
     use tfactors_module
     use aprox_rates_module
+    use bl_constants_module, only: ZERO
 
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
@@ -2351,6 +2354,7 @@ contains
 
     use network
     use microphysics_math_module, only: esum
+    use bl_constants_module, only: ZERO
 
     implicit none
 

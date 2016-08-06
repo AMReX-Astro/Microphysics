@@ -112,9 +112,6 @@ contains
     eos_state % T = MAX_TEMP
     eos_state % xn = state % y(SFS:SFS+nspec-1) / state % u(irp_SRHO)
 
-    eos_state % reset = .true.
-    eos_state % check_inputs = .false.
-
     call eos(eos_input_rt, eos_state)
 
     max_e = eos_state % e
@@ -351,18 +348,6 @@ contains
     call eos_get_max_temp(max_temp)
 
     eos_state % T = sqrt(min_temp * max_temp)
-
-    ! If the temperature is smaller than the EOS can handle, allow it to
-    ! reset the temperature accordingly.
-
-    eos_state % reset = .true.
-
-    ! Do not check the validity of inputs going into the EOS call.
-    ! Sometimes we may stray into a meaningless state and we want
-    ! to be able to get through the EOS call without a failure so
-    ! that we can return to a meaningful state in the convergence.
-
-    eos_state % check_inputs = .false.
 
     call eos(eos_input_re, eos_state)
     call eos_to_burn(eos_state, burn)
