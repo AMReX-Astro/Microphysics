@@ -208,6 +208,17 @@ publicly release it in this repository.
 
 \section{Input Validation}
 
+The EOS will make sure that the inputs are within an acceptable range,
+(e.g., {\tt small\_temp} $< T <$ {\tt maxT}).  If they are not, then it
+resets them silently---no error is thrown.
+
+If you are calling the EOS with {\tt eos\_input\_re}, and if $e <
+10^{-200}$, then it calls the EOS with {\tt eos\_input\_rt} with $T =
+\max\{ \mathtt{small\_temp}, T \}$.
+
+User's are encourage to do their own validation of inputs before calling
+the EOS.
+
 
 \section{EOS Structure}
 
