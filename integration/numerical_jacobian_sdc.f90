@@ -39,18 +39,18 @@ contains
        do n = 1, SVAR_EVOLVE
 
           state_delp % y = state % y
-          state_delp % y(n) = state % y(n) * (ONE + eps) + SMALL
+          state_delp % y(n) = state % y(n) * (ONE + eps)
 
           call f_rhs(state_delp)
 
           state_delm % y = state % y
-          state_delm % y(n) = state % y(n) * (ONE - eps) - SMALL
+          state_delm % y(n) = state % y(n) * (ONE - eps)
 
           call f_rhs(state_delm)
 
           do m = 1, SVAR_EVOLVE
 
-             state % jac(m,n) = (state_delp % ydot(m) - state_delm % ydot(m)) / (state_delp % y(n) - state_delm % y(n))
+             state % jac(m,n) = (state_delp % ydot(m) - state_delm % ydot(m)) / ((state_delp % y(n) - state_delm % y(n)) + SMALL)
 
           enddo
 
@@ -63,13 +63,13 @@ contains
        do n = 1, SVAR_EVOLVE
 
           state_delp % y = state % y
-          state_delp % y(n) = state % y(n) * (ONE + eps) + SMALL
+          state_delp % y(n) = state % y(n) * (ONE + eps)
 
           call f_rhs(state_delp)
 
           do m = 1, SVAR_EVOLVE
 
-             state % jac(m,n) = (state_delp % ydot(m) - state % ydot(m)) / (state_delp % y(n) - state % y(n))
+             state % jac(m,n) = (state_delp % ydot(m) - state % ydot(m)) / ((state_delp % y(n) - state % y(n)) + SMALL)
 
           enddo
 
