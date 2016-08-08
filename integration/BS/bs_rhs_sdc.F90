@@ -35,10 +35,6 @@ contains
 
     call bs_to_burn(bs, burn)
 
-    ! Indicate that we don't yet have valid rates.
-
-    burn % have_rates = .false.
-
     ! Call the specific network routine to get its RHS.
 
     call actual_rhs(burn)

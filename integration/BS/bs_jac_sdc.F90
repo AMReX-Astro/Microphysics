@@ -30,10 +30,6 @@ contains
 
        burn % jac = ZERO
 
-       ! Indicate that we don't yet have valid rates.
-
-       burn % have_rates = .false.
-
        call bs_to_burn(bs, burn)
 
        call actual_jac(burn)
