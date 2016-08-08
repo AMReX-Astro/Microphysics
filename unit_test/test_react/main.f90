@@ -44,6 +44,8 @@ program test_react
 
   integer :: dm, nlevs
 
+  integer :: n_rhs_min, n_rhs_max, n_rhs_avg
+
   type(plot_t) :: pf
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
@@ -125,6 +127,11 @@ program test_react
   enddo
 
   n = 1  ! single level assumption
+
+  n_rhs_avg = 0
+  n_rhs_max = -100000000
+  n_rhs_min = 100000000
+
   do i = 1, nfabs(s(n))
      sp => dataptr(s(n), i)
 
@@ -135,6 +142,7 @@ program test_react
 
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
      !$OMP FIRSTPRIVATE(burn_state_in, ldt) &
+     !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 
      !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, ldt) &
@@ -176,6 +184,10 @@ program test_react
               sp(ii, jj, kk, pf % irho_hnuc) = &
                    dens_zone * (burn_state_out % e - burn_state_in % e) / ldt
 
+              n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
+              n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
+              n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
+
            enddo
         enddo
      enddo
@@ -186,6 +198,13 @@ program test_react
 
   enddo
 
+  ! note: integer division
+  n_rhs_avg = n_rhs_avg/(nT*nrho*nX)
+
+  print *, "RHS stats:"
+  print *, "  min: ", n_rhs_min
+  print *, "  avg: ", n_rhs_avg
+  print *, "  max: ", n_rhs_max
 
   ! output
   out_name = trim(run_prefix) // "test_react." // trim(integrator_dir)
