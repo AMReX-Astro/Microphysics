@@ -331,6 +331,11 @@ contains
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)
 
+    ! get the number of RHS calls and jac evaluations from the VODE
+    ! work arrays
+    state_out % n_rhs = iwork(12)
+    state_out % n_jac = iwork(13)
+
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)
     endif
