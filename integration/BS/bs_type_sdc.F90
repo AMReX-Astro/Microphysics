@@ -47,6 +47,7 @@ module bs_type_module
      real(kind=dp_t) :: u(n_rpar_comps), u_init(n_rpar_comps), udot_a(n_rpar_comps)
      real(kind=dp_t) :: t, dt, tmax
      integer         :: n
+
      integer         :: n_rhs, n_jac
 
      integer :: i, j, k
@@ -194,9 +195,12 @@ contains
 
     bs % u_init = bs % u
 
-    BS % i = sdc % i
+    bs % i = sdc % i
     bs % j = sdc % j
     bs % k = sdc % k
+
+    bs % n_rhs = sdc % n_rhs
+    bs % n_rhs = sdc % n_rhs
 
     bs % T_from_eden = sdc % T_from_eden
 
@@ -220,6 +224,9 @@ contains
 
     sdc % y(SRHO) = bs % u(irp_SRHO)
     sdc % y(SMX:SMZ) = bs % u(irp_SMX:irp_SMZ)
+
+    sdc % n_rhs = bs % n_rhs
+    sdc % n_jac = bs % n_jac
 
   end subroutine bs_to_sdc
 
@@ -300,7 +307,6 @@ contains
   end subroutine jac_to_bs
 
 
-
   subroutine bs_to_burn(bs, burn)
 
     !$acc routine seq
@@ -353,6 +359,9 @@ contains
     call eos_to_burn(eos_state, burn)
 
     burn % time = bs % t
+
+    burn % n_rhs = n_rhs
+    burn % n_jac = n_jac
 
   end subroutine bs_to_burn
 

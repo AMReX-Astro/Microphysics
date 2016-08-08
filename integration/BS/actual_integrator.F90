@@ -109,6 +109,9 @@ contains
     bs % burn_s % j = state_in % j
     bs % burn_s % k = state_in % k
 
+    bs % burn_s % n_rhs = 0
+    bs % burn_s % n_jac = 0
+
     ! Get the internal energy e that is consistent with this T.
     ! We will start the zone with this energy and subtract it at
     ! the end. This helps a lot with convergence, rather than
@@ -298,8 +301,8 @@ contains
        print *, 'xn final = ', state_out % xn
        print *, 'energy generated = ', state_out % e - state_in % e
        print *, 'number of steps taken: ', bs % n
-       print *, 'number of RHS evaluations: ', bs % n_rhs
-       print *, 'number of Jacobian evaluations: ', bs % n_jac
+       print *, 'number of RHS evaluations: ', state_out % n_rhs
+       print *, 'number of Jacobian evaluations: ', state_out % n_jac
 
     endif
 #endif

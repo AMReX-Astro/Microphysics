@@ -90,7 +90,7 @@ contains
 
     ! Increment the evaluation counter.
 
-    bs % n_rhs = bs % n_rhs + 1
+    bs % burn_s % n_rhs = bs % burn_s % n_rhs + 1
 
   end subroutine f_rhs
 

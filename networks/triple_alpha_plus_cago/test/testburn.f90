@@ -53,6 +53,8 @@ program testburn
 
   print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
 
+  print *, "number of RHS evaluations", state_out % n_rhs
+
   call microphysics_finalize()
 
 end program testburn

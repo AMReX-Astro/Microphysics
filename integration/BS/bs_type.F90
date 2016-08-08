@@ -44,7 +44,6 @@ module bs_type_module
      real(kind=dp_t) :: upar(n_rpar_comps)
      real(kind=dp_t) :: t, dt, tmax
      integer         :: n
-     integer         :: n_rhs, n_jac
 
      type(burn_t) :: burn_s
 

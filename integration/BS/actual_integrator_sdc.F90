@@ -63,6 +63,9 @@ contains
 
     call sdc_to_bs(state_in, bs)
 
+    bs % n_rhs = 0
+    bs % n_jac = 0
+
     ! Call the integration routine.
 
     call ode(bs, t0, t1, maxval(bs % rtol), ierr)

@@ -51,8 +51,6 @@ contains
     ierr = IERR_NONE
 
     bs % eps_old = ZERO
-    bs % n_rhs = 0
-    bs % n_jac = 0
 
     if (use_timestep_estimator) then
        call f_rhs(bs)
@@ -237,7 +235,11 @@ contains
     endif
 
     bs_temp = bs
+#ifdef SDC
     bs_temp % n_rhs = 0
+#else
+    bs_temp % burn_s % n_rhs = 0
+#endif
 
     ! do an Euler step to get the RHS for the first substep
     t = bs % t
@@ -289,7 +291,11 @@ contains
 
     ! Store the number of function evaluations.
 
+#ifdef SDC
     bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
+#else
+    bs % burn_s % n_rhs = bs % burn_s % n_rhs + bs_temp % burn_s % n_rhs
+#endif
 
   end subroutine semi_implicit_extrap
 
