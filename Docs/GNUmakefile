@@ -16,6 +16,7 @@ section_sources = MicrophysicsUsersGuide.tex \
                   runtime_parameters/rp_intro.tex \
                   runtime_parameters/runtime_parameters.tex \
                   networks/networks.tex \
+                  openacc/openacc.tex \
                   unit_tests/unit_tests.tex \
                   maestrosymbols.tex 
 

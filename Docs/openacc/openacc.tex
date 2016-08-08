@@ -1,0 +1,23 @@
+\section{General Ideas}
+
+
+
+\section{Common Compiler Errors}
+
+\subsection{PGI}
+
+\begin{itemize}
+  \item 
+    \begin{verbatim}
+Unhandled builtin: 601 (pgf90_mzero8)
+PGF90-F-0000-Internal compiler error. Unhandled builtin function.       
+  0 (../../networks/triple_alpha_plus_cago/actual_rhs.f90: 146)
+PGF90/x86-64 Linux 16.5-0: compilation aborted
+\end{verbatim}
+
+    This error results from doing a multi-d array copy (with Fortran
+    notation) in GPU code.  The fix is to explicitly write out a loop
+    over rows.
+
+\end{itemize}
+
