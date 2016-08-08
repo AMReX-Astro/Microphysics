@@ -138,20 +138,19 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     ldt = tmax
-
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
-     !$OMP FIRSTPRIVATE(burn_state_in, ldt) &
+     !$OMP FIRSTPRIVATE(burn_state_in) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 
-     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, ldt) &
-     !$acc      copyout(sp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), :))
+     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone) &
+     !$acc      copyout(sp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), :)) 
 
-     !$acc parallel
+     !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
 
      !$acc loop gang vector collapse(3) private(temp_zone, dens_zone) &
      !$acc private(burn_state_in, burn_state_out)
+
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
@@ -167,23 +166,31 @@ program test_react
               ! energy.
               burn_state_in % e = ZERO
 
-              call actual_burner(burn_state_in, burn_state_out, ldt, ZERO)
+              call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
               ! store
               sp(ii, jj, kk, pf % irho) = dens_zone
               sp(ii, jj, kk, pf % itemp) = temp_zone
-              sp(ii, jj, kk, pf % ispec_old: pf % ispec_old-1+nspec) = &
-                   burn_state_in % xn(:)
 
-              sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = burn_state_out % xn(:)
+              do j = 1, nspec
+                 sp(ii, jj, kk, pf % ispec_old + j - 1) = burn_state_in % xn(j)
+              enddo
+
+              do j = 1, nspec
+                 sp(ii, jj, kk, pf % ispec + j - 1) = burn_state_out % xn(j)
+              enddo
+
+                            
               do j=1, nspec
                  ! an explicit loop is needed here to keep the GPU happy
                  sp(ii, jj, kk, pf % irodot + j - 1) = &
-                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / ldt
+                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
               enddo
-              sp(ii, jj, kk, pf % irho_hnuc) = &
-                   dens_zone * (burn_state_out % e - burn_state_in % e) / ldt
 
+
+              sp(ii, jj, kk, pf % irho_hnuc) = &
+                   dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
+              
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
               n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
               n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
