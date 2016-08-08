@@ -22,6 +22,8 @@ contains
 
   subroutine make_rates(temp, dens, rates, dratesdt)
 
+    !$acc routine seq
+    
     ! rates given in terms of molar fractions
 
     real(kind=dp_t), intent(IN   ) :: temp, dens

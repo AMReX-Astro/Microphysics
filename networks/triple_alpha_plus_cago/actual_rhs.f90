@@ -22,6 +22,8 @@ contains
 
   subroutine get_rates(state, rr)
 
+    !$acc routine seq
+    
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -47,6 +49,8 @@ contains
 
   subroutine actual_rhs(state)
 
+    !$acc routine seq
+    
     use temperature_integration_module, only: temperature_rhs
 
     implicit none
@@ -80,6 +84,9 @@ contains
 
   subroutine actual_jac(state)
 
+    !$acc routine seq
+
+    use burn_type_module, only : neqs
     use temperature_integration_module, only: temperature_jac
 
     implicit none
@@ -98,8 +105,10 @@ contains
     dratesdt(:) = rr % rates(2,:)
 
     ! initialize
-    state % jac = ZERO
-
+    do j = 1, neqs
+       state % jac(:,j) = ZERO
+    enddo
+    
     ymol = state % xn / aion
 
     ! ======================================================================
@@ -140,9 +149,10 @@ contains
   end subroutine actual_jac
 
 
-
   subroutine ener_gener_rate(dydt, enuc)
 
+    !$acc routine seq
+    
     use network
 
     implicit none

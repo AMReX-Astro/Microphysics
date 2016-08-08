@@ -17,6 +17,8 @@ contains
 
   subroutine screen(temp, dens, ymol, rates, dratesdt)
 
+    !$acc routine seq
+    
     use screening_module, only: screenz
 
     real(kind=dp_t), intent(IN   ) :: temp, dens, ymol(nspec)
