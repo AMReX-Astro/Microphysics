@@ -64,11 +64,9 @@ module stiff_ode
   real(kind=dp_t), parameter :: PGROW = -0.25_dp_t
   real(kind=dp_t), parameter :: SHRINK = HALF
   real(kind=dp_t), parameter :: PSHRINK = -THIRD
-  real(kind=dp_t), parameter :: ERRCON = 0.1296
+  real(kind=dp_t), parameter :: ERRCON = 0.1296_dp_t
 
   integer, parameter :: MAX_TRY = 50
-
-  
 
 contains
 
@@ -757,7 +755,7 @@ contains
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g4, 0)
 
        ! now construct our 4th order estimate of y
-       bs_temp % y(:) = bs_temp % y(:) + B1*g1(:) + B2*g2(:) + B3*g3(:) + B4*g4(:)
+       bs_temp % y(:) = bs % y(:) + B1*g1(:) + B2*g2(:) + B3*g3(:) + B4*g4(:)
        bs_temp % t = bs % t + h
        err(:) = E1*g1(:) + E2*g2(:) + E3*g3(:) + E4*g4(:)
 
