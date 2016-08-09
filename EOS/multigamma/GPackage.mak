@@ -1,1 +1,1 @@
-f90sources += multigamma.f90
+f90sources += actual_eos.f90

@@ -1,1 +1,1 @@
-F90EXE_sources += gamma_law_general.F90
+F90EXE_sources += actual_eos.F90

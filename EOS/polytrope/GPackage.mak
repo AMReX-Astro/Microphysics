@@ -1,1 +1,1 @@
-f90_sources += polytrope.f90
+f90_sources += actual_eos.f90

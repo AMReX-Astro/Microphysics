@@ -1,2 +1,2 @@
-F90sources += helmholtz.F90
+F90sources += actual_eos.F90
 
