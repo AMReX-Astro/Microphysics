@@ -12,3 +12,6 @@ ode_max_steps                integer         10000
 # Floor to use for the ODE scaling vector
 ode_scale_floor              real            1.d-6
 
+# use an implementation of the Bulirsch-Stoer semi-implicit
+# extrapolation method (1) or a Rosenbrock method (2)
+ode_method                   integer         1

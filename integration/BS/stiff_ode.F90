@@ -32,7 +32,7 @@ module stiff_ode
   real(kind=dp_t), parameter :: RED_SMALL_FACTOR = 1.e-5_dp_t
   real(kind=dp_t), parameter :: SCALMX = 0.1_dp_t
 
-  ! these are parameters for the Rossenbock method
+  ! these are parameters for the Rosenbrock method
   real(kind=dp_t), parameter :: GAMMA = HALF
   real(kind=dp_t), parameter :: A21 = TWO
   real(kind=dp_t), parameter :: A31 = 48.0_dp_t/25.0_dp_t
@@ -84,7 +84,8 @@ contains
     !$acc routine seq
     !$acc routine(f_rhs) seq
 
-    use extern_probin_module, only: ode_max_steps, use_timestep_estimator, scaling_method, ode_scale_floor
+    use extern_probin_module, only: ode_max_steps, use_timestep_estimator, &
+                                    scaling_method, ode_scale_floor, ode_method
 #ifndef ACC
     use bl_error_module, only: bl_error
 #endif
@@ -135,7 +136,7 @@ contains
 
 #ifndef ACC
        else
-          call bl_error("Unknown scaling method in subroutine get_scaling_vector.")
+          call bl_error("Unknown scaling_method in ode")
 #endif
        endif
 
@@ -145,7 +146,15 @@ contains
        ! take a step -- this routine will update the solution vector,
        ! advance the time, and also give an estimate of the next step
        ! size
-       call single_step_bs(bs, eps, yscal, ierr)
+       if (ode_method == 1) then
+          call single_step_bs(bs, eps, yscal, ierr)
+       else if (ode_method == 2) then
+          call single_step_rosen(bs, eps, yscal, ierr)
+#ifndef ACC
+       else
+          call bl_error("Unknown ode_method in ode")
+#endif
+       endif
 
        ! finished?
        if (bs % t - tmax >= ZERO) then
@@ -628,9 +637,9 @@ contains
   end subroutine poly_extrap
 
 
-  subroutine single_step_rossen(bs, eps, yscal, ierr)
+  subroutine single_step_rosen(bs, eps, yscal, ierr)
 
-    ! this does a single step of the Rossenbock method.  Note: we
+    ! this does a single step of the Rosenbrock method.  Note: we
     ! assume here that our RHS is not an explicit function of t, but
     ! only of our integration variable, y
 
@@ -783,7 +792,7 @@ contains
              ! try again
 
              ! this is essentially the step control from Stoer &
-             ! Burlish (TAM) Eq. 7.2.5.17, as shown on p. 493
+             ! Bulircsh (TAM) Eq. 7.2.5.17, as shown on p. 493
              h_tmp = SAFETY*h*errmax**PSHRINK
 
              h = sign(max(abs(h_tmp), SHRINK*abs(h)), h)
@@ -799,7 +808,7 @@ contains
        ierr = IERR_NO_CONVERGENCE
     endif
 
-  end subroutine single_step_rossen
+  end subroutine single_step_rosen
 
 end module stiff_ode
 
