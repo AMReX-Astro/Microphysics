@@ -1,6 +1,3 @@
-! A variable-sized stepsize driver for the BS integrator,
-! based on the NR routine
-
 module stiff_ode
 
   use bl_constants_module
@@ -21,6 +18,11 @@ contains
   ! integrate from t to tmax
 
   subroutine ode(bs, t, tmax, eps, ierr)
+
+    ! this is a basic driver for the ODE integration, based on the NR
+    ! routine.  This calls an integration method to take a single step
+    ! and return an estimate of the net step size needed to achieve
+    ! our desired tolerance.
 
     !$acc routine seq
     !$acc routine(f_rhs) seq
@@ -86,7 +88,7 @@ contains
        ! take a step -- this routine will update the solution vector,
        ! advance the time, and also give an estimate of the next step
        ! size
-       call single_step(bs, eps, yscal, ierr)
+       call single_step_bs(bs, eps, yscal, ierr)
 
        ! finished?
        if (bs % t - tmax >= ZERO) then
@@ -114,6 +116,9 @@ contains
 
 
   subroutine initial_timestep(bs)
+
+    ! this is a version of the timestep estimation algorithm used by
+    ! VODE
 
     !$acc routine seq
     !$acc routine(f_rhs) seq
@@ -301,7 +306,7 @@ contains
 
 
 
-  subroutine single_step(bs, eps, yscal, ierr)
+  subroutine single_step_bs(bs, eps, yscal, ierr)
 
     !$acc routine seq
     !$acc routine(jac) seq
@@ -472,11 +477,11 @@ contains
     ! that means something went really wrong and we should abort.
 
     if (km < 0) then
-       call bl_error("Error: km < 0 in subroutine single_step, something has gone wrong.")
+       call bl_error("Error: km < 0 in subroutine single_step_bs, something has gone wrong.")
     endif
 
     if (kstop < 0) then
-       call bl_error("Error: kstop < 0 in subroutine single_step, something has gone wrong.")
+       call bl_error("Error: kstop < 0 in subroutine single_step_bs, something has gone wrong.")
     endif
 #endif
 
@@ -508,7 +513,7 @@ contains
        endif
     endif
 
-  end subroutine single_step
+  end subroutine single_step_bs
 
 
   subroutine poly_extrap(iest, test, yest, yz, dy, t, qcol)
