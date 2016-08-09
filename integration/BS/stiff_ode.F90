@@ -32,7 +32,37 @@ module stiff_ode
   real(kind=dp_t), parameter :: RED_SMALL_FACTOR = 1.e-5_dp_t
   real(kind=dp_t), parameter :: SCALMX = 0.1_dp_t
 
-  ! these a
+  ! these are parameters for the Rossenbock method
+  real(kind=dp_t), parameter :: GAMMA = HALF
+  real(kind=dp_t), parameter :: A21 = TWO
+  real(kind=dp_t), parameter :: A31 = 48.0_dp_t/25.0_dp_t
+  real(kind=dp_t), parameter :: A32 = SIX/25.0_dp_t
+  real(kind=dp_t), parameter :: C21 = -EIGHT
+  real(kind=dp_t), parameter :: C31 = 372.0_dp_t/25.0_dp_t
+  real(kind=dp_t), parameter :: C32 = TWELVE/FIVE
+  real(kind=dp_t), parameter :: C41 = -112.0_dp_t/125.0_dp_t
+  real(kind=dp_t), parameter :: C42 = -54.0_dp_t/125.0_dp_t
+  real(kind=dp_t), parameter :: C43 = -TWO/FIVE
+  real(kind=dp_t), parameter :: B1 = 19.0_dp_t/NINE
+  real(kind=dp_t), parameter :: B2 = HALF
+  real(kind=dp_t), parameter :: B3 = 25.0_dp_t/108.0_dp_t
+  real(kind=dp_t), parameter :: B4 = 125.0_dp_t/108.0_dp_t
+  real(kind=dp_t), parameter :: E1 = 17.0_dp_t/54.0_dp_t
+  real(kind=dp_t), parameter :: E2 = 7.0_dp_t/36.0_dp_t
+  real(kind=dp_t), parameter :: E3 = ZERO
+  real(kind=dp_t), parameter :: E4 = 125.0_dp_t/108.0_dp_t
+  real(kind=dp_t), parameter :: A2X = ONE
+  real(kind=dp_t), parameter :: A3X = THREE/FIVE
+
+  real(kind=dp_t), parameter :: SAFETY = 0.9_dp_t
+  real(kind=dp_t), parameter :: GROW = 1.5_dp_t
+  real(kind=dp_t), parameter :: PGROW = -0.25_dp_t
+  real(kind=dp_t), parameter :: SHRINK = HALF
+  real(kind=dp_t), parameter :: PSHRINK = -THIRD
+  real(kind=dp_t), parameter :: ERRCON = 0.1296
+
+  integer, parameter :: MAX_TRY = 50
+
   
 
 contains
@@ -480,7 +510,7 @@ contains
 
        enddo
 
-       if (.not. converged .and. IERR == IERR_NONE) then
+       if (.not. converged .and. ierr == IERR_NONE) then
           red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
           dt = dt*red
        else
@@ -489,8 +519,8 @@ contains
 
     enddo   ! while loop
 
-    if (.not. converged) then
-       IERR = IERR_NO_CONVERGENCE
+    if (.not. converged .and. ierr == IERR_NONE) then
+       ierr = IERR_NO_CONVERGENCE
     endif
 
 #ifndef ACC
@@ -592,6 +622,175 @@ contains
 
   end subroutine poly_extrap
 
+
+  subroutine single_step_rossen(bs, eps, yscal, ierr)
+
+    ! this does a single step of the Rossenbock method.  Note: we
+    ! assume here that our RHS is not an explicit function of t, but
+    ! only of our integration variable, y
+
+    !$acc routine seq
+    !$acc routine(jac) seq
+
+#ifndef ACC
+    use bl_error_module, only: bl_error
+#endif
+
+    implicit none
+
+    type (bs_t) :: bs
+    real(kind=dp_t), intent(in) :: eps
+    real(kind=dp_t), intent(in) :: yscal(bs_neqs)
+    integer, intent(out) :: ierr
+    
+    real(kind=dp_t) :: A(bs_neqs,bs_neqs)
+    real(kind=dp_t) :: g1(bs_neqs), g2(bs_neqs), g3(bs_neqs), g4(bs_neqs)
+    real(kind=dp_t) :: err(bs_neqs)
+
+    real(kind=dp_t) :: h, h_tmp, errmax
+
+    integer :: q, n
+
+    integer :: ipiv(bs_neqs), ierr_linpack
+
+    type (bs_t) :: bs_temp
+
+    logical :: converged
+
+    h = bs % dt
+
+    ! note: we come in already with a RHS evalulation from the driver
+
+    ! get the jacobian
+    call jac(bs)
+
+    ierr = IERR_NONE
+
+    converged = .false.
+
+    do q = 1, MAX_TRY
+
+       bs_temp = bs
+
+       ! create I/(gamma h) - ydot -- this is the matrix used for all the
+       ! linear systems that comprise a single step
+#ifdef SDC
+       A(:,:) = -bs % jac(:,:)
+#else
+       A(:,:) = -bs % burn_s % jac(:,:)
+#endif
+       do n = 1, bs_neqs
+          A(n,n) = ONE/(gamma * h) + A(n,n)
+       enddo
+       
+       ! LU decomposition
+       call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+       if (ierr_linpack /= 0) then
+          ierr = IERR_LU_DECOMPOSITION_ERROR
+       endif
+       
+       ! setup the first RHS and solve the linear system (note: the linear
+       ! solve replaces the RHS with the solution in place)
+#ifdef SDC
+       g1(:) = bs % ydot(:)
+#else
+       g1(:) = bs % burn_s % ydot(:)
+#endif
+
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g1, 0)
+
+       ! new value of y
+       bs_temp % y(:) = bs % y(:) + A21*g1(:)
+       bs_temp % t = bs % t + A2X*h
+       
+       ! get derivatives at this intermediate position and setup the next
+       ! RHS
+       call f_rhs(bs_temp)
+
+#ifdef SDC
+       g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
+#else
+       g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
+#endif       
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g2, 0)
+
+       ! new value of y
+       bs_temp % y(:) = bs % y(:) + A31*g1(:) + A32*g2(:)
+       bs_temp % t = bs % t + A3X*h
+
+       ! get derivatives at this intermediate position and setup the next
+       ! RHS
+       call f_rhs(bs_temp)
+
+#ifdef SDC
+       g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
+#else
+       g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
+#endif
+       
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g3, 0)
+
+       ! our choice of parameters prevents us from needing another RHS 
+       ! evaluation here
+
+       ! final intermediate RHS
+#ifdef SDC
+       g4(:) = bs_temp % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
+#else
+       g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
+#endif
+       
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g4, 0)
+
+       ! now construct our 4th order estimate of y
+       bs_temp % y(:) = bs_temp % y(:) + B1*g1(:) + B2*g2(:) + B3*g3(:) + B4*g4(:)
+       bs_temp % t = bs % t + h
+       err(:) = E1*g1(:) + E2*g2(:) + E3*g3(:) + E4*g4(:)
+
+       if (bs_temp % t == bs % t) then
+          ierr = IERR_DT_UNDERFLOW
+          exit
+       endif
+
+       ! get the error and scale it to the desired tolerance
+       errmax = maxval(abs(err(:)/yscal(:)))
+       errmax = errmax/eps
+
+       if (errmax <= 1) then
+          ! we were successful -- store the solution
+          bs % y(:) = bs_temp % y(:)
+          bs % t = bs_temp % t
+
+          bs % dt_did = h
+          if (errmax > ERRCON) then
+             bs % dt_next = SAFETY*h*errmax**PGROW
+          else
+             bs % dt_next = GROW*h
+          endif
+          
+          converged = .true.
+          exit
+
+       else
+
+          if (ierr == IERR_NONE) then
+             ! integration did not meet error criteria.  Return h and
+             ! try again
+             h_tmp = SAFETY*h*errmax**PSHRINK
+             h = sign(max(abs(h_tmp), SHRINK*abs(h)), h)
+          else
+             ! we encountered some errors
+             exit
+          endif
+       endif
+
+    enddo
+    
+    if (.not. converged .and. ierr == IERR_NONE) then
+       ierr = IERR_NO_CONVERGENCE
+    endif
+
+  end subroutine single_step_rossen
 
 end module stiff_ode
 
