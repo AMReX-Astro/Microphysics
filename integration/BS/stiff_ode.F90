@@ -13,6 +13,28 @@ module stiff_ode
   real(kind=dp_t), parameter, private :: dt_ini = 1.d-16
   real(kind=dp_t), parameter, private :: SMALL = 1.d-30
 
+
+  ! error codes
+  integer, parameter :: IERR_NONE = 0
+  integer, parameter :: IERR_DT_TOO_SMALL = -100
+  integer, parameter :: IERR_TOO_MANY_STEPS = -101
+  integer, parameter :: IERR_DT_UNDERFLOW = -102
+  integer, parameter :: IERR_NO_CONVERGENCE = -103
+
+  integer, parameter :: IERR_LU_DECOMPOSITION_ERROR = -200
+
+
+  ! these are parameters for the BS method
+  real(kind=dp_t), parameter :: S1 = 0.25_dp_t
+  real(kind=dp_t), parameter :: S2 = 0.7_dp_t
+
+  real(kind=dp_t), parameter :: RED_BIG_FACTOR = 0.7_dp_t
+  real(kind=dp_t), parameter :: RED_SMALL_FACTOR = 1.e-5_dp_t
+  real(kind=dp_t), parameter :: SCALMX = 0.1_dp_t
+
+  ! these a
+  
+
 contains
 
   ! integrate from t to tmax
@@ -569,6 +591,7 @@ contains
     endif
 
   end subroutine poly_extrap
+
 
 end module stiff_ode
 

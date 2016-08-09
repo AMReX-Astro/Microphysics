@@ -12,22 +12,6 @@ module bs_type_module
 
   integer, parameter :: bs_neqs = neqs
 
-  ! error codes
-  integer, parameter :: IERR_NONE = 0
-  integer, parameter :: IERR_DT_TOO_SMALL = -100
-  integer, parameter :: IERR_TOO_MANY_STEPS = -101
-  integer, parameter :: IERR_DT_UNDERFLOW = -102
-  integer, parameter :: IERR_NO_CONVERGENCE = -103
-
-  integer, parameter :: IERR_LU_DECOMPOSITION_ERROR = -200
-
-  real(kind=dp_t), parameter :: S1 = 0.25_dp_t
-  real(kind=dp_t), parameter :: S2 = 0.7_dp_t
-
-  real(kind=dp_t), parameter :: RED_BIG_FACTOR = 0.7_dp_t
-  real(kind=dp_t), parameter :: RED_SMALL_FACTOR = 1.e-5_dp_t
-  real(kind=dp_t), parameter :: SCALMX = 0.1_dp_t
-
   type bs_t
      logical :: first
      real(kind=dp_t) :: eps_old
