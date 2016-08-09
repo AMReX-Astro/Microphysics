@@ -37,6 +37,11 @@ module stiff_ode
   real(kind=dp_t), parameter :: A21 = TWO
   real(kind=dp_t), parameter :: A31 = 48.0_dp_t/25.0_dp_t
   real(kind=dp_t), parameter :: A32 = SIX/25.0_dp_t
+  ! note: we are using the fact here that for both the original Kaps
+  ! and Rentrop params and the parameters from Shampine (that NR
+  ! likes) we have A41 = A31, A42 = A32, and A43 = 0, so the last 2
+  ! solves use the same intermediate y (see Stoer & Bulirsch, TAM,
+  ! p. 492)
   real(kind=dp_t), parameter :: C21 = -EIGHT
   real(kind=dp_t), parameter :: C31 = 372.0_dp_t/25.0_dp_t
   real(kind=dp_t), parameter :: C32 = TWELVE/FIVE
@@ -776,7 +781,11 @@ contains
           if (ierr == IERR_NONE) then
              ! integration did not meet error criteria.  Return h and
              ! try again
+
+             ! this is essentially the step control from Stoer &
+             ! Burlish (TAM) Eq. 7.2.5.17, as shown on p. 493
              h_tmp = SAFETY*h*errmax**PSHRINK
+
              h = sign(max(abs(h_tmp), SHRINK*abs(h)), h)
           else
              ! we encountered some errors
