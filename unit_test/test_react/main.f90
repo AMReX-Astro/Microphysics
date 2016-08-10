@@ -58,7 +58,7 @@ program test_react
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
-  real (kind=dp_t) :: sum_X, ldt
+  real (kind=dp_t) :: sum_X
 
   character (len=256) :: out_name
 
