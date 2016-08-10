@@ -1,2 +1,2 @@
-f90sources += eos_stuff.f90
+f90sources += actual_eos.f90
 

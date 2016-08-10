@@ -72,6 +72,15 @@ contains
 
   ! integrate from t to tmax
 
+  subroutine safety_check(y, retry)
+    !$acc routine seq
+
+    real(kind=dp_t), intent(in) :: y(bs_neqs)
+    logical, intent(out) :: retry
+
+    
+  end subroutine safety_check
+  
   subroutine ode(bs, t, tmax, eps, ierr)
 
     ! this is a basic driver for the ODE integration, based on the NR
@@ -80,7 +89,6 @@ contains
     ! our desired tolerance.
 
     !$acc routine seq
-    !$acc routine(f_rhs) seq
 
     use extern_probin_module, only: ode_max_steps, use_timestep_estimator, &
                                     scaling_method, ode_scale_floor, ode_method
@@ -185,7 +193,6 @@ contains
     ! VODE
 
     !$acc routine seq
-    !$acc routine(f_rhs) seq
 
     type (bs_t), intent(inout) :: bs
 
@@ -259,7 +266,6 @@ contains
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
 
     !$acc routine seq
-    !$acc routine(f_rhs) seq
     !$acc routine(dgesl) seq
     !$acc routine(dgefa) seq
 
@@ -373,7 +379,6 @@ contains
   subroutine single_step_bs(bs, eps, yscal, ierr)
 
     !$acc routine seq
-    !$acc routine(jac) seq
 
 #ifndef ACC
     use bl_error_module, only: bl_error
@@ -642,7 +647,8 @@ contains
     ! only of our integration variable, y
 
     !$acc routine seq
-    !$acc routine(jac) seq
+    !$acc routine(dgesl) seq
+    !$acc routine(dgefa) seq
 
 #ifndef ACC
     use bl_error_module, only: bl_error
@@ -680,7 +686,8 @@ contains
 
     converged = .false.
 
-    do q = 1, MAX_TRY
+    q = 1
+    do while (q <= MAX_TRY .and. .not. converged .and. ierr == IERR_NONE)
 
        bs_temp = bs
 
@@ -761,7 +768,6 @@ contains
 
        if (bs_temp % t == bs % t) then
           ierr = IERR_DT_UNDERFLOW
-          exit
        endif
 
        ! get the error and scale it to the desired tolerance
@@ -781,25 +787,20 @@ contains
           endif
           
           converged = .true.
-          exit
 
-       else
+       else if (ierr == IERR_NONE) then
+          ! integration did not meet error criteria.  Return h and
+          ! try again
 
-          if (ierr == IERR_NONE) then
-             ! integration did not meet error criteria.  Return h and
-             ! try again
+          ! this is essentially the step control from Stoer &
+          ! Bulircsh (TAM) Eq. 7.2.5.17, as shown on p. 493
+          h_tmp = SAFETY*h*errmax**PSHRINK
 
-             ! this is essentially the step control from Stoer &
-             ! Bulircsh (TAM) Eq. 7.2.5.17, as shown on p. 493
-             h_tmp = SAFETY*h*errmax**PSHRINK
-
-             h = sign(max(abs(h_tmp), SHRINK*abs(h)), h)
-          else
-             ! we encountered some errors
-             exit
-          endif
+          h = sign(max(abs(h_tmp), SHRINK*abs(h)), h)
        endif
-
+          
+       q = q + 1
+       
     enddo
     
     if (.not. converged .and. ierr == IERR_NONE) then

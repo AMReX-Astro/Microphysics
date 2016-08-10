@@ -1,2 +1,2 @@
-f90EXE_sources += stellarcollapse.f90
+f90EXE_sources += actual_eos.f90
 f90EXE_sources += eos_aux_data.f90
