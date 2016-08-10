@@ -11,7 +11,10 @@
   xin_file   = "xin.3alpha_plus_o"
   run_prefix = "react_3alpha_"
 
-  scaling_method = 1
+  scaling_method = 2
 
   use_timestep_estimator = T
+
+  ode_method = 1
+  ode_max_steps = 40000
 /
