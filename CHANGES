@@ -3,6 +3,17 @@ changes since last merge:
 
  -- num_rate_groups is now a property of the individual networks
 
+ -- a new integration method, Rosenbrock, was added to the BS
+    option (set ode_method)
+
+ -- the number of RHS and Jac evaluations is now passed out
+    of the burner through the burn_t type for diagnostic and
+    load-balancing use
+
+ -- support for spectral deferred correction coupling of the
+    burner and hydro was added to the BS integrator
+
+
 previous changes:
 
 
@@ -15,8 +26,8 @@ previous changes:
 
  -- OpenMP and OpenACC directives have been added to the unit tests
 
- -- the BS integrator's type, bs_t, has now contains a burn_t 
-    internally, simplifying the conversion from bs_t to call the 
+ -- the BS integrator's type, bs_t, has now contains a burn_t
+    internally, simplifying the conversion from bs_t to call the
     actual_rhs/jac
 
  -- the rates() component of burn_t was removed.  We no longer
@@ -58,9 +69,7 @@ previous changes:
  -- UsersGuide/ was renamed to Docs/ to be consistent with the other
     BoxLib codes
 
- -- the energy equation now uses an offset to help with the BS ODE 
+ -- the energy equation now uses an offset to help with the BS ODE
     integration convergence
 
  -- the runtime parameter small_x now is owned by the network
-
- 
