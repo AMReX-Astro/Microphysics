@@ -578,7 +578,9 @@ contains
 
     if (.not. converged .and. ierr == IERR_NONE) then
        ierr = IERR_NO_CONVERGENCE
-       call bl_error("Error: non convergence in single_step_bs, something has gone wrong.")       
+#ifndef ACC
+       call bl_error("Error: non convergence in single_step_bs, something has gone wrong.")
+#endif       
     endif
 
 #ifndef ACC
