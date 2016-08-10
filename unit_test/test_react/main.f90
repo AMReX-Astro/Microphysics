@@ -138,8 +138,8 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
-     !$OMP FIRSTPRIVATE(burn_state_in) &
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j,temp_zone,dens_zone) &
+     !$OMP PRIVATE(burn_state_in, burn_state_out) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 
