@@ -7,12 +7,14 @@ program testburn
   use actual_burner_module
   use burn_type_module
   use microphysics_module
+  use extern_probin_module
 
   implicit none
 
   real(kind=dp_t) :: dens, temp, dt
   real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
+  integer :: n
 
   call microphysics_init()
 
@@ -30,6 +32,8 @@ program testburn
 
   print *, 'calling the burner...'
 
+  integrate_temperature = .false.
+
   state_in % rho = dens
   state_in % T = temp
   state_in % e = ZERO
@@ -39,9 +43,14 @@ program testburn
 
   print *, 'done!'
 
-  print *, 'Xin:      ', state_in % xn(:)
-  print *, 'Xout:     ', state_out % xn(:)
-  print *, 'rho_Hnuc: ', dens * (state_out % e - state_in % e) / dt
+1000 format(g20.10, 1x, g20.10)
+
+  print *, 'Xin / Xout:'
+  do n = 1, nspec
+     print 1000, state_in % xn(n), state_out % xn(n)
+  enddo
+
+  print *, 'Hnuc: ', (state_out % e - state_in % e) / dt
 
   call microphysics_finalize()
 
