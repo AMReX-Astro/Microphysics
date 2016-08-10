@@ -72,14 +72,33 @@ contains
 
   ! integrate from t to tmax
 
-  subroutine safety_check(y, retry)
+  subroutine safety_check(y_old, y, retry)
     !$acc routine seq
 
-    real(kind=dp_t), intent(in) :: y(bs_neqs)
+    use extern_probin_module, only: safety_factor
+    
+    real(kind=dp_t), intent(in) :: y_old(bs_neqs), y(bs_neqs)
     logical, intent(out) :: retry
 
+    real(kind=dp_t) :: ratio
+    integer :: n
+    
+    retry = .false.
+
+    ratio = abs(y(net_itemp)/y_old(net_itemp))
+    if (ratio > safety_factor) then ! .or. ratio < ONE/safety_factor) then
+       retry = .true.
+    endif
+
+    ratio = abs(y(net_ienuc)/y_old(net_ienuc))
+    if (ratio > safety_factor) then ! .or. ratio < ONE/safety_factor) then
+       retry = .true.
+    endif
+
+    ! not sure what check to do on species
     
   end subroutine safety_check
+
   
   subroutine ode(bs, t, tmax, eps, ierr)
 
@@ -262,7 +281,6 @@ contains
   end subroutine initial_timestep
 
 
-
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
 
     !$acc routine seq
@@ -309,69 +327,73 @@ contains
        ierr = IERR_LU_DECOMPOSITION_ERROR
     endif
 
-    bs_temp = bs
+    if (ierr == IERR_NONE) then
+       bs_temp = bs
 #ifdef SDC
-    bs_temp % n_rhs = 0
+       bs_temp % n_rhs = 0
 #else
-    bs_temp % burn_s % n_rhs = 0
+       bs_temp % burn_s % n_rhs = 0
 #endif
 
-    ! do an Euler step to get the RHS for the first substep
-    t = bs % t
+       ! do an Euler step to get the RHS for the first substep
+       t = bs % t
 #ifdef SDC
-    y_out(:) = h * bs % ydot(:)
+       y_out(:) = h * bs % ydot(:)
 #else
-    y_out(:) = h * bs % burn_s % ydot(:)
+       y_out(:) = h * bs % burn_s % ydot(:)
 #endif
 
-    ! solve the first step using the LU solver
-    call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+       ! solve the first step using the LU solver
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
 
-    del(:) = y_out(:)
-    bs_temp % y(:) = y(:) + del(:)
+       del(:) = y_out(:)
+       bs_temp % y(:) = y(:) + del(:)
 
-    t = t + h
-    bs_temp % t = t
-    call f_rhs(bs_temp)
+       t = t + h
+       bs_temp % t = t
+       call f_rhs(bs_temp)
 
-    do n = 2, N_sub
+       do n = 2, N_sub
+#ifdef SDC
+          y_out(:) = h * bs_temp % ydot(:) - del(:)
+#else
+          y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
+#endif
+
+          ! LU solve
+          call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+
+          del(:) = del(:) + TWO * y_out(:)
+          bs_temp % y = bs_temp % y + del(:)
+
+          t = t + h
+          bs_temp % t = t
+          call f_rhs(bs_temp)
+       enddo
+
 #ifdef SDC
        y_out(:) = h * bs_temp % ydot(:) - del(:)
 #else
        y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
 #endif
 
-       ! LU solve
+       ! last LU solve
        call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
 
-       del(:) = del(:) + TWO * y_out(:)
-       bs_temp % y = bs_temp % y + del(:)
-
-       t = t + h
-       bs_temp % t = t
-       call f_rhs(bs_temp)
-    enddo
+       ! last step
+       y_out(:) = bs_temp % y(:) + y_out(:)
+    
+       ! Store the number of function evaluations.
 
 #ifdef SDC
-    y_out(:) = h * bs_temp % ydot(:) - del(:)
+       bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
 #else
-    y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
+       bs % burn_s % n_rhs = bs % burn_s % n_rhs + bs_temp % burn_s % n_rhs
 #endif
-
-    ! last LU solve
-    call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
-
-    ! last step
-    y_out(:) = bs_temp % y(:) + y_out(:)
-
-    ! Store the number of function evaluations.
-
-#ifdef SDC
-    bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
-#else
-    bs % burn_s % n_rhs = bs % burn_s % n_rhs + bs_temp % burn_s % n_rhs
-#endif
-
+    else
+       y_out(:) = y(:)
+    endif
+       
   end subroutine semi_implicit_extrap
 
 
@@ -397,7 +419,7 @@ contains
     real(kind=dp_t) :: dt, fac, scale, red, eps1, work, work_min, xest
     real(kind=dp_t) :: err_max
 
-    logical :: converged, reduce, loop_flag
+    logical :: converged, reduce, skip_loop, retry
 
     integer :: i, k, n, kk, km, kstop, ierr_temp
     integer, parameter :: max_iters = 10 ! Should not need more than this
@@ -455,8 +477,6 @@ contains
 
     reduce = .false.
 
-    ierr = IERR_NONE
-
     converged = .false.
 
     km = -1
@@ -464,80 +484,101 @@ contains
 
     do n = 1, max_iters
 
-       loop_flag = .false.
+       ! setting skip_loop = .true. in the next loop is a GPU-safe-way to
+       ! indicate that we are discarding this timestep attempt and will
+       ! instead try again in the next `n` iteration
+       skip_loop = .false.
+       retry = .false.
 
+       ! each iteration is a new attempt at taking a step, so reset
+       ! errors at the start of the attempt
+       ierr = IERR_NONE
+       
        do k = 1, bs % kmax
 
-          if (.not. loop_flag) then
+          if (.not. skip_loop) then
 
              bs % t_new = bs % t + dt
 
              call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
              ierr = ierr_temp
-
-             xest = (dt/nseq(k))**2
-             call poly_extrap(k, xest, yseq, bs % y, yerr, t_extrap, qcol)
-
-             if (k /= 1) then
-                err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
-                err_max = err_max / eps
-                km = k - 1
-                err(km) = (err_max/S1)**(1.0/(2*km+1))
+             if (ierr == IERR_LU_DECOMPOSITION_ERROR) then
+                skip_loop = .true.
+                red = ONE/nseq(k)
              endif
 
-             if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
+             call safety_check(y_save, yseq, retry)
+             if (retry) then
+                skip_loop = .true.
+                red = RED_BIG_FACTOR
+             endif
 
-                if (err_max < 1) then
+             if (ierr == IERR_NONE .and. .not. retry) then
+                xest = (dt/nseq(k))**2
+                call poly_extrap(k, xest, yseq, bs % y, yerr, t_extrap, qcol)
 
-                   converged = .true.
-                   kstop = k
-                   exit
-
-                else
-
-                   ! reduce stepsize if necessary
-                   if (k == bs % kmax .or. k == bs % kopt+1) then
-                      red = S2/err(km)
-                      reduce = .true.
-                      loop_flag = .true.
-                   else if (k == bs % kopt) then
-                      if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
-                         red = ONE/err(km)
-                         reduce = .true.
-                         loop_flag = .true.
-                      endif
-                   else if (bs % kopt == bs % kmax) then
-                      if (bs % alpha(km, bs % kmax-1) < err(km)) then
-                         red = bs % alpha(km, bs % kmax-1)*S2/err(km)
-                         reduce = .true.
-                         loop_flag = .true.
-                      endif
-                   else if (bs % alpha(km, bs % kopt) < err(km)) then
-                      red = bs % alpha(km, bs % kopt - 1)/err(km)
-                      reduce = .true.
-                      loop_flag = .true.
-                   endif
+                if (k /= 1) then
+                   err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
+                   err_max = err_max / eps
+                   km = k - 1
+                   err(km) = (err_max/S1)**(1.0/(2*km+1))
                 endif
 
+                if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
+
+                   if (err_max < 1) then
+                      converged = .true.
+                      kstop = k
+                      exit
+                   else
+
+                      ! reduce stepsize if necessary
+                      if (k == bs % kmax .or. k == bs % kopt+1) then
+                         red = S2/err(km)
+                         reduce = .true.
+                         skip_loop = .true.
+                      else if (k == bs % kopt) then
+                         if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
+                            red = ONE/err(km)
+                            reduce = .true.
+                            skip_loop = .true.
+                         endif
+                      else if (bs % kopt == bs % kmax) then
+                         if (bs % alpha(km, bs % kmax-1) < err(km)) then
+                            red = bs % alpha(km, bs % kmax-1)*S2/err(km)
+                            reduce = .true.
+                            skip_loop = .true.
+                         endif
+                      else if (bs % alpha(km, bs % kopt) < err(km)) then
+                         red = bs % alpha(km, bs % kopt - 1)/err(km)
+                         reduce = .true.
+                         skip_loop = .true.
+                      endif
+                   endif
+
+                endif
+
+                kstop = k
              endif
-
-             kstop = k
-
           endif
 
        enddo
 
-       if (.not. converged .and. ierr == IERR_NONE) then
+       if (.not. converged) then
+          ! note, even if ierr /= IERR_NONE, we still try again, since
+          ! we may eliminate LU decomposition errors (singular matrix)
+          ! with a smaller timestep
           red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
           dt = dt*red
        else
           exit
        endif
 
-    enddo   ! while loop
+    enddo   ! iteration loop (n) varying dt
 
     if (.not. converged .and. ierr == IERR_NONE) then
        ierr = IERR_NO_CONVERGENCE
+       call bl_error("Error: non convergence in single_step_bs, something has gone wrong.")       
     endif
 
 #ifndef ACC
