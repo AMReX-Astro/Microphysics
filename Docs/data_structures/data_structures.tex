@@ -107,6 +107,23 @@ This main component of this is simply an array of dimension {\tt
 used in dimensioning this are network-dependent.
 
 
+\subsection{{burn\_type\_module}}
+
+In addition to defining the {\tt burn\_t} type, the {\tt
+  burn\_type\_module} also defines integer indices into the solution
+vector that can be used to access the different components of the
+state:
+\begin{itemize}
+  \item {\tt neqs} : the total number of variables we are integrating.
+    It is assumed that the first {\tt nspec\_evolve} are the species.
+
+  \item {\tt net\_itemp} : the index of the temperature in the
+    solution vector
+
+  \item {\tt net\_ienuc} : the index of the specifc internal energy
+    in the solution vector
+\end{itemize}
+
 \section{Integrators}
 
 Each integrator also has their own internal data structure that holds
