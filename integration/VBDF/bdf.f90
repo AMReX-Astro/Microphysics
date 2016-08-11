@@ -126,7 +126,7 @@ contains
     !y1 = ts%z(:,:,0)
     do p = 1, ts%npt
        do m = 1, ts%neq
-          y1(m,p) = ts%z0(m,p,0)
+          y1(m,p) = ts%z(m,p,0)
        end do
     end do
     
@@ -900,6 +900,10 @@ contains
           shifted_arr(i) = arr(i+sh)
        enddo
     end if
+
+    ! for debugging
+    !shifted_arr(:) = eoshift(arr, sh)
+
   end subroutine eoshift_local
 
   !
