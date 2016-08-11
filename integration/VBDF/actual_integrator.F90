@@ -291,6 +291,10 @@ contains
 
     call normalize_abundances_burn(state_out)
 
+    ! store diagnostics
+    state_out % n_rhs = ts % nfe
+    state_out % n_jac = ts % nje
+
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
