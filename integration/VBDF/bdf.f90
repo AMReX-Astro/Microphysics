@@ -804,7 +804,7 @@ contains
     ts%max_steps  = 1000000
     ts%max_iters  = 10
     ts%verbose    = 0
-    ts%dt_min     = epsilon(ts%dt_min)
+    ts%dt_min     = 1.e-24_dp_t   !epsilon(ts%dt_min)
     ts%eta_min    = 0.2_dp_t
     ts%eta_max    = 10.0_dp_t
     ts%eta_thresh = 1.50_dp_t
