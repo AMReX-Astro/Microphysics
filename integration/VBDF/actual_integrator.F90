@@ -13,6 +13,9 @@ module actual_integrator_module
 
   implicit none
 
+  real(kind=dp_t), parameter, private :: SMALL = 1.d-30
+
+
 contains
 
   subroutine actual_integrator_init()
@@ -50,7 +53,8 @@ contains
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
-
+    
+    real(dp_t) :: dt_init
     logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
     logical, parameter :: REUSE = .false. !.false. means don't reuse the Jacobian
     real(kind=dp_t), parameter :: DT0 = 1.0d-9 !Initial dt to be used in getting from 
@@ -171,9 +175,13 @@ contains
 
     ts % upar(irp_y_init:irp_y_init + neqs - 1, 1) = y0(:,1)
 
+    ! get the initial timestep estimate
+    call initial_timestep(ts, t0, t1, dt_init)
+
     ! Call the integration routine.
 
-    call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
+
+    call bdf_advance(ts, y0, t0, y1, t1, dt_init, RESET, REUSE, ierr, .true.)
 
     do n = 1, neqs
        ts % y(n,1) = y1(n,1)
@@ -297,5 +305,77 @@ contains
     endif
 
   end subroutine actual_integrator
+
+
+  subroutine initial_timestep(ts, t0, t1, dt)
+
+    ! this is a version of the timestep estimation algorithm used by
+    ! VODE
+
+    ! note, we only do this for the 1st vector in the solution
+
+    !$acc routine seq
+
+    use rhs_module
+
+    type (bdf_ts), intent(inout) :: ts
+    real (dp_t), intent(in) :: t0, t1
+    real (dp_t), intent(out) :: dt
+    type (bdf_ts) :: ts_temp
+    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
+    integer :: n
+
+    ts_temp = ts
+
+    eps = maxval(ts % rtol)
+
+    ! Initial lower and upper bounds on the timestep
+
+    hL = 100.0d0 * epsilon(ONE) * max(abs(t0), abs(t1))
+    hU = 0.1d0 * abs(t1 - t0)
+
+    ! Initial guess for the iteration
+
+    h = sqrt(hL * hU)
+    h_old = 10.0 * h
+
+    ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
+    call rhs(ts)
+
+    do n = 1, 4
+
+       h_old = h
+
+       ! Get the error weighting -- this is similar to VODE's dewset
+       ! routine
+
+       ewt = eps * abs(ts % y(:,1)) + SMALL
+
+       ! Construct the trial point.
+
+       ts_temp % t = ts % t + h
+       ts_temp % y(:,1) = ts % y(:,1) + h * ts % yd(:,1)
+
+
+       ! Call the RHS, then estimate the finite difference.
+       call rhs(ts_temp)
+       ddydtt = (ts_temp % yd(:,1) - ts % yd(:,1)) / h
+
+       yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / neqs )
+
+       if (yddnorm*hU*hU > TWO) then
+          h = sqrt(TWO / yddnorm)
+       else
+          h = sqrt(h * hU)
+       endif
+
+       if (h_old < TWO * h .and. h_old > HALF * h) exit
+
+    enddo
+
+    ! Save the final timestep, with a bias factor.
+    dt = min(max(h/TWO, hL), hU)
+
+  end subroutine initial_timestep
 
 end module actual_integrator_module
