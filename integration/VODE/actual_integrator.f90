@@ -108,6 +108,8 @@ contains
     real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
 
+    real(dp_t) :: ener_offset
+
     EXTERNAL jac, f_rhs
 
     if (jacobian == 1) then ! Analytical
@@ -171,7 +173,9 @@ contains
 
     call eos_to_vode(eos_state_in, y, rpar)
 
-    y(net_ienuc) = ZERO
+    ener_offset = eos_state_in % e
+
+    y(net_ienuc) = ener_offset / ener_scale
 
     ! Pass through whether we are doing self-heating.
 
@@ -227,7 +231,9 @@ contains
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
 
-    if ( burning_mode == 2 .and. (y(net_ienuc) < ZERO .or. istate < 0) ) then
+    if ( burning_mode == 2 .and. &
+         (y(net_ienuc) * ener_scale - ener_offset < ZERO .or. &
+          istate < 0) ) then
 
        rpar(irp_self_heat) = ONE
 
@@ -251,7 +257,7 @@ contains
 
        endif
 
-       y(net_ienuc) = ZERO
+       y(net_ienuc) = ener_offset / ener_scale
 
        call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                   ITOL, rtol, atol, ITASK, &
@@ -271,7 +277,7 @@ contains
        print *, 'temp current = ', y(net_itemp) * temp_scale
        print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
             rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
-       print *, 'energy generated = ', y(net_ienuc)
+       print *, 'energy generated = ', y(net_ienuc) * ener_scale - ener_offset
 
        if (.not. retry_burn) then
 
@@ -310,7 +316,7 @@ contains
 
              endif
 
-             y(net_ienuc) = ZERO
+             y(net_ienuc) = ener_offset / ener_scale
 
              call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                         ITOL, rtol, atol, ITASK, &
@@ -327,6 +333,9 @@ contains
        endif
 
     endif
+
+    ! Subtract the energy offset
+    y(net_ienuc) = y(net_ienuc) * ener_scale - ener_offset
 
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)
