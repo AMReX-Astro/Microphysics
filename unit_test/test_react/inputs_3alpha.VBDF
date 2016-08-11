@@ -11,6 +11,6 @@
   xin_file   = "xin.3alpha_plus_o"
   run_prefix = "react_3alpha_"
 
-  integrate_temperature = F
-  integrate_molar_fraction = F
+  integrate_temperature = T
+  integrate_molar_fraction = T
 /
