@@ -384,7 +384,8 @@ contains
           eta = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
           call rescale_timestep(ts, eta, .false.)
           retry = .true.
-          if (ts%dt < ts%dt_min + epsilon(ts%dt_min)) ts%ncdtmin = ts%ncdtmin + 1
+          !if (ts%dt < ts%dt_min + epsilon(ts%dt_min)) ts%ncdtmin = ts%ncdtmin + 1
+          if (ts%dt < ts%dt_min) ts%ncdtmin = ts%ncdtmin + 1
           if (ts%ncdtmin > 7) err = BDF_ERR_DTMIN
           return
        end if
