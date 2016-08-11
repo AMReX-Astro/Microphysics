@@ -142,7 +142,7 @@ contains
 
     ! Set the time offset
 
-    ts % upar(irp_t0) = time
+    ts % upar(irp_t0,1) = time
 
 
     ! If we are using the dT_crit functionality and therefore doing a linear
