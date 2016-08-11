@@ -49,6 +49,9 @@ program test_react
   type(plot_t) :: pf
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
+
+  real(kind=dp_t), allocatable :: state(:,:,:,:)
+  
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
@@ -109,6 +112,8 @@ program test_react
   nT = extent(mla%mba%pd(1),2)
   nX = extent(mla%mba%pd(1),3)
 
+  allocate(state(0:nrho-1, 0:nT-1, 0:nX-1, pf % n_plot_comps))
+  
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
 
@@ -138,22 +143,23 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,temp_zone,dens_zone,burn_state_out) &
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j,temp_zone,dens_zone,burn_state_out) &
      !$OMP FIRSTPRIVATE(burn_state_in) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 
-     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone) &
-     !$acc      copyout(sp(lo(1):hi(1), lo(2):hi(2), lo(3):hi(3), :)) 
+     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, lo, hi, tmax) &
+     !$acc      copyout(state) 
 
      !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
 
      !$acc loop gang vector collapse(3) private(temp_zone, dens_zone) &
-     !$acc private(burn_state_in, burn_state_out)
+     !$acc private(burn_state_in, burn_state_out, ii, jj, kk, j)
 
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
+              
               temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
               dens_zone = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
 
@@ -169,26 +175,24 @@ program test_react
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
               ! store
-              sp(ii, jj, kk, pf % irho) = dens_zone
-              sp(ii, jj, kk, pf % itemp) = temp_zone
+              state(ii, jj, kk, pf % irho) = dens_zone
+              state(ii, jj, kk, pf % itemp) = temp_zone
 
               do j = 1, nspec
-                 sp(ii, jj, kk, pf % ispec_old + j - 1) = burn_state_in % xn(j)
+                 state(ii, jj, kk, pf % ispec_old + j - 1) = burn_state_in % xn(j)
               enddo
 
               do j = 1, nspec
-                 sp(ii, jj, kk, pf % ispec + j - 1) = burn_state_out % xn(j)
+                 state(ii, jj, kk, pf % ispec + j - 1) = burn_state_out % xn(j)
               enddo
-
                             
               do j=1, nspec
                  ! an explicit loop is needed here to keep the GPU happy
-                 sp(ii, jj, kk, pf % irodot + j - 1) = &
+                 state(ii, jj, kk, pf % irodot + j - 1) = &
                       (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
               enddo
 
-
-              sp(ii, jj, kk, pf % irho_hnuc) = &
+              state(ii, jj, kk, pf % irho_hnuc) = &
                    dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
               
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
@@ -203,6 +207,7 @@ program test_react
 
      !$OMP END PARALLEL DO
 
+     sp(:,:,:,:) = state(:,:,:,:)
   enddo
 
   ! note: integer division
@@ -216,8 +221,8 @@ program test_react
   ! output
   out_name = trim(run_prefix) // "test_react." // trim(integrator_dir)
 
-  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), out_name, names=pf%names)
-
+  call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), trim(out_name), names=pf%names)
+  
   call write_job_info(out_name, mla%mba)
 
 
@@ -225,7 +230,7 @@ program test_react
   do n = 1,nlevs
     call destroy(s(n))
   end do
-
+  
   call destroy(mla)
 
   deallocate(s)
@@ -233,6 +238,7 @@ program test_react
 
   call runtime_close()
 
+    
   call microphysics_finalize()
 
   ! end boxlib
