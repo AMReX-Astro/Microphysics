@@ -301,11 +301,16 @@ contains
              do m = 1, ts%neq
                 do n = 1, ts%neq
                    ts%P(n,m,p) = ts%P(n,m,p) - dt_adj * ts%J(n,m,p)
-                   call dgefa(ts%P(:,:,p), ts%neq, ts%neq, ts%ipvt(:,p), info)
-                   ! lapack      call dgetrf(neq, neq, ts%P, neq, ts%ipvt, info)
-                   ts%nlu    = ts%nlu + 1
-                end do
-             end do
+                enddo
+             enddo
+
+             call dgefa(ts%P(:,:,p), ts%neq, ts%neq, ts%ipvt(:,p), info)
+             if (info /= 0) then
+                print *, "error: singular matrix"
+             endif
+
+             ! lapack      call dgetrf(neq, neq, ts%P, neq, ts%ipvt, info)
+             ts%nlu    = ts%nlu + 1
           end do
 
           ts%dt_nwt = dt_adj
