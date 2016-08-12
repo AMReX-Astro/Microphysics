@@ -36,7 +36,12 @@ program testburn
   Xin(io16) = 0.2d0
   Xin(ine20) = 0.15d0
 
-  dt = 0.0001_dp_t
+  dens =    100000000.00000000d0
+  temp =    170727443.69168001d0
+  Xin(:) = ZERO
+  Xin(ihe4) = ONE
+
+  dt = 0.001_dp_t
 
   jacobian = 2
 
