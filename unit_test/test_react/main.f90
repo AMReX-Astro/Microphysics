@@ -166,7 +166,8 @@ program test_react
               burn_state_in % rho = dens_zone
               burn_state_in % T = temp_zone
 
-              burn_state_in % xn(:) = xn_zone(:, kk)
+              burn_state_in % xn(:) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              call normalize_abundances_burn(burn_state_in)
 
               ! the integrator doesn't actually care about the initial internal
               ! energy.
