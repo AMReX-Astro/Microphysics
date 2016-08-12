@@ -795,6 +795,9 @@ contains
   subroutine bdf_ts_build(ts)
     !$acc routine seq
     !$acc routine(dgemm) seq
+
+    use extern_probin_module, only : dt_min, jac_age, p_age
+
     type(bdf_ts),   intent(inout) :: ts
 
     integer :: i, j, k, n
@@ -805,12 +808,12 @@ contains
     ts%max_steps  = 1000000
     ts%max_iters  = 10
     ts%verbose    = 0
-    ts%dt_min     = 1.e-24_dp_t   !epsilon(ts%dt_min)
+    ts%dt_min     = dt_min   !epsilon(ts%dt_min)
     ts%eta_min    = 0.2_dp_t
     ts%eta_max    = 10.0_dp_t
     ts%eta_thresh = 1.50_dp_t
-    ts%max_j_age  = 50
-    ts%max_p_age  = 20
+    ts%max_j_age  = jac_age
+    ts%max_p_age  = p_age
 
     ts%k = -1
 
@@ -824,6 +827,7 @@ contains
        enddo
     enddo
 
+    ! force a rebuild at the start
     ts%j_age = 666666666
     ts%p_age = 666666666
 
