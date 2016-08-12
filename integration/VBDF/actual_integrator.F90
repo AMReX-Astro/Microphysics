@@ -38,6 +38,7 @@ contains
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
+                                    reuse_jac, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
@@ -56,11 +57,6 @@ contains
     
     real(dp_t) :: dt_init
     logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
-    logical, parameter :: REUSE = .false. !.false. means don't reuse the Jacobian
-    real(kind=dp_t), parameter :: DT0 = 1.0d-9 !Initial dt to be used in getting from 
-                                               !t to tout.  Also arbitrary,
-                                               !multiple values should be
-                                               !explored.
 
     ! Local variables
     integer :: n, i, j, ierr
@@ -181,16 +177,19 @@ contains
     ! Call the integration routine.
 
 
-    call bdf_advance(ts, y0, t0, y1, t1, dt_init, RESET, REUSE, ierr, .true.)
+    call bdf_advance(ts, y0, t0, y1, t1, dt_init, &
+                     RESET, reuse_jac, ierr, .true.)
 
     do n = 1, neqs
        ts % y(n,1) = y1(n,1)
     end do
 
-    ! If we are using hybrid burning and the energy release was negative (or we failed),
-    ! re-run this in self-heating mode.
+    ! If we are using hybrid burning and the energy release was
+    ! negative (or we failed), re-run this in self-heating mode.
 
-    if ( burning_mode == 2 .and. (ts % y(net_ienuc,1) * ener_scale - ener_offset < ZERO .or. ierr /= BDF_ERR_SUCCESS) ) then
+    if ( burning_mode == 2 .and. &
+         (ts % y(net_ienuc,1) * ener_scale - ener_offset < ZERO .or. &
+          ierr /= BDF_ERR_SUCCESS) ) then
 
        ts % upar(irp_self_heat,1) = ONE
 
@@ -208,7 +207,8 @@ contains
        do n = 1, neqs
           y0(n,1) = ts % y(n,1)
        end do
-       call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
+       call bdf_advance(ts, y0, t0, y1, t1, dt_init, RESET, &
+                        reuse_jac, ierr, .true.)
        do n = 1, neqs
           ts % y(n,1) = y1(n,1)
        end do
@@ -261,7 +261,8 @@ contains
              do n = 1, neqs
                 y0(n,1) = ts % y(n,1)
              end do
-             call bdf_advance(ts, y0, t0, y1, t1, DT0, RESET, REUSE, ierr, .true.)
+             call bdf_advance(ts, y0, t0, y1, t1, dt_init, &
+                              RESET, reuse_jac, ierr, .true.)
              do n = 1, neqs
                 ts % y(n,1) = y1(n,1)
              end do

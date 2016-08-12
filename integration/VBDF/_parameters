@@ -8,3 +8,6 @@ jac_age           integer        50
 # rebuilding
 p_age             integer        20
 
+# reuse the Jacobian?
+reuse_jac         logical        .false.
+
