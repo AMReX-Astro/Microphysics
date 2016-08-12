@@ -33,7 +33,10 @@
 
 \rowcolor{tableShade}
 \verb= ode_max_steps = &  Maximum number of steps to use in the ODE integration & 10000 \\
+\verb= ode_method = &  use an implementation of the Bulirsch-Stoer semi-implicit extrapolation method (1) or a Rosenbrock method (2) & 1 \\
+\rowcolor{tableShade}
 \verb= ode_scale_floor = &  Floor to use for the ODE scaling vector & 1.d-6 \\
+\verb= safety_factor = &  when constructing the intermediate steps in the stiff ODE integration by how much do we allow the state variables to change over a dt before giving up on the step and retrying with a smaller step? & 1.d9 \\
 \rowcolor{tableShade}
 \verb= scaling_method = &  Which choice to use for the ODE scaling 1 = |y| + |dy/dt| 2 = max(|y|, K); K == constant & 2 \\
 \verb= use_timestep_estimator = &  use the VODE algorithm's initial timestep estimator? & .false. \\
