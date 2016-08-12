@@ -1,4 +1,3 @@
-
 ! BDF (backward differentiation formula) time-stepping routines.
 !
 ! See
@@ -69,7 +68,10 @@ contains
     !but for GPU dev I'm trying to simplify.
     !linitial = initial_call
 
-    if (reset) call bdf_reset(ts, y0, dt0, reuse)
+    if (reset) then
+       ts%t = t0
+       call bdf_reset(ts, y0, dt0, reuse)
+    endif
 
     ierr = BDF_ERR_SUCCESS
 
@@ -802,9 +804,12 @@ contains
 
     integer :: i, j, k, n
 
+    ! these are set at build time
     ts%npt = bdf_npt
     ts%neq = neqs
     ts%max_order = bdf_max_order
+
+    ! these are user-controllable
     ts%max_steps  = 1000000
     ts%max_iters  = 10
     ts%verbose    = 0
