@@ -37,7 +37,7 @@ contains
     !$acc routine seq
 
     use rpar_indices
-    use extern_probin_module, only: jacobian, burner_verbose, &
+    use extern_probin_module, only: burner_verbose, &
                                     reuse_jac, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
@@ -59,16 +59,15 @@ contains
     logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
 
     ! Local variables
-    integer :: n, i, j, ierr
+    integer :: n, ierr
 
     real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
     real(kind=dp_t) :: y0(neqs,bdf_npt), y1(neqs,bdf_npt)
-    real(kind=dp_t) :: t0, t1, enuc, dX
+    real(kind=dp_t) :: t0, t1
 
-    type (eos_t)  :: eos_state_in, eos_state_out, eos_state_temp
+    type (eos_t)  :: eos_state_in, eos_state_temp
     type (bdf_ts) :: ts
 
-    real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
 
     double precision :: ener_offset
