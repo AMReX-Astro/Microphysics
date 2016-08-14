@@ -230,6 +230,8 @@ contains
        if (integrate_molar_fraction) then
           print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
                ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:)
+          print *, "sum - 1:", sum(ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve)) + &
+               sum(ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:)) - ONE
        else
           print *, 'xn current = ', ts % y(1:nspec_evolve,1), &
                ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
