@@ -14,7 +14,7 @@ programs += testburn
 EOS_DIR := helmholtz
 NETWORK_DIR := aprox13
 
-INTEGRATOR_DIR := BS
+INTEGRATOR_DIR := VBDF
 
 TEST_DIR = $(MICROPHYSICS_HOME)/networks/aprox13/test
 

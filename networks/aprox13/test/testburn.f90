@@ -6,7 +6,7 @@ program testburn
   use network
   use eos_module
   use actual_burner_module
-  use extern_probin_module, only : jacobian
+  use extern_probin_module
   use runtime_init_module, only : runtime_pretty_print
 
   implicit none
@@ -20,30 +20,20 @@ program testburn
 
   call microphysics_init()
 
-  dens = 1.5e7_dp_t
-  temp = 3.0e8_dp_t
-
-  Xin(:) = ZERO
-  Xin(ihe4)  = ONE
-  Xin(ic12)  = ZERO
-
-  dens = 100000000.d0
-  temp = 2705847633.d0
-
-  Xin(:) = ZERO
-  Xin(ihe4) = 0.45d0
-  Xin(ic12) = 0.2d0
-  Xin(io16) = 0.2d0
-  Xin(ine20) = 0.15d0
-
-  dens =    100000000.00000000d0
-  temp =    170727443.69168001d0
-  Xin(:) = ZERO
-  Xin(ihe4) = ONE
+  dens =    10000.0d0
+  temp =    4999999999.9999990d0
+  Xin(:) = 1.e-10_dp_t
+  Xin(ihe4) = 1.0_dp_t - (nspec-1)*1.e-10_dp_t
 
   dt = 0.001_dp_t
 
   jacobian = 2
+  centered_diff_jac = .true.
+
+  !p_age = 1
+  !jac_age = 1
+
+  !dt_min = 0.0
 
   open(newunit=of, file="testburn-params.out", status="replace", action="write")
   call runtime_pretty_print(of)
