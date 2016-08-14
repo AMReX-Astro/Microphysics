@@ -916,9 +916,9 @@ W_m = \frac{1}{{\tt rtol}_m |y_m| + {\tt atol}_m}
 where needed, the error, $\epsilon$, is constructed by computing an $L_2$
 norm:
 \begin{equation}
-\epsilon = \sum_m y_m W_m
+\epsilon = \left [ \frac{1}{N} \sum_m (y_m W_m)^2 \right ]^{1/2}
 \end{equation}
-where $m = 1, {\tt neqs}$ indexes the ODE solution vector.  With this
+where $m = 1, \ldots, N$ indexes the ODE solution vector.  With this
 weighting, $\epsilon < 1$ means we've achieved our desired accuracy.
 
 
