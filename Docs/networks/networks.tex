@@ -905,8 +905,21 @@ OpenACC.
 
 VBDF is a modern implementation of the methods in VODE, written by
 Matt Emmett.  It supports integrating a vector of states, but we do
-not use that capability.  At the moment, this integrator has
-difficulties with many of the networks.
+not use that capability.  
+
+The error criteria is the same as VODE---separate relative, {\tt rtol},
+and absolute, {\tt atol}, error tolerances are specified for each
+variable that is being integrated.  A weight is constructed as:
+\begin{equation}
+W_m = \frac{1}{{\tt rtol}_m |y_m| + {\tt atol}_m}
+\end{equation}
+where needed, the error, $\epsilon$, is constructed by computing an $L_2$
+norm:
+\begin{equation}
+\epsilon = \sum_m y_m W_m
+\end{equation}
+where $m = 1, {\tt neqs}$ indexes the ODE solution vector.  With this
+weighting, $\epsilon < 1$ means we've achieved our desired accuracy.
 
 
 \subsection{Retries}
