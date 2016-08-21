@@ -165,6 +165,7 @@ contains
                             den_row, &
                             abar_row, &
                             zbar_row, &
+                            ye_row, &
                             etot_row, &
                             ptot_row, &
                             cv_row, &
@@ -259,6 +260,7 @@ contains
         den_row  = state % rho
         abar_row = state % abar
         zbar_row = state % zbar
+        ye_row   = state % y_e
 
         ! Initial setup for iterations
 
@@ -369,7 +371,7 @@ contains
            zbar  = zbar_row
 
            ytot1 = 1.0d0 / abar
-           ye    = ytot1 * zbar
+           ye    = ye_row
            din   = ye * den
 
            !..initialize
