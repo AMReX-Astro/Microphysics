@@ -14,22 +14,22 @@ module actual_network
   double precision, parameter :: mev2erg = ev2erg*1.0d6
   double precision, parameter :: mev2gr  = mev2erg/c_light**2
 
-  double precision, parameter :: mn = 1.67492721184d-24
-  double precision, parameter :: mp = 1.67262163783d-24
-  double precision, parameter :: me = 9.1093821545d-28
+  double precision, parameter :: mass_neutron  = 1.67492721184d-24
+  double precision, parameter :: mass_proton   = 1.67262163783d-24
+  double precision, parameter :: mass_electron = 9.10938215450d-28
 
-  integer, parameter :: nrates = 6
+  integer, parameter :: nrates = 7
   integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
-  integer, parameter :: nspec_evolve = 8
+  integer, parameter :: nspec_evolve = 9
   integer, parameter :: naux  = 0
 
   ! Number of nuclear species in the network
-  integer, parameter :: nspec = 8
+  integer, parameter :: nspec = 9
 
   ! Number of reaclib rates
-  integer, parameter :: nrat_reaclib = 4
+  integer, parameter :: nrat_reaclib = 5
   
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 2
@@ -47,18 +47,20 @@ module actual_network
   integer, parameter :: jp   = 2
   integer, parameter :: jhe4   = 3
   integer, parameter :: jc12   = 4
-  integer, parameter :: jne20   = 5
-  integer, parameter :: jne23   = 6
-  integer, parameter :: jna23   = 7
-  integer, parameter :: jmg23   = 8
+  integer, parameter :: jo16   = 5
+  integer, parameter :: jne20   = 6
+  integer, parameter :: jne23   = 7
+  integer, parameter :: jna23   = 8
+  integer, parameter :: jmg23   = 9
 
   ! Reactions
   integer, parameter :: k_c12_c12a_ne20   = 1
   integer, parameter :: k_c12_c12n_mg23   = 2
   integer, parameter :: k_c12_c12p_na23   = 3
-  integer, parameter :: k_n_p   = 4
-  integer, parameter :: k_na23_ne23   = 5
-  integer, parameter :: k_ne23_na23   = 6
+  integer, parameter :: k_c12_ag_o16   = 4
+  integer, parameter :: k_n_p   = 5
+  integer, parameter :: k_na23_ne23   = 6
+  integer, parameter :: k_ne23_na23   = 7
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
@@ -89,6 +91,7 @@ contains
     spec_names(jp)   = "hydrogen"
     spec_names(jhe4)   = "helium-4"
     spec_names(jc12)   = "carbon-12"
+    spec_names(jo16)   = "oxygen-16"
     spec_names(jne20)   = "neon-20"
     spec_names(jne23)   = "neon-23"
     spec_names(jna23)   = "sodium-23"
@@ -98,6 +101,7 @@ contains
     short_spec_names(jp)   = "p"
     short_spec_names(jhe4)   = "he4"
     short_spec_names(jc12)   = "c12"
+    short_spec_names(jo16)   = "o16"
     short_spec_names(jne20)   = "ne20"
     short_spec_names(jne23)   = "ne23"
     short_spec_names(jna23)   = "na23"
@@ -107,6 +111,7 @@ contains
     ebind_per_nucleon(jp)   = 0.00000000000000d+00
     ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
     ebind_per_nucleon(jc12)   = 7.68014400000000d+00
+    ebind_per_nucleon(jo16)   = 7.97620600000000d+00
     ebind_per_nucleon(jne20)   = 8.03224000000000d+00
     ebind_per_nucleon(jne23)   = 7.95525500000000d+00
     ebind_per_nucleon(jna23)   = 8.11149300000000d+00
@@ -116,6 +121,7 @@ contains
     aion(jp)   = 1.00000000000000d+00
     aion(jhe4)   = 4.00000000000000d+00
     aion(jc12)   = 1.20000000000000d+01
+    aion(jo16)   = 1.60000000000000d+01
     aion(jne20)   = 2.00000000000000d+01
     aion(jne23)   = 2.30000000000000d+01
     aion(jna23)   = 2.30000000000000d+01
@@ -125,6 +131,7 @@ contains
     zion(jp)   = 1.00000000000000d+00
     zion(jhe4)   = 2.00000000000000d+00
     zion(jc12)   = 6.00000000000000d+00
+    zion(jo16)   = 8.00000000000000d+00
     zion(jne20)   = 1.00000000000000d+01
     zion(jne23)   = 1.00000000000000d+01
     zion(jna23)   = 1.10000000000000d+01
@@ -134,6 +141,7 @@ contains
     nion(jp)   = 0.00000000000000d+00
     nion(jhe4)   = 2.00000000000000d+00
     nion(jc12)   = 6.00000000000000d+00
+    nion(jo16)   = 8.00000000000000d+00
     nion(jne20)   = 1.00000000000000d+01
     nion(jne23)   = 1.30000000000000d+01
     nion(jna23)   = 1.20000000000000d+01
@@ -144,7 +152,7 @@ contains
     end do
 
     ! Set the mass
-    mion(:) = nion(:) * mn + zion(:) * (mp + me) &
+    mion(:) = nion(:) * mass_neutron + zion(:) * (mass_proton + mass_electron) &
          - bion(:)/(c_light**2)
 
     ! Molar mass
