@@ -10,4 +10,10 @@
 
   xin_file   = "xin.reaclib_urca"
   run_prefix = "react_reaclib_urca_"
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 1
+
 /

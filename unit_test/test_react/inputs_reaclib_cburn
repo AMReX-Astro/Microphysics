@@ -6,8 +6,14 @@
   temp_min   = 1.d9
   temp_max   = 2.d9
 
-  tmax = 1.0d-1
+  tmax = 1.0d-6
 
   xin_file   = "xin.reaclib_cburn"
   run_prefix = "react_reaclib_cburn_"
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 1
+  
 /
