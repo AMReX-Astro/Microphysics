@@ -88,7 +88,7 @@ contains
     integer :: i
 
     spec_names(jn)   = "neutron"
-    spec_names(jp)   = "hydrogen"
+    spec_names(jp)   = "hydrogen-1"
     spec_names(jhe4)   = "helium-4"
     spec_names(jc12)   = "carbon-12"
     spec_names(jo16)   = "oxygen-16"
@@ -98,7 +98,7 @@ contains
     spec_names(jmg23)   = "magnesium-23"
 
     short_spec_names(jn)   = "n"
-    short_spec_names(jp)   = "p"
+    short_spec_names(jp)   = "h1"
     short_spec_names(jhe4)   = "he4"
     short_spec_names(jc12)   = "c12"
     short_spec_names(jo16)   = "o16"

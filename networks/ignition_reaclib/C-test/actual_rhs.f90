@@ -105,20 +105,11 @@ contains
 
     ! Append the temperature equation
     call temperature_rhs(state)
-
-    write(*,*) '______________________________'
-    write(*,*) 'density: ', dens
-    write(*,*) 'temperature: ', temp
-    do i = 1, nrates
-       write(*,*) 'unscreened_rates(i_rate,',i,'): ',unscreened_rates(i_rate,i)
-       write(*,*) 'unscreened_rates(i_scor,',i,'): ',unscreened_rates(i_scor,i)
-    end do
-    do i = 1, nspec
-       write(*,*) 'state%xn(',i,'): ',state%xn(i)
-    end do
-    do i = 1, nspec+2
-       write(*,*) 'state%ydot(',i,'): ',state%ydot(i)
-    end do
+    
+    ! write(*,*) '______________________________'
+    ! do i = 1, nspec+2
+    !    write(*,*) 'state%ydot(',i,'): ',state%ydot(i)
+    ! end do
   end subroutine actual_rhs
 
   subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)

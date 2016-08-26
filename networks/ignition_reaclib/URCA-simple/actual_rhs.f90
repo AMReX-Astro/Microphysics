@@ -292,14 +292,14 @@ contains
 
     scratch_0 = 1.0d0*Y(jc12)*dens
     scratch_1 = screened_rates(k_c12_c12n_mg23)*scratch_0
-    scratch_2 = screened_rates(k_c12_c12p_na23)*Y(jc12)*dens
-    scratch_3 = 1.0d0*scratch_2
-    scratch_4 = screened_rates(k_c12_ag_o16)*dens
-    scratch_5 = Y(jc12)*scratch_4
-    scratch_6 = -scratch_5
-    scratch_7 = Y(jhe4)*scratch_4
-    scratch_8 = -scratch_7
-    scratch_9 = screened_rates(k_c12_c12a_ne20)*scratch_0
+    scratch_2 = screened_rates(k_c12_c12p_na23)*scratch_0
+    scratch_3 = screened_rates(k_c12_ag_o16)*dens
+    scratch_4 = Y(jc12)*scratch_3
+    scratch_5 = -scratch_4
+    scratch_6 = Y(jhe4)*scratch_3
+    scratch_7 = -scratch_6
+    scratch_8 = screened_rates(k_c12_c12a_ne20)*Y(jc12)*dens
+    scratch_9 = 1.0d0*scratch_8
     scratch_10 = 2.0d0*Y(jc12)*dens
 
     dfdy_nuc(jn,jn) = ( &
@@ -351,7 +351,7 @@ contains
        )
 
     dfdy_nuc(jp,jc12) = ( &
-      scratch_3 &
+      scratch_2 &
        )
 
     dfdy_nuc(jp,jo16) = ( &
@@ -383,11 +383,11 @@ contains
        )
 
     dfdy_nuc(jhe4,jhe4) = ( &
-      scratch_6 &
+      scratch_5 &
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      scratch_8 + scratch_9 &
+      scratch_7 + scratch_9 &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -419,12 +419,12 @@ contains
        )
 
     dfdy_nuc(jc12,jhe4) = ( &
-      scratch_6 &
+      scratch_5 &
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_c12a_ne20)*scratch_10 - screened_rates(k_c12_c12n_mg23)*scratch_10 - &
-      2.0d0*scratch_2 + scratch_8 &
+      -screened_rates(k_c12_c12n_mg23)*scratch_10 - screened_rates(k_c12_c12p_na23)*scratch_10 + &
+      scratch_7 - 2.0d0*scratch_8 &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -456,11 +456,11 @@ contains
        )
 
     dfdy_nuc(jo16,jhe4) = ( &
-      scratch_5 &
+      scratch_4 &
        )
 
     dfdy_nuc(jo16,jc12) = ( &
-      scratch_7 &
+      scratch_6 &
        )
 
     dfdy_nuc(jo16,jo16) = ( &
@@ -568,7 +568,7 @@ contains
        )
 
     dfdy_nuc(jna23,jc12) = ( &
-      scratch_3 &
+      scratch_2 &
        )
 
     dfdy_nuc(jna23,jo16) = ( &
