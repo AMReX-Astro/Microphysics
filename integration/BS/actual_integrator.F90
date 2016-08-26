@@ -41,7 +41,6 @@ contains
                                     retry_burn_factor, retry_burn_max_change, &
                                     dT_crit, &
                                     integrate_molar_fraction
-    use integration_data, only: temp_scale, ener_scale
     use actual_rhs_module, only : update_unevolved_species
 
     implicit none
@@ -120,7 +119,7 @@ contains
 
     ener_offset = eos_state_in % e
 
-    bs % y(net_ienuc) = ener_offset / ener_scale
+    bs % y(net_ienuc) = ener_offset
 
     ! Pass through whether we are doing self-heating.
 
@@ -176,14 +175,14 @@ contains
     ! negative (or we failed), re-run this in self-heating mode.
 
     if ( burning_mode == 2 .and. &
-         (bs % y(net_ienuc) * ener_scale - ener_offset < ZERO .or. &
+         (bs % y(net_ienuc) - ener_offset < ZERO .or. &
          ierr /= IERR_NONE) ) then
 
        bs % burn_s % self_heat = .true.
 
        call eos_to_bs(eos_state_in, bs)
 
-       bs % y(net_ienuc) = ener_offset / ener_scale
+       bs % y(net_ienuc) = ener_offset
 
        ! redo the T_old, cv / cp extrapolation
        bs % burn_s % T_old = eos_state_in % T
@@ -213,7 +212,7 @@ contains
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', bs % y(net_itemp) * temp_scale
+       print *, 'temp current = ', bs % y(net_itemp)
        if (integrate_molar_fraction) then
           print *, 'xn current = ', bs % y(1:nspec_evolve) * aion(1:nspec_evolve), &
                bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
@@ -221,7 +220,7 @@ contains
           print *, 'xn current = ', bs % y(1:nspec_evolve), &
                bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
        endif
-       print *, 'energy generated = ', bs % y(net_ienuc) * ener_scale - ener_offset
+       print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 
        if (.not. retry_burn) then
@@ -246,7 +245,7 @@ contains
 
              call eos_to_bs(eos_state_in, bs)
 
-             bs % y(net_ienuc) = ener_offset / ener_scale
+             bs % y(net_ienuc) = ener_offset
 
              ! redo the T_old, cv / cp extrapolation
              bs % burn_s % T_old = eos_state_in % T
@@ -278,7 +277,7 @@ contains
 
     ! Subtract the energy offset.
 
-    bs % y(net_ienuc) = bs % y(net_ienuc) * ener_scale - ener_offset
+    bs % y(net_ienuc) = bs % y(net_ienuc) - ener_offset
 
     ! Store the final data, and then normalize abundances.
     call bs_to_burn(bs)

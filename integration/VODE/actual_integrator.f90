@@ -72,7 +72,6 @@ contains
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
-    use integration_data, only: temp_scale, ener_scale
     use actual_rhs_module, only : update_unevolved_species
 
     implicit none
@@ -175,7 +174,7 @@ contains
 
     ener_offset = eos_state_in % e
 
-    y(net_ienuc) = ener_offset / ener_scale
+    y(net_ienuc) = ener_offset
 
     ! Pass through whether we are doing self-heating.
 
@@ -232,7 +231,7 @@ contains
     ! re-run this in self-heating mode.
 
     if ( burning_mode == 2 .and. &
-         (y(net_ienuc) * ener_scale - ener_offset < ZERO .or. &
+         (y(net_ienuc) - ener_offset < ZERO .or. &
           istate < 0) ) then
 
        rpar(irp_self_heat) = ONE
@@ -257,7 +256,7 @@ contains
 
        endif
 
-       y(net_ienuc) = ener_offset / ener_scale
+       y(net_ienuc) = ener_offset
 
        call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                   ITOL, rtol, atol, ITASK, &
@@ -274,10 +273,10 @@ contains
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', y(net_itemp) * temp_scale
+       print *, 'temp current = ', y(net_itemp)
        print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
             rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
-       print *, 'energy generated = ', y(net_ienuc) * ener_scale - ener_offset
+       print *, 'energy generated = ', y(net_ienuc) - ener_offset
 
        if (.not. retry_burn) then
 
@@ -316,7 +315,7 @@ contains
 
              endif
 
-             y(net_ienuc) = ener_offset / ener_scale
+             y(net_ienuc) = ener_offset
 
              call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                         ITOL, rtol, atol, ITASK, &
@@ -335,7 +334,7 @@ contains
     endif
 
     ! Subtract the energy offset
-    y(net_ienuc) = y(net_ienuc) * ener_scale - ener_offset
+    y(net_ienuc) = y(net_ienuc) - ener_offset
 
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)

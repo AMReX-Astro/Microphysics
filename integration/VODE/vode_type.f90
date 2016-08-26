@@ -136,7 +136,7 @@ contains
 
     use bl_types, only: dp_t
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv, dens_scale, temp_scale
+    use integration_data, only: aionInv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -149,8 +149,8 @@ contains
     real(dp_t)   :: rpar(n_rpar_comps)
     real(dp_t)   :: y(neqs)
 
-    state % rho     = rpar(irp_dens) * dens_scale
-    state % T       = y(net_itemp) * temp_scale
+    state % rho     = rpar(irp_dens)
+    state % T       = y(net_itemp)
 
     if (integrate_molar_fraction) then
        state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
@@ -180,7 +180,7 @@ contains
 
     use bl_types, only: dp_t
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
+    use integration_data, only: aionInv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -193,8 +193,8 @@ contains
     real(dp_t)   :: rpar(n_rpar_comps)
     real(dp_t)   :: y(neqs)
 
-    rpar(irp_dens) = state % rho * inv_dens_scale
-    y(net_itemp) = state % T * inv_temp_scale
+    rpar(irp_dens) = state % rho
+    y(net_itemp) = state % T
 
     if (integrate_molar_fraction) then
        y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
@@ -225,7 +225,7 @@ contains
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
+    use integration_data, only: aionInv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -242,8 +242,8 @@ contains
 
     integer :: n
 
-    rpar(irp_dens) = state % rho * inv_dens_scale
-    y(net_itemp) = state % T * inv_temp_scale
+    rpar(irp_dens) = state % rho
+    y(net_itemp) = state % T
 
     if (integrate_molar_fraction) then
        y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
@@ -255,7 +255,7 @@ contains
             state % xn(nspec_evolve+1:nspec)
     endif
 
-    y(net_ienuc)                             = state % e * inv_ener_scale
+    y(net_ienuc)                             = state % e
     rpar(irp_cp)                             = state % cp
     rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
@@ -271,14 +271,10 @@ contains
 
     if (present(ydot)) then
        ydot = state % ydot
-       ydot(net_itemp) = ydot(net_itemp) * inv_temp_scale
-       ydot(net_ienuc) = ydot(net_ienuc) * inv_ener_scale
     endif
 
     if (present(jac)) then
        jac = state % jac
-       jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
-       jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
     endif
 
     if (state % self_heat) then
@@ -298,7 +294,7 @@ contains
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv, dens_scale, temp_scale, ener_scale
+    use integration_data, only: aionInv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -314,9 +310,9 @@ contains
 
     integer :: n
 
-    state % rho      = rpar(irp_dens) * dens_scale
-    state % T        = y(net_itemp) * temp_scale
-    state % e        = y(net_ienuc) * ener_scale
+    state % rho      = rpar(irp_dens)
+    state % T        = y(net_itemp)
+    state % e        = y(net_ienuc)
 
     if (integrate_molar_fraction) then
        state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)

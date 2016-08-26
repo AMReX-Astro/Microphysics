@@ -44,7 +44,7 @@ contains
     use bl_constants_module, only: ONE
     use extern_probin_module, only: small_x, integrate_molar_fraction
     use actual_network, only: aion, nspec, nspec_evolve
-    use integration_data, only: aionInv, temp_scale
+    use integration_data, only: aionInv
     use burn_type_module, only: net_itemp
     use eos_module, only : eos_get_small_temp
 
@@ -76,8 +76,7 @@ contains
     ! Ensure that the temperature always stays within reasonable limits.
     call eos_get_small_temp(small_temp)
 
-    state % y(net_itemp) = min(MAX_TEMP / temp_scale, &
-                               max(state % y(net_itemp), small_temp / temp_scale))
+    state % y(net_itemp) = min(MAX_TEMP, max(state % y(net_itemp), small_temp))
 
   end subroutine clean_state
 
@@ -122,7 +121,7 @@ contains
     use eos_module, only: eos_input_rt, eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, integrate_molar_fraction
     ! these shouldn't be needed
-    use integration_data, only: aionInv, temp_scale
+    use integration_data, only: aionInv
     use rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : aion, nspec, nspec_evolve
 
@@ -212,7 +211,6 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: dens_scale, temp_scale
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
@@ -223,8 +221,8 @@ contains
     type (eos_t) :: state
     type (bs_t) :: bs
 
-    state % rho     = bs % burn_s % rho * dens_scale
-    state % T       = bs % y(net_itemp) * temp_scale
+    state % rho     = bs % burn_s % rho
+    state % T       = bs % y(net_itemp)
 
     if (integrate_molar_fraction) then
        state % xn(1:nspec_evolve) = bs % y(1:nspec_evolve) * aion(1:nspec_evolve)
@@ -250,7 +248,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve
-    use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale
+    use integration_data, only: aionInv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
@@ -261,10 +259,10 @@ contains
     type (eos_t) :: state
     type (bs_t) :: bs
 
-    bs % burn_s % rho = state % rho * inv_dens_scale
+    bs % burn_s % rho = state % rho
 
     ! T is funny -- it is both an integration variable and a member of burn_t
-    bs % y(net_itemp) = state % T * inv_temp_scale
+    bs % y(net_itemp) = state % T
     bs % burn_s % T = state % T 
 
     if (integrate_molar_fraction) then
@@ -297,7 +295,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve
-    use integration_data, only: aionInv, inv_dens_scale, inv_temp_scale, inv_ener_scale
+    use integration_data, only: aionInv
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ONE
@@ -307,8 +305,8 @@ contains
 
     type (bs_t) :: bs
 
-    bs % burn_s % rho = bs % burn_s % rho * inv_dens_scale
-    bs % y(net_itemp) = bs % burn_s % T * inv_temp_scale
+    bs % burn_s % rho = bs % burn_s % rho
+    bs % y(net_itemp) = bs % burn_s % T
 
     if (integrate_molar_fraction) then
        bs % y(1:nspec_evolve) = bs % burn_s % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
@@ -320,17 +318,9 @@ contains
             bs % burn_s % xn(nspec_evolve+1:nspec) 
     endif
 
-    bs % y(net_ienuc) = bs % burn_s % e * inv_ener_scale
+    bs % y(net_ienuc) = bs % burn_s % e
 
     ! we don't need to do anything to thermodynamic quantities, cp, cv, ...
-
-    bs % burn_s % ydot(net_itemp) = bs % burn_s % ydot(net_itemp) * inv_temp_scale
-    bs % burn_s % ydot(net_ienuc) = bs % burn_s % ydot(net_ienuc) * inv_ener_scale
-
-    bs % burn_s % jac(net_itemp,:) = bs % burn_s % jac(net_itemp,:) * inv_temp_scale
-    bs % burn_s % jac(net_ienuc,:) = bs % burn_s % jac(net_ienuc,:) * inv_ener_scale
-
-    ! fixme: net_itemp, net_itemp shouldn't be scaled
 
     ! we don't need to do anything to self_heat
 
@@ -345,7 +335,6 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: dens_scale, temp_scale, ener_scale
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ZERO, ONE
@@ -355,9 +344,9 @@ contains
 
     type (bs_t) :: bs
 
-    bs % burn_s % rho = bs % burn_s % rho * dens_scale
-    bs % burn_s % T = bs % y(net_itemp) * temp_scale
-    bs % burn_s % e = bs % y(net_ienuc) * ener_scale
+    bs % burn_s % rho = bs % burn_s % rho
+    bs % burn_s % T = bs % y(net_itemp)
+    bs % burn_s % e = bs % y(net_ienuc)
 
     if (integrate_molar_fraction) then
        bs % burn_s % xn(1:nspec_evolve) = bs % y(1:nspec_evolve) * aion(1:nspec_evolve)
@@ -371,13 +360,6 @@ contains
 
     ! all the other thermodynamic quantities (cp, cv, ...) are already
     ! in the burn_t
-
-    ! fix the scaling of the derivative terms
-    bs % burn_s % ydot(net_itemp) = bs % burn_s % ydot(net_itemp) * temp_scale
-    bs % burn_s % ydot(net_ienuc) = bs % burn_s % ydot(net_ienuc) * ener_scale
-
-    bs % burn_s % jac(net_itemp,:) = bs % burn_s % jac(net_itemp,:) * temp_scale
-    bs % burn_s % jac(net_ienuc,:) = bs % burn_s % jac(net_ienuc,:) * ener_scale
 
     ! self_heat is already set
 

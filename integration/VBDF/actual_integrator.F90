@@ -45,8 +45,6 @@ contains
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit, &
                                     integrate_molar_fraction
-
-    use integration_data, only: temp_scale, ener_scale
     use actual_rhs_module, only : update_unevolved_species
 
     implicit none
@@ -119,7 +117,7 @@ contains
 
     ener_offset = eos_state_in % e
 
-    ts % y(net_ienuc,1) = ener_offset / ener_scale
+    ts % y(net_ienuc,1) = ener_offset
 
     ! Pass through whether we are doing self-heating.
 
@@ -189,14 +187,14 @@ contains
     ! negative (or we failed), re-run this in self-heating mode.
 
     if ( burning_mode == 2 .and. &
-         (ts % y(net_ienuc,1) * ener_scale - ener_offset < ZERO .or. &
+         (ts % y(net_ienuc,1) - ener_offset < ZERO .or. &
           ierr /= BDF_ERR_SUCCESS) ) then
 
        ts % upar(irp_self_heat,1) = ONE
 
        call eos_to_vbdf(eos_state_in, ts)
 
-       ts % y(net_ienuc,1) = ener_offset / ener_scale
+       ts % y(net_ienuc,1) = ener_offset
 
        ts % upar(irp_Told,1) = eos_state_in % T
 
@@ -226,7 +224,7 @@ contains
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', ts % y(net_itemp,1) * temp_scale
+       print *, 'temp current = ', ts % y(net_itemp,1)
        if (integrate_molar_fraction) then
           print *, 'xn current = ', ts % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
                ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) * aion(nspec_evolve+1:)
@@ -236,7 +234,7 @@ contains
           print *, 'xn current = ', ts % y(1:nspec_evolve,1), &
                ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
        endif
-       print *, 'energy generated = ', ts % y(net_ienuc,1) * ener_scale - ener_offset
+       print *, 'energy generated = ', ts % y(net_ienuc,1) - ener_offset
 #endif
        if (.not. retry_burn) then
 #ifndef ACC
@@ -257,7 +255,7 @@ contains
 
              call eos_to_vbdf(eos_state_in, ts)
 
-             ts % y(net_ienuc,1) = ener_offset / ener_scale
+             ts % y(net_ienuc,1) = ener_offset
 
              ts % upar(irp_Told,1) = eos_state_in % T
 
@@ -289,7 +287,7 @@ contains
 
     ! Subtract the energy offset.
 
-    ts % y(net_ienuc,1) = ts % y(net_ienuc,1) * ener_scale - ener_offset
+    ts % y(net_ienuc,1) = ts % y(net_ienuc,1) - ener_offset
 
     ! Store the final data, and then normalize abundances.
     call vbdf_to_burn(ts, state_out)
@@ -311,7 +309,7 @@ contains
        print *, 'integration summary: '
        print *, 'dens: ', state_out % rho
        print *, ' temp: ', state_out % T
-       print *, ' energy released: ', ts % y(net_ienuc,1) * ener_scale - ener_offset
+       print *, ' energy released: ', ts % y(net_ienuc,1) - ener_offset
        print *, 'number of steps taken: ', ts % n
        print *, 'number of f evaluations: ', ts % nfe
 
