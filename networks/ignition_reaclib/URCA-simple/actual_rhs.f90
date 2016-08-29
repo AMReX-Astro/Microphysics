@@ -77,8 +77,6 @@ contains
     double precision :: ydot_nuc(nspec)
     double precision :: reactvec(num_rate_groups+2)
     double precision :: screened_rates(nrates)
-    double precision :: dqweak(nrat_tabular)
-    double precision :: epart(nrat_tabular)
     integer :: i, j
     double precision :: dens, temp, rhoy, ye, enuc
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
@@ -288,7 +286,6 @@ contains
     double precision :: scratch_7
     double precision :: scratch_8
     double precision :: scratch_9
-    double precision :: scratch_10
 
     scratch_0 = 1.0d0*Y(jc12)*dens
     scratch_1 = screened_rates(k_c12_c12n_mg23)*scratch_0
@@ -298,9 +295,8 @@ contains
     scratch_5 = -scratch_4
     scratch_6 = Y(jhe4)*scratch_3
     scratch_7 = -scratch_6
-    scratch_8 = screened_rates(k_c12_c12a_ne20)*Y(jc12)*dens
-    scratch_9 = 1.0d0*scratch_8
-    scratch_10 = 2.0d0*Y(jc12)*dens
+    scratch_8 = screened_rates(k_c12_c12a_ne20)*scratch_0
+    scratch_9 = 2.0d0*Y(jc12)*dens
 
     dfdy_nuc(jn,jn) = ( &
       -screened_rates(k_n_p) &
@@ -387,7 +383,7 @@ contains
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      scratch_7 + scratch_9 &
+      scratch_7 + scratch_8 &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -423,8 +419,8 @@ contains
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_c12n_mg23)*scratch_10 - screened_rates(k_c12_c12p_na23)*scratch_10 + &
-      scratch_7 - 2.0d0*scratch_8 &
+      -screened_rates(k_c12_c12a_ne20)*scratch_9 - screened_rates(k_c12_c12n_mg23)*scratch_9 - &
+      screened_rates(k_c12_c12p_na23)*scratch_9 + scratch_7 &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -496,7 +492,7 @@ contains
        )
 
     dfdy_nuc(jne20,jc12) = ( &
-      scratch_9 &
+      scratch_8 &
        )
 
     dfdy_nuc(jne20,jo16) = ( &
