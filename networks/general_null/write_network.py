@@ -104,7 +104,7 @@ def parseNetFile(speciesList, auxvarsList, netFile):
         if netObj is None: return err
 
         objList = speciesList
-        if type(netObj).__name__ is "auxvar": objList = auxvarsList
+        if type(netObj).__name__ is "AuxVar": objList = auxvarsList
 
         # check to see if this species/auxvar is defined in the current list
         index = getObjectIndex(objList, netObj.name)
