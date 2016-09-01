@@ -60,7 +60,7 @@ contains
     zion(io16)  = 8.0d0
     zion(img24) = 12.0d0
 
-    ! Binding energies per nucleon in MeV
+    ! Binding energies per nucleus in MeV
     bion(ic12)  = 92.16294d0
     bion(io16)  = 127.62093d0
     bion(img24) = 198.2579d0
