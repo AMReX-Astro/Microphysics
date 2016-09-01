@@ -1,6 +1,11 @@
 
 changes since last merge:
 
+previous changes:
+
+
+* 16.09
+
  -- num_rate_groups is now a property of the individual networks
 
  -- a new integration method, Rosenbrock, was added to the BS
@@ -12,9 +17,6 @@ changes since last merge:
 
  -- support for spectral deferred correction coupling of the
     burner and hydro was added to the BS integrator
-
-
-previous changes:
 
 
 * 16.08
