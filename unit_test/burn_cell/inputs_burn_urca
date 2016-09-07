@@ -1,7 +1,10 @@
 &PROBIN
 
-  run_prefix = "react_ignition_simple"
-
+  run_prefix = "react_urca_"
+  
+  small_temp = 1d5
+  small_dens = 1d5
+  
   burner_verbose = .false.
 
   ! Set which jacobian to use
