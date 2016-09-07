@@ -8,8 +8,8 @@
 
   tmax = 1.0d-1
 
-  xin_file   = "xin.reaclib_urca"
-  run_prefix = "react_reaclib_urca_"
+  xin_file   = "xin.reaclib_cburn"
+  run_prefix = "react_reaclib_cburn_"
 
   burner_verbose = .false.
 
@@ -18,6 +18,8 @@
   ! 2 = numerical jacobian
   jacobian   = 1
 
+  ode_max_steps = 100000
+  scaling_method = 1
   retry_burn = .false.
   renormalize_abundances = .false.
 
@@ -27,5 +29,5 @@
   atol_spec = 1.0d-9
   atol_enuc = 1.0d-6
   atol_temp = 1.0d-6
-
+  
 /

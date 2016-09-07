@@ -18,8 +18,6 @@
   ! 2 = numerical jacobian
   jacobian   = 1
 
-  ode_max_steps = 100000
-  scaling_method = 1
   retry_burn = .false.
   renormalize_abundances = .false.
 
