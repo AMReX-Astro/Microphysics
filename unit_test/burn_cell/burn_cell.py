@@ -67,25 +67,34 @@ for fn in files:
 
 ## INIT VARIABLES
 nspec = data[0]['nspec']
+neqs  = data[0]['neqs']
 short_spec_names = data[0]['short_spec_names']
 
 # Init time
-time = []
+dtime = []
 
 # Init abundance vectors
 xn = [[] for i in range(nspec)]
 
+# Init ydot vectors
+ydot = [[] for i in range(neqs)]
+
 ## DATA LOOP
 # Loop through data and collect
 for d in data:
-    time.append(d['time'])
+    dtime.append(d['time'])
     for i, xi in enumerate(d['xn']):
         xn[i].append(xi)
+    for i, xi in enumerate(d['ydot']):
+        ydot[i].append(xi)
 
 # Convert data to numpy arrays
 for i in range(nspec):
     xn[i] = np.array(xn[i])
-time = np.cumsum(np.array(time))
+for i in range(neqs):
+    ydot[i] = np.array(ydot[i])
+dtime = np.array(dtime)
+time = np.cumsum(dtime)
 
 ## Define RGBA to HEX
 def rgba_to_hex(rgba):
@@ -95,11 +104,12 @@ def rgba_to_hex(rgba):
     return '#{:02X}{:02X}{:02X}'.format(r,g,b)
 
 ## PLOTTING
-# Plot abundances vs. time
-# Get set of colors to use
+# Get set of colors to use for abundances
 cm = plt.get_cmap('nipy_spectral')
 clist = [cm(1.0*i/nspec) for i in range(nspec)]
 hexclist = [rgba_to_hex(ci) for ci in clist]
+
+# Plot X vs. time
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_prop_cycle(cycler('color', hexclist))
@@ -108,4 +118,67 @@ for i in range(nspec):
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
 plt.xlabel('Time (s)')
 plt.ylabel('$\\mathrm{Log_{10} X}$')
-plt.savefig(args.runprefix+'_abundances.eps', bbox_extra_artists=(lgd,), bbox_inches='tight')
+plt.savefig(args.runprefix+'_abundances.eps',
+            bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+# Clear figure
+plt.clf()
+
+# Plot Nuclide dY/dt vs time
+ax = fig.add_subplot(111)
+
+# Separate Ydot tracks into +/- sets
+class Track(object):
+    def __init__(self):
+        self.time = []
+        self.yval = []
+        self.sign = 1
+        self.color = ''
+        self.linestyle = ''
+        self.label = ''
+        return
+
+tracks = []
+for i in range(neqs-2):
+    firsttrack = True
+    scratch = Track()
+    newtrack = True
+    
+    for t, yp in zip(time, ydot[i]):
+        if (not newtrack) and (np.sign(yp) != scratch.sign):
+            # Store track and create new
+            tracks.append(scratch)
+            scratch = Track()
+            newtrack = True
+            
+        if newtrack:
+            # set color, sign, linestyle, etc
+            newtrack = False
+            scratch.color = hexclist[i]
+            scratch.sign = np.sign(yp)
+            if firsttrack:
+                scratch.label = short_spec_names[i]
+                firsttrack = False
+            else:
+                scratch.label = None
+            if scratch.sign == -1:
+                scratch.linestyle = 'dashed'
+            else:
+                scratch.linestyle = 'solid'
+
+        if np.sign(yp) == scratch.sign:
+            # append to this track
+            scratch.time.append(t)
+            scratch.yval.append(np.absolute(yp))
+    # Append final track for this species
+    tracks.append(scratch)
+            
+for trc in tracks:
+    ax.plot(trc.time, np.log10(trc.yval), label=trc.label,
+            color=trc.color, linestyle=trc.linestyle)
+lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
+ax.set_xscale('log')
+plt.xlabel('Time (s)')
+plt.ylabel('$\\mathrm{Log_{10} \\dot{Y}}$')
+plt.savefig(args.runprefix+'_ydot.eps',
+            bbox_extra_artists=(lgd,), bbox_inches='tight')
