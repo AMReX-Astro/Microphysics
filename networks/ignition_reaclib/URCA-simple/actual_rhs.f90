@@ -13,9 +13,12 @@ module actual_rhs_module
 
   implicit none
 
-  double precision :: unscreened_rates(4, nrates)
-  double precision :: dqweak(nrat_tabular)
-  double precision :: epart(nrat_tabular)
+  type :: rate_eval_t
+     double precision :: unscreened_rates(4, nrates)
+     double precision :: screened_rates(nrates)
+     double precision :: dqweak(nrat_tabular)
+     double precision :: epart(nrat_tabular)
+  end type rate_eval_t
   
 contains
 
@@ -30,8 +33,9 @@ contains
     return
   end subroutine update_unevolved_species
 
-  subroutine evaluate_rates(state)
+  subroutine evaluate_rates(state, rate_eval)
     type(burn_t)     :: state
+    type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
     double precision :: Y(nspec)
     double precision :: raw_rates(4, nrates)
@@ -48,7 +52,7 @@ contains
     call fill_plasma_state(pstate, temp, dens, Y)
     do i = 1, nrat_reaclib
        call reaclib_evaluate(pstate, temp, i, reactvec)
-       unscreened_rates(:,i) = reactvec(1:4)
+       rate_eval % unscreened_rates(:,i) = reactvec(1:4)
     end do
 
     ! Included only if there are tabular rates
@@ -56,10 +60,15 @@ contains
     do i = 1, nrat_tabular
       call tabular_evaluate(table_meta(i), rhoy, temp, reactvec)
       j = i + nrat_reaclib
-      unscreened_rates(:,j) = reactvec(1:4)
-      dqweak(i) = reactvec(5)
-      epart(i)  = reactvec(6)
+      rate_eval % unscreened_rates(:,j) = reactvec(1:4)
+      rate_eval % dqweak(i) = reactvec(5)
+      rate_eval % epart(i)  = reactvec(6)
     end do
+
+    ! Compute screened rates
+    rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &
+         rate_eval % unscreened_rates(i_scor, :)
+
   end subroutine evaluate_rates
 
   subroutine actual_rhs(state)
@@ -72,11 +81,11 @@ contains
     implicit none
 
     type(burn_t) :: state
+    type(rate_eval_t) :: rate_eval
     type(plasma_state) :: pstate
     double precision :: Y(nspec)
     double precision :: ydot_nuc(nspec)
     double precision :: reactvec(num_rate_groups+2)
-    double precision :: screened_rates(nrates)
     integer :: i, j
     double precision :: dens, temp, rhoy, ye, enuc
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
@@ -87,24 +96,22 @@ contains
     dens = state%rho
     temp = state%T
 
-    call evaluate_rates(state)
+    call evaluate_rates(state, rate_eval)
 
-    screened_rates = unscreened_rates(i_rate, :) * unscreened_rates(i_scor, :)
-    
-    call rhs_nuc(ydot_nuc, Y, screened_rates, dens)
+    call rhs_nuc(ydot_nuc, Y, rate_eval % screened_rates, dens)
     state%ydot(1:nspec) = ydot_nuc
 
     ! ion binding energy contributions
     call ener_gener_rate(ydot_nuc, enuc)
     
     ! weak Q-value modification dqweak (density and temperature dependent)
-    enuc = enuc + N_AVO * state%ydot(jna23) * dqweak(j_na23_ne23)
-    enuc = enuc + N_AVO * state%ydot(jne23) * dqweak(j_ne23_na23)
+    enuc = enuc + N_AVO * state%ydot(jna23) * rate_eval % dqweak(j_na23_ne23)
+    enuc = enuc + N_AVO * state%ydot(jne23) * rate_eval % dqweak(j_ne23_na23)
     
     ! weak particle energy generation rates from gamma heating and neutrino loss
     ! (does not include plasma neutrino losses)
-    enuc = enuc + N_AVO * Y(jna23) * epart(j_na23_ne23)
-    enuc = enuc + N_AVO * Y(jne23) * epart(j_ne23_na23)
+    enuc = enuc + N_AVO * Y(jna23) * rate_eval % epart(j_na23_ne23)
+    enuc = enuc + N_AVO * Y(jne23) * rate_eval % epart(j_ne23_na23)
 
 
     ! Get the neutrino losses
@@ -207,9 +214,9 @@ contains
     implicit none
     
     type(burn_t) :: state
+    type(rate_eval_t) :: rate_eval
     type(plasma_state) :: pstate
     double precision :: reactvec(num_rate_groups+2)
-    double precision :: screened_rates(nrates)
     double precision :: screened_rates_dt(nrates)
     double precision :: dfdy_nuc(nspec, nspec)
     double precision :: Y(nspec)
@@ -223,12 +230,10 @@ contains
     ! Set molar abundances
     Y(:) = state%xn(:)/aion(:)
     
-    call evaluate_rates(state)
-    
-    screened_rates = unscreened_rates(i_rate, :) * unscreened_rates(i_scor, :)
+    call evaluate_rates(state, rate_eval)
     
     ! Species Jacobian elements with respect to other species
-    call jac_nuc(dfdy_nuc, Y, screened_rates, dens)
+    call jac_nuc(dfdy_nuc, Y, rate_eval % screened_rates, dens)
     state%jac(1:nspec, 1:nspec) = dfdy_nuc
 
     ! Species Jacobian elements with respect to energy generation rate
@@ -236,8 +241,11 @@ contains
 
     ! Evaluate the species Jacobian elements with respect to temperature by
     ! calling the RHS using the temperature derivative of the screened rate
-    screened_rates_dt = unscreened_rates(i_rate, :) * unscreened_rates(i_dscor_dt, :) + &
-         unscreened_rates(i_drate_dt, :) * unscreened_rates(i_scor, :)
+    screened_rates_dt = rate_eval % unscreened_rates(i_rate, :) * &
+         rate_eval % unscreened_rates(i_dscor_dt, :) + &
+         rate_eval % unscreened_rates(i_drate_dt, :) * &
+         rate_eval % unscreened_rates(i_scor, :)
+
     call rhs_nuc(state%jac(1:nspec, net_itemp), Y, screened_rates_dt, dens)
     
     ! Energy generation rate Jacobian elements with respect to species
@@ -286,17 +294,19 @@ contains
     double precision :: scratch_7
     double precision :: scratch_8
     double precision :: scratch_9
+    double precision :: scratch_10
 
     scratch_0 = 1.0d0*Y(jc12)*dens
     scratch_1 = screened_rates(k_c12_c12n_mg23)*scratch_0
-    scratch_2 = screened_rates(k_c12_c12p_na23)*scratch_0
-    scratch_3 = screened_rates(k_c12_ag_o16)*dens
-    scratch_4 = Y(jc12)*scratch_3
-    scratch_5 = -scratch_4
-    scratch_6 = Y(jhe4)*scratch_3
-    scratch_7 = -scratch_6
-    scratch_8 = screened_rates(k_c12_c12a_ne20)*scratch_0
-    scratch_9 = 2.0d0*Y(jc12)*dens
+    scratch_2 = screened_rates(k_c12_c12p_na23)*Y(jc12)*dens
+    scratch_3 = 1.0d0*scratch_2
+    scratch_4 = screened_rates(k_c12_ag_o16)*dens
+    scratch_5 = Y(jc12)*scratch_4
+    scratch_6 = -scratch_5
+    scratch_7 = Y(jhe4)*scratch_4
+    scratch_8 = -scratch_7
+    scratch_9 = screened_rates(k_c12_c12a_ne20)*scratch_0
+    scratch_10 = 2.0d0*Y(jc12)*dens
 
     dfdy_nuc(jn,jn) = ( &
       -screened_rates(k_n_p) &
@@ -347,7 +357,7 @@ contains
        )
 
     dfdy_nuc(jp,jc12) = ( &
-      scratch_2 &
+      scratch_3 &
        )
 
     dfdy_nuc(jp,jo16) = ( &
@@ -379,11 +389,11 @@ contains
        )
 
     dfdy_nuc(jhe4,jhe4) = ( &
-      scratch_5 &
+      scratch_6 &
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      scratch_7 + scratch_8 &
+      scratch_8 + scratch_9 &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -415,12 +425,12 @@ contains
        )
 
     dfdy_nuc(jc12,jhe4) = ( &
-      scratch_5 &
+      scratch_6 &
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_c12a_ne20)*scratch_9 - screened_rates(k_c12_c12n_mg23)*scratch_9 - &
-      screened_rates(k_c12_c12p_na23)*scratch_9 + scratch_7 &
+      -screened_rates(k_c12_c12a_ne20)*scratch_10 - screened_rates(k_c12_c12n_mg23)*scratch_10 - &
+      2.0d0*scratch_2 + scratch_8 &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -452,11 +462,11 @@ contains
        )
 
     dfdy_nuc(jo16,jhe4) = ( &
-      scratch_4 &
+      scratch_5 &
        )
 
     dfdy_nuc(jo16,jc12) = ( &
-      scratch_6 &
+      scratch_7 &
        )
 
     dfdy_nuc(jo16,jo16) = ( &
@@ -492,7 +502,7 @@ contains
        )
 
     dfdy_nuc(jne20,jc12) = ( &
-      scratch_8 &
+      scratch_9 &
        )
 
     dfdy_nuc(jne20,jo16) = ( &
@@ -564,7 +574,7 @@ contains
        )
 
     dfdy_nuc(jna23,jc12) = ( &
-      scratch_2 &
+      scratch_3 &
        )
 
     dfdy_nuc(jna23,jo16) = ( &
