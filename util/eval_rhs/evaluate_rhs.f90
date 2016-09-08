@@ -46,27 +46,27 @@ program evaluate_rhs
   call actual_jac(state)
 
   write(*,'(A25I25)') 'nspec_evolve: ', nspec_evolve
-  write(*,'(A25E25.16)') 'Density (g/cm^3): ', state%rho
-  write(*,'(A25E25.16)') 'Temperature (K): ', state%T
-  write(*,'(A25E25.16)') 'Ye: ', state%y_e
+  write(*,'(A25E30.16E5)') 'Density (g/cm^3): ', state%rho
+  write(*,'(A25E30.16E5)') 'Temperature (K): ', state%T
+  write(*,'(A25E30.16E5)') 'Ye: ', state%y_e
   write(*,*) 'RHS Evaluation'
   ! Print RHS
   do i = 1, nspec_evolve
-     write(*,'(A5A5A3E25.16)') 'ydot(', short_spec_names(i), '): ', state%ydot(i)
-     write(*,'(A5A5A3E25.16)') 'xdot(', short_spec_names(i), '): ', state%ydot(i)*aion(i)
+     write(*,'(A5A5A3E30.16E5)') 'ydot(', short_spec_names(i), '): ', state%ydot(i)
+     write(*,'(A5A5A3E30.16E5)') 'xdot(', short_spec_names(i), '): ', state%ydot(i)*aion(i)
   end do
-  write(*,'(A10E25.16)') 'dot temp: ', state%ydot(net_itemp)
-  write(*,'(A10E25.16)') 'dot enuc: ', state%ydot(net_ienuc)
+  write(*,'(A10E30.16E5)') 'dot temp: ', state%ydot(net_itemp)
+  write(*,'(A10E30.16E5)') 'dot enuc: ', state%ydot(net_ienuc)
   write(*,*) '--------------------'
   write(*,*) 'Jacobian Evaluation: d(dYi/dt)/dYj'
   ! Print Jacobian
-  write(FMT, '("(", I0, "E25.16)")') net_ienuc
+  write(FMT, '("(", I0, "E30.16E5)")') net_ienuc
   do i = 1, net_ienuc
      write(*,FMT) ( state%jac(i, j), j = 1, net_ienuc )
   end do
   write(*,*) '--------------------'
   write(*,*) 'd(dY(1:nspec_evolve)/dt)/dY(1:nspec_evolve)'
-  write(FMT, '("(", I0, "E25.16)")') nspec_evolve
+  write(FMT, '("(", I0, "E30.16E5)")') nspec_evolve
   do i = 1, nspec_evolve
      write(*,FMT) ( state%jac(i, j), j = 1, nspec_evolve )
   end do
@@ -83,7 +83,7 @@ program evaluate_rhs
   write(*,*) 'd(dY(1:nspec_evolve)/dt)/dY(net_itemp)'
   write(*,FMT) ( state%jac(j, net_itemp), j = 1, nspec_evolve )
   
-  write(FMT, '("(", I0, "E25.16)")') 1
+  write(FMT, '("(", I0, "E30.16E5)")') 1
   
   write(*,*) 'd(dY(net_ienuc)/dt)/dY(net_ienuc)'
   write(*,FMT) state%jac(net_ienuc, net_ienuc)
