@@ -70,8 +70,10 @@ nspec = data[0]['nspec']
 neqs  = data[0]['neqs']
 short_spec_names = data[0]['short_spec_names']
 
-# Init time
+# Init time, temp, ener
 dtime = []
+temp = []
+ener = []
 
 # Init abundance vectors
 xn = [[] for i in range(nspec)]
@@ -82,6 +84,8 @@ ydot = [[] for i in range(neqs)]
 ## DATA LOOP
 # Loop through data and collect
 for d in data:
+    temp.append(d['T'])
+    ener.append(d['e'])
     dtime.append(d['time'])
     for i, xi in enumerate(d['xn']):
         xn[i].append(xi)
@@ -93,8 +97,11 @@ for i in range(nspec):
     xn[i] = np.array(xn[i])
 for i in range(neqs):
     ydot[i] = np.array(ydot[i])
+temp = np.array(temp)
 dtime = np.array(dtime)
 time = np.cumsum(dtime)
+ener = np.array(ener)
+denerdt = ener/dtime
 
 ## Define RGBA to HEX
 def rgba_to_hex(rgba):
@@ -114,12 +121,54 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_prop_cycle(cycler('color', hexclist))
 for i in range(nspec):    
-    ax.plot(time, np.log10(xn[i]), label=short_spec_names[i])
+    ax.plot(np.log10(time), np.log10(xn[i]), label=short_spec_names[i])
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
-plt.xlabel('Time (s)')
+plt.xlabel('$\\mathrm{Log_{10} Time~(s)}$')
 plt.ylabel('$\\mathrm{Log_{10} X}$')
-plt.savefig(args.runprefix+'_abundances.eps',
+plt.savefig(args.runprefix+'_logX.eps',
             bbox_extra_artists=(lgd,), bbox_inches='tight')
+plt.savefig(args.runprefix+'_logX.png', dpi=300,
+            bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+# Clear figure
+plt.clf()
+
+# Plot T, edot vs. time
+
+# Find where edot = 0
+def y_where_x_zero(y, x):
+    yzero = []
+    xiszero = False
+    ylo = 0.0
+    for yi, xi in zip(y, x):
+        if xi == 0.0 and not xiszero:
+            xiszero = True
+            ylo = yi
+        if xi != 0.0 and xiszero:
+            xiszero = False
+            yzero.append([ylo, yi])
+    if xiszero:
+        yzero.append([ylo, y[-1]])
+    return yzero
+
+edotzero = y_where_x_zero(time, denerdt)
+ax = fig.add_subplot(111)
+ax.plot(np.log10(time), np.log10(temp), label='Temperature', color='red')
+lgd = ax.legend(bbox_to_anchor=(1.1, 1), loc=2, borderaxespad=0.0)
+ax.set_xlabel('$\\mathrm{Log_{10} Time~(s)}$')
+ax.set_ylabel('$\\mathrm{Log_{10} T~(K)}$')
+ax2 = ax.twinx()
+ax2.plot(np.log10(time), np.log10(denerdt), label='E Gen Rate', color='blue')
+ax2.set_ylabel('$\\mathrm{Log_{10} \\dot{e}~(erg/g/s)}$')
+lgd2 = ax2.legend(bbox_to_anchor=(1.1, 0.75), loc=2, borderaxespad=0.0)
+# hatch where edot=0
+for edz in edotzero:
+    plt.axvspan(np.log10(edz[0]), np.log10(edz[1]), color='blue', linewidth=0, hatch='/', alpha=0.2)
+plt.savefig(args.runprefix+'_T-edot.eps',
+            bbox_extra_artists=(lgd,lgd2,), bbox_inches='tight')
+plt.savefig(args.runprefix+'_T-edot.png', dpi=300,
+            bbox_extra_artists=(lgd,lgd2,), bbox_inches='tight')
+
 
 # Clear figure
 plt.clf()
@@ -174,11 +223,12 @@ for i in range(neqs-2):
     tracks.append(scratch)
             
 for trc in tracks:
-    ax.plot(trc.time, np.log10(trc.yval), label=trc.label,
+    ax.plot(np.log10(trc.time), np.log10(trc.yval), label=trc.label,
             color=trc.color, linestyle=trc.linestyle)
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
-ax.set_xscale('log')
-plt.xlabel('Time (s)')
+plt.xlabel('$\\mathrm{Log_{10} Time~(s)}$')
 plt.ylabel('$\\mathrm{Log_{10} \\dot{Y}}$')
 plt.savefig(args.runprefix+'_ydot.eps',
+            bbox_extra_artists=(lgd,), bbox_inches='tight')
+plt.savefig(args.runprefix+'_ydot.png', dpi=300,
             bbox_extra_artists=(lgd,), bbox_inches='tight')
