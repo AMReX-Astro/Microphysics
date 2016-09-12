@@ -27,5 +27,6 @@
   atol_temp = 1.0d-9
 
   small_x = 1.d-16
+  SMALL_X_SAFE = 1.d-20
   
 /
