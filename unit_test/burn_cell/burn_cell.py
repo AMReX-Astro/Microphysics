@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser()
 parser.add_argument('runprefix', type=str,
                     help='Prefix of the output run files. We look for files named as [prefix]_[0-9]*')
-parser.add_argument('--logtlo', type=float, help='Log10 Time lower limit')
-parser.add_argument('--logthi', type=float, help='Log10 Time upper limit')
+parser.add_argument('--filenum', action='store_true', help='If --filenum, plot vs. file number')
+parser.add_argument('--logtime', action='store_true', help='If --logtime, plot Log10(time).')
+parser.add_argument('--tlo', type=float, help='Time lower limit')
+parser.add_argument('--thi', type=float, help='Time upper limit')
+parser.add_argument('--nlo', type=float, help='File num lower limit')
+parser.add_argument('--nhi', type=float, help='File num upper limit')
 args = parser.parse_args()
 
 files = glob.glob(args.runprefix + r'_[0-9]*')
@@ -23,6 +27,11 @@ data = []
 for fn in files:
     d = {}
     f = open(fn, 'r')
+
+    # Get file number
+    fnsplit = fn.split('_')
+    fnum = int(fnsplit[-1])
+    d['fnum'] = fnum
     
     # Eat lines
     flines = []
@@ -69,12 +78,17 @@ for fn in files:
     # Store data
     data.append(d)
 
+## SORT file data by file number
+data_sorted = sorted(data, key=lambda d: d['fnum'])
+data = data_sorted
+    
 ## INIT VARIABLES
 nspec = data[0]['nspec']
 neqs  = data[0]['neqs']
 short_spec_names = data[0]['short_spec_names']
 
 # Init time, temp, ener
+fnum = []
 dtime = []
 temp = []
 ener = []
@@ -88,6 +102,7 @@ ydot = [[] for i in range(neqs)]
 ## DATA LOOP
 # Loop through data and collect
 for d in data:
+    fnum.append(d['fnum'])
     temp.append(d['T'])
     ener.append(d['e'])
     dtime.append(d['time'])
@@ -101,11 +116,14 @@ for i in range(nspec):
     xn[i] = np.array(xn[i])
 for i in range(neqs):
     ydot[i] = np.array(ydot[i])
+    ydot[i][0] = ydot[i][1]
+fnum = np.array(fnum)
 temp = np.array(temp)
 dtime = np.array(dtime)
 time = np.cumsum(dtime)
 ener = np.array(ener)
-denerdt = ener/dtime
+denerdt = np.zeros_like(ener)
+denerdt[1:] = ener[1:]/dtime[1:]
 
 ## Define RGBA to HEX
 def rgba_to_hex(rgba):
@@ -115,17 +133,44 @@ def rgba_to_hex(rgba):
     return '#{:02X}{:02X}{:02X}'.format(r,g,b)
 
 ## PLOTTING
-
+    
 # Figure out time axis limits
-if args.logtlo and args.logthi:
-    ltlim = [args.logtlo, args.logthi]
-elif args.logtlo:
-    ltlim = [args.logtlo, np.log10(time[-1])]
-elif args.logthi:
-    ltlim = [np.log10(time[0]), args.logthi]
+if args.tlo and args.thi:
+    ltlim = [args.tlo, args.thi]
+elif args.tlo:
+    ltlim = [args.tlo, time[-1]]
+elif args.thi:
+    ltlim = [time[0], args.thi]
 else:
-    ltlim = [np.log10(time[0]), np.log10(time[-1])]
+    ltlim = [time[0], time[-1]]
+if args.logtime:
+    time = np.log10(time)
+    ltlim = np.log10(ltlim)
 
+# Number axis limits
+if args.nlo and args.nhi:
+    fnlim = [args.nlo, args.nhi]
+elif args.tlo:
+    fnlim = [args.nlo, fnum[-1]]
+elif args.thi:
+    fnlim = [fnum[0], args.nhi]
+else:
+    fnlim = [fnum[0], fnum[-1]]
+
+# Time or file number selection
+if args.filenum or args.nlo or args.nhi:
+    plot_vs_fnum = True
+    xlabel = '$\\mathrm{Output \\#}$'
+    xvec = fnum
+    xlim = fnlim
+else:
+    xvec = time
+    xlim = ltlim
+    if args.logtime:
+        xlabel = '$\\mathrm{Log_{10}~Time~(s)}$'
+    else:
+        xlabel = '$\\mathrm{Time~(s)}$'
+    
 # Get set of colors to use for abundances
 cm = plt.get_cmap('nipy_spectral')
 clist = [cm(1.0*i/nspec) for i in range(nspec)]
@@ -136,10 +181,10 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_prop_cycle(cycler('color', hexclist))
 for i in range(nspec):    
-    ax.plot(np.log10(time), np.log10(xn[i]), label=short_spec_names[i])
+    ax.plot(xvec, np.log10(xn[i]), label=short_spec_names[i])
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
-ax.set_xlim(ltlim)
-plt.xlabel('$\\mathrm{Log_{10} Time~(s)}$')
+ax.set_xlim(xlim)
+plt.xlabel(xlabel)
 plt.ylabel('$\\mathrm{Log_{10} X}$')
 plt.savefig(args.runprefix+'_logX.eps',
             bbox_extra_artists=(lgd,), bbox_inches='tight')
@@ -169,15 +214,15 @@ def y_where_x_zero(y, x):
 
 edotzero = y_where_x_zero(time, denerdt)
 ax = fig.add_subplot(111)
-ax.plot(np.log10(time), np.log10(temp), label='Temperature', color='red')
+ax.plot(xvec, np.log10(temp), label='Temperature', color='red')
 lgd = ax.legend(bbox_to_anchor=(1.1, 1), loc=2, borderaxespad=0.0)
-ax.set_xlabel('$\\mathrm{Log_{10} Time~(s)}$')
+ax.set_xlabel(xlabel)
 ax.set_ylabel('$\\mathrm{Log_{10} T~(K)}$')
-ax.set_xlim(ltlim)
+ax.set_xlim(xlim)
 ax2 = ax.twinx()
-ax2.plot(np.log10(time), np.log10(denerdt), label='E Gen Rate', color='blue')
+ax2.plot(xvec, np.log10(denerdt), label='E Gen Rate', color='blue')
 ax2.set_ylabel('$\\mathrm{Log_{10} \\dot{e}~(erg/g/s)}$')
-ax2.set_xlim(ltlim)
+ax2.set_xlim(xlim)
 lgd2 = ax2.legend(bbox_to_anchor=(1.1, 0.75), loc=2, borderaxespad=0.0)
 # hatch where edot=0
 for edz in edotzero:
@@ -197,7 +242,7 @@ ax = fig.add_subplot(111)
 # Separate Ydot tracks into +/- sets
 class Track(object):
     def __init__(self):
-        self.time = []
+        self.xvec = []
         self.yval = []
         self.sign = 1
         self.color = ''
@@ -211,7 +256,7 @@ for i in range(neqs-2):
     scratch = Track()
     newtrack = True
     
-    for t, yp in zip(time, ydot[i]):
+    for xp, yp in zip(xvec, ydot[i]):
         if (not newtrack) and (np.sign(yp) != scratch.sign):
             # Store track and create new
             tracks.append(scratch)
@@ -235,17 +280,17 @@ for i in range(neqs-2):
 
         if np.sign(yp) == scratch.sign:
             # append to this track
-            scratch.time.append(t)
+            scratch.xvec.append(xp)
             scratch.yval.append(np.absolute(yp))
     # Append final track for this species
     tracks.append(scratch)
             
 for trc in tracks:
-    ax.plot(np.log10(trc.time), np.log10(trc.yval), label=trc.label,
+    ax.plot(trc.xvec, np.log10(trc.yval), label=trc.label,
             color=trc.color, linestyle=trc.linestyle)
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
-ax.set_xlim(ltlim)
-plt.xlabel('$\\mathrm{Log_{10} Time~(s)}$')
+ax.set_xlim(xlim)
+plt.xlabel(xlabel)
 plt.ylabel('$\\mathrm{Log_{10} \\dot{Y}}$')
 plt.savefig(args.runprefix+'_ydot.eps',
             bbox_extra_artists=(lgd,), bbox_inches='tight')
