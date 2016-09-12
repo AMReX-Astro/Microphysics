@@ -42,7 +42,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ONE
-    use extern_probin_module, only: small_x, integrate_molar_fraction
+    use extern_probin_module, only: integrate_molar_fraction, SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: aion, nspec, nspec_evolve
     use integration_data, only: aionInv
     use burn_type_module, only: net_itemp
@@ -55,23 +55,22 @@ contains
     ! this should be larger than any reasonable temperature we will encounter
     real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
 
-    ! this is the absolute cutoff for species -- note that this might
-    ! be larger than small_x that the user set, but the issue is that
-    ! we can have underflow issues if the integrator has to keep track
-    ! of species mass fractions much smaller than this.
-    real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-30
     real (kind=dp_t) :: small_temp
 
-    ! Ensure that mass fractions always stay positive.
+    ! Ensure that mass fractions always stay positive and sum to 1.
     if (integrate_molar_fraction) then
        state % y(1:nspec_evolve) = &
             max(min(state % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE), &
-                SMALL_X_SAFE) * aionInv(1:nspec_evolve)
+            SMALL_X_SAFE) * aionInv(1:nspec_evolve)
     else
        state % y(1:nspec_evolve) = &
             max(min(state % y(1:nspec_evolve), ONE), SMALL_X_SAFE)
     endif
 
+    ! Renormalize abundances as necessary.
+    if (renormalize_abundances) then
+       call renormalize_species(state)
+    endif
 
     ! Ensure that the temperature always stays within reasonable limits.
     call eos_get_small_temp(small_temp)
