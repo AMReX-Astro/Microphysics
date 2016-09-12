@@ -60,6 +60,7 @@ program burn_cell
   ! output initial burn type data
   write(out_num,'(I6.6)') 0
   out_name = trim(run_prefix) // out_num
+  burn_state_in % time = ZERO
   call write_burn_t(out_name, burn_state_in)
   
   dt = tmax/ntimes
