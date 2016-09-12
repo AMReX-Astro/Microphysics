@@ -19,7 +19,7 @@
   jacobian   = 1
 
   ode_max_steps = 1000
-  scaling_method = 1
+  scaling_method = 2
   retry_burn = .false.
   renormalize_abundances = .false.
 
