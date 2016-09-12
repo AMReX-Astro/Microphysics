@@ -9,10 +9,14 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser()
 parser.add_argument('runprefix', type=str,
                     help='Prefix of the output run files. We look for files named as [prefix]_[0-9]*')
+parser.add_argument('--logtlo', type=float, help='Log10 Time lower limit')
+parser.add_argument('--logthi', type=float, help='Log10 Time upper limit')
 args = parser.parse_args()
 
 files = glob.glob(args.runprefix + r'_[0-9]*')
 print('Found {} files matching pattern {}'.format(len(files), args.runprefix+'_[0-9]*'))
+if len(files) == 0:
+    exit()
 
 data = []
 
@@ -111,6 +115,17 @@ def rgba_to_hex(rgba):
     return '#{:02X}{:02X}{:02X}'.format(r,g,b)
 
 ## PLOTTING
+
+# Figure out time axis limits
+if args.logtlo and args.logthi:
+    ltlim = [args.logtlo, args.logthi]
+elif args.logtlo:
+    ltlim = [args.logtlo, np.log10(time[-1])]
+elif args.logthi:
+    ltlim = [np.log10(time[0]), args.logthi]
+else:
+    ltlim = [np.log10(time[0]), np.log10(time[-1])]
+
 # Get set of colors to use for abundances
 cm = plt.get_cmap('nipy_spectral')
 clist = [cm(1.0*i/nspec) for i in range(nspec)]
@@ -123,6 +138,7 @@ ax.set_prop_cycle(cycler('color', hexclist))
 for i in range(nspec):    
     ax.plot(np.log10(time), np.log10(xn[i]), label=short_spec_names[i])
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
+ax.set_xlim(ltlim)
 plt.xlabel('$\\mathrm{Log_{10} Time~(s)}$')
 plt.ylabel('$\\mathrm{Log_{10} X}$')
 plt.savefig(args.runprefix+'_logX.eps',
@@ -157,13 +173,15 @@ ax.plot(np.log10(time), np.log10(temp), label='Temperature', color='red')
 lgd = ax.legend(bbox_to_anchor=(1.1, 1), loc=2, borderaxespad=0.0)
 ax.set_xlabel('$\\mathrm{Log_{10} Time~(s)}$')
 ax.set_ylabel('$\\mathrm{Log_{10} T~(K)}$')
+ax.set_xlim(ltlim)
 ax2 = ax.twinx()
 ax2.plot(np.log10(time), np.log10(denerdt), label='E Gen Rate', color='blue')
 ax2.set_ylabel('$\\mathrm{Log_{10} \\dot{e}~(erg/g/s)}$')
+ax2.set_xlim(ltlim)
 lgd2 = ax2.legend(bbox_to_anchor=(1.1, 0.75), loc=2, borderaxespad=0.0)
 # hatch where edot=0
 for edz in edotzero:
-    plt.axvspan(np.log10(edz[0]), np.log10(edz[1]), color='blue', linewidth=0, hatch='/', alpha=0.2)
+    plt.axvspan(np.log10(edz[0]), np.log10(edz[1]), color='blue', fill=False, linewidth=0, hatch='/', alpha=0.2)
 plt.savefig(args.runprefix+'_T-edot.eps',
             bbox_extra_artists=(lgd,lgd2,), bbox_inches='tight')
 plt.savefig(args.runprefix+'_T-edot.png', dpi=300,
@@ -226,6 +244,7 @@ for trc in tracks:
     ax.plot(np.log10(trc.time), np.log10(trc.yval), label=trc.label,
             color=trc.color, linestyle=trc.linestyle)
 lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
+ax.set_xlim(ltlim)
 plt.xlabel('$\\mathrm{Log_{10} Time~(s)}$')
 plt.ylabel('$\\mathrm{Log_{10} \\dot{Y}}$')
 plt.savefig(args.runprefix+'_ydot.eps',
