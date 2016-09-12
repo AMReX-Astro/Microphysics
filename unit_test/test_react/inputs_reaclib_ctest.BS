@@ -21,9 +21,12 @@
   use_timestep_estimator = .true.
 
   ode_max_steps = 1000
-  scaling_method = 1
+  scaling_method = 2
   retry_burn = .false.
   renormalize_abundances = .false.
+
+  small_x = 1.d-16
+  SMALL_X_SAFE = 1.d-16
 
   rtol_spec = 1.0d-12
   rtol_enuc = 1.0d-9
