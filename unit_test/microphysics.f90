@@ -18,7 +18,7 @@ contains
     double precision, optional :: small_dens
 
 
-    call boxlib_initialize()
+    !call boxlib_initialize()
 
     !call set_fpe_trap(.true., .true., .true.)
 
