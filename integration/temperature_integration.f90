@@ -124,6 +124,10 @@ contains
 
           state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
 
+          ! d(itemp)/d(enuc)
+
+          state % jac(net_itemp, net_ienuc) = ZERO
+
        else
 
           if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
@@ -145,6 +149,10 @@ contains
           ! d(itemp)/d(temp)
 
           state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
+
+          ! d(itemp)/d(enuc)
+
+          state % jac(net_itemp, net_ienuc) = ZERO
 
        endif
 

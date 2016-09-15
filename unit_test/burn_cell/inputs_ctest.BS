@@ -1,15 +1,9 @@
 &PROBIN
-  test_set = "gr0_3d.small"
 
-  dens_min   = 1.d-3
-  dens_max   = 5.d9
-  temp_min   = 1.d7
-  temp_max   = 6.d8
+  run_prefix = "reaclib_ctest-ajac_"
 
-  tmax = 1.0d-1
-
-  xin_file   = "xin.reaclib_urca"
-  run_prefix = "react_reaclib_urca_"
+  small_temp = 1d5
+  small_dens = 1d5
 
   burner_verbose = .false.
 
@@ -18,8 +12,10 @@
   ! 2 = numerical jacobian
   jacobian   = 1
 
+  use_timestep_estimator = .true.
+
   ode_max_steps = 1000
-  scaling_method = 2
+  scaling_method = 1
   retry_burn = .false.
   renormalize_abundances = .false.
 
@@ -30,4 +26,7 @@
   atol_enuc = 1.0d-9
   atol_temp = 1.0d-9
 
+  small_x = 1.d-16
+  SMALL_X_SAFE = 1.d-20
+  
 /

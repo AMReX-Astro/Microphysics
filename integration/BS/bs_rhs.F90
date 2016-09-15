@@ -15,7 +15,7 @@ contains
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor, &
+    use extern_probin_module, only: burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, integrate_molar_fraction
     use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
                               burn_to_bs, bs_to_burn
@@ -40,18 +40,10 @@ contains
     ! Fix the state as necessary.
     call clean_state(bs)
 
-
-    ! Renormalize abundances as necessary.
-    if (renormalize_abundances) then
-       call renormalize_species(bs)
-    endif
-
     ! Update the thermodynamic quantities as necessary.
     call update_thermodynamics(bs)
 
-
     ! Call the specific network routine to get the RHS.
-
     call bs_to_burn(bs)
     call actual_rhs(bs % burn_s)
 
