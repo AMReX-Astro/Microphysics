@@ -1,5 +1,0 @@
-# nse_densTableName  character "nse_dens_emq_table.txt"
-# nse_presTableName  character "nse_pres_hmq_table.txt"
-
-# DATAFILES nse_pres_hmq_table.txt
-# DATAFILES nse_dens_emq_table.txt
