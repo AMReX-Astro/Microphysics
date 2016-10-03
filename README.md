@@ -26,8 +26,6 @@ There are several core types of microphysics routines hosted here:
 
 * `neutrinos/`: this holds the plasma neutrino cooling routines used
   in the reaction networks.
-  
-* `NSE/`:
 
 * `rates/`: this contains some common rate routines used by the
   various `aprox` networks, and could be expanded to contain other
