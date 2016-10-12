@@ -149,7 +149,7 @@ program test_react
      !$OMP SCHEDULE(DYNAMIC,1)
 
      !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, lo, hi, tmax) &
-     !$acc      copyout(state) 
+     !$acc      copy(state) 
 
      !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
 
