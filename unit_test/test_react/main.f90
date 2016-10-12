@@ -234,6 +234,9 @@ program test_react
   
   call destroy(mla)
 
+  call finalize_variables(pf)
+  
+  deallocate(state)
   deallocate(s)
   deallocate(xn_zone)
 
