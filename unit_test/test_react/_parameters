@@ -10,6 +10,7 @@ test_set      character  "gr0_3d"
 
 tmax          real       0.1d0
 
-
 small_temp    real       1.e5
 small_dens    real       1.e5
+
+do_acc        integer    1

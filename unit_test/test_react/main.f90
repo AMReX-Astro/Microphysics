@@ -14,7 +14,7 @@ program test_react
   use variables
   use probin_module, only: dens_min, dens_max, &
                            temp_min, temp_max, test_set, tmax, run_prefix, &
-                           small_temp, small_dens
+                           small_temp, small_dens, do_acc
   use runtime_init_module
   use burn_type_module
   use actual_burner_module
@@ -161,9 +161,9 @@ program test_react
      !$OMP SCHEDULE(DYNAMIC,1)
 
      !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, lo, hi, tmax) &
-     !$acc      copy(state(lo(1):hi(1),lo(2):hi(2),lo(3):hi(3),:))
+     !$acc      copy(state(lo(1):hi(1),lo(2):hi(2),lo(3):hi(3),:)) if (do_acc == 1)
 
-     !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
+     !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min) if (do_acc == 1)
 
      !$acc loop gang vector collapse(3) &
      !$acc private(burn_state_in, burn_state_out, ii, jj, kk, j)
