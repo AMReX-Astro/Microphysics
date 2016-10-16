@@ -57,7 +57,6 @@ program test_react
 
   type (burn_t) :: burn_state_in, burn_state_out
 
-  real (kind=dp_t) :: dens_zone, temp_zone
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
@@ -143,7 +142,20 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j,temp_zone,dens_zone) &
+     ! First, construct the input state in a separate loop.
+
+     do kk = lo(3), hi(3)
+        do jj = lo(2), hi(2)
+           do ii = lo(1), hi(1)
+
+              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+
+           enddo
+        enddo
+     enddo
+
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
      !$OMP PRIVATE(burn_state_in, burn_state_out) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
@@ -153,18 +165,15 @@ program test_react
 
      !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
 
-     !$acc loop gang vector collapse(3) private(temp_zone, dens_zone) &
+     !$acc loop gang vector collapse(3) &
      !$acc private(burn_state_in, burn_state_out, ii, jj, kk, j)
 
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
-              
-              temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              dens_zone = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
 
-              burn_state_in % rho = dens_zone
-              burn_state_in % T = temp_zone
+              burn_state_in % rho = state(ii, jj, kk, pf % irho)
+              burn_state_in % T = state(ii, jj, kk, pf % itemp)
 
               burn_state_in % xn(:) = max(xn_zone(:, kk), 1.e-10_dp_t)
               call normalize_abundances_burn(burn_state_in)
@@ -176,8 +185,6 @@ program test_react
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
               ! store
-              state(ii, jj, kk, pf % irho) = dens_zone
-              state(ii, jj, kk, pf % itemp) = temp_zone
 
               do j = 1, nspec
                  state(ii, jj, kk, pf % ispec_old + j - 1) = burn_state_in % xn(j)
@@ -194,7 +201,7 @@ program test_react
               enddo
 
               state(ii, jj, kk, pf % irho_hnuc) = &
-                   dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
+                   state(ii, jj, kk, pf % irho) * (burn_state_out % e - burn_state_in % e) / tmax
               
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
               n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
