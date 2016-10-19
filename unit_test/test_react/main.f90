@@ -11,18 +11,17 @@ program test_react
   use box_util_module
   use ml_layout_module
   use multifab_module
-  use variables
+  use variables, only: init_variables, finalize_variables, plot_t
   use probin_module, only: dens_min, dens_max, &
                            temp_min, temp_max, test_set, tmax, run_prefix, &
                            small_temp, small_dens, do_acc
   use runtime_init_module
   use burn_type_module
-  use actual_burner_module
+  use actual_burner_module, only : actual_burner
   use microphysics_module
   use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
-  use network
+  use network, only: nspec
   use util_module
-  use variables
   use fabio_module
   use build_info_module
 
@@ -183,8 +182,8 @@ program test_react
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
 
-              burn_state_in % rho = state(ii, jj, kk, pf % irho)
-              burn_state_in % T = state(ii, jj, kk, pf % itemp)
+              burn_state_in % rho = state(ii, jj, kk, irho)
+              burn_state_in % T = state(ii, jj, kk, itemp)
 
               burn_state_in % xn(:) = max(xn_zone(:, kk), 1.e-10_dp_t)
               call normalize_abundances_burn(burn_state_in)
@@ -194,10 +193,6 @@ program test_react
               burn_state_in % e = ZERO
 
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
-
-              ! store
-              state(ii, jj, kk, irho) = dens_zone
-              state(ii, jj, kk, itemp) = temp_zone
 
               do j = 1, nspec
                  state(ii, jj, kk, ispec_old + j - 1) = burn_state_in % xn(j)
@@ -214,7 +209,7 @@ program test_react
               enddo
 
               state(ii, jj, kk, irho_hnuc) = &
-                   dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
+                   state(ii, jj, kk, irho) * (burn_state_out % e - burn_state_in % e) / tmax
               
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
               n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
