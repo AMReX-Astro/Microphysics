@@ -48,6 +48,8 @@ program test_react
 
   type(plot_t) :: pf
 
+  integer :: itemp, irho, ispec, ispec_old, irodot, irho_hnuc
+
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
   real(kind=dp_t), allocatable :: state(:,:,:,:)
@@ -131,6 +133,14 @@ program test_react
      xn_zone(:, kk) = xn_zone(:, kk)/sum_X
   enddo
 
+  ! GPU doesn't like derived-types with bound procedures
+  itemp = pf % itemp
+  irho = pf % irho
+  ispec = pf % ispec
+  ispec_old = pf % ispec_old
+  irodot = pf % irodot
+  irho_hnuc = pf % irho_hnuc
+
   n = 1  ! single level assumption
 
   n_rhs_avg = 0
@@ -149,6 +159,7 @@ program test_react
      !$OMP SCHEDULE(DYNAMIC,1)
 
      !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, lo, hi, tmax) &
+     !$acc      copyin(itemp, irho, ispec, ispec_old, irodot, irho_hnuc) &
      !$acc      copy(state) 
 
      !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
@@ -176,24 +187,24 @@ program test_react
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
               ! store
-              state(ii, jj, kk, pf % irho) = dens_zone
-              state(ii, jj, kk, pf % itemp) = temp_zone
+              state(ii, jj, kk, irho) = dens_zone
+              state(ii, jj, kk, itemp) = temp_zone
 
               do j = 1, nspec
-                 state(ii, jj, kk, pf % ispec_old + j - 1) = burn_state_in % xn(j)
+                 state(ii, jj, kk, ispec_old + j - 1) = burn_state_in % xn(j)
               enddo
 
               do j = 1, nspec
-                 state(ii, jj, kk, pf % ispec + j - 1) = burn_state_out % xn(j)
+                 state(ii, jj, kk, ispec + j - 1) = burn_state_out % xn(j)
               enddo
                             
               do j=1, nspec
                  ! an explicit loop is needed here to keep the GPU happy
-                 state(ii, jj, kk, pf % irodot + j - 1) = &
+                 state(ii, jj, kk, irodot + j - 1) = &
                       (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
               enddo
 
-              state(ii, jj, kk, pf % irho_hnuc) = &
+              state(ii, jj, kk, irho_hnuc) = &
                    dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
               
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
