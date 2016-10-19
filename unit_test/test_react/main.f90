@@ -196,11 +196,8 @@ program test_react
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
               ! store
-<<<<<<< HEAD
               state(ii, jj, kk, irho) = dens_zone
               state(ii, jj, kk, itemp) = temp_zone
-=======
->>>>>>> b361995288dcf6d1a5b65bba76581adc48563a4d
 
               do j = 1, nspec
                  state(ii, jj, kk, ispec_old + j - 1) = burn_state_in % xn(j)
@@ -216,13 +213,8 @@ program test_react
                       (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
               enddo
 
-<<<<<<< HEAD
               state(ii, jj, kk, irho_hnuc) = &
                    dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
-=======
-              state(ii, jj, kk, pf % irho_hnuc) = &
-                   state(ii, jj, kk, pf % irho) * (burn_state_out % e - burn_state_in % e) / tmax
->>>>>>> b361995288dcf6d1a5b65bba76581adc48563a4d
               
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
               n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
