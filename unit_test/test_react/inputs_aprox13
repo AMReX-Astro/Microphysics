@@ -11,4 +11,16 @@
   xin_file   = "xin.aprox13"
   run_prefix = "react_aprox13_"
 
+  renormalize_abundances = T
+
+  jacobian = 2
+  centered_diff_jac = T
+
+  call_eos_in_rhs = T
+
+  integrate_molar_fraction = F
+  integrate_temperature = F
+
+  dt_min = 0.0
+
 /

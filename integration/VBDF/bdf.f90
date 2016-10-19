@@ -811,7 +811,7 @@ contains
 
     ! these are user-controllable
     ts%max_steps  = 1000000
-    ts%max_iters  = 10
+    ts%max_iters  = 3
     ts%verbose    = 0
     ts%dt_min     = dt_min   !epsilon(ts%dt_min)
     ts%eta_min    = 0.2_dp_t
