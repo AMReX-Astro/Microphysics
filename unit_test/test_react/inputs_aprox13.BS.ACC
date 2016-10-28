@@ -1,0 +1,26 @@
+&PROBIN
+  test_set = "gr0_3d.small"
+
+  dens_min   = 1.d6
+  dens_max   = 1.d8
+  temp_min   = 5.d7
+  temp_max   = 5.d9
+
+  tmax = 1.d-3
+
+  xin_file   = "xin.aprox13"
+  run_prefix = "react_aprox13_"
+
+  do_acc = 1
+
+  scaling_method = 2
+
+  use_tables = T
+
+  call_eos_in_rhs = T
+  do_constant_volume_burn = T
+
+  ode_method = 2
+
+  ode_max_steps=100000
+/
