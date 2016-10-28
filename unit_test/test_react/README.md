@@ -14,7 +14,7 @@ This table summarizes tests run with gfortran.
 | aprox13                | works<br>(6:673:5173)   | crashes unless<br>min density raised | works<br>(126:858:4678) | crashes       |
 | aprox19                | works<br>(27:144:10626) | crashes                              | works<br>(72:297:2869)  | runs too long |
 | triple_alpha_plus_cago | works<br>(6:26:1493)    | works<br>(4:37:1964)                 | works<br>(126:148:3044) | crashes       |
-
+| ignition_chamulak      | works<br>(6:6:24)       | works<br>(4:5:30)                    | works<br>(144:144:153)  | works (252:252:252) |
 
 
 
