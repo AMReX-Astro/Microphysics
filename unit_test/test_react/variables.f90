@@ -71,4 +71,12 @@ contains
 
   end subroutine init_variables
 
+  subroutine finalize_variables(p)
+
+    type(plot_t), intent(inout) :: p
+
+    deallocate(p%names)
+
+  end subroutine finalize_variables
+
 end module variables

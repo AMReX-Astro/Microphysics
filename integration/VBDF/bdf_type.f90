@@ -101,7 +101,7 @@ contains
     ! be larger than small_x that the user set, but the issue is that
     ! we can have underflow issues if the integrator has to keep track
     ! of species mass fractions much smaller than this.
-    real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-30
+    real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-200
     real (kind=dp_t) :: small_temp
 
     type (bdf_ts) :: state
@@ -109,11 +109,10 @@ contains
     ! Ensure that mass fractions always stay positive.
     if (integrate_molar_fraction) then
        state % y(1:nspec_evolve,1) = &
-            max(min(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve), ONE), &
+            max(state % y(1:nspec_evolve,1) * aion(1:nspec_evolve), &
                 SMALL_X_SAFE) * aionInv(1:nspec_evolve)
     else
-       state % y(1:nspec_evolve,1) = &
-            max(min(state % y(1:nspec_evolve,1), ONE), SMALL_X_SAFE)
+       state % y(1:nspec_evolve,1) = max(state % y(1:nspec_evolve,1), SMALL_X_SAFE)
     endif
 
     ! Ensure that the temperature always stays within reasonable limits.

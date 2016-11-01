@@ -33,6 +33,7 @@ contains
     use screening_module, only: screening_init
     use aprox_rates_module, only: rates_init
     use extern_probin_module, only: use_tables
+    use parallel, only: parallel_IOProcessor
 
     implicit none
 
@@ -44,7 +45,11 @@ contains
 
     if (use_tables) then
 
-       print *, "Initializing aprox13 rate table"
+       if (parallel_IOProcessor()) then
+          print *, ""
+          print *, "Initializing aprox13 rate table"
+          print *, ""
+       endif
 
        call create_rates_table()
 

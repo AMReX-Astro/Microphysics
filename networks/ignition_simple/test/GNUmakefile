@@ -13,6 +13,8 @@ programs += testburn
 #programs += eval
 #programs += testjacobian
 
+f90sources += testburn.f90
+
 EOS_DIR := helmholtz
 NETWORK_DIR := ignition_simple
 INTEGRATOR_DIR := BS

@@ -11,18 +11,17 @@ program test_react
   use box_util_module
   use ml_layout_module
   use multifab_module
-  use variables
+  use variables, only: init_variables, finalize_variables, plot_t
   use probin_module, only: dens_min, dens_max, &
                            temp_min, temp_max, test_set, tmax, run_prefix, &
-                           small_temp, small_dens
+                           small_temp, small_dens, do_acc
   use runtime_init_module
   use burn_type_module
-  use actual_burner_module
+  use actual_burner_module, only : actual_burner
   use microphysics_module
   use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
-  use network
+  use network, only: nspec
   use util_module
-  use variables
   use fabio_module
   use build_info_module
 
@@ -48,6 +47,8 @@ program test_react
 
   type(plot_t) :: pf
 
+  integer :: itemp, irho, ispec, ispec_old, irodot, irho_hnuc
+
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
   real(kind=dp_t), allocatable :: state(:,:,:,:)
@@ -57,7 +58,6 @@ program test_react
 
   type (burn_t) :: burn_state_in, burn_state_out
 
-  real (kind=dp_t) :: dens_zone, temp_zone
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
@@ -131,6 +131,14 @@ program test_react
      xn_zone(:, kk) = xn_zone(:, kk)/sum_X
   enddo
 
+  ! GPU doesn't like derived-types with bound procedures
+  itemp = pf % itemp
+  irho = pf % irho
+  ispec = pf % ispec
+  ispec_old = pf % ispec_old
+  irodot = pf % irodot
+  irho_hnuc = pf % irho_hnuc
+
   n = 1  ! single level assumption
 
   n_rhs_avg = 0
@@ -143,28 +151,39 @@ program test_react
      lo = lwb(get_box(s(n), i))
      hi = upb(get_box(s(n), i))
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j,temp_zone,dens_zone) &
+     ! First, construct the input state in a separate loop.
+
+     do kk = lo(3), hi(3)
+        do jj = lo(2), hi(2)
+           do ii = lo(1), hi(1)
+
+              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+
+           enddo
+        enddo
+     enddo
+
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
      !$OMP PRIVATE(burn_state_in, burn_state_out) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 
      !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, lo, hi, tmax) &
-     !$acc      copyout(state) 
+     !$acc      copyin(itemp, irho, ispec, ispec_old, irodot, irho_hnuc) &
+     !$acc      copy(state(lo(1):hi(1),lo(2):hi(2),lo(3):hi(3),:)) if (do_acc == 1)
 
-     !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min)
+     !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min) if (do_acc == 1)
 
-     !$acc loop gang vector collapse(3) private(temp_zone, dens_zone) &
+     !$acc loop gang vector collapse(3) &
      !$acc private(burn_state_in, burn_state_out, ii, jj, kk, j)
 
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
-              
-              temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              dens_zone = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
 
-              burn_state_in % rho = dens_zone
-              burn_state_in % T = temp_zone
+              burn_state_in % rho = state(ii, jj, kk, irho)
+              burn_state_in % T = state(ii, jj, kk, itemp)
 
               burn_state_in % xn(:) = max(xn_zone(:, kk), 1.e-10_dp_t)
               call normalize_abundances_burn(burn_state_in)
@@ -175,26 +194,22 @@ program test_react
 
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
-              ! store
-              state(ii, jj, kk, pf % irho) = dens_zone
-              state(ii, jj, kk, pf % itemp) = temp_zone
-
               do j = 1, nspec
-                 state(ii, jj, kk, pf % ispec_old + j - 1) = burn_state_in % xn(j)
+                 state(ii, jj, kk, ispec_old + j - 1) = burn_state_in % xn(j)
               enddo
 
               do j = 1, nspec
-                 state(ii, jj, kk, pf % ispec + j - 1) = burn_state_out % xn(j)
+                 state(ii, jj, kk, ispec + j - 1) = burn_state_out % xn(j)
               enddo
                             
               do j=1, nspec
                  ! an explicit loop is needed here to keep the GPU happy
-                 state(ii, jj, kk, pf % irodot + j - 1) = &
+                 state(ii, jj, kk, irodot + j - 1) = &
                       (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
               enddo
 
-              state(ii, jj, kk, pf % irho_hnuc) = &
-                   dens_zone * (burn_state_out % e - burn_state_in % e) / tmax
+              state(ii, jj, kk, irho_hnuc) = &
+                   state(ii, jj, kk, irho) * (burn_state_out % e - burn_state_in % e) / tmax
               
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
               n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
@@ -234,6 +249,9 @@ program test_react
   
   call destroy(mla)
 
+  call finalize_variables(pf)
+  
+  deallocate(state)
   deallocate(s)
   deallocate(xn_zone)
 

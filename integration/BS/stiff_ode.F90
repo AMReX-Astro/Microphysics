@@ -821,6 +821,11 @@ contains
           ! we were successful -- store the solution
           bs % y(:) = bs_temp % y(:)
           bs % t = bs_temp % t
+#ifdef SDC
+          bs % n_rhs = bs_temp % n_rhs
+#else
+          bs % burn_s % n_rhs = bs_temp % burn_s % n_rhs
+#endif
 
           bs % dt_did = h
           if (errmax > ERRCON) then
