@@ -366,4 +366,16 @@ contains
 
   end subroutine bs_to_burn
 
+  subroutine dump_bs_state(bs)
+
+    implicit none
+
+    type (bs_t) :: bs
+
+    print *, "T:    ", bs % burn_s % T 
+    print *, "rho:  ", bs % burn_s % rho 
+    print *, "X:    ", bs % burn_s % xn(:)
+
+  end subroutine dump_bs_state
+
 end module bs_type_module

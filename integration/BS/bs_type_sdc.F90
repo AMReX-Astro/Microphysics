@@ -1,5 +1,6 @@
 module bs_type_module
 
+  use bl_constants_module, only: HALF, ONE
   use bl_types, only: dp_t
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
   use rpar_indices, only: n_rpar_comps
@@ -48,7 +49,6 @@ contains
 
     !$acc routine seq
 
-    use bl_constants_module, only: HALF
     use actual_network, only: nspec
     use sdc_type_module, only: SFS, SEDEN, SEINT
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
@@ -300,7 +300,6 @@ contains
 
     use actual_network, only: nspec
     use burn_type_module, only: burn_t, burn_to_eos, eos_to_burn
-    use bl_constants_module, only: HALF, ONE
     use bl_types, only: dp_t
     use eos_type_module, only: eos_input_re, eos_t
     use eos_module, only: eos, eos_get_small_temp, eos_get_max_temp
@@ -325,13 +324,9 @@ contains
     eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
     if (bs % T_from_eden) then
-
        eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2))
-
     else
-
        eos_state % e = bs % y(SEINT) * rhoInv
-
     endif
 
     ! Give the temperature an initial guess -- use the geometric mean
@@ -353,5 +348,47 @@ contains
     burn % self_heat = bs % self_heat
 
   end subroutine bs_to_burn
+
+  subroutine dump_bs_state(bs)
+    
+    use eos_type_module, only: eos_input_re, eos_t
+    use sdc_type_module, only: SEDEN, SEINT, SFS
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use actual_network, only: nspec
+    use eos_module, only: eos, eos_get_small_temp, eos_get_max_temp
+
+    type (bs_t) :: bs
+    type (eos_t) :: eos_state
+
+    real (kind=dp_t) :: rhoInv, min_temp, max_temp
+
+    call fill_unevolved_variables(bs)
+
+    rhoInv = ONE / bs % u(irp_SRHO)
+
+    eos_state % rho = bs % u(irp_SRHO)
+    eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
+
+    if (bs % T_from_eden) then
+       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2))
+    else
+       eos_state % e = bs % y(SEINT) * rhoInv
+    endif
+
+    ! Give the temperature an initial guess -- use the geometric mean
+    ! of the minimum and maximum temperatures.
+
+    call eos_get_small_temp(min_temp)
+    call eos_get_max_temp(max_temp)
+
+    eos_state % T = sqrt(min_temp * max_temp)
+
+    call eos(eos_input_re, eos_state)
+
+    print *, "T:    ", eos_state % T
+    print *, "rho:  ", eos_state % rho
+    print *, "X:    ", eos_state % xn(:)
+
+  end subroutine dump_bs_state
 
 end module bs_type_module
