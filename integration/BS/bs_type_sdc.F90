@@ -33,9 +33,10 @@ module bs_type_module
      integer         :: n
 
      integer         :: n_rhs, n_jac
-
+     
      integer :: i, j, k
      logical :: T_from_eden
+     logical :: self_heat  ! needed only for compatibilty with no-SDC
 
   end type bs_t
 
@@ -212,6 +213,8 @@ contains
     sdc % n_rhs = bs % n_rhs
     sdc % n_jac = bs % n_jac
 
+    sdc % self_heat = bs % self_heat
+
   end subroutine bs_to_sdc
 
 
@@ -346,6 +349,8 @@ contains
 
     burn % n_rhs = bs % n_rhs
     burn % n_jac = bs % n_jac
+
+    burn % self_heat = bs % self_heat
 
   end subroutine bs_to_burn
 

@@ -66,6 +66,8 @@ contains
     bs % n_rhs = 0
     bs % n_jac = 0
 
+    bs % self_heat = .false.
+
     ! Call the integration routine.
 
     call ode(bs, t0, t1, maxval(bs % rtol), ierr)
