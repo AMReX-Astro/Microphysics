@@ -44,7 +44,7 @@ contains
 
     ! Increment the evaluation counter.
 
-    bs % burn_s % n_jac = bs % burn_s % n_jac + 1
+    bs % n_jac = bs % n_jac + 1
 
   end subroutine jac
 

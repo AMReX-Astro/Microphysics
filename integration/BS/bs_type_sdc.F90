@@ -344,8 +344,8 @@ contains
 
     burn % time = bs % t
 
-    burn % n_rhs = n_rhs
-    burn % n_jac = n_jac
+    burn % n_rhs = bs % n_rhs
+    burn % n_jac = bs % n_jac
 
   end subroutine bs_to_burn
 
