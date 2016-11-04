@@ -49,24 +49,17 @@ contains
 
     !$acc routine seq
 
+    use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: nspec
     use sdc_type_module, only: SFS, SEDEN, SEINT
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
     use eos_module, only: eos_get_small_dens, eos_get_max_dens, eos
     use eos_type_module, only: eos_input_rt, eos_t
-    use extern_probin_module, only: renormalize_abundances
+
 
     implicit none
 
-    ! this is the absolute cutoff for species -- note that this might
-    ! be larger than small_x that the user set, but the issue is that
-    ! we can have underflow issues if the integrator has to keep track
-    ! of species mass fractions much smaller than this.
-
-    real (kind=dp_t), parameter :: SMALL_X_SAFE = 1.0d-30
-
     ! this should be larger than any reasonable temperature we will encounter
-
     real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
 
     real (kind=dp_t) :: max_e, ke
@@ -76,16 +69,13 @@ contains
     type (eos_t) :: eos_state
 
     ! Update rho, rho*u, etc.
-
     call fill_unevolved_variables(state)
 
     ! Ensure that mass fractions always stay positive and less than one.
-
     state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), state % u(irp_SRHO)), &
                                      state % u(irp_SRHO) * SMALL_X_SAFE)
 
     ! Renormalize abundances as necessary.
-
     if (renormalize_abundances) then
        call renormalize_species(state)
     endif
@@ -123,8 +113,13 @@ contains
 
     type (bs_t) :: state
 
-    state % u(irp_SRHO) = state % u_init(irp_SRHO) + state % udot_a(irp_SRHO) * state % t
-    state % u(irp_SMX:irp_SMZ) = state % u_init(irp_SMX:irp_SMZ) + state % udot_a(irp_SMX:irp_SMZ) * state % t
+    ! we are always integrating from t = 0, so there is no offset time
+    ! needed here
+
+    state % u(irp_SRHO) = state % u_init(irp_SRHO) + &
+         state % udot_a(irp_SRHO) * state % t
+    state % u(irp_SMX:irp_SMZ) = state % u_init(irp_SMX:irp_SMZ) + &
+         state % udot_a(irp_SMX:irp_SMZ) * state % t
 
   end subroutine fill_unevolved_variables
 
