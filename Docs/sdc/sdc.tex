@@ -1,0 +1,15 @@
+\section{Introduction}
+
+SDC provides a means to more strongly couple the reactions to the
+hydrodynamics by evolving the reactions together with an approximation
+of the advection over the timestep.
+
+\section{Interface and Data Structures}
+
+\subsection{\tt sdc\_t}
+
+To accommodate the increased information required to evolve the
+coupled system, we introduce a new data type, {\tt sdc\_t}.  This is
+used to pass information to/from the integration routine from the
+hydrodynamics code.
+
