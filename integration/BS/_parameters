@@ -1,6 +1,6 @@
 # Which choice to use for the ODE scaling
-# 1 = |y| + |dy/dt|
-# 2 = max(|y|, K); K == constant
+# 1: $|y| + |dy/dt|$;
+# 2: $\max(|y|, K)$ with $K =$ constant
 scaling_method               integer         2
 
 # use the VODE algorithm's initial timestep estimator?
@@ -24,9 +24,9 @@ ode_method                   integer         1
 safety_factor                real            1.d9
 
 
-# SMALL_X_SAFE is the absolute cutoff for species -- note that this might
-# be larger than small_x, but the issue is that we need to prevent underflow
-# issues and keep mass fractions positive in the integrator.
-# You may have to increase the floor to, e.g. 1d-20 if your rates are large.
-SMALL_X_SAFE             real      1.0d-30
+# The absolute cutoff for species -- note that this might be larger
+# than {\tt small\_x}, but the issue is that we need to prevent underflow
+# issues and keep mass fractions positive in the integrator.  You may
+# have to increase the floor to, e.g. {\tt 1.d-20} if your rates are large.
+SMALL_X_SAFE                 real            1.0d-30
 

@@ -32,14 +32,16 @@
 
 
 \rowcolor{tableShade}
+\verb= SMALL_X_SAFE = &  The absolute cutoff for species -- note that this might be larger than {\tt small\_x}, but the issue is that we need to prevent underflow issues and keep mass fractions positive in the integrator.  You may have to increase the floor to, e.g. {\tt 1.d-20} if your rates are large. & 1.0d-30 \\
 \verb= ode_max_steps = &  Maximum number of steps to use in the ODE integration & 10000 \\
+\rowcolor{tableShade}
 \verb= ode_method = &  use an implementation of the Bulirsch-Stoer semi-implicit extrapolation method (1) or a Rosenbrock method (2) & 1 \\
-\rowcolor{tableShade}
 \verb= ode_scale_floor = &  Floor to use for the ODE scaling vector & 1.d-6 \\
-\verb= safety_factor = &  when constructing the intermediate steps in the stiff ODE integration by how much do we allow the state variables to change over a dt before giving up on the step and retrying with a smaller step? & 1.d9 \\
 \rowcolor{tableShade}
-\verb= scaling_method = &  Which choice to use for the ODE scaling 1 = |y| + |dy/dt| 2 = max(|y|, K); K == constant & 2 \\
-\verb= use_timestep_estimator = &  use the VODE algorithm's initial timestep estimator? & .false. \\
+\verb= safety_factor = &  when constructing the intermediate steps in the stiff ODE integration by how much do we allow the state variables to change over a dt before giving up on the step and retrying with a smaller step? & 1.d9 \\
+\verb= scaling_method = &  Which choice to use for the ODE scaling 1: $|y| + |dy/dt|$; 2: $\max(|y|, K)$ with $K =$ constant & 2 \\
+\rowcolor{tableShade}
+\verb= use_timestep_estimator = &  use the VODE algorithm's initial timestep estimator? & .true. \\
 
 
 \end{longtable}
@@ -80,6 +82,7 @@
 \verb= jac_age = &  number of times we can use the Jacobian before rebuilding & 50 \\
 \rowcolor{tableShade}
 \verb= p_age = &  number of times we use the same Newton iteration matrix before rebuilding & 20 \\
+\verb= reuse_jac = &  reuse the Jacobian? & .false. \\
 
 
 \end{longtable}
@@ -242,6 +245,46 @@
 %
 \begin{center}
 \begin{longtable}{|l|p{5.25in}|l|}
+\caption[burn\_cell parameters.]{burn\_cell parameters.} \label{table: burn_cell runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb= run_prefix = &  & "" \\
+\verb= small_dens = &  & 1.e5 \\
+\rowcolor{tableShade}
+\verb= small_temp = &  & 1.e5 \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
 \caption[gamma\_law\_general parameters.]{gamma\_law\_general parameters.} \label{table: gamma_law_general runtime} \\
 %
 \hline \multicolumn{1}{|c|}{\textbf{parameter}} &
@@ -356,20 +399,18 @@
 \verb= do_constant_volume_burn = &  When evolving the temperature, should we assume a constant pressure (default) or a constant volume (do\_constant\_volume\_burn = T)? & .false. \\
 \rowcolor{tableShade}
 \verb= integrate_energy = &  Allow the energy integration to be disabled by setting the RHS to zero. & .true. \\
-\verb= integrate_molar_fraction = &  By default we integrate molar fraction Y. Disable this to integrate mass fraction X. & .true. \\
-\rowcolor{tableShade}
 \verb= integrate_temperature = &  Allow the temperature integration to be disabled by setting the RHS to zero. & .true. \\
+\rowcolor{tableShade}
 \verb= jacobian = &  Whether to use an analytical or numerical Jacobian. 1 == Analytical 2 == Numerical & 1 \\
-\rowcolor{tableShade}
 \verb= renormalize_abundances = &  Whether to renormalize the mass fractions at each step in the evolution so that they sum to unity. & .false. \\
+\rowcolor{tableShade}
 \verb= retry_burn = &  If we fail to find a solution consistent with the tolerances, do we want to try again with a looser tolerance? & .false. \\
-\rowcolor{tableShade}
 \verb= retry_burn_factor = &  If we do retry a burn, by what factor should we loosen the tolerance? & 1.25d0 \\
+\rowcolor{tableShade}
 \verb= retry_burn_max_change = &  What is the maximum factor we can increase the original tolerances by? & 1.0d2 \\
-\rowcolor{tableShade}
 \verb= rtol_enuc = &  & 1.d-6 \\
-\verb= rtol_spec = &  Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations. & 1.d-12 \\
 \rowcolor{tableShade}
+\verb= rtol_spec = &  Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations. & 1.d-12 \\
 \verb= rtol_temp = &  & 1.d-6 \\
 
 
@@ -754,16 +795,18 @@
 \verb= dens_max = &  & 1.d9 \\
 \verb= dens_min = &  & 1.d6 \\
 \rowcolor{tableShade}
+\verb= do_acc = &  & 1 \\
 \verb= run_prefix = &  & "" \\
+\rowcolor{tableShade}
 \verb= small_dens = &  & 1.e5 \\
-\rowcolor{tableShade}
 \verb= small_temp = &  & 1.e5 \\
+\rowcolor{tableShade}
 \verb= temp_max = &  & 1.d15 \\
-\rowcolor{tableShade}
 \verb= temp_min = &  & 1.d6 \\
-\verb= test_set = &  & "gr0\_3d" \\
 \rowcolor{tableShade}
+\verb= test_set = &  & "gr0\_3d" \\
 \verb= tmax = &  & 0.1d0 \\
+\rowcolor{tableShade}
 \verb= xin_file = &  & "uniform" \\
 
 
