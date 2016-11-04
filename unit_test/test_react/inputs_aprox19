@@ -20,5 +20,4 @@
 
   call_eos_in_rhs = T
 
-  !use_timestep_estimator = T
 /
