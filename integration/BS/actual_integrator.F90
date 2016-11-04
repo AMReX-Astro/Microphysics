@@ -39,8 +39,7 @@ contains
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
-                                    dT_crit, &
-                                    integrate_molar_fraction
+                                    dT_crit
     use actual_rhs_module, only : update_unevolved_species
 
     implicit none
@@ -213,13 +212,8 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', bs % y(net_itemp)
-       if (integrate_molar_fraction) then
-          print *, 'xn current = ', bs % y(1:nspec_evolve) * aion(1:nspec_evolve), &
-               bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
-       else
-          print *, 'xn current = ', bs % y(1:nspec_evolve), &
-               bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
-       endif
+       print *, 'xn current = ', bs % y(1:nspec_evolve), &
+            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
        print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 

@@ -11,7 +11,7 @@
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
                                     burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy, integrate_molar_fraction
+                                    integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
@@ -56,27 +56,17 @@
     burn_state % time = time
     call actual_rhs(burn_state)
 
-    ! Allow integration of X instead of Y.
-
-    if (.not. integrate_molar_fraction) then
-
-       burn_state % ydot(1:nspec_evolve) = &
-            burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
-
-    endif
+    ! We integrate X, not Y
+    burn_state % ydot(1:nspec_evolve) = &
+         burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
-
     if (.not. integrate_temperature) then
-
        burn_state % ydot(net_itemp) = ZERO
-
     endif
 
     if (.not. integrate_energy) then
-
        burn_state % ydot(net_ienuc) = ZERO
-
     endif
 
     ! For burning_mode == 3, limit the rates.
@@ -112,7 +102,7 @@
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy, integrate_molar_fraction
+                                    integrate_temperature, integrate_energy
 
     implicit none
 
@@ -130,29 +120,20 @@
     state % time = time
     call actual_jac(state)
 
-    ! Allow integration of X instead of Y.
+    ! We integrate X, not Y
+    do n = 1, nspec_evolve
+       state % jac(n,:) = state % jac(n,:) * aion(n)
+       state % jac(:,n) = state % jac(:,n) * aionInv(n)
+    enddo
 
-    if (.not. integrate_molar_fraction) then
-
-       do n = 1, nspec_evolve
-          state % jac(n,:) = state % jac(n,:) * aion(n)
-          state % jac(:,n) = state % jac(:,n) * aionInv(n)
-       enddo
-
-    endif
 
     ! Allow temperature and energy integration to be disabled.
-
     if (.not. integrate_temperature) then
-
        state % jac(net_itemp,:) = ZERO
-
     endif
 
     if (.not. integrate_energy) then
-
        state % jac(net_ienuc,:) = ZERO
-
     endif
 
     ! For burning_mode == 3, limit the rates.

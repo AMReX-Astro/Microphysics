@@ -15,7 +15,7 @@ contains
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy, integrate_molar_fraction
+                                    integrate_temperature, integrate_energy
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
     use rpar_indices, only: irp_y_init, irp_t_sound
@@ -39,27 +39,20 @@ contains
 
        call actual_jac(bs % burn_s)
 
-       ! Allow integration of X instead of Y.
+       ! We integrate X, not Y
+       do n = 1, nspec_evolve
+          bs % burn_s % jac(n,:) = bs % burn_s % jac(n,:) * aion(n)
+          bs % burn_s % jac(:,n) = bs % burn_s % jac(:,n) * aionInv(n)
+       enddo
 
-       if (.not. integrate_molar_fraction) then
-
-          do n = 1, nspec_evolve
-             bs % burn_s % jac(n,:) = bs % burn_s % jac(n,:) * aion(n)
-             bs % burn_s % jac(:,n) = bs % burn_s % jac(:,n) * aionInv(n)
-          enddo
-
-       endif
 
        ! Allow temperature and energy integration to be disabled.
-
        if (.not. integrate_temperature) then
           bs % burn_s % jac(net_itemp,:) = ZERO
-
        endif
 
        if (.not. integrate_energy) then
           bs % burn_s % jac(net_ienuc,:) = ZERO
-
        endif
 
        ! For burning_mode == 3, limit the rates.
