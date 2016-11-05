@@ -52,7 +52,7 @@ program test_react
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
   real(kind=dp_t), allocatable :: state(:,:,:,:)
-  
+
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
@@ -113,7 +113,7 @@ program test_react
   nX = extent(mla%mba%pd(1),3)
 
   allocate(state(0:nrho-1, 0:nT-1, 0:nX-1, pf % n_plot_comps))
-  
+
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
 
@@ -159,6 +159,7 @@ program test_react
 
               state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
               state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
 
            enddo
         enddo
@@ -169,7 +170,7 @@ program test_react
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 
-     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, xn_zone, lo, hi, tmax) &
+     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, lo, hi, tmax) &
      !$acc      copyin(itemp, irho, ispec, ispec_old, irodot, irho_hnuc) &
      !$acc      copy(state(lo(1):hi(1),lo(2):hi(2),lo(3):hi(3),:)) if (do_acc == 1)
 
@@ -184,8 +185,10 @@ program test_react
 
               burn_state_in % rho = state(ii, jj, kk, irho)
               burn_state_in % T = state(ii, jj, kk, itemp)
+              do j = 1, nspec
+                 burn_state_in % xn(j) = state(ii, jj, kk, ispec_old + j - 1)
+              enddo
 
-              burn_state_in % xn(:) = max(xn_zone(:, kk), 1.e-10_dp_t)
               call normalize_abundances_burn(burn_state_in)
 
               ! the integrator doesn't actually care about the initial internal
@@ -195,13 +198,9 @@ program test_react
               call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
               do j = 1, nspec
-                 state(ii, jj, kk, ispec_old + j - 1) = burn_state_in % xn(j)
-              enddo
-
-              do j = 1, nspec
                  state(ii, jj, kk, ispec + j - 1) = burn_state_out % xn(j)
               enddo
-                            
+
               do j=1, nspec
                  ! an explicit loop is needed here to keep the GPU happy
                  state(ii, jj, kk, irodot + j - 1) = &
@@ -210,7 +209,7 @@ program test_react
 
               state(ii, jj, kk, irho_hnuc) = &
                    state(ii, jj, kk, irho) * (burn_state_out % e - burn_state_in % e) / tmax
-              
+
               n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
               n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
               n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
@@ -238,7 +237,7 @@ program test_react
   out_name = trim(run_prefix) // "test_react." // trim(integrator_dir)
 
   call fabio_ml_multifab_write_d(s, mla%mba%rr(:,1), trim(out_name), names=pf%names)
-  
+
   call write_job_info(out_name, mla%mba)
 
 
@@ -246,18 +245,18 @@ program test_react
   do n = 1,nlevs
     call destroy(s(n))
   end do
-  
+
   call destroy(mla)
 
   call finalize_variables(pf)
-  
+
   deallocate(state)
   deallocate(s)
   deallocate(xn_zone)
 
   call runtime_close()
 
-    
+
   call microphysics_finalize()
 
   ! end boxlib
