@@ -4,6 +4,19 @@ SDC provides a means to more strongly couple the reactions to the
 hydrodynamics by evolving the reactions together with an approximation
 of the advection over the timestep.
 
+We want to solve the coupled equations:
+\begin{equation}
+\Uc_t + \Advs{\Uc} = \Rb(\Uc)
+\end{equation}
+where $\Uc$ is the conserved state vector, $\Uc = (\rho, (\rho X_k),
+(\rho \Ub), (\rho E))^\intercal$, $X_k$ are the mass fractions
+constrained via $\sum_k X_k = 1$, $\Ub$ is the velocity vector, and
+$E$ is the specific total energy, related to the specific internal
+energy, $e$, via $E = e + |\Ub|^2/2$.  Here $\Advs{\Uc}$ is the
+advective term (including any hydrodynamical sources) and $\Rb(\Uc)$
+is the reaction source term.
+
+
 \section{Interface and Data Structures}
 
 \subsection{\tt sdc\_t}
@@ -13,3 +26,27 @@ coupled system, we introduce a new data type, {\tt sdc\_t}.  This is
 used to pass information to/from the integration routine from the
 hydrodynamics code.
 
+
+\section{ODE system}
+
+The reactions don't modify the total density, $\rho$, or momentum,
+$\rho \Ub$, so our ODE system is just:
+\begin{equation}
+\frac{d}{dt}\left ( 
+   \begin{array}{c} \rho X_k \\ \rho E \\  \rho e \end{array} 
+\right ) = 
+\left ( \begin{array}{c}
+   -\Adv{\rho X_k}^{n+1/2} \\ -\Adv{\rho E}^{n+1/2} \\ -\Adv{\rho e}^{n+1/2} \\
+\end{array} \right ) +
+\left (
+   \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \\ \rho \Sdot \end{array}
+\right )
+\end{equation}
+where we include $e$ in addition to $E$ to provide additional thermodynamic 
+information to help find a consistent $T$.  Here the advective courses
+are piecewise-constant approximations to the change in the state due
+to the hydrodynamics, computed with the during the hydro step.
+
+However, to define the temperature, we need the kinetic energy (and
+hence momentum and density) at any intermediate time, $t$.  We construct
+these as needed from 
