@@ -24,6 +24,7 @@ program test_react
   use util_module
   use fabio_module
   use build_info_module
+  use omp_lib, only: omp_get_wtime
 
   implicit none
 
@@ -62,6 +63,8 @@ program test_react
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
   real (kind=dp_t) :: sum_X
+
+  real (kind=dp_t) :: start_time, end_time
 
   character (len=256) :: out_name
 
@@ -165,6 +168,10 @@ program test_react
         enddo
      enddo
 
+     ! Set up a timer for the burn.
+
+     start_time = omp_get_wtime()
+
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
      !$OMP PRIVATE(burn_state_in, burn_state_out) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
@@ -221,6 +228,12 @@ program test_react
      !$acc end data
 
      !$OMP END PARALLEL DO
+
+     ! End the timer and print the results.
+
+     end_time = omp_get_wtime()
+
+     print *, "Execution time: ", end_time - start_time
 
      sp(:,:,:,:) = state(:,:,:,:)
   enddo
