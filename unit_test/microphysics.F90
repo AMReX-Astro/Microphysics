@@ -5,8 +5,9 @@ module microphysics_module
   use network
   use eos_module, only : eos_init
   use actual_rhs_module, only : actual_rhs_init
+#ifndef SDC
   use actual_burner_module, only : actual_burner_init
-
+#endif
 
   implicit none
 
