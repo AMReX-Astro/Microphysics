@@ -34,7 +34,9 @@ contains
 
     call network_init()
     call actual_rhs_init()
+#ifndef SDC
     call actual_burner_init()
+#endif
 
   end subroutine microphysics_init
 

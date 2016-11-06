@@ -1,4 +1,4 @@
-f90sources += microphysics.f90
+F90sources += microphysics.F90
 f90sources += network.f90
 F90sources += eos.F90
 f90sources += write_job_info.f90
