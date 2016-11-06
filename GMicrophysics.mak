@@ -17,6 +17,12 @@ ifdef ACC
   endif
 endif
 
+ifdef SDC
+  ifeq ($(SDC), t)
+    FPP_DEFINES += -DSDC
+  endif
+endif
+
 
 #-----------------------------------------------------------------------------
 # EOS
