@@ -24,7 +24,7 @@ program test_react
   use util_module
   use fabio_module
   use build_info_module
-  use omp_lib, only: omp_get_wtime
+  use parallel, only : parallel_wtime
 
   implicit none
 
@@ -170,7 +170,7 @@ program test_react
 
      ! Set up a timer for the burn.
 
-     start_time = omp_get_wtime()
+     start_time = parallel_wtime()
 
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
      !$OMP PRIVATE(burn_state_in, burn_state_out) &
@@ -231,7 +231,7 @@ program test_react
 
      ! End the timer and print the results.
 
-     end_time = omp_get_wtime()
+     end_time = parallel_wtime()
 
      print *, "Execution time: ", end_time - start_time
 
