@@ -1,8 +1,6 @@
 &PROBIN
   test_set = "gr0_3d.small"
 
-  small_dens = 1.0d0
-
   dens_min   = 1.d4
   dens_max   = 1.d8
   temp_min   = 5.d7
@@ -13,4 +11,5 @@
   xin_file   = "xin.aprox13"
   run_prefix = "react_aprox13_"
 
+  jacobian = 2
 /

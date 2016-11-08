@@ -16,10 +16,12 @@ program test_react
                            temp_min, temp_max, test_set, tmax, run_prefix, &
                            small_temp, small_dens, do_acc
   use runtime_init_module
-  use burn_type_module
-  use actual_burner_module, only : actual_burner
+  use sdc_type_module
   use microphysics_module
-  use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
+  use actual_integrator_module
+  use integrator_module, only: integrator
+  use eos_type_module, only : eos_t, eos_get_small_temp, eos_get_small_dens
+  use eos_module, only: eos, eos_input_rt
   use network, only: nspec
   use util_module
   use fabio_module
@@ -57,7 +59,8 @@ program test_react
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
-  type (burn_t) :: burn_state_in, burn_state_out
+  type (sdc_t) :: sdc_state_in, sdc_state_out
+  type (eos_t) :: eos_state
 
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
@@ -96,6 +99,9 @@ program test_react
   ! microphysics
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
 
+  ! the integrator would normally be initialized via actual_burner
+  call actual_integrator_init()
+  
   call eos_get_small_temp(small_temp)
   print *, "small_temp = ", small_temp
 
@@ -190,36 +196,54 @@ program test_react
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
 
-              burn_state_in % rho = state(ii, jj, kk, irho)
-              burn_state_in % T = state(ii, jj, kk, itemp)
+              ! populate the SDC state.  Our strategy for the unit test is to choose
+              ! the advective terms to all be zero and to choose the velocity to be
+              ! Mach = 0.1
+
+              ! call the EOS first to get the sound speed
+              eos_state % rho = state(ii, jj, kk, irho)
+              eos_state % T = state(ii, jj, kk, itemp)
+              eos_state % xn(:) = state(ii, jj, kk, ispec_old:ispec_old-1+nspec)
+
+              call eos(eos_input_rt, eos_state)
+
+              sdc_state_in % y(SRHO) = state(ii, jj, kk, irho)
+
+              ! we will pick velocities to be 10% of the sound speed
+              sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1 * eos_state % cs
+
+              sdc_state_in % y(SEINT) = sdc_state_in % y(SRHO) * eos_state % e
+              sdc_state_in % y(SEDEN) = sdc_state_in % y(SEINT) + &
+                   HALF*sum(sdc_state_in % y(SMX:SMZ)**2)/sdc_state_in % y(SRHO)
+              sdc_state_in % y(SFS:SFS-1+nspec) = sdc_state_in % y(SRHO) * eos_state % xn(:)
+
+              ! need to set this consistently
+              sdc_state_in % T_from_eden = .true.
+
+              ! zero out the advective terms
+              sdc_state_in % ydot_a(:) = ZERO
+
+              ! need to set T_from_eden
+
+              call integrator(sdc_state_in, sdc_state_out, tmax, ZERO)
+
               do j = 1, nspec
-                 burn_state_in % xn(j) = state(ii, jj, kk, ispec_old + j - 1)
+                 state(ii, jj, kk, ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
               enddo
 
-              call normalize_abundances_burn(burn_state_in)
-
-              ! the integrator doesn't actually care about the initial internal
-              ! energy.
-              burn_state_in % e = ZERO
-
-              call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
-
-              do j = 1, nspec
-                 state(ii, jj, kk, ispec + j - 1) = burn_state_out % xn(j)
-              enddo
-
-              do j=1, nspec
-                 ! an explicit loop is needed here to keep the GPU happy
-                 state(ii, jj, kk, irodot + j - 1) = &
-                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
-              enddo
+              ! do j=1, nspec
+              !    ! an explicit loop is needed here to keep the GPU happy
+              !    state(ii, jj, kk, irodot + j - 1) = &
+              !         (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
+              ! enddo
 
               state(ii, jj, kk, irho_hnuc) = &
-                   state(ii, jj, kk, irho) * (burn_state_out % e - burn_state_in % e) / tmax
+                   (sdc_state_out % y(SEINT) - sdc_state_in % y(SEINT)) / tmax
 
-              n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
-              n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
-              n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
+
+              n_rhs_avg = n_rhs_avg + sdc_state_out % n_rhs
+              n_rhs_min = min(n_rhs_min, sdc_state_out % n_rhs)
+              n_rhs_max = max(n_rhs_max, sdc_state_out % n_rhs)
 
            enddo
         enddo

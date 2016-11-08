@@ -325,6 +325,7 @@ contains
 
     type (bs_t) :: bs
 
+    print *, "time: ", bs % t
     print *, "T:    ", bs % burn_s % T 
     print *, "rho:  ", bs % burn_s % rho 
     print *, "X:    ", bs % burn_s % xn(:)
