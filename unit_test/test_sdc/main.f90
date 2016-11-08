@@ -213,12 +213,28 @@ program test_react
                    HALF*sum(sdc_state_in % y(SMX:SMZ)**2)/sdc_state_in % y(SRHO)
               sdc_state_in % y(SFS:SFS-1+nspec) = sdc_state_in % y(SRHO) * eos_state % xn(:)
 
+              ! need to set this consistently
+              sdc_state_in % T_from_eden = .true.
+
               ! zero out the advective terms
               sdc_state_in % ydot_a(:) = ZERO
 
               ! need to set T_from_eden
 
               call integrator(sdc_state_in, sdc_state_out, tmax, ZERO)
+
+              do j = 1, nspec
+                 state(ii, jj, kk, ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
+              enddo
+
+              ! do j=1, nspec
+              !    ! an explicit loop is needed here to keep the GPU happy
+              !    state(ii, jj, kk, irodot + j - 1) = &
+              !         (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
+              ! enddo
+
+              state(ii, jj, kk, irho_hnuc) = &
+                   (sdc_state_out % y(SEINT) - sdc_state_in % y(SEINT)) / tmax
 
 
               n_rhs_avg = n_rhs_avg + sdc_state_out % n_rhs
