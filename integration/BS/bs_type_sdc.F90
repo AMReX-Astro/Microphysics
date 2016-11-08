@@ -319,7 +319,7 @@ contains
     eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
     if (bs % T_from_eden) then
-       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2))
+       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
        eos_state % e = bs % y(SEINT) * rhoInv
     endif
@@ -365,7 +365,7 @@ contains
     eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
     if (bs % T_from_eden) then
-       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2))
+       eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
        eos_state % e = bs % y(SEINT) * rhoInv
     endif
