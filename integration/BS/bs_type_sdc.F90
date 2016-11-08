@@ -380,6 +380,7 @@ contains
 
     call eos(eos_input_re, eos_state)
 
+    print *, "time: ", bs % t
     print *, "T:    ", eos_state % T
     print *, "rho:  ", eos_state % rho
     print *, "X:    ", eos_state % xn(:)
