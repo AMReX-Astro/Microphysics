@@ -69,6 +69,8 @@ program test_react
 
   real (kind=dp_t) :: start_time, end_time
 
+  real (kind=dp_t) :: sum_spec
+
   character (len=256) :: out_name
 
   call boxlib_initialize()
@@ -216,6 +218,10 @@ program test_react
               sdc_state_in % y(SEDEN) = sdc_state_in % y(SEINT) + &
                    HALF*sum(sdc_state_in % y(SMX:SMZ)**2)/sdc_state_in % y(SRHO)
               sdc_state_in % y(SFS:SFS-1+nspec) = sdc_state_in % y(SRHO) * eos_state % xn(:)
+
+              ! normalize
+              sum_spec = sum(sdc_state_in % y(SFS:SFS-1+nspec))/ sdc_state_in % y(SRHO)
+              sdc_state_in % y(SFS:SFS-1+nspec) = sdc_state_in % y(SFS:SFS-1+nspec)/sum_spec
 
               ! need to set this consistently
               sdc_state_in % T_from_eden = .true.
