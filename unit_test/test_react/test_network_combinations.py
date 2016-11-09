@@ -6,7 +6,7 @@ import itertools
 import os
 import sys
 
-params_file = """
+params_file = r"""
 &PROBIN
   test_set = "gr0_3d.small"
 
@@ -50,7 +50,11 @@ combinations = [[{k: v} for (k, v) in zip(params.keys(), values)]
 
 run_no = 0
 
+top_dir = os.getcwd()
+
 for c in combinations:
+
+    cparams = {k: v for d in c for k, v in d.items()}
 
     # run this combination of test parameters
 
@@ -67,13 +71,23 @@ for c in combinations:
     
     for f in link_files:
         try: 
-            os.symlink(f, os.path.join(odir, os.path.basename(f)))
+            os.symlink(os.path.join(top_dir, f), 
+                       os.path.join(odir, os.path.basename(f)))
         except:
             sys.exit("unable to link file")
 
     # write the input file
+    infile = "{}/inputs.{}".format(odir, odir)
+    with open(infile, "w") as f:
+        for line in params_file.splitlines():
+            if line.find("@@test-params@@") >= 0:
+                for k, v in cparams.items():
+                    f.write("  {} = {}\n".format(k, v))
+            else:
+                f.write("{}\n".format(line))
 
     # run
+    
 
     # log the result
 
