@@ -1,0 +1,404 @@
+test 01: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 02: successful
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:           83
+   max:         1077
+
+test 03: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 04: successful
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:           82
+   max:         1060
+
+test 05: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:          359
+   max:         2868
+
+test 06: successful
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:          129
+   max:         1077
+
+test 07: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:          257
+   max:         1993
+
+test 08: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 09: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 10: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 11: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 12: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 13: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+ RHS stats:
+   min:            4
+   avg:         1330
+   max:         4880
+
+test 14: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 15: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+ RHS stats:
+   min:            4
+   avg:          903
+   max:         2818
+
+test 16: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 17: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 18: successful
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:           91
+   max:         1071
+
+test 19: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 20: successful
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:           90
+   max:         1129
+
+test 21: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:          360
+   max:         2871
+
+test 22: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 23: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:            4
+   avg:          257
+   max:         1969
+
+test 24: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 25: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 26: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 27: failed
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 28: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 10000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 29: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+ RHS stats:
+   min:            4
+   avg:         1331
+   max:         5021
+
+test 30: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-12
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
+test 31: successful
+  atol_spec = 1e-12
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+ RHS stats:
+   min:            4
+   avg:          906
+   max:         2815
+
+test 32: failed
+  atol_spec = 1e-08
+  dens_max = 100000000.0
+  dens_min = 1000000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 5000000000.0
+  temp_min = 50000000.0
+  tmax = 0.001
+
+
