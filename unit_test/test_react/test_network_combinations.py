@@ -9,7 +9,7 @@ import sys
 
 executable = "main.Linux.gfortran.omp.exe"
 
-link_files = ["xin.aprox13",
+link_files = ["xin.aprox19",
               "gr0_3d.small",
               "helm_table.dat"]
 
@@ -18,24 +18,43 @@ link_files.append(executable)
 # this dictionary holds the parameters we want to set.  For each key,
 # we use a list to give all the possible values (even if there is only
 # a single value).
-params = {
+aprox13_params = {
     "dens_min": [1.e4, 1.e6],
     "dens_max": [1.e8],
     "temp_min": [5.e7],
     "temp_max": [5.e9],
-    "tmax": [1.e-6, 1.e-3],
+    "tmax": [1.e-3],
     "rtol_spec": [1.e-12, 1.e-8],
     "atol_spec": [1.e-12, 1.e-8],
     "jacobian": [1, 2]
+    "integrate_molar_fraction": ["T", "F"]
 }
 
+aprox19_params = {
+    "dens_min": [1.e5],
+    "dens_max": [5.e8],
+    "temp_min": [5.e7],
+    "temp_max": [5.e8],
+    "tmax": [1.e-6],
+    "rtol_spec": [1.e-8, 1.e-6],
+    "atol_spec": [1.e-8, 1.e-6],
+    "jacobian": [1, 2],
+    "centered_diff_jac": ["T"],
+    "call_eos_in_rhs": ["T", "F"],
+    "integrate_molar_fraction": ["T", "F"]
+}
+
+
+params = aprox19_params
 
 params_file = r"""
 &PROBIN
   test_set = "gr0_3d.small"
 
-  xin_file   = "xin.aprox13"
-  run_prefix = "react_aprox13_"
+  xin_file   = "xin.aprox19"
+  run_prefix = "react_aprox19_"
+
+  small_dens = 1.0
 
   @@test-params@@
 
