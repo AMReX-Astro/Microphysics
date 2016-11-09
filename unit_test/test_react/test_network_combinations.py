@@ -7,7 +7,7 @@ import os
 import subprocess
 import sys
 
-executable = "main.Linux.gfortran.exe"
+executable = "main.Linux.gfortran.omp.exe"
 
 link_files = ["xin.aprox13",
               "gr0_3d.small",
@@ -68,7 +68,7 @@ def run(command, stdin=False, outfile=None):
                     cf.write(line.decode("ascii"))
             cf.close()
 
-    return stdout0, rc
+    return stdout0[0], rc
 
 
 def doit():
@@ -92,8 +92,6 @@ def doit():
 
     for c in combinations:
 
-        print("running case {}...".format(run_no))
-
         cparams = {k: v for d in c for k, v in d.items()}
 
         # run this combination of test parameters
@@ -101,6 +99,8 @@ def doit():
         # make the directory
         run_no += 1
         odir = "{:02d}".format(run_no)
+
+        print("running case {}...".format(run_no))
 
         try:
             os.mkdir(odir)
@@ -143,10 +143,19 @@ def doit():
 
         outcomes[odir] = result
 
+        # if we were successful, the last 4 lines are the summary of RHS evaluations
+        stats = ""
+        if rc == 0:
+            stats = stdout.splitlines()[-4:]
+
         # output summary
         of.write("test {}: {}\n".format(odir, result))
         for k, v in sorted(cparams.items()):
             of.write("  {} = {}\n".format(k, v))
+        of.write("\n")
+
+        for line in stats:
+            of.write("{}\n".format(line.decode("utf-8")))
         of.write("\n")
         of.flush()
 
