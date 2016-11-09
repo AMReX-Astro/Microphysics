@@ -26,7 +26,7 @@ aprox13_params = {
     "tmax": [1.e-3],
     "rtol_spec": [1.e-12, 1.e-8],
     "atol_spec": [1.e-12, 1.e-8],
-    "jacobian": [1, 2]
+    "jacobian": [1, 2],
     "integrate_molar_fraction": ["T", "F"]
 }
 
@@ -35,7 +35,7 @@ aprox19_params = {
     "dens_max": [5.e8],
     "temp_min": [5.e7],
     "temp_max": [5.e8],
-    "tmax": [1.e-6],
+    "tmax": [1.e-9],
     "rtol_spec": [1.e-8, 1.e-6],
     "atol_spec": [1.e-8, 1.e-6],
     "jacobian": [1, 2],
