@@ -3,8 +3,10 @@
 from __future__ import print_function
 
 import itertools
+import os
+import sys
 
-PARAMS = """
+params_file = """
 &PROBIN
   test_set = "gr0_3d.small"
 
@@ -15,6 +17,13 @@ PARAMS = """
 
 /
 """
+
+executable = ""
+
+link_files = ["xin.aprox13",
+              "gr0_3d.small",
+              "helm_table.dat"]
+
 
 # this dictionary holds the parameters we want to set.  For each key,
 # we use a list to give all the possible values (even if there is only
@@ -39,13 +48,28 @@ combinations = [[{k: v} for (k, v) in zip(params.keys(), values)]
                 for values in itertools.product(*params.values())]
 
 
+run_no = 0
+
 for c in combinations:
 
     # run this combination of test parameters
 
     # make the directory
+    run_no += 1
+    odir = "{:02d}".format(run_no)
+
+    try:
+        os.mkdir(odir)
+    except:
+        sys.exit("unable to create directory")
 
     # copy the executable and suport files
+    
+    for f in link_files:
+        try: 
+            os.symlink(f, os.path.join(odir, os.path.basename(f)))
+        except:
+            sys.exit("unable to link file")
 
     # write the input file
 
