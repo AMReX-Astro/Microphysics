@@ -277,4 +277,6 @@ program test_react
   call bl_prof_finalize()
   call boxlib_finalize()
 
+  call send_success_return_code()
+
 end program test_react
