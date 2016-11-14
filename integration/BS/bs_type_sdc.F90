@@ -208,8 +208,6 @@ contains
     sdc % n_rhs = bs % n_rhs
     sdc % n_jac = bs % n_jac
 
-    sdc % self_heat = bs % self_heat
-
   end subroutine bs_to_sdc
 
 
