@@ -9,7 +9,7 @@ import sys
 
 executable = "main.Linux.gfortran.omp.exe"
 
-link_files = ["xin.aprox19",
+link_files = ["xin.rprox",
               "gr0_3d.small",
               "helm_table.dat"]
 
@@ -44,15 +44,30 @@ aprox19_params = {
     "integrate_molar_fraction": ["T", "F"]
 }
 
+rprox_params = {
+    "dens_min": [1.e5],
+    "dens_max": [2.e6],
+    "temp_min": [1.e8],
+    "temp_max": [1.e9],
+    "tmax": [1.e-6],
+    "rtol_spec": [1.e-12, 1.e-8],
+    "atol_spec": [1.e-12, 1.e-8],
+    "jacobian": [1, 2],
+    "centered_diff_jac": ["T"],
+    "call_eos_in_rhs": ["T", "F"],
+    "integrate_molar_fraction": ["T", "F"],
+    "renormalize_abundances": ["T", "F"]
+}
 
-params = aprox19_params
+
+params = rprox_params
 
 params_file = r"""
 &PROBIN
   test_set = "gr0_3d.small"
 
-  xin_file   = "xin.aprox19"
-  run_prefix = "react_aprox19_"
+  xin_file   = "xin.rprox"
+  run_prefix = "react_rprox_"
 
   small_dens = 1.0
 
