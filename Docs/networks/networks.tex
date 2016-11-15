@@ -740,7 +740,7 @@ The entry point to the integrator is {\tt actual\_integrator}:
 A basic flow chart of this interface is as follows (note: there are
 many conversions between {\tt eos\_t}, {\tt burn\_t}, and any
 integrator-specific type implied in these operations):
-\begin{itemize}
+\begin{enumerate}
   \item Call the EOS on the input state, using $\rho, T$ as the input
     variables.  
 
@@ -763,7 +763,7 @@ integrator-specific type implied in these operations):
     {\tt nspec}
 
   \item normalize the abundances so they sum to 1
-\end{itemize}
+\end{enumerate}
 
     
 Each integrator does their own thing to construct the solution, 
@@ -772,13 +772,13 @@ which means converting from their internal representation
 to the {\tt burn\_t} type.  This is handled in a file
 called {\tt XX\_rhs.f90}, where {\tt XX} is the integrator name.
 The basic outline of this routine is:
-\begin{itemize}
+\begin{enumerate}
 \item call {\tt clean\_state}
 
 This function operates on the ODE integrator vector directly
 (accessing it from the integrator's internal data structure).  It
 makes sure that the mass fractions lie between $[10^{-30}, 1]$ and
-that the temperature lies between $[{\tt small\_temp}, 10^11]$.  The
+that the temperature lies between $[{\tt small\_temp}, 10^{11}]$.  The
 latter upper limit is arbitrary, but is safe for the types of problems
 we support with these networks.
 
@@ -799,7 +799,7 @@ we support with these networks.
 \item limit the rates if {\tt burning\_mode = 3}
 
 \item convert back to the integrator's internal representation
-\end{itemize}
+\end{enumerate}
 
 
 \subsection{BS}
