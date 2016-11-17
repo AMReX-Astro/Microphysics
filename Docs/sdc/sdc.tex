@@ -50,3 +50,84 @@ to the hydrodynamics, computed with the during the hydro step.
 However, to define the temperature, we need the kinetic energy (and
 hence momentum and density) at any intermediate time, $t$.  We construct
 these as needed from 
+
+
+\section{Interfaces}
+
+\subsection{{\tt actual\_integrator}}
+
+SDC integration provides its own implementation of the main entry
+point, {\tt actual\_integrator}.
+\begin{lstlisting}[language={[95]fortran}]
+  subroutine actual_integrator(state_in, state_out, dt, time)
+
+    type (sdc_t), intent(in   ) :: state_in
+    type (sdc_t), intent(inout) :: state_out
+    real(dp_t),    intent(in   ) :: dt, time
+\end{lstlisting}
+The main difference here is that the type that comes in and out of the
+interface is no longer a {\tt burn\_t}, but instead is an {\tt
+  sdc\_t}.
+
+The flow of this main routine is simpler than the non-SDC version:
+\begin{enumerate}
+\item Convert from the {\tt sdc\_t} type to the integrator's internal representation
+  (e.g., a {\tt bs\_t} for the {\tt BS} integrator).
+
+\item Call the main integration routine to advance the inputs state
+  through the desired time interval, producing the new, output state.
+
+\item Convert back from the internal representation (e.g., a {\tt
+  bs\_t}) to the {\tt sdc\_t} type.
+\end{enumerate}
+
+\subsection{Righthand side wrapper}
+
+The manipulation of the righthand side is considerably more complex
+now.  Each network only provides the change in molar
+fractions \MarginPar{note: molar fractions} and internal energy, but
+we need to convert these to the conservative system we are
+integrating, including the advective terms.
+
+\begin{enumerate}
+
+\item Convert to a {\tt burn\_t} type, for instance via {\tt bs\_to\_burn}:
+
+  \begin{enumerate}
+
+  \item call {\tt fill\_unevolved\_variables}
+
+  \item compute the specific internal energy, $e$, from either the
+    total minus kinetic energy or internal energy carried by the
+    integrator (depending on the value of {\tt T\_from\_eden}).
+
+  \item get the temperature from the equation of state
+
+  \item convert to a {\tt burn\_t} type, for instance via {\tt rhs\_to\_bs}:
+
+  \end{enumerate}
+
+\item Call the network's {\tt actual\_rhs} routine to get just the 
+ reaction sources to the update.  In particular, this returns
+ the change in molar fractions, $\dot{Y}_k$ and the nuclear energy
+ release, $\dot{S}$.
+
+\item Convert back to the integrator's internal representation (e.g.,
+  a {\tt bs\_t})
+
+  \begin{enumerate}
+  \item fill the {\tt ydot} array in the integrator type (e.g., {\tt
+    bs\_t}) with the advective sources that originally came into the
+    intergrator through the {\tt sdc\_t}.
+
+  \item Add the reacting terms.  This is done as:
+    \begin{align}
+      \dot{y}_{\rho X_k} &= \mathcal{A}_{\rho X_k} + \rho A_k \dot{Y}_k \\
+      \dot{y}_{\rho e} &= \mathcal{A}_{\rho e} +\rho \dot{S} \\
+      \dot{y}_{\rho E} &= \mathcal{A}_{\rho E} + \rho \dot{S}
+    \end{align}
+      
+  \end{enumerate}
+
+\end{enumerate}
+
