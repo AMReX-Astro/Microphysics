@@ -6,14 +6,18 @@ of the advection over the timestep.
 
 We want to solve the coupled equations:
 \begin{equation}
-\Uc_t + \Advs{\Uc} = \Rb(\Uc)
+\Uc_t = \Advs{\Uc} + \Rb(\Uc)
 \end{equation}
 where $\Uc$ is the conserved state vector, $\Uc = (\rho, (\rho X_k),
 (\rho \Ub), (\rho E))^\intercal$, $X_k$ are the mass fractions
 constrained via $\sum_k X_k = 1$, $\Ub$ is the velocity vector, and
 $E$ is the specific total energy, related to the specific internal
 energy, $e$, via $E = e + |\Ub|^2/2$.  Here $\Advs{\Uc}$ is the
-advective term (including any hydrodynamical sources) and $\Rb(\Uc)$
+advective source term (including any hydrodynamical sources),
+\begin{equation}
+\Advs{\Uc} = - \nabla \cdot \Fb(\Ub) + \Sb_\mathrm{hydro}
+\end{equation}
+and $\Rb(\Uc)$
 is the reaction source term.
 
 
@@ -36,7 +40,7 @@ $\rho \Ub$, so our ODE system is just:
    \begin{array}{c} \rho X_k \\ \rho E \\  \rho e \end{array} 
 \right ) = 
 \left ( \begin{array}{c}
-   -\Adv{\rho X_k}^{n+1/2} \\ -\Adv{\rho E}^{n+1/2} \\ -\Adv{\rho e}^{n+1/2} \\
+   \Adv{\rho X_k}^{n+1/2} \\ \Adv{\rho E}^{n+1/2} \\ \Adv{\rho e}^{n+1/2} \\
 \end{array} \right ) +
 \left (
    \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \\ \rho \Sdot \end{array}
@@ -122,9 +126,9 @@ integrating, including the advective terms.
 
   \item Add the reacting terms.  This is done as:
     \begin{align}
-      \dot{y}_{\rho X_k} &= \mathcal{A}_{\rho X_k} + \rho A_k \dot{Y}_k \\
-      \dot{y}_{\rho e} &= \mathcal{A}_{\rho e} +\rho \dot{S} \\
-      \dot{y}_{\rho E} &= \mathcal{A}_{\rho E} + \rho \dot{S}
+      \dot{y}_{\rho X_k} &= \Adv{\rho X_k}^{n+1/2} + \rho A_k \dot{Y}_k \\
+      \dot{y}_{\rho e} &= \Adv{\rho e}^{n+1/2} +\rho \dot{S} \\
+      \dot{y}_{\rho E} &= \Adv{\rho E}^{n+1/2} + \rho \dot{S}
     \end{align}
       
   \end{enumerate}
