@@ -75,14 +75,22 @@ interface is no longer a {\tt burn\_t}, but instead is an {\tt
 
 The flow of this main routine is simpler than the non-SDC version:
 \begin{enumerate}
-\item Convert from the {\tt sdc\_t} type to the integrator's internal representation
-  (e.g., a {\tt bs\_t} for the {\tt BS} integrator).
+\item Convert from the {\tt sdc\_t} type to the integrator's internal
+  representation (e.g., {\tt sdc\_to\_bs} converts from a {\tt bs\_t}
+  for the {\tt BS} integrator).
+
+  This copies the state variables and advective sources into the
+  integration type.  Since we only actually integrate $(\rho X_k),
+  (\rho e), (\rho E)$, the terms corresponding to density and momentum
+  are carried in an auxillary array (indexed through the {\tt rpar}
+  mechanism).
 
 \item Call the main integration routine to advance the inputs state
   through the desired time interval, producing the new, output state.
 
 \item Convert back from the internal representation (e.g., a {\tt
   bs\_t}) to the {\tt sdc\_t} type.
+
 \end{enumerate}
 
 \subsection{Righthand side wrapper}
@@ -99,7 +107,16 @@ integrating, including the advective terms.
 
   \begin{enumerate}
 
-  \item call {\tt fill\_unevolved\_variables}
+  \item call {\tt fill\_unevolved\_variables} to update the density
+    and momentum.  Since these don't depend on reactions, this is a
+    simple algebraic update based on the piecewise-constant-in-time
+    advective term:
+    \begin{align}
+      \rho(t) &= \rho^n + t \cdot \left [ \mathcal{A}(\rho) \right]^{n+1/2} \\
+      (\rho \Ub)(t) &= (\rho \Ub)^n + t \cdot \left [ \mathcal{A}(\rho\Ub) \right]^{n+1/2} 
+    \end{align}
+    where here we assume that we are integrating in the ODE system
+    starting with $t=0$.
 
   \item compute the specific internal energy, $e$, from either the
     total minus kinetic energy or internal energy carried by the
@@ -107,7 +124,7 @@ integrating, including the advective terms.
 
   \item get the temperature from the equation of state
 
-  \item convert to a {\tt burn\_t} type, for instance via {\tt rhs\_to\_bs}:
+  \item convert to a {\tt burn\_t} type, for instance via {\tt eos\_to\_burn}:
 
   \end{enumerate}
 
@@ -117,9 +134,11 @@ integrating, including the advective terms.
  release, $\dot{S}$.
 
 \item Convert back to the integrator's internal representation (e.g.,
-  a {\tt bs\_t})
+  a {\tt bs\_t}, via {\tt rhs\_to\_bs})
 
   \begin{enumerate}
+  \item call {\tt fill\_unevolved\_variables} \MarginPar{is this redundant?}
+
   \item fill the {\tt ydot} array in the integrator type (e.g., {\tt
     bs\_t}) with the advective sources that originally came into the
     intergrator through the {\tt sdc\_t}.
