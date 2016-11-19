@@ -72,7 +72,7 @@ contains
 
     call ode(bs, t0, t1, maxval(bs % rtol), ierr)
     
-    ! Store the final data, and then normalize abundances.
+    ! Store the final data
 
     call bs_to_sdc(state_out, bs)
 
