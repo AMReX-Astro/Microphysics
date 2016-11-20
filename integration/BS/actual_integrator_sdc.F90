@@ -30,7 +30,7 @@ contains
     use extern_probin_module, only: burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc
-    use sdc_type_module, only: sdc_t, SVAR
+    use sdc_type_module, only: sdc_t
     use stiff_ode, only: ode
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
     use bl_types, only: dp_t
@@ -47,13 +47,13 @@ contains
     ! Local variables
     integer :: ierr
 
-    real(kind=dp_t) :: atol(SVAR), rtol(SVAR)   ! abs and rel tolerances
     real(kind=dp_t) :: t0, t1                   ! starting and ending time
 
     type (bs_t) :: bs
 
     real(dp_t) :: retry_change_factor
 
+    ! BS does not allow for per-equation tolerances, so aggregate them here
     bs % atol(:) = 0.d0
     bs % rtol(:) = max(rtol_spec, rtol_temp, rtol_enuc)
 
