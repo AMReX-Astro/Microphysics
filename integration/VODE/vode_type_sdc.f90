@@ -1,10 +1,10 @@
 module vode_type_module
 
-  use burn_type_module, only: neqs
+  use sdc_type_module, only: SVAR, SVAR_EVOLVE
 
   implicit none
 
-  integer, parameter :: VODE_NEQS = neqs
+  integer, parameter :: VODE_NEQS = SVAR_EVOLVE
 
 contains
 
@@ -14,12 +14,12 @@ contains
     use extern_probin_module, only: integrate_molar_fraction
     use actual_network, only: aion, nspec, nspec_evolve
     use integration_data, only: aionInv
-    use burn_type_module, only: neqs
+    use burn_type_module, only: SVAR_EVOLVE
     use rpar_indices, only: n_rpar_comps
 
     implicit none
 
-    real(dp_t) :: y(neqs), rpar(n_rpar_comps)
+    real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
     ! Ensure that mass fractions always stay positive.
     if (integrate_molar_fraction) then
@@ -38,13 +38,13 @@ contains
     use bl_types, only: dp_t
     use actual_network, only: aion, nspec, nspec_evolve
     use integration_data, only: aionInv
-    use burn_type_module, only: neqs
+    use burn_type_module, only: SVAR_EVOLVE
     use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
-    real(dp_t) :: y(neqs), rpar(n_rpar_comps)
+    real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
     real(dp_t) :: nspec_sum
 
@@ -73,11 +73,11 @@ contains
     use eos_type_module, only: eos_t, composition
     use eos_module, only: eos_input_rt, eos
     use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
-    use burn_type_module, only: neqs
+    use burn_type_module, only: SVAR_EVOLVE
 
     implicit none
 
-    real(dp_t) :: y(neqs), rpar(n_rpar_comps)
+    real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
     type (eos_t) :: eos_state
 
@@ -144,14 +144,14 @@ contains
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, net_itemp
+    use burn_type_module, only: SVAR_EVOLVE, net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
     type (eos_t) :: state
     real(dp_t)   :: rpar(n_rpar_comps)
-    real(dp_t)   :: y(neqs)
+    real(dp_t)   :: y(SVAR_EVOLVE)
 
     state % rho     = rpar(irp_dens)
     state % T       = y(net_itemp)
@@ -188,14 +188,14 @@ contains
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, net_itemp
+    use burn_type_module, only: SVAR_EVOLVE, net_itemp
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
     type (eos_t) :: state
     real(dp_t)   :: rpar(n_rpar_comps)
-    real(dp_t)   :: y(neqs)
+    real(dp_t)   :: y(SVAR_EVOLVE)
 
     rpar(irp_dens) = state % rho
     y(net_itemp) = state % T
@@ -234,15 +234,15 @@ contains
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
+    use burn_type_module, only: SVAR_EVOLVE, burn_t, net_itemp, net_ienuc
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
     type (burn_t) :: state
     real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(neqs)
-    real(dp_t), optional :: ydot(neqs), jac(neqs, neqs)
+    real(dp_t)    :: y(SVAR_EVOLVE)
+    real(dp_t), optional :: ydot(SVAR_EVOLVE), jac(SVAR_EVOLVE, SVAR_EVOLVE)
 
     integer :: n
 
@@ -303,14 +303,14 @@ contains
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
+    use burn_type_module, only: SVAR_EVOLVE, burn_t, net_itemp, net_ienuc
     use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
     type (burn_t) :: state
     real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(neqs)
+    real(dp_t)    :: y(SVAR_EVOLVE)
 
     integer :: n
 
