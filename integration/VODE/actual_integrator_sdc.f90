@@ -94,7 +94,6 @@ contains
     real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
 
-    real(dp_t) :: ener_offset
 
     EXTERNAL jac, f_rhs
 
@@ -146,208 +145,33 @@ contains
 
     local_time = ZERO
 
-    ! Convert our input burn state into an EOS type.
+    ! Convert our input sdc state into the form VODE expects
 
-    call burn_to_eos(state_in, eos_state_in)
+    call sdc_to_vode(state_in, y, rpar)
 
-    ! We assume that (rho, T) coming in are valid, do an EOS call
-    ! to fill the rest of the thermodynamic variables.
 
-    call eos(eos_input_rt, eos_state_in)
+    ! this is not used but we set it to prevent accessing uninitialzed
+    ! data in common routines with the non-SDC integrator
+    rpar(irp_self_heat) = -ONE
 
-    ! Convert the EOS state data into the form VODE expects.
-
-    call eos_to_vode(eos_state_in, y, rpar)
-
-    ener_offset = eos_state_in % e
-
-    y(net_ienuc) = ener_offset
-
-    ! Pass through whether we are doing self-heating.
-
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       rpar(irp_self_heat) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
-       rpar(irp_self_heat) = ONE
-    else
-       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
-    endif
-
-    ! Copy in the zone size.
-
-    rpar(irp_dx) = state_in % dx
-
-    ! Set the sound crossing time.
-
-    rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
-
-    ! Set the time offset -- this converts between the local integration 
+    ! Set the time offset -- this converts between the local integration
     ! time and the simulation time
-
     rpar(irp_t0) = time
 
-    ! If we are using the dT_crit functionality and therefore doing a linear
-    ! interpolation of the specific heat in between EOS calls, do a second
-    ! EOS call here to establish an initial slope.
-
-    rpar(irp_Told) = eos_state_in % T
-
-    if (dT_crit < 1.0d19) then
-
-       eos_state_temp = eos_state_in
-       eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
-
-       call eos(eos_input_rt, eos_state_temp)
-
-       rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-       rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
-
-    endif
-
-    ! Save the initial state.
-
-    rpar(irp_y_init:irp_y_init + VODE_NEQS - 1) = y
 
     ! Call the integration routine.
-
     call dvode(f_rhs, VODE_NEQS, y, local_time, local_time + dt, &
                ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
-    ! If we are using hybrid burning and the energy release was negative (or we failed),
-    ! re-run this in self-heating mode.
 
-    if ( burning_mode == 2 .and. &
-         (y(net_ienuc) - ener_offset < ZERO .or. &
-          istate < 0) ) then
-
-       rpar(irp_self_heat) = ONE
-
-       istate = 1
-
-       rwork(:) = ZERO
-       iwork(:) = 0
-
-       iwork(6) = 150000
-
-       local_time = ZERO
-
-       call eos_to_vode(eos_state_in, y, rpar)
-
-       rpar(irp_Told) = eos_state_in % T
-
-       if (dT_crit < 1.0d19) then
-
-          rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-          rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
-
-       endif
-
-       y(net_ienuc) = ener_offset
-
-       call dvode(f_rhs, VODE_NEQS, y, local_time, local_time + dt, &
-                  ITOL, rtol, atol, ITASK, &
-                  istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
-
-    endif
-
-    ! If we still failed, print out the current state of the integration.
-
-    if (istate < 0) then
-       print *, 'ERROR: integration failed in net'
-       print *, 'istate = ', istate
-       print *, 'time = ', local_time
-       print *, 'dens = ', state_in % rho
-       print *, 'temp start = ', state_in % T
-       print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', y(net_itemp)
-       print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
-       print *, 'energy generated = ', y(net_ienuc) - ener_offset
-
-       if (.not. retry_burn) then
-
-          call bl_error("ERROR in burner: integration failed")
-
-       else
-
-          print *, 'Retrying burn with looser tolerances'
-
-          retry_change_factor = ONE
-
-          do while (istate < 0 .and. retry_change_factor <= retry_burn_max_change)
-
-             retry_change_factor = retry_change_factor * retry_burn_factor
-
-             istate = 1
-
-             rwork(:) = ZERO
-             iwork(:) = 0
-
-             atol = atol * retry_burn_factor
-             rtol = rtol * retry_burn_factor
-
-             iwork(6) = 150000
-
-             local_time = ZERO
-
-             call eos_to_vode(eos_state_in, y, rpar)
-
-             rpar(irp_Told) = eos_state_in % T
-
-             if (dT_crit < 1.0d19) then
-
-                rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-                rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
-
-             endif
-
-             y(net_ienuc) = ener_offset
-
-             call dvode(f_rhs, VODE_NEQS, y, local_time, local_time + dt, &
-                        ITOL, rtol, atol, ITASK, &
-                        istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
-
-          enddo
-
-          if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
-
-             call bl_error("ERROR in burner: integration failed")
-
-          endif
-
-       endif
-
-    endif
-
-    ! Subtract the energy offset
-    y(net_ienuc) = y(net_ienuc) - ener_offset
-
-    ! Store the final data, and then normalize abundances.
-    call vode_to_burn(y, rpar, state_out)
+    ! Store the final data
+    call vode_to_sdc(y, rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
-
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
-
-    call normalize_abundances_burn(state_out)
-
-    if (burner_verbose) then
-
-       ! Print out some integration statistics, if desired.
-
-       print *, 'integration summary: '
-       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
-                ' energy released: ', state_out % e - state_in % e
-       print *, 'number of steps taken: ', iwork(11)
-       print *, 'number of f evaluations: ', iwork(12)
-
-    endif
 
   end subroutine actual_integrator
 
