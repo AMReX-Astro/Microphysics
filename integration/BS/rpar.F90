@@ -27,7 +27,9 @@ module rpar_indices
   integer, parameter :: irp_SMX  = 2
   integer, parameter :: irp_SMY  = 3
   integer, parameter :: irp_SMZ  = 4
-  integer, parameter :: n_rpar_comps = irp_SMZ
+  integer, parameter :: irp_t0 = irp_SMZ + 1
+
+  integer, parameter :: n_rpar_comps = irp_t0
 #endif
 
 end module rpar_indices

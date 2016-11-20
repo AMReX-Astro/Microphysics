@@ -68,6 +68,11 @@ contains
 
     bs % self_heat = .false.
 
+    ! set the time offset -- we integrate from 0 to dt, so this
+    ! is the offset to simulation time
+    
+    bs % upar(irp_t0) = time
+
     ! Call the integration routine.
 
     call ode(bs, t0, t1, maxval(bs % rtol), ierr)
