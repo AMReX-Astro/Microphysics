@@ -14,6 +14,7 @@ module rpar_indices
 
   integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
+#ifndef SDC
   integer, parameter :: irp_dens = 1
   integer, parameter :: irp_cv = irp_dens + 1
   integer, parameter :: irp_cp = irp_cv + 1
@@ -33,5 +34,16 @@ module rpar_indices
   integer, parameter :: irp_t0 = irp_dcpdt + 1
 
   integer, parameter :: n_rpar_comps = irp_t0 + 1
+#else
+  integer, parameter :: irp_SRHO = 1
+  integer, parameter :: irp_SMX  = 2
+  integer, parameter :: irp_SMY  = 3
+  integer, parameter :: irp_SMZ  = 4
+
+  integer, parameter :: irp_self_heat = irp_SMZ + 1
+  integer, parameter :: irp_t0 = irp_self_heat + 1
+
+  integer, parameter :: n_rpar_comps = irp_t0
+#endif
 
 end module rpar_indices
