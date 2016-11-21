@@ -40,7 +40,11 @@ module rpar_indices
   integer, parameter :: irp_SMY  = 3
   integer, parameter :: irp_SMZ  = 4
 
-  integer, parameter :: irp_self_heat = irp_SMZ + 1
+  ! these are the SVAR advective terms (including those that we do
+  ! not explicitly evolve)
+  integer, parameter :: irp_ydot_a = 5
+
+  integer, parameter :: irp_self_heat = irp_ydot_a + SVAR
   integer, parameter :: irp_t0 = irp_self_heat + 1
 
   integer, parameter :: n_rpar_comps = irp_t0
