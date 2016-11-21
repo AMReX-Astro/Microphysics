@@ -39,6 +39,8 @@ module rpar_indices
 
   integer, parameter :: n_rpar_comps = irp_t0 + 1
 #else
+  ! Note: we require these components to be first, to allow for offset
+  ! indexing with irp_ydot_a and irp_u_init
   integer, parameter :: irp_SRHO = 1
   integer, parameter :: irp_SMX  = 2
   integer, parameter :: irp_SMY  = 3
@@ -48,7 +50,11 @@ module rpar_indices
   ! not explicitly evolve)
   integer, parameter :: irp_ydot_a = 5
 
-  integer, parameter :: irp_self_heat = irp_ydot_a + SVAR
+  ! these are the SVAR - SVAR_EVOLVE initial values of the unevolved
+  ! components of the conserved state
+  integer, parameter :: irp_u_init = irp_ydot_a + SVAR
+
+  integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
   integer, parameter :: irp_t0 = irp_self_heat + 1
 
