@@ -36,7 +36,7 @@ contains
     ! Ensure that internal energy never goes above the maximum limit
     ! provided by the EOS. Same for the internal energy implied by the
     ! total energy (which we get by subtracting kinetic energy).
-    eos_state % rho = rpar(irp_SRHO) 
+    eos_state % rho = rpar(irp_SRHO)
     eos_state % T = MAX_TEMP
     eos_state % xn = y(SFS:SFS+nspec-1) / rpar(irp_SRHO)
 
@@ -57,7 +57,7 @@ contains
 
     real(dp_t), intent(in) :: time
     real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
-    
+
     ! we are always integrating from t = 0, so there is no offset
     ! time needed here
     rpar(irp_SRHO) = rpar(irp_u_init-1+irp_SRHO) + &
@@ -88,74 +88,109 @@ contains
 
   ! Given a burn state, fill the rpar and integration state data.
 
-  subroutine burn_to_vode(state, y, rpar, ydot, jac)
+  subroutine sdc_to_vode(sdc, y, rpar)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ONE
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
-    use burn_type_module, only: SVAR_EVOLVE, burn_t, net_itemp, net_ienuc
-    use extern_probin_module, only: integrate_molar_fraction
+    type (sdc_t) :: sdc
+    real(dp_t    :: rpar(n_rpar_comps)
+    real(dp_t    :: y(SVAR_EVOLVE)
 
-    implicit none
+    y(:) = sdc % y(1:SVAR_EVOLVE)
 
-    type (burn_t) :: state
+    ! unevolved state variables
+    rpar(irp_dens) = sdc % y(SRHO)
+    rpar(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
+
+    ! advective sources
+    rpar(irp_ydot_a:irp_ydot_a-1+SVAR) = sdc % ydot_a(:)
+
+    ! initial state for unevolved variables
+    rpar(irp_u_init-1+irp_SRHO) = sdc % y(SRHO)
+    rpar(irp_u_init-1+irp_SMX:irp_u_init-1+irp_SMZ) = sdc % y(SMX:SMZ)
+
+    ! other parameters
+    if (sdc % T_from_eden) then
+       rpar(irp_T_from_eden) = ONE
+    else
+       rpar(irp_T_from_eden) = -ONE
+    endif
+
+  end subroutine sdc_to_vode
+
+  subroutine vode_to_sdc(sdc, y, rpar)
+
+    type (sdc_t) :: sdc
     real(dp_t)    :: rpar(n_rpar_comps)
     real(dp_t)    :: y(SVAR_EVOLVE)
-    real(dp_t), optional :: ydot(SVAR_EVOLVE), jac(SVAR_EVOLVE, SVAR_EVOLVE)
 
-    integer :: n
+    sdc % y(1:SVAR_EVOLVE) = y(:)
 
-    rpar(irp_dens) = state % rho
-    y(net_itemp) = state % T
+    ! unevolved state variables
+    call fill_unevolved_variables(time, y, rpar)
 
-    if (integrate_molar_fraction) then
-       y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
-       rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
-    else
-       y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-       rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec)
-    endif
+    sdc % y(SRHO) = rpar(irp_dens)
+    sdc % y(SMX:SMZ) = rpar(irp_SMX:irp_SMZ)
 
-    y(net_ienuc)                             = state % e
-    rpar(irp_cp)                             = state % cp
-    rpar(irp_cv)                             = state % cv
-    rpar(irp_abar)                           = state % abar
-    rpar(irp_zbar)                           = state % zbar
-    rpar(irp_ye)                             = state % y_e
-    rpar(irp_eta)                            = state % eta
-    rpar(irp_cs)                             = state % cs
-    rpar(irp_dx)                             = state % dx
-
-    rpar(irp_Told)                           = state % T_old
-    rpar(irp_dcvdt)                          = state % dcvdt
-    rpar(irp_dcpdt)                          = state % dcpdt
-
-    if (present(ydot)) then
-       ydot = state % ydot
-    endif
-
-    if (present(jac)) then
-       jac = state % jac
-    endif
-
-    if (state % self_heat) then
-       rpar(irp_self_heat) = ONE
-    else
-       rpar(irp_self_heat) = -ONE
-    endif
-
-  end subroutine burn_to_vode
+  end subroutine vode_to_sdc
 
 
+  subroutine rhs_to_vode(time, burn_state, y, ydot, rpar)
 
-  ! Given an rpar array and the integration state, set up a burn state.
+    real(dp_t), intent(in) :: time
+    real(dp_t)    :: rpar(n_rpar_comps)
+    real(dp_t)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
+    type(burn_t), intent(in) :: burn_state
+
+    call fill_unevolved_variables(time, y, rpar)
+
+    ! burn_t % ydot has just the contribution to the RHS from the
+    ! reaction network.  Note that these are in terms of dY/dt
+
+    ! start with the contribution from the non-reacting sources
+    ydot(:) = rpar(irp_ydot_a:irp_ydot_a-1+SVAR_EVOLVE)
+
+    ! add in the reacting terms
+    ydot(SFS:SFS-1+nspec) = ydot(SFS:SFS-1+nspec) + &
+         rpar(irp_SRHO) * aion(1:nspec) * burn_state % ydot(1:nspec)
+
+    ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+    ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+
+  end subroutine rhs_to_vode
+
+
+  subroutine jac_to_vode(time, burn_state, y, ydot, jac, rpar)
+
+    ! this is only used with an analytic Jacobian
+
+    real(dp_t), intent(in) :: time
+    real(dp_t)    :: rpar(n_rpar_comps)
+    real(dp_t)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
+    type(burn_t), intent(in) :: burn_state
+    real(dp_t)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
+
+    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
+    jac(SFS:SFS+nspec-1,SEDEN) = burn_state % jac(1:nspec,net_ienuc)
+    jac(SFS:SFS+nspec-1,SEINT) = burn_state % jac(1:nspec,net_ienuc)
+
+    jac(SEDEN,SFS:SFS+nspec-1) = burn_state % jac(net_ienuc,1:nspec)
+    jac(SEDEN,SEDEN) = burn_state % jac(net_ienuc,net_ienuc)
+    jac(SEDEN,SEINT) = burn_state % jac(net_ienuc,net_ienuc)
+
+    jac(SEINT,SFS:SFS+nspec-1) = burn_state % jac(net_ienuc,1:nspec)
+    jac(SEINT,SEDEN) = burn_state % jac(net_ienuc,net_ienuc)
+    jac(SEINT,SEINT) = burn_state % jac(net_ienuc,net_ienuc)
+
+    ! Scale it to match our variables. We don't need to worry about
+    ! the rho dependence, since every one of the SDC variables is
+    ! linear in rho, so we just need to focus on the Y --> X
+    ! conversion.
+    do n = 1, nspec
+       jac(SFS+n-1,:) = jac(SFS+n-1,:) * aion(n)
+       jac(:,SFS+n-1) = jac(:,SFS+n-1) / aion(n)
+    enddo
+
+  end subroutine jac_to_vode
+
 
   subroutine vode_to_burn(y, rpar, state)
 
