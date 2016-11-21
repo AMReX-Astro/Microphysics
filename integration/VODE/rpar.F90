@@ -11,14 +11,15 @@ module rpar_indices
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
 #else
-  use sdc_type_module, only: SVAR
+  use sdc_type_module, only: SVAR, SVAR_EVOLVE
 #endif
 
   implicit none
 
-  integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
 #ifndef SDC
+  integer, parameter :: n_not_evolved = nspec - nspec_evolve
+
   integer, parameter :: irp_dens = 1
   integer, parameter :: irp_cv = irp_dens + 1
   integer, parameter :: irp_cp = irp_cv + 1

@@ -1,12 +1,25 @@
 module vode_type_module
 
   use bl_types, only: dp_t
-  use rpar_indices, only: n_rpar_comps
-  use sdc_type_module, only: SVAR, SVAR_EVOLVE
+  use bl_constants_module
+
+  use burn_type_module, only : burn_t, net_ienuc
+  use eos_type_module, only : eos_t
+  use eos_module, only : eos, eos_input_re, eos_input_rt
+
+  use network, only : nspec, aion
+
+  use rpar_indices
+  use sdc_type_module
+
+  use extern_probin_module, only: renormalize_abundances
 
   implicit none
 
   private
+
+  ! this should be larger than any reasonable temperature we will encounter   
+  real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11          
 
   integer, parameter :: VODE_NEQS = SVAR_EVOLVE
 
@@ -16,6 +29,7 @@ contains
 
   subroutine clean_state(time, y, rpar)
 
+    real(dp_t), intent(in) :: time
     real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
     real (kind=dp_t) :: max_e, ke
@@ -32,7 +46,7 @@ contains
 
     ! renormalize abundances as necessary
     if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
+       call renormalize_species(time, y, rpar)
     endif
 
     ! Ensure that internal energy never goes above the maximum limit
@@ -59,6 +73,8 @@ contains
 
     real(dp_t), intent(in) :: time
     real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
+
+    integer :: m
 
     ! we are always integrating from t = 0, so there is no offset
     ! time needed here
@@ -93,13 +109,13 @@ contains
   subroutine sdc_to_vode(sdc, y, rpar)
 
     type (sdc_t) :: sdc
-    real(dp_t    :: rpar(n_rpar_comps)
-    real(dp_t    :: y(SVAR_EVOLVE)
+    real(dp_t)   :: rpar(n_rpar_comps)
+    real(dp_t)   :: y(SVAR_EVOLVE)
 
     y(:) = sdc % y(1:SVAR_EVOLVE)
 
     ! unevolved state variables
-    rpar(irp_dens) = sdc % y(SRHO)
+    rpar(irp_SRHO) = sdc % y(SRHO)
     rpar(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
 
     ! advective sources
@@ -118,8 +134,9 @@ contains
 
   end subroutine sdc_to_vode
 
-  subroutine vode_to_sdc(sdc, y, rpar)
+  subroutine vode_to_sdc(time, y, rpar, sdc)
 
+    real(dp_t), intent(in) :: time
     type (sdc_t) :: sdc
     real(dp_t)    :: rpar(n_rpar_comps)
     real(dp_t)    :: y(SVAR_EVOLVE)
@@ -129,7 +146,7 @@ contains
     ! unevolved state variables
     call fill_unevolved_variables(time, y, rpar)
 
-    sdc % y(SRHO) = rpar(irp_dens)
+    sdc % y(SRHO) = rpar(irp_SRHO)
     sdc % y(SMX:SMZ) = rpar(irp_SMX:irp_SMZ)
 
   end subroutine vode_to_sdc
@@ -170,6 +187,8 @@ contains
     type(burn_t), intent(in) :: burn_state
     real(dp_t)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
+    integer :: n
+
     jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
     jac(SFS:SFS+nspec-1,SEDEN) = burn_state % jac(1:nspec,net_ienuc)
     jac(SFS:SFS+nspec-1,SEINT) = burn_state % jac(1:nspec,net_ienuc)
@@ -194,14 +213,16 @@ contains
   end subroutine jac_to_vode
 
 
-  subroutine vode_to_burn(time, y, rpar, state)
+  subroutine vode_to_burn(time, y, rpar, burn_state)
 
-    type (burn_t) :: state
+    type (burn_t) :: burn_state
     real(dp_t), intent(in) :: time
     real(dp_t)    :: rpar(n_rpar_comps)
     real(dp_t)    :: y(SVAR_EVOLVE)
 
-    integer :: n
+    type(eos_t) :: eos_state
+
+    real(kind=dp_t) :: rhoInv, min_temp, max_temp                               
 
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)
@@ -211,7 +232,7 @@ contains
     eos_state % rho = rpar(irp_SRHO)
     eos_state % xn  = y(SFS:SFS+nspec-1) * rhoInv
 
-    if (rpar(irp_T_from_eden > ZERO) then
+    if (rpar(irp_T_from_eden) > ZERO) then
        eos_state % e = (y(SEDEN) - HALF*rhoInv*sum(rpar(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
        eos_state % e = y(SEINT) * rhoInv
@@ -226,14 +247,14 @@ contains
     eos_state % T = sqrt(min_temp * max_temp)
 
     call eos(eos_input_re, eos_state)
-    call eos_to_burn(eos_state, burn)
+    call eos_to_burn(eos_state, burn_state)
 
-    burn % time = time
+    burn_state % time = time
 
     if (rpar(irp_self_heat) > ZERO) then
-       burn % self_heat = .true.
+       burn_state % self_heat = .true.
     else
-       burn % self_heat = .false.       
+       burn_state % self_heat = .false.       
     endif
 
   end subroutine vode_to_burn

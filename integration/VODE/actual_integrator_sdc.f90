@@ -3,8 +3,11 @@
 
 module actual_integrator_module
 
-  use sdc_type_module
   use bl_types
+  use bl_constants_module
+
+  use sdc_type_module
+  use vode_type_module
 
   implicit none
 
