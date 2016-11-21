@@ -192,58 +192,46 @@ contains
   end subroutine jac_to_vode
 
 
-  subroutine vode_to_burn(y, rpar, state)
-
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
-    use burn_type_module, only: SVAR_EVOLVE, burn_t, net_itemp, net_ienuc
-    use extern_probin_module, only: integrate_molar_fraction
-
-    implicit none
+  subroutine vode_to_burn(time, y, rpar, state)
 
     type (burn_t) :: state
+    real(dp_t), intent(in) :: time
     real(dp_t)    :: rpar(n_rpar_comps)
     real(dp_t)    :: y(SVAR_EVOLVE)
 
     integer :: n
 
-    state % rho      = rpar(irp_dens)
-    state % T        = y(net_itemp)
-    state % e        = y(net_ienuc)
+    ! update rho, rho*u, etc.
+    call fill_unevolved_variables(time, y, rpar)
 
-    if (integrate_molar_fraction) then
-       state % xn(1:nspec_evolve) = y(1:nspec_evolve) * aion(1:nspec_evolve)
-       state % xn(nspec_evolve+1:nspec) = &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:nspec)
+    rhoInv = ONE / rpar(irp_SRHO)
+
+    eos_state % rho = rpar(irp_SRHO)
+    eos_state % xn  = y(SFS:SFS+nspec-1) * rhoInv
+
+    if (rpar(irp_T_from_eden > ZERO) then
+       eos_state % e = (y(SEDEN) - HALF*rhoInv*sum(rpar(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
-       state % xn(1:nspec_evolve) = y(1:nspec_evolve)
-       state % xn(nspec_evolve+1:nspec) = &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+       eos_state % e = y(SEINT) * rhoInv
     endif
 
-    state % cp       = rpar(irp_cp)
-    state % cv       = rpar(irp_cv)
-    state % abar     = rpar(irp_abar)
-    state % zbar     = rpar(irp_zbar)
-    state % y_e      = rpar(irp_ye)
-    state % eta      = rpar(irp_eta)
-    state % cs       = rpar(irp_cs)
-    state % dx       = rpar(irp_dx)
+    ! Give the temperature an initial guess -- use the geometric mean
+    ! of the minimum and maximum temperatures.
 
-    state % T_old    = rpar(irp_Told)
-    state % dcvdt    = rpar(irp_dcvdt)
-    state % dcpdt    = rpar(irp_dcpdt)
+    call eos_get_small_temp(min_temp)
+    call eos_get_max_temp(max_temp)
+
+    eos_state % T = sqrt(min_temp * max_temp)
+
+    call eos(eos_input_re, eos_state)
+    call eos_to_burn(eos_state, burn)
+
+    burn % time = time
 
     if (rpar(irp_self_heat) > ZERO) then
-       state % self_heat = .true.
+       burn % self_heat = .true.
     else
-       state % self_heat = .false.
+       burn % self_heat = .false.       
     endif
 
   end subroutine vode_to_burn
