@@ -45,6 +45,7 @@ module rpar_indices
   integer, parameter :: irp_ydot_a = 5
 
   integer, parameter :: irp_self_heat = irp_ydot_a + SVAR
+  integer, parameter :: irp_T_from_eden = irp_self_heat + 1
   integer, parameter :: irp_t0 = irp_self_heat + 1
 
   integer, parameter :: n_rpar_comps = irp_t0
