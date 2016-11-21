@@ -7,8 +7,12 @@
 
 module rpar_indices
 
+#ifndef SDC
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
+#else
+  use sdc_type_module, only: SVAR
+#endif
 
   implicit none
 
