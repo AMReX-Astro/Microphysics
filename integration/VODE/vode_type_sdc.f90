@@ -14,7 +14,7 @@ module vode_type_module
 
 contains
 
-  subroutine clean_state(y, rpar)
+  subroutine clean_state(time, y, rpar)
 
     real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
@@ -22,6 +22,8 @@ contains
 
     type (eos_t) :: eos_state
 
+    ! update rho, rho*u, etc.
+    call fill_unevolved_variables(time, y, rpar)
 
     ! Ensure that mass fractions always stay positive.
     y(SFS:SFS+nspec-1) = &
@@ -158,13 +160,13 @@ contains
   end subroutine rhs_to_vode
 
 
-  subroutine jac_to_vode(time, burn_state, y, ydot, jac, rpar)
+  subroutine jac_to_vode(time, burn_state, y, jac, rpar)
 
     ! this is only used with an analytic Jacobian
 
     real(dp_t), intent(in) :: time
     real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
+    real(dp_t)    :: y(SVAR_EVOLVE)
     type(burn_t), intent(in) :: burn_state
     real(dp_t)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
