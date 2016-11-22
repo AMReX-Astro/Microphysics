@@ -48,11 +48,13 @@ module rpar_indices
   integer, parameter :: irp_SMZ  = 4
 
   ! these are the SVAR advective terms (including those that we do
-  ! not explicitly evolve)
+  ! not explicitly evolve).  Note: these need to be indexed using
+  ! the indicies defined in sdc_type_module
   integer, parameter :: irp_ydot_a = 5
 
   ! these are the SVAR - SVAR_EVOLVE initial values of the unevolved
-  ! components of the conserved state
+  ! components of the conserved state.  Note: these need to be indexed
+  ! using the components defined above (irp_SRHO, irp_SMX, ...)
   integer, parameter :: irp_u_init = irp_ydot_a + SVAR
 
   integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
