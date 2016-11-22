@@ -35,6 +35,7 @@ contains
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
+    use rpar_indices, only : irp_t0
 
     implicit none
 
@@ -71,7 +72,7 @@ contains
     ! set the time offset -- we integrate from 0 to dt, so this
     ! is the offset to simulation time
     
-    bs % upar(irp_t0) = time
+    bs % u(irp_t0) = time
 
     ! Call the integration routine.
 
