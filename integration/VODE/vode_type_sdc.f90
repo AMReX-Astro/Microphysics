@@ -77,16 +77,15 @@ contains
     real(dp_t), intent(in) :: time
     real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
-    integer :: m
-
     ! we are always integrating from t = 0, so there is no offset
-    ! time needed here
+    ! time needed here.  The indexing of irp_ydot_a is based on
+    ! the indices in sdc_type_module
     rpar(irp_SRHO) = rpar(irp_u_init-1+irp_SRHO) + &
-         rpar(irp_ydot_a-1+irp_SRHO) * time
+         rpar(irp_ydot_a-1+SRHO) * time
 
-    do m = irp_SMX, irp_SMZ
-       rpar(m) = rpar(irp_u_init-1+m) + rpar(irp_ydot_a-1+m) * time
-    enddo
+    rpar(irp_SMX) = rpar(irp_u_init-1+irp_SMX) + rpar(irp_ydot_a-1+SMX) * time
+    rpar(irp_SMY) = rpar(irp_u_init-1+irp_SMY) + rpar(irp_ydot_a-1+SMY) * time
+    rpar(irp_SMZ) = rpar(irp_u_init-1+irp_SMZ) + rpar(irp_ydot_a-1+SMZ) * time
 
   end subroutine fill_unevolved_variables
 
