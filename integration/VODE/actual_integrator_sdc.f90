@@ -3,6 +3,7 @@
 
 module actual_integrator_module
 
+  use bl_error_module
   use bl_types
   use bl_constants_module
 
@@ -169,7 +170,7 @@ contains
 
 
     ! Store the final data
-    call vode_to_sdc(y, rpar, state_out)
+    call vode_to_sdc(time, y, rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
