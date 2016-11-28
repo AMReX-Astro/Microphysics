@@ -51,7 +51,7 @@ contains
 
     temp = state % T
     dens = state % rho
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     rate      = rr % rates(1,1)
     dratedt   = rr % rates(2,1)
@@ -92,7 +92,7 @@ contains
 
     ! Convert back to molar form
 
-    state % ydot(ic12) = state % ydot(ic12) / aion(ic12)
+    state % ydot(ic12) = state % ydot(ic12) * aion_inv(ic12)
 
     call ener_gener_rate(state % ydot(ic12), state % ydot(net_ienuc))
 
@@ -155,7 +155,7 @@ contains
     ! Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
     ! so this conversion is necessarily only for the temperature derivative.
 
-    state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) / aion(ic12)
+    state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) * aion_inv(ic12)
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -223,7 +223,7 @@ contains
 
     temp = state % T
     dens = state % rho
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! call the screening routine
     call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,y,sc1212,dsc1212dt)

@@ -62,7 +62,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! Call the RHS to actually get dydt.
 
@@ -120,7 +120,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! Species Jacobian elements with respect to other species
 
@@ -180,7 +180,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
     call aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd)

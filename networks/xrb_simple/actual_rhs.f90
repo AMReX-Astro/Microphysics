@@ -36,7 +36,7 @@ contains
 
     ! several thermo vars via rpar
     dens = state % rho
-    ymol = state % xn / aion
+    ymol = state % xn * aion_inv
     t9   = state % T * T2T9
 
     ! build the rates

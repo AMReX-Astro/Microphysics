@@ -7,7 +7,7 @@ module vode_type_module
   use eos_type_module, only : eos_t
   use eos_module, only : eos, eos_input_re, eos_input_rt, eos_get_small_temp, eos_get_max_temp
 
-  use network, only : nspec, aion
+  use network, only : nspec, aion, aion_inv
 
   use rpar_indices
   use sdc_type_module
@@ -209,7 +209,7 @@ contains
     ! conversion.
     do n = 1, nspec
        jac(SFS+n-1,:) = jac(SFS+n-1,:) * aion(n)
-       jac(:,SFS+n-1) = jac(:,SFS+n-1) / aion(n)
+       jac(:,SFS+n-1) = jac(:,SFS+n-1) * aion_inv(n)
     enddo
 
   end subroutine jac_to_vode

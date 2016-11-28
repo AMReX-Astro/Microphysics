@@ -94,7 +94,7 @@ contains
     abar = state % abar
     zbar = state % zbar
 
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     deriva = .false.
 
@@ -163,7 +163,7 @@ contains
     abar = state % abar
     zbar = state % zbar
 
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     r1 = rr % rates(1,:)
     r2 = rr % rates(2,:)
@@ -231,7 +231,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
     if (use_tables) then

@@ -12,7 +12,7 @@ module actual_eos_module
   use bl_space
   use bl_error_module
   use bl_constants_module
-  use network, only: nspec, aion, zion
+  use network, only: nspec, aion, aion_inv, zion
   use eos_type_module
 
   implicit none
@@ -70,7 +70,7 @@ contains
     if (assume_neutral) then
        state % mu = state % abar
     else
-       state % mu = ONE / sum( (ONE + zion(:)) * state % xn(:) / aion(:) )
+       state % mu = ONE / sum( (ONE + zion(:)) * state % xn(:) * aion_inv(:) )
     endif
     
     !-------------------------------------------------------------------------
