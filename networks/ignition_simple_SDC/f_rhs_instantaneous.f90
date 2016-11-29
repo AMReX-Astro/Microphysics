@@ -90,9 +90,9 @@ subroutine f_rhs_instantaneous_reaction_rates(n, t, y, ydot, rho_Hnuc, rpar, ipa
 
   ! call the screening routine
   ! compute the molar fractions -- needed for the screening
-  ymass(ic12) = X(1)/aion(ic12)
-  ymass(io16) = X(2)/aion(io16)
-  ymass(img24) = X(3)/aion(img24)
+  ymass(ic12) = X(1) * aion_inv(ic12)
+  ymass(io16) = X(2) * aion_inv(io16)
+  ymass(img24) = X(3) * aion_inv(img24)
 
   call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,ymass,sc1212,dsc1212dt)
 

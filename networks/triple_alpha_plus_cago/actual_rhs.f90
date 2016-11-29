@@ -34,7 +34,7 @@ contains
 
     temp = state % T
     dens = state % rho
-    ymol = state % xn / aion
+    ymol = state % xn * aion_inv
 
     call make_rates(temp, dens, rates, dratesdt)
     call screen(temp, dens, ymol, rates, dratesdt)
@@ -63,7 +63,7 @@ contains
 
     state % ydot = ZERO
 
-    ymol = state % xn / aion
+    ymol = state % xn * aion_inv
 
     ! set up the species ODEs for the reaction network
     ! species inputs are in molar fractions but come out in mass fractions
@@ -109,7 +109,7 @@ contains
        state % jac(:,j) = ZERO
     enddo
     
-    ymol = state % xn / aion
+    ymol = state % xn * aion_inv
 
     ! ======================================================================
     ! THESE ARE IN TERMS OF MOLAR FRACTIONS

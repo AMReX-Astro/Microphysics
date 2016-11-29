@@ -6,6 +6,8 @@
 ! aion       -- atomic number
 ! zion       -- proton number
 !
+! aion_inv   -- 1/aion
+!
 ! spec_names -- the name of the isotope
 ! short_spec_names -- the abbreviated name of the isotope
 !
@@ -18,12 +20,18 @@
 module network
 
   use bl_types
+  use bl_constants_module, only : ONE
   use actual_network
   use bl_error_module
 
   implicit none
 
   logical :: network_initialized = .false.
+
+  ! this will be computed here, not in the actual network
+  real(kind=dp_t) :: aion_inv(nspec)
+
+  !$acc declare create(aion_inv)
 
 contains
 
@@ -48,6 +56,10 @@ contains
     if ( naux .lt. 0 ) then
        call bl_error("Network cannot have a negative number of auxiliary variables.")
     endif
+
+    aion_inv(:) = ONE/aion(:)
+
+    !$acc update device(aion_inv)
 
     network_initialized = .true.
 

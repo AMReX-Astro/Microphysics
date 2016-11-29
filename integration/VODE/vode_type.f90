@@ -12,8 +12,7 @@ contains
 
     use bl_types, only: dp_t
     use extern_probin_module, only: integrate_molar_fraction
-    use actual_network, only: aion, nspec, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps
 
@@ -25,7 +24,7 @@ contains
     if (integrate_molar_fraction) then
        y(1:nspec_evolve) = &
             max(y(1:nspec_evolve) * aion(1:nspec_evolve), &
-                1.d-200) * aionInv(1:nspec_evolve)
+                1.d-200) * aion_inv(1:nspec_evolve)
     else
        y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
     endif
@@ -36,8 +35,7 @@ contains
   subroutine renormalize_species(y, rpar)
 
     use bl_types, only: dp_t
-    use actual_network, only: aion, nspec, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
     use extern_probin_module, only: integrate_molar_fraction
@@ -139,8 +137,7 @@ contains
   subroutine vode_to_eos(state, y, rpar)
 
     use bl_types, only: dp_t
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -183,8 +180,7 @@ contains
   subroutine eos_to_vode(state, y, rpar)
 
     use bl_types, only: dp_t
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -201,9 +197,9 @@ contains
     y(net_itemp) = state % T
 
     if (integrate_molar_fraction) then
-       y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
+       y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aion_inv(1:nspec_evolve)
        rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
+         state % xn(nspec_evolve+1:nspec) * aion_inv(nspec_evolve+1:nspec)
     else
        y(1:nspec_evolve) = state % xn(1:nspec_evolve)
        rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
@@ -228,8 +224,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -250,9 +245,9 @@ contains
     y(net_itemp) = state % T
 
     if (integrate_molar_fraction) then
-       y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aionInv(1:nspec_evolve)
+       y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aion_inv(1:nspec_evolve)
        rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec) * aionInv(nspec_evolve+1:nspec)
+            state % xn(nspec_evolve+1:nspec) * aion_inv(nspec_evolve+1:nspec)
     else
        y(1:nspec_evolve) = state % xn(1:nspec_evolve)
        rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
@@ -297,8 +292,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &

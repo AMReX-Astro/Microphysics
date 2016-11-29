@@ -40,7 +40,7 @@ contains
 
     temp = state % T
     dens = state % rho
-    y(:) = state % xn(:) / aion(:)
+    y(:) = state % xn(:) * aion_inv(:)
 
     ! call the screening routine
     call screenz(temp, dens, 6.0d0, 6.0d0, 12.0d0, 12.0d0, &
@@ -106,7 +106,7 @@ contains
 
     temp = state % T
     dens = state % rho
-    y(:) = state % xn(:) / aion(:)
+    y(:) = state % xn(:) * aion_inv(:)
 
 
     ! The change in number density of C12 is
@@ -133,7 +133,7 @@ contains
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) / aion(1:nspec_evolve)
+    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
 
     call get_ebin(dens, ebin)
 
@@ -194,7 +194,7 @@ contains
     ! Convert back to molar form
 
     do j = 1, nspec_evolve
-       state % jac(j,:) = state % jac(j,:) / aion(j)
+       state % jac(j,:) = state % jac(j,:) * aion_inv(j)
     enddo
 
     ! Energy generation rate Jacobian elements with respect to species

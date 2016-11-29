@@ -253,7 +253,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec_evolve, aion
+    use network, only: nspec_evolve, aion, aion_inv
     use burn_type_module, only: burn_t, net_ienuc
     use sdc_type_module, only: SEDEN, SEINT, SFS
 
@@ -284,7 +284,7 @@ contains
 
     do n = 1, nspec_evolve
        bs % jac(SFS+n-1,:) = bs % jac(SFS+n-1,:) * aion(n)
-       bs % jac(:,SFS+n-1) = bs % jac(:,SFS+n-1) / aion(n)
+       bs % jac(:,SFS+n-1) = bs % jac(:,SFS+n-1) * aion_inv(n)
     enddo
 
   end subroutine jac_to_bs

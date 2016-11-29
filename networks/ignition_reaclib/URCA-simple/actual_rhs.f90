@@ -43,7 +43,7 @@ contains
     integer :: i, j
     double precision :: dens, temp, rhoy
 
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
     temp = state%T
     rhoy = dens*state%y_e
@@ -91,7 +91,7 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:)* aion_inv(:)
 
     dens = state%rho
     temp = state%T
@@ -228,7 +228,7 @@ contains
     temp = state%T
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
     

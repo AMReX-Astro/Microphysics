@@ -106,8 +106,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: aion, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: aion, aion_inv, nspec_evolve
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
@@ -146,7 +145,7 @@ contains
 
           do n = 1, nspec_evolve
              state % jac(n,:) = state % jac(n,:) * aion(n)
-             state % jac(:,n) = state % jac(:,n) * aionInv(n)
+             state % jac(:,n) = state % jac(:,n) * aion_inv(n)
           enddo
 
        endif

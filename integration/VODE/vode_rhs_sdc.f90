@@ -55,8 +55,7 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   ! use an analytic Jacobian.  Otherwise, VODE will use its internal
   ! Jacobian routines.
 
-  use actual_network, only: aion, nspec_evolve
-  use integration_data, only: aionInv
+  use network, only: aion, aion_inv, nspec_evolve
   use bl_constants_module, only: ZERO
   use actual_rhs_module, only: actual_jac
   use burn_type_module, only: burn_t, net_ienuc
