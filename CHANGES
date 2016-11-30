@@ -4,6 +4,11 @@ changes since last merge:
  -- a new unit test, test_sdc, was created to test the SDC interface
     to the networks
 
+ -- we now rely on the network module to provide aion_inv (1/aion)
+
+ -- the VODE integrator now supports SDC integration
+
+
 previous changes:
 
 * 16.10
