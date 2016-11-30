@@ -5,40 +5,40 @@ module actual_eos_module
     character (len=64) :: eos_name = "helmholtz"
 
     ! Runtime parameters
-    logical :: do_coulomb
-    logical :: input_is_constant
+    logical, save :: do_coulomb
+    logical, save :: input_is_constant
 
     !..for the tables, in general
     integer, parameter, private :: imax = 271, jmax = 101
-    integer            :: itmax,jtmax
-    double precision   :: d(imax),t(jmax)
+    integer, save            :: itmax,jtmax
+    double precision,save   :: d(imax),t(jmax)
 
-    double precision :: tlo, thi, tstp, tstpi
-    double precision :: dlo, dhi, dstp, dstpi
+    double precision, save :: tlo, thi, tstp, tstpi
+    double precision, save :: dlo, dhi, dstp, dstpi
 
     !..for the helmholtz free energy tables
-    double precision :: f(imax,jmax),fd(imax,jmax),                     &
-                        ft(imax,jmax),fdd(imax,jmax),ftt(imax,jmax),    &
-                        fdt(imax,jmax),fddt(imax,jmax),fdtt(imax,jmax), &
-                        fddtt(imax,jmax)
+    double precision, save :: f(imax,jmax),fd(imax,jmax),                     &
+                              ft(imax,jmax),fdd(imax,jmax),ftt(imax,jmax),    &
+                              fdt(imax,jmax),fddt(imax,jmax),fdtt(imax,jmax), &
+                              fddtt(imax,jmax)
 
     !..for the pressure derivative with density ables
-    double precision :: dpdf(imax,jmax),dpdfd(imax,jmax),                &
-                        dpdft(imax,jmax),dpdfdt(imax,jmax)
+    double precision, save :: dpdf(imax,jmax),dpdfd(imax,jmax),                &
+                              dpdft(imax,jmax),dpdfdt(imax,jmax)
 
     !..for chemical potential tables
-    double precision :: ef(imax,jmax),efd(imax,jmax),                    &
-                        eft(imax,jmax),efdt(imax,jmax)
+    double precision, save :: ef(imax,jmax),efd(imax,jmax),                    &
+                              eft(imax,jmax),efdt(imax,jmax)
 
     !..for the number density tables
-    double precision :: xf(imax,jmax),xfd(imax,jmax),                    &
-                        xft(imax,jmax),xfdt(imax,jmax)
+    double precision, save :: xf(imax,jmax),xfd(imax,jmax),                    &
+                              xft(imax,jmax),xfdt(imax,jmax)
 
     !..for storing the differences
-    double precision :: dt_sav(jmax),dt2_sav(jmax),                      &
-                        dti_sav(jmax),dt2i_sav(jmax),                    &
-                        dd_sav(imax),dd2_sav(imax),                      &
-                        ddi_sav(imax),dd2i_sav(imax)
+    double precision, save :: dt_sav(jmax),dt2_sav(jmax),                      &
+                              dti_sav(jmax),dt2i_sav(jmax),                    &
+                              dd_sav(imax),dd2_sav(imax),                      &
+                              ddi_sav(imax),dd2i_sav(imax)
 
 
     integer          :: max_newton = 100
