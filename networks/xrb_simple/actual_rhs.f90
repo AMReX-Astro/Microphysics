@@ -19,7 +19,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
-    use actual_network, only: nspec, aion
+    use network, only: nspec, aion, aion_inv
     use temperature_integration_module, only: temperature_rhs
     
     implicit none
