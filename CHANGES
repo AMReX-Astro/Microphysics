@@ -1,13 +1,16 @@
 
 changes since last merge:
 
+previous changes:
+
+* 16.12
+
  -- a new unit test, test_sdc, was created to test the SDC interface
     to the networks
 
-previous changes:
+* 16.11
 
 * 16.10
-
 
 * 16.09
 
