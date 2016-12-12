@@ -9,37 +9,22 @@ module reaclib_rates
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
   double precision, allocatable :: ctemp_rate(:,:)
 
-  ! Index into ctemp_rate, dimension 2, where each rate's coefficients start  
-  integer, dimension(nrat_reaclib) :: rate_start_idx = (/ &
-    1, &
-    2, &
-    3, &
-    4, &
-    6 /)
+  ! Index into ctemp_rate, dimension 2, where each rate's coefficients start
+  integer, allocatable :: rate_start_idx(:)
   
   ! Reaction multiplicities-1 (how many rates contribute - 1)
-  integer, dimension(nrat_reaclib) :: rate_extra_mult = (/ &
-    0, &
-    0, &
-    0, &
-    1, &
-    0 /)
+  integer, allocatable :: rate_extra_mult(:)
 
   ! Should these reactions be screened?
-  logical, dimension(nrat_reaclib) :: do_screening = (/ &
-    .true., &
-    .true., &
-    .true., &
-    .true., &
-    .false. /)
+  logical, allocatable :: do_screening(:)
   
-  !$acc declare create(ctemp_rate)
-  !$acc declare copyin(rate_extra_mult, rate_start_idx, screen_reaclib, do_screening)
+  !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
+  !$acc declare copyin(screen_reaclib)
 
 contains
 
   subroutine init_reaclib()
-
+    
     allocate( ctemp_rate(7, 6) )
     ! c12_c12a_ne20
     ctemp_rate(:, 1) = (/  &
@@ -102,12 +87,39 @@ contains
 
 
 
-    !$acc update device(ctemp_rate)
+    allocate( rate_start_idx(nrat_reaclib) )
+    rate_start_idx(:) = (/ &
+      1, &
+      2, &
+      3, &
+      4, &
+      6 /)
+
+    allocate( rate_extra_mult(nrat_reaclib) )
+    rate_extra_mult(:) = (/ &
+      0, &
+      0, &
+      0, &
+      1, &
+      0 /)
+
+    allocate( do_screening(nrat_reaclib) )
+    do_screening(:) = (/ &
+      .true., &
+      .true., &
+      .true., &
+      .true., &
+      .false. /)
+
+    !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
     
   end subroutine init_reaclib
 
   subroutine term_reaclib()
     deallocate( ctemp_rate )
+    deallocate( rate_start_idx )
+    deallocate( rate_extra_mult )
+    deallocate( do_screening )
   end subroutine term_reaclib
 
   subroutine net_screening_init()
