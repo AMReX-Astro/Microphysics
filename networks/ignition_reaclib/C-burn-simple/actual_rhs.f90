@@ -44,7 +44,7 @@ contains
     integer :: i, j
     double precision :: dens, temp, rhoy
 
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
     temp = state%T
     rhoy = dens*state%y_e
@@ -84,7 +84,7 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
 
     dens = state%rho
     temp = state%T
@@ -128,41 +128,58 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
+    double precision :: scratch_0
+    double precision :: scratch_1
+    double precision :: scratch_2
+    double precision :: scratch_3
+    double precision :: scratch_4
+    double precision :: scratch_5
+    double precision :: scratch_6
+    double precision :: scratch_7
+    double precision :: scratch_8
+    double precision :: scratch_9
 
+    scratch_0 = screened_rates(k_n_p)*Y(jn)
+    scratch_1 = Y(jc12)**2*dens
+    scratch_2 = screened_rates(k_c12_c12n_mg23)*scratch_1
+    scratch_3 = 0.5d0*scratch_2
+    scratch_4 = screened_rates(k_c12_c12p_na23)*scratch_1
+    scratch_5 = 0.5d0*scratch_4
+    scratch_6 = screened_rates(k_c12_c12a_ne20)*scratch_1
+    scratch_7 = 0.5d0*scratch_6
+    scratch_8 = screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens
+    scratch_9 = -scratch_8
 
     ydot_nuc(jn) = ( &
-      0.5d0*screened_rates(k_c12_c12n_mg23)*Y(jc12)**2*dens - screened_rates(k_n_p)*Y(jn) &
+      -scratch_0 + scratch_3 &
        )
 
     ydot_nuc(jp) = ( &
-      0.5d0*screened_rates(k_c12_c12p_na23)*Y(jc12)**2*dens + screened_rates(k_n_p)*Y(jn) &
+      scratch_0 + scratch_5 &
        )
 
     ydot_nuc(jhe4) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens + 0.5d0* &
-      screened_rates(k_c12_c12a_ne20)*Y(jc12)**2*dens &
+      scratch_7 + scratch_9 &
        )
 
     ydot_nuc(jc12) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens - screened_rates(k_c12_c12a_ne20)* &
-      Y(jc12)**2*dens - screened_rates(k_c12_c12n_mg23)*Y(jc12)**2*dens - &
-      screened_rates(k_c12_c12p_na23)*Y(jc12)**2*dens &
+      -scratch_2 - scratch_4 - scratch_6 + scratch_9 &
        )
 
     ydot_nuc(jo16) = ( &
-      screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens &
+      scratch_8 &
        )
 
     ydot_nuc(jne20) = ( &
-      0.5d0*screened_rates(k_c12_c12a_ne20)*Y(jc12)**2*dens &
+      scratch_7 &
        )
 
     ydot_nuc(jna23) = ( &
-      0.5d0*screened_rates(k_c12_c12p_na23)*Y(jc12)**2*dens &
+      scratch_5 &
        )
 
     ydot_nuc(jmg23) = ( &
-      0.5d0*screened_rates(k_c12_c12n_mg23)*Y(jc12)**2*dens &
+      scratch_3 &
        )
 
 
@@ -192,7 +209,7 @@ contains
     temp = state%T
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
     
@@ -248,7 +265,29 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
+    double precision :: scratch_0
+    double precision :: scratch_1
+    double precision :: scratch_2
+    double precision :: scratch_3
+    double precision :: scratch_4
+    double precision :: scratch_5
+    double precision :: scratch_6
+    double precision :: scratch_7
+    double precision :: scratch_8
+    double precision :: scratch_9
+    double precision :: scratch_10
 
+    scratch_0 = screened_rates(k_c12_c12n_mg23)*Y(jc12)*dens
+    scratch_1 = 1.0d0*scratch_0
+    scratch_2 = screened_rates(k_c12_c12p_na23)*Y(jc12)*dens
+    scratch_3 = 1.0d0*scratch_2
+    scratch_4 = screened_rates(k_c12_ag_o16)*dens
+    scratch_5 = Y(jc12)*scratch_4
+    scratch_6 = -scratch_5
+    scratch_7 = Y(jhe4)*scratch_4
+    scratch_8 = -scratch_7
+    scratch_9 = screened_rates(k_c12_c12a_ne20)*Y(jc12)*dens
+    scratch_10 = 1.0d0*scratch_9
 
     dfdy_nuc(jn,jn) = ( &
       -screened_rates(k_n_p) &
@@ -263,7 +302,7 @@ contains
        )
 
     dfdy_nuc(jn,jc12) = ( &
-      1.0d0*screened_rates(k_c12_c12n_mg23)*Y(jc12)*dens &
+      scratch_1 &
        )
 
     dfdy_nuc(jn,jo16) = ( &
@@ -295,7 +334,7 @@ contains
        )
 
     dfdy_nuc(jp,jc12) = ( &
-      1.0d0*screened_rates(k_c12_c12p_na23)*Y(jc12)*dens &
+      scratch_3 &
        )
 
     dfdy_nuc(jp,jo16) = ( &
@@ -323,12 +362,11 @@ contains
        )
 
     dfdy_nuc(jhe4,jhe4) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*dens &
+      scratch_6 &
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jhe4)*dens + 1.0d0*screened_rates(k_c12_c12a_ne20)* &
-      Y(jc12)*dens &
+      scratch_10 + scratch_8 &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -356,13 +394,11 @@ contains
        )
 
     dfdy_nuc(jc12,jhe4) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*dens &
+      scratch_6 &
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jhe4)*dens - 2.0d0*screened_rates(k_c12_c12a_ne20)* &
-      Y(jc12)*dens - 2.0d0*screened_rates(k_c12_c12n_mg23)*Y(jc12)*dens - &
-      2.0d0*screened_rates(k_c12_c12p_na23)*Y(jc12)*dens &
+      -2.0d0*scratch_0 - 2.0d0*scratch_2 + scratch_8 - 2.0d0*scratch_9 &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -390,11 +426,11 @@ contains
        )
 
     dfdy_nuc(jo16,jhe4) = ( &
-      screened_rates(k_c12_ag_o16)*Y(jc12)*dens &
+      scratch_5 &
        )
 
     dfdy_nuc(jo16,jc12) = ( &
-      screened_rates(k_c12_ag_o16)*Y(jhe4)*dens &
+      scratch_7 &
        )
 
     dfdy_nuc(jo16,jo16) = ( &
@@ -426,7 +462,7 @@ contains
        )
 
     dfdy_nuc(jne20,jc12) = ( &
-      1.0d0*screened_rates(k_c12_c12a_ne20)*Y(jc12)*dens &
+      scratch_10 &
        )
 
     dfdy_nuc(jne20,jo16) = ( &
@@ -458,7 +494,7 @@ contains
        )
 
     dfdy_nuc(jna23,jc12) = ( &
-      1.0d0*screened_rates(k_c12_c12p_na23)*Y(jc12)*dens &
+      scratch_3 &
        )
 
     dfdy_nuc(jna23,jo16) = ( &
@@ -490,7 +526,7 @@ contains
        )
 
     dfdy_nuc(jmg23,jc12) = ( &
-      1.0d0*screened_rates(k_c12_c12n_mg23)*Y(jc12)*dens &
+      scratch_1 &
        )
 
     dfdy_nuc(jmg23,jo16) = ( &
