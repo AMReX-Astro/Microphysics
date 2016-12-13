@@ -44,7 +44,7 @@ contains
     integer :: i, j
     double precision :: dens, temp, rhoy
 
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
     temp = state%T
     rhoy = dens*state%y_e
@@ -84,7 +84,7 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
 
     dens = state%rho
     temp = state%T
@@ -128,18 +128,22 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
+    double precision :: scratch_0
+    double precision :: scratch_1
 
+    scratch_0 = screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens
+    scratch_1 = -scratch_0
 
     ydot_nuc(jhe4) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens &
+      scratch_1 &
        )
 
     ydot_nuc(jc12) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens &
+      scratch_1 &
        )
 
     ydot_nuc(jo16) = ( &
-      screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens &
+      scratch_0 &
        )
 
 
@@ -169,7 +173,7 @@ contains
     temp = state%T
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
     
@@ -225,14 +229,24 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
+    double precision :: scratch_0
+    double precision :: scratch_1
+    double precision :: scratch_2
+    double precision :: scratch_3
+    double precision :: scratch_4
 
+    scratch_0 = screened_rates(k_c12_ag_o16)*dens
+    scratch_1 = Y(jc12)*scratch_0
+    scratch_2 = -scratch_1
+    scratch_3 = Y(jhe4)*scratch_0
+    scratch_4 = -scratch_3
 
     dfdy_nuc(jhe4,jhe4) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*dens &
+      scratch_2 &
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jhe4)*dens &
+      scratch_4 &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -240,11 +254,11 @@ contains
        )
 
     dfdy_nuc(jc12,jhe4) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jc12)*dens &
+      scratch_2 &
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_ag_o16)*Y(jhe4)*dens &
+      scratch_4 &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -252,11 +266,11 @@ contains
        )
 
     dfdy_nuc(jo16,jhe4) = ( &
-      screened_rates(k_c12_ag_o16)*Y(jc12)*dens &
+      scratch_1 &
        )
 
     dfdy_nuc(jo16,jc12) = ( &
-      screened_rates(k_c12_ag_o16)*Y(jhe4)*dens &
+      scratch_3 &
        )
 
     dfdy_nuc(jo16,jo16) = ( &
