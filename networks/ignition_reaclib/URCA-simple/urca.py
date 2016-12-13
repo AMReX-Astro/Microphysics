@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # C-burning with A=23 URCA rate module generator
 
 import pyreaclib
