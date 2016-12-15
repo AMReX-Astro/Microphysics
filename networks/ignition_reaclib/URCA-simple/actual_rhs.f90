@@ -57,14 +57,13 @@ contains
     end do
 
     ! Included only if there are tabular rates
-    ! Included only if there are tabular rates
-    do i = 1, nrat_tabular
-      call tabular_evaluate(table_meta(i), rhoy, temp, reactvec)
-      j = i + nrat_reaclib
-      rate_eval % unscreened_rates(:,j) = reactvec(1:4)
-      rate_eval % dqweak(i) = reactvec(5)
-      rate_eval % epart(i)  = reactvec(6)
-    end do
+    ! do i = 1, nrat_tabular
+    !   call tabular_evaluate(table_meta(i), rhoy, temp, reactvec)
+    !   j = i + nrat_reaclib
+    !   rate_eval % unscreened_rates(:,j) = reactvec(1:4)
+    !   rate_eval % dqweak(i) = reactvec(5)
+    !   rate_eval % epart(i)  = reactvec(6)
+    ! end do
 
     ! Compute screened rates
     rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &

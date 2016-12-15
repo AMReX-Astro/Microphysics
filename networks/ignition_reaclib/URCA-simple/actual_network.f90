@@ -78,6 +78,7 @@ module actual_network
   double precision :: nion(nspec), mion(nspec), wion(nspec)
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
+  !$acc declare copyin(nspec)
 
 contains
 

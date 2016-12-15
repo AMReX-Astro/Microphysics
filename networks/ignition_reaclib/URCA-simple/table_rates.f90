@@ -30,9 +30,9 @@ module table_rates
   integer, parameter :: j_ne23_na23   = 2
 
   type :: table_info
-     double precision, dimension(:,:,:), allocatable :: rate_table
-     double precision, dimension(:), allocatable :: rhoy_table
-     double precision, dimension(:), allocatable :: temp_table
+     double precision, allocatable :: rate_table(:,:,:)
+     double precision, allocatable :: rhoy_table(:)
+     double precision, allocatable :: temp_table(:)
      integer :: num_rhoy
      integer :: num_temp
      integer :: num_vars
@@ -79,9 +79,9 @@ contains
        ! and then point the derived type pointers to these arrays on the device.
        ! If you do update device instead, the device gets the host memory addresses
        ! for these dynamic arrays instead of device memory addresses.
-       !$acc enter data copyin(table_meta(n)%rate_table)
-       !$acc enter data copyin(table_meta(n)%rhoy_table)
-       !$acc enter data copyin(table_meta(n)%temp_table)
+       !$acc enter data copyin(table_meta(n)%rate_table(1:table_meta(n)%num_temp, 1:table_meta(n)%num_rhoy, 1:table_meta(n)%num_vars))
+       !$acc enter data copyin(table_meta(n)%rhoy_table(1:table_meta(n)%num_rhoy))
+       !$acc enter data copyin(table_meta(n)%temp_table(1:table_meta(n)%num_temp))
     end do
   end subroutine init_tabular
 
