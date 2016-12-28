@@ -7,8 +7,4 @@ module integration_data
 
   ! Multiplicative inverse of atomic numbers.
 
-  real(dp_t), save :: aionInv(nspec)
-
-  !$acc declare create(aionInv)
-
 end module integration_data

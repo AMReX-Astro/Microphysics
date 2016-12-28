@@ -34,6 +34,7 @@ contains
   end subroutine update_unevolved_species
 
   subroutine evaluate_rates(state, rate_eval)
+    !$acc routine seq
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
@@ -43,7 +44,7 @@ contains
     integer :: i, j
     double precision :: dens, temp, rhoy
 
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
     temp = state%T
     rhoy = dens*state%y_e
@@ -83,7 +84,7 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
 
     dens = state%rho
     temp = state%T
@@ -172,7 +173,7 @@ contains
     temp = state%T
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
     

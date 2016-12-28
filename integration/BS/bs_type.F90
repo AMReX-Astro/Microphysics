@@ -107,9 +107,9 @@ contains
     use eos_module, only: eos_input_rt, eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed
-    use integration_data, only: aionInv
     use rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : aion, nspec, nspec_evolve
+    use network, only : aion_inv
 
     implicit none
 
@@ -220,8 +220,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
@@ -260,8 +259,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion_inv
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ONE

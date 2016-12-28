@@ -46,7 +46,7 @@ contains
 
     rho  = state % rho
     temp = state % T
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
     call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
@@ -98,7 +98,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y(:)    = state % xn(:) / aion(:)
+    y(:)    = state % xn(:) * aion_inv(:)
 
     call get_rates(state, rr)
 
@@ -156,7 +156,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y    = state % xn / aion
+    y    = state % xn * aion_inv
 
     ! Species Jacobian elements with respect to other species
 

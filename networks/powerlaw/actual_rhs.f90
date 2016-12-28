@@ -48,7 +48,7 @@ contains
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) / aion(1:nspec_evolve)
+    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
 
     call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
 

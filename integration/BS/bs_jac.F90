@@ -8,8 +8,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: aion, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: aion, aion_inv, nspec_evolve
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
@@ -44,7 +43,6 @@ contains
           bs % burn_s % jac(n,:) = bs % burn_s % jac(n,:) * aion(n)
           bs % burn_s % jac(:,n) = bs % burn_s % jac(:,n) * aionInv(n)
        enddo
-
 
        ! Allow temperature and energy integration to be disabled.
        if (.not. integrate_temperature) then

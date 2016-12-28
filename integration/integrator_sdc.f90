@@ -9,17 +9,11 @@ contains
   subroutine integrator_init()
 
     use actual_integrator_module, only: actual_integrator_init
-    use integration_data, only: aionInv
-    use actual_network, only: aion
     use bl_constants_module, only: ONE
 
     implicit none
 
     call actual_integrator_init()
-
-    aionInv = ONE / aion
-
-    !$acc update device(aionInv)
 
   end subroutine integrator_init
 

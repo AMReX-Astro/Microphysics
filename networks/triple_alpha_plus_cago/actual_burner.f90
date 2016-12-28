@@ -55,7 +55,7 @@ contains
     integer :: k
 
     ! calculate ymol
-    ymol = X / aion
+    ymol = X * aion_inv
 
     ! get the d/dT(dX/dt) info, dydt(dratesdT) gives us this
     call make_rates(temp, dens, rates, dratesdt)

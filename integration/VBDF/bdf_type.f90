@@ -106,6 +106,7 @@ contains
     type (bdf_ts) :: state
 
     ! Ensure that mass fractions always stay positive.
+
     state % y(1:nspec_evolve,1) = max(state % y(1:nspec_evolve,1), SMALL_X_SAFE)
 
     ! Ensure that the temperature always stays within reasonable limits.
@@ -217,8 +218,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_not_evolved
@@ -254,8 +254,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_not_evolved
@@ -291,8 +290,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion, nrates
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv, nrates
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -347,8 +345,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec, nspec_evolve, aion, nrates
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv, nrates
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &

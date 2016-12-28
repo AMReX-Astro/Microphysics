@@ -23,11 +23,16 @@ module rpar_indices
 
   integer, parameter :: n_rpar_comps = irp_t0 + 1
 #else
+  ! note: we require these components to be first, to allow for use to
+  ! index bs % u_init and bs % udot_a
   integer, parameter :: irp_SRHO = 1
   integer, parameter :: irp_SMX  = 2
   integer, parameter :: irp_SMY  = 3
   integer, parameter :: irp_SMZ  = 4
-  integer, parameter :: n_rpar_comps = irp_SMZ
+
+  integer, parameter :: irp_t0 = irp_SMZ + 1
+
+  integer, parameter :: n_rpar_comps = irp_t0
 #endif
 
 end module rpar_indices

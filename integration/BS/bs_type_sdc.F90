@@ -71,8 +71,9 @@ contains
     ! Update rho, rho*u, etc.
     call fill_unevolved_variables(state)
 
-    ! Ensure that mass fractions always stay positive and less than one.
-    state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), state % u(irp_SRHO)), &
+    ! Ensure that partial densities (rho X_k) stay positive and less than rho.
+    state % y(SFS:SFS+nspec-1) = max(min(state % y(SFS:SFS+nspec-1), &
+                                         state % u(irp_SRHO)), &
                                      state % u(irp_SRHO) * SMALL_X_SAFE)
 
     ! Renormalize abundances as necessary.
@@ -167,6 +168,7 @@ contains
     bs % y_init = bs % y
     bs % ydot_a = sdc % ydot_a(1:SVAR_EVOLVE)
 
+    ! these variables are not evolved
     bs % u(irp_SRHO) = sdc % y(SRHO)
     bs % u(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
 
@@ -187,7 +189,6 @@ contains
   end subroutine sdc_to_bs
 
 
-
   subroutine bs_to_sdc(sdc, bs)
 
     !$acc routine seq
@@ -201,6 +202,8 @@ contains
     type (bs_t) :: bs
 
     sdc % y(1:SVAR_EVOLVE) = bs % y
+
+    call fill_unevolved_variables(bs)
 
     sdc % y(SRHO) = bs % u(irp_SRHO)
     sdc % y(SMX:SMZ) = bs % u(irp_SMX:irp_SMZ)
@@ -250,7 +253,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec_evolve, aion
+    use network, only: nspec_evolve, aion, aion_inv
     use burn_type_module, only: burn_t, net_ienuc
     use sdc_type_module, only: SEDEN, SEINT, SFS
 
@@ -281,7 +284,7 @@ contains
 
     do n = 1, nspec_evolve
        bs % jac(SFS+n-1,:) = bs % jac(SFS+n-1,:) * aion(n)
-       bs % jac(:,SFS+n-1) = bs % jac(:,SFS+n-1) / aion(n)
+       bs % jac(:,SFS+n-1) = bs % jac(:,SFS+n-1) * aion_inv(n)
     enddo
 
   end subroutine jac_to_bs

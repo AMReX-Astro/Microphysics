@@ -1,6 +1,10 @@
 module vode_type_module
 
+  use burn_type_module, only: neqs
+
   implicit none
+
+  integer, parameter :: VODE_NEQS = neqs
 
 contains
 
@@ -17,6 +21,7 @@ contains
     real(dp_t) :: y(neqs), rpar(n_rpar_comps)
 
     ! Ensure that mass fractions always stay positive.
+
     y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
 
   end subroutine clean_state
@@ -25,8 +30,7 @@ contains
   subroutine renormalize_species(y, rpar)
 
     use bl_types, only: dp_t
-    use actual_network, only: aion, nspec, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
@@ -121,8 +125,7 @@ contains
   subroutine vode_to_eos(state, y, rpar)
 
     use bl_types, only: dp_t
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -158,8 +161,7 @@ contains
   subroutine eos_to_vode(state, y, rpar)
 
     use bl_types, only: dp_t
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -196,8 +198,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -217,8 +218,7 @@ contains
     y(net_itemp) = state % T
 
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         state % xn(nspec_evolve+1:nspec)
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
     y(net_ienuc)                             = state % e
     rpar(irp_cp)                             = state % cp
@@ -258,8 +258,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
-    use actual_network, only: nspec, nspec_evolve, aion
-    use integration_data, only: aionInv
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &

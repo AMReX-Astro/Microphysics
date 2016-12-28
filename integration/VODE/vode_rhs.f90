@@ -93,8 +93,7 @@
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
-    use actual_network, only: aion, nspec_evolve
-    use integration_data, only: aionInv
+    use network, only: aion, aion_inv, nspec_evolve
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
@@ -125,7 +124,6 @@
        state % jac(n,:) = state % jac(n,:) * aion(n)
        state % jac(:,n) = state % jac(:,n) * aionInv(n)
     enddo
-
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then

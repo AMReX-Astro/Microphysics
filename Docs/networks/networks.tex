@@ -908,9 +908,17 @@ timestep for integration.
 \subsection{VODE}
 \label{sec:VODE}
 
-VODE is a classic integration package described in \cite{vode}.  We use the implicit integration method in the package.
+VODE is a classic integration package described in \cite{vode}.  We
+use the implicit integration method in the package.
 
-Tolerances
+
+\paragraph{data structures.}  VODE does not allow for derived types 
+for its internal representation and instead simply uses a solution
+vector, {\tt y(neqs)}, and an array of parameters, {\tt rpar(:)}.  The
+indices into {\tt rpar} are defined in the {\tt rpar\_indices} module.
+
+
+\paragraph{tolerances.}
 
 Our copy of VODE is made threadsafe by use of the OpenMP {\tt
   threadprivate} directive on Fortran common blocks.  However, due to

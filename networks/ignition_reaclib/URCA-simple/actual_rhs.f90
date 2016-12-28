@@ -34,6 +34,7 @@ contains
   end subroutine update_unevolved_species
 
   subroutine evaluate_rates(state, rate_eval)
+    !$acc routine seq
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
@@ -43,7 +44,7 @@ contains
     integer :: i, j
     double precision :: dens, temp, rhoy
 
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
     temp = state%T
     rhoy = dens*state%y_e
@@ -55,7 +56,6 @@ contains
        rate_eval % unscreened_rates(:,i) = reactvec(1:4)
     end do
 
-    ! Included only if there are tabular rates
     ! Included only if there are tabular rates
     do i = 1, nrat_tabular
       call tabular_evaluate(table_meta(i), rhoy, temp, reactvec)
@@ -91,7 +91,7 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
 
     dens = state%rho
     temp = state%T
@@ -228,7 +228,7 @@ contains
     temp = state%T
 
     ! Set molar abundances
-    Y(:) = state%xn(:)/aion(:)
+    Y(:) = state%xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
     
@@ -296,16 +296,16 @@ contains
     double precision :: scratch_9
     double precision :: scratch_10
 
-    scratch_0 = 1.0d0*Y(jc12)*dens
-    scratch_1 = screened_rates(k_c12_c12n_mg23)*scratch_0
-    scratch_2 = screened_rates(k_c12_c12p_na23)*Y(jc12)*dens
-    scratch_3 = 1.0d0*scratch_2
+    scratch_0 = screened_rates(k_c12_c12n_mg23)*Y(jc12)*dens
+    scratch_1 = 1.0d0*scratch_0
+    scratch_2 = 1.0d0*Y(jc12)*dens
+    scratch_3 = screened_rates(k_c12_c12p_na23)*scratch_2
     scratch_4 = screened_rates(k_c12_ag_o16)*dens
     scratch_5 = Y(jc12)*scratch_4
     scratch_6 = -scratch_5
     scratch_7 = Y(jhe4)*scratch_4
     scratch_8 = -scratch_7
-    scratch_9 = screened_rates(k_c12_c12a_ne20)*scratch_0
+    scratch_9 = screened_rates(k_c12_c12a_ne20)*scratch_2
     scratch_10 = 2.0d0*Y(jc12)*dens
 
     dfdy_nuc(jn,jn) = ( &
@@ -429,8 +429,8 @@ contains
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_c12a_ne20)*scratch_10 - screened_rates(k_c12_c12n_mg23)*scratch_10 - &
-      2.0d0*scratch_2 + scratch_8 &
+      -screened_rates(k_c12_c12a_ne20)*scratch_10 - screened_rates(k_c12_c12p_na23)*scratch_10 - &
+      2.0d0*scratch_0 + scratch_8 &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
