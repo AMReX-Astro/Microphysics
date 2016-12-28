@@ -137,7 +137,7 @@ contains
        ! We integrate X, not Y
        do n = 1, nspec_evolve
           state % jac(n,:) = state % jac(n,:) * aion(n)
-          state % jac(:,n) = state % jac(:,n) * aionInv(n)
+          state % jac(:,n) = state % jac(:,n) * aion_inv(n)
        enddo
 
        ! Allow temperature and energy integration to be disabled.

@@ -44,7 +44,6 @@ contains
     use bl_constants_module, only: ONE
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: aion, nspec, nspec_evolve
-    use integration_data, only: aionInv
     use burn_type_module, only: net_itemp
     use eos_module, only : eos_get_small_temp
 
@@ -109,7 +108,6 @@ contains
     ! these shouldn't be needed
     use rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : aion, nspec, nspec_evolve
-    use network, only : aion_inv
 
     implicit none
 

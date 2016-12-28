@@ -12,7 +12,6 @@ contains
 
     use bl_types, only: dp_t
     use actual_network, only: aion, nspec, nspec_evolve
-    use integration_data, only: aionInv
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps
 

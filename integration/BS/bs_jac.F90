@@ -41,7 +41,7 @@ contains
        ! We integrate X, not Y
        do n = 1, nspec_evolve
           bs % burn_s % jac(n,:) = bs % burn_s % jac(n,:) * aion(n)
-          bs % burn_s % jac(:,n) = bs % burn_s % jac(:,n) * aionInv(n)
+          bs % burn_s % jac(:,n) = bs % burn_s % jac(:,n) * aion_inv(n)
        enddo
 
        ! Allow temperature and energy integration to be disabled.

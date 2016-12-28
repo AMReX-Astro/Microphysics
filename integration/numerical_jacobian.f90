@@ -15,7 +15,6 @@ contains
 
     use eos_module
     use actual_rhs_module, only: actual_rhs
-    use integration_data, only: aionInv
     use extern_probin_module, only : centered_diff_jac
 
     implicit none
