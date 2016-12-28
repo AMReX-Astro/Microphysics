@@ -42,8 +42,8 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ONE
-    use extern_probin_module, only: integrate_molar_fraction, SMALL_X_SAFE, renormalize_abundances
-    use network, only: aion, aion_inv, nspec, nspec_evolve
+    use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
+    use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: net_itemp
     use eos_module, only : eos_get_small_temp
 
@@ -57,14 +57,8 @@ contains
     real (kind=dp_t) :: small_temp
 
     ! Ensure that mass fractions always stay positive and sum to 1.
-    if (integrate_molar_fraction) then
-       state % y(1:nspec_evolve) = &
-            max(min(state % y(1:nspec_evolve) * aion(1:nspec_evolve), ONE), &
-            SMALL_X_SAFE) * aion_inv(1:nspec_evolve)
-    else
-       state % y(1:nspec_evolve) = &
-            max(min(state % y(1:nspec_evolve), ONE), SMALL_X_SAFE)
-    endif
+    state % y(1:nspec_evolve) = &
+         max(min(state % y(1:nspec_evolve), ONE), SMALL_X_SAFE)
 
     ! Renormalize abundances as necessary.
     if (renormalize_abundances) then
@@ -85,7 +79,6 @@ contains
 
     use actual_network, only: aion, nspec, nspec_evolve
     use rpar_indices, only: irp_nspec, n_not_evolved
-    use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
@@ -93,15 +86,9 @@ contains
 
     real(dp_t) :: nspec_sum
 
-    if (integrate_molar_fraction) then
-       nspec_sum = &
-            sum(state % y(1:nspec_evolve) * aion(1:nspec_evolve)) + &
-            sum(state % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:nspec))
-    else
-       nspec_sum = &
-            sum(state % y(1:nspec_evolve)) + &
-            sum(state % upar(irp_nspec:irp_nspec+n_not_evolved-1))
-    endif
+    nspec_sum = &
+         sum(state % y(1:nspec_evolve)) + &
+         sum(state % upar(irp_nspec:irp_nspec+n_not_evolved-1))
 
     state % y(1:nspec_evolve) = state % y(1:nspec_evolve) / nspec_sum
     state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
@@ -117,11 +104,10 @@ contains
     use bl_constants_module, only: ZERO
     use eos_type_module, only: eos_t, composition
     use eos_module, only: eos_input_rt, eos
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, integrate_molar_fraction
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed
     use rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : aion, nspec, nspec_evolve
-    use network, only : aion_inv
 
     implicit none
 
@@ -179,15 +165,9 @@ contains
        ! this shouldn't actually be necessary -- we haven't changed X at all,
        ! but roundoff in the multiply / divide change answers slightly.  Leaving
        ! this in for now for the test suite
-       if (integrate_molar_fraction) then
-          state % y(1:nspec_evolve) = eos_state % xn(1:nspec_evolve) * aion_inv(1:nspec_evolve)
-          state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-               eos_state % xn(nspec_evolve+1:nspec) * aion_inv(nspec_evolve+1:nspec)
-       else
-          state % y(1:nspec_evolve) = eos_state % xn(1:nspec_evolve)
-          state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-               eos_state % xn(nspec_evolve+1:nspec) 
-       endif
+       state % y(1:nspec_evolve) = eos_state % xn(1:nspec_evolve)
+       state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+            eos_state % xn(nspec_evolve+1:nspec) 
 
     endif
 
@@ -212,7 +192,6 @@ contains
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
-    use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
@@ -222,15 +201,9 @@ contains
     state % rho     = bs % burn_s % rho
     state % T       = bs % y(net_itemp)
 
-    if (integrate_molar_fraction) then
-       state % xn(1:nspec_evolve) = bs % y(1:nspec_evolve) * aion(1:nspec_evolve)
-       state % xn(nspec_evolve+1:nspec) = &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:nspec)
-    else
-       state % xn(1:nspec_evolve) = bs % y(1:nspec_evolve)
-       state % xn(nspec_evolve+1:nspec) = &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
-    endif
+    state % xn(1:nspec_evolve) = bs % y(1:nspec_evolve)
+    state % xn(nspec_evolve+1:nspec) = &
+         bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
 
     ! we don't copy any of the other quantities, since we can always
     ! access them through the original bs type
@@ -249,7 +222,6 @@ contains
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
-    use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
@@ -262,15 +234,9 @@ contains
     bs % y(net_itemp) = state % T
     bs % burn_s % T = state % T 
 
-    if (integrate_molar_fraction) then
-       bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve) * aion_inv(1:nspec_evolve)
-       bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec) * aion_inv(nspec_evolve+1:nspec)
-    else
-       bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-       bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            state % xn(nspec_evolve+1:nspec) 
-    endif
+    bs % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         state % xn(nspec_evolve+1:nspec) 
 
     bs % burn_s % cp = state % cp
     bs % burn_s % cv = state % cv
@@ -295,7 +261,6 @@ contains
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ONE
-    use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
@@ -304,15 +269,9 @@ contains
     bs % burn_s % rho = bs % burn_s % rho
     bs % y(net_itemp) = bs % burn_s % T
 
-    if (integrate_molar_fraction) then
-       bs % y(1:nspec_evolve) = bs % burn_s % xn(1:nspec_evolve) * aion_inv(1:nspec_evolve)
-       bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            bs % burn_s % xn(nspec_evolve+1:nspec) * aion_inv(nspec_evolve+1:nspec)
-    else
-       bs % y(1:nspec_evolve) = bs % burn_s % xn(1:nspec_evolve)
-       bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            bs % burn_s % xn(nspec_evolve+1:nspec) 
-    endif
+    bs % y(1:nspec_evolve) = bs % burn_s % xn(1:nspec_evolve)
+    bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         bs % burn_s % xn(nspec_evolve+1:nspec) 
 
     bs % y(net_ienuc) = bs % burn_s % e
 
@@ -334,7 +293,6 @@ contains
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use bl_constants_module, only: ZERO, ONE
-    use extern_probin_module, only: integrate_molar_fraction
 
     implicit none
 
@@ -344,15 +302,9 @@ contains
     bs % burn_s % T = bs % y(net_itemp)
     bs % burn_s % e = bs % y(net_ienuc)
 
-    if (integrate_molar_fraction) then
-       bs % burn_s % xn(1:nspec_evolve) = bs % y(1:nspec_evolve) * aion(1:nspec_evolve)
-       bs % burn_s % xn(nspec_evolve+1:nspec) = &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:nspec)
-    else
-       bs % burn_s % xn(1:nspec_evolve) = bs % y(1:nspec_evolve)
-       bs % burn_s % xn(nspec_evolve+1:nspec) = &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
-    endif
+    bs % burn_s % xn(1:nspec_evolve) = bs % y(1:nspec_evolve)
+    bs % burn_s % xn(nspec_evolve+1:nspec) = &
+         bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
 
     ! all the other thermodynamic quantities (cp, cv, ...) are already
     ! in the burn_t

@@ -15,7 +15,7 @@ contains
 
     use eos_module
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only : centered_diff_jac, integrate_molar_fraction
+    use extern_probin_module, only : centered_diff_jac
 
     implicit none
 
@@ -53,13 +53,8 @@ contains
           call actual_rhs(state_delm)
 
           do m = 1, neqs
-             if (integrate_molar_fraction) then
-                state % jac(m,n) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
-                     (eps * state % xn(n) * aion_inv(n))
-             else
-                state % jac(m,n) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
-                     (eps * state % xn(n))
-             endif
+             state % jac(m,n) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+                  (eps * state % xn(n))
           enddo
        enddo
 
@@ -96,11 +91,7 @@ contains
           call actual_rhs(state_del)
 
           do m = 1, neqs
-             if (integrate_molar_fraction) then
-                state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n) * aion_inv(n))
-             else
-                state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n))
-             endif
+             state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n))
           enddo
        enddo
 

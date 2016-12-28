@@ -169,7 +169,7 @@ contains
     ! start with the contribution from the non-reacting sources
     ydot(:) = rpar(irp_ydot_a:irp_ydot_a-1+SVAR_EVOLVE)
 
-    ! add in the reacting terms
+    ! add in the reacting terms -- here we convert from dY/dt to dX/dt
     ydot(SFS:SFS-1+nspec) = ydot(SFS:SFS-1+nspec) + &
          rpar(irp_SRHO) * aion(1:nspec) * burn_state % ydot(1:nspec)
 

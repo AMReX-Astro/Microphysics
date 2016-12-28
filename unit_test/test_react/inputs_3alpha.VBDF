@@ -12,5 +12,4 @@
   run_prefix = "react_3alpha_"
 
   integrate_temperature = T
-  integrate_molar_fraction = T
 /
