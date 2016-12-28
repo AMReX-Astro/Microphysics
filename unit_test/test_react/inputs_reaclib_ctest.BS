@@ -18,6 +18,8 @@
   ! 2 = numerical jacobian
   jacobian   = 1
 
+  use_timestep_estimator = .true.
+
   ode_max_steps = 1000
   scaling_method = 2
   retry_burn = .false.

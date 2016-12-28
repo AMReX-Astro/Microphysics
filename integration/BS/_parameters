@@ -4,7 +4,7 @@
 scaling_method               integer         2
 
 # use the VODE algorithm's initial timestep estimator?
-use_timestep_estimator       logical         .true.
+use_timestep_estimator       logical         .false.
 
 # Maximum number of steps to use in the ODE integration
 ode_max_steps                integer         10000

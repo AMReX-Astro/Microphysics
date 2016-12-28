@@ -13,6 +13,8 @@
 
   scaling_method = 2
 
+  use_timestep_estimator = T
+
   ode_method = 1
   ode_max_steps = 40000
 
