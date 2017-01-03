@@ -1,13 +1,15 @@
 
-changes since last merge:
+# changes since last merge:
+
+
+# previous changes:
+
+* 17.01
 
  -- we've removed the option to integrate molar fractions and instead
     the ODE system always operates on mass fractions (the networks 
     return derivatives of molar fractions and they are automatically
     converted).
-
-
-previous changes:
 
 * 16.12
 
