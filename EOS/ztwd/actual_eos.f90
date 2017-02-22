@@ -27,7 +27,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64) :: eos_name = "ztwd"
+  character (len=64), public :: eos_name = "ztwd"
   
   double precision, private :: A, B, B2
   double precision, parameter, private :: iter_tol = 1.d-10

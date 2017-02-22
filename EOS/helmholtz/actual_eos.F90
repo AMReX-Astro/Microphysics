@@ -2,7 +2,7 @@ module actual_eos_module
 
     use eos_type_module
 
-    character (len=64) :: eos_name = "helmholtz"
+    character (len=64), public :: eos_name = "helmholtz"
 
     ! Runtime parameters
     logical, save :: do_coulomb
