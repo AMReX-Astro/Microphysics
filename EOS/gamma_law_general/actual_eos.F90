@@ -17,7 +17,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64) :: eos_name = "gamma_law_general"  
+  character (len=64), public :: eos_name = "gamma_law_general"  
   
   double precision, save :: gamma_const
   

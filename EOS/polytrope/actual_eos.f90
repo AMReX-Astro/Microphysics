@@ -31,7 +31,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64) :: eos_name = "polytrope"
+  character (len=64), public :: eos_name = "polytrope"
   
   double precision, save :: gamma_const, K_const
   double precision, save :: mu_e
