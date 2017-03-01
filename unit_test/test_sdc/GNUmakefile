@@ -1,4 +1,4 @@
-NDEBUG := t
+NDEBUG := 
 MPI    :=
 OMP    := 
 
@@ -16,7 +16,7 @@ EOS_DIR := helmholtz
 
 NETWORK_DIR := aprox13
 
-INTEGRATOR_DIR := BS
+INTEGRATOR_DIR := VODE
 
 TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/test_sdc
 
