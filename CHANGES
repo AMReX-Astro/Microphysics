@@ -11,6 +11,7 @@
     return derivatives of molar fractions and they are automatically
     converted).
 
+
 * 16.12
 
  -- a new unit test, test_sdc, was created to test the SDC interface
@@ -20,9 +21,6 @@
 
  -- the VODE integrator now supports SDC integration
 
-* 16.11
-
-* 16.10
 
 * 16.09
 
