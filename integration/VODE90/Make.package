@@ -1,0 +1,16 @@
+ifeq ($(USE_SDC), TRUE)
+  f90EXE_sources += actual_integrator_sdc.f90
+  f90EXE_sources += vode_rhs_sdc.f90
+  f90EXE_sources += vode_type_sdc.f90
+else
+  f90EXE_sources += actual_integrator.f90
+  f90EXE_sources += vode_rhs.f90
+  f90EXE_sources += vode_type.f90
+endif
+
+VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/vode_source/
+include $(VODE_SOURCE_DIR)/Make.package
+
+INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
+VPATH_LOCATIONS   += $(VODE_SOURCE_DIR)
+EXTERN_CORE       += $(VODE_SOURCE_DIR)
