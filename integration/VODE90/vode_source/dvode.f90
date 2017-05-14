@@ -1,7 +1,6 @@
 module dvode_module
 
-  !DON
-  use dvode_type_module, only: dvode_t !, fill_state, destroy_state
+  use dvode_type_module, only: dvode_t 
   use dvode_output_module, only: xerrwd
   
   implicit none
@@ -394,11 +393,6 @@ contains
     integer, parameter :: MXHNL0 = 10
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
-
-    !DON
-    ! call fill_state(dvode_state, NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
-    !      ISTATE, IOPT, RWORK, LRW, IWORK, LIW, &
-    !      RPAR, IPAR)
     
     ! -----------------------------------------------------------------------
     !  Block A.
@@ -417,8 +411,6 @@ contains
     case (1)
        INIT = 0
        if (TOUT .EQ. T) then
-          !DON
-          ! destroy_state(dvode_state)
           return
        end if
     case (2)
@@ -752,8 +744,6 @@ contains
     IWORK(21) = NCFN
     IWORK(22) = NETF
 
-    !DON
-    !destroy_state(dvode_state)
     return
     
     ! -----------------------------------------------------------------------
@@ -828,8 +818,6 @@ contains
     IWORK(21) = NCFN
     IWORK(22) = NETF
 
-    !DON
-    !destroy_state(dvode_state)
     return
     
     ! -----------------------------------------------------------------------
@@ -937,15 +925,11 @@ contains
 700 CONTINUE
     ISTATE = -3
 
-    !DON
-    !destroy_state(dvode_state)
     return
     
 800 MSG = 'DVODE--  Run aborted:  apparent infinite loop     '
     CALL XERRWD (MSG, 50, 303, 2, 0, 0, 0, 0, ZERO, ZERO)
 
-    !DON
-    !destroy_state(dvode_state)
     return
   end subroutine dvode
 
