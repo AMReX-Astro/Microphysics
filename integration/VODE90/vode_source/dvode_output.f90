@@ -160,7 +160,7 @@ contains
     !  Function routine called by XSETUN.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    INTEGER :: LUN, JUNK, IXSAV
+    integer :: LUN, JUNK, IXSAV
 
     IF (LUN .GT. 0) JUNK = IXSAV (1,LUN,.TRUE.)
     return

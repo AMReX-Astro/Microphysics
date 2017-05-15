@@ -1,7 +1,5 @@
 module dvode_type_module
 
-  use rpar_indices, only: n_rpar_comps, n_ipar_comps
-
   implicit none
 
   type :: dvode_t
