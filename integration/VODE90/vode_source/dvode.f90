@@ -15,6 +15,8 @@ module dvode_module
   real(dp_t), parameter :: HUN  = 100.0D0
   real(dp_t), parameter :: THOU = 1000.0D0
 
+  public :: dvode
+  
 contains
 
   function dumach() result(dum)
@@ -303,7 +305,7 @@ contains
     !
     
     type(dvode_t) :: dvode_state
-    real(dp_t) :: T, YH(LDYH,:), DKY(:)
+    real(dp_t) :: T, YH(LDYH, dvode_state % LMAX), DKY(:)
     integer    :: K, LDYH, IFLAG
 
 
@@ -579,7 +581,7 @@ contains
     CALL DCOPY (dvode_state % N, Y, 1, RWORK(dvode_state % LYH), 1)
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     dvode_state % NQ = 1
-    H = ONE
+    dvode_state % H = ONE
     CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, RWORK(dvode_state % LYH), RWORK(dvode_state % LEWT))
     do I = 1,dvode_state % N
        IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 621
@@ -587,16 +589,21 @@ contains
     end do
     IF (H0 .NE. ZERO) GO TO 180
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (dvode_state % N, T, RWORK(dvode_state % LYH), RWORK(LF0), F, RPAR, IPAR, TOUT, &
-         dvode_state % UROUND, RWORK(dvode_state % LEWT), ITOL, ATOL, Y, RWORK(dvode_state % LACOR), H0, &
-         NITER, IER)
+    CALL DVHIN (dvode_state % N, T, &
+         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), &
+         RWORK(LF0:LF0 + dvode_state % N - 1), F, RPAR, IPAR, TOUT, &
+         dvode_state % UROUND, &
+         RWORK(dvode_state % LEWT:dvode_state % LEWT + dvode_state % N - 1), &
+         ITOL, ATOL, Y, &
+         RWORK(dvode_state % LACOR:dvode_state % LACOR + dvode_state % N - 1), &
+         H0, NITER, IER)
     dvode_state % NFE = dvode_state % NFE + NITER
     IF (IER .NE. 0) GO TO 622
     ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
 180 RH = ABS(H0)*dvode_state % HMXI
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
-    H = H0
+    dvode_state % H = H0
     CALL DSCAL (dvode_state % N, H0, RWORK(LF0), 1)
     GO TO 270
     
@@ -609,31 +616,31 @@ contains
 200 NSLAST = dvode_state % NST
     dvode_state % KUTH = 0
     GO TO (210, 250, 220, 230, 240), ITASK
-210 IF ((dvode_state % TN - TOUT)*H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG)
+210 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
+    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
 220 TP = dvode_state % TN - dvode_state % HU * (ONE + HUN * dvode_state % UROUND)
-    IF ((TP - TOUT)*H .GT. ZERO) GO TO 623
-    IF ((dvode_state % TN - TOUT)*H .LT. ZERO) GO TO 250
+    IF ((TP - TOUT) * dvode_state % H .GT. ZERO) GO TO 623
+    IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
     GO TO 400
 230 TCRIT = RWORK(1)
-    IF ((dvode_state % TN - TCRIT)*H .GT. ZERO) GO TO 624
-    IF ((TCRIT - TOUT)*H .LT. ZERO) GO TO 625
-    IF ((dvode_state % TN - TOUT)*H .LT. ZERO) GO TO 245
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG)
+    IF ((dvode_state % TN - TCRIT) * dvode_state % H .GT. ZERO) GO TO 624
+    IF ((TCRIT - TOUT) * dvode_state % H .LT. ZERO) GO TO 625
+    IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 245
+    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
 240 TCRIT = RWORK(1)
-    IF ((dvode_state % TN - TCRIT)*H .GT. ZERO) GO TO 624
-245 HMX = ABS(dvode_state % TN) + ABS(H)
+    IF ((dvode_state % TN - TCRIT) * dvode_state % H .GT. ZERO) GO TO 624
+245 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
     IHIT = ABS(dvode_state % TN - TCRIT) .LE. HUN * dvode_state % UROUND * HMX
     IF (IHIT) GO TO 400
     TNEXT = dvode_state % TN + dvode_state % HNEW*(ONE + FOUR * dvode_state % UROUND)
-    IF ((TNEXT - TCRIT)*H .LE. ZERO) GO TO 250
-    H = (TCRIT - dvode_state % TN)*(ONE - FOUR * dvode_state % UROUND)
+    IF ((TNEXT - TCRIT) * dvode_state % H .LE. ZERO) GO TO 250
+    dvode_state % H = (TCRIT - dvode_state % TN)*(ONE - FOUR * dvode_state % UROUND)
     dvode_state % KUTH = 1
     
     ! -----------------------------------------------------------------------
@@ -660,7 +667,7 @@ contains
     TOLSF = TOLSF*TWO
     IF (dvode_state % NST .EQ. 0) GO TO 626
     GO TO 520
-280 IF ((dvode_state % TN + H) .NE. dvode_state % TN) GO TO 290
+280 IF ((dvode_state % TN + dvode_state % H) .NE. dvode_state % TN) GO TO 290
     dvode_state % NHNIL = dvode_state % NHNIL + 1
     IF (dvode_state % NHNIL .GT. dvode_state % MXHNIL) GO TO 290
     MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
@@ -668,7 +675,7 @@ contains
     MSG='      such that in the machine, T + H = T on the next step  '
     CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      (H = step size). solver will continue anyway'
-    CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, dvode_state % TN, H)
+    CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
     IF (dvode_state % NHNIL .LT. dvode_state % MXHNIL) GO TO 290
     MSG = 'DVODE--  Above warning has been issued I1 times.  '
     CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
@@ -681,9 +688,14 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
     
-    CALL DVSTEP(Y, RWORK(dvode_state % LYH), dvode_state % NYH, RWORK(dvode_state % LYH), RWORK(dvode_state % LEWT), &
-         RWORK(dvode_state % LSAVF), Y, RWORK(dvode_state % LACOR), RWORK(dvode_state % LWM), IWORK(dvode_state % LIWM), &
-         F, JAC, F, DVNLSD, RPAR, IPAR)
+    CALL DVSTEP(Y, RWORK(dvode_state % LYH), dvode_state % NYH, &
+         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % NYH * dvode_state % LMAX - 1), &
+         RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1), &
+         RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1), &
+         Y, &
+         RWORK(dvode_state % LACOR:dvode_state % LACOR + NEQ - 1), &
+         RWORK(dvode_state % LWM:dvode_state % LEWT - 1), &
+         IWORK, F, JAC, F, DVNLSD, RPAR, IPAR, dvode_state)
     KGO = 1 - dvode_state % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
@@ -699,28 +711,28 @@ contains
     dvode_state % KUTH = 0
     GO TO (310, 400, 330, 340, 350), ITASK
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
-310 IF ((dvode_state % TN - TOUT)*H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG)
+310 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
+    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
     T = TOUT
     GO TO 420
     ! ITASK = 3.  Jump to exit if TOUT was reached. ------------------------
-330 IF ((dvode_state % TN - TOUT)*H .GE. ZERO) GO TO 400
+330 IF ((dvode_state % TN - TOUT) * dvode_state % H .GE. ZERO) GO TO 400
     GO TO 250
     ! ITASK = 4.  See if TOUT or TCRIT was reached.  Adjust H if necessary.
-340 IF ((dvode_state % TN - TOUT)*H .LT. ZERO) GO TO 345
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG)
+340 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 345
+    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
     T = TOUT
     GO TO 420
-345 HMX = ABS(dvode_state % TN) + ABS(H)
+345 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
     IHIT = ABS(dvode_state % TN - TCRIT) .LE. HUN * dvode_state % UROUND * HMX
     IF (IHIT) GO TO 400
     TNEXT = dvode_state % TN + dvode_state % HNEW*(ONE + FOUR * dvode_state % UROUND)
-    IF ((TNEXT - TCRIT)*H .LE. ZERO) GO TO 250
-    H = (TCRIT - dvode_state % TN)*(ONE - FOUR * dvode_state % UROUND)
+    IF ((TNEXT - TCRIT) * dvode_state % H .LE. ZERO) GO TO 250
+    dvode_state % H = (TCRIT - dvode_state % TN)*(ONE - FOUR * dvode_state % UROUND)
     dvode_state % KUTH = 1
     GO TO 250
     ! ITASK = 5.  See if TCRIT was reached and jump to exit. ---------------
-350 HMX = ABS(dvode_state % TN) + ABS(H)
+350 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
     IHIT = ABS(dvode_state % TN - TCRIT) .LE. HUN * dvode_state % UROUND * HMX
     
     ! -----------------------------------------------------------------------
@@ -786,7 +798,7 @@ contains
 530 MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      test failed repeatedly or with abs(H) = HMIN'
-    CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, dvode_state % TN, H)
+    CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
     ISTATE = -4
     GO TO 560
     ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
@@ -795,7 +807,7 @@ contains
     MSG = '      corrector convergence failed repeatedly     '
     CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      or with abs(H) = HMIN   '
-    CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, dvode_state % TN, H)
+    CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
     ISTATE = -5
     ! Compute IMXER if relevant. -------------------------------------------
 560 BIG = ZERO
@@ -812,7 +824,7 @@ contains
     CALL DCOPY (dvode_state % N, RWORK(dvode_state % LYH), 1, Y, 1)
     T = dvode_state % TN
     RWORK(11) = dvode_state % HU
-    RWORK(12) = H
+    RWORK(12) = dvode_state % H
     RWORK(13) = dvode_state % TN
     IWORK(11) = dvode_state % NST
     IWORK(12) = dvode_state % NFE
@@ -1093,9 +1105,11 @@ contains
     ! 
 
     EXTERNAL F, JAC
-    real(dp_t) :: Y(:), YH(LDYH,:), EWT(:), FTEM(:), SAVF(:), WM(:), RPAR(:)
-    integer    :: LDYH, IWM(:), IERPJ, IPAR(:)
     type(dvode_t) :: dvode_state
+    real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), EWT(:), FTEM(:)
+    real(dp_t) :: SAVF(:), WM(:), RPAR(:)
+    integer    :: LDYH, IWM(:), IERPJ, IPAR(:)
+
 
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
@@ -1224,7 +1238,11 @@ contains
        end do
        CALL JAC (dvode_state % N, dvode_state % TN, Y, ML, MU, WM(ML3), MEBAND, RPAR, IPAR)
        if (dvode_state % JSV .EQ. 1) then
-          CALL DACOPY (MBAND, dvode_state % N, WM(ML3), MEBAND, WM(dvode_state % LOCJS), MBAND)
+          CALL DACOPY(MBAND, dvode_state % N, &
+               WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
+               MEBAND, &
+               WM(dvode_state % LOCJS:dvode_state % LOCJS + MBAND * dvode_state % N - 1), &
+               MBAND)
        end if
 
     else if (JOK .EQ. -1 .AND. dvode_state % MITER .EQ. 5) then
@@ -1260,13 +1278,21 @@ contains
        end do
        dvode_state % NFE = dvode_state % NFE + MBA
        if (dvode_state % JSV .EQ. 1) then
-          CALL DACOPY (MBAND, dvode_state % N, WM(ML3), MEBAND, WM(dvode_state % LOCJS), MBAND)
+          CALL DACOPY(MBAND, dvode_state % N, &
+               WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
+               MEBAND, &
+               WM(dvode_state % LOCJS:dvode_state % LOCJS + MBAND * dvode_state % N - 1), &
+               MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
        dvode_state % JCUR = 0
-       CALL DACOPY (MBAND, dvode_state % N, WM(dvode_state % LOCJS), MBAND, WM(ML3), MEBAND)
+       CALL DACOPY(MBAND, dvode_state % N, &
+            WM(dvode_state % LOCJS:dvode_state % LOCJS + MBAND * dvode_state % N - 1), &
+            MBAND, &
+            WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
+            MEBAND)
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
@@ -1348,9 +1374,10 @@ contains
     ! -----------------------------------------------------------------------
     !
     EXTERNAL F, JAC, PDUM
-    real(dp_t) :: Y(:), YH(LDYH,:), VSAV(:), SAVF(:), EWT(:), ACOR(:), WM(:), RPAR(:)
-    integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
     type(dvode_t) :: dvode_state
+    real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), VSAV(:), SAVF(:)
+    real(dp_t) :: EWT(:), ACOR(:), WM(:), RPAR(:)
+    integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
@@ -1443,7 +1470,7 @@ contains
 350 do I = 1,dvode_state % N
        Y(I) = (dvode_state % RL1*dvode_state % H)*SAVF(I) - (dvode_state % RL1*YH(I,2) + ACOR(I))
     end do
-    CALL DVSOL (WM, IWM, Y, IERSL)
+    CALL DVSOL (WM, IWM, Y, IERSL, dvode_state)
     dvode_state % NNI = dvode_state % NNI + 1
     IF (IERSL .GT. 0) GO TO 410
     IF (dvode_state % METH .EQ. 2 .AND. dvode_state % RC .NE. ONE) THEN
@@ -1510,10 +1537,10 @@ contains
     !          (If IORD = +1, DVJUST assumes that HSCAL = TAU(1).)
     !  See References 1 and 2 for details.
     ! -----------------------------------------------------------------------
-    ! 
-    real(dp_t) :: YH(LDYH,:)
-    integer    :: LDYH, IORD
+    !
     type(dvode_t) :: dvode_state
+    real(dp_t) :: YH(LDYH, dvode_state % LMAX)
+    integer    :: LDYH, IORD
 
     real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
     integer    :: I, IBACK, J, JP1, LP1, NQM1, NQM2, NQP1
@@ -1551,14 +1578,14 @@ contains
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3, dvode_state % NQ
        do I = 1, dvode_state % N
-          YH(I,J) = YH(I,J) - YH(I,L) * dvode_state % EL(J)
+          YH(I,J) = YH(I,J) - YH(I,dvode_state % L) * dvode_state % EL(J)
        end do
     end do
     RETURN
     ! Order increase. ------------------------------------------------------
     ! Zero out next column in YH array. ------------------------------------
 180 CONTINUE
-    LP1 = L + 1
+    LP1 = dvode_state % L + 1
     do I = 1, dvode_state % N
        YH(I,LP1) = ZERO
     end do
@@ -1588,7 +1615,7 @@ contains
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3,dvode_state % NQ
        do I = 1, dvode_state % N
-          YH(I,J) = YH(I,J) - YH(I,L) * dvode_state % EL(J)
+          YH(I,J) = YH(I,J) - YH(I,dvode_state % L) * dvode_state % EL(J)
        end do
     end do
     RETURN
@@ -1620,7 +1647,7 @@ contains
 340 CONTINUE
     T1 = (-ALPH0 - ALPH1)/PROD
     ! Load column L + 1 in YH array. ---------------------------------------
-    LP1 = L + 1
+    LP1 = dvode_state % L + 1
     do I = 1, dvode_state % N
        YH(I,LP1) = T1*YH(I,dvode_state % LMAX)
     end do
@@ -1874,17 +1901,17 @@ contains
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
     EXTERNAL F, JAC, PSOL, VNLS
-    real(dp_t) :: Y(:), YH(LDYH,:), YH1(:), EWT(:), SAVF(:)
+    type(dvode_t) :: dvode_state
+    real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), YH1(:), EWT(:), SAVF(:)
     real(dp_t) :: VSAV(:), ACOR(:), WM(:), RPAR(:)
     integer    :: LDYH, IWM(:), IPAR(:)
-    type(dvode_t) :: dvode_state
       
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer    :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
 
     ! Function declarations
-    real(dp_t) :: DVNORM
+    !! real(dp_t) :: DVNORM
 
     ! Parameter declarations
     integer, parameter :: KFC = -3
@@ -2032,7 +2059,7 @@ contains
           YH1(I) = YH1(I) + YH1(I+LDYH)
        end do
     end do
-    CALL DVSET
+    CALL DVSET(dvode_state)
     dvode_state % RL1 = ONE/dvode_state % EL(2)
     dvode_state % RC = dvode_state % RC * (dvode_state % RL1/dvode_state % PRL1)
     dvode_state % PRL1 = dvode_state % RL1
@@ -2150,7 +2177,7 @@ contains
     dvode_state % H = dvode_state % H * dvode_state % ETA
     dvode_state % HSCAL = dvode_state % H
     dvode_state % TAU(1) = dvode_state % H
-    CALL F (dvode_state % N, dvode_state % TN, dvode_state % Y, SAVF, RPAR, IPAR)
+    CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
     dvode_state % NFE = dvode_state % NFE + 1
     do I = 1, dvode_state % N
        YH(I,2) = dvode_state % H*SAVF(I)
@@ -2225,7 +2252,7 @@ contains
 690 dvode_state % ETAMAX = ETAMX3
     IF (dvode_state % NST .LE. 10) dvode_state % ETAMAX = ETAMX2
     R = ONE/dvode_state % TQ(2)
-    CALL DSCAL (N, R, ACOR, 1)
+    CALL DSCAL (dvode_state % N, R, ACOR, 1)
 720 dvode_state % JSTART = 1
     RETURN
   end subroutine dvstep
