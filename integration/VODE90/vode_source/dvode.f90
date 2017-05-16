@@ -2,6 +2,7 @@ module dvode_module
 
   use dvode_type_module, only: dvode_t 
   use dvode_output_module, only: xerrwd
+  use bl_types, only: dp_t
   
   implicit none
 
@@ -299,11 +300,12 @@ contains
     ! 
     !  Discussion above and comments in driver explain all variables.
     ! -----------------------------------------------------------------------
-    ! 
-
+    !
+    
+    type(dvode_t) :: dvode_state
     real(dp_t) :: T, YH(LDYH,:), DKY(:)
     integer    :: K, LDYH, IFLAG
-    type(dvode_t) :: dvode_state
+
 
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
@@ -364,14 +366,18 @@ contains
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, JAC, MF, &
        RPAR, IPAR)
     
-    use rpar_indices, only: n_rpar_comps, n_ipar_comps
+!    use rpar_indices, only: n_rpar_comps, n_ipar_comps
 
     external F, JAC
 
     integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
-    integer    :: IWORK(LIW), IPAR(n_ipar_comps)
+    integer    :: IWORK(LIW)
+!    integer    :: IPAR(n_ipar_comps)
+    integer    :: IPAR(:)    
     real(dp_t) :: T, TOUT
-    real(dp_t) :: Y(NEQ), RTOL(NEQ), ATOL(NEQ), RWORK(LRW), RPAR(n_rpar_comps)
+    real(dp_t) :: Y(NEQ), RTOL(NEQ), ATOL(NEQ), RWORK(LRW)
+!    real(dp_t) :: RPAR(n_rpar_comps)
+    real(dp_t) :: RPAR(:)
 
     external DVNLSD
     logical    :: IHIT

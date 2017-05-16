@@ -1,10 +1,12 @@
 module dvode_output_module
 
+  use bl_types, only: dp_t
+  
   implicit none
 
 contains
 
-  function iumach() result(ium)
+  function iumach() result(ium_return)
     ! ***BEGIN PROLOGUE  IUMACH
     ! ***PURPOSE  Provide standard output unit number.
     ! ***CATEGORY  R1
@@ -32,6 +34,8 @@ contains
     ! **End
     ! ***FIRST EXECUTABLE STATEMENT  IUMACH
     integer, parameter :: ium = 6
+    integer :: ium_return
+    ium_return = ium
     return
   end function iumach
   

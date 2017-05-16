@@ -1,5 +1,7 @@
 module dvode_type_module
 
+  use bl_types, only: dp_t
+  
   implicit none
 
   type :: dvode_t
