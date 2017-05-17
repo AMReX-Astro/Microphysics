@@ -190,14 +190,8 @@ contains
     real(dp_t), parameter :: PT1 = 0.1D0
 
     NITER = 0
-    write(*,*) 'TOUT = ', TOUT
-    write(*,*) 'T0 = ', T0
     TDIST = ABS(TOUT - T0)
-    write(*,*) 'TDIST = ', TDIST
     TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
-    write(*,*) 'TDIST = ', TDIST
-    write(*,*) 'TWO = ', TWO
-    write(*,*) 'TROUND = ', TROUND
     IF (TDIST .LT. TWO*TROUND) GO TO 100
 
     ! Set a lower bound on h based on the roundoff level in T0 and TOUT. ---
