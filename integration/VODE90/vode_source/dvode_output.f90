@@ -89,7 +89,6 @@ contains
     logical :: ISET
     integer :: IPAR, IVALUE
     integer :: ixs
-    integer :: IUMACH
     integer, save :: LUNIT = -1
     integer, save :: MESFLG = 1
 
@@ -133,7 +132,7 @@ contains
     !  Function routine called by XSETF.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    integer :: MFLAG, JUNK, IXSAV
+    integer :: MFLAG, JUNK
 
     IF (MFLAG .EQ. 0 .OR. MFLAG .EQ. 1) JUNK = IXSAV(2,MFLAG,.TRUE.)
     return
@@ -164,7 +163,7 @@ contains
     !  Function routine called by XSETUN.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    integer :: LUN, JUNK, IXSAV
+    integer :: LUN, JUNK
 
     IF (LUN .GT. 0) JUNK = IXSAV (1,LUN,.TRUE.)
     return
@@ -229,7 +228,7 @@ contains
     ! **End
     real(dp_t) :: R1, R2
     integer    :: NMES, NERR, LEVEL, NI, I1, I2, NR
-    integer    :: LUNIT, IXSAV, MESFLG
+    integer    :: LUNIT, MESFLG
     character (len=80) :: MSG
     character (len=50), parameter :: fmt10 = "(1X,A)"
     character (len=50), parameter :: fmt20 = "(6X,'In above message,  I1 =',I10)"

@@ -187,9 +187,6 @@ contains
     real(dp_t) :: HUB, T1, TDIST, TROUND, TWO, YDDNRM
     integer    :: I, ITER
 
-    ! Function declarations
-    real(dp_t) :: DVNORM
-
     ! Parameter declarations
     real(dp_t), parameter :: HUN = 100.0D0
     real(dp_t), parameter :: PT1 = 0.1D0
@@ -381,7 +378,6 @@ contains
 !    real(dp_t) :: RPAR(n_rpar_comps)
     real(dp_t) :: RPAR(:)
 
-    external DVNLSD
     logical    :: IHIT
     real(dp_t) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
     real(dp_t) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
@@ -392,9 +388,6 @@ contains
     character (len=80) :: MSG
 
     type(dvode_t) :: dvode_state
-
-    ! Function declarations
-    real(dp_t) :: DUMACH, DVNORM
 
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
@@ -410,22 +403,15 @@ contains
     !  not yet been done, an error return occurs.
     !  If ISTATE = 1 and TOUT = T, return immediately.
     ! -----------------------------------------------------------------------
-    
+
     IF (ISTATE .LT. 1 .OR. ISTATE .GT. 3) GO TO 601
     IF (ITASK .LT. 1 .OR. ITASK .GT. 5) GO TO 602
+    IF (ISTATE .EQ. 1) GO TO 10
     IF (dvode_state % INIT .NE. 1) GO TO 603
-
-    select case (ISTATE)
-    case (1)
-       dvode_state % INIT = 0
-       if (TOUT .EQ. T) then
-          return
-       end if
-    case (2)
-       GO TO 200
-    case default
-       GO TO 20
-    end select
+    IF (ISTATE .EQ. 2) GO TO 200
+    GO TO 20
+10  dvode_state % INIT = 0
+    IF (TOUT .EQ. T) RETURN
     
     ! -----------------------------------------------------------------------
     !  Block B.
@@ -1115,9 +1101,6 @@ contains
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
 
-    ! Function declarations
-    real(dp_t) :: DVNORM
-
     ! Parameter declarations
     real(dp_t), parameter :: PT1 = 0.1D0
 
@@ -1375,16 +1358,13 @@ contains
     !
     EXTERNAL F, JAC, PDUM
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), VSAV(:), SAVF(:)
+    real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX), VSAV(:), SAVF(:)
     real(dp_t) :: EWT(:), ACOR(:), WM(:), RPAR(:)
     integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
 
-    ! Function declarations
-    real(dp_t) :: DVNORM
-    
     ! Parameter declarations
     real(dp_t), parameter :: CCMAX = 0.3D0
     real(dp_t), parameter :: CRDOWN = 0.3D0
@@ -1422,7 +1402,9 @@ contains
     ! -----------------------------------------------------------------------
 220 M = 0
     DELP = ZERO
-    CALL DCOPY (dvode_state % N, YH(1,1), 1, Y, 1 )
+    !    CALL DCOPY (dvode_state % N, YH(1,1), 1, Y, 1)
+    CALL DCOPY (dvode_state % N, YH(1:LDYH, 1:dvode_state % LMAX), &
+         1, Y(1:dvode_state % N), 1)
     CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
     dvode_state % NFE = dvode_state % NFE + 1
     IF (dvode_state % IPUP .LE. 0) GO TO 250
@@ -1902,16 +1884,14 @@ contains
     ! -----------------------------------------------------------------------
     EXTERNAL F, JAC, PSOL, VNLS
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), YH1(:), EWT(:), SAVF(:)
+    real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX)
+    real(dp_t) :: YH1(:), EWT(:), SAVF(:)
     real(dp_t) :: VSAV(:), ACOR(:), WM(:), RPAR(:)
     integer    :: LDYH, IWM(:), IPAR(:)
       
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer    :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
-
-    ! Function declarations
-    !! real(dp_t) :: DVNORM
 
     ! Parameter declarations
     integer, parameter :: KFC = -3

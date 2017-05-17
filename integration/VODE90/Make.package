@@ -8,8 +8,8 @@ else
   f90EXE_sources += vode_type.f90
 endif
 
-VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/vode_source/
-include $(VODE_SOURCE_DIR)/Make.package
+VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/vode_source/
+include $(VODE_SOURCE_DIR)/GPackage.mak
 
 INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
 VPATH_LOCATIONS   += $(VODE_SOURCE_DIR)

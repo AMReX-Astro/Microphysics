@@ -1,20 +1,37 @@
-fsources = tvode.f
+NDEBUG := t
+MPI    :=
+OMP    := t
 
-LINPACK_HOME = $(MICROPHYSICS_HOME)/util/LINPACK
-BLAS_HOME = $(MICROPHYSICS_HOME)/util/BLAS
+COMP := gfortran
 
+MKVERBOSE := t
+
+programs += tvode
+
+MICROPHYSICS_HOME := ../../../../
+
+EOS_DIR := gamma_law_general
+
+NETWORK_DIR := ignition_reaclib/C-test
+
+INTEGRATOR_DIR := VODE90
+
+TEST_DIR := $(MICROPHYSICS_HOME)/integration/VODE90/vode_source
+
+PROBIN_PARAMETER_DIRS := $(TEST_DIR)
+
+ALL:
+
+
+include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 include ../GPackage.mak
-include $(LINPACK_HOME)/GPackage.mak
-include $(BLAS_HOME)/GPackage.mak
 
-F90 = gfortran
+ALL: $(pnames)
 
-tvode: $(fsources)
-	$(F90) -o tvode $^ 
-
-vpath %.f . ../ $(LINPACK_HOME) $(BLAS_HOME)
+# include the fParallel Makefile rules
+include $(BOXLIB_HOME)/Tools/F_mk/GMakerules.mak
 
 
-clean:
-	$(RM) *.o tvode
+
+
 
