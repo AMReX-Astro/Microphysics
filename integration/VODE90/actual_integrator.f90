@@ -73,6 +73,7 @@ contains
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
     use actual_rhs_module, only : update_unevolved_species
+    use dvode_module, only: dvode
 
     implicit none
 
@@ -102,7 +103,7 @@ contains
 
     integer :: istate
 
-    integer :: ipar
+    integer :: ipar(n_ipar_comps)
 
     real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
