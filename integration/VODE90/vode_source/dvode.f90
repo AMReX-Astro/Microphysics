@@ -183,17 +183,21 @@ contains
     real(dp_t) :: EWT(:), ATOL(:), Y(:), TEMP(:), H0
     integer    :: N, IPAR(:), ITOL, NITER, IER
 
-    real(dp_t) :: AFI, ATOLI, DELYI, H, HALF, HG, HLB, HNEW, HRAT
-    real(dp_t) :: HUB, T1, TDIST, TROUND, TWO, YDDNRM
+    real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
+    real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
 
-    ! Parameter declarations
-    real(dp_t), parameter :: HUN = 100.0D0
     real(dp_t), parameter :: PT1 = 0.1D0
 
     NITER = 0
+    write(*,*) 'TOUT = ', TOUT
+    write(*,*) 'T0 = ', T0
     TDIST = ABS(TOUT - T0)
+    write(*,*) 'TDIST = ', TDIST
     TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
+    write(*,*) 'TDIST = ', TDIST
+    write(*,*) 'TWO = ', TWO
+    write(*,*) 'TROUND = ', TROUND
     IF (TDIST .LT. TWO*TROUND) GO TO 100
 
     ! Set a lower bound on h based on the roundoff level in T0 and TOUT. ---
