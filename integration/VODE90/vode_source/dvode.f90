@@ -1,6 +1,6 @@
 module dvode_module
 
-  use dvode_type_module, only: dvode_t 
+  use dvode_type_module, only: dvode_t, print_state
   use dvode_output_module, only: xerrwd
   use bl_types, only: dp_t
   
@@ -496,6 +496,7 @@ contains
        LENWM = 2 + LENP + JCO*LENJ
        dvode_state % LOCJS = LENP + 3
     ENDIF
+    dvode_state % LMAX = dvode_state % MAXORD + 1
     dvode_state % LEWT = dvode_state % LWM + LENWM
     dvode_state % LSAVF = dvode_state % LEWT + dvode_state % N
     dvode_state % LACOR = dvode_state % LSAVF + dvode_state % N
@@ -671,6 +672,8 @@ contains
     !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
+
+    call print_state(dvode_state)
     
     CALL DVSTEP(Y, RWORK(dvode_state % LYH), dvode_state % NYH, &
          RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % NYH * dvode_state % LMAX - 1), &
@@ -1926,7 +1929,6 @@ contains
     !  occurs (in corrector convergence or error test), ETAMAX is set to 1
     !  for the next increase.
     ! -----------------------------------------------------------------------
-    dvode_state % LMAX = dvode_state % MAXORD + 1
     dvode_state % NQ = 1
     dvode_state % L = 2
     dvode_state % NQNYH = dvode_state % NQ*LDYH
@@ -1980,7 +1982,6 @@ contains
     !  Finally, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 100 CONTINUE
-    dvode_state % LMAX = dvode_state % MAXORD + 1
     IF (dvode_state % N .EQ. LDYH) GO TO 120
     I1 = 1 + (dvode_state % NEWQ + 1)*LDYH
     I2 = (dvode_state % MAXORD + 1)*LDYH
