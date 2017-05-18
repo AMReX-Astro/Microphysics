@@ -1403,7 +1403,6 @@ contains
     ! -----------------------------------------------------------------------
 220 M = 0
     DELP = ZERO
-    !    CALL DCOPY (dvode_state % N, YH(1,1), 1, Y, 1)
     CALL DCOPY (dvode_state % N, YH(1:LDYH, 1:dvode_state % LMAX), &
          1, Y(1:dvode_state % N), 1)
     CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
