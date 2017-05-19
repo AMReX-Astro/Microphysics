@@ -8,7 +8,8 @@ contains
     use bl_types, only: dp_t
 
     integer    :: NEQ, IPAR(:)
-    real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+    real(dp_t) :: RPAR(:), T, Y(NEQ)
+    real(dp_t), pointer :: YDOT(:)
 
     YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
     YDOT(3) = 3.D7*Y(2)*Y(2)

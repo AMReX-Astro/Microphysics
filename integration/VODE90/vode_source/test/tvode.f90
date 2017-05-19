@@ -2,6 +2,7 @@ program tvode
 
   use bl_types, only: dp_t
   use dvode_module, only: dvode
+  use dvode_type_module, only: dvode_t
   use tvode_rhs_module, only: FEX, JEX
   
   implicit none
@@ -27,6 +28,7 @@ program tvode
   !   No. nonlinear convergence failures =   0
   !   No. error test failures =  22
   
+  type(dvode_t) :: dvode_state
   real(dp_t) :: RPAR(1), RTOL(1), T, TOUT
   real(dp_t) :: Y(3), ATOL(3), RWORK(67)
   integer    :: IWORK(33), NEQ, ITOL, ITASK, ISTATE, IOPT
@@ -54,7 +56,7 @@ program tvode
   MF = 21
   do IOUT = 1,12
      CALL DVODE(FEX,NEQ,Y,T,TOUT,ITOL,RTOL,ATOL,ITASK,ISTATE, &
-          IOPT,RWORK,LRW,IWORK,LIW,JEX,MF,RPAR,IPAR)
+          IOPT,RWORK,LRW,IWORK,LIW,JEX,MF,RPAR,IPAR, dvode_state)
      WRITE(6,20)T,Y(1),Y(2),Y(3)
 20   FORMAT(' At t =',D12.4,'   y =',3D14.6)
      IF (ISTATE .LT. 0) GO TO 80

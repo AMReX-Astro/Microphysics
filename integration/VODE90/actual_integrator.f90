@@ -74,6 +74,7 @@ contains
                                     call_eos_in_rhs, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use dvode_module, only: dvode
+    use dvode_type_module, only: dvode_t
 
     implicit none
 
@@ -87,6 +88,7 @@ contains
 
     real(dp_t) :: local_time
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
+    type (dvode_t) :: dvode_state
 
     ! Work arrays
 
@@ -226,7 +228,8 @@ contains
 
     call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                ITOL, rtol, atol, ITASK, &
-               istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+               istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, &
+               rpar, ipar, dvode_state)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -261,7 +264,8 @@ contains
 
        call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                   ITOL, rtol, atol, ITASK, &
-                  istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+                  istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, &
+                  rpar, ipar, dvode_state)
 
     endif
 
@@ -320,7 +324,8 @@ contains
 
              call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
                         ITOL, rtol, atol, ITASK, &
-                        istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+                        istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, &
+                        rpar, ipar, dvode_state)
 
           enddo
 

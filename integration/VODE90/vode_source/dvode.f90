@@ -80,7 +80,8 @@ contains
     ! **End
 
     integer    :: I, N, ITOL
-    real(dp_t) :: RTOL(:), ATOL(:), YCUR(N), EWT(N)
+    real(dp_t) :: RTOL(:), ATOL(:)
+    real(dp_t), pointer :: YCUR(:), EWT(:)
 
     GO TO (10, 20, 30, 40), ITOL
 10  CONTINUE
@@ -178,9 +179,10 @@ contains
     !           IER = 0  if no trouble occurred, or
     !           IER = -1 if TOUT and T0 are considered too close to proceed.
     ! -----------------------------------------------------------------------
-    real(dp_t) :: T0, Y0(:), YDOT(:), RPAR(:), TOUT, UROUND
-    real(dp_t) :: EWT(:), ATOL(:), Y(:), TEMP(:), H0
+    real(dp_t) :: T0, RPAR(:), TOUT, UROUND
+    real(dp_t) :: ATOL(:), Y(:), H0
     integer    :: N, IPAR(:), ITOL, NITER, IER
+    real(dp_t), pointer :: Y0(:), YDOT(:), EWT(:), TEMP(:)
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
@@ -193,7 +195,8 @@ contains
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
     end interface
     
@@ -308,7 +311,8 @@ contains
     !
     
     type(dvode_t) :: dvode_state
-    real(dp_t) :: T, YH(LDYH, dvode_state % LMAX), DKY(:)
+    real(dp_t) :: T, DKY(:)
+    real(dp_t), pointer :: YH(:,:)
     integer    :: K, LDYH, IFLAG
 
 
@@ -369,19 +373,16 @@ contains
   
   subroutine dvode(F, NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, JAC, MF, &
-       RPAR, IPAR)
+       RPAR, IPAR, dvode_state)
     
-!    use rpar_indices, only: n_rpar_comps, n_ipar_comps
-
-!    external F, JAC
-
+    type(dvode_t), intent(inout) :: dvode_state
+    
     integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
     integer    :: IWORK(LIW)
-!    integer    :: IPAR(n_ipar_comps)
     integer    :: IPAR(:)    
     real(dp_t) :: T, TOUT
-    real(dp_t) :: Y(NEQ), RTOL(NEQ), ATOL(NEQ), RWORK(LRW)
-!    real(dp_t) :: RPAR(n_rpar_comps)
+    real(dp_t) :: Y(NEQ), RTOL(NEQ), ATOL(NEQ)
+    real(dp_t), target :: RWORK(LRW)
     real(dp_t) :: RPAR(:)
 
     logical    :: IHIT
@@ -393,8 +394,9 @@ contains
     integer, dimension(2) :: MORD = [12, 5]
     character (len=80) :: MSG
 
-    type(dvode_t) :: dvode_state
-
+    ! RWORK pointer declarations
+    real(dp_t), pointer :: pYH(:,:), pLF0(:), pYH1(:), pWM(:), pEWT(:), pSAVF(:), pACOR(:)
+    
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
@@ -406,7 +408,8 @@ contains
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
@@ -558,7 +561,7 @@ contains
     !  and the calculation of the initial step size.
     !  The error weights in EWT are inverted after being loaded.
     ! -----------------------------------------------------------------------
-       
+        
 100 dvode_state % UROUND = DUMACH()
     dvode_state % TN = T
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
@@ -582,16 +585,28 @@ contains
     NSLAST = 0
     dvode_state % HU = ZERO
     dvode_state % NQU = 0
+
+    ! Assign RWORK pointers
+    pYH(1:dvode_state % NYH, 1:dvode_state % LMAX) => RWORK(dvode_state % LYH:dvode_state % LWM - 1)
+    pLF0  => pYH(:,2)
+    !    pYH1  => RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1)
+    ! Include WM in the bounds of YH1 so the matrix multiply following DVSTEP line 200 works
+    pYH1  => RWORK(dvode_state % LYH:dvode_state % LEWT - 1)
+    pWM   => RWORK(dvode_state % LWM:dvode_state % LEWT - 1)
+    pEWT  => RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1)
+    pSAVF => RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1)
+    pACOR => RWORK(dvode_state % LACOR:dvode_state % LACOR + NEQ - 1)
+    
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
     LF0 = dvode_state % LYH + dvode_state % NYH
-    CALL F (dvode_state % N, T, Y, RWORK(LF0), RPAR, IPAR)
+    CALL F (dvode_state % N, T, Y, pLF0, RPAR, IPAR)
     dvode_state % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
     CALL DCOPY (dvode_state % N, Y, 1, RWORK(dvode_state % LYH), 1)
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     dvode_state % NQ = 1
     dvode_state % H = ONE
-    CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, RWORK(dvode_state % LYH), RWORK(dvode_state % LEWT))
+    CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, pYH1, pEWT)
     do I = 1,dvode_state % N
        IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 621
        RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
@@ -599,12 +614,12 @@ contains
     IF (H0 .NE. ZERO) GO TO 180
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
     CALL DVHIN (dvode_state % N, T, &
-         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), &
-         RWORK(LF0:LF0 + dvode_state % N - 1), F, RPAR, IPAR, TOUT, &
+         pYH1, &
+         pLF0, F, RPAR, IPAR, TOUT, &
          dvode_state % UROUND, &
-         RWORK(dvode_state % LEWT:dvode_state % LEWT + dvode_state % N - 1), &
+         pEWT, &
          ITOL, ATOL, Y, &
-         RWORK(dvode_state % LACOR:dvode_state % LACOR + dvode_state % N - 1), &
+         pACOR, &
          H0, NITER, IER)
     dvode_state % NFE = dvode_state % NFE + NITER
     IF (IER .NE. 0) GO TO 622
@@ -621,12 +636,24 @@ contains
     !  The next code block is for continuation calls only (ISTATE = 2 or 3)
     !  and is to check stop conditions before taking a step.
     ! -----------------------------------------------------------------------
-    
+        
 200 NSLAST = dvode_state % NST
     dvode_state % KUTH = 0
+
+    ! Assign RWORK pointers
+    pYH(1:dvode_state % NYH, 1:dvode_state % LMAX) => RWORK(dvode_state % LYH:dvode_state % LWM - 1)
+    pLF0  => pYH(:,2)
+    !    pYH1  => RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1)
+    ! Include WM in the bounds of YH1 so the matrix multiply following DVSTEP line 200 works
+    pYH1  => RWORK(dvode_state % LYH:dvode_state % LEWT - 1)
+    pWM   => RWORK(dvode_state % LWM:dvode_state % LEWT - 1)
+    pEWT  => RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1)
+    pSAVF => RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1)
+    pACOR => RWORK(dvode_state % LACOR:dvode_state % LACOR + NEQ - 1)
+    
     GO TO (210, 250, 220, 230, 240), ITASK
 210 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
+    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
@@ -638,7 +665,7 @@ contains
     IF ((dvode_state % TN - TCRIT) * dvode_state % H .GT. ZERO) GO TO 624
     IF ((TCRIT - TOUT) * dvode_state % H .LT. ZERO) GO TO 625
     IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 245
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
+    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
@@ -663,10 +690,10 @@ contains
     !  start of problem), check for too much accuracy being requested, and
     !  check for H below the roundoff level in T.
     ! -----------------------------------------------------------------------
-    
+
 250 CONTINUE
     IF ((dvode_state % NST-NSLAST) .GE. dvode_state % MXSTEP) GO TO 500
-    CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, RWORK(dvode_state % LYH), RWORK(dvode_state % LEWT))
+    CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, pYH1, pEWT)
     do I = 1,dvode_state % N
        IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 510
        RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
@@ -697,20 +724,7 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
 
-    !call print_state(dvode_state)
-    write(*,*) 'Shape of RWORK = ', shape(RWORK)
-    write(*,*) 'NEQ = ', NEQ
-    write(*,*) 'Shape of SAVF = ', shape(RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1))
-    write(*,*) 'Shape of WM = ', shape(RWORK(dvode_state % LWM:dvode_state % LEWT - 1))
-    CALL DVSTEP(Y, &
-         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % NYH * dvode_state % LMAX - 1), &
-         dvode_state % NYH, &
-         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % NYH * dvode_state % LMAX - 1), &
-         RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1), &
-         RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1), &
-         Y, &
-         RWORK(dvode_state % LACOR:dvode_state % LACOR + NEQ - 1), &
-         RWORK(dvode_state % LWM:dvode_state % LEWT - 1), &
+    CALL DVSTEP(Y, pYH, dvode_state % NYH, pYH1, pEWT, pSAVF, Y, pACOR, pWM, &
          IWORK, F, JAC, F, DVNLSD, RPAR, IPAR, dvode_state)
     KGO = 1 - dvode_state % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
@@ -728,7 +742,7 @@ contains
     GO TO (310, 400, 330, 340, 350), ITASK
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
 310 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
+    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
     T = TOUT
     GO TO 420
     ! ITASK = 3.  Jump to exit if TOUT was reached. ------------------------
@@ -736,7 +750,7 @@ contains
     GO TO 250
     ! ITASK = 4.  See if TOUT or TCRIT was reached.  Adjust H if necessary.
 340 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 345
-    CALL DVINDY (TOUT, 0, RWORK(dvode_state % LYH), dvode_state % NYH, Y, IFLAG, dvode_state)
+    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
     T = TOUT
     GO TO 420
 345 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
@@ -1121,11 +1135,12 @@ contains
     ! 
 
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), EWT(:), FTEM(:)
-    real(dp_t) :: SAVF(:), WM(:), RPAR(:)
+    real(dp_t) :: Y(:)
+    real(dp_t) :: RPAR(:)
     integer    :: LDYH, IWM(:), IERPJ, IPAR(:)
+    real(dp_t), pointer :: EWT(:), FTEM(:), YH(:,:), SAVF(:), WM(:)
 
-
+    real(dp_t), pointer :: WM3(:)
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
@@ -1138,7 +1153,8 @@ contains
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
@@ -1148,9 +1164,6 @@ contains
        END SUBROUTINE JAC
     end interface
 
-    !D
-    write(*,*) '(DVJAC) Shape of WM = ', shape(WM)
-    
     IERPJ = 0
     HRL1 = dvode_state % H*dvode_state % RL1
     ! See whether J should be evaluated (JOK = -1) or not (JOK = 1). -------
@@ -1235,8 +1248,9 @@ contains
        do I = 1,dvode_state % N
           Y(I) = Y(I) + R*(dvode_state % H*SAVF(I) - YH(I,2))
        end do
+       WM3 => WM(3:3 + dvode_state % N - 1)
        CALL F (dvode_state % N, dvode_state % TN, Y, &
-            WM(3:3 + dvode_state % N - 1), RPAR, IPAR)
+            WM3, RPAR, IPAR)
        dvode_state % NFE = dvode_state % NFE + 1
        do I = 1,dvode_state % N
           R0 = dvode_state % H*SAVF(I) - YH(I,2)
@@ -1406,12 +1420,13 @@ contains
     !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
     !
-    EXTERNAL PDUM
+
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX)
-    real(dp_t) :: VSAV(:), SAVF(dvode_state % NEQ)
-    real(dp_t) :: EWT(:), ACOR(:), WM(:), RPAR(:)
+    real(dp_t) :: Y(dvode_state % N)
+    real(dp_t) :: VSAV(:)
+    real(dp_t) :: RPAR(:)
     integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
+    real(dp_t), pointer :: YH(:,:), SAVF(:), EWT(:), ACOR(:), WM(:)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
@@ -1425,10 +1440,14 @@ contains
 
     ! Subroutine interfaces
     interface
+       subroutine PDUM
+       end subroutine PDUM
+       
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
@@ -1468,14 +1487,7 @@ contains
     ! -----------------------------------------------------------------------
 220 M = 0
     DELP = ZERO
-    CALL DCOPY (dvode_state % N, YH(1:LDYH, 1:dvode_state % LMAX), &
-         1, Y(1:dvode_state % N), 1)
-    !D
-    !call print_state(dvode_state)
-    write(*,*) 'savf: ', shape(SAVF)
-    write(*,*) 'y: ', shape(Y)
-    write(*,*) 'rp: ', shape(RPAR)
-    write(*,*) 'ip: ', shape(IPAR)
+    CALL DCOPY (dvode_state % N, YH(1,1), 1, Y, 1)
     CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
     dvode_state % NFE = dvode_state % NFE + 1
     IF (dvode_state % IPUP .LE. 0) GO TO 250
@@ -1484,8 +1496,6 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    !D
-    write(*,*) '(DVNLSD) Shape of WM = ', shape(WM)
     CALL DVJAC (Y, YH, LDYH, EWT, ACOR, SAVF, WM, IWM, F, JAC, IERPJ, &
          RPAR, IPAR, dvode_state)
     dvode_state % IPUP = 0
@@ -1955,13 +1965,13 @@ contains
     !           whose real name is dependent on the method used.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
-    EXTERNAL PSOL, VNLS
+    EXTERNAL PSOL
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX)
-    real(dp_t) :: YH1(:), EWT(:), SAVF(:)
-    real(dp_t) :: VSAV(:), ACOR(:), WM(:), RPAR(:)
+    real(dp_t) :: Y(dvode_state % N)
+    real(dp_t) :: VSAV(:), RPAR(:)
     integer    :: LDYH, IWM(:), IPAR(:)
-      
+    real(dp_t), pointer :: YH(:,:), EWT(:), YH1(:), SAVF(:), WM(:), ACOR(:)
+    
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer    :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
@@ -1985,10 +1995,40 @@ contains
 
     ! Subroutine interfaces
     interface
+       subroutine VNLS(Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
+            F, JAC, PDUM, NFLAG, RPAR, IPAR, dvode_state)
+         use bl_types, only: dp_t
+         use dvode_type_module, only: dvode_t
+         type(dvode_t) :: dvode_state
+         real(dp_t) :: Y(dvode_state % N)
+         real(dp_t) :: VSAV(:)
+         real(dp_t) :: RPAR(:)
+         integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
+         real(dp_t), pointer :: YH(:,:), SAVF(:), EWT(:), ACOR(:), WM(:)
+         interface
+            subroutine PDUM
+            end subroutine PDUM
+            
+            SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
+              use bl_types, only: dp_t
+              integer    :: NEQ, IPAR(:)
+              real(dp_t) :: RPAR(:), T, Y(NEQ)
+              real(dp_t), pointer :: YDOT(:)
+            END SUBROUTINE F
+
+            SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
+              use bl_types, only: dp_t
+              integer    :: NRPD, NEQ, ML, MU, IPAR(:)
+              real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+            END SUBROUTINE JAC
+         end interface
+       end subroutine VNLS
+       
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
@@ -1997,12 +2037,6 @@ contains
          real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
        END SUBROUTINE JAC
     end interface
-    
-    !D 
-    write(*,*) 'YH shape = ', shape(YH)
-    write(*,*) 'YH1 shape = ', shape(YH1)
-    write(*,*) 'SAVF shape = ', shape(SAVF)
-    write(*,*) '(DVSTEP) WM shape = ', shape(WM)
     
     ETAQ   = ONE
     ETAQM1 = ONE
@@ -2274,7 +2308,7 @@ contains
     ETAQM1 = ZERO
     IF (dvode_state % NQ .EQ. 1) GO TO 570
     ! Compute ratio of new H to current H at the current order less one. ---
-    DDN = DVNORM (dvode_state % N, YH(1,dvode_state % L), EWT)/dvode_state % TQ(1)
+    DDN = DVNORM (dvode_state % N, YH(1:dvode_state % N,dvode_state % L), EWT)/dvode_state % TQ(1)
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 ETAQP1 = ZERO
     IF (dvode_state % L .EQ. dvode_state % LMAX) GO TO 580
