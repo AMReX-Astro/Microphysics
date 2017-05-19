@@ -17,6 +17,7 @@ module dvode_type_module
      integer    :: N, NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP, NYH
      integer    :: LYH, LEWT, LACOR, LSAVF, LWM
+     integer    :: NEQ
   end type dvode_t
 
 contains
@@ -114,6 +115,7 @@ contains
     write(*,*) 'LACOR = ', dvode_state % LACOR
     write(*,*) 'LSAVF = ', dvode_state % LSAVF
     write(*,*) 'LWM = ', dvode_state % LWM
+    write(*,*) 'NEQ = ', dvode_state % NEQ
   end subroutine print_state
   
 end module dvode_type_module

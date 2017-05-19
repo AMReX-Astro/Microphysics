@@ -2,8 +2,9 @@ program tvode
 
   use bl_types, only: dp_t
   use dvode_module, only: dvode
+  use tvode_rhs_module, only: FEX, JEX
   
-  IMPLICIT NONE
+  implicit none
 
   !  The following output was obtained from this program on a
   !  Cray-1 computer with the CFT compiler.
@@ -26,11 +27,14 @@ program tvode
   !   No. nonlinear convergence failures =   0
   !   No. error test failures =  22
   
-  EXTERNAL FEX, JEX
   real(dp_t) :: RPAR(1), RTOL(1), T, TOUT
   real(dp_t) :: Y(3), ATOL(3), RWORK(67)
   integer    :: IWORK(33), NEQ, ITOL, ITASK, ISTATE, IOPT
   integer    :: LRW, LIW, MF, IOUT, IPAR(1)
+  RPAR = 0.0d0
+  IPAR = 0
+  RWORK = 0.0d0
+  IWORK = 0
   NEQ = 3
   Y(1) = 1.0D0
   Y(2) = 0.0D0
@@ -69,29 +73,3 @@ program tvode
   STOP
 end program tvode
  
-SUBROUTINE FEX (NEQ, T, Y, YDOT, RPAR, IPAR)
-  use bl_types, only: dp_t
-
-  integer    :: NEQ, IPAR(:)
-  real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
-  
-  YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
-  YDOT(3) = 3.D7*Y(2)*Y(2)
-  YDOT(2) = -YDOT(1) - YDOT(3)
-  RETURN
-END SUBROUTINE FEX
-
-SUBROUTINE JEX (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
-  use bl_types, only: dp_t
-  
-  real(dp_t) :: PD(NRPD,NEQ), RPAR, T, Y(NEQ)
-  
-  PD(1,1) = -.04D0
-  PD(1,2) = 1.D4*Y(3)
-  PD(1,3) = 1.D4*Y(2)
-  PD(2,1) = .04D0
-  PD(2,3) = -PD(1,3)
-  PD(3,2) = 6.D7*Y(2)
-  PD(2,2) = -PD(1,2) - PD(3,2)
-  RETURN
-END SUBROUTINE JEX

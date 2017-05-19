@@ -25,6 +25,7 @@ ALL:
 
 include $(MICROPHYSICS_HOME)/GMicrophysics.mak
 include ../GPackage.mak
+include GPackage.mak
 
 ALL: $(pnames)
 

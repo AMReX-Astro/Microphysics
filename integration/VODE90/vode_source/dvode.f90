@@ -178,7 +178,6 @@ contains
     !           IER = 0  if no trouble occurred, or
     !           IER = -1 if TOUT and T0 are considered too close to proceed.
     ! -----------------------------------------------------------------------
-    EXTERNAL F
     real(dp_t) :: T0, Y0(:), YDOT(:), RPAR(:), TOUT, UROUND
     real(dp_t) :: EWT(:), ATOL(:), Y(:), TEMP(:), H0
     integer    :: N, IPAR(:), ITOL, NITER, IER
@@ -189,6 +188,15 @@ contains
 
     real(dp_t), parameter :: PT1 = 0.1D0
 
+    ! Subroutine interfaces
+    interface
+       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NEQ, IPAR(:)
+         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+       END SUBROUTINE F
+    end interface
+    
     NITER = 0
     TDIST = ABS(TOUT - T0)
     TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
@@ -365,7 +373,7 @@ contains
     
 !    use rpar_indices, only: n_rpar_comps, n_ipar_comps
 
-    external F, JAC
+!    external F, JAC
 
     integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
     integer    :: IWORK(LIW)
@@ -392,7 +400,22 @@ contains
     integer, parameter :: MXHNL0 = 10
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
-    
+
+    ! Subroutine interfaces
+    interface
+       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NEQ, IPAR(:)
+         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+       END SUBROUTINE F
+       
+       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+       END SUBROUTINE JAC
+    end interface
+        
     ! -----------------------------------------------------------------------
     !  Block A.
     !  This code block is executed on every call.
@@ -500,6 +523,7 @@ contains
     dvode_state % LEWT = dvode_state % LWM + LENWM
     dvode_state % LSAVF = dvode_state % LEWT + dvode_state % N
     dvode_state % LACOR = dvode_state % LSAVF + dvode_state % N
+    dvode_state % NEQ = NEQ
     LENRW = dvode_state % LACOR + dvode_state % N - 1
     IWORK(17) = LENRW
     dvode_state % LIWM = 1
@@ -673,9 +697,14 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
 
-    call print_state(dvode_state)
-    
-    CALL DVSTEP(Y, RWORK(dvode_state % LYH), dvode_state % NYH, &
+    !call print_state(dvode_state)
+    write(*,*) 'Shape of RWORK = ', shape(RWORK)
+    write(*,*) 'NEQ = ', NEQ
+    write(*,*) 'Shape of SAVF = ', shape(RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1))
+    write(*,*) 'Shape of WM = ', shape(RWORK(dvode_state % LWM:dvode_state % LEWT - 1))
+    CALL DVSTEP(Y, &
+         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % NYH * dvode_state % LMAX - 1), &
+         dvode_state % NYH, &
          RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % NYH * dvode_state % LMAX - 1), &
          RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1), &
          RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1), &
@@ -1091,7 +1120,6 @@ contains
     ! -----------------------------------------------------------------------
     ! 
 
-    EXTERNAL F, JAC
     type(dvode_t) :: dvode_state
     real(dp_t) :: Y(:), YH(LDYH, dvode_state % LMAX), EWT(:), FTEM(:)
     real(dp_t) :: SAVF(:), WM(:), RPAR(:)
@@ -1105,6 +1133,24 @@ contains
     ! Parameter declarations
     real(dp_t), parameter :: PT1 = 0.1D0
 
+    ! Subroutine interfaces
+    interface
+       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NEQ, IPAR(:)
+         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+       END SUBROUTINE F
+       
+       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+       END SUBROUTINE JAC
+    end interface
+
+    !D
+    write(*,*) '(DVJAC) Shape of WM = ', shape(WM)
+    
     IERPJ = 0
     HRL1 = dvode_state % H*dvode_state % RL1
     ! See whether J should be evaluated (JOK = -1) or not (JOK = 1). -------
@@ -1125,7 +1171,8 @@ contains
        do I = 1,LENP
           WM(I+2) = ZERO
        end do
-       CALL JAC (dvode_state % N, dvode_state % TN, Y, 0, 0, WM(3), dvode_state % N, RPAR, IPAR)
+       CALL JAC (dvode_state % N, dvode_state % TN, Y, 0, 0, &
+            WM(3:3 + dvode_state % N**2 - 1), dvode_state % N, RPAR, IPAR)
        IF (dvode_state % JSV .EQ. 1) CALL DCOPY (LENP, WM(3), 1, WM(dvode_state % LOCJS), 1)
     ENDIF
 
@@ -1188,7 +1235,8 @@ contains
        do I = 1,dvode_state % N
           Y(I) = Y(I) + R*(dvode_state % H*SAVF(I) - YH(I,2))
        end do
-       CALL F (dvode_state % N, dvode_state % TN, Y, WM(3), RPAR, IPAR)
+       CALL F (dvode_state % N, dvode_state % TN, Y, &
+            WM(3:3 + dvode_state % N - 1), RPAR, IPAR)
        dvode_state % NFE = dvode_state % NFE + 1
        do I = 1,dvode_state % N
           R0 = dvode_state % H*SAVF(I) - YH(I,2)
@@ -1220,7 +1268,8 @@ contains
        do I = 1,LENP
           WM(I+2) = ZERO
        end do
-       CALL JAC (dvode_state % N, dvode_state % TN, Y, ML, MU, WM(ML3), MEBAND, RPAR, IPAR)
+       CALL JAC (dvode_state % N, dvode_state % TN, Y, ML, MU, &
+            WM(ML3:ML3 + MEBAND * dvode_state % N - 1), MEBAND, RPAR, IPAR)
        if (dvode_state % JSV .EQ. 1) then
           CALL DACOPY(MBAND, dvode_state % N, &
                WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
@@ -1357,9 +1406,10 @@ contains
     !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
     !
-    EXTERNAL F, JAC, PDUM
+    EXTERNAL PDUM
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX), VSAV(:), SAVF(:)
+    real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX)
+    real(dp_t) :: VSAV(:), SAVF(dvode_state % NEQ)
     real(dp_t) :: EWT(:), ACOR(:), WM(:), RPAR(:)
     integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
     
@@ -1373,6 +1423,21 @@ contains
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
 
+    ! Subroutine interfaces
+    interface
+       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NEQ, IPAR(:)
+         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+       END SUBROUTINE F
+       
+       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+       END SUBROUTINE JAC
+    end interface
+    
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a
     !  nonlinear convergence failure with NFLAG = -2, set IPUP = MITER
@@ -1405,6 +1470,12 @@ contains
     DELP = ZERO
     CALL DCOPY (dvode_state % N, YH(1:LDYH, 1:dvode_state % LMAX), &
          1, Y(1:dvode_state % N), 1)
+    !D
+    !call print_state(dvode_state)
+    write(*,*) 'savf: ', shape(SAVF)
+    write(*,*) 'y: ', shape(Y)
+    write(*,*) 'rp: ', shape(RPAR)
+    write(*,*) 'ip: ', shape(IPAR)
     CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
     dvode_state % NFE = dvode_state % NFE + 1
     IF (dvode_state % IPUP .LE. 0) GO TO 250
@@ -1413,6 +1484,8 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
+    !D
+    write(*,*) '(DVNLSD) Shape of WM = ', shape(WM)
     CALL DVJAC (Y, YH, LDYH, EWT, ACOR, SAVF, WM, IWM, F, JAC, IERPJ, &
          RPAR, IPAR, dvode_state)
     dvode_state % IPUP = 0
@@ -1882,7 +1955,7 @@ contains
     !           whose real name is dependent on the method used.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
-    EXTERNAL F, JAC, PSOL, VNLS
+    EXTERNAL PSOL, VNLS
     type(dvode_t) :: dvode_state
     real(dp_t) :: Y(dvode_state % N), YH(LDYH, dvode_state % LMAX)
     real(dp_t) :: YH1(:), EWT(:), SAVF(:)
@@ -1910,6 +1983,27 @@ contains
     real(dp_t), parameter :: ONEPSM = 1.00001D0
     real(dp_t), parameter :: THRESH = 1.5D0
 
+    ! Subroutine interfaces
+    interface
+       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NEQ, IPAR(:)
+         real(dp_t) :: RPAR(:), T, Y(NEQ), YDOT(NEQ)
+       END SUBROUTINE F
+       
+       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
+         use bl_types, only: dp_t
+         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+       END SUBROUTINE JAC
+    end interface
+    
+    !D 
+    write(*,*) 'YH shape = ', shape(YH)
+    write(*,*) 'YH1 shape = ', shape(YH1)
+    write(*,*) 'SAVF shape = ', shape(SAVF)
+    write(*,*) '(DVSTEP) WM shape = ', shape(WM)
+    
     ETAQ   = ONE
     ETAQM1 = ONE
 
@@ -2043,7 +2137,7 @@ contains
     dvode_state % PRL1 = dvode_state % RL1
     ! 
     !  Call the nonlinear system solver. ------------------------------------
-    ! 
+    !
     CALL VNLS (Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
          F, JAC, PSOL, NFLAG, RPAR, IPAR, dvode_state)
 
