@@ -10,11 +10,11 @@ subroutine write_job_info(dirname, mba)
   use runtime_init_module, only: runtime_pretty_print
   use bl_system_module, only: BL_CWD_SIZE, get_cwd 
   use ml_boxarray_module
-  use build_info_module, only: build_date, build_dir, build_machine, boxlib_dir, &
+  use build_info_module, only: build_date, build_dir, build_machine, amrex_dir, &
                                NUM_MODULES, modules, FCOMP, FCOMP_version, &
                                f90_compile_line, f_compile_line, &
                                C_compile_line, link_line, &
-                               source_git_hash, boxlib_git_hash, &
+                               source_git_hash, amrex_git_hash, &
                                extra_git_hash, extra_git_hash2, &
                                different_build_tree, build_git_hash, &
                                eos_dir, network_dir, integrator_dir
@@ -76,10 +76,10 @@ subroutine write_job_info(dirname, mba)
      write (99,1001) "build date:    ", trim(build_date)
      write (99,1001) "build machine: ", trim(build_machine)
      write (99,1001) "build dir:     ", trim(build_dir)
-     write (99,1001) "BoxLib dir:    ", trim(boxlib_dir)
+     write (99,1001) "AMReX dir:     ", trim(amrex_dir)
      write (99,*) " "
      write (99,1001) "Microphysics git hash: ", trim(source_git_hash)
-     write (99,1001) "BoxLib       git hash: ", trim(boxlib_git_hash)
+     write (99,1001) "AMReX        git hash: ", trim(amrex_git_hash)
      if (different_build_tree) then
         write (99,1001) "build tree git hash: ", trim(build_git_hash)     
      endif
