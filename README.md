@@ -1,10 +1,6 @@
 # Microphysics
 
-*A collection of astrophysical microphysics routines with interfaces to
- the BoxLib codes*
-
-To use this repository with BoxLib codes, set `MICROPHYSICS_HOME` to point
-to the `Microphysics/` directory.
+*A collection of astrophysical microphysics routines for stellar explosions*
 
 There are several core types of microphysics routines hosted here:
 
@@ -49,12 +45,31 @@ There are several core types of microphysics routines hosted here:
   (including BLAS and LINPACK)
 
 
-These routines are written to be compatible with:
+# AMReX-Astro Codes
 
-* Castro: http://boxlib-codes.github.io/Castro/
+At the moment, these routines are written to be compatible with
+the AMReX-Astro codes, Maestro and Castro.
 
-* Maestro: http://boxlib-codes.github.io/MAESTRO/
+* Castro: http://amrex-astro.github.io/Castro/
 
+* Maestro: http://amrex-astro.github.io/MAESTRO/
+
+To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
+point to the `Microphysics/` directory.
+
+There are various unit tests that work with the AMReX build system to
+test these routines.
+
+
+# Other Simulation Codes
+
+The interfaces are fairly general, so they can be expanded to other
+codes.  This will require adding any necessary make stubs for the
+code's build system as well as writing unit tests for that build
+system to ensure the interfaces are tested.
+
+
+# Documentation
 
 A user's guide for Microphysics can be found in `Docs/`.  Type `make`
 to build it from its LaTeX source.
