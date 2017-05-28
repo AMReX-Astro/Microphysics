@@ -4,6 +4,8 @@
 module actual_integrator_module
 
   use eos_module
+  use eos_type_module
+  use bl_constants_module
   use network
   use rpar_indices
   use vode_type_module
