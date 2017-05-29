@@ -21,7 +21,7 @@
     integer,    intent(IN   ) :: neq, ipar
     real(dp_t), intent(INOUT) :: time, y(neq)
     real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
-    real(dp_t), intent(  OUT) :: ydot(neq)
+    real(dp_t), intent(INOUT), pointer :: ydot(:)
 
     type (burn_t) :: burn_state
 

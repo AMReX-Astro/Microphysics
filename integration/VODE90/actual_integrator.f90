@@ -94,7 +94,7 @@ contains
 
     real(dp_t) :: y(neqs)
     real(dp_t) :: atol(neqs), rtol(neqs)
-    real(dp_t) :: rwork(LRW)
+    real(dp_t), target :: rwork(LRW)
     integer    :: iwork(LIW)
     real(dp_t) :: rpar(n_rpar_comps)
 

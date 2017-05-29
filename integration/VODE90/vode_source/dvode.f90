@@ -100,6 +100,7 @@ contains
     end do
     RETURN
 40  CONTINUE
+
     do I = 1,N
        EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(I)
     end do
@@ -199,7 +200,7 @@ contains
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
     end interface
-    
+
     NITER = 0
     TDIST = ABS(TOUT - T0)
     TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
@@ -210,6 +211,7 @@ contains
     ! Set an upper bound on h based on TOUT-T0 and the initial Y and YDOT. -
     HUB = PT1*TDIST
     ATOLI = ATOL(1)
+    
     do I = 1, N
        IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
        DELYI = PT1*ABS(Y0(I)) + ATOLI
@@ -382,7 +384,7 @@ contains
     integer    :: IPAR(:)    
     real(dp_t) :: T, TOUT
     real(dp_t) :: Y(NEQ), RTOL(NEQ), ATOL(NEQ)
-    real(dp_t), target :: RWORK(LRW)
+    real(dp_t), target :: RWORK(:)
     real(dp_t) :: RPAR(:)
 
     logical    :: IHIT
@@ -612,6 +614,7 @@ contains
        RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
     end do
     IF (H0 .NE. ZERO) GO TO 180
+
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
     CALL DVHIN (dvode_state % N, T, &
          pYH1, &
@@ -698,7 +701,7 @@ contains
        IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 510
        RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
     end do
-270 TOLSF = dvode_state % UROUND * DVNORM (dvode_state % N, RWORK(dvode_state % LYH), RWORK(dvode_state % LEWT))
+270 TOLSF = dvode_state % UROUND * DVNORM (dvode_state % N, pYH1(1:dvode_state % N), pEWT)
     IF (TOLSF .LE. ONE) GO TO 280
     TOLSF = TOLSF*TWO
     IF (dvode_state % NST .EQ. 0) GO TO 626
