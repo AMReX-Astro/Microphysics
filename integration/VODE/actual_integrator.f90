@@ -3,9 +3,8 @@
 
 module actual_integrator_module
 
-  use eos_module
-  use eos_type_module
-  use bl_constants_module
+  use eos_module, only : eos
+  use eos_type_module, only: eos_t, eos_input_rt
   use network
   use rpar_indices
   use vode_type_module
@@ -75,6 +74,7 @@ contains
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
     use actual_rhs_module, only : update_unevolved_species
+    use bl_constants_module, only : ZERO, ONE
 
     implicit none
 

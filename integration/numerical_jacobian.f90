@@ -118,8 +118,8 @@ contains
     ! compare the analytic Jacobian to the numerically differenced one
 
     use actual_rhs_module
-    use eos_module, only: eos
-    use eos_type_module, only: eos_t, eos_input_rt, normalize_abundances
+    use eos_module, only : eos
+    use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
 
     type (burn_t) :: state
     type (burn_t) :: state_num
