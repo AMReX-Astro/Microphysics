@@ -45,7 +45,7 @@ contains
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: net_itemp
-    use eos_module, only : eos_get_small_temp
+    use eos_type_module, only : eos_get_small_temp
 
     implicit none
 
@@ -102,8 +102,8 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ZERO
-    use eos_type_module, only: eos_t, composition
-    use eos_module, only: eos_input_rt, eos
+    use eos_type_module, only: eos_t, eos_input_rt, composition
+    use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed
     use rpar_indices, only: irp_nspec, n_not_evolved
