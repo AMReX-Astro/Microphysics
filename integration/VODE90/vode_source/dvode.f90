@@ -2,6 +2,7 @@ module dvode_module
 
   use dvode_type_module, only: dvode_t, print_state
   use dvode_output_module, only: xerrwd
+  use rpar_indices
   use bl_types, only: dp_t
   
   implicit none
@@ -55,7 +56,7 @@ contains
     real(dp_t) :: U, dum
     dum = EPSILON(U)
   end function dumach
-  
+
   subroutine dewset(N, ITOL, RTOL, ATOL, YCUR, EWT)
     ! ***BEGIN PROLOGUE  DEWSET
     ! ***SUBSIDIARY
@@ -195,12 +196,13 @@ contains
     interface
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps
+         integer    :: NEQ, IPAR(n_ipar_comps)
+         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
     end interface
-
+    
     NITER = 0
     TDIST = ABS(TOUT - T0)
     TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
@@ -409,18 +411,20 @@ contains
     interface
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps
+         integer    :: NEQ, IPAR(n_ipar_comps)
+         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
-         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
+         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(n_rpar_comps), T, Y(NEQ)
        END SUBROUTINE JAC
     end interface
-        
+    
     ! -----------------------------------------------------------------------
     !  Block A.
     !  This code block is executed on every call.
@@ -551,7 +555,9 @@ contains
     dvode_state % JSTART = -1
     IF (dvode_state % NQ .LE. dvode_state % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    CALL DCOPY (dvode_state % N, RWORK(dvode_state % LWM), 1, RWORK(dvode_state % LSAVF), 1)
+    CALL DCOPY (dvode_state % N, &
+         RWORK(dvode_state % LWM:dvode_state % LWM + dvode_state % N - 1), 1, &
+         RWORK(dvode_state % LSAVF:dvode_state % LSAVF + dvode_state % N - 1), 1)
     ! Reload WM(1) = RWORK(LWM), since LWM may have changed. ---------------
 90  IF (dvode_state % MITER .GT. 0) RWORK(dvode_state % LWM) = SQRT(dvode_state % UROUND)
     GO TO 200
@@ -601,10 +607,13 @@ contains
     
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
     LF0 = dvode_state % LYH + dvode_state % NYH
+    
     CALL F (dvode_state % N, T, Y, pLF0, RPAR, IPAR)
     dvode_state % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
-    CALL DCOPY (dvode_state % N, Y, 1, RWORK(dvode_state % LYH), 1)
+    CALL DCOPY (dvode_state % N, &
+         Y(1:dvode_state % N), 1, &
+         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), 1)
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     dvode_state % NQ = 1
     dvode_state % H = ONE
@@ -631,7 +640,8 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     dvode_state % H = H0
-    CALL DSCAL (dvode_state % N, H0, RWORK(LF0), 1)
+    CALL DSCAL (dvode_state % N, H0, &
+         RWORK(LF0:LF0 + dvode_state % N - 1), 1)
     GO TO 270
     
     ! -----------------------------------------------------------------------
@@ -777,7 +787,9 @@ contains
     ! -----------------------------------------------------------------------
     
 400 CONTINUE
-    CALL DCOPY (dvode_state % N, RWORK(dvode_state % LYH), 1, Y, 1)
+    CALL DCOPY (dvode_state % N, &
+         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), 1, &
+         Y, 1)
     T = dvode_state % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
     IF (IHIT) T = TCRIT
@@ -1155,15 +1167,17 @@ contains
     interface
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps
+         integer    :: NEQ, IPAR(n_ipar_comps)
+         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
-         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
+         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(n_rpar_comps), T, Y(NEQ)
        END SUBROUTINE JAC
     end interface
 
@@ -1448,18 +1462,20 @@ contains
        
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps
+         integer    :: NEQ, IPAR(n_ipar_comps)
+         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
-         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
+         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(n_rpar_comps), T, Y(NEQ)
        END SUBROUTINE JAC
     end interface
-    
+
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a
     !  nonlinear convergence failure with NFLAG = -2, set IPUP = MITER
@@ -1490,7 +1506,8 @@ contains
     ! -----------------------------------------------------------------------
 220 M = 0
     DELP = ZERO
-    CALL DCOPY (dvode_state % N, YH(1,1), 1, Y, 1)
+
+    CALL DCOPY (dvode_state % N, YH(:,1), 1, Y, 1)
     CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
     dvode_state % NFE = dvode_state % NFE + 1
     IF (dvode_state % IPUP .LE. 0) GO TO 250
@@ -1607,7 +1624,7 @@ contains
     ! -----------------------------------------------------------------------
     !
     type(dvode_t) :: dvode_state
-    real(dp_t) :: YH(LDYH, dvode_state % LMAX)
+    real(dp_t), pointer :: YH(:,:)
     integer    :: LDYH, IORD
 
     real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
@@ -2014,33 +2031,37 @@ contains
             
             SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
               use bl_types, only: dp_t
-              integer    :: NEQ, IPAR(:)
-              real(dp_t) :: RPAR(:), T, Y(NEQ)
+              use rpar_indices, only: n_rpar_comps, n_ipar_comps
+              integer    :: NEQ, IPAR(n_ipar_comps)
+              real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
               real(dp_t), pointer :: YDOT(:)
             END SUBROUTINE F
 
             SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
               use bl_types, only: dp_t
-              integer    :: NRPD, NEQ, ML, MU, IPAR(:)
-              real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+              use rpar_indices, only: n_rpar_comps, n_ipar_comps              
+              integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
+              real(dp_t) :: PD(NRPD,NEQ), RPAR(n_rpar_comps), T, Y(NEQ)
             END SUBROUTINE JAC
          end interface
        end subroutine VNLS
        
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NEQ, IPAR(:)
-         real(dp_t) :: RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps
+         integer    :: NEQ, IPAR(n_ipar_comps)
+         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
        
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
-         integer    :: NRPD, NEQ, ML, MU, IPAR(:)
-         real(dp_t) :: PD(NRPD,NEQ), RPAR(:), T, Y(NEQ)
+         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
+         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
+         real(dp_t) :: PD(NRPD,NEQ), RPAR(n_rpar_comps), T, Y(NEQ)
        END SUBROUTINE JAC
     end interface
-    
+
     ETAQ   = ONE
     ETAQM1 = ONE
 
@@ -2146,9 +2167,10 @@ contains
     IF (dvode_state % NEWQ .LE. dvode_state % MAXORD) GO TO 50
     ! Rescale the history array for a change in H by a factor of ETA. ------
 150 R = ONE
+
     do J = 2, dvode_state % L
        R = R * dvode_state % ETA
-       CALL DSCAL (dvode_state % N, R, YH(1,J), 1 )
+       CALL DSCAL (dvode_state % N, R, YH(1:dvode_state % N,J), 1 )
     end do
     dvode_state % H = dvode_state % HSCAL * dvode_state % ETA
     dvode_state % HSCAL = dvode_state % H
@@ -2175,6 +2197,7 @@ contains
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
+    
     CALL VNLS (Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
          F, JAC, PSOL, NFLAG, RPAR, IPAR, dvode_state)
 
