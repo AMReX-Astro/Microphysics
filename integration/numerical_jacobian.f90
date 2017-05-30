@@ -1,7 +1,7 @@
 module numerical_jac_module
 
   use bl_types
-  use bl_constants_module, only: ZERO
+  use bl_constants_module, only: ZERO, HALF, ONE
   use network
   use burn_type_module
 
@@ -13,7 +13,6 @@ contains
 
     !$acc routine seq
 
-    use eos_module
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only : centered_diff_jac
 
@@ -119,7 +118,8 @@ contains
     ! compare the analytic Jacobian to the numerically differenced one
 
     use actual_rhs_module
-    use eos_module
+    use eos_module, only : eos
+    use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
 
     type (burn_t) :: state
     type (burn_t) :: state_num
