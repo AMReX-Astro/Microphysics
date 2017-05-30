@@ -1,8 +1,12 @@
-#!/usr/bin/env python
 # C-burning rate module generator
 
-import pyreaclib
+from pyreaclib.networks import BoxLibNetwork
 
 files = ["c12-ag-o16-nac2"]
 
-pyreaclib.make_network(files, 'boxlib', use_cse=True)
+c_net = BoxLibNetwork(files, use_cse=True)
+c_net.write_network()
+
+
+
+

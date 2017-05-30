@@ -27,37 +27,37 @@ contains
     
     allocate( ctemp_rate(7, 2) )
     ! c12_ag_o16
-    ctemp_rate(:, 1) = (/  &
+    ctemp_rate(:, 1) = [  &
         6.96526000000000d+01, &
         -1.39254000000000d+00, &
         5.89128000000000d+01, &
         -1.48273000000000d+02, &
         9.08324000000000d+00, &
         -5.41041000000000d-01, &
-        7.03554000000000d+01 /)
+        7.03554000000000d+01 ]
 
-    ctemp_rate(:, 2) = (/  &
+    ctemp_rate(:, 2) = [  &
         2.54634000000000d+02, &
         -1.84097000000000d+00, &
         1.03411000000000d+02, &
         -4.20567000000000d+02, &
         6.40874000000000d+01, &
         -1.24624000000000d+01, &
-        1.37303000000000d+02 /)
+        1.37303000000000d+02 ]
 
 
 
     allocate( rate_start_idx(nrat_reaclib) )
-    rate_start_idx(:) = (/ &
-      1 /)
+    rate_start_idx(:) = [ &
+      1 ]
 
     allocate( rate_extra_mult(nrat_reaclib) )
-    rate_extra_mult(:) = (/ &
-      1 /)
+    rate_extra_mult(:) = [ &
+      1 ]
 
     allocate( do_screening(nrat_reaclib) )
-    do_screening(:) = (/ &
-      .true. /)
+    do_screening(:) = [ &
+      .true. ]
 
     !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
     

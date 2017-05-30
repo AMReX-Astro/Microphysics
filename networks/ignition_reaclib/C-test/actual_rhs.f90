@@ -56,7 +56,6 @@ contains
        rate_eval % unscreened_rates(:,i) = reactvec(1:4)
     end do
 
-    ! Included only if there are tabular rates
 
     ! Compute screened rates
     rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &
