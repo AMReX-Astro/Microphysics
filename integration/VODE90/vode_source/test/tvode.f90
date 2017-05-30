@@ -55,6 +55,7 @@ program tvode
   LIW = 33
   MF = 21
   do IOUT = 1,12
+     ISTATE = 1
      CALL DVODE(FEX,NEQ,Y,T,TOUT,ITOL,RTOL,ATOL,ITASK,ISTATE, &
           IOPT,RWORK,LRW,IWORK,LIW,JEX,MF,RPAR,IPAR, dvode_state)
      WRITE(6,20)T,Y(1),Y(2),Y(3)
