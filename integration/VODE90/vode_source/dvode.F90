@@ -21,6 +21,9 @@ module dvode_module
 contains
 
   function dumach() result(dum)
+
+    !$acc routine seq
+    
     ! ***BEGIN PROLOGUE  DUMACH
     ! ***PURPOSE  Compute the unit roundoff of the machine.
     ! ***CATEGORY  R1
@@ -58,6 +61,9 @@ contains
   end function dumach
 
   subroutine dewset(N, ITOL, RTOL, ATOL, YCUR, EWT)
+
+    !$acc routine seq
+    
     ! ***BEGIN PROLOGUE  DEWSET
     ! ***SUBSIDIARY
     ! ***PURPOSE  Set error weight vector.
@@ -109,6 +115,9 @@ contains
   end subroutine dewset
 
   function dvnorm(N, V, W) result(dvn)
+
+    !$acc routine seq
+    
     ! ***BEGIN PROLOGUE  DVNORM
     ! ***SUBSIDIARY
     ! ***PURPOSE  Weighted root-mean-square vector norm.
@@ -143,6 +152,9 @@ contains
   
   subroutine dvhin(N, T0, Y0, YDOT, F, RPAR, IPAR, TOUT, UROUND, &
        EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- N, T0, Y0, YDOT, F, RPAR, IPAR, TOUT, UROUND,
     !                         EWT, ITOL, ATOL, Y, TEMP
@@ -281,6 +293,9 @@ contains
   end subroutine dvhin
   
   subroutine dvindy(T, K, YH, LDYH, DKY, IFLAG, dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- T, K, YH, LDYH
     !  Call sequence output -- DKY, IFLAG
@@ -363,14 +378,20 @@ contains
     CALL DSCAL (dvode_state % N, R, DKY, 1)
     RETURN
 
-80  MSG = 'DVINDY-- K (=I1) illegal      '
+80  continue
+#ifndef ACC    
+    MSG = 'DVINDY-- K (=I1) illegal      '
     CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, ZERO, ZERO)
+#endif    
     IFLAG = -1
     RETURN
-90  MSG = 'DVINDY-- T (=R1) illegal      '
+90  continue
+#ifndef ACC    
+    MSG = 'DVINDY-- T (=R1) illegal      '
     CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, T, ZERO)
     MSG='      T not in interval TCUR - HU (= R1) to TCUR (=R2)      '
     CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, dvode_state % TN)
+#endif    
     IFLAG = -2
     RETURN
   end subroutine dvindy
@@ -378,6 +399,8 @@ contains
   subroutine dvode(F, NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, JAC, MF, &
        RPAR, IPAR, dvode_state)
+
+    !$acc routine seq
     
     type(dvode_t), intent(inout) :: dvode_state
     
@@ -719,17 +742,21 @@ contains
 280 IF ((dvode_state % TN + dvode_state % H) .NE. dvode_state % TN) GO TO 290
     dvode_state % NHNIL = dvode_state % NHNIL + 1
     IF (dvode_state % NHNIL .GT. dvode_state % MXHNIL) GO TO 290
+#ifndef ACC
     MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
     CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG='      such that in the machine, T + H = T on the next step  '
     CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      (H = step size). solver will continue anyway'
     CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
+#endif    
     IF (dvode_state % NHNIL .LT. dvode_state % MXHNIL) GO TO 290
+#ifndef ACC    
     MSG = 'DVODE--  Above warning has been issued I1 times.  '
     CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      it will not be issued again for this problem'
     CALL XERRWD (MSG, 50, 102, 1, 1, dvode_state % MXHNIL, 0, 0, ZERO, ZERO)
+#endif    
 290 CONTINUE
     
     ! -----------------------------------------------------------------------
@@ -819,40 +846,55 @@ contains
     ! -----------------------------------------------------------------------
     
     ! The maximum number of steps was taken before reaching TOUT. ----------
-500 MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
+500 continue
+#ifndef ACC    
+    MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
     CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      taken on this call before reaching TOUT     '
     CALL XERRWD (MSG, 50, 201, 1, 1, dvode_state % MXSTEP, 0, 1, dvode_state % TN, ZERO)
+#endif    
     ISTATE = -1
     GO TO 580
     ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
-510 EWTI = RWORK(dvode_state % LEWT+I-1)
+510 continue
+#ifndef ACC
+    EWTI = RWORK(dvode_state % LEWT+I-1)    
     MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
     CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, dvode_state % TN, EWTI)
+#endif    
     ISTATE = -6
     GO TO 580
     ! Too much accuracy requested for machine precision. -------------------
-520 MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
+520 continue
+#ifndef ACC    
+    MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      for precision of machine:   see TOLSF (=R2) '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, dvode_state % TN, TOLSF)
+#endif    
     RWORK(14) = TOLSF
     ISTATE = -2
     GO TO 580
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
-530 MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
+530 continue
+#ifndef ACC    
+    MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      test failed repeatedly or with abs(H) = HMIN'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
+#endif    
     ISTATE = -4
     GO TO 560
     ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
-540 MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
+540 continue
+#ifndef ACC    
+    MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
     CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      corrector convergence failed repeatedly     '
     CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      or with abs(H) = HMIN   '
     CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
+#endif    
     ISTATE = -5
     ! Compute IMXER if relevant. -------------------------------------------
 560 BIG = ZERO
@@ -891,112 +933,193 @@ contains
     !  is a negative ISTATE, the run is aborted (apparent infinite loop).
     ! -----------------------------------------------------------------------
     
-601 MSG = 'DVODE--  ISTATE (=I1) illegal '
+601 continue
+#ifndef ACC    
+    MSG = 'DVODE--  ISTATE (=I1) illegal '
     CALL XERRWD (MSG, 30, 1, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+#endif    
     IF (ISTATE .LT. 0) GO TO 800
     GO TO 700
-602 MSG = 'DVODE--  ITASK (=I1) illegal  '
+602 continue
+#ifndef ACC    
+    MSG = 'DVODE--  ITASK (=I1) illegal  '
     CALL XERRWD (MSG, 30, 2, 1, 1, ITASK, 0, 0, ZERO, ZERO)
+#endif    
     GO TO 700
-603 MSG='DVODE--  ISTATE (=I1) .gt. 1 but DVODE not initialized      '
+603 continue
+#ifndef ACC    
+    MSG='DVODE--  ISTATE (=I1) .gt. 1 but DVODE not initialized      '
     CALL XERRWD (MSG, 60, 3, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-604 MSG = 'DVODE--  NEQ (=I1) .lt. 1     '
+604 continue
+#ifndef ACC    
+    MSG = 'DVODE--  NEQ (=I1) .lt. 1     '
     CALL XERRWD (MSG, 30, 4, 1, 1, NEQ, 0, 0, ZERO, ZERO)
+#endif    
     GO TO 700
-605 MSG = 'DVODE--  ISTATE = 3 and NEQ increased (I1 to I2)  '
+605 continue
+#ifndef ACC    
+    MSG = 'DVODE--  ISTATE = 3 and NEQ increased (I1 to I2)  '
     CALL XERRWD (MSG, 50, 5, 1, 2, dvode_state % N, NEQ, 0, ZERO, ZERO)
+#endif
     GO TO 700
-606 MSG = 'DVODE--  ITOL (=I1) illegal   '
+606 continue
+#ifndef ACC    
+    MSG = 'DVODE--  ITOL (=I1) illegal   '
     CALL XERRWD (MSG, 30, 6, 1, 1, ITOL, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-607 MSG = 'DVODE--  IOPT (=I1) illegal   '
+607 continue
+#ifndef ACC
+    MSG = 'DVODE--  IOPT (=I1) illegal   '
     CALL XERRWD (MSG, 30, 7, 1, 1, IOPT, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-608 MSG = 'DVODE--  MF (=I1) illegal     '
+608 continue
+#ifndef ACC
+    MSG = 'DVODE--  MF (=I1) illegal     '
     CALL XERRWD (MSG, 30, 8, 1, 1, MF, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-609 MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
+609 continue
+#ifndef ACC
+    MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
     CALL XERRWD (MSG, 50, 9, 1, 2, ML, NEQ, 0, ZERO, ZERO)
+#endif
     GO TO 700
-610 MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
+610 continue
+#ifndef ACC
+    MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
     CALL XERRWD (MSG, 50, 10, 1, 2, MU, NEQ, 0, ZERO, ZERO)
+#endif
     GO TO 700
-611 MSG = 'DVODE--  MAXORD (=I1) .lt. 0  '
+611 continue
+#ifndef ACC
+    MSG = 'DVODE--  MAXORD (=I1) .lt. 0  '
     CALL XERRWD (MSG, 30, 11, 1, 1, dvode_state % MAXORD, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-612 MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
+612 continue
+#ifndef ACC    
+    MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
     CALL XERRWD (MSG, 30, 12, 1, 1, dvode_state % MXSTEP, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-613 MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
+613 continue
+#ifndef ACC    
+    MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
     CALL XERRWD (MSG, 30, 13, 1, 1, dvode_state % MXHNIL, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
-614 MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-    CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, TOUT, T)
+614 continue
+#ifndef ACC    
+    MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
+    CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, TOUT, T)    
     MSG = '      integration direction is given by H0 (=R1)  '
     CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+#endif    
     GO TO 700
-615 MSG = 'DVODE--  HMAX (=R1) .lt. 0.0  '
+615 continue
+#ifndef ACC    
+    MSG = 'DVODE--  HMAX (=R1) .lt. 0.0  '
     CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
+#endif
     GO TO 700
-616 MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
+616 continue
+#ifndef ACC    
+    MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
     CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, dvode_state % HMIN, ZERO)
+#endif
     GO TO 700
 617 CONTINUE
+#ifndef ACC    
     MSG='DVODE--  RWORK length needed, LENRW (=I1), exceeds LRW (=I2)'
     CALL XERRWD (MSG, 60, 17, 1, 2, LENRW, LRW, 0, ZERO, ZERO)
+#endif    
     GO TO 700
 618 CONTINUE
+#ifndef ACC    
     MSG='DVODE--  IWORK length needed, LENIW (=I1), exceeds LIW (=I2)'
     CALL XERRWD (MSG, 60, 18, 1, 2, LENIW, LIW, 0, ZERO, ZERO)
+#endif
     GO TO 700
-619 MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0        '
+619 continue
+#ifndef ACC    
+    MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0        '
     CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, ZERO)
+#endif
     GO TO 700
-620 MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0        '
+620 continue
+#ifndef ACC    
+    MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0        '
     CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
+#endif
     GO TO 700
-621 EWTI = RWORK(dvode_state % LEWT+I-1)
+621 continue
+#ifndef ACC
+    EWTI = RWORK(dvode_state % LEWT+I-1)
     MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
     CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
+#endif
     GO TO 700
 622 CONTINUE
+#ifndef ACC    
     MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
     CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, TOUT, T)
+#endif
     GO TO 700
 623 CONTINUE
+#ifndef ACC
     MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
     CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, TOUT, TP)
+#endif
     GO TO 700
 624 CONTINUE
+#ifndef ACC    
     MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
     CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, dvode_state % TN)
+#endif
     GO TO 700
 625 CONTINUE
+#ifndef ACC
     MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
     CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, TOUT)
+#endif
     GO TO 700
-626 MSG = 'DVODE--  At start of problem, too much accuracy   '
+626 continue
+#ifndef ACC
+    MSG = 'DVODE--  At start of problem, too much accuracy   '
     CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG='      requested for precision of machine:   see TOLSF (=R1) '
     CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
+#endif
     RWORK(14) = TOLSF
     GO TO 700
-627 MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
+627 continue
+#ifndef ACC
+    MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
     CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, TOUT, ZERO)
+#endif
     
 700 CONTINUE
     ISTATE = -3
 
     return
     
-800 MSG = 'DVODE--  Run aborted:  apparent infinite loop     '
+800 continue
+#ifndef ACC    
+    MSG = 'DVODE--  Run aborted:  apparent infinite loop     '
     CALL XERRWD (MSG, 50, 303, 2, 0, 0, 0, 0, ZERO, ZERO)
+#endif
 
     return
   end subroutine dvode
 
   subroutine dvsol(WM, IWM, X, IERSL, dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- WM, IWM, X
     !  Call sequence output -- X, IERSL
@@ -1067,6 +1190,9 @@ contains
   end subroutine dvsol
   
   subroutine dacopy(NROW, NCOL, A, NROWA, B, NROWB)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- NROW, NCOL, A, NROWA, NROWB
     !  Call sequence output -- B
@@ -1091,6 +1217,9 @@ contains
 
   subroutine dvjac(Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM, F, JAC, &
        IERPJ, RPAR, IPAR, dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM,
     !                         F, JAC, RPAR, IPAR
@@ -1378,6 +1507,9 @@ contains
   
   subroutine dvnlsd(Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
        F, JAC, PDUM, NFLAG, RPAR, IPAR, dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- Y, YH, LDYH, SAVF, EWT, ACOR, IWM, WM,
     !                         F, JAC, NFLAG, RPAR, IPAR
@@ -1603,6 +1735,9 @@ contains
   end subroutine dvnlsd
   
   subroutine dvjust(YH, LDYH, IORD, dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- YH, LDYH, IORD
     !  Call sequence output -- YH
@@ -1745,6 +1880,9 @@ contains
   end subroutine dvjust
 
   subroutine dvset(dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence communication: None
     !  COMMON block variables accessed:
@@ -1928,6 +2066,9 @@ contains
   
   subroutine dvstep(Y, YH, LDYH, YH1, EWT, SAVF, VSAV, ACOR, &
        WM, IWM, F, JAC, PSOL, VNLS, RPAR, IPAR, dvode_state)
+
+    !$acc routine seq
+    
     ! -----------------------------------------------------------------------
     !  Call sequence input -- Y, YH, LDYH, YH1, EWT, SAVF, VSAV,
     !                         ACOR, WM, IWM, F, JAC, PSOL, VNLS, RPAR, IPAR

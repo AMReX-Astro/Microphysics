@@ -10,6 +10,8 @@ contains
 
   subroutine clean_state(y, rpar)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs
@@ -28,6 +30,8 @@ contains
 
   subroutine renormalize_species(y, rpar)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
@@ -52,6 +56,8 @@ contains
 
   subroutine update_thermodynamics(y, rpar)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
@@ -123,6 +129,8 @@ contains
 
   subroutine vode_to_eos(state, y, rpar)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
@@ -159,6 +167,8 @@ contains
 
   subroutine eos_to_vode(state, y, rpar)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
@@ -195,6 +205,8 @@ contains
 
   subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
     use network, only: nspec, nspec_evolve, aion, aion_inv
@@ -255,6 +267,8 @@ contains
 
   subroutine vode_to_burn(y, rpar, state)
 
+    !$acc routine seq
+    
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv

@@ -4,6 +4,8 @@
 
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
+    !$acc routine seq
+    
     use actual_network, only: aion, nspec_evolve
     use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
@@ -93,6 +95,8 @@
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
+    !$acc routine seq
+    
     use network, only: aion, aion_inv, nspec_evolve
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
