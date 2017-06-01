@@ -758,7 +758,7 @@ contains
        IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 510
        RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
     end do
-270 TOLSF = dvode_state % UROUND * DVNORM (dvode_state % N, pYH1(1:dvode_state % N), pEWT)
+270 TOLSF = dvode_state % UROUND * DVNORM (dvode_state % N, pYH1, pEWT)
     IF (TOLSF .LE. ONE) GO TO 280
     TOLSF = TOLSF*TWO
     IF (dvode_state % NST .EQ. 0) GO TO 626
@@ -1537,7 +1537,8 @@ contains
     !
 
     type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(dvode_state % N)
+    real(dp_t), target :: Y(dvode_state % N)
+    real(dp_t), pointer :: pY(:)
     real(dp_t) :: VSAV(:)
     real(dp_t) :: RPAR(:)
     integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
@@ -1574,6 +1575,8 @@ contains
        END SUBROUTINE JAC
     end interface
 
+    pY => Y
+    
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a
     !  nonlinear convergence failure with NFLAG = -2, set IPUP = MITER
@@ -1638,7 +1641,7 @@ contains
     do I = 1,dvode_state % N
        Y(I) = SAVF(I) - ACOR(I)
     end do
-    DEL = DVNORM (dvode_state % N, Y, EWT)
+    DEL = DVNORM (dvode_state % N, pY, EWT)
     do I = 1,dvode_state % N
        Y(I) = YH(I,1) + SAVF(I)
     end do
@@ -1660,7 +1663,7 @@ contains
        CSCALE = TWO/(ONE + dvode_state % RC)
        CALL DSCAL (dvode_state % N, CSCALE, Y, 1)
     ENDIF
-    DEL = DVNORM (dvode_state % N, Y, EWT)
+    DEL = DVNORM (dvode_state % N, pY, EWT)
     CALL DAXPY (dvode_state % N, ONE, Y, 1, ACOR, 1)
     do I = 1,dvode_state % N
        Y(I) = YH(I,1) + ACOR(I)
@@ -2107,6 +2110,7 @@ contains
     real(dp_t) :: VSAV(:), RPAR(:)
     integer    :: LDYH, IWM(:), IPAR(:)
     real(dp_t), pointer :: YH(:,:), EWT(:), YH1(:), SAVF(:), WM(:), ACOR(:)
+    real(dp_t), pointer :: pYHL(:)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
@@ -2450,7 +2454,8 @@ contains
     ETAQM1 = ZERO
     IF (dvode_state % NQ .EQ. 1) GO TO 570
     ! Compute ratio of new H to current H at the current order less one. ---
-    DDN = DVNORM (dvode_state % N, YH(1:dvode_state % N,dvode_state % L), EWT)/dvode_state % TQ(1)
+    pYHL(1:dvode_state % N) => YH(1:dvode_state % N,dvode_state % L)
+    DDN = DVNORM (dvode_state % N, pYHL, EWT)/dvode_state % TQ(1)
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 ETAQP1 = ZERO
     IF (dvode_state % L .EQ. dvode_state % LMAX) GO TO 580
