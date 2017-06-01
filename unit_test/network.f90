@@ -29,7 +29,12 @@ module network
   logical :: network_initialized = .false.
 
   ! this will be computed here, not in the actual network
-  real(kind=rt) :: aion_inv(nspec)
+
+  real(kind=rt), allocatable, save :: aion_inv(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion_inv
+#endif
 
   !$acc declare create(aion_inv)
 
@@ -59,6 +64,7 @@ contains
        call amrex_error("Network cannot have a negative number of auxiliary variables.")
     endif
 
+    allocate(aion_inv(nspec))
     aion_inv(:) = ONE/aion(:)
 
     !$acc update device(aion_inv)
@@ -83,5 +89,9 @@ contains
     enddo
 
   end function network_species_index
+
+  subroutine network_finalize()
+    deallocate(aion_inv)
+  end subroutine network_finalize
 
 end module network
