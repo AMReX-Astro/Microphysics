@@ -25,13 +25,14 @@ contains
   end subroutine actual_burner_init
 
   subroutine actual_burner_finalize
-    use reaclib_rates, only: term_reaclib
+    use reaclib_rates, only: term_reaclib, net_screening_finalize
     use table_rates, only: term_table_meta
 
     implicit none
     
     call term_reaclib()
     call term_table_meta()
+    call net_screening_finalize()    
   end subroutine actual_burner_finalize
 
 #ifdef CUDA

@@ -4,6 +4,9 @@ module sneut_module
 
 contains
 
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine sneut5(temp,den,abar,zbar, &
                     snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
@@ -1185,7 +1188,9 @@ contains
   end subroutine sneut5
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   double precision function ifermi12(f)
 
     !$acc routine seq
@@ -1264,7 +1269,9 @@ contains
 
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   double precision function zfermim12(x)
 
     !$acc routine seq

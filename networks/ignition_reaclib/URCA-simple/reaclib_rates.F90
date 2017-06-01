@@ -1,5 +1,6 @@
 module reaclib_rates
-  use screening_module, only: screen5, add_screening_factor, screening_init, plasma_state, fill_plasma_state
+  use screening_module, only: screen5, add_screening_factor, screening_init, &
+       plasma_state, fill_plasma_state, screening_finalize
   use network
 
   implicit none
@@ -140,6 +141,10 @@ contains
 
     call screening_init()    
   end subroutine net_screening_init
+
+  subroutine net_screening_finalize()
+    call screening_finalize()
+  end subroutine net_screening_finalize
 
 #ifdef CUDA
   attributes(device) &

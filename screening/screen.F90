@@ -17,10 +17,10 @@ module screening_module
   double precision, parameter :: gamefs     = 0.8d0
   double precision, parameter :: blend_frac = 0.05d0
 
-  double precision :: z1scr(nscreen_max)
-  double precision :: z2scr(nscreen_max)
-  double precision :: a1scr(nscreen_max)
-  double precision :: a2scr(nscreen_max)
+  double precision, managed, allocatable, save :: z1scr(:)
+  double precision, managed, allocatable, save :: z2scr(:)
+  double precision, managed, allocatable, save :: a1scr(:)
+  double precision, managed, allocatable, save :: a2scr(:)
   
   ! zs13    = (z1+z2)**(1./3.)
   ! zhat    = combination of z1 and z2 raised to the 5/3 power
@@ -28,12 +28,12 @@ module screening_module
   ! lzav    = log of effective charge
   ! aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
 
-  double precision :: zs13(nscreen_max)
-  double precision :: zs13inv(nscreen_max)
-  double precision :: zhat(nscreen_max)
-  double precision :: zhat2(nscreen_max)
-  double precision :: lzav(nscreen_max)
-  double precision :: aznut(nscreen_max)
+  double precision, managed, allocatable, save :: zs13(:)
+  double precision, managed, allocatable, save :: zs13inv(:)
+  double precision, managed, allocatable, save :: zhat(:)
+  double precision, managed, allocatable, save :: zhat2(:)
+  double precision, managed, allocatable, save :: lzav(:)
+  double precision, managed, allocatable, save :: aznut(:)
 
   type :: plasma_state
 
@@ -63,6 +63,17 @@ contains
     ! a1scr, and a2scr.
     
     integer :: i
+
+    allocate(z1scr(nscreen_max))
+    allocate(z2scr(nscreen_max))
+    allocate(a1scr(nscreen_max))
+    allocate(a2scr(nscreen_max))
+    allocate(zs13(nscreen_max))
+    allocate(zs13inv(nscreen_max))
+    allocate(zhat(nscreen_max))
+    allocate(zhat2(nscreen_max))
+    allocate(lzav(nscreen_max))
+    allocate(aznut(nscreen_max))
     
     do i = 1, nscreen
 
@@ -79,6 +90,18 @@ contains
 
   end subroutine screening_init
 
+  subroutine screening_finalize()
+    deallocate(z1scr(nscreen_max))
+    deallocate(z2scr(nscreen_max))
+    deallocate(a1scr(nscreen_max))
+    deallocate(a2scr(nscreen_max))
+    deallocate(zs13(nscreen_max))
+    deallocate(zs13inv(nscreen_max))
+    deallocate(zhat(nscreen_max))
+    deallocate(zhat2(nscreen_max))
+    deallocate(lzav(nscreen_max))
+    deallocate(aznut(nscreen_max))
+  end subroutine screening_finalize
 
   subroutine add_screening_factor(z1, a1, z2, a2)
 
@@ -97,7 +120,9 @@ contains
 
   end subroutine add_screening_factor
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine fill_plasma_state(state, temp, dens, y)
 
     !$acc routine seq
@@ -149,7 +174,9 @@ contains
   end subroutine fill_plasma_state
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine screen5(state,jscreen,scor,scordt,scordd)
 
     !$acc routine seq
@@ -383,6 +410,9 @@ contains
 
   end subroutine screen5
 
+#ifdef CUDA
+  attributes(device) &
+#endif  
   subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
 
     !$acc routine seq
