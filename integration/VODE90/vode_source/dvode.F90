@@ -4,6 +4,7 @@ module dvode_module
   use dvode_output_module, only: xerrwd
   use rpar_indices
   use bl_types, only: dp_t
+  use cublas_module  
   
   implicit none
 
@@ -311,7 +312,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvindy(T, K, YH, LDYH, DKY, IFLAG, dvode_state)
+  subroutine dvindy(T, K, DKY, IFLAG, vstate)
 
     !$acc routine seq
     
@@ -348,10 +349,9 @@ contains
     ! -----------------------------------------------------------------------
     !
     
-    type(dvode_t) :: dvode_state
+    type(dvode_t) :: vstate
     real(dp_t) :: T, DKY(:)
-    real(dp_t), pointer :: YH(:,:)
-    integer    :: K, LDYH, IFLAG
+    integer    :: K, IFLAG
 
 
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
@@ -359,27 +359,27 @@ contains
     character (len=80) :: MSG
 
     IFLAG = 0
-    IF (K .LT. 0 .OR. K .GT. dvode_state % NQ) GO TO 80
-    TFUZZ = HUN * dvode_state % UROUND * (dvode_state % TN + dvode_state % HU)
-    TP = dvode_state % TN - dvode_state % HU - TFUZZ
-    TN1 = dvode_state % TN + TFUZZ
+    IF (K .LT. 0 .OR. K .GT. vstate % NQ) GO TO 80
+    TFUZZ = HUN * vstate % UROUND * (vstate % TN + vstate % HU)
+    TP = vstate % TN - vstate % HU - TFUZZ
+    TN1 = vstate % TN + TFUZZ
     IF ((T-TP)*(T-TN1) .GT. ZERO) GO TO 90
 
-    S = (T - dvode_state % TN)/dvode_state % H
+    S = (T - vstate % TN)/vstate % H
     IC = 1
     IF (K .EQ. 0) GO TO 15
-    JJ1 = dvode_state % L - K
-    do JJ = JJ1, dvode_state % NQ
+    JJ1 = vstate % L - K
+    do JJ = JJ1, vstate % NQ
        IC = IC*JJ
     end do
 15  C = REAL(IC)
-    do I = 1, dvode_state % N
-       DKY(I) = C*YH(I,dvode_state % L)
+    do I = 1, vstate % N
+       DKY(I) = C * vstate % pYH(I,vstate % L)
     end do
-    IF (K .EQ. dvode_state % NQ) GO TO 55
-    JB2 = dvode_state % NQ - K
+    IF (K .EQ. vstate % NQ) GO TO 55
+    JB2 = vstate % NQ - K
     do JB = 1, JB2
-       J = dvode_state % NQ - JB
+       J = vstate % NQ - JB
        JP1 = J + 1
        IC = 1
        IF (K .EQ. 0) GO TO 35
@@ -388,13 +388,17 @@ contains
           IC = IC*JJ
        end do
 35     C = REAL(IC)
-       do I = 1, dvode_state % N
-          DKY(I) = C*YH(I,JP1) + S*DKY(I)
+       do I = 1, vstate % N
+          DKY(I) = C * vstate % pYH(I,JP1) + S*DKY(I)
        end do
     end do
     IF (K .EQ. 0) RETURN
-55  R = dvode_state % H**(-K)
-    CALL DSCAL (dvode_state % N, R, DKY, 1)
+55  R = vstate % H**(-K)
+#ifdef CUDA
+    call cuda_dscal(vstate % N, R, DKY, 1)    
+#else
+    CALL DSCAL (vstate % N, R, DKY, 1)
+#endif
     RETURN
 
 80  continue
@@ -406,7 +410,7 @@ contains
     ! MSG = 'DVINDY-- T (=R1) illegal      '
     ! CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, T, ZERO)
     ! MSG='      T not in interval TCUR - HU (= R1) to TCUR (=R2)      '
-    ! CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, dvode_state % TN)
+    ! CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
     IFLAG = -2
     RETURN
   end subroutine dvindy
@@ -416,11 +420,11 @@ contains
 #endif  
   subroutine dvode(F, NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, JAC, MF, &
-       RPAR, IPAR, dvode_state)
+       RPAR, IPAR, vstate)
 
     !$acc routine seq
     
-    type(dvode_t), intent(inout) :: dvode_state
+    type(dvode_t), intent(inout) :: vstate
     
     integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
     integer    :: IWORK(LIW)
@@ -438,9 +442,6 @@ contains
     integer    :: NSLAST
     integer, dimension(2) :: MORD = [12, 5]
     character (len=80) :: MSG
-
-    ! RWORK pointer declarations
-    real(dp_t), pointer :: pYH(:,:), pLF0(:), pYH1(:), pWM(:), pEWT(:), pSAVF(:), pACOR(:)
     
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
@@ -484,10 +485,10 @@ contains
     IF (ISTATE .LT. 1 .OR. ISTATE .GT. 3) GO TO 601
     IF (ITASK .LT. 1 .OR. ITASK .GT. 5) GO TO 602
     IF (ISTATE .EQ. 1) GO TO 10
-    IF (dvode_state % INIT .NE. 1) GO TO 603
+    IF (vstate % INIT .NE. 1) GO TO 603
     IF (ISTATE .EQ. 2) GO TO 200
     GO TO 20
-10  dvode_state % INIT = 0
+10  vstate % INIT = 0
     IF (TOUT .EQ. T) RETURN
     
     ! -----------------------------------------------------------------------
@@ -502,42 +503,42 @@ contains
     
 20  IF (NEQ .LE. 0) GO TO 604
     IF (ISTATE .EQ. 1) GO TO 25
-    IF (NEQ .GT. dvode_state % N) GO TO 605
-25  dvode_state % N = NEQ
+    IF (NEQ .GT. vstate % N) GO TO 605
+25  vstate % N = NEQ
     IF (ITOL .LT. 1 .OR. ITOL .GT. 4) GO TO 606
     IF (IOPT .LT. 0 .OR. IOPT .GT. 1) GO TO 607
-    dvode_state % JSV = SIGN(1,MF)
+    vstate % JSV = SIGN(1,MF)
     MFA = ABS(MF)
-    dvode_state % METH = MFA/10
-    dvode_state % MITER = MFA - 10*dvode_state % METH
-    IF (dvode_state % METH .LT. 1 .OR. dvode_state % METH .GT. 2) GO TO 608
-    IF (dvode_state % MITER .LT. 0 .OR. dvode_state % MITER .GT. 5) GO TO 608
-    IF (dvode_state % MITER .LE. 3) GO TO 30
+    vstate % METH = MFA/10
+    vstate % MITER = MFA - 10*vstate % METH
+    IF (vstate % METH .LT. 1 .OR. vstate % METH .GT. 2) GO TO 608
+    IF (vstate % MITER .LT. 0 .OR. vstate % MITER .GT. 5) GO TO 608
+    IF (vstate % MITER .LE. 3) GO TO 30
     ML = IWORK(1)
     MU = IWORK(2)
-    IF (ML .LT. 0 .OR. ML .GE. dvode_state % N) GO TO 609
-    IF (MU .LT. 0 .OR. MU .GE. dvode_state % N) GO TO 610
+    IF (ML .LT. 0 .OR. ML .GE. vstate % N) GO TO 609
+    IF (MU .LT. 0 .OR. MU .GE. vstate % N) GO TO 610
 30  CONTINUE
 
     ! Next process and check the optional input. ---------------------------
       
     IF (IOPT .EQ. 1) GO TO 40
-    dvode_state % MAXORD = MORD(dvode_state % METH)
-    dvode_state % MXSTEP = MXSTP0
-    dvode_state % MXHNIL = MXHNL0
+    vstate % MAXORD = MORD(vstate % METH)
+    vstate % MXSTEP = MXSTP0
+    vstate % MXHNIL = MXHNL0
     IF (ISTATE .EQ. 1) H0 = ZERO
-    dvode_state % HMXI = ZERO
-    dvode_state % HMIN = ZERO
+    vstate % HMXI = ZERO
+    vstate % HMIN = ZERO
     GO TO 60
-40  dvode_state % MAXORD = IWORK(5)
-    IF (dvode_state % MAXORD .LT. 0) GO TO 611
-    IF (dvode_state % MAXORD .EQ. 0) dvode_state % MAXORD = 100
-    dvode_state % MAXORD = MIN(dvode_state % MAXORD,MORD(dvode_state % METH))
-    dvode_state % MXSTEP = IWORK(6)
-    IF (dvode_state % MXSTEP .LT. 0) GO TO 612
-    IF (dvode_state % MXSTEP .EQ. 0) dvode_state % MXSTEP = MXSTP0
-    dvode_state % MXHNIL = IWORK(7)
-    IF (dvode_state % MXHNIL .LT. 0) GO TO 613
+40  vstate % MAXORD = IWORK(5)
+    IF (vstate % MAXORD .LT. 0) GO TO 611
+    IF (vstate % MAXORD .EQ. 0) vstate % MAXORD = 100
+    vstate % MAXORD = MIN(vstate % MAXORD,MORD(vstate % METH))
+    vstate % MXSTEP = IWORK(6)
+    IF (vstate % MXSTEP .LT. 0) GO TO 612
+    IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
+    vstate % MXHNIL = IWORK(7)
+    IF (vstate % MXHNIL .LT. 0) GO TO 613
     !      EDIT 07/16/2016 -- see comments above about MXHNIL
     !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
     IF (ISTATE .NE. 1) GO TO 50
@@ -545,10 +546,10 @@ contains
     IF ((TOUT - T)*H0 .LT. ZERO) GO TO 614
 50  HMAX = RWORK(6)
     IF (HMAX .LT. ZERO) GO TO 615
-    dvode_state % HMXI = ZERO
-    IF (HMAX .GT. ZERO) dvode_state % HMXI = ONE/HMAX
-    dvode_state % HMIN = RWORK(7)
-    IF (dvode_state % HMIN .LT. ZERO) GO TO 616
+    vstate % HMXI = ZERO
+    IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
+    vstate % HMIN = RWORK(7)
+    IF (vstate % HMIN .LT. ZERO) GO TO 616
     
     ! -----------------------------------------------------------------------
     !  Set work array pointers and check lengths LRW and LIW.
@@ -558,40 +559,40 @@ contains
     !  Within WM, LOCJS is the location of the saved Jacobian (JSV .gt. 0).
     ! -----------------------------------------------------------------------
     
-60  dvode_state % LYH = 21
-    IF (ISTATE .EQ. 1) dvode_state % NYH = dvode_state % N
-    dvode_state % LWM = dvode_state % LYH + (dvode_state % MAXORD + 1)*dvode_state % NYH
-    JCO = MAX(0,dvode_state % JSV)
-    IF (dvode_state % MITER .EQ. 0) LENWM = 0
-    IF (dvode_state % MITER .EQ. 1 .OR. dvode_state % MITER .EQ. 2) THEN
-       LENWM = 2 + (1 + JCO)*dvode_state % N*dvode_state % N
-       dvode_state % LOCJS = dvode_state % N*dvode_state % N + 3
+60  vstate % LYH = 21
+    IF (ISTATE .EQ. 1) vstate % NYH = vstate % N
+    vstate % LWM = vstate % LYH + (vstate % MAXORD + 1)*vstate % NYH
+    JCO = MAX(0,vstate % JSV)
+    IF (vstate % MITER .EQ. 0) LENWM = 0
+    IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
+       LENWM = 2 + (1 + JCO)*vstate % N*vstate % N
+       vstate % LOCJS = vstate % N*vstate % N + 3
     ENDIF
-    IF (dvode_state % MITER .EQ. 3) LENWM = 2 + dvode_state % N
-    IF (dvode_state % MITER .EQ. 4 .OR. dvode_state % MITER .EQ. 5) THEN
+    IF (vstate % MITER .EQ. 3) LENWM = 2 + vstate % N
+    IF (vstate % MITER .EQ. 4 .OR. vstate % MITER .EQ. 5) THEN
        MBAND = ML + MU + 1
-       LENP = (MBAND + ML)*dvode_state % N
-       LENJ = MBAND*dvode_state % N
+       LENP = (MBAND + ML)*vstate % N
+       LENJ = MBAND*vstate % N
        LENWM = 2 + LENP + JCO*LENJ
-       dvode_state % LOCJS = LENP + 3
+       vstate % LOCJS = LENP + 3
     ENDIF
-    dvode_state % LMAX = dvode_state % MAXORD + 1
-    dvode_state % LEWT = dvode_state % LWM + LENWM
-    dvode_state % LSAVF = dvode_state % LEWT + dvode_state % N
-    dvode_state % LACOR = dvode_state % LSAVF + dvode_state % N
-    dvode_state % NEQ = NEQ
-    LENRW = dvode_state % LACOR + dvode_state % N - 1
+    vstate % LMAX = vstate % MAXORD + 1
+    vstate % LEWT = vstate % LWM + LENWM
+    vstate % LSAVF = vstate % LEWT + vstate % N
+    vstate % LACOR = vstate % LSAVF + vstate % N
+    vstate % NEQ = NEQ
+    LENRW = vstate % LACOR + vstate % N - 1
     IWORK(17) = LENRW
-    dvode_state % LIWM = 1
-    LENIW = 30 + dvode_state % N
-    IF (dvode_state % MITER .EQ. 0 .OR. dvode_state % MITER .EQ. 3) LENIW = 30
+    vstate % LIWM = 1
+    LENIW = 30 + vstate % N
+    IF (vstate % MITER .EQ. 0 .OR. vstate % MITER .EQ. 3) LENIW = 30
     IWORK(18) = LENIW
     IF (LENRW .GT. LRW) GO TO 617
     IF (LENIW .GT. LIW) GO TO 618
     ! Check RTOL and ATOL for legality. ------------------------------------
     RTOLI = RTOL(1)
     ATOLI = ATOL(1)
-    do I = 1,dvode_state % N
+    do I = 1,vstate % N
        IF (ITOL .GE. 3) RTOLI = RTOL(I)
        IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
        IF (RTOLI .LT. ZERO) GO TO 619
@@ -599,14 +600,20 @@ contains
     end do
     IF (ISTATE .EQ. 1) GO TO 100
     ! If ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
-    dvode_state % JSTART = -1
-    IF (dvode_state % NQ .LE. dvode_state % MAXORD) GO TO 90
+    vstate % JSTART = -1
+    IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    CALL DCOPY (dvode_state % N, &
-         RWORK(dvode_state % LWM:dvode_state % LWM + dvode_state % N - 1), 1, &
-         RWORK(dvode_state % LSAVF:dvode_state % LSAVF + dvode_state % N - 1), 1)
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, &
+         RWORK(vstate % LWM:vstate % LWM + vstate % N - 1), 1, &
+         RWORK(vstate % LSAVF:vstate % LSAVF + vstate % N - 1), 1)    
+#else    
+    CALL DCOPY (vstate % N, &
+         RWORK(vstate % LWM:vstate % LWM + vstate % N - 1), 1, &
+         RWORK(vstate % LSAVF:vstate % LSAVF + vstate % N - 1), 1)
+#endif    
     ! Reload WM(1) = RWORK(LWM), since LWM may have changed. ---------------
-90  IF (dvode_state % MITER .GT. 0) RWORK(dvode_state % LWM) = SQRT(dvode_state % UROUND)
+90  IF (vstate % MITER .GT. 0) RWORK(vstate % LWM) = SQRT(vstate % UROUND)
     GO TO 200
 
     ! -----------------------------------------------------------------------
@@ -617,78 +624,89 @@ contains
     !  The error weights in EWT are inverted after being loaded.
     ! -----------------------------------------------------------------------
         
-100 dvode_state % UROUND = DUMACH()
-    dvode_state % TN = T
+100 vstate % UROUND = DUMACH()
+    vstate % TN = T
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
     TCRIT = RWORK(1)
     IF ((TCRIT - TOUT)*(TOUT - T) .LT. ZERO) GO TO 625
     if (H0 .NE. ZERO .AND. (T + H0 - TCRIT)*H0 .GT. ZERO) then
        H0 = TCRIT - T
     end if
-110 dvode_state % JSTART = 0
-    IF (dvode_state % MITER .GT. 0) RWORK(dvode_state % LWM) = SQRT(dvode_state % UROUND)
-    dvode_state % CCMXJ = PT2
-    dvode_state % MSBJ = 50
-    dvode_state % NHNIL = 0
-    dvode_state % NST = 0
-    dvode_state % NJE = 0
-    dvode_state % NNI = 0
-    dvode_state % NCFN = 0
-    dvode_state % NETF = 0
-    dvode_state % NLU = 0
-    dvode_state % NSLJ = 0
+110 vstate % JSTART = 0
+    IF (vstate % MITER .GT. 0) RWORK(vstate % LWM) = SQRT(vstate % UROUND)
+    vstate % CCMXJ = PT2
+    vstate % MSBJ = 50
+    vstate % NHNIL = 0
+    vstate % NST = 0
+    vstate % NJE = 0
+    vstate % NNI = 0
+    vstate % NCFN = 0
+    vstate % NETF = 0
+    vstate % NLU = 0
+    vstate % NSLJ = 0
     NSLAST = 0
-    dvode_state % HU = ZERO
-    dvode_state % NQU = 0
+    vstate % HU = ZERO
+    vstate % NQU = 0
 
     ! Assign RWORK pointers
-    pYH(1:dvode_state % NYH, 1:dvode_state % LMAX) => RWORK(dvode_state % LYH:dvode_state % LWM - 1)
-    pLF0  => pYH(:,2)
-    !    pYH1  => RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1)
+    vstate % pYH(1:vstate % NYH, 1:vstate % LMAX) => RWORK(vstate % LYH:vstate % LWM - 1)
+    vstate % pLF0  => vstate % pYH(:,2)
+    ! pYH1  => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
     ! Include WM in the bounds of YH1 so the matrix multiply following DVSTEP line 200 works
-    pYH1  => RWORK(dvode_state % LYH:dvode_state % LEWT - 1)
-    pWM   => RWORK(dvode_state % LWM:dvode_state % LEWT - 1)
-    pEWT  => RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1)
-    pSAVF => RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1)
-    pACOR => RWORK(dvode_state % LACOR:dvode_state % LACOR + NEQ - 1)
+    vstate % pYH1  => RWORK(vstate % LYH:vstate % LEWT - 1)
+    vstate % pWM   => RWORK(vstate % LWM:vstate % LEWT - 1)
+    vstate % pEWT  => RWORK(vstate % LEWT:vstate % LEWT + NEQ - 1)
+    vstate % pSAVF => RWORK(vstate % LSAVF:vstate % LSAVF + NEQ - 1)
+    vstate % pACOR => RWORK(vstate % LACOR:vstate % LACOR + NEQ - 1)
     
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
-    LF0 = dvode_state % LYH + dvode_state % NYH
+    LF0 = vstate % LYH + vstate % NYH
     
-    CALL F (dvode_state % N, T, Y, pLF0, RPAR, IPAR)
-    dvode_state % NFE = 1
+    CALL F (vstate % N, T, Y, vstate % pLF0, RPAR, IPAR)
+    vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
-    CALL DCOPY (dvode_state % N, &
-         Y(1:dvode_state % N), 1, &
-         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), 1)
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, &
+         Y(1:vstate % N), 1, &
+         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1)    
+#else
+    CALL DCOPY (vstate % N, &
+         Y(1:vstate % N), 1, &
+         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1)
+#endif    
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
-    dvode_state % NQ = 1
-    dvode_state % H = ONE
-    CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, pYH1, pEWT)
-    do I = 1,dvode_state % N
-       IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 621
-       RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
+    vstate % NQ = 1
+    vstate % H = ONE
+    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL, vstate % pYH1, vstate % pEWT)
+    do I = 1,vstate % N
+       IF (RWORK(I+vstate % LEWT-1) .LE. ZERO) GO TO 621
+       RWORK(I+vstate % LEWT-1) = ONE/RWORK(I+vstate % LEWT-1)
     end do
     IF (H0 .NE. ZERO) GO TO 180
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (dvode_state % N, T, &
-         pYH1, &
-         pLF0, F, RPAR, IPAR, TOUT, &
-         dvode_state % UROUND, &
-         pEWT, &
+    CALL DVHIN (vstate % N, T, &
+         vstate % pYH1, &
+         vstate % pLF0, F, RPAR, IPAR, TOUT, &
+         vstate % UROUND, &
+         vstate % pEWT, &
          ITOL, ATOL, Y, &
-         pACOR, &
+         vstate % pACOR, &
          H0, NITER, IER)
-    dvode_state % NFE = dvode_state % NFE + NITER
+    vstate % NFE = vstate % NFE + NITER
     IF (IER .NE. 0) GO TO 622
     ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
-180 RH = ABS(H0)*dvode_state % HMXI
+180 RH = ABS(H0)*vstate % HMXI
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
-    dvode_state % H = H0
-    CALL DSCAL (dvode_state % N, H0, &
-         RWORK(LF0:LF0 + dvode_state % N - 1), 1)
+    vstate % H = H0
+#ifdef CUDA
+    call cuda_dscal(vstate % N, H0, &
+         RWORK(LF0:LF0 + vstate % N - 1), 1)    
+#else
+    CALL DSCAL (vstate % N, H0, &
+         RWORK(LF0:LF0 + vstate % N - 1), 1)
+#endif
     GO TO 270
     
     ! -----------------------------------------------------------------------
@@ -697,47 +715,47 @@ contains
     !  and is to check stop conditions before taking a step.
     ! -----------------------------------------------------------------------
         
-200 NSLAST = dvode_state % NST
-    dvode_state % KUTH = 0
+200 NSLAST = vstate % NST
+    vstate % KUTH = 0
 
     ! Assign RWORK pointers
-    pYH(1:dvode_state % NYH, 1:dvode_state % LMAX) => RWORK(dvode_state % LYH:dvode_state % LWM - 1)
-    pLF0  => pYH(:,2)
-    !    pYH1  => RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1)
+    vstate % pYH(1:vstate % NYH, 1:vstate % LMAX) => RWORK(vstate % LYH:vstate % LWM - 1)
+    vstate % pLF0  => vstate % pYH(:,2)
+    ! vstate % pYH1  => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
     ! Include WM in the bounds of YH1 so the matrix multiply following DVSTEP line 200 works
-    pYH1  => RWORK(dvode_state % LYH:dvode_state % LEWT - 1)
-    pWM   => RWORK(dvode_state % LWM:dvode_state % LEWT - 1)
-    pEWT  => RWORK(dvode_state % LEWT:dvode_state % LEWT + NEQ - 1)
-    pSAVF => RWORK(dvode_state % LSAVF:dvode_state % LSAVF + NEQ - 1)
-    pACOR => RWORK(dvode_state % LACOR:dvode_state % LACOR + NEQ - 1)
+    vstate % pYH1  => RWORK(vstate % LYH:vstate % LEWT - 1)
+    vstate % pWM   => RWORK(vstate % LWM:vstate % LEWT - 1)
+    vstate % pEWT  => RWORK(vstate % LEWT:vstate % LEWT + NEQ - 1)
+    vstate % pSAVF => RWORK(vstate % LSAVF:vstate % LSAVF + NEQ - 1)
+    vstate % pACOR => RWORK(vstate % LACOR:vstate % LACOR + NEQ - 1)
     
     GO TO (210, 250, 220, 230, 240), ITASK
-210 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
+210 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
+    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
-220 TP = dvode_state % TN - dvode_state % HU * (ONE + HUN * dvode_state % UROUND)
-    IF ((TP - TOUT) * dvode_state % H .GT. ZERO) GO TO 623
-    IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
+220 TP = vstate % TN - vstate % HU * (ONE + HUN * vstate % UROUND)
+    IF ((TP - TOUT) * vstate % H .GT. ZERO) GO TO 623
+    IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
     GO TO 400
 230 TCRIT = RWORK(1)
-    IF ((dvode_state % TN - TCRIT) * dvode_state % H .GT. ZERO) GO TO 624
-    IF ((TCRIT - TOUT) * dvode_state % H .LT. ZERO) GO TO 625
-    IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 245
-    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
+    IF ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) GO TO 624
+    IF ((TCRIT - TOUT) * vstate % H .LT. ZERO) GO TO 625
+    IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 245
+    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
 240 TCRIT = RWORK(1)
-    IF ((dvode_state % TN - TCRIT) * dvode_state % H .GT. ZERO) GO TO 624
-245 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
-    IHIT = ABS(dvode_state % TN - TCRIT) .LE. HUN * dvode_state % UROUND * HMX
+    IF ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) GO TO 624
+245 HMX = ABS(vstate % TN) + ABS(vstate % H)
+    IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
     IF (IHIT) GO TO 400
-    TNEXT = dvode_state % TN + dvode_state % HNEW*(ONE + FOUR * dvode_state % UROUND)
-    IF ((TNEXT - TCRIT) * dvode_state % H .LE. ZERO) GO TO 250
-    dvode_state % H = (TCRIT - dvode_state % TN)*(ONE - FOUR * dvode_state % UROUND)
-    dvode_state % KUTH = 1
+    TNEXT = vstate % TN + vstate % HNEW*(ONE + FOUR * vstate % UROUND)
+    IF ((TNEXT - TCRIT) * vstate % H .LE. ZERO) GO TO 250
+    vstate % H = (TCRIT - vstate % TN)*(ONE - FOUR * vstate % UROUND)
+    vstate % KUTH = 1
     
     ! -----------------------------------------------------------------------
     !  Block E.
@@ -752,31 +770,31 @@ contains
     ! -----------------------------------------------------------------------
 
 250 CONTINUE
-    IF ((dvode_state % NST-NSLAST) .GE. dvode_state % MXSTEP) GO TO 500
-    CALL DEWSET (dvode_state % N, ITOL, RTOL, ATOL, pYH1, pEWT)
-    do I = 1,dvode_state % N
-       IF (RWORK(I+dvode_state % LEWT-1) .LE. ZERO) GO TO 510
-       RWORK(I+dvode_state % LEWT-1) = ONE/RWORK(I+dvode_state % LEWT-1)
+    IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
+    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL, vstate % pYH1, vstate % pEWT)
+    do I = 1,vstate % N
+       IF (RWORK(I+vstate % LEWT-1) .LE. ZERO) GO TO 510
+       RWORK(I+vstate % LEWT-1) = ONE/RWORK(I+vstate % LEWT-1)
     end do
-270 TOLSF = dvode_state % UROUND * DVNORM (dvode_state % N, pYH1, pEWT)
+270 TOLSF = vstate % UROUND * DVNORM (vstate % N, vstate % pYH1, vstate % pEWT)
     IF (TOLSF .LE. ONE) GO TO 280
     TOLSF = TOLSF*TWO
-    IF (dvode_state % NST .EQ. 0) GO TO 626
+    IF (vstate % NST .EQ. 0) GO TO 626
     GO TO 520
-280 IF ((dvode_state % TN + dvode_state % H) .NE. dvode_state % TN) GO TO 290
-    dvode_state % NHNIL = dvode_state % NHNIL + 1
-    IF (dvode_state % NHNIL .GT. dvode_state % MXHNIL) GO TO 290
+280 IF ((vstate % TN + vstate % H) .NE. vstate % TN) GO TO 290
+    vstate % NHNIL = vstate % NHNIL + 1
+    IF (vstate % NHNIL .GT. vstate % MXHNIL) GO TO 290
     ! MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
     ! CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG='      such that in the machine, T + H = T on the next step  '
     ! CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG = '      (H = step size). solver will continue anyway'
-    ! CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
-    IF (dvode_state % NHNIL .LT. dvode_state % MXHNIL) GO TO 290
+    ! CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+    IF (vstate % NHNIL .LT. vstate % MXHNIL) GO TO 290
     ! MSG = 'DVODE--  Above warning has been issued I1 times.  '
     ! CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG = '      it will not be issued again for this problem'
-    ! CALL XERRWD (MSG, 50, 102, 1, 1, dvode_state % MXHNIL, 0, 0, ZERO, ZERO)
+    ! CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
 290 CONTINUE
     
     ! -----------------------------------------------------------------------
@@ -784,9 +802,8 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
 
-    CALL DVSTEP(Y, pYH, dvode_state % NYH, pYH1, pEWT, pSAVF, Y, pACOR, pWM, &
-         IWORK, F, JAC, F, DVNLSD, RPAR, IPAR, dvode_state)
-    KGO = 1 - dvode_state % KFLAG
+    CALL DVSTEP(Y, IWORK, F, JAC, F, DVNLSD, RPAR, IPAR, vstate)
+    KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
     GO TO (300, 530, 540), KGO
@@ -797,33 +814,33 @@ contains
     !  core integrator (KFLAG = 0).  Test for stop conditions.
     ! -----------------------------------------------------------------------
     
-300 dvode_state % INIT = 1
-    dvode_state % KUTH = 0
+300 vstate % INIT = 1
+    vstate % KUTH = 0
     GO TO (310, 400, 330, 340, 350), ITASK
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
-310 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
+310 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
+    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
     T = TOUT
     GO TO 420
     ! ITASK = 3.  Jump to exit if TOUT was reached. ------------------------
-330 IF ((dvode_state % TN - TOUT) * dvode_state % H .GE. ZERO) GO TO 400
+330 IF ((vstate % TN - TOUT) * vstate % H .GE. ZERO) GO TO 400
     GO TO 250
     ! ITASK = 4.  See if TOUT or TCRIT was reached.  Adjust H if necessary.
-340 IF ((dvode_state % TN - TOUT) * dvode_state % H .LT. ZERO) GO TO 345
-    CALL DVINDY (TOUT, 0, pYH, dvode_state % NYH, Y, IFLAG, dvode_state)
+340 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 345
+    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
     T = TOUT
     GO TO 420
-345 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
-    IHIT = ABS(dvode_state % TN - TCRIT) .LE. HUN * dvode_state % UROUND * HMX
+345 HMX = ABS(vstate % TN) + ABS(vstate % H)
+    IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
     IF (IHIT) GO TO 400
-    TNEXT = dvode_state % TN + dvode_state % HNEW*(ONE + FOUR * dvode_state % UROUND)
-    IF ((TNEXT - TCRIT) * dvode_state % H .LE. ZERO) GO TO 250
-    dvode_state % H = (TCRIT - dvode_state % TN)*(ONE - FOUR * dvode_state % UROUND)
-    dvode_state % KUTH = 1
+    TNEXT = vstate % TN + vstate % HNEW*(ONE + FOUR * vstate % UROUND)
+    IF ((TNEXT - TCRIT) * vstate % H .LE. ZERO) GO TO 250
+    vstate % H = (TCRIT - vstate % TN)*(ONE - FOUR * vstate % UROUND)
+    vstate % KUTH = 1
     GO TO 250
     ! ITASK = 5.  See if TCRIT was reached and jump to exit. ---------------
-350 HMX = ABS(dvode_state % TN) + ABS(dvode_state % H)
-    IHIT = ABS(dvode_state % TN - TCRIT) .LE. HUN * dvode_state % UROUND * HMX
+350 HMX = ABS(vstate % TN) + ABS(vstate % H)
+    IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
     
     ! -----------------------------------------------------------------------
     !  Block G.
@@ -834,25 +851,31 @@ contains
     ! -----------------------------------------------------------------------
     
 400 CONTINUE
-    CALL DCOPY (dvode_state % N, &
-         RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), 1, &
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, &
+         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, &
+         Y, 1)    
+#else
+    CALL DCOPY (vstate % N, &
+         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, &
          Y, 1)
-    T = dvode_state % TN
+#endif
+    T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
     IF (IHIT) T = TCRIT
 420 ISTATE = 2
-    RWORK(11) = dvode_state % HU
-    RWORK(12) = dvode_state % HNEW
-    RWORK(13) = dvode_state % TN
-    IWORK(11) = dvode_state % NST
-    IWORK(12) = dvode_state % NFE
-    IWORK(13) = dvode_state % NJE
-    IWORK(14) = dvode_state % NQU
-    IWORK(15) = dvode_state % NEWQ
-    IWORK(19) = dvode_state % NLU
-    IWORK(20) = dvode_state % NNI
-    IWORK(21) = dvode_state % NCFN
-    IWORK(22) = dvode_state % NETF
+    RWORK(11) = vstate % HU
+    RWORK(12) = vstate % HNEW
+    RWORK(13) = vstate % TN
+    IWORK(11) = vstate % NST
+    IWORK(12) = vstate % NFE
+    IWORK(13) = vstate % NJE
+    IWORK(14) = vstate % NQU
+    IWORK(15) = vstate % NEWQ
+    IWORK(19) = vstate % NLU
+    IWORK(20) = vstate % NNI
+    IWORK(21) = vstate % NCFN
+    IWORK(22) = vstate % NETF
 
     return
     
@@ -870,14 +893,14 @@ contains
     ! MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
     ! CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG = '      taken on this call before reaching TOUT     '
-    ! CALL XERRWD (MSG, 50, 201, 1, 1, dvode_state % MXSTEP, 0, 1, dvode_state % TN, ZERO)
+    ! CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
     ISTATE = -1
     GO TO 580
     ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 510 continue
-    ! EWTI = RWORK(dvode_state % LEWT+I-1)    
+    ! EWTI = RWORK(vstate % LEWT+I-1)    
     ! MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
-    ! CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, dvode_state % TN, EWTI)
+    ! CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
     ISTATE = -6
     GO TO 580
     ! Too much accuracy requested for machine precision. -------------------
@@ -885,7 +908,7 @@ contains
     ! MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
     ! CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG = '      for precision of machine:   see TOLSF (=R2) '
-    ! CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, dvode_state % TN, TOLSF)
+    ! CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
     RWORK(14) = TOLSF
     ISTATE = -2
     GO TO 580
@@ -894,7 +917,7 @@ contains
     ! MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
     ! CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG = '      test failed repeatedly or with abs(H) = HMIN'
-    ! CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
+    ! CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
     ISTATE = -4
     GO TO 560
     ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
@@ -904,13 +927,13 @@ contains
     ! MSG = '      corrector convergence failed repeatedly     '
     ! CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG = '      or with abs(H) = HMIN   '
-    ! CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, dvode_state % TN, dvode_state % H)
+    ! CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
     ISTATE = -5
     ! Compute IMXER if relevant. -------------------------------------------
 560 BIG = ZERO
     IMXER = 1
-    do I = 1,dvode_state % N
-       SIZE = ABS(RWORK(I+dvode_state % LACOR-1)*RWORK(I+dvode_state % LEWT-1))
+    do I = 1,vstate % N
+       SIZE = ABS(RWORK(I+vstate % LACOR-1)*RWORK(I+vstate % LEWT-1))
        IF (BIG .GE. SIZE) exit
        BIG = SIZE
        IMXER = I
@@ -918,20 +941,24 @@ contains
     IWORK(16) = IMXER
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
-    CALL DCOPY (dvode_state % N, RWORK(dvode_state % LYH), 1, Y, 1)
-    T = dvode_state % TN
-    RWORK(11) = dvode_state % HU
-    RWORK(12) = dvode_state % H
-    RWORK(13) = dvode_state % TN
-    IWORK(11) = dvode_state % NST
-    IWORK(12) = dvode_state % NFE
-    IWORK(13) = dvode_state % NJE
-    IWORK(14) = dvode_state % NQU
-    IWORK(15) = dvode_state % NQ
-    IWORK(19) = dvode_state % NLU
-    IWORK(20) = dvode_state % NNI
-    IWORK(21) = dvode_state % NCFN
-    IWORK(22) = dvode_state % NETF
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, Y, 1)    
+#else
+    CALL DCOPY (vstate % N, RWORK(vstate % LYH), 1, Y, 1)
+#endif    
+    T = vstate % TN
+    RWORK(11) = vstate % HU
+    RWORK(12) = vstate % H
+    RWORK(13) = vstate % TN
+    IWORK(11) = vstate % NST
+    IWORK(12) = vstate % NFE
+    IWORK(13) = vstate % NJE
+    IWORK(14) = vstate % NQU
+    IWORK(15) = vstate % NQ
+    IWORK(19) = vstate % NLU
+    IWORK(20) = vstate % NNI
+    IWORK(21) = vstate % NCFN
+    IWORK(22) = vstate % NETF
 
     return
     
@@ -962,7 +989,7 @@ contains
     GO TO 700
 605 continue
     ! MSG = 'DVODE--  ISTATE = 3 and NEQ increased (I1 to I2)  '
-    ! CALL XERRWD (MSG, 50, 5, 1, 2, dvode_state % N, NEQ, 0, ZERO, ZERO)
+    ! CALL XERRWD (MSG, 50, 5, 1, 2, vstate % N, NEQ, 0, ZERO, ZERO)
     GO TO 700
 606 continue
     ! MSG = 'DVODE--  ITOL (=I1) illegal   '
@@ -986,15 +1013,15 @@ contains
     GO TO 700
 611 continue
     ! MSG = 'DVODE--  MAXORD (=I1) .lt. 0  '
-    ! CALL XERRWD (MSG, 30, 11, 1, 1, dvode_state % MAXORD, 0, 0, ZERO, ZERO)
+    ! CALL XERRWD (MSG, 30, 11, 1, 1, vstate % MAXORD, 0, 0, ZERO, ZERO)
     GO TO 700
 612 continue
     ! MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
-    ! CALL XERRWD (MSG, 30, 12, 1, 1, dvode_state % MXSTEP, 0, 0, ZERO, ZERO)
+    ! CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
     GO TO 700
 613 continue
     ! MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
-    ! CALL XERRWD (MSG, 30, 13, 1, 1, dvode_state % MXHNIL, 0, 0, ZERO, ZERO)
+    ! CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
     GO TO 700
 614 continue
     ! MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
@@ -1008,7 +1035,7 @@ contains
     GO TO 700
 616 continue
     ! MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
-    ! CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, dvode_state % HMIN, ZERO)
+    ! CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
     GO TO 700
 617 CONTINUE
     ! MSG='DVODE--  RWORK length needed, LENRW (=I1), exceeds LRW (=I2)'
@@ -1027,7 +1054,7 @@ contains
     ! CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
     GO TO 700
 621 continue
-    ! EWTI = RWORK(dvode_state % LEWT+I-1)
+    ! EWTI = RWORK(vstate % LEWT+I-1)
     ! MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
     ! CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
     GO TO 700
@@ -1041,7 +1068,7 @@ contains
     GO TO 700
 624 CONTINUE
     ! MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
-    ! CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, dvode_state % TN)
+    ! CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
     GO TO 700
 625 CONTINUE
     ! MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
@@ -1073,7 +1100,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvsol(WM, IWM, X, IERSL, dvode_state)
+  subroutine dvsol(IWM, X, IERSL, vstate)
 
     !$acc routine seq
     
@@ -1109,31 +1136,31 @@ contains
     ! -----------------------------------------------------------------------
     ! 
 
-    real(dp_t) :: WM(:), X(:)
+    real(dp_t) :: X(:)
     integer    :: IWM(:), IERSL
-    type(dvode_t) :: dvode_state
+    type(dvode_t) :: vstate
 
     integer    :: I, MEBAND, ML, MU
     real(dp_t) :: DI, HRL1, PHRL1, R
 
     IERSL = 0
-    GO TO (100, 100, 300, 400, 400), dvode_state % MITER
-100 CALL DGESL (WM(3), dvode_state % N, dvode_state % N, IWM(31), X, 0)
+    GO TO (100, 100, 300, 400, 400), vstate % MITER
+100 CALL DGESL (vstate % pWM(3), vstate % N, vstate % N, IWM(31), X, 0)
     RETURN
 
-300 PHRL1 = WM(2)
-    HRL1 = dvode_state % H*dvode_state % RL1
-    WM(2) = HRL1
+300 PHRL1 = vstate % pWM(2)
+    HRL1 = vstate % H*vstate % RL1
+    vstate % pWM(2) = HRL1
     IF (HRL1 .EQ. PHRL1) GO TO 330
     R = HRL1/PHRL1
-    do I = 1,dvode_state % N
-       DI = ONE - R*(ONE - ONE/WM(I+2))
+    do I = 1,vstate % N
+       DI = ONE - R*(ONE - ONE/vstate % pWM(I+2))
        IF (ABS(DI) .EQ. ZERO) GO TO 390
-       WM(I+2) = ONE/DI
+       vstate % pWM(I+2) = ONE/DI
     end do
 
-330 do I = 1,dvode_state % N
-       X(I) = WM(I+2)*X(I)
+330 do I = 1,vstate % N
+       X(I) = vstate % pWM(I+2)*X(I)
     end do
     RETURN
 390 IERSL = 1
@@ -1142,7 +1169,7 @@ contains
 400 ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    CALL DGBSL (WM(3), MEBAND, dvode_state % N, ML, MU, IWM(31), X, 0)
+    CALL DGBSL (vstate % pWM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
     RETURN
   end subroutine dvsol
 
@@ -1170,7 +1197,11 @@ contains
     integer    :: IC
 
     do IC = 1,NCOL
+#ifdef CUDA
+       call cuda_dcopy(NROW, A(:,IC), 1, B(:,IC), 1)       
+#else
        CALL DCOPY (NROW, A(1,IC), 1, B(1,IC), 1)
+#endif
     end do
     RETURN
   end subroutine dacopy
@@ -1179,7 +1210,7 @@ contains
   attributes(device) &
 #endif  
   subroutine dvjac(Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM, F, JAC, &
-       IERPJ, RPAR, IPAR, dvode_state)
+       IERPJ, RPAR, IPAR, vstate)
 
     !$acc routine seq
     
@@ -1241,7 +1272,7 @@ contains
     ! -----------------------------------------------------------------------
     ! 
 
-    type(dvode_t) :: dvode_state
+    type(dvode_t) :: vstate
     real(dp_t) :: Y(:)
     real(dp_t) :: RPAR(:)
     integer    :: LDYH, IWM(:), IERPJ, IPAR(:)
@@ -1257,6 +1288,9 @@ contains
 
     ! Subroutine interfaces
     interface
+#ifdef CUDA  
+       attributes(device) &
+#endif              
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps
@@ -1264,7 +1298,10 @@ contains
          real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
-       
+
+#ifdef CUDA  
+       attributes(device) &
+#endif              
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps         
@@ -1274,98 +1311,118 @@ contains
     end interface
 
     IERPJ = 0
-    HRL1 = dvode_state % H*dvode_state % RL1
+    HRL1 = vstate % H*vstate % RL1
     ! See whether J should be evaluated (JOK = -1) or not (JOK = 1). -------
-    JOK = dvode_state % JSV
-    IF (dvode_state % JSV .EQ. 1) THEN
-       IF (dvode_state % NST .EQ. 0 .OR. dvode_state % NST .GT. dvode_state % NSLJ+dvode_state % MSBJ) JOK = -1
-       IF (dvode_state % ICF .EQ. 1 .AND. dvode_state % DRC .LT. dvode_state % CCMXJ) JOK = -1
-       IF (dvode_state % ICF .EQ. 2) JOK = -1
+    JOK = vstate % JSV
+    IF (vstate % JSV .EQ. 1) THEN
+       IF (vstate % NST .EQ. 0 .OR. vstate % NST .GT. vstate % NSLJ+vstate % MSBJ) JOK = -1
+       IF (vstate % ICF .EQ. 1 .AND. vstate % DRC .LT. vstate % CCMXJ) JOK = -1
+       IF (vstate % ICF .EQ. 2) JOK = -1
     ENDIF
     ! End of setting JOK. --------------------------------------------------
 
-    IF (JOK .EQ. -1 .AND. dvode_state % MITER .EQ. 1) THEN
+    IF (JOK .EQ. -1 .AND. vstate % MITER .EQ. 1) THEN
        ! If JOK = -1 and MITER = 1, call JAC to evaluate Jacobian. ------------
-       dvode_state % NJE = dvode_state % NJE + 1
-       dvode_state % NSLJ = dvode_state % NST
-       dvode_state % JCUR = 1
-       LENP = dvode_state % N * dvode_state % N
+       vstate % NJE = vstate % NJE + 1
+       vstate % NSLJ = vstate % NST
+       vstate % JCUR = 1
+       LENP = vstate % N * vstate % N
        do I = 1,LENP
           WM(I+2) = ZERO
        end do
-       CALL JAC (dvode_state % N, dvode_state % TN, Y, 0, 0, &
-            WM(3:3 + dvode_state % N**2 - 1), dvode_state % N, RPAR, IPAR)
-       IF (dvode_state % JSV .EQ. 1) CALL DCOPY (LENP, WM(3), 1, WM(dvode_state % LOCJS), 1)
+       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
+            WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
+       if (vstate % JSV .EQ. 1) then
+#ifdef CUDA
+          call cuda_dcopy(LENP, WM(3:3 + LENP - 1), 1, WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+#else
+          CALL DCOPY (LENP, WM(3), 1, WM(vstate % LOCJS), 1)
+#endif
+       endif
     ENDIF
 
-    IF (JOK .EQ. -1 .AND. dvode_state % MITER .EQ. 2) THEN
+    IF (JOK .EQ. -1 .AND. vstate % MITER .EQ. 2) THEN
        ! If MITER = 2, make N calls to F to approximate the Jacobian. ---------
-       dvode_state % NJE = dvode_state % NJE + 1
-       dvode_state % NSLJ = dvode_state % NST
-       dvode_state % JCUR = 1
-       FAC = DVNORM (dvode_state % N, SAVF, EWT)
-       R0 = THOU*ABS(dvode_state % H) * dvode_state % UROUND * REAL(dvode_state % N)*FAC
+       vstate % NJE = vstate % NJE + 1
+       vstate % NSLJ = vstate % NST
+       vstate % JCUR = 1
+       FAC = DVNORM (vstate % N, SAVF, EWT)
+       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        SRUR = WM(1)
        J1 = 2
-       do J = 1,dvode_state % N
+       do J = 1,vstate % N
           YJ = Y(J)
           R = MAX(SRUR*ABS(YJ),R0/EWT(J))
           Y(J) = Y(J) + R
           FAC = ONE/R
-          CALL F (dvode_state % N, dvode_state % TN, Y, FTEM, RPAR, IPAR)
-          do I = 1,dvode_state % N
+          CALL F (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
+          do I = 1,vstate % N
              WM(I+J1) = (FTEM(I) - SAVF(I))*FAC
           end do
           Y(J) = YJ
-          J1 = J1 + dvode_state % N
+          J1 = J1 + vstate % N
        end do
-       dvode_state % NFE = dvode_state % NFE + dvode_state % N
-       LENP = dvode_state % N * dvode_state % N
-       IF (dvode_state % JSV .EQ. 1) CALL DCOPY (LENP, WM(3), 1, WM(dvode_state % LOCJS), 1)
+       vstate % NFE = vstate % NFE + vstate % N
+       LENP = vstate % N * vstate % N
+       if (vstate % JSV .EQ. 1) then
+#ifdef CUDA
+          call cuda_dcopy(LENP, WM(3:3 + LENP - 1), 1, WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)          
+#else
+          CALL DCOPY (LENP, WM(3), 1, WM(vstate % LOCJS), 1)
+#endif
+       end if
     ENDIF
 
-    IF (JOK .EQ. 1 .AND. (dvode_state % MITER .EQ. 1 .OR. dvode_state % MITER .EQ. 2)) THEN
-       dvode_state % JCUR = 0
-       LENP = dvode_state % N * dvode_state % N
-       CALL DCOPY (LENP, WM(dvode_state % LOCJS), 1, WM(3), 1)
+    IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
+       vstate % JCUR = 0
+       LENP = vstate % N * vstate % N
+#ifdef CUDA
+       call cuda_dcopy(LENP, WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, WM(3:3 + LENP - 1), 1)       
+#else
+       CALL DCOPY (LENP, WM(vstate % LOCJS), 1, WM(3), 1)
+#endif
     ENDIF
 
-    IF (dvode_state % MITER .EQ. 1 .OR. dvode_state % MITER .EQ. 2) THEN
+    IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
+#ifdef CUDA
+       call cuda_dscal(LENP, CON, WM(3:3 + LENP - 1), 1)       
+#else
        CALL DSCAL (LENP, CON, WM(3), 1)
+#endif
        J = 3
-       NP1 = dvode_state % N + 1
-       do I = 1,dvode_state % N
+       NP1 = vstate % N + 1
+       do I = 1,vstate % N
           WM(J) = WM(J) + ONE
           J = J + NP1
        end do
-       dvode_state % NLU = dvode_state % NLU + 1
-       CALL DGEFA (WM(3), dvode_state % N, dvode_state % N, IWM(31), IER)
+       vstate % NLU = vstate % NLU + 1
+       CALL DGEFA (WM(3), vstate % N, vstate % N, IWM(31), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
     ! End of code block for MITER = 1 or 2. --------------------------------
 
-    IF (dvode_state % MITER .EQ. 3) THEN
+    IF (vstate % MITER .EQ. 3) THEN
        ! If MITER = 3, construct a diagonal approximation to J and P. ---------
-       dvode_state % NJE = dvode_state % NJE + 1
-       dvode_state % JCUR = 1
+       vstate % NJE = vstate % NJE + 1
+       vstate % JCUR = 1
        WM(2) = HRL1
-       R = dvode_state % RL1*PT1
-       do I = 1,dvode_state % N
-          Y(I) = Y(I) + R*(dvode_state % H*SAVF(I) - YH(I,2))
+       R = vstate % RL1*PT1
+       do I = 1,vstate % N
+          Y(I) = Y(I) + R*(vstate % H*SAVF(I) - YH(I,2))
        end do
-       WM3 => WM(3:3 + dvode_state % N - 1)
-       CALL F (dvode_state % N, dvode_state % TN, Y, &
+       WM3 => WM(3:3 + vstate % N - 1)
+       CALL F (vstate % N, vstate % TN, Y, &
             WM3, RPAR, IPAR)
-       dvode_state % NFE = dvode_state % NFE + 1
-       do I = 1,dvode_state % N
-          R0 = dvode_state % H*SAVF(I) - YH(I,2)
-          DI = PT1*R0 - dvode_state % H*(WM(I+2) - SAVF(I))
+       vstate % NFE = vstate % NFE + 1
+       do I = 1,vstate % N
+          R0 = vstate % H*SAVF(I) - YH(I,2)
+          DI = PT1*R0 - vstate % H*(WM(I+2) - SAVF(I))
           WM(I+2) = ONE
-          IF (ABS(R0) .LT. dvode_state % UROUND/EWT(I)) cycle
+          IF (ABS(R0) .LT. vstate % UROUND/EWT(I)) cycle
           IF (ABS(DI) .EQ. ZERO) GO TO 330
           WM(I+2) = PT1*R0/DI
        end do
@@ -1381,86 +1438,90 @@ contains
     ML3 = ML + 3
     MBAND = ML + MU + 1
     MEBAND = MBAND + ML
-    LENP = MEBAND * dvode_state % N
+    LENP = MEBAND * vstate % N
 
-    if (JOK .EQ. -1 .AND. dvode_state % MITER .EQ. 4) then
+    if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 4) then
        ! If JOK = -1 and MITER = 4, call JAC to evaluate Jacobian. ------------
-       dvode_state % NJE = dvode_state % NJE + 1
-       dvode_state % NSLJ = dvode_state % NST
-       dvode_state % JCUR = 1
+       vstate % NJE = vstate % NJE + 1
+       vstate % NSLJ = vstate % NST
+       vstate % JCUR = 1
        do I = 1,LENP
           WM(I+2) = ZERO
        end do
-       CALL JAC (dvode_state % N, dvode_state % TN, Y, ML, MU, &
-            WM(ML3:ML3 + MEBAND * dvode_state % N - 1), MEBAND, RPAR, IPAR)
-       if (dvode_state % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, dvode_state % N, &
-               WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
+       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, &
+            WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, RPAR, IPAR)
+       if (vstate % JSV .EQ. 1) then
+          CALL DACOPY(MBAND, vstate % N, &
+               WM(ML3:ML3 + MEBAND * vstate % N - 1), &
                MEBAND, &
-               WM(dvode_state % LOCJS:dvode_state % LOCJS + MBAND * dvode_state % N - 1), &
+               WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), &
                MBAND)
        end if
 
-    else if (JOK .EQ. -1 .AND. dvode_state % MITER .EQ. 5) then
+    else if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 5) then
        ! If MITER = 5, make ML+MU+1 calls to F to approximate the Jacobian. ---
-       dvode_state % NJE = dvode_state % NJE + 1
-       dvode_state % NSLJ = dvode_state % NST
-       dvode_state % JCUR = 1
-       MBA = MIN(MBAND,dvode_state % N)
+       vstate % NJE = vstate % NJE + 1
+       vstate % NSLJ = vstate % NST
+       vstate % JCUR = 1
+       MBA = MIN(MBAND,vstate % N)
        MEB1 = MEBAND - 1
        SRUR = WM(1)
-       FAC = DVNORM (dvode_state % N, SAVF, EWT)
-       R0 = THOU*ABS(dvode_state % H) * dvode_state % UROUND * REAL(dvode_state % N)*FAC
+       FAC = DVNORM (vstate % N, SAVF, EWT)
+       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        do J = 1,MBA
-          do I = J,dvode_state % N,MBAND
+          do I = J,vstate % N,MBAND
              YI = Y(I)
              R = MAX(SRUR*ABS(YI),R0/EWT(I))
              Y(I) = Y(I) + R
           end do
-          CALL F (dvode_state % N, dvode_state % TN, Y, FTEM, RPAR, IPAR)
-          do JJ = J,dvode_state % N,MBAND
+          CALL F (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
+          do JJ = J,vstate % N,MBAND
              Y(JJ) = YH(JJ,1)
              YJJ = Y(JJ)
              R = MAX(SRUR*ABS(YJJ),R0/EWT(JJ))
              FAC = ONE/R
              I1 = MAX(JJ-MU,1)
-             I2 = MIN(JJ+ML,dvode_state % N)
+             I2 = MIN(JJ+ML,vstate % N)
              II = JJ*MEB1 - ML + 2
              do I = I1,I2
                 WM(II+I) = (FTEM(I) - SAVF(I))*FAC
              end do
           end do
        end do
-       dvode_state % NFE = dvode_state % NFE + MBA
-       if (dvode_state % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, dvode_state % N, &
-               WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
+       vstate % NFE = vstate % NFE + MBA
+       if (vstate % JSV .EQ. 1) then
+          CALL DACOPY(MBAND, vstate % N, &
+               WM(ML3:ML3 + MEBAND * vstate % N - 1), &
                MEBAND, &
-               WM(dvode_state % LOCJS:dvode_state % LOCJS + MBAND * dvode_state % N - 1), &
+               WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), &
                MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
-       dvode_state % JCUR = 0
-       CALL DACOPY(MBAND, dvode_state % N, &
-            WM(dvode_state % LOCJS:dvode_state % LOCJS + MBAND * dvode_state % N - 1), &
+       vstate % JCUR = 0
+       CALL DACOPY(MBAND, vstate % N, &
+            WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), &
             MBAND, &
-            WM(ML3:ML3 + MEBAND * dvode_state % N - 1), &
+            WM(ML3:ML3 + MEBAND * vstate % N - 1), &
             MEBAND)
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
+#ifdef CUDA
+    call cuda_dscal(LENP, CON, WM(3:3 + LENP - 1), 1 )    
+#else
     CALL DSCAL (LENP, CON, WM(3), 1 )
+#endif
     II = MBAND + 2
-    do I = 1,dvode_state % N
+    do I = 1,vstate % N
        WM(II) = WM(II) + ONE
        II = II + MEBAND
     end do
-    dvode_state % NLU = dvode_state % NLU + 1
-    CALL DGBFA (WM(3), MEBAND, dvode_state % N, ML, MU, IWM(31), IER)
+    vstate % NLU = vstate % NLU + 1
+    CALL DGBFA (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if
@@ -1471,8 +1532,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvnlsd(Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
-       F, JAC, PDUM, NFLAG, RPAR, IPAR, dvode_state)
+  subroutine dvnlsd(Y, IWM, F, JAC, PDUM, NFLAG, RPAR, IPAR, vstate)
 
     !$acc routine seq
     
@@ -1536,13 +1596,11 @@ contains
     ! -----------------------------------------------------------------------
     !
 
-    type(dvode_t) :: dvode_state
-    real(dp_t), target :: Y(dvode_state % N)
+    type(dvode_t) :: vstate
+    real(dp_t), target :: Y(vstate % N)
     real(dp_t), pointer :: pY(:)
-    real(dp_t) :: VSAV(:)
     real(dp_t) :: RPAR(:)
-    integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
-    real(dp_t), pointer :: YH(:,:), SAVF(:), EWT(:), ACOR(:), WM(:)
+    integer    :: IWM(:), NFLAG, IPAR(:)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
@@ -1556,9 +1614,15 @@ contains
 
     ! Subroutine interfaces
     interface
+#ifdef CUDA  
+       attributes(device) &
+#endif                     
        subroutine PDUM
        end subroutine PDUM
-       
+
+#ifdef CUDA  
+       attributes(device) &
+#endif              
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps
@@ -1566,7 +1630,10 @@ contains
          real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
-       
+
+#ifdef CUDA  
+       attributes(device) &
+#endif              
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps         
@@ -1582,13 +1649,13 @@ contains
     !  nonlinear convergence failure with NFLAG = -2, set IPUP = MITER
     !  to force a Jacobian update when MITER .ne. 0.
     ! -----------------------------------------------------------------------
-    IF (dvode_state % JSTART .EQ. 0) dvode_state % NSLP = 0
-    IF (NFLAG .EQ. 0) dvode_state % ICF = 0
-    IF (NFLAG .EQ. -2) dvode_state % IPUP = dvode_state % MITER
-    IF ( (dvode_state % JSTART .EQ. 0) .OR. (dvode_state % JSTART .EQ. -1) ) dvode_state % IPUP = dvode_state % MITER
+    IF (vstate % JSTART .EQ. 0) vstate % NSLP = 0
+    IF (NFLAG .EQ. 0) vstate % ICF = 0
+    IF (NFLAG .EQ. -2) vstate % IPUP = vstate % MITER
+    IF ( (vstate % JSTART .EQ. 0) .OR. (vstate % JSTART .EQ. -1) ) vstate % IPUP = vstate % MITER
     ! If this is functional iteration, set CRATE .eq. 1 and drop to 220
-    IF (dvode_state % MITER .EQ. 0) THEN
-       dvode_state % CRATE = ONE
+    IF (vstate % MITER .EQ. 0) THEN
+       vstate % CRATE = ONE
        GO TO 220
     ENDIF
     ! -----------------------------------------------------------------------
@@ -1597,8 +1664,8 @@ contains
     !  to force DVJAC to be called, if a Jacobian is involved.
     !  In any case, DVJAC is called at least every MSBP steps.
     ! -----------------------------------------------------------------------
-    dvode_state % DRC = ABS(dvode_state % RC-ONE)
-    IF (dvode_state % DRC .GT. CCMAX .OR. dvode_state % NST .GE. dvode_state % NSLP+MSBP) dvode_state % IPUP = dvode_state % MITER
+    vstate % DRC = ABS(vstate % RC-ONE)
+    IF (vstate % DRC .GT. CCMAX .OR. vstate % NST .GE. vstate % NSLP+MSBP) vstate % IPUP = vstate % MITER
     ! -----------------------------------------------------------------------
     !  Up to MAXCOR corrector iterations are taken.  A convergence test is
     !  made on the r.m.s. norm of each correction, weighted by the error
@@ -1608,44 +1675,52 @@ contains
 220 M = 0
     DELP = ZERO
 
-    CALL DCOPY (dvode_state % N, YH(:,1), 1, Y, 1)
-    CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
-    dvode_state % NFE = dvode_state % NFE + 1
-    IF (dvode_state % IPUP .LE. 0) GO TO 250
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, vstate % pYH(:,1), 1, Y, 1)
+#else
+    CALL DCOPY (vstate % N, vstate % pYH(:,1), 1, Y, 1)
+#endif
+    CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    vstate % NFE = vstate % NFE + 1
+    IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
     !  If indicated, the matrix P = I - h*rl1*J is reevaluated and
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    CALL DVJAC (Y, YH, LDYH, EWT, ACOR, SAVF, WM, IWM, F, JAC, IERPJ, &
-         RPAR, IPAR, dvode_state)
-    dvode_state % IPUP = 0
-    dvode_state % RC = ONE
-    dvode_state % DRC = ZERO
-    dvode_state % CRATE = ONE
-    dvode_state % NSLP = dvode_state % NST
+    CALL DVJAC (Y, vstate % pYH, vstate % NYH, vstate % pEWT, vstate % pACOR, vstate % pSAVF, vstate % pWM, IWM, F, JAC, IERPJ, &
+         RPAR, IPAR, vstate)
+    vstate % IPUP = 0
+    vstate % RC = ONE
+    vstate % DRC = ZERO
+    vstate % CRATE = ONE
+    vstate % NSLP = vstate % NST
     ! If matrix is singular, take error return to force cut in step size. --
     IF (IERPJ .NE. 0) GO TO 430
-250 do I = 1,dvode_state % N
-       ACOR(I) = ZERO
+250 do I = 1,vstate % N
+       vstate % pACOR(I) = ZERO
     end do
     ! This is a looping point for the corrector iteration. -----------------
-270 IF (dvode_state % MITER .NE. 0) GO TO 350
+270 IF (vstate % MITER .NE. 0) GO TO 350
     ! -----------------------------------------------------------------------
     !  In the case of functional iteration, update Y directly from
     !  the result of the last function evaluation.
     ! -----------------------------------------------------------------------
-    do I = 1,dvode_state % N
-       SAVF(I) = dvode_state % RL1*(dvode_state % H*SAVF(I) - YH(I,2))
+    do I = 1,vstate % N
+       vstate % pSAVF(I) = vstate % RL1*(vstate % H * vstate % pSAVF(I) - vstate % pYH(I,2))
     end do
-    do I = 1,dvode_state % N
-       Y(I) = SAVF(I) - ACOR(I)
+    do I = 1,vstate % N
+       Y(I) = vstate % pSAVF(I) - vstate % pACOR(I)
     end do
-    DEL = DVNORM (dvode_state % N, pY, EWT)
-    do I = 1,dvode_state % N
-       Y(I) = YH(I,1) + SAVF(I)
+    DEL = DVNORM (vstate % N, pY, vstate % pEWT)
+    do I = 1,vstate % N
+       Y(I) = vstate % pYH(I,1) + vstate % pSAVF(I)
     end do
-    CALL DCOPY(dvode_state % N, SAVF, 1, ACOR, 1)
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
+#else
+    CALL DCOPY(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
+#endif
     GO TO 400
     ! -----------------------------------------------------------------------
     !  In the case of the chord method, compute the corrector error,
@@ -1653,60 +1728,69 @@ contains
     !  P as coefficient matrix.  The correction is scaled by the factor
     !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
     ! -----------------------------------------------------------------------
-350 do I = 1,dvode_state % N
-       Y(I) = (dvode_state % RL1*dvode_state % H)*SAVF(I) - (dvode_state % RL1*YH(I,2) + ACOR(I))
+350 do I = 1,vstate % N
+       Y(I) = (vstate % RL1*vstate % H) * vstate % pSAVF(I) - &
+            (vstate % RL1 * vstate % pYH(I,2) + vstate % pACOR(I))
     end do
-    CALL DVSOL (WM, IWM, Y, IERSL, dvode_state)
-    dvode_state % NNI = dvode_state % NNI + 1
+    CALL DVSOL (IWM, Y, IERSL, vstate)
+    vstate % NNI = vstate % NNI + 1
     IF (IERSL .GT. 0) GO TO 410
-    IF (dvode_state % METH .EQ. 2 .AND. dvode_state % RC .NE. ONE) THEN
-       CSCALE = TWO/(ONE + dvode_state % RC)
-       CALL DSCAL (dvode_state % N, CSCALE, Y, 1)
+    IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
+       CSCALE = TWO/(ONE + vstate % RC)
+#ifdef CUDA
+       call cuda_dscal(vstate % N, CSCALE, Y, 1)       
+#else
+       CALL DSCAL (vstate % N, CSCALE, Y, 1)
+#endif
     ENDIF
-    DEL = DVNORM (dvode_state % N, pY, EWT)
-    CALL DAXPY (dvode_state % N, ONE, Y, 1, ACOR, 1)
-    do I = 1,dvode_state % N
-       Y(I) = YH(I,1) + ACOR(I)
+    DEL = DVNORM (vstate % N, pY, vstate % pEWT)
+#ifdef CUDA    
+    call cuda_daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
+#else
+    call daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
+#endif    
+    do I = 1,vstate % N
+       Y(I) = vstate % pYH(I,1) + vstate % pACOR(I)
     end do
     ! -----------------------------------------------------------------------
     !  Test for convergence.  If M .gt. 0, an estimate of the convergence
     !  rate constant is stored in CRATE, and this is used in the test.
     ! -----------------------------------------------------------------------
-400 IF (M .NE. 0) dvode_state % CRATE = MAX(CRDOWN*dvode_state % CRATE,DEL/DELP)
-    DCON = DEL*MIN(ONE,dvode_state % CRATE)/dvode_state % TQ(4)
+400 IF (M .NE. 0) vstate % CRATE = MAX(CRDOWN*vstate % CRATE,DEL/DELP)
+    DCON = DEL*MIN(ONE,vstate % CRATE)/vstate % TQ(4)
     IF (DCON .LE. ONE) GO TO 450
     M = M + 1
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
-    dvode_state % NFE = dvode_state % NFE + 1
+    CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    vstate % NFE = vstate % NFE + 1
     GO TO 270
     
-410 IF (dvode_state % MITER .EQ. 0 .OR. dvode_state % JCUR .EQ. 1) GO TO 430
-    dvode_state % ICF = 1
-    dvode_state % IPUP = dvode_state % MITER
+410 IF (vstate % MITER .EQ. 0 .OR. vstate % JCUR .EQ. 1) GO TO 430
+    vstate % ICF = 1
+    vstate % IPUP = vstate % MITER
     GO TO 220
     
 430 CONTINUE
     NFLAG = -1
-    dvode_state % ICF = 2
-    dvode_state % IPUP = dvode_state % MITER
+    vstate % ICF = 2
+    vstate % IPUP = vstate % MITER
     RETURN
 
     ! Return for successful step. ------------------------------------------
 450 NFLAG = 0
-    dvode_state % JCUR = 0
-    dvode_state % ICF = 0
-    IF (M .EQ. 0) dvode_state % ACNRM = DEL
-    IF (M .GT. 0) dvode_state % ACNRM = DVNORM (dvode_state % N, ACOR, EWT)
+    vstate % JCUR = 0
+    vstate % ICF = 0
+    IF (M .EQ. 0) vstate % ACNRM = DEL
+    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % N, vstate % pACOR, vstate % pEWT)
     RETURN
   end subroutine dvnlsd
 
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvjust(YH, LDYH, IORD, dvode_state)
+  subroutine dvjust(IORD, vstate)
 
     !$acc routine seq
     
@@ -1730,17 +1814,16 @@ contains
     !  See References 1 and 2 for details.
     ! -----------------------------------------------------------------------
     !
-    type(dvode_t) :: dvode_state
-    real(dp_t), pointer :: YH(:,:)
-    integer    :: LDYH, IORD
+    type(dvode_t) :: vstate
+    integer    :: IORD
 
     real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
     integer    :: I, IBACK, J, JP1, LP1, NQM1, NQM2, NQP1
 
-    IF ((dvode_state % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN
-    NQM1 = dvode_state % NQ - 1
-    NQM2 = dvode_state % NQ - 2
-    GO TO (100, 200), dvode_state % METH
+    IF ((vstate % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN
+    NQM1 = vstate % NQ - 1
+    NQM2 = vstate % NQ - 2
+    GO TO (100, 200), vstate % METH
     ! -----------------------------------------------------------------------
     !  Nonstiff option...
     !  Check to see if the order is being increased or decreased.
@@ -1748,38 +1831,39 @@ contains
 100 CONTINUE
     IF (IORD .EQ. 1) GO TO 180
     ! Order decrease. ------------------------------------------------------
-    do J = 1, dvode_state % LMAX
-       dvode_state % EL(J) = ZERO
+    do J = 1, vstate % LMAX
+       vstate % EL(J) = ZERO
     end do
-    dvode_state % EL(2) = ONE
+    vstate % EL(2) = ONE
     HSUM = ZERO
     do J = 1, NQM2
        ! Construct coefficients of x*(x+xi(1))*...*(x+xi(j)). -----------------
-       HSUM = HSUM + dvode_state % TAU(J)
-       XI = HSUM/dvode_state % HSCAL
+       HSUM = HSUM + vstate % TAU(J)
+       XI = HSUM/vstate % HSCAL
        JP1 = J + 1
        do IBACK = 1, JP1
           I = (J + 3) - IBACK
-          dvode_state % EL(I) = dvode_state % EL(I)*XI + dvode_state % EL(I-1)
+          vstate % EL(I) = vstate % EL(I)*XI + vstate % EL(I-1)
        end do
     end do
     ! Construct coefficients of integrated polynomial. ---------------------
     do J = 2, NQM1
-       dvode_state % EL(J+1) = REAL(dvode_state % NQ) * dvode_state % EL(J)/REAL(J)
+       vstate % EL(J+1) = REAL(vstate % NQ) * vstate % EL(J)/REAL(J)
     end do
     ! Subtract correction terms from YH array. -----------------------------
-    do J = 3, dvode_state % NQ
-       do I = 1, dvode_state % N
-          YH(I,J) = YH(I,J) - YH(I,dvode_state % L) * dvode_state % EL(J)
+    do J = 3, vstate % NQ
+       do I = 1, vstate % N
+          vstate % pYH(I,J) = vstate % pYH(I,J) - &
+               vstate % pYH(I,vstate % L) * vstate % EL(J)
        end do
     end do
     RETURN
     ! Order increase. ------------------------------------------------------
     ! Zero out next column in YH array. ------------------------------------
 180 CONTINUE
-    LP1 = dvode_state % L + 1
-    do I = 1, dvode_state % N
-       YH(I,LP1) = ZERO
+    LP1 = vstate % L + 1
+    do I = 1, vstate % N
+       vstate % pYH(I,LP1) = ZERO
     end do
     RETURN
     ! -----------------------------------------------------------------------
@@ -1789,64 +1873,69 @@ contains
 200 CONTINUE
     IF (IORD .EQ. 1) GO TO 300
     ! Order decrease. ------------------------------------------------------
-    do J = 1, dvode_state % LMAX
-       dvode_state % EL(J) = ZERO
+    do J = 1, vstate % LMAX
+       vstate % EL(J) = ZERO
     end do
-    dvode_state % EL(3) = ONE
+    vstate % EL(3) = ONE
     HSUM = ZERO
     do J = 1,NQM2
        ! Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)). ---------------
-       HSUM = HSUM + dvode_state % TAU(J)
-       XI = HSUM/dvode_state % HSCAL
+       HSUM = HSUM + vstate % TAU(J)
+       XI = HSUM/vstate % HSCAL
        JP1 = J + 1
        do IBACK = 1, JP1
           I = (J + 4) - IBACK
-          dvode_state % EL(I) = dvode_state % EL(I) * XI + dvode_state % EL(I-1)
+          vstate % EL(I) = vstate % EL(I) * XI + vstate % EL(I-1)
        end do
     end do
     ! Subtract correction terms from YH array. -----------------------------
-    do J = 3,dvode_state % NQ
-       do I = 1, dvode_state % N
-          YH(I,J) = YH(I,J) - YH(I,dvode_state % L) * dvode_state % EL(J)
+    do J = 3,vstate % NQ
+       do I = 1, vstate % N
+          vstate % pYH(I,J) = vstate % pYH(I,J) - &
+               vstate % pYH(I,vstate % L) * vstate % EL(J)
        end do
     end do
     RETURN
     ! Order increase. ------------------------------------------------------
-300 do J = 1, dvode_state % LMAX
-       dvode_state % EL(J) = ZERO
+300 do J = 1, vstate % LMAX
+       vstate % EL(J) = ZERO
     end do
-    dvode_state % EL(3) = ONE
+    vstate % EL(3) = ONE
     ALPH0 = -ONE
     ALPH1 = ONE
     PROD = ONE
     XIOLD = ONE
-    HSUM = dvode_state % HSCAL
-    IF (dvode_state % NQ .EQ. 1) GO TO 340
+    HSUM = vstate % HSCAL
+    IF (vstate % NQ .EQ. 1) GO TO 340
     do J = 1, NQM1
        ! Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)). ---------------
        JP1 = J + 1
-       HSUM = HSUM + dvode_state % TAU(JP1)
-       XI = HSUM/dvode_state % HSCAL
+       HSUM = HSUM + vstate % TAU(JP1)
+       XI = HSUM/vstate % HSCAL
        PROD = PROD*XI
        ALPH0 = ALPH0 - ONE/REAL(JP1)
        ALPH1 = ALPH1 + ONE/XI
        do IBACK = 1, JP1
           I = (J + 4) - IBACK
-          dvode_state % EL(I) = dvode_state % EL(I) * XIOLD + dvode_state % EL(I-1)
+          vstate % EL(I) = vstate % EL(I) * XIOLD + vstate % EL(I-1)
        end do
        XIOLD = XI
     end do
 340 CONTINUE
     T1 = (-ALPH0 - ALPH1)/PROD
     ! Load column L + 1 in YH array. ---------------------------------------
-    LP1 = dvode_state % L + 1
-    do I = 1, dvode_state % N
-       YH(I,LP1) = T1*YH(I,dvode_state % LMAX)
+    LP1 = vstate % L + 1
+    do I = 1, vstate % N
+       vstate % pYH(I,LP1) = T1 * vstate % pYH(I,vstate % LMAX)
     end do
     ! Add correction terms to YH array. ------------------------------------
-    NQP1 = dvode_state % NQ + 1
+    NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPY (dvode_state % N, dvode_state % EL(J), YH(1,LP1), 1, YH(1,J), 1 )
+#ifdef CUDA
+       call cuda_daxpy(vstate % N, vstate % EL(J), vstate % pYH(1:vstate % N,LP1), 1, vstate % pYH(1:vstate % N,J), 1)
+#else       
+       CALL DAXPY (vstate % N, vstate % EL(J), vstate % pYH(1,LP1), 1, vstate % pYH(1,J), 1 )
+#endif
     end do
     RETURN
   end subroutine dvjust
@@ -1854,7 +1943,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvset(dvode_state)
+  subroutine dvset(vstate)
 
     !$acc routine seq
     
@@ -1905,7 +1994,7 @@ contains
     ! -----------------------------------------------------------------------
     !
 
-    type(dvode_t), intent(inout) :: dvode_state
+    type(dvode_t), intent(inout) :: vstate
     real(dp_t) :: EM(13)
     real(dp_t) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
     real(dp_t) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S
@@ -1915,47 +2004,47 @@ contains
     ! Parameter declaration
     real(dp_t), parameter :: CORTES = 0.1D0
 
-    FLOTL = REAL(dvode_state % L)
-    NQM1 = dvode_state % NQ - 1
-    NQM2 = dvode_state % NQ - 2
-    GO TO (100, 200), dvode_state % METH
+    FLOTL = REAL(vstate % L)
+    NQM1 = vstate % NQ - 1
+    NQM2 = vstate % NQ - 2
+    GO TO (100, 200), vstate % METH
 
     !  Set coefficients for Adams methods. ----------------------------------
-100 IF (dvode_state % NQ .NE. 1) GO TO 110
-    dvode_state % EL(1) = ONE
-    dvode_state % EL(2) = ONE
-    dvode_state % TQ(1) = ONE
-    dvode_state % TQ(2) = TWO
-    dvode_state % TQ(3) = SIX*dvode_state % TQ(2)
-    dvode_state % TQ(5) = ONE
+100 IF (vstate % NQ .NE. 1) GO TO 110
+    vstate % EL(1) = ONE
+    vstate % EL(2) = ONE
+    vstate % TQ(1) = ONE
+    vstate % TQ(2) = TWO
+    vstate % TQ(3) = SIX*vstate % TQ(2)
+    vstate % TQ(5) = ONE
     GO TO 300
-110 HSUM = dvode_state % H
+110 HSUM = vstate % H
     EM(1) = ONE
     FLOTNQ = FLOTL - ONE
-    do I = 2, dvode_state % L
+    do I = 2, vstate % L
        EM(I) = ZERO
     end do
     do J = 1, NQM1
-       IF ((J .NE. NQM1) .OR. (dvode_state % NQWAIT .NE. 1)) GO TO 130
+       IF ((J .NE. NQM1) .OR. (vstate % NQWAIT .NE. 1)) GO TO 130
        S = ONE
        CSUM = ZERO
        do I = 1, NQM1
           CSUM = CSUM + S*EM(I)/REAL(I+1)
           S = -S
        end do
-       dvode_state % TQ(1) = EM(NQM1)/(FLOTNQ*CSUM)
-130    RXI = dvode_state % H/HSUM
+       vstate % TQ(1) = EM(NQM1)/(FLOTNQ*CSUM)
+130    RXI = vstate % H/HSUM
        do IBACK = 1, J
           I = (J + 2) - IBACK
           EM(I) = EM(I) + EM(I-1)*RXI
        end do
-       HSUM = HSUM + dvode_state % TAU(J)
+       HSUM = HSUM + vstate % TAU(J)
     end do
     ! Compute integral from -1 to 0 of polynomial and of x times it. -------
     S = ONE
     EM0 = ZERO
     CSUM = ZERO
-    do I = 1, dvode_state % NQ
+    do I = 1, vstate % NQ
        FLOTI = REAL(I)
        EM0 = EM0 + S*EM(I)/FLOTI
        CSUM = CSUM + S*EM(I)/(FLOTI+ONE)
@@ -1963,87 +2052,86 @@ contains
     end do
     ! In EL, form coefficients of normalized integrated polynomial. --------
     S = ONE/EM0
-    dvode_state % EL(1) = ONE
-    do I = 1, dvode_state % NQ
-       dvode_state % EL(I+1) = S*EM(I)/REAL(I)
+    vstate % EL(1) = ONE
+    do I = 1, vstate % NQ
+       vstate % EL(I+1) = S*EM(I)/REAL(I)
     end do
-    XI = HSUM/dvode_state % H
-    dvode_state % TQ(2) = XI*EM0/CSUM
-    dvode_state % TQ(5) = XI/dvode_state % EL(dvode_state % L)
-    IF (dvode_state % NQWAIT .NE. 1) GO TO 300
+    XI = HSUM/vstate % H
+    vstate % TQ(2) = XI*EM0/CSUM
+    vstate % TQ(5) = XI/vstate % EL(vstate % L)
+    IF (vstate % NQWAIT .NE. 1) GO TO 300
     ! For higher order control constant, multiply polynomial by 1+x/xi(q). -
     RXI = ONE/XI
-    do IBACK = 1, dvode_state % NQ
-       I = (dvode_state % L + 1) - IBACK
+    do IBACK = 1, vstate % NQ
+       I = (vstate % L + 1) - IBACK
        EM(I) = EM(I) + EM(I-1)*RXI
     end do
     ! Compute integral of polynomial. --------------------------------------
     S = ONE
     CSUM = ZERO
-    do I = 1, dvode_state % L
+    do I = 1, vstate % L
        CSUM = CSUM + S*EM(I)/REAL(I+1)
        S = -S
     end do
-    dvode_state % TQ(3) = FLOTL*EM0/CSUM
+    vstate % TQ(3) = FLOTL*EM0/CSUM
     GO TO 300
 
     ! Set coefficients for BDF methods. ------------------------------------
-200 do I = 3, dvode_state % L
-       dvode_state % EL(I) = ZERO
+200 do I = 3, vstate % L
+       vstate % EL(I) = ZERO
     end do
-    dvode_state % EL(1) = ONE
-    dvode_state % EL(2) = ONE
+    vstate % EL(1) = ONE
+    vstate % EL(2) = ONE
     ALPH0 = -ONE
     AHATN0 = -ONE
-    HSUM = dvode_state % H
+    HSUM = vstate % H
     RXI = ONE
     RXIS = ONE
-    IF (dvode_state % NQ .EQ. 1) GO TO 240
+    IF (vstate % NQ .EQ. 1) GO TO 240
     do J = 1, NQM2
        ! In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)). ------
-       HSUM = HSUM + dvode_state % TAU(J)
-       RXI = dvode_state % H/HSUM
+       HSUM = HSUM + vstate % TAU(J)
+       RXI = vstate % H/HSUM
        JP1 = J + 1
        ALPH0 = ALPH0 - ONE/REAL(JP1)
        do IBACK = 1, JP1
           I = (J + 3) - IBACK
-          dvode_state % EL(I) = dvode_state % EL(I) + dvode_state % EL(I-1)*RXI
+          vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXI
        end do
     end do
-    ALPH0 = ALPH0 - ONE/REAL(dvode_state % NQ)
-    RXIS = -dvode_state % EL(2) - ALPH0
-    HSUM = HSUM + dvode_state % TAU(NQM1)
-    RXI = dvode_state % H/HSUM
-    AHATN0 = -dvode_state % EL(2) - RXI
-    do IBACK = 1, dvode_state % NQ
-       I = (dvode_state % NQ + 2) - IBACK
-       dvode_state % EL(I) = dvode_state % EL(I) + dvode_state % EL(I-1)*RXIS
+    ALPH0 = ALPH0 - ONE/REAL(vstate % NQ)
+    RXIS = -vstate % EL(2) - ALPH0
+    HSUM = HSUM + vstate % TAU(NQM1)
+    RXI = vstate % H/HSUM
+    AHATN0 = -vstate % EL(2) - RXI
+    do IBACK = 1, vstate % NQ
+       I = (vstate % NQ + 2) - IBACK
+       vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXIS
     end do
 240 T1 = ONE - AHATN0 + ALPH0
-    T2 = ONE + REAL(dvode_state % NQ)*T1
-    dvode_state % TQ(2) = ABS(ALPH0*T2/T1)
-    dvode_state % TQ(5) = ABS(T2/(dvode_state % EL(dvode_state % L)*RXI/RXIS))
-    IF (dvode_state % NQWAIT .NE. 1) GO TO 300
-    CNQM1 = RXIS/dvode_state % EL(dvode_state % L)
-    T3 = ALPH0 + ONE/REAL(dvode_state % NQ)
+    T2 = ONE + REAL(vstate % NQ)*T1
+    vstate % TQ(2) = ABS(ALPH0*T2/T1)
+    vstate % TQ(5) = ABS(T2/(vstate % EL(vstate % L)*RXI/RXIS))
+    IF (vstate % NQWAIT .NE. 1) GO TO 300
+    CNQM1 = RXIS/vstate % EL(vstate % L)
+    T3 = ALPH0 + ONE/REAL(vstate % NQ)
     T4 = AHATN0 + RXI
     ELP = T3/(ONE - T4 + T3)
-    dvode_state % TQ(1) = ABS(ELP/CNQM1)
-    HSUM = HSUM + dvode_state % TAU(dvode_state % NQ)
-    RXI = dvode_state % H/HSUM
-    T5 = ALPH0 - ONE/REAL(dvode_state % NQ+1)
+    vstate % TQ(1) = ABS(ELP/CNQM1)
+    HSUM = HSUM + vstate % TAU(vstate % NQ)
+    RXI = vstate % H/HSUM
+    T5 = ALPH0 - ONE/REAL(vstate % NQ+1)
     T6 = AHATN0 - RXI
     ELP = T2/(ONE - T6 + T5)
-    dvode_state % TQ(3) = ABS(ELP*RXI*(FLOTL + ONE)*T5)
-300 dvode_state % TQ(4) = CORTES*dvode_state % TQ(2)
+    vstate % TQ(3) = ABS(ELP*RXI*(FLOTL + ONE)*T5)
+300 vstate % TQ(4) = CORTES*vstate % TQ(2)
     RETURN
   end subroutine dvset
 
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvstep(Y, YH, LDYH, YH1, EWT, SAVF, VSAV, ACOR, &
-       WM, IWM, F, JAC, PSOL, VNLS, RPAR, IPAR, dvode_state)
+  subroutine dvstep(Y, IWM, F, JAC, PSOL, VNLS, RPAR, IPAR, vstate)
 
     !$acc routine seq
     
@@ -2105,11 +2193,10 @@ contains
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
     EXTERNAL PSOL
-    type(dvode_t) :: dvode_state
-    real(dp_t) :: Y(dvode_state % N)
-    real(dp_t) :: VSAV(:), RPAR(:)
-    integer    :: LDYH, IWM(:), IPAR(:)
-    real(dp_t), pointer :: YH(:,:), EWT(:), YH1(:), SAVF(:), WM(:), ACOR(:)
+    type(dvode_t) :: vstate
+    real(dp_t) :: Y(vstate % N)
+    real(dp_t) :: RPAR(:)
+    integer    :: IWM(:), IPAR(:)
     real(dp_t), pointer :: pYHL(:)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
@@ -2135,20 +2222,26 @@ contains
 
     ! Subroutine interfaces
     interface
-       subroutine VNLS(Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
-            F, JAC, PDUM, NFLAG, RPAR, IPAR, dvode_state)
+#ifdef CUDA  
+       attributes(device) &
+#endif                     
+       subroutine VNLS(Y, IWM, F, JAC, PDUM, NFLAG, RPAR, IPAR, vstate)
          use bl_types, only: dp_t
          use dvode_type_module, only: dvode_t
-         type(dvode_t) :: dvode_state
-         real(dp_t) :: Y(dvode_state % N)
-         real(dp_t) :: VSAV(:)
+         type(dvode_t) :: vstate
+         real(dp_t) :: Y(vstate % N)
          real(dp_t) :: RPAR(:)
-         integer    :: LDYH, IWM(:), NFLAG, IPAR(:)
-         real(dp_t), pointer :: YH(:,:), SAVF(:), EWT(:), ACOR(:), WM(:)
+         integer    :: IWM(:), NFLAG, IPAR(:)
          interface
+#ifdef CUDA  
+       attributes(device) &
+#endif                          
             subroutine PDUM
             end subroutine PDUM
-            
+
+#ifdef CUDA  
+       attributes(device) &
+#endif                   
             SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
               use bl_types, only: dp_t
               use rpar_indices, only: n_rpar_comps, n_ipar_comps
@@ -2157,6 +2250,9 @@ contains
               real(dp_t), pointer :: YDOT(:)
             END SUBROUTINE F
 
+#ifdef CUDA  
+       attributes(device) &
+#endif                          
             SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
               use bl_types, only: dp_t
               use rpar_indices, only: n_rpar_comps, n_ipar_comps              
@@ -2165,7 +2261,10 @@ contains
             END SUBROUTINE JAC
          end interface
        end subroutine VNLS
-       
+
+#ifdef CUDA  
+       attributes(device) &
+#endif                     
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps
@@ -2173,7 +2272,10 @@ contains
          real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
-       
+
+#ifdef CUDA  
+       attributes(device) &
+#endif                     
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps         
@@ -2185,13 +2287,13 @@ contains
     ETAQ   = ONE
     ETAQM1 = ONE
 
-    dvode_state % KFLAG = 0
-    TOLD = dvode_state % TN
+    vstate % KFLAG = 0
+    TOLD = vstate % TN
     NCF = 0
-    dvode_state % JCUR = 0
+    vstate % JCUR = 0
     NFLAG = 0
-    IF (dvode_state % JSTART .GT. 0) GO TO 20
-    IF (dvode_state % JSTART .EQ. -1) GO TO 100
+    IF (vstate % JSTART .GT. 0) GO TO 20
+    IF (vstate % JSTART .EQ. -1) GO TO 100
     ! -----------------------------------------------------------------------
     !  On the first call, the order is set to 1, and other variables are
     !  initialized.  ETAMAX is the maximum ratio by which H can be increased
@@ -2200,15 +2302,15 @@ contains
     !  occurs (in corrector convergence or error test), ETAMAX is set to 1
     !  for the next increase.
     ! -----------------------------------------------------------------------
-    dvode_state % NQ = 1
-    dvode_state % L = 2
-    dvode_state % NQNYH = dvode_state % NQ*LDYH
-    dvode_state % TAU(1) = dvode_state % H
-    dvode_state % PRL1 = ONE
-    dvode_state % RC = ZERO
-    dvode_state % ETAMAX = ETAMX1
-    dvode_state % NQWAIT = 2
-    dvode_state % HSCAL = dvode_state % H
+    vstate % NQ = 1
+    vstate % L = 2
+    vstate % NQNYH = vstate % NQ * vstate % NYH
+    vstate % TAU(1) = vstate % H
+    vstate % PRL1 = ONE
+    vstate % RC = ZERO
+    vstate % ETAMAX = ETAMX1
+    vstate % NQWAIT = 2
+    vstate % HSCAL = vstate % H
     GO TO 200
     ! -----------------------------------------------------------------------
     !  Take preliminary actions on a normal continuation step (JSTART.GT.0).
@@ -2220,24 +2322,24 @@ contains
     !  On a change of step size H, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 20  CONTINUE
-    IF (dvode_state % KUTH .EQ. 1) THEN
-       dvode_state % ETA = MIN(dvode_state % ETA,dvode_state % H/dvode_state % HSCAL)
-       dvode_state % NEWH = 1
+    IF (vstate % KUTH .EQ. 1) THEN
+       vstate % ETA = MIN(vstate % ETA,vstate % H/vstate % HSCAL)
+       vstate % NEWH = 1
     ENDIF
-50  IF (dvode_state % NEWH .EQ. 0) GO TO 200
-    IF (dvode_state % NEWQ .EQ. dvode_state % NQ) GO TO 150
-    IF (dvode_state % NEWQ .LT. dvode_state % NQ) THEN
-       CALL DVJUST (YH, LDYH, -1, dvode_state)
-       dvode_state % NQ = dvode_state % NEWQ
-       dvode_state % L = dvode_state % NQ + 1
-       dvode_state % NQWAIT = dvode_state % L
+50  IF (vstate % NEWH .EQ. 0) GO TO 200
+    IF (vstate % NEWQ .EQ. vstate % NQ) GO TO 150
+    IF (vstate % NEWQ .LT. vstate % NQ) THEN
+       CALL DVJUST (-1, vstate)
+       vstate % NQ = vstate % NEWQ
+       vstate % L = vstate % NQ + 1
+       vstate % NQWAIT = vstate % L
        GO TO 150
     ENDIF
-    IF (dvode_state % NEWQ .GT. dvode_state % NQ) THEN
-       CALL DVJUST (YH, LDYH, 1, dvode_state)
-       dvode_state % NQ = dvode_state % NEWQ
-       dvode_state % L = dvode_state % NQ + 1
-       dvode_state % NQWAIT = dvode_state % L
+    IF (vstate % NEWQ .GT. vstate % NQ) THEN
+       CALL DVJUST (1, vstate)
+       vstate % NQ = vstate % NEWQ
+       vstate % L = vstate % NQ + 1
+       vstate % NQWAIT = vstate % L
        GO TO 150
     ENDIF
     ! -----------------------------------------------------------------------
@@ -2253,73 +2355,76 @@ contains
     !  Finally, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 100 CONTINUE
-    IF (dvode_state % N .EQ. LDYH) GO TO 120
-    I1 = 1 + (dvode_state % NEWQ + 1)*LDYH
-    I2 = (dvode_state % MAXORD + 1)*LDYH
+    IF (vstate % N .EQ. vstate % NYH) GO TO 120
+    I1 = 1 + (vstate % NEWQ + 1)*vstate % NYH
+    I2 = (vstate % MAXORD + 1)*vstate % NYH
     IF (I1 .GT. I2) GO TO 120
     do I = I1, I2
-       YH1(I) = ZERO
+       vstate % pYH1(I) = ZERO
     end do
-120 IF (dvode_state % NEWQ .LE. dvode_state % MAXORD) GO TO 140
-    FLOTL = REAL(dvode_state % LMAX)
-    IF (dvode_state % MAXORD .LT. dvode_state % NQ-1) THEN
-       DDN = DVNORM (dvode_state % N, SAVF, EWT)/dvode_state % TQ(1)
-       dvode_state % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+120 IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 140
+    FLOTL = REAL(vstate % LMAX)
+    IF (vstate % MAXORD .LT. vstate % NQ-1) THEN
+       DDN = DVNORM (vstate % N, vstate % pSAVF, vstate % pEWT)/vstate % TQ(1)
+       vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
     ENDIF
-    IF (dvode_state % MAXORD .EQ. dvode_state % NQ .AND. dvode_state % NEWQ .EQ. dvode_state % NQ+1) dvode_state % ETA = ETAQ
-    IF (dvode_state % MAXORD .EQ. dvode_state % NQ-1 .AND. dvode_state % NEWQ .EQ. dvode_state % NQ+1) THEN
-       dvode_state % ETA = ETAQM1
-       CALL DVJUST (YH, LDYH, -1, dvode_state)
+    IF (vstate % MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
+    IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
+       vstate % ETA = ETAQM1
+       CALL DVJUST (-1, vstate)
     ENDIF
-    IF (dvode_state % MAXORD .EQ. dvode_state % NQ-1 .AND. dvode_state % NEWQ .EQ. dvode_state % NQ) THEN
-       DDN = DVNORM (dvode_state % N, SAVF, EWT)/dvode_state % TQ(1)
-       dvode_state % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-       CALL DVJUST (YH, LDYH, -1, dvode_state)
+    IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
+       DDN = DVNORM (vstate % N, vstate % pSAVF, vstate % pEWT)/vstate % TQ(1)
+       vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+       CALL DVJUST (-1, vstate)
     ENDIF
-    dvode_state % ETA = MIN(dvode_state % ETA,ONE)
-    dvode_state % NQ = dvode_state % MAXORD
-    dvode_state % L = dvode_state % LMAX
-140 IF (dvode_state % KUTH .EQ. 1) dvode_state % ETA = MIN(dvode_state % ETA,ABS(dvode_state % H/dvode_state % HSCAL))
-    IF (dvode_state % KUTH .EQ. 0) dvode_state % ETA = MAX(dvode_state % ETA,dvode_state % HMIN/ABS(dvode_state % HSCAL))
-    dvode_state % ETA = dvode_state % ETA/MAX(ONE,ABS(dvode_state % HSCAL)*dvode_state % HMXI*dvode_state % ETA)
-    dvode_state % NEWH = 1
-    dvode_state % NQWAIT = dvode_state % L
-    IF (dvode_state % NEWQ .LE. dvode_state % MAXORD) GO TO 50
+    vstate % ETA = MIN(vstate % ETA,ONE)
+    vstate % NQ = vstate % MAXORD
+    vstate % L = vstate % LMAX
+140 IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
+    IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
+    vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
+    vstate % NEWH = 1
+    vstate % NQWAIT = vstate % L
+    IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 50
     ! Rescale the history array for a change in H by a factor of ETA. ------
 150 R = ONE
 
-    do J = 2, dvode_state % L
-       R = R * dvode_state % ETA
-       CALL DSCAL (dvode_state % N, R, YH(1:dvode_state % N,J), 1 )
+    do J = 2, vstate % L
+       R = R * vstate % ETA
+#ifdef CUDA
+       call cuda_dscal(vstate % N, R, vstate % pYH(1:vstate % N,J), 1 )       
+#else
+       CALL DSCAL (vstate % N, R, vstate % pYH(1:vstate % N,J), 1 )
+#endif
     end do
-    dvode_state % H = dvode_state % HSCAL * dvode_state % ETA
-    dvode_state % HSCAL = dvode_state % H
-    dvode_state % RC = dvode_state % RC * dvode_state % ETA
-    dvode_state % NQNYH = dvode_state % NQ*LDYH
+    vstate % H = vstate % HSCAL * vstate % ETA
+    vstate % HSCAL = vstate % H
+    vstate % RC = vstate % RC * vstate % ETA
+    vstate % NQNYH = vstate % NQ*vstate % NYH
     ! -----------------------------------------------------------------------
     !  This section computes the predicted values by effectively
     !  multiplying the YH array by the Pascal triangle matrix.
     !  DVSET is called to calculate all integration coefficients.
     !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
     ! -----------------------------------------------------------------------
-200 dvode_state % TN = dvode_state % TN + dvode_state % H
-    I1 = dvode_state % NQNYH + 1
-    do JB = 1, dvode_state % NQ
-       I1 = I1 - LDYH
-       do I = I1, dvode_state % NQNYH
-          YH1(I) = YH1(I) + YH1(I+LDYH)
+200 vstate % TN = vstate % TN + vstate % H
+    I1 = vstate % NQNYH + 1
+    do JB = 1, vstate % NQ
+       I1 = I1 - vstate % NYH
+       do I = I1, vstate % NQNYH
+          vstate % pYH1(I) = vstate % pYH1(I) + &
+               vstate % pYH1(I+vstate % NYH)
        end do
     end do
-    CALL DVSET(dvode_state)
-    dvode_state % RL1 = ONE/dvode_state % EL(2)
-    dvode_state % RC = dvode_state % RC * (dvode_state % RL1/dvode_state % PRL1)
-    dvode_state % PRL1 = dvode_state % RL1
+    CALL DVSET(vstate)
+    vstate % RL1 = ONE/vstate % EL(2)
+    vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
+    vstate % PRL1 = vstate % RL1
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
-    
-    CALL VNLS (Y, YH, LDYH, VSAV, SAVF, EWT, ACOR, IWM, WM, &
-         F, JAC, PSOL, NFLAG, RPAR, IPAR, dvode_state)
+    CALL VNLS (Y, IWM, F, JAC, PSOL, NFLAG, RPAR, IPAR, vstate)
 
     IF (NFLAG .EQ. 0) GO TO 450
     ! -----------------------------------------------------------------------
@@ -2329,21 +2434,22 @@ contains
     !  Otherwise, an error exit is taken.
     ! -----------------------------------------------------------------------
     NCF = NCF + 1
-    dvode_state % NCFN = dvode_state % NCFN + 1
-    dvode_state % ETAMAX = ONE
-    dvode_state % TN = TOLD
-    I1 = dvode_state % NQNYH + 1
-    do JB = 1, dvode_state % NQ
-       I1 = I1 - LDYH
-       do I = I1, dvode_state % NQNYH
-          YH1(I) = YH1(I) - YH1(I+LDYH)
+    vstate % NCFN = vstate % NCFN + 1
+    vstate % ETAMAX = ONE
+    vstate % TN = TOLD
+    I1 = vstate % NQNYH + 1
+    do JB = 1, vstate % NQ
+       I1 = I1 - vstate % NYH
+       do I = I1, vstate % NQNYH
+          vstate % pYH1(I) = vstate % pYH1(I) - &
+               vstate % pYH1(I+vstate % NYH)
        end do
     end do
     IF (NFLAG .LT. -1) GO TO 680
-    IF (ABS(dvode_state % H) .LE. dvode_state % HMIN*ONEPSM) GO TO 670
+    IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
     IF (NCF .EQ. MXNCF) GO TO 670
-    dvode_state % ETA = ETACF
-    dvode_state % ETA = MAX(dvode_state % ETA,dvode_state % HMIN/ABS(dvode_state % H))
+    vstate % ETA = ETACF
+    vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H))
     NFLAG = -1
     GO TO 150
     ! -----------------------------------------------------------------------
@@ -2351,7 +2457,7 @@ contains
     !  made and control passes to statement 500 if it fails.
     ! -----------------------------------------------------------------------
 450 CONTINUE
-    DSM = dvode_state % ACNRM/dvode_state % TQ(2)
+    DSM = vstate % ACNRM/vstate % TQ(2)
     IF (DSM .GT. ONE) GO TO 500
     ! -----------------------------------------------------------------------
     !  After a successful step, update the YH and TAU arrays and decrement
@@ -2359,28 +2465,36 @@ contains
     !  for use in a possible order increase on the next step.
     !  If ETAMAX = 1 (a failure occurred this step), keep NQWAIT .ge. 2.
     ! -----------------------------------------------------------------------
-    dvode_state % KFLAG = 0
-    dvode_state % NST = dvode_state % NST + 1
-    dvode_state % HU = dvode_state % H
-    dvode_state % NQU = dvode_state % NQ
-    do IBACK = 1, dvode_state % NQ
-       I = dvode_state % L - IBACK
-       dvode_state % TAU(I+1) = dvode_state % TAU(I)
+    vstate % KFLAG = 0
+    vstate % NST = vstate % NST + 1
+    vstate % HU = vstate % H
+    vstate % NQU = vstate % NQ
+    do IBACK = 1, vstate % NQ
+       I = vstate % L - IBACK
+       vstate % TAU(I+1) = vstate % TAU(I)
     end do
-    dvode_state % TAU(1) = dvode_state % H
-    do J = 1, dvode_state % L
-       CALL DAXPY (dvode_state % N, dvode_state % EL(J), ACOR, 1, YH(1,J), 1 )
+    vstate % TAU(1) = vstate % H
+    do J = 1, vstate % L
+#ifdef CUDA
+       call cuda_daxpy(vstate % N, vstate % EL(J), vstate % pACOR, 1, vstate % pYH(1:vstate % N,J), 1)
+#else       
+       CALL DAXPY (vstate % N, vstate % EL(J), vstate % pACOR, 1, vstate % pYH(1,J), 1 )
+#endif
     end do
-    dvode_state % NQWAIT = dvode_state % NQWAIT - 1
-    IF ((dvode_state % L .EQ. dvode_state % LMAX) .OR. (dvode_state % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPY (dvode_state % N, ACOR, 1, YH(1,dvode_state % LMAX), 1 )
-    dvode_state % CONP = dvode_state % TQ(5)
-490 IF (dvode_state % ETAMAX .NE. ONE) GO TO 560
-    IF (dvode_state % NQWAIT .LT. 2) dvode_state % NQWAIT = 2
-    dvode_state % NEWQ = dvode_state % NQ
-    dvode_state % NEWH = 0
-    dvode_state % ETA = ONE
-    dvode_state % HNEW = dvode_state % H
+    vstate % NQWAIT = vstate % NQWAIT - 1
+    IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, vstate % pACOR, 1, vstate % pYH(:,vstate % LMAX), 1 )    
+#else
+    CALL DCOPY (vstate % N, vstate % pACOR, 1, vstate % pYH(1,vstate % LMAX), 1 )
+#endif
+    vstate % CONP = vstate % TQ(5)
+490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
+    IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
+    vstate % NEWQ = vstate % NQ
+    vstate % NEWH = 0
+    vstate % ETA = ONE
+    vstate % HNEW = vstate % H
     GO TO 690
     ! -----------------------------------------------------------------------
     !  The error test failed.  KFLAG keeps track of multiple failures.
@@ -2389,25 +2503,26 @@ contains
     !  same order.  After repeated failures, H is forced to decrease
     !  more rapidly.
     ! -----------------------------------------------------------------------
-500 dvode_state % KFLAG = dvode_state % KFLAG - 1
-    dvode_state % NETF = dvode_state % NETF + 1
+500 vstate % KFLAG = vstate % KFLAG - 1
+    vstate % NETF = vstate % NETF + 1
     NFLAG = -2
-    dvode_state % TN = TOLD
-    I1 = dvode_state % NQNYH + 1
-    do JB = 1, dvode_state % NQ
-       I1 = I1 - LDYH
-       do I = I1, dvode_state % NQNYH
-          YH1(I) = YH1(I) - YH1(I+LDYH)
+    vstate % TN = TOLD
+    I1 = vstate % NQNYH + 1
+    do JB = 1, vstate % NQ
+       I1 = I1 - vstate % NYH
+       do I = I1, vstate % NQNYH
+          vstate % pYH1(I) = vstate % pYH1(I) - &
+               vstate % pYH1(I+vstate % NYH)
        end do
     end do
-    IF (ABS(dvode_state % H) .LE. dvode_state % HMIN*ONEPSM) GO TO 660
-    dvode_state % ETAMAX = ONE
-    IF (dvode_state % KFLAG .LE. KFC) GO TO 530
+    IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 660
+    vstate % ETAMAX = ONE
+    IF (vstate % KFLAG .LE. KFC) GO TO 530
     ! Compute ratio of new H to current H at the current order. ------------
-    FLOTL = REAL(dvode_state % L)
-    dvode_state % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
-    dvode_state % ETA = MAX(dvode_state % ETA,dvode_state % HMIN/ABS(dvode_state % H),ETAMIN)
-    IF ((dvode_state % KFLAG .LE. -2) .AND. (dvode_state % ETA .GT. ETAMXF)) dvode_state % ETA = ETAMXF
+    FLOTL = REAL(vstate % L)
+    vstate % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
+    vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H),ETAMIN)
+    IF ((vstate % KFLAG .LE. -2) .AND. (vstate % ETA .GT. ETAMXF)) vstate % ETA = ETAMXF
     GO TO 150
     ! -----------------------------------------------------------------------
     !  Control reaches this section if 3 or more consecutive failures
@@ -2417,24 +2532,24 @@ contains
     !  the step is retried.  After a total of 7 consecutive failures,
     !  an exit is taken with KFLAG = -1.
     ! -----------------------------------------------------------------------
-530 IF (dvode_state % KFLAG .EQ. KFH) GO TO 660
-    IF (dvode_state % NQ .EQ. 1) GO TO 540
-    dvode_state % ETA = MAX(ETAMIN,dvode_state % HMIN/ABS(dvode_state % H))
-    CALL DVJUST (YH, LDYH, -1, dvode_state)
-    dvode_state % L = dvode_state % NQ
-    dvode_state % NQ = dvode_state % NQ - 1
-    dvode_state % NQWAIT = dvode_state % L
+530 IF (vstate % KFLAG .EQ. KFH) GO TO 660
+    IF (vstate % NQ .EQ. 1) GO TO 540
+    vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
+    CALL DVJUST (-1, vstate)
+    vstate % L = vstate % NQ
+    vstate % NQ = vstate % NQ - 1
+    vstate % NQWAIT = vstate % L
     GO TO 150
-540 dvode_state % ETA = MAX(ETAMIN,dvode_state % HMIN/ABS(dvode_state % H))
-    dvode_state % H = dvode_state % H * dvode_state % ETA
-    dvode_state % HSCAL = dvode_state % H
-    dvode_state % TAU(1) = dvode_state % H
-    CALL F (dvode_state % N, dvode_state % TN, Y, SAVF, RPAR, IPAR)
-    dvode_state % NFE = dvode_state % NFE + 1
-    do I = 1, dvode_state % N
-       YH(I,2) = dvode_state % H*SAVF(I)
+540 vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
+    vstate % H = vstate % H * vstate % ETA
+    vstate % HSCAL = vstate % H
+    vstate % TAU(1) = vstate % H
+    CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    vstate % NFE = vstate % NFE + 1
+    do I = 1, vstate % N
+       vstate % pYH(I,2) = vstate % H * vstate % pSAVF(I)
     end do
-    dvode_state % NQWAIT = 10
+    vstate % NQWAIT = 10
     GO TO 200
     ! -----------------------------------------------------------------------
     !  If NQWAIT = 0, an increase or decrease in order by one is considered.
@@ -2447,66 +2562,74 @@ contains
     !  then NQWAIT is set to 2 (reconsider it after 2 steps).
     ! -----------------------------------------------------------------------
     !  Compute ratio of new H to current H at the current order. ------------
-560 FLOTL = REAL(dvode_state % L)
+560 FLOTL = REAL(vstate % L)
     ETAQ = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
-    IF (dvode_state % NQWAIT .NE. 0) GO TO 600
-    dvode_state % NQWAIT = 2
+    IF (vstate % NQWAIT .NE. 0) GO TO 600
+    vstate % NQWAIT = 2
     ETAQM1 = ZERO
-    IF (dvode_state % NQ .EQ. 1) GO TO 570
+    IF (vstate % NQ .EQ. 1) GO TO 570
     ! Compute ratio of new H to current H at the current order less one. ---
-    pYHL(1:dvode_state % N) => YH(1:dvode_state % N,dvode_state % L)
-    DDN = DVNORM (dvode_state % N, pYHL, EWT)/dvode_state % TQ(1)
+    pYHL(1:vstate % N) => vstate % pYH(1:vstate % N,vstate % L)
+    DDN = DVNORM (vstate % N, pYHL, vstate % pEWT)/vstate % TQ(1)
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 ETAQP1 = ZERO
-    IF (dvode_state % L .EQ. dvode_state % LMAX) GO TO 580
+    IF (vstate % L .EQ. vstate % LMAX) GO TO 580
     ! Compute ratio of new H to current H at current order plus one. -------
-    CNQUOT = (dvode_state % TQ(5)/dvode_state % CONP)*(dvode_state % H/dvode_state % TAU(2))**dvode_state % L
-    do I = 1, dvode_state % N
-       SAVF(I) = ACOR(I) - CNQUOT*YH(I,dvode_state % LMAX)
+    CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
+    do I = 1, vstate % N
+       vstate % pSAVF(I) = vstate % pACOR(I) - CNQUOT * vstate % pYH(I,vstate % LMAX)
     end do
-    DUP = DVNORM (dvode_state % N, SAVF, EWT)/dvode_state % TQ(3)
+    DUP = DVNORM (vstate % N, vstate % pSAVF, vstate % pEWT)/vstate % TQ(3)
     ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
 580 IF (ETAQ .GE. ETAQP1) GO TO 590
     IF (ETAQP1 .GT. ETAQM1) GO TO 620
     GO TO 610
 590 IF (ETAQ .LT. ETAQM1) GO TO 610
-600 dvode_state % ETA = ETAQ
-    dvode_state % NEWQ = dvode_state % NQ
+600 vstate % ETA = ETAQ
+    vstate % NEWQ = vstate % NQ
     GO TO 630
-610 dvode_state % ETA = ETAQM1
-    dvode_state % NEWQ = dvode_state % NQ - 1
+610 vstate % ETA = ETAQM1
+    vstate % NEWQ = vstate % NQ - 1
     GO TO 630
-620 dvode_state % ETA = ETAQP1
-    dvode_state % NEWQ = dvode_state % NQ + 1
-    CALL DCOPY (dvode_state % N, ACOR, 1, YH(1,dvode_state % LMAX), 1)
+620 vstate % ETA = ETAQP1
+    vstate % NEWQ = vstate % NQ + 1
+#ifdef CUDA
+    call cuda_dcopy(vstate % N, vstate % pACOR, 1, vstate % pYH(:,vstate % LMAX), 1)    
+#else
+    CALL DCOPY (vstate % N, vstate % ACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
+#endif
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
-630 IF (dvode_state % ETA .LT. THRESH .OR. dvode_state % ETAMAX .EQ. ONE) GO TO 640
-    dvode_state % ETA = MIN(dvode_state % ETA,dvode_state % ETAMAX)
-    dvode_state % ETA = dvode_state % ETA/MAX(ONE,ABS(dvode_state % H)*dvode_state % HMXI * dvode_state % ETA)
-    dvode_state % NEWH = 1
-    dvode_state % HNEW = dvode_state % H * dvode_state % ETA
+630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
+    vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
+    vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % H)*vstate % HMXI * vstate % ETA)
+    vstate % NEWH = 1
+    vstate % HNEW = vstate % H * vstate % ETA
     GO TO 690
-640 dvode_state % NEWQ = dvode_state % NQ
-    dvode_state % NEWH = 0
-    dvode_state % ETA = ONE
-    dvode_state % HNEW = dvode_state % H
+640 vstate % NEWQ = vstate % NQ
+    vstate % NEWH = 0
+    vstate % ETA = ONE
+    vstate % HNEW = vstate % H
     GO TO 690
     ! -----------------------------------------------------------------------
     !  All returns are made through this section.
     !  On a successful return, ETAMAX is reset and ACOR is scaled.
     ! -----------------------------------------------------------------------
-660 dvode_state % KFLAG = -1
+660 vstate % KFLAG = -1
     GO TO 720
-670 dvode_state % KFLAG = -2
+670 vstate % KFLAG = -2
     GO TO 720
-680 IF (NFLAG .EQ. -2) dvode_state % KFLAG = -3
-    IF (NFLAG .EQ. -3) dvode_state % KFLAG = -4
+680 IF (NFLAG .EQ. -2) vstate % KFLAG = -3
+    IF (NFLAG .EQ. -3) vstate % KFLAG = -4
     GO TO 720
-690 dvode_state % ETAMAX = ETAMX3
-    IF (dvode_state % NST .LE. 10) dvode_state % ETAMAX = ETAMX2
-    R = ONE/dvode_state % TQ(2)
-    CALL DSCAL (dvode_state % N, R, ACOR, 1)
-720 dvode_state % JSTART = 1
+690 vstate % ETAMAX = ETAMX3
+    IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
+    R = ONE/vstate % TQ(2)
+#ifdef CUDA
+    call cuda_dscal(vstate % N, R, vstate % pACOR, 1)    
+#else
+    CALL DSCAL (vstate % N, R, vstate % pACOR, 1)
+#endif
+720 vstate % JSTART = 1
     RETURN
   end subroutine dvstep
       
