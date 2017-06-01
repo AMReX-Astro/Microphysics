@@ -67,7 +67,7 @@ contains
     
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit
+    use managed_probin_module, only: cu_call_eos_in_rhs, cu_dt_crit
     use eos_type_module, only: eos_t, composition
     use eos_module, only: eos_input_rt, eos
     use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
@@ -98,11 +98,11 @@ contains
     ! that's needed to construct dY/dt. Then make sure
     ! the abundances are safe.
 
-    if (call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
+    if (cu_call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
-    else if (abs(eos_state % T - rpar(irp_Told)) > dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
+    else if (abs(eos_state % T - rpar(irp_Told)) > cu_dt_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
