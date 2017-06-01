@@ -55,7 +55,7 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  real(kind=dp_t), allocatable :: state(:,:,:,:)
+  real(kind=dp_t), managed, allocatable :: state(:,:,:,:)
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
