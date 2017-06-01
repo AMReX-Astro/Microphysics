@@ -112,8 +112,13 @@ contains
 
   end subroutine eos_init
 
+  subroutine eos_finalize()
+    call actual_eos_finalize()
+  end subroutine eos_finalize
 
-
+#ifdef CUDA
+  attributes(global) &
+#endif
   subroutine eos(input, state)
 
     !$acc routine seq

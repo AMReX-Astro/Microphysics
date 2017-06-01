@@ -3,7 +3,7 @@ module microphysics_module
   use BoxLib
   use backtrace_module, only : set_fpe_trap
   use network
-  use eos_module, only : eos_init
+  use eos_module, only : eos_init, eos_finalize
   use actual_rhs_module, only : actual_rhs_init
   use managed_probin_module, only: managed_probin_init, managed_probin_finalize
 #ifndef SDC
@@ -49,7 +49,8 @@ contains
   subroutine microphysics_finalize()
 
     implicit none
-    
+
+    call eos_finalize()
     call network_finalize()
     call managed_probin_finalize()
 
