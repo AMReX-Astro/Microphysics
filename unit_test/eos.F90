@@ -113,7 +113,9 @@ contains
   end subroutine eos_init
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos(input, state)
 
     !$acc routine seq
@@ -129,8 +131,10 @@ contains
 
     ! Local variables
 
+#ifndef CUDA
 #ifndef ACC
     if (.not. initialized) call amrex_error('EOS: not initialized')
+#endif    
 #endif
 
     ! Get abar, zbar, etc.
@@ -155,7 +159,9 @@ contains
   end subroutine eos
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_inputs(input, state, has_been_reset)
 
     !$acc routine seq
@@ -216,7 +222,9 @@ contains
 
 
   ! For density, just ensure that it is within mindens and maxdens.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_rho(state, has_been_reset)
 
     !$acc routine seq
@@ -233,7 +241,9 @@ contains
 
 
   ! For temperature, just ensure that it is within mintemp and maxtemp.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_T(state, has_been_reset)
 
     !$acc routine seq
@@ -248,7 +258,9 @@ contains
   end subroutine reset_T
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_e(state, has_been_reset)
 
     !$acc routine seq
@@ -265,7 +277,9 @@ contains
   end subroutine reset_e
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_h(state, has_been_reset)
 
     !$acc routine seq
@@ -282,7 +296,9 @@ contains
   end subroutine reset_h
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_s(state, has_been_reset)
 
     !$acc routine seq
@@ -299,7 +315,9 @@ contains
   end subroutine reset_s
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_p(state, has_been_reset)
 
     !$acc routine seq
@@ -319,7 +337,9 @@ contains
 
   ! Given an EOS state, ensure that rho and T are
   ! valid, then call with eos_input_rt.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_reset(state, has_been_reset)
 
     !$acc routine seq
@@ -343,6 +363,7 @@ contains
 
 
 #ifndef ACC
+#ifndef CUDA
   subroutine check_inputs(input, state)
 
     !$acc routine seq
@@ -537,6 +558,7 @@ contains
     endif
 
   end subroutine check_p
+#endif
 #endif
 
 end module eos_module
