@@ -1,15 +1,16 @@
 module integrator_module
 
+  use bl_types
+  
   implicit none
 
   public
-
+  
 contains
 
   subroutine integrator_init()
 
     use actual_integrator_module, only: actual_integrator_init
-    use bl_constants_module, only: ONE
 
     implicit none
 
@@ -17,14 +18,14 @@ contains
 
   end subroutine integrator_init
 
-
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
     use actual_integrator_module, only: actual_integrator
-    use bl_error_module, only: bl_error
     use burn_type_module, only: burn_t
     use bl_types, only: dp_t
 

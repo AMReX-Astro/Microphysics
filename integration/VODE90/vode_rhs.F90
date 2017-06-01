@@ -2,6 +2,9 @@
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
     !$acc routine seq
@@ -92,7 +95,9 @@
 
 
   ! Analytical Jacobian
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
     !$acc routine seq

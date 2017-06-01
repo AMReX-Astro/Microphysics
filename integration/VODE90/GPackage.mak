@@ -3,7 +3,7 @@ ifdef SDC
   f90sources += vode_rhs_sdc.f90
   f90sources += vode_type_sdc.f90
 else
-  f90sources += actual_integrator.f90
-  f90sources += vode_rhs.f90
-  f90sources += vode_type.f90
+  F90sources += actual_integrator.F90
+  F90sources += vode_rhs.F90
+  F90sources += vode_type.F90
 endif

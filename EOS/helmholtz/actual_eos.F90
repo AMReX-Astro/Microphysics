@@ -145,8 +145,10 @@ contains
     !..all other derivatives are analytic.
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
-
-    subroutine actual_eos(input, state)
+#ifdef CUDA  
+  attributes(device)
+#endif
+  subroutine actual_eos(input, state)
 
         !$acc routine seq
 

@@ -50,7 +50,7 @@ program burn_cell
   end do
 
   ! normalize -- just in case
-  !call normalize_abundances_burn(burn_state_in)
+  call normalize_abundances_burn(burn_state_in)
 
   ! Initialize initial energy to zero
   burn_state_in % e = ZERO

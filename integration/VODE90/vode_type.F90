@@ -7,7 +7,10 @@ module vode_type_module
   integer, parameter :: VODE_NEQS = neqs
 
 contains
-
+  
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine clean_state(y, rpar)
 
     !$acc routine seq
@@ -27,7 +30,9 @@ contains
 
   end subroutine clean_state
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine renormalize_species(y, rpar)
 
     !$acc routine seq
@@ -53,7 +58,9 @@ contains
 
   end subroutine renormalize_species
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine update_thermodynamics(y, rpar)
 
     !$acc routine seq
@@ -126,7 +133,9 @@ contains
   ! it is always in (rho, T) mode and (2) converting back would imply subtracting
   ! off the nuclear energy from the zone's internal energy, which could lead to
   ! issues from roundoff error if the energy released from burning is small.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine vode_to_eos(state, y, rpar)
 
     !$acc routine seq
@@ -164,7 +173,9 @@ contains
 
 
   ! Given an EOS state, fill the rpar and integration state data.
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine eos_to_vode(state, y, rpar)
 
     !$acc routine seq
@@ -202,7 +213,9 @@ contains
 
 
   ! Given a burn state, fill the rpar and integration state data.
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
     !$acc routine seq
@@ -264,7 +277,9 @@ contains
 
 
   ! Given an rpar array and the integration state, set up a burn state.
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine vode_to_burn(y, rpar, state)
 
     !$acc routine seq

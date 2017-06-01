@@ -32,6 +32,8 @@ module bdf_type_module
      logical  :: debug
      integer  :: dump_unit
 
+     logical  :: do_renorm                  ! Flag to control whether abundances get renormalized for restarts
+
      real(dp_t) :: rtol(neqs)               ! relative tolerances
      real(dp_t) :: atol(neqs)               ! absolute tolerances
 

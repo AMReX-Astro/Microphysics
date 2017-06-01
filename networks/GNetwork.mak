@@ -18,6 +18,10 @@ ifeq ($(INTEGRATOR_DIR), VODE)
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
 endif
 
+ifeq ($(INTEGRATOR_DIR), VODE90)
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
+endif
+
 # we'll assume that all integrators need the linear algebra packages
 INT_DIRS += $(MICROPHYSICS_HOME)/util/
 

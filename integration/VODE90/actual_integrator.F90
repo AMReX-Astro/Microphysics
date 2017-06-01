@@ -62,7 +62,9 @@ contains
 
 
   ! Main interface
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine actual_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
@@ -121,7 +123,9 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+       stop
+       !CUDA
+       !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -188,7 +192,9 @@ contains
     else if (burning_mode == 1 .or. burning_mode == 3) then
        rpar(irp_self_heat) = ONE
     else
-       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+       stop
+       !CUDA
+       !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
     endif
 
     ! Copy in the zone size.
@@ -287,7 +293,9 @@ contains
 
        if (.not. retry_burn) then
 
-          call bl_error("ERROR in burner: integration failed")
+          stop
+          !CUDA
+          !call bl_error("ERROR in burner: integration failed")
 
        else
 
@@ -333,7 +341,9 @@ contains
 
           if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
 
-             call bl_error("ERROR in burner: integration failed")
+             stop
+             !CUDA
+             !call bl_error("ERROR in burner: integration failed")
 
           endif
 

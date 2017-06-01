@@ -42,6 +42,7 @@ contains
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
+                                    renormalize_abundances, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
     use actual_rhs_module, only : update_unevolved_species
@@ -174,10 +175,14 @@ contains
 
     ! Call the integration routine.
 
-
+    !DON
+    ts % do_renorm = renormalize_abundances     
+    print *, "Calling bdf_advance"
     call bdf_advance(ts, y0, t0, y1, t1, dt_init, &
                      RESET, reuse_jac, ierr, .true.)
-
+    !DON
+    print *, "Returned from bdf_advance, ierr=", ierr
+    
     do n = 1, neqs
        ts % y(n,1) = y1(n,1)
     end do
@@ -189,6 +194,8 @@ contains
          (ts % y(net_ienuc,1) - ener_offset < ZERO .or. &
           ierr /= BDF_ERR_SUCCESS) ) then
 
+       !DON
+       print *, "Re-running in self-heating mode."
        ts % upar(irp_self_heat,1) = ONE
 
        call eos_to_vbdf(eos_state_in, ts)
@@ -205,6 +212,7 @@ contains
        do n = 1, neqs
           y0(n,1) = ts % y(n,1)
        end do
+       ts % do_renorm = renormalize_abundances 
        call bdf_advance(ts, y0, t0, y1, t1, dt_init, RESET, &
                         reuse_jac, ierr, .true.)
        do n = 1, neqs
@@ -233,46 +241,64 @@ contains
           call bl_error("ERROR in burner: integration failed")
 #endif
        else
+          !DON
+          ts % do_renorm = .not. renormalize_abundances
+          print *, 'Retrying burn with renormalization ', ts % do_renorm
+          call bdf_advance(ts, y0, t0, y1, t1, dt_init, &
+               RESET, reuse_jac, ierr, .true.)
 
-          print *, 'Retrying burn with looser tolerances'
+          print *, "Returned from bdf_advance, ierr=", ierr
 
-          retry_change_factor = ONE
+          do n = 1, neqs
+             ts % y(n,1) = y1(n,1)
+          end do
 
-          do while (ierr /= BDF_ERR_SUCCESS .and. retry_change_factor <= retry_burn_max_change)
-
-             retry_change_factor = retry_change_factor * retry_burn_factor
-
-             ts % atol = atol * retry_burn_factor
-             ts % rtol = rtol * retry_burn_factor
-
-             call eos_to_vbdf(eos_state_in, ts)
-
-             ts % y(net_ienuc,1) = ener_offset
-
-             ts % upar(irp_Told,1) = eos_state_in % T
-
-             if (dT_crit < 1.0d19) then
-                ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-                ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
-             endif
-
-             do n = 1, neqs
-                y0(n,1) = ts % y(n,1)
-             end do
-             call bdf_advance(ts, y0, t0, y1, t1, dt_init, &
-                              RESET, reuse_jac, ierr, .true.)
-             do n = 1, neqs
-                ts % y(n,1) = y1(n,1)
-             end do
-
-          enddo
-
-          if (retry_change_factor > retry_burn_max_change .and. ierr /= BDF_ERR_SUCCESS) then
+          if (ierr /= BDF_ERR_SUCCESS) then
 #ifndef ACC
              call bl_error("ERROR in burner: integration failed")
 #endif
           endif
 
+          ! print *, 'Retrying burn with looser tolerances'
+
+          ! retry_change_factor = ONE
+
+          ! do while (ierr /= BDF_ERR_SUCCESS .and. retry_change_factor <= retry_burn_max_change)
+
+          !    retry_change_factor = retry_change_factor * retry_burn_factor
+
+          !    ts % atol = atol * retry_burn_factor
+          !    ts % rtol = rtol * retry_burn_factor
+
+          !    call eos_to_vbdf(eos_state_in, ts)
+
+          !    ts % y(net_ienuc,1) = ener_offset
+
+          !    ts % upar(irp_Told,1) = eos_state_in % T
+
+          !    if (dT_crit < 1.0d19) then
+          !       ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+          !       ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+          !    endif
+
+          !    do n = 1, neqs
+          !       y0(n,1) = ts % y(n,1)
+          !    end do
+          !    call bdf_advance(ts, y0, t0, y1, t1, dt_init, &
+          !                     RESET, reuse_jac, ierr, .true.)
+          !    do n = 1, neqs
+          !       ts % y(n,1) = y1(n,1)
+          !    end do
+
+          ! enddo
+
+!           if (retry_change_factor > retry_burn_max_change .and. ierr /= BDF_ERR_SUCCESS) then
+! #ifndef ACC
+!              call bl_error("ERROR in burner: integration failed")
+! #endif
+!           endif
+
+          
        endif
 
     endif

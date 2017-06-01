@@ -45,7 +45,7 @@ contains
 
     ! Renormalize the abundances as necessary.
 
-    if (renormalize_abundances) then
+    if (ts % do_renorm) then
        call renormalize_species(ts)
     endif
 

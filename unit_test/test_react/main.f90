@@ -3,6 +3,9 @@
 
 program test_react
 
+  use cudafor
+  use react_zone_module, only: pfidx_t, react_zone
+  
   use BoxLib
   use bl_constants_module
   use bl_types
@@ -13,7 +16,7 @@ program test_react
   use multifab_module
   use variables, only: init_variables, finalize_variables, plot_t
   use probin_module, only: dens_min, dens_max, &
-                           temp_min, temp_max, test_set, tmax, run_prefix, &
+                           temp_min, temp_max, test_set, run_prefix, &
                            small_temp, small_dens, do_acc
   use runtime_init_module
   use burn_type_module
@@ -57,8 +60,6 @@ program test_react
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
-  type (burn_t) :: burn_state_in, burn_state_out
-
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
 
@@ -68,6 +69,11 @@ program test_react
 
   character (len=256) :: out_name
 
+  type(pfidx_t) :: pfidx
+  ! Adjust these CUDA parameters later
+  integer, parameter :: cu_nx = 1024, cu_ny = 512, cu_nz = 1
+  type(dim3)    :: cuGrid, cuThreadBlock
+  
   call boxlib_initialize()
   call bl_prof_initialize(on = .true.)
 
@@ -135,12 +141,12 @@ program test_react
   enddo
 
   ! GPU doesn't like derived-types with bound procedures
-  itemp = pf % itemp
-  irho = pf % irho
-  ispec = pf % ispec
-  ispec_old = pf % ispec_old
-  irodot = pf % irodot
-  irho_hnuc = pf % irho_hnuc
+  pfidx % itemp = pf % itemp
+  pfidx % irho = pf % irho
+  pfidx % ispec = pf % ispec
+  pfidx % ispec_old = pf % ispec_old
+  pfidx % irodot = pf % irodot
+  pfidx % irho_hnuc = pf % irho_hnuc
 
   n = 1  ! single level assumption
 
@@ -169,66 +175,23 @@ program test_react
      enddo
 
      ! Set up a timer for the burn.
-
      start_time = parallel_wtime()
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
-     !$OMP PRIVATE(burn_state_in, burn_state_out) &
-     !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
-     !$OMP SCHEDULE(DYNAMIC,1)
+     ! Set up CUDA parameters
+     cuThreadBlock = dim3(32, 8, 1)
+     cuGrid = dim3(&
+          ceiling(real(cu_nx)/cuThreadBlock%x), &
+          ceiling(real(cu_ny)/cuThreadBlock%y), &
+          ceiling(real(cu_nz)/cuThreadBlock%z))
+     
+     ! React the zones using CUDA
+     call react_zone<<<cuGrid,cuThreadBlock>>>(state, pfidx)
 
-     !$acc data copyin(temp_min, dlogT, dens_min, dlogrho, lo, hi, tmax) &
-     !$acc      copyin(itemp, irho, ispec, ispec_old, irodot, irho_hnuc) &
-     !$acc      copy(state(lo(1):hi(1),lo(2):hi(2),lo(3):hi(3),:)) if (do_acc == 1)
-
-     !$acc parallel reduction(+:n_rhs_avg) reduction(max:n_rhs_max) reduction(min:n_rhs_min) if (do_acc == 1)
-
-     !$acc loop gang vector collapse(3) &
-     !$acc private(burn_state_in, burn_state_out, ii, jj, kk, j)
-
-     do kk = lo(3), hi(3)
-        do jj = lo(2), hi(2)
-           do ii = lo(1), hi(1)
-
-              burn_state_in % rho = state(ii, jj, kk, irho)
-              burn_state_in % T = state(ii, jj, kk, itemp)
-              do j = 1, nspec
-                 burn_state_in % xn(j) = state(ii, jj, kk, ispec_old + j - 1)
-              enddo
-
-              call normalize_abundances_burn(burn_state_in)
-
-              ! the integrator doesn't actually care about the initial internal
-              ! energy.
-              burn_state_in % e = ZERO
-
-              call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
-
-              do j = 1, nspec
-                 state(ii, jj, kk, ispec + j - 1) = burn_state_out % xn(j)
-              enddo
-
-              do j=1, nspec
-                 ! an explicit loop is needed here to keep the GPU happy
-                 state(ii, jj, kk, irodot + j - 1) = &
-                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
-              enddo
-
-              state(ii, jj, kk, irho_hnuc) = &
-                   state(ii, jj, kk, irho) * (burn_state_out % e - burn_state_in % e) / tmax
-
-              n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
-              n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
-              n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
-
-           enddo
-        enddo
-     enddo
-     !$acc end parallel
-     !$acc end data
-
-     !$OMP END PARALLEL DO
-
+     !! Do reduction on statistics
+     ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
+     ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
+     ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
+     
      ! End the timer and print the results.
 
      end_time = parallel_wtime()
@@ -278,5 +241,5 @@ program test_react
   call boxlib_finalize()
 
   call send_success_return_code()
-
+  
 end program test_react

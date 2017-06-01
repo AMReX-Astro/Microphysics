@@ -37,7 +37,7 @@ contains
     call term_table_meta()
   end subroutine actual_burner_finalize
 
-  subroutine actual_burner(state_in, state_out, dt, time)
+  attributes(device) subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
 

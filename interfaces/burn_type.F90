@@ -76,7 +76,9 @@ module burn_type_module
 contains
 
   ! Given an eos type, copy the data relevant to the burn type.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_to_burn(eos_state, burn_state)
 
     !$acc routine seq
@@ -108,7 +110,9 @@ contains
 
 
   ! Given a burn type, copy the data relevant to the eos type.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine burn_to_eos(burn_state, eos_state)
 
     !$acc routine seq
@@ -137,19 +141,21 @@ contains
 
   end subroutine burn_to_eos
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine normalize_abundances_burn(state)
 
     !$acc routine seq
 
     use bl_constants_module, only: ONE
-    use extern_probin_module, only: small_x
+    use eos_type_module, only: small_x_managed
 
     implicit none
 
     type (burn_t), intent(inout) :: state
 
-    state % xn(:) = max(small_x, min(ONE, state % xn(:)))
+    state % xn(:) = max(small_x_managed, min(ONE, state % xn(:)))
     state % xn(:) = state % xn(:) / sum(state % xn(:))
 
   end subroutine normalize_abundances_burn
