@@ -39,6 +39,10 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/BS
 
+else ifeq ($(INTEGRATOR_DIR),VODE90)
+
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
+
 else ifeq ($(INTEGRATOR_DIR),BS)
 
   # Include BS and VODE

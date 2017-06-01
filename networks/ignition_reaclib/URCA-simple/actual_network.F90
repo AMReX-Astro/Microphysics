@@ -167,7 +167,10 @@ contains
   subroutine actual_network_finalize()
     ! STUB FOR MAESTRO
   end subroutine actual_network_finalize
-  
+
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq

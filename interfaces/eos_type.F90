@@ -39,22 +39,22 @@ module eos_type_module
 
   ! Minimum and maximum thermodynamic quantities permitted by the EOS.
 
-  real(rt), save :: mintemp = 1.d-200
-  real(rt), save :: maxtemp = 1.d200
-  real(rt), save :: mindens = 1.d-200
-  real(rt), save :: maxdens = 1.d200
-  real(rt), save :: minx    = 1.d-200
-  real(rt), save :: maxx    = 1.d0 + 1.d-12
-  real(rt), save :: minye   = 1.d-200
-  real(rt), save :: maxye   = 1.d0 + 1.d-12
-  real(rt), save :: mine    = 1.d-200
-  real(rt), save :: maxe    = 1.d200
-  real(rt), save :: minp    = 1.d-200
-  real(rt), save :: maxp    = 1.d200
-  real(rt), save :: mins    = 1.d-200
-  real(rt), save :: maxs    = 1.d200
-  real(rt), save :: minh    = 1.d-200
-  real(rt), save :: maxh    = 1.d200
+  real(rt), allocatable, save :: mintemp
+  real(rt), allocatable, save :: maxtemp
+  real(rt), allocatable, save :: mindens
+  real(rt), allocatable, save :: maxdens
+  real(rt), allocatable, save :: minx   
+  real(rt), allocatable, save :: maxx   
+  real(rt), allocatable, save :: minye  
+  real(rt), allocatable, save :: maxye  
+  real(rt), allocatable, save :: mine   
+  real(rt), allocatable, save :: maxe   
+  real(rt), allocatable, save :: minp   
+  real(rt), allocatable, save :: maxp   
+  real(rt), allocatable, save :: mins   
+  real(rt), allocatable, save :: maxs   
+  real(rt), allocatable, save :: minh   
+  real(rt), allocatable, save :: maxh
 
   !$acc declare &
   !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
@@ -156,7 +156,9 @@ contains
 
   ! Given a set of mass fractions, calculate quantities that depend
   ! on the composition like abar and zbar.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine composition(state)
 
     !$acc routine seq
@@ -183,7 +185,9 @@ contains
   end subroutine composition
 
   ! Compute thermodynamic derivatives with respect to xn(:)
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine composition_derivatives(state)
 
     !$acc routine seq
@@ -221,7 +225,9 @@ contains
 
   ! Normalize the mass fractions: they must be individually positive
   ! and less than one, and they must all sum to unity.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine normalize_abundances(state)
 
     !$acc routine seq
@@ -242,7 +248,9 @@ contains
 
 
   ! Ensure that inputs are within reasonable limits.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine clean_state(state)
 
     !$acc routine seq
@@ -259,7 +267,6 @@ contains
 
 
   ! Print out details of the state.
-
   subroutine print_state(state)
 
     implicit none
@@ -274,7 +281,9 @@ contains
   end subroutine print_state
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_get_small_temp(small_temp_out)
 
     !$acc routine seq
@@ -288,7 +297,9 @@ contains
   end subroutine eos_get_small_temp
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_get_small_dens(small_dens_out)
 
     !$acc routine seq
@@ -302,7 +313,9 @@ contains
   end subroutine eos_get_small_dens
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_get_max_temp(max_temp_out)
 
     !$acc routine seq
@@ -316,7 +329,9 @@ contains
   end subroutine eos_get_max_temp
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_get_max_dens(max_dens_out)
 
     !$acc routine seq

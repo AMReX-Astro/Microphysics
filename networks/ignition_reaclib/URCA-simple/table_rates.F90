@@ -135,6 +135,9 @@ contains
     deallocate( self%temp_table )
   end subroutine term_tab_info
 
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
 
@@ -169,7 +172,10 @@ contains
        end do
     end if
   end subroutine vector_index_lu
-
+  
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -191,6 +197,9 @@ contains
     end if
   end subroutine bl_clamp
 
+#ifdef CUDA
+  attributes(device) &
+#endif         
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -204,7 +213,10 @@ contains
     double precision, intent(out) :: f
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
   end subroutine bl_extrap
-  
+
+#ifdef CUDA
+  attributes(device) &
+#endif         
   subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
@@ -306,6 +318,9 @@ contains
     end if
   end subroutine get_entries
 
+#ifdef CUDA
+  attributes(device) &
+#endif         
   subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     

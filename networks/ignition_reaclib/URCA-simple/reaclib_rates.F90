@@ -141,6 +141,9 @@ contains
     call screening_init()    
   end subroutine net_screening_init
 
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 

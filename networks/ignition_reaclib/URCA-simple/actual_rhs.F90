@@ -32,6 +32,9 @@ contains
     return
   end subroutine update_unevolved_species
 
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
     type(burn_t)     :: state
@@ -70,6 +73,9 @@ contains
 
   end subroutine evaluate_rates
 
+#ifdef CUDA
+  attributes(device) &
+#endif  
   subroutine actual_rhs(state)
     
     !$acc routine seq
@@ -128,6 +134,9 @@ contains
     ! end do
   end subroutine actual_rhs
 
+#ifdef CUDA
+  attributes(device) &
+#endif    
   subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
@@ -202,8 +211,10 @@ contains
 
 
   end subroutine rhs_nuc
-
   
+#ifdef CUDA
+  attributes(device) &
+#endif  
   subroutine actual_jac(state)
 
     !$acc routine seq
@@ -273,6 +284,9 @@ contains
 
   end subroutine actual_jac
 
+#ifdef CUDA
+  attributes(device) &
+#endif    
   subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
 
     !$acc routine seq

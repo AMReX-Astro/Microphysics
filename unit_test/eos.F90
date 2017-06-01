@@ -20,14 +20,55 @@ contains
 
   subroutine eos_init(small_temp, small_dens)
 
-    use extern_probin_module
+    use extern_probin_module, only: small_x
     use parallel
+    use eos_type_module, only: mintemp, maxtemp, mindens, maxdens, minx, maxx, &
+         minye, maxye, mine, maxe, minp, maxp, minh, maxh, mins, maxs, &
+         small_x_managed
 
     implicit none
 
     real(rt), optional :: small_temp
     real(rt), optional :: small_dens
 
+    ! Allocate and set default values
+
+    allocate(mintemp)
+    allocate(maxtemp)
+    allocate(mindens)
+    allocate(maxdens)
+    allocate(minx)
+    allocate(maxx)
+    allocate(minye)
+    allocate(maxye)
+    allocate(mine)
+    allocate(maxe)
+    allocate(minp)
+    allocate(maxp)
+    allocate(mins)
+    allocate(maxs)
+    allocate(minh)
+    allocate(maxh)
+    allocate(small_x_managed)
+
+    mintemp = 1.d-200
+    maxtemp = 1.d200
+    mindens = 1.d-200
+    maxdens = 1.d200
+    minx    = 1.d-200
+    maxx    = 1.d0 + 1.d-12
+    minye   = 1.d-200
+    maxye   = 1.d0 + 1.d-12
+    mine    = 1.d-200
+    maxe    = 1.d200
+    minp    = 1.d-200
+    maxp    = 1.d200
+    mins    = 1.d-200
+    maxs    = 1.d200
+    minh    = 1.d-200
+    maxh    = 1.d200
+    small_x_managed = small_x
+    
     ! Set up any specific parameters or initialization steps required by the EOS we are using.
 
     call actual_eos_init

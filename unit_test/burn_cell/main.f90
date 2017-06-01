@@ -78,7 +78,7 @@ program burn_cell
   burn_state_in%xn(:) = massfractions(:)
 
   ! normalize -- just in case
-  !call normalize_abundances_burn(burn_state_in)
+  call normalize_abundances_burn(burn_state_in)
 
   ! Initialize initial energy to zero
   burn_state_in % e = ZERO

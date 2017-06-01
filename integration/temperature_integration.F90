@@ -10,6 +10,9 @@ contains
   ! within the actual_rhs routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
+#ifdef CUDA  
+  attributes(device) &
+#endif
   subroutine temperature_rhs(state)
 
     !$acc routine seq
@@ -38,9 +41,9 @@ contains
        ! Note that we no longer include the chemical potential (dE/dX or dH/dX)
        ! terms because we believe they analytically should vanish.
 
-       if (do_constant_volume_burn) then
+       if (cu_do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -56,7 +59,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -81,7 +84,9 @@ contains
   ! Sets up the temperature entries in the Jacobian. This should be called from
   ! within the actual_jac routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine temperature_jac(state)
 
     !$acc routine seq
@@ -102,9 +107,9 @@ contains
 
     if (state % self_heat) then
 
-       if (do_constant_volume_burn) then
+       if (cu_do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -130,7 +135,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
