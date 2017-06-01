@@ -4,11 +4,11 @@ module managed_probin_module
   
   implicit none
 
-  logical, allocatable, save :: cu_do_constant_volume_burn
-  logical, allocatable, save :: cu_call_eos_in_rhs
-  logical, allocatable, save :: cu_centered_diff_jac  
-  real(dp_t), allocatable, save :: cu_dt_crit
-  real(dp_t), allocatable, save :: cu_tmax
+  logical, managed, allocatable, save :: cu_do_constant_volume_burn
+  logical, managed, allocatable, save :: cu_call_eos_in_rhs
+  logical, managed, allocatable, save :: cu_centered_diff_jac  
+  real(dp_t), managed, allocatable, save :: cu_dt_crit
+  real(dp_t), managed, allocatable, save :: cu_tmax
 
   !$acc declare &
   !$acc create(cu_do_constant_volume_burn, cu_call_eos_in_rhs, cu_dt_crit) &
