@@ -149,7 +149,8 @@ contains
     ! ***END PROLOGUE  DVNORM
     ! **End
     integer    :: N, I
-    real(dp_t) :: V(N), W(N), SUM, dvn
+    real(dp_t), pointer :: V(:), W(:)
+    real(dp_t) :: SUM, dvn
 
     SUM = 0.0D0
     do I = 1,N
