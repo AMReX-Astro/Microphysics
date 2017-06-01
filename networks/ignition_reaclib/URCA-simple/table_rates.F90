@@ -43,7 +43,7 @@ module table_rates
      integer :: num_header 
   end type table_read_info
 
-  type(table_info), dimension(num_tables) :: table_meta
+  type(table_info), managed, allocatable, save :: table_meta(:)
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
@@ -54,6 +54,8 @@ contains
   subroutine init_tabular()
     integer :: n
 
+    allocate(table_meta(num_tables))
+    
     table_read_meta(j_na23_ne23)%rate_table_file = '23Na-23Ne_electroncapture.dat'
     table_read_meta(j_na23_ne23)%num_header = 7
     table_meta(j_na23_ne23)%num_rhoy = 152
@@ -90,6 +92,7 @@ contains
     do n = 1, num_tables
        call term_tab_info(table_meta(n))
     end do
+    deallocate(table_meta)
   end subroutine term_table_meta
 
   subroutine init_tab_info(self, self_read)
