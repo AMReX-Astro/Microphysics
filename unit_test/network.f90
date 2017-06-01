@@ -29,7 +29,7 @@ module network
   logical :: network_initialized = .false.
 
   ! this will be computed here, not in the actual network
-  real(kind=dp_t) :: aion_inv(nspec)
+  real(kind=dp_t), managed, allocatable, save :: aion_inv(:)
 
   !$acc declare create(aion_inv)
 
@@ -57,6 +57,7 @@ contains
        call bl_error("Network cannot have a negative number of auxiliary variables.")
     endif
 
+    allocate(aion_inv(nspec))
     aion_inv(:) = ONE/aion(:)
 
     !$acc update device(aion_inv)
@@ -81,5 +82,9 @@ contains
     enddo
 
   end function network_species_index
+
+  subroutine network_finalize()
+    deallocate(aion_inv)
+  end subroutine network_finalize
 
 end module network

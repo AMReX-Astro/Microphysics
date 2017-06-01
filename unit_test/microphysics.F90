@@ -50,8 +50,7 @@ contains
 
     implicit none
     
-    !call network_finalize()
-
+    call network_finalize()
     call managed_probin_finalize()
 
   end subroutine microphysics_finalize
