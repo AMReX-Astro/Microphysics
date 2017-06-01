@@ -146,7 +146,7 @@ contains
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 #ifdef CUDA  
-  attributes(device)
+  attributes(device) &
 #endif
   subroutine actual_eos(input, state)
 
