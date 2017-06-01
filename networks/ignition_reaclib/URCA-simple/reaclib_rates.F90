@@ -7,16 +7,16 @@ module reaclib_rates
   logical, parameter :: screen_reaclib = .true.
   
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
-  double precision, allocatable :: ctemp_rate(:,:)
+  double precision, managed, allocatable, save :: ctemp_rate(:,:)
 
   ! Index into ctemp_rate, dimension 2, where each rate's coefficients start
-  integer, allocatable :: rate_start_idx(:)
+  integer, managed, allocatable, save :: rate_start_idx(:)
   
   ! Reaction multiplicities-1 (how many rates contribute - 1)
-  integer, allocatable :: rate_extra_mult(:)
+  integer, managed, allocatable, save :: rate_extra_mult(:)
 
   ! Should these reactions be screened?
-  logical, allocatable :: do_screening(:)
+  logical, managed, allocatable, save :: do_screening(:)
   
   !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
   !$acc declare copyin(screen_reaclib)
