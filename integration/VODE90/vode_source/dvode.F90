@@ -1676,9 +1676,12 @@ contains
     DELP = ZERO
 
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, vstate % pYH(:,1), 1, Y, 1)
+    ! Can't call cuda_dcopy like this b/c ...
+    ! 'PGF90-S-0525 - Array reshaping is not supported for device subprogram calls'
+    !    call cuda_dcopy(vstate % N, vstate % pYH1, 1, Y, 1)
+    Y(1:vstate % N) = vstate % pYH1(1:vstate % N)
 #else
-    CALL DCOPY (vstate % N, vstate % pYH(:,1), 1, Y, 1)
+    CALL DCOPY (vstate % N, vstate % pYH1, 1, Y, 1)
 #endif
     CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
@@ -1717,7 +1720,10 @@ contains
        Y(I) = vstate % pYH(I,1) + vstate % pSAVF(I)
     end do
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
+    ! Can't call cuda_dcopy like this b/c ...
+    ! 'PGF90-S-0525 - Array reshaping is not supported for device subprogram calls'
+    ! call cuda_dcopy(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
+    vstate % pACOR(1:vstate % N) = vstate % pSAVF(1:vstate % N)
 #else
     CALL DCOPY(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
 #endif
@@ -1744,8 +1750,11 @@ contains
 #endif
     ENDIF
     DEL = DVNORM (vstate % N, pY, vstate % pEWT)
-#ifdef CUDA    
-    call cuda_daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
+#ifdef CUDA
+    ! Can't call cuda_daxpy like this b/c ...
+    ! 'PGF90-S-0525 - Array reshaping is not supported for device subprogram calls'
+    ! call cuda_daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
+    vstate % pACOR(1:vstate % N) = Y(1:vstate % N) + vstate % pACOR(1:vstate % N)
 #else
     call daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
 #endif    
