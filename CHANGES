@@ -4,6 +4,13 @@
 
 # previous changes:
 
+* 17.06
+
+ -- a new Fortran 90 port of VODE has been added
+
+ -- the unit tests now require AMReX instead of BoxLib to build
+ 
+
 * 17.01
 
  -- we've removed the option to integrate molar fractions and instead
