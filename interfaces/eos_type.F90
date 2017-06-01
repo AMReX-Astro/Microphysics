@@ -56,6 +56,11 @@ module eos_type_module
   real(rt), allocatable, save :: minh   
   real(rt), allocatable, save :: maxh
 
+#ifdef CUDA
+  attributes(managed) :: mintemp, maxtemp, mindens, maxdens, minx, maxx
+  attributes(managed) :: minye, maxye, mine, maxe, minp, maxp, mins, maxs, minh, maxh
+#endif
+
   !$acc declare &
   !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
   !$acc create(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
