@@ -4,7 +4,7 @@ module dvode_module
   use dvode_output_module, only: xerrwd
   use rpar_indices
   use bl_types, only: dp_t
-  use cublas_module  
+  use cublas
   
   implicit none
 
@@ -350,7 +350,9 @@ contains
     !
     
     type(dvode_t) :: vstate
-    real(dp_t) :: T, DKY(:)
+    real(dp_t) :: T
+    real(dp_t), target  :: DKY(:)
+    real(dp_t), pointer :: xscratch(:)
     integer    :: K, IFLAG
 
 
@@ -395,7 +397,8 @@ contains
     IF (K .EQ. 0) RETURN
 55  R = vstate % H**(-K)
 #ifdef CUDA
-    call cuda_dscal(vstate % N, R, DKY, 1)    
+    xscratch => DKY(1:vstate % N)
+    call cublasDscal(vstate % N, R, xscratch, 1)
 #else
     CALL DSCAL (vstate % N, R, DKY, 1)
 #endif
@@ -430,8 +433,10 @@ contains
     integer    :: IWORK(LIW)
     integer    :: IPAR(:)    
     real(dp_t) :: T, TOUT
-    real(dp_t) :: Y(NEQ), RTOL(NEQ), ATOL(NEQ)
-    real(dp_t), target :: RWORK(:)
+    real(dp_t), target :: Y(NEQ)
+    real(dp_t) :: RTOL(NEQ), ATOL(NEQ)
+    real(dp_t), target  :: RWORK(:)
+    real(dp_t), pointer :: xscratch(:), yscratch(:)
     real(dp_t) :: RPAR(:)
 
     logical    :: IHIT
@@ -604,9 +609,9 @@ contains
     IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, &
-         RWORK(vstate % LWM:vstate % LWM + vstate % N - 1), 1, &
-         RWORK(vstate % LSAVF:vstate % LSAVF + vstate % N - 1), 1)    
+    xscratch => RWORK(vstate % LWM:vstate % LWM + vstate % N - 1)
+    yscratch => RWORK(vstate % LSAVF:vstate % LSAVF + vstate % N - 1)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)    
 #else    
     CALL DCOPY (vstate % N, &
          RWORK(vstate % LWM:vstate % LWM + vstate % N - 1), 1, &
@@ -666,9 +671,9 @@ contains
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, &
-         Y(1:vstate % N), 1, &
-         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1)    
+    xscratch => Y(1:vstate % N)
+    yscratch => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)    
 #else
     CALL DCOPY (vstate % N, &
          Y(1:vstate % N), 1, &
@@ -701,8 +706,8 @@ contains
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
 #ifdef CUDA
-    call cuda_dscal(vstate % N, H0, &
-         RWORK(LF0:LF0 + vstate % N - 1), 1)    
+    xscratch => RWORK(LF0:LF0 + vstate % N - 1)
+    call cublasDscal(vstate % N, H0, xscratch, 1)
 #else
     CALL DSCAL (vstate % N, H0, &
          RWORK(LF0:LF0 + vstate % N - 1), 1)
@@ -852,9 +857,9 @@ contains
     
 400 CONTINUE
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, &
-         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, &
-         Y, 1)    
+    xscratch => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
+    yscratch => Y(1:vstate % N)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)    
 #else
     CALL DCOPY (vstate % N, &
          RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, &
@@ -942,7 +947,9 @@ contains
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, Y, 1)    
+    xscratch => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
+    yscratch => Y(1:vstate % N)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
 #else
     CALL DCOPY (vstate % N, RWORK(vstate % LYH), 1, Y, 1)
 #endif    
@@ -1145,7 +1152,8 @@ contains
 
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
-100 CALL DGESL (vstate % pWM(3), vstate % N, vstate % N, IWM(31), X, 0)
+100 continue
+    CALL DGESL (vstate % pWM(3), vstate % N, vstate % N, IWM(31), X, 0)
     RETURN
 
 300 PHRL1 = vstate % pWM(2)
@@ -1193,12 +1201,15 @@ contains
     !  The data copied consists of NROW rows and NCOL columns.
     ! -----------------------------------------------------------------------
     integer    :: NROW, NCOL, NROWA, NROWB
-    real(dp_t) :: A(NROWA,NCOL), B(NROWB,NCOL)
+    real(dp_t), pointer :: A(:,:), B(:,:)
+    real(dp_t), pointer :: xscratch(:), yscratch(:)
     integer    :: IC
 
     do IC = 1,NCOL
 #ifdef CUDA
-       call cuda_dcopy(NROW, A(:,IC), 1, B(:,IC), 1)       
+       xscratch => A(:,IC)
+       yscratch => B(:,IC)
+       call cublasDcopy(NROW, xscratch, 1, yscratch, 1)
 #else
        CALL DCOPY (NROW, A(1,IC), 1, B(1,IC), 1)
 #endif
@@ -1273,6 +1284,8 @@ contains
     ! 
 
     type(dvode_t) :: vstate
+    real(dp_t), pointer :: xscratch(:), yscratch(:), xscratch2(:,:), yscratch2(:,:)
+    
     real(dp_t) :: Y(:)
     real(dp_t) :: RPAR(:)
     integer    :: LDYH, IWM(:), IERPJ, IPAR(:)
@@ -1306,7 +1319,8 @@ contains
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps         
          integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
-         real(dp_t) :: PD(NRPD,NEQ), RPAR(n_rpar_comps), T, Y(NEQ)
+         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
+         real(dp_t), pointer :: PD(:,:)
        END SUBROUTINE JAC
     end interface
 
@@ -1330,11 +1344,13 @@ contains
        do I = 1,LENP
           WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
-            WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
+       xscratch2(1:vstate % N, 1:vstate % N) => WM(3:3 + vstate % N**2 - 1)
+       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, xscratch2, vstate % N, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
 #ifdef CUDA
-          call cuda_dcopy(LENP, WM(3:3 + LENP - 1), 1, WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          xscratch => WM(3:3 + LENP - 1)
+          yscratch => WM(vstate % LOCJS:vstate % LOCJS + LENP - 1)
+          call cublasDcopy(LENP, xscratch, 1, yscratch, 1)
 #else
           CALL DCOPY (LENP, WM(3), 1, WM(vstate % LOCJS), 1)
 #endif
@@ -1367,7 +1383,9 @@ contains
        LENP = vstate % N * vstate % N
        if (vstate % JSV .EQ. 1) then
 #ifdef CUDA
-          call cuda_dcopy(LENP, WM(3:3 + LENP - 1), 1, WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)          
+          xscratch => WM(3:3 + LENP - 1)
+          yscratch => WM(vstate % LOCJS:vstate % LOCJS + LENP - 1)
+          call cublasDcopy(LENP, xscratch, 1, yscratch, 1)
 #else
           CALL DCOPY (LENP, WM(3), 1, WM(vstate % LOCJS), 1)
 #endif
@@ -1378,7 +1396,9 @@ contains
        vstate % JCUR = 0
        LENP = vstate % N * vstate % N
 #ifdef CUDA
-       call cuda_dcopy(LENP, WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, WM(3:3 + LENP - 1), 1)       
+       xscratch => WM(vstate % LOCJS:vstate % LOCJS + LENP - 1)
+       yscratch => WM(3:3 + LENP - 1)
+       call cublasDcopy(LENP, xscratch, 1, yscratch, 1)
 #else
        CALL DCOPY (LENP, WM(vstate % LOCJS), 1, WM(3), 1)
 #endif
@@ -1388,7 +1408,8 @@ contains
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
 #ifdef CUDA
-       call cuda_dscal(LENP, CON, WM(3:3 + LENP - 1), 1)       
+       xscratch => WM(3:3 + LENP - 1)
+       call cublasDscal(LENP, CON, xscratch, 1)
 #else
        CALL DSCAL (LENP, CON, WM(3), 1)
 #endif
@@ -1448,14 +1469,12 @@ contains
        do I = 1,LENP
           WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, &
-            WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, RPAR, IPAR)
+       xscratch2(1:vstate % N, 1:vstate % N) =>  WM(ML3:ML3 + MEBAND * vstate % N - 1)
+       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, xscratch2, MEBAND, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, vstate % N, &
-               WM(ML3:ML3 + MEBAND * vstate % N - 1), &
-               MEBAND, &
-               WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), &
-               MBAND)
+          xscratch2(MEBAND, vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
+          yscratch2( MBAND, vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
+          CALL DACOPY(MBAND, vstate % N, xscratch2, MEBAND, yscratch2, MBAND)
        end if
 
     else if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 5) then
@@ -1491,27 +1510,24 @@ contains
        end do
        vstate % NFE = vstate % NFE + MBA
        if (vstate % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, vstate % N, &
-               WM(ML3:ML3 + MEBAND * vstate % N - 1), &
-               MEBAND, &
-               WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), &
-               MBAND)
+          xscratch2(MEBAND, vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
+          yscratch2( MBAND, vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
+          CALL DACOPY(MBAND, vstate % N, xscratch2, MEBAND, yscratch2, MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
        vstate % JCUR = 0
-       CALL DACOPY(MBAND, vstate % N, &
-            WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), &
-            MBAND, &
-            WM(ML3:ML3 + MEBAND * vstate % N - 1), &
-            MEBAND)
+       xscratch2( MBAND, vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
+       yscratch2(MEBAND, vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
+       CALL DACOPY(MBAND, vstate % N, xscratch2, MBAND, yscratch2, MEBAND)
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
 #ifdef CUDA
-    call cuda_dscal(LENP, CON, WM(3:3 + LENP - 1), 1 )    
+    xscratch => WM(3:3 + LENP - 1)
+    call cublasDscal(LENP, CON, xscratch, 1 )
 #else
     CALL DSCAL (LENP, CON, WM(3), 1 )
 #endif
@@ -1597,6 +1613,7 @@ contains
     !
 
     type(dvode_t) :: vstate
+    real(dp_t), pointer :: xscratch(:), yscratch(:)  
     real(dp_t), target :: Y(vstate % N)
     real(dp_t), pointer :: pY(:)
     real(dp_t) :: RPAR(:)
@@ -1676,10 +1693,9 @@ contains
     DELP = ZERO
 
 #ifdef CUDA
-    ! Can't call cuda_dcopy like this b/c ...
-    ! 'PGF90-S-0525 - Array reshaping is not supported for device subprogram calls'
-    !    call cuda_dcopy(vstate % N, vstate % pYH1, 1, Y, 1)
-    Y(1:vstate % N) = vstate % pYH1(1:vstate % N)
+    xscratch => vstate % pYH1(1:vstate % N)
+    yscratch => Y(1:vstate % N)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
 #else
     CALL DCOPY (vstate % N, vstate % pYH1, 1, Y, 1)
 #endif
@@ -1720,10 +1736,9 @@ contains
        Y(I) = vstate % pYH(I,1) + vstate % pSAVF(I)
     end do
 #ifdef CUDA
-    ! Can't call cuda_dcopy like this b/c ...
-    ! 'PGF90-S-0525 - Array reshaping is not supported for device subprogram calls'
-    ! call cuda_dcopy(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
-    vstate % pACOR(1:vstate % N) = vstate % pSAVF(1:vstate % N)
+    xscratch => vstate % pSAVF(1:vstate % N)
+    yscratch => vstate % pACOR(1:vstate % N)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
 #else
     CALL DCOPY(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
 #endif
@@ -1744,17 +1759,17 @@ contains
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
 #ifdef CUDA
-       call cuda_dscal(vstate % N, CSCALE, Y, 1)       
+       xscratch => Y(1:vstate % N)
+       call cublasDscal(vstate % N, CSCALE, xscratch, 1)
 #else
        CALL DSCAL (vstate % N, CSCALE, Y, 1)
 #endif
     ENDIF
     DEL = DVNORM (vstate % N, pY, vstate % pEWT)
 #ifdef CUDA
-    ! Can't call cuda_daxpy like this b/c ...
-    ! 'PGF90-S-0525 - Array reshaping is not supported for device subprogram calls'
-    ! call cuda_daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
-    vstate % pACOR(1:vstate % N) = Y(1:vstate % N) + vstate % pACOR(1:vstate % N)
+    xscratch => Y
+    yscratch => vstate % pACOR
+    call cublasDaxpy(vstate % N, ONE, xscratch, 1, yscratch, 1)
 #else
     call daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
 #endif    
@@ -1824,6 +1839,8 @@ contains
     ! -----------------------------------------------------------------------
     !
     type(dvode_t) :: vstate
+    real(dp_t), pointer :: xscratch(:), yscratch(:)
+    
     integer    :: IORD
 
     real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
@@ -1941,8 +1958,10 @@ contains
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
 #ifdef CUDA
-       call cuda_daxpy(vstate % N, vstate % EL(J), vstate % pYH(1:vstate % N,LP1), 1, vstate % pYH(1:vstate % N,J), 1)
-#else       
+       xscratch => vstate % pYH(1:vstate % N, LP1)
+       yscratch => vstate % pYH(1:vstate % N, J)
+       call cublasDaxpy(vstate % N, vstate % EL(J), xscratch, 1, yscratch, 1)
+#else
        CALL DAXPY (vstate % N, vstate % EL(J), vstate % pYH(1,LP1), 1, vstate % pYH(1,J), 1 )
 #endif
     end do
@@ -2203,6 +2222,7 @@ contains
     ! -----------------------------------------------------------------------
     EXTERNAL PSOL
     type(dvode_t) :: vstate
+    real(dp_t), pointer :: xscratch(:), yscratch(:)
     real(dp_t) :: Y(vstate % N)
     real(dp_t) :: RPAR(:)
     integer    :: IWM(:), IPAR(:)
@@ -2402,9 +2422,10 @@ contains
     do J = 2, vstate % L
        R = R * vstate % ETA
 #ifdef CUDA
-       call cuda_dscal(vstate % N, R, vstate % pYH(1:vstate % N,J), 1 )       
+       xscratch => vstate % pYH(1:vstate % N,J)
+       call cublasDscal(vstate % N, R, xscratch, 1)
 #else
-       CALL DSCAL (vstate % N, R, vstate % pYH(1:vstate % N,J), 1 )
+       CALL DSCAL (vstate % N, R, vstate % pYH(1:vstate % N,J), 1)
 #endif
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
@@ -2485,7 +2506,9 @@ contains
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
 #ifdef CUDA
-       call cuda_daxpy(vstate % N, vstate % EL(J), vstate % pACOR, 1, vstate % pYH(1:vstate % N,J), 1)
+       xscratch => vstate % pACOR(1:vstate % N)
+       yscratch => vstate % pYH(1:vstate % N,J)
+       call cublasDaxpy(vstate % N, vstate % EL(J), xscratch, 1, yscratch, 1)
 #else       
        CALL DAXPY (vstate % N, vstate % EL(J), vstate % pACOR, 1, vstate % pYH(1,J), 1 )
 #endif
@@ -2493,9 +2516,11 @@ contains
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, vstate % pACOR, 1, vstate % pYH(:,vstate % LMAX), 1 )    
+    xscratch => vstate % pACOR(1:vstate % N)
+    yscratch => vstate % pYH(:,vstate % LMAX)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
 #else
-    CALL DCOPY (vstate % N, vstate % pACOR, 1, vstate % pYH(1,vstate % LMAX), 1 )
+    CALL DCOPY (vstate % N, vstate % pACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
 #endif
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -2603,7 +2628,9 @@ contains
 620 vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
 #ifdef CUDA
-    call cuda_dcopy(vstate % N, vstate % pACOR, 1, vstate % pYH(:,vstate % LMAX), 1)    
+    xscratch => vstate % pACOR(1:vstate % N)
+    yscratch =>  vstate % pYH(1:vstate % N,vstate % LMAX)
+    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
 #else
     CALL DCOPY (vstate % N, vstate % ACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
 #endif
@@ -2634,7 +2661,8 @@ contains
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
 #ifdef CUDA
-    call cuda_dscal(vstate % N, R, vstate % pACOR, 1)    
+    xscratch => vstate % pACOR(1:vstate % N)
+    call cublasDscal(vstate % N, R, xscratch, 1)
 #else
     CALL DSCAL (vstate % N, R, vstate % pACOR, 1)
 #endif
