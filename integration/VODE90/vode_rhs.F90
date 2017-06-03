@@ -116,7 +116,7 @@
 
     integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
     real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-    real(dp_t), intent(  OUT) :: pd(neq,neq)
+    real(dp_t), intent(  OUT) :: pd(:,:)
 
     type (burn_t) :: state
     real(dp_t) :: limit_factor, t_sound, t_enuc
