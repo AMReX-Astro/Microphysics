@@ -234,7 +234,7 @@ contains
     type (burn_t) :: state
     real(dp_t)    :: rpar(n_rpar_comps)
     real(dp_t)    :: y(neqs)
-    real(dp_t), optional :: ydot(neqs), jac(:, :)
+    real(dp_t), optional :: ydot(:), jac(:, :)
 
     integer :: n
 
