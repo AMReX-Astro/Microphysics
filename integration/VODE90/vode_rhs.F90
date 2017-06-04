@@ -25,9 +25,10 @@
     implicit none
 
     integer,    intent(IN   ) :: neq, ipar
+
     real(rt), intent(INOUT) :: time, y(neq)
     real(rt), intent(INOUT) :: rpar(n_rpar_comps)
-    real(rt), intent(INOUT), pointer :: ydot(:)
+    real(rt), intent(INOUT) :: ydot(neq)
 
     type (burn_t) :: burn_state
 
