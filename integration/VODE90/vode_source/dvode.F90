@@ -21,9 +21,9 @@ module dvode_module
   
 contains
 
-#ifdef CUDA  
+#ifdef CUDA
   attributes(device) &
-#endif
+#endif  
   function dumach() result(dum)
 
     !$acc routine seq
@@ -63,10 +63,10 @@ contains
     real(dp_t) :: U, dum
     dum = EPSILON(U)
   end function dumach
-  
-#ifdef CUDA  
+
+#ifdef CUDA
   attributes(device) &
-#endif
+#endif  
   subroutine dewset(N, ITOL, RTOL, ATOL, YCUR, EWT)
 
     !$acc routine seq
@@ -121,7 +121,7 @@ contains
     RETURN
   end subroutine dewset
 
-#ifdef CUDA  
+#ifdef CUDA
   attributes(device) &
 #endif  
   function dvnorm(N, V, W) result(dvn)
@@ -160,10 +160,10 @@ contains
     dvn = SQRT(SUM/N)
     RETURN
   end function dvnorm
-
-#ifdef CUDA  
+  
+#ifdef CUDA
   attributes(device) &
-#endif  
+#endif
   subroutine dvhin(N, T0, Y0, YDOT, F, RPAR, IPAR, TOUT, UROUND, &
        EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
 
@@ -220,7 +220,7 @@ contains
 
     ! Subroutine interfaces
     interface
-#ifdef CUDA  
+#ifdef CUDA
        attributes(device) &
 #endif       
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
@@ -308,10 +308,10 @@ contains
 100 IER = -1
     RETURN
   end subroutine dvhin
-
-#ifdef CUDA  
+  
+#ifdef CUDA
   attributes(device) &
-#endif  
+#endif
   subroutine dvindy(T, K, DKY, IFLAG, vstate)
 
     !$acc routine seq
@@ -417,10 +417,10 @@ contains
     IFLAG = -2
     RETURN
   end subroutine dvindy
-
-#ifdef CUDA  
-  attributes(device) &
-#endif  
+  
+#ifdef CUDA
+       attributes(device) &
+#endif
   subroutine dvode(F, NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, JAC, MF, &
        RPAR, IPAR, vstate)
@@ -456,9 +456,9 @@ contains
 
     ! Subroutine interfaces
     interface
-#ifdef CUDA
+#ifdef CUDA       
        attributes(device) &
-#endif            
+#endif
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps
@@ -467,9 +467,9 @@ contains
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
 
-#ifdef CUDA       
+#ifdef CUDA
        attributes(device) &
-#endif            
+#endif
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps         
@@ -1104,7 +1104,7 @@ contains
     return
   end subroutine dvode
 
-#ifdef CUDA  
+#ifdef CUDA
   attributes(device) &
 #endif  
   subroutine dvsol(IWM, X, IERSL, vstate)
@@ -1181,7 +1181,7 @@ contains
     RETURN
   end subroutine dvsol
 
-#ifdef CUDA  
+#ifdef CUDA
   attributes(device) &
 #endif  
   subroutine dacopy(NROW, NCOL, A, NROWA, B, NROWB)
@@ -1217,7 +1217,7 @@ contains
     RETURN
   end subroutine dacopy
 
-#ifdef CUDA  
+#ifdef CUDA
   attributes(device) &
 #endif  
   subroutine dvjac(Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM, F, JAC, &
@@ -1301,9 +1301,9 @@ contains
 
     ! Subroutine interfaces
     interface
-#ifdef CUDA  
+#ifdef CUDA
        attributes(device) &
-#endif              
+#endif       
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps
@@ -1312,9 +1312,9 @@ contains
          real(dp_t), pointer :: YDOT(:)
        END SUBROUTINE F
 
-#ifdef CUDA  
+#ifdef CUDA
        attributes(device) &
-#endif              
+#endif
        SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps         
@@ -1545,7 +1545,7 @@ contains
     ! End of code block for MITER = 4 or 5. --------------------------------
   end subroutine dvjac
 
-#ifdef CUDA  
+#ifdef CUDA
   attributes(device) &
 #endif  
   subroutine dvnlsd(Y, IWM, F, JAC, PDUM, NFLAG, RPAR, IPAR, vstate)
@@ -1631,15 +1631,15 @@ contains
 
     ! Subroutine interfaces
     interface
-#ifdef CUDA  
+#ifdef CUDA
        attributes(device) &
-#endif                     
+#endif       
        subroutine PDUM
        end subroutine PDUM
 
-#ifdef CUDA  
+#ifdef CUDA
        attributes(device) &
-#endif              
+#endif       
        SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
          use bl_types, only: dp_t
          use rpar_indices, only: n_rpar_comps, n_ipar_comps
