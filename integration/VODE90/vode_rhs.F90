@@ -14,9 +14,9 @@
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
-                                    burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+    use managed_probin_module, only: cu_call_eos_in_rhs, cu_dT_crit, cu_renormalize_abundances, &
+         cu_burning_mode, cu_burning_mode_factor, &
+         cu_integrate_temperature, cu_integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
@@ -46,7 +46,7 @@
 
     ! Renormalize the abundances as necessary.
 
-    if (renormalize_abundances) then
+    if (cu_renormalize_abundances) then
        call renormalize_species(y, rpar)
     endif
 
@@ -66,23 +66,23 @@
          burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
-    if (.not. integrate_temperature) then
+    if (.not. cu_integrate_temperature) then
        burn_state % ydot(net_itemp) = ZERO
     endif
 
-    if (.not. integrate_energy) then
+    if (.not. cu_integrate_energy) then
        burn_state % ydot(net_ienuc) = ZERO
     endif
 
     ! For burning_mode == 3, limit the rates.
     ! Note that we are limiting with respect to the initial zone energy.
 
-    if (burning_mode == 3) then
+    if (cu_burning_mode == 3) then
 
        t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
        t_sound = rpar(irp_t_sound)
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0d0, cu_burning_mode_factor * t_enuc / t_sound)
 
        burn_state % ydot = limit_factor * burn_state % ydot
 
@@ -109,8 +109,8 @@
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
-    use extern_probin_module, only: burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+    use managed_probin_module, only: cu_burning_mode, cu_burning_mode_factor, &
+         cu_integrate_temperature, cu_integrate_energy
 
     implicit none
 
@@ -135,23 +135,23 @@
     enddo
 
     ! Allow temperature and energy integration to be disabled.
-    if (.not. integrate_temperature) then
+    if (.not. cu_integrate_temperature) then
        state % jac(net_itemp,:) = ZERO
     endif
 
-    if (.not. integrate_energy) then
+    if (.not. cu_integrate_energy) then
        state % jac(net_ienuc,:) = ZERO
     endif
 
     ! For burning_mode == 3, limit the rates.
     ! Note that we are limiting with respect to the initial zone energy.
 
-    if (burning_mode == 3) then
+    if (cu_burning_mode == 3) then
 
        t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
        t_sound = rpar(irp_t_sound)
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0d0, cu_burning_mode_factor * t_enuc / t_sound)
 
        state % jac = limit_factor * state % jac
 
