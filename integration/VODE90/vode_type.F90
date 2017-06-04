@@ -240,6 +240,7 @@ contains
     implicit none
 
     type (burn_t) :: state
+
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(neqs)
     real(rt), optional :: ydot(neqs), jac(neqs, neqs)
