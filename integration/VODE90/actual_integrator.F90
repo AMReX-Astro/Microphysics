@@ -52,7 +52,7 @@ module actual_integrator_module
 
   integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
   integer, parameter :: LIW = 30 + neqs
-  
+
 contains
 
   subroutine actual_integrator_init()
@@ -83,6 +83,7 @@ contains
     use dvode_module, only: dvode
     use eos_type_module, only: eos_t
     use dvode_type_module, only: dvode_t
+    use bl_constants_module, only: ZERO    
 
     implicit none
 
@@ -99,7 +100,7 @@ contains
 
     type (dvode_t) :: dvode_state
 
-!     ! Work arrays
+    ! Work arrays
 
     real(rt) :: y(neqs)
     real(rt) :: atol(neqs), rtol(neqs)
@@ -107,14 +108,14 @@ contains
     integer    :: iwork(LIW)
     real(rt) :: rpar(n_rpar_comps)
 
-!     integer :: MF_JAC
+    ! integer :: MF_JAC
 
-!     ! istate determines the state of the calculation.  A value of 1 meeans
-!     ! this is the first call to the problem -- this is what we will want.
+    ! ! istate determines the state of the calculation.  A value of 1 meeans
+    ! ! this is the first call to the problem -- this is what we will want.
 
-!     integer :: istate
+    ! integer :: istate
 
-!     integer :: ipar(n_ipar_comps)
+    ! integer :: ipar(n_ipar_comps)
 
     real(rt) :: sum
     real(rt) :: retry_change_factor
