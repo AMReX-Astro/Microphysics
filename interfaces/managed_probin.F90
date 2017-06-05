@@ -4,18 +4,58 @@ module managed_probin_module
   
   implicit none
   
-  logical, managed, allocatable, save :: cu_do_constant_volume_burn
-  logical, managed, allocatable, save :: cu_call_eos_in_rhs
-  logical, managed, allocatable, save :: cu_centered_diff_jac
-  logical, managed, allocatable, save :: cu_renormalize_abundances
-  logical, managed, allocatable, save :: cu_integrate_temperature
-  logical, managed, allocatable, save :: cu_integrate_energy
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_do_constant_volume_burn
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_call_eos_in_rhs
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_centered_diff_jac
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif              
+       allocatable, save :: cu_renormalize_abundances
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: cu_integrate_temperature
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_integrate_energy
   
-  integer, managed, allocatable, save :: cu_burning_mode
+  integer, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_burning_mode
   
-  real(dp_t), managed, allocatable, save :: cu_burning_mode_factor  
-  real(dp_t), managed, allocatable, save :: cu_dt_crit
-  real(dp_t), managed, allocatable, save :: cu_tmax
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_burning_mode_factor  
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_dt_crit
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: cu_tmax
 
   !$acc declare &
   !$acc create(cu_do_constant_volume_burn, cu_call_eos_in_rhs, cu_dt_crit) &

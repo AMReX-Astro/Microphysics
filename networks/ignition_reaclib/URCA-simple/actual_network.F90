@@ -74,8 +74,16 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(dp_t), managed, allocatable, save :: aion(:), zion(:), bion(:)
-  real(dp_t), managed, allocatable, save :: nion(:), mion(:), wion(:)
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: aion(:), zion(:), bion(:)
+  real(dp_t), &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable, save :: nion(:), mion(:), wion(:)
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 

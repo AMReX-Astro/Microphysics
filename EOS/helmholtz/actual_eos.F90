@@ -5,37 +5,81 @@ module actual_eos_module
     character (len=64), public :: eos_name = "helmholtz"
 
     ! Runtime parameters
-    logical, managed, allocatable, save :: do_coulomb
-    logical, managed, allocatable, save :: input_is_constant
+    logical, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: do_coulomb
+    logical, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: input_is_constant
 
     !..for the tables, in general
     integer, parameter, private :: imax = 271, jmax = 101
-    integer, managed, allocatable, save :: itmax,jtmax
-    double precision, managed, allocatable, save   :: d(:),t(:)
+    integer, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: itmax,jtmax
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save   :: d(:),t(:)
 
-    double precision, managed, allocatable, save :: tlo, thi, tstp, tstpi
-    double precision, managed, allocatable, save :: dlo, dhi, dstp, dstpi
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: tlo, thi, tstp, tstpi
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: dlo, dhi, dstp, dstpi
 
     !..for the helmholtz free energy tables
-    double precision, managed, allocatable, save :: f(:,:),fd(:,:),               &
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: f(:,:),fd(:,:),               &
                                                     ft(:,:),fdd(:,:),ftt(:,:),    &
                                                     fdt(:,:),fddt(:,:),fdtt(:,:), &
                                                     fddtt(:,:)
 
     !..for the pressure derivative with density ables
-    double precision, managed, allocatable, save :: dpdf(:,:),dpdfd(:,:),         &
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: dpdf(:,:),dpdfd(:,:),         &
                                                     dpdft(:,:),dpdfdt(:,:)
 
     !..for chemical potential tables
-    double precision, managed, allocatable, save :: ef(:,:),efd(:,:), &
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: ef(:,:),efd(:,:), &
                                                     eft(:,:),efdt(:,:)
  
     !..for the number density tables
-    double precision, managed, allocatable, save :: xf(:,:),xfd(:,:), &
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: xf(:,:),xfd(:,:), &
                                                     xft(:,:),xfdt(:,:)
 
     !..for storing the differences
-    double precision, managed, allocatable, save :: dt_sav(:),dt2_sav(:),   &
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: dt_sav(:),dt2_sav(:),   &
                                                     dti_sav(:),dt2i_sav(:), &
                                                     dd_sav(:),dd2_sav(:),   &
                                                     ddi_sav(:),dd2i_sav(:)
@@ -50,44 +94,112 @@ module actual_eos_module
 private
     ! Math constants
     double precision, parameter :: pi       = 3.1415926535897932384d0
-    double precision, managed, allocatable, save :: a2rad
-    double precision, managed, allocatable, save :: rad2a
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: a2rad
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: rad2a
 
     ! Physical constants
     double precision, parameter :: h       = 6.6260689633d-27
-    double precision, managed, allocatable, save :: hbar
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: hbar
     double precision, parameter :: qe      = 4.8032042712d-10
     double precision, parameter :: avo_eos = 6.0221417930d23
     double precision, parameter :: clight  = 2.99792458d10
     double precision, parameter :: kerg    = 1.380650424d-16
     double precision, parameter :: ev2erg_eos  = 1.60217648740d-12
-    double precision, managed, allocatable, save :: kev
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: kev
     double precision, parameter :: amu     = 1.66053878283d-24
     double precision, parameter :: me_eos  = 9.1093821545d-28
-    double precision, managed, allocatable, save :: rbohr
-    double precision, managed, allocatable, save :: fine
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: rbohr
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: fine
 
 #ifdef RADIATION
     double precision, parameter :: ssol    = 0.0d0
 #else
     double precision, parameter :: ssol    = 5.67051d-5
 #endif
-    double precision, managed, allocatable, save :: asol
-    double precision, managed, allocatable, save :: weinlam
-    double precision, managed, allocatable, save :: weinfre
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: asol
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: weinlam
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: weinfre
 
     ! Astronomical constants
     double precision, parameter :: ly      = 9.460528d17
-    double precision, managed, allocatable, save :: pc
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: pc
 
     ! Some other useful combinations of the constants
-    double precision, managed, allocatable, save :: sioncon
-    double precision, managed, allocatable, save :: forth
-    double precision, managed, allocatable, save :: forpi
-    double precision, managed, allocatable, save :: kergavo
-    double precision, managed, allocatable, save :: ikavo
-    double precision, managed, allocatable, save :: asoli3
-    double precision, managed, allocatable, save :: light2
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: sioncon
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: forth
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: forpi
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: kergavo
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: ikavo
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: asoli3
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: light2
 
     ! Constants used for the Coulomb corrections
     double precision, parameter :: a1    = -0.898004d0
@@ -99,7 +211,11 @@ private
     double precision, parameter :: b2    =  1.9885d0
     double precision, parameter :: c2    =  0.288675d0
     double precision, parameter :: onethird = 1.0d0/3.0d0
-    double precision, managed, allocatable, save :: esqu
+    double precision, &
+#ifdef CUDA       
+       managed, &
+#endif         
+       allocatable, save :: esqu
 
     !$acc declare &
     !$acc create(a2rad, rad2a) &

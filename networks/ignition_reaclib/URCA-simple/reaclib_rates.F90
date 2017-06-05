@@ -8,16 +8,32 @@ module reaclib_rates
   logical, parameter :: screen_reaclib = .true.
   
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
-  double precision, managed, allocatable, save :: ctemp_rate(:,:)
+  double precision, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: ctemp_rate(:,:)
 
   ! Index into ctemp_rate, dimension 2, where each rate's coefficients start
-  integer, managed, allocatable, save :: rate_start_idx(:)
+  integer, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: rate_start_idx(:)
   
   ! Reaction multiplicities-1 (how many rates contribute - 1)
-  integer, managed, allocatable, save :: rate_extra_mult(:)
+  integer, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: rate_extra_mult(:)
 
   ! Should these reactions be screened?
-  logical, managed, allocatable, save :: do_screening(:)
+  logical, &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: do_screening(:)
   
   !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
   !$acc declare copyin(screen_reaclib)

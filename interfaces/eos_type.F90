@@ -39,23 +39,91 @@ module eos_type_module
 
   ! Minimum and maximum thermodynamic quantities permitted by the EOS.
 
-  real(dp_t), managed, allocatable, save :: mintemp
-  real(dp_t), managed, allocatable, save :: maxtemp
-  real(dp_t), managed, allocatable, save :: mindens
-  real(dp_t), managed, allocatable, save :: maxdens
-  real(dp_t), managed, allocatable, save :: minx   
-  real(dp_t), managed, allocatable, save :: maxx   
-  real(dp_t), managed, allocatable, save :: minye  
-  real(dp_t), managed, allocatable, save :: maxye  
-  real(dp_t), managed, allocatable, save :: mine   
-  real(dp_t), managed, allocatable, save :: maxe   
-  real(dp_t), managed, allocatable, save :: minp   
-  real(dp_t), managed, allocatable, save :: maxp   
-  real(dp_t), managed, allocatable, save :: mins   
-  real(dp_t), managed, allocatable, save :: maxs   
-  real(dp_t), managed, allocatable, save :: minh   
-  real(dp_t), managed, allocatable, save :: maxh
-  real(dp_t), managed, allocatable, save :: small_x_managed
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: mintemp
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: maxtemp
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: mindens
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: maxdens
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: minx   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: maxx   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: minye  
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: maxye  
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: mine   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: maxe   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: minp   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: maxp   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: mins   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: maxs   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: minh   
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: maxh
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif
+       allocatable, save :: small_x_managed
 
   !$acc declare &
   !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
