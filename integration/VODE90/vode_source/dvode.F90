@@ -4,7 +4,7 @@ module dvode_module
   use dvode_output_module, only: xerrwd
   use rpar_indices
   use bl_types, only: dp_t
-  use cublas
+  use cublas_module
   
   implicit none
 
