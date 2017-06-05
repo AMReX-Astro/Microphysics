@@ -25,6 +25,7 @@ module dvode_type_module
 
 contains
 
+#ifndef CUDA  
   subroutine print_state(dvode_state)
     type(dvode_t) :: dvode_state
 
@@ -120,5 +121,6 @@ contains
     write(*,*) 'LWM = ', dvode_state % LWM
     write(*,*) 'NEQ = ', dvode_state % NEQ
   end subroutine print_state
+#endif
   
 end module dvode_type_module
