@@ -6,6 +6,7 @@ module actual_integrator_module
   use eos_module
   use network
   use rpar_indices
+  use eos_type_module
   use vode_type_module
   use burn_type_module
   use bl_types
@@ -98,6 +99,7 @@ module actual_integrator_module
     real(dp_t) :: dedZ
 
   end type eos_tp
+
   
 contains
 
@@ -127,7 +129,7 @@ contains
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
     use dvode_module, only: dvode
-!    use eos_type_module, only: eos_t    
+    use eos_type_module, only: eos_t    
     use dvode_type_module, only: dvode_t
 
     implicit none
@@ -140,31 +142,31 @@ contains
 
     ! Local variables
 
-    real(dp_t) :: local_time
+    ! real(dp_t) :: local_time
     type (eos_tp) :: eos_state_in, eos_state_out, eos_state_temp
-    type (dvode_t) :: dvode_state
+    !type (dvode_t) :: dvode_state
 
-    ! Work arrays
+    ! ! Work arrays
 
-    real(dp_t) :: y(neqs)
-    real(dp_t) :: atol(neqs), rtol(neqs)
-    real(dp_t), target :: rwork(LRW)
-    integer    :: iwork(LIW)
-    real(dp_t) :: rpar(n_rpar_comps)
+    ! real(dp_t) :: y(neqs)
+    ! real(dp_t) :: atol(neqs), rtol(neqs)
+    ! real(dp_t), target :: rwork(LRW)
+    ! integer    :: iwork(LIW)
+    ! real(dp_t) :: rpar(n_rpar_comps)
 
-    integer :: MF_JAC
+    ! integer :: MF_JAC
 
-    ! istate determines the state of the calculation.  A value of 1 meeans
-    ! this is the first call to the problem -- this is what we will want.
+    ! ! istate determines the state of the calculation.  A value of 1 meeans
+    ! ! this is the first call to the problem -- this is what we will want.
 
-    integer :: istate
+    ! integer :: istate
 
-    integer :: ipar(n_ipar_comps)
+    ! integer :: ipar(n_ipar_comps)
 
-    real(dp_t) :: sum
-    real(dp_t) :: retry_change_factor
+    ! real(dp_t) :: sum
+    ! real(dp_t) :: retry_change_factor
 
-    real(dp_t) :: ener_offset
+    ! real(dp_t) :: ener_offset
 
 !     if (cu_jacobian == 1) then ! Analytical
 !        MF_JAC = MF_ANALYTIC_JAC
