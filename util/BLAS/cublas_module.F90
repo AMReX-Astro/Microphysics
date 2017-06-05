@@ -14,13 +14,13 @@ module cublas_module
 #ifdef CUDA          
      attributes(device) &
 #endif
-     subroutine cuda_daxpy(n, alpha, x, incx, y, incy) bind(C,name='cublasDaxpy')
+     subroutine cublasDaxpy(n, alpha, x, incx, y, incy) bind(C,name='cublasDaxpy')
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx, incy
        real(c_double), value  :: alpha
        real(c_double), device, pointer :: x(:), y(:)
-     end subroutine cuda_daxpy
+     end subroutine cublasDaxpy
 
      ! cublasStatus_t cublasDcopy(cublasHandle_t handle, int n,
      ! const double          *x, int incx,
@@ -28,12 +28,12 @@ module cublas_module
 #ifdef CUDA          
      attributes(device) &
 #endif          
-     subroutine cuda_dcopy(n, x, incx, y, incy) bind(C,name='cublasDcopy')
+     subroutine cublasDcopy(n, x, incx, y, incy) bind(C,name='cublasDcopy')
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx, incy
        real(c_double), device, pointer :: x(:), y(:)
-     end subroutine cuda_dcopy
+     end subroutine cublasDcopy
 
      ! cublasStatus_t cublasDdot (cublasHandle_t handle, int n,
      ! const double          *x, int incx,
@@ -42,12 +42,12 @@ module cublas_module
 #ifdef CUDA          
      attributes(device) &
 #endif          
-     subroutine cuda_ddot(n, x, incx, y, incy, res) bind(C,name='cublasDdot')
+     subroutine cublasDdot(n, x, incx, y, incy, res) bind(C,name='cublasDdot')
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx, incy
        real(c_double), device, pointer :: x(:), y(:), res(:)
-     end subroutine cuda_ddot
+     end subroutine cublasDdot
 
      ! cublasStatus_t cublasDgemm(cublasHandle_t handle,
      ! cublasOperation_t transa, cublasOperation_t transb,
@@ -60,14 +60,14 @@ module cublas_module
 #ifdef CUDA          
      attributes(device) &
 #endif          
-     subroutine cuda_dgemm(cta, ctb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc) bind(C,name='cublasDgemm')
+     subroutine cublasDgemm(cta, ctb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc) bind(C,name='cublasDgemm')
        use iso_c_binding
        implicit none
        character(1,c_char), value :: cta, ctb
        integer(c_int), value      :: m, n, k, lda, ldb, ldc
        real(c_double), value      :: alpha, beta
        real(c_double), device, pointer :: A(:,:), B(:,:), C(:,:)
-     end subroutine cuda_dgemm
+     end subroutine cublasDgemm
 
      ! cublasStatus_t  cublasDscal(cublasHandle_t handle, int n,
      ! const double          *alpha,
@@ -75,26 +75,26 @@ module cublas_module
 #ifdef CUDA          
      attributes(device) &
 #endif          
-     subroutine cuda_dscal(n, alpha, x, incx) bind(C,name='cublasDscal')
+     subroutine cublasDscal(n, alpha, x, incx) bind(C,name='cublasDscal')
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx
        real(c_double), value  :: alpha
        real(c_double), device, pointer :: x(:)
-     end subroutine cuda_dscal
+     end subroutine cublasDscal
 
      ! cublasStatus_t cublasIdamax(cublasHandle_t handle, int n,
      ! const double *x, int incx, int *result)
 #ifdef CUDA     
      attributes(device) &
 #endif          
-     subroutine cuda_idamax(n, x, incx, res) bind(C,name='cublasIdamax')
+     subroutine cublasIdamax(n, x, incx, res) bind(C,name='cublasIdamax')
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx
        integer(c_int)         :: res
        real(c_double), device, pointer :: x(:)
-     end subroutine cuda_idamax
+     end subroutine cublasIdamax
      
   end interface cuda_blas
 
