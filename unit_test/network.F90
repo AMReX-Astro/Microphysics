@@ -29,7 +29,6 @@ module network
   logical :: network_initialized = .false.
 
   ! this will be computed here, not in the actual network
-
   real(kind=rt), allocatable, save :: aion_inv(:)
 
 #ifdef CUDA
