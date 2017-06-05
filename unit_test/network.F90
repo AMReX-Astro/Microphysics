@@ -29,7 +29,11 @@ module network
   logical :: network_initialized = .false.
 
   ! this will be computed here, not in the actual network
-  real(kind=dp_t), managed, allocatable, save :: aion_inv(:)
+  real(kind=dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: aion_inv(:)
 
   !$acc declare create(aion_inv)
 
