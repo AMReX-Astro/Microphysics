@@ -44,81 +44,97 @@ module eos_type_module
        managed, &
 #endif       
        allocatable, save :: mintemp
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: maxtemp
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
        allocatable, save :: mindens
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: maxdens
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: minx   
+       allocatable, save :: minx
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: maxx   
+       allocatable, save :: maxx
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
-       allocatable, save :: minye  
+       allocatable, save :: minye
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: maxye  
+       allocatable, save :: maxye
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
-       allocatable, save :: mine   
+       allocatable, save :: mine
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: maxe   
+       allocatable, save :: maxe
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
-       allocatable, save :: minp   
+       allocatable, save :: minp
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: maxp   
+       allocatable, save :: maxp
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
-       allocatable, save :: mins   
+       allocatable, save :: mins
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
-       allocatable, save :: maxs   
+       allocatable, save :: maxs
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
-       allocatable, save :: minh   
+       allocatable, save :: minh
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif
        allocatable, save :: maxh
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
@@ -328,6 +344,7 @@ contains
 
 
   ! Print out details of the state.
+#ifndef CUDA  
   subroutine print_state(state)
 
     implicit none
@@ -340,6 +357,7 @@ contains
     print *, 'Y_E  = ', state % y_e
 
   end subroutine print_state
+#endif
 
 
 #ifdef CUDA

@@ -26,7 +26,10 @@ contains
     ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
     return
   end subroutine actual_rhs_init
-  
+
+#ifdef CUDA
+  attributes(device) &
+#endif  
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
