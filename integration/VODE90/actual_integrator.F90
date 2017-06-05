@@ -96,6 +96,7 @@ contains
     ! Local variables
 
     real(rt) :: local_time
+
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
 
     type (dvode_t) :: dvode_state
