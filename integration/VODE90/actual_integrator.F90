@@ -3,7 +3,7 @@
 
 module actual_integrator_module
 
-  use eos_module
+  use eos_module, only: eos
   use network
   use rpar_indices
   use vode_type_module
@@ -93,7 +93,7 @@ contains
 
     ! Local variables
 
-    real(dp_t) :: local_time
+!    real(dp_t) :: local_time
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
 !    type (dvode_t) :: dvode_state
 
