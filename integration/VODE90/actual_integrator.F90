@@ -7,6 +7,7 @@ module actual_integrator_module
   use eos_module
   use network
   use rpar_indices
+  use eos_type_module
   use vode_type_module
   use burn_type_module
   use amrex_constants_module
@@ -99,7 +100,7 @@ contains
 
     type (dvode_t) :: dvode_state
 
-    ! Work arrays
+    ! ! Work arrays
 
     real(rt) :: y(neqs)
     real(rt) :: atol(neqs), rtol(neqs)
@@ -107,14 +108,14 @@ contains
     integer    :: iwork(LIW)
     real(rt) :: rpar(n_rpar_comps)
 
-    integer :: MF_JAC
+    ! integer :: MF_JAC
 
-    ! istate determines the state of the calculation.  A value of 1 meeans
-    ! this is the first call to the problem -- this is what we will want.
+    ! ! istate determines the state of the calculation.  A value of 1 meeans
+    ! ! this is the first call to the problem -- this is what we will want.
 
-    integer :: istate
+    ! integer :: istate
 
-    integer :: ipar(n_ipar_comps)
+    ! integer :: ipar(n_ipar_comps)
 
     real(rt) :: sum
     real(rt) :: retry_change_factor
@@ -131,7 +132,6 @@ contains
 !        !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
 !     endif
 
-<<<<<<< HEAD
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
     else if (jacobian == 2) then ! Numerical
@@ -141,14 +141,13 @@ contains
        call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
 #endif
     endif
-=======
+
 !     ! Set the tolerances.  We will be more relaxed on the temperature
 !     ! since it is only used in evaluating the rates.
 !     !
 !     ! **NOTE** if you reduce these tolerances, you probably will need
 !     ! to (a) decrease dT_crit, (b) increase the maximum number of
 !     ! steps allowed.
->>>>>>> Moved some probin->managed probin.
 
 !     atol(1:nspec_evolve) = cu_atol_spec ! mass fractions
 !     atol(net_itemp)      = cu_atol_temp ! temperature
@@ -212,7 +211,7 @@ contains
 !        !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
 !     endif
 
-<<<<<<< HEAD
+
     if (burning_mode == 0 .or. burning_mode == 2) then
        rpar(irp_self_heat) = -ONE
     else if (burning_mode == 1 .or. burning_mode == 3) then
@@ -222,9 +221,6 @@ contains
        call amrex_error("Error: unknown burning_mode in actual_integrator.f90.")
 #endif
     endif
-=======
-!     ! Copy in the zone size.
->>>>>>> Moved some probin->managed probin.
 
 !     rpar(irp_dx) = state_in % dx
 
@@ -329,13 +325,11 @@ contains
 
 !        else
 
-<<<<<<< HEAD
 #if !(defined(ACC) || defined(CUDA))
           call amrex_error("ERROR in burner: integration failed")
 #endif
-=======
+
 !           print *, 'Retrying burn with looser tolerances'
->>>>>>> Moved some probin->managed probin.
 
 !           retry_change_factor = ONE
 
@@ -383,13 +377,11 @@ contains
 
 !           endif
 
-<<<<<<< HEAD
 #if !(defined(ACC) || defined(CUDA))
              call amrex_error("ERROR in burner: integration failed")
 #endif
-=======
+
 !        endif
->>>>>>> Moved some probin->managed probin.
 
 !     endif
 
