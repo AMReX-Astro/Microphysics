@@ -3,7 +3,7 @@
 
 module actual_integrator_module
 
-  use eos_module, only: eos
+  use eos_module
   use network
   use rpar_indices
   use vode_type_module
@@ -51,54 +51,6 @@ module actual_integrator_module
   integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
   integer, parameter :: LIW = 30 + neqs
 
-type :: eos_tp
-
-    real(dp_t) :: rho
-    real(dp_t) :: T
-    real(dp_t) :: p
-    real(dp_t) :: e
-    real(dp_t) :: h
-    real(dp_t) :: s
-    real(dp_t) :: xn(nspec)
-    real(dp_t) :: aux(naux)
-
-    real(dp_t) :: dpdT
-    real(dp_t) :: dpdr
-    real(dp_t) :: dedT
-    real(dp_t) :: dedr
-    real(dp_t) :: dhdT
-    real(dp_t) :: dhdr
-    real(dp_t) :: dsdT
-    real(dp_t) :: dsdr
-    real(dp_t) :: dpde
-    real(dp_t) :: dpdr_e
-
-    real(dp_t) :: cv
-    real(dp_t) :: cp
-    real(dp_t) :: xne
-    real(dp_t) :: xnp
-    real(dp_t) :: eta
-    real(dp_t) :: pele
-    real(dp_t) :: ppos
-    real(dp_t) :: mu
-    real(dp_t) :: mu_e
-    real(dp_t) :: y_e
-    real(dp_t) :: dedX(nspec)
-    real(dp_t) :: dpdX(nspec)
-    real(dp_t) :: dhdX(nspec)
-    real(dp_t) :: gam1
-    real(dp_t) :: cs
-
-    real(dp_t) :: abar
-    real(dp_t) :: zbar
-    real(dp_t) :: dpdA
-
-    real(dp_t) :: dpdZ
-    real(dp_t) :: dedA
-    real(dp_t) :: dedZ
-
-  end type eos_tp
-  
 contains
 
   subroutine actual_integrator_init()
@@ -129,6 +81,7 @@ contains
     use dvode_module, only: dvode
     use eos_type_module, only: eos_t
     use dvode_type_module, only: dvode_t
+    use bl_constants_module, only: ZERO    
 
     implicit none
 
@@ -140,32 +93,31 @@ contains
 
     ! Local variables
 
-!     real(dp_t) :: local_time
-    type (eos_tp) :: eos_state_in, eos_state_out, eos_state_temp
-    
+    real(dp_t) :: local_time
+    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
 !    type (dvode_t) :: dvode_state
 
-!     ! Work arrays
+    ! Work arrays
 
-!     real(dp_t) :: y(neqs)
-!     real(dp_t) :: atol(neqs), rtol(neqs)
-!     real(dp_t), target :: rwork(LRW)
-!     integer    :: iwork(LIW)
-!     real(dp_t) :: rpar(n_rpar_comps)
+    ! real(dp_t) :: y(neqs)
+    ! real(dp_t) :: atol(neqs), rtol(neqs)
+    ! real(dp_t), target :: rwork(LRW)
+    ! integer    :: iwork(LIW)
+    ! real(dp_t) :: rpar(n_rpar_comps)
 
-!     integer :: MF_JAC
+    ! integer :: MF_JAC
 
-!     ! istate determines the state of the calculation.  A value of 1 meeans
-!     ! this is the first call to the problem -- this is what we will want.
+    ! ! istate determines the state of the calculation.  A value of 1 meeans
+    ! ! this is the first call to the problem -- this is what we will want.
 
-!     integer :: istate
+    ! integer :: istate
 
-!     integer :: ipar(n_ipar_comps)
+    ! integer :: ipar(n_ipar_comps)
 
-!     real(dp_t) :: sum
-!     real(dp_t) :: retry_change_factor
+    ! real(dp_t) :: sum
+    ! real(dp_t) :: retry_change_factor
 
-!     real(dp_t) :: ener_offset
+    ! real(dp_t) :: ener_offset
 
 !     if (cu_jacobian == 1) then ! Analytical
 !        MF_JAC = MF_ANALYTIC_JAC
