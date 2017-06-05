@@ -1,7 +1,9 @@
 module dvode_module
 
-  use dvode_type_module, only: dvode_t, print_state
+  use dvode_type_module, only: dvode_t
+#ifndef CUDA  
   use dvode_output_module, only: xerrwd
+#endif
   use rpar_indices
   use bl_types, only: dp_t
   use cublas_module
@@ -1153,7 +1155,8 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    CALL DGESL (vstate % pWM(3), vstate % N, vstate % N, IWM(31), X, 0)
+    !TEST
+    !CALL DGESL (vstate % pWM(3), vstate % N, vstate % N, IWM(31), X, 0)
     RETURN
 
 300 PHRL1 = vstate % pWM(2)
@@ -1177,7 +1180,8 @@ contains
 400 ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    CALL DGBSL (vstate % pWM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
+    !TEST
+    !CALL DGBSL (vstate % pWM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
     RETURN
   end subroutine dvsol
 
@@ -1420,7 +1424,8 @@ contains
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
-       CALL DGEFA (WM(3), vstate % N, vstate % N, IWM(31), IER)
+       !TEST
+       !CALL DGEFA (WM(3), vstate % N, vstate % N, IWM(31), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -1537,7 +1542,8 @@ contains
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
-    CALL DGBFA (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
+    !TEST
+    !CALL DGBFA (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if
