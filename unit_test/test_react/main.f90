@@ -4,7 +4,7 @@
 program test_react
 
   use cudafor
-  use react_zone_module, only: pfidx_t, react_zone
+  use react_zones_module, only: pfidx_t, react_zones
   
   use BoxLib
   use amrex_constants_module
@@ -55,7 +55,9 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  real(kind=dp_t), managed, allocatable :: state(:,:,:,:)
+  real(kind=dp_t), &
+       managed, &
+       allocatable :: state(:,:,:,:)
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
@@ -184,9 +186,9 @@ program test_react
           ceiling(real(cu_ny)/cuThreadBlock%y), &
           ceiling(real(cu_nz)/cuThreadBlock%z))
      
-     ! React the zones using CUDA
-     call react_zone<<<cuGrid,cuThreadBlock>>>(state, pfidx)
-
+     ! React the zones using CUDA     
+     call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx)
+     
      !! Do reduction on statistics
      ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
@@ -202,12 +204,12 @@ program test_react
   enddo
 
   ! note: integer division
-  n_rhs_avg = n_rhs_avg/(nT*nrho*nX)
+  ! n_rhs_avg = n_rhs_avg/(nT*nrho*nX)
 
-  print *, "RHS stats:"
-  print *, "  min: ", n_rhs_min
-  print *, "  avg: ", n_rhs_avg
-  print *, "  max: ", n_rhs_max
+  ! print *, "RHS stats:"
+  ! print *, "  min: ", n_rhs_min
+  ! print *, "  avg: ", n_rhs_avg
+  ! print *, "  max: ", n_rhs_max
 
   ! output
   out_name = trim(run_prefix) // "test_react." // trim(integrator_dir)

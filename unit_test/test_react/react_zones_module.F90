@@ -1,6 +1,7 @@
-module react_zone_module
-
+module react_zones_module
+#ifdef CUDA
   use cudafor
+#endif
   use bl_types
   use bl_constants_module, only: ZERO
   use network, only: nspec
@@ -20,8 +21,11 @@ module react_zone_module
   end type pfidx_t
   
 contains
-  
-  attributes(global) subroutine react_zone(state, pfidx)
+
+#ifdef CUDA  
+  attributes(global) &
+#endif
+  subroutine react_zones(state, pfidx)
     real(kind=dp_t) :: state(:,:,:,:)  
     type(pfidx_t), value :: pfidx
     type (burn_t)   :: burn_state_in, burn_state_out
@@ -30,6 +34,7 @@ contains
     
     dim_state = shape(state)
 
+#ifdef CUDA    
     ii = (blockIdx%x - 1) * blockDim % x + threadIdx % x
     jj = (blockIdx%y - 1) * blockDim % y + threadIdx % y
     kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z    
@@ -38,6 +43,11 @@ contains
          ii <= dim_state(1) .and. &
          jj <= dim_state(2) .and. &
          kk <= dim_state(3)) then
+#else
+    do ii = 1, dim_state(1)
+    do jj = 1, dim_state(2)
+    do kk = 1, dim_state(3)
+#endif          
        burn_state_in % rho = state(ii, jj, kk, pfidx % irho)
        burn_state_in % T = state(ii, jj, kk, pfidx % itemp)
        do j = 1, nspec
@@ -57,14 +67,20 @@ contains
        enddo
 
        do j=1, nspec
-          ! an explicit loop is needed here to keep the GPU happy
+          ! an explicit loop is needed here to keep the GPU happy if running on GPU
           state(ii, jj, kk, pfidx % irodot + j - 1) = &
                (burn_state_out % xn(j) - burn_state_in % xn(j)) / cu_tmax
        enddo
 
        state(ii, jj, kk, pfidx % irho_hnuc) = &
             state(ii, jj, kk, pfidx % irho) * (burn_state_out % e - burn_state_in % e) / cu_tmax
+#ifdef CUDA       
     end if
-  end subroutine react_zone
+#else
+    enddo
+    enddo
+    enddo
+#endif
+  end subroutine react_zones
   
-end module react_zone_module
+end module react_zones_module
