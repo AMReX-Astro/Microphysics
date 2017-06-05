@@ -14,7 +14,7 @@ ifeq ($(USE_SDC), TRUE)
   f90EXE_sources += numerical_jacobian_sdc.f90
 else
   F90EXE_sources += integrator.F90
-  F90EXE_sources += numerical_jacobian.F90
+#  F90EXE_sources += numerical_jacobian.F90
 endif
 f90EXE_sources += integration_data.f90
 f90EXE_sources += temperature_integration.f90
