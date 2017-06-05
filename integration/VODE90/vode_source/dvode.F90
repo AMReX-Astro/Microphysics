@@ -2638,7 +2638,7 @@ contains
     yscratch =>  vstate % pYH(1:vstate % N,vstate % LMAX)
     call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
 #else
-    CALL DCOPY (vstate % N, vstate % ACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
+    CALL DCOPY (vstate % N, vstate % pACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
 #endif
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
