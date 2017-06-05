@@ -272,6 +272,7 @@ contains
 
 
   ! Print out details of the state.
+#ifndef CUDA  
   subroutine print_state(state)
 
     implicit none
@@ -284,6 +285,7 @@ contains
     print *, 'Y_E  = ', state % y_e
 
   end subroutine print_state
+#endif
 
 
 #ifdef CUDA

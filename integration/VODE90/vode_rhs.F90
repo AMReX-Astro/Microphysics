@@ -1,3 +1,7 @@
+module vode_rhs_module
+
+contains
+  
   ! The f_rhs routine provides the right-hand-side for the DVODE solver.
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
@@ -175,3 +179,4 @@
     call burn_to_vode(state, y, rpar, jac = pd)
 
   end subroutine jac
+end module vode_rhs_module
