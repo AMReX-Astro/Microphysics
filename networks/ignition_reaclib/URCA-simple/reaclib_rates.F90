@@ -1,6 +1,6 @@
 module reaclib_rates
   use screening_module, only: screen5, add_screening_factor, screening_init, &
-       plasma_state, fill_plasma_state, screening_finalize, screening_alloc
+       plasma_state, fill_plasma_state, screening_finalize
   use network
 
   implicit none
@@ -123,10 +123,7 @@ contains
     deallocate( do_screening )
   end subroutine term_reaclib
 
-  subroutine net_screening_init()
-    ! Allocate screening memory
-    call screening_alloc()
-    
+  subroutine net_screening_init()    
     ! Adds screening factors and calls screening_init
 
     call add_screening_factor(zion(jc12), aion(jc12), &
