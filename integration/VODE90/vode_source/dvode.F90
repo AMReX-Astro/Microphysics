@@ -482,8 +482,6 @@ contains
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
 
-    write(*,*) 'Hello from dvode.'
-    
     ! -----------------------------------------------------------------------
     !  Block A.
     !  This code block is executed on every call.
