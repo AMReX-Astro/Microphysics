@@ -3,7 +3,9 @@
 
 program test_react
 
+#ifdef CUDA
   use cudafor
+#endif
   use react_zones_module, only: pfidx_t, react_zones
   
   use BoxLib
@@ -56,7 +58,9 @@ program test_react
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
   real(kind=dp_t), &
+#ifdef CUDA
        managed, &
+#endif
        allocatable :: state(:,:,:,:)
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
@@ -72,10 +76,12 @@ program test_react
   character (len=256) :: out_name
 
   type(pfidx_t) :: pfidx
+#ifdef CUDA
   ! Adjust these CUDA parameters later
   integer, parameter :: cu_nx = 1024, cu_ny = 512, cu_nz = 1
   type(dim3)    :: cuGrid, cuThreadBlock
-  
+#endif  
+
   call boxlib_initialize()
   call bl_prof_initialize(on = .true.)
 
@@ -179,6 +185,7 @@ program test_react
      ! Set up a timer for the burn.
      start_time = parallel_wtime()
 
+#ifdef CUDA
      ! Set up CUDA parameters
      cuThreadBlock = dim3(32, 8, 1)
      cuGrid = dim3(&
@@ -188,6 +195,9 @@ program test_react
      
      ! React the zones using CUDA     
      call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx)
+#else
+     call react_zones(state, pfidx)
+#endif
      
      !! Do reduction on statistics
      ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
