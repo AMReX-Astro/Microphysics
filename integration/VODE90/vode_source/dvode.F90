@@ -329,7 +329,7 @@ contains
     !      /DVOD01/ --  H, TN, UROUND, L, N, NQ
     !      /DVOD02/ --  HU
     ! 
-    !  Subroutines called by DVINDY: DSACL, XERRWD
+    !  Subroutines called by DVINDY: DSCAL, XERRWD
     !  Function routines called by DVINDY: None
     ! -----------------------------------------------------------------------
     !  DVINDY computes interpolated values of the K-th derivative of the
@@ -391,7 +391,7 @@ contains
        IC = IC*JJ
     end do
 15  continue
-   C = REAL(IC)
+    C = REAL(IC)
     do I = 1, vstate % N
        DKY(I) = C * vstate % pYH(I,vstate % L)
     end do
@@ -414,7 +414,7 @@ contains
     end do
     IF (K .EQ. 0) RETURN
 55  continue
-   R = vstate % H**(-K)
+    R = vstate % H**(-K)
 #ifdef CUDA
    !TEST
  !   xscratch => DKY(1:vstate % N)
