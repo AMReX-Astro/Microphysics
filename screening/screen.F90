@@ -131,16 +131,16 @@ contains
   end subroutine screening_init
 
   subroutine screening_finalize()
-    deallocate(z1scr(nscreen_max))
-    deallocate(z2scr(nscreen_max))
-    deallocate(a1scr(nscreen_max))
-    deallocate(a2scr(nscreen_max))
-    deallocate(zs13(nscreen_max))
-    deallocate(zs13inv(nscreen_max))
-    deallocate(zhat(nscreen_max))
-    deallocate(zhat2(nscreen_max))
-    deallocate(lzav(nscreen_max))
-    deallocate(aznut(nscreen_max))
+    deallocate(z1scr)
+    deallocate(z2scr)
+    deallocate(a1scr)
+    deallocate(a2scr)
+    deallocate(zs13)
+    deallocate(zs13inv)
+    deallocate(zhat)
+    deallocate(zhat2)
+    deallocate(lzav)
+    deallocate(aznut)
   end subroutine screening_finalize
 
   subroutine add_screening_factor(z1, a1, z2, a2)
