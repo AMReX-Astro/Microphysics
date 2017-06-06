@@ -4,16 +4,15 @@ module cublas_module
   ! Above each interface subroutine is listed the C-style argument list
   ! for the corresponding cuBLAS function.
   implicit none
-  
+
+#ifdef CUDA
   interface cuda_blas
 
      ! cublasStatus_t cublasDaxpy(cublasHandle_t handle, int n,
      ! const double          *alpha,
      ! const double          *x, int incx,
      ! double                *y, int incy)
-#ifdef CUDA          
      attributes(device) &
-#endif
      subroutine cublasDaxpy(n, alpha, x, incx, y, incy) bind(C,name='cublasDaxpy')
        use iso_c_binding
        implicit none
@@ -25,9 +24,7 @@ module cublas_module
      ! cublasStatus_t cublasDcopy(cublasHandle_t handle, int n,
      ! const double          *x, int incx,
      ! double                *y, int incy)
-#ifdef CUDA          
      attributes(device) &
-#endif          
      subroutine cublasDcopy(n, x, incx, y, incy) bind(C,name='cublasDcopy')
        use iso_c_binding
        implicit none
@@ -39,9 +36,7 @@ module cublas_module
      ! const double          *x, int incx,
      ! const double          *y, int incy,
      ! double          *result)
-#ifdef CUDA          
      attributes(device) &
-#endif          
      subroutine cublasDdot(n, x, incx, y, incy, res) bind(C,name='cublasDdot')
        use iso_c_binding
        implicit none
@@ -57,9 +52,7 @@ module cublas_module
      ! const double          *B, int ldb,
      ! const double          *beta,
      ! double          *C, int ldc)
-#ifdef CUDA          
      attributes(device) &
-#endif          
      subroutine cublasDgemm(cta, ctb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc) bind(C,name='cublasDgemm')
        use iso_c_binding
        implicit none
@@ -72,22 +65,19 @@ module cublas_module
      ! cublasStatus_t  cublasDscal(cublasHandle_t handle, int n,
      ! const double          *alpha,
      ! double          *x, int incx)
-#ifdef CUDA          
      attributes(device) &
-#endif          
      subroutine cublasDscal(n, alpha, x, incx) bind(C,name='cublasDscal')
-       use iso_c_binding
+       use iso_c_binding, only: c_int, c_double
+       use cudafor, only: c_devptr
        implicit none
        integer(c_int), value  :: n, incx
        real(c_double), value  :: alpha
-       real(c_double), device, pointer :: x(:)
+       type(c_devptr), device :: x
      end subroutine cublasDscal
 
      ! cublasStatus_t cublasIdamax(cublasHandle_t handle, int n,
      ! const double *x, int incx, int *result)
-#ifdef CUDA     
      attributes(device) &
-#endif          
      subroutine cublasIdamax(n, x, incx, res) bind(C,name='cublasIdamax')
        use iso_c_binding
        implicit none
@@ -97,5 +87,5 @@ module cublas_module
      end subroutine cublasIdamax
      
   end interface cuda_blas
-
+#endif
 end module cublas_module
