@@ -57,7 +57,7 @@ program test_react
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
   real(kind=dp_t), &
-#ifdef CUDA       
+#ifdef CUDA
        managed, &
 #endif
        allocatable :: state(:,:,:,:)
@@ -201,6 +201,7 @@ program test_react
 #else
      call react_zones(state, pfidx)
 #endif
+
      !! Do reduction on statistics
      ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
