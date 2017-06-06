@@ -3,6 +3,7 @@ module react_zones_module
   use cudafor
 #endif
   use bl_types
+  use bl_space
   use bl_constants_module, only: ZERO
   use network, only: nspec
   use burn_type_module, only: burn_t, normalize_abundances_burn
@@ -29,9 +30,10 @@ contains
 #ifdef CUDA  
   attributes(global) &
 #endif
-  subroutine react_zones(state, pfidx)
-    real(kind=dp_t) :: state(:,:,:,:)  
+   subroutine react_zones(state, pfidx, lo, hi)
+    integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
     type(pfidx_t)   :: pfidx
+    real(kind=dp_t) :: state(0:, 0:, 0:, :)
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, jj, kk, j    
 
@@ -41,14 +43,14 @@ contains
     kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z - 1
 
     if (&
-         ii <= pfidx % endrho .and. &
-         jj <= pfidx % endT .and. &
-         kk <= pfidx % endX) then
+         ii >= lo(1) .and. ii <= hi(1) .and. &
+         jj >= lo(2) .and. jj <= hi(2) .and. &
+         kk >= lo(3) .and. kk <= hi(3)) then
 #else
-    do ii = 0, pfidx % endrho
-    do jj = 0, pfidx % endT
-    do kk = 0, pfidx % endX
-#endif          
+    do ii = lo(1), hi(1)
+    do jj = lo(2), hi(2)
+    do kk = lo(3), hi(3)
+#endif
        burn_state_in % rho = state(ii, jj, kk, pfidx % irho)
        burn_state_in % T = state(ii, jj, kk, pfidx % itemp)
        do j = 1, nspec

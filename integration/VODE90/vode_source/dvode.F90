@@ -1,5 +1,6 @@
 module dvode_module
 
+  use vode_rhs_module, only: f_rhs, jac  
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
@@ -229,88 +230,88 @@ contains
 
     real(dp_t), parameter :: PT1 = 0.1D0
 
-!     NITER = 0
-!     TDIST = ABS(TOUT - T0)
-!     TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
-!     IF (TDIST .LT. TWO*TROUND) GO TO 100
+    NITER = 0
+    TDIST = ABS(TOUT - T0)
+    TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
+    IF (TDIST .LT. TWO*TROUND) GO TO 100
 
-!     ! Set a lower bound on h based on the roundoff level in T0 and TOUT. ---
-!     HLB = HUN*TROUND
-!     ! Set an upper bound on h based on TOUT-T0 and the initial Y and YDOT. -
-!     HUB = PT1*TDIST
-!     ATOLI = ATOL(1)
+    ! Set a lower bound on h based on the roundoff level in T0 and TOUT. ---
+    HLB = HUN*TROUND
+    ! Set an upper bound on h based on TOUT-T0 and the initial Y and YDOT. -
+    HUB = PT1*TDIST
+    ATOLI = ATOL(1)
     
-!     do I = 1, N
-!        IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
-!        DELYI = PT1*ABS(Y0(I)) + ATOLI
-!        AFI = ABS(YDOT(I))
-!        IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
-!     end do
+    do I = 1, N
+       IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
+       DELYI = PT1*ABS(Y0(I)) + ATOLI
+       AFI = ABS(YDOT(I))
+       IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
+    end do
 
-!     ! Set initial guess for h as geometric mean of upper and lower bounds. -
-!     ITER = 0
-!     dscratch = HLB*HUB
-!     HG = SQRT(dscratch)
-!     ! If the bounds have crossed, exit with the mean value. ----------------
-!     IF (HUB .LT. HLB) THEN
-!        H0 = HG
-!        GO TO 90
-!     ENDIF
+    ! Set initial guess for h as geometric mean of upper and lower bounds. -
+    ITER = 0
+    dscratch = HLB*HUB
+    HG = SQRT(dscratch)
+    ! If the bounds have crossed, exit with the mean value. ----------------
+    IF (HUB .LT. HLB) THEN
+       H0 = HG
+       GO TO 90
+    ENDIF
 
-!     ! Looping point for iteration. -----------------------------------------
-! 50  CONTINUE
-!     ! Estimate the second derivative as a difference quotient in f. --------
-!     dscratch = TOUT - T0
-!     H = SIGN (HG, dscratch)
-!     T1 = T0 + H
-!     do I = 1, N
-!        Y(I) = Y0(I) + H*YDOT(I)
-!     end do
-!     CALL f_rhs(N, T1, Y, TEMP, RPAR, IPAR)
-!     do I = 1, N
-!        TEMP(I) = (TEMP(I) - YDOT(I))/H
-!     end do
-!     YDDNRM = DVNORM (N, TEMP, EWT)
-!     ! Get the corresponding new value of h. --------------------------------
-!     IF (YDDNRM*HUB*HUB .GT. TWO) THEN
-!        dscratch = TWO/YDDNRM
-!        HNEW = SQRT(dscratch)
-!     ELSE
-!        dscratch = HG*HUB
-!        HNEW = SQRT(dscratch)
-!     ENDIF
-!     ITER = ITER + 1
-!     ! -----------------------------------------------------------------------
-!     !  Test the stopping conditions.
-!     !  Stop if the new and previous h values differ by a factor of .lt. 2.
-!     !  Stop if four iterations have been done.  Also, stop with previous h
-!     !  if HNEW/HG .gt. 2 after first iteration, as this probably means that
-!     !  the second derivative value is bad because of cancellation error.
-!     ! -----------------------------------------------------------------------
-!     IF (ITER .GE. 4) GO TO 80
-!     HRAT = HNEW/HG
-!     IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) GO TO 80
-!     IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
-!        HNEW = HG
-!        GO TO 80
-!     ENDIF
-!     HG = HNEW
-!     GO TO 50
+    ! Looping point for iteration. -----------------------------------------
+50  CONTINUE
+    ! Estimate the second derivative as a difference quotient in f. --------
+    dscratch = TOUT - T0
+    H = SIGN (HG, dscratch)
+    T1 = T0 + H
+    do I = 1, N
+       Y(I) = Y0(I) + H*YDOT(I)
+    end do
+    CALL f_rhs(N, T1, Y, TEMP, RPAR, IPAR)
+    do I = 1, N
+       TEMP(I) = (TEMP(I) - YDOT(I))/H
+    end do
+    YDDNRM = DVNORM (N, TEMP, EWT)
+    ! Get the corresponding new value of h. --------------------------------
+    IF (YDDNRM*HUB*HUB .GT. TWO) THEN
+       dscratch = TWO/YDDNRM
+       HNEW = SQRT(dscratch)
+    ELSE
+       dscratch = HG*HUB
+       HNEW = SQRT(dscratch)
+    ENDIF
+    ITER = ITER + 1
+    ! -----------------------------------------------------------------------
+    !  Test the stopping conditions.
+    !  Stop if the new and previous h values differ by a factor of .lt. 2.
+    !  Stop if four iterations have been done.  Also, stop with previous h
+    !  if HNEW/HG .gt. 2 after first iteration, as this probably means that
+    !  the second derivative value is bad because of cancellation error.
+    ! -----------------------------------------------------------------------
+    IF (ITER .GE. 4) GO TO 80
+    HRAT = HNEW/HG
+    IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) GO TO 80
+    IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
+       HNEW = HG
+       GO TO 80
+    ENDIF
+    HG = HNEW
+    GO TO 50
 
-!     ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
-! 80  continue
-!     H0 = HNEW*HALF
-!     IF (H0 .LT. HLB) H0 = HLB
-!     IF (H0 .GT. HUB) H0 = HUB
-! 90  continue
-!     dscratch = TOUT - T0
-!     H0 = SIGN(H0, dscratch)
-!     NITER = ITER
-!     IER = 0
-!     RETURN
-!     ! Error return for TOUT - T0 too small. --------------------------------
-! 100 continue
-!     IER = -1
+    ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
+80  continue
+    H0 = HNEW*HALF
+    IF (H0 .LT. HLB) H0 = HLB
+    IF (H0 .GT. HUB) H0 = HUB
+90  continue
+    dscratch = TOUT - T0
+    H0 = SIGN(H0, dscratch)
+    NITER = ITER
+    IER = 0
+    RETURN
+    ! Error return for TOUT - T0 too small. --------------------------------
+100 continue
+    IER = -1
     RETURN
   end subroutine dvhin
   
@@ -445,12 +446,13 @@ contains
 #ifdef CUDA
        attributes(device) &
 #endif
-  subroutine dvode(F, NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
-       ISTATE, IOPT, RWORK, LRW, IWORK, LIW, JAC, MF, &
-       RPAR, IPAR, vstate)
-
+  subroutine dvode(NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
+       ISTATE, IOPT, RWORK, LRW, IWORK, LIW, MF, &
+       RPAR, IPAR, vstate)       
     !$acc routine seq
-    
+
+    implicit none
+       
     type(dvode_t), intent(inout) :: vstate
     
     integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
@@ -480,31 +482,7 @@ contains
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
 
-    ! Subroutine interfaces
-    interface
-#ifdef CUDA       
-       attributes(device) &
-#endif
-       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps
-         integer    :: NEQ, IPAR(n_ipar_comps)
-         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-         real(dp_t) :: YDOT(:)
-       END SUBROUTINE F
-
-#ifdef CUDA
-       attributes(device) &
-#endif
-       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
-         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
-         real(dp_t) :: PD(:,:), RPAR(n_rpar_comps), T, Y(NEQ)
-       END SUBROUTINE JAC
-    end interface
-
-    
+    write(*,*) 'Hello from dvode.'
     
     ! -----------------------------------------------------------------------
     !  Block A.
@@ -703,7 +681,7 @@ contains
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
     LF0 = vstate % LYH + vstate % NYH
     
-    CALL F (vstate % N, T, Y, vstate % pLF0, RPAR, IPAR)
+    CALL f_rhs (vstate % N, T, Y, vstate % pLF0, RPAR, IPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
 #ifdef CUDA
@@ -851,7 +829,7 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
 
-    CALL DVSTEP(Y, IWORK, F, JAC, F, DVNLSD, RPAR, IPAR, vstate)
+    CALL DVSTEP(Y, IWORK, RPAR, IPAR, vstate)
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
@@ -1277,7 +1255,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvjac(Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM, F, JAC, &
+  subroutine dvjac(Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM, &
        IERPJ, RPAR, IPAR, vstate)
 
     !$acc routine seq
@@ -1357,31 +1335,6 @@ contains
     ! Parameter declarations
     real(dp_t), parameter :: PT1 = 0.1D0
 
-    ! Subroutine interfaces
-    interface
-#ifdef CUDA
-       attributes(device) &
-#endif       
-       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps
-         integer    :: NEQ, IPAR(n_ipar_comps)
-         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-         real(dp_t) :: YDOT(:)
-       END SUBROUTINE F
-
-#ifdef CUDA
-       attributes(device) &
-#endif
-       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
-         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
-         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-         real(dp_t) :: PD(:,:)
-       END SUBROUTINE JAC
-    end interface
-
     IERPJ = 0
     HRL1 = vstate % H*vstate % RL1
     ! See whether J should be evaluated (JOK = -1) or not (JOK = 1). -------
@@ -1430,7 +1383,7 @@ contains
           R = MAX(SRUR*ABS(YJ),R0/EWT(J))
           Y(J) = Y(J) + R
           FAC = ONE/R
-          CALL F (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
+          CALL f_rhs (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
           do I = 1,vstate % N
              WM(I+J1) = (FTEM(I) - SAVF(I))*FAC
           end do
@@ -1495,7 +1448,7 @@ contains
           Y(I) = Y(I) + R*(vstate % H*SAVF(I) - YH(I,2))
        end do
        WM3 => WM(3:3 + vstate % N - 1)
-       CALL F (vstate % N, vstate % TN, Y, &
+       CALL f_rhs (vstate % N, vstate % TN, Y, &
             WM3, RPAR, IPAR)
        vstate % NFE = vstate % NFE + 1
        do I = 1,vstate % N
@@ -1532,8 +1485,8 @@ contains
        xscratch2(1:vstate % N, 1:vstate % N) =>  WM(ML3:ML3 + MEBAND * vstate % N - 1)
        CALL JAC (vstate % N, vstate % TN, Y, ML, MU, xscratch2, MEBAND, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-          xscratch2(MEBAND, vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
-          yscratch2( MBAND, vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
+          xscratch2(1:MEBAND, 1:vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
+          yscratch2(1:MBAND, 1:vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
           CALL DACOPY(MBAND, vstate % N, xscratch2, MEBAND, yscratch2, MBAND)
        end if
 
@@ -1554,7 +1507,7 @@ contains
              R = MAX(SRUR*ABS(YI),R0/EWT(I))
              Y(I) = Y(I) + R
           end do
-          CALL F (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
+          CALL f_rhs (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
           do JJ = J,vstate % N,MBAND
              Y(JJ) = YH(JJ,1)
              YJJ = Y(JJ)
@@ -1570,16 +1523,16 @@ contains
        end do
        vstate % NFE = vstate % NFE + MBA
        if (vstate % JSV .EQ. 1) then
-          xscratch2(MEBAND, vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
-          yscratch2( MBAND, vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
+          xscratch2(1:MEBAND, 1:vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
+          yscratch2(1:MBAND, 1:vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
           CALL DACOPY(MBAND, vstate % N, xscratch2, MEBAND, yscratch2, MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
        vstate % JCUR = 0
-       xscratch2( MBAND, vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
-       yscratch2(MEBAND, vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
+       xscratch2(1:MBAND, 1:vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
+       yscratch2(1:MEBAND, 1:vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
        CALL DACOPY(MBAND, vstate % N, xscratch2, MBAND, yscratch2, MEBAND)
     ENDIF
 
@@ -1609,7 +1562,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvnlsd(Y, IWM, F, JAC, PDUM, NFLAG, RPAR, IPAR, vstate)
+  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, IPAR, vstate)
 
     !$acc routine seq
     
@@ -1690,36 +1643,6 @@ contains
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
 
-    ! Subroutine interfaces
-    interface
-#ifdef CUDA
-       attributes(device) &
-#endif       
-       subroutine PDUM
-       end subroutine PDUM
-
-#ifdef CUDA
-       attributes(device) &
-#endif       
-       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps
-         integer    :: NEQ, IPAR(n_ipar_comps)
-         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-         real(dp_t) :: YDOT(:)
-       END SUBROUTINE F
-
-#ifdef CUDA  
-       attributes(device) &
-#endif              
-       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
-         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
-         real(dp_t) :: PD(:,:), RPAR(n_rpar_comps), T, Y(NEQ)
-       END SUBROUTINE JAC
-    end interface
-
     pY => Y
     
     ! -----------------------------------------------------------------------
@@ -1761,7 +1684,7 @@ contains
 #else
     CALL DCOPY (vstate % N, vstate % pYH1, 1, Y, 1)
 #endif
-    CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -1769,7 +1692,7 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    CALL DVJAC (Y, vstate % pYH, vstate % NYH, vstate % pEWT, vstate % pACOR, vstate % pSAVF, vstate % pWM, IWM, F, JAC, IERPJ, &
+    CALL DVJAC (Y, vstate % pYH, vstate % NYH, vstate % pEWT, vstate % pACOR, vstate % pSAVF, vstate % pWM, IWM, IERPJ, &
          RPAR, IPAR, vstate)
     vstate % IPUP = 0
     vstate % RC = ONE
@@ -1852,7 +1775,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     
@@ -2231,7 +2154,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvstep(Y, IWM, F, JAC, PSOL, VNLS, RPAR, IPAR, vstate)
+  subroutine dvstep(Y, IWM, RPAR, IPAR, vstate)
 
     !$acc routine seq
     
@@ -2292,7 +2215,6 @@ contains
     !           whose real name is dependent on the method used.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
-    EXTERNAL PSOL
     type(dvode_t) :: vstate
     real(dp_t), pointer :: xscratch(:), yscratch(:)
     real(dp_t) :: Y(vstate % N)
@@ -2320,72 +2242,6 @@ contains
     real(dp_t), parameter :: ETAMX3 = 10.0D0
     real(dp_t), parameter :: ONEPSM = 1.00001D0
     real(dp_t), parameter :: THRESH = 1.5D0
-
-    ! Subroutine interfaces
-    interface
-#ifdef CUDA  
-       attributes(device) &
-#endif                     
-       subroutine VNLS(Y, IWM, F, JAC, PDUM, NFLAG, RPAR, IPAR, vstate)
-         use bl_types, only: dp_t
-         use dvode_type_module, only: dvode_t
-         type(dvode_t) :: vstate
-         real(dp_t) :: Y(vstate % N)
-         real(dp_t) :: RPAR(:)
-         integer    :: IWM(:), NFLAG, IPAR(:)
-         interface
-#ifdef CUDA  
-       attributes(device) &
-#endif                          
-            subroutine PDUM
-            end subroutine PDUM
-
-#ifdef CUDA  
-       attributes(device) &
-#endif                   
-            SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
-              use bl_types, only: dp_t
-              use rpar_indices, only: n_rpar_comps, n_ipar_comps
-              integer    :: NEQ, IPAR(n_ipar_comps)
-              real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-              real(dp_t) :: YDOT(:)
-            END SUBROUTINE F
-
-#ifdef CUDA  
-       attributes(device) &
-#endif                          
-            SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
-              use bl_types, only: dp_t
-              use rpar_indices, only: n_rpar_comps, n_ipar_comps              
-              integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
-              real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-              real(dp_t) :: PD(:,:)
-            END SUBROUTINE JAC
-         end interface
-       end subroutine VNLS
-
-#ifdef CUDA  
-       attributes(device) &
-#endif                     
-       SUBROUTINE F (NEQ, T, Y, YDOT, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps
-         integer    :: NEQ, IPAR(n_ipar_comps)
-         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-         real(dp_t) :: YDOT(:)
-       END SUBROUTINE F
-
-#ifdef CUDA  
-       attributes(device) &
-#endif                     
-       SUBROUTINE JAC (NEQ, T, Y, ML, MU, PD, NRPD, RPAR, IPAR)
-         use bl_types, only: dp_t
-         use rpar_indices, only: n_rpar_comps, n_ipar_comps         
-         integer    :: NRPD, NEQ, ML, MU, IPAR(n_ipar_comps)
-         real(dp_t) :: RPAR(n_rpar_comps), T, Y(NEQ)
-         real(dp_t) :: PD(:,:)
-       END SUBROUTINE JAC
-    end interface
 
     ETAQ   = ONE
     ETAQM1 = ONE
@@ -2531,7 +2387,7 @@ contains
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
-    CALL VNLS (Y, IWM, F, JAC, PSOL, NFLAG, RPAR, IPAR, vstate)
+    CALL dvnlsd (Y, IWM, NFLAG, RPAR, IPAR, vstate)
 
     IF (NFLAG .EQ. 0) GO TO 450
     ! -----------------------------------------------------------------------
@@ -2657,7 +2513,7 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL F (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     do I = 1, vstate % N
        vstate % pYH(I,2) = vstate % H * vstate % pSAVF(I)

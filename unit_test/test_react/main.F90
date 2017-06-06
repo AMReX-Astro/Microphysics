@@ -198,9 +198,9 @@ program test_react
           ceiling(real(cu_nz)/cuThreadBlock%z))
      
      ! React the zones using CUDA     
-     call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx)
+     call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
 #else
-     call react_zones(state, pfidx)
+     call react_zones(state, pfidx, lo, hi)
 #endif
 
      !! Do reduction on statistics

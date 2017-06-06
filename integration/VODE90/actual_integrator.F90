@@ -115,29 +115,29 @@ contains
     integer    :: iwork(LIW)
     real(rt) :: rpar(n_rpar_comps)
 
-    ! integer :: MF_JAC
+    integer :: MF_JAC
 
-    ! ! istate determines the state of the calculation.  A value of 1 meeans
-    ! ! this is the first call to the problem -- this is what we will want.
+    ! istate determines the state of the calculation.  A value of 1 meeans
+    ! this is the first call to the problem -- this is what we will want.
 
-    ! integer :: istate
+    integer :: istate
 
-    ! integer :: ipar(n_ipar_comps)
+    integer :: ipar(n_ipar_comps)
 
     real(rt) :: sum
     real(rt) :: retry_change_factor
 
     real(rt) :: ener_offset
 
-!     if (cu_jacobian == 1) then ! Analytical
-!        MF_JAC = MF_ANALYTIC_JAC
-!     else if (cu_jacobian == 2) then ! Numerical
-!        MF_JAC = MF_NUMERICAL_JAC
-!     else
-!        stop
-!        !CUDA
-!        !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
-!     endif
+    if (cu_jacobian == 1) then ! Analytical
+       MF_JAC = MF_ANALYTIC_JAC
+    else if (cu_jacobian == 2) then ! Numerical
+       MF_JAC = MF_NUMERICAL_JAC
+    else
+       stop
+       !CUDA
+       !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+    endif
 
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
@@ -156,67 +156,67 @@ contains
 !     ! to (a) decrease dT_crit, (b) increase the maximum number of
 !     ! steps allowed.
 
-!     atol(1:nspec_evolve) = cu_atol_spec ! mass fractions
-!     atol(net_itemp)      = cu_atol_temp ! temperature
-!     atol(net_ienuc)      = cu_atol_enuc ! energy generated
+    atol(1:nspec_evolve) = cu_atol_spec ! mass fractions
+    atol(net_itemp)      = cu_atol_temp ! temperature
+    atol(net_ienuc)      = cu_atol_enuc ! energy generated
 
-!     rtol(1:nspec_evolve) = cu_rtol_spec ! mass fractions
-!     rtol(net_itemp)      = cu_rtol_temp ! temperature
-!     rtol(net_ienuc)      = cu_rtol_enuc ! energy generated
+    rtol(1:nspec_evolve) = cu_rtol_spec ! mass fractions
+    rtol(net_itemp)      = cu_rtol_temp ! temperature
+    rtol(net_ienuc)      = cu_rtol_enuc ! energy generated
 
-!     ! We want VODE to re-initialize each time we call it.
+    ! We want VODE to re-initialize each time we call it.
 
-!     istate = 1
+    istate = 1
 
-!     ! Initialize work arrays to zero.
+    ! Initialize work arrays to zero.
 
-!     rwork(:) = ZERO
-!     iwork(:) = 0
+    rwork(:) = ZERO
+    iwork(:) = 0
 
-!     ! Set the maximum number of steps allowed (the VODE default is 500).
+    ! Set the maximum number of steps allowed (the VODE default is 500).
 
-!     iwork(6) = 150000
+    iwork(6) = 150000
 
-!     ! Disable printing of messages about T + H == T unless we are in verbose mode.
+    ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
-!     if (cu_burner_verbose) then
-!        iwork(7) = 1
-!     else
-!        iwork(7) = 0
-!     endif
+    if (cu_burner_verbose) then
+       iwork(7) = 1
+    else
+       iwork(7) = 0
+    endif
 
-!     ! Initialize the integration time.
+    ! Initialize the integration time.
 
-!     local_time = ZERO
+    local_time = ZERO
 
-!     ! Convert our input burn state into an EOS type.
+    ! Convert our input burn state into an EOS type.
 
-!     call burn_to_eos(state_in, eos_state_in)
+    call burn_to_eos(state_in, eos_state_in)
 
-!     ! We assume that (rho, T) coming in are valid, do an EOS call
-!     ! to fill the rest of the thermodynamic variables.
+    ! We assume that (rho, T) coming in are valid, do an EOS call
+    ! to fill the rest of the thermodynamic variables.
 
-!     call eos(eos_input_rt, eos_state_in)
+    call eos(eos_input_rt, eos_state_in)
 
-!     ! Convert the EOS state data into the form VODE expects.
+    ! Convert the EOS state data into the form VODE expects.
 
-!     call eos_to_vode(eos_state_in, y, rpar)
+    call eos_to_vode(eos_state_in, y, rpar)
 
-!     ener_offset = eos_state_in % e
+    ener_offset = eos_state_in % e
 
-!     y(net_ienuc) = ener_offset
+    y(net_ienuc) = ener_offset
 
-!     ! Pass through whether we are doing self-heating.
+    ! Pass through whether we are doing self-heating.
 
-!     if (cu_burning_mode == 0 .or. cu_burning_mode == 2) then
-!        rpar(irp_self_heat) = -ONE
-!     else if (cu_burning_mode == 1 .or. cu_burning_mode == 3) then
-!        rpar(irp_self_heat) = ONE
-!     else
-!        stop
-!        !CUDA
-!        !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
-!     endif
+    if (cu_burning_mode == 0 .or. cu_burning_mode == 2) then
+       rpar(irp_self_heat) = -ONE
+    else if (cu_burning_mode == 1 .or. cu_burning_mode == 3) then
+       rpar(irp_self_heat) = ONE
+    else
+       stop
+       !CUDA
+       !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+    endif
 
 
     if (burning_mode == 0 .or. burning_mode == 2) then
@@ -229,108 +229,110 @@ contains
 #endif
     endif
 
-!     rpar(irp_dx) = state_in % dx
+    ! Copy in the zone size.
 
-!     ! Set the sound crossing time.
+    rpar(irp_dx) = state_in % dx
 
-!     rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
+    ! Set the sound crossing time.
 
-!     ! Set the time offset -- this converts between the local integration 
-!     ! time and the simulation time
+    rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
-!     rpar(irp_t0) = time
+    ! Set the time offset -- this converts between the local integration 
+    ! time and the simulation time
 
-!     ! If we are using the dT_crit functionality and therefore doing a linear
-!     ! interpolation of the specific heat in between EOS calls, do a second
-!     ! EOS call here to establish an initial slope.
+    rpar(irp_t0) = time
 
-!     rpar(irp_Told) = eos_state_in % T
+    ! If we are using the dT_crit functionality and therefore doing a linear
+    ! interpolation of the specific heat in between EOS calls, do a second
+    ! EOS call here to establish an initial slope.
 
-!     if (cu_dT_crit < 1.0d19) then
+    rpar(irp_Told) = eos_state_in % T
 
-!        eos_state_temp = eos_state_in
-!        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
+    if (cu_dT_crit < 1.0d19) then
 
-!        call eos(eos_input_rt, eos_state_temp)
+       eos_state_temp = eos_state_in
+       eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
 
-!        rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-!        rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       call eos(eos_input_rt, eos_state_temp)
 
-!     endif
+       rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+       rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
 
-!     ! Save the initial state.
+    endif
 
-!     rpar(irp_y_init:irp_y_init + neqs - 1) = y
+    ! Save the initial state.
 
-!     ! Call the integration routine.
+    rpar(irp_y_init:irp_y_init + neqs - 1) = y
 
-!     call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
-!                ITOL, rtol, atol, ITASK, &
-!                istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, &
-!                rpar, ipar, dvode_state)
+    ! Call the integration routine.
 
-!     ! If we are using hybrid burning and the energy release was negative (or we failed),
-!     ! re-run this in self-heating mode.
+    call dvode(neqs, y, local_time, local_time + dt, &
+               ITOL, rtol, atol, ITASK, &
+               istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
+               rpar, ipar, dvode_state)
 
-!     if ( cu_burning_mode == 2 .and. &
-!          (y(net_ienuc) - ener_offset < ZERO .or. &
-!           istate < 0) ) then
+    ! If we are using hybrid burning and the energy release was negative (or we failed),
+    ! re-run this in self-heating mode.
 
-!        rpar(irp_self_heat) = ONE
+    if ( cu_burning_mode == 2 .and. &
+         (y(net_ienuc) - ener_offset < ZERO .or. &
+          istate < 0) ) then
 
-!        istate = 1
+       rpar(irp_self_heat) = ONE
 
-!        rwork(:) = ZERO
-!        iwork(:) = 0
+       istate = 1
 
-!        iwork(6) = 150000
+       rwork(:) = ZERO
+       iwork(:) = 0
 
-!        local_time = ZERO
+       iwork(6) = 150000
 
-!        call eos_to_vode(eos_state_in, y, rpar)
+       local_time = ZERO
 
-!        rpar(irp_Told) = eos_state_in % T
+       call eos_to_vode(eos_state_in, y, rpar)
 
-!        if (cu_dT_crit < 1.0d19) then
+       rpar(irp_Told) = eos_state_in % T
 
-!           rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-!           rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       if (cu_dT_crit < 1.0d19) then
 
-!        endif
+          rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+          rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
 
-!        y(net_ienuc) = ener_offset
+       endif
 
-!        call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
-!                   ITOL, rtol, atol, ITASK, &
-!                   istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, &
-!                   rpar, ipar, dvode_state)
+       y(net_ienuc) = ener_offset
 
-!     endif
+       call dvode(neqs, y, local_time, local_time + dt, &
+                  ITOL, rtol, atol, ITASK, &
+                  istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
+                  rpar, ipar, dvode_state)
 
-!     ! If we still failed, print out the current state of the integration.
+    endif
 
-!     if (istate < 0) then
+    ! If we still failed, print out the current state of the integration.
+
+    if (istate < 0) then
        
-! #ifndef CUDA       
-!        print *, 'ERROR: integration failed in net'
-!        print *, 'istate = ', istate
-!        print *, 'time = ', local_time
-!        print *, 'dens = ', state_in % rho
-!        print *, 'temp start = ', state_in % T
-!        print *, 'xn start = ', state_in % xn
-!        print *, 'temp current = ', y(net_itemp)
-!        print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
-!             rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
-!        print *, 'energy generated = ', y(net_ienuc) - ener_offset
-! #endif
+#ifndef CUDA       
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', istate
+       print *, 'time = ', local_time
+       print *, 'dens = ', state_in % rho
+       print *, 'temp start = ', state_in % T
+       print *, 'xn start = ', state_in % xn
+       print *, 'temp current = ', y(net_itemp)
+       print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
+            rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
+       print *, 'energy generated = ', y(net_ienuc) - ener_offset
+#endif
        
-!        if (.not. cu_retry_burn) then
+       if (.not. cu_retry_burn) then
 
-!           stop
-!           !CUDA
-!           !call bl_error("ERROR in burner: integration failed")
+          stop
+          !CUDA
+          !call bl_error("ERROR in burner: integration failed")
 
-!        else
+       else
 
 #if !(defined(ACC) || defined(CUDA))
           call amrex_error("ERROR in burner: integration failed")
@@ -338,88 +340,86 @@ contains
 
 !           print *, 'Retrying burn with looser tolerances'
 
-!           retry_change_factor = ONE
+          retry_change_factor = ONE
 
-!           do while (istate < 0 .and. retry_change_factor <= cu_retry_burn_max_change)
+          do while (istate < 0 .and. retry_change_factor <= cu_retry_burn_max_change)
 
-!              retry_change_factor = retry_change_factor * cu_retry_burn_factor
+             retry_change_factor = retry_change_factor * cu_retry_burn_factor
 
-!              istate = 1
+             istate = 1
 
-!              rwork(:) = ZERO
-!              iwork(:) = 0
+             rwork(:) = ZERO
+             iwork(:) = 0
 
-!              atol = atol * cu_retry_burn_factor
-!              rtol = rtol * cu_retry_burn_factor
+             atol = atol * cu_retry_burn_factor
+             rtol = rtol * cu_retry_burn_factor
 
-!              iwork(6) = 150000
+             iwork(6) = 150000
 
-!              local_time = ZERO
+             local_time = ZERO
 
-!              call eos_to_vode(eos_state_in, y, rpar)
+             call eos_to_vode(eos_state_in, y, rpar)
 
-!              rpar(irp_Told) = eos_state_in % T
+             rpar(irp_Told) = eos_state_in % T
 
-!              if (cu_dT_crit < 1.0d19) then
+             if (cu_dT_crit < 1.0d19) then
 
-!                 rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-!                 rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+                rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+                rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
 
-!              endif
+             endif
 
-!              y(net_ienuc) = ener_offset
+             y(net_ienuc) = ener_offset
 
-!              call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
-!                         ITOL, rtol, atol, ITASK, &
-!                         istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, &
-!                         rpar, ipar, dvode_state)
+             call dvode(neqs, y, local_time, local_time + dt, &
+                        ITOL, rtol, atol, ITASK, &
+                        istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
+                        rpar, ipar, dvode_state)
 
-!           enddo
+          enddo
 
-!           if (retry_change_factor > cu_retry_burn_max_change .and. istate < 0) then
+          if (retry_change_factor > cu_retry_burn_max_change .and. istate < 0) then
 
-!              stop
-!              !CUDA
-!              !call bl_error("ERROR in burner: integration failed")
+             stop
+             !CUDA
+             !call bl_error("ERROR in burner: integration failed")
 
-!           endif
+          endif
 
 #if !(defined(ACC) || defined(CUDA))
              call amrex_error("ERROR in burner: integration failed")
 #endif
 
-!        endif
+    endif
 
-!     endif
+    ! Subtract the energy offset
+    y(net_ienuc) = y(net_ienuc) - ener_offset
 
-!     ! Subtract the energy offset
-!     y(net_ienuc) = y(net_ienuc) - ener_offset
+    ! Store the final data, and then normalize abundances.
+    call vode_to_burn(y, rpar, state_out)
 
-!     ! Store the final data, and then normalize abundances.
-!     call vode_to_burn(y, rpar, state_out)
+    ! get the number of RHS calls and jac evaluations from the VODE
+    ! work arrays
+    state_out % n_rhs = iwork(12)
+    state_out % n_jac = iwork(13)
 
-!     ! get the number of RHS calls and jac evaluations from the VODE
-!     ! work arrays
-!     state_out % n_rhs = iwork(12)
-!     state_out % n_jac = iwork(13)
+    if (nspec_evolve < nspec) then
+       call update_unevolved_species(state_out)
+    endif
 
-!     if (nspec_evolve < nspec) then
-!        call update_unevolved_species(state_out)
-!     endif
+    call normalize_abundances_burn(state_out)
 
-!     call normalize_abundances_burn(state_out)
+#ifndef CUDA    
+    if (cu_burner_verbose) then
 
-! #ifndef CUDA    
-!     if (cu_burner_verbose) then
-
-!        ! Print out some integration statistics, if desired.
-!        print *, 'integration summary: '
-!        print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
-!                 ' energy released: ', state_out % e - state_in % e
-!        print *, 'number of steps taken: ', iwork(11)
-!        print *, 'number of f evaluations: ', iwork(12)
-!     endif
-! #endif
+       ! Print out some integration statistics, if desired.
+       print *, 'integration summary: '
+       print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
+                ' energy released: ', state_out % e - state_in % e
+       print *, 'number of steps taken: ', iwork(11)
+       print *, 'number of f evaluations: ', iwork(12)
+    endif
+#endif
     
   end subroutine actual_integrator
 

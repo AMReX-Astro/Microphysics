@@ -1305,6 +1305,14 @@ contains
            endif
            print *, ''
         endif
+        
+        ! Read in the table
+
+        !..   open the table
+        open(unit=2,file='helm_table.dat',status='old',iostat=status)
+        if (status > 0) then
+           call amrex_error('actual_eos_init: Failed to open helm_table.dat')
+        endif
 
         !..   read the helmholtz free energy table
         itmax = imax
