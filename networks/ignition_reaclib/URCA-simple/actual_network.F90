@@ -180,7 +180,7 @@ contains
     !$acc update device(aion, zion, bion, nion, mion, wion)
   end subroutine actual_network_init
 
-  subroutine actual_network_finalize()
+  subroutine actual_network_finalize()    
     ! Deallocate storage arrays
     deallocate(aion)
     deallocate(zion)

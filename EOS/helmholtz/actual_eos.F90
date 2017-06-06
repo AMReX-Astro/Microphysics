@@ -1318,21 +1318,6 @@ contains
         integer :: i, j
         integer :: status
 
-        ! Read in the runtime parameters
-
-        input_is_constant = eos_input_is_constant
-        do_coulomb = use_eos_coulomb
-
-        if (parallel_IOProcessor()) then
-           print *, ''
-           if (do_coulomb) then
-              print *, "Initializing Helmholtz EOS and using Coulomb corrections."
-           else
-              print *, "Initializing Helmholtz EOS without using Coulomb corrections."
-           endif
-           print *, ''
-        endif
-
         ! Allocate managed module variables
         allocate(do_coulomb)
         allocate(input_is_constant)
@@ -1395,6 +1380,21 @@ contains
         allocate(asoli3)
         allocate(light2)
         allocate(esqu)
+        
+        ! Read in the runtime parameters
+
+        input_is_constant = eos_input_is_constant
+        do_coulomb = use_eos_coulomb
+
+        if (parallel_IOProcessor()) then
+           print *, ''
+           if (do_coulomb) then
+              print *, "Initializing Helmholtz EOS and using Coulomb corrections."
+           else
+              print *, "Initializing Helmholtz EOS without using Coulomb corrections."
+           endif
+           print *, ''
+        endif
         
         ! Read in the table
 

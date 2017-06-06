@@ -6,7 +6,7 @@ module screening_module
 
   private
   public :: screen5, screenz, add_screening_factor, screening_init, &
-            plasma_state, fill_plasma_state, screening_finalize
+            plasma_state, fill_plasma_state, screening_finalize, screening_alloc
   
   integer, parameter :: nscreen_max = 500
   integer            :: nscreen = 0
@@ -98,12 +98,8 @@ module screening_module
 
 contains
 
-  subroutine screening_init()
-    ! This routine assumes that we have already filled z1scr, z2scr,
-    ! a1scr, and a2scr.
-    
-    integer :: i
-
+  subroutine screening_alloc()
+    ! Allocate needed variables for screening
     allocate(z1scr(nscreen_max))
     allocate(z2scr(nscreen_max))
     allocate(a1scr(nscreen_max))
@@ -114,6 +110,13 @@ contains
     allocate(zhat2(nscreen_max))
     allocate(lzav(nscreen_max))
     allocate(aznut(nscreen_max))
+  end subroutine screening_alloc
+  
+  subroutine screening_init()
+    ! This routine assumes that we have already filled z1scr, z2scr,
+    ! a1scr, and a2scr.
+    
+    integer :: i
     
     do i = 1, nscreen
 

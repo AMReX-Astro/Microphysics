@@ -118,7 +118,7 @@ contains
 
     implicit none
 
-    integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
+    integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar(:)
     real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
     real(dp_t), intent(  OUT) :: pd(:,:)
 
