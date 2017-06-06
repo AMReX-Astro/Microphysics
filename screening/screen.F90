@@ -6,7 +6,7 @@ module screening_module
 
   private
   public :: screen5, screenz, add_screening_factor, screening_init, &
-            plasma_state, fill_plasma_state
+            plasma_state, fill_plasma_state, screening_finalize
   
   integer, parameter :: nscreen_max = 500
   integer            :: nscreen = 0
