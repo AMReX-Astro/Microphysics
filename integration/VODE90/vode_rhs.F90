@@ -27,9 +27,9 @@ contains
 
     implicit none
 
-    integer,    intent(IN   ) :: neq, ipar
-    real(dp_t), intent(INOUT) :: time, y(neq)
-    real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
+    integer,    intent(IN   ) :: neq, ipar(:)
+    real(dp_t), intent(INOUT) :: time, y(:)
+    real(dp_t), intent(INOUT) :: rpar(:)
     real(dp_t), intent(INOUT) :: ydot(:)
 
     type (burn_t) :: burn_state
