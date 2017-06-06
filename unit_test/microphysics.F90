@@ -3,6 +3,7 @@ module microphysics_module
   use BoxLib
   use backtrace_module, only : set_fpe_trap
   use network
+  use screening_module, only: screening_alloc
   use eos_module, only : eos_init, eos_finalize
   use actual_rhs_module, only : actual_rhs_init
   use managed_probin_module, only: managed_probin_init, managed_probin_finalize
@@ -38,6 +39,7 @@ contains
        call eos_init()
     endif
 
+    call screening_alloc()
     call network_init()
     call actual_rhs_init()
 #ifndef SDC
