@@ -24,7 +24,7 @@ program test_react
   use burn_type_module
   use actual_burner_module, only : actual_burner
   use microphysics_module
-  use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
+  use eos_type_module, only : mintemp, mindens
   use network, only: nspec
   use util_module
   use fabio_module
@@ -75,13 +75,18 @@ program test_react
 
   character (len=256) :: out_name
 
-  type(pfidx_t) :: pfidx
+  type(pfidx_t), &
 #ifdef CUDA
+       managed, &
+#endif
+       allocatable :: pfidx
+  
+#ifdef CUDA  
   ! Adjust these CUDA parameters later
   integer, parameter :: cu_nx = 1024, cu_ny = 512, cu_nz = 1
   type(dim3)    :: cuGrid, cuThreadBlock
-#endif  
-
+#endif
+  
   call boxlib_initialize()
   call bl_prof_initialize(on = .true.)
 
@@ -108,13 +113,7 @@ program test_react
   dx(1,:) = ONE
 
   ! microphysics
-  call microphysics_init(small_temp=small_temp, small_dens=small_dens)
-
-  call eos_get_small_temp(small_temp)
-  print *, "small_temp = ", small_temp
-
-  call eos_get_small_dens(small_dens)
-  print *, "small_dens = ", small_dens
+  call microphysics_init(small_temp=mintemp, small_dens=mindens)
 
   ! we'll store everything in a multifab -- inputs and outputs
   call init_variables(pf)
@@ -149,12 +148,17 @@ program test_react
   enddo
 
   ! GPU doesn't like derived-types with bound procedures
+  allocate(pfidx)
   pfidx % itemp = pf % itemp
   pfidx % irho = pf % irho
   pfidx % ispec = pf % ispec
   pfidx % ispec_old = pf % ispec_old
   pfidx % irodot = pf % irodot
   pfidx % irho_hnuc = pf % irho_hnuc
+  pfidx % endrho = nrho - 1
+  pfidx % endT = nT - 1
+  pfidx % endX = nX - 1
+  pfidx % ncomps = pf % n_plot_comps
 
   n = 1  ! single level assumption
 
@@ -198,7 +202,7 @@ program test_react
 #else
      call react_zones(state, pfidx)
 #endif
-     
+
      !! Do reduction on statistics
      ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
@@ -237,7 +241,8 @@ program test_react
   call destroy(mla)
 
   call finalize_variables(pf)
-
+  
+  deallocate(pfidx)
   deallocate(state)
   deallocate(s)
   deallocate(xn_zone)
