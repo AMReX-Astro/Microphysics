@@ -18,6 +18,10 @@ module react_zones_module
      integer :: ispec_old
      integer :: irodot
      integer :: irho_hnuc
+     integer :: endrho
+     integer :: endT
+     integer :: endX
+     integer :: ncomps
   end type pfidx_t
   
 contains
@@ -27,26 +31,23 @@ contains
 #endif
   subroutine react_zones(state, pfidx)
     real(kind=dp_t) :: state(:,:,:,:)  
-    type(pfidx_t), value :: pfidx
+    type(pfidx_t)   :: pfidx
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, jj, kk, j    
-    integer         :: dim_state(4)
-    
-    dim_state = shape(state)
 
 #ifdef CUDA    
-    ii = (blockIdx%x - 1) * blockDim % x + threadIdx % x
-    jj = (blockIdx%y - 1) * blockDim % y + threadIdx % y
-    kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z    
+    ii = (blockIdx%x - 1) * blockDim % x + threadIdx % x - 1
+    jj = (blockIdx%y - 1) * blockDim % y + threadIdx % y - 1
+    kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z - 1
 
     if (&
-         ii <= dim_state(1) .and. &
-         jj <= dim_state(2) .and. &
-         kk <= dim_state(3)) then
+         ii <= pfidx % endrho .and. &
+         jj <= pfidx % endT .and. &
+         kk <= pfidx % endX) then
 #else
-    do ii = 1, dim_state(1)
-    do jj = 1, dim_state(2)
-    do kk = 1, dim_state(3)
+    do ii = 0, pfidx % endrho
+    do jj = 0, pfidx % endT
+    do kk = 0, pfidx % endX
 #endif          
        burn_state_in % rho = state(ii, jj, kk, pfidx % irho)
        burn_state_in % T = state(ii, jj, kk, pfidx % itemp)
