@@ -12,28 +12,28 @@ module reaclib_rates
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: ctemp_rate(:,:)
+       allocatable :: ctemp_rate(:,:)
 
   ! Index into ctemp_rate, dimension 2, where each rate's coefficients start
   integer, &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: rate_start_idx(:)
+       allocatable :: rate_start_idx(:)
   
   ! Reaction multiplicities-1 (how many rates contribute - 1)
   integer, &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: rate_extra_mult(:)
+       allocatable :: rate_extra_mult(:)
 
   ! Should these reactions be screened?
   logical, &
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: do_screening(:)
+       allocatable :: do_screening(:)
   
   !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
   !$acc declare copyin(screen_reaclib)
