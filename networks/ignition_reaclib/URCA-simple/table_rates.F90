@@ -43,7 +43,12 @@ module table_rates
      integer :: num_header 
   end type table_read_info
 
-  type(table_info), managed, allocatable, save :: table_meta(:)
+  type(table_info), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable :: table_meta(:)
+  
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
