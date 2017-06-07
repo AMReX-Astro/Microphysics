@@ -11,46 +11,7 @@ module actual_integrator_module
   use bl_types
 
   implicit none
-
-  ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
-  ! function is supplied; 22 means stiff, figure out my jacobian through
-  ! differencing.
-
-  integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-
-  ! Tolerance parameters:
-  !
-  !  itol specifies whether to use an single absolute tolerance for
-  !  all variables (1), or to pass an array of absolute tolerances, one
-  !  for each variable with a scalar relative tol (2), a scalar absolute
-  !  and array of relative tolerances (3), or arrays for both (4).
-  !
-  !  The error is determined as e(i) = rtol*abs(y(i)) + atol, and must
-  !  be > 0.  Since we have some compositions that may be 0 initially,
-  !  we will specify both an absolute and a relative tolerance.
-  !
-  ! We will use arrays for both the absolute and relative tolerances,
-  ! since we want to be easier on the temperature than the species.
-
-  integer, parameter :: ITOL = 4
-
-  ! We want to do a normal computation, and get the output values of y(t)
-  ! after stepping though dt.
-
-  integer, PARAMETER :: ITASK = 1
-
-  ! We will override the maximum number of steps, so turn on the
-  ! optional arguments flag.
-
-  integer, parameter :: IOPT = 1
-
-  ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
-  ! integer work array of size 30 + NEQ. These are VODE constants
-  ! that depend on the integration mode we're using -- see dvode.f.
-
-  integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
-  integer, parameter :: LIW = 30 + neqs
-
+  
   !Fix PGI 17.4 bug - not including this will give a compiler error
   !for the declaration of eos_t instances in the subroutine below.
   type :: junk_t
@@ -64,7 +25,6 @@ contains
     implicit none
 
   end subroutine actual_integrator_init
-
 
 
   ! Main interface
@@ -107,7 +67,6 @@ contains
 
     real(dp_t) :: y(neqs)
     real(dp_t) :: atol(neqs), rtol(neqs)
-    real(dp_t), target :: rwork(LRW)
     integer    :: iwork(LIW)
     real(dp_t) :: rpar(n_rpar_comps)
 
@@ -124,6 +83,8 @@ contains
     real(dp_t) :: retry_change_factor
 
     real(dp_t) :: ener_offset
+
+    type(rwork_t) :: rwork
 
     if (cu_jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
@@ -155,8 +116,12 @@ contains
     istate = 1
 
     ! Initialize work arrays to zero.
-
-    rwork(:) = ZERO
+    rwork % CONDOPT = ZERO
+    rwork % YH   = ZERO
+    rwork % WM   = ZERO
+    rwork % EWT  = ZERO
+    rwork % SAVF = ZERO
+    rwork % ACOR = ZERO    
     iwork(:) = 0
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
@@ -257,7 +222,12 @@ contains
 
        istate = 1
 
-       rwork(:) = ZERO
+       rwork % CONDOPT = ZERO
+       rwork % YH   = ZERO
+       rwork % WM   = ZERO
+       rwork % EWT  = ZERO
+       rwork % SAVF = ZERO
+       rwork % ACOR = ZERO    
        iwork(:) = 0
 
        iwork(6) = 150000
@@ -319,7 +289,12 @@ contains
 
              istate = 1
 
-             rwork(:) = ZERO
+             rwork % CONDOPT = ZERO             
+             rwork % YH   = ZERO
+             rwork % WM   = ZERO
+             rwork % EWT  = ZERO
+             rwork % SAVF = ZERO
+             rwork % ACOR = ZERO    
              iwork(:) = 0
 
              atol = atol * cu_retry_burn_factor

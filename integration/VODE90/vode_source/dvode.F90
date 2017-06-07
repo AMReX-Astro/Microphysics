@@ -1,6 +1,7 @@
 module dvode_module
 
-  use vode_rhs_module, only: f_rhs, jac  
+  use vode_rhs_module, only: f_rhs, jac
+  use vode_type_module, only: rwork_t  
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
@@ -170,7 +171,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvhin(N, T0, Y0, YDOT, RPAR, IPAR, TOUT, UROUND, &
+  subroutine dvhin(N, T0, YH, RPAR, IPAR, TOUT, UROUND, &
        EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
 
     !$acc routine seq
@@ -197,8 +198,11 @@ contains
     ! 
     !  N      = Size of ODE system, input.
     !  T0     = Initial value of independent variable, input.
+    !
     !  Y0     = Vector of initial conditions, input.
     !  YDOT   = Vector of initial first derivatives, input.
+    !  [NOTE: Y0 = YH(:,1) and YDOT = YH(:,2) in this subroutine now]
+    !
     !  F      = Name of subroutine for right-hand side f(t,y), input.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     !  TOUT   = First output value of independent variable
@@ -221,7 +225,7 @@ contains
     real(dp_t) :: T0, RPAR(:), TOUT, UROUND
     real(dp_t) :: ATOL(:), Y(:), H0
     integer    :: N, IPAR(:), ITOL, NITER, IER
-    real(dp_t) :: Y0(:), YDOT(:)
+    real(dp_t) :: YH(:,:)
     real(dp_t) :: TEMP(:), EWT(:)
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
@@ -243,8 +247,8 @@ contains
     
     do I = 1, N
        IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
-       DELYI = PT1*ABS(Y0(I)) + ATOLI
-       AFI = ABS(YDOT(I))
+       DELYI = PT1*ABS(YH(I,1)) + ATOLI
+       AFI = ABS(YH(I,2))
        IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
     end do
 
@@ -265,11 +269,11 @@ contains
     H = SIGN (HG, dscratch)
     T1 = T0 + H
     do I = 1, N
-       Y(I) = Y0(I) + H*YDOT(I)
+       Y(I) = YH(I,1) + H*YH(I,2)
     end do
     CALL f_rhs(N, T1, Y, TEMP, RPAR, IPAR)
     do I = 1, N
-       TEMP(I) = (TEMP(I) - YDOT(I))/H
+       TEMP(I) = (TEMP(I) - YH(I,2))/H
     end do
     YDDNRM = DVNORM (N, TEMP, EWT)
     ! Get the corresponding new value of h. --------------------------------
@@ -318,7 +322,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvindy(T, K, DKY, IFLAG, vstate)
+  subroutine dvindy(YH, T, K, DKY, IFLAG, vstate)
 
     !$acc routine seq
     
@@ -363,7 +367,8 @@ contains
   
     type(dvode_t) :: vstate
     real(dp_t) :: T
-    real(dp_t), target  :: DKY(:)
+    real(dp_t) :: YH(:,:)
+    real(dp_t) :: DKY(:)
 #ifdef CUDA
     type(c_devptr), device :: xscratch
 #endif
@@ -393,7 +398,7 @@ contains
 15  continue
     C = REAL(IC)
     do I = 1, vstate % N
-       DKY(I) = C * vstate % pYH(I,vstate % L)
+       DKY(I) = C * YH(I,vstate % L)
     end do
     IF (K .EQ. vstate % NQ) GO TO 55
     JB2 = vstate % NQ - K
@@ -409,7 +414,7 @@ contains
 35     continue
        C = REAL(IC)
        do I = 1, vstate % N
-          DKY(I) = C * vstate % pYH(I,JP1) + S*DKY(I)
+          DKY(I) = C * YH(I,JP1) + S*DKY(I)
        end do
     end do
     IF (K .EQ. 0) RETURN
@@ -459,10 +464,9 @@ contains
     integer    :: IWORK(LIW)
     integer    :: IPAR(:)    
     real(dp_t) :: T, TOUT
-    real(dp_t), target :: Y(NEQ)
+    real(dp_t) :: Y(NEQ)
     real(dp_t) :: RTOL(NEQ), ATOL(NEQ)
-    real(dp_t), target  :: RWORK(:)
-    real(dp_t), pointer :: xscratch(:), yscratch(:)
+    type(rwork_t) :: RWORK
     real(dp_t) :: RPAR(:)
 
     logical    :: IHIT
@@ -554,21 +558,18 @@ contains
     !      EDIT 07/16/2016 -- see comments above about MXHNIL
     !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
     IF (ISTATE .NE. 1) GO TO 50
-    H0 = RWORK(5)
+    H0 = RWORK % CONDOPT(5)
     IF ((TOUT - T)*H0 .LT. ZERO) GO TO 614
 50  continue
-    HMAX = RWORK(6)
+    HMAX = RWORK % CONDOPT(6)
     IF (HMAX .LT. ZERO) GO TO 615
     vstate % HMXI = ZERO
     IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
-    vstate % HMIN = RWORK(7)
+    vstate % HMIN = RWORK % CONDOPT(7)
     IF (vstate % HMIN .LT. ZERO) GO TO 616
     
     ! -----------------------------------------------------------------------
-    !  Set work array pointers and check lengths LRW and LIW.
-    !  Pointers to segments of RWORK and IWORK are named by prefixing L to
-    !  the name of the segment.  E.g., the segment YH starts at RWORK(LYH).
-    !  Segments of RWORK (in order) are denoted  YH, WM, EWT, SAVF, ACOR.
+    !  Arrays stored in RWORK are denoted  CONDOPT, YH, WM, EWT, SAVF, ACOR.
     !  Within WM, LOCJS is the location of the saved Jacobian (JSV .gt. 0).
     ! -----------------------------------------------------------------------
     
@@ -618,17 +619,13 @@ contains
     IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
 #ifdef CUDA
-    xscratch => RWORK(vstate % LWM:vstate % LWM + vstate % N - 1)
-    yscratch => RWORK(vstate % LSAVF:vstate % LSAVF + vstate % N - 1)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)    
+    call cublasDcopy(vstate % N, rwork % wm, 1, rwork % savf, 1)
 #else    
-    CALL DCOPY (vstate % N, &
-         RWORK(vstate % LWM:vstate % LWM + vstate % N - 1), 1, &
-         RWORK(vstate % LSAVF:vstate % LSAVF + vstate % N - 1), 1)
+    CALL DCOPY(vstate % N, rwork % wm, 1, rwork % savf, 1)
 #endif    
-    ! Reload WM(1) = RWORK(LWM), since LWM may have changed. ---------------
+    ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
 90  continue
-    IF (vstate % MITER .GT. 0) RWORK(vstate % LWM) = SQRT(vstate % UROUND)
+    IF (vstate % MITER .GT. 0) rwork % wm(1) = SQRT(vstate % UROUND)
     GO TO 200
 
     ! -----------------------------------------------------------------------
@@ -643,14 +640,14 @@ contains
     vstate % UROUND = DUMACH()
     vstate % TN = T
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
-    TCRIT = RWORK(1)
+    TCRIT = RWORK % condopt(1)
     IF ((TCRIT - TOUT)*(TOUT - T) .LT. ZERO) GO TO 625
     if (H0 .NE. ZERO .AND. (T + H0 - TCRIT)*H0 .GT. ZERO) then
        H0 = TCRIT - T
     end if
 110 continue
     vstate % JSTART = 0
-    IF (vstate % MITER .GT. 0) RWORK(vstate % LWM) = SQRT(vstate % UROUND)
+    IF (vstate % MITER .GT. 0) RWORK % wm(1) = SQRT(vstate % UROUND)
     vstate % CCMXJ = PT2
     vstate % MSBJ = 50
     vstate % NHNIL = 0
@@ -665,50 +662,35 @@ contains
     vstate % HU = ZERO
     vstate % NQU = 0
 
-    ! Assign RWORK pointers
-    vstate % pYH(1:vstate % NYH, 1:vstate % LMAX) => RWORK(vstate % LYH:vstate % LWM - 1)
-    vstate % pLF0  => vstate % pYH(:,2)
-    ! pYH1  => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
-    ! Include WM in the bounds of YH1 so the matrix multiply following DVSTEP line 200 works
-    vstate % pYH1  => RWORK(vstate % LYH:vstate % LEWT - 1)
-    vstate % pWM   => RWORK(vstate % LWM:vstate % LEWT - 1)
-    vstate % pEWT  => RWORK(vstate % LEWT:vstate % LEWT + NEQ - 1)
-    vstate % pSAVF => RWORK(vstate % LSAVF:vstate % LSAVF + NEQ - 1)
-    vstate % pACOR => RWORK(vstate % LACOR:vstate % LACOR + NEQ - 1)
-    
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
     LF0 = vstate % LYH + vstate % NYH
     
-    CALL f_rhs (vstate % N, T, Y, vstate % pLF0, RPAR, IPAR)
+    CALL f_rhs (vstate % N, T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
 #ifdef CUDA
-    xscratch => Y(1:vstate % N)
-    yscratch => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)    
+    call cublasDcopy(vstate % N, Y, 1, rwork % YH(:,1), 1)
 #else
-    CALL DCOPY (vstate % N, &
-         Y(1:vstate % N), 1, &
-         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1)
+    CALL DCOPY(vstate % N, Y, 1, rwork % YH(:,1), 1)
 #endif    
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
     vstate % H = ONE
-    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL, vstate % pYH1, vstate % pEWT)
+    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL, rwork % YH(:,1), rwork % EWT)
     do I = 1,vstate % N
-       IF (RWORK(I+vstate % LEWT-1) .LE. ZERO) GO TO 621
-       RWORK(I+vstate % LEWT-1) = ONE/RWORK(I+vstate % LEWT-1)
+       IF (rwork % ewt(I) .LE. ZERO) GO TO 621
+       rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
     IF (H0 .NE. ZERO) GO TO 180
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
     CALL DVHIN (vstate % N, T, &
-         vstate % pYH1, &
-         vstate % pLF0, RPAR, IPAR, TOUT, &
+         rwork % YH, &
+         RPAR, IPAR, TOUT, &
          vstate % UROUND, &
-         vstate % pEWT, &
+         rwork % EWT, &
          ITOL, ATOL, Y, &
-         vstate % pACOR, &
+         rwork % ACOR, &
          H0, NITER, IER)
     vstate % NFE = vstate % NFE + NITER
     IF (IER .NE. 0) GO TO 622
@@ -720,11 +702,9 @@ contains
     vstate % H = H0
 #ifdef CUDA
     !TEST
-    ! xscratch => RWORK(LF0:LF0 + vstate % N - 1)
-    ! call cublasDscal(vstate % N, H0, xscratch, 1)
+    ! call cublasDscal(vstate % N, H0, rwork % YH(:,2), 1)
 #else
-    CALL DSCAL (vstate % N, H0, &
-         RWORK(LF0:LF0 + vstate % N - 1), 1)
+    CALL DSCAL(vstate % N, H0, rwork % YH(:,2), 1)
 #endif
     GO TO 270
     
@@ -738,20 +718,9 @@ contains
     NSLAST = vstate % NST
     vstate % KUTH = 0
 
-    ! Assign RWORK pointers
-    vstate % pYH(1:vstate % NYH, 1:vstate % LMAX) => RWORK(vstate % LYH:vstate % LWM - 1)
-    vstate % pLF0  => vstate % pYH(:,2)
-    ! vstate % pYH1  => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
-    ! Include WM in the bounds of YH1 so the matrix multiply following DVSTEP line 200 works
-    vstate % pYH1  => RWORK(vstate % LYH:vstate % LEWT - 1)
-    vstate % pWM   => RWORK(vstate % LWM:vstate % LEWT - 1)
-    vstate % pEWT  => RWORK(vstate % LEWT:vstate % LEWT + NEQ - 1)
-    vstate % pSAVF => RWORK(vstate % LSAVF:vstate % LSAVF + NEQ - 1)
-    vstate % pACOR => RWORK(vstate % LACOR:vstate % LACOR + NEQ - 1)
-    
     GO TO (210, 250, 220, 230, 240), ITASK
 210 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
+    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
@@ -761,16 +730,16 @@ contains
     IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
     GO TO 400
 230 continue
-    TCRIT = RWORK(1)
+    TCRIT = RWORK % condopt(1)
     IF ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) GO TO 624
     IF ((TCRIT - TOUT) * vstate % H .LT. ZERO) GO TO 625
     IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 245
-    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
+    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
     IF (IFLAG .NE. 0) GO TO 627
     T = TOUT
     GO TO 420
 240 continue
-    TCRIT = RWORK(1)
+    TCRIT = RWORK % condopt(1)
     IF ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) GO TO 624
 245 continue
     HMX = ABS(vstate % TN) + ABS(vstate % H)
@@ -795,13 +764,13 @@ contains
 
 250 CONTINUE
     IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
-    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL, vstate % pYH1, vstate % pEWT)
+    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL,  rwork % YH(:,1), rwork % EWT)
     do I = 1,vstate % N
-       IF (RWORK(I+vstate % LEWT-1) .LE. ZERO) GO TO 510
-       RWORK(I+vstate % LEWT-1) = ONE/RWORK(I+vstate % LEWT-1)
+       IF (rwork % ewt(I) .LE. ZERO) GO TO 510
+       rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
 270 continue
-    TOLSF = vstate % UROUND * DVNORM (vstate % N, vstate % pYH1, vstate % pEWT)
+    TOLSF = vstate % UROUND * DVNORM (vstate % N, rwork % YH(:,1), rwork % EWT)
     IF (TOLSF .LE. ONE) GO TO 280
     TOLSF = TOLSF*TWO
     IF (vstate % NST .EQ. 0) GO TO 626
@@ -827,7 +796,7 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
 
-    CALL DVSTEP(Y, IWORK, RPAR, IPAR, vstate)
+    CALL DVSTEP(Y, IWORK, RPAR, IPAR, rwork, vstate)
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
@@ -845,7 +814,7 @@ contains
     GO TO (310, 400, 330, 340, 350), ITASK
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
 310 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
-    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
+    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
     T = TOUT
     GO TO 420
     ! ITASK = 3.  Jump to exit if TOUT was reached. ------------------------
@@ -853,7 +822,7 @@ contains
     GO TO 250
     ! ITASK = 4.  See if TOUT or TCRIT was reached.  Adjust H if necessary.
 340 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 345
-    CALL DVINDY (TOUT, 0, Y, IFLAG, vstate)
+    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
     T = TOUT
     GO TO 420
 345 continue
@@ -880,22 +849,18 @@ contains
     
 400 CONTINUE
 #ifdef CUDA
-    xscratch => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
-    yscratch => Y(1:vstate % N)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)    
+    call cublasDcopy(vstate % N, rwork % YH, 1, Y, 1)
 #else
-    CALL DCOPY (vstate % N, &
-         RWORK(vstate % LYH:vstate % LYH + vstate % N - 1), 1, &
-         Y, 1)
+    CALL DCOPY(vstate % N, rwork % YH, 1, Y, 1)
 #endif
     T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
     IF (IHIT) T = TCRIT
 420 continue
     ISTATE = 2
-    RWORK(11) = vstate % HU
-    RWORK(12) = vstate % HNEW
-    RWORK(13) = vstate % TN
+    RWORK % condopt(11) = vstate % HU
+    RWORK % condopt(12) = vstate % HNEW
+    RWORK % condopt(13) = vstate % TN
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
@@ -927,7 +892,7 @@ contains
     GO TO 580
     ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 510 continue
-    EWTI = RWORK(vstate % LEWT+I-1)    
+    EWTI = rwork % ewt(I)
     MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
     CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
     ISTATE = -6
@@ -938,7 +903,7 @@ contains
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      for precision of machine:   see TOLSF (=R2) '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
-    RWORK(14) = TOLSF
+    RWORK % condopt(14) = TOLSF
     ISTATE = -2
     GO TO 580
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
@@ -963,7 +928,7 @@ contains
     BIG = ZERO
     IMXER = 1
     do I = 1,vstate % N
-       SIZE = ABS(RWORK(I+vstate % LACOR-1)*RWORK(I+vstate % LEWT-1))
+       SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
        IF (BIG .GE. SIZE) exit
        BIG = SIZE
        IMXER = I
@@ -972,16 +937,14 @@ contains
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
 #ifdef CUDA
-    xscratch => RWORK(vstate % LYH:vstate % LYH + vstate % N - 1)
-    yscratch => Y(1:vstate % N)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
+    call cublasDcopy(vstate % N, rwork % YH(:,1), 1, Y, 1)
 #else
-    CALL DCOPY (vstate % N, RWORK(vstate % LYH), 1, Y, 1)
+    CALL DCOPY(vstate % N, rwork % YH(:,1), 1, Y, 1)
 #endif    
     T = vstate % TN
-    RWORK(11) = vstate % HU
-    RWORK(12) = vstate % H
-    RWORK(13) = vstate % TN
+    RWORK % condopt(11) = vstate % HU
+    RWORK % condopt(12) = vstate % H
+    RWORK % condopt(13) = vstate % TN
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
@@ -1086,7 +1049,7 @@ contains
     ! CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
     GO TO 700
 621 continue
-    ! EWTI = RWORK(vstate % LEWT+I-1)
+    ! EWTI = rwork % ewt(I)
     ! MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
     ! CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
     GO TO 700
@@ -1111,7 +1074,7 @@ contains
     ! CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
     ! MSG='      requested for precision of machine:   see TOLSF (=R1) '
     ! CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
-    RWORK(14) = TOLSF
+    RWORK % condopt(14) = TOLSF
     GO TO 700
 627 continue
     ! MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
@@ -1134,7 +1097,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvsol(IWM, X, IERSL, vstate)
+  subroutine dvsol(WM, IWM, X, IERSL, vstate)
 
     !$acc routine seq
     
@@ -1169,7 +1132,7 @@ contains
     !          IERSL = 1 if a singular matrix arose with MITER = 3.
     ! -----------------------------------------------------------------------
     ! 
-
+    real(dp_t) :: WM(:)
     real(dp_t) :: X(:)
     integer    :: IWM(:), IERSL
     type(dvode_t) :: vstate
@@ -1181,24 +1144,24 @@ contains
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
     !LINPACK
-    CALL DGESL (vstate % pWM(3), vstate % N, vstate % N, IWM(31), X, 0)
+    CALL DGESL (WM(3), vstate % N, vstate % N, IWM(31), X, 0)
     RETURN
 
 300 continue
-    PHRL1 = vstate % pWM(2)
+    PHRL1 = WM(2)
     HRL1 = vstate % H*vstate % RL1
-    vstate % pWM(2) = HRL1
+    WM(2) = HRL1
     IF (HRL1 .EQ. PHRL1) GO TO 330
     R = HRL1/PHRL1
     do I = 1,vstate % N
-       DI = ONE - R*(ONE - ONE/vstate % pWM(I+2))
+       DI = ONE - R*(ONE - ONE/WM(I+2))
        IF (ABS(DI) .EQ. ZERO) GO TO 390
-       vstate % pWM(I+2) = ONE/DI
+       WM(I+2) = ONE/DI
     end do
 
 330 continue
     do I = 1,vstate % N
-       X(I) = vstate % pWM(I+2)*X(I)
+       X(I) = WM(I+2)*X(I)
     end do
     RETURN
 390 continue
@@ -1210,7 +1173,7 @@ contains
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
     !LINPACK
-    CALL DGBSL (vstate % pWM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
+    CALL DGBSL (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
     RETURN
   end subroutine dvsol
 
@@ -1234,7 +1197,7 @@ contains
     !  The data copied consists of NROW rows and NCOL columns.
     ! -----------------------------------------------------------------------
     integer    :: NROW, NCOL, NROWA, NROWB
-    real(dp_t) :: A(:,:), B(:,:)
+    real(dp_t) :: A(NROWA,NCOL), B(NROWB,NCOL)
     real(dp_t), pointer :: xscratch(:), yscratch(:)
     integer    :: IC
 
@@ -1253,8 +1216,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvjac(Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM, &
-       IERPJ, RPAR, IPAR, vstate)
+  subroutine dvjac(Y, IWM, IERPJ, RPAR, IPAR, rwork, vstate)
 
     !$acc routine seq
     
@@ -1317,15 +1279,12 @@ contains
     ! 
 
     type(dvode_t) :: vstate
-    real(dp_t), pointer :: xscratch(:), yscratch(:), xscratch2(:,:), yscratch2(:,:)
+    type(rwork_t) :: rwork
     
     real(dp_t) :: Y(:)
     real(dp_t) :: RPAR(:)
-    integer    :: LDYH, IWM(:), IERPJ, IPAR(:)
-    real(dp_t) :: EWT(:), FTEM(:), YH(:,:), SAVF(:)
-    real(dp_t), target :: WM(:)
+    integer    :: IWM(:), IERPJ, IPAR(:)
 
-    real(dp_t), pointer :: WM3(:)
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
@@ -1351,17 +1310,15 @@ contains
        vstate % JCUR = 1
        LENP = vstate % N * vstate % N
        do I = 1,LENP
-          WM(I+2) = ZERO
+          rwork % WM(I+2) = ZERO
        end do
-       xscratch2(1:vstate % N, 1:vstate % N) => WM(3:3 + vstate % N**2 - 1)
-       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, xscratch2, vstate % N, RPAR, IPAR)
+       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
+            rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
 #ifdef CUDA
-          xscratch => WM(3:3 + LENP - 1)
-          yscratch => WM(vstate % LOCJS:vstate % LOCJS + LENP - 1)
-          call cublasDcopy(LENP, xscratch, 1, yscratch, 1)
+          call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
 #else
-          CALL DCOPY (LENP, WM(3), 1, WM(vstate % LOCJS), 1)
+          CALL DCOPY (LENP, rwork % WM(3), 1, rwork % WM(vstate % LOCJS), 1)
 #endif
        endif
     ENDIF
@@ -1371,19 +1328,19 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       FAC = DVNORM (vstate % N, SAVF, EWT)
+       FAC = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)
        R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
-       SRUR = WM(1)
+       SRUR = rwork % WM(1)
        J1 = 2
        do J = 1,vstate % N
           YJ = Y(J)
-          R = MAX(SRUR*ABS(YJ),R0/EWT(J))
+          R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
           Y(J) = Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
+          CALL f_rhs (vstate % N, vstate % TN, Y, rwork % acor, RPAR, IPAR)
           do I = 1,vstate % N
-             WM(I+J1) = (FTEM(I) - SAVF(I))*FAC
+             rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
           Y(J) = YJ
           J1 = J1 + vstate % N
@@ -1392,11 +1349,9 @@ contains
        LENP = vstate % N * vstate % N
        if (vstate % JSV .EQ. 1) then
 #ifdef CUDA
-          xscratch => WM(3:3 + LENP - 1)
-          yscratch => WM(vstate % LOCJS:vstate % LOCJS + LENP - 1)
-          call cublasDcopy(LENP, xscratch, 1, yscratch, 1)
+          call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
 #else
-          CALL DCOPY (LENP, WM(3), 1, WM(vstate % LOCJS), 1)
+          CALL DCOPY (LENP, rwork % WM(3), 1, rwork % WM(vstate % LOCJS), 1)
 #endif
        end if
     ENDIF
@@ -1405,11 +1360,9 @@ contains
        vstate % JCUR = 0
        LENP = vstate % N * vstate % N
 #ifdef CUDA
-       xscratch => WM(vstate % LOCJS:vstate % LOCJS + LENP - 1)
-       yscratch => WM(3:3 + LENP - 1)
-       call cublasDcopy(LENP, xscratch, 1, yscratch, 1)
+       call cublasDcopy(LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, rwork % WM(3:3 + LENP - 1), 1)
 #else
-       CALL DCOPY (LENP, WM(vstate % LOCJS), 1, WM(3), 1)
+       CALL DCOPY (LENP, rwork % WM(vstate % LOCJS), 1, rwork % WM(3), 1)
 #endif
     ENDIF
 
@@ -1417,20 +1370,19 @@ contains
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
 #ifdef CUDA
-       xscratch => WM(3:3 + LENP - 1)
-       call cublasDscal(LENP, CON, xscratch, 1)
+       call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
 #else
-       CALL DSCAL (LENP, CON, WM(3), 1)
+       CALL DSCAL (LENP, CON, rwork % WM(3), 1)
 #endif
        J = 3
        NP1 = vstate % N + 1
        do I = 1,vstate % N
-          WM(J) = WM(J) + ONE
+          rwork % WM(J) = rwork % WM(J) + ONE
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
        !LINPACK
-       CALL DGEFA (WM(3), vstate % N, vstate % N, IWM(31), IER)
+       CALL DGEFA (rwork % WM(3), vstate % N, vstate % N, IWM(31), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -1440,22 +1392,21 @@ contains
        ! If MITER = 3, construct a diagonal approximation to J and P. ---------
        vstate % NJE = vstate % NJE + 1
        vstate % JCUR = 1
-       WM(2) = HRL1
+       rwork % WM(2) = HRL1
        R = vstate % RL1*PT1
        do I = 1,vstate % N
-          Y(I) = Y(I) + R*(vstate % H*SAVF(I) - YH(I,2))
+          Y(I) = Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
-       WM3 => WM(3:3 + vstate % N - 1)
        CALL f_rhs (vstate % N, vstate % TN, Y, &
-            WM3, RPAR, IPAR)
+            rwork % WM(3:3 + vstate % N - 1), RPAR, IPAR)
        vstate % NFE = vstate % NFE + 1
        do I = 1,vstate % N
-          R0 = vstate % H*SAVF(I) - YH(I,2)
-          DI = PT1*R0 - vstate % H*(WM(I+2) - SAVF(I))
-          WM(I+2) = ONE
-          IF (ABS(R0) .LT. vstate % UROUND/EWT(I)) cycle
+          R0 = vstate % H * rwork % SAVF(I) - rwork % YH(I,2)
+          DI = PT1*R0 - vstate % H*(rwork % WM(I+2) - rwork % SAVF(I))
+          rwork % WM(I+2) = ONE
+          IF (ABS(R0) .LT. vstate % UROUND/rwork % EWT(I)) cycle
           IF (ABS(DI) .EQ. ZERO) GO TO 330
-          WM(I+2) = PT1*R0/DI
+          rwork % WM(I+2) = PT1*R0/DI
        end do
        RETURN
 330    continue
@@ -1478,14 +1429,13 @@ contains
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
        do I = 1,LENP
-          WM(I+2) = ZERO
+          rwork % WM(I+2) = ZERO
        end do
-       xscratch2(1:vstate % N, 1:vstate % N) =>  WM(ML3:ML3 + MEBAND * vstate % N - 1)
-       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, xscratch2, MEBAND, RPAR, IPAR)
+       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-          xscratch2(1:MEBAND, 1:vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
-          yscratch2(1:MBAND, 1:vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
-          CALL DACOPY(MBAND, vstate % N, xscratch2, MEBAND, yscratch2, MBAND)
+          CALL DACOPY(MBAND, vstate % N, &
+               rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND)
        end if
 
     else if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 5) then
@@ -1495,61 +1445,60 @@ contains
        vstate % JCUR = 1
        MBA = MIN(MBAND,vstate % N)
        MEB1 = MEBAND - 1
-       SRUR = WM(1)
-       FAC = DVNORM (vstate % N, SAVF, EWT)
+       SRUR = rwork % WM(1)
+       FAC = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)
        R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        do J = 1,MBA
           do I = J,vstate % N,MBAND
              YI = Y(I)
-             R = MAX(SRUR*ABS(YI),R0/EWT(I))
+             R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
              Y(I) = Y(I) + R
           end do
-          CALL f_rhs (vstate % N, vstate % TN, Y, FTEM, RPAR, IPAR)
+          CALL f_rhs (vstate % N, vstate % TN, Y, rwork % acor, RPAR, IPAR)
           do JJ = J,vstate % N,MBAND
-             Y(JJ) = YH(JJ,1)
+             Y(JJ) = rwork % YH(JJ,1)
              YJJ = Y(JJ)
-             R = MAX(SRUR*ABS(YJJ),R0/EWT(JJ))
+             R = MAX(SRUR*ABS(YJJ),R0/rwork % EWT(JJ))
              FAC = ONE/R
              I1 = MAX(JJ-MU,1)
              I2 = MIN(JJ+ML,vstate % N)
              II = JJ*MEB1 - ML + 2
              do I = I1,I2
-                WM(II+I) = (FTEM(I) - SAVF(I))*FAC
+                rwork % WM(II+I) = (rwork % acor(I) - rwork % SAVF(I))*FAC
              end do
           end do
        end do
        vstate % NFE = vstate % NFE + MBA
        if (vstate % JSV .EQ. 1) then
-          xscratch2(1:MEBAND, 1:vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
-          yscratch2(1:MBAND, 1:vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
-          CALL DACOPY(MBAND, vstate % N, xscratch2, MEBAND, yscratch2, MBAND)
+          CALL DACOPY(MBAND, vstate % N, &
+               rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
        vstate % JCUR = 0
-       xscratch2(1:MBAND, 1:vstate % N) => WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1)
-       yscratch2(1:MEBAND, 1:vstate % N) => WM(ML3:ML3 + MEBAND * vstate % N - 1)
-       CALL DACOPY(MBAND, vstate % N, xscratch2, MBAND, yscratch2, MEBAND)
+       CALL DACOPY(MBAND, vstate % N, &
+            rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND, &
+            rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND)
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
 #ifdef CUDA
-    xscratch => WM(3:3 + LENP - 1)
-    call cublasDscal(LENP, CON, xscratch, 1 )
+    call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
 #else
-    CALL DSCAL (LENP, CON, WM(3), 1 )
+    CALL DSCAL (LENP, CON, rwork % WM(3), 1 )
 #endif
     II = MBAND + 2
     do I = 1,vstate % N
-       WM(II) = WM(II) + ONE
+       rwork % WM(II) = rwork % WM(II) + ONE
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
     !LINPACK
-    CALL DGBFA (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
+    CALL DGBFA (rwork % WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if
@@ -1560,7 +1509,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, IPAR, vstate)
+  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, IPAR, rwork, vstate)
 
     !$acc routine seq
     
@@ -1625,6 +1574,7 @@ contains
     !
 
     type(dvode_t) :: vstate
+    type(rwork_t) :: rwork
     real(dp_t), pointer :: xscratch(:), yscratch(:)  
     real(dp_t), target :: Y(vstate % N)
     real(dp_t), pointer :: pY(:)
@@ -1676,13 +1626,11 @@ contains
     DELP = ZERO
 
 #ifdef CUDA
-    xscratch => vstate % pYH1(1:vstate % N)
-    yscratch => Y(1:vstate % N)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
+    call cublasDcopy(vstate % N, rwork % yh, 1, Y, 1)
 #else
-    CALL DCOPY (vstate % N, vstate % pYH1, 1, Y, 1)
+    CALL DCOPY(vstate % N, rwork % yh, 1, Y, 1)
 #endif
-    CALL f_rhs (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -1690,8 +1638,7 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    CALL DVJAC (Y, vstate % pYH, vstate % NYH, vstate % pEWT, vstate % pACOR, vstate % pSAVF, vstate % pWM, IWM, IERPJ, &
-         RPAR, IPAR, vstate)
+    CALL DVJAC (Y, IWM, IERPJ, RPAR, IPAR, rwork, vstate)
     vstate % IPUP = 0
     vstate % RC = ONE
     vstate % DRC = ZERO
@@ -1701,7 +1648,7 @@ contains
     IF (IERPJ .NE. 0) GO TO 430
 250 continue
     do I = 1,vstate % N
-       vstate % pACOR(I) = ZERO
+       rwork % acor(I) = ZERO
     end do
     ! This is a looping point for the corrector iteration. -----------------
 270 IF (vstate % MITER .NE. 0) GO TO 350
@@ -1710,21 +1657,19 @@ contains
     !  the result of the last function evaluation.
     ! -----------------------------------------------------------------------
     do I = 1,vstate % N
-       vstate % pSAVF(I) = vstate % RL1*(vstate % H * vstate % pSAVF(I) - vstate % pYH(I,2))
+       rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
     end do
     do I = 1,vstate % N
-       Y(I) = vstate % pSAVF(I) - vstate % pACOR(I)
+       Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
     end do
-    DEL = DVNORM (vstate % N, pY, vstate % pEWT)
+    DEL = DVNORM (vstate % N, pY, rwork % EWT)
     do I = 1,vstate % N
-       Y(I) = vstate % pYH(I,1) + vstate % pSAVF(I)
+       Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
 #ifdef CUDA
-    xscratch => vstate % pSAVF(1:vstate % N)
-    yscratch => vstate % pACOR(1:vstate % N)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
+    call cublasDcopy(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
 #else
-    CALL DCOPY(vstate % N, vstate % pSAVF, 1, vstate % pACOR, 1)
+    CALL DCOPY(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
 #endif
     GO TO 400
     ! -----------------------------------------------------------------------
@@ -1735,10 +1680,10 @@ contains
     ! -----------------------------------------------------------------------
 350 continue
     do I = 1,vstate % N
-       Y(I) = (vstate % RL1*vstate % H) * vstate % pSAVF(I) - &
-            (vstate % RL1 * vstate % pYH(I,2) + vstate % pACOR(I))
+       Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
+            (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
     end do
-    CALL DVSOL (IWM, Y, IERSL, vstate)
+    CALL DVSOL (rwork % wm, IWM, Y, IERSL, vstate)
     vstate % NNI = vstate % NNI + 1
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
@@ -1750,16 +1695,14 @@ contains
        CALL DSCAL (vstate % N, CSCALE, Y, 1)
 #endif
     ENDIF
-    DEL = DVNORM (vstate % N, pY, vstate % pEWT)
+    DEL = DVNORM (vstate % N, pY, rwork % EWT)
 #ifdef CUDA
-    xscratch => Y
-    yscratch => vstate % pACOR
-    call cublasDaxpy(vstate % N, ONE, xscratch, 1, yscratch, 1)
+    call cublasDaxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
 #else
-    call daxpy(vstate % N, ONE, Y, 1, vstate % pACOR, 1)
+    call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
 #endif    
     do I = 1,vstate % N
-       Y(I) = vstate % pYH(I,1) + vstate % pACOR(I)
+       Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
     end do
     ! -----------------------------------------------------------------------
     !  Test for convergence.  If M .gt. 0, an estimate of the convergence
@@ -1773,7 +1716,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL f_rhs (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % SAVF, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     
@@ -1794,14 +1737,14 @@ contains
     vstate % JCUR = 0
     vstate % ICF = 0
     IF (M .EQ. 0) vstate % ACNRM = DEL
-    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % N, vstate % pACOR, vstate % pEWT)
+    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % N, rwork % ACOR, rwork % EWT)
     RETURN
   end subroutine dvnlsd
 
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvjust(IORD, vstate)
+  subroutine dvjust(IORD, rwork, vstate)
 
     !$acc routine seq
     
@@ -1826,7 +1769,7 @@ contains
     ! -----------------------------------------------------------------------
     !
     type(dvode_t) :: vstate
-    real(dp_t), pointer :: xscratch(:), yscratch(:)
+    type(rwork_t) :: rwork
     
     integer    :: IORD
 
@@ -1866,8 +1809,8 @@ contains
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3, vstate % NQ
        do I = 1, vstate % N
-          vstate % pYH(I,J) = vstate % pYH(I,J) - &
-               vstate % pYH(I,vstate % L) * vstate % EL(J)
+          rwork % YH(I,J) = rwork % YH(I,J) - &
+               rwork % YH(I,vstate % L) * vstate % EL(J)
        end do
     end do
     RETURN
@@ -1876,7 +1819,7 @@ contains
 180 CONTINUE
     LP1 = vstate % L + 1
     do I = 1, vstate % N
-       vstate % pYH(I,LP1) = ZERO
+       rwork % YH(I,LP1) = ZERO
     end do
     RETURN
     ! -----------------------------------------------------------------------
@@ -1904,8 +1847,8 @@ contains
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3,vstate % NQ
        do I = 1, vstate % N
-          vstate % pYH(I,J) = vstate % pYH(I,J) - &
-               vstate % pYH(I,vstate % L) * vstate % EL(J)
+          rwork % YH(I,J) = rwork % YH(I,J) - &
+               rwork % YH(I,vstate % L) * vstate % EL(J)
        end do
     end do
     RETURN
@@ -1940,17 +1883,17 @@ contains
     ! Load column L + 1 in YH array. ---------------------------------------
     LP1 = vstate % L + 1
     do I = 1, vstate % N
-       vstate % pYH(I,LP1) = T1 * vstate % pYH(I,vstate % LMAX)
+       rwork % YH(I,LP1) = T1 * rwork % YH(I,vstate % LMAX)
     end do
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
 #ifdef CUDA
-       xscratch => vstate % pYH(1:vstate % N, LP1)
-       yscratch => vstate % pYH(1:vstate % N, J)
-       call cublasDaxpy(vstate % N, vstate % EL(J), xscratch, 1, yscratch, 1)
+       call cublasDaxpy(vstate % N, vstate % EL(J), &
+            rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
 #else
-       CALL DAXPY (vstate % N, vstate % EL(J), vstate % pYH(1,LP1), 1, vstate % pYH(1,J), 1 )
+       CALL DAXPY(vstate % N, vstate % EL(J), &
+            rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
 #endif
     end do
     RETURN
@@ -2152,13 +2095,12 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvstep(Y, IWM, RPAR, IPAR, vstate)
+  subroutine dvstep(Y, IWM, RPAR, IPAR, rwork, vstate)
 
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
-    !  Call sequence input -- Y, YH, LDYH, YH1, EWT, SAVF, VSAV,
-    !                         ACOR, WM, IWM, F, JAC, PSOL, VNLS, RPAR, IPAR
+    !  Call sequence input -- Y, IWM, RPAR, IPAR, rwork, vstate
     !  Call sequence output -- YH, ACOR, WM, IWM
     !  COMMON block variables accessed:
     !      /DVOD01/  ACNRM, EL(13), H, HMIN, HMXI, HNEW, HSCAL, RC, TAU(13),
@@ -2192,7 +2134,6 @@ contains
     !           two columns of YH must be set from the initial values.
     !  LDYH   = A constant integer .ge. N, the first dimension of YH.
     !           N is the number of ODEs in the system.
-    !  YH1    = A one-dimensional array occupying the same space as YH.
     !  EWT    = An array of length N containing multiplicative weights
     !           for local error measurements.  Local errors in y(i) are
     !           compared to 1.0/EWT(i) in various error tests.
@@ -2214,11 +2155,11 @@ contains
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
     type(dvode_t) :: vstate
-    real(dp_t), pointer :: xscratch(:), yscratch(:)
+    type(rwork_t) :: rwork
     real(dp_t) :: Y(vstate % N)
     real(dp_t) :: RPAR(:)
+    real(dp_t) :: yhscratch(vstate % N * vstate % LMAX)
     integer    :: IWM(:), IPAR(:)
-    real(dp_t), pointer :: pYHL(:)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
@@ -2286,14 +2227,14 @@ contains
 50  IF (vstate % NEWH .EQ. 0) GO TO 200
     IF (vstate % NEWQ .EQ. vstate % NQ) GO TO 150
     IF (vstate % NEWQ .LT. vstate % NQ) THEN
-       CALL DVJUST (-1, vstate)
+       CALL DVJUST (-1, rwork, vstate)
        vstate % NQ = vstate % NEWQ
        vstate % L = vstate % NQ + 1
        vstate % NQWAIT = vstate % L
        GO TO 150
     ENDIF
     IF (vstate % NEWQ .GT. vstate % NQ) THEN
-       CALL DVJUST (1, vstate)
+       CALL DVJUST (1, rwork, vstate)
        vstate % NQ = vstate % NEWQ
        vstate % L = vstate % NQ + 1
        vstate % NQWAIT = vstate % L
@@ -2316,24 +2257,22 @@ contains
     I1 = 1 + (vstate % NEWQ + 1)*vstate % NYH
     I2 = (vstate % MAXORD + 1)*vstate % NYH
     IF (I1 .GT. I2) GO TO 120
-    do I = I1, I2
-       vstate % pYH1(I) = ZERO
-    end do
+    rwork % YH(:, vstate % NEWQ + 1:) = ZERO
 120 IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 140
     FLOTL = REAL(vstate % LMAX)
     IF (vstate % MAXORD .LT. vstate % NQ-1) THEN
-       DDN = DVNORM (vstate % N, vstate % pSAVF, vstate % pEWT)/vstate % TQ(1)
+       DDN = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
     ENDIF
     IF (vstate % MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
     IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
        vstate % ETA = ETAQM1
-       CALL DVJUST (-1, vstate)
+       CALL DVJUST (-1, rwork, vstate)
     ENDIF
     IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-       DDN = DVNORM (vstate % N, vstate % pSAVF, vstate % pEWT)/vstate % TQ(1)
+       DDN = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-       CALL DVJUST (-1, vstate)
+       CALL DVJUST (-1, rwork, vstate)
     ENDIF
     vstate % ETA = MIN(vstate % ETA,ONE)
     vstate % NQ = vstate % MAXORD
@@ -2352,10 +2291,9 @@ contains
     do J = 2, vstate % L
        R = R * vstate % ETA
 #ifdef CUDA
-       xscratch => vstate % pYH(1:vstate % N,J)
-       call cublasDscal(vstate % N, R, xscratch, 1)
+       call cublasDscal(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
 #else
-       CALL DSCAL (vstate % N, R, vstate % pYH(1:vstate % N,J), 1)
+       CALL DSCAL(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
 #endif
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
@@ -2370,14 +2308,30 @@ contains
     ! -----------------------------------------------------------------------
 200 continue
     vstate % TN = vstate % TN + vstate % H
+    !DON - begin
+    ! optimize this multiplication and check the math as it makes no sense
+    ! Make the 2-D YH array into 1-D yhscratch
+    do I = 1, vstate % NYH
+       do JB = 1, vstate % LMAX
+          I1 = I + (JB-1) * vstate % NYH
+          yhscratch(I1) = rwork % YH(I, JB)
+       end do
+    end do
     I1 = vstate % NQNYH + 1
     do JB = 1, vstate % NQ
        I1 = I1 - vstate % NYH
        do I = I1, vstate % NQNYH
-          vstate % pYH1(I) = vstate % pYH1(I) + &
-               vstate % pYH1(I+vstate % NYH)
+          yhscratch(I) = yhscratch(I) + yhscratch(I+vstate % NYH)
        end do
     end do
+    ! Make the 1-D yhscratch array into 2-D YH
+    do I = 1, vstate % NYH
+       do JB = 1, vstate % LMAX
+          I1 = I + (JB-1) * vstate % NYH
+          rwork % YH(I, JB) = yhscratch(I1)
+       end do
+    end do
+    !DON - end
     CALL DVSET(vstate)
     vstate % RL1 = ONE/vstate % EL(2)
     vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
@@ -2385,7 +2339,7 @@ contains
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
-    CALL dvnlsd (Y, IWM, NFLAG, RPAR, IPAR, vstate)
+    CALL dvnlsd (Y, IWM, NFLAG, RPAR, IPAR, rwork, vstate)
 
     IF (NFLAG .EQ. 0) GO TO 450
     ! -----------------------------------------------------------------------
@@ -2398,14 +2352,30 @@ contains
     vstate % NCFN = vstate % NCFN + 1
     vstate % ETAMAX = ONE
     vstate % TN = TOLD
+    !DON - begin
+    ! optimize this multiplication and check the math as it makes no sense
+    ! Make the 2-D YH array into 1-D yhscratch
+    do I = 1, vstate % NYH
+       do JB = 1, vstate % LMAX
+          I1 = I + (JB-1) * vstate % NYH
+          yhscratch(I1) = rwork % YH(I, JB)
+       end do
+    end do
     I1 = vstate % NQNYH + 1
     do JB = 1, vstate % NQ
        I1 = I1 - vstate % NYH
        do I = I1, vstate % NQNYH
-          vstate % pYH1(I) = vstate % pYH1(I) - &
-               vstate % pYH1(I+vstate % NYH)
+          yhscratch(I) = yhscratch(I) - yhscratch(I+vstate % NYH)
        end do
     end do
+    ! Make the 1-D yhscratch array into 2-D YH
+    do I = 1, vstate % NYH
+       do JB = 1, vstate % LMAX
+          I1 = I + (JB-1) * vstate % NYH
+          rwork % YH(I, JB) = yhscratch(I1)
+       end do
+    end do
+    !DON - end
     IF (NFLAG .LT. -1) GO TO 680
     IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
     IF (NCF .EQ. MXNCF) GO TO 670
@@ -2437,21 +2407,17 @@ contains
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
 #ifdef CUDA
-       xscratch => vstate % pACOR(1:vstate % N)
-       yscratch => vstate % pYH(1:vstate % N,J)
-       call cublasDaxpy(vstate % N, vstate % EL(J), xscratch, 1, yscratch, 1)
+       call cublasDaxpy(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
 #else       
-       CALL DAXPY (vstate % N, vstate % EL(J), vstate % pACOR, 1, vstate % pYH(1,J), 1 )
+       CALL DAXPY(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
 #endif
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
 #ifdef CUDA
-    xscratch => vstate % pACOR(1:vstate % N)
-    yscratch => vstate % pYH(:,vstate % LMAX)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
+    call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #else
-    CALL DCOPY (vstate % N, vstate % pACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
+    CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #endif
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -2473,14 +2439,30 @@ contains
     vstate % NETF = vstate % NETF + 1
     NFLAG = -2
     vstate % TN = TOLD
+    !DON - begin
+    ! optimize this multiplication and check the math as it makes no sense
+    ! Make the 2-D YH array into 1-D yhscratch
+    do I = 1, vstate % NYH
+       do JB = 1, vstate % LMAX
+          I1 = I + (JB-1) * vstate % NYH
+          yhscratch(I1) = rwork % YH(I, JB)
+       end do
+    end do
     I1 = vstate % NQNYH + 1
     do JB = 1, vstate % NQ
        I1 = I1 - vstate % NYH
        do I = I1, vstate % NQNYH
-          vstate % pYH1(I) = vstate % pYH1(I) - &
-               vstate % pYH1(I+vstate % NYH)
+          yhscratch(I) = yhscratch(I) - yhscratch(I+vstate % NYH)
        end do
     end do
+    ! Make the 1-D yhscratch array into 2-D YH
+    do I = 1, vstate % NYH
+       do JB = 1, vstate % LMAX
+          I1 = I + (JB-1) * vstate % NYH
+          rwork % YH(I, JB) = yhscratch(I1)
+       end do
+    end do
+    !DON - end
     IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 660
     vstate % ETAMAX = ONE
     IF (vstate % KFLAG .LE. KFC) GO TO 530
@@ -2501,7 +2483,7 @@ contains
 530 IF (vstate % KFLAG .EQ. KFH) GO TO 660
     IF (vstate % NQ .EQ. 1) GO TO 540
     vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
-    CALL DVJUST (-1, vstate)
+    CALL DVJUST (-1, rwork, vstate)
     vstate % L = vstate % NQ
     vstate % NQ = vstate % NQ - 1
     vstate % NQWAIT = vstate % L
@@ -2511,10 +2493,10 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % N, vstate % TN, Y, vstate % pSAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     do I = 1, vstate % N
-       vstate % pYH(I,2) = vstate % H * vstate % pSAVF(I)
+       rwork % yh(I,2) = vstate % H * rwork % savf(I)
     end do
     vstate % NQWAIT = 10
     GO TO 200
@@ -2537,8 +2519,7 @@ contains
     ETAQM1 = ZERO
     IF (vstate % NQ .EQ. 1) GO TO 570
     ! Compute ratio of new H to current H at the current order less one. ---
-    pYHL(1:vstate % N) => vstate % pYH(1:vstate % N,vstate % L)
-    DDN = DVNORM (vstate % N, pYHL, vstate % pEWT)/vstate % TQ(1)
+    DDN = DVNORM (vstate % N, rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 continue
     ETAQP1 = ZERO
@@ -2546,9 +2527,9 @@ contains
     ! Compute ratio of new H to current H at current order plus one. -------
     CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
     do I = 1, vstate % N
-       vstate % pSAVF(I) = vstate % pACOR(I) - CNQUOT * vstate % pYH(I,vstate % LMAX)
+       rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,vstate % LMAX)
     end do
-    DUP = DVNORM (vstate % N, vstate % pSAVF, vstate % pEWT)/vstate % TQ(3)
+    DUP = DVNORM (vstate % N, rwork % savf, rwork % ewt)/vstate % TQ(3)
     ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
 580 IF (ETAQ .GE. ETAQP1) GO TO 590
     IF (ETAQP1 .GT. ETAQM1) GO TO 620
@@ -2566,11 +2547,9 @@ contains
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
 #ifdef CUDA
-    xscratch => vstate % pACOR(1:vstate % N)
-    yscratch =>  vstate % pYH(1:vstate % N,vstate % LMAX)
-    call cublasDcopy(vstate % N, xscratch, 1, yscratch, 1)
+    call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #else
-    CALL DCOPY (vstate % N, vstate % pACOR, 1, vstate % pYH(1,vstate % LMAX), 1)
+    CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #endif
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
@@ -2604,10 +2583,9 @@ contains
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
 #ifdef CUDA
-    xscratch => vstate % pACOR(1:vstate % N)
-    call cublasDscal(vstate % N, R, xscratch, 1)
+    call cublasDscal(vstate % N, R, rwork % acor, 1)
 #else
-    CALL DSCAL (vstate % N, R, vstate % pACOR, 1)
+    CALL DSCAL(vstate % N, R, rwork % acor, 1)
 #endif
 720 continue
     vstate % JSTART = 1

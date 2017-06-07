@@ -18,7 +18,7 @@ contains
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use managed_probin_module, only: cu_call_eos_in_rhs, cu_dT_crit, cu_renormalize_abundances, &
+    use managed_probin_module, only: cu_renormalize_abundances, &
          cu_burning_mode, cu_burning_mode_factor, &
          cu_integrate_temperature, cu_integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
@@ -120,7 +120,7 @@ contains
 
     integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar(:)
     real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-    real(dp_t), intent(  OUT) :: pd(:,:)
+    real(dp_t), intent(  OUT) :: pd(neq,neq)
 
     type (burn_t) :: state
     real(dp_t) :: limit_factor, t_sound, t_enuc

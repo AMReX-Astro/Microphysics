@@ -18,9 +18,6 @@ module dvode_type_module
      integer    :: NSLP, NYH
      integer    :: LYH, LEWT, LACOR, LSAVF, LWM
      integer    :: NEQ
-
-     ! Pointers to the RWORK array
-     real(dp_t), pointer :: pYH(:,:), pLF0(:), pYH1(:), pWM(:), pEWT(:), pSAVF(:), pACOR(:)
   end type dvode_t
 
 contains
