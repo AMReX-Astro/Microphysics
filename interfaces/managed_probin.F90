@@ -9,26 +9,31 @@ module managed_probin_module
        managed, &
 #endif       
        allocatable, save :: cu_do_constant_volume_burn
+  
   logical, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: cu_call_eos_in_rhs
+  
   logical, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: cu_centered_diff_jac
+  
   logical, &
 #ifdef CUDA       
        managed, &
 #endif              
        allocatable, save :: cu_renormalize_abundances
+  
   logical, &
 #ifdef CUDA       
        managed, &
 #endif
        allocatable, save :: cu_integrate_temperature
+  
   logical, &
 #ifdef CUDA       
        managed, &
@@ -45,12 +50,14 @@ module managed_probin_module
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: cu_burning_mode_factor  
+       allocatable, save :: cu_burning_mode_factor
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: cu_dt_crit
+  
   real(dp_t), &
 #ifdef CUDA       
        managed, &
