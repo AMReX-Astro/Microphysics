@@ -47,7 +47,8 @@ module table_rates
 #ifdef CUDA       
        managed, &
 #endif       
-       allocatable, save :: table_meta(:)
+       allocatable :: table_meta(:)
+  
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
