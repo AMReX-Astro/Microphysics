@@ -18,11 +18,10 @@ contains
     use amrex_constants_module, only: ZERO, ONE
     use amrex_fort_module, only : rt => amrex_real
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, &
-                                    burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy, react_boost, &
-                                    renormalize_abundances
-    use vode_type_module, only: clean_state, update_thermodynamics, &
+    use managed_probin_module, only: cu_renormalize_abundances, &
+         cu_burning_mode, cu_burning_mode_factor, &
+         cu_integrate_temperature, cu_integrate_energy
+    use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
