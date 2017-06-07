@@ -79,6 +79,7 @@ module actual_network
        managed, &
 #endif       
        allocatable, save :: aion(:), zion(:), bion(:)
+  
   real(dp_t), &
 #ifdef CUDA
        managed, &
