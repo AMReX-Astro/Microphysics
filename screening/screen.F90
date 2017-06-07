@@ -22,16 +22,19 @@ module screening_module
        managed, &
 #endif       
        allocatable, save :: z1scr(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: z2scr(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: a1scr(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
@@ -49,26 +52,31 @@ module screening_module
        managed, &
 #endif       
        allocatable, save :: zs13(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: zs13inv(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: zhat(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: zhat2(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: lzav(:)
+  
   double precision, &
 #ifdef CUDA       
        managed, &
