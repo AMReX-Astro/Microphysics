@@ -1,5 +1,7 @@
 module linpack_module
 
+  use blas_module
+  
   implicit none
   
 contains
@@ -227,7 +229,7 @@ contains
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBFA
     INTEGER LDA,N,ML,MU,IPVT(:),INFO
-    DOUBLE PRECISION ABD(LDA,:)
+    DOUBLE PRECISION ABD(:,:)
     ! 
     DOUBLE PRECISION T
     INTEGER I,IDAMAX,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
@@ -398,7 +400,7 @@ contains
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBSL
     INTEGER LDA,N,ML,MU,IPVT(:),JOB
-    DOUBLE PRECISION ABD(LDA,:),B(:)
+    DOUBLE PRECISION ABD(:,:),B(:)
     ! 
     DOUBLE PRECISION DDOT,T
     INTEGER K,KB,L,LA,LB,LM,M,NM1
@@ -480,7 +482,7 @@ contains
     !$acc routine(dscal) seq
 
     integer lda,n,ipvt(:),info
-    double precision a(lda,:)
+    double precision a(:,:)
     ! 
     !      dgefa factors a double precision matrix by gaussian elimination.
     ! 
@@ -543,7 +545,7 @@ contains
        ! 
        !         find l = pivot index
        ! 
-       l = idamax(n-k+1,a(k,k),1) + k - 1
+       l = idamax(n-k+1,a(k:n,k),1) + k - 1
        ipvt(k) = l
        ! 
        !         zero pivot implies this column already triangularized
@@ -561,7 +563,7 @@ contains
        !            compute multipliers
        ! 
        t = -1.0d0/a(k,k)
-       call dscal(n-k,t,a(k+1,k),1)
+       call dscal(n-k,t,a(k+1:n,k),1)
        ! 
        !            row elimination with column indexing
        ! 
@@ -571,7 +573,7 @@ contains
           a(l,j) = a(k,j)
           a(k,j) = t
 20        continue
-          call daxpy(n-k,t,a(k+1,k),1,a(k+1,j),1)
+          call daxpy(n-k,t,a(k+1:n,k),1,a(k+1:n,j),1)
        enddo
        goto 50
 40     continue
