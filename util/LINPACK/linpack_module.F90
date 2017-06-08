@@ -229,7 +229,7 @@ contains
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBFA
     INTEGER LDA,N,ML,MU,IPVT(:),INFO
-    DOUBLE PRECISION ABD(:,:)
+    DOUBLE PRECISION ABD(LDA, N)
     ! 
     DOUBLE PRECISION T
     INTEGER I,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
@@ -400,7 +400,7 @@ contains
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBSL
     INTEGER LDA,N,ML,MU,IPVT(:),JOB
-    DOUBLE PRECISION ABD(:,:),B(:)
+    DOUBLE PRECISION ABD(LDA,N),B(:)
     ! 
     DOUBLE PRECISION T
     INTEGER K,KB,L,LA,LB,LM,M,NM1
@@ -482,7 +482,7 @@ contains
     !$acc routine(dscal) seq
 
     integer lda,n,ipvt(:),info
-    double precision a(:,:)
+    double precision a(lda, n)
     ! 
     !      dgefa factors a double precision matrix by gaussian elimination.
     ! 
