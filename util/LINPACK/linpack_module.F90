@@ -232,7 +232,7 @@ contains
     DOUBLE PRECISION ABD(:,:)
     ! 
     DOUBLE PRECISION T
-    INTEGER I,IDAMAX,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
+    INTEGER I,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
     ! 
     ! ***FIRST EXECUTABLE STATEMENT  DGBFA
     M = ML + MU + 1
@@ -273,7 +273,7 @@ contains
        !         FIND L = PIVOT INDEX
        ! 
        LM = MIN(ML,N-K)
-       L = IDAMAX(LM+1,ABD(M,K),1) + M - 1
+       L = IDAMAX(LM+1,ABD(M:M+LM,K),1) + M - 1
        IPVT(K) = L + K - M
        ! 
        !         ZERO PIVOT IMPLIES THIS COLUMN ALREADY TRIANGULARIZED
@@ -291,7 +291,7 @@ contains
        !            COMPUTE MULTIPLIERS
        ! 
        T = -1.0D0/ABD(M,K)
-       CALL DSCAL(LM,T,ABD(M+1,K),1)
+       CALL DSCAL(LM,T,ABD(M+1:M+LM,K),1)
        ! 
        !            ROW ELIMINATION WITH COLUMN INDEXING
        ! 
@@ -306,7 +306,7 @@ contains
           ABD(L,J) = ABD(MM,J)
           ABD(MM,J) = T
 70        CONTINUE
-          CALL DAXPY(LM,T,ABD(M+1,K),1,ABD(MM+1,J),1)
+          CALL DAXPY(LM,T,ABD(M+1:M+LM,K),1,ABD(MM+1:MM+LM,J),1)
        end do
 90     CONTINUE
        GO TO 110
