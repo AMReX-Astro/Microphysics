@@ -402,7 +402,7 @@ contains
     INTEGER LDA,N,ML,MU,IPVT(:),JOB
     DOUBLE PRECISION ABD(:,:),B(:)
     ! 
-    DOUBLE PRECISION DDOT,T
+    DOUBLE PRECISION T
     INTEGER K,KB,L,LA,LB,LM,M,NM1
     ! ***FIRST EXECUTABLE STATEMENT  DGBSL
     M = MU + ML + 1
@@ -530,7 +530,7 @@ contains
     !      internal variables
     ! 
     double precision t
-    integer idamax,j,k,kp1,l,nm1
+    integer j,k,kp1,l,nm1
     ! 
     ! 
     !      gaussian elimination with partial pivoting
