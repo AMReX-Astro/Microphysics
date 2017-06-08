@@ -9,7 +9,7 @@ contains
 #endif
   SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
     INTEGER INCX,INCY,N
-    DOUBLE PRECISION DX(*),DY(*)
+    DOUBLE PRECISION DX(:),DY(:)
 ! *  Purpose
 ! *  =======
 ! *
@@ -69,7 +69,7 @@ contains
     INTEGER INCX,INCY,N
     !     ..
     !     .. Array Arguments ..
-    DOUBLE PRECISION DX(*),DY(*)
+    DOUBLE PRECISION DX(:),DY(:)
     !     ..
     !
     !  Purpose
@@ -131,7 +131,7 @@ contains
     INTEGER INCX,INCY,N
     !      ..
     !      .. Array Arguments ..
-    DOUBLE PRECISION DX(*),DY(*)
+    DOUBLE PRECISION DX(:),DY(:)
     !      ..
     ! 
     !   Purpose
@@ -525,7 +525,7 @@ contains
     INTEGER INCX,N
     !      ..
     !      .. Array Arguments ..
-    DOUBLE PRECISION DX(*)
+    DOUBLE PRECISION DX(:)
     !      ..
     ! 
     !   Purpose
@@ -586,7 +586,7 @@ contains
     INTEGER INCX,N
     !      ..
     !      .. Array Arguments ..
-    DOUBLE PRECISION DX(*)
+    DOUBLE PRECISION DX(:)
     !      ..
     ! 
     !   Purpose
