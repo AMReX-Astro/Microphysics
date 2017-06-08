@@ -62,7 +62,12 @@ program test_react
 #endif
        allocatable :: state(:,:,:,:)
 
-  integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
+  integer, &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable :: lo(:), hi(:)
+  
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
   real (kind=dp_t) :: dlogrho, dlogT
@@ -88,7 +93,6 @@ program test_react
   
   call boxlib_initialize()
   call bl_prof_initialize(on = .true.)
-
 
   call runtime_init(.true.)
 
@@ -165,6 +169,10 @@ program test_react
   n_rhs_max = -100000000
   n_rhs_min = 100000000
 
+  ! Allocate lo, hi
+  allocate(lo(MAX_SPACEDIM))
+  allocate(hi(MAX_SPACEDIM))
+  
   do i = 1, nfabs(s(n))
      sp => dataptr(s(n), i)
 
