@@ -422,7 +422,7 @@ contains
        B(L) = B(K)
        B(K) = T
 10     CONTINUE
-       CALL DAXPY(LM,T,ABD(M+1,K),1,B(K+1),1)
+       CALL DAXPY(LM,T,ABD(M+1:M+LM,K),1,B(K+1:K+LM),1)
     end do
 30  CONTINUE
     ! 
@@ -435,7 +435,7 @@ contains
        LA = M - LM
        LB = K - LM
        T = -B(K)
-       CALL DAXPY(LM,T,ABD(LA,K),1,B(LB),1)
+       CALL DAXPY(LM,T,ABD(LA:LA + LM - 1,K),1,B(LB:LB + LM - 1),1)
     end do
     GO TO 100
 50  CONTINUE
