@@ -1213,7 +1213,9 @@ contains
 100 continue
     !TEST
     !LINPACK
-    !CALL DGESL (WM(3), vstate % N, vstate % N, IWM(31), X, 0)
+#ifndef CUDA    
+    CALL DGESL (WM(3), vstate % N, vstate % N, IWM(31), X, 0)
+#endif
     RETURN
 
 300 continue
@@ -1243,7 +1245,9 @@ contains
     MEBAND = 2*ML + MU + 1
     !TEST
     !LINPACK
-    !CALL DGBSL (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
+#ifndef CUDA    
+    CALL DGBSL (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
+#endif
     RETURN
   end subroutine dvsol
 
@@ -1455,7 +1459,9 @@ contains
        vstate % NLU = vstate % NLU + 1
        !TEST
        !LINPACK
-       !CALL DGEFA (rwork % WM(3), vstate % N, vstate % N, IWM(31), IER)
+#ifndef CUDA       
+       CALL DGEFA (rwork % WM(3), vstate % N, vstate % N, IWM(31), IER)
+#endif
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -1573,7 +1579,9 @@ contains
     vstate % NLU = vstate % NLU + 1
     !TEST
     !LINPACK
-    !CALL DGBFA (rwork % WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
+#ifndef CUDA
+    CALL DGBFA (rwork % WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
+#endif
     if (IER .NE. 0) then
        IERPJ = 1
     end if
