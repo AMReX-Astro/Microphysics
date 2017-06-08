@@ -9,6 +9,7 @@ module dvode_module
   use rpar_indices
   use bl_types, only: dp_t
   use blas_module
+  use linpack_module
 #ifdef CUDA
   use cudafor
 #endif
@@ -1187,11 +1188,7 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    !TEST
-    !LINPACK
-#ifndef CUDA    
-    CALL DGESL (WM(3), vstate % N, vstate % N, IWM(31), X, 0)
-#endif
+    CALL DGESL (WM(3:3 + vstate % N**2 - 1), vstate % N, vstate % N, IWM(31:31 + vstate % N - 1), X, 0)
     RETURN
 
 300 continue
@@ -1219,11 +1216,8 @@ contains
     ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    !TEST
-    !LINPACK
-#ifndef CUDA    
-    CALL DGBSL (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
-#endif
+    CALL DGBSL (WM(3:3 + MEBAND * vstate % N - 1), MEBAND, vstate % N, &
+         ML, MU, IWM(31:31 + vstate % N - 1), X, 0)
     RETURN
   end subroutine dvsol
 
@@ -1411,11 +1405,8 @@ contains
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
-       !TEST
-       !LINPACK
-#ifndef CUDA       
-       CALL DGEFA (rwork % WM(3), vstate % N, vstate % N, IWM(31), IER)
-#endif
+       CALL DGEFA (rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, &
+            vstate % N, IWM(31:31 + vstate % N - 1), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -1526,11 +1517,8 @@ contains
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
-    !TEST
-    !LINPACK
-#ifndef CUDA
-    CALL DGBFA (rwork % WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
-#endif
+    CALL DGBFA (rwork % WM(3:3 + MEBAND * vstate % N - 1), MEBAND, vstate % N, ML, &
+         MU, IWM(31:31 + vstate % N - 1), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if
