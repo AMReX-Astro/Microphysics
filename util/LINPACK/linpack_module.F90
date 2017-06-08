@@ -91,7 +91,7 @@ contains
        b(l) = b(k)
        b(k) = t
 10     continue
-       call daxpy(n-k,t,a(k+1,k),1,b(k+1),1)
+       call daxpy(n-k,t,a(k+1:n,k),1,b(k+1:n),1)
     enddo
 30  continue
     ! 
@@ -101,7 +101,7 @@ contains
        k = n + 1 - kb
        b(k) = b(k)/a(k,k)
        t = -b(k)
-       call daxpy(k-1,t,a(1,k),1,b(1),1)
+       call daxpy(k-1,t,a(1:k-1,k),1,b(1:k-1),1)
     enddo
     go to 100
 50  continue
@@ -110,7 +110,7 @@ contains
     !         first solve  trans(u)*y = b
     ! 
     do k = 1, n
-       t = vddot(k-1,a(1,k),1,b(1),1)
+       t = vddot(k-1,a(1:k-1,k),1,b(1:k-1),1)
        b(k) = (b(k) - t)/a(k,k)
     enddo
     ! 
@@ -119,7 +119,7 @@ contains
     if (nm1 .lt. 1) goto 90
     do kb = 1, nm1
        k = n - kb
-       b(k) = b(k) + vddot(n-k,a(k+1,k),1,b(k+1),1)
+       b(k) = b(k) + vddot(n-k,a(k+1:n,k),1,b(k+1:n),1)
        l = ipvt(k)
        if (l .eq. k) go to 70
        t = b(l)
@@ -588,7 +588,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  double precision function vddot (n,dx,incx,dy,incy)
+  function vddot (n,dx,incx,dy,incy) result(dotval)
 
     !$acc routine seq
 
@@ -596,7 +596,8 @@ contains
     !      forms the dot product of two vectors.
     !      uses unrolled loops for increments equal to one.
     !      jack dongarra, linpack, 3/11/78.
-    ! 
+    !
+    double precision dotval
     double precision dx(:),dy(:),dtemp
     integer i,incx,incy,ix,iy,m,mp1,n
     ! 
