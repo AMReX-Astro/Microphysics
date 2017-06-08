@@ -13,8 +13,8 @@ contains
     !$acc routine(daxpy) seq
     !$acc routine(vddot) seq
 
-    integer lda,n,ipvt(*),job
-    double precision a(lda,n),b(*)
+    integer lda,n,ipvt(:),job
+    double precision a(lda,n),b(:)
     ! 
     !      dgesl solves the double precision system
     !      a * x = b  or  trans(a) * x = b
@@ -226,8 +226,8 @@ contains
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBFA
-    INTEGER LDA,N,ML,MU,IPVT(*),INFO
-    DOUBLE PRECISION ABD(LDA,*)
+    INTEGER LDA,N,ML,MU,IPVT(:),INFO
+    DOUBLE PRECISION ABD(LDA,:)
     ! 
     DOUBLE PRECISION T
     INTEGER I,IDAMAX,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
@@ -397,8 +397,8 @@ contains
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBSL
-    INTEGER LDA,N,ML,MU,IPVT(*),JOB
-    DOUBLE PRECISION ABD(LDA,*),B(*)
+    INTEGER LDA,N,ML,MU,IPVT(:),JOB
+    DOUBLE PRECISION ABD(LDA,:),B(:)
     ! 
     DOUBLE PRECISION DDOT,T
     INTEGER K,KB,L,LA,LB,LM,M,NM1
@@ -479,8 +479,8 @@ contains
     !$acc routine(idamax) seq
     !$acc routine(dscal) seq
 
-    integer lda,n,ipvt(*),info
-    double precision a(lda,*)
+    integer lda,n,ipvt(:),info
+    double precision a(lda,:)
     ! 
     !      dgefa factors a double precision matrix by gaussian elimination.
     ! 
@@ -595,7 +595,7 @@ contains
     !      uses unrolled loops for increments equal to one.
     !      jack dongarra, linpack, 3/11/78.
     ! 
-    double precision dx(*),dy(*),dtemp
+    double precision dx(:),dy(:),dtemp
     integer i,incx,incy,ix,iy,m,mp1,n
     ! 
     vddot = 0.0d0
