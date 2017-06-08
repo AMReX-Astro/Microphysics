@@ -126,7 +126,8 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  DOUBLE PRECISION FUNCTION DDOT(N,DX,INCX,DY,INCY)
+  FUNCTION DDOT(N,DX,INCX,DY,INCY) result(dotval)
+    DOUBLE PRECISION dotval
     !      .. Scalar Arguments ..
     INTEGER INCX,INCY,N
     !      ..
@@ -147,7 +148,7 @@ contains
     DOUBLE PRECISION DTEMP
     INTEGER I,IX,IY,M,MP1
 
-    DDOT = 0.0d0
+    dotval = 0.0d0
     DTEMP = 0.0d0
     IF (N.LE.0) RETURN
     IF (INCX.EQ.1 .AND. INCY.EQ.1) GO TO 20
@@ -164,7 +165,7 @@ contains
        IX = IX + INCX
        IY = IY + INCY
     end do
-    DDOT = DTEMP
+    dotval = DTEMP
     RETURN
     ! 
     !         code for both increments equal to 1
@@ -183,7 +184,7 @@ contains
        DTEMP = DTEMP + DX(I)*DY(I) + DX(I+1)*DY(I+1) + &
             DX(I+2)*DY(I+2) + DX(I+3)*DY(I+3) + DX(I+4)*DY(I+4)
     end do
-60  DDOT = DTEMP
+60  dotval = DTEMP
     RETURN
   END FUNCTION DDOT
 
