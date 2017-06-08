@@ -4,4 +4,4 @@ fEXE_sources += dcopy.f
 fEXE_sources += dscal.f
 fEXE_sources += idamax.f
 fEXE_sources += dgemm.f
-
+F90EXE_sources += blas_module.F90
