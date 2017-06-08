@@ -8,9 +8,9 @@ module dvode_module
 #endif
   use rpar_indices
   use bl_types, only: dp_t
+  use blas_module
 #ifdef CUDA
   use cudafor
-  use cublas_device
 #endif
   
   implicit none
@@ -372,9 +372,6 @@ contains
     real(dp_t) :: DKY(:)
     integer    :: K, IFLAG
 
-    integer    :: cubstate
-    type(cublasHandle) :: cubh
-
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
 #ifndef CUDA
@@ -420,14 +417,8 @@ contains
     IF (K .EQ. 0) RETURN
 55  continue
     R = vstate % H**(-K)
-#ifdef CUDA
-    !TEST
-    ! cubstate = cublasCreate(cubh)
-    ! cubstate = cublasDscal(cubh, vstate % N, R, DKY, 1)
-    ! cubstate = cublasDestroy(cubh)
-#else
+
     CALL DSCAL (vstate % N, R, DKY, 1)
-#endif
     RETURN
 
 80  continue
@@ -618,12 +609,8 @@ contains
     vstate % JSTART = -1
     IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-#ifdef CUDA
-    !TEST
-    !call cublasDcopy(vstate % N, rwork % wm, 1, rwork % savf, 1)
-#else    
     CALL DCOPY(vstate % N, rwork % wm, 1, rwork % savf, 1)
-#endif    
+
     ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
 90  continue
     IF (vstate % MITER .GT. 0) rwork % wm(1) = SQRT(vstate % UROUND)
@@ -669,12 +656,8 @@ contains
     CALL f_rhs (vstate % N, T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
-#ifdef CUDA
-    !TEST
-    !call cublasDcopy(vstate % N, Y, 1, rwork % YH(:,1), 1)
-#else
     CALL DCOPY(vstate % N, Y, 1, rwork % YH(:,1), 1)
-#endif    
+
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
     vstate % H = ONE
@@ -702,12 +685,8 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-#ifdef CUDA
-    !TEST
-    ! call cublasDscal(vstate % N, H0, rwork % YH(:,2), 1)
-#else
     CALL DSCAL(vstate % N, H0, rwork % YH(:,2), 1)
-#endif
+
     GO TO 270
     
     ! -----------------------------------------------------------------------
@@ -854,12 +833,8 @@ contains
     ! -----------------------------------------------------------------------
     
 400 CONTINUE
-#ifdef CUDA
-    !TEST
-    !call cublasDcopy(vstate % N, rwork % YH(:,1), 1, Y, 1)
-#else
-    CALL DCOPY(vstate % N, rwork % YH, 1, Y, 1)
-#endif
+    CALL DCOPY(vstate % N, rwork % YH(:,1), 1, Y, 1)
+
     T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
     IF (IHIT) T = TCRIT
@@ -953,12 +928,8 @@ contains
     IWORK(16) = IMXER
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
-#ifdef CUDA
-    !TEST
-    !call cublasDcopy(vstate % N, rwork % YH(:,1), 1, Y, 1)
-#else
     CALL DCOPY(vstate % N, rwork % YH(:,1), 1, Y, 1)
-#endif    
+
     T = vstate % TN
     RWORK % condopt(11) = vstate % HU
     RWORK % condopt(12) = vstate % H
@@ -1280,12 +1251,7 @@ contains
     integer    :: IC
 
     do IC = 1,NCOL
-#ifdef CUDA
-       !TEST
-       !call cublasDcopy(NROW, A(:,IC), 1, B(:,IC), 1)
-#else
-       CALL DCOPY (NROW, A(1,IC), 1, B(1,IC), 1)
-#endif
+       CALL DCOPY (NROW, A(:,IC), 1, B(:,IC), 1)
     end do
     RETURN
   end subroutine dacopy
@@ -1392,12 +1358,8 @@ contains
        CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
             rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-#ifdef CUDA
-          !TEST
-          !call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
-#else
-          CALL DCOPY (LENP, rwork % WM(3), 1, rwork % WM(vstate % LOCJS), 1)
-#endif
+          CALL DCOPY (LENP, rwork % WM(3:3 + LENP - 1), 1, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
        endif
     ENDIF
 
@@ -1426,35 +1388,22 @@ contains
        vstate % NFE = vstate % NFE + vstate % N
        LENP = vstate % N * vstate % N
        if (vstate % JSV .EQ. 1) then
-#ifdef CUDA
-          !TEST          
-          !call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
-#else
-          CALL DCOPY (LENP, rwork % WM(3), 1, rwork % WM(vstate % LOCJS), 1)
-#endif
+          CALL DCOPY (LENP, rwork % WM(3:3 + LENP - 1), 1, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
        end if
     ENDIF
 
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
        LENP = vstate % N * vstate % N
-#ifdef CUDA
-       !TEST       
-       !call cublasDcopy(LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, rwork % WM(3:3 + LENP - 1), 1)
-#else
-       CALL DCOPY (LENP, rwork % WM(vstate % LOCJS), 1, rwork % WM(3), 1)
-#endif
+       CALL DCOPY (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
+            rwork % WM(3:3 + LENP - 1), 1)
     ENDIF
 
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-#ifdef CUDA
-       !TEST       
-       !call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
-#else
-       CALL DSCAL (LENP, CON, rwork % WM(3), 1)
-#endif
+       CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
        J = 3
        NP1 = vstate % N + 1
        do I = 1,vstate % N
@@ -1570,12 +1519,7 @@ contains
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-#ifdef CUDA
-    !TEST    
-    !call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
-#else
-    CALL DSCAL (LENP, CON, rwork % WM(3), 1 )
-#endif
+    CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
     II = MBAND + 2
     do I = 1,vstate % N
        rwork % WM(II) = rwork % WM(II) + ONE
@@ -1709,12 +1653,7 @@ contains
     M = 0
     DELP = ZERO
 
-#ifdef CUDA
-    !TEST    
-    !call cublasDcopy(vstate % N, rwork % yh(:,1), 1, Y, 1)
-#else
-    CALL DCOPY(vstate % N, rwork % yh, 1, Y, 1)
-#endif
+    CALL DCOPY(vstate % N, rwork % yh(:,1), 1, Y, 1)
     CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
@@ -1751,12 +1690,8 @@ contains
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
-#ifdef CUDA
-    !TEST    
-    !call cublasDcopy(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
-#else
     CALL DCOPY(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
-#endif
+
     GO TO 400
     ! -----------------------------------------------------------------------
     !  In the case of the chord method, compute the corrector error,
@@ -1774,20 +1709,11 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-#ifdef CUDA
-       !TEST       
-       !call cublasDscal(vstate % N, CSCALE, Y, 1)
-#else
        CALL DSCAL (vstate % N, CSCALE, Y, 1)
-#endif
     ENDIF
     DEL = DVNORM (vstate % N, Y, rwork % EWT)
-#ifdef CUDA
-    !TEST    
-    !call cublasDaxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
-#else
     call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
-#endif    
+
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
     end do
@@ -1975,14 +1901,8 @@ contains
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-#ifdef CUDA
-       !TEST       
-       !call cublasDaxpy(vstate % N, vstate % EL(J), &
-       !     rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
-#else
        CALL DAXPY(vstate % N, vstate % EL(J), &
             rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
-#endif
     end do
     RETURN
   end subroutine dvjust
@@ -2378,12 +2298,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-#ifdef CUDA
-       !TEST       
-       !call cublasDscal(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
-#else
        CALL DSCAL(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
-#endif
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -2495,21 +2410,12 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-#ifdef CUDA
-       !TEST       
-       !call cublasDaxpy(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
-#else       
        CALL DAXPY(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
-#endif
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-#ifdef CUDA
-    !TEST    
-    !call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
-#else
     CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
-#endif
+    
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
     IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
@@ -2637,12 +2543,8 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-#ifdef CUDA
-    !TEST    
-    !call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
-#else
     CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
-#endif
+
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
@@ -2674,12 +2576,8 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-#ifdef CUDA
-    !TEST    
-    !call cublasDscal(vstate % N, R, rwork % acor, 1)
-#else
     CALL DSCAL(vstate % N, R, rwork % acor, 1)
-#endif
+
 720 continue
     vstate % JSTART = 1
     RETURN
