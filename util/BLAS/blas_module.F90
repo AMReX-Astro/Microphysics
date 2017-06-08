@@ -369,15 +369,15 @@ contains
     !      Test the input parameters.
     ! 
     INFO = 0
-    ! !      IF ((.NOT.NOTA) .AND. (.NOT.LSAME(TRANSA,'C')) .AND.
-    ! !     +    (.NOT.LSAME(TRANSA,'T'))) THEN
-    IF ((.NOT.NOTA) .AND. (.NOT.TRANSA==3) .AND.
-       +    (.NOT.TRANSA==2)) THEN
+    ! !      IF ((.NOT.NOTA) .AND. (.NOT.LSAME(TRANSA,'C')) .AND. &
+    ! !         (.NOT.LSAME(TRANSA,'T'))) THEN
+    IF ((.NOT.NOTA) .AND. (.NOT.TRANSA==3) .AND. &
+         (.NOT.TRANSA==2)) THEN
        INFO = 1
-       ! !      ELSE IF ((.NOT.NOTB) .AND. (.NOT.LSAME(TRANSB,'C')) .AND.
-       ! !     +         (.NOT.LSAME(TRANSB,'T'))) THEN
-    ELSE IF ((.NOT.NOTB) .AND. (.NOT.TRANSB==3) .AND.
-       +         (.NOT.TRANSB==2)) THEN
+       ! !      ELSE IF ((.NOT.NOTB) .AND. (.NOT.LSAME(TRANSB,'C')) .AND. &
+       ! !              (.NOT.LSAME(TRANSB,'T'))) THEN
+    ELSE IF ((.NOT.NOTB) .AND. (.NOT.TRANSB==3) .AND. &
+         (.NOT.TRANSB==2)) THEN
        INFO = 2
     ELSE IF (M.LT.0) THEN
        INFO = 3
@@ -399,8 +399,8 @@ contains
     ! 
     !      Quick return if possible.
     ! 
-    IF ((M.EQ.0) .OR. (N.EQ.0) .OR.
-    +    (((ALPHA.EQ.ZERO).OR. (K.EQ.0)).AND. (BETA.EQ.ONE))) RETURN
+    IF ((M.EQ.0) .OR. (N.EQ.0) .OR. &
+         (((ALPHA.EQ.ZERO).OR. (K.EQ.0)).AND. (BETA.EQ.ONE))) RETURN
     ! 
     !      And if  alpha.eq.zero.
     ! 
