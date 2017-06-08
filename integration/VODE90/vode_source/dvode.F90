@@ -9,7 +9,8 @@ module dvode_module
   use rpar_indices
   use bl_types, only: dp_t
 #ifdef CUDA
-  use cublas_module  
+  use cudafor
+  use cublas_device
 #endif
   
   implicit none
@@ -371,11 +372,13 @@ contains
     real(dp_t) :: DKY(:)
     integer    :: K, IFLAG
 
+    integer    :: cubstate
+    type(cublasHandle) :: cubh
 
-   real(dp_t) :: C, R, S, TFUZZ, TN1, TP
-   integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
+    real(dp_t) :: C, R, S, TFUZZ, TN1, TP
+    integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
 #ifndef CUDA
-   character (len=80) :: MSG
+    character (len=80) :: MSG
 #endif
 
     IFLAG = 0
@@ -419,7 +422,9 @@ contains
     R = vstate % H**(-K)
 #ifdef CUDA
     !TEST
-    !call cublasDscal(vstate % N, R, DKY, 1)
+    ! cubstate = cublasCreate(cubh)
+    ! cubstate = cublasDscal(cubh, vstate % N, R, DKY, 1)
+    ! cubstate = cublasDestroy(cubh)
 #else
     CALL DSCAL (vstate % N, R, DKY, 1)
 #endif
