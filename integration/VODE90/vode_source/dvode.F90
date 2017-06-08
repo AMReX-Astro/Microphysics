@@ -369,9 +369,6 @@ contains
     real(dp_t) :: T
     real(dp_t) :: YH(:,:)
     real(dp_t) :: DKY(:)
-#ifdef CUDA
-    type(c_devptr), device :: xscratch
-#endif
     integer    :: K, IFLAG
 
 
@@ -421,10 +418,8 @@ contains
 55  continue
     R = vstate % H**(-K)
 #ifdef CUDA
-   !TEST
- !   xscratch => DKY(1:vstate % N)
-    ! xscratch = c_loc(DKY(1))
-    ! call cublasDscal(vstate % N, R, xscratch, 1)
+    !TEST
+    !call cublasDscal(vstate % N, R, DKY, 1)
 #else
     CALL DSCAL (vstate % N, R, DKY, 1)
 #endif
@@ -619,7 +614,8 @@ contains
     IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % wm, 1, rwork % savf, 1)
+    !TEST
+    !call cublasDcopy(vstate % N, rwork % wm, 1, rwork % savf, 1)
 #else    
     CALL DCOPY(vstate % N, rwork % wm, 1, rwork % savf, 1)
 #endif    
@@ -669,7 +665,8 @@ contains
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
 #ifdef CUDA
-    call cublasDcopy(vstate % N, Y, 1, rwork % YH(:,1), 1)
+    !TEST
+    !call cublasDcopy(vstate % N, Y, 1, rwork % YH(:,1), 1)
 #else
     CALL DCOPY(vstate % N, Y, 1, rwork % YH(:,1), 1)
 #endif    
@@ -778,17 +775,21 @@ contains
 280 IF ((vstate % TN + vstate % H) .NE. vstate % TN) GO TO 290
     vstate % NHNIL = vstate % NHNIL + 1
     IF (vstate % NHNIL .GT. vstate % MXHNIL) GO TO 290
+#ifndef CUDA    
     MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
     CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG='      such that in the machine, T + H = T on the next step  '
     CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      (H = step size). solver will continue anyway'
     CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#endif    
     IF (vstate % NHNIL .LT. vstate % MXHNIL) GO TO 290
+#ifndef CUDA    
     MSG = 'DVODE--  Above warning has been issued I1 times.  '
     CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      it will not be issued again for this problem'
     CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+#endif
 290 CONTINUE
     
     ! -----------------------------------------------------------------------
@@ -849,7 +850,8 @@ contains
     
 400 CONTINUE
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % YH, 1, Y, 1)
+    !TEST
+    !call cublasDcopy(vstate % N, rwork % YH(:,1), 1, Y, 1)
 #else
     CALL DCOPY(vstate % N, rwork % YH, 1, Y, 1)
 #endif
@@ -884,44 +886,54 @@ contains
     
     ! The maximum number of steps was taken before reaching TOUT. ----------
 500 continue
+#ifndef CUDA    
     MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
     CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      taken on this call before reaching TOUT     '
     CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
+#endif    
     ISTATE = -1
     GO TO 580
     ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 510 continue
+#ifndef CUDA        
     EWTI = rwork % ewt(I)
     MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
     CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
+#endif
     ISTATE = -6
     GO TO 580
     ! Too much accuracy requested for machine precision. -------------------
 520 continue
+#ifndef CUDA
     MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      for precision of machine:   see TOLSF (=R2) '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
+#endif
     RWORK % condopt(14) = TOLSF
     ISTATE = -2
     GO TO 580
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
 530 continue
+#ifndef CUDA        
     MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      test failed repeatedly or with abs(H) = HMIN'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#endif    
     ISTATE = -4
     GO TO 560
     ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
 540 continue
+#ifndef CUDA        
     MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
     CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      corrector convergence failed repeatedly     '
     CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      or with abs(H) = HMIN   '
     CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#endif    
     ISTATE = -5
     ! Compute IMXER if relevant. -------------------------------------------
 560 continue
@@ -937,7 +949,8 @@ contains
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % YH(:,1), 1, Y, 1)
+    !TEST
+    !call cublasDcopy(vstate % N, rwork % YH(:,1), 1, Y, 1)
 #else
     CALL DCOPY(vstate % N, rwork % YH(:,1), 1, Y, 1)
 #endif    
@@ -966,119 +979,173 @@ contains
     ! -----------------------------------------------------------------------
     
 601 continue
-    ! MSG = 'DVODE--  ISTATE (=I1) illegal '
-    ! CALL XERRWD (MSG, 30, 1, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  ISTATE (=I1) illegal '
+    CALL XERRWD (MSG, 30, 1, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+#endif
     IF (ISTATE .LT. 0) GO TO 800
     GO TO 700
 602 continue
-    ! MSG = 'DVODE--  ITASK (=I1) illegal  '
-    ! CALL XERRWD (MSG, 30, 2, 1, 1, ITASK, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  ITASK (=I1) illegal  '
+    CALL XERRWD (MSG, 30, 2, 1, 1, ITASK, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 603 continue
-    ! MSG='DVODE--  ISTATE (=I1) .gt. 1 but DVODE not initialized      '
-    ! CALL XERRWD (MSG, 60, 3, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG='DVODE--  ISTATE (=I1) .gt. 1 but DVODE not initialized      '
+    CALL XERRWD (MSG, 60, 3, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+#endif    
     GO TO 700
 604 continue
-    ! MSG = 'DVODE--  NEQ (=I1) .lt. 1     '
-    ! CALL XERRWD (MSG, 30, 4, 1, 1, NEQ, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  NEQ (=I1) .lt. 1     '
+    CALL XERRWD (MSG, 30, 4, 1, 1, NEQ, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 605 continue
-    ! MSG = 'DVODE--  ISTATE = 3 and NEQ increased (I1 to I2)  '
-    ! CALL XERRWD (MSG, 50, 5, 1, 2, vstate % N, NEQ, 0, ZERO, ZERO)
+#ifndef CUDA
+    MSG = 'DVODE--  ISTATE = 3 and NEQ increased (I1 to I2)  '
+    CALL XERRWD (MSG, 50, 5, 1, 2, vstate % N, NEQ, 0, ZERO, ZERO)
+#endif
     GO TO 700
 606 continue
-    ! MSG = 'DVODE--  ITOL (=I1) illegal   '
-    ! CALL XERRWD (MSG, 30, 6, 1, 1, ITOL, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  ITOL (=I1) illegal   '
+    CALL XERRWD (MSG, 30, 6, 1, 1, ITOL, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 607 continue
-    ! MSG = 'DVODE--  IOPT (=I1) illegal   '
-    ! CALL XERRWD (MSG, 30, 7, 1, 1, IOPT, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  IOPT (=I1) illegal   '
+    CALL XERRWD (MSG, 30, 7, 1, 1, IOPT, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 608 continue
-    ! MSG = 'DVODE--  MF (=I1) illegal     '
-    ! CALL XERRWD (MSG, 30, 8, 1, 1, MF, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  MF (=I1) illegal     '
+    CALL XERRWD (MSG, 30, 8, 1, 1, MF, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 609 continue
-    ! MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-    ! CALL XERRWD (MSG, 50, 9, 1, 2, ML, NEQ, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
+    CALL XERRWD (MSG, 50, 9, 1, 2, ML, NEQ, 0, ZERO, ZERO)
+#endif
     GO TO 700
 610 continue
-    ! MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-    ! CALL XERRWD (MSG, 50, 10, 1, 2, MU, NEQ, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
+    CALL XERRWD (MSG, 50, 10, 1, 2, MU, NEQ, 0, ZERO, ZERO)
+#endif    
     GO TO 700
 611 continue
-    ! MSG = 'DVODE--  MAXORD (=I1) .lt. 0  '
-    ! CALL XERRWD (MSG, 30, 11, 1, 1, vstate % MAXORD, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  MAXORD (=I1) .lt. 0  '
+    CALL XERRWD (MSG, 30, 11, 1, 1, vstate % MAXORD, 0, 0, ZERO, ZERO)
+#endif    
     GO TO 700
 612 continue
-    ! MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
-    ! CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
+    CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 613 continue
-    ! MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
-    ! CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
+    CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+#endif
     GO TO 700
 614 continue
-    ! MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-    ! CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, TOUT, T)    
-    ! MSG = '      integration direction is given by H0 (=R1)  '
-    ! CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
+    CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, TOUT, T)    
+    MSG = '      integration direction is given by H0 (=R1)  '
+    CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+#endif
     GO TO 700
 615 continue
-    ! MSG = 'DVODE--  HMAX (=R1) .lt. 0.0  '
-    ! CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  HMAX (=R1) .lt. 0.0  '
+    CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
+#endif
     GO TO 700
 616 continue
-    ! MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
-    ! CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
+    CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
+#endif
     GO TO 700
 617 CONTINUE
-    ! MSG='DVODE--  RWORK length needed, LENRW (=I1), exceeds LRW (=I2)'
-    ! CALL XERRWD (MSG, 60, 17, 1, 2, LENRW, LRW, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG='DVODE--  RWORK length needed, LENRW (=I1), exceeds LRW (=I2)'
+    CALL XERRWD (MSG, 60, 17, 1, 2, LENRW, LRW, 0, ZERO, ZERO)
+#endif
     GO TO 700
 618 CONTINUE
-    ! MSG='DVODE--  IWORK length needed, LENIW (=I1), exceeds LIW (=I2)'
-    ! CALL XERRWD (MSG, 60, 18, 1, 2, LENIW, LIW, 0, ZERO, ZERO)
+#ifndef CUDA    
+    MSG='DVODE--  IWORK length needed, LENIW (=I1), exceeds LIW (=I2)'
+    CALL XERRWD (MSG, 60, 18, 1, 2, LENIW, LIW, 0, ZERO, ZERO)
+#endif
     GO TO 700
 619 continue
-    ! MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0        '
-    ! CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0        '
+    CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, ZERO)
+#endif
     GO TO 700
 620 continue
-    ! MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0        '
-    ! CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0        '
+    CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
+#endif
     GO TO 700
 621 continue
-    ! EWTI = rwork % ewt(I)
-    ! MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
-    ! CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
+#ifndef CUDA    
+    EWTI = rwork % ewt(I)
+    MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
+    CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
+#endif
     GO TO 700
 622 CONTINUE
-    ! MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
-    ! CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, TOUT, T)
+#ifndef CUDA    
+    MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
+    CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, TOUT, T)
+#endif
     GO TO 700
 623 CONTINUE
-    ! MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
-    ! CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, TOUT, TP)
+#ifndef CUDA    
+    MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
+    CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, TOUT, TP)
+#endif
     GO TO 700
 624 CONTINUE
-    ! MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
-    ! CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
+#ifndef CUDA    
+    MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
+    CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
+#endif
     GO TO 700
 625 CONTINUE
-    ! MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
-    ! CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, TOUT)
+#ifndef CUDA    
+    MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
+    CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, TOUT)
+#endif
     GO TO 700
 626 continue
-    ! MSG = 'DVODE--  At start of problem, too much accuracy   '
-    ! CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
-    ! MSG='      requested for precision of machine:   see TOLSF (=R1) '
-    ! CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
+#ifndef CUDA    
+    MSG = 'DVODE--  At start of problem, too much accuracy   '
+    CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
+    MSG='      requested for precision of machine:   see TOLSF (=R1) '
+    CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
+#endif
     RWORK % condopt(14) = TOLSF
     GO TO 700
 627 continue
-    ! MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
-    ! CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, TOUT, ZERO)
+#ifndef CUDA
+    MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
+    CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, TOUT, ZERO)
+#endif
     
 700 CONTINUE
     ISTATE = -3
@@ -1086,9 +1153,10 @@ contains
     return
     
 800 continue
-    ! MSG = 'DVODE--  Run aborted:  apparent infinite loop     '
-    ! CALL XERRWD (MSG, 50, 303, 2, 0, 0, 0, 0, ZERO, ZERO)
-
+#ifndef CUDA    
+    MSG = 'DVODE--  Run aborted:  apparent infinite loop     '
+    CALL XERRWD (MSG, 50, 303, 2, 0, 0, 0, 0, ZERO, ZERO)
+#endif
     return
   end subroutine dvode
 
@@ -1143,8 +1211,9 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
+    !TEST
     !LINPACK
-    CALL DGESL (WM(3), vstate % N, vstate % N, IWM(31), X, 0)
+    !CALL DGESL (WM(3), vstate % N, vstate % N, IWM(31), X, 0)
     RETURN
 
 300 continue
@@ -1172,8 +1241,9 @@ contains
     ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
+    !TEST
     !LINPACK
-    CALL DGBSL (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
+    !CALL DGBSL (WM(3), MEBAND, vstate % N, ML, MU, IWM(31), X, 0)
     RETURN
   end subroutine dvsol
 
@@ -1198,14 +1268,12 @@ contains
     ! -----------------------------------------------------------------------
     integer    :: NROW, NCOL, NROWA, NROWB
     real(dp_t) :: A(NROWA,NCOL), B(NROWB,NCOL)
-    real(dp_t), pointer :: xscratch(:), yscratch(:)
     integer    :: IC
 
     do IC = 1,NCOL
 #ifdef CUDA
-       xscratch => A(:,IC)
-       yscratch => B(:,IC)
-       call cublasDcopy(NROW, xscratch, 1, yscratch, 1)
+       !TEST
+       !call cublasDcopy(NROW, A(:,IC), 1, B(:,IC), 1)
 #else
        CALL DCOPY (NROW, A(1,IC), 1, B(1,IC), 1)
 #endif
@@ -1316,7 +1384,8 @@ contains
             rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
 #ifdef CUDA
-          call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          !TEST
+          !call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
 #else
           CALL DCOPY (LENP, rwork % WM(3), 1, rwork % WM(vstate % LOCJS), 1)
 #endif
@@ -1349,7 +1418,8 @@ contains
        LENP = vstate % N * vstate % N
        if (vstate % JSV .EQ. 1) then
 #ifdef CUDA
-          call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          !TEST          
+          !call cublasDcopy(LENP, rwork % WM(3:3 + LENP - 1), 1, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
 #else
           CALL DCOPY (LENP, rwork % WM(3), 1, rwork % WM(vstate % LOCJS), 1)
 #endif
@@ -1360,7 +1430,8 @@ contains
        vstate % JCUR = 0
        LENP = vstate % N * vstate % N
 #ifdef CUDA
-       call cublasDcopy(LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, rwork % WM(3:3 + LENP - 1), 1)
+       !TEST       
+       !call cublasDcopy(LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, rwork % WM(3:3 + LENP - 1), 1)
 #else
        CALL DCOPY (LENP, rwork % WM(vstate % LOCJS), 1, rwork % WM(3), 1)
 #endif
@@ -1370,7 +1441,8 @@ contains
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
 #ifdef CUDA
-       call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       !TEST       
+       !call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
 #else
        CALL DSCAL (LENP, CON, rwork % WM(3), 1)
 #endif
@@ -1381,8 +1453,9 @@ contains
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
+       !TEST
        !LINPACK
-       CALL DGEFA (rwork % WM(3), vstate % N, vstate % N, IWM(31), IER)
+       !CALL DGEFA (rwork % WM(3), vstate % N, vstate % N, IWM(31), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -1487,7 +1560,8 @@ contains
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
 #ifdef CUDA
-    call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    !TEST    
+    !call cublasDscal(LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
 #else
     CALL DSCAL (LENP, CON, rwork % WM(3), 1 )
 #endif
@@ -1497,8 +1571,9 @@ contains
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
+    !TEST
     !LINPACK
-    CALL DGBFA (rwork % WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
+    !CALL DGBFA (rwork % WM(3), MEBAND, vstate % N, ML, MU, IWM(31), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if
@@ -1575,9 +1650,7 @@ contains
 
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
-    real(dp_t), pointer :: xscratch(:), yscratch(:)  
-    real(dp_t), target :: Y(vstate % N)
-    real(dp_t), pointer :: pY(:)
+    real(dp_t)    :: Y(vstate % N)
     real(dp_t) :: RPAR(:)
     integer    :: IWM(:), NFLAG, IPAR(:)
     
@@ -1591,8 +1664,6 @@ contains
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
 
-    pY => Y
-    
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a
     !  nonlinear convergence failure with NFLAG = -2, set IPUP = MITER
@@ -1626,7 +1697,8 @@ contains
     DELP = ZERO
 
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % yh, 1, Y, 1)
+    !TEST    
+    !call cublasDcopy(vstate % N, rwork % yh(:,1), 1, Y, 1)
 #else
     CALL DCOPY(vstate % N, rwork % yh, 1, Y, 1)
 #endif
@@ -1662,12 +1734,13 @@ contains
     do I = 1,vstate % N
        Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
     end do
-    DEL = DVNORM (vstate % N, pY, rwork % EWT)
+    DEL = DVNORM (vstate % N, Y, rwork % EWT)
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
+    !TEST    
+    !call cublasDcopy(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
 #else
     CALL DCOPY(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
 #endif
@@ -1689,15 +1762,16 @@ contains
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
 #ifdef CUDA
-       xscratch => Y(1:vstate % N)
-       call cublasDscal(vstate % N, CSCALE, xscratch, 1)
+       !TEST       
+       !call cublasDscal(vstate % N, CSCALE, Y, 1)
 #else
        CALL DSCAL (vstate % N, CSCALE, Y, 1)
 #endif
     ENDIF
-    DEL = DVNORM (vstate % N, pY, rwork % EWT)
+    DEL = DVNORM (vstate % N, Y, rwork % EWT)
 #ifdef CUDA
-    call cublasDaxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
+    !TEST    
+    !call cublasDaxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
 #else
     call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
 #endif    
@@ -1889,8 +1963,9 @@ contains
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
 #ifdef CUDA
-       call cublasDaxpy(vstate % N, vstate % EL(J), &
-            rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
+       !TEST       
+       !call cublasDaxpy(vstate % N, vstate % EL(J), &
+       !     rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
 #else
        CALL DAXPY(vstate % N, vstate % EL(J), &
             rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
@@ -2291,7 +2366,8 @@ contains
     do J = 2, vstate % L
        R = R * vstate % ETA
 #ifdef CUDA
-       call cublasDscal(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
+       !TEST       
+       !call cublasDscal(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
 #else
        CALL DSCAL(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
 #endif
@@ -2407,7 +2483,8 @@ contains
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
 #ifdef CUDA
-       call cublasDaxpy(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       !TEST       
+       !call cublasDaxpy(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
 #else       
        CALL DAXPY(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
 #endif
@@ -2415,7 +2492,8 @@ contains
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    !TEST    
+    !call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #else
     CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #endif
@@ -2547,7 +2625,8 @@ contains
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
 #ifdef CUDA
-    call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    !TEST    
+    !call cublasDcopy(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #else
     CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
 #endif
@@ -2583,7 +2662,8 @@ contains
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
 #ifdef CUDA
-    call cublasDscal(vstate % N, R, rwork % acor, 1)
+    !TEST    
+    !call cublasDscal(vstate % N, R, rwork % acor, 1)
 #else
     CALL DSCAL(vstate % N, R, rwork % acor, 1)
 #endif
