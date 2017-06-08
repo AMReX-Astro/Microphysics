@@ -18,7 +18,7 @@ module cublas_module
        implicit none
        integer(c_int), value  :: n, incx, incy
        real(c_double), value  :: alpha
-       real(c_double), pointer :: x(:), y(:)
+       real(c_double) :: x(:), y(:)
      end subroutine cublasDaxpy
 
      ! cublasStatus_t cublasDcopy(cublasHandle_t handle, int n,
@@ -29,7 +29,7 @@ module cublas_module
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx, incy
-       real(c_double), pointer :: x(:), y(:)
+       real(c_double) :: x(:), y(:)
      end subroutine cublasDcopy
 
      ! cublasStatus_t cublasDdot (cublasHandle_t handle, int n,
@@ -41,7 +41,7 @@ module cublas_module
        use iso_c_binding
        implicit none
        integer(c_int), value  :: n, incx, incy
-       real(c_double), pointer :: x(:), y(:), res(:)
+       real(c_double) :: x(:), y(:), res(:)
      end subroutine cublasDdot
 
      ! cublasStatus_t cublasDgemm(cublasHandle_t handle,
@@ -59,7 +59,7 @@ module cublas_module
        character(1,c_char), value :: cta, ctb
        integer(c_int), value      :: m, n, k, lda, ldb, ldc
        real(c_double), value      :: alpha, beta
-       real(c_double), pointer :: A(:,:), B(:,:), C(:,:)
+       real(c_double) :: A(:,:), B(:,:), C(:,:)
      end subroutine cublasDgemm
 
      ! cublasStatus_t  cublasDscal(cublasHandle_t handle, int n,
@@ -68,11 +68,10 @@ module cublas_module
      attributes(device) &
      subroutine cublasDscal(n, alpha, x, incx) bind(C,name='cublasDscal')
        use iso_c_binding, only: c_int, c_double
-       use cudafor, only: c_devptr
        implicit none
        integer(c_int), value  :: n, incx
        real(c_double), value  :: alpha
-       type(c_devptr), device :: x
+       real(c_double)  :: x(:)
      end subroutine cublasDscal
 
      ! cublasStatus_t cublasIdamax(cublasHandle_t handle, int n,
@@ -83,7 +82,7 @@ module cublas_module
        implicit none
        integer(c_int), value  :: n, incx
        integer(c_int)         :: res
-       real(c_double), pointer :: x(:)
+       real(c_double) :: x(:)
      end subroutine cublasIdamax
      
   end interface cuda_blas
