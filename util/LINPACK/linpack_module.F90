@@ -447,7 +447,7 @@ contains
        LM = MIN(K,M) - 1
        LA = M - LM
        LB = K - LM
-       T = DDOT(LM,ABD(LA,K),1,B(LB),1)
+       T = DDOT(LM,ABD(LA:LA + LM - 1,K),1,B(LB:LB + LM - 1),1)
        B(K) = (B(K) - T)/ABD(M,K)
     end do
     ! 
@@ -458,7 +458,7 @@ contains
     DO KB = 1, NM1
        K = N - KB
        LM = MIN(ML,N-K)
-       B(K) = B(K) + DDOT(LM,ABD(M+1,K),1,B(K+1),1)
+       B(K) = B(K) + DDOT(LM,ABD(M+1:M+LM,K),1,B(K+1:K+LM),1)
        L = IPVT(K)
        IF (L .EQ. K) GO TO 70
        T = B(L)
