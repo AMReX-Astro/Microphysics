@@ -47,7 +47,7 @@ contains
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
     use dvode_module, only: dvode
-    use eos_type_module, only: eos_t
+    use eos_type_module, only: eos_t, copy_eos_t
     use dvode_type_module, only: dvode_t
     use bl_constants_module, only: ZERO    
 
@@ -215,7 +215,7 @@ contains
 
     if (cu_dT_crit < 1.0d19) then
 
-       eos_state_temp = eos_state_in
+       call copy_eos_t(eos_state_temp, eos_state_in)
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
 
        call eos(eos_input_rt, eos_state_temp)
