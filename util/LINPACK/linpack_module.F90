@@ -601,7 +601,7 @@ contains
     double precision dx(:),dy(:),dtemp
     integer i,incx,incy,ix,iy,m,mp1,n
     ! 
-    vddot = 0.0d0
+    dotval = 0.0d0
     dtemp = 0.0d0
     if (n.le.0) return
     if (incx.eq.1.and.incy.eq.1) go to 20
@@ -617,7 +617,7 @@ contains
        ix = ix + incx
        iy = iy + incy
     enddo
-    vddot = dtemp
+    dotval = dtemp
     return
     ! 
     !      code for both increments equal to 1
@@ -636,7 +636,7 @@ contains
        dtemp = dtemp + dx(i)*dy(i) + dx(i + 1)*dy(i + 1) + &
             dx(i + 2)*dy(i + 2) + dx(i + 3)*dy(i + 3) + dx(i + 4)*dy(i + 4)
     enddo
-60  vddot = dtemp
+60  dotval = dtemp
   end function vddot
   
 end module linpack_module
