@@ -327,14 +327,11 @@ contains
     !   =====================================================================
     ! 
     !      .. External Functions ..
-    LOGICAL LSAME
-    EXTERNAL LSAME
+    ! LOGICAL LSAME
+    ! EXTERNAL LSAME
     !      ..
     !      .. External Subroutines ..
-    EXTERNAL XERBLA
-    !      ..
-    !      .. Intrinsic Functions ..
-    INTRINSIC MAX
+    ! EXTERNAL XERBLA
     !      ..
     !      .. Local Scalars ..
     DOUBLE PRECISION TEMP
