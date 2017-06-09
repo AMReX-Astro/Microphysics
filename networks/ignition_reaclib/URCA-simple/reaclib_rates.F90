@@ -158,7 +158,7 @@ contains
   end subroutine net_screening_init
 
   subroutine net_screening_finalize()
-    call screening_finalize()
+    return
   end subroutine net_screening_finalize
 
 #ifdef CUDA
