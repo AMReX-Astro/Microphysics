@@ -441,7 +441,7 @@ contains
   end subroutine dvindy
   
 #ifdef CUDA
-       attributes(device) &
+  attributes(device) &
 #endif
   subroutine dvode(NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, MF, &
@@ -486,7 +486,6 @@ contains
     !  not yet been done, an error return occurs.
     !  If ISTATE = 1 and TOUT = T, return immediately.
     ! -----------------------------------------------------------------------
-
     IF (ISTATE .LT. 1 .OR. ISTATE .GT. 3) GO TO 601
     IF (ITASK .LT. 1 .OR. ITASK .GT. 5) GO TO 602
     IF (ISTATE .EQ. 1) GO TO 10
@@ -506,7 +505,6 @@ contains
     !  First check legality of the non-optional input NEQ, ITOL, IOPT,
     !  MF, ML, and MU.
     ! -----------------------------------------------------------------------
-    
 20  IF (NEQ .LE. 0) GO TO 604
     IF (ISTATE .EQ. 1) GO TO 25
     IF (NEQ .GT. vstate % N) GO TO 605
@@ -653,7 +651,7 @@ contains
 
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
     LF0 = vstate % LYH + vstate % NYH
-    
+
     CALL f_rhs (vstate % N, T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
