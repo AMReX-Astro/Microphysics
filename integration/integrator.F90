@@ -1,7 +1,5 @@
 module integrator_module
 
-  use bl_types
-  
   implicit none
 
   public
