@@ -45,6 +45,9 @@ contains
   ! input array, so array must have at least that
   ! many components.
 
+#ifdef CUDA
+  attributes(device) &
+#endif
   function esum(array,n)
 
     !$acc routine seq
@@ -124,9 +127,11 @@ contains
     enddo
 
 #ifndef ACC
+#ifndef CUDA    
     if (j > n - 1) then
        call amrex_error("Error: too many partials created in esum.")
     endif
+#endif    
 #endif
 
     esum = sum(partials(0:j))
