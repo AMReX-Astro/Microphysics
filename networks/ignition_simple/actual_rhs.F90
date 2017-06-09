@@ -17,12 +17,14 @@ contains
 
   end subroutine actual_rhs_init
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine actual_rhs(state)
 
     !$acc routine seq
 
-    use extern_probin_module, only: do_constant_volume_burn
+    use managed_probin_module, only: cu_do_constant_volume_burn
 
     implicit none
 
@@ -101,7 +103,7 @@ contains
 
     if (state % self_heat) then
 
-       if (do_constant_volume_burn) then
+       if (cu_do_constant_volume_burn) then
           state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
 
        else
@@ -112,12 +114,14 @@ contains
 
   end subroutine actual_rhs
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine actual_jac(state)
 
     !$acc routine seq
 
-    use extern_probin_module, only: do_constant_volume_burn
+    use managed_probin_module, only: cu_do_constant_volume_burn
 
     implicit none
 
@@ -167,7 +171,7 @@ contains
 
     if (state % self_heat) then
 
-       if (do_constant_volume_burn) then
+       if (cu_do_constant_volume_burn) then
 
           cvInv = ONE / state % cv
 
@@ -198,7 +202,9 @@ contains
   end subroutine actual_jac
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine evaluate_rates(state, rr)
 
     !$acc routine seq
@@ -261,7 +267,9 @@ contains
 
 
   ! Computes the instantaneous energy generation rate
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine ener_gener_rate(dydt, enuc)
 
     use network
@@ -285,6 +293,9 @@ contains
 
   end subroutine ener_gener_rate
 
+#ifdef CUDA
+  attributes(device) &
+#endif  
   subroutine update_unevolved_species(state)
 
     !$acc routine seq

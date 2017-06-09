@@ -25,9 +25,18 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
-
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: aion(:), zion(:), bion(:)
+  
+  real(dp_t), &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable, save :: nion(:), mion(:), wion(:)
+  
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
   integer, parameter :: nrates = 1
@@ -44,6 +53,14 @@ contains
 
     implicit none
 
+    ! Allocate ion info arrays
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(bion(nspec))
+    allocate(nion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     spec_names(ic12)  = "carbon-12"
     spec_names(io16)  = "oxygen-16"
     spec_names(img24) = "magnesium-24"
@@ -87,7 +104,13 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    ! Deallocate storage arrays
+    deallocate(aion)
+    deallocate(zion)
+    deallocate(bion)
+    deallocate(nion)
+    deallocate(mion)
+    deallocate(wion)
 
   end subroutine actual_network_finalize
 
