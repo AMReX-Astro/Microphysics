@@ -176,8 +176,8 @@ contains
     to_eos % e = from_eos % e
     to_eos % h = from_eos % h
     to_eos % s = from_eos % s
-    to_eos % xn = from_eos % xn
-    to_eos % aux = from_eos % aux
+    to_eos % xn(:) = from_eos % xn(:)
+    to_eos % aux(:) = from_eos % aux(:)
 
     to_eos % dpdT = from_eos % dpdT
     to_eos % dpdr = from_eos % dpdr
@@ -200,9 +200,9 @@ contains
     to_eos % mu = from_eos % mu
     to_eos % mu_e = from_eos % mu_e
     to_eos % y_e = from_eos % y_e
-    to_eos % dedX = from_eos % dedX
-    to_eos % dpdX = from_eos % dpdX
-    to_eos % dhdX = from_eos % dhdX
+    to_eos % dedX(:) = from_eos % dedX(:)
+    to_eos % dpdX(:) = from_eos % dpdX(:)
+    to_eos % dhdX(:) = from_eos % dhdX(:)
     to_eos % gam1 = from_eos % gam1
     to_eos % cs = from_eos % cs
 
