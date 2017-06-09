@@ -19,7 +19,9 @@ contains
   end subroutine actual_burner_init
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
