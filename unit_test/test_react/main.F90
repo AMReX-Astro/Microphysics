@@ -86,8 +86,6 @@ program test_react
        allocatable :: pfidx
   
 #ifdef CUDA  
-  ! Adjust these CUDA parameters later
-  integer, parameter :: cu_nx = 1024, cu_ny = 512, cu_nz = 1
   type(dim3)    :: cuGrid, cuThreadBlock
 #endif
   
@@ -196,13 +194,20 @@ program test_react
      ! Set up a timer for the burn.
      start_time = parallel_wtime()
 
+     write(*,*) 'lo = ', lo
+     write(*,*) 'hi = ', hi
+     
 #ifdef CUDA
      ! Set up CUDA parameters
      cuThreadBlock = dim3(32, 8, 1)
      cuGrid = dim3(&
-          ceiling(real(cu_nx)/cuThreadBlock%x), &
-          ceiling(real(cu_ny)/cuThreadBlock%y), &
-          ceiling(real(cu_nz)/cuThreadBlock%z))
+          ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
+          ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
+          ceiling(real(hi(3)-lo(3)+1)/cuThreadBlock%z))
+     
+     write(*,*) 'cuGrid % x = ', cuGrid % x
+     write(*,*) 'cuGrid % y = ', cuGrid % y
+     write(*,*) 'cuGrid % z = ', cuGrid % z
      
      ! React the zones using CUDA     
      call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
