@@ -46,9 +46,9 @@ module actual_eos_module
        managed, &
 #endif
        allocatable, save :: f(:,:),fd(:,:),               &
-                                                    ft(:,:),fdd(:,:),ftt(:,:),    &
-                                                    fdt(:,:),fddt(:,:),fdtt(:,:), &
-                                                    fddtt(:,:)
+                            ft(:,:),fdd(:,:),ftt(:,:),    &
+                            fdt(:,:),fddt(:,:),fdtt(:,:), &
+                            fddtt(:,:)
 
     !..for the pressure derivative with density ables
     double precision, &
@@ -56,7 +56,7 @@ module actual_eos_module
        managed, &
 #endif
        allocatable, save :: dpdf(:,:),dpdfd(:,:),         &
-                                                    dpdft(:,:),dpdfdt(:,:)
+                            dpdft(:,:),dpdfdt(:,:)
 
     !..for chemical potential tables
     double precision, &
@@ -64,7 +64,7 @@ module actual_eos_module
        managed, &
 #endif
        allocatable, save :: ef(:,:),efd(:,:), &
-                                                    eft(:,:),efdt(:,:)
+                            eft(:,:),efdt(:,:)
  
     !..for the number density tables
     double precision, &
@@ -72,7 +72,7 @@ module actual_eos_module
        managed, &
 #endif
        allocatable, save :: xf(:,:),xfd(:,:), &
-                                                    xft(:,:),xfdt(:,:)
+                            xft(:,:),xfdt(:,:)
 
     !..for storing the differences
     double precision, &
@@ -80,9 +80,9 @@ module actual_eos_module
        managed, &
 #endif
        allocatable, save :: dt_sav(:),dt2_sav(:),   &
-                                                    dti_sav(:),dt2i_sav(:), &
-                                                    dd_sav(:),dd2_sav(:),   &
-                                                    ddi_sav(:),dd2i_sav(:)
+                            dti_sav(:),dt2i_sav(:), &
+                            dd_sav(:),dd2_sav(:),   &
+                            ddi_sav(:),dd2i_sav(:)
 
 
     integer, parameter          :: max_newton = 100
@@ -99,6 +99,7 @@ private
        managed, &
 #endif         
        allocatable, save :: a2rad
+    
     double precision, &
 #ifdef CUDA       
        managed, &
