@@ -33,7 +33,7 @@ contains
 
     use screening_module, only: screening_init
     use aprox_rates_module, only: rates_init
-    use extern_probin_module, only: use_tables
+    use actual_network, only: cu_use_tables
     use parallel, only: parallel_IOProcessor
 
     implicit none
@@ -44,7 +44,7 @@ contains
 
     call screening_init()
 
-    if (use_tables) then
+    if (cu_use_tables) then
 
        if (parallel_IOProcessor()) then
           print *, ""
@@ -219,7 +219,7 @@ contains
 
     !$acc routine seq
 
-    use managed_probin_module, only: cu_use_tables
+    use actual_network, only: cu_use_tables
 
     implicit none
 

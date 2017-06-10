@@ -3,12 +3,6 @@ module managed_probin_module
   use bl_types
   
   implicit none
-
-  logical, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: cu_use_tables
   
   logical, &
 #ifdef CUDA       
@@ -109,14 +103,13 @@ contains
          rtol_spec, rtol_temp, rtol_enuc, &
          atol_spec, atol_temp, atol_enuc, &
          retry_burn, &
-         retry_burn_factor, retry_burn_max_change, &
-         use_tables
+         retry_burn_factor, retry_burn_max_change
+    
     use probin_module, only: tmax
 
     implicit none
 
     ! Allocate and set managed memory probin parameters
-    allocate(cu_use_tables)
     allocate(cu_do_constant_volume_burn)
     allocate(cu_call_eos_in_rhs)
     allocate(cu_centered_diff_jac)
