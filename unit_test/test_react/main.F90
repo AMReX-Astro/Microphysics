@@ -221,13 +221,15 @@ program test_react
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
      ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
      
-     ! End the timer and print the results.
 
+     ! Bring device managed memory back to CPU in sp
+     sp(:,:,:,:) = state(:,:,:,:)
+
+     ! End the timer and print the results.     
      end_time = parallel_wtime()
 
      print *, "Execution time: ", end_time - start_time
-
-     sp(:,:,:,:) = state(:,:,:,:)
+     
   enddo
 
   ! note: integer division
