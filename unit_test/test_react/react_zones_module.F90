@@ -30,7 +30,9 @@ contains
 #ifdef CUDA  
   attributes(global) &
 #endif
-   subroutine react_zones(state, pfidx, lo, hi)
+  subroutine react_zones(state, pfidx, lo, hi)
+    implicit none
+  
     integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
     type(pfidx_t)   :: pfidx
     real(kind=dp_t) :: state(0:, 0:, 0:, :)
