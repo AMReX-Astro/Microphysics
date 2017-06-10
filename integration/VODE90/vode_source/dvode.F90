@@ -67,7 +67,10 @@ contains
     !  Subroutines/functions called by DUMACH.. None
     ! -----------------------------------------------------------------------
     ! **End
-    ! 
+    !
+
+    implicit none
+  
     real(dp_t) :: U, dum
     dum = EPSILON(U)
   end function dumach
@@ -101,6 +104,8 @@ contains
     ! ***END PROLOGUE  DEWSET
     ! **End
 
+    implicit none
+  
     integer    :: I, N, ITOL
     real(dp_t) :: RTOL(:), ATOL(:)
     real(dp_t) :: YCUR(:), EWT(:)
@@ -157,6 +162,9 @@ contains
     !    930809  Renamed to allow single/double precision versions. (ACH)
     ! ***END PROLOGUE  DVNORM
     ! **End
+
+    implicit none
+
     integer    :: N, I
     real(dp_t) :: V(:), W(:)
     real(dp_t) :: SUM, dvn, dscratch
@@ -360,10 +368,6 @@ contains
     !  Discussion above and comments in driver explain all variables.
     ! -----------------------------------------------------------------------
     !
-#ifdef CUDA
-    use cudafor, only: c_devptr, c_devloc
-    use iso_c_binding, only: c_loc
-#endif    
   
     implicit none
   
@@ -779,7 +783,6 @@ contains
     !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
-
     CALL DVSTEP(Y, IWORK, RPAR, IPAR, rwork, vstate)
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
@@ -1175,6 +1178,9 @@ contains
     !          IERSL = 1 if a singular matrix arose with MITER = 3.
     ! -----------------------------------------------------------------------
     ! 
+
+    implicit none
+
     real(dp_t) :: WM(:)
     real(dp_t) :: X(:)
     integer    :: IWM(:), IERSL
@@ -1238,6 +1244,9 @@ contains
     !  where A and B may have different row dimensions, NROWA and NROWB.
     !  The data copied consists of NROW rows and NCOL columns.
     ! -----------------------------------------------------------------------
+
+    implicit none
+
     integer    :: NROW, NCOL, NROWA, NROWB
     real(dp_t) :: A(NROWA,NCOL), B(NROWB,NCOL)
     integer    :: IC
@@ -1313,6 +1322,8 @@ contains
     ! -----------------------------------------------------------------------
     ! 
 
+    implicit none
+  
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     
@@ -1591,6 +1602,8 @@ contains
     ! -----------------------------------------------------------------------
     !
 
+    implicit none
+  
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     real(dp_t)    :: Y(vstate % N)
@@ -1767,6 +1780,9 @@ contains
     !  See References 1 and 2 for details.
     ! -----------------------------------------------------------------------
     !
+
+    implicit none
+  
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     
@@ -1947,6 +1963,8 @@ contains
     ! -----------------------------------------------------------------------
     !
 
+    implicit none
+  
     type(dvode_t), intent(inout) :: vstate
     real(dp_t) :: EM(13)
     real(dp_t) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
@@ -2148,6 +2166,9 @@ contains
     !           whose real name is dependent on the method used.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
+
+    implicit none
+
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     real(dp_t) :: Y(vstate % N)
@@ -2530,7 +2551,6 @@ contains
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
     CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
-
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
