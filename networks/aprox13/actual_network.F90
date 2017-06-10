@@ -34,6 +34,13 @@ module actual_network
 #endif
        allocatable, save :: nion(:), mion(:), wion(:)
 
+  logical, &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable, save :: cu_use_tables
+  
+
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
@@ -138,15 +145,20 @@ contains
 
   subroutine actual_network_init
 
+    use extern_probin_module, only: use_tables
+    
     implicit none
 
-    ! Allocate ion info arrays
+    ! Allocate ion info arrays and table flag
+    allocate(cu_use_tables)    
     allocate(aion(nspec))
     allocate(zion(nspec))
     allocate(bion(nspec))
     allocate(nion(nspec))
     allocate(mion(nspec))
     allocate(wion(nspec))
+
+    cu_use_tables = use_tables
     
     short_spec_names(ihe4)  = 'he4'
     short_spec_names(ic12)  = 'c12'
@@ -311,7 +323,8 @@ contains
 
     implicit none
 
-    ! Deallocate storage arrays
+    ! Deallocate storage arrays and other managed allocatables
+    deallocate(cu_use_tables)
     deallocate(aion)
     deallocate(zion)
     deallocate(bion)
