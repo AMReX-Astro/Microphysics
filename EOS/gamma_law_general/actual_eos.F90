@@ -17,11 +17,19 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64), public :: eos_name = "gamma_law_general"  
+  character (len=64), public :: eos_name = "gamma_law_general"
   
-  double precision, save :: gamma_const
+  double precision, &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable :: gamma_const
   
-  logical, save :: assume_neutral
+  logical, &
+#ifdef CUDA
+       managed, &
+#endif       
+       allocatable :: assume_neutral
 
   !$acc declare create(gamma_const, assume_neutral)
  
@@ -32,7 +40,11 @@ contains
     use extern_probin_module, only: eos_gamma, eos_assume_neutral
 
     implicit none
- 
+
+    ! allocate module variables
+    allocate(gamma_const)
+    allocate(assume_neutral)
+    
     ! constant ratio of specific heats
     if (eos_gamma .gt. 0.d0) then
        gamma_const = eos_gamma
@@ -46,8 +58,19 @@ contains
     
   end subroutine actual_eos_init
 
+  subroutine actual_eos_finalize
 
+    implicit none
 
+    ! deallocate module variables
+    deallocate(gamma_const)
+    deallocate(assume_neutral)
+    
+  end subroutine actual_eos_finalize
+
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine actual_eos(input, state)
 
     !$acc routine seq
@@ -155,14 +178,18 @@ contains
 
        ! This system is underconstrained.
 
-#ifndef ACC 
+#ifndef ACC
+#ifndef CUDA       
        call bl_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
+#endif
 #endif
 
     case default
 
-#ifndef ACC       
+#ifndef ACC
+#ifndef CUDA       
        call bl_error('EOS: invalid input.')
+#endif
 #endif
        
     end select

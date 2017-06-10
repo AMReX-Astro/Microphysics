@@ -42,14 +42,18 @@ contains
     jj = (blockIdx%y - 1) * blockDim % y + threadIdx % y - 1
     kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z - 1
 
-    if (&
-         ii >= lo(1) .and. ii <= hi(1) .and. &
-         jj >= lo(2) .and. jj <= hi(2) .and. &
-         kk >= lo(3) .and. kk <= hi(3)) then
+    ! if (&
+    !      ii >= lo(1) .and. ii <= hi(1) .and. &
+    !      jj >= lo(2) .and. jj <= hi(2) .and. &
+    !      kk >= lo(3) .and. kk <= hi(3)) then
+    if (ii .eq. 1 .and. jj .eq. 1 .and. kk .eq. 1) then
 #else
-    do ii = lo(1), hi(1)
-    do jj = lo(2), hi(2)
-    do kk = lo(3), hi(3)
+    ! do ii = lo(1), hi(1)
+    ! do jj = lo(2), hi(2)
+    ! do kk = lo(3), hi(3)
+    ii = 1
+    jj = 1
+    kk = 1
 #endif
        burn_state_in % rho = state(ii, jj, kk, pfidx % irho)
        burn_state_in % T = state(ii, jj, kk, pfidx % itemp)
@@ -80,9 +84,9 @@ contains
 #ifdef CUDA       
     end if
 #else
-    enddo
-    enddo
-    enddo
+    ! enddo
+    ! enddo
+    ! enddo
 #endif
   end subroutine react_zones
   

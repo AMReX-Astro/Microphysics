@@ -4,6 +4,7 @@
 program test_react
 #ifdef CUDA
   use cudafor
+  use iso_c_binding, only: c_size_t
 #endif
   use react_zones_module, only: pfidx_t, react_zones
   
@@ -85,7 +86,9 @@ program test_react
 #endif
        allocatable :: pfidx
   
-#ifdef CUDA  
+#ifdef CUDA
+  integer :: istate
+  integer(c_size_t) :: stacksize
   type(dim3)    :: cuGrid, cuThreadBlock
 #endif
   
@@ -199,18 +202,28 @@ program test_react
      
 #ifdef CUDA
      ! Set up CUDA parameters
-     cuThreadBlock = dim3(32, 8, 1)
+     cuThreadBlock = dim3(8, 8, 8)
      cuGrid = dim3(&
           ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
           ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
           ceiling(real(hi(3)-lo(3)+1)/cuThreadBlock%z))
-     
+
+     write(*,*) 'cuThreadBlock % x = ', cuThreadBlock % x
+     write(*,*) 'cuThreadBlock % y = ', cuThreadBlock % y
+     write(*,*) 'cuThreadBlock % z = ', cuThreadBlock % z
+
      write(*,*) 'cuGrid % x = ', cuGrid % x
      write(*,*) 'cuGrid % y = ', cuGrid % y
      write(*,*) 'cuGrid % z = ', cuGrid % z
-     
-     ! React the zones using CUDA     
+
+     ! stacksize = 64000
+     ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
+     ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
+     ! React the zones using CUDA
+     ! cuThreadBlock = dim3(16, 16, 16)
+     ! cuGrid = dim3(1, 1, 1)
      call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
+     !call react_zones<<<1,1024>>>(state, pfidx, lo, hi)     
 #else
      call react_zones(state, pfidx, lo, hi)
 #endif
