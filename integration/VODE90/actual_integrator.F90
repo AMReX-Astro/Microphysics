@@ -14,12 +14,6 @@ module actual_integrator_module
 
   implicit none
   
-  !Fix PGI 17.4 bug - not including this will give a compiler error
-  !for the declaration of eos_t instances in the subroutine below.
-  type :: junk_t
-     real(dp_t) :: junk(1) ! junk MUST be an array or the compiler error for eos_t won't go away
-  end type junk_t
-  
 contains
 
   subroutine actual_integrator_init()
