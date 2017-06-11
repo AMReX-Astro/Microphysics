@@ -35,7 +35,11 @@ contains
   
     integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
     type(pfidx_t)   :: pfidx
-    real(kind=dp_t) :: state(0:, 0:, 0:, :)
+    real(kind=dp_t) &
+#ifdef CUDA
+         , device &
+#endif
+         :: state(0:, 0:, 0:, :)
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, jj, kk, j    
 
@@ -49,6 +53,9 @@ contains
          jj >= lo(2) .and. jj <= hi(2) .and. &
          kk >= lo(3) .and. kk <= hi(3)) then
 #else
+    !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
+    !$OMP PRIVATE(burn_state_in, burn_state_out) &
+    !$OMP SCHEDULE(DYNAMIC,1)
     do ii = lo(1), hi(1)
     do jj = lo(2), hi(2)
     do kk = lo(3), hi(3)
@@ -85,6 +92,7 @@ contains
     enddo
     enddo
     enddo
+    !$OMP END PARALLEL DO
 #endif
   end subroutine react_zones
   
