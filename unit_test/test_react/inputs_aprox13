@@ -10,7 +10,7 @@
 
   tmax = 1.d-3
 
-  xin_file   = "xin.aprox13"
+  xin_file   = "xin.aprox13.small"
   run_prefix = "react_aprox13_"
 
 /
