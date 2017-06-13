@@ -200,7 +200,7 @@ program test_react
      
 #ifdef CUDA
      ! Set up CUDA parameters
-     cuThreadBlock = dim3(32, 8, 1)
+     cuThreadBlock = dim3(4, 4, 4)
      cuGrid = dim3(&
           ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
           ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
@@ -210,7 +210,16 @@ program test_react
      write(*,*) 'cuGrid % y = ', cuGrid % y
      write(*,*) 'cuGrid % z = ', cuGrid % z
      
-     ! React the zones using CUDA     
+     ! Uncomment to configure Stack Size Limit
+     ! stacksize = 64000
+     ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
+     ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
+
+     ! React the zones using CUDA
+
+     ! Uncomment to manually set ThreadBlock and Grid dimensions
+     ! cuThreadBlock = dim3(16, 16, 16)
+     ! cuGrid = dim3(1, 1, 1)
      call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
 #else
      call react_zones(state, pfidx, lo, hi)
@@ -221,8 +230,6 @@ program test_react
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
      ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
      
-
-     ! Bring device managed memory back to CPU in sp
      sp(:,:,:,:) = state(:,:,:,:)
 
      ! End the timer and print the results.     
