@@ -9,7 +9,7 @@ else
 endif
 
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/vode_source/
-include $(VODE_SOURCE_DIR)/GPackage.mak
+include $(VODE_SOURCE_DIR)/Make.package
 
 INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
 VPATH_LOCATIONS   += $(VODE_SOURCE_DIR)
