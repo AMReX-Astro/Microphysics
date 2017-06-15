@@ -341,8 +341,6 @@ contains
     ! this is a version of the timestep estimation algorithm used by
     ! VODE
 
-    ! note, we only do this for the 1st vector in the solution
-
     !$acc routine seq
 
     use rhs_module
