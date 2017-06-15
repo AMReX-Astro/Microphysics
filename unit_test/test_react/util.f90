@@ -17,7 +17,7 @@ contains
 
     integer         :: un, i
     real(kind=dp_t) :: summ, usr_in
-    character (len=1024) :: line
+    character (len=4096) :: line
 
     ! read in an inputs file containing the mass fractions.
     ! each species is on its own line.
