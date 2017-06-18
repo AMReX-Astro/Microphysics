@@ -220,7 +220,10 @@ program test_react
      ! Uncomment to manually set ThreadBlock and Grid dimensions
      ! cuThreadBlock = dim3(16, 16, 16)
      ! cuGrid = dim3(1, 1, 1)
+     istate = cudaDeviceSynchronize()     
      call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
+     istate = cudaDeviceSynchronize()
+     !call react_zones<<<1,1024>>>(state, pfidx, lo, hi)     
 #else
      call react_zones(state, pfidx, lo, hi)
 #endif
