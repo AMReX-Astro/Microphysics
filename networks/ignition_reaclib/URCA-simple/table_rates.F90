@@ -30,12 +30,12 @@ module table_rates
   integer, parameter :: j_ne23_na23   = 2
 
   type :: table_info
-     double precision, allocatable :: rate_table(:,:,:)
-     double precision, allocatable :: rhoy_table(:)
-     double precision, allocatable :: temp_table(:)
-     integer :: num_rhoy
-     integer :: num_temp
-     integer :: num_vars
+     double precision :: rate_table(39,152,6)
+     double precision :: rhoy_table(152)
+     double precision :: temp_table(39)
+     integer :: num_rhoy = 152
+     integer :: num_temp = 39
+     integer :: num_vars = 6
   end type table_info
 
   type :: table_read_info
@@ -106,9 +106,9 @@ contains
     double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
     integer :: i, j, k
 
-    allocate( self%rate_table( self%num_temp, self%num_rhoy, self%num_vars ) )
-    allocate( self%rhoy_table( self%num_rhoy ) )
-    allocate( self%temp_table( self%num_temp ) )
+    ! allocate( self%rate_table( self%num_temp, self%num_rhoy, self%num_vars ) )
+    ! allocate( self%rhoy_table( self%num_rhoy ) )
+    ! allocate( self%temp_table( self%num_temp ) )
     allocate( rate_table_scratch( self%num_temp, self%num_rhoy, self%num_vars+2 ) )
 
     open(unit=11, file=self_read%rate_table_file)
@@ -138,9 +138,9 @@ contains
   subroutine term_tab_info(self)
     type(table_info) :: self
 
-    deallocate( self%rate_table )
-    deallocate( self%rhoy_table )
-    deallocate( self%temp_table )
+    ! deallocate( self%rate_table )
+    ! deallocate( self%rhoy_table )
+    ! deallocate( self%temp_table )
   end subroutine term_tab_info
 
 #ifdef CUDA

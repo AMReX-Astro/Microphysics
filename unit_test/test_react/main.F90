@@ -132,8 +132,8 @@ program test_react
   nT = extent(mla%mba%pd(1),2)
   nX = extent(mla%mba%pd(1),3)
 
-  allocate(state(0:nrho-1, 0:nT-1, 0:nX-1, pf % n_plot_comps))
-
+  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1))
+  
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
 
@@ -185,10 +185,10 @@ program test_react
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
-
-              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              
+              state(pf % itemp, ii, jj, kk) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+              state(pf % irho, ii, jj, kk)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+              state(pf%ispec_old:pf%ispec_old+nspec-1, ii, jj, kk) = max(xn_zone(:, kk), 1.e-10_dp_t)
 
            enddo
         enddo
@@ -202,7 +202,7 @@ program test_react
      
 #ifdef CUDA
      ! Set up CUDA parameters
-     cuThreadBlock = dim3(8, 8, 8)
+     cuThreadBlock = dim3(4, 4, 4)
      cuGrid = dim3(&
           ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
           ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
@@ -216,16 +216,19 @@ program test_react
      write(*,*) 'cuGrid % y = ', cuGrid % y
      write(*,*) 'cuGrid % z = ', cuGrid % z
 
+     ! Uncomment to configure Stack Size Limit
      ! stacksize = 64000
      ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
      ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
+
      ! React the zones using CUDA
+
+     ! Uncomment to manually set ThreadBlock and Grid dimensions
      ! cuThreadBlock = dim3(16, 16, 16)
      ! cuGrid = dim3(1, 1, 1)
      istate = cudaDeviceSynchronize()     
      call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
      istate = cudaDeviceSynchronize()
-     !call react_zones<<<1,1024>>>(state, pfidx, lo, hi)     
 #else
      call react_zones(state, pfidx, lo, hi)
 #endif
@@ -235,9 +238,9 @@ program test_react
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
      ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
      
-
-     ! Bring device managed memory back to CPU in sp
-     sp(:,:,:,:) = state(:,:,:,:)
+     do ii = 1, pf % n_plot_comps
+        sp(:,:,:,ii) = state(ii,:,:,:)
+     end do
 
      ! End the timer and print the results.     
      end_time = parallel_wtime()
