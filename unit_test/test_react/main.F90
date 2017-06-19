@@ -57,18 +57,16 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  real(kind=dp_t), &
-#ifdef CUDA
-       managed, &
-#endif
-       allocatable :: state(:,:,:,:)
-
-  integer, &
-#ifdef CUDA
-       managed, &
-#endif
-       allocatable :: lo(:), hi(:)
+  real(kind=dp_t), managed, allocatable :: state(:,:,:,:)
+  logical :: pinstate
   
+#ifdef CUDA
+  integer :: flatdim
+  character(len=200) :: cudaErrorMessage
+  real(kind=dp_t), device, allocatable :: state_d(:,:)
+#endif
+
+  integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
   real (kind=dp_t) :: dlogrho, dlogT
@@ -89,7 +87,8 @@ program test_react
 #ifdef CUDA
   integer :: istate
   integer(c_size_t) :: stacksize
-  type(dim3)    :: cuGrid, cuThreadBlock
+  integer :: cuGrid, cuThreadBlock
+!  type(dim3)    :: cuGrid, cuThreadBlock  
 #endif
   
   call boxlib_initialize()
@@ -132,7 +131,7 @@ program test_react
   nT = extent(mla%mba%pd(1),2)
   nX = extent(mla%mba%pd(1),3)
 
-  allocate(state(0:nrho-1, 0:nT-1, 0:nX-1, pf % n_plot_comps))
+  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1))
 
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
@@ -170,10 +169,6 @@ program test_react
   n_rhs_max = -100000000
   n_rhs_min = 100000000
 
-  ! Allocate lo, hi
-  allocate(lo(MAX_SPACEDIM))
-  allocate(hi(MAX_SPACEDIM))
-  
   do i = 1, nfabs(s(n))
      sp => dataptr(s(n), i)
 
@@ -186,9 +181,9 @@ program test_react
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
 
-              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              state(pf % itemp, ii, jj, kk) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+              state(pf % irho, ii, jj, kk)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+              state(pf%ispec_old:pf%ispec_old+nspec-1, ii, jj, kk) = max(xn_zone(:, kk), 1.e-10_dp_t)
 
            enddo
         enddo
@@ -201,42 +196,92 @@ program test_react
      write(*,*) 'hi = ', hi
      
 #ifdef CUDA
-     ! Set up CUDA parameters
-     cuThreadBlock = dim3(4, 4, 4)
-     cuGrid = dim3(&
-          ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
-          ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
-          ceiling(real(hi(3)-lo(3)+1)/cuThreadBlock%z))
+     ! Tried passing 4D array to 2D array, didn't work - got segfault
+     ! Tried using reshape while doing the above, also got segfault
+     ! Inserted a device synchronize before and after kernel launch, also segfault
+     ! Commented out kernel launch, still got segfault
+     !flatdim = (hi(3)-lo(3)+1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
+     ! write(*,*) 'Allocating pitched state_d'
+     ! istate = cudaMallocPitch(state_d, 1, hi(1)-lo(1), pf % n_plot_comps)
+     ! write(*,*) 'istate = ', istate
+     ! cudaErrorMessage = cudaGetErrorString(istate)
+     ! write(*,*) cudaErrorMessage
+     ! write(*,*) '' 
+     
+     !allocate(state_d(pf % n_plot_comps, hi(1)-lo(1)))
 
-     write(*,*) 'cuThreadBlock % x = ', cuThreadBlock % x
-     write(*,*) 'cuThreadBlock % y = ', cuThreadBlock % y
-     write(*,*) 'cuThreadBlock % z = ', cuThreadBlock % z
+     do jj = lo(2), hi(2)
+        do kk = lo(3), hi(3)
+           ! istate = 0
+           ! write(*,*) 'Copying flattened state for (j, k) = ', jj, ' ', kk
+           ! istate = cudaMemcpy2DAsync(state_d, 0, state(:,:,jj,kk), 0, hi(1)-lo(1)+1, pf % n_plot_comps, cudaMemcpyHostToDevice)
+           ! write(*,*) 'istate = ', istate
+           ! cudaErrorMessage = cudaGetErrorString(istate)
+           ! write(*,*) cudaErrorMessage
+           ! write(*,*) ''
+           ! stop
+           !state_d(1:pf % n_plot_comps, lo(1)-1:hi(1)-1) = state(1:pf % n_plot_comps, lo(1):hi(1), jj, kk)
+           
+           !state_d = reshape(state, [flatdim, pf % n_plot_comps])
+           
+           ! Set up CUDA parameters
+           ! cuThreadBlock = dim3(8, 8, 1)
+           ! cuGrid = dim3(&
+           !      ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
+           !      ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
+           !      ceiling(real(hi(3)-lo(3)+1)/cuThreadBlock%z))
+           
+           ! write(*,*) 'cuThreadBlock % x = ', cuThreadBlock % x
+           ! write(*,*) 'cuThreadBlock % y = ', cuThreadBlock % y
+           ! write(*,*) 'cuThreadBlock % z = ', cuThreadBlock % z
+           
+           ! write(*,*) 'cuGrid % x = ', cuGrid % x
+           ! write(*,*) 'cuGrid % y = ', cuGrid % y
+           ! write(*,*) 'cuGrid % z = ', cuGrid % z
+           
+           cuThreadBlock = 64
+           ! cuGrid = ceiling(real((hi(3)-lo(3)+1)* &
+           !      (hi(2)-lo(2)+1)* &
+           !      (hi(1)-lo(1)+1))/cuThreadBlock)
+           
+           cuGrid = ceiling(real((hi(1)-lo(1)+1))/cuThreadBlock)
+           
+           ! Uncomment to configure Stack Size Limit
+           ! stacksize = 64000
+           ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
+           ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
 
-     write(*,*) 'cuGrid % x = ', cuGrid % x
-     write(*,*) 'cuGrid % y = ', cuGrid % y
-     write(*,*) 'cuGrid % z = ', cuGrid % z
+           ! React the zones using CUDA
 
-     ! Uncomment to configure Stack Size Limit
-     ! stacksize = 64000
-     ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
-     ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
-
-     ! React the zones using CUDA
-
-     ! Uncomment to manually set ThreadBlock and Grid dimensions
-     ! cuThreadBlock = dim3(16, 16, 16)
-     ! cuGrid = dim3(1, 1, 1)
-     call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
+           ! Uncomment to manually set ThreadBlock and Grid dimensions
+           ! cuThreadBlock = dim3(16, 16, 16)
+           ! cuGrid = dim3(1, 1, 1)
+           ! istate = cudaDeviceSynchronize()
+           ! write(*,*) 'sync 1 istate = ', istate
+           
+           ! write(*,*) 'calling react_zones for (jj, kk) = ', jj, ' ', kk
+           call react_zones<<<cuGrid,cuThreadBlock>>>(state(:, :, jj, kk), pfidx, lo(1), hi(1))
+           istate = cudaDeviceSynchronize()
+           ! write(*,*) 'sync final istate = ', istate
+           ! cudaErrorMessage = cudaGetErrorString(istate)
+           ! write(*,*) cudaErrorMessage
+           ! write(*,*) ''
+           
+           !state(1:pf % n_plot_comps, lo(1):hi(1), jj, kk) = state_d(1:pf % n_plot_comps, lo(1)-1:hi(1)-1)
+           ! state = reshape(state_d, [nrho, nT, nX, pf % n_plot_comps])
+        end do
+     end do
 #else
      call react_zones(state, pfidx, lo, hi)
 #endif
-
      !! Do reduction on statistics
      ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
      ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
-     
-     sp(:,:,:,:) = state(:,:,:,:)
+
+     do ii = 1, pf % n_plot_comps
+        sp(:,:,:,ii) = state(ii,:,:,:)
+     end do
 
      ! End the timer and print the results.     
      end_time = parallel_wtime()
@@ -260,7 +305,7 @@ program test_react
 
   call write_job_info(out_name, mla%mba)
 
-
+  write(*,*) 'Cleanup...'
   ! if you (or a subroutine) built it, destroy it!
   do n = 1,nlevs
     call destroy(s(n))
