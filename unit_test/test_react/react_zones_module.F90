@@ -33,37 +33,30 @@ contains
   subroutine react_zones(state, pfidx, lo, hi)
     implicit none
   
-    integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
-    type(pfidx_t)   :: pfidx
+    integer, value,  intent(in) :: lo, hi
+    type(pfidx_t),   intent(in) :: pfidx
     real(kind=dp_t) &
 #ifdef CUDA
          , device &
-#endif
-         :: state(0:, 0:, 0:, :)
+#endif     
+         , intent(inout) :: state(1:pfidx % ncomps, 0:hi)
     type (burn_t)   :: burn_state_in, burn_state_out
-    integer         :: ii, jj, kk, j    
+    integer         :: ii, j
 
 #ifdef CUDA    
-    ii = (blockIdx%x - 1) * blockDim % x + threadIdx % x - 1
-    jj = (blockIdx%y - 1) * blockDim % y + threadIdx % y - 1
-    kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z - 1
+    ii = (blockIdx % x - 1) * blockDim % x + (threadIdx % x - 1) + lo
 
-    if (&
-         ii >= lo(1) .and. ii <= hi(1) .and. &
-         jj >= lo(2) .and. jj <= hi(2) .and. &
-         kk >= lo(3) .and. kk <= hi(3)) then
+    if (ii > hi) return
 #else
-    !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
+    !$OMP PARALLEL DO PRIVATE(ii,j) &
     !$OMP PRIVATE(burn_state_in, burn_state_out) &
     !$OMP SCHEDULE(DYNAMIC,1)
-    do ii = lo(1), hi(1)
-    do jj = lo(2), hi(2)
-    do kk = lo(3), hi(3)
+    do ii = lo, hi
 #endif
-       burn_state_in % rho = state(ii, jj, kk, pfidx % irho)
-       burn_state_in % T = state(ii, jj, kk, pfidx % itemp)
+       burn_state_in % rho = state(pfidx % irho, ii)
+       burn_state_in % T = state(pfidx % itemp, ii)
        do j = 1, nspec
-          burn_state_in % xn(j) = state(ii, jj, kk, pfidx % ispec_old + j - 1)
+          burn_state_in % xn(j) = state(pfidx % ispec_old + j - 1, ii)
        enddo
 
        call normalize_abundances_burn(burn_state_in)
@@ -75,22 +68,18 @@ contains
        call actual_burner(burn_state_in, burn_state_out, cu_tmax, ZERO)
 
        do j = 1, nspec
-          state(ii, jj, kk, pfidx % ispec + j - 1) = burn_state_out % xn(j)
+          state(pfidx % ispec + j - 1, ii) = burn_state_out % xn(j)
        enddo
 
        do j=1, nspec
           ! an explicit loop is needed here to keep the GPU happy if running on GPU
-          state(ii, jj, kk, pfidx % irodot + j - 1) = &
+          state(pfidx % irodot + j - 1, ii) = &
                (burn_state_out % xn(j) - burn_state_in % xn(j)) / cu_tmax
        enddo
 
-       state(ii, jj, kk, pfidx % irho_hnuc) = &
-            state(ii, jj, kk, pfidx % irho) * (burn_state_out % e - burn_state_in % e) / cu_tmax
-#ifdef CUDA       
-    end if
-#else
-    enddo
-    enddo
+       state(pfidx % irho_hnuc, ii) = &
+            state(pfidx % irho, ii) * (burn_state_out % e - burn_state_in % e) / cu_tmax
+#ifndef CUDA       
     enddo
     !$OMP END PARALLEL DO
 #endif
