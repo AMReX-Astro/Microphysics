@@ -88,7 +88,8 @@ program test_react
   integer :: istate
   integer(c_size_t) :: stacksize
   integer :: cuGrid, cuThreadBlock
-!  type(dim3)    :: cuGrid, cuThreadBlock  
+  integer, parameter :: cuNumStreams = 32
+  integer(kind=cuda_stream_kind) :: cuStreams(cuNumStreams)
 #endif
   
   call boxlib_initialize()
@@ -210,6 +211,10 @@ program test_react
      
      !allocate(state_d(pf % n_plot_comps, hi(1)-lo(1)))
 
+     do ii = 1, cuNumStreams
+        istate = cudaStreamCreate(cuStreams(ii))
+     end do
+
      do jj = lo(2), hi(2)
         do kk = lo(3), hi(3)
            ! istate = 0
@@ -229,7 +234,7 @@ program test_react
            ! cuGrid = dim3(&
            !      ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
            !      ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
-           !      ceiling(real(hi(3)-lo(3)+1)/cuThreadBlock%z))
+           !      1)
            
            ! write(*,*) 'cuThreadBlock % x = ', cuThreadBlock % x
            ! write(*,*) 'cuThreadBlock % y = ', cuThreadBlock % y
@@ -240,6 +245,7 @@ program test_react
            ! write(*,*) 'cuGrid % z = ', cuGrid % z
            
            cuThreadBlock = 64
+           
            ! cuGrid = ceiling(real((hi(3)-lo(3)+1)* &
            !      (hi(2)-lo(2)+1)* &
            !      (hi(1)-lo(1)+1))/cuThreadBlock)
@@ -259,14 +265,12 @@ program test_react
            ! istate = cudaDeviceSynchronize()
            ! write(*,*) 'sync 1 istate = ', istate
            
-           ! write(*,*) 'calling react_zones for (jj, kk) = ', jj, ' ', kk
-           call react_zones<<<cuGrid,cuThreadBlock>>>(state(:, :, jj, kk), pfidx, lo(1), hi(1))
-           istate = cudaDeviceSynchronize()
-           ! write(*,*) 'sync final istate = ', istate
-           ! cudaErrorMessage = cudaGetErrorString(istate)
-           ! write(*,*) cudaErrorMessage
-           ! write(*,*) ''
-           
+           write(*,*) 'calling react_zones for (jj, kk) = ', jj, ' ', kk
+           do ii = 1, cuNumStreams
+              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(ii)>>>(state(:, :, jj, kk), &
+                                                                            pfidx, lo(1), hi(1))
+           end do
+
            !state(1:pf % n_plot_comps, lo(1):hi(1), jj, kk) = state_d(1:pf % n_plot_comps, lo(1)-1:hi(1)-1)
            ! state = reshape(state_d, [nrho, nT, nX, pf % n_plot_comps])
         end do
@@ -279,6 +283,22 @@ program test_react
      ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
      ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
 
+     ! Synchronize streams
+     write(*,*) 'Synchronizing CUDA streams...'
+     do ii = 1, cuNumStreams
+        istate = cudaStreamSynchronize(cuStreams(ii))
+        cudaErrorMessage = cudaGetErrorString(istate)
+        write(*,*) cudaErrorMessage     
+     enddo
+
+     ! Destroy streams
+     write(*,*) 'Destroying CUDA streams...'     
+     do ii = 1, cuNumStreams
+        istate = cudaStreamDestroy(cuStreams(ii))
+        cudaErrorMessage = cudaGetErrorString(istate)
+        write(*,*) cudaErrorMessage     
+     enddo
+     
      do ii = 1, pf % n_plot_comps
         sp(:,:,:,ii) = state(ii,:,:,:)
      end do

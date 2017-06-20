@@ -33,13 +33,13 @@ contains
   subroutine react_zones(state, pfidx, lo, hi)
     implicit none
   
-    integer, value,  intent(in) :: lo, hi
+    integer, value, intent(in)  :: lo, hi
     type(pfidx_t),   intent(in) :: pfidx
     real(kind=dp_t) &
 #ifdef CUDA
          , device &
 #endif     
-         , intent(inout) :: state(1:pfidx % ncomps, 0:hi)
+         , intent(inout) :: state(1:pfidx % ncomps, 0:hi-lo)
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, j
 
