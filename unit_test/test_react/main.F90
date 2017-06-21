@@ -4,7 +4,7 @@
 program test_react
 #ifdef CUDA
   use cudafor
-  use iso_c_binding, only: c_size_t
+  use iso_c_binding, only: c_size_t!, c_ptr, c_f_pointer
 #endif
   use react_zones_module, only: pfidx_t, pfidx, react_zones
   
@@ -57,6 +57,8 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
+  !  type(c_ptr) :: state_cptr
+  !  real(kind=dp_t), pointer :: state(:,:,:,:)  
   real(kind=dp_t), allocatable, pinned :: state(:,:,:,:)
   logical :: pinstate
   
@@ -81,14 +83,15 @@ program test_react
 #ifdef CUDA
   integer :: istate
   integer(c_size_t) :: stacksize
-  integer :: cuGrid, cuStreamSizeJ
-  integer, parameter :: cuThreadBlock = 64
-  integer, parameter :: cuMaxStreams  = 256
+  integer :: cuGrid, cuStreamSizeJ, cuStreamSizeK
+  integer, parameter :: cuThreadBlock = 8
+  integer, parameter :: cuMaxStreams  = 128
   integer :: cuNumStreams
   integer :: idxStartJ, idxEndJ, idxEndI, stateLength, statePitch
-  integer :: chunkOffset, chunkOffsetI, chunkOffsetJ
+  integer :: idxStartK, idxEndK
+  integer :: chunkOffset, chunkOffsetI, chunkOffsetJ, chunkOffsetK
   integer(kind=cuda_stream_kind), allocatable :: cuStreams(:)
-  integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuLengthI, cuLengthJ, cuPitch
+  integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuLengthI, cuLengthJ, cuLengthK, cuPitch
 #endif
   
   call boxlib_initialize()
@@ -140,6 +143,12 @@ program test_react
         write(*,*) 'Allocated state array but failed to pin.'
      endif
   endif
+
+  ! istate = cudaHostAlloc(state_cptr, 8 * pf % n_plot_comps * nrho * nT * nX, 0)
+  ! cudaErrorMessage = cudaGetErrorString(istate)
+  ! write(*,*) cudaErrorMessage
+  ! call c_f_pointer(state_cptr, state, [pf % n_plot_comps, nrho, nT, nX])
+  
   
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
@@ -241,7 +250,9 @@ program test_react
      ! Set cuda stream, block sizes
      cuLengthI = hi(1) - lo(1) + 1
      cuLengthJ = hi(2) - lo(2) + 1
-     cuStreamSizeJ = ceiling(real(cuLengthJ)/cuNumStreams)
+     cuLengthK = hi(3) - lo(3) + 1
+     cuStreamSizeJ = ceiling(real(cuLengthJ)/cuNumStreams)     
+     cuStreamSizeK = ceiling(real(cuLengthK)/cuNumStreams)
      cuGrid = ceiling(real(cuLengthI)/cuThreadBlock)
      
      do kk = lo(3), hi(3)
@@ -250,21 +261,21 @@ program test_react
            chunkOffsetJ = (ii-1) * cuStreamSizeJ
            idxStartJ = lo(2) + chunkOffsetJ
            idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
-           do jj = idxStartJ, idxEndJ
+           do jj = idxStartJ, idxEndJ              
               chunkOffset = (jj - lo(2)) * cuLengthI
               istate = cudaMemcpy2DAsync(state_slice_dev(:, chunkOffset+1:), cuPitch, &
                    state(:, 0:, jj, kk), cuWidth, &
                    cuWidth, cuLengthI, &
                    cudaMemcpyHostToDevice, cuStreams(ii))
-              if (istate /= 0) then
-                 write(*,*) 'ii = ', ii
-                 cudaErrorMessage = cudaGetErrorString(istate)                 
-                 write(*,*) cudaErrorMessage
-              end if
+              ! if (istate /= 0) then
+              !    write(*,*) 'ii = ', ii
+              !    cudaErrorMessage = cudaGetErrorString(istate)                 
+              !    write(*,*) cudaErrorMessage
+              ! end if
            end do
         end do
 
-        ! Asynchronously work on chunks of x
+        ! Asynchronously work on chunks of state
         do ii = 1, cuNumStreams
            chunkOffsetJ = (ii-1) * cuStreamSizeJ
            idxStartJ = lo(2) + chunkOffsetJ
@@ -287,11 +298,11 @@ program test_react
                    state_slice_dev(:, chunkOffset+1:), cuPitch, &
                    cuWidth, cuLengthI, &
                    cudaMemcpyDeviceToHost, cuStreams(ii))
-              if (istate /= 0) then
-                 write(*,*) 'ii = ', ii
-                 cudaErrorMessage = cudaGetErrorString(istate)                 
-                 write(*,*) cudaErrorMessage
-              end if
+              ! if (istate /= 0) then
+              !    write(*,*) 'ii = ', ii
+              !    cudaErrorMessage = cudaGetErrorString(istate)                 
+              !    write(*,*) cudaErrorMessage
+              ! end if
            end do
         end do
      end do
@@ -363,6 +374,10 @@ program test_react
   deallocate(state)
   deallocate(s)
   deallocate(xn_zone)
+
+  ! istate = cudaFreeHost(state_cptr)
+  ! cudaErrorMessage = cudaGetErrorString(istate)
+  ! write(*,*) cudaErrorMessage
 
   call runtime_close()
 
