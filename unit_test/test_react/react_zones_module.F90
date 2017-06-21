@@ -30,29 +30,30 @@ contains
 #ifdef CUDA  
   attributes(global) &
 #endif
-  subroutine react_zones(state, pfidx, lo, hi)
+  subroutine react_zones(state, pfidx, coffset, cend, sLength)
     implicit none
   
-    integer, value, intent(in)  :: lo, hi
+    integer, value, intent(in)  :: coffset, cend, sLength
     type(pfidx_t),   intent(in) :: pfidx
     real(kind=dp_t) &
 #ifdef CUDA
          , device &
 #endif     
-         , intent(inout) :: state(1:pfidx % ncomps, 0:hi-lo)
+         , intent(inout) :: state(:,:)
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, j
 
 #ifdef CUDA    
-    ii = (blockIdx % x - 1) * blockDim % x + (threadIdx % x - 1) + lo
+    ii = (blockIdx % x - 1) * blockDim % x + threadIdx % x
 
-    if (ii > hi) return
+    if (ii > cend) return
 #else
     !$OMP PARALLEL DO PRIVATE(ii,j) &
     !$OMP PRIVATE(burn_state_in, burn_state_out) &
     !$OMP SCHEDULE(DYNAMIC,1)
     do ii = lo, hi
 #endif
+       ii = ii + coffset
        burn_state_in % rho = state(pfidx % irho, ii)
        burn_state_in % T = state(pfidx % itemp, ii)
        do j = 1, nspec
