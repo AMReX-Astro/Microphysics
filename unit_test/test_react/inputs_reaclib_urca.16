@@ -8,8 +8,8 @@
 
   tmax = 1.0d-1
 
-  xin_file   = "xin.reaclib_urca"
-  run_prefix = "react_reaclib_urca_"
+  xin_file   = "xin.reaclib_urca.16"
+  run_prefix = "react_reaclib_urca_16_"
 
   burner_verbose = .false.
 
