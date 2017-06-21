@@ -6,7 +6,7 @@ program test_react
   use cudafor
   use iso_c_binding, only: c_size_t
 #endif
-  use react_zones_module, only: pfidx_t, react_zones
+  use react_zones_module, only: pfidx_t, pfidx, react_zones
   
   use BoxLib
   use bl_constants_module
@@ -77,12 +77,6 @@ program test_react
   real (kind=dp_t) :: start_time, end_time
 
   character (len=256) :: out_name
-
-  type(pfidx_t), &
-#ifdef CUDA
-       managed, &
-#endif
-       allocatable :: pfidx
   
 #ifdef CUDA
   integer :: istate
@@ -91,7 +85,7 @@ program test_react
   integer, parameter :: cuThreadBlock = 64
   integer, parameter :: cuMaxStreams  = 256
   integer :: cuNumStreams
-  integer :: idxStartJ, idxEndJ, idxEndI, stateLength
+  integer :: idxStartJ, idxEndJ, idxEndI, stateLength, statePitch
   integer :: chunkOffset, chunkOffsetI, chunkOffsetJ
   integer(kind=cuda_stream_kind), allocatable :: cuStreams(:)
   integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuLengthI, cuLengthJ, cuPitch
@@ -236,10 +230,13 @@ program test_react
      stateLength = cuLength
      cuWidth  = pf % n_plot_comps
      istate = cudaMallocPitch(state_slice_dev, cuPitch, cuWidth, cuLength)
-     cudaErrorMessage = cudaGetErrorString(istate)
-     write(*,*) 'Allocating Pitched Device Memory:'
-     write(*,*) cudaErrorMessage
-     write(*,*) 'cuPitch = ', cuPitch
+     if (istate /= 0) then
+        cudaErrorMessage = cudaGetErrorString(istate)
+        write(*,*) 'Allocating Pitched Device Memory:'
+        write(*,*) cudaErrorMessage
+        write(*,*) 'cuPitch = ', cuPitch
+     end if
+     statePitch = cuPitch
 
      ! Set cuda stream, block sizes
      cuLengthI = hi(1) - lo(1) + 1
@@ -256,9 +253,9 @@ program test_react
            do jj = idxStartJ, idxEndJ
               chunkOffset = (jj - lo(2)) * cuLengthI
               istate = cudaMemcpy2DAsync(state_slice_dev(:, chunkOffset+1:), cuPitch, &
-                                         state(:, 0:, jj, kk), cuWidth, &
-                                         cuWidth, cuLengthI, &
-                                         cudaMemcpyHostToDevice, cuStreams(ii))
+                   state(:, 0:, jj, kk), cuWidth, &
+                   cuWidth, cuLengthI, &
+                   cudaMemcpyHostToDevice, cuStreams(ii))
               if (istate /= 0) then
                  write(*,*) 'ii = ', ii
                  cudaErrorMessage = cudaGetErrorString(istate)                 
@@ -274,9 +271,8 @@ program test_react
            idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
            do jj = idxStartJ, idxEndJ
               chunkOffset = (jj - lo(2)) * cuLengthI
-              idxEndI = cuLengthI
-              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(ii)>>>(state_slice_dev, &
-                                                                            pfidx, chunkOffset, idxEndI, stateLength)
+              idxEndI = cuLengthI              
+              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(ii)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
            end do
         end do
 
@@ -288,9 +284,9 @@ program test_react
            do jj = idxStartJ, idxEndJ
               chunkOffset = (jj - lo(2)) * cuLengthI
               istate = cudaMemcpy2DAsync(state(:, 0:, jj, kk), cuWidth, &
-                                         state_slice_dev(:, chunkOffset+1:), cuPitch, &
-                                         cuWidth, cuLengthI, &
-                                         cudaMemcpyDeviceToHost, cuStreams(ii))
+                   state_slice_dev(:, chunkOffset+1:), cuPitch, &
+                   cuWidth, cuLengthI, &
+                   cudaMemcpyDeviceToHost, cuStreams(ii))
               if (istate /= 0) then
                  write(*,*) 'ii = ', ii
                  cudaErrorMessage = cudaGetErrorString(istate)                 
@@ -304,16 +300,20 @@ program test_react
      write(*,*) 'Synchronizing CUDA streams...'
      do ii = 1, cuNumStreams
         istate = cudaStreamSynchronize(cuStreams(ii))
-        cudaErrorMessage = cudaGetErrorString(istate)
-        write(*,*) cudaErrorMessage     
+        if (istate /= 0) then
+           cudaErrorMessage = cudaGetErrorString(istate)
+           write(*,*) cudaErrorMessage
+        end if
      enddo
 
      ! Destroy streams
      write(*,*) 'Destroying CUDA streams...'     
      do ii = 1, cuNumStreams
         istate = cudaStreamDestroy(cuStreams(ii))
-        cudaErrorMessage = cudaGetErrorString(istate)
-        write(*,*) cudaErrorMessage     
+        if (istate /= 0) then
+           cudaErrorMessage = cudaGetErrorString(istate)
+           write(*,*) cudaErrorMessage
+        end if
      enddo
 #else
      call react_zones(state, pfidx, lo, hi)
@@ -358,7 +358,7 @@ program test_react
   call destroy(mla)
 
   call finalize_variables(pf)
-  
+
   deallocate(pfidx)
   deallocate(state)
   deallocate(s)
