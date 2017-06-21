@@ -57,13 +57,13 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  real(kind=dp_t), managed, allocatable :: state(:,:,:,:)
+  real(kind=dp_t), allocatable, pinned :: state(:,:,:,:)
   logical :: pinstate
   
 #ifdef CUDA
   integer :: flatdim
   character(len=200) :: cudaErrorMessage
-  real(kind=dp_t), device, allocatable :: state_d(:,:)
+  real(kind=dp_t), device, allocatable :: state_slice_dev(:,:)
 #endif
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
@@ -87,9 +87,14 @@ program test_react
 #ifdef CUDA
   integer :: istate
   integer(c_size_t) :: stacksize
-  integer :: cuGrid, cuThreadBlock
-  integer, parameter :: cuNumStreams = 32
-  integer(kind=cuda_stream_kind) :: cuStreams(cuNumStreams)
+  integer :: cuGrid, cuStreamSizeJ
+  integer, parameter :: cuThreadBlock = 64
+  integer, parameter :: cuMaxStreams  = 256
+  integer :: cuNumStreams
+  integer :: idxStartJ, idxEndJ, idxEndI, stateLength
+  integer :: chunkOffset, chunkOffsetI, chunkOffsetJ
+  integer(kind=cuda_stream_kind), allocatable :: cuStreams(:)
+  integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuLengthI, cuLengthJ, cuPitch
 #endif
   
   call boxlib_initialize()
@@ -132,8 +137,16 @@ program test_react
   nT = extent(mla%mba%pd(1),2)
   nX = extent(mla%mba%pd(1),3)
 
-  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1))
-
+  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1), stat=istate, pinned=pinstate)
+  if (istate /= 0) then
+     write(*,*) 'Failed to allocate state array.'
+     stop
+  else
+     if (.not. pinstate) then
+        write(*,*) 'Allocated state array but failed to pin.'
+     endif
+  endif
+  
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
 
@@ -181,11 +194,9 @@ program test_react
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
-
               state(pf % itemp, ii, jj, kk) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
               state(pf % irho, ii, jj, kk)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
               state(pf%ispec_old:pf%ispec_old+nspec-1, ii, jj, kk) = max(xn_zone(:, kk), 1.e-10_dp_t)
-
            enddo
         enddo
      enddo
@@ -211,77 +222,81 @@ program test_react
      
      !allocate(state_d(pf % n_plot_comps, hi(1)-lo(1)))
 
+     cuNumStreams = min(hi(2)-lo(2)+1, cuMaxStreams)
+     allocate(cuStreams(cuNumStreams))
+     
      do ii = 1, cuNumStreams
         istate = cudaStreamCreate(cuStreams(ii))
      end do
 
-     do jj = lo(2), hi(2)
-        do kk = lo(3), hi(3)
-           ! istate = 0
-           ! write(*,*) 'Copying flattened state for (j, k) = ', jj, ' ', kk
-           ! istate = cudaMemcpy2DAsync(state_d, 0, state(:,:,jj,kk), 0, hi(1)-lo(1)+1, pf % n_plot_comps, cudaMemcpyHostToDevice)
-           ! write(*,*) 'istate = ', istate
-           ! cudaErrorMessage = cudaGetErrorString(istate)
-           ! write(*,*) cudaErrorMessage
-           ! write(*,*) ''
-           ! stop
-           !state_d(1:pf % n_plot_comps, lo(1)-1:hi(1)-1) = state(1:pf % n_plot_comps, lo(1):hi(1), jj, kk)
-           
-           !state_d = reshape(state, [flatdim, pf % n_plot_comps])
-           
-           ! Set up CUDA parameters
-           ! cuThreadBlock = dim3(8, 8, 1)
-           ! cuGrid = dim3(&
-           !      ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
-           !      ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
-           !      1)
-           
-           ! write(*,*) 'cuThreadBlock % x = ', cuThreadBlock % x
-           ! write(*,*) 'cuThreadBlock % y = ', cuThreadBlock % y
-           ! write(*,*) 'cuThreadBlock % z = ', cuThreadBlock % z
-           
-           ! write(*,*) 'cuGrid % x = ', cuGrid % x
-           ! write(*,*) 'cuGrid % y = ', cuGrid % y
-           ! write(*,*) 'cuGrid % z = ', cuGrid % z
-           
-           cuThreadBlock = 64
-           
-           ! cuGrid = ceiling(real((hi(3)-lo(3)+1)* &
-           !      (hi(2)-lo(2)+1)* &
-           !      (hi(1)-lo(1)+1))/cuThreadBlock)
-           
-           cuGrid = ceiling(real((hi(1)-lo(1)+1))/cuThreadBlock)
-           
-           ! Uncomment to configure Stack Size Limit
-           ! stacksize = 64000
-           ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
-           ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
+     ! Allocate data array in device
+     cuLength = (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
+     stateLength = cuLength
+     cuWidth  = pf % n_plot_comps
+     istate = cudaMallocPitch(state_slice_dev, cuPitch, cuWidth, cuLength)
+     cudaErrorMessage = cudaGetErrorString(istate)
+     write(*,*) 'Allocating Pitched Device Memory:'
+     write(*,*) cudaErrorMessage
+     write(*,*) 'cuPitch = ', cuPitch
 
-           ! React the zones using CUDA
-
-           ! Uncomment to manually set ThreadBlock and Grid dimensions
-           ! cuThreadBlock = dim3(16, 16, 16)
-           ! cuGrid = dim3(1, 1, 1)
-           ! istate = cudaDeviceSynchronize()
-           ! write(*,*) 'sync 1 istate = ', istate
-           
-           write(*,*) 'calling react_zones for (jj, kk) = ', jj, ' ', kk
-           do ii = 1, cuNumStreams
-              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(ii)>>>(state(:, :, jj, kk), &
-                                                                            pfidx, lo(1), hi(1))
+     ! Set cuda stream, block sizes
+     cuLengthI = hi(1) - lo(1) + 1
+     cuLengthJ = hi(2) - lo(2) + 1
+     cuStreamSizeJ = ceiling(real(cuLengthJ)/cuNumStreams)
+     cuGrid = ceiling(real(cuLengthI)/cuThreadBlock)
+     
+     do kk = lo(3), hi(3)
+        ! Asynchronously copy chunks of state slices to device        
+        do ii = 1, cuNumStreams
+           chunkOffsetJ = (ii-1) * cuStreamSizeJ
+           idxStartJ = lo(2) + chunkOffsetJ
+           idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
+           do jj = idxStartJ, idxEndJ
+              chunkOffset = (jj - lo(2)) * cuLengthI
+              istate = cudaMemcpy2DAsync(state_slice_dev(:, chunkOffset+1:), cuPitch, &
+                                         state(:, 0:, jj, kk), cuWidth, &
+                                         cuWidth, cuLengthI, &
+                                         cudaMemcpyHostToDevice, cuStreams(ii))
+              if (istate /= 0) then
+                 write(*,*) 'ii = ', ii
+                 cudaErrorMessage = cudaGetErrorString(istate)                 
+                 write(*,*) cudaErrorMessage
+              end if
            end do
+        end do
 
-           !state(1:pf % n_plot_comps, lo(1):hi(1), jj, kk) = state_d(1:pf % n_plot_comps, lo(1)-1:hi(1)-1)
-           ! state = reshape(state_d, [nrho, nT, nX, pf % n_plot_comps])
+        ! Asynchronously work on chunks of x
+        do ii = 1, cuNumStreams
+           chunkOffsetJ = (ii-1) * cuStreamSizeJ
+           idxStartJ = lo(2) + chunkOffsetJ
+           idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
+           do jj = idxStartJ, idxEndJ
+              chunkOffset = (jj - lo(2)) * cuLengthI
+              idxEndI = cuLengthI
+              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(ii)>>>(state_slice_dev, &
+                                                                            pfidx, chunkOffset, idxEndI, stateLength)
+           end do
+        end do
+
+        ! Asynchronously copy chunks of state slices to host
+        do ii = 1, cuNumStreams
+           chunkOffsetJ = (ii-1) * cuStreamSizeJ
+           idxStartJ = lo(2) + chunkOffsetJ
+           idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
+           do jj = idxStartJ, idxEndJ
+              chunkOffset = (jj - lo(2)) * cuLengthI
+              istate = cudaMemcpy2DAsync(state(:, 0:, jj, kk), cuWidth, &
+                                         state_slice_dev(:, chunkOffset+1:), cuPitch, &
+                                         cuWidth, cuLengthI, &
+                                         cudaMemcpyDeviceToHost, cuStreams(ii))
+              if (istate /= 0) then
+                 write(*,*) 'ii = ', ii
+                 cudaErrorMessage = cudaGetErrorString(istate)                 
+                 write(*,*) cudaErrorMessage
+              end if
+           end do
         end do
      end do
-#else
-     call react_zones(state, pfidx, lo, hi)
-#endif
-     !! Do reduction on statistics
-     ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
-     ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
-     ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
 
      ! Synchronize streams
      write(*,*) 'Synchronizing CUDA streams...'
@@ -298,6 +313,13 @@ program test_react
         cudaErrorMessage = cudaGetErrorString(istate)
         write(*,*) cudaErrorMessage     
      enddo
+#else
+     call react_zones(state, pfidx, lo, hi)
+#endif
+     !! Do reduction on statistics
+     ! n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
+     ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
+     ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
      
      do ii = 1, pf % n_plot_comps
         sp(:,:,:,ii) = state(ii,:,:,:)
