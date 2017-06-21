@@ -194,9 +194,11 @@ program test_react
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
+              
               state(pf % itemp, ii, jj, kk) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
               state(pf % irho, ii, jj, kk)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
               state(pf%ispec_old:pf%ispec_old+nspec-1, ii, jj, kk) = max(xn_zone(:, kk), 1.e-10_dp_t)
+
            enddo
         enddo
      enddo
