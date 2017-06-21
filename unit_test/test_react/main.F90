@@ -85,7 +85,7 @@ program test_react
   integer :: istate
   integer(c_size_t) :: stacksize
   integer :: cuGrid, cuStreamSizeJ, cuStreamSizeK
-  integer, parameter :: cuThreadBlock = 8
+  integer, parameter :: cuThreadBlock = 64
   integer, parameter :: cuMaxStreams  = 128
   integer :: cuNumStreams
   integer :: idxStartJ, idxEndJ, idxEndI, stateLength, statePitch
