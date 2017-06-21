@@ -24,26 +24,27 @@ module react_zones_module
      integer :: endX
      integer :: ncomps
   end type pfidx_t
+
+  type(pfidx_t), managed, allocatable :: pfidx
   
 contains
 
 #ifdef CUDA  
   attributes(global) &
 #endif
-  subroutine react_zones(state, pfidx, coffset, cend, sLength)
+  subroutine react_zones(state, coffset, cend, sPitch, sLength)
     implicit none
   
-    integer, value, intent(in)  :: coffset, cend, sLength
-    type(pfidx_t),   intent(in) :: pfidx
+    integer, value, intent(in) :: coffset, cend, sPitch, sLength
     real(kind=dp_t) &
 #ifdef CUDA
          , device &
 #endif     
-         , intent(inout) :: state(:,:)
+         , intent(inout) :: state(1:sPitch, 1:sLength)
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, j
 
-#ifdef CUDA    
+#ifdef CUDA 
     ii = (blockIdx % x - 1) * blockDim % x + threadIdx % x
 
     if (ii > cend) return
