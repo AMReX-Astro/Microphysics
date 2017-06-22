@@ -4,7 +4,7 @@
 program test_react
 #ifdef CUDA
   use cudafor
-  use iso_c_binding, only: c_size_t!, c_ptr, c_f_pointer
+  use iso_c_binding, only: c_size_t, c_loc, c_f_pointer
 #endif
   use react_zones_module, only: pfidx_t, pfidx, react_zones
   
@@ -57,8 +57,8 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  !  type(c_ptr) :: state_cptr
-  !  real(kind=dp_t), pointer :: state(:,:,:,:)  
+  ! type(c_ptr) :: state_cptr
+  real(kind=dp_t), pointer :: state_flat_ptr(:,:)    
   real(kind=dp_t), allocatable, pinned :: state(:,:,:,:)
   logical :: pinstate
   
@@ -85,7 +85,7 @@ program test_react
   integer(c_size_t) :: stacksize
   integer :: cuGrid, cuStreamSizeI, cuStreamSizeJ, cuStreamSizeK
   integer, parameter :: cuThreadBlock = 128
-  integer, parameter :: cuMaxStreams  = 8
+  integer, parameter :: cuMaxStreams  = 4
   integer :: cuNumStreams
   integer :: idxStartJ, idxEndJ, idxEndI, stateLength, statePitch
   integer :: idxStartK, idxEndK
@@ -248,13 +248,15 @@ program test_react
      end if
      statePitch = cuPitch
 
+     call c_f_pointer(c_loc(state), state_flat_ptr, [pf % n_plot_comps, stateLength])
+     
      ! Set cuda stream, block sizes
      cuLengthI = hi(1) - lo(1) + 1
      cuLengthJ = hi(2) - lo(2) + 1
      cuLengthK = hi(3) - lo(3) + 1
      cuStreamSizeJ = ceiling(real(cuLengthJ)/cuNumStreams)     
      cuStreamSizeK = ceiling(real(cuLengthK)/cuNumStreams)
-     cuGrid = ceiling(real(cuLengthI*cuLengthJ)/cuThreadBlock)          
+     cuGrid = ceiling(real(cuLengthI*cuLengthJ*cuStreamSizeK)/cuThreadBlock)          
 
      ! ! Asynchronously copy chunks of state slices to device, react, and copy back        
      ! do nn = 1, cuNumStreams
@@ -309,16 +311,9 @@ program test_react
         chunkOffsetK = (nn-1) * cuStreamSizeK
         idxStartK = lo(3) + chunkOffsetK
         idxEndK   = min(idxStartK + cuStreamSizeK - 1, hi(3))
-        do kk = idxStartK, idxEndK
-           ! do jj = lo(2), hi(2)
-           !    chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
-           !    idxEndI = cuLengthI
-           !    call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
-           ! end do
-           chunkOffset = (kk - lo(3)) * cuLengthJ * cuLengthI
-           idxEndI = cuLengthI * cuLengthJ
-           call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
-        end do
+        chunkOffset = (idxStartK - lo(3)) * cuLengthJ * cuLengthI
+        idxEndI = cuLengthI * cuLengthJ * (idxEndK - idxStartK + 1)
+        call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
      end do
      
      ! Asynchronously copy chunks of state slices to host
