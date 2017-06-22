@@ -227,7 +227,7 @@ program test_react
      
      !allocate(state_d(pf % n_plot_comps, hi(1)-lo(1)))
 
-     cuNumStreams = min((hi(2)-lo(2)+1), cuMaxStreams)
+     cuNumStreams = min((hi(3)-lo(3)+1), cuMaxStreams)
      allocate(cuStreams(cuNumStreams))
      
      do nn = 1, cuNumStreams
@@ -253,7 +253,7 @@ program test_react
      cuLengthK = hi(3) - lo(3) + 1
      cuStreamSizeJ = ceiling(real(cuLengthJ)/cuNumStreams)     
      cuStreamSizeK = ceiling(real(cuLengthK)/cuNumStreams)
-     cuGrid = ceiling(real(cuLengthI)/cuThreadBlock)          
+     cuGrid = ceiling(real(cuLengthI*cuLengthJ)/cuThreadBlock)          
 
      ! ! Asynchronously copy chunks of state slices to device, react, and copy back        
      ! do nn = 1, cuNumStreams
@@ -309,11 +309,14 @@ program test_react
         idxStartK = lo(3) + chunkOffsetK
         idxEndK   = min(idxStartK + cuStreamSizeK - 1, hi(3))
         do kk = idxStartK, idxEndK
-           do jj = lo(2), hi(2)
-              chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
-              idxEndI = cuLengthI
-              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
-           end do
+           ! do jj = lo(2), hi(2)
+           !    chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
+           !    idxEndI = cuLengthI
+           !    call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
+           ! end do
+           chunkOffset = (kk - lo(3)) * cuLengthJ * cuLengthI
+           idxEndI = cuLengthI * cuLengthJ
+           call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
         end do
      end do
      
