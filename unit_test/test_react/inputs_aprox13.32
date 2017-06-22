@@ -10,6 +10,8 @@
 
   tmax = 1.d-3
 
+  call_eos_in_rhs = T
+
   xin_file   = "xin.aprox13.32"
   run_prefix = "react_aprox13_"
 
