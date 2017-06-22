@@ -25,36 +25,52 @@ module react_zones_module
      integer :: ncomps
   end type pfidx_t
 
-  type(pfidx_t), managed, allocatable :: pfidx
+  type(pfidx_t), &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable :: pfidx
   
 contains
 
 #ifdef CUDA  
-  attributes(global) &
+  attributes(global) subroutine react_zones(state, coffset, cend, sPitch, sLength)
+#else
+  subroutine react_zones(state, lo, hi)
 #endif
-  subroutine react_zones(state, coffset, cend, sPitch, sLength)
+      
     implicit none
-  
+
+#ifdef CUDA    
     integer, value, intent(in) :: coffset, cend, sPitch, sLength
-    real(kind=dp_t) &
+#else
+    integer, intent(in) :: lo, hi
+#endif
+    
+    real(kind=dp_t), &
 #ifdef CUDA
-         , device &
-#endif     
-         , intent(inout) :: state(1:sPitch, 1:sLength)
+         device, intent(inout) :: state(1:sPitch, 1:sLength)
+#else
+                 intent(inout) :: state(1:pfidx % ncomps, lo:hi)
+#endif
+         
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, j
 
 #ifdef CUDA 
     ii = (blockIdx % x - 1) * blockDim % x + threadIdx % x
 
-    if (ii > cend) return
+    if (ii > cend) then
+       return
+    else
+       ii = ii + coffset
+    end if
 #else
     !$OMP PARALLEL DO PRIVATE(ii,j) &
     !$OMP PRIVATE(burn_state_in, burn_state_out) &
     !$OMP SCHEDULE(DYNAMIC,1)
     do ii = lo, hi
 #endif
-       ii = ii + coffset
        burn_state_in % rho = state(pfidx % irho, ii)
        burn_state_in % T = state(pfidx % itemp, ii)
        do j = 1, nspec

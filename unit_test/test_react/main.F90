@@ -57,8 +57,13 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  real(kind=dp_t), allocatable, pinned :: state(:,:,:,:)
-  logical :: pinstate
+  integer :: stateLength
+  real(kind=dp_t), pointer :: state_flat_ptr(:,:)
+  real(kind=dp_t), allocatable &
+#ifdef CUDA       
+       , pinned &
+#endif
+       :: state(:,:,:,:)
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
@@ -73,8 +78,8 @@ program test_react
   character (len=256) :: out_name
   
 #ifdef CUDA
-  real(kind=dp_t), pointer :: state_flat_ptr(:,:)
-  real(kind=dp_t), device, allocatable :: state_flat_dev(:,:)  
+  real(kind=dp_t), device, allocatable :: state_flat_dev(:,:)
+  logical :: pinstate
   character(len=200) :: cudaErrorMessage
   integer :: istate
   integer(c_size_t) :: stacksize
@@ -82,7 +87,7 @@ program test_react
   integer, parameter :: cuThreadBlock = 64
   integer, parameter :: cuMaxStreams  = 4
   integer :: cuNumStreams
-  integer :: stateLength, statePitch
+  integer :: statePitch
   integer :: chunkOffset
   integer(kind=cuda_stream_kind), allocatable :: cuStreams(:)
   integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuPitch, cuStreamLength
@@ -128,6 +133,7 @@ program test_react
   nT = extent(mla%mba%pd(1),2)
   nX = extent(mla%mba%pd(1),3)
 
+#ifdef CUDA  
   allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1), stat=istate, pinned=pinstate)
   if (istate /= 0) then
      write(*,*) 'Failed to allocate state array.'
@@ -137,6 +143,9 @@ program test_react
         write(*,*) 'Allocated state array but failed to pin.'
      endif
   endif
+#else
+  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1))
+#endif
 
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
@@ -194,6 +203,9 @@ program test_react
         enddo
      enddo
 
+     stateLength = (hi(3)-lo(3)+1) * (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
+     call c_f_pointer(c_loc(state), state_flat_ptr, [pf % n_plot_comps, stateLength])
+     
      ! Set up a timer for the burn.
      start_time = parallel_wtime()
 
@@ -202,8 +214,7 @@ program test_react
      
 #ifdef CUDA
      ! Allocate data array in device
-     cuLength = (hi(3)-lo(3)+1) * (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
-     stateLength = cuLength
+     cuLength = stateLength     
      cuWidth  = pf % n_plot_comps
      istate = cudaMallocPitch(state_flat_dev, cuPitch, cuWidth, cuLength)
      if (istate /= 0) then
@@ -213,8 +224,6 @@ program test_react
         write(*,*) 'cuPitch = ', cuPitch
      end if
      statePitch = cuPitch     
-
-     call c_f_pointer(c_loc(state), state_flat_ptr, [pf % n_plot_comps, stateLength])
 
      cuNumStreams = min(stateLength, cuMaxStreams)
      allocate(cuStreams(cuNumStreams))
@@ -282,7 +291,7 @@ program test_react
         end if
      enddo
 #else
-     call react_zones(state, pfidx, lo, hi)
+     call react_zones(state_flat_ptr, 1, stateLength)
 #endif
      
      do ii = 1, pf % n_plot_comps
