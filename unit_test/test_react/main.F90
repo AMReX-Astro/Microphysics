@@ -44,7 +44,7 @@ program test_react
   type(ml_boxarray) :: mba
 
   integer :: i, j, n
-  integer :: ii, jj, kk
+  integer :: ii, jj, kk, nn
   integer :: nrho, nT, nX
 
   integer :: dm, nlevs
@@ -83,9 +83,9 @@ program test_react
 #ifdef CUDA
   integer :: istate
   integer(c_size_t) :: stacksize
-  integer :: cuGrid, cuStreamSizeJ, cuStreamSizeK
-  integer, parameter :: cuThreadBlock = 64
-  integer, parameter :: cuMaxStreams  = 128
+  integer :: cuGrid, cuStreamSizeI, cuStreamSizeJ, cuStreamSizeK
+  integer, parameter :: cuThreadBlock = 4
+  integer, parameter :: cuMaxStreams  = 256
   integer :: cuNumStreams
   integer :: idxStartJ, idxEndJ, idxEndI, stateLength, statePitch
   integer :: idxStartK, idxEndK
@@ -227,15 +227,15 @@ program test_react
      
      !allocate(state_d(pf % n_plot_comps, hi(1)-lo(1)))
 
-     cuNumStreams = min(hi(2)-lo(2)+1, cuMaxStreams)
+     cuNumStreams = min((hi(2)-lo(2)+1), cuMaxStreams)
      allocate(cuStreams(cuNumStreams))
      
-     do ii = 1, cuNumStreams
-        istate = cudaStreamCreate(cuStreams(ii))
+     do nn = 1, cuNumStreams
+        istate = cudaStreamCreate(cuStreams(nn))
      end do
 
      ! Allocate data array in device
-     cuLength = (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
+     cuLength = (hi(3)-lo(3)+1) * (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
      stateLength = cuLength
      cuWidth  = pf % n_plot_comps
      istate = cudaMallocPitch(state_slice_dev, cuPitch, cuWidth, cuLength)
@@ -253,53 +253,84 @@ program test_react
      cuLengthK = hi(3) - lo(3) + 1
      cuStreamSizeJ = ceiling(real(cuLengthJ)/cuNumStreams)     
      cuStreamSizeK = ceiling(real(cuLengthK)/cuNumStreams)
-     cuGrid = ceiling(real(cuLengthI)/cuThreadBlock)
+     cuGrid = ceiling(real(cuLengthI)/cuThreadBlock)          
+
+     ! ! Asynchronously copy chunks of state slices to device, react, and copy back        
+     ! do nn = 1, cuNumStreams
+     !    chunkOffsetK = (nn-1) * cuStreamSizeK
+     !    idxStartK = lo(3) + chunkOffsetK
+     !    idxEndK   = min(idxStartK + cuStreamSizeK - 1, hi(3))
+     !    do kk = idxStartK, idxEndK
+     !       do jj = lo(2), hi(2)
+     !          chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
+     !          istate = cudaMemcpy2DAsync(state_slice_dev(:, chunkOffset+1:), cuPitch, &
+     !               state(:, 0:, jj, kk), cuWidth, &
+     !               cuWidth, cuLengthI, &
+     !               cudaMemcpyHostToDevice, cuStreams(nn))
+     !          idxEndI = cuLengthI
+     !          call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
+     !          istate = cudaMemcpy2DAsync(state(:, 0:, jj, kk), cuWidth, &
+     !               state_slice_dev(:, chunkOffset+1:), cuPitch, &
+     !               cuWidth, cuLengthI, &
+     !               cudaMemcpyDeviceToHost, cuStreams(nn))              
+     !          ! if (istate /= 0) then
+     !          !    write(*,*) 'nn = ', nn
+     !          !    cudaErrorMessage = cudaGetErrorString(istate)                 
+     !          !    write(*,*) cudaErrorMessage
+     !          ! end if
+     !       end do
+     !    end do
+     ! end do
      
-     do kk = lo(3), hi(3)
-        ! Asynchronously copy chunks of state slices to device        
-        do ii = 1, cuNumStreams
-           chunkOffsetJ = (ii-1) * cuStreamSizeJ
-           idxStartJ = lo(2) + chunkOffsetJ
-           idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
-           do jj = idxStartJ, idxEndJ              
-              chunkOffset = (jj - lo(2)) * cuLengthI
+     ! Asynchronously copy chunks of state slices to device        
+     do nn = 1, cuNumStreams
+        chunkOffsetK = (nn-1) * cuStreamSizeK
+        idxStartK = lo(3) + chunkOffsetK
+        idxEndK   = min(idxStartK + cuStreamSizeK - 1, hi(3))
+        do kk = idxStartK, idxEndK
+           do jj = lo(2), hi(2)
+              chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
               istate = cudaMemcpy2DAsync(state_slice_dev(:, chunkOffset+1:), cuPitch, &
                    state(:, 0:, jj, kk), cuWidth, &
                    cuWidth, cuLengthI, &
-                   cudaMemcpyHostToDevice, cuStreams(ii))
+                   cudaMemcpyHostToDevice, cuStreams(nn))
               ! if (istate /= 0) then
-              !    write(*,*) 'ii = ', ii
+              !    write(*,*) 'nn = ', nn
               !    cudaErrorMessage = cudaGetErrorString(istate)                 
               !    write(*,*) cudaErrorMessage
               ! end if
            end do
         end do
+     end do
 
-        ! Asynchronously work on chunks of state
-        do ii = 1, cuNumStreams
-           chunkOffsetJ = (ii-1) * cuStreamSizeJ
-           idxStartJ = lo(2) + chunkOffsetJ
-           idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
-           do jj = idxStartJ, idxEndJ
-              chunkOffset = (jj - lo(2)) * cuLengthI
-              idxEndI = cuLengthI              
-              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(ii)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
+     ! Asynchronously work on chunks of state
+     do nn = 1, cuNumStreams
+        chunkOffsetK = (nn-1) * cuStreamSizeK
+        idxStartK = lo(3) + chunkOffsetK
+        idxEndK   = min(idxStartK + cuStreamSizeK - 1, hi(3))
+        do kk = idxStartK, idxEndK
+           do jj = lo(2), hi(2)
+              chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
+              idxEndI = cuLengthI
+              call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_slice_dev, chunkOffset, idxEndI, statePitch, stateLength)
            end do
         end do
-
-        ! Asynchronously copy chunks of state slices to host
-        do ii = 1, cuNumStreams
-           chunkOffsetJ = (ii-1) * cuStreamSizeJ
-           idxStartJ = lo(2) + chunkOffsetJ
-           idxEndJ   = min(idxStartJ + cuStreamSizeJ - 1, hi(2))
-           do jj = idxStartJ, idxEndJ
-              chunkOffset = (jj - lo(2)) * cuLengthI
+     end do
+     
+     ! Asynchronously copy chunks of state slices to host
+     do nn = 1, cuNumStreams
+        chunkOffsetK = (nn-1) * cuStreamSizeK
+        idxStartK = lo(3) + chunkOffsetK
+        idxEndK   = min(idxStartK + cuStreamSizeK - 1, hi(3))
+        do kk = idxStartK, idxEndK
+           do jj = lo(2), hi(2)
+              chunkOffset = (jj - lo(2)) * cuLengthI + (kk - lo(3)) * cuLengthJ * cuLengthI
               istate = cudaMemcpy2DAsync(state(:, 0:, jj, kk), cuWidth, &
                    state_slice_dev(:, chunkOffset+1:), cuPitch, &
                    cuWidth, cuLengthI, &
-                   cudaMemcpyDeviceToHost, cuStreams(ii))
+                   cudaMemcpyDeviceToHost, cuStreams(nn))
               ! if (istate /= 0) then
-              !    write(*,*) 'ii = ', ii
+              !    write(*,*) 'nn = ', nn
               !    cudaErrorMessage = cudaGetErrorString(istate)                 
               !    write(*,*) cudaErrorMessage
               ! end if
@@ -309,8 +340,8 @@ program test_react
 
      ! Synchronize streams
      write(*,*) 'Synchronizing CUDA streams...'
-     do ii = 1, cuNumStreams
-        istate = cudaStreamSynchronize(cuStreams(ii))
+     do nn = 1, cuNumStreams
+        istate = cudaStreamSynchronize(cuStreams(nn))
         if (istate /= 0) then
            cudaErrorMessage = cudaGetErrorString(istate)
            write(*,*) cudaErrorMessage
@@ -319,8 +350,8 @@ program test_react
 
      ! Destroy streams
      write(*,*) 'Destroying CUDA streams...'     
-     do ii = 1, cuNumStreams
-        istate = cudaStreamDestroy(cuStreams(ii))
+     do nn = 1, cuNumStreams
+        istate = cudaStreamDestroy(cuStreams(nn))
         if (istate /= 0) then
            cudaErrorMessage = cudaGetErrorString(istate)
            write(*,*) cudaErrorMessage
