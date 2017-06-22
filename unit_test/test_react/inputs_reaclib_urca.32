@@ -1,0 +1,31 @@
+&PROBIN
+  test_set = "gr0_3d.32"
+
+  dens_min   = 1.d-3
+  dens_max   = 5.d9
+  temp_min   = 1.d7
+  temp_max   = 6.d8 
+
+  tmax = 1.0d-1
+
+  xin_file   = "xin.reaclib_urca.32"
+  run_prefix = "react_reaclib_urca_32_"
+
+  burner_verbose = .false.
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 1
+
+  retry_burn = .false.
+  renormalize_abundances = .false.
+
+  rtol_spec = 1.0d-12
+  rtol_enuc = 1.0d-9
+  rtol_temp = 1.0d-9
+  atol_spec = 1.0d-12
+  atol_enuc = 1.0d-9
+  atol_temp = 1.0d-9
+
+/
