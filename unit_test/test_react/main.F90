@@ -85,8 +85,8 @@ program test_react
   integer :: istate
   integer(c_size_t) :: stacksize
   integer :: cuGrid, cuStreamSizeI, cuStreamSizeJ, cuStreamSizeK
-  integer, parameter :: cuThreadBlock = 4
-  integer, parameter :: cuMaxStreams  = 256
+  integer, parameter :: cuThreadBlock = 128
+  integer, parameter :: cuMaxStreams  = 8
   integer :: cuNumStreams
   integer :: idxStartJ, idxEndJ, idxEndI, stateLength, statePitch
   integer :: idxStartK, idxEndK
@@ -226,7 +226,8 @@ program test_react
      
      !allocate(state_d(pf % n_plot_comps, hi(1)-lo(1)))
 
-     cuNumStreams = min((hi(3)-lo(3)+1), cuMaxStreams)
+     cuNumStreams = cuMaxStreams
+     !cuNumStreams = min((hi(3)-lo(3)+1), cuMaxStreams)
      allocate(cuStreams(cuNumStreams))
      
      do nn = 1, cuNumStreams
