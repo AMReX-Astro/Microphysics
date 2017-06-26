@@ -8,6 +8,8 @@
 
   tmax = 1.0d-1
 
-  xin_file   = "xin.ignition"
-  run_prefix = "react_ignition_"
+  call_eos_in_rhs = T
+
+  xin_file   = "xin.ignition.16"
+  run_prefix = "react_ignition_16_"
 /
