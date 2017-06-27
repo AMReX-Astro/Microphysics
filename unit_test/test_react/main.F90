@@ -5,7 +5,7 @@ program test_react
 
 #ifdef CUDA
   use cudafor
-  use iso_c_binding, only: c_size_t, c_loc, c_f_pointer
+  use iso_c_binding, only: c_size_t, c_ptr, c_loc, c_f_pointer
 #endif
   use react_zones_module, only: pfidx_t, pfidx, react_zones
   
@@ -60,11 +60,13 @@ program test_react
 
   integer :: stateLength
   real(kind=dp_t), pointer :: state_flat_ptr(:,:)
+
+  type(c_ptr)   :: state_cptr
   real(kind=dp_t), allocatable &
 #ifdef CUDA       
        , pinned &
 #endif
-       :: state(:,:,:,:)
+       , target :: state(:,:,:,:)
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
@@ -203,7 +205,8 @@ program test_react
      enddo
 
      stateLength = (hi(3)-lo(3)+1) * (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
-     call c_f_pointer(c_loc(state), state_flat_ptr, [pf % n_plot_comps, stateLength])
+     state_cptr  = c_loc(state)
+     call c_f_pointer(state_cptr, state_flat_ptr, [pf % n_plot_comps, stateLength])
      
      ! Set up a timer for the burn.
      start_time = parallel_wtime()
@@ -215,6 +218,10 @@ program test_react
      ! Allocate data array in device
      cuLength = stateLength     
      cuWidth  = pf % n_plot_comps
+
+     write(*,*) 'cuLength = ', cuLength
+     write(*,*) 'cuWidth = ', cuWidth
+
      istate = cudaMallocPitch(state_flat_dev, cuPitch, cuWidth, cuLength)
      if (istate /= 0) then
         cudaErrorMessage = cudaGetErrorString(istate)
@@ -222,6 +229,12 @@ program test_react
         write(*,*) cudaErrorMessage
         write(*,*) 'cuPitch = ', cuPitch
      end if
+
+     write(*,*) 'cuPitch = ', cuPitch
+
+     ! allocate(state_flat_dev(cuWidth, cuLength))
+     ! cuPitch = cuWidth
+
      statePitch = cuPitch     
 
      cuNumStreams = min(stateLength, cuMaxStreams)
