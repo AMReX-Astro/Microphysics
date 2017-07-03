@@ -357,8 +357,10 @@ contains
     a(4) =  y(ini56) * y(iprot) * rate(ir8f54)
     a(5) = -y(ihe4) * rate(iralf1)
     a(6) =  y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
+    a(7) =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(8) = -y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
-    dydt(ihe4) =  dydt(ihe4) + esum(a,6)
+    dydt(ihe4) =  dydt(ihe4) + esum(a,8)
 
 
     ! ppchain
@@ -370,7 +372,7 @@ contains
 
     ! cno cycles
     a(1) = y(io16) * y(ih1) * rate(iropg)
-    a(1) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
+    a(2) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
 
     dydt(ihe4) =  dydt(ihe4) + esum(a,2)
 
@@ -659,6 +661,9 @@ contains
        dydt(icr48) =  dydt(icr48) + esum(a,8)
     end if
 
+    ! cr56 reactions
+    a(1)  = y(ife56) * 1.0d-04 * rate(irn56ec)
+    dydt(icr56) =  dydt(icr56) + esum(a,1)
 
 
     ! fe52 reactions
@@ -701,10 +706,22 @@ contains
     a(4)  =  y(ini56) * rate(ir4f54)
     a(5)  = -y(ife54) * y(iprot) * y(iprot) * rate(ir5f54)
     a(6)  =  y(ife52) * y(ihe4) * rate(ir6f54)
-    a(7)  =  c54 * y(ini56) * rate(irn56ec)
+    a(7)  =  y(ife56) * rate(irfe56_aux1) 
+    a(8)  = -y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2) 
+    a(9)  =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(10) = -y(ife54) * y(ihe4) * rate(irfe56_aux4) 
 
-    dydt(ife54) =  dydt(ife54) + esum(a,7)
+    dydt(ife54) =  dydt(ife54) + esum(a,10)
 
+    ! fe56 reactions
+    a(1) =  y(ini56) * rate(irn56ec) 
+    a(2) = -y(ife56) * 1.0d-04 * rate(irn56ec) 
+    a(3) = -y(ife56) * rate(irfe56_aux1) 
+    a(4) =  y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)  
+    a(5) = -y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(6) =  y(ife54) * y(ihe4) * rate(irfe56_aux4) 
+
+    dydt(ife56) =  dydt(ife56) + esum(a,6) 
 
     ! ni56 reactions
     a(1) =  y(ife52) * y(ihe4) * rate(irfeag)
@@ -730,8 +747,10 @@ contains
     a(4) = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
     a(5) =  y(iprot) * rate(irpen)
     a(6) = -y(ineut) * rate(irnep)
+    a(7) =  2.0d0 * y(ife56) * rate(irfe56_aux1) 
+    a(8) = -2.0d0 * y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)
 
-    dydt(ineut) =  dydt(ineut) + esum(a,6)
+    dydt(ineut) =  dydt(ineut) + esum(a,8)
 
 
     ! photodisintegration protons
@@ -743,8 +762,10 @@ contains
     a(6)  = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
     a(7)  = -y(iprot) * rate(irpen)
     a(8)  =  y(ineut) * rate(irnep)
+    a(9)  = -2.0d0 * y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(10) =  2.0d0 * y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
-    dydt(iprot) =  dydt(iprot) + esum(a,8)
+    dydt(iprot) =  dydt(iprot) + esum(a,10)
 
   end subroutine rhs
 
