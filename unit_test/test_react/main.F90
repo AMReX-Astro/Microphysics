@@ -88,7 +88,7 @@ program test_react
   integer(c_size_t) :: stacksize
   integer :: cuGrid, cuStreamSize
   integer, parameter :: cuThreadBlock = 64
-  integer, parameter :: cuMaxStreams  = 4
+  integer, parameter :: cuMaxStreams  = 128
   integer :: cuNumStreams
   integer :: statePitch
   integer :: chunkOffset
@@ -215,6 +215,12 @@ program test_react
      write(*,*) 'hi = ', hi
      
 #ifdef CUDA
+     istate = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1)
+     if (istate /= 0) then
+        cudaErrorMessage = cudaGetErrorString(istate)
+        write(*,*) cudaErrorMessage
+     end if
+     
      ! Allocate data array in device
      cuLength = stateLength     
      cuWidth  = pf % n_plot_comps
