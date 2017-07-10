@@ -5,6 +5,8 @@ module table_rates
   implicit none
 
   public table_meta, tabular_evaluate
+  public j_na23_ne23
+  public j_ne23_na23
 
   private num_tables, jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
   private k_drate_dt, add_vars
@@ -24,14 +26,13 @@ module table_rates
   integer, parameter :: k_drate_dt   = 7
   integer, parameter :: add_vars     = 1 ! 1 Additional Var in entries
 
-
   type :: table_info
-     double precision, dimension(:,:,:), allocatable :: rate_table
-     double precision, dimension(:), allocatable :: rhoy_table
-     double precision, dimension(:), allocatable :: temp_table
-     integer :: num_rhoy
-     integer :: num_temp
-     integer :: num_vars
+     double precision :: rate_table(1,1,1)
+     double precision :: rhoy_table(1)
+     double precision :: temp_table(1)
+     integer :: num_rhoy = 0
+     integer :: num_temp = 0
+     integer :: num_vars = 0
   end type table_info
 
   type :: table_read_info
@@ -39,7 +40,12 @@ module table_rates
      integer :: num_header 
   end type table_read_info
 
-  type(table_info), dimension(num_tables) :: table_meta
+  type(table_info), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable :: table_meta(:)
+  
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
@@ -48,77 +54,27 @@ module table_rates
 contains
 
   subroutine init_tabular()
-    integer :: n
-
-    
-    do n = 1, num_tables
-       call init_tab_info(table_meta(n), table_read_meta(n))
-       ! For scalars or arrays with size known at compile-time, do update device
-       ! to move them to the device and point the derived type pointers at them.
-       !$acc update device(table_meta(n)%num_rhoy)
-       !$acc update device(table_meta(n)%num_temp)
-       !$acc update device(table_meta(n)%num_vars)
-
-       ! For dynamic arrays, do enter data copyin to move their data to the device
-       ! and then point the derived type pointers to these arrays on the device.
-       ! If you do update device instead, the device gets the host memory addresses
-       ! for these dynamic arrays instead of device memory addresses.
-       !$acc enter data copyin(table_meta(n)%rate_table)
-       !$acc enter data copyin(table_meta(n)%rhoy_table)
-       !$acc enter data copyin(table_meta(n)%temp_table)
-    end do
+    return
   end subroutine init_tabular
 
   subroutine term_table_meta()
-    integer :: n
-    do n = 1, num_tables
-       call term_tab_info(table_meta(n))
-    end do
+    return
   end subroutine term_table_meta
 
   subroutine init_tab_info(self, self_read)
     type(table_info) :: self
     type(table_read_info) :: self_read
-    double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
-    integer :: i, j, k
-
-    allocate( self%rate_table( self%num_temp, self%num_rhoy, self%num_vars ) )
-    allocate( self%rhoy_table( self%num_rhoy ) )
-    allocate( self%temp_table( self%num_temp ) )
-    allocate( rate_table_scratch( self%num_temp, self%num_rhoy, self%num_vars+2 ) )
-
-    open(unit=11, file=self_read%rate_table_file)
-    do i = 1, self_read%num_header
-       read(11,*)
-    end do
-    do j = 1, self%num_rhoy
-       do i = 1, self%num_temp
-          read(11,*) ( rate_table_scratch(i, j, k), k=1, self%num_vars+2 )
-       end do
-       if (j/=self%num_rhoy) then
-          read(11,*)
-       end if
-    end do
-    close(11)
-
-    self%rate_table(:,:,:) = rate_table_scratch(:,:,3:self%num_vars+2)
-    do i = 1, self%num_rhoy
-       self%rhoy_table(i) = rate_table_scratch( 1, i, 1 )
-    end do
-    do i = 1, self%num_temp
-       self%temp_table(i) = rate_table_scratch( i, 1, 2 )
-    end do
-    deallocate( rate_table_scratch )
+    return
   end subroutine init_tab_info
 
   subroutine term_tab_info(self)
     type(table_info) :: self
-
-    deallocate( self%rate_table )
-    deallocate( self%rhoy_table )
-    deallocate( self%temp_table )
+    return
   end subroutine term_tab_info
 
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
 
@@ -153,7 +109,10 @@ contains
        end do
     end if
   end subroutine vector_index_lu
-
+  
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -175,6 +134,9 @@ contains
     end if
   end subroutine bl_clamp
 
+#ifdef CUDA
+  attributes(device) &
+#endif         
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -188,7 +150,10 @@ contains
     double precision, intent(out) :: f
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
   end subroutine bl_extrap
-  
+
+#ifdef CUDA
+  attributes(device) &
+#endif         
   subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
@@ -290,6 +255,9 @@ contains
     end if
   end subroutine get_entries
 
+#ifdef CUDA
+  attributes(device) &
+#endif         
   subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     
