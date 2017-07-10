@@ -1,5 +1,5 @@
 &PROBIN
-  test_set = "gr0_3d.small"
+  test_set = "gr0_3d.128"
 
   dens_min   = 1.d-3
   dens_max   = 5.d9
@@ -8,8 +8,8 @@
 
   tmax = 1.0d-1
 
-  xin_file   = "xin.reaclib_cburn"
-  run_prefix = "react_reaclib_cburn_"
+  xin_file   = "xin.reaclib_cburn.128"
+  run_prefix = "react_reaclib_cburn_128_"
 
   burner_verbose = .false.
 
@@ -20,6 +20,8 @@
 
   retry_burn = .false.
   renormalize_abundances = .false.
+
+  call_eos_in_rhs = T
 
   small_x = 1.d-16
 
