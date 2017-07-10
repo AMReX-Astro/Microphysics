@@ -4,8 +4,8 @@ module actual_network
   
   implicit none
 
-  public num_rate_groups
-
+  public
+  
   double precision, parameter :: avo = 6.0221417930d23
   double precision, parameter :: c_light = 2.99792458d10
   double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
@@ -24,7 +24,7 @@ module actual_network
   ! Evolution and auxiliary
   integer, parameter :: nspec_evolve = 8
   integer, parameter :: naux  = 0
-
+  
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 8
 
@@ -71,8 +71,17 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  real(dp_t), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: aion(:), zion(:), bion(:)
+  
+  real(dp_t), &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable, save :: nion(:), mion(:), wion(:)
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -84,6 +93,14 @@ contains
     
     integer :: i
 
+    ! Allocate ion info arrays
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(bion(nspec))
+    allocate(nion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     spec_names(jn)   = "neutron"
     spec_names(jp)   = "hydrogen-1"
     spec_names(jhe4)   = "helium-4"
@@ -155,14 +172,23 @@ contains
     !$acc update device(aion, zion, bion, nion, mion, wion)
   end subroutine actual_network_init
 
-  subroutine actual_network_finalize()
-    ! STUB FOR MAESTRO
+  subroutine actual_network_finalize()    
+    ! Deallocate storage arrays
+    deallocate(aion)
+    deallocate(zion)
+    deallocate(bion)
+    deallocate(nion)
+    deallocate(mion)
+    deallocate(wion)
   end subroutine actual_network_finalize
-  
+
+#ifdef CUDA
+  attributes(device) &
+#endif       
   subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
-  
+
     implicit none
 
     double precision :: dydt(nspec), enuc
