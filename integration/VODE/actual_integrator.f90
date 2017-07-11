@@ -174,6 +174,10 @@ contains
 
     call eos_to_vode(eos_state_in, y, rpar)
 
+    rpar(irp_i) = state_in % i
+    rpar(irp_j) = state_in % j
+    rpar(irp_k) = state_in % k
+
     ener_offset = eos_state_in % e
 
     y(net_ienuc) = ener_offset
