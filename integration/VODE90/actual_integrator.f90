@@ -3,12 +3,14 @@
 
 module actual_integrator_module
 
+  use eos_type_module
   use eos_module
   use network
   use rpar_indices
   use vode_type_module
   use burn_type_module
   use bl_types
+  use bl_constants_module
 
   implicit none
 
