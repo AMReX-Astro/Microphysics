@@ -153,6 +153,10 @@ contains
 
     call sdc_to_vode(state_in, y, rpar)
 
+    rpar(irp_i) = state_in % i
+    rpar(irp_j) = state_in % j
+    rpar(irp_k) = state_in % k
+
 
     ! this is not used but we set it to prevent accessing uninitialzed
     ! data in common routines with the non-SDC integrator

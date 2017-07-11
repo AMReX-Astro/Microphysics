@@ -62,8 +62,10 @@ module rpar_indices
   integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
   integer, parameter :: irp_t0 = irp_self_heat + 1
-
-  integer, parameter :: n_rpar_comps = irp_t0
+  integer, parameter :: irp_i = irp_t0 + 1
+  integer, parameter :: irp_j = irp_t0 + 2
+  integer, parameter :: irp_k = irp_t0 + 3
+  integer, parameter :: n_rpar_comps = irp_k + 1
 #endif
 
 end module rpar_indices
