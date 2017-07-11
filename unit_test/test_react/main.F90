@@ -91,7 +91,7 @@ program test_react
   integer, parameter :: cuMaxStreams  = 128
   integer :: cuNumStreams
   integer :: statePitch
-  integer :: chunkOffset
+  integer :: chunkOffset, chunkSize
   integer(kind=cuda_stream_kind), allocatable :: cuStreams(:)
   integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuPitch, cuStreamLength
 #endif
@@ -252,12 +252,12 @@ program test_react
      
      ! Set cuda stream, block sizes
      cuStreamSize = ceiling(real(cuLength)/cuNumStreams)
-     cuStreamLength = cuStreamSize ! Get cuda_count_kind version of cuStreamSize     
      cuGrid = ceiling(real(cuStreamSize)/cuThreadBlock)          
      
      ! Asynchronously copy chunks of state zones to device        
      do nn = 1, cuNumStreams
         chunkOffset = (nn-1) * cuStreamSize
+        cuStreamLength = min(cuStreamSize, cuLength - chunkOffset + 1)
         istate = cudaMemcpy2DAsync(state_flat_dev(:, chunkOffset+1:), cuPitch, &
              state_flat_ptr(:, chunkOffset+1:), cuWidth, &
              cuWidth, cuStreamLength, &
@@ -272,12 +272,14 @@ program test_react
      ! Asynchronously react state zones on device
      do nn = 1, cuNumStreams
         chunkOffset = (nn-1) * cuStreamSize
-        call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_flat_dev, chunkOffset, cuStreamSize, statePitch, stateLength)        
+        chunkSize   = min(cuStreamSize, cuLength - chunkOffset + 1)
+        call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_flat_dev, chunkOffset, chunkSize, statePitch, stateLength)        
      end do
 
      ! Asynchronously copy chunks of state zones to host
      do nn = 1, cuNumStreams
         chunkOffset = (nn-1) * cuStreamSize
+        cuStreamLength = min(cuStreamSize, cuLength - chunkOffset + 1)        
         istate = cudaMemcpy2DAsync(state_flat_ptr(:, chunkOffset+1:), cuWidth, &
              state_flat_dev(:, chunkOffset+1:), cuPitch, &
              cuWidth, cuStreamLength, &
