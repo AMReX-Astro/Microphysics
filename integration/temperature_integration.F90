@@ -41,9 +41,9 @@ contains
        ! Note that we no longer include the chemical potential (dE/dX or dH/dX)
        ! terms because we believe they analytically should vanish.
 
-       if (cu_do_constant_volume_burn) then
+       if (do_constant_volume_burn) then
 
-          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -59,7 +59,7 @@ contains
 
        else
 
-          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -107,9 +107,9 @@ contains
 
     if (state % self_heat) then
 
-       if (cu_do_constant_volume_burn) then
+       if (do_constant_volume_burn) then
 
-          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -135,7 +135,7 @@ contains
 
        else
 
-          if (.not. cu_call_eos_in_rhs .and. cu_dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 

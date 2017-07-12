@@ -6,7 +6,6 @@ module microphysics_module
   use screening_module, only: screening_alloc, screening_finalize
   use eos_module, only : eos_init, eos_finalize
   use actual_rhs_module, only : actual_rhs_init
-  use managed_probin_module, only: managed_probin_init, managed_probin_finalize
 #ifndef SDC
   use actual_burner_module, only : actual_burner_init
 #endif
@@ -27,7 +26,6 @@ contains
 
     !call set_fpe_trap(.true., .true., .true.)
 
-    call managed_probin_init()
     
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
@@ -55,7 +53,6 @@ contains
     call screening_finalize()
     call eos_finalize()
     call network_finalize()
-    call managed_probin_finalize()
 
   end subroutine microphysics_finalize
 
