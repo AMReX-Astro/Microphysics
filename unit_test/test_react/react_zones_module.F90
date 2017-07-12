@@ -5,10 +5,10 @@ module react_zones_module
   use bl_types
   use bl_space
   use bl_constants_module, only: ZERO
+  use probin_module, only: tmax
   use network, only: nspec
   use burn_type_module, only: burn_t, normalize_abundances_burn
   use actual_burner_module, only : actual_burner
-  use managed_probin_module, only: cu_tmax
   
   implicit none
 
@@ -83,7 +83,7 @@ contains
        ! energy.
        burn_state_in % e = ZERO
 
-       call actual_burner(burn_state_in, burn_state_out, cu_tmax, ZERO)
+       call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
        do j = 1, nspec
           state(pfidx % ispec + j - 1, ii) = burn_state_out % xn(j)
@@ -92,11 +92,11 @@ contains
        do j=1, nspec
           ! an explicit loop is needed here to keep the GPU happy if running on GPU
           state(pfidx % irodot + j - 1, ii) = &
-               (burn_state_out % xn(j) - burn_state_in % xn(j)) / cu_tmax
+               (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
        enddo
 
        state(pfidx % irho_hnuc, ii) = &
-            state(pfidx % irho, ii) * (burn_state_out % e - burn_state_in % e) / cu_tmax
+            state(pfidx % irho, ii) * (burn_state_out % e - burn_state_in % e) / tmax
 #ifndef CUDA       
     enddo
     !$OMP END PARALLEL DO

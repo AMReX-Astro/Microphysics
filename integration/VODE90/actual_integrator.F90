@@ -30,12 +30,12 @@ contains
     !$acc routine seq
     
     use rpar_indices
-    use managed_probin_module, only: cu_jacobian, cu_burner_verbose, &
-         cu_rtol_spec, cu_rtol_temp, cu_rtol_enuc, &
-         cu_atol_spec, cu_atol_temp, cu_atol_enuc, &
-         cu_burning_mode, cu_retry_burn, &
-         cu_retry_burn_factor, cu_retry_burn_max_change, &
-         cu_call_eos_in_rhs, cu_dt_crit
+    use extern_probin_module, only: jacobian, burner_verbose, &
+         rtol_spec, rtol_temp, rtol_enuc, &
+         atol_spec, atol_temp, atol_enuc, &
+         burning_mode, retry_burn, &
+         retry_burn_factor, retry_burn_max_change, &
+         call_eos_in_rhs, dt_crit
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
     use dvode_module, only: dvode
@@ -80,9 +80,9 @@ contains
 
     type(rwork_t) :: rwork
 
-    if (cu_jacobian == 1) then ! Analytical
+    if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
-    else if (cu_jacobian == 2) then ! Numerical
+    else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
        stop
@@ -97,13 +97,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = cu_atol_spec ! mass fractions
-    atol(net_itemp)      = cu_atol_temp ! temperature
-    atol(net_ienuc)      = cu_atol_enuc ! energy generated
+    atol(1:nspec_evolve) = atol_spec ! mass fractions
+    atol(net_itemp)      = atol_temp ! temperature
+    atol(net_ienuc)      = atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = cu_rtol_spec ! mass fractions
-    rtol(net_itemp)      = cu_rtol_temp ! temperature
-    rtol(net_ienuc)      = cu_rtol_enuc ! energy generated
+    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
+    rtol(net_itemp)      = rtol_temp ! temperature
+    rtol(net_ienuc)      = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -124,7 +124,7 @@ contains
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
-    if (cu_burner_verbose) then
+    if (burner_verbose) then
        iwork(7) = 1
     else
        iwork(7) = 0
@@ -153,9 +153,9 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (cu_burning_mode == 0 .or. cu_burning_mode == 2) then
+    if (burning_mode == 0 .or. burning_mode == 2) then
        rpar(irp_self_heat) = -ONE
-    else if (cu_burning_mode == 1 .or. cu_burning_mode == 3) then
+    else if (burning_mode == 1 .or. burning_mode == 3) then
        rpar(irp_self_heat) = ONE
     else
        stop
@@ -182,7 +182,7 @@ contains
 
     rpar(irp_Told) = eos_state_in % T
 
-    if (cu_dT_crit < 1.0d19) then
+    if (dT_crit < 1.0d19) then
 
        call copy_eos_t(eos_state_temp, eos_state_in)
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
@@ -208,7 +208,7 @@ contains
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
 
-    if ( cu_burning_mode == 2 .and. &
+    if ( burning_mode == 2 .and. &
          (y(net_ienuc) - ener_offset < ZERO .or. &
           istate < 0) ) then
 
@@ -232,7 +232,7 @@ contains
 
        rpar(irp_Told) = eos_state_in % T
 
-       if (cu_dT_crit < 1.0d19) then
+       if (dT_crit < 1.0d19) then
 
           rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
           rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
@@ -265,7 +265,7 @@ contains
        print *, 'energy generated = ', y(net_ienuc) - ener_offset
 #endif
        
-       if (.not. cu_retry_burn) then
+       if (.not. retry_burn) then
 
           stop
           !CUDA
@@ -279,9 +279,9 @@ contains
 
           retry_change_factor = ONE
 
-          do while (istate < 0 .and. retry_change_factor <= cu_retry_burn_max_change)
+          do while (istate < 0 .and. retry_change_factor <= retry_burn_max_change)
 
-             retry_change_factor = retry_change_factor * cu_retry_burn_factor
+             retry_change_factor = retry_change_factor * retry_burn_factor
 
              istate = 1
 
@@ -293,8 +293,8 @@ contains
              rwork % ACOR = ZERO    
              iwork(:) = 0
 
-             atol = atol * cu_retry_burn_factor
-             rtol = rtol * cu_retry_burn_factor
+             atol = atol * retry_burn_factor
+             rtol = rtol * retry_burn_factor
 
              iwork(6) = 150000
 
@@ -304,7 +304,7 @@ contains
 
              rpar(irp_Told) = eos_state_in % T
 
-             if (cu_dT_crit < 1.0d19) then
+             if (dT_crit < 1.0d19) then
 
                 rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
                 rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
@@ -320,7 +320,7 @@ contains
 
           enddo
 
-          if (retry_change_factor > cu_retry_burn_max_change .and. istate < 0) then
+          if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
 
              stop
              !CUDA
@@ -350,7 +350,7 @@ contains
     call normalize_abundances_burn(state_out)
 
 #ifndef CUDA    
-    if (cu_burner_verbose) then
+    if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
        print *, 'integration summary: '
