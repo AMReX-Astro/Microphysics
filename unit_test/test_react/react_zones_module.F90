@@ -25,56 +25,45 @@ module react_zones_module
      integer :: ncomps
   end type pfidx_t
 
-  type(pfidx_t), &
-#ifdef CUDA
-       managed, &
-#endif
-       allocatable :: pfidx
-  
 contains
 
 #ifdef CUDA  
-  attributes(global) subroutine react_zones(state, coffset, cend, sPitch, sLength)
-#else
-  subroutine react_zones(state, lo, hi)
+  attributes(global) &
 #endif
-      
+  subroutine react_zones(state, pfidx, lo, hi)
     implicit none
+  
+    integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
+    type(pfidx_t)   :: pfidx
+    real(kind=dp_t) &
+#ifdef CUDA
+         , device &
+#endif
+         :: state(0:, 0:, 0:, :)
+    type (burn_t)   :: burn_state_in, burn_state_out
+    integer         :: ii, jj, kk, j    
 
 #ifdef CUDA    
-    integer, value, intent(in) :: coffset, cend, sPitch, sLength
-#else
-    integer, intent(in) :: lo, hi
-#endif
-    
-    real(kind=dp_t), &
-#ifdef CUDA
-         device, intent(inout) :: state(1:sPitch, 1:sLength)
-#else
-                 intent(inout) :: state(1:pfidx % ncomps, lo:hi)
-#endif
-         
-    type (burn_t)   :: burn_state_in, burn_state_out
-    integer         :: ii, j
+    ii = (blockIdx%x - 1) * blockDim % x + threadIdx % x - 1
+    jj = (blockIdx%y - 1) * blockDim % y + threadIdx % y - 1
+    kk = (blockIdx%z - 1) * blockDim % z + threadIdx % z - 1
 
-#ifdef CUDA 
-    ii = (blockIdx % x - 1) * blockDim % x + threadIdx % x
-
-    if (ii > cend) then
-       return
-    else
-       ii = ii + coffset
-    end if
+    if (&
+         ii >= lo(1) .and. ii <= hi(1) .and. &
+         jj >= lo(2) .and. jj <= hi(2) .and. &
+         kk >= lo(3) .and. kk <= hi(3)) then
 #else
-    !$OMP PARALLEL DO PRIVATE(ii,j) &
+    !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
     !$OMP PRIVATE(burn_state_in, burn_state_out) &
     !$OMP SCHEDULE(DYNAMIC,1)
-    do ii = lo, hi
+    do ii = lo(1), hi(1)
+    do jj = lo(2), hi(2)
+    do kk = lo(3), hi(3)
 #endif
-       burn_state_in % rho = state(pfidx % irho, ii)
-       burn_state_in % T = state(pfidx % itemp, ii)
+       burn_state_in % rho = state(ii, jj, kk, pfidx % irho)
+       burn_state_in % T = state(ii, jj, kk, pfidx % itemp)
        do j = 1, nspec
-          burn_state_in % xn(j) = state(pfidx % ispec_old + j - 1, ii)
+          burn_state_in % xn(j) = state(ii, jj, kk, pfidx % ispec_old + j - 1)
        enddo
 
        call normalize_abundances_burn(burn_state_in)
@@ -86,18 +75,22 @@ contains
        call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
        do j = 1, nspec
-          state(pfidx % ispec + j - 1, ii) = burn_state_out % xn(j)
+          state(ii, jj, kk, pfidx % ispec + j - 1) = burn_state_out % xn(j)
        enddo
 
        do j=1, nspec
           ! an explicit loop is needed here to keep the GPU happy if running on GPU
-          state(pfidx % irodot + j - 1, ii) = &
+          state(ii, jj, kk, pfidx % irodot + j - 1) = &
                (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
        enddo
 
-       state(pfidx % irho_hnuc, ii) = &
-            state(pfidx % irho, ii) * (burn_state_out % e - burn_state_in % e) / tmax
-#ifndef CUDA       
+       state(ii, jj, kk, pfidx % irho_hnuc) = &
+            state(ii, jj, kk, pfidx % irho) * (burn_state_out % e - burn_state_in % e) / tmax
+#ifdef CUDA       
+    end if
+#else
+    enddo
+    enddo
     enddo
     !$OMP END PARALLEL DO
 #endif

@@ -4,9 +4,9 @@
 program test_react
 #ifdef CUDA
   use cudafor
-  use iso_c_binding, only: c_size_t, c_ptr, c_loc, c_f_pointer
+  use iso_c_binding, only: c_size_t
 #endif
-  use react_zones_module, only: pfidx_t, pfidx, react_zones
+  use react_zones_module, only: pfidx_t, react_zones
   
   use BoxLib
   use bl_constants_module
@@ -44,7 +44,7 @@ program test_react
   type(ml_boxarray) :: mba
 
   integer :: i, j, n
-  integer :: ii, jj, kk, nn
+  integer :: ii, jj, kk
   integer :: nrho, nT, nX
 
   integer :: dm, nlevs
@@ -57,17 +57,18 @@ program test_react
 
   real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  integer :: stateLength
-  real(kind=dp_t), pointer :: state_flat_ptr(:,:)
-
-  type(c_ptr)   :: state_cptr
-  real(kind=dp_t), allocatable &
-#ifdef CUDA       
-       , pinned &
+  real(kind=dp_t), &
+#ifdef CUDA
+       managed, &
 #endif
-       , target :: state(:,:,:,:)
+       allocatable :: state(:,:,:,:)
 
-  integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
+  integer, &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable :: lo(:), hi(:)
+  
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
   real (kind=dp_t) :: dlogrho, dlogT
@@ -78,21 +79,18 @@ program test_react
   real (kind=dp_t) :: start_time, end_time
 
   character (len=256) :: out_name
+
+  type(pfidx_t), &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable :: pfidx
   
 #ifdef CUDA
-  real(kind=dp_t), device, allocatable :: state_flat_dev(:,:)
-  logical :: pinstate
   character(len=200) :: cudaErrorMessage
   integer :: istate
   integer(c_size_t) :: stacksize
-  integer :: cuGrid, cuStreamSize
-  integer, parameter :: cuThreadBlock = 64
-  integer, parameter :: cuMaxStreams  = 128
-  integer :: cuNumStreams
-  integer :: statePitch
-  integer :: chunkOffset, chunkSize
-  integer(kind=cuda_stream_kind), allocatable :: cuStreams(:)
-  integer(kind=cuda_count_kind)  :: cuWidth, cuLength, cuPitch, cuStreamLength
+  type(dim3) :: cuGrid, cuThreadBlock  
 #endif
   
   call boxlib_initialize()
@@ -135,19 +133,7 @@ program test_react
   nT = extent(mla%mba%pd(1),2)
   nX = extent(mla%mba%pd(1),3)
 
-#ifdef CUDA  
-  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1), stat=istate, pinned=pinstate)
-  if (istate /= 0) then
-     write(*,*) 'Failed to allocate state array.'
-     stop
-  else
-     if (.not. pinstate) then
-        write(*,*) 'Allocated state array but failed to pin.'
-     endif
-  endif
-#else
-  allocate(state(pf % n_plot_comps, 0:nrho-1, 0:nT-1, 0:nX-1))
-#endif
+  allocate(state(0:nrho-1, 0:nT-1, 0:nX-1, pf % n_plot_comps))
 
   dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
@@ -185,6 +171,10 @@ program test_react
   n_rhs_max = -100000000
   n_rhs_min = 100000000
 
+  ! Allocate lo, hi
+  allocate(lo(MAX_SPACEDIM))
+  allocate(hi(MAX_SPACEDIM))
+  
   do i = 1, nfabs(s(n))
      sp => dataptr(s(n), i)
 
@@ -197,18 +187,14 @@ program test_react
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
               
-              state(pf % itemp, ii, jj, kk) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(pf % irho, ii, jj, kk)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(pf%ispec_old:pf%ispec_old+nspec-1, ii, jj, kk) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, pf % irho)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
 
            enddo
         enddo
      enddo
 
-     stateLength = (hi(3)-lo(3)+1) * (hi(2)-lo(2)+1) * (hi(1)-lo(1)+1)
-     state_cptr  = c_loc(state)
-     call c_f_pointer(state_cptr, state_flat_ptr, [pf % n_plot_comps, stateLength])
-     
      ! Set up a timer for the burn.
      start_time = parallel_wtime()
 
@@ -216,108 +202,40 @@ program test_react
      write(*,*) 'hi = ', hi
      
 #ifdef CUDA
+     ! Set up CUDA parameters
+     cuThreadBlock = dim3(4, 4, 4)
+     cuGrid = dim3(&
+          ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
+          ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
+          ceiling(real(hi(3)-lo(3)+1)/cuThreadBlock%z))
+
+     write(*,*) 'cuThreadBlock % x = ', cuThreadBlock % x
+     write(*,*) 'cuThreadBlock % y = ', cuThreadBlock % y
+     write(*,*) 'cuThreadBlock % z = ', cuThreadBlock % z
+
+     write(*,*) 'cuGrid % x = ', cuGrid % x
+     write(*,*) 'cuGrid % y = ', cuGrid % y
+     write(*,*) 'cuGrid % z = ', cuGrid % z
+
      istate = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1)
      if (istate /= 0) then
         cudaErrorMessage = cudaGetErrorString(istate)
         write(*,*) cudaErrorMessage
      end if
      
-     ! Allocate data array in device
-     cuLength = stateLength     
-     cuWidth  = pf % n_plot_comps
+     ! Uncomment to configure Stack Size Limit
+     ! stacksize = 64000
+     ! istate = cudaDeviceSetLimit(cudaLimitStackSize, stacksize)
+     ! write(*,*) 'limiting stack size to ', stacksize, ' with return code ', istate
 
-     write(*,*) 'cuLength = ', cuLength
-     write(*,*) 'cuWidth = ', cuWidth
-
-     istate = cudaMallocPitch(state_flat_dev, cuPitch, cuWidth, cuLength)
-     if (istate /= 0) then
-        cudaErrorMessage = cudaGetErrorString(istate)
-        write(*,*) 'Allocating Pitched Device Memory:'
-        write(*,*) cudaErrorMessage
-        write(*,*) 'cuPitch = ', cuPitch
-     end if
-
-     write(*,*) 'cuPitch = ', cuPitch
-
-     ! allocate(state_flat_dev(cuWidth, cuLength))
-     ! cuPitch = cuWidth
-
-     statePitch = cuPitch     
-
-     cuNumStreams = min(stateLength, cuMaxStreams)
-     allocate(cuStreams(cuNumStreams))
-     
-     do nn = 1, cuNumStreams
-        istate = cudaStreamCreate(cuStreams(nn))
-     end do
-     
-     ! Set cuda stream, block sizes
-     cuStreamSize = ceiling(real(cuLength)/cuNumStreams)
-     cuGrid = ceiling(real(cuStreamSize)/cuThreadBlock)          
-     
-     ! Asynchronously copy chunks of state zones to device        
-     do nn = 1, cuNumStreams
-        chunkOffset = (nn-1) * cuStreamSize
-        cuStreamLength = min(cuStreamSize, cuLength - chunkOffset + 1)
-        istate = cudaMemcpy2DAsync(state_flat_dev(:, chunkOffset+1:), cuPitch, &
-             state_flat_ptr(:, chunkOffset+1:), cuWidth, &
-             cuWidth, cuStreamLength, &
-             cudaMemcpyHostToDevice, cuStreams(nn))
-        if (istate /= 0) then
-           write(*,*) 'nn = ', nn
-           cudaErrorMessage = cudaGetErrorString(istate)                 
-           write(*,*) cudaErrorMessage
-        end if
-     end do
-
-     ! Asynchronously react state zones on device
-     do nn = 1, cuNumStreams
-        chunkOffset = (nn-1) * cuStreamSize
-        chunkSize   = min(cuStreamSize, cuLength - chunkOffset + 1)
-        call react_zones<<<cuGrid, cuThreadBlock, 0, cuStreams(nn)>>>(state_flat_dev, chunkOffset, chunkSize, statePitch, stateLength)        
-     end do
-
-     ! Asynchronously copy chunks of state zones to host
-     do nn = 1, cuNumStreams
-        chunkOffset = (nn-1) * cuStreamSize
-        cuStreamLength = min(cuStreamSize, cuLength - chunkOffset + 1)        
-        istate = cudaMemcpy2DAsync(state_flat_ptr(:, chunkOffset+1:), cuWidth, &
-             state_flat_dev(:, chunkOffset+1:), cuPitch, &
-             cuWidth, cuStreamLength, &
-             cudaMemcpyDeviceToHost, cuStreams(nn))
-        if (istate /= 0) then
-           write(*,*) 'nn = ', nn
-           cudaErrorMessage = cudaGetErrorString(istate)                 
-           write(*,*) cudaErrorMessage
-        end if
-     end do
-
-     ! Synchronize streams
-     write(*,*) 'Synchronizing CUDA streams...'
-     do nn = 1, cuNumStreams
-        istate = cudaStreamSynchronize(cuStreams(nn))
-        if (istate /= 0) then
-           cudaErrorMessage = cudaGetErrorString(istate)
-           write(*,*) cudaErrorMessage
-        end if
-     enddo
-
-     ! Destroy streams
-     write(*,*) 'Destroying CUDA streams...'     
-     do nn = 1, cuNumStreams
-        istate = cudaStreamDestroy(cuStreams(nn))
-        if (istate /= 0) then
-           cudaErrorMessage = cudaGetErrorString(istate)
-           write(*,*) cudaErrorMessage
-        end if
-     enddo
+     ! React the zones using CUDA
+     call react_zones<<<cuGrid,cuThreadBlock>>>(state, pfidx, lo, hi)
+     istate = cudaDeviceSynchronize()     
 #else
-     call react_zones(state_flat_ptr, 1, stateLength)
+     call react_zones(state, pfidx, lo, hi)
 #endif
      
-     do ii = 1, pf % n_plot_comps
-        sp(:,:,:,ii) = state(ii,:,:,:)
-     end do
+     sp(:,:,:,:) = state(:,:,:,:)
 
      ! End the timer and print the results.     
      end_time = parallel_wtime()
