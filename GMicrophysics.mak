@@ -98,12 +98,20 @@ EXTERN_PARAMETER_DIRS += $(MICROPHYS_CORE)
 PROBIN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(PROBIN_PARAMETER_DIRS))
 EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_PARAMETER_DIRS))
 
+MANAGED_PROBIN_FLAG := 
+ifdef CUDA
+  ifeq ($(CUDA), t)
+    MANAGED_PROBIN_FLAG := --managed
+  endif
+endif
+
+
 probin.F90: $(PROBIN_PARAMETERS) $(EXTERN_PARAMETERS) $(PROBIN_TEMPLATE)
 	@echo " "
 	@echo "${bold}WRITING probin.F90${normal}"
 	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
            -t $(PROBIN_TEMPLATE) -o probin.F90 -n probin \
-           --pa "$(PROBIN_PARAMETERS)" --pb "$(EXTERN_PARAMETERS)"
+           --pa "$(PROBIN_PARAMETERS)" --pb "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
 	@echo " "
 
 
