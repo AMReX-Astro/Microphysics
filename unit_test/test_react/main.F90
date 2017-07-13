@@ -161,10 +161,6 @@ program test_react
   pfidx % ispec_old = pf % ispec_old
   pfidx % irodot = pf % irodot
   pfidx % irho_hnuc = pf % irho_hnuc
-  pfidx % endrho = nrho - 1
-  pfidx % endT = nT - 1
-  pfidx % endX = nX - 1
-  pfidx % ncomps = pf % n_plot_comps
 
   n = 1  ! single level assumption
 

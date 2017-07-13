@@ -19,10 +19,6 @@ module react_zones_module
      integer :: ispec_old
      integer :: irodot
      integer :: irho_hnuc
-     integer :: endrho
-     integer :: endT
-     integer :: endX
-     integer :: ncomps
   end type pfidx_t
 
 contains
