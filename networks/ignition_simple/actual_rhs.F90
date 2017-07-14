@@ -23,7 +23,7 @@ contains
 
     !$acc routine seq
 
-    use managed_probin_module, only: cu_do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -102,7 +102,7 @@ contains
 
     if (state % self_heat) then
 
-       if (cu_do_constant_volume_burn) then
+       if (do_constant_volume_burn) then
           state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
 
        else
@@ -120,7 +120,7 @@ contains
 
     !$acc routine seq
 
-    use managed_probin_module, only: cu_do_constant_volume_burn
+    use managed_probin_module, only: do_constant_volume_burn
 
     implicit none
 
@@ -170,7 +170,7 @@ contains
 
     if (state % self_heat) then
 
-       if (cu_do_constant_volume_burn) then
+       if (do_constant_volume_burn) then
 
           cvInv = ONE / state % cv
 
