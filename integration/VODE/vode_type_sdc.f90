@@ -10,7 +10,7 @@ module vode_type_module
   use network, only : nspec, aion, aion_inv
 
   use rpar_indices
-  use sdc_type_module
+  use sdc_type_module, only: SEDEN, SEINT, SFS, SRHO, SMX, SMY, SMZ, SVAR_EVOLVE, sdc_t
 
   use extern_probin_module, only: renormalize_abundances
 
