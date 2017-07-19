@@ -2,13 +2,13 @@
 
 Getting started with \microphysics\ using either \castro\ or
 \maestro\ is straightforward. Because the modules here are already in
-a format that the \boxlib\ codes understand, you only need to provide
+a format that the \amrex\ codes understand, you only need to provide
 to the code calling these routines their location on your system. The
 code will do the rest. To do so, define the {\tt MICROPHYSICS\_HOME}
 environment variable, either at a command line or (if you use the {\tt
   bash} shell) through your {\tt $\sim$/.bashrc} profile, e.g.:
 \begin{equation*}
-  \texttt{export MICROPHYSICS\_HOME = /path/to/Microphysics}
+  \texttt{export MICROPHYSICS\_HOME=/path/to/Microphysics}
 \end{equation*}
 
 For \castro\, the name of the EOS and network are set via the make
@@ -24,7 +24,7 @@ variables {\tt EOS\_DIR} and {\tt NETWORK\_DIR}, and the macros in
 For other codes, one can use the interfaces in {\tt
   Microphysics/interfaces/} and sample routines in {\tt
   Microphysics/unit\_test/} to incorporate these modules into your
-code.  Note that there are a few \boxlib\ files required at the moment
+code.  Note that there are a few \amrex\ files required at the moment
 (mainly error handling and constants).
 
 \section{Structure}
@@ -60,7 +60,7 @@ and the generic solvers:
   reaction networks.
 
 \item {\tt unit\_test/}: self-contained unit tests for \microphysics.  These don't
-  need any application code to build, but will require \boxlib.
+  need any application code to build, but will require \amrex.
 
 \item {\tt util/}: linear algebra solvers and other routines.
 
