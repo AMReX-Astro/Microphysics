@@ -9,7 +9,7 @@ module actual_eos_module
     logical, save :: input_is_constant
 
     !..for the tables, in general
-    integer, parameter, private :: imax = 271, jmax = 101
+    integer, parameter, private :: imax = 541, jmax = 201
     integer, save            :: itmax,jtmax
     double precision,save   :: d(imax),t(jmax)
 
