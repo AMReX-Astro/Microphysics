@@ -1,0 +1,5 @@
+-- remove saves (for thread safety)
+
+-- d1mach can be cleaned up, a la: https://github.com/certik/fortran-utils/blob/master/src/legacy/amos/d1mach.f90
+
+-- i1mach also: https://github.com/certik/fortran-utils/blob/master/src/legacy/amos/i1mach.f90

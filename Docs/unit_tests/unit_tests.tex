@@ -7,7 +7,7 @@ or reaction network.  To allow these to compile independent of any
 application code (e.g., \maestro\ or \castro), copies of the EOS
 driver {\tt eos.f90} and network interface {\tt network.f90} are
 provided in {\tt Microphysics/unit\_test/}.  These tests compile using
-the \boxlib\ F90 build system.  The file {\tt
+the \amrex\ F90 build system.  The file {\tt
   Microphysics/GMicrophysics.mak} provides the macros necessary to
 build the executable.  Runtime parameters are parsed in the same
 fashion as in the application codes, using the {\tt write\_probin.py}
@@ -84,8 +84,8 @@ To compile for a specific EOS, e.g., {\tt helmholtz}, do:
 make EOS_DIR=helmholtz -j 4
 \end{verbatim}
 
-Examining the output (a \boxlib\ plotfile) will show you how big the
-errors are.  You can use the {\tt BoxLib/Tools/Postprocessing/} too
+Examining the output (a \amrex\ plotfile) will show you how big the
+errors are.  You can use the {\tt AMReX/Tools/Postprocessing/} too
 {\tt fextrema} to display the maximum error for each variable.
 
 Note: an analogous {\tt test\_eos} exists in \maestro.
@@ -108,7 +108,7 @@ file to use is specified by the runtime parameter {\tt xin\_file}.
 
 This test calls the network on each zone, running for a time {\tt
   tmax}.  The full state, including new mass fractions and energy
-release is output to a \boxlib\ plotfile.
+release is output to a \amrex\ plotfile.
 
 You can compile for a specific integrator (e.g., {\tt BS}) or 
 network (e.g., {\tt aprox13}) as:
@@ -135,7 +135,7 @@ network or Jacobian on a single state:
 
   \item {\tt testjacobian.f90}
 \end{itemize}
-These all use the F90 \boxlib\ build system and the macros in 
+These all use the F90 \amrex\ build system and the macros in 
 {\tt GMicrophysics.mak} to build the executable.  To make 
 individual tests you can use the {\tt programs} variable, e.g.,
 \begin{verbatim}
