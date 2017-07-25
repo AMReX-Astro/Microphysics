@@ -4,6 +4,10 @@
  -- fix to aprox21 from Aron Michel (HITS) that fills in missing 
     reactions
 
+ -- updated the helmholtz EOS to use the latest table from Frank
+    Timmes (in particular, this is now denser, with 2x points in T and
+    rho dimensions).  If you copied the old table, you need to make sure
+    you are using the new table now.
 
 # previous changes:
 
