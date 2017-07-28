@@ -1,0 +1,11 @@
+\section{Thermal Conductivity}
+
+Thermal conductivities are provided by the {\tt conductivity/}
+directory.  At the moment, there is a single version, {\tt
+  stellar}\footnote{this code comes from Frank Timmes' website,
+  \url{http://cococubed.asu.edu/code_pages/kap.shtml}} that is useful
+for stellar interiors.
+
+{\bf Important: it is assumed that the state is thermodynamically consistent
+before calling the conductivity routine.}  It may be necessary to do an EOS
+call first, to enforce the consistency.

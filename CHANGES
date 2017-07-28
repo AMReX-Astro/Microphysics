@@ -9,6 +9,9 @@
     rho dimensions).  If you copied the old table, you need to make sure
     you are using the new table now.
 
+ -- add stellar conductivities from Frank Timmes
+
+
 # previous changes:
 
 * 17.06
