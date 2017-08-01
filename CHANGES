@@ -1,6 +1,11 @@
 
 # changes since last merge:
 
+
+# previous changes:
+
+* 17.08
+
  -- fix to aprox21 from Aron Michel (HITS) that fills in missing 
     reactions
 
@@ -11,8 +16,6 @@
 
  -- add stellar conductivities from Frank Timmes
 
-
-# previous changes:
 
 * 17.06
 
