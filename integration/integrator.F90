@@ -8,12 +8,13 @@ contains
 
   subroutine integrator_init()
 
-    use actual_integrator_module, only: actual_integrator_init
-    use bl_constants_module, only: ONE
+    use vode_integrator_module, only: vode_integrator_init
+    use bs_integrator_module, only: bs_integrator_init
 
     implicit none
 
-    call actual_integrator_init()
+    call vode_integrator_init()
+    call bs_integrator_init()
 
   end subroutine integrator_init
 
@@ -23,7 +24,8 @@ contains
 
     !$acc routine seq
 
-    use actual_integrator_module, only: actual_integrator
+    use vode_integrator_module, only: vode_integrator
+    use bs_integrator_module, only: bs_integrator
     use bl_error_module, only: bl_error
     use burn_type_module, only: burn_t
     use bl_types, only: dp_t
@@ -34,7 +36,13 @@ contains
     type (burn_t),  intent(inout) :: state_out
     real(dp_t),     intent(in   ) :: dt, time
 
-    call actual_integrator(state_in, state_out, dt, time)
+#if INTEGRATOR == VODE
+    call vode_integrator(state_in, state_out, dt, time)
+#elif INTEGRATOR == BS
+    call bs_integrator(state_in, state_out, dt, time)
+#else
+    call bl_error("Unknown integrator.")
+#endif
 
   end subroutine integrator
 

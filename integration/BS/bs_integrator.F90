@@ -1,7 +1,7 @@
 ! Common variables and routines for burners
 ! that use BS for their integration.
 
-module actual_integrator_module
+module bs_integrator_module
 
   use eos_module
   use eos_type_module
@@ -16,7 +16,7 @@ module actual_integrator_module
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine bs_integrator_init()
 
     implicit none
 
@@ -24,13 +24,13 @@ contains
 
     !$acc update device(nseq)
 
-  end subroutine actual_integrator_init
+  end subroutine bs_integrator_init
 
 
 
   ! Main interface
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine bs_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
@@ -307,6 +307,6 @@ contains
     endif
 #endif
 
-  end subroutine actual_integrator
+  end subroutine bs_integrator
 
-end module actual_integrator_module
+end module bs_integrator_module

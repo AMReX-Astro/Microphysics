@@ -1,13 +1,13 @@
 ! Common variables and routines for burners
 ! that use BS for their integration.
 
-module actual_integrator_module
+module bs_integrator_module
 
   implicit none
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine bs_integrator_init()
 
     use bs_type_module, only: nseq
 
@@ -17,13 +17,13 @@ contains
 
     !$acc update device(nseq)
 
-  end subroutine actual_integrator_init
+  end subroutine bs_integrator_init
 
 
 
   ! Main interface
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine bs_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
@@ -82,6 +82,6 @@ contains
 
     call bs_to_sdc(state_out, bs)
 
-  end subroutine actual_integrator
+  end subroutine bs_integrator
 
-end module actual_integrator_module
+end module bs_integrator_module

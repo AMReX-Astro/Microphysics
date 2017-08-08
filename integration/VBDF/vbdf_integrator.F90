@@ -1,7 +1,7 @@
 ! Common variables and routines for burners
 ! that use VBDF for their integration.
 
-module actual_integrator_module
+module vbdf_integrator_module
 
   use eos_module
   use network
@@ -18,7 +18,7 @@ module actual_integrator_module
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine vbdf_integrator_init()
 
     use bdf, only: init_pascal
 
@@ -26,13 +26,13 @@ contains
 
     call init_pascal()
 
-  end subroutine actual_integrator_init
+  end subroutine vbdf_integrator_init
 
 
 
   ! Main interface
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine vbdf_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
@@ -126,7 +126,7 @@ contains
        ts % upar(irp_self_heat,1) = ONE
     else
 #ifndef ACC
-       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+       call bl_error("Error: unknown burning_mode in vbdf_integrator.f90.")
 #endif
     endif
 
@@ -307,7 +307,7 @@ contains
 
     endif
 
-  end subroutine actual_integrator
+  end subroutine vbdf_integrator
 
 
   subroutine initial_timestep(ts, t0, t1, dt)
@@ -379,4 +379,4 @@ contains
 
   end subroutine initial_timestep
 
-end module actual_integrator_module
+end module vbdf_integrator_module
