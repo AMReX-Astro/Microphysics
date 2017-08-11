@@ -64,17 +64,14 @@ contains
 
   ! Main interface
 
-  subroutine vode_integrator(state_in, state_out, dt, time)
+  subroutine vode_integrator(state_in, state_out, dt, time, status)
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
-                                    rtol_spec, rtol_temp, rtol_enuc, &
-                                    atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode, retry_burn, &
-                                    retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit
+                                    burning_mode, call_eos_in_rhs, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use bl_constants_module, only : ZERO, ONE
+    use integration_data, only: integration_status_t
 
     implicit none
 
@@ -83,6 +80,7 @@ contains
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
+    type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
@@ -128,13 +126,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = atol_spec ! mass fractions
-    atol(net_itemp)      = atol_temp ! temperature
-    atol(net_ienuc)      = atol_enuc ! energy generated
+    atol(1:nspec_evolve) = status % atol_spec ! mass fractions
+    atol(net_itemp)      = status % atol_temp ! temperature
+    atol(net_ienuc)      = status % atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    rtol(net_itemp)      = rtol_temp ! temperature
-    rtol(net_ienuc)      = rtol_enuc ! energy generated
+    rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
+    rtol(net_itemp)      = status % rtol_temp ! temperature
+    rtol(net_ienuc)      = status % rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -284,59 +282,8 @@ contains
             rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', y(net_ienuc) - ener_offset
 
-       if (.not. retry_burn) then
-
-          call bl_error("ERROR in burner: integration failed")
-
-       else
-
-          print *, 'Retrying burn with looser tolerances'
-
-          retry_change_factor = ONE
-
-          do while (istate < 0 .and. retry_change_factor <= retry_burn_max_change)
-
-             retry_change_factor = retry_change_factor * retry_burn_factor
-
-             istate = 1
-
-             rwork(:) = ZERO
-             iwork(:) = 0
-
-             atol = atol * retry_burn_factor
-             rtol = rtol * retry_burn_factor
-
-             iwork(6) = 150000
-
-             local_time = ZERO
-
-             call eos_to_vode(eos_state_in, y, rpar)
-
-             rpar(irp_Told) = eos_state_in % T
-
-             if (dT_crit < 1.0d19) then
-
-                rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-                rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
-
-             endif
-
-             y(net_ienuc) = ener_offset
-
-             call dvode(f_rhs, neqs, y, local_time, local_time + dt, &
-                        ITOL, rtol, atol, ITASK, &
-                        istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
-
-          enddo
-
-          if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
-
-             call bl_error("ERROR in burner: integration failed")
-
-          endif
-
-       endif
-
+       status % integration_complete = .false.
+       return
     endif
 
     ! Subtract the energy offset

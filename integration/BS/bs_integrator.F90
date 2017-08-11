@@ -30,18 +30,14 @@ contains
 
   ! Main interface
 
-  subroutine bs_integrator(state_in, state_out, dt, time)
+  subroutine bs_integrator(state_in, state_out, dt, time, status)
 
     !$acc routine seq
 
     use rpar_indices
-    use extern_probin_module, only: burner_verbose, &
-                                    rtol_spec, rtol_temp, rtol_enuc, &
-                                    atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode, retry_burn, &
-                                    retry_burn_factor, retry_burn_max_change, &
-                                    dT_crit
+    use extern_probin_module, only: burner_verbose, burning_mode, dT_crit
     use actual_rhs_module, only : update_unevolved_species
+    use integration_data, only: integration_status_t
 
     implicit none
 
@@ -50,6 +46,7 @@ contains
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
+    type (integration_status_t), intent(inout) :: status
 
     ! Local variables
     integer :: ierr
@@ -71,14 +68,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
+    atol(1:nspec_evolve) = status % atol_spec ! mass fractions
+    atol(net_itemp)      = status % atol_temp ! temperature
+    atol(net_ienuc)      = status % atol_enuc ! energy generated
 
-    atol(1:nspec_evolve) = atol_spec ! mass fractions
-    atol(net_itemp)      = atol_temp ! temperature
-    atol(net_ienuc)      = atol_enuc ! energy generated
-
-    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    rtol(net_itemp)      = rtol_temp ! temperature
-    rtol(net_ienuc)      = rtol_enuc ! energy generated
+    rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
+    rtol(net_itemp)      = status % rtol_temp ! temperature
+    rtol(net_ienuc)      = status % rtol_enuc ! energy generated
 
     ! Note that at present, we use a uniform error tolerance chosen
     ! to be the largest of the relative error tolerances for any
@@ -218,55 +214,8 @@ contains
        print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 
-       if (.not. retry_burn) then
-
-#ifndef ACC
-          call bl_error("ERROR in burner: integration failed")
-#endif
-
-       else
-
-          print *, 'Retrying burn with looser tolerances'
-
-          retry_change_factor = ONE
-
-          do while (ierr /= IERR_NONE .and. &
-                    retry_change_factor <= retry_burn_max_change)
-
-             retry_change_factor = retry_change_factor * retry_burn_factor
-
-             bs % atol = atol * retry_burn_factor
-             bs % rtol = rtol * retry_burn_factor
-
-             call eos_to_bs(eos_state_in, bs)
-
-             bs % y(net_ienuc) = ener_offset
-
-             ! redo the T_old, cv / cp extrapolation
-             bs % burn_s % T_old = eos_state_in % T
-
-             if (dT_crit < 1.0d19) then
-                bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
-                     (eos_state_temp % T - eos_state_in % T)
-                
-                bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
-                     (eos_state_temp % T - eos_state_in % T)
-             endif
-
-             call ode(bs, t0, t1, maxval(rtol), ierr)
-
-          enddo
-
-          if (retry_change_factor > retry_burn_max_change .and. &
-               ierr /= IERR_NONE) then
-
-#ifndef ACC
-             call bl_error("ERROR in burner: integration failed")
-#endif
-
-          endif
-
-       endif
+       status % integration_complete = .false.
+       return
 
     endif
 
