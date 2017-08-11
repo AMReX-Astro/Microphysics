@@ -23,19 +23,18 @@ contains
 
   ! Main interface
 
-  subroutine bs_integrator(state_in, state_out, dt, time)
+  subroutine bs_integrator(state_in, state_out, dt, time, status)
 
     !$acc routine seq
 
-    use extern_probin_module, only: burner_verbose, &
-                                    rtol_spec, rtol_temp, rtol_enuc, &
-                                    atol_spec, atol_temp, atol_enuc
+    use extern_probin_module, only: burner_verbose
     use sdc_type_module, only: sdc_t
     use stiff_ode, only: ode
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
     use rpar_indices, only : irp_t0
+    use integration_data, only: integration_status_t
 
     implicit none
 
@@ -44,6 +43,7 @@ contains
     type(sdc_t), intent(in   ) :: state_in
     type(sdc_t), intent(inout) :: state_out
     real(dp_t),  intent(in   ) :: dt, time
+    type(integration_status_t), intent(inout) :: status
 
     ! Local variables
     integer :: ierr
@@ -56,7 +56,7 @@ contains
 
     ! BS does not allow for per-equation tolerances, so aggregate them here
     bs % atol(:) = 0.d0
-    bs % rtol(:) = max(rtol_spec, rtol_temp, rtol_enuc)
+    bs % rtol(:) = max(status % rtol_spec, status % rtol_temp, status % rtol_enuc)
 
     ! Initialize the integration time.
     t0 = ZERO

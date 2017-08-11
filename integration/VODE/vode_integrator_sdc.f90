@@ -6,7 +6,6 @@ module vode_integrator_module
   use bl_error_module
   use bl_types
   use bl_constants_module
-
   use sdc_type_module
   use vode_type_module
 
@@ -58,21 +57,19 @@ contains
   end subroutine vode_integrator_init
 
 
-  subroutine vode_integrator(state_in, state_out, dt, time)
+  subroutine vode_integrator(state_in, state_out, dt, time, status)
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
-                                    rtol_spec, rtol_temp, rtol_enuc, &
-                                    atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode, retry_burn, &
-                                    retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit
+                                    burning_mode, call_eos_in_rhs, dT_crit
+    use integration_data, only: integration_status_t
 
     ! Input arguments
 
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
+    type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
@@ -116,13 +113,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
-    atol(SEDEN)           = atol_enuc ! total energy
-    atol(SEINT)           = atol_enuc ! internal energy
+    atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
+    atol(SEDEN)           = status % atol_enuc ! total energy
+    atol(SEINT)           = status % atol_enuc ! internal energy
 
-    rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
-    rtol(SEDEN)           = rtol_enuc ! total energy
-    rtol(SEINT)           = rtol_enuc ! internal energy
+    rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
+    rtol(SEDEN)           = status % rtol_enuc ! total energy
+    rtol(SEINT)           = status % rtol_enuc ! internal energy
 
     ! We want VODE to re-initialize each time we call it.
 
