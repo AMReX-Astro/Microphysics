@@ -4,8 +4,8 @@ module stiff_ode
   use bl_types
   use burn_type_module
   use bs_type_module
-  use rhs_module
-  use jac_module
+  use bs_rhs_module
+  use bs_jac_module
 
   implicit none
 
@@ -138,7 +138,7 @@ contains
     bs % eps_old = ZERO
 
     if (use_timestep_estimator) then
-       call f_rhs(bs)
+       call f_bs_rhs(bs)
        call initial_timestep(bs)
     else
        bs % dt = dt_ini
@@ -147,7 +147,7 @@ contains
     do n = 1, ode_max_steps
 
        ! Get the scaling.
-       call f_rhs(bs)
+       call f_bs_rhs(bs)
 
        if (scaling_method == 1) then
 #ifdef SDC
@@ -254,7 +254,7 @@ contains
 #endif
 
        ! Call the RHS, then estimate the finite difference.
-       call f_rhs(bs_temp)
+       call f_bs_rhs(bs_temp)
 #ifdef SDC
        ddydtt = (bs_temp % ydot - bs % ydot) / h
 #else
@@ -351,7 +351,7 @@ contains
 
        t = t + h
        bs_temp % t = t
-       call f_rhs(bs_temp)
+       call f_bs_rhs(bs_temp)
 
        do n = 2, N_sub
 #ifdef SDC
@@ -368,7 +368,7 @@ contains
 
           t = t + h
           bs_temp % t = t
-          call f_rhs(bs_temp)
+          call f_bs_rhs(bs_temp)
        enddo
 
 #ifdef SDC
@@ -468,7 +468,7 @@ contains
     y_save(:) = bs % y(:)
 
     ! get the jacobian
-    call jac(bs)
+    call bs_jac(bs)
 
     if (dt /= bs % dt_next .or. bs % t /= bs % t_new) then
        bs % first = .true.
@@ -724,7 +724,7 @@ contains
     ! note: we come in already with a RHS evalulation from the driver
 
     ! get the jacobian
-    call jac(bs)
+    call bs_jac(bs)
 
     ierr = IERR_NONE
 
@@ -768,7 +768,7 @@ contains
        
        ! get derivatives at this intermediate position and setup the next
        ! RHS
-       call f_rhs(bs_temp)
+       call f_bs_rhs(bs_temp)
 
 #ifdef SDC
        g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
@@ -783,7 +783,7 @@ contains
 
        ! get derivatives at this intermediate position and setup the next
        ! RHS
-       call f_rhs(bs_temp)
+       call f_bs_rhs(bs_temp)
 
 #ifdef SDC
        g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h

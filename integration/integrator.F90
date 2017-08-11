@@ -9,12 +9,16 @@ contains
   subroutine integrator_init()
 
     use vode_integrator_module, only: vode_integrator_init
+    !use vode90_integrator_module, only: vode90_integrator_init
     use bs_integrator_module, only: bs_integrator_init
+    use vbdf_integrator_module, only: vbdf_integrator_init
 
     implicit none
 
     call vode_integrator_init()
+    !call vode90_integrator_init()
     call bs_integrator_init()
+    call vbdf_integrator_init()
 
   end subroutine integrator_init
 
@@ -25,7 +29,9 @@ contains
     !$acc routine seq
 
     use vode_integrator_module, only: vode_integrator
+    !use vode90_integrator_module, only: vode90_integrator
     use bs_integrator_module, only: bs_integrator
+    use vbdf_integrator_module, only: vbdf_integrator
     use bl_error_module, only: bl_error
     use bl_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
@@ -43,6 +49,8 @@ contains
 
     type (integration_status_t) :: status
     real(dp_t) :: retry_change_factor
+
+#if (INTEGRATOR == VODE || INTEGRATOR == BS)
 
     retry_change_factor = ONE
 
@@ -115,6 +123,20 @@ contains
        call bl_error("ERROR in burner: integration failed")
 
     endif
+
+#elif (INTEGRATOR == VBDF)
+
+    call vbdf_integrator(state_in, state_out, dt, time)
+
+! #elif (INTEGRATOR == VODE90)
+
+!     call vode90_integrator(state_in, state_out, dt, time)
+
+#else
+
+    call bl_error("Unknown burner.")
+
+#endif
 
   end subroutine integrator
 

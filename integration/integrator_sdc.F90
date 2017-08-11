@@ -9,12 +9,16 @@ contains
   subroutine integrator_init()
 
     use vode_integrator_module, only: vode_integrator_init
+    !use vode90_integrator_module, only: vode90_integrator_init
     use bs_integrator_module, only: bs_integrator_init
+    use vbdf_integrator_module, only: vbdf_integrator_init
 
     implicit none
 
     call vode_integrator_init()
+    !call vode90_integrator_init()
     call bs_integrator_init()
+    call vbdf_integrator_init()
 
   end subroutine integrator_init
 

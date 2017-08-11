@@ -1,7 +1,7 @@
 ! Common variables and routines for burners
 ! that use VODE for their integration.
 
-module actual_integrator_module
+module vode90_integrator_module
 
   use bl_error_module
   use bl_types
@@ -53,12 +53,12 @@ module actual_integrator_module
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine vode90_integrator_init()
 
-  end subroutine actual_integrator_init
+  end subroutine vode90_integrator_init
 
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine vode90_integrator(state_in, state_out, dt, time)
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
@@ -106,7 +106,7 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+       call bl_error("Error: unknown Jacobian mode in vode90_integrator.f90.")
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -177,6 +177,6 @@ contains
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
 
-  end subroutine actual_integrator
+  end subroutine vode90_integrator
 
-end module actual_integrator_module
+end module vode90_integrator_module
