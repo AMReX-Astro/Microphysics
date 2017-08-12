@@ -18,7 +18,7 @@ program test_react
   use runtime_init_module
   use sdc_type_module
   use microphysics_module
-  use actual_integrator_module
+  use integrator_module
   use integrator_module, only: integrator
   use eos_type_module, only : eos_t, eos_get_small_temp, eos_get_small_dens
   use eos_module, only: eos, eos_input_rt
@@ -102,7 +102,7 @@ program test_react
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
 
   ! the integrator would normally be initialized via actual_burner
-  call actual_integrator_init()
+  call integrator_init()
   
   call eos_get_small_temp(small_temp)
   print *, "small_temp = ", small_temp
