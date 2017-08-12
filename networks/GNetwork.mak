@@ -8,21 +8,15 @@ include $(NETWORK_TOP_DIR)/$(strip $(NETWORK_DIR))/NETWORK_REQUIRES
 NET_DIRS := $(NETWORK_TOP_DIR)
 NET_DIRS += $(NETWORK_TOP_DIR)/$(NETWORK_DIR)
 
-# The default integrator is specified by INTEGRATOR_DIR.
-# We compile all integrators though.
-
+# the integrator is specified by INTEGRATOR_DIR.  We set the default to VODE
+# here
 INTEGRATOR_DIR ?= VODE
-
-INT_DIRS :=
-
-INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE
-#INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90
-INT_DIRS += $(MICROPHYSICS_HOME)/integration/BS
-INT_DIRS += $(MICROPHYSICS_HOME)/integration/VBDF
+INT_DIRS := $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
 INT_DIRS += $(MICROPHYSICS_HOME)/integration
 
-INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE/vode_source
-#INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90/vode90_source
+ifeq ($(INTEGRATOR_DIR), VODE)
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
+endif
 
 # we'll assume that all integrators need the linear algebra packages
 INT_DIRS += $(MICROPHYSICS_HOME)/util/

@@ -1,10 +1,10 @@
-module bs_jac_module
+module jac_module
 
   implicit none
 
 contains
 
-  subroutine bs_jac(bs)
+  subroutine jac(bs)
 
     !$acc routine seq
 
@@ -79,6 +79,6 @@ contains
 
     bs % burn_s % n_jac = bs % burn_s % n_jac + 1
 
-  end subroutine bs_jac
+  end subroutine jac
 
-end module bs_jac_module
+end module jac_module

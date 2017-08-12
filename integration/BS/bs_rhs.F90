@@ -1,4 +1,4 @@
-module bs_rhs_module
+module rhs_module
 
 contains
 
@@ -6,7 +6,7 @@ contains
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
-  subroutine f_bs_rhs(bs)
+  subroutine f_rhs(bs)
 
     !$acc routine seq
 
@@ -80,6 +80,6 @@ contains
 
     bs % burn_s % n_rhs = bs % burn_s % n_rhs + 1
 
-  end subroutine f_bs_rhs
+  end subroutine f_rhs
 
-end module bs_rhs_module
+end module rhs_module

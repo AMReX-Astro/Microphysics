@@ -1,0 +1,4 @@
+F90EXE_sources += dvode.F90
+f90EXE_sources += dvode_output.f90
+f90EXE_sources += dvode_type.f90
+f90EXE_sources += bl_types.f90

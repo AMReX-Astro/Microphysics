@@ -4,7 +4,6 @@
 module vbdf_integrator_module
 
   use eos_module
-  use eos_type_module
   use network
   use rpar_indices
   use burn_type_module
