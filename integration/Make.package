@@ -39,17 +39,17 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 
   # Include BS and VODE
 
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
-  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
-  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
-
-  include $(MICROPHYSICS_HOME)/integration/BS/Make.package
-
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/VODE
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/VODE
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/VODE
 
   include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
+  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
+  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
+
+  include $(MICROPHYSICS_HOME)/integration/BS/Make.package
 
 else
 
