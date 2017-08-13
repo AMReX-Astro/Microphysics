@@ -36,9 +36,9 @@ contains
     type (sdc_t),  intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
 
-#if INTEGRATOR == VODE
+#if INTEGRATOR == 0
     call vode_integrator(state_in, state_out, dt, time)
-#elif INTEGRATOR == BS
+#elif INTEGRATOR == 1
     call bs_integrator(state_in, state_out, dt, time)
 #else
     call bl_error("Unknown integrator.")
