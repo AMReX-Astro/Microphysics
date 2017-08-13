@@ -8,13 +8,21 @@ contains
 
   subroutine integrator_init()
 
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
     use bs_integrator_module, only: bs_integrator_init
+#else
+    use actual_integrator_module, only: actual_integrator_init
+#endif
 
     implicit none
 
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     call vode_integrator_init()
     call bs_integrator_init()
+#else
+    call actual_integrator_init()
+#endif
 
   end subroutine integrator_init
 
@@ -24,8 +32,12 @@ contains
 
     !$acc routine seq
 
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
     use bs_integrator_module, only: bs_integrator
+#else
+    use actual_integrator_module, only: actual_integrator
+#endif
     use bl_error_module, only: bl_error
     use bl_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
@@ -41,6 +53,7 @@ contains
     type (burn_t),  intent(inout) :: state_out
     real(dp_t),     intent(in   ) :: dt, time
 
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     type (integration_status_t) :: status
     real(dp_t) :: retry_change_factor
 
@@ -59,12 +72,10 @@ contains
 
        status % integration_complete = .true.
 
-#if INTEGRATOR == VODE
+#if (INTEGRATOR == 0)
        call vode_integrator(state_in, state_out, dt, time, status)
-#elif INTEGRATOR == BS
+#elif (INTEGRATOR == 1)
        call bs_integrator(state_in, state_out, dt, time, status)
-#else
-       call bl_error("Unknown integrator.")
 #endif
 
        if (status % integration_complete) exit
@@ -73,14 +84,12 @@ contains
 
        status % integration_complete = .true.
 
-#if INTEGRATOR == VODE
+#if (INTEGRATOR == 0)
        print *, "Retrying burn with BS integrator"
        call bs_integrator(state_in, state_out, dt, time, status)
-#elif INTEGRATOR == BS
+#elif (INTEGRATOR == 1)
        print *, "Retrying burn with VODE integrator"
        call vode_integrator(state_in, state_out, dt, time, status)
-#else
-       call bl_error("Unknown integrator.")
 #endif
 
        if (status % integration_complete) exit
@@ -115,6 +124,12 @@ contains
        call bl_error("ERROR in burner: integration failed")
 
     endif
+
+#else
+
+    call actual_integrator(state_in, state_out, dt, time)
+
+#endif
 
   end subroutine integrator
 
