@@ -1,8 +1,8 @@
 ifdef SDC
-  f90sources += integrator_sdc.f90
+  F90sources += integrator_sdc.F90
   f90sources += numerical_jacobian_sdc.f90
 else
-  f90sources += integrator.f90
+  F90sources += integrator.F90
   f90sources += numerical_jacobian.f90
 endif
 f90sources += integration_data.f90
