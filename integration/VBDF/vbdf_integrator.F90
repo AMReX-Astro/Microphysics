@@ -126,7 +126,7 @@ contains
        ts % upar(irp_self_heat,1) = ONE
     else
 #ifndef ACC
-       call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+       call bl_error("Error: unknown burning_mode in vbdf_integrator.f90.")
 #endif
     endif
 
