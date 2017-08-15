@@ -1,6 +1,9 @@
 
 # changes since last merge:
 
+ -- a new rety mechanism was implemented that allows a different
+    integrator to be used if the primary integrator fails
+
 
 # previous changes:
 
