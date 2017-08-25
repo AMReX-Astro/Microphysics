@@ -62,7 +62,7 @@ contains
 
 
     ! Evaluate the cubic interp parameters for ni56 electron capture
-    ! which is used in the mazurek subroutine.
+    ! which is used in the langanke subroutine.
 
     do k = 2, 4
        rfdm(k)=1./((rv(k-1)-rv(k))*(rv(k-1)-rv(k+1))*(rv(k-1)-rv(k+2)))
@@ -2564,7 +2564,7 @@ contains
 
 
 
-  ! this routine evaluates mazurel's 1973 fits for the ni56 electron
+  ! this routine evaluates Langanke et al. 2000 fits for the ni56 electron
   ! capture rate rn56ec and neutrino loss rate sn56ec
 
   ! input:
@@ -2575,7 +2575,7 @@ contains
   ! rn56ec = ni56 electron capture rate
   ! sn56ec = ni56 neutrino loss rate
 
-  subroutine mazurek(btemp,bden,y56,ye,rn56ec,sn56ec)
+  subroutine langanke(btemp,bden,y56,ye,rn56ec,sn56ec)
 
     !$acc routine seq
 
@@ -2627,7 +2627,7 @@ contains
     rn56ec = 10.0d0**rnt(1)
     sn56ec = 6.022548d+23 * 8.18683d-7 * y56 * 10.0d0**rnt(2)
 
-  end subroutine mazurek
+  end subroutine langanke
 
 
 
