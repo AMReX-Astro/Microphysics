@@ -109,6 +109,9 @@ contains
 
     real(dp_t) :: ener_offset
 
+    logical :: integration_failed
+    real(dp_t), parameter :: failure_tolerance = 1.d-2
+
     EXTERNAL jac, f_rhs
 
     if (jacobian == 1) then ! Analytical
@@ -118,6 +121,8 @@ contains
     else
        call bl_error("Error: unknown Jacobian mode in vode_integrator.f90.")
     endif
+
+    integration_failed = .false.
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
@@ -269,8 +274,27 @@ contains
     endif
 
     ! If we still failed, print out the current state of the integration.
+    ! VODE does not always fail even though it can lead to unphysical states,
+    ! so add some sanity checks that trigger a retry even if VODE thinks
+    ! the integration was successful.
 
     if (istate < 0) then
+       integration_failed = .true.
+    end if
+
+    if (y(net_itemp) < ZERO) then
+       integration_failed = .true.
+    end if
+
+    if (any(y(1:nspec_evolve) < -failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    if (any(y(1:nspec_evolve) > 1.d0 + failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    if (integration_failed) then
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', local_time
@@ -278,8 +302,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', y(net_itemp)
-       print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
+       print *, 'xn current = ', y(1:nspec_evolve), rpar(irp_nspec:irp_nspec+n_not_evolved-1)
        print *, 'energy generated = ', y(net_ienuc) - ener_offset
 
        status % integration_complete = .false.
@@ -292,6 +315,19 @@ contains
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)
 
+    if (state_in % rho == 18522771.246038310d0) then
+       print *, 'oops'
+       print *, 'istate = ', istate
+       print *, 'time = ', local_time
+       print *, 'dens = ', state_in % rho
+       print *, 'temp start = ', state_in % T
+       print *, 'xn start = ', state_in % xn
+       print *, 'temp current = ', state_out % T
+       print *, 'xn current = ', state_out % xn
+       print *, 'energy generated = ', state_out % e - state_in % e
+    end if
+
+    ! Subtract the energy offset
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
     state_out % n_rhs = iwork(12)
