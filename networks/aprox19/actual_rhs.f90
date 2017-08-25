@@ -1041,7 +1041,7 @@ contains
 
   subroutine weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
 
-    use aprox_rates_module, only: ecapnuc, mazurek
+    use aprox_rates_module, only: ecapnuc, langanke
 
     implicit none
 
@@ -1068,7 +1068,7 @@ contains
     call ecapnuc(state % eta, state % T, ratraw(irpen), ratraw(irnep), spen, snep)
 
     ! ni56 electron capture rate
-    call mazurek(state % T, state % rho, y(ini56), state % y_e, ratraw(irn56ec), xx)
+    call langanke(state % T, state % rho, y(ini56), state % y_e, ratraw(irn56ec), xx)
 
   end subroutine weak_aprox19
 
