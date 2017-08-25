@@ -2584,17 +2584,17 @@ contains
     integer          :: jp,kp,jr,jd
     double precision :: btemp,bden,y56,ye,rn56ec,sn56ec
 
-    double precision :: rnt(2),rne(2,7),t9,r,rfm,rf0, &
+    double precision :: rnt(2),rne(2,14),t9,r,rfm,rf0, &
                         rf1,rf2,dfacm,dfac0,dfac1,dfac2, &
                         tfm,tf0,tf1,tf2,tfacm,tfac0,tfac1,tfac2
 
     ! calculate ni56 electron capture and neutrino loss rates
     rn56ec = 0.0
     sn56ec = 0.0
-    if ( (btemp .lt. 2.0e9) .or. (bden*ye .lt. 1.0e6)) return
+    if ( (btemp .lt. 1.0e9) .or. (bden*ye .lt. 1.0e6)) return
     t9    = min(btemp,1.4d10) * 1.0d-9
     r     = max(6.0d0,min(11.0d0,log10(bden*ye)))
-    jp    = min(max(2,int(0.5d0*t9)),5)
+    jp    = min(max(2,int(t9)),12)
     kp    = min(max(2,int(r)-5),4)
     rfm   = r - rv(kp-1)
     rf0   = r - rv(kp)
