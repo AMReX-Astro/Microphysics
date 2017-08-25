@@ -10,9 +10,9 @@ module aprox_rates_module
 
   implicit none
 
-  double precision :: rv(6), tv(7), datn(2,6,7)
+  double precision :: rv(6), tv(14), datn(2,6,14)
   double precision :: rfdm(4),rfd0(4),rfd1(4),rfd2(4)
-  double precision :: tfdm(5),tfd0(5),tfd1(5),tfd2(5)
+  double precision :: tfdm(12),tfd0(12),tfd1(12),tfd2(12)
 
   !$acc declare create(rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2)
 
