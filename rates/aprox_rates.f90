@@ -2625,7 +2625,7 @@ contains
 
     ! set the output
     rn56ec = 10.0d0**rnt(1)
-    sn56ec = 6.022548e+23 * 1.60218e-6 * y56 * 10.0e0**rnt(2)
+    sn56ec = 6.022548d+23 * 1.60218d-6 * y56 * 10.0d0**rnt(2)
 
   end subroutine langanke
 
