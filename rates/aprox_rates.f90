@@ -2626,6 +2626,8 @@ contains
     ! set the output
     rn56ec = 10.0d0**rnt(1)
     sn56ec = 6.022548d+23 * 1.60218d-6 * y56 * 10.0d0**rnt(2)
+   
+    !write(*,*) "btemp",btemp, "bden", bden, "t9",t9,"r",r, "rn56ec",rn56ec, "sn56ec", sn56ec
 
   end subroutine langanke
 
