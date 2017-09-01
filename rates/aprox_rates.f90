@@ -10,9 +10,9 @@ module aprox_rates_module
 
   implicit none
 
-  double precision :: rv(6), tv(7), datn(2,6,7)
+  double precision :: rv(6), tv(14), datn(2,6,14)
   double precision :: rfdm(4),rfd0(4),rfd1(4),rfd2(4)
-  double precision :: tfdm(5),tfd0(5),tfd1(5),tfd2(5)
+  double precision :: tfdm(12),tfd0(12),tfd1(12),tfd2(12)
 
   !$acc declare create(rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2)
 
@@ -25,28 +25,44 @@ contains
     integer :: j, k
 
     rv = (/ 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 /)
-    tv = (/ 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0 /)
+    tv = (/ 1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0 /)
 
-    datn(1,:,:) = reshape( (/ -3.98, -2.84, -1.41,  0.20,  1.89,  3.63, &
-                              -3.45, -2.62, -1.32,  0.22,  1.89,  3.63, &
-                              -2.68, -2.30, -1.19,  0.27,  1.91,  3.62, &
-                              -2.04, -1.87, -1.01,  0.34,  1.94,  3.62, &
-                              -1.50, -1.41, -0.80,  0.45,  1.99,  3.60, &
-                              -1.00, -0.95, -0.54,  0.60,  2.06,  3.58, &
-                              -0.52, -0.49, -0.21,  0.79,  2.15,  3.55 /), &
-                           (/ 6, 7 /) )
+    datn(1,:,:) = reshape( (/ -4.363, -3.091, -1.275, 1.073, 3.035, 4.825, &
+			      -4.17, -2.964, -1.177, 1.085, 3.037, 4.826, &
+			      -3.834, -2.727, -1.039, 1.104, 3.04, 4.826, &
+			      -3.284, -2.418, -0.882, 1.129, 3.043, 4.827, &
+			      -2.691, -2.093, -0.719, 1.159, 3.048, 4.827, &
+			      -2.1675, -1.7668, -0.5573, 1.1947, 3.0527, 4.8272, &
+			      -1.7095, -1.4462, -0.3991, 1.2358, 3.0577, 4.8276, &
+        		      -1.3119, -1.1451, -0.2495, 1.2818, 3.0648, 4.8284, &
+        		      -0.9812, -0.8612, -0.1084, 1.3336, 3.0738, 4.8295, &
+        		      -0.682, -0.595, 0.028, 1.386, 3.084, 4.831, &
+                              -0.4046, -0.3523, 0.1605, 1.4364, 3.0957, 4.8333, &
+                              -0.1636, -0.1352, 0.2879, 1.4861, 3.1092, 4.8365, &
+                              0.0461, 0.0595, 0.4105, 1.5354, 3.1242, 4.8405, &
+                              0.2295, 0.235, 0.5289, 1.5842, 3.1405, 4.845 /), &
+                           (/ 6, 14 /) )
 
-    datn(2,:,:) = reshape( (/ -3.68, -2.45, -0.80,  1.12,  3.13,  5.19, &
-                              -2.91, -2.05, -0.64,  1.16,  3.14,  5.18, &
-                              -1.95, -1.57, -0.40,  1.24,  3.16,  5.18, &
-                              -1.16, -0.99, -0.11,  1.37,  3.20,  5.18, &
-                              -0.48, -0.40,  0.22,  1.54,  3.28,  5.16, &
-                               0.14,  0.19,  0.61,  1.78,  3.38,  5.14, &
-                               0.75,  0.78,  1.06,  2.07,  3.51,  5.11 /), &
-                           (/ 6, 7 /) )
+    datn(2,:,:) = reshape( (/ -4.539, -3.097, -1.134, 1.525, 3.907, 6.078, &
+        		      -4.199, -2.905, -1.024, 1.545, 3.91, 6.079, &
+        		      -3.736, -2.602, -0.851, 1.578, 3.916, 6.08, &
+        		      -3.052, -2.206, -0.636, 1.623, 3.923, 6.081, &
+        		      -2.31, -1.766, -0.396, 1.678, 3.931, 6.082, &
+        		      -1.6631, -1.319, -0.1438, 1.7471, 3.9409, 6.0829, &
+        		      -1.1064, -0.8828, 0.1094, 1.8279, 3.9534, 6.0841, &
+       			      -0.6344, -0.496, 0.3395, 1.9168, 3.9699, 6.0862, &
+        		      -0.2568, -0.1555, 0.5489, 2.0163, 3.9906, 6.0893, &
+        		      0.081, 0.158, 0.746, 2.114, 4.013, 6.093, &
+        		      0.3961, 0.4448, 0.9304, 2.2026, 4.0363, 6.0976, &
+        		      0.6673, 0.6964, 1.0985, 2.2849, 4.0614, 6.1033, &
+        		      0.9009, 0.9175, 1.2525, 2.3619, 4.0882, 6.1099, &
+        		      1.1032, 1.113, 1.3947, 2.4345, 4.1161, 6.1171 /), &
+                           (/ 6, 14 /) )
+
+
 
     ! Evaluate the cubic interp parameters for ni56 electron capture
-    ! which is used in the mazurek subroutine.
+    ! which is used in the langanke subroutine.
 
     do k = 2, 4
        rfdm(k)=1./((rv(k-1)-rv(k))*(rv(k-1)-rv(k+1))*(rv(k-1)-rv(k+2)))
@@ -55,7 +71,7 @@ contains
        rfd2(k)=1./((rv(k+2)-rv(k-1))*(rv(k+2)-rv(k))*(rv(k+2)-rv(k+1)))
     enddo
 
-    do j = 2, 5
+    do j = 2, 12
        tfdm(j)=1./((tv(j-1)-tv(j))*(tv(j-1)-tv(j+1))*(tv(j-1)-tv(j+2)))
        tfd0(j)=1./((tv(j)-tv(j-1))*(tv(j)-tv(j+1))*(tv(j)-tv(j+2)))
        tfd1(j)=1./((tv(j+1)-tv(j-1))*(tv(j+1)-tv(j))*(tv(j+1)-tv(j+2)))
@@ -2548,7 +2564,7 @@ contains
 
 
 
-  ! this routine evaluates mazurel's 1973 fits for the ni56 electron
+  ! this routine evaluates Langanke et al. 2000 fits for the ni56 electron
   ! capture rate rn56ec and neutrino loss rate sn56ec
 
   ! input:
@@ -2559,7 +2575,7 @@ contains
   ! rn56ec = ni56 electron capture rate
   ! sn56ec = ni56 neutrino loss rate
 
-  subroutine mazurek(btemp,bden,y56,ye,rn56ec,sn56ec)
+  subroutine langanke(btemp,bden,y56,ye,rn56ec,sn56ec)
 
     !$acc routine seq
 
@@ -2568,17 +2584,17 @@ contains
     integer          :: jp,kp,jr,jd
     double precision :: btemp,bden,y56,ye,rn56ec,sn56ec
 
-    double precision :: rnt(2),rne(2,7),t9,r,rfm,rf0, &
+    double precision :: rnt(2),rne(2,14),t9,r,rfm,rf0, &
                         rf1,rf2,dfacm,dfac0,dfac1,dfac2, &
                         tfm,tf0,tf1,tf2,tfacm,tfac0,tfac1,tfac2
 
     ! calculate ni56 electron capture and neutrino loss rates
     rn56ec = 0.0
     sn56ec = 0.0
-    if ( (btemp .lt. 2.0e9) .or. (bden*ye .lt. 1.0e6)) return
+    if ( (btemp .lt. 1.0e9) .or. (bden*ye .lt. 1.0e6)) return
     t9    = min(btemp,1.4d10) * 1.0d-9
     r     = max(6.0d0,min(11.0d0,log10(bden*ye)))
-    jp    = min(max(2,int(0.5d0*t9)),5)
+    jp    = min(max(2,int(t9)),12)
     kp    = min(max(2,int(r)-5),4)
     rfm   = r - rv(kp-1)
     rf0   = r - rv(kp)
@@ -2609,9 +2625,11 @@ contains
 
     ! set the output
     rn56ec = 10.0d0**rnt(1)
-    sn56ec = 6.022548d+23 * 8.18683d-7 * y56 * 10.0d0**rnt(2)
+    sn56ec = 6.022548d+23 * 1.60218d-6 * y56 * 10.0d0**rnt(2)
+   
+    !write(*,*) "btemp",btemp, "bden", bden, "t9",t9,"r",r, "rn56ec",rn56ec, "sn56ec", sn56ec
 
-  end subroutine mazurek
+  end subroutine langanke
 
 
 
