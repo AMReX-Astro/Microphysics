@@ -4,12 +4,16 @@
  -- a new rety mechanism was implemented that allows a different
     integrator to be used if the primary integrator fails
 
+ -- the electron Ni56 electron capture rates and energy losses
+    were updated from Mazurek (1973) to LMP (2000).  Thanks to
+    Carl Fields for this contribution.  Pull request #40
+
 
 # previous changes:
 
 * 17.08
 
- -- fix to aprox21 from Aron Michel (HITS) that fills in missing 
+ -- fix to aprox21 from Aron Michel (HITS) that fills in missing
     reactions
 
  -- updated the helmholtz EOS to use the latest table from Frank
@@ -25,12 +29,12 @@
  -- a new Fortran 90 port of VODE has been added
 
  -- the unit tests now require AMReX instead of BoxLib to build
- 
+
 
 * 17.01
 
  -- we've removed the option to integrate molar fractions and instead
-    the ODE system always operates on mass fractions (the networks 
+    the ODE system always operates on mass fractions (the networks
     return derivatives of molar fractions and they are automatically
     converted).
 
