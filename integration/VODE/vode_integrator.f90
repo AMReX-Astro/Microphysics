@@ -10,6 +10,7 @@ module vode_integrator_module
   use vode_type_module
   use burn_type_module
   use bl_types
+  use bl_error_module
 
   implicit none
 
