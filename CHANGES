@@ -1,6 +1,12 @@
 
 # changes since last merge:
 
+# previous changes:
+
+
+
+* 17.09
+
  -- a new rety mechanism was implemented that allows a different
     integrator to be used if the primary integrator fails
 
@@ -8,8 +14,6 @@
     were updated from Mazurek (1973) to LMP (2000).  Thanks to
     Carl Fields for this contribution.  Pull request #40
 
-
-# previous changes:
 
 * 17.08
 
