@@ -194,6 +194,7 @@ contains
 
        if (bs % dt < dt_min) then
           ierr = IERR_DT_TOO_SMALL
+          exit
        endif
 
        if (finished) exit
