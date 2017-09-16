@@ -16,13 +16,11 @@ contains
     use burn_type_module, only: neqs, net_itemp
     use rpar_indices, only: n_rpar_comps
     use eos_type_module, only : eos_get_small_temp
-    use extern_probin_module, only: renormalize_abundances, SMALL_X_SAFE
+    use extern_probin_module, only: renormalize_abundances, SMALL_X_SAFE, MAX_TEMP
 
     implicit none
 
     real(dp_t) :: y(neqs), rpar(n_rpar_comps)
-
-    real(dp_t), parameter :: MAX_TEMP = 1.0d11
 
     real(dp_t) :: small_temp
 
