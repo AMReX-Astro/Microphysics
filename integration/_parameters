@@ -79,3 +79,12 @@ retry_burn_max_change    real      1.0d2
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
 renormalize_abundances   logical   .false.
+
+# The absolute cutoff for species -- note that this might be larger
+# than {\tt small\_x}, but the issue is that we need to prevent underflow
+# issues and keep mass fractions positive in the integrator.  You may
+# have to increase the floor to, e.g. {\tt 1.d-20} if your rates are large.
+SMALL_X_SAFE                 real            1.0d-30
+
+# The maximum temperature for reactions in the integration.
+MAX_TEMP                     real            1.0d11

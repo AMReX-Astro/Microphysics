@@ -16,17 +16,9 @@ ode_scale_floor              real            1.d-6
 # extrapolation method (1) or a Rosenbrock method (2)
 ode_method                   integer         1
 
-
 # when constructing the intermediate steps in the stiff ODE
 # integration by how much do we allow the state variables to change
 # over a dt before giving up on the step and retrying with a smaller
 # step?
 safety_factor                real            1.d9
-
-
-# The absolute cutoff for species -- note that this might be larger
-# than {\tt small\_x}, but the issue is that we need to prevent underflow
-# issues and keep mass fractions positive in the integrator.  You may
-# have to increase the floor to, e.g. {\tt 1.d-20} if your rates are large.
-SMALL_X_SAFE                 real            1.0d-30
 

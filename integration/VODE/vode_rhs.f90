@@ -9,7 +9,7 @@
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, renormalize_abundances, &
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, &
                                     burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
@@ -38,12 +38,6 @@
     ! Fix the state as necessary.
 
     call clean_state(y, rpar)
-
-    ! Renormalize the abundances as necessary.
-
-    if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
-    endif
 
     ! Update the thermodynamics as necessary.
 

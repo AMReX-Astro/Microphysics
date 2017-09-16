@@ -42,7 +42,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ONE
-    use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
+    use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances, MAX_TEMP
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: net_itemp
     use eos_type_module, only : eos_get_small_temp
@@ -50,9 +50,6 @@ contains
     implicit none
 
     type (bs_t), intent(inout) :: state
-
-    ! this should be larger than any reasonable temperature we will encounter
-    real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
 
     real (kind=dp_t) :: small_temp
 
