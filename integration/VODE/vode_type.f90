@@ -11,17 +11,36 @@ contains
   subroutine clean_state(y, rpar)
 
     use bl_types, only: dp_t
+    use bl_constants_module, only: ONE
     use actual_network, only: aion, nspec, nspec_evolve
-    use burn_type_module, only: neqs
+    use burn_type_module, only: neqs, net_itemp
     use rpar_indices, only: n_rpar_comps
+    use eos_type_module, only : eos_get_small_temp
+    use extern_probin_module, only: renormalize_abundances, SMALL_X_SAFE
 
     implicit none
 
     real(dp_t) :: y(neqs), rpar(n_rpar_comps)
 
-    ! Ensure that mass fractions always stay positive.
+    real(dp_t), parameter :: MAX_TEMP = 1.0d11
 
-    y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
+    real(dp_t) :: small_temp
+
+    ! Ensure that mass fractions always stay positive and less than or equal to 1.
+
+    y(1:nspec_evolve) = max(min(y(1:nspec_evolve), ONE), SMALL_X_SAFE)
+
+    ! Renormalize the abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(y, rpar)
+    endif
+
+    ! Ensure that the temperature always stays within reasonable limits.
+
+    call eos_get_small_temp(small_temp)
+
+    y(net_itemp) = min(MAX_TEMP, max(y(net_itemp), small_temp))
 
   end subroutine clean_state
 
