@@ -1,2 +1,0 @@
-# Default to numerical Jacobian.
-jacobian                 integer   2     100
