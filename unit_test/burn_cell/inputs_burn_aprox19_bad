@@ -1,0 +1,24 @@
+&PROBIN
+
+  run_prefix = "react_urca_"
+  
+  small_temp = 1d5
+  small_dens = 1d5
+  
+  burner_verbose = .false.
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 2
+
+  renormalize_abundances = .false.
+
+  rtol_spec = 1.0d-10
+  rtol_enuc = 1.0d-6
+  rtol_temp = 1.0d-6
+  atol_spec = 1.0d-10
+  atol_enuc = 1.0d-6
+  atol_temp = 1.0d-6
+
+/
