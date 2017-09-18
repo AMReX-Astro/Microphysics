@@ -27,6 +27,7 @@ module actual_network
 
   ! nspec = number of species this network carries
   integer, parameter :: nspec = 3
+  integer, parameter :: nspec_evolve = 1
   integer, parameter :: naux  = 0
 
   ! This network does not yet use the rate_type,
