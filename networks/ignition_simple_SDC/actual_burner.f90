@@ -194,6 +194,6 @@ contains
        print *, 'number of f evaluations: ', iwork(12)
     endif
 
-  end subroutine burner
+  end subroutine actual_burner
 
 end module actual_burner_module
