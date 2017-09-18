@@ -29,6 +29,12 @@ module actual_network
   integer, parameter :: nspec = 3
   integer, parameter :: naux  = 0
 
+  ! This network does not yet use the rate_type,
+  ! but compilation requires defining these.
+  ! These are defined exactly as in ignition_simple.
+  integer, parameter :: nrates = 1
+  integer, parameter :: num_rate_groups = 4
+  
   character (len=16), save :: spec_names(nspec) 
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
