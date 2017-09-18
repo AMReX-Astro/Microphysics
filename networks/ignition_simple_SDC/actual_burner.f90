@@ -1,4 +1,4 @@
-module acutal_burner_module
+module actual_burner_module
 
   use bl_types
   use bl_constants_module
@@ -196,4 +196,4 @@ contains
 
   end subroutine burner
 
-end module acutal_burner_module
+end module actual_burner_module
