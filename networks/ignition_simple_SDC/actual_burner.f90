@@ -19,12 +19,12 @@ contains
 
   subroutine actual_burner(rhoXin, rhohin, dt, rhoout, rhoXout, rhohout, &
                            sdc_rhoX, sdc_rhoh, p0)
-
     ! outputs:
     !   rhoout is the updated density
     !   rhoXout are the updated density-weighted species (rho X_k)
     !   rhohout is the updated (rho h)
 
+    use actual_rhs_module, only : f_rhs, jac
     use burner_aux_module, only : sdc_rhoX_pass, sdc_rhoh_pass, p0_pass
 
     implicit none
@@ -104,8 +104,6 @@ contains
     
     real(kind=dp_t) :: rpar
     integer :: ipar
-
-    EXTERNAL jac, f_rhs
     
     logical, save :: firstCall = .true.
 

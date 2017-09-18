@@ -35,8 +35,6 @@ module actual_network
 
   real(kind=dp_t), save :: aion(nspec), zion(nspec), ebin(nspec)
 
-  logical, save :: network_initialized = .false.
-
 contains
   
   subroutine actual_network_init()
@@ -74,8 +72,6 @@ contains
     ebin(ic12)  = -7.4103097e18_dp_t     !  92.16294 MeV
     ebin(io16)  = -7.6959672e18_dp_t     ! 127.62093 MeV
     ebin(img24) = -7.9704080e18_dp_t     ! 198.2579  MeV
-
-    network_initialized = .true.
 
   end subroutine actual_network_init
   
