@@ -75,8 +75,8 @@ contains
 
   end subroutine actual_network_init
   
-  subroutine network_finalize()
+  subroutine actual_network_finalize()
     ! stub routine for MAESTRO
-  end subroutine network_finalize
+  end subroutine actual_network_finalize
 
 end module actual_network
