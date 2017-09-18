@@ -186,6 +186,14 @@ contains
 
   end subroutine actual_eos
 
+  subroutine actual_eos_finalize
+
+    implicit none
+
+    ! Nothing to do here, yet.
+
+  end subroutine actual_eos_finalize
+
 
 
   subroutine newton_iter(state, ierr, var, dvar, f_want)

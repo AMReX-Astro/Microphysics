@@ -1477,4 +1477,12 @@ contains
              + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
     end function
 
+    subroutine actual_eos_finalize
+
+      implicit none
+
+      ! Nothing to do here, yet.
+
+    end subroutine actual_eos_finalize
+
 end module actual_eos_module
