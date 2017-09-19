@@ -234,6 +234,14 @@ contains
 
   end subroutine actual_eos
 
+  subroutine actual_eos_finalize
+
+    implicit none
+
+    ! Nothing to do here, yet.
+
+  end subroutine actual_eos_finalize
+
 
 
   double precision function pressure(x)
