@@ -1320,7 +1320,9 @@ contains
            dd2i_sav(i) = dd2i
         end do
 
-        close(unit=2)
+        if (parallel_IOProcessor()) then
+           close(unit=2)
+        endif
 
         ! Some initialization of constants
 
