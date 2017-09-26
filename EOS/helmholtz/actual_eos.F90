@@ -1282,7 +1282,7 @@ contains
         call parallel_bcast(fdd)
         call parallel_bcast(ftt)
         call parallel_bcast(fdt)
-        call parallel_bcast(fdd)
+        call parallel_bcast(fddt)
         call parallel_bcast(fdtt)
         call parallel_bcast(fddtt)
         call parallel_bcast(dpdf)
