@@ -155,6 +155,26 @@ contains
   end subroutine rate_c12ag
 
 
+  subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
+
+    implicit none
+
+    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
+    type (tf_t)      :: tf
+
+    double precision :: a0nr,a1nr,a2nr,a3nr,a4nr,a5nr,a6nr, &
+    			a0r,a1r,a2r,a3r,a4r,a5r,a6r, &
+ 			term_nr_a0,term_nr_a1,term_nr_a2,term_nr_a3, &
+			term_nr_a4,term_nr_a5,term_nr_a6, &
+                        term_r_a0,term_r_a1,term_r_a2,term_r_a3, &
+                        term_r_a4,term_r_a5,term_r_a6, &
+			term_nr,term_r,term,dtermdt
+
+
+  end subroutine rate_c12ag_deboer17
+
 
   subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
