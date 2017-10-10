@@ -175,6 +175,40 @@ contains
 			dterm_a0,dterm_a1,dterm_a2,dterm_a3,& 
                         dterm_a4, dterm_a5,dterm_a6, &
 			term_nr,term_r,term,dtermdt
+    
+    ! from Table XXVI of deboer + 2017
+    a0_nr = 24.1d0
+    a1_nr = 0d0 
+    a2_nr = -32d0
+    a3_nr = -5.9d0
+    a4_nr = 1.8d0
+    a5_nr = -0.17d0
+    a6_nr = -twoth
+
+    term_nr_a0 = exp(a0_nr)
+    term_nr_a1 = exp(a1_nr*tf%t9i)
+    term_nr_a2 = exp(a2_nr*tf%t9i13)
+    term_nr_a3 = exp(a3_nr*tf%t913)
+    term_nr_a4 = exp(a4_nr*tf%t9)
+    term_nr_a5 = exp(a5_nr*tf%t953)
+    term_nr_a6 = exp(a6_nr*log(tf%t9))
+
+    a0_r = 7.4d0
+    a1_r = -30d0
+    a2_r = 0d0
+    a3_r = 0d0
+    a4_r = 0d0
+    a5_r = 0d0
+    a6_r = -3.0d0/2.0d0
+
+    term_r_a0 = exp(a0_r)
+    term_r_a1 = exp(a1_r*tf%t9i)
+    term_r_a2 = exp(a2_r*tf%t9i13)
+    term_r_a3 = exp(a3_r*tf%t913)
+    term_r_a4 = exp(a4_r*tf%t9)
+    term_r_a5 = exp(a5_r*tf%t953)
+    term_r_a6 = exp(a6_r*log(tf%t9))
+    
 
 
   end subroutine rate_c12ag_deboer17
