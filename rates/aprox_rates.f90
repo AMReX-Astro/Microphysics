@@ -164,8 +164,8 @@ contains
     double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
     type (tf_t)      :: tf
 
-    double precision :: a0nr,a1nr,a2nr,a3nr,a4nr,a5nr,a6nr, &
-    			a0r,a1r,a2r,a3r,a4r,a5r,a6r, &
+    double precision :: a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
+    			a0_r,a1_r,a2_r,a3_r,a4_r,a5_r,a6_r, &
  			term_nr_a0,term_nr_a1,term_nr_a2,term_nr_a3, &
 			term_nr_a4,term_nr_a5,term_nr_a6, &
                         term_r_a0,term_r_a1,term_r_a2,term_r_a3, &
@@ -175,6 +175,7 @@ contains
 			dterm_a0,dterm_a1,dterm_a2,dterm_a3,& 
                         dterm_a4, dterm_a5,dterm_a6, &
 			term_nr,term_r,term,dtermdt
+
 
   end subroutine rate_c12ag_deboer17
 
