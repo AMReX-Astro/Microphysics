@@ -209,6 +209,27 @@ contains
     term_r_a5 = exp(a5_r*tf%t953)
     term_r_a6 = exp(a6_r*log(tf%t9))
     
+    ! full rate is the incoherent sum or resonant and non-resonant contributions
+    term_a0 = term_nr_a0 + term_r_a0
+    dterm_a0 = 0d0
+
+    term_a1 = term_nr_a1 + term_r_a1
+    dterm_a1 = -a1_r*tf%t9i2*term_r_a1
+
+    term_a2 = term_nr_a2 + term_r_a2
+    dterm_a2 = -a2_r*tf%t9i43*term_nr_a2/3d0
+
+    term_a3 = term_nr_a3 + term_r_a3
+    dterm_a3 = a3_r*tf%t9i23*term_nr_a3/3d0
+
+    term_a4 = term_nr_a4 + term_r_a4
+    dterm_a4 = a4_nr*term_nr_a4
+
+    term_a5 = term_nr_a5 + term_r_a5
+    dterm_a5 = a5_nr*tf%t923*term_nr_a5*fiveth
+
+    term_a6 = term_nr_a6 + term_r_a6
+    dterm_a6 = (a6_nr*tf%t9**a6_nr+a6_r*tf%t9**a6_r)*tf%t9i 
 
 
   end subroutine rate_c12ag_deboer17
