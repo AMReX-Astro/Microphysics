@@ -170,8 +170,11 @@ contains
 			term_nr_a4,term_nr_a5,term_nr_a6, &
                         term_r_a0,term_r_a1,term_r_a2,term_r_a3, &
                         term_r_a4,term_r_a5,term_r_a6, &
+ 		        term_a0,term_a1,term_a2,term_a3,& 
+			term_a4, term_a5,term_a6, &
+			dterm_a0,dterm_a1,dterm_a2,dterm_a3,& 
+                        dterm_a4, dterm_a5,dterm_a6, &
 			term_nr,term_r,term,dtermdt
-
 
   end subroutine rate_c12ag_deboer17
 
