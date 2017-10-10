@@ -53,8 +53,8 @@ contains
     use actual_network, only: nspec
     use sdc_type_module, only: SFS, SEDEN, SEINT
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
-    use eos_module, only: eos_get_small_dens, eos_get_max_dens, eos
-    use eos_type_module, only: eos_input_rt, eos_t
+    use eos_module, only: eos
+    use eos_type_module, only: eos_input_rt, eos_t, eos_get_small_dens, eos_get_max_dens
 
 
     implicit none
@@ -297,8 +297,8 @@ contains
     use actual_network, only: nspec
     use burn_type_module, only: burn_t, burn_to_eos, eos_to_burn
     use bl_types, only: dp_t
-    use eos_type_module, only: eos_input_re, eos_t
-    use eos_module, only: eos, eos_get_small_temp, eos_get_max_temp
+    use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
+    use eos_module, only: eos
     use sdc_type_module, only: SEDEN, SEINT, SFS
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
@@ -347,11 +347,11 @@ contains
 
   subroutine dump_bs_state(bs)
     
-    use eos_type_module, only: eos_input_re, eos_t
+    use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
     use sdc_type_module, only: SEDEN, SEINT, SFS
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
     use actual_network, only: nspec
-    use eos_module, only: eos, eos_get_small_temp, eos_get_max_temp
+    use eos_module, only: eos
 
     type (bs_t) :: bs
     type (eos_t) :: eos_state
