@@ -174,7 +174,7 @@ contains
 			term_a4, term_a5,term_a6, &
 			dterm_a0,dterm_a1,dterm_a2,dterm_a3,& 
                         dterm_a4, dterm_a5,dterm_a6, &
-			term_nr,term_r,term,dtermdt
+			term,dtermdt
     
     ! from Table XXVI of deboer + 2017
     a0_nr = 24.1d0
@@ -230,6 +230,21 @@ contains
 
     term_a6 = term_nr_a6 + term_r_a6
     dterm_a6 = (a6_nr*tf%t9**a6_nr+a6_r*tf%t9**a6_r)*tf%t9i 
+
+    term = term_a0 + term_a1 + term_a2 + & 
+	   term_a3 + term_a4 + term_a5 + term_a6
+
+    dtermdt = dterm_a0 + dterm_a1 + dterm_a2 + &
+              dterm_a3 + dterm_a4 + dterm_a5 + dterm_a6
+
+    fr    = term * den
+    dfrdt = dtermdt * den * 1.0d-9
+
+    rev    = 5.13d10 * tf%t932 * exp(-83.1140816*tf%t9i)
+    drevdt = rev*(1.5d0*tf%t9i + 83.1140816*tf%t9i2)
+
+    rr     = rev * term
+    drrdt  = (drevdt*term + rev*dtermdt) * 1.0d-9
 
 
   end subroutine rate_c12ag_deboer17
