@@ -887,7 +887,7 @@ contains
     ! Determine which c12(a,g)o16 rate to use
     if (use_c12ag_deboer17) then
     ! deboer + 2017 c12(a,g)o16 rate
-       call rate_c12ag(tf,bden, &
+       call rate_c12ag_deboer17(tf,bden, &
                     ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
                     ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
     else
