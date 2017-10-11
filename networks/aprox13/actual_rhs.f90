@@ -976,9 +976,6 @@ contains
                     ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
     endif
 
-    write(*,*) ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag)
-    write(*,*) ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga)
-
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
                       ratraw(ir3a),dratrawdt(ir3a),dratrawdd(ir3a), &
