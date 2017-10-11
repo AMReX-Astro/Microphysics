@@ -154,17 +154,18 @@ contains
 
   end subroutine rate_c12ag
 
-
+  ! This routine computes the nuclear reaction rate for 12C(a,g)16O and its inverse 
+  ! using fit parameters from Deboer et al. 2017 (https://doi.org/10.1103/RevModPhys.89.035007).
   subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
     implicit none
 
-    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd
     type (tf_t)      :: tf
 
-    double precision :: a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
+    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd, &
+			a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
     			a0_r,a1_r,a2_r,a3_r,a4_r,a5_r,a6_r, &
                         term_a0_nr,term_a1_nr,term_a2_nr,term_a3_nr, &
                         term_a4_nr,term_a5_nr,term_a6_nr, &
@@ -178,6 +179,7 @@ contains
 			term,dtermdt,rev,drevdt
     
     ! from Table XXVI of deboer + 2017
+    ! non-resonant contributions to the reaction
     a0_nr = 24.1d0
     a1_nr = 0d0 
     a2_nr = -32d0
@@ -212,6 +214,7 @@ contains
                (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * dterm_a5_nr * term_a6_nr) + &
                (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * dterm_a6_nr)
 
+    ! resonant contributions to the reaction
     a0_r = 7.4d0
     a1_r = -30d0
     a2_r = 0d0
@@ -244,7 +247,7 @@ contains
 	      (term_a0_r * term_a1_r * dterm_a6_r)
     
 
-    ! full rate is the incoherent sum or resonant and non-resonant contributions
+    ! full rate is the sum of resonant and non-resonant contributions
     term = term_nr + term_r 
     dtermdt = dterm_nr + dterm_r
 
