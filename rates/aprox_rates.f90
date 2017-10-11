@@ -166,14 +166,15 @@ contains
 
     double precision :: a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
     			a0_r,a1_r,a2_r,a3_r,a4_r,a5_r,a6_r, &
- 			term_nr_a0,term_nr_a1,term_nr_a2,term_nr_a3, &
-			term_nr_a4,term_nr_a5,term_nr_a6, &
-                        term_r_a0,term_r_a1,term_r_a2,term_r_a3, &
-                        term_r_a4,term_r_a5,term_r_a6, &
- 		        term_a0,term_a1,term_a2,term_a3,& 
-			term_a4, term_a5,term_a6, &
-			dterm_a0,dterm_a1,dterm_a2,dterm_a3,& 
-                        dterm_a4, dterm_a5,dterm_a6, &
+                        term_a0_nr,term_a1_nr,term_a2_nr,term_a3_nr, &
+                        term_a4_nr,term_a5_nr,term_a6_nr, &
+                        term_a0_r,term_a1_r,term_a2_r,term_a3_r, &
+                        term_a4_r,term_a5_r,term_a6_r, &
+                        dterm_a0_nr,dterm_a1_nr,dterm_a2_nr,dterm_a3_nr,&
+                        dterm_a4_nr,dterm_a5_nr,dterm_a6_nr, &
+                        dterm_a0_r,dterm_a1_r,dterm_a2_r,dterm_a3_r,&
+                        dterm_a4_r,dterm_a5_r,dterm_a6_r, &
+                        term_nr,term_r,dterm_nr,dterm_r,  &
 			term,dtermdt,rev,drevdt
     
     ! from Table XXVI of deboer + 2017
@@ -185,13 +186,31 @@ contains
     a5_nr = -0.17d0
     a6_nr = -twoth
 
-    term_nr_a0 = exp(a0_nr)
-    term_nr_a1 = exp(a1_nr*tf%t9i)
-    term_nr_a2 = exp(a2_nr*tf%t9i13)
-    term_nr_a3 = exp(a3_nr*tf%t913)
-    term_nr_a4 = exp(a4_nr*tf%t9)
-    term_nr_a5 = exp(a5_nr*tf%t953)
-    term_nr_a6 = exp(a6_nr*log(tf%t9))
+    term_a0_nr = exp(a0_nr)
+    term_a1_nr = exp(a1_nr*tf%t9i)
+    term_a2_nr = exp(a2_nr*tf%t9i13)
+    term_a3_nr = exp(a3_nr*tf%t913)
+    term_a4_nr = exp(a4_nr*tf%t9)
+    term_a5_nr = exp(a5_nr*tf%t953)
+    term_a6_nr = tf%t9**a6_nr
+
+    term_nr = term_a0_nr * term_a1_nr * term_a2_nr * &
+              term_a3_nr * term_a4_nr * term_a5_nr * &
+              term_a6_nr
+
+    dterm_a0_nr = 0d0
+    dterm_a1_nr = 0d0
+    dterm_a2_nr = -a2_nr*tf%t9i43*term_a2_nr/3d0
+    dterm_a3_nr = a3_nr*tf%t9i23*term_a3_nr/3d0
+    dterm_a4_nr = a4_nr*term_a4_nr
+    dterm_a5_nr = a5_nr*tf%t923*term_a5_nr*fiveth
+    dterm_a6_nr = tf%t9i*a6_nr*tf%t9**a6_nr
+
+    dterm_nr = (term_a0_nr * term_a1_nr * dterm_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * dterm_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * dterm_a4_nr * term_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * dterm_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * dterm_a6_nr)
 
     a0_r = 7.4d0
     a1_r = -30d0
@@ -201,41 +220,33 @@ contains
     a5_r = 0d0
     a6_r = -3.0d0/2.0d0
 
-    term_r_a0 = exp(a0_r)
-    term_r_a1 = exp(a1_r*tf%t9i)
-    term_r_a2 = exp(a2_r*tf%t9i13)
-    term_r_a3 = exp(a3_r*tf%t913)
-    term_r_a4 = exp(a4_r*tf%t9)
-    term_r_a5 = exp(a5_r*tf%t953)
-    term_r_a6 = exp(a6_r*log(tf%t9))
+    term_a0_r = exp(a0_r)
+    term_a1_r = exp(a1_r*tf%t9i)
+    term_a2_r = exp(a2_r*tf%t9i13)
+    term_a3_r = exp(a3_r*tf%t913)
+    term_a4_r = exp(a4_r*tf%t9)
+    term_a5_r = exp(a5_r*tf%t953)
+    term_a6_r = tf%t9**a6_r
+
+    term_r = term_a0_r * term_a1_r * term_a2_r * &
+              term_a3_r * term_a4_r * term_a5_r * &
+              term_a6_r
+
+    dterm_a0_r = 0d0
+    dterm_a1_r = -a1_r*tf%t9i2*term_a1_r
+    dterm_a2_r = 0d0
+    dterm_a3_r = 0d0
+    dterm_a4_r = 0d0
+    dterm_a5_r = 0d0
+    dterm_a6_r = tf%t9i*a6_r*tf%t9**a6_r
     
+    dterm_r = (term_a0_r * dterm_a1_r * term_a6_r) + &
+	      (term_a0_r * term_a1_r * dterm_a6_r)
+    
+
     ! full rate is the incoherent sum or resonant and non-resonant contributions
-    term_a0 = term_nr_a0 + term_r_a0
-    dterm_a0 = 0d0
-
-    term_a1 = term_nr_a1 + term_r_a1
-    dterm_a1 = -a1_r*tf%t9i2*term_r_a1
-
-    term_a2 = term_nr_a2 + term_r_a2
-    dterm_a2 = -a2_nr*tf%t9i43*term_nr_a2/3d0
-
-    term_a3 = term_nr_a3 + term_r_a3
-    dterm_a3 = a3_nr*tf%t9i23*term_nr_a3/3d0
-
-    term_a4 = term_nr_a4 + term_r_a4
-    dterm_a4 = a4_nr*term_nr_a4
-
-    term_a5 = term_nr_a5 + term_r_a5
-    dterm_a5 = a5_nr*tf%t923*term_nr_a5*fiveth
-
-    term_a6 = term_nr_a6 + term_r_a6
-    dterm_a6 = (a6_nr*tf%t9**a6_nr+a6_r*tf%t9**a6_r)*tf%t9i 
-
-    term = term_a0 + term_a1 + term_a2 + & 
-	   term_a3 + term_a4 + term_a5 + term_a6
-
-    dtermdt = dterm_a0 + dterm_a1 + dterm_a2 + &
-              dterm_a3 + dterm_a4 + dterm_a5 + dterm_a6
+    term = term_nr + term_r 
+    dtermdt = dterm_nr + dterm_r
 
     fr    = term * den
     dfrdt = dtermdt * den * 1.0d-9
