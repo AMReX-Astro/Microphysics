@@ -240,8 +240,11 @@ contains
     fr    = term * den
     dfrdt = dtermdt * den * 1.0d-9
 
-    rev    = 5.13d10 * tf%t932 * exp(-83.1140816*tf%t9i)
-    drevdt = rev*(1.5d0*tf%t9i + 83.1140816*tf%t9i2)
+    ! first term is 9.8685d9 * T9**(2/3) * (M0*M1/M3)**(3/2) 
+    ! see iliadis 2007 eqn. 3.44
+    ! ratio of partition functions are assumed to be unity
+    rev    = 5.1345573d10 * tf%t932 * exp(-83.114082*tf%t9i)
+    drevdt = rev*(1.5d0*tf%t9i + 83.114082*tf%t9i2)
 
     rr     = rev * term
     drrdt  = (drevdt*term + rev*dtermdt) * 1.0d-9
