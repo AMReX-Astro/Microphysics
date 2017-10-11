@@ -217,10 +217,10 @@ contains
     dterm_a1 = -a1_r*tf%t9i2*term_r_a1
 
     term_a2 = term_nr_a2 + term_r_a2
-    dterm_a2 = -a2_r*tf%t9i43*term_nr_a2/3d0
+    dterm_a2 = -a2_nr*tf%t9i43*term_nr_a2/3d0
 
     term_a3 = term_nr_a3 + term_r_a3
-    dterm_a3 = a3_r*tf%t9i23*term_nr_a3/3d0
+    dterm_a3 = a3_nr*tf%t9i23*term_nr_a3/3d0
 
     term_a4 = term_nr_a4 + term_r_a4
     dterm_a4 = a4_nr*term_nr_a4
