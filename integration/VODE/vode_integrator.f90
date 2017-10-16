@@ -316,18 +316,6 @@ contains
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)
 
-    if (state_in % rho == 18522771.246038310d0) then
-       print *, 'oops'
-       print *, 'istate = ', istate
-       print *, 'time = ', local_time
-       print *, 'dens = ', state_in % rho
-       print *, 'temp start = ', state_in % T
-       print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', state_out % T
-       print *, 'xn current = ', state_out % xn
-       print *, 'energy generated = ', state_out % e - state_in % e
-    end if
-
     ! Subtract the energy offset
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
