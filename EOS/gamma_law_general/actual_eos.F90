@@ -209,6 +209,7 @@ contains
     ! sound speed
     state % cs = sqrt(gamma_const * state % p * rhoinv)
 
+#ifdef EXTRA_THERMO
     state % dpdA = - state % p * (ONE/state % abar)
     state % dedA = - state % e * (ONE/state % abar)
 
@@ -219,6 +220,7 @@ contains
       state % dpdZ = state % p * (ONE/(ONE + state % zbar))
       state % dedZ = state % e * (ONE/(ONE + state % zbar))
     endif
+#endif
 
   end subroutine actual_eos
 

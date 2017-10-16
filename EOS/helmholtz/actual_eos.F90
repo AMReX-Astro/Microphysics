@@ -214,6 +214,7 @@ contains
                             detadt,detadd,xnefer,dxnedt,dxnedd,s, &
                             temp,den,abar,zbar,ytot1,ye
 
+#if EXTRA_THERMO
         !..for the abar derivatives
         double precision :: dpradda,deradda,dsradda, &
                             dpionda,deionda,dsionda, &
@@ -228,7 +229,7 @@ contains
                             dpepdz,deepdz,dsepdz,    &
                             dpresdz,denerdz,dentrdz ,&
                             detadz,dxnedz
-
+#endif
 
 
         !..for the interpolations
@@ -384,20 +385,26 @@ contains
            prad    = asoli3 * temp * temp * temp * temp
            dpraddd = 0.0d0
            dpraddt = 4.0d0 * prad*tempi
+#ifdef EXTRA_THERMO
            dpradda = 0.0d0
            dpraddz = 0.0d0
+#endif
 
            erad    = 3.0d0 * prad*deni
            deraddd = -erad*deni
            deraddt = 3.0d0 * dpraddt*deni
+#ifdef EXTRA_THERMO
            deradda = 0.0d0
            deraddz = 0.0d0
+#endif
 
            srad    = (prad*deni + erad)*tempi
            dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
            dsraddt = (dpraddt*deni + deraddt - srad)*tempi
+#ifdef EXTRA_THERMO
            dsradda = 0.0d0
            dsraddz = 0.0d0
+#endif
 
            !..ion section:
            xni     = avo_eos * ytot1 * den
@@ -407,14 +414,18 @@ contains
            pion    = xni * kt
            dpiondd = dxnidd * kt
            dpiondt = xni * kerg
+#ifdef EXTRA_THERMO
            dpionda = dxnida * kt
            dpiondz = 0.0d0
+#endif
 
            eion    = 1.5d0 * pion*deni
            deiondd = (1.5d0 * dpiondd - eion)*deni
            deiondt = 1.5d0 * dpiondt*deni
+#ifdef EXTRA_THERMO
            deionda = 1.5d0 * dpionda*deni
            deiondz = 0.0d0
+#endif
 
            x       = abar*abar*sqrt(abar) * deni/avo_eos
            s       = sioncon * temp
@@ -427,9 +438,11 @@ contains
                 (pion*deni + eion) * tempi*tempi  &
                 + 1.5d0 * kergavo * tempi*ytot1
            x       = avo_eos*kerg/abar
+#ifdef EXTRA_THERMO
            dsionda = (dpionda*deni + deionda)*tempi  &
                 + kergavo*ytot1*ytot1* (2.5d0 - y)
            dsiondz = 0.0d0
+#endif
 
            !..electron-positron section:
            !..assume complete ionization
@@ -656,9 +669,11 @@ contains
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
+#ifdef EXTRA_THERMO
            !..derivative with respect to abar and zbar
            detada = -x * din * ytot1
            detadz =  x * den * ytot1
+#endif
 
            !..look in the number density table only once
            fi(1)  = xf(iat,jat)
@@ -695,9 +710,11 @@ contains
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
+#ifdef EXTRA_THERMO
            !..derivative with respect to abar and zbar
            dxneda = -x * din * ytot1
            dxnedz =  x  * den * ytot1
+#endif
 
            !..the desired electron-positron thermodynamic quantities
 
@@ -710,21 +727,27 @@ contains
            dpepdt  = x * df_dt
            !     dpepdd  = ye * (x * df_dd + 2.0d0 * din * df_d)
            s       = dpepdd/ye - 2.0d0 * din * df_d
+#ifdef EXTRA_THERMO
            dpepda  = -ytot1 * (2.0d0 * pele + s * din)
            dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
+#endif
 
            x       = ye * ye
            sele    = -df_t * ye
            dsepdt  = -df_tt * ye
            dsepdd  = -df_dt * x
+#ifdef EXTRA_THERMO
            dsepda  = ytot1 * (ye * df_dt * din - sele)
            dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
+#endif
 
            eele    = ye*free + temp * sele
            deepdt  = temp * dsepdt
            deepdd  = x * df_d + temp * dsepdd
+#ifdef EXTRA_THERMO
            deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
            deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+#endif
 
            !..coulomb section:
            !..initialize
@@ -808,8 +831,10 @@ contains
                  s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
                  dpcouldd = -dpiondd*z - pion*s*plasgdd
                  dpcouldt = -dpiondt*z - pion*s*plasgdt
+#ifdef EXTRA_THERMO
                  dpcoulda = -dpionda*z - pion*s*plasgda
                  dpcouldz = -dpiondz*z - pion*s*plasgdz
+#endif
 
                  s        = 3.0d0/den
                  decouldd = s * dpcouldd - ecoul/den
@@ -859,18 +884,23 @@ contains
 
            dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
            dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
+#ifdef EXTRA_THERMO
            dpresda = dpradda + dpionda + dpepda + dpcoulda
            dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
-
+#endif
            denerdd = deraddd + deiondd + deepdd + decouldd
            denerdt = deraddt + deiondt + deepdt + decouldt
+#ifdef EXTRA_THERMO
            denerda = deradda + deionda + deepda + decoulda
            denerdz = deraddz + deiondz + deepdz + decouldz
+#endif
 
            dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
            dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
+#ifdef EXTRA_THERMO
            dentrda = dsradda + dsionda + dsepda + dscoulda
            dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
+#endif
 
            !..the temperature and density exponents (c&g 9.81 9.82)
            !..the specific heat at constant volume (c&g 9.92)
@@ -902,16 +932,20 @@ contains
            ptot_row = pres
            dpt_row = dpresdt
            dpd_row = dpresdd
+#ifdef EXTRA_THERMO
            dpa_row = dpresda
            dpz_row = dpresdz
+#endif
            dpe_row = dpresdt / denerdt
            dpdr_e_row = dpresdd - dpresdt * denerdd / denerdt
 
            etot_row = ener
            det_row = denerdt
            ded_row = denerdd
+#ifdef EXTRA_THERMO
            dea_row = denerda
            dez_row = denerdz
+#endif
 
            stot_row = entr
            dst_row = dentrdt
@@ -1103,16 +1137,22 @@ contains
         state % dpdT = dpt_row
         state % dpdr = dpd_row
 
+#ifdef EXTRA_THERMO
         state % dpdA = dpa_row
         state % dpdZ = dpz_row
+#endif
+
         state % dpde = dpe_row
         state % dpdr_e = dpdr_e_row
 
         state % e    = etot_row
         state % dedT = det_row
         state % dedr = ded_row
+
+#ifdef EXTRA_THERMO
         state % dedA = dea_row
         state % dedZ = dez_row
+#endif
 
         state % s    = stot_row
         state % dsdT = dst_row
