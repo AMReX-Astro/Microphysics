@@ -10,7 +10,7 @@
   tmax = 1.d-6
 
   xin_file   = "xin.aprox19"
-  run_prefix = "react_aprox19_"
+  run_prefix = "react_aprox19_bm0_"
 
   jacobian = 2 
   centered_diff_jac = T
