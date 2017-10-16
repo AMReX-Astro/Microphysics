@@ -251,7 +251,6 @@ contains
     call eos(eos_input_re, eos_state)
     call eos_to_burn(eos_state, burn_state)
 
-    burn_state % time = time
 
     if (rpar(irp_self_heat) > ZERO) then
        burn_state % self_heat = .true.
