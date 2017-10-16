@@ -1,6 +1,11 @@
 
 # changes since last merge:
 
+ -- the compositional derivatives are no longer available
+    by default from the EOS.  To get these, set the preprocessor
+    variable EXTRA_THERMO.  This change was done for performance
+    reasons.
+
  -- the aprox19 and aprox21 networks no longer use a numerical
     Jacobian by default, as this was found to result in some
     bad numerical issues in VODE
