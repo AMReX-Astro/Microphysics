@@ -1,3 +1,4 @@
-f90EXE_sources += actual_eos.f90
+F90EXE_sources += actual_eos.F90
+
 
 

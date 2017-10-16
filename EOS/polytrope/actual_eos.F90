@@ -266,6 +266,7 @@ contains
 
     state % gam1 = gamma_const
 
+#ifdef EXTRA_THERMO
     ! Compute dPdX, dedX, dhdX.
 
     state % dpdA = - state % p / state % abar
@@ -273,6 +274,7 @@ contains
 
     state % dedA = - state % e / state % abar
     state % dedZ =   state % e / (ONE + state % zbar)
+#endif
 
     ! sound speed
     state % cs = sqrt(gamma_const*pres/dens)

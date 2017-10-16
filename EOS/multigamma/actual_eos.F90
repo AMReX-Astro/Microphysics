@@ -201,6 +201,7 @@ contains
     state % dpde   = state % dpdT / state % dedT
 
 
+#ifdef EXTRA_THERMO
     ! These need to be worked out.
     state % dpdA = ZERO
     state % dedA = ZERO
@@ -215,6 +216,7 @@ contains
 
     state % dhdX(:) = state % dedX(:) + (state % p / state % rho**2 - state % dedr) &
          *  state % dpdX(:) / state % dpdr
+#endif
 
     ! Sound speed
     state % cs = sqrt(state % gam1 * state % p / dens)

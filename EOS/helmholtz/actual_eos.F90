@@ -1103,16 +1103,22 @@ contains
         state % dpdT = dpt_row
         state % dpdr = dpd_row
 
+#ifdef EXTRA_THERMO
         state % dpdA = dpa_row
         state % dpdZ = dpz_row
+#endif
+
         state % dpde = dpe_row
         state % dpdr_e = dpdr_e_row
 
         state % e    = etot_row
         state % dedT = det_row
         state % dedr = ded_row
+
+#ifdef EXTRA_THERMO
         state % dedA = dea_row
         state % dedZ = dez_row
+#endif
 
         state % s    = stot_row
         state % dsdT = dst_row
