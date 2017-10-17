@@ -28,6 +28,11 @@ module burn_type_module
     real(dp_t) :: aux(naux)
 #endif
 
+#if (SDC_METHOD == 2)
+    ! For SDC_METHOD = 2, make pressure available to RHS
+    real(dp_t) :: p0
+#endif
+
     real(dp_t) :: cv
     real(dp_t) :: cp
     real(dp_t) :: y_e
