@@ -49,6 +49,16 @@ contains
     type (sdc_t),  intent(in   ) :: state_in
     type (sdc_t),  intent(inout) :: state_out
     real(dp_t),    intent(in   ) :: dt, time
+    type (integration_status_t)  :: status
+
+    status % atol_spec = atol_spec
+    status % rtol_spec = rtol_spec
+
+    status % atol_temp = atol_temp
+    status % rtol_temp = rtol_temp
+
+    status % atol_enuc = atol_enuc
+    status % rtol_enuc = rtol_enuc
 
     type (integration_status_t) :: status
 
