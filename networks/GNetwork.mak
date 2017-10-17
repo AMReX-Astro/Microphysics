@@ -8,6 +8,22 @@ include $(NETWORK_TOP_DIR)/$(strip $(NETWORK_DIR))/NETWORK_REQUIRES
 NET_DIRS := $(NETWORK_TOP_DIR)
 NET_DIRS += $(NETWORK_TOP_DIR)/$(NETWORK_DIR)
 
+# Add the preprocessor directive SDC_METHOD to distinguish between:
+#
+# SDC_METHOD = 1
+# - This is the method implemented in Castro
+# - We integrate rho*X, internal energy, and total energy
+# - We carry momentum through the integration via unevolved variables
+#
+# SDC_METHOD = 2
+# - This is the method implemented in MAESTRO
+# - We integrate rho*X and rho*h (enthalpy)
+# - We pass through the pressure to the integration to allow for
+#   calling the EOS using pressure as an input variable.
+
+SDC_METHOD ?= 1
+FPP_DEFINES += -DSDC_METHOD=$(SDC_METHOD)
+
 # the integrator is specified by INTEGRATOR_DIR.  We set the default to VODE
 # here
 INTEGRATOR_DIR ?= VODE
