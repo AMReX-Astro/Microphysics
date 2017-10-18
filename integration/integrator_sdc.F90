@@ -41,6 +41,8 @@ contains
     use bl_types, only: dp_t
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
+    use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
+                                    atol_spec, atol_temp, atol_enuc
 
     implicit none
 
@@ -49,6 +51,15 @@ contains
     real(dp_t),    intent(in   ) :: dt, time
 
     type (integration_status_t) :: status
+
+    status % atol_spec = atol_spec
+    status % rtol_spec = rtol_spec
+
+    status % atol_temp = atol_temp
+    status % rtol_temp = rtol_temp
+
+    status % atol_enuc = atol_enuc
+    status % rtol_enuc = rtol_enuc
 
 #if INTEGRATOR == 0
     call vode_integrator(state_in, state_out, dt, time, status)
