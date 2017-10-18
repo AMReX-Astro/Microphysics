@@ -4,8 +4,13 @@ module stiff_ode
   use bl_types
   use burn_type_module
   use bs_type_module
+#ifdef SDC
+  use bs_rhs_module
+  use bs_jac_module
+#else
   use rhs_module
   use jac_module
+#endif
 
   implicit none
 

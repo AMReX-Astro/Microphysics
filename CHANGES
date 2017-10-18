@@ -1,5 +1,5 @@
 
-# changes since last merge:
+# 17.10
 
  -- the compositional derivatives are no longer available
     by default from the EOS.  To get these, set the preprocessor
@@ -8,15 +8,17 @@
 
  -- the aprox19 and aprox21 networks no longer use a numerical
     Jacobian by default, as this was found to result in some
-    bad numerical issues in VODE
+    bad numerical issues in VODE (PR #49)
 
  -- the maximum temperature for reactions, MAX_TEMP, is now
     an adjustable input parameter rather than being hardcoded
     at 1.d11.
 
-# previous changes:
+ -- the Helmholtz EOS table is now read by the IO processor and
+    broadcast to other processors (PR #53)
 
-
+ -- the VODE integrator now does some additional checks on the
+    state to ensure consistency (PR #47)
 
 * 17.09
 

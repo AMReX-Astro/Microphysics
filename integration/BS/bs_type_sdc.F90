@@ -182,7 +182,7 @@ contains
     bs % k = sdc % k
 
     bs % n_rhs = sdc % n_rhs
-    bs % n_rhs = sdc % n_rhs
+    bs % n_jac = sdc % n_jac
 
     bs % T_from_eden = sdc % T_from_eden
 
