@@ -31,9 +31,10 @@ module sdc_type_module
   ! integrate rho*X (species masses) and rho*h (enthalpy)
   ! carry pressure for EOS calls in RHS
 
-  integer, parameter :: SSPEC = 1
-  integer, parameter :: SENTH = SSPEC + nspec
+  integer, parameter :: SFS = 1
+  integer, parameter :: SENTH = SFS + nspec
   integer, parameter :: SVAR  = SENTH
+  integer, parameter :: SVAR_EVOLVE = SVAR
 #endif
 
   type :: sdc_t
@@ -46,6 +47,8 @@ module sdc_type_module
 #elif (SDC_METHOD == 2)
      ! Pressure in case we wish to use it for EOS calls
      real(dp_t) :: p0
+     ! Density is defined by sum(rho*X) = rho in this method
+     real(dp_t) :: rho
 #endif
 
      integer :: i
