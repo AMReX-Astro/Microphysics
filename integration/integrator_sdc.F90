@@ -35,8 +35,6 @@ contains
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
     use bs_integrator_module, only: bs_integrator
-#else
-    use actual_integrator_module, only: actual_integrator_init
 #endif
 
     use bl_error_module, only: bl_error
