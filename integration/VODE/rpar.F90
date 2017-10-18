@@ -81,8 +81,12 @@ module rpar_indices
   ! indexed using the indicies defined in sdc_type_module
   integer, parameter :: irp_ydot_a = 2
 
+  ! This is the pressure component, carried in case we
+  ! wish to call the EOS using pressure as an input
+  integer, parameter :: irp_p0 = irp_ydot_a + SVAR
+
   ! These are various bookkeeping parameters
-  integer, parameter :: irp_self_heat = irp_ydot_a + SVAR
+  integer, parameter :: irp_self_heat = irp_p0 + 1
   integer, parameter :: irp_t0 = irp_self_heat + 1
   integer, parameter :: irp_i = irp_t0 + 1
   integer, parameter :: irp_j = irp_t0 + 2
