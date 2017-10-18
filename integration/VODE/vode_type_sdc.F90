@@ -175,6 +175,12 @@ contains
 
 #endif
 
+    ! bookkeeping information
+    rpar(irp_i) = state_in % i
+    rpar(irp_j) = state_in % j
+    rpar(irp_k) = state_in % k
+!    rpar(irp_iter) = state_in % sdc_iter
+
   end subroutine sdc_to_vode
 
   subroutine vode_to_sdc(time, y, rpar, sdc)
