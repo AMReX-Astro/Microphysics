@@ -113,6 +113,8 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
+#if (SDC_METHOD == 1)
+
     atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
     atol(SEDEN)           = status % atol_enuc ! total energy
     atol(SEINT)           = status % atol_enuc ! internal energy
@@ -120,6 +122,16 @@ contains
     rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
     rtol(SEDEN)           = status % rtol_enuc ! total energy
     rtol(SEINT)           = status % rtol_enuc ! internal energy
+
+#elif (SDC_METHOD == 2)
+
+    atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
+    atol(SENTH)           = status % atol_enuc ! enthalpy
+
+    rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
+    rtol(SENTH)           = status % rtol_enuc ! enthalpy
+
+#endif
 
     ! We want VODE to re-initialize each time we call it.
 
