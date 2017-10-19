@@ -81,6 +81,8 @@ contains
        call renormalize_species(state)
     endif
 
+#if (SDC_METHOD == 1)
+
     ! Ensure that internal energy never goes above the maximum limit
     ! provided by the EOS. Same for the internal energy implied by the
     ! total energy (which we get by subtracting kinetic energy).
@@ -99,6 +101,8 @@ contains
 
     state % y(SEDEN) = min(state % u(irp_SRHO) * max_e + ke, state % y(SEDEN))
 
+#endif
+
   end subroutine clean_state
 
 
@@ -107,8 +111,18 @@ contains
 
     !$acc routine seq
 
+#if (SDC_METHOD == 1)
+
     use sdc_type_module, only: SRHO, SMX, SMZ
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ    
+
+#elif (SDC_METHOD == 2)
+
+    use actual_network, only: nspec
+    use sdc_type_module, only: SFS
+    use rpar_indices, only: irp_SRHO
+
+#endif
 
     implicit none
 
@@ -117,10 +131,21 @@ contains
     ! we are always integrating from t = 0, so there is no offset time
     ! needed here
 
+#if (SDC_METHOD == 1)
+
     state % u(irp_SRHO) = state % u_init(irp_SRHO) + &
          state % udot_a(irp_SRHO) * state % t
     state % u(irp_SMX:irp_SMZ) = state % u_init(irp_SMX:irp_SMZ) + &
          state % udot_a(irp_SMX:irp_SMZ) * state % t
+
+#elif (SDC_METHOD == 2)
+
+    ! SDC_METHOD = 2 doesn't update unevolved variables
+    ! with advective source terms, but the density is
+    ! kept consistent with the partial densities.
+    state % u(irp_SRHO) = sum(state % y(SFS:SFS - 1 + nspec))
+
+#endif    
 
   end subroutine fill_unevolved_variables
 
@@ -140,6 +165,12 @@ contains
 
     real(dp_t) :: nspec_sum
 
+    ! We only renormalize below for SDC_METHOD = 1 because
+    ! in SDC_METHOD = 2, we define the density as
+    ! the sum of the partial densities so nspec_sum = 1
+
+#if (SDC_METHOD == 1)
+
     ! Update rho, rho*u, etc.
 
     call fill_unevolved_variables(state)
@@ -148,6 +179,8 @@ contains
 
     state % y(SFS:SFS+nspec-1) = state % y(SFS:SFS+nspec-1) / nspec_sum
 
+#endif
+    
   end subroutine renormalize_species
 
 
@@ -156,8 +189,17 @@ contains
 
     !$acc routine seq
 
+#if (SDC_METHOD == 1)
+
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE, SRHO, SMX, SMZ
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+
+#elif (SDC_METHOD == 2)
+
+    use sdc_type_module, only: sdc_t, SVAR_EVOLVE, SRHO
+    use rpar_indices, only: irp_SRHO
+
+#endif
 
     implicit none
 
@@ -168,6 +210,8 @@ contains
     bs % y_init = bs % y
     bs % ydot_a = sdc % ydot_a(1:SVAR_EVOLVE)
 
+#if (SDC_METHOD == 1)
+    
     ! these variables are not evolved
     bs % u(irp_SRHO) = sdc % y(SRHO)
     bs % u(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
@@ -177,14 +221,21 @@ contains
 
     bs % u_init = bs % u
 
+    bs % T_from_eden = sdc % T_from_eden
+
+#elif (SDC_METHOD == 2)
+
+    bs % u(irp_SRHO) = sdc % rho
+    bs % u(irp_p0)   = sdc % p0
+
+#endif
+
     bs % i = sdc % i
     bs % j = sdc % j
     bs % k = sdc % k
 
     bs % n_rhs = sdc % n_rhs
     bs % n_jac = sdc % n_jac
-
-    bs % T_from_eden = sdc % T_from_eden
 
   end subroutine sdc_to_bs
 
@@ -193,8 +244,17 @@ contains
 
     !$acc routine seq
 
+#if (SDC_METHOD == 1)
+
     use sdc_type_module, only: sdc_t, SRHO, SMX, SMZ
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+
+#elif (SDC_METHOD == 2)
+
+    use sdc_type_module, only: sdc_t, SRHO
+    use rpar_indices, only: irp_SRHO
+
+#endif
 
     implicit none
 
@@ -205,8 +265,17 @@ contains
 
     call fill_unevolved_variables(bs)
 
+#if (SDC_METHOD == 1)
+
     sdc % y(SRHO) = bs % u(irp_SRHO)
     sdc % y(SMX:SMZ) = bs % u(irp_SMX:irp_SMZ)
+
+#elif (SDC_METHOD == 2)
+
+    sdc % rho = bs % u(irp_SRHO)
+    sdc % p0  = bs % u(irp_p0)
+
+#endif
 
     sdc % n_rhs = bs % n_rhs
     sdc % n_jac = bs % n_jac
@@ -221,7 +290,17 @@ contains
 
     use actual_network, only: nspec_evolve, aion
     use burn_type_module, only: burn_t, net_ienuc
+
+#if (SDC_METHOD == 1)
+
     use sdc_type_module, only: SVAR_EVOLVE, SEDEN, SEINT, SFS
+
+#elif (SDC_METHOD == 2)
+
+    use sdc_type_module, only: SVAR_EVOLVE, SENTH, SFS
+
+#endif
+    
     use rpar_indices, only: irp_SRHO
 
     implicit none
@@ -242,8 +321,16 @@ contains
     bs % ydot(SFS:SFS+nspec_evolve-1) = bs % ydot(SFS:SFS+nspec_evolve-1) + &
                                         bs % u(irp_SRHO) * burn % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
+#if (SDC_METHOD == 1)
+
     bs % ydot(SEINT) = bs % ydot(SEINT) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
     bs % ydot(SEDEN) = bs % ydot(SEDEN) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
+
+#elif (SDC_METHOD == 2)
+
+    bs % ydot(SENTH) = bs % ydot(SENTH) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
+
+#endif
 
   end subroutine rhs_to_bs
 
@@ -255,7 +342,16 @@ contains
 
     use network, only: nspec_evolve, aion, aion_inv
     use burn_type_module, only: burn_t, net_ienuc
+
+#if (SDC_METHOD == 1)
+
     use sdc_type_module, only: SEDEN, SEINT, SFS
+
+#elif (SDC_METHOD == 2)
+
+    use sdc_type_module, only: SENTH, SFS
+
+#endif
 
     implicit none
 
@@ -265,6 +361,8 @@ contains
     integer :: n
 
     ! Copy the Jacobian from the burn
+
+#if (SDC_METHOD == 1)
 
     bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn % jac(1:nspec_evolve,1:nspec_evolve)
     bs % jac(SFS:SFS+nspec_evolve-1,SEDEN) = burn % jac(1:nspec_evolve,net_ienuc)
@@ -277,6 +375,16 @@ contains
     bs % jac(SEINT,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
     bs % jac(SEINT,SEDEN) = burn % jac(net_ienuc,net_ienuc)
     bs % jac(SEINT,SEINT) = burn % jac(net_ienuc,net_ienuc)
+
+#elif (SDC_METHOD == 2)
+
+    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn % jac(1:nspec_evolve,1:nspec_evolve)
+    bs % jac(SFS:SFS+nspec_evolve-1,SENTH) = burn % jac(1:nspec_evolve,net_ienuc)
+
+    bs % jac(SENTH,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SENTH,SENTH) = burn % jac(net_ienuc,net_ienuc)
+
+#endif
 
     ! Scale it to match our variables. We don't need to worry about the rho
     ! dependence, since every one of the SDC variables is linear in rho, so
@@ -297,10 +405,23 @@ contains
     use actual_network, only: nspec
     use burn_type_module, only: burn_t, burn_to_eos, eos_to_burn
     use bl_types, only: dp_t
+
+#if (SDC_METHOD == 1)
+
     use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
-    use eos_module, only: eos
     use sdc_type_module, only: SEDEN, SEINT, SFS
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+
+#elif (SDC_METHOD == 2)
+
+    use eos_type_module, only: eos_input_rh, eos_t, eos_get_small_temp, eos_get_max_temp    
+    use sdc_type_module, only: SENTH, SFS
+    use rpar_indices, only: irp_SRHO
+    use probin_module, only: use_tfromp
+
+#endif
+
+    use eos_module, only: eos
 
     implicit none
 
@@ -319,11 +440,19 @@ contains
     eos_state % rho = bs % u(irp_SRHO)
     eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
+#if (SDC_METHOD == 1)    
+
     if (bs % T_from_eden) then
        eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
        eos_state % e = bs % y(SEINT) * rhoInv
     endif
+
+#elif (SDC_METHOD == 2)
+
+    eos_state % h = bs % y(SENTH) * rhoInv
+
+#endif
 
     ! Give the temperature an initial guess -- use the geometric mean
     ! of the minimum and maximum temperatures.
@@ -333,7 +462,24 @@ contains
 
     eos_state % T = sqrt(min_temp * max_temp)
 
+#if (SDC_METHOD == 1)
+
     call eos(eos_input_re, eos_state)
+
+#elif (SDC_METHOD == 2)
+
+    if (use_tfromp) then
+
+       call bl_error("Error: SDC_METHOD = 2 requires use_tfromp = F")
+
+    else
+
+       call eos(eos_input_rh, eos_state)
+
+    endif
+
+#endif
+
     call eos_to_burn(eos_state, burn)
 
     burn % time = bs % t
@@ -343,13 +489,30 @@ contains
 
     burn % self_heat = bs % self_heat
 
+#if (SDC_METHOD == 2)
+
+    burn % p0 = bs % u(irp_p0)
+
+#endif
+
   end subroutine bs_to_burn
 
   subroutine dump_bs_state(bs)
-    
+
+#if (SDC_METHOD == 1)
+
     use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
     use sdc_type_module, only: SEDEN, SEINT, SFS
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+
+#elif (SDC_METHOD == 2)
+
+    use eos_type_module, only: eos_input_rh, eos_t, eos_get_small_temp, eos_get_max_temp
+    use sdc_type_module, only: SENTH, SFS
+    use rpar_indices, only: irp_SRHO
+
+#endif
+
     use actual_network, only: nspec
     use eos_module, only: eos
 
@@ -365,11 +528,19 @@ contains
     eos_state % rho = bs % u(irp_SRHO)
     eos_state % xn  = bs % y(SFS:SFS+nspec-1) * rhoInv
 
+#if (SDC_METHOD == 1)
+
     if (bs % T_from_eden) then
        eos_state % e = (bs % y(SEDEN) - HALF * rhoInv * sum(bs % u(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
        eos_state % e = bs % y(SEINT) * rhoInv
     endif
+
+#elif (SDC_METHOD == 2)
+
+    eos_state % h = bs % y(SENTH) * rhoInv
+
+#endif
 
     ! Give the temperature an initial guess -- use the geometric mean
     ! of the minimum and maximum temperatures.
@@ -379,7 +550,23 @@ contains
 
     eos_state % T = sqrt(min_temp * max_temp)
 
+#if (SDC_METHOD == 1)
+
     call eos(eos_input_re, eos_state)
+
+#elif (SDC_METHOD == 2)
+
+    if (use_tfromp) then
+
+       call bl_error("Error: SDC_METHOD = 2 requires use_tfromp = F")
+
+    else
+
+       call eos(eos_input_rh, eos_state)
+
+    endif
+
+#endif
 
     print *, "time: ", bs % t
     print *, "T:    ", eos_state % T
