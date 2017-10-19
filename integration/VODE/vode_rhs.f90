@@ -93,7 +93,7 @@
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
     use network, only: aion, aion_inv, nspec_evolve
-    use bl_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
