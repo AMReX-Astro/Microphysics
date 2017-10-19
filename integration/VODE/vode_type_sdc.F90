@@ -176,10 +176,10 @@ contains
 #endif
 
     ! bookkeeping information
-    rpar(irp_i) = state_in % i
-    rpar(irp_j) = state_in % j
-    rpar(irp_k) = state_in % k
-!    rpar(irp_iter) = state_in % sdc_iter
+    rpar(irp_i) = sdc % i
+    rpar(irp_j) = sdc % j
+    rpar(irp_k) = sdc % k
+!    rpar(irp_iter) = sdc % sdc_iter
 
   end subroutine sdc_to_vode
 
