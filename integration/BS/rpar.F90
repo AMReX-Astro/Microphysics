@@ -23,6 +23,9 @@ module rpar_indices
 
   integer, parameter :: n_rpar_comps = irp_t0 + 1
 #else
+
+#if (SDC_METHOD == 1)
+
   ! note: we require these components to be first, to allow for use to
   ! index bs % u_init and bs % udot_a
   integer, parameter :: irp_SRHO = 1
@@ -33,6 +36,17 @@ module rpar_indices
   integer, parameter :: irp_t0 = irp_SMZ + 1
 
   integer, parameter :: n_rpar_comps = irp_t0
+
+#elif (SDC_METHOD == 2)
+
+  integer, parameter :: irp_SRHO = 1
+  integer, parameter :: irp_p0   = 2
+  integer, parameter :: irp_t0   = 3
+
+  integer, parameter :: n_rpar_comps = irp_t0
+
+#endif
+
 #endif
 
 end module rpar_indices
