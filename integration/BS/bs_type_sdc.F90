@@ -51,22 +51,34 @@ contains
 
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: nspec
+
+#if (SDC_METHOD == 1)
+
     use sdc_type_module, only: SFS, SEDEN, SEINT
     use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
     use eos_module, only: eos
     use eos_type_module, only: eos_input_rt, eos_t, eos_get_small_dens, eos_get_max_dens
 
+#elif (SDC_METHOD == 2)
+
+    use sdc_type_module, only: SFS, SENTH
+    use rpar_indices, only: irp_SRHO
+
+#endif
 
     implicit none
+
+    type (bs_t) :: state
+
+#if (SDC_METHOD == 1)
 
     ! this should be larger than any reasonable temperature we will encounter
     real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
 
     real (kind=dp_t) :: max_e, ke
-
-    type (bs_t) :: state
-
     type (eos_t) :: eos_state
+
+#endif
 
     ! Update rho, rho*u, etc.
     call fill_unevolved_variables(state)
@@ -196,8 +208,8 @@ contains
 
 #elif (SDC_METHOD == 2)
 
-    use sdc_type_module, only: sdc_t, SVAR_EVOLVE, SRHO
-    use rpar_indices, only: irp_SRHO
+    use sdc_type_module, only: sdc_t, SVAR_EVOLVE
+    use rpar_indices, only: irp_SRHO, irp_p0
 
 #endif
 
@@ -251,8 +263,8 @@ contains
 
 #elif (SDC_METHOD == 2)
 
-    use sdc_type_module, only: sdc_t, SRHO
-    use rpar_indices, only: irp_SRHO
+    use sdc_type_module, only: sdc_t
+    use rpar_indices, only: irp_SRHO, irp_p0
 
 #endif
 
@@ -416,7 +428,7 @@ contains
 
     use eos_type_module, only: eos_input_rh, eos_t, eos_get_small_temp, eos_get_max_temp    
     use sdc_type_module, only: SENTH, SFS
-    use rpar_indices, only: irp_SRHO
+    use rpar_indices, only: irp_SRHO, irp_p0
     use probin_module, only: use_tfromp
 
 #endif
@@ -510,6 +522,7 @@ contains
     use eos_type_module, only: eos_input_rh, eos_t, eos_get_small_temp, eos_get_max_temp
     use sdc_type_module, only: SENTH, SFS
     use rpar_indices, only: irp_SRHO
+    use probin_module, only: use_tfromp
 
 #endif
 
