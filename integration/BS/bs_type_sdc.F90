@@ -416,6 +416,7 @@ contains
 
     use actual_network, only: nspec
     use burn_type_module, only: burn_t, burn_to_eos, eos_to_burn
+    use bl_error_module
     use bl_types, only: dp_t
 
 #if (SDC_METHOD == 1)
@@ -510,6 +511,8 @@ contains
   end subroutine bs_to_burn
 
   subroutine dump_bs_state(bs)
+
+    use bl_error_module
 
 #if (SDC_METHOD == 1)
 
