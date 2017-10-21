@@ -121,7 +121,7 @@ contains
 
     !$acc routine seq
 
-    use managed_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
