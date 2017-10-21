@@ -9,6 +9,7 @@ ALL: test_enum
 
 bl_error.o : bl_types.o parallel_stubs.o
 parallel_stubs.o : bl_types.o
+test_enum.o : bl_types.o microphysics_math.o
 
 %.o: %.f90
 	gfortran -c $<
