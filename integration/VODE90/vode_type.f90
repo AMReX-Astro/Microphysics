@@ -16,6 +16,7 @@ contains
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps
+    use extern_probin_module, only: renormalize_abundances
 
     implicit none
 
@@ -24,6 +25,12 @@ contains
     ! Ensure that mass fractions always stay positive.
 
     y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
+
+    ! Renormalize the abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(y, rpar)
+    endif
 
   end subroutine clean_state
 
