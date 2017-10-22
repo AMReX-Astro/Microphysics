@@ -173,7 +173,7 @@ print-%: ; @echo $* is $($*)
 # probin.F90 and build_info.f90 -- this is where the '::' in make comes
 # in handy
 clean ::
-	$(RM) probin.F90
+	$(RM) probin.F90 probin.f90
 	$(RM) build_info.f90
 
 
