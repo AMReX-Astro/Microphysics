@@ -64,7 +64,7 @@
     endif
 
     ! apply fudge factor:
-    if (react_boost > ONE) then
+    if (react_boost > ZERO) then
        burn_state % ydot(:) = react_boost * burn_state % ydot(:)
     endif
 
@@ -125,7 +125,7 @@
     enddo
 
     ! apply fudge factor:
-    if (react_boost > ONE) then
+    if (react_boost > ZERO) then
        state % jac(:,:) = react_boost * state % jac(:,:)
     endif
 
