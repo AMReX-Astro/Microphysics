@@ -9,7 +9,7 @@
   tmax = 1.d-6
 
   xin_file   = "xin.aprox13"
-  run_prefix = "react_aprox13_"
+  run_prefix = "react_aprox13_sdc_"
 
   jacobian = 2
 /
