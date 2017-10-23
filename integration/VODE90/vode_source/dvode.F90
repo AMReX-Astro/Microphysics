@@ -462,12 +462,12 @@ contains
     
     integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
     integer    :: IWORK(LIW)
-    integer    :: IPAR(:)    
+    integer    :: IPAR(n_ipar_comps)
     real(dp_t) :: T, TOUT
     real(dp_t) :: Y(NEQ)
     real(dp_t) :: RTOL(NEQ), ATOL(NEQ)
     type(rwork_t) :: RWORK
-    real(dp_t) :: RPAR(:)
+    real(dp_t) :: RPAR(n_rpar_comps)
 
     logical    :: IHIT
     real(dp_t) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
