@@ -10,7 +10,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvhin(N, T0, YH, RPAR, IPAR, TOUT, UROUND, &
+  subroutine dvhin(vstate, T0, YH, RPAR, IPAR, TOUT, UROUND, &
        EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
 
     !$acc routine seq
@@ -59,21 +59,28 @@ contains
 
     use rpar_indices
     use vode_rhs_module, only: f_rhs
+    use dvode_type_module, only: dvode_t
     use bl_types, only: dp_t
   
     implicit none
   
-    real(dp_t) :: T0, RPAR(:), TOUT, UROUND
-    real(dp_t) :: ATOL(:), Y(:), H0
-    integer    :: N, IPAR(:), ITOL, NITER, IER
-    real(dp_t) :: YH(:,:)
-    real(dp_t) :: TEMP(:), EWT(:)
+    type (dvode_t), intent(inout) :: vstate
+
+    real(dp_t) :: T0, RPAR(n_rpar_comps), TOUT, UROUND
+    real(dp_t) :: ATOL(vstate % NEQ), Y(vstate % NEQ), H0
+    integer    :: IPAR(n_ipar_comps), ITOL, NITER, IER
+    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
+    real(dp_t) :: TEMP(vstate % N), EWT(vstate % NEQ)
+
+    integer    :: N
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM, dscratch
     integer    :: I, ITER
 
     real(dp_t), parameter :: PT1 = 0.1D0
+
+    N = vstate % N
 
     NITER = 0
     TDIST = ABS(TOUT - T0)
