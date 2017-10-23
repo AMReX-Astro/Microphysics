@@ -1422,132 +1422,147 @@ contains
 
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
-    function psi0(z)
+    pure function psi0(z) result(psi0r)
     !$acc routine seq
-        double precision :: z, psi0
-        psi0 = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
-    end function
+      double precision, intent(in) :: z
+      double precision :: psi0r
+      psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
+    end function psi0
 
-    function dpsi0(z)
+    pure function dpsi0(z) result(dpsi0r) 
     !$acc routine seq
-        double precision :: z, dpsi0
-        dpsi0 = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: dpsi0r
+      dpsi0r = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
+    end function dpsi0
 
-    function ddpsi0(z)
+    pure function ddpsi0(z) result(ddpsi0r)
     !$acc routine seq
-        double precision :: z, ddpsi0
-        ddpsi0 = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: ddpsi0r
+      ddpsi0r = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
+    end function ddpsi0
 
     ! psi1 and its derivatives
-    function psi1(z)
+    pure function psi1(z) result(psi1r)
     !$acc routine seq
-        double precision :: z, psi1
-        psi1 = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: psi1r
+      psi1r = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
+    end function psi1
 
-    function dpsi1(z)
+    pure function dpsi1(z) result(dpsi1r)
     !$acc routine seq
-        double precision :: z, dpsi1
-        dpsi1 = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
-    end function
+      double precision, intent(in) :: z
+      double precision :: dpsi1r
+      dpsi1r = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
+    end function dpsi1
 
-    function ddpsi1(z)
+    pure function ddpsi1(z) result(ddpsi1r)
     !$acc routine seq
-        double precision :: z, ddpsi1
-        ddpsi1 = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: ddpsi1r
+      ddpsi1r = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
+    end function ddpsi1
 
     ! psi2  and its derivatives
-    function psi2(z)
-    !$acc routine seq
-        double precision :: z, psi2
-        psi2 = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
-    end function
+    pure function psi2(z) result(psi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: psi2r
+      psi2r = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
+    end function psi2
 
-    function dpsi2(z)
-    !$acc routine seq
-        double precision :: z, dpsi2
-        dpsi2 = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
-    end function
+    pure function dpsi2(z) result(dpsi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: dpsi2r
+      dpsi2r = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
+    end function dpsi2
 
-    function ddpsi2(z)
-    !$acc routine seq
-        double precision :: z, ddpsi2
-        ddpsi2 = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
-    end function
+    pure function ddpsi2(z) result(ddpsi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: ddpsi2r
+      ddpsi2r = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
+    end function ddpsi2
 
 
     ! biquintic hermite polynomial function
-    function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md)
-    !$acc routine seq
-        double precision :: fi(36)
-        double precision :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md,h5
+    pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
+      !$acc routine seq
+      double precision, intent(in) :: fi(36)
+      double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
+      double precision :: h5r
 
-        h5 =   fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
-             + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
-             + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
-             + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
-             + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
-             + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
-             + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
-             + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
-             + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
-             + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
-             + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
-             + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
-             + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
-             + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
-             + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
-             + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
-             + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
-             + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
+      h5r =  fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
+           + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
+           + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
+           + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
+           + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
+           + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
+           + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
+           + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
+           + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
+           + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
+           + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
+           + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
+           + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
+           + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
+           + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
+           + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
+           + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
+           + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
     end function h5
 
 
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
-    function xpsi0(z)
-    !$acc routine seq
-        double precision :: z, xpsi0
-        xpsi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
-    end function
+    pure function xpsi0(z) result(xpsi0r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xpsi0r
+      xpsi0r = z * z * (2.0d0*z - 3.0d0) + 1.0
+    end function xpsi0
 
-    function xdpsi0(z)
-    !$acc routine seq
-        double precision :: z, xdpsi0
-        xdpsi0 = z * (6.0d0*z - 6.0d0)
-    end function
+    pure function xdpsi0(z) result(xdpsi0r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xdpsi0r
+      xdpsi0r = z * (6.0d0*z - 6.0d0)
+    end function xdpsi0
 
 
     ! psi1 & derivatives
-    function xpsi1(z)
-    !$acc routine seq
-        double precision :: z, xpsi1
-        xpsi1 = z * ( z * (z - 2.0d0) + 1.0d0)
-    end function
+    pure function xpsi1(z) result(xpsi1r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xpsi1r
+      xpsi1r = z * ( z * (z - 2.0d0) + 1.0d0)
+    end function xpsi1
 
-    function xdpsi1(z)
-    !$acc routine seq
-        double precision :: z, xdpsi1
-        xdpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
-    end function
+    pure function xdpsi1(z) result(xdpsi1r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xdpsi1r
+      xdpsi1r = z * (3.0d0*z - 4.0d0) + 1.0d0
+    end function xdpsi1
 
     ! bicubic hermite polynomial function
-    function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md)
-    !$acc routine seq
-        double precision :: fi(36)
-        double precision :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md,h3
-        h3 =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
-             + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
-             + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
-             + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
-             + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
-             + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
-             + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
-             + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
-    end function
+    pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
+      !$acc routine seq
+      double precision, intent(in) :: fi(36)
+      double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
+      double precision :: h3r
+      h3r =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
+           + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
+           + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
+           + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
+           + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
+           + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
+           + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
+           + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
+    end function h3
 
     subroutine actual_eos_finalize
 
