@@ -59,7 +59,7 @@ module vode_type_module
      real(dp_t) :: ewt(neqs)
      real(dp_t) :: savf(neqs)
      real(dp_t) :: acor(neqs)
-  end type rwork_t  
+  end type rwork_t
 
 contains
   
