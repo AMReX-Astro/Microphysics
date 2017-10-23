@@ -40,8 +40,8 @@ contains
     implicit none
   
     integer    :: I, N, ITOL
-    real(dp_t) :: RTOL(:), ATOL(:)
-    real(dp_t) :: YCUR(:), EWT(:)
+    real(dp_t) :: RTOL(N), ATOL(N)
+    real(dp_t) :: YCUR(N), EWT(N)
 
     GO TO (10, 20, 30, 40), ITOL
 10  CONTINUE
