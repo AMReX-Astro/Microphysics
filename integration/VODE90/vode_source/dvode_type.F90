@@ -12,7 +12,7 @@ module dvode_type_module
      real(dp_t) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST     
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
-     integer    :: L, LMAX, LIWM
+     integer    :: L, LMAX, LIWM, LIW, LENWM
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
      integer    :: N, NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP, NYH
@@ -94,6 +94,8 @@ contains
     write(*,*) 'L = ', dvode_state % L
     write(*,*) 'LMAX = ', dvode_state % LMAX
     write(*,*) 'LIWM = ', dvode_state % LIWM
+    write(*,*) 'LIW = ', dvode_state % LIW
+    write(*,*) 'LENWM = ', dvode_state % LENWM
     write(*,*) 'LOCJS = ', dvode_state % LOCJS
     write(*,*) 'MAXORD = ', dvode_state % MAXORD
     write(*,*) 'METH = ', dvode_state % METH
