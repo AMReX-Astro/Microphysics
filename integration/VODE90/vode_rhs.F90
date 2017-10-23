@@ -23,14 +23,14 @@ contains
          integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
 
     implicit none
 
-    integer,    intent(IN   ) :: neq, ipar(:)
-    real(dp_t), intent(INOUT) :: time, y(:)
-    real(dp_t), intent(INOUT) :: rpar(:)
-    real(dp_t), intent(INOUT) :: ydot(:)
+    integer,    intent(IN   ) :: neq, ipar(n_ipar_comps)
+    real(dp_t), intent(INOUT) :: time, y(neq)
+    real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
+    real(dp_t), intent(INOUT) :: ydot(neq)
 
     type (burn_t) :: burn_state
 
