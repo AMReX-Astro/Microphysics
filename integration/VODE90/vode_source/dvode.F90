@@ -1260,7 +1260,7 @@ contains
     integer    :: IC
 
     do IC = 1,NCOL
-       CALL DCOPY (NROW, A(:,IC), 1, B(:,IC), 1)
+       CALL DCOPYN (NROW, A(:,IC), 1, B(:,IC), 1)
     end do
     RETURN
   end subroutine dacopy
@@ -1369,7 +1369,7 @@ contains
        CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
             rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPY (LENP, rwork % WM(3:3 + LENP - 1), 1, &
+          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
        endif
     ENDIF
@@ -1399,7 +1399,7 @@ contains
        vstate % NFE = vstate % NFE + vstate % N
        LENP = vstate % N * vstate % N
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPY (LENP, rwork % WM(3:3 + LENP - 1), 1, &
+          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
        end if
     ENDIF
@@ -1407,7 +1407,7 @@ contains
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
        LENP = vstate % N * vstate % N
-       CALL DCOPY (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
+       CALL DCOPYN (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
             rwork % WM(3:3 + LENP - 1), 1)
     ENDIF
 
@@ -1660,7 +1660,7 @@ contains
     M = 0
     DELP = ZERO
 
-    CALL DCOPY(vstate % N, rwork % yh(:,1), 1, Y, 1)
+    CALL DCOPYN(vstate % N, rwork % yh(:,1), 1, Y, 1)
     CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
@@ -1697,7 +1697,7 @@ contains
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
-    CALL DCOPY(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
+    CALL DCOPYN(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
 
     GO TO 400
     ! -----------------------------------------------------------------------
@@ -2429,7 +2429,7 @@ contains
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
     
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -2558,7 +2558,7 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-    CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
