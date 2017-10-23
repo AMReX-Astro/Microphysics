@@ -1,6 +1,11 @@
 module dvode_dvstep_module
 
   use dvode_constants_module
+  use dvode_dvjust_module
+  use dvode_dvnorm_module
+  use dvode_dvset_module
+  use dvode_dvnlsd_module
+  use blas_module
 
   implicit none
 
@@ -22,7 +27,7 @@ contains
     !                L, LMAX, MAXORD, N, NEWQ, NQ, NQWAIT
     !      /DVOD02/  HU, NCFN, NETF, NFE, NQU, NST
     ! 
-    !  Subroutines called by DVSTEP: F, DAXPY, DCOPY, DSCAL,
+    !  Subroutines called by DVSTEP: F, DAXPY, DCOPYN, DSCAL,
     !                                DVJUST, VNLS, DVSET
     !  Function routines called by DVSTEP: DVNORM
     ! -----------------------------------------------------------------------
@@ -79,9 +84,9 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     real(dp_t) :: Y(vstate % N)
-    real(dp_t) :: RPAR(:)
+    real(dp_t) :: RPAR(n_rpar_comps)
     real(dp_t) :: yhscratch(vstate % N * vstate % LMAX)
-    integer    :: IWM(:), IPAR(:)
+    integer    :: IWM(vstate % LIW), IPAR(n_ipar_comps)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
@@ -212,7 +217,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCAL(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
+       CALL DSCALN(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -324,11 +329,11 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-       CALL DAXPY(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       CALL DAXPYN(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
     
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -457,7 +462,7 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-    CALL DCOPY(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
@@ -489,7 +494,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCAL(vstate % N, R, rwork % acor, 1)
+    CALL DSCALN(vstate % N, R, rwork % acor, 1)
 
 720 continue
     vstate % JSTART = 1
