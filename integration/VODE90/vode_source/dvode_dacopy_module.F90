@@ -18,7 +18,7 @@ contains
     !  Call sequence output -- B
     !  COMMON block variables accessed -- None
     ! 
-    !  Subroutines called by DACOPY: DCOPY
+    !  Subroutines called by DACOPY: DCOPYN
     !  Function routines called by DACOPY: None
     ! -----------------------------------------------------------------------
     !  This routine copies one rectangular array, A, to another, B,
@@ -37,7 +37,7 @@ contains
     integer    :: IC
 
     do IC = 1,NCOL
-       CALL DCOPY (NROW, A(:,IC), 1, B(:,IC), 1)
+       CALL DCOPYN (NROW, A(:,IC), 1, B(:,IC), 1)
     end do
     RETURN
   end subroutine dacopy
