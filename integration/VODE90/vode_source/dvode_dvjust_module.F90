@@ -161,7 +161,7 @@ contains
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPY(vstate % N, vstate % EL(J), &
+       CALL DAXPYN(vstate % N, vstate % EL(J), &
             rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
     end do
     RETURN
