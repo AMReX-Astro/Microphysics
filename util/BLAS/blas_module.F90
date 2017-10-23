@@ -8,12 +8,11 @@ contains
   attributes(device) &
 #endif
   SUBROUTINE DCOPYN(N,DX,INCX,DY,INCY)
+
+  ! Only operates on vectors of size N
+
     INTEGER INCX,INCY,N
     DOUBLE PRECISION DX(N),DY(N)
-
-! DCOPYN takes two vectors each of length N.
-! This is not the case for the ordinary DCOPY.
-
 ! *  Purpose
 ! *  =======
 ! *
