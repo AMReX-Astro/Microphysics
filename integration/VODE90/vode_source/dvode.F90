@@ -1719,7 +1719,7 @@ contains
        CALL DSCALN (vstate % N, CSCALE, Y, 1)
     ENDIF
     DEL = DVNORM (vstate % N, Y, rwork % EWT)
-    call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
+    call daxpyn(vstate % N, ONE, Y, 1, rwork % acor, 1)
 
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
@@ -1911,7 +1911,7 @@ contains
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPY(vstate % N, vstate % EL(J), &
+       CALL DAXPYN(vstate % N, vstate % EL(J), &
             rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
     end do
     RETURN
@@ -2425,7 +2425,7 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-       CALL DAXPY(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       CALL DAXPYN(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
