@@ -57,8 +57,8 @@ contains
   
     type(dvode_t) :: vstate
     real(dp_t) :: T
-    real(dp_t) :: YH(:,:)
-    real(dp_t) :: DKY(:)
+    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
+    real(dp_t) :: DKY(vstate % N)
     integer    :: K, IFLAG
 
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
@@ -107,7 +107,7 @@ contains
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCAL (vstate % N, R, DKY, 1)
+    CALL DSCALN(vstate % N, R, DKY, 1)
     RETURN
 
 80  continue
