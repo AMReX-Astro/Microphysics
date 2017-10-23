@@ -9,6 +9,7 @@ module dvode_dvjac_module
   use dvode_type_module, only: dvode_t
   use bl_types, only: dp_t
   use dvode_dvnorm_module, only: dvnorm
+  use rpar_indices
   
   implicit none
 
@@ -30,7 +31,7 @@ contains
     !                MITER, MSBJ, N, NSLJ
     !      /DVOD02/  NFE, NST, NJE, NLU
     ! 
-    !  Subroutines called by DVJAC: F, JAC, DACOPY, DCOPY, DGBFA, DGEFA,
+    !  Subroutines called by DVJAC: F, JAC, DACOPY, DCOPYN, DGBFA, DGEFA,
     !                               DSCAL
     !  Function routines called by DVJAC: DVNORM
     ! -----------------------------------------------------------------------
@@ -84,9 +85,9 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     
-    real(dp_t) :: Y(:)
-    real(dp_t) :: RPAR(:)
-    integer    :: IWM(:), IERPJ, IPAR(:)
+    real(dp_t) :: Y(vstate % N)
+    real(dp_t) :: RPAR(n_rpar_comps)
+    integer    :: IWM(vstate % LIW), IERPJ, IPAR(n_ipar_comps)
 
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
@@ -118,7 +119,7 @@ contains
        CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
             rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPY (LENP, rwork % WM(3:3 + LENP - 1), 1, &
+          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
        endif
     ENDIF
@@ -148,7 +149,7 @@ contains
        vstate % NFE = vstate % NFE + vstate % N
        LENP = vstate % N * vstate % N
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPY (LENP, rwork % WM(3:3 + LENP - 1), 1, &
+          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
        end if
     ENDIF
@@ -156,14 +157,14 @@ contains
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
        LENP = vstate % N * vstate % N
-       CALL DCOPY (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
+       CALL DCOPYN (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
             rwork % WM(3:3 + LENP - 1), 1)
     ENDIF
 
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-       CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       CALL DSCALN(LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
        J = 3
        NP1 = vstate % N + 1
        do I = 1,vstate % N
@@ -276,7 +277,7 @@ contains
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-    CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    CALL DSCALN(LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
     II = MBAND + 2
     do I = 1,vstate % N
        rwork % WM(II) = rwork % WM(II) + ONE
