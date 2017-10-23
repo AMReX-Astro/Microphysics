@@ -30,6 +30,425 @@ contains
 
 #ifdef CUDA
   attributes(device) &
+#endif  
+  function dumach() result(dum)
+
+    !$acc routine seq
+    
+    ! ***BEGIN PROLOGUE  DUMACH
+    ! ***PURPOSE  Compute the unit roundoff of the machine.
+    ! ***CATEGORY  R1
+    ! ***TYPE      DOUBLE PRECISION (RUMACH-S, DUMACH-D)
+    ! ***KEYWORDS  MACHINE CONSTANTS
+    ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
+    ! ***DESCRIPTION
+    !  *Usage:
+    !         DOUBLE PRECISION  A, DUMACH
+    !         A = DUMACH()
+    ! 
+    !  *Function Return Values:
+    !      A : the unit roundoff of the machine.
+    ! 
+    !  *Description:
+    !      The unit roundoff is defined as the smallest positive machine
+    !      number u such that  1.0 + u .ne. 1.0.  This is computed by DUMACH
+    !      in a machine-independent manner.
+    ! 
+    ! ***REFERENCES  (NONE)
+    ! ***ROUTINES CALLED  (NONE)
+    ! ***REVISION HISTORY  (YYMMDD)
+    !    930216  DATE WRITTEN
+    !    930818  Added SLATEC-format prologue.  (FNF)
+    ! ***END PROLOGUE  DUMACH
+    ! 
+    ! *Internal Notes:
+    ! -----------------------------------------------------------------------
+    !  Subroutines/functions called by DUMACH.. None
+    ! -----------------------------------------------------------------------
+    ! **End
+    !
+
+    implicit none
+  
+    real(dp_t) :: U, dum
+    dum = EPSILON(U)
+  end function dumach
+
+#ifdef CUDA
+  attributes(device) &
+#endif  
+  subroutine dewset(N, ITOL, RTOL, ATOL, YCUR, EWT)
+
+    !$acc routine seq
+    
+    ! ***BEGIN PROLOGUE  DEWSET
+    ! ***SUBSIDIARY
+    ! ***PURPOSE  Set error weight vector.
+    ! ***TYPE      DOUBLE PRECISION (SEWSET-S, DEWSET-D)
+    ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
+    ! ***DESCRIPTION
+    ! 
+    !   This subroutine sets the error weight vector EWT according to
+    !       EWT(i) = RTOL(i)*ABS(YCUR(i)) + ATOL(i),  i = 1,...,N,
+    !   with the subscript on RTOL and/or ATOL possibly replaced by 1 above,
+    !   depending on the value of ITOL.
+    ! 
+    ! ***SEE ALSO  DLSODE
+    ! ***ROUTINES CALLED  (NONE)
+    ! ***REVISION HISTORY  (YYMMDD)
+    !    791129  DATE WRITTEN
+    !    890501  Modified prologue to SLATEC/LDOC format.  (FNF)
+    !    890503  Minor cosmetic changes.  (FNF)
+    !    930809  Renamed to allow single/double precision versions. (ACH)
+    ! ***END PROLOGUE  DEWSET
+    ! **End
+
+    implicit none
+  
+    integer    :: I, N, ITOL
+    real(dp_t) :: RTOL(N), ATOL(N)
+    real(dp_t) :: YCUR(N), EWT(N)
+
+    GO TO (10, 20, 30, 40), ITOL
+10  CONTINUE
+    do I = 1,N
+       EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(1)
+    end do
+    RETURN
+20  CONTINUE
+    do I = 1,N
+       EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(I)
+    end do
+    RETURN
+30  CONTINUE
+    do I = 1,N
+       EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(1)
+    end do
+    RETURN
+40  CONTINUE
+
+    do I = 1,N
+       EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(I)
+    end do
+    RETURN
+  end subroutine dewset
+
+#ifdef CUDA
+  attributes(device) &
+#endif  
+  function dvnorm(N, V, W) result(dvn)
+
+    !$acc routine seq
+    
+    ! ***BEGIN PROLOGUE  DVNORM
+    ! ***SUBSIDIARY
+    ! ***PURPOSE  Weighted root-mean-square vector norm.
+    ! ***TYPE      DOUBLE PRECISION (SVNORM-S, DVNORM-D)
+    ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
+    ! ***DESCRIPTION
+    ! 
+    !   This function routine computes the weighted root-mean-square norm
+    !   of the vector of length N contained in the array V, with weights
+    !   contained in the array W of length N:
+    !     DVNORM = SQRT( (1/N) * SUM( V(i)*W(i) )**2 )
+    ! 
+    ! ***SEE ALSO  DLSODE
+    ! ***ROUTINES CALLED  (NONE)
+    ! ***REVISION HISTORY  (YYMMDD)
+    !    791129  DATE WRITTEN
+    !    890501  Modified prologue to SLATEC/LDOC format.  (FNF)
+    !    890503  Minor cosmetic changes.  (FNF)
+    !    930809  Renamed to allow single/double precision versions. (ACH)
+    ! ***END PROLOGUE  DVNORM
+    ! **End
+
+    implicit none
+
+    integer    :: N, I
+    real(dp_t) :: V(N), W(N)
+    real(dp_t) :: SUM, dvn, dscratch
+
+    SUM = 0.0D0
+    do I = 1,N
+       SUM = SUM + (V(I)*W(I))**2
+    end do
+    dscratch = SUM/N
+    dvn = SQRT(dscratch)
+    RETURN
+  end function dvnorm
+  
+#ifdef CUDA
+  attributes(device) &
+#endif
+  subroutine dvhin(vstate, T0, YH, RPAR, IPAR, TOUT, UROUND, &
+       EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
+
+    !$acc routine seq
+    
+    ! -----------------------------------------------------------------------
+    !  Call sequence input -- N, T0, Y0, YDOT, F, RPAR, IPAR, TOUT, UROUND,
+    !                         EWT, ITOL, ATOL, Y, TEMP
+    !  Call sequence output -- H0, NITER, IER
+    !  COMMON block variables accessed -- None
+    ! 
+    !  Subroutines called by DVHIN:  F
+    !  Function routines called by DVHI: DVNORM
+    ! -----------------------------------------------------------------------
+    !  This routine computes the step size, H0, to be attempted on the
+    !  first step, when the user has not supplied a value for this.
+    ! 
+    !  First we check that TOUT - T0 differs significantly from zero.  Then
+    !  an iteration is done to approximate the initial second derivative
+    !  and this is used to define h from w.r.m.s.norm(h**2 * yddot / 2) = 1.
+    !  A bias factor of 1/2 is applied to the resulting h.
+    !  The sign of H0 is inferred from the initial values of TOUT and T0.
+    ! 
+    !  Communication with DVHIN is done with the following variables:
+    ! 
+    !  N      = Size of ODE system, input.
+    !  T0     = Initial value of independent variable, input.
+    !
+    !  Y0     = Vector of initial conditions, input.
+    !  YDOT   = Vector of initial first derivatives, input.
+    !  [NOTE: Y0 = YH(:,1) and YDOT = YH(:,2) in this subroutine now]
+    !
+    !  F      = Name of subroutine for right-hand side f(t,y), input.
+    !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
+    !  TOUT   = First output value of independent variable
+    !  UROUND = Machine unit roundoff
+    !  EWT, ITOL, ATOL = Error weights and tolerance parameters
+    !                    as described in the driver routine, input.
+    !  Y, TEMP = Work arrays of length N.
+    !  H0     = Step size to be attempted, output.
+    !  NITER  = Number of iterations (and of f evaluations) to compute H0,
+    !           output.
+    !  IER    = The error flag, returned with the value
+    !           IER = 0  if no trouble occurred, or
+    !           IER = -1 if TOUT and T0 are considered too close to proceed.
+    ! -----------------------------------------------------------------------
+
+    use vode_rhs_module, only: f_rhs
+  
+    implicit none
+
+    type(dvode_t) :: vstate
+
+    real(dp_t) :: T0, RPAR(n_rpar_comps), TOUT, UROUND
+    real(dp_t) :: ATOL(vstate % NEQ), Y(vstate % NEQ), H0
+    integer    :: IPAR(n_ipar_comps), ITOL, NITER, IER
+    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
+    real(dp_t) :: TEMP(vstate % NEQ), EWT(vstate % NEQ)
+
+    real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
+    real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM, dscratch
+    integer    :: I, ITER, N
+
+    real(dp_t), parameter :: PT1 = 0.1D0
+
+    N = vstate % N
+
+    NITER = 0
+    TDIST = ABS(TOUT - T0)
+    TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
+    IF (TDIST .LT. TWO*TROUND) GO TO 100
+
+    ! Set a lower bound on h based on the roundoff level in T0 and TOUT. ---
+    HLB = HUN*TROUND
+    ! Set an upper bound on h based on TOUT-T0 and the initial Y and YDOT. -
+    HUB = PT1*TDIST
+    ATOLI = ATOL(1)
+    
+    do I = 1, N
+       IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
+       DELYI = PT1*ABS(YH(I,1)) + ATOLI
+       AFI = ABS(YH(I,2))
+       IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
+    end do
+
+    ! Set initial guess for h as geometric mean of upper and lower bounds. -
+    ITER = 0
+    dscratch = HLB*HUB
+    HG = SQRT(dscratch)
+    ! If the bounds have crossed, exit with the mean value. ----------------
+    IF (HUB .LT. HLB) THEN
+       H0 = HG
+       GO TO 90
+    ENDIF
+
+    ! Looping point for iteration. -----------------------------------------
+50  CONTINUE
+    ! Estimate the second derivative as a difference quotient in f. --------
+    dscratch = TOUT - T0
+    H = SIGN (HG, dscratch)
+    T1 = T0 + H
+    do I = 1, N
+       Y(I) = YH(I,1) + H*YH(I,2)
+    end do
+    CALL f_rhs(N, T1, Y, TEMP, RPAR, IPAR)
+    do I = 1, N
+       TEMP(I) = (TEMP(I) - YH(I,2))/H
+    end do
+    YDDNRM = DVNORM (N, TEMP, EWT)
+    ! Get the corresponding new value of h. --------------------------------
+    IF (YDDNRM*HUB*HUB .GT. TWO) THEN
+       dscratch = TWO/YDDNRM
+       HNEW = SQRT(dscratch)
+    ELSE
+       dscratch = HG*HUB
+       HNEW = SQRT(dscratch)
+    ENDIF
+    ITER = ITER + 1
+    ! -----------------------------------------------------------------------
+    !  Test the stopping conditions.
+    !  Stop if the new and previous h values differ by a factor of .lt. 2.
+    !  Stop if four iterations have been done.  Also, stop with previous h
+    !  if HNEW/HG .gt. 2 after first iteration, as this probably means that
+    !  the second derivative value is bad because of cancellation error.
+    ! -----------------------------------------------------------------------
+    IF (ITER .GE. 4) GO TO 80
+    HRAT = HNEW/HG
+    IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) GO TO 80
+    IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
+       HNEW = HG
+       GO TO 80
+    ENDIF
+    HG = HNEW
+    GO TO 50
+
+    ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
+80  continue
+    H0 = HNEW*HALF
+    IF (H0 .LT. HLB) H0 = HLB
+    IF (H0 .GT. HUB) H0 = HUB
+90  continue
+    dscratch = TOUT - T0
+    H0 = SIGN(H0, dscratch)
+    NITER = ITER
+    IER = 0
+    RETURN
+    ! Error return for TOUT - T0 too small. --------------------------------
+100 continue
+    IER = -1
+    RETURN
+  end subroutine dvhin
+  
+#ifdef CUDA
+  attributes(device) &
+#endif
+  subroutine dvindy(YH, T, K, DKY, IFLAG, vstate)
+
+    !$acc routine seq
+    
+    ! -----------------------------------------------------------------------
+    !  Call sequence input -- T, K, YH, LDYH
+    !  Call sequence output -- DKY, IFLAG
+    !  COMMON block variables accessed:
+    !      /DVOD01/ --  H, TN, UROUND, L, N, NQ
+    !      /DVOD02/ --  HU
+    ! 
+    !  Subroutines called by DVINDY: DSCAL, XERRWD
+    !  Function routines called by DVINDY: None
+    ! -----------------------------------------------------------------------
+    !  DVINDY computes interpolated values of the K-th derivative of the
+    !  dependent variable vector y, and stores it in DKY.  This routine
+    !  is called within the package with K = 0 and T = TOUT, but may
+    !  also be called by the user for any K up to the current order.
+    !  (See detailed instructions in the usage documentation.)
+    ! -----------------------------------------------------------------------
+    !  The computed values in DKY are gotten by interpolation using the
+    !  Nordsieck history array YH.  This array corresponds uniquely to a
+    !  vector-valued polynomial of degree NQCUR or less, and DKY is set
+    !  to the K-th derivative of this polynomial at T.
+    !  The formula for DKY is:
+    !               q
+    !   DKY(i)  =  sum  c(j,K) * (T - TN)**(j-K) * H**(-j) * YH(i,j+1)
+    !              j=K
+    !  where  c(j,K) = j*(j-1)*...*(j-K+1), q = NQCUR, TN = TCUR, H = HCUR.
+    !  The quantities  NQ = NQCUR, L = NQ+1, N, TN, and H are
+    !  communicated by COMMON.  The above sum is done in reverse order.
+    !  IFLAG is returned negative if either K or T is out of bounds.
+    ! 
+    !  Discussion above and comments in driver explain all variables.
+    ! -----------------------------------------------------------------------
+    !
+  
+    implicit none
+  
+    type(dvode_t) :: vstate
+    real(dp_t) :: T
+    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
+    real(dp_t) :: DKY(vstate % NEQ)
+    integer    :: K, IFLAG
+
+    real(dp_t) :: C, R, S, TFUZZ, TN1, TP
+    integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
+#ifndef CUDA
+    character (len=80) :: MSG
+#endif
+
+    IFLAG = 0
+    IF (K .LT. 0 .OR. K .GT. vstate % NQ) GO TO 80
+    TFUZZ = HUN * vstate % UROUND * (vstate % TN + vstate % HU)
+    TP = vstate % TN - vstate % HU - TFUZZ
+    TN1 = vstate % TN + TFUZZ
+    IF ((T-TP)*(T-TN1) .GT. ZERO) GO TO 90
+
+    S = (T - vstate % TN)/vstate % H
+    IC = 1
+    IF (K .EQ. 0) GO TO 15
+    JJ1 = vstate % L - K
+    do JJ = JJ1, vstate % NQ
+       IC = IC*JJ
+    end do
+15  continue
+    C = REAL(IC)
+    do I = 1, vstate % N
+       DKY(I) = C * YH(I,vstate % L)
+    end do
+    IF (K .EQ. vstate % NQ) GO TO 55
+    JB2 = vstate % NQ - K
+    do JB = 1, JB2
+       J = vstate % NQ - JB
+       JP1 = J + 1
+       IC = 1
+       IF (K .EQ. 0) GO TO 35
+       JJ1 = JP1 - K
+       do JJ = JJ1, J
+          IC = IC*JJ
+       end do
+35     continue
+       C = REAL(IC)
+       do I = 1, vstate % N
+          DKY(I) = C * YH(I,JP1) + S*DKY(I)
+       end do
+    end do
+    IF (K .EQ. 0) RETURN
+55  continue
+    R = vstate % H**(-K)
+
+    CALL DSCALN (vstate % N, R, DKY, 1)
+    RETURN
+
+80  continue
+#ifndef CUDA    
+    MSG = 'DVINDY-- K (=I1) illegal      '
+    CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, ZERO, ZERO)
+#endif    
+    IFLAG = -1
+    RETURN
+90  continue
+#ifndef CUDA    
+    MSG = 'DVINDY-- T (=R1) illegal      '
+    CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, T, ZERO)
+    MSG='      T not in interval TCUR - HU (= R1) to TCUR (=R2)      '
+    CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
+#endif    
+     IFLAG = -2
+    RETURN
+  end subroutine dvindy
+  
+#ifdef CUDA
+  attributes(device) &
 #endif
   subroutine dvode(NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, LRW, IWORK, LIW, MF, &
@@ -276,7 +695,8 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-    CALL DSCALN(vstate % N, H0, rwork % YH(:,2), 1)
+
+    CALL DSCALN (vstate % N, H0, rwork % YH(:,2), 1)
 
     GO TO 270
     
@@ -994,7 +1414,7 @@ contains
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-       CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
        J = 3
        NP1 = vstate % N + 1
        do I = 1,vstate % N
@@ -1107,7 +1527,7 @@ contains
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-    CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
     II = MBAND + 2
     do I = 1,vstate % N
        rwork % WM(II) = rwork % WM(II) + ONE
@@ -1296,7 +1716,7 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCAL (vstate % N, CSCALE, Y, 1)
+       CALL DSCALN (vstate % N, CSCALE, Y, 1)
     ENDIF
     DEL = DVNORM (vstate % N, Y, rwork % EWT)
     call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
@@ -1893,7 +2313,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCAL(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
+       CALL DSCALN (vstate % N, R, rwork % YH(1:vstate % N,J), 1)
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -2170,7 +2590,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCAL(vstate % N, R, rwork % acor, 1)
+    CALL DSCALN (vstate % N, R, rwork % acor, 1)
 
 720 continue
     vstate % JSTART = 1
