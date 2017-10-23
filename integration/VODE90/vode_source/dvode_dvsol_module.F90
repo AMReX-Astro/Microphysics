@@ -51,10 +51,10 @@ contains
 
     implicit none
 
-    real(dp_t) :: WM(:)
-    real(dp_t) :: X(:)
-    integer    :: IWM(:), IERSL
     type(dvode_t) :: vstate
+    real(dp_t) :: WM(vstate % LENWM)
+    real(dp_t) :: X(vstate % N)
+    integer    :: IWM(vstate % LIW), IERSL
 
     integer    :: I, MEBAND, ML, MU
     real(dp_t) :: DI, HRL1, PHRL1, R
