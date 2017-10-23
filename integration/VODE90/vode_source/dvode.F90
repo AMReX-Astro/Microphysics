@@ -2182,9 +2182,9 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     real(dp_t) :: Y(vstate % N)
-    real(dp_t) :: RPAR(:)
+    real(dp_t) :: RPAR(n_rpar_comps)
     real(dp_t) :: yhscratch(vstate % N * vstate % LMAX)
-    integer    :: IWM(:), IPAR(:)
+    integer    :: IWM(vstate % LIW), IPAR(n_ipar_comps)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
