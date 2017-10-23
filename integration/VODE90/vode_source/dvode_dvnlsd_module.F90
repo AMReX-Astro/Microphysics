@@ -25,7 +25,7 @@ contains
     !                 JCUR, METH, MITER, N, NSLP
     !      /DVOD02/ HU, NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
     ! 
-    !  Subroutines called by DVNLSD: F, DAXPY, DCOPY, DSCAL, DVJAC, DVSOL
+    !  Subroutines called by DVNLSD: F, DAXPY, DCOPYN, DSCAL, DVJAC, DVSOL
     !  Function routines called by DVNLSD: DVNORM
     ! -----------------------------------------------------------------------
     !  Subroutine DVNLSD is a nonlinear system solver, which uses functional
@@ -86,8 +86,8 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     real(dp_t)    :: Y(vstate % N)
-    real(dp_t) :: RPAR(:)
-    integer    :: IWM(:), NFLAG, IPAR(:)
+    real(dp_t) :: RPAR(n_rpar_comps)
+    integer    :: IWM(vstate % LIW), NFLAG, IPAR(n_ipar_comps)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
@@ -131,7 +131,7 @@ contains
     M = 0
     DELP = ZERO
 
-    CALL DCOPY(vstate % N, rwork % yh(:,1), 1, Y, 1)
+    CALL DCOPYN(vstate % N, rwork % yh(:,1), 1, Y, 1)
     CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
@@ -168,7 +168,7 @@ contains
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
-    CALL DCOPY(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
+    CALL DCOPYN(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
 
     GO TO 400
     ! -----------------------------------------------------------------------
@@ -187,10 +187,10 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCAL (vstate % N, CSCALE, Y, 1)
+       CALL DSCALN(vstate % N, CSCALE, Y, 1)
     ENDIF
     DEL = DVNORM (vstate % N, Y, rwork % EWT)
-    call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
+    call daxpyn(vstate % N, ONE, Y, 1, rwork % acor, 1)
 
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
