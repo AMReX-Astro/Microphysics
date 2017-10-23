@@ -166,7 +166,7 @@ contains
     implicit none
 
     integer    :: N, I
-    real(dp_t) :: V(:), W(:)
+    real(dp_t) :: V(N), W(N)
     real(dp_t) :: SUM, dvn, dscratch
 
     SUM = 0.0D0
