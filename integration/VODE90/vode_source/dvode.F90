@@ -66,8 +66,7 @@ contains
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
 
-    ! Put LIW, LENWM into vstate to inform future array passes
-    ! This allows some array passes to be explicit-shape.
+    ! Set LIW and LENWM in vstate to allow for explicit-shape array passing.
     vstate % LIW = LIW
     vstate % LENWM = LENWM
 
