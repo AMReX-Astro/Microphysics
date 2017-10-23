@@ -3,6 +3,66 @@ module blas_module
   implicit none
 
 contains
+
+#ifdef CUDA
+  attributes(device) &
+#endif
+  SUBROUTINE DCOPYN(N,DX,INCX,DY,INCY)
+    INTEGER INCX,INCY,N
+    DOUBLE PRECISION DX(N),DY(N)
+
+! DCOPYN takes two vectors each of length N.
+! This is not the case for the ordinary DCOPY.
+
+! *  Purpose
+! *  =======
+! *
+! *     copies a vector, x, to a vector, y.
+! *     uses unrolled loops for increments equal to one.
+! *     jack dongarra, linpack, 3/11/78.
+! *     modified 12/3/93, array(1) declarations changed to array(*)
+    INTEGER I,IX,IY,M,MP1
+
+    IF (N.LE.0) RETURN
+    IF (INCX.EQ.1 .AND. INCY.EQ.1) GO TO 20
+
+    ! code for unequal increments or equal increments
+    ! not equal to 1
+
+    IX = 1
+    IY = 1
+    IF (INCX.LT.0) IX = (-N+1)*INCX + 1
+    IF (INCY.LT.0) IY = (-N+1)*INCY + 1
+    DO I = 1,N
+       DY(IY) = DX(IX)
+       IX = IX + INCX
+       IY = IY + INCY
+    end do
+    RETURN
+
+    ! code for both increments equal to 1
+
+    ! clean-up loop
+
+20  M = MOD(N,7)
+    IF (M.EQ.0) GO TO 40
+    DO I = 1,M
+       DY(I) = DX(I)
+    end do
+    IF (N.LT.7) RETURN
+40  MP1 = M + 1
+    DO I = MP1,N,7
+       DY(I) = DX(I)
+       DY(I+1) = DX(I+1)
+       DY(I+2) = DX(I+2)
+       DY(I+3) = DX(I+3)
+       DY(I+4) = DX(I+4)
+       DY(I+5) = DX(I+5)
+       DY(I+6) = DX(I+6)
+    end do
+    RETURN
+  end SUBROUTINE DCOPYN
+
   
 #ifdef CUDA
   attributes(device) &
@@ -58,6 +118,75 @@ contains
     end do
     RETURN
   end SUBROUTINE DCOPY
+
+#ifdef CUDA
+  attributes(device) &
+#endif  
+  SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
+
+    ! DAXPYN takes two vectors each of length N.
+    ! This is not the case for the ordinary DAXPY.
+  
+    !$acc routine seq
+    !     .. Scalar Arguments ..
+    DOUBLE PRECISION DA
+    INTEGER INCX,INCY,N
+    !     ..
+    !     .. Array Arguments ..
+    DOUBLE PRECISION DX(N),DY(N)
+    !     ..
+    !
+    !  Purpose
+    !   =======
+    ! 
+    !      constant times a vector plus a vector.
+    !      uses unrolled loops for increments equal to one.
+    !      jack dongarra, linpack, 3/11/78.
+    !      modified 12/3/93, array(1) declarations changed to array(*)
+    ! 
+    ! 
+    !      .. Local Scalars ..
+    INTEGER I,IX,IY,M,MP1
+
+    IF (N.LE.0) RETURN
+    IF (DA.EQ.0.0d0) RETURN
+    IF (INCX.EQ.1 .AND. INCY.EQ.1) GO TO 20
+    ! 
+    !         code for unequal increments or equal increments
+    !           not equal to 1
+    ! 
+    IX = 1
+    IY = 1
+    IF (INCX.LT.0) IX = (-N+1)*INCX + 1
+    IF (INCY.LT.0) IY = (-N+1)*INCY + 1
+    DO I = 1,N
+       DY(IY) = DY(IY) + DA*DX(IX)
+       IX = IX + INCX
+       IY = IY + INCY
+    end do
+    RETURN
+    ! 
+    !         code for both increments equal to 1
+    ! 
+    ! 
+    !         clean-up loop
+    ! 
+20  M = MOD(N,4)
+    IF (M.EQ.0) GO TO 40
+    DO I = 1,M
+       DY(I) = DY(I) + DA*DX(I)
+    end do
+    IF (N.LT.4) RETURN
+40  MP1 = M + 1
+    DO I = MP1,N,4
+       DY(I) = DY(I) + DA*DX(I)
+       DY(I+1) = DY(I+1) + DA*DX(I+1)
+       DY(I+2) = DY(I+2) + DA*DX(I+2)
+       DY(I+3) = DY(I+3) + DA*DX(I+3)
+    end do
+    RETURN
+  END SUBROUTINE DAXPYN
+
 
 #ifdef CUDA
   attributes(device) &
@@ -512,6 +641,73 @@ contains
     !      End of DGEMM .
     ! 
   end SUBROUTINE DGEMM
+
+#ifdef CUDA
+  attributes(device) &
+#endif    
+  SUBROUTINE DSCALN(N,DA,DX,INCX)
+
+    ! DSCALN takes one vector of length N.
+    ! This is not the case for the ordinary DSCALN.
+
+    !$acc routine seq
+    !      .. Scalar Arguments ..
+    DOUBLE PRECISION DA
+    INTEGER INCX,N
+    !      ..
+    !      .. Array Arguments ..
+    DOUBLE PRECISION DX(N)
+    !      ..
+    ! 
+    !   Purpose
+    !   =======
+    ! *
+    !      scales a vector by a constant.
+    !      uses unrolled loops for increment equal to one.
+    !      jack dongarra, linpack, 3/11/78.
+    !      modified 3/93 to return if incx .le. 0.
+    !      modified 12/3/93, array(1) declarations changed to array(*)
+    ! 
+    ! 
+    !      .. Local Scalars ..
+    INTEGER I,M,MP1,NINCX
+    !      ..
+    !      .. Intrinsic Functions ..
+    INTRINSIC MOD
+    !      ..
+    IF (N.LE.0 .OR. INCX.LE.0) RETURN
+    IF (INCX.EQ.1) GO TO 20
+    ! 
+    !         code for increment not equal to 1
+    ! 
+    NINCX = N*INCX
+    DO I = 1,NINCX,INCX
+       DX(I) = DA*DX(I)
+    end do
+    RETURN
+    ! 
+    !         code for increment equal to 1
+    ! 
+    ! 
+    !         clean-up loop
+    ! 
+20  M = MOD(N,5)
+    IF (M.EQ.0) GO TO 40
+    DO I = 1,M
+       DX(I) = DA*DX(I)
+    end do
+    IF (N.LT.5) RETURN
+40  MP1 = M + 1
+    DO I = MP1,N,5
+       DX(I) = DA*DX(I)
+       DX(I+1) = DA*DX(I+1)
+       DX(I+2) = DA*DX(I+2)
+       DX(I+3) = DA*DX(I+3)
+       DX(I+4) = DA*DX(I+4)
+    end do
+    RETURN
+  END SUBROUTINE DSCALN
+
 
 #ifdef CUDA
   attributes(device) &
