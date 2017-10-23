@@ -482,6 +482,10 @@ contains
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
 
+    ! Set LIW and LENWM in vstate to allow for explicit-shape array passing.
+    vstate % LIW = LIW
+    vstate % LENWM = LENWM
+
     ! -----------------------------------------------------------------------
     !  Block A.
     !  This code block is executed on every call.
