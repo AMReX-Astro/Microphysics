@@ -1617,8 +1617,8 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     real(dp_t)    :: Y(vstate % N)
-    real(dp_t) :: RPAR(:)
-    integer    :: IWM(:), NFLAG, IPAR(:)
+    real(dp_t) :: RPAR(n_rpar_comps)
+    integer    :: IWM(vstate % LIW), NFLAG, IPAR(n_ipar_comps)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
