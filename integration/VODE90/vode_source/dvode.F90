@@ -427,7 +427,7 @@ contains
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCAL (vstate % N, R, DKY, 1)
+    CALL DSCALN (vstate % N, R, DKY, 1)
     RETURN
 
 80  continue
@@ -696,7 +696,7 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-    CALL DSCAL(vstate % N, H0, rwork % YH(:,2), 1)
+    CALL DSCALN (vstate % N, H0, rwork % YH(:,2), 1)
 
     GO TO 270
     
@@ -1416,7 +1416,7 @@ contains
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-       CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
        J = 3
        NP1 = vstate % N + 1
        do I = 1,vstate % N
@@ -1529,7 +1529,7 @@ contains
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-    CALL DSCAL (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
     II = MBAND + 2
     do I = 1,vstate % N
        rwork % WM(II) = rwork % WM(II) + ONE
@@ -1718,7 +1718,7 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCAL (vstate % N, CSCALE, Y, 1)
+       CALL DSCALN (vstate % N, CSCALE, Y, 1)
     ENDIF
     DEL = DVNORM (vstate % N, Y, rwork % EWT)
     call daxpy(vstate % N, ONE, Y, 1, rwork % acor, 1)
@@ -2315,7 +2315,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCAL(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
+       CALL DSCALN (vstate % N, R, rwork % YH(1:vstate % N,J), 1)
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -2592,7 +2592,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCAL(vstate % N, R, rwork % acor, 1)
+    CALL DSCALN (vstate % N, R, rwork % acor, 1)
 
 720 continue
     vstate % JSTART = 1
