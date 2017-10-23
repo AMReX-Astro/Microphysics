@@ -1337,9 +1337,9 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     
-    real(dp_t) :: Y(:)
-    real(dp_t) :: RPAR(:)
-    integer    :: IWM(:), IERPJ, IPAR(:)
+    real(dp_t) :: Y(vstate % NEQ)
+    real(dp_t) :: RPAR(n_rpar_comps)
+    integer    :: IWM(vstate % LIW), IERPJ, IPAR(n_ipar_comps)
 
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
