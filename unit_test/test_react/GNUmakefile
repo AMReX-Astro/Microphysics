@@ -43,6 +43,5 @@ ifeq ($(COMP),PGI)
   ifeq ($(CUDA),t)
     FFLAGS += -Mcuda=maxregcount:128
     F90FLAGS += -Mcuda=maxregcount:128
-    CUDA_MAX_THREADS := 512
   endif
 endif
