@@ -1,6 +1,7 @@
 NDEBUG := t
 MPI    :=
 OMP    := t
+CUDA   := 
 
 COMP := gfortran
 
@@ -35,7 +36,13 @@ ALL: $(pnames)
 # include the fParallel Makefile rules
 include $(AMREX_HOME)/Tools/F_mk/GMakerules.mak
 
-
-
-
-
+# CUDA-specific options ala StarLord
+# Limit the maximum number of registers available.
+# Increase the maximum number of threads to compensate.
+ifeq ($(COMP),PGI)
+  ifeq ($(CUDA),t)
+    FFLAGS += -Mcuda=maxregcount:128
+    F90FLAGS += -Mcuda=maxregcount:128
+    CUDA_MAX_THREADS := 512
+  endif
+endif
