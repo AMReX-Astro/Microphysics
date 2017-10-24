@@ -23,14 +23,14 @@ contains
          integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
 
     implicit none
 
-    integer,    intent(IN   ) :: neq, ipar(:)
-    real(dp_t), intent(INOUT) :: time, y(:)
-    real(dp_t), intent(INOUT) :: rpar(:)
-    real(dp_t), intent(INOUT) :: ydot(:)
+    integer,    intent(IN   ) :: neq, ipar(n_ipar_comps)
+    real(dp_t), intent(INOUT) :: time, y(neq)
+    real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
+    real(dp_t), intent(INOUT) :: ydot(neq)
 
     type (burn_t) :: burn_state
 
@@ -111,14 +111,14 @@ contains
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
          integrate_temperature, integrate_energy
 
     implicit none
 
-    integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar(:)
+    integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar(n_ipar_comps)
     real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
     real(dp_t), intent(  OUT) :: pd(neq,neq)
 
