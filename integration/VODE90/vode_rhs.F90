@@ -27,8 +27,7 @@ contains
 
     implicit none
 
-    integer,    intent(IN   ) :: neq, ipar
-
+    integer,    intent(IN   ) :: neq, ipar(n_ipar_comps)
     real(rt), intent(INOUT) :: time, y(neq)
     real(rt), intent(INOUT) :: rpar(n_rpar_comps)
     real(rt), intent(INOUT) :: ydot(neq)
@@ -118,7 +117,7 @@ contains
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, react_boost
 
