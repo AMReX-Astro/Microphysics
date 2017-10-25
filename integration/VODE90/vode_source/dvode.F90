@@ -2175,7 +2175,7 @@ contains
 
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
-    real(dp_t) :: Y(vstate % N)
+    real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
     real(dp_t) :: yhscratch(VODE_NEQS * LMAX)
     integer    :: IWM(LIW), IPAR(n_ipar_comps)
