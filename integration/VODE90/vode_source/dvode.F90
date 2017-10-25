@@ -1,7 +1,7 @@
 module dvode_module
 
   use vode_rhs_module, only: f_rhs, jac
-  use vode_type_module, only: rwork_t  
+  use vode_type_module, only: rwork_t, LMAX, VODE_NEQS, LIW, LRW
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
@@ -78,7 +78,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dewset(N, ITOL, RTOL, ATOL, YCUR, EWT)
+  subroutine dewset(ITOL, RTOL, ATOL, YCUR, EWT)
 
     !$acc routine seq
     
@@ -107,28 +107,28 @@ contains
     implicit none
   
     integer    :: I, N, ITOL
-    real(dp_t) :: RTOL(N), ATOL(N)
-    real(dp_t) :: YCUR(N), EWT(N)
+    real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+    real(dp_t) :: YCUR(VODE_NEQS), EWT(VODE_NEQS)
 
     GO TO (10, 20, 30, 40), ITOL
 10  CONTINUE
-    do I = 1,N
+    do I = 1,VODE_NEQS
        EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(1)
     end do
     RETURN
 20  CONTINUE
-    do I = 1,N
+    do I = 1,VODE_NEQS
        EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(I)
     end do
     RETURN
 30  CONTINUE
-    do I = 1,N
+    do I = 1,VODE_NEQS
        EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(1)
     end do
     RETURN
 40  CONTINUE
 
-    do I = 1,N
+    do I = 1,VODE_NEQS
        EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(I)
     end do
     RETURN
@@ -672,7 +672,7 @@ contains
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
     vstate % H = ONE
-    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL, rwork % YH(:,1), rwork % EWT)
+    CALL DEWSET (ITOL, RTOL, ATOL, rwork % YH(:,1), rwork % EWT)
     do I = 1,vstate % N
        IF (rwork % ewt(I) .LE. ZERO) GO TO 621
        rwork % ewt(I) = ONE/rwork % ewt(I)
@@ -756,7 +756,7 @@ contains
 
 250 CONTINUE
     IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
-    CALL DEWSET (vstate % N, ITOL, RTOL, ATOL,  rwork % YH(:,1), rwork % EWT)
+    CALL DEWSET (ITOL, RTOL, ATOL,  rwork % YH(:,1), rwork % EWT)
     do I = 1,vstate % N
        IF (rwork % ewt(I) .LE. ZERO) GO TO 510
        rwork % ewt(I) = ONE/rwork % ewt(I)
@@ -2183,7 +2183,7 @@ contains
     type(rwork_t) :: rwork
     real(dp_t) :: Y(vstate % N)
     real(dp_t) :: RPAR(n_rpar_comps)
-    real(dp_t) :: yhscratch(vstate % N * vstate % LMAX)
+    real(dp_t) :: yhscratch(VODE_NEQS * LMAX)
     integer    :: IWM(vstate % LIW), IPAR(n_ipar_comps)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
