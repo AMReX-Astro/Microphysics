@@ -12,11 +12,11 @@ module dvode_type_module
      real(dp_t) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST     
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
-     integer    :: L, LMAX, LIWM, LIW, LENWM
+     integer    :: L, LIW, LENWM
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
      integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
-     integer    :: NSLP, NYH
-     integer    :: LYH, LEWT, LACOR, LSAVF, LWM
+     integer    :: NSLP
+     integer    :: LYH
   end type dvode_t
 
 contains
@@ -91,12 +91,9 @@ contains
     write(*,*) 'KFLAG = ', dvode_state % KFLAG
     write(*,*) 'KUTH = ', dvode_state % KUTH
     write(*,*) 'L = ', dvode_state % L
-    write(*,*) 'LMAX = ', dvode_state % LMAX
-    write(*,*) 'LIWM = ', dvode_state % LIWM
     write(*,*) 'LIW = ', dvode_state % LIW
     write(*,*) 'LENWM = ', dvode_state % LENWM
     write(*,*) 'LOCJS = ', dvode_state % LOCJS
-    write(*,*) 'MAXORD = ', dvode_state % MAXORD
     write(*,*) 'METH = ', dvode_state % METH
     write(*,*) 'MITER = ', dvode_state % MITER
     write(*,*) 'MSBJ = ', dvode_state % MSBJ
@@ -110,12 +107,7 @@ contains
     write(*,*) 'NQWAIT = ', dvode_state % NQWAIT
     write(*,*) 'NSLJ = ', dvode_state % NSLJ
     write(*,*) 'NSLP = ', dvode_state % NSLP
-    write(*,*) 'NYH = ', dvode_state % NYH
     write(*,*) 'LYH = ', dvode_state % LYH
-    write(*,*) 'LEWT = ', dvode_state % LEWT
-    write(*,*) 'LACOR = ', dvode_state % LACOR
-    write(*,*) 'LSAVF = ', dvode_state % LSAVF
-    write(*,*) 'LWM = ', dvode_state % LWM
   end subroutine print_state
 #endif
   

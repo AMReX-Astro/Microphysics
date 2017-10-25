@@ -628,7 +628,7 @@ contains
     vstate % NQU = 0
 
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
-    LF0 = vstate % LYH + vstate % NYH
+    LF0 = vstate % LYH + VODE_NEQS
 
     CALL f_rhs (T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
@@ -2169,7 +2169,7 @@ contains
     ! -----------------------------------------------------------------------
     vstate % NQ = 1
     vstate % L = 2
-    vstate % NQNYH = vstate % NQ * vstate % NYH
+    vstate % NQNYH = vstate % NQ * VODE_NEQS
     vstate % TAU(1) = vstate % H
     vstate % PRL1 = ONE
     vstate % RC = ZERO
@@ -2221,9 +2221,9 @@ contains
     ! -----------------------------------------------------------------------
 100 CONTINUE
     !don - remove the following logic we don't use
-    IF (VODE_NEQS .EQ. vstate % NYH) GO TO 120
-    I1 = 1 + (vstate % NEWQ + 1)*vstate % NYH
-    I2 = (VODE_MAXORD + 1)*vstate % NYH
+    IF (VODE_NEQS .EQ. VODE_NEQS) GO TO 120
+    I1 = 1 + (vstate % NEWQ + 1)*VODE_NEQS
+    I2 = (VODE_MAXORD + 1)*VODE_NEQS
     IF (I1 .GT. I2) GO TO 120
     rwork % YH(:, vstate % NEWQ + 1:) = ZERO
 120 IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 140
@@ -2263,7 +2263,7 @@ contains
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % RC = vstate % RC * vstate % ETA
-    vstate % NQNYH = vstate % NQ*vstate % NYH
+    vstate % NQNYH = vstate % NQ*VODE_NEQS
     ! -----------------------------------------------------------------------
     !  This section computes the predicted values by effectively
     !  multiplying the YH array by the Pascal triangle matrix.
@@ -2275,23 +2275,23 @@ contains
     !DON - begin
     ! optimize this multiplication and check the math as it makes no sense
     ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, vstate % NYH
+    do I = 1, VODE_NEQS
        do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * vstate % NYH
+          I1 = I + (JB-1) * VODE_NEQS
           yhscratch(I1) = rwork % YH(I, JB)
        end do
     end do
     I1 = vstate % NQNYH + 1
     do JB = 1, vstate % NQ
-       I1 = I1 - vstate % NYH
+       I1 = I1 - VODE_NEQS
        do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) + yhscratch(I+vstate % NYH)
+          yhscratch(I) = yhscratch(I) + yhscratch(I+VODE_NEQS)
        end do
     end do
     ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, vstate % NYH
+    do I = 1, VODE_NEQS
        do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * vstate % NYH
+          I1 = I + (JB-1) * VODE_NEQS
           rwork % YH(I, JB) = yhscratch(I1)
        end do
     end do
@@ -2319,23 +2319,23 @@ contains
     !DON - begin
     ! optimize this multiplication and check the math as it makes no sense
     ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, vstate % NYH
+    do I = 1, VODE_NEQS
        do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * vstate % NYH
+          I1 = I + (JB-1) * VODE_NEQS
           yhscratch(I1) = rwork % YH(I, JB)
        end do
     end do
     I1 = vstate % NQNYH + 1
     do JB = 1, vstate % NQ
-       I1 = I1 - vstate % NYH
+       I1 = I1 - VODE_NEQS
        do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) - yhscratch(I+vstate % NYH)
+          yhscratch(I) = yhscratch(I) - yhscratch(I+VODE_NEQS)
        end do
     end do
     ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, vstate % NYH
+    do I = 1, VODE_NEQS
        do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * vstate % NYH
+          I1 = I + (JB-1) * VODE_NEQS
           rwork % YH(I, JB) = yhscratch(I1)
        end do
     end do
@@ -2399,23 +2399,23 @@ contains
     !DON - begin
     ! optimize this multiplication and check the math as it makes no sense
     ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, vstate % NYH
+    do I = 1, VODE_NEQS
        do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * vstate % NYH
+          I1 = I + (JB-1) * VODE_NEQS
           yhscratch(I1) = rwork % YH(I, JB)
        end do
     end do
     I1 = vstate % NQNYH + 1
     do JB = 1, vstate % NQ
-       I1 = I1 - vstate % NYH
+       I1 = I1 - VODE_NEQS
        do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) - yhscratch(I+vstate % NYH)
+          yhscratch(I) = yhscratch(I) - yhscratch(I+VODE_NEQS)
        end do
     end do
     ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, vstate % NYH
+    do I = 1, VODE_NEQS
        do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * vstate % NYH
+          I1 = I + (JB-1) * VODE_NEQS
           rwork % YH(I, JB) = yhscratch(I1)
        end do
     end do
