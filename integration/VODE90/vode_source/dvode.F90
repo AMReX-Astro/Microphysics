@@ -570,7 +570,7 @@ contains
     
 60  continue
     vstate % LYH = 21
-    IF (ISTATE .EQ. 1) vstate % NYH = vstate % N !don
+    IF (ISTATE .EQ. 1) vstate % NYH = VODE_NEQS !don
     vstate % LWM = vstate % LYH + (vstate % MAXORD + 1)*vstate % NYH
     JCO = MAX(0,vstate % JSV)
     IF (vstate % MITER .EQ. 0) LENWM = 0
