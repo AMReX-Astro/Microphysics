@@ -377,8 +377,8 @@ contains
   
     type(dvode_t) :: vstate
     real(dp_t) :: T
-    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
-    real(dp_t) :: DKY(vstate % NEQ)
+    real(dp_t) :: YH(VODE_NEQS, LMAX)
+    real(dp_t) :: DKY(VODE_NEQS)
     integer    :: K, IFLAG
 
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
