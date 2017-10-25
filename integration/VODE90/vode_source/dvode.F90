@@ -452,7 +452,7 @@ contains
   attributes(device) &
 #endif
   subroutine dvode(NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
-       ISTATE, IOPT, RWORK, LRW, IWORK, LIW, MF, &
+       ISTATE, IOPT, RWORK, IWORK, MF, &
        RPAR, IPAR, vstate)       
     !$acc routine seq
 
@@ -464,8 +464,8 @@ contains
     integer    :: IWORK(LIW)
     integer    :: IPAR(n_ipar_comps)
     real(dp_t) :: T, TOUT
-    real(dp_t) :: Y(NEQ)
-    real(dp_t) :: RTOL(NEQ), ATOL(NEQ)
+    real(dp_t) :: Y(VODE_NEQS)
+    real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
     type(rwork_t) :: RWORK
     real(dp_t) :: RPAR(n_rpar_comps)
 
