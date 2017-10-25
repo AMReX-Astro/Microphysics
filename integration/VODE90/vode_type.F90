@@ -45,10 +45,6 @@ module vode_type_module
   integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
   integer, parameter :: LIW = 30 + neqs
 
-  ! Parameters for the IWORK array
-  integer, parameter :: VODE_MU = 0
-  integer, parameter :: VODE_ML = 0
-
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
   integer, parameter :: LMAX = 6
