@@ -9,7 +9,7 @@ module dvode_module
   use dvode_dvstep_module
 
   use vode_rhs_module, only: f_rhs, jac
-  use vode_type_module, only: rwork_t, LMAX, VODE_NEQS, LIW, LRW
+  use vode_type_module, only: rwork_t, LMAX, VODE_NEQS, LIW, LRW, VODE_LENWM
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
@@ -459,7 +459,7 @@ contains
        
     type(dvode_t), intent(inout) :: vstate
     
-    integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, LRW, LIW, MF
+    integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, MF
     integer    :: IWORK(LIW)
     integer    :: IPAR(n_ipar_comps)
     real(dp_t) :: T, TOUT
@@ -484,10 +484,6 @@ contains
     integer, parameter :: MXHNL0 = 10
     real(dp_t), parameter :: PT2 = 0.2D0
     real(dp_t), parameter :: HUN = 100.0D0
-
-    ! Set LIW and LENWM in vstate to allow for explicit-shape array passing.
-    vstate % LIW = LIW
-    vstate % LENWM = LENWM
 
     ! -----------------------------------------------------------------------
     !  Block A.
@@ -1189,9 +1185,9 @@ contains
 
     type(dvode_t) :: vstate
 
-    real(dp_t) :: WM(vstate % LENWM)
-    real(dp_t) :: X(vstate % NEQ)
-    integer    :: IWM(vstate % LIW), IERSL
+    real(dp_t) :: WM(VODE_LENWM)
+    real(dp_t) :: X(VODE_NEQS)
+    integer    :: IWM(LIW), IERSL
 
 
     integer    :: I, MEBAND, ML, MU
@@ -1337,7 +1333,7 @@ contains
     
     real(dp_t) :: Y(vstate % NEQ)
     real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(vstate % LIW), IERPJ, IPAR(n_ipar_comps)
+    integer    :: IWM(LIW), IERPJ, IPAR(n_ipar_comps)
 
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
@@ -1616,7 +1612,7 @@ contains
     type(rwork_t) :: rwork
     real(dp_t)    :: Y(vstate % N)
     real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(vstate % LIW), NFLAG, IPAR(n_ipar_comps)
+    integer    :: IWM(LIW), NFLAG, IPAR(n_ipar_comps)
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
@@ -2182,7 +2178,7 @@ contains
     real(dp_t) :: Y(vstate % N)
     real(dp_t) :: RPAR(n_rpar_comps)
     real(dp_t) :: yhscratch(VODE_NEQS * LMAX)
-    integer    :: IWM(vstate % LIW), IPAR(n_ipar_comps)
+    integer    :: IWM(LIW), IPAR(n_ipar_comps)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
