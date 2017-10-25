@@ -242,11 +242,10 @@ contains
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM, dscratch
-    integer    :: I, ITER, N
+    integer    :: I, ITER
 
     real(dp_t), parameter :: PT1 = 0.1D0
 
-    N = vstate % N
 
     NITER = 0
     TDIST = ABS(TOUT - T0)
@@ -259,7 +258,7 @@ contains
     HUB = PT1*TDIST
     ATOLI = ATOL(1)
     
-    do I = 1, N
+    do I = 1, VODE_NEQS
        IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
        DELYI = PT1*ABS(YH(I,1)) + ATOLI
        AFI = ABS(YH(I,2))
@@ -282,11 +281,11 @@ contains
     dscratch = TOUT - T0
     H = SIGN (HG, dscratch)
     T1 = T0 + H
-    do I = 1, N
+    do I = 1, VODE_NEQS
        Y(I) = YH(I,1) + H*YH(I,2)
     end do
-    CALL f_rhs(N, T1, Y, TEMP, RPAR, IPAR)
-    do I = 1, N
+    CALL f_rhs(T1, Y, TEMP, RPAR, IPAR)
+    do I = 1, VODE_NEQS
        TEMP(I) = (TEMP(I) - YH(I,2))/H
     end do
     YDDNRM = DVNORM (TEMP, EWT)
@@ -660,7 +659,7 @@ contains
     ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
     LF0 = vstate % LYH + vstate % NYH
 
-    CALL f_rhs (vstate % N, T, Y, rwork % yh(:,2), RPAR, IPAR)
+    CALL f_rhs (T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
     CALL DCOPYN(vstate % N, Y, 1, rwork % YH(:,1), 1)
@@ -1387,7 +1386,7 @@ contains
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
           Y(J) = Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % N, vstate % TN, Y, rwork % acor, RPAR, IPAR)
+          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR, IPAR)
           do I = 1,vstate % N
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
@@ -1436,7 +1435,7 @@ contains
        do I = 1,vstate % N
           Y(I) = Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
-       CALL f_rhs (vstate % N, vstate % TN, Y, &
+       CALL f_rhs (vstate % TN, Y, &
             rwork % WM(3:3 + vstate % N - 1), RPAR, IPAR)
        vstate % NFE = vstate % NFE + 1
        do I = 1,vstate % N
@@ -1494,7 +1493,7 @@ contains
              R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
              Y(I) = Y(I) + R
           end do
-          CALL f_rhs (vstate % N, vstate % TN, Y, rwork % acor, RPAR, IPAR)
+          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR, IPAR)
           do JJ = J,vstate % N,MBAND
              Y(JJ) = rwork % YH(JJ,1)
              YJJ = Y(JJ)
@@ -1659,7 +1658,7 @@ contains
     DELP = ZERO
 
     CALL DCOPYN(vstate % N, rwork % yh(:,1), 1, Y, 1)
-    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -1734,7 +1733,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % SAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, Y, rwork % SAVF, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     
@@ -2503,7 +2502,7 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     do I = 1, vstate % N
        rwork % yh(I,2) = vstate % H * rwork % savf(I)
