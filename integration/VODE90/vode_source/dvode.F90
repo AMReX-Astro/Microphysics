@@ -401,7 +401,7 @@ contains
     end do
 15  continue
     C = REAL(IC)
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        DKY(I) = C * YH(I,vstate % L)
     end do
     IF (K .EQ. vstate % NQ) GO TO 55
@@ -417,7 +417,7 @@ contains
        end do
 35     continue
        C = REAL(IC)
-       do I = 1, vstate % N
+       do I = 1, VODE_NEQS
           DKY(I) = C * YH(I,JP1) + S*DKY(I)
        end do
     end do
@@ -425,7 +425,7 @@ contains
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCALN (vstate % N, R, DKY, 1)
+    CALL DSCALN (VODE_NEQS, R, DKY, 1)
     RETURN
 
 80  continue
@@ -449,7 +449,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvode(NEQ, Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
+  subroutine dvode(Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, IWORK, MF, &
        RPAR, IPAR, vstate)       
     !$acc routine seq
@@ -458,7 +458,7 @@ contains
        
     type(dvode_t), intent(inout) :: vstate
     
-    integer    :: NEQ, ITOL, ITASK, ISTATE, IOPT, MF
+    integer    :: ITOL, ITASK, ISTATE, IOPT, MF
     integer    :: IWORK(LIW)
     integer    :: IPAR(n_ipar_comps)
     real(dp_t) :: T, TOUT
@@ -508,14 +508,12 @@ contains
     !  or for a continuation call with parameter changes (ISTATE = 3).
     !  It contains checking of all input and various initializations.
     !
-    !  First check legality of the non-optional input NEQ, ITOL, IOPT,
+    !  First check legality of the non-optional input ITOL, IOPT,
     !  MF, ML, and MU.
     ! -----------------------------------------------------------------------
-20  IF (NEQ .LE. 0) GO TO 604
+20  continue
     IF (ISTATE .EQ. 1) GO TO 25
-    IF (NEQ .GT. vstate % N) GO TO 605
 25  continue
-    vstate % N = NEQ
     IF (ITOL .LT. 1 .OR. ITOL .GT. 4) GO TO 606
     IF (IOPT .LT. 0 .OR. IOPT .GT. 1) GO TO 607
     vstate % JSV = SIGN(1,MF)
@@ -527,8 +525,8 @@ contains
     IF (vstate % MITER .LE. 3) GO TO 30
     ML = IWORK(1)
     MU = IWORK(2)
-    IF (ML .LT. 0 .OR. ML .GE. vstate % N) GO TO 609
-    IF (MU .LT. 0 .OR. MU .GE. vstate % N) GO TO 610
+    IF (ML .LT. 0 .OR. ML .GE. VODE_NEQS) GO TO 609
+    IF (MU .LT. 0 .OR. MU .GE. VODE_NEQS) GO TO 610
 30  CONTINUE
 
     ! Next process and check the optional input. ---------------------------
@@ -571,31 +569,30 @@ contains
     
 60  continue
     vstate % LYH = 21
-    IF (ISTATE .EQ. 1) vstate % NYH = vstate % N
+    IF (ISTATE .EQ. 1) vstate % NYH = vstate % N !don
     vstate % LWM = vstate % LYH + (vstate % MAXORD + 1)*vstate % NYH
     JCO = MAX(0,vstate % JSV)
     IF (vstate % MITER .EQ. 0) LENWM = 0
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
-       LENWM = 2 + (1 + JCO)*vstate % N*vstate % N
-       vstate % LOCJS = vstate % N*vstate % N + 3
+       LENWM = 2 + (1 + JCO)*VODE_NEQS*VODE_NEQS
+       vstate % LOCJS = VODE_NEQS*VODE_NEQS + 3
     ENDIF
-    IF (vstate % MITER .EQ. 3) LENWM = 2 + vstate % N
+    IF (vstate % MITER .EQ. 3) LENWM = 2 + VODE_NEQS
     IF (vstate % MITER .EQ. 4 .OR. vstate % MITER .EQ. 5) THEN
        MBAND = ML + MU + 1
-       LENP = (MBAND + ML)*vstate % N
-       LENJ = MBAND*vstate % N
+       LENP = (MBAND + ML)*VODE_NEQS
+       LENJ = MBAND*VODE_NEQS
        LENWM = 2 + LENP + JCO*LENJ
        vstate % LOCJS = LENP + 3
     ENDIF
     vstate % LMAX = vstate % MAXORD + 1
     vstate % LEWT = vstate % LWM + LENWM
-    vstate % LSAVF = vstate % LEWT + vstate % N
-    vstate % LACOR = vstate % LSAVF + vstate % N
-    vstate % NEQ = NEQ
-    LENRW = vstate % LACOR + vstate % N - 1
+    vstate % LSAVF = vstate % LEWT + VODE_NEQS
+    vstate % LACOR = vstate % LSAVF + VODE_NEQS
+    LENRW = vstate % LACOR + VODE_NEQS - 1
     IWORK(17) = LENRW
     vstate % LIWM = 1
-    LENIW = 30 + vstate % N
+    LENIW = 30 + VODE_NEQS
     IF (vstate % MITER .EQ. 0 .OR. vstate % MITER .EQ. 3) LENIW = 30
     IWORK(18) = LENIW
     IF (LENRW .GT. LRW) GO TO 617
@@ -603,7 +600,7 @@ contains
     ! Check RTOL and ATOL for legality. ------------------------------------
     RTOLI = RTOL(1)
     ATOLI = ATOL(1)
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        IF (ITOL .GE. 3) RTOLI = RTOL(I)
        IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
        IF (RTOLI .LT. ZERO) GO TO 619
@@ -614,7 +611,7 @@ contains
     vstate % JSTART = -1
     IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    CALL DCOPYN(vstate % N, rwork % wm, 1, rwork % savf, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % wm, 1, rwork % savf, 1)
 
     ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
 90  continue
@@ -661,13 +658,13 @@ contains
     CALL f_rhs (T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
-    CALL DCOPYN(vstate % N, Y, 1, rwork % YH(:,1), 1)
+    CALL DCOPYN(VODE_NEQS, Y, 1, rwork % YH(:,1), 1)
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
     vstate % H = ONE
     CALL DEWSET (ITOL, RTOL, ATOL, rwork % YH(:,1), rwork % EWT)
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        IF (rwork % ewt(I) .LE. ZERO) GO TO 621
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
@@ -691,7 +688,7 @@ contains
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
 
-    CALL DSCALN (vstate % N, H0, rwork % YH(:,2), 1)
+    CALL DSCALN (VODE_NEQS, H0, rwork % YH(:,2), 1)
 
     GO TO 270
     
@@ -752,7 +749,7 @@ contains
 250 CONTINUE
     IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
     CALL DEWSET (ITOL, RTOL, ATOL,  rwork % YH(:,1), rwork % EWT)
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        IF (rwork % ewt(I) .LE. ZERO) GO TO 510
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
@@ -838,7 +835,7 @@ contains
     ! -----------------------------------------------------------------------
     
 400 CONTINUE
-    CALL DCOPYN(vstate % N, rwork % YH(:,1), 1, Y, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, Y, 1)
 
     T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
@@ -924,7 +921,7 @@ contains
 560 continue
     BIG = ZERO
     IMXER = 1
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
        IF (BIG .GE. SIZE) exit
        BIG = SIZE
@@ -933,7 +930,7 @@ contains
     IWORK(16) = IMXER
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
-    CALL DCOPYN(vstate % N, rwork % YH(:,1), 1, Y, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, Y, 1)
 
     T = vstate % TN
     RWORK % condopt(11) = vstate % HU
@@ -978,18 +975,6 @@ contains
     CALL XERRWD (MSG, 60, 3, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
 #endif    
     GO TO 700
-604 continue
-#ifndef CUDA    
-    MSG = 'DVODE--  NEQ (=I1) .lt. 1     '
-    CALL XERRWD (MSG, 30, 4, 1, 1, NEQ, 0, 0, ZERO, ZERO)
-#endif
-    GO TO 700
-605 continue
-#ifndef CUDA
-    MSG = 'DVODE--  ISTATE = 3 and NEQ increased (I1 to I2)  '
-    CALL XERRWD (MSG, 50, 5, 1, 2, vstate % N, NEQ, 0, ZERO, ZERO)
-#endif
-    GO TO 700
 606 continue
 #ifndef CUDA    
     MSG = 'DVODE--  ITOL (=I1) illegal   '
@@ -1011,13 +996,13 @@ contains
 609 continue
 #ifndef CUDA    
     MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-    CALL XERRWD (MSG, 50, 9, 1, 2, ML, NEQ, 0, ZERO, ZERO)
+    CALL XERRWD (MSG, 50, 9, 1, 2, ML, VODE_NEQS, 0, ZERO, ZERO)
 #endif
     GO TO 700
 610 continue
 #ifndef CUDA    
     MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-    CALL XERRWD (MSG, 50, 10, 1, 2, MU, NEQ, 0, ZERO, ZERO)
+    CALL XERRWD (MSG, 50, 10, 1, 2, MU, VODE_NEQS, 0, ZERO, ZERO)
 #endif    
     GO TO 700
 611 continue
@@ -1195,7 +1180,7 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    CALL DGESL (WM(3:3 + vstate % N**2 - 1), vstate % N, vstate % N, IWM(31:31 + vstate % N - 1), X, 0)
+    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, VODE_NEQS, IWM(31:31 + VODE_NEQS - 1), X, 0)
     RETURN
 
 300 continue
@@ -1204,14 +1189,14 @@ contains
     WM(2) = HRL1
     IF (HRL1 .EQ. PHRL1) GO TO 330
     R = HRL1/PHRL1
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        DI = ONE - R*(ONE - ONE/WM(I+2))
        IF (ABS(DI) .EQ. ZERO) GO TO 390
        WM(I+2) = ONE/DI
     end do
 
 330 continue
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        X(I) = WM(I+2)*X(I)
     end do
     RETURN
@@ -1223,8 +1208,8 @@ contains
     ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    CALL DGBSL (WM(3:3 + MEBAND * vstate % N - 1), MEBAND, vstate % N, &
-         ML, MU, IWM(31:31 + vstate % N - 1), X, 0)
+    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, &
+         ML, MU, IWM(31:31 + VODE_NEQS - 1), X, 0)
     RETURN
   end subroutine dvsol
 
@@ -1357,12 +1342,12 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       LENP = vstate % N * vstate % N
+       LENP = VODE_NEQS * VODE_NEQS
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
-            rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
+       CALL JAC (vstate % TN, Y, 0, 0, &
+            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
           CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
@@ -1375,24 +1360,24 @@ contains
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
        FAC = DVNORM (rwork % SAVF, rwork % EWT)
-       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
+       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        SRUR = rwork % WM(1)
        J1 = 2
-       do J = 1,vstate % N
+       do J = 1,VODE_NEQS
           YJ = Y(J)
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
           Y(J) = Y(J) + R
           FAC = ONE/R
           CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR, IPAR)
-          do I = 1,vstate % N
+          do I = 1,VODE_NEQS
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
           Y(J) = YJ
-          J1 = J1 + vstate % N
+          J1 = J1 + VODE_NEQS
        end do
-       vstate % NFE = vstate % NFE + vstate % N
-       LENP = vstate % N * vstate % N
+       vstate % NFE = vstate % NFE + VODE_NEQS
+       LENP = VODE_NEQS * VODE_NEQS
        if (vstate % JSV .EQ. 1) then
           CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
@@ -1401,7 +1386,7 @@ contains
 
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
-       LENP = vstate % N * vstate % N
+       LENP = VODE_NEQS * VODE_NEQS
        CALL DCOPYN (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
             rwork % WM(3:3 + LENP - 1), 1)
     ENDIF
@@ -1411,14 +1396,14 @@ contains
        CON = -HRL1
        CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
        J = 3
-       NP1 = vstate % N + 1
-       do I = 1,vstate % N
+       NP1 = VODE_NEQS + 1
+       do I = 1,VODE_NEQS
           rwork % WM(J) = rwork % WM(J) + ONE
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
-       CALL DGEFA (rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, &
-            vstate % N, IWM(31:31 + vstate % N - 1), IER)
+       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, &
+            VODE_NEQS, IWM(31:31 + VODE_NEQS - 1), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -1430,13 +1415,13 @@ contains
        vstate % JCUR = 1
        rwork % WM(2) = HRL1
        R = vstate % RL1*PT1
-       do I = 1,vstate % N
+       do I = 1,VODE_NEQS
           Y(I) = Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
        CALL f_rhs (vstate % TN, Y, &
-            rwork % WM(3:3 + vstate % N - 1), RPAR, IPAR)
+            rwork % WM(3:3 + VODE_NEQS - 1), RPAR, IPAR)
        vstate % NFE = vstate % NFE + 1
-       do I = 1,vstate % N
+       do I = 1,VODE_NEQS
           R0 = vstate % H * rwork % SAVF(I) - rwork % YH(I,2)
           DI = PT1*R0 - vstate % H*(rwork % WM(I+2) - rwork % SAVF(I))
           rwork % WM(I+2) = ONE
@@ -1457,7 +1442,7 @@ contains
     ML3 = ML + 3
     MBAND = ML + MU + 1
     MEBAND = MBAND + ML
-    LENP = MEBAND * vstate % N
+    LENP = MEBAND * VODE_NEQS
 
     if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 4) then
        ! If JOK = -1 and MITER = 4, call JAC to evaluate Jacobian. ------------
@@ -1467,11 +1452,11 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, RPAR, IPAR)
+       CALL JAC (vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, RPAR, IPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, vstate % N, &
-               rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND)
+          CALL DACOPY(MBAND, VODE_NEQS, &
+               rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * VODE_NEQS - 1), MBAND)
        end if
 
     else if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 5) then
@@ -1479,26 +1464,26 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       MBA = MIN(MBAND,vstate % N)
+       MBA = MIN(MBAND,VODE_NEQS)
        MEB1 = MEBAND - 1
        SRUR = rwork % WM(1)
        FAC = DVNORM (rwork % SAVF, rwork % EWT)
-       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
+       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        do J = 1,MBA
-          do I = J,vstate % N,MBAND
+          do I = J,VODE_NEQS,MBAND
              YI = Y(I)
              R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
              Y(I) = Y(I) + R
           end do
           CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR, IPAR)
-          do JJ = J,vstate % N,MBAND
+          do JJ = J,VODE_NEQS,MBAND
              Y(JJ) = rwork % YH(JJ,1)
              YJJ = Y(JJ)
              R = MAX(SRUR*ABS(YJJ),R0/rwork % EWT(JJ))
              FAC = ONE/R
              I1 = MAX(JJ-MU,1)
-             I2 = MIN(JJ+ML,vstate % N)
+             I2 = MIN(JJ+ML,VODE_NEQS)
              II = JJ*MEB1 - ML + 2
              do I = I1,I2
                 rwork % WM(II+I) = (rwork % acor(I) - rwork % SAVF(I))*FAC
@@ -1507,30 +1492,30 @@ contains
        end do
        vstate % NFE = vstate % NFE + MBA
        if (vstate % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, vstate % N, &
-               rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND)
+          CALL DACOPY(MBAND, VODE_NEQS, &
+               rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * VODE_NEQS - 1), MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
        vstate % JCUR = 0
-       CALL DACOPY(MBAND, vstate % N, &
-            rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND, &
-            rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND)
+       CALL DACOPY(MBAND, VODE_NEQS, &
+            rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * VODE_NEQS - 1), MBAND, &
+            rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND)
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
     CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
     II = MBAND + 2
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        rwork % WM(II) = rwork % WM(II) + ONE
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
-    CALL DGBFA (rwork % WM(3:3 + MEBAND * vstate % N - 1), MEBAND, vstate % N, ML, &
-         MU, IWM(31:31 + vstate % N - 1), IER)
+    CALL DGBFA (rwork % WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, ML, &
+         MU, IWM(31:31 + VODE_NEQS - 1), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if
@@ -1655,7 +1640,7 @@ contains
     M = 0
     DELP = ZERO
 
-    CALL DCOPYN(vstate % N, rwork % yh(:,1), 1, Y, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % yh(:,1), 1, Y, 1)
     CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
@@ -1673,7 +1658,7 @@ contains
     ! If matrix is singular, take error return to force cut in step size. --
     IF (IERPJ .NE. 0) GO TO 430
 250 continue
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        rwork % acor(I) = ZERO
     end do
     ! This is a looping point for the corrector iteration. -----------------
@@ -1682,17 +1667,17 @@ contains
     !  In the case of functional iteration, update Y directly from
     !  the result of the last function evaluation.
     ! -----------------------------------------------------------------------
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
     end do
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
     end do
     DEL = DVNORM (Y, rwork % EWT)
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
-    CALL DCOPYN(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % SAVF, 1, rwork % ACOR, 1)
 
     GO TO 400
     ! -----------------------------------------------------------------------
@@ -1702,7 +1687,7 @@ contains
     !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
     ! -----------------------------------------------------------------------
 350 continue
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
             (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
     end do
@@ -1711,12 +1696,12 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCALN (vstate % N, CSCALE, Y, 1)
+       CALL DSCALN (VODE_NEQS, CSCALE, Y, 1)
     ENDIF
     DEL = DVNORM (Y, rwork % EWT)
-    call daxpyn(vstate % N, ONE, Y, 1, rwork % acor, 1)
+    call daxpyn(VODE_NEQS, ONE, Y, 1, rwork % acor, 1)
 
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
     end do
     ! -----------------------------------------------------------------------
@@ -1826,7 +1811,7 @@ contains
     end do
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3, vstate % NQ
-       do I = 1, vstate % N
+       do I = 1, VODE_NEQS
           rwork % YH(I,J) = rwork % YH(I,J) - &
                rwork % YH(I,vstate % L) * vstate % EL(J)
        end do
@@ -1836,7 +1821,7 @@ contains
     ! Zero out next column in YH array. ------------------------------------
 180 CONTINUE
     LP1 = vstate % L + 1
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        rwork % YH(I,LP1) = ZERO
     end do
     RETURN
@@ -1864,7 +1849,7 @@ contains
     end do
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3,vstate % NQ
-       do I = 1, vstate % N
+       do I = 1, VODE_NEQS
           rwork % YH(I,J) = rwork % YH(I,J) - &
                rwork % YH(I,vstate % L) * vstate % EL(J)
        end do
@@ -1900,14 +1885,14 @@ contains
     T1 = (-ALPH0 - ALPH1)/PROD
     ! Load column L + 1 in YH array. ---------------------------------------
     LP1 = vstate % L + 1
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        rwork % YH(I,LP1) = T1 * rwork % YH(I,vstate % LMAX)
     end do
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPYN(vstate % N, vstate % EL(J), &
-            rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
+       CALL DAXPYN(VODE_NEQS, vstate % EL(J), &
+            rwork % YH(1:VODE_NEQS, LP1), 1, rwork % YH(1:VODE_NEQS, J), 1)
     end do
     RETURN
   end subroutine dvjust
@@ -2271,7 +2256,8 @@ contains
     !  Finally, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 100 CONTINUE
-    IF (vstate % N .EQ. vstate % NYH) GO TO 120
+    !don - remove the following logic we don't use
+    IF (VODE_NEQS .EQ. vstate % NYH) GO TO 120
     I1 = 1 + (vstate % NEWQ + 1)*vstate % NYH
     I2 = (vstate % MAXORD + 1)*vstate % NYH
     IF (I1 .GT. I2) GO TO 120
@@ -2308,7 +2294,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCALN (vstate % N, R, rwork % YH(1:vstate % N,J), 1)
+       CALL DSCALN (VODE_NEQS, R, rwork % YH(1:VODE_NEQS,J), 1)
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -2420,11 +2406,11 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-       CALL DAXPYN(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       CALL DAXPYN(VODE_NEQS, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
     
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -2502,7 +2488,7 @@ contains
     vstate % TAU(1) = vstate % H
     CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR, IPAR)
     vstate % NFE = vstate % NFE + 1
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        rwork % yh(I,2) = vstate % H * rwork % savf(I)
     end do
     vstate % NQWAIT = 10
@@ -2533,7 +2519,7 @@ contains
     IF (vstate % L .EQ. vstate % LMAX) GO TO 580
     ! Compute ratio of new H to current H at current order plus one. -------
     CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,vstate % LMAX)
     end do
     DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
@@ -2553,7 +2539,7 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
@@ -2585,7 +2571,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCALN (vstate % N, R, rwork % acor, 1)
+    CALL DSCALN (VODE_NEQS, R, rwork % acor, 1)
 
 720 continue
     vstate % JSTART = 1

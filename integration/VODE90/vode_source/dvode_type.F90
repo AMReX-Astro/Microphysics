@@ -14,10 +14,9 @@ module dvode_type_module
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
      integer    :: L, LMAX, LIWM, LIW, LENWM
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
-     integer    :: N, NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
+     integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP, NYH
      integer    :: LYH, LEWT, LACOR, LSAVF, LWM
-     integer    :: NEQ
   end type dvode_t
 
 contains
@@ -103,7 +102,6 @@ contains
     write(*,*) 'MSBJ = ', dvode_state % MSBJ
     write(*,*) 'MXHNIL = ', dvode_state % MXHNIL
     write(*,*) 'MXSTEP = ', dvode_state % MXSTEP
-    write(*,*) 'N = ', dvode_state % N
     write(*,*) 'NEWH = ', dvode_state % NEWH
     write(*,*) 'NEWQ = ', dvode_state % NEWQ
     write(*,*) 'NHNIL = ', dvode_state % NHNIL
@@ -118,7 +116,6 @@ contains
     write(*,*) 'LACOR = ', dvode_state % LACOR
     write(*,*) 'LSAVF = ', dvode_state % LSAVF
     write(*,*) 'LWM = ', dvode_state % LWM
-    write(*,*) 'NEQ = ', dvode_state % NEQ
   end subroutine print_state
 #endif
   
