@@ -1612,7 +1612,7 @@ contains
   
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
-    real(dp_t)    :: Y(vstate % N)
+    real(dp_t)    :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
     integer    :: IWM(LIW), NFLAG, IPAR(n_ipar_comps)
     
