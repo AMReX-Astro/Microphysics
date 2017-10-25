@@ -132,6 +132,10 @@ contains
     rwork % ACOR = ZERO    
     iwork(:) = 0
 
+    ! Set MU, ML
+    iwork(1) = VODE_ML
+    iwork(2) = VODE_MU
+
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
     iwork(6) = 150000
@@ -249,6 +253,10 @@ contains
        rwork % ACOR = ZERO    
        iwork(:) = 0
 
+       ! Set MU, ML
+       iwork(1) = VODE_ML
+       iwork(2) = VODE_MU
+
        iwork(6) = 150000
 
        local_time = ZERO
@@ -319,6 +327,10 @@ contains
              rwork % SAVF = ZERO
              rwork % ACOR = ZERO    
              iwork(:) = 0
+
+             ! Set MU, ML
+             iwork(1) = VODE_ML
+             iwork(2) = VODE_MU
 
              atol = atol * retry_burn_factor
              rtol = rtol * retry_burn_factor
