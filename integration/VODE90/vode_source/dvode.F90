@@ -1331,7 +1331,7 @@ contains
     type(dvode_t) :: vstate
     type(rwork_t) :: rwork
     
-    real(dp_t) :: Y(vstate % NEQ)
+    real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
     integer    :: IWM(LIW), IERPJ, IPAR(n_ipar_comps)
 
