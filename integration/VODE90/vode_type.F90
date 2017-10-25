@@ -45,17 +45,21 @@ module vode_type_module
   integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
   integer, parameter :: LIW = 30 + neqs
 
+  ! Parameters for the IWORK array
+  integer, parameter :: VODE_MU = 0
+  integer, parameter :: VODE_ML = 0
+
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
   integer, parameter :: LMAX = 6
-  integer, parameter :: LENWM = 2 + 2 * neqs**2  
+  integer, parameter :: VODE_LENWM = 2 + 2 * neqs**2
 
   ! Setup a rwork derived type to hold the rwork array
   type rwork_t
      ! condopt - Conditional or optional input/output arguments to dvode
      real(dp_t) :: condopt(20)
      real(dp_t) :: yh(neqs, LMAX)
-     real(dp_t) :: wm(LENWM)
+     real(dp_t) :: wm(VODE_LENWM)
      real(dp_t) :: ewt(neqs)
      real(dp_t) :: savf(neqs)
      real(dp_t) :: acor(neqs)
