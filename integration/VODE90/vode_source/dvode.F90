@@ -237,7 +237,7 @@ contains
     real(dp_t) :: T0, RPAR(n_rpar_comps), TOUT, UROUND
     real(dp_t) :: ATOL(VODE_NEQS), Y(VODE_NEQS), H0
     integer    :: IPAR(n_ipar_comps), ITOL, NITER, IER
-    real(dp_t) :: YH(VODE_NEQS, LMAX)
+    real(dp_t) :: YH(VODE_NEQS, VODE_LMAX)
     real(dp_t) :: TEMP(VODE_NEQS), EWT(VODE_NEQS)
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
@@ -376,7 +376,7 @@ contains
   
     type(dvode_t) :: vstate
     real(dp_t) :: T
-    real(dp_t) :: YH(VODE_NEQS, LMAX)
+    real(dp_t) :: YH(VODE_NEQS, VODE_LMAX)
     real(dp_t) :: DKY(VODE_NEQS)
     integer    :: K, IFLAG
 
@@ -1754,7 +1754,7 @@ contains
 100 CONTINUE
     IF (IORD .EQ. 1) GO TO 180
     ! Order decrease. ------------------------------------------------------
-    do J = 1, vstate % LMAX
+    do J = 1, VODE_LMAX
        vstate % EL(J) = ZERO
     end do
     vstate % EL(2) = ONE
@@ -1796,7 +1796,7 @@ contains
 200 CONTINUE
     IF (IORD .EQ. 1) GO TO 300
     ! Order decrease. ------------------------------------------------------
-    do J = 1, vstate % LMAX
+    do J = 1, VODE_LMAX
        vstate % EL(J) = ZERO
     end do
     vstate % EL(3) = ONE
@@ -1821,7 +1821,7 @@ contains
     RETURN
     ! Order increase. ------------------------------------------------------
 300 continue
-    do J = 1, vstate % LMAX
+    do J = 1, VODE_LMAX
        vstate % EL(J) = ZERO
     end do
     vstate % EL(3) = ONE
@@ -1850,7 +1850,7 @@ contains
     ! Load column L + 1 in YH array. ---------------------------------------
     LP1 = vstate % L + 1
     do I = 1, VODE_NEQS
-       rwork % YH(I,LP1) = T1 * rwork % YH(I,vstate % LMAX)
+       rwork % YH(I,LP1) = T1 * rwork % YH(I,VODE_LMAX)
     end do
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
@@ -2125,7 +2125,7 @@ contains
     type(rwork_t) :: rwork
     real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
-    real(dp_t) :: yhscratch(VODE_NEQS * LMAX)
+    real(dp_t) :: yhscratch(VODE_NEQS * VODE_LMAX)
     integer    :: IWM(LIW), IPAR(n_ipar_comps)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
@@ -2227,7 +2227,7 @@ contains
     IF (I1 .GT. I2) GO TO 120
     rwork % YH(:, vstate % NEWQ + 1:) = ZERO
 120 IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 140
-    FLOTL = REAL(vstate % LMAX)
+    FLOTL = REAL(VODE_LMAX)
     IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
        DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
@@ -2244,7 +2244,7 @@ contains
     ENDIF
     vstate % ETA = MIN(vstate % ETA,ONE)
     vstate % NQ = VODE_MAXORD
-    vstate % L = vstate % LMAX
+    vstate % L = VODE_LMAX
 140 continue
     IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
     IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
@@ -2276,7 +2276,7 @@ contains
     ! optimize this multiplication and check the math as it makes no sense
     ! Make the 2-D YH array into 1-D yhscratch
     do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
+       do JB = 1, VODE_LMAX
           I1 = I + (JB-1) * vstate % NYH
           yhscratch(I1) = rwork % YH(I, JB)
        end do
@@ -2290,7 +2290,7 @@ contains
     end do
     ! Make the 1-D yhscratch array into 2-D YH
     do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
+       do JB = 1, VODE_LMAX
           I1 = I + (JB-1) * vstate % NYH
           rwork % YH(I, JB) = yhscratch(I1)
        end do
@@ -2320,7 +2320,7 @@ contains
     ! optimize this multiplication and check the math as it makes no sense
     ! Make the 2-D YH array into 1-D yhscratch
     do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
+       do JB = 1, VODE_LMAX
           I1 = I + (JB-1) * vstate % NYH
           yhscratch(I1) = rwork % YH(I, JB)
        end do
@@ -2334,7 +2334,7 @@ contains
     end do
     ! Make the 1-D yhscratch array into 2-D YH
     do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
+       do JB = 1, VODE_LMAX
           I1 = I + (JB-1) * vstate % NYH
           rwork % YH(I, JB) = yhscratch(I1)
        end do
@@ -2373,8 +2373,8 @@ contains
        CALL DAXPYN(VODE_NEQS, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
-    IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
+    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,VODE_LMAX), 1)
     
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -2400,7 +2400,7 @@ contains
     ! optimize this multiplication and check the math as it makes no sense
     ! Make the 2-D YH array into 1-D yhscratch
     do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
+       do JB = 1, VODE_LMAX
           I1 = I + (JB-1) * vstate % NYH
           yhscratch(I1) = rwork % YH(I, JB)
        end do
@@ -2414,7 +2414,7 @@ contains
     end do
     ! Make the 1-D yhscratch array into 2-D YH
     do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
+       do JB = 1, VODE_LMAX
           I1 = I + (JB-1) * vstate % NYH
           rwork % YH(I, JB) = yhscratch(I1)
        end do
@@ -2480,11 +2480,11 @@ contains
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 continue
     ETAQP1 = ZERO
-    IF (vstate % L .EQ. vstate % LMAX) GO TO 580
+    IF (vstate % L .EQ. VODE_LMAX) GO TO 580
     ! Compute ratio of new H to current H at current order plus one. -------
     CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
     do I = 1, VODE_NEQS
-       rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,vstate % LMAX)
+       rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
     end do
     DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
     ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
@@ -2503,7 +2503,7 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,VODE_LMAX), 1)
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
