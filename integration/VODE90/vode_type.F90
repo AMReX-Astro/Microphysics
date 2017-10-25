@@ -47,14 +47,26 @@ module vode_type_module
 
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
-  integer, parameter :: LMAX = 6
+
+  ! We are using the backward-differentiation formulas (BDF-s)
+  ! and the maximum order for BDF mode should be no greater than 5.
+  ! If the implicit Adams method is desired, the maximum order
+  ! should be no greater than 12. This is the VODE_MAXORD variable.
+
+  ! IMPORTANT:
+  ! Input sanitization in VODE has been removed for this for
+  ! performance reasons so make sure the following parameter
+  ! is set correctly.
+  integer, parameter :: VODE_MAXORD = 5
+
+  integer, parameter :: VODE_LMAX = VODE_MAXORD + 1
   integer, parameter :: VODE_LENWM = 2 + 2 * neqs**2
 
   ! Setup a rwork derived type to hold the rwork array
   type rwork_t
      ! condopt - Conditional or optional input/output arguments to dvode
      real(dp_t) :: condopt(20)
-     real(dp_t) :: yh(neqs, LMAX)
+     real(dp_t) :: yh(neqs, VODE_LMAX)
      real(dp_t) :: wm(VODE_LENWM)
      real(dp_t) :: ewt(neqs)
      real(dp_t) :: savf(neqs)
