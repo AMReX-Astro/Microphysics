@@ -1,7 +1,7 @@
 module dvode_module
 
   use vode_rhs_module, only: f_rhs, jac
-  use vode_type_module, only: rwork_t, LMAX, VODE_NEQS, LIW, LRW, VODE_LENWM
+  use vode_type_module, only: rwork_t, VODE_LMAX, VODE_NEQS, LIW, LRW, VODE_LENWM, VODE_MAXORD
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
@@ -471,10 +471,9 @@ contains
     logical    :: IHIT
     real(dp_t) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
     real(dp_t) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
-    integer    :: I, IER, IFLAG, IMXER, JCO, KGO, LENIW, LENJ, LENP, LENRW
-    integer    :: LENWM, LF0, MBAND, MFA, ML, MU, NITER
+    integer    :: I, IER, IFLAG, IMXER, JCO, KGO, LENJ, LENP
+    integer    :: LF0, MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
-    integer, dimension(2) :: MORD = [12, 5]
 #ifndef CUDA    
     character (len=80) :: MSG
 #endif
@@ -513,8 +512,6 @@ contains
     !  MF, ML, and MU.
     ! -----------------------------------------------------------------------
 20  continue
-    IF (ISTATE .EQ. 1) GO TO 25
-25  continue
     IF (ITOL .LT. 1 .OR. ITOL .GT. 4) GO TO 606
     IF (IOPT .LT. 0 .OR. IOPT .GT. 1) GO TO 607
     vstate % JSV = SIGN(1,MF)
@@ -533,7 +530,6 @@ contains
     ! Next process and check the optional input. ---------------------------
       
     IF (IOPT .EQ. 1) GO TO 40
-    vstate % MAXORD = MORD(vstate % METH)
     vstate % MXSTEP = MXSTP0
     vstate % MXHNIL = MXHNL0
     IF (ISTATE .EQ. 1) H0 = ZERO
@@ -541,10 +537,6 @@ contains
     vstate % HMIN = ZERO
     GO TO 60
 40  continue
-    vstate % MAXORD = IWORK(5)
-    IF (vstate % MAXORD .LT. 0) GO TO 611
-    IF (vstate % MAXORD .EQ. 0) vstate % MAXORD = 100
-    vstate % MAXORD = MIN(vstate % MAXORD,MORD(vstate % METH))
     vstate % MXSTEP = IWORK(6)
     IF (vstate % MXSTEP .LT. 0) GO TO 612
     IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
@@ -569,35 +561,17 @@ contains
     ! -----------------------------------------------------------------------
     
 60  continue
-    vstate % LYH = 21
-    IF (ISTATE .EQ. 1) vstate % NYH = VODE_NEQS !don
-    vstate % LWM = vstate % LYH + (vstate % MAXORD + 1)*vstate % NYH
     JCO = MAX(0,vstate % JSV)
-    IF (vstate % MITER .EQ. 0) LENWM = 0
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
-       LENWM = 2 + (1 + JCO)*VODE_NEQS*VODE_NEQS
        vstate % LOCJS = VODE_NEQS*VODE_NEQS + 3
     ENDIF
-    IF (vstate % MITER .EQ. 3) LENWM = 2 + VODE_NEQS
     IF (vstate % MITER .EQ. 4 .OR. vstate % MITER .EQ. 5) THEN
        MBAND = ML + MU + 1
        LENP = (MBAND + ML)*VODE_NEQS
        LENJ = MBAND*VODE_NEQS
-       LENWM = 2 + LENP + JCO*LENJ
        vstate % LOCJS = LENP + 3
     ENDIF
-    vstate % LMAX = vstate % MAXORD + 1
-    vstate % LEWT = vstate % LWM + LENWM
-    vstate % LSAVF = vstate % LEWT + VODE_NEQS
-    vstate % LACOR = vstate % LSAVF + VODE_NEQS
-    LENRW = vstate % LACOR + VODE_NEQS - 1
-    IWORK(17) = LENRW
-    vstate % LIWM = 1
-    LENIW = 30 + VODE_NEQS
-    IF (vstate % MITER .EQ. 0 .OR. vstate % MITER .EQ. 3) LENIW = 30
-    IWORK(18) = LENIW
-    IF (LENRW .GT. LRW) GO TO 617
-    IF (LENIW .GT. LIW) GO TO 618
+
     ! Check RTOL and ATOL for legality. ------------------------------------
     RTOLI = RTOL(1)
     ATOLI = ATOL(1)
@@ -610,7 +584,7 @@ contains
     IF (ISTATE .EQ. 1) GO TO 100
     ! If ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
     vstate % JSTART = -1
-    IF (vstate % NQ .LE. vstate % MAXORD) GO TO 90
+    IF (vstate % NQ .LE. VODE_MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
     CALL DCOPYN(VODE_NEQS, rwork % wm, 1, rwork % savf, 1)
 
@@ -1008,7 +982,7 @@ contains
 611 continue
 #ifndef CUDA    
     MSG = 'DVODE--  MAXORD (=I1) .lt. 0  '
-    CALL XERRWD (MSG, 30, 11, 1, 1, vstate % MAXORD, 0, 0, ZERO, ZERO)
+    CALL XERRWD (MSG, 30, 11, 1, 1, VODE_MAXORD, 0, 0, ZERO, ZERO)
 #endif    
     GO TO 700
 612 continue
@@ -1041,18 +1015,6 @@ contains
 #ifndef CUDA    
     MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
     CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
-#endif
-    GO TO 700
-617 CONTINUE
-#ifndef CUDA    
-    MSG='DVODE--  RWORK length needed, LENRW (=I1), exceeds LRW (=I2)'
-    CALL XERRWD (MSG, 60, 17, 1, 2, LENRW, LRW, 0, ZERO, ZERO)
-#endif
-    GO TO 700
-618 CONTINUE
-#ifndef CUDA    
-    MSG='DVODE--  IWORK length needed, LENIW (=I1), exceeds LIW (=I2)'
-    CALL XERRWD (MSG, 60, 18, 1, 2, LENIW, LIW, 0, ZERO, ZERO)
 #endif
     GO TO 700
 619 continue
@@ -2261,27 +2223,27 @@ contains
     !don - remove the following logic we don't use
     IF (VODE_NEQS .EQ. vstate % NYH) GO TO 120
     I1 = 1 + (vstate % NEWQ + 1)*vstate % NYH
-    I2 = (vstate % MAXORD + 1)*vstate % NYH
+    I2 = (VODE_MAXORD + 1)*vstate % NYH
     IF (I1 .GT. I2) GO TO 120
     rwork % YH(:, vstate % NEWQ + 1:) = ZERO
-120 IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 140
+120 IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 140
     FLOTL = REAL(vstate % LMAX)
-    IF (vstate % MAXORD .LT. vstate % NQ-1) THEN
+    IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
        DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
     ENDIF
-    IF (vstate % MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
-    IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
+    IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
+    IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
        vstate % ETA = ETAQM1
        CALL DVJUST (-1, rwork, vstate)
     ENDIF
-    IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
+    IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
        DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
        CALL DVJUST (-1, rwork, vstate)
     ENDIF
     vstate % ETA = MIN(vstate % ETA,ONE)
-    vstate % NQ = vstate % MAXORD
+    vstate % NQ = VODE_MAXORD
     vstate % L = vstate % LMAX
 140 continue
     IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
@@ -2289,7 +2251,7 @@ contains
     vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
     vstate % NEWH = 1
     vstate % NQWAIT = vstate % L
-    IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 50
+    IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 50
     ! Rescale the history array for a change in H by a factor of ETA. ------
 150 continue
     R = ONE
