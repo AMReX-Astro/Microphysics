@@ -225,7 +225,7 @@ contains
 
     ! Call the integration routine.
 
-    call dvode(neqs, y, local_time, local_time + dt, &
+    call dvode(y, local_time, local_time + dt, &
                ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, iwork, MF_JAC, &
                rpar, ipar, dvode_state)
@@ -266,7 +266,7 @@ contains
 
        y(net_ienuc) = ener_offset
 
-       call dvode(neqs, y, local_time, local_time + dt, &
+       call dvode(y, local_time, local_time + dt, &
                   ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, iwork, MF_JAC, &
                   rpar, ipar, dvode_state)
@@ -341,7 +341,7 @@ contains
 
              y(net_ienuc) = ener_offset
 
-             call dvode(neqs, y, local_time, local_time + dt, &
+             call dvode(y, local_time, local_time + dt, &
                         ITOL, rtol, atol, ITASK, &
                         istate, IOPT, rwork, iwork, MF_JAC, &
                         rpar, ipar, dvode_state)
