@@ -136,7 +136,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  function dvnorm(N, V, W) result(dvn)
+  function dvnorm(V, W) result(dvn)
 
     !$acc routine seq
     
@@ -164,15 +164,15 @@ contains
 
     implicit none
 
-    integer    :: N, I
-    real(dp_t) :: V(N), W(N)
+    integer    :: I
+    real(dp_t) :: V(VODE_NEQS), W(VODE_NEQS)
     real(dp_t) :: SUM, dvn, dscratch
 
     SUM = 0.0D0
-    do I = 1,N
+    do I = 1,VODE_NEQS
        SUM = SUM + (V(I)*W(I))**2
     end do
-    dscratch = SUM/N
+    dscratch = SUM/VODE_NEQS
     dvn = SQRT(dscratch)
     RETURN
   end function dvnorm
@@ -288,7 +288,7 @@ contains
     do I = 1, N
        TEMP(I) = (TEMP(I) - YH(I,2))/H
     end do
-    YDDNRM = DVNORM (N, TEMP, EWT)
+    YDDNRM = DVNORM (TEMP, EWT)
     ! Get the corresponding new value of h. --------------------------------
     IF (YDDNRM*HUB*HUB .GT. TWO) THEN
        dscratch = TWO/YDDNRM
@@ -762,7 +762,7 @@ contains
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
 270 continue
-    TOLSF = vstate % UROUND * DVNORM (vstate % N, rwork % YH(:,1), rwork % EWT)
+    TOLSF = vstate % UROUND * DVNORM (rwork % YH(:,1), rwork % EWT)
     IF (TOLSF .LE. ONE) GO TO 280
     TOLSF = TOLSF*TWO
     IF (vstate % NST .EQ. 0) GO TO 626
@@ -1379,7 +1379,7 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       FAC = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)
+       FAC = DVNORM (rwork % SAVF, rwork % EWT)
        R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        SRUR = rwork % WM(1)
@@ -1487,7 +1487,7 @@ contains
        MBA = MIN(MBAND,vstate % N)
        MEB1 = MEBAND - 1
        SRUR = rwork % WM(1)
-       FAC = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)
+       FAC = DVNORM (rwork % SAVF, rwork % EWT)
        R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        do J = 1,MBA
@@ -1693,7 +1693,7 @@ contains
     do I = 1,vstate % N
        Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
     end do
-    DEL = DVNORM (vstate % N, Y, rwork % EWT)
+    DEL = DVNORM (Y, rwork % EWT)
     do I = 1,vstate % N
        Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
@@ -1718,7 +1718,7 @@ contains
        CSCALE = TWO/(ONE + vstate % RC)
        CALL DSCALN (vstate % N, CSCALE, Y, 1)
     ENDIF
-    DEL = DVNORM (vstate % N, Y, rwork % EWT)
+    DEL = DVNORM (Y, rwork % EWT)
     call daxpyn(vstate % N, ONE, Y, 1, rwork % acor, 1)
 
     do I = 1,vstate % N
@@ -1757,7 +1757,7 @@ contains
     vstate % JCUR = 0
     vstate % ICF = 0
     IF (M .EQ. 0) vstate % ACNRM = DEL
-    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % N, rwork % ACOR, rwork % EWT)
+    IF (M .GT. 0) vstate % ACNRM = DVNORM (rwork % ACOR, rwork % EWT)
     RETURN
   end subroutine dvnlsd
 
@@ -2284,7 +2284,7 @@ contains
 120 IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 140
     FLOTL = REAL(vstate % LMAX)
     IF (vstate % MAXORD .LT. vstate % NQ-1) THEN
-       DDN = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+       DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
     ENDIF
     IF (vstate % MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
@@ -2293,7 +2293,7 @@ contains
        CALL DVJUST (-1, rwork, vstate)
     ENDIF
     IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-       DDN = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+       DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
        CALL DVJUST (-1, rwork, vstate)
     ENDIF
@@ -2531,7 +2531,7 @@ contains
     ETAQM1 = ZERO
     IF (vstate % NQ .EQ. 1) GO TO 570
     ! Compute ratio of new H to current H at the current order less one. ---
-    DDN = DVNORM (vstate % N, rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
+    DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 continue
     ETAQP1 = ZERO
@@ -2541,7 +2541,7 @@ contains
     do I = 1, vstate % N
        rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,vstate % LMAX)
     end do
-    DUP = DVNORM (vstate % N, rwork % savf, rwork % ewt)/vstate % TQ(3)
+    DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
     ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
 580 IF (ETAQ .GE. ETAQP1) GO TO 590
     IF (ETAQP1 .GT. ETAQM1) GO TO 620
