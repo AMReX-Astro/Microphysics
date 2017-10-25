@@ -227,7 +227,7 @@ contains
 
     call dvode(neqs, y, local_time, local_time + dt, &
                ITOL, rtol, atol, ITASK, &
-               istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
+               istate, IOPT, rwork, iwork, MF_JAC, &
                rpar, ipar, dvode_state)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
@@ -268,7 +268,7 @@ contains
 
        call dvode(neqs, y, local_time, local_time + dt, &
                   ITOL, rtol, atol, ITASK, &
-                  istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
+                  istate, IOPT, rwork, iwork, MF_JAC, &
                   rpar, ipar, dvode_state)
 
     endif
@@ -342,7 +342,7 @@ contains
 
              call dvode(neqs, y, local_time, local_time + dt, &
                         ITOL, rtol, atol, ITASK, &
-                        istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
+                        istate, IOPT, rwork, iwork, MF_JAC, &
                         rpar, ipar, dvode_state)
 
           enddo
