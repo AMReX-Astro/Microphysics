@@ -235,10 +235,10 @@ contains
     type(dvode_t) :: vstate
 
     real(dp_t) :: T0, RPAR(n_rpar_comps), TOUT, UROUND
-    real(dp_t) :: ATOL(vstate % NEQ), Y(vstate % NEQ), H0
+    real(dp_t) :: ATOL(VODE_NEQS), Y(VODE_NEQS), H0
     integer    :: IPAR(n_ipar_comps), ITOL, NITER, IER
-    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
-    real(dp_t) :: TEMP(vstate % NEQ), EWT(vstate % NEQ)
+    real(dp_t) :: YH(VODE_NEQS, LMAX)
+    real(dp_t) :: TEMP(VODE_NEQS), EWT(VODE_NEQS)
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM, dscratch
