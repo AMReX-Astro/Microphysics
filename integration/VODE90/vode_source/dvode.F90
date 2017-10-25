@@ -167,14 +167,13 @@ contains
 
     integer    :: I
     real(dp_t) :: V(VODE_NEQS), W(VODE_NEQS)
-    real(dp_t) :: SUM, dvn, dscratch
+    real(dp_t) :: SUM, dvn
 
     SUM = 0.0D0
     do I = 1,VODE_NEQS
        SUM = SUM + (V(I)*W(I))**2
     end do
-    dscratch = SUM/VODE_NEQS
-    dvn = SQRT(dscratch)
+    dvn = SQRT(SUM/VODE_NEQS)
     RETURN
   end function dvnorm
   
@@ -241,7 +240,7 @@ contains
     real(dp_t) :: TEMP(VODE_NEQS), EWT(VODE_NEQS)
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
-    real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM, dscratch
+    real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
 
     real(dp_t), parameter :: PT1 = 0.1D0
@@ -267,8 +266,7 @@ contains
 
     ! Set initial guess for h as geometric mean of upper and lower bounds. -
     ITER = 0
-    dscratch = HLB*HUB
-    HG = SQRT(dscratch)
+    HG = SQRT(HLB*HUB)
     ! If the bounds have crossed, exit with the mean value. ----------------
     IF (HUB .LT. HLB) THEN
        H0 = HG
@@ -278,8 +276,7 @@ contains
     ! Looping point for iteration. -----------------------------------------
 50  CONTINUE
     ! Estimate the second derivative as a difference quotient in f. --------
-    dscratch = TOUT - T0
-    H = SIGN (HG, dscratch)
+    H = SIGN (HG, TOUT - T0)
     T1 = T0 + H
     do I = 1, VODE_NEQS
        Y(I) = YH(I,1) + H*YH(I,2)
@@ -291,11 +288,9 @@ contains
     YDDNRM = DVNORM (TEMP, EWT)
     ! Get the corresponding new value of h. --------------------------------
     IF (YDDNRM*HUB*HUB .GT. TWO) THEN
-       dscratch = TWO/YDDNRM
-       HNEW = SQRT(dscratch)
+       HNEW = SQRT(TWO/YDDNRM)
     ELSE
-       dscratch = HG*HUB
-       HNEW = SQRT(dscratch)
+       HNEW = SQRT(HG*HUB)
     ENDIF
     ITER = ITER + 1
     ! -----------------------------------------------------------------------
@@ -321,8 +316,7 @@ contains
     IF (H0 .LT. HLB) H0 = HLB
     IF (H0 .GT. HUB) H0 = HUB
 90  continue
-    dscratch = TOUT - T0
-    H0 = SIGN(H0, dscratch)
+    H0 = SIGN(H0, TOUT - T0)
     NITER = ITER
     IER = 0
     RETURN
