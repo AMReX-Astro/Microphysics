@@ -10,7 +10,13 @@ module vode_type_module
   ! function is supplied; 22 means stiff, figure out my jacobian through
   ! differencing.
 
+#ifdef CUDA
+  ! Negative method flags mean on the GPU we turn off Jacobian caching
+  ! to reduce our memory requirements.
+  integer, parameter :: MF_ANALYTIC_JAC = -21, MF_NUMERICAL_JAC = -22
+#else
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
+#endif
 
   ! Tolerance parameters:
   !
