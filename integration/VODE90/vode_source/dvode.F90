@@ -538,14 +538,14 @@ contains
     !      EDIT 07/16/2016 -- see comments above about MXHNIL
     !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
     IF (ISTATE .NE. 1) GO TO 50
-    H0 = RWORK % CONDOPT(5)
+    H0 = RWORK % CONDOPT(2)
     IF ((TOUT - T)*H0 .LT. ZERO) GO TO 614
 50  continue
-    HMAX = RWORK % CONDOPT(6)
+    HMAX = RWORK % CONDOPT(3)
     IF (HMAX .LT. ZERO) GO TO 615
     vstate % HMXI = ZERO
     IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
-    vstate % HMIN = RWORK % CONDOPT(7)
+    vstate % HMIN = RWORK % CONDOPT(4)
     IF (vstate % HMIN .LT. ZERO) GO TO 616
     
     ! -----------------------------------------------------------------------
@@ -809,9 +809,6 @@ contains
     IF (IHIT) T = TCRIT
 420 continue
     ISTATE = 2
-    RWORK % condopt(11) = vstate % HU
-    RWORK % condopt(12) = vstate % HNEW
-    RWORK % condopt(13) = vstate % TN
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
@@ -860,7 +857,6 @@ contains
     MSG = '      for precision of machine:   see TOLSF (=R2) '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
 #endif
-    RWORK % condopt(14) = TOLSF
     ISTATE = -2
     GO TO 580
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
@@ -900,9 +896,6 @@ contains
     CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, Y, 1)
 
     T = vstate % TN
-    RWORK % condopt(11) = vstate % HU
-    RWORK % condopt(12) = vstate % H
-    RWORK % condopt(13) = vstate % TN
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
@@ -1060,7 +1053,6 @@ contains
     MSG='      requested for precision of machine:   see TOLSF (=R1) '
     CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
 #endif
-    RWORK % condopt(14) = TOLSF
     GO TO 700
 627 continue
 #ifndef CUDA
