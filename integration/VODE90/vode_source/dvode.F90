@@ -466,7 +466,7 @@ contains
     real(dp_t) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
     real(dp_t) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
     integer    :: I, IER, IFLAG, IMXER, JCO, KGO, LENJ, LENP
-    integer    :: LF0, MBAND, MFA, ML, MU, NITER
+    integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
 #ifndef CUDA    
     character (len=80) :: MSG
@@ -621,8 +621,7 @@ contains
     vstate % HU = ZERO
     vstate % NQU = 0
 
-    ! Initial call to F.  (LF0 points to YH(*,2).) -------------------------
-    LF0 = vstate % LYH + VODE_NEQS
+    ! Initial call to F.  -------------------------
 
     CALL f_rhs (T, Y, rwork % yh(:,2), RPAR, IPAR)
     vstate % NFE = 1
