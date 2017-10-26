@@ -372,11 +372,12 @@ contains
   
     implicit none
   
-    type(dvode_t) :: vstate
-    real(dp_t) :: T
-    real(dp_t) :: YH(VODE_NEQS, VODE_LMAX)
-    real(dp_t) :: DKY(VODE_NEQS)
-    integer    :: K, IFLAG
+    type(dvode_t), intent(in   ) :: vstate
+    real(dp_t),    intent(in   ) :: T
+    real(dp_t),    intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
+    real(dp_t),    intent(inout) :: DKY(VODE_NEQS)
+    integer,       intent(in   ) :: K
+    integer,       intent(  out) :: IFLAG
 
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
