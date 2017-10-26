@@ -166,7 +166,7 @@ contains
     implicit none
 
     integer    :: I
-    real(dp_t) :: V(VODE_NEQS), W(VODE_NEQS)
+    real(dp_t), intent(in ) :: V(VODE_NEQS), W(VODE_NEQS)
     real(dp_t) :: SUM, dvn
 
     SUM = 0.0D0
