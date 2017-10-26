@@ -9,7 +9,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine f_rhs(time, y, ydot, rpar, ipar)
+  subroutine f_rhs(time, y, ydot, rpar)
 
     !$acc routine seq
     
@@ -23,11 +23,10 @@ contains
          integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn, VODE_NEQS
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
     implicit none
 
-    integer,    intent(IN   ) :: ipar(n_ipar_comps)
     real(dp_t), intent(INOUT) :: time, y(VODE_NEQS)
     real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
     real(dp_t), intent(INOUT) :: ydot(VODE_NEQS)
