@@ -106,8 +106,9 @@ contains
     implicit none
   
     integer    :: I, N, ITOL
-    real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
-    real(dp_t) :: YCUR(VODE_NEQS), EWT(VODE_NEQS)
+    real(dp_t), intent(in ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+    real(dp_t), intent(in ) :: YCUR(VODE_NEQS)
+    real(dp_t), intent(out) :: EWT(VODE_NEQS)
 
     GO TO (10, 20, 30, 40), ITOL
 10  CONTINUE
