@@ -71,7 +71,7 @@ module vode_type_module
   ! Setup a rwork derived type to hold the rwork array
   type rwork_t
      ! condopt - Conditional or optional input/output arguments to dvode
-     real(dp_t) :: condopt(20)
+     real(dp_t) :: condopt(4)
      real(dp_t) :: yh(neqs, VODE_LMAX)
      real(dp_t) :: wm(VODE_LENWM)
      real(dp_t) :: ewt(neqs)

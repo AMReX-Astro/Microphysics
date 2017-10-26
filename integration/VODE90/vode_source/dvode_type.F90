@@ -16,7 +16,6 @@ module dvode_type_module
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
      integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP
-     integer    :: LYH
   end type dvode_t
 
 contains
@@ -107,7 +106,6 @@ contains
     write(*,*) 'NQWAIT = ', dvode_state % NQWAIT
     write(*,*) 'NSLJ = ', dvode_state % NSLJ
     write(*,*) 'NSLP = ', dvode_state % NSLP
-    write(*,*) 'LYH = ', dvode_state % LYH
   end subroutine print_state
 #endif
   
