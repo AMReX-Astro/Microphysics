@@ -2119,7 +2119,6 @@ contains
     type(rwork_t) :: rwork
     real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
-    real(dp_t) :: yhscratch(VODE_NEQS * VODE_LMAX)
     integer    :: IWM(LIW), IPAR(n_ipar_comps)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
@@ -2214,7 +2213,7 @@ contains
     !  Finally, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 100 CONTINUE
-    !don - remove the following logic we don't use
+    !don - remove the following logic we don't use?
     IF (VODE_NEQS .EQ. VODE_NEQS) GO TO 120
     I1 = 1 + (vstate % NEWQ + 1)*VODE_NEQS
     I2 = (VODE_MAXORD + 1)*VODE_NEQS
@@ -2266,30 +2265,9 @@ contains
     ! -----------------------------------------------------------------------
 200 continue
     vstate % TN = vstate % TN + vstate % H
-    !DON - begin
-    ! optimize this multiplication and check the math as it makes no sense
-    ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, VODE_NEQS
-       do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * VODE_NEQS
-          yhscratch(I1) = rwork % YH(I, JB)
-       end do
-    end do
-    I1 = vstate % NQNYH + 1
-    do JB = 1, vstate % NQ
-       I1 = I1 - VODE_NEQS
-       do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) + yhscratch(I+VODE_NEQS)
-       end do
-    end do
-    ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, VODE_NEQS
-       do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * VODE_NEQS
-          rwork % YH(I, JB) = yhscratch(I1)
-       end do
-    end do
-    !DON - end
+
+    call advance_nordsieck(rwork, vstate)
+
     CALL DVSET(vstate)
     vstate % RL1 = ONE/vstate % EL(2)
     vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
@@ -2310,30 +2288,9 @@ contains
     vstate % NCFN = vstate % NCFN + 1
     vstate % ETAMAX = ONE
     vstate % TN = TOLD
-    !DON - begin
-    ! optimize this multiplication and check the math as it makes no sense
-    ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, VODE_NEQS
-       do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * VODE_NEQS
-          yhscratch(I1) = rwork % YH(I, JB)
-       end do
-    end do
-    I1 = vstate % NQNYH + 1
-    do JB = 1, vstate % NQ
-       I1 = I1 - VODE_NEQS
-       do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) - yhscratch(I+VODE_NEQS)
-       end do
-    end do
-    ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, VODE_NEQS
-       do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * VODE_NEQS
-          rwork % YH(I, JB) = yhscratch(I1)
-       end do
-    end do
-    !DON - end
+
+    call retract_nordsieck(rwork, vstate)
+
     IF (NFLAG .LT. -1) GO TO 680
     IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
     IF (NCF .EQ. MXNCF) GO TO 670
@@ -2390,30 +2347,9 @@ contains
     vstate % NETF = vstate % NETF + 1
     NFLAG = -2
     vstate % TN = TOLD
-    !DON - begin
-    ! optimize this multiplication and check the math as it makes no sense
-    ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, VODE_NEQS
-       do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * VODE_NEQS
-          yhscratch(I1) = rwork % YH(I, JB)
-       end do
-    end do
-    I1 = vstate % NQNYH + 1
-    do JB = 1, vstate % NQ
-       I1 = I1 - VODE_NEQS
-       do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) - yhscratch(I+VODE_NEQS)
-       end do
-    end do
-    ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, VODE_NEQS
-       do JB = 1, VODE_LMAX
-          I1 = I + (JB-1) * VODE_NEQS
-          rwork % YH(I, JB) = yhscratch(I1)
-       end do
-    end do
-    !DON - end
+
+    call retract_nordsieck(rwork, vstate)
+
     IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 660
     vstate % ETAMAX = ONE
     IF (vstate % KFLAG .LE. KFC) GO TO 530
@@ -2535,5 +2471,57 @@ contains
     vstate % JSTART = 1
     RETURN
   end subroutine dvstep
+
+
+#ifdef CUDA
+  attributes(device) &
+#endif
+  subroutine advance_nordsieck(rwork, vstate)
+
+    ! Effectively multiplies the Nordsieck history
+    ! array by the Pascal triangle matrix.
+
+    implicit none
+
+    type(rwork_t), intent(inout) :: rwork
+    type(dvode_t), intent(in)    :: vstate
+
+    integer :: k, j, i
+
+    do k = vstate % NQ, 1, -1
+       do j = k, vstate % NQ
+          do i = 1, VODE_NEQS
+             rwork % YH(i, j) = rwork % YH(i, j) + rwork % YH(i, j+1)
+          end do
+       end do
+    end do
+
+  end subroutine advance_nordsieck
+
+
+#ifdef CUDA
+  attributes(device) &
+#endif
+  subroutine retract_nordsieck(rwork, vstate)
+
+    ! Undoes the Pascal triangle matrix multiplication
+    ! implemented in subroutine advance_nordsieck.
+
+    implicit none
+
+    type(rwork_t), intent(inout) :: rwork
+    type(dvode_t), intent(in)    :: vstate
+
+    integer :: k, j, i
+
+    do k = vstate % NQ, 1, -1
+       do j = k, vstate % NQ
+          do i = 1, VODE_NEQS
+             rwork % YH(i, j) = rwork % YH(i, j) - rwork % YH(i, j+1)
+          end do
+       end do
+    end do
+
+  end subroutine retract_nordsieck
       
 end module dvode_module
