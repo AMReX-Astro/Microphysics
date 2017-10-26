@@ -106,9 +106,9 @@ contains
     implicit none
   
     integer    :: I, N, ITOL
-    real(dp_t), intent(in ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
-    real(dp_t), intent(in ) :: YCUR(VODE_NEQS)
-    real(dp_t), intent(out) :: EWT(VODE_NEQS)
+    real(dp_t), intent(in   ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+    real(dp_t), intent(in   ) :: YCUR(VODE_NEQS)
+    real(dp_t), intent(  out) :: EWT(VODE_NEQS)
 
     GO TO (10, 20, 30, 40), ITOL
 10  CONTINUE
@@ -166,7 +166,7 @@ contains
     implicit none
 
     integer    :: I
-    real(dp_t), intent(in ) :: V(VODE_NEQS), W(VODE_NEQS)
+    real(dp_t), intent(in   ) :: V(VODE_NEQS), W(VODE_NEQS)
     real(dp_t) :: SUM, dvn
 
     SUM = 0.0D0
@@ -180,13 +180,13 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvhin(vstate, T0, YH, RPAR, IPAR, TOUT, UROUND, &
+  subroutine dvhin(vstate, T0, YH, RPAR, TOUT, UROUND, &
        EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
 
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
-    !  Call sequence input -- N, T0, Y0, YDOT, F, RPAR, IPAR, TOUT, UROUND,
+    !  Call sequence input -- N, T0, Y0, YDOT, F, RPAR, TOUT, UROUND,
     !                         EWT, ITOL, ATOL, Y, TEMP
     !  Call sequence output -- H0, NITER, IER
     !  COMMON block variables accessed -- None
@@ -213,7 +213,7 @@ contains
     !  [NOTE: Y0 = YH(:,1) and YDOT = YH(:,2) in this subroutine now]
     !
     !  F      = Name of subroutine for right-hand side f(t,y), input.
-    !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
+    !  RPAR = Dummy names for user's real and integer work arrays.
     !  TOUT   = First output value of independent variable
     !  UROUND = Machine unit roundoff
     !  EWT, ITOL, ATOL = Error weights and tolerance parameters
@@ -228,16 +228,19 @@ contains
     ! -----------------------------------------------------------------------
 
     use vode_rhs_module, only: f_rhs
-  
+
     implicit none
 
     type(dvode_t) :: vstate
 
-    real(dp_t) :: T0, RPAR(n_rpar_comps), TOUT, UROUND
-    real(dp_t) :: ATOL(VODE_NEQS), Y(VODE_NEQS), H0
-    integer    :: IPAR(n_ipar_comps), ITOL, NITER, IER
-    real(dp_t) :: YH(VODE_NEQS, VODE_LMAX)
-    real(dp_t) :: TEMP(VODE_NEQS), EWT(VODE_NEQS)
+    real(dp_t), intent(in   ) :: ATOL(VODE_NEQS), EWT(VODE_NEQS)
+    real(dp_t), intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
+    real(dp_t), intent(inout) :: RPAR(n_rpar_comps)
+    real(dp_t), intent(inout) :: Y(VODE_NEQS)
+    real(dp_t), intent(inout) :: TEMP(VODE_NEQS)
+
+    real(dp_t) :: T0, TOUT, UROUND, H0
+    integer    :: ITOL, NITER, IER
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
@@ -281,7 +284,7 @@ contains
     do I = 1, VODE_NEQS
        Y(I) = YH(I,1) + H*YH(I,2)
     end do
-    CALL f_rhs(T1, Y, TEMP, RPAR, IPAR)
+    CALL f_rhs(T1, Y, TEMP, RPAR)
     do I = 1, VODE_NEQS
        TEMP(I) = (TEMP(I) - YH(I,2))/H
     end do
@@ -623,7 +626,7 @@ contains
 
     ! Initial call to F.  -------------------------
 
-    CALL f_rhs (T, Y, rwork % yh(:,2), RPAR, IPAR)
+    CALL f_rhs (T, Y, rwork % yh(:,2), RPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
     CALL DCOPYN(VODE_NEQS, Y, 1, rwork % YH(:,1), 1)
@@ -641,7 +644,7 @@ contains
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
     CALL DVHIN (vstate, T, &
          rwork % YH, &
-         RPAR, IPAR, TOUT, &
+         RPAR, TOUT, &
          vstate % UROUND, &
          rwork % EWT, &
          ITOL, ATOL, Y, &
@@ -1317,7 +1320,7 @@ contains
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
           Y(J) = Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR, IPAR)
+          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR)
           do I = 1,VODE_NEQS
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
@@ -1367,7 +1370,7 @@ contains
           Y(I) = Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
        CALL f_rhs (vstate % TN, Y, &
-            rwork % WM(3:3 + VODE_NEQS - 1), RPAR, IPAR)
+            rwork % WM(3:3 + VODE_NEQS - 1), RPAR)
        vstate % NFE = vstate % NFE + 1
        do I = 1,VODE_NEQS
           R0 = vstate % H * rwork % SAVF(I) - rwork % YH(I,2)
@@ -1424,7 +1427,7 @@ contains
              R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
              Y(I) = Y(I) + R
           end do
-          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR, IPAR)
+          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR)
           do JJ = J,VODE_NEQS,MBAND
              Y(JJ) = rwork % YH(JJ,1)
              YJJ = Y(JJ)
@@ -1589,7 +1592,7 @@ contains
     DELP = ZERO
 
     CALL DCOPYN(VODE_NEQS, rwork % yh(:,1), 1, Y, 1)
-    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -1664,7 +1667,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL f_rhs (vstate % TN, Y, rwork % SAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, Y, rwork % SAVF, RPAR)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     
@@ -2370,7 +2373,7 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR)
     vstate % NFE = vstate % NFE + 1
     do I = 1, VODE_NEQS
        rwork % yh(I,2) = vstate % H * rwork % savf(I)
