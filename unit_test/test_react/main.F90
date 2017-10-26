@@ -199,7 +199,7 @@ program test_react
      
 #ifdef CUDA
      ! Set up CUDA parameters
-     cuThreadBlock = dim3(4, 4, 4)
+     cuThreadBlock = dim3(2, 2, 2)
      cuGrid = dim3(&
           ceiling(real(hi(1)-lo(1)+1)/cuThreadBlock%x), &
           ceiling(real(hi(2)-lo(2)+1)/cuThreadBlock%y), &
