@@ -101,7 +101,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine jac(time, y, ml, mu, pd, nrpd, rpar, ipar)
+  subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
     !$acc routine seq
     
@@ -110,14 +110,14 @@ contains
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
          integrate_temperature, integrate_energy
 
     implicit none
 
-    integer   , intent(IN   ) :: ml, mu, nrpd, ipar(n_ipar_comps)
+    integer   , intent(IN   ) :: ml, mu, nrpd
     real(dp_t), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
     real(dp_t), intent(  OUT) :: pd(VODE_NEQS,VODE_NEQS)
 

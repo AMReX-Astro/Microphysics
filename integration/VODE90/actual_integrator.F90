@@ -71,7 +71,6 @@ contains
 
     integer :: istate
 
-    integer :: ipar(n_ipar_comps)
 
     real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
@@ -203,7 +202,7 @@ contains
     call dvode(y, local_time, local_time + dt, &
                ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, iwork, MF_JAC, &
-               rpar, ipar, dvode_state)
+               rpar, dvode_state)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -244,7 +243,7 @@ contains
        call dvode(y, local_time, local_time + dt, &
                   ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, iwork, MF_JAC, &
-                  rpar, ipar, dvode_state)
+                  rpar, dvode_state)
 
     endif
 
@@ -317,7 +316,7 @@ contains
              call dvode(y, local_time, local_time + dt, &
                         ITOL, rtol, atol, ITASK, &
                         istate, IOPT, rwork, iwork, MF_JAC, &
-                        rpar, ipar, dvode_state)
+                        rpar, dvode_state)
 
           enddo
 
