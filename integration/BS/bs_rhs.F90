@@ -16,7 +16,7 @@ contains
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy
+                                    integrate_temperature, integrate_energy, react_boost
     use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
                               burn_to_bs, bs_to_burn
     use rpar_indices, only: irp_y_init, irp_t_sound
@@ -58,6 +58,11 @@ contains
 
     if (.not. integrate_energy) then
        bs % burn_s % ydot(net_ienuc) = ZERO
+    endif
+
+    ! apply fudge factor:
+    if (react_boost > ZERO) then
+       bs % burn_s % ydot(:) = react_boost * bs % burn_s % ydot(:)
     endif
 
     ! For burning_mode == 3, limit the rates.

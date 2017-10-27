@@ -214,6 +214,7 @@ contains
                             detadt,detadd,xnefer,dxnedt,dxnedd,s, &
                             temp,den,abar,zbar,ytot1,ye
 
+#if EXTRA_THERMO
         !..for the abar derivatives
         double precision :: dpradda,deradda,dsradda, &
                             dpionda,deionda,dsionda, &
@@ -228,7 +229,7 @@ contains
                             dpepdz,deepdz,dsepdz,    &
                             dpresdz,denerdz,dentrdz ,&
                             detadz,dxnedz
-
+#endif
 
 
         !..for the interpolations
@@ -384,20 +385,26 @@ contains
            prad    = asoli3 * temp * temp * temp * temp
            dpraddd = 0.0d0
            dpraddt = 4.0d0 * prad*tempi
+#ifdef EXTRA_THERMO
            dpradda = 0.0d0
            dpraddz = 0.0d0
+#endif
 
            erad    = 3.0d0 * prad*deni
            deraddd = -erad*deni
            deraddt = 3.0d0 * dpraddt*deni
+#ifdef EXTRA_THERMO
            deradda = 0.0d0
            deraddz = 0.0d0
+#endif
 
            srad    = (prad*deni + erad)*tempi
            dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
            dsraddt = (dpraddt*deni + deraddt - srad)*tempi
+#ifdef EXTRA_THERMO
            dsradda = 0.0d0
            dsraddz = 0.0d0
+#endif
 
            !..ion section:
            xni     = avo_eos * ytot1 * den
@@ -407,14 +414,18 @@ contains
            pion    = xni * kt
            dpiondd = dxnidd * kt
            dpiondt = xni * kerg
+#ifdef EXTRA_THERMO
            dpionda = dxnida * kt
            dpiondz = 0.0d0
+#endif
 
            eion    = 1.5d0 * pion*deni
            deiondd = (1.5d0 * dpiondd - eion)*deni
            deiondt = 1.5d0 * dpiondt*deni
+#ifdef EXTRA_THERMO
            deionda = 1.5d0 * dpionda*deni
            deiondz = 0.0d0
+#endif
 
            x       = abar*abar*sqrt(abar) * deni/avo_eos
            s       = sioncon * temp
@@ -427,9 +438,11 @@ contains
                 (pion*deni + eion) * tempi*tempi  &
                 + 1.5d0 * kergavo * tempi*ytot1
            x       = avo_eos*kerg/abar
+#ifdef EXTRA_THERMO
            dsionda = (dpionda*deni + deionda)*tempi  &
                 + kergavo*ytot1*ytot1* (2.5d0 - y)
            dsiondz = 0.0d0
+#endif
 
            !..electron-positron section:
            !..assume complete ionization
@@ -656,9 +669,11 @@ contains
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
+#ifdef EXTRA_THERMO
            !..derivative with respect to abar and zbar
            detada = -x * din * ytot1
            detadz =  x * den * ytot1
+#endif
 
            !..look in the number density table only once
            fi(1)  = xf(iat,jat)
@@ -695,9 +710,11 @@ contains
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
+#ifdef EXTRA_THERMO
            !..derivative with respect to abar and zbar
            dxneda = -x * din * ytot1
            dxnedz =  x  * den * ytot1
+#endif
 
            !..the desired electron-positron thermodynamic quantities
 
@@ -710,21 +727,27 @@ contains
            dpepdt  = x * df_dt
            !     dpepdd  = ye * (x * df_dd + 2.0d0 * din * df_d)
            s       = dpepdd/ye - 2.0d0 * din * df_d
+#ifdef EXTRA_THERMO
            dpepda  = -ytot1 * (2.0d0 * pele + s * din)
            dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
+#endif
 
            x       = ye * ye
            sele    = -df_t * ye
            dsepdt  = -df_tt * ye
            dsepdd  = -df_dt * x
+#ifdef EXTRA_THERMO
            dsepda  = ytot1 * (ye * df_dt * din - sele)
            dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
+#endif
 
            eele    = ye*free + temp * sele
            deepdt  = temp * dsepdt
            deepdd  = x * df_d + temp * dsepdd
+#ifdef EXTRA_THERMO
            deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
            deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+#endif
 
            !..coulomb section:
            !..initialize
@@ -808,8 +831,10 @@ contains
                  s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
                  dpcouldd = -dpiondd*z - pion*s*plasgdd
                  dpcouldt = -dpiondt*z - pion*s*plasgdt
+#ifdef EXTRA_THERMO
                  dpcoulda = -dpionda*z - pion*s*plasgda
                  dpcouldz = -dpiondz*z - pion*s*plasgdz
+#endif
 
                  s        = 3.0d0/den
                  decouldd = s * dpcouldd - ecoul/den
@@ -859,18 +884,23 @@ contains
 
            dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
            dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
+#ifdef EXTRA_THERMO
            dpresda = dpradda + dpionda + dpepda + dpcoulda
            dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
-
+#endif
            denerdd = deraddd + deiondd + deepdd + decouldd
            denerdt = deraddt + deiondt + deepdt + decouldt
+#ifdef EXTRA_THERMO
            denerda = deradda + deionda + deepda + decoulda
            denerdz = deraddz + deiondz + deepdz + decouldz
+#endif
 
            dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
            dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
+#ifdef EXTRA_THERMO
            dentrda = dsradda + dsionda + dsepda + dscoulda
            dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
+#endif
 
            !..the temperature and density exponents (c&g 9.81 9.82)
            !..the specific heat at constant volume (c&g 9.92)
@@ -902,16 +932,20 @@ contains
            ptot_row = pres
            dpt_row = dpresdt
            dpd_row = dpresdd
+#ifdef EXTRA_THERMO
            dpa_row = dpresda
            dpz_row = dpresdz
+#endif
            dpe_row = dpresdt / denerdt
            dpdr_e_row = dpresdd - dpresdt * denerdd / denerdt
 
            etot_row = ener
            det_row = denerdt
            ded_row = denerdd
+#ifdef EXTRA_THERMO
            dea_row = denerda
            dez_row = denerdz
+#endif
 
            stot_row = entr
            dst_row = dentrdt
@@ -1103,16 +1137,22 @@ contains
         state % dpdT = dpt_row
         state % dpdr = dpd_row
 
+#ifdef EXTRA_THERMO
         state % dpdA = dpa_row
         state % dpdZ = dpz_row
+#endif
+
         state % dpde = dpe_row
         state % dpdr_e = dpdr_e_row
 
         state % e    = etot_row
         state % dedT = det_row
         state % dedr = ded_row
+
+#ifdef EXTRA_THERMO
         state % dedA = dea_row
         state % dedZ = dez_row
+#endif
 
         state % s    = stot_row
         state % dsdT = dst_row
@@ -1191,7 +1231,7 @@ contains
 
         use bl_error_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
-        use parallel, only: parallel_IOProcessor
+        use parallel, only: parallel_IOProcessor, parallel_bcast
 
         implicit none
 
@@ -1216,18 +1256,9 @@ contains
            print *, ''
         endif
 
-        ! Read in the table
-
-        !..   open the table
-        open(unit=2,file='helm_table.dat',status='old',iostat=status)
-        if (status > 0) then
-           call bl_error('actual_eos_init: Failed to open helm_table.dat')
-        endif
-
+        !..   read the helmholtz free energy table
         itmax = imax
         jtmax = jmax
-
-        !..   read the helmholtz free energy table
         tlo   = 3.0d0
         thi   = 13.0d0
         tstp  = (thi - tlo)/float(jmax-1)
@@ -1236,37 +1267,76 @@ contains
         dhi   = 15.0d0
         dstp  = (dhi - dlo)/float(imax-1)
         dstpi = 1.0d0/dstp
+
         do j=1,jmax
            tsav = tlo + (j-1)*tstp
            t(j) = 10.0d0**(tsav)
            do i=1,imax
               dsav = dlo + (i-1)*dstp
               d(i) = 10.0d0**(dsav)
-              read(2,*) f(i,j),fd(i,j),ft(i,j),fdd(i,j),ftt(i,j),fdt(i,j), &
-                   fddt(i,j),fdtt(i,j),fddtt(i,j)
            end do
         end do
 
-        !..   read the pressure derivative with density table
-        do j = 1, jmax
-           do i = 1, imax
-              read(2,*) dpdf(i,j),dpdfd(i,j),dpdft(i,j),dpdfdt(i,j)
-           end do
-        end do
+        if (parallel_IOProcessor()) then
 
-        !..   read the electron chemical potential table
-        do j = 1, jmax
-           do i = 1, imax
-              read(2,*) ef(i,j),efd(i,j),eft(i,j),efdt(i,j)
-           end do
-        end do
+           !..   open the table
+           open(unit=2,file='helm_table.dat',status='old',iostat=status,action='read')
+           if (status > 0) then
+              call bl_error('actual_eos_init: Failed to open helm_table.dat')
+           endif
 
-        !..   read the number density table
-        do j = 1, jmax
-           do i = 1, imax
-              read(2,*) xf(i,j),xfd(i,j),xft(i,j),xfdt(i,j)
+           !...  read in the free energy table
+           do j=1,jmax
+              do i=1,imax
+                 read(2,*) f(i,j),fd(i,j),ft(i,j),fdd(i,j),ftt(i,j),fdt(i,j), &
+                      fddt(i,j),fdtt(i,j),fddtt(i,j)
+              end do
            end do
-        end do
+
+           !..   read the pressure derivative with density table
+           do j = 1, jmax
+              do i = 1, imax
+                 read(2,*) dpdf(i,j),dpdfd(i,j),dpdft(i,j),dpdfdt(i,j)
+              end do
+           end do
+
+           !..   read the electron chemical potential table
+           do j = 1, jmax
+              do i = 1, imax
+                 read(2,*) ef(i,j),efd(i,j),eft(i,j),efdt(i,j)
+              end do
+           end do
+
+           !..   read the number density table
+           do j = 1, jmax
+              do i = 1, imax
+                 read(2,*) xf(i,j),xfd(i,j),xft(i,j),xfdt(i,j)
+              end do
+           end do
+
+        end if
+
+        call parallel_bcast(f)
+        call parallel_bcast(fd)
+        call parallel_bcast(ft)
+        call parallel_bcast(fdd)
+        call parallel_bcast(ftt)
+        call parallel_bcast(fdt)
+        call parallel_bcast(fddt)
+        call parallel_bcast(fdtt)
+        call parallel_bcast(fddtt)
+        call parallel_bcast(dpdf)
+        call parallel_bcast(dpdfd)
+        call parallel_bcast(dpdft)
+        call parallel_bcast(dpdfdt)
+        call parallel_bcast(ef)
+        call parallel_bcast(efd)
+        call parallel_bcast(eft)
+        call parallel_bcast(efdt)
+        call parallel_bcast(xf)
+        call parallel_bcast(xfd)
+        call parallel_bcast(xft)
+        call parallel_bcast(xfdt)
 
         !..   construct the temperature and density deltas and their inverses
         do j = 1, jmax-1
@@ -1290,7 +1360,9 @@ contains
            dd2i_sav(i) = dd2i
         end do
 
-        close(unit=2)
+        if (parallel_IOProcessor()) then
+           close(unit=2)
+        endif
 
         ! Some initialization of constants
 
@@ -1350,132 +1422,147 @@ contains
 
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
-    function psi0(z)
+    pure function psi0(z) result(psi0r)
     !$acc routine seq
-        double precision :: z, psi0
-        psi0 = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
-    end function
+      double precision, intent(in) :: z
+      double precision :: psi0r
+      psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
+    end function psi0
 
-    function dpsi0(z)
+    pure function dpsi0(z) result(dpsi0r) 
     !$acc routine seq
-        double precision :: z, dpsi0
-        dpsi0 = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: dpsi0r
+      dpsi0r = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
+    end function dpsi0
 
-    function ddpsi0(z)
+    pure function ddpsi0(z) result(ddpsi0r)
     !$acc routine seq
-        double precision :: z, ddpsi0
-        ddpsi0 = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: ddpsi0r
+      ddpsi0r = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
+    end function ddpsi0
 
     ! psi1 and its derivatives
-    function psi1(z)
+    pure function psi1(z) result(psi1r)
     !$acc routine seq
-        double precision :: z, psi1
-        psi1 = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: psi1r
+      psi1r = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
+    end function psi1
 
-    function dpsi1(z)
+    pure function dpsi1(z) result(dpsi1r)
     !$acc routine seq
-        double precision :: z, dpsi1
-        dpsi1 = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
-    end function
+      double precision, intent(in) :: z
+      double precision :: dpsi1r
+      dpsi1r = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
+    end function dpsi1
 
-    function ddpsi1(z)
+    pure function ddpsi1(z) result(ddpsi1r)
     !$acc routine seq
-        double precision :: z, ddpsi1
-        ddpsi1 = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: ddpsi1r
+      ddpsi1r = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
+    end function ddpsi1
 
     ! psi2  and its derivatives
-    function psi2(z)
-    !$acc routine seq
-        double precision :: z, psi2
-        psi2 = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
-    end function
+    pure function psi2(z) result(psi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: psi2r
+      psi2r = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
+    end function psi2
 
-    function dpsi2(z)
-    !$acc routine seq
-        double precision :: z, dpsi2
-        dpsi2 = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
-    end function
+    pure function dpsi2(z) result(dpsi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: dpsi2r
+      dpsi2r = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
+    end function dpsi2
 
-    function ddpsi2(z)
-    !$acc routine seq
-        double precision :: z, ddpsi2
-        ddpsi2 = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
-    end function
+    pure function ddpsi2(z) result(ddpsi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: ddpsi2r
+      ddpsi2r = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
+    end function ddpsi2
 
 
     ! biquintic hermite polynomial function
-    function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md)
-    !$acc routine seq
-        double precision :: fi(36)
-        double precision :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md,h5
+    pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
+      !$acc routine seq
+      double precision, intent(in) :: fi(36)
+      double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
+      double precision :: h5r
 
-        h5 =   fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
-             + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
-             + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
-             + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
-             + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
-             + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
-             + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
-             + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
-             + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
-             + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
-             + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
-             + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
-             + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
-             + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
-             + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
-             + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
-             + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
-             + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
+      h5r =  fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
+           + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
+           + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
+           + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
+           + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
+           + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
+           + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
+           + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
+           + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
+           + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
+           + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
+           + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
+           + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
+           + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
+           + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
+           + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
+           + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
+           + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
     end function h5
 
 
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
-    function xpsi0(z)
-    !$acc routine seq
-        double precision :: z, xpsi0
-        xpsi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
-    end function
+    pure function xpsi0(z) result(xpsi0r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xpsi0r
+      xpsi0r = z * z * (2.0d0*z - 3.0d0) + 1.0
+    end function xpsi0
 
-    function xdpsi0(z)
-    !$acc routine seq
-        double precision :: z, xdpsi0
-        xdpsi0 = z * (6.0d0*z - 6.0d0)
-    end function
+    pure function xdpsi0(z) result(xdpsi0r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xdpsi0r
+      xdpsi0r = z * (6.0d0*z - 6.0d0)
+    end function xdpsi0
 
 
     ! psi1 & derivatives
-    function xpsi1(z)
-    !$acc routine seq
-        double precision :: z, xpsi1
-        xpsi1 = z * ( z * (z - 2.0d0) + 1.0d0)
-    end function
+    pure function xpsi1(z) result(xpsi1r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xpsi1r
+      xpsi1r = z * ( z * (z - 2.0d0) + 1.0d0)
+    end function xpsi1
 
-    function xdpsi1(z)
-    !$acc routine seq
-        double precision :: z, xdpsi1
-        xdpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
-    end function
+    pure function xdpsi1(z) result(xdpsi1r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xdpsi1r
+      xdpsi1r = z * (3.0d0*z - 4.0d0) + 1.0d0
+    end function xdpsi1
 
     ! bicubic hermite polynomial function
-    function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md)
-    !$acc routine seq
-        double precision :: fi(36)
-        double precision :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md,h3
-        h3 =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
-             + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
-             + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
-             + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
-             + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
-             + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
-             + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
-             + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
-    end function
+    pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
+      !$acc routine seq
+      double precision, intent(in) :: fi(36)
+      double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
+      double precision :: h3r
+      h3r =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
+           + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
+           + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
+           + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
+           + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
+           + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
+           + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
+           + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
+    end function h3
 
     subroutine actual_eos_finalize
 

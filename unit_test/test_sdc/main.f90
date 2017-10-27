@@ -181,7 +181,7 @@ program test_react
      start_time = parallel_wtime()
 
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
-     !$OMP PRIVATE(burn_state_in, burn_state_out) &
+     !$OMP PRIVATE(sdc_state_in, sdc_state_out) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
      !$OMP SCHEDULE(DYNAMIC,1)
 

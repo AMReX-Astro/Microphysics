@@ -8,7 +8,7 @@ contains
 
     !$acc routine seq
 
-    use rhs_module, only: f_rhs
+    use bs_rhs_module, only: f_bs_rhs
     use extern_probin_module, only: centered_diff_jac
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE
     use bs_type_module, only: bs_t
@@ -29,7 +29,7 @@ contains
     state % jac(:,:) = ZERO
 
     ! default
-    call f_rhs(state)
+    call f_bs_rhs(state)
 
     if (centered_diff_jac) then
 
@@ -41,12 +41,12 @@ contains
           state_delp % y = state % y
           state_delp % y(n) = state % y(n) * (ONE + eps)
 
-          call f_rhs(state_delp)
+          call f_bs_rhs(state_delp)
 
           state_delm % y = state % y
           state_delm % y(n) = state % y(n) * (ONE - eps)
 
-          call f_rhs(state_delm)
+          call f_bs_rhs(state_delm)
 
           do m = 1, SVAR_EVOLVE
 
@@ -65,7 +65,7 @@ contains
           state_delp % y = state % y
           state_delp % y(n) = state % y(n) * (ONE + eps)
 
-          call f_rhs(state_delp)
+          call f_bs_rhs(state_delp)
 
           do m = 1, SVAR_EVOLVE
 
