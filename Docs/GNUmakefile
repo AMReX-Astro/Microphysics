@@ -18,6 +18,7 @@ section_sources = MicrophysicsUsersGuide.tex \
                   networks/networks.tex \
                   openacc/openacc.tex \
                   unit_tests/unit_tests.tex \
+		  burn_cell/burn_cell.tex\
                   sdc/sdc.tex \
                   maestrosymbols.tex 
 
