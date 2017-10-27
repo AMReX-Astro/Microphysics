@@ -33,57 +33,6 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  function dumach() result(dum)
-
-    !$acc routine seq
-    
-    ! ***BEGIN PROLOGUE  DUMACH
-    ! ***PURPOSE  Compute the unit roundoff of the machine.
-    ! ***CATEGORY  R1
-    ! ***TYPE      DOUBLE PRECISION (RUMACH-S, DUMACH-D)
-    ! ***KEYWORDS  MACHINE CONSTANTS
-    ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
-    ! ***DESCRIPTION
-    !  *Usage:
-    !         DOUBLE PRECISION  A, DUMACH
-    !         A = DUMACH()
-    ! 
-    !  *Function Return Values:
-    !      A : the unit roundoff of the machine.
-    ! 
-    !  *Description:
-    !      The unit roundoff is defined as the smallest positive machine
-    !      number u such that  1.0 + u .ne. 1.0.  This is computed by DUMACH
-    !      in a machine-independent manner.
-    ! 
-    ! ***REFERENCES  (NONE)
-    ! ***ROUTINES CALLED  (NONE)
-    ! ***REVISION HISTORY  (YYMMDD)
-    !    930216  DATE WRITTEN
-    !    930818  Added SLATEC-format prologue.  (FNF)
-    ! ***END PROLOGUE  DUMACH
-    ! 
-    ! *Internal Notes:
-    ! -----------------------------------------------------------------------
-    !  Subroutines/functions called by DUMACH.. None
-    ! -----------------------------------------------------------------------
-    ! **End
-    !
-
-    implicit none
-
-    ! Declare arguments
-    real(dp_t) :: U
-
-    ! Declare return variable
-    real(dp_t) :: dum
-
-    dum = EPSILON(U)
-  end function dumach
-
-#ifdef CUDA
-  attributes(device) &
-#endif  
   subroutine dewset(vstate, rwork)
 
     !$acc routine seq
@@ -622,7 +571,7 @@ contains
     ! -----------------------------------------------------------------------
         
 100 continue
-    vstate % UROUND = DUMACH()
+    vstate % UROUND = epsilon(1.0_dp_t)
     vstate % TN = vstate % T
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
     TCRIT = RWORK % condopt(1)
