@@ -55,7 +55,7 @@ contains
 
     ! Local variables
 
-    real(rt) :: local_time
+    real(rt) :: local_time, step_time
 
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
 
@@ -146,6 +146,7 @@ contains
     ! Initialize the integration time.
 
     local_time = ZERO
+    step_time  = dt
 
     ! Convert our input burn state into an EOS type.
 
@@ -224,7 +225,7 @@ contains
 
     ! Call the integration routine.
 
-    call dvode(y, local_time, local_time + dt, &
+    call dvode(y, local_time, step_time, &
                ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, iwork, MF_JAC, &
                rpar, dvode_state)
@@ -251,6 +252,7 @@ contains
        iwork(6) = 150000
 
        local_time = ZERO
+       step_time  = dt
 
        call eos_to_vode(eos_state_in, y, rpar)
 
@@ -265,7 +267,7 @@ contains
 
        y(net_ienuc) = ener_offset
 
-       call dvode(y, local_time, local_time + dt, &
+       call dvode(y, local_time, step_time, &
                   ITOL, rtol, atol, ITASK, &
                   istate, IOPT, rwork, iwork, MF_JAC, &
                   rpar, dvode_state)
@@ -326,6 +328,7 @@ contains
              iwork(6) = 150000
 
              local_time = ZERO
+             step_time  = dt
 
              call eos_to_vode(eos_state_in, y, rpar)
 
@@ -340,7 +343,7 @@ contains
 
              y(net_ienuc) = ener_offset
 
-             call dvode(y, local_time, local_time + dt, &
+             call dvode(y, local_time, step_time, &
                         ITOL, rtol, atol, ITASK, &
                         istate, IOPT, rwork, iwork, MF_JAC, &
                         rpar, dvode_state)
