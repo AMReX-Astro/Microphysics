@@ -72,7 +72,7 @@ contains
     implicit none
 
     ! Declare arguments
-    real(dp_t), intent(in   ) :: U
+    real(dp_t) :: U
 
     ! Declare return variable
     real(dp_t) :: dum
