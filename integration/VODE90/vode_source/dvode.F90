@@ -1188,8 +1188,10 @@ contains
 
     implicit none
 
-    integer    :: NROW, NCOL, NROWA, NROWB
-    real(dp_t) :: A(NROWA,NCOL), B(NROWB,NCOL)
+    integer,     intent(in   ) :: NROW, NCOL, NROWA, NROWB
+    real(dp_t),  intent(in   ) :: A(NROWA,NCOL)
+    real(dp_t),  intent(inout) :: B(NROWB,NCOL)
+
     integer    :: IC
 
     do IC = 1,NCOL
