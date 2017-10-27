@@ -1910,8 +1910,11 @@ contains
     !
 
     implicit none
-  
+
+    ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
+
+    ! Declare local variables
     real(dp_t) :: EM(13)
     real(dp_t) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
     real(dp_t) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S
