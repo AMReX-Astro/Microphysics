@@ -104,11 +104,13 @@ contains
     ! **End
 
     implicit none
-  
-    integer    :: I, N, ITOL
+
+    integer,    intent(in   ) :: ITOL
     real(dp_t), intent(in   ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
     real(dp_t), intent(in   ) :: YCUR(VODE_NEQS)
     real(dp_t), intent(  out) :: EWT(VODE_NEQS)
+
+    integer    :: I, N
 
     GO TO (10, 20, 30, 40), ITOL
 10  CONTINUE
@@ -454,34 +456,31 @@ contains
 
     implicit none
 
-    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
+    ! Declare arguments
+    real(dp_t),    intent(inout) :: Y(VODE_NEQS), RPAR(n_rpar_comps)
     type(dvode_t), intent(inout) :: vstate
     integer,       intent(inout) :: IWORK(LIW)
+    real(dp_t),    intent(inout) :: T, TOUT
+    integer,       intent(in   ) :: ITOL, ITASK, IOPT, MF
+    integer,       intent(inout) :: ISTATE
+    real(dp_t),    intent(in   ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+    type(rwork_t), intent(inout) :: RWORK
 
-    integer    :: ITOL, ITASK, ISTATE, IOPT, MF
-
-
-    real(dp_t), intent(inout) :: T, TOUT
-
-    real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
-    type(rwork_t) :: RWORK
-    real(dp_t) :: RPAR(n_rpar_comps)
-
+    ! Declare local variables
     logical    :: IHIT
     real(dp_t) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
     real(dp_t) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
     integer    :: I, IER, IFLAG, IMXER, JCO, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
-#ifndef CUDA    
+#ifndef CUDA
     character (len=80) :: MSG
 #endif
-    
+
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
     real(dp_t), parameter :: PT2 = 0.2D0
-    real(dp_t), parameter :: HUN = 100.0D0
 
     ! -----------------------------------------------------------------------
     !  Block A.
