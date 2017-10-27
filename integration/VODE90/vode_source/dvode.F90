@@ -181,7 +181,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvhin(vstate, T0, YH, RPAR, TOUT, UROUND, &
+  subroutine dvhin(T0, YH, RPAR, TOUT, UROUND, &
        EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
 
     !$acc routine seq
@@ -232,16 +232,15 @@ contains
 
     implicit none
 
-    type(dvode_t) :: vstate
-
     real(dp_t), intent(in   ) :: ATOL(VODE_NEQS), EWT(VODE_NEQS)
     real(dp_t), intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
     real(dp_t), intent(inout) :: RPAR(n_rpar_comps)
     real(dp_t), intent(inout) :: Y(VODE_NEQS)
     real(dp_t), intent(inout) :: TEMP(VODE_NEQS)
-
-    real(dp_t) :: T0, TOUT, UROUND, H0
-    integer    :: ITOL, NITER, IER
+    real(dp_t), intent(in   ) :: TOUT, T0, UROUND
+    real(dp_t), intent(inout) :: H0
+    integer,    intent(in   ) :: ITOL
+    integer,    intent(  out) :: NITER, IER
 
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
@@ -455,15 +454,16 @@ contains
     !$acc routine seq
 
     implicit none
-       
+
+    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
     type(dvode_t), intent(inout) :: vstate
     integer,       intent(inout) :: IWORK(LIW)
 
     integer    :: ITOL, ITASK, ISTATE, IOPT, MF
 
 
-    real(dp_t) :: T, TOUT
-    real(dp_t) :: Y(VODE_NEQS)
+    real(dp_t), intent(inout) :: T, TOUT
+
     real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
     type(rwork_t) :: RWORK
     real(dp_t) :: RPAR(n_rpar_comps)
@@ -645,7 +645,7 @@ contains
     IF (H0 .NE. ZERO) GO TO 180
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (vstate, T, &
+    CALL DVHIN (T, &
          rwork % YH, &
          RPAR, TOUT, &
          vstate % UROUND, &
