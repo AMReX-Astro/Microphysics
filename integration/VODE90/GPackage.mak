@@ -6,6 +6,7 @@ else
   F90sources += actual_integrator.F90
   F90sources += vode_rhs.F90
   F90sources += vode_type.F90
+  F90sources += vode_parameters.F90
 endif
 
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/vode_source/

@@ -1,6 +1,8 @@
 module dvode_type_module
 
   use bl_types, only: dp_t
+  use vode_parameters_module, only: VODE_NEQS
+  use rpar_indices, only: n_rpar_comps
   
   implicit none
 
@@ -16,6 +18,21 @@ module dvode_type_module
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
      integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP
+
+     ! Tolerances
+     real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+
+     ! Real parameters
+     real(dp_t) :: RPAR(n_rpar_comps)
+
+     ! State flag
+     integer    :: ISTATE
+
+     ! Local time and integration end time
+     real(dp_t) :: T, TOUT
+
+     ! Integration vector
+     real(dp_t) :: Y(VODE_NEQS)
   end type dvode_t
 
 contains

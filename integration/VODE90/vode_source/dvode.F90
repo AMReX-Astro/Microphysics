@@ -9,7 +9,9 @@ module dvode_module
   use dvode_dvstep_module
 
   use vode_rhs_module, only: f_rhs, jac
-  use vode_type_module, only: rwork_t, VODE_LMAX, VODE_NEQS, LIW, LRW, VODE_LENWM, VODE_MAXORD
+  use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, LIW, LRW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
@@ -82,7 +84,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dewset(ITOL, RTOL, ATOL, YCUR, EWT)
+  subroutine dewset(vstate, rwork)
 
     !$acc routine seq
     
@@ -111,34 +113,32 @@ contains
     implicit none
 
     ! Declare arguments
-    integer,    intent(in   ) :: ITOL
-    real(dp_t), intent(in   ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
-    real(dp_t), intent(in   ) :: YCUR(VODE_NEQS)
-    real(dp_t), intent(  out) :: EWT(VODE_NEQS)
+    type(dvode_t), intent(in   ) :: vstate
+    type(rwork_t), intent(inout) :: rwork
 
     ! Declare local variables
     integer    :: I, N
 
-    GO TO (10, 20, 30, 40), ITOL
+    GO TO (10, 20, 30, 40), VODE_ITOL
 10  CONTINUE
     do I = 1,VODE_NEQS
-       EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(1)
+       rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
     end do
     RETURN
 20  CONTINUE
     do I = 1,VODE_NEQS
-       EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(I)
+       rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
     end do
     RETURN
 30  CONTINUE
     do I = 1,VODE_NEQS
-       EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(1)
+       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
     end do
     RETURN
 40  CONTINUE
 
     do I = 1,VODE_NEQS
-       EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(I)
+       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
     end do
     RETURN
   end subroutine dewset
@@ -195,9 +195,8 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvhin(T0, YH, RPAR, TOUT, UROUND, &
-       EWT, ITOL, ATOL, Y, TEMP, H0, NITER, IER)
-
+  subroutine dvhin(vstate, rwork, H0, NITER, IER)
+  
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
@@ -241,20 +240,27 @@ contains
     !           IER = 0  if no trouble occurred, or
     !           IER = -1 if TOUT and T0 are considered too close to proceed.
     ! -----------------------------------------------------------------------
-
-    use vode_rhs_module, only: f_rhs
+    !
+    ! Note: the following variable replacements have been made ---
+    !    t0 = vstate % t
+    !    yh = rwork % yh
+    !    rpar = vstate % rpar
+    !    tout = vstate % tout
+    !    uround = vstate % uround
+    !    ewt = rwork % ewt
+    !    itol = VODE_ITOL
+    !    atol = vstate % atol
+    !    y = vstate % y
+    !    temp = rwork % acor
+  
+  use vode_rhs_module, only: f_rhs
 
     implicit none
 
     ! Declare arguments
-    real(dp_t), intent(in   ) :: ATOL(VODE_NEQS), EWT(VODE_NEQS)
-    real(dp_t), intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
-    real(dp_t), intent(inout) :: RPAR(n_rpar_comps)
-    real(dp_t), intent(inout) :: Y(VODE_NEQS)
-    real(dp_t), intent(inout) :: TEMP(VODE_NEQS)
-    real(dp_t), intent(in   ) :: TOUT, T0, UROUND
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
     real(dp_t), intent(inout) :: H0
-    integer,    intent(in   ) :: ITOL
     integer,    intent(  out) :: NITER, IER
 
     ! Declare local variables
@@ -266,20 +272,20 @@ contains
 
 
     NITER = 0
-    TDIST = ABS(TOUT - T0)
-    TROUND = UROUND*MAX(ABS(T0),ABS(TOUT))
+    TDIST = ABS(vstate % TOUT - vstate % T)
+    TROUND = vstate % UROUND*MAX(ABS(vstate % T),ABS(vstate % TOUT))
     IF (TDIST .LT. TWO*TROUND) GO TO 100
 
-    ! Set a lower bound on h based on the roundoff level in T0 and TOUT. ---
+    ! Set a lower bound on h based on the roundoff level in vstate % T and vstate % TOUT. ---
     HLB = HUN*TROUND
-    ! Set an upper bound on h based on TOUT-T0 and the initial Y and YDOT. -
+    ! Set an upper bound on h based on vstate % TOUT-vstate % T and the initial Y and YDOT. -
     HUB = PT1*TDIST
-    ATOLI = ATOL(1)
+    ATOLI = vstate % ATOL(1)
     
     do I = 1, VODE_NEQS
-       IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
-       DELYI = PT1*ABS(YH(I,1)) + ATOLI
-       AFI = ABS(YH(I,2))
+       IF (VODE_ITOL .EQ. 2 .OR. VODE_ITOL .EQ. 4) ATOLI = vstate % ATOL(I)
+       DELYI = PT1*ABS(rwork % YH(I,1)) + ATOLI
+       AFI = ABS(rwork % YH(I,2))
        IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
     end do
 
@@ -295,16 +301,16 @@ contains
     ! Looping point for iteration. -----------------------------------------
 50  CONTINUE
     ! Estimate the second derivative as a difference quotient in f. --------
-    H = SIGN (HG, TOUT - T0)
-    T1 = T0 + H
+    H = SIGN (HG, vstate % TOUT - vstate % T)
+    T1 = vstate % T + H
     do I = 1, VODE_NEQS
-       Y(I) = YH(I,1) + H*YH(I,2)
+       vstate % Y(I) = rwork % YH(I,1) + H*rwork % YH(I,2)
     end do
-    CALL f_rhs(T1, Y, TEMP, RPAR)
+    CALL f_rhs(T1, vstate % Y, rwork % ACOR, vstate % RPAR)
     do I = 1, VODE_NEQS
-       TEMP(I) = (TEMP(I) - YH(I,2))/H
+       rwork % ACOR(I) = (rwork % ACOR(I) - rwork % YH(I,2))/H
     end do
-    YDDNRM = DVNORM (TEMP, EWT)
+    YDDNRM = DVNORM (rwork % ACOR, rwork % EWT)
     ! Get the corresponding new value of h. --------------------------------
     IF (YDDNRM*HUB*HUB .GT. TWO) THEN
        HNEW = SQRT(TWO/YDDNRM)
@@ -335,11 +341,11 @@ contains
     IF (H0 .LT. HLB) H0 = HLB
     IF (H0 .GT. HUB) H0 = HUB
 90  continue
-    H0 = SIGN(H0, TOUT - T0)
+    H0 = SIGN(H0, vstate % TOUT - vstate % T)
     NITER = ITER
     IER = 0
     RETURN
-    ! Error return for TOUT - T0 too small. --------------------------------
+    ! Error return for vstate % TOUT - vstate % T too small. --------------------------------
 100 continue
     IER = -1
     RETURN
@@ -348,8 +354,8 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvindy(YH, T, K, DKY, IFLAG, vstate)
-
+  subroutine dvindy(vstate, rwork, IFLAG)
+  
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
@@ -384,15 +390,16 @@ contains
     !  Discussion above and comments in driver explain all variables.
     ! -----------------------------------------------------------------------
     !
+    ! Note: the following variable replacements have been made ---
+    !  yh => rwork % yh
+    !  t => vstate % tout
+    !  dky => vstate % y
 
     implicit none
 
     ! Declare arguments
-    type(dvode_t), intent(in   ) :: vstate
-    real(dp_t),    intent(in   ) :: T
-    real(dp_t),    intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
-    real(dp_t),    intent(inout) :: DKY(VODE_NEQS)
-    integer,       intent(in   ) :: K
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(in   ) :: rwork
     integer,       intent(  out) :: IFLAG
 
     ! Declare local variables
@@ -402,14 +409,17 @@ contains
     character (len=80) :: MSG
 #endif
 
+    integer, parameter :: K = ZERO
+    !don -- remove logic for K != 0 (we only use K = 0).
+    
     IFLAG = 0
     IF (K .LT. 0 .OR. K .GT. vstate % NQ) GO TO 80
     TFUZZ = HUN * vstate % UROUND * (vstate % TN + vstate % HU)
     TP = vstate % TN - vstate % HU - TFUZZ
     TN1 = vstate % TN + TFUZZ
-    IF ((T-TP)*(T-TN1) .GT. ZERO) GO TO 90
+    IF ((vstate % TOUT-TP)*(vstate % TOUT-TN1) .GT. ZERO) GO TO 90
 
-    S = (T - vstate % TN)/vstate % H
+    S = (vstate % TOUT - vstate % TN)/vstate % H
     IC = 1
     IF (K .EQ. 0) GO TO 15
     JJ1 = vstate % L - K
@@ -419,7 +429,7 @@ contains
 15  continue
     C = REAL(IC)
     do I = 1, VODE_NEQS
-       DKY(I) = C * YH(I,vstate % L)
+       vstate % Y(I) = C * rwork % YH(I,vstate % L)
     end do
     IF (K .EQ. vstate % NQ) GO TO 55
     JB2 = vstate % NQ - K
@@ -435,14 +445,14 @@ contains
 35     continue
        C = REAL(IC)
        do I = 1, VODE_NEQS
-          DKY(I) = C * YH(I,JP1) + S*DKY(I)
+          vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
        end do
     end do
     IF (K .EQ. 0) RETURN
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCALN (VODE_NEQS, R, DKY, 1)
+    CALL DSCALN (VODE_NEQS, R, vstate % Y, 1)
     RETURN
 
 80  continue
@@ -454,9 +464,9 @@ contains
     RETURN
 90  continue
 #ifndef CUDA    
-    MSG = 'DVINDY-- T (=R1) illegal      '
-    CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, T, ZERO)
-    MSG='      T not in interval TCUR - HU (= R1) to TCUR (=R2)      '
+    MSG = 'DVINDY-- vstate % TOUT (=R1) illegal      '
+    CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, ZERO)
+    MSG='      vstate % TOUT not in interval TCUR - HU (= R1) to TCUR (=R2)      '
     CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
 #endif    
      IFLAG = -2
@@ -466,22 +476,17 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvode(Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
-       ISTATE, IOPT, RWORK, IWORK, MF, &
-       RPAR, vstate)
+  subroutine dvode(vstate, rwork, IWORK, ITASK, IOPT, MF)
+
     !$acc routine seq
 
     implicit none
 
     ! Declare arguments
-    real(dp_t),    intent(inout) :: Y(VODE_NEQS), RPAR(n_rpar_comps)
-    type(dvode_t), intent(inout) :: vstate
+    type(dvode_t), intent(inout) :: vstate    
+    type(rwork_t), intent(inout) :: rwork
     integer,       intent(inout) :: IWORK(LIW)
-    real(dp_t),    intent(inout) :: T, TOUT
-    integer,       intent(in   ) :: ITOL, ITASK, IOPT, MF
-    integer,       intent(inout) :: ISTATE
-    real(dp_t),    intent(in   ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
-    type(rwork_t), intent(inout) :: RWORK
+    integer,       intent(in   ) :: ITASK, IOPT, MF
 
     ! Declare local variables
     logical    :: IHIT
@@ -502,32 +507,32 @@ contains
     ! -----------------------------------------------------------------------
     !  Block A.
     !  This code block is executed on every call.
-    !  It tests ISTATE and ITASK for legality and branches appropriately.
-    !  If ISTATE .gt. 1 but the flag INIT shows that initialization has
+    !  It tests vstate % ISTATE and ITASK for legality and branches appropriately.
+    !  If vstate % ISTATE .gt. 1 but the flag INIT shows that initialization has
     !  not yet been done, an error return occurs.
-    !  If ISTATE = 1 and TOUT = T, return immediately.
+    !  If vstate % ISTATE = 1 and TOUT = T, return immediately.
     ! -----------------------------------------------------------------------
-    IF (ISTATE .LT. 1 .OR. ISTATE .GT. 3) GO TO 601
+    IF (vstate % ISTATE .LT. 1 .OR. vstate % ISTATE .GT. 3) GO TO 601
     IF (ITASK .LT. 1 .OR. ITASK .GT. 5) GO TO 602
-    IF (ISTATE .EQ. 1) GO TO 10
+    IF (vstate % ISTATE .EQ. 1) GO TO 10
     IF (vstate % INIT .NE. 1) GO TO 603
-    IF (ISTATE .EQ. 2) GO TO 200
+    IF (vstate % ISTATE .EQ. 2) GO TO 200
     GO TO 20
 10  continue
     vstate % INIT = 0
-    IF (TOUT .EQ. T) RETURN
+    IF (vstate % TOUT .EQ. vstate % T) RETURN
     
     ! -----------------------------------------------------------------------
     !  Block B.
-    !  The next code block is executed for the initial call (ISTATE = 1),
-    !  or for a continuation call with parameter changes (ISTATE = 3).
+    !  The next code block is executed for the initial call (vstate % ISTATE = 1),
+    !  or for a continuation call with parameter changes (vstate % ISTATE = 3).
     !  It contains checking of all input and various initializations.
     !
     !  First check legality of the non-optional input ITOL, IOPT,
     !  MF, ML, and MU.
     ! -----------------------------------------------------------------------
 20  continue
-    IF (ITOL .LT. 1 .OR. ITOL .GT. 4) GO TO 606
+    IF (VODE_ITOL .LT. 1 .OR. VODE_ITOL .GT. 4) GO TO 606
     IF (IOPT .LT. 0 .OR. IOPT .GT. 1) GO TO 607
     vstate % JSV = SIGN(1,MF)
     MFA = ABS(MF)
@@ -547,7 +552,7 @@ contains
     IF (IOPT .EQ. 1) GO TO 40
     vstate % MXSTEP = MXSTP0
     vstate % MXHNIL = MXHNL0
-    IF (ISTATE .EQ. 1) H0 = ZERO
+    IF (vstate % ISTATE .EQ. 1) H0 = ZERO
     vstate % HMXI = ZERO
     vstate % HMIN = ZERO
     GO TO 60
@@ -559,9 +564,9 @@ contains
     IF (vstate % MXHNIL .LT. 0) GO TO 613
     !      EDIT 07/16/2016 -- see comments above about MXHNIL
     !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
-    IF (ISTATE .NE. 1) GO TO 50
+    IF (vstate % ISTATE .NE. 1) GO TO 50
     H0 = RWORK % CONDOPT(2)
-    IF ((TOUT - T)*H0 .LT. ZERO) GO TO 614
+    IF ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) GO TO 614
 50  continue
     HMAX = RWORK % CONDOPT(3)
     IF (HMAX .LT. ZERO) GO TO 615
@@ -588,16 +593,16 @@ contains
     ENDIF
 
     ! Check RTOL and ATOL for legality. ------------------------------------
-    RTOLI = RTOL(1)
-    ATOLI = ATOL(1)
+    RTOLI = vstate % RTOL(1)
+    ATOLI = vstate % ATOL(1)
     do I = 1,VODE_NEQS
-       IF (ITOL .GE. 3) RTOLI = RTOL(I)
-       IF (ITOL .EQ. 2 .OR. ITOL .EQ. 4) ATOLI = ATOL(I)
+       IF (VODE_ITOL .GE. 3) RTOLI = vstate % RTOL(I)
+       IF (VODE_ITOL .EQ. 2 .OR. VODE_ITOL .EQ. 4) ATOLI = vstate % ATOL(I)
        IF (RTOLI .LT. ZERO) GO TO 619
        IF (ATOLI .LT. ZERO) GO TO 620
     end do
-    IF (ISTATE .EQ. 1) GO TO 100
-    ! If ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
+    IF (vstate % ISTATE .EQ. 1) GO TO 100
+    ! If vstate % ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
     vstate % JSTART = -1
     IF (vstate % NQ .LE. VODE_MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
@@ -610,7 +615,7 @@ contains
 
     ! -----------------------------------------------------------------------
     !  Block C.
-    !  The next block is for the initial call only (ISTATE = 1).
+    !  The next block is for the initial call only (vstate % ISTATE = 1).
     !  It contains all remaining initializations, the initial call to F,
     !  and the calculation of the initial step size.
     !  The error weights in EWT are inverted after being loaded.
@@ -618,12 +623,12 @@ contains
         
 100 continue
     vstate % UROUND = DUMACH()
-    vstate % TN = T
+    vstate % TN = vstate % T
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
     TCRIT = RWORK % condopt(1)
-    IF ((TCRIT - TOUT)*(TOUT - T) .LT. ZERO) GO TO 625
-    if (H0 .NE. ZERO .AND. (T + H0 - TCRIT)*H0 .GT. ZERO) then
-       H0 = TCRIT - T
+    IF ((TCRIT - vstate % TOUT)*(vstate % TOUT - vstate % T) .LT. ZERO) GO TO 625
+    if (H0 .NE. ZERO .AND. (vstate % T + H0 - TCRIT)*H0 .GT. ZERO) then
+       H0 = TCRIT - vstate % T
     end if
 110 continue
     vstate % JSTART = 0
@@ -644,15 +649,15 @@ contains
 
     ! Initial call to F.  -------------------------
 
-    CALL f_rhs (T, Y, rwork % yh(:,2), RPAR)
+    CALL f_rhs (vstate % T, vstate % Y, rwork % yh(:,2), vstate % RPAR)
     vstate % NFE = 1
     ! Load the initial value vector in YH. ---------------------------------
-    CALL DCOPYN(VODE_NEQS, Y, 1, rwork % YH(:,1), 1)
+    CALL DCOPYN(VODE_NEQS, vstate % Y, 1, rwork % YH(:,1), 1)
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
     vstate % H = ONE
-    CALL DEWSET (ITOL, RTOL, ATOL, rwork % YH(:,1), rwork % EWT)
+    CALL DEWSET (vstate, rwork)
     do I = 1,VODE_NEQS
        IF (rwork % ewt(I) .LE. ZERO) GO TO 621
        rwork % ewt(I) = ONE/rwork % ewt(I)
@@ -660,16 +665,10 @@ contains
     IF (H0 .NE. ZERO) GO TO 180
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (T, &
-         rwork % YH, &
-         RPAR, TOUT, &
-         vstate % UROUND, &
-         rwork % EWT, &
-         ITOL, ATOL, Y, &
-         rwork % ACOR, &
-         H0, NITER, IER)
+    CALL DVHIN (vstate, rwork, H0, NITER, IER)
     vstate % NFE = vstate % NFE + NITER
     IF (IER .NE. 0) GO TO 622
+
     ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
 180 continue
     RH = ABS(H0)*vstate % HMXI
@@ -683,7 +682,7 @@ contains
     
     ! -----------------------------------------------------------------------
     !  Block D.
-    !  The next code block is for continuation calls only (ISTATE = 2 or 3)
+    !  The next code block is for continuation calls only (vstate % ISTATE = 2 or 3)
     !  and is to check stop conditions before taking a step.
     ! -----------------------------------------------------------------------
         
@@ -692,24 +691,24 @@ contains
     vstate % KUTH = 0
 
     GO TO (210, 250, 220, 230, 240), ITASK
-210 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
-    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
+210 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
+    CALL DVINDY (vstate, rwork, IFLAG)
     IF (IFLAG .NE. 0) GO TO 627
-    T = TOUT
+    vstate % T = vstate % TOUT
     GO TO 420
 220 continue
     TP = vstate % TN - vstate % HU * (ONE + HUN * vstate % UROUND)
-    IF ((TP - TOUT) * vstate % H .GT. ZERO) GO TO 623
-    IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
+    IF ((TP - vstate % TOUT) * vstate % H .GT. ZERO) GO TO 623
+    IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
     GO TO 400
 230 continue
     TCRIT = RWORK % condopt(1)
     IF ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) GO TO 624
-    IF ((TCRIT - TOUT) * vstate % H .LT. ZERO) GO TO 625
-    IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 245
-    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
+    IF ((TCRIT - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 625
+    IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 245
+    CALL DVINDY (vstate, rwork, IFLAG)
     IF (IFLAG .NE. 0) GO TO 627
-    T = TOUT
+    vstate % T = vstate % TOUT
     GO TO 420
 240 continue
     TCRIT = RWORK % condopt(1)
@@ -737,7 +736,7 @@ contains
 
 250 CONTINUE
     IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
-    CALL DEWSET (ITOL, RTOL, ATOL,  rwork % YH(:,1), rwork % EWT)
+    CALL DEWSET (vstate, rwork)
     do I = 1,VODE_NEQS
        IF (rwork % ewt(I) .LE. ZERO) GO TO 510
        rwork % ewt(I) = ONE/rwork % ewt(I)
@@ -772,7 +771,7 @@ contains
     !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
-    CALL DVSTEP(Y, IWORK, RPAR, rwork, vstate)
+    CALL DVSTEP(IWORK, rwork, vstate)
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
@@ -783,23 +782,23 @@ contains
     !  The following block handles the case of a successful return from the
     !  core integrator (KFLAG = 0).  Test for stop conditions.
     ! -----------------------------------------------------------------------
-    
+
 300 continue
     vstate % INIT = 1
     vstate % KUTH = 0
     GO TO (310, 400, 330, 340, 350), ITASK
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
-310 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 250
-    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
-    T = TOUT
+310 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
+    CALL DVINDY (vstate, rwork, IFLAG)
+    vstate % T = vstate % TOUT
     GO TO 420
     ! ITASK = 3.  Jump to exit if TOUT was reached. ------------------------
-330 IF ((vstate % TN - TOUT) * vstate % H .GE. ZERO) GO TO 400
+330 IF ((vstate % TN - vstate % TOUT) * vstate % H .GE. ZERO) GO TO 400
     GO TO 250
     ! ITASK = 4.  See if TOUT or TCRIT was reached.  Adjust H if necessary.
-340 IF ((vstate % TN - TOUT) * vstate % H .LT. ZERO) GO TO 345
-    CALL DVINDY (rwork % yh, TOUT, 0, Y, IFLAG, vstate)
-    T = TOUT
+340 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 345
+    CALL DVINDY (vstate, rwork, IFLAG)
+    vstate % T = vstate % TOUT
     GO TO 420
 345 continue
     HMX = ABS(vstate % TN) + ABS(vstate % H)
@@ -819,18 +818,18 @@ contains
     !  Block G.
     !  The following block handles all successful returns from DVODE.
     !  If ITASK .ne. 1, Y is loaded from YH and T is set accordingly.
-    !  ISTATE is set to 2, and the optional output is loaded into the work
+    !  vstate % ISTATE is set to 2, and the optional output is loaded into the work
     !  arrays before returning.
     ! -----------------------------------------------------------------------
     
 400 CONTINUE
-    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, Y, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
 
-    T = vstate % TN
+    vstate % T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
-    IF (IHIT) T = TCRIT
+    IF (IHIT) vstate % T = TCRIT
 420 continue
-    ISTATE = 2
+    vstate % ISTATE = 2
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
@@ -860,7 +859,7 @@ contains
     MSG = '      taken on this call before reaching TOUT     '
     CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
 #endif    
-    ISTATE = -1
+    vstate % ISTATE = -1
     GO TO 580
     ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 510 continue
@@ -869,7 +868,7 @@ contains
     MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
     CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
 #endif
-    ISTATE = -6
+    vstate % ISTATE = -6
     GO TO 580
     ! Too much accuracy requested for machine precision. -------------------
 520 continue
@@ -879,7 +878,7 @@ contains
     MSG = '      for precision of machine:   see TOLSF (=R2) '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
 #endif
-    ISTATE = -2
+    vstate % ISTATE = -2
     GO TO 580
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
 530 continue
@@ -889,7 +888,7 @@ contains
     MSG = '      test failed repeatedly or with abs(H) = HMIN'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif    
-    ISTATE = -4
+    vstate % ISTATE = -4
     GO TO 560
     ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
 540 continue
@@ -901,7 +900,7 @@ contains
     MSG = '      or with abs(H) = HMIN   '
     CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif    
-    ISTATE = -5
+    vstate % ISTATE = -5
     ! Compute IMXER if relevant. -------------------------------------------
 560 continue
     BIG = ZERO
@@ -915,9 +914,9 @@ contains
     IWORK(16) = IMXER
     ! Set Y vector, T, and optional output. --------------------------------
 580 CONTINUE
-    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, Y, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
 
-    T = vstate % TN
+    vstate % T = vstate % TN
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
@@ -933,17 +932,17 @@ contains
     ! -----------------------------------------------------------------------
     !  Block I.
     !  The following block handles all error returns due to illegal input
-    !  (ISTATE = -3), as detected before calling the core integrator.
+    !  (vstate % ISTATE = -3), as detected before calling the core integrator.
     !  First the error message routine is called.   If the illegal input
-    !  is a negative ISTATE, the run is aborted (apparent infinite loop).
+    !  is a negative vstate % ISTATE, the run is aborted (apparent infinite loop).
     ! -----------------------------------------------------------------------
     
 601 continue
 #ifndef CUDA    
-    MSG = 'DVODE--  ISTATE (=I1) illegal '
-    CALL XERRWD (MSG, 30, 1, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+    MSG = 'DVODE--  vstate % ISTATE (=I1) illegal '
+    CALL XERRWD (MSG, 30, 1, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
 #endif
-    IF (ISTATE .LT. 0) GO TO 800
+    IF (vstate % ISTATE .LT. 0) GO TO 800
     GO TO 700
 602 continue
 #ifndef CUDA    
@@ -953,14 +952,14 @@ contains
     GO TO 700
 603 continue
 #ifndef CUDA    
-    MSG='DVODE--  ISTATE (=I1) .gt. 1 but DVODE not initialized      '
-    CALL XERRWD (MSG, 60, 3, 1, 1, ISTATE, 0, 0, ZERO, ZERO)
+    MSG='DVODE--  vstate % ISTATE (=I1) .gt. 1 but DVODE not initialized      '
+    CALL XERRWD (MSG, 60, 3, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
 #endif    
     GO TO 700
 606 continue
 #ifndef CUDA    
     MSG = 'DVODE--  ITOL (=I1) illegal   '
-    CALL XERRWD (MSG, 30, 6, 1, 1, ITOL, 0, 0, ZERO, ZERO)
+    CALL XERRWD (MSG, 30, 6, 1, 1, VODE_ITOL, 0, 0, ZERO, ZERO)
 #endif
     GO TO 700
 607 continue
@@ -1008,7 +1007,7 @@ contains
 614 continue
 #ifndef CUDA    
     MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-    CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, TOUT, T)    
+    CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)    
     MSG = '      integration direction is given by H0 (=R1)  '
     CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
 #endif
@@ -1047,13 +1046,13 @@ contains
 622 CONTINUE
 #ifndef CUDA    
     MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
-    CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, TOUT, T)
+    CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
 #endif
     GO TO 700
 623 CONTINUE
 #ifndef CUDA    
     MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
-    CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, TOUT, TP)
+    CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, vstate % TOUT, TP)
 #endif
     GO TO 700
 624 CONTINUE
@@ -1065,7 +1064,7 @@ contains
 625 CONTINUE
 #ifndef CUDA    
     MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
-    CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, TOUT)
+    CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
 #endif
     GO TO 700
 626 continue
@@ -1079,11 +1078,11 @@ contains
 627 continue
 #ifndef CUDA
     MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
-    CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, TOUT, ZERO)
+    CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
 #endif
     
 700 CONTINUE
-    ISTATE = -3
+    vstate % ISTATE = -3
 
     return
     
@@ -1098,7 +1097,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvsol(WM, IWM, X, IERSL, vstate)
+  subroutine dvsol(WM, IWM, IERSL, vstate)
 
     !$acc routine seq
     
@@ -1137,9 +1136,8 @@ contains
     implicit none
 
     ! Declare arguments
-    type(dvode_t), intent(in   ) :: vstate
+    type(dvode_t), intent(inout) :: vstate
     real(dp_t),    intent(inout) :: WM(VODE_LENWM)
-    real(dp_t),    intent(inout) :: X(VODE_NEQS)
     integer,       intent(in   ) :: IWM(LIW)
     integer,       intent(  out) :: IERSL
 
@@ -1150,7 +1148,8 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, VODE_NEQS, IWM(31:31 + VODE_NEQS - 1), X, 0)
+    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, VODE_NEQS, &
+         IWM(31:31 + VODE_NEQS - 1), vstate % Y, 0)
     RETURN
 
 300 continue
@@ -1167,7 +1166,7 @@ contains
 
 330 continue
     do I = 1,VODE_NEQS
-       X(I) = WM(I+2)*X(I)
+       vstate % Y(I) = WM(I+2)*vstate % Y(I)
     end do
     RETURN
 390 continue
@@ -1179,7 +1178,7 @@ contains
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
     CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, &
-         ML, MU, IWM(31:31 + VODE_NEQS - 1), X, 0)
+         ML, MU, IWM(31:31 + VODE_NEQS - 1), vstate % Y, 0)
     RETURN
   end subroutine dvsol
 
@@ -1222,7 +1221,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvjac(Y, IWM, IERPJ, RPAR, rwork, vstate)
+  subroutine dvjac(IWM, IERPJ, rwork, vstate)
 
     !$acc routine seq
     
@@ -1289,8 +1288,6 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
-    real(dp_t),    intent(inout) :: RPAR(n_rpar_comps)
     integer,       intent(inout) :: IWM(LIW)
     integer,       intent(  out) :: IERPJ
 
@@ -1322,8 +1319,8 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % TN, Y, 0, 0, &
-            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, RPAR)
+       CALL JAC (vstate % TN, vstate % Y, 0, 0, &
+            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
           CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
@@ -1341,15 +1338,15 @@ contains
        SRUR = rwork % WM(1)
        J1 = 2
        do J = 1,VODE_NEQS
-          YJ = Y(J)
+          YJ = vstate % Y(J)
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
-          Y(J) = Y(J) + R
+          vstate % Y(J) = vstate % Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR)
+          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
           do I = 1,VODE_NEQS
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
-          Y(J) = YJ
+          vstate % Y(J) = YJ
           J1 = J1 + VODE_NEQS
        end do
        vstate % NFE = vstate % NFE + VODE_NEQS
@@ -1392,10 +1389,10 @@ contains
        rwork % WM(2) = HRL1
        R = vstate % RL1*PT1
        do I = 1,VODE_NEQS
-          Y(I) = Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
+          vstate % Y(I) = vstate % Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
-       CALL f_rhs (vstate % TN, Y, &
-            rwork % WM(3:3 + VODE_NEQS - 1), RPAR)
+       CALL f_rhs (vstate % TN, vstate % Y, &
+            rwork % WM(3:3 + VODE_NEQS - 1), vstate % RPAR)
        vstate % NFE = vstate % NFE + 1
        do I = 1,VODE_NEQS
           R0 = vstate % H * rwork % SAVF(I) - rwork % YH(I,2)
@@ -1428,7 +1425,8 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, RPAR)
+       CALL JAC (vstate % TN, vstate % Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), &
+            MEBAND, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
           CALL DACOPY(MBAND, VODE_NEQS, &
                rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
@@ -1448,14 +1446,14 @@ contains
        IF (R0 .EQ. ZERO) R0 = ONE
        do J = 1,MBA
           do I = J,VODE_NEQS,MBAND
-             YI = Y(I)
+             YI = vstate % Y(I)
              R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
-             Y(I) = Y(I) + R
+             vstate % Y(I) = vstate % Y(I) + R
           end do
-          CALL f_rhs (vstate % TN, Y, rwork % acor, RPAR)
+          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
           do JJ = J,VODE_NEQS,MBAND
-             Y(JJ) = rwork % YH(JJ,1)
-             YJJ = Y(JJ)
+             vstate % Y(JJ) = rwork % YH(JJ,1)
+             YJJ = vstate % Y(JJ)
              R = MAX(SRUR*ABS(YJJ),R0/rwork % EWT(JJ))
              FAC = ONE/R
              I1 = MAX(JJ-MU,1)
@@ -1502,7 +1500,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, rwork, vstate)
+  subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
 
     !$acc routine seq
     
@@ -1571,8 +1569,6 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
-    real(dp_t),    intent(inout) :: RPAR(n_rpar_comps)
     integer,       intent(inout) :: IWM(LIW), NFLAG
 
     ! Declare local variables
@@ -1618,8 +1614,8 @@ contains
     M = 0
     DELP = ZERO
 
-    CALL DCOPYN(VODE_NEQS, rwork % yh(:,1), 1, Y, 1)
-    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR)
+    CALL DCOPYN(VODE_NEQS, rwork % yh(:,1), 1, vstate % Y, 1)
+    CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -1627,7 +1623,7 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    CALL DVJAC (Y, IWM, IERPJ, RPAR, rwork, vstate)
+    CALL DVJAC (IWM, IERPJ, rwork, vstate)
     vstate % IPUP = 0
     vstate % RC = ONE
     vstate % DRC = ZERO
@@ -1649,11 +1645,11 @@ contains
        rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
     end do
     do I = 1,VODE_NEQS
-       Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
+       vstate % Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
     end do
-    DEL = DVNORM (Y, rwork % EWT)
+    DEL = DVNORM (vstate % Y, rwork % EWT)
     do I = 1,VODE_NEQS
-       Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
+       vstate % Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
     CALL DCOPYN(VODE_NEQS, rwork % SAVF, 1, rwork % ACOR, 1)
 
@@ -1666,21 +1662,21 @@ contains
     ! -----------------------------------------------------------------------
 350 continue
     do I = 1,VODE_NEQS
-       Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
+       vstate % Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
             (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
     end do
-    CALL DVSOL (rwork % wm, IWM, Y, IERSL, vstate)
+    CALL DVSOL (rwork % wm, IWM, IERSL, vstate)
     vstate % NNI = vstate % NNI + 1
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCALN (VODE_NEQS, CSCALE, Y, 1)
+       CALL DSCALN (VODE_NEQS, CSCALE, vstate % Y, 1)
     ENDIF
-    DEL = DVNORM (Y, rwork % EWT)
-    call daxpyn(VODE_NEQS, ONE, Y, 1, rwork % acor, 1)
+    DEL = DVNORM (vstate % Y, rwork % EWT)
+    call daxpyn(VODE_NEQS, ONE, vstate % Y, 1, rwork % acor, 1)
 
     do I = 1,VODE_NEQS
-       Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
+       vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
     end do
     ! -----------------------------------------------------------------------
     !  Test for convergence.  If M .gt. 0, an estimate of the convergence
@@ -1694,7 +1690,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL f_rhs (vstate % TN, Y, rwork % SAVF, RPAR)
+    CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     
@@ -2077,7 +2073,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvstep(Y, IWM, RPAR, rwork, vstate)
+  subroutine dvstep(IWM, rwork, vstate)
 
     !$acc routine seq
     
@@ -2142,8 +2138,6 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
-    real(dp_t),    intent(inout) :: RPAR(n_rpar_comps)
     integer,       intent(inout) :: IWM(LIW)
 
     ! Declare local variables
@@ -2301,7 +2295,7 @@ contains
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
-    CALL dvnlsd (Y, IWM, NFLAG, RPAR, rwork, vstate)
+    CALL dvnlsd (IWM, NFLAG, rwork, vstate)
 
     IF (NFLAG .EQ. 0) GO TO 450
     ! -----------------------------------------------------------------------
@@ -2406,7 +2400,7 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % TN, Y, rwork % savf, RPAR)
+    CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
     do I = 1, VODE_NEQS
        rwork % yh(I,2) = vstate % H * rwork % savf(I)
