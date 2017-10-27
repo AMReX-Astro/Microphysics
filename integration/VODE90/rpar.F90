@@ -64,6 +64,5 @@ module rpar_indices
   integer, parameter :: n_rpar_comps = irp_t0
 #endif
   
-  integer, parameter :: n_ipar_comps = 1
 
 end module rpar_indices

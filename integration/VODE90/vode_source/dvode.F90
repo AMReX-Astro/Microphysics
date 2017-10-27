@@ -450,16 +450,17 @@ contains
 #endif
   subroutine dvode(Y, T, TOUT, ITOL, RTOL, ATOL, ITASK, &
        ISTATE, IOPT, RWORK, IWORK, MF, &
-       RPAR, IPAR, vstate)       
+       RPAR, vstate)
     !$acc routine seq
 
     implicit none
        
     type(dvode_t), intent(inout) :: vstate
-    
+    integer,       intent(inout) :: IWORK(LIW)
+
     integer    :: ITOL, ITASK, ISTATE, IOPT, MF
-    integer    :: IWORK(LIW)
-    integer    :: IPAR(n_ipar_comps)
+
+
     real(dp_t) :: T, TOUT
     real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
@@ -755,7 +756,7 @@ contains
     !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
-    CALL DVSTEP(Y, IWORK, RPAR, IPAR, rwork, vstate)
+    CALL DVSTEP(Y, IWORK, RPAR, rwork, vstate)
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
@@ -1200,7 +1201,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvjac(Y, IWM, IERPJ, RPAR, IPAR, rwork, vstate)
+  subroutine dvjac(Y, IWM, IERPJ, RPAR, rwork, vstate)
 
     !$acc routine seq
     
@@ -1269,7 +1270,7 @@ contains
     
     real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(LIW), IERPJ, IPAR(n_ipar_comps)
+    integer    :: IWM(LIW), IERPJ
 
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
@@ -1299,7 +1300,7 @@ contains
           rwork % WM(I+2) = ZERO
        end do
        CALL JAC (vstate % TN, Y, 0, 0, &
-            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, RPAR, IPAR)
+            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, RPAR)
        if (vstate % JSV .EQ. 1) then
           CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
@@ -1404,7 +1405,7 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, RPAR, IPAR)
+       CALL JAC (vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, RPAR)
        if (vstate % JSV .EQ. 1) then
           CALL DACOPY(MBAND, VODE_NEQS, &
                rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
@@ -1478,7 +1479,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, IPAR, rwork, vstate)
+  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, rwork, vstate)
 
     !$acc routine seq
     
@@ -1548,7 +1549,7 @@ contains
     type(rwork_t) :: rwork
     real(dp_t)    :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(LIW), NFLAG, IPAR(n_ipar_comps)
+    integer    :: IWM(LIW), NFLAG
     
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
@@ -1601,7 +1602,7 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    CALL DVJAC (Y, IWM, IERPJ, RPAR, IPAR, rwork, vstate)
+    CALL DVJAC (Y, IWM, IERPJ, RPAR, rwork, vstate)
     vstate % IPUP = 0
     vstate % RC = ONE
     vstate % DRC = ZERO
@@ -2047,7 +2048,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvstep(Y, IWM, RPAR, IPAR, rwork, vstate)
+  subroutine dvstep(Y, IWM, RPAR, rwork, vstate)
 
     !$acc routine seq
     
@@ -2113,7 +2114,7 @@ contains
     type(rwork_t) :: rwork
     real(dp_t) :: Y(VODE_NEQS)
     real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(LIW), IPAR(n_ipar_comps)
+    integer    :: IWM(LIW)
     
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
@@ -2269,7 +2270,7 @@ contains
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
-    CALL dvnlsd (Y, IWM, NFLAG, RPAR, IPAR, rwork, vstate)
+    CALL dvnlsd (Y, IWM, NFLAG, RPAR, rwork, vstate)
 
     IF (NFLAG .EQ. 0) GO TO 450
     ! -----------------------------------------------------------------------
