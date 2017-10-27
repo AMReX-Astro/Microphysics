@@ -70,8 +70,10 @@ contains
     !
 
     implicit none
-  
-    real(dp_t) :: U, dum
+
+    real(dp_t), intent(in   ) :: U
+    real(dp_t), intent(  out) :: dum
+
     dum = EPSILON(U)
   end function dumach
 
