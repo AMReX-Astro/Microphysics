@@ -1119,12 +1119,11 @@ contains
 
     implicit none
 
-    type(dvode_t) :: vstate
-
-    real(dp_t) :: WM(VODE_LENWM)
-    real(dp_t) :: X(VODE_NEQS)
-    integer    :: IWM(LIW), IERSL
-
+    type(dvode_t), intent(in   ) :: vstate
+    real(dp_t),    intent(inout) :: WM(VODE_LENWM)
+    real(dp_t),    intent(inout) :: X(VODE_NEQS)
+    integer,       intent(in   ) :: IWM(LIW)
+    integer,       intent(  out) :: IERSL
 
     integer    :: I, MEBAND, ML, MU
     real(dp_t) :: DI, HRL1, PHRL1, R
