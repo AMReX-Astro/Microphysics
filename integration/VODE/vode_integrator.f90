@@ -327,6 +327,9 @@ contains
 
     call normalize_abundances_burn(state_out)
 
+    ! set the integration time for any diagnostics
+    state_out % time = time + dt
+
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
