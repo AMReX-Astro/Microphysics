@@ -71,8 +71,11 @@ contains
 
     implicit none
 
+    ! Declare arguments
     real(dp_t), intent(in   ) :: U
-    real(dp_t), intent(  out) :: dum
+
+    ! Declare return variable
+    real(dp_t) :: dum
 
     dum = EPSILON(U)
   end function dumach
@@ -108,11 +111,13 @@ contains
 
     implicit none
 
+    ! Declare arguments
     integer,    intent(in   ) :: ITOL
     real(dp_t), intent(in   ) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
     real(dp_t), intent(in   ) :: YCUR(VODE_NEQS)
     real(dp_t), intent(  out) :: EWT(VODE_NEQS)
 
+    ! Declare local variables
     integer    :: I, N
 
     GO TO (10, 20, 30, 40), ITOL
@@ -170,9 +175,15 @@ contains
 
     implicit none
 
-    integer    :: I
+    ! Declare arguments
     real(dp_t), intent(in   ) :: V(VODE_NEQS), W(VODE_NEQS)
-    real(dp_t) :: SUM, dvn
+
+    ! Declare return variable
+    real(dp_t) :: dvn
+
+    ! Declare local variables
+    real(dp_t) :: SUM
+    integer    :: I
 
     SUM = 0.0D0
     do I = 1,VODE_NEQS
@@ -236,6 +247,7 @@ contains
 
     implicit none
 
+    ! Declare arguments
     real(dp_t), intent(in   ) :: ATOL(VODE_NEQS), EWT(VODE_NEQS)
     real(dp_t), intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
     real(dp_t), intent(inout) :: RPAR(n_rpar_comps)
@@ -246,6 +258,7 @@ contains
     integer,    intent(in   ) :: ITOL
     integer,    intent(  out) :: NITER, IER
 
+    ! Declare local variables
     real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
@@ -372,9 +385,10 @@ contains
     !  Discussion above and comments in driver explain all variables.
     ! -----------------------------------------------------------------------
     !
-  
+
     implicit none
-  
+
+    ! Declare arguments
     type(dvode_t), intent(in   ) :: vstate
     real(dp_t),    intent(in   ) :: T
     real(dp_t),    intent(in   ) :: YH(VODE_NEQS, VODE_LMAX)
@@ -382,6 +396,7 @@ contains
     integer,       intent(in   ) :: K
     integer,       intent(  out) :: IFLAG
 
+    ! Declare local variables
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
 #ifndef CUDA
@@ -1123,12 +1138,14 @@ contains
 
     implicit none
 
+    ! Declare arguments
     type(dvode_t), intent(in   ) :: vstate
     real(dp_t),    intent(inout) :: WM(VODE_LENWM)
     real(dp_t),    intent(inout) :: X(VODE_NEQS)
     integer,       intent(in   ) :: IWM(LIW)
     integer,       intent(  out) :: IERSL
 
+    ! Declare local variables
     integer    :: I, MEBAND, ML, MU
     real(dp_t) :: DI, HRL1, PHRL1, R
 
@@ -1190,10 +1207,12 @@ contains
 
     implicit none
 
+    ! Declare arguments
     integer,     intent(in   ) :: NROW, NCOL, NROWA, NROWB
     real(dp_t),  intent(in   ) :: A(NROWA,NCOL)
     real(dp_t),  intent(inout) :: B(NROWB,NCOL)
 
+    ! Declare local variables
     integer    :: IC
 
     do IC = 1,NCOL
@@ -2492,9 +2511,11 @@ contains
 
     implicit none
 
+    ! Declare arguments
     type(rwork_t), intent(inout) :: rwork
     type(dvode_t), intent(in   ) :: vstate
 
+    ! Declare local variables
     integer :: k, j, i
 
     do k = vstate % NQ, 1, -1
@@ -2518,9 +2539,11 @@ contains
 
     implicit none
 
+    ! Declare arguments
     type(rwork_t), intent(inout) :: rwork
     type(dvode_t), intent(in   ) :: vstate
 
+    ! Declare local variables
     integer :: k, j, i
 
     do k = vstate % NQ, 1, -1
