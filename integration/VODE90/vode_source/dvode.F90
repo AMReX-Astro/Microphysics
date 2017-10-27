@@ -1727,12 +1727,13 @@ contains
     !
 
     implicit none
-  
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    
-    integer    :: IORD
 
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    integer,       intent(in   ) :: IORD
+
+    ! Declare local variables
     real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
     integer    :: I, IBACK, J, JP1, LP1, NQM1, NQM2, NQP1
 
