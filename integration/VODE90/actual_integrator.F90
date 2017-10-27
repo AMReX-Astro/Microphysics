@@ -60,7 +60,7 @@ contains
     ! Work variables
 
     type(rwork_t) :: rwork
-    integer    :: iwork(LIW)
+    integer    :: iwork(VODE_LIW)
 
     integer :: MF_JAC
 
