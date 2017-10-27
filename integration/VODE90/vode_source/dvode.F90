@@ -2118,12 +2118,14 @@ contains
 
     implicit none
 
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    real(dp_t) :: Y(VODE_NEQS)
-    real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(LIW)
-    
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
+    real(dp_t),    intent(inout) :: RPAR(n_rpar_comps)
+    integer,       intent(inout) :: IWM(LIW)
+
+    ! Declare local variables
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer    :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
@@ -2487,7 +2489,7 @@ contains
     implicit none
 
     type(rwork_t), intent(inout) :: rwork
-    type(dvode_t), intent(in)    :: vstate
+    type(dvode_t), intent(in   ) :: vstate
 
     integer :: k, j, i
 
@@ -2513,7 +2515,7 @@ contains
     implicit none
 
     type(rwork_t), intent(inout) :: rwork
-    type(dvode_t), intent(in)    :: vstate
+    type(dvode_t), intent(in   ) :: vstate
 
     integer :: k, j, i
 
