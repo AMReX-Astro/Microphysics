@@ -1264,14 +1264,16 @@ contains
     ! 
 
     implicit none
-  
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    
-    real(dp_t) :: Y(VODE_NEQS)
-    real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(LIW), IERPJ
 
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    real(dp_t),    intent(inout) :: Y(VODE_NEQS)
+    real(dp_t),    intent(inout) :: RPAR(n_rpar_comps)
+    integer,       intent(inout) :: IWM(LIW)
+    integer,       intent(  out) :: IERPJ
+
+    ! Declare local variables
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
