@@ -10,7 +10,7 @@ module dvode_module
 
   use vode_rhs_module, only: f_rhs, jac
   use vode_type_module, only: rwork_t
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, LIW, LRW,   &
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
 #ifndef CUDA  
@@ -485,7 +485,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate    
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWORK(LIW)
+    integer,       intent(inout) :: IWORK(VODE_LIW)
     integer,       intent(in   ) :: ITASK, IOPT, MF
 
     ! Declare local variables
@@ -1138,7 +1138,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     real(dp_t),    intent(inout) :: WM(VODE_LENWM)
-    integer,       intent(in   ) :: IWM(LIW)
+    integer,       intent(in   ) :: IWM(VODE_LIW)
     integer,       intent(  out) :: IERSL
 
     ! Declare local variables
@@ -1288,7 +1288,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWM(LIW)
+    integer,       intent(inout) :: IWM(VODE_LIW)
     integer,       intent(  out) :: IERPJ
 
     ! Declare local variables
@@ -1569,7 +1569,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWM(LIW), NFLAG
+    integer,       intent(inout) :: IWM(VODE_LIW), NFLAG
 
     ! Declare local variables
     real(dp_t) :: CSCALE, DCON, DEL, DELP
@@ -2138,7 +2138,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWM(LIW)
+    integer,       intent(inout) :: IWM(VODE_LIW)
 
     ! Declare local variables
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD

@@ -48,8 +48,8 @@ module vode_parameters_module
   ! integer work array of size 30 + NEQ. These are VODE constants
   ! that depend on the integration mode we're using -- see dvode.f.
 
-  integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
-  integer, parameter :: LIW = 30 + neqs
+  integer, parameter :: VODE_LRW = 22 + 9*neqs + 2*neqs**2
+  integer, parameter :: VODE_LIW = 30 + neqs
 
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
