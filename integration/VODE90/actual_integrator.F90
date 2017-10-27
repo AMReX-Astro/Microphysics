@@ -237,6 +237,9 @@ contains
 
        dvode_state % y(net_ienuc) = ener_offset
 
+       ! Call the integration routine.
+       call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+
     endif
 
     ! If we still failed, print out the current state of the integration.
@@ -307,6 +310,9 @@ contains
              endif
 
              dvode_state % y(net_ienuc) = ener_offset
+
+             ! Call the integration routine.
+             call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
           enddo
 
