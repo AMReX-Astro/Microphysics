@@ -3,6 +3,8 @@ module dvode_type_module
   use bl_types, only: dp_t
   use vode_parameters_module, only: VODE_NEQS
   use rpar_indices, only: n_rpar_comps
+
+  use dvode_constants_module
   
   implicit none
 
