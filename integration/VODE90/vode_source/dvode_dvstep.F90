@@ -8,6 +8,7 @@ module dvode_dvstep_module
   use bl_types, only: dp_t
   use blas_module
 
+  use dvode_dvset_module
   use dvode_dvjust_module
   use dvode_dvnlsd_module
   use dvode_nordsieck_module
