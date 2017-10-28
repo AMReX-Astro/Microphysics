@@ -1,7 +1,13 @@
 module dvode_dvjust_module
 
-  use dvode_constants_module
+  use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use dvode_type_module, only: dvode_t
+  use bl_types, only: dp_t
   use blas_module
+
+  use dvode_constants_module
 
   implicit none
 
@@ -35,17 +41,14 @@ contains
     ! -----------------------------------------------------------------------
     !
 
-    use vode_type_module, only: rwork_t 
-    use dvode_type_module, only: dvode_t
-    use bl_types, only: dp_t
-
     implicit none
-  
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    
-    integer    :: IORD
 
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    integer,       intent(in   ) :: IORD
+
+    ! Declare local variables
     real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
     integer    :: I, IBACK, J, JP1, LP1, NQM1, NQM2, NQP1
 
@@ -60,7 +63,7 @@ contains
 100 CONTINUE
     IF (IORD .EQ. 1) GO TO 180
     ! Order decrease. ------------------------------------------------------
-    do J = 1, vstate % LMAX
+    do J = 1, VODE_LMAX
        vstate % EL(J) = ZERO
     end do
     vstate % EL(2) = ONE
@@ -81,7 +84,7 @@ contains
     end do
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3, vstate % NQ
-       do I = 1, vstate % N
+       do I = 1, VODE_NEQS
           rwork % YH(I,J) = rwork % YH(I,J) - &
                rwork % YH(I,vstate % L) * vstate % EL(J)
        end do
@@ -91,7 +94,7 @@ contains
     ! Zero out next column in YH array. ------------------------------------
 180 CONTINUE
     LP1 = vstate % L + 1
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        rwork % YH(I,LP1) = ZERO
     end do
     RETURN
@@ -102,7 +105,7 @@ contains
 200 CONTINUE
     IF (IORD .EQ. 1) GO TO 300
     ! Order decrease. ------------------------------------------------------
-    do J = 1, vstate % LMAX
+    do J = 1, VODE_LMAX
        vstate % EL(J) = ZERO
     end do
     vstate % EL(3) = ONE
@@ -119,7 +122,7 @@ contains
     end do
     ! Subtract correction terms from YH array. -----------------------------
     do J = 3,vstate % NQ
-       do I = 1, vstate % N
+       do I = 1, VODE_NEQS
           rwork % YH(I,J) = rwork % YH(I,J) - &
                rwork % YH(I,vstate % L) * vstate % EL(J)
        end do
@@ -127,7 +130,7 @@ contains
     RETURN
     ! Order increase. ------------------------------------------------------
 300 continue
-    do J = 1, vstate % LMAX
+    do J = 1, VODE_LMAX
        vstate % EL(J) = ZERO
     end do
     vstate % EL(3) = ONE
@@ -155,14 +158,14 @@ contains
     T1 = (-ALPH0 - ALPH1)/PROD
     ! Load column L + 1 in YH array. ---------------------------------------
     LP1 = vstate % L + 1
-    do I = 1, vstate % N
-       rwork % YH(I,LP1) = T1 * rwork % YH(I,vstate % LMAX)
+    do I = 1, VODE_NEQS
+       rwork % YH(I,LP1) = T1 * rwork % YH(I,VODE_LMAX)
     end do
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPYN(vstate % N, vstate % EL(J), &
-            rwork % YH(1:vstate % N, LP1), 1, rwork % YH(1:vstate % N, J), 1)
+       CALL DAXPYN(VODE_NEQS, vstate % EL(J), &
+            rwork % YH(1:VODE_NEQS, LP1), 1, rwork % YH(1:VODE_NEQS, J), 1)
     end do
     RETURN
   end subroutine dvjust

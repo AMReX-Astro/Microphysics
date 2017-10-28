@@ -1,5 +1,8 @@
 module dvode_dvset_module
 
+  use dvode_type_module, only: dvode_t
+  use bl_types, only: dp_t
+
   use dvode_constants_module
 
   implicit none
@@ -60,13 +63,12 @@ contains
     ! -----------------------------------------------------------------------
     !
 
-    use vode_type_module, only: rwork_t
-    use dvode_type_module, only: dvode_t
-    use bl_types, only: dp_t
-
     implicit none
-  
+
+    ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
+
+    ! Declare local variables
     real(dp_t) :: EM(13)
     real(dp_t) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
     real(dp_t) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S

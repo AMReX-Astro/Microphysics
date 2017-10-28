@@ -1,5 +1,8 @@
 module dvode_dacopy_module
 
+  use bl_types, only: dp_t
+  use blas_module
+  
   use dvode_constants_module
 
   implicit none
@@ -18,7 +21,7 @@ contains
     !  Call sequence output -- B
     !  COMMON block variables accessed -- None
     ! 
-    !  Subroutines called by DACOPY: DCOPYN
+    !  Subroutines called by DACOPY: DCOPY
     !  Function routines called by DACOPY: None
     ! -----------------------------------------------------------------------
     !  This routine copies one rectangular array, A, to another, B,
@@ -26,14 +29,14 @@ contains
     !  The data copied consists of NROW rows and NCOL columns.
     ! -----------------------------------------------------------------------
 
-    use bl_types, only: dp_t
-    use blas_module
-    use linpack_module
-
     implicit none
 
-    integer    :: NROW, NCOL, NROWA, NROWB
-    real(dp_t) :: A(NROWA,NCOL), B(NROWB,NCOL)
+    ! Declare arguments
+    integer,     intent(in   ) :: NROW, NCOL, NROWA, NROWB
+    real(dp_t),  intent(in   ) :: A(NROWA,NCOL)
+    real(dp_t),  intent(inout) :: B(NROWB,NCOL)
+
+    ! Declare local variables
     integer    :: IC
 
     do IC = 1,NCOL

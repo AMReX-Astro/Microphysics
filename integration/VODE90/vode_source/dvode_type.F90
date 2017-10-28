@@ -1,6 +1,10 @@
 module dvode_type_module
 
   use bl_types, only: dp_t
+  use vode_parameters_module, only: VODE_NEQS
+  use rpar_indices, only: n_rpar_comps
+
+  use dvode_constants_module
   
   implicit none
 
@@ -12,12 +16,25 @@ module dvode_type_module
      real(dp_t) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST     
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
-     integer    :: L, LMAX, LIWM, LIW, LENWM
+     integer    :: L, LENWM
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
-     integer    :: N, NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
-     integer    :: NSLP, NYH
-     integer    :: LYH, LEWT, LACOR, LSAVF, LWM
-     integer    :: NEQ
+     integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
+     integer    :: NSLP
+
+     ! Tolerances
+     real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+
+     ! Real parameters
+     real(dp_t) :: RPAR(n_rpar_comps)
+
+     ! State flag
+     integer    :: ISTATE
+
+     ! Local time and integration end time
+     real(dp_t) :: T, TOUT
+
+     ! Integration vector
+     real(dp_t) :: Y(VODE_NEQS)
   end type dvode_t
 
 contains
@@ -92,18 +109,13 @@ contains
     write(*,*) 'KFLAG = ', dvode_state % KFLAG
     write(*,*) 'KUTH = ', dvode_state % KUTH
     write(*,*) 'L = ', dvode_state % L
-    write(*,*) 'LMAX = ', dvode_state % LMAX
-    write(*,*) 'LIWM = ', dvode_state % LIWM
-    write(*,*) 'LIW = ', dvode_state % LIW
     write(*,*) 'LENWM = ', dvode_state % LENWM
     write(*,*) 'LOCJS = ', dvode_state % LOCJS
-    write(*,*) 'MAXORD = ', dvode_state % MAXORD
     write(*,*) 'METH = ', dvode_state % METH
     write(*,*) 'MITER = ', dvode_state % MITER
     write(*,*) 'MSBJ = ', dvode_state % MSBJ
     write(*,*) 'MXHNIL = ', dvode_state % MXHNIL
     write(*,*) 'MXSTEP = ', dvode_state % MXSTEP
-    write(*,*) 'N = ', dvode_state % N
     write(*,*) 'NEWH = ', dvode_state % NEWH
     write(*,*) 'NEWQ = ', dvode_state % NEWQ
     write(*,*) 'NHNIL = ', dvode_state % NHNIL
@@ -112,13 +124,6 @@ contains
     write(*,*) 'NQWAIT = ', dvode_state % NQWAIT
     write(*,*) 'NSLJ = ', dvode_state % NSLJ
     write(*,*) 'NSLP = ', dvode_state % NSLP
-    write(*,*) 'NYH = ', dvode_state % NYH
-    write(*,*) 'LYH = ', dvode_state % LYH
-    write(*,*) 'LEWT = ', dvode_state % LEWT
-    write(*,*) 'LACOR = ', dvode_state % LACOR
-    write(*,*) 'LSAVF = ', dvode_state % LSAVF
-    write(*,*) 'LWM = ', dvode_state % LWM
-    write(*,*) 'NEQ = ', dvode_state % NEQ
   end subroutine print_state
 #endif
   

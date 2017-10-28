@@ -1,16 +1,19 @@
 module dvode_dvjac_module
 
   use vode_rhs_module, only: f_rhs, jac
-  use dvode_dacopy_module
-  use dvode_constants_module
-  use blas_module
-  use linpack_module
   use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
   use bl_types, only: dp_t
-  use dvode_dvnorm_module, only: dvnorm
-  use rpar_indices
-  
+  use linpack_module
+  use blas_module
+
+  use dvode_dvnorm_module
+  use dvode_dacopy_module
+
+  use dvode_constants_module
+
   implicit none
 
 contains
@@ -18,7 +21,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvjac(Y, IWM, IERPJ, RPAR, IPAR, rwork, vstate)
+  subroutine dvjac(IWM, IERPJ, rwork, vstate)
 
     !$acc routine seq
     
@@ -31,7 +34,7 @@ contains
     !                MITER, MSBJ, N, NSLJ
     !      /DVOD02/  NFE, NST, NJE, NLU
     ! 
-    !  Subroutines called by DVJAC: F, JAC, DACOPY, DCOPYN, DGBFA, DGEFA,
+    !  Subroutines called by DVJAC: F, JAC, DACOPY, DCOPY, DGBFA, DGEFA,
     !                               DSCAL
     !  Function routines called by DVJAC: DVNORM
     ! -----------------------------------------------------------------------
@@ -81,14 +84,14 @@ contains
     ! 
 
     implicit none
-  
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    
-    real(dp_t) :: Y(vstate % N)
-    real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(vstate % LIW), IERPJ, IPAR(n_ipar_comps)
 
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    integer,       intent(inout) :: IWM(VODE_LIW)
+    integer,       intent(  out) :: IERPJ
+
+    ! Declare local variables
     real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
@@ -112,12 +115,12 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       LENP = vstate % N * vstate % N
+       LENP = VODE_NEQS * VODE_NEQS
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % N, vstate % TN, Y, 0, 0, &
-            rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, RPAR, IPAR)
+       CALL JAC (vstate % TN, vstate % Y, 0, 0, &
+            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
           CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
@@ -129,25 +132,25 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       FAC = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)
-       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
+       FAC = DVNORM (rwork % SAVF, rwork % EWT)
+       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        SRUR = rwork % WM(1)
        J1 = 2
-       do J = 1,vstate % N
-          YJ = Y(J)
+       do J = 1,VODE_NEQS
+          YJ = vstate % Y(J)
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
-          Y(J) = Y(J) + R
+          vstate % Y(J) = vstate % Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % N, vstate % TN, Y, rwork % acor, RPAR, IPAR)
-          do I = 1,vstate % N
+          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
+          do I = 1,VODE_NEQS
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
-          Y(J) = YJ
-          J1 = J1 + vstate % N
+          vstate % Y(J) = YJ
+          J1 = J1 + VODE_NEQS
        end do
-       vstate % NFE = vstate % NFE + vstate % N
-       LENP = vstate % N * vstate % N
+       vstate % NFE = vstate % NFE + VODE_NEQS
+       LENP = VODE_NEQS * VODE_NEQS
        if (vstate % JSV .EQ. 1) then
           CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
                rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
@@ -156,7 +159,7 @@ contains
 
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
-       LENP = vstate % N * vstate % N
+       LENP = VODE_NEQS * VODE_NEQS
        CALL DCOPYN (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
             rwork % WM(3:3 + LENP - 1), 1)
     ENDIF
@@ -164,16 +167,16 @@ contains
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-       CALL DSCALN(LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
        J = 3
-       NP1 = vstate % N + 1
-       do I = 1,vstate % N
+       NP1 = VODE_NEQS + 1
+       do I = 1,VODE_NEQS
           rwork % WM(J) = rwork % WM(J) + ONE
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
-       CALL DGEFA (rwork % WM(3:3 + vstate % N**2 - 1), vstate % N, &
-            vstate % N, IWM(31:31 + vstate % N - 1), IER)
+       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, &
+            VODE_NEQS, IWM(31:31 + VODE_NEQS - 1), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -185,13 +188,13 @@ contains
        vstate % JCUR = 1
        rwork % WM(2) = HRL1
        R = vstate % RL1*PT1
-       do I = 1,vstate % N
-          Y(I) = Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
+       do I = 1,VODE_NEQS
+          vstate % Y(I) = vstate % Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
-       CALL f_rhs (vstate % N, vstate % TN, Y, &
-            rwork % WM(3:3 + vstate % N - 1), RPAR, IPAR)
+       CALL f_rhs (vstate % TN, vstate % Y, &
+            rwork % WM(3:3 + VODE_NEQS - 1), vstate % RPAR)
        vstate % NFE = vstate % NFE + 1
-       do I = 1,vstate % N
+       do I = 1,VODE_NEQS
           R0 = vstate % H * rwork % SAVF(I) - rwork % YH(I,2)
           DI = PT1*R0 - vstate % H*(rwork % WM(I+2) - rwork % SAVF(I))
           rwork % WM(I+2) = ONE
@@ -212,7 +215,7 @@ contains
     ML3 = ML + 3
     MBAND = ML + MU + 1
     MEBAND = MBAND + ML
-    LENP = MEBAND * vstate % N
+    LENP = MEBAND * VODE_NEQS
 
     if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 4) then
        ! If JOK = -1 and MITER = 4, call JAC to evaluate Jacobian. ------------
@@ -222,11 +225,12 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % N, vstate % TN, Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, RPAR, IPAR)
+       CALL JAC (vstate % TN, vstate % Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), &
+            MEBAND, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, vstate % N, &
-               rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND)
+          CALL DACOPY(MBAND, VODE_NEQS, &
+               rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * VODE_NEQS - 1), MBAND)
        end if
 
     else if (JOK .EQ. -1 .AND. vstate % MITER .EQ. 5) then
@@ -234,26 +238,26 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       MBA = MIN(MBAND,vstate % N)
+       MBA = MIN(MBAND,VODE_NEQS)
        MEB1 = MEBAND - 1
        SRUR = rwork % WM(1)
-       FAC = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)
-       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(vstate % N)*FAC
+       FAC = DVNORM (rwork % SAVF, rwork % EWT)
+       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
        do J = 1,MBA
-          do I = J,vstate % N,MBAND
-             YI = Y(I)
+          do I = J,VODE_NEQS,MBAND
+             YI = vstate % Y(I)
              R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
-             Y(I) = Y(I) + R
+             vstate % Y(I) = vstate % Y(I) + R
           end do
-          CALL f_rhs (vstate % N, vstate % TN, Y, rwork % acor, RPAR, IPAR)
-          do JJ = J,vstate % N,MBAND
-             Y(JJ) = rwork % YH(JJ,1)
-             YJJ = Y(JJ)
+          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
+          do JJ = J,VODE_NEQS,MBAND
+             vstate % Y(JJ) = rwork % YH(JJ,1)
+             YJJ = vstate % Y(JJ)
              R = MAX(SRUR*ABS(YJJ),R0/rwork % EWT(JJ))
              FAC = ONE/R
              I1 = MAX(JJ-MU,1)
-             I2 = MIN(JJ+ML,vstate % N)
+             I2 = MIN(JJ+ML,VODE_NEQS)
              II = JJ*MEB1 - ML + 2
              do I = I1,I2
                 rwork % WM(II+I) = (rwork % acor(I) - rwork % SAVF(I))*FAC
@@ -262,30 +266,30 @@ contains
        end do
        vstate % NFE = vstate % NFE + MBA
        if (vstate % JSV .EQ. 1) then
-          CALL DACOPY(MBAND, vstate % N, &
-               rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND)
+          CALL DACOPY(MBAND, VODE_NEQS, &
+               rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
+               rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * VODE_NEQS - 1), MBAND)
        end if
     end if
 
     IF (JOK .EQ. 1) THEN
        vstate % JCUR = 0
-       CALL DACOPY(MBAND, vstate % N, &
-            rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * vstate % N - 1), MBAND, &
-            rwork % WM(ML3:ML3 + MEBAND * vstate % N - 1), MEBAND)
+       CALL DACOPY(MBAND, VODE_NEQS, &
+            rwork % WM(vstate % LOCJS:vstate % LOCJS + MBAND * VODE_NEQS - 1), MBAND, &
+            rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND)
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-    CALL DSCALN(LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
     II = MBAND + 2
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        rwork % WM(II) = rwork % WM(II) + ONE
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
-    CALL DGBFA (rwork % WM(3:3 + MEBAND * vstate % N - 1), MEBAND, vstate % N, ML, &
-         MU, IWM(31:31 + vstate % N - 1), IER)
+    CALL DGBFA (rwork % WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, ML, &
+         MU, IWM(31:31 + VODE_NEQS - 1), IER)
     if (IER .NE. 0) then
        IERPJ = 1
     end if

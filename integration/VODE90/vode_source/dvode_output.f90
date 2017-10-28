@@ -1,6 +1,8 @@
 module dvode_output_module
 
   use bl_types, only: dp_t
+
+  use dvode_constants_module
   
   implicit none
 

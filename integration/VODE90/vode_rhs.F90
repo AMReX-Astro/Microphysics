@@ -9,7 +9,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
+  subroutine f_rhs(time, y, ydot, rpar)
 
     !$acc routine seq
     
@@ -22,15 +22,14 @@ contains
          burning_mode, burning_mode_factor, &
          integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
-                                burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, n_ipar_comps
+                                burn_to_vode, vode_to_burn, VODE_NEQS
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
     implicit none
 
-    integer,    intent(IN   ) :: neq, ipar(n_ipar_comps)
-    real(dp_t), intent(INOUT) :: time, y(neq)
+    real(dp_t), intent(INOUT) :: time, y(VODE_NEQS)
     real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
-    real(dp_t), intent(INOUT) :: ydot(neq)
+    real(dp_t), intent(INOUT) :: ydot(VODE_NEQS)
 
     type (burn_t) :: burn_state
 
@@ -102,7 +101,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
+  subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
     !$acc routine seq
     
@@ -110,7 +109,7 @@ contains
     use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use vode_type_module, only: vode_to_burn, burn_to_vode
+    use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
@@ -118,9 +117,9 @@ contains
 
     implicit none
 
-    integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar(:)
-    real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-    real(dp_t), intent(  OUT) :: pd(neq,neq)
+    integer   , intent(IN   ) :: ml, mu, nrpd
+    real(dp_t), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
+    real(dp_t), intent(  OUT) :: pd(VODE_NEQS,VODE_NEQS)
 
     type (burn_t) :: state
     real(dp_t) :: limit_factor, t_sound, t_enuc

@@ -1,10 +1,16 @@
 module dvode_dvindy_module
 
-  use dvode_constants_module
+  use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use dvode_type_module, only: dvode_t
+  use bl_types, only: dp_t
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
 #endif
   use blas_module
+
+  use dvode_constants_module
 
   implicit none
 
@@ -13,8 +19,8 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif
-  subroutine dvindy(YH, T, K, DKY, IFLAG, vstate)
-
+  subroutine dvindy(vstate, rwork, IFLAG)
+  
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
@@ -49,32 +55,36 @@ contains
     !  Discussion above and comments in driver explain all variables.
     ! -----------------------------------------------------------------------
     !
-
-    use dvode_type_module, only: dvode_t
-    use bl_types, only: dp_t
+    ! Note: the following variable replacements have been made ---
+    !  yh => rwork % yh
+    !  t => vstate % tout
+    !  dky => vstate % y
 
     implicit none
-  
-    type(dvode_t) :: vstate
-    real(dp_t) :: T
-    real(dp_t) :: YH(vstate % NYH, vstate % MAXORD + 1)
-    real(dp_t) :: DKY(vstate % N)
-    integer    :: K, IFLAG
 
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(in   ) :: rwork
+    integer,       intent(  out) :: IFLAG
+
+    ! Declare local variables
     real(dp_t) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
 #ifndef CUDA
     character (len=80) :: MSG
 #endif
 
+    integer, parameter :: K = ZERO
+    !don -- remove logic for K != 0 (we only use K = 0).
+    
     IFLAG = 0
     IF (K .LT. 0 .OR. K .GT. vstate % NQ) GO TO 80
     TFUZZ = HUN * vstate % UROUND * (vstate % TN + vstate % HU)
     TP = vstate % TN - vstate % HU - TFUZZ
     TN1 = vstate % TN + TFUZZ
-    IF ((T-TP)*(T-TN1) .GT. ZERO) GO TO 90
+    IF ((vstate % TOUT-TP)*(vstate % TOUT-TN1) .GT. ZERO) GO TO 90
 
-    S = (T - vstate % TN)/vstate % H
+    S = (vstate % TOUT - vstate % TN)/vstate % H
     IC = 1
     IF (K .EQ. 0) GO TO 15
     JJ1 = vstate % L - K
@@ -83,8 +93,8 @@ contains
     end do
 15  continue
     C = REAL(IC)
-    do I = 1, vstate % N
-       DKY(I) = C * YH(I,vstate % L)
+    do I = 1, VODE_NEQS
+       vstate % Y(I) = C * rwork % YH(I,vstate % L)
     end do
     IF (K .EQ. vstate % NQ) GO TO 55
     JB2 = vstate % NQ - K
@@ -99,15 +109,15 @@ contains
        end do
 35     continue
        C = REAL(IC)
-       do I = 1, vstate % N
-          DKY(I) = C * YH(I,JP1) + S*DKY(I)
+       do I = 1, VODE_NEQS
+          vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
        end do
     end do
     IF (K .EQ. 0) RETURN
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCALN(vstate % N, R, DKY, 1)
+    CALL DSCALN (VODE_NEQS, R, vstate % Y, 1)
     RETURN
 
 80  continue
@@ -119,9 +129,9 @@ contains
     RETURN
 90  continue
 #ifndef CUDA    
-    MSG = 'DVINDY-- T (=R1) illegal      '
-    CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, T, ZERO)
-    MSG='      T not in interval TCUR - HU (= R1) to TCUR (=R2)      '
+    MSG = 'DVINDY-- vstate % TOUT (=R1) illegal      '
+    CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, ZERO)
+    MSG='      vstate % TOUT not in interval TCUR - HU (= R1) to TCUR (=R2)      '
     CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
 #endif    
      IFLAG = -2

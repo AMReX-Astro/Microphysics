@@ -1,11 +1,19 @@
 module dvode_dvstep_module
 
-  use dvode_constants_module
-  use dvode_dvjust_module
-  use dvode_dvnorm_module
-  use dvode_dvset_module
-  use dvode_dvnlsd_module
+  use vode_rhs_module, only: f_rhs, jac
+  use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use dvode_type_module, only: dvode_t
+  use bl_types, only: dp_t
   use blas_module
+
+  use dvode_dvset_module
+  use dvode_dvjust_module
+  use dvode_dvnlsd_module
+  use dvode_nordsieck_module
+
+  use dvode_constants_module
 
   implicit none
 
@@ -14,7 +22,7 @@ contains
 #ifdef CUDA  
   attributes(device) &
 #endif  
-  subroutine dvstep(Y, IWM, RPAR, IPAR, rwork, vstate)
+  subroutine dvstep(IWM, rwork, vstate)
 
     !$acc routine seq
     
@@ -27,7 +35,7 @@ contains
     !                L, LMAX, MAXORD, N, NEWQ, NQ, NQWAIT
     !      /DVOD02/  HU, NCFN, NETF, NFE, NQU, NST
     ! 
-    !  Subroutines called by DVSTEP: F, DAXPY, DCOPYN, DSCAL,
+    !  Subroutines called by DVSTEP: F, DAXPY, DCOPY, DSCAL,
     !                                DVJUST, VNLS, DVSET
     !  Function routines called by DVSTEP: DVNORM
     ! -----------------------------------------------------------------------
@@ -74,20 +82,14 @@ contains
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
 
-    use vode_type_module, only: rwork_t
-    use dvode_type_module, only: dvode_t
-    use rpar_indices
-    use bl_types, only: dp_t
-
     implicit none
 
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    real(dp_t) :: Y(vstate % N)
-    real(dp_t) :: RPAR(n_rpar_comps)
-    real(dp_t) :: yhscratch(vstate % N * vstate % LMAX)
-    integer    :: IWM(vstate % LIW), IPAR(n_ipar_comps)
-    
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    integer,       intent(inout) :: IWM(VODE_LIW)
+
+    ! Declare local variables
     real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer    :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
@@ -129,7 +131,7 @@ contains
     ! -----------------------------------------------------------------------
     vstate % NQ = 1
     vstate % L = 2
-    vstate % NQNYH = vstate % NQ * vstate % NYH
+    vstate % NQNYH = vstate % NQ * VODE_NEQS
     vstate % TAU(1) = vstate % H
     vstate % PRL1 = ONE
     vstate % RC = ZERO
@@ -180,49 +182,50 @@ contains
     !  Finally, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 100 CONTINUE
-    IF (vstate % N .EQ. vstate % NYH) GO TO 120
-    I1 = 1 + (vstate % NEWQ + 1)*vstate % NYH
-    I2 = (vstate % MAXORD + 1)*vstate % NYH
+    !don - remove the following logic we don't use?
+    IF (VODE_NEQS .EQ. VODE_NEQS) GO TO 120
+    I1 = 1 + (vstate % NEWQ + 1)*VODE_NEQS
+    I2 = (VODE_MAXORD + 1)*VODE_NEQS
     IF (I1 .GT. I2) GO TO 120
     rwork % YH(:, vstate % NEWQ + 1:) = ZERO
-120 IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 140
-    FLOTL = REAL(vstate % LMAX)
-    IF (vstate % MAXORD .LT. vstate % NQ-1) THEN
-       DDN = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+120 IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 140
+    FLOTL = REAL(VODE_LMAX)
+    IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
+       DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
     ENDIF
-    IF (vstate % MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
-    IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
+    IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
+    IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
        vstate % ETA = ETAQM1
        CALL DVJUST (-1, rwork, vstate)
     ENDIF
-    IF (vstate % MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-       DDN = DVNORM (vstate % N, rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+    IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
+       DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
        vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
        CALL DVJUST (-1, rwork, vstate)
     ENDIF
     vstate % ETA = MIN(vstate % ETA,ONE)
-    vstate % NQ = vstate % MAXORD
-    vstate % L = vstate % LMAX
+    vstate % NQ = VODE_MAXORD
+    vstate % L = VODE_LMAX
 140 continue
     IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
     IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
     vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
     vstate % NEWH = 1
     vstate % NQWAIT = vstate % L
-    IF (vstate % NEWQ .LE. vstate % MAXORD) GO TO 50
+    IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 50
     ! Rescale the history array for a change in H by a factor of ETA. ------
 150 continue
     R = ONE
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCALN(vstate % N, R, rwork % YH(1:vstate % N,J), 1)
+       CALL DSCALN (VODE_NEQS, R, rwork % YH(1:VODE_NEQS,J), 1)
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % RC = vstate % RC * vstate % ETA
-    vstate % NQNYH = vstate % NQ*vstate % NYH
+    vstate % NQNYH = vstate % NQ*VODE_NEQS
     ! -----------------------------------------------------------------------
     !  This section computes the predicted values by effectively
     !  multiplying the YH array by the Pascal triangle matrix.
@@ -231,30 +234,9 @@ contains
     ! -----------------------------------------------------------------------
 200 continue
     vstate % TN = vstate % TN + vstate % H
-    !DON - begin
-    ! optimize this multiplication and check the math as it makes no sense
-    ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
-          I1 = I + (JB-1) * vstate % NYH
-          yhscratch(I1) = rwork % YH(I, JB)
-       end do
-    end do
-    I1 = vstate % NQNYH + 1
-    do JB = 1, vstate % NQ
-       I1 = I1 - vstate % NYH
-       do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) + yhscratch(I+vstate % NYH)
-       end do
-    end do
-    ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
-          I1 = I + (JB-1) * vstate % NYH
-          rwork % YH(I, JB) = yhscratch(I1)
-       end do
-    end do
-    !DON - end
+
+    call advance_nordsieck(rwork, vstate)
+
     CALL DVSET(vstate)
     vstate % RL1 = ONE/vstate % EL(2)
     vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
@@ -262,7 +244,7 @@ contains
     ! 
     !  Call the nonlinear system solver. ------------------------------------
     !
-    CALL dvnlsd (Y, IWM, NFLAG, RPAR, IPAR, rwork, vstate)
+    CALL dvnlsd (IWM, NFLAG, rwork, vstate)
 
     IF (NFLAG .EQ. 0) GO TO 450
     ! -----------------------------------------------------------------------
@@ -275,30 +257,9 @@ contains
     vstate % NCFN = vstate % NCFN + 1
     vstate % ETAMAX = ONE
     vstate % TN = TOLD
-    !DON - begin
-    ! optimize this multiplication and check the math as it makes no sense
-    ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
-          I1 = I + (JB-1) * vstate % NYH
-          yhscratch(I1) = rwork % YH(I, JB)
-       end do
-    end do
-    I1 = vstate % NQNYH + 1
-    do JB = 1, vstate % NQ
-       I1 = I1 - vstate % NYH
-       do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) - yhscratch(I+vstate % NYH)
-       end do
-    end do
-    ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
-          I1 = I + (JB-1) * vstate % NYH
-          rwork % YH(I, JB) = yhscratch(I1)
-       end do
-    end do
-    !DON - end
+
+    call retract_nordsieck(rwork, vstate)
+
     IF (NFLAG .LT. -1) GO TO 680
     IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
     IF (NCF .EQ. MXNCF) GO TO 670
@@ -329,11 +290,11 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-       CALL DAXPYN(vstate % N, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       CALL DAXPYN(VODE_NEQS, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
-    IF ((vstate % L .EQ. vstate % LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
+    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,VODE_LMAX), 1)
     
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -355,30 +316,9 @@ contains
     vstate % NETF = vstate % NETF + 1
     NFLAG = -2
     vstate % TN = TOLD
-    !DON - begin
-    ! optimize this multiplication and check the math as it makes no sense
-    ! Make the 2-D YH array into 1-D yhscratch
-    do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
-          I1 = I + (JB-1) * vstate % NYH
-          yhscratch(I1) = rwork % YH(I, JB)
-       end do
-    end do
-    I1 = vstate % NQNYH + 1
-    do JB = 1, vstate % NQ
-       I1 = I1 - vstate % NYH
-       do I = I1, vstate % NQNYH
-          yhscratch(I) = yhscratch(I) - yhscratch(I+vstate % NYH)
-       end do
-    end do
-    ! Make the 1-D yhscratch array into 2-D YH
-    do I = 1, vstate % NYH
-       do JB = 1, vstate % LMAX
-          I1 = I + (JB-1) * vstate % NYH
-          rwork % YH(I, JB) = yhscratch(I1)
-       end do
-    end do
-    !DON - end
+
+    call retract_nordsieck(rwork, vstate)
+
     IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 660
     vstate % ETAMAX = ONE
     IF (vstate % KFLAG .LE. KFC) GO TO 530
@@ -409,9 +349,9 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
-    do I = 1, vstate % N
+    do I = 1, VODE_NEQS
        rwork % yh(I,2) = vstate % H * rwork % savf(I)
     end do
     vstate % NQWAIT = 10
@@ -435,17 +375,17 @@ contains
     ETAQM1 = ZERO
     IF (vstate % NQ .EQ. 1) GO TO 570
     ! Compute ratio of new H to current H at the current order less one. ---
-    DDN = DVNORM (vstate % N, rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
+    DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
     ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
 570 continue
     ETAQP1 = ZERO
-    IF (vstate % L .EQ. vstate % LMAX) GO TO 580
+    IF (vstate % L .EQ. VODE_LMAX) GO TO 580
     ! Compute ratio of new H to current H at current order plus one. -------
     CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
-    do I = 1, vstate % N
-       rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,vstate % LMAX)
+    do I = 1, VODE_NEQS
+       rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
     end do
-    DUP = DVNORM (vstate % N, rwork % savf, rwork % ewt)/vstate % TQ(3)
+    DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
     ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
 580 IF (ETAQ .GE. ETAQP1) GO TO 590
     IF (ETAQP1 .GT. ETAQM1) GO TO 620
@@ -462,7 +402,7 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-    CALL DCOPYN(vstate % N, rwork % acor, 1, rwork % yh(:,vstate % LMAX), 1)
+    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,VODE_LMAX), 1)
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
@@ -494,7 +434,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCALN(vstate % N, R, rwork % acor, 1)
+    CALL DSCALN (VODE_NEQS, R, rwork % acor, 1)
 
 720 continue
     vstate % JSTART = 1

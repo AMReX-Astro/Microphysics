@@ -8,12 +8,11 @@ contains
   attributes(device) &
 #endif
   SUBROUTINE DCOPYN(N,DX,INCX,DY,INCY)
+
+  ! Only operates on vectors of size N
+
     INTEGER INCX,INCY,N
     DOUBLE PRECISION DX(N),DY(N)
-
-! DCOPYN takes two vectors each of length N.
-! This is not the case for the ordinary DCOPY.
-
 ! *  Purpose
 ! *  =======
 ! *
@@ -124,9 +123,8 @@ contains
 #endif  
   SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
 
-    ! DAXPYN takes two vectors each of length N.
-    ! This is not the case for the ordinary DAXPY.
-  
+  ! Only operates on vectors of size N
+
     !$acc routine seq
     !     .. Scalar Arguments ..
     DOUBLE PRECISION DA
@@ -187,7 +185,7 @@ contains
     RETURN
   END SUBROUTINE DAXPYN
 
-
+  
 #ifdef CUDA
   attributes(device) &
 #endif  
@@ -642,13 +640,13 @@ contains
     ! 
   end SUBROUTINE DGEMM
 
+
 #ifdef CUDA
   attributes(device) &
 #endif    
   SUBROUTINE DSCALN(N,DA,DX,INCX)
 
-    ! DSCALN takes one vector of length N.
-    ! This is not the case for the ordinary DSCALN.
+  ! Only operates on vectors of size N
 
     !$acc routine seq
     !      .. Scalar Arguments ..
@@ -708,7 +706,7 @@ contains
     RETURN
   END SUBROUTINE DSCALN
 
-
+  
 #ifdef CUDA
   attributes(device) &
 #endif    

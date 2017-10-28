@@ -1,7 +1,12 @@
 module dvode_dvsol_module
 
-  use dvode_constants_module
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use dvode_type_module, only: dvode_t
+  use bl_types, only: dp_t
   use linpack_module
+
+  use dvode_constants_module
 
   implicit none
 
@@ -9,11 +14,11 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif  
-  subroutine dvsol(WM, IWM, X, IERSL, vstate)
+#endif
+  subroutine dvsol(WM, IWM, IERSL, vstate)
 
     !$acc routine seq
-    
+
     ! -----------------------------------------------------------------------
     !  Call sequence input -- WM, IWM, X
     !  Call sequence output -- X, IERSL
@@ -46,23 +51,23 @@ contains
     ! -----------------------------------------------------------------------
     ! 
 
-    use dvode_type_module, only: dvode_t
-    use bl_types, only: dp_t
-
     implicit none
 
-    type(dvode_t) :: vstate
-    real(dp_t) :: WM(vstate % LENWM)
-    real(dp_t) :: X(vstate % N)
-    integer    :: IWM(vstate % LIW), IERSL
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    real(dp_t),    intent(inout) :: WM(VODE_LENWM)
+    integer,       intent(in   ) :: IWM(VODE_LIW)
+    integer,       intent(  out) :: IERSL
 
+    ! Declare local variables
     integer    :: I, MEBAND, ML, MU
     real(dp_t) :: DI, HRL1, PHRL1, R
 
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    CALL DGESL (WM(3:3 + vstate % N**2 - 1), vstate % N, vstate % N, IWM(31:31 + vstate % N - 1), X, 0)
+    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, VODE_NEQS, &
+         IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
     RETURN
 
 300 continue
@@ -71,15 +76,15 @@ contains
     WM(2) = HRL1
     IF (HRL1 .EQ. PHRL1) GO TO 330
     R = HRL1/PHRL1
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        DI = ONE - R*(ONE - ONE/WM(I+2))
        IF (ABS(DI) .EQ. ZERO) GO TO 390
        WM(I+2) = ONE/DI
     end do
 
 330 continue
-    do I = 1,vstate % N
-       X(I) = WM(I+2)*X(I)
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = WM(I+2)*vstate % Y(I)
     end do
     RETURN
 390 continue
@@ -90,8 +95,8 @@ contains
     ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    CALL DGBSL (WM(3:3 + MEBAND * vstate % N - 1), MEBAND, vstate % N, &
-         ML, MU, IWM(31:31 + vstate % N - 1), X, 0)
+    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, &
+         ML, MU, IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
     RETURN
   end subroutine dvsol
 

@@ -1,5 +1,9 @@
 module dvode_dvnorm_module
 
+  use bl_types, only: dp_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+
   use dvode_constants_module
 
   implicit none
@@ -9,7 +13,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  function dvnorm(N, V, W) result(dvn)
+  function dvnorm(V, W) result(dvn)
 
     !$acc routine seq
     
@@ -35,21 +39,24 @@ contains
     ! ***END PROLOGUE  DVNORM
     ! **End
 
-    use bl_types, only: dp_t
-
     implicit none
 
-    integer    :: N, I
-    real(dp_t) :: V(N), W(N)
-    real(dp_t) :: SUM, dvn, dscratch
+    ! Declare arguments
+    real(dp_t), intent(in   ) :: V(VODE_NEQS), W(VODE_NEQS)
+
+    ! Declare return variable
+    real(dp_t) :: dvn
+
+    ! Declare local variables
+    real(dp_t) :: SUM
+    integer    :: I
 
     SUM = 0.0D0
-    do I = 1,N
+    do I = 1,VODE_NEQS
        SUM = SUM + (V(I)*W(I))**2
     end do
-    dscratch = SUM/N
-    dvn = SQRT(dscratch)
-    return
+    dvn = SQRT(SUM/VODE_NEQS)
+    RETURN
   end function dvnorm
 
 end module dvode_dvnorm_module

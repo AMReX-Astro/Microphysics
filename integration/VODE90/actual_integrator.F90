@@ -8,6 +8,7 @@ module actual_integrator_module
   use rpar_indices
   use vode_type_module
   use burn_type_module
+  use vode_parameters_module
   use bl_types
 
   implicit none
@@ -53,16 +54,13 @@ contains
 
     ! Local variables
 
-    real(dp_t) :: local_time
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
     type (dvode_t) :: dvode_state
 
-    ! Work arrays
+    ! Work variables
 
-    real(dp_t) :: y(neqs)
-    real(dp_t) :: atol(neqs), rtol(neqs)
-    integer    :: iwork(LIW)
-    real(dp_t) :: rpar(n_rpar_comps)
+    type(rwork_t) :: rwork
+    integer    :: iwork(VODE_LIW)
 
     integer :: MF_JAC
 
@@ -71,14 +69,11 @@ contains
 
     integer :: istate
 
-    integer :: ipar(n_ipar_comps)
-
     real(dp_t) :: sum
     real(dp_t) :: retry_change_factor
 
     real(dp_t) :: ener_offset
 
-    type(rwork_t) :: rwork
 
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
@@ -97,17 +92,17 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = atol_spec ! mass fractions
-    atol(net_itemp)      = atol_temp ! temperature
-    atol(net_ienuc)      = atol_enuc ! energy generated
+    dvode_state % atol(1:nspec_evolve) = atol_spec ! mass fractions
+    dvode_state % atol(net_itemp)      = atol_temp ! temperature
+    dvode_state % atol(net_ienuc)      = atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    rtol(net_itemp)      = rtol_temp ! temperature
-    rtol(net_ienuc)      = rtol_enuc ! energy generated
+    dvode_state % rtol(1:nspec_evolve) = rtol_spec ! mass fractions
+    dvode_state % rtol(net_itemp)      = rtol_temp ! temperature
+    dvode_state % rtol(net_ienuc)      = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
-    istate = 1
+    dvode_state % istate = 1
 
     ! Initialize work arrays to zero.
     rwork % CONDOPT = ZERO
@@ -131,8 +126,8 @@ contains
     endif
 
     ! Initialize the integration time.
-
-    local_time = ZERO
+    dvode_state % T = ZERO
+    dvode_state % TOUT = dt
 
     ! Convert our input burn state into an EOS type.
 
@@ -145,18 +140,18 @@ contains
 
     ! Convert the EOS state data into the form VODE expects.
 
-    call eos_to_vode(eos_state_in, y, rpar)
+    call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
 
     ener_offset = eos_state_in % e
 
-    y(net_ienuc) = ener_offset
+    dvode_state % y(net_ienuc) = ener_offset
 
     ! Pass through whether we are doing self-heating.
 
     if (burning_mode == 0 .or. burning_mode == 2) then
-       rpar(irp_self_heat) = -ONE
+       dvode_state % rpar(irp_self_heat) = -ONE
     else if (burning_mode == 1 .or. burning_mode == 3) then
-       rpar(irp_self_heat) = ONE
+       dvode_state % rpar(irp_self_heat) = ONE
     else
        stop
        !CUDA
@@ -165,22 +160,22 @@ contains
 
     ! Copy in the zone size.
 
-    rpar(irp_dx) = state_in % dx
+    dvode_state % rpar(irp_dx) = state_in % dx
 
     ! Set the sound crossing time.
 
-    rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
+    dvode_state % rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
     ! Set the time offset -- this converts between the local integration 
     ! time and the simulation time
 
-    rpar(irp_t0) = time
+    dvode_state % rpar(irp_t0) = time
 
     ! If we are using the dT_crit functionality and therefore doing a linear
     ! interpolation of the specific heat in between EOS calls, do a second
     ! EOS call here to establish an initial slope.
 
-    rpar(irp_Told) = eos_state_in % T
+    dvode_state % rpar(irp_Told) = eos_state_in % T
 
     if (dT_crit < 1.0d19) then
 
@@ -189,32 +184,30 @@ contains
 
        call eos(eos_input_rt, eos_state_temp)
 
-       rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-       rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
+                                       (eos_state_temp % T - eos_state_in % T)
+       dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
+                                       (eos_state_temp % T - eos_state_in % T)
 
     endif
 
     ! Save the initial state.
 
-    rpar(irp_y_init:irp_y_init + neqs - 1) = y
+    dvode_state % rpar(irp_y_init:irp_y_init + neqs - 1) = dvode_state % y
 
     ! Call the integration routine.
-
-    call dvode(neqs, y, local_time, local_time + dt, &
-               ITOL, rtol, atol, ITASK, &
-               istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
-               rpar, ipar, dvode_state)
+    call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
 
     if ( burning_mode == 2 .and. &
-         (y(net_ienuc) - ener_offset < ZERO .or. &
-          istate < 0) ) then
+         (dvode_state % y(net_ienuc) - ener_offset < ZERO .or. &
+          dvode_state % istate < 0) ) then
 
-       rpar(irp_self_heat) = ONE
+       dvode_state % rpar(irp_self_heat) = ONE
 
-       istate = 1
+       dvode_state % istate = 1
 
        rwork % CONDOPT = ZERO
        rwork % YH   = ZERO
@@ -226,43 +219,44 @@ contains
 
        iwork(6) = 150000
 
-       local_time = ZERO
+       dvode_state % T = ZERO
+       dvode_state % TOUT = dt
 
-       call eos_to_vode(eos_state_in, y, rpar)
+       call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
 
-       rpar(irp_Told) = eos_state_in % T
+       dvode_state % rpar(irp_Told) = eos_state_in % T
 
        if (dT_crit < 1.0d19) then
 
-          rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-          rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+          dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
+                                          (eos_state_temp % T - eos_state_in % T)
+          dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
+                                          (eos_state_temp % T - eos_state_in % T)
 
        endif
 
-       y(net_ienuc) = ener_offset
+       dvode_state % y(net_ienuc) = ener_offset
 
-       call dvode(neqs, y, local_time, local_time + dt, &
-                  ITOL, rtol, atol, ITASK, &
-                  istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
-                  rpar, ipar, dvode_state)
+       ! Call the integration routine.
+       call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
     endif
 
     ! If we still failed, print out the current state of the integration.
 
-    if (istate < 0) then
+    if (dvode_state % istate < 0) then
        
 #ifndef CUDA       
        print *, 'ERROR: integration failed in net'
-       print *, 'istate = ', istate
-       print *, 'time = ', local_time
+       print *, 'istate = ', dvode_state % istate
+       print *, 'time = ', dvode_state % T
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', y(net_itemp)
-       print *, 'xn current = ', y(1:nspec_evolve) * aion(1:nspec_evolve), &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
-       print *, 'energy generated = ', y(net_ienuc) - ener_offset
+       print *, 'temp current = ', dvode_state % y(net_itemp)
+       print *, 'xn current = ', dvode_state % y(1:nspec_evolve) * aion(1:nspec_evolve), &
+            dvode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
+       print *, 'energy generated = ', dvode_state % y(net_ienuc) - ener_offset
 #endif
        
        if (.not. retry_burn) then
@@ -279,11 +273,11 @@ contains
 
           retry_change_factor = ONE
 
-          do while (istate < 0 .and. retry_change_factor <= retry_burn_max_change)
+          do while (dvode_state % istate < 0 .and. retry_change_factor <= retry_burn_max_change)
 
              retry_change_factor = retry_change_factor * retry_burn_factor
 
-             istate = 1
+             dvode_state % istate = 1
 
              rwork % CONDOPT = ZERO             
              rwork % YH   = ZERO
@@ -293,34 +287,36 @@ contains
              rwork % ACOR = ZERO    
              iwork(:) = 0
 
-             atol = atol * retry_burn_factor
-             rtol = rtol * retry_burn_factor
+
+             dvode_state % atol = dvode_state % atol * retry_burn_factor
+             dvode_state % rtol = dvode_state % rtol * retry_burn_factor
 
              iwork(6) = 150000
 
-             local_time = ZERO
+             dvode_state % T = ZERO
+             dvode_state % TOUT = dt
 
-             call eos_to_vode(eos_state_in, y, rpar)
+             call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
 
-             rpar(irp_Told) = eos_state_in % T
+             dvode_state % rpar(irp_Told) = eos_state_in % T
 
              if (dT_crit < 1.0d19) then
 
-                rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-                rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+                dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
+                                                (eos_state_temp % T - eos_state_in % T)
+                dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
+                                                (eos_state_temp % T - eos_state_in % T)
 
              endif
 
-             y(net_ienuc) = ener_offset
+             dvode_state % y(net_ienuc) = ener_offset
 
-             call dvode(neqs, y, local_time, local_time + dt, &
-                        ITOL, rtol, atol, ITASK, &
-                        istate, IOPT, rwork, LRW, iwork, LIW, MF_JAC, &
-                        rpar, ipar, dvode_state)
+             ! Call the integration routine.
+             call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
           enddo
 
-          if (retry_change_factor > retry_burn_max_change .and. istate < 0) then
+          if (retry_change_factor > retry_burn_max_change .and. dvode_state % istate < 0) then
 
              stop
              !CUDA
@@ -333,10 +329,10 @@ contains
     endif
 
     ! Subtract the energy offset
-    y(net_ienuc) = y(net_ienuc) - ener_offset
+    dvode_state % y(net_ienuc) = dvode_state % y(net_ienuc) - ener_offset
 
     ! Store the final data, and then normalize abundances.
-    call vode_to_burn(y, rpar, state_out)
+    call vode_to_burn(dvode_state % y, dvode_state % rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays

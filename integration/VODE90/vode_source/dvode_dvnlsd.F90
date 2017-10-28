@@ -1,9 +1,19 @@
 module dvode_dvnlsd_module
 
-  use dvode_constants_module
-  use dvode_dvjac_module
-  use dvode_dvsol_module
+  use vode_rhs_module, only: f_rhs, jac
+  use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use dvode_type_module, only: dvode_t
+  use bl_types, only: dp_t
   use blas_module
+  use linpack_module
+
+  use dvode_dvjac_module
+  use dvode_dvnorm_module
+  use dvode_dvsol_module
+
+  use dvode_constants_module
 
   implicit none
 
@@ -12,7 +22,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dvnlsd(Y, IWM, NFLAG, RPAR, IPAR, rwork, vstate)
+  subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
 
     !$acc routine seq
     
@@ -25,7 +35,7 @@ contains
     !                 JCUR, METH, MITER, N, NSLP
     !      /DVOD02/ HU, NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
     ! 
-    !  Subroutines called by DVNLSD: F, DAXPY, DCOPYN, DSCAL, DVJAC, DVSOL
+    !  Subroutines called by DVNLSD: F, DAXPY, DCOPY, DSCAL, DVJAC, DVSOL
     !  Function routines called by DVNLSD: DVNORM
     ! -----------------------------------------------------------------------
     !  Subroutine DVNLSD is a nonlinear system solver, which uses functional
@@ -76,19 +86,14 @@ contains
     ! -----------------------------------------------------------------------
     !
 
-    use vode_type_module, only: rwork_t
-    use dvode_type_module, only: dvode_t
-    use rpar_indices
-    use bl_types, only: dp_t
-
     implicit none
-  
-    type(dvode_t) :: vstate
-    type(rwork_t) :: rwork
-    real(dp_t)    :: Y(vstate % N)
-    real(dp_t) :: RPAR(n_rpar_comps)
-    integer    :: IWM(vstate % LIW), NFLAG, IPAR(n_ipar_comps)
-    
+
+    ! Declare arguments
+    type(dvode_t), intent(inout) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+    integer,       intent(inout) :: IWM(VODE_LIW), NFLAG
+
+    ! Declare local variables
     real(dp_t) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
 
@@ -131,8 +136,8 @@ contains
     M = 0
     DELP = ZERO
 
-    CALL DCOPYN(vstate % N, rwork % yh(:,1), 1, Y, 1)
-    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % savf, RPAR, IPAR)
+    CALL DCOPYN(VODE_NEQS, rwork % yh(:,1), 1, vstate % Y, 1)
+    CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -140,7 +145,7 @@ contains
     !  preprocessed before starting the corrector iteration.  IPUP is set
     !  to 0 as an indicator that this has been done.
     ! -----------------------------------------------------------------------
-    CALL DVJAC (Y, IWM, IERPJ, RPAR, IPAR, rwork, vstate)
+    CALL DVJAC (IWM, IERPJ, rwork, vstate)
     vstate % IPUP = 0
     vstate % RC = ONE
     vstate % DRC = ZERO
@@ -149,7 +154,7 @@ contains
     ! If matrix is singular, take error return to force cut in step size. --
     IF (IERPJ .NE. 0) GO TO 430
 250 continue
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        rwork % acor(I) = ZERO
     end do
     ! This is a looping point for the corrector iteration. -----------------
@@ -158,17 +163,17 @@ contains
     !  In the case of functional iteration, update Y directly from
     !  the result of the last function evaluation.
     ! -----------------------------------------------------------------------
-    do I = 1,vstate % N
+    do I = 1,VODE_NEQS
        rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
     end do
-    do I = 1,vstate % N
-       Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
     end do
-    DEL = DVNORM (vstate % N, Y, rwork % EWT)
-    do I = 1,vstate % N
-       Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
+    DEL = DVNORM (vstate % Y, rwork % EWT)
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
-    CALL DCOPYN(vstate % N, rwork % SAVF, 1, rwork % ACOR, 1)
+    CALL DCOPYN(VODE_NEQS, rwork % SAVF, 1, rwork % ACOR, 1)
 
     GO TO 400
     ! -----------------------------------------------------------------------
@@ -178,22 +183,22 @@ contains
     !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
     ! -----------------------------------------------------------------------
 350 continue
-    do I = 1,vstate % N
-       Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
             (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
     end do
-    CALL DVSOL (rwork % wm, IWM, Y, IERSL, vstate)
+    CALL DVSOL (rwork % wm, IWM, IERSL, vstate)
     vstate % NNI = vstate % NNI + 1
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCALN(vstate % N, CSCALE, Y, 1)
+       CALL DSCALN (VODE_NEQS, CSCALE, vstate % Y, 1)
     ENDIF
-    DEL = DVNORM (vstate % N, Y, rwork % EWT)
-    call daxpyn(vstate % N, ONE, Y, 1, rwork % acor, 1)
+    DEL = DVNORM (vstate % Y, rwork % EWT)
+    call daxpyn(VODE_NEQS, ONE, vstate % Y, 1, rwork % acor, 1)
 
-    do I = 1,vstate % N
-       Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
     end do
     ! -----------------------------------------------------------------------
     !  Test for convergence.  If M .gt. 0, an estimate of the convergence
@@ -207,7 +212,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL f_rhs (vstate % N, vstate % TN, Y, rwork % SAVF, RPAR, IPAR)
+    CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     
@@ -228,7 +233,7 @@ contains
     vstate % JCUR = 0
     vstate % ICF = 0
     IF (M .EQ. 0) vstate % ACNRM = DEL
-    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % N, rwork % ACOR, rwork % EWT)
+    IF (M .GT. 0) vstate % ACNRM = DVNORM (rwork % ACOR, rwork % EWT)
     RETURN
   end subroutine dvnlsd
 

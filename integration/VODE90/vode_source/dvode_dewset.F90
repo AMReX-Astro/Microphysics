@@ -1,4 +1,9 @@
 module dvode_dewset_module
+  
+  use vode_type_module, only: rwork_t
+  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use dvode_type_module, only: dvode_t
 
   use dvode_constants_module
 
@@ -9,7 +14,7 @@ contains
 #ifdef CUDA
   attributes(device) &
 #endif  
-  subroutine dewset(N, ITOL, RTOL, ATOL, YCUR, EWT)
+  subroutine dewset(vstate, rwork)
 
     !$acc routine seq
     
@@ -35,34 +40,35 @@ contains
     ! ***END PROLOGUE  DEWSET
     ! **End
 
-    use bl_types, only: dp_t
-
     implicit none
-  
-    integer    :: I, N, ITOL
-    real(dp_t) :: RTOL(N), ATOL(N)
-    real(dp_t) :: YCUR(N), EWT(N)
 
-    GO TO (10, 20, 30, 40), ITOL
+    ! Declare arguments
+    type(dvode_t), intent(in   ) :: vstate
+    type(rwork_t), intent(inout) :: rwork
+
+    ! Declare local variables
+    integer    :: I, N
+
+    GO TO (10, 20, 30, 40), VODE_ITOL
 10  CONTINUE
-    do I = 1,N
-       EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(1)
+    do I = 1,VODE_NEQS
+       rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
     end do
     RETURN
 20  CONTINUE
-    do I = 1,N
-       EWT(I) = RTOL(1)*ABS(YCUR(I)) + ATOL(I)
+    do I = 1,VODE_NEQS
+       rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
     end do
     RETURN
 30  CONTINUE
-    do I = 1,N
-       EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(1)
+    do I = 1,VODE_NEQS
+       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
     end do
     RETURN
 40  CONTINUE
 
-    do I = 1,N
-       EWT(I) = RTOL(I)*ABS(YCUR(I)) + ATOL(I)
+    do I = 1,VODE_NEQS
+       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
     end do
     RETURN
   end subroutine dewset
