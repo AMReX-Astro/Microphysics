@@ -403,7 +403,7 @@ contains
     implicit none
 
 #ifdef CUDA    
-    integer, parameter :: numThreads=1024
+    integer, parameter :: numThreads=256
     integer :: numBlocks
 #endif    
     
