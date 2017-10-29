@@ -5,112 +5,115 @@ module actual_eos_module
     character (len=64), public :: eos_name = "helmholtz"
 
     ! Runtime parameters
-    logical, save :: do_coulomb
-    logical, save :: input_is_constant
+    logical, allocatable :: do_coulomb
+    logical, allocatable :: input_is_constant
 
     !..for the tables, in general
     integer, parameter, private :: imax = 541, jmax = 201
-    integer, save            :: itmax,jtmax
-    double precision,save   :: d(imax),t(jmax)
+    integer, allocatable :: itmax, jtmax
+    double precision, allocatable :: d(:), t(:)
 
-    double precision, save :: tlo, thi, tstp, tstpi
-    double precision, save :: dlo, dhi, dstp, dstpi
+    double precision, allocatable :: tlo, thi, tstp, tstpi
+    double precision, allocatable :: dlo, dhi, dstp, dstpi
 
     !..for the helmholtz free energy tables
-    double precision, save :: f(imax,jmax),fd(imax,jmax),                     &
-                              ft(imax,jmax),fdd(imax,jmax),ftt(imax,jmax),    &
-                              fdt(imax,jmax),fddt(imax,jmax),fdtt(imax,jmax), &
-                              fddtt(imax,jmax)
+    double precision, allocatable :: f(:,:), fd(:,:),                &
+                                     ft(:,:), fdd(:,:), ftt(:,:),    &
+                                     fdt(:,:), fddt(:,:), fdtt(:,:), &
+                                     fddtt(:,:)
 
     !..for the pressure derivative with density ables
-    double precision, save :: dpdf(imax,jmax),dpdfd(imax,jmax),                &
-                              dpdft(imax,jmax),dpdfdt(imax,jmax)
+    double precision, allocatable :: dpdf(:,:), dpdfd(:,:),          &
+                                     dpdft(:,:), dpdfdt(:,:)
 
     !..for chemical potential tables
-    double precision, save :: ef(imax,jmax),efd(imax,jmax),                    &
-                              eft(imax,jmax),efdt(imax,jmax)
+    double precision, allocatable :: ef(:,:), efd(:,:),              &
+                                     eft(:,:), efdt(:,:)
 
     !..for the number density tables
-    double precision, save :: xf(imax,jmax),xfd(imax,jmax),                    &
-                              xft(imax,jmax),xfdt(imax,jmax)
+    double precision, allocatable :: xf(:,:), xfd(:,:),              &
+                                     xft(:,:), xfdt(:,:)
 
     !..for storing the differences
-    double precision, save :: dt_sav(jmax),dt2_sav(jmax),                      &
-                              dti_sav(jmax),dt2i_sav(jmax),                    &
-                              dd_sav(imax),dd2_sav(imax),                      &
-                              ddi_sav(imax),dd2i_sav(imax)
+    double precision, allocatable :: dt_sav(:), dt2_sav(:),          &
+                                     dti_sav(:), dt2i_sav(:),        &
+                                     dd_sav(:), dd2_sav(:),          &
+                                     ddi_sav(:), dd2i_sav(:)
 
+#ifdef CUDA
+    attributes(managed) :: do_coulomb, input_is_constant
+    attributes(managed) :: itmax, jtmax
+    attributes(managed) :: d, t
+    attributes(managed) :: tlo, thi, tstp, tstpi
+    attributes(managed) :: dlo, dhi, dstp, dstpi
+    attributes(managed) :: f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt
+    attributes(managed) :: dpdf, dpdfd, dpdft, dpdfdt
+    attributes(managed) :: ef, efd, eft, efdt
+    attributes(managed) :: xf, xfd, xft, xfdt
+    attributes(managed) :: dt_sav, dt2_sav, dti_sav, dt2i_sav
+    attributes(managed) :: dd_sav, dd2_sav, ddi_sav, dd2i_sav
+#endif
 
-    integer          :: max_newton = 100
+    integer, parameter          :: max_newton = 100
 
-    double precision :: ttol = 1.0d-8
-    double precision :: dtol = 1.0d-8
+    double precision, parameter :: ttol = 1.0d-8
+    double precision, parameter :: dtol = 1.0d-8
 
     ! 2006 CODATA physical constants
 private
     ! Math constants
-    double precision :: pi       = 3.1415926535897932384d0
-    double precision :: a2rad
-    double precision :: rad2a
+    double precision, parameter :: pi       = 3.1415926535897932384d0
 
     ! Physical constants
-    double precision :: h       = 6.6260689633d-27
-    double precision :: hbar
-    double precision :: qe      = 4.8032042712d-10
-    double precision :: avo_eos = 6.0221417930d23
-    double precision :: clight  = 2.99792458d10
-    double precision :: kerg    = 1.380650424d-16
-    double precision :: ev2erg_eos  = 1.60217648740d-12
-    double precision :: kev
-    double precision :: amu     = 1.66053878283d-24
-    double precision :: me_eos  = 9.1093821545d-28
-    double precision :: rbohr
-    double precision :: fine
+    double precision, parameter :: h       = 6.6260689633d-27
+    double precision, parameter :: hbar    = 0.5d0 * h/pi
+    double precision, parameter :: qe      = 4.8032042712d-10
+    double precision, parameter :: avo_eos = 6.0221417930d23
+    double precision, parameter :: clight  = 2.99792458d10
+    double precision, parameter :: kerg    = 1.380650424d-16
+    double precision, parameter :: ev2erg_eos  = 1.60217648740d-12
+    double precision, parameter :: kev     = kerg/ev2erg_eos
+    double precision, parameter :: amu     = 1.66053878283d-24
+    double precision, parameter :: me_eos  = 9.1093821545d-28
+    double precision, parameter :: rbohr   = hbar*hbar/(me_eos * qe * qe)
+    double precision, parameter :: fine    = qe*qe/(hbar*clight)
 
 #ifdef RADIATION
-    double precision :: ssol    = 0.0d0
+    double precision, parameter :: ssol    = 0.0d0
 #else
-    double precision :: ssol    = 5.67051d-5
+    double precision, parameter :: ssol    = 5.67051d-5
 #endif
-    double precision :: asol
-    double precision :: weinlam
-    double precision :: weinfre
+    double precision, parameter :: asol    = 4.0d0 * ssol / clight
+    double precision, parameter :: weinlam = h*clight/(kerg * 4.965114232d0)
+    double precision, parameter :: weinfre = 2.821439372d0*kerg/h
 
     ! Astronomical constants
-    double precision :: ly      = 9.460528d17
-    double precision :: pc
+    double precision, parameter :: ly      = 9.460528d17
+    double precision, parameter :: pc      = 3.261633d0 * ly
 
     ! Some other useful combinations of the constants
-    double precision :: sioncon
-    double precision :: forth
-    double precision :: forpi
-    double precision :: kergavo
-    double precision :: ikavo
-    double precision :: asoli3
-    double precision :: light2
+    double precision, parameter :: sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
+    double precision, parameter :: forth   = 4.0d0/3.0d0
+    double precision, parameter :: forpi   = 4.0d0 * pi
+    double precision, parameter :: kergavo = kerg * avo_eos
+    double precision, parameter :: ikavo   = 1.0d0/kergavo
+    double precision, parameter :: asoli3  = asol/3.0d0
+    double precision, parameter :: light2  = clight * clight
 
     ! Constants used for the Coulomb corrections
-    double precision :: a1    = -0.898004d0
-    double precision :: b1    =  0.96786d0
-    double precision :: c1    =  0.220703d0
-    double precision :: d1    = -0.86097d0
-    double precision :: e1    =  2.5269d0
-    double precision :: a2    =  0.29561d0
-    double precision :: b2    =  1.9885d0
-    double precision :: c2    =  0.288675d0
-    double precision :: onethird = 1.0d0/3.0d0
-    double precision :: esqu
+    double precision, parameter :: a1    = -0.898004d0
+    double precision, parameter :: b1    =  0.96786d0
+    double precision, parameter :: c1    =  0.220703d0
+    double precision, parameter :: d1    = -0.86097d0
+    double precision, parameter :: e1    =  2.5269d0
+    double precision, parameter :: a2    =  0.29561d0
+    double precision, parameter :: b2    =  1.9885d0
+    double precision, parameter :: c2    =  0.288675d0
+    double precision, parameter :: onethird = 1.0d0/3.0d0
+    double precision, parameter :: esqu = qe * qe
 
     !$acc declare &
-    !$acc create(pi, a2rad, rad2a) &
-    !$acc create(h, hbar, qe, avo_eos, clight, kerg) &
-    !$acc create(ev2erg_eos, kev, amu, me_eos) &
-    !$acc create(rbohr, fine) &
-    !$acc create(ssol, asol, weinlam, weinfre) &
-    !$acc create(ly, pc) &
-    !$acc create(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
-    !$acc create(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
-    !$acc create(ttol, dtol, tlo, thi, dlo, dhi) &
+    !$acc create(tlo, thi, dlo, dhi) &
     !$acc create(tstp, tstpi, dstp, dstpi) &
     !$acc create(itmax, jtmax, d, t) &
     !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
@@ -118,8 +121,7 @@ private
     !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
     !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
     !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
-    !$acc create(do_coulomb, input_is_constant) &
-    !$acc create(max_newton)
+    !$acc create(do_coulomb, input_is_constant)
 
 public actual_eos, actual_eos_init
 
@@ -1241,6 +1243,52 @@ contains
         integer :: i, j
         integer :: status
 
+        ! Allocate managed module variables
+
+        allocate(do_coulomb)
+        allocate(input_is_constant)
+        allocate(itmax)
+        allocate(jtmax)
+        allocate(d(imax))
+        allocate(t(jmax))
+        allocate(tlo)
+        allocate(thi)
+        allocate(tstp)
+        allocate(tstpi)
+        allocate(dlo)
+        allocate(dhi)
+        allocate(dstp)
+        allocate(dstpi)
+        allocate(f(imax,jmax))
+        allocate(fd(imax,jmax))
+        allocate(ft(imax,jmax))
+        allocate(fdd(imax,jmax))
+        allocate(ftt(imax,jmax))
+        allocate(fdt(imax,jmax))
+        allocate(fddt(imax,jmax))
+        allocate(fdtt(imax,jmax))
+        allocate(fddtt(imax,jmax))
+        allocate(dpdf(imax,jmax))
+        allocate(dpdfd(imax,jmax))
+        allocate(dpdft(imax,jmax))
+        allocate(dpdfdt(imax,jmax))
+        allocate(ef(imax,jmax))
+        allocate(efd(imax,jmax))
+        allocate(eft(imax,jmax))
+        allocate(efdt(imax,jmax))
+        allocate(xf(imax,jmax))
+        allocate(xfd(imax,jmax))
+        allocate(xft(imax,jmax))
+        allocate(xfdt(imax,jmax))
+        allocate(dt_sav(jmax))
+        allocate(dt2_sav(jmax))
+        allocate(dti_sav(jmax))
+        allocate(dt2i_sav(jmax))
+        allocate(dd_sav(imax))
+        allocate(dd2_sav(imax))
+        allocate(ddi_sav(imax))
+        allocate(dd2i_sav(imax))
+
         ! Read in the runtime parameters
 
         input_is_constant = eos_input_is_constant
@@ -1364,31 +1412,6 @@ contains
            close(unit=2)
         endif
 
-        ! Some initialization of constants
-
-        esqu = qe * qe
-
-        a2rad   = pi/180.0d0
-        rad2a   = 180.0d0/pi
-
-        hbar    = 0.5d0 * h/pi
-        kev     = kerg/ev2erg_eos
-        rbohr   = hbar*hbar/(me_eos * qe * qe)
-        fine    = qe*qe/(hbar*clight)
-
-        asol    = 4.0d0 * ssol / clight
-        weinlam = h*clight/(kerg * 4.965114232d0)
-        weinfre = 2.821439372d0*kerg/h
-        pc      = 3.261633d0 * ly
-
-        sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
-        forth   = 4.0d0/3.0d0
-        forpi   = 4.0d0 * pi
-        kergavo = kerg * avo_eos
-        ikavo   = 1.0d0/kergavo
-        asoli3  = asol/3.0d0
-        light2  = clight * clight
-
         ! Set up the minimum and maximum possible densities.
 
         mintemp = 10.d0**tlo
@@ -1397,24 +1420,15 @@ contains
         maxdens = 10.d0**dhi
 
         !$acc update &
-        !$acc device(pi, a2rad, rad2a) &
-        !$acc device(h, hbar, qe, avo_eos, clight, kerg) &
-        !$acc device(ev2erg_eos, kev, amu, me_eos) &
-        !$acc device(rbohr, fine) &
-        !$acc device(ssol, asol, weinlam, weinfre) &
-        !$acc device(ly, pc) &
-        !$acc device(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
-        !$acc device(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
-        !$acc device(ttol, dtol, tlo, thi, dlo, dhi) &
+        !$acc device(tlo, thi, dlo, dhi) &
         !$acc device(tstp, tstpi, dstp, dstpi) &
         !$acc device(itmax, jtmax, d, t) &
         !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
         !$acc device(dpdf, dpdfd, dpdft, dpdfdt) &
-        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt) &
+        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
         !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
-        !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav), &
-        !$acc device(do_coulomb, input_is_constant) &
-        !$acc device(max_newton)
+        !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
+        !$acc device(do_coulomb, input_is_constant)
 
     end subroutine actual_eos_init
 
@@ -1568,7 +1582,51 @@ contains
 
       implicit none
 
-      ! Nothing to do here, yet.
+      ! Deallocate managed module variables
+
+      deallocate(do_coulomb)
+      deallocate(input_is_constant)
+      deallocate(itmax)
+      deallocate(jtmax)
+      deallocate(d)
+      deallocate(t)
+      deallocate(tlo)
+      deallocate(thi)
+      deallocate(tstp)
+      deallocate(tstpi)
+      deallocate(dlo)
+      deallocate(dhi)
+      deallocate(dstp)
+      deallocate(dstpi)
+      deallocate(f)
+      deallocate(fd)
+      deallocate(ft)
+      deallocate(fdd)
+      deallocate(ftt)
+      deallocate(fdt)
+      deallocate(fddt)
+      deallocate(fdtt)
+      deallocate(fddtt)
+      deallocate(dpdf)
+      deallocate(dpdfd)
+      deallocate(dpdft)
+      deallocate(dpdfdt)
+      deallocate(ef)
+      deallocate(efd)
+      deallocate(eft)
+      deallocate(efdt)
+      deallocate(xf)
+      deallocate(xfd)
+      deallocate(xft)
+      deallocate(xfdt)
+      deallocate(dt_sav)
+      deallocate(dt2_sav)
+      deallocate(dti_sav)
+      deallocate(dt2i_sav)
+      deallocate(dd_sav)
+      deallocate(dd2_sav)
+      deallocate(ddi_sav)
+      deallocate(dd2i_sav)
 
     end subroutine actual_eos_finalize
 
