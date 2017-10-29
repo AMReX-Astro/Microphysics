@@ -16,71 +16,23 @@ module screening_module
   double precision, parameter :: gamefs     = 0.8d0
   double precision, parameter :: blend_frac = 0.05d0
 
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: z1scr(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: z2scr(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: a1scr(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: a2scr(:)
-  
+  double precision, allocatable, save :: z1scr(:)
+  double precision, allocatable, save :: z2scr(:)
+  double precision, allocatable, save :: a1scr(:)
+  double precision, allocatable, save :: a2scr(:)
+
   ! zs13    = (z1+z2)**(1./3.)
   ! zhat    = combination of z1 and z2 raised to the 5/3 power
   ! zhat2   = combination of z1 and z2 raised to the 5/12 power
   ! lzav    = log of effective charge
   ! aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
 
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: zs13(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: zs13inv(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: zhat(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: zhat2(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: lzav(:)
-  
-  double precision, &
-#ifdef CUDA       
-       managed, &
-#endif       
-       allocatable, save :: aznut(:)
+  double precision, allocatable, save :: zs13(:)
+  double precision, allocatable, save :: zs13inv(:)
+  double precision, allocatable, save :: zhat(:)
+  double precision, allocatable, save :: zhat2(:)
+  double precision, allocatable, save :: lzav(:)
+  double precision, allocatable, save :: aznut(:)
 
   type :: plasma_state
 
@@ -96,6 +48,11 @@ module screening_module
      double precision :: daadd
 
   end type plasma_state
+
+#ifdef CUDA
+  attributes(managed) :: z1scr, z2scr, a1scr, a2scr
+  attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
+#endif
 
   !$acc declare &
   !$acc create(nscreen) &
