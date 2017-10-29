@@ -2,6 +2,9 @@ import os
 import re
 
 esum_template = """
+#ifdef CUDA
+  attributes(device) &
+#endif
   function esum@NUM@(array) result(esum)
 
     !$acc routine seq
