@@ -1,9 +1,9 @@
 NDEBUG := t
 MPI    :=
-OMP    := t
+OMP    :=
 CUDA   := 
 
-COMP := gfortran
+COMP := PGI
 
 MKVERBOSE := t
 
@@ -19,7 +19,7 @@ EOS_DIR := helmholtz
 NETWORK_DIR := aprox13
 #NETWORK_DIR := ignition_simple
 
-INTEGRATOR_DIR := VBDF
+INTEGRATOR_DIR := VODE90
 
 TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/test_react
 
