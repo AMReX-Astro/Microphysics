@@ -2,7 +2,7 @@ import os
 import re
 
 esum_template = """
-  function esum@NUM@(array)
+  function esum@NUM@(array) result(esum)
 
     !$acc routine seq
 
@@ -12,8 +12,6 @@ esum_template = """
     implicit none
 
     real(dp_t), intent(in) :: array(:)
-    integer, intent(in) :: n
-
     real(dp_t) :: esum
 
     integer :: i, j, k, km
@@ -73,7 +71,7 @@ esum_template = """
 
     esum = sum(partials(0:j))
 
-  end function esum
+  end function esum@NUM@
 
 """
 
