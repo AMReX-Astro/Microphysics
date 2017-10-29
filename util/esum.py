@@ -39,7 +39,7 @@ esum_template = """
     ! The first partial is just the first term.
     partials(j) = array(1)
 
-    do i = 2, n
+    do i = 2, @NUM@
 
        km = j
        j = 0
