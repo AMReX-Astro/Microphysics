@@ -8,8 +8,7 @@ module screening_module
   public :: screen5, screenz, add_screening_factor, screening_init, &
             plasma_state, fill_plasma_state, screening_finalize, screening_alloc
   
-  integer, parameter :: nscreen_max = 500
-  integer            :: nscreen = 0
+  integer :: nscreen = 0
   
   double precision, parameter :: fact       = 1.25992104989487d0
   double precision, parameter :: co2        = THIRD * 4.248719d3
@@ -99,7 +98,7 @@ module screening_module
   end type plasma_state
 
   !$acc declare &
-  !$acc create(nscreen_max, nscreen) &
+  !$acc create(nscreen) &
   !$acc create(fact, co2, gamefx, gamefs, blend_frac) &
   !$acc create(z1scr, z2scr, a1scr, a2scr) &
   !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
@@ -107,25 +106,29 @@ module screening_module
 contains
 
   subroutine screening_alloc()
-    ! Allocate needed variables for screening
-    allocate(z1scr(nscreen_max))
-    allocate(z2scr(nscreen_max))
-    allocate(a1scr(nscreen_max))
-    allocate(a2scr(nscreen_max))
-    allocate(zs13(nscreen_max))
-    allocate(zs13inv(nscreen_max))
-    allocate(zhat(nscreen_max))
-    allocate(zhat2(nscreen_max))
-    allocate(lzav(nscreen_max))
-    allocate(aznut(nscreen_max))
+
+    implicit none
+
+    ! No actions are needed at present.
+
   end subroutine screening_alloc
   
   subroutine screening_init()
+
+    implicit none
+
+    integer :: i
+
     ! This routine assumes that we have already filled z1scr, z2scr,
     ! a1scr, and a2scr.
-    
-    integer :: i
-    
+
+    allocate(zs13(nscreen))
+    allocate(zs13inv(nscreen))
+    allocate(zhat(nscreen))
+    allocate(zhat2(nscreen))
+    allocate(lzav(nscreen))
+    allocate(aznut(nscreen))
+
     do i = 1, nscreen
 
        zs13(i)    = (z1scr(i) + z2scr(i))**THIRD
@@ -142,16 +145,51 @@ contains
   end subroutine screening_init
 
   subroutine screening_finalize()
-    deallocate(z1scr)
-    deallocate(z2scr)
-    deallocate(a1scr)
-    deallocate(a2scr)
-    deallocate(zs13)
-    deallocate(zs13inv)
-    deallocate(zhat)
-    deallocate(zhat2)
-    deallocate(lzav)
-    deallocate(aznut)
+
+    implicit none
+
+    ! Deallocate the screening buffers.
+
+    if (allocated(z1scr)) then
+       deallocate(z1scr)
+    end if
+
+    if (allocated(z2scr)) then
+       deallocate(z2scr)
+    end if
+
+    if (allocated(a1scr)) then
+       deallocate(a1scr)
+    end if
+
+    if (allocated(a2scr)) then
+       deallocate(a2scr)
+    end if
+
+    if (allocated(zs13)) then
+       deallocate(zs13)
+    end if
+
+    if (allocated(zs13inv)) then
+       deallocate(zs13inv)
+    end if
+
+    if (allocated(zhat)) then
+       deallocate(zhat)
+    end if
+
+    if (allocated(zhat2)) then
+       deallocate(zhat2)
+    end if
+
+    if (allocated(lzav)) then
+       deallocate(lzav)
+    end if
+
+    if (allocated(aznut)) then
+       deallocate(aznut)
+    end if
+
   end subroutine screening_finalize
 
   subroutine add_screening_factor(z1, a1, z2, a2)
@@ -160,8 +198,66 @@ contains
 
     double precision :: z1, a1, z2, a2
 
+    double precision, allocatable :: z1scr_temp(:), a1scr_temp(:)
+    double precision, allocatable :: z2scr_temp(:), a2scr_temp(:)
+
+    ! Deallocate the buffers, then reallocate
+    ! them with a size one larger. This is
+    ! admittedly wasteful, but since this routine
+    ! only happens at initialization the cost
+    ! does not matter, and it's important for keeping
+    ! memory usage down that the screening size is
+    ! only as large as it needs to be.
+
+    if (nscreen > 0) then
+
+       allocate(z1scr_temp(nscreen))
+       z1scr_temp(:) = z1scr(:)
+       deallocate(z1scr)
+
+       allocate(z2scr_temp(nscreen))
+       z2scr_temp(:) = z2scr(:)
+       deallocate(z2scr)
+
+       allocate(a1scr_temp(nscreen))
+       a1scr_temp(:) = a1scr(:)
+       deallocate(a1scr)
+
+       allocate(a2scr_temp(nscreen))
+       a2scr_temp(:) = a2scr(:)
+       deallocate(a2scr)
+
+    else
+
+       allocate(z1scr(1))
+       allocate(z2scr(1))
+       allocate(a1scr(1))
+       allocate(a2scr(1))
+
+    end if
+
     nscreen = nscreen + 1
-    
+
+    if (nscreen > 1) then
+
+       allocate(z1scr(nscreen))
+       z1scr(1:nscreen-1) = z1scr_temp(:)
+       deallocate(z1scr_temp)
+
+       allocate(z2scr(nscreen))
+       z2scr(1:nscreen-1) = z2scr_temp(:)
+       deallocate(z2scr_temp)
+
+       allocate(a1scr(nscreen))
+       a1scr(1:nscreen-1) = a1scr_temp(:)
+       deallocate(a1scr_temp)
+
+       allocate(a2scr(nscreen))
+       a2scr(1:nscreen-1) = a2scr_temp(:)
+       deallocate(a2scr_temp)
+
+    end if
+
     z1scr(nscreen) = z1
     a1scr(nscreen) = a1
     z2scr(nscreen) = z2
