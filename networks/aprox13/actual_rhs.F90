@@ -555,7 +555,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum
+    use microphysics_math_module
 
     implicit none
 
@@ -575,7 +575,7 @@ contains
     a(2)  = 0.5d0 * y(ic12) * y(io16) * rate(ir1216)
     a(3)  = 0.56d0 * 0.5d0 * y(io16) * y(io16) * rate(ir1616)
 
-    dydt(ihe4) = dydt(ihe4) + esum(a,3)
+    dydt(ihe4) = dydt(ihe4) + esum3(a)
 
     ! (a,g) and (g,a) reactions
     a(1)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
@@ -591,7 +591,7 @@ contains
     a(11) = -y(ihe4)  * y(isi28)*rate(irsiag)
     a(12) =  y(is32)  * rate(irsga)
 
-    dydt(ihe4) = dydt(ihe4) + esum(a,12)
+    dydt(ihe4) = dydt(ihe4) + esum12(a)
 
     a(1)  = -y(ihe4)  * y(is32) * rate(irsag)
     a(2)  =  y(iar36) * rate(irarga)
@@ -606,7 +606,7 @@ contains
     a(11) = -y(ihe4)  * y(ife52) * rate(irfeag)
     a(12) =  y(ini56) * rate(irniga)
 
-    dydt(ihe4) = dydt(ihe4) + esum(a,12)
+    dydt(ihe4) = dydt(ihe4) + esum12(a)
 
     ! (a,p)(p,g) and (g,p)(p,a) reactions
 
@@ -630,7 +630,7 @@ contains
        a(16) = -y(ihe4)  * y(ife52) * rate(irfeap)*(1.0d0-rate(iry1))
        a(17) =  y(ini56) * rate(irnigp) * rate(iry1)
 
-       dydt(ihe4) = dydt(ihe4) + esum(a,17)
+       dydt(ihe4) = dydt(ihe4) + esum17(a)
 
     else
        a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * ratdum(irs1) * rate(ir1616)
@@ -644,7 +644,7 @@ contains
        a(9)  =  y(is32)  * ratdum(irsgp) * rate(irs1)
        a(10) =  y(is32)  * rate(irsgp) * ratdum(irs1)
 
-       dydt(ihe4) = dydt(ihe4) + esum(a,10)
+       dydt(ihe4) = dydt(ihe4) + esum10(a)
 
        a(1)  = -y(ihe4)*y(is32) * rate(irsap)*(1.0d0 - ratdum(irt1))
        a(2)  =  y(ihe4)*y(is32) * ratdum(irsap)*rate(irt1)
@@ -659,7 +659,7 @@ contains
        a(11) =  y(iti44) * ratdum(irtigp) * rate(irv1)
        a(12) =  y(iti44) * rate(irtigp) * ratdum(irv1)
 
-       dydt(ihe4) = dydt(ihe4) + esum(a,12)
+       dydt(ihe4) = dydt(ihe4) + esum12(a)
 
        a(1)  = -y(ihe4)*y(iti44) * rate(irtiap)*(1.0d0 - ratdum(irw1))
        a(2)  =  y(ihe4)*y(iti44) * ratdum(irtiap)*rate(irw1)
@@ -674,7 +674,7 @@ contains
        a(11) =  y(ini56) * ratdum(irnigp) * rate(iry1)
        a(12) =  y(ini56) * rate(irnigp) * ratdum(iry1)
 
-       dydt(ihe4) = dydt(ihe4) + esum(a,12)
+       dydt(ihe4) = dydt(ihe4) + esum12(a)
     end if
 
 
@@ -686,7 +686,7 @@ contains
     a(5) = -y(ic12) * y(ihe4) * rate(ircag)
     a(6) =  y(io16) * rate(iroga)
 
-    dydt(ic12) = dydt(ic12) + esum(a,6)
+    dydt(ic12) = dydt(ic12) + esum6(a)
 
 
     ! o16 reactions
@@ -697,7 +697,7 @@ contains
     a(5) = -y(io16) * rate(iroga)
     a(6) =  y(ine20) * rate(irnega)
 
-    dydt(io16) = dydt(io16) + esum(a,6)
+    dydt(io16) = dydt(io16) + esum6(a)
 
 
     ! ne20 reactions
@@ -707,7 +707,7 @@ contains
     a(4) = -y(ine20) * rate(irnega)
     a(5) =  y(img24) * rate(irmgga)
 
-    dydt(ine20) = dydt(ine20) + esum(a,5)
+    dydt(ine20) = dydt(ine20) + esum5(a)
 
 
     ! mg24 reactions
@@ -717,7 +717,7 @@ contains
     a(4) = -y(img24) * rate(irmgga)
     a(5) =  y(isi28) * rate(irsiga)
 
-    dydt(img24) = dydt(img24) + esum(a,5)
+    dydt(img24) = dydt(img24) + esum5(a)
 
     if (.not.deriva) then
        a(1) = -y(img24) * y(ihe4) * rate(irmgap)*(1.0d0-rate(irr1))
@@ -731,7 +731,7 @@ contains
        a(3) =  y(isi28) * ratdum(irr1) * rate(irsigp)
        a(4) =  y(isi28) * rate(irr1) * ratdum(irsigp)
 
-       dydt(img24) = dydt(img24) + esum(a,4)
+       dydt(img24) = dydt(img24) + esum4(a)
     end if
 
 
@@ -744,7 +744,7 @@ contains
     a(5) = -y(isi28) * rate(irsiga)
     a(6) =  y(is32)  * rate(irsga)
 
-    dydt(isi28) = dydt(isi28) + esum(a,6)
+    dydt(isi28) = dydt(isi28) + esum6(a)
 
     if (.not.deriva) then
 
@@ -754,7 +754,7 @@ contains
        a(4) = -y(isi28) * y(ihe4) * rate(irsiap)*(1.0d0-rate(irs1))
        a(5) =  y(is32)  * rate(irs1) * rate(irsgp)
 
-       dydt(isi28) = dydt(isi28) + esum(a,5)
+       dydt(isi28) = dydt(isi28) + esum5(a)
 
     else
        a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * ratdum(irs1)*rate(ir1616)
@@ -768,7 +768,7 @@ contains
        a(9)  = y(is32) * ratdum(irs1) * rate(irsgp)
        a(10) = y(is32) * rate(irs1) * ratdum(irsgp)
 
-       dydt(isi28) = dydt(isi28) + esum(a,10)
+       dydt(isi28) = dydt(isi28) + esum10(a)
     end if
 
 
@@ -780,7 +780,7 @@ contains
     a(4) = -y(is32) * rate(irsga)
     a(5) =  y(iar36) * rate(irarga)
 
-    dydt(is32) = dydt(is32) + esum(a,5)
+    dydt(is32) = dydt(is32) + esum5(a)
 
 
     if (.not.deriva) then
@@ -790,7 +790,7 @@ contains
        a(4) = -y(is32) * y(ihe4) * rate(irsap)*(1.0d0-rate(irt1))
        a(5) =  y(iar36) * rate(irt1) * rate(irargp)
 
-       dydt(is32) = dydt(is32) + esum(a,5)
+       dydt(is32) = dydt(is32) + esum5(a)
 
     else
        a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * rate(ir1616)*(1.0d0-ratdum(irs1))
@@ -804,7 +804,7 @@ contains
        a(9)  =  y(iar36) * ratdum(irt1) * rate(irargp)
        a(10) =  y(iar36) * rate(irt1) * ratdum(irargp)
 
-       dydt(is32) = dydt(is32) + esum(a,10)
+       dydt(is32) = dydt(is32) + esum10(a)
     end if
 
 
@@ -814,7 +814,7 @@ contains
     a(3) = -y(iar36) * rate(irarga)
     a(4) =  y(ica40) * rate(ircaga)
 
-    dydt(iar36) = dydt(iar36) + esum(a,4)
+    dydt(iar36) = dydt(iar36) + esum4(a)
 
     if (.not.deriva) then
        a(1) = y(is32)  * y(ihe4) * rate(irsap)*(1.0d0-rate(irt1))
@@ -822,7 +822,7 @@ contains
        a(3) = -y(iar36) * y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
        a(4) =  y(ica40) * rate(ircagp) * rate(iru1)
 
-       dydt(iar36) = dydt(iar36) + esum(a,4)
+       dydt(iar36) = dydt(iar36) + esum4(a)
 
     else
        a(1) =  y(is32)*y(ihe4) * rate(irsap)*(1.0d0 - ratdum(irt1))
@@ -834,7 +834,7 @@ contains
        a(7) =  y(ica40) * ratdum(ircagp) * rate(iru1)
        a(8) =  y(ica40) * rate(ircagp) * ratdum(iru1)
 
-       dydt(iar36) = dydt(iar36) + esum(a,8)
+       dydt(iar36) = dydt(iar36) + esum8(a)
     end if
 
 
@@ -844,7 +844,7 @@ contains
     a(3) = -y(ica40) * rate(ircaga)
     a(4) =  y(iti44) * rate(irtiga)
 
-    dydt(ica40) = dydt(ica40) + esum(a,4)
+    dydt(ica40) = dydt(ica40) + esum4(a)
 
     if (.not.deriva) then
        a(1) =  y(iar36) * y(ihe4) * rate(irarap)*(1.0d0-rate(iru1))
@@ -852,7 +852,7 @@ contains
        a(3) = -y(ica40) * y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
        a(4) =  y(iti44) * rate(irtigp) * rate(irv1)
 
-       dydt(ica40) = dydt(ica40) + esum(a,4)
+       dydt(ica40) = dydt(ica40) + esum4(a)
 
     else
        a(1) =  y(iar36)*y(ihe4) * rate(irarap)*(1.0d0-ratdum(iru1))
@@ -864,7 +864,7 @@ contains
        a(7) =  y(iti44) * ratdum(irtigp) * rate(irv1)
        a(8) =  y(iti44) * rate(irtigp) * ratdum(irv1)
 
-       dydt(ica40) = dydt(ica40) + esum(a,8)
+       dydt(ica40) = dydt(ica40) + esum8(a)
     end if
 
 
@@ -874,7 +874,7 @@ contains
     a(3) = -y(iti44) * rate(irtiga)
     a(4) =  y(icr48) * rate(ircrga)
 
-    dydt(iti44) = dydt(iti44) + esum(a,4)
+    dydt(iti44) = dydt(iti44) + esum4(a)
 
     if (.not.deriva) then
        a(1) =  y(ica40) * y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
@@ -882,7 +882,7 @@ contains
        a(3) = -y(iti44) * y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
        a(4) =  y(icr48) * rate(irw1) * rate(ircrgp)
 
-       dydt(iti44) = dydt(iti44) + esum(a,4)
+       dydt(iti44) = dydt(iti44) + esum4(a)
 
     else
        a(1) =  y(ica40)*y(ihe4) * rate(ircaap)*(1.0d0-ratdum(irv1))
@@ -894,7 +894,7 @@ contains
        a(7) =  y(icr48) * ratdum(irw1) * rate(ircrgp)
        a(8) =  y(icr48) * rate(irw1) * ratdum(ircrgp)
 
-       dydt(iti44) = dydt(iti44) + esum(a,8)
+       dydt(iti44) = dydt(iti44) + esum8(a)
     end if
 
 
@@ -904,7 +904,7 @@ contains
     a(3) = -y(icr48) * rate(ircrga)
     a(4) =  y(ife52) * rate(irfega)
 
-    dydt(icr48) = dydt(icr48) + esum(a,4)
+    dydt(icr48) = dydt(icr48) + esum4(a)
 
     if (.not.deriva) then
        a(1) =  y(iti44) * y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
@@ -912,7 +912,7 @@ contains
        a(3) = -y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
        a(4) =  y(ife52) * rate(irx1) * rate(irfegp)
 
-       dydt(icr48) = dydt(icr48) + esum(a,4)
+       dydt(icr48) = dydt(icr48) + esum4(a)
 
     else
        a(1) =  y(iti44)*y(ihe4) * rate(irtiap)*(1.0d0-ratdum(irw1))
@@ -924,7 +924,7 @@ contains
        a(7) =  y(ife52) * ratdum(irx1) * rate(irfegp)
        a(8) =  y(ife52) * rate(irx1) * ratdum(irfegp)
 
-       dydt(icr48) = dydt(icr48) + esum(a,8)
+       dydt(icr48) = dydt(icr48) + esum8(a)
     end if
 
 
@@ -934,7 +934,7 @@ contains
     a(3) = -y(ife52) * rate(irfega)
     a(4) =  y(ini56) * rate(irniga)
 
-    dydt(ife52) = dydt(ife52) + esum(a,4)
+    dydt(ife52) = dydt(ife52) + esum4(a)
 
     if (.not.deriva) then
        a(1) =  y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
@@ -942,7 +942,7 @@ contains
        a(3) = -y(ife52) * y(ihe4) * rate(irfeap)*(1.0d0-rate(iry1))
        a(4) =  y(ini56) * rate(iry1) * rate(irnigp)
 
-       dydt(ife52) = dydt(ife52) + esum(a,4)
+       dydt(ife52) = dydt(ife52) + esum4(a)
 
     else
        a(1) =  y(icr48)*y(ihe4) * rate(ircrap)*(1.0d0-ratdum(irx1))
@@ -954,7 +954,7 @@ contains
        a(7) =  y(ini56) * ratdum(iry1) * rate(irnigp)
        a(8) =  y(ini56) * rate(iry1) * ratdum(irnigp)
 
-       dydt(ife52) = dydt(ife52) + esum(a,8)
+       dydt(ife52) = dydt(ife52) + esum8(a)
     end if
 
 
@@ -976,7 +976,7 @@ contains
        a(3) = -y(ini56) * ratdum(iry1) * rate(irnigp)
        a(4) = -y(ini56) * rate(iry1) * ratdum(irnigp)
 
-       dydt(ini56) = dydt(ini56) + esum(a,4)
+       dydt(ini56) = dydt(ini56) + esum4(a)
     end if
 
   end subroutine rhs
@@ -1996,7 +1996,7 @@ contains
     !$acc routine seq
 
     use network
-    use microphysics_math_module, only: esum
+    use microphysics_math_module
 
     implicit none
 
@@ -2029,7 +2029,7 @@ contains
     b(18) = -y(iti44) * rate(irtiap) * (1.0d0-rate(irw1)) 
     b(19) = -y(icr48) * rate(ircrap) * (1.0d0-rate(irx1)) 
     b(20) = -y(ife52) * rate(irfeap) * (1.0d0-rate(iry1))
-    dfdy(ihe4,ihe4) = esum(b,20)
+    dfdy(ihe4,ihe4) = esum20(b)
 
 
     ! d(he4)/d(c12)
@@ -2037,7 +2037,7 @@ contains
     b(2) =  0.5d0 * y(io16) * rate(ir1216) 
     b(3) =  3.0d0 * rate(irg3a) 
     b(4) = -y(ihe4) * rate(ircag)
-    dfdy(ihe4,ic12) = esum(b,4)
+    dfdy(ihe4,ic12) = esum4(b)
 
     ! d(he4)/d(o16)
     b(1) =  0.5d0 * y(ic12) * rate(ir1216) 
@@ -2045,7 +2045,7 @@ contains
     b(3) =  0.68d0 * rate(irs1) * 0.5d0*y(io16) * rate(ir1616) 
     b(4) =  rate(iroga) 
     b(5) = -y(ihe4) * rate(iroag) 
-    dfdy(ihe4,io16) = esum(b,5)
+    dfdy(ihe4,io16) = esum5(b)
 
     ! d(he4)/d(ne20)
     b(1) =  rate(irnega) 
@@ -2056,56 +2056,56 @@ contains
     b(1) =  rate(irmgga) 
     b(2) = -y(ihe4) * rate(irmgag) 
     b(3) = -y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
-    dfdy(ihe4,img24) = esum(b,3)
+    dfdy(ihe4,img24) = esum3(b)
 
     ! d(he4)/d(si28)
     b(1) =  rate(irsiga) 
     b(2) = -y(ihe4) * rate(irsiag) 
     b(3) = -y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1)) 
     b(4) =  rate(irr1) * rate(irsigp)
-    dfdy(ihe4,isi28) = esum(b,4)
+    dfdy(ihe4,isi28) = esum4(b)
 
     ! d(he4)/d(s32)
     b(1) =  rate(irsga) 
     b(2) = -y(ihe4) * rate(irsag) 
     b(3) = -y(ihe4) * rate(irsap) * (1.0d0-rate(irt1)) 
     b(4) =  rate(irs1) * rate(irsgp)
-    dfdy(ihe4,is32) = esum(b,4)
+    dfdy(ihe4,is32) = esum4(b)
 
     ! d(he4)/d(ar36)
     b(1)  =  rate(irarga) 
     b(2)  = -y(ihe4) * rate(irarag) 
     b(3)  = -y(ihe4) * rate(irarap) * (1.0d0-rate(iru1)) 
     b(4)  =  rate(irt1) * rate(irargp)
-    dfdy(ihe4,iar36) = esum(b,4)
+    dfdy(ihe4,iar36) = esum4(b)
 
     ! d(he4)/d(ca40)
     b(1) =  rate(ircaga) 
     b(2) = -y(ihe4) * rate(ircaag) 
     b(3) = -y(ihe4) * rate(ircaap) * (1.0d0-rate(irv1)) 
     b(4) =  rate(iru1) * rate(ircagp)
-    dfdy(ihe4,ica40) = esum(b,4)
+    dfdy(ihe4,ica40) = esum4(b)
 
     ! d(he4)/d(ti44)
     b(1) =  rate(irtiga) 
     b(2) = -y(ihe4) * rate(irtiag) 
     b(3) = -y(ihe4) * rate(irtiap) * (1.0d0-rate(irw1)) 
     b(4) =  rate(irv1) * rate(irtigp)
-    dfdy(ihe4,iti44) = esum(b,4)
+    dfdy(ihe4,iti44) = esum4(b)
 
     ! d(he4)/d(cr48)
     b(1) =  rate(ircrga) 
     b(2) = -y(ihe4) * rate(ircrag) 
     b(3) = -y(ihe4) * rate(ircrap) * (1.0d0-rate(irx1)) 
     b(4) =  rate(irw1) * rate(ircrgp)
-    dfdy(ihe4,icr48) = esum(b,4)
+    dfdy(ihe4,icr48) = esum4(b)
 
     ! d(he4)/d(fe52)
     b(1) =  rate(irfega) 
     b(2) = -y(ihe4) * rate(irfeag) 
     b(3) = -y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1)) 
     b(4) =  rate(irx1) * rate(irfegp)
-    dfdy(ihe4,ife52) = esum(b,4)
+    dfdy(ihe4,ife52) = esum4(b)
 
     ! d(he4)/d(ni56)
     b(1) = rate(irniga) 
@@ -2124,7 +2124,7 @@ contains
     b(2) = -y(io16) * rate(ir1216) 
     b(3) = -rate(irg3a) 
     b(4) = -y(ihe4) * rate(ircag) 
-    dfdy(ic12,ic12) = esum(b,4)
+    dfdy(ic12,ic12) = esum4(b)
 
     ! d(c12)/d(o16)
     b(1) = -y(ic12) * rate(ir1216) 
@@ -2149,7 +2149,7 @@ contains
     b(2) = -2.0d0 * y(io16) * rate(ir1616) 
     b(3) = -y(ihe4) * rate(iroag) 
     b(4) = -rate(iroga) 
-    dfdy(io16,io16) = esum(b,4)
+    dfdy(io16,io16) = esum4(b)
 
     ! d(o16)/d(ne20)
     dfdy(io16,ine20) = rate(irnega)
@@ -2182,7 +2182,7 @@ contains
     b(1) =  y(ine20) * rate(irneag) 
     b(2) = -y(img24) * rate(irmgag) 
     b(3) = -y(img24) * rate(irmgap) * (1.0d0-rate(irr1))
-    dfdy(img24,ihe4) = esum(b,3)
+    dfdy(img24,ihe4) = esum3(b)
 
     ! d(mg24)/d(c12)
     dfdy(img24,ic12) = 0.5d0 * y(io16) * rate(ir1216)
@@ -2197,7 +2197,7 @@ contains
     b(1) = -y(ihe4) * rate(irmgag) 
     b(2) = -rate(irmgga) 
     b(3) = -y(ihe4) * rate(irmgap) * (1.0d0-rate(irr1))
-    dfdy(img24,img24) = esum(b,3)
+    dfdy(img24,img24) = esum3(b)
 
     ! d(mg24)/d(si28)
     b(1) = rate(irsiga) 
@@ -2211,7 +2211,7 @@ contains
     b(2) = -y(isi28) * rate(irsiag) 
     b(3) =  y(img24) * rate(irmgap) * (1.0d0-rate(irr1)) 
     b(4) = -y(isi28) * rate(irsiap) * (1.0d0-rate(irs1))
-    dfdy(isi28,ihe4) = esum(b,4)
+    dfdy(isi28,ihe4) = esum4(b)
 
     ! d(si28)/d(c12)
     dfdy(isi28,ic12) =  0.5d0 * y(io16) * rate(ir1216)
@@ -2220,7 +2220,7 @@ contains
     b(1) = 0.5d0 * y(ic12) * rate(ir1216) 
     b(2) = 1.12d0 * 0.5d0*y(io16) * rate(ir1616) 
     b(3) = 0.68d0 * 0.5d0*y(io16) * rate(irs1) * rate(ir1616)
-    dfdy(isi28,io16) = esum(b,3)
+    dfdy(isi28,io16) = esum3(b)
 
     ! d(si28)/d(mg24)
     b(1) =  y(ihe4) * rate(irmgag) 
@@ -2232,7 +2232,7 @@ contains
     b(2) = -rate(irsiga) 
     b(3) = -rate(irr1) * rate(irsigp) 
     b(4) = -y(ihe4) * rate(irsiap) * (1.0d0-rate(irs1))
-    dfdy(isi28,isi28) = esum(b,4)
+    dfdy(isi28,isi28) = esum4(b)
 
     ! d(si28)/d(s32)
     b(1) = rate(irsga) 
@@ -2246,7 +2246,7 @@ contains
     b(2) = -y(is32) * rate(irsag) 
     b(3) =  y(isi28) * rate(irsiap) * (1.0d0-rate(irs1)) 
     b(4) = -y(is32) * rate(irsap) * (1.0d0-rate(irt1))
-    dfdy(is32,ihe4) = esum(b,4)
+    dfdy(is32,ihe4) = esum4(b)
 
     ! d(s32)/d(o16)
     b(1) = 0.68d0*0.5d0*y(io16)*rate(ir1616)*(1.0d0-rate(irs1)) 
@@ -2263,7 +2263,7 @@ contains
     b(2) = -rate(irsga) 
     b(3) = -rate(irs1) * rate(irsgp) 
     b(4) = -y(ihe4) * rate(irsap) * (1.0d0-rate(irt1))
-    dfdy(is32,is32) = esum(b,4)
+    dfdy(is32,is32) = esum4(b)
 
     ! d(s32)/d(ar36)
     b(1) = rate(irarga) 
@@ -2277,7 +2277,7 @@ contains
     b(2) = -y(iar36) * rate(irarag) 
     b(3) =  y(is32)  * rate(irsap) * (1.0d0-rate(irt1)) 
     b(4) = -y(iar36) * rate(irarap) * (1.0d0-rate(iru1))
-    dfdy(iar36,ihe4) = esum(b,4)
+    dfdy(iar36,ihe4) = esum4(b)
 
     ! d(ar36)/d(s32)
     b(1) = y(ihe4) * rate(irsag) 
@@ -2289,7 +2289,7 @@ contains
     b(2) = -rate(irarga) 
     b(3) = -rate(irt1) * rate(irargp) 
     b(4) = -y(ihe4) * rate(irarap) * (1.0d0-rate(iru1))
-    dfdy(iar36,iar36) = esum(b,4)
+    dfdy(iar36,iar36) = esum4(b)
 
     ! d(ar36)/d(ca40)
     b(1) = rate(ircaga) 
@@ -2303,7 +2303,7 @@ contains
     b(2)  = -y(ica40) * rate(ircaag) 
     b(3)  =  y(iar36) * rate(irarap)*(1.0d0-rate(iru1)) 
     b(4)  = -y(ica40) * rate(ircaap)*(1.0d0-rate(irv1))
-    dfdy(ica40,ihe4) = esum(b,4)
+    dfdy(ica40,ihe4) = esum4(b)
 
     ! d(ca40)/d(ar36)
     b(1) =  y(ihe4) * rate(irarag) 
@@ -2315,7 +2315,7 @@ contains
     b(2) = -rate(ircaga) 
     b(3) = -rate(ircagp) * rate(iru1) 
     b(4) = -y(ihe4) * rate(ircaap)*(1.0d0-rate(irv1))
-    dfdy(ica40,ica40) = esum(b,4)
+    dfdy(ica40,ica40) = esum4(b)
 
     ! d(ca40)/d(ti44)
     b(1) = rate(irtiga) 
@@ -2330,7 +2330,7 @@ contains
     b(2) = -y(iti44) * rate(irtiag) 
     b(3) =  y(ica40) * rate(ircaap)*(1.0d0-rate(irv1)) 
     b(4) = -y(iti44) * rate(irtiap)*(1.0d0-rate(irw1))
-    dfdy(iti44,ihe4) = esum(b,4)
+    dfdy(iti44,ihe4) = esum4(b)
 
     ! d(ti44)/d(ca40)
     b(1) =  y(ihe4) * rate(ircaag) 
@@ -2342,7 +2342,7 @@ contains
     b(2) = -rate(irtiga) 
     b(3) = -rate(irv1) * rate(irtigp) 
     b(4) = -y(ihe4) * rate(irtiap)*(1.0d0-rate(irw1))
-    dfdy(iti44,iti44) = esum(b,4)
+    dfdy(iti44,iti44) = esum4(b)
 
     ! d(ti44)/d(cr48)
     b(1) = rate(ircrga) 
@@ -2357,7 +2357,7 @@ contains
     b(2) = -y(icr48) * rate(ircrag) 
     b(3) =  y(iti44) * rate(irtiap)*(1.0d0-rate(irw1)) 
     b(4) = -y(icr48) * rate(ircrap)*(1.0d0-rate(irx1))
-    dfdy(icr48,ihe4) = esum(b,4)
+    dfdy(icr48,ihe4) = esum4(b)
 
     ! d(cr48)/d(ti44)
     b(1) =  y(ihe4) * rate(irtiag) 
@@ -2369,7 +2369,7 @@ contains
     b(2) = -rate(ircrga) 
     b(3) = -rate(irw1) * rate(ircrgp) 
     b(4) = -y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
-    dfdy(icr48,icr48) = esum(b,4)
+    dfdy(icr48,icr48) = esum4(b)
 
     ! d(cr48)/d(fe52)
     b(1) = rate(irfega) 
@@ -2384,7 +2384,7 @@ contains
     b(2) = -y(ife52) * rate(irfeag) 
     b(3) =  y(icr48) * rate(ircrap) * (1.0d0-rate(irx1)) 
     b(4) = -y(ife52) * rate(irfeap) * (1.0d0-rate(iry1)) 
-    dfdy(ife52,ihe4) = esum(b,4)
+    dfdy(ife52,ihe4) = esum4(b)
 
     ! d(fe52)/d(cr48)
     b(1) = y(ihe4) * rate(ircrag) 
@@ -2396,7 +2396,7 @@ contains
     b(2) = -rate(irfega) 
     b(3) = -rate(irx1) * rate(irfegp) 
     b(4) = -y(ihe4) * rate(irfeap) * (1.0d0-rate(iry1))
-    dfdy(ife52,ife52) = esum(b,4)
+    dfdy(ife52,ife52) = esum4(b)
 
     ! d(fe52)/d(ni56)
     b(1) = rate(irniga) 
