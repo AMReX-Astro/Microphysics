@@ -245,8 +245,8 @@ contains
 
     ! Get box-corner points for interpolation
     ! This deals with out-of-range inputs via linear extrapolation
-    call vector_index_lu(self%rhoy_table, rhoy, irhoy_lo)
-    call vector_index_lu(self%temp_table, temp, itemp_lo)
+    call vector_index_lu(self%rhoy_table(:), rhoy, irhoy_lo)
+    call vector_index_lu(self%temp_table(:), temp, itemp_lo)
     ! write(*,*) 'upper self temp table: ', self%temp_table(39)
     ! write(*,*) 'temp: ', temp
     ! write(*,*) 'itemp_lo: ', itemp_lo
