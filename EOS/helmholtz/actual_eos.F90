@@ -123,7 +123,7 @@ private
     !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
     !$acc create(do_coulomb, input_is_constant)
 
-public actual_eos, actual_eos_init
+public actual_eos, actual_eos_init, actual_eos_finalize
 
 contains
 
