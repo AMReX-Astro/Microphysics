@@ -118,7 +118,7 @@ private
     !$acc create(itmax, jtmax, d, t) &
     !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
     !$acc create(dpdf, dpdfd, dpdft, dpdfdt) &
-    !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+    !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt) &
     !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
     !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
     !$acc create(do_coulomb, input_is_constant)
@@ -168,18 +168,10 @@ contains
         !..rows to store EOS data
         double precision :: temp_row, &
                             den_row, &
-                            abar_row, &
-                            zbar_row, &
-                            ye_row, &
                             etot_row, &
                             ptot_row, &
                             cv_row, &
                             cp_row,  &
-                            xne_row, &
-                            xnp_row, &
-                            etaele_row, &
-                            pele_row, &
-                            ppos_row, &
                             dpd_row,  &
                             dpt_row, &
                             dpa_row, &
@@ -195,9 +187,7 @@ contains
                             dhd_row, &
                             dht_row, &
                             dpe_row, &
-                            dpdr_e_row, &
-                            gam1_row, &
-                            cs_row
+                            dpdr_e_row
 
         !..declare local variables
 
@@ -210,30 +200,25 @@ contains
 
         double precision :: x,y,zz,zzi,deni,tempi,xni,dxnidd,dxnida, &
                             dpepdt,dpepdd,deepdt,deepdd,dsepdd,dsepdt, &
-                            dpraddd,dpraddt,deraddd,deraddt,dpiondd,dpiondt, &
+                            dpraddt,deraddd,deraddt,dpiondd,dpiondt, &
                             deiondd,deiondt,dsraddd,dsraddt,dsiondd,dsiondt, &
-                            dse,dpe,dsp,kt,ktinv,prad,erad,srad,pion,eion, &
-                            sion,xnem,pele,eele,sele,pres,ener,entr,dpresdd, &
+                            kt,ktinv,prad,erad,srad,pion,eion, &
+                            sion,pele,eele,sele,pres,ener,entr,dpresdd, &
                             dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
-                            gam1,gam2,gam3,chit,chid,nabad,sound,etaele, &
-                            detadt,detadd,xnefer,dxnedt,dxnedd,s, &
-                            temp,den,abar,zbar,ytot1,ye
+                            chit,chid,s,temp,den,ytot1
 
-#if EXTRA_THERMO
+#ifdef EXTRA_THERMO
+        double precision :: etaele, detadt, detadd
+        double precision :: xnefer, xnedt, dxnedd
+
         !..for the abar derivatives
-        double precision :: dpradda,deradda,dsradda, &
-                            dpionda,deionda,dsionda, &
+        double precision :: dpionda,deionda,dsionda, &
                             dpepda,deepda,dsepda,    &
-                            dpresda,denerda,dentrda, &
-                            detada,dxneda
-
+                            dpresda,denerda,dentrda
 
         !..for the zbar derivatives
-        double precision :: dpraddz,deraddz,dsraddz, &
-                            dpiondz,deiondz,dsiondz, &
-                            dpepdz,deepdz,dsepdz,    &
-                            dpresdz,denerdz,dentrdz ,&
-                            detadz,dxnedz
+        double precision :: dpepdz,deepdz,dsepdz,    &
+                            dpresdz,denerdz,dentrdz
 #endif
 
 
@@ -264,9 +249,6 @@ contains
 
         temp_row = state % T
         den_row  = state % rho
-        abar_row = state % abar
-        zbar_row = state % zbar
-        ye_row   = state % y_e
 
         ! Initial setup for iterations
 
@@ -352,18 +334,8 @@ contains
         dhd_row = 0.0d0
         dht_row = 0.0d0
 
-        pele_row = 0.0d0
-        ppos_row = 0.0d0
-
-        xne_row = 0.0d0
-        xnp_row = 0.0d0
-
-        etaele_row = 0.0d0
-
         cv_row = 0.0d0
         cp_row = 0.0d0
-        cs_row = 0.0d0
-        gam1_row = 0.0d0
 
         converged = .false.
 
@@ -373,12 +345,9 @@ contains
 
            temp  = temp_row
            den   =  den_row
-           abar  = abar_row
-           zbar  = zbar_row
 
-           ytot1 = 1.0d0 / abar
-           ye    = ye_row
-           din   = ye * den
+           ytot1 = 1.0d0 / state%abar
+           din   = state%y_e * den
 
            !..initialize
            deni    = 1.0d0/den
@@ -388,28 +357,15 @@ contains
 
            !..radiation section:
            prad    = asoli3 * temp * temp * temp * temp
-           dpraddd = 0.0d0
            dpraddt = 4.0d0 * prad*tempi
-#ifdef EXTRA_THERMO
-           dpradda = 0.0d0
-           dpraddz = 0.0d0
-#endif
 
            erad    = 3.0d0 * prad*deni
            deraddd = -erad*deni
            deraddt = 3.0d0 * dpraddt*deni
-#ifdef EXTRA_THERMO
-           deradda = 0.0d0
-           deraddz = 0.0d0
-#endif
 
            srad    = (prad*deni + erad)*tempi
-           dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
+           dsraddd = (-prad*deni*deni + deraddd)*tempi
            dsraddt = (dpraddt*deni + deraddt - srad)*tempi
-#ifdef EXTRA_THERMO
-           dsradda = 0.0d0
-           dsraddz = 0.0d0
-#endif
 
            !..ion section:
            xni     = avo_eos * ytot1 * den
@@ -421,7 +377,6 @@ contains
            dpiondt = xni * kerg
 #ifdef EXTRA_THERMO
            dpionda = dxnida * kt
-           dpiondz = 0.0d0
 #endif
 
            eion    = 1.5d0 * pion*deni
@@ -429,10 +384,9 @@ contains
            deiondt = 1.5d0 * dpiondt*deni
 #ifdef EXTRA_THERMO
            deionda = 1.5d0 * dpionda*deni
-           deiondz = 0.0d0
 #endif
 
-           x       = abar*abar*sqrt(abar) * deni/avo_eos
+           x       = state%abar*state%abar*sqrt(state%abar) * deni/avo_eos
            s       = sioncon * temp
            z       = x * s * sqrt(s)
            y       = log(z)
@@ -442,19 +396,14 @@ contains
            dsiondt = (dpiondt*deni + deiondt)*tempi -  &
                 (pion*deni + eion) * tempi*tempi  &
                 + 1.5d0 * kergavo * tempi*ytot1
-           x       = avo_eos*kerg/abar
+           x       = avo_eos*kerg/state%abar
 #ifdef EXTRA_THERMO
            dsionda = (dpionda*deni + deionda)*tempi  &
                 + kergavo*ytot1*ytot1* (2.5d0 - y)
-           dsiondz = 0.0d0
 #endif
 
-           !..electron-positron section:
-           !..assume complete ionization
-           xnem    = xni * zbar
-
            !..enter the table with ye*den
-           din = ye*den
+           din = state%y_e*den
 
            !..hash locate this temperature and density
            jat = int((log10(temp) - tlo)*tstpi) + 1
@@ -549,13 +498,6 @@ contains
            ddsi1mt = -ddpsi1(mxt)*dti_sav(jat)
            ddsi2mt =  ddpsi2(mxt)
 
-           !     ddsi0d =   ddpsi0(xd)*dd2i_sav(iat)
-           !     ddsi1d =   ddpsi1(xd)*ddi_sav(iat)
-           !     ddsi2d =   ddpsi2(xd)
-
-           !     ddsi0md =  ddpsi0(mxd)*dd2i_sav(iat)
-           !     ddsi1md = -ddpsi1(mxd)*ddi_sav(iat)
-           !     ddsi2md =  ddpsi2(mxd)
 
 
            !..the free energy
@@ -572,11 +514,6 @@ contains
            df_t = h5( fi, &
                 dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
                 si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-           !..derivative with respect to density**2
-           !     df_dd = h5( &
-           !               si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-           !               ddsi0d, ddsi1d, ddsi2d, ddsi0md, ddsi1md, ddsi2md)
 
            !..derivative with respect to temperature**2
            df_tt = h5( fi, &
@@ -638,7 +575,7 @@ contains
            dpepdd  = h3(   fi, &
                 si0t,   si1t,   si0mt,   si1mt, &
                 si0d,   si1d,   si0md,   si1md)
-           dpepdd  = max(ye * dpepdd,0.0d0)
+           dpepdd  = max(state%y_e * dpepdd,0.0d0)
 
            !..look in the electron chemical potential table only once
            fi(1)  = ef(iat,jat)
@@ -658,6 +595,7 @@ contains
            fi(15) = efdt(iat,jat+1)
            fi(16) = efdt(iat+1,jat+1)
 
+#ifdef EXTRA_THERMO
            !..electron chemical potential etaele
            etaele  = h3( fi, &
                 si0t,   si1t,   si0mt,   si1mt, &
@@ -667,17 +605,12 @@ contains
            x       = h3( fi, &
                 si0t,   si1t,   si0mt,   si1mt, &
                 dsi0d,  dsi1d,  dsi0md,  dsi1md)
-           detadd  = ye * x
+           detadd  = state%y_e * x
 
            !..derivative with respect to temperature
            detadt  = h3( fi, &
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-           !..derivative with respect to abar and zbar
-           detada = -x * din * ytot1
-           detadz =  x * den * ytot1
 #endif
 
            !..look in the number density table only once
@@ -698,6 +631,7 @@ contains
            fi(15) = xfdt(iat,jat+1)
            fi(16) = xfdt(iat+1,jat+1)
 
+#ifdef EXTRA_THERMO
            !..electron + positron number densities
            xnefer   = h3( fi, &
                 si0t,   si1t,   si0mt,   si1mt, &
@@ -708,17 +642,12 @@ contains
                 si0t,   si1t,   si0mt,   si1mt, &
                 dsi0d,  dsi1d,  dsi0md,  dsi1md)
            x = max(x,0.0d0)
-           dxnedd   = ye * x
+           dxnedd   = state%y_e * x
 
            !..derivative with respect to temperature
            dxnedt   = h3( fi, &
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-           !..derivative with respect to abar and zbar
-           dxneda = -x * din * ytot1
-           dxnedz =  x  * den * ytot1
 #endif
 
            !..the desired electron-positron thermodynamic quantities
@@ -730,28 +659,27 @@ contains
            x       = din * din
            pele    = x * df_d
            dpepdt  = x * df_dt
-           !     dpepdd  = ye * (x * df_dd + 2.0d0 * din * df_d)
-           s       = dpepdd/ye - 2.0d0 * din * df_d
+           s       = dpepdd/state%y_e - 2.0d0 * din * df_d
 #ifdef EXTRA_THERMO
            dpepda  = -ytot1 * (2.0d0 * pele + s * din)
            dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
 #endif
 
-           x       = ye * ye
-           sele    = -df_t * ye
-           dsepdt  = -df_tt * ye
+           x       = state%y_e * state%y_e
+           sele    = -df_t * state%y_e
+           dsepdt  = -df_tt * state%y_e
            dsepdd  = -df_dt * x
 #ifdef EXTRA_THERMO
-           dsepda  = ytot1 * (ye * df_dt * din - sele)
-           dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
+           dsepda  = ytot1 * (state%y_e * df_dt * din - sele)
+           dsepdz  = -ytot1 * (state%y_e * df_dt * den  + df_t)
 #endif
 
-           eele    = ye*free + temp * sele
+           eele    = state%y_e*free + temp * sele
            deepdt  = temp * dsepdt
            deepdd  = x * df_d + temp * dsepdd
 #ifdef EXTRA_THERMO
-           deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
-           deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+           deepda  = -state%y_e * ytot1 * (free +  df_d * din) + temp * dsepda
+           deepdz  = ytot1* (free + state%y_e * df_d * den) + temp * dsepdz
 #endif
 
            !..coulomb section:
@@ -787,12 +715,12 @@ contains
            lamidd   = z * dsdd/s
            lamida   = z * dsda/s
 
-           plasg    = zbar*zbar*esqu*ktinv*inv_lami
+           plasg    = state%zbar*state%zbar*esqu*ktinv*inv_lami
            z        = -plasg * inv_lami
            plasgdd  = z * lamidd
            plasgda  = z * lamida
            plasgdt  = -plasg*ktinv * kerg
-           plasgdz  = 2.0d0 * plasg/zbar
+           plasgdz  = 2.0d0 * plasg/state%zbar
 
            !     TURN ON/OFF COULOMB
            if ( do_coulomb ) then
@@ -808,7 +736,7 @@ contains
                  y        = avo_eos*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
                  decouldd = y * plasgdd
                  decouldt = y * plasgdt + ecoul/temp
-                 decoulda = y * plasgda - ecoul/abar
+                 decoulda = y * plasgda - ecoul/state%abar
                  decouldz = y * plasgdz
 
                  y        = onethird * den
@@ -817,11 +745,11 @@ contains
                  dpcoulda = y * decoulda
                  dpcouldz = y * decouldz
 
-                 y        = -avo_eos*kerg/(abar*plasg)* &
+                 y        = -avo_eos*kerg/(state%abar*plasg)* &
                       (0.75d0*b1*x+1.25d0*c1/x+d1)
                  dscouldd = y * plasgdd
                  dscouldt = y * plasgdt
-                 dscoulda = y * plasgda - scoul/abar
+                 dscoulda = y * plasgda - scoul/state%abar
                  dscouldz = y * plasgdz
 
                  !...yakovlev & shalybkov 1989 equations 102, 103, 104
@@ -831,14 +759,14 @@ contains
                  z        = c2 * x - onethird * a2 * y
                  pcoul    = -pion * z
                  ecoul    = 3.0d0 * pcoul/den
-                 scoul    = -avo_eos/abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
+                 scoul    = -avo_eos/state%abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
 
                  s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
                  dpcouldd = -dpiondd*z - pion*s*plasgdd
                  dpcouldt = -dpiondt*z - pion*s*plasgdt
 #ifdef EXTRA_THERMO
                  dpcoulda = -dpionda*z - pion*s*plasgda
-                 dpcouldz = -dpiondz*z - pion*s*plasgdz
+                 dpcouldz = -pion*s*plasgdz
 #endif
 
                  s        = 3.0d0/den
@@ -847,11 +775,11 @@ contains
                  decoulda = s * dpcoulda
                  decouldz = s * dpcouldz
 
-                 s        = -avo_eos*kerg/(abar*plasg)* &
+                 s        = -avo_eos*kerg/(state%abar*plasg)* &
                       (1.5d0*c2*x-a2*(b2-1.0d0)*y)
                  dscouldd = s * plasgdd
                  dscouldt = s * plasgdt
-                 dscoulda = s * plasgda - scoul/abar
+                 dscoulda = s * plasgda - scoul/state%abar
                  dscouldz = s * plasgdz
               end if
 
@@ -887,24 +815,24 @@ contains
            ener    = erad + eion + eele + ecoul
            entr    = srad + sion + sele + scoul
 
-           dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
+           dpresdd = dpiondd + dpepdd + dpcouldd
            dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
 #ifdef EXTRA_THERMO
-           dpresda = dpradda + dpionda + dpepda + dpcoulda
-           dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
+           dpresda = dpionda + dpepda + dpcoulda
+           dpresdz = dpepdz + dpcouldz
 #endif
            denerdd = deraddd + deiondd + deepdd + decouldd
            denerdt = deraddt + deiondt + deepdt + decouldt
 #ifdef EXTRA_THERMO
-           denerda = deradda + deionda + deepda + decoulda
-           denerdz = deraddz + deiondz + deepdz + decouldz
+           denerda = deionda + deepda + decoulda
+           denerdz = deepdz + decouldz
 #endif
 
            dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
            dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
 #ifdef EXTRA_THERMO
-           dentrda = dsradda + dsionda + dsepda + dscoulda
-           dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
+           dentrda = dsionda + dsepda + dscoulda
+           dentrdz = dsepdz + dscouldz
 #endif
 
            !..the temperature and density exponents (c&g 9.81 9.82)
@@ -913,26 +841,14 @@ contains
            !..the first adiabatic exponent (c&g 9.97)
            !..the second adiabatic exponent (c&g 9.105)
            !..the specific heat at constant pressure (c&g 9.98)
-           !..and relativistic formula for the sound speed (c&g 14.29)
            zz    = pres*deni
            zzi   = den/pres
            chit  = temp/pres * dpresdt
            chid  = dpresdd*zzi
            cv    = denerdt
            x     = zz * chit/(temp * cv)
-           gam3  = x + 1.0d0
-           gam1  = chit*x + chid
-           nabad = x/gam1
-           gam2  = 1.0d0/(1.0d0 - nabad)
-           cp    = cv * gam1/chid
-           z     = 1.0d0 + (ener + light2)*zzi
-           sound = clight * sqrt(gam1/z)
-
-           !..maxwell relations; each is zero if the consistency is perfect
-           x   = den * den
-           dse = temp*dentrdt/denerdt - 1.0d0
-           dpe = (denerdd*x + temp*dpresdt)/pres - 1.0d0
-           dsp = -dentrdd*x/dpresdt - 1.0d0
+           state%gam1  = chit*x + chid
+           cp    = cv * state%gam1/chid
 
            ptot_row = pres
            dpt_row = dpresdt
@@ -960,18 +876,18 @@ contains
            dhd_row = denerdd + dpresdd / den - pres / den**2
            dht_row = denerdt + dpresdt / den
 
-           pele_row = pele
-           ppos_row = 0.0d0
+#ifdef EXTRA_THERMO
+           state%pele = pele
+           state%ppos = 0.0d0
 
-           xne_row = xnefer
-           xnp_row = 0.0d0
+           state%xne = xnefer
+           state%xnp = 0.0d0
 
-           etaele_row = etaele
+           state%eta = etaele
+#endif
 
            cv_row = cv
            cp_row = cp
-           cs_row = sound
-           gam1_row = gam1
 
            if (converged) then
 
@@ -1167,25 +1083,17 @@ contains
         state % dhdR = dhd_row
         state % dhdT = dht_row
 
-        state % pele = pele_row
-        state % ppos = ppos_row
-
-        state % xne = xne_row
-        state % xnp = xnp_row
-
-        state % eta = etaele_row
-
         state % cv   = cv_row
         state % cp   = cp_row
-        state % gam1 = gam1_row
-        ! state % cs   = cs_row
 
         ! Take care of final housekeeping.
 
         ! Count the positron contribution in the electron quantities.
 
+#ifdef EXTRA_THERMO
         state % xne  = state % xne  + state % xnp
         state % pele = state % pele + state % ppos
+#endif
 
         ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
         ! This replaces the relativistic version that comes out of helmeos.
@@ -1428,7 +1336,7 @@ contains
         !$acc device(itmax, jtmax, d, t) &
         !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
         !$acc device(dpdf, dpdfd, dpdft, dpdfdt) &
-        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt) &
         !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
         !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
         !$acc device(do_coulomb, input_is_constant)
