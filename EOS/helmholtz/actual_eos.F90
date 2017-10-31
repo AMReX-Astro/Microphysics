@@ -148,6 +148,9 @@ contains
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     subroutine actual_eos(input, state)
 
         !$acc routine seq
@@ -1436,6 +1439,9 @@ contains
 
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function psi0(z) result(psi0r)
     !$acc routine seq
       double precision, intent(in) :: z
@@ -1443,6 +1449,9 @@ contains
       psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
     end function psi0
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function dpsi0(z) result(dpsi0r) 
     !$acc routine seq
       double precision, intent(in) :: z
@@ -1450,6 +1459,9 @@ contains
       dpsi0r = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
     end function dpsi0
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function ddpsi0(z) result(ddpsi0r)
     !$acc routine seq
       double precision, intent(in) :: z
@@ -1458,6 +1470,9 @@ contains
     end function ddpsi0
 
     ! psi1 and its derivatives
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function psi1(z) result(psi1r)
     !$acc routine seq
       double precision, intent(in) :: z
@@ -1465,6 +1480,9 @@ contains
       psi1r = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
     end function psi1
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function dpsi1(z) result(dpsi1r)
     !$acc routine seq
       double precision, intent(in) :: z
@@ -1472,6 +1490,9 @@ contains
       dpsi1r = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
     end function dpsi1
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function ddpsi1(z) result(ddpsi1r)
     !$acc routine seq
       double precision, intent(in) :: z
@@ -1480,6 +1501,9 @@ contains
     end function ddpsi1
 
     ! psi2  and its derivatives
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function psi2(z) result(psi2r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1487,6 +1511,9 @@ contains
       psi2r = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
     end function psi2
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function dpsi2(z) result(dpsi2r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1494,6 +1521,9 @@ contains
       dpsi2r = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
     end function dpsi2
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function ddpsi2(z) result(ddpsi2r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1503,6 +1533,9 @@ contains
 
 
     ! biquintic hermite polynomial function
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
       !$acc routine seq
       double precision, intent(in) :: fi(36)
@@ -1532,6 +1565,9 @@ contains
 
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function xpsi0(z) result(xpsi0r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1539,6 +1575,9 @@ contains
       xpsi0r = z * z * (2.0d0*z - 3.0d0) + 1.0
     end function xpsi0
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function xdpsi0(z) result(xdpsi0r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1548,6 +1587,9 @@ contains
 
 
     ! psi1 & derivatives
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function xpsi1(z) result(xpsi1r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1555,6 +1597,9 @@ contains
       xpsi1r = z * ( z * (z - 2.0d0) + 1.0d0)
     end function xpsi1
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function xdpsi1(z) result(xdpsi1r)
       !$acc routine seq
       double precision, intent(in) :: z
@@ -1563,6 +1608,9 @@ contains
     end function xdpsi1
 
     ! bicubic hermite polynomial function
+#ifdef CUDA
+    attributes(device) &
+#endif
     pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
       !$acc routine seq
       double precision, intent(in) :: fi(36)
