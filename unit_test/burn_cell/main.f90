@@ -20,14 +20,22 @@ program burn_cell
   type (burn_t)       :: burn_state_in, burn_state_out
 
   real (kind=dp_t)    :: tmax, energy, dt
-  integer             :: ntimes, i
+  integer             :: numsteps, i
+
+  character (len=256) :: params_file
+  integer             :: params_file_unit
 
   character (len=256) :: out_name
   character (len=6)   :: out_num
 
+  ! Starting conditions for integration
+  real (kind=dp_t)    :: density, temperature, massfractions(nspec)
+
+  namelist /cellparams/ tmax, numsteps, density, temperature, massfractions
+
   ! runtime
   call runtime_init(.true.)
-  
+
   ! microphysics
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
   call eos_get_small_temp(small_temp)
@@ -35,19 +43,25 @@ program burn_cell
   call eos_get_small_dens(small_dens)
   print *, "small_dens = ", small_dens
 
-  ! Fill burn state input
-  write(*,*) 'Maximum Time (s): '
-  read(*,*) tmax
-  write(*,*) 'Number of time subdivisions: '
-  read(*,*) ntimes
-  write(*,*) 'State Density (g/cm^3): '
-  read(*,*) burn_state_in%rho
-  write(*,*) 'State Temperature (K): '
-  read(*,*) burn_state_in%T
+  ! Get initial conditions for the burn
+  call get_command_argument(1, value = params_file)
+
+  open(newunit=params_file_unit, file=params_file, status="old", action="read")
+  read(unit=params_file_unit, nml=cellparams)
+  close(unit=params_file_unit)
+
+  ! Echo initial conditions at burn and fill burn state input
+  write(*,*) 'Maximum Time (s): ', tmax
+  write(*,*) 'Number of time subdivisions: ', numsteps
+  write(*,*) 'State Density (g/cm^3): ', density
+  write(*,*) 'State Temperature (K): ', temperature
   do i = 1, nspec
-     write(*,*) 'Mass Fraction (', spec_names(i), '): '
-     read(*,*) burn_state_in%xn(i)
+     write(*,*) 'Mass Fraction (', short_spec_names(i), '): ', massfractions(i)
   end do
+
+  burn_state_in%T   = temperature
+  burn_state_in%rho = density
+  burn_state_in%xn(:) = massfractions(:)
 
   ! normalize -- just in case
   !call normalize_abundances_burn(burn_state_in)
@@ -63,9 +77,9 @@ program burn_cell
   burn_state_in % time = ZERO
   call write_burn_t(out_name, burn_state_in)
   
-  dt = tmax/ntimes
+  dt = tmax/numsteps
   
-  do i = 1, ntimes
+  do i = 1, numsteps
      ! Do burn
      call actual_burner(burn_state_in, burn_state_out, dt, ZERO)
      energy = energy + burn_state_out % e
