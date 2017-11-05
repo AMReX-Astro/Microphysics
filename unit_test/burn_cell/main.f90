@@ -2,8 +2,10 @@
 
 program burn_cell
 
+  use bl_error_module
   use bl_constants_module
   use bl_types
+  use fabio_module, only: fabio_mkdir
   use probin_module, only: run_prefix, small_temp, small_dens
   use runtime_init_module
   use extern_probin_module
@@ -20,11 +22,12 @@ program burn_cell
   type (burn_t)       :: burn_state_in, burn_state_out
 
   real (kind=dp_t)    :: tmax, energy, dt
-  integer             :: numsteps, i
+  integer             :: numsteps, i, istate
 
   character (len=256) :: params_file
   integer             :: params_file_unit
 
+  character (len=256) :: out_directory_name
   character (len=256) :: out_name
   character (len=6)   :: out_num
 
@@ -71,9 +74,16 @@ program burn_cell
   burn_state_out % e = ZERO
   energy = ZERO
 
+  ! Create directory to hold output
+  out_directory_name = trim(run_prefix) // 'output'
+  call fabio_mkdir(trim(out_directory_name), istate)
+  if (istate /= 0) then
+     call bl_error('ERROR: output directory "' // trim(out_directory_name) // '" could not be created.')
+  end if
+
   ! output initial burn type data
   write(out_num,'(I6.6)') 0
-  out_name = trim(run_prefix) // out_num
+  out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
   burn_state_in % time = ZERO
   call write_burn_t(out_name, burn_state_in)
   
@@ -89,7 +99,7 @@ program burn_cell
      
      ! output burn type data
      write(out_num,'(I6.6)') i
-     out_name = trim(run_prefix) // out_num
+     out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
      call write_burn_t(out_name, burn_state_out)
   end do
 
