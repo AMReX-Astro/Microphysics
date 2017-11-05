@@ -46,12 +46,22 @@ program burn_cell
   call eos_get_small_dens(small_dens)
   print *, "small_dens = ", small_dens
 
+  ! Set mass fractions to sanitize inputs for them
+  massfractions = -1.0d0
+
   ! Get initial conditions for the burn
   call get_command_argument(1, value = params_file)
 
   open(newunit=params_file_unit, file=params_file, status="old", action="read")
   read(unit=params_file_unit, nml=cellparams)
   close(unit=params_file_unit)
+
+  ! Make sure user set all the mass fractions to values in the interval [0, 1]
+  do i = 1, nspec
+     if (massfractions(i) .lt. 0 .or. massfractions(i) .gt. 1) then
+        call bl_error('mass fraction for ' // short_spec_names(i) // ' not initialized in the interval [0,1]!')
+     end if
+  end do
 
   ! Echo initial conditions at burn and fill burn state input
   write(*,*) 'Maximum Time (s): ', tmax
@@ -78,7 +88,7 @@ program burn_cell
   out_directory_name = trim(run_prefix) // 'output'
   call fabio_mkdir(trim(out_directory_name), istate)
   if (istate /= 0) then
-     call bl_error('ERROR: output directory "' // trim(out_directory_name) // '" could not be created.')
+     call bl_error('output directory "' // trim(out_directory_name) // '" could not be created.')
   end if
 
   ! output initial burn type data
