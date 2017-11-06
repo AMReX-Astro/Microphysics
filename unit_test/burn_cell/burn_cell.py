@@ -17,7 +17,7 @@ parser.add_argument('--nlo', type=float, help='File num lower limit')
 parser.add_argument('--nhi', type=float, help='File num upper limit')
 args = parser.parse_args()
 
-files = glob.glob(args.runprefix + r'_[0-9]*')
+files = glob.glob(args.runprefix + r'_output/' + args.runprefix + r'_[0-9]*')
 print('Found {} files matching pattern {}'.format(len(files), args.runprefix+'_[0-9]*'))
 if len(files) == 0:
     exit()
@@ -133,7 +133,7 @@ def rgba_to_hex(rgba):
     return '#{:02X}{:02X}{:02X}'.format(r,g,b)
 
 ## PLOTTING
-    
+
 # Figure out time axis limits
 if args.tlo and args.thi:
     ltlim = [args.tlo, args.thi]
