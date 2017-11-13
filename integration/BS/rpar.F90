@@ -21,7 +21,7 @@ module rpar_indices
   integer, parameter :: irp_t_sound = irp_y_init + neqs
   integer, parameter :: irp_t0 = irp_t_sound + 1
 
-  integer, parameter :: n_rpar_comps = irp_t0 + 1
+  integer, parameter :: n_rpar_comps = irp_t0
 #else
   ! note: we require these components to be first, to allow for use to
   ! index bs % u_init and bs % udot_a
