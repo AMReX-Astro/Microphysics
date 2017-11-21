@@ -1422,6 +1422,8 @@ contains
         mindens = 10.d0**dlo
         maxdens = 10.d0**dhi
 
+        !$acc update device(mintemp, maxtemp, mindens, maxdens)
+
         !$acc update &
         !$acc device(tlo, thi, dlo, dhi) &
         !$acc device(tstp, tstpi, dstp, dstpi) &
