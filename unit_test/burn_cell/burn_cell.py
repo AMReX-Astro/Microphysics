@@ -133,9 +133,6 @@ def rgba_to_hex(rgba):
     return '#{:02X}{:02X}{:02X}'.format(r,g,b)
 
 ## PLOTTING
-    
-# Obtain test prefix
-testprefix = input('Please input a testing prefix:   ')
 
 # Figure out time axis limits
 if args.tlo and args.thi:
@@ -193,16 +190,6 @@ plt.savefig(args.runprefix+'_logX.eps',
             bbox_extra_artists=(lgd,), bbox_inches='tight')
 plt.savefig(args.runprefix+'_logX.png', dpi=300,
             bbox_extra_artists=(lgd,), bbox_inches='tight')
-
-#Save Data to a file
-np.savetxt('{}_{}_xvec.txt'.format(args.runprefix, testprefix), xvec)
-for n in range(nspec):
-    np.savetxt('{}_{}_xn{}.txt'.format(args.runprefix, testprefix, n), xn[n])
-
-specfile = open('{}_short_spec_names.txt'.format(args.runprefix), 'w')
-for item in short_spec_names:
-    specfile.write('{}\n'.format(item))
-specfile.close()
 
 # Clear figure
 plt.clf()
