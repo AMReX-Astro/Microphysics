@@ -8,53 +8,45 @@ The {\tt burn\_cell} codes are located in {\tt Microphysics/unit\_test/burn\_cel
 
 These files are typically named as {\tt inputs\_burn\_network} where {\tt network} is the network you wish to use for your testing.
 
-This structure of this file is is fairly self-explanitory.
-The run prefix defined should be unique to the tests that will be run as they will be used to identify all of the output files. Typically, the run prefix involves the name of the network being tested. 
-The {\tt atol} variables define absolute tolerances and the {\tt rtol} variables define the relative tolerances. 
-
-\subsection{Initialization File}
-
-These files are normally named as {\tt init\_network} where {\tt network} is the network used for testing. 
-It collects all of the inputs that {\tt main.f90} asks for onto individual lines of a file so that the user does not have to input all 5$+$ parameters that are required everytime the test is run. 
-The use of each line is defined in Table~\ref{tab:init-structure}.
+The structure of this file is is fairly self-explanitory.
+The run prefix defined should be unique to the tests that will be run as they will be used to identify all of the output files. Typically, the run prefix involves the name of the network being tested.
+The {\tt atol} variables define absolute tolerances of the ordinary differential equations and the {\tt rtol} variables define the relative tolerances.
+The second section of the input file collects the inputs that {\tt main.f90} asks for so that the user does not have to input all 5$+$ parameters that are required everytime the test is run.
+Each input required is defined and initialized on the lines following {\tt \&cellparams}.
+The use of the parameters is defined in Table~\ref{tab:init-structure}.
 
 \begin{table}
 	\centering
-	\begin{tabular}{|l|l|l|}
+	\begin{tabular}{|l|l|}
 		\hline
-			\multicolumn{1}{|c|}{\textbf{Line}} &
 			\multicolumn{1}{|c|}{\textbf{Name in {\tt main.f90}}} &
 			\multicolumn{1}{|c|}{\textbf{Definition}} \\
 		\hline
 		\rowcolor{tableShade}
-		1 & {\tt tmax} & Maximum Time (s) \\
-		2 & {\tt ntimes} & Number of time subdivisions \\
+		{\tt tmax} & Maximum Time (s) \\
+		{\tt numsteps} & Number of time subdivisions \\
 		\rowcolor{tableShade}
-		3 & {\tt burn\_state\_in\%rho} & State Density ($\frac{g}{cm^3}$) \\
-		4 & {\tt burn\_state\_in\%T} & State Temperature (K) \\
+		{\tt density} & State Density ($\frac{g}{cm^3}$) \\
+		{\tt temperature} & State Temperature (K) \\
 		\rowcolor{tableShade}
-		5, 6, 7, ... & {\tt burn\_state\_in\%xn(i)} & Mass Fractions \\
+		{\tt massfractions(i)} & Mass Fraction for element i \\
 		\hline
 	\end{tabular}
-	\caption{The structure of the init\_network files used in {\tt main.f90}.}
+	\caption{The definition of parameters used in the {\tt burn\_cell} unit tests and specified in the second half of each inputs file.}
 	\label{tab:init-structure}
 \end{table}
 
 \subsection{Running the Code}
 
-To run the code, enter the {\tt burn\_cell} directory and run {\tt ./main.Linux.gfortran.exe} where the first argument is the inputs file and then the lines from the initial conditions file are redirected into the code using {\tt <}. 
-For example: {\tt ./main.Linux.gfortran.exe inputs\_burn\_aprox13 < init\_aprox13}
+To run the code, enter the {\tt burn\_cell} directory and run {\tt ./main.Linux.gfortran.exe} with the inputs file as an argument. 
+For example: {\tt ./main.Linux.gfortran.exe inputs\_burn\_aprox13}
 
-For however many events are run, defined as { \tt ntimes} in the initial conditions file, the code will output that many files into the present working directory. 
-They will be named using the run prefix definied in the inputs file.
+For however many events are run, defined as { \tt numsteps} in the inputs file, the code will output that many files into a new directory titled {\tt run\_prefix\_output} where {\tt run\_prefix} is the run prefix defined in the inputs file.
+Each output file will be named using the run prefix defined in the inputs file and the corresponding timestep. 
 
 Next, run {\tt burn\_cell.py} using Python3 and listing the defined run prefix as an argument.
 For example: {\tt python3 burn\_cell.py react\_aprox13}. 
 The burn\_cell code will gather information from all of the output files and compile them into three graphs explained below.
-
-Once finished, the user can clear up their directory by removing all of the main output files: {\tt rm -rf runprefix\_0*}. 
-Be careful not to forget the first 0 or all of the graphs will be deleted as well. 
-Or, to save the data, create a new directory and move all of the output files there. 
 
 \subsection{Graphs Output by burn\_cell.py}
 
