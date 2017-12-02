@@ -1,4 +1,4 @@
-changes since last merge
+# 17.11
 
   -- a new option to boost the reaction rates has been added
      to the integrators (PR #64)
