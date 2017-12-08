@@ -40,6 +40,8 @@ contains
 
     double precision :: y(nspec)
 
+    ! initialize
+    state % ydot(:) = ZERO
 
     ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
     call update_unevolved_species(state)
