@@ -40,7 +40,7 @@ module rpar_indices
   integer, parameter :: irp_i = irp_t0 + 1
   integer, parameter :: irp_j = irp_t0 + 2
   integer, parameter :: irp_k = irp_t0 + 3
-  integer, parameter :: n_rpar_comps = irp_k + 1
+  integer, parameter :: n_rpar_comps = irp_k
 #else
 
 #if (SDC_METHOD == 1)
@@ -69,7 +69,7 @@ module rpar_indices
   integer, parameter :: irp_j = irp_t0 + 2
   integer, parameter :: irp_k = irp_t0 + 3
   integer, parameter :: irp_iter = irp_k + 1
-  integer, parameter :: n_rpar_comps = irp_iter + 1
+  integer, parameter :: n_rpar_comps = irp_iter
 
 #elif (SDC_METHOD == 2)
 
@@ -92,7 +92,7 @@ module rpar_indices
   integer, parameter :: irp_j = irp_t0 + 2
   integer, parameter :: irp_k = irp_t0 + 3
   integer, parameter :: irp_iter = irp_k + 1
-  integer, parameter :: n_rpar_comps = irp_iter + 1
+  integer, parameter :: n_rpar_comps = irp_iter
 
 #endif
 
