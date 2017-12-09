@@ -43,8 +43,13 @@ contains
     ! initialize
     state % ydot(:) = ZERO
 
-    ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
+#ifndef SDC
+    ! For SDC, we evolve all species in the integrator
+
+    ! We enforce that X(O16) remains constant,
+    ! and that X(Mg24) always mirrors changes in X(C12).
     call update_unevolved_species(state)
+#endif
 
     call evaluate_rates(state, rr)
 
@@ -95,6 +100,10 @@ contains
     ! Convert back to molar form
 
     state % ydot(ic12) = state % ydot(ic12) * aion_inv(ic12)
+
+#ifdef SDC
+    state % ydot(img24) = -state % ydot(ic12)
+#endif
 
     call ener_gener_rate(state % ydot(ic12), state % ydot(net_ienuc))
 
@@ -149,15 +158,23 @@ contains
     ! carbon jacobian elements
     state % jac(ic12, ic12)  = -SIXTH * dens * scorr * rate * xc12tmp
 
+#ifdef SDC
+    state % jac(img24, ic12) = -state % jac(ic12, ic12)
+#endif
+
     ! add the temperature derivatives: df(y_i) / dT
     state % jac(ic12, net_itemp)  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
-                                     dens * scorr * xc12tmp**2 * dratedt )
+                                                 dens * scorr * xc12tmp**2 * dratedt )
 
     ! Convert back to molar form
     ! Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
     ! so this conversion is necessarily only for the temperature derivative.
 
     state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) * aion_inv(ic12)
+
+#ifdef SDC
+    state % jac(img24, net_itemp) = -state % jac(ic12, net_itemp)
+#endif
 
     ! Energy generation rate Jacobian elements with respect to species
 
