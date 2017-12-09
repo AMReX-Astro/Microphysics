@@ -179,7 +179,7 @@ contains
     rpar(irp_i) = sdc % i
     rpar(irp_j) = sdc % j
     rpar(irp_k) = sdc % k
-!    rpar(irp_iter) = sdc % sdc_iter
+    rpar(irp_iter) = sdc % sdc_iter
 
   end subroutine sdc_to_vode
 
