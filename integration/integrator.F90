@@ -102,7 +102,7 @@ contains
 
        else
 
-          print *, "Retrying burn with looser tolerances"
+          print *, "Retrying burn with looser tolerances in zone ", state_in % i, state_in % j, state_in % k
 
           retry_change_factor = retry_change_factor * retry_burn_factor
 
@@ -114,6 +114,8 @@ contains
 
           status % atol_enuc = status % atol_enuc * retry_burn_factor
           status % rtol_enuc = status % rtol_enuc * retry_burn_factor
+
+          print *, "New tolerance loosening factor = ", retry_change_factor
 
        end if
 
