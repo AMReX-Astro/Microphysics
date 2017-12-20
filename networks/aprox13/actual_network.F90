@@ -22,8 +22,8 @@ module actual_network
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  double precision :: aion(nspec), zion(nspec), nion(nspec)
-  double precision :: bion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable :: aion(:), zion(:), nion(:)
+  double precision, allocatable :: bion(:), mion(:), wion(:)
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
@@ -125,6 +125,10 @@ module actual_network
 
   character (len=16), save :: ratenames(nrates)
 
+#ifdef CUDA
+  attributes(managed) :: aion, zion
+#endif
+
 contains
 
   subroutine actual_network_init
@@ -158,6 +162,13 @@ contains
     spec_names(icr48) = "chromium-48"
     spec_names(ife52) = "iron-52"
     spec_names(ini56) = "nickel-56"
+
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(nion(nspec))
+    allocate(bion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
 
     ! Set the number of nucleons in the element
     aion(ihe4)  = 4.0d0
