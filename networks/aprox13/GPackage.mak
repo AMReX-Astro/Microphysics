@@ -1,4 +1,4 @@
-f90sources += actual_network.f90
+F90sources += actual_network.F90
 
 ifneq ($(USE_REACT), FALSE)
 ifndef SDC
