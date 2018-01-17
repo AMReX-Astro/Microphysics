@@ -4,7 +4,6 @@ module actual_rhs_module
   use physical_constants, only: N_AVO
   use network
   use reaclib_rates, only: screen_reaclib, reaclib_evaluate
-  use table_rates
   use screening_module, only: plasma_state, fill_plasma_state
   use sneut_module, only: sneut5
   use temperature_integration_module, only: temperature_rhs, temperature_jac
