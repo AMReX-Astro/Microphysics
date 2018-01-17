@@ -1,6 +1,6 @@
 F90sources += actual_network.F90
 F90sources += reaclib_rates.F90
-F90sources += table_rates.F90
+#F90sources += table_rates.F90
 f90sources += physical_constants.f90
 
 ifneq ($(USE_REACT), FALSE)
