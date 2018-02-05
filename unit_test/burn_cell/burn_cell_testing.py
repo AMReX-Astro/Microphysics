@@ -254,9 +254,9 @@ lgd2 = ax2.legend(bbox_to_anchor=(1.1, 0.75), loc=2, borderaxespad=0.0)
 # hatch where edot=0
 for edz in edotzero:
     plt.axvspan(np.log10(edz[0]), np.log10(edz[1]), color='blue', fill=False, linewidth=0, hatch='/', alpha=0.2)
-plt.savefig(args.runprefix+'_T-edot.eps',
+plt.savefig(args.runprefix+'_'+testprefix+'_T-edot.eps',
             bbox_extra_artists=(lgd,lgd2,), bbox_inches='tight')
-plt.savefig(args.runprefix+'_T-edot.png', dpi=300,
+plt.savefig(args.runprefix+'_'+testprefix+'_T-edot.png', dpi=300,
             bbox_extra_artists=(lgd,lgd2,), bbox_inches='tight')
 
 
@@ -319,7 +319,7 @@ lgd = ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
 ax.set_xlim(xlim)
 plt.xlabel(xlabel)
 plt.ylabel('$\\mathrm{Log_{10} \\dot{Y}}$')
-plt.savefig(args.runprefix+'_ydot.eps',
+plt.savefig(args.runprefix+'_'+testprefix+'_ydot.eps',
             bbox_extra_artists=(lgd,), bbox_inches='tight')
-plt.savefig(args.runprefix+'_ydot.png', dpi=300,
+plt.savefig(args.runprefix+'_'+testprefix+'_ydot.png', dpi=300,
             bbox_extra_artists=(lgd,), bbox_inches='tight')
