@@ -10,6 +10,7 @@ import glob
 import numpy as np
 from cycler import cycler
 import matplotlib.pyplot as plt
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('runprefix', type=str,
@@ -143,14 +144,13 @@ np.savetxt('{}_{}_dtime.txt'.format(args.runprefix, testprefix), dtime)
 np.savetxt('{}_{}_time.txt'.format(args.runprefix, testprefix), time)
 np.savetxt('{}_{}_ener.txt'.format(args.runprefix, testprefix), ener)
 np.savetxt('{}_{}_denerdt.txt'.format(args.runprefix, testprefix), denerdt)
+np.savetxt('{}_{}_fnum.txt'.format(args.runprefix, testprefix), fnum)
 
 #Save species names to file
-specfile = open('{}_short_spec_names.txt'.format(args.runprefix), 'w')
+specfile = open('{}_{}_short_spec_names.txt'.format(args.runprefix, testprefix), 'w')
 for item in short_spec_names:
     specfile.write('{}\n'.format(item))
 specfile.close()
-
-np.savetxt('{}_{}_fnum.txt'.format(args.runprefix, testprefix), fnum)
 
 ## Define RGBA to HEX
 def rgba_to_hex(rgba):
