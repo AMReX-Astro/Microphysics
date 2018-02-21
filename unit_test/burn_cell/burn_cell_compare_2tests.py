@@ -200,7 +200,7 @@ ax2.set_ylabel('$\\mathrm{Log_{10} X}$', fontsize=10)
 ax2.set_title('Mass Fraction for {}'.format(testprefixes[1]), fontsize=15)
 ax2.set_xlim(xlim2)
 ax2.tick_params(axis='both', which='both', labelsize=5)
-plt.savefig('{}_{}_xn_compare_2networks.png'.format(runprefix, testprefixes[0]), dpi=700)
+plt.savefig('{}_{}_xn_compare_2tests.png'.format(runprefix, testprefixes[0]), dpi=700)
 
 # Moller Fractions
 print('Compiling Moller Fraction graph.')
@@ -223,7 +223,7 @@ ay2.set_ylabel('$\\mathrm{Log_{10} \\dot{Y}}$', fontsize=10)
 ay2.set_title('Moller Fraction for {}'.format(testprefixes[1]), fontsize=15)
 ay2.set_xlim(xlim2)
 ay2.tick_params(axis='both', which='both', labelsize=5)
-plt.savefig('{}_{}_y_compare_2networks.png'.format(runprefix, testprefixes[0]), dpi=700)
+plt.savefig('{}_{}_y_compare_2tests.png'.format(runprefix, testprefixes[0]), dpi=700)
 
 # Temperature Figure
 print('Compiling Temperature graph.')
@@ -242,7 +242,7 @@ aT2.set_ylabel('$\\mathrm{Log_{10} T~(K)}$', fontsize=10)
 aT2.set_title('Temperature for {}'.format(testprefixes[1]), fontsize=15)
 aT2.set_xlim(xlim2)
 aT2.tick_params(axis='both', which='both', labelsize=5)
-plt.savefig('{}_{}_T_compare_2networks.png'.format(runprefix, testprefixes[0]), dpi=700)
+plt.savefig('{}_{}_T_compare_2tests.png'.format(runprefix, testprefixes[0]), dpi=700)
 
 # Energy Generation Rate
 print('Compiling Enerergy Generation Rate graph.')
@@ -261,4 +261,4 @@ ae2.set_ylabel('$\\mathrm{Log_{10} \\dot{e}~(erg/g/s)}$', fontsize=10)
 ae2.set_title('Energy Generation Rate for {}'.format(testprefixes[1]), fontsize=15)
 ae2.set_xlim(xlim2)
 ae2.tick_params(axis='both', which='both', labelsize=5)
-plt.savefig('{}_{}_edot_compare_2networks.png'.format(runprefix, testprefixes[0]), dpi=700)
+plt.savefig('{}_{}_edot_compare_2tests.png'.format(runprefix, testprefixes[0]), dpi=700)
