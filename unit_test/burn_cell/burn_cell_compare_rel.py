@@ -2,6 +2,12 @@
 # reference burn_cell test and multiple other burn_cell tests.
 # burn_cell_testing.py must be run before running this.
 
+# Around line 195, you choose which elements you will compare the xn and ydot of
+# To change what you investigate, you must change what indices in 
+#   short_spec_names you are iterating over
+#
+# This code is not designed to analyze the error between tests from two networks
+
 #!/usr/bin/env python
 from __future__ import print_function
 import argparse
@@ -22,21 +28,24 @@ parser.add_argument('--nhi', type=float, help='File num upper limit')
 args = parser.parse_args()
 
 # Initializing varibales and loading in data
+
+print('Initializing')
+
 runprefix = args.runprefix
-
-file_specs = open('{}_short_spec_names.txt'.format(runprefix), 'r')
-short_spec_names = []
-for line in file_specs:
-    short_spec_names.append(line.strip())
-file_specs.close()
-
-nspec = len(short_spec_names)
 
 file_testprefixes = open('{}_testprefixes.txt'.format(runprefix), 'r')
 testprefixes = []
 for line in file_testprefixes:
     testprefixes.append('{}'.format(line.strip()))
 file_testprefixes.close()
+
+file_specs = open('{}_{}_short_spec_names.txt'.format(runprefix, testprefixes[0]), 'r')
+short_spec_names = []
+for line in file_specs:
+    short_spec_names.append(line.strip())
+file_specs.close()
+
+nspec = len(short_spec_names)
 
 inputs = []
 for i in range(len(testprefixes)):
@@ -47,7 +56,7 @@ for i in range(len(testprefixes)):
         inputs[i].append('{}'.format(line.strip()))
     file_inputs.close()
 
-# Init time, temp, ener
+# Init time, temp, ener, xn, ydot
 xn = []
 ydot = []
 fnum = []
@@ -119,16 +128,20 @@ else:
     
 # Get set of colors to use for abundances
 cm = plt.get_cmap('nipy_spectral')
-clist = [cm(1.0*i/4) for i in range(4)]
+clist = [cm(1.0*i/nspec) for i in range(nspec)]
 hexclist = [rgba_to_hex(ci) for ci in clist]
 
-# Initialize plots and arrays
-plt.figure(1, figsize=(5,9))
+# Initialize figures and axes for the future plots
+plt.figure(1, figsize=(6,9))
 ax = plt.subplot(211)
+ax.set_prop_cycle(cycler('color', hexclist))
 errx = plt.subplot(212)
-plt.figure(2, figsize=(5,9)) 
+errx.set_prop_cycle(cycler('color', hexclist))
+plt.figure(2, figsize=(6,9))
 ay = plt.subplot(211)
+ay.set_prop_cycle(cycler('color', hexclist))
 erry = plt.subplot(212)
+erry.set_prop_cycle(cycler('color', hexclist))
 plt.figure(3, figsize=(5,9))
 aT = plt.subplot(211)
 errT = plt.subplot(212)
@@ -136,6 +149,7 @@ plt.figure(4, figsize=(5,9))
 ae = plt.subplot(211)
 erre = plt.subplot(212)
 
+# Initialize arrays to contain values for plotting
 diffx = []
 diffydot = []
 difftemp = []
@@ -144,7 +158,7 @@ diffdenerdt = []
 line_styles = ['solid', 'dashed', 'dotted', 'dashdot']
 
 # Plotting the reference data
-print('Plotting the reference data: {}'.format(testprefixes[0]))
+print('Plotting the reference data from: {}'.format(testprefixes[0]))
 for x in range(len(short_spec_names)):
     # x corresponds to each molecule in the list of species
     plt.figure(1)
@@ -157,11 +171,10 @@ plt.figure(4)
 ae.semilogy(xvec, denerdt[0], label=testprefixes[0], linestyle = line_styles[0])
 
 # Plotting the data compared to reference and the error
-print('Plotting the compared data and the errors.')
 for i in range(1, len(testprefixes)):   
     # In this context i cooresponds to a test prefix to be compared
     #    to the data from a chosen data set
-    print('Plotting for {}'.format(testprefixes[i]))
+    print('Plotting data from: {}'.format(testprefixes[i]))
     difftemp.append([])
     diffdenerdt.append([])
     for n in range(len(xvec)):
@@ -178,7 +191,8 @@ for i in range(1, len(testprefixes)):
     erre.semilogy(xvec, diffdenerdt[i-1], label=testprefixes[i], linestyle = line_styles[i-1])
     diffx.append([])
     diffydot.append([])
-    for x in range(3):
+    # This is where you pick what elements you choose to investigate xn and ydot of
+    for x in range(nspec):
         # x is for each species involved
         diffx[i-1].append([])
         diffydot[i-1].append([])
@@ -196,16 +210,18 @@ for i in range(1, len(testprefixes)):
 # Mass Fraction Figure
 print('Compiling Mass Fraction graph.')
 plt.figure(1)
-ax.legend(fontsize = 5, loc = 'lower right')
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+ax.legend(loc='upper left', bbox_to_anchor=(1,1), fontsize = 5)
 ax.text(0.005, 0.005, '{}    {}'.format(inputs[0][30], inputs[0][31]), fontsize=5, transform=ax.transAxes)
-ax.set_prop_cycle(cycler('color', hexclist))
 ax.set_xlabel(xlabel, fontsize=10)
 ax.set_ylabel('$\\mathrm{Log_{10} X}$', fontsize=10)
 ax.set_title('Mass Fraction')
 ax.set_xlim(xlim)
 ax.tick_params(axis='both', which='both', labelsize=5)
-errx.legend(fontsize = 5, loc = 'upper left')
-errx.set_prop_cycle(cycler('color', hexclist))
+box = errx.get_position()
+errx.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+errx.legend(loc='upper left', bbox_to_anchor=(1,1), fontsize = 5)
 errx.set_xlabel(xlabel, fontsize=10)
 errx.set_title('Relative Errors in Mass Fraction', fontsize=15)
 errx.set_xlim(xlim)
@@ -215,16 +231,18 @@ plt.savefig('{}_{}_xn_compare_rel.png'.format(runprefix, testprefixes[0]), dpi=7
 # Moller Fractions
 print('Compiling Moller Fraction graph.')
 plt.figure(2)
-ay.legend(fontsize = 5, loc = 'lower right')
+box = ay.get_position()
+ay.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+ay.legend(loc='upper left', bbox_to_anchor=(1,1), fontsize = 5)
 ay.text(0.005, 0.005, '{}    {}'.format(inputs[0][30], inputs[0][31]), fontsize=5, transform=ay.transAxes)
-ay.set_prop_cycle(cycler('color', hexclist))
 ay.set_xlabel(xlabel, fontsize=10)
 ay.set_ylabel('$\\mathrm{Log_{10} \\dot{Y}}$', fontsize=10)
 ay.set_title('Moller Fraction')
 ay.set_xlim(xlim)
 ay.tick_params(axis='both', which='both', labelsize=5)
-erry.legend(fontsize = 5, loc = 'lower right')
-erry.set_prop_cycle(cycler('color', hexclist))
+box = erry.get_position()
+erry.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+erry.legend(loc='upper left', bbox_to_anchor=(1,1), fontsize = 5)
 erry.set_xlabel(xlabel, fontsize=10)
 erry.set_title('Relative Errors in Moller Fraction', fontsize=15)
 erry.set_xlim(xlim)
@@ -234,16 +252,14 @@ plt.savefig('{}_{}_y_compare_rel.png'.format(runprefix, testprefixes[0]), dpi=70
 # Temperature Figure
 print('Compiling Temperature graph.')
 plt.figure(3)
-aT.legend(fontsize = 5, loc = 'lower right')
+aT.legend(loc='lower right', fontsize = 5)
 aT.text(0.005, 0.005, '{}    {}'.format(inputs[0][30], inputs[0][31]), fontsize=5, transform=aT.transAxes)
-aT.set_prop_cycle(cycler('color', hexclist))
 aT.set_xlabel(xlabel, fontsize=10)
 aT.set_ylabel('$\\mathrm{Log_{10} T~(K)}$', fontsize=10)
 aT.set_title('Temperature')
 aT.set_xlim(xlim)
 aT.tick_params(axis='both', which='both', labelsize=5)
 errT.legend(fontsize = 5, loc = 'lower right')
-errT.set_prop_cycle(cycler('color', hexclist))
 errT.set_xlabel(xlabel, fontsize=10)
 errT.set_title('Relative Error in Temperature', fontsize=15)
 errT.set_xlim(xlim)
@@ -255,14 +271,12 @@ print('Compiling Enerergy Generation Rate graph.')
 plt.figure(4)
 ae.legend(fontsize = 5, loc = 'lower right')
 ae.text(0.005, 0.005, '{}    {}'.format(inputs[0][30], inputs[0][31]), fontsize=5, transform=ae.transAxes)
-ae.set_prop_cycle(cycler('color', hexclist))
 ae.set_xlabel(xlabel, fontsize=10)
 ae.set_ylabel('$\\mathrm{Log_{10} \\dot{e}~(erg/g/s)}$', fontsize=10)
 ae.set_title('Energy Generation Rate')
 ae.set_xlim(xlim)
 ae.tick_params(axis='both', which='both', labelsize=5)
 erre.legend(fontsize = 5, loc = 'lower right')
-erre.set_prop_cycle(cycler('color', hexclist))
 erre.set_xlabel(xlabel, fontsize=10)
 erre.set_title('Relative Error in Energy Generation Rate', fontsize=15)
 erre.set_xlim(xlim)
