@@ -1233,7 +1233,6 @@ contains
     subroutine actual_eos_init
 
         use amrex_error_module
-        use amrex_paralleldescriptor_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
         use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast
 
@@ -1305,14 +1304,6 @@ contains
            endif
            print *, ''
         endif
-        
-        ! Read in the table
-
-        !..   open the table
-        open(unit=2,file='helm_table.dat',status='old',iostat=status)
-        if (status > 0) then
-           call amrex_error('actual_eos_init: Failed to open helm_table.dat')
-        endif
 
         !..   read the helmholtz free energy table
         itmax = imax
@@ -1340,7 +1331,9 @@ contains
            !..   open the table
            open(unit=2,file='helm_table.dat',status='old',iostat=status,action='read')
            if (status > 0) then
+
               call amrex_error('actual_eos_init: Failed to open helm_table.dat')
+
            endif
 
            !...  read in the free energy table
@@ -1444,70 +1437,7 @@ contains
 
     end subroutine actual_eos_init
 
-    subroutine actual_eos_finalize()
-      !Deallocate managed module variables
-      deallocate(do_coulomb)
-      deallocate(input_is_constant)
-      deallocate(itmax)
-      deallocate(jtmax)
-      deallocate(d)
-      deallocate(t)
-      deallocate(tlo)
-      deallocate(thi)
-      deallocate(tstp)
-      deallocate(tstpi)
-      deallocate(dlo)
-      deallocate(dhi)
-      deallocate(dstp)
-      deallocate(dstpi)
-      deallocate(f)
-      deallocate(fd)
-      deallocate(ft)
-      deallocate(fdd)
-      deallocate(ftt)
-      deallocate(fdt)
-      deallocate(fddt)
-      deallocate(fdtt)
-      deallocate(fddtt)
-      deallocate(dpdf)
-      deallocate(dpdfd)
-      deallocate(dpdft)
-      deallocate(dpdfdt)
-      deallocate(ef)
-      deallocate(efd)
-      deallocate(eft)
-      deallocate(efdt)
-      deallocate(xf)
-      deallocate(xfd)
-      deallocate(xft)
-      deallocate(xfdt)
-      deallocate(dt_sav)
-      deallocate(dt2_sav)
-      deallocate(dti_sav)
-      deallocate(dt2i_sav)
-      deallocate(dd_sav)
-      deallocate(dd2_sav)
-      deallocate(ddi_sav)
-      deallocate(dd2i_sav)
-      deallocate(a2rad)
-      deallocate(rad2a)
-      deallocate(hbar)
-      deallocate(kev)
-      deallocate(rbohr)
-      deallocate(fine)
-      deallocate(asol)
-      deallocate(weinlam)
-      deallocate(weinfre)
-      deallocate(pc)
-      deallocate(sioncon)
-      deallocate(forth)
-      deallocate(forpi)
-      deallocate(kergavo)
-      deallocate(ikavo)
-      deallocate(asoli3)
-      deallocate(light2)
-      deallocate(esqu)      
-    end subroutine actual_eos_finalize
+
 
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
