@@ -1,23 +1,13 @@
-# Fortran: C12-burning with A=23 URCA reactions
+# Sub-Ch reaction network
 
-The URCA-starkiller example creates a reaction network which implements
-simple C12-burning along with the A=23 URCA reactions until either
-23Ne or 23Na are depleted. It is intended to generate a network for
-StarKiller/Microphysics for use in MAESTRO or CASTRO.
+This is a He burning network with the links from Shen & Bildsten (2009) to
+bypass the 12C(a,g)16O rate in favor of 12C(p,g)13N(a,p)16O (where the
+p comes from 14N(a,g)18F(a,p)21Ne.  So to get this rate going, we need to
+have some N14 in the envelope.
 
-To use, generate the reaction network using urca.py (pynucastro directory
-must be in your PYTHONPATH):
+This network was generated using pynucastro and the ReacLib rate library and
+can be reproduced via:
 
 ```
-$ python urca.py
+$ python subch.py
 ```
-
---------------------------------------------------------------------------------
-
-The URCA example uses A=23 URCA rates from Suzuki et al., 2016, ApJ 817:163
-
-They can be downloaded from the web at:
-
-http://w3p.phys.chs.nihon-u.ac.jp/~suzuki/data2/link.html
-
-(as of March 16, 2016)
