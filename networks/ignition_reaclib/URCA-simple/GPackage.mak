@@ -4,7 +4,7 @@ f90sources += table_rates.f90
 f90sources += physical_constants.f90
 
 ifneq ($(USE_REACT), FALSE)
-  f90sources += actual_burner.f90
+  F90sources += actual_burner.F90
   f90sources += actual_rhs.f90
 
   USE_SCREENING = TRUE
