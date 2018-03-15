@@ -14,10 +14,10 @@ contains
     implicit none
 
     call integrator_init()
-
+    
     call init_reaclib()
     call init_tabular()
-    call net_screening_init()    
+    call net_screening_init()
   end subroutine actual_burner_init
 
   subroutine actual_burner_finalize
@@ -28,12 +28,12 @@ contains
     
     call term_reaclib()
     call term_table_meta()
-    call net_screening_finalize()    
+    call net_screening_finalize()
   end subroutine actual_burner_finalize
 
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
