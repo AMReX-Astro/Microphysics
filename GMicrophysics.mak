@@ -28,6 +28,12 @@ endif
 # EOS
 EOS_TOP_DIR := $(MICROPHYSICS_HOME)/EOS
 
+ifdef EXTRA_THERMO
+  ifeq($(EXTRA_THERMO), t)
+    FPP_DEFINES += -DEXTRA_THERMO
+  endif
+endif
+
 # the helmeos has a table
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
   EOS_PATH := $(EOS_TOP_DIR)/helmholtz

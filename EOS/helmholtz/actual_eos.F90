@@ -219,7 +219,7 @@ contains
                             detadt,detadd,xnefer,dxnedt,dxnedd,s, &
                             temp,den,abar,zbar,ytot1,ye
 
-#if EXTRA_THERMO
+#ifdef EXTRA_THERMO
         !..for the abar derivatives
         double precision :: dpradda,deradda,dsradda, &
                             dpionda,deionda,dsionda, &
