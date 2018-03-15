@@ -48,7 +48,7 @@ module table_rates
        managed, &
 #endif       
        allocatable :: table_meta(:)
-  
+
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
@@ -60,7 +60,7 @@ contains
     integer :: n
 
     allocate(table_meta(num_tables))
-    
+
     table_read_meta(j_na23_ne23)%rate_table_file = '23Na-23Ne_electroncapture.dat'
     table_read_meta(j_na23_ne23)%num_header = 7
     table_meta(j_na23_ne23)%num_rhoy = 152
@@ -106,10 +106,7 @@ contains
     double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
     integer :: i, j, k
 
-    ! allocate( self%rate_table( self%num_temp, self%num_rhoy, self%num_vars ) )
-    ! allocate( self%rhoy_table( self%num_rhoy ) )
-    ! allocate( self%temp_table( self%num_temp ) )
-    allocate( rate_table_scratch( self%num_temp, self%num_rhoy, self%num_vars+2 ) )
+    allocate(rate_table_scratch(self%num_temp, self%num_rhoy, self%num_vars+2))
 
     open(unit=11, file=self_read%rate_table_file)
     do i = 1, self_read%num_header
@@ -138,14 +135,11 @@ contains
   subroutine term_tab_info(self)
     type(table_info) :: self
 
-    ! deallocate( self%rate_table )
-    ! deallocate( self%rhoy_table )
-    ! deallocate( self%temp_table )
   end subroutine term_tab_info
 
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
 
@@ -180,10 +174,10 @@ contains
        end do
     end if
   end subroutine vector_index_lu
-  
+
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -207,7 +201,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif         
+#endif
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -224,7 +218,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif         
+#endif
   subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
@@ -328,7 +322,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif         
+#endif
   subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     
