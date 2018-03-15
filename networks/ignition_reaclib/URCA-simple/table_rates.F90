@@ -58,9 +58,7 @@ contains
 
   subroutine init_tabular()
     integer :: n
-
     allocate(table_meta(num_tables))
-
     table_read_meta(j_na23_ne23)%rate_table_file = '23Na-23Ne_electroncapture.dat'
     table_read_meta(j_na23_ne23)%num_header = 7
     table_meta(j_na23_ne23)%num_rhoy = 152
@@ -73,7 +71,6 @@ contains
     table_meta(j_ne23_na23)%num_temp = 39
     table_meta(j_ne23_na23)%num_vars = 6
 
-    
     do n = 1, num_tables
        call init_tab_info(table_meta(n), table_read_meta(n))
        ! For scalars or arrays with size known at compile-time, do update device
@@ -81,7 +78,6 @@ contains
        !$acc update device(table_meta(n)%num_rhoy)
        !$acc update device(table_meta(n)%num_temp)
        !$acc update device(table_meta(n)%num_vars)
-
        ! For dynamic arrays, do enter data copyin to move their data to the device
        ! and then point the derived type pointers to these arrays on the device.
        ! If you do update device instead, the device gets the host memory addresses
