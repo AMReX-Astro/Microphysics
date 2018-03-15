@@ -6,7 +6,7 @@ module actual_network
   implicit none
 
   public
-  
+
   double precision, parameter :: avo = 6.0221417930d23
   double precision, parameter :: c_light = 2.99792458d10
   double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
@@ -25,7 +25,7 @@ module actual_network
   ! Evolution and auxiliary
   integer, parameter :: nspec_evolve = 8
   integer, parameter :: naux  = 0
-  
+
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 8
 
@@ -54,11 +54,11 @@ module actual_network
   integer, parameter :: jmg23   = 8
 
   ! Reactions
-  integer, parameter :: k_c12_c12a_ne20   = 1
-  integer, parameter :: k_c12_c12n_mg23   = 2
-  integer, parameter :: k_c12_c12p_na23   = 3
-  integer, parameter :: k_c12_ag_o16   = 4
-  integer, parameter :: k_n_p   = 5
+  integer, parameter :: k_c12_c12__he4_ne20   = 1
+  integer, parameter :: k_c12_c12__n_mg23   = 2
+  integer, parameter :: k_c12_c12__p_na23   = 3
+  integer, parameter :: k_he4_c12__o16   = 4
+  integer, parameter :: k_n__p   = 5
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
@@ -101,7 +101,7 @@ contains
     allocate(nion(nspec))
     allocate(mion(nspec))
     allocate(wion(nspec))
-    
+
     spec_names(jn)   = "neutron"
     spec_names(jp)   = "hydrogen-1"
     spec_names(jhe4)   = "helium-4"
@@ -127,7 +127,7 @@ contains
     ebind_per_nucleon(jo16)   = 7.97620600000000d+00
     ebind_per_nucleon(jne20)   = 8.03224000000000d+00
     ebind_per_nucleon(jna23)   = 8.11149300000000d+00
-    ebind_per_nucleon(jmg23)   = 7.90110400000000d+00
+    ebind_per_nucleon(jmg23)   = 7.90111500000000d+00
 
     aion(jn)   = 1.00000000000000d+00
     aion(jp)   = 1.00000000000000d+00
@@ -185,11 +185,11 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
-
+  
     implicit none
 
     double precision :: dydt(nspec), enuc
