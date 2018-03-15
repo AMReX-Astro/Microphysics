@@ -1110,15 +1110,3 @@
  NQU    = The method order last used.
  NST    = The number of steps taken for the problem so far.
 -----------------------------------------------------------------------
-
-Notes on revisions to accomodate GPUs:
-
-The condopt array (now in rwork_t) has been shortened to 4 elements
-and unused elements deleted.
-
-The mapping from prior elements in condopt to their new indices is:
-
-1 => 1
-5 => 2
-6 => 3
-7 => 4
