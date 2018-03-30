@@ -292,15 +292,17 @@
 \verb= integrate_temperature = &  Allow the temperature integration to be disabled by setting the RHS to zero. & .true. \\
 \rowcolor{tableShade}
 \verb= jacobian = &  Whether to use an analytical or numerical Jacobian. 1 == Analytical 2 == Numerical & 1 \\
+\verb= react_boost = &  boost the reaction rates by a factor > 1 & -1.d0 \\
+\rowcolor{tableShade}
 \verb= renormalize_abundances = &  Whether to renormalize the mass fractions at each step in the evolution so that they sum to unity. & .false. \\
-\rowcolor{tableShade}
 \verb= retry_burn = &  If we fail to find a solution consistent with the tolerances, do we want to try again with a looser tolerance? & .false. \\
+\rowcolor{tableShade}
 \verb= retry_burn_factor = &  If we do retry a burn, by what factor should we loosen the tolerance? & 1.25d0 \\
-\rowcolor{tableShade}
 \verb= retry_burn_max_change = &  What is the maximum factor we can increase the original tolerances by? & 1.0d2 \\
-\verb= rtol_enuc = &  & 1.d-6 \\
 \rowcolor{tableShade}
+\verb= rtol_enuc = &  & 1.d-6 \\
 \verb= rtol_spec = &  Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations. & 1.d-12 \\
+\rowcolor{tableShade}
 \verb= rtol_temp = &  & 1.d-6 \\
 
 
