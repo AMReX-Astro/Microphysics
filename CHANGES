@@ -1,3 +1,9 @@
+changes since last release
+
+  -- pynucastro (https://github.com/pynucastro/pynucastro) can now
+     generate reaction networks compatible with StarKiller.  See the
+     subch network.
+
 # 17.11
 
   -- a new option to boost the reaction rates has been added
