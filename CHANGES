@@ -1,4 +1,4 @@
-changes since last release
+# 18.04
 
   -- pynucastro (https://github.com/pynucastro/pynucastro) can now
      generate reaction networks compatible with StarKiller.  See the
