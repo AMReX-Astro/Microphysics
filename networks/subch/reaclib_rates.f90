@@ -25,7 +25,7 @@ contains
 
   subroutine init_reaclib()
     
-    allocate( ctemp_rate(7, 15) )
+    allocate( ctemp_rate(7, 18) )
     ! he4_he4_he4__c12
     ctemp_rate(:, 1) = [  &
         -2.43505000000000d+01, &
@@ -168,6 +168,34 @@ contains
         -1.07508000000000d-03, &
         -1.50000000000000d+00 ]
 
+    ! he4_c14__o18
+    ctemp_rate(:, 16) = [  &
+        -2.38050000000000d+01, &
+        -2.06876000000000d+00, &
+        0.00000000000000d+00, &
+        0.00000000000000d+00, &
+        0.00000000000000d+00, &
+        0.00000000000000d+00, &
+        -1.50000000000000d+00 ]
+
+    ctemp_rate(:, 17) = [  &
+        1.84877000000000d+01, &
+        0.00000000000000d+00, &
+        -3.17222000000000d+01, &
+        1.13923000000000d+01, &
+        -9.92249000000000d+00, &
+        -2.00000000000000d+00, &
+        -6.66667000000000d-01 ]
+
+    ctemp_rate(:, 18) = [  &
+        1.18309000000000d+01, &
+        -1.03983000000000d+01, &
+        0.00000000000000d+00, &
+        -3.83188000000000d+00, &
+        1.64358000000000d+00, &
+        -1.77785000000000d-01, &
+        -1.50000000000000d+00 ]
+
 
 
     allocate( rate_start_idx(nrat_reaclib) )
@@ -178,7 +206,8 @@ contains
       9, &
       10, &
       12, &
-      13 ]
+      13, &
+      16 ]
 
     allocate( rate_extra_mult(nrat_reaclib) )
     rate_extra_mult(:) = [ &
@@ -188,10 +217,12 @@ contains
       0, &
       1, &
       0, &
+      2, &
       2 ]
 
     allocate( do_screening(nrat_reaclib) )
     do_screening(:) = [ &
+      .true., &
       .true., &
       .true., &
       .true., &
@@ -234,6 +265,9 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jo16), aion(jo16))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jc14), aion(jc14))
 
 
     call screening_init()    
