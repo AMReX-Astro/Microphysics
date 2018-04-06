@@ -5,7 +5,9 @@ program cj_det
   use actual_rhs_module
   use eos_type_module
   use eos_module
+  use microphysics_module
   use network
+  use runtime_init_module
   use probin_module, only: smallx
   use cj_det_module
 
@@ -16,6 +18,17 @@ program cj_det
   real(dp_t) :: q_burn
   real(dp_t), parameter :: rho_min_fac = 0.9_dp_t, rho_max_fac = 10.0_dp_t
   integer, parameter :: npts_ad = 150
+
+  real(dp_t) :: rho_min, rho_max, dlogrho, p2_shock, p2_det
+  integer :: n
+  integer, parameter :: npts = 100
+
+  ! runtime
+  call runtime_init(.true.)
+
+  call microphysics_init()
+
+  print *, "here"
 
   ! set the unburned (fuel) state
   eos_state_fuel % rho = 1.e7
@@ -40,12 +53,18 @@ program cj_det
   dlogrho = (log10(rho_max) - log10(rho_min))/(npts-1)
 
   do n = 0, npts_ad-1
+     print *, n
+
      eos_state_ash % rho = 10.0_dp_t**(dlog10(rho_min) + n*dlogrho)
 
-     call adiabat(eos_state_fuel, eos_state_ash, 0.0_rt)
-     call adiabat(eos_state_fuel, eos_state_ash, q_burn)
+     print *, "shock"
+     call adiabat(eos_state_fuel, eos_state_ash, 0.0_dp_t)
+     p2_shock = eos_state_ash % p
+     print *, "det", q_burn
+     call adiabat(eos_state_fuel, eos_state_ash, -q_burn)
+     p2_det = eos_state_ash % p
 
-     print *, rho2, p2_shock, p2_det
+     print *, eos_state_ash % rho, p2_shock, p2_det
 
   enddo
 
