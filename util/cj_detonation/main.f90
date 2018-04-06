@@ -19,7 +19,7 @@ program cj_det
   real(dp_t), parameter :: rho_min_fac = 0.9_dp_t, rho_max_fac = 10.0_dp_t
   integer, parameter :: npts_ad = 150
 
-  real(dp_t) :: rho_min, rho_max, dlogrho, p2_shock, p2_det
+  real(dp_t) :: rho_min, rho_max, dlogrho, p2_shock, p2_det, D_cj, rho_cj, p_cj
   integer :: n
   integer, parameter :: npts = 100
 
@@ -55,7 +55,27 @@ program cj_det
   ! initial guess
   eos_state_ash % T = eos_state_fuel % T
 
+
+  ! now let's get the CJ velocity
+  call cj_cond(eos_state_fuel, eos_state_ash, q_burn)
+
+  ! we get this from the mass flux: rho_1 v_1 = j
+  D_cj = (1.0_dp_t / eos_state_fuel % rho) * sqrt( &
+       (eos_state_ash % p - eos_state_fuel % p) / &
+       (1.0_dp_t/eos_state_fuel % rho - 1.0_dp_t/eos_state_ash % rho))
+
+  rho_cj = eos_state_ash % rho
+  p_cj = eos_state_ash % p
+
+  ! output info along with points on the Hugoniot
+
   open(newunit=lun, file="hugoniot.txt", status="unknown")
+
+  write(lun, *) "# initial rho = ", eos_state_fuel % rho
+  write(lun, *) "# initial p = ", eos_state_fuel % p
+  write(lun, *) "# ash rho = ", eos_state_ash % rho
+  write(lun, *) "# ash p = ", eos_state_ash % p
+  write(lun, *) "# CJ speed = ", D_cj
 
   do n = 0, npts_ad-1
 
@@ -80,6 +100,8 @@ program cj_det
   enddo
 
   close(unit=lun)
+
+
 
 end program cj_det
 
