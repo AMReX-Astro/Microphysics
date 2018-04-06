@@ -58,6 +58,13 @@ contains
     real(dp_t) :: retry_change_factor
     integer :: current_integrator
 
+    ! Loop through all available integrators. Our strategy will be to
+    ! try the default integrator first. If the burn fails, we loosen
+    ! the tolerance and try again, and keep doing so until we succed.
+    ! If we keep failing and hit the threshold for how much tolerance
+    ! loosening we will accept, then we restart with the original tolerance
+    ! and switch to another integrator.
+
     do current_integrator = 0, 1
 
        retry_change_factor = ONE
@@ -70,6 +77,9 @@ contains
 
        status % atol_enuc = atol_enuc
        status % rtol_enuc = rtol_enuc
+
+       ! Loop until we either succeed at the integration, or run
+       ! out of tolerance loosening to try.
 
        do
 
@@ -130,9 +140,14 @@ contains
 
        end do
 
+       ! No need to do the next integrator if we have already succeeded.
+
        if (status % integration_complete) exit
 
     end do
+
+    ! If we get to this point, all available integrators have
+    ! failed at all available tolerances; we must abort.
 
     if (.not. status % integration_complete) then
 
