@@ -8,19 +8,20 @@ module cj_det_module
 
 contains
 
-  subroutine adiabat(eos_state_fuel, eos_state_ash, q)
+  subroutine adiabat(eos_state_fuel, eos_state_ash, q, istatus)
 
     implicit none
 
     type(eos_t), intent(in) :: eos_state_fuel
     type(eos_t), intent(inout) :: eos_state_ash
     real(dp_t), intent(in) :: q
+    integer, intent(out) :: istatus
 
     real(dp_t), parameter :: tol = 1.e-8_dp_t
     logical :: converged
     real(dp_t) :: f, dfdT, dT
     integer :: iter
-    integer, parameter :: max_iter = 25
+    integer, parameter :: max_iter = 50
 
     ! we want to zero e_1 + q - e_2 + 0.5*(p_1 + p_2)*(v_1 - v_2)
     ! where v = 1/rho
@@ -28,8 +29,7 @@ contains
     ! we have a rho_2 (the ash input), so we need to find the T that
     ! makes this all work
 
-    ! initial T guess
-    eos_state_ash % T = eos_state_fuel % T
+    ! we assume that we come in with a reasonable guess for T
 
     converged = .false.
 
@@ -45,7 +45,6 @@ contains
             (1.0_dp_t/eos_state_fuel % rho - 1.0_dp_t/eos_state_ash % rho)
 
        dT = -f/dfdT
-       print *, eos_state_ash % T, abs(dT)
 
        if (abs(dT) < tol * eos_state_ash % T) then
           converged = .true.
@@ -58,7 +57,9 @@ contains
     enddo
 
     if (.not. converged) then
-       call bl_error("Error: non-convergence")
+       istatus = -1
+    else
+       istatus = 0
     endif
 
   end subroutine adiabat

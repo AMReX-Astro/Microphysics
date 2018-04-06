@@ -23,12 +23,12 @@ program cj_det
   integer :: n
   integer, parameter :: npts = 100
 
+  integer :: lun, istatus
+
   ! runtime
   call runtime_init(.true.)
 
   call microphysics_init()
-
-  print *, "here"
 
   ! set the unburned (fuel) state
   eos_state_fuel % rho = 1.e7
@@ -44,31 +44,42 @@ program cj_det
   eos_state_ash % xn(:) = smallx
   eos_state_ash % xn(nspec) = 1.0 - (nspec - 1)*smallx
 
-  ! get the q value
-  call ener_gener_rate(eos_state_ash % xn(:) - eos_state_fuel % xn(:), q_burn)
+  ! get the q value -- we need the change in molar fractions
+  call ener_gener_rate(eos_state_ash % xn(:)/aion(:) - eos_state_fuel % xn(:)/aion(:), q_burn)
 
   ! store the shock adiabat and the detonation adiabat
   rho_min = rho_min_fac * eos_state_fuel % rho
   rho_max = rho_max_fac * eos_state_fuel % rho
   dlogrho = (log10(rho_max) - log10(rho_min))/(npts-1)
 
+  ! initial guess
+  eos_state_ash % T = eos_state_fuel % T
+
+  open(newunit=lun, file="hugoniot.txt", status="unknown")
+
   do n = 0, npts_ad-1
-     print *, n
 
      eos_state_ash % rho = 10.0_dp_t**(dlog10(rho_min) + n*dlogrho)
 
-     print *, "shock"
-     call adiabat(eos_state_fuel, eos_state_ash, 0.0_dp_t)
+     call adiabat(eos_state_fuel, eos_state_ash, 0.0_dp_t, istatus)
      p2_shock = eos_state_ash % p
-     print *, "det", q_burn
-     call adiabat(eos_state_fuel, eos_state_ash, -q_burn)
+
+     if (istatus == -1) then
+        exit
+     endif
+
+     call adiabat(eos_state_fuel, eos_state_ash, q_burn, istatus)
      p2_det = eos_state_ash % p
 
-     print *, eos_state_ash % rho, p2_shock, p2_det
+     if (istatus == -1) then
+        exit
+     endif
+
+     write(lun, *) eos_state_ash % rho, p2_shock, p2_det
 
   enddo
 
-  ! solve for the detonation conditions
+  close(unit=lun)
 
 end program cj_det
 
