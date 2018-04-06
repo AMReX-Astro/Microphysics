@@ -29,7 +29,7 @@ endif
 EOS_TOP_DIR := $(MICROPHYSICS_HOME)/EOS
 
 ifdef EXTRA_THERMO
-  ifeq($(EXTRA_THERMO), t)
+  ifeq ($(EXTRA_THERMO), t)
     FPP_DEFINES += -DEXTRA_THERMO
   endif
 endif
