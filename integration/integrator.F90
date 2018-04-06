@@ -118,7 +118,13 @@ contains
 #elif (INTEGRATOR == 1)
                 print *, "Retrying burn with VODE integrator"
 #endif
-             endif
+             else
+
+                ! We are out of integrators; give up.
+
+                exit
+
+             end if
 
           end if
 
