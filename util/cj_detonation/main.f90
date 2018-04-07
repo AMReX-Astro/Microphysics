@@ -19,7 +19,7 @@ program cj_det
   real(dp_t), parameter :: rho_min_fac = 0.9_dp_t, rho_max_fac = 10.0_dp_t
   integer, parameter :: npts_ad = 150
 
-  real(dp_t) :: rho_min, rho_max, dlogrho, p2_shock, p2_det, D_cj, rho_cj, p_cj
+  real(dp_t) :: rho_min, rho_max, dlogrho, p2_shock, p2_det, D_cj, rho_cj, p_cj, cs_det
   integer :: n
   integer, parameter :: npts = 100
 
@@ -76,6 +76,12 @@ program cj_det
   write(lun, *) "# ash rho = ", eos_state_ash % rho
   write(lun, *) "# ash p = ", eos_state_ash % p
   write(lun, *) "# CJ speed = ", D_cj
+
+  ! test
+  cs_det = sqrt(eos_state_ash % gam1 * eos_state_ash % p / eos_state_ash % rho)
+
+  ! this checks that the slope of the Rayleigh line is rho_2 * cs_2
+  !print *, eos_state_ash % rho * cs_det, eos_state_fuel % rho * D_cj
 
   do n = 0, npts_ad-1
 
