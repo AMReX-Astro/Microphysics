@@ -45,7 +45,7 @@ contains
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    retry_burn, retry_burn_factor, retry_burn_max_change
+                                    retry_burn_factor, retry_burn_max_change
 
     implicit none
 
@@ -56,68 +56,98 @@ contains
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     type (integration_status_t) :: status
     real(dp_t) :: retry_change_factor
+    integer :: current_integrator
 
-    retry_change_factor = ONE
+    ! Loop through all available integrators. Our strategy will be to
+    ! try the default integrator first. If the burn fails, we loosen
+    ! the tolerance and try again, and keep doing so until we succed.
+    ! If we keep failing and hit the threshold for how much tolerance
+    ! loosening we will accept, then we restart with the original tolerance
+    ! and switch to another integrator.
 
-    status % atol_spec = atol_spec
-    status % rtol_spec = rtol_spec
+    do current_integrator = 0, 1
 
-    status % atol_temp = atol_temp
-    status % rtol_temp = rtol_temp
+       retry_change_factor = ONE
 
-    status % atol_enuc = atol_enuc
-    status % rtol_enuc = rtol_enuc
+       status % atol_spec = atol_spec
+       status % rtol_spec = rtol_spec
 
-    do while (retry_change_factor <= retry_burn_max_change)
+       status % atol_temp = atol_temp
+       status % rtol_temp = rtol_temp
 
-       status % integration_complete = .true.
+       status % atol_enuc = atol_enuc
+       status % rtol_enuc = rtol_enuc
+
+       ! Loop until we either succeed at the integration, or run
+       ! out of tolerance loosening to try.
+
+       do
+
+          status % integration_complete = .true.
 
 #if (INTEGRATOR == 0)
-       call vode_integrator(state_in, state_out, dt, time, status)
+          if (current_integrator == 0) then
+             call vode_integrator(state_in, state_out, dt, time, status)
+          else if (current_integrator == 1) then
+             call bs_integrator(state_in, state_out, dt, time, status)
+          endif
 #elif (INTEGRATOR == 1)
-       call bs_integrator(state_in, state_out, dt, time, status)
+          if (current_integrator == 0) then
+             call bs_integrator(state_in, state_out, dt, time, status)
+          else if (current_integrator == 1) then
+             call vode_integrator(state_in, state_out, dt, time, status)
+          endif
 #endif
 
-       if (status % integration_complete) exit
+          if (status % integration_complete) exit
 
-       ! If we got here, the integration failed, try the next burner.
+          ! If we got here, the integration failed; loosen the tolerances.
 
-       status % integration_complete = .true.
+          if (retry_change_factor < retry_burn_max_change) then
 
+             print *, "Retrying burn with looser tolerances in zone ", state_in % i, state_in % j, state_in % k
+
+             retry_change_factor = retry_change_factor * retry_burn_factor
+
+             status % atol_spec = status % atol_spec * retry_burn_factor
+             status % rtol_spec = status % rtol_spec * retry_burn_factor
+
+             status % atol_temp = status % atol_temp * retry_burn_factor
+             status % rtol_temp = status % rtol_temp * retry_burn_factor
+
+             status % atol_enuc = status % atol_enuc * retry_burn_factor
+             status % rtol_enuc = status % rtol_enuc * retry_burn_factor
+
+             print *, "New tolerance loosening factor = ", retry_change_factor
+
+          else
+
+             if (current_integrator < 1) then
 #if (INTEGRATOR == 0)
-       print *, "Retrying burn with BS integrator"
-       call bs_integrator(state_in, state_out, dt, time, status)
+                print *, "Retrying burn with BS integrator"
 #elif (INTEGRATOR == 1)
-       print *, "Retrying burn with VODE integrator"
-       call vode_integrator(state_in, state_out, dt, time, status)
+                print *, "Retrying burn with VODE integrator"
 #endif
+             else
+
+                ! We are out of integrators; give up.
+
+                exit
+
+             end if
+
+          end if
+
+       end do
+
+       ! No need to do the next integrator if we have already succeeded.
 
        if (status % integration_complete) exit
-
-       ! If we got here, all integrations failed, loosen the tolerances.
-
-       if (.not. retry_burn) then
-
-          call bl_error("ERROR in burner: integration failed")
-
-       else
-
-          print *, "Retrying burn with looser tolerances"
-
-          retry_change_factor = retry_change_factor * retry_burn_factor
-
-          status % atol_spec = status % atol_spec * retry_burn_factor
-          status % rtol_spec = status % rtol_spec * retry_burn_factor
-
-          status % atol_temp = status % atol_temp * retry_burn_factor
-          status % rtol_temp = status % rtol_temp * retry_burn_factor
-
-          status % atol_enuc = status % atol_enuc * retry_burn_factor
-          status % rtol_enuc = status % rtol_enuc * retry_burn_factor
-
-       end if
 
     end do
+
+    ! If we get to this point, all available integrators have
+    ! failed at all available tolerances; we must abort.
 
     if (.not. status % integration_complete) then
 

@@ -5,112 +5,115 @@ module actual_eos_module
     character (len=64), public :: eos_name = "helmholtz"
 
     ! Runtime parameters
-    logical, save :: do_coulomb
-    logical, save :: input_is_constant
+    logical, allocatable :: do_coulomb
+    logical, allocatable :: input_is_constant
 
     !..for the tables, in general
     integer, parameter, private :: imax = 541, jmax = 201
-    integer, save            :: itmax,jtmax
-    double precision,save   :: d(imax),t(jmax)
+    integer, allocatable :: itmax, jtmax
+    double precision, allocatable :: d(:), t(:)
 
-    double precision, save :: tlo, thi, tstp, tstpi
-    double precision, save :: dlo, dhi, dstp, dstpi
+    double precision, allocatable :: tlo, thi, tstp, tstpi
+    double precision, allocatable :: dlo, dhi, dstp, dstpi
 
     !..for the helmholtz free energy tables
-    double precision, save :: f(imax,jmax),fd(imax,jmax),                     &
-                              ft(imax,jmax),fdd(imax,jmax),ftt(imax,jmax),    &
-                              fdt(imax,jmax),fddt(imax,jmax),fdtt(imax,jmax), &
-                              fddtt(imax,jmax)
+    double precision, allocatable :: f(:,:), fd(:,:),                &
+                                     ft(:,:), fdd(:,:), ftt(:,:),    &
+                                     fdt(:,:), fddt(:,:), fdtt(:,:), &
+                                     fddtt(:,:)
 
     !..for the pressure derivative with density ables
-    double precision, save :: dpdf(imax,jmax),dpdfd(imax,jmax),                &
-                              dpdft(imax,jmax),dpdfdt(imax,jmax)
+    double precision, allocatable :: dpdf(:,:), dpdfd(:,:),          &
+                                     dpdft(:,:), dpdfdt(:,:)
 
     !..for chemical potential tables
-    double precision, save :: ef(imax,jmax),efd(imax,jmax),                    &
-                              eft(imax,jmax),efdt(imax,jmax)
+    double precision, allocatable :: ef(:,:), efd(:,:),              &
+                                     eft(:,:), efdt(:,:)
 
     !..for the number density tables
-    double precision, save :: xf(imax,jmax),xfd(imax,jmax),                    &
-                              xft(imax,jmax),xfdt(imax,jmax)
+    double precision, allocatable :: xf(:,:), xfd(:,:),              &
+                                     xft(:,:), xfdt(:,:)
 
     !..for storing the differences
-    double precision, save :: dt_sav(jmax),dt2_sav(jmax),                      &
-                              dti_sav(jmax),dt2i_sav(jmax),                    &
-                              dd_sav(imax),dd2_sav(imax),                      &
-                              ddi_sav(imax),dd2i_sav(imax)
+    double precision, allocatable :: dt_sav(:), dt2_sav(:),          &
+                                     dti_sav(:), dt2i_sav(:),        &
+                                     dd_sav(:), dd2_sav(:),          &
+                                     ddi_sav(:), dd2i_sav(:)
 
+#ifdef CUDA
+    attributes(managed) :: do_coulomb, input_is_constant
+    attributes(managed) :: itmax, jtmax
+    attributes(managed) :: d, t
+    attributes(managed) :: tlo, thi, tstp, tstpi
+    attributes(managed) :: dlo, dhi, dstp, dstpi
+    attributes(managed) :: f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt
+    attributes(managed) :: dpdf, dpdfd, dpdft, dpdfdt
+    attributes(managed) :: ef, efd, eft, efdt
+    attributes(managed) :: xf, xfd, xft, xfdt
+    attributes(managed) :: dt_sav, dt2_sav, dti_sav, dt2i_sav
+    attributes(managed) :: dd_sav, dd2_sav, ddi_sav, dd2i_sav
+#endif
 
-    integer          :: max_newton = 100
+    integer, parameter          :: max_newton = 100
 
-    double precision :: ttol = 1.0d-8
-    double precision :: dtol = 1.0d-8
+    double precision, parameter :: ttol = 1.0d-8
+    double precision, parameter :: dtol = 1.0d-8
 
     ! 2006 CODATA physical constants
 private
     ! Math constants
-    double precision :: pi       = 3.1415926535897932384d0
-    double precision :: a2rad
-    double precision :: rad2a
+    double precision, parameter :: pi       = 3.1415926535897932384d0
 
     ! Physical constants
-    double precision :: h       = 6.6260689633d-27
-    double precision :: hbar
-    double precision :: qe      = 4.8032042712d-10
-    double precision :: avo_eos = 6.0221417930d23
-    double precision :: clight  = 2.99792458d10
-    double precision :: kerg    = 1.380650424d-16
-    double precision :: ev2erg_eos  = 1.60217648740d-12
-    double precision :: kev
-    double precision :: amu     = 1.66053878283d-24
-    double precision :: me_eos  = 9.1093821545d-28
-    double precision :: rbohr
-    double precision :: fine
+    double precision, parameter :: h       = 6.6260689633d-27
+    double precision, parameter :: hbar    = 0.5d0 * h/pi
+    double precision, parameter :: qe      = 4.8032042712d-10
+    double precision, parameter :: avo_eos = 6.0221417930d23
+    double precision, parameter :: clight  = 2.99792458d10
+    double precision, parameter :: kerg    = 1.380650424d-16
+    double precision, parameter :: ev2erg_eos  = 1.60217648740d-12
+    double precision, parameter :: kev     = kerg/ev2erg_eos
+    double precision, parameter :: amu     = 1.66053878283d-24
+    double precision, parameter :: me_eos  = 9.1093821545d-28
+    double precision, parameter :: rbohr   = hbar*hbar/(me_eos * qe * qe)
+    double precision, parameter :: fine    = qe*qe/(hbar*clight)
 
 #ifdef RADIATION
-    double precision :: ssol    = 0.0d0
+    double precision, parameter :: ssol    = 0.0d0
 #else
-    double precision :: ssol    = 5.67051d-5
+    double precision, parameter :: ssol    = 5.67051d-5
 #endif
-    double precision :: asol
-    double precision :: weinlam
-    double precision :: weinfre
+    double precision, parameter :: asol    = 4.0d0 * ssol / clight
+    double precision, parameter :: weinlam = h*clight/(kerg * 4.965114232d0)
+    double precision, parameter :: weinfre = 2.821439372d0*kerg/h
 
     ! Astronomical constants
-    double precision :: ly      = 9.460528d17
-    double precision :: pc
+    double precision, parameter :: ly      = 9.460528d17
+    double precision, parameter :: pc      = 3.261633d0 * ly
 
     ! Some other useful combinations of the constants
-    double precision :: sioncon
-    double precision :: forth
-    double precision :: forpi
-    double precision :: kergavo
-    double precision :: ikavo
-    double precision :: asoli3
-    double precision :: light2
+    double precision, parameter :: sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
+    double precision, parameter :: forth   = 4.0d0/3.0d0
+    double precision, parameter :: forpi   = 4.0d0 * pi
+    double precision, parameter :: kergavo = kerg * avo_eos
+    double precision, parameter :: ikavo   = 1.0d0/kergavo
+    double precision, parameter :: asoli3  = asol/3.0d0
+    double precision, parameter :: light2  = clight * clight
 
     ! Constants used for the Coulomb corrections
-    double precision :: a1    = -0.898004d0
-    double precision :: b1    =  0.96786d0
-    double precision :: c1    =  0.220703d0
-    double precision :: d1    = -0.86097d0
-    double precision :: e1    =  2.5269d0
-    double precision :: a2    =  0.29561d0
-    double precision :: b2    =  1.9885d0
-    double precision :: c2    =  0.288675d0
-    double precision :: onethird = 1.0d0/3.0d0
-    double precision :: esqu
+    double precision, parameter :: a1    = -0.898004d0
+    double precision, parameter :: b1    =  0.96786d0
+    double precision, parameter :: c1    =  0.220703d0
+    double precision, parameter :: d1    = -0.86097d0
+    double precision, parameter :: e1    =  2.5269d0
+    double precision, parameter :: a2    =  0.29561d0
+    double precision, parameter :: b2    =  1.9885d0
+    double precision, parameter :: c2    =  0.288675d0
+    double precision, parameter :: onethird = 1.0d0/3.0d0
+    double precision, parameter :: esqu = qe * qe
 
     !$acc declare &
-    !$acc create(pi, a2rad, rad2a) &
-    !$acc create(h, hbar, qe, avo_eos, clight, kerg) &
-    !$acc create(ev2erg_eos, kev, amu, me_eos) &
-    !$acc create(rbohr, fine) &
-    !$acc create(ssol, asol, weinlam, weinfre) &
-    !$acc create(ly, pc) &
-    !$acc create(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
-    !$acc create(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
-    !$acc create(ttol, dtol, tlo, thi, dlo, dhi) &
+    !$acc create(tlo, thi, dlo, dhi) &
     !$acc create(tstp, tstpi, dstp, dstpi) &
     !$acc create(itmax, jtmax, d, t) &
     !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
@@ -118,10 +121,9 @@ private
     !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
     !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
     !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
-    !$acc create(do_coulomb, input_is_constant) &
-    !$acc create(max_newton)
+    !$acc create(do_coulomb, input_is_constant)
 
-public actual_eos, actual_eos_init
+public actual_eos, actual_eos_init, actual_eos_finalize
 
 contains
 
@@ -146,13 +148,16 @@ contains
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
+#ifdef CUDA
+    attributes(device) &
+#endif
     subroutine actual_eos(input, state)
 
         !$acc routine seq
 
         use bl_error_module
         use bl_types
-        use bl_constants_module
+        use bl_constants_module, only: ZERO, HALF, TWO
 
         implicit none
 
@@ -214,6 +219,7 @@ contains
                             detadt,detadd,xnefer,dxnedt,dxnedd,s, &
                             temp,den,abar,zbar,ytot1,ye
 
+#ifdef EXTRA_THERMO
         !..for the abar derivatives
         double precision :: dpradda,deradda,dsradda, &
                             dpionda,deionda,dsionda, &
@@ -228,7 +234,7 @@ contains
                             dpepdz,deepdz,dsepdz,    &
                             dpresdz,denerdz,dentrdz ,&
                             detadz,dxnedz
-
+#endif
 
 
         !..for the interpolations
@@ -384,20 +390,26 @@ contains
            prad    = asoli3 * temp * temp * temp * temp
            dpraddd = 0.0d0
            dpraddt = 4.0d0 * prad*tempi
+#ifdef EXTRA_THERMO
            dpradda = 0.0d0
            dpraddz = 0.0d0
+#endif
 
            erad    = 3.0d0 * prad*deni
            deraddd = -erad*deni
            deraddt = 3.0d0 * dpraddt*deni
+#ifdef EXTRA_THERMO
            deradda = 0.0d0
            deraddz = 0.0d0
+#endif
 
            srad    = (prad*deni + erad)*tempi
            dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
            dsraddt = (dpraddt*deni + deraddt - srad)*tempi
+#ifdef EXTRA_THERMO
            dsradda = 0.0d0
            dsraddz = 0.0d0
+#endif
 
            !..ion section:
            xni     = avo_eos * ytot1 * den
@@ -407,14 +419,18 @@ contains
            pion    = xni * kt
            dpiondd = dxnidd * kt
            dpiondt = xni * kerg
+#ifdef EXTRA_THERMO
            dpionda = dxnida * kt
            dpiondz = 0.0d0
+#endif
 
            eion    = 1.5d0 * pion*deni
            deiondd = (1.5d0 * dpiondd - eion)*deni
            deiondt = 1.5d0 * dpiondt*deni
+#ifdef EXTRA_THERMO
            deionda = 1.5d0 * dpionda*deni
            deiondz = 0.0d0
+#endif
 
            x       = abar*abar*sqrt(abar) * deni/avo_eos
            s       = sioncon * temp
@@ -427,9 +443,11 @@ contains
                 (pion*deni + eion) * tempi*tempi  &
                 + 1.5d0 * kergavo * tempi*ytot1
            x       = avo_eos*kerg/abar
+#ifdef EXTRA_THERMO
            dsionda = (dpionda*deni + deionda)*tempi  &
                 + kergavo*ytot1*ytot1* (2.5d0 - y)
            dsiondz = 0.0d0
+#endif
 
            !..electron-positron section:
            !..assume complete ionization
@@ -656,9 +674,11 @@ contains
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
+#ifdef EXTRA_THERMO
            !..derivative with respect to abar and zbar
            detada = -x * din * ytot1
            detadz =  x * den * ytot1
+#endif
 
            !..look in the number density table only once
            fi(1)  = xf(iat,jat)
@@ -695,9 +715,11 @@ contains
                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
+#ifdef EXTRA_THERMO
            !..derivative with respect to abar and zbar
            dxneda = -x * din * ytot1
            dxnedz =  x  * den * ytot1
+#endif
 
            !..the desired electron-positron thermodynamic quantities
 
@@ -710,21 +732,27 @@ contains
            dpepdt  = x * df_dt
            !     dpepdd  = ye * (x * df_dd + 2.0d0 * din * df_d)
            s       = dpepdd/ye - 2.0d0 * din * df_d
+#ifdef EXTRA_THERMO
            dpepda  = -ytot1 * (2.0d0 * pele + s * din)
            dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
+#endif
 
            x       = ye * ye
            sele    = -df_t * ye
            dsepdt  = -df_tt * ye
            dsepdd  = -df_dt * x
+#ifdef EXTRA_THERMO
            dsepda  = ytot1 * (ye * df_dt * din - sele)
            dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
+#endif
 
            eele    = ye*free + temp * sele
            deepdt  = temp * dsepdt
            deepdd  = x * df_d + temp * dsepdd
+#ifdef EXTRA_THERMO
            deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
            deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+#endif
 
            !..coulomb section:
            !..initialize
@@ -808,8 +836,10 @@ contains
                  s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
                  dpcouldd = -dpiondd*z - pion*s*plasgdd
                  dpcouldt = -dpiondt*z - pion*s*plasgdt
+#ifdef EXTRA_THERMO
                  dpcoulda = -dpionda*z - pion*s*plasgda
                  dpcouldz = -dpiondz*z - pion*s*plasgdz
+#endif
 
                  s        = 3.0d0/den
                  decouldd = s * dpcouldd - ecoul/den
@@ -859,18 +889,23 @@ contains
 
            dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
            dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
+#ifdef EXTRA_THERMO
            dpresda = dpradda + dpionda + dpepda + dpcoulda
            dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
-
+#endif
            denerdd = deraddd + deiondd + deepdd + decouldd
            denerdt = deraddt + deiondt + deepdt + decouldt
+#ifdef EXTRA_THERMO
            denerda = deradda + deionda + deepda + decoulda
            denerdz = deraddz + deiondz + deepdz + decouldz
+#endif
 
            dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
            dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
+#ifdef EXTRA_THERMO
            dentrda = dsradda + dsionda + dsepda + dscoulda
            dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
+#endif
 
            !..the temperature and density exponents (c&g 9.81 9.82)
            !..the specific heat at constant volume (c&g 9.92)
@@ -902,16 +937,20 @@ contains
            ptot_row = pres
            dpt_row = dpresdt
            dpd_row = dpresdd
+#ifdef EXTRA_THERMO
            dpa_row = dpresda
            dpz_row = dpresdz
+#endif
            dpe_row = dpresdt / denerdt
            dpdr_e_row = dpresdd - dpresdt * denerdd / denerdt
 
            etot_row = ener
            det_row = denerdt
            ded_row = denerdd
+#ifdef EXTRA_THERMO
            dea_row = denerda
            dez_row = denerdz
+#endif
 
            stot_row = entr
            dst_row = dentrdt
@@ -1103,16 +1142,22 @@ contains
         state % dpdT = dpt_row
         state % dpdr = dpd_row
 
+#ifdef EXTRA_THERMO
         state % dpdA = dpa_row
         state % dpdZ = dpz_row
+#endif
+
         state % dpde = dpe_row
         state % dpdr_e = dpdr_e_row
 
         state % e    = etot_row
         state % dedT = det_row
         state % dedr = ded_row
+
+#ifdef EXTRA_THERMO
         state % dedA = dea_row
         state % dedZ = dez_row
+#endif
 
         state % s    = stot_row
         state % dsdT = dst_row
@@ -1200,6 +1245,52 @@ contains
         double precision :: tsav, dsav
         integer :: i, j
         integer :: status
+
+        ! Allocate managed module variables
+
+        allocate(do_coulomb)
+        allocate(input_is_constant)
+        allocate(itmax)
+        allocate(jtmax)
+        allocate(d(imax))
+        allocate(t(jmax))
+        allocate(tlo)
+        allocate(thi)
+        allocate(tstp)
+        allocate(tstpi)
+        allocate(dlo)
+        allocate(dhi)
+        allocate(dstp)
+        allocate(dstpi)
+        allocate(f(imax,jmax))
+        allocate(fd(imax,jmax))
+        allocate(ft(imax,jmax))
+        allocate(fdd(imax,jmax))
+        allocate(ftt(imax,jmax))
+        allocate(fdt(imax,jmax))
+        allocate(fddt(imax,jmax))
+        allocate(fdtt(imax,jmax))
+        allocate(fddtt(imax,jmax))
+        allocate(dpdf(imax,jmax))
+        allocate(dpdfd(imax,jmax))
+        allocate(dpdft(imax,jmax))
+        allocate(dpdfdt(imax,jmax))
+        allocate(ef(imax,jmax))
+        allocate(efd(imax,jmax))
+        allocate(eft(imax,jmax))
+        allocate(efdt(imax,jmax))
+        allocate(xf(imax,jmax))
+        allocate(xfd(imax,jmax))
+        allocate(xft(imax,jmax))
+        allocate(xfdt(imax,jmax))
+        allocate(dt_sav(jmax))
+        allocate(dt2_sav(jmax))
+        allocate(dti_sav(jmax))
+        allocate(dt2i_sav(jmax))
+        allocate(dd_sav(imax))
+        allocate(dd2_sav(imax))
+        allocate(ddi_sav(imax))
+        allocate(dd2i_sav(imax))
 
         ! Read in the runtime parameters
 
@@ -1324,31 +1415,6 @@ contains
            close(unit=2)
         endif
 
-        ! Some initialization of constants
-
-        esqu = qe * qe
-
-        a2rad   = pi/180.0d0
-        rad2a   = 180.0d0/pi
-
-        hbar    = 0.5d0 * h/pi
-        kev     = kerg/ev2erg_eos
-        rbohr   = hbar*hbar/(me_eos * qe * qe)
-        fine    = qe*qe/(hbar*clight)
-
-        asol    = 4.0d0 * ssol / clight
-        weinlam = h*clight/(kerg * 4.965114232d0)
-        weinfre = 2.821439372d0*kerg/h
-        pc      = 3.261633d0 * ly
-
-        sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
-        forth   = 4.0d0/3.0d0
-        forpi   = 4.0d0 * pi
-        kergavo = kerg * avo_eos
-        ikavo   = 1.0d0/kergavo
-        asoli3  = asol/3.0d0
-        light2  = clight * clight
-
         ! Set up the minimum and maximum possible densities.
 
         mintemp = 10.d0**tlo
@@ -1356,25 +1422,18 @@ contains
         mindens = 10.d0**dlo
         maxdens = 10.d0**dhi
 
+        !$acc update device(mintemp, maxtemp, mindens, maxdens)
+
         !$acc update &
-        !$acc device(pi, a2rad, rad2a) &
-        !$acc device(h, hbar, qe, avo_eos, clight, kerg) &
-        !$acc device(ev2erg_eos, kev, amu, me_eos) &
-        !$acc device(rbohr, fine) &
-        !$acc device(ssol, asol, weinlam, weinfre) &
-        !$acc device(ly, pc) &
-        !$acc device(sioncon, forth, forpi, kergavo, ikavo, asoli3, light2) &
-        !$acc device(a1, b1, c1, d1, e1, a2, b2, c2, onethird, esqu) &
-        !$acc device(ttol, dtol, tlo, thi, dlo, dhi) &
+        !$acc device(tlo, thi, dlo, dhi) &
         !$acc device(tstp, tstpi, dstp, dstpi) &
         !$acc device(itmax, jtmax, d, t) &
         !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
         !$acc device(dpdf, dpdfd, dpdft, dpdfdt) &
-        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt) &
+        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
         !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
-        !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav), &
-        !$acc device(do_coulomb, input_is_constant) &
-        !$acc device(max_newton)
+        !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
+        !$acc device(do_coulomb, input_is_constant)
 
     end subroutine actual_eos_init
 
@@ -1382,138 +1441,242 @@ contains
 
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
-    function psi0(z)
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function psi0(z) result(psi0r)
     !$acc routine seq
-        double precision :: z, psi0
-        psi0 = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
-    end function
+      double precision, intent(in) :: z
+      double precision :: psi0r
+      psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
+    end function psi0
 
-    function dpsi0(z)
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function dpsi0(z) result(dpsi0r) 
     !$acc routine seq
-        double precision :: z, dpsi0
-        dpsi0 = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: dpsi0r
+      dpsi0r = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
+    end function dpsi0
 
-    function ddpsi0(z)
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function ddpsi0(z) result(ddpsi0r)
     !$acc routine seq
-        double precision :: z, ddpsi0
-        ddpsi0 = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: ddpsi0r
+      ddpsi0r = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
+    end function ddpsi0
 
     ! psi1 and its derivatives
-    function psi1(z)
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function psi1(z) result(psi1r)
     !$acc routine seq
-        double precision :: z, psi1
-        psi1 = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: psi1r
+      psi1r = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
+    end function psi1
 
-    function dpsi1(z)
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function dpsi1(z) result(dpsi1r)
     !$acc routine seq
-        double precision :: z, dpsi1
-        dpsi1 = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
-    end function
+      double precision, intent(in) :: z
+      double precision :: dpsi1r
+      dpsi1r = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
+    end function dpsi1
 
-    function ddpsi1(z)
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function ddpsi1(z) result(ddpsi1r)
     !$acc routine seq
-        double precision :: z, ddpsi1
-        ddpsi1 = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
-    end function
+      double precision, intent(in) :: z
+      double precision :: ddpsi1r
+      ddpsi1r = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
+    end function ddpsi1
 
     ! psi2  and its derivatives
-    function psi2(z)
-    !$acc routine seq
-        double precision :: z, psi2
-        psi2 = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function psi2(z) result(psi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: psi2r
+      psi2r = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
+    end function psi2
 
-    function dpsi2(z)
-    !$acc routine seq
-        double precision :: z, dpsi2
-        dpsi2 = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function dpsi2(z) result(dpsi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: dpsi2r
+      dpsi2r = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
+    end function dpsi2
 
-    function ddpsi2(z)
-    !$acc routine seq
-        double precision :: z, ddpsi2
-        ddpsi2 = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function ddpsi2(z) result(ddpsi2r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: ddpsi2r
+      ddpsi2r = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
+    end function ddpsi2
 
 
     ! biquintic hermite polynomial function
-    function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md)
-    !$acc routine seq
-        double precision :: fi(36)
-        double precision :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md,h5
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
+      !$acc routine seq
+      double precision, intent(in) :: fi(36)
+      double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
+      double precision :: h5r
 
-        h5 =   fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
-             + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
-             + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
-             + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
-             + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
-             + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
-             + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
-             + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
-             + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
-             + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
-             + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
-             + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
-             + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
-             + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
-             + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
-             + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
-             + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
-             + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
+      h5r =  fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
+           + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
+           + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
+           + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
+           + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
+           + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
+           + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
+           + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
+           + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
+           + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
+           + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
+           + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
+           + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
+           + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
+           + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
+           + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
+           + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
+           + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
     end function h5
 
 
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
-    function xpsi0(z)
-    !$acc routine seq
-        double precision :: z, xpsi0
-        xpsi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function xpsi0(z) result(xpsi0r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xpsi0r
+      xpsi0r = z * z * (2.0d0*z - 3.0d0) + 1.0
+    end function xpsi0
 
-    function xdpsi0(z)
-    !$acc routine seq
-        double precision :: z, xdpsi0
-        xdpsi0 = z * (6.0d0*z - 6.0d0)
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function xdpsi0(z) result(xdpsi0r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xdpsi0r
+      xdpsi0r = z * (6.0d0*z - 6.0d0)
+    end function xdpsi0
 
 
     ! psi1 & derivatives
-    function xpsi1(z)
-    !$acc routine seq
-        double precision :: z, xpsi1
-        xpsi1 = z * ( z * (z - 2.0d0) + 1.0d0)
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function xpsi1(z) result(xpsi1r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xpsi1r
+      xpsi1r = z * ( z * (z - 2.0d0) + 1.0d0)
+    end function xpsi1
 
-    function xdpsi1(z)
-    !$acc routine seq
-        double precision :: z, xdpsi1
-        xdpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function xdpsi1(z) result(xdpsi1r)
+      !$acc routine seq
+      double precision, intent(in) :: z
+      double precision :: xdpsi1r
+      xdpsi1r = z * (3.0d0*z - 4.0d0) + 1.0d0
+    end function xdpsi1
 
     ! bicubic hermite polynomial function
-    function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md)
-    !$acc routine seq
-        double precision :: fi(36)
-        double precision :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md,h3
-        h3 =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
-             + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
-             + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
-             + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
-             + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
-             + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
-             + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
-             + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
-    end function
+#ifdef CUDA
+    attributes(device) &
+#endif
+    pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
+      !$acc routine seq
+      double precision, intent(in) :: fi(36)
+      double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
+      double precision :: h3r
+      h3r =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
+           + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
+           + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
+           + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
+           + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
+           + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
+           + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
+           + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
+    end function h3
 
     subroutine actual_eos_finalize
 
       implicit none
 
-      ! Nothing to do here, yet.
+      ! Deallocate managed module variables
+
+      deallocate(do_coulomb)
+      deallocate(input_is_constant)
+      deallocate(itmax)
+      deallocate(jtmax)
+      deallocate(d)
+      deallocate(t)
+      deallocate(tlo)
+      deallocate(thi)
+      deallocate(tstp)
+      deallocate(tstpi)
+      deallocate(dlo)
+      deallocate(dhi)
+      deallocate(dstp)
+      deallocate(dstpi)
+      deallocate(f)
+      deallocate(fd)
+      deallocate(ft)
+      deallocate(fdd)
+      deallocate(ftt)
+      deallocate(fdt)
+      deallocate(fddt)
+      deallocate(fdtt)
+      deallocate(fddtt)
+      deallocate(dpdf)
+      deallocate(dpdfd)
+      deallocate(dpdft)
+      deallocate(dpdfdt)
+      deallocate(ef)
+      deallocate(efd)
+      deallocate(eft)
+      deallocate(efdt)
+      deallocate(xf)
+      deallocate(xfd)
+      deallocate(xft)
+      deallocate(xfdt)
+      deallocate(dt_sav)
+      deallocate(dt2_sav)
+      deallocate(dti_sav)
+      deallocate(dt2i_sav)
+      deallocate(dd_sav)
+      deallocate(dd2_sav)
+      deallocate(ddi_sav)
+      deallocate(dd2i_sav)
 
     end subroutine actual_eos_finalize
 

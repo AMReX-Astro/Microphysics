@@ -40,7 +40,7 @@ module rpar_indices
   integer, parameter :: irp_i = irp_t0 + 1
   integer, parameter :: irp_j = irp_t0 + 2
   integer, parameter :: irp_k = irp_t0 + 3
-  integer, parameter :: n_rpar_comps = irp_k + 1
+  integer, parameter :: n_rpar_comps = irp_k
 #else
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a and irp_u_init
@@ -61,12 +61,12 @@ module rpar_indices
 
   integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
-  integer, parameter :: irp_t0 = irp_self_heat + 1
+  integer, parameter :: irp_t0 = irp_T_from_eden + 1
   integer, parameter :: irp_i = irp_t0 + 1
   integer, parameter :: irp_j = irp_t0 + 2
   integer, parameter :: irp_k = irp_t0 + 3
   integer, parameter :: irp_iter = irp_k + 1
-  integer, parameter :: n_rpar_comps = irp_iter + 1
+  integer, parameter :: n_rpar_comps = irp_iter
 
 #endif
 

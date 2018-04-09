@@ -1,1 +1,1 @@
-f90sources += actual_eos.f90
+F90sources += actual_eos.F90

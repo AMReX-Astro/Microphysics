@@ -26,8 +26,7 @@ aprox13_params = {
     "tmax": [1.e-3],
     "rtol_spec": [1.e-12, 1.e-8],
     "atol_spec": [1.e-12, 1.e-8],
-    "jacobian": [1, 2],
-    "integrate_molar_fraction": ["T", "F"]
+    "jacobian": [1, 2]
 }
 
 aprox19_params = {
@@ -40,8 +39,7 @@ aprox19_params = {
     "atol_spec": [1.e-8, 1.e-6],
     "jacobian": [1, 2],
     "centered_diff_jac": ["T"],
-    "call_eos_in_rhs": ["T", "F"],
-    "integrate_molar_fraction": ["T", "F"]
+    "call_eos_in_rhs": ["T", "F"]
 }
 
 rprox_params = {
@@ -55,7 +53,6 @@ rprox_params = {
     "jacobian": [1, 2],
     "centered_diff_jac": ["T"],
     "call_eos_in_rhs": ["T", "F"],
-    "integrate_molar_fraction": ["T", "F"],
     "renormalize_abundances": ["T", "F"]
 }
 
