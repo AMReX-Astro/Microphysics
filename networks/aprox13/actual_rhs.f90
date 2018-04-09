@@ -940,6 +940,7 @@ contains
     use tfactors_module
     use aprox_rates_module
     use bl_constants_module, only: ZERO
+    use extern_probin_module, only: use_c12ag_deboer17
 
     implicit none
 
@@ -962,11 +963,18 @@ contains
     ! get the temperature factors
     call get_tfactors(btemp, tf)
 
-
-    ! c12(a,g)o16
-    call rate_c12ag(tf,bden, &
+    ! Determine which c12(a,g)o16 rate to use
+    if (use_c12ag_deboer17) then
+    ! deboer + 2017 c12(a,g)o16 rate
+       call rate_c12ag_deboer17(tf,bden, &
                     ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
                     ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+    else
+    ! 1.7 times cf88 c12(a,g)o16 rate
+       call rate_c12ag(tf,bden, &
+                    ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
+                    ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+    endif
 
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
