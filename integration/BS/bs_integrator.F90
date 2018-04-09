@@ -57,8 +57,6 @@ contains
     type (eos_t) :: eos_state_in, eos_state_temp
     type (bs_t) :: bs
 
-    real(dp_t) :: retry_change_factor
-
     real(dp_t) :: ener_offset
 
     ! Set the tolerances.  We will be more relaxed on the temperature

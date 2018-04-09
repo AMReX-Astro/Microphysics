@@ -45,7 +45,7 @@ contains
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    retry_burn, retry_burn_factor, retry_burn_max_change
+                                    retry_burn_factor, retry_burn_max_change
 
     implicit none
 
