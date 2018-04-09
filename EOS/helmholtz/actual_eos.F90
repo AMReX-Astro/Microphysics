@@ -157,7 +157,7 @@ contains
 
         use bl_error_module
         use bl_types
-        use bl_constants_module
+        use bl_constants_module, only: ZERO, HALF, TWO
 
         implicit none
 

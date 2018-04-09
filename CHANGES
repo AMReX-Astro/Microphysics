@@ -1,3 +1,12 @@
+  -- a routine util/cj_detonation was added to compute the
+     Chapman-Jouguet detonation velocity for any of the networks
+
+# 18.04
+
+  -- pynucastro (https://github.com/pynucastro/pynucastro) can now
+     generate reaction networks compatible with StarKiller.  See the
+     subch network.
+
 # 17.11
 
   -- a new option to boost the reaction rates has been added
