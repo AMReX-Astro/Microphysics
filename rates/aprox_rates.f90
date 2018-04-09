@@ -154,6 +154,117 @@ contains
 
   end subroutine rate_c12ag
 
+  ! This routine computes the nuclear reaction rate for 12C(a,g)16O and its inverse 
+  ! using fit parameters from Deboer et al. 2017 (https://doi.org/10.1103/RevModPhys.89.035007).
+  subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+
+    !$acc routine seq
+
+    implicit none
+
+    type (tf_t)      :: tf
+
+    double precision :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd, &
+			a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
+    			a0_r,a1_r,a2_r,a3_r,a4_r,a5_r,a6_r, &
+                        term_a0_nr,term_a1_nr,term_a2_nr,term_a3_nr, &
+                        term_a4_nr,term_a5_nr,term_a6_nr, &
+                        term_a0_r,term_a1_r,term_a2_r,term_a3_r, &
+                        term_a4_r,term_a5_r,term_a6_r, &
+                        dterm_a0_nr,dterm_a1_nr,dterm_a2_nr,dterm_a3_nr,&
+                        dterm_a4_nr,dterm_a5_nr,dterm_a6_nr, &
+                        dterm_a0_r,dterm_a1_r,dterm_a2_r,dterm_a3_r,&
+                        dterm_a4_r,dterm_a5_r,dterm_a6_r, &
+                        term_nr,term_r,dterm_nr,dterm_r,  &
+			term,dtermdt,rev,drevdt
+    
+    ! from Table XXVI of deboer + 2017
+    ! non-resonant contributions to the reaction
+    a0_nr = 24.1d0
+    a1_nr = 0d0 
+    a2_nr = -32d0
+    a3_nr = -5.9d0
+    a4_nr = 1.8d0
+    a5_nr = -0.17d0
+    a6_nr = -twoth
+
+    term_a0_nr = exp(a0_nr)
+    term_a1_nr = exp(a1_nr*tf%t9i)
+    term_a2_nr = exp(a2_nr*tf%t9i13)
+    term_a3_nr = exp(a3_nr*tf%t913)
+    term_a4_nr = exp(a4_nr*tf%t9)
+    term_a5_nr = exp(a5_nr*tf%t953)
+    term_a6_nr = tf%t9**a6_nr
+
+    term_nr = term_a0_nr * term_a1_nr * term_a2_nr * &
+              term_a3_nr * term_a4_nr * term_a5_nr * &
+              term_a6_nr
+
+    dterm_a0_nr = 0d0
+    dterm_a1_nr = 0d0
+    dterm_a2_nr = -a2_nr*tf%t9i43*term_a2_nr/3d0
+    dterm_a3_nr = a3_nr*tf%t9i23*term_a3_nr/3d0
+    dterm_a4_nr = a4_nr*term_a4_nr
+    dterm_a5_nr = a5_nr*tf%t923*term_a5_nr*fiveth
+    dterm_a6_nr = tf%t9i*a6_nr*tf%t9**a6_nr
+
+    dterm_nr = (term_a0_nr * term_a1_nr * dterm_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * dterm_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * dterm_a4_nr * term_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * dterm_a5_nr * term_a6_nr) + &
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * dterm_a6_nr)
+
+    ! resonant contributions to the reaction
+    a0_r = 7.4d0
+    a1_r = -30d0
+    a2_r = 0d0
+    a3_r = 0d0
+    a4_r = 0d0
+    a5_r = 0d0
+    a6_r = -3.0d0/2.0d0
+
+    term_a0_r = exp(a0_r)
+    term_a1_r = exp(a1_r*tf%t9i)
+    term_a2_r = exp(a2_r*tf%t9i13)
+    term_a3_r = exp(a3_r*tf%t913)
+    term_a4_r = exp(a4_r*tf%t9)
+    term_a5_r = exp(a5_r*tf%t953)
+    term_a6_r = tf%t9**a6_r
+
+    term_r = term_a0_r * term_a1_r * term_a2_r * &
+              term_a3_r * term_a4_r * term_a5_r * &
+              term_a6_r
+
+    dterm_a0_r = 0d0
+    dterm_a1_r = -a1_r*tf%t9i2*term_a1_r
+    dterm_a2_r = 0d0
+    dterm_a3_r = 0d0
+    dterm_a4_r = 0d0
+    dterm_a5_r = 0d0
+    dterm_a6_r = tf%t9i*a6_r*tf%t9**a6_r
+    
+    dterm_r = (term_a0_r * dterm_a1_r * term_a6_r) + &
+	      (term_a0_r * term_a1_r * dterm_a6_r)
+    
+
+    ! full rate is the sum of resonant and non-resonant contributions
+    term = term_nr + term_r 
+    dtermdt = dterm_nr + dterm_r
+
+    fr    = term * den
+    dfrdt = dtermdt * den * 1.0d-9
+
+    ! first term is 9.8685d9 * T9**(2/3) * (M0*M1/M3)**(3/2) 
+    ! see iliadis 2007 eqn. 3.44
+    ! ratio of partition functions are assumed to be unity
+    rev    = 5.1345573d10 * tf%t932 * exp(-83.114082*tf%t9i)
+    drevdt = rev*(1.5d0*tf%t9i + 83.114082*tf%t9i2)
+
+    rr     = rev * term
+    drrdt  = (drevdt*term + rev*dtermdt) * 1.0d-9
+
+
+  end subroutine rate_c12ag_deboer17
 
 
   subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
