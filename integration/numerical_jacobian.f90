@@ -40,16 +40,22 @@ contains
 
        ! species derivatives
        do n = 1, nspec_evolve
-          ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
+          ! perturb species
           state_del % xn = state % xn
           state_del % xn(n) = state % xn(n) * (ONE + eps)
 
           call actual_rhs(state_del)
 
+          ! We integrate X, so convert from the Y we got back from the RHS
+
+          state_del % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
           state_delm % xn = state % xn
           state_delm % xn(n) = state % xn(n) * (ONE - eps)
 
           call actual_rhs(state_delm)
+
+          state_delm % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           do m = 1, neqs
              state % jac(m,n) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
