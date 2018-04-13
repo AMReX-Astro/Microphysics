@@ -452,6 +452,29 @@ The Jacobian matrix elements are stored in {\tt state \% jac} as:
 
 \end{itemize}
 
+The form looks like:
+\renewcommand{\arraystretch}{1.5}
+\renewcommand{\arraycolsep}{10pt}  % default is 6pt
+\[ \vphantom{% phantom stuff for correct box dimensions
+    \begin{matrix}
+    \overbrace{XYZ}^{\mbox{$R$}}\\ \\ \\ \\ \\ \\
+    \underbrace{pqr}_{\mbox{$S$}}
+    \end{matrix}}%
+\begin{matrix}% matrix for left braces
+    \coolleftbrace{Y_m}{~ \\ ~ \\ ~}\\ e \\ T \\
+\end{matrix}%
+\begin{pmatrix}
+\coolover{Y_n}{\ddots & \hphantom{\partial \dot{Y}_m}\vdots\hphantom{/\partial Y_n} & \iddots } & \vdots & \vdots \\
+    \hdots & \partial \dot{Y}_m/\partial Y_n & \hdots & 0 & \partial \dot{Y}_m/\partial T    \\
+    \iddots & \hphantom{\partial \dot{Y}_m}\vdots\hphantom{/\partial Y_n} & \ddots & \vdots & \vdots  \\
+    \hdots & \partial \dot{e}/\partial Y_n & \hdots & 0 & \partial \dot{e}/\partial T   \\
+    \hdots & \partial \dot{T}/\partial Y_n & \hdots & 0 & \partial \dot{T}/\partial T   \\
+\end{pmatrix}%
+\]
+\renewcommand{\arraystretch}{1.0}
+\renewcommand{\arraycolsep}{6pt}
+
+
 
 Note: a network is not required to compute a Jacobian if a numerical
 Jacobian is used.  This is set with the runtime parameter {\tt
