@@ -150,10 +150,10 @@ is stored as {\tt mion(:)} in the network.
 
 The energy release per gram is converted from the rates as:
 \begin{equation}
-\edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edot_\nu
+\edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edotnu
 \end{equation}
 where $N_A$ is Avogadro's number (to convert this to ``per gram'')
-and $\edot_\nu$ is the neutrino loss term.
+and $\edotnu$ is the neutrino loss term.
 
 \subsection{{\tt breakout}}
 
@@ -269,7 +269,7 @@ Finally, for the
 energy generation, we take our reaction to release a specific energy,
 $[\mathrm{erg~g^{-1}}]$, of $\qburn$, and our energy source is
 \begin{equation}
-\epsdot = -\qburn \frac{dX_f}{dt}
+\edot = -\qburn \frac{dX_f}{dt}
 \end{equation}
 
 There are a number of parameters we use to control the constants in
@@ -328,34 +328,43 @@ strong rates to a power law in $T_9 \in [0.3, 1]$, linear in density.
 
 \section{Reaction ODE System}
 
+\begin{tcolorbox}
+Note: the integration works on the state $\rho$, $T$, and $X_k$, e.g., the
+mass fractions, but the individual networks construct the rates in terms
+of the molar fractions, $Y_k$.  The wrappers between the integrators and
+network righthand side routines do the conversion of the state to mass
+fractions for the integrator.
+\end{tcolorbox}
+
 The equations we integrate to do a nuclear burn are:
 \begin{eqnarray}
-  \frac{dY_k}{dt} &=& \omegadot_k(\rho,Y_k,T), \label{eq:spec_integrate} \\
-  \frac{de}{dt} &=& f(\dot{Y}_k) \label{eq:enuc_integrate} \\
-  \frac{dT}{dt} &=&\frac{\dot{e}}{c_x}. \label{eq:temp_integrate}
+  \frac{dX_k}{dt} &=& \omegadot_k(\rho,X_k,T), \label{eq:spec_integrate} \\
+  \frac{d\enuc}{dt} &=& f(\dot{X}_k) \label{eq:enuc_integrate} \\
+  \frac{dT}{dt} &=&\frac{\edot}{c_x}. \label{eq:temp_integrate}
 \end{eqnarray}
-Here $Y_k \equiv X_k / A_k$ is the molar fraction of species $k$, where
-$X_k$ is the mass fraction and $A_k$ is the mass number of that species.
-$e$ is the internal energy, $T$ is the temperature\footnote{Note that in
-previous versions of our networks in \castro\ and \maestro,
-there was another term in the temperature equation relating to the
-chemical potential of the gas as it came from the EOS. We have since
-decided that this term should analytically cancel to zero in all cases
-for our nuclear networks, and so we no longer think it is correct to
-include a numerical approximation of it in the integration scheme. So
-the current results given by our networks will in general be a little
-different than in the past.}
-, and $c_x$ is the specific heat for the fluid. The function $f$ provides
-the energy release based on the instantaneous reaction terms, $\dot{Y}_k$.
-As noted in the previous section, this is implemented in a network-specific
-manner.
+Here, $X_k$ is the mass fraction of species $k$, $\enuc$ is the specifc
+nuclear energy created through reactions, $T$ is the
+temperature\footnote{Note that in previous versions of our networks in
+  \castro\ and \maestro, there was another term in the temperature
+  equation relating to the chemical potential of the gas as it came
+  from the EOS. We have since decided that this term should
+  analytically cancel to zero in all cases for our nuclear networks,
+  and so we no longer think it is correct to include a numerical
+  approximation of it in the integration scheme. So the current
+  results given by our networks will in general be a little different
+  than in the past.}  , and $c_x$ is the specific heat for the
+fluid. The function $f$ provides the energy release based on the
+instantaneous reaction terms, $\dot{X}_k$.  As noted in the previous
+section, this is implemented in a network-specific manner.
 
-In this system, $e$ is not necessarily the total specific internal energy,
-but rather just captures the energy release during the burn.
+In this system, $\enuc$ is not necessarily the total specific internal
+energy, but rather just captures the energy release during the burn.  In
+this system, it acts as a diagnostic,
+\begin{equation}
+\enuc = \int \edot dt
+\end{equation}
+so we know how much energy was released (or required) over the burn.
 
-{\bf Note that while $Y_k$ is the integration variable, this is invisible to
-the code that calls the burner---it hands the burner the mass fractions $X_k$
-and gets back updated mass fractions.}
 
 
 While this is the most common way to construct the set of
@@ -386,9 +395,10 @@ All of the necessary integration data comes in through {\tt state}, as:
   may need to be enforced.  See \S~\ref{ch:networks:nspec_evolve}).
 
 \item {\tt state \% e} : the current value of the ODE system's energy
-  release---note: as discussed above, this is not necessarily the energy
-  you would get by calling the EOS on the state.  It is very rare (never?)
-  that a RHS implementation would need to use this variable.
+  release, $\enuc$---note: as discussed above, this is not necessarily
+  the energy you would get by calling the EOS on the state.  It is
+  very rare (never?)  that a RHS implementation would need to use this
+  variable.
 
 \item {\tt state \% T} : the current temperature
 
@@ -411,15 +421,19 @@ fields to fill are:
   $d({Y}_k)/dt$
 
 \item {\tt state \% ydot(net\_ienuc)} : the change in the energy release
-  from the net, $de/dt$
+  from the net, $d\enuc/dt$
 
 \item {\tt state \% ydot(net\_itemp)} : the change in temperature, $dT/dt$
 \end{itemize}
 
-If the network builds the RHS in terms of mass fractions, $dX_k/dt$, then
+\begin{tcolorbox}
+The righthand side routine is assumed to return the change in {\em molar fractions},
+$dY_k/dt$.  These will be converted to the change in mass fractions, $dX_k/dt$
+by the wrappers that call the righthand side routine for the integrator.
+If the network builds the RHS in terms of mass fractions directly, $dX_k/dt$, then
 these will need to be converted to molar fraction rates for storage, e.g.,
 $dY_k/dt = A_k^{-1} dX_k/dt$.
-
+\end{tcolorbox}
 
 The Jacobian is provided by {\tt actual\_jac(state)}, and takes the
 form:
@@ -433,7 +447,7 @@ The Jacobian matrix elements are stored in {\tt state \% jac} as:
   $d(\dot{Y}_m)/dY_n$
 
 \item {\tt state \% jac(net\_ienuc, n)} for $\mathrm{n} \in [1, \mathrm{nspec\_evolve}]$ :
-  $d(\dot{e})/dY_n$
+  $d(\edot)/dY_n$
 
 \item {\tt state \% jac(net\_itemp, n)} for $\mathrm{n} \in [1, \mathrm{nspec\_evolve}]$ :
   $d(\dot{T})/dY_n$
@@ -442,7 +456,7 @@ The Jacobian matrix elements are stored in {\tt state \% jac} as:
   $d(\dot{Y}_m)/dT$
 
 \item {\tt state \% jac(net\_ienuc, net\_itemp)} :
-  $d(\dot{e})/dT$
+  $d(\edot)/dT$
 
 \item {\tt state \% jac(net\_itemp, net\_itemp)} :
   $d(\dot{T})/dT$
@@ -461,20 +475,22 @@ The form looks like:
     \underbrace{pqr}_{\mbox{$S$}}
     \end{matrix}}%
 \begin{matrix}% matrix for left braces
-    \coolleftbrace{Y_m}{~ \\ ~ \\ ~}\\ e \\ T \\
+    \coolleftbrace{Y_m}{~ \\ ~ \\ ~}\\ \enuc \\ T \\
 \end{matrix}%
 \begin{pmatrix}
 \coolover{Y_n}{\ddots & \hphantom{\partial \dot{Y}_m}\vdots\hphantom{/\partial Y_n} & \iddots } & \vdots & \vdots \\
     \hdots & \partial \dot{Y}_m/\partial Y_n & \hdots & 0 & \partial \dot{Y}_m/\partial T    \\
     \iddots & \hphantom{\partial \dot{Y}_m}\vdots\hphantom{/\partial Y_n} & \ddots & \vdots & \vdots  \\
-    \hdots & \partial \dot{e}/\partial Y_n & \hdots & 0 & \partial \dot{e}/\partial T   \\
+    \hdots & \partial \edot/\partial Y_n & \hdots & 0 & \partial \edot/\partial T   \\
     \hdots & \partial \dot{T}/\partial Y_n & \hdots & 0 & \partial \dot{T}/\partial T   \\
 \end{pmatrix}%
 \]
 \renewcommand{\arraystretch}{1.0}
 \renewcommand{\arraycolsep}{6pt}
 
-
+This shows that all of the derivatives with respect to the nuclear
+energy generated, $e_\mathrm{nuc}$ are zero.  Again, this is because
+this is just a diagnostic variable.
 
 Note: a network is not required to compute a Jacobian if a numerical
 Jacobian is used.  This is set with the runtime parameter {\tt
@@ -631,10 +647,10 @@ disable temperature evolution (by zeroing out {\tt
 
 \subsubsection{Energy Integration}
 
-The last equation in our system is the specific internal energy
-evolution, $\dot{e}$.  Again, because of the operator-split approach
-to this ODE system, the evolution of $e$ responds only to the nuclear
-energy release.
+The last equation in our system is the nuclear energy release,
+$\edot$.  Because of the operator-split approach to this ODE system,
+this is not the true specific internal energy, $e$ (since it only
+responds only to the nuclear energy release and no pdV work).
 
 At initialization, $e$ is set to the value from the EOS consistent
 with the initial temperature, density, and composition:
@@ -648,11 +664,10 @@ nuclear energy release,
 \begin{equation}
 e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt
 \end{equation}
-Note that thermodynamic consistency will no
-longer be maintained (because density doesn't evolve and the $T$
-evolution is approximate) but $e$ will represent an approximation to
-the current specific internal energy, including the nuclear energy
-generation release.
+Note that thermodynamic consistency will no longer be maintained
+(because density doesn't evolve and the $T$ evolution is approximate)
+but $e$ will represent an approximation to the current specific
+internal energy, including the nuclear energy generation release.
 
 Upon exit, we subtract off this initial offset, so {\tt \% e} in
 the returned {\tt burn\_t} type from the {\tt actual\_integrator}
@@ -688,24 +703,6 @@ to make sure the final state is consistent.
 
 \MarginPar{should we do this in the conversion to the burn type?}
 
-
-\subsection{Evolving Mass Fractions}
-
-The default set of integration variables are $\{Y_k, T, e\}$, but the
-system $\{X_k, T, e\}$ can instead be evolved by setting the runtime
-parameter {\tt integrate\_molar\_fraction = F}.  This switches the
-internal integration variables from $Y_k$ to $X_k$.  No
-network-specific routines need to be changed, e.g., inputs to {\tt
-  actual\_rhs} and {\tt actual\_jac} remain unchanged, and still
-return their derivatives {\tt state \% ydot} and {\tt state \% jac} in
-terms of $Y_k$.  These derivatives are converted to be in terms of
-$X_k$ by multiplying / dividing by $A_k$ where appropriate by the
-wrappers that interface with the RHS and Jacobian routines.
-
-Analytically there should be no difference in the result of
-integrating $X_k$ instead of $Y_k$, but numerically, anecdotal
-evidence suggests that some networks meet their tolerances more easily
-when $X_k$ is the integration variable.
 
 \subsection{Renormalization}
 
