@@ -75,8 +75,9 @@ choose an EOS and a network.  These two components work together.  The
 design philosophy is that the EOS depends on the network, but not the
 other way around.  The decision was made for the network to act as the
 core module, and lots of code depends on it.  This avoids circular
-dependencies by having the {\tt eos\_t} and {\tt burn\_t} be built on
-top of the network.
+dependencies by having the main EOS datatype, {\tt eos\_t}, and the
+main reaction network datatype, {\tt burn\_t}, be built on top of the
+network.
 
 The network is meant to store the properties of the species (typically
 nuclear isotopes) including their atomic weights and numbers, and also

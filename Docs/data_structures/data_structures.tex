@@ -7,6 +7,8 @@ Fortran derived type (which, for our purposes, is analogous to a
 
 \section{EOS}
 
+\subsection{{\tt eos\_t}}
+
 The main data structure for interacting with the EOS is {\tt eos\_t}.
 This is a collection of data specifying the microphysical state of the
 fluid that we are evaluating.  This derived type has many components,
@@ -129,7 +131,7 @@ state:
 Each integrator also has their own internal data structure that holds
 the information needed for the integration.  Meta-data that is not
 part of the integration vector of ODEs, but is attached to a
-particular state ($Y_k$, $T$, $e$), is stored in an array that can be
+particular state ($X_k$, $T$, $e$), is stored in an array that can be
 passed into the righthand side routine.  The different fields are
 accessed through the integer indices in the {\tt rpar\_indices}
 Fortran module.  The details of this storage is given for each
