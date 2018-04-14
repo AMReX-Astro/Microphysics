@@ -224,12 +224,12 @@ the EOS.
 
 Each EOS should have two main routines by which it interfaces to the
 rest of \castro.  At the beginning of the simulation, {\tt
-  specific\_eos\_init} will perform any initialization steps and save
+  actual\_eos\_init} will perform any initialization steps and save
 EOS variables (mainly \texttt{smallt}, the temperature floor, and
 \texttt{smalld}, the density floor). These variables are stored in the
 main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.
 
-The main evaluation routine is called {\tt specific\_eos}. It should
-accept an {\tt eos\_input} and an {\tt eos\_state}; see Section
+The main evaluation routine is called {\tt actual\_eos}. It should
+accept an {\tt eos\_input} and an {\tt eos\_t} state; see Section
 \ref{sec:data_structures}.

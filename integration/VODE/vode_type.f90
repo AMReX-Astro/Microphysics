@@ -12,7 +12,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
-    use actual_network, only: aion, nspec, nspec_evolve
+    use actual_network, only: nspec, nspec_evolve
     use burn_type_module, only: neqs, net_itemp
     use rpar_indices, only: n_rpar_comps
     use eos_type_module, only : eos_get_small_temp
@@ -46,7 +46,7 @@ contains
   subroutine renormalize_species(y, rpar)
 
     use bl_types, only: dp_t
-    use network, only: aion, aion_inv, nspec, nspec_evolve
+    use network, only: nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
@@ -141,7 +141,7 @@ contains
   subroutine vode_to_eos(state, y, rpar)
 
     use bl_types, only: dp_t
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -177,7 +177,7 @@ contains
   subroutine eos_to_vode(state, y, rpar)
 
     use bl_types, only: dp_t
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -214,7 +214,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ONE
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -274,7 +274,7 @@ contains
 
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &

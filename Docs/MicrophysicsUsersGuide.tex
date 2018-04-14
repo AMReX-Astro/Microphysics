@@ -13,12 +13,25 @@
 \usepackage{pdflscape}
 \usepackage{rotating}
 
-
-
-
 % all kinds of math macros
 \usepackage{amsmath}
 \usepackage{amssymb}
+
+\usepackage{mathtools}
+\usepackage{mathdots}
+
+\newcommand\coolover[2]{\mathrlap{\smash{\overbrace{\phantom{%
+    \begin{matrix} #2 \end{matrix}}}^{\mbox{$#1$}}}}#2}
+
+\newcommand\coolunder[2]{\mathrlap{\smash{\underbrace{\phantom{%
+    \begin{matrix} #2 \end{matrix}}}_{\mbox{$#1$}}}}#2}
+
+\newcommand\coolleftbrace[2]{%
+#1\left\{\vphantom{\begin{matrix} #2 \end{matrix}}\right.}
+
+\newcommand\coolrightbrace[2]{%
+\left.\vphantom{\begin{matrix} #1 \end{matrix}}\right\}#2}
+
 
 \input maestrosymbols
 
@@ -52,6 +65,8 @@
 % table coloring
 \usepackage{colortbl}
 \definecolor{tableShade}{rgb}{0.945,0.961,0.980}
+
+\usepackage{tcolorbox}
 
 
 
