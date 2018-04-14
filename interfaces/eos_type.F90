@@ -131,20 +131,25 @@ module eos_type_module
     real(dp_t) :: mu
     real(dp_t) :: mu_e
     real(dp_t) :: y_e
+
+#ifdef EXTRA_THERMO
     real(dp_t) :: dedX(nspec)
     real(dp_t) :: dpdX(nspec)
     real(dp_t) :: dhdX(nspec)
+#endif
+
     real(dp_t) :: gam1
     real(dp_t) :: cs
 
     real(dp_t) :: abar
     real(dp_t) :: zbar
-    real(dp_t) :: dpdA
 
+#ifdef EXTRA_THERMO
+    real(dp_t) :: dpdA
     real(dp_t) :: dpdZ
     real(dp_t) :: dedA
     real(dp_t) :: dedZ
-
+#endif
   end type eos_t
 
 contains
@@ -157,7 +162,7 @@ contains
     !$acc routine seq
 
     use bl_constants_module, only: ONE
-    use network, only: aion, aion_inv, zion
+    use network, only: aion_inv, zion
 
     implicit none
 
@@ -190,6 +195,7 @@ contains
 
     type (eos_t), intent(inout) :: state
 
+#ifdef EXTRA_THERMO
     state % dpdX(:) = state % dpdA * (state % abar * aion_inv(:))   &
                                    * (aion(:) - state % abar) &
                     + state % dpdZ * (state % abar * aion_inv(:))   &
@@ -207,6 +213,7 @@ contains
                        *  state % dPdX(:) / state % dPdr
 
     endif
+#endif
 
   end subroutine composition_derivatives
 

@@ -172,6 +172,43 @@
 %
 \begin{center}
 \begin{longtable}{|l|p{5.25in}|l|}
+\caption[cj\_detonation parameters.]{cj\_detonation parameters.} \label{table: cj_detonation runtime} \\
+%
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endfirsthead
+
+\multicolumn{3}{c}%
+{{\tablename\ \thetable{}---continued}} \\
+\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
+       \multicolumn{1}{ c|}{\textbf{description}} &
+       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
+\endhead
+
+\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
+\endfoot
+
+\hline
+\endlastfoot
+
+
+\rowcolor{tableShade}
+\verb= smallx = &  & 1.e-10 \\
+
+
+\end{longtable}
+\end{center}
+
+} % ends \small
+
+
+{\small
+
+\renewcommand{\arraystretch}{1.5}
+%
+\begin{center}
+\begin{longtable}{|l|p{5.25in}|l|}
 \caption[gamma\_law\_general parameters.]{gamma\_law\_general parameters.} \label{table: gamma_law_general runtime} \\
 %
 \hline \multicolumn{1}{|c|}{\textbf{parameter}} &
@@ -292,15 +329,17 @@
 \verb= integrate_temperature = &  Allow the temperature integration to be disabled by setting the RHS to zero. & .true. \\
 \rowcolor{tableShade}
 \verb= jacobian = &  Whether to use an analytical or numerical Jacobian. 1 == Analytical 2 == Numerical & 1 \\
+\verb= react_boost = &  boost the reaction rates by a factor > 1 & -1.d0 \\
+\rowcolor{tableShade}
 \verb= renormalize_abundances = &  Whether to renormalize the mass fractions at each step in the evolution so that they sum to unity. & .false. \\
-\rowcolor{tableShade}
 \verb= retry_burn = &  If we fail to find a solution consistent with the tolerances, do we want to try again with a looser tolerance? & .false. \\
+\rowcolor{tableShade}
 \verb= retry_burn_factor = &  If we do retry a burn, by what factor should we loosen the tolerance? & 1.25d0 \\
-\rowcolor{tableShade}
 \verb= retry_burn_max_change = &  What is the maximum factor we can increase the original tolerances by? & 1.0d2 \\
-\verb= rtol_enuc = &  & 1.d-6 \\
 \rowcolor{tableShade}
+\verb= rtol_enuc = &  & 1.d-6 \\
 \verb= rtol_spec = &  Tolerances for the solver (relative and absolute), for the species, temperature, and energy equations. & 1.d-12 \\
+\rowcolor{tableShade}
 \verb= rtol_temp = &  & 1.d-6 \\
 
 
@@ -422,6 +461,8 @@
 
 \rowcolor{tableShade}
 \verb= small_x = &  cutoff for species mass fractions & 1.d-30 \\
+\verb= use_c12ag_deboer17 = &  Should we use Deboer + 2017 rate for c12(a,g)o16? & .false. \\
+\rowcolor{tableShade}
 \verb= use_tables = &  Should we use rate tables if they are present in the network? & .false. \\
 
 

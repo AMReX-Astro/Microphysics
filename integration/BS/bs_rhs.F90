@@ -47,7 +47,7 @@ contains
     call bs_to_burn(bs)
     call actual_rhs(bs % burn_s)
 
-    ! We integrate Y, not X
+    ! We integrate X, not Y
     bs % burn_s % ydot(1:nspec_evolve) = &
          bs % burn_s % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 

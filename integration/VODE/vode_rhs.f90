@@ -9,7 +9,7 @@
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit, &
+    use extern_probin_module, only: dT_crit, &
                                     burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &

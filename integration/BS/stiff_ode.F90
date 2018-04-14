@@ -86,8 +86,7 @@ contains
     logical, intent(out) :: retry
 
     real(kind=dp_t) :: ratio
-    integer :: n
-    
+
     retry = .false.
 
     ratio = abs(y(net_itemp)/y_old(net_itemp))

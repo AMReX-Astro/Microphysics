@@ -1,3 +1,19 @@
+-- implemented the new c12(a,g)o16 nuclear reaction rate and its
+    corresponding inverse from the work of Deboer et al. 2017 
+    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007). 
+    To use the new rate, user must set `use_c12ag_deboer17` to `true`. 
+    This rate is only useable in the `aprox13`, `aprox19`, `aprox21`,
+    and `iso7` reaction rate networks. Closes issue #44.
+
+-- a routine util/cj_detonation was added to compute the
+     Chapman-Jouguet detonation velocity for any of the networks
+
+# 18.04
+
+  -- pynucastro (https://github.com/pynucastro/pynucastro) can now
+     generate reaction networks compatible with StarKiller.  See the
+     subch network.
+
 # 17.11
 
   -- a new option to boost the reaction rates has been added
@@ -25,6 +41,7 @@
 
  -- the Helmholtz EOS table is now read by the IO processor and
     broadcast to other processors (PR #53)
+
 
  -- the VODE integrator now does some additional checks on the
     state to ensure consistency (PR #47)
