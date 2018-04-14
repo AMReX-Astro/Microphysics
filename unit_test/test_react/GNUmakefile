@@ -18,7 +18,7 @@ EOS_DIR := helmholtz
 NETWORK_DIR := aprox13
 #NETWORK_DIR := ignition_simple
 
-INTEGRATOR_DIR := VBDF
+INTEGRATOR_DIR := VODE
 
 TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/test_react
 

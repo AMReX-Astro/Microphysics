@@ -1,5 +1,25 @@
+# 18.04
+
+  -- pynucastro (https://github.com/pynucastro/pynucastro) can now
+     generate reaction networks compatible with StarKiller.  See the
+     subch network.
+
+# 17.11
+
+  -- a new option to boost the reaction rates has been added
+     to the integrators (PR #64)
+
+  -- we now disable some composition derivatives in the EOS
+     by default, for performance and memory reasons.  They can
+     be reenabled by defining the preprocessor variable 
+     EXTRA_THERMO (PR #59)
 
 # 17.10
+
+ -- the compositional derivatives are no longer available
+    by default from the EOS.  To get these, set the preprocessor
+    variable EXTRA_THERMO.  This change was done for performance
+    reasons.
 
  -- the aprox19 and aprox21 networks no longer use a numerical
     Jacobian by default, as this was found to result in some

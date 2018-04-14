@@ -220,6 +220,7 @@ contains
 
     state % gam1 = state % dpdr * (state % rho / state % p)
 
+#ifdef EXTRA_THERMO
     ! Derivatives with respect to A and Z.
 
     state % dpdA = - state % p / state % abar
@@ -227,6 +228,7 @@ contains
 
     state % dedA = - state % e / state % abar
     state % dedZ =   state % e / (ONE + state % zbar)
+#endif
 
     ! Sound speed.
 
