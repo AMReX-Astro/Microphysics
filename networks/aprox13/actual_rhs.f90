@@ -386,7 +386,6 @@ contains
 
 
 
-
   ! Form the table
 
   subroutine create_rates_table()
@@ -421,79 +420,6 @@ contains
     !$acc update device(rattab, drattabdt, drattabdd, ttab)
 
   end subroutine create_rates_table
-
-
-
-  ! Cubic hermite basis functions and their derivatives
-
-  double precision function psi0(z)
-
-    !$acc routine seq
-
-    implicit none
-
-    double precision :: z
-
-    psi0 = z * z * (2.0d0*z - 3.0d0) + 1.0
-
-  end function psi0
-
-
-
-  double precision function dpsi0(z)
-
-    !$acc routine seq
-
-    implicit none
-
-    double precision :: z
-
-    dpsi0 = z * (6.0d0*z - 6.0d0)
-
-  end function dpsi0
-
-
-
-  double precision function psi1(z)
-
-    !$acc routine seq
-
-    implicit none
-
-    double precision :: z
-
-    psi1 = z * ( z * (z - 2.0d0) + 1.0d0)
-
-  end function psi1
-
-
-
-  double precision function dpsi1(z)
-
-    !$acc routine seq
-
-    implicit none
-
-    double precision :: z
-
-    dpsi1 = z * (3.0d0*z - 4.0d0) + 1.0d0
-
-  end function dpsi1
-
-
-
-  ! Bicubic hermite polynomial
-
-  double precision function h3(ff1, t1, ff2, t2, ff3, t3, ff4, t4)
-
-    implicit none
-
-    double precision :: ff1, t1, ff2, t2, ff3, t3, ff4, t4
-
-    h3 = ff1*t1 + ff2*t2 + ff3*t3 + ff4*t4
-
-  end function h3
-
 
 
   ! Evaluates the right hand side of the aprox13 ODEs
