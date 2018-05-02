@@ -748,6 +748,40 @@ that the mass fractions stay positive and larger than some floor
 \MarginPar{do we always renormalize at the end?}
 
 
+\section{Tolerances}
+Tolerances dictate how accurate the ODE solver must be while solving 
+equations during a simulation. 
+Typically, the smaller the tolerance is, the more accurate the results will be. 
+However, if the tolerance is too small, the code may run for too long
+or the ODE solver will never converge. 
+In these simulations, 
+{\tt rtol} values will set the relative tolerances and
+{\tt atol} values will set the absolute tolerances for the ODE solver. 
+Often, one can find and set these values in an input file for a simulation. 
+
+Figure~\ref{fig:tolerances} shows the results of a simple simulation using the 
+{\tt burn\_cell} unit test to determine 
+what tolerances are ideal for simulations.
+For this investigation, it was assumed that a run with a tolerance of $10^{-12}$
+corresponded to an exact result, 
+so it is used as the basis for the rest of the tests. 
+From the figure, one can infer that the $10^{-3}$ and $10^{-6}$ tolerances
+do not yeild the most accurate results
+because their relative error values are fairly large. 
+However, the test with a tolerance of $10^{-9}$ is accurate 
+and not so low that it takes incredible amounts of computer time, 
+so $10^{-9}$ should be used as the default tolerance in future simulations. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=3.5in]{tolerances.png}
+	\caption{Relative error of runs with varying tolerances as compared
+	         to a run with an ODE tolerance of $10^{-12}$.}
+	\label{fig:tolerances}
+\end{figure}
+
+
+
 \section{Stiff ODE Solvers}
 \label{ch:networks:integrators}
 
