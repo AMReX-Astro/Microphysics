@@ -29,7 +29,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif  
+#endif
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
@@ -62,6 +62,7 @@ contains
        rate_eval % unscreened_rates(:,i) = reactvec(1:4)
     end do
 
+
     ! Compute screened rates
     rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &
          rate_eval % unscreened_rates(i_scor, :)
@@ -70,7 +71,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif  
+#endif
   subroutine actual_rhs(state)
     
     !$acc routine seq
@@ -104,6 +105,12 @@ contains
     ! ion binding energy contributions
     call ener_gener_rate(ydot_nuc, enuc)
     
+    ! weak Q-value modification dqweak (density and temperature dependent)
+    
+    ! weak particle energy generation rates from gamma heating and neutrino loss
+    ! (does not include plasma neutrino losses)
+
+
     ! Get the neutrino losses
     call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
@@ -121,7 +128,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif    
+#endif
   subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
@@ -132,70 +139,49 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
-    double precision :: scratch_0
-    double precision :: scratch_1
-    double precision :: scratch_2
-    double precision :: scratch_3
-    double precision :: scratch_4
-    double precision :: scratch_5
-    double precision :: scratch_6
-    double precision :: scratch_7
-    double precision :: scratch_8
-    double precision :: scratch_9
-    double precision :: scratch_10
-    double precision :: scratch_11
 
-    scratch_0 = screened_rates(k_n_p)*Y(jn)
-    scratch_1 = Y(jc12)**2*dens
-    scratch_2 = screened_rates(k_c12_c12n_mg23)*scratch_1
-    scratch_3 = 0.5d0*scratch_2
-    scratch_4 = screened_rates(k_c12_c12p_na23)*scratch_1
-    scratch_5 = 0.5d0*scratch_4
-    scratch_6 = screened_rates(k_c12_c12a_ne20)*scratch_1
-    scratch_7 = 0.5d0*scratch_6
-    scratch_8 = screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens
-    scratch_9 = -scratch_8
-    scratch_10 = 0.0d0
-    scratch_11 = 0.0d0
 
     ydot_nuc(jn) = ( &
-      -scratch_0 + scratch_3 &
+      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*dens - screened_rates(k_n__p)*Y(jn) &
        )
 
     ydot_nuc(jp) = ( &
-      scratch_0 + scratch_5 &
+      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*dens + screened_rates(k_n__p)*Y(jn) &
        )
 
     ydot_nuc(jhe4) = ( &
-      scratch_7 + scratch_9 &
+      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*dens - &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens &
        )
 
     ydot_nuc(jc12) = ( &
-      -scratch_2 - scratch_4 - scratch_6 + scratch_9 &
+      -screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*dens - screened_rates(k_c12_c12__n_mg23) &
+      *Y(jc12)**2*dens - screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*dens - &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens &
        )
 
     ydot_nuc(jo16) = ( &
-      scratch_8 &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens &
        )
 
     ydot_nuc(jne20) = ( &
-      scratch_7 &
+      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*dens &
        )
 
     ydot_nuc(jna23) = ( &
-      -scratch_10 + scratch_11 + scratch_5 &
+      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*dens &
        )
 
     ydot_nuc(jmg23) = ( &
-      scratch_3 &
+      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*dens &
        )
 
 
   end subroutine rhs_nuc
-  
+
 #ifdef CUDA
   attributes(device) &
-#endif  
+#endif
   subroutine actual_jac(state)
 
     !$acc routine seq
@@ -267,7 +253,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif    
+#endif
   subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
@@ -278,32 +264,10 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
-    double precision :: scratch_0
-    double precision :: scratch_1
-    double precision :: scratch_2
-    double precision :: scratch_3
-    double precision :: scratch_4
-    double precision :: scratch_5
-    double precision :: scratch_6
-    double precision :: scratch_7
-    double precision :: scratch_8
-    double precision :: scratch_9
-    double precision :: scratch_10
 
-    scratch_0 = screened_rates(k_c12_c12n_mg23)*Y(jc12)*dens
-    scratch_1 = 1.0d0*scratch_0
-    scratch_2 = 1.0d0*Y(jc12)*dens
-    scratch_3 = screened_rates(k_c12_c12p_na23)*scratch_2
-    scratch_4 = screened_rates(k_c12_ag_o16)*dens
-    scratch_5 = Y(jc12)*scratch_4
-    scratch_6 = -scratch_5
-    scratch_7 = Y(jhe4)*scratch_4
-    scratch_8 = -scratch_7
-    scratch_9 = screened_rates(k_c12_c12a_ne20)*scratch_2
-    scratch_10 = 2.0d0*Y(jc12)*dens
 
     dfdy_nuc(jn,jn) = ( &
-      -screened_rates(k_n_p) &
+      -screened_rates(k_n__p) &
        )
 
     dfdy_nuc(jn,jp) = ( &
@@ -315,7 +279,7 @@ contains
        )
 
     dfdy_nuc(jn,jc12) = ( &
-      scratch_1 &
+      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jn,jo16) = ( &
@@ -335,7 +299,7 @@ contains
        )
 
     dfdy_nuc(jp,jn) = ( &
-      screened_rates(k_n_p) &
+      screened_rates(k_n__p) &
        )
 
     dfdy_nuc(jp,jp) = ( &
@@ -347,7 +311,7 @@ contains
        )
 
     dfdy_nuc(jp,jc12) = ( &
-      scratch_3 &
+      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jp,jo16) = ( &
@@ -375,11 +339,12 @@ contains
        )
 
     dfdy_nuc(jhe4,jhe4) = ( &
-      scratch_6 &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      scratch_8 + scratch_9 &
+      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*dens - screened_rates(k_he4_c12__o16)* &
+      Y(jhe4)*dens &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -407,12 +372,14 @@ contains
        )
 
     dfdy_nuc(jc12,jhe4) = ( &
-      scratch_6 &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_c12a_ne20)*scratch_10 - screened_rates(k_c12_c12p_na23)*scratch_10 - &
-      2.0d0*scratch_0 + scratch_8 &
+      -2.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*dens - 2.0d0* &
+      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*dens - 2.0d0* &
+      screened_rates(k_c12_c12__p_na23)*Y(jc12)*dens - screened_rates(k_he4_c12__o16)* &
+      Y(jhe4)*dens &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -440,11 +407,11 @@ contains
        )
 
     dfdy_nuc(jo16,jhe4) = ( &
-      scratch_5 &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jo16,jc12) = ( &
-      scratch_7 &
+      screened_rates(k_he4_c12__o16)*Y(jhe4)*dens &
        )
 
     dfdy_nuc(jo16,jo16) = ( &
@@ -476,7 +443,7 @@ contains
        )
 
     dfdy_nuc(jne20,jc12) = ( &
-      scratch_9 &
+      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jne20,jo16) = ( &
@@ -508,7 +475,7 @@ contains
        )
 
     dfdy_nuc(jna23,jc12) = ( &
-      scratch_3 &
+      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jna23,jo16) = ( &
@@ -540,7 +507,7 @@ contains
        )
 
     dfdy_nuc(jmg23,jc12) = ( &
-      scratch_1 &
+      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jmg23,jo16) = ( &

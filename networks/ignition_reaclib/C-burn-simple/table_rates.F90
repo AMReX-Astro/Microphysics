@@ -5,8 +5,6 @@ module table_rates
   implicit none
 
   public table_meta, tabular_evaluate
-  public j_na23_ne23
-  public j_ne23_na23
 
   private num_tables, jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
   private k_drate_dt, add_vars
@@ -26,13 +24,14 @@ module table_rates
   integer, parameter :: k_drate_dt   = 7
   integer, parameter :: add_vars     = 1 ! 1 Additional Var in entries
 
+
   type :: table_info
-     double precision :: rate_table(1,1,1)
-     double precision :: rhoy_table(1)
-     double precision :: temp_table(1)
-     integer :: num_rhoy = 0
-     integer :: num_temp = 0
-     integer :: num_vars = 0
+     double precision :: rate_table(39,152,6)
+     double precision :: rhoy_table(152)
+     double precision :: temp_table(39)
+     integer :: num_rhoy = 152
+     integer :: num_temp = 39
+     integer :: num_vars = 6
   end type table_info
 
   type :: table_read_info
@@ -45,7 +44,7 @@ module table_rates
        managed, &
 #endif       
        allocatable :: table_meta(:)
-  
+
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
@@ -64,17 +63,43 @@ contains
   subroutine init_tab_info(self, self_read)
     type(table_info) :: self
     type(table_read_info) :: self_read
-    return
+    double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
+    integer :: i, j, k
+
+    allocate(rate_table_scratch(self%num_temp, self%num_rhoy, self%num_vars+2))
+
+    open(unit=11, file=self_read%rate_table_file)
+    do i = 1, self_read%num_header
+       read(11,*)
+    end do
+    do j = 1, self%num_rhoy
+       do i = 1, self%num_temp
+          read(11,*) ( rate_table_scratch(i, j, k), k=1, self%num_vars+2 )
+       end do
+       if (j/=self%num_rhoy) then
+          read(11,*)
+       end if
+    end do
+    close(11)
+
+    self%rate_table(:,:,:) = rate_table_scratch(:,:,3:self%num_vars+2)
+    do i = 1, self%num_rhoy
+       self%rhoy_table(i) = rate_table_scratch( 1, i, 1 )
+    end do
+    do i = 1, self%num_temp
+       self%temp_table(i) = rate_table_scratch( i, 1, 2 )
+    end do
+    deallocate( rate_table_scratch )
   end subroutine init_tab_info
 
   subroutine term_tab_info(self)
     type(table_info) :: self
-    return
+
   end subroutine term_tab_info
 
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
 
@@ -109,10 +134,10 @@ contains
        end do
     end if
   end subroutine vector_index_lu
-  
+
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -136,7 +161,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif         
+#endif
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
@@ -153,7 +178,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif         
+#endif
   subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
@@ -174,8 +199,8 @@ contains
 
     ! Get box-corner points for interpolation
     ! This deals with out-of-range inputs via linear extrapolation
-    call vector_index_lu(self%rhoy_table, rhoy, irhoy_lo)
-    call vector_index_lu(self%temp_table, temp, itemp_lo)
+    call vector_index_lu(self%rhoy_table(:), rhoy, irhoy_lo)
+    call vector_index_lu(self%temp_table(:), temp, itemp_lo)
     ! write(*,*) 'upper self temp table: ', self%temp_table(39)
     ! write(*,*) 'temp: ', temp
     ! write(*,*) 'itemp_lo: ', itemp_lo
@@ -257,7 +282,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif         
+#endif
   subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     

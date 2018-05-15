@@ -1,12 +1,13 @@
 module reaclib_rates
-  use screening_module, only: screen5, add_screening_factor, screening_init, &
-       plasma_state, fill_plasma_state, screening_finalize
+  use screening_module, only: screen5, add_screening_factor, &
+                              screening_init, screening_finalize, &
+                              plasma_state, fill_plasma_state
   use network
 
   implicit none
 
   logical, parameter :: screen_reaclib = .true.
-  
+
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
   double precision, &
 #ifdef CUDA       
@@ -34,7 +35,7 @@ module reaclib_rates
        managed, &
 #endif       
        allocatable :: do_screening(:)
-  
+
   !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
   !$acc declare copyin(screen_reaclib)
 
@@ -43,90 +44,90 @@ contains
   subroutine init_reaclib()
     
     allocate( ctemp_rate(7, 6) )
-    ! c12_c12a_ne20
-    ctemp_rate(:, 1) = (/  &
+    ! c12_c12__he4_ne20
+    ctemp_rate(:, 1) = [  &
         6.12863000000000d+01, &
         0.00000000000000d+00, &
         -8.41650000000000d+01, &
         -1.56627000000000d+00, &
         -7.36084000000000d-02, &
         -7.27970000000000d-02, &
-        -6.66667000000000d-01 /)
+        -6.66667000000000d-01 ]
 
-    ! c12_c12n_mg23
-    ctemp_rate(:, 2) = (/  &
+    ! c12_c12__n_mg23
+    ctemp_rate(:, 2) = [  &
         -1.28056000000000d+01, &
         -3.01485000000000d+01, &
         0.00000000000000d+00, &
         1.14826000000000d+01, &
         1.82849000000000d+00, &
         -3.48440000000000d-01, &
-        0.00000000000000d+00 /)
+        0.00000000000000d+00 ]
 
-    ! c12_c12p_na23
-    ctemp_rate(:, 3) = (/  &
+    ! c12_c12__p_na23
+    ctemp_rate(:, 3) = [  &
         6.09649000000000d+01, &
         0.00000000000000d+00, &
         -8.41650000000000d+01, &
         -1.41910000000000d+00, &
         -1.14619000000000d-01, &
         -7.03070000000000d-02, &
-        -6.66667000000000d-01 /)
+        -6.66667000000000d-01 ]
 
-    ! c12_ag_o16
-    ctemp_rate(:, 4) = (/  &
+    ! he4_c12__o16
+    ctemp_rate(:, 4) = [  &
         6.96526000000000d+01, &
         -1.39254000000000d+00, &
         5.89128000000000d+01, &
         -1.48273000000000d+02, &
         9.08324000000000d+00, &
         -5.41041000000000d-01, &
-        7.03554000000000d+01 /)
+        7.03554000000000d+01 ]
 
-    ctemp_rate(:, 5) = (/  &
+    ctemp_rate(:, 5) = [  &
         2.54634000000000d+02, &
         -1.84097000000000d+00, &
         1.03411000000000d+02, &
         -4.20567000000000d+02, &
         6.40874000000000d+01, &
         -1.24624000000000d+01, &
-        1.37303000000000d+02 /)
+        1.37303000000000d+02 ]
 
-    ! n_p
-    ctemp_rate(:, 6) = (/  &
+    ! n__p
+    ctemp_rate(:, 6) = [  &
         -6.78161000000000d+00, &
         0.00000000000000d+00, &
         0.00000000000000d+00, &
         0.00000000000000d+00, &
         0.00000000000000d+00, &
         0.00000000000000d+00, &
-        0.00000000000000d+00 /)
+        0.00000000000000d+00 ]
 
 
 
     allocate( rate_start_idx(nrat_reaclib) )
-    rate_start_idx(:) = (/ &
+    rate_start_idx(:) = [ &
       1, &
       2, &
       3, &
       4, &
-      6 /)
+      6 ]
 
     allocate( rate_extra_mult(nrat_reaclib) )
-    rate_extra_mult(:) = (/ &
+    rate_extra_mult(:) = [ &
       0, &
       0, &
       0, &
       1, &
-      0 /)
+      0 ]
 
     allocate( do_screening(nrat_reaclib) )
-    do_screening(:) = (/ &
+    do_screening(:) = [ &
       .true., &
       .true., &
       .true., &
       .true., &
-      .false. /)
+      .false. ]
 
     !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
     
@@ -139,7 +140,7 @@ contains
     deallocate( do_screening )
   end subroutine term_reaclib
 
-  subroutine net_screening_init()    
+  subroutine net_screening_init()
     ! Adds screening factors and calls screening_init
 
     call add_screening_factor(zion(jc12), aion(jc12), &
@@ -154,6 +155,7 @@ contains
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jc12), aion(jc12))
 
+
     call screening_init()    
   end subroutine net_screening_init
 
@@ -163,7 +165,7 @@ contains
 
 #ifdef CUDA
   attributes(device) &
-#endif       
+#endif
   subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 
