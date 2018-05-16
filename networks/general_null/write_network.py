@@ -226,11 +226,11 @@ def write_network(networkTemplate, netFile, outFile):
 
             if (keyword == "NSPEC"):
 
-                fout.write(string.replace(line,"@@NSPEC@@", str(len(speciesList))))
+                fout.write(line.replace("@@NSPEC@@", str(len(speciesList))))
             
             elif (keyword == "NAUX"):
 
-                fout.write(string.replace(line,"@@NAUX@@", str(len(auxvarsList))))
+                fout.write(line.replace("@@NAUX@@", str(len(auxvarsList))))
 
             elif (keyword == "SPEC_NAMES"):
 
