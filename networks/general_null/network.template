@@ -29,9 +29,13 @@ module actual_network
   character (len=16), save :: aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision  , save :: aion(nspec), zion(nspec)
+  double precision, allocatable, save :: aion(:), zion(:)
 
   !$acc declare create(aion, zion)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion
+#endif
 
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
@@ -43,6 +47,9 @@ contains
     @@SPEC_NAMES@@
 
     @@SHORT_SPEC_NAMES@@
+
+    allocate(aion(nspec))
+    allocate(zion(nspec))
 
     @@AION@@
 
@@ -60,7 +67,8 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    deallocate(aion)
+    deallocate(zion)
 
   end subroutine actual_network_finalize
 

@@ -22,3 +22,33 @@
   atol_temp = 1.0d-6
 
 /
+
+&cellparams
+
+  tmax     = 6.d-4
+  numsteps = 1
+
+  density       = 5377711.3970334474d0
+  temperature   = 3215365272.7295337d0
+
+  massfractions(1)  = 1.0000000000000002d-012
+  massfractions(2)  = 1.0000000000000002d-012
+  massfractions(3)  = 1.0000000000000002d-012
+  massfractions(4)  = 6.7996739909127919d-004
+  massfractions(5)  = 1.0806460598504876d-003
+  massfractions(6)  = 0.51902694087216006d0
+  massfractions(7)  = 5.9142071352774584d-004
+  massfractions(8)  = 0.14862276139973196d0
+  massfractions(9)  = 0.26588167451037226d0
+  massfractions(10) = 4.6975166771278130d-002
+  massfractions(11) = 1.0730415929941851d-002
+  massfractions(12) = 3.7772354493887132d-003
+  massfractions(13) = 2.5547698213859899d-005
+  massfractions(14) = 1.5922745113417406d-005
+  massfractions(15) = 1.0000000000000002d-012
+  massfractions(16) = 1.0838978961766397d-003
+  massfractions(17) = 1.5031020063792412d-003
+  massfractions(18) = 1.0000000000000002d-012
+  massfractions(19) = 5.3005437744700653d-006
+
+/

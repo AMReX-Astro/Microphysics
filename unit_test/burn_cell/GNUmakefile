@@ -15,10 +15,10 @@ EOS_DIR := helmholtz
 #NETWORK_DIR := rprox
 #NETWORK_DIR := triple_alpha_plus_cago
 #NETWORK_DIR := ignition_chamulak
-NETWORK_DIR := aprox13
+NETWORK_DIR := subch
 #NETWORK_DIR := ignition_reaclib/URCA-simple
 
-INTEGRATOR_DIR := BS
+INTEGRATOR_DIR := VODE
 
 TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/burn_cell
 

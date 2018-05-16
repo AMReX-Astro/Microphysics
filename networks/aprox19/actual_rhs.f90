@@ -369,22 +369,22 @@ contains
     a(1) = 0.5d0 * y(ihe3) * y(ihe3) * rate(ir33)
     a(2) = y(ihe3) * y(ihe4) * rate(irhe3ag)
 
-    dydt(ihe4) =  dydt(ihe4) + esum(a,2)
+    dydt(ihe4) =  dydt(ihe4) + sum(a(1:2))
 
 
     ! cno cycles
     a(1) = y(io16) * y(ih1) * rate(iropg)
     a(2) = -y(ihe4) * y(in14) * rate(irnag) * 1.5d0
 
-    dydt(ihe4) =  dydt(ihe4) + esum(a,2)
+    dydt(ihe4) =  dydt(ihe4) + sum(a(1:2))
 
     if (.not. deriva) then
        a(1) = y(in14) * y(ih1) * rate(ifa) * rate(irnpg)
-       dydt(ihe4) =  dydt(ihe4) + esum(a,1)
+       dydt(ihe4) =  dydt(ihe4) + a(1)
     else
        a(1) = y(in14) * y(ih1) * rate(ifa) * ratdum(irnpg)
        a(2) = y(in14) * y(ih1) * ratdum(ifa) * rate(irnpg)
-       dydt(ihe4) =  dydt(ihe4) + esum(a,2)
+       dydt(ihe4) =  dydt(ihe4) + sum(a(1:2))
     end if
 
 
@@ -401,11 +401,11 @@ contains
 
     if (.not. deriva) then
        a(1) =  y(in14) * y(ih1) * rate(ifa) * rate(irnpg)
-       dydt(ic12) =  dydt(ic12) + esum(a,1)
+       dydt(ic12) =  dydt(ic12) + a(1)
     else
        a(1) =  y(in14) * y(ih1) * rate(ifa) * ratdum(irnpg)
        a(2) =  y(in14) * y(ih1) * ratdum(ifa) * rate(irnpg)
-       dydt(ic12) =  dydt(ic12) + esum(a,2)
+       dydt(ic12) =  dydt(ic12) + sum(a(1:2))
     end if
 
 
@@ -431,11 +431,11 @@ contains
 
     if (.not. deriva) then
        a(1) =  y(in14) * y(ih1) * rate(ifg) * rate(irnpg)
-       dydt(io16) =  dydt(io16) + esum(a,1)
+       dydt(io16) =  dydt(io16) + a(1)
     else
        a(1) =  y(in14) * y(ih1) * rate(ifg) * ratdum(irnpg)
        a(2) =  y(in14) * y(ih1) * ratdum(ifg) * rate(irnpg)
-       dydt(io16) =  dydt(io16) + esum(a,2)
+       dydt(io16) =  dydt(io16) + sum(a(1:2))
     end if
 
 
@@ -463,7 +463,7 @@ contains
        a(1) = -y(img24) * y(ihe4) * rate(irmgap)*(1.0d0-rate(irr1))
        a(2) =  y(isi28) * rate(irr1) * rate(irsigp)
 
-       dydt(img24) =  dydt(img24) + esum(a,2)
+       dydt(img24) =  dydt(img24) + sum(a(1:2))
 
     else
        a(1) = -y(img24)*y(ihe4) * rate(irmgap)*(1.0d0 - ratdum(irr1))
@@ -676,7 +676,7 @@ contains
     if (.not.deriva) then
        a(1) =  y(icr48) * y(ihe4) * rate(ircrap)*(1.0d0-rate(irx1))
        a(2) = -y(ife52) * rate(irx1) * rate(irfegp)
-       dydt(ife52) =  dydt(ife52) + esum(a,2)
+       dydt(ife52) =  dydt(ife52) + sum(a(1:2))
 
     else
        a(1) =  y(icr48)*y(ihe4) * rate(ircrap)*(1.0d0-ratdum(irx1))
@@ -762,6 +762,7 @@ contains
     use tfactors_module
     use aprox_rates_module
     use bl_constants_module, only: ZERO
+    use extern_probin_module, only: use_c12ag_deboer17
 
     double precision :: btemp, bden
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
@@ -867,10 +868,18 @@ contains
                     ratraw(irnag),dratrawdt(irnag),dratrawdd(irnag), &
                     rrate,drratedt,drratedd)
 
-    ! c12(a,g)o16
-    call rate_c12ag(tf,bden, &
+    ! Determine which c12(a,g)o16 rate to use
+    if (use_c12ag_deboer17) then
+    ! deboer + 2017 c12(a,g)o16 rate
+       call rate_c12ag_deboer17(tf,bden, &
                     ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
                     ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+    else
+    ! 1.7 times cf88 c12(a,g)o16 rate
+       call rate_c12ag(tf,bden, &
+                    ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
+                    ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+    endif
 
     ! c12 + c12
     call rate_c12c12(tf,bden, &
@@ -2247,12 +2256,12 @@ contains
     ! d(h1)/d(he3)
     b(1) = 2.0d0 * y(ihe3) * ratdum(ir33)
     b(2) = -y(ihe4) * ratdum(irhe3ag)
-    dfdy(ih1,ihe3) = esum(b,2)
+    dfdy(ih1,ihe3) = sum(b(1:2))
 
     ! d(h1)/d(he4)
     b(1) = -y(ihe3) * ratdum(irhe3ag)
     b(2) = -y(ihe3) * y(ihe4) * dratdumdy1(irhe3ag)
-    dfdy(ih1,ihe4) = esum(b,2)
+    dfdy(ih1,ihe4) = sum(b(1:2))
 
     ! d(h1)/d(c12)
     dfdy(ih1,ic12) = -2.0d0 * y(ih1) * ratdum(ircpg)
@@ -2268,17 +2277,17 @@ contains
     ! d(he3)/d(h1)
     b(1) = y(ih1) * ratdum(irpp)
     b(2) = ratdum(irpen)
-    dfdy(ihe3,ih1) = esum(b,2)
+    dfdy(ihe3,ih1) = sum(b(1:2))
 
     ! d(he3)/d(he3)
     b(1) = -2.0d0 * y(ihe3) * ratdum(ir33)
     b(2) = -y(ihe4) * ratdum(irhe3ag)
-    dfdy(ihe3,ihe3) = esum(b,2)
+    dfdy(ihe3,ihe3) = sum(b(1:2))
 
     ! d(he3)/d(he4)
     b(1) = -y(ihe3) * ratdum(irhe3ag)
     b(2) = -y(ihe3) * y(ihe4) * dratdumdy1(irhe3ag)
-    dfdy(ihe3,ihe4) = esum(b,2)
+    dfdy(ihe3,ihe4) = sum(b(1:2))
 
 
     ! he4 jacobian elements
@@ -2292,7 +2301,7 @@ contains
     ! d(he4)/d(he3)
     b(1) = y(ihe3) * ratdum(ir33)
     b(2) = y(ihe4) * ratdum(irhe3ag)
-    dfdy(ihe4,ihe3) = esum(b,2)
+    dfdy(ihe4,ihe3) = sum(b(1:2))
 
 
     ! d(he4)/d(he4)
@@ -2333,7 +2342,7 @@ contains
     ! d(he4)/d(n14)
     b(1) =  y(ih1) * ratdum(ifa) * ratdum(irnpg)
     b(2) = -y(ihe4) * ratdum(irnag) * 1.5d0
-    dfdy(ihe4,in14) = esum(b,2)
+    dfdy(ihe4,in14) = sum(b(1:2))
 
     ! d(he4)/d(o16)
     b(1) =  0.5d0 * y(ic12) * ratdum(ir1216)
@@ -2347,7 +2356,7 @@ contains
     ! d(he4)/d(ne20)
     b(1) =  ratdum(irnega)
     b(2) = -y(ihe4) * ratdum(irneag)
-    dfdy(ihe4,ine20) = esum(b,2)
+    dfdy(ihe4,ine20) = sum(b(1:2))
 
     ! d(he4)/d(mg24)
     b(1) =  ratdum(irmgga)
@@ -2411,7 +2420,7 @@ contains
     ! d(he4)/d(ni56)
     b(1) = ratdum(irniga)
     b(2) = y(iprot) * ratdum(ir8f54)
-    dfdy(ihe4,ini56) = esum(b,2)
+    dfdy(ihe4,ini56) = sum(b(1:2))
 
     ! d(he4)/d(neut)
     b(1) = -y(ihe4) * dratdumdy1(iralf1)
@@ -2443,7 +2452,7 @@ contains
     ! d(c12)/d(he4)
     b(1) =  0.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a)
     b(2) = -y(ic12) * ratdum(ircag)
-    dfdy(ic12,ihe4) = esum(b,2)
+    dfdy(ic12,ihe4) = sum(b(1:2))
 
     ! d(c12)/d(c12)
     b(1) = -2.0d0 * y(ic12) * ratdum(ir1212)
@@ -2459,7 +2468,7 @@ contains
     ! d(c12)/d(o16)
     b(1) = -y(ic12) * ratdum(ir1216)
     b(2) =  ratdum(iroga)
-    dfdy(ic12,io16) = esum(b,2)
+    dfdy(ic12,io16) = sum(b(1:2))
 
 
     ! n14 jacobian elements
@@ -2480,7 +2489,7 @@ contains
     ! d(n14)/d(n14)
     b(1) = -y(ih1) * ratdum(irnpg)
     b(2) = -y(ihe4) * ratdum(irnag)
-    dfdy(in14,in14) = esum(b,2)
+    dfdy(in14,in14) = sum(b(1:2))
 
     ! d(n14)/d(o16)
     dfdy(in14,io16) = y(ih1) * ratdum(iropg)
@@ -2497,12 +2506,12 @@ contains
     ! d(o16)/d(he4)
     b(1) =  y(ic12)*ratdum(ircag)
     b(2) = -y(io16)*ratdum(iroag)
-    dfdy(io16,ihe4) = esum(b,2)
+    dfdy(io16,ihe4) = sum(b(1:2))
 
     ! d(o16)/d(c12)
     b(1) = -y(io16)*ratdum(ir1216)
     b(2) =  y(ihe4)*ratdum(ircag)
-    dfdy(io16,ic12) = esum(b,2)
+    dfdy(io16,ic12) = sum(b(1:2))
 
     ! d(o16)/d(n14)
     dfdy(io16,in14) = y(ih1) * ratdum(ifg) * ratdum(irnpg)
@@ -2538,7 +2547,7 @@ contains
     ! d(ne20)/d(ne20)
     b(1) = -y(ihe4) * ratdum(irneag)
     b(2) = -ratdum(irnega)
-    dfdy(ine20,ine20) = esum(b,2)
+    dfdy(ine20,ine20) = sum(b(1:2))
 
     ! d(ne20)/d(mg24)
     dfdy(ine20,img24) = ratdum(irmgga)
@@ -2569,7 +2578,7 @@ contains
     ! d(mg24)/d(si28)
     b(1) = ratdum(irsiga)
     b(2) = ratdum(irr1) * ratdum(irsigp)
-    dfdy(img24,isi28) = esum(b,2)
+    dfdy(img24,isi28) = sum(b(1:2))
 
 
     ! si28 jacobian elements
@@ -2592,7 +2601,7 @@ contains
     ! d(si28)/d(mg24)
     b(1) =  y(ihe4) * ratdum(irmgag)
     b(2) =  y(ihe4) * ratdum(irmgap) * (1.0d0-ratdum(irr1))
-    dfdy(isi28,img24) = esum(b,2)
+    dfdy(isi28,img24) = sum(b(1:2))
 
     ! d(si28)/d(si28)
     b(1) =  -y(ihe4) * ratdum(irsiag)
@@ -2604,7 +2613,7 @@ contains
     ! d(si28)/d(s32)
     b(1) = ratdum(irsga)
     b(2) = ratdum(irs1) * ratdum(irsgp)
-    dfdy(isi28,is32) = esum(b,2)
+    dfdy(isi28,is32) = sum(b(1:2))
 
 
     ! s32 jacobian elements
@@ -2618,12 +2627,12 @@ contains
     ! d(s32)/d(o16)
     b(1) = 0.68d0*0.5d0*y(io16)*ratdum(ir1616)*(1.0d0-ratdum(irs1))
     b(2) = 0.2d0 * 0.5d0*y(io16) * ratdum(ir1616)
-    dfdy(is32,io16) = esum(b,2)
+    dfdy(is32,io16) = sum(b(1:2))
 
     ! d(s32)/d(si28)
     b(1)  =y(ihe4) * ratdum(irsiag)
     b(2) = y(ihe4) * ratdum(irsiap) * (1.0d0-ratdum(irs1))
-    dfdy(is32,isi28) = esum(b,2)
+    dfdy(is32,isi28) = sum(b(1:2))
 
     ! d(s32)/d(s32)
     b(1) = -y(ihe4) * ratdum(irsag)
@@ -2635,7 +2644,7 @@ contains
     ! d(s32)/d(ar36)
     b(1) = ratdum(irarga)
     b(2) = ratdum(irt1) * ratdum(irargp)
-    dfdy(is32,iar36) = esum(b,2)
+    dfdy(is32,iar36) = sum(b(1:2))
 
 
     ! ar36 jacobian elements
@@ -2649,7 +2658,7 @@ contains
     ! d(ar36)/d(s32)
     b(1) = y(ihe4) * ratdum(irsag)
     b(2) = y(ihe4) * ratdum(irsap) * (1.0d0-ratdum(irt1))
-    dfdy(iar36,is32) = esum(b,2)
+    dfdy(iar36,is32) = sum(b(1:2))
 
     ! d(ar36)/d(ar36)
     b(1) = -y(ihe4) * ratdum(irarag)
@@ -2661,7 +2670,7 @@ contains
     ! d(ar36)/d(ca40)
     b(1) = ratdum(ircaga)
     b(2) = ratdum(ircagp) * ratdum(iru1)
-    dfdy(iar36,ica40) = esum(b,2)
+    dfdy(iar36,ica40) = sum(b(1:2))
 
 
     ! ca40 jacobian elements
@@ -2675,7 +2684,7 @@ contains
     ! d(ca40)/d(ar36)
     b(1) =  y(ihe4) * ratdum(irarag)
     b(2) =  y(ihe4) * ratdum(irarap)*(1.0d0-ratdum(iru1))
-    dfdy(ica40,iar36) = esum(b,2)
+    dfdy(ica40,iar36) = sum(b(1:2))
 
     ! d(ca40)/d(ca40)
     b(1) = -y(ihe4) * ratdum(ircaag)
@@ -2687,7 +2696,7 @@ contains
     ! d(ca40)/d(ti44)
     b(1) = ratdum(irtiga)
     b(2) = ratdum(irtigp) * ratdum(irv1)
-    dfdy(ica40,iti44) = esum(b,2)
+    dfdy(ica40,iti44) = sum(b(1:2))
 
 
     ! ti44 jacobian elements
@@ -2701,7 +2710,7 @@ contains
     ! d(ti44)/d(ca40)
     b(1) =  y(ihe4) * ratdum(ircaag)
     b(2) =  y(ihe4) * ratdum(ircaap)*(1.0d0-ratdum(irv1))
-    dfdy(iti44,ica40) = esum(b,2)
+    dfdy(iti44,ica40) = sum(b(1:2))
 
     ! d(ti44)/d(ti44)
     b(1) = -y(ihe4) * ratdum(irtiag)
@@ -2713,7 +2722,7 @@ contains
     ! d(ti44)/d(cr48)
     b(1) = ratdum(ircrga)
     b(2) = ratdum(irw1) * ratdum(ircrgp)
-    dfdy(iti44,icr48) = esum(b,2)
+    dfdy(iti44,icr48) = sum(b(1:2))
 
 
     ! cr48 jacobian elements
@@ -2727,7 +2736,7 @@ contains
     ! d(cr48)/d(ti44)
     b(1) =  y(ihe4) * ratdum(irtiag)
     b(2) =  y(ihe4) * ratdum(irtiap)*(1.0d0-ratdum(irw1))
-    dfdy(icr48,iti44) = esum(b,2)
+    dfdy(icr48,iti44) = sum(b(1:2))
 
     ! d(cr48)/d(cr48)
     b(1) = -y(ihe4) * ratdum(ircrag)
@@ -2739,7 +2748,7 @@ contains
     ! d(cr48)/d(fe52)
     b(1) = ratdum(irfega)
     b(2) = ratdum(irx1) * ratdum(irfegp)
-    dfdy(icr48,ife52) = esum(b,2)
+    dfdy(icr48,ife52) = sum(b(1:2))
 
 
     ! fe52 jacobian elements
@@ -2754,7 +2763,7 @@ contains
     ! d(fe52)/d(cr48)
     b(1) = y(ihe4) * ratdum(ircrag)
     b(2) = y(ihe4) * ratdum(ircrap) * (1.0d0-ratdum(irx1))
-    dfdy(ife52,icr48) = esum(b,2)
+    dfdy(ife52,icr48) = sum(b(1:2))
 
     ! d(fe52)/d(fe52)
     b(1) = -y(ihe4) * ratdum(irfeag)
@@ -2768,12 +2777,12 @@ contains
     ! d(fe52)/d(fe54)
     b(1) = ratdum(ir1f54)
     b(2) = y(iprot) * y(iprot) * ratdum(ir5f54)
-    dfdy(ife52,ife54) = esum(b,2)
+    dfdy(ife52,ife54) = sum(b(1:2))
 
     ! d(fe52)/d(ni56)
     b(1) = ratdum(irniga)
     b(2) = y(iprot) * ratdum(ir8f54)
-    dfdy(ife52,ini56) = esum(b,2)
+    dfdy(ife52,ini56) = sum(b(1:2))
 
     ! d(fe52)/d(neut)
     b(1) =  y(ife54) * dratdumdy1(ir1f54)
@@ -2799,7 +2808,7 @@ contains
     ! d(fe54)/d(fe52)
     b(1) =  y(ineut) * y(ineut) * ratdum(ir2f54)
     b(2) =  y(ihe4) * ratdum(ir6f54)
-    dfdy(ife54,ife52) = esum(b,2)
+    dfdy(ife54,ife52) = sum(b(1:2))
 
     ! d(fe54)/d(fe54)
     b(1) = -ratdum(ir1f54)
@@ -2810,7 +2819,7 @@ contains
     ! d(fe54)/d(ni56)
     b(1)  = ratdum(ir4f54)
     b(2)  = c54 * ratdum(irn56ec)
-    dfdy(ife54,ini56) = esum(b,2)
+    dfdy(ife54,ini56) = sum(b(1:2))
 
     ! d(fe54)/d(neut)
     b(1) = -y(ife54) * dratdumdy1(ir1f54)
@@ -2832,12 +2841,12 @@ contains
     ! d(ni56)/d(he4)
     b(1) =  y(ife52) * ratdum(irfeag)
     b(2) =  y(ife52) * y(iprot) * ratdum(ir7f54)
-    dfdy(ini56,ihe4) = esum(b,2)
+    dfdy(ini56,ihe4) = sum(b(1:2))
 
     ! d(ni56)/d(fe52)
     b(1) = y(ihe4) * ratdum(irfeag)
     b(2) = y(ihe4)* y(iprot) * ratdum(ir7f54)
-    dfdy(ini56,ife52) = esum(b,2)
+    dfdy(ini56,ife52) = sum(b(1:2))
 
     ! d(ni56)/d(fe54)
     dfdy(ini56,ife54) = y(iprot) * y(iprot) * ratdum(ir3f54)
@@ -2891,7 +2900,7 @@ contains
     ! photodisintegration proton jacobian elements
     b(1) =  2.0d0 * y(ife52) * ratdum(ir6f54)
     b(2) =  2.0d0 * ratdum(iralf1)
-    dfdy(iprot,ihe4) = esum(b,2)
+    dfdy(iprot,ihe4) = sum(b(1:2))
 
     ! d(prot)/d(fe52)
     dfdy(iprot,ife52) = 2.0d0 * y(ihe4) * ratdum(ir6f54)
@@ -2899,7 +2908,7 @@ contains
     ! d(prot)/d(fe54)
     b(1) = -2.0d0 * y(iprot) * y(iprot) * ratdum(ir3f54)
     b(2) = -2.0d0 * y(iprot) * y(iprot) * ratdum(ir5f54)
-    dfdy(iprot,ife54) = esum(b,2)
+    dfdy(iprot,ife54) = sum(b(1:2))
 
     ! d(prot)/d(ni56)
     dfdy(iprot,ini56) = 2.0d0 * ratdum(ir4f54)

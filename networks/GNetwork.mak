@@ -75,9 +75,7 @@ INT_DIRS += $(MICROPHYSICS_HOME)/integration
 # we'll assume that all integrators need the linear algebra packages
 INT_DIRS += $(MICROPHYSICS_HOME)/util/
 
-ifdef SYSTEM_BLAS
-  libraries += -lblas
-else
+ifndef SYSTEM_BLAS
   INT_DIRS += $(MICROPHYSICS_HOME)/util/BLAS
 endif
 

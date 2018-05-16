@@ -30,3 +30,17 @@
   SMALL_X_SAFE = 1.d-20
   
 /
+
+&cellparams
+
+  tmax     = 1.0d-4
+  numsteps = 10000
+
+  density       = 3.d9
+  temperature   = 5.d8
+
+  massfractions(1)  = 0.5d0
+  massfractions(2)  = 0.5d0
+  massfractions(3)  = 0.0d0
+
+/

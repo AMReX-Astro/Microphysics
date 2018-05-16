@@ -69,7 +69,7 @@ contains
 
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
-                                    burning_mode, call_eos_in_rhs, dT_crit
+                                    burning_mode, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use bl_constants_module, only : ZERO, ONE
     use integration_data, only: integration_status_t
@@ -86,7 +86,7 @@ contains
     ! Local variables
 
     real(dp_t) :: local_time
-    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
+    type (eos_t) :: eos_state_in, eos_state_temp
 
     ! Work arrays
 
@@ -104,9 +104,6 @@ contains
     integer :: istate
 
     integer :: ipar
-
-    real(dp_t) :: sum
-    real(dp_t) :: retry_change_factor
 
     real(dp_t) :: ener_offset
 
@@ -316,8 +313,7 @@ contains
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)
 
-    ! Subtract the energy offset
-    ! get the number of RHS calls and jac evaluations from the VODE
+    ! Get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
@@ -327,6 +323,9 @@ contains
     endif
 
     call normalize_abundances_burn(state_out)
+
+    ! set the integration time for any diagnostics
+    state_out % time = time + dt
 
     if (burner_verbose) then
 

@@ -88,3 +88,7 @@ SMALL_X_SAFE                 real            1.0d-30
 
 # The maximum temperature for reactions in the integration.
 MAX_TEMP                     real            1.0d11
+
+# boost the reaction rates by a factor > 1
+react_boost                 real         -1.d0
+
