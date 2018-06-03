@@ -1,7 +1,7 @@
 module vode_type_module
 
-  use bl_types, only: dp_t
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
 
   use burn_type_module, only : burn_t, net_ienuc, eos_to_burn
   use eos_type_module, only : eos_t
@@ -19,7 +19,7 @@ module vode_type_module
   private
 
   ! this should be larger than any reasonable temperature we will encounter   
-  real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11          
+  real (rt), parameter :: MAX_TEMP = 1.0d11          
 
   integer, parameter :: VODE_NEQS = SVAR_EVOLVE
 
@@ -32,10 +32,10 @@ contains
 
   subroutine clean_state(time, y, rpar)
 
-    real(dp_t), intent(in) :: time
-    real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
+    real(rt), intent(in) :: time
+    real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
-    real (kind=dp_t) :: max_e, ke
+    real (rt) :: max_e, ke
 
     type (eos_t) :: eos_state
 
@@ -74,8 +74,8 @@ contains
 
   subroutine fill_unevolved_variables(time, y, rpar)
 
-    real(dp_t), intent(in) :: time
-    real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
+    real(rt), intent(in) :: time
+    real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
     ! we are always integrating from t = 0, so there is no offset
     ! time needed here.  The indexing of irp_ydot_a is based on
@@ -91,10 +91,10 @@ contains
 
   subroutine renormalize_species(time, y, rpar)
 
-    real(dp_t), intent(in) :: time
-    real(dp_t) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
+    real(rt), intent(in) :: time
+    real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
-    real(dp_t) :: nspec_sum
+    real(rt) :: nspec_sum
 
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)
@@ -111,8 +111,8 @@ contains
   subroutine sdc_to_vode(sdc, y, rpar)
 
     type (sdc_t) :: sdc
-    real(dp_t)   :: rpar(n_rpar_comps)
-    real(dp_t)   :: y(SVAR_EVOLVE)
+    real(rt)   :: rpar(n_rpar_comps)
+    real(rt)   :: y(SVAR_EVOLVE)
 
     y(:) = sdc % y(1:SVAR_EVOLVE)
 
@@ -138,10 +138,10 @@ contains
 
   subroutine vode_to_sdc(time, y, rpar, sdc)
 
-    real(dp_t), intent(in) :: time
+    real(rt), intent(in) :: time
     type (sdc_t) :: sdc
-    real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(SVAR_EVOLVE)
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(SVAR_EVOLVE)
 
     sdc % y(1:SVAR_EVOLVE) = y(:)
 
@@ -156,9 +156,9 @@ contains
 
   subroutine rhs_to_vode(time, burn_state, y, ydot, rpar)
 
-    real(dp_t), intent(in) :: time
-    real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
+    real(rt), intent(in) :: time
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
     type(burn_t), intent(in) :: burn_state
 
     call fill_unevolved_variables(time, y, rpar)
@@ -183,11 +183,11 @@ contains
 
     ! this is only used with an analytic Jacobian
 
-    real(dp_t), intent(in) :: time
-    real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(SVAR_EVOLVE)
+    real(rt), intent(in) :: time
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(SVAR_EVOLVE)
     type(burn_t), intent(in) :: burn_state
-    real(dp_t)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
+    real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
     integer :: n
 
@@ -218,13 +218,13 @@ contains
   subroutine vode_to_burn(time, y, rpar, burn_state)
 
     type (burn_t) :: burn_state
-    real(dp_t), intent(in) :: time
-    real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(SVAR_EVOLVE)
+    real(rt), intent(in) :: time
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(SVAR_EVOLVE)
 
     type(eos_t) :: eos_state
 
-    real(kind=dp_t) :: rhoInv, min_temp, max_temp                               
+    real(rt) :: rhoInv, min_temp, max_temp                               
 
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)

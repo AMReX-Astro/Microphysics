@@ -31,8 +31,8 @@ contains
     use sdc_type_module, only: sdc_t
     use stiff_ode, only: ode
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
+    use amrex_fort_module, only : rt => amrex_real
     use rpar_indices, only : irp_t0
     use integration_data, only: integration_status_t
 
@@ -42,17 +42,17 @@ contains
 
     type(sdc_t), intent(in   ) :: state_in
     type(sdc_t), intent(inout) :: state_out
-    real(dp_t),  intent(in   ) :: dt, time
+    real(rt),  intent(in   ) :: dt, time
     type(integration_status_t), intent(inout) :: status
 
     ! Local variables
     integer :: ierr
 
-    real(kind=dp_t) :: t0, t1                   ! starting and ending time
+    real(rt) :: t0, t1                   ! starting and ending time
 
     type (bs_t) :: bs
 
-    real(dp_t) :: retry_change_factor
+    real(rt) :: retry_change_factor
 
     ! BS does not allow for per-equation tolerances, so aggregate them here
     bs % atol(:) = 0.d0

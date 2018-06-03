@@ -6,21 +6,21 @@ esum_template = """
 
     !$acc routine seq
 
-    use bl_error_module, only: bl_error
-    use bl_types, only: dp_t
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
-    real(dp_t), intent(in) :: array(:)
-    real(dp_t) :: esum
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
     ! initializing the unused values in this array.
 
-    real(dp_t) :: partials(0:@NUM_MINUS_ONE@)
-    real(dp_t) :: x, y, z, hi, lo
+    real(rt) :: partials(0:@NUM_MINUS_ONE@)
+    real(rt) :: x, y, z, hi, lo
 
     ! j keeps track of how many entries in partials are actually used.
     ! The algorithm we model this off of, written in Python, simply
@@ -56,7 +56,7 @@ esum_template = """
           hi = x + y
           lo = y - (hi - x)
 
-          if (lo .ne. 0.0_dp_t) then
+          if (lo .ne. 0.0_rt) then
              partials(j) = lo
              j = j + 1
           endif

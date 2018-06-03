@@ -1,4 +1,6 @@
 module microphysics_math_module
+  
+  use amrex_error_module
 
   implicit none
 
@@ -123,7 +125,7 @@ contains
 
 #ifndef ACC
     if (j > n - 1) then
-       call bl_error("Error: too many partials created in esum.")
+       call amrex_error("Error: too many partials created in esum.")
     endif
 #endif
 

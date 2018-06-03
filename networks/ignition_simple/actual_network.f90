@@ -1,6 +1,6 @@
 module actual_network
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 

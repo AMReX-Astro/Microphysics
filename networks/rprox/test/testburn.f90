@@ -1,7 +1,8 @@
 program testburn
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+
   use network
   use eos_module
   use actual_burner_module
@@ -11,8 +12,8 @@ program testburn
 
   implicit none
 
-  real(kind=dp_t) :: dens, temp, dt
-  real(kind=dp_t), dimension(nspec) :: Xin
+  real(rt) :: dens, temp, dt
+  real(rt), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
   integer :: n
 
@@ -33,7 +34,7 @@ program testburn
          0.69999999999999996]
 
 
-  dt = 1.e-4_dp_t
+  dt = 1.e-4_rt
   !use_timestep_estimator = .true.
   !scaling_method = 2
   !ode_scale_floor = 1.d-12
