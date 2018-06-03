@@ -53,11 +53,19 @@ module vode_integrator_module
   integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
   integer, parameter :: LIW = 30 + neqs
 
+  ! Maximum number of timesteps to take.
+
+  integer, save :: max_steps
+
 contains
 
   subroutine vode_integrator_init()
 
+    use extern_probin_module, only: ode_max_steps
+
     implicit none
+
+    max_steps = ode_max_steps
 
   end subroutine vode_integrator_init
 
@@ -148,7 +156,7 @@ contains
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
-    iwork(6) = 150000
+    iwork(6) = max_steps
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
