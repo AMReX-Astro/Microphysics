@@ -14,16 +14,16 @@ contains
 
     !$acc routine seq
 
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_constants_module, only: ZERO, ONE
+    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
-    use bl_types, only: dp_t
 
     implicit none
 
     type (burn_t) :: state
-    real(dp_t) :: cv, cp, cvInv, cpInv
+    real(rt) :: cv, cp, cvInv, cpInv
 
     if (state % self_heat) then
 
@@ -86,17 +86,17 @@ contains
 
     !$acc routine seq
 
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_constants_module, only: ZERO, ONE
+    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
-    use bl_types, only: dp_t
 
     implicit none
 
     type (burn_t) :: state
 
-    real(dp_t) :: cp, cv, cpInv, cvInv
+    real(rt) :: cp, cv, cpInv, cvInv
 
     ! Temperature Jacobian elements
 
