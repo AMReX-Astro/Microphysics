@@ -1,7 +1,5 @@
 module actual_network
 
-  use bl_types
-
   implicit none
 
   integer, parameter :: nspec = 3
@@ -26,7 +24,7 @@ contains
   subroutine actual_network_init
 
     use extern_probin_module, only: specific_q_burn
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
     use fundamental_constants_module, only: N_A
 
     spec_names(ifuel_)  = "fuel"

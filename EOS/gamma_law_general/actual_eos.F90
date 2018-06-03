@@ -44,7 +44,7 @@ contains
     if (eos_gamma .gt. 0.d0) then
        gamma_const = eos_gamma
     else
-       call bl_error("gamma_const cannot be < 0")
+       call amrex_error("gamma_const cannot be < 0")
     end if
 
     assume_neutral = eos_assume_neutral
@@ -163,13 +163,13 @@ contains
        ! This system is underconstrained.
 
 #if !defined(ACC) && !defined(CUDA)
-       call bl_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
+       call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 #endif
 
     case default
 
 #if !defined(ACC) && !defined(CUDA)
-       call bl_error('EOS: invalid input.')
+       call amrex_error('EOS: invalid input.')
 #endif
        
     end select

@@ -1,7 +1,6 @@
 module actual_burner_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
   use network
   use eos_type_module
 
@@ -16,8 +15,6 @@ contains
     ! Do nothing in this burner.
 
   end subroutine actual_burner_init
-
-
 
   subroutine actual_burner(state_in, state_out, dt, time)
 

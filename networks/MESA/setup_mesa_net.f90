@@ -5,8 +5,9 @@
 subroutine setup_mesa_net()
 
    ! Boxlib:
-   use bl_error_module, only: bl_error
-   use parallel, only: parallel_IOProcessor
+   use amrex_error_module, only: bl_error
+   use amrex_fort_module, only : rt => amrex_real
+   use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
    ! MAESTRO:
    use network, only: net_iso, chem_id, nspec, &

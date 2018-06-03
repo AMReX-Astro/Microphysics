@@ -38,11 +38,10 @@ contains
 
   subroutine actual_network_init()
     
-    use bl_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
-    use bl_types, only: dp_t
+    use amrex_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
+    use amrex_fort_module, only : rt => amrex_real
 
-    real(kind=dp_t), parameter :: MeV2erg = 1.60217646e-6, &
-                                  N_A = 6.0221415e23
+    real(rt), parameter :: MeV2erg = 1.60217646e-6, N_A = 6.0221415e23
 
     short_spec_names(ih1) = "h1"
     short_spec_names(ihe4) = "he4"

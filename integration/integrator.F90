@@ -1,5 +1,7 @@
 module integrator_module
 
+  use amrex_error_module
+
   implicit none
 
   public
@@ -151,7 +153,7 @@ contains
 
     if (.not. status % integration_complete) then
 
-       call bl_error("ERROR in burner: integration failed")
+       call amrex_error("ERROR in burner: integration failed")
 
     endif
 

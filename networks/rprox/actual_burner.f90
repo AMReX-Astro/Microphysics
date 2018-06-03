@@ -3,9 +3,9 @@
 
 module actual_burner_module
 
-  use bl_types
-  use bl_constants_module
-  use bl_error_module
+  use amrex_constants_module
+  use amrex_error_module
+  use amrex_fort_module, only : rt => amrex_real
   use eos_module
   use eos_type_module
   use network
@@ -37,7 +37,6 @@ contains
 
     double precision :: T9
 
-    T9 = state_in % T * 1.e-9_dp_t
 
     ! Only burn if 0.2 < T9 < 2.5 or X(H1) > 0.05.
     ! The last restriction is a kludge based on the last paragraph of WW81.

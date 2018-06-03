@@ -26,21 +26,21 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
                     d_dxdt_dT, d_dxdt_dx, species, num_reactions, &
                     handle_net
    use network,   only: chem_id
-   use bl_error_module, only: bl_error
-   use bl_types,  only: dp_t
+   use amrex_error_module, only: amrex_error
+   use amrex_fort_module, only : rt => amrex_real
 
    implicit none
 
    integer, intent(in) :: step, n, lrpar, lipar
-   real(kind=dp_t), intent(in) :: told, time
-   real(kind=dp_t), intent(inout) :: x(n)
+   real(rt), intent(in) :: told, time
+   real(rt), intent(inout) :: x(n)
    ! x can be modified if necessary to keep it in valid range of 
    ! possible solutions.
-   !real(kind=dp_t), intent(inout), target :: rpar(lrpar), rwork_y(*)
+   !real(rt), intent(inout), target :: rpar(lrpar), rwork_y(*)
    !integer, intent(inout), target :: ipar(lipar), iwork_y(*)
-   real(kind=dp_t), intent(inout), target :: rwork_y(*)
+   real(rt), intent(inout), target :: rwork_y(*)
    integer, intent(inout), target :: iwork_y(*)
-   real(kind=dp_t), intent(inout), pointer :: rpar(:)
+   real(rt), intent(inout), pointer :: rpar(:)
    integer, intent(inout), pointer :: ipar(:)
    interface
       include 'num_interp_y.dek'
@@ -48,26 +48,26 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
    integer, intent(out) :: irtrn ! < 0 causes solver to return to 
                                  !calling program.
 
-   real(kind=dp_t) :: logRho, logT
-   real(kind=dp_t) :: d_eps_nuc_dRho, &
+   real(rt) :: logRho, logT
+   real(rt) :: d_eps_nuc_dRho, &
           d_eps_nuc_dT, eps_nuc_categories(num_rvs, num_categories)
-   real(kind=dp_t), dimension(:, :), pointer :: reaction_eps_nuc
-   real(kind=dp_t), dimension(:, :), pointer :: rate_screened, rate_raw
+   real(rt), dimension(:, :), pointer :: reaction_eps_nuc
+   real(rt), dimension(:, :), pointer :: rate_screened, rate_raw
 
-   real(kind=dp_t) :: Rho, T, xsum, d_eps_nuc_dx(species), dx, &
+   real(rt) :: Rho, T, xsum, d_eps_nuc_dx(species), dx, &
           dt, xh, xhe, mass_correction
 
    integer :: info, i, j, lwork, cid
-   real(kind=dp_t), dimension(species) :: dabar_dx, dzbar_dx, dmc_dx
-   real(kind=dp_t), pointer :: work(:), rate_factors(:), category_factors(:)
+   real(rt), dimension(species) :: dabar_dx, dzbar_dx, dmc_dx
+   real(rt), pointer :: work(:), rate_factors(:), category_factors(:)
 
-   real(kind=dp_t) :: abar, zbar, eps_nuc, ye, z2bar
+   real(rt) :: abar, zbar, eps_nuc, ye, z2bar
 
    logical, parameter :: reuse_given_rates = .false.
 
    ! this is new to version 5118: (make sure all interfaces referencing 
    !  this routine have been updated too)
-   !real(kind=dp_t) :: d_eta_dlnT, d_eta_dlnRho
+   !real(rt) :: d_eta_dlnT, d_eta_dlnRho
 
    irtrn = 0
    if (time == 0) return
