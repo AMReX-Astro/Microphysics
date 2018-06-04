@@ -9,8 +9,8 @@ module vode_integrator_module
   use rpar_indices
   use vode_type_module
   use burn_type_module
-  use bl_types
-  use bl_error_module
+  use amrex_error_module
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -53,11 +53,19 @@ module vode_integrator_module
   integer, parameter :: LRW = 22 + 9*neqs + 2*neqs**2
   integer, parameter :: LIW = 30 + neqs
 
+  ! Maximum number of timesteps to take.
+
+  integer, save :: max_steps
+
 contains
 
   subroutine vode_integrator_init()
 
+    use extern_probin_module, only: ode_max_steps
+
     implicit none
+
+    max_steps = ode_max_steps
 
   end subroutine vode_integrator_init
 
@@ -71,7 +79,7 @@ contains
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     burning_mode, dT_crit
     use actual_rhs_module, only : update_unevolved_species
-    use bl_constants_module, only : ZERO, ONE
+    use amrex_constants_module, only : ZERO, ONE
     use integration_data, only: integration_status_t
 
     implicit none
@@ -80,21 +88,21 @@ contains
 
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
-    real(dp_t),    intent(in   ) :: dt, time
+    real(rt),    intent(in   ) :: dt, time
     type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
-    real(dp_t) :: local_time
+    real(rt) :: local_time
     type (eos_t) :: eos_state_in, eos_state_temp
 
     ! Work arrays
 
-    real(dp_t) :: y(neqs)
-    real(dp_t) :: atol(neqs), rtol(neqs)
-    real(dp_t) :: rwork(LRW)
+    real(rt) :: y(neqs)
+    real(rt) :: atol(neqs), rtol(neqs)
+    real(rt) :: rwork(LRW)
     integer    :: iwork(LIW)
-    real(dp_t) :: rpar(n_rpar_comps)
+    real(rt) :: rpar(n_rpar_comps)
 
     integer :: MF_JAC
 
@@ -105,10 +113,10 @@ contains
 
     integer :: ipar
 
-    real(dp_t) :: ener_offset
+    real(rt) :: ener_offset
 
     logical :: integration_failed
-    real(dp_t), parameter :: failure_tolerance = 1.d-2
+    real(rt), parameter :: failure_tolerance = 1.d-2
 
     EXTERNAL jac, f_rhs
 
@@ -117,7 +125,7 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in vode_integrator.f90.")
+       call amrex_error("Error: unknown Jacobian mode in vode_integrator.f90.")
     endif
 
     integration_failed = .false.
@@ -148,7 +156,7 @@ contains
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
-    iwork(6) = 150000
+    iwork(6) = max_steps
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
@@ -190,7 +198,7 @@ contains
     else if (burning_mode == 1 .or. burning_mode == 3) then
        rpar(irp_self_heat) = ONE
     else
-       call bl_error("Error: unknown burning_mode in vode_integrator.f90.")
+       call amrex_error("Error: unknown burning_mode in vode_integrator.f90.")
     endif
 
     ! Copy in the zone size.

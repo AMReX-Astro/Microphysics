@@ -19,8 +19,8 @@
 
 module bdf
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
   use bdf_type_module
 
   implicit none
@@ -55,8 +55,8 @@ contains
   subroutine bdf_advance(ts, y0, t0, y1, t1, dt0, reset, reuse, ierr, initial_call)
     !$acc routine seq
     type(bdf_ts), intent(inout) :: ts
-    real(dp_t),   intent(in   ) :: y0(neqs,bdf_npt), t0, t1, dt0
-    real(dp_t),   intent(  out) :: y1(neqs,bdf_npt)
+    real(rt),   intent(in   ) :: y0(neqs,bdf_npt), t0, t1, dt0
+    real(rt),   intent(  out) :: y1(neqs,bdf_npt)
     logical,      intent(in   ) :: reset, reuse
     integer,      intent(  out) :: ierr
     logical,      intent(in   ) :: initial_call
@@ -161,7 +161,7 @@ contains
     type(bdf_ts), intent(inout) :: ts
 
     integer  :: j, o
-    real(dp_t) :: a0, a0hat, a1, a2, a3, a4, a5, a6, xistar_inv, xi_inv, c
+    real(rt) :: a0, a0hat, a1, a2, a3, a4, a5, a6, xistar_inv, xi_inv, c
 
     !ts%l  = 0
     do o = 0, ts%max_order
@@ -264,10 +264,10 @@ contains
     type(bdf_ts), intent(inout) :: ts
 
     integer  :: k, m, n, p, info
-    real(dp_t) :: c, dt_adj, dt_rat, inv_l1
+    real(rt) :: c, dt_adj, dt_rat, inv_l1
     logical  :: rebuild, iterating(ts%npt)
 
-    inv_l1 = 1.0_dp_t / ts%l(1)
+    inv_l1 = 1.0_rt / ts%l(1)
     do p = 1, ts%npt
        do m = 1, ts%neq
           ts%e(m,p)   = 0
@@ -359,7 +359,7 @@ contains
     logical,      intent(out)   :: retry
     integer,      intent(out)   :: err
 
-    real(dp_t) :: error, eta
+    real(rt) :: error, eta
     integer  :: p
 
     retry = .false.; err = BDF_ERR_SUCCESS
@@ -443,8 +443,8 @@ contains
     !$acc routine seq
     type(bdf_ts), intent(inout) :: ts
 
-    real(dp_t) :: c, error, eta(-1:1), rescale, etamax(ts%npt), etaminmax
-    real(dp_t) :: cxe1(ts%neq, ts%npt), emcxe1(ts%neq, ts%npt), delta(ts%npt)
+    real(rt) :: c, error, eta(-1:1), rescale, etamax(ts%npt), etaminmax
+    real(rt) :: cxe1(ts%neq, ts%npt), emcxe1(ts%neq, ts%npt), delta(ts%npt)
     integer  :: p, m
 
     rescale = 0
@@ -530,7 +530,7 @@ contains
     use rhs_module, only: rhs
 
     type(bdf_ts), intent(inout) :: ts
-    real(dp_t),   intent(in   ) :: y0(ts%neq, ts%npt), dt
+    real(rt),   intent(in   ) :: y0(ts%neq, ts%npt), dt
     logical,      intent(in   ) :: reuse
     
     integer :: p,m,o
@@ -594,10 +594,10 @@ contains
   subroutine rescale_timestep(ts, eta_in, force)
     !$acc routine seq
     type(bdf_ts), intent(inout) :: ts
-    real(dp_t),   intent(in   ) :: eta_in
+    real(rt),   intent(in   ) :: eta_in
     logical,      intent(in   ) :: force
 
-    real(dp_t) :: eta
+    real(rt) :: eta
     integer  :: i
 
     if (force) then
@@ -626,7 +626,7 @@ contains
     !$acc routine seq
     type(bdf_ts), intent(inout) :: ts
     integer  :: j, o, p, m
-    real(dp_t) :: c(0:6), c_shift(0:6)
+    real(rt) :: c(0:6), c_shift(0:6)
 
     if (ts%k > 2) then
        do o = 0, 6
@@ -667,7 +667,7 @@ contains
     !$acc routine seq
     type(bdf_ts), intent(inout) :: ts
     integer  :: j, o
-    real(dp_t) :: c(0:6), c_shift(0:6)
+    real(rt) :: c(0:6), c_shift(0:6)
 
     c = 0
     c(2) = 1
@@ -694,7 +694,7 @@ contains
   function alpha0(k) result(a0)
     !$acc routine seq
     integer,  intent(in) :: k
-    real(dp_t) :: a0
+    real(rt) :: a0
     integer  :: j
     a0 = -1
     do j = 2, k
@@ -708,8 +708,8 @@ contains
   function alphahat0(k, h) result(a0)
     !$acc routine seq
     integer,  intent(in) :: k
-    real(dp_t), intent(in) :: h(0:k)
-    real(dp_t) :: a0
+    real(rt), intent(in) :: h(0:k)
+    real(rt) :: a0
     integer  :: j
     a0 = -1
     do j = 2, k
@@ -726,10 +726,10 @@ contains
   function xi_star_inv(k, h) result(xii)
     !$acc routine seq
     integer,  intent(in) :: k
-    real(dp_t), intent(in) :: h(0:)
-    real(dp_t) :: xii, hs
+    real(rt), intent(in) :: h(0:)
+    real(rt) :: xii, hs
     integer  :: j
-    hs = 0.0_dp_t
+    hs = 0.0_rt
     xii = -alpha0(k)
     do j = 0, k-2
        hs  = hs + h(j)
@@ -743,8 +743,8 @@ contains
   function xi_j(h, j) result(xi)
     !$acc routine seq
     integer,  intent(in) :: j
-    real(dp_t), intent(in) :: h(0:)
-    real(dp_t) :: xi
+    real(rt), intent(in) :: h(0:)
+    real(rt) :: xi
     xi = sum(h(0:j-1)) / h(0)
   end function xi_j
 
@@ -775,11 +775,11 @@ contains
   !
   function norm(y, ewt) result(r)
     !$acc routine seq
-    real(dp_t), intent(in) :: y(1:), ewt(1:)
-    real(dp_t) :: r
+    real(rt), intent(in) :: y(1:), ewt(1:)
+    real(rt) :: r
     integer :: m, n
     n = size(y)
-    r = 0.0_dp_t
+    r = 0.0_rt
     do m = 1, n
        r = r + (y(m)*ewt(m))**2
     end do
@@ -814,9 +814,9 @@ contains
     ts%max_iters  = 10
     ts%verbose    = 0
     ts%dt_min     = dt_min   !epsilon(ts%dt_min)
-    ts%eta_min    = 0.2_dp_t
-    ts%eta_max    = 10.0_dp_t
-    ts%eta_thresh = 1.50_dp_t
+    ts%eta_min    = 0.2_rt
+    ts%eta_max    = 10.0_rt
+    ts%eta_thresh = 1.50_rt
     ts%max_j_age  = jac_age
     ts%max_p_age  = p_age
 
@@ -849,7 +849,7 @@ contains
   !
   subroutine eye_r(A)
     !$acc routine seq
-    real(dp_t), intent(inout) :: A(:,:,:)
+    real(rt), intent(inout) :: A(:,:,:)
     integer :: i
     A = 0
     do i = 1, size(A, 1)
@@ -886,9 +886,9 @@ contains
   !
   subroutine eoshift_local(arr, sh, shifted_arr)
     !$acc routine seq
-    real(kind=dp_t), intent(in   ) :: arr(0:)
+    real(rt), intent(in   ) :: arr(0:)
     integer,         intent(in   ) :: sh
-    real(kind=dp_t), intent(  out) :: shifted_arr(0:)
+    real(rt), intent(  out) :: shifted_arr(0:)
     
     integer :: i, hi_arr, hi_shift
 
@@ -924,11 +924,11 @@ contains
   !
   function minloc(arr) result(ret)
     !$acc routine seq
-    real(kind=dp_t), intent(in   ) :: arr(:)
+    real(rt), intent(in   ) :: arr(:)
     
     integer :: ret
     integer :: i
-    real(kind=dp_t) :: cur_min
+    real(rt) :: cur_min
 
     cur_min = arr(1)
     ret = 1

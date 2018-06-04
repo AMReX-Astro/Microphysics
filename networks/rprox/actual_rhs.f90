@@ -17,8 +17,8 @@ contains
 
   subroutine actual_rhs(state)
 
-    use bl_types
-    use bl_constants_module
+    use amrex_constants_module
+    use amrex_fort_module, only : rt => amrex_real
     use network
     use rates_module
 
@@ -32,7 +32,7 @@ contains
     state % ydot = ZERO
 
     dens = state % rho
-    t9   = state % T * 1.e-9_dp_t
+    t9   = state % T * 1.e-9_rt
     y = state % xn * aion_inv
 
     ! build the rates; weak rates are the wk* variables
@@ -55,8 +55,8 @@ contains
 
   subroutine make_rates(t9, dens, y, state, rr)
 
-    use bl_types
-    use bl_constants_module
+    use amrex_constants_module
+    use amrex_fort_module, only : rt => amrex_real
     use rates_module
     use network
 
@@ -217,18 +217,18 @@ contains
     !....
     !....  use 56ni rate from wallace and woosley 1981
     t9i32=tfactors%t9i*sqrt(tfactors%t9i)
-    r56pg=dens*(1.29e-02_dp_t*exp(-4.897_dp_t*tfactors%t9i) &
-         +7.065e+03_dp_t*exp(-20.33_dp_t*tfactors%t9i))*t9i32
+    r56pg=dens*(1.29e-02_rt*exp(-4.897_rt*tfactors%t9i) &
+         +7.065e+03_rt*exp(-20.33_rt*tfactors%t9i))*t9i32
     dr56pgdt = -THREE*HALF*r56pg*tfactors%t9i + &
          dens*t9i32*tfactors%t9i*tfactors%t9i* &
-         (4.897_dp_t*1.29e-2_dp_t*exp(-4.897_dp_t*tfactors%t9i) &
-         +20.33_dp_t*7.065e3_dp_t*exp(-20.33_dp_t*tfactors%t9i))
+         (4.897_rt*1.29e-2_rt*exp(-4.897_rt*tfactors%t9i) &
+         +20.33_rt*7.065e3_rt*exp(-20.33_rt*tfactors%t9i))
     !....  use generic proton separation energy of 400 kev
     !....  8.02 -> 4.64
     !      cutoni=2.08d-10*dens*exp(8.02*t9m1)/t932
-    cutoni=2.08e-10_dp_t*dens*exp(4.642_dp_t*tfactors%t9i)*t9i32
-    dcutonidt = cutoni*tfactors%t9i*(-THREE*HALF - 4.642_dp_t*tfactors%t9i)
-    r57decay=3.54_dp_t
+    cutoni=2.08e-10_rt*dens*exp(4.642_rt*tfactors%t9i)*t9i32
+    dcutonidt = cutoni*tfactors%t9i*(-THREE*HALF - 4.642_rt*tfactors%t9i)
+    r57decay=3.54_rt
     dr56eff=min(r56pg,cutoni*r57decay)
     !   rr % rates(3,r56eff) = d56eff
     !   if (d56eff < r56pg) rr % rates(3,dr56effdt) = r57decay*dcutonidt
@@ -241,8 +241,8 @@ contains
 
   subroutine make_ydots(ymol, t9, state, rr, dydt, doing_dratesdt)
 
-    use bl_types
-    use bl_constants_module
+    use amrex_constants_module
+    use amrex_fort_module, only : rt => amrex_real
     use network
 
     implicit none
@@ -368,7 +368,7 @@ contains
          -ymol(if17)*ymol(ih1)*rr % rates(rate_idx,irpg17f)*(ONE-rr % rates(rate_idx,irs1)) &
          -TWO*ymol(if17)*rr % rates(rate_idx,irwk17f) &
          -EIGHT*ymol(img22)*rr % rates(rate_idx,irlambda1)*(ONE-rr % rates(3,delta1)) &
-         -26.e0_dp_t*ymol(is30)*rr % rates(rate_idx,irlambda2)*(ONE-rr % rates(3,delta2))
+         -26.e0_rt*ymol(is30)*rr % rates(rate_idx,irlambda2)*(ONE-rr % rates(3,delta2))
 
 
     if (.not. doing_dratesdt) then
@@ -386,8 +386,8 @@ contains
 
   subroutine actual_jac(state)
 
-    use bl_types
-    use bl_constants_module
+    use amrex_constants_module
+    use amrex_fort_module, only : rt => amrex_real
     use network
 
     implicit none
@@ -402,7 +402,7 @@ contains
     ! initialize
     state % jac(:,:) = ZERO
     ymol = state % xn * aion_inv
-    t9 = state % T * 1.e-9_dp_t
+    t9 = state % T * 1.e-9_rt
 
     dens = state % rho
 

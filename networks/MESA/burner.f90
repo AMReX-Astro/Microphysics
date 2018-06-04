@@ -1,8 +1,8 @@
 module burner_module
 
-   use bl_types
-   use bl_constants_module
-   use bl_error_module
+   use amrex_constants_module
+   use amrex_error_module
+   use amrex_fort_module, only : rt => amrex_real
    use eos_module
    use network
 
@@ -13,22 +13,22 @@ contains
       implicit none
    
       ! INPUT:
-      real(kind=dp_t), intent(in) :: dens, temp, dt
-      real(kind=dp_t), intent(in) :: Xin(nspec)
+      real(rt), intent(in) :: dens, temp, dt
+      real(rt), intent(in) :: Xin(nspec)
    
       ! OUTPUT:
-      real(kind=dp_t), intent(out) :: Xout(nspec)
-      real(kind=dp_t), intent(out) :: rho_omegadot(nspec), rho_Hnuc
+      real(rt), intent(out) :: Xout(nspec)
+      real(rt), intent(out) :: rho_omegadot(nspec), rho_Hnuc
 
       ! LOCAL:
       integer :: i
-      real(kind=dp_t) :: dX, burn_ergs
+      real(rt) :: dX, burn_ergs
       logical, save :: firstCall = .true.
 
       if (firstCall) then
 
          if (.not. network_initialized) then
-            call bl_error("ERROR in burner: must initialize network first")
+            call amrex_error("ERROR in burner: must initialize network first")
          endif
 
          firstCall = .false.
@@ -38,7 +38,7 @@ contains
       call Do_One_Zone_Burn(dens, temp, dt, Xin, burn_ergs, Xout)
 
       ! calculate rho_omegadot
-      rho_omegadot(:) = 0.e0_dp_t
+      rho_omegadot(:) = 0.e0_rt
       do i=1,nspec
          dX = Xout(i) - Xin(i)
          rho_omegadot(i) = dens * dX / dt

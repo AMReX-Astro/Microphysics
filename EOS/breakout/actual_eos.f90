@@ -5,9 +5,8 @@
 
 module actual_eos_module
 
-  use bl_types
-  use bl_error_module
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_constants_module
   use eos_type_module
 
   implicit none
@@ -68,13 +67,13 @@ contains
 
        ! dens, enthalpy, and xmass are inputs
 
-!       call bl_error('EOS: eos_input_rh is not supported in this EOS.')
+!       call amrex_error('EOS: eos_input_rh is not supported in this EOS.')
 
     case (eos_input_tp)
 
        ! temp, pres, and xmass are inputs
 
-!       call bl_error('EOS: eos_input_tp is not supported in this EOS.')
+!       call amrex_error('EOS: eos_input_tp is not supported in this EOS.')
        
     case (eos_input_rp)
 
@@ -109,13 +108,13 @@ contains
 
        ! pressure entropy, and xmass are inputs
 
-       call bl_error('EOS: eos_input_ps is not supported in this EOS.')
+       call amrex_error('EOS: eos_input_ps is not supported in this EOS.')
        
     case (eos_input_ph)
 
        ! pressure, enthalpy and xmass are inputs
 
-       call bl_error('EOS: eos_input_ph is not supported in this EOS.')
+       call amrex_error('EOS: eos_input_ph is not supported in this EOS.')
        
     case (eos_input_th)
 
@@ -123,11 +122,11 @@ contains
 
        ! This system is underconstrained.
        
-       call bl_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
+       call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 
     case default
        
-       call bl_error('EOS: invalid input.')
+       call amrex_error('EOS: invalid input.')
        
     end select
     

@@ -1,5 +1,7 @@
 module integrator_module
 
+  use amrex_error_module
+
   implicit none
 
   public
@@ -38,10 +40,10 @@ contains
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use bl_error_module, only: bl_error
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+    use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
-    use bl_types, only: dp_t
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
@@ -51,11 +53,11 @@ contains
 
     type (burn_t),  intent(in   ) :: state_in
     type (burn_t),  intent(inout) :: state_out
-    real(dp_t),     intent(in   ) :: dt, time
+    real(rt),     intent(in   ) :: dt, time
 
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     type (integration_status_t) :: status
-    real(dp_t) :: retry_change_factor
+    real(rt) :: retry_change_factor
     integer :: current_integrator
 
     ! Loop through all available integrators. Our strategy will be to
@@ -151,7 +153,7 @@ contains
 
     if (.not. status % integration_complete) then
 
-       call bl_error("ERROR in burner: integration failed")
+       call amrex_error("ERROR in burner: integration failed")
 
     endif
 

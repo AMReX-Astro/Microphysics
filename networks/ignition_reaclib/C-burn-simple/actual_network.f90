@@ -1,6 +1,7 @@
 module actual_network
+
+  use amrex_fort_module, only : rt => amrex_real
   use physical_constants, only: ERG_PER_MeV
-  use bl_types
   
   implicit none
 
