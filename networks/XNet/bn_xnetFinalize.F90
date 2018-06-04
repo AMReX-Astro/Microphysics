@@ -1,24 +1,5 @@
-!!****f* source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/bn_xnetFinalize
-!!
-!! NAME
-!!  
-!!  bn_xnetFinalize
-!!
-!!
-!! SYNOPSIS
-!! 
-!!  call bn_xnetFinalize()
-!!
-!!  
-!! DESCRIPTION
-!!
-!!  Finalizes XNet
-!!
-!!***
-
-
 subroutine bn_xnetFinalize()
-  use Driver_interface, ONLY : Driver_getComm, Driver_getMype, Driver_getNumProcs
+  !use Driver_interface, ONLY : Driver_getComm, Driver_getMype, Driver_getNumProcs
   use bn_xnetData, ONLY : xnet_writeTimers
   use timers, ONLY : timer_burner, timer_xnet, timer_tstep, timer_nraph, timer_deriv, &
      timer_jacob, timer_solve, timer_csect, timer_scrn
@@ -63,9 +44,10 @@ subroutine bn_xnetFinalize()
 
   if (xnet_writeTimers) then
 
-    call Driver_getMype(GLOBAL_COMM,bn_globalMe)
-    call Driver_getNumProcs(GLOBAL_COMM,bn_globalNumProcs)
-    call Driver_getComm(GLOBAL_COMM,bn_globalComm)
+    !TODO: replace these with Microphysics routines
+    !call Driver_getMype(GLOBAL_COMM,bn_globalMe)
+    !call Driver_getNumProcs(GLOBAL_COMM,bn_globalNumProcs)
+    !call Driver_getComm(GLOBAL_COMM,bn_globalComm)
 
      write(cstrLen,'(i2)') strLen
      write(cntimers,'(i2)') ntimers
