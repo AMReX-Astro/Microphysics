@@ -9,8 +9,8 @@ contains
     !$acc routine seq
 
     use network, only: aion, aion_inv, nspec_evolve
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_constants_module, only: ZERO, ONE
+    use amrex_fort_module, only : rt => amrex_real
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
@@ -23,7 +23,7 @@ contains
 
     type (bs_t) :: bs
 
-    real(dp_t) :: limit_factor, t_sound, t_enuc
+    real(rt) :: limit_factor, t_sound, t_enuc
 
     integer :: n
 

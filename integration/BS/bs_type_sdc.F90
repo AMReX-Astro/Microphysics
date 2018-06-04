@@ -1,7 +1,7 @@
 module bs_type_module
 
-  use bl_constants_module, only: HALF, ONE
-  use bl_types, only: dp_t
+  use amrex_constants_module, only: HALF, ONE
+  use amrex_fort_module, only : rt => amrex_real
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
   use rpar_indices, only: n_rpar_comps
 
@@ -16,21 +16,21 @@ module bs_type_module
   type bs_t
 
      logical :: first
-     real(kind=dp_t) :: eps_old
-     real(kind=dp_t) :: dt_did
-     real(kind=dp_t) :: dt_next
-     real(kind=dp_t) :: a(KMAXX+1)
-     real(kind=dp_t) :: alpha(KMAXX, KMAXX)
-     real(kind=dp_t) :: t_new
+     real(rt) :: eps_old
+     real(rt) :: dt_did
+     real(rt) :: dt_next
+     real(rt) :: a(KMAXX+1)
+     real(rt) :: alpha(KMAXX, KMAXX)
+     real(rt) :: t_new
      integer :: kmax
      integer :: kopt
 
-     real(kind=dp_t) :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE), jac(SVAR_EVOLVE, SVAR_EVOLVE)
-     real(kind=dp_t) :: ydot_a(SVAR_EVOLVE)
-     real(kind=dp_t) :: atol(SVAR_EVOLVE), rtol(SVAR_EVOLVE)
-     real(kind=dp_t) :: y_init(SVAR_EVOLVE)
-     real(kind=dp_t) :: u(n_rpar_comps), u_init(n_rpar_comps), udot_a(n_rpar_comps)
-     real(kind=dp_t) :: t, dt, tmax
+     real(rt) :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE), jac(SVAR_EVOLVE, SVAR_EVOLVE)
+     real(rt) :: ydot_a(SVAR_EVOLVE)
+     real(rt) :: atol(SVAR_EVOLVE), rtol(SVAR_EVOLVE)
+     real(rt) :: y_init(SVAR_EVOLVE)
+     real(rt) :: u(n_rpar_comps), u_init(n_rpar_comps), udot_a(n_rpar_comps)
+     real(rt) :: t, dt, tmax
      integer         :: n
 
      integer         :: n_rhs, n_jac
@@ -60,9 +60,9 @@ contains
     implicit none
 
     ! this should be larger than any reasonable temperature we will encounter
-    real (kind=dp_t), parameter :: MAX_TEMP = 1.0d11
+    real (rt), parameter :: MAX_TEMP = 1.0d11
 
-    real (kind=dp_t) :: max_e, ke
+    real (rt) :: max_e, ke
 
     type (bs_t) :: state
 
@@ -130,6 +130,8 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
+
     use sdc_type_module, only: SFS
     use actual_network, only: nspec
     use rpar_indices, only: irp_SRHO
@@ -138,7 +140,7 @@ contains
 
     type (bs_t) :: state
 
-    real(dp_t) :: nspec_sum
+    real(rt) :: nspec_sum
 
     ! Update rho, rho*u, etc.
 
@@ -296,7 +298,6 @@ contains
 
     use actual_network, only: nspec
     use burn_type_module, only: burn_t, burn_to_eos, eos_to_burn
-    use bl_types, only: dp_t
     use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
     use eos_module, only: eos
     use sdc_type_module, only: SEDEN, SEINT, SFS
@@ -308,7 +309,7 @@ contains
     type (burn_t) :: burn
     type (eos_t) :: eos_state
 
-    real(kind=dp_t) :: rhoInv, min_temp, max_temp
+    real(rt) :: rhoInv, min_temp, max_temp
 
     ! Update rho, rho*u, etc.
 
@@ -356,7 +357,7 @@ contains
     type (bs_t) :: bs
     type (eos_t) :: eos_state
 
-    real (kind=dp_t) :: rhoInv, min_temp, max_temp
+    real (rt) :: rhoInv, min_temp, max_temp
 
     call fill_unevolved_variables(bs)
 

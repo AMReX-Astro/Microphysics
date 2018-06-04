@@ -6,10 +6,10 @@
 
 module actual_eos_module
 
-  use bl_types
-  use bl_space
-  use bl_error_module
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+
   use network, only: nspec, aion, zion
   use eos_type_module
 
@@ -179,8 +179,8 @@ contains
 
     ! entropy (per gram) -- this is wrong. Not sure what the expression
     ! is for a multigamma gas
-    state % s = (k_B/(state%abar*m_nucleon))*(2.5_dp_t + &
-         log( ( (state%abar*m_nucleon)**2.5/dens )*(k_B*temp)**1.5_dp_t / (TWO*M_PI*hbar*hbar)**1.5_dp_t ) )
+    state % s = (k_B/(state%abar*m_nucleon))*(2.5_rt + &
+         log( ( (state%abar*m_nucleon)**2.5/dens )*(k_B*temp)**1.5_rt / (TWO*M_PI*hbar*hbar)**1.5_rt ) )
 
     ! Compute the thermodynamic derivatives and specific heats 
     state % dpdT = state % p / temp

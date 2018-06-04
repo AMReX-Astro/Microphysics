@@ -8,7 +8,6 @@ module bs_integrator_module
   use network
   use rpar_indices
   use burn_type_module
-  use bl_types
   use stiff_ode
   use bs_type_module
 
@@ -35,6 +34,7 @@ contains
     !$acc routine seq
 
     use rpar_indices
+    use amrex_fort_module, only : rt => amrex_real
     use extern_probin_module, only: burner_verbose, burning_mode, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
@@ -45,19 +45,19 @@ contains
 
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
-    real(dp_t),    intent(in   ) :: dt, time
+    real(rt)     , intent(in   ) :: dt, time
     type (integration_status_t), intent(inout) :: status
 
     ! Local variables
     integer :: ierr
 
-    real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
-    real(kind=dp_t) :: t0, t1
+    real(rt) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
+    real(rt) :: t0, t1
 
     type (eos_t) :: eos_state_in, eos_state_temp
     type (bs_t) :: bs
 
-    real(dp_t) :: ener_offset
+    real(rt) :: ener_offset
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.

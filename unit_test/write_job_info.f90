@@ -5,8 +5,6 @@ subroutine write_job_info(dirname, mba)
   ! dir_name will be the name of the checkpoint or plotfile toplevel
   ! directory
 
-  use bl_types
-  use parallel
   use runtime_init_module, only: runtime_pretty_print
   use bl_system_module, only: BL_CWD_SIZE, get_cwd 
   use ml_boxarray_module

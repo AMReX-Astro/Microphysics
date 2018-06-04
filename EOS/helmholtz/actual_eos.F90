@@ -155,9 +155,7 @@ contains
 
         !$acc routine seq
 
-        use bl_error_module
-        use bl_types
-        use bl_constants_module, only: ZERO, HALF, TWO
+        use amrex_constants_module, only: ZERO, HALF, TWO
 
         implicit none
 
@@ -1234,9 +1232,10 @@ contains
 
     subroutine actual_eos_init
 
-        use bl_error_module
+        use amrex_error_module
+        use amrex_paralleldescriptor_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
-        use parallel, only: parallel_IOProcessor, parallel_bcast
+        use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast
 
         implicit none
 
@@ -1297,7 +1296,7 @@ contains
         input_is_constant = eos_input_is_constant
         do_coulomb = use_eos_coulomb
 
-        if (parallel_IOProcessor()) then
+        if (amrex_pd_ioprocessor()) then
            print *, ''
            if (do_coulomb) then
               print *, "Initializing Helmholtz EOS and using Coulomb corrections."
@@ -1328,12 +1327,12 @@ contains
            end do
         end do
 
-        if (parallel_IOProcessor()) then
+        if (amrex_pd_ioprocessor()) then
 
            !..   open the table
            open(unit=2,file='helm_table.dat',status='old',iostat=status,action='read')
            if (status > 0) then
-              call bl_error('actual_eos_init: Failed to open helm_table.dat')
+              call amrex_error('actual_eos_init: Failed to open helm_table.dat')
            endif
 
            !...  read in the free energy table
@@ -1411,7 +1410,7 @@ contains
            dd2i_sav(i) = dd2i
         end do
 
-        if (parallel_IOProcessor()) then
+        if (amrex_pd_ioprocessor()) then
            close(unit=2)
         endif
 

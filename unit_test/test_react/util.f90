@@ -1,7 +1,7 @@
 module util_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -12,11 +12,11 @@ contains
     use network,       only: nspec, spec_names
     use probin_module, only: xin_file
 
-    real(kind=dp_t), intent(  out) :: xn_zone(:,:)
+    real(rt), intent(  out) :: xn_zone(:,:)
     integer,         intent(in   ) :: lo, hi
 
     integer         :: un, i
-    real(kind=dp_t) :: summ, usr_in
+    real(rt) :: summ, usr_in
     character (len=4096) :: line
 
     ! read in an inputs file containing the mass fractions.

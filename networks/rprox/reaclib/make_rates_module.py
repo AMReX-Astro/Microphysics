@@ -30,18 +30,18 @@ def modulePreamble():
 ! This module is created via the make_rate_module.py routine.
 module rates_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
   type temp_t
-     real (kind=dp_t) :: t9
-     real (kind=dp_t) :: t9i
-     real (kind=dp_t) :: t9i13
-     real (kind=dp_t) :: t913
-     real (kind=dp_t) :: t953
-     real (kind=dp_t) :: lnt9
+     real (rt) :: t9
+     real (rt) :: t9i
+     real (rt) :: t9i13
+     real (rt) :: t913
+     real (rt) :: t953
+     real (rt) :: lnt9
   end type temp_t
 
 """
