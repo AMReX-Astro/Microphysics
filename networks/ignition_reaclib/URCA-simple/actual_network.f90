@@ -1,6 +1,6 @@
 module actual_network
-
   use physical_constants, only: ERG_PER_MeV
+  use bl_types
   
   implicit none
 

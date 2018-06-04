@@ -1,6 +1,6 @@
 module eos_aux_data_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
 
   implicit none
 
@@ -41,7 +41,7 @@ contains
 
   subroutine read_stellarcollapse_file(eos_input_file,use_energy_shift)
 
-    use amrex_error_module
+    use bl_error_module
     use hdf5
     use parallel
     use eos_type_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
@@ -58,18 +58,18 @@ contains
 
 
     if (trim(eos_input_file) == "") then
-       call amrex_error("EOS: eos_file not specified in probin!")
+       call bl_error("EOS: eos_file not specified in probin!")
     endif
 
     ! initialize HDF5 library
     call h5open_f(error)
     if (error .ne. 0) &
-         call amrex_error("EOS: couldn't initialize HDF5 library")
+         call bl_error("EOS: couldn't initialize HDF5 library")
 
     ! open the HDF5 eos file, and get the file id
     call h5fopen_f(trim(eos_input_file),H5F_ACC_RDONLY_F,file_id,error)
     if (error .ne. 0) &
-         call amrex_error("EOS: couldn't open eos_file for reading")
+         call bl_error("EOS: couldn't open eos_file for reading")
     
     ! get the number of density points
     ! open the dataset and get it's id
@@ -79,19 +79,19 @@ contains
     call h5dread_f(dset_id,H5T_NATIVE_INTEGER,nrho,dims1,error)
     ! close the dataset
     call h5dclose_f(dset_id,error)
-    if (error .ne. 0) call amrex_error("EOS: couldn't read nrho")
+    if (error .ne. 0) call bl_error("EOS: couldn't read nrho")
 
     ! get the number of temperature points
     call h5dopen_f(file_id,'pointstemp',dset_id,error)
     call h5dread_f(dset_id,H5T_NATIVE_INTEGER,ntemp,dims1,error)
     call h5dclose_f(dset_id,error)
-    if (error .ne. 0) call amrex_error("EOS: couldn't read ntemp")
+    if (error .ne. 0) call bl_error("EOS: couldn't read ntemp")
 
     ! get the number of ye points
     call h5dopen_f(file_id,'pointsye',dset_id,error)
     call h5dread_f(dset_id,H5T_NATIVE_INTEGER,nye,dims1,error)
     call h5dclose_f(dset_id,error)
-    if (error .ne. 0) call amrex_error("EOS: couldn't read nye")
+    if (error .ne. 0) call bl_error("EOS: couldn't read nye")
 
     allocate(eos_table(nrho,ntemp,nye,eos_nvars))
 
@@ -276,7 +276,7 @@ contains
 
     if (parallel_IOProcessor()) print *, 'energy_shift', energy_shift
 
-    if (total_error .ne. 0) call amrex_error("EOS: Error reading EOS table")
+    if (total_error .ne. 0) call bl_error("EOS: Error reading EOS table")
     
     ! close the file
     call h5fclose_f(file_id,error)
@@ -308,7 +308,7 @@ contains
 
     use eos_type_module
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
-    use amrex_constants_module, only: ZERO, ONE
+    use bl_constants_module, only: ZERO, ONE
 
     implicit none
 
@@ -340,7 +340,7 @@ contains
 
     use fundamental_constants_module
     use eos_type_module
-    use amrex_constants_module, only: TEN
+    use bl_constants_module, only: TEN
     use parallel
     
     implicit none
@@ -363,7 +363,7 @@ contains
     ! the EOS table, assuming density, temperature and ye are the independent
     ! variables
 
-    use amrex_error_module
+    use bl_error_module
     use interpolate_module
     use eos_type_module
 
@@ -388,7 +388,7 @@ contains
                         eos_table(:,:,:,ilogpress), &
                         state%p,derivs,err)
     ! this should only fail once because the same inputs are used throughout
-    if (err) call amrex_error('table_lookup: tri-interpolate failure:',trim(errstring))
+    if (err) call bl_error('table_lookup: tri-interpolate failure:',trim(errstring))
     call tri_interpolate(rho,temp,ye,nrho,ntemp,nye, &
                         eos_logrho,eos_logtemp,eos_ye, &
                         eos_table(:,:,:,ilogenergy), &

@@ -23,14 +23,14 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use amrex_fort_module, only : rt => amrex_real
     use integrator_module, only: integrator
+    use bl_types, only: dp_t
     use burn_type_module, only: burn_t
 
     implicit none
 
     type (burn_t) :: state_in, state_out
-    real(rt)      :: dt, time
+    real(kind=dp_t) :: dt, time
 
     call integrator(state_in, state_out, dt, time)
 

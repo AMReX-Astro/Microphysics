@@ -92,7 +92,8 @@ contains
 
   subroutine actual_jac(state)
 
-    use amrex_constants_module, only: ZERO
+    use bl_types
+    use bl_constants_module, only: ZERO
     use eos_module
 
     implicit none
@@ -210,7 +211,7 @@ contains
 
   subroutine rhs(y, rate, ratdum, dydt, deriva)
 
-    use amrex_constants_module, only: ZERO, SIXTH
+    use bl_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum
 
     implicit none
@@ -760,7 +761,7 @@ contains
 
     use tfactors_module
     use aprox_rates_module
-    use amrex_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
     double precision :: btemp, bden
@@ -1088,7 +1089,7 @@ contains
                             dratdumdy1, dratdumdy2, &
                             scfac, dscfacdt, dscfacdd)
 
-    use amrex_constants_module, only: ZERO, ONE
+    use bl_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     ! this routine computes the screening factors

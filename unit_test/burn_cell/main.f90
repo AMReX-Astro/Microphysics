@@ -2,10 +2,9 @@
 
 program burn_cell
 
-  use amrex_error_module
-  use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
-
+  use bl_error_module
+  use bl_constants_module
+  use bl_types
   use fabio_module, only: fabio_mkdir
   use probin_module, only: run_prefix, small_temp, small_dens
   use runtime_init_module
@@ -22,7 +21,7 @@ program burn_cell
 
   type (burn_t)       :: burn_state_in, burn_state_out
 
-  real (rt)    :: tmax, energy, dt
+  real (kind=dp_t)    :: tmax, energy, dt
   integer             :: numsteps, i, istate
 
   character (len=256) :: params_file
@@ -33,7 +32,7 @@ program burn_cell
   character (len=6)   :: out_num
 
   ! Starting conditions for integration
-  real (rt)    :: density, temperature, massfractions(nspec)
+  real (kind=dp_t)    :: density, temperature, massfractions(nspec)
 
   namelist /cellparams/ tmax, numsteps, density, temperature, massfractions
 

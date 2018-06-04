@@ -4,9 +4,9 @@
 
 function get_mesa_ebin(i) result(ebin)
 
-   ! AMReX
-   use amrex_error_module, only: amrex_error
-   use amrex_fort_module, only : rt => amrex_real
+   ! BoxLib
+   use bl_types,  only: dp_t
+   use bl_error_module, only: bl_error
 
    ! MAESTRO
    use network,   only: chem_id
@@ -21,7 +21,7 @@ function get_mesa_ebin(i) result(ebin)
    integer, intent(in) :: i
 
    ! OUTPUT
-   real(rt) :: ebin
+   real(kind=dp_t) :: ebin
 
    ! LOCAL
    integer :: cid

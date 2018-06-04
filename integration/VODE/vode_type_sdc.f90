@@ -1,6 +1,7 @@
 module vode_type_module
 
-  use amrex_constants_module
+  use bl_types, only: dp_t
+  use bl_constants_module
 
   use burn_type_module, only : burn_t, net_ienuc, eos_to_burn
   use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_get_small_temp, eos_get_max_temp

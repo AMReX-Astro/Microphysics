@@ -1,8 +1,8 @@
 program testburn
 
-  use amrex_constants_module
-  use amrex_error_module
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
+  use bl_constants_module
+  use bl_error_module
   use network
   use eos_module
   use burner_module
@@ -10,12 +10,12 @@ program testburn
 
   implicit none
 
-  real(rt) :: dens, temp
-  real(rt), dimension(nspec) :: Xin
-  real(rt), dimension(nspec_advance+1) :: y, ydot
-  real(rt) :: enucdot
+  real(kind=dp_t) :: dens, temp
+  real(kind=dp_t), dimension(nspec) :: Xin
+  real(kind=dp_t), dimension(nspec_advance+1) :: y, ydot
+  real(kind=dp_t) :: enucdot
 
-  real(rt) :: rpar
+  real(kind=dp_t) :: rpar
   integer :: ipar
 
   integer :: ic12, io16, img24
@@ -32,12 +32,13 @@ program testburn
      call bl_error("ERROR: species index not defined")
   endif
 
-  dens = 2.6e9_rt
-  temp = 6.e8_rt
+  dens = 2.6e9_dp_t
+  temp = 6.e8_dp_t
 
-  Xin(ic12) = 0.5_rt
-  Xin(io16) = 0.5_rt
-  Xin(img24) = 0.0_rt
+  Xin(ic12) = 0.5_dp_t
+  Xin(io16) = 0.5_dp_t
+  Xin(img24) = 0.0_dp_t
+
 
   den_eos(1) = dens
   temp_eos(1) = temp

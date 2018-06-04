@@ -9,8 +9,8 @@ module actual_integrator_module
   use rpar_indices
   use vode_type_module
   use burn_type_module
-  use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
+  use bl_constants_module
 
   implicit none
 
@@ -86,21 +86,21 @@ contains
 
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
-    real(rt),    intent(in   ) :: dt, time
+    real(dp_t),    intent(in   ) :: dt, time
 
     ! Local variables
 
-    real(rt) :: local_time
+    real(dp_t) :: local_time
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
     type (dvode_t) :: dvode_state
 
     ! Work arrays
 
-    real(rt) :: y(neqs)
-    real(rt) :: atol(neqs), rtol(neqs)
-    real(rt), target :: rwork(LRW)
+    real(dp_t) :: y(neqs)
+    real(dp_t) :: atol(neqs), rtol(neqs)
+    real(dp_t), target :: rwork(LRW)
     integer    :: iwork(LIW)
-    real(rt) :: rpar(n_rpar_comps)
+    real(dp_t) :: rpar(n_rpar_comps)
 
     integer :: MF_JAC
 
@@ -111,10 +111,10 @@ contains
 
     integer :: ipar(n_ipar_comps)
 
-    real(rt) :: sum
-    real(rt) :: retry_change_factor
+    real(dp_t) :: sum
+    real(dp_t) :: retry_change_factor
 
-    real(rt) :: ener_offset
+    real(dp_t) :: ener_offset
 
     EXTERNAL jac, f_rhs
 

@@ -11,7 +11,7 @@ contains
     !$acc routine seq
 
     use burn_type_module, only: burn_t
-    use amrex_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_rhs
     use bs_type_module, only: bs_t, clean_state, rhs_to_bs, bs_to_burn
 

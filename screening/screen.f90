@@ -1,6 +1,6 @@
 module screening_module
 
-  use amrex_constants_module
+  use bl_constants_module
 
   implicit none
 
@@ -154,8 +154,7 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: M_PI
-    use amrex_fort_module, only : rt => amrex_real
+    use bl_constants_module, only: M_PI
 
     implicit none
 
@@ -372,9 +371,9 @@ contains
 
     ! machine limit the output
     ! further limit to avoid the pycnonuclear regime
-    h12    = max(min(h12, 30.0_rt), ZERO)
+    h12    = max(min(h12, 30.0_dp_t), ZERO)
     scor   = exp(h12)
-    if (h12 .eq. 30.0_rt) then
+    if (h12 .eq. 30.0_dp_t) then
        scordt = ZERO
        !scordd = ZERO
     else

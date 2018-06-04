@@ -4,8 +4,7 @@
 !
 module variables
 
-  use amrex_fort_module, only : rt => amrex_real
-
+  use bl_types
   use network, only: nspec, spec_names
 
   implicit none
