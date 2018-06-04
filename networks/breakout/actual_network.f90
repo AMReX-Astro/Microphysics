@@ -9,7 +9,7 @@
 
 module actual_network
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -25,7 +25,7 @@ module actual_network
   character (len=16), save ::  aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(kind=dp_t), save :: aion(nspec), zion(nspec), ebin(nspec)
+  real(rt), save :: aion(nspec), zion(nspec), ebin(nspec)
 
 contains
 

@@ -1,6 +1,7 @@
 program evaluate_rhs
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
+
   use actual_network
   use actual_rhs_module
   use reaclib_rates, only: init_reaclib, net_screening_init
@@ -12,7 +13,7 @@ program evaluate_rhs
   type(burn_t) :: state
   type(eos_t)  :: eos_state
   integer      :: i, j
-  real(kind=dp_t)   :: ynum, yden
+  real(rt)   :: ynum, yden
   character(len=20) :: FMT
 
   ! Initialize Network

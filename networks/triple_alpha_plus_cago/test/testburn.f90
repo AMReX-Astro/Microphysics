@@ -1,7 +1,7 @@
 program testburn
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
   use microphysics_module
   use network
   use eos_module
@@ -10,8 +10,8 @@ program testburn
 
   implicit none
 
-  real(kind=dp_t) :: dens, temp, dt
-  real(kind=dp_t), dimension(nspec) :: Xin
+  real(rt) :: dens, temp, dt
+  real(rt), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out 
 
   integer :: n
@@ -19,15 +19,15 @@ program testburn
 
   call microphysics_init()
 
-  dens = 1.e7_dp_t
-  temp = 367821127.2_dp_t
+  dens = 1.e7_rt
+  temp = 367821127.2_rt
 
-  Xin(ihe4)  = 0.8_dp_t
-  Xin(ic12)  = 0.1_dp_t
-  Xin(io16)  = 0.1_dp_t
-  Xin(ife56) = 0.0_dp_t
+  Xin(ihe4)  = 0.8_rt
+  Xin(ic12)  = 0.1_rt
+  Xin(io16)  = 0.1_rt
+  Xin(ife56) = 0.0_rt
 
-  dt = 0.001_dp_t
+  dt = 0.001_rt
 
   open(newunit=of, file="testburn-params.out", status="replace", action="write")
   call runtime_pretty_print(of)

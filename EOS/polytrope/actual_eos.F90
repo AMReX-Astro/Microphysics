@@ -22,10 +22,8 @@
 
 module actual_eos_module
 
-  use bl_types
-  use bl_space
-  use bl_error_module
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
 

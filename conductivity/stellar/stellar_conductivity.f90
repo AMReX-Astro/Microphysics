@@ -1,6 +1,6 @@
 module actual_conductivity_module
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -21,10 +21,10 @@ contains
     implicit none
     
     type(eos_t), intent(in   ) :: eos_state
-    real (dp_t)  , intent(inout) :: conductivity
+    real (rt)  , intent(inout) :: conductivity
     
-    real(dp_t) ::xmass_temp(nspec)
-    real(dp_t) :: orad, ocond, opac
+    real(rt) ::xmass_temp(nspec)
+    real(rt) :: orad, ocond, opac
 
     ! this is done to be compatible with interface to sig99
     xmass_temp(:) = eos_state%xn(:)

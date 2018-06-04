@@ -4,9 +4,9 @@
 program test_react
 
   use BoxLib
-  use bl_constants_module
-  use bl_types
-  use bl_space
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+
   use f2kcli
   use box_util_module
   use ml_layout_module

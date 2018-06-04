@@ -8,7 +8,7 @@ contains
 
     !$acc routine seq
 
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian
