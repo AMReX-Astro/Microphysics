@@ -18,8 +18,10 @@
 
 module actual_eos_module
 
-  use amrex_error_module
-  use amrex_constants_module
+  use bl_types
+  use bl_space
+  use bl_error_module
+  use bl_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
 
@@ -177,7 +179,7 @@ contains
 
     case default
 
-       call amrex_error('EOS: invalid input.')
+       call bl_error('EOS: invalid input.')
 
     end select
 
@@ -326,7 +328,7 @@ contains
     enddo
 
     if (iter .eq. max_iter) then
-       call amrex_error("EOS: pres_iter failed to converge.")
+       call bl_error("EOS: pres_iter failed to converge.")
     endif
 
     dens = B * x**3

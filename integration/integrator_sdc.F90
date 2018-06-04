@@ -37,8 +37,8 @@ contains
     use bs_integrator_module, only: bs_integrator
 #endif
 
-    use amrex_error_module, only: bl_error
-    use amrex_fort_module, only : rt => amrex_real
+    use bl_error_module, only: bl_error
+    use bl_types, only: dp_t
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
@@ -48,7 +48,7 @@ contains
 
     type (sdc_t),  intent(in   ) :: state_in
     type (sdc_t),  intent(inout) :: state_out
-    real(rt),    intent(in   ) :: dt, time
+    real(dp_t),    intent(in   ) :: dt, time
 
     type (integration_status_t) :: status
 

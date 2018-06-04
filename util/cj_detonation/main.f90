@@ -1,6 +1,6 @@
 program cj_det
 
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types, only: dp_t
 
   use actual_rhs_module
   use eos_type_module
@@ -15,11 +15,11 @@ program cj_det
 
   type(eos_t) :: eos_state_fuel, eos_state_ash
 
-  real(rt) :: q_burn
-  real(rt), parameter :: rho_min_fac = 0.9_rt, rho_max_fac = 10.0_rt
+  real(dp_t) :: q_burn
+  real(dp_t), parameter :: rho_min_fac = 0.9_dp_t, rho_max_fac = 10.0_dp_t
   integer, parameter :: npts_ad = 150
 
-  real(rt) :: rho_min, rho_max, dlogrho, p2_shock, p2_det, D_cj, rho_cj, p_cj, cs_det
+  real(dp_t) :: rho_min, rho_max, dlogrho, p2_shock, p2_det, D_cj, rho_cj, p_cj, cs_det
   integer :: n
   integer, parameter :: npts = 100
 
@@ -60,9 +60,9 @@ program cj_det
   call cj_cond(eos_state_fuel, eos_state_ash, q_burn)
 
   ! we get this from the mass flux: rho_1 v_1 = j
-  D_cj = (1.0_rt / eos_state_fuel % rho) * sqrt( &
+  D_cj = (1.0_dp_t / eos_state_fuel % rho) * sqrt( &
        (eos_state_ash % p - eos_state_fuel % p) / &
-       (1.0_rt/eos_state_fuel % rho - 1.0_rt/eos_state_ash % rho))
+       (1.0_dp_t/eos_state_fuel % rho - 1.0_dp_t/eos_state_ash % rho))
 
   rho_cj = eos_state_ash % rho
   p_cj = eos_state_ash % p
@@ -85,9 +85,9 @@ program cj_det
 
   do n = 0, npts_ad-1
 
-     eos_state_ash % rho = 10.0_rt**(dlog10(rho_min) + n*dlogrho)
+     eos_state_ash % rho = 10.0_dp_t**(dlog10(rho_min) + n*dlogrho)
 
-     call adiabat(eos_state_fuel, eos_state_ash, 0.0_rt, istatus)
+     call adiabat(eos_state_fuel, eos_state_ash, 0.0_dp_t, istatus)
      p2_shock = eos_state_ash % p
 
      if (istatus == -1) then

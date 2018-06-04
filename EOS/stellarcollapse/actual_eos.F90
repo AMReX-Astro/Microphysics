@@ -1,8 +1,8 @@
 module actual_eos_module
 
-  use amrex_error_module
-  use amrex_constants_module, only: ZERO, HALF, TWO
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
+  use bl_error_module
+  use bl_constants_module, only: ZERO, HALF, TWO
   use eos_type_module
   use eos_aux_data_module
 
@@ -81,7 +81,7 @@ contains
     case (eos_input_rh)
        
        ! NOT CURRENTLY IMPLEMENTED
-       call amrex_error("eos_input_th is not supported")
+       call bl_error("eos_input_th is not supported")
 
        !---------------------------------------------------------------------------
        ! temp, pres, and ye are inputs; iterate to find density
@@ -97,7 +97,7 @@ contains
 
        call newton_iter(state, ierr, ipres, idens, p_want)
 
-       if (ierr > 0) call amrex_error("Error in Newton iteration")
+       if (ierr > 0) call bl_error("Error in Newton iteration")
 
 
 
@@ -116,7 +116,7 @@ contains
 
        call newton_iter(state, ierr, ipres, itemp, p_want)
 
-       if (ierr > 0) call amrex_error("Error in Newton iteration")
+       if (ierr > 0) call bl_error("Error in Newton iteration")
 
 
 
@@ -135,7 +135,7 @@ contains
        ! iterate to get the temperature
        call newton_iter(state, ierr, iener, itemp, e_want)
 
-       if (ierr > 0) call amrex_error("Error in Newton iteration")
+       if (ierr > 0) call bl_error("Error in Newton iteration")
 
 
 
@@ -145,7 +145,7 @@ contains
 
     case (eos_input_ps)
        ! NOT CURRENTLY IMPLEMENTED
-       call amrex_error("eos_input_ps is not supported")
+       call bl_error("eos_input_ps is not supported")
 
 
        !---------------------------------------------------------------------------
@@ -154,7 +154,7 @@ contains
 
     case (eos_input_ph)
        ! NOT CURRENTLY IMPLEMENTED
-       call amrex_error("eos_input_ph is not supported")
+       call bl_error("eos_input_ph is not supported")
 
 
        !---------------------------------------------------------------------------
@@ -163,7 +163,7 @@ contains
 
     case (eos_input_th)
        ! NOT CURRENTLY IMPLEMENTED
-       call amrex_error("eos_input_th is not supported")
+       call bl_error("eos_input_th is not supported")
 
 
        !---------------------------------------------------------------------------
@@ -172,7 +172,7 @@ contains
 
     case default 
 
-       call amrex_error("EOS: invalid input")
+       call bl_error("EOS: invalid input")
 
     end select
 
@@ -231,7 +231,7 @@ contains
      case (ientr)
         ivar = ientropy
      case default
-        call amrex_error("newton_iter: don't know how to handle var",var)
+        call bl_error("newton_iter: don't know how to handle var",var)
      end select
 
      do iter = 1, max_newton
@@ -247,7 +247,7 @@ contains
                              f, df, err)
         if (err) then
            write(errstring,trim(errfmt)) state%rho,state%T,state%y_e
-           call amrex_error('newton iter: failure to interpolate',trim(errstring))
+           call bl_error('newton iter: failure to interpolate',trim(errstring))
         endif
 
         ! Figure out what variable we're working with
@@ -334,7 +334,7 @@ contains
     ! check return
     if (err) then
        write(errstring,trim(errfmt)) state%rho,state%T,state%y_e
-       call amrex_error('get_munu: tri-interpolate failure:',trim(errstring))
+       call bl_error('get_munu: tri-interpolate failure:',trim(errstring))
     endif
     
   end function get_munu

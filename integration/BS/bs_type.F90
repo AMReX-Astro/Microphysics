@@ -1,6 +1,6 @@
 module bs_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types, only: dp_t
   use burn_type_module, only: neqs, burn_t
   use rpar_indices, only: n_rpar_comps
 
@@ -14,19 +14,19 @@ module bs_type_module
 
   type bs_t
      logical :: first
-     real(rt) :: eps_old
-     real(rt) :: dt_did
-     real(rt) :: dt_next
-     real(rt) :: a(KMAXX+1)
-     real(rt) :: alpha(KMAXX, KMAXX)
-     real(rt) :: t_new
+     real(kind=dp_t) :: eps_old
+     real(kind=dp_t) :: dt_did
+     real(kind=dp_t) :: dt_next
+     real(kind=dp_t) :: a(KMAXX+1)
+     real(kind=dp_t) :: alpha(KMAXX, KMAXX)
+     real(kind=dp_t) :: t_new
      integer :: kmax
      integer :: kopt
 
-     real(rt) :: y(neqs)
-     real(rt) :: atol(neqs), rtol(neqs)
-     real(rt) :: upar(n_rpar_comps)
-     real(rt) :: t, dt, tmax
+     real(kind=dp_t) :: y(neqs)
+     real(kind=dp_t) :: atol(neqs), rtol(neqs)
+     real(kind=dp_t) :: upar(n_rpar_comps)
+     real(kind=dp_t) :: t, dt, tmax
      integer         :: n
 
      type(burn_t) :: burn_s
@@ -41,7 +41,7 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ONE
+    use bl_constants_module, only: ONE
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances, MAX_TEMP
     use actual_network, only: nspec, nspec_evolve
     use burn_type_module, only: net_itemp
@@ -51,7 +51,7 @@ contains
 
     type (bs_t), intent(inout) :: state
 
-    real (rt) :: small_temp
+    real (kind=dp_t) :: small_temp
 
     ! Ensure that mass fractions always stay positive and sum to 1.
     state % y(1:nspec_evolve) = &
@@ -74,7 +74,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_nspec, n_not_evolved
 
@@ -82,7 +81,7 @@ contains
 
     type (bs_t) :: state
 
-    real(rt) :: nspec_sum
+    real(dp_t) :: nspec_sum
 
     nspec_sum = &
          sum(state % y(1:nspec_evolve)) + &
@@ -99,7 +98,7 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
@@ -258,7 +257,7 @@ contains
     use network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
-    use amrex_constants_module, only: ONE
+    use bl_constants_module, only: ONE
 
     implicit none
 
@@ -290,7 +289,7 @@ contains
     use actual_network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
-    use amrex_constants_module, only: ZERO, ONE
+    use bl_constants_module, only: ZERO, ONE
 
     implicit none
 

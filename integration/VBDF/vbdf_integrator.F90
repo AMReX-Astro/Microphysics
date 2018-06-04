@@ -3,18 +3,17 @@
 
 module actual_integrator_module
 
-  use amrex_fort_module, only : rt => amrex_real
-
   use eos_module
   use network
   use rpar_indices
   use burn_type_module
+  use bl_types
   use bdf_type_module
   use bdf
 
   implicit none
 
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(kind=dp_t), parameter, private :: SMALL = 1.d-30
 
 
 contains
@@ -53,22 +52,22 @@ contains
 
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
-    real(rt),    intent(in   ) :: dt, time
+    real(dp_t),    intent(in   ) :: dt, time
     
-    real(rt) :: dt_init
+    real(dp_t) :: dt_init
     logical, parameter :: RESET = .true.  !.true. means we want to initialize the bdf_ts object
 
     ! Local variables
     integer :: n, ierr
 
-    real(rt) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
-    real(rt) :: y0(neqs,bdf_npt), y1(neqs,bdf_npt)
-    real(rt) :: t0, t1
+    real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
+    real(kind=dp_t) :: y0(neqs,bdf_npt), y1(neqs,bdf_npt)
+    real(kind=dp_t) :: t0, t1
 
     type (eos_t)  :: eos_state_in, eos_state_temp
     type (bdf_ts) :: ts
 
-    real(rt) :: retry_change_factor
+    real(dp_t) :: retry_change_factor
 
     double precision :: ener_offset
 
@@ -127,7 +126,7 @@ contains
        ts % upar(irp_self_heat,1) = ONE
     else
 #ifndef ACC
-       call amrex_error("Error: unknown burning_mode in vbdf_integrator.f90.")
+       call bl_error("Error: unknown burning_mode in vbdf_integrator.f90.")
 #endif
     endif
 
@@ -231,7 +230,7 @@ contains
 #endif
        if (.not. retry_burn) then
 #ifndef ACC
-          call amrex_error("ERROR in burner: integration failed")
+          call bl_error("ERROR in burner: integration failed")
 #endif
        else
 
@@ -270,7 +269,7 @@ contains
 
           if (retry_change_factor > retry_burn_max_change .and. ierr /= BDF_ERR_SUCCESS) then
 #ifndef ACC
-             call amrex_error("ERROR in burner: integration failed")
+             call bl_error("ERROR in burner: integration failed")
 #endif
           endif
 
@@ -321,10 +320,10 @@ contains
     use rhs_module
 
     type (bdf_ts), intent(inout) :: ts
-    real (rt), intent(in) :: t0, t1
-    real (rt), intent(out) :: dt
+    real (dp_t), intent(in) :: t0, t1
+    real (dp_t), intent(out) :: dt
     type (bdf_ts) :: ts_temp
-    real (rt) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
+    real(kind=dp_t) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
     integer :: n
 
     ts_temp = ts

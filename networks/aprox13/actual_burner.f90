@@ -1,7 +1,8 @@
 module actual_burner_module
 
-  use amrex_constants_module
-  use amrex_error_module
+  use bl_types
+  use bl_constants_module
+  use bl_error_module
   use eos_module
   use network
   use burn_type_module

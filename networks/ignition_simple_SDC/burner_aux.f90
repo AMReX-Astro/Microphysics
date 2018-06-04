@@ -3,13 +3,13 @@
 
 module burner_aux_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
   use network, only : nspec
 
   implicit none
 
-  real(rt), save :: sdc_rhoX_pass(nspec)
-  real(rt), save :: sdc_rhoh_pass
-  real(rt), save :: p0_pass  
+  real(kind=dp_t), save :: sdc_rhoX_pass(nspec)
+  real(kind=dp_t), save :: sdc_rhoh_pass
+  real(kind=dp_t), save :: p0_pass  
 
 end module burner_aux_module

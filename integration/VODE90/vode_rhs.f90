@@ -7,9 +7,9 @@
     !$acc routine seq
     
     use actual_network, only: aion, nspec_evolve
+    use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
+    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: call_eos_in_rhs, dT_crit, &
                                     burning_mode, burning_mode_factor, &
@@ -21,13 +21,13 @@
     implicit none
 
     integer,    intent(IN   ) :: neq, ipar
-    real(rt), intent(INOUT) :: time, y(neq)
-    real(rt), intent(INOUT) :: rpar(n_rpar_comps)
-    real(rt), intent(INOUT), pointer :: ydot(:)
+    real(dp_t), intent(INOUT) :: time, y(neq)
+    real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
+    real(dp_t), intent(INOUT), pointer :: ydot(:)
 
     type (burn_t) :: burn_state
 
-    real(rt) :: limit_factor, t_sound, t_enuc
+    real(dp_t) :: limit_factor, t_sound, t_enuc
 
     ! We are integrating a system of
     !
@@ -96,25 +96,24 @@
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
-
     use network, only: aion, aion_inv, nspec_evolve
-    use amrex_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use bl_types, only: dp_t
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, react_boost
 
     implicit none
 
     integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-    real(rt), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-    real(rt), intent(  OUT) :: pd(neq,neq)
+    real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
+    real(dp_t), intent(  OUT) :: pd(neq,neq)
 
     type (burn_t) :: state
-    real(rt) :: limit_factor, t_sound, t_enuc
+    real(dp_t) :: limit_factor, t_sound, t_enuc
     integer :: n
 
     ! Call the specific network routine to get the Jacobian.

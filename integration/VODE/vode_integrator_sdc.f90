@@ -3,9 +3,9 @@
 
 module vode_integrator_module
 
-  use amrex_constants_module
-  use amrex_error_module
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_error_module
+  use bl_types
+  use bl_constants_module
   use sdc_type_module
   use vode_type_module
 
@@ -68,20 +68,20 @@ contains
 
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
-    real(rt),    intent(in   ) :: dt, time
+    real(dp_t),    intent(in   ) :: dt, time
     type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
-    real(rt) :: local_time
+    real(dp_t) :: local_time
 
     ! Work arrays
 
-    real(rt) :: y(VODE_NEQS)
-    real(rt) :: atol(VODE_NEQS), rtol(VODE_NEQS)
-    real(rt) :: rwork(LRW)
+    real(dp_t) :: y(VODE_NEQS)
+    real(dp_t) :: atol(VODE_NEQS), rtol(VODE_NEQS)
+    real(dp_t) :: rwork(LRW)
     integer    :: iwork(LIW)
-    real(rt) :: rpar(n_rpar_comps)
+    real(dp_t) :: rpar(n_rpar_comps)
 
     integer :: MF_JAC
 
@@ -92,8 +92,9 @@ contains
 
     integer :: ipar
 
-    real(rt) :: sum
-    real(rt) :: retry_change_factor
+    real(dp_t) :: sum
+    real(dp_t) :: retry_change_factor
+
 
     EXTERNAL jac, f_rhs
 

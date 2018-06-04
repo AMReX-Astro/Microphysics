@@ -1,6 +1,7 @@
 subroutine f_rhs(n, t, y, ydot, rpar, ipar)
 
-  use amrex_constants_module
+  use bl_types
+  use bl_constants_module
   use network  
 
   implicit none
@@ -25,7 +26,8 @@ end subroutine f_rhs
 
 subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
-  use amrex_constants_module
+  use bl_types
+  use bl_constants_module
   use network
 
   implicit none

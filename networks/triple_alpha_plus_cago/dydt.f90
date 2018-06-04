@@ -3,7 +3,8 @@
 
 module dydt_module
 
-  use amrex_constants_module
+  use bl_types
+  use bl_constants_module
   use network
 
   implicit none

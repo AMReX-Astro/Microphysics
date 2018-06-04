@@ -1,7 +1,7 @@
 program testburn
 
-  use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
+  use bl_constants_module
   use microphysics_module
   use network
   use eos_module
@@ -11,8 +11,8 @@ program testburn
 
   implicit none
 
-  real(rt) :: dens, temp, dt
-  real(rt), dimension(nspec) :: Xin
+  real(kind=dp_t) :: dens, temp, dt
+  real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
 
   integer :: n

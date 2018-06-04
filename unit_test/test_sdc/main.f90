@@ -4,9 +4,9 @@
 program test_react
 
   use BoxLib
-  use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
-
+  use bl_constants_module
+  use bl_types
+  use bl_space
   use f2kcli
   use box_util_module
   use ml_layout_module
@@ -33,7 +33,7 @@ program test_react
   ! Conventional fluid state multifabs
   type(multifab) , allocatable :: s(:)
 
-  real(rt) :: dx(1, MAX_SPACEDIM)
+  real(kind=dp_t) :: dx(1, MAX_SPACEDIM)
 
   logical :: pmask(MAX_SPACEDIM)
 
@@ -52,9 +52,9 @@ program test_react
 
   integer :: itemp, irho, ispec, ispec_old, irodot, irho_hnuc
 
-  real(rt), pointer :: sp(:,:,:,:)
+  real(kind=dp_t), pointer :: sp(:,:,:,:)
 
-  real(rt), allocatable :: state(:,:,:,:)
+  real(kind=dp_t), allocatable :: state(:,:,:,:)
 
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
@@ -62,14 +62,14 @@ program test_react
   type (sdc_t) :: sdc_state_in, sdc_state_out
   type (eos_t) :: eos_state
 
-  real (rt) :: dlogrho, dlogT
-  real (rt), allocatable :: xn_zone(:, :)
+  real (kind=dp_t) :: dlogrho, dlogT
+  real (kind=dp_t), allocatable :: xn_zone(:, :)
 
-  real (rt) :: sum_X
+  real (kind=dp_t) :: sum_X
 
-  real (rt) :: start_time, end_time
+  real (kind=dp_t) :: start_time, end_time
 
-  real (rt) :: sum_spec
+  real (kind=dp_t) :: sum_spec
 
   character (len=256) :: out_name
 

@@ -59,7 +59,7 @@ contains
 
   subroutine get_ebin(density, ebin)
 
-    use amrex_constants_module, only: ZERO
+    use bl_constants_module, only: ZERO
     use fundamental_constants_module
 
     implicit none

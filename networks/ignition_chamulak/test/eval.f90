@@ -1,7 +1,7 @@
 program eval
 
-  use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
+  use bl_constants_module
   use network
   use eos_module
   use actual_burner_module
@@ -12,8 +12,8 @@ program eval
   
   implicit none
 
-  real(rt) :: dens, temp
-  real(rt), dimension(nspec) :: Xin
+  real(kind=dp_t) :: dens, temp
+  real(kind=dp_t), dimension(nspec) :: Xin
   type(burn_t) :: state_in
   integer :: n
   

@@ -17,9 +17,9 @@
 !  network_species_index -- return the index of the species given its name
 !
 
- odule actual_network
+module actual_network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
 
   implicit none
 
@@ -33,7 +33,7 @@
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(rt), save :: aion(nspec), zion(nspec), ebin(nspec)
+  real(kind=dp_t), save :: aion(nspec), zion(nspec), ebin(nspec)
 
 contains
   
@@ -55,13 +55,13 @@ contains
     short_spec_names(io16)  = "O16"
     short_spec_names(img24) = "Mg24"
 
-    aion(ic12)  = 12.0_rt
-    aion(io16)  = 16.0_rt
-    aion(img24) = 24.0_rt
+    aion(ic12)  = 12.0_dp_t
+    aion(io16)  = 16.0_dp_t
+    aion(img24) = 24.0_dp_t
     
-    zion(ic12)  = 6.0_rt
-    zion(io16)  = 8.0_rt
-    zion(img24) = 12.0_rt
+    zion(ic12)  = 6.0_dp_t
+    zion(io16)  = 8.0_dp_t
+    zion(img24) = 12.0_dp_t
 
     ! our convention is that the binding energies are negative.  We convert
     ! from the MeV values that are traditionally written in astrophysics 
@@ -69,9 +69,9 @@ contains
     ! MeV values are per nucleus, so we divide by aion to make it per
     ! nucleon and we multiple by Avogardo's # (6.0221415e23) to get the 
     ! value in erg/g
-    ebin(ic12)  = -7.4103097e18_rt     !  92.16294 MeV
-    ebin(io16)  = -7.6959672e18_rt     ! 127.62093 MeV
-    ebin(img24) = -7.9704080e18_rt     ! 198.2579  MeV
+    ebin(ic12)  = -7.4103097e18_dp_t     !  92.16294 MeV
+    ebin(io16)  = -7.6959672e18_dp_t     ! 127.62093 MeV
+    ebin(img24) = -7.9704080e18_dp_t     ! 198.2579  MeV
 
   end subroutine actual_network_init
   

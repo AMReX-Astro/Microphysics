@@ -1,5 +1,7 @@
 module actual_network
 
+  use bl_types
+
   implicit none
 
   integer, parameter :: nspec = 19

@@ -1,6 +1,6 @@
 module actual_network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use bl_types
 
   implicit none
 
@@ -50,24 +50,24 @@ contains
 
 
     ! set the species properties
-    aion(ihe4)  =  4.0_rt
-    aion(ic12)  = 12.0_rt
-    aion(io16)  = 16.0_rt
-    aion(ife56) = 56.0_rt
+    aion(ihe4)  =  4.0_dp_t
+    aion(ic12)  = 12.0_dp_t
+    aion(io16)  = 16.0_dp_t
+    aion(ife56) = 56.0_dp_t
 
-    zion(ihe4)  =  2.0_rt
-    zion(ic12)  =  6.0_rt
-    zion(io16)  =  8.0_rt
-    zion(ife56) = 26.0_rt
+    zion(ihe4)  =  2.0_dp_t
+    zion(ic12)  =  6.0_dp_t
+    zion(io16)  =  8.0_dp_t
+    zion(ife56) = 26.0_dp_t
 
     ! our convention is that binding energy is negative.  The following are 
     ! the binding energies per unit mass (erg / g) obtained by converting
     ! the energies in MeV to erg then multiplying by (N_A / aion) where 
     ! N_A = 6.0221415e23 is Avogadro's number
-    ebin(ihe4)  = -6.8253797e18_rt    !  28.39603 MeV / nucleon
-    ebin(ic12)  = -7.4103097e18_rt    !  92.16294 MeV / nucleon
-    ebin(io16)  = -7.6959581e18_rt    ! 127.62093 MeV / nucleon
-    ebin(ife56) = -8.4813001e18_rt    ! 492.25389 MeV / nucleon
+    ebin(ihe4)  = -6.8253797e18_dp_t    !  28.39603 MeV / nucleon
+    ebin(ic12)  = -7.4103097e18_dp_t    !  92.16294 MeV / nucleon
+    ebin(io16)  = -7.6959581e18_dp_t    ! 127.62093 MeV / nucleon
+    ebin(ife56) = -8.4813001e18_dp_t    ! 492.25389 MeV / nucleon
 
     ! Reaction rate names
     reac_names(ir3a)   = "3agc"   !     3 He4 --> C12

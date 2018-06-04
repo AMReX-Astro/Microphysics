@@ -11,9 +11,9 @@ contains
     !$acc routine seq
 
     use actual_network, only: aion, nspec_evolve
+    use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
+    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: renormalize_abundances, burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, react_boost
@@ -27,7 +27,7 @@ contains
 
     type (burn_t) :: burn_state
 
-    real(rt) :: limit_factor, t_sound, t_enuc
+    real(dp_t) :: limit_factor, t_sound, t_enuc
 
     ! We are integrating a system of
     !
@@ -107,8 +107,8 @@ contains
     !$acc routine seq
 
     use network, only: aion, aion_inv, nspec_evolve
-    use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
+    use bl_types, only: dp_t
+    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, burning_mode, burning_mode_factor, &
@@ -123,7 +123,7 @@ contains
 
     type (burn_t) :: state
 
-    real(rt) :: limit_factor, t_sound, t_enuc
+    real(dp_t) :: limit_factor, t_sound, t_enuc
 
     integer :: n
 

@@ -4,9 +4,9 @@
 program test_react
 
   use BoxLib
-  use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
-
+  use bl_constants_module
+  use bl_types
+  use bl_space
   use f2kcli
   use box_util_module
   use ml_layout_module
@@ -31,7 +31,7 @@ program test_react
   ! Conventional fluid state multifabs
   type(multifab) , allocatable :: s(:)
 
-  real(rt) :: dx(1, MAX_SPACEDIM)
+  real(kind=dp_t) :: dx(1, MAX_SPACEDIM)
 
   logical :: pmask(MAX_SPACEDIM)
 
