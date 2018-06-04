@@ -38,9 +38,6 @@ subroutine bn_xnetInit(data_dir,data_desc)
 
   implicit none
 
-#include "Flash.h"
-#include "constants.h"
-
   ! Input variables
   character(*), intent(in) :: data_dir
 
