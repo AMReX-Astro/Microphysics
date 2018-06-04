@@ -47,11 +47,6 @@
 
 subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,kstep)
 
-  use Burn_dataEOS, ONLY : btemp, bden, bye
-  use Burn_data, ONLY : xmass, bion, sneut, aion, aioninv
-
-  use bn_interface, ONLY : bn_azbar, bn_sneutx
-
   use abundances, ONLY : y, ystart
   use conditions, ONLY : tdel, t, t9, rho, ye
   use controls, ONLY : szbatch, nzbatch, lzactive
@@ -59,12 +54,10 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,kstep)
     yestart, th, t9h, rhoh, yeh, nh
   use timers, ONLY : timer_burner, xnet_wtime
   use xnet_constants, ONLY : avn, epmev
+  use xnet_data, ONLY : zz, aa, be
   use xnet_interface, ONLY : full_net
 
   implicit none
-
-#include "constants.h"
-#include "Flash.h"
 
   ! arguments
   real, intent(in)                                      :: tstep
@@ -88,11 +81,12 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,kstep)
   lzactive = burnedZone
 
   ! Set the thermo history data for a constant conditions burn
+  ! TODO: Call Microphysics abar/zbar routines
   do i = 1, numzones
-     xmass = xIn(:,i)
-     call bn_azbar()
-     yestart(i) = bye
-     ystart(:,i) = xIn(:,i) * aioninv(:)
+  !   xmass = xIn(:,i)
+  !   call bn_azbar()
+  !   yestart(i) = bye
+     ystart(:,i) = xIn(:,i) / aa(:)
   end do
   tstart    = 0.0
   tstop     = tstep
@@ -124,18 +118,19 @@ subroutine bn_burner(tstep,temp,density,xIn,xOut,sdotRate,burnedZone,kstep)
      if (burnedZone(i)) then
 
         !..the average energy generated over the time step
-        sdotRate(i) = sum((y(:,i) - ystart(:,i)) * bion(:)) * conv / tstep
+        sdotRate(i) = sum((y(:,i) - ystart(:,i)) * be(:)) * conv / tstep
 
+        !TODO: Call Microphysics neutrino routines
         !..take into account neutrino losses
-        btemp = t9(i)
-        bden  = rho(i)
-        xmass = xIn(:,i)
-        call bn_azbar()
-        call bn_sneutx()
-        sdotRate(i) = sdotRate(i) - sneut
+        !btemp = t9(i)
+        !bden  = rho(i)
+        !xmass = xIn(:,i)
+        !call bn_azbar()
+        !call bn_sneutx()
+        !sdotRate(i) = sdotRate(i) - sneut
 
         !..update the composition
-        xOut(:,i) = y(:,i) * aion(:)
+        xOut(:,i) = y(:,i) * aa(:)
      else
         sdotRate(i) = 0.0e0
         xOut(:,i) = xIn(:,i)
