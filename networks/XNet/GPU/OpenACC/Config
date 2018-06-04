@@ -1,0 +1,4 @@
+#  Configuration file for XNet
+#  [physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/OpenACC]
+
+LIBRARY OACC

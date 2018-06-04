@@ -1,0 +1,9 @@
+#  Configuration file for XNet
+#  [physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU]
+
+LIBRARY CUDA
+
+USESETUPVARS xnetACC
+IF xnetACC
+   REQUIRES physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/GPU/OpenACC
+ENDIF
