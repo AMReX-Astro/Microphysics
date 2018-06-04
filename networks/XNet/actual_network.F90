@@ -76,6 +76,7 @@ contains
       !$omp end master
       !$omp end parallel
 
+      ! Fill XNet controls data with runtime parameters
       nzbatchmx = xnet_nzbatchmx
       iweak0 = xnet_iweak0
       iscrn = xnet_iscrn
@@ -97,8 +98,10 @@ contains
       idiag = xnet_idiag
       itsout = xnet_itsout
 
+      ! Initialize XNet data structures, preprocess network, etc...
       call xnet_init(xnet_data_dir,data_desc)
 
+      ! nspec needs to be hard-coded... this won't work...
       nspec = ny
       nspec_evolve = ny
       naux = 0
