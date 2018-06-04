@@ -7,8 +7,8 @@
 ! to a single reaction.
 module screen_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
   use network
 
   implicit none
@@ -21,15 +21,15 @@ contains
     
     use screening_module, only: screenz
 
-    real(kind=dp_t), intent(IN   ) :: temp, dens, ymol(nspec)
-    real(kind=dp_t), intent(INOUT) :: rates(nrates)
-    real(kind=dp_t), intent(INOUT) :: dratesdt(nrates)
+    real(rt), intent(IN   ) :: temp, dens, ymol(nspec)
+    real(rt), intent(INOUT) :: rates(nrates)
+    real(rt), intent(INOUT) :: dratesdt(nrates)
 
-    real(kind=dp_t) :: scorr1, dscorr1dt
-    real(kind=dp_t) :: scorr2, dscorr2dt
-    real(kind=dp_t) ::  scorr,  dscorrdt
+    real(rt) :: scorr1, dscorr1dt
+    real(rt) :: scorr2, dscorr2dt
+    real(rt) ::  scorr,  dscorrdt
 
-    real(kind=dp_t) :: rates_in(nrates), dratesdt_in(nrates)
+    real(rt) :: rates_in(nrates), dratesdt_in(nrates)
 
     
     rates_in    = rates

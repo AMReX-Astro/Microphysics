@@ -44,41 +44,39 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
    use eos_module,  only: eos
    use eos_type_module, only: eos_t
 
-   ! Boxlib
-   use bl_error_module, only: bl_error
-   use bl_types,    only: dp_t
-
+   ! AMReX
+   use amrex_error_module, only: amrex_error
 
    implicit none
 
    ! INPUT:
-   real(kind=dp_t), intent(in) :: density, temperature, tstop
-   real(kind=dp_t), intent(in) :: x_mesa_in(nspec)
+   real(rt), intent(in) :: density, temperature, tstop
+   real(rt), intent(in) :: x_mesa_in(nspec)
 
    ! OUTPUT:
-   real(kind=dp_t), intent(out) :: burn_erg_out
-   real(kind=dp_t), intent(out) :: ending_x(nspec)
+   real(rt), intent(out) :: burn_erg_out
+   real(rt), intent(out) :: ending_x(nspec)
 
    ! LOCAL:
    type (eos_t) :: eos_state
    integer :: eos_input = 1
    logical :: do_eos_diag = .false.
 
-   real(kind=dp_t) :: burn_tend, burn_rtol, burn_atol
+   real(rt) :: burn_tend, burn_rtol, burn_atol
 
-   real(kind=dp_t), dimension(:), pointer :: d_eps_nuc_dx
+   real(rt), dimension(:), pointer :: d_eps_nuc_dx
 
    integer :: handle, max_steps
    
-   real(kind=dp_t) :: logRho, logT, Rho, T
+   real(rt) :: logRho, logT, Rho, T
    
    ! args to control the solver -- see num/public/num_isolve.dek
-   real(kind=dp_t) :: h 
-   real(kind=dp_t) :: max_step_size ! maximal step size.
+   real(rt) :: h 
+   real(rt) :: max_step_size ! maximal step size.
 
    ! absolute and relative error tolerances
-   real(kind=dp_t) :: rtol(1) ! relative error tolerance(s)
-   real(kind=dp_t) :: atol(1) ! absolute error tolerance(s)
+   real(rt) :: rtol(1) ! relative error tolerance(s)
+   real(rt) :: atol(1) ! absolute error tolerance(s)
    integer :: itol ! switch for rtol and atol
    
    integer :: nfcn    ! number of function evaluations
@@ -93,10 +91,10 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
 
    integer, parameter :: num_times = 1
    
-   real(kind=dp_t) :: dt, time_doing_net
-   real(kind=dp_t), dimension(:), pointer :: times, dxdt_source_term
-   real(kind=dp_t), dimension(:,:), pointer :: log10Ts_f, log10Rhos_f, etas_f
-   real(kind=dp_t), dimension(:), pointer :: log10Ts_f1, log10Rhos_f1, etas_f1
+   real(rt) :: dt, time_doing_net
+   real(rt), dimension(:), pointer :: times, dxdt_source_term
+   real(rt), dimension(:,:), pointer :: log10Ts_f, log10Rhos_f, etas_f
+   real(rt), dimension(:), pointer :: log10Ts_f1, log10Rhos_f1, etas_f1
 
    ! interface for the burn_solout routine so it can be passed
    !  to the MESA burner net_1_zone_burn
@@ -110,6 +108,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
          ! rwork_y and iwork_y hold info for interp_y
          ! note that these are not the same as the rwork and iwork arrays for
          !   the solver.
+         use amrex_fort_module, only : rt => amrex_real
          use num_lib,   only: safe_log10
          use net_lib,   only: chem_isos, del_Mn, del_Mp, num_categories, &
                           net_work_size, net_get
@@ -124,16 +123,15 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
                           d_dxdt_dT, d_dxdt_dx, species, num_reactions, &
                           handle_net
          use network,   only: chem_id
-         use bl_error_module, only: bl_error
-         use bl_types,  only: dp_t
+         use amrex_error_module, only: amrex_error
          integer, intent(in) :: nr, n, lrpar, lipar
-         real(kind=dp_t), intent(in) :: xold, x
-         real(kind=dp_t), intent(inout) :: y(n)
+         real(rt), intent(in) :: xold, x
+         real(rt), intent(inout) :: y(n)
          ! y can be modified if necessary to keep it in valid range of 
          !  possible solutions.
-         real(kind=dp_t), intent(inout), target :: rwork_y(*)
+         real(rt), intent(inout), target :: rwork_y(*)
          integer, intent(inout), target :: iwork_y(*)
-         real(kind=dp_t), intent(inout), pointer :: rpar(:)
+         real(rt), intent(inout), pointer :: rpar(:)
          integer, intent(inout), pointer :: ipar(:)
          interface
             include 'num_interp_y.dek'
@@ -186,7 +184,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
          times(num_times), log10Ts_f1(4*num_times), log10Rhos_f1(4*num_times), &
          etas_f1(4*num_times), stat=info)
    if (info /= 0) then
-      call bl_error("error allocating in initialize_module_ptrs")
+      call amrex_error("error allocating in initialize_module_ptrs")
    end if
 
    rate_factors(:) = 1
@@ -219,7 +217,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
        x_initial(species), x_previous(species), &
        peak_abundance(species), peak_time(species), stat=ierr)
    if (ierr /= 0) then
-      call bl_error("allocate failed for Do_One_Zone_Burn (MESA)")
+      call amrex_error("allocate failed for Do_One_Zone_Burn (MESA)")
    end if
 
    peak_abundance(:) = 0
@@ -253,7 +251,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
    !
    !--------------------------------------------------------------
    call net_1_zone_burn( &
-         handle, solver_choice, species, num_reactions, 0.0_dp_t, burn_tend, &
+         handle, solver_choice, species, num_reactions, 0.0_rt, burn_tend, &
          xin, clip, num_times, times, log10Ts_f1, log10Rhos_f1, etas_f1, &
          dxdt_source_term, rate_factors, category_factors, std_reaction_Qs, &
          std_reaction_neuQs, screening_mode, theta_e_for_graboske_et_al, & 
@@ -262,7 +260,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
          nfcn, njac, nstep, naccpt, nrejct, time_doing_net, ierr)
 
    if (ierr /= 0) then
-      call bl_error("net_1_zone_burn ierr")
+      call amrex_error("net_1_zone_burn ierr")
    end if
 
    !--------------------------------------------------------------

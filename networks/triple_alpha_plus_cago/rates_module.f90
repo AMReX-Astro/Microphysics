@@ -12,8 +12,9 @@
 
 module rates_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+  
   use network
 
   implicit none
@@ -26,21 +27,21 @@ contains
     
     ! rates given in terms of molar fractions
 
-    real(kind=dp_t), intent(IN   ) :: temp, dens
-    real(kind=dp_t), intent(  OUT) :: rates(nrates),dratesdt(nrates)
+    real(rt), intent(IN   ) :: temp, dens
+    real(rt), intent(  OUT) :: rates(nrates),dratesdt(nrates)
     
-    real(kind=dp_t) :: t9r, t9r32, t9ri, t9ri2, t9, t9i, t913, t9i13, t923, &
+    real(rt) :: t9r, t9r32, t9ri, t9ri2, t9, t9i, t913, t9i13, t923, &
                        t9i23, t943, t9i43, t932, t9i32, t953, t9i53, t92, t9i2
 
-    real(kind=dp_t) ::  term,  dtermdt
-    real(kind=dp_t) :: r2abe, dr2abedt
-    real(kind=dp_t) :: rbeac, drbeacdt
+    real(rt) ::  term,  dtermdt
+    real(rt) :: r2abe, dr2abedt
+    real(rt) :: rbeac, drbeacdt
 
     ! some scratch terms
-    real(kind=dp_t) :: a, b, b1, b2, c
-    real(kind=dp_t) :: dadt, dbdt, db1dt, db2dt, dcdt
+    real(rt) :: a, b, b1, b2, c
+    real(rt) :: dadt, dbdt, db1dt, db2dt, dcdt
 
-    real(kind=dp_t), PARAMETER :: &
+    real(rt), PARAMETER :: &
                      ONE_TWELVTH  = ONE / TWELVE, &
                      FIVE_SIXTHS  = FIVE * SIXTH, &
                      FIVE_THIRDS  = FIVE * THIRD, &

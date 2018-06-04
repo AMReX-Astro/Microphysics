@@ -1,6 +1,7 @@
 module cj_det_module
 
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
+
   use eos_type_module
   use eos_module
 
@@ -14,12 +15,12 @@ contains
 
     type(eos_t), intent(in) :: eos_state_fuel
     type(eos_t), intent(inout) :: eos_state_ash
-    real(dp_t), intent(in) :: q
+    real(rt), intent(in) :: q
     integer, intent(out) :: istatus
 
-    real(dp_t), parameter :: tol = 1.e-8_dp_t
+    real(rt), parameter :: tol = 1.e-8_rt
     logical :: converged
-    real(dp_t) :: f, dfdT, dT
+    real(rt) :: f, dfdT, dT
     integer :: iter
     integer, parameter :: max_iter = 50
 
@@ -38,11 +39,11 @@ contains
        call eos(eos_input_rt, eos_state_ash)
 
        f = eos_state_fuel % e + q - eos_state_ash % e + &
-            0.5_dp_t * (eos_state_fuel % p + eos_state_ash % p) * &
-            (1.0_dp_t/eos_state_fuel % rho - 1.0_dp_t/eos_state_ash % rho)
+            0.5_rt * (eos_state_fuel % p + eos_state_ash % p) * &
+            (1.0_rt/eos_state_fuel % rho - 1.0_rt/eos_state_ash % rho)
 
-       dfdT = -eos_state_ash % dedT + 0.5_dp_t * eos_state_ash % dpdT * &
-            (1.0_dp_t/eos_state_fuel % rho - 1.0_dp_t/eos_state_ash % rho)
+       dfdT = -eos_state_ash % dedT + 0.5_rt * eos_state_ash % rt * &
+            (1.0_rt/eos_state_fuel % rho - 1.0_rt/eos_state_ash % rho)
 
        dT = -f/dfdT
 
@@ -70,23 +71,23 @@ contains
 
     type(eos_t), intent(in) :: eos_state_fuel
     type(eos_t), intent(inout) :: eos_state_ash
-    real(dp_t), intent(in) :: q
+    real(rt), intent(in) :: q
 
-    real(dp_t), parameter :: tol = 1.e-8_dp_t
+    real(rt), parameter :: tol = 1.e-8_rt
     logical :: converged
-    real(dp_t) :: rho_old, drho
+    real(rt) :: rho_old, drho
     integer :: iter, istatus
     integer, parameter :: max_iter = 50
 
     ! iterate, picking the density that corresponds to the CJ point
     call eos(eos_input_rt, eos_state_ash)
 
-    drho = 1.e30_dp_t
+    drho = 1.e30_rt
 
     ! this is the density we find from the tangent point to the
     ! Hugoniot curve
     eos_state_ash % rho = eos_state_fuel % rho * &
-         (1.0_dp_t + (eos_state_ash % p - eos_state_fuel % p) / &
+         (1.0_rt + (eos_state_ash % p - eos_state_fuel % p) / &
                       (eos_state_ash % gam1 * eos_state_ash % p))
 
     iter = 0
@@ -100,7 +101,7 @@ contains
        ! this is the density we find from the tangent point to the
        ! Hugoniot curve
        eos_state_ash % rho = eos_state_fuel % rho * &
-            (1.0_dp_t + (eos_state_ash % p - eos_state_fuel % p) / &
+            (1.0_rt + (eos_state_ash % p - eos_state_fuel % p) / &
                          (eos_state_ash % gam1 * eos_state_ash % p))
 
        drho = eos_state_ash % rho - rho_old

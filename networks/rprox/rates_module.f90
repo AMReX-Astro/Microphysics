@@ -6,8 +6,7 @@
 ! This module is created via the make_rate_module.py routine.
 module rates_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
 
   implicit none
 

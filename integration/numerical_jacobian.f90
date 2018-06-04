@@ -1,7 +1,7 @@
 module numerical_jac_module
 
-  use bl_types
-  use bl_constants_module, only: ZERO, HALF, ONE
+  use amrex_constants_module, only: ZERO, HALF, ONE
+  use amrex_fort_module, only : rt => amrex_real
   use network
   use burn_type_module
 
@@ -26,7 +26,7 @@ contains
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
-    real(dp_t), parameter :: eps = 1.d-8
+    real(rt), parameter :: eps = 1.d-8
 
     state % jac(:,:) = ZERO
 

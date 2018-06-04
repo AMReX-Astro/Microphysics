@@ -1,6 +1,6 @@
 module actual_network
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -70,7 +70,7 @@ contains
 
   subroutine actual_network_init
 
-    use bl_constants_module
+    use amrex_constants_module
 
     ! set the names
     spec_names(ic12)  = "carbon-12"
@@ -97,13 +97,13 @@ contains
 
     ! set the species properties
     aion(ic12)  = TWELVE
-    aion(io14)  = 14.0_dp_t
-    aion(io15)  = 15.0_dp_t
-    aion(io16)  = 16.0_dp_t
-    aion(if17)  = 17.0_dp_t
-    aion(img22) = 22.0_dp_t
-    aion(is30)  = 30.0_dp_t
-    aion(ini56) = 56.0_dp_t
+    aion(io14)  = 14.0_rt
+    aion(io15)  = 15.0_rt
+    aion(io16)  = 16.0_rt
+    aion(if17)  = 17.0_rt
+    aion(img22) = 22.0_rt
+    aion(is30)  = 30.0_rt
+    aion(ini56) = 56.0_rt
     aion(ihe4)  = FOUR
     aion(ih1)   = ONE
 
@@ -113,22 +113,22 @@ contains
     zion(io16)  = EIGHT
     zion(if17)  = NINE
     zion(img22) = TWELVE
-    zion(is30)  = 16.0_dp_t
-    zion(ini56) = 28.0_dp_t
+    zion(is30)  = 16.0_rt
+    zion(ini56) = 28.0_rt
     zion(ihe4)  = TWO
     zion(ih1)   = ONE
 
     ! Our convention is that binding energy is negative.  The
     ! following are the binding energies in MeV.
-    ebin(ic12)  = 92.16279_dp_t
-    ebin(io14)  = 98.7325_dp_t
-    ebin(io15)  = 111.9569_dp_t
-    ebin(io16)  = 127.6207_dp_t
-    ebin(if17)  = 128.2211_dp_t
-    ebin(img22) = 168.5768_dp_t
-    ebin(is30)  = 243.6866_dp_t
-    ebin(ini56) = 483.995_dp_t
-    ebin(ihe4)  = 28.29599_dp_t
+    ebin(ic12)  = 92.16279_rt
+    ebin(io14)  = 98.7325_rt
+    ebin(io15)  = 111.9569_rt
+    ebin(io16)  = 127.6207_rt
+    ebin(if17)  = 128.2211_rt
+    ebin(img22) = 168.5768_rt
+    ebin(is30)  = 243.6866_rt
+    ebin(ini56) = 483.995_rt
+    ebin(ihe4)  = 28.29599_rt
     ebin(ih1)   = ZERO
 
     ! convert to erg / g by multiplying by N_A / aion and converting to erg

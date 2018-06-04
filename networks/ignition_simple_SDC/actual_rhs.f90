@@ -1,9 +1,9 @@
 module actual_rhs_module
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
   use network
-  use bl_error_module
+  use amrex_error_module
   
   implicit none
 
@@ -25,13 +25,13 @@ contains
     ! (in the same order as defined in network.f90, and y(nspec+1) is
     ! (rho h).
     integer :: n
-    real(kind=dp_t) :: y(n), ydot(n)
-    real(kind=dp_t) :: rpar
+    real(rt) :: y(n), ydot(n)
+    real(rt) :: rpar
     integer :: ipar
 
-    real(kind=dp_t) :: t
+    real(rt) :: t
 
-    real(kind=dp_t) :: rho_Hnuc
+    real(rt) :: rho_Hnuc
 
     integer, save :: ic12, io16, img24
 
@@ -60,8 +60,8 @@ contains
 
   subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
-    use bl_types
-    use bl_constants_module
+    use amrex_constants_module
+    use amrex_fort_module, only : rt => amrex_real
     use network
 
     ! we get the thermodynamic state through the burner_aux module -- we freeze
@@ -71,8 +71,8 @@ contains
     implicit none
 
     integer        , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-    real(kind=dp_t), intent(IN   ) :: y(neq), rpar, t
-    real(kind=dp_t), intent(  OUT) :: pd(neq,neq)
+    real(rt), intent(IN   ) :: y(neq), rpar, t
+    real(rt), intent(  OUT) :: pd(neq,neq)
 
     ! initialize
     pd(:,:)  = ZERO
@@ -93,36 +93,36 @@ contains
     ! (in the same order as defined in network.f90, and y(nspec+1) is
     ! (rho h).
     integer :: n
-    real(kind=dp_t) :: y(n), ydot(n)
+    real(rt) :: y(n), ydot(n)
 
     integer :: k
-    real(kind=dp_t) :: ymass(nspec)
+    real(rt) :: ymass(nspec)
 
-    real(kind=dp_t) :: rpar
+    real(rt) :: rpar
     integer :: ipar
 
-    real(kind=dp_t) :: t
+    real(rt) :: t
 
-    real(kind=dp_t) :: dens, temp, T9, T9a
-    real(kind=dp_t) :: rhoh, rho_Hnuc
+    real(rt) :: dens, temp, T9, T9a
+    real(rt) :: rhoh, rho_Hnuc
 
-    real(kind=dp_t) :: rate
-    real(kind=dp_t) :: sc1212, dsc1212dt
-    real(kind=dp_t) :: xc12tmp
+    real(rt) :: rate
+    real(rt) :: sc1212, dsc1212dt
+    real(rt) :: xc12tmp
 
-    real(kind=dp_t), PARAMETER :: &
+    real(rt), PARAMETER :: &
          one_twelvth = 1.0d0/12.0d0, &
          five_sixths = 5.0d0/ 6.0d0, &
          one_third = 1.0d0/ 3.0d0, &
          two_thirds = 2.0d0/ 3.0d0
 
-    real(kind=dp_t) :: scratch
+    real(rt) :: scratch
 
-    real(kind=dp_t) :: a, b
+    real(rt) :: a, b
 
     integer, save :: ic12, io16, img24
 
-    real(kind=dp_t) :: X(nspec)
+    real(rt) :: X(nspec)
 
     logical, save :: firstCall = .true.
 
@@ -147,7 +147,7 @@ contains
     ! compute the temperature from the EOS
     if (use_tfromp) then
 
-       call bl_error("f_rhs_instantaneous_reaction_rates needs use_tfromp=F")
+       call amrex_error("f_rhs_instantaneous_reaction_rates needs use_tfromp=F")
 
     else
 

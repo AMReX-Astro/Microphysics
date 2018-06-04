@@ -11,9 +11,9 @@ contains
     !$acc routine seq
 
     use actual_network, only: aion, nspec_evolve
-    use bl_types, only: dp_t
+    use amrex_fort_module, only : rt => amrex_real
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, react_boost
@@ -25,7 +25,7 @@ contains
 
     type (bs_t) :: bs
 
-    real(dp_t) :: limit_factor, t_sound, t_enuc
+    real(rt) :: limit_factor, t_sound, t_enuc
 
     ! We are integrating a system of
     !
