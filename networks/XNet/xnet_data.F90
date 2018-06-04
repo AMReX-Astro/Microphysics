@@ -245,8 +245,8 @@ Subroutine read_nuclear_data(data_dir,data_desc)
   be(:) = mex_n*nn(:) + mex_p*zz(:) - mex(:)
 
   ! Uncomment the commented end of the line below to use the actual mass instead of A*m_u
-  mm(:) = aa(:) / avn! + mex(:)*epmev/(clt*clt)
-! mm(:) = zz(:)*(m_p+m_e) + nn(:)*m_n - be(:)*epmev/(clt*clt)
+! mm(:) = aa(:) / avn + mex(:)*epmev/(clt*clt)
+  mm(:) = zz(:)*(m_p+m_e) + nn(:)*m_n - be(:)*epmev/(clt*clt)
 
   ! Allocate threadprivate arrays
   !$omp parallel

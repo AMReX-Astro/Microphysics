@@ -1,0 +1,43 @@
+#xnet_nzbatchmx        number of zones to batch and pass to burner
+#xnet_iweak            controls the treatment of weak reactions
+#xnet_iscrn            controls the treatment of nuclear screening
+#xnet_iprocess         controls the runtime pre-processing of the network data
+#xnet_isolv            choice of integration scheme
+#xnet_kstmx            max timesteps for each zone
+#xnet_kitmx            max Newton-Raphson iterations before retry
+#xnet_ijac             rebuild jacobian every ijac iterations after the first
+#xnet_iconvc           determines which convergence condition is used
+#xnet_changemx         allowed abundance change used to set the network timestep
+#xnet_yacc             abundances > yacc used for timestep calculation
+#xnet_tolm             mass conservation convergence criterion (iconvc=0)
+#xnet_tolc             convergence limit on the iterative abundance change (iconvc=1)
+#xnet_ymin             abundance < ymin is set to 0.0
+#xnet_tdel_maxmult     max factor by which the network timestep is changed
+#xnet_iheat            controls the treatment of self-heating
+#xnet_changemxt        allowed temperature change used to set the network timestep
+#xnet_tolt9            convergence limit on the iterative temperature change
+#xnet_idiag            sets XNet diagnostic output level
+#xnet_itsout           sets XNet per-timestep output level
+xnet_nzbatchmx        integer         16                      100
+xnet_iweak            integer         1                       100
+xnet_iscrn            integer         1                       100
+xnet_iprocess         integer         1                       100
+xnet_isolv            integer         1                       100
+xnet_kstmx            integer         2000                    100
+xnet_kitmx            integer         5                       100
+xnet_ijac             integer         1                       100
+xnet_iconvc           integer         0                       100
+xnet_changemx         real            1.0e-1                  100
+xnet_yacc             real            1.0e-7                  100
+xnet_tolm             real            1.0e-6                  100
+xnet_tolc             real            1.0e-4                  100
+xnet_ymin             real            1.0e-25                 100
+xnet_tdel_maxmult     real            2.0e+0                  100
+xnet_iheat            integer         1                       100
+xnet_changemxt        real            1.0e-2                  100
+xnet_tolt9            real            1.0e-4                  100
+xnet_idiag            integer         0                       100
+xnet_itsout           integer         0                       100
+
+#xnet_data_dir         XNet nuclear data directory
+xnet_data_dir         string          "Networks/Data_SN160"   100

@@ -293,4 +293,16 @@ Module xnet_interface
     End Subroutine ye_norm
   End Interface
 
+  Interface
+    Subroutine xnet_init(data_dir,data_desc)
+      Character(*), Intent(in) :: data_dir
+      Character(80), Intent(out) :: data_desc
+    End Subroutine bn_xnetInit
+  End Interface
+
+  Interface
+    Subroutine xnet_finalize()
+    End Subroutine xnet_finalize
+  End Interface
+
 End Module xnet_interface

@@ -1,28 +1,4 @@
-!!****if* source/physics/sourceTerms/Burn/BurnMain/nuclearBurn/XNet/bn_xnetInit
-!!
-!! NAME
-!!
-!!  bn_xnetInit
-!!
-!!
-!! SYNOPSIS
-!!
-!!  bn_xnetInit ( character(*), intent(IN) :: data_dir,
-!!                character(80), intent(OUT) :: data_desc )
-!!
-!! DESCRIPTION
-!!
-!!  Calls XNet routines to read and broadcast XNet data 
-!!  Called from bn_initNetwork.
-!!
-!! ARGUMENTS
-!!
-!!   data_dir -- nuclear data directory containing REACLIB-formatted data
-!!   data_desc -- brief description of  network
-!!
-!!***
-
-subroutine bn_xnetInit(data_dir,data_desc)
+subroutine xnet_init(data_dir,data_desc)
   use abundances, ONLY : ystart, yo, y, yt, ydot
   Use conditions, ONLY : t, tt, to, tdel, tdel_next, tdel_old, t9t, rhot, yet, &
     t9, rho, ye, t9o, rhoo, yeo, t9dot, cv, nt, ntt, nto, ints, intso
@@ -67,7 +43,7 @@ subroutine bn_xnetInit(data_dir,data_desc)
 
   !$omp end parallel
 
-  if ( iprocess > 0 .and. myid == MASTER_PE ) call net_preprocess( lun_stdout, data_dir, data_dir )
+  if ( iprocess > 0 .and. myid == 0 ) call net_preprocess( lun_stdout, data_dir, data_dir )
 
   ! Read and distribute nuclear and reaction data
   call netdata_bcast(data_dir,data_desc)
