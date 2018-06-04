@@ -14,6 +14,12 @@ module actual_integrator_module
 
 contains
 
+   subroutine actual_integrator_init()
+
+      implicit none
+
+   end subroutine actual_integrator_init
+
    subroutine actual_integrator(state_in, state_out, dt, time)
 
       !$acc routine seq
