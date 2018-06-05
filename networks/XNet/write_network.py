@@ -73,7 +73,7 @@ def abort(outfile):
 
 
 
-def write_network(network_template, xnet_data, out_file):
+def write_network(network_template, xnet_data_dir, out_file):
     """read through the list of species and output the new out_file
 
     """
@@ -85,7 +85,7 @@ def write_network(network_template, xnet_data, out_file):
     #-------------------------------------------------------------------------
     # read the species defined in the net_file
     #-------------------------------------------------------------------------
-    xnet_data_dir = os.path.join('Networks',xnet_data)
+    xnet_data = os.path.basename(xnet_data_dir)
     net_file = os.path.join(xnet_data_dir,'netwinv')
     err, nspec, naux = parse_net_file(net_file)
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     network_template = ""
     out_file = ""
-    xnet_data = ""
+    xnet_data_dir = ""
 
     for o, a in opts:
 
@@ -170,11 +170,11 @@ if __name__ == "__main__":
             out_file = a
 
         if o == "-s":
-            xnet_data = a
+            xnet_data_dir = a
 
 
     if network_template == "" or out_file == "":
         print("write_probin.py: ERROR: invalid calling sequence")
         sys.exit(2)
 
-    write_network(network_template, xnet_data, out_file)
+    write_network(network_template, xnet_data_dir, out_file)
