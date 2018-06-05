@@ -7,14 +7,14 @@ Subroutine xnet_terminate(c_diagnostic,i_diagnostic)
   !-------------------------------------------------------------------------------------------------
   ! This routine gracefully exits XNet with a diagnostic statement
   !-------------------------------------------------------------------------------------------------
-  Use Driver_interface, Only: Driver_abortFlash
+  Use bl_error_module, Only: bl_error
   Implicit None
 
   ! Input variables
   Character(*), Intent(in) :: c_diagnostic
   Integer, Intent(in), Optional :: i_diagnostic
 
-  Call Driver_abortFlash(c_diagnostic)
+  Call bl_error(c_diagnostic)
 
   Return
 End Subroutine xnet_terminate
