@@ -212,7 +212,7 @@ Subroutine step_be(kstep,inr)
     ! Calculate the reaction rates and abundance time derivatives
     ! Rebuild and update LU factorization of the jacobian every ijac iterations
     If ( mod(kit-1,ijac) == 0 ) Then
-      Call yderiv_and_jacobian_build(rdt,-1.0,mask_in = lznr)
+      Call yderiv_and_jacobian_build(rdt,-1.0d0,mask_in = lznr)
       Call jacobian_decomp(kstep,mask_in = lznr)
     Else
       Call yderiv(mask_in = lznr)
