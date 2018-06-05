@@ -166,7 +166,7 @@ Subroutine read_nuclear_data(data_dir,data_desc)
   Use nuclear_data
   Use part_funct_data, Only: ng, t9i, g, gg, angm, dlngdt9
   Use screening_data, Only: thbim1
-  Use xnet_constants, Only: avn, m_e, m_n, m_p, m_u, five3rd
+  Use xnet_constants, Only: avn, epmev, clt, m_e, m_n, m_p, m_u, five3rd
   Use xnet_types, Only: dp
   Implicit None
 
