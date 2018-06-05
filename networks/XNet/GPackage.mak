@@ -28,17 +28,18 @@ XNET_sources += xnet_abundances.F90 \
 F90sources += actual_network.F90
 ifneq ($(USE_REACT), FALSE)
   F90sources += actual_burner.F90
+  F90sources += actual_rhs.F90
 endif
 F90sources += $(XNET_sources)
 
 # actual_network.F90 is created at build time for this network
-network.F90:   $(XNET_DATA) $(MICROPHYSICS_HOME)/Microphysics/networks/XNet/network.template
+actual_network.F90: $(MICROPHYSICS_HOME)/networks/XNet/network.template
 	@echo " "
 	@echo "---------------------------------------------------------------------------"
 	@echo "${bold}WRITING actual_network.F90${normal}"
 	$(MICROPHYSICS_HOME)/networks/XNet/write_network.py \
             -t $(MICROPHYSICS_HOME)/networks/XNet/network.template \
-            -s $(XNET_DATA) \
+            -s $(MICROPHYSICS_HOME)/networks/XNet/Networks/$(XNET_DATA) \
             -o actual_network.F90
 	@echo "---------------------------------------------------------------------------"
 	@echo " "
