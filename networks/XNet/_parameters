@@ -1,5 +1,5 @@
 #xnet_nzbatchmx        number of zones to batch and pass to burner
-#xnet_iweak            controls the treatment of weak reactions
+#xnet_iweak0           controls the treatment of weak reactions
 #xnet_iscrn            controls the treatment of nuclear screening
 #xnet_iprocess         controls the runtime pre-processing of the network data
 #xnet_isolv            choice of integration scheme
@@ -19,7 +19,7 @@
 #xnet_idiag            sets XNet diagnostic output level
 #xnet_itsout           sets XNet per-timestep output level
 xnet_nzbatchmx        integer         16                      100
-xnet_iweak            integer         1                       100
+xnet_iweak0           integer         1                       100
 xnet_iscrn            integer         1                       100
 xnet_iprocess         integer         1                       100
 xnet_isolv            integer         1                       100
