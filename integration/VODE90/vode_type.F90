@@ -78,8 +78,8 @@ contains
     use bl_types, only: dp_t
     use bl_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dt_crit
-    use eos_type_module, only: eos_t, composition
-    use eos_module, only: eos_input_rt, eos
+    use eos_type_module, only: eos_t, eos_input_rt, composition
+    use eos_module, only: eos
     use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
     use burn_type_module, only: neqs
 
