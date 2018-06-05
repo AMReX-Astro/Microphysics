@@ -90,9 +90,9 @@ contains
          if (lzactive(i)) then
 
             ! Update the state
-            state_out % rho = rho
-            state_out % T = t9
-            state_out % y_e = ye
+            state_out % rho = rho(i)
+            state_out % T = t9(i)
+            state_out % y_e = ye(i)
             state_out % xn(:) = y(:,i) * aion(:)
 
             state_out % time = time + dt
