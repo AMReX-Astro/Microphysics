@@ -178,6 +178,7 @@ contains
                             xne_row, &
                             xnp_row, &
                             etaele_row, &
+                            detadt_row, &
                             pele_row, &
                             ppos_row, &
                             dpd_row,  &
@@ -359,6 +360,7 @@ contains
         xnp_row = 0.0d0
 
         etaele_row = 0.0d0
+        detadt_row = 0.0d0
 
         cv_row = 0.0d0
         cp_row = 0.0d0
@@ -967,6 +969,9 @@ contains
            xnp_row = 0.0d0
 
            etaele_row = etaele
+#ifdef EXTRA_THERMO
+           detadt_row = detadt
+#endif
 
            cv_row = cv
            cp_row = cp
@@ -1174,6 +1179,9 @@ contains
         state % xnp = xnp_row
 
         state % eta = etaele_row
+#ifdef EXTRA_THERMO
+        state % detadt = detadt_row
+#endif
 
         state % cv   = cv_row
         state % cp   = cp_row
