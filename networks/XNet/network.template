@@ -1,3 +1,6 @@
+#define NSPECIES @@NSPEC@@
+#define NAUXILIARY @@NAUX@@
+
 module actual_network
 
    use bl_types, only: dp_t
@@ -14,15 +17,15 @@ module actual_network
    real(dp_t), parameter, private :: mp = m_p*mev2gr
    real(dp_t), parameter, private :: me = m_e*mev2gr
 
-   integer :: nspec
-   integer :: nspec_evolve
-   integer :: naux
+   integer, parameter :: nspec = NSPECIES
+   integer, parameter :: nspec_evolve = NSPECIES
+   integer, parameter :: naux = NAUXILIARY
 
-   character (len=16), allocatable :: spec_names(:) 
-   character (len= 5), allocatable :: short_spec_names(:)
-   character (len= 5), allocatable :: short_aux_names(:)
+   character (len=16), save :: spec_names(NSPECIES) 
+   character (len= 5), save :: short_spec_names(NSPECIES)
+   character (len= 5), save :: short_aux_names(NAUXILIARY)
 
-   character (len=32), save :: network_name = "xnet"
+   character (len=32), save :: network_name = "@@NETWORK@@"
 
    real(dp_t), allocatable :: aion(:), zion(:), bion(:)
    real(dp_t), allocatable :: nion(:), mion(:), wion(:)
@@ -41,10 +44,11 @@ contains
 
    subroutine actual_network_init
 
+      use bl_error_module, only: bl_error
       use controls, only: mythread, nthread, myid, nproc, nzbatchmx, iweak0, &
          iscrn, iprocess, isolv, kstmx, kitmx, ijac, iconvc, changemx, yacc, &
          tolm, tolc, ymin, tdel_maxmult, iheat, changemxt, tolt9, idiag, itsout
-      use extern_probin_module, only: xnet_data_dir, xnet_nzbatchmx, xnet_iweak0, &
+      use extern_probin_module, only: xnet_nzbatchmx, xnet_iweak0, &
          xnet_iscrn, xnet_iprocess, xnet_isolv, xnet_kstmx, &
          xnet_kitmx, xnet_ijac, xnet_iconvc, xnet_changemx, &
          xnet_yacc, xnet_tolm, xnet_tolc, xnet_ymin, &
@@ -52,27 +56,23 @@ contains
          xnet_tolt9, xnet_idiag, xnet_itsout
       use nuclear_data, only: aa, zz, nn, be, mm, nname
       use nuc_number, only: ny
-      !use parallel
+      use omp_module, only: omp_get_thread_num, omp_get_num_threads
+      use parallel, only: parallel_myproc, parallel_nprocs
       use xnet_interface, only: xnet_init
-
-      use mpi
-      !$use omp_lib
 
       implicit none
 
       integer :: i, ierr
+      character (len=80) :: data_dir
       character (len=80) :: data_desc
 
       ! Initialize MPI/OpenMP identifiers
-      ! TODO: get these from parallel module?
-      call mpi_comm_rank( MPI_COMM_WORLD, myid, ierr)
-      call mpi_comm_size( MPI_COMM_WORLD, nproc, ierr)
-      mythread = 1
-      nthread = 1
+      myid = parallel_myproc()
+      nproc = parallel_nprocs()
       !$omp parallel default(shared)
-      !$ mythread = omp_get_thread_num()
+      mythread = omp_get_thread_num()
       !$omp master
-      !$ nthread = omp_get_num_threads()
+      nthread = omp_get_num_threads()
       !$omp end master
       !$omp end parallel
 
@@ -99,16 +99,13 @@ contains
       itsout = xnet_itsout
 
       ! Initialize XNet data structures, preprocess network, etc...
-      call xnet_init(xnet_data_dir,data_desc)
+      data_dir = "Networks/@@NETWORK@@"
+      call xnet_init(data_dir,data_desc)
 
-      ! nspec needs to be hard-coded... this won't work...
-      nspec = ny
-      nspec_evolve = ny
-      naux = 0
-
-      allocate(spec_names(nspec))
-      allocate(short_spec_names(nspec))
-      allocate(short_aux_names(naux))
+      ! nspec needs to be hard-coded... make sure it matches ny
+      if ( ny /= NSPECIES ) then
+         call bl_error("ERROR: actual_network.F90: nspec /= ny")
+      endif
 
       allocate(aion(nspec))
       allocate(zion(nspec))

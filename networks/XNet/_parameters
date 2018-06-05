@@ -38,6 +38,3 @@ xnet_changemxt        real            1.0e-2                  100
 xnet_tolt9            real            1.0e-4                  100
 xnet_idiag            integer         0                       100
 xnet_itsout           integer         0                       100
-
-#xnet_data_dir         XNet nuclear data directory
-xnet_data_dir         string          "Networks/Data_SN160"   100
