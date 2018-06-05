@@ -25,11 +25,11 @@ XNET_sources += xnet_abundances.F90 \
                 xnet_types.F90 \
                 xnet_util.F90
 
-F90EXE_sources += actual_network.F90
+F90sources += actual_network.F90
 ifneq ($(USE_REACT), FALSE)
-  F90EXE_sources += actual_burner.F90
+  F90sources += actual_burner.F90
 endif
-F90EXE_sources += $(XNET_sources)
+F90sources += $(XNET_sources)
 
 # actual_network.F90 is created at build time for this network
 network.F90:   $(XNET_DATA) $(MICROPHYSICS_HOME)/Microphysics/networks/XNet/network.template
