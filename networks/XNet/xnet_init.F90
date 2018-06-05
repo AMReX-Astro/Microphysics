@@ -84,4 +84,4 @@ subroutine xnet_init(data_dir,data_desc)
   !$omp end parallel
 
   return
-end subroutine bn_xnetInit
+end subroutine xnet_init

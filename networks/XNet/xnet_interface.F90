@@ -297,7 +297,7 @@ Module xnet_interface
     Subroutine xnet_init(data_dir,data_desc)
       Character(*), Intent(in) :: data_dir
       Character(80), Intent(out) :: data_desc
-    End Subroutine bn_xnetInit
+    End Subroutine xnet_init
   End Interface
 
   Interface

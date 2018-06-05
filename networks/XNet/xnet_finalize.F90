@@ -7,4 +7,4 @@ subroutine xnet_finalize()
    call jacobian_finalize
 
    return
-end subroutine bn_xnetFinalize
+end subroutine xnet_finalize
