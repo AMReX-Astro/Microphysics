@@ -4,3 +4,4 @@ fsources += dcopy.f
 fsources += dscal.f
 fsources += idamax.f
 fsources += dgemm.f
+fsources += dgemv.f
