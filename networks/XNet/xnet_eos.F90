@@ -18,7 +18,6 @@ Subroutine eos_initialize
   !-------------------------------------------------------------------------------------------------
   Use actual_eos_module, Only: actual_eos_init
   Implicit None
-  Call actual_eos_init()
   Return
 End Subroutine eos_initialize
 
