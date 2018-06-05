@@ -32,8 +32,8 @@ module actual_network
 
    !$acc declare create(aion, zion, bion, nion, mion, wion)
 
-   integer :: nrates
-   integer :: num_rate_groups
+   integer, parameter :: nrates = 1
+   integer, parameter :: num_rate_groups = 1
 
    ! Conversion factor for the nuclear energy generation rate.
 
@@ -48,6 +48,7 @@ contains
       use controls, only: mythread, nthread, myid, nproc, nzbatchmx, iweak0, &
          iscrn, iprocess, isolv, kstmx, kitmx, ijac, iconvc, changemx, yacc, &
          tolm, tolc, ymin, tdel_maxmult, iheat, changemxt, tolt9, idiag, itsout
+      use cross_sect_data, only: nreac
       use extern_probin_module, only: xnet_nzbatchmx, xnet_iweak0, &
          xnet_iscrn, xnet_iprocess, xnet_isolv, xnet_kstmx, &
          xnet_kitmx, xnet_ijac, xnet_iconvc, xnet_changemx, &
@@ -126,9 +127,6 @@ contains
       wion(:) = aion(:)
 
       !$acc update device(aion, zion, bion, nion, mion, wion)
-
-      nrates = sum(nreac(:))
-      num_rate_groups = 1
 
    end subroutine actual_network_init
 
