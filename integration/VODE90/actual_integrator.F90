@@ -3,8 +3,8 @@
 
 module actual_integrator_module
 
-  use eos_type_module
-  use eos_module
+  use eos_module, only: eos
+  use eos_type_module, only: eos_input_rt
   use network
   use rpar_indices
   use vode_type_module
@@ -44,7 +44,7 @@ contains
     use dvode_module, only: dvode
     use eos_type_module, only: eos_t, copy_eos_t
     use dvode_type_module, only: dvode_t
-    use bl_constants_module, only: ZERO    
+    use bl_constants_module, only: ZERO, ONE
 
     implicit none
 
