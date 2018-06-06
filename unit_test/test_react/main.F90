@@ -25,6 +25,9 @@ program test_react
   use fabio_module
   use build_info_module
   use parallel, only : parallel_wtime
+#ifdef XNET
+  use extern_probin_module, only : xnet_nzbatchmx
+#endif
 
   implicit none
 
@@ -41,6 +44,7 @@ program test_react
   integer :: i, j, n
   integer :: ii, jj, kk
   integer :: nrho, nT, nX
+  integer :: mm, vlo, vhi, batchCount, nzones
 
   integer :: dm, nlevs
 
@@ -58,6 +62,9 @@ program test_react
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
   type (burn_t) :: burn_state_in, burn_state_out
+#ifdef XNET
+  type (burn_t), allocatable :: vburn_state_in(:), vburn_state_out(:)
+#endif
 
   real (kind=dp_t) :: dlogrho, dlogT
   real (kind=dp_t), allocatable :: xn_zone(:, :)
@@ -172,6 +179,8 @@ program test_react
 
      start_time = parallel_wtime()
 
+#ifndef XNET
+
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
      !$OMP PRIVATE(burn_state_in, burn_state_out) &
      !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
@@ -228,6 +237,83 @@ program test_react
      !$acc end data
 
      !$OMP END PARALLEL DO
+
+#else
+
+     ! get number of batches needed for all local zones (round up)
+     nzones = product(hi-lo+1)
+     allocate(vburn_state_in(nzones))
+     allocate(vburn_state_out(nzones))
+     batchCount = (nzones + nzbatchmx - 1) / nzbatchmx
+
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,mm,j,vlo,vhi) &
+     !$OMP PRIVATE(burn_state_in,burn_state_out)
+
+     !$OMP DO SCHEDULE(DYNAMIC,1)
+     do kk = lo(3), hi(3)
+        do jj = lo(2), hi(2)
+           do ii = lo(1), hi(1)
+              mm = ii + (jj-1)*(hi(1)-lo(1)+1) + (kk-1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
+
+              burn_state_in % rho = state(ii, jj, kk, irho)
+              burn_state_in % T = state(ii, jj, kk, itemp)
+              do j = 1, nspec
+                 burn_state_in % xn(j) = state(ii, jj, kk, ispec_old + j - 1)
+              enddo
+
+              call normalize_abundances_burn(burn_state_in)
+
+              ! the integrator doesn't actually care about the initial internal
+              ! energy.
+              burn_state_in % e = ZERO
+              
+              vburn_state_in(mm) = burn_state_in
+           enddo
+        enddo
+     enddo
+     !$OMP END DO
+
+     !$OMP DO SCHEDULE(DYNAMIC,1)
+     do mm = 1, batchCount
+        vlo = (mm-1)*xnet_nzbatchmx + 1
+        vhi = (mm  )*xnet_nzbatchmx
+        call actual_burner(vburn_state_in(vlo:vhi), burn_state_out(vlo:vhi), tmax, ZERO)
+     end do
+     !$OMP END DO
+
+     !$OMP DO SCHEDULE(DYNAMIC,1) &
+     !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min)
+     do kk = lo(3), hi(3)
+        do jj = lo(2), hi(2)
+           do ii = lo(1), hi(1)
+              mm = ii + (jj-1)*(hi(1)-lo(1)+1) + (kk-1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
+
+              burn_state_out = vburn_state_out(mm)
+              do j = 1, nspec
+                 state(ii, jj, kk, ispec + j - 1) = burn_state_out % xn(j)
+              enddo
+
+              do j=1, nspec
+                 ! an explicit loop is needed here to keep the GPU happy
+                 state(ii, jj, kk, irodot + j - 1) = &
+                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
+              enddo
+
+              state(ii, jj, kk, irho_hnuc) = &
+                   state(ii, jj, kk, irho) * (burn_state_out % e - burn_state_in % e) / tmax
+
+              n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
+              n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
+              n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
+
+           enddo
+        enddo
+     enddo
+     !$OMP END DO
+
+     !$OMP END PARALLEL
+
+#endif
 
      ! End the timer and print the results.
 

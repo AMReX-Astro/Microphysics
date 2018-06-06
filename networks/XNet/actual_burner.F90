@@ -9,9 +9,14 @@ module actual_burner_module
 
   implicit none
 
+  interface actual_burner
+     module procedure actual_burner1
+     module procedure actual_burnerv
+  end interface actual_burner
+
 contains
 
-  subroutine actual_burner(state_in, state_out, dt, time)
+  subroutine actual_burner1(state_in, state_out, dt, time)
 
     !$acc routine seq
 
@@ -25,8 +30,21 @@ contains
 
     call integrator(state_in, state_out, dt, time)
 
-  end subroutine actual_burner
+  end subroutine actual_burner1
 
+  subroutine actual_burnerv(state_in, state_out, dt, time)
+
+    use integrator_module, only: integrator
+
+    implicit none
+
+    type (burn_t),       intent(in   ) :: state_in(:)
+    type (burn_t),       intent(inout) :: state_out(:)
+    double precision,    intent(in   ) :: dt, time
+
+    call integrator(state_in, state_out, dt, time)
+
+  end subroutine actual_burnerv
 
 
   subroutine actual_burner_init()

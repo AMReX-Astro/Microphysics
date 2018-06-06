@@ -12,6 +12,11 @@ module actual_integrator_module
 
    implicit none
 
+   interface actual_integrator
+      module procedure actual_integrator1
+      module procedure actual_integratorv
+   end interface actual_integrator
+
 contains
 
    subroutine actual_integrator_init()
@@ -20,13 +25,13 @@ contains
 
    end subroutine actual_integrator_init
 
-   subroutine actual_integrator(state_in, state_out, dt, time)
+   subroutine actual_integrator1(state_in, state_out, dt, time)
 
       !$acc routine seq
 
       use abundances, ONLY : y, ystart
       use conditions, ONLY : tdel, t, t9, rho, ye
-      use controls, ONLY : szbatch, nzbatch, lzactive
+      use controls, ONLY : szbatch, nzbatch, lzactive, ktot
       use thermo_data, ONLY : tstart, tstop, tdelstart, t9start, rhostart, &
          yestart, th, t9h, rhoh, yeh, nh
       use timers, ONLY : timer_burner, xnet_wtime
@@ -99,6 +104,8 @@ contains
 
             state_out % e = state_in % e + sum((y(:,i) - ystart(:,i)) * bion(:)) * conv
 
+            state_out % n_rhs = ktot(2,i)
+
             !TODO: Call Microphysics neutrino routines
             !..take into account neutrino losses
             !call bn_sneutx()
@@ -106,12 +113,108 @@ contains
          else
             state_out % e = state_in % e
             state_out % xn(:) = state_in % xn(:)
+            state_out % n_rhs = 0
          end if
       end do
 
       timer_burner = timer_burner + xnet_wtime()
 
       return
-   end subroutine actual_integrator
+   end subroutine actual_integrator1
+
+   subroutine actual_integratorv(state_in, state_out, dt, time)
+
+      use abundances, ONLY : y, ystart
+      use conditions, ONLY : tdel, t, t9, rho, ye
+      use controls, ONLY : szbatch, nzbatch, lzactive, ktot
+      use thermo_data, ONLY : tstart, tstop, tdelstart, t9start, rhostart, &
+         yestart, th, t9h, rhoh, yeh, nh
+      use timers, ONLY : timer_burner, xnet_wtime
+      use xnet_constants, ONLY : avn, epmev
+      use xnet_interface, ONLY : full_net
+
+      implicit none
+
+      ! Input arguments
+
+      type (burn_t), intent(in   ) :: state_in(:)
+      type (burn_t), intent(inout) :: state_out(:)
+      real(dp_t),    intent(in   ) :: dt, time
+
+      ! Local variables
+
+      real(dp_t), parameter ::  conv = avn*epmev
+      integer :: i, numzones, kstep
+
+      timer_burner = timer_burner - xnet_wtime()
+
+      ! Active zone mask
+      numzones = size(state_in) ! Microphysics only passes 1 zone to burner
+      szbatch = 1
+      nzbatch = numzones
+      lzactive = .false.
+      lzactive(1:numzones) = .true.
+
+      ! Set the thermo history data for a constant conditions burn
+      do i = 1, numzones
+         yestart(i)  = state_in(i) % y_e
+         ystart(:,i) = state_in(i) % xn(:) * aion_inv(:)
+         t9start(i)  = state_in(i) % T * 1.0e-9
+         rhostart(i) = state_in(i) % rho
+      end do
+      tstart    = 0.0
+      tstop     = dt
+      tdelstart = 0.0
+      th(1,:)   = tstart  ; th(2,:)   = tstop
+      t9h(1,:)  = t9start ; t9h(2,:)  = t9start
+      rhoh(1,:) = rhostart; rhoh(2,:) = rhostart
+      yeh(1,:)  = yestart ; yeh(2,:)  = yestart
+      nh        = 2
+
+      ! Load initial abundances, time and timestep
+      tdel = 0.0
+      t    = tstart
+      y    = ystart
+      t9   = t9start
+      rho  = rhostart
+      ye   = yestart
+
+      ! Evolve abundance from tstart to tstop
+      if (any(lzactive)) then
+         call full_net(kstep)
+      else
+         kstep = 0
+      end if
+
+      do i = 1, numzones
+         if (lzactive(i)) then
+
+            ! Update the state
+            state_out(i) % rho   = rho(i)
+            state_out(i) % T     = t9(i)
+            state_out(i) % y_e   = ye(i)
+            state_out(i) % xn(:) = y(:,i) * aion(:)
+
+            state_out(i) % time  = time + dt
+
+            state_out(i) % e     = state_in(i) % e + sum((y(:,i) - ystart(:,i)) * bion(:)) * conv
+
+            state_out(i) % n_rhs = ktot(2,i)
+
+            !TODO: Call Microphysics neutrino routines
+            !..take into account neutrino losses
+            !call bn_sneutx()
+            !sdotRate(i) = sdotRate(i) - sneut
+         else
+            state_out(i) % e     = state_in(i) % e
+            state_out(i) % xn(:) = state_in(i) % xn(:)
+            state_out(i) % n_rhs = 0
+         end if
+      end do
+
+      timer_burner = timer_burner + xnet_wtime()
+
+      return
+   end subroutine actual_integratorv
 
 end module actual_integrator_module

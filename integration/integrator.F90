@@ -4,6 +4,11 @@ module integrator_module
 
   public
 
+  interface integrator
+    module procedure integrator1
+    module procedure integratorv
+  end interface integrator
+
 contains
 
   subroutine integrator_init()
@@ -28,7 +33,7 @@ contains
 
 
 
-  subroutine integrator(state_in, state_out, dt, time)
+  subroutine integrator1(state_in, state_out, dt, time)
 
     !$acc routine seq
 
@@ -161,6 +166,22 @@ contains
 
 #endif
 
-  end subroutine integrator
+  end subroutine integrator1
+
+  subroutine integratorv(state_in, state_out, dt, time)
+
+    use actual_integrator_module, only: actual_integrator
+    use burn_type_module, only: burn_t
+    use bl_types, only: dp_t
+
+    implicit none
+
+    type (burn_t),  intent(in   ) :: state_in(:)
+    type (burn_t),  intent(inout) :: state_out(:)
+    real(dp_t),     intent(in   ) :: dt, time
+
+    call actual_integrator(state_in, state_out, dt, time)
+
+  end subroutine integratorv
 
 end module integrator_module
