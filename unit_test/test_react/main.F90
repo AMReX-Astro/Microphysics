@@ -43,6 +43,7 @@ program test_react
 
   integer :: i, j, n
   integer :: ii, jj, kk
+  integer :: ii1, jj1, kk1
   integer :: nrho, nT, nX
   integer :: mm, vlo, vhi, batchCount, nzones
 
@@ -246,14 +247,17 @@ program test_react
      allocate(vburn_state_out(nzones))
      batchCount = (nzones + xnet_nzbatchmx - 1) / xnet_nzbatchmx
 
-     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,mm,j,vlo,vhi) &
+     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,mm,j,vlo,vhi,ii1,jj1,kk1) &
      !$OMP PRIVATE(burn_state_in,burn_state_out)
 
      !$OMP DO SCHEDULE(DYNAMIC,1)
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
-              mm = ii + (jj-1)*(hi(1)-lo(1)+1) + (kk-1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
+              ii1 = ii - lo(1) + 1
+              jj1 = jj - lo(2) + 1
+              kk1 = kk - lo(3) + 1
+              mm = ii1 + (jj1-1)*(hi(1)-lo(1)+1) + (kk1-1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
 
               burn_state_in % rho = state(ii, jj, kk, irho)
               burn_state_in % T = state(ii, jj, kk, itemp)
@@ -277,6 +281,7 @@ program test_react
      do mm = 1, batchCount
         vlo = (mm-1)*xnet_nzbatchmx + 1
         vhi = (mm  )*xnet_nzbatchmx
+        vhi = min(vhi,nzones)
         call actual_burner(vburn_state_in(vlo:vhi), vburn_state_out(vlo:vhi), tmax, ZERO)
      end do
      !$OMP END DO
@@ -286,7 +291,10 @@ program test_react
      do kk = lo(3), hi(3)
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
-              mm = ii + (jj-1)*(hi(1)-lo(1)+1) + (kk-1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
+              ii1 = ii - lo(1) + 1
+              jj1 = jj - lo(2) + 1
+              kk1 = kk - lo(3) + 1
+              mm = ii1 + (jj1-1)*(hi(1)-lo(1)+1) + (kk1-1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1)
 
               burn_state_out = vburn_state_out(mm)
               do j = 1, nspec

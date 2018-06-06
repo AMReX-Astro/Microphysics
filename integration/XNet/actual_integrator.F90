@@ -154,8 +154,11 @@ contains
       nzbatch = numzones
       lzactive = .false.
       lzactive(1:numzones) = .true.
-
       ! Set the thermo history data for a constant conditions burn
+      yestart = 0.0
+      ystart = 0.0
+      t9start = 0.0
+      rhostart = 0.0
       do i = 1, numzones
          yestart(i)  = state_in(i) % y_e
          ystart(:,i) = state_in(i) % xn(:) * aion_inv(:)
