@@ -1,0 +1,23 @@
+&PROBIN
+  test_set = "gr0_3d.small"
+
+  small_dens = 1.0d0
+
+  dens_min   = 1.d4
+  dens_max   = 1.d8
+  temp_min   = 5.d7
+  temp_max   = 5.d9
+
+  tmax = 1.d-3
+
+  xin_file   = "xin.xnet_sn160"
+  run_prefix = "react_xnet_sn160_"
+
+  xnet_nzbatchmx = 1
+  xnet_iscrn = 0
+  xnet_iprocess = 1
+
+  xnet_idiag = 0
+  xnet_itsout = 0
+
+/
