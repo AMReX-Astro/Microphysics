@@ -19,7 +19,7 @@ Contains
   Subroutine gpu_init
     Use controls, Only: lun_stdout, myid
     Use cublasf, Only: cublasCreate_v2, cublasSetStream_v2, CUBLAS_STATUS_SUCCESS
-    Use cudaf, Only: cudaGetDeviceCount, cudaGetDeviceProperties, cudaSetDevice, &
+    Use cudaf, Only: cudaGetDeviceCount, cudaSetDevice, &
       & cudaStreamCreateWithFlags, cudaStreamNonBlocking, cudaStreamDefault, cudaSuccess, &
       & cudaEventCreateWithFlags, cudaEventDefault, cudaDeviceSynchronize
     Implicit None
