@@ -23,6 +23,14 @@ ifdef SDC
   endif
 endif
 
+ifdef CUBLAS
+  ifeq ($(CUBLAS), t)
+    ifdef CUDA_DIR
+      libraries += -L$(CUDA_DIR)/lib64 -lcublas -lcudart -lcuda
+      INCLUDE_LOCATIONS += $(CUDA_DIR)/include
+    endif
+  endif
+endif
 
 #-----------------------------------------------------------------------------
 # EOS
@@ -47,7 +55,6 @@ EOS_DIRS := $(EOS_TOP_DIR)
 EOS_DIRS += $(EOS_TOP_DIR)/$(EOS_DIR)
 
 MICROPHYS_CORE += $(EOS_DIRS) 
-
 
 #-----------------------------------------------------------------------------
 # network stuff -- specify your particlar network via NETWORK_DIR

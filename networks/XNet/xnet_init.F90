@@ -5,6 +5,7 @@ subroutine xnet_init(data_dir,data_desc)
   use controls, ONLY : idiag, iheat, iscrn, iprocess, iweak, &
     kmon, ktot, nzbatchmx, lzactive, myid, nproc, mythread, nthread, &
     lun_diag, lun_ev, lun_ts, lun_stdout, getNewUnit
+  use gpu_controls, ONLY : gpu_init
   use nuc_number, ONLY : ny
   Use thermo_data, ONLY : nstart, tstart, tstop, tdelstart, t9start, rhostart, &
     yestart, nh, th, t9h, rhoh, yeh, nhmx
@@ -23,6 +24,8 @@ subroutine xnet_init(data_dir,data_desc)
   ! Local variables
   character(80) :: diag_file
   character(80), parameter :: diag_file_base = 'xnet_diag'
+
+  call gpu_init
 
   !$omp parallel default(shared) private(diag_file)
 
