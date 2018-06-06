@@ -24,7 +24,7 @@ else ifeq ($(INTEGRATOR_DIR),VBDF)
   INTEGRATOR_NUM := 2
 else ifeq ($(INTEGRATOR_DIR),VODE90)
   INTEGRATOR_NUM := 3
-else ifeq ($(INTEGRATOR_DIR),XNET)
+else ifeq ($(INTEGRATOR_DIR),XNet)
   INTEGRATOR_NUM := 4
   FPP_DEFINES += -DXNET
 endif
