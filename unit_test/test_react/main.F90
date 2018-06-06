@@ -244,7 +244,7 @@ program test_react
      nzones = product(hi-lo+1)
      allocate(vburn_state_in(nzones))
      allocate(vburn_state_out(nzones))
-     batchCount = (nzones + nzbatchmx - 1) / nzbatchmx
+     batchCount = (nzones + xnet_nzbatchmx - 1) / xnet_nzbatchmx
 
      !$OMP PARALLEL DO PRIVATE(ii,jj,kk,mm,j,vlo,vhi) &
      !$OMP PRIVATE(burn_state_in,burn_state_out)
@@ -277,7 +277,7 @@ program test_react
      do mm = 1, batchCount
         vlo = (mm-1)*xnet_nzbatchmx + 1
         vhi = (mm  )*xnet_nzbatchmx
-        call actual_burner(vburn_state_in(vlo:vhi), burn_state_out(vlo:vhi), tmax, ZERO)
+        call actual_burner(vburn_state_in(vlo:vhi), vburn_state_out(vlo:vhi), tmax, ZERO)
      end do
      !$OMP END DO
 
