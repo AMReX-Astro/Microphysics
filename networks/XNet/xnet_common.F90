@@ -18,7 +18,7 @@ Subroutine timestep(kstep,mask_in)
   Use conditions, Only: t, tt, tdel, tdel_next, tdel_old, t9, t9o, t9t, rho, rhot, &
     & t9dot, cv, nt, ntt, ints, intso
   Use controls, Only: changemx, changemxt, idiag, iheat, iweak, iweak0, lun_diag, yacc, &
-    & nzbatchmx, szbatch, lzactive
+    & nzbatchmx, szbatch, lzactive, iscrn
   Use nuc_number, Only: ny
   Use nuclear_data, Only: nname
   Use thermo_data, Only: tstop, tdelstart, nh, th, t9h, rhoh
@@ -53,7 +53,7 @@ Subroutine timestep(kstep,mask_in)
     tdel_old = tdel
   EndWhere
   Call cross_sect(mask_in = ( mask .and. tdel_old == 0.0 ))
-  If ( iheat > 0 ) Then
+  If ( iheat > 0 .and. iscrn <=0 ) Then
     Do izb = 1, nzbatchmx
       If ( mask(izb) .and. tdel_old(izb) == 0.0 ) Then
         Call eos_cv(rhot(izb),t9t(izb),yt(:,izb),cv(izb))

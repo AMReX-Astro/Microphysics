@@ -8,8 +8,6 @@
 Module xnet_eos
   Use eos_type_module, Only: eos_t
   Implicit None
-  Type(eos_t) :: eos_state
-  !$omp threadprivate(eos_state)
 
 Contains
 
@@ -17,7 +15,6 @@ Contains
     !-------------------------------------------------------------------------------------------------
     ! This routine initializes starkiller
     !-------------------------------------------------------------------------------------------------
-    Use actual_eos_module, Only: actual_eos_init
     Implicit None
     Return
   End Subroutine eos_initialize
@@ -40,21 +37,18 @@ Contains
 
     ! Local variables
     Real(dp) :: ye, ytot, abar, zbar, z2bar, zibar
+    Type(eos_t) :: eos_state
 
-    ! Call the eos if it hasn't already been called for screening
-    If ( iscrn <= 0 ) Then
+    ! Calculate Ye and other needed moments of the abundance distribution
+    Call y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
 
-      ! Calculate Ye and other needed moments of the abundance distribution
-      Call y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
+    ! Load input variables for the eos
+    eos_state%rho = rho
+    eos_state%T = t9*1e9
+    eos_state%abar = abar
+    eos_state%zbar = ye*abar
 
-      ! Load input variables for the eos
-      eos_state%rho = rho
-      eos_state%T = t9*1e9
-      eos_state%abar = abar
-      eos_State%zbar = ye*abar
-
-      Call actual_eos(eos_input_rt,eos_state)
-    EndIf
+    Call actual_eos(eos_input_rt,eos_state)
 
     ! Convert units from ergs/g to MeV/nucleon and K to GK
     cv = eos_state%cv * 1.0d9/epmev/avn
@@ -64,12 +58,12 @@ Contains
     Return
   End Subroutine eos_cv
 
-  Subroutine xnet_eos_interface(t9,rho,y,ye,ztilde,zinter,lambda0,gammae,dztildedt9)
+  Subroutine xnet_eos_interface(t9,rho,y,ye,ztilde,zinter,lambda0,gammae,dztildedt9,cv)
     !-------------------------------------------------------------------------------------------------
     ! This routine calls the Helmholtz EOS with the input temperature, density and composition. It
     ! returns the factors needed for screening.
     !-------------------------------------------------------------------------------------------------
-    Use xnet_constants, Only: avn, bok, clt, e2, ele_en, emass, hbar, pi, pi2, third, two3rd
+    Use xnet_constants, Only: avn, bok, clt, e2, ele_en, emass, hbar, pi, pi2, third, two3rd, epmev
     Use controls, Only: idiag, iheat, lun_diag
     Use nuc_number, Only: ny
     Use screening_data, Only: thbim2, twm2bi
@@ -83,11 +77,12 @@ Contains
     Real(dp), Intent(in) :: t9, rho, y(ny)
 
     ! Output variables
-    Real(dp), Intent(out) :: ztilde, zinter, lambda0, gammae, ye, dztildedt9
+    Real(dp), Intent(out) :: ztilde, zinter, lambda0, gammae, ye, dztildedt9, cv
 
     ! Local variables
     Real(dp) :: ytot, bkt, abar, zbar, z2bar, zibar
     Real(dp) :: etae, sratio, efermkt, rel_ef, efc, ae, dsratiodeta
+    Type(eos_t) :: eos_state
 
     ! Calculate Ye and other needed moments of the abundance distribution
     Call y_moment(y,ye,ytot,abar,zbar,z2bar,zibar)
@@ -96,11 +91,13 @@ Contains
     eos_state%rho = rho
     eos_state%T = t9*1e9
     eos_state%abar = abar
-    eos_State%zbar = ye*abar
+    eos_state%zbar = ye*abar
 
     ! Call the eos
     Call actual_eos(eos_input_rt,eos_state)
     etae = eos_state%eta
+    ! Convert units from ergs/g to MeV/nucleon and K to GK
+    cv = eos_state%cv * 1.0d9/epmev/avn
 
     ! Calculate electon distribution
     bkt = bok*t9

@@ -150,7 +150,7 @@ Subroutine step_be(kstep,inr)
   Use abundances, Only: y, ydot, yt
   Use conditions, Only: cv, rhot, t9, t9dot, t9t, tdel
   Use controls, Only: iconvc, idiag, iheat, ijac, kitmx, lun_diag, tolc, tolm, tolt9, ymin, &
-    & nzbatchmx, szbatch
+    & nzbatchmx, szbatch, iscrn
   Use nuc_number, Only: ny
   Use nuclear_data, Only: aa, nname
   Use thermo_data, Only: nh
@@ -202,11 +202,13 @@ Subroutine step_be(kstep,inr)
     ! If thermodynamic conditions are changing, rates need to be udpated
     If ( iheat > 0 ) Then
       Call cross_sect(mask_in = lznr)
-      Do izb = 1, nzbatchmx
-        If ( lznr(izb) ) Then
-          Call eos_cv(rhot(izb),t9t(izb),yt(:,izb),cv(izb))
-        EndIf
-      EndDo
+      If ( iscrn <= 0 ) Then
+        Do izb = 1, nzbatchmx
+          If ( lznr(izb) ) Then
+            Call eos_cv(rhot(izb),t9t(izb),yt(:,izb),cv(izb))
+          EndIf
+        EndDo
+      EndIf
     EndIf
 
     ! Calculate the reaction rates and abundance time derivatives

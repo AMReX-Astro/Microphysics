@@ -19,7 +19,7 @@ Subroutine screening(mask_in)
   !    DeWitt & Slattery (2003) Contrib Plasma Phys 43 279.
   !-------------------------------------------------------------------------------------------------
   Use abundances, Only: yt
-  Use conditions, Only: rhot, t9t, yet
+  Use conditions, Only: rhot, t9t, yet, cv
   Use controls, Only: idiag, iheat, iscrn, lun_diag, nzbatchmx, szbatch, lzactive
   Use cross_sect_data, Only: n1i, n2i, n3i, nreac
   Use nuclear_data, Only: izmax, nname
@@ -53,7 +53,7 @@ Subroutine screening(mask_in)
 
       ! Call EOS to get plasma quantities
       call xnet_eos_interface(t9t(izb),rhot(izb),yt(:,izb),yet(izb), &
-        & ztilde,zinter,lambda0,gammae,dztildedt9)
+        & ztilde,zinter,lambda0,gammae,dztildedt9,cv(izb))
 
       ! Loop over 1 reactanct reactions to build screening factors.
       h1(:,izb) = 0.0
