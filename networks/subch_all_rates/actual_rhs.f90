@@ -117,7 +117,8 @@ contains
 
 
     ! Get the neutrino losses
-    call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    !call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    sneut = 0.0d0
 
     ! Append the energy equation (this is erg/g/s)
     state%ydot(net_ienuc) = enuc - sneut
@@ -279,18 +280,18 @@ contains
     enddo
 
     ! Account for the thermal neutrino losses
-    call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
-    do j = 1, nspec
-       b1 = ((aion(j) - state%abar) * state%abar * snuda + (zion(j) - state%zbar) * state%abar * snudz)
-       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
-    enddo
+    ! call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    ! do j = 1, nspec
+    !    b1 = ((aion(j) - state%abar) * state%abar * snuda + (zion(j) - state%zbar) * state%abar * snudz)
+    !    state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
+    ! enddo
 
     ! Energy generation rate Jacobian element with respect to energy generation rate
     state%jac(net_ienuc, net_ienuc) = 0.0d0
 
     ! Energy generation rate Jacobian element with respect to temperature
     call ener_gener_rate(state%jac(1:nspec, net_itemp), state%jac(net_ienuc, net_itemp))
-    state%jac(net_ienuc, net_itemp) = state%jac(net_ienuc, net_itemp) - dsneutdt
+    !state%jac(net_ienuc, net_itemp) = state%jac(net_ienuc, net_itemp) - dsneutdt
 
     ! Add dqweak and epart contributions!!!
 
