@@ -63,14 +63,14 @@ contains
         K_const     = 1.2316d15 ! (3 / pi)^(1/3) * h c / (8 * m_p^(4/3))
         K_const     = K_const / mu_e**gamma_const
       else
-        call bl_error('EOS: Polytrope type currently not defined')
+        call amrex_error('EOS: Polytrope type currently not defined')
       endif
     elseif (polytrope_gamma .gt. ZERO .and. polytrope_K .gt. ZERO) then
       gamma_const = polytrope_gamma
       K_const     = polytrope_K
       mu_e        = TWO ! This will not be used
     else
-      call bl_error('EOS: Neither polytrope type nor both gamma and K are defined')
+      call amrex_error('EOS: Neither polytrope type nor both gamma and K are defined')
     endif
 
     gm1 = gamma_const - ONE
@@ -231,7 +231,7 @@ contains
 
     case default
 
-       call bl_error('EOS: invalid input.')
+       call amrex_error('EOS: invalid input.')
 
     end select
 

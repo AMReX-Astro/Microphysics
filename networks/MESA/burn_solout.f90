@@ -78,7 +78,7 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
 
    info = 0
    lwork = net_work_size(handle_net, info)
-   if (info /= 0) call bl_error("error in burn_solout (MESA) routine")
+   if (info /= 0) call amrex_error("error in burn_solout (MESA) routine")
 
    allocate(work(lwork),  &
       rate_factors(num_reactions), category_factors(num_categories), &
@@ -86,7 +86,7 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
       reaction_eps_nuc(num_rvs, num_reactions),  &
       rate_raw(num_rvs, num_reactions), stat=info)
 
-   if (info /= 0) call bl_error("error allocating in burn_solout (MESA)")
+   if (info /= 0) call amrex_error("error allocating in burn_solout (MESA)")
 
    T = burn_temp
    Rho = burn_rho
@@ -126,7 +126,7 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
          !lwork, work, info)
 
    if (info /= 0) then
-      call bl_error("error bad return from net_get (MESA)")
+      call amrex_error("error bad return from net_get (MESA)")
    end if
 
    deallocate(work, rate_factors, category_factors, rate_screened, &

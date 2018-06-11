@@ -110,7 +110,7 @@ contains
     if (firstCall) then
 
        if (.NOT. network_initialized) then
-          call bl_error("ERROR in burner: must initialize network first")
+          call amrex_error("ERROR in burner: must initialize network first")
        endif
      
        ic12 = network_species_index("carbon-12")
@@ -118,7 +118,7 @@ contains
        img24 = network_species_index("magnesium-24")
        
        if (ic12 < 0 .OR. io16 < 0 .OR. img24 < 0) then
-          call bl_error("ERROR in burner: species undefined")
+          call amrex_error("ERROR in burner: species undefined")
        endif
        
        firstCall = .false.
@@ -171,7 +171,7 @@ contains
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', time
-       call bl_error("ERROR in burner: integration failed")
+       call amrex_error("ERROR in burner: integration failed")
     endif
 
     ! store the new mass fractions -- note, we discard the temperature

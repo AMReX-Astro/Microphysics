@@ -38,7 +38,7 @@ program testjacobian
   img24 = network_species_index("magnesium-24")
 
   if (ic12 < 0 .or. io16 < 0 .or. img24 < 0) then
-     call bl_error("ERROR: species index not defined")
+     call amrex_error("ERROR: species index not defined")
   endif
   
   dens = 2.6e9_rt

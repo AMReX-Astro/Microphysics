@@ -5,7 +5,7 @@
 subroutine setup_mesa_net()
 
    ! Boxlib:
-   use amrex_error_module, only: bl_error
+   use amrex_error_module
    use amrex_fort_module, only : rt => amrex_real
    use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
@@ -47,14 +47,14 @@ subroutine setup_mesa_net()
    call get_environment_variable(name="MESA_DIR", value=mesa_dir, &
                                  status=ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in get_environment_variable")
+      call amrex_error("ERROR: failed in get_environment_variable")
    endif
 
    ! get AstroDev directory:
    call get_environment_variable(name="ASTRODEV_DIR", value=astrodev_dir, &
                                  status=ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in get_environment_variable")
+      call amrex_error("ERROR: failed in get_environment_variable")
    endif
 
    mesa_net_file = "mesa_which_nuclei.list"
@@ -85,25 +85,25 @@ subroutine setup_mesa_net()
    !
    call const_init(mesa_dir, ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in const_init")
+      call amrex_error("ERROR: failed in const_init")
    endif
 
    ierr=0
    call chem_init('isotopes.data', ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in chem_init")
+      call amrex_error("ERROR: failed in chem_init")
    endif
 
    ! MESA version 4942 changed its interface since version 4849
    !call weak_init(ierr) ! this is for 4849 and before
    call weak_init("", ierr) ! this is for 4942 (and after?)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in weak_init")
+      call amrex_error("ERROR: failed in weak_init")
    endif
 
    call reaclib_init(ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in reaclib_init")
+      call amrex_error("ERROR: failed in reaclib_init")
    endif
 
    allocate(net_iso(num_chem_isos), chem_id(num_chem_isos))
@@ -124,37 +124,37 @@ subroutine setup_mesa_net()
    call rates_init('reactions.list', "", ierr) ! this is for 4942 (and after?)
    !call rates_init('reactions.list', ierr) ! this is for 4849 and before
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in rates_init")
+      call amrex_error("ERROR: failed in rates_init")
    endif
 
    call net_init(ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in net_init")
+      call amrex_error("ERROR: failed in net_init")
    endif
 
    handle_net = alloc_net_handle(ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in alloc_net_handle")
+      call amrex_error("ERROR: failed in alloc_net_handle")
    endif
 
    call net_start_def(handle_net, ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in net_start_def")
+      call amrex_error("ERROR: failed in net_start_def")
    endif
 
    call read_net_file(mesa_net_file, handle_net, ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in read_net_file: "//trim(mesa_net_file))
+      call amrex_error("ERROR: failed in read_net_file: "//trim(mesa_net_file))
    endif
 
    call net_finish_def(handle_net, ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in net_finish_def")
+      call amrex_error("ERROR: failed in net_finish_def")
    endif
 
    call net_ptr(handle_net, g, ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in net_ptr")
+      call amrex_error("ERROR: failed in net_ptr")
    endif
 
    species = g % num_isos
@@ -211,7 +211,7 @@ subroutine setup_mesa_net()
          endif
          print *,'---------------------------'
       endif
-      call bl_error("ERROR: species /= nspec")
+      call amrex_error("ERROR: species /= nspec")
    endif
 
    which_rates_choice  = 2 ! rates_JR05_if_available = 2
@@ -222,7 +222,7 @@ subroutine setup_mesa_net()
 
    call net_set_which_rates(handle_net, which_rates, ierr)
    if (ierr /= 0) then
-      call bl_error("ERROR: failed in net_set_which_rates")
+      call amrex_error("ERROR: failed in net_set_which_rates")
    endif
 
    cache_suffix = ''
