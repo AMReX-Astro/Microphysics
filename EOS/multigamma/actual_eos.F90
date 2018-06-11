@@ -60,7 +60,7 @@ contains
   subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A, hbar
-
+    
     implicit none
 
     integer,      intent(in   ) :: input
@@ -137,7 +137,7 @@ contains
     case (eos_input_ps)
 
        ! pressure entropy, and xmass are inputs
-       call bl_error("eos_input_ps is not supported")
+       call amrex_error("eos_input_ps is not supported")
 
 
     case (eos_input_ph)
@@ -152,12 +152,12 @@ contains
     case (eos_input_th)
 
        ! temperature, enthalpy and xmass are inputs
-       call bl_error("eos_input_th is not supported")
+       call amrex_error("eos_input_th is not supported")
 
 
     case default
 
-       call bl_error('EOS: invalid input.')
+       call amrex_error("EOS: invalid input.")
 
     end select
 
