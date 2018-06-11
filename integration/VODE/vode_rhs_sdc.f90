@@ -17,9 +17,9 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   implicit none
 
   integer,    intent(IN   ) :: neq, ipar
-  real(dp_t), intent(INOUT) :: time, y(neq)
-  real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
-  real(dp_t), intent(  OUT) :: ydot(neq)
+  real(rt), intent(INOUT) :: time, y(neq)
+  real(rt), intent(INOUT) :: rpar(n_rpar_comps)
+  real(rt), intent(  OUT) :: ydot(neq)
 
   type (burn_t) :: burn_state
 
@@ -68,8 +68,8 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   implicit none
 
   integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-  real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-  real(dp_t), intent(  OUT) :: pd(neq,neq)
+  real(rt), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
+  real(rt), intent(  OUT) :: pd(neq,neq)
 
   type (burn_t) :: state
   integer :: n
