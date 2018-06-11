@@ -42,7 +42,7 @@ contains
             0.5_rt * (eos_state_fuel % p + eos_state_ash % p) * &
             (1.0_rt/eos_state_fuel % rho - 1.0_rt/eos_state_ash % rho)
 
-       dfdT = -eos_state_ash % dedT + 0.5_rt * eos_state_ash % rt * &
+       dfdT = -eos_state_ash % dedT + 0.5_rt * eos_state_ash % dpdT * &
             (1.0_rt/eos_state_fuel % rho - 1.0_rt/eos_state_ash % rho)
 
        dT = -f/dfdT
