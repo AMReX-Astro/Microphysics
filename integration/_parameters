@@ -76,6 +76,9 @@ retry_burn_factor        real      1.25d0
 # What is the maximum factor we can increase the original tolerances by?
 retry_burn_max_change    real      1.0d2
 
+# Should we abort the run when the burn fails?
+abort_on_failure         logical   .true.
+
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
 renormalize_abundances   logical   .false.

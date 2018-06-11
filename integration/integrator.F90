@@ -47,7 +47,8 @@ contains
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    retry_burn_factor, retry_burn_max_change
+                                    abort_on_failure, &
+                                    retry_burn, retry_burn_factor, retry_burn_max_change
 
     implicit none
 
@@ -148,12 +149,16 @@ contains
 
     end do
 
-    ! If we get to this point, all available integrators have
-    ! failed at all available tolerances; we must abort.
+    ! If we get to this point and have not succeded, all available integrators have
+    ! failed at all available tolerances; we must either abort, or return to the
+    ! driver routine calling the burner, and attempt some other approach such as
+    ! subcycling the main advance.
 
     if (.not. status % integration_complete) then
 
-       call amrex_error("ERROR in burner: integration failed")
+       if (abort_on_failure) then
+          call amrex_error("ERROR in burner: integration failed")
+       end if
 
     endif
 
