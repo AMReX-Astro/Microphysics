@@ -59,6 +59,7 @@ contains
 
   subroutine get_ebin(density, ebin)
 
+    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO
     use fundamental_constants_module
 
@@ -81,16 +82,16 @@ contains
     ! MeV values are per nucleus, so we divide by aion to make it per
     ! nucleon and we multiple by Avogardo's # (6.0221415e23) to get the
     ! value in erg/g
-    rho9 = density/1.0e9_dp_t
+    rho9 = density/1.0e9_rt
 
     ! q_eff is effective heat evolved per reaction (given in MeV)
-    q_eff = 0.06_dp_t*rho9**2 + 0.02_dp_t*rho9 + 8.83_dp_t
+    q_eff = 0.06_rt*rho9**2 + 0.02_rt*rho9 + 8.83_rt
 
     ! convert from MeV to ergs / gram.  Here M12_chamulak is the
     ! number of C12 nuclei destroyed in a single reaction and 12.0 is
     ! the mass of a single C12 nuclei.  Also note that our convention
     ! is that binding energies are negative.
-    ebin(iC12_) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0_dp_t)
+    ebin(iC12_) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0_rt)
 
   end subroutine get_ebin
 
