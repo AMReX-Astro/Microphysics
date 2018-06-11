@@ -6,6 +6,8 @@
 
 module probin_module
 
+  use bl_types
+
   implicit none
 
   private
@@ -17,6 +19,8 @@ end module probin_module
 
 
 module extern_probin_module
+
+  use bl_types
 
   implicit none
 
@@ -30,6 +34,7 @@ end module extern_probin_module
 module runtime_init_module
 
   use amrex_error_module
+  use bl_types
   use probin_module
   use extern_probin_module
 

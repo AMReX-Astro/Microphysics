@@ -1,6 +1,7 @@
 module eos_type_module
 
   use network, only: nspec, naux
+  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
 
