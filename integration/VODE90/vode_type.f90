@@ -177,7 +177,8 @@ contains
   subroutine eos_to_vode(state, y, rpar)
 
     !$acc routine seq
-    
+
+    use amrex_fort_module, only : rt => amrex_real    
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -277,6 +278,7 @@ contains
 
     !$acc routine seq
     
+    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
