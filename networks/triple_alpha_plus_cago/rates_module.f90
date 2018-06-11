@@ -46,14 +46,14 @@ contains
                      FIVE_SIXTHS  = FIVE * SIXTH, &
                      FIVE_THIRDS  = FIVE * THIRD, &
                      THREE_HALVES = THREE * HALF, &
-                     T2T9         = 1.0e-9_dp_t
+                     T2T9         = 1.0e-9_rt
 
 
     t9r   = temp * T2T9
     t9r32 = t9r**THREE_HALVES
     t9ri  = ONE / t9r
     t9ri2 = t9ri**TWO
-    t9    = min(t9r, 10.0e0_dp_t)
+    t9    = min(t9r, 10.0e0_rt)
     t9i   = ONE / t9
     t913  = t9**THIRD
     t9i13 = ONE / t913
@@ -75,67 +75,67 @@ contains
     ! from cf88
 
     ! q = -0.092;     2 He4 --> Be8
-    a    = (7.4e5_dp_t * t9i32) * dexp(-1.0663_dp_t * t9i)
-    dadt = -a * THREE_HALVES * t9i + a * t9i2 * 1.0663_dp_t
+    a    = (7.4e5_rt * t9i32) * dexp(-1.0663_rt * t9i)
+    dadt = -a * THREE_HALVES * t9i + a * t9i2 * 1.0663_rt
 
-    b    =  4.164e9_dp_t * t9i23 * dexp(-13.49_dp_t * t9i13 -                 &
-                                         t92 / 9.604e-3_dp_t)
-    dbdt = -b * TWO3RD * t9i + b * (13.49_dp_t * THIRD * t9i43 -              &
-                                    TWO * t9 / 9.604e-3_dp_t)
+    b    =  4.164e9_rt * t9i23 * dexp(-13.49_rt * t9i13 -                 &
+                                         t92 / 9.604e-3_rt)
+    dbdt = -b * TWO3RD * t9i + b * (13.49_rt * THIRD * t9i43 -              &
+                                    TWO * t9 / 9.604e-3_rt)
 
-    c    = ONE + 3.1e-2_dp_t * t913 + 8.009_dp_t * t923 +                     &
-           1.732_dp_t * t9 + 49.883_dp_t * t943 + 27.426_dp_t * t953
-    dcdt = 3.1e-2_dp_t * THIRD * t9i23 + 8.009_dp_t * TWO3RD * t9i13 +        &
-           1.732_dp_t + 49.883_dp_t * FOUR3RD * t913 +                        &
-           27.426_dp_t * FIVE_THIRDS * t923
+    c    = ONE + 3.1e-2_rt * t913 + 8.009_rt * t923 +                     &
+           1.732_rt * t9 + 49.883_rt * t943 + 27.426_rt * t953
+    dcdt = 3.1e-2_rt * THIRD * t9i23 + 8.009_rt * TWO3RD * t9i13 +        &
+           1.732_rt + 49.883_rt * FOUR3RD * t913 +                        &
+           27.426_rt * FIVE_THIRDS * t923
 
     r2abe    = a + b * c
     dr2abedt = dadt + dbdt * c + b * dcdt
 
 
     ! q = 7.367;      He4 + Be8 --> C12
-    a    = (130_dp_t * t9i32) * dexp(-3.3364_dp_t * t9i) 
-    dadt = -a * THREE_HALVES * t9i + a * 3.3364_dp_t * t9i2
+    a    = (130_rt * t9i32) * dexp(-3.3364_rt * t9i) 
+    dadt = -a * THREE_HALVES * t9i + a * 3.3364_rt * t9i2
     
-    b    = 2.51e7_dp_t * t9i23 * dexp(-23.57_dp_t * t9i13 -                   &
-                                      t92 / 0.055225_dp_t)
-    dbdt = b * TWO3RD * t9i + b * (23.57_dp_t * THIRD * t9i43 -               &
-                                   TWO * t9 / 0.055225_dp_t)
+    b    = 2.51e7_rt * t9i23 * dexp(-23.57_rt * t9i13 -                   &
+                                      t92 / 0.055225_rt)
+    dbdt = b * TWO3RD * t9i + b * (23.57_rt * THIRD * t9i43 -               &
+                                   TWO * t9 / 0.055225_rt)
 
-    c    = ONE + 0.018_dp_t * t913 + 5.249_dp_t * t923 +                      &
-           0.65_dp_t * t9 + 19.176_dp_t * t943 + 6.034_dp_t * t953
-    dcdt = 0.018_dp_t * THIRD * t9i23 + 5.249_dp_t * TWO3RD * t9i13 +         &
-           0.65_dp_t + 19.176_dp_t * FOUR3RD * t913 +                         &
-           6.034_dp_t * FIVE_THIRDS * t923
+    c    = ONE + 0.018_rt * t913 + 5.249_rt * t923 +                      &
+           0.65_rt * t9 + 19.176_rt * t943 + 6.034_rt * t953
+    dcdt = 0.018_rt * THIRD * t9i23 + 5.249_rt * TWO3RD * t9i13 +         &
+           0.65_rt + 19.176_rt * FOUR3RD * t913 +                         &
+           6.034_rt * FIVE_THIRDS * t923
 
     rbeac    = a + b * c
     drbeacdt = dadt + dbdt * c + b * dcdt
 
     ! q = 7.275;      total reaction
 
-    a    = 2.9e-16_dp_t * r2abe * rbeac
-    dadt = 2.9e-16_dp_t * (dr2abedt * rbeac + r2abe * drbeacdt)
+    a    = 2.9e-16_rt * r2abe * rbeac
+    dadt = 2.9e-16_rt * (dr2abedt * rbeac + r2abe * drbeacdt)
 
-    if (t9 .gt. 8e-2_dp_t) then
-       b    = 0.1_dp_t * 1.35e-7_dp_t * t9i32 * dexp(-24.811_dp_t * t9i)
-       dbdt = -b * TWO3RD * t9i + 24.811_dp_t * b * t9i2
+    if (t9 .gt. 8e-2_rt) then
+       b    = 0.1_rt * 1.35e-7_rt * t9i32 * dexp(-24.811_rt * t9i)
+       dbdt = -b * TWO3RD * t9i + 24.811_rt * b * t9i2
 
        term    = a + b
        dtermdt = dadt + dbdt
     else
-       b1    = ONE + FOUR * dexp(-(2.5e-2_dp_t * t9i)**3.263_dp_t)
-       db1dt = FOUR * 3.263_dp_t * (2.5e-2_dp_t * t9i)**3.263_dp_t *          &
-               t9i * dexp(-(2.5e-2_dp_t * t9i)**3.263_dp_t)
+       b1    = ONE + FOUR * dexp(-(2.5e-2_rt * t9i)**3.263_rt)
+       db1dt = FOUR * 3.263_rt * (2.5e-2_rt * t9i)**3.263_rt *          &
+               t9i * dexp(-(2.5e-2_rt * t9i)**3.263_rt)
 
-       b2    = ONE + FOUR * dexp(-(t9 / 2.5e-2_dp_t)**9.227_dp_t)
-       db2dt = -FOUR * 9.227_dp_t * (t9 / 2.5e-2_dp_t)**9.227_dp_t *          &
-               t9i * dexp(-(t9 / 2.5e-2_dp_t)**9.227_dp_t)
+       b2    = ONE + FOUR * dexp(-(t9 / 2.5e-2_rt)**9.227_rt)
+       db2dt = -FOUR * 9.227_rt * (t9 / 2.5e-2_rt)**9.227_rt *          &
+               t9i * dexp(-(t9 / 2.5e-2_rt)**9.227_rt)
 
-       b    = 1.e-2_dp_t + 0.2_dp_t * b1 / b2
-       dbdt = 0.2_dp_t * (db1dt / b2 - b1 * db2dt / (b2 * b2))
+       b    = 1.e-2_rt + 0.2_rt * b1 / b2
+       dbdt = 0.2_rt * (db1dt / b2 - b1 * db2dt / (b2 * b2))
             
-       c    = 0.1_dp_t * 1.35e-7_dp_t * t9i32 * dexp(-24.811_dp_t * t9i)
-       dcdt = -c * THREE_HALVES * t9i + 24.811_dp_t * c * t9i2
+       c    = 0.1_rt * 1.35e-7_rt * t9i32 * dexp(-24.811_rt * t9i)
+       dcdt = -c * THREE_HALVES * t9i + 24.811_rt * c * t9i2
 
        term    = a * b + c
        dtermdt = dadt * b + a * dbdt + dcdt
@@ -149,21 +149,21 @@ contains
     ! 1.7 time cf88 rate: see Weaver & Woosley Phy. Rep. 227 (1993)
     !                     and Garnett Nuc. Phys. A. 621  (1997)
     ! q = 7.162
-    b1    = ONE + 0.0489_dp_t * t9i23
-    db1dt = -0.0489_dp_t * TWO3RD * t9i53
+    b1    = ONE + 0.0489_rt * t9i23
+    db1dt = -0.0489_rt * TWO3RD * t9i53
 
-    b2    = -32.120_dp_t * t9i13 - t92/(3.496_dp_t**2)
-    db2dt = 32.120_dp_t * THIRD * t9i43 - TWO * t9 / (3.496_dp_t**2)
+    b2    = -32.120_rt * t9i13 - t92/(3.496_rt**2)
+    db2dt = 32.120_rt * THIRD * t9i43 - TWO * t9 / (3.496_rt**2)
 
     a    = t9i2 * b1**2 * dexp(b2)
     dadt = a * (-TWO * t9i + TWO * db1dt / b1 + db2dt)
     
     !------------------------
 
-    b2    = ONE + 0.2654_dp_t * t9i23
-    db2dt = -0.2654_dp_t * TWO3RD * t9i53
+    b2    = ONE + 0.2654_rt * t9i23
+    db2dt = -0.2654_rt * TWO3RD * t9i53
     
-    c    = -32.120_dp_t * t9i13
+    c    = -32.120_rt * t9i13
     dcdt = -THIRD * c * t9i
 
     b1    = t9i2 * b2**2 * dexp(c)
@@ -171,7 +171,7 @@ contains
 
     !------------------------
 
-    c    = -27.499_dp_t * t9i
+    c    = -27.499_rt * t9i
     dcdt = - c * t9i
 
     b2    = t9i32 * dexp(c)
@@ -179,18 +179,18 @@ contains
 
     !------------------------
     
-    c    = t92 * t92 * t9 * dexp(-15.541_dp_t * t9i)
-    dcdt = c * (FIVE * t9i + 15.541_dp_t * t9i2)
+    c    = t92 * t92 * t9 * dexp(-15.541_rt * t9i)
+    dcdt = c * (FIVE * t9i + 15.541_rt * t9i2)
 
     !------------------------
 
-    term    = 1.04e8_dp_t * a + 1.76e8_dp_t * b1 + &
-              1.25e3_dp_t * b2 + 1.43e-2_dp_t * c
-    dtermdt = 1.04e8_dp_t * dadt + 1.76e8_dp_t * db1dt + &
-              1.25e3_dp_t * db2dt + 1.43e-2_dp_t * dcdt
+    term    = 1.04e8_rt * a + 1.76e8_rt * b1 + &
+              1.25e3_rt * b2 + 1.43e-2_rt * c
+    dtermdt = 1.04e8_rt * dadt + 1.76e8_rt * db1dt + &
+              1.25e3_rt * db2dt + 1.43e-2_rt * dcdt
 
-    term    = 1.7_dp_t * term
-    dtermdt = 1.7_dp_t * term
+    term    = 1.7_rt * term
+    dtermdt = 1.7_rt * term
 
     rates(ircago)    = term * dens
     dratesdt(ircago) = dtermdt * T2T9 * dens
