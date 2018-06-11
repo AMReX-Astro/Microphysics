@@ -27,7 +27,7 @@ contains
     type (burn_t) :: state
     type (rate_t) :: rr
 
-    real(rt), parameter :: T2T9 = 1.0e-9_dp_t
+    real(rt), parameter :: T2T9 = 1.0e-9_rt
 
     real(rt) :: dens, t9
     real(rt) :: ymol(nspec), ydot(nspec)
@@ -102,19 +102,19 @@ contains
 
     ! zero the rates
     rr % rates(:,:) = ZERO
-    rr % T_eval = t9 * 1.e9_dp_t
+    rr % T_eval = t9 * 1.e9_rt
 
     !**********************************************************************
     ! Start the rate calculations
     ! TODO - temperature derivatives for use in analytic jacobian
     !**********************************************************************
     ! helium burning - has been divided by 6
-    rr % rates(1,ir3a) = 2.79d-8*t9m3*exp(-4.403_dp_t*t9m1)*dens*dens/SIX
+    rr % rates(1,ir3a) = 2.79d-8*t9m3*exp(-4.403_rt*t9m1)*dens*dens/SIX
 
     ! 15o(ag)19ne
-    rr % rates(1,irag15) = (19.0_dp_t * (t9**2.85_dp_t) * &
-         exp(-7.356_dp_t*t9m1) + &
-         0.395_dp_t * t9m32 * exp(-5.849_dp_t*t9m1))*dens
+    rr % rates(1,irag15) = (19.0_rt * (t9**2.85_rt) * &
+         exp(-7.356_rt*t9m1) + &
+         0.395_rt * t9m32 * exp(-5.849_rt*t9m1))*dens
 
     ! 14o(ap)17f
     ! an approx good below t9=0.5  is to drop first term, then
