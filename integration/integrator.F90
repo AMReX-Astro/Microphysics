@@ -104,6 +104,8 @@ contains
 
           if (status % integration_complete) exit
 
+          if (.not. retry_burn) exit
+
           ! If we got here, the integration failed; loosen the tolerances.
 
           if (retry_change_factor < retry_burn_max_change) then
@@ -146,6 +148,8 @@ contains
        ! No need to do the next integrator if we have already succeeded.
 
        if (status % integration_complete) exit
+
+       if (.not. retry_burn) exit
 
     end do
 
