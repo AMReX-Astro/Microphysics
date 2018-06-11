@@ -125,18 +125,18 @@ contains
           else
 
              if (current_integrator < 1) then
+
 #if (INTEGRATOR == 0)
                 print *, "Retrying burn with BS integrator"
 #elif (INTEGRATOR == 1)
                 print *, "Retrying burn with VODE integrator"
 #endif
-             else
-
-                ! We are out of integrators; give up.
-
-                exit
 
              end if
+
+             ! Switch to the next integrator (if there is one).
+
+             exit
 
           end if
 
