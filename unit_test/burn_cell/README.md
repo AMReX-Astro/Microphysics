@@ -5,8 +5,8 @@ nucleosynthesis.
 
 # Using
 
-  * make sure you have AMReX and that `AMREX_HOME` is set to point to
-    the `amrex/` directory.
+  * make sure you have FBoxLib and that `FBOXLIB_HOME` is set to point to
+    the `FBoxLib/` directory.
 
   * Compile the unit test:
 
