@@ -6,7 +6,6 @@ module integration_data
 
   type :: integration_status_t
 
-     logical :: integration_complete
      real(rt) :: atol_spec, atol_enuc, atol_temp
      real(rt) :: rtol_spec, rtol_enuc, rtol_temp
 

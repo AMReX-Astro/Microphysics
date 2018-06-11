@@ -166,6 +166,10 @@ contains
        iwork(7) = 0
     endif
 
+    ! Start off by assuming a successful burn.
+
+    state_out % success = .true.
+
     ! Initialize the integration time.
 
     local_time = ZERO
@@ -311,7 +315,7 @@ contains
        print *, 'xn current = ', y(1:nspec_evolve), rpar(irp_nspec:irp_nspec+n_not_evolved-1)
        print *, 'energy generated = ', y(net_ienuc) - ener_offset
 
-       status % integration_complete = .false.
+       state_out % success = .false.
        return
     endif
 
