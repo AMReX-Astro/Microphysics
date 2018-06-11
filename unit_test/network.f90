@@ -37,7 +37,7 @@ contains
 
   subroutine network_init
 
-    use amrex_error
+    use amrex_error_module
 
     implicit none
 
