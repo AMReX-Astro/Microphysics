@@ -86,8 +86,6 @@ contains
 
        do
 
-          status % integration_complete = .true.
-
 #if (INTEGRATOR == 0)
           if (current_integrator == 0) then
              call vode_integrator(state_in, state_out, dt, time, status)
@@ -102,7 +100,7 @@ contains
           endif
 #endif
 
-          if (status % integration_complete) exit
+          if (state_out % success) exit
 
           if (.not. retry_burn) exit
 
@@ -147,7 +145,7 @@ contains
 
        ! No need to do the next integrator if we have already succeeded.
 
-       if (status % integration_complete) exit
+       if (state_out % success) exit
 
        if (.not. retry_burn) exit
 
@@ -158,7 +156,7 @@ contains
     ! driver routine calling the burner, and attempt some other approach such as
     ! subcycling the main advance.
 
-    if (.not. status % integration_complete) then
+    if (.not. state_out % success) then
 
        if (abort_on_failure) then
           call amrex_error("ERROR in burner: integration failed")

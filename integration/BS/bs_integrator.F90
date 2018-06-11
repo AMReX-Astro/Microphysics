@@ -81,6 +81,10 @@ contains
     bs % atol = atol
     bs % rtol = rtol
 
+    ! Start out by assuming a successful burn.
+
+    state_out % success = .true.
+
     ! Initialize the integration time.
     t0 = ZERO
     t1 = t0 + dt
@@ -212,7 +216,7 @@ contains
        print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 
-       status % integration_complete = .false.
+       state_out % success = .false.
        return
 
     endif
