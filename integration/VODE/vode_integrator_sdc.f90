@@ -102,7 +102,7 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in vode_integrator_sdc.f90.")
+       call amrex_error("Error: unknown Jacobian mode in vode_integrator_sdc.f90.")
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature

@@ -5,7 +5,7 @@ program testjacobian
 
   use bl_types
   use bl_constants_module
-  use bl_error_module
+  use amrex_error_module
   use network
   use burn_type_module
   use microphysics_module

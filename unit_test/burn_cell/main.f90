@@ -60,7 +60,7 @@ program burn_cell
   ! Make sure user set all the mass fractions to values in the interval [0, 1]
   do i = 1, nspec
      if (massfractions(i) .lt. 0 .or. massfractions(i) .gt. 1) then
-        call bl_error('mass fraction for ' // short_spec_names(i) // ' not initialized in the interval [0,1]!')
+        call amrex_error('mass fraction for ' // short_spec_names(i) // ' not initialized in the interval [0,1]!')
      end if
   end do
 
@@ -89,7 +89,7 @@ program burn_cell
   out_directory_name = trim(run_prefix) // 'output'
   call fabio_mkdir(trim(out_directory_name), istate)
   if (istate /= 0) then
-     call bl_error('output directory "' // trim(out_directory_name) // '" could not be created.')
+     call amrex_error('output directory "' // trim(out_directory_name) // '" could not be created.')
   end if
 
   ! output initial burn type data

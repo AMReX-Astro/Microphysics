@@ -148,7 +148,7 @@ contains
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', local_time
-       call bl_error("ERROR in burner: integration failed")
+       call amrex_error("ERROR in burner: integration failed")
     endif
 
     ! Store the new mass fractions.

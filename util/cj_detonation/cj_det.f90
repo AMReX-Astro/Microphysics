@@ -114,7 +114,7 @@ contains
     enddo
 
     if (.not. converged .or. istatus == -1) then
-       call bl_error("CJ did not converge")
+       call amrex_error("CJ did not converge")
     endif
 
   end subroutine cj_cond

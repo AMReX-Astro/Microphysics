@@ -87,12 +87,12 @@ program test_react
 
   nlevs = mla % nlevel
   if (nlevs /= 1) then
-     call bl_error("ERROR: only 1 level of refinement currently supported")
+     call amrex_error("ERROR: only 1 level of refinement currently supported")
   endif
 
   dm = mla % dim
   if (dm /= 3) then
-     call bl_error("ERROR: we require dm = 3")
+     call amrex_error("ERROR: we require dm = 3")
   endif
 
   ! we don't care about dx -- we have no physical size

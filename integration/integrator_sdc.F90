@@ -37,7 +37,7 @@ contains
     use bs_integrator_module, only: bs_integrator
 #endif
 
-    use amrex_error_module, only: bl_error
+    use amrex_error_module, only: amrex_error
     use amrex_fort_module, only : rt => amrex_real
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
@@ -66,7 +66,7 @@ contains
 #elif INTEGRATOR == 1
     call bs_integrator(state_in, state_out, dt, time, status)
 #else
-    call bl_error("Unknown integrator.")
+    call amrex_error("Unknown integrator.")
 #endif
 
   end subroutine integrator
