@@ -37,6 +37,7 @@ contains
 
     double precision :: T9
 
+    T9 = state_in % T * 1.e-9_dp_t
 
     ! Only burn if 0.2 < T9 < 2.5 or X(H1) > 0.05.
     ! The last restriction is a kludge based on the last paragraph of WW81.
