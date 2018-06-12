@@ -32,14 +32,14 @@ contains
     state % ydot = ZERO
 
     dens = state % rho
-    t9   = state % T * 1.e-9_rt
+    T9   = state % T * 1.e-9_rt
     y = state % xn * aion_inv
 
     ! build the rates; weak rates are the wk* variables
-    call make_rates(t9, dens, y(1:nspec), state, rr)
+    call make_rates(T9, dens, y(1:nspec), state, rr)
 
     ! set up the ODEs for the species
-    call make_ydots(y(1:nspec), t9, state, rr, ydot, .false.)
+    call make_ydots(y(1:nspec), T9, state, rr, ydot, .false.)
 
     state % ydot(1:nspec) = ydot
 
@@ -53,7 +53,7 @@ contains
 
 
 
-  subroutine make_rates(t9, dens, y, state, rr)
+  subroutine make_rates(T9, dens, y, state, rr)
 
     use amrex_constants_module
     use amrex_fort_module, only : rt => amrex_real
@@ -62,7 +62,7 @@ contains
 
     implicit none
 
-    double precision :: t9, dens, y(nspec)
+    double precision :: T9, dens, y(nspec)
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -84,9 +84,9 @@ contains
 
     rr % rates(:,:) = ZERO ! Zero out rates
 
-    rr % T_eval = T9 * 1.e9_dp_T
+    rr % T_eval = T9 * 1.e9_rt
 
-    tfactors = calc_tfactors(t9)
+    tfactors = calc_tfactors(T9)
 
     ! some common parameters
     rr % rates(1,irLweak) = Lweak
@@ -239,7 +239,7 @@ contains
 
 
 
-  subroutine make_ydots(ymol, t9, state, rr, dydt, doing_dratesdt)
+  subroutine make_ydots(ymol, T9, state, rr, dydt, doing_dratesdt)
 
     use amrex_constants_module
     use amrex_fort_module, only : rt => amrex_real
@@ -247,7 +247,7 @@ contains
 
     implicit none
 
-    double precision, intent(IN   ) :: ymol(nspec), t9
+    double precision, intent(IN   ) :: ymol(nspec), T9
     logical ,         intent(IN   ) :: doing_dratesdt
     type(burn_t),     intent(INOUT) :: state
     type(rate_t),     intent(inout) :: rr
@@ -395,19 +395,19 @@ contains
     type (burn_t)    :: state
 
     type (rate_t) :: rr
-    double precision :: dens, ymol(nspec), t9, ydot(nspec)
+    double precision :: dens, ymol(nspec), T9, ydot(nspec)
     double precision :: psum
     integer          :: i, j
 
     ! initialize
     state % jac(:,:) = ZERO
     ymol = state % xn * aion_inv
-    t9 = state % T * 1.e-9_rt
+    T9 = state % T * 1.e-9_rt
 
     dens = state % rho
 
     ! build the rates; weak rates are the wk* variables
-    call make_rates(t9, dens, ymol(1:nspec), state, rr)
+    call make_rates(T9, dens, ymol(1:nspec), state, rr)
 
 
     ! carbon-12
@@ -534,7 +534,7 @@ contains
          -56.0d0*ymol(ini56)*rr % rates(3,r56eff)
 
     ! temperature derivatives df(Y)/df(T)
-    call make_ydots(ymol, t9, state, rr, ydot, .true.)
+    call make_ydots(ymol, T9, state, rr, ydot, .true.)
 
     state % jac(1:nspec, net_itemp) = ydot
 
