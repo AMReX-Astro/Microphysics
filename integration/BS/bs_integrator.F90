@@ -59,6 +59,8 @@ contains
 
     real(rt) :: ener_offset
 
+    logical :: success
+
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
     !
@@ -228,7 +230,12 @@ contains
     ! Store the final data, and then normalize abundances.
     call bs_to_burn(bs)
 
+    ! cache the success
+    success = state_out % success
+
     state_out = bs % burn_s
+
+    state_out % success = success
 
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)
