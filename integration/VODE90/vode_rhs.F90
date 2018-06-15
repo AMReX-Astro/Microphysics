@@ -20,7 +20,7 @@ contains
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: renormalize_abundances, &
          burning_mode, burning_mode_factor, &
-         integrate_temperature, integrate_energy
+         integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn, VODE_NEQS
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
