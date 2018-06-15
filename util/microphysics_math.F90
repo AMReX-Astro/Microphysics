@@ -231,7 +231,7 @@ contains
 
 #ifndef ACC
 #ifndef CUDA    
-    if (j > n - 1) then
+    if (j > 12) then
        call amrex_error("Error: too many partials created in esum.")
     endif
 #endif
