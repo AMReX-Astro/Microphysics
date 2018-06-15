@@ -41,6 +41,7 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 
 else ifeq ($(INTEGRATOR_DIR),VODE90)
 
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/vode_source
 
 else ifeq ($(INTEGRATOR_DIR),BS)
