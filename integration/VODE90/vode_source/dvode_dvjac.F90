@@ -5,7 +5,7 @@ module dvode_dvjac_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use linpack_module
   use blas_module
 
@@ -92,12 +92,12 @@ contains
     integer,       intent(  out) :: IERPJ
 
     ! Declare local variables
-    real(dp_t) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
+    real(rt) :: CON, DI, FAC, HRL1, R, R0, SRUR, YI, YJ, YJJ
     integer    :: I, I1, I2, IER, II, J, J1, JJ, JOK, LENP, MBA, MBAND
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
 
     ! Parameter declarations
-    real(dp_t), parameter :: PT1 = 0.1D0
+    real(rt), parameter :: PT1 = 0.1D0
 
     IERPJ = 0
     HRL1 = vstate % H*vstate % RL1

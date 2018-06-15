@@ -30,7 +30,7 @@ program test_react
   ! Conventional fluid state multifabs
   type(multifab) , allocatable :: s(:)
   
-  real(kind=dp_t) :: dx(1, MAX_SPACEDIM)
+  real(kind=rt) :: dx(1, MAX_SPACEDIM)
 
   logical :: pmask(MAX_SPACEDIM)
 
@@ -45,15 +45,15 @@ program test_react
 
   type(plot_t) :: pf
 
-  real(kind=dp_t), pointer :: sp(:,:,:,:)                                  
+  real(kind=rt), pointer :: sp(:,:,:,:)                                  
   integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)                     
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
   
   type (eos_t) :: eos_state, eos_state_reference
 
-  real(kind=dp_t) :: temp_zone, dens_zone, metalicity
-  real(kind=dp_t) :: dlogrho, dlogT, dmetal
-  real(kind=dp_t) :: xn_zone(nspec)
+  real(kind=rt) :: temp_zone, dens_zone, metalicity
+  real(kind=rt) :: dlogrho, dlogT, dmetal
+  real(kind=rt) :: xn_zone(nspec)
 
   character (len=128) :: out_name
 
@@ -118,14 +118,14 @@ program test_react
         ! set the composition -- approximately solar
         metalicity = ZERO + dble(kk)*dmetal
         xn_zone(:) = metalicity/(nspec - 2)   ! all but H, He
-        xn_zone(ih1)  = 0.75_dp_t - HALF*metalicity
-        xn_zone(ihe4) = 0.25_dp_t - HALF*metalicity
+        xn_zone(ih1)  = 0.75_rt - HALF*metalicity
+        xn_zone(ihe4) = 0.25_rt - HALF*metalicity
 
         do jj = lo(2), hi(2)
-           temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+           temp_zone = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
 
            do ii = lo(1), hi(1)
-              dens_zone = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+              dens_zone = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)
 
               eos_state % rho = dens_zone
               eos_state % T = temp_zone

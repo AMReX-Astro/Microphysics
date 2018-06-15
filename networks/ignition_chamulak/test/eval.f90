@@ -19,12 +19,12 @@ program eval
   
   call microphysics_init()
 
-  dens = 2.6e9_dp_t
-  temp = 6.e8_dp_t
+  dens = 2.6e9_rt
+  temp = 6.e8_rt
 
-  Xin(ic12_)  = 0.5_dp_t
-  Xin(io16_)  = 0.5_dp_t
-  Xin(iash_)  = 0.0_dp_t
+  Xin(ic12_)  = 0.5_rt
+  Xin(io16_)  = 0.5_rt
+  Xin(iash_)  = 0.0_rt
 
   print *, 'calling the burner RHS ...'
 

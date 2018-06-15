@@ -3,7 +3,7 @@ module dvode_dvsol_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use linpack_module
 
   use dvode_constants_module
@@ -55,13 +55,13 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    real(dp_t),    intent(inout) :: WM(VODE_LENWM)
+    real(rt),    intent(inout) :: WM(VODE_LENWM)
     integer,       intent(in   ) :: IWM(VODE_LIW)
     integer,       intent(  out) :: IERSL
 
     ! Declare local variables
     integer    :: I, MEBAND, ML, MU
-    real(dp_t) :: DI, HRL1, PHRL1, R
+    real(rt) :: DI, HRL1, PHRL1, R
 
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER

@@ -4,7 +4,7 @@ module dvode_dvindy_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
 #ifndef CUDA  
   use dvode_output_module, only: xerrwd
 #endif
@@ -68,7 +68,7 @@ contains
     integer,       intent(  out) :: IFLAG
 
     ! Declare local variables
-    real(dp_t) :: C, R, S, TFUZZ, TN1, TP
+    real(rt) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
 #ifndef CUDA
     character (len=80) :: MSG

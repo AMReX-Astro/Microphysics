@@ -1,19 +1,19 @@
 module vode_type_module
 
   use vode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
   ! Setup a rwork derived type to hold the rwork array
   type rwork_t
      ! condopt - Conditional or optional input/output arguments to dvode
-     real(dp_t) :: condopt(4)
-     real(dp_t) :: yh(VODE_NEQS, VODE_LMAX)
-     real(dp_t) :: wm(VODE_LENWM)
-     real(dp_t) :: ewt(VODE_NEQS)
-     real(dp_t) :: savf(VODE_NEQS)
-     real(dp_t) :: acor(VODE_NEQS)
+     real(rt) :: condopt(4)
+     real(rt) :: yh(VODE_NEQS, VODE_LMAX)
+     real(rt) :: wm(VODE_LENWM)
+     real(rt) :: ewt(VODE_NEQS)
+     real(rt) :: savf(VODE_NEQS)
+     real(rt) :: acor(VODE_NEQS)
   end type rwork_t  
 
 contains

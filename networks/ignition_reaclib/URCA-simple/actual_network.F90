@@ -1,5 +1,6 @@
 module actual_network
 
+  use amrex_fort_module, only: rt => amrex_real
   use physical_constants, only: ERG_PER_MeV
   
   implicit none
@@ -74,13 +75,13 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(dp_t), &
+  real(rt), &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: aion(:), zion(:), bion(:)
   
-  real(dp_t), &
+  real(rt), &
 #ifdef CUDA
        managed, &
 #endif

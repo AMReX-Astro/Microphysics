@@ -31,7 +31,7 @@ contains
   
     integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
     type(pfidx_t)   :: pfidx
-    real(kind=dp_t) &
+    real(kind=rt) &
 #ifdef CUDA
          , device &
 #endif

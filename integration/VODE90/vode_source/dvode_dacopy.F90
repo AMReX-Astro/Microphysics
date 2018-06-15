@@ -1,6 +1,6 @@
 module dvode_dacopy_module
 
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use blas_module
   
   use dvode_constants_module
@@ -33,8 +33,8 @@ contains
 
     ! Declare arguments
     integer,     intent(in   ) :: NROW, NCOL, NROWA, NROWB
-    real(dp_t),  intent(in   ) :: A(NROWA,NCOL)
-    real(dp_t),  intent(inout) :: B(NROWB,NCOL)
+    real(rt),  intent(in   ) :: A(NROWA,NCOL)
+    real(rt),  intent(inout) :: B(NROWB,NCOL)
 
     ! Declare local variables
     integer    :: IC

@@ -1,6 +1,6 @@
 module dvode_type_module
 
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use vode_parameters_module, only: VODE_NEQS
   use rpar_indices, only: n_rpar_comps
 
@@ -10,10 +10,10 @@ module dvode_type_module
 
   type :: dvode_t
      ! Variables previously in common blocks
-     real(dp_t) :: HU
-     real(dp_t) :: ACNRM, CCMXJ, CONP, CRATE, DRC, EL(13)
-     real(dp_t) :: ETA, ETAMAX, H, HMIN, HMXI, HNEW, HSCAL, PRL1
-     real(dp_t) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
+     real(rt) :: HU
+     real(rt) :: ACNRM, CCMXJ, CONP, CRATE, DRC, EL(13)
+     real(rt) :: ETA, ETAMAX, H, HMIN, HMXI, HNEW, HSCAL, PRL1
+     real(rt) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST     
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
      integer    :: L, LENWM
@@ -22,19 +22,19 @@ module dvode_type_module
      integer    :: NSLP
 
      ! Tolerances
-     real(dp_t) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
+     real(rt) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
 
      ! Real parameters
-     real(dp_t) :: RPAR(n_rpar_comps)
+     real(rt) :: RPAR(n_rpar_comps)
 
      ! State flag
      integer    :: ISTATE
 
      ! Local time and integration end time
-     real(dp_t) :: T, TOUT
+     real(rt) :: T, TOUT
 
      ! Integration vector
-     real(dp_t) :: Y(VODE_NEQS)
+     real(rt) :: Y(VODE_NEQS)
   end type dvode_t
 
 contains

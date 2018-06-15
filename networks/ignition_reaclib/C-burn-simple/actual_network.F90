@@ -72,13 +72,13 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(dp_t), &
+  real(rt), &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: aion(:), zion(:), bion(:)
   
-  real(dp_t), &
+  real(rt), &
 #ifdef CUDA
        managed, &
 #endif

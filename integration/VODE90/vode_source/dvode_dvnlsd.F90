@@ -5,7 +5,7 @@ module dvode_dvnlsd_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use blas_module
   use linpack_module
 
@@ -94,13 +94,13 @@ contains
     integer,       intent(inout) :: IWM(VODE_LIW), NFLAG
 
     ! Declare local variables
-    real(dp_t) :: CSCALE, DCON, DEL, DELP
+    real(rt) :: CSCALE, DCON, DEL, DELP
     integer    :: I, IERPJ, IERSL, M
 
     ! Parameter declarations
-    real(dp_t), parameter :: CCMAX = 0.3D0
-    real(dp_t), parameter :: CRDOWN = 0.3D0
-    real(dp_t), parameter :: RDIV  = 2.0D0
+    real(rt), parameter :: CCMAX = 0.3D0
+    real(rt), parameter :: CRDOWN = 0.3D0
+    real(rt), parameter :: RDIV  = 2.0D0
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
 

@@ -1,6 +1,6 @@
 module dvode_dvnorm_module
 
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
 
@@ -42,13 +42,13 @@ contains
     implicit none
 
     ! Declare arguments
-    real(dp_t), intent(in   ) :: V(VODE_NEQS), W(VODE_NEQS)
+    real(rt), intent(in   ) :: V(VODE_NEQS), W(VODE_NEQS)
 
     ! Declare return variable
-    real(dp_t) :: dvn
+    real(rt) :: dvn
 
     ! Declare local variables
-    real(dp_t) :: SUM
+    real(rt) :: SUM
     integer    :: I
 
     SUM = 0.0D0

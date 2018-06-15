@@ -1,7 +1,7 @@
 module dvode_dvset_module
 
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
 
   use dvode_constants_module
 
@@ -69,14 +69,14 @@ contains
     type(dvode_t), intent(inout) :: vstate
 
     ! Declare local variables
-    real(dp_t) :: EM(13)
-    real(dp_t) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
-    real(dp_t) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S
-    real(dp_t) :: T1, T2, T3, T4, T5, T6, XI
+    real(rt) :: EM(13)
+    real(rt) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
+    real(rt) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S
+    real(rt) :: T1, T2, T3, T4, T5, T6, XI
     integer    :: I, IBACK, J, JP1, NQM1, NQM2
 
     ! Parameter declaration
-    real(dp_t), parameter :: CORTES = 0.1D0
+    real(rt), parameter :: CORTES = 0.1D0
 
     FLOTL = REAL(vstate % L)
     NQM1 = vstate % NQ - 1

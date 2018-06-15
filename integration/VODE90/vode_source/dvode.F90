@@ -9,7 +9,7 @@ module dvode_module
   use dvode_output_module, only: xerrwd
 #endif
   use rpar_indices
-  use bl_types, only: dp_t
+  use amrex_fort_module, only: rt => amrex_real
   use blas_module
   use linpack_module
 #ifdef CUDA
@@ -45,8 +45,8 @@ contains
 
     ! Declare local variables
     logical    :: IHIT
-    real(dp_t) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
-    real(dp_t) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
+    real(rt) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
+    real(rt) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
     integer    :: I, IER, IFLAG, IMXER, JCO, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
@@ -57,7 +57,7 @@ contains
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
-    real(dp_t), parameter :: PT2 = 0.2D0
+    real(rt), parameter :: PT2 = 0.2D0
 
     ! -----------------------------------------------------------------------
     !  Block A.
@@ -318,7 +318,7 @@ contains
     ! -----------------------------------------------------------------------
 
 100 continue
-    vstate % UROUND = epsilon(1.0_dp_t)
+    vstate % UROUND = epsilon(1.0_rt)
     vstate % TN = vstate % T
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
     TCRIT = RWORK % condopt(1)

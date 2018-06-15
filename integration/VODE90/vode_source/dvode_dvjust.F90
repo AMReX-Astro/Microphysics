@@ -4,7 +4,7 @@ module dvode_dvjust_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use blas_module
 
   use dvode_constants_module
@@ -49,7 +49,7 @@ contains
     integer,       intent(in   ) :: IORD
 
     ! Declare local variables
-    real(dp_t) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
+    real(rt) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
     integer    :: I, IBACK, J, JP1, LP1, NQM1, NQM2, NQP1
 
     IF ((vstate % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN

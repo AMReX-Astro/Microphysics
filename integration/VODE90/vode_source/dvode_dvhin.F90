@@ -5,7 +5,7 @@ module dvode_dvhin_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
 
   use dvode_constants_module
   use dvode_dvnorm_module
@@ -82,15 +82,15 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    real(dp_t), intent(inout) :: H0
+    real(rt), intent(inout) :: H0
     integer,    intent(  out) :: NITER, IER
 
     ! Declare local variables
-    real(dp_t) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
-    real(dp_t) :: HUB, T1, TDIST, TROUND, YDDNRM
+    real(rt) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
+    real(rt) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
 
-    real(dp_t), parameter :: PT1 = 0.1D0
+    real(rt), parameter :: PT1 = 0.1D0
 
 
     NITER = 0

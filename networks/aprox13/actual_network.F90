@@ -1,6 +1,6 @@
 module actual_network
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -22,13 +22,13 @@ module actual_network
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  real(dp_t), &
+  real(rt), &
 #ifdef CUDA       
        managed, &
 #endif       
        allocatable, save :: aion(:), zion(:), bion(:)
   
-  real(dp_t), &
+  real(rt), &
 #ifdef CUDA
        managed, &
 #endif

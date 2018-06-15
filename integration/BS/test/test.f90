@@ -1,23 +1,23 @@
 program main
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
   use stiff_ode
 
   implicit none
 
   integer, parameter :: neq = 3
 
-  real(kind=dp_t) :: y(neq), t, tmax, eps
+  real(kind=rt) :: y(neq), t, tmax, eps
   integer :: ierr
   
   external f_rhs
 
   t = 0.0
   
-  y(:) = [1.0_dp_t, 0.0_dp_t, 0.0_dp_t]
+  y(:) = [1.0_rt, 0.0_rt, 0.0_rt]
 
-  tmax = 4.e10_dp_t
-  eps = 1.e-10_dp_t
+  tmax = 4.e10_rt
+  eps = 1.e-10_rt
 
   call ode(y, neq, t, tmax, eps, f_rhs, ierr)
 

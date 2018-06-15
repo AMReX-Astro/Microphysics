@@ -5,7 +5,7 @@ module dvode_dvstep_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use blas_module
 
   use dvode_dvset_module
@@ -90,26 +90,26 @@ contains
     integer,       intent(inout) :: IWM(VODE_LIW)
 
     ! Declare local variables
-    real(dp_t) :: CNQUOT, DDN, DSM, DUP, TOLD
-    real(dp_t) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
+    real(rt) :: CNQUOT, DDN, DSM, DUP, TOLD
+    real(rt) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer    :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
 
     ! Parameter declarations
     integer, parameter :: KFC = -3
     integer, parameter :: KFH = -7
     integer, parameter :: MXNCF = 10
-    real(dp_t), parameter :: ADDON = 1.0D-6
-    real(dp_t), parameter :: BIAS1 = 6.0D0
-    real(dp_t), parameter :: BIAS2 = 6.0D0
-    real(dp_t), parameter :: BIAS3 = 10.0D0
-    real(dp_t), parameter :: ETACF = 0.25D0
-    real(dp_t), parameter :: ETAMIN = 0.1D0
-    real(dp_t), parameter :: ETAMXF = 0.2D0
-    real(dp_t), parameter :: ETAMX1 = 1.0D4
-    real(dp_t), parameter :: ETAMX2 = 10.0D0
-    real(dp_t), parameter :: ETAMX3 = 10.0D0
-    real(dp_t), parameter :: ONEPSM = 1.00001D0
-    real(dp_t), parameter :: THRESH = 1.5D0
+    real(rt), parameter :: ADDON = 1.0D-6
+    real(rt), parameter :: BIAS1 = 6.0D0
+    real(rt), parameter :: BIAS2 = 6.0D0
+    real(rt), parameter :: BIAS3 = 10.0D0
+    real(rt), parameter :: ETACF = 0.25D0
+    real(rt), parameter :: ETAMIN = 0.1D0
+    real(rt), parameter :: ETAMXF = 0.2D0
+    real(rt), parameter :: ETAMX1 = 1.0D4
+    real(rt), parameter :: ETAMX2 = 10.0D0
+    real(rt), parameter :: ETAMX3 = 10.0D0
+    real(rt), parameter :: ONEPSM = 1.00001D0
+    real(rt), parameter :: THRESH = 1.5D0
 
     ETAQ   = ONE
     ETAQM1 = ONE

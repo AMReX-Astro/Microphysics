@@ -168,9 +168,9 @@ program test_react
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
 
-              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              state(ii, jj, kk, pf % itemp) = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, pf % irho) = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)
+              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_rt)
 
            enddo
         enddo
