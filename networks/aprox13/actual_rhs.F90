@@ -33,7 +33,7 @@ contains
 
     use screening_module, only: screening_init
     use aprox_rates_module, only: rates_init
-    use actual_network, only: cu_use_tables
+    use extern_probin_module, only: use_tables
     use parallel, only: parallel_IOProcessor
 
     implicit none
@@ -44,7 +44,7 @@ contains
 
     call screening_init()
 
-    if (cu_use_tables) then
+    if (use_tables) then
 
        if (parallel_IOProcessor()) then
           print *, ""
@@ -219,7 +219,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: cu_use_tables
+    use extern_probin_module, only: use_tables
 
     implicit none
 
@@ -241,7 +241,7 @@ contains
     y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
-    if (cu_use_tables) then
+    if (use_tables) then
        call aprox13tab(temp, rho, ratraw, dratrawdt, dratrawdd)
     else
        call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
