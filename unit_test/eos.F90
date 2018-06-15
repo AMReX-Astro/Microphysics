@@ -9,7 +9,7 @@ module eos_module
 
   implicit none
 
-  public eos_init, eos
+  public eos_init, eos, eos_finalize
 
   logical, save :: initialized = .false.  
 
@@ -108,6 +108,11 @@ contains
     !$acc device(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
 
   end subroutine eos_init
+
+
+  subroutine eos_finalize
+    call actual_eos_finalize
+  end subroutine eos_finalize
 
 
 #ifdef CUDA
