@@ -2,7 +2,7 @@ module react_zones_module
 #ifdef CUDA
   use cudafor
 #endif
-  use bl_types
+  use amrex_fort_module, only: rt => amrex_real
   use bl_space
   use bl_constants_module, only: ZERO
   use probin_module, only: tmax
