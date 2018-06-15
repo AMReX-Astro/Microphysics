@@ -54,8 +54,10 @@ contains
   end subroutine actual_eos_init
 
 
-
-  AMREX_DEVICE subroutine actual_eos(input, state)
+#ifdef CUDA
+  attributes(device) &
+#endif
+  subroutine actual_eos(input, state)
 
     !$acc routine seq
 
