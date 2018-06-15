@@ -1,13 +1,5 @@
 module dvode_module
 
-  use dvode_constants_module
-  use dvode_dumach_module
-  use dvode_dewset_module
-  use dvode_dvhin_module
-  use dvode_dvindy_module
-  use dvode_dvnorm_module
-  use dvode_dvstep_module
-
   use vode_rhs_module, only: f_rhs, jac
   use vode_type_module, only: rwork_t
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
@@ -404,7 +396,6 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-
     CALL DSCALN (VODE_NEQS, H0, rwork % YH(:,2), 1)
 
     GO TO 270
