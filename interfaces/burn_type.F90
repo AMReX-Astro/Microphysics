@@ -159,7 +159,7 @@ contains
 
     type (burn_t), intent(inout) :: state
 
-    state % xn(:) = max(small_x_managed, min(ONE, state % xn(:)))
+    state % xn(:) = max(small_x, min(ONE, state % xn(:)))
     state % xn(:) = state % xn(:) / sum(state % xn(:))
 
   end subroutine normalize_abundances_burn
