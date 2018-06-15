@@ -23,8 +23,7 @@ contains
     use extern_probin_module, only: small_x
     use parallel
     use eos_type_module, only: mintemp, maxtemp, mindens, maxdens, minx, maxx, &
-         minye, maxye, mine, maxe, minp, maxp, minh, maxh, mins, maxs, &
-         small_x_managed
+                               minye, maxye, mine, maxe, minp, maxp, minh, maxh, mins, maxs
 
     implicit none
 
@@ -49,7 +48,6 @@ contains
     allocate(maxs)
     allocate(minh)
     allocate(maxh)
-    allocate(small_x_managed)
 
     mintemp = 1.d-200
     maxtemp = 1.d200
@@ -67,7 +65,6 @@ contains
     maxs    = 1.d200
     minh    = 1.d-200
     maxh    = 1.d200
-    small_x_managed = small_x
     
     ! Set up any specific parameters or initialization steps required by the EOS we are using.
 
