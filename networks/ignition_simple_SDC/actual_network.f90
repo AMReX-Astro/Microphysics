@@ -17,7 +17,7 @@
 !  network_species_index -- return the index of the species given its name
 !
 
- odule actual_network
+module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
 
