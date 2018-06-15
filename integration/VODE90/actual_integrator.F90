@@ -173,9 +173,9 @@ contains
 
 
     if (burning_mode == 0 .or. burning_mode == 2) then
-       rpar(irp_self_heat) = -ONE
+       dvode_state % rpar(irp_self_heat) = -ONE
     else if (burning_mode == 1 .or. burning_mode == 3) then
-       rpar(irp_self_heat) = ONE
+       dvode_state % rpar(irp_self_heat) = ONE
     else
 #if !(defined(ACC) || defined(CUDA))
        call amrex_error("Error: unknown burning_mode in actual_integrator.f90.")
@@ -269,7 +269,7 @@ contains
     ! If we still failed, print out the current state of the integration.
 
     if (dvode_state % istate < 0) then
-       
+
 #ifndef CUDA       
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
@@ -282,7 +282,7 @@ contains
             dvode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', dvode_state % y(net_ienuc) - ener_offset
 #endif
-       
+
        if (.not. retry_burn) then
 
           stop
@@ -295,7 +295,7 @@ contains
           call amrex_error("ERROR in burner: integration failed")
 #endif
 
-!           print *, 'Retrying burn with looser tolerances'
+          !           print *, 'Retrying burn with looser tolerances'
 
           retry_change_factor = ONE
 
@@ -329,9 +329,9 @@ contains
              if (dT_crit < 1.0d19) then
 
                 dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
-                                                (eos_state_temp % T - eos_state_in % T)
+                     (eos_state_temp % T - eos_state_in % T)
                 dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
-                                                (eos_state_temp % T - eos_state_in % T)
+                     (eos_state_temp % T - eos_state_in % T)
 
              endif
 
@@ -351,9 +351,10 @@ contains
           endif
 
 #if !(defined(ACC) || defined(CUDA))
-             call amrex_error("ERROR in burner: integration failed")
+          call amrex_error("ERROR in burner: integration failed")
 #endif
 
+       endif
     endif
 
     ! Subtract the energy offset
