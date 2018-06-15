@@ -200,19 +200,23 @@ contains
     to_eos % mu = from_eos % mu
     to_eos % mu_e = from_eos % mu_e
     to_eos % y_e = from_eos % y_e
+#ifdef EXTRA_THERMO
     to_eos % dedX(:) = from_eos % dedX(:)
     to_eos % dpdX(:) = from_eos % dpdX(:)
     to_eos % dhdX(:) = from_eos % dhdX(:)
+#endif
     to_eos % gam1 = from_eos % gam1
     to_eos % cs = from_eos % cs
 
     to_eos % abar = from_eos % abar
     to_eos % zbar = from_eos % zbar
-    to_eos % dpdA = from_eos % dpdA
 
+#ifdef EXTRA_THERMO
+    to_eos % dpdA = from_eos % dpdA
     to_eos % dpdZ = from_eos % dpdZ
     to_eos % dedA = from_eos % dedA
     to_eos % dedZ = from_eos % dedZ
+#endif
   end subroutine copy_eos_t
        
   ! Given a set of mass fractions, calculate quantities that depend
