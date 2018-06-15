@@ -1234,7 +1234,7 @@ contains
 
         use amrex_error_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
-        use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast
+        use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast, amrex_pd_ioprocessor
 
         implicit none
 
