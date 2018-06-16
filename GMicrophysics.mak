@@ -116,7 +116,7 @@ endif
 probin.F90: $(PROBIN_PARAMETERS) $(EXTERN_PARAMETERS) $(PROBIN_TEMPLATE)
 	@echo " "
 	@echo "${bold}WRITING probin.F90${normal}"
-	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
+	$(FBOXLIB_HOME)/Tools/F_scripts/write_probin.py \
            -t $(PROBIN_TEMPLATE) -o probin.F90 -n probin \
            --pa "$(PROBIN_PARAMETERS)" --pb "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
 	@echo " "
