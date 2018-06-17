@@ -270,7 +270,7 @@ contains
 
     if (dvode_state % istate < 0) then
 
-#ifndef CUDA       
+#if !(defined(ACC) || defined(CUDA))
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
        print *, 'time = ', dvode_state % T
@@ -284,18 +284,10 @@ contains
 #endif
 
        if (.not. retry_burn) then
-
-          stop
-          !CUDA
-          !call bl_error("ERROR in burner: integration failed")
-
-       else
-
 #if !(defined(ACC) || defined(CUDA))
           call amrex_error("ERROR in burner: integration failed")
 #endif
-
-          !           print *, 'Retrying burn with looser tolerances'
+       else
 
           retry_change_factor = ONE
 
@@ -343,17 +335,13 @@ contains
           enddo
 
           if (retry_change_factor > retry_burn_max_change .and. dvode_state % istate < 0) then
-
-             stop
-             !CUDA
-             !call bl_error("ERROR in burner: integration failed")
-
+#if !(defined(ACC) || defined(CUDA))
+             call amrex_error("ERROR in burner: integration failed")
+#endif
           endif
-
 #if !(defined(ACC) || defined(CUDA))
           call amrex_error("ERROR in burner: integration failed")
 #endif
-
        endif
     endif
 
