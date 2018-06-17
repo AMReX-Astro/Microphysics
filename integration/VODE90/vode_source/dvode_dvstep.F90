@@ -52,7 +52,7 @@ contains
     ! 
     !  Communication with DVSTEP is done with the following variables:
     ! 
-    !  Y      = An array of length N used for the dependent variable vector.
+    !  Y      = An array of length N used for the dependent variable array.
     !  YH     = An LDYH by LMAX array containing the dependent variables
     !           and their approximate scaled derivatives, where
     !           LMAX = MAXORD + 1.  YH(i,j+1) contains the approximate

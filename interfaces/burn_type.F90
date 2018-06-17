@@ -46,7 +46,7 @@ module burn_type_module
 
     ! The following are the actual integration data.
     ! To avoid potential incompatibilities we won't
-    ! include the integration vector y itself here.
+    ! include the integration array y itself here.
     ! It can be reconstructed from all of the above
     ! data, particularly xn, e, and T.
 

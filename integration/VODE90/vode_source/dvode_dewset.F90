@@ -20,12 +20,12 @@ contains
     
     ! ***BEGIN PROLOGUE  DEWSET
     ! ***SUBSIDIARY
-    ! ***PURPOSE  Set error weight vector.
+    ! ***PURPOSE  Set error weight array.
     ! ***TYPE      DOUBLE PRECISION (SEWSET-S, DEWSET-D)
     ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
     ! ***DESCRIPTION
     ! 
-    !   This subroutine sets the error weight vector EWT according to
+    !   This subroutine sets the error weight array EWT according to
     !       EWT(i) = RTOL(i)*ABS(YCUR(i)) + ATOL(i),  i = 1,...,N,
     !   with the subscript on RTOL and/or ATOL possibly replaced by 1 above,
     !   depending on the value of ITOL.

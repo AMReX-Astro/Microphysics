@@ -34,14 +34,14 @@ contains
     !  Function routines called by DVINDY: None
     ! -----------------------------------------------------------------------
     !  DVINDY computes interpolated values of the K-th derivative of the
-    !  dependent variable vector y, and stores it in DKY.  This routine
+    !  dependent variable array y, and stores it in DKY.  This routine
     !  is called within the package with K = 0 and T = TOUT, but may
     !  also be called by the user for any K up to the current order.
     !  (See detailed instructions in the usage documentation.)
     ! -----------------------------------------------------------------------
     !  The computed values in DKY are gotten by interpolation using the
     !  Nordsieck history array YH.  This array corresponds uniquely to a
-    !  vector-valued polynomial of degree NQCUR or less, and DKY is set
+    !  array-valued polynomial of degree NQCUR or less, and DKY is set
     !  to the K-th derivative of this polynomial at T.
     !  The formula for DKY is:
     !               q
