@@ -211,7 +211,9 @@ contains
   subroutine rhs(y, rate, ratdum, dydt, deriva)
 
     use amrex_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6,
+                                        esum7, esum8, esum10, esum12,
+                                        esum15
 
     implicit none
 
