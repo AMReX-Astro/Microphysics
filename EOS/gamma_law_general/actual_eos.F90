@@ -1,4 +1,4 @@
-! This is a constant gamma equation of state, using an ideal gas.
+B! This is a constant gamma equation of state, using an ideal gas.
 !
 ! The gas may either be completely ionized or completely neutral.
 !
@@ -52,6 +52,7 @@ contains
     !$acc update device(gamma_const, eos_assume_neutral)
     
   end subroutine actual_eos_init
+
 
 
   AMREX_DEVICE subroutine actual_eos(input, state)
