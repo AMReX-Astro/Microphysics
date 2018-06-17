@@ -23,7 +23,11 @@ ifdef SDC
   endif
 endif
 
-FPP_DEFINES += -DAMREX_DEVICE=""
+ifdef CUDA
+  FPP_DEFINES += -DAMREX_DEVICE='attributes(device)'
+else
+  FPP_DEFINES += -DAMREX_DEVICE=""
+endif
 
 #-----------------------------------------------------------------------------
 # EOS
