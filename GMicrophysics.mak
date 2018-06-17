@@ -99,7 +99,7 @@ include $(Fmpack)
 
 # we need a probin.F90, since the various microphysics routines can
 # have runtime parameters
-f90sources += probin.F90
+F90sources += probin.F90
 
 PROBIN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/dummy.probin.template
 PROBIN_PARAMETER_DIRS += $(MICROPHYSICS_HOME)/unit_test/  
