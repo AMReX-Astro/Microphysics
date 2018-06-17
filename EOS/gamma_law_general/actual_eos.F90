@@ -1,4 +1,4 @@
-B! This is a constant gamma equation of state, using an ideal gas.
+! This is a constant gamma equation of state, using an ideal gas.
 !
 ! The gas may either be completely ionized or completely neutral.
 !
