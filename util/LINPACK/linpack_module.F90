@@ -34,10 +34,10 @@ contains
     !                 the order of the matrix  a .
     ! 
     !         ipvt    integer(n)
-    !                 the pivot vector from dgeco or dgefa.
+    !                 the pivot array from dgeco or dgefa.
     ! 
     !         b       double precision(n)
-    !                 the right hand side vector.
+    !                 the right hand side array.
     ! 
     !         job     integer
     !                 = 0         to solve  a*x = b ,
@@ -46,7 +46,7 @@ contains
     ! 
     !      on return
     ! 
-    !         b       the solution vector  x .
+    !         b       the solution array  x .
     ! 
     !      error condition
     ! 
@@ -181,7 +181,7 @@ contains
     !                 triangular matrices and  U  is upper triangular.
     ! 
     !         IPVT    INTEGER(N)
-    !                 an integer vector of pivot indices.
+    !                 an integer array of pivot indices.
     ! 
     !         INFO    INTEGER
     !                 = 0  normal value.
@@ -355,10 +355,10 @@ contains
     !                 number of diagonals above the main diagonal.
     ! 
     !         IPVT    INTEGER(N)
-    !                 the pivot vector from DGBCO or DGBFA.
+    !                 the pivot array from DGBCO or DGBFA.
     ! 
     !         B       DOUBLE PRECISION(N)
-    !                 the right hand side vector.
+    !                 the right hand side array.
     ! 
     !         JOB     INTEGER
     !                 = 0         to solve  A*X = B ,
@@ -367,7 +367,7 @@ contains
     ! 
     !      On Return
     ! 
-    !         B       the solution vector  X .
+    !         B       the solution array  X .
     ! 
     !      Error Condition
     ! 
@@ -510,7 +510,7 @@ contains
     !                 triangular matrices and  u  is upper triangular.
     ! 
     !         ipvt    integer(n)
-    !                 an integer vector of pivot indices.
+    !                 an integer array of pivot indices.
     ! 
     !         info    integer
     !                 = 0  normal value.
@@ -593,7 +593,7 @@ contains
     !$acc routine seq
 
     ! 
-    !      forms the dot product of two vectors.
+    !      forms the dot product of two arrays.
     !      uses unrolled loops for increments equal to one.
     !      jack dongarra, linpack, 3/11/78.
     !

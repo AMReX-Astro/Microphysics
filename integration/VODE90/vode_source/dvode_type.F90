@@ -33,7 +33,7 @@ module dvode_type_module
      ! Local time and integration end time
      real(rt) :: T, TOUT
 
-     ! Integration vector
+     ! Integration array
      real(rt) :: Y(VODE_NEQS)
   end type dvode_t
 

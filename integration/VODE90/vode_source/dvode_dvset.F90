@@ -47,16 +47,16 @@ contains
     ! 
     !  In addition to variables described previously, communication
     !  with DVSET uses the following:
-    !    TAU    = A vector of length 13 containing the past NQ values
+    !    TAU    = A array of length 13 containing the past NQ values
     !             of H.
-    !    EL     = A vector of length 13 in which vset stores the
+    !    EL     = A array of length 13 in which vset stores the
     !             coefficients for the corrector formula.
-    !    TQ     = A vector of length 5 in which vset stores constants
+    !    TQ     = A array of length 5 in which vset stores constants
     !             used for the convergence test, the error test, and the
     !             selection of H at a new order.
     !    METH   = The basic method indicator.
     !    NQ     = The current order.
-    !    L      = NQ + 1, the length of the vector stored in EL, and
+    !    L      = NQ + 1, the length of the array stored in EL, and
     !             the number of columns of the YH array being used.
     !    NQWAIT = A counter controlling the frequency of order changes.
     !             An order change is about to be considered if NQWAIT = 1.

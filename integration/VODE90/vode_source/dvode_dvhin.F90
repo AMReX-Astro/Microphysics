@@ -44,8 +44,8 @@ contains
     !  N      = Size of ODE system, input.
     !  T0     = Initial value of independent variable, input.
     !
-    !  Y0     = Vector of initial conditions, input.
-    !  YDOT   = Vector of initial first derivatives, input.
+    !  Y0     = Array of initial conditions, input.
+    !  YDOT   = Array of initial first derivatives, input.
     !  [NOTE: Y0 = YH(:,1) and YDOT = YH(:,2) in this subroutine now]
     !
     !  F      = Name of subroutine for right-hand side f(t,y), input.

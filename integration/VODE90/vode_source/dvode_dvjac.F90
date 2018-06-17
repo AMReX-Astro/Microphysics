@@ -53,10 +53,10 @@ contains
     ! 
     !  Communication with DVJAC is done with the following variables.  (For
     !  more details, please see the comments in the driver subroutine.)
-    !  Y          = Vector containing predicted values on entry.
+    !  Y          = Array containing predicted values on entry.
     !  YH         = The Nordsieck array, an LDYH by LMAX array, input.
     !  LDYH       = A constant .ge. N, the first dimension of YH, input.
-    !  EWT        = An error weight vector of length N.
+    !  EWT        = An error weight array of length N.
     !  SAVF       = Array containing f evaluated at predicted y, input.
     !  WM         = Real work space for matrices.  In the output, it containS
     !               the inverse diagonal matrix if MITER = 3 and the LU
