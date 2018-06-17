@@ -1233,9 +1233,8 @@ contains
     subroutine actual_eos_init
 
         use amrex_error_module
-        use amrex_paralleldescriptor_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
-        use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast
+        use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast, amrex_pd_ioprocessor
 
         implicit none
 
@@ -1332,7 +1331,9 @@ contains
            !..   open the table
            open(unit=2,file='helm_table.dat',status='old',iostat=status,action='read')
            if (status > 0) then
+
               call amrex_error('actual_eos_init: Failed to open helm_table.dat')
+
            endif
 
            !...  read in the free energy table
