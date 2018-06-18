@@ -39,22 +39,28 @@ module eos_type_module
 
   ! Minimum and maximum thermodynamic quantities permitted by the EOS.
 
-  real(rt), save :: mintemp = 1.d-200
-  real(rt), save :: maxtemp = 1.d200
-  real(rt), save :: mindens = 1.d-200
-  real(rt), save :: maxdens = 1.d200
-  real(rt), save :: minx    = 1.d-200
-  real(rt), save :: maxx    = 1.d0 + 1.d-12
-  real(rt), save :: minye   = 1.d-200
-  real(rt), save :: maxye   = 1.d0 + 1.d-12
-  real(rt), save :: mine    = 1.d-200
-  real(rt), save :: maxe    = 1.d200
-  real(rt), save :: minp    = 1.d-200
-  real(rt), save :: maxp    = 1.d200
-  real(rt), save :: mins    = 1.d-200
-  real(rt), save :: maxs    = 1.d200
-  real(rt), save :: minh    = 1.d-200
-  real(rt), save :: maxh    = 1.d200
+  real(rt), allocatable, save :: mintemp
+  real(rt), allocatable, save :: maxtemp
+  real(rt), allocatable, save :: mindens
+  real(rt), allocatable, save :: maxdens
+  real(rt), allocatable, save :: minx
+  real(rt), allocatable, save :: maxx
+  real(rt), allocatable, save :: minye
+  real(rt), allocatable, save :: maxye
+  real(rt), allocatable, save :: mine
+  real(rt), allocatable, save :: maxe
+  real(rt), allocatable, save :: minp
+  real(rt), allocatable, save :: maxp
+  real(rt), allocatable, save :: mins
+  real(rt), allocatable, save :: maxs
+  real(rt), allocatable, save :: minh
+  real(rt), allocatable, save :: maxh
+
+#ifdef CUDA
+  attributes(managed) :: mintemp, maxtemp, mindens, maxdens
+  attributes(managed) :: minx, maxx, minye, maxye, mine, maxe
+  attributes(managed) :: minp, maxp, mins, maxs, minh, maxh  
+#endif
 
   !$acc declare &
   !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
@@ -154,10 +160,68 @@ module eos_type_module
 
 contains
 
+  ! Provides a copy subroutine for the eos_t type to
+  ! avoid derived type assignment (OpenACC and CUDA can't handle that)
+  AMREX_DEVICE subroutine copy_eos_t(to_eos, from_eos)
+
+    implicit none
+
+    type(eos_t) :: to_eos, from_eos
+
+    to_eos % rho = from_eos % rho
+    to_eos % T = from_eos % T
+    to_eos % p = from_eos % p
+    to_eos % e = from_eos % e
+    to_eos % h = from_eos % h
+    to_eos % s = from_eos % s
+    to_eos % xn(:) = from_eos % xn(:)
+    to_eos % aux(:) = from_eos % aux(:)
+
+    to_eos % dpdT = from_eos % dpdT
+    to_eos % dpdr = from_eos % dpdr
+    to_eos % dedT = from_eos % dedT
+    to_eos % dedr = from_eos % dedr
+    to_eos % dhdT = from_eos % dhdT
+    to_eos % dhdr = from_eos % dhdr
+    to_eos % dsdT = from_eos % dsdT
+    to_eos % dsdr = from_eos % dsdr
+    to_eos % dpde = from_eos % dpde
+    to_eos % dpdr_e = from_eos % dpdr_e
+
+    to_eos % cv = from_eos % cv
+    to_eos % cp = from_eos % cp
+    to_eos % xne = from_eos % xne
+    to_eos % xnp = from_eos % xnp
+    to_eos % eta = from_eos % eta
+    to_eos % pele = from_eos % pele
+    to_eos % ppos = from_eos % ppos
+    to_eos % mu = from_eos % mu
+    to_eos % mu_e = from_eos % mu_e
+    to_eos % y_e = from_eos % y_e
+
+    to_eos % gam1 = from_eos % gam1
+    to_eos % cs = from_eos % cs
+
+    to_eos % abar = from_eos % abar
+    to_eos % zbar = from_eos % zbar
+
+#ifdef EXTRA_THERMO
+    to_eos % dedX(:) = from_eos % dedX(:)
+    to_eos % dpdX(:) = from_eos % dpdX(:)
+    to_eos % dhdX(:) = from_eos % dhdX(:)
+    
+    to_eos % dpdA = from_eos % dpdA
+    to_eos % dpdZ = from_eos % dpdZ
+    to_eos % dedA = from_eos % dedA
+    to_eos % dedZ = from_eos % dedZ
+#endif
+  end subroutine copy_eos_t
+
+
   ! Given a set of mass fractions, calculate quantities that depend
   ! on the composition like abar and zbar.
 
-  subroutine composition(state)
+  AMREX_DEVICE subroutine composition(state)
 
     !$acc routine seq
 
@@ -184,7 +248,7 @@ contains
 
   ! Compute thermodynamic derivatives with respect to xn(:)
 
-  subroutine composition_derivatives(state)
+  AMREX_DEVICE subroutine composition_derivatives(state)
 
     !$acc routine seq
 
@@ -222,7 +286,7 @@ contains
   ! Normalize the mass fractions: they must be individually positive
   ! and less than one, and they must all sum to unity.
 
-  subroutine normalize_abundances(state)
+  AMREX_DEVICE subroutine normalize_abundances(state)
 
     !$acc routine seq
 
@@ -243,7 +307,7 @@ contains
 
   ! Ensure that inputs are within reasonable limits.
 
-  subroutine clean_state(state)
+  AMREX_DEVICE subroutine clean_state(state)
 
     !$acc routine seq
 
@@ -259,7 +323,7 @@ contains
 
 
   ! Print out details of the state.
-
+#ifndef CUDA
   subroutine print_state(state)
 
     implicit none
@@ -272,10 +336,10 @@ contains
     print *, 'Y_E  = ', state % y_e
 
   end subroutine print_state
+#endif
 
 
-
-  subroutine eos_get_small_temp(small_temp_out)
+  AMREX_DEVICE subroutine eos_get_small_temp(small_temp_out)
 
     !$acc routine seq
 
@@ -289,7 +353,7 @@ contains
 
 
 
-  subroutine eos_get_small_dens(small_dens_out)
+  AMREX_DEVICE subroutine eos_get_small_dens(small_dens_out)
 
     !$acc routine seq
 
@@ -303,7 +367,7 @@ contains
 
 
 
-  subroutine eos_get_max_temp(max_temp_out)
+  AMREX_DEVICE subroutine eos_get_max_temp(max_temp_out)
 
     !$acc routine seq
 
@@ -317,7 +381,7 @@ contains
 
 
 
-  subroutine eos_get_max_dens(max_dens_out)
+  AMREX_DEVICE subroutine eos_get_max_dens(max_dens_out)
 
     !$acc routine seq
 
