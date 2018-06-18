@@ -166,17 +166,6 @@ contains
     else if (burning_mode == 1 .or. burning_mode == 3) then
        dvode_state % rpar(irp_self_heat) = ONE
     else
-       stop
-       !CUDA
-       !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
-    endif
-
-
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       dvode_state % rpar(irp_self_heat) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
-       dvode_state % rpar(irp_self_heat) = ONE
-    else
 #if !(defined(ACC) || defined(CUDA))
        call amrex_error("Error: unknown burning_mode in actual_integrator.f90.")
 #endif
