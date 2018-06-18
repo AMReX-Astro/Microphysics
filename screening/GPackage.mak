@@ -1,1 +1,1 @@
-f90sources += screen.f90
+F90sources += screen.F90

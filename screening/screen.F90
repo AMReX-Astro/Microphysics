@@ -5,11 +5,11 @@ module screening_module
   implicit none
 
   private
-  public :: screen5, screenz, add_screening_factor, screening_init, &
+  public :: screen5, screenz, add_screening_factor, &
+            screening_init, screening_finalize, &
             plasma_state, fill_plasma_state
   
-  integer, parameter :: nscreen_max = 500
-  integer            :: nscreen = 0
+  integer :: nscreen = 0
   
   double precision, parameter :: fact       = 1.25992104989487d0
   double precision, parameter :: co2        = THIRD * 4.248719d3
@@ -17,23 +17,23 @@ module screening_module
   double precision, parameter :: gamefs     = 0.8d0
   double precision, parameter :: blend_frac = 0.05d0
 
-  double precision :: z1scr(nscreen_max)
-  double precision :: z2scr(nscreen_max)
-  double precision :: a1scr(nscreen_max)
-  double precision :: a2scr(nscreen_max)
-  
+  double precision, allocatable, save :: z1scr(:)
+  double precision, allocatable, save :: z2scr(:)
+  double precision, allocatable, save :: a1scr(:)
+  double precision, allocatable, save :: a2scr(:)
+
   ! zs13    = (z1+z2)**(1./3.)
   ! zhat    = combination of z1 and z2 raised to the 5/3 power
   ! zhat2   = combination of z1 and z2 raised to the 5/12 power
   ! lzav    = log of effective charge
   ! aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
 
-  double precision :: zs13(nscreen_max)
-  double precision :: zs13inv(nscreen_max)
-  double precision :: zhat(nscreen_max)
-  double precision :: zhat2(nscreen_max)
-  double precision :: lzav(nscreen_max)
-  double precision :: aznut(nscreen_max)
+  double precision, allocatable, save :: zs13(:)
+  double precision, allocatable, save :: zs13inv(:)
+  double precision, allocatable, save :: zhat(:)
+  double precision, allocatable, save :: zhat2(:)
+  double precision, allocatable, save :: lzav(:)
+  double precision, allocatable, save :: aznut(:)
 
   type :: plasma_state
 
@@ -50,8 +50,13 @@ module screening_module
 
   end type plasma_state
 
+#ifdef CUDA
+  attributes(managed) :: z1scr, z2scr, a1scr, a2scr
+  attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
+#endif
+
   !$acc declare &
-  !$acc create(nscreen_max, nscreen) &
+  !$acc create(nscreen) &
   !$acc create(fact, co2, gamefx, gamefs, blend_frac) &
   !$acc create(z1scr, z2scr, a1scr, a2scr) &
   !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
@@ -59,11 +64,21 @@ module screening_module
 contains
 
   subroutine screening_init()
+
+    implicit none
+
+    integer :: i
+
     ! This routine assumes that we have already filled z1scr, z2scr,
     ! a1scr, and a2scr.
-    
-    integer :: i
-    
+
+    allocate(zs13(nscreen))
+    allocate(zs13inv(nscreen))
+    allocate(zhat(nscreen))
+    allocate(zhat2(nscreen))
+    allocate(lzav(nscreen))
+    allocate(aznut(nscreen))
+
     do i = 1, nscreen
 
        zs13(i)    = (z1scr(i) + z2scr(i))**THIRD
@@ -79,6 +94,53 @@ contains
 
   end subroutine screening_init
 
+  subroutine screening_finalize()
+
+    implicit none
+
+    ! Deallocate the screening buffers.
+
+    if (allocated(z1scr)) then
+       deallocate(z1scr)
+    end if
+
+    if (allocated(z2scr)) then
+       deallocate(z2scr)
+    end if
+
+    if (allocated(a1scr)) then
+       deallocate(a1scr)
+    end if
+
+    if (allocated(a2scr)) then
+       deallocate(a2scr)
+    end if
+
+    if (allocated(zs13)) then
+       deallocate(zs13)
+    end if
+
+    if (allocated(zs13inv)) then
+       deallocate(zs13inv)
+    end if
+
+    if (allocated(zhat)) then
+       deallocate(zhat)
+    end if
+
+    if (allocated(zhat2)) then
+       deallocate(zhat2)
+    end if
+
+    if (allocated(lzav)) then
+       deallocate(lzav)
+    end if
+
+    if (allocated(aznut)) then
+       deallocate(aznut)
+    end if
+
+  end subroutine screening_finalize
 
   subroutine add_screening_factor(z1, a1, z2, a2)
 
@@ -86,8 +148,66 @@ contains
 
     double precision :: z1, a1, z2, a2
 
+    double precision, allocatable :: z1scr_temp(:), a1scr_temp(:)
+    double precision, allocatable :: z2scr_temp(:), a2scr_temp(:)
+
+    ! Deallocate the buffers, then reallocate
+    ! them with a size one larger. This is
+    ! admittedly wasteful, but since this routine
+    ! only happens at initialization the cost
+    ! does not matter, and it's important for keeping
+    ! memory usage down that the screening size is
+    ! only as large as it needs to be.
+
+    if (nscreen > 0) then
+
+       allocate(z1scr_temp(nscreen))
+       z1scr_temp(:) = z1scr(:)
+       deallocate(z1scr)
+
+       allocate(z2scr_temp(nscreen))
+       z2scr_temp(:) = z2scr(:)
+       deallocate(z2scr)
+
+       allocate(a1scr_temp(nscreen))
+       a1scr_temp(:) = a1scr(:)
+       deallocate(a1scr)
+
+       allocate(a2scr_temp(nscreen))
+       a2scr_temp(:) = a2scr(:)
+       deallocate(a2scr)
+
+    else
+
+       allocate(z1scr(1))
+       allocate(z2scr(1))
+       allocate(a1scr(1))
+       allocate(a2scr(1))
+
+    end if
+
     nscreen = nscreen + 1
-    
+
+    if (nscreen > 1) then
+
+       allocate(z1scr(nscreen))
+       z1scr(1:nscreen-1) = z1scr_temp(:)
+       deallocate(z1scr_temp)
+
+       allocate(z2scr(nscreen))
+       z2scr(1:nscreen-1) = z2scr_temp(:)
+       deallocate(z2scr_temp)
+
+       allocate(a1scr(nscreen))
+       a1scr(1:nscreen-1) = a1scr_temp(:)
+       deallocate(a1scr_temp)
+
+       allocate(a2scr(nscreen))
+       a2scr(1:nscreen-1) = a2scr_temp(:)
+       deallocate(a2scr_temp)
+
+    end if
+
     z1scr(nscreen) = z1
     a1scr(nscreen) = a1
     z2scr(nscreen) = z2
@@ -98,7 +218,7 @@ contains
   end subroutine add_screening_factor
 
 
-  subroutine fill_plasma_state(state, temp, dens, y)
+  AMREX_DEVICE subroutine fill_plasma_state(state, temp, dens, y)
 
     !$acc routine seq
 
@@ -149,8 +269,7 @@ contains
   end subroutine fill_plasma_state
 
 
-
-  subroutine screen5(state,jscreen,scor,scordt,scordd)
+  AMREX_DEVICE subroutine screen5(state,jscreen,scor,scordt,scordd)
 
     !$acc routine seq
 
@@ -384,7 +503,8 @@ contains
 
   end subroutine screen5
 
-  subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
+
+  AMREX_DEVICE subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
 
     !$acc routine seq
 

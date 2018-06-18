@@ -28,6 +28,41 @@ contains
     real(rt), optional :: small_temp
     real(rt), optional :: small_dens
 
+    ! Allocate module variables and initialize
+    allocate(mintemp)
+    allocate(maxtemp)
+    allocate(mindens)
+    allocate(maxdens)
+    allocate(minx)
+    allocate(maxx)
+    allocate(minye)
+    allocate(maxye)
+    allocate(mine)
+    allocate(maxe)
+    allocate(minp)
+    allocate(maxp)
+    allocate(mins)
+    allocate(maxs)
+    allocate(minh)
+    allocate(maxh)
+    
+    mintemp = 1.d-200
+    maxtemp = 1.d200
+    mindens = 1.d-200
+    maxdens = 1.d200
+    minx    = 1.d-200
+    maxx    = 1.d0 + 1.d-12
+    minye   = 1.d-200
+    maxye   = 1.d0 + 1.d-12
+    mine    = 1.d-200
+    maxe    = 1.d200
+    minp    = 1.d-200
+    maxp    = 1.d200
+    mins    = 1.d-200
+    maxs    = 1.d200
+    minh    = 1.d-200
+    maxh    = 1.d200
+
     ! Set up any specific parameters or initialization steps required by the EOS we are using.
 
     call actual_eos_init
@@ -88,7 +123,7 @@ contains
 
     ! Local variables
 
-#ifndef ACC
+#if !(defined(ACC) || defined(CUDA))
     if (.not. initialized) call amrex_error('EOS: not initialized')
 #endif
 
@@ -115,7 +150,7 @@ contains
 
 
 
-  subroutine reset_inputs(input, state, has_been_reset)
+  AMREX_DEVICE subroutine reset_inputs(input, state, has_been_reset)
 
     !$acc routine seq
 
@@ -176,7 +211,7 @@ contains
 
   ! For density, just ensure that it is within mindens and maxdens.
 
-  subroutine reset_rho(state, has_been_reset)
+  AMREX_DEVICE subroutine reset_rho(state, has_been_reset)
 
     !$acc routine seq
 
@@ -193,7 +228,7 @@ contains
 
   ! For temperature, just ensure that it is within mintemp and maxtemp.
 
-  subroutine reset_T(state, has_been_reset)
+  AMREX_DEVICE subroutine reset_T(state, has_been_reset)
 
     !$acc routine seq
 
@@ -208,7 +243,7 @@ contains
 
 
 
-  subroutine reset_e(state, has_been_reset)
+  AMREX_DEVICE subroutine reset_e(state, has_been_reset)
 
     !$acc routine seq
 
@@ -225,7 +260,7 @@ contains
 
 
 
-  subroutine reset_h(state, has_been_reset)
+  AMREX_DEVICE subroutine reset_h(state, has_been_reset)
 
     !$acc routine seq
 
@@ -242,7 +277,7 @@ contains
 
 
 
-  subroutine reset_s(state, has_been_reset)
+  AMREX_DEVICE subroutine reset_s(state, has_been_reset)
 
     !$acc routine seq
 
@@ -259,7 +294,7 @@ contains
 
 
 
-  subroutine reset_p(state, has_been_reset)
+  AMREX_DEVICE subroutine reset_p(state, has_been_reset)
 
     !$acc routine seq
 
@@ -279,7 +314,7 @@ contains
   ! Given an EOS state, ensure that rho and T are
   ! valid, then call with eos_input_rt.
 
-  subroutine eos_reset(state, has_been_reset)
+  AMREX_DEVICE subroutine eos_reset(state, has_been_reset)
 
     !$acc routine seq
 
@@ -301,7 +336,7 @@ contains
 
 
 
-#ifndef ACC
+#if !(defined(ACC) || defined(CUDA))
   subroutine check_inputs(input, state)
 
     !$acc routine seq

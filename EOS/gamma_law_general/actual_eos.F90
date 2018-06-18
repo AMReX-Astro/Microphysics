@@ -25,8 +25,7 @@ module actual_eos_module
   !$acc declare create(gamma_const, assume_neutral)
 
 #ifdef CUDA
-  attributes(managed) :: gamma_const
-  attributes(managed) :: assume_neutral
+  attributes(managed) :: gamma_const, assume_neutral
 #endif
  
 contains
@@ -162,13 +161,13 @@ contains
 
        ! This system is underconstrained.
 
-#if !defined(ACC) && !defined(CUDA)
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 #endif
 
     case default
 
-#if !defined(ACC) && !defined(CUDA)
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error('EOS: invalid input.')
 #endif
        
