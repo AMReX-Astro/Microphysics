@@ -1,1 +1,1 @@
-f90sources += sneut5.f90
+F90sources += sneut5.F90
