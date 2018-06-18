@@ -4,8 +4,8 @@ module sneut_module
 
 contains
 
-  subroutine sneut5(temp,den,abar,zbar, &
-                    snu,dsnudt,dsnudd,dsnuda,dsnudz)
+  AMREX_DEVICE subroutine sneut5(temp,den,abar,zbar, &
+                                 snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
     !$acc routine seq
 
@@ -1186,7 +1186,7 @@ contains
 
 
 
-  double precision function ifermi12(f)
+  AMREX_DEVICE double precision function ifermi12(f)
 
     !$acc routine seq
 
@@ -1265,7 +1265,7 @@ contains
 
 
 
-  double precision function zfermim12(x)
+  AMREX_LAUNCH double precision function zfermim12(x)
 
     !$acc routine seq
 

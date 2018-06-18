@@ -1,1 +1,1 @@
-f90EXE_sources += sneut5.f90
+F90EXE_sources += sneut5.F90
