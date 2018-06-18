@@ -93,7 +93,7 @@ module tfactors_module
 
 contains
 
-  subroutine get_tfactors(temp, tf)
+  AMREX_DEVICE subroutine get_tfactors(temp, tf)
 
     !$acc routine seq
 
