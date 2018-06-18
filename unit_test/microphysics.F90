@@ -43,7 +43,9 @@ contains
 
   subroutine microphysics_finalize()
 
-    !call network_finalize()
+    call screening_finalize()
+    call eos_finalize()
+    call network_finalize()
 
   end subroutine microphysics_finalize
 
