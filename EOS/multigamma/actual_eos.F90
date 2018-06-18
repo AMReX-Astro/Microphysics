@@ -17,7 +17,11 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "multigamma"
   
-  double precision :: gammas(nspec)
+  double precision, allocatable, save :: gammas(:)
+
+#ifdef CUDA
+  attributes(managed) :: gammas
+#endif
 
 contains
 
@@ -35,14 +39,17 @@ contains
 
     ! Set the gammas for the species -- we have some runtime parameters
     ! that can override the default gammas for a few named species.
+    allocate(gammas(nspec))
     gammas(:) = eos_gamma_default
 
+#if !(defined(ACC) || defined(CUDA))
     print *, ""
     print *, "In actual_eos_init, species, gamma: "
     print *, "species a: ", trim(species_a_name), species_a_gamma
     print *, "species b: ", trim(species_b_name), species_b_gamma
     print *, "species c: ", trim(species_c_name), species_c_gamma
     print *, ""
+#endif
 
     idx = network_species_index(species_a_name)
     if (idx > 0) gammas(idx) = species_a_gamma
@@ -137,8 +144,9 @@ contains
     case (eos_input_ps)
 
        ! pressure entropy, and xmass are inputs
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error("eos_input_ps is not supported")
-
+#endif
 
     case (eos_input_ph)
 
@@ -152,12 +160,15 @@ contains
     case (eos_input_th)
 
        ! temperature, enthalpy and xmass are inputs
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error("eos_input_th is not supported")
-
+#endif
 
     case default
 
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error("EOS: invalid input.")
+#endif
 
     end select
 
@@ -227,7 +238,7 @@ contains
 
     implicit none
 
-    ! Nothing to do here, yet.
+    deallocate(gammas)
 
   end subroutine actual_eos_finalize
 
