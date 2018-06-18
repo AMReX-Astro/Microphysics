@@ -43,6 +43,9 @@ contains
 
   subroutine microphysics_finalize()
 
+    use screening_module, only: screening_finalize
+    use eos_module, only: eos_finalize
+
     call screening_finalize()
     call eos_finalize()
     call network_finalize()
