@@ -2,9 +2,8 @@ module react_zones_module
 #ifdef CUDA
   use cudafor
 #endif
-  use bl_types
-  use bl_space
-  use bl_constants_module, only: ZERO
+  use amrex_fort_module, only: rt => amrex_real
+  use amrex_constants_module, only: ZERO
   use probin_module, only: tmax
   use network, only: nspec
   use burn_type_module, only: burn_t, normalize_abundances_burn
@@ -31,7 +30,7 @@ contains
   
     integer :: lo(MAX_SPACEDIM), hi(MAX_SPACEDIM)
     type(pfidx_t)   :: pfidx
-    real(kind=dp_t) &
+    real(kind=rt) &
 #ifdef CUDA
          , device &
 #endif

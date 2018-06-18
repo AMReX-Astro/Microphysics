@@ -9,9 +9,11 @@ program test_react
   use react_zones_module, only: pfidx_t, react_zones
   
   use BoxLib
-  use bl_constants_module
-  use bl_types
-  use bl_space
+
+  use amrex_error_module
+  use amrex_constants_module
+  use amrex_fort_module, only: rt => amrex_real
+
   use f2kcli
   use box_util_module
   use ml_layout_module
@@ -36,7 +38,7 @@ program test_react
   ! Conventional fluid state multifabs
   type(multifab) , allocatable :: s(:)
 
-  real(kind=dp_t) :: dx(1, MAX_SPACEDIM)
+  real(kind=rt) :: dx(1, MAX_SPACEDIM)
 
   logical :: pmask(MAX_SPACEDIM)
 
@@ -55,9 +57,9 @@ program test_react
 
   integer :: itemp, irho, ispec, ispec_old, irodot, irho_hnuc
 
-  real(kind=dp_t), pointer :: sp(:,:,:,:)
+  real(kind=rt), pointer :: sp(:,:,:,:)
 
-  real(kind=dp_t), &
+  real(kind=rt), &
 #ifdef CUDA
        managed, &
 #endif
@@ -71,12 +73,12 @@ program test_react
   
   integer :: domlo(MAX_SPACEDIM), domhi(MAX_SPACEDIM)
 
-  real (kind=dp_t) :: dlogrho, dlogT
-  real (kind=dp_t), allocatable :: xn_zone(:, :)
+  real (kind=rt) :: dlogrho, dlogT
+  real (kind=rt), allocatable :: xn_zone(:, :)
 
-  real (kind=dp_t) :: sum_X
+  real (kind=rt) :: sum_X
 
-  real (kind=dp_t) :: start_time, end_time
+  real (kind=rt) :: start_time, end_time
 
   character (len=256) :: out_name
 
@@ -106,12 +108,12 @@ program test_react
 
   nlevs = mla % nlevel
   if (nlevs /= 1) then
-     call bl_error("ERROR: only 1 level of refinement currently supported")
+     call amrex_error("ERROR: only 1 level of refinement currently supported")
   endif
 
   dm = mla % dim
   if (dm /= 3) then
-     call bl_error("ERROR: we require dm = 3")
+     call amrex_error("ERROR: we require dm = 3")
   endif
 
   ! we don't care about dx -- we have no physical size
@@ -183,9 +185,9 @@ program test_react
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
               
-              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, pf % irho)  = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              state(ii, jj, kk, pf % itemp) = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, pf % irho)  = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)
+              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_rt)
 
            enddo
         enddo
