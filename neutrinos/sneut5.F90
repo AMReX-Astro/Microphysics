@@ -1265,7 +1265,7 @@ contains
 
 
 
-  AMREX_LAUNCH double precision function zfermim12(x)
+  AMREX_DEVICE double precision function zfermim12(x)
 
     !$acc routine seq
 
