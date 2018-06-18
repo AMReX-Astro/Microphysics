@@ -9,6 +9,7 @@ program test_react
   use react_zones_module, only: pfidx_t, react_zones
   
   use BoxLib
+  use bl_space, only: MAX_SPACEDIM
 
   use amrex_error_module
   use amrex_constants_module
