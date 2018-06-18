@@ -31,11 +31,15 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "polytrope"
   
-  double precision, save :: gamma_const, K_const
-  double precision, save :: mu_e
-  integer         , save :: polytrope
+  double precision, allocatable, save :: gamma_const, K_const
+  double precision, allocatable, save :: mu_e
+  integer         , allocatable, save :: polytrope
 
-  double precision, save :: gm1, polytrope_index
+  double precision, allocatable, save :: gm1, polytrope_index
+
+#ifdef CUDA
+  attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
+#endif
 
 contains
 
@@ -44,7 +48,15 @@ contains
     use extern_probin_module, only: polytrope_gamma, polytrope_K, polytrope_type, polytrope_mu_e
 
     implicit none
- 
+
+    ! Allocate module variables
+    allocate(gamma_const)
+    allocate(K_const)
+    allocate(mu_e)
+    allocate(polytrope)
+    allocate(gm1)
+    allocate(polytrope_index)
+    
     ! Available pre-defined polytrope options:
 
     ! 1: Non-relativistic, fully degenerate electron gas
@@ -114,7 +126,7 @@ contains
   !---------------------------------------------------------------------------
   ! The main interface
   !---------------------------------------------------------------------------
-  subroutine actual_eos(input, state)
+  AMREX_DEVICE subroutine actual_eos(input, state)
 
     implicit none
 
@@ -231,7 +243,9 @@ contains
 
     case default
 
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error('EOS: invalid input.')
+#endif
 
     end select
 
@@ -283,7 +297,13 @@ contains
 
     implicit none
 
-    ! Nothing to do here, yet.
+    ! Deallocate module variables
+    deallocate(gamma_const)
+    deallocate(K_const)
+    deallocate(mu_e)
+    deallocate(polytrope)
+    deallocate(gm1)
+    deallocate(polytrope_index)
 
   end subroutine actual_eos_finalize
 

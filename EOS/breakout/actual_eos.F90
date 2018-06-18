@@ -13,7 +13,11 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "gamma_law"  
   
-  double precision, save :: gamma_const
+  double precision, allocatable, save :: gamma_const
+
+#ifdef CUDA
+  attributes(managed) :: gamma_const
+#endif
 
 contains
 
@@ -22,7 +26,9 @@ contains
     use extern_probin_module, only: eos_gamma
 
     implicit none
- 
+
+    allocate(gamma_const)
+    
     ! constant ratio of specific heats
     if (eos_gamma .gt. 0.d0) then
        gamma_const = eos_gamma
@@ -34,7 +40,7 @@ contains
 
 
 
-  subroutine actual_eos(input, state)
+  AMREX_DEVICE subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A
 
@@ -66,15 +72,15 @@ contains
     case (eos_input_rh)
 
        ! dens, enthalpy, and xmass are inputs
-
-!       call amrex_error('EOS: eos_input_rh is not supported in this EOS.')
-
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error('EOS: eos_input_rh is not supported in this EOS.')
+#endif
     case (eos_input_tp)
 
        ! temp, pres, and xmass are inputs
-
-!       call amrex_error('EOS: eos_input_tp is not supported in this EOS.')
-       
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error('EOS: eos_input_tp is not supported in this EOS.')
+#endif
     case (eos_input_rp)
 
        ! dens, pres, and xmass are inputs
@@ -113,21 +119,21 @@ contains
     case (eos_input_ph)
 
        ! pressure, enthalpy and xmass are inputs
-
+#if !(defined(ACC) || defined(CUDA))
        call amrex_error('EOS: eos_input_ph is not supported in this EOS.')
-       
+#endif
     case (eos_input_th)
 
        ! temperature, enthalpy and xmass are inputs
 
        ! This system is underconstrained.
-       
+#if !(defined(ACC) || defined(CUDA))       
        call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
-
+#endif
     case default
-       
+#if !(defined(ACC) || defined(CUDA))       
        call amrex_error('EOS: invalid input.')
-       
+#endif       
     end select
     
   end subroutine actual_eos
@@ -135,9 +141,10 @@ contains
   subroutine actual_eos_finalize                                                                    
                                                                                                     
     implicit none
-                                                                                                    
-    ! Nothing to do here, yet.
-                                                                 
+
+    if (allocated(gamma_const)) then
+       deallocate(gamma_const)
+    endif
   end subroutine actual_eos_finalize
 
 end module actual_eos_module
