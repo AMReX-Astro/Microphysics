@@ -4,3 +4,5 @@ fsources += dcopy.f
 fsources += dscal.f
 fsources += idamax.f
 fsources += dgemm.f
+F90sources += blas_module.F90
+
