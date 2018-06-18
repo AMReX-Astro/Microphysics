@@ -10,9 +10,13 @@ module aprox_rates_module
 
   implicit none
 
-  double precision :: rv(6), tv(14), datn(2,6,14)
-  double precision :: rfdm(4),rfd0(4),rfd1(4),rfd2(4)
-  double precision :: tfdm(12),tfd0(12),tfd1(12),tfd2(12)
+  double precision, allocatable :: rv(:), tv(:), datn(:,:,:)
+  double precision, allocatable :: rfdm(:),rfd0(:),rfd1(:),rfd2(:)
+  double precision, allocatable :: tfdm(:),tfd0(:),tfd1(:),tfd2(:)
+
+#ifdef CUDA
+  attributes(managed) :: rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2
+#endif
 
   !$acc declare create(rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2)
 
@@ -23,6 +27,19 @@ contains
     implicit none
 
     integer :: j, k
+
+    ! Allocate module arrays
+    allocate(rv(6))
+    allocate(tv(14))
+    allocate(datn(2,6,14))
+    allocate(rfdm(4))
+    allocate(rfd0(4))
+    allocate(rfd1(4))
+    allocate(rfd2(4))
+    allocate(tfdm(12))
+    allocate(tfd0(12))
+    allocate(tfd1(12))
+    allocate(tfd2(12))
 
     rv = (/ 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 /)
     tv = (/ 1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0 /)
@@ -84,7 +101,7 @@ contains
 
 
 
-  subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -156,7 +173,7 @@ contains
 
   ! This routine computes the nuclear reaction rate for 12C(a,g)16O and its inverse 
   ! using fit parameters from Deboer et al. 2017 (https://doi.org/10.1103/RevModPhys.89.035007).
-  subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -267,7 +284,7 @@ contains
   end subroutine rate_c12ag_deboer17
 
 
-  subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -370,7 +387,7 @@ contains
 
 
 
-  subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -415,7 +432,7 @@ contains
 
 
 
-  subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -480,7 +497,7 @@ contains
 
 
 
-  subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -515,7 +532,7 @@ contains
 
 
 
-  subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -566,7 +583,7 @@ contains
 
 
 
-  subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -642,7 +659,7 @@ contains
 
 
 
-  subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -702,7 +719,7 @@ contains
 
 
 
-  subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -775,7 +792,7 @@ contains
 
 
 
-  subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -832,7 +849,7 @@ contains
 
 
 
-  subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -905,7 +922,7 @@ contains
 
 
 
-  subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -947,7 +964,7 @@ contains
 
 
 
-  subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -990,7 +1007,7 @@ contains
 
 
 
-  subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1033,7 +1050,7 @@ contains
 
 
 
-  subroutine rate_s32ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_s32ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1076,7 +1093,7 @@ contains
 
 
 
-  subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1119,7 +1136,7 @@ contains
 
 
 
-  subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1155,7 +1172,7 @@ contains
   end subroutine rate_cl35pg
 
 
-  subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1198,7 +1215,7 @@ contains
 
 
 
-  subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1241,7 +1258,7 @@ contains
 
 
 
-  subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1284,7 +1301,7 @@ contains
 
 
 
-  subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1327,7 +1344,7 @@ contains
 
 
 
-  subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1370,7 +1387,7 @@ contains
 
 
 
-  subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1413,7 +1430,7 @@ contains
 
 
 
-  subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1456,7 +1473,7 @@ contains
 
 
 
-  subroutine rate_ti44ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_ti44ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1499,7 +1516,7 @@ contains
 
 
 
-  subroutine rate_v47pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_v47pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1542,7 +1559,7 @@ contains
 
 
 
-  subroutine rate_cr48ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_cr48ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1585,7 +1602,7 @@ contains
 
 
 
-  subroutine rate_cr48ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_cr48ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1628,7 +1645,7 @@ contains
 
 
 
-  subroutine rate_mn51pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_mn51pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1671,7 +1688,7 @@ contains
 
 
 
-  subroutine rate_fe52ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe52ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1714,7 +1731,7 @@ contains
 
 
 
-  subroutine rate_fe52ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe52ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1757,7 +1774,7 @@ contains
 
 
 
-  subroutine rate_co55pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_co55pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1800,7 +1817,7 @@ contains
 
 
 
-  subroutine rate_pp(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_pp(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1841,7 +1858,7 @@ contains
 
 
 
-  subroutine rate_png(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_png(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1893,7 +1910,7 @@ contains
 
 
 
-  subroutine rate_dpg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_dpg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1932,7 +1949,7 @@ contains
 
 
 
-  subroutine rate_he3ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_he3ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1964,7 +1981,7 @@ contains
 
 
 
-  subroutine rate_he3he3(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_he3he3(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2004,7 +2021,7 @@ contains
 
 
 
-  subroutine rate_he3he4(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_he3he4(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2052,7 +2069,7 @@ contains
 
 
 
-  subroutine rate_c12pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_c12pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2104,7 +2121,7 @@ contains
 
 
 
-  subroutine rate_n14pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_n14pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2156,7 +2173,7 @@ contains
 
 
 
-  subroutine rate_n15pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_n15pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2211,7 +2228,7 @@ contains
 
 
 
-  subroutine rate_n15pa(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_n15pa(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2270,7 +2287,7 @@ contains
 
 
 
-  subroutine rate_o16pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_o16pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2320,7 +2337,7 @@ contains
 
 
 
-  subroutine rate_n14ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_n14ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2375,7 +2392,7 @@ contains
 
 
 
-  subroutine rate_fe52ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe52ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2408,7 +2425,7 @@ contains
 
 
 
-  subroutine rate_fe53ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe53ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2445,7 +2462,7 @@ contains
 
 
 
-  subroutine rate_fe54ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe54ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2490,7 +2507,7 @@ contains
 
 
 
-  subroutine rate_fe54pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe54pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2534,7 +2551,7 @@ contains
 
 
 
-  subroutine rate_fe54ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe54ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2580,7 +2597,7 @@ contains
 
 
 
-  subroutine rate_fe55ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe55ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2627,7 +2644,7 @@ contains
 
 
 
-  subroutine rate_fe56pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  AMREX_DEVICE subroutine rate_fe56pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2686,7 +2703,7 @@ contains
   ! rn56ec = ni56 electron capture rate
   ! sn56ec = ni56 neutrino loss rate
 
-  subroutine langanke(btemp,bden,y56,ye,rn56ec,sn56ec)
+  AMREX_DEVICE subroutine langanke(btemp,bden,y56,ye,rn56ec,sn56ec)
 
     !$acc routine seq
 
@@ -2752,7 +2769,7 @@ contains
   ! and their associated neutrino energy loss rates
   ! spenc (erg/sec/proton) and snepc (erg/sec/neutron)
 
-  subroutine ecapnuc(etakep,temp,rpen,rnep,spenc,snepc)
+  AMREX_DEVICE subroutine ecapnuc(etakep,temp,rpen,rnep,spenc,snepc)
 
     !$acc routine seq
 
