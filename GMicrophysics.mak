@@ -23,7 +23,11 @@ ifdef SDC
   endif
 endif
 
-FPP_DEFINES += -DAMREX_DEVICE=""
+ifdef CUDA
+  FPP_DEFINES += -DAMREX_DEVICE='attributes(device)'
+else
+  FPP_DEFINES += -DAMREX_DEVICE=""
+endif
 
 #-----------------------------------------------------------------------------
 # EOS
@@ -93,9 +97,9 @@ Fmlocs += $(foreach dir, $(UNIT_DIR), $(dir))
 include $(Fmpack)
 
 
-# we need a probin.f90, since the various microphysics routines can
+# we need a probin.F90, since the various microphysics routines can
 # have runtime parameters
-f90sources += probin.f90
+F90sources += probin.F90
 
 PROBIN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/dummy.probin.template
 PROBIN_PARAMETER_DIRS += $(MICROPHYSICS_HOME)/unit_test/  
@@ -105,11 +109,11 @@ EXTERN_PARAMETER_DIRS += $(MICROPHYS_CORE)
 PROBIN_PARAMETERS := $(shell $(FBOXLIB_HOME)/Tools/F_scripts/findparams.py $(PROBIN_PARAMETER_DIRS))
 EXTERN_PARAMETERS := $(shell $(FBOXLIB_HOME)/Tools/F_scripts/findparams.py $(EXTERN_PARAMETER_DIRS))
 
-probin.f90: $(PROBIN_PARAMETERS) $(EXTERN_PARAMETERS) $(PROBIN_TEMPLATE)
+probin.F90: $(PROBIN_PARAMETERS) $(EXTERN_PARAMETERS) $(PROBIN_TEMPLATE)
 	@echo " "
-	@echo "${bold}WRITING probin.f90${normal}"
+	@echo "${bold}WRITING probin.F90${normal}"
 	$(FBOXLIB_HOME)/Tools/F_scripts/write_probin.py \
-           -t $(PROBIN_TEMPLATE) -o probin.f90 -n probin \
+           -t $(PROBIN_TEMPLATE) -o probin.F90 -n probin \
            --pa "$(PROBIN_PARAMETERS)" --pb "$(EXTERN_PARAMETERS)"
 	@echo " "
 
@@ -162,10 +166,10 @@ print-%: ; @echo $* is $($*)
 
 #-----------------------------------------------------------------------------
 # cleaning.  Add more actions to 'clean' and 'realclean' to remove
-# probin.f90 and build_info.f90 -- this is where the '::' in make comes
+# probin.F90 and build_info.f90 -- this is where the '::' in make comes
 # in handy
 clean ::
-	$(RM) probin.f90
+	$(RM) probin.F90 probin.f90
 	$(RM) build_info.f90
 
 

@@ -66,12 +66,12 @@ contains
     
     ! ***BEGIN PROLOGUE  DEWSET
     ! ***SUBSIDIARY
-    ! ***PURPOSE  Set error weight vector.
+    ! ***PURPOSE  Set error weight array.
     ! ***TYPE      DOUBLE PRECISION (SEWSET-S, DEWSET-D)
     ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
     ! ***DESCRIPTION
     ! 
-    !   This subroutine sets the error weight vector EWT according to
+    !   This subroutine sets the error weight array EWT according to
     !       EWT(i) = RTOL(i)*ABS(YCUR(i)) + ATOL(i),  i = 1,...,N,
     !   with the subscript on RTOL and/or ATOL possibly replaced by 1 above,
     !   depending on the value of ITOL.
@@ -120,13 +120,13 @@ contains
     
     ! ***BEGIN PROLOGUE  DVNORM
     ! ***SUBSIDIARY
-    ! ***PURPOSE  Weighted root-mean-square vector norm.
+    ! ***PURPOSE  Weighted root-mean-square array norm.
     ! ***TYPE      DOUBLE PRECISION (SVNORM-S, DVNORM-D)
     ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
     ! ***DESCRIPTION
     ! 
     !   This function routine computes the weighted root-mean-square norm
-    !   of the vector of length N contained in the array V, with weights
+    !   of the array of length N contained in the array V, with weights
     !   contained in the array W of length N:
     !     DVNORM = SQRT( (1/N) * SUM( V(i)*W(i) )**2 )
     ! 
@@ -177,8 +177,8 @@ contains
     ! 
     !  N      = Size of ODE system, input.
     !  T0     = Initial value of independent variable, input.
-    !  Y0     = Vector of initial conditions, input.
-    !  YDOT   = Vector of initial first derivatives, input.
+    !  Y0     = Array of initial conditions, input.
+    !  YDOT   = Array of initial first derivatives, input.
     !  F      = Name of subroutine for right-hand side f(t,y), input.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     !  TOUT   = First output value of independent variable
@@ -307,14 +307,14 @@ contains
     !  Function routines called by DVINDY: None
     ! -----------------------------------------------------------------------
     !  DVINDY computes interpolated values of the K-th derivative of the
-    !  dependent variable vector y, and stores it in DKY.  This routine
+    !  dependent variable array y, and stores it in DKY.  This routine
     !  is called within the package with K = 0 and T = TOUT, but may
     !  also be called by the user for any K up to the current order.
     !  (See detailed instructions in the usage documentation.)
     ! -----------------------------------------------------------------------
     !  The computed values in DKY are gotten by interpolation using the
     !  Nordsieck history array YH.  This array corresponds uniquely to a
-    !  vector-valued polynomial of degree NQCUR or less, and DKY is set
+    !  array-valued polynomial of degree NQCUR or less, and DKY is set
     !  to the K-th derivative of this polynomial at T.
     !  The formula for DKY is:
     !               q
@@ -633,7 +633,7 @@ contains
     
     CALL F (dvode_state % N, T, Y, pLF0, RPAR, IPAR)
     dvode_state % NFE = 1
-    ! Load the initial value vector in YH. ---------------------------------
+    ! Load the initial value array in YH. ---------------------------------
     CALL DCOPY (dvode_state % N, &
          Y(1:dvode_state % N), 1, &
          RWORK(dvode_state % LYH:dvode_state % LYH + dvode_state % N - 1), 1)
@@ -906,7 +906,7 @@ contains
        IMXER = I
     end do
     IWORK(16) = IMXER
-    ! Set Y vector, T, and optional output. --------------------------------
+    ! Set Y array, T, and optional output. --------------------------------
 580 CONTINUE
     CALL DCOPY (dvode_state % N, RWORK(dvode_state % LYH), 1, Y, 1)
     T = dvode_state % TN
@@ -1145,7 +1145,7 @@ contains
     !  IWM   = Integer work space containing pivot information, starting at
     !          IWM(31), if MITER is 1, 2, 4, or 5.  IWM also contains band
     !          parameters ML = IWM(1) and MU = IWM(2) if MITER is 4 or 5.
-    !  X     = The right-hand side vector on input, and the solution vector
+    !  X     = The right-hand side array on input, and the solution array
     !          on output, of length N.
     !  IERSL = Output flag.  IERSL = 0 if no trouble occurred.
     !          IERSL = 1 if a singular matrix arose with MITER = 3.
@@ -1248,10 +1248,10 @@ contains
     ! 
     !  Communication with DVJAC is done with the following variables.  (For
     !  more details, please see the comments in the driver subroutine.)
-    !  Y          = Vector containing predicted values on entry.
+    !  Y          = Array containing predicted values on entry.
     !  YH         = The Nordsieck array, an LDYH by LMAX array, input.
     !  LDYH       = A constant .ge. N, the first dimension of YH, input.
-    !  EWT        = An error weight vector of length N.
+    !  EWT        = An error weight array of length N.
     !  SAVF       = Array containing f evaluated at predicted y, input.
     !  WM         = Real work space for matrices.  In the output, it containS
     !               the inverse diagonal matrix if MITER = 3 and the LU
@@ -1530,15 +1530,15 @@ contains
     !  Communication with DVNLSD is done with the following variables. (For
     !  more details, please see the comments in the driver subroutine.)
     ! 
-    !  Y          = The dependent variable, a vector of length N, input.
+    !  Y          = The dependent variable, a array of length N, input.
     !  YH         = The Nordsieck (Taylor) array, LDYH by LMAX, input
     !               and output.  On input, it contains predicted values.
     !  LDYH       = A constant .ge. N, the first dimension of YH, input.
     !  VSAV       = Unused work array.
     !  SAVF       = A work array of length N.
-    !  EWT        = An error weight vector of length N, input.
+    !  EWT        = An error weight array of length N, input.
     !  ACOR       = A work array of length N, used for the accumulated
-    !               corrections to the predicted y vector.
+    !               corrections to the predicted y array.
     !  WM,IWM     = Real and integer work arrays associated with matrix
     !               operations in chord iteration (MITER .ne. 0).
     !  F          = Dummy name for user supplied routine for f.
@@ -1633,8 +1633,8 @@ contains
     ! -----------------------------------------------------------------------
     !  Up to MAXCOR corrector iterations are taken.  A convergence test is
     !  made on the r.m.s. norm of each correction, weighted by the error
-    !  weight vector EWT.  The sum of the corrections is accumulated in the
-    !  vector ACOR(i).  The YH array is not altered in the corrector loop.
+    !  weight array EWT.  The sum of the corrections is accumulated in the
+    !  array ACOR(i).  The YH array is not altered in the corrector loop.
     ! -----------------------------------------------------------------------
 220 M = 0
     DELP = ZERO
@@ -1914,16 +1914,16 @@ contains
     ! 
     !  In addition to variables described previously, communication
     !  with DVSET uses the following:
-    !    TAU    = A vector of length 13 containing the past NQ values
+    !    TAU    = A array of length 13 containing the past NQ values
     !             of H.
-    !    EL     = A vector of length 13 in which vset stores the
+    !    EL     = A array of length 13 in which vset stores the
     !             coefficients for the corrector formula.
-    !    TQ     = A vector of length 5 in which vset stores constants
+    !    TQ     = A array of length 5 in which vset stores constants
     !             used for the convergence test, the error test, and the
     !             selection of H at a new order.
     !    METH   = The basic method indicator.
     !    NQ     = The current order.
-    !    L      = NQ + 1, the length of the vector stored in EL, and
+    !    L      = NQ + 1, the length of the array stored in EL, and
     !             the number of columns of the YH array being used.
     !    NQWAIT = A counter controlling the frequency of order changes.
     !             An order change is about to be considered if NQWAIT = 1.
@@ -2096,7 +2096,7 @@ contains
     ! 
     !  Communication with DVSTEP is done with the following variables:
     ! 
-    !  Y      = An array of length N used for the dependent variable vector.
+    !  Y      = An array of length N used for the dependent variable array.
     !  YH     = An LDYH by LMAX array containing the dependent variables
     !           and their approximate scaled derivatives, where
     !           LMAX = MAXORD + 1.  YH(i,j+1) contains the approximate
