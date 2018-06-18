@@ -46,12 +46,6 @@ contains
     ! Fix the state as necessary.
     call clean_state(y, rpar)
 
-
-    ! Renormalize the abundances as necessary.
-    if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
-    endif
-
     ! Update the thermodynamics as necessary.
 
     call update_thermodynamics(y, rpar)
