@@ -57,7 +57,7 @@ contains
 
   function calc_tfactors(t9) result (tfactors)
 
-    real (kind=dp_t), intent(in   ) :: t9
+    real (kind=rt), intent(in   ) :: t9
     type (temp_t) :: tfactors
 
     tfactors%t9 = t9
@@ -80,10 +80,10 @@ def buildRateRoutine(name,aFactors):
   subroutine %s(tfactors,rate,dratedt)
 
     type (temp_t),    intent(in   ) :: tfactors
-    real (kind=dp_t), intent(  out) :: rate
-    real (kind=dp_t), intent(  out) :: dratedt
+    real (kind=rt), intent(  out) :: rate
+    real (kind=rt), intent(  out) :: dratedt
 
-    real (kind=dp_t) :: ct9i, ct9i13, ct913, ct9, ct953, clnt9
+    real (kind=rt) :: ct9i, ct9i13, ct913, ct9, ct953, clnt9
 
 """ % name
 
@@ -160,8 +160,8 @@ def buildRateRoutine(name,aFactors):
     rString = " ".join(rString); rString = rString[:-1]
     drString = " ".join(drString); drString = drString[:-1]
 
-    text += ("    real (kind=dp_t) :: %s\n"
-             +"    real (kind=dp_t) :: %s\n") % (vString,dvString)
+    text += ("    real (kind=rt) :: %s\n"
+             +"    real (kind=rt) :: %s\n") % (vString,dvString)
     text +="""
     rate = ZERO
     dratedt = ZERO
@@ -240,15 +240,15 @@ def rateIsWeakDecay(factors):
 
 def weakRate(name,factor):
 
-    textParameter="""  real (kind=dp_t), parameter :: %s = exp(%sd0)
+    textParameter="""  real (kind=rt), parameter :: %s = exp(%sd0)
 """ % (name[5:], factor)
 
     textSubroutine="""
   subroutine %s(tfactors,rate,dratedt)
 
     type (temp_t),    intent(in   ) :: tfactors
-    real (kind=dp_t), intent(  out) :: rate
-    real (kind=dp_t), intent(  out) :: dratedt
+    real (kind=rt), intent(  out) :: rate
+    real (kind=rt), intent(  out) :: dratedt
 
 
     rate = %s

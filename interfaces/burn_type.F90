@@ -80,7 +80,9 @@ module burn_type_module
 contains
 
   ! Given an eos type, copy the data relevant to the burn type.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_to_burn(eos_state, burn_state)
 
     !$acc routine seq
@@ -112,7 +114,9 @@ contains
 
 
   ! Given a burn type, copy the data relevant to the eos type.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine burn_to_eos(burn_state, eos_state)
 
     !$acc routine seq
@@ -141,7 +145,9 @@ contains
 
   end subroutine burn_to_eos
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine normalize_abundances_burn(state)
 
     !$acc routine seq

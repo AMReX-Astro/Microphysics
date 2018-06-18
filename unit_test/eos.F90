@@ -9,7 +9,7 @@ module eos_module
 
   implicit none
 
-  public eos_init, eos
+  public eos_init, eos, eos_finalize
 
   logical, save :: initialized = .false.  
 
@@ -20,14 +20,52 @@ contains
 
   subroutine eos_init(small_temp, small_dens)
 
-    use extern_probin_module
+    use extern_probin_module, only: small_x
     use parallel
+    use eos_type_module, only: mintemp, maxtemp, mindens, maxdens, minx, maxx, &
+                               minye, maxye, mine, maxe, minp, maxp, minh, maxh, mins, maxs
 
     implicit none
 
     real(rt), optional :: small_temp
     real(rt), optional :: small_dens
 
+    ! Allocate and set default values
+
+    allocate(mintemp)
+    allocate(maxtemp)
+    allocate(mindens)
+    allocate(maxdens)
+    allocate(minx)
+    allocate(maxx)
+    allocate(minye)
+    allocate(maxye)
+    allocate(mine)
+    allocate(maxe)
+    allocate(minp)
+    allocate(maxp)
+    allocate(mins)
+    allocate(maxs)
+    allocate(minh)
+    allocate(maxh)
+
+    mintemp = 1.d-200
+    maxtemp = 1.d200
+    mindens = 1.d-200
+    maxdens = 1.d200
+    minx    = 1.d-200
+    maxx    = 1.d0 + 1.d-12
+    minye   = 1.d-200
+    maxye   = 1.d0 + 1.d-12
+    mine    = 1.d-200
+    maxe    = 1.d200
+    minp    = 1.d-200
+    maxp    = 1.d200
+    mins    = 1.d-200
+    maxs    = 1.d200
+    minh    = 1.d-200
+    maxh    = 1.d200
+    
     ! Set up any specific parameters or initialization steps required by the EOS we are using.
 
     call actual_eos_init
@@ -72,7 +110,14 @@ contains
   end subroutine eos_init
 
 
+  subroutine eos_finalize
+    call actual_eos_finalize
+  end subroutine eos_finalize
 
+
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos(input, state)
 
     !$acc routine seq
@@ -88,8 +133,10 @@ contains
 
     ! Local variables
 
+#ifndef CUDA
 #ifndef ACC
     if (.not. initialized) call amrex_error('EOS: not initialized')
+#endif    
 #endif
 
     ! Get abar, zbar, etc.
@@ -114,7 +161,9 @@ contains
   end subroutine eos
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_inputs(input, state, has_been_reset)
 
     !$acc routine seq
@@ -175,7 +224,9 @@ contains
 
 
   ! For density, just ensure that it is within mindens and maxdens.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_rho(state, has_been_reset)
 
     !$acc routine seq
@@ -192,7 +243,9 @@ contains
 
 
   ! For temperature, just ensure that it is within mintemp and maxtemp.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_T(state, has_been_reset)
 
     !$acc routine seq
@@ -207,7 +260,9 @@ contains
   end subroutine reset_T
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_e(state, has_been_reset)
 
     !$acc routine seq
@@ -224,7 +279,9 @@ contains
   end subroutine reset_e
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_h(state, has_been_reset)
 
     !$acc routine seq
@@ -241,7 +298,9 @@ contains
   end subroutine reset_h
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_s(state, has_been_reset)
 
     !$acc routine seq
@@ -258,7 +317,9 @@ contains
   end subroutine reset_s
 
 
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine reset_p(state, has_been_reset)
 
     !$acc routine seq
@@ -278,7 +339,9 @@ contains
 
   ! Given an EOS state, ensure that rho and T are
   ! valid, then call with eos_input_rt.
-
+#ifdef CUDA
+  attributes(device) &
+#endif
   subroutine eos_reset(state, has_been_reset)
 
     !$acc routine seq
@@ -302,6 +365,7 @@ contains
 
 
 #ifndef ACC
+#ifndef CUDA
   subroutine check_inputs(input, state)
 
     !$acc routine seq
@@ -496,6 +560,7 @@ contains
     endif
 
   end subroutine check_p
+#endif
 #endif
 
 end module eos_module

@@ -1,6 +1,6 @@
 program tvode
 
-  use bl_types, only: dp_t
+  use amrex_fort_module, only : rt => amrex_real
   use dvode_module, only: dvode
   use dvode_type_module, only: dvode_t
   use tvode_rhs_module, only: FEX, JEX
@@ -29,8 +29,8 @@ program tvode
   !   No. error test failures =  22
   
   type(dvode_t) :: dvode_state
-  real(dp_t) :: RPAR(1), RTOL(1), T, TOUT
-  real(dp_t) :: Y(3), ATOL(3), RWORK(67)
+  real(rt) :: RPAR(1), RTOL(1), T, TOUT
+  real(rt) :: Y(3), ATOL(3), RWORK(67)
   integer    :: IWORK(33), NEQ, ITOL, ITASK, ISTATE, IOPT
   integer    :: LRW, LIW, MF, IOUT, IPAR(1)
   RPAR = 0.0d0

@@ -7,7 +7,7 @@ program burn_cell
   use amrex_fort_module, only : rt => amrex_real
 
   use fabio_module, only: fabio_mkdir
-  use probin_module, only: run_prefix, small_temp, small_dens
+  use probin_module, only: run_prefix, small_temp, small_dens, normalize_input_species
   use runtime_init_module
   use extern_probin_module
   use burn_type_module
@@ -78,7 +78,9 @@ program burn_cell
   burn_state_in%xn(:) = massfractions(:)
 
   ! normalize -- just in case
-  !call normalize_abundances_burn(burn_state_in)
+  if (normalize_input_species) then
+     call normalize_abundances_burn(burn_state_in)
+  end if
 
   ! Initialize initial energy to zero
   burn_state_in % e = ZERO

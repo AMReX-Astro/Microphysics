@@ -10,7 +10,7 @@ contains
   ! within the actual_rhs routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  subroutine temperature_rhs(state)
+  AMREX_DEVICE subroutine temperature_rhs(state)
 
     !$acc routine seq
 
@@ -82,7 +82,7 @@ contains
   ! within the actual_jac routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  subroutine temperature_jac(state)
+  AMREX_DEVICE subroutine temperature_jac(state)
 
     !$acc routine seq
 

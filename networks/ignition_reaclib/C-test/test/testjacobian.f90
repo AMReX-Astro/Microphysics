@@ -3,8 +3,8 @@
 
 program testjacobian
 
-  use bl_types
-  use bl_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+  use amrex_constants_module
   use amrex_error_module
   use network
   use burn_type_module
@@ -13,19 +13,19 @@ program testjacobian
 
   implicit none
 
-  real(kind=dp_t) :: dens, temp
-  real(kind=dp_t) :: Xin(nspec)
+  real(kind=rt) :: dens, temp
+  real(kind=rt) :: Xin(nspec)
 
   type (burn_t) :: state
 
   call microphysics_init()
 
-  dens = 3.e9_dp_t
-  temp = 5.e8_dp_t
+  dens = 3.e9_rt
+  temp = 5.e8_rt
 
-  Xin(jhe4)   = 0.4_dp_t
-  Xin(jc12)   = 0.4_dp_t
-  Xin(jo16)   = 0.2_dp_t
+  Xin(jhe4)   = 0.4_rt
+  Xin(jc12)   = 0.4_rt
+  Xin(jo16)   = 0.2_rt
 
   state % rho = dens
   state % T = temp

@@ -22,8 +22,17 @@ module actual_network
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  double precision, allocatable :: aion(:), zion(:), nion(:)
-  double precision, allocatable :: bion(:), mion(:), wion(:)
+  real(rt), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable, save :: aion(:), zion(:), bion(:)
+  
+  real(rt), &
+#ifdef CUDA
+       managed, &
+#endif
+       allocatable, save :: nion(:), mion(:), wion(:)  
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
@@ -125,15 +134,19 @@ module actual_network
 
   character (len=16), save :: ratenames(nrates)
 
-#ifdef CUDA
-  attributes(managed) :: aion, zion
-#endif
-
 contains
 
   subroutine actual_network_init
 
     implicit none
+
+    ! Allocate ion info arrays and table flag
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(bion(nspec))
+    allocate(nion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
 
     short_spec_names(ihe4)  = 'he4'
     short_spec_names(ic12)  = 'c12'
@@ -162,13 +175,6 @@ contains
     spec_names(icr48) = "chromium-48"
     spec_names(ife52) = "iron-52"
     spec_names(ini56) = "nickel-56"
-
-    allocate(aion(nspec))
-    allocate(zion(nspec))
-    allocate(nion(nspec))
-    allocate(bion(nspec))
-    allocate(mion(nspec))
-    allocate(wion(nspec))
 
     ! Set the number of nucleons in the element
     aion(ihe4)  = 4.0d0
@@ -305,8 +311,13 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
-
+    ! Deallocate storage arrays and other managed allocatables
+    deallocate(aion)
+    deallocate(zion)
+    deallocate(bion)
+    deallocate(nion)
+    deallocate(mion)
+    deallocate(wion)
   end subroutine actual_network_finalize
 
 end module actual_network

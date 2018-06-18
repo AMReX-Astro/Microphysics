@@ -3,7 +3,8 @@ module microphysics_module
   use BoxLib
   use backtrace_module, only : set_fpe_trap
   use network
-  use eos_module, only : eos_init
+  use screening_module, only: screening_alloc, screening_finalize
+  use eos_module, only : eos_init, eos_finalize
   use actual_rhs_module, only : actual_rhs_init
 #ifndef SDC
   use actual_burner_module, only : actual_burner_init
@@ -15,6 +16,8 @@ contains
 
   subroutine microphysics_init(small_temp, small_dens)
 
+    implicit none
+    
     double precision, optional :: small_temp
     double precision, optional :: small_dens
 
@@ -23,6 +26,7 @@ contains
 
     !call set_fpe_trap(.true., .true., .true.)
 
+    
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
     else if (present(small_temp)) then
@@ -33,6 +37,7 @@ contains
        call eos_init()
     endif
 
+    call screening_alloc()
     call network_init()
     call actual_rhs_init()
 #ifndef SDC
@@ -43,7 +48,11 @@ contains
 
   subroutine microphysics_finalize()
 
-    !call network_finalize()
+    implicit none
+
+    call screening_finalize()
+    call eos_finalize()
+    call network_finalize()
 
   end subroutine microphysics_finalize
 
