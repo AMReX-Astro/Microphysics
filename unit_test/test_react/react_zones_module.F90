@@ -12,6 +12,10 @@ module react_zones_module
   
   implicit none
 
+  integer :: n_rhs_avg = 0
+  integer :: n_rhs_max = -100000000
+  integer :: n_rhs_min = 100000000
+
   type :: pfidx_t
      integer :: itemp
      integer :: irho
@@ -51,6 +55,7 @@ contains
 #else
     !$OMP PARALLEL DO PRIVATE(ii,jj,kk,j) &
     !$OMP PRIVATE(burn_state_in, burn_state_out) &
+    !$OMP REDUCTION(+:n_rhs_avg) REDUCTION(MAX:n_rhs_max) REDUCTION(MIN:n_rhs_min) &
     !$OMP SCHEDULE(DYNAMIC,1)
     do ii = lo(1), hi(1)
     do jj = lo(2), hi(2)
@@ -85,10 +90,16 @@ contains
 #ifdef CUDA       
     end if
 #else
+    n_rhs_avg = n_rhs_avg + burn_state_out % n_rhs
+    n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
+    n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
     enddo
     enddo
     enddo
     !$OMP END PARALLEL DO
+
+    ! note: integer division
+    n_rhs_avg = n_rhs_avg/((hi(3)-lo(3)+1)*(hi(2)-lo(2)+1)*(hi(1)-lo(1)+1))
 #endif
   end subroutine react_zones
   

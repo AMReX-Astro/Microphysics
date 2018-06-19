@@ -5,9 +5,10 @@ program test_react
 #ifdef CUDA
   use cudafor
   use iso_c_binding, only: c_size_t
-#endif
   use react_zones_module, only: pfidx_t, react_zones
-  
+#else
+  use react_zones_module, only: pfidx_t, react_zones, n_rhs_min, n_rhs_max, n_rhs_avg
+#endif
   use BoxLib
   use bl_space, only: MAX_SPACEDIM
 
@@ -51,8 +52,6 @@ program test_react
   integer :: nrho, nT, nX
 
   integer :: dm, nlevs
-
-  integer :: n_rhs_min, n_rhs_max, n_rhs_avg
 
   type(plot_t) :: pf
 
@@ -168,10 +167,6 @@ program test_react
 
   n = 1  ! single level assumption
 
-  n_rhs_avg = 0
-  n_rhs_max = -100000000
-  n_rhs_min = 100000000
-
   ! Allocate lo, hi
   allocate(lo(MAX_SPACEDIM))
   allocate(hi(MAX_SPACEDIM))
@@ -244,6 +239,13 @@ program test_react
      print *, "Execution time: ", end_time - start_time
      
   enddo
+
+#ifndef CUDA
+  print *, "RHS stats:"
+  print *, "  min: ", n_rhs_min
+  print *, "  avg: ", n_rhs_avg
+  print *, "  max: ", n_rhs_max
+#endif
 
   ! output
   out_name = trim(run_prefix) // "test_react." // trim(integrator_dir)
