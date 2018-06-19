@@ -121,7 +121,9 @@ program test_react
   dx(1,:) = ONE
 
   ! microphysics
-  call microphysics_init(small_temp=mintemp, small_dens=mindens)
+  call microphysics_init(small_temp=small_temp, small_dens=small_dens)
+  print *, "small_temp = ", mintemp
+  print *, "small_dens = ", mindens
 
   ! we'll store everything in a multifab -- inputs and outputs
   call init_variables(pf)
