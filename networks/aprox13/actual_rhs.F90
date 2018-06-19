@@ -18,10 +18,14 @@ module actual_rhs_module
   integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
   double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
 
-  double precision :: rattab(nrates, nrattab)
-  double precision :: drattabdt(nrates, nrattab)
-  double precision :: drattabdd(nrates, nrattab)
-  double precision :: ttab(nrattab)
+  double precision, allocatable :: rattab(:,:)
+  double precision, allocatable :: drattabdt(:,:)
+  double precision, allocatable :: drattabdd(:,:)
+  double precision, allocatable :: ttab(:)
+
+#ifdef CUDA
+  attributes(managed) :: rattab, drattabdt, drattabdd, ttab
+#endif
 
   !$acc declare create(rattab, drattabdt, drattabdd, ttab)
 
@@ -59,7 +63,7 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  AMREX_DEVICE subroutine actual_rhs(state)
 
     !$acc routine seq
 
@@ -129,7 +133,7 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(state)
+  AMREX_DEVICE subroutine actual_jac(state)
 
     !$acc routine seq
 
@@ -207,7 +211,7 @@ contains
 
 
 
-  subroutine evaluate_rates(state, rr)
+  AMREX_DEVICE subroutine evaluate_rates(state, rr)
 
     !$acc routine seq
 
@@ -254,7 +258,7 @@ contains
 
 
 
-  subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  AMREX_DEVICE subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     !$acc routine seq
 
@@ -384,46 +388,80 @@ contains
   end subroutine aprox13tab
 
 
-
   ! Form the table
 
   subroutine create_rates_table()
 
     implicit none
 
-    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+#ifdef CUDA    
+    integer, parameter :: numThreads=256
+    integer :: numBlocks
+#endif    
+    
+    ! Allocate memory for the tables
+    allocate(rattab(nrates, nrattab))
+    allocate(drattabdt(nrates, nrattab))
+    allocate(drattabdd(nrates, nrattab))
+    allocate(ttab(nrattab))
 
-    integer :: i, j
-
-    bden = 1.0d0
-
-    do i = 1, tab_imax
-
-       btemp = tab_tlo + dble(i-1) * tab_tstp
-       btemp = 10.0d0**(btemp)
-
-       call aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
-
-       ttab(i) = btemp
-
-       do j = 1, nrates
-
-          rattab(j,i)    = ratraw(j)
-          drattabdt(j,i) = dratrawdt(j)
-          drattabdd(j,i) = dratrawdd(j)
-
-       enddo
-
-    enddo
+#ifdef CUDA
+    numBlocks = ceiling(real(tab_imax)/numThreads)
+    call set_aprox13rat<<<numBlocks, numThreads>>>()
+#else
+    call set_aprox13rat()    
+#endif
 
     !$acc update device(rattab, drattabdt, drattabdd, ttab)
 
   end subroutine create_rates_table
 
 
+#ifdef CUDA
+  attributes(global) &
+#endif
+  subroutine set_aprox13rat()
+#ifdef CUDA
+    use cudafor
+#endif    
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    integer :: i, j
+    
+    bden = 1.0d0
+
+#ifdef CUDA
+    i = blockDim%x * (blockIdx%x - 1) + threadIdx%x    
+    if (i .le. tab_imax) then
+#else       
+       do i = 1, tab_imax
+#endif          
+
+          btemp = tab_tlo + dble(i-1) * tab_tstp
+          btemp = 10.0d0**(btemp)
+
+          call aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+          ttab(i) = btemp
+
+          do j = 1, nrates
+
+             rattab(j,i)    = ratraw(j)
+             drattabdt(j,i) = dratrawdt(j)
+             drattabdd(j,i) = dratrawdd(j)
+
+          enddo
+
+#ifdef CUDA       
+    endif
+#else
+       enddo
+#endif
+  end subroutine set_aprox13rat  
+
+
   ! Evaluates the right hand side of the aprox13 ODEs
 
-  subroutine rhs(y,rate,ratdum,dydt,deriva)
+  AMREX_DEVICE subroutine rhs(y,rate,ratdum,dydt,deriva)
 
     !$acc routine seq
 
@@ -855,7 +893,7 @@ contains
   end subroutine rhs
 
 
-  subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  AMREX_DEVICE subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     !$acc routine seq
 
@@ -1055,10 +1093,10 @@ contains
 
 
 
-  subroutine screen_aprox13(btemp, bden, y, &
-                            ratraw, dratrawdt, dratrawdd, &
-                            ratdum, dratdumdt, dratdumdd, &
-                            scfac, dscfacdt, dscfacdd)
+  AMREX_DEVICE subroutine screen_aprox13(btemp, bden, y, &
+                                         ratraw, dratrawdt, dratrawdd, &
+                                         ratdum, dratdumdt, dratdumdd, &
+                                         scfac, dscfacdt, dscfacdd)
 
     !$acc routine seq
 
@@ -1866,7 +1904,7 @@ contains
 
 
 
-  subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
+  AMREX_DEVICE subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
 
     !$acc routine seq
 
@@ -2301,7 +2339,7 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  subroutine ener_gener_rate(dydt, enuc)
+  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
 
     !$acc routine seq
 
@@ -2382,7 +2420,7 @@ contains
 
   end subroutine set_up_screening_factors
 
-  subroutine update_unevolved_species(state)
+  AMREX_DEVICE subroutine update_unevolved_species(state)
 
     !$acc routine seq
 

@@ -126,7 +126,7 @@ module actual_network
   character (len=16), save :: ratenames(nrates)
 
 #ifdef CUDA
-  attributes(managed) :: aion, zion
+  attributes(managed) :: aion, zion, nion, bion, mion, wion
 #endif
 
 contains
@@ -305,7 +305,24 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
 
   end subroutine actual_network_finalize
 
