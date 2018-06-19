@@ -107,8 +107,12 @@ contains
   end subroutine eos_init
 
 
+  subroutine eos_finalize
+    call actual_eos_finalize
+  end subroutine eos_finalize
 
-  subroutine eos(input, state)
+
+  AMREX_DEVICE subroutine eos(input, state)
 
     !$acc routine seq
 
