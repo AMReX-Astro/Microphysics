@@ -1,22 +1,30 @@
 module vode_type_module
 
-  use burn_type_module, only: neqs
+  use vode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
+  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
 
-  integer, parameter :: VODE_NEQS = neqs
+  ! Setup a rwork derived type to hold the rwork array
+  type rwork_t
+     ! condopt - Conditional or optional input/output arguments to dvode
+     real(rt) :: condopt(4)
+     real(rt) :: yh(VODE_NEQS, VODE_LMAX)
+     real(rt) :: wm(VODE_LENWM)
+     real(rt) :: ewt(VODE_NEQS)
+     real(rt) :: savf(VODE_NEQS)
+     real(rt) :: acor(VODE_NEQS)
+  end type rwork_t  
 
 contains
-
-  subroutine clean_state(y, rpar)
+  
+  AMREX_DEVICE subroutine clean_state(y, rpar)
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps
-    use extern_probin_module, only: renormalize_abundances
 
     implicit none
 
@@ -26,20 +34,12 @@ contains
 
     y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
 
-    ! Renormalize the abundances as necessary.
-
-    if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
-    endif
-
   end subroutine clean_state
 
-
-  subroutine renormalize_species(y, rpar)
+  AMREX_DEVICE subroutine renormalize_species(y, rpar)
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
@@ -47,6 +47,7 @@ contains
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
+
     real(rt) :: nspec_sum
 
     nspec_sum = &
@@ -59,18 +60,14 @@ contains
 
   end subroutine renormalize_species
 
-
-  subroutine update_thermodynamics(y, rpar)
+  AMREX_DEVICE subroutine update_thermodynamics(y, rpar)
 
     !$acc routine seq
     
     use amrex_constants_module, only: ZERO
-    use amrex_fort_module, only : rt => amrex_real
-
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit
-    use eos_type_module, only: eos_t, composition
+    use extern_probin_module, only: call_eos_in_rhs, dt_crit
+    use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
-    use eos_type_module, only: eos_input_rt
     use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
     use burn_type_module, only: neqs
 
@@ -103,7 +100,7 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-    else if (abs(eos_state % T - rpar(irp_Told)) > dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
+    else if (abs(eos_state % T - rpar(irp_Told)) > dt_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
@@ -134,13 +131,10 @@ contains
   ! it is always in (rho, T) mode and (2) converting back would imply subtracting
   ! off the nuclear energy from the zone's internal energy, which could lead to
   ! issues from roundoff error if the energy released from burning is small.
-
-  subroutine vode_to_eos(state, y, rpar)
+  AMREX_DEVICE subroutine vode_to_eos(state, y, rpar)
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
-
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -173,12 +167,10 @@ contains
 
 
   ! Given an EOS state, fill the rpar and integration state data.
-
-  subroutine eos_to_vode(state, y, rpar)
+  AMREX_DEVICE subroutine eos_to_vode(state, y, rpar)
 
     !$acc routine seq
-
-    use amrex_fort_module, only : rt => amrex_real    
+    
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -211,12 +203,10 @@ contains
 
 
   ! Given a burn state, fill the rpar and integration state data.
-
-  subroutine burn_to_vode(state, y, rpar, ydot, jac)
+  AMREX_DEVICE subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -273,12 +263,10 @@ contains
 
 
   ! Given an rpar array and the integration state, set up a burn state.
-
-  subroutine vode_to_burn(y, rpar, state)
+  AMREX_DEVICE subroutine vode_to_burn(y, rpar, state)
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
