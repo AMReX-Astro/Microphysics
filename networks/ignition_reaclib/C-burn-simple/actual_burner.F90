@@ -19,8 +19,6 @@ contains
 
     call integrator_init()
     
-    call actual_network_init()
-
     call init_reaclib()
     call init_tabular()
     call net_screening_init()
@@ -28,16 +26,17 @@ contains
   end subroutine actual_burner_init
 
   subroutine actual_burner_finalize
-    use reaclib_rates, only: term_reaclib
+    use reaclib_rates, only: term_reaclib, net_screening_finalize
     use table_rates, only: term_table_meta
 
     implicit none
     
     call term_reaclib()
     call term_table_meta()
+    call net_screening_finalize()
   end subroutine actual_burner_finalize
 
-  subroutine actual_burner(state_in, state_out, dt, time)
+  AMREX_DEVICE subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
 

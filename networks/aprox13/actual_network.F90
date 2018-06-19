@@ -25,6 +25,10 @@ module actual_network
   double precision, allocatable :: aion(:), zion(:), nion(:)
   double precision, allocatable :: bion(:), mion(:), wion(:)
 
+#ifdef CUDA
+  attributes(managed) :: aion, zion, nion, bion, mion, wion
+#endif
+
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
@@ -124,10 +128,6 @@ module actual_network
   integer, parameter :: iry1   = 67
 
   character (len=16), save :: ratenames(nrates)
-
-#ifdef CUDA
-  attributes(managed) :: aion, zion
-#endif
 
 contains
 
@@ -305,7 +305,24 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
 
   end subroutine actual_network_finalize
 

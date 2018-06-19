@@ -19,18 +19,18 @@ module actual_network
   double precision, parameter :: mass_proton   = 1.67262163783d-24
   double precision, parameter :: mass_electron = 9.10938215450d-28
 
-  integer, parameter :: nrates = 5
+  integer, parameter :: nrates = 8
   integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
-  integer, parameter :: nspec_evolve = 8
+  integer, parameter :: nspec_evolve = 11
   integer, parameter :: naux  = 0
 
   ! Number of nuclear species in the network
-  integer, parameter :: nspec = 8
+  integer, parameter :: nspec = 11
 
   ! Number of reaclib rates
-  integer, parameter :: nrat_reaclib = 5
+  integer, parameter :: nrat_reaclib = 8
   
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 0
@@ -44,21 +44,27 @@ module actual_network
   ! bion: Binding Energies (ergs)
 
   ! Nuclides
-  integer, parameter :: jn   = 1
-  integer, parameter :: jp   = 2
-  integer, parameter :: jhe4   = 3
-  integer, parameter :: jc12   = 4
-  integer, parameter :: jo16   = 5
-  integer, parameter :: jne20   = 6
-  integer, parameter :: jna23   = 7
-  integer, parameter :: jmg23   = 8
+  integer, parameter :: jp   = 1
+  integer, parameter :: jhe4   = 2
+  integer, parameter :: jc12   = 3
+  integer, parameter :: jc14   = 4
+  integer, parameter :: jn13   = 5
+  integer, parameter :: jn14   = 6
+  integer, parameter :: jo16   = 7
+  integer, parameter :: jo18   = 8
+  integer, parameter :: jf18   = 9
+  integer, parameter :: jne20   = 10
+  integer, parameter :: jne21   = 11
 
   ! Reactions
-  integer, parameter :: k_c12_c12a_ne20   = 1
-  integer, parameter :: k_c12_c12n_mg23   = 2
-  integer, parameter :: k_c12_c12p_na23   = 3
-  integer, parameter :: k_c12_ag_o16   = 4
-  integer, parameter :: k_n_p   = 5
+  integer, parameter :: k_he4_he4_he4__c12   = 1
+  integer, parameter :: k_he4_c12__o16   = 2
+  integer, parameter :: k_he4_n14__f18   = 3
+  integer, parameter :: k_he4_f18__p_ne21   = 4
+  integer, parameter :: k_p_c12__n13   = 5
+  integer, parameter :: k_he4_n13__p_o16   = 6
+  integer, parameter :: k_he4_o16__ne20   = 7
+  integer, parameter :: k_he4_c14__o18   = 8
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
@@ -72,8 +78,12 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable :: aion(:), zion(:), bion(:)
+  double precision, allocatable :: nion(:), mion(:), wion(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion, bion, nion, mion, wion
+#endif
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -85,59 +95,84 @@ contains
     
     integer :: i
 
-    spec_names(jn)   = "neutron"
     spec_names(jp)   = "hydrogen-1"
     spec_names(jhe4)   = "helium-4"
     spec_names(jc12)   = "carbon-12"
+    spec_names(jc14)   = "carbon-14"
+    spec_names(jn13)   = "nitrogen-13"
+    spec_names(jn14)   = "nitrogen-14"
     spec_names(jo16)   = "oxygen-16"
+    spec_names(jo18)   = "oxygen-18"
+    spec_names(jf18)   = "fluorine-18"
     spec_names(jne20)   = "neon-20"
-    spec_names(jna23)   = "sodium-23"
-    spec_names(jmg23)   = "magnesium-23"
+    spec_names(jne21)   = "neon-21"
 
-    short_spec_names(jn)   = "n"
     short_spec_names(jp)   = "h1"
     short_spec_names(jhe4)   = "he4"
     short_spec_names(jc12)   = "c12"
+    short_spec_names(jc14)   = "c14"
+    short_spec_names(jn13)   = "n13"
+    short_spec_names(jn14)   = "n14"
     short_spec_names(jo16)   = "o16"
+    short_spec_names(jo18)   = "o18"
+    short_spec_names(jf18)   = "f18"
     short_spec_names(jne20)   = "ne20"
-    short_spec_names(jna23)   = "na23"
-    short_spec_names(jmg23)   = "mg23"
+    short_spec_names(jne21)   = "ne21"
 
-    ebind_per_nucleon(jn)   = 0.00000000000000d+00
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(nion(nspec))
+    allocate(bion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     ebind_per_nucleon(jp)   = 0.00000000000000d+00
     ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
     ebind_per_nucleon(jc12)   = 7.68014400000000d+00
+    ebind_per_nucleon(jc14)   = 7.52031900000000d+00
+    ebind_per_nucleon(jn13)   = 7.23886300000000d+00
+    ebind_per_nucleon(jn14)   = 7.47561400000000d+00
     ebind_per_nucleon(jo16)   = 7.97620600000000d+00
+    ebind_per_nucleon(jo18)   = 7.76709700000000d+00
+    ebind_per_nucleon(jf18)   = 7.63163800000000d+00
     ebind_per_nucleon(jne20)   = 8.03224000000000d+00
-    ebind_per_nucleon(jna23)   = 8.11149300000000d+00
-    ebind_per_nucleon(jmg23)   = 7.90110400000000d+00
+    ebind_per_nucleon(jne21)   = 7.97171300000000d+00
 
-    aion(jn)   = 1.00000000000000d+00
     aion(jp)   = 1.00000000000000d+00
     aion(jhe4)   = 4.00000000000000d+00
     aion(jc12)   = 1.20000000000000d+01
+    aion(jc14)   = 1.40000000000000d+01
+    aion(jn13)   = 1.30000000000000d+01
+    aion(jn14)   = 1.40000000000000d+01
     aion(jo16)   = 1.60000000000000d+01
+    aion(jo18)   = 1.80000000000000d+01
+    aion(jf18)   = 1.80000000000000d+01
     aion(jne20)   = 2.00000000000000d+01
-    aion(jna23)   = 2.30000000000000d+01
-    aion(jmg23)   = 2.30000000000000d+01
+    aion(jne21)   = 2.10000000000000d+01
 
-    zion(jn)   = 0.00000000000000d+00
     zion(jp)   = 1.00000000000000d+00
     zion(jhe4)   = 2.00000000000000d+00
     zion(jc12)   = 6.00000000000000d+00
+    zion(jc14)   = 6.00000000000000d+00
+    zion(jn13)   = 7.00000000000000d+00
+    zion(jn14)   = 7.00000000000000d+00
     zion(jo16)   = 8.00000000000000d+00
+    zion(jo18)   = 8.00000000000000d+00
+    zion(jf18)   = 9.00000000000000d+00
     zion(jne20)   = 1.00000000000000d+01
-    zion(jna23)   = 1.10000000000000d+01
-    zion(jmg23)   = 1.20000000000000d+01
+    zion(jne21)   = 1.00000000000000d+01
 
-    nion(jn)   = 1.00000000000000d+00
     nion(jp)   = 0.00000000000000d+00
     nion(jhe4)   = 2.00000000000000d+00
     nion(jc12)   = 6.00000000000000d+00
+    nion(jc14)   = 8.00000000000000d+00
+    nion(jn13)   = 6.00000000000000d+00
+    nion(jn14)   = 7.00000000000000d+00
     nion(jo16)   = 8.00000000000000d+00
+    nion(jo18)   = 1.00000000000000d+01
+    nion(jf18)   = 9.00000000000000d+00
     nion(jne20)   = 1.00000000000000d+01
-    nion(jna23)   = 1.20000000000000d+01
-    nion(jmg23)   = 1.10000000000000d+01
+    nion(jne21)   = 1.10000000000000d+01
 
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
@@ -156,22 +191,29 @@ contains
     !$acc update device(aion, zion, bion, nion, mion, wion)
   end subroutine actual_network_init
 
-  subroutine actual_network_finalize()
-    ! STUB FOR MAESTRO
-  end subroutine actual_network_finalize
-  
-  subroutine ener_gener_rate(dydt, enuc)
-    ! Computes the instantaneous energy generation rate
-    !$acc routine seq
-  
+  subroutine actual_network_finalize
+
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
 
-    ! This is basically e = m c**2
-
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
-
-  end subroutine ener_gener_rate
+  end subroutine actual_network_finalize
 
 end module actual_network

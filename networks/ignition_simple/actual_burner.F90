@@ -20,7 +20,7 @@ contains
 
 
 
-  subroutine actual_burner(state_in, state_out, dt, time)
+  AMREX_DEVICE subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
 
