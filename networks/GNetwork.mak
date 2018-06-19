@@ -79,6 +79,7 @@ endif
 
 ifeq ($(USE_SCREENING), TRUE)
   NET_DIRS += $(MICROPHYSICS_HOME)/screening
+  FPP_DEFINES += -DUSE_SCREENING
 endif
 
 ifeq ($(USE_NEUTRINOS), TRUE)

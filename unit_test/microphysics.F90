@@ -43,7 +43,13 @@ contains
 
   subroutine microphysics_finalize()
 
-    !call network_finalize()
+    use eos_module, only: eos_finalize
+#ifdef USE_SCREENING
+    use screening_module, only: screening_finalize
+    call screening_finalize()
+#endif
+    call eos_finalize()
+    call network_finalize()
 
   end subroutine microphysics_finalize
 
