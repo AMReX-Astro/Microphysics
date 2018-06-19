@@ -10,7 +10,7 @@ contains
 
   subroutine integrator_init()
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     use vode_integrator_module, only: vode_integrator_init
     use bs_integrator_module, only: bs_integrator_init
 #else
@@ -19,7 +19,7 @@ contains
 
     implicit none
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     call vode_integrator_init()
     call bs_integrator_init()
 #else
@@ -30,11 +30,11 @@ contains
 
 
 
-  subroutine integrator(state_in, state_out, dt, time)
+  AMREX_DEVICE subroutine integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     use vode_integrator_module, only: vode_integrator
     use bs_integrator_module, only: bs_integrator
 #else
@@ -56,7 +56,7 @@ contains
     type (burn_t),  intent(inout) :: state_out
     real(rt),     intent(in   ) :: dt, time
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     type (integration_status_t) :: status
     real(rt) :: retry_change_factor
     integer :: current_integrator
