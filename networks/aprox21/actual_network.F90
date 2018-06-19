@@ -30,8 +30,12 @@ module actual_network
   integer, parameter :: ineut = 20
   integer, parameter :: iprot = 21
 
-  double precision, save :: aion(nspec), zion(nspec), nion(nspec)
-  double precision, save :: bion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable :: aion(:), zion(:), nion(:)
+  double precision, allocatable :: bion(:), mion(:), wion(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion, nion, bion, mion, wion
+#endif
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
@@ -229,6 +233,13 @@ contains
     spec_names(iprot) = "proton"
 
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(nion(nspec))
+    allocate(bion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     ! Set the number of nucleons in the element
     aion(ih1)   = 1.0d0
     aion(ihe3)  = 3.0d0
@@ -445,12 +456,28 @@ contains
   end subroutine actual_network_init
 
 
-
   subroutine actual_network_finalize
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
 
   end subroutine actual_network_finalize
 
