@@ -11,10 +11,7 @@ module dvode_nordsieck_module
 
 contains
 
-#ifdef CUDA
-  attributes(device) &
-#endif
-  subroutine advance_nordsieck(rwork, vstate)
+  AMREX_DEVICE subroutine advance_nordsieck(rwork, vstate)
 
     ! Effectively multiplies the Nordsieck history
     ! array by the Pascal triangle matrix.
@@ -39,10 +36,7 @@ contains
   end subroutine advance_nordsieck
 
 
-#ifdef CUDA
-  attributes(device) &
-#endif
-  subroutine retract_nordsieck(rwork, vstate)
+  AMREX_DEVICE subroutine retract_nordsieck(rwork, vstate)
 
     ! Undoes the Pascal triangle matrix multiplication
     ! implemented in subroutine advance_nordsieck.

@@ -11,10 +11,7 @@ module dvode_dewset_module
 
 contains
 
-#ifdef CUDA
-  attributes(device) &
-#endif  
-  subroutine dewset(vstate, rwork)
+  AMREX_DEVICE subroutine dewset(vstate, rwork)
 
     !$acc routine seq
     
