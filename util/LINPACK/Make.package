@@ -3,4 +3,3 @@ fEXE_sources += dgesl.f
 fEXE_sources += dgbsl.f
 fEXE_sources += dgbfa.f
 fEXE_sources += vddot.f
-F90EXE_sources += linpack_module.F90
