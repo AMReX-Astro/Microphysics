@@ -78,8 +78,12 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable :: aion(:), zion(:), bion(:)
+  double precision, allocatable :: nion(:), mion(:), wion(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion, bion, nion, mion, wion
+#endif
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -115,6 +119,13 @@ contains
     short_spec_names(jne20)   = "ne20"
     short_spec_names(jne21)   = "ne21"
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(nion(nspec))
+    allocate(bion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     ebind_per_nucleon(jp)   = 0.00000000000000d+00
     ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
     ebind_per_nucleon(jc12)   = 7.68014400000000d+00
@@ -180,8 +191,29 @@ contains
     !$acc update device(aion, zion, bion, nion, mion, wion)
   end subroutine actual_network_init
 
-  subroutine actual_network_finalize()
-    ! STUB FOR MAESTRO
+  subroutine actual_network_finalize
+
+    implicit none
+
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
+
   end subroutine actual_network_finalize
 
 end module actual_network

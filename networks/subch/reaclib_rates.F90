@@ -17,7 +17,11 @@ module reaclib_rates
 
   ! Should these reactions be screened?
   logical, allocatable :: do_screening(:)
-  
+
+#ifdef CUDA
+  attributes(managed) :: ctemp_rate, rate_start_idx, rate_extra_mult, do_screening
+#endif
+
   !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
   !$acc declare copyin(screen_reaclib)
 
@@ -273,7 +277,7 @@ contains
     call screening_init()    
   end subroutine net_screening_init
 
-  subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
+  AMREX_DEVICE subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 
     implicit none
