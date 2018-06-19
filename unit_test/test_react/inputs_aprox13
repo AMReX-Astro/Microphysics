@@ -12,7 +12,7 @@
 
   call_eos_in_rhs = T
 
-  xin_file   = "xin.aprox13.small"
+  xin_file   = "xin.aprox13"
   run_prefix = "react_aprox13_16_"
 
 /
