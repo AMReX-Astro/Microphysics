@@ -26,13 +26,13 @@ contains
     return
   end subroutine actual_rhs_init
   
-  subroutine update_unevolved_species(state)
+  AMREX_DEVICE subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
     return
   end subroutine update_unevolved_species
 
-  subroutine evaluate_rates(state, rate_eval)
+  AMREX_DEVICE subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
@@ -62,7 +62,7 @@ contains
 
   end subroutine evaluate_rates
 
-  subroutine actual_rhs(state)
+  AMREX_DEVICE subroutine actual_rhs(state)
     
     !$acc routine seq
 
@@ -116,7 +116,7 @@ contains
     ! end do
   end subroutine actual_rhs
 
-  subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
+  AMREX_DEVICE subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
 
@@ -184,7 +184,7 @@ contains
   end subroutine rhs_nuc
 
   
-  subroutine actual_jac(state)
+  AMREX_DEVICE subroutine actual_jac(state)
 
     !$acc routine seq
 
@@ -253,7 +253,7 @@ contains
 
   end subroutine actual_jac
 
-  subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
+  AMREX_DEVICE subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
     

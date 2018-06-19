@@ -72,8 +72,12 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable, save :: aion(:), zion(:), bion(:)
+  double precision, allocatable, save :: nion(:), mion(:), wion(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion, bion, nion, mion, wion
+#endif
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -103,6 +107,13 @@ contains
     short_spec_names(jna23)   = "na23"
     short_spec_names(jmg23)   = "mg23"
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(bion(nspec))
+    allocate(nion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     ebind_per_nucleon(jn)   = 0.00000000000000d+00
     ebind_per_nucleon(jp)   = 0.00000000000000d+00
     ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
@@ -157,10 +168,15 @@ contains
   end subroutine actual_network_init
 
   subroutine actual_network_finalize()
-    ! STUB FOR MAESTRO
+    deallocate(aion)
+    deallocate(zion)
+    deallocate(bion)
+    deallocate(nion)
+    deallocate(mion)
+    deallocate(wion)
   end subroutine actual_network_finalize
   
-  subroutine ener_gener_rate(dydt, enuc)
+  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
   

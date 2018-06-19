@@ -1,11 +1,13 @@
 module reaclib_rates
-  use screening_module, only: screen5, add_screening_factor, screening_init, plasma_state, fill_plasma_state
+  use screening_module, only: screen5, add_screening_factor, &
+                              screening_init, screening_finalize, &
+                              plasma_state, fill_plasma_state
   use network
 
   implicit none
 
   logical, parameter :: screen_reaclib = .true.
-  
+
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
   double precision, allocatable :: ctemp_rate(:,:)
 
@@ -17,7 +19,11 @@ module reaclib_rates
 
   ! Should these reactions be screened?
   logical, allocatable :: do_screening(:)
-  
+
+#ifdef CUDA
+  attributes(managed) :: ctemp_rate, rate_start_idx, rate_extra_mult, do_screening
+#endif
+
   !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
   !$acc declare copyin(screen_reaclib)
 
@@ -26,7 +32,7 @@ contains
   subroutine init_reaclib()
     
     allocate( ctemp_rate(7, 6) )
-    ! c12_c12a_ne20
+    ! c12_c12__he4_ne20
     ctemp_rate(:, 1) = [  &
         6.12863000000000d+01, &
         0.00000000000000d+00, &
@@ -36,7 +42,7 @@ contains
         -7.27970000000000d-02, &
         -6.66667000000000d-01 ]
 
-    ! c12_c12n_mg23
+    ! c12_c12__n_mg23
     ctemp_rate(:, 2) = [  &
         -1.28056000000000d+01, &
         -3.01485000000000d+01, &
@@ -46,7 +52,7 @@ contains
         -3.48440000000000d-01, &
         0.00000000000000d+00 ]
 
-    ! c12_c12p_na23
+    ! c12_c12__p_na23
     ctemp_rate(:, 3) = [  &
         6.09649000000000d+01, &
         0.00000000000000d+00, &
@@ -56,7 +62,7 @@ contains
         -7.03070000000000d-02, &
         -6.66667000000000d-01 ]
 
-    ! c12_ag_o16
+    ! he4_c12__o16
     ctemp_rate(:, 4) = [  &
         6.96526000000000d+01, &
         -1.39254000000000d+00, &
@@ -75,7 +81,7 @@ contains
         -1.24624000000000d+01, &
         1.37303000000000d+02 ]
 
-    ! n_p
+    ! n__p
     ctemp_rate(:, 6) = [  &
         -6.78161000000000d+00, &
         0.00000000000000d+00, &
@@ -141,7 +147,11 @@ contains
     call screening_init()    
   end subroutine net_screening_init
 
-  subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
+  subroutine net_screening_finalize()
+    return
+  end subroutine net_screening_finalize
+
+  AMREX_DEVICE subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 
     implicit none
