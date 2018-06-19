@@ -17,7 +17,7 @@ contains
   end subroutine actual_rhs_init
 
 
-  subroutine actual_rhs(state)
+  AMREX_DEVICE subroutine actual_rhs(state)
 
     !$acc routine seq
 
@@ -112,7 +112,7 @@ contains
   end subroutine actual_rhs
 
 
-  subroutine actual_jac(state)
+  AMREX_DEVICE subroutine actual_jac(state)
 
     !$acc routine seq
 
@@ -198,7 +198,7 @@ contains
 
 
 
-  subroutine evaluate_rates(state, rr)
+  AMREX_DEVICE subroutine evaluate_rates(state, rr)
 
     !$acc routine seq
 
@@ -261,7 +261,7 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  subroutine ener_gener_rate(dydt, enuc)
+  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
 
     use network
 
@@ -284,7 +284,7 @@ contains
 
   end subroutine ener_gener_rate
 
-  subroutine update_unevolved_species(state)
+  AMREX_DEVICE subroutine update_unevolved_species(state)
 
     !$acc routine seq
 

@@ -1,10 +1,10 @@
 module actual_network
-
   use physical_constants, only: ERG_PER_MeV
+  use amrex_fort_module, only: rt => amrex_real
   
   implicit none
 
-  public num_rate_groups
+  public
 
   double precision, parameter :: avo = 6.0221417930d23
   double precision, parameter :: c_light = 2.99792458d10
@@ -54,13 +54,13 @@ module actual_network
   integer, parameter :: jmg23   = 9
 
   ! Reactions
-  integer, parameter :: k_c12_c12a_ne20   = 1
-  integer, parameter :: k_c12_c12n_mg23   = 2
-  integer, parameter :: k_c12_c12p_na23   = 3
-  integer, parameter :: k_c12_ag_o16   = 4
-  integer, parameter :: k_n_p   = 5
-  integer, parameter :: k_na23_ne23   = 6
-  integer, parameter :: k_ne23_na23   = 7
+  integer, parameter :: k_c12_c12__he4_ne20   = 1
+  integer, parameter :: k_c12_c12__n_mg23   = 2
+  integer, parameter :: k_c12_c12__p_na23   = 3
+  integer, parameter :: k_he4_c12__o16   = 4
+  integer, parameter :: k_n__p   = 5
+  integer, parameter :: k_na23__ne23   = 6
+  integer, parameter :: k_ne23__na23   = 7
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
@@ -74,8 +74,12 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  real(rt), allocatable, save :: aion(:), zion(:), bion(:)
+  real(rt), allocatable, save :: nion(:), mion(:), wion(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion, bion, nion, mion, wion
+#endif
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -86,6 +90,14 @@ contains
     implicit none
     
     integer :: i
+
+    ! Allocate ion info arrays
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(bion(nspec))
+    allocate(nion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
 
     spec_names(jn)   = "neutron"
     spec_names(jp)   = "hydrogen-1"
@@ -113,9 +125,9 @@ contains
     ebind_per_nucleon(jc12)   = 7.68014400000000d+00
     ebind_per_nucleon(jo16)   = 7.97620600000000d+00
     ebind_per_nucleon(jne20)   = 8.03224000000000d+00
-    ebind_per_nucleon(jne23)   = 7.95525500000000d+00
+    ebind_per_nucleon(jne23)   = 7.95525600000000d+00
     ebind_per_nucleon(jna23)   = 8.11149300000000d+00
-    ebind_per_nucleon(jmg23)   = 7.90110400000000d+00
+    ebind_per_nucleon(jmg23)   = 7.90111500000000d+00
 
     aion(jn)   = 1.00000000000000d+00
     aion(jp)   = 1.00000000000000d+00
@@ -164,11 +176,18 @@ contains
     !$acc update device(aion, zion, bion, nion, mion, wion)
   end subroutine actual_network_init
 
-  subroutine actual_network_finalize()
-    ! STUB FOR MAESTRO
+  subroutine actual_network_finalize()    
+    ! Deallocate storage arrays
+    deallocate(aion)
+    deallocate(zion)
+    deallocate(bion)
+    deallocate(nion)
+    deallocate(mion)
+    deallocate(wion)
   end subroutine actual_network_finalize
-  
-  subroutine ener_gener_rate(dydt, enuc)
+
+
+  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
   
