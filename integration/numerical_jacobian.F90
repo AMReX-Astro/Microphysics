@@ -9,7 +9,7 @@ module numerical_jac_module
 
 contains
 
-  subroutine numerical_jac(state)
+  AMREX_DEVICE subroutine numerical_jac(state)
 
     !$acc routine seq
 
