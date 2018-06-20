@@ -1,5 +1,6 @@
 module actual_rhs_module
 
+  use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module
   use physical_constants, only: N_AVO
   use network
@@ -25,14 +26,16 @@ contains
     ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
     return
   end subroutine actual_rhs_init
-  
-  subroutine update_unevolved_species(state)
+
+
+  AMREX_DEVICE subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
     return
   end subroutine update_unevolved_species
 
-  subroutine evaluate_rates(state, rate_eval)
+
+  AMREX_DEVICE subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
@@ -55,6 +58,14 @@ contains
        rate_eval % unscreened_rates(:,i) = reactvec(1:4)
     end do
 
+    ! Included only if there are tabular rates
+    do i = 1, nrat_tabular
+      call tabular_evaluate(table_meta(i), rhoy, temp, reactvec)
+      j = i + nrat_reaclib
+      rate_eval % unscreened_rates(:,j) = reactvec(1:4)
+      rate_eval % dqweak(i) = reactvec(5)
+      rate_eval % epart(i)  = reactvec(6)
+    end do
 
     ! Compute screened rates
     rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &
@@ -62,7 +73,8 @@ contains
 
   end subroutine evaluate_rates
 
-  subroutine actual_rhs(state)
+
+  AMREX_DEVICE subroutine actual_rhs(state)
     
     !$acc routine seq
 
@@ -96,9 +108,13 @@ contains
     call ener_gener_rate(ydot_nuc, enuc)
     
     ! weak Q-value modification dqweak (density and temperature dependent)
+    enuc = enuc + N_AVO * state % ydot(jna23) * rate_eval % dqweak(j_na23_ne23)
+    enuc = enuc + N_AVO * state % ydot(jne23) * rate_eval % dqweak(j_ne23_na23)
     
     ! weak particle energy generation rates from gamma heating and neutrino loss
     ! (does not include plasma neutrino losses)
+    enuc = enuc + N_AVO * Y(jna23) * rate_eval % epart(j_na23_ne23)
+    enuc = enuc + N_AVO * Y(jne23) * rate_eval % epart(j_ne23_na23)
 
 
     ! Get the neutrino losses
@@ -116,7 +132,8 @@ contains
     ! end do
   end subroutine actual_rhs
 
-  subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
+
+  AMREX_DEVICE subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
 
@@ -126,65 +143,53 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
-    double precision :: scratch_0
-    double precision :: scratch_1
-    double precision :: scratch_2
-    double precision :: scratch_3
-    double precision :: scratch_4
-    double precision :: scratch_5
-    double precision :: scratch_6
-    double precision :: scratch_7
-    double precision :: scratch_8
-    double precision :: scratch_9
 
-    scratch_0 = screened_rates(k_n_p)*Y(jn)
-    scratch_1 = Y(jc12)**2*dens
-    scratch_2 = screened_rates(k_c12_c12n_mg23)*scratch_1
-    scratch_3 = 0.5d0*scratch_2
-    scratch_4 = screened_rates(k_c12_c12p_na23)*scratch_1
-    scratch_5 = 0.5d0*scratch_4
-    scratch_6 = screened_rates(k_c12_c12a_ne20)*scratch_1
-    scratch_7 = 0.5d0*scratch_6
-    scratch_8 = screened_rates(k_c12_ag_o16)*Y(jc12)*Y(jhe4)*dens
-    scratch_9 = -scratch_8
 
     ydot_nuc(jn) = ( &
-      -scratch_0 + scratch_3 &
+      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*dens - screened_rates(k_n__p)*Y(jn) &
        )
 
     ydot_nuc(jp) = ( &
-      scratch_0 + scratch_5 &
+      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*dens + screened_rates(k_n__p)*Y(jn) &
        )
 
     ydot_nuc(jhe4) = ( &
-      scratch_7 + scratch_9 &
+      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*dens - &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens &
        )
 
     ydot_nuc(jc12) = ( &
-      -scratch_2 - scratch_4 - scratch_6 + scratch_9 &
+      -screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*dens - screened_rates(k_c12_c12__n_mg23) &
+      *Y(jc12)**2*dens - screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*dens - &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens &
        )
 
     ydot_nuc(jo16) = ( &
-      scratch_8 &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens &
        )
 
     ydot_nuc(jne20) = ( &
-      scratch_7 &
+      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*dens &
+       )
+
+    ydot_nuc(jne23) = ( &
+      screened_rates(k_na23__ne23)*Y(jna23) - screened_rates(k_ne23__na23)*Y(jne23) &
        )
 
     ydot_nuc(jna23) = ( &
-      scratch_5 &
+      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*dens - screened_rates(k_na23__ne23)* &
+      Y(jna23) + screened_rates(k_ne23__na23)*Y(jne23) &
        )
 
     ydot_nuc(jmg23) = ( &
-      scratch_3 &
+      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*dens &
        )
 
 
   end subroutine rhs_nuc
 
-  
-  subroutine actual_jac(state)
+
+  AMREX_DEVICE subroutine actual_jac(state)
 
     !$acc routine seq
 
@@ -253,7 +258,8 @@ contains
 
   end subroutine actual_jac
 
-  subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
+
+  AMREX_DEVICE subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
     
@@ -263,30 +269,10 @@ contains
     double precision, intent(in)  :: screened_rates(nrates)
     double precision, intent(in)  :: dens
 
-    double precision :: scratch_0
-    double precision :: scratch_1
-    double precision :: scratch_2
-    double precision :: scratch_3
-    double precision :: scratch_4
-    double precision :: scratch_5
-    double precision :: scratch_6
-    double precision :: scratch_7
-    double precision :: scratch_8
-    double precision :: scratch_9
 
-    scratch_0 = 1.0d0*Y(jc12)*dens
-    scratch_1 = screened_rates(k_c12_c12n_mg23)*scratch_0
-    scratch_2 = screened_rates(k_c12_c12p_na23)*scratch_0
-    scratch_3 = screened_rates(k_c12_ag_o16)*dens
-    scratch_4 = Y(jc12)*scratch_3
-    scratch_5 = -scratch_4
-    scratch_6 = Y(jhe4)*scratch_3
-    scratch_7 = -scratch_6
-    scratch_8 = screened_rates(k_c12_c12a_ne20)*scratch_0
-    scratch_9 = 2.0d0*Y(jc12)*dens
 
     dfdy_nuc(jn,jn) = ( &
-      -screened_rates(k_n_p) &
+      -screened_rates(k_n__p) &
        )
 
     dfdy_nuc(jn,jp) = ( &
@@ -298,7 +284,7 @@ contains
        )
 
     dfdy_nuc(jn,jc12) = ( &
-      scratch_1 &
+      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jn,jo16) = ( &
@@ -306,6 +292,10 @@ contains
        )
 
     dfdy_nuc(jn,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn,jne23) = ( &
       0.0d0 &
        )
 
@@ -318,7 +308,7 @@ contains
        )
 
     dfdy_nuc(jp,jn) = ( &
-      screened_rates(k_n_p) &
+      screened_rates(k_n__p) &
        )
 
     dfdy_nuc(jp,jp) = ( &
@@ -330,7 +320,7 @@ contains
        )
 
     dfdy_nuc(jp,jc12) = ( &
-      scratch_2 &
+      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jp,jo16) = ( &
@@ -338,6 +328,10 @@ contains
        )
 
     dfdy_nuc(jp,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jp,jne23) = ( &
       0.0d0 &
        )
 
@@ -358,11 +352,12 @@ contains
        )
 
     dfdy_nuc(jhe4,jhe4) = ( &
-      scratch_5 &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jhe4,jc12) = ( &
-      scratch_7 + scratch_8 &
+      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*dens - screened_rates(k_he4_c12__o16)* &
+      Y(jhe4)*dens &
        )
 
     dfdy_nuc(jhe4,jo16) = ( &
@@ -370,6 +365,10 @@ contains
        )
 
     dfdy_nuc(jhe4,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jhe4,jne23) = ( &
       0.0d0 &
        )
 
@@ -390,12 +389,14 @@ contains
        )
 
     dfdy_nuc(jc12,jhe4) = ( &
-      scratch_5 &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_c12_c12a_ne20)*scratch_9 - screened_rates(k_c12_c12n_mg23)*scratch_9 - &
-      screened_rates(k_c12_c12p_na23)*scratch_9 + scratch_7 &
+      -2.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*dens - 2.0d0* &
+      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*dens - 2.0d0* &
+      screened_rates(k_c12_c12__p_na23)*Y(jc12)*dens - screened_rates(k_he4_c12__o16)* &
+      Y(jhe4)*dens &
        )
 
     dfdy_nuc(jc12,jo16) = ( &
@@ -403,6 +404,10 @@ contains
        )
 
     dfdy_nuc(jc12,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jne23) = ( &
       0.0d0 &
        )
 
@@ -423,11 +428,11 @@ contains
        )
 
     dfdy_nuc(jo16,jhe4) = ( &
-      scratch_4 &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jo16,jc12) = ( &
-      scratch_6 &
+      screened_rates(k_he4_c12__o16)*Y(jhe4)*dens &
        )
 
     dfdy_nuc(jo16,jo16) = ( &
@@ -435,6 +440,10 @@ contains
        )
 
     dfdy_nuc(jo16,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jne23) = ( &
       0.0d0 &
        )
 
@@ -459,7 +468,7 @@ contains
        )
 
     dfdy_nuc(jne20,jc12) = ( &
-      scratch_8 &
+      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jne20,jo16) = ( &
@@ -470,11 +479,51 @@ contains
       0.0d0 &
        )
 
+    dfdy_nuc(jne20,jne23) = ( &
+      0.0d0 &
+       )
+
     dfdy_nuc(jne20,jna23) = ( &
       0.0d0 &
        )
 
     dfdy_nuc(jne20,jmg23) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jn) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jp) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jhe4) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jne23,jne23) = ( &
+      -screened_rates(k_ne23__na23) &
+       )
+
+    dfdy_nuc(jne23,jna23) = ( &
+      screened_rates(k_na23__ne23) &
+       )
+
+    dfdy_nuc(jne23,jmg23) = ( &
       0.0d0 &
        )
 
@@ -491,7 +540,7 @@ contains
        )
 
     dfdy_nuc(jna23,jc12) = ( &
-      scratch_2 &
+      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jna23,jo16) = ( &
@@ -502,8 +551,12 @@ contains
       0.0d0 &
        )
 
+    dfdy_nuc(jna23,jne23) = ( &
+      screened_rates(k_ne23__na23) &
+       )
+
     dfdy_nuc(jna23,jna23) = ( &
-      0.0d0 &
+      -screened_rates(k_na23__ne23) &
        )
 
     dfdy_nuc(jna23,jmg23) = ( &
@@ -523,7 +576,7 @@ contains
        )
 
     dfdy_nuc(jmg23,jc12) = ( &
-      scratch_1 &
+      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*dens &
        )
 
     dfdy_nuc(jmg23,jo16) = ( &
@@ -531,6 +584,10 @@ contains
        )
 
     dfdy_nuc(jmg23,jne20) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jmg23,jne23) = ( &
       0.0d0 &
        )
 

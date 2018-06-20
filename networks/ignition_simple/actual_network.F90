@@ -25,8 +25,12 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable :: aion(:), zion(:), nion(:)
+  double precision, allocatable :: bion(:), mion(:), wion(:)
+
+#ifdef CUDA
+  attributes(managed) :: aion, zion, nion, bion, mion, wion
+#endif
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -52,6 +56,13 @@ contains
     short_spec_names(io16)  = "O16"
     short_spec_names(img24) = "Mg24"
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(nion(nspec))
+    allocate(bion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+    
     aion(ic12)  = 12.0d0
     aion(io16)  = 16.0d0
     aion(img24) = 24.0d0
@@ -82,12 +93,28 @@ contains
   end subroutine actual_network_init
 
 
-
   subroutine actual_network_finalize
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
 
   end subroutine actual_network_finalize
 

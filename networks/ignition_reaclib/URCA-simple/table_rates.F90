@@ -5,12 +5,14 @@ module table_rates
   implicit none
 
   public table_meta, tabular_evaluate
+  public j_na23_ne23
+  public j_ne23_na23
 
   private num_tables, jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
   private k_drate_dt, add_vars
   private table_read_meta
   
-  integer, parameter :: num_tables   = 0
+  integer, parameter :: num_tables   = 2
   integer, parameter :: jtab_mu      = 1
   integer, parameter :: jtab_dq      = 2
   integer, parameter :: jtab_vs      = 3
@@ -24,14 +26,16 @@ module table_rates
   integer, parameter :: k_drate_dt   = 7
   integer, parameter :: add_vars     = 1 ! 1 Additional Var in entries
 
+  integer, parameter :: j_na23_ne23   = 1
+  integer, parameter :: j_ne23_na23   = 2
 
   type :: table_info
-     double precision, allocatable :: rate_table(:,:,:)
-     double precision, allocatable :: rhoy_table(:)
-     double precision, allocatable :: temp_table(:)
-     integer :: num_rhoy
-     integer :: num_temp
-     integer :: num_vars
+     double precision :: rate_table(39,152,6)
+     double precision :: rhoy_table(152)
+     double precision :: temp_table(39)
+     integer :: num_rhoy = 152
+     integer :: num_temp = 39
+     integer :: num_vars = 6
   end type table_info
 
   type :: table_read_info
@@ -39,7 +43,12 @@ module table_rates
      integer :: num_header 
   end type table_read_info
 
-  type(table_info), dimension(num_tables) :: table_meta
+  type(table_info), &
+#ifdef CUDA       
+       managed, &
+#endif       
+       allocatable :: table_meta(:)
+
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
   ! Create the device pointers for this array of derived type.
@@ -49,8 +58,19 @@ contains
 
   subroutine init_tabular()
     integer :: n
+    allocate(table_meta(num_tables))
+    table_read_meta(j_na23_ne23)%rate_table_file = '23Na-23Ne_electroncapture.dat'
+    table_read_meta(j_na23_ne23)%num_header = 7
+    table_meta(j_na23_ne23)%num_rhoy = 152
+    table_meta(j_na23_ne23)%num_temp = 39
+    table_meta(j_na23_ne23)%num_vars = 6
 
-    
+    table_read_meta(j_ne23_na23)%rate_table_file = '23Ne-23Na_betadecay.dat'
+    table_read_meta(j_ne23_na23)%num_header = 6
+    table_meta(j_ne23_na23)%num_rhoy = 152
+    table_meta(j_ne23_na23)%num_temp = 39
+    table_meta(j_ne23_na23)%num_vars = 6
+
     do n = 1, num_tables
        call init_tab_info(table_meta(n), table_read_meta(n))
        ! For scalars or arrays with size known at compile-time, do update device
@@ -58,7 +78,6 @@ contains
        !$acc update device(table_meta(n)%num_rhoy)
        !$acc update device(table_meta(n)%num_temp)
        !$acc update device(table_meta(n)%num_vars)
-
        ! For dynamic arrays, do enter data copyin to move their data to the device
        ! and then point the derived type pointers to these arrays on the device.
        ! If you do update device instead, the device gets the host memory addresses
@@ -74,6 +93,7 @@ contains
     do n = 1, num_tables
        call term_tab_info(table_meta(n))
     end do
+    deallocate(table_meta)
   end subroutine term_table_meta
 
   subroutine init_tab_info(self, self_read)
@@ -82,10 +102,7 @@ contains
     double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
     integer :: i, j, k
 
-    allocate( self%rate_table( self%num_temp, self%num_rhoy, self%num_vars ) )
-    allocate( self%rhoy_table( self%num_rhoy ) )
-    allocate( self%temp_table( self%num_temp ) )
-    allocate( rate_table_scratch( self%num_temp, self%num_rhoy, self%num_vars+2 ) )
+    allocate(rate_table_scratch(self%num_temp, self%num_rhoy, self%num_vars+2))
 
     open(unit=11, file=self_read%rate_table_file)
     do i = 1, self_read%num_header
@@ -114,12 +131,10 @@ contains
   subroutine term_tab_info(self)
     type(table_info) :: self
 
-    deallocate( self%rate_table )
-    deallocate( self%rhoy_table )
-    deallocate( self%temp_table )
   end subroutine term_tab_info
 
-  subroutine vector_index_lu(vector, fvar, index)
+
+  AMREX_DEVICE subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
 
     ! Returns the greatest index of vector for which vector(index) < fvar.
@@ -154,7 +169,8 @@ contains
     end if
   end subroutine vector_index_lu
 
-  subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
+
+  AMREX_DEVICE subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
     ! Perform bilinear interpolation within the interval [xlo, xhi]
@@ -175,7 +191,8 @@ contains
     end if
   end subroutine bl_clamp
 
-  subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
+
+  AMREX_DEVICE subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
     ! Perform bilinear interpolation within the interval [xlo, xhi]
@@ -188,8 +205,9 @@ contains
     double precision, intent(out) :: f
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
   end subroutine bl_extrap
-  
-  subroutine get_entries(self, rhoy, temp, entries)
+
+
+  AMREX_DEVICE subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
     type(table_info) :: self
@@ -209,8 +227,8 @@ contains
 
     ! Get box-corner points for interpolation
     ! This deals with out-of-range inputs via linear extrapolation
-    call vector_index_lu(self%rhoy_table, rhoy, irhoy_lo)
-    call vector_index_lu(self%temp_table, temp, itemp_lo)
+    call vector_index_lu(self%rhoy_table(:), rhoy, irhoy_lo)
+    call vector_index_lu(self%temp_table(:), temp, itemp_lo)
     ! write(*,*) 'upper self temp table: ', self%temp_table(39)
     ! write(*,*) 'temp: ', temp
     ! write(*,*) 'itemp_lo: ', itemp_lo
@@ -290,7 +308,8 @@ contains
     end if
   end subroutine get_entries
 
-  subroutine tabular_evaluate(self, rhoy, temp, reactvec)
+
+  AMREX_DEVICE subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     
     use actual_network, only: num_rate_groups

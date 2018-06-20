@@ -30,17 +30,17 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  AMREX_DEVICE subroutine actual_rhs(state)
 
     implicit none
 
-    ! This routine sets up the system of ode's for the aprox19
+    ! This routine sets up the system of ODE's for the aprox21
     ! nuclear reactions.  This is an alpha chain + heavy ion network
-    ! with (a,p)(p,g) links, as well as Fe54 for photodisintegration
+    ! with (a,p)(p,g) links, as well as iron-group elements for NSE
     ! and hydrogen and nitrogen for PP and CNO burning.
     !
     ! Isotopes: h1,   he3,  he4,  c12,  n14,  o16,  ne20, mg24, si28, s32,
-    !           ar36, ca40, ti44, cr48, fe52, fe54, ni56, neut, prot
+    !           ar36, ca40, ti44, cr48, fe52, fe54, cr56, fe56, ni56, neut, prot
 
     type (burn_t)    :: state
     type (rate_t)    :: rr
@@ -51,7 +51,6 @@ contains
     double precision :: enuc
 
     double precision :: rho, temp, abar, zbar
-
     double precision :: y(nspec)
 
     call evaluate_rates(state, rr)
@@ -66,9 +65,9 @@ contains
 
     ! Call the RHS to actually get dydt.
 
-    call rhs(y, rr % rates(1,:), rr % rates(1,:), state % ydot(1:nspec), deriva)
+    call rhs(y(1:nspec), rr % rates(1,:), rr % rates(1,:), state % ydot(1:nspec), deriva)
 
-    ! Instantaneous energy generation rate -- this needs molar fractions
+    ! Instantaneous energy generation rate
 
     call ener_gener_rate(state % ydot(1:nspec), enuc)
 
@@ -80,7 +79,7 @@ contains
 
     state % ydot(net_ienuc) = enuc - sneut
 
-    ! Append the temperature equation
+    ! Set up the temperature ODE
 
     call temperature_rhs(state)
 
@@ -90,10 +89,9 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(state)
+  AMREX_DEVICE subroutine actual_jac(state)
 
     use amrex_constants_module, only: ZERO
-    use eos_module
 
     implicit none
 
@@ -123,7 +121,7 @@ contains
 
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_aprox19(y, state % jac(1:nspec,1:nspec), rr % rates(1,:), &
+    call dfdy_isotopes_aprox21(y, state % jac(1:nspec,1:nspec), rr % rates(1,:), &
                                rr % rates(3,:), rr % rates(4,:))
 
     ! Energy generation rate Jacobian elements with respect to species
@@ -157,12 +155,12 @@ contains
 
 
 
-  subroutine evaluate_rates(state, rr)
+  AMREX_DEVICE subroutine evaluate_rates(state, rr)
 
     implicit none
 
-    type (burn_t), intent(in)    :: state
-    type (rate_t), intent(out)   :: rr
+    type (burn_t), intent(in)  :: state
+    type (rate_t), intent(out) :: rr
 
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
@@ -170,7 +168,6 @@ contains
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     double precision :: rho, temp, abar, zbar
-
     double precision :: y(nspec)
 
     ! Get the data from the state
@@ -182,13 +179,13 @@ contains
     y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
-    call aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    call aprox21rat(temp, rho, ratraw, dratrawdt, dratrawdd)
 
     ! Weak screening rates
-    call weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
+    call weak_aprox21(y, state, ratraw, dratrawdt, dratrawdd)
 
     ! Do the screening here because the corrections depend on the composition
-    call screen_aprox19(temp, rho, y,                 &
+    call screen_aprox21(temp, rho, y,                 &
                         ratraw, dratrawdt, dratrawdd, &
                         ratdum, dratdumdt, dratdumdd, &
                         dratdumdy1, dratdumdy2,       &
@@ -206,9 +203,10 @@ contains
   end subroutine evaluate_rates
 
 
-  ! Evaluates the right hand side of the aprox19 ODEs
 
-  subroutine rhs(y, rate, ratdum, dydt, deriva)
+  ! Evaluates the right hand side of the aprox21 ODEs
+
+  AMREX_DEVICE subroutine rhs(y, rate, ratdum, dydt, deriva)
 
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15
@@ -254,7 +252,6 @@ contains
     a(1)  = 0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
     a(2)  = 0.5d0 * y(ic12) * y(io16) * rate(ir1216)
     a(3)  = 0.56d0 * 0.5d0 * y(io16) * y(io16) * rate(ir1616)
-
     dydt(ihe4) =  dydt(ihe4) + esum3(a)
 
 
@@ -360,8 +357,10 @@ contains
     a(4) =  y(ini56) * y(iprot) * rate(ir8f54)
     a(5) = -y(ihe4) * rate(iralf1)
     a(6) =  y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
+    a(7) =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(8) = -y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
-    dydt(ihe4) =  dydt(ihe4) + esum6(a)
+    dydt(ihe4) =  dydt(ihe4) + esum8(a)
 
 
     ! ppchain
@@ -662,6 +661,9 @@ contains
        dydt(icr48) =  dydt(icr48) + esum8(a)
     end if
 
+    ! cr56 reactions
+    a(1)  = y(ife56) * 1.0d-04 * rate(irn56ec)
+    dydt(icr56) =  dydt(icr56) + a(1)
 
 
     ! fe52 reactions
@@ -704,10 +706,22 @@ contains
     a(4)  =  y(ini56) * rate(ir4f54)
     a(5)  = -y(ife54) * y(iprot) * y(iprot) * rate(ir5f54)
     a(6)  =  y(ife52) * y(ihe4) * rate(ir6f54)
-    a(7)  =  c54 * y(ini56) * rate(irn56ec)
+    a(7)  =  y(ife56) * rate(irfe56_aux1) 
+    a(8)  = -y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2) 
+    a(9)  =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(10) = -y(ife54) * y(ihe4) * rate(irfe56_aux4) 
 
-    dydt(ife54) =  dydt(ife54) + esum7(a)
+    dydt(ife54) =  dydt(ife54) + esum10(a)
 
+    ! fe56 reactions
+    a(1) =  y(ini56) * rate(irn56ec) 
+    a(2) = -y(ife56) * 1.0d-04 * rate(irn56ec) 
+    a(3) = -y(ife56) * rate(irfe56_aux1) 
+    a(4) =  y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)  
+    a(5) = -y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(6) =  y(ife54) * y(ihe4) * rate(irfe56_aux4) 
+
+    dydt(ife56) =  dydt(ife56) + esum6(a) 
 
     ! ni56 reactions
     a(1) =  y(ife52) * y(ihe4) * rate(irfeag)
@@ -733,8 +747,10 @@ contains
     a(4) = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
     a(5) =  y(iprot) * rate(irpen)
     a(6) = -y(ineut) * rate(irnep)
+    a(7) =  2.0d0 * y(ife56) * rate(irfe56_aux1) 
+    a(8) = -2.0d0 * y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)
 
-    dydt(ineut) =  dydt(ineut) + esum6(a)
+    dydt(ineut) =  dydt(ineut) + esum8(a)
 
 
     ! photodisintegration protons
@@ -746,17 +762,19 @@ contains
     a(6)  = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
     a(7)  = -y(iprot) * rate(irpen)
     a(8)  =  y(ineut) * rate(irnep)
+    a(9)  = -2.0d0 * y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(10) =  2.0d0 * y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
-    dydt(iprot) =  dydt(iprot) + esum8(a)
+    dydt(iprot) =  dydt(iprot) + esum10(a)
 
   end subroutine rhs
 
 
 
-  subroutine aprox19rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  AMREX_DEVICE subroutine aprox21rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     ! this routine generates unscreened
-    ! nuclear reaction rates for the aprox19 network.
+    ! nuclear reaction rates for the aprox21 network.
 
     use tfactors_module
     use aprox_rates_module
@@ -830,7 +848,6 @@ contains
                     ratraw(irnpg),dratrawdt(irnpg),dratrawdd(irnpg), &
                     rrate,drratedt,drratedd)
 
-
     ! fraction fg of n15 goes (pg) to o16, fraction fa of n15 goes (pa) to c12
     ! result is  n14+2p  goes to o16    at a rate = rnpg*fg
     !                    goes to c12+a  at a rate = rnpg*fa
@@ -845,16 +862,16 @@ contains
 
     tot            = ff1 + ff2
     dtotdt         = dff1dt + dff2dt
-!    dtotdd         = dff1dd + dff2dd
+    !dtotdd         = dff1dd + dff2dd
     invtot         = 1.0d0/tot
 
     ratraw(ifa)    = ff2 * invtot
     dratrawdt(ifa) = dff2dt * invtot - ff2 * invtot*invtot * dtotdt
-!    dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd
+    !dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd
 
     ratraw(ifg)    = 1.0d0 - ratraw(ifa)
     dratrawdt(ifg) = -dratrawdt(ifa)
-!    dratrawdd(ifg) = -dratrawdd(ifa)
+    !dratrawdd(ifg) = -dratrawdd(ifa)
 
 
     ! o16(p,g)f17
@@ -1035,19 +1052,40 @@ contains
                      ratraw(ir53ng),dratrawdt(ir53ng),dratrawdd(ir53ng), &
                      ratraw(ir54gn),dratrawdt(ir54gn),dratrawdd(ir54gn))
 
+    ! fe54(n,g)fe55
+    call rate_fe54ng(tf,bden, &
+                     ratraw(ir54ng),dratrawdt(ir54ng),dratrawdd(ir54ng), &
+                     ratraw(ir55gn),dratrawdt(ir55gn),dratrawdd(ir55gn))
+
+
     ! fe54(p,g)co55
     call rate_fe54pg(tf,bden, &
                      ratraw(irfepg),dratrawdt(irfepg),dratrawdd(irfepg), &
                      ratraw(ircogp),dratrawdt(ircogp),dratrawdd(ircopg))
 
-  end subroutine aprox19rat
+    ! fe54(a,p)co57
+    call rate_fe54ap(tf,bden, &
+                     ratraw(irfe54ap),dratrawdt(irfe54ap),dratrawdd(irfe54ap), &
+                     ratraw(irco57pa),dratrawdt(irco57pa),dratrawdd(irco57pa))
+
+    ! fe55(n,g)fe56
+    call rate_fe55ng(tf,bden, &
+                     ratraw(ir55ng),dratrawdt(ir55ng),dratrawdd(ir55ng), &
+                     ratraw(ir56gn),dratrawdt(ir56gn),dratrawdd(ir56gn))
+
+    ! fe56(p,g)co57
+    call rate_fe56pg(tf,bden, &
+                     ratraw(irfe56pg),dratrawdt(irfe56pg),dratrawdd(irfe56pg), &
+                     ratraw(irco57gp),dratrawdt(irco57gp),dratrawdd(irco57gp))
+
+  end subroutine aprox21rat
 
 
 
-  ! electron capture rates on nucleons for aprox19
+  ! electron capture rates on nucleons for aprox21
   ! note they are composition dependent
 
-  subroutine weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
+  AMREX_DEVICE subroutine weak_aprox21(y, state, ratraw, dratrawdt, dratrawdd)
 
     use aprox_rates_module, only: ecapnuc, langanke
 
@@ -1078,11 +1116,11 @@ contains
     ! ni56 electron capture rate
     call langanke(state % T, state % rho, y(ini56), state % y_e, ratraw(irn56ec), xx)
 
-  end subroutine weak_aprox19
+  end subroutine weak_aprox21
 
 
 
-  subroutine screen_aprox19(btemp, bden, y, &
+  AMREX_DEVICE subroutine screen_aprox21(btemp, bden, y, &
                             ratraw, dratrawdt, dratrawdd, &
                             ratdum, dratdumdt, dratdumdd, &
                             dratdumdy1, dratdumdy2, &
@@ -1129,7 +1167,6 @@ contains
     call fill_plasma_state(state, btemp, bden, y(1:nspec))
 
 
-
     ! first the always fun triple alpha and its inverse
     jscr = 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
@@ -1158,6 +1195,7 @@ contains
     !dscfacdd(irg3a)  = sc3add
 
 
+
     ! c12 to o16
     ! c12(a,g)o16
     jscr = jscr + 1
@@ -1178,6 +1216,7 @@ contains
     scfac(iroga)  = sc1a
     dscfacdt(iroga)   = sc1adt
     !dscfacdd(iroga)   = sc1add
+
 
 
     ! c12 + c12
@@ -1220,6 +1259,7 @@ contains
     scfac(ir1616)     = sc1a
     dscfacdt(ir1616)  = sc1adt
     !dscfacdd(ir1616)  = sc1add
+
 
 
     ! o16 to ne20
@@ -1266,6 +1306,7 @@ contains
     scfac(irmgga) = sc1a
     dscfacdt(irmgga)  = sc1adt
     !dscfacdd(irmgga)  = sc1add
+
 
 
     ! mg24 to si28
@@ -1706,8 +1747,7 @@ contains
     !dscfacdd(irfegp)  = sc1add
 
 
-
-    ! fe52 to ni56
+    ! fe to ni
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
@@ -1792,6 +1832,51 @@ contains
 
 
 
+    ! fe54(a,p)co57(g,p)fe56
+    jscr = jscr + 1
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+
+
+    ! fe54(a,p)co57
+    ratdum(irfe54ap)    = ratraw(irfe54ap) * sc1a
+    dratdumdt(irfe54ap) = dratrawdt(irfe54ap)*sc1a + ratraw(irfe54ap)*sc1adt
+    !dratdumdd(irfe54ap) = dratrawdd(irfe54ap)*sc1a + ratraw(irfe54ap)*sc1add
+
+    scfac(irfe54ap)     = sc1a
+    dscfacdt(irfe54ap)  = sc1adt
+    !dscfacdd(irfe54ap)  = sc1add
+
+    ratdum(irco57pa)    = ratraw(irco57pa) * sc1a
+    dratdumdt(irco57pa) = dratrawdt(irco57pa)*sc1a + ratraw(irco57pa)*sc1adt
+    !dratdumdd(irco57pa) = dratrawdd(irco57pa)*sc1a + ratraw(irco57pa)*sc1add
+
+    scfac(irco57pa)     = sc1a
+    dscfacdt(irco57pa)  = sc1adt
+    !dscfacdd(irco57pa)  = sc1add
+
+
+    jscr = jscr + 1
+    call screen5(state,jscr,sc1a,sc1adt,sc1add)
+
+    ! fe56(p,g)co57
+    ratdum(irfe56pg)    = ratraw(irfe56pg) * sc1a
+    dratdumdt(irfe56pg) = dratrawdt(irfe56pg)*sc1a + ratraw(irfe56pg)*sc1adt
+    !dratdumdd(irfe56pg) = dratrawdd(irfe56pg)*sc1a + ratraw(irfe56pg)*sc1add
+
+    scfac(irfe56pg)     = sc1a
+    dscfacdt(irfe56pg)  = sc1adt
+    !dscfacdd(irfe56pg)  = sc1add
+
+    ratdum(irco57gp)    = ratraw(irco57gp) * sc1a
+    dratdumdt(irco57gp) = dratrawdt(irco57gp)*sc1a + ratraw(irco57gp)*sc1adt
+    !dratdumdd(irco57gp) = dratrawdd(irco57gp)*sc1a + ratraw(irco57gp)*sc1add
+
+    scfac(irco57gp)     = sc1a
+    dscfacdt(irco57gp)  = sc1adt
+    !dscfacdd(irco57gp)  = sc1add
+
+
+
     ! d(p,g)he4
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
@@ -1839,7 +1924,7 @@ contains
 
     scfac(ir33)     = sc1a
     dscfacdt(ir33)  = sc1adt
-!    dscfacdd(ir33)  = sc1add
+    !dscfacdd(ir33)  = sc1add
 
 
     ! he3 + he4
@@ -1850,12 +1935,13 @@ contains
     ratdum(irhe3ag)    = ratraw(irhe3ag) * sc1a
     dratdumdt(irhe3ag) = dratrawdt(irhe3ag)*sc1a &
          + ratraw(irhe3ag)*sc1adt
-!    dratdumdd(irhe3ag) = dratrawdd(irhe3ag)*sc1a &
-!         + ratraw(irhe3ag)*sc1add
+    !dratdumdd(irhe3ag) = dratrawdd(irhe3ag)*sc1a &
+    !     + ratraw(irhe3ag)*sc1add
 
     scfac(irhe3ag)     = sc1a
     dscfacdt(irhe3ag)  = sc1adt
-!    dscfacdd(irhe3ag)  = sc1add
+    !dscfacdd(irhe3ag)  = sc1add
+
 
 
     ! cno cycles
@@ -2044,6 +2130,74 @@ contains
     end if
 
 
+    ! fe54(n,g)fe55(n,g)fe56 equilibrium links
+
+    ratdum(irfe56_aux1) = ZERO
+    dratdumdy1(irfe56_aux1) = ZERO
+    dratdumdt(irfe56_aux1)  = ZERO
+    !dratdumdd(irfe56_aux1)  = ZERO
+    ratdum(irfe56_aux2) = ZERO
+    dratdumdy1(irfe56_aux2) = ZERO
+    dratdumdt(irfe56_aux2)  = ZERO
+    !dratdumdd(irfe56_aux2)  = ZERO
+
+    denom   = ratdum(ir55gn)    + y(ineut)*ratdum(ir55ng)
+    denomdt = dratdumdt(ir55gn) + y(ineut)*dratdumdt(ir55ng)
+    !denomdd = dratdumdd(ir55gn) + y(ineut)*dratdumdd(ir55ng)
+
+    if (denom .gt. 1.0d-50 .and. btemp .gt. 1.5e9) then
+       zz      = 1.0d0/denom
+
+       ratdum(irfe56_aux1)     = ratdum(ir56gn)*ratdum(ir55gn)*zz
+       dratdumdy1(irfe56_aux1) = -ratdum(irfe56_aux1)*zz * ratdum(ir55ng)
+       dratdumdt(irfe56_aux1)  = dratdumdt(ir56gn)*ratdum(ir55gn)*zz &
+                               + ratdum(ir56gn)*dratdumdt(ir55gn)*zz - ratdum(irfe56_aux1)*zz*denomdt
+       !dratdumdd(irfe56_aux1)  = dratdumdd(ir56gn)*ratdum(ir55gn)*zz &
+       !                        + ratdum(ir56gn)*dratdumdd(ir55gn)*zz - ratdum(irfe56_aux1)*zz*denomdd
+
+       ratdum(irfe56_aux2)     = ratdum(ir54ng)*ratdum(ir55ng)*zz
+       dratdumdy1(irfe56_aux2) = -ratdum(irfe56_aux2)*zz * ratdum(ir55ng)
+       dratdumdt(irfe56_aux2)  = dratdumdt(ir54ng)*ratdum(ir55ng)*zz &
+                               + ratdum(ir54ng)*dratdumdt(ir55ng)*zz - ratdum(irfe56_aux2)*zz*denomdt
+       !dratdumdd(irfe56_aux2)  = dratdumdd(ir54ng)*ratdum(ir55ng)*zz &
+       !                        + ratdum(ir54ng)*dratdumdd(ir55ng)*zz  - ratdum(irfe56_aux2)*zz*denomdd
+    end if
+
+
+    ! fe54(a,p)co57(g,p)fe56 equilibrium links
+
+    ratdum(irfe56_aux3)     = ZERO
+    dratdumdy1(irfe56_aux3) = ZERO
+    dratdumdt(irfe56_aux3)  = ZERO
+    !dratdumdd(irfe56_aux3)  = ZERO
+    ratdum(irfe56_aux4)     = ZERO
+    dratdumdy1(irfe56_aux4) = ZERO
+    dratdumdt(irfe56_aux4)  = ZERO
+    !dratdumdd(irfe56_aux4)  = ZERO
+
+    denom   = ratdum(irco57gp)    + y(iprot)*ratdum(irco57pa)
+    denomdt = dratdumdt(irco57gp) + y(iprot)*dratdumdt(irco57pa)
+    !denomdd = dratdumdd(irco57gp) + y(iprot)*dratdumdd(irco57pa)
+
+    if (denom .gt. 1.0d-50 .and. btemp .gt. 1.5e9) then
+       zz      = 1.0d0/denom
+
+       ratdum(irfe56_aux3)     = ratdum(irfe56pg) * ratdum(irco57pa) * zz
+       dratdumdy1(irfe56_aux3) = -ratdum(irfe56_aux3) * zz * ratdum(irco57pa)
+       dratdumdt(irfe56_aux3)  = dratdumdt(irfe56pg) * ratdum(irco57pa) * zz &
+                               + ratdum(irfe56pg) * dratdumdt(irco57pa) * zz - ratdum(irfe56_aux3) * zz * denomdt
+       !dratdumdd(irfe56_aux3)  = dratdumdd(irfe56pg) * ratdum(irco57pa) * zz &
+       !                        + ratdum(irfe56pg) * dratdumdd(irco57pa) * zz - ratdum(irfe56_aux3) * zz * denomdd
+
+       ratdum(irfe56_aux4)     = ratdum(irfe54ap) * ratdum(irco57gp) * zz
+       dratdumdy1(irfe56_aux4) = -ratdum(irfe56_aux4) * zz * ratdum(irco57pa)
+       dratdumdt(irfe56_aux4)  = dratdumdt(irfe54ap) * ratdum(irco57gp) * zz &
+                               + ratdum(irfe54ap) * dratdumdt(irco57gp) * zz - ratdum(irfe56_aux4) * zz * denomdt
+       !dratdumdd(irfe56_aux4)  = dratdumdd(irfe54ap) * ratdum(irco57gp) * zz &
+       !                        + ratdum(irfe54ap) * dratdumdd(irco57gp) * zz  - ratdum(irfe56_aux4) * zz * denomdd
+    end if
+
+
     ! fe54(p,g)co55(p,g)ni56 equilibrium links r3f54 r4f54
     ! fe52(a,p)co55(g,p)fe54 equilibrium links r5f54 r6f54
     ! fe52(a,p)co55(p,g)ni56 equilibrium links r7f54 r8f54
@@ -2087,28 +2241,28 @@ contains
        dratdumdt(ir3f54)  = dratdumdt(irfepg) * ratdum(ircopg) * zz &
                           + ratdum(irfepg) * dratdumdt(ircopg) * zz - ratdum(ir3f54)*zz*denomdt
        !dratdumdd(ir3f54)  = dratdumdd(irfepg) * ratdum(ircopg) * zz &
-       !                    + ratdum(irfepg) * dratdumdd(ircopg) * zz - ratdum(ir3f54)*zz*denomdd
+       !                   + ratdum(irfepg) * dratdumdd(ircopg) * zz - ratdum(ir3f54)*zz*denomdd
 
        ratdum(ir4f54)     = ratdum(irnigp) * ratdum(ircogp) * zz
        dratdumdy1(ir4f54) = -ratdum(ir4f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
-       dratdumdt(ir4f54)  = dratdumdt(irnigp) * ratdum(ircogp) * zz &
+       dratdumdt(ir4f54)  =  dratdumdt(irnigp) * ratdum(ircogp) * zz &
                           + ratdum(irnigp) * dratdumdt(ircogp) * zz - ratdum(ir4f54)*zz*denomdt
        !dratdumdd(ir4f54)  = dratdumdd(irnigp) * ratdum(ircogp) * zz &
-       !                    + ratdum(irnigp) * dratdumdd(ircogp) * zz  - ratdum(ir4f54)*zz*denomdd
+       !                   + ratdum(irnigp) * dratdumdd(ircogp) * zz  - ratdum(ir4f54)*zz*denomdd
 
        ratdum(ir5f54)     = ratdum(irfepg) * ratdum(ircopa) * zz
        dratdumdy1(ir5f54) = -ratdum(ir5f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir5f54)  = dratdumdt(irfepg) * ratdum(ircopa) * zz &
                           + ratdum(irfepg) * dratdumdt(ircopa) * zz - ratdum(ir5f54) * zz * denomdt
        !dratdumdd(ir5f54)  = dratdumdd(irfepg) * ratdum(ircopa) * zz &
-       !                    + ratdum(irfepg) * dratdumdd(ircopa) * zz - ratdum(ir5f54) * zz * denomdd
+       !                   + ratdum(irfepg) * dratdumdd(ircopa) * zz - ratdum(ir5f54) * zz * denomdd
 
        ratdum(ir6f54)     = ratdum(irfeap) * ratdum(ircogp) * zz
        dratdumdy1(ir6f54) = -ratdum(ir6f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir6f54)  = dratdumdt(irfeap) * ratdum(ircogp) * zz &
                           + ratdum(irfeap) * dratdumdt(ircogp) * zz - ratdum(ir6f54) * zz * denomdt
        !dratdumdd(ir6f54)  = dratdumdd(irfeap) * ratdum(ircogp) * zz &
-       !                    + ratdum(irfeap) * dratdumdd(ircogp) * zz - ratdum(ir6f54) * zz * denomdd
+       !                   + ratdum(irfeap) * dratdumdd(ircogp) * zz - ratdum(ir6f54) * zz * denomdd
 
        ratdum(ir7f54)     = ratdum(irfeap) * ratdum(ircopg) * zz
        dratdumdy1(ir7f54) = -ratdum(ir7f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
@@ -2124,7 +2278,6 @@ contains
        !dratdumdd(ir8f54)  = dratdumdd(irnigp) * ratdum(ircopa) * zz &
        !                   + ratdum(irnigp) * dratdumdd(ircopa) * zz - ratdum(ir8f54) * zz * denomdd
     end if
-
 
 
     ! p(n,g)h2(n,g)3h(p,g)he4   photodisintegrated n and p back to he4 equilibrium links
@@ -2223,18 +2376,19 @@ contains
        end if
     end if
 
-  end subroutine screen_aprox19
+  end subroutine screen_aprox21
 
 
 
-  subroutine dfdy_isotopes_aprox19(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
+  AMREX_DEVICE subroutine dfdy_isotopes_aprox21(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
-    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum10, esum25
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum9, esum10, esum13, esum26
+    use amrex_constants_module, only: ZERO
 
     implicit none
 
-    ! this routine sets up the dense aprox19 jacobian for the isotopes
+    ! this routine sets up the dense aprox21 jacobian for the isotopes
 
     double precision :: y(nspec), dfdy(nspec,nspec)
     double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
@@ -2251,6 +2405,7 @@ contains
     b(6) = -2.0d0 * y(io16) * y(ih1) * dratdumdy1(iropg)
     b(7) = -3.0d0 * ratdum(irpen)
     dfdy(ih1,ih1) = esum7(b)
+
 
     ! d(h1)/d(he3)
     b(1) = 2.0d0 * y(ihe3) * ratdum(ir33)
@@ -2297,11 +2452,11 @@ contains
     b(4) =  y(io16) * y(ih1) * dratdumdy1(iropg)
     dfdy(ihe4,ih1) = esum4(b)
 
+
     ! d(he4)/d(he3)
     b(1) = y(ihe3) * ratdum(ir33)
     b(2) = y(ihe4) * ratdum(irhe3ag)
     dfdy(ihe4,ihe3) = sum(b(1:2))
-
 
     ! d(he4)/d(he4)
     b(1)  = -1.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a)
@@ -2326,10 +2481,11 @@ contains
     b(20) = -y(ife52) * ratdum(ir6f54)
     b(21) = -y(ife52) * y(iprot) * ratdum(ir7f54)
     b(22) = -ratdum(iralf1)
-    b(23) =  y(ihe3) * ratdum(irhe3ag)
-    b(24) =  y(ihe3) * y(ihe4) * dratdumdy1(irhe3ag)
-    b(25) = -y(in14) * ratdum(irnag) * 1.5d0
-    dfdy(ihe4,ihe4) = esum25(b)
+    b(23) = -y(ife54) * ratdum(irfe56_aux4)
+    b(24) =  y(ihe3) * ratdum(irhe3ag)
+    b(25) =  y(ihe3) * y(ihe4) * dratdumdy1(irhe3ag)
+    b(26) = -y(in14) * ratdum(irnag) * 1.5d0
+    dfdy(ihe4,ihe4) = esum26(b)
 
     ! d(he4)/d(c12)
     b(1) =  y(ic12) * ratdum(ir1212)
@@ -2414,12 +2570,17 @@ contains
     dfdy(ihe4,ife52) = esum5(b)
 
     ! d(he4)/d(fe54)
-    dfdy(ihe4,ife54) = y(iprot) * y(iprot) * ratdum(ir5f54)
+    b(1) =  y(iprot) * y(iprot) * ratdum(ir5f54)
+    b(2) = -y(ihe4) * ratdum(irfe56_aux4)
+    dfdy(ihe4,ife54) = sum(b(1:2))
+
+    ! d(he4)/d(fe56)
+    dfdy(ihe4,ife56) = y(iprot) * y(iprot) * ratdum(irfe56_aux3)
 
     ! d(he4)/d(ni56)
     b(1) = ratdum(irniga)
     b(2) = y(iprot) * ratdum(ir8f54)
-    dfdy(ihe4,ini56) = sum(b(1:2))
+
 
     ! d(he4)/d(neut)
     b(1) = -y(ihe4) * dratdumdy1(iralf1)
@@ -2438,7 +2599,11 @@ contains
     b(8)  = -y(ihe4) * dratdumdy2(iralf1)
     b(9)  =  2.0d0 * y(ineut)*y(ineut) * y(iprot) * ratdum(iralf2)
     b(10) =  y(ineut)*y(ineut) * y(iprot)*y(iprot) * dratdumdy2(iralf2)
-    dfdy(ihe4,iprot) = esum10(b)
+    b(11) =  2.0d0 * y(ife56) * y(iprot) * ratdum(irfe56_aux3)
+    b(12) =  y(ife56) * y(iprot) * y(iprot) * dratdumdy1(irfe56_aux3)
+    b(13) = -y(ihe4) * y(ife54) * dratdumdy1(irfe56_aux4)
+    dfdy(ihe4,iprot) = esum13(b)
+
 
 
     ! c12 jacobian elements
@@ -2527,6 +2692,7 @@ contains
     dfdy(io16,ine20) = ratdum(irnega)
 
 
+
     ! ne20 jacobian elements
     ! d(ne20)/d(he4)
     b(1) =  y(io16) * ratdum(iroag)
@@ -2552,6 +2718,7 @@ contains
     dfdy(ine20,img24) = ratdum(irmgga)
 
 
+
     ! mg24 jacobian elements
     ! d(mg24)/d(he4)
     b(1) =  y(ine20) * ratdum(irneag)
@@ -2569,7 +2736,7 @@ contains
     dfdy(img24,ine20) = y(ihe4) * ratdum(irneag)
 
     ! d(mg24)/d(mg24)
-    b(1) = -y(ihe4) * ratdum(irmgag)
+    b(1) =  -y(ihe4) * ratdum(irmgag)
     b(2) = -ratdum(irmgga)
     b(3) = -y(ihe4) * ratdum(irmgap) * (1.0d0-ratdum(irr1))
     dfdy(img24,img24) = esum3(b)
@@ -2578,6 +2745,7 @@ contains
     b(1) = ratdum(irsiga)
     b(2) = ratdum(irr1) * ratdum(irsigp)
     dfdy(img24,isi28) = sum(b(1:2))
+
 
 
     ! si28 jacobian elements
@@ -2672,6 +2840,7 @@ contains
     dfdy(iar36,ica40) = sum(b(1:2))
 
 
+
     ! ca40 jacobian elements
     ! d(ca40)/d(he4)
     b(1)  =  y(iar36) * ratdum(irarag)
@@ -2686,7 +2855,7 @@ contains
     dfdy(ica40,iar36) = sum(b(1:2))
 
     ! d(ca40)/d(ca40)
-    b(1) = -y(ihe4) * ratdum(ircaag)
+    b(1) =  -y(ihe4) * ratdum(ircaag)
     b(2) = -ratdum(ircaga)
     b(3) = -ratdum(ircagp) * ratdum(iru1)
     b(4) = -y(ihe4) * ratdum(ircaap)*(1.0d0-ratdum(irv1))
@@ -2750,6 +2919,16 @@ contains
     dfdy(icr48,ife52) = sum(b(1:2))
 
 
+    ! cr56 jacobian elements
+    ! d(cr56)/d(cr56)
+    dfdy(icr56,icr56) =  ZERO
+
+    ! d(cr56)/d(fe56)
+    dfdy(icr56,ife56) =  1.0d-04 * ratdum(irn56ec)
+
+
+
+
     ! fe52 jacobian elements
     ! d(fe52)/d(he4)
     b(1) =  y(icr48) * ratdum(ircrag)
@@ -2800,9 +2979,13 @@ contains
     dfdy(ife52,iprot) = esum7(b)
 
 
+
+
     ! fe54 jacobian elements
     ! d(fe54)/d(he4)
-    dfdy(ife52,ihe4) = y(ife52) * ratdum(ir6f54)
+    b(1) =  y(ife52) * ratdum(ir6f54)
+    b(2) = -y(ife54) * ratdum(irfe56_aux4)
+    dfdy(ife54,ihe4) = sum(b(1:2))
 
     ! d(fe54)/d(fe52)
     b(1) =  y(ineut) * y(ineut) * ratdum(ir2f54)
@@ -2813,18 +2996,26 @@ contains
     b(1) = -ratdum(ir1f54)
     b(2) = -y(iprot) * y(iprot) * ratdum(ir3f54)
     b(3) = -y(iprot) * y(iprot) * ratdum(ir5f54)
-    dfdy(ife54,ife54) = esum3(b)
+    b(4) = -y(ineut) * y(ineut) * ratdum(irfe56_aux2)
+    b(5) = -y(ihe4) * ratdum(irfe56_aux4)
+    dfdy(ife54,ife54) = esum5(b)
+
+    ! d(fe54)/d(fe56)
+    b(1) = ratdum(irfe56_aux1)
+    b(2) = y(iprot) * y(iprot) * ratdum(irfe56_aux3)
+    dfdy(ife54,ife56) = sum(b(1:2))
 
     ! d(fe54)/d(ni56)
-    b(1)  = ratdum(ir4f54)
-    b(2)  = c54 * ratdum(irn56ec)
-    dfdy(ife54,ini56) = sum(b(1:2))
+    dfdy(ife54,ini56) = ratdum(ir4f54)
 
     ! d(fe54)/d(neut)
     b(1) = -y(ife54) * dratdumdy1(ir1f54)
     b(2) =  2.0d0 * y(ife52) * y(ineut) * ratdum(ir2f54)
     b(3) =  y(ife52) * y(ineut) * y(ineut) * dratdumdy1(ir2f54)
-    dfdy(ife52,ineut) = esum3(b)
+    b(4) =  y(ife56) * dratdumdy1(irfe56_aux1)
+    b(5) = -2.0d0 * y(ife54) * y(ineut) * ratdum(irfe56_aux2)
+    b(6) = -y(ife54) * y(ineut) * y(ineut) * dratdumdy1(irfe56_aux2)
+    dfdy(ife54,ineut) = esum6(b)
 
     ! d(fe54)/d(prot)
     b(1) = -2.0d0 * y(ife54) * y(iprot) * ratdum(ir3f54)
@@ -2833,7 +3024,43 @@ contains
     b(4) = -2.0d0 * y(ife54) * y(iprot) * ratdum(ir5f54)
     b(5) = -y(ife54) * y(iprot) * y(iprot) * dratdumdy1(ir5f54)
     b(6) =  y(ihe4) * y(ife52) * dratdumdy1(ir6f54)
-    dfdy(ife52,iprot) = esum6(b)
+    b(7) =  2.0d0 * y(ife56) * y(iprot) * ratdum(irfe56_aux3)
+    b(8) =  y(ife56) * y(iprot) * y(iprot) * dratdumdy1(irfe56_aux3)
+    b(9) = -y(ihe4) * y(ife54) * dratdumdy1(irfe56_aux4)
+    dfdy(ife54,iprot) = esum9(b)
+
+
+    ! fe56 jacobian elements
+
+    ! d(fe56)/d(he4)
+    dfdy(ife56,ihe4) = y(ife54) * ratdum(irfe56_aux4)
+
+    ! d(fe56)/d(fe54)
+    b(1)  = y(ineut) * y(ineut) * ratdum(irfe56_aux2)
+    b(2)  = y(ihe4) * ratdum(irfe56_aux4)
+    dfdy(ife56,ife54) = sum(b(1:2))
+
+    ! d(fe56)/d(fe56)
+    b(1) = -1.0d-04 * ratdum(irn56ec)
+    b(2) = -ratdum(irfe56_aux1)
+    b(3) = -y(iprot) * y(iprot) * ratdum(irfe56_aux3)
+    dfdy(ife56,ife56) = esum3(b)
+
+    ! d(fe56)/d(ni56)
+    dfdy(ife56,ini56) = ratdum(irn56ec)
+
+    ! d(fe56)/d(neut)
+    b(1) = -y(ife56) * dratdumdy1(irfe56_aux1)
+    b(2) =  2.0d0 * y(ife54) * y(ineut) * ratdum(irfe56_aux2)
+    b(3) =  y(ife54) * y(ineut) * y(ineut) * dratdumdy1(irfe56_aux2)
+    dfdy(ife56,ineut) = esum3(b)
+
+    ! d(fe56)/d(prot)
+    b(1) = -2.0d0 * y(ife56) * y(iprot) * ratdum(irfe56_aux3)
+    b(2) = -y(ife56) * y(iprot) * y(iprot) * dratdumdy1(irfe56_aux3)
+    b(3) =  y(ihe4) * y(ife54) * dratdumdy1(irfe56_aux4)
+    dfdy(ife56,iprot) = esum3(b)
+
 
 
     ! ni56 jacobian elements
@@ -2876,7 +3103,12 @@ contains
     dfdy(ineut,ife52) = -2.0d0 * y(ineut) * y(ineut) * ratdum(ir2f54)
 
     ! d(neut)/d(fe54)
-    dfdy(ineut,ife54) = 2.0d0 * ratdum(ir1f54)
+    b(1) = 2.0d0 * ratdum(ir1f54)
+    b(2) = -2.0d0 * y(ineut) * y(ineut) * ratdum(irfe56_aux2)
+    dfdy(ineut,ife54) = sum(b(1:2))
+
+    ! d(neut)/d(fe56)
+    dfdy(ineut,ife56) = 2.0d0 * ratdum(irfe56_aux1)
 
     ! d(neut)/d(neut)
     b(1)  =  2.0d0 * y(ife54) * dratdumdy1(ir1f54)
@@ -2886,7 +3118,10 @@ contains
     b(5)  = -4.0d0 * y(ineut) * y(iprot)*y(iprot) * ratdum(iralf2)
     b(6)  = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * dratdumdy1(iralf2)
     b(7)  = -ratdum(irnep)
-    dfdy(ineut,ineut) = esum7(b)
+    b(8)  =  2.0d0 * y(ife56) * dratdumdy1(irfe56_aux1)
+    b(9)  = -4.0d0 * y(ife54) * y(ineut) * ratdum(irfe56_aux2)
+    b(10) = -2.0d0 * y(ife54) * y(ineut) * y(ineut) * dratdumdy1(irfe56_aux2)
+    dfdy(ineut,ineut) = esum10(b)
 
     ! d(neut)/d(prot)
     b(1) =  2.0d0 * y(ihe4) * dratdumdy2(iralf1)
@@ -2897,9 +3132,11 @@ contains
 
 
     ! photodisintegration proton jacobian elements
+    ! d(prot)/d(he4)
     b(1) =  2.0d0 * y(ife52) * ratdum(ir6f54)
     b(2) =  2.0d0 * ratdum(iralf1)
-    dfdy(iprot,ihe4) = sum(b(1:2))
+    b(3) =  2.0d0 * y(ife54) * ratdum(irfe56_aux4)
+    dfdy(iprot,ihe4) = esum3(b)
 
     ! d(prot)/d(fe52)
     dfdy(iprot,ife52) = 2.0d0 * y(ihe4) * ratdum(ir6f54)
@@ -2907,7 +3144,11 @@ contains
     ! d(prot)/d(fe54)
     b(1) = -2.0d0 * y(iprot) * y(iprot) * ratdum(ir3f54)
     b(2) = -2.0d0 * y(iprot) * y(iprot) * ratdum(ir5f54)
-    dfdy(iprot,ife54) = sum(b(1:2))
+    b(3) =  2.0d0 * y(ihe4) * ratdum(irfe56_aux4)
+    dfdy(iprot,ife54) = esum3(b)
+
+    ! d(prot)/d(fe56)
+    dfdy(iprot,ife56) = -2.0d0 * y(iprot) * y(iprot) * ratdum(irfe56_aux3)
 
     ! d(prot)/d(ni56)
     dfdy(iprot,ini56) = 2.0d0 * ratdum(ir4f54)
@@ -2917,7 +3158,7 @@ contains
     b(2) = -4.0d0 * y(ineut) * y(iprot)*y(iprot) * ratdum(iralf2)
     b(3) = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * dratdumdy1(iralf2)
     b(4) =  ratdum(irnep)
-    dfdy(iprot,ineut) = esum4(b)
+    dfdy(iprot,ineut)  = esum4(b)
 
     ! d(prot)/d(prot)
     b(1)  =  -4.0d0 * y(ife54) * y(iprot) * ratdum(ir3f54)
@@ -2930,15 +3171,18 @@ contains
     b(8)  =  -4.0d0 * y(ineut)*y(ineut) * y(iprot) * ratdum(iralf2)
     b(9)  =  -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * dratdumdy2(iralf2)
     b(10) =  -ratdum(irpen)
-    dfdy(iprot,iprot) = esum10(b)
+    b(11) =  -4.0d0 * y(ife56) * y(iprot) * ratdum(irfe56_aux3)
+    b(12) =  -2.0d0 * y(ife56) * y(iprot)*y(iprot) * dratdumdy1(irfe56_aux3)
+    b(13) =   2.0d0 * y(ihe4) * y(ife54) * dratdumdy1(irfe56_aux4)
+    dfdy(iprot,iprot) = esum13(b)
 
-  end subroutine dfdy_isotopes_aprox19
+  end subroutine dfdy_isotopes_aprox21
 
 
 
   ! Computes the instantaneous energy generation rate
 
-  subroutine ener_gener_rate(dydt, enuc)
+  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
 
     use actual_network, only: nspec, mion, enuc_conv2
 
@@ -3017,6 +3261,10 @@ contains
 
     call add_screening_factor(zion(ife54),aion(ife54),1.0d0,1.0d0)
 
+    call add_screening_factor(zion(ife54),aion(ife54),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(zion(ife56),aion(ife56),1.0d0,1.0d0)
+
     call add_screening_factor(1.0d0,2.0d0,zion(ih1),aion(ih1))
 
     call add_screening_factor(zion(ih1),aion(ih1),zion(ih1),aion(ih1))
@@ -3035,7 +3283,7 @@ contains
 
   end subroutine set_up_screening_factors
 
-  subroutine update_unevolved_species(state)
+  AMREX_DEVICE subroutine update_unevolved_species(state)
 
     !$acc routine seq
 
