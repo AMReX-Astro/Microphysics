@@ -1,5 +1,5 @@
 &PROBIN
-  test_set = "gr0_3d.32"
+  test_set = "gr0_3d.medium"
 
   small_dens = 1.0d0
 
