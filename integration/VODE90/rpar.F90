@@ -38,7 +38,7 @@ module rpar_indices
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1
   integer, parameter :: irp_t0 = irp_dcpdt + 1
 
-  integer, parameter :: n_rpar_comps = irp_t0
+  integer, parameter :: n_rpar_comps = irp_t0 + 1
 #else
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a and irp_u_init
@@ -64,6 +64,5 @@ module rpar_indices
   integer, parameter :: n_rpar_comps = irp_t0
 #endif
   
-  integer, parameter :: n_ipar_comps = 1
 
 end module rpar_indices

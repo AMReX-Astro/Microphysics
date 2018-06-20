@@ -4,8 +4,8 @@
 module actual_integrator_module
 
   use amrex_error_module
+  use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
 
   use sdc_type_module
   use vode_type_module
