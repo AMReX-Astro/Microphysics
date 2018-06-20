@@ -14,6 +14,9 @@ module probin_module
 
   @@declarationsA@@
 
+#ifdef CUDA  
+  @@cudaattributesA@@
+#endif
 
 end module probin_module
 
@@ -27,6 +30,10 @@ module extern_probin_module
   private
 
   @@declarationsB@@
+
+#ifdef CUDA  
+  @@cudaattributesB@@
+#endif
 
 end module extern_probin_module
 
@@ -60,6 +67,10 @@ contains
     integer :: un
 
     logical :: read_inputs
+
+    @@allocations@@
+
+    @@initialize@@
 
     narg = command_argument_count()
 
@@ -96,6 +107,8 @@ contains
   subroutine runtime_close()
 
     use probin_module
+
+    @@deallocations@@
 
   end subroutine runtime_close
 
