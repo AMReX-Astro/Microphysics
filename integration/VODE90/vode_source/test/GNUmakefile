@@ -30,7 +30,7 @@ include GPackage.mak
 ALL: $(pnames)
 
 # include the fParallel Makefile rules
-include $(FBOXLIB_HOME)/Tools/F_mk/GMakerules.mak
+include $(AMREX_HOME)/Tools/F_mk/GMakerules.mak
 
 
 

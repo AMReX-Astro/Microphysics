@@ -1,7 +1,7 @@
 module vode_type_module
 
+  use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
 
   use burn_type_module, only : burn_t, net_ienuc, eos_to_burn
   use eos_type_module, only : eos_t
@@ -19,7 +19,7 @@ module vode_type_module
   private
 
   ! this should be larger than any reasonable temperature we will encounter   
-  real (rt), parameter :: MAX_TEMP = 1.0d11          
+  real (kind=rt), parameter :: MAX_TEMP = 1.0d11          
 
   integer, parameter :: VODE_NEQS = SVAR_EVOLVE
 
@@ -35,7 +35,7 @@ contains
     real(rt), intent(in) :: time
     real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
-    real (rt) :: max_e, ke
+    real(rt) :: max_e, ke
 
     type (eos_t) :: eos_state
 

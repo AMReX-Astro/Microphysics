@@ -6,9 +6,9 @@
 subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
   use actual_network, only: aion, nspec_evolve
+  use amrex_fort_module, only: rt => amrex_real
   use burn_type_module, only: burn_t, net_ienuc, net_itemp
   use amrex_constants_module, only: ZERO, ONE
-  use amrex_fort_module, only : rt => amrex_real
   use actual_rhs_module, only: actual_rhs
   use vode_type_module, only: clean_state, renormalize_species, &
        rhs_to_vode, vode_to_burn
@@ -55,12 +55,11 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   ! use an analytic Jacobian.  Otherwise, VODE will use its internal
   ! Jacobian routines.
 
-  use amrex_constants_module, only: ZERO
-  use amrex_fort_module, only : rt => amrex_real
-
   use network, only: aion, aion_inv, nspec_evolve
+  use amrex_constants_module, only: ZERO
   use actual_rhs_module, only: actual_jac
   use burn_type_module, only: burn_t, net_ienuc
+  use amrex_fort_module, only: rt => amrex_real
   use rpar_indices
   use vode_type_module, only: clean_state, renormalize_species, &
        jac_to_vode, vode_to_burn
