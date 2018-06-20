@@ -3,9 +3,9 @@
 
 module actual_integrator_module
 
-  use bl_error_module
-  use bl_types
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_fort_module, only: rt => amrex_real
+  use amrex_constants_module
 
   use sdc_type_module
   use vode_type_module
@@ -72,19 +72,19 @@ contains
 
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
-    real(dp_t),    intent(in   ) :: dt, time
+    real(rt),    intent(in   ) :: dt, time
 
     ! Local variables
 
-    real(dp_t) :: local_time
+    real(rt) :: local_time
 
     ! Work arrays
 
-    real(dp_t) :: y(VODE_NEQS)
-    real(dp_t) :: atol(VODE_NEQS), rtol(VODE_NEQS)
-    real(dp_t) :: rwork(LRW)
+    real(rt) :: y(VODE_NEQS)
+    real(rt) :: atol(VODE_NEQS), rtol(VODE_NEQS)
+    real(rt) :: rwork(LRW)
     integer    :: iwork(LIW)
-    real(dp_t) :: rpar(n_rpar_comps)
+    real(rt) :: rpar(n_rpar_comps)
 
     integer :: MF_JAC
 
@@ -95,8 +95,8 @@ contains
 
     integer :: ipar
 
-    real(dp_t) :: sum
-    real(dp_t) :: retry_change_factor
+    real(rt) :: sum
+    real(rt) :: retry_change_factor
 
 
     EXTERNAL jac, f_rhs
@@ -106,7 +106,7 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC
     else
-       call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+       call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
