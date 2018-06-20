@@ -35,8 +35,8 @@ contains
 
 
     if (centered_diff_jac) then
-       state_del = state
-       state_delm = state
+       call copy_burn_t(state_del, state)
+       call copy_burn_t(state_delm, state)
 
        ! species derivatives
        do n = 1, nspec_evolve
@@ -85,7 +85,7 @@ contains
        enddo
 
     else
-       state_del = state
+       call copy_burn_t(state_del, state)
 
        ! species derivatives
        do n = 1, nspec_evolve
@@ -119,7 +119,7 @@ contains
 
   end subroutine numerical_jac
 
-
+#ifndef CUDA
   subroutine test_numerical_jac(state)
     ! compare the analytic Jacobian to the numerically differenced one
 
@@ -197,5 +197,5 @@ contains
     enddo
 
   end subroutine test_numerical_jac
-
+#endif
 end module numerical_jac_module
