@@ -352,7 +352,7 @@ contains
 
     CALL f_rhs (vstate % T, vstate % Y, rwork % yh(:,2), vstate % RPAR)
     vstate % NFE = 1
-    ! Load the initial value vector in YH. ---------------------------------
+    ! Load the initial value array in YH. ---------------------------------
     CALL DCOPYN(VODE_NEQS, vstate % Y, 1, rwork % YH(:,1), 1)
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
@@ -694,7 +694,7 @@ contains
        IMXER = I
     end do
     IWORK(16) = IMXER
-    ! Set Y vector, T, and optional output. --------------------------------
+    ! Set Y array, T, and optional output. --------------------------------
 580 CONTINUE
     CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
 

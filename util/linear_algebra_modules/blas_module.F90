@@ -6,14 +6,14 @@ contains
 
   AMREX_DEVICE SUBROUTINE DCOPYN(N,DX,INCX,DY,INCY)
 
-  ! Only operates on vectors of size N
+  ! Only operates on arrays of size N
 
     INTEGER INCX,INCY,N
     DOUBLE PRECISION DX(N),DY(N)
 ! *  Purpose
 ! *  =======
 ! *
-! *     copies a vector, x, to a vector, y.
+! *     copies a array, x, to a array, y.
 ! *     uses unrolled loops for increments equal to one.
 ! *     jack dongarra, linpack, 3/11/78.
 ! *     modified 12/3/93, array(1) declarations changed to array(*)
@@ -66,7 +66,7 @@ contains
 ! *  Purpose
 ! *  =======
 ! *
-! *     copies a vector, x, to a vector, y.
+! *     copies a array, x, to a array, y.
 ! *     uses unrolled loops for increments equal to one.
 ! *     jack dongarra, linpack, 3/11/78.
 ! *     modified 12/3/93, array(1) declarations changed to array(*)
@@ -115,7 +115,7 @@ contains
 
   AMREX_DEVICE SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
 
-  ! Only operates on vectors of size N
+  ! Only operates on arrays of size N
 
     !$acc routine seq
     !     .. Scalar Arguments ..
@@ -129,7 +129,7 @@ contains
     !  Purpose
     !   =======
     ! 
-    !      constant times a vector plus a vector.
+    !      constant times a array plus a array.
     !      uses unrolled loops for increments equal to one.
     !      jack dongarra, linpack, 3/11/78.
     !      modified 12/3/93, array(1) declarations changed to array(*)
@@ -191,7 +191,7 @@ contains
     !  Purpose
     !   =======
     ! 
-    !      constant times a vector plus a vector.
+    !      constant times a array plus a array.
     !      uses unrolled loops for increments equal to one.
     !      jack dongarra, linpack, 3/11/78.
     !      modified 12/3/93, array(1) declarations changed to array(*)
@@ -252,7 +252,7 @@ contains
     !   Purpose
     !   =======
     ! 
-    !      forms the dot product of two vectors.
+    !      forms the dot product of two arrays.
     !      uses unrolled loops for increments equal to one.
     !      jack dongarra, linpack, 3/11/78.
     !      modified 12/3/93, array(1) declarations changed to array(*)
@@ -627,7 +627,7 @@ contains
 
   AMREX_DEVICE SUBROUTINE DSCALN(N,DA,DX,INCX)
 
-  ! Only operates on vectors of size N
+  ! Only operates on arrays of size N
 
     !$acc routine seq
     !      .. Scalar Arguments ..
@@ -641,7 +641,7 @@ contains
     !   Purpose
     !   =======
     ! *
-    !      scales a vector by a constant.
+    !      scales a array by a constant.
     !      uses unrolled loops for increment equal to one.
     !      jack dongarra, linpack, 3/11/78.
     !      modified 3/93 to return if incx .le. 0.
@@ -701,7 +701,7 @@ contains
     !   Purpose
     !   =======
     ! *
-    !      scales a vector by a constant.
+    !      scales a array by a constant.
     !      uses unrolled loops for increment equal to one.
     !      jack dongarra, linpack, 3/11/78.
     !      modified 3/93 to return if incx .le. 0.
