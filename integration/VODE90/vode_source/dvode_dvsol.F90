@@ -41,7 +41,7 @@ contains
     !  IWM   = Integer work space containing pivot information, starting at
     !          IWM(31), if MITER is 1, 2, 4, or 5.  IWM also contains band
     !          parameters ML = IWM(1) and MU = IWM(2) if MITER is 4 or 5.
-    !  X     = The right-hand side vector on input, and the solution vector
+    !  X     = The right-hand side array on input, and the solution array
     !          on output, of length N.
     !  IERSL = Output flag.  IERSL = 0 if no trouble occurred.
     !          IERSL = 1 if a singular matrix arose with MITER = 3.

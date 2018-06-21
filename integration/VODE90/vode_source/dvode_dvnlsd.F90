@@ -43,15 +43,15 @@ contains
     !  Communication with DVNLSD is done with the following variables. (For
     !  more details, please see the comments in the driver subroutine.)
     ! 
-    !  Y          = The dependent variable, a vector of length N, input.
+    !  Y          = The dependent variable, a array of length N, input.
     !  YH         = The Nordsieck (Taylor) array, LDYH by LMAX, input
     !               and output.  On input, it contains predicted values.
     !  LDYH       = A constant .ge. N, the first dimension of YH, input.
     !  VSAV       = Unused work array.
     !  SAVF       = A work array of length N.
-    !  EWT        = An error weight vector of length N, input.
+    !  EWT        = An error weight array of length N, input.
     !  ACOR       = A work array of length N, used for the accumulated
-    !               corrections to the predicted y vector.
+    !               corrections to the predicted y array.
     !  WM,IWM     = Real and integer work arrays associated with matrix
     !               operations in chord iteration (MITER .ne. 0).
     !  F          = Dummy name for user supplied routine for f.
@@ -126,8 +126,8 @@ contains
     ! -----------------------------------------------------------------------
     !  Up to MAXCOR corrector iterations are taken.  A convergence test is
     !  made on the r.m.s. norm of each correction, weighted by the error
-    !  weight vector EWT.  The sum of the corrections is accumulated in the
-    !  vector ACOR(i).  The YH array is not altered in the corrector loop.
+    !  weight array EWT.  The sum of the corrections is accumulated in the
+    !  array ACOR(i).  The YH array is not altered in the corrector loop.
     ! -----------------------------------------------------------------------
 220 continue
     M = 0

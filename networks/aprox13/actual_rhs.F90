@@ -275,7 +275,7 @@ contains
 
     double precision :: dtab(nrates)
 
-    ! Set the density dependence vector
+    ! Set the density dependence array
 
     dtab(ircag)  = bden
     dtab(iroga)  = 1.0d0

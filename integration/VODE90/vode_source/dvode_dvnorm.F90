@@ -16,13 +16,13 @@ contains
     
     ! ***BEGIN PROLOGUE  DVNORM
     ! ***SUBSIDIARY
-    ! ***PURPOSE  Weighted root-mean-square vector norm.
+    ! ***PURPOSE  Weighted root-mean-square array norm.
     ! ***TYPE      DOUBLE PRECISION (SVNORM-S, DVNORM-D)
     ! ***AUTHOR  Hindmarsh, Alan C., (LLNL)
     ! ***DESCRIPTION
     ! 
     !   This function routine computes the weighted root-mean-square norm
-    !   of the vector of length N contained in the array V, with weights
+    !   of the array of length N contained in the array V, with weights
     !   contained in the array W of length N:
     !     DVNORM = SQRT( (1/N) * SUM( V(i)*W(i) )**2 )
     ! 
