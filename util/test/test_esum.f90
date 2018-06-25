@@ -16,10 +16,10 @@ program test
   b(2) = 3e-16_rt
   b(3) = 1.0_rt
 
-  print *, esum(a, 2)
+  print *, esum2(a)
   print *, a(1) + a(2)
 
-  print *, esum(b, 3)
+  print *, esum3(b)
   print *, b(1) + b(2) + b(3)
 
 end program test
