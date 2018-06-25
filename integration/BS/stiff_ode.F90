@@ -172,7 +172,7 @@ contains
        ! make sure we don't overshoot the ending time
        if (bs % t + bs % dt > tmax) bs % dt = tmax - bs % t
 
-       ! take a step -- this routine will update the solution vector,
+       ! take a step -- this routine will update the solution array,
        ! advance the time, and also give an estimate of the next step
        ! size
        if (ode_method == 1) then
@@ -644,7 +644,7 @@ contains
     !$acc routine seq
 
     ! this does polynomial extrapolation according to the Neville
-    ! algorithm.  Given test and yest (t and a y-vector), this gives
+    ! algorithm.  Given test and yest (t and a y-array), this gives
     ! the value yz and the error in the extrapolation, dy by
     ! building a polynomial through the points, where the order
     ! is iest
