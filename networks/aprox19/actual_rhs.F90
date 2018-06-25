@@ -54,6 +54,8 @@ contains
 
     double precision :: y(nspec)
 
+    !$gpu
+
     call evaluate_rates(state, rr)
 
     ! Get the data from the state
@@ -108,6 +110,8 @@ contains
 
     double precision :: rho, temp, abar, zbar
     double precision :: y(nspec)
+
+    !$gpu
 
     state % jac(:,:) = ZERO
 
@@ -173,6 +177,8 @@ contains
 
     double precision :: y(nspec)
 
+    !$gpu
+
     ! Get the data from the state
 
     rho  = state % rho
@@ -224,6 +230,8 @@ contains
     ! local variables
 
     double precision :: a(20)
+
+    !$gpu
 
     dydt(1:nspec) = ZERO
 
@@ -772,6 +780,8 @@ contains
     !double precision :: dtotdd
     type (tf_t)      :: tf
 
+    !$gpu
+
     do i=1,nrates
        ratraw(i)    = ZERO
        dratrawdt(i) = ZERO
@@ -1059,6 +1069,8 @@ contains
 
     double precision :: xx, spen, snep
 
+    !$gpu
+
     ! initialize
     ratraw(irpen)      = 0.0d0
     dratrawdt(irpen)   = 0.0d0
@@ -1109,6 +1121,8 @@ contains
     !double precision :: sc3add, denomdd
 
     type (plasma_state) :: state
+
+    !$gpu
 
     ! initialize
     do i = 1, nrates
@@ -2241,6 +2255,8 @@ contains
 
     double precision :: b(30)
 
+    !$gpu
+
     ! h1 jacobian elements
     ! d(h1)/d(h1)
     b(1) = -3.0d0 * y(ih1)  * ratdum(irpp)
@@ -2946,6 +2962,8 @@ contains
 
     double precision :: dydt(nspec), enuc
 
+    !$gpu
+
     ! This is basically e = m c**2
 
     enuc = sum(dydt(:) * mion(:)) * enuc_conv2
@@ -3042,6 +3060,8 @@ contains
     implicit none
 
     type (burn_t)    :: state
+
+    !$gpu
 
   end subroutine update_unevolved_species
 

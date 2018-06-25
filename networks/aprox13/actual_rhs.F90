@@ -90,6 +90,8 @@ contains
 
     double precision :: y(nspec), ydot(nspec), r1(nrates), r2(nrates)
 
+    !$gpu
+
     call evaluate_rates(state, rr)
 
     rho  = state % rho
@@ -153,6 +155,8 @@ contains
 
     double precision :: rho, temp, abar, zbar
     double precision :: y(nspec), jac(nspec, nspec), r1(nrates), r2(nrates)
+
+    !$gpu
 
     state % jac(:,:) = ZERO
 
@@ -230,6 +234,8 @@ contains
 
     double precision :: y(nspec)
 
+    !$gpu
+
     rho  = state % rho
     temp = state % T
     abar = state % abar
@@ -274,6 +280,8 @@ contains
     double precision :: alfa, beta, gama, delt
 
     double precision :: dtab(nrates)
+
+    !$gpu
 
     ! Set the density dependence array
 
@@ -477,6 +485,8 @@ contains
     double precision :: y(nspec),rate(nrates),ratdum(nrates),dydt(nspec)
 
     double precision :: a(17)
+
+    !$gpu
 
     dydt(1:nspec) = ZERO
 
@@ -914,6 +924,8 @@ contains
     double precision :: rrate,drratedt,drratedd
     type (tf_t)      :: tf
 
+    !$gpu
+
     do i=1,nrates
        ratraw(i)    = ZERO
        dratrawdt(i) = ZERO
@@ -1125,6 +1137,8 @@ contains
 !    double precision :: denomdd,r1dd,s1dd,t1dd,u1dd,v1dd,w1dd,x1dd,y1dd
 
     type (plasma_state) :: state
+
+    !$gpu
 
     ! initialize
     do i=1,nrates
@@ -1920,6 +1934,8 @@ contains
 
     double precision :: b(30)
 
+    !$gpu
+
     ! he4 jacobian elements
     ! d(he4)/d(he4)
     b(1)  = -1.5d0 * y(ihe4) * y(ihe4) * rate(ir3a) 
@@ -2349,6 +2365,8 @@ contains
 
     double precision :: dydt(nspec), enuc
 
+    !$gpu
+
     ! This is basically e = m c**2
 
     enuc = sum(dydt(:) * mion(:)) * enuc_conv2
@@ -2427,6 +2445,8 @@ contains
     implicit none
 
     type (burn_t)    :: state
+
+    !$gpu
 
   end subroutine update_unevolved_species
 
