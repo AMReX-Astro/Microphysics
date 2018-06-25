@@ -39,6 +39,7 @@ contains
 
     double precision :: y(nspec)
 
+    !$gpu
 
     ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
     call update_unevolved_species(state)
@@ -127,6 +128,8 @@ contains
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
     double precision :: cvInv, cpInv
+
+    !$gpu
 
     call evaluate_rates(state, rr)
 
@@ -220,6 +223,8 @@ contains
 
     double precision :: y(nspec)
 
+    !$gpu
+
     temp = state % T
     dens = state % rho
     y    = state % xn * aion_inv
@@ -271,6 +276,8 @@ contains
 
     double precision :: dydt(nspec_evolve), enuc
 
+    !$gpu
+
     ! This is basically e = m c**2
 
     ! Note that since we don't explicitly evolve Mg24
@@ -291,6 +298,8 @@ contains
     implicit none
 
     type (burn_t)    :: state
+
+    !$gpu
 
     state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
 

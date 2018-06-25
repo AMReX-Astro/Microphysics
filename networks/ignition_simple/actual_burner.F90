@@ -32,6 +32,8 @@ contains
     type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
 
+    !$gpu
+
     call integrator(state_in, state_out, dt, time)
 
   end subroutine actual_burner
