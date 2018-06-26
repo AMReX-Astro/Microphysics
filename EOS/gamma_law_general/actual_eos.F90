@@ -71,6 +71,8 @@ contains
 
     double precision :: Tinv, rhoinv
 
+    !$gpu
+
     ! Calculate mu.
     
     if (assume_neutral) then
