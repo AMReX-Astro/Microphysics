@@ -1,4 +1,4 @@
-new changes:
+# 18.07
 
  -- added CUDA support to the VODE90 integrator, the helmeos, and the
     networks aprox13, aprox19, aprox21, ignition_simple,
