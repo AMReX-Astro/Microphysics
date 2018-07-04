@@ -7,8 +7,9 @@ module table_rates
   public table_meta, tabular_evaluate
   public j_na23_ne23
   public j_ne23_na23
+  public jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
 
-  private num_tables, jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
+  private num_tables
   private k_drate_dt, add_vars
   private table_read_meta
   
