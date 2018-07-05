@@ -78,11 +78,31 @@ void main_main ()
     // Nghost = number of ghost cells for each array
     int Nghost = 0;
 
+    // do the runtime parameter initializations and microphysics inits
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "reading extern runtime parameters ..." << std::endl;
+    }
+
+    ParmParse ppa("amr");
+
+    std::string probin_file = "probin";
+
+    ppa.query("probin_file", probin_file);
+
+    const int probin_file_length = probin_file.length();
+    Vector<int> probin_file_name(probin_file_length);
+
+    for (int i = 0; i < probin_file_length; i++)
+      probin_file_name[i] = probin_file[i];
+
+    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+
     // Ncomp = number of components for each array
     int Ncomp = -1;
-    //init_variables();
-
+    init_variables();
     get_ncomp(&Ncomp);
+
+    std::cout << "Ncomp = " << Ncomp << std::endl;
 
     // time = starting time in the simulation
     Real time = 0.0;

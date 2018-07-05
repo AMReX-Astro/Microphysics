@@ -12,6 +12,8 @@ extern "C"
 
   void get_ncomp(int* ncomp);
 
+  void init_unit_test(const int* name, const int* namlen); 
+
   void do_eos(const int* lo, const int* hi,
               amrex::Real* state, const int* s_lo, const int* s_hi,
               const int* npts);

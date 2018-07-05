@@ -4,4 +4,4 @@ FEXE_headers = test_eos_F.H
 
 f90EXE_sources += variables.f90
 f90EXE_sources += eos_util.f90
-
+f90EXE_sources += unit_test.f90
