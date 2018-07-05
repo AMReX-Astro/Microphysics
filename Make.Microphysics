@@ -46,7 +46,7 @@ endif
 # Microphysics directories
 #------------------------------------------------------------------------------
 
-Bdirs := unit_test
+Bdirs := unit_test interfaces
 
 Bpack += $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
 Blocs += $(foreach dir, $(Bdirs), $(TOP)/$(dir))
@@ -138,7 +138,7 @@ VPATH_LOCATIONS   += $(Blocs)
 # runtime parameter support for extern/ routines
 F90EXE_sources += extern.F90
 
-EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/dummy.probin.template
+EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/extern_probin.template
 
 # these are for finding runtime parameters
 EXTERN_SEARCH += $(EXTERN_CORE) $(MICROPHYSICS_HOME)/unit_test
