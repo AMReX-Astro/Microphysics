@@ -102,6 +102,19 @@ void main_main ()
     init_variables();
     get_ncomp(&Ncomp);
 
+    // get the variable names
+    Vector<std::string> varnames;
+
+    for (int i=0; i<Ncomp; i++) {
+      char* cstring[21];
+      get_var_name(cstring, &i);
+      std::string name(*cstring);
+      varnames.push_back(name);
+    }
+
+    for (auto v : varnames)
+      std::cout << v << std::endl;
+
     std::cout << "Ncomp = " << Ncomp << std::endl;
 
     // time = starting time in the simulation
@@ -128,7 +141,7 @@ void main_main ()
     // Write a plotfile
     int n = 0;
     const std::string& pltfile = amrex::Concatenate("plt",n,5);
-    WriteSingleLevelPlotfile(pltfile, state, {"phi"}, geom, time, 0);
+    WriteSingleLevelPlotfile(pltfile, state, varnames, geom, time, 0);
 
 
     // Call the timer again and compute the maximum difference between
