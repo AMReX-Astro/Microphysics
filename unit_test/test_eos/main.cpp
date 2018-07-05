@@ -80,7 +80,7 @@ void main_main ()
 
     // Ncomp = number of components for each array
     int Ncomp = -1;
-    init_variables();
+    //init_variables();
 
     get_ncomp(&Ncomp);
 
@@ -99,7 +99,7 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        do_eos(BL_TO_FORTRAN_BOX(bx),
+        do_eos(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
                BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }

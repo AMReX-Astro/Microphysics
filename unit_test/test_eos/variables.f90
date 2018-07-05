@@ -105,7 +105,7 @@ contains
 
   end subroutine init_variables
 
-  subroutine get_ncomp(ncomp_in)
+  subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
     integer, intent(inout) :: ncomp_in
 

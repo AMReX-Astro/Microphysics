@@ -3,7 +3,8 @@
 
 #include <AMReX_BLFort.H>
 
-#ifdef __cpluscplus
+#ifdef __cplusplus
+#include <AMReX.H>
 extern "C"
 {
 #endif
@@ -12,9 +13,10 @@ extern "C"
   void get_ncomp(int* ncomp);
 
   void do_eos(const int* lo, const int* hi,
-              BL_FORT_FAB_ARG_3D(state), const int* npts);
+              amrex::Real* state, const int* s_lo, const int* s_hi,
+              const int* npts);
 
-#ifdef __cpluscplus
+#ifdef __cplusplus
 }
 #endif
 

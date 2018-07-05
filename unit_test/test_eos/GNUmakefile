@@ -12,6 +12,8 @@ USE_OMP    = FALSE
 
 USE_REACT = TRUE
 
+EBASE = main
+
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 
