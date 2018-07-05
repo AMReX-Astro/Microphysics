@@ -6,8 +6,10 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
 
+
 using namespace amrex;
 
+#include "test_eos.H"
 #include "test_eos_F.H"
 
 int main (int argc, char* argv[])
@@ -26,7 +28,7 @@ void main_main ()
     Real strt_time = ParallelDescriptor::second();
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size
+    int n_cell, max_grid_size;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -98,7 +100,7 @@ void main_main ()
         const Box& bx = mfi.validbox();
 
         do_eos(BL_TO_FORTRAN_BOX(bx),
-               BL_TO_FORTRAN_ANYD(state[mfi]))
+               BL_TO_FORTRAN_ANYD(state[mfi]));
 
     }
 
@@ -107,14 +109,13 @@ void main_main ()
     int n = 0;
     const std::string& pltfile = amrex::Concatenate("plt",n,5);
     WriteSingleLevelPlotfile(pltfile, state, {"phi"}, geom, time, 0);
-    }
 
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
     Real stop_time = ParallelDescriptor::second() - strt_time;
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
-    ParallelDescriptor::ReduceRealMax(stop_time,IOProc);
+    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

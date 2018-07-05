@@ -110,10 +110,6 @@ EXTERN_CORE += $(NETWORK_PATH)
 EXTERN_CORE += $(MICROPHYSICS_HOME)/EOS
 EXTERN_CORE += $(MICROPHYSICS_HOME)/networks
 
-EXTERN_CORE += $(COND_HOME)
-EXTERN_CORE += $(COND_PATH)
-
-
 Bpack += $(foreach dir, $(EXTERN_CORE), $(dir)/Make.package)
 Blocs += $(foreach dir, $(EXTERN_CORE), $(dir))
 
@@ -142,10 +138,10 @@ VPATH_LOCATIONS   += $(Blocs)
 # runtime parameter support for extern/ routines
 F90EXE_sources += extern.F90
 
-EXTERN_TEMPLATE := $(TOP)/Source/driver/extern_probin.template
+EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/dummy.probin.template
 
 # these are for finding runtime parameters
-EXTERN_SEARCH += $(EXTERN_CORE) $(TOP)/constants $(TOP)/Util/model_parser
+EXTERN_SEARCH += $(EXTERN_CORE) $(MICROPHYSICS_HOME)/unit_test
 ifdef MICROPHYSICS_HOME
    EXTERN_SEARCH += $(MICROPHYSICS_HOME)/networks/
 endif
