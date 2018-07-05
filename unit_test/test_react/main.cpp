@@ -137,7 +137,10 @@ void main_main ()
     }
 
     // Do the reactions
-    for ( MFIter mfi(state); mfi.isValid(); ++mfi )
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    for ( MFIter mfi(state, true); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
 

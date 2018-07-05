@@ -22,7 +22,6 @@ contains
     ! each species is on its own line.
     ! Allow for comment lines with '#' in the first column
     open(newunit=un, file=xin_file, status='old')
-    print *, xin_file, nspec
 
     summ = ZERO
 
