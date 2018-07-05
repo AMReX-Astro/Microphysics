@@ -5,8 +5,6 @@ temp_max      real       1.d12
 
 metalicity_max  real     0.1d0
 
-xin_file      character  "uniform"
-
 test_set      character  "gr0_3d"
 
 small_temp    real        1.e4
