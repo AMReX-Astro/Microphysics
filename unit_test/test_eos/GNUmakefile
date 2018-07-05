@@ -1,32 +1,32 @@
-NDEBUG := t
-MPI    :=
-OMP    := t
+PRECISION  = DOUBLE
+PROFILE    = FALSE
 
-COMP := gfortran
+DEBUG      = FALSE
 
-MKVERBOSE := t
+DIM        = 3
 
-programs += main
+COMP	   = gnu
 
-MICROPHYSICS_HOME := ../..
-
-EOS_DIR := helmholtz
-
-NETWORK_DIR := aprox19
-
-TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/test_eos
-
-PROBIN_PARAMETER_DIRS := $(TEST_DIR)
-
-ALL:
-
-include $(MICROPHYSICS_HOME)/GMicrophysics.mak
-
-ALL: $(pnames)
-
-# include the fParallel Makefile rules
-include $(FBOXLIB_HOME)/Tools/F_mk/GMakerules.mak
+USE_MPI    = FALSE
+USE_OMP    = FALSE
 
 
+# define the location of the CASTRO top directory
+MICROPHYSICS_HOME  := ../..
+
+# This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
+# you'll need to use gamma_law_general
+EOS_DIR     := helmholtz
+
+# This sets the network directory in Castro/Networks
+NETWORK_DIR := general_null
+GENERAL_NET_INPUTS = $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/aprox19.net
+
+EXTERN_SEARCH += .
+
+Bpack   := ./Make.package
+Blocs   := .
+
+include $(MICROPHYSICS_HOME)/Make.Microphysics
 
 
