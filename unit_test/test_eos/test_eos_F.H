@@ -11,6 +11,9 @@ extern "C"
 
   void get_ncomp(int* ncomp);
 
+  void do_eos(const int* lo, const in* hi,
+              BL_FORT_FAB_ARG_3D(state))
+
 #ifdef __cpluscplus
 }
 #endif

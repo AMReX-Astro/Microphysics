@@ -97,9 +97,9 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        do_state(BL_TO_FORTRAN_BOX(bx),
-                 BL_TO_FORTRAN_ANYD(state[mfi]),
-                 geom.CellSize(), geom.ProbLo(), geom.ProbHi());
+        do_eos(BL_TO_FORTRAN_BOX(bx),
+               BL_TO_FORTRAN_ANYD(state[mfi]))
+
     }
 
 
