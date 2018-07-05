@@ -32,6 +32,8 @@ void main_main ()
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
+    IntVect tile_size(1024, 8, 8);
+
     // inputs parameters
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -140,7 +142,7 @@ void main_main ()
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for ( MFIter mfi(state, true); mfi.isValid(); ++mfi )
+    for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
 
