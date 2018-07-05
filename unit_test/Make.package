@@ -1,6 +1,7 @@
 F90EXE_sources += microphysics.F90
 F90EXE_sources += network.F90
 F90EXE_sources += eos.F90
+F90EXE_sources += eos_override.F90
 f90EXE_sourcess += write_job_info.f90
 f90EXE_sourcess += build_info.f90
 f90EXE_sourcess += constants_cgs.f90

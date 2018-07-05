@@ -1,15 +1,19 @@
 subroutine do_eos(lo, hi, &
-                  sp, s_lo, s_hi, npts)
+                  sp, s_lo, s_hi, npts) bind(C, name="do_eos")
 
   use variables
   use network
   use eos_type_module
   use eos_module
   use amrex_fort_module, only : rt => amrex_real
+  use amrex_constants_module
+  use extern_probin_module
+  use actual_eos_module, only : eos_name
 
   implicit none
 
   integer, intent(in) :: lo(3), hi(3)
+  integer, intent(in) :: s_lo(3), s_hi(3)
   real(rt), intent(inout) :: sp(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
   integer, intent(in) :: npts
 
@@ -20,6 +24,8 @@ subroutine do_eos(lo, hi, &
   type(eos_t) :: eos_state
   type(eos_t) :: eos_state_reference
 
+  integer :: ii, jj, kk
+
   dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
   dmetal    = (metalicity_max  - ZERO)/(npts - 1)
@@ -29,33 +35,33 @@ subroutine do_eos(lo, hi, &
      ! set the composition -- approximately solar
      metalicity = ZERO + dble(kk)*dmetal
      xn_zone(:) = metalicity/(nspec - 2)   ! all but H, He
-     xn_zone(ih1)  = 0.75_dp_t - HALF*metalicity
-     xn_zone(ihe4) = 0.25_dp_t - HALF*metalicity
+     xn_zone(ih1)  = 0.75_rt - HALF*metalicity
+     xn_zone(ihe4) = 0.25_rt - HALF*metalicity
 
      do jj = lo(2), hi(2)
-        temp_zone = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+        temp_zone = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
 
         do ii = lo(1), hi(1)
-           dens_zone = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+           dens_zone = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)
 
            eos_state % rho = dens_zone
            eos_state % T = temp_zone
            eos_state % xn(:) = xn_zone(:)
 
            ! store default state
-           sp(ii, jj, kk, pf % irho) = dens_zone
-           sp(ii, jj, kk, pf % itemp) = temp_zone
-           sp(ii, jj, kk, pf % ispec: pf % ispec-1+nspec) = xn_zone(:)
+           sp(ii, jj, kk, p % irho) = dens_zone
+           sp(ii, jj, kk, p % itemp) = temp_zone
+           sp(ii, jj, kk, p % ispec: p % ispec-1+nspec) = xn_zone(:)
 
            ! call EOS using rho, T
            call eos(eos_input_rt, eos_state)
 
            eos_state_reference = eos_state
 
-           sp(ii, jj, kk, pf % ih) = eos_state % h
-           sp(ii, jj, kk, pf % ie) = eos_state % e
-           sp(ii, jj, kk, pf % ip) = eos_state % p
-           sp(ii, jj, kk, pf % is) = eos_state % s
+           sp(ii, jj, kk, p % ih) = eos_state % h
+           sp(ii, jj, kk, p % ie) = eos_state % e
+           sp(ii, jj, kk, p % ip) = eos_state % p
+           sp(ii, jj, kk, p % is) = eos_state % s
 
 
            ! call EOS using rho, h
@@ -65,7 +71,7 @@ subroutine do_eos(lo, hi, &
 
            call eos(eos_input_rh, eos_state)
 
-           sp(ii, jj, kk, pf % ierr_T_eos_rh) = &
+           sp(ii, jj, kk, p % ierr_T_eos_rh) = &
                 abs(eos_state % T - temp_zone)/temp_zone
 
            eos_state = eos_state_reference
@@ -78,7 +84,7 @@ subroutine do_eos(lo, hi, &
 
            call eos(eos_input_tp, eos_state)
 
-           sp(ii, jj, kk, pf % ierr_rho_eos_tp) = &
+           sp(ii, jj, kk, p % ierr_rho_eos_tp) = &
                 abs(eos_state % rho - dens_zone)/dens_zone
 
            eos_state = eos_state_reference
@@ -91,7 +97,7 @@ subroutine do_eos(lo, hi, &
 
            call eos(eos_input_rp, eos_state)
 
-           sp(ii, jj, kk, pf % ierr_T_eos_rp) = &
+           sp(ii, jj, kk, p % ierr_T_eos_rp) = &
                 abs(eos_state % T - temp_zone)/temp_zone
 
            eos_state = eos_state_reference
@@ -104,7 +110,7 @@ subroutine do_eos(lo, hi, &
 
            call eos(eos_input_re, eos_state)
 
-           sp(ii, jj, kk, pf % ierr_T_eos_re) = &
+           sp(ii, jj, kk, p % ierr_T_eos_re) = &
                 abs(eos_state % T - temp_zone)/temp_zone
 
            eos_state = eos_state_reference
@@ -124,14 +130,14 @@ subroutine do_eos(lo, hi, &
               call eos(eos_input_ps, eos_state)
 
               ! store the thermodynamic state
-              sp(ii, jj, kk, pf % ierr_T_eos_ps) = &
+              sp(ii, jj, kk, p % ierr_T_eos_ps) = &
                    abs(eos_state % T - temp_zone)/temp_zone
-              sp(ii, jj, kk, pf % ierr_rho_eos_ps) = &
+              sp(ii, jj, kk, p % ierr_rho_eos_ps) = &
                    abs(eos_state % rho - dens_zone)/dens_zone
 
            else
-              sp(ii, jj, kk, pf % ierr_T_eos_ps) = ZERO
-              sp(ii, jj, kk, pf % ierr_rho_eos_ps) = ZERO
+              sp(ii, jj, kk, p % ierr_T_eos_ps) = ZERO
+              sp(ii, jj, kk, p % ierr_rho_eos_ps) = ZERO
 
            endif
 
@@ -146,9 +152,9 @@ subroutine do_eos(lo, hi, &
 
            call eos(eos_input_ph, eos_state)
 
-           sp(ii, jj, kk, pf % ierr_T_eos_ph) = &
+           sp(ii, jj, kk, p % ierr_T_eos_ph) = &
                 abs(eos_state % T - temp_zone)/temp_zone
-           sp(ii, jj, kk, pf % ierr_rho_eos_ph) = &
+           sp(ii, jj, kk, p % ierr_rho_eos_ph) = &
                 abs(eos_state % rho - dens_zone)/dens_zone
 
            eos_state = eos_state_reference
@@ -157,20 +163,20 @@ subroutine do_eos(lo, hi, &
            ! call EOS using T, h
            ! this doesn't work for all EOSes (where h doesn't depend on T)
 
-           if (.not. trim(eos_dir) == "gamma_law_general") then
+           if (.not. trim(eos_name) == "gamma_law_general") then
               ! reset rho to give it some work to do -- for helmeos, h is not
               ! monotonic, so we only perturb rho slightly here
               eos_state % rho = 0.9 * eos_state % rho
 
               call eos(eos_input_th, eos_state)
 
-              sp(ii, jj, kk, pf % ierr_rho_eos_th) = &
+              sp(ii, jj, kk, p % ierr_rho_eos_th) = &
                    abs(eos_state % rho - dens_zone)/dens_zone
 
               eos_state = eos_state_reference
 
            else
-              sp(ii, jj, kk, pf % ierr_rho_eos_th) = ZERO
+              sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
            endif
 
         enddo
@@ -179,4 +185,4 @@ subroutine do_eos(lo, hi, &
   !$OMP END PARALLEL DO
 
 
-end program test_react
+end subroutine do_eos
