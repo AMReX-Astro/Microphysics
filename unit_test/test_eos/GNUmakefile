@@ -19,8 +19,9 @@ MICROPHYSICS_HOME  := ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
-NETWORK_DIR := general_null
-GENERAL_NET_INPUTS = $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/aprox19.net
+NETWORK_DIR := aprox19
+
+CONDUCTIVITY_DIR := stellar
 
 EXTERN_SEARCH += .
 
