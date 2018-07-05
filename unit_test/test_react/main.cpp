@@ -24,8 +24,6 @@ int main (int argc, char* argv[])
 
 void main_main ()
 {
-    // What time is it now?  We'll use this to compute total run time.
-    Real strt_time = ParallelDescriptor::second();
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size;
@@ -137,6 +135,9 @@ void main_main ()
                    BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }
+
+    // What time is it now?  We'll use this to compute total react time.
+    Real strt_time = ParallelDescriptor::second();
 
     // Do the reactions
 #ifdef _OPENMP
