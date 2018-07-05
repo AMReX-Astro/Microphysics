@@ -37,7 +37,7 @@ contains
     dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
     dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
 
-    allocate(xn_zone(nspec, 0:npts))   ! this assumes that lo(3) = 0
+    allocate(xn_zone(nspec, 0:npts-1))   ! this assumes that lo(3) = 0
 
     call get_xn(xn_zone)
 

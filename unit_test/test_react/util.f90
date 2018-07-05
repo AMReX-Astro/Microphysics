@@ -22,6 +22,7 @@ contains
     ! each species is on its own line.
     ! Allow for comment lines with '#' in the first column
     open(newunit=un, file=xin_file, status='old')
+    print *, xin_file, nspec
 
     summ = ZERO
 
@@ -29,7 +30,6 @@ contains
     do while (i <= nspec)
        ! read the line into a character buffer
        read (un,'(a)') line
-
        if (index(line, '#') == 1) cycle
 
        read (line,*) xn_zone(i,:)
