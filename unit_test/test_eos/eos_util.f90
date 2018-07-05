@@ -1,24 +1,31 @@
 subroutine do_eos(lo, hi, &
-                  state, s_lo, s_hi)
+                  sp, s_lo, s_hi, npts)
 
   use variables
+  use network
+  use eos_type_module
+  use eos_module
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
   integer, intent(in) :: lo(3), hi(3)
-  real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
+  real(rt), intent(inout) :: sp(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
+  integer, intent(in) :: npts
 
-  nrho = extent(mla%mba%pd(1),1)
-  nT = extent(mla%mba%pd(1),2)
-  nX = extent(mla%mba%pd(1),3)
+  real(rt) :: dlogrho, dlogT, dmetal
+  real(rt) :: metalicity, temp_zone, dens_zone
+  real(rt) :: xn_zone(nspec)
 
-  dlogrho = (log10(dens_max) - log10(dens_min))/(nrho - 1)
-  dlogT   = (log10(temp_max) - log10(temp_min))/(nT - 1)
-  dmetal    = (metalicity_max  - ZERO)/(nX - 1)
+  type(eos_t) :: eos_state
+  type(eos_t) :: eos_state_reference
 
-  !$OMP PARALLEL DO PRIVATE(ii,jj,kk,metalicity,temp_zone,dens_zone,eos_state_reference,xn_zone) &
-  !$OMP FIRSTPRIVATE (eos_state)
+  dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
+  dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
+  dmetal    = (metalicity_max  - ZERO)/(npts - 1)
+
   do kk = lo(3), hi(3)
+
      ! set the composition -- approximately solar
      metalicity = ZERO + dble(kk)*dmetal
      xn_zone(:) = metalicity/(nspec - 2)   ! all but H, He

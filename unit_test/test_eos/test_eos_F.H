@@ -12,7 +12,7 @@ extern "C"
   void get_ncomp(int* ncomp);
 
   void do_eos(const int* lo, const int* hi,
-              BL_FORT_FAB_ARG_3D(state));
+              BL_FORT_FAB_ARG_3D(state), const int* npts);
 
 #ifdef __cpluscplus
 }

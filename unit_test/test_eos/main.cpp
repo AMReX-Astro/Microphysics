@@ -39,10 +39,10 @@ void main_main ()
 
         // We need to get n_cell from the inputs file - this is the
         // number of cells on each side of a square (or cubic) domain.
-        pp.get("n_cell",n_cell);
+        pp.get("n_cell", n_cell);
 
         // The domain is broken into boxes of size max_grid_size
-        pp.get("max_grid_size",max_grid_size);
+        pp.get("max_grid_size", max_grid_size);
 
     }
 
@@ -100,7 +100,7 @@ void main_main ()
         const Box& bx = mfi.validbox();
 
         do_eos(BL_TO_FORTRAN_BOX(bx),
-               BL_TO_FORTRAN_ANYD(state[mfi]));
+               BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }
 
