@@ -9,8 +9,8 @@
 
 using namespace amrex;
 
-#include "test_eos.H"
-#include "test_eos_F.H"
+#include "test_react.H"
+#include "test_react_F.H"
 
 int main (int argc, char* argv[])
 {

@@ -10,6 +10,8 @@ module variables
 
   implicit none
 
+  integer, parameter :: MAX_NAME_LEN=20
+
   type plot_t
      integer :: irho = -1
      integer :: itemp = -1
@@ -20,12 +22,14 @@ module variables
 
      integer :: n_plot_comps = 0
 
-     character(len=20), allocatable :: names(:)
+     character(len=MAX_NAME_LEN), allocatable :: names(:)
 
    contains
      procedure :: next_index => get_next_plot_index
 
   end type plot_t
+
+  type(plot_t) :: p
 
 contains
 
@@ -45,9 +49,7 @@ contains
     return
   end function get_next_plot_index
 
-  subroutine init_variables(p)
-
-    type(plot_t), intent(inout) :: p
+  subroutine init_variables() bind(C, name="init_variables")
 
     integer :: n
 
@@ -72,9 +74,38 @@ contains
 
   end subroutine init_variables
 
-  subroutine finalize_variables(p)
+  subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
-    type(plot_t), intent(inout) :: p
+    integer, intent(inout) :: ncomp_in
+
+    ncomp_in = p % n_plot_comps
+
+  end subroutine get_ncomp
+
+  subroutine get_var_name(cstring, idx) bind(C, name="get_var_name")
+
+    use iso_c_binding
+
+    implicit none
+    type(c_ptr), intent(inout) :: cstring
+    integer, intent(in) :: idx
+
+    ! include space for the NULL termination
+    character(MAX_NAME_LEN+1), pointer :: fstring
+    integer :: len
+
+    allocate(fstring)
+
+    ! C++ is 0-based, so add 1 to the idx
+    fstring = p % names(idx+1)
+    len = len_trim(fstring)
+    fstring(len+1:len+1) = c_null_char
+
+    cstring = c_loc(fstring)
+
+  end subroutine get_var_name
+
+  subroutine finalize_variables()
 
     deallocate(p%names)
 

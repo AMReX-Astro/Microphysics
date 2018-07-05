@@ -10,7 +10,7 @@ contains
   subroutine get_xn(xn_zone)
 
     use network,       only: nspec, spec_names
-    use probin_module, only: xin_file
+    use extern_probin_module, only: xin_file
 
     real(rt), intent(  out) :: xn_zone(:,:)
 
