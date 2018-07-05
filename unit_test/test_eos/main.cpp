@@ -79,6 +79,7 @@ void main_main ()
     // Ncomp = number of components for each array
     int Ncomp = -1;
     init_variables();
+
     get_ncomp(&Ncomp);
 
     // time = starting time in the simulation

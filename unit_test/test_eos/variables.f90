@@ -38,6 +38,8 @@ module variables
 
   end type plot_t
 
+  type(plot_t) :: p
+
 contains
 
   function get_next_plot_index(this, num) result (next)
@@ -56,9 +58,7 @@ contains
     return
   end function get_next_plot_index
 
-  subroutine init_variables(p)
-
-    type(plot_t), intent(inout) :: p
+  subroutine init_variables() bind(C, name="init_variables")
 
     integer :: n
 
@@ -104,5 +104,13 @@ contains
     p % names(p % ierr_rho_eos_th) = "err_rho_eos_th"
 
   end subroutine init_variables
+
+  subroutine get_ncomp(ncomp_in)
+
+    integer, intent(inout) :: ncomp_in
+
+    ncomp_in = p % n_plot_comps
+
+  end subroutine get_ncomp
 
 end module variables
