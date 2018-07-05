@@ -8,11 +8,8 @@ BLAS_LIBRARY ?= -lopenblas
 TOP := $(MICROPHYSICS_HOME)
 
 # default microphysics locations
-EOS_HOME ?= $(TOP)/Microphysics/EOS
-NETWORK_HOME ?= $(TOP)/Microphysics/networks
-COND_HOME ?= $(TOP)/Microphysics/conductivity
-VISC_HOME ?= $(TOP)/Microphysics/viscosity
-
+EOS_HOME ?= $(TOP)/EOS
+NETWORK_HOME ?= $(TOP)/networks
 
 EBASE ?= main
 
@@ -78,7 +75,6 @@ Bpack	+= $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
 NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
-COND_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
 
 
 # Problems can specify the input file for general_null by setting
@@ -88,7 +84,7 @@ ifndef GENERAL_NET_INPUTS
    ifneq "$(wildcard $(NETWORK_INPUTS))" ""
       GENERAL_NET_INPUTS := $(NETWORK_INPUTS)
    else
-      GENERAL_NET_INPUTS := $(CASTRO_HOME)/Microphysics/networks/general_null/$(NETWORK_INPUTS)
+      GENERAL_NET_INPUTS := $(MICROPHYSICS_HOME)/networks/general_null/$(NETWORK_INPUTS)
    endif
 endif
 
@@ -113,7 +109,6 @@ EXTERN_CORE += $(NETWORK_PATH)
 
 EXTERN_CORE += $(MICROPHYSICS_HOME)/EOS
 EXTERN_CORE += $(MICROPHYSICS_HOME)/networks
-EXTERN_CORE += $(TOP)/Microphysics/conductivity
 
 EXTERN_CORE += $(COND_HOME)
 EXTERN_CORE += $(COND_PATH)
@@ -179,7 +174,6 @@ INCLUDE_LOCATIONS +=  $(AMREX_HOME)/Tools/C_scripts
 
 
 MNAMES := EOS=$(EOS_PATH) NETWORK=$(NETWORK_PATH)
-MNAMES += CONDUCTIVITY=$(COND_PATH)
 
 # we make AMReX_buildInfo.cpp as we make the .o file, so we can delete
 # it immediately.  this way if the build is interrupted, we are
