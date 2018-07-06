@@ -139,16 +139,21 @@ void main_main ()
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
+    int n_rhs_min = 1000000000;
+    int n_rhs_max = -1000000000;
+    int n_rhs_sum = 0;
+
     // Do the reactions
 #ifdef _OPENMP
-#pragma omp parallel
+#pragma omp parallel reduction(min:n_rhs_min), reduction(max:n_rhs_max), reduction(+:n_rhs_sum)
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.tilebox();
 
         do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
-                 BL_TO_FORTRAN_ANYD(state[mfi]));
+                 BL_TO_FORTRAN_ANYD(state[mfi]),
+                 &n_rhs_min, &n_rhs_max, &n_rhs_sum);
 
     }
 
@@ -167,4 +172,10 @@ void main_main ()
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
+
+    // print statistics
+    std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
+    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+    std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+
 }
