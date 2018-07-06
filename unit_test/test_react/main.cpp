@@ -145,7 +145,7 @@ void main_main ()
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
-        const Box& bx = mfi.validbox();
+        const Box& bx = mfi.tilebox();
 
         do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
                  BL_TO_FORTRAN_ANYD(state[mfi]));
