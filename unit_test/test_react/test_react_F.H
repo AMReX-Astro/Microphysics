@@ -12,6 +12,8 @@ extern "C"
 
   void get_ncomp(int* ncomp);
 
+  void get_name_len(int* nlen);
+
   void get_var_name(char* cstring[], int* idx);
 
   void init_unit_test(const int* name, const int* namlen);

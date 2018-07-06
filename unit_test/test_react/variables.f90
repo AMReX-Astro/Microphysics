@@ -82,6 +82,14 @@ contains
 
   end subroutine get_ncomp
 
+  subroutine get_name_len(nlen_in) bind(C, name="get_name_len")
+
+    integer, intent(inout) :: nlen_in
+
+    nlen_in = MAX_NAME_LEN
+
+  end subroutine get_name_len
+
   subroutine get_var_name(cstring, idx) bind(C, name="get_var_name")
 
     use iso_c_binding

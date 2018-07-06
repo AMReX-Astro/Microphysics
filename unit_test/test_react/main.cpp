@@ -102,11 +102,14 @@ void main_main ()
     init_variables();
     get_ncomp(&Ncomp);
 
+    int name_len = -1;
+    get_name_len(&name_len);
+
     // get the variable names
     Vector<std::string> varnames;
 
     for (int i=0; i<Ncomp; i++) {
-      char* cstring[21];
+      char* cstring[name_len+1];
       get_var_name(cstring, &i);
       std::string name(*cstring);
       varnames.push_back(name);
