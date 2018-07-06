@@ -164,17 +164,6 @@ program test_react
 
      ! First, construct the input state in a separate loop.
 
-     do kk = lo(3), hi(3)
-        do jj = lo(2), hi(2)
-           do ii = lo(1), hi(1)
-
-              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
-
-           enddo
-        enddo
-     enddo
 
      ! Set up a timer for the burn.
 
@@ -193,67 +182,6 @@ program test_react
 
      !$acc loop gang vector collapse(3) &
      !$acc private(burn_state_in, burn_state_out, ii, jj, kk, j)
-
-     do kk = lo(3), hi(3)
-        do jj = lo(2), hi(2)
-           do ii = lo(1), hi(1)
-
-              ! populate the SDC state.  Our strategy for the unit test is to choose
-              ! the advective terms to all be zero and to choose the velocity to be
-              ! Mach = 0.1
-
-              ! call the EOS first to get the sound speed
-              eos_state % rho = state(ii, jj, kk, irho)
-              eos_state % T = state(ii, jj, kk, itemp)
-              eos_state % xn(:) = state(ii, jj, kk, ispec_old:ispec_old-1+nspec)
-
-              call eos(eos_input_rt, eos_state)
-
-              sdc_state_in % y(SRHO) = state(ii, jj, kk, irho)
-
-              ! we will pick velocities to be 10% of the sound speed
-              sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1 * eos_state % cs
-
-              sdc_state_in % y(SEINT) = sdc_state_in % y(SRHO) * eos_state % e
-              sdc_state_in % y(SEDEN) = sdc_state_in % y(SEINT) + &
-                   HALF*sum(sdc_state_in % y(SMX:SMZ)**2)/sdc_state_in % y(SRHO)
-              sdc_state_in % y(SFS:SFS-1+nspec) = sdc_state_in % y(SRHO) * eos_state % xn(:)
-
-              ! normalize
-              sum_spec = sum(sdc_state_in % y(SFS:SFS-1+nspec))/ sdc_state_in % y(SRHO)
-              sdc_state_in % y(SFS:SFS-1+nspec) = sdc_state_in % y(SFS:SFS-1+nspec)/sum_spec
-
-              ! need to set this consistently
-              sdc_state_in % T_from_eden = .true.
-
-              ! zero out the advective terms
-              sdc_state_in % ydot_a(:) = ZERO
-
-              ! need to set T_from_eden
-
-              call integrator(sdc_state_in, sdc_state_out, tmax, ZERO)
-
-              do j = 1, nspec
-                 state(ii, jj, kk, ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
-              enddo
-
-              ! do j=1, nspec
-              !    ! an explicit loop is needed here to keep the GPU happy
-              !    state(ii, jj, kk, irodot + j - 1) = &
-              !         (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
-              ! enddo
-
-              state(ii, jj, kk, irho_hnuc) = &
-                   (sdc_state_out % y(SEINT) - sdc_state_in % y(SEINT)) / tmax
-
-
-              n_rhs_avg = n_rhs_avg + sdc_state_out % n_rhs
-              n_rhs_min = min(n_rhs_min, sdc_state_out % n_rhs)
-              n_rhs_max = max(n_rhs_max, sdc_state_out % n_rhs)
-
-           enddo
-        enddo
-     enddo
      !$acc end parallel
      !$acc end data
 
