@@ -24,6 +24,8 @@ MaestroUsersGuide.old
 
 # Files created at compile-time
 probin.f90
+probin.F90
+extern.F90
 build_info.f90
 _build
 *.mod
