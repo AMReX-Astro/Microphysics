@@ -9,7 +9,7 @@
 
   xin_file   = "xin.aprox19"
 
-  jacobian = 2 
+  jacobian = 2
   centered_diff_jac = T
 
   rtol_spec = 1.d-8
