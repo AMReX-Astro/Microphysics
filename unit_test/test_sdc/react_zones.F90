@@ -4,7 +4,7 @@ module react_zones_module
   use network
   use eos_type_module
   use eos_module
-  use burn_type_module
+  use sdc_type_module
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module
   use extern_probin_module
@@ -47,9 +47,9 @@ contains
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
 
-              state(ii, jj, kk, pf % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, pf % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf%ispec_old:pf%ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              state(ii, jj, kk, p % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, p % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
+              state(ii, jj, kk, pf % ispec_old:pf % ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
 
            enddo
         enddo
@@ -69,7 +69,7 @@ contains
     integer, intent(inout) :: n_rhs_min, n_rhs_max, n_rhs_sum
 
     type (eos_t) :: eos_t
-    type (burn_t)   :: burn_state_in, burn_state_out
+    type (sdc_t)   :: sdc_state_in, sdc_state_out
     integer         :: ii, jj, kk, j
 
     do kk = lo(3), hi(3)
