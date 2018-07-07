@@ -9,7 +9,7 @@ module react_zones_module
   use amrex_constants_module
   use extern_probin_module
   use util_module
-  use actual_burner_module
+  use integrator_module, only: integrator
 
   implicit none
 
@@ -28,7 +28,7 @@ contains
     real(rt), allocatable :: xn_zone(:,:)
 
     integer :: ii, jj, kk
-    real(rt) :: sum_X
+    real(rt) :: sum_spec, sum_X
 
     dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
     dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
@@ -47,9 +47,9 @@ contains
         do jj = lo(2), hi(2)
            do ii = lo(1), hi(1)
 
-              state(ii, jj, kk, p % itemp) = 10.0_dp_t**(log10(temp_min) + dble(jj)*dlogT)
-              state(ii, jj, kk, p % irho) = 10.0_dp_t**(log10(dens_min) + dble(ii)*dlogrho)
-              state(ii, jj, kk, pf % ispec_old:pf % ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_dp_t)
+              state(ii, jj, kk, p % itemp) = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
+              state(ii, jj, kk, p % irho) = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)
+              state(ii, jj, kk, p % ispec_old:p % ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_rt)
 
            enddo
         enddo
@@ -68,9 +68,10 @@ contains
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
     integer, intent(inout) :: n_rhs_min, n_rhs_max, n_rhs_sum
 
-    type (eos_t) :: eos_t
+    type (eos_t) :: eos_state
     type (sdc_t)   :: sdc_state_in, sdc_state_out
     integer         :: ii, jj, kk, j
+    real(rt) :: sum_spec
 
     do kk = lo(3), hi(3)
        do jj = lo(2), hi(2)
@@ -81,13 +82,13 @@ contains
              ! Mach = 0.1
 
              ! call the EOS first to get the sound speed
-             eos_state % rho = state(ii, jj, kk, irho)
-             eos_state % T = state(ii, jj, kk, itemp)
-             eos_state % xn(:) = state(ii, jj, kk, ispec_old:ispec_old-1+nspec)
+             eos_state % rho = state(ii, jj, kk, p % irho)
+             eos_state % T = state(ii, jj, kk, p % itemp)
+             eos_state % xn(:) = state(ii, jj, kk, p % ispec_old:p % ispec_old-1+nspec)
 
              call eos(eos_input_rt, eos_state)
 
-             sdc_state_in % y(SRHO) = state(ii, jj, kk, irho)
+             sdc_state_in % y(SRHO) = state(ii, jj, kk, p % irho)
 
              ! we will pick velocities to be 10% of the sound speed
              sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1 * eos_state % cs
@@ -112,7 +113,7 @@ contains
              call integrator(sdc_state_in, sdc_state_out, tmax, ZERO)
 
              do j = 1, nspec
-                state(ii, jj, kk, ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
+                state(ii, jj, kk, p % ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
              enddo
 
              ! do j=1, nspec
@@ -121,7 +122,7 @@ contains
              !         (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
              ! enddo
 
-             state(ii, jj, kk, irho_hnuc) = &
+             state(ii, jj, kk, p % irho_hnuc) = &
                   (sdc_state_out % y(SEINT) - sdc_state_in % y(SEINT)) / tmax
 
 
