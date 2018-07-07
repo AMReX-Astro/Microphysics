@@ -8,6 +8,8 @@ module variables
 
   use network, only: nspec, spec_names
 
+  use actual_eos_module, only : eos_name
+
   implicit none
 
   integer, parameter :: MAX_NAME_LEN=20
@@ -133,17 +135,46 @@ contains
 
     ! include space for the NULL termination
     character(MAX_NAME_LEN+1), pointer :: fstring
-    integer :: len
+    integer :: slen
 
     allocate(fstring)
 
     ! C++ is 0-based, so add 1 to the idx
     fstring = p % names(idx+1)
-    len = len_trim(fstring)
-    fstring(len+1:len+1) = c_null_char
+    slen = len_trim(fstring)
+    fstring(slen+1:slen+1) = c_null_char
 
     cstring = c_loc(fstring)
 
   end subroutine get_var_name
+
+  subroutine get_eos_len(nlen_in) bind(C, name="get_eos_len")
+
+    integer, intent(inout) :: nlen_in
+
+    nlen_in = len(eos_name)
+
+  end subroutine get_eos_len
+
+  subroutine get_eos_name(eos_string) bind(C, name="get_eos_name")
+
+    use iso_c_binding
+
+    implicit none
+    type(c_ptr), intent(inout) :: eos_string
+
+    ! include space for the NULL termination
+    character(len(eos_name)+1), pointer :: fstring
+    integer :: slen
+
+    allocate(fstring)
+
+    fstring = eos_name
+    slen = len_trim(fstring)
+    fstring(slen+1:slen+1) = c_null_char
+
+    eos_string = c_loc(fstring)
+
+  end subroutine get_eos_name
 
 end module variables

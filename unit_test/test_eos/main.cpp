@@ -11,6 +11,8 @@ using namespace amrex;
 
 #include "test_eos.H"
 #include "test_eos_F.H"
+#include "AMReX_buildInfo.H"
+
 
 int main (int argc, char* argv[])
 {
@@ -42,7 +44,8 @@ void main_main ()
         pp.get("n_cell", n_cell);
 
         // The domain is broken into boxes of size max_grid_size
-        pp.get("max_grid_size", max_grid_size);
+        max_grid_size = 32;
+        pp.query("max_grid_size", max_grid_size);
 
     }
 
@@ -115,11 +118,6 @@ void main_main ()
       varnames.push_back(name);
     }
 
-    for (auto v : varnames)
-      std::cout << v << std::endl;
-
-    std::cout << "Ncomp = " << Ncomp << std::endl;
-
     // time = starting time in the simulation
     Real time = 0.0;
 
@@ -141,10 +139,18 @@ void main_main ()
     }
 
 
+    std::string name = "test_eos.";
+
+    // get the name of the EOS
+    int eos_len = -1;
+    get_eos_len(&eos_len);
+
+    char* eos_string[eos_len+1];
+    get_eos_name(eos_string);
+    std::string eos(*eos_string);
+
     // Write a plotfile
-    int n = 0;
-    const std::string& pltfile = amrex::Concatenate("plt",n,5);
-    WriteSingleLevelPlotfile(pltfile, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(name + eos, state, varnames, geom, time, 0);
 
 
     // Call the timer again and compute the maximum difference between
