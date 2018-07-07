@@ -14,8 +14,6 @@ program test_rates
   use actual_burner_module
   use actual_rhs_module, only: rate_eval_t, evaluate_rates
   use microphysics_module
-  use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
-  use eos_module
   use network
   use build_info_module
 
@@ -35,17 +33,13 @@ program test_rates
 
   namelist /cellparams/ density_lo, density_hi, density_npts, &
                         temperature_lo, temperature_hi, temperature_npts, &
-                        massfractions(nspec)
+                        massfractions
 
   ! runtime
   call runtime_init(.true.)
 
   ! microphysics
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
-  call eos_get_small_temp(small_temp)
-  print *, "small_temp = ", small_temp
-  call eos_get_small_dens(small_dens)
-  print *, "small_dens = ", small_dens
 
   ! Set mass fractions to sanitize inputs for them
   massfractions = -1.0d0
@@ -128,8 +122,10 @@ contains
     open(newunit=file_unit, file=fname, action='WRITE')
 
     write(unit=file_unit, fmt=*) '! Evaluated Rates'
-    write(unit=file_unit, fmt=*) '! The following fields are of size Number of Rates: rates, drates_dt, screening, dscreening_dt, screened_rates'
-    write(unit=file_unit, fmt=*) '! The following fields are of size Number of Tabular Rates: tabular_dqweak, tabular_epart'
+    write(unit=file_unit, fmt=*) '! The following fields are of size Number of Rates: '
+    write(unit=file_unit, fmt=*) '!  rates, drates_dt, screening, dscreening_dt, screened_rates'
+    write(unit=file_unit, fmt=*) '! The following fields are of size Number of Tabular Rates: '
+    write(unit=file_unit, fmt=*) '!  tabular_dqweak, tabular_epart'
 
     write(unit=file_unit, fmt=*) 'Number of Rates: ', nrates
     write(unit=file_unit, fmt=*) 'Number of Tabular Rates: ', nrat_tabular
