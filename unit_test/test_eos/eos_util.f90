@@ -182,7 +182,5 @@ subroutine do_eos(lo, hi, &
         enddo
      enddo
   enddo
-  !$OMP END PARALLEL DO
-
 
 end subroutine do_eos

@@ -1,6 +1,7 @@
 CEXE_sources += main.cpp
 
-FEXE_headers = test_eos_F.H
+FEXE_headers += test_eos_F.H
+CEXE_headers += test_eos.H
 
 f90EXE_sources += variables.f90
 f90EXE_sources += eos_util.f90
