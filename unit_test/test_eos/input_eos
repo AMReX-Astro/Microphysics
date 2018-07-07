@@ -1,12 +1,4 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
+max_grid_size = 32
 
-  dens_min   = 10.d0
-  dens_max   = 5.e9
-  temp_min   = 1.d6
-  temp_max   = 1.d10
-
-  metalicity_max = 0.5d0
-
-  xin_file   = "xin.ignition"
-/
+amr.probin = "probin"
