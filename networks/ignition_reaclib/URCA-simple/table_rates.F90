@@ -1,6 +1,8 @@
 module table_rates
   ! Table is expected to be in terms of dens*ye and temp (non-logarithmic, cgs units)
   ! Table energy units are expected in terms of ergs
+
+  use extern_probin_module, only: table_interpolation_scheme
   
   implicit none
 
@@ -21,6 +23,9 @@ module table_rates
   integer, parameter :: jtab_nuloss  = 5
   integer, parameter :: jtab_gamma   = 6
 
+  integer, parameter :: INTERP_BILINEAR = 1
+  integer, parameter :: INTERP_BICUBIC  = 3
+  
   ! k_drate_dt is used only for calculating the derivative
   ! of rate with temperature from the table, it isn't an index
   ! into the table but into the 'entries' array in, eg. get_entries.
@@ -208,7 +213,177 @@ contains
   end subroutine bl_extrap
 
 
-  AMREX_DEVICE subroutine get_entries(self, rhoy, temp, entries)
+  AMREX_DEVICE subroutine solve_matrix_axb(n, a, b)
+    !$acc routine seq
+
+    ! Solve the matrix system A*x = b
+    ! Returns the values x in the vector b
+#ifdef CUDA
+    use linpack_module, only: dgefa, dgesl
+#else
+    use amrex_error_module, only: amrex_error
+#endif
+
+    implicit none
+
+    ! arguments
+    integer, intent(in) :: n
+    double precision, intent(inout) :: a(n,n), b(n)
+
+    ! local variables
+    integer :: ipivot(n), istatus
+
+    ! Factor the matrix a using dgefa
+    call dgefa(a, n, n, ipivot, istatus)
+
+#ifndef CUDA
+    if (istatus /= 0) then
+       call amrex_error("Possible matrix singularity in tabulated rate interpolation!")
+    end if
+#endif
+
+    ! Use factorized a to solve the system with dgesl
+    call dgesl(a, n, n, ipivot, b, 0)
+
+  end subroutine solve_matrix_axb
+
+
+  AMREX_DEVICE subroutine evaluate_bicubic(bc_coeffs, x1, x2, f, dfdt)
+    !$acc routine seq
+
+    use amrex_constants_module, only: ZERO
+
+    ! arguments
+    double precision, intent(in) :: bc_coeffs(16), x1, x2
+    double precision, intent(out) :: f
+    double precision, intent(out), optional :: dfdt
+
+    ! local variables
+    integer :: i, j, m
+
+    f = ZERO
+
+    if (present(dfdt)) then
+       dfdt = ZERO
+    end if
+    
+    m = 1
+    do i = 0, 3
+       do j = 0, 3
+          f = f + bc_coeffs(m) * (x1**i) * (x2**j)
+
+          if (present(dfdt)) then
+             dfdt = dfdt + bc_coeffs(m) * (x1**i) * j * (x2**(j-1))
+          end if
+
+          m = m + 1
+       end do
+    end do
+  end subroutine evaluate_bicubic
+
+
+  AMREX_DEVICE subroutine get_entries_bicubic(self, rhoy, temp, entries, all_variables)
+    !$acc routine seq
+
+    use amrex_constants_module, only: ZERO
+
+    ! arguments
+    type(table_info) :: self
+    double precision, intent(in) :: rhoy, temp
+    ! The last element of entries is the derivative of rate with temperature    
+    double precision, dimension(self%num_vars+1), intent(out) :: entries
+    logical, intent(in) :: all_variables
+
+    double precision :: alhs(16,16), brhs(16), fvar, dfvardt
+    integer :: irhoy_lo, irhoy_hi, itemp_lo, itemp_hi
+    integer :: ivar, ii, jj, mm, i, j, m
+
+    ! Get box-corner points for interpolation
+    call vector_index_lu(self%rhoy_table(:), rhoy, irhoy_lo)
+    call vector_index_lu(self%temp_table(:), temp, itemp_lo)
+
+    if (irhoy_lo .eq. 1) then
+       irhoy_hi = irhoy_lo + 3
+    else if (irhoy_lo .eq. self % num_rhoy - 1) then
+       irhoy_hi = irhoy_lo + 1
+       irhoy_lo = irhoy_hi - 3
+    else
+       irhoy_lo = irhoy_lo - 1
+       irhoy_hi = irhoy_lo + 3
+    end if
+
+    if (itemp_lo .eq. 1) then
+       itemp_hi = itemp_lo + 3
+    else if (itemp_lo .eq. self % num_temp - 1) then
+       itemp_hi = itemp_lo + 1
+       itemp_lo = itemp_hi - 3
+    else
+       itemp_lo = itemp_lo - 1
+       itemp_hi = itemp_lo + 3
+    end if
+    
+    ! Bicubic interpolation within the box
+    ! The desired point is denoted by ABCD, within the box.
+    ! The value of ivar at ABCD is denoted by fvar.
+    !
+    ! (jj)
+    ! T ^   B .      . C
+    !   |
+    !   |  AB   ABCD   CD
+    !   |     .      . 
+    !   |   A          D
+    !   |___________________> rho*Ye (ii)
+
+    ! Interpolate for each table entry
+    do ivar = 1, self%num_vars
+       if (.not. all_variables) then
+          if (ivar /= jtab_rate .or. &
+              ivar /= jtab_dq .or. &
+              ivar /= jtab_gamma .or. &
+              ivar /= jtab_nuloss) then
+             cycle
+          end if
+       end if
+       ! Build A, b for Ax=b system to solve for coefficients x
+       alhs = ZERO
+       brhs = ZERO
+       mm = 1
+       do ii = 0, 3
+          do jj = 0, 3
+             brhs(mm) = brhs(mm) + self % rate_table(itemp_lo + jj, irhoy_lo + ii, ivar) * &
+                                   self % rhoy_table(irhoy_lo + ii)**ii * &
+                                   self % temp_table(itemp_lo + jj)**jj
+             do m = 1, 16
+                do i = 0, 3
+                   do j = 0, 3
+                      alhs(m, mm) = alhs(m, mm) + self % rhoy_table(irhoy_lo + i)**(i+ii) * &
+                                                  self % temp_table(itemp_lo + j)**(j+jj)
+                   end do
+                end do
+             end do
+             mm = mm + 1
+          end do
+       end do
+
+       ! Solve the Ax=b system for the bicubic coefficients x
+       ! The result x will be stored in brhs.
+       call solve_matrix_axb(16, alhs, brhs)
+
+       ! Evaluate the bicubic polynomial at the desired point
+       ! to get the interpolant and its temperature gradient
+       if (ivar .eq. jtab_rate) then
+          call evaluate_bicubic(brhs, rhoy, temp, fvar, dfvardt)
+          entries(k_drate_dt) = dfvardt          
+       else
+          call evaluate_bicubic(brhs, rhoy, temp, fvar)
+       end if
+       entries(ivar) = fvar
+    end do
+
+  end subroutine get_entries_bicubic
+
+
+  AMREX_DEVICE subroutine get_entries_bilinear(self, rhoy, temp, entries)
     !$acc routine seq
     
     type(table_info) :: self
@@ -306,6 +481,21 @@ contains
        ! Interpolate in temperature
        ! (Since we're inside the table in temp, use bl_extrap, it's faster)
        call bl_extrap(t_i, t_ip1, drdt_i, drdt_ip1, temp, entries(k_drate_dt))
+    end if
+  end subroutine get_entries_bilinear
+
+
+  AMREX_DEVICE subroutine get_entries(self, rhoy, temp, entries)
+    !$acc routine seq
+
+    type(table_info) :: self
+    double precision, intent(in) :: rhoy, temp
+    double precision, dimension(self%num_vars+1), intent(out) :: entries
+
+    if (table_interpolation_scheme .eq. INTERP_BILINEAR) then
+       call get_entries_bilinear(self, rhoy, temp, entries)
+    else if (table_interpolation_scheme .eq. INTERP_BICUBIC) then
+       call get_entries_bicubic(self, rhoy, temp, entries, .false.)
     end if
   end subroutine get_entries
 
