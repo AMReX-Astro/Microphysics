@@ -1,6 +1,6 @@
 n_cell = 16
 
-amr.plot_file = react_ignition_
+prefix = react_ignition_
 
 amr.probin_file = probin.ignition.BS
 

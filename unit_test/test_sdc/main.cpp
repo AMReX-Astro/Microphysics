@@ -32,6 +32,8 @@ void main_main ()
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
+    std::string prefix = "plt";
+
     IntVect tile_size(1024, 8, 8);
 
     // inputs parameters
@@ -46,6 +48,8 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
+
+        pp.query("prefix", prefix);
 
     }
 
@@ -177,11 +181,7 @@ void main_main ()
     // Write a plotfile
     int n = 0;
 
-    std::string plot_file = "plt";
-
-    ppa.query("plot_file", plot_file);
-
-    WriteSingleLevelPlotfile(plot_file + name + integrator, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
 
 
     // Call the timer again and compute the maximum difference between

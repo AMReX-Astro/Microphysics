@@ -1,6 +1,6 @@
 n_cell = 16
 
-amr.plot_file = react_xrb_simple_
+prefix = react_xrb_simple_
 
 amr.probin_file = probin.xrb_simple
 

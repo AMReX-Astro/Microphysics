@@ -1,6 +1,6 @@
 n_cell = 16
 
-amr.plot_file = react_reaclib_urca_
+prefix = react_reaclib_urca_
 
 amr.probin_file = probin.reaclib_urca.BS
 

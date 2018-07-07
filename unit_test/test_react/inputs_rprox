@@ -1,6 +1,6 @@
 n_cell = 16
 
-amr.plot_file = react_rprox_
+prefix = react_rprox_
 
 amr.probin_file = probin.rprox
 

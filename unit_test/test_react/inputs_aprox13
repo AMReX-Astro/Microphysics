@@ -1,5 +1,5 @@
 n_cell = 16
 
-amr.plot_file = react_aprox13_
+prefix = react_aprox13_
 
 amr.probin_file = probin.aprox13

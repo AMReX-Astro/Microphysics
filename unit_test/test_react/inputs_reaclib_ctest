@@ -1,6 +1,6 @@
 n_cell = 16
 
-amr.plot_file = react_reaclib_ctest_
+prefix = react_reaclib_ctest_
 
 amr.probin_file = probin.reaclib_ctest
 

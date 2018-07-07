@@ -1,5 +1,5 @@
 n_cell = 16
 
-amr.plot_file = react_reaclib_cburn_
+prefix = react_reaclib_cburn_
 
 amr.probin_file = probin.reaclib_cburn
