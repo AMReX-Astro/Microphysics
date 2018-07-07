@@ -11,6 +11,8 @@ using namespace amrex;
 
 #include "test_react.H"
 #include "test_react_F.H"
+#include "AMReX_buildInfo.H"
+
 
 int main (int argc, char* argv[])
 {
@@ -157,6 +159,21 @@ void main_main ()
     }
 
 
+    // get the name of the integrator
+    int nmodules = buildInfoGetNumModules();
+    std::cout << "number of modules = " << nmodules << std::endl;
+
+    int int_idx = -1;
+    std::string INT_KEY = "INTEGRATOR";
+    for (int i=1; i<=nmodules; i++) {
+      if (INT_KEY == buildInfoGetModuleName(i)) {
+        int_idx = i;
+      }
+    }
+
+    std::string name = "test_react.";
+    std::string integrator = buildInfoGetModuleVal(int_idx);
+
     // Write a plotfile
     int n = 0;
 
@@ -164,8 +181,7 @@ void main_main ()
 
     ppa.query("plot_file", plot_file);
 
-    const std::string& pltfile = amrex::Concatenate(plot_file, n, 5);
-    WriteSingleLevelPlotfile(pltfile, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(plot_file + name + integrator, state, varnames, geom, time, 0);
 
 
     // Call the timer again and compute the maximum difference between

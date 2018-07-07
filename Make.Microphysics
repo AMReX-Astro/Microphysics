@@ -177,7 +177,7 @@ CEXE_headers += $(AMREX_HOME)/Tools/C_scripts/AMReX_buildInfo.H
 INCLUDE_LOCATIONS +=  $(AMREX_HOME)/Tools/C_scripts
 
 
-MNAMES := EOS=$(EOS_PATH) NETWORK=$(NETWORK_PATH)
+MNAMES := EOS=$(EOS_PATH) NETWORK=$(NETWORK_PATH) INTEGRATOR=$(INTEGRATOR_DIR)
 
 # we make AMReX_buildInfo.cpp as we make the .o file, so we can delete
 # it immediately.  this way if the build is interrupted, we are
