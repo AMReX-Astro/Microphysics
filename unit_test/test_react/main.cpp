@@ -116,11 +116,6 @@ void main_main ()
       varnames.push_back(name);
     }
 
-    for (auto v : varnames)
-      std::cout << v << std::endl;
-
-    std::cout << "Ncomp = " << Ncomp << std::endl;
-
     // time = starting time in the simulation
     Real time = 0.0;
 
@@ -164,7 +159,12 @@ void main_main ()
 
     // Write a plotfile
     int n = 0;
-    const std::string& pltfile = amrex::Concatenate("plt",n,5);
+
+    std::string plot_file = "plt";
+
+    ppa.query("plot_file", plot_file);
+
+    const std::string& pltfile = amrex::Concatenate(plot_file, n, 5);
     WriteSingleLevelPlotfile(pltfile, state, varnames, geom, time, 0);
 
 
