@@ -2,5 +2,5 @@ n_cell = 16
 
 prefix = react_aprox19_bm0_
 
-amr.probin_file = probin.aprox19_burning_mode_0
+amr.probin_file = probin.aprox19.burning_mode_0
 
