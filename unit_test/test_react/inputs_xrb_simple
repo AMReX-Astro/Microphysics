@@ -1,16 +1,6 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  dens_min   = 1.d4
-  dens_max   = 3.d6
-  temp_min   = 1.d8
-  temp_max   = 1.d9
+amr.plot_file = react_xrb_simple_
 
-  tmax = 0.002d0
+amr.probin_file = probin.xrb_simple
 
-  xin_file   = "xin.xrb_simple"
-  run_prefix = "react_xrb_simple_"
-  
-  !centered_diff_jac = T
-
-/

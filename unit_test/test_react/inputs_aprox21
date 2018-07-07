@@ -1,20 +1,5 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  dens_min   = 1.d4
-  dens_max   = 1.d8
-  temp_min   = 5.d7
-  temp_max   = 5.d9
+amr.plot_file = react_aprox21_
 
-  tmax = 1.d-8
-
-  xin_file   = "xin.aprox21"
-  run_prefix = "react_aprox21_"
-
-  jacobian = 2
-  centered_diff_jac = T
-
-  call_eos_in_rhs = T
-  do_constant_volume_burn = T
-
-/
+amr.probin_file = probin.aprox21

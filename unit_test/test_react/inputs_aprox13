@@ -1,4 +1,5 @@
 n_cell = 16
-max_grid_size = 32
+
+amr.plot_file = react_aprox13_
 
 amr.probin_file = probin.aprox13

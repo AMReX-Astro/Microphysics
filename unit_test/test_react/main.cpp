@@ -42,7 +42,8 @@ void main_main ()
         pp.get("n_cell", n_cell);
 
         // The domain is broken into boxes of size max_grid_size
-        pp.get("max_grid_size", max_grid_size);
+        max_grid_size = 32;
+        pp.query("max_grid_size", max_grid_size);
 
     }
 

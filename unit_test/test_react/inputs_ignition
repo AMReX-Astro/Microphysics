@@ -1,13 +1,6 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  dens_min   = 1.d8
-  dens_max   = 2.d9
-  temp_min   = 5.d7
-  temp_max   = 7.d8
+amr.plot_file = react_ignition_
 
-  tmax = 1.0d-1
+amr.probin_file = probin.ignition
 
-  xin_file   = "xin.ignition"
-  run_prefix = "react_ignition_"
-/

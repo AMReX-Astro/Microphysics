@@ -1,22 +1,6 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  dens_min   = 1.d4
-  dens_max   = 1.d7
-  temp_min   = 5.d7
-  temp_max   = 5.d8
+amr.plot_file = react_3alpha_
 
-  tmax = 1.d-3
+amr.probin_file = probin.3alpha.BS
 
-  xin_file   = "xin.3alpha_plus_o"
-  run_prefix = "react_3alpha_"
-
-  scaling_method = 2
-
-  use_timestep_estimator = T
-
-  ode_method = 2
-  ode_max_steps = 40000
-
-  safety_factor = 100000000000.0
-/
