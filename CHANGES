@@ -1,3 +1,7 @@
+ -- the unit tests (test_react, test_sdc, and test_eos) have been
+    ported from the Fortran to C++ build system in AMReX.  This will
+    allow us to test the GPU framework in AMReX.
+
 # 18.07
 
  -- added CUDA support to the VODE90 integrator, the helmeos, and the
