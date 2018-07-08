@@ -96,6 +96,10 @@ contains
 
     call actual_network_finalize()
 
+    if (allocated(aion_inv)) then
+       deallocate(aion_inv)
+    endif
+
   end subroutine network_finalize
 
 end module network
