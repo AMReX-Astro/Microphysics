@@ -1,16 +1,5 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  small_dens = 1.0d0
+prefix = react_aprox13_
 
-  dens_min   = 1.d4
-  dens_max   = 1.d8
-  temp_min   = 5.d7
-  temp_max   = 5.d9
-
-  tmax = 1.d-3
-
-  xin_file   = "xin.aprox13"
-  run_prefix = "react_aprox13_"
-
-/
+amr.probin_file = probin.aprox13

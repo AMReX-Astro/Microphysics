@@ -1,7 +1,6 @@
 F90EXE_sources += dvode.F90
 f90EXE_sources += dvode_output.f90
 F90EXE_sources += dvode_type.F90
-f90EXE_sources += bl_types.f90
 F90EXE_sources += dvode_dacopy.F90
 F90EXE_sources += dvode_dewset.F90
 F90EXE_sources += dvode_dvhin.F90

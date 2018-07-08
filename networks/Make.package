@@ -19,6 +19,13 @@ ifneq ($(USE_SYSTEM_BLAS), TRUE)
   include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
 endif
 
+ifeq ($(INTEGRATOR_DIR), VODE90)
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/linear_algebra_modules
+  VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/linear_algebra_modules
+
+  include $(MICROPHYSICS_UTIL_PATH)/linear_algebra_modules/Make.package
+endif
+
 VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
 f90EXE_sources += rate_type.f90
 
