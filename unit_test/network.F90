@@ -16,11 +16,11 @@
 !  network_init          -- initialize the isotope properties
 !
 !  network_species_index -- return the index of the species given its name
+!
+!  network_finalize      -- do any network cleanup
 
 module network
 
-  use amrex_constants_module, only : ONE
-  use amrex_error_module
   use amrex_fort_module, only : rt => amrex_real
   use actual_network
 
@@ -29,21 +29,24 @@ module network
   logical :: network_initialized = .false.
 
   ! this will be computed here, not in the actual network
-  real(kind=rt), allocatable, save :: aion_inv(:)
+  real(rt), allocatable :: aion_inv(:)
+
+  !$acc declare create(aion_inv)
 
 #ifdef CUDA
   attributes(managed) :: aion_inv
 #endif
 
-  !$acc declare create(aion_inv)
-
 contains
 
-  subroutine network_init
+  subroutine network_init()
 
-    use amrex_error_module
+    use amrex_error_module, only : amrex_error
+    use amrex_constants_module, only : ONE
 
     implicit none
+
+    allocate(aion_inv(nspec))
 
     ! First, we call the specific network initialization.
     ! This should set the number of species and number of
@@ -63,7 +66,6 @@ contains
        call amrex_error("Network cannot have a negative number of auxiliary variables.")
     endif
 
-    allocate(aion_inv(nspec))
     aion_inv(:) = ONE/aion(:)
 
     !$acc update device(aion_inv)
@@ -89,10 +91,15 @@ contains
 
   end function network_species_index
 
-  subroutine network_finalize
+  subroutine network_finalize()
+    implicit none
+
+    call actual_network_finalize()
+
     if (allocated(aion_inv)) then
        deallocate(aion_inv)
-    end if
+    endif
+
   end subroutine network_finalize
 
 end module network

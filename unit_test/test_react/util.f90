@@ -7,13 +7,12 @@ module util_module
 
 contains
 
-  subroutine get_xn(xn_zone, lo, hi)
+  subroutine get_xn(xn_zone)
 
     use network,       only: nspec, spec_names
-    use probin_module, only: xin_file
+    use extern_probin_module, only: xin_file
 
     real(rt), intent(  out) :: xn_zone(:,:)
-    integer,         intent(in   ) :: lo, hi
 
     integer         :: un, i
     real(rt) :: summ, usr_in
@@ -30,7 +29,6 @@ contains
     do while (i <= nspec)
        ! read the line into a character buffer
        read (un,'(a)') line
-
        if (index(line, '#') == 1) cycle
 
        read (line,*) xn_zone(i,:)
