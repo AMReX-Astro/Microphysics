@@ -4,9 +4,6 @@ temp_min      real       1.d6
 temp_max      real       1.d15
 
 xin_file      character  "uniform"
-run_prefix    character  ""
-
-test_set      character  "gr0_3d"
 
 tmax          real       0.1d0
 

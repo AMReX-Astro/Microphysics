@@ -4,7 +4,8 @@
 module actual_integrator_module
 
   use amrex_fort_module, only : rt => amrex_real
-
+  use amrex_error_module
+  use eos_type_module
   use eos_module
   use network
   use rpar_indices
