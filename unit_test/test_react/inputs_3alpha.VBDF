@@ -1,15 +1,6 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  dens_min   = 1.d4
-  dens_max   = 1.d7
-  temp_min   = 5.d7
-  temp_max   = 5.d8
+prefix = react_3alpha_
 
-  tmax = 1.d-3
+amr.probin_file = probin.3alpha.VBDF
 
-  xin_file   = "xin.3alpha_plus_o"
-  run_prefix = "react_3alpha_"
-
-  integrate_temperature = T
-/
