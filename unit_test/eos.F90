@@ -78,7 +78,7 @@ contains
     if (present(small_temp)) then
        if (small_temp < mintemp) then
           if (amrex_pd_ioprocessor()) then
-             call bl_warning('EOS: small_temp cannot be less than the mintemp allowed by the EOS. Resetting small_temp to mintemp.')
+             print *, 'EOS: small_temp cannot be less than the mintemp allowed by the EOS. Resetting small_temp to mintemp.'
           endif
           small_temp = mintemp
        else
@@ -89,7 +89,7 @@ contains
     if (present(small_dens)) then
        if (small_dens < mindens) then
           if (amrex_pd_ioprocessor()) then
-             call bl_warning('EOS: small_dens cannot be less than the mindens allowed by the EOS. Resetting small_dens to mindens.')
+             print *, 'EOS: small_dens cannot be less than the mindens allowed by the EOS. Resetting small_dens to mindens.'
           endif
           small_dens = mindens
        else
