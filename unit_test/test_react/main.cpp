@@ -163,9 +163,10 @@ void main_main ()
     }
 
 
-    // get the name of the integrator
+    // get the name of the integrator from the build info functions
+    // written at compile time.  We will append the name of the
+    // integrator to the output file name
     int nmodules = buildInfoGetNumModules();
-    std::cout << "number of modules = " << nmodules << std::endl;
 
     int int_idx = -1;
     std::string INT_KEY = "INTEGRATOR";
