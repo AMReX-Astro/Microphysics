@@ -35,7 +35,7 @@ contains
 
     use rpar_indices
     use amrex_fort_module, only : rt => amrex_real
-    use extern_probin_module, only: burner_verbose, burning_mode, dT_crit
+    use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
 
@@ -58,6 +58,7 @@ contains
     type (bs_t) :: bs
 
     real(rt) :: ener_offset
+    real(rt) :: edot, t_enuc, t_sound, limit_factor
 
     logical :: success
 
@@ -239,6 +240,20 @@ contains
 
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)
+    endif
+
+    ! For burning_mode == 3, limit the burning.
+
+    if (burning_mode == 3) then
+
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_sound = state_in % dx / eos_state_in % cs
+
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+       state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
+       state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
+
     endif
 
     call normalize_abundances_burn(state_out)
