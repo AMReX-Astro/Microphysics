@@ -94,7 +94,7 @@
             real(wp), dimension(npar), intent(in) :: rpar
         end subroutine fcn_hybrd
 
-        subroutine fcn_hybrj(n,x,fvec,fjac,ldfjac,iflag)
+        subroutine fcn_hybrj(n,x,fvec,fjac,ldfjac,iflag,npar,rpar)
             !! function for [[hybrj]]
             import :: wp
             implicit none
@@ -104,6 +104,8 @@
             real(wp),dimension(n),intent(out)        :: fvec
             real(wp),dimension(ldfjac,n),intent(out) :: fjac
             integer,intent(inout)                    :: iflag
+            integer, intent(in) :: npar
+            real(wp), dimension(npar), intent(in) :: rpar
         end subroutine fcn_hybrj
     end interface
 
@@ -972,7 +974,7 @@
         ml      = n - 1
         mu      = n - 1
         epsfcn  = zero
-        mode    = 2
+        mode    = 1
         diag    = one
         nprint  = 0
         lr      = (n*(n+1))/2
@@ -1129,7 +1131,7 @@
 
     subroutine hybrj(fcn,n,x,fvec,fjac,ldfjac,xtol,maxfev,diag,mode,  &
                    & factor,nprint,info,nfev,njev,r,lr,qtf,wa1,wa2,   &
-                   & wa3,wa4)
+                   & wa3,wa4,npar,rpar)
 
     implicit none
 
@@ -1139,6 +1141,8 @@
     real(wp) x(n) , fvec(n) , fjac(ldfjac,n) , diag(n) , &
              r(lr) , qtf(n) , wa1(n) , wa2(n) , wa3(n) , &
              wa4(n)
+    integer, intent(in) :: npar
+    real(wp), intent(in) :: rpar(npar)
 
       integer i , iflag , iter , j , jm1 , l , ncfail , ncsuc , nslow1 , nslow2
       integer iwa(1)
@@ -1173,7 +1177,7 @@
 !     and calculate its norm.
 !
       iflag = 1
-      call fcn(n,x,fvec,fjac,ldfjac,iflag)
+      call fcn(n,x,fvec,fjac,ldfjac,iflag,npar,rpar)
       nfev = 1
       if ( iflag<0 ) goto 300
       fnorm = enorm(n,fvec)
@@ -1193,7 +1197,7 @@
 !        calculate the jacobian matrix.
 !
       iflag = 2
-      call fcn(n,x,fvec,fjac,ldfjac,iflag)
+      call fcn(n,x,fvec,fjac,ldfjac,iflag,npar,rpar)
       njev = njev + 1
       if ( iflag<0 ) goto 300
 !
@@ -1277,7 +1281,7 @@
  200  if ( nprint>0 ) then
          iflag = 0
          if ( mod(iter-1,nprint)==0 )                                   &
-            & call fcn(n,x,fvec,fjac,ldfjac,iflag)
+            & call fcn(n,x,fvec,fjac,ldfjac,iflag,npar,rpar)
          if ( iflag<0 ) goto 300
       endif
 !
@@ -1301,7 +1305,7 @@
 !           evaluate the function at x + p and calculate its norm.
 !
       iflag = 1
-      call fcn(n,wa2,wa4,fjac,ldfjac,iflag)
+      call fcn(n,wa2,wa4,fjac,ldfjac,iflag,npar,rpar)
       nfev = nfev + 1
       if ( iflag>=0 ) then
          fnorm1 = enorm(n,wa4)
@@ -1419,7 +1423,7 @@
 !
  300  if ( iflag<0 ) info = iflag
       iflag = 0
-      if ( nprint>0 ) call fcn(n,x,fvec,fjac,ldfjac,iflag)
+      if ( nprint>0 ) call fcn(n,x,fvec,fjac,ldfjac,iflag,npar,rpar)
 
       end subroutine hybrj
 !*****************************************************************************************
@@ -1504,7 +1508,7 @@
 !       lwa is a positive integer input variable not less than
 !         (n*(n+13))/2.
 
-    subroutine hybrj1(fcn,n,x,fvec,fjac,ldfjac,tol,info,wa,lwa)
+    subroutine hybrj1(fcn,n,x,fvec,fjac,ldfjac,tol,info,wa,lwa,npar,rpar)
 
     implicit none
 
@@ -1512,6 +1516,8 @@
     integer n , ldfjac , info , lwa
     real(wp) tol
     real(wp) x(n) , fvec(n) , fjac(ldfjac,n) , wa(lwa)
+    integer, intent(in) :: npar
+    real(wp), intent(in) :: rpar(npar)
 
       integer j , lr , maxfev , mode , nfev , njev , nprint
       real(wp) xtol
@@ -1536,7 +1542,7 @@
          lr = (n*(n+1))/2
          call hybrj(fcn,n,x,fvec,fjac,ldfjac,xtol,maxfev,wa(1),mode,    &
                     factor,nprint,info,nfev,njev,wa(6*n+1),lr,wa(n+1),  &
-                    wa(2*n+1),wa(3*n+1),wa(4*n+1),wa(5*n+1))
+                    wa(2*n+1),wa(3*n+1),wa(4*n+1),wa(5*n+1), npar, rpar)
          if ( info==5 ) info = 4
 
       endif
