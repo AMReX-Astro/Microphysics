@@ -78,7 +78,7 @@
     implicit none
 
     abstract interface
-        subroutine fcn_hybrd(n,x,fvec,iflag)
+        subroutine fcn_hybrd(n,x,fvec,iflag,npar,rpar)
             !! function for [[hybrd]].
             !! calculate the functions at `x` and
             !! return this vector in `fvec`.
@@ -90,7 +90,10 @@
             integer,intent(inout)             :: iflag  !! the value of `iflag` should not be changed by fcn unless
                                                         !! the user wants to terminate execution of [[hybrd]].
                                                         !! in this case set `iflag` to a negative integer.
+            integer, intent(in) :: npar
+            real(wp), dimension(npar), intent(in) :: rpar
         end subroutine fcn_hybrd
+
         subroutine fcn_hybrj(n,x,fvec,fjac,ldfjac,iflag)
             !! function for [[hybrj]]
             import :: wp
@@ -442,15 +445,17 @@
 !         least n, then the jacobian is considered dense, and wa2 is
 !         not referenced.
 
-    subroutine fdjac1(fcn,n,x,fvec,fjac,ldfjac,iflag,ml,mu,epsfcn,wa1,wa2)
+    subroutine fdjac1(fcn,n,x,fvec,fjac,ldfjac,iflag,ml,mu,epsfcn,wa1,wa2,npar,rpar)
 
     implicit none
 
     integer n , ldfjac , iflag , ml , mu
     real(wp) epsfcn
     real(wp) x(n) , fvec(n) , fjac(ldfjac,n) , wa1(n) , wa2(n)
+    integer :: npar
+    real(wp) :: rpar(npar)
     procedure(fcn_hybrd) :: fcn
-
+    
       integer i , j , k , msum
       real(wp) eps , epsmch , h , temp
 
@@ -469,7 +474,7 @@
                if ( h==zero ) h = eps
                x(j) = wa2(j) + h
             enddo
-            call fcn(n,x,wa1,iflag)
+            call fcn(n,x,wa1,iflag,npar,rpar)
             if ( iflag<0 ) return
             do j = k , n , msum
                x(j) = wa2(j)
@@ -490,7 +495,7 @@
             h = eps*abs(temp)
             if ( h==zero ) h = eps
             x(j) = temp + h
-            call fcn(n,x,wa1,iflag)
+            call fcn(n,x,wa1,iflag,npar,rpar)
             if ( iflag<0 ) return
             x(j) = temp
             do i = 1 , n
@@ -529,7 +534,7 @@
 
     subroutine hybrd(fcn,n,x,fvec,xtol,maxfev,ml,mu,epsfcn,diag,mode, &
                      factor,nprint,info,nfev,fjac,ldfjac,r,lr,qtf,wa1,&
-                     wa2,wa3,wa4)
+                     wa2,wa3,wa4,npar,rpar)
 
     implicit none
 
@@ -615,6 +620,8 @@
     real(wp),intent(inout) :: wa2(n)  !! work array
     real(wp),intent(inout) :: wa3(n)  !! work array
     real(wp),intent(inout) :: wa4(n)  !! work array
+    integer, intent(in) :: npar
+    real(wp), intent(in) :: rpar(npar)
 
     integer :: i , iflag , iter , j , jm1 , l , msum , ncfail , ncsuc , nslow1 , nslow2
     integer :: iwa(1)
@@ -648,7 +655,7 @@
     !     and calculate its norm.
     !
     iflag = 1
-    call fcn(n,x,fvec,iflag)
+    call fcn(n,x,fvec,iflag,npar,rpar)
     nfev = 1
     if ( iflag<0 ) goto 300
     fnorm = enorm(n,fvec)
@@ -673,7 +680,7 @@
     !        calculate the jacobian matrix.
     !
     iflag = 2
-    call fdjac1(fcn,n,x,fvec,fjac,ldfjac,iflag,ml,mu,epsfcn,wa1,wa2)
+    call fdjac1(fcn,n,x,fvec,fjac,ldfjac,iflag,ml,mu,epsfcn,wa1,wa2,npar,rpar)
     nfev = nfev + msum
     if ( iflag<0 ) goto 300
     !
@@ -756,7 +763,7 @@
     !
     200  if ( nprint>0 ) then
        iflag = 0
-       if ( mod(iter-1,nprint)==0 ) call fcn(n,x,fvec,iflag)
+       if ( mod(iter-1,nprint)==0 ) call fcn(n,x,fvec,iflag,npar,rpar)
        if ( iflag<0 ) goto 300
     endif
     !
@@ -780,7 +787,7 @@
     !           evaluate the function at x + p and calculate its norm.
     !
     iflag = 1
-    call fcn(n,wa2,wa4,iflag)
+    call fcn(n,wa2,wa4,iflag,npar,rpar)
     nfev = nfev + 1
     if ( iflag>=0 ) then
        fnorm1 = enorm(n,wa4)
@@ -899,7 +906,7 @@
     !
     300  if ( iflag<0 ) info = iflag
     iflag = 0
-    if ( nprint>0 ) call fcn(n,x,fvec,iflag)
+    if ( nprint>0 ) call fcn(n,x,fvec,iflag,npar,rpar)
 
     end subroutine hybrd
 !*****************************************************************************************
@@ -914,7 +921,7 @@
 !  the jacobian is then calculated by a forward-difference
 !  approximation.
 
-    subroutine hybrd1(fcn,n,x,fvec,tol,info)
+    subroutine hybrd1(fcn,n,x,fvec,tol,info,npar,rpar)
 
     implicit none
 
@@ -947,7 +954,8 @@
     integer :: index , j , lr , maxfev , ml , mode , mu , nfev , nprint
     real(wp) :: epsfcn , xtol
     real(wp),dimension(n) :: diag
-
+    integer, intent(in) :: npar
+    real(wp), intent(in) :: rpar(npar)
     real(wp),parameter :: factor = 100.0_wp
 
     info = 0
@@ -973,7 +981,7 @@
         ! call hybrd:
         call hybrd(fcn,n,x,fvec,xtol,maxfev,ml,mu,epsfcn,diag,mode,&
                    factor,nprint,info,nfev,wa(index+1),n,wa(6*n+1),lr,&
-                   wa(n+1),wa(2*n+1),wa(3*n+1),wa(4*n+1),wa(5*n+1))
+                   wa(n+1),wa(2*n+1),wa(3*n+1),wa(4*n+1),wa(5*n+1),npar,rpar)
         if ( info==5 ) info = 4
 
         deallocate(wa)
