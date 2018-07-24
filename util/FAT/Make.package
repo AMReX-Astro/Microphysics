@@ -1,3 +1,0 @@
-f90EXE_sources += kind_module.f90
-f90EXE_sources += minpack_module.f90
-f90EXE_sources += numbers_module.f90
