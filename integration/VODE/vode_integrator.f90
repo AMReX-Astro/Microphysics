@@ -186,6 +186,7 @@ contains
 
     ! Convert the EOS state data into the form VODE expects.
 
+    rpar(:) = ZERO
     call eos_to_vode(eos_state_in, y, rpar)
 
     rpar(irp_i) = state_in % i
