@@ -5,18 +5,34 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use sneut_module, only: sneut5
+  use actual_network, only: nrates
   use rate_type_module
 
   implicit none
 
   double precision, parameter :: c54 = 56.0d0/54.0d0
 
+  ! Table interpolation data
+
+  double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
+  integer, parameter :: tab_per_decade = 500
+  integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
+  integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
+  double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
+
+  double precision, allocatable :: rattab(:,:)
+  double precision, allocatable :: drattabdt(:,:)
+  double precision, allocatable :: drattabdd(:,:)
+  double precision, allocatable :: ttab(:)
+
 contains
 
   subroutine actual_rhs_init()
 
     use aprox_rates_module, only: rates_init
+    use extern_probin_module, only: use_tables
     use screening_module, only: screening_init
+    use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
     implicit none
 
@@ -26,10 +42,26 @@ contains
 
     call screening_init()
 
+    if (use_tables) then
+
+       if (parallel_IOProcessor()) then
+          print *, ""
+          print *, "Initializing iso7 rate table"
+          print *, ""
+       endif
+
+       call create_rates_table()
+
+    endif
+
   end subroutine actual_rhs_init
 
 
   subroutine get_rates(state, rr)
+
+    use extern_probin_module, only: use_tables
+
+    implicit none
 
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
@@ -49,7 +81,11 @@ contains
     y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
-    call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    if (use_tables) then
+       call iso7tab(temp, rho, ratraw, dratrawdt, dratrawdd)
+    else
+       call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    endif
 
     ! Do the screening here because the corrections depend on the composition
     call screen_iso7(temp, rho, y,                 &
@@ -68,6 +104,139 @@ contains
     rr % T_eval = temp
 
   end subroutine get_rates
+
+
+
+  subroutine iso7tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+    implicit none
+
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+
+    integer, parameter :: mp = 4
+
+    integer          :: j, iat
+    double precision :: x, x1, x2, x3, x4
+    double precision :: a, b, c, d, e, f, g, h, p, q
+    double precision :: alfa, beta, gama, delt
+
+    double precision :: dtab(nrates)
+
+    ! Set the density dependence array
+    dtab(ircag)  = bden
+    dtab(iroga)  = 1.0d0
+    dtab(ir3a)   = bden*bden
+    dtab(irg3a)  = 1.0d0
+    dtab(ir1212) = bden
+    dtab(ir1216) = bden
+    dtab(ir1616) = bden
+    dtab(iroag)  = bden
+    dtab(irnega) = 1.0d0
+    dtab(irneag) = bden
+    dtab(irmgga) = 1.0d0
+    dtab(irmgag) = bden
+    dtab(irsiga) = 1.0d0
+    dtab(ircaag) = bden
+    dtab(irtiga) = 1.0d0
+
+    ! hash locate
+    iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
+    iat = max(1, min(iat - mp / 2 + 1, tab_imax - mp + 1))
+
+    ! setup the lagrange interpolation coefficients for a cubic
+    x  = btemp
+    x1 = ttab(iat)
+    x2 = ttab(iat+1)
+    x3 = ttab(iat+2)
+    x4 = ttab(iat+3)
+    a  = x - x1
+    b  = x - x2
+    c  = x - x3
+    d  = x - x4
+    e  = x1 - x2
+    f  = x1 - x3
+    g  = x1 - x4
+    h  = x2 - x3
+    p  = x2 - x4
+    q  = x3 - x4
+    alfa =  b*c*d/(e*f*g)
+    beta = -a*c*d/(e*h*p)
+    gama =  a*b*d/(f*h*q)
+    delt = -a*b*c/(g*p*q)
+
+    ! crank off the raw reaction rates
+    do j = 1, nrates
+
+       ratraw(j) = (alfa * rattab(j,iat) &
+                    + beta * rattab(j,iat+1) &
+                    + gama * rattab(j,iat+2) &
+                    + delt * rattab(j,iat+3) ) * dtab(j)
+
+       dratrawdt(j) = (alfa * drattabdt(j,iat) &
+                       + beta * drattabdt(j,iat+1) &
+                       + gama * drattabdt(j,iat+2) &
+                       + delt * drattabdt(j,iat+3) ) * dtab(j)
+
+       dratrawdd(j) = alfa * drattabdd(j,iat) &
+                    + beta * drattabdd(j,iat+1) &
+                    + gama * drattabdd(j,iat+2) &
+                    + delt * drattabdd(j,iat+3)
+
+    enddo
+
+    ! hand finish the three body reactions
+    dratrawdd(ir3a) = bden * dratrawdd(ir3a)
+
+  end subroutine iso7tab
+
+
+
+  subroutine create_rates_table()
+
+    implicit none
+
+    ! Allocate memory for the tables
+    allocate(rattab(nrates, nrattab))
+    allocate(drattabdt(nrates, nrattab))
+    allocate(drattabdd(nrates, nrattab))
+    allocate(ttab(nrattab))
+
+    call set_iso7rat()
+
+  end subroutine create_rates_table
+
+
+
+  subroutine set_iso7rat()
+
+    implicit none
+
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    integer :: i, j
+
+    bden = 1.0d0
+
+    do i = 1, tab_imax
+
+       btemp = tab_tlo + dble(i-1) * tab_tstp
+       btemp = 10.0d0**(btemp)
+
+       call iso7rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+       ttab(i) = btemp
+
+       do j = 1, nrates
+
+          rattab(j,i)    = ratraw(j)
+          drattabdt(j,i) = dratrawdt(j)
+          drattabdd(j,i) = dratrawdd(j)
+
+       enddo
+
+    enddo
+
+  end subroutine set_iso7rat
+
 
 
   subroutine actual_rhs(state)
