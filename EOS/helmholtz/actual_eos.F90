@@ -69,8 +69,10 @@ private
     double precision, parameter :: hbar    = 0.5d0 * h/pi
     double precision, parameter :: qe      = 4.8032042712d-10
     double precision, parameter :: avo_eos = 6.0221417930d23
+    double precision, parameter :: avo_eosi = 1.0d0 / avo_eos
     double precision, parameter :: clight  = 2.99792458d10
     double precision, parameter :: kerg    = 1.380650424d-16
+    double precision, parameter :: kergi   = 1.0d0 / kerg
     double precision, parameter :: ev2erg_eos  = 1.60217648740d-12
     double precision, parameter :: kev     = kerg/ev2erg_eos
     double precision, parameter :: amu     = 1.66053878283d-24
@@ -161,41 +163,9 @@ contains
         type (eos_t), intent(inout) :: state
 
         !..rows to store EOS data
-        double precision :: temp_row, &
-                            den_row, &
-                            abar_row, &
-                            zbar_row, &
-                            ye_row, &
-                            etot_row, &
-                            ptot_row, &
-                            cv_row, &
-                            cp_row,  &
-                            xne_row, &
-                            xnp_row, &
-                            etaele_row, &
-                            pele_row, &
-                            ppos_row, &
-                            dpd_row,  &
-                            dpt_row, &
-                            dpa_row, &
-                            dpz_row,  &
-                            ded_row, &
-                            det_row, &
-                            dea_row,  &
-                            dez_row,  &
-                            stot_row, &
-                            dsd_row, &
-                            dst_row, &
-                            htot_row, &
-                            dhd_row, &
-                            dht_row, &
-                            dpe_row, &
-                            dpdr_e_row, &
-                            gam1_row, &
-                            cs_row
+        double precision :: temp_row, den_row
 
         !..declare local variables
-
         logical :: single_iter, double_iter, converged
         integer :: var, dvar, var1, var2, iter
         double precision :: v_want
@@ -203,32 +173,28 @@ contains
         double precision :: xnew, xtol, dvdx, smallx, error, v
         double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
-        double precision :: x,y,zz,zzi,deni,tempi,xni,dxnidd,dxnida, &
+        double precision :: x,xi,y,zz,zzi,deni,tempi,presi,xni,dxnidd,dxnida, &
                             dpepdt,dpepdd,deepdt,deepdd,dsepdd,dsepdt, &
-                            dpraddd,dpraddt,deraddd,deraddt,dpiondd,dpiondt, &
+                            dpraddt,deraddd,deraddt,dpiondd,dpiondt, &
                             deiondd,deiondt,dsraddd,dsraddt,dsiondd,dsiondt, &
-                            dse,dpe,dsp,kt,ktinv,prad,erad,srad,pion,eion, &
-                            sion,xnem,pele,eele,sele,pres,ener,entr,dpresdd, &
-                            dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
-                            gam1,gam2,gam3,chit,chid,nabad,sound,etaele, &
-                            detadt,detadd,xnefer,dxnedt,dxnedd,s, &
-                            temp,den,abar,zbar,ytot1,ye
+                            kt,ktinv,prad,erad,srad,pion,eion, &
+                            sion,pele,eele,sele,pres,ener,entr,dpresdd, &
+                            dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp,cvi, &
+                            gam1,chit,chid,nabad,etaele, &
+                            xnefer,s,si, &
+                            temp,den,abar,zbar,ytot1,ye, &
+                            enth,denthdd,denthdt,dpe,dpdr_e
 
 #ifdef EXTRA_THERMO
         !..for the abar derivatives
-        double precision :: dpradda,deradda,dsradda, &
-                            dpionda,deionda,dsionda, &
+        double precision :: dpionda,deionda, &
                             dpepda,deepda,dsepda,    &
-                            dpresda,denerda,dentrda, &
-                            detada,dxneda
+                            dpresda,denerda
 
 
         !..for the zbar derivatives
-        double precision :: dpraddz,deraddz,dsraddz, &
-                            dpiondz,deiondz,dsiondz, &
-                            dpepdz,deepdz,dsepdz,    &
-                            dpresdz,denerdz,dentrdz ,&
-                            detadz,dxnedz
+        double precision :: dpepdz,deepdz,dsepdz,    &
+                            dpresdz,denerdz
 #endif
 
 
@@ -245,7 +211,7 @@ contains
 
         !..for the coulomb corrections
         double precision :: dsdd,dsda,lami,inv_lami,lamida,lamidd,     &
-                            plasg,plasgdd,plasgdt,plasgda,plasgdz,     &
+                            plasg,plasgi,plasgdd,plasgdt,plasgda,plasgdz,     &
                             ecoul,decouldd,decouldt,decoulda,decouldz, &
                             pcoul,dpcouldd,dpcouldt,dpcoulda,dpcouldz, &
                             scoul,dscouldd,dscouldt,dscoulda,dscouldz
@@ -261,9 +227,11 @@ contains
 
         temp_row = state % T
         den_row  = state % rho
-        abar_row = state % abar
-        zbar_row = state % zbar
-        ye_row   = state % y_e
+        abar     = state % abar
+        zbar     = state % zbar
+        ytot1    = 1.0d0 / abar
+        ye       = state % y_e
+        dxnidd   = avo_eos * ytot1
 
         ! Initial setup for iterations
 
@@ -327,41 +295,6 @@ contains
 
         endif
 
-        ptot_row = 0.0d0
-        dpt_row = 0.0d0
-        dpd_row = 0.0d0
-        dpa_row = 0.0d0
-        dpz_row = 0.0d0
-        dpe_row = 0.0d0
-        dpdr_e_row = 0.0d0
-
-        etot_row = 0.0d0
-        det_row = 0.0d0
-        ded_row = 0.0d0
-        dea_row = 0.0d0
-        dez_row = 0.0d0
-
-        stot_row = 0.0d0
-        dst_row = 0.0d0
-        dsd_row = 0.0d0
-
-        htot_row = 0.0d0
-        dhd_row = 0.0d0
-        dht_row = 0.0d0
-
-        pele_row = 0.0d0
-        ppos_row = 0.0d0
-
-        xne_row = 0.0d0
-        xnp_row = 0.0d0
-
-        etaele_row = 0.0d0
-
-        cv_row = 0.0d0
-        cp_row = 0.0d0
-        cs_row = 0.0d0
-        gam1_row = 0.0d0
-
         converged = .false.
 
         if (input .eq. eos_input_rt) converged = .true.
@@ -370,47 +303,29 @@ contains
 
            temp  = temp_row
            den   =  den_row
-           abar  = abar_row
-           zbar  = zbar_row
 
-           ytot1 = 1.0d0 / abar
-           ye    = ye_row
            din   = ye * den
 
            !..initialize
            deni    = 1.0d0/den
            tempi   = 1.0d0/temp
            kt      = kerg * temp
-           ktinv   = 1.0d0/kt
+           ktinv   = kergi * tempi
 
            !..radiation section:
            prad    = asoli3 * temp * temp * temp * temp
-           dpraddd = 0.0d0
            dpraddt = 4.0d0 * prad*tempi
-#ifdef EXTRA_THERMO
-           dpradda = 0.0d0
-           dpraddz = 0.0d0
-#endif
 
            erad    = 3.0d0 * prad*deni
            deraddd = -erad*deni
            deraddt = 3.0d0 * dpraddt*deni
-#ifdef EXTRA_THERMO
-           deradda = 0.0d0
-           deraddz = 0.0d0
-#endif
 
            srad    = (prad*deni + erad)*tempi
-           dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
+           dsraddd = (-prad*deni*deni + deraddd)*tempi ! + tempi * dpraddd * deni = 0
            dsraddt = (dpraddt*deni + deraddt - srad)*tempi
-#ifdef EXTRA_THERMO
-           dsradda = 0.0d0
-           dsraddz = 0.0d0
-#endif
 
            !..ion section:
            xni     = avo_eos * ytot1 * den
-           dxnidd  = avo_eos * ytot1
            dxnida  = -xni * ytot1
 
            pion    = xni * kt
@@ -418,7 +333,6 @@ contains
            dpiondt = xni * kerg
 #ifdef EXTRA_THERMO
            dpionda = dxnida * kt
-           dpiondz = 0.0d0
 #endif
 
            eion    = 1.5d0 * pion*deni
@@ -426,10 +340,9 @@ contains
            deiondt = 1.5d0 * dpiondt*deni
 #ifdef EXTRA_THERMO
            deionda = 1.5d0 * dpionda*deni
-           deiondz = 0.0d0
 #endif
 
-           x       = abar*abar*sqrt(abar) * deni/avo_eos
+           x       = abar*abar*sqrt(abar) * deni * avo_eosi
            s       = sioncon * temp
            z       = x * s * sqrt(s)
            y       = log(z)
@@ -439,19 +352,8 @@ contains
            dsiondt = (dpiondt*deni + deiondt)*tempi -  &
                 (pion*deni + eion) * tempi*tempi  &
                 + 1.5d0 * kergavo * tempi*ytot1
-           x       = avo_eos*kerg/abar
-#ifdef EXTRA_THERMO
-           dsionda = (dpionda*deni + deionda)*tempi  &
-                + kergavo*ytot1*ytot1* (2.5d0 - y)
-           dsiondz = 0.0d0
-#endif
 
            !..electron-positron section:
-           !..assume complete ionization
-           xnem    = xni * zbar
-
-           !..enter the table with ye*den
-           din = ye*den
 
            !..hash locate this temperature and density
            jat = int((log10(temp) - tlo)*tstpi) + 1
@@ -660,23 +562,6 @@ contains
                 si0t,   si1t,   si0mt,   si1mt, &
                 si0d,   si1d,   si0md,   si1md)
 
-           !..derivative with respect to density
-           x       = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                dsi0d,  dsi1d,  dsi0md,  dsi1md)
-           detadd  = ye * x
-
-           !..derivative with respect to temperature
-           detadt  = h3( fi, &
-                dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-           !..derivative with respect to abar and zbar
-           detada = -x * din * ytot1
-           detadz =  x * den * ytot1
-#endif
-
            !..look in the number density table only once
            fi(1)  = xf(iat,jat)
            fi(2)  = xf(iat+1,jat)
@@ -705,29 +590,11 @@ contains
                 si0t,   si1t,   si0mt,   si1mt, &
                 dsi0d,  dsi1d,  dsi0md,  dsi1md)
            x = max(x,0.0d0)
-           dxnedd   = ye * x
-
-           !..derivative with respect to temperature
-           dxnedt   = h3( fi, &
-                dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-           !..derivative with respect to abar and zbar
-           dxneda = -x * din * ytot1
-           dxnedz =  x  * den * ytot1
-#endif
 
            !..the desired electron-positron thermodynamic quantities
-
-           !..dpepdd at high temperatures and low densities is below the
-           !..floating point limit of the subtraction of two large terms.
-           !..since dpresdd doesn't enter the maxwell relations at all, use the
-           !..bicubic interpolation done above instead of this one
            x       = din * din
            pele    = x * df_d
            dpepdt  = x * df_dt
-           !     dpepdd  = ye * (x * df_dd + 2.0d0 * din * df_d)
            s       = dpepdd/ye - 2.0d0 * din * df_d
 #ifdef EXTRA_THERMO
            dpepda  = -ytot1 * (2.0d0 * pele + s * din)
@@ -769,43 +636,47 @@ contains
            dscoulda = 0.0d0
            dscouldz = 0.0d0
 
-           !..uniform background corrections only
-           !..from yakovlev & shalybkov 1989
-           !..lami is the average ion seperation
-           !..plasg is the plasma coupling parameter
-           z        = forth * pi
-           s        = z * xni
-           dsdd     = z * dxnidd
-           dsda     = z * dxnida
-
-           lami     = 1.0d0/s**onethird
-           inv_lami = 1.0d0/lami
-           z        = -onethird * lami
-           lamidd   = z * dsdd/s
-           lamida   = z * dsda/s
-
-           plasg    = zbar*zbar*esqu*ktinv*inv_lami
-           z        = -plasg * inv_lami
-           plasgdd  = z * lamidd
-           plasgda  = z * lamida
-           plasgdt  = -plasg*ktinv * kerg
-           plasgdz  = 2.0d0 * plasg/zbar
-
-           !     TURN ON/OFF COULOMB
            if ( do_coulomb ) then
+
+              !..uniform background corrections only
+              !..from yakovlev & shalybkov 1989
+              !..lami is the average ion seperation
+              !..plasg is the plasma coupling parameter
+              z        = forth * pi
+              s        = z * xni
+              si       = 1.0d0 / s
+              dsdd     = z * dxnidd
+              dsda     = z * dxnida
+
+              lami     = 1.0d0 * si**onethird
+              inv_lami = 1.0d0/lami
+              z        = -onethird * lami
+              lamidd   = z * dsdd * si
+              lamida   = z * dsda * si
+
+              plasg    = zbar*zbar*esqu*ktinv*inv_lami
+              plasgi   = 1.0d0 / plasg
+              z        = -plasg * inv_lami
+              plasgdd  = z * lamidd
+              plasgda  = z * lamida
+              plasgdt  = -plasg * tempi
+              plasgdz  = 2.0d0 * plasg/zbar
+
               !...yakovlev & shalybkov 1989 equations 82, 85, 86, 87
               if (plasg .ge. 1.0D0) then
+
                  x        = plasg**(0.25d0)
+                 xi       = 1.0d0 / x
                  y        = avo_eos * ytot1 * kerg
-                 ecoul    = y * temp * (a1*plasg + b1*x + c1/x + d1)
+                 ecoul    = y * temp * (a1 * plasg + b1 * x + c1 * xi + d1)
                  pcoul    = onethird * den * ecoul
-                 scoul    = -y * (3.0d0*b1*x - 5.0d0*c1/x &
+                 scoul    = -y * (3.0d0 * b1 * x - 5.0d0 * c1 * xi &
                       + d1 * (log(plasg) - 1.0d0) - e1)
 
-                 y        = avo_eos*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
+                 y        = avo_eos*ytot1*kt*(a1 + 0.25d0 * plasgi * (b1*x - c1 * xi))
                  decouldd = y * plasgdd
-                 decouldt = y * plasgdt + ecoul/temp
-                 decoulda = y * plasgda - ecoul/abar
+                 decouldt = y * plasgdt + ecoul * tempi
+                 decoulda = y * plasgda - ecoul * ytot1
                  decouldz = y * plasgdz
 
                  y        = onethird * den
@@ -814,42 +685,44 @@ contains
                  dpcoulda = y * decoulda
                  dpcouldz = y * decouldz
 
-                 y        = -avo_eos*kerg/(abar*plasg)* &
-                      (0.75d0*b1*x+1.25d0*c1/x+d1)
+                 y        = -avo_eos * kerg * ytot1 * plasgi * &
+                      (0.75d0 * b1 * x + 1.25d0 *c1 * xi + d1)
                  dscouldd = y * plasgdd
                  dscouldt = y * plasgdt
-                 dscoulda = y * plasgda - scoul/abar
+                 dscoulda = y * plasgda - scoul * ytot1
                  dscouldz = y * plasgdz
 
-                 !...yakovlev & shalybkov 1989 equations 102, 103, 104
+              !...yakovlev & shalybkov 1989 equations 102, 103, 104
               else if (plasg .lt. 1.0D0) then
+
                  x        = plasg*sqrt(plasg)
                  y        = plasg**b2
                  z        = c2 * x - onethird * a2 * y
                  pcoul    = -pion * z
-                 ecoul    = 3.0d0 * pcoul/den
-                 scoul    = -avo_eos/abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
+                 ecoul    = 3.0d0 * pcoul * deni
+                 scoul    = -avo_eos * ytot1 * kerg * (c2 * x -a2 * (b2-1.0d0) / b2 * y)
 
-                 s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
+                 s        = 1.5d0 * c2 * x * plasgi - onethird * a2 * b2 * y * plasgi
                  dpcouldd = -dpiondd*z - pion*s*plasgdd
                  dpcouldt = -dpiondt*z - pion*s*plasgdt
 #ifdef EXTRA_THERMO
                  dpcoulda = -dpionda*z - pion*s*plasgda
-                 dpcouldz = -dpiondz*z - pion*s*plasgdz
+                 dpcouldz = - pion*s*plasgdz ! -dpiondz*z = 0
 #endif
 
-                 s        = 3.0d0/den
-                 decouldd = s * dpcouldd - ecoul/den
+                 s        = 3.0d0 * deni
+                 decouldd = s * dpcouldd - ecoul * deni
                  decouldt = s * dpcouldt
                  decoulda = s * dpcoulda
                  decouldz = s * dpcouldz
 
-                 s        = -avo_eos*kerg/(abar*plasg)* &
+                 s        = -avo_eos * kerg * ytot1 * plasgi * &
                       (1.5d0*c2*x-a2*(b2-1.0d0)*y)
                  dscouldd = s * plasgdd
                  dscouldt = s * plasgdt
-                 dscoulda = s * plasgda - scoul/abar
+                 dscoulda = s * plasgda - scoul * ytot1
                  dscouldz = s * plasgdz
+
               end if
 
               ! Disable Coulomb corrections if they cause
@@ -884,25 +757,23 @@ contains
            ener    = erad + eion + eele + ecoul
            entr    = srad + sion + sele + scoul
 
-           dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
+           dpresdd = dpiondd + dpepdd + dpcouldd ! + dpraddd = 0
            dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
 #ifdef EXTRA_THERMO
-           dpresda = dpradda + dpionda + dpepda + dpcoulda
-           dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
+           dpresda = dpionda + dpepda + dpcoulda ! + dpradda = 0
+           dpresdz = dpepdz + dpcouldz ! + dpraddz + dpiondz = 0
 #endif
            denerdd = deraddd + deiondd + deepdd + decouldd
            denerdt = deraddt + deiondt + deepdt + decouldt
 #ifdef EXTRA_THERMO
-           denerda = deradda + deionda + deepda + decoulda
-           denerdz = deraddz + deiondz + deepdz + decouldz
+           denerda = deionda + deepda + decoulda ! + deradda = 0
+           denerdz = deepdz + decouldz ! + deraddz + deiondz = 0
 #endif
 
            dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
            dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
-#ifdef EXTRA_THERMO
-           dentrda = dsradda + dsionda + dsepda + dscoulda
-           dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
-#endif
+
+           presi = 1.0d0 / pres
 
            !..the temperature and density exponents (c&g 9.81 9.82)
            !..the specific heat at constant volume (c&g 9.92)
@@ -910,65 +781,24 @@ contains
            !..the first adiabatic exponent (c&g 9.97)
            !..the second adiabatic exponent (c&g 9.105)
            !..the specific heat at constant pressure (c&g 9.98)
-           !..and relativistic formula for the sound speed (c&g 14.29)
            zz    = pres*deni
-           zzi   = den/pres
-           chit  = temp/pres * dpresdt
+           zzi   = den * presi
+           chit  = temp * presi * dpresdt
            chid  = dpresdd*zzi
            cv    = denerdt
-           x     = zz * chit/(temp * cv)
-           gam3  = x + 1.0d0
+           cvi   = 1.0d0 / cv
+           x     = zz * chit * tempi * cvi
            gam1  = chit*x + chid
            nabad = x/gam1
-           gam2  = 1.0d0/(1.0d0 - nabad)
            cp    = cv * gam1/chid
            z     = 1.0d0 + (ener + light2)*zzi
-           sound = clight * sqrt(gam1/z)
 
-           !..maxwell relations; each is zero if the consistency is perfect
-           x   = den * den
-           dse = temp*dentrdt/denerdt - 1.0d0
-           dpe = (denerdd*x + temp*dpresdt)/pres - 1.0d0
-           dsp = -dentrdd*x/dpresdt - 1.0d0
+           dpe = dpresdt * cvi
+           dpdr_e = dpresdd - dpresdt * denerdd * cvi
 
-           ptot_row = pres
-           dpt_row = dpresdt
-           dpd_row = dpresdd
-#ifdef EXTRA_THERMO
-           dpa_row = dpresda
-           dpz_row = dpresdz
-#endif
-           dpe_row = dpresdt / denerdt
-           dpdr_e_row = dpresdd - dpresdt * denerdd / denerdt
-
-           etot_row = ener
-           det_row = denerdt
-           ded_row = denerdd
-#ifdef EXTRA_THERMO
-           dea_row = denerda
-           dez_row = denerdz
-#endif
-
-           stot_row = entr
-           dst_row = dentrdt
-           dsd_row = dentrdd
-
-           htot_row = ener + pres / den
-           dhd_row = denerdd + dpresdd / den - pres / den**2
-           dht_row = denerdt + dpresdt / den
-
-           pele_row = pele
-           ppos_row = 0.0d0
-
-           xne_row = xnefer
-           xnp_row = 0.0d0
-
-           etaele_row = etaele
-
-           cv_row = cv
-           cp_row = cp
-           cs_row = sound
-           gam1_row = gam1
+           enth = ener + pres * deni
+           denthdd = denerdd + dpresdd * deni - pres * deni**2
+           denthdt = denerdt + dpresdt * deni
 
            if (converged) then
 
@@ -983,17 +813,17 @@ contains
                  xtol = ttol
 
                  if (var .eq. ipres) then
-                    v    = ptot_row
-                    dvdx = dpt_row
+                    v    = pres
+                    dvdx = dpresdt
                  elseif (var .eq. iener) then
-                    v    = etot_row
-                    dvdx = det_row
+                    v    = ener
+                    dvdx = denerdt
                  elseif (var .eq. ientr) then
-                    v    = stot_row
-                    dvdx = dst_row
+                    v    = entr
+                    dvdx = dentrdt
                  elseif (var .eq. ienth) then
-                    v    = htot_row
-                    dvdx = dht_row
+                    v    = enth
+                    dvdx = denthdt
                  else
                     exit
                  endif
@@ -1005,17 +835,17 @@ contains
                  xtol = dtol
 
                  if (var .eq. ipres) then
-                    v    = ptot_row
-                    dvdx = dpd_row
+                    v    = pres
+                    dvdx = dpresdd
                  elseif (var .eq. iener) then
-                    v    = etot_row
-                    dvdx = ded_row
+                    v    = ener
+                    dvdx = denerdd
                  elseif (var .eq. ientr) then
-                    v    = stot_row
-                    dvdx = dsd_row
+                    v    = entr
+                    dvdx = dentrdd
                  elseif (var .eq. ienth) then
-                    v    = htot_row
-                    dvdx = dhd_row
+                    v    = enth
+                    dvdx = denthdd
                  else
                     exit
                  endif
@@ -1054,41 +884,41 @@ contains
               rold = den_row
 
               if (var1 .eq. ipres) then
-                 v1    = ptot_row
-                 dv1dt = dpt_row
-                 dv1dr = dpd_row
+                 v1    = pres
+                 dv1dt = dpresdt
+                 dv1dr = dpresdd
               elseif (var1 .eq. iener) then
-                 v1    = etot_row
-                 dv1dt = det_row
-                 dv1dr = ded_row
+                 v1    = ener
+                 dv1dt = denerdt
+                 dv1dr = denerdd
               elseif (var1 .eq. ientr) then
-                 v1    = stot_row
-                 dv1dt = dst_row
-                 dv1dr = dsd_row
+                 v1    = entr
+                 dv1dt = dentrdt
+                 dv1dr = dentrdd
               elseif (var1 .eq. ienth) then
-                 v1    = htot_row
-                 dv1dt = dht_row
-                 dv1dr = dhd_row
+                 v1    = enth
+                 dv1dt = denthdt
+                 dv1dr = denthdd
               else
                  exit
               endif
 
               if (var2 .eq. ipres) then
-                 v2    = ptot_row
-                 dv2dt = dpt_row
-                 dv2dr = dpd_row
+                 v2    = pres
+                 dv2dt = dpresdt
+                 dv2dr = dpresdd
               elseif (var2 .eq. iener) then
-                 v2    = etot_row
-                 dv2dt = det_row
-                 dv2dr = ded_row
+                 v2    = ener
+                 dv2dt = denerdt
+                 dv2dr = denerdd
               elseif (var2 .eq. ientr) then
-                 v2    = stot_row
-                 dv2dt = dst_row
-                 dv2dr = dsd_row
+                 v2    = entr
+                 dv2dt = dentrdt
+                 dv2dr = dentrdd
               elseif (var2 .eq. ienth) then
-                 v2    = htot_row
-                 dv2dt = dht_row
-                 dv2dr = dhd_row
+                 v2    = enth
+                 dv2dt = denthdt
+                 dv2dr = denthdd
               else
                  exit
               endif
@@ -1135,47 +965,46 @@ contains
         state % T    = temp_row
         state % rho  = den_row
 
-        state % p    = ptot_row
-        state % dpdT = dpt_row
-        state % dpdr = dpd_row
+        state % p    = pres
+        state % dpdT = dpresdt
+        state % dpdr = dpresdd
 
 #ifdef EXTRA_THERMO
-        state % dpdA = dpa_row
-        state % dpdZ = dpz_row
+        state % dpdA = dpresda
+        state % dpdZ = dpresdz
 #endif
 
-        state % dpde = dpe_row
-        state % dpdr_e = dpdr_e_row
+        state % dpde = dpe
+        state % dpdr_e = dpdr_e
 
-        state % e    = etot_row
-        state % dedT = det_row
-        state % dedr = ded_row
+        state % e    = ener
+        state % dedT = denerdt
+        state % dedr = denerdd
 
 #ifdef EXTRA_THERMO
-        state % dedA = dea_row
-        state % dedZ = dez_row
+        state % dedA = denerda
+        state % dedZ = denerdz
 #endif
 
-        state % s    = stot_row
-        state % dsdT = dst_row
-        state % dsdr = dsd_row
+        state % s    = entr
+        state % dsdT = dentrdt
+        state % dsdr = dentrdd
 
-        state % h    = htot_row
-        state % dhdR = dhd_row
-        state % dhdT = dht_row
+        state % h    = enth
+        state % dhdR = denthdd
+        state % dhdT = denthdt
 
-        state % pele = pele_row
-        state % ppos = ppos_row
+        state % pele = pele
+        state % ppos = 0.0d0
 
-        state % xne = xne_row
-        state % xnp = xnp_row
+        state % xne = xnefer
+        state % xnp = 0.0d0
 
-        state % eta = etaele_row
+        state % eta = etaele
 
-        state % cv   = cv_row
-        state % cp   = cp_row
-        state % gam1 = gam1_row
-        ! state % cs   = cs_row
+        state % cv   = cv
+        state % cp   = cp
+        state % gam1 = gam1
 
         ! Take care of final housekeeping.
 
