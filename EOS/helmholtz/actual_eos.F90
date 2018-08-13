@@ -21,17 +21,14 @@ module actual_eos_module
     !..for the helmholtz free energy tables
     double precision, allocatable :: f(:,:,:)
 
-    !..for the pressure derivative with density ables
-    double precision, allocatable :: dpdf(:,:), dpdfd(:,:),          &
-                                     dpdft(:,:), dpdfdt(:,:)
+    !..for the pressure derivative with density tables
+    double precision, allocatable :: dpdf(:,:,:)
 
     !..for chemical potential tables
-    double precision, allocatable :: ef(:,:), efd(:,:),              &
-                                     eft(:,:), efdt(:,:)
+    double precision, allocatable :: ef(:,:,:)
 
     !..for the number density tables
-    double precision, allocatable :: xf(:,:), xfd(:,:),              &
-                                     xft(:,:), xfdt(:,:)
+    double precision, allocatable :: xf(:,:,:)
 
     !..for storing the differences
     double precision, allocatable :: dt_sav(:), dt2_sav(:),          &
@@ -46,10 +43,10 @@ module actual_eos_module
     attributes(managed) :: tlo, thi, tstp, tstpi
     attributes(managed) :: dlo, dhi, dstp, dstpi
     attributes(managed) :: ttol, dtol
-    attributes(managed) :: f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt
-    attributes(managed) :: dpdf, dpdfd, dpdft, dpdfdt
-    attributes(managed) :: ef, efd, eft, efdt
-    attributes(managed) :: xf, xfd, xft, xfdt
+    attributes(managed) :: f
+    attributes(managed) :: dpdf
+    attributes(managed) :: ef
+    attributes(managed) :: xf
     attributes(managed) :: dt_sav, dt2_sav, dti_sav, dt2i_sav
     attributes(managed) :: dd_sav, dd2_sav, ddi_sav, dd2i_sav
 #endif
@@ -116,9 +113,9 @@ private
     !$acc create(tstp, tstpi, dstp, dstpi) &
     !$acc create(ttol, dtol) &
     !$acc create(itmax, jtmax, d, t) &
-    !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
-    !$acc create(dpdf, dpdfd, dpdft, dpdfdt) &
-    !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+    !$acc create(f) &
+    !$acc create(dpdf) &
+    !$acc create(ef, xf)  &
     !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
     !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
     !$acc create(do_coulomb, input_is_constant)
@@ -482,22 +479,10 @@ contains
            dsi1md = xdpsi1(mxd)
 
            !..look in the pressure derivative only once
-           fi(1)  = dpdf(iat,jat)
-           fi(2)  = dpdf(iat+1,jat)
-           fi(3)  = dpdf(iat,jat+1)
-           fi(4)  = dpdf(iat+1,jat+1)
-           fi(5)  = dpdft(iat,jat)
-           fi(6)  = dpdft(iat+1,jat)
-           fi(7)  = dpdft(iat,jat+1)
-           fi(8)  = dpdft(iat+1,jat+1)
-           fi(9)  = dpdfd(iat,jat)
-           fi(10) = dpdfd(iat+1,jat)
-           fi(11) = dpdfd(iat,jat+1)
-           fi(12) = dpdfd(iat+1,jat+1)
-           fi(13) = dpdfdt(iat,jat)
-           fi(14) = dpdfdt(iat+1,jat)
-           fi(15) = dpdfdt(iat,jat+1)
-           fi(16) = dpdfdt(iat+1,jat+1)
+           fi(1:4)   = dpdf(1:4, iat  ,jat  )
+           fi(5:8)   = dpdf(1:4, iat+1,jat  )
+           fi(9:12)  = dpdf(1:4, iat  ,jat+1)
+           fi(13:16) = dpdf(1:4, iat+1,jat+1)
 
            !..pressure derivative with density
            dpepdd  = h3(   fi, &
@@ -506,22 +491,10 @@ contains
            dpepdd  = max(ye * dpepdd,0.0d0)
 
            !..look in the electron chemical potential table only once
-           fi(1)  = ef(iat,jat)
-           fi(2)  = ef(iat+1,jat)
-           fi(3)  = ef(iat,jat+1)
-           fi(4)  = ef(iat+1,jat+1)
-           fi(5)  = eft(iat,jat)
-           fi(6)  = eft(iat+1,jat)
-           fi(7)  = eft(iat,jat+1)
-           fi(8)  = eft(iat+1,jat+1)
-           fi(9)  = efd(iat,jat)
-           fi(10) = efd(iat+1,jat)
-           fi(11) = efd(iat,jat+1)
-           fi(12) = efd(iat+1,jat+1)
-           fi(13) = efdt(iat,jat)
-           fi(14) = efdt(iat+1,jat)
-           fi(15) = efdt(iat,jat+1)
-           fi(16) = efdt(iat+1,jat+1)
+           fi(1:4)   = ef(1:4,iat  ,jat  )
+           fi(5:8)   = ef(1:4,iat+1,jat  )
+           fi(9:12)  = ef(1:4,iat  ,jat+1)
+           fi(13:16) = ef(1:4,iat+1,jat+1)
 
            !..electron chemical potential etaele
            etaele  = h3( fi, &
@@ -529,22 +502,10 @@ contains
                 si0d,   si1d,   si0md,   si1md)
 
            !..look in the number density table only once
-           fi(1)  = xf(iat,jat)
-           fi(2)  = xf(iat+1,jat)
-           fi(3)  = xf(iat,jat+1)
-           fi(4)  = xf(iat+1,jat+1)
-           fi(5)  = xft(iat,jat)
-           fi(6)  = xft(iat+1,jat)
-           fi(7)  = xft(iat,jat+1)
-           fi(8)  = xft(iat+1,jat+1)
-           fi(9)  = xfd(iat,jat)
-           fi(10) = xfd(iat+1,jat)
-           fi(11) = xfd(iat,jat+1)
-           fi(12) = xfd(iat+1,jat+1)
-           fi(13) = xfdt(iat,jat)
-           fi(14) = xfdt(iat+1,jat)
-           fi(15) = xfdt(iat,jat+1)
-           fi(16) = xfdt(iat+1,jat+1)
+           fi(1:4)   = xf(1:4,iat  ,jat  )
+           fi(5:8)   = xf(1:4,iat+1,jat  )
+           fi(9:12)  = xf(1:4,iat  ,jat+1)
+           fi(13:16) = xf(1:4,iat+1,jat+1)
 
            !..electron + positron number densities
            xnefer   = h3( fi, &
@@ -1057,18 +1018,9 @@ contains
         allocate(ttol)
         allocate(dtol)
         allocate(f(9,imax,jmax))
-        allocate(dpdf(imax,jmax))
-        allocate(dpdfd(imax,jmax))
-        allocate(dpdft(imax,jmax))
-        allocate(dpdfdt(imax,jmax))
-        allocate(ef(imax,jmax))
-        allocate(efd(imax,jmax))
-        allocate(eft(imax,jmax))
-        allocate(efdt(imax,jmax))
-        allocate(xf(imax,jmax))
-        allocate(xfd(imax,jmax))
-        allocate(xft(imax,jmax))
-        allocate(xfdt(imax,jmax))
+        allocate(dpdf(4,imax,jmax))
+        allocate(ef(4,imax,jmax))
+        allocate(xf(4,imax,jmax))
         allocate(dt_sav(jmax))
         allocate(dt2_sav(jmax))
         allocate(dti_sav(jmax))
@@ -1137,21 +1089,21 @@ contains
            !..   read the pressure derivative with density table
            do j = 1, jmax
               do i = 1, imax
-                 read(2,*) dpdf(i,j),dpdfd(i,j),dpdft(i,j),dpdfdt(i,j)
+                 read(2,*) dpdf(1,i,j),dpdf(3,i,j),dpdf(2,i,j),dpdf(4,i,j)
               end do
            end do
 
            !..   read the electron chemical potential table
            do j = 1, jmax
               do i = 1, imax
-                 read(2,*) ef(i,j),efd(i,j),eft(i,j),efdt(i,j)
+                 read(2,*) ef(1,i,j),ef(3,i,j),ef(2,i,j),ef(4,i,j)
               end do
            end do
 
            !..   read the number density table
            do j = 1, jmax
               do i = 1, imax
-                 read(2,*) xf(i,j),xfd(i,j),xft(i,j),xfdt(i,j)
+                 read(2,*) xf(1,i,j),xf(3,i,j),xf(2,i,j),xf(4,i,j)
               end do
            end do
 
@@ -1159,17 +1111,8 @@ contains
 
         call parallel_bcast(f)
         call parallel_bcast(dpdf)
-        call parallel_bcast(dpdfd)
-        call parallel_bcast(dpdft)
-        call parallel_bcast(dpdfdt)
         call parallel_bcast(ef)
-        call parallel_bcast(efd)
-        call parallel_bcast(eft)
-        call parallel_bcast(efdt)
         call parallel_bcast(xf)
-        call parallel_bcast(xfd)
-        call parallel_bcast(xft)
-        call parallel_bcast(xfdt)
 
         !..   construct the temperature and density deltas and their inverses
         do j = 1, jmax-1
@@ -1210,9 +1153,9 @@ contains
         !$acc device(tlo, thi, dlo, dhi) &
         !$acc device(tstp, tstpi, dstp, dstpi) &
         !$acc device(itmax, jtmax, d, t) &
-        !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
-        !$acc device(dpdf, dpdfd, dpdft, dpdfdt) &
-        !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+        !$acc device(f) &
+        !$acc device(dpdf) &
+        !$acc device(ef, xf)  &
         !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
         !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
         !$acc device(do_coulomb, input_is_constant)
@@ -1389,14 +1332,22 @@ contains
       double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
       double precision :: h3r
       !$gpu
-      h3r =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
-           + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
-           + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
-           + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
-           + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
-           + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
-           + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
-           + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
+      h3r =  fi( 1) *w0d*w0t   &
+           + fi( 2) *w0d*w1t   &
+           + fi( 3) *w1d*w0t   &
+           + fi( 4) *w1d*w1t   &
+           + fi( 5) *w0md*w0t  &
+           + fi( 6) *w0md*w1t  &
+           + fi( 7) *w1md*w0t  &
+           + fi( 8) *w1md*w1t  &
+           + fi( 9) *w0d*w0mt  &
+           + fi(10) *w0d*w1mt  &
+           + fi(11) *w1d*w0mt  &
+           + fi(12) *w1d*w1mt  &
+           + fi(13) *w0md*w0mt &
+           + fi(14) *w0md*w1mt &
+           + fi(15) *w1md*w0mt &
+           + fi(16) *w1md*w1mt
     end function h3
 
     subroutine actual_eos_finalize
@@ -1423,17 +1374,8 @@ contains
       deallocate(dtol)
       deallocate(f)
       deallocate(dpdf)
-      deallocate(dpdfd)
-      deallocate(dpdft)
-      deallocate(dpdfdt)
       deallocate(ef)
-      deallocate(efd)
-      deallocate(eft)
-      deallocate(efdt)
       deallocate(xf)
-      deallocate(xfd)
-      deallocate(xft)
-      deallocate(xfdt)
       deallocate(dt_sav)
       deallocate(dt2_sav)
       deallocate(dti_sav)
