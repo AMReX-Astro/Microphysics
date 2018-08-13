@@ -411,15 +411,6 @@ contains
            ddsi1mt = -ddpsi1(mxt)*dti_sav(jat)
            ddsi2mt =  ddpsi2(mxt)
 
-           !     ddsi0d =   ddpsi0(xd)*dd2i_sav(iat)
-           !     ddsi1d =   ddpsi1(xd)*ddi_sav(iat)
-           !     ddsi2d =   ddpsi2(xd)
-
-           !     ddsi0md =  ddpsi0(mxd)*dd2i_sav(iat)
-           !     ddsi1md = -ddpsi1(mxd)*ddi_sav(iat)
-           !     ddsi2md =  ddpsi2(mxd)
-
-
            !..the free energy
            free  = h5( fi, &
                 si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
@@ -434,11 +425,6 @@ contains
            df_t = h5( fi, &
                 dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
                 si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-           !..derivative with respect to density**2
-           !     df_dd = h5( &
-           !               si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-           !               ddsi0d, ddsi1d, ddsi2d, ddsi0md, ddsi1md, ddsi2md)
 
            !..derivative with respect to temperature**2
            df_tt = h5( fi, &
@@ -705,8 +691,6 @@ contains
            !..the temperature and density exponents (c&g 9.81 9.82)
            !..the specific heat at constant volume (c&g 9.92)
            !..the third adiabatic exponent (c&g 9.93)
-           !..the first adiabatic exponent (c&g 9.97)
-           !..the second adiabatic exponent (c&g 9.105)
            !..the specific heat at constant pressure (c&g 9.98)
            zz    = pres*deni
            zzi   = den * presi
@@ -1077,6 +1061,10 @@ contains
               call amrex_error('actual_eos_init: Failed to open helm_table.dat')
 
            endif
+
+           ! Note that in the below, the indices are read in slightly out of numerical
+           ! order. This is so that they match up with how they are actually used in
+           ! the calculation of h5 and h3.
 
            !...  read in the free energy table
            do j=1,jmax
