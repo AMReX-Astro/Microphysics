@@ -285,10 +285,10 @@ contains
 
     ! Set the density dependence array
 
-    dtab(ircag)  = bden
-    dtab(iroga)  = 1.0d0
     dtab(ir3a)   = bden*bden
     dtab(irg3a)  = 1.0d0
+    dtab(ircag)  = bden
+    dtab(iroga)  = 1.0d0
     dtab(ir1212) = bden
     dtab(ir1216) = bden
     dtab(ir1616) = bden
@@ -344,6 +344,14 @@ contains
     dtab(ircopa) = bden
     dtab(ircopg) = bden
     dtab(irnigp) = 1.0d0
+    dtab(irr1)   = 0.0d0
+    dtab(irs1)   = 0.0d0
+    dtab(irt1)   = 0.0d0
+    dtab(iru1)   = 0.0d0
+    dtab(irv1)   = 0.0d0
+    dtab(irw1)   = 0.0d0
+    dtab(irx1)   = 0.0d0
+    dtab(iry1)   = 0.0d0
 
     ! hash locate
     iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
