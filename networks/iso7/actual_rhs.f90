@@ -138,6 +138,8 @@ contains
     dtab(irsiga) = 1.0d0
     dtab(ircaag) = bden
     dtab(irtiga) = 1.0d0
+    dtab(irsi2ni) = 0.0d0
+    dtab(irni2si) = 0.0d0
 
     ! hash locate
     iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
