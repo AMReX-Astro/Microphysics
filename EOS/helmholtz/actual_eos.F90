@@ -56,8 +56,8 @@ module actual_eos_module
 
     integer, parameter          :: max_newton = 100
 
-    double precision, parameter :: ttol = 1.0d-8
-    double precision, parameter :: dtol = 1.0d-8
+    double precision, save :: ttol
+    double precision, save :: dtol
 
     ! 2006 CODATA physical constants
 private
@@ -1232,7 +1232,7 @@ contains
     subroutine actual_eos_init
 
         use amrex_error_module
-        use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
+        use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb, eos_ttol, eos_dtol
         use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast, amrex_pd_ioprocessor
 
         implicit none
@@ -1293,6 +1293,8 @@ contains
 
         input_is_constant = eos_input_is_constant
         do_coulomb = use_eos_coulomb
+        ttol = eos_ttol
+        dtol = eos_dtol
 
         if (amrex_pd_ioprocessor()) then
            print *, ''
