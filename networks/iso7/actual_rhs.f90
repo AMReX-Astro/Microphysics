@@ -71,7 +71,7 @@ contains
 
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     ! Get the data from the state
@@ -98,8 +98,8 @@ contains
 
     rr % rates(1,:) = ratdum
     rr % rates(2,:) = dratdumdt
-    rr % rates(3,:) = dratdumdy1
-    rr % rates(4,:) = dratdumdy2
+    rr % rates(3,irsi2ni:irni2si) = dratdumdy1
+    rr % rates(4,irsi2ni:irni2si) = dratdumdy2
 
     rr % T_eval = temp
 
@@ -569,7 +569,7 @@ contains
     double precision :: y(nspec)
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     integer          :: i, jscr
@@ -586,12 +586,13 @@ contains
        ratdum(i)     = ratraw(i)
        dratdumdt(i)  = dratrawdt(i)
        dratdumdd(i)  = dratrawdd(i)
-       dratdumdy1(i) = ZERO
-       dratdumdy2(i) = ZERO
        scfac(i)      = ONE
        dscfacdt(i)   = ZERO
        dscfacdd(i)   = ZERO
     enddo
+
+    dratdumdy1(:) = ZERO
+    dratdumdy2(:) = ZERO
 
     ! get the temperature factors
     call get_tfactors(btemp, tf)
@@ -794,7 +795,7 @@ contains
     ! this routine sets up the dense iso7 jacobian for the isotopes
 
     double precision :: y(nspec), dfdy(nspec,nspec)
-    double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: ratdum(nrates), dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
 
     double precision :: b(8)
 
