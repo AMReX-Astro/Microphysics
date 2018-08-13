@@ -30,7 +30,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:9)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -104,7 +111,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:11)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -178,7 +192,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:12)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -252,7 +273,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:14)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -326,7 +354,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:16)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -400,7 +435,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:1)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -474,7 +516,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:19)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -548,7 +597,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:24)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -622,7 +678,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:25)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -696,7 +759,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:2)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -770,7 +840,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:3)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -844,7 +921,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:4)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -918,7 +1002,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:5)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -992,7 +1083,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:6)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -1066,7 +1164,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:7)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -1140,7 +1245,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:8)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
