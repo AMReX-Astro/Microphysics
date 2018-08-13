@@ -19,10 +19,7 @@ module actual_eos_module
     double precision, allocatable :: ttol, dtol
 
     !..for the helmholtz free energy tables
-    double precision, allocatable :: f(:,:), fd(:,:),                &
-                                     ft(:,:), fdd(:,:), ftt(:,:),    &
-                                     fdt(:,:), fddt(:,:), fdtt(:,:), &
-                                     fddtt(:,:)
+    double precision, allocatable :: f(:,:,:)
 
     !..for the pressure derivative with density ables
     double precision, allocatable :: dpdf(:,:), dpdfd(:,:),          &
@@ -363,42 +360,10 @@ contains
            iat = max(1,min(iat,itmax-1))
 
            !..access the table locations only once
-           fi(1)  = f(iat,jat)
-           fi(2)  = f(iat+1,jat)
-           fi(3)  = f(iat,jat+1)
-           fi(4)  = f(iat+1,jat+1)
-           fi(5)  = ft(iat,jat)
-           fi(6)  = ft(iat+1,jat)
-           fi(7)  = ft(iat,jat+1)
-           fi(8)  = ft(iat+1,jat+1)
-           fi(9)  = ftt(iat,jat)
-           fi(10) = ftt(iat+1,jat)
-           fi(11) = ftt(iat,jat+1)
-           fi(12) = ftt(iat+1,jat+1)
-           fi(13) = fd(iat,jat)
-           fi(14) = fd(iat+1,jat)
-           fi(15) = fd(iat,jat+1)
-           fi(16) = fd(iat+1,jat+1)
-           fi(17) = fdd(iat,jat)
-           fi(18) = fdd(iat+1,jat)
-           fi(19) = fdd(iat,jat+1)
-           fi(20) = fdd(iat+1,jat+1)
-           fi(21) = fdt(iat,jat)
-           fi(22) = fdt(iat+1,jat)
-           fi(23) = fdt(iat,jat+1)
-           fi(24) = fdt(iat+1,jat+1)
-           fi(25) = fddt(iat,jat)
-           fi(26) = fddt(iat+1,jat)
-           fi(27) = fddt(iat,jat+1)
-           fi(28) = fddt(iat+1,jat+1)
-           fi(29) = fdtt(iat,jat)
-           fi(30) = fdtt(iat+1,jat)
-           fi(31) = fdtt(iat,jat+1)
-           fi(32) = fdtt(iat+1,jat+1)
-           fi(33) = fddtt(iat,jat)
-           fi(34) = fddtt(iat+1,jat)
-           fi(35) = fddtt(iat,jat+1)
-           fi(36) = fddtt(iat+1,jat+1)
+           fi(1:9)   = f(1:9, iat  ,jat  ) ! f, ft, ftt, fd, fdd, fdt, fddt, fdtt, fddtt
+           fi(10:18) = f(1:9, iat+1,jat  )
+           fi(19:27) = f(1:9, iat  ,jat+1)
+           fi(28:36) = f(1:9, iat+1,jat+1)
 
            !..various differences
            xt  = max( (temp - t(jat))*dti_sav(jat), 0.0d0)
@@ -1091,15 +1056,7 @@ contains
         allocate(dstpi)
         allocate(ttol)
         allocate(dtol)
-        allocate(f(imax,jmax))
-        allocate(fd(imax,jmax))
-        allocate(ft(imax,jmax))
-        allocate(fdd(imax,jmax))
-        allocate(ftt(imax,jmax))
-        allocate(fdt(imax,jmax))
-        allocate(fddt(imax,jmax))
-        allocate(fdtt(imax,jmax))
-        allocate(fddtt(imax,jmax))
+        allocate(f(9,imax,jmax))
         allocate(dpdf(imax,jmax))
         allocate(dpdfd(imax,jmax))
         allocate(dpdft(imax,jmax))
@@ -1172,8 +1129,8 @@ contains
            !...  read in the free energy table
            do j=1,jmax
               do i=1,imax
-                 read(2,*) f(i,j),fd(i,j),ft(i,j),fdd(i,j),ftt(i,j),fdt(i,j), &
-                      fddt(i,j),fdtt(i,j),fddtt(i,j)
+                 read(2,*) f(1,i,j),f(4,i,j),f(2,i,j),f(5,i,j),f(3,i,j),f(6,i,j), &
+                      f(7,i,j),f(8,i,j),f(9,i,j)
               end do
            end do
 
@@ -1201,14 +1158,6 @@ contains
         end if
 
         call parallel_bcast(f)
-        call parallel_bcast(fd)
-        call parallel_bcast(ft)
-        call parallel_bcast(fdd)
-        call parallel_bcast(ftt)
-        call parallel_bcast(fdt)
-        call parallel_bcast(fddt)
-        call parallel_bcast(fdtt)
-        call parallel_bcast(fddtt)
         call parallel_bcast(dpdf)
         call parallel_bcast(dpdfd)
         call parallel_bcast(dpdft)
@@ -1358,24 +1307,42 @@ contains
 
       !$gpu
 
-      h5r =  fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
-           + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
-           + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
-           + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
-           + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
-           + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
-           + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
-           + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
-           + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
-           + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
-           + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
-           + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
-           + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
-           + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
-           + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
-           + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
-           + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
-           + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
+      h5r =  fi( 1) *w0d*w0t   &
+           + fi( 2) *w0d*w1t   &
+           + fi( 3) *w0d*w2t   &
+           + fi( 4) *w1d*w0t   &
+           + fi( 5) *w2d*w0t   &
+           + fi( 6) *w1d*w1t   &
+           + fi( 7) *w2d*w1t   &
+           + fi( 8) *w1d*w2t   &
+           + fi( 9) *w2d*w2t   &
+           + fi(10) *w0md*w0t  &
+           + fi(11) *w0md*w1t  &
+           + fi(12) *w0md*w2t  &
+           + fi(13) *w1md*w0t  &
+           + fi(14) *w2md*w0t  &
+           + fi(15) *w1md*w1t  &
+           + fi(16) *w2md*w1t  &
+           + fi(17) *w1md*w2t  &
+           + fi(18) *w2md*w2t  &
+           + fi(19) *w0d*w0mt  &
+           + fi(20) *w0d*w1mt  &
+           + fi(21) *w0d*w2mt  &
+           + fi(22) *w1d*w0mt  &
+           + fi(23) *w2d*w0mt  &
+           + fi(24) *w1d*w1mt  &
+           + fi(25) *w2d*w1mt  &
+           + fi(26) *w1d*w2mt  &
+           + fi(27) *w2d*w2mt  &
+           + fi(28) *w0md*w0mt &
+           + fi(29) *w0md*w1mt &
+           + fi(30) *w0md*w2mt &
+           + fi(31) *w1md*w0mt &
+           + fi(32) *w2md*w0mt &
+           + fi(33) *w1md*w1mt &
+           + fi(34) *w2md*w1mt &
+           + fi(35) *w1md*w2mt &
+           + fi(36) *w2md*w2mt
     end function h5
 
 
@@ -1455,14 +1422,6 @@ contains
       deallocate(ttol)
       deallocate(dtol)
       deallocate(f)
-      deallocate(fd)
-      deallocate(ft)
-      deallocate(fdd)
-      deallocate(ftt)
-      deallocate(fdt)
-      deallocate(fddt)
-      deallocate(fdtt)
-      deallocate(fddtt)
       deallocate(dpdf)
       deallocate(dpdfd)
       deallocate(dpdft)
