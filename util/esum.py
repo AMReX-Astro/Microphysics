@@ -23,7 +23,14 @@ esum_template = """
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:@NUM_MINUS_ONE@)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
