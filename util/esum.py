@@ -106,68 +106,12 @@ module_end = """
 end module esum_module
 """
 
-file_extensions = [".f90", ".F90"]
-
-esum_needed = []
-
-top_dir = os.getcwd()
-
-# find the files with proper extension
-potential_files = []
-for dir_name, _, files in os.walk(top_dir):
-    for ext in file_extensions:
-        potential_files += [os.path.join(dir_name, f) for f in files
-                            if f.endswith(ext) and os.path.isfile(os.path.join(dir_name, f))]
-
-# now search those files for the ones that contains esum
-esum_files = []
-for pf in potential_files:
-    with open(pf, "r") as fh:
-        for line in fh:
-            if "esum" in line:
-                esum_files.append(pf)
-                break
-
-
-# now do the real work (probably could have done that above :)
-esum_re = re.compile("(esum).*?(\\()((?:[a-z][a-z0-9_]*)).*?(\\d+)(\\))")
-
-for ef in esum_files:
-    print("working on {}".format(ef))
-
-    # back it up
-    os.rename(ef, "{}_orig".format(ef))
-
-    with open(ef, "w") as fnew, open("{}_orig".format(ef), "r") as fold:
-        for line in fold:
-            eout = esum_re.search(line.strip())
-            if eout:
-                full_esum = eout.group(0)
-                var = eout.group(3)
-                num = eout.group(4)
-
-                line = line.replace(full_esum, "esum{}({})".format(num, var))
-
-            fnew.write(line)
-
-            if "esum" in line:
-                start_idx = line.rfind("esum") + 4
-                if line[start_idx:start_idx+2].isdigit():
-                    num = line[start_idx:start_idx+2]
-                elif line[start_idx:start_idx+1].isdigit():
-                    num = line[start_idx:start_idx+1]
-
-                if not num in esum_needed:
-                    esum_needed.append(num)
-
-
-
 with open("util/esum_module.F90", "w") as ef:
 
     ef.write(module_start)
 
-    for num in sorted(set(esum_needed)):
-        ef.write(esum_template.replace("@NUM@", num).replace("@NUM_MINUS_ONE@", str(int(num)-1)))
+    for num in range(3, 31):
+        ef.write(esum_template.replace("@NUM@", str(num)).replace("@NUM_MINUS_ONE@", str(num-1)))
 
     ef.write(module_end)
 
