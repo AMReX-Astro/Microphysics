@@ -179,15 +179,15 @@ contains
                        + gama * drattabdt(j,iat+2) &
                        + delt * drattabdt(j,iat+3) ) * dtab(j)
 
-       dratrawdd(j) = alfa * drattabdd(j,iat) &
-                    + beta * drattabdd(j,iat+1) &
-                    + gama * drattabdd(j,iat+2) &
-                    + delt * drattabdd(j,iat+3)
+       !dratrawdd(j) = alfa * drattabdd(j,iat) &
+       !             + beta * drattabdd(j,iat+1) &
+       !             + gama * drattabdd(j,iat+2) &
+       !             + delt * drattabdd(j,iat+3)
 
     enddo
 
     ! hand finish the three body reactions
-    dratrawdd(ir3a) = bden * dratrawdd(ir3a)
+    !dratrawdd(ir3a) = bden * dratrawdd(ir3a)
 
   end subroutine iso7tab
 
@@ -256,7 +256,6 @@ contains
 
     logical          :: deriva = .false.
 
-
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
@@ -269,7 +268,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y(:)    = state % xn(:) * aion_inv(:)
+    y(:) = state % xn(:) * aion_inv(:)
 
     call get_rates(state, rr)
 
@@ -610,15 +609,15 @@ contains
 
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
-    sc3add = sc1add*sc2a + sc1a*sc2add
+    !sc3add = sc1add*sc2a + sc1a*sc2add
 
     ratdum(ir3a)    = ratraw(ir3a) * sc3a
     dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
-    dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
+    !dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
 
     scfac(ir3a)     = sc3a
     dscfacdt(ir3a)  = sc3adt
-    dscfacdd(ir3a)  = sc3add
+    !dscfacdd(ir3a)  = sc3add
 
 
     ! c12 to o16
@@ -627,11 +626,11 @@ contains
 
     ratdum(ircag)     = ratraw(ircag) * sc1a
     dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
-    dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
+    !dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
 
     scfac(ircag)      = sc1a
     dscfacdt(ircag)   = sc1adt
-    dscfacdt(ircag)   = sc1add
+    !dscfacdd(ircag)   = sc1add
 
 
 
@@ -641,11 +640,11 @@ contains
 
     ratdum(ir1212)    = ratraw(ir1212) * sc1a
     dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
-    dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
+    !dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
 
     scfac(ir1212)     = sc1a
     dscfacdt(ir1212)  = sc1adt
-    dscfacdd(ir1212)  = sc1add
+    !dscfacdd(ir1212)  = sc1add
 
 
 
@@ -655,11 +654,11 @@ contains
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
+    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
 
     scfac(ir1216)     = sc1a
     dscfacdt(ir1216)  = sc1adt
-    dscfacdd(ir1216)  = sc1add
+    !dscfacdd(ir1216)  = sc1add
 
 
 
@@ -669,11 +668,11 @@ contains
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
+    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
 
     scfac(ir1216)     = sc1a
     dscfacdt(ir1216)  = sc1adt
-    dscfacdd(ir1216)  = sc1add
+    !dscfacdd(ir1216)  = sc1add
 
 
 
@@ -683,11 +682,11 @@ contains
 
     ratdum(iroag)    = ratraw(iroag) * sc1a
     dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
-    dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
+    !dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
 
     scfac(iroag)     = sc1a
     dscfacdt(iroag)  = sc1adt
-    dscfacdd(iroag)  = sc1add
+    !dscfacdd(iroag)  = sc1add
 
 
 
@@ -697,11 +696,11 @@ contains
 
     ratdum(irneag)    = ratraw(irneag) * sc1a
     dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
-    dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
+    !dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
 
     scfac(irneag)     = sc1a
     dscfacdt(irneag)  = sc1adt
-    dscfacdd(irneag)  = sc1add
+    !dscfacdd(irneag)  = sc1add
 
 
     ! mg24 to si28
@@ -710,11 +709,11 @@ contains
 
     ratdum(irmgag)    = ratraw(irmgag) * sc1a
     dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
-    dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
+    !dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
 
     scfac(irmgag)     = sc1a
     dscfacdt(irmgag)  = sc1adt
-    dscfacdd(irmgag)  = sc1add
+    !dscfacdd(irmgag)  = sc1add
 
 
 
@@ -724,11 +723,11 @@ contains
 
     ratdum(ircaag)    = ratraw(ircaag) * sc1a
     dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
-    dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
+    !dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
 
     scfac(ircaag)     = sc1a
     dscfacdt(ircaag)  = sc1adt
-    dscfacdd(ircaag)  = sc1add
+    !dscfacdd(ircaag)  = sc1add
 
 
 
@@ -757,8 +756,8 @@ contains
        dratdumdy2(irsi2ni) = yeff_ca40*denom*ratdum(ircaag)
        dratdumdt(irsi2ni)  = (yeff_ca40dt*ratdum(ircaag) &
             + yeff_ca40*dratdumdt(ircaag))*denom*y(isi28)*1.0d-9
-       dratdumdd(irsi2ni)  = 3.0d0*ratdum(irsi2ni)/bden &
-            + yeff_ca40*denom*dratdumdd(ircaag)*y(isi28)
+       !dratdumdd(irsi2ni)  = 3.0d0*ratdum(irsi2ni)/bden &
+       !     + yeff_ca40*denom*dratdumdd(ircaag)*y(isi28)
 
 
        if (denom .ne. 0.0) then
@@ -769,14 +768,14 @@ contains
           if (ratdum(irni2si) .eq. 1.0d10) then
              dratdumdy1(irni2si) = 0.0d0
              dratdumdt(irni2si)  = 0.0d0
-             dratdumdd(irni2si)  = 0.0d0
+             !dratdumdd(irni2si)  = 0.0d0
 
           else
              dratdumdy1(irni2si) = -3.0d0 * ratdum(irni2si)/y(ihe4)
              dratdumdt(irni2si)  = (yeff_ti44dt*ratdum(irtiga) &
                   + yeff_ti44*dratdumdt(irtiga))*zz*1.0d-9
-             dratdumdd(irni2si)  = -3.0d0 * ratdum(irni2si)/bden &
-                  + yeff_ti44*dratdumdd(irtiga)*zz
+             !dratdumdd(irni2si)  = -3.0d0 * ratdum(irni2si)/bden &
+             !     + yeff_ti44*dratdumdd(irtiga)*zz
           end if
        endif
     end if
