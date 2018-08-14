@@ -2,3 +2,7 @@
 use_eos_coulomb                     logical            .true.       
 # Force the EOS output quantities to match input
 eos_input_is_constant               logical            .false.
+# Tolerance for iterations with respect to temperature
+eos_ttol                            real               1.0d-8
+# Tolerance for iterations with respect to density
+eos_dtol                            real               1.0d-8

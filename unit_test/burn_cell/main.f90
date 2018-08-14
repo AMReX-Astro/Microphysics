@@ -22,7 +22,7 @@ program burn_cell
 
   type (burn_t)       :: burn_state_in, burn_state_out
 
-  real (rt)    :: tmax, energy, dt
+  real (rt)    :: tmax, energy, time, dt
   integer             :: numsteps, i, istate
 
   character (len=256) :: params_file
@@ -93,25 +93,29 @@ program burn_cell
   end if
 
   ! output initial burn type data
+  time = ZERO
+
   write(out_num,'(I6.6)') 0
   out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
-  burn_state_in % time = ZERO
+  burn_state_in % time = time
   call write_burn_t(out_name, burn_state_in)
   
   dt = tmax/numsteps
   
   do i = 1, numsteps
      ! Do burn
-     call actual_burner(burn_state_in, burn_state_out, dt, ZERO)
+     call actual_burner(burn_state_in, burn_state_out, dt, time)
      energy = energy + burn_state_out % e
      burn_state_in = burn_state_out
      burn_state_in % e = ZERO
-     write(*,*) 'Completed burn to: ', dt*i, ' seconds'
+     write(*,*) 'Completed burn to: ', burn_state_out % time, ' seconds'
      
      ! output burn type data
      write(out_num,'(I6.6)') i
      out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
      call write_burn_t(out_name, burn_state_out)
+
+     time = burn_state_out % time
   end do
 
   call microphysics_finalize()

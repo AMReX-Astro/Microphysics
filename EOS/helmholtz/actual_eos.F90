@@ -16,6 +16,8 @@ module actual_eos_module
     double precision, allocatable :: tlo, thi, tstp, tstpi
     double precision, allocatable :: dlo, dhi, dstp, dstpi
 
+    double precision, allocatable :: ttol, dtol
+
     !..for the helmholtz free energy tables
     double precision, allocatable :: f(:,:), fd(:,:),                &
                                      ft(:,:), fdd(:,:), ftt(:,:),    &
@@ -46,6 +48,7 @@ module actual_eos_module
     attributes(managed) :: d, t
     attributes(managed) :: tlo, thi, tstp, tstpi
     attributes(managed) :: dlo, dhi, dstp, dstpi
+    attributes(managed) :: ttol, dtol
     attributes(managed) :: f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt
     attributes(managed) :: dpdf, dpdfd, dpdft, dpdfdt
     attributes(managed) :: ef, efd, eft, efdt
@@ -55,9 +58,6 @@ module actual_eos_module
 #endif
 
     integer, parameter          :: max_newton = 100
-
-    double precision, parameter :: ttol = 1.0d-8
-    double precision, parameter :: dtol = 1.0d-8
 
     ! 2006 CODATA physical constants
 private
@@ -115,6 +115,7 @@ private
     !$acc declare &
     !$acc create(tlo, thi, dlo, dhi) &
     !$acc create(tstp, tstpi, dstp, dstpi) &
+    !$acc create(ttol, dtol) &
     !$acc create(itmax, jtmax, d, t) &
     !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
     !$acc create(dpdf, dpdfd, dpdft, dpdfdt) &
@@ -1232,7 +1233,7 @@ contains
     subroutine actual_eos_init
 
         use amrex_error_module
-        use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb
+        use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb, eos_ttol, eos_dtol
         use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast, amrex_pd_ioprocessor
 
         implicit none
@@ -1259,6 +1260,8 @@ contains
         allocate(dhi)
         allocate(dstp)
         allocate(dstpi)
+        allocate(ttol)
+        allocate(dtol)
         allocate(f(imax,jmax))
         allocate(fd(imax,jmax))
         allocate(ft(imax,jmax))
@@ -1293,6 +1296,8 @@ contains
 
         input_is_constant = eos_input_is_constant
         do_coulomb = use_eos_coulomb
+        ttol = eos_ttol
+        dtol = eos_dtol
 
         if (amrex_pd_ioprocessor()) then
            print *, ''
@@ -1618,6 +1623,8 @@ contains
       deallocate(dhi)
       deallocate(dstp)
       deallocate(dstpi)
+      deallocate(ttol)
+      deallocate(dtol)
       deallocate(f)
       deallocate(fd)
       deallocate(ft)
