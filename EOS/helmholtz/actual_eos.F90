@@ -196,13 +196,8 @@ contains
         !..for the interpolations
         integer          :: iat,jat
         double precision :: free,df_d,df_t,df_tt,df_dt
-        double precision :: xt,xd,mxt,mxd, &
-                            si0t,si1t,si2t,si0mt,si1mt,si2mt, &
-                            si0d,si1d,si2d,si0md,si1md,si2md, &
-                            dsi0t,dsi1t,dsi2t,dsi0mt,dsi1mt,dsi2mt, &
-                            dsi0d,dsi1d,dsi2d,dsi0md,dsi1md,dsi2md, &
-                            ddsi0t,ddsi1t,ddsi2t,ddsi0mt,ddsi1mt,ddsi2mt, &
-                            z,din,fi(36)
+        double precision :: xt,xd,mxt,mxd,z,din,fi(36)
+        double precision :: sit(6),sid(6),dsit(6),dsid(6),ddsit(6)
 
         !..for the coulomb corrections
         double precision :: dsdd,dsda,lami,inv_lami,lamida,lamidd,     &
@@ -369,100 +364,90 @@ contains
            mxd = 1.0d0 - xd
 
            !..the six density and six temperature basis functions
-           si0t =   psi0(xt)
-           si1t =   psi1(xt)*dt_sav(jat)
-           si2t =   psi2(xt)*dt2_sav(jat)
+           sit(1) = psi0(xt)
+           sit(2) = psi1(xt)*dt_sav(jat)
+           sit(3) = psi2(xt)*dt2_sav(jat)
 
-           si0mt =  psi0(mxt)
-           si1mt = -psi1(mxt)*dt_sav(jat)
-           si2mt =  psi2(mxt)*dt2_sav(jat)
+           sit(4) =  psi0(mxt)
+           sit(5) = -psi1(mxt)*dt_sav(jat)
+           sit(6) =  psi2(mxt)*dt2_sav(jat)
 
-           si0d =   psi0(xd)
-           si1d =   psi1(xd)*dd_sav(iat)
-           si2d =   psi2(xd)*dd2_sav(iat)
+           sid(1) =   psi0(xd)
+           sid(2) =   psi1(xd)*dd_sav(iat)
+           sid(3) =   psi2(xd)*dd2_sav(iat)
 
-           si0md =  psi0(mxd)
-           si1md = -psi1(mxd)*dd_sav(iat)
-           si2md =  psi2(mxd)*dd2_sav(iat)
+           sid(4) =  psi0(mxd)
+           sid(5) = -psi1(mxd)*dd_sav(iat)
+           sid(6) =  psi2(mxd)*dd2_sav(iat)
 
            !..derivatives of the weight functions
-           dsi0t =   dpsi0(xt)*dti_sav(jat)
-           dsi1t =   dpsi1(xt)
-           dsi2t =   dpsi2(xt)*dt_sav(jat)
+           dsit(1) =   dpsi0(xt)*dti_sav(jat)
+           dsit(2) =   dpsi1(xt)
+           dsit(3) =   dpsi2(xt)*dt_sav(jat)
 
-           dsi0mt = -dpsi0(mxt)*dti_sav(jat)
-           dsi1mt =  dpsi1(mxt)
-           dsi2mt = -dpsi2(mxt)*dt_sav(jat)
+           dsit(4) = -dpsi0(mxt)*dti_sav(jat)
+           dsit(5) =  dpsi1(mxt)
+           dsit(6) = -dpsi2(mxt)*dt_sav(jat)
 
-           dsi0d =   dpsi0(xd)*ddi_sav(iat)
-           dsi1d =   dpsi1(xd)
-           dsi2d =   dpsi2(xd)*dd_sav(iat)
+           dsid(1) =   dpsi0(xd)*ddi_sav(iat)
+           dsid(2) =   dpsi1(xd)
+           dsid(3) =   dpsi2(xd)*dd_sav(iat)
 
-           dsi0md = -dpsi0(mxd)*ddi_sav(iat)
-           dsi1md =  dpsi1(mxd)
-           dsi2md = -dpsi2(mxd)*dd_sav(iat)
+           dsid(4) = -dpsi0(mxd)*ddi_sav(iat)
+           dsid(5) =  dpsi1(mxd)
+           dsid(6) = -dpsi2(mxd)*dd_sav(iat)
 
            !..second derivatives of the weight functions
-           ddsi0t =   ddpsi0(xt)*dt2i_sav(jat)
-           ddsi1t =   ddpsi1(xt)*dti_sav(jat)
-           ddsi2t =   ddpsi2(xt)
+           ddsit(1) =   ddpsi0(xt)*dt2i_sav(jat)
+           ddsit(2) =   ddpsi1(xt)*dti_sav(jat)
+           ddsit(3) =   ddpsi2(xt)
 
-           ddsi0mt =  ddpsi0(mxt)*dt2i_sav(jat)
-           ddsi1mt = -ddpsi1(mxt)*dti_sav(jat)
-           ddsi2mt =  ddpsi2(mxt)
+           ddsit(4) =  ddpsi0(mxt)*dt2i_sav(jat)
+           ddsit(5) = -ddpsi1(mxt)*dti_sav(jat)
+           ddsit(6) =  ddpsi2(mxt)
 
            !..the free energy
-           free  = h5( fi, &
-                si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+           free  = h5(fi, sit, sid)
 
            !..derivative with respect to density
-           df_d  = h5( fi, &
-                si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-                dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+           df_d  = h5(fi, sit, dsid)
 
            !..derivative with respect to temperature
-           df_t = h5( fi, &
-                dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
-                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+           df_t  = h5(fi, dsit, sid)
 
            !..derivative with respect to temperature**2
-           df_tt = h5( fi, &
-                ddsi0t, ddsi1t, ddsi2t, ddsi0mt, ddsi1mt, ddsi2mt, &
-                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+           df_tt = h5(fi, ddsit, sid)
 
            !..derivative with respect to temperature and density
-           df_dt = h5( fi, &
-                dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
-                dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+           df_dt = h5(fi, dsit, dsid)
 
            !..now get the pressure derivative with density, chemical potential, and
            !..electron positron number densities
            !..get the interpolation weight functions
-           si0t   =  xpsi0(xt)
-           si1t   =  xpsi1(xt)*dt_sav(jat)
+           sit(1) = xpsi0(xt)
+           sit(2) = xpsi1(xt)*dt_sav(jat)
 
-           si0mt  =  xpsi0(mxt)
-           si1mt  =  -xpsi1(mxt)*dt_sav(jat)
+           sit(3) = xpsi0(mxt)
+           sit(4) = -xpsi1(mxt)*dt_sav(jat)
 
-           si0d   =  xpsi0(xd)
-           si1d   =  xpsi1(xd)*dd_sav(iat)
+           sid(1) = xpsi0(xd)
+           sid(2) = xpsi1(xd)*dd_sav(iat)
 
-           si0md  =  xpsi0(mxd)
-           si1md  =  -xpsi1(mxd)*dd_sav(iat)
+           sid(3) = xpsi0(mxd)
+           sid(4) = -xpsi1(mxd)*dd_sav(iat)
 
            !..derivatives of weight functions
-           dsi0t  = xdpsi0(xt)*dti_sav(jat)
-           dsi1t  = xdpsi1(xt)
+           dsit(1) = xdpsi0(xt)*dti_sav(jat)
+           dsit(2) = xdpsi1(xt)
 
-           dsi0mt = -xdpsi0(mxt)*dti_sav(jat)
-           dsi1mt = xdpsi1(mxt)
+           dsit(3) = -xdpsi0(mxt)*dti_sav(jat)
+           dsit(4) = xdpsi1(mxt)
 
-           dsi0d  = xdpsi0(xd)*ddi_sav(iat)
-           dsi1d  = xdpsi1(xd)
+           dsid(1) = xdpsi0(xd)*ddi_sav(iat)
+           dsid(2) = xdpsi1(xd)
 
-           dsi0md = -xdpsi0(mxd)*ddi_sav(iat)
-           dsi1md = xdpsi1(mxd)
+           dsid(3) = -xdpsi0(mxd)*ddi_sav(iat)
+           dsid(4) = xdpsi1(mxd)
 
            !..look in the pressure derivative only once
            fi(1:4)   = dpdf(1:4, iat  ,jat  )
@@ -471,9 +456,7 @@ contains
            fi(13:16) = dpdf(1:4, iat+1,jat+1)
 
            !..pressure derivative with density
-           dpepdd  = h3(   fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                si0d,   si1d,   si0md,   si1md)
+           dpepdd  = h3(fi, sit, sid)
            dpepdd  = max(ye * dpepdd,0.0d0)
 
            !..look in the electron chemical potential table only once
@@ -483,9 +466,7 @@ contains
            fi(13:16) = ef(1:4,iat+1,jat+1)
 
            !..electron chemical potential etaele
-           etaele  = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                si0d,   si1d,   si0md,   si1md)
+           etaele  = h3(fi, sit, sid)
 
            !..look in the number density table only once
            fi(1:4)   = xf(1:4,iat  ,jat  )
@@ -494,14 +475,10 @@ contains
            fi(13:16) = xf(1:4,iat+1,jat+1)
 
            !..electron + positron number densities
-           xnefer   = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                si0d,   si1d,   si0md,   si1md)
+           xnefer   = h3(fi, sit, sid)
 
            !..derivative with respect to density
-           x        = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                dsi0d,  dsi1d,  dsi0md,  dsi1md)
+           x        = h3(fi, sit, dsid)
            x = max(x,0.0d0)
 
            !..the desired electron-positron thermodynamic quantities
@@ -1230,20 +1207,19 @@ contains
 
 
     ! biquintic hermite polynomial function
-    AMREX_DEVICE pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
+    AMREX_DEVICE pure function h5(fi, wt, wd) result(h5r)
       !$acc routine seq
-      double precision, intent(in) :: fi(36)
-      double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
+      double precision, intent(in) :: fi(36), wt(6), wd(6)
       double precision :: h5r
 
       !$gpu
 
-      h5r = w0d  * (fi( 1)*w0t + fi( 2)*w1t + fi( 3)*w2t + fi(19)*w0mt + fi(20)*w1mt + fi(21)*w2mt) + &
-            w1d  * (fi( 4)*w0t + fi( 6)*w1t + fi( 8)*w2t + fi(22)*w0mt + fi(24)*w1mt + fi(26)*w2mt) + &
-            w2d  * (fi( 5)*w0t + fi( 7)*w1t + fi( 9)*w2t + fi(23)*w0mt + fi(25)*w1mt + fi(27)*w2mt) + &
-            w0md * (fi(10)*w0t + fi(11)*w1t + fi(12)*w2t + fi(28)*w0mt + fi(29)*w1mt + fi(30)*w2mt) + &
-            w1md * (fi(13)*w0t + fi(15)*w1t + fi(17)*w2t + fi(31)*w0mt + fi(33)*w1mt + fi(35)*w2mt) + &
-            w2md * (fi(14)*w0t + fi(16)*w1t + fi(18)*w2t + fi(32)*w0mt + fi(34)*w1mt + fi(36)*w2mt)
+      h5r = wd(1) * (fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)) + &
+            wd(2) * (fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)) + &
+            wd(3) * (fi( 5)*wt(1) + fi( 7)*wt(2) + fi( 9)*wt(3) + fi(23)*wt(4) + fi(25)*wt(5) + fi(27)*wt(6)) + &
+            wd(4) * (fi(10)*wt(1) + fi(11)*wt(2) + fi(12)*wt(3) + fi(28)*wt(4) + fi(29)*wt(5) + fi(30)*wt(6)) + &
+            wd(5) * (fi(13)*wt(1) + fi(15)*wt(2) + fi(17)*wt(3) + fi(31)*wt(4) + fi(33)*wt(5) + fi(35)*wt(6)) + &
+            wd(6) * (fi(14)*wt(1) + fi(16)*wt(2) + fi(18)*wt(3) + fi(32)*wt(4) + fi(34)*wt(5) + fi(36)*wt(6))
 
     end function h5
 
@@ -1285,18 +1261,17 @@ contains
     end function xdpsi1
 
     ! bicubic hermite polynomial function
-    AMREX_DEVICE pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
+    AMREX_DEVICE pure function h3(fi, wt, wd) result(h3r)
       !$acc routine seq
-      double precision, intent(in) :: fi(36)
-      double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
+      double precision, intent(in) :: fi(16), wt(4), wd(4)
       double precision :: h3r
 
       !$gpu
 
-      h3r = w0d  * (fi( 1)*w0t + fi( 2)*w1t + fi( 9)*w0mt + fi(10)*w1mt) + &
-            w1d  * (fi( 3)*w0t + fi( 4)*w1t + fi(11)*w0mt + fi(12)*w1mt) + &
-            w0md * (fi( 5)*w0t + fi( 6)*w1t + fi(13)*w0mt + fi(14)*w1mt) + &
-            w1md * (fi( 7)*w0t + fi( 8)*w1t + fi(15)*w0mt + fi(16)*w1mt)
+      h3r = wd(1) * (fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 9)*wt(3) + fi(10)*wt(4)) + &
+            wd(2) * (fi( 3)*wt(1) + fi( 4)*wt(2) + fi(11)*wt(3) + fi(12)*wt(4)) + &
+            wd(3) * (fi( 5)*wt(1) + fi( 6)*wt(2) + fi(13)*wt(3) + fi(14)*wt(4)) + &
+            wd(4) * (fi( 7)*wt(1) + fi( 8)*wt(2) + fi(15)*wt(3) + fi(16)*wt(4))
 
     end function h3
 
