@@ -1,3 +1,11 @@
+
+# changes since the last release
+
+ -- The Helmholtz parameters ttol and dtol (controlling the error
+    for the Newton iteration when in a mode other than eos_input_rt)
+    are now runtime parameters in the extern namelist as eos_ttol
+    and eos_dtol.
+
 # 18.08
 
  -- the unit tests (test_react, test_sdc, and test_eos) have been

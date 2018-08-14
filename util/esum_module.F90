@@ -12,672 +12,6 @@ module esum_module
 
 contains
 
-  AMREX_DEVICE function esum10(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:9)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 10
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum10
-
-
-  AMREX_DEVICE function esum12(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:11)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 12
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum12
-
-
-  AMREX_DEVICE function esum13(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:12)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 13
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum13
-
-
-  AMREX_DEVICE function esum15(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:14)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 15
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum15
-
-
-  AMREX_DEVICE function esum17(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:16)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 17
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum17
-
-
-  AMREX_DEVICE function esum2(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:1)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 2
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum2
-
-
-  AMREX_DEVICE function esum20(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:19)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 20
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum20
-
-
-  AMREX_DEVICE function esum25(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:24)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 25
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum25
-
-
-  AMREX_DEVICE function esum26(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:25)
-    real(rt) :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 26
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum26
-
-
   AMREX_DEVICE function esum3(array) result(esum)
 
     !$acc routine seq
@@ -696,7 +30,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:2)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -770,7 +111,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:3)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -844,7 +192,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:4)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -918,7 +273,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:5)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -992,7 +354,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:6)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -1066,7 +435,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:7)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -1140,7 +516,14 @@ contains
     ! initializing the unused values in this array.
 
     real(rt) :: partials(0:8)
-    real(rt) :: x, y, z, hi, lo
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
 
     !$gpu
 
@@ -1194,6 +577,1707 @@ contains
     esum = sum(partials(0:j))
 
   end function esum9
+
+
+  AMREX_DEVICE function esum10(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:9)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 10
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum10
+
+
+  AMREX_DEVICE function esum11(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:10)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 11
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum11
+
+
+  AMREX_DEVICE function esum12(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:11)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 12
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum12
+
+
+  AMREX_DEVICE function esum13(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:12)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 13
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum13
+
+
+  AMREX_DEVICE function esum14(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:13)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 14
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum14
+
+
+  AMREX_DEVICE function esum15(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:14)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 15
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum15
+
+
+  AMREX_DEVICE function esum16(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:15)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 16
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum16
+
+
+  AMREX_DEVICE function esum17(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:16)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 17
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum17
+
+
+  AMREX_DEVICE function esum18(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:17)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 18
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum18
+
+
+  AMREX_DEVICE function esum19(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:18)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 19
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum19
+
+
+  AMREX_DEVICE function esum20(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:19)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 20
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum20
+
+
+  AMREX_DEVICE function esum21(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:20)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 21
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum21
+
+
+  AMREX_DEVICE function esum22(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:21)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 22
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum22
+
+
+  AMREX_DEVICE function esum23(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:22)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 23
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum23
+
+
+  AMREX_DEVICE function esum24(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:23)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 24
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum24
+
+
+  AMREX_DEVICE function esum25(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:24)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 25
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum25
+
+
+  AMREX_DEVICE function esum26(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:25)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 26
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum26
+
+
+  AMREX_DEVICE function esum27(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:26)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 27
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum27
+
+
+  AMREX_DEVICE function esum28(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:27)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 28
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum28
+
+
+  AMREX_DEVICE function esum29(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:28)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 29
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum29
+
+
+  AMREX_DEVICE function esum30(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(:)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing the unused values in this array.
+
+    real(rt) :: partials(0:29)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    j = 0
+
+    ! The first partial is just the first term.
+    partials(j) = array(1)
+
+    do i = 2, 30
+
+       km = j
+       j = 0
+
+       x = array(i)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          lo = y - (hi - x)
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+  end function esum30
 
 
 end module esum_module
