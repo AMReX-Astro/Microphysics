@@ -468,32 +468,32 @@ contains
            wdt(13:16) = sid(4) * sit(1:4)
 
            !..look in the pressure derivative only once
-           fi(1:4)   = dpdf(1:4, iat  ,jat  )
-           fi(5:8)   = dpdf(1:4, iat+1,jat  )
-           fi(9:12)  = dpdf(1:4, iat  ,jat+1)
-           fi(13:16) = dpdf(1:4, iat+1,jat+1)
+           fi([ 1,  2,  5,  6]) = dpdf(1:4, iat  ,jat  )
+           fi([ 9, 10, 13, 14]) = dpdf(1:4, iat+1,jat  )
+           fi([ 3,  4,  7,  8]) = dpdf(1:4, iat  ,jat+1)
+           fi([11, 12, 15, 16]) = dpdf(1:4, iat+1,jat+1)
 
            !..pressure derivative with density
-           dpepdd  = h3(fi, wdt)
+           dpepdd  = sum(fi(1:16) * wdt)
            dpepdd  = max(ye * dpepdd,0.0d0)
 
            !..look in the electron chemical potential table only once
-           fi(1:4)   = ef(1:4,iat  ,jat  )
-           fi(5:8)   = ef(1:4,iat+1,jat  )
-           fi(9:12)  = ef(1:4,iat  ,jat+1)
-           fi(13:16) = ef(1:4,iat+1,jat+1)
+           fi([ 1,  2,  5,  6]) = ef(1:4,iat  ,jat  )
+           fi([ 9, 10, 13, 14]) = ef(1:4,iat+1,jat  )
+           fi([ 3,  4,  7,  8]) = ef(1:4,iat  ,jat+1)
+           fi([11, 12, 15, 16]) = ef(1:4,iat+1,jat+1)
 
            !..electron chemical potential etaele
-           etaele  = h3(fi, wdt)
+           etaele  = sum(fi(1:16) * wdt)
 
            !..look in the number density table only once
-           fi(1:4)   = xf(1:4,iat  ,jat  )
-           fi(5:8)   = xf(1:4,iat+1,jat  )
-           fi(9:12)  = xf(1:4,iat  ,jat+1)
-           fi(13:16) = xf(1:4,iat+1,jat+1)
+           fi([ 1,  2,  5,  6]) = xf(1:4,iat  ,jat  )
+           fi([ 9, 10, 13, 14]) = xf(1:4,iat+1,jat  )
+           fi([ 3,  4,  7,  8]) = xf(1:4,iat  ,jat+1)
+           fi([11, 12, 15, 16]) = xf(1:4,iat+1,jat+1)
 
            !..electron + positron number densities
-           xnefer   = h3(fi, wdt)
+           xnefer   = sum(fi(1:16) * wdt)
 
            wdt(1:4)   = dsid(1) * sit(1:4)
            wdt(5:8)   = dsid(2) * sit(1:4)
@@ -501,7 +501,7 @@ contains
            wdt(13:16) = dsid(4) * sit(1:4)
 
            !..derivative with respect to density
-           x = h3(fi, wdt)
+           x = sum(fi(1:16) * wdt)
            x = max(x,0.0d0)
 
            !..the desired electron-positron thermodynamic quantities
@@ -1064,7 +1064,7 @@ contains
 
            ! Note that in the below, the indices are read in slightly out of numerical
            ! order. This is so that they match up with how they are actually used in
-           ! the calculation of h5 and h3.
+           ! the calculation of the polynomial expressions.
 
            !...  read in the free energy table
            do j=1,jmax
@@ -1280,21 +1280,6 @@ contains
       !$gpu
       xdpsi1r = z * (3.0d0*z - 4.0d0) + 1.0d0
     end function xdpsi1
-
-    ! bicubic hermite polynomial function
-    AMREX_DEVICE pure function h3(fi, wdt) result(h3r)
-      !$acc routine seq
-      double precision, intent(in) :: fi(16), wdt(16)
-      double precision :: h3r
-
-      !$gpu
-
-      h3r = fi( 1)*wdt( 1) + fi( 2)*wdt( 2) + fi( 9)*wdt( 3) + fi(10)*wdt( 4) + &
-            fi( 3)*wdt( 5) + fi( 4)*wdt( 6) + fi(11)*wdt( 7) + fi(12)*wdt( 8) + &
-            fi( 5)*wdt( 9) + fi( 6)*wdt(10) + fi(13)*wdt(11) + fi(14)*wdt(12) + &
-            fi( 7)*wdt(13) + fi( 8)*wdt(14) + fi(15)*wdt(15) + fi(16)*wdt(16)
-
-    end function h3
 
     subroutine actual_eos_finalize
 
