@@ -1212,14 +1212,18 @@ contains
       double precision, intent(in) :: fi(36), wt(6), wd(6)
       double precision :: h5r
 
+      double precision :: fwt(6)
+
       !$gpu
 
-      h5r = wd(1) * (fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)) + &
-            wd(2) * (fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)) + &
-            wd(3) * (fi( 5)*wt(1) + fi( 7)*wt(2) + fi( 9)*wt(3) + fi(23)*wt(4) + fi(25)*wt(5) + fi(27)*wt(6)) + &
-            wd(4) * (fi(10)*wt(1) + fi(11)*wt(2) + fi(12)*wt(3) + fi(28)*wt(4) + fi(29)*wt(5) + fi(30)*wt(6)) + &
-            wd(5) * (fi(13)*wt(1) + fi(15)*wt(2) + fi(17)*wt(3) + fi(31)*wt(4) + fi(33)*wt(5) + fi(35)*wt(6)) + &
-            wd(6) * (fi(14)*wt(1) + fi(16)*wt(2) + fi(18)*wt(3) + fi(32)*wt(4) + fi(34)*wt(5) + fi(36)*wt(6))
+      fwt(1) = fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)
+      fwt(2) = fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)
+      fwt(3) = fi( 5)*wt(1) + fi( 7)*wt(2) + fi( 9)*wt(3) + fi(23)*wt(4) + fi(25)*wt(5) + fi(27)*wt(6)
+      fwt(4) = fi(10)*wt(1) + fi(11)*wt(2) + fi(12)*wt(3) + fi(28)*wt(4) + fi(29)*wt(5) + fi(30)*wt(6)
+      fwt(5) = fi(13)*wt(1) + fi(15)*wt(2) + fi(17)*wt(3) + fi(31)*wt(4) + fi(33)*wt(5) + fi(35)*wt(6)
+      fwt(6) = fi(14)*wt(1) + fi(16)*wt(2) + fi(18)*wt(3) + fi(32)*wt(4) + fi(34)*wt(5) + fi(36)*wt(6)
+
+      h5r = sum(wd * fwt)
 
     end function h5
 
@@ -1266,12 +1270,16 @@ contains
       double precision, intent(in) :: fi(16), wt(4), wd(4)
       double precision :: h3r
 
+      double precision :: fwt(4)
+
       !$gpu
 
-      h3r = wd(1) * (fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 9)*wt(3) + fi(10)*wt(4)) + &
-            wd(2) * (fi( 3)*wt(1) + fi( 4)*wt(2) + fi(11)*wt(3) + fi(12)*wt(4)) + &
-            wd(3) * (fi( 5)*wt(1) + fi( 6)*wt(2) + fi(13)*wt(3) + fi(14)*wt(4)) + &
-            wd(4) * (fi( 7)*wt(1) + fi( 8)*wt(2) + fi(15)*wt(3) + fi(16)*wt(4))
+      fwt(1) = fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 9)*wt(3) + fi(10)*wt(4)
+      fwt(2) = fi( 3)*wt(1) + fi( 4)*wt(2) + fi(11)*wt(3) + fi(12)*wt(4)
+      fwt(3) = fi( 5)*wt(1) + fi( 6)*wt(2) + fi(13)*wt(3) + fi(14)*wt(4)
+      fwt(4) = fi( 7)*wt(1) + fi( 8)*wt(2) + fi(15)*wt(3) + fi(16)*wt(4)
+
+      h3r = sum(wd * fwt)
 
     end function h3
 
