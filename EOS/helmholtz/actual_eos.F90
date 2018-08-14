@@ -196,7 +196,7 @@ contains
         !..for the interpolations
         integer          :: iat,jat
         double precision :: free,df_d,df_t,df_tt,df_dt
-        double precision :: xt,xd,mxt,mxd,z,din,fi(36)
+        double precision :: xt,xd,mxt,mxd,z,din,fi(36),fwtr(6)
         double precision :: sit(6),sid(6),dsit(6),dsid(6),ddsit(6)
 
         !..for the coulomb corrections
@@ -406,20 +406,32 @@ contains
            ddsit(5) = -ddpsi1(mxt)*dti_sav(jat)
            ddsit(6) =  ddpsi2(mxt)
 
+           ! This array saves some subexpressions that go into
+           ! computing the biquintic polynomial. Instead of explicitly
+           ! constructing it in full, we'll use these subexpressions
+           ! and then compute the result as
+           ! (table data * temperature terms) * density terms.
+
+           fwtr(1:6) = fwt(fi, sit)
+
            !..the free energy
-           free  = h5(fi, sit, sid)
+           free  = sum(fwtr * sid)
 
            !..derivative with respect to density
-           df_d  = h5(fi, sit, dsid)
+           df_d  = sum(fwtr * dsid)
+
+           fwtr(1:6) = fwt(fi, dsit)
 
            !..derivative with respect to temperature
-           df_t  = h5(fi, dsit, sid)
-
-           !..derivative with respect to temperature**2
-           df_tt = h5(fi, ddsit, sid)
+           df_t  = sum(fwtr * sid)
 
            !..derivative with respect to temperature and density
-           df_dt = h5(fi, dsit, dsid)
+           df_dt = sum(fwtr * dsid)
+
+           fwtr(1:6) = fwt(fi, ddsit)
+
+           !..derivative with respect to temperature**2
+           df_tt = sum(fwtr * sid)
 
            !..now get the pressure derivative with density, chemical potential, and
            !..electron positron number densities
@@ -1205,27 +1217,21 @@ contains
       ddpsi2r = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
     end function ddpsi2
 
-
-    ! biquintic hermite polynomial function
-    AMREX_DEVICE pure function h5(fi, wt, wd) result(h5r)
+    AMREX_DEVICE pure function fwt(fi, wt) result(fwtr)
       !$acc routine seq
-      double precision, intent(in) :: fi(36), wt(6), wd(6)
-      double precision :: h5r
-
-      double precision :: fwt(6)
+      double precision, intent(in) :: fi(36), wt(6)
+      double precision :: fwtr(6)
 
       !$gpu
 
-      fwt(1) = fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)
-      fwt(2) = fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)
-      fwt(3) = fi( 5)*wt(1) + fi( 7)*wt(2) + fi( 9)*wt(3) + fi(23)*wt(4) + fi(25)*wt(5) + fi(27)*wt(6)
-      fwt(4) = fi(10)*wt(1) + fi(11)*wt(2) + fi(12)*wt(3) + fi(28)*wt(4) + fi(29)*wt(5) + fi(30)*wt(6)
-      fwt(5) = fi(13)*wt(1) + fi(15)*wt(2) + fi(17)*wt(3) + fi(31)*wt(4) + fi(33)*wt(5) + fi(35)*wt(6)
-      fwt(6) = fi(14)*wt(1) + fi(16)*wt(2) + fi(18)*wt(3) + fi(32)*wt(4) + fi(34)*wt(5) + fi(36)*wt(6)
+      fwtr(1) = fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)
+      fwtr(2) = fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)
+      fwtr(3) = fi( 5)*wt(1) + fi( 7)*wt(2) + fi( 9)*wt(3) + fi(23)*wt(4) + fi(25)*wt(5) + fi(27)*wt(6)
+      fwtr(4) = fi(10)*wt(1) + fi(11)*wt(2) + fi(12)*wt(3) + fi(28)*wt(4) + fi(29)*wt(5) + fi(30)*wt(6)
+      fwtr(5) = fi(13)*wt(1) + fi(15)*wt(2) + fi(17)*wt(3) + fi(31)*wt(4) + fi(33)*wt(5) + fi(35)*wt(6)
+      fwtr(6) = fi(14)*wt(1) + fi(16)*wt(2) + fi(18)*wt(3) + fi(32)*wt(4) + fi(34)*wt(5) + fi(36)*wt(6)
 
-      h5r = sum(wd * fwt)
-
-    end function h5
+    end function fwt
 
 
     ! cubic hermite polynomial functions
