@@ -1238,42 +1238,13 @@ contains
 
       !$gpu
 
-      h5r =  fi( 1) *w0d*w0t   &
-           + fi( 2) *w0d*w1t   &
-           + fi( 3) *w0d*w2t   &
-           + fi( 4) *w1d*w0t   &
-           + fi( 5) *w2d*w0t   &
-           + fi( 6) *w1d*w1t   &
-           + fi( 7) *w2d*w1t   &
-           + fi( 8) *w1d*w2t   &
-           + fi( 9) *w2d*w2t   &
-           + fi(10) *w0md*w0t  &
-           + fi(11) *w0md*w1t  &
-           + fi(12) *w0md*w2t  &
-           + fi(13) *w1md*w0t  &
-           + fi(14) *w2md*w0t  &
-           + fi(15) *w1md*w1t  &
-           + fi(16) *w2md*w1t  &
-           + fi(17) *w1md*w2t  &
-           + fi(18) *w2md*w2t  &
-           + fi(19) *w0d*w0mt  &
-           + fi(20) *w0d*w1mt  &
-           + fi(21) *w0d*w2mt  &
-           + fi(22) *w1d*w0mt  &
-           + fi(23) *w2d*w0mt  &
-           + fi(24) *w1d*w1mt  &
-           + fi(25) *w2d*w1mt  &
-           + fi(26) *w1d*w2mt  &
-           + fi(27) *w2d*w2mt  &
-           + fi(28) *w0md*w0mt &
-           + fi(29) *w0md*w1mt &
-           + fi(30) *w0md*w2mt &
-           + fi(31) *w1md*w0mt &
-           + fi(32) *w2md*w0mt &
-           + fi(33) *w1md*w1mt &
-           + fi(34) *w2md*w1mt &
-           + fi(35) *w1md*w2mt &
-           + fi(36) *w2md*w2mt
+      h5r = w0d  * (fi( 1)*w0t + fi( 2)*w1t + fi( 3)*w2t + fi(19)*w0mt + fi(20)*w1mt + fi(21)*w2mt) + &
+            w1d  * (fi( 4)*w0t + fi( 6)*w1t + fi( 8)*w2t + fi(22)*w0mt + fi(24)*w1mt + fi(26)*w2mt) + &
+            w2d  * (fi( 5)*w0t + fi( 7)*w1t + fi( 9)*w2t + fi(23)*w0mt + fi(25)*w1mt + fi(27)*w2mt) + &
+            w0md * (fi(10)*w0t + fi(11)*w1t + fi(12)*w2t + fi(28)*w0mt + fi(29)*w1mt + fi(30)*w2mt) + &
+            w1md * (fi(13)*w0t + fi(15)*w1t + fi(17)*w2t + fi(31)*w0mt + fi(33)*w1mt + fi(35)*w2mt) + &
+            w2md * (fi(14)*w0t + fi(16)*w1t + fi(18)*w2t + fi(32)*w0mt + fi(34)*w1mt + fi(36)*w2mt)
+
     end function h5
 
 
@@ -1319,23 +1290,14 @@ contains
       double precision, intent(in) :: fi(36)
       double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
       double precision :: h3r
+
       !$gpu
-      h3r =  fi( 1) *w0d*w0t   &
-           + fi( 2) *w0d*w1t   &
-           + fi( 3) *w1d*w0t   &
-           + fi( 4) *w1d*w1t   &
-           + fi( 5) *w0md*w0t  &
-           + fi( 6) *w0md*w1t  &
-           + fi( 7) *w1md*w0t  &
-           + fi( 8) *w1md*w1t  &
-           + fi( 9) *w0d*w0mt  &
-           + fi(10) *w0d*w1mt  &
-           + fi(11) *w1d*w0mt  &
-           + fi(12) *w1d*w1mt  &
-           + fi(13) *w0md*w0mt &
-           + fi(14) *w0md*w1mt &
-           + fi(15) *w1md*w0mt &
-           + fi(16) *w1md*w1mt
+
+      h3r = w0d  * (fi( 1)*w0t + fi( 2)*w1t + fi( 9)*w0mt + fi(10)*w1mt) + &
+            w1d  * (fi( 3)*w0t + fi( 4)*w1t + fi(11)*w0mt + fi(12)*w1mt) + &
+            w0md * (fi( 5)*w0t + fi( 6)*w1t + fi(13)*w0mt + fi(14)*w1mt) + &
+            w1md * (fi( 7)*w0t + fi( 8)*w1t + fi(15)*w0mt + fi(16)*w1mt)
+
     end function h3
 
     subroutine actual_eos_finalize
