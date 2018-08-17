@@ -73,7 +73,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -154,7 +155,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -235,7 +237,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -316,7 +319,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -397,7 +401,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -478,7 +483,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -559,7 +565,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -640,7 +647,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -721,7 +729,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -802,7 +811,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -883,7 +893,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -964,7 +975,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1045,7 +1057,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1126,7 +1139,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1207,7 +1221,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1288,7 +1303,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1369,7 +1385,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1450,7 +1467,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1531,7 +1549,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1612,7 +1631,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1693,7 +1713,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1774,7 +1795,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1855,7 +1877,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -1936,7 +1959,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -2017,7 +2041,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -2098,7 +2123,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -2179,7 +2205,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -2260,7 +2287,8 @@ contains
           endif
 
           hi = x + y
-          lo = y - (hi - x)
+          z  = hi - x
+          lo = y - z
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
