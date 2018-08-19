@@ -21,7 +21,7 @@ module actual_network
 
   !$acc declare create(aion, zion, ebin)
   
-  character (len=22), parameter :: network_name = "triple_alpha_plus_cago"
+  character (len=32), parameter :: network_name = "triple_alpha_plus_cago"
 
   ! Rates data
 

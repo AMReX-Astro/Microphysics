@@ -23,7 +23,7 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  character (len=32), save :: network_name = "iso7"
+  character (len=32), parameter :: network_name = "iso7"
 
   ! Some fundamental physical constants
 
