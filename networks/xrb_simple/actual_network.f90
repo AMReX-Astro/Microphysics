@@ -13,7 +13,7 @@ module actual_network
   character (len=5), save :: short_spec_names(nspec)
   character (len=5), save :: short_aux_names(naux)
 
-  character (len=32) :: network_name = "xrb_simple"
+  character (len=32), parameter :: network_name = "xrb_simple"
 
   integer, parameter :: ih1 = 1
   integer, parameter :: ihe4 = 2

@@ -23,7 +23,7 @@ module actual_network
 
   implicit none
 
-  character (len=*), parameter :: network_name = "ignition_simple_SDC"
+  character (len=32), parameter :: network_name = "ignition_simple_SDC"
 
   ! nspec = number of species this network carries
   integer, parameter :: nspec = 3

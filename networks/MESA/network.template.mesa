@@ -35,7 +35,7 @@ module network
   character (len= 5), save :: short_spec_mesa(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  character (len=*), parameter :: network_name = @@NAME@@
+  character (len=32), parameter :: network_name = @@NAME@@
 
   real(rt), save :: aion(nspec), zion(nspec)
 
