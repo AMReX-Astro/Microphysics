@@ -4,56 +4,17 @@
 import os
 import re
 
-esum_template = """
-  AMREX_DEVICE function esum@NUM@(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:@NUM_MINUS_ONE@)
-
-    ! These temporary variables need to be explicitly
-    ! constructed for the algorithm to make sense. To
-    ! avoid the compiler optimizing them away, in
-    ! particular the statement lo = y - (hi - x), we
-    ! will use the F2003 volatile keyword, which
-    ! does the same thing as the keyword in C.
-    real(rt), volatile :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
+esum3_template = """
 
     j = 0
+    partials(0) = esum
 
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, @NUM@
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+@START@)
 
        do k = 0, km
           y = partials(k)
@@ -84,6 +45,99 @@ esum_template = """
 
     esum = sum(partials(0:j))
 
+"""
+
+
+
+esum4_template = """
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+@START@)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+"""
+
+
+
+esum_template_start = """
+  AMREX_DEVICE function esum@NUM@(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(@NUM@)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing any unused values in this array.
+
+    real(rt) :: partials(0:4)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    ! The first partial is just the first term.
+    esum = array(1)
+"""
+
+esum_template_end = """
   end function esum@NUM@
 
 """
@@ -112,7 +166,26 @@ with open("util/esum_module.F90", "w") as ef:
     ef.write(module_start)
 
     for num in range(3, 31):
-        ef.write(esum_template.replace("@NUM@", str(num)).replace("@NUM_MINUS_ONE@", str(num-1)))
+        ef.write(esum_template_start.replace("@NUM@", str(num)))
+
+        i = 1
+        while (i < num):
+            if (i == num - 3):
+                if (i > 0):
+                    offset = i-1
+                else:
+                    offset = 0
+                ef.write(esum4_template.replace("@START@", str(offset)))
+                break
+            else:
+                if (i > 0):
+                    offset = i-1
+                else:
+                    offset = 0
+                ef.write(esum3_template.replace("@START@", str(offset)))
+                i += 2
+
+        ef.write(esum_template_end.replace("@NUM@", str(num)))
 
     ef.write(module_end)
 

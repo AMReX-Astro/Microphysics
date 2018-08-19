@@ -21,177 +21,13 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(3)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:2)
-
-    ! These temporary variables need to be explicitly
-    ! constructed for the algorithm to make sense. To
-    ! avoid the compiler optimizing them away, in
-    ! particular the statement lo = y - (hi - x), we
-    ! will use the F2003 volatile keyword, which
-    ! does the same thing as the keyword in C.
-    real(rt), volatile :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 3
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          z  = hi - x
-          lo = y - z
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum3
-
-
-  AMREX_DEVICE function esum4(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
-
-    real(rt) :: partials(0:3)
-
-    ! These temporary variables need to be explicitly
-    ! constructed for the algorithm to make sense. To
-    ! avoid the compiler optimizing them away, in
-    ! particular the statement lo = y - (hi - x), we
-    ! will use the F2003 volatile keyword, which
-    ! does the same thing as the keyword in C.
-    real(rt), volatile :: x, y, z, hi, lo
-
-    !$gpu
-
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
-
-    j = 0
-
-    ! The first partial is just the first term.
-    partials(j) = array(1)
-
-    do i = 2, 4
-
-       km = j
-       j = 0
-
-       x = array(i)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          z  = hi - x
-          lo = y - z
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-  end function esum4
-
-
-  AMREX_DEVICE function esum5(array) result(esum)
-
-    !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
-
-    implicit none
-
-    real(rt), intent(in) :: array(:)
-    real(rt) :: esum
-
-    integer :: i, j, k, km
-
-    ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
     real(rt) :: partials(0:4)
 
@@ -214,17 +50,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 5
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -254,6 +92,218 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+  end function esum3
+
+
+  AMREX_DEVICE function esum4(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(4)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing any unused values in this array.
+
+    real(rt) :: partials(0:4)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    ! The first partial is just the first term.
+    esum = array(1)
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+0)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+  end function esum4
+
+
+  AMREX_DEVICE function esum5(array) result(esum)
+
+    !$acc routine seq
+
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+
+    implicit none
+
+    real(rt), intent(in) :: array(5)
+    real(rt) :: esum
+
+    integer :: i, j, k, km
+
+    ! Note that for performance reasons we are not
+    ! initializing any unused values in this array.
+
+    real(rt) :: partials(0:4)
+
+    ! These temporary variables need to be explicitly
+    ! constructed for the algorithm to make sense. To
+    ! avoid the compiler optimizing them away, in
+    ! particular the statement lo = y - (hi - x), we
+    ! will use the F2003 volatile keyword, which
+    ! does the same thing as the keyword in C.
+    real(rt), volatile :: x, y, z, hi, lo
+
+    !$gpu
+
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
+
+    ! The first partial is just the first term.
+    esum = array(1)
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+0)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum5
 
@@ -267,15 +317,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(6)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:5)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -296,17 +346,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 6
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -336,6 +388,48 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum6
 
@@ -349,15 +443,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(7)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:6)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -378,17 +472,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 7
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -418,6 +514,89 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum7
 
@@ -431,15 +610,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(8)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:7)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -460,17 +639,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 8
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -500,6 +681,89 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum8
 
@@ -513,15 +777,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(9)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:8)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -542,17 +806,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 9
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -582,6 +848,130 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum9
 
@@ -595,15 +985,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(10)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:9)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -624,17 +1014,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 10
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -664,6 +1056,130 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum10
 
@@ -677,15 +1193,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(11)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:10)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -706,17 +1222,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 11
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -746,6 +1264,171 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum11
 
@@ -759,15 +1442,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(12)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:11)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -788,17 +1471,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 12
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -828,6 +1513,171 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum12
 
@@ -841,15 +1691,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(13)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:12)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -870,17 +1720,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 13
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -910,6 +1762,212 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum13
 
@@ -923,15 +1981,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(14)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:13)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -952,17 +2010,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 14
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -992,6 +2052,212 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum14
 
@@ -1005,15 +2271,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(15)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:14)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1034,17 +2300,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 15
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1074,6 +2342,253 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum15
 
@@ -1087,15 +2602,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(16)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:15)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1116,17 +2631,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 16
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1156,6 +2673,253 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum16
 
@@ -1169,15 +2933,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(17)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:16)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1198,17 +2962,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 17
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1238,6 +3004,294 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum17
 
@@ -1251,15 +3305,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(18)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:17)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1280,17 +3334,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 18
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1320,6 +3376,294 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum18
 
@@ -1333,15 +3677,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(19)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:18)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1362,17 +3706,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 19
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1402,6 +3748,335 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum19
 
@@ -1415,15 +4090,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(20)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:19)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1444,17 +4119,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 20
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1484,6 +4161,335 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum20
 
@@ -1497,15 +4503,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(21)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:20)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1526,17 +4532,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 21
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1566,6 +4574,376 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum21
 
@@ -1579,15 +4957,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(22)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:21)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1608,17 +4986,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 22
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1648,6 +5028,376 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum22
 
@@ -1661,15 +5411,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(23)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:22)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1690,17 +5440,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 23
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1730,6 +5482,417 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum23
 
@@ -1743,15 +5906,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(24)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:23)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1772,17 +5935,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 24
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1812,6 +5977,417 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum24
 
@@ -1825,15 +6401,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(25)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:24)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1854,17 +6430,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 25
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1894,6 +6472,458 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+22)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum25
 
@@ -1907,15 +6937,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(26)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:25)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -1936,17 +6966,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 26
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -1976,6 +7008,458 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+22)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum26
 
@@ -1989,15 +7473,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(27)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:26)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -2018,17 +7502,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 27
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -2058,6 +7544,499 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+22)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+24)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum27
 
@@ -2071,15 +8050,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(28)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:27)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -2100,17 +8079,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 28
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -2140,6 +8121,499 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+22)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+24)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum28
 
@@ -2153,15 +8627,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(29)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:28)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -2182,17 +8656,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 29
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -2222,6 +8698,540 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+22)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+24)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+26)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum29
 
@@ -2235,15 +9245,15 @@ contains
 
     implicit none
 
-    real(rt), intent(in) :: array(:)
+    real(rt), intent(in) :: array(30)
     real(rt) :: esum
 
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
-    ! initializing the unused values in this array.
+    ! initializing any unused values in this array.
 
-    real(rt) :: partials(0:29)
+    real(rt) :: partials(0:4)
 
     ! These temporary variables need to be explicitly
     ! constructed for the algorithm to make sense. To
@@ -2264,17 +9274,19 @@ contains
     ! just track how many of the values are meaningful, which j does
     ! automatically, and ignore any data in the remaining slots.
 
-    j = 0
-
     ! The first partial is just the first term.
-    partials(j) = array(1)
+    esum = array(1)
 
-    do i = 2, 30
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
 
        km = j
        j = 0
 
-       x = array(i)
+       x = array(i+0)
 
        do k = 0, km
           y = partials(k)
@@ -2304,6 +9316,540 @@ contains
     enddo
 
     esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+2)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+4)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+6)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+8)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+10)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+12)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+14)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+16)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+18)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+20)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+22)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 3
+
+       km = j
+       j = 0
+
+       x = array(i+24)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
+
+
+    j = 0
+    partials(0) = esum
+
+    do i = 2, 4
+
+       km = j
+       j = 0
+
+       x = array(i+26)
+
+       do k = 0, km
+          y = partials(k)
+
+          if (abs(x) < abs(y)) then
+             ! Swap x, y
+             z = y
+             y = x
+             x = z
+          endif
+
+          hi = x + y
+          z  = hi - x
+          lo = y - z
+
+          if (lo .ne. 0.0_rt) then
+             partials(j) = lo
+             j = j + 1
+          endif
+
+          x = hi
+
+       enddo
+
+       partials(j) = x
+
+    enddo
+
+    esum = sum(partials(0:j))
+
 
   end function esum30
 
