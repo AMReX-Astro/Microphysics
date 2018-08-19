@@ -11,5 +11,6 @@
 
   xin_file   = "xin.aprox13"
 
+  use_tables = T
 /
 
