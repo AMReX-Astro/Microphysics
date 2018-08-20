@@ -115,16 +115,25 @@ esum_template_start = """
 
     ! Note that for performance reasons we are not
     ! initializing any unused values in this array.
-
     real(rt) :: partials(0:4)
 
+    ! Some temporary variables for holding intermediate data.
+    real(rt) :: x, y, z
+
     ! These temporary variables need to be explicitly
-    ! constructed for the algorithm to make sense. To
-    ! avoid the compiler optimizing them away, in
-    ! particular the statement lo = y - (hi - x), we
-    ! will use the F2003 volatile keyword, which
-    ! does the same thing as the keyword in C.
-    real(rt) :: x, y, z, hi, lo
+    ! constructed for the algorithm to make sense.
+    ! If the compiler optimizes away the statement
+    ! lo = y - (hi - x), the approach fails. This could
+    ! be avoided with the volatile keyword, but at the
+    ! expense of forcing additional memory usage
+    ! which would slow down the calculation. Instead
+    ! we will rely on the compiler not to optimize
+    ! the statement away. This should be true for gcc
+    ! by default but is not necessarily true for all
+    ! compilers. In particular, Intel does not do this
+    ! by default, so you must use the -assume-protect-parens
+    ! flag for ifort.
+    real(rt) :: hi, lo
 
     !$gpu
 
