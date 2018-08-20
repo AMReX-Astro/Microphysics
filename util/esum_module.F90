@@ -37,7 +37,7 @@ module esum_module
 
 contains
 
-  function esum3(array) result(esum)
+  pure function esum3(array) result(esum)
 
     !$acc routine seq
 
@@ -128,7 +128,7 @@ contains
 
 
 
-  function esum4(array) result(esum)
+  pure function esum4(array) result(esum)
 
     !$acc routine seq
 
@@ -219,7 +219,7 @@ contains
 
 
 
-  function esum5(array) result(esum)
+  pure function esum5(array) result(esum)
 
     !$acc routine seq
 
@@ -350,7 +350,7 @@ contains
 
 
 
-  function esum6(array) result(esum)
+  pure function esum6(array) result(esum)
 
     !$acc routine seq
 
@@ -481,7 +481,7 @@ contains
 
 
 
-  function esum7(array) result(esum)
+  pure function esum7(array) result(esum)
 
     !$acc routine seq
 
@@ -652,7 +652,7 @@ contains
 
 
 
-  function esum8(array) result(esum)
+  pure function esum8(array) result(esum)
 
     !$acc routine seq
 
@@ -823,7 +823,7 @@ contains
 
 
 
-  function esum9(array) result(esum)
+  pure function esum9(array) result(esum)
 
     !$acc routine seq
 
@@ -1034,7 +1034,7 @@ contains
 
 
 
-  function esum10(array) result(esum)
+  pure function esum10(array) result(esum)
 
     !$acc routine seq
 
@@ -1245,7 +1245,7 @@ contains
 
 
 
-  function esum11(array) result(esum)
+  pure function esum11(array) result(esum)
 
     !$acc routine seq
 
@@ -1496,7 +1496,7 @@ contains
 
 
 
-  function esum12(array) result(esum)
+  pure function esum12(array) result(esum)
 
     !$acc routine seq
 
@@ -1747,7 +1747,7 @@ contains
 
 
 
-  function esum13(array) result(esum)
+  pure function esum13(array) result(esum)
 
     !$acc routine seq
 
@@ -2038,7 +2038,7 @@ contains
 
 
 
-  function esum14(array) result(esum)
+  pure function esum14(array) result(esum)
 
     !$acc routine seq
 
@@ -2329,7 +2329,7 @@ contains
 
 
 
-  function esum15(array) result(esum)
+  pure function esum15(array) result(esum)
 
     !$acc routine seq
 
@@ -2660,7 +2660,7 @@ contains
 
 
 
-  function esum16(array) result(esum)
+  pure function esum16(array) result(esum)
 
     !$acc routine seq
 
@@ -2991,7 +2991,7 @@ contains
 
 
 
-  function esum17(array) result(esum)
+  pure function esum17(array) result(esum)
 
     !$acc routine seq
 
@@ -3362,7 +3362,7 @@ contains
 
 
 
-  function esum18(array) result(esum)
+  pure function esum18(array) result(esum)
 
     !$acc routine seq
 
@@ -3733,7 +3733,7 @@ contains
 
 
 
-  function esum19(array) result(esum)
+  pure function esum19(array) result(esum)
 
     !$acc routine seq
 
@@ -4144,7 +4144,7 @@ contains
 
 
 
-  function esum20(array) result(esum)
+  pure function esum20(array) result(esum)
 
     !$acc routine seq
 
@@ -4555,7 +4555,7 @@ contains
 
 
 
-  function esum21(array) result(esum)
+  pure function esum21(array) result(esum)
 
     !$acc routine seq
 
@@ -5006,7 +5006,7 @@ contains
 
 
 
-  function esum22(array) result(esum)
+  pure function esum22(array) result(esum)
 
     !$acc routine seq
 
@@ -5457,7 +5457,7 @@ contains
 
 
 
-  function esum23(array) result(esum)
+  pure function esum23(array) result(esum)
 
     !$acc routine seq
 
@@ -5948,7 +5948,7 @@ contains
 
 
 
-  function esum24(array) result(esum)
+  pure function esum24(array) result(esum)
 
     !$acc routine seq
 
@@ -6439,7 +6439,7 @@ contains
 
 
 
-  function esum25(array) result(esum)
+  pure function esum25(array) result(esum)
 
     !$acc routine seq
 
@@ -6970,7 +6970,7 @@ contains
 
 
 
-  function esum26(array) result(esum)
+  pure function esum26(array) result(esum)
 
     !$acc routine seq
 
@@ -7501,7 +7501,7 @@ contains
 
 
 
-  function esum27(array) result(esum)
+  pure function esum27(array) result(esum)
 
     !$acc routine seq
 
@@ -8072,7 +8072,7 @@ contains
 
 
 
-  function esum28(array) result(esum)
+  pure function esum28(array) result(esum)
 
     !$acc routine seq
 
@@ -8643,7 +8643,7 @@ contains
 
 
 
-  function esum29(array) result(esum)
+  pure function esum29(array) result(esum)
 
     !$acc routine seq
 
@@ -9254,7 +9254,7 @@ contains
 
 
 
-  function esum30(array) result(esum)
+  pure function esum30(array) result(esum)
 
     !$acc routine seq
 
