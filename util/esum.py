@@ -128,8 +128,6 @@ esum_template_start = """
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 """
