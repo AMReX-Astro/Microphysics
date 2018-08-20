@@ -28,18 +28,18 @@
 
 module esum_module
 
+  use amrex_fort_module, only : rt => amrex_real
+  use amrex_constants_module, only: ZERO
+
   implicit none
 
   public
 
 contains
 
-  AMREX_DEVICE function esum3(array) result(esum)
+  function esum3(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -127,12 +127,10 @@ contains
   end function esum3
 
 
-  AMREX_DEVICE function esum4(array) result(esum)
+
+  function esum4(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -220,12 +218,10 @@ contains
   end function esum4
 
 
-  AMREX_DEVICE function esum5(array) result(esum)
+
+  function esum5(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -353,12 +349,10 @@ contains
   end function esum5
 
 
-  AMREX_DEVICE function esum6(array) result(esum)
+
+  function esum6(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -486,12 +480,10 @@ contains
   end function esum6
 
 
-  AMREX_DEVICE function esum7(array) result(esum)
+
+  function esum7(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -659,12 +651,10 @@ contains
   end function esum7
 
 
-  AMREX_DEVICE function esum8(array) result(esum)
+
+  function esum8(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -832,12 +822,10 @@ contains
   end function esum8
 
 
-  AMREX_DEVICE function esum9(array) result(esum)
+
+  function esum9(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -1045,12 +1033,10 @@ contains
   end function esum9
 
 
-  AMREX_DEVICE function esum10(array) result(esum)
+
+  function esum10(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -1258,12 +1244,10 @@ contains
   end function esum10
 
 
-  AMREX_DEVICE function esum11(array) result(esum)
+
+  function esum11(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -1511,12 +1495,10 @@ contains
   end function esum11
 
 
-  AMREX_DEVICE function esum12(array) result(esum)
+
+  function esum12(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -1764,12 +1746,10 @@ contains
   end function esum12
 
 
-  AMREX_DEVICE function esum13(array) result(esum)
+
+  function esum13(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -2057,12 +2037,10 @@ contains
   end function esum13
 
 
-  AMREX_DEVICE function esum14(array) result(esum)
+
+  function esum14(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -2350,12 +2328,10 @@ contains
   end function esum14
 
 
-  AMREX_DEVICE function esum15(array) result(esum)
+
+  function esum15(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -2683,12 +2659,10 @@ contains
   end function esum15
 
 
-  AMREX_DEVICE function esum16(array) result(esum)
+
+  function esum16(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -3016,12 +2990,10 @@ contains
   end function esum16
 
 
-  AMREX_DEVICE function esum17(array) result(esum)
+
+  function esum17(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -3389,12 +3361,10 @@ contains
   end function esum17
 
 
-  AMREX_DEVICE function esum18(array) result(esum)
+
+  function esum18(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -3762,12 +3732,10 @@ contains
   end function esum18
 
 
-  AMREX_DEVICE function esum19(array) result(esum)
+
+  function esum19(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -4175,12 +4143,10 @@ contains
   end function esum19
 
 
-  AMREX_DEVICE function esum20(array) result(esum)
+
+  function esum20(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -4588,12 +4554,10 @@ contains
   end function esum20
 
 
-  AMREX_DEVICE function esum21(array) result(esum)
+
+  function esum21(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -5041,12 +5005,10 @@ contains
   end function esum21
 
 
-  AMREX_DEVICE function esum22(array) result(esum)
+
+  function esum22(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -5494,12 +5456,10 @@ contains
   end function esum22
 
 
-  AMREX_DEVICE function esum23(array) result(esum)
+
+  function esum23(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -5987,12 +5947,10 @@ contains
   end function esum23
 
 
-  AMREX_DEVICE function esum24(array) result(esum)
+
+  function esum24(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -6480,12 +6438,10 @@ contains
   end function esum24
 
 
-  AMREX_DEVICE function esum25(array) result(esum)
+
+  function esum25(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -7013,12 +6969,10 @@ contains
   end function esum25
 
 
-  AMREX_DEVICE function esum26(array) result(esum)
+
+  function esum26(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -7546,12 +7500,10 @@ contains
   end function esum26
 
 
-  AMREX_DEVICE function esum27(array) result(esum)
+
+  function esum27(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -8119,12 +8071,10 @@ contains
   end function esum27
 
 
-  AMREX_DEVICE function esum28(array) result(esum)
+
+  function esum28(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -8692,12 +8642,10 @@ contains
   end function esum28
 
 
-  AMREX_DEVICE function esum29(array) result(esum)
+
+  function esum29(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -9305,12 +9253,10 @@ contains
   end function esum29
 
 
-  AMREX_DEVICE function esum30(array) result(esum)
+
+  function esum30(array) result(esum)
 
     !$acc routine seq
-
-    use amrex_error_module, only: amrex_error
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -9916,6 +9862,7 @@ contains
 
 
   end function esum30
+
 
 
 end module esum_module
