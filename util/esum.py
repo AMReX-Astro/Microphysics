@@ -109,7 +109,7 @@ higher_precision_template = """
 """
 
 
-msum_template = """
+msum_template_start = """
     ! Indices for tracking the partials array.
     ! j keeps track of how many entries in partials are actually used.
     ! The algorithm we model this off of, written in Python, simply
@@ -123,7 +123,7 @@ msum_template = """
 
     ! Note that for performance reasons we are not
     ! initializing any unused values in this array.
-    real(rt) :: partials(0:4)
+    real(rt) :: partials(0:@NUMPARTIALS@)
 
     ! Some temporary variables for holding intermediate data.
     real(rt) :: x, y, z
@@ -149,56 +149,12 @@ msum_template = """
     esum = array(1)
 """
 
-msum3_template = """
+msum_template = """
 
     j = 0
     partials(0) = esum
 
-    do i = 2, 3
-
-       km = j
-       j = 0
-
-       x = array(i+@START@)
-
-       do k = 0, km
-          y = partials(k)
-
-          if (abs(x) < abs(y)) then
-             ! Swap x, y
-             z = y
-             y = x
-             x = z
-          endif
-
-          hi = x + y
-          lo = y - (hi - x)
-
-          if (lo .ne. 0.0_rt) then
-             partials(j) = lo
-             j = j + 1
-          endif
-
-          x = hi
-
-       enddo
-
-       partials(j) = x
-
-    enddo
-
-    esum = sum(partials(0:j))
-
-"""
-
-
-
-msum4_template = """
-
-    j = 0
-    partials(0) = esum
-
-    do i = 2, 4
+    do i = 2, @NUM@
 
        km = j
        j = 0
@@ -240,13 +196,24 @@ msum4_template = """
 if __name__ == "__main__":
 
     sum_method = 0
+    unroll = True
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', type=int, help='summation method: -1 == sum(); 0 == esum()')
+    parser.add_argument('-s', help='summation method: -1 == sum(); 0 == msum; 1 == Kahan')
+    parser.add_argument('--unroll', help='For msum, should we explicitly unroll the loop?')
 
     args = parser.parse_args()
 
-    sum_method = args.s
+    if args.s != None:
+        sum_method = int(args.s)
+
+    if args.unroll != None:
+        if args.unroll == "True":
+            unroll = True
+        elif args.unroll == "False":
+            unroll = False
+        else:
+            raise ValueError("--unroll can only be True or False.")
 
     with open("esum_module.F90", "w") as ef:
 
@@ -266,24 +233,32 @@ if __name__ == "__main__":
 
                 # msum
 
-                ef.write(msum_template.replace("@NUM@", str(num)))
+                if unroll:
 
-                i = 1
-                while (i < num):
-                    if (i == num - 3):
-                        if (i > 0):
-                            offset = i-1
+                    ef.write(msum_template_start.replace("@NUM@", str(num)).replace("@NUMPARTIALS@", str(4)))
+
+                    i = 1
+                    while (i < num):
+                        if (i == num - 3):
+                            if (i > 0):
+                                offset = i-1
+                            else:
+                                offset = 0
+                            ef.write(msum_template.replace("@START@", str(offset)).replace("@NUM@", str(4)))
+                            break
                         else:
-                            offset = 0
-                        ef.write(msum4_template.replace("@START@", str(offset)))
-                        break
-                    else:
-                        if (i > 0):
-                            offset = i-1
-                        else:
-                            offset = 0
-                        ef.write(msum3_template.replace("@START@", str(offset)))
-                        i += 2
+                            if (i > 0):
+                                offset = i-1
+                            else:
+                                offset = 0
+                            ef.write(msum_template.replace("@START@", str(offset)).replace("@NUM@", str(3)))
+                            i += 2
+
+                else:
+
+                    ef.write(msum_template_start.replace("@NUM@", str(num)).replace("@NUMPARTIALS@", str(num-1)))
+
+                    ef.write(msum_template.replace("@START@", str(0)).replace("@NUM@", str(num)))
 
             elif sum_method == 1:
 
