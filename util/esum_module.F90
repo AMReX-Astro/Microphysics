@@ -72,8 +72,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -158,8 +156,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -243,8 +239,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -370,8 +364,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -495,8 +487,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -662,8 +652,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -827,8 +815,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -1034,8 +1020,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -1239,8 +1223,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -1486,8 +1468,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -1731,8 +1711,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -2018,8 +1996,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -2303,8 +2279,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -2630,8 +2604,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -2955,8 +2927,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -3322,8 +3292,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -3687,8 +3655,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -4094,8 +4060,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -4499,8 +4463,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -4946,8 +4908,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -5391,8 +5351,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -5878,8 +5836,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -6363,8 +6319,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -6890,8 +6844,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -7415,8 +7367,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -7982,8 +7932,6 @@ contains
 
     !$gpu
 
-    integer :: j
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -8547,8 +8495,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -9153,8 +9099,6 @@ contains
     real(rt) :: x, y, z, hi, lo
 
     !$gpu
-
-    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
