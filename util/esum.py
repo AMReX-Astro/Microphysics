@@ -97,6 +97,18 @@ kahan_template = """
 """
 
 
+
+higher_precision_template = """
+    real*16 :: higher_prec_array(@NUM@)
+
+    !$gpu
+
+    higher_prec_array(:) = array(:)
+
+    esum = sum(higher_prec_array)
+"""
+
+
 msum_template = """
     ! Indices for tracking the partials array.
     ! j keeps track of how many entries in partials are actually used.
@@ -278,6 +290,12 @@ if __name__ == "__main__":
                 # Kahan
 
                 ef.write(kahan_template.replace("@NUM@", str(num)))
+
+            elif sum_method == 2:
+
+                # Sum in 128-bit arithmetic
+
+                ef.write(higher_precision_template.replace("@NUM@", str(num)))
 
             else:
 
