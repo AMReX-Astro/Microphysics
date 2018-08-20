@@ -24,8 +24,7 @@ esum3_template = """
           endif
 
           hi = x + y
-          z  = hi - x
-          lo = y - z
+          lo = y - (hi - x)
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -69,8 +68,7 @@ esum4_template = """
           endif
 
           hi = x + y
-          z  = hi - x
-          lo = y - z
+          lo = y - (hi - x)
 
           if (lo .ne. 0.0_rt) then
              partials(j) = lo
@@ -104,6 +102,15 @@ esum_template_start = """
     real(rt), intent(in) :: array(@NUM@)
     real(rt) :: esum
 
+    ! Indices for tracking the partials array.
+    ! j keeps track of how many entries in partials are actually used.
+    ! The algorithm we model this off of, written in Python, simply
+    ! deletes array entries at the end of every outer loop iteration.
+    ! The Fortran equivalent to this might be to just zero them out,
+    ! but this results in a huge performance hit given how often
+    ! this routine is called during in a burn. So we opt instead to
+    ! just track how many of the values are meaningful, which j does
+    ! automatically, and ignore any data in the remaining slots.
     integer :: i, j, k, km
 
     ! Note that for performance reasons we are not
@@ -117,18 +124,11 @@ esum_template_start = """
     ! particular the statement lo = y - (hi - x), we
     ! will use the F2003 volatile keyword, which
     ! does the same thing as the keyword in C.
-    real(rt), volatile :: x, y, z, hi, lo
+    real(rt) :: x, y, z, hi, lo
 
     !$gpu
 
-    ! j keeps track of how many entries in partials are actually used.
-    ! The algorithm we model this off of, written in Python, simply
-    ! deletes array entries at the end of every outer loop iteration.
-    ! The Fortran equivalent to this might be to just zero them out,
-    ! but this results in a huge performance hit given how often
-    ! this routine is called during in a burn. So we opt instead to
-    ! just track how many of the values are meaningful, which j does
-    ! automatically, and ignore any data in the remaining slots.
+    integer :: j
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -144,6 +144,29 @@ module_start = """
 ! DO NOT EDIT BY HAND
 
 ! Re-run esum.py to update this file
+
+! Fortran 2003 implementation of the msum routine
+! provided by Raymond Hettinger:
+! https://code.activestate.com/recipes/393090/
+! This routine calculates the sum of N numbers
+! exactly to within double precision arithmetic.
+!
+! For perfomance reasons we implement a specialized
+! version of esum for each possible value of N >= 3.
+!
+! Also for performance reasons, we explicitly unroll
+! the outer loop of the msum method into groups of 3
+! (and a group of 4 at the end, for even N). This seems
+! to be significantly faster, but should still be exact
+! to within the arithmetic because each one of the
+! individual msums is (although this does not necessarily
+! mean that the result is the same).
+!
+! This routine is called "esum" for generality
+! because in principle we could add implementations
+! other than msum that do exact arithmetic, without
+! changing the interface as seen in the networks.
+
 module esum_module
 
   implicit none
