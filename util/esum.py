@@ -1,5 +1,6 @@
 import os
 import re
+import argparse
 
 esum3_template = """
 
@@ -187,31 +188,48 @@ module_end = """
 end module esum_module
 """
 
-with open("esum_module.F90", "w") as ef:
+if __name__ == "__main__":
 
-    ef.write(module_start)
+    sum_method = 0
 
-    for num in range(3, 31):
-        ef.write(esum_template_start.replace("@NUM@", str(num)))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', type=int, help='summation method: -1 == sum(); 0 == esum()')
 
-        i = 1
-        while (i < num):
-            if (i == num - 3):
-                if (i > 0):
-                    offset = i-1
-                else:
-                    offset = 0
-                ef.write(esum4_template.replace("@START@", str(offset)))
-                break
-            else:
-                if (i > 0):
-                    offset = i-1
-                else:
-                    offset = 0
-                ef.write(esum3_template.replace("@START@", str(offset)))
-                i += 2
+    args = parser.parse_args()
 
-        ef.write(esum_template_end.replace("@NUM@", str(num)))
+    sum_method = args.s
 
-    ef.write(module_end)
+    with open("esum_module.F90", "w") as ef:
 
+        ef.write(module_start)
+
+        for num in range(3, 31):
+
+            ef.write(esum_template_start.replace("@NUM@", str(num)))
+
+            if sum_method == -1:
+
+                ef.write("    esum = sum(array)")
+
+            elif sum_method == 0:
+
+                i = 1
+                while (i < num):
+                    if (i == num - 3):
+                        if (i > 0):
+                            offset = i-1
+                        else:
+                            offset = 0
+                        ef.write(esum4_template.replace("@START@", str(offset)))
+                        break
+                    else:
+                        if (i > 0):
+                            offset = i-1
+                        else:
+                            offset = 0
+                        ef.write(esum3_template.replace("@START@", str(offset)))
+                        i += 2
+
+            ef.write(esum_template_end.replace("@NUM@", str(num)))
+
+        ef.write(module_end)
