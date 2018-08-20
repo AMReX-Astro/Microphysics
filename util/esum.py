@@ -53,7 +53,7 @@ end module esum_module
 
 
 esum_template_start = """
-  function esum@NUM@(array) result(esum)
+  pure function esum@NUM@(array) result(esum)
 
     !$acc routine seq
 
