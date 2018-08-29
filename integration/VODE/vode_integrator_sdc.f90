@@ -152,7 +152,7 @@ contains
     rpar(irp_i) = state_in % i
     rpar(irp_j) = state_in % j
     rpar(irp_k) = state_in % k
-!    rpar(irp_iter) = state_in % sdc_iter
+    rpar(irp_iter) = state_in % sdc_iter
 
     ! this is not used but we set it to prevent accessing uninitialzed
     ! data in common routines with the non-SDC integrator

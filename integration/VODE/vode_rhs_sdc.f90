@@ -5,7 +5,7 @@
 
 subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
-  use actual_network, only: aion, nspec_evolve
+  use actual_network, only: aion, nspec_evolve, ihe4, ini56
   use burn_type_module, only: burn_t, net_ienuc, net_itemp
   use amrex_constants_module, only: ZERO, ONE
   use amrex_fort_module, only : rt => amrex_real
@@ -13,6 +13,7 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   use vode_type_module, only: clean_state, renormalize_species, &
        rhs_to_vode, vode_to_burn
   use rpar_indices
+  use sdc_type_module
 
   implicit none
 
@@ -20,6 +21,7 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   real(rt), intent(INOUT) :: time, y(neq)
   real(rt), intent(INOUT) :: rpar(n_rpar_comps)
   real(rt), intent(  OUT) :: ydot(neq)
+  integer :: lun
 
   type (burn_t) :: burn_state
 
@@ -38,6 +40,13 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   ! call the specific network to get the RHS
 
   call actual_rhs(burn_state)
+
+  if (rpar(irp_i) == 465) then
+     open (newunit=lun, file="sdc_diag.out", status="unknown", position="append")
+     write(lun, *) time+rpar(irp_t0), int(rpar(irp_iter)), rpar(irp_SRHO), &
+          y(SFS-1+ihe4)/rpar(irp_SRHO), y(SFS-1+ini56)/rpar(irp_SRHO)
+     close(unit=lun)
+  endif
 
   ! convert back to the vode type -- this will add the advective terms
 

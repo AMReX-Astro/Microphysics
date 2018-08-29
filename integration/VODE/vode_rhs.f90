@@ -5,7 +5,7 @@
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
     use amrex_fort_module, only : rt => amrex_real
-    use actual_network, only: aion, nspec_evolve
+    use actual_network, only: aion, nspec_evolve, ihe4, ini56
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
@@ -13,7 +13,7 @@
                                     integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_i
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_i, irp_t0, irp_dens
 
     implicit none
 
@@ -21,6 +21,7 @@
     real(rt), intent(INOUT) :: time, y(neq)
     real(rt), intent(INOUT) :: rpar(n_rpar_comps)
     real(rt), intent(  OUT) :: ydot(neq)
+    integer :: lun
 
     type (burn_t) :: burn_state
 
@@ -60,6 +61,12 @@
 
     if (.not. integrate_energy) then
        burn_state % ydot(net_ienuc) = ZERO
+    endif
+
+    if (rpar(irp_i) == 465) then
+       open (newunit=lun, file="strang_diag.out", status="unknown", position="append")
+       write(lun, *) time+rpar(irp_t0), rpar(irp_dens), y(ihe4), y(ini56)
+       close(unit=lun)
     endif
 
     ! apply fudge factor:
