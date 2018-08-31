@@ -159,6 +159,10 @@ contains
 
     iwork(6) = max_steps
 
+    ! Set the initial timestep for VODE to use
+
+    rwork(5) = state_in % ode_step ! This is the VODE variable H0
+
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
     if (burner_verbose) then
@@ -259,6 +263,7 @@ contains
 
        istate = 1
 
+       ! Do not initialize the VODE timestep if we previously failed
        rwork(:) = ZERO
        iwork(:) = 0
 
@@ -354,6 +359,9 @@ contains
 
     ! set the integration time for any diagnostics
     state_out % time = time + dt
+
+    ! set the last VODE timestep used
+    state_out % ode_step = rwork(11) ! This is the VODE variable HU
 
     if (burner_verbose) then
 

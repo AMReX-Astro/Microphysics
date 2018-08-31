@@ -133,6 +133,10 @@ contains
 
     iwork(6) = 150000
 
+    ! Set the initial timestep for VODE to use
+
+    rwork(5) = state_in % ode_step ! This is the VODE variable H0
+
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
     if (burner_verbose) then
@@ -176,6 +180,9 @@ contains
     ! work arrays
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
+
+    ! set the last VODE timestep used
+    state_out % ode_step = rwork(11) ! This is the VODE variable HU
 
   end subroutine vode_integrator
 

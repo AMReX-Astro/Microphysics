@@ -38,6 +38,10 @@ module sdc_type_module
      integer :: n_jac
 
      integer :: sdc_iter
+
+#ifdef REUSE_REACT_STEPSIZE
+     real(rt) :: ode_step
+#endif
   end type sdc_t
 
 end module sdc_type_module

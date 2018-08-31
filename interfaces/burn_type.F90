@@ -71,6 +71,11 @@ module burn_type_module
 
     real(rt) :: time
 
+#ifdef REUSE_REACT_STEPSIZE
+    ! ODE timestep
+    real(rt) :: ode_step
+#endif
+
     ! Was the burn successful?
 
     logical :: success
@@ -125,6 +130,10 @@ contains
     to_state % n_jac = from_state % n_jac
 
     to_state % time = from_state % time
+
+#ifdef REUSE_REACT_STEPSIZE
+    to_state % ode_step = from_state % ode_step
+#endif
 
     to_state % success = from_state % success
 

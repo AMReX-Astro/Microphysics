@@ -39,6 +39,12 @@ ifdef EXTRA_THERMO
   endif
 endif
 
+ifdef REUSE_REACT_STEPSIZE
+  ifeq ($(REUSE_REACT_STEPSIZE), t)
+    FPP_DEFINES += -DREUSE_REACT_STEPSIZE
+  endif
+endif
+
 # the helmeos has a table
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
   EOS_PATH := $(EOS_TOP_DIR)/helmholtz
