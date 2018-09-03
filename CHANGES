@@ -1,6 +1,8 @@
 
 # changes since the last release
 
+# 18.09
+
  -- The Helmholtz parameters ttol and dtol (controlling the error
     for the Newton iteration when in a mode other than eos_input_rt)
     are now runtime parameters in the extern namelist as eos_ttol
