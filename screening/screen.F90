@@ -314,7 +314,8 @@ contains
                         gamef,gamefdt, &
                         tau12,tau12dt,alph12,alph12dt, &
                         xlgfac,dxlgfacdt, &
-                        gamp14,gamp14dt
+                        gamp14,gamp14dt,dgamma
+
 !    double precision :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
 !    double precision :: dh12dd,dh12wdd,dh12xdd,alph12dd
 !    double precision :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
@@ -452,7 +453,6 @@ contains
        dh12dt = rr*dxlgfacdt + dh12dt
        !dh12dd = rr*dxlgfacdd + dh12dd
 
-       gamefs = 0.8d0
        if (gamef .le. gamefs) then
           dgamma  = 1.0d0/(gamefs - gamefx)
 
