@@ -133,9 +133,11 @@ contains
 
     iwork(6) = 150000
 
+#ifdef REUSE_REACT_STEPSIZE
     ! Set the initial timestep for VODE to use
 
     rwork(5) = state_in % ode_step ! This is the VODE variable H0
+#endif
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
@@ -181,8 +183,10 @@ contains
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
 
+#ifdef REUSE_REACT_STEPSIZE
     ! set the last VODE timestep used
     state_out % ode_step = rwork(11) ! This is the VODE variable HU
+#endif
 
   end subroutine vode_integrator
 

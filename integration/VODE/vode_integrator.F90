@@ -159,9 +159,13 @@ contains
 
     iwork(6) = max_steps
 
+#ifdef REUSE_REACT_STEPSIZE
     ! Set the initial timestep for VODE to use
 
     rwork(5) = state_in % ode_step ! This is the VODE variable H0
+#endif
+
+    print *, 'rwork(5) = ', rwork(5)
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
@@ -360,8 +364,12 @@ contains
     ! set the integration time for any diagnostics
     state_out % time = time + dt
 
+    print *, 'rwork(11) = ', rwork(11)
+    
+#ifdef REUSE_REACT_STEPSIZE
     ! set the last VODE timestep used
     state_out % ode_step = rwork(11) ! This is the VODE variable HU
+#endif
 
     if (burner_verbose) then
 
