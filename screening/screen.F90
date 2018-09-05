@@ -8,9 +8,9 @@ module screening_module
   public :: screen5, screenz, add_screening_factor, &
             screening_init, screening_finalize, &
             plasma_state, fill_plasma_state
-  
+
   integer :: nscreen = 0
-  
+
   double precision, parameter :: fact       = 1.25992104989487d0
   double precision, parameter :: co2        = THIRD * 4.248719d3
   double precision, parameter :: gamefx     = 0.3d0
@@ -87,7 +87,7 @@ contains
        zhat2(i)   = (z1scr(i) + z2scr(i))**FIVE12TH - z1scr(i)**FIVE12TH -z2scr(i)**FIVE12TH
        lzav(i)    = FIVE3RD * log(z1scr(i)*z2scr(i)/(z1scr(i) + z2scr(i)))
        aznut(i)   = (z1scr(i)**2 * z2scr(i)**2 * a1scr(i)*a2scr(i) / (a1scr(i) + a2scr(i)))**THIRD
-       
+
     enddo
 
     !$acc update device(zs13, zs13inv, zhat, zhat2, lzav, aznut)
@@ -238,8 +238,8 @@ contains
 
     abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
-    z2bar  = sum(zion**2 * y) * abar    
-    
+    z2bar  = sum(zion**2 * y) * abar
+
     ytot             = ONE / abar
     rr               = dens * ytot
     tempi            = ONE / temp
@@ -295,7 +295,7 @@ contains
     ! scordd  = derivative of screening correction with density
 
 
-    ! declare the pass        
+    ! declare the pass
     integer             :: jscreen
     type (plasma_state) :: state
     double precision    :: scor, scordt, scordd
@@ -303,7 +303,7 @@ contains
 
     ! local variables
     double precision :: z1, a1, z2, a2
-    
+
     double precision :: bb,cc,dccdt, &
                         qq,dqqdt,rr,drrdt, &
                         ss,dssdt,tt,dttdt,uu,duudt, &
@@ -320,7 +320,7 @@ contains
 !    double precision :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
 
     ! Get the ion data based on the input index
-    
+
     z1 = z1scr(jscreen)
     a1 = a1scr(jscreen)
     z2 = z2scr(jscreen)
@@ -452,16 +452,17 @@ contains
        dh12dt = rr*dxlgfacdt + dh12dt
        !dh12dd = rr*dxlgfacdd + dh12dd
 
-
+       gamefs = 0.8d0
        if (gamef .le. gamefs) then
-          rr     =  2.0d0*(gamefs - gamef)
-          drrdt  = -2.0d0*gamefdt
-          !drrdd  = -2.0d0*gamefdd
+          dgamma  = 1.0d0/(gamefs - gamefx)
 
-          ss     = 2.0d0*(gamef - gamefx)
-          dssdt  = 2.0d0*gamefdt
-          !dssdd  = 2.0d0*gamefdd
+          rr     =  dgamma*(gamefs - gamef)
+          drrdt  = -dgamma*gamefdt
+          !drrdd  = -dgamma*gamefdd
 
+          ss     = dgamma*(gamef - gamefx)
+          dssdt  = dgamma*gamefdt
+          !dssdd  = dgamma*gamefdd
 
           ! store current values for possible blending
           h12x    = h12
@@ -469,19 +470,10 @@ contains
           !dh12xdd = dh12dd
 
           vv     = h12
+
           h12    = h12w*rr + vv*ss
           dh12dt = dh12wdt*rr + h12w*drrdt + dh12dt*ss + vv*dssdt
           !dh12dd = dh12wdd*rr + h12w*drrdd + dh12dd*ss + vv*dssdd
-
-          ! blend the transition region - from bill paxton
-          if (gamefs - gamef .lt. blend_frac*(gamefs - gamefx)) then
-             alfa   = (gamefs - gamef) / (blend_frac*(gamefs - gamefx))
-             alfa   = HALF * (ONE - cos(M_PI*alfa))
-             beta   = ONE - alfa
-             h12    = alfa * h12 + beta * h12x
-             dh12dt = alfa * dh12dt + beta * dh12xdt
-             !dh12dd = alfa * dh12dd + beta * dh12xdd
-          end if
        end if
 
 
@@ -542,7 +534,7 @@ contains
     double precision qlam0, ztilda, qlam0z, gamp, taufac
     double precision dqlam0dt, dqlam0zdt, dgampdt, dtaufacdt
     double precision zhat, zhat2, gamef, tau12, alph12
-    double precision dgamefdt, dtau12dt, dalph12dt 
+    double precision dgamefdt, dtau12dt, dalph12dt
     double precision h12w, h12, c, h12fac
     double precision dh12wdt, dh12dt, dcdt
 
@@ -631,7 +623,7 @@ contains
        h12=h12w
        dh12dt=dh12wdt
 
-       if (gamef > 0.3d0) then 
+       if (gamef > 0.3d0) then
 
           c=0.896434d0*gamp*zhat-3.44740d0*gamp**FOURTH*zhat2- &
                0.5551d0*(log(gamp)+FIVE3RD*log(z1*z2/(z1+z2)))-2.996d0
@@ -689,6 +681,6 @@ contains
     return
 
   end subroutine screenz
-  
+
 
 end module screening_module
