@@ -15,7 +15,7 @@ module screening_module
   double precision, parameter :: co2        = THIRD * 4.248719d3
   double precision, parameter :: gamefx     = 0.3d0
   double precision, parameter :: gamefs     = 0.8d0
-  double precision, parameter :: blend_frac = 0.05d0
+  double precision, parameter :: h12_max    = 300.d0
 
   double precision, allocatable, save :: z1scr(:)
   double precision, allocatable, save :: z2scr(:)
@@ -57,7 +57,7 @@ module screening_module
 
   !$acc declare &
   !$acc create(nscreen) &
-  !$acc create(fact, co2, gamefx, gamefs, blend_frac) &
+  !$acc create(fact, co2, gamefx, gamefs, h12_max) &
   !$acc create(z1scr, z2scr, a1scr, a2scr) &
   !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
 
@@ -309,7 +309,6 @@ contains
                         ss,dssdt,tt,dttdt,uu,duudt, &
                         vv,dvvdt,a3,da3, &
                         h12w,dh12wdt,h12,dh12dt, &
-                        h12x,dh12xdt,alfa,beta, &
                         gamp,gampdt, &
                         gamef,gamefdt, &
                         tau12,tau12dt,alph12,alph12dt, &
@@ -464,11 +463,6 @@ contains
           dssdt  = dgamma*gamefdt
           !dssdd  = dgamma*gamefdd
 
-          ! store current values for possible blending
-          h12x    = h12
-          dh12xdt = dh12dt
-          !dh12xdd = dh12dd
-
           vv     = h12
 
           h12    = h12w*rr + vv*ss
@@ -483,9 +477,9 @@ contains
 
     ! machine limit the output
     ! further limit to avoid the pycnonuclear regime
-    h12    = max(min(h12, 30.0_rt), ZERO)
+    h12    = max(min(h12, h12_max), ZERO)
     scor   = exp(h12)
-    if (h12 .eq. 30.0_rt) then
+    if (h12 .eq. h12_max) then
        scordt = ZERO
        !scordd = ZERO
     else
@@ -660,8 +654,8 @@ contains
           endif
        endif
 
-       if (h12.gt.300.d0) then
-          h12=300.d0
+       if (h12 .gt. h12_max) then
+          h12 = h12_max
           dh12dt=0.d0
        endif
 
