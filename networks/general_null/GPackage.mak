@@ -6,12 +6,12 @@ ifneq ($(USE_REACT), FALSE)
 endif
 
 # actual_network.f90 is created at build time for this network
-network.f90:   $(GENERAL_NET_INPUTS) $(MICROPHYSICS_HOME)/Microphysics/networks/general_null/network.template
+actual_network.f90:   $(GENERAL_NET_INPUTS) $(MICROPHYSICS_HOME)/networks/general_null/network.template
 	@echo " "
 	@echo "---------------------------------------------------------------------------"
 	@echo "${bold}WRITING actual_network.f90${normal}"
-	$(MICROPHYSICS_HOME)/Microphysics/networks/general_null/write_network.py \
-            -t $(MAESTRO_TOP_DIR)/Microphysics/networks/general_null/network.template \
+	$(MICROPHYSICS_HOME)/networks/general_null/write_network.py \
+            -t $(MICROPHYSICS_HOME)/networks/general_null/network.template \
             -s $(GENERAL_NET_INPUTS) \
             -o actual_network.f90
 	@echo "---------------------------------------------------------------------------"
