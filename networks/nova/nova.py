@@ -1,5 +1,3 @@
-# C-burning with A=23 URCA rate module generator
-
 import pynucastro as pyna
 from pynucastro.networks import StarKillerNetwork
 
