@@ -1,6 +1,10 @@
 
 # changes since the last release
 
+ -- the intermediate blending of the weak and strong screening regimes
+    was wrong, and has been fixed.  We've also synced some parameters
+    up to agree with those in MESA and Kepler.  (#149, 150)
+
 # 18.09
 
  -- The Helmholtz parameters ttol and dtol (controlling the error
