@@ -129,6 +129,91 @@ contains
 
 
 
+    ydot_nuc(jp) = ( &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*dens + &
+      screened_rates(k_he4_o14__p_f17)*Y(jhe4)*Y(jo14)*dens - &
+      screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*dens - screened_rates(k_p_c13__n14)* &
+      Y(jc13)*Y(jp)*dens - screened_rates(k_p_f18__he4_o15)*Y(jf18)* &
+      Y(jp)*dens - screened_rates(k_p_n13__o14)*Y(jn13)*Y(jp)*dens - &
+      screened_rates(k_p_n14__o15)*Y(jn14)*Y(jp)*dens - &
+      screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*dens - &
+      screened_rates(k_p_n15__o16)*Y(jn15)*Y(jp)*dens - screened_rates(k_p_o16__f17)* &
+      Y(jo16)*Y(jp)*dens - screened_rates(k_p_o17__f18)*Y(jo17)*Y(jp)* &
+      dens - screened_rates(k_p_o17__he4_n14)*Y(jo17)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jhe4) = ( &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens - 0.5d0* &
+      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*dens**2 - &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*dens - &
+      screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*dens - &
+      screened_rates(k_he4_o14__p_f17)*Y(jhe4)*Y(jo14)*dens + &
+      screened_rates(k_p_f18__he4_o15)*Y(jf18)*Y(jp)*dens + &
+      screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*dens + &
+      screened_rates(k_p_o17__he4_n14)*Y(jo17)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jc12) = ( &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens + 0.16666666666666667d0* &
+      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*dens**2 - &
+      screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*dens + &
+      screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jc13) = ( &
+      screened_rates(k_n13__c13)*Y(jn13) - screened_rates(k_p_c13__n14)*Y(jc13)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jn13) = ( &
+      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*dens - screened_rates(k_n13__c13)* &
+      Y(jn13) + screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*dens - &
+      screened_rates(k_p_n13__o14)*Y(jn13)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jn14) = ( &
+      -screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*dens + screened_rates(k_o14__n14)* &
+      Y(jo14) + screened_rates(k_p_c13__n14)*Y(jc13)*Y(jp)*dens - &
+      screened_rates(k_p_n14__o15)*Y(jn14)*Y(jp)*dens + &
+      screened_rates(k_p_o17__he4_n14)*Y(jo17)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jn15) = ( &
+      screened_rates(k_o15__n15)*Y(jo15) - screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)* &
+      dens - screened_rates(k_p_n15__o16)*Y(jn15)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jo14) = ( &
+      -screened_rates(k_he4_o14__p_f17)*Y(jhe4)*Y(jo14)*dens - screened_rates(k_o14__n14)* &
+      Y(jo14) + screened_rates(k_p_n13__o14)*Y(jn13)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jo15) = ( &
+      -screened_rates(k_o15__n15)*Y(jo15) + screened_rates(k_p_f18__he4_o15)*Y(jf18)*Y(jp) &
+      *dens + screened_rates(k_p_n14__o15)*Y(jn14)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jo16) = ( &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens + screened_rates(k_he4_n13__p_o16) &
+      *Y(jhe4)*Y(jn13)*dens + screened_rates(k_p_n15__o16)*Y(jn15)*Y(jp) &
+      *dens - screened_rates(k_p_o16__f17)*Y(jo16)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jo17) = ( &
+      screened_rates(k_f17__o17)*Y(jf17) - screened_rates(k_p_o17__f18)*Y(jo17)*Y(jp)*dens &
+      - screened_rates(k_p_o17__he4_n14)*Y(jo17)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jf17) = ( &
+      -screened_rates(k_f17__o17)*Y(jf17) + screened_rates(k_he4_o14__p_f17)*Y(jhe4)* &
+      Y(jo14)*dens + screened_rates(k_p_o16__f17)*Y(jo16)*Y(jp)*dens &
+       )
+
+    ydot_nuc(jf18) = ( &
+      screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*dens - screened_rates(k_p_f18__he4_o15) &
+      *Y(jf18)*Y(jp)*dens + screened_rates(k_p_o17__f18)*Y(jo17)*Y(jp)* &
+      dens &
+       )
+
 
   end subroutine rhs_nuc
 
@@ -213,6 +298,703 @@ contains
     double precision, intent(in)  :: dens
 
 
+
+    dfdy_nuc(jp,jp) = ( &
+      -screened_rates(k_p_c12__n13)*Y(jc12)*dens - screened_rates(k_p_c13__n14)*Y(jc13)*dens &
+      - screened_rates(k_p_f18__he4_o15)*Y(jf18)*dens - screened_rates(k_p_n13__o14)* &
+      Y(jn13)*dens - screened_rates(k_p_n14__o15)*Y(jn14)*dens - &
+      screened_rates(k_p_n15__he4_c12)*Y(jn15)*dens - screened_rates(k_p_n15__o16)* &
+      Y(jn15)*dens - screened_rates(k_p_o16__f17)*Y(jo16)*dens - &
+      screened_rates(k_p_o17__f18)*Y(jo17)*dens - screened_rates(k_p_o17__he4_n14)* &
+      Y(jo17)*dens &
+       )
+
+    dfdy_nuc(jp,jhe4) = ( &
+      screened_rates(k_he4_n13__p_o16)*Y(jn13)*dens + screened_rates(k_he4_o14__p_f17)* &
+      Y(jo14)*dens &
+       )
+
+    dfdy_nuc(jp,jc12) = ( &
+      -screened_rates(k_p_c12__n13)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jp,jc13) = ( &
+      -screened_rates(k_p_c13__n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jp,jn13) = ( &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens - screened_rates(k_p_n13__o14)*Y(jp)* &
+      dens &
+       )
+
+    dfdy_nuc(jp,jn14) = ( &
+      -screened_rates(k_p_n14__o15)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jp,jn15) = ( &
+      -screened_rates(k_p_n15__he4_c12)*Y(jp)*dens - screened_rates(k_p_n15__o16)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jp,jo14) = ( &
+      screened_rates(k_he4_o14__p_f17)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jp,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jp,jo16) = ( &
+      -screened_rates(k_p_o16__f17)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jp,jo17) = ( &
+      -screened_rates(k_p_o17__f18)*Y(jp)*dens - screened_rates(k_p_o17__he4_n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jp,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jp,jf18) = ( &
+      -screened_rates(k_p_f18__he4_o15)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jhe4,jp) = ( &
+      screened_rates(k_p_f18__he4_o15)*Y(jf18)*dens + screened_rates(k_p_n15__he4_c12)* &
+      Y(jn15)*dens + screened_rates(k_p_o17__he4_n14)*Y(jo17)*dens &
+       )
+
+    dfdy_nuc(jhe4,jhe4) = ( &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens - 1.5d0*screened_rates(k_he4_he4_he4__c12)* &
+      Y(jhe4)**2*dens**2 - screened_rates(k_he4_n13__p_o16)*Y(jn13)*dens - &
+      screened_rates(k_he4_n14__f18)*Y(jn14)*dens - screened_rates(k_he4_o14__p_f17)* &
+      Y(jo14)*dens &
+       )
+
+    dfdy_nuc(jhe4,jc12) = ( &
+      -screened_rates(k_he4_c12__o16)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jhe4,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jhe4,jn13) = ( &
+      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jhe4,jn14) = ( &
+      -screened_rates(k_he4_n14__f18)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jhe4,jn15) = ( &
+      screened_rates(k_p_n15__he4_c12)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jhe4,jo14) = ( &
+      -screened_rates(k_he4_o14__p_f17)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jhe4,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jhe4,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jhe4,jo17) = ( &
+      screened_rates(k_p_o17__he4_n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jhe4,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jhe4,jf18) = ( &
+      screened_rates(k_p_f18__he4_o15)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jc12,jp) = ( &
+      -screened_rates(k_p_c12__n13)*Y(jc12)*dens + screened_rates(k_p_n15__he4_c12)*Y(jn15)* &
+      dens &
+       )
+
+    dfdy_nuc(jc12,jhe4) = ( &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens + 0.5d0*screened_rates(k_he4_he4_he4__c12)* &
+      Y(jhe4)**2*dens**2 &
+       )
+
+    dfdy_nuc(jc12,jc12) = ( &
+      -screened_rates(k_he4_c12__o16)*Y(jhe4)*dens - screened_rates(k_p_c12__n13)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jc12,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jn15) = ( &
+      screened_rates(k_p_n15__he4_c12)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jc12,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc12,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jp) = ( &
+      -screened_rates(k_p_c13__n14)*Y(jc13)*dens &
+       )
+
+    dfdy_nuc(jc13,jhe4) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jc13) = ( &
+      -screened_rates(k_p_c13__n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jc13,jn13) = ( &
+      screened_rates(k_n13__c13) &
+       )
+
+    dfdy_nuc(jc13,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jc13,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jp) = ( &
+      screened_rates(k_p_c12__n13)*Y(jc12)*dens - screened_rates(k_p_n13__o14)*Y(jn13)*dens &
+       )
+
+    dfdy_nuc(jn13,jhe4) = ( &
+      -screened_rates(k_he4_n13__p_o16)*Y(jn13)*dens &
+       )
+
+    dfdy_nuc(jn13,jc12) = ( &
+      screened_rates(k_p_c12__n13)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jn13,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jn13) = ( &
+      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens - screened_rates(k_n13__c13) - &
+      screened_rates(k_p_n13__o14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jn13,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn13,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jp) = ( &
+      screened_rates(k_p_c13__n14)*Y(jc13)*dens - screened_rates(k_p_n14__o15)*Y(jn14)*dens &
+      + screened_rates(k_p_o17__he4_n14)*Y(jo17)*dens &
+       )
+
+    dfdy_nuc(jn14,jhe4) = ( &
+      -screened_rates(k_he4_n14__f18)*Y(jn14)*dens &
+       )
+
+    dfdy_nuc(jn14,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jc13) = ( &
+      screened_rates(k_p_c13__n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jn14,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jn14) = ( &
+      -screened_rates(k_he4_n14__f18)*Y(jhe4)*dens - screened_rates(k_p_n14__o15)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jn14,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jo14) = ( &
+      screened_rates(k_o14__n14) &
+       )
+
+    dfdy_nuc(jn14,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jo17) = ( &
+      screened_rates(k_p_o17__he4_n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jn14,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn14,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jp) = ( &
+      -screened_rates(k_p_n15__he4_c12)*Y(jn15)*dens - screened_rates(k_p_n15__o16)*Y(jn15)* &
+      dens &
+       )
+
+    dfdy_nuc(jn15,jhe4) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jn15) = ( &
+      -screened_rates(k_p_n15__he4_c12)*Y(jp)*dens - screened_rates(k_p_n15__o16)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jn15,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jo15) = ( &
+      screened_rates(k_o15__n15) &
+       )
+
+    dfdy_nuc(jn15,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jn15,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jp) = ( &
+      screened_rates(k_p_n13__o14)*Y(jn13)*dens &
+       )
+
+    dfdy_nuc(jo14,jhe4) = ( &
+      -screened_rates(k_he4_o14__p_f17)*Y(jo14)*dens &
+       )
+
+    dfdy_nuc(jo14,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jn13) = ( &
+      screened_rates(k_p_n13__o14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jo14,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jo14) = ( &
+      -screened_rates(k_he4_o14__p_f17)*Y(jhe4)*dens - screened_rates(k_o14__n14) &
+       )
+
+    dfdy_nuc(jo14,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo14,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jp) = ( &
+      screened_rates(k_p_f18__he4_o15)*Y(jf18)*dens + screened_rates(k_p_n14__o15)*Y(jn14)* &
+      dens &
+       )
+
+    dfdy_nuc(jo15,jhe4) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jn14) = ( &
+      screened_rates(k_p_n14__o15)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jo15,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jo15) = ( &
+      -screened_rates(k_o15__n15) &
+       )
+
+    dfdy_nuc(jo15,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo15,jf18) = ( &
+      screened_rates(k_p_f18__he4_o15)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jo16,jp) = ( &
+      screened_rates(k_p_n15__o16)*Y(jn15)*dens - screened_rates(k_p_o16__f17)*Y(jo16)*dens &
+       )
+
+    dfdy_nuc(jo16,jhe4) = ( &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*dens + screened_rates(k_he4_n13__p_o16)*Y(jn13) &
+      *dens &
+       )
+
+    dfdy_nuc(jo16,jc12) = ( &
+      screened_rates(k_he4_c12__o16)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jo16,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jn13) = ( &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jo16,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jn15) = ( &
+      screened_rates(k_p_n15__o16)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jo16,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jo16) = ( &
+      -screened_rates(k_p_o16__f17)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jo16,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo16,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jp) = ( &
+      -screened_rates(k_p_o17__f18)*Y(jo17)*dens - screened_rates(k_p_o17__he4_n14)*Y(jo17)* &
+      dens &
+       )
+
+    dfdy_nuc(jo17,jhe4) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jo17,jo17) = ( &
+      -screened_rates(k_p_o17__f18)*Y(jp)*dens - screened_rates(k_p_o17__he4_n14)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jo17,jf17) = ( &
+      screened_rates(k_f17__o17) &
+       )
+
+    dfdy_nuc(jo17,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jp) = ( &
+      screened_rates(k_p_o16__f17)*Y(jo16)*dens &
+       )
+
+    dfdy_nuc(jf17,jhe4) = ( &
+      screened_rates(k_he4_o14__p_f17)*Y(jo14)*dens &
+       )
+
+    dfdy_nuc(jf17,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jn14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jo14) = ( &
+      screened_rates(k_he4_o14__p_f17)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jf17,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jo16) = ( &
+      screened_rates(k_p_o16__f17)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jf17,jo17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf17,jf17) = ( &
+      -screened_rates(k_f17__o17) &
+       )
+
+    dfdy_nuc(jf17,jf18) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jp) = ( &
+      -screened_rates(k_p_f18__he4_o15)*Y(jf18)*dens + screened_rates(k_p_o17__f18)*Y(jo17)* &
+      dens &
+       )
+
+    dfdy_nuc(jf18,jhe4) = ( &
+      screened_rates(k_he4_n14__f18)*Y(jn14)*dens &
+       )
+
+    dfdy_nuc(jf18,jc12) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jc13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jn13) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jn14) = ( &
+      screened_rates(k_he4_n14__f18)*Y(jhe4)*dens &
+       )
+
+    dfdy_nuc(jf18,jn15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jo14) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jo15) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jo16) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jo17) = ( &
+      screened_rates(k_p_o17__f18)*Y(jp)*dens &
+       )
+
+    dfdy_nuc(jf18,jf17) = ( &
+      0.0d0 &
+       )
+
+    dfdy_nuc(jf18,jf18) = ( &
+      -screened_rates(k_p_f18__he4_o15)*Y(jp)*dens &
+       )
 
     
   end subroutine jac_nuc
