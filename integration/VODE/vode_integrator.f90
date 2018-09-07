@@ -18,7 +18,7 @@ module vode_integrator_module
   ! function is supplied; 22 means stiff, figure out my jacobian through
   ! differencing.
 
-  integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
+  integer, parameter :: MF_NON_STIFF = 10, MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
 
   ! Tolerance parameters:
   !
