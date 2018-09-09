@@ -136,7 +136,7 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        init_state(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+        init_state(ARLIM_3D(bx.loVect()), ARLIM_3D(bx.hiVect()),
                    BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }
@@ -156,7 +156,7 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-        do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+        do_react(ARLIM_3D(bx.loVect()), ARLIM_3D(bx.hiVect()),
                  BL_TO_FORTRAN_ANYD(state[mfi]),
                  &n_rhs_min, &n_rhs_max, &n_rhs_sum);
 
