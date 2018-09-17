@@ -30,7 +30,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine integrator(state_in, state_out, dt, time)
+  subroutine integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
@@ -55,6 +55,8 @@ contains
     type (burn_t),  intent(in   ) :: state_in
     type (burn_t),  intent(inout) :: state_out
     real(rt),     intent(in   ) :: dt, time
+
+    !$gpu
 
 #if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     type (integration_status_t) :: status

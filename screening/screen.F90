@@ -218,7 +218,7 @@ contains
   end subroutine add_screening_factor
 
 
-  AMREX_DEVICE subroutine fill_plasma_state(state, temp, dens, y)
+  subroutine fill_plasma_state(state, temp, dens, y)
 
     !$acc routine seq
 
@@ -235,6 +235,8 @@ contains
     double precision :: ytot, rr, tempi, dtempi, deni
     double precision :: pp, qq, dppdt, xni
 !    double precision :: dppdd
+
+    !$gpu
 
     abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
@@ -269,7 +271,7 @@ contains
   end subroutine fill_plasma_state
 
 
-  AMREX_DEVICE subroutine screen5(state,jscreen,scor,scordt,scordd)
+  subroutine screen5(state,jscreen,scor,scordt,scordd)
 
     !$acc routine seq
 
@@ -318,6 +320,8 @@ contains
 !    double precision :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
 !    double precision :: dh12dd,dh12wdd,dh12xdd,alph12dd
 !    double precision :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
+
+    !$gpu
 
     ! Get the ion data based on the input index
 
@@ -490,7 +494,7 @@ contains
   end subroutine screen5
 
 
-  AMREX_DEVICE subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
+  subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
 
     !$acc routine seq
 
@@ -532,6 +536,7 @@ contains
     double precision h12w, h12, c, h12fac
     double precision dh12wdt, dh12dt, dcdt
 
+    !$gpu
 
     ! calculate averages for screening routine
     ! nb  y = x/a with x the mass fraction

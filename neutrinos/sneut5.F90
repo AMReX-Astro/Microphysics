@@ -4,8 +4,8 @@ module sneut_module
 
 contains
 
-  AMREX_DEVICE subroutine sneut5(temp,den,abar,zbar, &
-                                 snu,dsnudt,dsnudd,dsnuda,dsnudz)
+  subroutine sneut5(temp,den,abar,zbar, &
+                    snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
     !$acc routine seq
 
@@ -120,6 +120,8 @@ contains
     double precision, parameter :: tfac4  = 0.5d0 * tfac1
     double precision, parameter :: tfac5  = 0.5d0 * tfac2
     double precision, parameter :: tfac6  = cv*cv + 1.5d0*ca*ca + (xnufam - 1.0d0)*(cvp*cvp + 1.5d0*cap*cap)
+
+    !$gpu
 
     ! initialize
     spair   = 0.0d0
@@ -1186,7 +1188,7 @@ contains
 
 
 
-  AMREX_DEVICE double precision function ifermi12(f)
+  double precision function ifermi12(f)
 
     !$acc routine seq
 
@@ -1200,6 +1202,7 @@ contains
     integer          :: i,m1,k1,m2,k2
     double precision :: f,an,a1(12),b1(12),a2(12),b2(12),rn,den,ff
 
+    !$gpu
 
     ! load the coefficients of the expansion
     an = 0.5d0
@@ -1265,7 +1268,7 @@ contains
 
 
 
-  AMREX_DEVICE double precision function zfermim12(x)
+  double precision function zfermim12(x)
 
     !$acc routine seq
 
@@ -1278,6 +1281,8 @@ contains
     ! declare
     integer          :: i,m1,k1,m2,k2
     double precision :: x,an,a1(12),b1(12),a2(12),b2(12),rn,den,xx
+
+    !$gpu
 
     ! load the coefficients of the expansion
     an = -0.5d0

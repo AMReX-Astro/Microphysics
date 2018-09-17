@@ -10,7 +10,7 @@ module actual_burner_module
 
 contains
 
-  AMREX_DEVICE subroutine actual_burner(state_in, state_out, dt, time)
+  subroutine actual_burner(state_in, state_out, dt, time)
 
     use integrator_module, only: integrator
 

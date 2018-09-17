@@ -17,9 +17,10 @@ contains
   end subroutine actual_rhs_init
 
 
-  AMREX_DEVICE subroutine actual_rhs(state)
+  subroutine actual_rhs(state)
 
     !$acc routine seq
+    !$gpu
 
     use extern_probin_module, only: do_constant_volume_burn
 
@@ -113,9 +114,10 @@ contains
   end subroutine actual_rhs
 
 
-  AMREX_DEVICE subroutine actual_jac(state)
+  subroutine actual_jac(state)
 
     !$acc routine seq
+    !$gpu
 
     use extern_probin_module, only: do_constant_volume_burn
 
@@ -201,9 +203,10 @@ contains
 
 
 
-  AMREX_DEVICE subroutine evaluate_rates(state, rr)
+  subroutine evaluate_rates(state, rr)
 
     !$acc routine seq
+    !$gpu
 
     use screening_module, only: screenz
 
@@ -266,11 +269,12 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
+  subroutine ener_gener_rate(dydt, enuc)
 
     use network
 
     !$acc routine seq
+    !$gpu
 
     implicit none
 
@@ -291,9 +295,10 @@ contains
 
   end subroutine ener_gener_rate
 
-  AMREX_DEVICE subroutine update_unevolved_species(state)
+  subroutine update_unevolved_species(state)
 
     !$acc routine seq
+    !$gpu
 
     implicit none
 

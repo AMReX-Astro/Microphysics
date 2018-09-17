@@ -277,8 +277,9 @@ contains
     call screening_init()    
   end subroutine net_screening_init
 
-  AMREX_DEVICE subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
+  subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
+    !$gpu
 
     implicit none
     

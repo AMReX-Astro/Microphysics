@@ -176,9 +176,10 @@ contains
     deallocate(wion)
   end subroutine actual_network_finalize
   
-  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
+  subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
+    !$gpu
   
     implicit none
 

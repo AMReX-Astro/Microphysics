@@ -24,7 +24,7 @@ contains
 
 
   ! Main interface
-  AMREX_DEVICE subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine actual_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
     
@@ -72,6 +72,8 @@ contains
 
     real(rt) :: ener_offset
     real(rt) :: edot, t_enuc, t_sound, limit_factor
+
+    !$gpu
 
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC

@@ -9,7 +9,7 @@ module dvode_dvjac_module
   use linpack_module
   use blas_module
 
-  use dvode_dvnorm_module
+  use dvode_dvnorm_module, only: dvnorm ! function
   use dvode_dacopy_module
 
   use dvode_constants_module
@@ -18,7 +18,7 @@ module dvode_dvjac_module
 
 contains
 
-  AMREX_DEVICE subroutine dvjac(IWM, IERPJ, rwork, vstate)
+  subroutine dvjac(IWM, IERPJ, rwork, vstate)
 
     !$acc routine seq
     
@@ -95,6 +95,8 @@ contains
 
     ! Parameter declarations
     real(rt), parameter :: PT1 = 0.1D0
+
+    !$gpu
 
     IERPJ = 0
     HRL1 = vstate % H*vstate % RL1

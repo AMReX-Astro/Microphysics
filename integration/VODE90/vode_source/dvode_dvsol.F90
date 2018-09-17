@@ -12,7 +12,7 @@ module dvode_dvsol_module
 
 contains
 
-  AMREX_DEVICE subroutine dvsol(WM, IWM, IERSL, vstate)
+  subroutine dvsol(WM, IWM, IERSL, vstate)
 
     !$acc routine seq
 
@@ -59,6 +59,8 @@ contains
     ! Declare local variables
     integer    :: I, MEBAND, ML, MU
     real(rt) :: DI, HRL1, PHRL1, R
+
+    !$gpu
 
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER

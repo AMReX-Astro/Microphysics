@@ -10,7 +10,7 @@ module dvode_dvnlsd_module
   use linpack_module
 
   use dvode_dvjac_module
-  use dvode_dvnorm_module
+  use dvode_dvnorm_module, only: dvnorm ! function
   use dvode_dvsol_module
 
   use dvode_constants_module
@@ -19,7 +19,7 @@ module dvode_dvnlsd_module
 
 contains
 
-  AMREX_DEVICE subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
+  subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
 
     !$acc routine seq
     
@@ -100,6 +100,8 @@ contains
     real(rt), parameter :: RDIV  = 2.0D0
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
+
+    !$gpu
 
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a

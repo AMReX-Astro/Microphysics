@@ -136,7 +136,7 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        init_state(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+        init_state(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
                    BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }
@@ -156,9 +156,10 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-        do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
-                 BL_TO_FORTRAN_ANYD(state[mfi]),
-                 &n_rhs_min, &n_rhs_max, &n_rhs_sum);
+#pragma gpu
+        do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                 BL_TO_FORTRAN_ANYD(state[mfi]));
+	//                 &n_rhs_min, &n_rhs_max, &n_rhs_sum);
 
     }
 

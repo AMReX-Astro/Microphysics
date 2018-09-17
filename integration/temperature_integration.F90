@@ -10,7 +10,7 @@ contains
   ! within the actual_rhs routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  AMREX_DEVICE subroutine temperature_rhs(state)
+  subroutine temperature_rhs(state)
 
     !$acc routine seq
 
@@ -24,6 +24,8 @@ contains
 
     type (burn_t) :: state
     real(rt) :: cv, cp, cvInv, cpInv
+
+    !$gpu
 
     if (state % self_heat) then
 
@@ -82,7 +84,7 @@ contains
   ! within the actual_jac routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  AMREX_DEVICE subroutine temperature_jac(state)
+  subroutine temperature_jac(state)
 
     !$acc routine seq
 
@@ -97,6 +99,8 @@ contains
     type (burn_t) :: state
 
     real(rt) :: cp, cv, cpInv, cvInv
+
+    !$gpu
 
     ! Temperature Jacobian elements
 
