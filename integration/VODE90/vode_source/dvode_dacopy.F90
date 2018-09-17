@@ -9,7 +9,7 @@ module dvode_dacopy_module
 
 contains
 
-  AMREX_DEVICE subroutine dacopy(NROW, NCOL, A, NROWA, B, NROWB)
+  subroutine dacopy(NROW, NCOL, A, NROWA, B, NROWB)
 
     !$acc routine seq
     
@@ -35,6 +35,8 @@ contains
 
     ! Declare local variables
     integer    :: IC
+
+    !$gpu
 
     do IC = 1,NCOL
        CALL DCOPYN (NROW, A(:,IC), 1, B(:,IC), 1)

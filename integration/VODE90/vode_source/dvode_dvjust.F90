@@ -13,7 +13,7 @@ module dvode_dvjust_module
 
 contains
 
-  AMREX_DEVICE subroutine dvjust(IORD, rwork, vstate)
+  subroutine dvjust(IORD, rwork, vstate)
 
     !$acc routine seq
     
@@ -48,6 +48,8 @@ contains
     ! Declare local variables
     real(rt) :: ALPH0, ALPH1, HSUM, PROD, T1, XI,XIOLD
     integer    :: I, IBACK, J, JP1, LP1, NQM1, NQM2, NQP1
+
+    !$gpu
 
     IF ((vstate % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN
     NQM1 = vstate % NQ - 1

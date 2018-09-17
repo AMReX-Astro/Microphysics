@@ -30,7 +30,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine actual_rhs(state)
+  subroutine actual_rhs(state)
 
     implicit none
 
@@ -91,7 +91,7 @@ contains
 
   ! Analytical Jacobian
 
-  AMREX_DEVICE subroutine actual_jac(state)
+  subroutine actual_jac(state)
 
     use amrex_constants_module, only: ZERO
 
@@ -159,7 +159,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine evaluate_rates(state, rr)
+  subroutine evaluate_rates(state, rr)
 
     implicit none
 
@@ -212,7 +212,7 @@ contains
 
   ! Evaluates the right hand side of the aprox21 ODEs
 
-  AMREX_DEVICE subroutine rhs(y, rate, ratdum, dydt, deriva)
+  subroutine rhs(y, rate, ratdum, dydt, deriva)
 
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15
@@ -779,7 +779,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine aprox21rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  subroutine aprox21rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox21 network.
@@ -1095,7 +1095,7 @@ contains
   ! electron capture rates on nucleons for aprox21
   ! note they are composition dependent
 
-  AMREX_DEVICE subroutine weak_aprox21(y, state, ratraw, dratrawdt, dratrawdd)
+  subroutine weak_aprox21(y, state, ratraw, dratrawdt, dratrawdd)
 
     use aprox_rates_module, only: ecapnuc, langanke
 
@@ -1132,7 +1132,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine screen_aprox21(btemp, bden, y, &
+  subroutine screen_aprox21(btemp, bden, y, &
                             ratraw, dratrawdt, dratrawdd, &
                             ratdum, dratdumdt, dratdumdd, &
                             dratdumdy1, dratdumdy2, &
@@ -2394,7 +2394,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine dfdy_isotopes_aprox21(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
+  subroutine dfdy_isotopes_aprox21(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum9, esum10, esum13, esum26
@@ -3198,7 +3198,7 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
+  subroutine ener_gener_rate(dydt, enuc)
 
     use actual_network, only: nspec, mion, enuc_conv2
 
@@ -3301,7 +3301,7 @@ contains
 
   end subroutine set_up_screening_factors
 
-  AMREX_DEVICE subroutine update_unevolved_species(state)
+  subroutine update_unevolved_species(state)
 
     !$acc routine seq
 

@@ -126,7 +126,7 @@ contains
   !---------------------------------------------------------------------------
   ! The main interface
   !---------------------------------------------------------------------------
-  AMREX_DEVICE subroutine actual_eos(input, state)
+  subroutine actual_eos(input, state)
 
     implicit none
 
@@ -135,6 +135,8 @@ contains
 
     ! Local variables
     double precision :: dens, temp, enth, pres, eint, entr
+
+    !$gpu
 
     dens = state % rho
     temp = state % T

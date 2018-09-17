@@ -4,8 +4,8 @@ module blas_module
 
 contains
 
-  AMREX_DEVICE SUBROUTINE DCOPYN(N,DX,INCX,DY,INCY)
-
+  SUBROUTINE DCOPYN(N,DX,INCX,DY,INCY)
+    !$gpu
   ! Only operates on arrays of size N
 
     INTEGER INCX,INCY,N
@@ -60,7 +60,8 @@ contains
   end SUBROUTINE DCOPYN
 
   
-  AMREX_DEVICE SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
+  SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
+    !$gpu
     INTEGER INCX,INCY,N
     DOUBLE PRECISION DX(:),DY(:)
 ! *  Purpose
@@ -113,8 +114,8 @@ contains
   end SUBROUTINE DCOPY
 
 
-  AMREX_DEVICE SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
-
+  SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
+    !$gpu
   ! Only operates on arrays of size N
 
     !$acc routine seq
@@ -178,7 +179,8 @@ contains
   END SUBROUTINE DAXPYN
 
   
-  AMREX_DEVICE SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
+  SUBROUTINE daxpy(N,DA,DX,INCX,DY,INCY)
+    !$gpu
     !$acc routine seq
     !     .. Scalar Arguments ..
     DOUBLE PRECISION DA
@@ -237,10 +239,11 @@ contains
        DY(I+3) = DY(I+3) + DA*DX(I+3)
     end do
     RETURN
-  END SUBROUTINE DAXPY
+  END SUBROUTINE daxpy
 
 
-  AMREX_DEVICE FUNCTION DDOT(N,DX,INCX,DY,INCY) result(dotval)
+  FUNCTION DDOT(N,DX,INCX,DY,INCY) result(dotval)
+    !$gpu
     DOUBLE PRECISION dotval
     !      .. Scalar Arguments ..
     INTEGER INCX,INCY,N
@@ -302,7 +305,8 @@ contains
     RETURN
   END FUNCTION DDOT
 
-  AMREX_DEVICE SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+  SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+    !$gpu
     !$acc routine seq
     !      .. Scalar Arguments ..
     DOUBLE PRECISION ALPHA,BETA
@@ -625,9 +629,9 @@ contains
   end SUBROUTINE DGEMM
 
 
-  AMREX_DEVICE SUBROUTINE DSCALN(N,DA,DX,INCX)
-
-  ! Only operates on arrays of size N
+  SUBROUTINE DSCALN(N,DA,DX,INCX)
+    !$gpu
+    ! Only operates on arrays of size N
 
     !$acc routine seq
     !      .. Scalar Arguments ..
@@ -688,7 +692,8 @@ contains
   END SUBROUTINE DSCALN
 
   
-  AMREX_DEVICE SUBROUTINE DSCAL(N,DA,DX,INCX)
+  SUBROUTINE DSCAL(N,DA,DX,INCX)
+    !$gpu
     !$acc routine seq
     !      .. Scalar Arguments ..
     DOUBLE PRECISION DA
@@ -747,7 +752,8 @@ contains
     RETURN
   END SUBROUTINE DSCAL
 
-  AMREX_DEVICE INTEGER FUNCTION IDAMAX(N,DX,INCX)
+  FUNCTION IDAMAX(N,DX,INCX) result(index)
+    !$gpu
     !$acc routine seq
     !      .. Scalar Arguments ..
     INTEGER INCX,N
@@ -767,14 +773,14 @@ contains
     ! 
     !      .. Local Scalars ..
     DOUBLE PRECISION DMAX
-    INTEGER I,IX
+    INTEGER I,IX,index
     !      ..
     !      .. Intrinsic Functions ..
     INTRINSIC DABS
     !      ..
-    IDAMAX = 0
+    index = 0
     IF (N.LT.1 .OR. INCX.LE.0) RETURN
-    IDAMAX = 1
+    index = 1
     IF (N.EQ.1) RETURN
     IF (INCX.EQ.1) GO TO 20
     ! 
@@ -785,7 +791,7 @@ contains
     IX = IX + INCX
     DO I = 2,N
        IF (DABS(DX(IX)).LE.DMAX) GO TO 5
-       IDAMAX = I
+       index = I
        DMAX = DABS(DX(IX))
 5      IX = IX + INCX
     end do
@@ -796,7 +802,7 @@ contains
 20  DMAX = DABS(DX(1))
     DO I = 2,N
        IF (DABS(DX(I)).LE.DMAX) cycle
-       IDAMAX = I
+       index = I
        DMAX = DABS(DX(I))
     end do
     RETURN

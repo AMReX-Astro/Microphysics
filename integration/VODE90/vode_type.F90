@@ -18,7 +18,7 @@ module vode_type_module
 
 contains
   
-  AMREX_DEVICE subroutine clean_state(y, rpar)
+  subroutine clean_state(y, rpar)
 
     !$acc routine seq
     
@@ -30,13 +30,15 @@ contains
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
 
+    !$gpu
+
     ! Ensure that mass fractions always stay positive.
 
     y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
 
   end subroutine clean_state
 
-  AMREX_DEVICE subroutine renormalize_species(y, rpar)
+  subroutine renormalize_species(y, rpar)
 
     !$acc routine seq
     
@@ -50,6 +52,8 @@ contains
 
     real(rt) :: nspec_sum
 
+    !$gpu
+
     nspec_sum = &
          sum(y(1:nspec_evolve)) + &
          sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
@@ -60,7 +64,7 @@ contains
 
   end subroutine renormalize_species
 
-  AMREX_DEVICE subroutine update_thermodynamics(y, rpar)
+  subroutine update_thermodynamics(y, rpar)
 
     !$acc routine seq
     
@@ -76,6 +80,8 @@ contains
     real(rt) :: y(neqs), rpar(n_rpar_comps)
 
     type (eos_t) :: eos_state
+
+    !$gpu
 
     ! Several thermodynamic quantities come in via rpar -- note: these
     ! are evaluated at the start of the integration, so if things change
@@ -131,7 +137,7 @@ contains
   ! it is always in (rho, T) mode and (2) converting back would imply subtracting
   ! off the nuclear energy from the zone's internal energy, which could lead to
   ! issues from roundoff error if the energy released from burning is small.
-  AMREX_DEVICE subroutine vode_to_eos(state, y, rpar)
+  subroutine vode_to_eos(state, y, rpar)
 
     !$acc routine seq
     
@@ -146,6 +152,8 @@ contains
     type (eos_t) :: state
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(neqs)
+
+    !$gpu
 
     state % rho     = rpar(irp_dens)
     state % T       = y(net_itemp)
@@ -167,7 +175,7 @@ contains
 
 
   ! Given an EOS state, fill the rpar and integration state data.
-  AMREX_DEVICE subroutine eos_to_vode(state, y, rpar)
+  subroutine eos_to_vode(state, y, rpar)
 
     !$acc routine seq
     
@@ -182,6 +190,8 @@ contains
     type (eos_t) :: state
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(neqs)
+
+    !$gpu
 
     rpar(irp_dens) = state % rho
     y(net_itemp) = state % T
@@ -203,7 +213,7 @@ contains
 
 
   ! Given a burn state, fill the rpar and integration state data.
-  AMREX_DEVICE subroutine burn_to_vode(state, y, rpar, ydot, jac)
+  subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
     !$acc routine seq
     
@@ -223,6 +233,8 @@ contains
     real(rt), optional :: ydot(neqs), jac(neqs, neqs)
 
     integer :: n
+
+    !$gpu
 
     rpar(irp_dens) = state % rho
     y(net_itemp) = state % T
@@ -263,7 +275,7 @@ contains
 
 
   ! Given an rpar array and the integration state, set up a burn state.
-  AMREX_DEVICE subroutine vode_to_burn(y, rpar, state)
+  subroutine vode_to_burn(y, rpar, state)
 
     !$acc routine seq
     
@@ -282,6 +294,8 @@ contains
     real(rt)    :: y(neqs)
 
     integer :: n
+
+    !$gpu
 
     state % rho      = rpar(irp_dens)
     state % T        = y(net_itemp)

@@ -9,7 +9,7 @@ module dvode_dvset_module
 
 contains
 
-  AMREX_DEVICE subroutine dvset(vstate)
+  subroutine dvset(vstate)
 
     !$acc routine seq
     
@@ -74,6 +74,8 @@ contains
 
     ! Parameter declaration
     real(rt), parameter :: CORTES = 0.1D0
+
+    !$gpu
 
     FLOTL = REAL(vstate % L)
     NQM1 = vstate % NQ - 1

@@ -34,9 +34,10 @@ contains
     call term_table_meta()
   end subroutine actual_burner_finalize
 
-  AMREX_DEVICE subroutine actual_burner(state_in, state_out, dt, time)
+  subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
+    !$gpu
 
     use amrex_fort_module, only : rt => amrex_real
     use integrator_module, only: integrator

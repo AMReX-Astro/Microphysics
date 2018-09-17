@@ -11,7 +11,7 @@ module dvode_dewset_module
 
 contains
 
-  AMREX_DEVICE subroutine dewset(vstate, rwork)
+  subroutine dewset(vstate, rwork)
 
     !$acc routine seq
     
@@ -45,6 +45,8 @@ contains
 
     ! Declare local variables
     integer    :: I, N
+
+    !$gpu
 
     GO TO (10, 20, 30, 40), VODE_ITOL
 10  CONTINUE

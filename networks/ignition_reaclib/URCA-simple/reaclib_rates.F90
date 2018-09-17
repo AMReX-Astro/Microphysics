@@ -152,8 +152,9 @@ contains
   end subroutine net_screening_finalize
 
 
-  AMREX_DEVICE subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
+  subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
+    !$gpu
 
     implicit none
     

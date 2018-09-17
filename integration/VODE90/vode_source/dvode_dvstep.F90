@@ -19,7 +19,7 @@ module dvode_dvstep_module
 
 contains
 
-  AMREX_DEVICE subroutine dvstep(IWM, rwork, vstate)
+  subroutine dvstep(IWM, rwork, vstate)
 
     !$acc routine seq
     
@@ -107,6 +107,8 @@ contains
     real(rt), parameter :: ETAMX3 = 10.0D0
     real(rt), parameter :: ONEPSM = 1.00001D0
     real(rt), parameter :: THRESH = 1.5D0
+
+    !$gpu
 
     ETAQ   = ONE
     ETAQM1 = ONE

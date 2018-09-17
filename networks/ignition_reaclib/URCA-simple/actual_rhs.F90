@@ -28,15 +28,17 @@ contains
   end subroutine actual_rhs_init
 
 
-  AMREX_DEVICE subroutine update_unevolved_species(state)
+  subroutine update_unevolved_species(state)
+    !$gpu
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
     return
   end subroutine update_unevolved_species
 
 
-  AMREX_DEVICE subroutine evaluate_rates(state, rate_eval)
+  subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
+    !$gpu
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
@@ -74,9 +76,10 @@ contains
   end subroutine evaluate_rates
 
 
-  AMREX_DEVICE subroutine actual_rhs(state)
+  subroutine actual_rhs(state)
     
     !$acc routine seq
+    !$gpu
 
     use extern_probin_module, only: do_constant_volume_burn
     use burn_type_module, only: net_itemp, net_ienuc
@@ -133,9 +136,10 @@ contains
   end subroutine actual_rhs
 
 
-  AMREX_DEVICE subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
+  subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
+    !$gpu
 
     
     double precision, intent(out) :: ydot_nuc(nspec)
@@ -189,9 +193,10 @@ contains
   end subroutine rhs_nuc
 
 
-  AMREX_DEVICE subroutine actual_jac(state)
+  subroutine actual_jac(state)
 
     !$acc routine seq
+    !$gpu
 
     use burn_type_module, only: net_itemp, net_ienuc
     
@@ -259,9 +264,10 @@ contains
   end subroutine actual_jac
 
 
-  AMREX_DEVICE subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
+  subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
+    !$gpu
     
 
     double precision, intent(out) :: dfdy_nuc(nspec, nspec)

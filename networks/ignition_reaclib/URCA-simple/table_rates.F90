@@ -135,8 +135,9 @@ contains
   end subroutine term_tab_info
 
 
-  AMREX_DEVICE subroutine vector_index_lu(vector, fvar, index)
+  subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
+    !$gpu
 
     ! Returns the greatest index of vector for which vector(index) < fvar.
     ! Return 1 if fvar < vector(1)
@@ -171,8 +172,9 @@ contains
   end subroutine vector_index_lu
 
 
-  AMREX_DEVICE subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
+  subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
+    !$gpu
     
     ! Perform bilinear interpolation within the interval [xlo, xhi]
     ! where the function values at the endpoints are defined by:
@@ -193,8 +195,9 @@ contains
   end subroutine bl_clamp
 
 
-  AMREX_DEVICE subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
+  subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
+    !$gpu
     
     ! Perform bilinear interpolation within the interval [xlo, xhi]
     ! where the function values at the endpoints are defined by:
@@ -208,8 +211,9 @@ contains
   end subroutine bl_extrap
 
 
-  AMREX_DEVICE subroutine get_entries(self, rhoy, temp, entries)
+  subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
+    !$gpu
     
     type(table_info) :: self
     double precision, intent(in) :: rhoy, temp
@@ -310,8 +314,9 @@ contains
   end subroutine get_entries
 
 
-  AMREX_DEVICE subroutine tabular_evaluate(self, rhoy, temp, reactvec)
+  subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
+    !$gpu
     
     use actual_network, only: num_rate_groups
     implicit none

@@ -101,7 +101,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -116,6 +116,7 @@ contains
 
     double precision, parameter :: q1 = 1.0d0/12.222016d0
 
+    !$gpu
 
     ! c12(a,g)o16
     aa   = 1.0d0 + 0.0489d0*tf%t9i23
@@ -173,7 +174,7 @@ contains
 
   ! This routine computes the nuclear reaction rate for 12C(a,g)16O and its inverse 
   ! using fit parameters from Deboer et al. 2017 (https://doi.org/10.1103/RevModPhys.89.035007).
-  AMREX_DEVICE subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12ag_deboer17(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -194,6 +195,8 @@ contains
                         dterm_a4_r,dterm_a5_r,dterm_a6_r, &
                         term_nr,term_r,dterm_nr,dterm_r,  &
 			term,dtermdt,rev,drevdt
+
+    !$gpu
     
     ! from Table XXVI of deboer + 2017
     ! non-resonant contributions to the reaction
@@ -284,7 +287,7 @@ contains
   end subroutine rate_c12ag_deboer17
 
 
-  AMREX_DEVICE subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_tripalf(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -300,6 +303,8 @@ contains
     double precision, parameter :: rc28   = 0.1d0
     double precision, parameter :: q1     = 1.0d0/0.009604d0
     double precision, parameter :: q2     = 1.0d0/0.055225d0
+
+    !$gpu
 
     ! triple alfa to c12
     ! this is a(a,g)be8
@@ -387,7 +392,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12c12(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -399,6 +404,7 @@ contains
     double precision :: term,dtermdt,t9a,dt9a,t9a13,dt9a13,t9a56,dt9a56, &
                         aa,zz
 
+    !$gpu
 
     ! c12 + c12 reaction
     aa      = 1.0d0 + 0.0396*tf%t9
@@ -432,7 +438,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -444,6 +450,7 @@ contains
     double precision :: term,dtermdt,t9a,dt9a,t9a13,dt9a13,t9a23,dt9a23, &
                         t9a56,dt9a56,aa,daa,bb,dbb,cc,dcc,zz
 
+    !$gpu
 
     ! c12 + o16 reaction; see cf88 references 47-4
     if (tf%t9.ge.0.5) then
@@ -497,7 +504,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_o16o16(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -508,6 +515,7 @@ contains
 
     double precision :: term,dtermdt
 
+    !$gpu
 
     ! o16 + o16
     term  = 7.10d36 * tf%t9i23 * &
@@ -532,7 +540,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_o16ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -546,6 +554,7 @@ contains
 
     double precision, parameter :: q1 = 1.0d0/2.515396d0
 
+    !$gpu
 
     ! o16(a,g)ne20
     term1   = 9.37d9 * tf%t9i23 * exp(-39.757*tf%t9i13 - tf%t92*q1)
@@ -583,7 +592,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ne20ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -598,6 +607,7 @@ contains
     double precision, parameter :: rc102 = 0.1d0
     double precision, parameter :: q1    = 1.0d0/4.923961d0
 
+    !$gpu
 
     ! ne20(a,g)mg24
     aa   = 4.11d+11 * tf%t9i23 * exp(-46.766*tf%t9i13 - tf%t92*q1)
@@ -659,7 +669,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_mg24ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -673,6 +683,7 @@ contains
 
     double precision, parameter :: rc121 = 0.1d0
 
+    !$gpu
 
     ! 24mg(a,g)28si
     aa    = 4.78d+01 * tf%t9i32 * exp(-13.506*tf%t9i)
@@ -719,7 +730,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_mg24ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -735,6 +746,7 @@ contains
     double precision, parameter :: rc148 = 0.1d0
     double precision, parameter :: q1    = 1.0d0/0.024649d0
 
+    !$gpu
 
     ! 24mg(a,p)al27
     aa     = 1.10d+08 * tf%t9i23 * exp(-23.261*tf%t9i13 - tf%t92*q1)
@@ -792,7 +804,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_al27pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -804,6 +816,7 @@ contains
     double precision :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb,cc,dcc, &
                         dd,ddd,ee,dee,ff,dff,gg,dgg
 
+    !$gpu
 
     ! al27(p,g)si28
     ! champagne 1996
@@ -849,7 +862,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_al27pg_old(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -864,6 +877,8 @@ contains
 
     double precision, parameter :: rc147 = 0.1d0
     double precision, parameter :: q1    = 1.0d0/0.024025d0
+
+    !$gpu
 
     ! 27al(p,g)si28  cf88
     aa  = 1.67d+08 * tf%t9i23 * exp(-23.261*tf%t9i13 - tf%t92*q1)
@@ -922,7 +937,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_si28ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -933,6 +948,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! si28(a,g)s32
     z     = min(tf%t9,10.0d0)
@@ -964,7 +980,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_si28ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -975,6 +991,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! si28(a,p)p31
     z     = min(tf%t9,10.0d0)
@@ -1007,7 +1024,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_p31pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1018,6 +1035,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! p31(p,g)s32
     z     = min(tf%t9,10.0d0)
@@ -1050,7 +1068,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_s32ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_s32ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1061,6 +1079,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! s32(a,g)ar36
     z     = min(tf%t9,10.0d0)
@@ -1093,7 +1112,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_s32ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1104,6 +1123,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! s32(a,p)cl35
     z     = min(tf%t9,10.0d0)
@@ -1136,7 +1156,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_cl35pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1147,6 +1167,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt
 
+    !$gpu
 
     ! cl35(p,g)ar36
     aa    = 1.0d0 + 1.761d-1*tf%t9 - 1.322d-2*tf%t92 + 5.245d-4*tf%t93
@@ -1172,7 +1193,7 @@ contains
   end subroutine rate_cl35pg
 
 
-  AMREX_DEVICE subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ar36ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1183,6 +1204,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! ar36(a,g)ca40
     z     = min(tf%t9,10.0d0)
@@ -1215,7 +1237,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ar36ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1226,6 +1248,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! ar36(a,p)k39
     z     = min(tf%t9,10.0d0)
@@ -1258,7 +1281,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_k39pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1269,6 +1292,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! k39(p,g)ca40
     z     = min(tf%t9,10.0d0)
@@ -1301,7 +1325,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ca40ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1312,6 +1336,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! ca40(a,g)ti44
     z     = min(tf%t9,10.0d0)
@@ -1344,7 +1369,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ca40ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1355,6 +1380,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! ca40(a,p)sc43
     z     = min(tf%t9,10.0d0)
@@ -1387,7 +1413,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_sc43pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1398,6 +1424,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! sc43(p,g)ca40
     z     = min(tf%t9,10.0d0)
@@ -1430,7 +1457,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ti44ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1441,6 +1468,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! ti44(a,g)cr48
     z     = min(tf%t9,10.0d0)
@@ -1473,7 +1501,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_ti44ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_ti44ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1484,6 +1512,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! ti44(a,p)v47
     z     = min(tf%t9,10.0d0)
@@ -1516,7 +1545,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_v47pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_v47pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1527,6 +1556,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! v47(p,g)cr48
     z     = min(tf%t9,10.0d0)
@@ -1559,7 +1589,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_cr48ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_cr48ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1570,6 +1600,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! cr48(a,g)fe52
     z     = min(tf%t9,10.0d0)
@@ -1602,7 +1633,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_cr48ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_cr48ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1613,6 +1644,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! cr48(a,p)mn51
     z     = min(tf%t9,10.0d0)
@@ -1645,7 +1677,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_mn51pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_mn51pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1656,6 +1688,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! mn51(p,g)fe52
     z     = min(tf%t9,10.0d0)
@@ -1688,7 +1721,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe52ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe52ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1699,6 +1732,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! fe52(a,g)ni56
     z     = min(tf%t9,10.0d0)
@@ -1731,7 +1765,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe52ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe52ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1742,6 +1776,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! fe52(a,p)co55
     z     = min(tf%t9,10.0d0)
@@ -1774,7 +1809,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_co55pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_co55pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1785,6 +1820,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
+    !$gpu
 
     ! co55(p,g)ni56
     z     = min(tf%t9,10.0d0)
@@ -1817,7 +1853,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_pp(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_pp(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1828,6 +1864,7 @@ contains
 
     double precision :: term,dtermdt,aa,daa,bb,dbb
 
+    !$gpu
 
     ! p(p,e+nu)d
     if (tf%t9 .le. 3.0) then
@@ -1858,7 +1895,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_png(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_png(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1869,6 +1906,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt,aa,daa
 
+    !$gpu
 
     ! p(n,g)d
     ! smith,kawano,malany 1992
@@ -1910,7 +1948,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_dpg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_dpg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1921,6 +1959,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb
 
+    !$gpu
 
     ! d(p,g)he3
     aa      = 2.24d+03 * tf%t9i23 * exp(-3.720*tf%t9i13)
@@ -1949,7 +1988,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_he3ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_he3ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1960,6 +1999,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt
 
+    !$gpu
 
     ! he3(n,g)he4
     term    = 6.62 * (1.0d0 + 905.0*tf%t9)
@@ -1981,7 +2021,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_he3he3(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_he3he3(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -1992,6 +2032,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb
 
+    !$gpu
 
     ! he3(he3,2p)he4
     aa   = 6.04d+10 * tf%t9i23 * exp(-12.276*tf%t9i13)
@@ -2021,7 +2062,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_he3he4(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_he3he4(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2033,6 +2074,7 @@ contains
     double precision :: term,dtermdt,rev,drevdt,aa,daa,t9a,dt9a, &
                         t9a13,dt9a13,t9a56,dt9a56,zz
 
+    !$gpu
 
     ! he3(he4,g)be7
     aa      = 1.0d0 + 0.0495*tf%t9
@@ -2069,7 +2111,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_c12pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_c12pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2083,6 +2125,7 @@ contains
 
     double precision, parameter :: q1 = 1.0d0/2.25d0
 
+    !$gpu
 
     ! c12(p,g)13n
     aa   = 2.04e+07 * tf%t9i23 * exp(-13.69*tf%t9i13 - tf%t92*q1)
@@ -2121,7 +2164,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_n14pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_n14pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2135,6 +2178,7 @@ contains
 
     double precision, parameter :: q1 = 1.0d0/10.850436d0
 
+    !$gpu
 
     ! n14(p,g)o15
     aa  = 4.90e+07 * tf%t9i23 * exp(-15.228*tf%t9i13 - tf%t92*q1)
@@ -2173,7 +2217,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_n15pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_n15pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2187,6 +2231,7 @@ contains
 
     double precision, parameter :: q1 = 1.0d0/0.2025d0
 
+    !$gpu
 
     ! n15(p,g)o16
     aa  = 9.78e+08 * tf%t9i23 * exp(-15.251*tf%t9i13 - tf%t92*q1)
@@ -2228,7 +2273,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_n15pa(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_n15pa(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2243,6 +2288,7 @@ contains
     double precision, parameter :: theta = 0.1d0
     double precision, parameter :: q1    = 1.0d0/0.272484d0
 
+    !$gpu
 
     ! n15(p,a)c12
     aa  = 1.08d+12*tf%t9i23*exp(-15.251*tf%t9i13 - tf%t92*q1)
@@ -2287,7 +2333,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_o16pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_o16pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2299,6 +2345,7 @@ contains
     double precision :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb, &
                         cc,dcc,dd,ddd,ee,dee,zz
 
+    !$gpu
 
     ! o16(p,g)f17
     aa  = exp(-0.728*tf%t923)
@@ -2337,7 +2384,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_n14ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_n14ag(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2351,6 +2398,7 @@ contains
 
     double precision, parameter :: q1 = 1.0d0/0.776161d0
 
+    !$gpu
 
     ! n14(a,g)f18
     aa  = 7.78d+09 * tf%t9i23 * exp(-36.031*tf%t9i13- tf%t92*q1)
@@ -2392,7 +2440,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe52ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe52ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2403,6 +2451,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt,tq2
 
+    !$gpu
 
     ! fe52(n,g)fe53
     tq2     = tf%t9 - 0.348d0
@@ -2425,7 +2474,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe53ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe53ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2436,6 +2485,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt,tq1,tq10,dtq10,tq2
 
+    !$gpu
 
     ! fe53(n,g)fe54
     tq1   = tf%t9/0.348
@@ -2462,7 +2512,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe54ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe54ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2472,6 +2522,8 @@ contains
     type (tf_t)      :: tf
 
     double precision :: aa, daa, bb, dbb, term, dtermdt
+
+    !$gpu
 
     ! fe54(n,g)fe55
     aa   =  2.307390d+01 - 7.931795d-02 * tf%t9i + 7.535681d+00 * tf%t9i13 &
@@ -2507,7 +2559,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe54pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe54pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2518,6 +2570,7 @@ contains
 
     double precision :: term,dtermdt,rev,drevdt,aa,daa,z,z2,z3
 
+    !$gpu
 
     ! fe54(p,g)co55
     z     = min(tf%t9,10.0d0)
@@ -2551,7 +2604,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe54ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe54ap(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2562,6 +2615,7 @@ contains
 
     double precision :: aa,daa,bb,dbb,term,dtermdt
 
+    !$gpu
 
     ! fe54(a,p)co57
     aa   =  3.97474900d+01 - 6.06543100d+00 * tf%t9i + 1.63239600d+02 * tf%t9i13 &
@@ -2597,7 +2651,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe55ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe55ng(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2608,6 +2662,7 @@ contains
 
     double precision :: aa,daa,bb,dbb,term,dtermdt
 
+    !$gpu
 
     ! fe55(n,g)fe56
     aa   =  1.954115d+01 - 6.834029d-02 * tf%t9i + 5.379859d+00 * tf%t9i13 &
@@ -2644,7 +2699,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine rate_fe56pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
+  subroutine rate_fe56pg(tf,den,fr,dfrdt,dfrdd,rr,drrdt,drrdd)
 
     !$acc routine seq
 
@@ -2655,6 +2710,7 @@ contains
 
     double precision :: aa,daa,bb,dbb,term,dtermdt
 
+    !$gpu
 
     ! fe56(p,g)co57
 
@@ -2703,7 +2759,7 @@ contains
   ! rn56ec = ni56 electron capture rate
   ! sn56ec = ni56 neutrino loss rate
 
-  AMREX_DEVICE subroutine langanke(btemp,bden,y56,ye,rn56ec,sn56ec)
+  subroutine langanke(btemp,bden,y56,ye,rn56ec,sn56ec)
 
     !$acc routine seq
 
@@ -2715,6 +2771,8 @@ contains
     double precision :: rnt(2),rne(2,14),t9,r,rfm,rf0, &
                         rf1,rf2,dfacm,dfac0,dfac1,dfac2, &
                         tfm,tf0,tf1,tf2,tfacm,tfac0,tfac1,tfac2
+
+    !$gpu
 
     ! calculate ni56 electron capture and neutrino loss rates
     rn56ec = 0.0
@@ -2769,7 +2827,7 @@ contains
   ! and their associated neutrino energy loss rates
   ! spenc (erg/sec/proton) and snepc (erg/sec/neutron)
 
-  AMREX_DEVICE subroutine ecapnuc(etakep,temp,rpen,rnep,spenc,snepc)
+  subroutine ecapnuc(etakep,temp,rpen,rnep,spenc,snepc)
 
     !$acc routine seq
 
@@ -2806,7 +2864,7 @@ contains
     parameter        (third = 1.0d0/3.0d0, &
          sixth = 1.0d0/6.0d0)
 
-
+    !$gpu
 
     ! tmean and qndeca are the mean lifetime and decay energy of the neutron
     ! xmp,xnp are masses of the p and n in grams.
