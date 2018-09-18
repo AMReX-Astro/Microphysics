@@ -1188,7 +1188,7 @@ contains
 
 
 
-  double precision function ifermi12(f)
+  function ifermi12(f) result(ifermi12r)
 
     !$acc routine seq
 
@@ -1200,7 +1200,7 @@ contains
 
     ! declare
     integer          :: i,m1,k1,m2,k2
-    double precision :: f,an,a1(12),b1(12),a2(12),b2(12),rn,den,ff
+    double precision :: f,an,a1(12),b1(12),a2(12),b2(12),rn,den,ff, ifermi12r
 
     !$gpu
 
@@ -1246,7 +1246,7 @@ contains
        do i=k1,1,-1
           den = den*f + b1(i)
        enddo
-       ifermi12 = log(f * rn/den)
+       ifermi12r = log(f * rn/den)
 
     else
        ff = 1.0d0/f**(1.0d0/(1.0d0 + an))
@@ -1258,7 +1258,7 @@ contains
        do i=k2,1,-1
           den = den*ff + b2(i)
        enddo
-       ifermi12 = rn/(den*ff)
+       ifermi12r = rn/(den*ff)
     end if
 
   end function ifermi12
@@ -1268,7 +1268,7 @@ contains
 
 
 
-  double precision function zfermim12(x)
+  function zfermim12(x) result(zfermim12r)
 
     !$acc routine seq
 
@@ -1280,7 +1280,7 @@ contains
 
     ! declare
     integer          :: i,m1,k1,m2,k2
-    double precision :: x,an,a1(12),b1(12),a2(12),b2(12),rn,den,xx
+    double precision :: x,an,a1(12),b1(12),a2(12),b2(12),rn,den,xx, zfermim12r
 
     !$gpu
 
@@ -1345,7 +1345,7 @@ contains
        do i=k1,1,-1
           den = den*xx + b1(i)
        enddo
-       zfermim12 = xx * rn/den
+       zfermim12r = xx * rn/den
     else
        xx = 1.0d0/(x*x)
        rn = xx + a2(m2)
@@ -1356,7 +1356,7 @@ contains
        do i=k2,1,-1
           den = den*xx + b2(i)
        enddo
-       zfermim12 = sqrt(x)*rn/den
+       zfermim12r = sqrt(x)*rn/den
     end if
 
   end function zfermim12
