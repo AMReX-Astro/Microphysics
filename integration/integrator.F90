@@ -40,7 +40,6 @@ contains
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use amrex_error_module, only: amrex_error
     use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
@@ -161,7 +160,11 @@ contains
     if (.not. state_out % success) then
 
        if (abort_on_failure) then
+#if !defined(CUDA)
           call amrex_error("ERROR in burner: integration failed")
+#else
+          stop
+#endif
        end if
 
     endif

@@ -3,7 +3,6 @@
 
 module actual_integrator_module
 
-  use eos_module, only: eos
   use eos_type_module, only: eos_input_rt
   use network
   use rpar_indices
@@ -27,7 +26,7 @@ contains
   subroutine actual_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
-    
+
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
          rtol_spec, rtol_temp, rtol_enuc, &
@@ -38,6 +37,7 @@ contains
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
     use dvode_module, only: dvode
+    use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
     use dvode_type_module, only: dvode_t
     use amrex_constants_module, only: ZERO, ONE

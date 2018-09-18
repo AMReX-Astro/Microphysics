@@ -10,7 +10,7 @@ contains
     !$acc routine(daxpy) seq
     !$acc routine(vddot) seq
 
-    use blas_daxpy_module, only: daxpy
+    use blas_module, only: daxpy
 
     integer lda,n,ipvt(:),job
     double precision a(lda,n),b(:)
@@ -322,7 +322,7 @@ contains
   SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
     !$gpu
 
-    use blas_module, only: daxpy, ddot
+    use blas_module, only: daxpy, ddot ! function
 
     ! ***BEGIN PROLOGUE  DGBSL
     ! ***PURPOSE  Solve the real band system A*X=B or TRANS(A)*X=B using

@@ -29,7 +29,11 @@ module variables
 
   end type plot_t
 
-  type(plot_t) :: p
+  type(plot_t), allocatable :: p
+
+#if defined(CUDA)
+  attributes(managed) :: p
+#endif
 
 contains
 
@@ -54,6 +58,8 @@ contains
     integer :: n
 
     ! variable information
+    allocate(p)
+
     p % irho      = p % next_index(1)
     p % itemp     = p % next_index(1)
     p % ispec     = p % next_index(nspec)
