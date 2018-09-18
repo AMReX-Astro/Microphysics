@@ -1,6 +1,5 @@
 module dvode_dvnlsd_module
 
-  use vode_rhs_module, only: f_rhs, jac
   use vode_type_module, only: rwork_t
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
@@ -10,7 +9,6 @@ module dvode_dvnlsd_module
   use linpack_module
 
   use dvode_dvjac_module
-  use dvode_dvnorm_module, only: dvnorm ! function
   use dvode_dvsol_module
 
   use dvode_constants_module
@@ -82,6 +80,8 @@ contains
     !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
     !
+    use vode_rhs_module, only: f_rhs, jac
+    use dvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
