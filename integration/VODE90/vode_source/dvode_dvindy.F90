@@ -16,7 +16,7 @@ module dvode_dvindy_module
 
 contains
 
-  AMREX_DEVICE subroutine dvindy(vstate, rwork, IFLAG)
+  subroutine dvindy(vstate, rwork, IFLAG)
   
     !$acc routine seq
     
@@ -73,6 +73,8 @@ contains
 
     integer, parameter :: K = ZERO
     !don -- remove logic for K != 0 (we only use K = 0).
+
+    !$gpu
     
     IFLAG = 0
     IF (K .LT. 0 .OR. K .GT. vstate % NQ) GO TO 80

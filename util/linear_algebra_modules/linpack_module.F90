@@ -1,16 +1,16 @@
 module linpack_module
-
-  use blas_module
   
   implicit none
   
 contains
   
-  AMREX_DEVICE subroutine dgesl (a,lda,n,ipvt,b,job)
-
+  subroutine dgesl(a,lda,n,ipvt,b,job)
+    !$gpu
     !$acc routine seq
     !$acc routine(daxpy) seq
     !$acc routine(vddot) seq
+
+    use blas_module, only: daxpy
 
     integer lda,n,ipvt(:),job
     double precision a(lda,n),b(:)
@@ -128,7 +128,12 @@ contains
 100 continue
   end subroutine dgesl
 
-  AMREX_DEVICE SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
+  SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
+    !$gpu
+
+    use blas_module, only: daxpy, dscal
+    use blas_module, only: idamax ! function
+
     ! ***BEGIN PROLOGUE  DGBFA
     ! ***PURPOSE  Factor a band matrix using Gaussian elimination.
     ! ***CATEGORY  D2A2
@@ -314,7 +319,11 @@ contains
     RETURN
   END SUBROUTINE DGBFA
 
-  AMREX_DEVICE SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
+  SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
+    !$gpu
+
+    use blas_module, only: daxpy, ddot ! function
+
     ! ***BEGIN PROLOGUE  DGBSL
     ! ***PURPOSE  Solve the real band system A*X=B or TRANS(A)*X=B using
     !             the factors computed by DGBCO or DGBFA.
@@ -462,12 +471,15 @@ contains
     RETURN
   END SUBROUTINE DGBSL
 
-  AMREX_DEVICE subroutine dgefa (a,lda,n,ipvt,info)
-
+  subroutine dgefa (a,lda,n,ipvt,info)
+    !$gpu
     !$acc routine seq
     !$acc routine(daxpy) seq
     !$acc routine(idamax) seq
     !$acc routine(dscal) seq
+
+    use blas_module, only: daxpy, dscal
+    use blas_module, only: idamax ! function
 
     integer lda,n,ipvt(:),info
     double precision a(lda, n)
@@ -573,8 +585,8 @@ contains
     if (a(n,n) .eq. 0.0d0) info = n
   end subroutine dgefa
 
-  AMREX_DEVICE function vddot (n,dx,incx,dy,incy) result(dotval)
-
+  function vddot (n,dx,incx,dy,incy) result(dotval)
+    !$gpu
     !$acc routine seq
 
     ! 

@@ -9,7 +9,7 @@ module numerical_jac_module
 
 contains
 
-  AMREX_DEVICE subroutine numerical_jac(state)
+  subroutine numerical_jac(state)
 
     !$acc routine seq
 
@@ -27,6 +27,8 @@ contains
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
     real(rt), parameter :: eps = 1.d-8
+
+    !$gpu
 
     state % jac(:,:) = ZERO
 

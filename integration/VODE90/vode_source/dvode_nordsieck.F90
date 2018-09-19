@@ -11,7 +11,7 @@ module dvode_nordsieck_module
 
 contains
 
-  AMREX_DEVICE subroutine advance_nordsieck(rwork, vstate)
+  subroutine advance_nordsieck(rwork, vstate)
 
     ! Effectively multiplies the Nordsieck history
     ! array by the Pascal triangle matrix.
@@ -25,6 +25,8 @@ contains
     ! Declare local variables
     integer :: k, j, i
 
+    !$gpu
+
     do k = vstate % NQ, 1, -1
        do j = k, vstate % NQ
           do i = 1, VODE_NEQS
@@ -36,7 +38,7 @@ contains
   end subroutine advance_nordsieck
 
 
-  AMREX_DEVICE subroutine retract_nordsieck(rwork, vstate)
+  subroutine retract_nordsieck(rwork, vstate)
 
     ! Undoes the Pascal triangle matrix multiplication
     ! implemented in subroutine advance_nordsieck.
@@ -49,6 +51,8 @@ contains
 
     ! Declare local variables
     integer :: k, j, i
+
+    !$gpu
 
     do k = vstate % NQ, 1, -1
        do j = k, vstate % NQ

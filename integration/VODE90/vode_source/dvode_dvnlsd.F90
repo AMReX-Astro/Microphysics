@@ -1,6 +1,5 @@
 module dvode_dvnlsd_module
 
-  use vode_rhs_module, only: f_rhs, jac
   use vode_type_module, only: rwork_t
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
@@ -10,7 +9,6 @@ module dvode_dvnlsd_module
   use linpack_module
 
   use dvode_dvjac_module
-  use dvode_dvnorm_module
   use dvode_dvsol_module
 
   use dvode_constants_module
@@ -19,7 +17,7 @@ module dvode_dvnlsd_module
 
 contains
 
-  AMREX_DEVICE subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
+  subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
 
     !$acc routine seq
     
@@ -82,6 +80,8 @@ contains
     !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
     !
+    use vode_rhs_module, only: f_rhs, jac
+    use dvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -100,6 +100,8 @@ contains
     real(rt), parameter :: RDIV  = 2.0D0
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
+
+    !$gpu
 
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a

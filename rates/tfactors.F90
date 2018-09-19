@@ -93,7 +93,7 @@ module tfactors_module
 
 contains
 
-  AMREX_DEVICE subroutine get_tfactors(temp, tf)
+  subroutine get_tfactors(temp, tf)
 
     !$acc routine seq
 
@@ -106,6 +106,8 @@ contains
     double precision temp
 
     type(tf_t) :: tf
+
+    !$gpu
 
     tf%temp = temp
 

@@ -10,7 +10,7 @@ module dvode_dvnorm_module
 
 contains
 
-  AMREX_DEVICE function dvnorm(V, W) result(dvn)
+  function dvnorm(V, W) result(dvn)
 
     !$acc routine seq
     
@@ -47,6 +47,8 @@ contains
     ! Declare local variables
     real(rt) :: SUM
     integer    :: I
+
+    !$gpu
 
     SUM = 0.0D0
     do I = 1,VODE_NEQS

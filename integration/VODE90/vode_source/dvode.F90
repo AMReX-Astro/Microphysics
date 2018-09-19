@@ -1,6 +1,5 @@
 module dvode_module
 
-  use vode_rhs_module, only: f_rhs, jac
   use vode_type_module, only: rwork_t
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
@@ -28,9 +27,12 @@ module dvode_module
   
 contains
 
-  AMREX_DEVICE subroutine dvode(vstate, rwork, IWORK, ITASK, IOPT, MF)
+  subroutine dvode(vstate, rwork, IWORK, ITASK, IOPT, MF)
 
     !$acc routine seq
+
+    use vode_rhs_module, only: f_rhs, jac
+    use dvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -55,6 +57,8 @@ contains
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
     real(rt), parameter :: PT2 = 0.2D0
+
+    !$gpu
 
     ! -----------------------------------------------------------------------
     !  Block A.

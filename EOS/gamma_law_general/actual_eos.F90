@@ -54,7 +54,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine actual_eos(input, state)
+  subroutine actual_eos(input, state)
 
     !$acc routine seq
 

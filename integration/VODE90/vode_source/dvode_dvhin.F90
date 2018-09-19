@@ -8,13 +8,12 @@ module dvode_dvhin_module
   use amrex_fort_module, only: rt => amrex_real
 
   use dvode_constants_module
-  use dvode_dvnorm_module
 
   implicit none
 
 contains
 
-  AMREX_DEVICE subroutine dvhin(vstate, rwork, H0, NITER, IER)
+  subroutine dvhin(vstate, rwork, H0, NITER, IER)
   
     !$acc routine seq
     
@@ -72,7 +71,8 @@ contains
     !    y = vstate % y
     !    temp = rwork % acor
   
-  use vode_rhs_module, only: f_rhs
+    use vode_rhs_module, only: f_rhs
+    use dvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -89,6 +89,7 @@ contains
 
     real(rt), parameter :: PT1 = 0.1D0
 
+    !$gpu
 
     NITER = 0
     TDIST = ABS(vstate % TOUT - vstate % T)
@@ -129,7 +130,7 @@ contains
     do I = 1, VODE_NEQS
        rwork % ACOR(I) = (rwork % ACOR(I) - rwork % YH(I,2))/H
     end do
-    YDDNRM = DVNORM (rwork % ACOR, rwork % EWT)
+    YDDNRM = DVNORM(rwork % ACOR, rwork % EWT)
     ! Get the corresponding new value of h. --------------------------------
     IF (YDDNRM*HUB*HUB .GT. TWO) THEN
        HNEW = SQRT(TWO/YDDNRM)

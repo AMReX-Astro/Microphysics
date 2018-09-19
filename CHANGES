@@ -1,6 +1,16 @@
 
 # changes since the last release
 
+ -- the intermediate blending of the weak and strong screening regimes
+    was wrong, and has been fixed.  We've also synced some parameters
+    up to agree with those in MESA and Kepler.  (#149, 150)
+
+ -- eos_input_is_constant is now set to true for the helmholtz EOS.
+    This mean that the EOS inputs will not be modified after the EOS
+    call.  This is good for conserving energy in a hydro code, but the
+    tradeoff is a small (to root finding tolerance) inconsistency in
+    the thermodynamic state.
+
 # 18.09
 
  -- The Helmholtz parameters ttol and dtol (controlling the error
