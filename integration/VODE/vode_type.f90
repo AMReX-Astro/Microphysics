@@ -1,5 +1,6 @@
 module vode_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   use burn_type_module, only: neqs
 
   implicit none
@@ -10,8 +11,7 @@ contains
 
   subroutine clean_state(y, rpar)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ONE
+    use amrex_constants_module, only: ONE
     use actual_network, only: nspec, nspec_evolve
     use burn_type_module, only: neqs, net_itemp
     use rpar_indices, only: n_rpar_comps
@@ -20,9 +20,9 @@ contains
 
     implicit none
 
-    real(dp_t) :: y(neqs), rpar(n_rpar_comps)
+    real(rt) :: y(neqs), rpar(n_rpar_comps)
 
-    real(dp_t) :: small_temp
+    real(rt) :: small_temp
 
     ! Ensure that mass fractions always stay positive and less than or equal to 1.
 
@@ -45,16 +45,15 @@ contains
 
   subroutine renormalize_species(y, rpar)
 
-    use bl_types, only: dp_t
     use network, only: nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
     implicit none
 
-    real(dp_t) :: y(neqs), rpar(n_rpar_comps)
+    real(rt) :: y(neqs), rpar(n_rpar_comps)
 
-    real(dp_t) :: nspec_sum
+    real(rt) :: nspec_sum
 
     nspec_sum = &
          sum(y(1:nspec_evolve)) + &
@@ -69,8 +68,7 @@ contains
 
   subroutine update_thermodynamics(y, rpar)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
@@ -79,7 +77,7 @@ contains
 
     implicit none
 
-    real(dp_t) :: y(neqs), rpar(n_rpar_comps)
+    real(rt) :: y(neqs), rpar(n_rpar_comps)
 
     type (eos_t) :: eos_state
 
@@ -140,7 +138,6 @@ contains
 
   subroutine vode_to_eos(state, y, rpar)
 
-    use bl_types, only: dp_t
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -150,8 +147,8 @@ contains
     implicit none
 
     type (eos_t) :: state
-    real(dp_t)   :: rpar(n_rpar_comps)
-    real(dp_t)   :: y(neqs)
+    real(rt)   :: rpar(n_rpar_comps)
+    real(rt)   :: y(neqs)
 
     state % rho     = rpar(irp_dens)
     state % T       = y(net_itemp)
@@ -176,7 +173,7 @@ contains
 
   subroutine eos_to_vode(state, y, rpar)
 
-    use bl_types, only: dp_t
+    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -186,8 +183,8 @@ contains
     implicit none
 
     type (eos_t) :: state
-    real(dp_t)   :: rpar(n_rpar_comps)
-    real(dp_t)   :: y(neqs)
+    real(rt)   :: rpar(n_rpar_comps)
+    real(rt)   :: y(neqs)
 
     rpar(irp_dens) = state % rho
     y(net_itemp) = state % T
@@ -212,8 +209,7 @@ contains
 
   subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ONE
+    use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
@@ -224,9 +220,9 @@ contains
     implicit none
 
     type (burn_t) :: state
-    real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(neqs)
-    real(dp_t), optional :: ydot(neqs), jac(neqs, neqs)
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(neqs)
+    real(rt), optional :: ydot(neqs), jac(neqs, neqs)
 
     integer :: n
 
@@ -272,8 +268,7 @@ contains
 
   subroutine vode_to_burn(y, rpar, state)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
@@ -284,8 +279,8 @@ contains
     implicit none
 
     type (burn_t) :: state
-    real(dp_t)    :: rpar(n_rpar_comps)
-    real(dp_t)    :: y(neqs)
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(neqs)
 
     integer :: n
 

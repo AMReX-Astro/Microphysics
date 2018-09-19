@@ -1,0 +1,15 @@
+&extern
+
+  dens_min   = 1.d4
+  dens_max   = 1.d8
+  temp_min   = 5.d7
+  temp_max   = 5.d9
+
+  tmax = 1.d-6
+
+  xin_file   = "xin.aprox13"
+
+  jacobian = 2
+
+/
+

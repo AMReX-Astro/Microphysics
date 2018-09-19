@@ -1,41 +1,36 @@
-NDEBUG := t
-MPI    :=
-OMP    := t
+PRECISION  = DOUBLE
+PROFILE    = FALSE
 
-COMP := gfortran
+DEBUG      = FALSE
 
-MKVERBOSE := t
+DIM        = 3
 
-programs += main
+COMP	   = gnu
 
-MICROPHYSICS_HOME := ../..
+USE_MPI    = FALSE
+USE_OMP    = FALSE
 
-EOS_DIR := helmholtz
+USE_REACT = TRUE
 
-#NETWORK_DIR := rprox
-#NETWORK_DIR := triple_alpha_plus_cago
-#NETWORK_DIR := ignition_chamulak
+EBASE = main
+
+# define the location of the CASTRO top directory
+MICROPHYSICS_HOME  := ../..
+
+# This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
+# you'll need to use gamma_law_general
+EOS_DIR     := helmholtz
+
+# This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox13
-#NETWORK_DIR := ignition_simple
 
-INTEGRATOR_DIR := VODE
+CONDUCTIVITY_DIR := stellar
 
-TEST_DIR := $(MICROPHYSICS_HOME)/unit_test/test_react
+EXTERN_SEARCH += .
 
-PROBIN_PARAMETER_DIRS := $(TEST_DIR)
+Bpack   := ./Make.package
+Blocs   := .
 
-ALL:
-
-
-include $(MICROPHYSICS_HOME)/GMicrophysics.mak
-
-
-ALL: $(pnames)
-
-# include the fParallel Makefile rules
-include $(AMREX_HOME)/Tools/F_mk/GMakerules.mak
-
-
-
+include $(MICROPHYSICS_HOME)/Make.Microphysics
 
 

@@ -1,8 +1,8 @@
 module acutal_burner_module
 
-  use bl_types
-  use bl_constants_module
-  use bl_error_module
+  use amrex_constants_module
+  use amrex_error_module
+  use amrex_fort_module, only : rt => amrex_real
   use eos_module
   use network
 
@@ -29,10 +29,10 @@ contains
 
     implicit none
 
-    real(kind=dp_t), intent(in   ) :: rhoXin(nspec), rhohin, dt
-    real(kind=dp_t), intent(  out) :: rhoout, rhoXout(nspec), rhohout
-    real(kind=dp_t), intent(in   ) :: sdc_rhoX(nspec), sdc_rhoh
-    real(kind=dp_t), intent(in   ) :: p0
+    real(rt), intent(in   ) :: rhoXin(nspec), rhohin, dt
+    real(rt), intent(  out) :: rhoout, rhoXout(nspec), rhohout
+    real(rt), intent(in   ) :: sdc_rhoX(nspec), sdc_rhoh
+    real(rt), intent(in   ) :: p0
 
     integer :: n
 
@@ -44,7 +44,7 @@ contains
   
 
     ! allocate storage for the input state
-    real(kind=dp_t), dimension(NEQ) :: y
+    real(rt), dimension(NEQ) :: y
 
 
     ! we will always refer to the species by integer indices that come from
@@ -72,10 +72,10 @@ contains
     ! We will use arrays for both the absolute and relative tolerances, 
     ! since we want to be easier on the temperature than the species
     integer, parameter :: ITOL = 4
-    real(kind=dp_t), dimension(NEQ) :: atol, rtol
+    real(rt), dimension(NEQ) :: atol, rtol
 
 
-    real(kind=dp_t) :: time
+    real(rt) :: time
     
 
     ! we want to do a normal computation, and get the output values of y(t)
@@ -97,12 +97,12 @@ contains
     ! declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
     ! integer work array of since 30 + NEQ
     integer, parameter :: LRW = 22 + 9*NEQ + 2*NEQ**2
-    real(kind=dp_t), dimension(LRW) :: rwork
+    real(rt), dimension(LRW) :: rwork
     
     integer, parameter :: LIW = 30 + NEQ
     integer, dimension(LIW) :: iwork
     
-    real(kind=dp_t) :: rpar
+    real(rt) :: rpar
     integer :: ipar
     
     logical, save :: firstCall = .true.
@@ -110,7 +110,7 @@ contains
     if (firstCall) then
 
        if (.NOT. network_initialized) then
-          call bl_error("ERROR in burner: must initialize network first")
+          call amrex_error("ERROR in burner: must initialize network first")
        endif
      
        ic12 = network_species_index("carbon-12")
@@ -118,7 +118,7 @@ contains
        img24 = network_species_index("magnesium-24")
        
        if (ic12 < 0 .OR. io16 < 0 .OR. img24 < 0) then
-          call bl_error("ERROR in burner: species undefined")
+          call amrex_error("ERROR in burner: species undefined")
        endif
        
        firstCall = .false.
@@ -171,7 +171,7 @@ contains
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', time
-       call bl_error("ERROR in burner: integration failed")
+       call amrex_error("ERROR in burner: integration failed")
     endif
 
     ! store the new mass fractions -- note, we discard the temperature

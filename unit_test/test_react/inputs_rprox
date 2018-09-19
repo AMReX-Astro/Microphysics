@@ -1,22 +1,6 @@
-&PROBIN
-  test_set = "gr0_3d.small"
+n_cell = 16
 
-  dens_min   = 1.d5
-  dens_max   = 2.d6
-  temp_min   = 1.d8
-  temp_max   = 1.d9
+prefix = react_rprox_
 
-  tmax = 1.d-6
+amr.probin_file = probin.rprox
 
-  xin_file   = "xin.rprox"
-  run_prefix = "react_rprox_"
-
-  jacobian = 2
-  centered_diff_jac = T
-
-  small_dens = 1.e5
-  small_temp = 1.e6
-
-  call_eos_in_rhs = T
-
-/

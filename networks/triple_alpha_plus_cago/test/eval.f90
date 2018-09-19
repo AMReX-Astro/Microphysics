@@ -1,7 +1,7 @@
 program eval
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
   use network
   use eos_module
   use actual_burner_module
@@ -12,20 +12,20 @@ program eval
   
   implicit none
 
-  real(kind=dp_t) :: dens, temp
-  real(kind=dp_t), dimension(nspec) :: Xin
+  real(rt) :: dens, temp
+  real(rt), dimension(nspec) :: Xin
   type(burn_t) :: state_in
   integer :: n
   
   call microphysics_init()
 
-  dens = 1.e7_dp_t
-  temp = 367821127.2_dp_t
+  dens = 1.e7_rt
+  temp = 367821127.2_rt
 
-  Xin(ihe4)  = 0.8_dp_t
-  Xin(ic12)  = 0.1_dp_t
-  Xin(io16)  = 0.1_dp_t
-  Xin(ife56) = 0.0_dp_t
+  Xin(ihe4)  = 0.8_rt
+  Xin(ic12)  = 0.1_rt
+  Xin(io16)  = 0.1_rt
+  Xin(ife56) = 0.0_rt
 
   print *, 'calling the burner RHS ...'
 

@@ -1,6 +1,6 @@
 module actual_burner_module
 
-  use bl_constants_module
+  use amrex_constants_module
   use burn_type_module
   use actual_network
 

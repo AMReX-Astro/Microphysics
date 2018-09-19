@@ -13,7 +13,7 @@ module actual_network
   character (len=5), save :: short_spec_names(nspec)
   character (len=5), save :: short_aux_names(naux)
 
-  character (len=32) :: network_name = "xrb_simple"
+  character (len=32), parameter :: network_name = "xrb_simple"
 
   integer, parameter :: ih1 = 1
   integer, parameter :: ihe4 = 2
@@ -38,11 +38,10 @@ contains
 
   subroutine actual_network_init()
     
-    use bl_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
-    use bl_types, only: dp_t
+    use amrex_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
+    use amrex_fort_module, only : rt => amrex_real
 
-    real(kind=dp_t), parameter :: MeV2erg = 1.60217646e-6, &
-                                  N_A = 6.0221415e23
+    real(rt), parameter :: MeV2erg = 1.60217646e-6, N_A = 6.0221415e23
 
     short_spec_names(ih1) = "h1"
     short_spec_names(ihe4) = "he4"
@@ -62,30 +61,30 @@ contains
 
     aion(ih1) = ONE
     aion(ihe4) = FOUR
-    aion(io14) = 14.0_dp_t
-    aion(io15) = 15.0_dp_t
-    aion(ine18) = 18.0_dp_t
-    aion(isi25) = 25.0_dp_t
-    aion(ife56) = 56.0_dp_t
+    aion(io14) = 14.0_rt
+    aion(io15) = 15.0_rt
+    aion(ine18) = 18.0_rt
+    aion(isi25) = 25.0_rt
+    aion(ife56) = 56.0_rt
 
     zion(ih1) = ONE
     zion(ihe4) = TWO
     zion(io14) = EIGHT
     zion(io15) = EIGHT
     zion(ine18) = TEN
-    zion(isi25) = 14.0_dp_t
-    zion(ife56) = 26.0_dp_t
+    zion(isi25) = 14.0_rt
+    zion(ife56) = 26.0_rt
 
     ! Binding Energy in MeV
     ! from Stan:
     ! be from http://t2.lanl.gov/nis/data/astro/molnix96/quemd.php
     bion(ih1) = ZERO
-    bion(ihe4) = 28.296006_dp_t
-    bion(io14) = 98.733369_dp_t
-    bion(io15) = 111.956652_dp_t
-    bion(ine18) = 132.144124_dp_t
-    bion(isi25) = 187.005541_dp_t
-    bion(ife56) = 492.2450_dp_t   ! older value, but not important -- this is inert
+    bion(ihe4) = 28.296006_rt
+    bion(io14) = 98.733369_rt
+    bion(io15) = 111.956652_rt
+    bion(ine18) = 132.144124_rt
+    bion(isi25) = 187.005541_rt
+    bion(ife56) = 492.2450_rt   ! older value, but not important -- this is inert
 
     ! convert to erg/g by multiplying by N_A / aion and converting to erg
     bion = -bion * N_A * MeV2erg / aion

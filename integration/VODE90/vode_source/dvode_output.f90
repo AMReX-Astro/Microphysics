@@ -1,6 +1,8 @@
 module dvode_output_module
 
-  use bl_types, only: dp_t
+  use amrex_fort_module, only: rt => amrex_real
+
+  use dvode_constants_module
   
   implicit none
 
@@ -226,7 +228,7 @@ contains
     !  Function routine called by XERRWD.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    real(dp_t) :: R1, R2
+    real(rt) :: R1, R2
     integer    :: NMES, NERR, LEVEL, NI, I1, I2, NR
     integer    :: LUNIT, MESFLG
     character (len=80) :: MSG

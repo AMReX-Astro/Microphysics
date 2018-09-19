@@ -6,10 +6,10 @@
 
 module actual_eos_module
 
-  use bl_types
-  use bl_space
-  use bl_error_module
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+
   use network, only: nspec, aion, zion
   use eos_type_module
 
@@ -17,7 +17,11 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "multigamma"
   
-  double precision :: gammas(nspec)
+  double precision, allocatable, save :: gammas(:)
+
+#ifdef CUDA
+  attributes(managed) :: gammas
+#endif
 
 contains
 
@@ -35,14 +39,17 @@ contains
 
     ! Set the gammas for the species -- we have some runtime parameters
     ! that can override the default gammas for a few named species.
+    allocate(gammas(nspec))
     gammas(:) = eos_gamma_default
 
+#if !(defined(ACC) || defined(CUDA))
     print *, ""
     print *, "In actual_eos_init, species, gamma: "
     print *, "species a: ", trim(species_a_name), species_a_gamma
     print *, "species b: ", trim(species_b_name), species_b_gamma
     print *, "species c: ", trim(species_c_name), species_c_gamma
     print *, ""
+#endif
 
     idx = network_species_index(species_a_name)
     if (idx > 0) gammas(idx) = species_a_gamma
@@ -60,7 +67,7 @@ contains
   subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A, hbar
-
+    
     implicit none
 
     integer,      intent(in   ) :: input
@@ -137,8 +144,9 @@ contains
     case (eos_input_ps)
 
        ! pressure entropy, and xmass are inputs
-       call bl_error("eos_input_ps is not supported")
-
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error("eos_input_ps is not supported")
+#endif
 
     case (eos_input_ph)
 
@@ -152,12 +160,15 @@ contains
     case (eos_input_th)
 
        ! temperature, enthalpy and xmass are inputs
-       call bl_error("eos_input_th is not supported")
-
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error("eos_input_th is not supported")
+#endif
 
     case default
 
-       call bl_error('EOS: invalid input.')
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error("EOS: invalid input.")
+#endif
 
     end select
 
@@ -179,8 +190,8 @@ contains
 
     ! entropy (per gram) -- this is wrong. Not sure what the expression
     ! is for a multigamma gas
-    state % s = (k_B/(state%abar*m_nucleon))*(2.5_dp_t + &
-         log( ( (state%abar*m_nucleon)**2.5/dens )*(k_B*temp)**1.5_dp_t / (TWO*M_PI*hbar*hbar)**1.5_dp_t ) )
+    state % s = (k_B/(state%abar*m_nucleon))*(2.5_rt + &
+         log( ( (state%abar*m_nucleon)**2.5/dens )*(k_B*temp)**1.5_rt / (TWO*M_PI*hbar*hbar)**1.5_rt ) )
 
     ! Compute the thermodynamic derivatives and specific heats 
     state % dpdT = state % p / temp
@@ -227,7 +238,7 @@ contains
 
     implicit none
 
-    ! Nothing to do here, yet.
+    deallocate(gammas)
 
   end subroutine actual_eos_finalize
 

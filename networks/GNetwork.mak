@@ -48,6 +48,13 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/BS
 
+else ifeq ($(INTEGRATOR_DIR),VODE90)
+
+  # Include VODE90 and the linear algebra modules it relies on
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90/vode_source
+  INT_DIRS += $(MICROPHYSICS_HOME)/util/linear_algebra_modules
+
 else
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
@@ -72,6 +79,7 @@ endif
 
 ifeq ($(USE_SCREENING), TRUE)
   NET_DIRS += $(MICROPHYSICS_HOME)/screening
+  FPP_DEFINES += -DUSE_SCREENING
 endif
 
 ifeq ($(USE_NEUTRINOS), TRUE)

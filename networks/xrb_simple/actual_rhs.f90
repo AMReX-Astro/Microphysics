@@ -17,8 +17,8 @@ contains
 
   subroutine actual_rhs(state)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
+    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec, aion, aion_inv
     use temperature_integration_module, only: temperature_rhs
     
@@ -27,10 +27,10 @@ contains
     type (burn_t) :: state
     type (rate_t) :: rr
 
-    real(kind=dp_t), parameter :: T2T9 = 1.0e-9_dp_t
+    real(rt), parameter :: T2T9 = 1.0e-9_rt
 
-    real(kind=dp_t) :: dens, t9
-    real(kind=dp_t) :: ymol(nspec), ydot(nspec)
+    real(rt) :: dens, t9
+    real(rt) :: ymol(nspec), ydot(nspec)
 
     ydot = ZERO
 
@@ -58,8 +58,8 @@ contains
   ! TODO - make this an analytic jacobian
   subroutine actual_jac(state)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
+    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -73,19 +73,19 @@ contains
 
   subroutine make_rates(t9, dens, y, state, rr)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO, THIRD, ONE, SIX
+    use amrex_constants_module, only: ZERO, THIRD, ONE, SIX
+    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, wk14o, wk15o, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
     implicit none
 
-    real(kind=dp_t), intent(in   ) :: t9, dens, y(nspec)
+    real(rt), intent(in   ) :: t9, dens, y(nspec)
     type (burn_t) :: state
     type (rate_t) :: rr
 
-    real(kind=dp_t) :: t9m13, t9m23, t9m1, t9m32, t9m3
-    real(kind=dp_t) :: t913, t923, t943, t953, t9113, t9log
+    real(rt) :: t9m13, t9m23, t9m1, t9m32, t9m3
+    real(rt) :: t913, t923, t943, t953, t9113, t9log
 
     ! common temperature factors
     t9m1 = ONE / t9
@@ -102,19 +102,19 @@ contains
 
     ! zero the rates
     rr % rates(:,:) = ZERO
-    rr % T_eval = t9 * 1.e9_dp_t
+    rr % T_eval = t9 * 1.e9_rt
 
     !**********************************************************************
     ! Start the rate calculations
     ! TODO - temperature derivatives for use in analytic jacobian
     !**********************************************************************
     ! helium burning - has been divided by 6
-    rr % rates(1,ir3a) = 2.79d-8*t9m3*exp(-4.403_dp_t*t9m1)*dens*dens/SIX
+    rr % rates(1,ir3a) = 2.79d-8*t9m3*exp(-4.403_rt*t9m1)*dens*dens/SIX
 
     ! 15o(ag)19ne
-    rr % rates(1,irag15) = (19.0_dp_t * (t9**2.85_dp_t) * &
-         exp(-7.356_dp_t*t9m1) + &
-         0.395_dp_t * t9m32 * exp(-5.849_dp_t*t9m1))*dens
+    rr % rates(1,irag15) = (19.0_rt * (t9**2.85_rt) * &
+         exp(-7.356_rt*t9m1) + &
+         0.395_rt * t9m32 * exp(-5.849_rt*t9m1))*dens
 
     ! 14o(ap)17f
     ! an approx good below t9=0.5  is to drop first term, then
@@ -145,19 +145,19 @@ contains
 
   subroutine make_ydots(ymol, t9, state, dydt, rr)
 
-    use bl_types, only: dp_t
-    use bl_constants_module, only: ZERO, TWO, THREE, SIX
+    use amrex_constants_module, only: ZERO, TWO, THREE, SIX
+    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, io14, io15, ine18, isi25, ihe4, ih1, ife56, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
     implicit none
 
-    real(kind=dp_t), intent(in   ) :: ymol(nspec), t9
+    real(rt), intent(in   ) :: ymol(nspec), t9
     type (burn_t), intent(in) :: state
     type (rate_t), intent(in) :: rr
-    real(kind=dp_t), intent(  out) :: dydt(nspec)
+    real(rt), intent(  out) :: dydt(nspec)
 
-    real(kind=dp_t) :: dens
+    real(rt) :: dens
 
     ! initialize
     dydt = ZERO

@@ -6,9 +6,9 @@
 subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
   use actual_network, only: aion, nspec_evolve
-  use bl_types, only: dp_t
+  use amrex_fort_module, only: rt => amrex_real
   use burn_type_module, only: burn_t, net_ienuc, net_itemp
-  use bl_constants_module, only: ZERO, ONE
+  use amrex_constants_module, only: ZERO, ONE
   use actual_rhs_module, only: actual_rhs
   use vode_type_module, only: clean_state, renormalize_species, &
        rhs_to_vode, vode_to_burn
@@ -17,9 +17,9 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   implicit none
 
   integer,    intent(IN   ) :: neq, ipar
-  real(dp_t), intent(INOUT) :: time, y(neq)
-  real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
-  real(dp_t), intent(  OUT) :: ydot(neq)
+  real(rt), intent(INOUT) :: time, y(neq)
+  real(rt), intent(INOUT) :: rpar(n_rpar_comps)
+  real(rt), intent(  OUT) :: ydot(neq)
 
   type (burn_t) :: burn_state
 
@@ -56,10 +56,10 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   ! Jacobian routines.
 
   use network, only: aion, aion_inv, nspec_evolve
-  use bl_constants_module, only: ZERO
+  use amrex_constants_module, only: ZERO
   use actual_rhs_module, only: actual_jac
   use burn_type_module, only: burn_t, net_ienuc
-  use bl_types, only: dp_t
+  use amrex_fort_module, only: rt => amrex_real
   use rpar_indices
   use vode_type_module, only: clean_state, renormalize_species, &
        jac_to_vode, vode_to_burn
@@ -68,8 +68,8 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   implicit none
 
   integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-  real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-  real(dp_t), intent(  OUT) :: pd(neq,neq)
+  real(rt), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
+  real(rt), intent(  OUT) :: pd(neq,neq)
 
   type (burn_t) :: state
   integer :: n

@@ -1,8 +1,8 @@
 module actual_burner_module
 
-  use bl_types
-  use bl_constants_module
-  use bl_error_module
+  use amrex_constants_module
+  use amrex_error_module
+  use amrex_fort_module, only : rt => amrex_real
   use eos_module
   use eos_type_module
   use network
@@ -148,7 +148,7 @@ contains
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', istate
        print *, 'time = ', local_time
-       call bl_error("ERROR in burner: integration failed")
+       call amrex_error("ERROR in burner: integration failed")
     endif
 
     ! Store the new mass fractions.

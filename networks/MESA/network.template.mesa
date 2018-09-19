@@ -23,7 +23,7 @@
 
 module network
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -35,9 +35,9 @@ module network
   character (len= 5), save :: short_spec_mesa(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  character (len=*), parameter :: network_name = @@NAME@@
+  character (len=32), parameter :: network_name = @@NAME@@
 
-  real(kind=dp_t), save :: aion(nspec), zion(nspec)
+  real(rt), save :: aion(nspec), zion(nspec)
 
   logical, save :: network_initialized = .false.
 

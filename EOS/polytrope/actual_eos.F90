@@ -22,10 +22,8 @@
 
 module actual_eos_module
 
-  use bl_types
-  use bl_space
-  use bl_error_module
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
 
@@ -33,11 +31,15 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "polytrope"
   
-  double precision, save :: gamma_const, K_const
-  double precision, save :: mu_e
-  integer         , save :: polytrope
+  double precision, allocatable, save :: gamma_const, K_const
+  double precision, allocatable, save :: mu_e
+  integer         , allocatable, save :: polytrope
 
-  double precision, save :: gm1, polytrope_index
+  double precision, allocatable, save :: gm1, polytrope_index
+
+#ifdef CUDA
+  attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
+#endif
 
 contains
 
@@ -46,7 +48,15 @@ contains
     use extern_probin_module, only: polytrope_gamma, polytrope_K, polytrope_type, polytrope_mu_e
 
     implicit none
- 
+
+    ! Allocate module variables
+    allocate(gamma_const)
+    allocate(K_const)
+    allocate(mu_e)
+    allocate(polytrope)
+    allocate(gm1)
+    allocate(polytrope_index)
+    
     ! Available pre-defined polytrope options:
 
     ! 1: Non-relativistic, fully degenerate electron gas
@@ -65,14 +75,14 @@ contains
         K_const     = 1.2316d15 ! (3 / pi)^(1/3) * h c / (8 * m_p^(4/3))
         K_const     = K_const / mu_e**gamma_const
       else
-        call bl_error('EOS: Polytrope type currently not defined')
+        call amrex_error('EOS: Polytrope type currently not defined')
       endif
     elseif (polytrope_gamma .gt. ZERO .and. polytrope_K .gt. ZERO) then
       gamma_const = polytrope_gamma
       K_const     = polytrope_K
       mu_e        = TWO ! This will not be used
     else
-      call bl_error('EOS: Neither polytrope type nor both gamma and K are defined')
+      call amrex_error('EOS: Neither polytrope type nor both gamma and K are defined')
     endif
 
     gm1 = gamma_const - ONE
@@ -116,7 +126,7 @@ contains
   !---------------------------------------------------------------------------
   ! The main interface
   !---------------------------------------------------------------------------
-  subroutine actual_eos(input, state)
+  AMREX_DEVICE subroutine actual_eos(input, state)
 
     implicit none
 
@@ -233,7 +243,9 @@ contains
 
     case default
 
-       call bl_error('EOS: invalid input.')
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error('EOS: invalid input.')
+#endif
 
     end select
 
@@ -285,7 +297,13 @@ contains
 
     implicit none
 
-    ! Nothing to do here, yet.
+    ! Deallocate module variables
+    deallocate(gamma_const)
+    deallocate(K_const)
+    deallocate(mu_e)
+    deallocate(polytrope)
+    deallocate(gm1)
+    deallocate(polytrope_index)
 
   end subroutine actual_eos_finalize
 

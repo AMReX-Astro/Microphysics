@@ -4,13 +4,12 @@
 
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
+    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: aion, nspec_evolve
-    use bl_types, only: dp_t
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: dT_crit, &
-                                    burning_mode, burning_mode_factor, &
                                     integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
@@ -19,13 +18,13 @@
     implicit none
 
     integer,    intent(IN   ) :: neq, ipar
-    real(dp_t), intent(INOUT) :: time, y(neq)
-    real(dp_t), intent(INOUT) :: rpar(n_rpar_comps)
-    real(dp_t), intent(  OUT) :: ydot(neq)
+    real(rt), intent(INOUT) :: time, y(neq)
+    real(rt), intent(INOUT) :: rpar(n_rpar_comps)
+    real(rt), intent(  OUT) :: ydot(neq)
 
     type (burn_t) :: burn_state
 
-    real(dp_t) :: limit_factor, t_sound, t_enuc
+    real(rt) :: limit_factor, t_sound, t_enuc
 
     ! We are integrating a system of
     !
@@ -68,20 +67,6 @@
        burn_state % ydot(:) = react_boost * burn_state % ydot(:)
     endif
 
-    ! For burning_mode == 3, limit the rates.
-    ! Note that we are limiting with respect to the initial zone energy.
-
-    if (burning_mode == 3) then
-
-       t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(burn_state % ydot(net_ienuc)), 1.d-50)
-       t_sound = rpar(irp_t_sound)
-
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
-
-       burn_state % ydot = limit_factor * burn_state % ydot
-
-    endif
-
     call burn_to_vode(burn_state, y, rpar, ydot = ydot)
 
   end subroutine f_rhs
@@ -92,24 +77,23 @@
 
   subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
+    use amrex_fort_module, only : rt => amrex_real
+    use amrex_constants_module, only: ZERO, ONE
     use network, only: aion, aion_inv, nspec_evolve
-    use bl_constants_module, only: ZERO, ONE
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
-    use bl_types, only: dp_t
-    use extern_probin_module, only: burning_mode, burning_mode_factor, &
-                                    integrate_temperature, integrate_energy, react_boost
+    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
 
     implicit none
 
     integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-    real(dp_t), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-    real(dp_t), intent(  OUT) :: pd(neq,neq)
+    real(rt), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
+    real(rt), intent(  OUT) :: pd(neq,neq)
 
     type (burn_t) :: state
-    real(dp_t) :: limit_factor, t_sound, t_enuc
+    real(rt) :: limit_factor, t_sound, t_enuc
     integer :: n
 
     ! Call the specific network routine to get the Jacobian.
@@ -136,20 +120,6 @@
 
     if (.not. integrate_energy) then
        state % jac(net_ienuc,:) = ZERO
-    endif
-
-    ! For burning_mode == 3, limit the rates.
-    ! Note that we are limiting with respect to the initial zone energy.
-
-    if (burning_mode == 3) then
-
-       t_enuc = rpar(irp_y_init + net_ienuc - 1) / max(abs(state % ydot(net_ienuc)), 1.d-50)
-       t_sound = rpar(irp_t_sound)
-
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
-
-       state % jac = limit_factor * state % jac
-
     endif
 
     call burn_to_vode(state, y, rpar, jac = pd)

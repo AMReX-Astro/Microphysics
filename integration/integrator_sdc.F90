@@ -37,8 +37,8 @@ contains
     use bs_integrator_module, only: bs_integrator
 #endif
 
-    use bl_error_module, only: bl_error
-    use bl_types, only: dp_t
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
@@ -48,7 +48,7 @@ contains
 
     type (sdc_t),  intent(in   ) :: state_in
     type (sdc_t),  intent(inout) :: state_out
-    real(dp_t),    intent(in   ) :: dt, time
+    real(rt),    intent(in   ) :: dt, time
 
     type (integration_status_t) :: status
 
@@ -66,7 +66,7 @@ contains
 #elif INTEGRATOR == 1
     call bs_integrator(state_in, state_out, dt, time, status)
 #else
-    call bl_error("Unknown integrator.")
+    call amrex_error("Unknown integrator.")
 #endif
 
   end subroutine integrator

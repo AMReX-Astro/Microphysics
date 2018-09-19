@@ -1,5 +1,7 @@
 module integrator_module
 
+  use amrex_error_module
+
   implicit none
 
   public
@@ -8,7 +10,7 @@ contains
 
   subroutine integrator_init()
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     use vode_integrator_module, only: vode_integrator_init
     use bs_integrator_module, only: bs_integrator_init
 #else
@@ -17,7 +19,7 @@ contains
 
     implicit none
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     call vode_integrator_init()
     call bs_integrator_init()
 #else
@@ -28,34 +30,35 @@ contains
 
 
 
-  subroutine integrator(state_in, state_out, dt, time)
+  AMREX_DEVICE subroutine integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     use vode_integrator_module, only: vode_integrator
     use bs_integrator_module, only: bs_integrator
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use bl_error_module, only: bl_error
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_error_module, only: amrex_error
+    use amrex_fort_module, only : rt => amrex_real
+    use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
-    use bl_types, only: dp_t
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    retry_burn_factor, retry_burn_max_change
+                                    abort_on_failure, &
+                                    retry_burn, retry_burn_factor, retry_burn_max_change
 
     implicit none
 
     type (burn_t),  intent(in   ) :: state_in
     type (burn_t),  intent(inout) :: state_out
-    real(dp_t),     intent(in   ) :: dt, time
+    real(rt),     intent(in   ) :: dt, time
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     type (integration_status_t) :: status
-    real(dp_t) :: retry_change_factor
+    real(rt) :: retry_change_factor
     integer :: current_integrator
 
     ! Loop through all available integrators. Our strategy will be to
@@ -83,8 +86,6 @@ contains
 
        do
 
-          status % integration_complete = .true.
-
 #if (INTEGRATOR == 0)
           if (current_integrator == 0) then
              call vode_integrator(state_in, state_out, dt, time, status)
@@ -99,7 +100,9 @@ contains
           endif
 #endif
 
-          if (status % integration_complete) exit
+          if (state_out % success) exit
+
+          if (.not. retry_burn) exit
 
           ! If we got here, the integration failed; loosen the tolerances.
 
@@ -123,18 +126,18 @@ contains
           else
 
              if (current_integrator < 1) then
+
 #if (INTEGRATOR == 0)
                 print *, "Retrying burn with BS integrator"
 #elif (INTEGRATOR == 1)
                 print *, "Retrying burn with VODE integrator"
 #endif
-             else
-
-                ! We are out of integrators; give up.
-
-                exit
 
              end if
+
+             ! Switch to the next integrator (if there is one).
+
+             exit
 
           end if
 
@@ -142,16 +145,22 @@ contains
 
        ! No need to do the next integrator if we have already succeeded.
 
-       if (status % integration_complete) exit
+       if (state_out % success) exit
+
+       if (.not. retry_burn) exit
 
     end do
 
-    ! If we get to this point, all available integrators have
-    ! failed at all available tolerances; we must abort.
+    ! If we get to this point and have not succeded, all available integrators have
+    ! failed at all available tolerances; we must either abort, or return to the
+    ! driver routine calling the burner, and attempt some other approach such as
+    ! subcycling the main advance.
 
-    if (.not. status % integration_complete) then
+    if (.not. state_out % success) then
 
-       call bl_error("ERROR in burner: integration failed")
+       if (abort_on_failure) then
+          call amrex_error("ERROR in burner: integration failed")
+       end if
 
     endif
 

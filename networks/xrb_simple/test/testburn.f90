@@ -1,7 +1,7 @@
 program testburn
 
-  use bl_types
-  use bl_constants_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
   use network
   use eos_module
   use actual_burner_module
@@ -11,24 +11,24 @@ program testburn
 
   implicit none
 
-  real(kind=dp_t) :: dens, temp, dt
-  real(kind=dp_t), dimension(nspec) :: Xin
+  real(rt) :: dens, temp, dt
+  real(rt), dimension(nspec) :: Xin
   type(burn_t) :: state_in, state_out
   integer :: n
 
   call microphysics_init()
 
-  dens = 6.558e5_dp_t
-  temp = 7.108e8_dp_t
+  dens = 6.558e5_rt
+  temp = 7.108e8_rt
 
-  Xin(io14) = 1.027e-3_dp_t
-  Xin(io15) = 3.558e-3_dp_t
-  Xin(ine18) = 2.788e-2_dp_t
-  Xin(isi25) = 1.5735e-2_dp_t
-  Xin(ihe4) = 0.2624e0_dp_t
-  Xin(ih1) = 0.6894e0_dp_t
+  Xin(io14) = 1.027e-3_rt
+  Xin(io15) = 3.558e-3_rt
+  Xin(ine18) = 2.788e-2_rt
+  Xin(isi25) = 1.5735e-2_rt
+  Xin(ihe4) = 0.2624e0_rt
+  Xin(ih1) = 0.6894e0_rt
 
-  dt = 0.01_dp_t
+  dt = 0.01_rt
 
   print *, 'calling the burner...'
 

@@ -8,22 +8,25 @@
 
 module actual_eos_module
 
-  use bl_types
-  use bl_space
-  use bl_error_module
-  use bl_constants_module
+  use amrex_error_module
+  use amrex_fort_module, only : rt => amrex_real
+  use amrex_constants_module
   use network, only: nspec, aion, aion_inv, zion
   use eos_type_module
 
   implicit none
 
   character (len=64), public :: eos_name = "gamma_law_general"  
-  
-  double precision, save :: gamma_const
-  
-  logical, save :: assume_neutral
+
+  double precision, allocatable, save :: gamma_const
+
+  logical, allocatable, save :: assume_neutral
 
   !$acc declare create(gamma_const, assume_neutral)
+
+#ifdef CUDA
+  attributes(managed) :: gamma_const, assume_neutral
+#endif
  
 contains
 
@@ -32,12 +35,15 @@ contains
     use extern_probin_module, only: eos_gamma, eos_assume_neutral
 
     implicit none
+
+    allocate(gamma_const)
+    allocate(assume_neutral)
  
     ! constant ratio of specific heats
     if (eos_gamma .gt. 0.d0) then
        gamma_const = eos_gamma
     else
-       call bl_error("gamma_const cannot be < 0")
+       call amrex_error("gamma_const cannot be < 0")
     end if
 
     assume_neutral = eos_assume_neutral
@@ -48,7 +54,7 @@ contains
 
 
 
-  subroutine actual_eos(input, state)
+  AMREX_DEVICE subroutine actual_eos(input, state)
 
     !$acc routine seq
 
@@ -64,6 +70,8 @@ contains
     double precision, parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5d0
 
     double precision :: Tinv, rhoinv
+
+    !$gpu
 
     ! Calculate mu.
     
@@ -155,14 +163,14 @@ contains
 
        ! This system is underconstrained.
 
-#ifndef ACC 
-       call bl_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 #endif
 
     case default
 
-#ifndef ACC       
-       call bl_error('EOS: invalid input.')
+#if !(defined(ACC) || defined(CUDA))
+       call amrex_error('EOS: invalid input.')
 #endif
        
     end select
@@ -185,15 +193,15 @@ contains
 
     ! entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
     ! NOTE: this expression is only valid for gamma = 5/3.
-    state % s = (k_B/(state % mu*m_nucleon))*(2.5_dp_t + &
-         log( ( (state % mu*m_nucleon)**2.5_dp_t * rhoinv )*(k_B * state % T)**1.5_dp_t * fac ) )
+    state % s = (k_B/(state % mu*m_nucleon))*(2.5_rt + &
+         log( ( (state % mu*m_nucleon)**2.5_rt * rhoinv )*(k_B * state % T)**1.5_rt * fac ) )
 
     ! Compute the thermodynamic derivatives and specific heats 
     state % dpdT = state % p * Tinv
     state % dpdr = state % p * rhoinv
     state % dedT = state % e * Tinv
     state % dedr = ZERO
-    state % dsdT = 1.5_dp_t * (k_B / (state % mu * m_nucleon)) * Tinv
+    state % dsdT = 1.5_rt * (k_B / (state % mu * m_nucleon)) * Tinv
     state % dsdr = - (k_B / (state % mu * m_nucleon)) * rhoinv
     state % dhdT = state % dedT + state % dpdT * rhoinv
     state % dhdr = ZERO
@@ -228,7 +236,8 @@ contains
     
     implicit none
 
-    ! Nothing to do here, yet.
+    deallocate(gamma_const)
+    deallocate(assume_neutral)
   
   end subroutine actual_eos_finalize
 

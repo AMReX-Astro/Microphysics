@@ -1,12 +1,47 @@
--- implemented the new c12(a,g)o16 nuclear reaction rate and its
+
+# changes since the last release
+
+# 18.09
+
+ -- The Helmholtz parameters ttol and dtol (controlling the error
+    for the Newton iteration when in a mode other than eos_input_rt)
+    are now runtime parameters in the extern namelist as eos_ttol
+    and eos_dtol.
+
+# 18.08
+
+ -- the unit tests (test_react, test_sdc, and test_eos) have been
+    ported from the Fortran to C++ build system in AMReX.  This will
+    allow us to test the GPU framework in AMReX.
+
+# 18.07
+
+ -- added CUDA support to the VODE90 integrator, the helmeos, and the
+    networks aprox13, aprox19, aprox21, ignition_simple,
+    C-burn-simple, URCA-simple.
+
+ -- Ported the unit test frameworks to FBoxLib
+
+# 18.05
+
+ -- lots of documentation updates
+
+ -- some fixes to the numerical Jacobian involving X vs. Y
+
+ -- a new subCh network for He burning was added.
+
+ -- implemented the new c12(a,g)o16 nuclear reaction rate and its
     corresponding inverse from the work of Deboer et al. 2017 
     (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007). 
     To use the new rate, user must set `use_c12ag_deboer17` to `true`. 
     This rate is only useable in the `aprox13`, `aprox19`, `aprox21`,
     and `iso7` reaction rate networks. Closes issue #44.
 
--- a routine util/cj_detonation was added to compute the
+ -- a routine util/cj_detonation was added to compute the
      Chapman-Jouguet detonation velocity for any of the networks
+
+ -- the burn retry strategy now sticks with the current integrator and 
+    uses looser tolerances before switching to a different integrator.
 
 # 18.04
 

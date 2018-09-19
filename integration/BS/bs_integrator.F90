@@ -8,7 +8,6 @@ module bs_integrator_module
   use network
   use rpar_indices
   use burn_type_module
-  use bl_types
   use stiff_ode
   use bs_type_module
 
@@ -35,7 +34,8 @@ contains
     !$acc routine seq
 
     use rpar_indices
-    use extern_probin_module, only: burner_verbose, burning_mode, dT_crit
+    use amrex_fort_module, only : rt => amrex_real
+    use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
 
@@ -45,19 +45,22 @@ contains
 
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
-    real(dp_t),    intent(in   ) :: dt, time
+    real(rt)     , intent(in   ) :: dt, time
     type (integration_status_t), intent(inout) :: status
 
     ! Local variables
     integer :: ierr
 
-    real(kind=dp_t) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
-    real(kind=dp_t) :: t0, t1
+    real(rt) :: atol(neqs), rtol(neqs)   ! input state, abs and rel tolerances
+    real(rt) :: t0, t1
 
     type (eos_t) :: eos_state_in, eos_state_temp
     type (bs_t) :: bs
 
-    real(dp_t) :: ener_offset
+    real(rt) :: ener_offset
+    real(rt) :: edot, t_enuc, t_sound, limit_factor
+
+    logical :: success
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
@@ -80,6 +83,10 @@ contains
 
     bs % atol = atol
     bs % rtol = rtol
+
+    ! Start out by assuming a successful burn.
+
+    state_out % success = .true.
 
     ! Initialize the integration time.
     t0 = ZERO
@@ -212,7 +219,7 @@ contains
        print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 
-       status % integration_complete = .false.
+       state_out % success = .false.
        return
 
     endif
@@ -224,10 +231,29 @@ contains
     ! Store the final data, and then normalize abundances.
     call bs_to_burn(bs)
 
+    ! cache the success
+    success = state_out % success
+
     state_out = bs % burn_s
+
+    state_out % success = success
 
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)
+    endif
+
+    ! For burning_mode == 3, limit the burning.
+
+    if (burning_mode == 3) then
+
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_sound = state_in % dx / eos_state_in % cs
+
+       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+
+       state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
+       state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
+
     endif
 
     call normalize_abundances_burn(state_out)

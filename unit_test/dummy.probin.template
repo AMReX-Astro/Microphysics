@@ -6,7 +6,7 @@
 
 module probin_module
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -14,13 +14,16 @@ module probin_module
 
   @@declarationsA@@
 
+#ifdef CUDA  
+  @@cudaattributesA@@
+#endif
 
 end module probin_module
 
 
 module extern_probin_module
 
-  use bl_types
+  use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
@@ -28,13 +31,17 @@ module extern_probin_module
 
   @@declarationsB@@
 
+#ifdef CUDA  
+  @@cudaattributesB@@
+#endif
+
 end module extern_probin_module
 
 
 module runtime_init_module
 
-  use bl_types
-  use bl_error_module
+  use amrex_error_module
+  use amrex_fort_module, only : rt => amrex_real
   use probin_module
   use extern_probin_module
 
@@ -61,6 +68,10 @@ contains
 
     logical :: read_inputs
 
+    @@allocations@@
+
+    @@initialize@@
+
     narg = command_argument_count()
 
     if (.not. present(read_inputs_in)) then
@@ -80,10 +91,10 @@ contains
              read(unit=un, nml = probin)
              close(unit=un)
           else
-             call bl_error("ERROR: inputs file does not exist")
+             call amrex_error("ERROR: inputs file does not exist")
           endif
        else
-          call bl_error("ERROR: no inputs file specified")
+          call amrex_error("ERROR: no inputs file specified")
        endif
     endif
 
@@ -97,12 +108,14 @@ contains
 
     use probin_module
 
+    @@deallocations@@
+
   end subroutine runtime_close
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine runtime_pretty_print(unit)
 
-    use bl_constants_module
+    use amrex_constants_module
     use probin_module
     use extern_probin_module
 

@@ -5,18 +5,34 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use sneut_module, only: sneut5
+  use actual_network, only: nrates
   use rate_type_module
 
   implicit none
 
   double precision, parameter :: c54 = 56.0d0/54.0d0
 
+  ! Table interpolation data
+
+  double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
+  integer, parameter :: tab_per_decade = 500
+  integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
+  integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
+  double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
+
+  double precision, allocatable :: rattab(:,:)
+  double precision, allocatable :: drattabdt(:,:)
+  double precision, allocatable :: drattabdd(:,:)
+  double precision, allocatable :: ttab(:)
+
 contains
 
   subroutine actual_rhs_init()
 
     use aprox_rates_module, only: rates_init
+    use extern_probin_module, only: use_tables
     use screening_module, only: screening_init
+    use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
     implicit none
 
@@ -26,10 +42,26 @@ contains
 
     call screening_init()
 
+    if (use_tables) then
+
+       if (parallel_IOProcessor()) then
+          print *, ""
+          print *, "Initializing iso7 rate table"
+          print *, ""
+       endif
+
+       call create_rates_table()
+
+    endif
+
   end subroutine actual_rhs_init
 
 
   subroutine get_rates(state, rr)
+
+    use extern_probin_module, only: use_tables
+
+    implicit none
 
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
@@ -39,7 +71,7 @@ contains
 
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     ! Get the data from the state
@@ -49,7 +81,11 @@ contains
     y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
-    call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    if (use_tables) then
+       call iso7tab(temp, rho, ratraw, dratrawdt, dratrawdd)
+    else
+       call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+    endif
 
     ! Do the screening here because the corrections depend on the composition
     call screen_iso7(temp, rho, y,                 &
@@ -62,12 +98,147 @@ contains
 
     rr % rates(1,:) = ratdum
     rr % rates(2,:) = dratdumdt
-    rr % rates(3,:) = dratdumdy1
-    rr % rates(4,:) = dratdumdy2
+    rr % rates(3,irsi2ni:irni2si) = dratdumdy1
+    rr % rates(4,irsi2ni:irni2si) = dratdumdy2
 
     rr % T_eval = temp
 
   end subroutine get_rates
+
+
+
+  subroutine iso7tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+    implicit none
+
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+
+    integer, parameter :: mp = 4
+
+    integer          :: j, iat
+    double precision :: x, x1, x2, x3, x4
+    double precision :: a, b, c, d, e, f, g, h, p, q
+    double precision :: alfa, beta, gama, delt
+
+    double precision :: dtab(nrates)
+
+    ! Set the density dependence array
+    dtab(ircag)  = bden
+    dtab(iroga)  = 1.0d0
+    dtab(ir3a)   = bden*bden
+    dtab(irg3a)  = 1.0d0
+    dtab(ir1212) = bden
+    dtab(ir1216) = bden
+    dtab(ir1616) = bden
+    dtab(iroag)  = bden
+    dtab(irnega) = 1.0d0
+    dtab(irneag) = bden
+    dtab(irmgga) = 1.0d0
+    dtab(irmgag) = bden
+    dtab(irsiga) = 1.0d0
+    dtab(ircaag) = bden
+    dtab(irtiga) = 1.0d0
+    dtab(irsi2ni) = 0.0d0
+    dtab(irni2si) = 0.0d0
+
+    ! hash locate
+    iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
+    iat = max(1, min(iat - mp / 2 + 1, tab_imax - mp + 1))
+
+    ! setup the lagrange interpolation coefficients for a cubic
+    x  = btemp
+    x1 = ttab(iat)
+    x2 = ttab(iat+1)
+    x3 = ttab(iat+2)
+    x4 = ttab(iat+3)
+    a  = x - x1
+    b  = x - x2
+    c  = x - x3
+    d  = x - x4
+    e  = x1 - x2
+    f  = x1 - x3
+    g  = x1 - x4
+    h  = x2 - x3
+    p  = x2 - x4
+    q  = x3 - x4
+    alfa =  b*c*d/(e*f*g)
+    beta = -a*c*d/(e*h*p)
+    gama =  a*b*d/(f*h*q)
+    delt = -a*b*c/(g*p*q)
+
+    ! crank off the raw reaction rates
+    do j = 1, nrates
+
+       ratraw(j) = (alfa * rattab(j,iat) &
+                    + beta * rattab(j,iat+1) &
+                    + gama * rattab(j,iat+2) &
+                    + delt * rattab(j,iat+3) ) * dtab(j)
+
+       dratrawdt(j) = (alfa * drattabdt(j,iat) &
+                       + beta * drattabdt(j,iat+1) &
+                       + gama * drattabdt(j,iat+2) &
+                       + delt * drattabdt(j,iat+3) ) * dtab(j)
+
+       !dratrawdd(j) = alfa * drattabdd(j,iat) &
+       !             + beta * drattabdd(j,iat+1) &
+       !             + gama * drattabdd(j,iat+2) &
+       !             + delt * drattabdd(j,iat+3)
+
+    enddo
+
+    ! hand finish the three body reactions
+    !dratrawdd(ir3a) = bden * dratrawdd(ir3a)
+
+  end subroutine iso7tab
+
+
+
+  subroutine create_rates_table()
+
+    implicit none
+
+    ! Allocate memory for the tables
+    allocate(rattab(nrates, nrattab))
+    allocate(drattabdt(nrates, nrattab))
+    allocate(drattabdd(nrates, nrattab))
+    allocate(ttab(nrattab))
+
+    call set_iso7rat()
+
+  end subroutine create_rates_table
+
+
+
+  subroutine set_iso7rat()
+
+    implicit none
+
+    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    integer :: i, j
+
+    bden = 1.0d0
+
+    do i = 1, tab_imax
+
+       btemp = tab_tlo + dble(i-1) * tab_tstp
+       btemp = 10.0d0**(btemp)
+
+       call iso7rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+
+       ttab(i) = btemp
+
+       do j = 1, nrates
+
+          rattab(j,i)    = ratraw(j)
+          drattabdt(j,i) = dratrawdt(j)
+          drattabdd(j,i) = dratrawdd(j)
+
+       enddo
+
+    enddo
+
+  end subroutine set_iso7rat
+
 
 
   subroutine actual_rhs(state)
@@ -85,7 +256,6 @@ contains
 
     logical          :: deriva = .false.
 
-
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
@@ -98,7 +268,7 @@ contains
     temp = state % T
     abar = state % abar
     zbar = state % zbar
-    y(:)    = state % xn(:) * aion_inv(:)
+    y(:) = state % xn(:) * aion_inv(:)
 
     call get_rates(state, rr)
 
@@ -130,7 +300,7 @@ contains
 
   subroutine actual_jac(state)
 
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
 
     implicit none
 
@@ -198,8 +368,8 @@ contains
 
   subroutine rhs(y, rate, ratdum, dydt, deriva)
 
-    use bl_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum
+    use amrex_constants_module, only: ZERO, SIXTH
+    use microphysics_math_module, only: esum5, esum6, esum15
 
     implicit none
 
@@ -233,7 +403,7 @@ contains
     a(14) = -7.0d0 * rate(irsi2ni) * y(ihe4)
     a(15) =  7.0d0 * rate(irni2si) * y(ini56)
 
-    dydt(ihe4) = esum(a,15)
+    dydt(ihe4) = esum15(a)
 
     ! 12c reactions
     a(1) =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
@@ -243,7 +413,7 @@ contains
     a(5) = -y(ic12) * y(ic12) * rate(ir1212)
     a(6) = -y(ic12) * y(io16) * rate(ir1216)
 
-    dydt(ic12) = esum(a,6)
+    dydt(ic12) = esum6(a)
 
     ! 16o reactions
     a(1) = -y(io16) * rate(iroga)
@@ -253,7 +423,7 @@ contains
     a(5) = -y(io16) * y(ihe4) * rate(iroag)
     a(6) =  y(ine20) * rate(irnega)
 
-    dydt(io16) = esum(a,6)
+    dydt(io16) = esum6(a)
 
     ! 20ne reactions
     a(1) =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
@@ -262,7 +432,7 @@ contains
     a(4) =  y(img24) * rate(irmgga)
     a(5) = -y(ine20) * y(ihe4) * rate(irneag)
 
-    dydt(ine20) = esum(a,5)
+    dydt(ine20) = esum5(a)
 
     ! 24mg reactions
     a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
@@ -271,7 +441,7 @@ contains
     a(4) =  y(isi28) * rate(irsiga)
     a(5) = -y(img24) * y(ihe4) * rate(irmgag)
 
-    dydt(img24) = esum(a,5)
+    dydt(img24) = esum5(a)
 
     ! 28si reactions
     a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
@@ -281,7 +451,7 @@ contains
     a(5) = -rate(irsi2ni) * y(ihe4)
     a(6) =  rate(irni2si) * y(ini56)
 
-    dydt(isi28) = esum(a,6)
+    dydt(isi28) = esum6(a)
 
     ! ni56 reactions
     a(1) =  rate(irsi2ni) * y(ihe4)
@@ -300,7 +470,7 @@ contains
 
     use tfactors_module
     use aprox_rates_module
-    use bl_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
     double precision :: btemp, bden
@@ -386,7 +556,7 @@ contains
                          dratdumdy1, dratdumdy2, &
                          scfac, dscfacdt, dscfacdd)
 
-    use bl_constants_module, only: ZERO, ONE
+    use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
     use tfactors_module
 
@@ -399,7 +569,7 @@ contains
     double precision :: y(nspec)
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     integer          :: i, jscr
@@ -416,12 +586,13 @@ contains
        ratdum(i)     = ratraw(i)
        dratdumdt(i)  = dratrawdt(i)
        dratdumdd(i)  = dratrawdd(i)
-       dratdumdy1(i) = ZERO
-       dratdumdy2(i) = ZERO
        scfac(i)      = ONE
        dscfacdt(i)   = ZERO
        dscfacdd(i)   = ZERO
     enddo
+
+    dratdumdy1(:) = ZERO
+    dratdumdy2(:) = ZERO
 
     ! get the temperature factors
     call get_tfactors(btemp, tf)
@@ -439,15 +610,15 @@ contains
 
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
-    sc3add = sc1add*sc2a + sc1a*sc2add
+    !sc3add = sc1add*sc2a + sc1a*sc2add
 
     ratdum(ir3a)    = ratraw(ir3a) * sc3a
     dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
-    dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
+    !dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
 
     scfac(ir3a)     = sc3a
     dscfacdt(ir3a)  = sc3adt
-    dscfacdd(ir3a)  = sc3add
+    !dscfacdd(ir3a)  = sc3add
 
 
     ! c12 to o16
@@ -456,11 +627,11 @@ contains
 
     ratdum(ircag)     = ratraw(ircag) * sc1a
     dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
-    dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
+    !dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
 
     scfac(ircag)      = sc1a
     dscfacdt(ircag)   = sc1adt
-    dscfacdt(ircag)   = sc1add
+    !dscfacdd(ircag)   = sc1add
 
 
 
@@ -470,11 +641,11 @@ contains
 
     ratdum(ir1212)    = ratraw(ir1212) * sc1a
     dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
-    dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
+    !dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
 
     scfac(ir1212)     = sc1a
     dscfacdt(ir1212)  = sc1adt
-    dscfacdd(ir1212)  = sc1add
+    !dscfacdd(ir1212)  = sc1add
 
 
 
@@ -484,11 +655,11 @@ contains
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
+    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
 
     scfac(ir1216)     = sc1a
     dscfacdt(ir1216)  = sc1adt
-    dscfacdd(ir1216)  = sc1add
+    !dscfacdd(ir1216)  = sc1add
 
 
 
@@ -498,11 +669,11 @@ contains
 
     ratdum(ir1216)    = ratraw(ir1216) * sc1a
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
+    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
 
     scfac(ir1216)     = sc1a
     dscfacdt(ir1216)  = sc1adt
-    dscfacdd(ir1216)  = sc1add
+    !dscfacdd(ir1216)  = sc1add
 
 
 
@@ -512,11 +683,11 @@ contains
 
     ratdum(iroag)    = ratraw(iroag) * sc1a
     dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
-    dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
+    !dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
 
     scfac(iroag)     = sc1a
     dscfacdt(iroag)  = sc1adt
-    dscfacdd(iroag)  = sc1add
+    !dscfacdd(iroag)  = sc1add
 
 
 
@@ -526,11 +697,11 @@ contains
 
     ratdum(irneag)    = ratraw(irneag) * sc1a
     dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
-    dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
+    !dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
 
     scfac(irneag)     = sc1a
     dscfacdt(irneag)  = sc1adt
-    dscfacdd(irneag)  = sc1add
+    !dscfacdd(irneag)  = sc1add
 
 
     ! mg24 to si28
@@ -539,11 +710,11 @@ contains
 
     ratdum(irmgag)    = ratraw(irmgag) * sc1a
     dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
-    dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
+    !dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
 
     scfac(irmgag)     = sc1a
     dscfacdt(irmgag)  = sc1adt
-    dscfacdd(irmgag)  = sc1add
+    !dscfacdd(irmgag)  = sc1add
 
 
 
@@ -553,11 +724,11 @@ contains
 
     ratdum(ircaag)    = ratraw(ircaag) * sc1a
     dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
-    dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
+    !dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
 
     scfac(ircaag)     = sc1a
     dscfacdt(ircaag)  = sc1adt
-    dscfacdd(ircaag)  = sc1add
+    !dscfacdd(ircaag)  = sc1add
 
 
 
@@ -586,8 +757,8 @@ contains
        dratdumdy2(irsi2ni) = yeff_ca40*denom*ratdum(ircaag)
        dratdumdt(irsi2ni)  = (yeff_ca40dt*ratdum(ircaag) &
             + yeff_ca40*dratdumdt(ircaag))*denom*y(isi28)*1.0d-9
-       dratdumdd(irsi2ni)  = 3.0d0*ratdum(irsi2ni)/bden &
-            + yeff_ca40*denom*dratdumdd(ircaag)*y(isi28)
+       !dratdumdd(irsi2ni)  = 3.0d0*ratdum(irsi2ni)/bden &
+       !     + yeff_ca40*denom*dratdumdd(ircaag)*y(isi28)
 
 
        if (denom .ne. 0.0) then
@@ -598,14 +769,14 @@ contains
           if (ratdum(irni2si) .eq. 1.0d10) then
              dratdumdy1(irni2si) = 0.0d0
              dratdumdt(irni2si)  = 0.0d0
-             dratdumdd(irni2si)  = 0.0d0
+             !dratdumdd(irni2si)  = 0.0d0
 
           else
              dratdumdy1(irni2si) = -3.0d0 * ratdum(irni2si)/y(ihe4)
              dratdumdt(irni2si)  = (yeff_ti44dt*ratdum(irtiga) &
                   + yeff_ti44*dratdumdt(irtiga))*zz*1.0d-9
-             dratdumdd(irni2si)  = -3.0d0 * ratdum(irni2si)/bden &
-                  + yeff_ti44*dratdumdd(irtiga)*zz
+             !dratdumdd(irni2si)  = -3.0d0 * ratdum(irni2si)/bden &
+             !     + yeff_ti44*dratdumdd(irtiga)*zz
           end if
        endif
     end if
@@ -617,14 +788,14 @@ contains
   subroutine dfdy_isotopes_iso7(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
-    use microphysics_math_module, only: esum
+    use microphysics_math_module, only: esum3, esum4, esum8
 
     implicit none
 
     ! this routine sets up the dense iso7 jacobian for the isotopes
 
     double precision :: y(nspec), dfdy(nspec,nspec)
-    double precision :: ratdum(nrates), dratdumdy1(nrates), dratdumdy2(nrates)
+    double precision :: ratdum(nrates), dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
 
     double precision :: b(8)
 
@@ -640,7 +811,7 @@ contains
     b(7) = -7.0d0 * dratdumdy1(irsi2ni) * y(ihe4)
     b(8) =  7.0d0 * dratdumdy1(irni2si) * y(ini56)
 
-    dfdy(ihe4,ihe4) = esum(b,8)
+    dfdy(ihe4,ihe4) = esum8(b)
 
     ! d(he4)/d(c12)
     b(1) =  3.0d0 * ratdum(irg3a)
@@ -648,7 +819,7 @@ contains
     b(3) =  y(ic12) * ratdum(ir1212)
     b(4) =  0.5d0 * y(io16) * ratdum(ir1216)
 
-    dfdy(ihe4,ic12) = esum(b,4)
+    dfdy(ihe4,ic12) = esum4(b)
 
     ! d(he4)/d(o16)
     b(1) =  ratdum(iroga)
@@ -656,7 +827,7 @@ contains
     b(3) =  y(io16) * ratdum(ir1616)
     b(4) = -y(ihe4) * ratdum(iroag)
 
-    dfdy(ihe4,io16) = esum(b,4)
+    dfdy(ihe4,io16) = esum4(b)
 
     ! d(he4)/d(ne20)
     b(1) =  ratdum(irnega)
@@ -696,7 +867,7 @@ contains
     b(3) = -2.0d0 * y(ic12) * ratdum(ir1212)
     b(4) = -y(io16) * ratdum(ir1216)
 
-    dfdy(ic12,ic12) = esum(b,4)
+    dfdy(ic12,ic12) = esum4(b)
 
     ! d(c12)/d(o16)
     b(1) =  ratdum(iroga)
@@ -724,7 +895,7 @@ contains
     b(3) = -2.0d0 * y(io16) * ratdum(ir1616)
     b(4) = -y(ihe4) * ratdum(iroag)
 
-    dfdy(io16,io16) = esum(b,4)
+    dfdy(io16,io16) = esum4(b)
 
     ! d(o16)/d(ne20)
     b(1) =  ratdum(irnega)
@@ -801,7 +972,7 @@ contains
     b(3) = -dratdumdy1(irsi2ni) * y(ihe4)
     b(4) =  dratdumdy1(irni2si) * y(ini56)
 
-    dfdy(isi28,ihe4) = esum(b,4)
+    dfdy(isi28,ihe4) = esum4(b)
 
     ! d(si28)/d(c12)
     b(1) =  0.5d0 * y(io16) * ratdum(ir1216)
@@ -836,7 +1007,7 @@ contains
     b(2) =  dratdumdy1(irsi2ni) * y(ihe4)
     b(3) = -dratdumdy1(irni2si) * y(ini56)
 
-    dfdy(ini56,ihe4) = esum(b,3)
+    dfdy(ini56,ihe4) = esum3(b)
 
     ! d(ni56)/d(si28)
     b(1) = dratdumdy2(irsi2ni) * y(ihe4)

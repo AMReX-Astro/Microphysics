@@ -1,13 +1,13 @@
 # A set of useful macros for putting together one of the initial model
-# generator routines in the AMReX framework
+# generator routines in the FBoxLib framework
 
 # include the main Makefile stuff
-include $(AMREX_HOME)/Tools/F_mk/GMakedefs.mak
+include $(FBOXLIB_HOME)/Tools/F_mk/GMakedefs.mak
 
 
 #-----------------------------------------------------------------------------
-# core AMReX directories
-AMREX_CORE := Src/F_BaseLib
+# core FBoxLib directories
+FBOXLIB_CORE := Src/BaseLib
 
 
 #-----------------------------------------------------------------------------
@@ -23,6 +23,11 @@ ifdef SDC
   endif
 endif
 
+ifdef CUDA
+  FPP_DEFINES += -DAMREX_DEVICE='attributes(device)'
+else
+  FPP_DEFINES += -DAMREX_DEVICE=""
+endif
 
 #-----------------------------------------------------------------------------
 # EOS
@@ -75,9 +80,9 @@ UNIT_DIR += $(TEST_DIR)     # set by the test itself
 
 
 #-----------------------------------------------------------------------------
-# core AMReX directories
-Fmpack := $(foreach dir, $(AMREX_CORE), $(AMREX_HOME)/$(dir)/GPackage.mak)
-Fmlocs := $(foreach dir, $(AMREX_CORE), $(AMREX_HOME)/$(dir))
+# core FBoxLib directories
+Fmpack := $(foreach dir, $(FBOXLIB_CORE), $(FBOXLIB_HOME)/$(dir)/GPackage.mak)
+Fmlocs := $(foreach dir, $(FBOXLIB_CORE), $(FBOXLIB_HOME)/$(dir))
 Fmincs :=
 
 # auxillary directories
@@ -92,24 +97,31 @@ Fmlocs += $(foreach dir, $(UNIT_DIR), $(dir))
 include $(Fmpack)
 
 
-# we need a probin.f90, since the various microphysics routines can
+# we need a probin.F90, since the various microphysics routines can
 # have runtime parameters
-f90sources += probin.f90
+F90sources += probin.F90
 
 PROBIN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/dummy.probin.template
 PROBIN_PARAMETER_DIRS += $(MICROPHYSICS_HOME)/unit_test/  
 EXTERN_PARAMETER_DIRS += $(MICROPHYS_CORE)
 
 
-PROBIN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(PROBIN_PARAMETER_DIRS))
-EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_PARAMETER_DIRS))
+PROBIN_PARAMETERS := $(shell $(FBOXLIB_HOME)/Tools/F_scripts/findparams.py $(PROBIN_PARAMETER_DIRS))
+EXTERN_PARAMETERS := $(shell $(FBOXLIB_HOME)/Tools/F_scripts/findparams.py $(EXTERN_PARAMETER_DIRS))
 
-probin.f90: $(PROBIN_PARAMETERS) $(EXTERN_PARAMETERS) $(PROBIN_TEMPLATE)
+MANAGED_PROBIN_FLAG := 
+ifdef CUDA
+  ifeq ($(CUDA), t)
+    MANAGED_PROBIN_FLAG := --managed
+  endif
+endif
+
+probin.F90: $(PROBIN_PARAMETERS) $(EXTERN_PARAMETERS) $(PROBIN_TEMPLATE)
 	@echo " "
-	@echo "${bold}WRITING probin.f90${normal}"
-	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
-           -t $(PROBIN_TEMPLATE) -o probin.f90 -n probin \
-           --pa "$(PROBIN_PARAMETERS)" --pb "$(EXTERN_PARAMETERS)"
+	@echo "${bold}WRITING probin.F90${normal}"
+	$(FBOXLIB_HOME)/Tools/F_scripts/write_probin.py \
+           -t $(PROBIN_TEMPLATE) -o probin.F90 -n probin \
+           --pa "$(PROBIN_PARAMETERS)" --pb "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
 	@echo " "
 
 
@@ -131,7 +143,7 @@ deppairs: build_info.f90
 build_info.f90: 
 	@echo " "
 	@echo "${bold}WRITING build_info.f90${normal}"
-	$(AMREX_HOME)/Tools/F_scripts/makebuildinfo.py \
+	$(FBOXLIB_HOME)/Tools/F_scripts/makebuildinfo.py \
            --modules "$(Fmdirs) $(MICROPHYS_CORE) $(UNIT_DIR)" \
            --FCOMP "$(COMP)" \
            --FCOMP_version "$(FCOMP_VERSION)" \
@@ -139,7 +151,7 @@ build_info.f90:
            --f_compile_line "$(COMPILE.f)" \
            --C_compile_line "$(COMPILE.c)" \
            --link_line "$(LINK.f90)" \
-           --amrex_home "$(AMREX_HOME)" \
+           --fboxlib_home "$(FBOXLIB_HOME)" \
            --source_home "$(MICROPHYSICS_HOME)" \
            --network "$(NETWORK_DIR)" \
            --integrator "$(INTEGRATOR_DIR)" \
@@ -161,10 +173,10 @@ print-%: ; @echo $* is $($*)
 
 #-----------------------------------------------------------------------------
 # cleaning.  Add more actions to 'clean' and 'realclean' to remove
-# probin.f90 and build_info.f90 -- this is where the '::' in make comes
+# probin.F90 and build_info.f90 -- this is where the '::' in make comes
 # in handy
 clean ::
-	$(RM) probin.f90
+	$(RM) probin.F90 probin.f90
 	$(RM) build_info.f90
 
 

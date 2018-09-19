@@ -40,18 +40,19 @@ contains
     ! Calculate the energy generation rate's temperature sensitivity
     ! Used for diagnostic purposes only
 
+    use amrex_fort_module, only : rt => amrex_real
     use rates_module
     use screen_module
     use dydt_module
 
     implicit none
 
-    real(kind=dp_t), intent(IN   ) :: dens, temp, X(nspec)
-    real(kind=dp_t), intent(  OUT) :: denucdT
+    real(kind=rt), intent(IN   ) :: dens, temp, X(nspec)
+    real(kind=rt), intent(  OUT) :: denucdT
 
-    real(kind=dp_t) :: ymol(nspec)
-    real(kind=dp_t) :: rates(nrates), dratesdt(nrates)
-    real(kind=dp_t) :: dXdotdT(nspec)
+    real(kind=rt) :: ymol(nspec)
+    real(kind=rt) :: rates(nrates), dratesdt(nrates)
+    real(kind=rt) :: dXdotdT(nspec)
     integer :: k
 
     ! calculate ymol

@@ -2,9 +2,10 @@
 
 program burn_cell
 
-  use bl_error_module
-  use bl_constants_module
-  use bl_types
+  use amrex_error_module
+  use amrex_constants_module
+  use amrex_fort_module, only : rt => amrex_real
+
   use fabio_module, only: fabio_mkdir
   use probin_module, only: run_prefix, small_temp, small_dens
   use runtime_init_module
@@ -21,7 +22,7 @@ program burn_cell
 
   type (burn_t)       :: burn_state_in, burn_state_out
 
-  real (kind=dp_t)    :: tmax, energy, dt
+  real (rt)    :: tmax, energy, time, dt
   integer             :: numsteps, i, istate
 
   character (len=256) :: params_file
@@ -32,7 +33,7 @@ program burn_cell
   character (len=6)   :: out_num
 
   ! Starting conditions for integration
-  real (kind=dp_t)    :: density, temperature, massfractions(nspec)
+  real (rt)    :: density, temperature, massfractions(nspec)
 
   namelist /cellparams/ tmax, numsteps, density, temperature, massfractions
 
@@ -59,7 +60,7 @@ program burn_cell
   ! Make sure user set all the mass fractions to values in the interval [0, 1]
   do i = 1, nspec
      if (massfractions(i) .lt. 0 .or. massfractions(i) .gt. 1) then
-        call bl_error('mass fraction for ' // short_spec_names(i) // ' not initialized in the interval [0,1]!')
+        call amrex_error('mass fraction for ' // short_spec_names(i) // ' not initialized in the interval [0,1]!')
      end if
   end do
 
@@ -88,29 +89,33 @@ program burn_cell
   out_directory_name = trim(run_prefix) // 'output'
   call fabio_mkdir(trim(out_directory_name), istate)
   if (istate /= 0) then
-     call bl_error('output directory "' // trim(out_directory_name) // '" could not be created.')
+     call amrex_error('output directory "' // trim(out_directory_name) // '" could not be created.')
   end if
 
   ! output initial burn type data
+  time = ZERO
+
   write(out_num,'(I6.6)') 0
   out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
-  burn_state_in % time = ZERO
+  burn_state_in % time = time
   call write_burn_t(out_name, burn_state_in)
   
   dt = tmax/numsteps
   
   do i = 1, numsteps
      ! Do burn
-     call actual_burner(burn_state_in, burn_state_out, dt, ZERO)
+     call actual_burner(burn_state_in, burn_state_out, dt, time)
      energy = energy + burn_state_out % e
      burn_state_in = burn_state_out
      burn_state_in % e = ZERO
-     write(*,*) 'Completed burn to: ', dt*i, ' seconds'
+     write(*,*) 'Completed burn to: ', burn_state_out % time, ' seconds'
      
      ! output burn type data
      write(out_num,'(I6.6)') i
      out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
      call write_burn_t(out_name, burn_state_out)
+
+     time = burn_state_out % time
   end do
 
   call microphysics_finalize()
