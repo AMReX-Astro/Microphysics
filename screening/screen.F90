@@ -220,8 +220,6 @@ contains
 
   subroutine fill_plasma_state(state, temp, dens, y)
 
-    !$acc routine seq
-
     use network, only: nspec, zion
 
     ! Input variables
@@ -272,8 +270,6 @@ contains
 
 
   subroutine screen5(state,jscreen,scor,scordt,scordd)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: M_PI
     use amrex_fort_module, only : rt => amrex_real
@@ -495,8 +491,6 @@ contains
 
 
   subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
-
-    !$acc routine seq
 
     use network, only: aion, zion, nspec
 

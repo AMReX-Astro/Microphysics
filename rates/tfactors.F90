@@ -95,8 +95,6 @@ contains
 
   subroutine get_tfactors(temp, tf)
 
-    !$acc routine seq
-
     implicit none
     
     ! sets various popular temperature factors into common block this

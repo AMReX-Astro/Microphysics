@@ -55,8 +55,6 @@ end module esum_module
 esum_template_start = """
   pure function esum@NUM@(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(@NUM@)

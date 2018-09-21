@@ -63,8 +63,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    !$acc routine seq
-
     use amrex_constants_module, only: ZERO
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
@@ -136,8 +134,6 @@ contains
   ! Analytical Jacobian
 
   subroutine actual_jac(state)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO
     use eos_module
@@ -219,8 +215,6 @@ contains
 
   subroutine evaluate_rates(state, rr)
 
-    !$acc routine seq
-
     use extern_probin_module, only: use_tables
 
     implicit none
@@ -267,8 +261,6 @@ contains
 
 
   subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
-
-    !$acc routine seq
 
     implicit none
 
@@ -484,8 +476,6 @@ contains
   ! Evaluates the right hand side of the aprox13 ODEs
 
   subroutine rhs(y,rate,ratdum,dydt,deriva)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum8, esum10, esum12, esum17 ! function
@@ -919,8 +909,6 @@ contains
 
   subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
-    !$acc routine seq
-
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox13 network.
 
@@ -1123,8 +1111,6 @@ contains
                                          ratraw, dratrawdt, dratrawdd, &
                                          ratdum, dratdumdt, dratdumdd, &
                                          scfac, dscfacdt, dscfacdd)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -1934,8 +1920,6 @@ contains
 
   subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
 
-    !$acc routine seq
-
     use network
     use microphysics_math_module, only: esum3, esum4, esum5, esum20 ! function
 
@@ -2371,8 +2355,6 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
-    !$acc routine seq
-
     use actual_network, only: nspec, mion, enuc_conv2
 
     implicit none
@@ -2453,8 +2435,6 @@ contains
   end subroutine set_up_screening_factors
 
   subroutine update_unevolved_species(state)
-
-    !$acc routine seq
 
     implicit none
 

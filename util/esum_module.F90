@@ -39,8 +39,6 @@ contains
 
   pure function esum3(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(3)
@@ -130,8 +128,6 @@ contains
 
   pure function esum4(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(4)
@@ -220,8 +216,6 @@ contains
 
 
   pure function esum5(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -352,8 +346,6 @@ contains
 
   pure function esum6(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(6)
@@ -482,8 +474,6 @@ contains
 
 
   pure function esum7(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -654,8 +644,6 @@ contains
 
   pure function esum8(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(8)
@@ -824,8 +812,6 @@ contains
 
 
   pure function esum9(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -1036,8 +1022,6 @@ contains
 
   pure function esum10(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(10)
@@ -1246,8 +1230,6 @@ contains
 
 
   pure function esum11(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -1498,8 +1480,6 @@ contains
 
   pure function esum12(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(12)
@@ -1748,8 +1728,6 @@ contains
 
 
   pure function esum13(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -2040,8 +2018,6 @@ contains
 
   pure function esum14(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(14)
@@ -2330,8 +2306,6 @@ contains
 
 
   pure function esum15(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -2662,8 +2636,6 @@ contains
 
   pure function esum16(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(16)
@@ -2992,8 +2964,6 @@ contains
 
 
   pure function esum17(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -3364,8 +3334,6 @@ contains
 
   pure function esum18(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(18)
@@ -3734,8 +3702,6 @@ contains
 
 
   pure function esum19(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -4146,8 +4112,6 @@ contains
 
   pure function esum20(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(20)
@@ -4556,8 +4520,6 @@ contains
 
 
   pure function esum21(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -5008,8 +4970,6 @@ contains
 
   pure function esum22(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(22)
@@ -5458,8 +5418,6 @@ contains
 
 
   pure function esum23(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -5950,8 +5908,6 @@ contains
 
   pure function esum24(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(24)
@@ -6440,8 +6396,6 @@ contains
 
 
   pure function esum25(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -6972,8 +6926,6 @@ contains
 
   pure function esum26(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(26)
@@ -7502,8 +7454,6 @@ contains
 
 
   pure function esum27(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -8074,8 +8024,6 @@ contains
 
   pure function esum28(array) result(esum)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(in) :: array(28)
@@ -8644,8 +8592,6 @@ contains
 
 
   pure function esum29(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
@@ -9255,8 +9201,6 @@ contains
 
 
   pure function esum30(array) result(esum)
-
-    !$acc routine seq
 
     implicit none
 
