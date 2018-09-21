@@ -6,9 +6,6 @@ contains
   
   subroutine dgesl(a,lda,n,ipvt,b,job)
     !$gpu
-    !$acc routine seq
-    !$acc routine(daxpy) seq
-    !$acc routine(vddot) seq
 
     use blas_module, only: daxpy
 
@@ -473,10 +470,6 @@ contains
 
   subroutine dgefa (a,lda,n,ipvt,info)
     !$gpu
-    !$acc routine seq
-    !$acc routine(daxpy) seq
-    !$acc routine(idamax) seq
-    !$acc routine(dscal) seq
 
     use blas_module, only: daxpy, dscal
     use blas_module, only: idamax ! function
@@ -587,7 +580,6 @@ contains
 
   function vddot (n,dx,incx,dy,incy) result(dotval)
     !$gpu
-    !$acc routine seq
 
     ! 
     !      forms the dot product of two arrays.
