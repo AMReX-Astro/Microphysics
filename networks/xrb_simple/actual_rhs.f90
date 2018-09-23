@@ -225,8 +225,6 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    !$acc routine seq
-
     implicit none
 
     type (burn_t)    :: state
