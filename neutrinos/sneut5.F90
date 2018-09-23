@@ -7,8 +7,6 @@ contains
   subroutine sneut5(temp,den,abar,zbar, &
                     snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
-    !$acc routine seq
-
     use amrex_constants_module, only: M_PI
 
     implicit none
@@ -1190,8 +1188,6 @@ contains
 
   function ifermi12(f) result(ifermi12r)
 
-    !$acc routine seq
-
     implicit none
 
     ! this routine applies a rational function expansion to get the inverse
@@ -1269,8 +1265,6 @@ contains
 
 
   function zfermim12(x) result(zfermim12r)
-
-    !$acc routine seq
 
     implicit none
 
