@@ -16,8 +16,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    !$acc routine seq
-
     use burn_type_module, only: burn_t
     use amrex_constants_module, only: ZERO
 
@@ -35,8 +33,6 @@ contains
 
   subroutine actual_jac(state)
 
-    !$acc routine seq
-
     use burn_type_module, only: burn_t
     use amrex_constants_module, only: ZERO
 
@@ -53,8 +49,6 @@ contains
 
 
   subroutine update_unevolved_species(state)
-
-    !$acc routine seq
 
     use burn_type_module, only: burn_t
 

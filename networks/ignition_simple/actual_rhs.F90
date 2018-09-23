@@ -19,7 +19,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    !$acc routine seq
     !$gpu
 
     use extern_probin_module, only: do_constant_volume_burn
@@ -116,7 +115,6 @@ contains
 
   subroutine actual_jac(state)
 
-    !$acc routine seq
     !$gpu
 
     use extern_probin_module, only: do_constant_volume_burn
@@ -205,7 +203,6 @@ contains
 
   subroutine evaluate_rates(state, rr)
 
-    !$acc routine seq
     !$gpu
 
     use screening_module, only: screenz
@@ -273,7 +270,6 @@ contains
 
     use network
 
-    !$acc routine seq
     !$gpu
 
     implicit none
@@ -297,7 +293,6 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    !$acc routine seq
     !$gpu
 
     implicit none

@@ -118,7 +118,6 @@ contains
     !$gpu
   ! Only operates on arrays of size N
 
-    !$acc routine seq
     !     .. Scalar Arguments ..
     DOUBLE PRECISION DA
     INTEGER INCX,INCY,N
@@ -181,7 +180,6 @@ contains
   
   SUBROUTINE daxpy(N,DA,DX,INCX,DY,INCY)
     !$gpu
-    !$acc routine seq
     !     .. Scalar Arguments ..
     DOUBLE PRECISION DA
     INTEGER INCX,INCY,N
@@ -307,7 +305,6 @@ contains
 
   SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
     !$gpu
-    !$acc routine seq
     !      .. Scalar Arguments ..
     DOUBLE PRECISION ALPHA,BETA
     INTEGER K,LDA,LDB,LDC,M,N
@@ -633,7 +630,6 @@ contains
     !$gpu
     ! Only operates on arrays of size N
 
-    !$acc routine seq
     !      .. Scalar Arguments ..
     DOUBLE PRECISION DA
     INTEGER INCX,N
@@ -694,7 +690,6 @@ contains
   
   SUBROUTINE DSCAL(N,DA,DX,INCX)
     !$gpu
-    !$acc routine seq
     !      .. Scalar Arguments ..
     DOUBLE PRECISION DA
     INTEGER INCX,N
@@ -754,7 +749,6 @@ contains
 
   FUNCTION IDAMAX(N,DX,INCX) result(index)
     !$gpu
-    !$acc routine seq
     !      .. Scalar Arguments ..
     INTEGER INCX,N
     !      ..
