@@ -50,7 +50,7 @@ module screening_module
 
   end type plasma_state
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: z1scr, z2scr, a1scr, a2scr
   attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
 #endif

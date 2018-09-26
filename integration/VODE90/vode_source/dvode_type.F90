@@ -39,7 +39,7 @@ module dvode_type_module
 
 contains
 
-#ifndef CUDA  
+#ifndef AMREX_USE_CUDA  
   subroutine print_state(dvode_state)
     type(dvode_t) :: dvode_state
 

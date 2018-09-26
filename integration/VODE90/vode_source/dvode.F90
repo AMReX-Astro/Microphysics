@@ -4,14 +4,14 @@ module dvode_module
   use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
-#ifndef CUDA  
+#ifndef AMREX_USE_CUDA  
   use dvode_output_module, only: xerrwd
 #endif
   use rpar_indices
   use amrex_fort_module, only: rt => amrex_real
   use blas_module
   use linpack_module
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   use cudafor
 #endif
 
@@ -49,7 +49,7 @@ contains
     integer    :: I, IER, IFLAG, IMXER, JCO, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     character (len=80) :: MSG
 #endif
 
@@ -69,12 +69,12 @@ contains
     !  If vstate % ISTATE = 1 and TOUT = T, return immediately.
     ! -----------------------------------------------------------------------
     if (vstate % ISTATE .LT. 1 .OR. vstate % ISTATE .GT. 3) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  vstate % ISTATE (=I1) illegal '
        CALL XERRWD (MSG, 30, 1, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
 #endif
        if (vstate % ISTATE .LT. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  Run aborted:  apparent infinite loop     '
           CALL XERRWD (MSG, 50, 303, 2, 0, 0, 0, 0, ZERO, ZERO)
 #endif
@@ -86,7 +86,7 @@ contains
     end if
 
     if (ITASK .LT. 1 .OR. ITASK .GT. 5) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  ITASK (=I1) illegal  '
        CALL XERRWD (MSG, 30, 2, 1, 1, ITASK, 0, 0, ZERO, ZERO)
 #endif
@@ -97,7 +97,7 @@ contains
     IF (vstate % ISTATE .EQ. 1) GO TO 10
 
     if (vstate % INIT .NE. 1) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  vstate % ISTATE (=I1) .gt. 1 but DVODE not initialized      '
        CALL XERRWD (MSG, 60, 3, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
 #endif
@@ -122,7 +122,7 @@ contains
     ! -----------------------------------------------------------------------
 20  continue
     if (VODE_ITOL .LT. 1 .OR. VODE_ITOL .GT. 4) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  ITOL (=I1) illegal   '
        CALL XERRWD (MSG, 30, 6, 1, 1, VODE_ITOL, 0, 0, ZERO, ZERO)
 #endif
@@ -131,7 +131,7 @@ contains
     end if
 
     if (IOPT .LT. 0 .OR. IOPT .GT. 1) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  IOPT (=I1) illegal   '
        CALL XERRWD (MSG, 30, 7, 1, 1, IOPT, 0, 0, ZERO, ZERO)
 #endif
@@ -146,7 +146,7 @@ contains
 
     if (vstate % METH .LT. 1 .OR. vstate % METH .GT. 2 .or. &
         vstate % MITER .LT. 0 .OR. vstate % MITER .GT. 5) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  MF (=I1) illegal     '
        CALL XERRWD (MSG, 30, 8, 1, 1, MF, 0, 0, ZERO, ZERO)
 #endif
@@ -159,7 +159,7 @@ contains
     MU = IWORK(2)
 
     if (ML .LT. 0 .OR. ML .GE. VODE_NEQS) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
        CALL XERRWD (MSG, 50, 9, 1, 2, ML, VODE_NEQS, 0, ZERO, ZERO)
 #endif
@@ -168,7 +168,7 @@ contains
     end if
 
     if (MU .LT. 0 .OR. MU .GE. VODE_NEQS) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
        CALL XERRWD (MSG, 50, 10, 1, 2, MU, VODE_NEQS, 0, ZERO, ZERO)
 #endif
@@ -191,7 +191,7 @@ contains
     vstate % MXSTEP = IWORK(6)
 
     if (vstate % MXSTEP .LT. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
        CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
 #endif
@@ -203,7 +203,7 @@ contains
     vstate % MXHNIL = IWORK(7)
 
     if (vstate % MXHNIL .LT. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
        CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
 #endif
@@ -218,7 +218,7 @@ contains
     H0 = RWORK % CONDOPT(2)
 
     if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
        CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
        MSG = '      integration direction is given by H0 (=R1)  '
@@ -232,7 +232,7 @@ contains
     HMAX = RWORK % CONDOPT(3)
 
     if (HMAX .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  HMAX (=R1) .lt. 0.0  '
        CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
 #endif
@@ -245,7 +245,7 @@ contains
     vstate % HMIN = RWORK % CONDOPT(4)
 
     if (vstate % HMIN .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
        CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
 #endif
@@ -280,7 +280,7 @@ contains
        IF (VODE_ITOL .EQ. 2 .OR. VODE_ITOL .EQ. 4) ATOLI = vstate % ATOL(I)
 
        if (RTOLI .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0        '
           CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, ZERO)
 #endif
@@ -289,7 +289,7 @@ contains
        end if
 
        if (ATOLI .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0        '
           CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
 #endif
@@ -324,7 +324,7 @@ contains
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
     TCRIT = RWORK % condopt(1)
     if ((TCRIT - vstate % TOUT)*(vstate % TOUT - vstate % T) .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
        CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
 #endif
@@ -365,7 +365,7 @@ contains
     CALL DEWSET (vstate, rwork)
     do I = 1,VODE_NEQS
        if (rwork % ewt(I) .LE. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
           EWTI = rwork % ewt(I)
           MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
           CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
@@ -383,7 +383,7 @@ contains
     vstate % NFE = vstate % NFE + NITER
 
     if (IER .NE. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
        CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
 #endif
@@ -416,7 +416,7 @@ contains
     CALL DVINDY (vstate, rwork, IFLAG)
 
     if (IFLAG .NE. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
        CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
 #endif
@@ -430,7 +430,7 @@ contains
     TP = vstate % TN - vstate % HU * (ONE + HUN * vstate % UROUND)
 
     if ((TP - vstate % TOUT) * vstate % H .GT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
        CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, vstate % TOUT, TP)
 #endif
@@ -444,7 +444,7 @@ contains
     TCRIT = RWORK % condopt(1)
 
     if ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
        CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
 #endif
@@ -454,7 +454,7 @@ contains
 
 
     if ((TCRIT - vstate % TOUT) * vstate % H .LT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
        CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
 #endif
@@ -466,7 +466,7 @@ contains
     CALL DVINDY (vstate, rwork, IFLAG)
 
     if (IFLAG .NE. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
        CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
 #endif
@@ -480,7 +480,7 @@ contains
     TCRIT = RWORK % condopt(1)
 
     if ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
        CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
 #endif
@@ -522,7 +522,7 @@ contains
     TOLSF = TOLSF*TWO
 
     if (vstate % NST .EQ. 0) then
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  At start of problem, too much accuracy   '
        CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
        MSG='      requested for precision of machine:   see TOLSF (=R1) '
@@ -536,7 +536,7 @@ contains
 280 IF ((vstate % TN + vstate % H) .NE. vstate % TN) GO TO 290
     vstate % NHNIL = vstate % NHNIL + 1
     IF (vstate % NHNIL .GT. vstate % MXHNIL) GO TO 290
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
     CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG='      such that in the machine, T + H = T on the next step  '
@@ -545,7 +545,7 @@ contains
     CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif
     IF (vstate % NHNIL .LT. vstate % MXHNIL) GO TO 290
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     MSG = 'DVODE--  Above warning has been issued I1 times.  '
     CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      it will not be issued again for this problem'
@@ -639,7 +639,7 @@ contains
 
     ! The maximum number of steps was taken before reaching TOUT. ----------
 500 continue
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
     CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      taken on this call before reaching TOUT     '
@@ -649,7 +649,7 @@ contains
     GO TO 580
     ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 510 continue
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     EWTI = rwork % ewt(I)
     MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
     CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
@@ -658,7 +658,7 @@ contains
     GO TO 580
     ! Too much accuracy requested for machine precision. -------------------
 520 continue
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
     CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      for precision of machine:   see TOLSF (=R2) '
@@ -668,7 +668,7 @@ contains
     GO TO 580
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
 530 continue
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
     CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      test failed repeatedly or with abs(H) = HMIN'
@@ -678,7 +678,7 @@ contains
     GO TO 560
     ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
 540 continue
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
     CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
     MSG = '      corrector convergence failed repeatedly     '

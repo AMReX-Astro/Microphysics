@@ -24,7 +24,7 @@ module actual_eos_module
 
   !$acc declare create(gamma_const, assume_neutral)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const, assume_neutral
 #endif
  

@@ -40,7 +40,7 @@ module table_rates
   end type table_read_info
 
   type(table_info), &
-#ifdef CUDA       
+#ifdef AMREX_USE_CUDA       
        managed, &
 #endif       
        allocatable :: table_meta(:)
@@ -97,7 +97,7 @@ contains
 
   end subroutine term_tab_info
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(device) &
 #endif
   subroutine vector_index_lu(vector, fvar, index)
@@ -135,7 +135,7 @@ contains
     end if
   end subroutine vector_index_lu
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(device) &
 #endif
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
@@ -159,7 +159,7 @@ contains
     end if
   end subroutine bl_clamp
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(device) &
 #endif
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
@@ -176,7 +176,7 @@ contains
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
   end subroutine bl_extrap
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(device) &
 #endif
   subroutine get_entries(self, rhoy, temp, entries)
@@ -280,7 +280,7 @@ contains
     end if
   end subroutine get_entries
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(device) &
 #endif
   subroutine tabular_evaluate(self, rhoy, temp, reactvec)

@@ -14,7 +14,7 @@ module aprox_rates_module
   double precision, allocatable :: rfdm(:),rfd0(:),rfd1(:),rfd2(:)
   double precision, allocatable :: tfdm(:),tfd0(:),tfd1(:),tfd2(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2
 #endif
 
