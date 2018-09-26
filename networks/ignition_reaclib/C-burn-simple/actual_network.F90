@@ -75,7 +75,7 @@ module actual_network
   double precision, allocatable, save :: aion(:), zion(:), bion(:)
   double precision, allocatable, save :: nion(:), mion(:), wion(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, bion, nion, mion, wion
 #endif
 

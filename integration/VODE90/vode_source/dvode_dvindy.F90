@@ -5,7 +5,7 @@ module dvode_dvindy_module
                                     VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use dvode_type_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-#ifndef CUDA  
+#ifndef AMREX_USE_CUDA  
   use dvode_output_module, only: xerrwd
 #endif
   use blas_module
@@ -67,7 +67,7 @@ contains
     ! Declare local variables
     real(rt) :: C, R, S, TFUZZ, TN1, TP
     integer    :: I, IC, J, JB, JB2, JJ, JJ1, JP1
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
     character (len=80) :: MSG
 #endif
 
@@ -120,14 +120,14 @@ contains
     RETURN
 
 80  continue
-#ifndef CUDA    
+#ifndef AMREX_USE_CUDA    
     MSG = 'DVINDY-- K (=I1) illegal      '
     CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, ZERO, ZERO)
 #endif    
     IFLAG = -1
     RETURN
 90  continue
-#ifndef CUDA    
+#ifndef AMREX_USE_CUDA    
     MSG = 'DVINDY-- vstate % TOUT (=R1) illegal      '
     CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, ZERO)
     MSG='      vstate % TOUT not in interval TCUR - HU (= R1) to TCUR (=R2)      '

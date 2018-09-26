@@ -246,7 +246,7 @@ contains
 
     if (dvode_state % istate < 0) then
        
-#ifndef CUDA       
+#ifndef AMREX_USE_CUDA       
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
        print *, 'time = ', dvode_state % T
@@ -267,7 +267,7 @@ contains
 
        else
 
-#ifndef CUDA          
+#ifndef AMREX_USE_CUDA          
           print *, 'Retrying burn with looser tolerances'
 #endif          
 
@@ -359,7 +359,7 @@ contains
     
     call normalize_abundances_burn(state_out)
 
-#ifndef CUDA    
+#ifndef AMREX_USE_CUDA    
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.

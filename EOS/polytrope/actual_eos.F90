@@ -37,7 +37,7 @@ module actual_eos_module
 
   double precision, allocatable, save :: gm1, polytrope_index
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
 #endif
 

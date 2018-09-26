@@ -77,7 +77,7 @@ module actual_network
   real(rt), allocatable, save :: aion(:), zion(:), bion(:)
   real(rt), allocatable, save :: nion(:), mion(:), wion(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, bion, nion, mion, wion
 #endif
 

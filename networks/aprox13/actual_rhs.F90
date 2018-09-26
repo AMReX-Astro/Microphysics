@@ -21,7 +21,7 @@ module actual_rhs_module
   double precision, allocatable :: drattabdd(:,:)
   double precision, allocatable :: ttab(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: rattab, drattabdt, drattabdd, ttab
 #endif
 
@@ -404,7 +404,7 @@ contains
 
     implicit none
 
-#ifdef CUDA    
+#ifdef AMREX_USE_CUDA    
     integer, parameter :: numThreads=256
     integer :: numBlocks
 #endif    
@@ -415,7 +415,7 @@ contains
     allocate(drattabdd(nrates, nrattab))
     allocate(ttab(nrattab))
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     numBlocks = ceiling(real(tab_imax)/numThreads)
     call set_aprox13rat<<<numBlocks, numThreads>>>()
 #else
@@ -427,11 +427,11 @@ contains
   end subroutine create_rates_table
 
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(global) &
 #endif
   subroutine set_aprox13rat()
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     use cudafor
 #endif    
     double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
@@ -439,7 +439,7 @@ contains
     
     bden = 1.0d0
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     i = blockDim%x * (blockIdx%x - 1) + threadIdx%x    
     if (i .le. tab_imax) then
 #else       
@@ -449,7 +449,7 @@ contains
           btemp = tab_tlo + dble(i-1) * tab_tstp
           btemp = 10.0d0**(btemp)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
           call aprox13rat_device(btemp, bden, ratraw, dratrawdt, dratrawdd)
 #else
           call aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
@@ -465,7 +465,7 @@ contains
 
           enddo
 
-#ifdef CUDA       
+#ifdef AMREX_USE_CUDA       
     endif
 #else
        enddo

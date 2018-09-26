@@ -19,7 +19,7 @@ module actual_eos_module
   
   double precision, allocatable, save :: gammas(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: gammas
 #endif
 

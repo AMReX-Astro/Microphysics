@@ -121,7 +121,7 @@ contains
 
   end subroutine numerical_jac
 
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
   subroutine test_numerical_jac(state)
     ! compare the analytic Jacobian to the numerically differenced one
 

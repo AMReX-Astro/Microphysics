@@ -45,7 +45,7 @@ module table_rates
   end type table_read_info
 
   type(table_info), &
-#ifdef CUDA       
+#ifdef AMREX_USE_CUDA       
        managed, &
 #endif       
        allocatable :: table_meta(:)
