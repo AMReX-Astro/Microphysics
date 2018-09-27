@@ -3,9 +3,6 @@ module cuvode_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
-#ifndef AMREX_USE_CUDA  
-  use cuvode_output_module, only: xerrwd
-#endif
   use rpar_indices
   use amrex_fort_module, only: rt => amrex_real
   use blas_module
@@ -30,6 +27,9 @@ contains
 
     !$acc routine seq
 
+#ifndef AMREX_USE_CUDA
+    use cuvode_output_module, only: xerrwd
+#endif
     use vode_rhs_module, only: f_rhs, jac
     use cuvode_dvnorm_module, only: dvnorm ! function
 
