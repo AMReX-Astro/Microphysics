@@ -1,8 +1,8 @@
-module dvode_output_module
+module cuvode_output_module
 
   use amrex_fort_module, only: rt => amrex_real
 
-  use dvode_constants_module
+  use cuvode_constants_module
   
   implicit none
 
@@ -259,4 +259,4 @@ contains
     STOP
   end subroutine xerrwd
   
-end module dvode_output_module
+end module cuvode_output_module

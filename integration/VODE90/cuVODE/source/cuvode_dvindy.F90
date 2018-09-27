@@ -1,16 +1,15 @@
-module dvode_dvindy_module
+module cuvode_dvindy_module
 
-  use vode_type_module, only: rwork_t
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
-  use dvode_type_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
 #ifndef AMREX_USE_CUDA  
-  use dvode_output_module, only: xerrwd
+  use cuvode_output_module, only: xerrwd
 #endif
   use blas_module
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -137,4 +136,4 @@ contains
     RETURN
   end subroutine dvindy
 
-end module dvode_dvindy_module
+end module cuvode_dvindy_module

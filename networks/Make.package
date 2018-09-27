@@ -25,10 +25,11 @@ ifneq ($(USE_SYSTEM_BLAS), TRUE)
 endif
 
 ifeq ($(INTEGRATOR_DIR), VODE90)
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/linear_algebra_modules
-  VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/linear_algebra_modules
+  CUVODE_PATH := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE
+  INCLUDE_LOCATIONS += $(CUVODE_PATH)/linear_algebra_modules
+  VPATH_LOCATIONS   += $(CUVODE_PATH)/linear_algebra_modules
 
-  include $(MICROPHYSICS_UTIL_PATH)/linear_algebra_modules/Make.package
+  include $(CUVODE_PATH)/linear_algebra_modules/Make.package
 endif
 
 VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks

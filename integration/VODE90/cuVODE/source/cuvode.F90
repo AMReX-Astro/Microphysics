@@ -1,11 +1,10 @@
-module dvode_module
+module cuvode_module
 
-  use vode_type_module, only: rwork_t
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
-  use dvode_type_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_types_module, only: dvode_t, rwork_t
 #ifndef AMREX_USE_CUDA  
-  use dvode_output_module, only: xerrwd
+  use cuvode_output_module, only: xerrwd
 #endif
   use rpar_indices
   use amrex_fort_module, only: rt => amrex_real
@@ -15,11 +14,11 @@ module dvode_module
   use cudafor
 #endif
 
-  use dvode_constants_module
-  use dvode_dewset_module
-  use dvode_dvhin_module
-  use dvode_dvindy_module
-  use dvode_dvstep_module
+  use cuvode_constants_module
+  use cuvode_dewset_module
+  use cuvode_dvhin_module
+  use cuvode_dvindy_module
+  use cuvode_dvstep_module
   
   implicit none
 
@@ -32,7 +31,7 @@ contains
     !$acc routine seq
 
     use vode_rhs_module, only: f_rhs, jac
-    use dvode_dvnorm_module, only: dvnorm ! function
+    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -717,4 +716,4 @@ contains
 
   end subroutine dvode
       
-end module dvode_module
+end module cuvode_module

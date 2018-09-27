@@ -1,13 +1,12 @@
-module dvode_dvhin_module
+module cuvode_dvhin_module
 
   use vode_rhs_module, only: f_rhs, jac
-  use vode_type_module, only: rwork_t
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
-  use dvode_type_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -72,7 +71,7 @@ contains
     !    temp = rwork % acor
   
     use vode_rhs_module, only: f_rhs
-    use dvode_dvnorm_module, only: dvnorm ! function
+    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -171,4 +170,4 @@ contains
     RETURN
   end subroutine dvhin
 
-end module dvode_dvhin_module
+end module cuvode_dvhin_module

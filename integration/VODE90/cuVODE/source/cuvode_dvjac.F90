@@ -1,16 +1,15 @@
-module dvode_dvjac_module
+module cuvode_dvjac_module
 
-  use vode_type_module, only: rwork_t
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
-  use dvode_type_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
   use blas_module
 
-  use dvode_dacopy_module
+  use cuvode_dacopy_module
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -78,7 +77,7 @@ contains
     ! -----------------------------------------------------------------------
     ! 
     use vode_rhs_module, only: f_rhs, jac
-    use dvode_dvnorm_module, only: dvnorm ! function
+    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -296,4 +295,4 @@ contains
     ! End of code block for MITER = 4 or 5. --------------------------------
   end subroutine dvjac
 
-end module dvode_dvjac_module
+end module cuvode_dvjac_module

@@ -16,7 +16,7 @@ NETWORK_DIR := ignition_reaclib/C-test
 
 INTEGRATOR_DIR := VODE90
 
-TEST_DIR := $(MICROPHYSICS_HOME)/integration/VODE90/vode_source
+TEST_DIR := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source
 
 PROBIN_PARAMETER_DIRS := $(TEST_DIR)
 

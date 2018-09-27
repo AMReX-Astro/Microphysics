@@ -1,10 +1,10 @@
-module dvode_dvnorm_module
+module cuvode_dvnorm_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -58,4 +58,4 @@ contains
     RETURN
   end function dvnorm
 
-end module dvode_dvnorm_module
+end module cuvode_dvnorm_module
