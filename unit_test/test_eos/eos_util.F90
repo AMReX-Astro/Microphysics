@@ -15,7 +15,7 @@ subroutine do_eos(lo, hi, &
   integer, intent(in) :: lo(3), hi(3)
   integer, intent(in) :: s_lo(3), s_hi(3)
   real(rt), intent(inout) :: sp(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
-  integer, intent(in) :: npts
+  integer, intent(in), value :: npts
 
   real(rt) :: dlogrho, dlogT, dmetal
   real(rt) :: metalicity, temp_zone, dens_zone
@@ -26,6 +26,8 @@ subroutine do_eos(lo, hi, &
 
   integer :: ii, jj, kk
 
+  !$gpu
+  
   dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
   dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
   dmetal    = (metalicity_max  - ZERO)/(npts - 1)
@@ -56,7 +58,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using rho, T
            call eos(eos_input_rt, eos_state)
 
-           eos_state_reference = eos_state
+           call copy_eos_t(eos_state_reference, eos_state)
 
            sp(ii, jj, kk, p % ih) = eos_state % h
            sp(ii, jj, kk, p % ie) = eos_state % e
@@ -74,9 +76,9 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % ierr_T_eos_rh) = &
                 abs(eos_state % T - temp_zone)/temp_zone
 
-           eos_state = eos_state_reference
+           call copy_eos_t(eos_state, eos_state_reference)
 
-
+           
            ! call EOS using T, p
 
            ! reset rho to give it some work to do
@@ -87,9 +89,9 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % ierr_rho_eos_tp) = &
                 abs(eos_state % rho - dens_zone)/dens_zone
 
-           eos_state = eos_state_reference
+           call copy_eos_t(eos_state, eos_state_reference)
 
-
+           
            ! call EOS using r, p
 
            ! reset T to give it some work to do
@@ -100,7 +102,7 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % ierr_T_eos_rp) = &
                 abs(eos_state % T - temp_zone)/temp_zone
 
-           eos_state = eos_state_reference
+           call copy_eos_t(eos_state, eos_state_reference)
 
 
            ! call EOS using r, e
@@ -113,7 +115,7 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % ierr_T_eos_re) = &
                 abs(eos_state % T - temp_zone)/temp_zone
 
-           eos_state = eos_state_reference
+           call copy_eos_t(eos_state, eos_state_reference)
 
 
            ! call EOS using p, s
@@ -141,7 +143,7 @@ subroutine do_eos(lo, hi, &
 
            endif
 
-           eos_state = eos_state_reference
+           call copy_eos_t(eos_state, eos_state_reference)
 
 
            ! call EOS using p, h
@@ -157,28 +159,26 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % ierr_rho_eos_ph) = &
                 abs(eos_state % rho - dens_zone)/dens_zone
 
-           eos_state = eos_state_reference
+           call copy_eos_t(eos_state, eos_state_reference)
 
 
            ! call EOS using T, h
            ! this doesn't work for all EOSes (where h doesn't depend on T)
+#ifndef EOS_GAMMA_LAW_GENERAL
+           ! reset rho to give it some work to do -- for helmeos, h is not
+           ! monotonic, so we only perturb rho slightly here
+           eos_state % rho = 0.9 * eos_state % rho
 
-           if (.not. trim(eos_name) == "gamma_law_general") then
-              ! reset rho to give it some work to do -- for helmeos, h is not
-              ! monotonic, so we only perturb rho slightly here
-              eos_state % rho = 0.9 * eos_state % rho
+           call eos(eos_input_th, eos_state)
 
-              call eos(eos_input_th, eos_state)
+           sp(ii, jj, kk, p % ierr_rho_eos_th) = &
+                abs(eos_state % rho - dens_zone)/dens_zone
 
-              sp(ii, jj, kk, p % ierr_rho_eos_th) = &
-                   abs(eos_state % rho - dens_zone)/dens_zone
+           call copy_eos_t(eos_state, eos_state_reference)
 
-              eos_state = eos_state_reference
-
-           else
-              sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
-           endif
-
+#else
+           sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
+#endif
         enddo
      enddo
   enddo

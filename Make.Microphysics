@@ -108,6 +108,11 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
+ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
+   DEFINES += -DEOS_GAMMA_LAW_GENERAL
+endif
+
+
 EXTERN_CORE += $(NETWORK_HOME)
 EXTERN_CORE += $(NETWORK_PATH)
 
