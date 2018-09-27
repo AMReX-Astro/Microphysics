@@ -6,7 +6,7 @@ module cuvode_module
 #ifndef AMREX_USE_CUDA  
   use cuvode_output_module, only: xerrwd
 #endif
-  use rpar_indices
+  use cuvode_rpar_module
   use amrex_fort_module, only: rt => amrex_real
   use blas_module
   use linpack_module

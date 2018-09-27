@@ -18,7 +18,7 @@ contains
     use extern_probin_module, only: renormalize_abundances, &
          integrate_temperature, integrate_energy
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use cuvode_rpar_module, only: n_rpar_comps, irp_y_init, irp_t_sound
 
     implicit none
 
@@ -90,7 +90,7 @@ contains
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use cuvode_rpar_module, only: n_rpar_comps, irp_y_init, irp_t_sound
     use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: integrate_temperature, integrate_energy
 

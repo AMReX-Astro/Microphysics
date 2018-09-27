@@ -5,7 +5,7 @@ module actual_integrator_module
 
   use eos_type_module, only: eos_input_rt
   use network
-  use rpar_indices
+  use cuvode_rpar_module
   use vode_type_module
   use burn_type_module
   use cuvode_parameters_module
@@ -27,7 +27,7 @@ contains
 
     !$acc routine seq
 
-    use rpar_indices
+    use cuvode_rpar_module
     use extern_probin_module, only: jacobian, burner_verbose, &
          rtol_spec, rtol_temp, rtol_enuc, &
          atol_spec, atol_temp, atol_enuc, &
