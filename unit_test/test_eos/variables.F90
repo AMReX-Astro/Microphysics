@@ -42,7 +42,11 @@ module variables
 
   end type plot_t
 
-  type(plot_t) :: p
+  type(plot_t), allocatable :: p
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: p
+#endif
 
 contains
 
@@ -65,6 +69,8 @@ contains
   subroutine init_variables() bind(C, name="init_variables")
 
     integer :: n
+
+    allocate(p)
 
     ! variable information
     p % irho      = p % next_index(1)

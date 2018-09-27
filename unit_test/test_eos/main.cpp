@@ -133,8 +133,9 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        do_eos(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
-               BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
+#pragma gpu
+        do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+               BL_TO_FORTRAN_ANYD(state[mfi]), n_cell);
 
     }
 

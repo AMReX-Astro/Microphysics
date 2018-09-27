@@ -3,9 +3,8 @@ module actual_rhs_module
   use network
   use eos_type_module
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
-  use sneut_module, only: sneut5
   use rate_type_module
+  use actual_network, only: nrates
 
   implicit none
 
@@ -32,6 +31,9 @@ contains
 
   subroutine actual_rhs(state)
 
+    use temperature_integration_module, only: temperature_rhs
+    use sneut_module, only: sneut5
+
     implicit none
 
     ! This routine sets up the system of ode's for the aprox19
@@ -52,7 +54,7 @@ contains
 
     double precision :: rho, temp, abar, zbar
 
-    double precision :: y(nspec)
+    double precision :: y(nspec), r1(nrates), r2(nrates)
 
     !$gpu
 
@@ -67,8 +69,9 @@ contains
     y    = state % xn * aion_inv
 
     ! Call the RHS to actually get dydt.
-
-    call rhs(y, rr % rates(1,:), rr % rates(1,:), state % ydot(1:nspec), deriva)
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(1,:)
+    call rhs(y, r1, r2, state % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -94,6 +97,8 @@ contains
 
   subroutine actual_jac(state)
 
+    use temperature_integration_module, only: temperature_jac
+    use sneut_module, only: sneut5
     use amrex_constants_module, only: ZERO
     use eos_module
 
@@ -109,7 +114,7 @@ contains
     integer          :: j
 
     double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec)
+    double precision :: y(nspec), r1(nrates), r2(nrates), r3(nrates), spec_jac(nspec,nspec)
 
     !$gpu
 
@@ -126,9 +131,11 @@ contains
     y    = state % xn * aion_inv
 
     ! Species Jacobian elements with respect to other species
-
-    call dfdy_isotopes_aprox19(y, state % jac(1:nspec,1:nspec), rr % rates(1,:), &
-                               rr % rates(3,:), rr % rates(4,:))
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(3,:)
+    r3 = rr % rates(4,:)
+    spec_jac = state % jac(1:nspec,1:nspec)
+    call dfdy_isotopes_aprox19(y, spec_jac, r1, r2, r3)
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -147,8 +154,9 @@ contains
 
     ! Evaluate the Jacobian elements with respect to temperature by
     ! calling the RHS using d(ratdum) / dT
-
-    call rhs(y, rr % rates(2,:), rr % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(2,:)
+    call rhs(y, r2, r1, state % jac(1:nspec,net_itemp), deriva)
 
     call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
     state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
@@ -217,7 +225,7 @@ contains
   subroutine rhs(y, rate, ratdum, dydt, deriva)
 
     use amrex_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15 ! function
 
     implicit none
 
@@ -2244,7 +2252,7 @@ contains
   subroutine dfdy_isotopes_aprox19(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
-    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum10, esum25
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum10, esum25 ! function
 
     implicit none
 
