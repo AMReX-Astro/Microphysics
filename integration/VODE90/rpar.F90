@@ -5,7 +5,7 @@
 ! SDC TODO: we need to store the advective sources here.  Also some bits
 ! are not needed in the SDC implementation (like the cv and cp stuff)
 
-module cuvode_rpar_module
+module rpar_indices
 
 #ifndef SDC
   use actual_network, only: nspec, nspec_evolve
@@ -65,4 +65,4 @@ module cuvode_rpar_module
 #endif
   
 
-end module cuvode_rpar_module
+end module rpar_indices
