@@ -1,9 +1,9 @@
-module dvode_dacopy_module
+module cuvode_dacopy_module
 
   use amrex_fort_module, only: rt => amrex_real
   use blas_module
   
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -44,4 +44,4 @@ contains
     RETURN
   end subroutine dacopy
 
-end module dvode_dacopy_module
+end module cuvode_dacopy_module

@@ -1,4 +1,4 @@
-module dvode_constants_module
+module cuvode_constants_module
 
   use amrex_fort_module, only: rt => amrex_real
 
@@ -13,4 +13,4 @@ module dvode_constants_module
   real(rt), parameter :: HUN  = 100.0_rt
   real(rt), parameter :: THOU = 1000.0_rt
 
-end module dvode_constants_module
+end module cuvode_constants_module

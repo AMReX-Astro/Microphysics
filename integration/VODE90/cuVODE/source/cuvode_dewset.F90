@@ -1,11 +1,10 @@
-module dvode_dewset_module
+module cuvode_dewset_module
   
-  use vode_type_module, only: rwork_t
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
-  use dvode_type_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_types_module, only: dvode_t, rwork_t
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -72,4 +71,4 @@ contains
     RETURN
   end subroutine dewset
 
-end module dvode_dewset_module
+end module cuvode_dewset_module

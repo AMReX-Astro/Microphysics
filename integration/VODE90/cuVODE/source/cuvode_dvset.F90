@@ -1,9 +1,9 @@
-module dvode_dvset_module
+module cuvode_dvset_module
 
-  use dvode_type_module, only: dvode_t
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -206,4 +206,4 @@ contains
     RETURN
   end subroutine dvset
 
-end module dvode_dvset_module
+end module cuvode_dvset_module

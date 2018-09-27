@@ -1,10 +1,9 @@
-module vode_parameters_module
-
-  use burn_type_module, only: neqs
+module cuvode_parameters_module
 
   implicit none
 
-  integer, parameter :: VODE_NEQS = neqs
+  ! User-definable number of equations
+  integer, parameter :: VODE_NEQS = 0
 
   ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
   ! function is supplied; 22 means stiff, figure out my jacobian through
@@ -68,4 +67,4 @@ module vode_parameters_module
   integer, parameter :: VODE_LMAX = VODE_MAXORD + 1
   integer, parameter :: VODE_LENWM = 2 + 2 * neqs**2
 
-end module vode_parameters_module
+end module cuvode_parameters_module

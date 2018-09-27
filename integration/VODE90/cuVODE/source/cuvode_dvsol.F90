@@ -1,12 +1,12 @@
-module dvode_dvsol_module
+module cuvode_dvsol_module
 
-  use vode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                    VODE_LENWM, VODE_MAXORD, VODE_ITOL
-  use dvode_type_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
+                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
 
-  use dvode_constants_module
+  use cuvode_constants_module
 
   implicit none
 
@@ -99,4 +99,4 @@ contains
     RETURN
   end subroutine dvsol
 
-end module dvode_dvsol_module
+end module cuvode_dvsol_module

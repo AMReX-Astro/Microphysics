@@ -8,7 +8,7 @@ module actual_integrator_module
   use rpar_indices
   use vode_type_module
   use burn_type_module
-  use vode_parameters_module
+  use cuvode_parameters_module
   use amrex_fort_module, only: rt => amrex_real
 
   implicit none
@@ -36,10 +36,10 @@ contains
          call_eos_in_rhs, dt_crit
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
-    use dvode_module, only: dvode
+    use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
-    use dvode_type_module, only: dvode_t
+    use cuvode_types_module, only: dvode_t, rwork_t
     use amrex_constants_module, only: ZERO, ONE
 
     implicit none

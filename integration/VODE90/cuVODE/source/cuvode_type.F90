@@ -1,13 +1,14 @@
-module dvode_type_module
+module cuvode_types_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use vode_parameters_module, only: VODE_NEQS
+  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
   use rpar_indices, only: n_rpar_comps
 
-  use dvode_constants_module
+  use cuvode_constants_module
   
   implicit none
 
+  ! Type dvode_t contains the integration solution and control variables
   type :: dvode_t
      ! Variables previously in common blocks
      real(rt) :: HU
@@ -37,6 +38,18 @@ module dvode_type_module
      real(rt) :: Y(VODE_NEQS)
   end type dvode_t
 
+
+  ! The rwork_t type contains the real work data
+  type rwork_t
+     ! condopt - Conditional or optional input/output arguments to dvode
+     real(rt) :: condopt(4)
+     real(rt) :: yh(VODE_NEQS, VODE_LMAX)
+     real(rt) :: wm(VODE_LENWM)
+     real(rt) :: ewt(VODE_NEQS)
+     real(rt) :: savf(VODE_NEQS)
+     real(rt) :: acor(VODE_NEQS)
+  end type rwork_t  
+  
 contains
 
 #ifndef AMREX_USE_CUDA  
@@ -127,4 +140,4 @@ contains
   end subroutine print_state
 #endif
   
-end module dvode_type_module
+end module cuvode_types_module
