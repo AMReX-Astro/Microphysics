@@ -1,38 +1,24 @@
-NDEBUG := t
-MPI    :=
-OMP    := t
+PRECISION  = DOUBLE
+PROFILE    = FALSE
 
-COMP := gfortran
+DEBUG      = FALSE
 
-MKVERBOSE := t
+DIM        = 3
 
-programs += tvode
+COMP	   = gnu
 
-MICROPHYSICS_HOME := ../../../../
+USE_MPI    = FALSE
+USE_OMP    = FALSE
 
-EOS_DIR := gamma_law_general
+EBASE = main
 
-NETWORK_DIR := ignition_reaclib/C-test
+EXTERN_SEARCH += .
 
-INTEGRATOR_DIR := VODE90
+CUVODE_HOME = ../.
 
-TEST_DIR := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source
+Bpack   := ./Make.package
+Blocs   := .
 
-PROBIN_PARAMETER_DIRS := $(TEST_DIR)
-
-ALL:
-
-
-include $(MICROPHYSICS_HOME)/GMicrophysics.mak
-include ../GPackage.mak
-include GPackage.mak
-
-ALL: $(pnames)
-
-# include the fParallel Makefile rules
-include $(AMREX_HOME)/Tools/F_mk/GMakerules.mak
-
-
-
+include $(CUVODE_HOME)/Make.cuVODE
 
 
