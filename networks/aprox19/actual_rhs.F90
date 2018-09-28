@@ -136,6 +136,7 @@ contains
     r3 = rr % rates(4,:)
     spec_jac = state % jac(1:nspec,1:nspec)
     call dfdy_isotopes_aprox19(y, spec_jac, r1, r2, r3)
+    state % jac(1:nspec,1:nspec) = spec_jac
 
     ! Energy generation rate Jacobian elements with respect to species
 
