@@ -59,15 +59,16 @@ contains
 
 
   subroutine do_react(lo, hi, &
-                      state, s_lo, s_hi) bind(C, name="do_react")
-!                      n_rhs_min, n_rhs_max, n_rhs_sum) bind(C, name="do_react")
+                      state, s_lo, s_hi, &
+                      n_rhs, n_rhs_lo, n_rhs_hi) bind(C, name="do_react")
 
     implicit none
 
     integer, intent(in) :: lo(3), hi(3)
     integer, intent(in) :: s_lo(3), s_hi(3)
+    integer, intent(in) :: n_rhs_lo(3), n_rhs_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
-!    integer, intent(inout) :: n_rhs_min, n_rhs_max, n_rhs_sum
+    integer,  intent(inout) :: n_rhs(n_rhs_lo(1):n_rhs_hi(1), n_rhs_lo(2):n_rhs_hi(2), n_rhs_lo(3):n_rhs_hi(3), 1)
 
     type (burn_t)   :: burn_state_in, burn_state_out
     integer         :: ii, jj, kk, j
@@ -105,9 +106,7 @@ contains
              state(ii, jj, kk, p % irho_hnuc) = &
                   state(ii, jj, kk, p % irho) * (burn_state_out % e - burn_state_in % e) / tmax
 
-             ! n_rhs_sum = n_rhs_sum + burn_state_out % n_rhs
-             ! n_rhs_min = min(n_rhs_min, burn_state_out % n_rhs)
-             ! n_rhs_max = max(n_rhs_max, burn_state_out % n_rhs)
+             n_rhs(ii, jj, kk, 1) = burn_state_out % n_rhs
           enddo
        enddo
     enddo
