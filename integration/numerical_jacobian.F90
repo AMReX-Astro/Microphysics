@@ -9,7 +9,7 @@ module numerical_jac_module
 
 contains
 
-  AMREX_DEVICE subroutine numerical_jac(state)
+  subroutine numerical_jac(state)
 
     !$acc routine seq
 
@@ -27,6 +27,8 @@ contains
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
     real(rt), parameter :: eps = 1.d-8
+
+    !$gpu
 
     state % jac(:,:) = ZERO
 
@@ -119,7 +121,7 @@ contains
 
   end subroutine numerical_jac
 
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
   subroutine test_numerical_jac(state)
     ! compare the analytic Jacobian to the numerically differenced one
 

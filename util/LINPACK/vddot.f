@@ -1,7 +1,5 @@
       double precision function vddot (n,dx,incx,dy,incy)
 
-!$acc routine seq
-
 c
 c     forms the dot product of two vectors.
 c     uses unrolled loops for increments equal to one.

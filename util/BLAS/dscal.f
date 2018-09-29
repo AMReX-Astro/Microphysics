@@ -1,5 +1,4 @@
       SUBROUTINE DSCAL(N,DA,DX,INCX)
-!$acc routine seq
 *     .. Scalar Arguments ..
       DOUBLE PRECISION DA
       INTEGER INCX,N

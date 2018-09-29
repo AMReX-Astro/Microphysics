@@ -8,14 +8,14 @@ module screening_module
   public :: screen5, screenz, add_screening_factor, &
             screening_init, screening_finalize, &
             plasma_state, fill_plasma_state
-  
+
   integer :: nscreen = 0
-  
+
   double precision, parameter :: fact       = 1.25992104989487d0
   double precision, parameter :: co2        = THIRD * 4.248719d3
   double precision, parameter :: gamefx     = 0.3d0
   double precision, parameter :: gamefs     = 0.8d0
-  double precision, parameter :: blend_frac = 0.05d0
+  double precision, parameter :: h12_max    = 300.d0
 
   double precision, allocatable, save :: z1scr(:)
   double precision, allocatable, save :: z2scr(:)
@@ -50,14 +50,14 @@ module screening_module
 
   end type plasma_state
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: z1scr, z2scr, a1scr, a2scr
   attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
 #endif
 
   !$acc declare &
   !$acc create(nscreen) &
-  !$acc create(fact, co2, gamefx, gamefs, blend_frac) &
+  !$acc create(fact, co2, gamefx, gamefs, h12_max) &
   !$acc create(z1scr, z2scr, a1scr, a2scr) &
   !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
 
@@ -87,7 +87,7 @@ contains
        zhat2(i)   = (z1scr(i) + z2scr(i))**FIVE12TH - z1scr(i)**FIVE12TH -z2scr(i)**FIVE12TH
        lzav(i)    = FIVE3RD * log(z1scr(i)*z2scr(i)/(z1scr(i) + z2scr(i)))
        aznut(i)   = (z1scr(i)**2 * z2scr(i)**2 * a1scr(i)*a2scr(i) / (a1scr(i) + a2scr(i)))**THIRD
-       
+
     enddo
 
     !$acc update device(zs13, zs13inv, zhat, zhat2, lzav, aznut)
@@ -218,9 +218,7 @@ contains
   end subroutine add_screening_factor
 
 
-  AMREX_DEVICE subroutine fill_plasma_state(state, temp, dens, y)
-
-    !$acc routine seq
+  subroutine fill_plasma_state(state, temp, dens, y)
 
     use network, only: nspec, zion
 
@@ -236,10 +234,12 @@ contains
     double precision :: pp, qq, dppdt, xni
 !    double precision :: dppdd
 
+    !$gpu
+
     abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
-    z2bar  = sum(zion**2 * y) * abar    
-    
+    z2bar  = sum(zion**2 * y) * abar
+
     ytot             = ONE / abar
     rr               = dens * ytot
     tempi            = ONE / temp
@@ -269,9 +269,7 @@ contains
   end subroutine fill_plasma_state
 
 
-  AMREX_DEVICE subroutine screen5(state,jscreen,scor,scordt,scordd)
-
-    !$acc routine seq
+  subroutine screen5(state,jscreen,scor,scordt,scordd)
 
     use amrex_constants_module, only: M_PI
     use amrex_fort_module, only : rt => amrex_real
@@ -295,7 +293,7 @@ contains
     ! scordd  = derivative of screening correction with density
 
 
-    ! declare the pass        
+    ! declare the pass
     integer             :: jscreen
     type (plasma_state) :: state
     double precision    :: scor, scordt, scordd
@@ -303,24 +301,26 @@ contains
 
     ! local variables
     double precision :: z1, a1, z2, a2
-    
+
     double precision :: bb,cc,dccdt, &
                         qq,dqqdt,rr,drrdt, &
                         ss,dssdt,tt,dttdt,uu,duudt, &
                         vv,dvvdt,a3,da3, &
                         h12w,dh12wdt,h12,dh12dt, &
-                        h12x,dh12xdt,alfa,beta, &
                         gamp,gampdt, &
                         gamef,gamefdt, &
                         tau12,tau12dt,alph12,alph12dt, &
                         xlgfac,dxlgfacdt, &
-                        gamp14,gamp14dt
+                        gamp14,gamp14dt,dgamma
+
 !    double precision :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
 !    double precision :: dh12dd,dh12wdd,dh12xdd,alph12dd
 !    double precision :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
 
+    !$gpu
+
     ! Get the ion data based on the input index
-    
+
     z1 = z1scr(jscreen)
     a1 = a1scr(jscreen)
     z2 = z2scr(jscreen)
@@ -452,36 +452,22 @@ contains
        dh12dt = rr*dxlgfacdt + dh12dt
        !dh12dd = rr*dxlgfacdd + dh12dd
 
-
        if (gamef .le. gamefs) then
-          rr     =  2.0d0*(gamefs - gamef)
-          drrdt  = -2.0d0*gamefdt
-          !drrdd  = -2.0d0*gamefdd
+          dgamma  = 1.0d0/(gamefs - gamefx)
 
-          ss     = 2.0d0*(gamef - gamefx)
-          dssdt  = 2.0d0*gamefdt
-          !dssdd  = 2.0d0*gamefdd
+          rr     =  dgamma*(gamefs - gamef)
+          drrdt  = -dgamma*gamefdt
+          !drrdd  = -dgamma*gamefdd
 
-
-          ! store current values for possible blending
-          h12x    = h12
-          dh12xdt = dh12dt
-          !dh12xdd = dh12dd
+          ss     = dgamma*(gamef - gamefx)
+          dssdt  = dgamma*gamefdt
+          !dssdd  = dgamma*gamefdd
 
           vv     = h12
+
           h12    = h12w*rr + vv*ss
           dh12dt = dh12wdt*rr + h12w*drrdt + dh12dt*ss + vv*dssdt
           !dh12dd = dh12wdd*rr + h12w*drrdd + dh12dd*ss + vv*dssdd
-
-          ! blend the transition region - from bill paxton
-          if (gamefs - gamef .lt. blend_frac*(gamefs - gamefx)) then
-             alfa   = (gamefs - gamef) / (blend_frac*(gamefs - gamefx))
-             alfa   = HALF * (ONE - cos(M_PI*alfa))
-             beta   = ONE - alfa
-             h12    = alfa * h12 + beta * h12x
-             dh12dt = alfa * dh12dt + beta * dh12xdt
-             !dh12dd = alfa * dh12dd + beta * dh12xdd
-          end if
        end if
 
 
@@ -491,9 +477,9 @@ contains
 
     ! machine limit the output
     ! further limit to avoid the pycnonuclear regime
-    h12    = max(min(h12, 30.0_rt), ZERO)
+    h12    = max(min(h12, h12_max), ZERO)
     scor   = exp(h12)
-    if (h12 .eq. 30.0_rt) then
+    if (h12 .eq. h12_max) then
        scordt = ZERO
        !scordd = ZERO
     else
@@ -504,9 +490,7 @@ contains
   end subroutine screen5
 
 
-  AMREX_DEVICE subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
-
-    !$acc routine seq
+  subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
 
     use network, only: aion, zion, nspec
 
@@ -542,10 +526,11 @@ contains
     double precision qlam0, ztilda, qlam0z, gamp, taufac
     double precision dqlam0dt, dqlam0zdt, dgampdt, dtaufacdt
     double precision zhat, zhat2, gamef, tau12, alph12
-    double precision dgamefdt, dtau12dt, dalph12dt 
+    double precision dgamefdt, dtau12dt, dalph12dt
     double precision h12w, h12, c, h12fac
     double precision dh12wdt, dh12dt, dcdt
 
+    !$gpu
 
     ! calculate averages for screening routine
     ! nb  y = x/a with x the mass fraction
@@ -631,7 +616,7 @@ contains
        h12=h12w
        dh12dt=dh12wdt
 
-       if (gamef > 0.3d0) then 
+       if (gamef > 0.3d0) then
 
           c=0.896434d0*gamp*zhat-3.44740d0*gamp**FOURTH*zhat2- &
                0.5551d0*(log(gamp)+FIVE3RD*log(z1*z2/(z1+z2)))-2.996d0
@@ -668,8 +653,8 @@ contains
           endif
        endif
 
-       if (h12.gt.300.d0) then
-          h12=300.d0
+       if (h12 .gt. h12_max) then
+          h12 = h12_max
           dh12dt=0.d0
        endif
 
@@ -689,6 +674,6 @@ contains
     return
 
   end subroutine screenz
-  
+
 
 end module screening_module

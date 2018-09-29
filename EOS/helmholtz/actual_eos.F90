@@ -42,7 +42,7 @@ module actual_eos_module
                                      dd_sav(:), dd2_sav(:),          &
                                      ddi_sav(:), dd2i_sav(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     attributes(managed) :: do_coulomb, input_is_constant
     attributes(managed) :: itmax, jtmax
     attributes(managed) :: d, t
@@ -149,9 +149,7 @@ contains
     !..
     !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
-    AMREX_DEVICE subroutine actual_eos(input, state)
-
-        !$acc routine seq
+    subroutine actual_eos(input, state)
 
         use amrex_constants_module, only: ZERO, HALF, TWO
 
@@ -1445,24 +1443,21 @@ contains
 
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
-    AMREX_DEVICE pure function psi0(z) result(psi0r)
-    !$acc routine seq
+    pure function psi0(z) result(psi0r)
       double precision, intent(in) :: z
       double precision :: psi0r
       !$gpu
       psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
     end function psi0
 
-    AMREX_DEVICE pure function dpsi0(z) result(dpsi0r) 
-    !$acc routine seq
+    pure function dpsi0(z) result(dpsi0r) 
       double precision, intent(in) :: z
       double precision :: dpsi0r
       !$gpu
       dpsi0r = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
     end function dpsi0
 
-    AMREX_DEVICE pure function ddpsi0(z) result(ddpsi0r)
-    !$acc routine seq
+    pure function ddpsi0(z) result(ddpsi0r)
       double precision, intent(in) :: z
       double precision :: ddpsi0r
       !$gpu
@@ -1470,24 +1465,21 @@ contains
     end function ddpsi0
 
     ! psi1 and its derivatives
-    AMREX_DEVICE pure function psi1(z) result(psi1r)
-    !$acc routine seq
+    pure function psi1(z) result(psi1r)
       double precision, intent(in) :: z
       double precision :: psi1r
       !$gpu
       psi1r = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
     end function psi1
 
-    AMREX_DEVICE pure function dpsi1(z) result(dpsi1r)
-    !$acc routine seq
+    pure function dpsi1(z) result(dpsi1r)
       double precision, intent(in) :: z
       double precision :: dpsi1r
       !$gpu
       dpsi1r = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
     end function dpsi1
 
-    AMREX_DEVICE pure function ddpsi1(z) result(ddpsi1r)
-    !$acc routine seq
+    pure function ddpsi1(z) result(ddpsi1r)
       double precision, intent(in) :: z
       double precision :: ddpsi1r
       !$gpu
@@ -1495,24 +1487,21 @@ contains
     end function ddpsi1
 
     ! psi2  and its derivatives
-    AMREX_DEVICE pure function psi2(z) result(psi2r)
-      !$acc routine seq
+    pure function psi2(z) result(psi2r)
       double precision, intent(in) :: z
       double precision :: psi2r
       !$gpu
       psi2r = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
     end function psi2
 
-    AMREX_DEVICE pure function dpsi2(z) result(dpsi2r)
-      !$acc routine seq
+    pure function dpsi2(z) result(dpsi2r)
       double precision, intent(in) :: z
       double precision :: dpsi2r
       !$gpu
       dpsi2r = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
     end function dpsi2
 
-    AMREX_DEVICE pure function ddpsi2(z) result(ddpsi2r)
-      !$acc routine seq
+    pure function ddpsi2(z) result(ddpsi2r)
       double precision, intent(in) :: z
       double precision :: ddpsi2r
       !$gpu
@@ -1521,8 +1510,7 @@ contains
 
 
     ! biquintic hermite polynomial function
-    AMREX_DEVICE pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
-      !$acc routine seq
+    pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
       double precision, intent(in) :: fi(36)
       double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
       double precision :: h5r
@@ -1552,16 +1540,14 @@ contains
 
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
-    AMREX_DEVICE pure function xpsi0(z) result(xpsi0r)
-      !$acc routine seq
+    pure function xpsi0(z) result(xpsi0r)
       double precision, intent(in) :: z
       double precision :: xpsi0r
       !$gpu
       xpsi0r = z * z * (2.0d0*z - 3.0d0) + 1.0
     end function xpsi0
 
-    AMREX_DEVICE pure function xdpsi0(z) result(xdpsi0r)
-      !$acc routine seq
+    pure function xdpsi0(z) result(xdpsi0r)
       double precision, intent(in) :: z
       double precision :: xdpsi0r
       !$gpu
@@ -1570,16 +1556,14 @@ contains
 
 
     ! psi1 & derivatives
-    AMREX_DEVICE pure function xpsi1(z) result(xpsi1r)
-      !$acc routine seq
+    pure function xpsi1(z) result(xpsi1r)
       double precision, intent(in) :: z
       double precision :: xpsi1r
       !$gpu
       xpsi1r = z * ( z * (z - 2.0d0) + 1.0d0)
     end function xpsi1
 
-    AMREX_DEVICE pure function xdpsi1(z) result(xdpsi1r)
-      !$acc routine seq
+    pure function xdpsi1(z) result(xdpsi1r)
       double precision, intent(in) :: z
       double precision :: xdpsi1r
       !$gpu
@@ -1587,8 +1571,7 @@ contains
     end function xdpsi1
 
     ! bicubic hermite polynomial function
-    AMREX_DEVICE pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
-      !$acc routine seq
+    pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
       double precision, intent(in) :: fi(36)
       double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
       double precision :: h3r

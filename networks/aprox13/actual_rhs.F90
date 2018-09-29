@@ -3,8 +3,6 @@ module actual_rhs_module
   use network
   use eos_type_module
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
-  use sneut_module, only: sneut5
   use actual_network, only: nrates
   use rate_type_module
 
@@ -23,7 +21,7 @@ module actual_rhs_module
   double precision, allocatable :: drattabdd(:,:)
   double precision, allocatable :: ttab(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: rattab, drattabdt, drattabdd, ttab
 #endif
 
@@ -63,11 +61,11 @@ contains
 
 
 
-  AMREX_DEVICE subroutine actual_rhs(state)
-
-    !$acc routine seq
+  subroutine actual_rhs(state)
 
     use amrex_constants_module, only: ZERO
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_rhs
 
     implicit none
 
@@ -135,12 +133,12 @@ contains
 
   ! Analytical Jacobian
 
-  AMREX_DEVICE subroutine actual_jac(state)
-
-    !$acc routine seq
+  subroutine actual_jac(state)
 
     use amrex_constants_module, only: ZERO
     use eos_module
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_jac
 
     implicit none
 
@@ -215,9 +213,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine evaluate_rates(state, rr)
-
-    !$acc routine seq
+  subroutine evaluate_rates(state, rr)
 
     use extern_probin_module, only: use_tables
 
@@ -264,9 +260,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
-
-    !$acc routine seq
+  subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     implicit none
 
@@ -410,7 +404,7 @@ contains
 
     implicit none
 
-#ifdef CUDA    
+#ifdef AMREX_USE_CUDA    
     integer, parameter :: numThreads=256
     integer :: numBlocks
 #endif    
@@ -421,7 +415,7 @@ contains
     allocate(drattabdd(nrates, nrattab))
     allocate(ttab(nrattab))
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     numBlocks = ceiling(real(tab_imax)/numThreads)
     call set_aprox13rat<<<numBlocks, numThreads>>>()
 #else
@@ -433,11 +427,11 @@ contains
   end subroutine create_rates_table
 
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(global) &
 #endif
   subroutine set_aprox13rat()
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     use cudafor
 #endif    
     double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
@@ -445,7 +439,7 @@ contains
     
     bden = 1.0d0
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     i = blockDim%x * (blockIdx%x - 1) + threadIdx%x    
     if (i .le. tab_imax) then
 #else       
@@ -455,7 +449,11 @@ contains
           btemp = tab_tlo + dble(i-1) * tab_tstp
           btemp = 10.0d0**(btemp)
 
+#ifdef AMREX_USE_CUDA
+          call aprox13rat_device(btemp, bden, ratraw, dratrawdt, dratrawdd)
+#else
           call aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+#endif
 
           ttab(i) = btemp
 
@@ -467,7 +465,7 @@ contains
 
           enddo
 
-#ifdef CUDA       
+#ifdef AMREX_USE_CUDA       
     endif
 #else
        enddo
@@ -477,12 +475,10 @@ contains
 
   ! Evaluates the right hand side of the aprox13 ODEs
 
-  AMREX_DEVICE subroutine rhs(y,rate,ratdum,dydt,deriva)
-
-    !$acc routine seq
+  subroutine rhs(y,rate,ratdum,dydt,deriva)
 
     use amrex_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum8, esum10, esum12, esum17
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum8, esum10, esum12, esum17 ! function
 
     implicit none
 
@@ -911,9 +907,7 @@ contains
   end subroutine rhs
 
 
-  AMREX_DEVICE subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
-
-    !$acc routine seq
+  subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox13 network.
@@ -1113,12 +1107,10 @@ contains
 
 
 
-  AMREX_DEVICE subroutine screen_aprox13(btemp, bden, y, &
+  subroutine screen_aprox13(btemp, bden, y, &
                                          ratraw, dratrawdt, dratrawdd, &
                                          ratdum, dratdumdt, dratdumdd, &
                                          scfac, dscfacdt, dscfacdd)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -1926,12 +1918,10 @@ contains
 
 
 
-  AMREX_DEVICE subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
-
-    !$acc routine seq
+  subroutine dfdy_isotopes_aprox13(y,dfdy,rate)
 
     use network
-    use microphysics_math_module, only: esum3, esum4, esum5, esum20
+    use microphysics_math_module, only: esum3, esum4, esum5, esum20 ! function
 
     implicit none
 
@@ -2363,9 +2353,7 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
-
-    !$acc routine seq
+  subroutine ener_gener_rate(dydt, enuc)
 
     use actual_network, only: nspec, mion, enuc_conv2
 
@@ -2446,9 +2434,7 @@ contains
 
   end subroutine set_up_screening_factors
 
-  AMREX_DEVICE subroutine update_unevolved_species(state)
-
-    !$acc routine seq
+  subroutine update_unevolved_species(state)
 
     implicit none
 

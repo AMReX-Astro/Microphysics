@@ -77,7 +77,7 @@ module actual_network
   real(rt), allocatable, save :: aion(:), zion(:), bion(:)
   real(rt), allocatable, save :: nion(:), mion(:), wion(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, bion, nion, mion, wion
 #endif
 
@@ -187,9 +187,10 @@ contains
   end subroutine actual_network_finalize
 
 
-  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
+  subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
+    !$gpu
   
     implicit none
 

@@ -1,9 +1,11 @@
 module eos_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   use network, only: nspec, naux
-  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
+
+  private :: rt, nspec, naux
 
   integer, parameter :: eos_input_rt = 1  ! rho, T are inputs
   integer, parameter :: eos_input_rh = 2  ! rho, h are inputs
@@ -14,7 +16,7 @@ module eos_type_module
   integer, parameter :: eos_input_ph = 7  ! p, h are inputs
   integer, parameter :: eos_input_th = 8  ! T, h are inputs
 
-  ! these are used to allow for a generic interface to the 
+  ! these are used to allow for a generic interface to the
   ! root finding
   integer, parameter :: itemp = 1
   integer, parameter :: idens = 2
@@ -39,32 +41,45 @@ module eos_type_module
 
   ! Minimum and maximum thermodynamic quantities permitted by the EOS.
 
-  real(rt), allocatable, save :: mintemp
-  real(rt), allocatable, save :: maxtemp
-  real(rt), allocatable, save :: mindens
-  real(rt), allocatable, save :: maxdens
-  real(rt), allocatable, save :: minx
-  real(rt), allocatable, save :: maxx
-  real(rt), allocatable, save :: minye
-  real(rt), allocatable, save :: maxye
-  real(rt), allocatable, save :: mine
-  real(rt), allocatable, save :: maxe
-  real(rt), allocatable, save :: minp
-  real(rt), allocatable, save :: maxp
-  real(rt), allocatable, save :: mins
-  real(rt), allocatable, save :: maxs
-  real(rt), allocatable, save :: minh
-  real(rt), allocatable, save :: maxh
-
-#ifdef CUDA
-  attributes(managed) :: mintemp, maxtemp, mindens, maxdens
-  attributes(managed) :: minx, maxx, minye, maxye, mine, maxe
-  attributes(managed) :: minp, maxp, mins, maxs, minh, maxh  
-#endif
+  real(rt), allocatable :: mintemp
+  real(rt), allocatable :: maxtemp
+  real(rt), allocatable :: mindens
+  real(rt), allocatable :: maxdens
+  real(rt), allocatable :: minx
+  real(rt), allocatable :: maxx
+  real(rt), allocatable :: minye
+  real(rt), allocatable :: maxye
+  real(rt), allocatable :: mine
+  real(rt), allocatable :: maxe
+  real(rt), allocatable :: minp
+  real(rt), allocatable :: maxp
+  real(rt), allocatable :: mins
+  real(rt), allocatable :: maxs
+  real(rt), allocatable :: minh
+  real(rt), allocatable :: maxh
 
   !$acc declare &
   !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
   !$acc create(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: mintemp
+  attributes(managed) :: maxtemp
+  attributes(managed) :: mindens
+  attributes(managed) :: maxdens
+  attributes(managed) :: minx
+  attributes(managed) :: maxx
+  attributes(managed) :: minye
+  attributes(managed) :: maxye
+  attributes(managed) :: mine
+  attributes(managed) :: maxe
+  attributes(managed) :: minp
+  attributes(managed) :: maxp
+  attributes(managed) :: mins
+  attributes(managed) :: maxs
+  attributes(managed) :: minh
+  attributes(managed) :: maxh
+#endif
 
   ! A generic structure holding thermodynamic quantities and their derivatives,
   ! plus some other quantities of interest.
@@ -104,6 +119,8 @@ module eos_type_module
   ! dpdZ     -- d pressure/ d zbar
   ! dedA     -- d energy/ d abar
   ! dedZ     -- d energy/ d zbar
+  ! dpde     -- d pressure / d energy |_rho
+  ! dpdr_e   -- d pressure / d rho |_energy
 
   type :: eos_t
 
@@ -137,13 +154,11 @@ module eos_type_module
     real(rt) :: mu
     real(rt) :: mu_e
     real(rt) :: y_e
-
 #ifdef EXTRA_THERMO
     real(rt) :: dedX(nspec)
     real(rt) :: dpdX(nspec)
     real(rt) :: dhdX(nspec)
 #endif
-
     real(rt) :: gam1
     real(rt) :: cs
 
@@ -156,17 +171,20 @@ module eos_type_module
     real(rt) :: dedA
     real(rt) :: dedZ
 #endif
+
   end type eos_t
 
 contains
 
   ! Provides a copy subroutine for the eos_t type to
   ! avoid derived type assignment (OpenACC and CUDA can't handle that)
-  AMREX_DEVICE subroutine copy_eos_t(to_eos, from_eos)
+  subroutine copy_eos_t(to_eos, from_eos)
 
     implicit none
 
     type(eos_t) :: to_eos, from_eos
+
+    !$gpu
 
     to_eos % rho = from_eos % rho
     to_eos % T = from_eos % T
@@ -221,16 +239,16 @@ contains
   ! Given a set of mass fractions, calculate quantities that depend
   ! on the composition like abar and zbar.
 
-  AMREX_DEVICE subroutine composition(state)
-
-    !$acc routine seq
+  subroutine composition(state)
 
     use amrex_constants_module, only: ONE
-    use network, only: aion_inv, zion
+    use network, only: aion, aion_inv, zion
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+
+    !$gpu
 
     ! Calculate abar, the mean nucleon number,
     ! zbar, the mean proton number,
@@ -246,11 +264,10 @@ contains
 
   end subroutine composition
 
+#ifdef EXTRA_THERMO
   ! Compute thermodynamic derivatives with respect to xn(:)
 
-  AMREX_DEVICE subroutine composition_derivatives(state)
-
-    !$acc routine seq
+  subroutine composition_derivatives(state)
 
     use amrex_constants_module, only: ZERO
     use network, only: aion, aion_inv, zion
@@ -259,7 +276,8 @@ contains
 
     type (eos_t), intent(inout) :: state
 
-#ifdef EXTRA_THERMO
+    !$gpu
+
     state % dpdX(:) = state % dpdA * (state % abar * aion_inv(:))   &
                                    * (aion(:) - state % abar) &
                     + state % dpdZ * (state % abar * aion_inv(:))   &
@@ -277,18 +295,15 @@ contains
                        *  state % dPdX(:) / state % dPdr
 
     endif
-#endif
 
   end subroutine composition_derivatives
-
+#endif
 
 
   ! Normalize the mass fractions: they must be individually positive
   ! and less than one, and they must all sum to unity.
 
-  AMREX_DEVICE subroutine normalize_abundances(state)
-
-    !$acc routine seq
+  subroutine normalize_abundances(state)
 
     use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x
@@ -297,6 +312,8 @@ contains
 
     type (eos_t), intent(inout) :: state
 
+    !$gpu
+
     state % xn = max(small_x, min(ONE, state % xn))
 
     state % xn = state % xn / sum(state % xn)
@@ -304,16 +321,15 @@ contains
   end subroutine normalize_abundances
 
 
-
   ! Ensure that inputs are within reasonable limits.
 
-  AMREX_DEVICE subroutine clean_state(state)
-
-    !$acc routine seq
+  subroutine clean_state(state)
 
     implicit none
 
     type (eos_t), intent(inout) :: state
+
+    !$gpu
 
     state % T = min(maxtemp, max(mintemp, state % T))
     state % rho = min(maxdens, max(mindens, state % rho))
@@ -323,7 +339,7 @@ contains
 
 
   ! Print out details of the state.
-#ifndef CUDA
+
   subroutine print_state(state)
 
     implicit none
@@ -336,16 +352,15 @@ contains
     print *, 'Y_E  = ', state % y_e
 
   end subroutine print_state
-#endif
 
 
-  AMREX_DEVICE subroutine eos_get_small_temp(small_temp_out)
-
-    !$acc routine seq
+  subroutine eos_get_small_temp(small_temp_out)
 
     implicit none
 
     real(rt), intent(out) :: small_temp_out
+
+    !$gpu
 
     small_temp_out = mintemp
 
@@ -353,13 +368,13 @@ contains
 
 
 
-  AMREX_DEVICE subroutine eos_get_small_dens(small_dens_out)
-
-    !$acc routine seq
+  subroutine eos_get_small_dens(small_dens_out)
 
     implicit none
 
     real(rt), intent(out) :: small_dens_out
+
+    !$gpu
 
     small_dens_out = mindens
 
@@ -367,13 +382,13 @@ contains
 
 
 
-  AMREX_DEVICE subroutine eos_get_max_temp(max_temp_out)
-
-    !$acc routine seq
+  subroutine eos_get_max_temp(max_temp_out)
 
     implicit none
 
     real(rt), intent(out) :: max_temp_out
+
+    !$gpu
 
     max_temp_out = maxtemp
 
@@ -381,13 +396,13 @@ contains
 
 
 
-  AMREX_DEVICE subroutine eos_get_max_dens(max_dens_out)
-
-    !$acc routine seq
+  subroutine eos_get_max_dens(max_dens_out)
 
     implicit none
 
     real(rt), intent(out) :: max_dens_out
+
+    !$gpu
 
     max_dens_out = maxdens
 

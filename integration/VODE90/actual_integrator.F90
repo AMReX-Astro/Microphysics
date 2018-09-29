@@ -3,13 +3,12 @@
 
 module actual_integrator_module
 
-  use eos_module, only: eos
   use eos_type_module, only: eos_input_rt
   use network
   use rpar_indices
   use vode_type_module
   use burn_type_module
-  use vode_parameters_module
+  use cuvode_parameters_module
   use amrex_fort_module, only: rt => amrex_real
 
   implicit none
@@ -24,10 +23,10 @@ contains
 
 
   ! Main interface
-  AMREX_DEVICE subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine actual_integrator(state_in, state_out, dt, time)
 
     !$acc routine seq
-    
+
     use rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
          rtol_spec, rtol_temp, rtol_enuc, &
@@ -37,9 +36,10 @@ contains
          call_eos_in_rhs, dt_crit
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
-    use dvode_module, only: dvode
+    use cuvode_module, only: dvode
+    use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
-    use dvode_type_module, only: dvode_t
+    use cuvode_types_module, only: dvode_t, rwork_t
     use amrex_constants_module, only: ZERO, ONE
 
     implicit none
@@ -72,6 +72,8 @@ contains
 
     real(rt) :: ener_offset
     real(rt) :: edot, t_enuc, t_sound, limit_factor
+
+    !$gpu
 
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
@@ -244,7 +246,7 @@ contains
 
     if (dvode_state % istate < 0) then
        
-#ifndef CUDA       
+#ifndef AMREX_USE_CUDA       
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
        print *, 'time = ', dvode_state % T
@@ -265,7 +267,7 @@ contains
 
        else
 
-#ifndef CUDA          
+#ifndef AMREX_USE_CUDA          
           print *, 'Retrying burn with looser tolerances'
 #endif          
 
@@ -357,7 +359,7 @@ contains
     
     call normalize_abundances_burn(state_out)
 
-#ifndef CUDA    
+#ifndef AMREX_USE_CUDA    
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.

@@ -6,7 +6,7 @@ contains
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
-  AMREX_DEVICE subroutine f_rhs(time, y, ydot, rpar)
+  subroutine f_rhs(time, y, ydot, rpar)
 
     !$acc routine seq
     
@@ -17,8 +17,7 @@ contains
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only: renormalize_abundances, &
          integrate_temperature, integrate_energy
-    use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
-                                burn_to_vode, vode_to_burn, VODE_NEQS
+    use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
     implicit none
@@ -30,6 +29,8 @@ contains
     type (burn_t) :: burn_state
 
     real(rt) :: limit_factor, t_sound, t_enuc
+
+    !$gpu
 
     ! We are integrating a system of
     !
@@ -80,7 +81,7 @@ contains
 
 
   ! Analytical Jacobian
-  AMREX_DEVICE subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
+  subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
     !$acc routine seq
     
@@ -102,6 +103,8 @@ contains
     type (burn_t) :: state
     real(rt) :: limit_factor, t_sound, t_enuc
     integer :: n
+
+    !$gpu
 
     ! Call the specific network routine to get the Jacobian.
 

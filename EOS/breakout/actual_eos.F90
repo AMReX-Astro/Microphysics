@@ -15,7 +15,7 @@ module actual_eos_module
   
   double precision, allocatable, save :: gamma_const
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const
 #endif
 
@@ -40,7 +40,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine actual_eos(input, state)
+  subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A
 
@@ -52,6 +52,8 @@ contains
     double precision, parameter :: R = k_B*n_A
 
     double precision :: poverrho
+
+    !$gpu
 
     ! Calculate mu.
 

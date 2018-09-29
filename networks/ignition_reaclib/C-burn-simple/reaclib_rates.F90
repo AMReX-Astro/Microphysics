@@ -20,7 +20,7 @@ module reaclib_rates
   ! Should these reactions be screened?
   logical, allocatable :: do_screening(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: ctemp_rate, rate_start_idx, rate_extra_mult, do_screening
 #endif
 
@@ -151,8 +151,9 @@ contains
     return
   end subroutine net_screening_finalize
 
-  AMREX_DEVICE subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
+  subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
+    !$gpu
 
     implicit none
     

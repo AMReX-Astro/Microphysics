@@ -33,9 +33,10 @@ contains
   end subroutine actual_burner_finalize
 
 
-  AMREX_DEVICE subroutine actual_burner(state_in, state_out, dt, time)
+  subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
+    !$gpu
 
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t

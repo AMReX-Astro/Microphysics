@@ -3,7 +3,7 @@ CEXE_sources += main.cpp
 FEXE_headers = test_react_F.H
 CEXE_headers = test_react.H
 
-f90EXE_sources += variables.f90
+F90EXE_sources += variables.F90
 F90EXE_sources += react_zones.F90
 f90EXE_sources += unit_test.f90
 f90EXE_sources += util.f90

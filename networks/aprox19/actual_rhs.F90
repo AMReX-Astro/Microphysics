@@ -3,9 +3,8 @@ module actual_rhs_module
   use network
   use eos_type_module
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
-  use sneut_module, only: sneut5
   use rate_type_module
+  use actual_network, only: nrates
 
   implicit none
 
@@ -30,7 +29,10 @@ contains
 
 
 
-  AMREX_DEVICE subroutine actual_rhs(state)
+  subroutine actual_rhs(state)
+
+    use temperature_integration_module, only: temperature_rhs
+    use sneut_module, only: sneut5
 
     implicit none
 
@@ -52,7 +54,7 @@ contains
 
     double precision :: rho, temp, abar, zbar
 
-    double precision :: y(nspec)
+    double precision :: y(nspec), r1(nrates), r2(nrates)
 
     !$gpu
 
@@ -67,8 +69,9 @@ contains
     y    = state % xn * aion_inv
 
     ! Call the RHS to actually get dydt.
-
-    call rhs(y, rr % rates(1,:), rr % rates(1,:), state % ydot(1:nspec), deriva)
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(1,:)
+    call rhs(y, r1, r2, state % ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -92,8 +95,10 @@ contains
 
   ! Analytical Jacobian
 
-  AMREX_DEVICE subroutine actual_jac(state)
+  subroutine actual_jac(state)
 
+    use temperature_integration_module, only: temperature_jac
+    use sneut_module, only: sneut5
     use amrex_constants_module, only: ZERO
     use eos_module
 
@@ -109,7 +114,7 @@ contains
     integer          :: j
 
     double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec)
+    double precision :: y(nspec), r1(nrates), r2(nrates), r3(nrates), spec_jac(nspec,nspec)
 
     !$gpu
 
@@ -126,9 +131,12 @@ contains
     y    = state % xn * aion_inv
 
     ! Species Jacobian elements with respect to other species
-
-    call dfdy_isotopes_aprox19(y, state % jac(1:nspec,1:nspec), rr % rates(1,:), &
-                               rr % rates(3,:), rr % rates(4,:))
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(3,:)
+    r3 = rr % rates(4,:)
+    spec_jac = state % jac(1:nspec,1:nspec)
+    call dfdy_isotopes_aprox19(y, spec_jac, r1, r2, r3)
+    state % jac(1:nspec,1:nspec) = spec_jac
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -147,8 +155,9 @@ contains
 
     ! Evaluate the Jacobian elements with respect to temperature by
     ! calling the RHS using d(ratdum) / dT
-
-    call rhs(y, rr % rates(2,:), rr % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
+    r1 = rr % rates(1,:)
+    r2 = rr % rates(2,:)
+    call rhs(y, r2, r1, state % jac(1:nspec,net_itemp), deriva)
 
     call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
     state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
@@ -161,7 +170,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine evaluate_rates(state, rr)
+  subroutine evaluate_rates(state, rr)
 
     implicit none
 
@@ -214,10 +223,10 @@ contains
 
   ! Evaluates the right hand side of the aprox19 ODEs
 
-  AMREX_DEVICE subroutine rhs(y, rate, ratdum, dydt, deriva)
+  subroutine rhs(y, rate, ratdum, dydt, deriva)
 
     use amrex_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15 ! function
 
     implicit none
 
@@ -761,7 +770,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine aprox19rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  subroutine aprox19rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
 
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox19 network.
@@ -1057,7 +1066,7 @@ contains
   ! electron capture rates on nucleons for aprox19
   ! note they are composition dependent
 
-  AMREX_DEVICE subroutine weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
+  subroutine weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd)
 
     use aprox_rates_module, only: ecapnuc, langanke
 
@@ -1094,7 +1103,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine screen_aprox19(btemp, bden, y, &
+  subroutine screen_aprox19(btemp, bden, y, &
                             ratraw, dratrawdt, dratrawdd, &
                             ratdum, dratdumdt, dratdumdd, &
                             dratdumdy1, dratdumdy2, &
@@ -2241,10 +2250,10 @@ contains
 
 
 
-  AMREX_DEVICE subroutine dfdy_isotopes_aprox19(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
+  subroutine dfdy_isotopes_aprox19(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
 
     use network
-    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum10, esum25
+    use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum10, esum25 ! function
 
     implicit none
 
@@ -2954,7 +2963,7 @@ contains
 
   ! Computes the instantaneous energy generation rate
 
-  AMREX_DEVICE subroutine ener_gener_rate(dydt, enuc)
+  subroutine ener_gener_rate(dydt, enuc)
 
     use actual_network, only: nspec, mion, enuc_conv2
 
@@ -3053,7 +3062,7 @@ contains
 
   end subroutine set_up_screening_factors
 
-  AMREX_DEVICE subroutine update_unevolved_species(state)
+  subroutine update_unevolved_species(state)
 
     !$acc routine seq
 

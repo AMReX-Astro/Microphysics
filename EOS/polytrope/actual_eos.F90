@@ -37,7 +37,7 @@ module actual_eos_module
 
   double precision, allocatable, save :: gm1, polytrope_index
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
 #endif
 
@@ -126,7 +126,7 @@ contains
   !---------------------------------------------------------------------------
   ! The main interface
   !---------------------------------------------------------------------------
-  AMREX_DEVICE subroutine actual_eos(input, state)
+  subroutine actual_eos(input, state)
 
     implicit none
 
@@ -135,6 +135,8 @@ contains
 
     ! Local variables
     double precision :: dens, temp, enth, pres, eint, entr
+
+    !$gpu
 
     dens = state % rho
     temp = state % T

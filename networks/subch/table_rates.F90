@@ -42,7 +42,7 @@ module table_rates
   type(table_info), allocatable :: table_meta(:)
   type(table_read_info), dimension(num_tables) :: table_read_meta
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: table_meta
 #endif
 
@@ -99,7 +99,7 @@ contains
 
   end subroutine term_tab_info
 
-  AMREX_DEVICE subroutine vector_index_lu(vector, fvar, index)
+  subroutine vector_index_lu(vector, fvar, index)
     !$acc routine seq
 
     ! Returns the greatest index of vector for which vector(index) < fvar.
@@ -110,6 +110,8 @@ contains
     double precision, intent(in) :: fvar
     integer, intent(out) :: index
     integer :: n, i, j, nup, ndn
+
+    !$gpu
 
     n = size(vector)
     if ( fvar .lt. vector(1) ) then
@@ -134,7 +136,7 @@ contains
     end if
   end subroutine vector_index_lu
 
-  AMREX_DEVICE subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
+  subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
     ! Perform bilinear interpolation within the interval [xlo, xhi]
@@ -146,6 +148,9 @@ contains
     ! f(x) = fhi if x >= xhi
     double precision, intent(in)  :: xlo, xhi, flo, fhi, x
     double precision, intent(out) :: f
+
+    !$gpu
+
     if ( x .le. xlo ) then
        f = flo
     else if ( x .ge. xhi ) then
@@ -155,7 +160,7 @@ contains
     end if
   end subroutine bl_clamp
 
-  AMREX_DEVICE subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
+  subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
     !$acc routine seq
     
     ! Perform bilinear interpolation within the interval [xlo, xhi]
@@ -166,10 +171,13 @@ contains
     ! If x <= xlo or x >= xhi, f(x) is extrapolated at x
     double precision, intent(in)  :: xlo, xhi, flo, fhi, x
     double precision, intent(out) :: f
+    
+    !$gpu
+
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
   end subroutine bl_extrap
   
-  AMREX_DEVICE subroutine get_entries(self, rhoy, temp, entries)
+  subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
     type(table_info) :: self
@@ -186,6 +194,8 @@ contains
     double precision :: temp_lo, temp_hi, rhoy_lo, rhoy_hi
     integer :: irhoy_lo, irhoy_hi, itemp_lo, itemp_hi
     integer :: ivar
+
+    !$gpu
 
     ! Get box-corner points for interpolation
     ! This deals with out-of-range inputs via linear extrapolation
@@ -270,7 +280,7 @@ contains
     end if
   end subroutine get_entries
 
-  AMREX_DEVICE subroutine tabular_evaluate(self, rhoy, temp, reactvec)
+  subroutine tabular_evaluate(self, rhoy, temp, reactvec)
     !$acc routine seq
     
     use actual_network, only: num_rate_groups
@@ -280,7 +290,9 @@ contains
     double precision, intent(in) :: rhoy, temp
     double precision, dimension(num_rate_groups+2), intent(inout) :: reactvec
     double precision, dimension(self%num_vars+add_vars) :: entries
-    
+  
+    !$gpu
+  
     ! Get the table entries at this rhoy, temp
     call get_entries(self, rhoy, temp, entries)
 

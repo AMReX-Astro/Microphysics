@@ -24,7 +24,7 @@ module actual_eos_module
 
   !$acc declare create(gamma_const, assume_neutral)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const, assume_neutral
 #endif
  
@@ -54,9 +54,7 @@ contains
 
 
 
-  AMREX_DEVICE subroutine actual_eos(input, state)
-
-    !$acc routine seq
+  subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
