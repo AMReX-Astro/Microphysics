@@ -151,7 +151,7 @@ void main_main ()
 
     // Do the reactions
 #ifdef _OPENMP
-#pragma omp parallel reduction(min:n_rhs_min), reduction(max:n_rhs_max), reduction(+:n_rhs_sum)
+#pragma omp parallel
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
