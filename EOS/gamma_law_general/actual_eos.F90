@@ -161,13 +161,13 @@ contains
 
        ! This system is underconstrained.
 
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 #endif
 
     case default
 
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: invalid input.')
 #endif
        
