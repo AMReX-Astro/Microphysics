@@ -95,3 +95,7 @@ MAX_TEMP                     real            1.0d11
 # boost the reaction rates by a factor > 1
 react_boost                 real         -1.d0
 
+# density, temperature, and energy scaling factors
+reactions_density_scale          real         1.d0
+reactions_temperature_scale      real         1.d0
+reactions_energy_scale           real         1.d0
