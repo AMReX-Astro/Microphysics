@@ -1,6 +1,6 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
-
+CVODE_HOME ?= /path/to/CVODE
 
 # system blas
 BLAS_LIBRARY ?= -lopenblas
@@ -57,6 +57,24 @@ ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
 endif
 
+
+#------------------------------------------------------------------------------
+# CVODE directories
+#------------------------------------------------------------------------------
+ifeq ($(INTEGRATOR_DIR), CVODE)
+
+  INCLUDE_LOCATIONS += $(CVODE_HOME)/include
+
+  LIBRARY_LOCATIONS += $(CVODE_HOME)/lib
+  LIBRARIES += -lsundials_cvode -lsundials_sunlinsolband -lsundials_sunlinsolspbcgs -lsundials_sunlinsolsptfqmr -lsundials_sunmatrixsparse -lsundials_nveccuda -lsundials_sunlinsoldense -lsundials_sunlinsolspfgmr -lsundials_sunmatrixband -lsundials_sunnonlinsolfixedpoint -lsundials_nvecserial -lsundials_sunlinsolpcg -lsundials_sunlinsolspgmr -lsundials_sunmatrixdense -lsundials_sunnonlinsolnewton
+
+  ifeq ($(USE_CUDA_CVODE), TRUE)
+    DEFINES += -DCUDA_CVODE
+
+    LIBRARIES += -rpath=$(CVODE_HOME)/lib
+  endif
+
+endif
 
 #------------------------------------------------------------------------------
 # Microphysics directories

@@ -1,0 +1,16 @@
+&extern
+
+  dens_min   = 1.d8
+  dens_max   = 2.d9
+  temp_min   = 5.d7
+  temp_max   = 7.d8
+
+  call_eos_in_rhs = .true.
+
+  reactions_density_scale = 1.d9
+  reactions_temperature_scale = 1.d10
+  reactions_energy_scale = 1.d24
+
+  xin_file   = "xin.ignition"
+
+/
