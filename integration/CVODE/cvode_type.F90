@@ -177,7 +177,7 @@ contains
 
     !$acc routine seq
 
-    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -194,7 +194,6 @@ contains
 
     rpar(irp_dens) = state % rho * inv_dens_scale
     y(net_itemp) = state % T * inv_temp_scale
-    y(net_ienuc) = state % e * inv_ener_scale
 
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
