@@ -129,7 +129,8 @@ contains
   subroutine vode_to_eos(state, y, rpar)
 
     !$acc routine seq
-    
+
+    use integrator_scaling_module, only: dens_scale, temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -144,8 +145,8 @@ contains
 
     !$gpu
 
-    state % rho     = rpar(irp_dens)
-    state % T       = y(net_itemp)
+    state % rho     = rpar(irp_dens) * dens_scale
+    state % T       = y(net_itemp) * temp_scale
 
     state % xn(1:nspec_evolve) = y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
@@ -167,7 +168,8 @@ contains
   subroutine eos_to_vode(state, y, rpar)
 
     !$acc routine seq
-    
+
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -182,8 +184,8 @@ contains
 
     !$gpu
 
-    rpar(irp_dens) = state % rho
-    y(net_itemp) = state % T
+    rpar(irp_dens) = state % rho * inv_dens_scale
+    y(net_itemp) = state % T * inv_temp_scale
 
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
@@ -205,7 +207,8 @@ contains
   subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
     !$acc routine seq
-    
+
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -225,13 +228,14 @@ contains
 
     !$gpu
 
-    rpar(irp_dens) = state % rho
-    y(net_itemp) = state % T
+    rpar(irp_dens) = state % rho * inv_dens_scale
+    y(net_itemp) = state % T * inv_temp_scale
 
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
-    y(net_ienuc)                             = state % e
+    y(net_ienuc)                             = state % e * inv_ener_scale
+
     rpar(irp_cp)                             = state % cp
     rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
@@ -247,10 +251,16 @@ contains
 
     if (present(ydot)) then
        ydot = state % ydot
+       ydot(net_itemp) = ydot(net_itemp) * inv_temp_scale
+       ydot(net_ienuc) = ydot(net_ienuc) * inv_ener_scale
     endif
 
     if (present(jac)) then
        jac = state % jac
+       jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
+       jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
+       jac(:,net_itemp) = jac(:,net_itemp) * temp_scale
+       jac(:,net_ienuc) = jac(:,net_ienuc) * ener_scale
     endif
 
     if (state % self_heat) then
@@ -267,7 +277,8 @@ contains
   subroutine vode_to_burn(y, rpar, state)
 
     !$acc routine seq
-    
+
+    use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -286,9 +297,9 @@ contains
 
     !$gpu
 
-    state % rho      = rpar(irp_dens)
-    state % T        = y(net_itemp)
-    state % e        = y(net_ienuc)
+    state % rho      = rpar(irp_dens) * dens_scale
+    state % T        = y(net_itemp) * temp_scale
+    state % e        = y(net_ienuc) * ener_scale
 
     state % xn(1:nspec_evolve) = y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
