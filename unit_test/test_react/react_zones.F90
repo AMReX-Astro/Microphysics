@@ -91,6 +91,10 @@ contains
              ! energy.
              burn_state_in % e = ZERO
 
+             burn_state_in % i = ii
+             burn_state_in % j = jj
+             burn_state_in % k = kk
+
              call actual_burner(burn_state_in, burn_state_out, tmax, ZERO)
 
              do j = 1, nspec

@@ -107,8 +107,23 @@ void main_main ()
     for (int i = 0; i < probin_file_length; i++)
       probin_file_name[i] = probin_file[i];
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "initializing unit test ..." << std::endl;
+    }
+
+    cudaError_t cuda_status = cudaSuccess;
+    cuda_status = cudaDeviceSynchronize();
+    assert(cuda_status == cudaSuccess);
+    
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+    cuda_status = cudaDeviceSynchronize();
+    assert(cuda_status == cudaSuccess);    
+
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "finished initializing unit test ..." << std::endl;
+    }
+    
     // Ncomp = number of components for each array
     int Ncomp = -1;
     init_variables();
@@ -136,6 +151,10 @@ void main_main ()
     // we allocate our main multifabs
     MultiFab state(ba, dm, Ncomp, Nghost);
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "initializing state ..." << std::endl;
+    }
+    
     // Initialize the state
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
@@ -146,6 +165,10 @@ void main_main ()
 
     }
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "finished initializing state ..." << std::endl;
+    }
+
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
@@ -153,6 +176,10 @@ void main_main ()
     // so we can manually do the reductions (for GPU)
     iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "reacting state ..." << std::endl;
+    }
+    
     // Do the reactions
 #ifdef _OPENMP
 #pragma omp parallel
@@ -164,6 +191,10 @@ void main_main ()
         do_react(AMREX_ARLIM_3D(bx.loVect()), AMREX_ARLIM_3D(bx.hiVect()),
 		 BL_TO_FORTRAN_ANYD(state[mfi]), Ncomp, tmax);
 
+    }
+
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "finished reacting state ..." << std::endl;
     }
 
     int n_rhs_min = integrator_n_rhs.min(0);
