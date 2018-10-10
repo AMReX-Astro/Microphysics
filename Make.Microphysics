@@ -74,6 +74,13 @@ ifeq ($(INTEGRATOR_DIR), CVODE)
     LIBRARIES += -rpath=$(CVODE_HOME)/lib
   endif
 
+  ifeq ($(USE_CVODE_CUSOLVER), TRUE)
+    DEFINES += -DCVODE_CUSOLVER
+
+    LIBRARIES += -lsundials_cusolver_sparse -lcusolver -lcusparse -lcublas
+    LIBRARIES += -rpath=$(COMPILE_CUDA_PATH)/lib64
+  endif
+
 endif
 
 #------------------------------------------------------------------------------

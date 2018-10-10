@@ -158,6 +158,35 @@ contains
   end subroutine sk_jac_times_vec
 
   
+  subroutine sk_fill_csr_jac(jac_mat, csr_jac) bind(C, name="sk_fill_csr_jac")
+    
+    use cvode_type_module, only: VODE_NEQS
+    use network, only: NETWORK_CSR_JAC_NNZ, csr_jac_col_index, csr_jac_row_count
+    use amrex_fort_module, only: rt => amrex_real
+    use amrex_constants_module, only: ZERO    
+
+    implicit none
+
+    real(rt), intent(IN   ) :: jac_mat(VODE_NEQS,VODE_NEQS)
+    real(rt), intent(INOUT) :: csr_jac(NETWORK_CSR_JAC_NNZ)
+
+    integer :: irow, icol, ninrow, j, loc
+
+    !$gpu
+
+    loc = 1
+    do irow = 1, VODE_NEQS
+       ninrow = csr_jac_row_count(irow+1) - csr_jac_row_count(irow)
+       do j = 1, ninrow
+          icol = csr_jac_col_index(loc)
+          csr_jac(loc) = jac_mat(irow, icol)
+          loc = loc + 1
+       enddo
+    enddo
+
+  end subroutine sk_fill_csr_jac
+  
+  
   subroutine sk_full_jac(y, jac_mat, rpar, neq_total, ncells, neq_per_cell, nrpar_per_cell) bind(C, name="sk_full_jac")
 
     use amrex_fort_module, only: rt => amrex_real

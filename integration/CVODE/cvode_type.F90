@@ -48,15 +48,13 @@ contains
 
     !$gpu
 
-    if (.not. renormalize_abundances) then
-       nspec_sum = &
-            sum(y(1:nspec_evolve)) + &
-            sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
+    nspec_sum = &
+         sum(y(1:nspec_evolve)) + &
+         sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
 
-       y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
-       rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
-    endif
+    y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
 
   end subroutine sk_renormalize_species
 
@@ -430,7 +428,8 @@ contains
 
     !$gpu
 
-    ! Subtract the energy offset
+    ! Subtract off the initial energy offset to return
+    ! the total *generated* energy as y(net_ienuc)
     y(net_ienuc) = y(net_ienuc) - rpar(irp_energy_offset)
 
     ! Convert to burn state out

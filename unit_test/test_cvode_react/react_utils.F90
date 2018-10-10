@@ -123,5 +123,32 @@ contains
 
     number_species_evolved = nspec_evolve
   end subroutine get_nspec_evolve
+
+  subroutine get_csr_jac_rowcols(csr_row_count, csr_col_index) bind(C, name="sk_get_csr_jac_rowcols")
+
+    use cvode_type_module, only: VODE_NEQS
+    use network, only: NETWORK_CSR_JAC_NNZ, csr_jac_col_index, csr_jac_row_count
+
+    implicit none
+
+    integer, intent(inout) :: csr_row_count(VODE_NEQS+1)
+    integer, intent(inout) :: csr_col_index(NETWORK_CSR_JAC_NNZ)
+
+    csr_col_index = csr_jac_col_index
+    csr_row_count = csr_jac_row_count
+
+  end subroutine get_csr_jac_rowcols
+
+  subroutine get_csr_jac_nnz(number_nonzero) bind(C, name="sk_get_csr_jac_nnz")
+
+    use network, only: NETWORK_CSR_JAC_NNZ
+
+    implicit none
+
+    integer, intent(inout) :: number_nonzero
+
+    number_nonzero = NETWORK_CSR_JAC_NNZ
+
+  end subroutine get_csr_jac_nnz  
   
 end module react_utils_module
