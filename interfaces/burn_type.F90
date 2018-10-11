@@ -288,6 +288,12 @@ contains
     ! Set value in CSR Jacobian only if row, col entry exists
     if (csr_loc /= -1) then
        csr_jac(csr_loc) = val
+    else
+#ifdef SPARSE_STOP_ON_OOB
+       stop
+#else
+       return
+#endif
     endif
 
   end subroutine set_csr_jac_entry
@@ -313,6 +319,12 @@ contains
     ! Scale value in CSR Jacobian only if row, col entry exists
     if (csr_loc /= -1) then
        csr_jac(csr_loc) = csr_jac(csr_loc) * val
+    else
+#ifdef SPARSE_STOP_ON_OOB
+       stop
+#else
+       return
+#endif
     endif
 
   end subroutine scale_csr_jac_entry
@@ -321,6 +333,8 @@ contains
   subroutine get_csr_jac_entry(csr_jac, row, col, val)
 
     !$acc routine seq
+
+    use amrex_constants_module, only: ZERO
 
     implicit none
 
@@ -336,8 +350,11 @@ contains
     call lookup_csr_jac_loc(row, col, csr_loc)
 
     ! Get value from CSR Jacobian only if row, col entry exists
+    ! otherwise return ZERO.
     if (csr_loc /= -1) then
        val = csr_jac(csr_loc)
+    else
+       val = ZERO
     endif
 
   end subroutine get_csr_jac_entry
@@ -417,7 +434,7 @@ contains
 
     implicit none
 
-    type (burn_t), intent(in) :: state
+    type (burn_t), intent(inout) :: state
 
     !$gpu
 
