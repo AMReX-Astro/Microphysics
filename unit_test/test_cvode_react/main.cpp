@@ -177,7 +177,7 @@ void main_main ()
     iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
 
     if (ParallelDescriptor::IOProcessor()) {
-      std::cout << "reacting state ..." << std::endl;
+      std::cout << "reacting state with timestep " << tmax << " ..." << std::endl;
     }
     
     // Do the reactions
