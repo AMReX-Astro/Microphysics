@@ -46,7 +46,7 @@ extern "C"
 
   void sk_get_csr_jac_rowcols(int* csr_row_count, int* csr_col_index);
 
-  void sk_get_csr_jac_nnz(int* nnz);
+  void sk_get_sparse_jac_nnz(int* nnz);
   
   void sk_renormalize_species(amrex::Real* y, amrex::Real* rpar);
 
@@ -64,8 +64,8 @@ __device__  void sk_finalize_cell_device(amrex::Real* y, amrex::Real* rpar);
 __device__  void sk_f_rhs_device(const amrex::Real* t, const amrex::Real* y,
 				 amrex::Real* ydot, amrex::Real* rpar);
 
-__device__  void sk_dense_jac_device(const amrex::Real* t, const amrex::Real* y,
-				     amrex::Real* jac_mat, amrex::Real* rpar);
+__device__  void sk_analytic_jac_device(const amrex::Real* t, const amrex::Real* y,
+					amrex::Real* jac_mat, amrex::Real* rpar);
 
 #ifdef CVODE_CUSOLVER
 
@@ -87,8 +87,8 @@ void sk_finalize_cell(amrex::Real* y, amrex::Real* rpar);
 void sk_f_rhs(const amrex::Real* t, const amrex::Real* y,
 	      amrex::Real* ydot, amrex::Real* rpar);
 
-void sk_dense_jac(const amrex::Real* t, const amrex::Real* y,
-		  amrex::Real* jac_mat, amrex::Real* rpar);
+void sk_analytic_jac(const amrex::Real* t, const amrex::Real* y,
+		     amrex::Real* jac_mat, amrex::Real* rpar);
 
 void sk_full_jac(amrex::Real* y, amrex::Real* jac_mat, amrex::Real* rpar,
 		 const int* neq_total, const int* ncells,

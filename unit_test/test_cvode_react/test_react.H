@@ -18,6 +18,7 @@ typedef struct CVodeUserData {
   int num_cells;
   int num_eqs_per_cell;
   int num_rpar_per_cell;
+  int num_sparse_jac_nonzero;
 
   int irp_dens;
   int irp_cv;
@@ -39,9 +40,7 @@ typedef struct CVodeUserData {
   int irp_energy_offset;
 
   amrex::Real* rpar;
-#ifdef AMREX_USE_CUDA
-  amrex::Real* dense_jacobians;
-#endif
+
 }* UserData;
 
 void main_main();
@@ -90,7 +89,7 @@ static int fun_jac_times_vec(N_Vector v, N_Vector Jv, realtype t,
 
 __global__ static void fun_jtv_kernel(realtype* v, realtype* Jv, realtype t,
 				      realtype* y, realtype* fy,
-				      void* user_data, realtype* tmp);
+				      void* user_data, realtype* tmp, realtype* csr_jac);
 
 #endif
 
