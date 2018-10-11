@@ -42,12 +42,14 @@ module actual_network
   double precision, parameter :: avo = 6.0221417930d23
   double precision, parameter :: enuc_conv2 = -avo*clight*clight
 
+#ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
-  integer, parameter :: NETWORK_CSR_JAC_NNZ = 7
+  integer, parameter :: NETWORK_SPARSE_JAC_NNZ = 7
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: csr_jac_col_index, csr_jac_row_count
+#endif
 #endif
 
 contains
@@ -96,12 +98,14 @@ contains
     ! Common approximation
     wion(:) = aion(:)
 
+#ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
-    allocate(csr_jac_col_index(NETWORK_CSR_JAC_NNZ))
+    allocate(csr_jac_col_index(NETWORK_SPARSE_JAC_NNZ))
     allocate(csr_jac_row_count(nspec_evolve + 3)) ! neq + 1
 
     csr_jac_col_index = [1, 2, 1, 2, 1, 2, 3]
     csr_jac_row_count = [1, 3, 5, 8]
+#endif
 
     !$acc update device(aion, zion, bion, nion, mion, wion)
 

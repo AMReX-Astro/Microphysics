@@ -43,8 +43,6 @@ void do_react(const int* lo, const int* hi,
   cudaMallocManaged(&user_data, sizeof(struct CVodeUserData));
   cudaMallocManaged(&user_data->rpar,
 		    size_rpar * sizeof(amrex::Real));
-  cudaMallocManaged(&user_data->dense_jacobians,
-		    size_state * neqs * neqs * sizeof(amrex::Real));
   user_data->num_cells = size_state;
   user_data->num_eqs_per_cell = neqs;
   user_data->num_rpar_per_cell = size_rpar_per_cell;
@@ -61,6 +59,18 @@ void do_react(const int* lo, const int* hi,
   N_Vector y = NULL, yout=NULL;
   N_Vector abstol = NULL;
   SUNLinearSolver Linsol = NULL;
+
+  int jac_number_nonzero;
+
+  sk_get_sparse_jac_nnz(&jac_number_nonzero);
+
+  user_data->num_sparse_jac_nonzero = jac_number_nonzero;
+  
+  int csr_row_count[neqs+1];
+  int csr_col_index[jac_number_nonzero];
+
+  sk_get_csr_jac_rowcols(&csr_row_count[0], &csr_col_index[0]);
+  
   void* cvode_mem = NULL;
   int flag;
 
@@ -202,7 +212,6 @@ void do_react(const int* lo, const int* hi,
   }
 
   // Free Memory
-  cudaFree(user_data->dense_jacobians);
   cudaFree(user_data->rpar);
   cudaFree(user_data);
   cudaFree(state_y);
@@ -389,37 +398,54 @@ static int fun_jac_times_vec(N_Vector v, N_Vector Jv, realtype t,
   realtype* y_d   = N_VGetDeviceArrayPointer_Cuda(y);
   realtype* fy_d  = N_VGetDeviceArrayPointer_Cuda(fy);
   realtype* tmp_d = N_VGetDeviceArrayPointer_Cuda(tmp);
+
   UserData udata = static_cast<CVodeUserData*>(user_data);
   int numThreads = std::min(32, udata->num_cells);
   int numBlocks = static_cast<int>(ceil(((double) udata->num_cells)/((double) numThreads)));
+
+  // allocate space for the sparse jacobian evaluation
+  realtype* csr_jac_d = NULL;
+  cuda_status = cudaMalloc((void**) &csr_jac_d, udata->num_cells * udata->num_sparse_jac_nonzero * sizeof(realtype));
+#ifdef PRINT_DEBUG
+  std::cout << "In fun_jac_times_vec, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
+#endif
+  assert(cuda_status == cudaSuccess);
+  
   fun_jtv_kernel<<<numBlocks, numThreads>>>(v_d, Jv_d, t,
 					    y_d, fy_d,
-					    user_data, tmp_d);
+					    user_data, tmp_d, csr_jac_d);
   
   cuda_status = cudaDeviceSynchronize();
 #ifdef PRINT_DEBUG
   std::cout << "In fun_jac_times_vec, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
-  assert(cuda_status == cudaSuccess);  
-  
+  assert(cuda_status == cudaSuccess);
+
+  // free space for the sparse jacobian evaluation
+  cuda_status = cudaFree(csr_jac_d);
+#ifdef PRINT_DEBUG
+  std::cout << "In fun_jac_times_vec, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
+#endif
+  assert(cuda_status == cudaSuccess);
+
   return 0;
 }
 
 
 __global__ static void fun_jtv_kernel(realtype* v, realtype* Jv, realtype t,
 				      realtype* y, realtype* fy,
-				      void* user_data, realtype* tmp)
+				      void* user_data, realtype* tmp, realtype* csr_jac)
 {
   UserData udata = static_cast<CVodeUserData*>(user_data);
-  int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < udata->num_cells) {
-    int offset = tid * udata->num_eqs_per_cell;
-    int jac_offset = tid * udata->num_eqs_per_cell * udata->num_eqs_per_cell;
-    int rpar_offset = tid * udata->num_rpar_per_cell;
+    const int offset = tid * udata->num_eqs_per_cell;
+    const int csr_jac_offset = tid * udata->num_sparse_jac_nonzero;
+    const int rpar_offset = tid * udata->num_rpar_per_cell;
 
-    sk_dense_jac_device(&t, &y[offset], &udata->dense_jacobians[jac_offset],
-			&udata->rpar[rpar_offset]);
+    sk_analytic_jac_device(&t, &y[offset], &csr_jac[csr_jac_offset],
+			   &udata->rpar[rpar_offset]);
 
-    sk_jac_times_vec_device(&udata->dense_jacobians[jac_offset], &v[offset], &Jv[offset]);
+    sk_jac_times_vec_device(&csr_jac[csr_jac_offset], &v[offset], &Jv[offset]);
   }
 }

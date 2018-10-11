@@ -19,6 +19,8 @@ void do_react(const int* lo, const int* hi,
   const int size_z = hi[2]-lo[2]+1;
   const int size_state = size_x * size_y * size_z;
 
+  std::cout << "Reacting state of size " << size_x << " * " << size_y << " * " << size_z << " = " << size_state << std::endl;
+
   int idx_spec, idx_spec_old, idx_dens, idx_temp, idx_omegadot, idx_dens_hnuc;
 
   get_species_index(&idx_spec);
@@ -42,8 +44,6 @@ void do_react(const int* lo, const int* hi,
   cudaMallocManaged(&user_data, sizeof(struct CVodeUserData));
   cudaMallocManaged(&user_data->rpar,
 		    size_rpar * sizeof(amrex::Real));
-  cudaMallocManaged(&user_data->dense_jacobians,
-		    size_state * neqs * neqs * sizeof(amrex::Real));
   user_data->num_cells = size_state;
   user_data->num_eqs_per_cell = neqs;
   user_data->num_rpar_per_cell = size_rpar_per_cell;
@@ -70,7 +70,9 @@ void do_react(const int* lo, const int* hi,
   cuSolver_method LinearSolverMethod = QR;
   int jac_number_nonzero;
 
-  sk_get_csr_jac_nnz(&jac_number_nonzero);
+  sk_get_sparse_jac_nnz(&jac_number_nonzero);
+
+  user_data->num_sparse_jac_nonzero = jac_number_nonzero;
   
   int csr_row_count[neqs+1];
   int csr_col_index[jac_number_nonzero];
@@ -244,7 +246,6 @@ void do_react(const int* lo, const int* hi,
   }
 
   // Free Memory
-  cudaFree(user_data->dense_jacobians);
   cudaFree(user_data->rpar);
   cudaFree(user_data);
   cudaFree(state_y);
@@ -509,15 +510,12 @@ __global__ static void fun_csr_jac_kernel(realtype t, realtype* y, realtype* fy,
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < udata->num_cells) {
     int offset = tid * udata->num_eqs_per_cell;
-    int jac_offset = tid * udata->num_eqs_per_cell * udata->num_eqs_per_cell;
     int rpar_offset = tid * udata->num_rpar_per_cell;
 
     int csr_jac_offset = tid * nnz;
     realtype* csr_jac_cell = csr_jac + csr_jac_offset;
 
-    sk_dense_jac_device(&t, &y[offset], &udata->dense_jacobians[jac_offset],
-			&udata->rpar[rpar_offset]);
-
-    sk_fill_csr_jac_device(&udata->dense_jacobians[jac_offset], csr_jac_cell);
+    sk_analytic_jac_device(&t, &y[offset], csr_jac_cell,
+			   &udata->rpar[rpar_offset]);
   }  
 }
