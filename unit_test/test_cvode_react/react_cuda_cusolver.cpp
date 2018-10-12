@@ -40,6 +40,8 @@ void do_react(const int* lo, const int* hi,
   sk_get_num_rpar_comps(&size_rpar_per_cell);
   const int size_rpar = size_rpar_per_cell * size_state;
 
+  cudaError_t cuda_status = cudaSuccess;
+
   UserData user_data;
   cudaMallocManaged(&user_data, sizeof(struct CVodeUserData));
   cudaMallocManaged(&user_data->rpar,
@@ -57,7 +59,7 @@ void do_react(const int* lo, const int* hi,
   amrex::Real* state_y;
   amrex::Real* state_final_y;
   cudaMallocManaged(&state_y, size_flat * sizeof(amrex::Real));
-  
+
 #ifdef PRINT_DEBUG
   cudaMallocManaged(&state_final_y, size_flat * sizeof(amrex::Real));
 #else
@@ -66,19 +68,19 @@ void do_react(const int* lo, const int* hi,
 
   N_Vector y = NULL, yout=NULL;
   N_Vector abstol = NULL;
-  
+
   cuSolver_method LinearSolverMethod = QR;
   int jac_number_nonzero;
 
   sk_get_sparse_jac_nnz(&jac_number_nonzero);
 
   user_data->num_sparse_jac_nonzero = jac_number_nonzero;
-  
+
   int csr_row_count[neqs+1];
   int csr_col_index[jac_number_nonzero];
 
   sk_get_csr_jac_rowcols(&csr_row_count[0], &csr_col_index[0]);
-  
+
   void* cvode_mem = NULL;
   int flag;
 
@@ -102,7 +104,7 @@ void do_react(const int* lo, const int* hi,
 
 	// Temperature absolute tolerance
 	abstol_values[nzone*neqs + nspec_evolve] = 1.0e-6;
-	
+
 	// Put temperature into integration vector
 	get_state(state, s_lo, s_hi, ncomp, i, j, k, idx_temp,
 		  &state_y[nzone*neqs + nspec_evolve]);
@@ -138,7 +140,7 @@ void do_react(const int* lo, const int* hi,
 
   // Prepare cell data for integration (X->Y, normalization, call EOS)
   initialize_system(&state_y[0], user_data);
-  
+
   // Set CVODE initial values and absolute tolerances
   set_nvector_cuda(y, &state_y[0], size_flat);
   set_nvector_cuda(abstol, &abstol_values[0], size_flat);
@@ -148,11 +150,11 @@ void do_react(const int* lo, const int* hi,
   flag = CVodeSetUserData(cvode_mem, static_cast<void*>(user_data));
   if (flag != CV_SUCCESS) amrex::Abort("Failed to set user data");
   flag = CVodeInit(cvode_mem, fun_rhs, time, y);
-  if (flag != CV_SUCCESS) amrex::Abort("Failed to initialize CVode");  
+  if (flag != CV_SUCCESS) amrex::Abort("Failed to initialize CVode");
   flag = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (flag != CV_SUCCESS) amrex::Abort("Failed to set tolerances");  
+  if (flag != CV_SUCCESS) amrex::Abort("Failed to set tolerances");
   flag = CVodeSetMaxNumSteps(cvode_mem, 150000);
-  if (flag != CV_SUCCESS) amrex::Abort("Failed to set max steps");  
+  if (flag != CV_SUCCESS) amrex::Abort("Failed to set max steps");
 
   // Initialize cuSolver Linear Solver
   flag = cv_cuSolver_SetLinearSolver(cvode_mem, LinearSolverMethod);
@@ -160,15 +162,20 @@ void do_react(const int* lo, const int* hi,
   flag = cv_cuSolver_SetJacFun(cvode_mem, &fun_csr_jac);
   flag = cv_cuSolver_SystemInitialize(cvode_mem, &csr_row_count[0], &csr_col_index[0]);
 
+  cuda_status = cudaGetLastError();
+#ifdef PRINT_DEBUG
+  std::cout << "Before CVode integration, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
+#endif
+  assert(cuda_status == cudaSuccess);
+
   // Do Integration
   time = time + static_cast<realtype>(dt);
   flag = CVode(cvode_mem, time, yout, &tout, CV_NORMAL);
 
-  cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
-#ifdef PRINT_DEBUG  
-  std::cout << "After CVode, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
-#endif  
+#ifdef PRINT_DEBUG
+  std::cout << "After CVode integration, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
+#endif
   assert(cuda_status == cudaSuccess);
 
 
@@ -233,7 +240,7 @@ void do_react(const int* lo, const int* hi,
 	std::cout << "initial integration vector = ";
 	for (int ii = 0; ii < neqs; ii++)
 	  std::cout << state_y[nzone*neqs + ii] << " ";
-	std::cout << std::endl;	
+	std::cout << std::endl;
 	std::cout << "final integration vector = ";
 	for (int ii = 0; ii < neqs; ii++)
 	  std::cout << state_final_y[nzone*neqs + ii] << " ";
@@ -300,7 +307,7 @@ void initialize_system(realtype* y, UserData udata)
 #ifdef PRINT_DEBUG
   std::cout << "In initialize_system, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
-  assert(cuda_status == cudaSuccess);  
+  assert(cuda_status == cudaSuccess);
 
   int numThreads = std::min(32, udata->num_cells);
   int numBlocks = static_cast<int>(ceil(((double) udata->num_cells)/((double) numThreads)));
@@ -332,8 +339,8 @@ void finalize_system(realtype* y, UserData udata)
 #ifdef PRINT_DEBUG
   std::cout << "In finalize_system, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
-  assert(cuda_status == cudaSuccess);  
-  
+  assert(cuda_status == cudaSuccess);
+
   int numThreads = std::min(32, udata->num_cells);
   int numBlocks = static_cast<int>(ceil(((double) udata->num_cells)/((double) numThreads)));
   finalize_cell<<<numBlocks, numThreads>>>(y, udata);
@@ -370,7 +377,7 @@ static void set_nvector_cuda(N_Vector vec, realtype* data, sunindextype size)
 
 static void get_nvector_cuda(N_Vector vec, realtype* data, sunindextype size)
 {
-  N_VCopyFromDevice_Cuda(vec);  
+  N_VCopyFromDevice_Cuda(vec);
   realtype* vec_host_ptr = N_VGetHostArrayPointer_Cuda(vec);
   for (sunindextype i = 0; i < size; i++) {
     data[i] = vec_host_ptr[i];
@@ -407,7 +414,7 @@ static int fun_rhs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   // copy first and second system rhs to host
   cuda_status = cudaMemcpy(&ydot_host[0], ydot_d, sizeof(realtype) * udata->num_eqs_per_cell * 2, cudaMemcpyDeviceToHost);
   assert(cuda_status == cudaSuccess);
-  
+
   // print out the first system rhs
   std::cout << "first system rhs = " << std::endl;
   for (int i = 0; i < udata->num_eqs_per_cell; i++)
@@ -420,7 +427,7 @@ static int fun_rhs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     std::cout << ydot_host[i] << " ";
   std::cout << std::endl;
 #endif
-  
+
   return 0;
 }
 
@@ -483,7 +490,7 @@ int fun_csr_jac(realtype t, N_Vector y, N_Vector fy,
   // copy first and second system rhs to host
   cuda_status = cudaMemcpy(&jac_host[0], csr_sys->d_csr_values, sizeof(realtype) * csr_sys->csr_number_nonzero * 2, cudaMemcpyDeviceToHost);
   assert(cuda_status == cudaSuccess);
-  
+
   // print out the first system jac
   std::cout << "first system jac = " << std::endl;
   for (int i = 0; i < csr_sys->csr_number_nonzero; i++)
@@ -496,7 +503,7 @@ int fun_csr_jac(realtype t, N_Vector y, N_Vector fy,
     std::cout << jac_host[i] << " ";
   std::cout << std::endl;
 #endif
-  
+
   assert(cuda_status == cudaSuccess);
   return 0;
 }
@@ -517,5 +524,5 @@ __global__ static void fun_csr_jac_kernel(realtype t, realtype* y, realtype* fy,
 
     sk_analytic_jac_device(&t, &y[offset], csr_jac_cell,
 			   &udata->rpar[rpar_offset]);
-  }  
+  }
 }
