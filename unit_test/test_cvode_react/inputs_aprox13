@@ -1,6 +1,6 @@
 n_cell = 16
 
-tmax = 1.d-3
+tmax = 1.e-3
 
 prefix = react_aprox13_
 
