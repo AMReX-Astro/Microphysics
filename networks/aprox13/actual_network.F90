@@ -129,6 +129,16 @@ module actual_network
 
   character (len=16), save :: ratenames(nrates)
 
+#ifdef REACT_SPARSE_JACOBIAN
+  ! Shape of Jacobian in Compressed Sparse Row format
+  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 107
+  integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: csr_jac_col_index, csr_jac_row_count
+#endif
+#endif
+
 contains
 
   subroutine actual_network_init
@@ -296,6 +306,32 @@ contains
     ratenames(irw1)   = 'w1   '
     ratenames(irx1)   = 'x1   '
     ratenames(iry1)   = 'y1   '
+
+#ifdef REACT_SPARSE_JACOBIAN
+    ! Set CSR format metadata for Jacobian
+    allocate(csr_jac_col_index(NETWORK_SPARSE_JAC_NNZ))
+    allocate(csr_jac_row_count(nspec_evolve + 3)) ! neq + 1
+
+    csr_jac_col_index = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, &
+                         1, 2, 3, 14, &
+                         1, 2, 3, 4, 14, &
+                         1, 2, 3, 4, 5, 14, &
+                         1, 2, 3, 4, 5, 6, 14, &
+                         1, 2, 3, 5, 6, 7, 14, &
+                         1, 3, 6, 7, 8, 14, &
+                         1, 7, 8, 9, 14, &
+                         1, 8, 9, 10, 14, &
+                         1, 9, 10, 11, 14, &
+                         1, 10, 11, 12, 14, &
+                         1, 11, 12, 13, 14, &
+                         1, 12, 13, 14, &
+                         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, &
+                         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+    csr_jac_row_count = [1, 15, 19, 24, 30, &
+                         37, 44, 50, 55, 60, &
+                         65, 70, 75, 79, 93, 108]
+#endif
 
   end subroutine actual_network_init
 
