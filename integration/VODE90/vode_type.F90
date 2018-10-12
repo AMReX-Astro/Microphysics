@@ -224,8 +224,6 @@ contains
     real(rt)    :: y(neqs)
     real(rt), optional :: ydot(neqs), jac(neqs, neqs)
 
-    integer :: n
-
     !$gpu
 
     rpar(irp_dens) = state % rho * inv_dens_scale
