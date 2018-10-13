@@ -13,7 +13,8 @@ using namespace amrex;
 
 void do_react(const int* lo, const int* hi,
 	      amrex::Real* state, const int* s_lo, const int* s_hi,
-	      const int ncomp, const amrex::Real dt)
+	      const int ncomp, const amrex::Real dt,
+	      long* n_rhs, long* n_linsetup)
 {
   const int size_x = hi[0]-lo[0]+1;
   const int size_y = hi[1]-lo[1]+1;
@@ -178,8 +179,10 @@ void do_react(const int* lo, const int* hi,
 #endif
   assert(cuda_status == cudaSuccess);
 
-
   if (flag != CV_SUCCESS) amrex::Abort("Failed integration");
+
+  flag = CVodeGetNumRhsEvals(cvode_mem, n_rhs);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, n_linsetup);
 
 #ifdef PRINT_DEBUG
   std::cout << "Desired end time = " << time << std::endl;
