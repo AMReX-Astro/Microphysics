@@ -125,7 +125,8 @@ void main_main();
 
 void do_react(const int* lo, const int* hi,
 	      amrex::Real* state, const int* s_lo, const int* s_hi,
-	      const int ncomp, const amrex::Real dt);
+	      const int ncomp, const amrex::Real dt,
+	      long* n_rhs, long* n_linsetup);
 
 void initialize_system(realtype* y, CVodeUserData* udata);
 
