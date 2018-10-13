@@ -9,12 +9,14 @@
 #include <iostream>
 #include <AMReX_Device.H>
 
+#define PRINT_DEBUG 0
+
 using namespace amrex;
 
 void do_react(const int* lo, const int* hi,
 	      amrex::Real* state, const int* s_lo, const int* s_hi,
 	      const int ncomp, const amrex::Real dt,
-	      long* n_rhs, long* n_linsetup)
+	      long* n_rhs, long* n_jac, long* n_linsetup)
 {
   const int size_x = hi[0]-lo[0]+1;
   const int size_y = hi[1]-lo[1]+1;
@@ -54,7 +56,7 @@ void do_react(const int* lo, const int* hi,
   amrex::Real* state_final_y;
   cudaMallocManaged(&state_y, size_flat * sizeof(amrex::Real));
 
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   cudaMallocManaged(&state_final_y, size_flat * sizeof(amrex::Real));
 #else
   state_final_y = state_y;
@@ -72,6 +74,9 @@ void do_react(const int* lo, const int* hi,
   int csr_col_index[jac_number_nonzero];
 
   sk_get_csr_jac_rowcols(&csr_row_count[0], &csr_col_index[0]);
+
+  int store_jacobian;
+  sk_get_store_jacobian(&store_jacobian);
 
   new (user_data) CVodeUserData(size_flat, size_state, neqs,
 				size_rpar_per_cell, jac_number_nonzero,
@@ -157,14 +162,14 @@ void do_react(const int* lo, const int* hi,
   if (flag != CV_SUCCESS) amrex::Abort("Failed to set max steps");
 
   // Initialize cuSolver Linear Solver
-  flag = cv_cuSolver_SetLinearSolver(cvode_mem, LinearSolverMethod);
+  flag = cv_cuSolver_SetLinearSolver(cvode_mem, LinearSolverMethod, store_jacobian==1);
   flag = cv_cuSolver_CSR_SetSizes(cvode_mem, neqs, jac_number_nonzero, size_state);
 
   flag = cv_cuSolver_SetJacFun(cvode_mem, &fun_csr_jac);
   flag = cv_cuSolver_SystemInitialize(cvode_mem, &csr_row_count[0], &csr_col_index[0]);
 
   cuda_status = cudaGetLastError();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "Before CVode integration, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -174,7 +179,7 @@ void do_react(const int* lo, const int* hi,
   flag = CVode(cvode_mem, time, yout, &tout, CV_NORMAL);
 
   cuda_status = cudaGetLastError();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "After CVode integration, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -182,9 +187,12 @@ void do_react(const int* lo, const int* hi,
   if (flag != CV_SUCCESS) amrex::Abort("Failed integration");
 
   flag = CVodeGetNumRhsEvals(cvode_mem, n_rhs);
+  int n_actual_jac = 0;
+  flag = cv_cuSolver_GetNumJacEvals(cvode_mem, &n_actual_jac);
+  *n_jac = n_actual_jac;
   flag = CVodeGetNumLinSolvSetups(cvode_mem, n_linsetup);
-
-#ifdef PRINT_DEBUG
+  
+#if PRINT_DEBUG
   std::cout << "Desired end time = " << time << std::endl;
   std::cout << "Integrated to tout = " << tout << std::endl;
   std::cout << "Time difference = " << time-tout << std::endl;
@@ -239,7 +247,7 @@ void do_react(const int* lo, const int* hi,
 	set_state(state, s_lo, s_hi, ncomp, i, j, k, idx_dens_hnuc, wscratch);
 
 	// Print initial and final vectors
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
 	std::cout << "initial integration vector = ";
 	for (int ii = 0; ii < neqs; ii++)
 	  std::cout << state_y[nzone*neqs + ii] << " ";
@@ -259,14 +267,13 @@ void do_react(const int* lo, const int* hi,
   user_data->~CVodeUserData();
   cudaFree(user_data);
   cudaFree(state_y);
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   cudaFree(state_final_y);
 #endif
   N_VDestroy(y);
   N_VDestroy(yout);
   N_VDestroy(abstol);
   CVodeFree(&cvode_mem);
-
 }
 
 
@@ -274,7 +281,7 @@ void initialize_system(realtype* y, CVodeUserData* udata)
 {
   cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In initialize_system, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -284,7 +291,7 @@ void initialize_system(realtype* y, CVodeUserData* udata)
   initialize_cell<<<numBlocks, numThreads>>>(y, udata);
 
   cuda_status = cudaDeviceSynchronize();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In initialize_system, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -306,7 +313,7 @@ void finalize_system(realtype* y, CVodeUserData* udata)
 {
   cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In finalize_system, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -316,7 +323,7 @@ void finalize_system(realtype* y, CVodeUserData* udata)
   finalize_cell<<<numBlocks, numThreads>>>(y, udata);
 
   cuda_status = cudaDeviceSynchronize();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In finalize_system, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -359,7 +366,7 @@ static int fun_rhs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In fun_rhs, got CUDA last error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
@@ -372,12 +379,12 @@ static int fun_rhs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   fun_rhs_kernel<<<numBlocks, numThreads>>>(t, y_d, ydot_d, udata);
 
   cuda_status = cudaDeviceSynchronize();
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In fun_rhs, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
 #endif
   assert(cuda_status == cudaSuccess);
 
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   // debugging rhs
   realtype ydot_host[udata->num_eqs_per_cell*2];
 
@@ -421,7 +428,7 @@ int fun_csr_jac(realtype t, N_Vector y, N_Vector fy,
   cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
 
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "In fun_csr_jac, got CUDA Last Error of: ";
   std::cout << cudaGetErrorString(cuda_status) << std::endl;
 #endif
@@ -431,7 +438,7 @@ int fun_csr_jac(realtype t, N_Vector y, N_Vector fy,
   realtype* fy_d  = N_VGetDeviceArrayPointer_Cuda(fy);
   CVodeUserData* udata = static_cast<CVodeUserData*>(user_data);
 
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "num_cells = " << udata->num_cells << std::endl;
   std::cout << "size_per_subsystem = " << csr_sys->size_per_subsystem << std::endl;
   std::cout << "csr_number_nonzero = " << csr_sys->csr_number_nonzero << std::endl;
@@ -445,12 +452,12 @@ int fun_csr_jac(realtype t, N_Vector y, N_Vector fy,
 
   cuda_status = cudaDeviceSynchronize();
 
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   std::cout << "Got CUDA Synchronize return message of: ";
   std::cout << cudaGetErrorString(cuda_status) << std::endl;
 #endif
 
-#ifdef PRINT_DEBUG
+#if PRINT_DEBUG
   // debugging jac
   realtype jac_host[csr_sys->csr_number_nonzero * 2];
 

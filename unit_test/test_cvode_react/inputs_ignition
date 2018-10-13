@@ -1,6 +1,6 @@
 n_cell = 16
 
-tmax = 1.0
+tmax = 1.0e-1
 
 prefix = react_ignition_
 

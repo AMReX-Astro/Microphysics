@@ -13,7 +13,8 @@ using namespace amrex;
 
 void do_react(const int* lo, const int* hi,
 	      amrex::Real* state, const int* s_lo, const int* s_hi,
-	      const int ncomp, const amrex::Real dt)
+	      const int ncomp, const amrex::Real dt,
+	      long* n_rhs, long* n_jac, long* n_linsetup)
 {
   const int size_x = hi[0]-lo[0]+1;
   const int size_y = hi[1]-lo[1]+1;
@@ -39,16 +40,8 @@ void do_react(const int* lo, const int* hi,
   sk_get_num_rpar_comps(&size_rpar_per_cell);
   const int size_rpar = size_rpar_per_cell * size_state;
 
-  UserData user_data;
-  cudaMallocManaged(&user_data, sizeof(struct CVodeUserData));
-  cudaMallocManaged(&user_data->rpar,
-		    size_rpar * sizeof(amrex::Real));
-  user_data->num_cells = size_state;
-  user_data->num_eqs_per_cell = neqs;
-  user_data->num_rpar_per_cell = size_rpar_per_cell;
-
-  initialize_rpar_indices(user_data, nspec_not_evolved, neqs);
-  zero_rpar_data(user_data, size_rpar);
+  CVodeUserData* user_data;
+  cudaMallocManaged(&user_data, sizeof(CVodeUserData));
 
   realtype reltol=1.0e-6, time=0.0e0, tout;
 
@@ -64,13 +57,15 @@ void do_react(const int* lo, const int* hi,
 
   sk_get_sparse_jac_nnz(&jac_number_nonzero);
 
-  user_data->num_sparse_jac_nonzero = jac_number_nonzero;
-  
   int csr_row_count[neqs+1];
   int csr_col_index[jac_number_nonzero];
 
   sk_get_csr_jac_rowcols(&csr_row_count[0], &csr_col_index[0]);
-  
+
+  new (user_data) CVodeUserData(size_flat, size_state, neqs,
+				size_rpar_per_cell, jac_number_nonzero,
+				nspec_not_evolved);
+
   void* cvode_mem = NULL;
   int flag;
 
@@ -158,6 +153,10 @@ void do_react(const int* lo, const int* hi,
   flag = CVode(cvode_mem, time, yout, &tout, CV_NORMAL);
   if (flag != CV_SUCCESS) amrex::Abort("Failed integration");
 
+  flag = CVodeGetNumRhsEvals(cvode_mem, n_rhs);
+  flag = CVSpilsGetNumJtimesEvals(cvode_mem, n_jac);
+  flag = CVodeGetNumLinSolvSetups(cvode_mem, n_linsetup);
+  
   // Get Final State
   get_nvector_cuda(yout, &state_y[0], size_flat);
 
@@ -212,7 +211,7 @@ void do_react(const int* lo, const int* hi,
   }
 
   // Free Memory
-  cudaFree(user_data->rpar);
+  user_data->~CVodeUserData();
   cudaFree(user_data);
   cudaFree(state_y);
   N_VDestroy(y);
@@ -224,40 +223,7 @@ void do_react(const int* lo, const int* hi,
 }
 
 
-void initialize_rpar_indices(UserData user_data, const int nspec_not_evolved,
-			     const int num_eqs_per_cell)
-{
-  int i = 0;
-  user_data->irp_dens = i; i++;
-  user_data->irp_cv = i; i++;
-  user_data->irp_cp = i; i++;
-  user_data->irp_xn_not_evolved = i; i+=nspec_not_evolved;
-  user_data->irp_abar = i; i++;
-  user_data->irp_zbar = i; i++;
-  user_data->irp_eta = i; i++;
-  user_data->irp_ye = i; i++;
-  user_data->irp_cs = i; i++;
-  user_data->irp_dx = i; i++;
-  user_data->irp_t_sound = i; i++;
-  user_data->irp_y_init = i; i+=num_eqs_per_cell;
-  user_data->irp_self_heat = i; i++;
-  user_data->irp_Told = i; i++;
-  user_data->irp_dcvdt = i; i++;
-  user_data->irp_dcpdt = i; i++;
-  user_data->irp_t0 = i; i++;
-  user_data->irp_energy_offset = i;
-}
-
-
-void zero_rpar_data(UserData user_data, const int size_rpar)
-{
-  for (int i=0; i<size_rpar; i++) {
-    user_data->rpar[i] = 0.0;
-  }
-}
-
-
-void initialize_system(realtype* y, UserData udata)
+void initialize_system(realtype* y, CVodeUserData* udata)
 {
   cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
@@ -278,7 +244,7 @@ void initialize_system(realtype* y, UserData udata)
 }
 
 
-__global__ static void initialize_cell(realtype* y, UserData udata)
+__global__ static void initialize_cell(realtype* y, CVodeUserData* udata)
 {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < udata->num_cells) {
@@ -289,7 +255,7 @@ __global__ static void initialize_cell(realtype* y, UserData udata)
 }
 
 
-void finalize_system(realtype* y, UserData udata)
+void finalize_system(realtype* y, CVodeUserData* udata)
 {
   cudaError_t cuda_status = cudaSuccess;
   cuda_status = cudaGetLastError();
@@ -310,7 +276,7 @@ void finalize_system(realtype* y, UserData udata)
 }
 
 
-__global__ static void finalize_cell(realtype* y, UserData udata)
+__global__ static void finalize_cell(realtype* y, CVodeUserData* udata)
 {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < udata->num_cells) {
@@ -353,11 +319,11 @@ static int fun_rhs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   
   realtype* ydot_d = N_VGetDeviceArrayPointer_Cuda(ydot);
   realtype* y_d = N_VGetDeviceArrayPointer_Cuda(y);
-  UserData udata = static_cast<CVodeUserData*>(user_data);
+  CVodeUserData* udata = static_cast<CVodeUserData*>(user_data);
   int numThreads = std::min(32, udata->num_cells);
   int numBlocks = static_cast<int>(ceil(((double) udata->num_cells)/((double) numThreads)));
-  fun_rhs_kernel<<<numBlocks, numThreads>>>(t, y_d, ydot_d,
-					    user_data);
+  fun_rhs_kernel<<<numBlocks, numThreads>>>(t, y_d, ydot_d, udata);
+
   cuda_status = cudaDeviceSynchronize();
 #ifdef PRINT_DEBUG
   std::cout << "In fun_rhs, got cudaDeviceSynchronize error of: " << cudaGetErrorString(cuda_status) << std::endl;
@@ -369,9 +335,8 @@ static int fun_rhs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 __global__ static void fun_rhs_kernel(realtype t, realtype* y, realtype* ydot,
-				      void *user_data)
+				      CVodeUserData* udata)
 {
-  UserData udata = static_cast<CVodeUserData*>(user_data);
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < udata->num_cells) {
     int offset = tid * udata->num_eqs_per_cell;
@@ -399,7 +364,7 @@ static int fun_jac_times_vec(N_Vector v, N_Vector Jv, realtype t,
   realtype* fy_d  = N_VGetDeviceArrayPointer_Cuda(fy);
   realtype* tmp_d = N_VGetDeviceArrayPointer_Cuda(tmp);
 
-  UserData udata = static_cast<CVodeUserData*>(user_data);
+  CVodeUserData* udata = static_cast<CVodeUserData*>(user_data);
   int numThreads = std::min(32, udata->num_cells);
   int numBlocks = static_cast<int>(ceil(((double) udata->num_cells)/((double) numThreads)));
 
@@ -413,7 +378,7 @@ static int fun_jac_times_vec(N_Vector v, N_Vector Jv, realtype t,
   
   fun_jtv_kernel<<<numBlocks, numThreads>>>(v_d, Jv_d, t,
 					    y_d, fy_d,
-					    user_data, tmp_d, csr_jac_d);
+					    udata, tmp_d, csr_jac_d);
   
   cuda_status = cudaDeviceSynchronize();
 #ifdef PRINT_DEBUG
@@ -434,9 +399,8 @@ static int fun_jac_times_vec(N_Vector v, N_Vector Jv, realtype t,
 
 __global__ static void fun_jtv_kernel(realtype* v, realtype* Jv, realtype t,
 				      realtype* y, realtype* fy,
-				      void* user_data, realtype* tmp, realtype* csr_jac)
+				      CVodeUserData* udata, realtype* tmp, realtype* csr_jac)
 {
-  UserData udata = static_cast<CVodeUserData*>(user_data);
   const int tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid < udata->num_cells) {
     const int offset = tid * udata->num_eqs_per_cell;

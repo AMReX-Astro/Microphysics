@@ -66,7 +66,7 @@ contains
     fval = state(i, j, k, c)
   end subroutine get_state
 
-  
+
   subroutine set_state(state, s_lo, s_hi, ncomp, i, j, k, c, fval) bind(C, name="set_state")
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
@@ -106,7 +106,7 @@ contains
 
   subroutine get_num_rpar_comps(number_rpar_comps) bind(C, name="sk_get_num_rpar_comps")
     use rpar_indices, only: n_rpar_comps
-    
+
     implicit none
 
     integer, intent(inout) :: number_rpar_comps
@@ -116,7 +116,7 @@ contains
 
   subroutine get_nspec_evolve(number_species_evolved) bind(C, name="sk_get_nspec_evolve")
     use network, only: nspec_evolve
-    
+
     implicit none
 
     integer, intent(inout) :: number_species_evolved
@@ -149,6 +149,18 @@ contains
 
     number_nonzero = NETWORK_SPARSE_JAC_NNZ
 
-  end subroutine get_sparse_jac_nnz  
-  
+  end subroutine get_sparse_jac_nnz
+
+  subroutine get_store_jacobian(sjac) bind(C, name="sk_get_store_jacobian")
+
+    use extern_probin_module, only: store_jacobian
+
+    implicit none
+
+    integer, intent(inout) :: sjac
+
+    sjac = store_jacobian
+
+  end subroutine get_store_jacobian
+
 end module react_utils_module
