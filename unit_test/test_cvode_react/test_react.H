@@ -21,7 +21,7 @@ public:
   const int num_cells;
   const int num_eqs;
   const int num_eqs_per_cell;
-  const int num_rpar;  
+  const int num_rpar;
   const int num_rpar_per_cell;
   const int num_sparse_jac_nonzero;
   const int num_spec_not_evolved;
@@ -61,19 +61,23 @@ public:
   CVodeUserData(int n_eqs, int n_cells, int n_eqs_per_cell,
 		int n_rpar_per_cell, int n_sparse_jac_nonzero,
 		int n_spec_not_evolved) : num_cells(n_cells),
-					  num_eqs_per_cell(n_eqs_per_cell),					  
+					  num_eqs_per_cell(n_eqs_per_cell),
 					  num_eqs(n_eqs_per_cell*n_cells),
-					  num_rpar_per_cell(n_rpar_per_cell),					  
+					  num_rpar_per_cell(n_rpar_per_cell),
 					  num_rpar(n_rpar_per_cell*n_cells),
 					  num_sparse_jac_nonzero(n_sparse_jac_nonzero),
 					  num_spec_not_evolved(n_spec_not_evolved)
   {
+#ifdef AMREX_USE_CUDA
     cudaError_t cuda_status = cudaSuccess;
     cuda_status = cudaMallocManaged(&rpar, num_rpar * sizeof(amrex::Real));
     assert(cuda_status == cudaSuccess);
 
     const int device = amrex::Device::deviceId();
     amrex::Device::mem_advise_set_preferred(rpar, num_rpar * sizeof(amrex::Real), device);
+#else
+    rpar = static_cast<amrex::Real*>(std::malloc(num_rpar * sizeof(amrex::Real)));
+#endif
 
     initialize_rpar_indices();
 
@@ -82,11 +86,14 @@ public:
 
   ~CVodeUserData()
   {
-    cudaError_t cuda_status = cudaSuccess;    
-
     if (rpar != NULL) {
+#ifdef AMREX_USE_CUDA
+      cudaError_t cuda_status = cudaSuccess;
       cuda_status = cudaFree(rpar);
       assert(cuda_status == cudaSuccess);
+#else
+      std::free(rpar);
+#endif
     }
   }
 
@@ -126,7 +133,7 @@ void main_main();
 void do_react(const int* lo, const int* hi,
 	      amrex::Real* state, const int* s_lo, const int* s_hi,
 	      const int ncomp, const amrex::Real dt,
-	      long* n_rhs, long* n_linsetup);
+	      long* n_rhs, long* n_jac, long* n_linsetup);
 
 void initialize_system(realtype* y, CVodeUserData* udata);
 
@@ -161,7 +168,7 @@ static int fun_jac_times_vec(N_Vector v, N_Vector Jv, realtype t,
 
 __global__ static void fun_jtv_kernel(realtype* v, realtype* Jv, realtype t,
 				      realtype* y, realtype* fy,
-				      void* user_data, realtype* tmp, realtype* csr_jac);
+				      CVodeUserData* user_data, realtype* tmp, realtype* csr_jac);
 
 #endif
 

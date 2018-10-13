@@ -47,6 +47,8 @@ extern "C"
   void sk_get_csr_jac_rowcols(int* csr_row_count, int* csr_col_index);
 
   void sk_get_sparse_jac_nnz(int* nnz);
+
+  void sk_get_store_jacobian(int* sjac);
   
   void sk_renormalize_species(amrex::Real* y, amrex::Real* rpar);
 
