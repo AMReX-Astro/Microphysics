@@ -1,8 +1,7 @@
 module actual_network
-
-  use amrex_fort_module, only : rt => amrex_real
   use physical_constants, only: ERG_PER_MeV
-  
+  use amrex_fort_module, only : rt => amrex_real
+
   implicit none
 
   public num_rate_groups
@@ -59,10 +58,10 @@ module actual_network
   integer, parameter :: jf18   = 13
 
   ! Reactions
-  integer, parameter :: k_n13__c13   = 1
-  integer, parameter :: k_o14__n14   = 2
-  integer, parameter :: k_o15__n15   = 3
-  integer, parameter :: k_f17__o17   = 4
+  integer, parameter :: k_n13__c13__weak__wc12   = 1
+  integer, parameter :: k_o14__n14__weak__wc12   = 2
+  integer, parameter :: k_o15__n15__weak__wc12   = 3
+  integer, parameter :: k_f17__o17__weak__wc12   = 4
   integer, parameter :: k_p_c12__n13   = 5
   integer, parameter :: k_he4_c12__o16   = 6
   integer, parameter :: k_p_c13__n14   = 7
@@ -208,19 +207,5 @@ contains
   subroutine actual_network_finalize()
     ! STUB FOR MAESTRO
   end subroutine actual_network_finalize
-  
-  subroutine ener_gener_rate(dydt, enuc)
-    ! Computes the instantaneous energy generation rate
-    !$acc routine seq
-  
-    implicit none
-
-    double precision :: dydt(nspec), enuc
-
-    ! This is basically e = m c**2
-
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
-
-  end subroutine ener_gener_rate
 
 end module actual_network
