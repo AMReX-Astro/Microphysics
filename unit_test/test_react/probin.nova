@@ -7,7 +7,7 @@
   temp_min   = 1.d7
   temp_max   = 1.d8
 
-  tmax = 5.e-4
+  tmax = 1.e-3
 
   xin_file   = "xin.nova"
 
