@@ -7,6 +7,16 @@
   temp_min   = 1.d9
   temp_max   = 1.d9
 
+  tmax = 1.d-3
+
+  rtol_spec = 1.d-6
+  rtol_temp = 1.d-6
+  rtol_enuc = 1.d-6
+
+  atol_spec = 1.d-6
+  atol_temp = 1.d-6
+  atol_enuc = 1.d-6
+
   reactions_density_scale = 1.d8
   reactions_temperature_scale = 1.d9
   reactions_energy_scale = 1.d24
