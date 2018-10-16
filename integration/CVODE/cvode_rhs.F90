@@ -90,7 +90,8 @@ contains
     use network, only: aion, aion_inv, nspec_evolve, NETWORK_SPARSE_JAC_NNZ
     use amrex_constants_module, only: ZERO
     use actual_rhs_module, only: actual_jac
-    use burn_type_module, only: burn_t, net_ienuc, net_itemp, get_jac_entry, set_jac_entry, scale_jac_entry
+    use burn_type_module, only: burn_t, net_ienuc, net_itemp
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, scale_jac_entry
     use cvode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
     use amrex_fort_module, only: rt => amrex_real

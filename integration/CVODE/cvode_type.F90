@@ -221,7 +221,8 @@ contains
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
-    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, scale_csr_jac_entry
+    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
+    use jacobian_sparsity_module, only: scale_csr_jac_entry
 
     implicit none
 

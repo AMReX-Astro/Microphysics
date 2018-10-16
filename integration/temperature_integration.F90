@@ -18,6 +18,7 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
     implicit none
@@ -92,6 +93,7 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
     implicit none

@@ -15,6 +15,8 @@ contains
     implicit none
 
     call integrator_init()
+    
+    call actual_network_init()
 
     call init_reaclib()
     call init_tabular()
