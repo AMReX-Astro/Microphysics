@@ -15,10 +15,7 @@ module reaclib_rates
   ! Reaction multiplicities-1 (how many rates contribute - 1)
   integer, allocatable :: rate_extra_mult(:)
 
-  ! Should these reactions be screened?
-  logical, allocatable :: do_screening(:)
-  
-  !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
+  !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult)
   !$acc declare copyin(screen_reaclib)
 
 contains
@@ -26,7 +23,7 @@ contains
   subroutine init_reaclib()
     
     allocate( ctemp_rate(7, 48) )
-    ! n13__c13
+    ! n13__c13__weak__wc12
     ctemp_rate(:, 1) = [  &
         -6.76010000000000d+00, &
         0.00000000000000d+00, &
@@ -36,7 +33,7 @@ contains
         0.00000000000000d+00, &
         0.00000000000000d+00 ]
 
-    ! o14__n14
+    ! o14__n14__weak__wc12
     ctemp_rate(:, 2) = [  &
         -4.62354000000000d+00, &
         0.00000000000000d+00, &
@@ -46,7 +43,7 @@ contains
         0.00000000000000d+00, &
         0.00000000000000d+00 ]
 
-    ! o15__n15
+    ! o15__n15__weak__wc12
     ctemp_rate(:, 3) = [  &
         -5.17053000000000d+00, &
         0.00000000000000d+00, &
@@ -56,7 +53,7 @@ contains
         0.00000000000000d+00, &
         0.00000000000000d+00 ]
 
-    ! f17__o17
+    ! f17__o17__weak__wc12
     ctemp_rate(:, 4) = [  &
         -4.53318000000000d+00, &
         0.00000000000000d+00, &
@@ -523,29 +520,7 @@ contains
       2, &
       2 ]
 
-    allocate( do_screening(nrat_reaclib) )
-    do_screening(:) = [ &
-      .false., &
-      .false., &
-      .false., &
-      .false., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true., &
-      .true. ]
-
-    !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult, do_screening)
+    !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult)
     
   end subroutine init_reaclib
 
@@ -553,7 +528,6 @@ contains
     deallocate( ctemp_rate )
     deallocate( rate_start_idx )
     deallocate( rate_extra_mult )
-    deallocate( do_screening )
   end subroutine term_reaclib
 
   subroutine net_screening_init()
@@ -589,14 +563,8 @@ contains
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jn13), aion(jn13))
 
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jn15), aion(jn15))
-
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jo14), aion(jo14))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jo17), aion(jo17))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jf18), aion(jf18))
@@ -647,9 +615,6 @@ contains
     dirate_dt = 0.0d0
     T9 = temp/1.0d9
     T9_exp = 0.0d0
-    scor = 1.0d0
-    dscor_dt = 0.0d0
-    dscor_dd = 0.0d0
 
     ! Use reaction multiplicities to tell whether the rate is Reaclib
     m = rate_extra_mult(iwhich)
@@ -676,14 +641,10 @@ contains
        drate_dt = drate_dt + dirate_dt
     end do
 
-    if ( screen_reaclib .and. do_screening(iwhich) ) then
-       call screen5(pstate, iwhich, scor, dscor_dt, dscor_dd)
-    end if
-
     reactvec(i_rate)     = rate
     reactvec(i_drate_dt) = drate_dt
-    reactvec(i_scor)     = scor
-    reactvec(i_dscor_dt) = dscor_dt
+    reactvec(i_scor)     = 0.0d0
+    reactvec(i_dscor_dt) = 0.0d0
     reactvec(i_dqweak)   = 0.0d0
     reactvec(i_epart)    = 0.0d0
 

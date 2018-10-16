@@ -136,6 +136,7 @@ contains
     use eos_module
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
+    use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry, get_jac_entry
 
     implicit none
 
@@ -1934,6 +1935,7 @@ contains
 
     use network
     use microphysics_math_module, only: esum3, esum4, esum5, esum20 ! function
+    use jacobian_sparsity_module, only: set_jac_entry
 
     implicit none
 

@@ -116,6 +116,7 @@ contains
   subroutine actual_jac(state)
 
     use extern_probin_module, only: do_constant_volume_burn
+    use jacobian_sparsity_module, only: set_jac_zero, get_jac_entry, set_jac_entry, scale_jac_entry
 
     implicit none
 

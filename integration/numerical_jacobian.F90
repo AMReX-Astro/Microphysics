@@ -15,6 +15,7 @@ contains
 
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only : centered_diff_jac
+    use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry
 
     implicit none
 
@@ -135,6 +136,7 @@ contains
     use actual_rhs_module
     use eos_module, only : eos
     use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
+    use jacobian_sparsity_module, only: get_jac_entry    
 
     type (burn_t) :: state
     type (burn_t) :: state_num
