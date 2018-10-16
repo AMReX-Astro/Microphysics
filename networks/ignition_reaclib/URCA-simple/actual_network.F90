@@ -1,4 +1,5 @@
 module actual_network
+
   use physical_constants, only: ERG_PER_MeV
   use amrex_fort_module, only: rt => amrex_real
   
@@ -6,17 +7,17 @@ module actual_network
 
   public
 
-  double precision, parameter :: avo = 6.0221417930d23
-  double precision, parameter :: c_light = 2.99792458d10
-  double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
+  real(rt), parameter :: avo = 6.0221417930d23
+  real(rt), parameter :: c_light = 2.99792458d10
+  real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  double precision, parameter :: ev2erg  = 1.60217648740d-12
-  double precision, parameter :: mev2erg = ev2erg*1.0d6
-  double precision, parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt), parameter :: ev2erg  = 1.60217648740d-12
+  real(rt), parameter :: mev2erg = ev2erg*1.0d6
+  real(rt), parameter :: mev2gr  = mev2erg/c_light**2
 
-  double precision, parameter :: mass_neutron  = 1.67492721184d-24
-  double precision, parameter :: mass_proton   = 1.67262163783d-24
-  double precision, parameter :: mass_electron = 9.10938215450d-28
+  real(rt), parameter :: mass_neutron  = 1.67492721184d-24
+  real(rt), parameter :: mass_proton   = 1.67262163783d-24
+  real(rt), parameter :: mass_electron = 9.10938215450d-28
 
   integer, parameter :: nrates = 7
   integer, parameter :: num_rate_groups = 4
@@ -35,7 +36,7 @@ module actual_network
   integer, parameter :: nrat_tabular = 2
 
   ! Binding Energies Per Nucleon (MeV)
-  double precision :: ebind_per_nucleon(nspec)
+  real(rt) :: ebind_per_nucleon(nspec)
 
   ! aion: Nucleon mass number A
   ! zion: Nucleon atomic number Z
@@ -58,7 +59,7 @@ module actual_network
   integer, parameter :: k_c12_c12__n_mg23   = 2
   integer, parameter :: k_c12_c12__p_na23   = 3
   integer, parameter :: k_he4_c12__o16   = 4
-  integer, parameter :: k_n__p   = 5
+  integer, parameter :: k_n__p__weak__wc12   = 5
   integer, parameter :: k_na23__ne23   = 6
   integer, parameter :: k_ne23__na23   = 7
 
@@ -176,6 +177,7 @@ contains
     !$acc update device(aion, zion, bion, nion, mion, wion)
   end subroutine actual_network_init
 
+
   subroutine actual_network_finalize()    
     ! Deallocate storage arrays
     deallocate(aion)
@@ -189,12 +191,14 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
+
     !$acc routine seq
-    !$gpu
   
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    real(rt) :: dydt(nspec), enuc
+
+    !$gpu    
 
     ! This is basically e = m c**2
 
