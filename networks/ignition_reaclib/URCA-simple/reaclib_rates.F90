@@ -9,13 +9,13 @@ module reaclib_rates
   implicit none
 
   logical, parameter :: screen_reaclib = .true.
-  
+
   ! Temperature coefficient arrays (numbers correspond to reaction numbers in net_info)
   real(rt), allocatable :: ctemp_rate(:,:)
 
   ! Index into ctemp_rate, dimension 2, where each rate's coefficients start
   integer, allocatable :: rate_start_idx(:)
-  
+
   ! Reaction multiplicities-1 (how many rates contribute - 1)
   integer, allocatable :: rate_extra_mult(:)
 
@@ -29,7 +29,7 @@ module reaclib_rates
 contains
 
   subroutine init_reaclib()
-    
+
     allocate( ctemp_rate(7, 6) )
     ! c12_c12__he4_ne20
     ctemp_rate(:, 1) = [  &
@@ -109,7 +109,7 @@ contains
       0 ]
 
     !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult)
-    
+
   end subroutine init_reaclib
 
   subroutine term_reaclib()
@@ -129,7 +129,7 @@ contains
       zion(jc12), aion(jc12))
 
 
-    call screening_init()    
+    call screening_init()
   end subroutine net_screening_init
 
 
@@ -138,14 +138,14 @@ contains
 
     call screening_finalize()
 
-  end subroutine net_screening_finalize  
+  end subroutine net_screening_finalize
 
 
   subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 
     implicit none
-    
+
     type(plasma_state), intent(in) :: pstate
     real(rt), intent(in) :: temp
     integer, intent(in) :: iwhich
@@ -192,7 +192,7 @@ contains
        lnirate = ctemp_rate(1, istart+i) + ctemp_rate(7, istart+i) * LOG(T9)
        dlnirate_dt = ctemp_rate(7, istart+i)/T9
        do j = 2, 6
-          T9_exp = (2.0d0*dble(j-1)-5.0d0)/3.0d0 
+          T9_exp = (2.0d0*dble(j-1)-5.0d0)/3.0d0
           lnirate = lnirate + ctemp_rate(j, istart+i) * T9**T9_exp
           dlnirate_dt = dlnirate_dt + &
                T9_exp * ctemp_rate(j, istart+i) * T9**(T9_exp-1.0d0)
@@ -219,12 +219,12 @@ contains
     ! write(*,*) 'IWHICH: ', iwhich
     ! write(*,*) 'reactvec(i_rate)', reactvec(i_rate)
     ! write(*,*) 'reactvec(i_drate_dt)', reactvec(i_drate_dt)
-    ! write(*,*) 'reactvec(i_scor)', reactvec(i_scor)    
+    ! write(*,*) 'reactvec(i_scor)', reactvec(i_scor)
     ! write(*,*) 'reactvec(i_dscor_dt)', reactvec(i_dscor_dt)
     ! write(*,*) 'reactvec(i_dqweak)', reactvec(i_dqweak)
     ! write(*,*) 'reactvec(i_epart)', reactvec(i_epart)
     ! write(*,*) '----------------------------------------'
 
   end subroutine reaclib_evaluate
-  
+
 end module reaclib_rates
