@@ -5,7 +5,6 @@ module actual_rhs_module
   use physical_constants, only: N_AVO
   use network
   use table_rates
-
   use burn_type_module
 
   implicit none
@@ -43,7 +42,10 @@ contains
 
     !$gpu
 
-    rate_eval % unscreened_rates = ZERO
+    rate_eval % unscreened_rates(i_rate, :) = ZERO
+    rate_eval % unscreened_rates(i_drate_dt, :) = ZERO
+    rate_eval % unscreened_rates(i_scor, :) = ONE
+    rate_eval % unscreened_rates(i_dscor_dt, :) = ZERO
     rate_eval % screened_rates = ZERO
     rate_eval % dqweak = ZERO
     rate_eval % epart = ZERO
