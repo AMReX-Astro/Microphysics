@@ -86,7 +86,7 @@ module actual_network
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
-  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 47
+  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 51
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
 
 #ifdef AMREX_USE_CUDA
@@ -196,6 +196,7 @@ contains
       4, &
       10, &
       1, &
+      2, &
       4, &
       10, &
       3, &
@@ -206,8 +207,10 @@ contains
       10, &
       3, &
       4, &
+      5, &
       10, &
       4, &
+      6, &
       10, &
       7, &
       8, &
@@ -217,6 +220,7 @@ contains
       8, &
       10, &
       4, &
+      9, &
       10, &
       1, &
       2, &
@@ -239,19 +243,20 @@ contains
       9, &
       10, &
       11  ]
+
     csr_jac_row_count = [ &
       1, &
       4, &
-      7, &
-      10, &
-      13, &
-      16, &
+      8, &
+      11, &
+      14, &
       18, &
       21, &
-      25, &
-      27, &
-      37, &
-      48  ]
+      24, &
+      28, &
+      31, &
+      41, &
+      52  ]
 #endif
 
   end subroutine actual_network_init
