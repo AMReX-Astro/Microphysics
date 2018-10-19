@@ -117,6 +117,7 @@ ifeq ($(USE_HDF5), TRUE)
   DEFINES += -DBL_HDF5
   INCLUDE_LOCATIONS += $(HDF5_HOME)/include
   LIBRARIES         += -L$(HDF5_HOME)/lib -lhdf5_fortran -lhdf5
+  LIBRARIES         += -Wl,-rpath=$(HDF5_HOME)/lib
 endif
 
 

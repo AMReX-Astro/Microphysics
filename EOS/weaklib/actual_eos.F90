@@ -2,6 +2,7 @@ module actual_eos_module
 
   use amrex_fort_module, only: rt => amrex_real
 
+  use UnitsModule, only: Gram, Centimeter, Kelvin
   use wlEquationOfStateTableModule, only: EquationOfStateTableType
   use wlInterpolationModule, only: LogInterpolateSingleVariable, &
                                    LogInterpolateDifferentiateSingleVariable, &
@@ -10,6 +11,14 @@ module actual_eos_module
                                    ComputeTempFromIntEnergy_Secant, &
                                    ComputeTempFromPressure, &
                                    ComputeTempFromPressure_Bisection
+
+  real(rt), public :: MinD, MinT, MinY
+  real(rt), public :: MaxD, MaxT, MaxY
+
+  character (len=64), public :: eos_name = "weaklib"
+  type (EquationOfStateTableType), target :: EOS
+
+  public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
   private
   
@@ -25,16 +34,6 @@ module actual_eos_module
   real(rt), dimension(:), allocatable :: &
        Ds_T, Ts_T, Ys_T
 
-  real(rt), public :: MinD, MinT, MinY
-  real(rt), public :: MaxD, MaxT, MaxY
-
-  public
-
-  character (len=64), public :: eos_name = "weaklib"
-  type (EquationOfStateTableType), target :: EOS
-
-  public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
-
 contains
 
 
@@ -45,13 +44,17 @@ contains
     implicit none
 
     integer, intent(in) :: input
-    logical :: supported = .false.
+    logical :: supported
 
     if (input == eos_input_rt .or. &
         input == eos_input_rp .or. &
         input == eos_input_re) then
 
        supported = .true.
+
+    else
+
+       supported = .false.
 
     endif
 
@@ -69,6 +72,7 @@ contains
     !
     ! Make sure you use a network that uses ye as a species!
 
+    use amrex_error_module, only: amrex_error    
     use eos_type_module
     use weaklib_type_module, only: weaklib_eos_t, eos_to_weaklib, weaklib_to_eos
 
@@ -182,7 +186,6 @@ contains
 
   subroutine actual_eos_init
 
-    use amrex_error_module
     use extern_probin_module, only: weaklib_eos_table_name
     use amrex_paralleldescriptor_module, only: amrex_pd_ioprocessor
 
@@ -191,6 +194,10 @@ contains
 
     implicit none
 
+    print *, ''
+    print *, "Initializing Weaklib EOS on all MPI ranks from table file: ", trim(weaklib_eos_table_name)
+    print *, ''
+    
     if (amrex_pd_ioprocessor()) then
        print *, ''
        print *, "Initializing Weaklib EOS on all MPI ranks from table file: ", trim(weaklib_eos_table_name)
@@ -333,12 +340,15 @@ contains
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
+    real(rt) :: actual_temperature(1)    
 
     call ComputeTempFromIntEnergy_Lookup(     &
          [state % density], [state % specific_internal_energy], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T, LogInterp, &
          EOS % DV % Variables(iE_T) % Values, OS_E, &
-         [state % temperature])
+         actual_temperature)
+
+    state % temperature = actual_temperature(1)
 
   end subroutine ComputeTemperatureFromSpecificInternalEnergy
 
@@ -350,12 +360,15 @@ contains
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
+    real(rt) :: actual_temperature(1)
 
     call ComputeTempFromPressure_Bisection( &
          [state % density], [state % pressure], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T, LogInterp, &
          EOS % DV % Variables(iP_T) % Values, OS_P, &
-         [state % temperature])
+         actual_temperature)
+
+    state % temperature = actual_temperature(1)
 
   end subroutine ComputeTemperatureFromPressure
 
@@ -370,12 +383,15 @@ contains
     real(rt), intent(inout) :: variable
     integer,                intent(in)  :: iV
     real(rt),               intent(in)  :: OS_V
+    real(rt) :: actual_variable(1)
 
     call LogInterpolateSingleVariable(         &
          [state % density], [state % temperature], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T,          &
          LogInterp, OS_V,                 &
-         EOS % DV % Variables(iV) % Values, [variable])
+         EOS % DV % Variables(iV) % Values, actual_variable)
+
+    variable = actual_variable(1)
 
   end subroutine ComputeDependentVariable
 
