@@ -24,7 +24,7 @@ subroutine do_eos(lo, hi, &
   type(eos_t) :: eos_state
   type(eos_t) :: eos_state_reference
 
-  integer :: ii, jj, kk
+  integer :: ii, jj, kk, index_h1, index_he4
 
   !$gpu
   
@@ -36,9 +36,17 @@ subroutine do_eos(lo, hi, &
 
      ! set the composition -- approximately solar
      metalicity = ZERO + dble(kk)*dmetal
-     xn_zone(:) = metalicity/(nspec - 2)   ! all but H, He
-     xn_zone(ih1)  = 0.75_rt - HALF*metalicity
-     xn_zone(ihe4) = 0.25_rt - HALF*metalicity
+
+     index_h1  = network_species_index("hydrogen-1")
+     index_he4 = network_species_index("helium-4")
+
+     if (index_h1 == -1 .or. index_he4 == -1) then
+        xn_zone(:) = metalicity/(nspec)
+     else
+        xn_zone(:) = metalicity/(nspec - 2)   ! all but H, He
+        xn_zone(index_h1)  = 0.75_rt - HALF*metalicity
+        xn_zone(index_he4) = 0.25_rt - HALF*metalicity
+     endif
 
      do jj = lo(2), hi(2)
         temp_zone = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
