@@ -12,7 +12,7 @@ module actual_eos_module
        ComputeTempFromPressure_Bisection
 
   public
-  
+
   character (len=64), public :: eos_name = "weaklib"
   type (EquationOfStateTableType), target :: EOS
 
@@ -35,16 +35,38 @@ module actual_eos_module
   real(rt), public :: MinD, MinT, MinY
   real(rt), public :: MaxD, MaxT, MaxY
 
-  
-  public actual_eos, actual_eos_init, actual_eos_finalize
+
+  public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
 contains
+
+
+  function eos_supports_input_type(input) result(supported)
+
+    use eos_type_module
+
+    implicit none
+
+    integer, intent(in) :: input
+    logical :: supported = .false.
+
+    if (input == eos_input_rt .or. &
+        input == eos_input_rp .or. &
+        input == eos_input_re) then
+
+       supported = .true.
+
+    endif
+
+  end function eos_supports_input_type
+
+
 
   subroutine actual_eos(input, state)
 
     ! Weaklib EOS
-    ! 
-    ! The weaklib tables are indexed by log(density), 
+    !
+    ! The weaklib tables are indexed by log(density),
     ! log(temperature), and electron fraction.  As such, the usual
     ! 'composition' variable passed to the EOS is the electron fraction.
     !
@@ -66,7 +88,7 @@ contains
     select case (input)
 
        !---------------------------------------------------------------------------
-       ! dens, temp, and ye are inputs; 
+       ! dens, temp, and ye are inputs;
        ! this is direct table interpolation, so nothing to do here
        !---------------------------------------------------------------------------
 
@@ -74,7 +96,7 @@ contains
 
        continue
 
-       
+
        !---------------------------------------------------------------------------
        ! dens, enthalpy, and xmass are inputs
        !---------------------------------------------------------------------------
@@ -84,7 +106,7 @@ contains
        ! NOT CURRENTLY IMPLEMENTED
        call amrex_error("eos_input_th is not supported")
 
-       
+
        !---------------------------------------------------------------------------
        ! temp, pres, and ye are inputs; iterate to find density
        !---------------------------------------------------------------------------
@@ -144,7 +166,7 @@ contains
        ! The EOS input doesn't match any of the available options.
        !---------------------------------------------------------------------------
 
-    case default 
+    case default
 
        call amrex_error("EOS: invalid input")
 
@@ -235,7 +257,7 @@ contains
     OS_Xn = EOS % DV % Offsets(iXn_T)
     OS_Xa = EOS % DV % Offsets(iXa_T)
     OS_Xh = EOS % DV % Offsets(iXh_T)
-    OS_Gm = EOS % DV % Offsets(iGm_T)        
+    OS_Gm = EOS % DV % Offsets(iGm_T)
 
   end subroutine actual_eos_init
 
@@ -245,7 +267,7 @@ contains
 
     implicit none
 
-    deallocate(Ds_T, Ts_T, Ys_T)    
+    deallocate(Ds_T, Ts_T, Ys_T)
 
   end subroutine actual_eos_finalize
 
@@ -311,9 +333,9 @@ contains
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
-    
+
     type (weaklib_eos_t), intent(inout) :: state
-    
+
     call ComputeTempFromIntEnergy_Lookup(     &
          [state % density], [state % specific_internal_energy], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T, LogInterp, &
@@ -330,7 +352,7 @@ contains
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
-    
+
     call ComputeTempFromPressure_Bisection( &
          [state % density], [state % pressure], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T, LogInterp, &
@@ -345,7 +367,7 @@ contains
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
-    
+
     type (weaklib_eos_t), intent(inout) :: state
     real(rt), intent(inout) :: variable
     integer,                intent(in)  :: iV
@@ -357,6 +379,6 @@ contains
          LogInterp, OS_V,                 &
          EOS % DV % Variables(iV) % Values, [variable])
 
-  end subroutine ComputeDependentVariable    
+  end subroutine ComputeDependentVariable
 
 end module actual_eos_module

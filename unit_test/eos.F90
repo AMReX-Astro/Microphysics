@@ -1,5 +1,7 @@
 module eos_module
 
+  use actual_eos_module, only: eos_supports_input_type
+
   implicit none
 
   public eos_init, eos
