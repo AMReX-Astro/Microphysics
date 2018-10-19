@@ -29,13 +29,17 @@ contains
     implicit none
 
     integer, intent(in) :: input
-    logical :: supported = .false.
+    logical :: supported
 
     if (input == eos_input_rt .or. &
         input == eos_input_rp .or. &
         input == eos_input_re) then
 
        supported = .true.
+
+    else
+
+       supported = .false.
 
     endif
 

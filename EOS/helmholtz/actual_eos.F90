@@ -136,7 +136,7 @@ contains
         implicit none
 
         integer, intent(in) :: input
-        logical :: supported = .false.
+        logical :: supported
 
         if (input == eos_input_rt .or. &
             input == eos_input_rp .or. &
@@ -148,6 +148,10 @@ contains
             input == eos_input_ph) then
 
             supported = .true.
+
+         else
+
+            supported = .false.
 
          endif
 
