@@ -43,7 +43,7 @@ contains
 
     use amrex_error_module
     use hdf5
-    use parallel
+    use amrex_paralleldescriptor_module, only: amrex_pd_ioprocessor
     use eos_type_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
 
@@ -274,7 +274,7 @@ contains
        total_error = total_error + error
     endif
 
-    if (parallel_IOProcessor()) print *, 'energy_shift', energy_shift
+    if (amrex_pd_ioprocessor()) print *, 'energy_shift', energy_shift
 
     if (total_error .ne. 0) call amrex_error("EOS: Error reading EOS table")
     
@@ -344,7 +344,6 @@ contains
     use fundamental_constants_module
     use eos_type_module
     use amrex_constants_module, only: TEN
-    use parallel
     
     implicit none
 
