@@ -21,7 +21,7 @@ module actual_eos_module
   public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
   private
-  
+
   integer :: &
        iD_T, iT_T, iY_T, &
        iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T, &
@@ -72,7 +72,7 @@ contains
     !
     ! Make sure you use a network that uses ye as a species!
 
-    use amrex_error_module, only: amrex_error    
+    use amrex_error_module, only: amrex_error
     use eos_type_module
     use weaklib_type_module, only: weaklib_eos_t, eos_to_weaklib, weaklib_to_eos
 
@@ -194,10 +194,6 @@ contains
 
     implicit none
 
-    print *, ''
-    print *, "Initializing Weaklib EOS on all MPI ranks from table file: ", trim(weaklib_eos_table_name)
-    print *, ''
-    
     if (amrex_pd_ioprocessor()) then
        print *, ''
        print *, "Initializing Weaklib EOS on all MPI ranks from table file: ", trim(weaklib_eos_table_name)
@@ -340,7 +336,7 @@ contains
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
-    real(rt) :: actual_temperature(1)    
+    real(rt) :: actual_temperature(1)
 
     call ComputeTempFromIntEnergy_Lookup(     &
          [state % density], [state % specific_internal_energy], [state % electron_fraction], &

@@ -3,7 +3,7 @@ module weaklib_type_module
   use amrex_fort_module, only: rt => amrex_real
   use eos_type_module
   use PhysicalConstantsModule, only: BoltzmannConstantMKS
-  use UnitsModule, only: Joule, Erg, Gram, Centimeter, Dyne, Kelvin, AtomicMassUnit
+  use UnitsModule, only: Joule, Erg, AtomicMassUnit
 
   implicit none
 
@@ -101,44 +101,24 @@ contains
 
   ! Unit Conversion Helpers:
   !
-  ! the weaklib table interface uses dimensionless
-  ! density, temperature, pressure, and specific energy and
+  ! the weaklib table interface uses
   ! entropy in units of k_B / baryon
-  
-  ! Convert from CGS units to the Weaklib interface units.
   subroutine convert_to_table_format(state)
 
     implicit none
 
     type(eos_t), intent(inout) :: state
-    
-    state % rho = state % rho / (Gram / Centimeter**3)
-
-    state % p = state % p / (Dyne / Centimeter**2)
-
-    state % e = state % e / (Erg / Gram)
-
-    state % T = state % T / (Kelvin)
 
     state % s = state % s * (AtomicMassUnit/BoltzmannConstantCGS)
 
   end subroutine convert_to_table_format
 
   
-  ! this converts from the Weaklib interface units to CGS units
   subroutine convert_from_table_format(state)
 
     implicit none
 
     type(eos_t), intent(inout) :: state
-
-    state % rho = state % rho * (Gram / Centimeter**3)
-
-    state % p = state % p * (Dyne / Centimeter**2)
-
-    state % e = state % e * (Erg / Gram)
-
-    state % T = state % T * (Kelvin)
 
     state % s = state % s / (AtomicMassUnit/BoltzmannConstantCGS)
 
