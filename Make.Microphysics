@@ -72,6 +72,7 @@ endif
 #------------------------------------------------------------------------------
 # CVODE directories
 #------------------------------------------------------------------------------
+
 ifeq ($(INTEGRATOR_DIR), CVODE)
 
   INCLUDE_LOCATIONS += $(CVODE_HOME)/include
@@ -93,6 +94,31 @@ ifeq ($(INTEGRATOR_DIR), CVODE)
   endif
 
 endif
+
+
+#------------------------------------------------------------------------------
+# Weaklib directories
+#------------------------------------------------------------------------------
+
+ifeq ($(USE_WEAKLIB), TRUE)
+  DEFINES += -DMICROPHYSICS_WEAKLIB
+
+  Blocs += $(WEAKLIB_HOME)/Distributions/Library
+  Blocs += $(WEAKLIB_HOME)/Distributions/EOSSource
+  Blocs += $(WEAKLIB_HOME)/Distributions/OpacitySource
+endif
+
+
+#------------------------------------------------------------------------------
+# HDF5 Library
+#------------------------------------------------------------------------------
+
+ifeq ($(USE_HDF5), TRUE)
+  DEFINES += -DBL_HDF5
+  INCLUDE_LOCATIONS += $(HDF5_HOME)/include
+  LIBRARIES         += -L$(HDF5_HOME)/lib -lhdf5_fortran -lhdf5
+endif
+
 
 #------------------------------------------------------------------------------
 # Microphysics directories

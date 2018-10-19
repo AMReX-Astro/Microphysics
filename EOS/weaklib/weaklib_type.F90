@@ -2,14 +2,14 @@ module weaklib_type_module
 
   use amrex_fort_module, only: rt => amrex_real
   use eos_type_module
-  use fundamental_constants_module, only: k_B, ev2erg, MeV2eV  
+  use PhysicalConstantsModule, only: BoltzmannConstantMKS
+  use UnitsModule, only: Joule, Erg, Gram, Centimeter, Dyne, Kelvin, AtomicMassUnit
 
   implicit none
 
   public
 
-  real(rt), parameter :: temp_conv = k_B / ev2erg / MeV2eV
-  real(rt), parameter :: energy_shift = ZERO
+  real(rt), parameter :: BoltzmannConstantCGS = BoltzmannConstantMKS * Erg / Joule
 
   type :: weaklib_eos_t
      real(rt) :: density
@@ -41,14 +41,14 @@ contains
 
     implicit none
 
-    type (eos_t), intent(in) :: eos_state
+    type (eos_t), intent(inout) :: eos_state
     type (weaklib_eos_t), intent(out) :: weaklib_state
 
     call convert_to_table_format(eos_state)
 
     weaklib_state % density = eos_state % rho
     weaklib_state % temperature = eos_state % T
-    weaklib_state % electron_fraction = eos_state % ye
+    weaklib_state % electron_fraction = eos_state % y_e
     
     weaklib_state % pressure = eos_state % p
     weaklib_state % entropy_per_baryon = ZERO
@@ -80,7 +80,7 @@ contains
 
     eos_state % rho = weaklib_state % density
     eos_state % T   = weaklib_state % temperature
-    eos_state % ye  = weaklib_state % electron_fraction
+    eos_state % y_e  = weaklib_state % electron_fraction
     
     eos_state % p = weaklib_state % pressure
     eos_state % s = weaklib_state % entropy_per_baryon    
@@ -99,52 +99,48 @@ contains
   end subroutine weaklib_to_eos
 
 
-  ! Convert from the units used in Castro to the units of the table.
+  ! Unit Conversion Helpers:
+  !
+  ! the weaklib table interface uses dimensionless
+  ! density, temperature, pressure, and specific energy and
+  ! entropy in units of k_B / baryon
+  
+  ! Convert from CGS units to the Weaklib interface units.
   subroutine convert_to_table_format(state)
-
-    use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
-    use amrex_constants_module, only: ZERO, ONE
 
     implicit none
 
     type(eos_t), intent(inout) :: state
+    
+    state % rho = state % rho / (Gram / Centimeter**3)
 
-    ! the weaklib tables use some log10 variables, as well as 
-    ! units of MeV for temperature and chemical potential, and k_B / baryon 
-    ! for entropy
-    if (state % rho > ZERO) then
-       state % rho = dlog10(state % rho)
-    endif
-    if (state % p > ZERO) then
-       state % p = dlog10(state % p)
-    endif
-    if (state % e > ZERO) then
-       state % e = dlog10(state % e - energy_shift)
-    endif
-    if (state % T > ZERO) then
-       state % T = dlog10(state % T * temp_conv)
-    endif
-    ! assuming baryon mass to be ~ 1 amu = 1/N_A
-    state % s = state % s * k_B / n_A
+    state % p = state % p / (Dyne / Centimeter**2)
+
+    state % e = state % e / (Erg / Gram)
+
+    state % T = state % T / (Kelvin)
+
+    state % s = state % s * (AtomicMassUnit/BoltzmannConstantCGS)
 
   end subroutine convert_to_table_format
 
   
-  ! this converts from the units used in the table to the units of Castro
+  ! this converts from the Weaklib interface units to CGS units
   subroutine convert_from_table_format(state)
-
-    use fundamental_constants_module
-    use amrex_constants_module, only: TEN
 
     implicit none
 
     type(eos_t), intent(inout) :: state
 
-    state % rho = TEN**state % rho
-    state % p   = TEN**state % p
-    state % e   = TEN**state % e + energy_shift
-    state % T = (TEN**state % T) / temp_conv
-    state % s = state % s * n_A / k_B
+    state % rho = state % rho * (Gram / Centimeter**3)
+
+    state % p = state % p * (Dyne / Centimeter**2)
+
+    state % e = state % e * (Erg / Gram)
+
+    state % T = state % T * (Kelvin)
+
+    state % s = state % s / (AtomicMassUnit/BoltzmannConstantCGS)
 
   end subroutine convert_from_table_format
   

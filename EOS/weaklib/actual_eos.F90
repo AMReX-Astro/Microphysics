@@ -4,20 +4,15 @@ module actual_eos_module
 
   use wlEquationOfStateTableModule, only: EquationOfStateTableType
   use wlInterpolationModule, only: LogInterpolateSingleVariable, &
-       LogInterpolateDifferentiateSingleVariable, &
-       ComputeTempFromIntEnergy_Lookup, &
-       ComputeTempFromIntEnergy_Bisection, &
-       ComputeTempFromIntEnergy_Secant, &
-       ComputeTempFromPressure, &
-       ComputeTempFromPressure_Bisection
-
-  public
-
-  character (len=64), public :: eos_name = "weaklib"
-  type (EquationOfStateTableType), target :: EOS
+                                   LogInterpolateDifferentiateSingleVariable, &
+                                   ComputeTempFromIntEnergy_Lookup, &
+                                   ComputeTempFromIntEnergy_Bisection, &
+                                   ComputeTempFromIntEnergy_Secant, &
+                                   ComputeTempFromPressure, &
+                                   ComputeTempFromPressure_Bisection
 
   private
-
+  
   integer :: &
        iD_T, iT_T, iY_T, &
        iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T, &
@@ -27,14 +22,16 @@ module actual_eos_module
   real(rt) :: &
        OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, &
        OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm
-  real(rt), parameter :: &
-       BaryonMass = AtomicMassUnit
   real(rt), dimension(:), allocatable :: &
        Ds_T, Ts_T, Ys_T
 
   real(rt), public :: MinD, MinT, MinY
   real(rt), public :: MaxD, MaxT, MaxY
 
+  public
+
+  character (len=64), public :: eos_name = "weaklib"
+  type (EquationOfStateTableType), target :: EOS
 
   public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
@@ -72,6 +69,7 @@ contains
     !
     ! Make sure you use a network that uses ye as a species!
 
+    use eos_type_module
     use weaklib_type_module, only: weaklib_eos_t, eos_to_weaklib, weaklib_to_eos
 
     implicit none
