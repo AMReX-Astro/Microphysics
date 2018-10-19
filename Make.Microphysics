@@ -1,6 +1,8 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 CVODE_HOME ?= /path/to/CVODE
+WEAKLIB_HOME ?= /path/to/weaklib
+HDF5_HOME ?= /path/to/hdf5
 
 # system blas
 BLAS_LIBRARY ?= -lopenblas
