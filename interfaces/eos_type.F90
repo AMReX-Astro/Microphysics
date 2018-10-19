@@ -408,4 +408,92 @@ contains
 
   end subroutine eos_get_max_dens
 
+
+  ! Check to see if variable ivar is a valid
+  ! independent variable for the given input
+  function eos_input_has_var(input, ivar) result(has)
+
+    use eos_type_module
+
+    implicit none
+
+    integer, intent(in) :: input
+    logical :: has
+
+    !$gpu
+
+    has = .false.
+    
+    select case (ivar)
+
+    case (itemp)
+
+       if (input == eos_input_rt .or. &
+           input == eos_input_tp .or. &
+           input == eos_input_th) then
+
+          has = .true.
+
+       endif
+
+    case (idens)
+
+       if (input == eos_input_rt .or. &
+           input == eos_input_rh .or. &
+           input == eos_input_rp .or. &
+           input == eos_input_re) then
+
+          has = .true.
+
+       endif
+
+    case (iener)
+
+       if (input == eos_input_re) then
+
+          has = .true.
+
+       endif
+       
+    case (ienth)
+
+       if (input == eos_input_rh .or. &
+           input == eos_input_ph .or. &
+           input == eos_input_th) then
+
+          has = .true.
+
+       endif
+
+    case (ientr)
+
+       if (input == eos_input_ps) then
+
+          has = .true.
+
+       endif
+
+    case (ipres)
+
+       if (input == eos_input_tp .or. &
+           input == eos_input_rp .or. &
+           input == eos_input_ps .or. &
+           input == eos_input_ph) then
+
+          has = .true.
+
+       endif
+
+    case default
+
+#ifdef AMREX_USE_CUDA
+       stop
+#else
+       call amrex_error("EOS: invalid independent variable")
+#endif
+
+    end select
+
+  end function eos_input_has_var
+
 end module eos_type_module

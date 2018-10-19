@@ -59,7 +59,7 @@ contains
     integer :: ierr
 
     ! Convert to the units used by the table.
-    call convert_to_table_format(state)
+    call convert_to_table_format(input, state)
 
     ierr = 0
 

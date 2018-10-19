@@ -304,7 +304,7 @@ contains
 
 
   ! Convert from the units used in Castro to the units of the table.
-  subroutine convert_to_table_format(state)
+  subroutine convert_to_table_format(input, state)
 
     use eos_type_module
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
@@ -312,21 +312,24 @@ contains
 
     implicit none
 
+    integer,     intent(in   ) :: input
     type(eos_t), intent(inout) :: state
 
     ! the stellarcollapse.org tables use some log10 variables, as well as 
     ! units of MeV for temperature and chemical potential, and k_B / baryon 
     ! for entropy
-    if (state % rho > ZERO) then
+
+    ! Only take logs of quantities we can assume are defined
+    if (state % rho > ZERO .and. eos_input_has_var(input, idens)) then
        state % rho = dlog10(state % rho)
     endif
-    if (state % p > ZERO) then
+    if (state % p > ZERO .and. eos_input_has_var(input, ipres)) then
        state % p = dlog10(state % p)
     endif
-    if (state % e > ZERO) then
+    if (state % e > ZERO .and. eos_input_has_var(input, iener)) then
        state % e = dlog10(state % e - energy_shift)
     endif
-    if (state % T > ZERO) then
+    if (state % T > ZERO .and. eos_input_has_var(input, itemp)) then
        state % T = dlog10(state % T * temp_conv)
     endif
     ! assuming baryon mass to be ~ 1 amu = 1/N_A
