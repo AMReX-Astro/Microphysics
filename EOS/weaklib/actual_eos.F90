@@ -16,7 +16,7 @@ module actual_eos_module
   real(rt), public :: MaxD, MaxT, MaxY
 
   character (len=64), public :: eos_name = "weaklib"
-  type (EquationOfStateTableType), target :: EOS
+  type (EquationOfStateTableType), target, public :: EOS
 
   public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
