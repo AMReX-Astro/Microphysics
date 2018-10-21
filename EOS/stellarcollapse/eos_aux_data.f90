@@ -274,7 +274,7 @@ contains
        total_error = total_error + error
     endif
 
-    if (amrex_pd_ioprocessor()) print *, 'energy_shift', energy_shift
+    if (amrex_pd_ioprocessor()) print *, 'stellarcollapse EOS energy_shift', energy_shift
 
     if (total_error .ne. 0) call amrex_error("EOS: Error reading EOS table")
     
@@ -320,17 +320,17 @@ contains
     ! for entropy
 
     ! Only take logs of quantities we can assume are defined
-    if (state % rho > ZERO .and. eos_input_has_var(input, idens)) then
-       state % rho = dlog10(state % rho)
+    if (eos_input_has_var(input, idens)) then
+       state % rho = dlog10(max(state % rho, ONE))
     endif
-    if (state % p > ZERO .and. eos_input_has_var(input, ipres)) then
-       state % p = dlog10(state % p)
+    if (eos_input_has_var(input, ipres)) then
+       state % p = dlog10(max(state % p, ONE))
     endif
-    if (state % e > ZERO .and. eos_input_has_var(input, iener)) then
-       state % e = dlog10(state % e - energy_shift)
+    if (eos_input_has_var(input, iener)) then
+       state % e = dlog10(max(state % e + energy_shift, ONE))
     endif
-    if (state % T > ZERO .and. eos_input_has_var(input, itemp)) then
-       state % T = dlog10(state % T * temp_conv)
+    if (eos_input_has_var(input, itemp)) then
+       state % T = dlog10(max(state % T * temp_conv, ONE))
     endif
     ! assuming baryon mass to be ~ 1 amu = 1/N_A
     state % s = state % s * k_B / n_A
@@ -351,7 +351,7 @@ contains
 
     state%rho = TEN**state%rho
     state%p   = TEN**state%p
-    state%e   = TEN**state%e + energy_shift
+    state%e   = TEN**state%e - energy_shift
     state%T = (TEN**state%T) / temp_conv
     state%s = state%s * n_A / k_B
 
