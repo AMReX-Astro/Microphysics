@@ -306,6 +306,7 @@ contains
   ! Convert from the units used in Castro to the units of the table.
   subroutine convert_to_table_format(input, state)
 
+    use amrex_error_module, only: amrex_error
     use eos_type_module
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
     use amrex_constants_module, only: ZERO, ONE
@@ -321,17 +322,33 @@ contains
 
     ! Only take logs of quantities we can assume are defined
     if (eos_input_has_var(input, idens)) then
-       state % rho = dlog10(max(state % rho, ONE))
+       if (state % rho > ZERO) then
+          state % rho = dlog10(state % rho)
+       else
+          call amrex_error('convert_to_table_format: got negative or zero density')
+       endif
     endif
+
     if (eos_input_has_var(input, ipres)) then
-       state % p = dlog10(max(state % p, ONE))
+       if (state % p > ZERO) then
+          state % p = dlog10(state % p)
+       else
+          call amrex_error('convert_to_table_format: got negative or zero pressure')
+       endif
     endif
+
     if (eos_input_has_var(input, iener)) then
        state % e = dlog10(max(state % e + energy_shift, ONE))
     endif
+
     if (eos_input_has_var(input, itemp)) then
-       state % T = dlog10(max(state % T * temp_conv, ONE))
+       if (state % T > ZERO) then
+          state % T = dlog10(state % T * temp_conv)
+       else
+          call amrex_error('convert_to_table_format: got negative or zero temperature')
+       endif
     endif
+
     ! assuming baryon mass to be ~ 1 amu = 1/N_A
     state % s = state % s * k_B / n_A
 
