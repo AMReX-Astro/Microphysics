@@ -32,13 +32,21 @@ endif
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
-all: build_status $(executable)
+all: build_status $(executable) starkiller_library
 	@echo SUCCESS
 
 build_status:
 	$(AMREX_HOME)/Tools/C_scripts/describe_sources.py \
           --git_names "Castro AMReX Microphysics" \
           --git_dirs "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+
+starkiller_library: $(executable)
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+	@echo Wrapping sources with f90wrap ...
+	sh dowrap.sh
+	@echo Linking objects with f2py ...
+	sh dof2py.sh
+endif
 
 # Use a coarse grained OMP approach
 DEFINES += -DCRSEGRNDOMP
@@ -68,6 +76,9 @@ ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
   endif
 endif
 
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+  DEFINES += -DCOMPILE_WITH_F2PY
+endif
 
 #------------------------------------------------------------------------------
 # CVODE directories
