@@ -3,32 +3,33 @@ module weaklib_type_module
   use amrex_fort_module, only: rt => amrex_real
   use eos_type_module
   use PhysicalConstantsModule, only: BoltzmannConstantMKS
-  use UnitsModule, only: Joule, Erg, AtomicMassUnit
+  use UnitsModule, only: Joule, Erg, Gram, AtomicMassUnit
 
   implicit none
 
   public
 
-  real(rt), parameter :: BoltzmannConstantCGS = BoltzmannConstantMKS * Erg / Joule
+  real(rt), parameter :: BoltzmannConstantCGS = BoltzmannConstantMKS * Joule / Erg
+  real(rt), parameter :: AtomicMassUnitCGS = AtomicMassUnit / Gram
 
   type :: weaklib_eos_t
      real(rt) :: density
      real(rt) :: temperature
      real(rt) :: electron_fraction
-     
+
      real(rt) :: pressure
      real(rt) :: entropy_per_baryon
      real(rt) :: specific_internal_energy
-     
+
      real(rt) :: electron_chemical_potential
      real(rt) :: proton_chemical_potential
      real(rt) :: neutron_chemical_potential
-     
+
      real(rt) :: proton_mass_fraction
      real(rt) :: neutron_mass_fraction
      real(rt) :: alpha_mass_fraction
      real(rt) :: heavy_mass_fraction
-     
+
      real(rt) :: gamma_one
      real(rt) :: speed_of_sound
   end type weaklib_eos_t
@@ -49,7 +50,7 @@ contains
     weaklib_state % density = eos_state % rho
     weaklib_state % temperature = eos_state % T
     weaklib_state % electron_fraction = eos_state % y_e
-    
+
     weaklib_state % pressure = eos_state % p
     weaklib_state % entropy_per_baryon = ZERO
     weaklib_state % specific_internal_energy = eos_state % e
@@ -81,9 +82,9 @@ contains
     eos_state % rho = weaklib_state % density
     eos_state % T   = weaklib_state % temperature
     eos_state % y_e  = weaklib_state % electron_fraction
-    
+
     eos_state % p = weaklib_state % pressure
-    eos_state % s = weaklib_state % entropy_per_baryon    
+    eos_state % s = weaklib_state % entropy_per_baryon
     eos_state % e = weaklib_state % specific_internal_energy
 
     eos_state % gam1 = weaklib_state % gamma_one
@@ -109,19 +110,19 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    state % s = state % s * (AtomicMassUnit/BoltzmannConstantCGS)
+    state % s = state % s * (AtomicMassUnitCGS/BoltzmannConstantCGS)
 
   end subroutine convert_to_table_format
 
-  
+
   subroutine convert_from_table_format(state)
 
     implicit none
 
     type(eos_t), intent(inout) :: state
 
-    state % s = state % s / (AtomicMassUnit/BoltzmannConstantCGS)
+    state % s = state % s / (AtomicMassUnitCGS/BoltzmannConstantCGS)
 
   end subroutine convert_from_table_format
-  
+
 end module weaklib_type_module
