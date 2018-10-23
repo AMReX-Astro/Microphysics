@@ -1,3 +1,8 @@
+changes since last release
+
+ -- a bug was fixed in the stellarcollapse EOS where the energy offset
+    was being applied incorrectly.
+
 
 # 18.10
 
