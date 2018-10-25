@@ -1,9 +1,6 @@
 F90sources += actual_eos.F90
 F90sources += weaklib_type.F90
 
-f90sources += PhysicalConstantsModule.f90
-f90sources += UnitsModule.f90
-
 # In weaklib/Distributions/Library
 f90sources += wlKindModule.f90
 f90sources += wlGridModule.f90
