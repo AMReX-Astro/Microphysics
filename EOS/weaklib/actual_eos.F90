@@ -12,11 +12,9 @@ module actual_eos_module
                                    ComputeTempFromPressure, &
                                    ComputeTempFromPressure_Bisection
 
-  real(rt), public :: MinD, MinT, MinY
-  real(rt), public :: MaxD, MaxT, MaxY
-
   character (len=64), public :: eos_name = "weaklib"
-  type (EquationOfStateTableType), target, public :: EOS
+  type (EquationOfStateTableType), target, public :: eos_table
+  type (EquationOfStateTableType), pointer, public :: eos_pointer => eos_table
 
   public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
@@ -201,64 +199,55 @@ contains
     endif
 
     call InitializeHDF()
-    call ReadEquationOfStateTableHDF(EOS, trim(weaklib_eos_table_name))
+    call ReadEquationOfStateTableHDF(eos_table, trim(weaklib_eos_table_name))
     call FinalizeHDF()
 
     ! --- Thermodynamic State Indices ---
 
-    iD_T = EOS % TS % Indices % iRho
-    iT_T = EOS % TS % Indices % iT
-    iY_T = EOS % TS % Indices % iYe
+    iD_T = eos_table % TS % Indices % iRho
+    iT_T = eos_table % TS % Indices % iT
+    iY_T = eos_table % TS % Indices % iYe
 
     ! --- Thermodynamic States ---
 
-    allocate( Ds_T(EOS % TS % nPoints(iD_T)) )
-    Ds_T = EOS % TS % States(iD_T) % Values
+    allocate( Ds_T(eos_table % TS % nPoints(iD_T)) )
+    Ds_T = eos_table % TS % States(iD_T) % Values
 
-    MinD = minval( Ds_T ) * Gram / Centimeter**3
-    MaxD = maxval( Ds_T ) * Gram / Centimeter**3
+    allocate( Ts_T(eos_table % TS % nPoints(iT_T)) )
+    Ts_T = eos_table % TS % States(iT_T) % Values
 
-    allocate( Ts_T(EOS % TS % nPoints(iT_T)) )
-    Ts_T = EOS % TS % States(iT_T) % Values
+    allocate( Ys_T(eos_table % TS % nPoints(iY_T)) )
+    Ys_T = eos_table % TS % States(iY_T) % Values
 
-    MinT = minval( Ts_T ) * Kelvin
-    MaxT = maxval( Ts_T ) * Kelvin
-
-    allocate( Ys_T(EOS % TS % nPoints(iY_T)) )
-    Ys_T = EOS % TS % States(iY_T) % Values
-
-    MinY = minval( Ys_T )
-    MaxY = maxval( Ys_T )
-
-    LogInterp = EOS % TS % LogInterp
+    LogInterp = eos_table % TS % LogInterp
 
     ! --- Dependent Variables Indices ---
 
-    iP_T  = EOS % DV % Indices % iPressure
-    iS_T  = EOS % DV % Indices % iEntropyPerBaryon
-    iE_T  = EOS % DV % Indices % iInternalEnergyDensity
-    iMe_T = EOS % DV % Indices % iElectronChemicalPotential
-    iMp_T = EOS % DV % Indices % iProtonChemicalPotential
-    iMn_T = EOS % DV % Indices % iNeutronChemicalPotential
-    iXp_T = EOS % DV % Indices % iProtonMassFraction
-    iXn_T = EOS % DV % Indices % iNeutronMassFraction
-    iXa_T = EOS % DV % Indices % iAlphaMassFraction
-    iXh_T = EOS % DV % Indices % iHeavyMassFraction
-    iGm_T = EOS % DV % Indices % iGamma1
+    iP_T  = eos_table % DV % Indices % iPressure
+    iS_T  = eos_table % DV % Indices % iEntropyPerBaryon
+    iE_T  = eos_table % DV % Indices % iInternalEnergyDensity
+    iMe_T = eos_table % DV % Indices % iElectronChemicalPotential
+    iMp_T = eos_table % DV % Indices % iProtonChemicalPotential
+    iMn_T = eos_table % DV % Indices % iNeutronChemicalPotential
+    iXp_T = eos_table % DV % Indices % iProtonMassFraction
+    iXn_T = eos_table % DV % Indices % iNeutronMassFraction
+    iXa_T = eos_table % DV % Indices % iAlphaMassFraction
+    iXh_T = eos_table % DV % Indices % iHeavyMassFraction
+    iGm_T = eos_table % DV % Indices % iGamma1
 
     ! --- Dependent Variables Offsets ---
 
-    OS_P  = EOS % DV % Offsets(iP_T)
-    OS_S  = EOS % DV % Offsets(iS_T)
-    OS_E  = EOS % DV % Offsets(iE_T)
-    OS_Me = EOS % DV % Offsets(iMe_T)
-    OS_Mp = EOS % DV % Offsets(iMp_T)
-    OS_Mn = EOS % DV % Offsets(iMn_T)
-    OS_Xp = EOS % DV % Offsets(iXp_T)
-    OS_Xn = EOS % DV % Offsets(iXn_T)
-    OS_Xa = EOS % DV % Offsets(iXa_T)
-    OS_Xh = EOS % DV % Offsets(iXh_T)
-    OS_Gm = EOS % DV % Offsets(iGm_T)
+    OS_P  = eos_table % DV % Offsets(iP_T)
+    OS_S  = eos_table % DV % Offsets(iS_T)
+    OS_E  = eos_table % DV % Offsets(iE_T)
+    OS_Me = eos_table % DV % Offsets(iMe_T)
+    OS_Mp = eos_table % DV % Offsets(iMp_T)
+    OS_Mn = eos_table % DV % Offsets(iMn_T)
+    OS_Xp = eos_table % DV % Offsets(iXp_T)
+    OS_Xn = eos_table % DV % Offsets(iXn_T)
+    OS_Xa = eos_table % DV % Offsets(iXa_T)
+    OS_Xh = eos_table % DV % Offsets(iXh_T)
+    OS_Gm = eos_table % DV % Offsets(iGm_T)
 
   end subroutine actual_eos_init
 
@@ -341,7 +330,7 @@ contains
     call ComputeTempFromIntEnergy_Lookup(     &
          [state % density], [state % specific_internal_energy], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T, LogInterp, &
-         EOS % DV % Variables(iE_T) % Values, OS_E, &
+         eos_table % DV % Variables(iE_T) % Values, OS_E, &
          actual_temperature)
 
     state % temperature = actual_temperature(1)
@@ -361,7 +350,7 @@ contains
     call ComputeTempFromPressure_Bisection( &
          [state % density], [state % pressure], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T, LogInterp, &
-         EOS % DV % Variables(iP_T) % Values, OS_P, &
+         eos_table % DV % Variables(iP_T) % Values, OS_P, &
          actual_temperature)
 
     state % temperature = actual_temperature(1)
@@ -385,7 +374,7 @@ contains
          [state % density], [state % temperature], [state % electron_fraction], &
          Ds_T, Ts_T, Ys_T,          &
          LogInterp, OS_V,                 &
-         EOS % DV % Variables(iV) % Values, actual_variable)
+         eos_table % DV % Variables(iV) % Values, actual_variable)
 
     variable = actual_variable(1)
 
