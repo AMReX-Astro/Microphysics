@@ -3,7 +3,7 @@ module weaklib_type_module
   use amrex_fort_module, only: rt => amrex_real
   use eos_type_module
   use PhysicalConstantsModule, only: BoltzmannConstantMKS
-  use UnitsModule, only: Joule, Erg, Gram, AtomicMassUnit
+  use UnitsModule, only: Joule, Erg, MeV, Gram, AtomicMassUnit
 
   implicit none
 
@@ -87,6 +87,10 @@ contains
     eos_state % s = weaklib_state % entropy_per_baryon
     eos_state % e = weaklib_state % specific_internal_energy
 
+    eos_state % electron_chemical_potential = weaklib_state % electron_chemical_potential
+    eos_state % proton_chemical_potential = weaklib_state % proton_chemical_potential
+    eos_state % neutron_chemical_potential = weaklib_state % neutron_chemical_potential
+
     eos_state % gam1 = weaklib_state % gamma_one
 
     call convert_from_table_format(eos_state)
@@ -96,6 +100,9 @@ contains
 
     ! construct sound speed using the first adiabatic index
     eos_state % cs = sqrt(eos_state % gam1 * eos_state % p / eos_state % rho)
+
+    ! construct electron number density per unit volume
+    eos_state % xne = eos_state % y_e * eos_state % rho / AtomicMassUnitCGS
 
   end subroutine weaklib_to_eos
 
@@ -122,6 +129,10 @@ contains
     type(eos_t), intent(inout) :: state
 
     state % s = state % s / (AtomicMassUnitCGS/BoltzmannConstantCGS)
+
+    state % electron_chemical_potential = state % electron_chemical_potential * MeV
+    state % proton_chemical_potential = state % proton_chemical_potential * MeV
+    state % neutron_chemical_potential = state % neutron_chemical_potential * MeV
 
   end subroutine convert_from_table_format
 
