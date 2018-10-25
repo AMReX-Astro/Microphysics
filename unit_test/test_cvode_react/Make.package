@@ -1,7 +1,11 @@
 CEXE_sources += main.cpp
 
 ifeq ($(USE_CUDA), TRUE)
-CEXE_sources += react_cuda.cpp
+  ifeq ($(USE_CVODE_CUSOLVER), TRUE)
+    CEXE_sources += react_cuda_cusolver.cpp
+  else
+    CEXE_sources += react_cuda.cpp
+  endif
 else
 CEXE_sources += react_serial.cpp
 endif

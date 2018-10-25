@@ -35,6 +35,5 @@ ALL: $(pnames)
 # include the fParallel Makefile rules
 include $(FBOXLIB_HOME)/Tools/F_mk/GMakerules.mak
 
-
-
-
+F90FLAGS += -ffree-line-length-none
+FFLAGS += -ffree-line-length-none

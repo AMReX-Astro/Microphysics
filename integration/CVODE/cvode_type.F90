@@ -48,15 +48,13 @@ contains
 
     !$gpu
 
-    if (.not. renormalize_abundances) then
-       nspec_sum = &
-            sum(y(1:nspec_evolve)) + &
-            sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
+    nspec_sum = &
+         sum(y(1:nspec_evolve)) + &
+         sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
 
-       y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
-       rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
-    endif
+    y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
 
   end subroutine sk_renormalize_species
 
@@ -218,21 +216,28 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, nspec_evolve, aion, aion_inv, NETWORK_SPARSE_JAC_NNZ
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
+    use jacobian_sparsity_module, only: scale_csr_jac_entry
 
     implicit none
 
     type (burn_t) :: state
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(neqs)
-    real(rt), optional :: ydot(neqs), jac(neqs, neqs)
+    real(rt), optional :: ydot(neqs)
+    
+#ifdef REACT_SPARSE_JACOBIAN
+    real(rt), optional :: jac(NETWORK_SPARSE_JAC_NNZ)
+#else
+    real(rt), optional :: jac(neqs, neqs)
+#endif
 
-    integer :: n
+    integer :: i
 
     !$gpu
 
@@ -264,11 +269,21 @@ contains
     endif
 
     if (present(jac)) then
+#ifdef REACT_SPARSE_JACOBIAN
+       jac = state % sparse_jac
+       do i = 1, neqs
+          call scale_csr_jac_entry(jac, net_itemp, i, inv_temp_scale)
+          call scale_csr_jac_entry(jac, net_ienuc, i, inv_ener_scale)
+          call scale_csr_jac_entry(jac, i, net_itemp, temp_scale)
+          call scale_csr_jac_entry(jac, i, net_ienuc, ener_scale)
+       enddo
+#else
        jac = state % jac
        jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
        jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
        jac(:,net_itemp) = jac(:,net_itemp) * temp_scale
        jac(:,net_ienuc) = jac(:,net_ienuc) * ener_scale
+#endif
     endif
 
     if (state % self_heat) then
@@ -430,7 +445,8 @@ contains
 
     !$gpu
 
-    ! Subtract the energy offset
+    ! Subtract off the initial energy offset to return
+    ! the total *generated* energy as y(net_ienuc)
     y(net_ienuc) = y(net_ienuc) - rpar(irp_energy_offset)
 
     ! Convert to burn state out

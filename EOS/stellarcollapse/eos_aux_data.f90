@@ -43,7 +43,7 @@ contains
 
     use amrex_error_module
     use hdf5
-    use parallel
+    use amrex_paralleldescriptor_module, only: amrex_pd_ioprocessor
     use eos_type_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
 
@@ -274,7 +274,7 @@ contains
        total_error = total_error + error
     endif
 
-    if (parallel_IOProcessor()) print *, 'energy_shift', energy_shift
+    if (amrex_pd_ioprocessor()) print *, 'stellarcollapse EOS energy_shift', energy_shift
 
     if (total_error .ne. 0) call amrex_error("EOS: Error reading EOS table")
     
@@ -304,31 +304,51 @@ contains
 
 
   ! Convert from the units used in Castro to the units of the table.
-  subroutine convert_to_table_format(state)
+  subroutine convert_to_table_format(input, state)
 
+    use amrex_error_module, only: amrex_error
     use eos_type_module
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
     use amrex_constants_module, only: ZERO, ONE
 
     implicit none
 
+    integer,     intent(in   ) :: input
     type(eos_t), intent(inout) :: state
 
     ! the stellarcollapse.org tables use some log10 variables, as well as 
     ! units of MeV for temperature and chemical potential, and k_B / baryon 
     ! for entropy
-    if (state % rho > ZERO) then
-       state % rho = dlog10(state % rho)
+
+    ! Only take logs of quantities we can assume are defined
+    if (eos_input_has_var(input, idens)) then
+       if (state % rho > ZERO) then
+          state % rho = dlog10(state % rho)
+       else
+          call amrex_error('convert_to_table_format: got negative or zero density')
+       endif
     endif
-    if (state % p > ZERO) then
-       state % p = dlog10(state % p)
+
+    if (eos_input_has_var(input, ipres)) then
+       if (state % p > ZERO) then
+          state % p = dlog10(state % p)
+       else
+          call amrex_error('convert_to_table_format: got negative or zero pressure')
+       endif
     endif
-    if (state % e > ZERO) then
-       state % e = dlog10(state % e - energy_shift)
+
+    if (eos_input_has_var(input, iener)) then
+       state % e = dlog10(max(state % e + energy_shift, ONE))
     endif
-    if (state % T > ZERO) then
-       state % T = dlog10(state % T * temp_conv)
+
+    if (eos_input_has_var(input, itemp)) then
+       if (state % T > ZERO) then
+          state % T = dlog10(state % T * temp_conv)
+       else
+          call amrex_error('convert_to_table_format: got negative or zero temperature')
+       endif
     endif
+
     ! assuming baryon mass to be ~ 1 amu = 1/N_A
     state % s = state % s * k_B / n_A
 
@@ -341,7 +361,6 @@ contains
     use fundamental_constants_module
     use eos_type_module
     use amrex_constants_module, only: TEN
-    use parallel
     
     implicit none
 
@@ -349,7 +368,7 @@ contains
 
     state%rho = TEN**state%rho
     state%p   = TEN**state%p
-    state%e   = TEN**state%e + energy_shift
+    state%e   = TEN**state%e - energy_shift
     state%T = (TEN**state%T) / temp_conv
     state%s = state%s * n_A / k_B
 

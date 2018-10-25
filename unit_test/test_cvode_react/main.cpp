@@ -107,7 +107,15 @@ void main_main ()
     for (int i = 0; i < probin_file_length; i++)
       probin_file_name[i] = probin_file[i];
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "initializing unit test ..." << std::endl;
+    }
+
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "finished initializing unit test ..." << std::endl;
+    }
 
     // Ncomp = number of components for each array
     int Ncomp = -1;
@@ -136,6 +144,10 @@ void main_main ()
     // we allocate our main multifabs
     MultiFab state(ba, dm, Ncomp, Nghost);
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "initializing state ..." << std::endl;
+    }
+
     // Initialize the state
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
@@ -146,29 +158,68 @@ void main_main ()
 
     }
 
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "finished initializing state ..." << std::endl;
+    }
+
+    // Variables to store the integration statistics
+    long n_rhs_min = 100000000;
+    long n_rhs_max = 0;
+    long n_rhs_sum = 0;
+
+    long n_jac_min = 100000000;
+    long n_jac_max = 0;
+    long n_jac_sum = 0;
+
+    long n_linsetup_min = 100000000;
+    long n_linsetup_max = 0;
+    long n_linsetup_sum = 0;
+
+    long n_rhs = 0;
+    long n_jac = 0;
+    long n_linsetup = 0;
+
+    int n_reacting_boxes = 0;
+
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
-    // allocate a multifab for the number of RHS calls
-    // so we can manually do the reductions (for GPU)
-    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "reacting state with timestep " << tmax << " ..." << std::endl;
+    }
 
     // Do the reactions
 #ifdef _OPENMP
-#pragma omp parallel
+#pragma omp parallel threadprivate(n_rhs, n_jac, n_linsetup)
+#pragma omp reduction(+: n_rhs_sum, n_jac_sum, n_linsetup_sum, n_reacting_boxes)
+#pragma omp reduction(max: n_rhs_max, n_jac_max, n_linsetup_max)
+#pragma omp reduction(min: n_rhs_min, n_jac_min, n_linsetup_min)
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.tilebox();
 
         do_react(AMREX_ARLIM_3D(bx.loVect()), AMREX_ARLIM_3D(bx.hiVect()),
-		 BL_TO_FORTRAN_ANYD(state[mfi]), Ncomp, tmax);
+		 BL_TO_FORTRAN_ANYD(state[mfi]), Ncomp, tmax, &n_rhs, &n_jac, &n_linsetup);
 
+	n_rhs_sum += n_rhs;
+	n_rhs_max = std::max(n_rhs_max, n_rhs);
+	n_rhs_min = std::min(n_rhs_min, n_rhs);
+
+	n_jac_sum += n_jac;
+	n_jac_max = std::max(n_jac_max, n_jac);
+	n_jac_min = std::min(n_jac_min, n_jac);
+
+	n_linsetup_sum += n_linsetup;
+	n_linsetup_max = std::max(n_linsetup_max, n_linsetup);
+	n_linsetup_min = std::min(n_linsetup_min, n_linsetup);
+
+	n_reacting_boxes++;
     }
 
-    int n_rhs_min = integrator_n_rhs.min(0);
-    int n_rhs_max = integrator_n_rhs.max(0);
-    int n_rhs_sum = integrator_n_rhs.norm1();
+    if (ParallelDescriptor::IOProcessor()) {
+      std::cout << "finished reacting state ..." << std::endl;
+    }
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -203,7 +254,14 @@ void main_main ()
 
     // print statistics
     std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+    std::cout << "avg number of rhs calls: " << n_rhs_sum / n_reacting_boxes << std::endl;
     std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
 
+    std::cout << "min number of jac calls: " << n_jac_min << std::endl;
+    std::cout << "avg number of jac calls: " << n_jac_sum / n_reacting_boxes << std::endl;
+    std::cout << "max number of jac calls: " << n_jac_max << std::endl;
+
+    std::cout << "min number of linear solver setup calls: " << n_linsetup_min << std::endl;
+    std::cout << "avg number of linear solver setup calls: " << n_linsetup_sum / n_reacting_boxes << std::endl;
+    std::cout << "max number of linear solver setup calls: " << n_linsetup_max << std::endl;
 }

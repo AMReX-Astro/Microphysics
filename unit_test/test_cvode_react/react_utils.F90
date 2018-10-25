@@ -66,7 +66,7 @@ contains
     fval = state(i, j, k, c)
   end subroutine get_state
 
-  
+
   subroutine set_state(state, s_lo, s_hi, ncomp, i, j, k, c, fval) bind(C, name="set_state")
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
@@ -106,7 +106,7 @@ contains
 
   subroutine get_num_rpar_comps(number_rpar_comps) bind(C, name="sk_get_num_rpar_comps")
     use rpar_indices, only: n_rpar_comps
-    
+
     implicit none
 
     integer, intent(inout) :: number_rpar_comps
@@ -116,12 +116,51 @@ contains
 
   subroutine get_nspec_evolve(number_species_evolved) bind(C, name="sk_get_nspec_evolve")
     use network, only: nspec_evolve
-    
+
     implicit none
 
     integer, intent(inout) :: number_species_evolved
 
     number_species_evolved = nspec_evolve
   end subroutine get_nspec_evolve
-  
+
+  subroutine get_csr_jac_rowcols(csr_row_count, csr_col_index) bind(C, name="sk_get_csr_jac_rowcols")
+
+    use cvode_type_module, only: VODE_NEQS
+    use network, only: NETWORK_SPARSE_JAC_NNZ, csr_jac_col_index, csr_jac_row_count
+
+    implicit none
+
+    integer, intent(inout) :: csr_row_count(VODE_NEQS+1)
+    integer, intent(inout) :: csr_col_index(NETWORK_SPARSE_JAC_NNZ)
+
+    csr_col_index = csr_jac_col_index
+    csr_row_count = csr_jac_row_count
+
+  end subroutine get_csr_jac_rowcols
+
+  subroutine get_sparse_jac_nnz(number_nonzero) bind(C, name="sk_get_sparse_jac_nnz")
+
+    use network, only: NETWORK_SPARSE_JAC_NNZ
+
+    implicit none
+
+    integer, intent(inout) :: number_nonzero
+
+    number_nonzero = NETWORK_SPARSE_JAC_NNZ
+
+  end subroutine get_sparse_jac_nnz
+
+  subroutine get_store_jacobian(sjac) bind(C, name="sk_get_store_jacobian")
+
+    use extern_probin_module, only: store_jacobian
+
+    implicit none
+
+    integer, intent(inout) :: sjac
+
+    sjac = store_jacobian
+
+  end subroutine get_store_jacobian
+
 end module react_utils_module
