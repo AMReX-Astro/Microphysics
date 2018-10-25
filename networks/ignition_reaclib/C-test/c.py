@@ -1,11 +1,14 @@
 # C-burning rate module generator
 
-from pyreaclib.networks import BoxLibNetwork
+from pynucastro.networks import StarKillerNetwork
 
 files = ["c12-ag-o16-nac2"]
 
-c_net = BoxLibNetwork(files, use_cse=True)
-c_net.write_network()
+c_net = StarKillerNetwork(files)
+c_net.write_network(use_cse=False)
+
+
+
 
 
 

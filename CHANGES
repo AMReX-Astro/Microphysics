@@ -1,5 +1,13 @@
+changes since last release
 
-# changes since the last release
+ -- a bug was fixed in the stellarcollapse EOS where the energy offset
+    was being applied incorrectly.
+
+
+# 18.10
+
+ -- test_eos and test_react now both work on GPUs (using the AMReX
+    `gpu` branch)
 
  -- the intermediate blending of the weak and strong screening regimes
     was wrong, and has been fixed.  We've also synced some parameters

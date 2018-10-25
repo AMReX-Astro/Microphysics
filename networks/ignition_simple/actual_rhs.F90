@@ -115,9 +115,8 @@ contains
 
   subroutine actual_jac(state)
 
-    !$gpu
-
     use extern_probin_module, only: do_constant_volume_burn
+    use jacobian_sparsity_module, only: set_jac_zero, get_jac_entry, set_jac_entry, scale_jac_entry
 
     implicit none
 
@@ -127,7 +126,7 @@ contains
     double precision :: dens
     double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
-    double precision :: cvInv, cpInv
+    double precision :: cInv, scratch, scratch2
 
     !$gpu
 
@@ -144,57 +143,56 @@ contains
     xc12tmp  = max(state % xn(ic12), ZERO)
 
     ! initialize
-    state % jac(:,:) = ZERO
+    call set_jac_zero(state)
 
     ! carbon jacobian elements
-    state % jac(ic12, ic12)  = -SIXTH * dens * scorr * rate * xc12tmp
+    scratch  = -SIXTH * dens * scorr * rate * xc12tmp
+    call set_jac_entry(state, ic12, ic12, scratch)
 
     ! add the temperature derivatives: df(y_i) / dT
-    state % jac(ic12, net_itemp)  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
-                                     dens * scorr * xc12tmp**2 * dratedt )
+    scratch  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
+                            dens * scorr * xc12tmp**2 * dratedt )
+    call set_jac_entry(state, ic12, net_itemp, scratch)
 
     ! Convert back to molar form
     ! Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
     ! so this conversion is necessarily only for the temperature derivative.
-
-    state % jac(ic12,net_itemp) = state % jac(ic12,net_itemp) * aion_inv(ic12)
+    call scale_jac_entry(state, ic12, net_itemp, aion_inv(ic12))
 
     ! Energy generation rate Jacobian elements with respect to species
-
-    call ener_gener_rate(state % jac(ic12,ic12), state % jac(net_ienuc,ic12))
+    call get_jac_entry(state, ic12, ic12, scratch)
+    call ener_gener_rate(scratch, scratch2)
+    call set_jac_entry(state, net_ienuc, ic12, scratch2)
 
     ! Jacobian elements with respect to temperature
-
-    call ener_gener_rate(state % jac(ic12,net_itemp), state % jac(net_ienuc,net_itemp))
+    call get_jac_entry(state, ic12, net_itemp, scratch)
+    call ener_gener_rate(scratch, scratch2)
+    call set_jac_entry(state, net_ienuc, net_itemp, scratch2)
 
     if (state % self_heat) then
 
        if (do_constant_volume_burn) then
 
-          cvInv = ONE / state % cv
-
-          ! d(itemp)/d(yi)
-
-          state % jac(net_itemp,ic12) = state % jac(net_ienuc,ic12) * cvInv
-
-          ! d(itemp)/d(temp)
-
-          state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
+          cInv = ONE / state % cv
 
        else
 
-          cpInv = ONE / state % cp
-
-          ! d(itemp)/d(yi)
-
-          state % jac(net_itemp,ic12) = state % jac(net_ienuc,ic12) * cpInv
-
-          ! d(itemp)/d(temp)
-
-          state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
+          cInv = ONE / state % cp
 
        endif
 
+       ! d(itemp)/d(yi)
+
+       call get_jac_entry(state, net_ienuc, ic12, scratch)
+       scratch = scratch * cInv
+       call set_jac_entry(state, net_itemp, ic12, scratch)
+       
+       ! d(itemp)/d(temp)
+
+       call get_jac_entry(state, net_ienuc, net_itemp, scratch)
+       scratch = scratch * cInv
+       call set_jac_entry(state, net_itemp, net_itemp, scratch)
+       
     endif
 
   end subroutine actual_jac
@@ -274,7 +272,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+    double precision :: dydt, enuc
 
     !$gpu
 
@@ -287,7 +285,7 @@ contains
     ! account for a factor of aion(ic12) / aion(img24)
     ! for the second term to make the expression work.
 
-    enuc = dydt(ic12) * (mion(ic12) - mion(img24) / 2) * enuc_conv2
+    enuc = dydt * (mion(ic12) - mion(img24) / 2) * enuc_conv2
 
   end subroutine ener_gener_rate
 

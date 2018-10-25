@@ -32,13 +32,21 @@ endif
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
-all: build_status $(executable)
+all: build_status $(executable) starkiller_library
 	@echo SUCCESS
 
 build_status:
 	$(AMREX_HOME)/Tools/C_scripts/describe_sources.py \
           --git_names "Castro AMReX Microphysics" \
           --git_dirs "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+
+starkiller_library: $(executable)
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+	@echo Wrapping sources with f90wrap ...
+	sh dowrap.sh
+	@echo Linking objects with f2py ...
+	sh dof2py.sh
+endif
 
 # Use a coarse grained OMP approach
 DEFINES += -DCRSEGRNDOMP
@@ -57,6 +65,20 @@ ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
 endif
 
+ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
+  DEFINES += -DREACT_SPARSE_JACOBIAN
+
+  # The following is sometimes useful to turn on for debugging sparse J indices
+  # (if a get/set/scale is called with (row, col) not in the sparse J, stop)
+  # Otherwise, set/scale do nothing, and get returns 0.
+  ifeq ($(USE_SPARSE_STOP_ON_OOB), TRUE)
+    DEFINES += -DSPARSE_STOP_ON_OOB
+  endif
+endif
+
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+  DEFINES += -DCOMPILE_WITH_F2PY
+endif
 
 #------------------------------------------------------------------------------
 # CVODE directories
@@ -72,6 +94,13 @@ ifeq ($(INTEGRATOR_DIR), CVODE)
     DEFINES += -DCUDA_CVODE
 
     LIBRARIES += -rpath=$(CVODE_HOME)/lib
+  endif
+
+  ifeq ($(USE_CVODE_CUSOLVER), TRUE)
+    DEFINES += -DCVODE_CUSOLVER
+
+    LIBRARIES += -lsundials_cusolver_sparse -lcusolver -lcusparse -lcublas
+    LIBRARIES += -rpath=$(COMPILE_CUDA_PATH)/lib64
   endif
 
 endif
@@ -121,6 +150,15 @@ ifndef GENERAL_NET_INPUTS
       GENERAL_NET_INPUTS := $(MICROPHYSICS_HOME)/networks/general_null/$(NETWORK_INPUTS)
    endif
 endif
+
+# URCA network has tables
+ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
+  all: urcatables
+endif
+
+urcatables:
+	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
+	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
@@ -184,7 +222,6 @@ ifdef MICROPHYSICS_HOME
 endif
 
 EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
-
 
 extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
 	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
