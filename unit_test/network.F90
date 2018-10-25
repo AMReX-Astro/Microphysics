@@ -91,6 +91,21 @@ contains
 
   end function network_species_index
 
+
+  function get_network_species_name(index) result(name)
+
+    character(len=128) :: name
+    integer :: index
+
+    if (index < 1 .or. index > nspec) then
+       name = ""
+    else
+       name = spec_names(index)
+    endif
+
+  end function get_network_species_name
+
+
   subroutine network_finalize()
     implicit none
 
