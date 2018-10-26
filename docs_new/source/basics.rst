@@ -1,7 +1,3 @@
-*****************
-StarKiller Basics
-*****************
-
 Getting Started
 ===============
 

@@ -1,7 +1,3 @@
-******************
-Equations of state
-******************
-
 In this chapter on equations of state, we list the EOS routines
 available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.

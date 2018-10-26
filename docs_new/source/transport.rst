@@ -1,7 +1,3 @@
-*********
-Transport
-*********
-
 Thermal Conductivity
 ====================
 

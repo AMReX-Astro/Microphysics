@@ -1,5 +1,4 @@
-Runtime parameter values
-========================
+[ch:parameters]
 
 .. raw:: latex
 
