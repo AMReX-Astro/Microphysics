@@ -1,0 +1,428 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Structures &mdash; StarKiller Microphysics 18.10 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="StarKiller Microphysics 18.10 documentation" href="index.html"/>
+        <link rel="next" title="Runtime parameters" href="rp_intro.html"/>
+        <link rel="prev" title="StarKiller Basics" href="basics.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> StarKiller Microphysics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                18.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">StarKiller basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#eos">EOS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#eos-t">eos_t</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#networks">Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#burn-t">burn_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rate-t">rate_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#burn-type-module">burn_type_module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integrators">Integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#converting-between-types">Converting Between Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initial-values-and-threadsafety">Initial Values and Threadsafety</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="burn_cell.html">Burn Cell Utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">StarKiller Microphysics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data Structures</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/data_structures.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="data-structures">
+<h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h1>
+<p>All of the routines in this software package are standardized so that
+you interact with them using the same type of data structure, a
+Fortran derived type (which, for our purposes, is analogous to a
+C++ struct).</p>
+<div class="section" id="eos">
+<h2>EOS<a class="headerlink" href="#eos" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="eos-t">
+<h3>eos_t<a class="headerlink" href="#eos-t" title="Permalink to this headline">¶</a></h3>
+<p>The main data structure for interacting with the EOS is eos_t.
+This is a collection of data specifying the microphysical state of the
+fluid that we are evaluating. This derived type has many components,
+and in the Fortran syntax we access them with the % operator. For a
+particular instantiation named eos_state, the most important
+data is the following:</p>
+<ul class="simple">
+<li>eos_state % rho: density [<span class="math notranslate nohighlight">\(\mathrm{g~cm^{-3}}\)</span>]</li>
+<li>eos_state % T: temperature [K]</li>
+<li>eos_state % p: pressure [<span class="math notranslate nohighlight">\(\mathrm{erg~cm^{-3}}\)</span>]</li>
+<li>eos_state % e: specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</li>
+<li>eos_state % h: specific enthalpy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</li>
+<li>eos_state % s: specific entropy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}~K^{-1}}\)</span>]</li>
+<li>eos_state % xn(:): mass fractions of species (this is an
+array, dimensioned to be the number of species, nspec)</li>
+<li>eos_state % aux(:): any auxiliary variables carried with
+the fluid (this is an array, dimensioned to be the number of
+auxiliary quantities, naux)</li>
+</ul>
+<p>Note that both nspec and naux are meant to be properties of the
+network, and they will come in through the network module.</p>
+<p>There is a lot more information that can be saved here, such as the
+partial derivatives of the thermodynamic state variables with respect
+to each other. To see a complete list, examine the eos_type.f90
+file inside the code calling Microphysics (e.g.
+Castro/EOS/eos_type.f90).</p>
+</div>
+</div>
+<div class="section" id="networks">
+<h2>Networks<a class="headerlink" href="#networks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="burn-t">
+<h3>burn_t<a class="headerlink" href="#burn-t" title="Permalink to this headline">¶</a></h3>
+<p>The main data structure for interacting with the reaction networks is
+burn_t. This holds the composition (mass fractions),
+thermodynamic state, and a lot of internal information used by the
+reaction network (e.g. the righthand side of the ODEs, the Jacobian,
+etc.). Typically the user will only need to fill/use the following
+information:</p>
+<ul>
+<li><p class="first">burn_state % rho: density [<span class="math notranslate nohighlight">\(\mathrm{g~cm^{-3}}\)</span>]</p>
+</li>
+<li><p class="first">burn_state % T: temperature [K]</p>
+</li>
+<li><p class="first">burn_state % e: the specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</p>
+<p>Note: this has two different contexts, depending on when it is
+accessed.</p>
+<p>When you call the integrator and are in the process of integrating
+the reaction system, e will be an integration variable and
+will account for the nuclear energy release. Due to the nature
+of our ODE system, this will not be thermodynamically consistent with
+<span class="math notranslate nohighlight">\(\rho, T\)</span></p>
+<p>Upon exit of the integration, the initial internal energy (offset)
+is subtracted off, and e now represents the specifc nuclear
+energy release from the reactions.</p>
+</li>
+<li><p class="first">burn_state % xn(:): the mass fractions</p>
+</li>
+<li><p class="first">burn_state % aux(:): any auxiliary quantities (like <span class="math notranslate nohighlight">\(Y_e\)</span>)</p>
+</li>
+<li><p class="first">burn_state % i, % j, % k: hydrodynamic zone i, j, k for
+bug reporting, diagnostics</p>
+</li>
+<li><p class="first">burn_state % time: the time since the start of the
+integration [s]</p>
+<p>Note this is not the same as the simulation time. Each integrator
+will also store the simulation time at the start of integration
+in their local storage—this can be used as an offset to convert
+between integration and simulation time.</p>
+</li>
+<li><p class="first">burn_state % shock: are we inside of a hydrodynamic shock (the burner
+may wish to take action in this case)</p>
+</li>
+</ul>
+</div>
+<div class="section" id="rate-t">
+<h3>rate_t<a class="headerlink" href="#rate-t" title="Permalink to this headline">¶</a></h3>
+<p>The rate_t structure is used internally in a network to pass
+the raw reaction rate information (usually just the
+temperature-dependent terms) between various subroutines. It does not
+come out of the network-specific righthand side or Jacobian routines.</p>
+<p>This main component of this is simply an array of dimension
+rates(num_rate_groups, nrates)—both of the parameters
+used in dimensioning this are network-dependent.</p>
+</div>
+<div class="section" id="burn-type-module">
+<h3>burn_type_module<a class="headerlink" href="#burn-type-module" title="Permalink to this headline">¶</a></h3>
+<p>In addition to defining the burn_t type, the
+burn_type_module also defines integer indices into the solution
+vector that can be used to access the different components of the
+state:</p>
+<ul class="simple">
+<li>neqs : the total number of variables we are integrating.
+It is assumed that the first nspec_evolve are the species.</li>
+<li>net_itemp : the index of the temperature in the
+solution vector</li>
+<li>net_ienuc : the index of the specifc internal energy
+in the solution vector</li>
+</ul>
+</div>
+</div>
+<div class="section" id="integrators">
+<h2>Integrators<a class="headerlink" href="#integrators" title="Permalink to this headline">¶</a></h2>
+<p>Each integrator also has their own internal data structure that holds
+the information needed for the integration. Meta-data that is not
+part of the integration vector of ODEs, but is attached to a
+particular state (<span class="math notranslate nohighlight">\(X_k\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, <span class="math notranslate nohighlight">\(e\)</span>), is stored in an array that can be
+passed into the righthand side routine. The different fields are
+accessed through the integer indices in the rpar_indices
+Fortran module. The details of this storage is given for each
+integrator below.</p>
+</div>
+<div class="section" id="converting-between-types">
+<h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Permalink to this headline">¶</a></h2>
+<p>There is significant overlap between eos_t and burn_t.
+The burn_type_module provides two routines,
+burn_to_eos and eos_to_burn that convert a burn_t
+state to an eos_t state, and back. Only the thermodynamic
+variables that are common in the two types are copied. This is
+useful, for example, if you have a burn_t state and what to get
+thermodynamic information by calling the EOS.</p>
+</div>
+<div class="section" id="initial-values-and-threadsafety">
+<h2>Initial Values and Threadsafety<a class="headerlink" href="#initial-values-and-threadsafety" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="rp_intro.html" class="btn btn-neutral float-right" title="Runtime parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="basics.html" class="btn btn-neutral" title="StarKiller Basics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, StarKiller Development Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'18.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/mathjax_conf.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
