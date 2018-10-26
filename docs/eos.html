@@ -230,25 +230,25 @@ type.</p>
 <h3>gamma_law_general<a class="headerlink" href="#gamma-law-general" title="Permalink to this headline">¶</a></h3>
 <p>gamma_law_general represents a gamma law gas, with
 equation of state:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[p = (\gamma - 1) \rho e.\]</div>
-<p><span class="math notranslate nohighlight">\(\gamma\)</span> is specified by the runtime parameter eos_gamma. For
+<p><span class="math">\(\gamma\)</span> is specified by the runtime parameter eos_gamma. For
 an ideal gas, this represents the ratio of specific heats. The gas is
 assumed to be ideal, with the pressure given by</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[p = \frac{\rho k T}{\mu m_u}\]</div>
-<p>where <span class="math notranslate nohighlight">\(k\)</span> is Boltzmann’s constant and <span class="math notranslate nohighlight">\(\mu\)</span> is the mean molecular
-weight, calculated from the composition, <span class="math notranslate nohighlight">\(X_k\)</span>. This EOS assumes
+<p>where <span class="math">\(k\)</span> is Boltzmann’s constant and <span class="math">\(\mu\)</span> is the mean molecular
+weight, calculated from the composition, <span class="math">\(X_k\)</span>. This EOS assumes
 the gas is either completely neutral (assume_neutral = T),
 giving:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\mu^{-1} = \sum_k \frac{X_k}{A_k}\]</div>
 <p>or completely ionized (assume_neutral = F), giving:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}\]</div>
 <p>The entropy comes from the Sackur-Tetrode equation. Because of the
 complex way that composition enters into the entropy, the entropy
-formulation here is only correct for a <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> gas.</p>
+formulation here is only correct for a <span class="math">\(\gamma = 5/3\)</span> gas.</p>
 <p>Note that the implementation provided in Microphysics&nbsp;is the same as
 the version shipped with MAESTRO, but more general than the
 gamma_law EOS provided with CASTRO. CASTRO’s default EOS only
@@ -259,27 +259,27 @@ by the hydrodynamics module in CASTRO.</p>
 <h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h3>
 <p>polytrope represents a polytropic fluid, with equation of
 state:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[p = K \rho^\gamma.\]</div>
 <p>The gas is also assumed to obey the above gamma law relation
-connecting the pressure and internal energy. Therefore <span class="math notranslate nohighlight">\(\rho\)</span> is the
+connecting the pressure and internal energy. Therefore <span class="math">\(\rho\)</span> is the
 only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
-electron gas) or inputs their own values for <span class="math notranslate nohighlight">\(K\)</span> and <span class="math notranslate nohighlight">\(\gamma\)</span>
+electron gas) or inputs their own values for <span class="math">\(K\)</span> and <span class="math">\(\gamma\)</span>
 via polytrope_K and polytrope_gamma.</p>
 <p>The runtime parameter polytrope_type selects the pre-defined
 polytropic relations. The options are:</p>
 <ul>
-<li><p class="first">polytrope_type = 1: sets <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> and</p>
-<div class="math notranslate nohighlight">
+<li><p class="first">polytrope_type = 1: sets <span class="math">\(\gamma = 5/3\)</span> and</p>
+<div class="math">
 \[K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}\]</div>
-<p>where <span class="math notranslate nohighlight">\(mu_e\)</span> is the mean molecular weight per electron, specified via polytrope_mu_e</p>
+<p>where <span class="math">\(mu_e\)</span> is the mean molecular weight per electron, specified via polytrope_mu_e</p>
 <p>This is the form appropriate for a non-relativistic
 fully-degenerate electron gas.</p>
 </li>
-<li><p class="first">polytrope_type = 2: sets <span class="math notranslate nohighlight">\(\gamma = 4/3\)</span> and</p>
-<div class="math notranslate nohighlight">
+<li><p class="first">polytrope_type = 2: sets <span class="math">\(\gamma = 4/3\)</span> and</p>
+<div class="math">
 \[K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}\]</div>
 <p>This is the form appropriate for a relativistic fully-degenerate
 electron gas.</p>
@@ -291,19 +291,19 @@ electron gas.</p>
 <p>ztwd is the zero-temperature degenerate electron equation
 of state of Chandrasekhar (1935), which is designed to describe
 white dward material. The pressure satisfies the equation:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),\]</div>
-<p>with <span class="math notranslate nohighlight">\(A = \pi m_e^4 c^5 / (3 h^3)\)</span>. Here <span class="math notranslate nohighlight">\(x\)</span> is a dimensionless
-measure of the Fermi momentum, with <span class="math notranslate nohighlight">\(\rho = B x^3\)</span> and <span class="math notranslate nohighlight">\(B = 8\pi \mu_e
-m_p m_e^3 c^3 / (3h^3)\)</span>, where <span class="math notranslate nohighlight">\(\mu_e\)</span> is the mean molecular weight
-per electron and <span class="math notranslate nohighlight">\(h\)</span> is the Planck constant.</p>
+<p>with <span class="math">\(A = \pi m_e^4 c^5 / (3 h^3)\)</span>. Here <span class="math">\(x\)</span> is a dimensionless
+measure of the Fermi momentum, with <span class="math">\(\rho = B x^3\)</span> and <span class="math">\(B = 8\pi \mu_e
+m_p m_e^3 c^3 / (3h^3)\)</span>, where <span class="math">\(\mu_e\)</span> is the mean molecular weight
+per electron and <span class="math">\(h\)</span> is the Planck constant.</p>
 <p>The enthalpy was worked out by Hachisu (1986):</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.\]</div>
-<p>(note the unfortunate notation here, but this <span class="math notranslate nohighlight">\(h\)</span> is specific
+<p>(note the unfortunate notation here, but this <span class="math">\(h\)</span> is specific
 enthalpy). The specific internal energy satisfies the standard
 relationship to the specific enthalpy:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[e = h - p / \rho.\]</div>
 <p>Since the pressure-density relationship does not admit a closed-form
 solution for the density in terms of the pressure, if we call the EOS
@@ -313,47 +313,47 @@ to find the density that matches this pressure.</p>
 <div class="section" id="multigamma">
 <h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h3>
 <p>multigamma is an ideal gas equation of state where each
-species can have a different value of <span class="math notranslate nohighlight">\(\gamma\)</span>. This mainly affects
+species can have a different value of <span class="math">\(\gamma\)</span>. This mainly affects
 how the internal energy is constructed as each species, represented
-with a mass fraction <span class="math notranslate nohighlight">\(X_k\)</span> will have its contribution to the total
+with a mass fraction <span class="math">\(X_k\)</span> will have its contribution to the total
 specific internal energy take the form of :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>e = p/rho/(gamma_k -</p>
 <blockquote>
 <div>1)`. The main thermodynamic quantities take the form:</div></blockquote>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\begin{split}\begin{aligned}
 p &amp;= \frac{\rho k T}{m_u} \sum_k \frac{X_k}{A_k} \\
 e &amp;= \frac{k T}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
 h &amp;= \frac{k T}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}\end{aligned}\end{split}\]</div>
-<p>We recognize that the usual astrophysical <span class="math notranslate nohighlight">\(\bar{A}^{-1} = \sum_k
+<p>We recognize that the usual astrophysical <span class="math">\(\bar{A}^{-1} = \sum_k
 X_k/A_k\)</span>, but now we have two other sums that involve different
-<span class="math notranslate nohighlight">\(\gamma_k\)</span> weightings.</p>
+<span class="math">\(\gamma_k\)</span> weightings.</p>
 <p>The specific heats are constructed as usual,</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\begin{split}\begin{aligned}
 c_v &amp;= \left . \frac{\partial e}{\partial T} \right |_\rho =
     \frac{k}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
 c_p &amp;= \left . \frac{\partial h}{\partial T} \right |_p =
     \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}\end{aligned}\end{split}\]</div>
-<p>and it can be seen that the specific gas constant, <span class="math notranslate nohighlight">\(R \equiv c_p -
-c_v\)</span> is independent of the <span class="math notranslate nohighlight">\(\gamma_i\)</span>, and is simply <span class="math notranslate nohighlight">\(R =
-k/m_u\bar{A}\)</span> giving the usual relation that <span class="math notranslate nohighlight">\(p = R\rho T\)</span>.
+<p>and it can be seen that the specific gas constant, <span class="math">\(R \equiv c_p -
+c_v\)</span> is independent of the <span class="math">\(\gamma_i\)</span>, and is simply <span class="math">\(R =
+k/m_u\bar{A}\)</span> giving the usual relation that <span class="math">\(p = R\rho T\)</span>.
 Furthermore, we can show</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =
    \left ( \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} \right ) \bigg /
    \left ( \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \right ) =
 \frac{c_p}{c_v} \equiv \gamma_\mathrm{effective}\]</div>
-<p>and <span class="math notranslate nohighlight">\(p = \rho e (\gamma_\mathrm{effective} - 1)\)</span>.</p>
+<p>and <span class="math">\(p = \rho e (\gamma_\mathrm{effective} - 1)\)</span>.</p>
 <p>This equation of state takes several runtime parameters that can set
-the <span class="math notranslate nohighlight">\(\gamma_i\)</span> for a specific species. The parameters are:</p>
+the <span class="math">\(\gamma_i\)</span> for a specific species. The parameters are:</p>
 <ul class="simple">
-<li>eos_gamma_default: the default <span class="math notranslate nohighlight">\(\gamma\)</span> to apply for all
+<li>eos_gamma_default: the default <span class="math">\(\gamma\)</span> to apply for all
 species</li>
 <li>species_X_name and species_X_gamma: set the
-<span class="math notranslate nohighlight">\(\gamma_i\)</span> for the species whose name is given as
+<span class="math">\(\gamma_i\)</span> for the species whose name is given as
 species_X_name to the value provided by species_X_gamma.
 Here, X can be one of the letters: a, b, or
-c, allowing us to specify custom <span class="math notranslate nohighlight">\(\gamma_i\)</span> for up to three
+c, allowing us to specify custom <span class="math">\(\gamma_i\)</span> for up to three
 different species.</li>
 </ul>
 </div>
@@ -375,7 +375,7 @@ module in the code calling this. However, there is a choice of whether
 to update the energy to match this temperature, respecting
 thermodynamic consistency, or to leave the energy alone, respecting
 energy conservation. This is controlled through the
-<code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code> parameter in your <code class="docutils literal notranslate"><span class="pre">extern</span></code>
+<code class="docutils literal"><span class="pre">eos_input_is_constant</span></code> parameter in your <code class="docutils literal"><span class="pre">extern</span></code>
 namelist in your probin file.</p>
 <p>We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.</p>
@@ -399,10 +399,10 @@ appropriate interpolation table from that site to use this.</p>
 <div class="section" id="input-validation">
 <h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this headline">¶</a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
-(e.g., small_temp <span class="math notranslate nohighlight">\(&lt; T &lt;\)</span> maxT). If they are not, then it
+(e.g., small_temp <span class="math">\(&lt; T &lt;\)</span> maxT). If they are not, then it
 resets them silently—no error is thrown.</p>
-<p>If you are calling the EOS with eos_input_re, and if <span class="math notranslate nohighlight">\(e &lt;
-10^{-200}\)</span>, then it calls the EOS with eos_input_rt with <span class="math notranslate nohighlight">\(T =
+<p>If you are calling the EOS with eos_input_re, and if <span class="math">\(e &lt;
+10^{-200}\)</span>, then it calls the EOS with eos_input_rt with <span class="math">\(T =
 \max\{ \mathtt{small\_temp}, T \}\)</span>.</p>
 <p>User’s are encourage to do their own validation of inputs before calling
 the EOS.</p>
@@ -412,8 +412,8 @@ the EOS.</p>
 <p>Each EOS should have two main routines by which it interfaces to the
 rest of CASTRO. At the beginning of the simulation,
 actual_eos_init will perform any initialization steps and save
-EOS variables (mainly <code class="docutils literal notranslate"><span class="pre">smallt</span></code>, the temperature floor, and
-<code class="docutils literal notranslate"><span class="pre">smalld</span></code>, the density floor). These variables are stored in the
+EOS variables (mainly <code class="docutils literal"><span class="pre">smallt</span></code>, the temperature floor, and
+<code class="docutils literal"><span class="pre">smalld</span></code>, the density floor). These variables are stored in the
 main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.</p>
 <p>The main evaluation routine is called actual_eos. It should

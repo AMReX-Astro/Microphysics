@@ -225,14 +225,14 @@
 <div class="section" id="pgi">
 <h3>PGI<a class="headerlink" href="#pgi" title="Permalink to this headline">¶</a></h3>
 <p>To get more detailed about what kernels are launching, do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">PGI_ACC_NOTIFY</span><span class="o">=</span><span class="mi">1</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">PGI_ACC_NOTIFY</span><span class="o">=</span><span class="mi">1</span>
 </pre></div>
 </div>
 <div class="section" id="compilation-errors">
 <h4>Compilation errors<a class="headerlink" href="#compilation-errors" title="Permalink to this headline">¶</a></h4>
 <ul>
 <li><p class="first"><em>Multiple exit statements</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Compiler</span> <span class="n">failed</span> <span class="n">to</span> <span class="n">translate</span> <span class="n">accelerator</span> <span class="n">region</span> <span class="p">(</span><span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span><span class="p">):</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Compiler</span> <span class="n">failed</span> <span class="n">to</span> <span class="n">translate</span> <span class="n">accelerator</span> <span class="n">region</span> <span class="p">(</span><span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span><span class="p">):</span>
 <span class="n">Unexpected</span> <span class="n">flow</span> <span class="n">graph</span> <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">single_step_rosen</span><span class="p">:</span>
 </pre></div>
@@ -244,7 +244,7 @@ a loop and have at most a single exit statement.</p>
 that while-loops do not perform optimally on GPUs.</p>
 </li>
 <li><p class="first"><em>ACC routines not in Fortran modules</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Procedures</span> <span class="n">called</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">compute</span> <span class="n">region</span> <span class="n">must</span> <span class="n">have</span> <span class="n">acc</span> <span class="n">routine</span> <span class="n">information</span><span class="p">:</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Procedures</span> <span class="n">called</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">compute</span> <span class="n">region</span> <span class="n">must</span> <span class="n">have</span> <span class="n">acc</span> <span class="n">routine</span> <span class="n">information</span><span class="p">:</span>
   <span class="n">dgefa</span> <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span> <span class="mi">711</span><span class="p">)</span>
 <span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Accelerator</span> <span class="n">region</span> <span class="n">ignored</span><span class="p">;</span> <span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span>
   <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">)</span>
@@ -252,11 +252,11 @@ that while-loops do not perform optimally on GPUs.</p>
 </div>
 <p>This occurs when a subroutine relies on another routine that is not part
 of a Fortran 90 module. In this case, even if that routine already has</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!$acc routine seq
+<div class="highlight-default"><div class="highlight"><pre><span></span>!$acc routine seq
 </pre></div>
 </div>
 <p>we need to mark the <em>calling</em> routine as well, with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!$acc routine(dgesl) seq
+<div class="highlight-default"><div class="highlight"><pre><span></span>!$acc routine(dgesl) seq
 </pre></div>
 </div>
 <p>(e.g., for the Fortran routine dgesl).</p>
@@ -267,7 +267,7 @@ of a Fortran 90 module. In this case, even if that routine already has</p>
 <h4>Runtime errors<a class="headerlink" href="#runtime-errors" title="Permalink to this headline">¶</a></h4>
 <ul>
 <li><p class="first"><em>Multi-d array copies</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Unhandled</span> <span class="n">builtin</span><span class="p">:</span> <span class="mi">601</span> <span class="p">(</span><span class="n">pgf90_mzero8</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Unhandled</span> <span class="n">builtin</span><span class="p">:</span> <span class="mi">601</span> <span class="p">(</span><span class="n">pgf90_mzero8</span><span class="p">)</span>
 <span class="n">PGF90</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">0000</span><span class="o">-</span><span class="n">Internal</span> <span class="n">compiler</span> <span class="n">error</span><span class="o">.</span> <span class="n">Unhandled</span> <span class="n">builtin</span> <span class="n">function</span><span class="o">.</span>
   <span class="mi">0</span> <span class="p">(</span><span class="o">../../</span><span class="n">networks</span><span class="o">/</span><span class="n">triple_alpha_plus_cago</span><span class="o">/</span><span class="n">actual_rhs</span><span class="o">.</span><span class="n">f90</span><span class="p">:</span> <span class="mi">146</span><span class="p">)</span>
 <span class="n">PGF90</span><span class="o">/</span><span class="n">x86</span><span class="o">-</span><span class="mi">64</span> <span class="n">Linux</span> <span class="mf">16.5</span><span class="o">-</span><span class="mi">0</span><span class="p">:</span> <span class="n">compilation</span> <span class="n">aborted</span>
@@ -278,7 +278,7 @@ notation) in GPU code. The fix is to explicitly write out a loop over
 rows.</p>
 </li>
 <li><p class="first"><em>Illegal memory access</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="n">to</span> <span class="n">cuMemcpyDtoHAsync</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="n">to</span> <span class="n">cuMemcpyDtoHAsync</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
 <span class="n">call</span> <span class="n">to</span> <span class="n">cuMemFreeHost</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
 </pre></div>
 </div>
