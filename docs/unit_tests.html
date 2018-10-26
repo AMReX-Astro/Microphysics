@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Unit Tests &mdash; StarKiller Microphysics 18.10 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="StarKiller Microphysics 18.10 documentation" href="index.html"/>
+        <link rel="next" title="Burn Cell Utility" href="burn_cell.html"/>
+        <link rel="prev" title="GPUs" href="openacc.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> StarKiller Microphysics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                18.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">StarKiller basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">GPUs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Unit Tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#comprehensive-unit-tests">Comprehensive Unit Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#eos-test">EOS test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#network-test">Network test</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#individual-network-tests">Individual Network Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="burn_cell.html">Burn Cell Utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">StarKiller Microphysics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Unit Tests</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/unit_tests.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="unit-tests">
+<h1>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="comprehensive-unit-tests">
+<h2>Comprehensive Unit Tests<a class="headerlink" href="#comprehensive-unit-tests" title="Permalink to this headline">¶</a></h2>
+<p>There are 2 unit tests in Microphysics&nbsp;that operate on a generic EOS
+or reaction network. To allow these to compile independent of any
+application code (e.g., MAESTRO&nbsp;or CASTRO), copies of the EOS
+driver eos.f90 and network interface network.f90 are
+provided in Microphysics/unit_test/. These tests compile using
+the AMReX&nbsp;F90 build system. The file
+Microphysics/GMicrophysics.mak provides the macros necessary to
+build the executable. Runtime parameters are parsed in the same
+fashion as in the application codes, using the write_probin.py
+script.</p>
+<div class="section" id="eos-test">
+<h3>EOS test<a class="headerlink" href="#eos-test" title="Permalink to this headline">¶</a></h3>
+<p>Microphysics/unit_test/test_eos/ is a unit test for the
+equations of state in Microphysics. It sets up a cube of data, with
+<span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three dimensions, and then
+calls the EOS in each zone. Calls are done to exercise all modes of
+calling the EOS, in order:</p>
+<ul>
+<li><p class="first">eos_input_rt: We call the EOS using <span class="math notranslate nohighlight">\(\rho, T\)</span>. this
+is the reference call, and we save the <span class="math notranslate nohighlight">\(h\)</span>, <span class="math notranslate nohighlight">\(e\)</span>, <span class="math notranslate nohighlight">\(p\)</span>, and <span class="math notranslate nohighlight">\(s\)</span> from
+here to use in subsequent calls.</p>
+</li>
+<li><p class="first">eos_input_rh: We call the EOS using <span class="math notranslate nohighlight">\(\rho, h\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to
+do, we perturb the initial temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
+</li>
+<li><p class="first">eos_input_tp: We call the EOS using <span class="math notranslate nohighlight">\(T, p\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to
+do, we perturb the initial density.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
+</li>
+<li><p class="first">eos_input_rp: We call the EOS using <span class="math notranslate nohighlight">\(\rho, p\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to
+do, we perturb the initial temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
+</li>
+<li><p class="first">eos_input_re: We call the EOS using <span class="math notranslate nohighlight">\(\rho, e\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to
+do, we perturb the initial temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
+</li>
+<li><p class="first">eos_input_ps: We call the EOS using <span class="math notranslate nohighlight">\(p, s\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to
+do, we perturb the initial density and temperature.</p>
+<p>Note: entropy is not well-defined for some EOSs, so we only attempt
+the root find if <span class="math notranslate nohighlight">\(s &gt; 0\)</span>.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
+</li>
+<li><p class="first">eos_input_ph: We call the EOS using <span class="math notranslate nohighlight">\(p, h\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to
+do, we perturb the initial density and temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
+</li>
+<li><p class="first">eos_input_th: We call the EOS using <span class="math notranslate nohighlight">\(T, h\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to
+do, we perturb the initial density.</p>
+<p>Note: for some EOSs, <span class="math notranslate nohighlight">\(h = h(\rho)\)</span> (e.g., and ideal gas), so there
+is no temperature dependence, and we do not do this test.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
+</li>
+</ul>
+<p>This unit test is marked up with OpenMP directives and therefore also
+tests whether the EOS is threadsafe.</p>
+<p>To compile for a specific EOS, e.g., helmholtz, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">EOS_DIR</span><span class="o">=</span><span class="n">helmholtz</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>Examining the output (a AMReX&nbsp;plotfile) will show you how big the
+errors are. You can use the AMReX/Tools/Postprocessing/ too
+fextrema to display the maximum error for each variable.</p>
+<p>Note: an analogous test_eos exists in MAESTRO.</p>
+</div>
+<div class="section" id="network-test">
+<h3>Network test<a class="headerlink" href="#network-test" title="Permalink to this headline">¶</a></h3>
+<p>Microphysics/unit_test/test_react/ is a unit test for the
+nuclear reaction networks in Microphysics. It sets up a cube of
+data, with <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three dimensions
+(as a <span class="math notranslate nohighlight">\(16^3\)</span> domain), and then calls the EOS in each zone.</p>
+<p>The state in each zone of our data cube is determined by the runtime
+parameters dens_min, dens_max, temp_min, and
+temp_max for <span class="math notranslate nohighlight">\((\rho, T)\)</span>. Because each network carries different
+compositions, we specify explicitly the mass fraction of each species
+for every step in the composition dimension in a file xin.* for
+each network. Note: it is up to the user to ensure that they species
+are in the proper order in that file and sum to 1. The name of the
+file to use is specified by the runtime parameter xin_file.</p>
+<p>This test calls the network on each zone, running for a time
+tmax. The full state, including new mass fractions and energy
+release is output to a AMReX&nbsp;plotfile.</p>
+<p>You can compile for a specific integrator (e.g., BS) or
+network (e.g., aprox13) as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">BS</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>The loop over the burner is marked up for both OpenMP and OpenACC and
+therefore this test can be used to assess threadsafety of the burners
+as well as to optimize the GPU performance of the burners.</p>
+</div>
+</div>
+<div class="section" id="individual-network-tests">
+<h2>Individual Network Tests<a class="headerlink" href="#individual-network-tests" title="Permalink to this headline">¶</a></h2>
+<p>Many of the networks have a subdirectory test/ (e.g.
+Microphysics/networks/triple_alpha_plus_cago/test/). There are
+usually 3 different drivers there that can be used to evaluate the
+network or Jacobian on a single state:</p>
+<ul class="simple">
+<li>eval.f90</li>
+<li>testburn.f90</li>
+<li>testjacobian.f90</li>
+</ul>
+<p>These all use the F90 AMReX&nbsp;build system and the macros in
+GMicrophysics.mak to build the executable. To make
+individual tests you can use the programs variable, e.g.,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">programs</span><span class="o">=</span><span class="nb">eval</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="burn_cell.html" class="btn btn-neutral float-right" title="Burn Cell Utility" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="openacc.html" class="btn btn-neutral" title="GPUs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, StarKiller Development Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'18.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/mathjax_conf.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

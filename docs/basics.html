@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>StarKiller Basics &mdash; StarKiller Microphysics 18.10 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="StarKiller Microphysics 18.10 documentation" href="index.html"/>
+        <link rel="next" title="Data Structures" href="data_structures.html"/>
+        <link rel="prev" title="preface" href="preface.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> StarKiller Microphysics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                18.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">StarKiller basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">preface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">StarKiller Basics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design Philosophy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="burn_cell.html">Burn Cell Utility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">StarKiller Microphysics</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>StarKiller Basics</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/basics.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="starkiller-basics">
+<h1>StarKiller Basics<a class="headerlink" href="#starkiller-basics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>Getting started with Microphysics&nbsp;using either CASTRO&nbsp;or
+MAESTRO&nbsp;is straightforward. Because the modules here are already in
+a format that the AMReX&nbsp;codes understand, you only need to provide
+to the code calling these routines their location on your system. The
+code will do the rest. To do so, define the MICROPHYSICS_HOME
+environment variable, either at a command line or (if you use the
+bash shell) through your <span class="math notranslate nohighlight">\(\sim\)</span>/.bashrc profile, e.g.:</p>
+<div class="math notranslate nohighlight">
+\[\texttt{export MICROPHYSICS\_HOME=/path/to/Microphysics}\]</div>
+<p>For CASTRO  the name of the EOS and network are set via the make
+variables EOS_dir and Network_dir. The macros in
+CASTRO’s Make.Castro will know to look in Microphysics&nbsp;using
+the MICROPHYSICS_HOME variable to find the codes.</p>
+<p>For MAESTRO, the name of the EOS and network are set via the make
+variables EOS_DIR and NETWORK_DIR, and the macros in
+MAESTRO’s GMaestro.mak file will find the code, again using the
+MICROPHYSICS_HOME variable.</p>
+<p>For other codes, one can use the interfaces in
+Microphysics/interfaces/ and sample routines in
+Microphysics/unit_test/ to incorporate these modules into your
+code. Note that there are a few AMReX&nbsp;files required at the moment
+(mainly error handling and constants).</p>
+</div>
+<div class="section" id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<p>The high-level directory structure delineates the types of microphysics
+and the generic solvers:</p>
+<ul class="simple">
+<li>Docs/: this User’s Guide</li>
+<li>EOS/: the various equations of state</li>
+<li>integration/: the ODE integration routines used for the
+reaction networks</li>
+<li>interfaces/: copies of the main derived types that are used to
+interface with the EOS and reaction networks. Note that most application
+codes will have their own local copies. These are provided for unit testing
+in Microphysics.</li>
+<li>networks/: the nuclear reaction networks. This is mostly just the
+righthand side of the network, as the actual integrators are decoupled from
+the network.</li>
+<li>neutrinos/: neutino loss source terms for the network energy equation.</li>
+<li>NSE/: routines for approximating nuclear statistical equilibrium.</li>
+<li>rates/: common nuclear reaction rate modules used by some of the
+networks.</li>
+<li>screening/: common electron screening factors used by some of the
+reaction networks.</li>
+<li>unit_test/: self-contained unit tests for Microphysics. These don’t
+need any application code to build, but will require AMReX.</li>
+<li>util/: linear algebra solvers and other routines.</li>
+</ul>
+</div>
+<div class="section" id="design-philosophy">
+<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permalink to this headline">¶</a></h2>
+<p>Any application that uses Microphysics&nbsp;will at minimum need to
+choose an EOS and a network. These two components work together. The
+design philosophy is that the EOS depends on the network, but not the
+other way around. The decision was made for the network to act as the
+core module, and lots of code depends on it. This avoids circular
+dependencies by having the main EOS datatype, eos_t, and the
+main reaction network datatype, burn_t, be built on top of the
+network.</p>
+<p>The network is meant to store the properties of the species (typically
+nuclear isotopes) including their atomic weights and numbers, and also
+describes any links between the species when burning.</p>
+<p>The equation of state relates the thermodynamic properties of the
+material. It depends on the composition of the material, typically
+specified via mass fractions of the species, and uses the properties
+of the species defined by the network to interpret the state.</p>
+<p>We try to maximize code reuse in the Microphysics&nbsp;source, so the
+solvers (ODE integration for the network and Newton-Raphson root
+finding for the EOS) is separated from the specific implmentations of
+the microphysics.</p>
+<p><strong>All quantities are assumed to be in CGS units</strong>, unless otherwise
+specified.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_structures.html" class="btn btn-neutral float-right" title="Data Structures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="preface.html" class="btn btn-neutral" title="preface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, StarKiller Development Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'18.10',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/mathjax_conf.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
