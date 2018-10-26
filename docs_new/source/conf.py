@@ -20,6 +20,7 @@
 import os
 import sys
 import sphinx_rtd_theme
+import re
 sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -174,4 +175,21 @@ texinfo_documents = [
 ]
 
 
+#----------------------------------------------------------------------------
+# mathjax newcommands
+# see: http://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax
+#      https://gist.github.com/fKunstner/48c4e1024365c876ab644b20b0356554
+# requires sphinx >= 1.8
+mathjax_config = {'Tex':{'Macros':{}}}
 
+with open('maestrosymbols.tex', 'r') as f:
+	for line in f:
+		macros = re.findall(r'\\newcommand{\\(.*?)}(\[(\d)\])?{(.+)}', line)
+		for macro in macros:
+			if len(macro[1]) == 0:
+				mathjax_config['Tex']['Macros'][macro[0]] = "{"+macro[3]+"}"
+			else:
+				mathjax_config['Tex']['Macros'][macro[0]] = ["{"+macro[3]+"}", int(macro[2])]
+
+
+print(mathjax_config)
