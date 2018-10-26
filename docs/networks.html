@@ -124,7 +124,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#reaction-ode-system">Reaction ODE System</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#interfaces">Interfaces</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#thermodynamics-and-t-evolution">Thermodynamics and <span class="math notranslate nohighlight">\(T\)</span> Evolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#thermodynamics-and-evolution">Thermodynamics and <span class="math">\(T\)</span> Evolution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#nspec-evolve-implementation">nspec_evolve Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#renormalization">Renormalization</a></li>
 </ul>
@@ -268,7 +268,7 @@ integrators in a later section.</p>
 </li>
 <li><p class="first">nspec_evolve : the number of species that are actually
 integrated in the network. Usually this is nspec, but in general
-any nspec_evolve <span class="math notranslate nohighlight">\(\le\)</span> nspec is allowed. Those species
+any nspec_evolve <span class="math">\(\le\)</span> nspec is allowed. Those species
 not evolved are held constant in the integration.</p>
 <p>Note that the convention is that the first nspec_evolve out
 of the nspec species are the ones evolved.</p>
@@ -377,17 +377,17 @@ electron screening (from Microphysics/screening).</p>
 <p>These networks store the total binding
 energy of the nucleus in MeV as bion(:). They then compute the
 mass of each nucleus in grams as:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k\]</div>
-<p>where <span class="math notranslate nohighlight">\(m_n\)</span>, <span class="math notranslate nohighlight">\(m_p\)</span>, and <span class="math notranslate nohighlight">\(m_e\)</span> are the neutron, proton, and electron
-masses, <span class="math notranslate nohighlight">\(A_k\)</span> and <span class="math notranslate nohighlight">\(Z_k\)</span> are the atomic weight and number, and <span class="math notranslate nohighlight">\(B_k\)</span>
-is the binding energy of the nucleus (converted to grams). <span class="math notranslate nohighlight">\(M_k\)</span>
+<p>where <span class="math">\(m_n\)</span>, <span class="math">\(m_p\)</span>, and <span class="math">\(m_e\)</span> are the neutron, proton, and electron
+masses, <span class="math">\(A_k\)</span> and <span class="math">\(Z_k\)</span> are the atomic weight and number, and <span class="math">\(B_k\)</span>
+is the binding energy of the nucleus (converted to grams). <span class="math">\(M_k\)</span>
 is stored as mion(:) in the network.</p>
 <p>The energy release per gram is converted from the rates as:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edotnu\]</div>
-<p>where <span class="math notranslate nohighlight">\(N_A\)</span> is Avogadro’s number (to convert this to “per gram”)
-and <span class="math notranslate nohighlight">\(\edotnu\)</span> is the neutrino loss term.</p>
+<p>where <span class="math">\(N_A\)</span> is Avogadro’s number (to convert this to “per gram”)
+and <span class="math">\(\edotnu\)</span> is the neutrino loss term.</p>
 </div>
 </div>
 <div class="section" id="breakout">
@@ -403,7 +403,7 @@ network; no reactions are enabled, and no auxiliary variables are
 accepted. The data in the Fortran module is defined at compile type
 by specifying an inputs file. For example,
 Networks/general_null/triple_alpha_plus_o.net would describe
-the triple-<span class="math notranslate nohighlight">\(\alpha\)</span> reaction converting helium into carbon, as well as
+the triple-<span class="math">\(\alpha\)</span> reaction converting helium into carbon, as well as
 oxygen and iron.</p>
 <p>At compile time, the network module actual_network.f90
 is written using the python script write_network.py
@@ -422,17 +422,17 @@ carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in <a href="#id3"><span class="problematic" id="id4">:raw-latex:`\cite{chamulak:2008}`</span></a>.</p>
 <p>This network has nspec = 3, but nspec_evolve = 1. Only a
-single reaction is modeled, converting <span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span> into “
+single reaction is modeled, converting <span class="math">\(^{12}\mathrm{C}\)</span> into “
 ash”.</p>
 <div class="section" id="energy-generation-1">
 <span id="id5"></span><h4>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this headline">¶</a></h4>
-<p>The binding energy, <span class="math notranslate nohighlight">\(q\)</span>, in this
+<p>The binding energy, <span class="math">\(q\)</span>, in this
 network is interpolated based on the density. It is stored as the
 binding energy (ergs/g) <em>per nucleon</em>, with a sign convention that
 binding energies are negative. The energy generation rate is then:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\edot = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}\]</div>
-<p>(this is positive since both <span class="math notranslate nohighlight">\(q\)</span> and <span class="math notranslate nohighlight">\(dY/dt\)</span> are negative)</p>
+<p>(this is positive since both <span class="math">\(q\)</span> and <span class="math">\(dY/dt\)</span> are negative)</p>
 </div>
 </div>
 <div class="section" id="ignition-reaclib">
@@ -442,14 +442,14 @@ binding energies are negative. The energy generation rate is then:</p>
 <h3>ignition_simple<a class="headerlink" href="#ignition-simple" title="Permalink to this headline">¶</a></h3>
 <p>This is the original network used in our white dwarf convection
 studies&nbsp;<a href="#id6"><span class="problematic" id="id7">:raw-latex:`\cite{lowMach4}`</span></a>. It includes a single-step
-<span class="math notranslate nohighlight">\(^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}\)</span> reaction.
+<span class="math">\(^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}\)</span> reaction.
 The carbon mass fraction equation appears as</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
     f_\mathrm{Coul} \left [N_A \left &lt;\sigma v \right &gt; \right]\enskip,\]</div>
-<p>where <span class="math notranslate nohighlight">\(N_A \left &lt;\sigma v\right&gt;\)</span> is evaluated using the reaction
+<p>where <span class="math">\(N_A \left &lt;\sigma v\right&gt;\)</span> is evaluated using the reaction
 rate from (Caughlan and Fowler 1988). The Coulomb screening factor,
-<span class="math notranslate nohighlight">\(f_\mathrm{Coul}\)</span>, is evaluated using the general routine from the
+<span class="math">\(f_\mathrm{Coul}\)</span>, is evaluated using the general routine from the
 Kepler stellar evolution code (Weaver 1978), which implements the work
 of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.</p>
@@ -463,41 +463,41 @@ and Itoh 1979) for strong screening.</p>
 <div class="section" id="powerlaw">
 <h3>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h3>
 <p>This is a simple single-step reaction rate.
-We will consider only two species, fuel, <span class="math notranslate nohighlight">\(f\)</span>, and ash, <span class="math notranslate nohighlight">\(a\)</span>, through
-the reaction: <span class="math notranslate nohighlight">\(f + f \rightarrow a + \gamma\)</span>. Baryon conservation
-requres that <span class="math notranslate nohighlight">\(A_f = A_a/2\)</span>, and charge conservation requires that <span class="math notranslate nohighlight">\(Z_f
+We will consider only two species, fuel, <span class="math">\(f\)</span>, and ash, <span class="math">\(a\)</span>, through
+the reaction: <span class="math">\(f + f \rightarrow a + \gamma\)</span>. Baryon conservation
+requres that <span class="math">\(A_f = A_a/2\)</span>, and charge conservation requires that <span class="math">\(Z_f
 = Z_a/2\)</span>. We take
 our reaction rate to be a powerlaw in temperature. The standard way
 to write this is in terms of the number densities, in which case we
 have</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\frac{d n_f}{d t} = -2\frac{d n_a}{d t} = -r\]</div>
 <p>with</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[r = r_0 n_X^2 \left( \frac{T}{T_0} \right )^\nu\]</div>
-<p>Here, <span class="math notranslate nohighlight">\(r_0\)</span> sets the overall rate, with units of
-<span class="math notranslate nohighlight">\([\mathrm{cm^3~s^{-1}}]\)</span>, <span class="math notranslate nohighlight">\(T_0\)</span> is a reference temperature scale, and
-<span class="math notranslate nohighlight">\(\nu\)</span> is the temperature exponent, which will play a role in setting
-the reaction zone thickness. In terms of mass fractions, <span class="math notranslate nohighlight">\(n_f = \rho
+<p>Here, <span class="math">\(r_0\)</span> sets the overall rate, with units of
+<span class="math">\([\mathrm{cm^3~s^{-1}}]\)</span>, <span class="math">\(T_0\)</span> is a reference temperature scale, and
+<span class="math">\(\nu\)</span> is the temperature exponent, which will play a role in setting
+the reaction zone thickness. In terms of mass fractions, <span class="math">\(n_f = \rho
 X_a / (A_a m_u)\)</span>, our rate equation is</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\begin{split}\begin{aligned}
  \frac{dX_f}{dt} &amp;=&amp; - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f \label{eq:Xf} \\
  \frac{dX_a}{dt} &amp;=&amp; \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu  \label{eq:Xa}\end{aligned}\end{split}\]</div>
-<p>We define a new rate constant, <span class="math notranslate nohighlight">\(\rt\)</span> with units of <span class="math notranslate nohighlight">\([\mathrm{s^{-1}}]\)</span> as</p>
-<div class="math notranslate nohighlight">
+<p>We define a new rate constant, <span class="math">\(\rt\)</span> with units of <span class="math">\([\mathrm{s^{-1}}]\)</span> as</p>
+<div class="math">
 \[\begin{split}\rt =  \begin{cases}
   \dfrac{r_0}{m_u A_f} \rho_0 &amp; \text{if $T \ge T_a$} \\[1em]
   0                          &amp; \text{if $T &lt; T_a$}
  \end{cases}\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\rho_0\)</span> is a reference density and <span class="math notranslate nohighlight">\(T_a\)</span> is an activation
+<p>where <span class="math">\(\rho_0\)</span> is a reference density and <span class="math">\(T_a\)</span> is an activation
 temperature, and then our mass fraction equation is:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\frac{dX_f}{dt} = -\rt X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu\]</div>
 <p>Finally, for the
 energy generation, we take our reaction to release a specific energy,
-<span class="math notranslate nohighlight">\([\mathrm{erg~g^{-1}}]\)</span>, of <span class="math notranslate nohighlight">\(\qburn\)</span>, and our energy source is</p>
-<div class="math notranslate nohighlight">
+<span class="math">\([\mathrm{erg~g^{-1}}]\)</span>, of <span class="math">\(\qburn\)</span>, and our energy source is</p>
+<div class="math">
 \[\edot = -\qburn \frac{dX_f}{dt}\]</div>
 <p>There are a number of parameters we use to control the constants in
 this network. This is one of the few networks that was designed
@@ -506,7 +506,7 @@ to work with gamma_law_general as the EOS.</p>
 <div class="section" id="rprox">
 <h3>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h3>
 <p>This network contains 10 species, approximating hot CNO,
-triple-<span class="math notranslate nohighlight">\(\alpha\)</span>, and rp-breakout burning up through <span class="math notranslate nohighlight">\(^{56}\mathrm{Ni}\)</span>,
+triple-<span class="math">\(\alpha\)</span>, and rp-breakout burning up through <span class="math">\(^{56}\mathrm{Ni}\)</span>,
 using the ideas from <a href="#id8"><span class="problematic" id="id9">:raw-latex:`\cite{wallacewoosley:1981}`</span></a>, but with modern
 reaction rates from ReacLib&nbsp;<a href="#id10"><span class="problematic" id="id11">:raw-latex:`\cite{ReacLib}`</span></a> where available.
 This network was used for the X-ray burst studies in
@@ -514,39 +514,39 @@ This network was used for the X-ray burst studies in
 </div>
 <div class="section" id="triple-alpha-plus-cago">
 <h3>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h3>
-<p>This is a 2 reaction network for helium burning, capturing the <span class="math notranslate nohighlight">\(3\)</span>-<span class="math notranslate nohighlight">\(\alpha\)</span>
-reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
-<span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
+<p>This is a 2 reaction network for helium burning, capturing the <span class="math">\(3\)</span>-<span class="math">\(\alpha\)</span>
+reaction and <span class="math">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
+<span class="math">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
 <p>This network has nspec = 4, but nspec_evolve = 3.</p>
 </div>
 <div class="section" id="xrb-simple">
 <h3>xrb_simple<a class="headerlink" href="#xrb-simple" title="Permalink to this headline">¶</a></h3>
 <p>This is a simple 7 isotope network approximating the burning that
 takes place in X-ray bursts (6 isotopes participate in reactions, one
-additional, <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span>, serves as an inert composition). The 6 reactions
+additional, <span class="math">\(^{56}\mathrm{Fe}\)</span>, serves as an inert composition). The 6 reactions
 modeled are:</p>
 <ul class="simple">
-<li><span class="math notranslate nohighlight">\(3\alpha + 2p \rightarrow \isotm{O}{14}\)</span> (limited by the 3-<span class="math notranslate nohighlight">\(\alpha\)</span> rate)</li>
-<li><span class="math notranslate nohighlight">\(\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}\)</span>
-(limited by <span class="math notranslate nohighlight">\(\isotm{O}{14}(\alpha,p)\isotm{F}{17}\)</span> rate)</li>
-<li><span class="math notranslate nohighlight">\(\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}\)</span>
-(limited by <span class="math notranslate nohighlight">\(\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}\)</span> rate)</li>
-<li><span class="math notranslate nohighlight">\(\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}\)</span>
-(limited by <span class="math notranslate nohighlight">\(\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}\)</span> rate)</li>
-<li><span class="math notranslate nohighlight">\(\isotm{O}{14} + p \rightarrow \isotm{O}{15}\)</span>
-(limited by <span class="math notranslate nohighlight">\(\isotm{O}{14}(e+\nu)\isotm{N}{14}\)</span> rate)</li>
-<li><span class="math notranslate nohighlight">\(\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha\)</span>
-(limited by <span class="math notranslate nohighlight">\(\isotm{O}{15}(e+\nu)\isotm{N}{15}\)</span> rate)</li>
+<li><span class="math">\(3\alpha + 2p \rightarrow \isotm{O}{14}\)</span> (limited by the 3-<span class="math">\(\alpha\)</span> rate)</li>
+<li><span class="math">\(\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}\)</span>
+(limited by <span class="math">\(\isotm{O}{14}(\alpha,p)\isotm{F}{17}\)</span> rate)</li>
+<li><span class="math">\(\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}\)</span>
+(limited by <span class="math">\(\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}\)</span> rate)</li>
+<li><span class="math">\(\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}\)</span>
+(limited by <span class="math">\(\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}\)</span> rate)</li>
+<li><span class="math">\(\isotm{O}{14} + p \rightarrow \isotm{O}{15}\)</span>
+(limited by <span class="math">\(\isotm{O}{14}(e+\nu)\isotm{N}{14}\)</span> rate)</li>
+<li><span class="math">\(\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha\)</span>
+(limited by <span class="math">\(\isotm{O}{15}(e+\nu)\isotm{N}{15}\)</span> rate)</li>
 </ul>
 <p>All reactions conserve mass. Where charge is not conserved, fast weak
 interactions are assumed. Weak rates are trivial, fits to the 4
-strong rates to a power law in <span class="math notranslate nohighlight">\(T_9 \in [0.3, 1]\)</span>, linear in density.</p>
+strong rates to a power law in <span class="math">\(T_9 \in [0.3, 1]\)</span>, linear in density.</p>
 </div>
 <div class="section" id="subch">
 <h3>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h3>
 <p>This is a 10 isotope network including rates from reactions suggested by Shen and Bildsten in their 2009 paper on helium burning on a white dwarf <a href="#id14"><span class="problematic" id="id15">:raw-latex:`\cite{ShenBildsten}`</span></a>.
 The reactions included in this networks are as follows:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\begin{split}\begin{aligned}
     \isotm{He}{4} &amp;\rightarrow  \isotm{C}{12} + 2\gamma \\
     \isotm{C}{12} + \isotm{He}{4} &amp;\rightarrow \isotm{O}{16} + \gamma \\
@@ -570,27 +570,27 @@ Notably, the reaction rate of chemical equation <a class="reference external" hr
 </div>
 <div class="section" id="reaction-ode-system">
 <h2>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Permalink to this headline">¶</a></h2>
-<p>Note: the integration works on the state <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span>, e.g., the
+<p>Note: the integration works on the state <span class="math">\(\rho\)</span>, <span class="math">\(T\)</span>, and <span class="math">\(X_k\)</span>, e.g., the
 mass fractions, but the individual networks construct the rates in terms
-of the molar fractions, <span class="math notranslate nohighlight">\(Y_k\)</span>. The wrappers between the integrators and
+of the molar fractions, <span class="math">\(Y_k\)</span>. The wrappers between the integrators and
 network righthand side routines do the conversion of the state to mass
 fractions for the integrator.</p>
 <p>The equations we integrate to do a nuclear burn are:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\begin{split}\begin{aligned}
   \frac{dX_k}{dt} &amp;=&amp; \omegadot_k(\rho,X_k,T), \label{eq:spec_integrate} \\
   \frac{d\enuc}{dt} &amp;=&amp; f(\dot{X}_k) \label{eq:enuc_integrate} \\
   \frac{dT}{dt} &amp;=&amp;\frac{\edot}{c_x}. \label{eq:temp_integrate}\end{aligned}\end{split}\]</div>
-<p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(\enuc\)</span> is the specifc
-nuclear energy created through reactions, <span class="math notranslate nohighlight">\(T\)</span> is the
-temperature <a class="footnote-reference" href="#id31" id="id18">[1]</a> , and <span class="math notranslate nohighlight">\(c_x\)</span> is the specific heat for the
-fluid. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release based on the
-instantaneous reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous
+<p>Here, <span class="math">\(X_k\)</span> is the mass fraction of species <span class="math">\(k\)</span>, <span class="math">\(\enuc\)</span> is the specifc
+nuclear energy created through reactions, <span class="math">\(T\)</span> is the
+temperature <a class="footnote-reference" href="#id31" id="id18">[1]</a> , and <span class="math">\(c_x\)</span> is the specific heat for the
+fluid. The function <span class="math">\(f\)</span> provides the energy release based on the
+instantaneous reaction terms, <span class="math">\(\dot{X}_k\)</span>. As noted in the previous
 section, this is implemented in a network-specific manner.</p>
-<p>In this system, <span class="math notranslate nohighlight">\(\enuc\)</span> is not necessarily the total specific internal
+<p>In this system, <span class="math">\(\enuc\)</span> is not necessarily the total specific internal
 energy, but rather just captures the energy release during the burn. In
 this system, it acts as a diagnostic,</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\enuc = \int \edot dt\]</div>
 <p>so we know how much energy was released (or required) over the burn.</p>
 <p>While this is the most common way to construct the set of
@@ -599,7 +599,7 @@ all of them are ultimately implemented by the network itself, which
 can choose to disable the evolution of any of these equations by
 setting the RHS to zero. The integration software provides some
 helper routines that construct common RHS evaluations, like the RHS
-of the temperature equation given <span class="math notranslate nohighlight">\(\dot{e}\)</span>, but these calls
+of the temperature equation given <span class="math">\(\dot{e}\)</span>, but these calls
 are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.</p>
@@ -607,7 +607,7 @@ new network that defines the RHS in whatever way you like.</p>
 <h3>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h3>
 <p>The righthand side of the network is implemented by
 actual_rhs() in actual_rhs.f90, and appears as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_rhs</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_rhs</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">)</span> <span class="p">::</span> <span class="n">state</span>
 </pre></div>
 </div>
@@ -617,7 +617,7 @@ actual_rhs() in actual_rhs.f90, and appears as:</p>
 the case that nspec_evolve &lt; nspec, an algebraic constraint
 may need to be enforced. See §&nbsp;<a class="reference external" href="#ch:networks:nspec_evolve">3.3</a>).</li>
 <li>state % e : the current value of the ODE system’s energy
-release, <span class="math notranslate nohighlight">\(\enuc\)</span>—note: as discussed above, this is not necessarily
+release, <span class="math">\(\enuc\)</span>—note: as discussed above, this is not necessarily
 the energy you would get by calling the EOS on the state. It is
 very rare (never?) that a RHS implementation would need to use this
 variable.</li>
@@ -626,7 +626,7 @@ variable.</li>
 </ul>
 <p>Note that we come in with the mass fractions, but the molar fractions can
 be computed as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">double</span> <span class="n">precision</span> <span class="p">::</span> <span class="n">y</span><span class="p">(</span><span class="n">nspec</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">double</span> <span class="n">precision</span> <span class="p">::</span> <span class="n">y</span><span class="p">(</span><span class="n">nspec</span><span class="p">)</span>
 <span class="o">...</span>
 <span class="n">y</span><span class="p">(:)</span> <span class="o">=</span> <span class="n">state</span> <span class="o">%</span> <span class="n">xn</span><span class="p">(:)</span> <span class="o">/</span> <span class="n">aion</span><span class="p">(:)</span>
 </pre></div>
@@ -637,42 +637,42 @@ fields to fill are:</p>
 <ul class="simple">
 <li>state % ydot(1:nspec_evolve) : the change in <em>molar
 fractions</em> for the nspec_evolve species that we are evolving,
-<span class="math notranslate nohighlight">\(d({Y}_k)/dt\)</span></li>
+<span class="math">\(d({Y}_k)/dt\)</span></li>
 <li>state % ydot(net_ienuc) : the change in the energy release
-from the net, <span class="math notranslate nohighlight">\(d\enuc/dt\)</span></li>
-<li>state % ydot(net_itemp) : the change in temperature, <span class="math notranslate nohighlight">\(dT/dt\)</span></li>
+from the net, <span class="math">\(d\enuc/dt\)</span></li>
+<li>state % ydot(net_itemp) : the change in temperature, <span class="math">\(dT/dt\)</span></li>
 </ul>
 <p>The righthand side routine is assumed to return the change in <em>molar fractions</em>,
-<span class="math notranslate nohighlight">\(dY_k/dt\)</span>. These will be converted to the change in mass fractions, <span class="math notranslate nohighlight">\(dX_k/dt\)</span>
+<span class="math">\(dY_k/dt\)</span>. These will be converted to the change in mass fractions, <span class="math">\(dX_k/dt\)</span>
 by the wrappers that call the righthand side routine for the integrator.
-If the network builds the RHS in terms of mass fractions directly, <span class="math notranslate nohighlight">\(dX_k/dt\)</span>, then
+If the network builds the RHS in terms of mass fractions directly, <span class="math">\(dX_k/dt\)</span>, then
 these will need to be converted to molar fraction rates for storage, e.g.,
-<span class="math notranslate nohighlight">\(dY_k/dt = A_k^{-1} dX_k/dt\)</span>.</p>
+<span class="math">\(dY_k/dt = A_k^{-1} dX_k/dt\)</span>.</p>
 <p>The Jacobian is provided by actual_jac(state), and takes the
 form:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_jac</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_jac</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">)</span> <span class="p">::</span> <span class="n">state</span>
 </pre></div>
 </div>
 <p>The Jacobian matrix elements are stored in state % jac as:</p>
 <ul class="simple">
-<li>state % jac(m, n) for <span class="math notranslate nohighlight">\(\mathrm{m}, \mathrm{n} \in [1, \mathrm{nspec\_evolve}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\dot{Y}_m)/dY_n\)</span></li>
-<li>state % jac(net_ienuc, n) for <span class="math notranslate nohighlight">\(\mathrm{n} \in [1, \mathrm{nspec\_evolve}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\edot)/dY_n\)</span></li>
-<li>state % jac(net_itemp, n) for <span class="math notranslate nohighlight">\(\mathrm{n} \in [1, \mathrm{nspec\_evolve}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\dot{T})/dY_n\)</span></li>
-<li>state % jac(m, net_itemp) for <span class="math notranslate nohighlight">\(\mathrm{m} \in [1, \mathrm{nspec\_evolve}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\dot{Y}_m)/dT\)</span></li>
+<li>state % jac(m, n) for <span class="math">\(\mathrm{m}, \mathrm{n} \in [1, \mathrm{nspec\_evolve}]\)</span> :
+<span class="math">\(d(\dot{Y}_m)/dY_n\)</span></li>
+<li>state % jac(net_ienuc, n) for <span class="math">\(\mathrm{n} \in [1, \mathrm{nspec\_evolve}]\)</span> :
+<span class="math">\(d(\edot)/dY_n\)</span></li>
+<li>state % jac(net_itemp, n) for <span class="math">\(\mathrm{n} \in [1, \mathrm{nspec\_evolve}]\)</span> :
+<span class="math">\(d(\dot{T})/dY_n\)</span></li>
+<li>state % jac(m, net_itemp) for <span class="math">\(\mathrm{m} \in [1, \mathrm{nspec\_evolve}]\)</span> :
+<span class="math">\(d(\dot{Y}_m)/dT\)</span></li>
 <li>state % jac(net_ienuc, net_itemp) :
-<span class="math notranslate nohighlight">\(d(\edot)/dT\)</span></li>
+<span class="math">\(d(\edot)/dT\)</span></li>
 <li>state % jac(net_itemp, net_itemp) :
-<span class="math notranslate nohighlight">\(d(\dot{T})/dT\)</span></li>
-<li>state % jac(p, net_ienuc) <span class="math notranslate nohighlight">\(= 0\)</span> for <span class="math notranslate nohighlight">\(\mathrm{p} \in [1, \mathrm{neqs}]\)</span>, since nothing
+<span class="math">\(d(\dot{T})/dT\)</span></li>
+<li>state % jac(p, net_ienuc) <span class="math">\(= 0\)</span> for <span class="math">\(\mathrm{p} \in [1, \mathrm{neqs}]\)</span>, since nothing
 should depend on the integrated energy release</li>
 </ul>
 <p>The form looks like:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\begin{split}\vphantom{% phantom stuff for correct box dimensions
     \begin{matrix}
     \overbrace{XYZ}^{\mbox{$R$}}\\ \\ \\ \\ \\ \\
@@ -689,23 +689,23 @@ should depend on the integrated energy release</li>
     \hdots &amp; \partial \dot{T}/\partial Y_n &amp; \hdots &amp; 0 &amp; \partial \dot{T}/\partial T   \\
 \end{pmatrix}%\end{split}\]</div>
 <p>This shows that all of the derivatives with respect to the nuclear
-energy generated, <span class="math notranslate nohighlight">\(e_\mathrm{nuc}\)</span> are zero. Again, this is because
+energy generated, <span class="math">\(e_\mathrm{nuc}\)</span> are zero. Again, this is because
 this is just a diagnostic variable.</p>
 <p>Note: a network is not required to compute a Jacobian if a numerical
 Jacobian is used. This is set with the runtime parameter
 jacobian = 2, and implemented in
 integration/numerical_jacobian.f90 using finite-differences.</p>
 </div>
-<div class="section" id="thermodynamics-and-t-evolution">
-<h3>Thermodynamics and <span class="math notranslate nohighlight">\(T\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-t-evolution" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="thermodynamics-and-evolution">
+<h3>Thermodynamics and <span class="math">\(T\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-evolution" title="Permalink to this headline">¶</a></h3>
 <p>There are several different modes under which the burning can be done, set
 via the burning_mode runtime parameter:</p>
 <ul>
 <li><p class="first">burning_mode = 0 : hydrostatic burning</p>
-<p><span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span> remain constant</p>
+<p><span class="math">\(\rho\)</span>, <span class="math">\(T\)</span> remain constant</p>
 </li>
 <li><p class="first">burning_mode = 1 : self-heating burn</p>
-<p><span class="math notranslate nohighlight">\(T\)</span> evolves with the burning according to the temperature evolution
+<p><span class="math">\(T\)</span> evolves with the burning according to the temperature evolution
 equation. This is the “usual” way of thinking of the
 burning—all three equations (Eqs. <a class="reference external" href="#eq:spec_integrate">[eq:spec_integrate]</a>,
 <a class="reference external" href="#eq:enuc_integrate">[eq:enuc_integrate]</a>, and <a class="reference external" href="#eq:temp_integrate">[eq:temp_integrate]</a>) are solved
@@ -719,8 +719,8 @@ negative energy release corresponds to NSE conditions)</p>
 </li>
 <li><p class="first">burning_mode = 3 : suppressed burning</p>
 <p>This does a self-heating burn, but limits all values of the RHS
-by a factor <span class="math notranslate nohighlight">\(L = \text{min}(1, f_s (e / \dot{e}) / t_s)\)</span>, such
-that <span class="math notranslate nohighlight">\(\dot{e} = f_s\, e / t_s\)</span>, where <span class="math notranslate nohighlight">\(f_s\)</span> is a safety factor,
+by a factor <span class="math">\(L = \text{min}(1, f_s (e / \dot{e}) / t_s)\)</span>, such
+that <span class="math">\(\dot{e} = f_s\, e / t_s\)</span>, where <span class="math">\(f_s\)</span> is a safety factor,
 set via burning_mode_factor.</p>
 </li>
 </ul>
@@ -737,21 +737,21 @@ update_thermodynamics) <a class="footnote-reference" href="#id32" id="id21">[2]<
 parameters, call_eos_in_rhs and dT_crit:</p>
 <ul>
 <li><p class="first">call_eos_in_rhs = T:</p>
-<p>We call the EOS just before every RHS evaluation, using <span class="math notranslate nohighlight">\(\rho, T\)</span> as
+<p>We call the EOS just before every RHS evaluation, using <span class="math">\(\rho, T\)</span> as
 inputs. Therefore, the thermodynamic quantities will always be
 consistent with the input state.</p>
 </li>
 <li><p class="first">call_eos_in_rhs = F</p>
-<p>Here we keep track of the temperature, <span class="math notranslate nohighlight">\(T_\mathrm{old}\)</span>, at
+<p>Here we keep track of the temperature, <span class="math">\(T_\mathrm{old}\)</span>, at
 which the EOS was last called (which may be the start of integration).</p>
 <p>If</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\frac{T - T_\mathrm{old}}{T} &gt; \mathtt{dT\_crit}\]</div>
-<p>then we update the thermodynamics. We also compute <span class="math notranslate nohighlight">\(d(c_v)/dT\)</span> and
-<span class="math notranslate nohighlight">\(d(c_p)/dT\)</span> via differencing with the old thermodynamic state and
+<p>then we update the thermodynamics. We also compute <span class="math">\(d(c_v)/dT\)</span> and
+<span class="math">\(d(c_p)/dT\)</span> via differencing with the old thermodynamic state and
 store these in the integrator. If this inequality is not met, then
 we don’t change the thermodynamics, but simply update the
-composition terms in the EOS state, e.g., <span class="math notranslate nohighlight">\(\bar{A}\)</span>.</p>
+composition terms in the EOS state, e.g., <span class="math">\(\bar{A}\)</span>.</p>
 <p>We interpret dT_crit as the fractional change needed in the
 temperature during a burn to trigger an EOS call that updates the
 thermodynamic variables. Note that this is fully independent of
@@ -761,26 +761,26 @@ call_eos_in_rhs.</p>
 <p>A network is free to write their own righthand side for the
 temperature evolution equation in its actual_rhs() routine.
 But since this equation only really needs to know the instantaneous
-energy generation rate, <span class="math notranslate nohighlight">\(\dot{e}\)</span>, most networks use the helper
+energy generation rate, <span class="math">\(\dot{e}\)</span>, most networks use the helper
 function, temperature_rhs (in
 integration/temperature_integration.f90):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">temperature_rhs</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">temperature_rhs</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">)</span> <span class="p">::</span> <span class="n">state</span>
 </pre></div>
 </div>
 <p>This function assumes that state % ydot(net_ienuc) is already
 filled and simply fills state % ydot(net_itemp) according to
 the prescription below.</p>
-<p>We need the specific heat, <span class="math notranslate nohighlight">\(c_x\)</span>. Note that because we are evaluating
+<p>We need the specific heat, <span class="math">\(c_x\)</span>. Note that because we are evaluating
 the temperature evolution independent of any hydrodynamics, we do not
-incorporate any advective or <span class="math notranslate nohighlight">\(pdV\)</span> terms in the evolution. Therefore,
+incorporate any advective or <span class="math">\(pdV\)</span> terms in the evolution. Therefore,
 for our approximation here, we need to decide which specific heat we
-want—usually either the specific heat at constant pressure, <span class="math notranslate nohighlight">\(c_p\)</span>,
-or the specific heat at constant volume, <span class="math notranslate nohighlight">\(c_v\)</span>. The EOS generally
+want—usually either the specific heat at constant pressure, <span class="math">\(c_p\)</span>,
+or the specific heat at constant volume, <span class="math">\(c_v\)</span>. The EOS generally
 will provide both of these specific heats; which one to use is a
 choice the user needs to make based on the physics of their problem.
 This is controlled by the parameter do_constant_volume_burn,
-which will use <span class="math notranslate nohighlight">\(c_v\)</span> if .true. and <span class="math notranslate nohighlight">\(c_p\)</span> is .false.. See
+which will use <span class="math">\(c_v\)</span> if .true. and <span class="math">\(c_p\)</span> is .false.. See
 <a href="#id22"><span class="problematic" id="id23">:raw-latex:`\cite{maestro:III}`</span></a> for a discussion of the temperature evolution
 equation.</p>
 <p>A fully accurate integration of Equation <a class="reference external" href="#eq:temp_integrate">[eq:temp_integrate]</a>
@@ -794,9 +794,9 @@ inexpensive</p>
 of the specific heat by periodically calling the EOS (using
 dT_crit as described above) and extrapolating to the current
 temperature as:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[c_x = (c_x)_0 + \frac{T - T_0}{d(c_x)/dT|_0}\]</div>
-<p>where the ‘<span class="math notranslate nohighlight">\(_0\)</span>’ quantities are the values from when the EOS was last
+<p>where the ‘<span class="math">\(_0\)</span>’ quantities are the values from when the EOS was last
 called. This represents a middle ground between fully on and fully
 off.</p>
 <p>Note: if state % self_heat = F, then we do not evolve
@@ -805,21 +805,21 @@ temperature.</p>
 disable temperature evolution (by zeroing out
 ydot(net_itemp)).</p>
 <p>The last equation in our system is the nuclear energy release,
-<span class="math notranslate nohighlight">\(\edot\)</span>. Because of the operator-split approach to this ODE system,
-this is not the true specific internal energy, <span class="math notranslate nohighlight">\(e\)</span> (since it only
+<span class="math">\(\edot\)</span>. Because of the operator-split approach to this ODE system,
+this is not the true specific internal energy, <span class="math">\(e\)</span> (since it only
 responds only to the nuclear energy release and no pdV work).</p>
-<p>At initialization, <span class="math notranslate nohighlight">\(e\)</span> is set to the value from the EOS consistent
+<p>At initialization, <span class="math">\(e\)</span> is set to the value from the EOS consistent
 with the initial temperature, density, and composition:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[e_0 = e(\rho_0, T_0, {X_k}_0)\]</div>
 <p>In the integration routines, this is termed the “energy offset”.</p>
-<p>As the system is integrated, <span class="math notranslate nohighlight">\(e\)</span> is updated to account for the
+<p>As the system is integrated, <span class="math">\(e\)</span> is updated to account for the
 nuclear energy release,</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt\]</div>
 <p>Note that thermodynamic consistency will no longer be maintained
-(because density doesn’t evolve and the <span class="math notranslate nohighlight">\(T\)</span> evolution is approximate)
-but <span class="math notranslate nohighlight">\(e\)</span> will represent an approximation to the current specific
+(because density doesn’t evolve and the <span class="math">\(T\)</span> evolution is approximate)
+but <span class="math">\(e\)</span> will represent an approximation to the current specific
 internal energy, including the nuclear energy generation release.</p>
 <p>Upon exit, we subtract off this initial offset, so % e in
 the returned burn_t type from the actual_integrator
@@ -827,18 +827,18 @@ call represents the energy <em>release</em> during the burn.</p>
 </div>
 <div class="section" id="nspec-evolve-implementation">
 <span id="ch-networks-nspec-evolve"></span><h3>nspec_evolve Implementation<a class="headerlink" href="#nspec-evolve-implementation" title="Permalink to this headline">¶</a></h3>
-<p>For networks where nspec_evolve <span class="math notranslate nohighlight">\(&lt;\)</span> nspec, it may be
+<p>For networks where nspec_evolve <span class="math">\(&lt;\)</span> nspec, it may be
 necessary to reset the species mass fractions each time you enter the
 RHS routine. As an example, the network ignition_chamulak has
-3 species, <span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span>, <span class="math notranslate nohighlight">\(^{16}\mathrm{O}\)</span>, and <span class="math notranslate nohighlight">\(^{24}\mathrm{Mg}\)</span>. In this
-network, <span class="math notranslate nohighlight">\(^{16}\mathrm{O}\)</span> is not evolved at all and any change in
-<span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span> is reflected in <span class="math notranslate nohighlight">\(^{24}\mathrm{Mg}\)</span>. So we can evolve only the
-equation for <span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span>. The algebraic relation between the
+3 species, <span class="math">\(^{12}\mathrm{C}\)</span>, <span class="math">\(^{16}\mathrm{O}\)</span>, and <span class="math">\(^{24}\mathrm{Mg}\)</span>. In this
+network, <span class="math">\(^{16}\mathrm{O}\)</span> is not evolved at all and any change in
+<span class="math">\(^{12}\mathrm{C}\)</span> is reflected in <span class="math">\(^{24}\mathrm{Mg}\)</span>. So we can evolve only the
+equation for <span class="math">\(^{12}\mathrm{C}\)</span>. The algebraic relation between the
 unevolved mass fractions that must be enforced then is:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[X(\isotm{Mg}{24}) = 1 - X(\isotm{C}{12}) - X(\isotm{O}{16})\]</div>
 <p>This is implemented in the routine update_unevolved_species:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">update_unevolved_species</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">update_unevolved_species</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">)</span> <span class="p">::</span> <span class="n">state</span>
 </pre></div>
 </div>
@@ -874,31 +874,31 @@ Often, one can find and set these values in an input file for a simulation.</p>
 <p>Figure&nbsp;<a class="reference external" href="#fig:tolerances">[fig:tolerances]</a> shows the results of a simple simulation using the
 burn_cell unit test to determine
 what tolerances are ideal for simulations.
-For this investigation, it was assumed that a run with a tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>
+For this investigation, it was assumed that a run with a tolerance of <span class="math">\(10^{-12}\)</span>
 corresponded to an exact result,
 so it is used as the basis for the rest of the tests.
-From the figure, one can infer that the <span class="math notranslate nohighlight">\(10^{-3}\)</span> and <span class="math notranslate nohighlight">\(10^{-6}\)</span> tolerances
+From the figure, one can infer that the <span class="math">\(10^{-3}\)</span> and <span class="math">\(10^{-6}\)</span> tolerances
 do not yeild the most accurate results
 because their relative error values are fairly large.
-However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
+However, the test with a tolerance of <span class="math">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
-so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
+so <span class="math">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
 </div>
 <div class="section" id="stiff-ode-solvers">
 <span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this headline">¶</a></h2>
 <p>The integration tolerances for the burn are controlled by
-<code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>, <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>, and <code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code>,
+<code class="docutils literal"><span class="pre">rtol_spec</span></code>, <code class="docutils literal"><span class="pre">rtol_enuc</span></code>, and <code class="docutils literal"><span class="pre">rtol_temp</span></code>,
 which are the relative error tolerances for
 Eqs.&nbsp;<a class="reference external" href="#eq:spec_integrate">[eq:spec_integrate]</a>, <a class="reference external" href="#eq:enuc_integrate">[eq:enuc_integrate]</a>, and
 <a class="reference external" href="#eq:temp_integrate">[eq:temp_integrate]</a>, respectively. There are corresponding
-<code class="docutils literal notranslate"><span class="pre">atol</span></code> parameters for the absolute error tolerances. Note that
+<code class="docutils literal"><span class="pre">atol</span></code> parameters for the absolute error tolerances. Note that
 not all integrators handle error tolerances the same way—see the
 sections below for integrator-specific information.</p>
 <p>We integrate our system using a stiff ordinary differential equation
 integration solver. The absolute error tolerances are set by default
-to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
+to <span class="math">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math">\(10^{-6}\)</span>
 is used for the temperature and energy. The integration yields the
-new values of the mass fractions, <span class="math notranslate nohighlight">\(Y_k^\outp\)</span>.</p>
+new values of the mass fractions, <span class="math">\(Y_k^\outp\)</span>.</p>
 <p>There are several options for integrators. Each should be capable of
 evolving any of the networks, but varying in their approach. Internally,
 the integrators uses different data structures to store the integration
@@ -912,7 +912,7 @@ the allowed options are BS, VBDF, and VODE.</p>
 <div class="section" id="actual-integrator">
 <h3>actual_integrator<a class="headerlink" href="#actual-integrator" title="Permalink to this headline">¶</a></h3>
 <p>The entry point to the integrator is actual_integrator:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_integrator</span><span class="p">(</span><span class="n">state_in</span><span class="p">,</span> <span class="n">state_out</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_integrator</span><span class="p">(</span><span class="n">state_in</span><span class="p">,</span> <span class="n">state_out</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
 
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">),</span> <span class="n">intent</span><span class="p">(</span><span class="ow">in</span>   <span class="p">)</span> <span class="p">::</span> <span class="n">state_in</span>
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">),</span> <span class="n">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span> <span class="p">::</span> <span class="n">state_out</span>
@@ -923,7 +923,7 @@ the allowed options are BS, VBDF, and VODE.</p>
 many conversions between eos_t, burn_t, and any
 integrator-specific type implied in these operations):</p>
 <ol class="arabic">
-<li><p class="first">Call the EOS on the input state, using <span class="math notranslate nohighlight">\(\rho, T\)</span> as the input
+<li><p class="first">Call the EOS on the input state, using <span class="math">\(\rho, T\)</span> as the input
 variables.</p>
 <p>This involves:</p>
 <ol class="arabic simple">
@@ -934,10 +934,10 @@ with the thermodynamic information.</li>
 bs, the integrator type. This copies all of the relevant
 data into the internal representation used by the integrator.</li>
 </ol>
-<p>We use the EOS result to define the energy offset for <span class="math notranslate nohighlight">\(e\)</span>
+<p>We use the EOS result to define the energy offset for <span class="math">\(e\)</span>
 integration.</p>
 </li>
-<li><p class="first">Compute the initial <span class="math notranslate nohighlight">\(d(c_x)/dT\)</span> derivatives, if necessary, by
+<li><p class="first">Compute the initial <span class="math">\(d(c_x)/dT\)</span> derivatives, if necessary, by
 finite differencing on the temperature.</p>
 </li>
 <li><p class="first">Call the main integration routine to advance the inputs state
@@ -952,7 +952,7 @@ energy release as state_out % e</p>
 </li>
 <li><p class="first">Convert back to a burn_t type (by calling XX_to_burn).</p>
 </li>
-<li><p class="first">update any unevolved species, for nspec_evolve <span class="math notranslate nohighlight">\(&lt;\)</span>
+<li><p class="first">update any unevolved species, for nspec_evolve <span class="math">\(&lt;\)</span>
 nspec</p>
 </li>
 <li><p class="first">normalize the abundances so they sum to 1</p>
@@ -971,8 +971,8 @@ The basic outline of this routine is:</p>
 <li><p class="first">call clean_state</p>
 <p>This function operates on the ODE integrator vector directly
 (accessing it from the integrator’s internal data structure). It
-makes sure that the mass fractions lie between <span class="math notranslate nohighlight">\([10^{-30}, 1]\)</span> and
-that the temperature lies between <span class="math notranslate nohighlight">\([{\tt small\_temp}, 10^{11}]\)</span>. The
+makes sure that the mass fractions lie between <span class="math">\([10^{-30}, 1]\)</span> and
+that the temperature lies between <span class="math">\([{\tt small\_temp}, 10^{11}]\)</span>. The
 latter upper limit is arbitrary, but is safe for the types of problems
 we support with these networks.</p>
 </li>
@@ -1030,7 +1030,7 @@ species that are not evolved in the ODE system.</p>
 <li><p class="first">bs_t % upar(irp_t0)</p>
 <p>This is the simulation time at the start of integration. This can
 be used as an offset to convert between simulation time and
-integration time (we always start the integration at <span class="math notranslate nohighlight">\(t = 0\)</span>).</p>
+integration time (we always start the integration at <span class="math">\(t = 0\)</span>).</p>
 </li>
 </ul>
 </div>
@@ -1043,24 +1043,24 @@ rtol_temp, rtol_enuc}. The absolute tolerance parameters
 are ignored.</p>
 <p>A relative tolerance needs a metric against which to compare. BS
 has two options, chosen by the runtime parameter scaling_method.
-Considering a vector <span class="math notranslate nohighlight">\({\bf y} = (Y_k, e, T)^\intercal\)</span>, the scales
-to compare against, <span class="math notranslate nohighlight">\({\bf y}_\mathrm{scal}\)</span>, are:</p>
+Considering a vector <span class="math">\({\bf y} = (Y_k, e, T)^\intercal\)</span>, the scales
+to compare against, <span class="math">\({\bf y}_\mathrm{scal}\)</span>, are:</p>
 <ul>
 <li><p class="first">scaling_method = 1 :</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[{\bf y}_\mathrm{scal} = |{\bf y}| + \Delta t  |\dot{\bf y}| + \epsilon\]</div>
-<p>This is an extrapolation of <span class="math notranslate nohighlight">\({\bf y}\)</span> in time. The quantity
-<span class="math notranslate nohighlight">\(\epsilon\)</span> is a small number (hardcoded to <span class="math notranslate nohighlight">\(10^{-30}\)</span>) to prevent any
+<p>This is an extrapolation of <span class="math">\({\bf y}\)</span> in time. The quantity
+<span class="math">\(\epsilon\)</span> is a small number (hardcoded to <span class="math">\(10^{-30}\)</span>) to prevent any
 scale from being zero.</p>
 </li>
 <li><p class="first">scaling_method = 2 :</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )\]</div>
-<p>for <span class="math notranslate nohighlight">\(j = 1, \ldots, {\tt neq}\)</span>. Here, ode_scale_floor is a runtime
+<p>for <span class="math">\(j = 1, \ldots, {\tt neq}\)</span>. Here, ode_scale_floor is a runtime
 parameter that sets a lower-limit to the scaling for each variable in the
-vector <span class="math notranslate nohighlight">\({\bf y}_\mathrm{scal}\)</span>. The default value is currently <span class="math notranslate nohighlight">\(10^{-6}\)</span>
+vector <span class="math">\({\bf y}_\mathrm{scal}\)</span>. The default value is currently <span class="math">\(10^{-6}\)</span>
 (although any network can override this using priorities). The effect of
-this scaling is that species with an abundance <span class="math notranslate nohighlight">\(\ll\)</span> ode_scal_floor
+this scaling is that species with an abundance <span class="math">\(\ll\)</span> ode_scal_floor
 will not be used as strongly in assessing the accuracy of a step.</p>
 </li>
 </ul>
@@ -1097,14 +1097,14 @@ not use that capability.</p>
 <p>The error criteria is the same as VODE—separate relative, rtol,
 and absolute, atol, error tolerances are specified for each
 variable that is being integrated. A weight is constructed as:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[W_m = \frac{1}{{\tt rtol}_m |y_m| + {\tt atol}_m}\]</div>
-<p>where needed, the error, <span class="math notranslate nohighlight">\(\epsilon\)</span>, is constructed by computing an <span class="math notranslate nohighlight">\(L_2\)</span>
+<p>where needed, the error, <span class="math">\(\epsilon\)</span>, is constructed by computing an <span class="math">\(L_2\)</span>
 norm:</p>
-<div class="math notranslate nohighlight">
+<div class="math">
 \[\epsilon = \left [ \frac{1}{N} \sum_m (y_m W_m)^2 \right ]^{1/2}\]</div>
-<p>where <span class="math notranslate nohighlight">\(m = 1, \ldots, N\)</span> indexes the ODE solution vector. With this
-weighting, <span class="math notranslate nohighlight">\(\epsilon &lt; 1\)</span> means we’ve achieved our desired accuracy.</p>
+<p>where <span class="math">\(m = 1, \ldots, N\)</span> indexes the ODE solution vector. With this
+weighting, <span class="math">\(\epsilon &lt; 1\)</span> means we’ve achieved our desired accuracy.</p>
 </div>
 <div class="section" id="retries">
 <h3>Retries<a class="headerlink" href="#retries" title="Permalink to this headline">¶</a></h3>
