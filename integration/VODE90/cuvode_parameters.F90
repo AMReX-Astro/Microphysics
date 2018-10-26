@@ -10,13 +10,10 @@ module cuvode_parameters_module
   ! function is supplied; 22 means stiff, figure out my jacobian through
   ! differencing.
 
-#ifdef AMREX_USE_CUDA
   ! Negative method flags mean on the GPU we turn off Jacobian caching
   ! to reduce our memory requirements.
-  integer, parameter :: MF_ANALYTIC_JAC = -21, MF_NUMERICAL_JAC = -22
-#else
-  integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-#endif
+  integer, parameter :: MF_ANALYTIC_JAC_NOCACHE = -21, MF_NUMERICAL_JAC_NOCACHE = -22
+  integer, parameter :: MF_ANALYTIC_JAC_CACHED = 21, MF_NUMERICAL_JAC_CACHED = 22
 
   ! Tolerance parameters:
   !

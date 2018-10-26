@@ -28,7 +28,8 @@ contains
     !$acc routine seq
 
     use rpar_indices
-    use extern_probin_module, only: jacobian, burner_verbose, &
+    use extern_probin_module, only: jacobian, use_jacobian_caching, &
+         burner_verbose, &
          rtol_spec, rtol_temp, rtol_enuc, &
          atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
@@ -77,13 +78,17 @@ contains
     !$gpu
 
     if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC
+       MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC
+       MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
        stop
        !CUDA
        !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+    endif
+
+    if (.not. use_jacobian_caching) then
+       MF_JAC = -MF_JAC
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
