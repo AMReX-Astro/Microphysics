@@ -1,6 +1,4 @@
-******************
-Runtime parameters
-******************
+[chapter:parameters]
 
 The behavior of the network and EOS are controlled by many runtime
 parameters. These parameters are defined in plain-text files
@@ -32,7 +30,3 @@ specific implementations to override the general parameter defaults.
 
 The documentation below is automatically generated, using the comments
 in the \_parameters files.
-
-.. toctree::
-
-   runtime_parameters

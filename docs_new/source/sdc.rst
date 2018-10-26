@@ -1,7 +1,3 @@
-***
-SDC
-***
-
 Introduction
 ============
 
@@ -11,18 +7,18 @@ of the advection over the timestep.
 
 We want to solve the coupled equations:
 
-.. math:: {\bm{\mathcal{U}}}_t = {\mathcal{A} \left({\bm{\mathcal{U}}}\right)} + {\bf R}({\bm{\mathcal{U}}})
+.. math:: \Uc_t = \Advs{\Uc} + \Rb(\Uc)
 
-where :math:`{\bm{\mathcal{U}}}` is the conserved state vector, :math:`{\bm{\mathcal{U}}}= (\rho, (\rho X_k),
-(\rho {\bf U}), (\rho E))^\intercal`, :math:`X_k` are the mass fractions
-constrained via :math:`\sum_k X_k = 1`, :math:`{\bf U}` is the velocity vector, and
+where :math:`\Uc` is the conserved state vector, :math:`\Uc = (\rho, (\rho X_k),
+(\rho \Ub), (\rho E))^\intercal`, :math:`X_k` are the mass fractions
+constrained via :math:`\sum_k X_k = 1`, :math:`\Ub` is the velocity vector, and
 :math:`E` is the specific total energy, related to the specific internal
-energy, :math:`e`, via :math:`E = e + |{\bf U}|^2/2`. Here :math:`{\mathcal{A} \left({\bm{\mathcal{U}}}\right)}` is the
+energy, :math:`e`, via :math:`E = e + |\Ub|^2/2`. Here :math:`\Advs{\Uc}` is the
 advective source term (including any hydrodynamical sources),
 
-.. math:: {\mathcal{A} \left({\bm{\mathcal{U}}}\right)} = - \nabla \cdot \mathbf{F}({\bm{\mathcal{U}}}) + \Sb_\mathrm{hydro}
+.. math:: \Advs{\Uc} = - \nabla \cdot \Fb(\Uc) + \Sb_\mathrm{hydro}
 
-and :math:`{\bf R}({\bm{\mathcal{U}}})`
+and :math:`\Rb(\Uc)`
 is the reaction source term.
 
 Interface and Data Structures
@@ -40,7 +36,7 @@ ODE system
 ==========
 
 The reactions don’t modify the total density, :math:`\rho`, or momentum,
-:math:`\rho {\bf U}`, so our ODE system is just:
+:math:`\rho \Ub`, so our ODE system is just:
 
 .. math::
 
@@ -48,10 +44,10 @@ The reactions don’t modify the total density, :math:`\rho`, or momentum,
       \begin{array}{c} \rho X_k \\ \rho E \\  \rho e \end{array} 
    \right ) = 
    \left ( \begin{array}{c}
-      {\left [\mathcal{A} \left(\rho X_k\right)\right]}^{n+1/2} \\ {\left [\mathcal{A} \left(\rho E\right)\right]}^{n+1/2} \\ {\left [\mathcal{A} \left(\rho e\right)\right]}^{n+1/2} \\
+      \Adv{\rho X_k}^{n+1/2} \\ \Adv{\rho E}^{n+1/2} \\ \Adv{\rho e}^{n+1/2} \\
    \end{array} \right ) +
    \left (
-      \begin{array}{c} \rho \dot{\omega}_k \\ \rho \dot{S}\\ \rho \dot{S}\end{array}
+      \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \\ \rho \Sdot \end{array}
    \right )
 
 where we include :math:`e` in addition to :math:`E` to provide additional thermodynamic
@@ -122,7 +118,7 @@ integrating, including the advective terms.
 
          \begin{aligned}
                \rho(t) &= \rho^n + t \cdot \left [ \mathcal{A}(\rho) \right]^{n+1/2} \\
-               (\rho {\bf U})(t) &= (\rho {\bf U})^n + t \cdot \left [ \mathcal{A}(\rho{\bf U}) \right]^{n+1/2} 
+               (\rho \Ub)(t) &= (\rho \Ub)^n + t \cdot \left [ \mathcal{A}(\rho\Ub) \right]^{n+1/2} 
              \end{aligned}
 
       where here we assume that we are integrating in the ODE system
@@ -155,7 +151,7 @@ integrating, including the advective terms.
       .. math::
 
          \begin{aligned}
-               \dot{y}_{\rho X_k} &= {\left [\mathcal{A} \left(\rho X_k\right)\right]}^{n+1/2} + \rho A_k \dot{Y}_k \\
-               \dot{y}_{\rho e} &= {\left [\mathcal{A} \left(\rho e\right)\right]}^{n+1/2} +\rho \dot{S} \\
-               \dot{y}_{\rho E} &= {\left [\mathcal{A} \left(\rho E\right)\right]}^{n+1/2} + \rho \dot{S}
+               \dot{y}_{\rho X_k} &= \Adv{\rho X_k}^{n+1/2} + \rho A_k \dot{Y}_k \\
+               \dot{y}_{\rho e} &= \Adv{\rho e}^{n+1/2} +\rho \dot{S} \\
+               \dot{y}_{\rho E} &= \Adv{\rho E}^{n+1/2} + \rho \dot{S}
              \end{aligned}

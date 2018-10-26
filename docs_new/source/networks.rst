@@ -1,7 +1,3 @@
-*****************
-Reaction networks
-*****************
-
 Network Requirements and Structure
 ==================================
 
@@ -153,10 +149,10 @@ is stored as mion(:) in the network.
 
 The energy release per gram is converted from the rates as:
 
-.. math:: {{\dot{e}_\mathrm{nuc}}}= -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - {{\dot{e}_\nu}}
+.. math:: \edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edotnu
 
 where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
-and :math:`{{\dot{e}_\nu}}` is the neutrino loss term.
+and :math:`\edotnu` is the neutrino loss term.
 
 breakout
 --------
@@ -178,7 +174,7 @@ oxygen and iron.
 At compile time, the network module actual_network.f90
 is written using the python script write_network.py
 and the template network.template. The make rule
-for this is contained in Make.package (for C AMReX) and
+for this is contained in Make.package (for C++ AMReX) and
 GPackage.mak (for F90 AMReX). The name of the inputs file
 is specified by the variable GENERAL_NET_INPUTS.
 
@@ -208,7 +204,7 @@ network is interpolated based on the density. It is stored as the
 binding energy (ergs/g) *per nucleon*, with a sign convention that
 binding energies are negative. The energy generation rate is then:
 
-.. math:: {{\dot{e}_\mathrm{nuc}}}= q \frac{dX({}^{12}\mathrm{C})}{dt} = q A_{{}^{12}\mathrm{C}} \frac{dY({}^{12}\mathrm{C})}{dt}
+.. math:: \edot = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}
 
 (this is positive since both :math:`q` and :math:`dY/dt` are negative)
 
@@ -268,14 +264,14 @@ X_a / (A_a m_u)`, our rate equation is
 .. math::
 
    \begin{aligned}
-    \frac{dX_f}{dt} &=& - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \dot{\omega}_f \label{eq:Xf} \\
+    \frac{dX_f}{dt} &=& - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f \label{eq:Xf} \\
     \frac{dX_a}{dt} &=& \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu  \label{eq:Xa}\end{aligned}
 
-We define a new rate constant, :math:`\tilde{r}_0` with units of :math:`[\mathrm{s^{-1}}]` as
+We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
 
 .. math::
 
-   \tilde{r}_0=  \begin{cases}
+   \rt =  \begin{cases}
      \dfrac{r_0}{m_u A_f} \rho_0 & \text{if $T \ge T_a$} \\[1em]
      0                          & \text{if $T < T_a$}
     \end{cases}
@@ -283,13 +279,13 @@ We define a new rate constant, :math:`\tilde{r}_0` with units of :math:`[\mathrm
 where :math:`\rho_0` is a reference density and :math:`T_a` is an activation
 temperature, and then our mass fraction equation is:
 
-.. math:: \frac{dX_f}{dt} = -\tilde{r}_0X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu
+.. math:: \frac{dX_f}{dt} = -\rt X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu
 
 Finally, for the
 energy generation, we take our reaction to release a specific energy,
-:math:`[\mathrm{erg~g^{-1}}]`, of :math:`q_\mathrm{burn}`, and our energy source is
+:math:`[\mathrm{erg~g^{-1}}]`, of :math:`\qburn`, and our energy source is
 
-.. math:: {{\dot{e}_\mathrm{nuc}}}= -q_\mathrm{burn}\frac{dX_f}{dt}
+.. math:: \edot = -\qburn \frac{dX_f}{dt}
 
 There are a number of parameters we use to control the constants in
 this network. This is one of the few networks that was designed
@@ -309,7 +305,7 @@ triple_alpha_plus_cago
 ----------------------
 
 This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`\alpha`
-reaction and :math:`{}^{12}\mathrm{C}(\alpha,\gamma){}^{16}\mathrm{O}`. Additionally,
+reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
 This network has nspec = 4, but nspec_evolve = 3.
@@ -322,22 +318,22 @@ takes place in X-ray bursts (6 isotopes participate in reactions, one
 additional, :math:`^{56}\mathrm{Fe}`, serves as an inert composition). The 6 reactions
 modeled are:
 
--  :math:`3\alpha + 2p \rightarrow {}^{14}\mathrm{O}` (limited by the 3-\ :math:`\alpha` rate)
+-  :math:`3\alpha + 2p \rightarrow \isotm{O}{14}` (limited by the 3-\ :math:`\alpha` rate)
 
--  :math:`{}^{14}\mathrm{O} + \alpha \rightarrow {}^{18}\mathrm{Ne}`
-   (limited by :math:`{}^{14}\mathrm{O}(\alpha,p){}^{17}\mathrm{F}` rate)
+-  :math:`\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}`
+   (limited by :math:`\isotm{O}{14}(\alpha,p)\isotm{F}{17}` rate)
 
--  :math:`{}^{15}\mathrm{O} + \alpha + 6 p \rightarrow {}^{25}\mathrm{Si}`
-   (limited by :math:`{}^{15}\mathrm{O}(\alpha,\gamma){}^{19}\mathrm{Ne}` rate)
+-  :math:`\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}`
+   (limited by :math:`\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}` rate)
 
--  :math:`{}^{18}\mathrm{Ne} + \alpha + 3p \rightarrow {}^{25}\mathrm{Si}`
-   (limited by :math:`{}^{18}\mathrm{Ne}(\alpha,p){}^{21}\mathrm{Na}` rate)
+-  :math:`\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}`
+   (limited by :math:`\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}` rate)
 
--  :math:`{}^{14}\mathrm{O} + p \rightarrow {}^{15}\mathrm{O}`
-   (limited by :math:`{}^{14}\mathrm{O}(e+\nu){}^{14}\mathrm{N}` rate)
+-  :math:`\isotm{O}{14} + p \rightarrow \isotm{O}{15}`
+   (limited by :math:`\isotm{O}{14}(e+\nu)\isotm{N}{14}` rate)
 
--  :math:`{}^{15}\mathrm{O} + 3p \rightarrow {}^{14}\mathrm{O} + \alpha`
-   (limited by :math:`{}^{15}\mathrm{O}(e+\nu){}^{15}\mathrm{N}` rate)
+-  :math:`\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha`
+   (limited by :math:`\isotm{O}{15}(e+\nu)\isotm{N}{15}` rate)
 
 All reactions conserve mass. Where charge is not conserved, fast weak
 interactions are assumed. Weak rates are trivial, fits to the 4
@@ -352,14 +348,14 @@ The reactions included in this networks are as follows:
 .. math::
 
    \begin{aligned}
-       {}^{4}\mathrm{He} &\rightarrow  {}^{12}\mathrm{C} + 2\gamma \\
-       {}^{12}\mathrm{C} + {}^{4}\mathrm{He} &\rightarrow {}^{16}\mathrm{O} + \gamma \\
-       {}^{14}\mathrm{N} + {}^{4}\mathrm{He} &\rightarrow {}^{18}\mathrm{F} + \gamma \label{chemeq:1.1} \\
-       {}^{18}\mathrm{F} + {}^{4}\mathrm{He} &\rightarrow {}^{21}\mathrm{Ne} +  \text{p} \label{chemeq:1.2} \\
-       {}^{12}\mathrm{C} + p+ &\rightarrow {}^{13}\mathrm{N} + \gamma  \label{chemeq:2.1} \\
-       {}^{13}\mathrm{N} + {}^{4}\mathrm{He} &\rightarrow {}^{16}\mathrm{O} + \text{p} \label{chemeq:2.2} \\
-       {}^{16}\mathrm{O} + {}^{4}\mathrm{He} &\rightarrow {}^{20}\mathrm{Ne} + \gamma \\
-       {}^{14}\mathrm{C} + {}^{4}\mathrm{He} &\rightarrow {}^{18}\mathrm{O} + \gamma \label{chemeq:3.2}\end{aligned}
+       \isotm{He}{4} &\rightarrow  \isotm{C}{12} + 2\gamma \\
+       \isotm{C}{12} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \gamma \\
+       \isotm{N}{14} + \isotm{He}{4} &\rightarrow \isotm{F}{18} + \gamma \label{chemeq:1.1} \\
+       \isotm{F}{18} + \isotm{He}{4} &\rightarrow \isotm{Ne}{21} +  \text{p} \label{chemeq:1.2} \\
+       \isotm{C}{12} + p+ &\rightarrow \isotm{N}{13} + \gamma  \label{chemeq:2.1} \\
+       \isotm{N}{13} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \text{p} \label{chemeq:2.2} \\
+       \isotm{O}{16} + \isotm{He}{4} &\rightarrow \isotm{Ne}{20} + \gamma \\
+       \isotm{C}{14} + \isotm{He}{4} &\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}\end{aligned}
 
 The main reactions suggested by Shen and Bildsten were the reaction series of
 chemical equation `[chemeq:1.1] <#chemeq:1.1>`__ leading into equation `[chemeq:1.2] <#chemeq:1.2>`__,
@@ -392,22 +388,22 @@ The equations we integrate to do a nuclear burn are:
 .. math::
 
    \begin{aligned}
-     \frac{dX_k}{dt} &=& \dot{\omega}_k(\rho,X_k,T), \label{eq:spec_integrate} \\
-     \frac{d{{{e}_\mathrm{nuc}}}}{dt} &=& f(\dot{X}_k) \label{eq:enuc_integrate} \\
-     \frac{dT}{dt} &=&\frac{{{\dot{e}_\mathrm{nuc}}}}{c_x}. \label{eq:temp_integrate}\end{aligned}
+     \frac{dX_k}{dt} &=& \omegadot_k(\rho,X_k,T), \label{eq:spec_integrate} \\
+     \frac{d\enuc}{dt} &=& f(\dot{X}_k) \label{eq:enuc_integrate} \\
+     \frac{dT}{dt} &=&\frac{\edot}{c_x}. \label{eq:temp_integrate}\end{aligned}
 
-Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`{{{e}_\mathrm{nuc}}}` is the specifc
+Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`\enuc` is the specifc
 nuclear energy created through reactions, :math:`T` is the
 temperature [1]_ , and :math:`c_x` is the specific heat for the
 fluid. The function :math:`f` provides the energy release based on the
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
-In this system, :math:`{{{e}_\mathrm{nuc}}}` is not necessarily the total specific internal
+In this system, :math:`\enuc` is not necessarily the total specific internal
 energy, but rather just captures the energy release during the burn. In
 this system, it acts as a diagnostic,
 
-.. math:: {{{e}_\mathrm{nuc}}}= \int {{\dot{e}_\mathrm{nuc}}}dt
+.. math:: \enuc = \int \edot dt
 
 so we know how much energy was released (or required) over the burn.
 
@@ -440,7 +436,7 @@ All of the necessary integration data comes in through state, as:
    may need to be enforced. See § \ `3.3 <#ch:networks:nspec_evolve>`__).
 
 -  state % e : the current value of the ODE system’s energy
-   release, :math:`{{{e}_\mathrm{nuc}}}`—note: as discussed above, this is not necessarily
+   release, :math:`\enuc`—note: as discussed above, this is not necessarily
    the energy you would get by calling the EOS on the state. It is
    very rare (never?) that a RHS implementation would need to use this
    variable.
@@ -467,7 +463,7 @@ fields to fill are:
    :math:`d({Y}_k)/dt`
 
 -  state % ydot(net_ienuc) : the change in the energy release
-   from the net, :math:`d{{{e}_\mathrm{nuc}}}/dt`
+   from the net, :math:`d\enuc/dt`
 
 -  state % ydot(net_itemp) : the change in temperature, :math:`dT/dt`
 
@@ -492,7 +488,7 @@ The Jacobian matrix elements are stored in state % jac as:
    :math:`d(\dot{Y}_m)/dY_n`
 
 -  state % jac(net_ienuc, n) for :math:`\mathrm{n} \in [1, \mathrm{nspec\_evolve}]` :
-   :math:`d({{\dot{e}_\mathrm{nuc}}})/dY_n`
+   :math:`d(\edot)/dY_n`
 
 -  state % jac(net_itemp, n) for :math:`\mathrm{n} \in [1, \mathrm{nspec\_evolve}]` :
    :math:`d(\dot{T})/dY_n`
@@ -501,7 +497,7 @@ The Jacobian matrix elements are stored in state % jac as:
    :math:`d(\dot{Y}_m)/dT`
 
 -  state % jac(net_ienuc, net_itemp) :
-   :math:`d({{\dot{e}_\mathrm{nuc}}})/dT`
+   :math:`d(\edot)/dT`
 
 -  state % jac(net_itemp, net_itemp) :
    :math:`d(\dot{T})/dT`
@@ -519,13 +515,13 @@ The form looks like:
        \underbrace{pqr}_{\mbox{$S$}}
        \end{matrix}}%
    \begin{matrix}% matrix for left braces
-       \coolleftbrace{Y_m}{~ \\ ~ \\ ~}\\ {{{e}_\mathrm{nuc}}}\\ T \\
+       \coolleftbrace{Y_m}{~ \\ ~ \\ ~}\\ \enuc \\ T \\
    \end{matrix}%
    \begin{pmatrix}
    \coolover{Y_n}{\ddots & \hphantom{\partial \dot{Y}_m}\vdots\hphantom{/\partial Y_n} & \iddots } & \vdots & \vdots \\
        \hdots & \partial \dot{Y}_m/\partial Y_n & \hdots & 0 & \partial \dot{Y}_m/\partial T    \\
        \iddots & \hphantom{\partial \dot{Y}_m}\vdots\hphantom{/\partial Y_n} & \ddots & \vdots & \vdots  \\
-       \hdots & \partial {{\dot{e}_\mathrm{nuc}}}/\partial Y_n & \hdots & 0 & \partial {{\dot{e}_\mathrm{nuc}}}/\partial T   \\
+       \hdots & \partial \edot/\partial Y_n & \hdots & 0 & \partial \edot/\partial T   \\
        \hdots & \partial \dot{T}/\partial Y_n & \hdots & 0 & \partial \dot{T}/\partial T   \\
    \end{pmatrix}%
 
@@ -677,7 +673,7 @@ Energy Integration
 ~~~~~~~~~~~~~~~~~~
 
 The last equation in our system is the nuclear energy release,
-:math:`{{\dot{e}_\mathrm{nuc}}}`. Because of the operator-split approach to this ODE system,
+:math:`\edot`. Because of the operator-split approach to this ODE system,
 this is not the true specific internal energy, :math:`e` (since it only
 responds only to the nuclear energy release and no pdV work).
 
@@ -716,7 +712,7 @@ network, :math:`^{16}\mathrm{O}` is not evolved at all and any change in
 equation for :math:`^{12}\mathrm{C}`. The algebraic relation between the
 unevolved mass fractions that must be enforced then is:
 
-.. math:: X({}^{24}\mathrm{Mg}) = 1 - X({}^{12}\mathrm{C}) - X({}^{16}\mathrm{O})
+.. math:: X(\isotm{Mg}{24}) = 1 - X(\isotm{C}{12}) - X(\isotm{O}{16})
 
 This is implemented in the routine update_unevolved_species:
 
@@ -807,7 +803,7 @@ We integrate our system using a stiff ordinary differential equation
 integration solver. The absolute error tolerances are set by default
 to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
 is used for the temperature and energy. The integration yields the
-new values of the mass fractions, :math:`Y_k^\mathrm{out}`.
+new values of the mass fractions, :math:`Y_k^\outp`.
 
 There are several options for integrators. Each should be capable of
 evolving any of the networks, but varying in their approach. Internally,

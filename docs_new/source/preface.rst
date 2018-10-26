@@ -1,7 +1,3 @@
-*******
-Preface
-*******
-
 Welcome to the Microphysics User’s Guide!
 
 In this User’s Guide we describe the microphysics modules designed to

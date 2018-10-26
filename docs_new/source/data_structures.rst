@@ -1,11 +1,9 @@
-***************
-Data Structures
-***************
+[sec:data_structures]
 
 All of the routines in this software package are standardized so that
 you interact with them using the same type of data structure, a
 Fortran derived type (which, for our purposes, is analogous to a
-C struct).
+C++ struct).
 
 EOS
 ===

@@ -1,6 +1,7 @@
-**********
-Unit Tests
-**********
+[ch:unit_tests]
+
+Comprehensive Unit Tests
+========================
 
 There are 2 unit tests in Microphysics that operate on a generic EOS
 or reaction network. To allow these to compile independent of any
