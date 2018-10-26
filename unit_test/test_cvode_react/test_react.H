@@ -3,7 +3,7 @@
 
 #include "cvode/cvode.h"                  /* prototypes for CVODE fcts., consts.      */
 #ifdef AMREX_USE_CUDA
-#include <AMReX_Device.H>
+#include <AMReX_Gpu.H>
 #include "nvector/nvector_cuda.h"         /* access to CUDA N_Vector                */
 #ifdef CVODE_CUSOLVER
 #include "cusolver/cvode_cusolver_spqr.h"    /* access to cuSolver interface             */
@@ -73,8 +73,8 @@ public:
     cuda_status = cudaMallocManaged(&rpar, num_rpar * sizeof(amrex::Real));
     assert(cuda_status == cudaSuccess);
 
-    const int device = amrex::Device::deviceId();
-    amrex::Device::mem_advise_set_preferred(rpar, num_rpar * sizeof(amrex::Real), device);
+    const int device = amrex::Gpu::Device::deviceId();
+    amrex::Gpu::Device::mem_advise_set_preferred(rpar, num_rpar * sizeof(amrex::Real), device);
 #else
     rpar = static_cast<amrex::Real*>(std::malloc(num_rpar * sizeof(amrex::Real)));
 #endif

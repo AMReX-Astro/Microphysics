@@ -7,7 +7,7 @@
 #include "test_react.H"
 #include "test_react_F.H"
 #include <iostream>
-#include <AMReX_Device.H>
+#include <AMReX_Gpu.H>
 
 #define PRINT_DEBUG 0
 
@@ -82,8 +82,8 @@ void do_react(const int* lo, const int* hi,
 				size_rpar_per_cell, jac_number_nonzero,
 				nspec_not_evolved);
 
-  const int device = amrex::Device::deviceId();
-  amrex::Device::mem_advise_set_preferred(user_data, sizeof(CVodeUserData), device);
+  const int device = amrex::Gpu::Device::deviceId();
+  amrex::Gpu::Device::mem_advise_set_preferred(user_data, sizeof(CVodeUserData), device);
 
   void* cvode_mem = NULL;
   int flag;
