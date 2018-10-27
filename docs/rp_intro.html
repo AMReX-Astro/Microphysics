@@ -30,13 +30,15 @@
   
 
   
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
 
   
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="StarKiller Microphysics 18.10 documentation" href="index.html"/>
-        <link rel="next" title="&lt;no title&gt;" href="runtime_parameters.html"/>
+        <link rel="next" title="BS" href="runtime_parameters.html"/>
         <link rel="prev" title="Data Structures" href="data_structures.html"/> 
 
   
@@ -95,7 +97,33 @@
 <li class="toctree-l1"><a class="reference internal" href="preface.html">preface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Runtime parameters</a><ul class="simple">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Runtime parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html">BS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#cvode">CVODE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#vbdf">VBDF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#vode">VODE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#vode90">VODE90</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#breakout">breakout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#burn-cell">burn_cell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#cj-detonation">cj_detonation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#gamma-law-general">gamma_law_general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#helmholtz">helmholtz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#integration">integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#kpp">kpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#multigamma">multigamma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#networks">networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#polytrope">polytrope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#powerlaw">powerlaw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#python-library">python_library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#rprox">rprox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#stellarcollapse">stellarcollapse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-cvode-react">test_cvode_react</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-eos">test_eos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-reaclib-rates">test_reaclib_rates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-react">test_react</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-sdc">test_sdc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#xrb-simple">xrb_simple</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
@@ -230,6 +258,34 @@ specific implementations to override the general parameter defaults.</p>
 <p>The documentation below is automatically generated, using the comments
 in the <code class="docutils literal"><span class="pre">_parameters</span></code> files.</p>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html">BS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#cvode">CVODE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#vbdf">VBDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#vode">VODE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#vode90">VODE90</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#breakout">breakout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#burn-cell">burn_cell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#cj-detonation">cj_detonation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#gamma-law-general">gamma_law_general</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#helmholtz">helmholtz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#integration">integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#kpp">kpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#multigamma">multigamma</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#networks">networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#polytrope">polytrope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#powerlaw">powerlaw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#python-library">python_library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#rprox">rprox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#stellarcollapse">stellarcollapse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-cvode-react">test_cvode_react</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-eos">test_eos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-reaclib-rates">test_reaclib_rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-react">test_react</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-sdc">test_sdc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#xrb-simple">xrb_simple</a></li>
+</ul>
 </div>
 </div>
 
@@ -243,7 +299,7 @@ in the <code class="docutils literal"><span class="pre">_parameters</span></code
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="runtime_parameters.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="runtime_parameters.html" class="btn btn-neutral float-right" title="BS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="data_structures.html" class="btn btn-neutral" title="Data Structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

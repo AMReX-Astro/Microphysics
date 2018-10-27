@@ -4,58 +4,23 @@ from __future__ import print_function
 
 import os
 import sys
+import textwrap
 
-# tex format stuff
-Mheader = r"""
-\label{ch:parameters}
-
-\begin{landscape}
+main_header = """
++----------------------------------+---------------------------------------------------------+---------------+
+| parameter                        | description                                             | default value |
++==================================+=========================================================+===============+
 """
 
-header = r"""
-{\small
-
-\renewcommand{\arraystretch}{1.5}
-%
-\begin{center}
-\begin{longtable}{|l|p{5.25in}|l|}
-\caption[@@catname@@]{@@catname@@} \label{table: @@sanitizedcatname@@ runtime} \\
-%
-\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
-       \multicolumn{1}{ c|}{\textbf{description}} &
-       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
-\endfirsthead
-
-\multicolumn{3}{c}%
-{{\tablename\ \thetable{}---continued}} \\
-\hline \multicolumn{1}{|c|}{\textbf{parameter}} &
-       \multicolumn{1}{ c|}{\textbf{description}} &
-       \multicolumn{1}{ c|}{\textbf{default value}} \\ \hline
-\endhead
-
-\multicolumn{3}{|r|}{{\em continued on next page}} \\ \hline
-\endfoot
-
-\hline
-\endlastfoot
-
+separator = """
++----------------------------------+---------------------------------------------------------+---------------+
 """
 
-footer = r"""
-
-\end{longtable}
-\end{center}
-
-} % ends \small
+entry = """
+| {:32} | {:55} | {:13} |
 """
 
-Mfooter = r"""
-\end{landscape}
-
-%
-
-"""
-
+WRAP_LEN = 55
 
 class Parameter(object):
     # container class for the parameters
@@ -74,7 +39,7 @@ class Parameter(object):
         return cmp(self.value(), other.value())
 
 
-def make_tex_table(param_files):
+def make_rest_table(param_files):
 
     params_list=[]
 
@@ -131,39 +96,34 @@ def make_tex_table(param_files):
             line = f.readline()
 
 
-    # dump the main header
-    print(Mheader)
+    categories = sorted (set([q.category for q in params_list]))
 
-    # sort the parameters and dump them in latex-fashion.  Group things by category
-    current_category = -1
-    start = 1
+    for c in categories:
 
-    for param in sorted(params_list):
+        # print the heading
 
-        if not param.category == current_category:
-            if not start == 1:
-                print(footer)
+        params = [q for q in params_list if q.category == c]
 
-            current_category = param.category
-            odd = 1
-            sanitized_cat_name = param.category.replace("\\", "")
-            cat_header = header.replace("@@catname@@", param.category + " parameters.")
-            cat_header = cat_header.replace("@@sanitizedcatname@@", sanitized_cat_name)
-            print(cat_header)
-            start = 0
+        clen = len(c)
+        print(c)
+        print(clen*"=" + "\n")
 
-        if odd == 1:
-            print(r"\rowcolor{tableShade}")
-            odd = 0
-        else:
-            odd = 1
+        print(main_header.strip())
 
-        print(r"\verb= {} = & {} & {} \\".format(
-            param.var, param.description, param.default))
+        for p in params:
+            desc = list(textwrap.wrap(p.description.strip(), WRAP_LEN))
+            if len(desc) == 0:
+                desc = [""]
 
-    # dump the footer
-    print(footer)
-    print(Mfooter)
+            for n, d in enumerate(desc):
+                if n == 0:
+                    print(entry.format("``"+p.var+"``", d, p.default).strip())
+                else:
+                    print(entry.format(" ", d, " ").strip())
+
+            print(separator.strip())
+
+        print("\n\n")
 
 if __name__ == "__main__":
 
@@ -176,4 +136,4 @@ if __name__ == "__main__":
             if f == "_parameters":
                 param_files.append(os.path.normpath("/".join([root, f])))
 
-    make_tex_table(param_files)
+    make_rest_table(param_files)
