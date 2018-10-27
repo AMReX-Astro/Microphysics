@@ -57,10 +57,8 @@ MICROPHYS_CORE += $(EOS_DIRS)
 CONDUCTIVITY_HOME := $(MICROPHYSICS_HOME)/conductivity
 CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
 
-ifndef CUDA
-  EXTERN_CORE += $(CONDUCTIVITY_HOME)
-  EXTERN_CORE += $(CONDUCTIVITY_PATH)
-endif
+EXTERN_CORE += $(CONDUCTIVITY_HOME)
+EXTERN_CORE += $(CONDUCTIVITY_PATH)
 
 #-----------------------------------------------------------------------------
 # network stuff -- specify your particlar network via NETWORK_DIR
