@@ -15,6 +15,7 @@ help:
 .PHONY: help Makefile
 
 html:
+	./rp.py > source/runtime_parameters.rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cp -r build/html/* ../docs/
 
