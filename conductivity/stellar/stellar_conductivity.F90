@@ -46,18 +46,18 @@ contains
     real(rt) :: orad, ocond, opac
 
     !..declare the internal variables
-    integer :: iz,i
+    integer  :: iz,i
     real(rt) :: xmu,t6,ytot1,ymass,abar,zbar,w(6),xh, &
-                        xhe,xz,xkc,xkap,xkb,xka,dbar,oiben1,d0log,xka1, &
-                        xkw,xkaz,dbar1log,dbar2log,oiben2,t4,t4r,t44,t45, &
-                        t46,ck1,ck3,ck2,ck4,ck5,ck6,xkcx,xkcy,xkcz,ochrs, &
-                        th,fact,facetax,faceta,ocompt,tcut,cutfac,xkf, &
-                        dlog10,zdel,zdell10,eta0,eta02,thpl,thpla,cfac1, &
-                        cfac2,oh,pefac,pefacl,pefacal,dnefac,wpar2,walf, &
-                        walf10,thx,thy,thc,xmas,ymas,wfac,cint, &
-                        vie,cie,tpe,yg,xrel,beta2,jy,vee,cee,ov1,ov,drel, &
-                        drel10,drelim,t6_switch1,t6_switch2,x,x1,x2, &
-                        alfa,beta
+                xhe,xz,xkc,xkap,xkb,xka,dbar,oiben1,d0log,xka1, &
+                xkw,xkaz,dbar1log,dbar2log,oiben2,t4,t4r,t44,t45, &
+                t46,ck1,ck3,ck2,ck4,ck5,ck6,xkcx,xkcy,xkcz,ochrs, &
+                th,fact,facetax,faceta,ocompt,tcut,cutfac,xkf, &
+                dlog10,zdel,zdell10,eta0,eta02,thpl,thpla,cfac1, &
+                cfac2,oh,pefac,pefacl,pefacal,dnefac,wpar2,walf, &
+                walf10,thx,thy,thc,xmas,ymas,wfac,cint, &
+                vie,cie,tpe,yg,xrel,beta2,jy,vee,cee,ov1,ov,drel, &
+                drel10,drelim,x,x1,x2, &
+                alfa,beta
 
     !..various physical and derived constants
     !..con2 = con1*sqrt(4*pi*e*e/me)
@@ -66,30 +66,30 @@ contains
     !..iec  = 4*e**4*me/(3*pi*hbar**3)
     !..xec  = hbar/kerg*e*sqrt(4*pi/me)
 
-    real(rt) :: third,twoth,pi,avo,c,ssol,asol,zbound,t7peek, &
-                        con2,k2c,meff,weid,iec,xec,rt3
-    parameter (third = 1.0d0/3.0d0, &
-              twoth  = 2.0d0 * third, &
-              pi     = 3.1415926535897932384d0, &
-              avo    = 6.0221367d23, &
-              c      = 2.99792458d10, &
-              ssol   = 5.67050407222d-5, &
-              asol   = 4.0d0*ssol/c, &
-              zbound = 0.1d0, &
-              t7peek = 1.0d20, &
-              k2c    = 4.0d0/3.0d0*asol*c, &
-              meff   = 1.194648642401440d-10, &
-              weid   = 6.884326138694269d-5, &
-              iec    = 1.754582332329132d16, &
-              xec    = 4.309054377592449d-7, &
-              rt3    = 1.7320508075688772d0, &
-              con2   = 1.07726359439811217d-7)
+    real(rt), parameter :: third  = 1.0d0/3.0d0
+    real(rt), parameter :: twoth  = 2.0d0 * third
+    real(rt), parameter :: pi     = 3.1415926535897932384d0
+    real(rt), parameter :: avo    = 6.0221367d23
+    real(rt), parameter :: c      = 2.99792458d10
+    real(rt), parameter :: ssol   = 5.67050407222d-5
+    real(rt), parameter :: asol   = 4.0d0*ssol/c
+    real(rt), parameter :: zbound = 0.1d0
+    real(rt), parameter :: t7peek = 1.0d20
+    real(rt), parameter :: k2c    = 4.0d0/3.0d0*asol*c
+    real(rt), parameter :: meff   = 1.194648642401440d-10
+    real(rt), parameter :: weid   = 6.884326138694269d-5
+    real(rt), parameter :: iec    = 1.754582332329132d16
+    real(rt), parameter :: xec    = 4.309054377592449d-7
+    real(rt), parameter :: rt3    = 1.7320508075688772d0
+    real(rt), parameter :: con2   = 1.07726359439811217d-7
 
 
     !..switches for the iben & christy regimes
-    parameter        (t6_switch1 = 0.5d0, t6_switch2 = 0.9d0)
+    real(rt), parameter :: t6_switch1 = 0.5d0
+    real(rt), parameter :: t6_switch2 = 0.9d0
     ! parameter        (t6_switch1 = 1.0d0, t6_switch2 = 1.5d0)
 
+    !$gpu
 
     !..initialize
     opac      = 0.0d0

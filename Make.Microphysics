@@ -185,13 +185,10 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
-# include the conductivity if not compiling for GPU
-# conductivity has not been ported/tested with CUDA Fortran
-ifdef USE_CUDA
-  ifneq ($(USE_CUDA),TRUE)
-    EXTERN_CORE += $(CONDUCTIVITY_HOME)
-    EXTERN_CORE += $(CONDUCTIVITY_PATH)
-  endif
+# include the conductivity if compiling with USE_EXTRA_THERMO
+ifeq ($(USE_EXTRA_THERMO),TRUE)
+  EXTERN_CORE += $(CONDUCTIVITY_HOME)
+  EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
 # include the network
