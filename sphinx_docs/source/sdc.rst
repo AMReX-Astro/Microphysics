@@ -92,7 +92,7 @@ The flow of this main routine is simpler than the non-SDC version:
 
    This copies the state variables and advective sources into the
    integration type. Since we only actually integrate :math:`(\rho X_k),
-     (\rho e), (\rho E)`, the terms corresponding to density and momentum
+   (\rho e), (\rho E)`, the terms corresponding to density and momentum
    are carried in an auxillary array (indexed through the rpar
    mechanism).
 

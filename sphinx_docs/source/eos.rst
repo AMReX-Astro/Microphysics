@@ -243,4 +243,3 @@ accept an eos_input and an eos_t state; see Section
 `[sec:data_structures] <#sec:data_structures>`__.
 
 
-.. bibliography:: refs.bib
