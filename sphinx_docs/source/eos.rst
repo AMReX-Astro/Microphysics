@@ -177,7 +177,7 @@ helmholtz
 ``helmholtz`` contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
-described in :raw-latex:`\cite{timmes:1999,timmes:2000,flash}`.
+described in :cite:`timmes:1999`, :cite:`timmes:2000`, :cite:`flash`.
 
 We have modified this EOS a bit to fit within the context of our
 codes. The vectorization is explicitly thread-safe for use with OpenMP
@@ -241,3 +241,6 @@ appropriate time for, say, loading an interpolation table into memory.
 The main evaluation routine is called ``actual_eos``. It should
 accept an eos_input and an eos_t state; see Section
 `[sec:data_structures] <#sec:data_structures>`__.
+
+
+.. bibliography:: refs.bib
