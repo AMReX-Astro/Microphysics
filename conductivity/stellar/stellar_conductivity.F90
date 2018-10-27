@@ -13,46 +13,27 @@ contains
   end subroutine actual_conductivity_init
 
 
-  subroutine actual_conductivity(eos_state, conductivity)
+  subroutine actual_conductivity(state)
 
     use eos_type_module, only: eos_t
-    use network, only : zion, aion, nspec
+    use network, only : zion, aion, nspec    
 
     implicit none
     
-    type(eos_t), intent(in   ) :: eos_state
-    real (rt)  , intent(inout) :: conductivity
+    type(eos_t), intent(inout) :: state
     
-    real(rt) ::xmass_temp(nspec)
-    real(rt) :: orad, ocond, opac
-
-    ! this is done to be compatible with interface to sig99
-    xmass_temp(:) = eos_state%xn(:)
-
-    call sig99(eos_state%T, eos_state%rho, xmass_temp, &
-               zion, aion, nspec, &
-               eos_state%pele, eos_state%xne, eos_state%eta, &
-               orad, ocond, opac, conductivity)
-
-  end subroutine actual_conductivity
-
-
-  subroutine sig99(temp,den,xmass,zion,aion,ionmax,pep,xne,eta, &
-                   orad,ocond,opac,conductivity)
-    implicit none
-    
-    !..this routine approximates the thermal transport coefficients.
+    !..this routine is sig99, it approximates the thermal transport coefficients.
     !..
     !..input:
-    !..temp   = temperature temp (in K)
-    !..den    = density den (in g/cm**3)
-    !..ionmax = number of isotopes in the composition
-    !..xmass  = mass fractions of the composition
+    !..temp   = temperature temp (in K) = state % T
+    !..den    = density den (in g/cm**3) = state % rho
+    !..nspec  = number of isotopes in the composition
+    !..xmass  = mass fractions of the composition = state % xn
     !..zion   = number of protons in each isotope (charge of each isotope)
     !..aion   = number of protons + neutrons in each isotope (atomic weight)
-    !..pep    = electron-positron pressure (in erg/cm**3)
-    !..xne    = electron-positron number density (in 1/cm**3)
-    !..eta    = electron degeneracy parameter (chemical potential / k T)
+    !..pep    = electron-positron pressure (in erg/cm**3) = state % pele
+    !..xne    = electron-positron number density (in 1/cm**3) = state % xne
+    !..eta    = electron degeneracy parameter (chemical potential / k T) = state % eta
     
     !..output:
     !..orad   = radiation contribution to the opacity (in cm**2/g)
@@ -61,24 +42,22 @@ contains
     !..conductivity = thermal conductivity (in erg/cm/K/sec)
     !..
     !..declare the pass
-    integer          ionmax
-    double precision temp,den,xmass(ionmax),zion(ionmax),aion(ionmax), &
-         pep,xne,eta,opac,conductivity
+
+    real(rt) :: orad, ocond, opac
 
     !..declare the internal variables
-    integer          iz,i
-    double precision xmu,t6,orad,ocond,ytot1,ymass,abar,zbar,w(6),xh, &
-                     xhe,xz,xkc,xkap,xkb,xka,dbar,oiben1,d0log,xka1, &
-                     xkw,xkaz,dbar1log,dbar2log,oiben2,t4,t4r,t44,t45, &
-                     t46,ck1,ck3,ck2,ck4,ck5,ck6,xkcx,xkcy,xkcz,ochrs, &
-                     th,fact,facetax,faceta,ocompt,tcut,cutfac,xkf, &
-                     dlog10,zdel,zdell10,eta0,eta02,thpl,thpla,cfac1, &
-                     cfac2,oh,pefac,pefacl,pefacal,dnefac,wpar2,walf, &
-                     walf10,thx,thy,thc,xmas,ymas,wfac,cint, &
-                     vie,cie,tpe,yg,xrel,beta2,jy,vee,cee,ov1,ov,drel, &
-                     drel10,drelim,t6_switch1,t6_switch2,x,x1,x2, &
-                     alfa,beta
-
+    integer :: iz,i
+    real(rt) :: xmu,t6,ytot1,ymass,abar,zbar,w(6),xh, &
+                        xhe,xz,xkc,xkap,xkb,xka,dbar,oiben1,d0log,xka1, &
+                        xkw,xkaz,dbar1log,dbar2log,oiben2,t4,t4r,t44,t45, &
+                        t46,ck1,ck3,ck2,ck4,ck5,ck6,xkcx,xkcy,xkcz,ochrs, &
+                        th,fact,facetax,faceta,ocompt,tcut,cutfac,xkf, &
+                        dlog10,zdel,zdell10,eta0,eta02,thpl,thpla,cfac1, &
+                        cfac2,oh,pefac,pefacl,pefacal,dnefac,wpar2,walf, &
+                        walf10,thx,thy,thc,xmas,ymas,wfac,cint, &
+                        vie,cie,tpe,yg,xrel,beta2,jy,vee,cee,ov1,ov,drel, &
+                        drel10,drelim,t6_switch1,t6_switch2,x,x1,x2, &
+                        alfa,beta
 
     !..various physical and derived constants
     !..con2 = con1*sqrt(4*pi*e*e/me)  
@@ -87,8 +66,8 @@ contains
     !..iec  = 4*e**4*me/(3*pi*hbar**3) 
     !..xec  = hbar/kerg*e*sqrt(4*pi/me) 
 
-    double precision third,twoth,pi,avo,c,ssol,asol,zbound,t7peek, &
-                     con2,k2c,meff,weid,iec,xec,rt3
+    real(rt) :: third,twoth,pi,avo,c,ssol,asol,zbound,t7peek, &
+                        con2,k2c,meff,weid,iec,xec,rt3
     parameter (third = 1.0d0/3.0d0, &
               twoth  = 2.0d0 * third, & 
               pi     = 3.1415926535897932384d0, &
@@ -129,17 +108,17 @@ contains
     do i=1,6
        w(i) = 0.0d0
     enddo
-    do i = 1,ionmax 
+    do i = 1,nspec
        iz      = min(3,max(1,int(zion(i))))
-       ymass   = xmass(i)/aion(i)
-       w(iz)   = w(iz) + xmass(i) 
+       ymass   = state % xn(i)/aion(i)
+       w(iz)   = w(iz) + state % xn(i) 
        w(iz+3) = w(iz+3) + zion(i) * zion(i) * ymass
        zbar    = zbar + zion(i) * ymass
        ytot1   = ytot1 + ymass
     enddo
     abar = 1.0d0/ytot1
     zbar = zbar * abar
-    t6   = temp * 1.0d-6 
+    t6   = state % T * 1.0d-6 
     xh   = w(1)
     xhe  = w(2)
     xz   = w(3)
@@ -149,12 +128,12 @@ contains
     !..from iben apj 196 525 1975
     if (xh .lt. 1.0e-5) then 
        xmu      = max(1.0d-99, w(4)+w(5)+w(6)-1.0d0)    
-       xkc      = (2.019e-4*den/t6**1.7d0)**(2.425d0) 
+       xkc      = (2.019e-4*state % rho/t6**1.7d0)**(2.425d0) 
        xkap     = 1.0d0 + xkc * (1.0d0 + xkc/24.55d0)
        xkb      = 3.86d0 + 0.252d0*sqrt(xmu) + 0.018d0*xmu 
        xka      = 3.437d0 * (1.25d0 + 0.488d0*sqrt(xmu) + 0.092d0*xmu)
        dbar     = exp(-xka + xkb*log(t6))  
-       oiben1   = xkap * (den/dbar)**(0.67d0)
+       oiben1   = xkap * (state % rho/dbar)**(0.67d0)
     end if
 
     if ( .not.((xh.ge.1.0e-5) .and. (t6.lt.t6_switch1)) .and. &
@@ -168,22 +147,22 @@ contains
             * (log10(t6) - 0.22d0 + 0.1375d0*xh)**2)  
        xkw  = 4.05d0 * exp(-(0.306d0  - 0.04125d0*xh) &
             * (log10(t6) - 0.18d0 + 0.1625d0*xh)**2) 
-       xkaz = 50.0d0*xz*xka1 * exp(-0.5206d0*((log(den)-d0log)/xkw)**2)
+       xkaz = 50.0d0*xz*xka1 * exp(-0.5206d0*((log(state % rho)-d0log)/xkw)**2)
        dbar2log = -(4.283d0 + 0.7196d0*xh) + 3.86d0*log(t6)
        dbar1log = -5.296d0 + 4.833d0*log(t6)  
        if (dbar2log .lt. dbar1log) dbar1log = dbar2log
-       oiben2   = (den/exp(dbar1log))**(0.67d0) * exp(xkaz) 
+       oiben2   = (state % rho/exp(dbar1log))**(0.67d0) * exp(xkaz) 
     end if
 
     !..from christy apj 144 108 1966
     if ((t6.lt.t6_switch2) .and. (xh .ge. 1.0e-5)) then 
-       t4    = temp * 1.0d-4 
+       t4    = state % T * 1.0d-4 
        t4r   = sqrt(t4)  
        t44   = t4**4
        t45   = t44 * t4 
        t46   = t45 * t4 
        ck1   = 2.0d6/t44 + 2.1d0*t46  
-       ck3   = 4.0d-3/t44 + 2.0d-4/den**(0.25d0) 
+       ck3   = 4.0d-3/t44 + 2.0d-4/(state % rho)**(0.25d0) 
        ck2   = 4.5d0*t46 + 1.0d0/(t4*ck3)    
        ck4   = 1.4d3*t4 + t46  
        ck5   = 1.0d6 + 0.1d0*t46  
@@ -191,7 +170,7 @@ contains
        xkcx  = xh*(t4r/ck1 + 1.0d0/ck2)    
        xkcy  = xhe*(1.0d0/ck4 + 1.5d0/ck5)   
        xkcz  = xz*(t4r/ck6)
-       ochrs = pep * (xkcx + xkcy + xkcz)
+       ochrs = state % pele * (xkcx + xkcy + xkcz)
     end if
 
     !..opacity in presence of hydrogen  
@@ -214,28 +193,28 @@ contains
     end if
 
     !..add in the compton scattering opacity, weaver et al. apj 1978 225 1021
-    th      = min(511.0d0, temp * 8.617d-8)
+    th      = min(511.0d0, state % T * 8.617d-8)
     fact    = 1.0d0 + 2.75d-2*th - 4.88d-5*th*th   
     facetax = 1.0d100    
-    if (eta .le. 500.0) facetax = exp(0.522d0*eta - 1.563d0)  
+    if (state % eta .le. 500.0) facetax = exp(0.522d0*state % eta - 1.563d0)  
     faceta  = 1.0d0 + facetax  
-    ocompt  = 6.65205d-25/(fact * faceta) * xne/den
+    ocompt  = 6.65205d-25/(fact * faceta) * state % xne/state % rho
     orad    = orad   + ocompt 
     
     !..cutoff radiative opacity when 4kt/hbar is less than the plasma
     !..frequency
-    tcut = con2 * sqrt(xne) 
-    if (temp .lt. tcut) then 
-       if (tcut .gt. 200.0*temp) then 
+    tcut = con2 * sqrt(state % xne) 
+    if (state % T .lt. tcut) then 
+       if (tcut .gt. 200.0*state % T) then 
           orad   = orad * 2.658d86  
        else 
-          cutfac   = exp(tcut/temp - 1.0d0)  
+          cutfac   = exp(tcut/state % T - 1.0d0)  
           orad     = orad * cutfac
        end if
     end if
 
     !..fudge molecular opacity for low temps
-    xkf    = t7peek * den * (temp * 1.0d-7)**4
+    xkf    = t7peek * state % rho * (state % T * 1.0d-7)**4
     orad   = xkf * orad/(xkf + orad)
 
 
@@ -246,17 +225,17 @@ contains
     !..drelim, use the non-degenerate formulas. in between drel and drelim,
     !..apply a smooth blending of the two.
     
-    dlog10   = log10(den)    
+    dlog10   = log10(state % rho)    
 
-    drel     =  2.4d-7 * zbar/abar * temp * sqrt(temp)
-    if (temp .le. 1.0d5) drel = drel * 15.0d0
+    drel     =  2.4d-7 * zbar/abar * state % T * sqrt(state % T)
+    if (state % T .le. 1.0d5) drel = drel * 15.0d0
     drel10   =  log10(drel)
     drelim   =  drel10 + 1.0d0
 
 
     !..from iben apj 196 525 1975 for non-degenerate regimes
     if (dlog10 .lt. drelim) then 
-       zdel    = xne/(avo*t6*sqrt(t6))
+       zdel    = state % xne/(avo*t6*sqrt(t6))
        zdell10 = log10(zdel)    
        eta0    = exp(-1.20322d0 + twoth * log(zdel))  
        eta02   = eta0*eta0
@@ -297,7 +276,7 @@ contains
           dnefac = 1.5d0/eta0 * (1.0d0 - 0.8225d0/eta02)
        endif
        wpar2  = 9.24735d-3 * zdel * &
-            (den*avo*(w(4)+w(5)+w(6))/xne + dnefac)/(sqrt(t6)*pefac)
+            (state % rho*avo*(w(4)+w(5)+w(6))/state % xne + dnefac)/(sqrt(t6)*pefac)
        walf   = 0.5d0 * log(wpar2)    
        walf10 = 0.5d0 * log10(wpar2)    
        
@@ -332,9 +311,9 @@ contains
     !..from yakovlev & urpin soviet astro 1980 24 303 and 
     !..potekhin et al. 1997 aa 323 415 for degenerate regimes
     if (dlog10 .gt. drel10) then 
-       xmas   = meff * xne**third 
+       xmas   = meff * (state % xne)**third 
        ymas   = sqrt(1.0d0 + xmas*xmas) 
-       wfac   = weid * temp/ymas * xne 
+       wfac   = weid * state % T/ymas * state % xne 
        cint   = 1.0d0 
        
        !..ion-electron collision frequency and the thermal conductivity 
@@ -342,27 +321,27 @@ contains
        cie   = wfac/vie 
        
        !..electron-electron collision frequency and thermal conductivity 
-       tpe  = xec * sqrt(xne/ymas)
-       yg   = rt3 * tpe/temp 
-       xrel = 1.009d0 * (zbar/abar * den * 1.0d-6)**third
+       tpe  = xec * sqrt(state % xne/ymas)
+       yg   = rt3 * tpe/state % T
+       xrel = 1.009d0 * (zbar/abar * state % rho * 1.0d-6)**third
        beta2 = xrel**2/(1.0d0 + xrel**2)
        jy   = (1.0d0 + 6.0d0/(5.0d0*xrel**2) + 2.0d0/(5.0d0*xrel**4)) &
             * ( yg**3 / (3.0d0 * (1.0d0 + 0.07414 * yg)**3) &
             * log((2.81d0 - 0.810*beta2 + yg)/yg)  &  
             + pi**5/6.0d0 * (yg/(13.91d0 + yg))**4 )
-       vee = 0.511d0 * temp**2 * xmas/ymas**2 * sqrt(xmas/ymas) * jy 
+       vee = 0.511d0 * (state % T)**2 * xmas/ymas**2 * sqrt(xmas/ymas) * jy 
        cee = wfac/vee
 
        !..total electron thermal conductivity and conversion to an opacity 
        ov1   = cie * cee/(cee + cie)
-       ov    = k2c/(ov1*den) * temp**3 
+       ov    = k2c/(ov1*state % rho) * (state % T)**3 
     end if
 
     !..blend the opacities in the intermediate region
     if (dlog10 .le. drel10) then 
        ocond   = oh 
     else if (dlog10 .gt. drel10  .and. dlog10 .lt. drelim) then 
-       x        = den
+       x        = state % rho
        x1       = 10.0d0**drel10
        x2       = 10.0d0**drelim
        alfa     = (x-x2)/(x1-x2)
@@ -375,9 +354,9 @@ contains
     !..total opacity
     opac    = orad * ocond / (ocond + orad)
     
-    conductivity = k2c * temp**3 / (opac * den)
+    state % conductivity = k2c * (state % T)**3 / (opac * state % rho)
 
     return 
-  end subroutine sig99
+  end subroutine actual_conductivity
 
 end module actual_conductivity_module
