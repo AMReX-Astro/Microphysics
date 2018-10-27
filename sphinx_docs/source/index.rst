@@ -21,6 +21,8 @@ StarKiller Microphysics
    unit_tests
    burn_cell
    sdc
+   references
+
 
 Indices and tables
 ==================
