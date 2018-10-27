@@ -133,6 +133,7 @@
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="burn_cell.html">Burn Cell Utility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
             
@@ -234,20 +235,20 @@
 <h1>Runtime parameters<a class="headerlink" href="#runtime-parameters" title="Permalink to this headline">¶</a></h1>
 <p>The behavior of the network and EOS are controlled by many runtime
 parameters. These parameters are defined in plain-text files
-<code class="docutils literal"><span class="pre">_parameters</span></code> located in the different directories that hold the
+<code class="docutils literal notranslate"><span class="pre">_parameters</span></code> located in the different directories that hold the
 microphysics code. At compile time, a script in the AMReX bulid
-system, findparams.py, locates all of the <code class="docutils literal"><span class="pre">_parameters</span></code>
+system, findparams.py, locates all of the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code>
 files that are needed for the given choice of network, integrator, and
 EOS, and assembles all of the runtime parameters into a module named
-extern_probin_module (using the <code class="docutils literal"><span class="pre">write_probin.py</span></code>
+extern_probin_module (using the <code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code>
 script).</p>
 <p>Note: depending on the application code, the filename of the source
 file that contains the extern_probin_module may differ
-(in CASTRO it is <code class="docutils literal"><span class="pre">extern.f90</span></code>, and uses the <code class="docutils literal"><span class="pre">&amp;extern</span></code> namelist;
-in MAESTRO it is in the main <code class="docutils literal"><span class="pre">probin.f90</span></code> and uses the same namelist
+(in CASTRO it is <code class="docutils literal notranslate"><span class="pre">extern.f90</span></code>, and uses the <code class="docutils literal notranslate"><span class="pre">&amp;extern</span></code> namelist;
+in MAESTRO it is in the main <code class="docutils literal notranslate"><span class="pre">probin.f90</span></code> and uses the same namelist
 as general MAESTRO runtime parameters).</p>
 <p>Parameter definitions take the form:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># comment describing the parameter</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># comment describing the parameter</span>
 <span class="n">name</span>              <span class="n">data</span><span class="o">-</span><span class="nb">type</span>       <span class="n">default</span><span class="o">-</span><span class="n">value</span>      <span class="n">priority</span>
 </pre></div>
 </div>
@@ -256,7 +257,7 @@ define the same parameter, but with different defaults, the version of
 the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.</p>
 <p>The documentation below is automatically generated, using the comments
-in the <code class="docutils literal"><span class="pre">_parameters</span></code> files.</p>
+in the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html">BS</a></li>

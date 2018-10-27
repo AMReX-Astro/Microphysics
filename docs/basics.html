@@ -110,6 +110,7 @@
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="burn_cell.html">Burn Cell Utility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
             
@@ -215,23 +216,23 @@
 straightforward. Because the modules here are already in a format that
 the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
-the rest. To do so, define the <code class="docutils literal"><span class="pre">MICROPHYSICS_HOME</span></code> environment
+the rest. To do so, define the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> environment
 variable, either at a command line or (if you use the bash shell)
-through your <a href="#id1"><span class="problematic" id="id2">``</span></a>~/.bashrc`, e.g.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>\<span class="n">texttt</span><span class="p">{</span><span class="n">export</span> <span class="n">MICROPHYSICS</span>\<span class="n">_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">Microphysics</span><span class="p">}</span>
+through your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">texttt</span><span class="p">{</span><span class="n">export</span> <span class="n">MICROPHYSICS</span>\<span class="n">_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">Microphysics</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>For CASTRO  the name of the EOS and network are set via the make
-variables <code class="docutils literal"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal"><span class="pre">NETWORK_DIR</span></code>. The macros in CASTRO’s
-<code class="docutils literal"><span class="pre">Make.Castro</span></code> will know to look in Microphysics using the
-<code class="docutils literal"><span class="pre">MICROPHYSICS_HOME</span></code> variable to find the codes.</p>
+variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>. The macros in CASTRO’s
+<code class="docutils literal notranslate"><span class="pre">Make.Castro</span></code> will know to look in Microphysics using the
+<code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable to find the codes.</p>
 <p>For MAESTRO, the name of the EOS and network are set via the make
-variables <code class="docutils literal"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal"><span class="pre">NETWORK_DIR</span></code>, and the macros in MAESTRO’s
-<code class="docutils literal"><span class="pre">GMaestro.mak</span></code> file will find the code, again using the
-<code class="docutils literal"><span class="pre">MICROPHYSICS_HOME</span></code> variable.</p>
+variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>, and the macros in MAESTRO’s
+<code class="docutils literal notranslate"><span class="pre">GMaestro.mak</span></code> file will find the code, again using the
+<code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable.</p>
 <p>For other codes, one can use the interfaces in
-<code class="docutils literal"><span class="pre">Microphysics/interfaces/</span></code> and sample routines in
-<code class="docutils literal"><span class="pre">Microphysics/unit_test/</span></code> to incorporate these modules into your
+<code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code> and sample routines in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/</span></code> to incorporate these modules into your
 code. Note that there are a few AMReX files required at the moment
 (mainly error handling and constants).</p>
 </div>
@@ -240,43 +241,43 @@ code. Note that there are a few AMReX files required at the moment
 <p>The high-level directory structure delineates the types of microphysics
 and the generic solvers:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">docs/</span></code>: this User’s Guide</li>
-<li><code class="docutils literal"><span class="pre">EOS/</span></code>: the various equations of state</li>
+<li><code class="docutils literal notranslate"><span class="pre">docs/</span></code>: this User’s Guide</li>
+<li><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</li>
 <li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">integration/</span></code>: the ODE integration routines used for the</dt>
+<dt><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the</dt>
 <dd>reaction networks</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to</dt>
+<dt><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to</dt>
 <dd>interface with the EOS and reaction networks. Note that most application
 codes will have their own local copies. These are provided for unit testing
 in Microphysics.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the</dt>
+<dt><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the</dt>
 <dd>righthand side of the network, as the actual integrators are decoupled from
 the network.</dd>
 </dl>
 </li>
-<li><code class="docutils literal"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</li>
 <li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the</dt>
+<dt><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the</dt>
 <dd>networks.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">screening/</span></code>: common electron screening factors used by some of the</dt>
+<dt><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the</dt>
 <dd>reaction networks.</dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t</dt>
+<dt><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t</dt>
 <dd>need any application code to build, but will require AMReX.</dd>
 </dl>
 </li>
-<li><code class="docutils literal"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</li>
+<li><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</li>
 </ul>
 </div>
 <div class="section" id="design-philosophy">
@@ -286,8 +287,8 @@ choose an EOS and a network. These two components work together. The
 design philosophy is that the EOS depends on the network, but not the
 other way around. The decision was made for the network to act as the
 core module, and lots of code depends on it. This avoids circular
-dependencies by having the main EOS datatype, <code class="docutils literal"><span class="pre">eos_t</span></code>, and the
-main reaction network datatype, <code class="docutils literal"><span class="pre">burn_t</span></code>, be built on top of the
+dependencies by having the main EOS datatype, <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>, and the
+main reaction network datatype, <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>, be built on top of the
 network.</p>
 <p>The network is meant to store the properties of the species (typically
 nuclear isotopes) including their atomic weights and numbers, and also

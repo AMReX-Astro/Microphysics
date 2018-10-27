@@ -114,6 +114,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
             
@@ -225,7 +226,7 @@
 <p>The structure of this file is is fairly self-explanitory.
 The run prefix defined should be unique to the tests that will be run as they will be used to identify all of the output files. Typically, the run prefix involves the name of the network being tested.
 The atol variables define absolute tolerances of the ordinary differential equations and the rtol variables define the relative tolerances.
-The second section of the input file collects the inputs that main.f90 asks for so that the user does not have to input all 5<span class="math">\(+\)</span> parameters that are required everytime the test is run.
+The second section of the input file collects the inputs that main.f90 asks for so that the user does not have to input all 5<span class="math notranslate nohighlight">\(+\)</span> parameters that are required everytime the test is run.
 Each input required is defined and initialized on the lines following &amp;cellparams.
 The use of the parameters is defined in Table&nbsp;<a class="reference external" href="#tab:init-structure">[tab:init-structure]</a>.</p>
 <table border="1" class="docutils" id="id1">
@@ -242,7 +243,7 @@ The use of the parameters is defined in Table&nbsp;<a class="reference external"
 <td>Number of time subdivisions</td>
 </tr>
 <tr class="row-odd"><td>&#160;</td>
-<td>State Density (<span class="math">\(\frac{g}{cm^3}\)</span>)</td>
+<td>State Density (<span class="math notranslate nohighlight">\(\frac{g}{cm^3}\)</span>)</td>
 </tr>
 <tr class="row-even"><td>temperature</td>
 <td>State Temperature (K)</td>
@@ -268,7 +269,7 @@ The burn_cell code will gather information from all of the output files and comp
 <p>The file run-prefix_logX.png and run-prefix_logX.eps will display a graph of the chemical abundances as a function of the time, both on logarithmic scales, for all species involved in the simulation.
 An example of this graph is shown in Figure&nbsp;<a class="reference external" href="#fig:aprox13_logX">[fig:aprox13_logX]</a>.</p>
 <div class="figure" id="id2">
-<a class="reference internal image-reference" href="react_aprox13_logX"><img alt="An example of a plot output by the burn_cell unit test. This is the logX output cooresponding to the network aprox13." src="react_aprox13_logX" style="width: 4.5in;" /></a>
+<a class="reference internal image-reference" href="_images/react_aprox13_logX.png"><img alt="An example of a plot output by the burn_cell unit test. This is the logX output cooresponding to the network aprox13." src="_images/react_aprox13_logX.png" style="width: 4.5in;" /></a>
 <p class="caption"><span class="caption-text">An example of a plot output by the burn_cell unit test. This is the logX output cooresponding to the network aprox13.</span></p>
 </div>
 <p>[fig:aprox13_logX]</p>
