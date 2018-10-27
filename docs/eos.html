@@ -226,40 +226,40 @@ an EOS module in case you want to build your own.</p>
 <h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Permalink to this headline">¶</a></h2>
 <p>The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
-thermodynamic data (including all derivatives) in the eos_t
+thermodynamic data (including all derivatives) in the <code class="docutils literal"><span class="pre">eos_t</span></code>
 type.</p>
 <div class="section" id="gamma-law-general">
 <h3>gamma_law_general<a class="headerlink" href="#gamma-law-general" title="Permalink to this headline">¶</a></h3>
-<p>gamma_law_general represents a gamma law gas, with
+<p><code class="docutils literal"><span class="pre">gamma_law_general</span></code> represents a gamma law gas, with
 equation of state:</p>
 <div class="math">
 \[p = (\gamma - 1) \rho e.\]</div>
-<p><span class="math">\(\gamma\)</span> is specified by the runtime parameter eos_gamma. For
+<p><span class="math">\(\gamma\)</span> is specified by the runtime parameter <code class="docutils literal"><span class="pre">eos_gamma</span></code>. For
 an ideal gas, this represents the ratio of specific heats. The gas is
 assumed to be ideal, with the pressure given by</p>
 <div class="math">
 \[p = \frac{\rho k T}{\mu m_u}\]</div>
 <p>where <span class="math">\(k\)</span> is Boltzmann’s constant and <span class="math">\(\mu\)</span> is the mean molecular
 weight, calculated from the composition, <span class="math">\(X_k\)</span>. This EOS assumes
-the gas is either completely neutral (assume_neutral = T),
+the gas is either completely neutral (<code class="docutils literal"><span class="pre">assume_neutral</span> <span class="pre">=</span> <span class="pre">T</span></code>),
 giving:</p>
 <div class="math">
 \[\mu^{-1} = \sum_k \frac{X_k}{A_k}\]</div>
-<p>or completely ionized (assume_neutral = F), giving:</p>
+<p>or completely ionized (<code class="docutils literal"><span class="pre">assume_neutral</span> <span class="pre">=</span> <span class="pre">F</span></code>), giving:</p>
 <div class="math">
 \[\mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}\]</div>
 <p>The entropy comes from the Sackur-Tetrode equation. Because of the
 complex way that composition enters into the entropy, the entropy
 formulation here is only correct for a <span class="math">\(\gamma = 5/3\)</span> gas.</p>
-<p>Note that the implementation provided in Microphysics&nbsp;is the same as
+<p>Note that the implementation provided in Microphysics is the same as
 the version shipped with MAESTRO, but more general than the
-gamma_law EOS provided with CASTRO. CASTRO’s default EOS only
-fills the thermodynamic information in eos_t that is required
+<code class="docutils literal"><span class="pre">gamma_law</span></code> EOS provided with CASTRO. CASTRO’s default EOS only
+fills the thermodynamic information in <code class="docutils literal"><span class="pre">eos_t</span></code> that is required
 by the hydrodynamics module in CASTRO.</p>
 </div>
 <div class="section" id="polytrope">
 <h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h3>
-<p>polytrope represents a polytropic fluid, with equation of
+<p><code class="docutils literal"><span class="pre">polytrope</span></code> represents a polytropic fluid, with equation of
 state:</p>
 <div class="math">
 \[p = K \rho^\gamma.\]</div>
@@ -269,18 +269,18 @@ only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
 electron gas) or inputs their own values for <span class="math">\(K\)</span> and <span class="math">\(\gamma\)</span>
-via polytrope_K and polytrope_gamma.</p>
-<p>The runtime parameter polytrope_type selects the pre-defined
+via <code class="docutils literal"><span class="pre">polytrope_K</span></code> and <code class="docutils literal"><span class="pre">polytrope_gamma</span></code>.</p>
+<p>The runtime parameter <code class="docutils literal"><span class="pre">polytrope_type</span></code> selects the pre-defined
 polytropic relations. The options are:</p>
 <ul>
-<li><p class="first">polytrope_type = 1: sets <span class="math">\(\gamma = 5/3\)</span> and</p>
+<li><p class="first"><code class="docutils literal"><span class="pre">polytrope_type</span> <span class="pre">=</span> <span class="pre">1</span></code>: sets <span class="math">\(\gamma = 5/3\)</span> and</p>
 <div class="math">
 \[K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}\]</div>
-<p>where <span class="math">\(mu_e\)</span> is the mean molecular weight per electron, specified via polytrope_mu_e</p>
+<p>where <span class="math">\(mu_e\)</span> is the mean molecular weight per electron, specified via <code class="docutils literal"><span class="pre">polytrope_mu_e</span></code></p>
 <p>This is the form appropriate for a non-relativistic
 fully-degenerate electron gas.</p>
 </li>
-<li><p class="first">polytrope_type = 2: sets <span class="math">\(\gamma = 4/3\)</span> and</p>
+<li><p class="first"><code class="docutils literal"><span class="pre">polytrope_type</span> <span class="pre">=</span> <span class="pre">2</span></code>: sets <span class="math">\(\gamma = 4/3\)</span> and</p>
 <div class="math">
 \[K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}\]</div>
 <p>This is the form appropriate for a relativistic fully-degenerate
@@ -290,7 +290,7 @@ electron gas.</p>
 </div>
 <div class="section" id="ztwd">
 <h3>ztwd<a class="headerlink" href="#ztwd" title="Permalink to this headline">¶</a></h3>
-<p>ztwd is the zero-temperature degenerate electron equation
+<p><code class="docutils literal"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
 of state of Chandrasekhar (1935), which is designed to describe
 white dward material. The pressure satisfies the equation:</p>
 <div class="math">
@@ -314,13 +314,12 @@ to find the density that matches this pressure.</p>
 </div>
 <div class="section" id="multigamma">
 <h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h3>
-<p>multigamma is an ideal gas equation of state where each
+<p><code class="docutils literal"><span class="pre">multigamma</span></code> is an ideal gas equation of state where each
 species can have a different value of <span class="math">\(\gamma\)</span>. This mainly affects
 how the internal energy is constructed as each species, represented
 with a mass fraction <span class="math">\(X_k\)</span> will have its contribution to the total
-specific internal energy take the form of :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>e = p/rho/(gamma_k -</p>
-<blockquote>
-<div>1)`. The main thermodynamic quantities take the form:</div></blockquote>
+specific internal energy take the form of <span class="math">\(e = p/\rho/(\gamma_k -  1)\)</span>.
+The main thermodynamic quantities take the form:</p>
 <div class="math">
 \[\begin{split}\begin{aligned}
 p &amp;= \frac{\rho k T}{m_u} \sum_k \frac{X_k}{A_k} \\
@@ -349,22 +348,22 @@ Furthermore, we can show</p>
 <p>This equation of state takes several runtime parameters that can set
 the <span class="math">\(\gamma_i\)</span> for a specific species. The parameters are:</p>
 <ul class="simple">
-<li>eos_gamma_default: the default <span class="math">\(\gamma\)</span> to apply for all
+<li><code class="docutils literal"><span class="pre">eos_gamma_default</span></code>: the default <span class="math">\(\gamma\)</span> to apply for all
 species</li>
-<li>species_X_name and species_X_gamma: set the
+<li><code class="docutils literal"><span class="pre">species_X_name</span></code> and <code class="docutils literal"><span class="pre">species_X_gamma</span></code>: set the
 <span class="math">\(\gamma_i\)</span> for the species whose name is given as
-species_X_name to the value provided by species_X_gamma.
-Here, X can be one of the letters: a, b, or
-c, allowing us to specify custom <span class="math">\(\gamma_i\)</span> for up to three
+<code class="docutils literal"><span class="pre">species_X_name</span></code> to the value provided by <code class="docutils literal"><span class="pre">species_X_gamma</span></code>.
+Here, <code class="docutils literal"><span class="pre">X</span></code> can be one of the letters: <code class="docutils literal"><span class="pre">a</span></code>, <code class="docutils literal"><span class="pre">b</span></code>, or
+<code class="docutils literal"><span class="pre">c</span></code>, allowing us to specify custom <span class="math">\(\gamma_i\)</span> for up to three
 different species.</li>
 </ul>
 </div>
 <div class="section" id="helmholtz">
 <h3>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this headline">¶</a></h3>
-<p>helmholtz contains a general, publicly available stellar
+<p><code class="docutils literal"><span class="pre">helmholtz</span></code> contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
-described in <a href="#id3"><span class="problematic" id="id4">:raw-latex:`\cite{timmes:1999,timmes:2000,flash}`</span></a>.</p>
+described in <a href="#id1"><span class="problematic" id="id2">:raw-latex:`\cite{timmes:1999,timmes:2000,flash}`</span></a>.</p>
 <p>We have modified this EOS a bit to fit within the context of our
 codes. The vectorization is explicitly thread-safe for use with OpenMP
 and OpenACC. In addition, we have added the ability to perform a
@@ -372,7 +371,7 @@ Newton-Raphson iteration so that if we call the EOS with density and
 energy (say), then we will iterate over temperature until we find the
 temperature that matches this density–energy combination. If we
 cannot find an appropriate temperature, we will reset it to
-small_temp, which needs to be set in the equation of state wrapper
+<code class="docutils literal"><span class="pre">small_temp</span></code>, which needs to be set in the equation of state wrapper
 module in the code calling this. However, there is a choice of whether
 to update the energy to match this temperature, respecting
 thermodynamic consistency, or to leave the energy alone, respecting
@@ -384,7 +383,7 @@ publicly release it in this repository.</p>
 </div>
 <div class="section" id="stellarcollapse">
 <h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h3>
-<p>stellarcollapse is the equation of state module provided
+<p><code class="docutils literal"><span class="pre">stellarcollapse</span></code> is the equation of state module provided
 on <a class="reference external" href="http://stellarcollapse.org">http://stellarcollapse.org</a>. It is designed
 to be used for core-collapse supernovae and is compatible with a
 large number of equations of state that are designed to describe
@@ -401,11 +400,11 @@ appropriate interpolation table from that site to use this.</p>
 <div class="section" id="input-validation">
 <h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this headline">¶</a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
-(e.g., small_temp <span class="math">\(&lt; T &lt;\)</span> maxT). If they are not, then it
+(e.g., <code class="docutils literal"><span class="pre">small_temp</span></code> <span class="math">\(&lt; T &lt;\)</span> <code class="docutils literal"><span class="pre">maxT</span></code>). If they are not, then it
 resets them silently—no error is thrown.</p>
-<p>If you are calling the EOS with eos_input_re, and if <span class="math">\(e &lt;
-10^{-200}\)</span>, then it calls the EOS with eos_input_rt with <span class="math">\(T =
-\max\{ \mathtt{small\_temp}, T \}\)</span>.</p>
+<p>If you are calling the EOS with <code class="docutils literal"><span class="pre">eos_input_re</span></code>, and if <span class="math">\(e &lt;
+10^{-200}\)</span>, then it calls the EOS with <code class="docutils literal"><span class="pre">eos_input_rt</span></code> with T =
+max ( <code class="docutils literal"><span class="pre">small_temp</span></code>, T ).</p>
 <p>User’s are encourage to do their own validation of inputs before calling
 the EOS.</p>
 </div>
@@ -413,12 +412,12 @@ the EOS.</p>
 <h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Permalink to this headline">¶</a></h2>
 <p>Each EOS should have two main routines by which it interfaces to the
 rest of CASTRO. At the beginning of the simulation,
-actual_eos_init will perform any initialization steps and save
+<code class="docutils literal"><span class="pre">actual_eos_init</span></code> will perform any initialization steps and save
 EOS variables (mainly <code class="docutils literal"><span class="pre">smallt</span></code>, the temperature floor, and
 <code class="docutils literal"><span class="pre">smalld</span></code>, the density floor). These variables are stored in the
 main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.</p>
-<p>The main evaluation routine is called actual_eos. It should
+<p>The main evaluation routine is called <code class="docutils literal"><span class="pre">actual_eos</span></code>. It should
 accept an eos_input and an eos_t state; see Section
 <a class="reference external" href="#sec:data_structures">[sec:data_structures]</a>.</p>
 </div>

@@ -11,18 +11,18 @@ Available Equations of State
 
 The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
-thermodynamic data (including all derivatives) in the eos_t
+thermodynamic data (including all derivatives) in the ``eos_t``
 type.
 
 gamma_law_general
 -----------------
 
-gamma_law_general represents a gamma law gas, with
+``gamma_law_general`` represents a gamma law gas, with
 equation of state:
 
 .. math:: p = (\gamma - 1) \rho e.
 
-:math:`\gamma` is specified by the runtime parameter eos_gamma. For
+:math:`\gamma` is specified by the runtime parameter ``eos_gamma``. For
 an ideal gas, this represents the ratio of specific heats. The gas is
 assumed to be ideal, with the pressure given by
 
@@ -30,12 +30,12 @@ assumed to be ideal, with the pressure given by
 
 where :math:`k` is Boltzmann’s constant and :math:`\mu` is the mean molecular
 weight, calculated from the composition, :math:`X_k`. This EOS assumes
-the gas is either completely neutral (assume_neutral = T),
+the gas is either completely neutral (``assume_neutral = T``),
 giving:
 
 .. math:: \mu^{-1} = \sum_k \frac{X_k}{A_k}
 
-or completely ionized (assume_neutral = F), giving:
+or completely ionized (``assume_neutral = F``), giving:
 
 .. math:: \mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}
 
@@ -43,16 +43,16 @@ The entropy comes from the Sackur-Tetrode equation. Because of the
 complex way that composition enters into the entropy, the entropy
 formulation here is only correct for a :math:`\gamma = 5/3` gas.
 
-Note that the implementation provided in Microphysics is the same as
+Note that the implementation provided in Microphysics is the same as
 the version shipped with MAESTRO, but more general than the
-gamma_law EOS provided with CASTRO. CASTRO’s default EOS only
-fills the thermodynamic information in eos_t that is required
+``gamma_law`` EOS provided with CASTRO. CASTRO’s default EOS only
+fills the thermodynamic information in ``eos_t`` that is required
 by the hydrodynamics module in CASTRO.
 
 polytrope
 ---------
 
-polytrope represents a polytropic fluid, with equation of
+``polytrope`` represents a polytropic fluid, with equation of
 state:
 
 .. math:: p = K \rho^\gamma.
@@ -63,21 +63,21 @@ only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
 electron gas) or inputs their own values for :math:`K` and :math:`\gamma`
-via polytrope_K and polytrope_gamma.
+via ``polytrope_K`` and ``polytrope_gamma``.
 
-The runtime parameter polytrope_type selects the pre-defined
+The runtime parameter ``polytrope_type`` selects the pre-defined
 polytropic relations. The options are:
 
--  polytrope_type = 1: sets :math:`\gamma = 5/3` and
+-  ``polytrope_type = 1``: sets :math:`\gamma = 5/3` and
 
    .. math:: K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}
 
-   where :math:`mu_e` is the mean molecular weight per electron, specified via polytrope_mu_e
+   where :math:`mu_e` is the mean molecular weight per electron, specified via ``polytrope_mu_e``
 
    This is the form appropriate for a non-relativistic
    fully-degenerate electron gas.
 
--  polytrope_type = 2: sets :math:`\gamma = 4/3` and
+-  ``polytrope_type = 2``: sets :math:`\gamma = 4/3` and
 
    .. math:: K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}
 
@@ -87,7 +87,7 @@ polytropic relations. The options are:
 ztwd
 ----
 
-ztwd is the zero-temperature degenerate electron equation
+``ztwd`` is the zero-temperature degenerate electron equation
 of state of Chandrasekhar (1935), which is designed to describe
 white dward material. The pressure satisfies the equation:
 
@@ -116,12 +116,12 @@ to find the density that matches this pressure.
 multigamma
 ----------
 
-multigamma is an ideal gas equation of state where each
+``multigamma`` is an ideal gas equation of state where each
 species can have a different value of :math:`\gamma`. This mainly affects
 how the internal energy is constructed as each species, represented
 with a mass fraction :math:`X_k` will have its contribution to the total
-specific internal energy take the form of :math:`e = p/\rho/(\gamma_k -
-  1)`. The main thermodynamic quantities take the form:
+specific internal energy take the form of :math:`e = p/\rho/(\gamma_k -  1)`.
+The main thermodynamic quantities take the form:
 
 .. math::
 
@@ -161,20 +161,20 @@ and :math:`p = \rho e (\gamma_\mathrm{effective} - 1)`.
 This equation of state takes several runtime parameters that can set
 the :math:`\gamma_i` for a specific species. The parameters are:
 
--  eos_gamma_default: the default :math:`\gamma` to apply for all
+-  ``eos_gamma_default``: the default :math:`\gamma` to apply for all
    species
 
--  species_X_name and species_X_gamma: set the
+-  ``species_X_name`` and ``species_X_gamma``: set the
    :math:`\gamma_i` for the species whose name is given as
-   species_X_name to the value provided by species_X_gamma.
-   Here, X can be one of the letters: a, b, or
-   c, allowing us to specify custom :math:`\gamma_i` for up to three
+   ``species_X_name`` to the value provided by ``species_X_gamma``.
+   Here, ``X`` can be one of the letters: ``a``, ``b``, or
+   ``c``, allowing us to specify custom :math:`\gamma_i` for up to three
    different species.
 
 helmholtz
 ---------
 
-helmholtz contains a general, publicly available stellar
+``helmholtz`` contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
 described in :raw-latex:`\cite{timmes:1999,timmes:2000,flash}`.
@@ -186,7 +186,7 @@ Newton-Raphson iteration so that if we call the EOS with density and
 energy (say), then we will iterate over temperature until we find the
 temperature that matches this density–energy combination. If we
 cannot find an appropriate temperature, we will reset it to
-small_temp, which needs to be set in the equation of state wrapper
+``small_temp``, which needs to be set in the equation of state wrapper
 module in the code calling this. However, there is a choice of whether
 to update the energy to match this temperature, respecting
 thermodynamic consistency, or to leave the energy alone, respecting
@@ -200,7 +200,7 @@ publicly release it in this repository.
 stellarcollapse
 ---------------
 
-stellarcollapse is the equation of state module provided
+``stellarcollapse`` is the equation of state module provided
 on http://stellarcollapse.org. It is designed
 to be used for core-collapse supernovae and is compatible with a
 large number of equations of state that are designed to describe
@@ -217,12 +217,12 @@ Input Validation
 ================
 
 The EOS will make sure that the inputs are within an acceptable range,
-(e.g., small_temp :math:`< T <` maxT). If they are not, then it
+(e.g., ``small_temp`` :math:`< T <` ``maxT``). If they are not, then it
 resets them silently—no error is thrown.
 
-If you are calling the EOS with eos_input_re, and if :math:`e <
-10^{-200}`, then it calls the EOS with eos_input_rt with :math:`T =
-\max\{ \mathtt{small\_temp}, T \}`.
+If you are calling the EOS with ``eos_input_re``, and if :math:`e <
+10^{-200}`, then it calls the EOS with ``eos_input_rt`` with T =
+max ( ``small_temp``, T ).
 
 User’s are encourage to do their own validation of inputs before calling
 the EOS.
@@ -232,12 +232,12 @@ EOS Structure
 
 Each EOS should have two main routines by which it interfaces to the
 rest of CASTRO. At the beginning of the simulation,
-actual_eos_init will perform any initialization steps and save
+``actual_eos_init`` will perform any initialization steps and save
 EOS variables (mainly ``smallt``, the temperature floor, and
 ``smalld``, the density floor). These variables are stored in the
 main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.
 
-The main evaluation routine is called actual_eos. It should
+The main evaluation routine is called ``actual_eos``. It should
 accept an eos_input and an eos_t state; see Section
 `[sec:data_structures] <#sec:data_structures>`__.
