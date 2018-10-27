@@ -113,6 +113,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="burn_cell.html">Burn Cell Utility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
             
@@ -228,58 +229,58 @@ script.</p>
 <h3>EOS test<a class="headerlink" href="#eos-test" title="Permalink to this headline">¶</a></h3>
 <p>Microphysics/unit_test/test_eos/ is a unit test for the
 equations of state in Microphysics. It sets up a cube of data, with
-<span class="math">\(\rho\)</span>, <span class="math">\(T\)</span>, and <span class="math">\(X_k\)</span> varying along the three dimensions, and then
+<span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three dimensions, and then
 calls the EOS in each zone. Calls are done to exercise all modes of
 calling the EOS, in order:</p>
 <ul>
-<li><p class="first">eos_input_rt: We call the EOS using <span class="math">\(\rho, T\)</span>. this
-is the reference call, and we save the <span class="math">\(h\)</span>, <span class="math">\(e\)</span>, <span class="math">\(p\)</span>, and <span class="math">\(s\)</span> from
+<li><p class="first">eos_input_rt: We call the EOS using <span class="math notranslate nohighlight">\(\rho, T\)</span>. this
+is the reference call, and we save the <span class="math notranslate nohighlight">\(h\)</span>, <span class="math notranslate nohighlight">\(e\)</span>, <span class="math notranslate nohighlight">\(p\)</span>, and <span class="math notranslate nohighlight">\(s\)</span> from
 here to use in subsequent calls.</p>
 </li>
-<li><p class="first">eos_input_rh: We call the EOS using <span class="math">\(\rho, h\)</span>, to
-recover the original <span class="math">\(T\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_rh: We call the EOS using <span class="math notranslate nohighlight">\(\rho, h\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to
 do, we perturb the initial temperature.</p>
-<p>We store the relative error in <span class="math">\(T\)</span> in the output file.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
 </li>
-<li><p class="first">eos_input_tp: We call the EOS using <span class="math">\(T, p\)</span>, to
-recover the original <span class="math">\(\rho\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_tp: We call the EOS using <span class="math notranslate nohighlight">\(T, p\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to
 do, we perturb the initial density.</p>
-<p>We store the relative error in <span class="math">\(\rho\)</span> in the output file.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
 </li>
-<li><p class="first">eos_input_rp: We call the EOS using <span class="math">\(\rho, p\)</span>, to
-recover the original <span class="math">\(T\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_rp: We call the EOS using <span class="math notranslate nohighlight">\(\rho, p\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to
 do, we perturb the initial temperature.</p>
-<p>We store the relative error in <span class="math">\(T\)</span> in the output file.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
 </li>
-<li><p class="first">eos_input_re: We call the EOS using <span class="math">\(\rho, e\)</span>, to
-recover the original <span class="math">\(T\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_re: We call the EOS using <span class="math notranslate nohighlight">\(\rho, e\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to
 do, we perturb the initial temperature.</p>
-<p>We store the relative error in <span class="math">\(T\)</span> in the output file.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
 </li>
-<li><p class="first">eos_input_ps: We call the EOS using <span class="math">\(p, s\)</span>, to
-recover the original <span class="math">\(\rho, T\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_ps: We call the EOS using <span class="math notranslate nohighlight">\(p, s\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to
 do, we perturb the initial density and temperature.</p>
 <p>Note: entropy is not well-defined for some EOSs, so we only attempt
-the root find if <span class="math">\(s &gt; 0\)</span>.</p>
-<p>We store the relative error in <span class="math">\(\rho, T\)</span> in the output file.</p>
+the root find if <span class="math notranslate nohighlight">\(s &gt; 0\)</span>.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
 </li>
-<li><p class="first">eos_input_ph: We call the EOS using <span class="math">\(p, h\)</span>, to
-recover the original <span class="math">\(\rho, T\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_ph: We call the EOS using <span class="math notranslate nohighlight">\(p, h\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to
 do, we perturb the initial density and temperature.</p>
-<p>We store the relative error in <span class="math">\(\rho, T\)</span> in the output file.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
 </li>
-<li><p class="first">eos_input_th: We call the EOS using <span class="math">\(T, h\)</span>, to
-recover the original <span class="math">\(\rho\)</span>. To give the root finder some work to
+<li><p class="first">eos_input_th: We call the EOS using <span class="math notranslate nohighlight">\(T, h\)</span>, to
+recover the original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to
 do, we perturb the initial density.</p>
-<p>Note: for some EOSs, <span class="math">\(h = h(\rho)\)</span> (e.g., and ideal gas), so there
+<p>Note: for some EOSs, <span class="math notranslate nohighlight">\(h = h(\rho)\)</span> (e.g., and ideal gas), so there
 is no temperature dependence, and we do not do this test.</p>
-<p>We store the relative error in <span class="math">\(\rho\)</span> in the output file.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
 </li>
 </ul>
 <p>This unit test is marked up with OpenMP directives and therefore also
 tests whether the EOS is threadsafe.</p>
 <p>To compile for a specific EOS, e.g., helmholtz, do:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">EOS_DIR</span><span class="o">=</span><span class="n">helmholtz</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">EOS_DIR</span><span class="o">=</span><span class="n">helmholtz</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
 </pre></div>
 </div>
 <p>Examining the output (a AMReX&nbsp;plotfile) will show you how big the
@@ -291,11 +292,11 @@ fextrema to display the maximum error for each variable.</p>
 <h3>Network test<a class="headerlink" href="#network-test" title="Permalink to this headline">¶</a></h3>
 <p>Microphysics/unit_test/test_react/ is a unit test for the
 nuclear reaction networks in Microphysics. It sets up a cube of
-data, with <span class="math">\(\rho\)</span>, <span class="math">\(T\)</span>, and <span class="math">\(X_k\)</span> varying along the three dimensions
-(as a <span class="math">\(16^3\)</span> domain), and then calls the EOS in each zone.</p>
+data, with <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three dimensions
+(as a <span class="math notranslate nohighlight">\(16^3\)</span> domain), and then calls the EOS in each zone.</p>
 <p>The state in each zone of our data cube is determined by the runtime
 parameters dens_min, dens_max, temp_min, and
-temp_max for <span class="math">\((\rho, T)\)</span>. Because each network carries different
+temp_max for <span class="math notranslate nohighlight">\((\rho, T)\)</span>. Because each network carries different
 compositions, we specify explicitly the mass fraction of each species
 for every step in the composition dimension in a file xin.* for
 each network. Note: it is up to the user to ensure that they species
@@ -306,7 +307,7 @@ tmax. The full state, including new mass fractions and energy
 release is output to a AMReX&nbsp;plotfile.</p>
 <p>You can compile for a specific integrator (e.g., BS) or
 network (e.g., aprox13) as:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">BS</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">BS</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
 </pre></div>
 </div>
 <p>The loop over the burner is marked up for both OpenMP and OpenACC and
@@ -328,7 +329,7 @@ network or Jacobian on a single state:</p>
 <p>These all use the F90 AMReX&nbsp;build system and the macros in
 GMicrophysics.mak to build the executable. To make
 individual tests you can use the programs variable, e.g.,</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">programs</span><span class="o">=</span><span class="nb">eval</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">programs</span><span class="o">=</span><span class="nb">eval</span>
 </pre></div>
 </div>
 </div>
