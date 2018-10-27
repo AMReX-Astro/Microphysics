@@ -1,6 +1,6 @@
 # Which choice to use for the ODE scaling
-# 1: $|y| + |dy/dt|$;
-# 2: $\max(|y|, K)$ with $K =$ constant
+# 1: :math:`|y| + |dy/dt|`
+# 2: :math:`\max(|y|, K)` with K = constant
 scaling_method               integer         2
 
 # use the VODE algorithm's initial timestep estimator?
