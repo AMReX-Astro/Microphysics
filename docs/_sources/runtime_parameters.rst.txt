@@ -4,8 +4,8 @@ BS
 +----------------------------------+---------------------------------------------------------+---------------+
 | parameter                        | description                                             | default value |
 +==================================+=========================================================+===============+
-| ``scaling_method``               | Which choice to use for the ODE scaling 1: $|y| +       | 2             |
-|                                  | |dy/dt|$; 2: $\max(|y|, K)$ with $K =$ constant         |               |
+| ``scaling_method``               | Which choice to use for the ODE scaling 1: :math:`|y| + | 2             |
+|                                  | |dy/dt|` 2: :math:`\max(|y|, K)` with K = constant      |               |
 +----------------------------------+---------------------------------------------------------+---------------+
 | ``use_timestep_estimator``       | use the VODE algorithm's initial timestep estimator?    | .false.       |
 +----------------------------------+---------------------------------------------------------+---------------+

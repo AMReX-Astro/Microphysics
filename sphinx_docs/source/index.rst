@@ -19,7 +19,6 @@ StarKiller Microphysics
    transport
    openacc
    unit_tests
-   burn_cell
    sdc
    references
 
