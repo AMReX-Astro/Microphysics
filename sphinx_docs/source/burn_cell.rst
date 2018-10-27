@@ -63,7 +63,7 @@ An example of this graph is shown in Figure \ `[fig:aprox13_logX] <#fig:aprox13
 
    \centering
 
-.. figure:: react_aprox13_logX
+.. figure:: react_aprox13_logX.png
    :alt: An example of a plot output by the burn_cell unit test. This is the logX output cooresponding to the network aprox13.
    :width: 4.5in
 

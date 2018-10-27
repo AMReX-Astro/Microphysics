@@ -11,7 +11,7 @@ the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
 the rest. To do so, define the ``MICROPHYSICS_HOME`` environment
 variable, either at a command line or (if you use the bash shell)
-through your ``~/.bashrc`, e.g.::
+through your ``~/.bashrc``, e.g.::
 
  \texttt{export MICROPHYSICS\_HOME=/path/to/Microphysics}
 

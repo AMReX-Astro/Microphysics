@@ -372,7 +372,7 @@ Notably, the reaction rate of chemical equation `[chemeq:2.2] <#chemeq:2.2>`__ i
 
    \centering
 
-.. figure:: subch.pdf
+.. figure:: subch.png
    :alt: pynucastro plot of the reaction rates of the subch network.
    :width: 3in
 
@@ -782,8 +782,7 @@ so :math:`10^{-9}` should be used as the default tolerance in future simulations
    \centering
 
 .. figure:: tolerances.png
-   :alt: Relative error of runs with varying tolerances as compared
-   to a run with an ODE tolerance of :math:`10^{-12}`.
+   :alt: Relative error of runs with varying tolerances as compared to a run with an ODE tolerance of :math:`10^{-12}`.
    :width: 3.5in
 
    Relative error of runs with varying tolerances as compared
@@ -1085,5 +1084,5 @@ precedence.
    data-structure of the integrator, but the basic procedure is the
    same.
 
-.. |image| image:: doxygen_network
+.. |image| image:: doxygen_network.png
 
