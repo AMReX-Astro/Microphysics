@@ -10,6 +10,7 @@ TOP := $(MICROPHYSICS_HOME)
 # default microphysics locations
 EOS_HOME ?= $(TOP)/EOS
 NETWORK_HOME ?= $(TOP)/networks
+CONDUCTIVITY_HOME ?= $(TOP)/conductivity
 
 EBASE ?= main
 
@@ -138,6 +139,7 @@ Bpack	+= $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
 NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
 
 
 # Problems can specify the input file for general_null by setting
@@ -176,7 +178,16 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
+# include the conductivity if not compiling for GPU
+# conductivity has not been ported/tested with CUDA Fortran
+ifdef USE_CUDA
+  ifneq ($(USE_CUDA),TRUE)
+    EXTERN_CORE += $(CONDUCTIVITY_HOME)
+    EXTERN_CORE += $(CONDUCTIVITY_PATH)
+  endif
+endif
 
+# include the network
 EXTERN_CORE += $(NETWORK_HOME)
 EXTERN_CORE += $(NETWORK_PATH)
 
