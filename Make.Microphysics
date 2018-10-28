@@ -5,6 +5,9 @@ CVODE_HOME ?= /path/to/CVODE
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
 
+# default is not to compile in the conductivity
+USE_CONDUCTIVITY ?= FALSE
+
 # system blas
 BLAS_LIBRARY ?= -lopenblas
 
@@ -185,10 +188,13 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
-# include the conductivity if compiling with USE_EXTRA_THERMO
-ifeq ($(USE_EXTRA_THERMO),TRUE)
-  EXTERN_CORE += $(CONDUCTIVITY_HOME)
-  EXTERN_CORE += $(CONDUCTIVITY_PATH)
+# include the conductivity
+ifdef USE_CONDUCTIVITY
+  ifeq ($(USE_CONDUCTIVITY),TRUE)
+    DEFINES += -DCONDUCTIVITY
+    EXTERN_CORE += $(CONDUCTIVITY_HOME)
+    EXTERN_CORE += $(CONDUCTIVITY_PATH)
+  endif
 endif
 
 # include the network

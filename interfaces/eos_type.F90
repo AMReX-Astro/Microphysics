@@ -172,8 +172,9 @@ module eos_type_module
     real(rt) :: dpdZ
     real(rt) :: dedA
     real(rt) :: dedZ
-    real(rt) :: conductivity
 #endif
+
+    real(rt) :: conductivity
 
   end type eos_t
 
@@ -235,8 +236,10 @@ contains
     to_eos % dpdZ = from_eos % dpdZ
     to_eos % dedA = from_eos % dedA
     to_eos % dedZ = from_eos % dedZ
-    to_eos % conductivity = from_eos % conductivity
 #endif
+
+    to_eos % conductivity = from_eos % conductivity
+
   end subroutine copy_eos_t
 
 

@@ -8,7 +8,7 @@ module microphysics_module
   use actual_burner_module, only : actual_burner_init
 #endif
 
-#ifdef EXTRA_THERMO
+#ifdef CONDUCTIVITY
   use actual_conductivity_module, only: actual_conductivity_init
 #endif
 
@@ -38,7 +38,7 @@ contains
     call actual_burner_init()
 #endif
 
-#ifdef EXTRA_THERMO
+#ifdef CONDUCTIVITY
     call actual_conductivity_init()
 #endif
 
