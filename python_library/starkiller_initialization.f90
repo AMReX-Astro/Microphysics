@@ -2,6 +2,8 @@ module starkiller_initialization_module
 
   implicit none
 
+  logical, save :: initialized = .false.
+
 contains
 
   subroutine starkiller_initialize(probin_file)
@@ -14,9 +16,15 @@ contains
 
     character(len=256) :: probin_file
 
-    call runtime_init(probin_file)
+    if (.not. initialized) then
 
-    call microphysics_init(small_temp, small_dens)
+       call runtime_init(probin_file)
+
+       call microphysics_init(small_temp, small_dens)
+
+       initialized = .true.
+
+    endif
 
   end subroutine starkiller_initialize
 
