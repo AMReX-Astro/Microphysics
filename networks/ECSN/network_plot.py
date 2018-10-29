@@ -29,4 +29,4 @@ comp.set_nuc("s32", 1.e-2)
 comp.set_nuc("p31", 1.e-2)
 comp.normalize()
 
-rc.plot(outfile="ecsn.png", rho=7.e8, T=1.e9, comp=comp)
+rc.plot(outfile="ecsn.png", rho=7.e9, T=1.e9, comp=comp)
