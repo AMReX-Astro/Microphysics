@@ -49,7 +49,9 @@ extern "C"
   void sk_get_sparse_jac_nnz(int* nnz);
 
   void sk_get_store_jacobian(int* sjac);
-  
+
+  void sk_get_num_steps_save_jacobian(int* nstepssavejac);
+
   void sk_renormalize_species(amrex::Real* y, amrex::Real* rpar);
 
   void sk_convert_to_molar(amrex::Real* y);
@@ -73,14 +75,14 @@ __device__  void sk_analytic_jac_device(const amrex::Real* t, const amrex::Real*
 
 __device__  void sk_fill_csr_jac_device(const amrex::Real* jac_mat,
 					amrex::Real* csr_jac_cell);
-  
+
 #else
-  
+
 __device__  void sk_jac_times_vec_device(const amrex::Real* jac_mat, const amrex::Real* vec,
 					 amrex::Real* jtv);
 
 #endif
-  
+
 #else
 void sk_initialize_cell(amrex::Real* y, amrex::Real* rpar);
 

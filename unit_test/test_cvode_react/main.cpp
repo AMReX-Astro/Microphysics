@@ -36,7 +36,7 @@ void main_main ()
 
     std::string prefix = "plt";
 
-    IntVect tile_size(1024, 8, 8);
+    IntVect tile_size(1024, 1024, 1024);
 
     // inputs parameters
     {
