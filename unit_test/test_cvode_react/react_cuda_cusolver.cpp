@@ -13,6 +13,7 @@
 
 using namespace amrex;
 
+
 void do_react(const int* lo, const int* hi,
 	      amrex::Real* state, const int* s_lo, const int* s_hi,
 	      const int ncomp, const amrex::Real dt,
@@ -49,6 +50,13 @@ void do_react(const int* lo, const int* hi,
   CVodeUserData* user_data;
   cudaMallocManaged(&user_data, sizeof(CVodeUserData));
 
+  // CVODE statistics
+  long int nsteps, nfevals, nlinsetups, netfails;
+  int qlast, qcur;
+  realtype hinused, hlast, hcur, tcur;
+
+  // Tolerances and state data
+
   realtype reltol=1.0e-6, time=0.0e0, tout;
 
   realtype abstol_values[size_flat];
@@ -75,8 +83,9 @@ void do_react(const int* lo, const int* hi,
 
   sk_get_csr_jac_rowcols(&csr_row_count[0], &csr_col_index[0]);
 
-  int store_jacobian;
+  int store_jacobian, num_steps_save_jacobian;
   sk_get_store_jacobian(&store_jacobian);
+  sk_get_num_steps_save_jacobian(&num_steps_save_jacobian);
 
   new (user_data) CVodeUserData(size_flat, size_state, neqs,
 				size_rpar_per_cell, jac_number_nonzero,
@@ -162,7 +171,8 @@ void do_react(const int* lo, const int* hi,
   if (flag != CV_SUCCESS) amrex::Abort("Failed to set max steps");
 
   // Initialize cuSolver Linear Solver
-  flag = cv_cuSolver_SetLinearSolver(cvode_mem, LinearSolverMethod, store_jacobian==1);
+  flag = cv_cuSolver_SetLinearSolver(cvode_mem, LinearSolverMethod, store_jacobian==1,
+				     num_steps_save_jacobian);
   flag = cv_cuSolver_CSR_SetSizes(cvode_mem, neqs, jac_number_nonzero, size_state);
 
   flag = cv_cuSolver_SetJacFun(cvode_mem, &fun_csr_jac);
@@ -186,12 +196,29 @@ void do_react(const int* lo, const int* hi,
 
   if (flag != CV_SUCCESS) amrex::Abort("Failed integration");
 
+  // Get integration statistics
+  flag = CVodeGetIntegratorStats(cvode_mem, &nsteps, &nfevals, &nlinsetups, &netfails, &qlast, &qcur,
+				 &hinused, &hlast, &hcur, &tcur);
+
+  // Print integrator statistics
+  std::cout << "Integrator Statistics --" << std::endl;
+  std::cout << "nsteps = " << nsteps << std::endl;
+  std::cout << "nfevals = " << nfevals << std::endl;
+  std::cout << "nlinsetups = " << nlinsetups << std::endl;
+  std::cout << "netfails = " << netfails << std::endl;
+  std::cout << "qlast = " << qlast << std::endl;
+  std::cout << "qcur = " << qcur << std::endl;
+  std::cout << "hinused = " << hinused << std::endl;
+  std::cout << "hlast = " << hlast << std::endl;
+  std::cout << "hcur = " << hcur << std::endl;
+  std::cout << "tcur = " << tcur << std::endl;
+
   flag = CVodeGetNumRhsEvals(cvode_mem, n_rhs);
   int n_actual_jac = 0;
   flag = cv_cuSolver_GetNumJacEvals(cvode_mem, &n_actual_jac);
   *n_jac = n_actual_jac;
   flag = CVodeGetNumLinSolvSetups(cvode_mem, n_linsetup);
-  
+
 #if PRINT_DEBUG
   std::cout << "Desired end time = " << time << std::endl;
   std::cout << "Integrated to tout = " << tout << std::endl;
