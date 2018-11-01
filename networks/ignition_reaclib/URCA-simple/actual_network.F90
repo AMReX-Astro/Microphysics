@@ -31,6 +31,7 @@ module actual_network
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 5
+  integer, parameter :: number_reaclib_sets = 6
 
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 2
