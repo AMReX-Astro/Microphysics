@@ -1,1 +1,0 @@
-Type `make` at the command line to build this user's guide.
