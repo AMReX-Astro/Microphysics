@@ -1,3 +1,8 @@
+changes since the last release:
+
+ -- simplify conductivity interface to match the eos interface by
+    moving the conductivity into the eos type
+
 # 18.11
 
  -- new python bindings have been added
