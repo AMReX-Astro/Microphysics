@@ -2,6 +2,12 @@ AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 CVODE_HOME ?= /path/to/CVODE
 
+# default is not to compile with CUDA
+USE_CUDA ?= FALSE
+
+# default is not to compile in the conductivity
+USE_CONDUCTIVITY ?= FALSE
+
 # system blas
 BLAS_LIBRARY ?= -lopenblas
 
@@ -56,6 +62,10 @@ DEFINES += -DCRSEGRNDOMP
 # OpenACC support
 ifeq ($(USE_ACC), TRUE)
   DEFINES += -DACC
+endif
+
+ifeq ($(USE_EXTRA_THERMO), TRUE)
+  DEFINES += -DEXTRA_THERMO
 endif
 
 ifeq ($(USE_SDC), TRUE)
@@ -178,10 +188,10 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
-# include the conductivity if not compiling for GPU
-# conductivity has not been ported/tested with CUDA Fortran
-ifdef USE_CUDA
-  ifneq ($(USE_CUDA),TRUE)
+# include the conductivity
+ifdef USE_CONDUCTIVITY
+  ifeq ($(USE_CONDUCTIVITY),TRUE)
+    DEFINES += -DCONDUCTIVITY
     EXTERN_CORE += $(CONDUCTIVITY_HOME)
     EXTERN_CORE += $(CONDUCTIVITY_PATH)
   endif
