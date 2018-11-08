@@ -3,8 +3,13 @@ module microphysics_module
   use network
   use eos_module, only : eos_init
   use actual_rhs_module, only : actual_rhs_init
+
 #ifndef SDC
   use actual_burner_module, only : actual_burner_init
+#endif
+
+#ifdef CONDUCTIVITY
+  use actual_conductivity_module, only: actual_conductivity_init
 #endif
 
   implicit none
@@ -28,8 +33,13 @@ contains
 
     call network_init()
     call actual_rhs_init()
+
 #ifndef SDC
     call actual_burner_init()
+#endif
+
+#ifdef CONDUCTIVITY
+    call actual_conductivity_init()
 #endif
 
   end subroutine microphysics_init
