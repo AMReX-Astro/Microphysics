@@ -1,4 +1,14 @@
-changes since last release
+changes since the last release:
+
+ -- simplify conductivity interface to match the eos interface by
+    moving the conductivity into the eos type
+
+# 18.11
+
+ -- new python bindings have been added
+
+ -- the documentation has been switched to Sphinx and is now hosted
+    online.
 
  -- a bug was fixed in the stellarcollapse EOS where the energy offset
     was being applied incorrectly.

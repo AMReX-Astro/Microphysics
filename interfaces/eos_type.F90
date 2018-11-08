@@ -122,6 +122,7 @@ module eos_type_module
   ! dedZ     -- d energy/ d zbar
   ! dpde     -- d pressure / d energy |_rho
   ! dpdr_e   -- d pressure / d rho |_energy
+  ! conductivity -- thermal conductivity (in erg/cm/K/sec)
 
   type :: eos_t
 
@@ -172,6 +173,8 @@ module eos_type_module
     real(rt) :: dedA
     real(rt) :: dedZ
 #endif
+
+    real(rt) :: conductivity
 
   end type eos_t
 
@@ -234,6 +237,9 @@ contains
     to_eos % dedA = from_eos % dedA
     to_eos % dedZ = from_eos % dedZ
 #endif
+
+    to_eos % conductivity = from_eos % conductivity
+
   end subroutine copy_eos_t
 
 
