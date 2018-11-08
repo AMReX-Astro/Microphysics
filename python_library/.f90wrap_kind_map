@@ -1,1 +1,20 @@
-dict(real=dict(rt='double'))
+{'character': {'': 'char',
+               '1': 'char',
+               '1024': 'char',
+               '128': 'char',
+               '256': 'char',
+               '*': 'char'},
+
+ 'complex': {'': 'complex_float',
+             '16': 'complex_long_double',
+             '8': 'complex_double',
+             'dp': 'complex_double'},
+
+ 'integer': {'4': 'int',
+             '8': 'long_long'},
+
+ 'real': {'': 'float',
+          '4': 'float',
+          '8': 'double',
+          'dp': 'double',
+          'rt': 'double'}}
