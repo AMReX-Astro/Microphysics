@@ -77,3 +77,4 @@ extern.f90
 
 # sphinx
 build/
+doxy_files
