@@ -18,9 +18,11 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import re
 import sys
 import sphinx_rtd_theme
-import re
+import breathe
+
 sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -40,7 +42,14 @@ extensions = ['sphinx.ext.autodoc',
     'nbsphinx',
     'numpydoc',
     'IPython.sphinxext.ipython_console_highlighting',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages',
+    'breathe']
+
+breathe_projects = {
+    "microphysics":"../doxy_files/xml",
+    }
+
+breathe_default_project = "microphysics"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,6 +59,9 @@ templates_path = ['_templates']
 #
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
+
+# see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
+numpydoc_show_class_members = False
 
 # The master toctree document.
 master_doc = 'index'
@@ -85,6 +97,19 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
+
+
+# -- Options for MathJax
+mathjax_config = {'TeX': {'Macros': {}}}
+
+with open('mathsymbols.tex', 'r') as f:
+    for line in f:
+        macros = re.findall(r'\\newcommand{\\(.*?)}(\[(\d)\])?{(.+)}', line)
+        for macro in macros:
+            if len(macro[1]) == 0:
+                mathjax_config['TeX']['Macros'][macro[0]] = "{"+macro[3]+"}"
+            else:
+                mathjax_config['TeX']['Macros'][macro[0]] = ["{"+macro[3]+"}", int(macro[2])]
 
 
 # -- Options for HTML output ----------------------------------------------

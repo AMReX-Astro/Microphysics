@@ -14,9 +14,17 @@ help:
 
 .PHONY: help Makefile
 
+clean:
+	rm -rf build doxy_files source/class source/file source/namespace
+	rm -f source/classlist.rst source/filelist.rst source/namespacelist.rst
+	rm -rf ../docs
+
 html:
 	./rp.py > source/runtime_parameters.rst
+	doxygen Doxyfile
+	breathe-apidoc --o source doxy_files/xml
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@if [ ! -d ../docs ]; then mkdir ../docs; fi
 	cp -r build/html/* ../docs/
 
 # Catch-all target: route all unknown targets to Sphinx using the new
