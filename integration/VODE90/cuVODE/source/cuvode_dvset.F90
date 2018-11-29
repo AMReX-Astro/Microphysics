@@ -80,7 +80,13 @@ contains
     FLOTL = REAL(vstate % L)
     NQM1 = vstate % NQ - 1
     NQM2 = vstate % NQ - 2
-    GO TO (100, 200), vstate % METH
+
+    select case (vstate % METH)
+    case (1)
+       go to 100
+    case (2)
+       go to 200
+    end select
 
     !  Set coefficients for Adams methods. ----------------------------------
 100 IF (vstate % NQ .NE. 1) GO TO 110
