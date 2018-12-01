@@ -172,7 +172,7 @@ void main_main ()
 
     int n_rhs_min = integrator_n_rhs.min(0);
     int n_rhs_max = integrator_n_rhs.max(0);
-    int n_rhs_sum = integrator_n_rhs.norm1();
+    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the

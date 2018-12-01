@@ -410,7 +410,19 @@ contains
     NSLAST = vstate % NST
     vstate % KUTH = 0
 
-    GO TO (210, 250, 220, 230, 240), ITASK
+    select case (ITASK)
+    case (1)
+       go to 210
+    case (2)
+       go to 250
+    case (3)
+       go to 220
+    case (4)
+       go to 230
+    case (5)
+       go to 240
+    end select
+
 210 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
     CALL DVINDY (vstate, rwork, IFLAG)
 
@@ -560,7 +572,15 @@ contains
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
-    GO TO (300, 530, 540), KGO
+
+    select case (KGO)
+    case (1)
+       go to 300
+    case (2)
+       go to 530
+    case (3)
+       go to 540
+    end select
 
     ! -----------------------------------------------------------------------
     !  Block F.
@@ -571,7 +591,20 @@ contains
 300 continue
     vstate % INIT = 1
     vstate % KUTH = 0
-    GO TO (310, 400, 330, 340, 350), ITASK
+
+    select case (ITASK)
+    case (1)
+       go to 310
+    case (2)
+       go to 400
+    case (3)
+       go to 330
+    case (4)
+       go to 340
+    case (5)
+       go to 350
+    end select
+
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
 310 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
     CALL DVINDY (vstate, rwork, IFLAG)
