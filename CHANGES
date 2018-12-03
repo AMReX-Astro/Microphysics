@@ -1,4 +1,4 @@
-changes since the last release:
+# 18.12
 
  -- simplify conductivity interface to match the eos interface by
     moving the conductivity into the eos type
