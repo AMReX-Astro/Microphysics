@@ -66,9 +66,6 @@ ifdef CONDUCTIVITY
   endif
 endif
 
-MICROPHYS_CORE += $(CONDUCTIVITY_HOME)
-MICROPHYS_CORE += $(CONDUCTIVITY_PATH)
-
 #-----------------------------------------------------------------------------
 # network stuff -- specify your particlar network via NETWORK_DIR
 # this will increment MICROPHYS_CORE
