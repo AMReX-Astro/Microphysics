@@ -374,6 +374,7 @@ contains
        end if
 
        rwork % ewt(I) = ONE/rwork % ewt(I)
+       print *, '(I, EWT(I)) = ', I, rwork % ewt(I)       
     end do
     IF (H0 .NE. ZERO) GO TO 180
 

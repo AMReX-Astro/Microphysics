@@ -14,6 +14,7 @@ contains
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use rpar_indices, only: n_rpar_comps
+    use extern_probin_module, only: integrate_relative_species
 
     implicit none
 
@@ -22,8 +23,11 @@ contains
     !$gpu
 
     ! Ensure that mass fractions always stay positive.
-
-    y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
+    if (integrate_relative_species) then
+       y(1:nspec_evolve) = max(y(1:nspec_evolve), -1.d0)
+    else
+       y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
+    end if
 
   end subroutine clean_state
 
@@ -33,7 +37,8 @@ contains
     
     use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
-    use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
+    use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved, irp_y_init
+    use extern_probin_module, only: integrate_relative_species
 
     implicit none
 
@@ -41,7 +46,15 @@ contains
 
     real(rt) :: nspec_sum
 
+    integer :: i
+
     !$gpu
+
+    if (integrate_relative_species) then
+       do i = 1, nspec_evolve
+          y(i) = y(i) * rpar(irp_y_init - 1 + i) + rpar(irp_y_init - 1 + i)
+       end do
+    end if
 
     nspec_sum = &
          sum(y(1:nspec_evolve)) + &
@@ -50,6 +63,12 @@ contains
     y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
+
+    if (integrate_relative_species) then
+       do i = 1, nspec_evolve
+          y(i) = (y(i) - rpar(irp_y_init - 1 + i))/rpar(irp_y_init - 1 + i)
+       end do
+    end if
 
   end subroutine renormalize_species
 
@@ -119,6 +138,75 @@ contains
   end subroutine update_thermodynamics
 
 
+  subroutine initialize_relative_species(eos_state, rpar)
+
+    use extern_probin_module, only: relatively_small_x
+    use eos_type_module, only: eos_t
+    use network, only: nspec_evolve
+    use rpar_indices, only: n_rpar_comps, irp_y_init
+
+    implicit none
+
+    type (eos_t), intent(inout) :: eos_state
+    real(rt), intent(inout) :: rpar(n_rpar_comps)    
+    
+    integer :: i
+
+    !$gpu
+
+    print *, 'in initialize_relative_species...'
+    print *, 'got eos_state % xn = ', eos_state % xn
+    print *, 'using relatively_small_x = ', relatively_small_x
+    
+    ! Use initial mass fractions no lower than relatively_small_x
+    eos_state % xn(i) = max(eos_state % xn(i), relatively_small_x)
+
+    ! Save the evolved species mass fractions for integrating relative X
+    do i = 1, nspec_evolve
+       rpar(irp_y_init - 1 + i) = eos_state % xn(i)
+    end do
+
+    print *, 'set y init to = ', rpar(irp_y_init:irp_y_init + nspec_evolve - 1)
+
+  end subroutine initialize_relative_species
+
+
+  subroutine store_initial_state(dvode_state)
+
+    ! Save the initial integration vector
+    !
+    ! If we're integrating relative mass fractions
+    ! then initialize_relative_species should have set
+    ! the absolute initial mass fractions already and
+    ! in this routine we save only the initial enuc and temp.
+
+    use extern_probin_module, only: integrate_relative_species
+    use network, only: nspec_evolve
+    use rpar_indices, only: n_rpar_comps, irp_y_init
+    use burn_type_module, only: net_ienuc, net_itemp
+    use cuvode_types_module, only: dvode_t
+
+    implicit none
+
+    type (dvode_t), intent(inout) :: dvode_state
+    
+    integer :: i
+
+    !$gpu
+
+    if (.not. integrate_relative_species) then
+       do i = 1, nspec_evolve
+          dvode_state % rpar(irp_y_init - 1 + i) = dvode_state % y(i)
+       end do
+    end if
+
+    dvode_state % rpar(irp_y_init - 1 + net_ienuc) = dvode_state % y(net_ienuc)
+    dvode_state % rpar(irp_y_init - 1 + net_itemp) = dvode_state % y(net_itemp)
+
+    ! print out the initial integration vector for debugging
+    print *, 'integration vector at t=0: ', dvode_state % y
+  end subroutine store_initial_state
+
 
   ! Given an rpar array and the integration state, set up an EOS state.
   ! We could fill the energy component by storing the initial energy in
@@ -131,10 +219,11 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale
+    use extern_probin_module, only: integrate_relative_species
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved, irp_y_init
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -143,12 +232,21 @@ contains
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(neqs)
 
+    integer :: i
+
     !$gpu
 
     state % rho     = rpar(irp_dens) * dens_scale
     state % T       = y(net_itemp) * temp_scale
 
-    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    if (integrate_relative_species) then
+       do i = 1, nspec_evolve
+          state % xn(i) = y(i) * rpar(irp_y_init - 1 + i) + rpar(irp_y_init - 1 + i)
+       end do
+    else
+       state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    end if
+
     state % xn(nspec_evolve+1:nspec) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
@@ -170,10 +268,11 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
+    use extern_probin_module, only: integrate_relative_species
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved, irp_y_init
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -182,12 +281,23 @@ contains
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(neqs)
 
+    integer :: i
+
     !$gpu
 
     rpar(irp_dens) = state % rho * inv_dens_scale
     y(net_itemp) = state % T * inv_temp_scale
 
-    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    if (integrate_relative_species) then
+       do i = 1, nspec_evolve
+          print *, 'i = ', i
+          y(i) = (state % xn(i) - rpar(irp_y_init - 1 + i))/rpar(irp_y_init - 1 + i)
+          print *, 'xn(i) = ', state % xn(i)
+          print *, 'y init (i) = ', rpar(irp_y_init - 1 + i)
+       end do
+    else
+       y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    end if
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
          state % xn(nspec_evolve+1:nspec)
 
@@ -209,12 +319,13 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
+    use extern_probin_module, only: integrate_relative_species
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps, n_not_evolved, irp_y_init
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -224,12 +335,21 @@ contains
     real(rt)    :: y(neqs)
     real(rt), optional :: ydot(neqs), jac(neqs, neqs)
 
+    integer :: i
+
     !$gpu
 
     rpar(irp_dens) = state % rho * inv_dens_scale
     y(net_itemp) = state % T * inv_temp_scale
 
-    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    if (integrate_relative_species) then
+       do i = 1, nspec_evolve
+          y(i) = (state % xn(i) - rpar(irp_y_init - 1 + i))/rpar(irp_y_init - 1 + i)
+       end do
+    else       
+       y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    end if
+
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
     y(net_ienuc)                             = state % e * inv_ener_scale
@@ -249,12 +369,27 @@ contains
 
     if (present(ydot)) then
        ydot = state % ydot
+       
+       if (integrate_relative_species) then
+          do i = 1, nspec_evolve
+             ydot(i) = ydot(i)/rpar(irp_y_init - 1 + i)
+          end do
+       end if
+       
        ydot(net_itemp) = ydot(net_itemp) * inv_temp_scale
        ydot(net_ienuc) = ydot(net_ienuc) * inv_ener_scale
     endif
 
     if (present(jac)) then
        jac = state % jac
+
+       if (integrate_relative_species) then
+          do i = 1, nspec_evolve
+             jac(i,:) = jac(i,:) / rpar(irp_y_init - 1 + i)
+             jac(:,i) = jac(:,i) * rpar(irp_y_init - 1 + i)
+          end do
+       end if
+
        jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
        jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
        jac(:,net_itemp) = jac(:,net_itemp) * temp_scale
@@ -277,12 +412,13 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
+    use extern_probin_module, only: integrate_relative_species
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps, n_not_evolved, irp_y_init
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -299,7 +435,14 @@ contains
     state % T        = y(net_itemp) * temp_scale
     state % e        = y(net_ienuc) * ener_scale
 
-    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    if (integrate_relative_species) then
+       do n = 1, nspec_evolve
+          state % xn(n) = y(n) * rpar(irp_y_init - 1 + n) + rpar(irp_y_init - 1 + n)
+       end do
+    else
+       state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    end if
+
     state % xn(nspec_evolve+1:nspec) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 

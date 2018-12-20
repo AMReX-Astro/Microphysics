@@ -1,2 +1,9 @@
 # Whether to use Jacobian caching in VODE90
 use_jacobian_caching    logical   .true.
+
+# Whether to integrate the relative change in mass
+# fractions instead of the mass fractions themselves
+integrate_relative_species    logical   .false.
+
+# Small X for integrating relative mass fractions
+relatively_small_x    real   1.d-30

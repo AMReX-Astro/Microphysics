@@ -34,7 +34,7 @@ contains
          atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
-         call_eos_in_rhs, dt_crit
+         call_eos_in_rhs, dt_crit, integrate_relative_species
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
@@ -75,6 +75,8 @@ contains
     real(rt) :: ener_offset
     real(rt) :: edot, t_enuc, t_sound, limit_factor
 
+    integer :: i
+
     !$gpu
 
     if (jacobian == 1) then ! Analytical
@@ -90,21 +92,6 @@ contains
     if (.not. use_jacobian_caching) then
        MF_JAC = -MF_JAC
     endif
-
-    ! Set the tolerances.  We will be more relaxed on the temperature
-    ! since it is only used in evaluating the rates.
-    !
-    ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of
-    ! steps allowed.
-
-    dvode_state % atol(1:nspec_evolve) = atol_spec ! mass fractions
-    dvode_state % atol(net_itemp)      = atol_temp ! temperature
-    dvode_state % atol(net_ienuc)      = atol_enuc ! energy generated
-
-    dvode_state % rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    dvode_state % rtol(net_itemp)      = rtol_temp ! temperature
-    dvode_state % rtol(net_ienuc)      = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -144,13 +131,56 @@ contains
 
     call eos(eos_input_rt, eos_state_in)
 
+    if (integrate_relative_species) then
+       ! For integrating relative species we need to make sure
+       ! the species are no lower than a floor and that we store
+       ! their initial values.
+       call initialize_relative_species(eos_state_in, dvode_state % rpar)
+    end if
+
     ! Convert the EOS state data into the form VODE expects.
 
     call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
 
+    ! Set energy offset
+    
     ener_offset = eos_state_in % e * inv_ener_scale
 
     dvode_state % y(net_ienuc) = ener_offset
+
+    ! Save the full initial state ...
+    ! If we're integrating relative mass fractions then
+    ! the absolute initial mass fractions stored in
+    ! initialize_relative_species are untouched.
+    call store_initial_state(dvode_state)
+
+    ! Set the tolerances.  We will be more relaxed on the temperature
+    ! since it is only used in evaluating the rates.
+    !
+    ! **NOTE** if you reduce these tolerances, you probably will need
+    ! to (a) decrease dT_crit, (b) increase the maximum number of
+    ! steps allowed.
+
+    if (integrate_relative_species) then
+       ! for relative mass fractions we swap the role of rtol and atol
+       do i = 1, nspec_evolve
+          dvode_state % atol(i) = rtol_spec
+          dvode_state % rtol(i) = rtol_spec
+       end do
+    else
+       dvode_state % atol(1:nspec_evolve) = atol_spec ! mass fractions
+       dvode_state % rtol(1:nspec_evolve) = rtol_spec ! mass fractions
+    end if
+
+    dvode_state % atol(net_itemp)      = atol_temp ! temperature
+    dvode_state % rtol(net_itemp)      = rtol_temp ! temperature
+
+    dvode_state % atol(net_ienuc)      = atol_enuc ! energy generated
+    dvode_state % rtol(net_ienuc)      = rtol_enuc ! energy generated
+
+    ! print out what tolerances we're using for debugging
+    print *, 'atol = ', dvode_state % atol
+    print *, 'rtol = ', dvode_state % rtol
 
     ! Pass through whether we are doing self-heating.
 
@@ -196,10 +226,6 @@ contains
                                        (eos_state_temp % T - eos_state_in % T)
 
     endif
-
-    ! Save the initial state.
-
-    dvode_state % rpar(irp_y_init:irp_y_init + neqs - 1) = dvode_state % y
 
     ! Call the integration routine.
     call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)

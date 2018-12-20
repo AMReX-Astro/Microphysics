@@ -32,5 +32,5 @@ contains
     inv_temp_scale = ONE / temp_scale
 
   end subroutine integrator_scaling_init
-  
+
 end module integrator_scaling_module
