@@ -1,0 +1,22 @@
+&extern
+
+  dens_min   = 1.d5
+  dens_max   = 5.d8
+  temp_min   = 5.d7
+  temp_max   = 5.d8
+
+  tmax = 1.d-6
+
+  xin_file   = "xin.aprox19"
+
+  jacobian = 2 
+  centered_diff_jac = T
+
+  rtol_spec = 1.d-8
+  atol_spec = 1.d-8
+
+  call_eos_in_rhs = T
+
+  burning_mode = 0
+
+/

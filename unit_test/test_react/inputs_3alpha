@@ -1,0 +1,6 @@
+n_cell = 16
+
+prefix = react_3alpha_
+
+amr.probin_file = probin.3alpha
+

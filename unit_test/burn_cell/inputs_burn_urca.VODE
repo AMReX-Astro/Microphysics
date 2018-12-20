@@ -1,0 +1,44 @@
+&PROBIN
+
+  run_prefix = "react_urca_"
+  
+  small_temp = 1d5
+  small_dens = 1d5
+  
+  burner_verbose = .false.
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 1
+
+  renormalize_abundances = .false.
+
+  rtol_spec = 1.0d-9
+  rtol_enuc = 1.0d-6
+  rtol_temp = 1.0d-6
+  atol_spec = 1.0d-9
+  atol_enuc = 1.0d-6
+  atol_temp = 1.0d-6
+
+/
+
+&cellparams
+
+  tmax     = 1.0d3
+  numsteps = 1000
+
+  density       = 955712691.21861243d0
+  temperature   = 122798346.24393000d0
+
+  massfractions(1)  = 3.5722365085825222d-014
+  massfractions(2)  = 2.1988227185174332d-010
+  massfractions(3)  = 1.0531494155135671d-009
+  massfractions(4)  = 0.47562141093298260d0
+  massfractions(5)  = 0.52410539079418605d0
+  massfractions(6)  = 5.8934309951075363d-009
+  massfractions(7)  = 8.8547424832141814d-005
+  massfractions(8)  = 1.8464368089288433d-004
+  massfractions(9)  = 6.0806051043233638d-013
+
+/

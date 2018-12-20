@@ -1,0 +1,7 @@
+n_cell = 16
+
+tmax = 1.e-6
+
+prefix = react_sn160_
+
+amr.probin_file = probin.sn160

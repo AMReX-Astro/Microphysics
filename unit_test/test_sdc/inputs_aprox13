@@ -1,0 +1,7 @@
+n_cell = 16
+
+prefix = react_aprox13_sdc_
+
+amr.probin_file = probin.aprox13
+
+

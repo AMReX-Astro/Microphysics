@@ -1,0 +1,6 @@
+n_cell = 16
+
+prefix = react_aprox19_
+
+amr.probin_file = probin.aprox19
+

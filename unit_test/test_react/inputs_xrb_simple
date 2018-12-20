@@ -1,0 +1,6 @@
+n_cell = 16
+
+prefix = react_xrb_simple_
+
+amr.probin_file = probin.xrb_simple
+

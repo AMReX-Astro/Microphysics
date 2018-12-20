@@ -1,0 +1,23 @@
+The following networks are actively maintained and should work
+in CASTRO:
+
+- general_null
+- iso7
+- aprox13
+- aprox19
+- aprox21
+- powerlaw
+- ignition_simple
+- ignition_chamulak
+- rprox
+- triple_alpha_plus_cago
+- xrb_simple
+
+Other networks should be considered experimental and/or
+have not yet had their interfaces updated from
+earlier versions of the code; they likely do not work.
+
+Note that at present MAESTRO is incompatible with all
+networks here but we are planning to rectify that in
+a future release. A work-in-progress version of the
+interfaces exists in the microphysics branch of that code.

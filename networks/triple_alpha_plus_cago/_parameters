@@ -1,0 +1,18 @@
+# override the default burning mode with a higher priority
+burning_mode             integer   1       100
+
+# override the default tolerances for backwards compatibility
+atol_spec                real      1.0e-12 100
+rtol_spec                real      1.0e-12 100
+
+atol_temp                real      1.0e-8  100
+rtol_temp                real      1.0e-6  100
+
+atol_enuc                real      1.0e-8  100
+rtol_enuc                real      1.0e-6  100
+
+# override so that the default is an analytical Jacobian
+jacobian                 integer   1       100
+
+# we typically run this network for constant-pressure burns
+do_constant_volume_burn  logical   .false. 100

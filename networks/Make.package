@@ -1,0 +1,89 @@
+MICROPHYSICS_UTIL_PATH := $(MICROPHYSICS_HOME)/util
+
+INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)
+VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
+
+include $(MICROPHYSICS_UTIL_PATH)/Make.package
+
+ifeq ($(USE_REACT), TRUE)
+
+ifneq ($(INTEGRATOR_DIR), VODE90)
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/LINPACK
+  VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/LINPACK
+
+  include $(MICROPHYSICS_UTIL_PATH)/LINPACK/Make.package
+endif
+
+ifneq ($(USE_SYSTEM_BLAS), TRUE)
+  ifneq ($(INTEGRATOR_DIR), VODE90)
+    INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
+    VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
+
+    include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
+  endif
+endif
+
+ifeq ($(INTEGRATOR_DIR), VODE90)
+  CUVODE_PATH := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE
+  INCLUDE_LOCATIONS += $(CUVODE_PATH)/linear_algebra_modules
+  VPATH_LOCATIONS   += $(CUVODE_PATH)/linear_algebra_modules
+
+  include $(CUVODE_PATH)/linear_algebra_modules/Make.package
+endif
+
+VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
+f90EXE_sources += rate_type.f90
+
+endif
+
+ifeq ($(USE_REACT), TRUE)
+
+  # we need the actual integrator in the VPATH before the
+  # integration/ dir to get overrides correct
+  include $(MICROPHYSICS_HOME)/integration/Make.package
+
+  INTEGRATION_PATH := $(MICROPHYSICS_HOME)/integration
+
+  INCLUDE_LOCATIONS += $(INTEGRATION_PATH)
+  VPATH_LOCATIONS   += $(INTEGRATION_PATH)
+  EXTERN_CORE       += $(INTEGRATION_PATH)
+
+endif
+
+ifeq ($(USE_RATES), TRUE)
+
+  RATE_PATH := $(MICROPHYSICS_HOME)/rates
+
+  INCLUDE_LOCATIONS += $(RATE_PATH)
+  VPATH_LOCATIONS   += $(RATE_PATH)
+  EXTERN_CORE       += $(RATE_PATH)
+
+  include $(RATE_PATH)/Make.package
+
+endif
+
+ifeq ($(USE_SCREENING), TRUE)
+
+  SCREEN_PATH := $(MICROPHYSICS_HOME)/screening
+
+  INCLUDE_LOCATIONS += $(SCREEN_PATH)
+  VPATH_LOCATIONS   += $(SCREEN_PATH)
+  EXTERN_CORE       += $(SCREEN_PATH)
+
+  include $(SCREEN_PATH)/Make.package
+
+endif
+
+ifeq ($(USE_NEUTRINOS), TRUE)
+
+  NEUTRINO_PATH := $(MICROPHYSICS_HOME)/neutrinos
+
+  INCLUDE_LOCATIONS += $(NEUTRINO_PATH)
+  VPATH_LOCATIONS   += $(NEUTRINO_PATH)
+  EXTERN_CORE       += $(NEUTRINO_PATH)
+
+  include $(NEUTRINO_PATH)/Make.package
+
+endif
+

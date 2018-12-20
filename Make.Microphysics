@@ -1,0 +1,330 @@
+AMREX_HOME ?= /path/to/amrex
+MICROPHYSICS_HOME ?= /path/to/Castro
+CVODE_HOME ?= /path/to/CVODE
+
+# default is not to compile with CUDA
+USE_CUDA ?= FALSE
+
+# default is not to compile in the conductivity
+USE_CONDUCTIVITY ?= FALSE
+
+# system blas
+BLAS_LIBRARY ?= -lopenblas
+
+TOP := $(MICROPHYSICS_HOME)
+
+# default microphysics locations
+EOS_HOME ?= $(TOP)/EOS
+NETWORK_HOME ?= $(TOP)/networks
+CONDUCTIVITY_HOME ?= $(TOP)/conductivity
+
+EBASE ?= main
+
+# EXTERN_CORE is simply a list of the directories we use in EOS,
+# Networks and Util this list will be searched for runtime parameters
+EXTERN_CORE ?=
+
+
+ifeq ($(USE_SYSTEM_BLAS), TRUE)
+  LIBRARIES += $(BLAS_LIBRARY)
+endif
+
+MANAGED_PROBIN_FLAG :=
+ifdef USE_CUDA
+  ifeq ($(USE_CUDA),TRUE)
+    MANAGED_PROBIN_FLAG := --managed
+    USE_GPU_PRAGMA = TRUE
+  endif
+endif
+
+include $(AMREX_HOME)/Tools/GNUMake/Make.defs
+
+all: build_status $(executable) starkiller_library
+	@echo SUCCESS
+
+build_status:
+	$(AMREX_HOME)/Tools/C_scripts/describe_sources.py \
+          --git_names "Castro AMReX Microphysics" \
+          --git_dirs "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+
+starkiller_library: $(executable)
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+	@echo Wrapping sources with f90wrap ...
+	sh dowrap.sh
+	@echo Linking objects with f2py ...
+	sh dof2py.sh
+endif
+
+# Use a coarse grained OMP approach
+DEFINES += -DCRSEGRNDOMP
+
+
+# OpenACC support
+ifeq ($(USE_ACC), TRUE)
+  DEFINES += -DACC
+endif
+
+ifeq ($(USE_EXTRA_THERMO), TRUE)
+  DEFINES += -DEXTRA_THERMO
+endif
+
+ifeq ($(USE_SDC), TRUE)
+  DEFINES += -DSDC
+endif
+
+ifeq ($(USE_REACT), TRUE)
+  DEFINES += -DREACTIONS
+endif
+
+ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
+  DEFINES += -DREACT_SPARSE_JACOBIAN
+
+  # The following is sometimes useful to turn on for debugging sparse J indices
+  # (if a get/set/scale is called with (row, col) not in the sparse J, stop)
+  # Otherwise, set/scale do nothing, and get returns 0.
+  ifeq ($(USE_SPARSE_STOP_ON_OOB), TRUE)
+    DEFINES += -DSPARSE_STOP_ON_OOB
+  endif
+endif
+
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+  DEFINES += -DCOMPILE_WITH_F2PY
+endif
+
+#------------------------------------------------------------------------------
+# CVODE directories
+#------------------------------------------------------------------------------
+ifeq ($(INTEGRATOR_DIR), CVODE)
+
+  INCLUDE_LOCATIONS += $(CVODE_HOME)/include
+
+  LIBRARY_LOCATIONS += $(CVODE_HOME)/lib
+  LIBRARIES += -lsundials_cvode -lsundials_sunlinsolband -lsundials_sunlinsolspbcgs -lsundials_sunlinsolsptfqmr -lsundials_sunmatrixsparse -lsundials_nveccuda -lsundials_sunlinsoldense -lsundials_sunlinsolspfgmr -lsundials_sunmatrixband -lsundials_sunnonlinsolfixedpoint -lsundials_nvecserial -lsundials_sunlinsolpcg -lsundials_sunlinsolspgmr -lsundials_sunmatrixdense -lsundials_sunnonlinsolnewton
+
+  ifeq ($(USE_CUDA_CVODE), TRUE)
+    DEFINES += -DCUDA_CVODE
+
+    LIBRARIES += -rpath=$(CVODE_HOME)/lib
+  endif
+
+  ifeq ($(USE_CVODE_CUSOLVER), TRUE)
+    DEFINES += -DCVODE_CUSOLVER
+
+    LIBRARIES += -lsundials_cusolver_sparse -lcusolver -lcusparse -lcublas
+    LIBRARIES += -rpath=$(COMPILE_CUDA_PATH)/lib64
+  endif
+
+endif
+
+#------------------------------------------------------------------------------
+# Microphysics directories
+#------------------------------------------------------------------------------
+
+Bdirs := unit_test interfaces
+
+Bpack += $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
+Blocs += $(foreach dir, $(Bdirs), $(TOP)/$(dir))
+
+
+#------------------------------------------------------------------------------
+# AMReX
+#------------------------------------------------------------------------------
+
+# core AMReX directories -- note the Make.package for these adds these
+# directories into VPATH_LOCATIONS and INCLUDE_LOCATIONS for us, so we
+# don't need to do it here
+
+ifeq ($(USE_AMR_CORE), TRUE)
+  Pdirs	:= Base AmrCore Amr Boundary
+else
+  Pdirs := Base
+endif
+
+Bpack	+= $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
+
+
+#------------------------------------------------------------------------------
+# microphysics 
+#------------------------------------------------------------------------------
+
+EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
+NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
+
+
+# Problems can specify the input file for general_null by setting
+# GENERAL_NET_INPUTS directly (full path) or just specifying the name
+# of the inputs file as NETWORK_INPUTS and let us sort it out
+ifndef GENERAL_NET_INPUTS
+   ifneq "$(wildcard $(NETWORK_INPUTS))" ""
+      GENERAL_NET_INPUTS := $(NETWORK_INPUTS)
+   else
+      GENERAL_NET_INPUTS := $(MICROPHYSICS_HOME)/networks/general_null/$(NETWORK_INPUTS)
+   endif
+endif
+
+# URCA network has tables
+ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
+  all: urcatables
+endif
+
+urcatables:
+	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
+	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
+
+# Pynucastro networks read rate data from an external file
+ifeq ($(USE_READ_RATE_DATA), TRUE)
+  all: pynucastrorates
+endif
+
+# do not check to see if the file already exists, just force-link it in
+# because different Reaclib networks will have different versions of the file
+pynucastrorates:
+	echo ${bold}Linking reaclib_rate_metadata.dat${normal}; ln -sf $(NETWORK_PATH)/reaclib_rate_metadata.dat .
+
+EXTERN_CORE += $(EOS_HOME)
+EXTERN_CORE += $(EOS_PATH)
+
+# the helmholtz EOS has an include file -- also add a target to link
+# the table into the problem directory.
+ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
+   all: table
+endif
+
+table:
+	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
+
+ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
+   DEFINES += -DEOS_GAMMA_LAW_GENERAL
+endif
+
+# include the conductivity
+ifdef USE_CONDUCTIVITY
+  ifeq ($(USE_CONDUCTIVITY),TRUE)
+    DEFINES += -DCONDUCTIVITY
+    EXTERN_CORE += $(CONDUCTIVITY_HOME)
+    EXTERN_CORE += $(CONDUCTIVITY_PATH)
+  endif
+endif
+
+# include the network
+EXTERN_CORE += $(NETWORK_HOME)
+EXTERN_CORE += $(NETWORK_PATH)
+
+# Note that this should be located after the include of the EOS and
+# Network includes since it has actions that depend on variables set
+# there.
+
+EXTERN_CORE += $(MICROPHYSICS_HOME)/EOS
+EXTERN_CORE += $(MICROPHYSICS_HOME)/networks
+
+Bpack += $(foreach dir, $(EXTERN_CORE), $(dir)/Make.package)
+Blocs += $(foreach dir, $(EXTERN_CORE), $(dir))
+
+
+
+#------------------------------------------------------------------------------
+# include all of the necessary directories
+#------------------------------------------------------------------------------
+
+include $(Bpack)
+
+# this is a safety from the mega-fortran attempts
+f90EXE_sources += $(ca_f90EXE_sources)
+F90EXE_sources += $(ca_F90EXE_sources)
+
+INCLUDE_LOCATIONS += $(Blocs)
+VPATH_LOCATIONS   += $(Blocs)
+
+
+#------------------------------------------------------------------------------
+# runtime parameters
+#------------------------------------------------------------------------------
+
+# runtime parameter support for extern/ routines
+F90EXE_sources += extern.F90
+
+EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/extern_probin.template
+
+# these are for finding runtime parameters
+EXTERN_SEARCH += $(EXTERN_CORE) $(MICROPHYSICS_HOME)/unit_test
+ifdef MICROPHYSICS_HOME
+   EXTERN_SEARCH += $(MICROPHYSICS_HOME)/networks/
+endif
+
+EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
+
+extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
+           -t $(EXTERN_TEMPLATE) -o extern.F90 -n extern \
+           --pa "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
+
+#------------------------------------------------------------------------------
+# build info
+#------------------------------------------------------------------------------
+
+# job_info support
+CEXE_headers += $(AMREX_HOME)/Tools/C_scripts/AMReX_buildInfo.H
+INCLUDE_LOCATIONS +=  $(AMREX_HOME)/Tools/C_scripts
+
+
+MNAMES := EOS=$(EOS_PATH) NETWORK=$(NETWORK_PATH) INTEGRATOR=$(INTEGRATOR_DIR)
+
+# we make AMReX_buildInfo.cpp as we make the .o file, so we can delete
+# it immediately.  this way if the build is interrupted, we are
+# guaranteed to remake it
+
+objForExecs += $(objEXETempDir)/AMReX_buildInfo.o
+
+.FORCE:
+.PHONE: .FORCE
+
+# set BUILD_GIT_NAME and BUILD_GIT_DIR if you are building in a
+# git-controlled dir not under Castro/
+EXTRA_BUILD_INFO :=
+ifdef BUILD_GIT_NAME
+   EXTRA_BUILD_INFO := --build_git_name "$(BUILD_GIT_NAME)" \
+                       --build_git_dir "$(BUILD_GIT_DIR)"
+endif
+
+$(objEXETempDir)/AMReX_buildInfo.o: .FORCE
+	$(AMREX_HOME)/Tools/C_scripts/makebuildinfo_C.py \
+          --amrex_home "$(AMREX_HOME)" \
+          --COMP "$(COMP)" --COMP_VERSION "$(COMP_VERSION)" \
+          --CXX_comp_name "$(CXX)" --CXX_flags "$(CXXFLAGS) $(CPPFLAGS) $(includes)" \
+          --F_comp_name "$(F90)" --F_flags "$(F90FLAGS)" \
+          --link_flags "$(LDFLAGS)" --libraries "$(libraries)" \
+          --MODULES "$(MNAMES)" $(EXTRA_BUILD_INFO) \
+          --GIT "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+	$(SILENT) $(CCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(CXXEXEFLAGS) AMReX_buildInfo.cpp -o $(objEXETempDir)/AMReX_buildInfo.o
+	$(SILENT) $(RM) AMReX_buildInfo.cpp
+
+
+#------------------------------------------------------------------------------
+# finish up
+#------------------------------------------------------------------------------
+
+include $(AMREX_HOME)/Tools/GNUMake/Make.rules
+
+clean::
+	$(SILENT) $(RM) extern.F90
+
+# Older versions of CASTRO generated a "network.f90" file when using
+# the general_null network, which conflicts with our generalized
+# network.f90 file.  So we should delete the local copy if we are
+# trying to rebuild from an old directory.
+# The same is true for "extern.f90".
+
+clean::
+	$(RM) network.f90
+	$(RM) extern.f90
+	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+
+
+# for debugging.  To see the value of a Makefile variable,
+# e.g. Fmlocs, simply do "make print-Fmlocs".  This will print out the
+# value.
+
+print-%::
+	@echo "$* is $($*)"
+	@$(RM) AMReX_buildInfo.cpp

@@ -1,0 +1,1024 @@
+test 01: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 02: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 03: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 04: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 05: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 06: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 07: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 08: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 09: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 10: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 11: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 12: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 13: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 14: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 15: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 16: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 17: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 18: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 19: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          238
+   max:          915
+
+test 20: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          250
+   max:         1424
+
+test 21: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 22: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 23: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          217
+   max:         4070
+
+test 24: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          243
+   max:         3802
+
+test 25: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 26: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 27: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          183
+   max:          794
+
+test 28: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          193
+   max:         1036
+
+test 29: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 30: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 31: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          215
+   max:         3223
+
+test 32: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = T
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          242
+   max:         3645
+
+test 33: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 34: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 35: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 36: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 37: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 38: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 39: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 40: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 41: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 42: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 43: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 44: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 45: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 46: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 47: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 48: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 1
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 49: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 50: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 51: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          316
+   max:         1228
+
+test 52: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          332
+   max:         1734
+
+test 53: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 54: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 55: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          217
+   max:         3424
+
+test 56: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-12
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          246
+   max:         3720
+
+test 57: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 58: failed
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 59: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          206
+   max:          894
+
+test 60: successful
+  atol_spec = 1e-12
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           20
+   avg:          217
+   max:         1189
+
+test 61: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 62: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = T
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+
+test 63: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          220
+   max:         3096
+
+test 64: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 2000000.0
+  dens_min = 100000.0
+  integrate_molar_fraction = F
+  jacobian = 2
+  renormalize_abundances = F
+  rtol_spec = 1e-08
+  temp_max = 1000000000.0
+  temp_min = 100000000.0
+  tmax = 1e-06
+
+ RHS stats:
+   min:           18
+   avg:          247
+   max:         3794
+

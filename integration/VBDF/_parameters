@@ -1,0 +1,13 @@
+# minimum allowable timestep
+dt_min            real           1.d-24
+
+# number of times we can use the Jacobian before rebuilding
+jac_age           integer        50
+
+# number of times we use the same Newton iteration matrix before
+# rebuilding
+p_age             integer        20
+
+# reuse the Jacobian?
+reuse_jac         logical        .false.
+

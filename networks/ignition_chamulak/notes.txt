@@ -1,0 +1,64 @@
+Implementation of the C12 + C12 rate modifications to account for
+electron captures and a larger network from Chamulak et al. 2008.
+
+Basic idea:
+
+ -- define an ash state that consists of C13, O16, Ne20, and Na23.
+
+    From David Chamulak:
+
+      "If I create equal abundances of C13, O16, Ne20, and Na23 the
+       mass fractions would be 13/72, 16/72, 20/72 and 23/72
+       respectively. This results in the Abar, Zbar of the ash to be
+       18.000 and 8.750. One can do better by taking into account the
+       C12+C12 branching ratio which favors making Ne20. If you take
+       the 0.6/0.4 branching ratio into account the mass fractions of
+       C13, O16, Ne20 and Na23 are 0.14444, 0.26667, 0.33333,
+       0.25556. This results in a Abar,Zbar of 18.000 and 8.800. If
+       you use that Abar,Zbar for the ash you should have a good
+       approximation as long as the temperature is below 8e8 K. If you
+       look at Figure 4 in our paper you will see above 8.5e8 K Ye is
+       not changing along with Y12 any more this is predominately due
+       to captures on the ash becoming significant."
+
+    By branching we note:
+
+                      C12 + C12
+
+                       /     \
+                      /       \
+                    60%       40%
+                    /           \
+                   /             \
+             Ne20 + alpha    Na23 + p
+             ----     \      ----    \
+                     + C12           + C12
+                         \              \
+                        O16            C13
+                        ---            ---
+
+     this means that 60% of the time, we will create Ne20 + O16 and
+     40% of the time we will create Na23 + C13.  
+
+     So the number of nuclei made from consuming 6 C12 is
+     ~ 1.2 Ne20, 1.2 O16, 0.8 Na23, 0.8 C13.
+
+     
+     Doing this, the ash has an A = 18 and a Z = 8.8
+
+     We also note that since we are operating in a high temperature
+     regime, that electron captures onto Na23 (to make Ne23) have
+     frozen out (see Chamulak et al.)
+
+  -- modify the rate equation.
+
+     Instead of 2 C12 destroyed per reaction, use 2.93 -- this captures
+     the effect of a larger network.
+
+  -- modify the energy release.
+
+     Chamulak et al. provide the energy per reaction (and thus, energy
+     release per C12 consumed), as a function of density.
+
+
+     

@@ -1,0 +1,2 @@
+F90EXE_sources += stellar_conductivity.F90
+

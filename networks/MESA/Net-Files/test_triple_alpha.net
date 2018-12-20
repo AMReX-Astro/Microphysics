@@ -1,0 +1,6 @@
+# Test file to see if the network.f90 file is generated properly
+
+# name	short-name	aion	zion
+ helium-4       He4      4.0    2.0
+ carbon-12	C12	12.0	6.0
+ iron-56        Fe56    56.0    26.0

@@ -1,0 +1,5 @@
+F90EXE_sources += eos_type.F90
+F90EXE_sources += burn_type.F90
+ifeq ($(USE_SDC), TRUE)
+  F90EXE_sources += sdc_type.F90
+endif

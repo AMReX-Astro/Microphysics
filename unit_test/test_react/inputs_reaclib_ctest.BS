@@ -1,0 +1,6 @@
+n_cell = 16
+
+prefix = react_reaclib_ctest_
+
+amr.probin_file = probin.reaclib_ctest.BS
+

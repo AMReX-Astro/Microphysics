@@ -1,0 +1,9 @@
+#  more extensive list of isotopes to test compilation
+#
+# name     shortname    aion   zion
+ helium-4      He4    4.0     2
+ carbon-12     C12    12.0    6
+ oxygen-16     O16    16.0    8
+ neon-20       Ne20   20.0    10
+ magnesium-24  Mg24   24.0    12
+ silicon-28    Si28   28.0    14

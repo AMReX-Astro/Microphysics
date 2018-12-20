@@ -1,0 +1,12 @@
+-- in VODE, we don't initialize the internal energy to the zone
+   energy, but instead set it to 0.0
+
+-- VODE has a minimum timestep of 0.0
+
+-- VODE does a modified-Newton (chord) iteration for the solve does
+   -- VBDF do that?
+
+-- is the convergence check the same in VODE and VBDF?
+
+-- VBDF does caching of the Jacobian
+

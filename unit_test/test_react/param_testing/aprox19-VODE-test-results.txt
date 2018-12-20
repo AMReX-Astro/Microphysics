@@ -1,0 +1,448 @@
+test 01: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:            6
+   avg:           86
+   max:         4620
+
+test 02: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:           27
+   avg:          144
+   max:        10626
+
+test 03: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 04: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 05: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 06: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 07: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 08: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 09: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:            6
+   avg:           83
+   max:         4603
+
+test 10: successful
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:           27
+   avg:          133
+   max:         8340
+
+test 11: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 12: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 13: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 14: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 15: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 16: failed
+  atol_spec = 1e-08
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 17: successful
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:            6
+   avg:           72
+   max:         2508
+
+test 18: successful
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:           27
+   avg:          126
+   max:         6365
+
+test 19: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 20: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 21: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 22: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 23: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 24: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-08
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 25: successful
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:            6
+   avg:           72
+   max:         4332
+
+test 26: successful
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+ RHS stats:
+   min:           27
+   avg:          126
+   max:         7413
+
+test 27: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 28: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = T
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 29: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 30: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-09
+
+
+test 31: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 1
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+
+test 32: failed
+  atol_spec = 1e-06
+  call_eos_in_rhs = F
+  centered_diff_jac = T
+  dens_max = 500000000.0
+  dens_min = 100000.0
+  jacobian = 2
+  rtol_spec = 1e-06
+  temp_max = 500000000.0
+  temp_min = 50000000.0
+  tmax = 1e-06
+
+

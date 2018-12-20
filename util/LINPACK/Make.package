@@ -1,0 +1,5 @@
+fEXE_sources += dgefa.f
+fEXE_sources += dgesl.f
+fEXE_sources += dgbsl.f
+fEXE_sources += dgbfa.f
+fEXE_sources += vddot.f

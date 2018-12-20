@@ -1,0 +1,77 @@
+
+INTEGRATOR_DIR ?= VODE
+
+# Arbitrarily number the integrators so we can preprocessor tests in the code.
+
+INTEGRATOR_NUM := -1
+
+ifeq ($(INTEGRATOR_DIR),VODE)
+  INTEGRATOR_NUM := 0
+else ifeq ($(INTEGRATOR_DIR),BS)
+  INTEGRATOR_NUM := 1
+else ifeq ($(INTEGRATOR_DIR),VBDF)
+  INTEGRATOR_NUM := 2
+else ifeq ($(INTEGRATOR_DIR),VODE90)
+  INTEGRATOR_NUM := 3
+endif
+
+DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
+
+# Include all integrators in the build.
+
+ifeq ($(INTEGRATOR_DIR),VODE)
+
+  # Include VODE and BS
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/VODE
+  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/VODE
+  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/VODE
+
+  include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
+  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
+  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
+
+  include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+else ifeq ($(INTEGRATOR_DIR),BS)
+
+  # Include BS and VODE
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/VODE
+  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/VODE
+  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/VODE
+
+  include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
+  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
+  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
+
+  include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+else
+
+  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+
+  include $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/Make.package
+
+endif
+
+
+
+ifeq ($(USE_SDC), TRUE)
+  F90EXE_sources += integrator_sdc.F90
+  f90EXE_sources += numerical_jacobian_sdc.f90
+else
+  F90EXE_sources += integrator.F90
+  F90EXE_sources += numerical_jacobian.F90
+endif
+F90EXE_sources += jacobian_sparsity.F90
+F90EXE_sources += integrator_scaling.F90
+f90EXE_sources += integration_data.f90
+F90EXE_sources += temperature_integration.F90
+F90EXE_sources += rpar.F90

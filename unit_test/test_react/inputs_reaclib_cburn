@@ -1,0 +1,5 @@
+n_cell = 16
+
+prefix = react_reaclib_cburn_
+
+amr.probin_file = probin.reaclib_cburn
