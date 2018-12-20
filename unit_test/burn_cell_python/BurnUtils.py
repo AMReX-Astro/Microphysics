@@ -18,8 +18,13 @@ class BurnerDriver(object):
         self.history = History()
         self.plotting = BurnPlotting()
 
-        self.burn_module = SKM.Actual_Burner_Module
-        self.burn_type_module = SKM.Burn_Type_Module
+        self.burn_module = SKM.Actual_Burner_Module()
+        self.burn_type_module = SKM.Burn_Type_Module()
+
+        self.eos_module = SKM.Eos_Module()
+        self.eos_type_module = SKM.Eos_Type_Module()
+
+        self.rhs_module = SKM.actual_rhs_module
 
         self.initial_burn_state = self.burn_type_module.burn_t()
         self.initial_burn_state.rho = 0.0
@@ -82,6 +87,22 @@ class BurnerDriver(object):
 
         self.plotting.plot_burn_history(self.history)
 
+    def eos(self, input, burn_state):
+        eos_state = self.eos_type_module.eos_t()
+        self.burn_type_module.burn_to_eos(burn_state, eos_state)
+        self.eos_module.eos(input, eos_state)
+        self.burn_type_module.eos_to_burn(eos_state, burn_state)
+
+    def rhs(self, burn_state):
+        # Call the EOS in (r,t) mode and then evaluate the rhs
+        self.eos(self.eos_type_module.eos_input_rt, burn_state)
+        self.rhs_module.actual_rhs(burn_state)
+
+    def jac(self, burn_state):
+        # Call the EOS in (r,t) mode and then evaluate the jacobian
+        self.eos(self.eos_type_module.eos_input_rt, burn_state)
+        self.rhs_module.actual_jac(burn_state)
+
     def save(self, file_name):
         self.history.save(self.species_names, self.initial_burn_state, file_name)
 
@@ -140,11 +161,11 @@ class BurnPlotting(object):
         plt.clf()
         
         if logtime:
-            xlabel = '$\\mathrm{Log_{10}~Time~(s)}$'
+            xlabel = '$\mathrm{Log_{10}~Time~(s)}$'
             xvec = np.log10(history.time)
             xlim = [np.log10(history.time[0]), np.log10(history.time[-1])]        
         else:
-            xlabel = '$\\mathrm{Time~(s)}$'
+            xlabel = '$\mathrm{Time~(s)}$'
             xvec = history.time
             xlim = [history.time[0], history.time[-1]]
 
@@ -167,7 +188,7 @@ class BurnPlotting(object):
         ax.set_xlim(xlim)
         plt.setp(ax.get_xticklabels(), visible=False)
         # plt.xlabel(xlabel)
-        plt.ylabel('$\\mathrm{Log_{10}~X}$')
+        plt.ylabel('$\mathrm{Log_{10}~X}$')
 
         # Plot T, edot vs. time
         # Find where edot = 0
@@ -192,11 +213,11 @@ class BurnPlotting(object):
         lgd1 = axe.legend(bbox_to_anchor=(0.0, 1.02, 0.5, 1.02), loc='lower left',
                           ncol=1, mode='expand', borderaxespad=0.0)
         axe.set_xlabel(xlabel)
-        axe.set_ylabel('$\\mathrm{Log_{10}~T~(K)}$')
+        axe.set_ylabel('$\mathrm{Log_{10}~T~(K)}$')
         axe.set_xlim(xlim)
         ax2 = axe.twinx()
         ax2.plot(xvec, np.log10(history.edot), label='E Gen Rate', color='blue')
-        ax2.set_ylabel('$\\mathrm{Log_{10}~\\dot{e}~(erg/g/s)}$')
+        ax2.set_ylabel('$\mathrm{Log_{10}~\\dot{e}~(erg/g/s)}$')
         ax2.set_xlim(xlim)
         lgd2 = ax2.legend(bbox_to_anchor=(0.5, 1.02, 1.0, 1.02), loc='lower left',
                           ncol=1, borderaxespad=0.0)
