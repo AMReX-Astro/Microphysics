@@ -12,8 +12,8 @@ module actual_rhs_module
   type :: rate_eval_t
      real(rt) :: unscreened_rates(4, nrates)
      real(rt) :: screened_rates(nrates)
-     real(rt) :: dqweak(nrat_tabular)
-     real(rt) :: epart(nrat_tabular)
+     real(rt) :: add_energy(nrat_tabular)
+     real(rt) :: add_energy_rate(nrat_tabular)
   end type rate_eval_t
   
 contains
@@ -47,8 +47,8 @@ contains
     rate_eval % unscreened_rates(i_scor, :) = ONE
     rate_eval % unscreened_rates(i_dscor_dt, :) = ZERO
     rate_eval % screened_rates = ZERO
-    rate_eval % dqweak = ZERO
-    rate_eval % epart = ZERO
+    rate_eval % add_energy = ZERO
+    rate_eval % add_energy_rate = ZERO
 
   end subroutine zero_rate_eval
 
@@ -108,15 +108,15 @@ contains
                           num_rhoy_j_na23_ne23, num_temp_j_na23_ne23, num_vars_j_na23_ne23, &
                           rhoy, state % T, reactvec)
     rate_eval % unscreened_rates(:,6) = reactvec(1:4)
-    rate_eval % dqweak(1) = reactvec(5)
-    rate_eval % epart(1)  = reactvec(6)
+    rate_eval % add_energy(1) = reactvec(5)
+    rate_eval % add_energy_rate(1)  = reactvec(6)
 
     call tabular_evaluate(rate_table_j_ne23_na23, rhoy_table_j_ne23_na23, temp_table_j_ne23_na23, &
                           num_rhoy_j_ne23_na23, num_temp_j_ne23_na23, num_vars_j_ne23_na23, &
                           rhoy, state % T, reactvec)
     rate_eval % unscreened_rates(:,7) = reactvec(1:4)
-    rate_eval % dqweak(2) = reactvec(5)
-    rate_eval % epart(2)  = reactvec(6)
+    rate_eval % add_energy(2) = reactvec(5)
+    rate_eval % add_energy_rate(2)  = reactvec(6)
 
 
     ! Compute screened rates
@@ -158,17 +158,18 @@ contains
     ! ion binding energy contributions
     call ener_gener_rate(ydot_nuc, enuc)
 
-    ! weak Q-value modification dqweak (density and temperature dependent)
-    enuc = enuc + N_AVO * state % ydot(jna23) * rate_eval % dqweak(j_na23_ne23)
-    enuc = enuc + N_AVO * state % ydot(jne23) * rate_eval % dqweak(j_ne23_na23)
-    
-    ! weak particle energy generation rates from gamma heating and neutrino loss
-    ! (does not include plasma neutrino losses)
-    enuc = enuc + N_AVO * Y(jna23) * rate_eval % epart(j_na23_ne23)
-    enuc = enuc + N_AVO * Y(jne23) * rate_eval % epart(j_ne23_na23)
+    ! additional per-reaction energies
+    ! including Q-value modification and electron chemical potential
+    enuc = enuc + N_AVO * state % ydot(jna23) * rate_eval % add_energy(j_na23_ne23)
+    enuc = enuc + N_AVO * state % ydot(jne23) * rate_eval % add_energy(j_ne23_na23)
+
+    ! additional energy generation rates
+    ! including gamma heating and reaction neutrino losses (non-thermal)
+    enuc = enuc + N_AVO * Y(jna23) * rate_eval % add_energy_rate(j_na23_ne23)
+    enuc = enuc + N_AVO * Y(jne23) * rate_eval % add_energy_rate(j_ne23_na23)
 
 
-    ! Get the neutrino losses
+    ! Get the thermal neutrino losses
     call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
     ! Append the energy equation (this is erg/g/s)
