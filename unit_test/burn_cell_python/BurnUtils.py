@@ -67,6 +67,7 @@ class BurnerDriver(object):
         return self.initial_burn_state
 
     def burn(self, end_time, num_steps):
+        self.history = History()
         self.end_time = end_time
         self.num_steps = num_steps
         self.dt = self.end_time/self.num_steps
@@ -210,7 +211,7 @@ class BurnPlotting(object):
         edotzero = y_where_x_zero(history.time, history.edot)
         axe = fig.add_subplot(212)
         axe.plot(xvec, np.log10(history.t), label='Temperature', color='red')
-        lgd1 = axe.legend(bbox_to_anchor=(0.0, 1.02, 0.5, 1.02), loc='lower left',
+        lgd1 = axe.legend(bbox_to_anchor=(0.3, 1.02, 0.7, 1.02), loc='lower left',
                           ncol=1, mode='expand', borderaxespad=0.0)
         axe.set_xlabel(xlabel)
         axe.set_ylabel('$\mathrm{Log_{10}~T~(K)}$')
@@ -219,7 +220,7 @@ class BurnPlotting(object):
         ax2.plot(xvec, np.log10(history.edot), label='E Gen Rate', color='blue')
         ax2.set_ylabel('$\mathrm{Log_{10}~\\dot{e}~(erg/g/s)}$')
         ax2.set_xlim(xlim)
-        lgd2 = ax2.legend(bbox_to_anchor=(0.5, 1.02, 1.0, 1.02), loc='lower left',
+        lgd2 = ax2.legend(bbox_to_anchor=(0.7, 1.02, 1.0, 1.02), loc='lower left',
                           ncol=1, borderaxespad=0.0)
         # hatch where edot=0
         for edz in edotzero:
