@@ -1,5 +1,6 @@
 module eos_type_module
 
+  use amrex_error_module, only: amrex_error
   use amrex_fort_module, only : rt => amrex_real
   use network, only: nspec, naux
 
@@ -121,6 +122,7 @@ module eos_type_module
   ! dedZ     -- d energy/ d zbar
   ! dpde     -- d pressure / d energy |_rho
   ! dpdr_e   -- d pressure / d rho |_energy
+  ! conductivity -- thermal conductivity (in erg/cm/K/sec)
 
   type :: eos_t
 
@@ -171,6 +173,8 @@ module eos_type_module
     real(rt) :: dedA
     real(rt) :: dedZ
 #endif
+
+    real(rt) :: conductivity
 
   end type eos_t
 
@@ -233,6 +237,9 @@ contains
     to_eos % dedA = from_eos % dedA
     to_eos % dedZ = from_eos % dedZ
 #endif
+
+    to_eos % conductivity = from_eos % conductivity
+
   end subroutine copy_eos_t
 
 
@@ -407,5 +414,91 @@ contains
     max_dens_out = maxdens
 
   end subroutine eos_get_max_dens
+
+
+  ! Check to see if variable ivar is a valid
+  ! independent variable for the given input
+  function eos_input_has_var(input, ivar) result(has)
+
+    implicit none
+
+    integer, intent(in) :: input, ivar
+    logical :: has
+
+    !$gpu
+
+    has = .false.
+    
+    select case (ivar)
+
+    case (itemp)
+
+       if (input == eos_input_rt .or. &
+           input == eos_input_tp .or. &
+           input == eos_input_th) then
+
+          has = .true.
+
+       endif
+
+    case (idens)
+
+       if (input == eos_input_rt .or. &
+           input == eos_input_rh .or. &
+           input == eos_input_rp .or. &
+           input == eos_input_re) then
+
+          has = .true.
+
+       endif
+
+    case (iener)
+
+       if (input == eos_input_re) then
+
+          has = .true.
+
+       endif
+       
+    case (ienth)
+
+       if (input == eos_input_rh .or. &
+           input == eos_input_ph .or. &
+           input == eos_input_th) then
+
+          has = .true.
+
+       endif
+
+    case (ientr)
+
+       if (input == eos_input_ps) then
+
+          has = .true.
+
+       endif
+
+    case (ipres)
+
+       if (input == eos_input_tp .or. &
+           input == eos_input_rp .or. &
+           input == eos_input_ps .or. &
+           input == eos_input_ph) then
+
+          has = .true.
+
+       endif
+
+    case default
+
+#ifdef AMREX_USE_CUDA
+       stop
+#else
+       call amrex_error("EOS: invalid independent variable")
+#endif
+
+    end select
+
+  end function eos_input_has_var
 
 end module eos_type_module

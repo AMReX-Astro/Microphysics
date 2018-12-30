@@ -18,6 +18,7 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
     implicit none
@@ -92,13 +93,16 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
     implicit none
 
     type (burn_t) :: state
 
-    real(rt) :: cp, cv, cpInv, cvInv
+    real(rt) :: scratch, cspec, cspecInv
+
+    integer :: k
 
     !$gpu
 
@@ -110,55 +114,48 @@ contains
 
           if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
 
-             cv = state % cv + (state % T - state % T_old) * state % dcvdt
+             cspec = state % cv + (state % T - state % T_old) * state % dcvdt
 
           else
 
-             cv = state % cv
+             cspec = state % cv
 
           endif
-
-          cvInv = ONE / cv
-
-          ! d(itemp)/d(yi)
-
-          state % jac(net_itemp,1:nspec_evolve) = state % jac(net_ienuc,1:nspec_evolve) * cvInv
-
-          ! d(itemp)/d(temp)
-
-          state % jac(net_itemp, net_itemp) = state % jac(net_ienuc,net_itemp) * cvInv
-
-          ! d(itemp)/d(enuc)
-
-          state % jac(net_itemp, net_ienuc) = ZERO
 
        else
 
           if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
 
-             cp = state % cp + (state % T - state % T_old) * state % dcpdt
+             cspec = state % cp + (state % T - state % T_old) * state % dcpdt
 
           else
 
-             cp = state % cp
+             cspec = state % cp
 
           endif
 
-          cpInv = ONE / cp
-
-          ! d(itemp)/d(yi)
-
-          state % jac(net_itemp,1:nspec_evolve) = state % jac(net_ienuc,1:nspec_evolve) * cpInv
-
-          ! d(itemp)/d(temp)
-
-          state % jac(net_itemp,net_itemp) = state % jac(net_ienuc,net_itemp) * cpInv
-
-          ! d(itemp)/d(enuc)
-
-          state % jac(net_itemp, net_ienuc) = ZERO
-
        endif
+
+       cspecInv = ONE / cspec       
+
+       ! d(itemp)/d(yi)
+       
+       do k = 1, nspec_evolve
+          call get_jac_entry(state, net_ienuc, k, scratch)
+          scratch = scratch * cspecInv
+          call set_jac_entry(state, net_itemp, k, scratch)
+       enddo
+
+       ! d(itemp)/d(temp)
+
+       call get_jac_entry(state, net_ienuc, net_itemp, scratch)
+       scratch = scratch * cspecInv
+       call set_jac_entry(state, net_itemp, net_itemp, scratch)
+
+       ! d(itemp)/d(enuc)
+
+       scratch = ZERO
+       call set_jac_entry(state, net_itemp, net_ienuc, scratch)
 
     endif
 

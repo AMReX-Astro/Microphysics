@@ -29,7 +29,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size;
+    int n_cell, max_grid_size, print_every_nrhs;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -45,6 +45,9 @@ void main_main ()
         // We need to get n_cell from the inputs file - this is the
         // number of cells on each side of a square (or cubic) domain.
         pp.get("n_cell", n_cell);
+
+	print_every_nrhs = 0;
+	pp.query("print_every_nrhs", print_every_nrhs);
 
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
@@ -151,7 +154,7 @@ void main_main ()
 
     // Do the reactions
 #ifdef _OPENMP
-#pragma omp parallel reduction(min:n_rhs_min), reduction(max:n_rhs_max), reduction(+:n_rhs_sum)
+#pragma omp parallel
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
@@ -162,11 +165,14 @@ void main_main ()
                  BL_TO_FORTRAN_ANYD(state[mfi]),
 		 BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
 
+	if (print_every_nrhs != 0)
+	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
+		     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
     }
 
     int n_rhs_min = integrator_n_rhs.min(0);
     int n_rhs_max = integrator_n_rhs.max(0);
-    int n_rhs_sum = integrator_n_rhs.norm1();
+    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the

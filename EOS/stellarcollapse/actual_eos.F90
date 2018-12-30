@@ -23,13 +23,13 @@ contains
   ! This reads in the HDF5 file containing the tabulated data
   subroutine actual_eos_init
 
-    use parallel
+    use amrex_paralleldescriptor_module, only: amrex_pd_ioprocessor
     use extern_probin_module, only: eos_file, use_energy_shift
     use network, only: network_species_index
 
     implicit none
  
-    if (parallel_IOProcessor()) print *, 'Reading HDF5 file', eos_file
+    if (amrex_pd_ioprocessor()) print *, 'Reading HDF5 file', eos_file
     call read_stellarcollapse_file(eos_file,use_energy_shift)
 
   end subroutine actual_eos_init
@@ -59,7 +59,7 @@ contains
     integer :: ierr
 
     ! Convert to the units used by the table.
-    call convert_to_table_format(state)
+    call convert_to_table_format(input, state)
 
     ierr = 0
 
@@ -322,7 +322,7 @@ contains
     state%rho = rho
     state%T = T
     state%y_e = ye
-    call convert_to_table_format(state)
+    call convert_to_table_format(eos_input_rt, state)
 
     ! look it up
     call tri_interpolate(state%rho,state%T,state%y_e,&

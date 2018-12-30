@@ -73,3 +73,8 @@ test_eos.*
 react_3alpha*
 *.ex
 extern.f90
+
+
+# sphinx
+build/
+doxy_files

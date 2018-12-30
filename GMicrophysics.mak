@@ -53,6 +53,18 @@ EOS_DIRS += $(EOS_TOP_DIR)/$(EOS_DIR)
 
 MICROPHYS_CORE += $(EOS_DIRS) 
 
+# Conductivity
+CONDUCTIVITY_DIR ?= stellar
+CONDUCTIVITY_HOME := $(MICROPHYSICS_HOME)/conductivity
+CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
+
+ifdef CONDUCTIVITY
+  ifeq ($(CONDUCTIVITY),t)
+    FPP_DEFINES += -DCONDUCTIVITY
+    MICROPHYS_CORE += $(CONDUCTIVITY_HOME)
+    MICROPHYS_CORE += $(CONDUCTIVITY_PATH)
+  endif
+endif
 
 #-----------------------------------------------------------------------------
 # network stuff -- specify your particlar network via NETWORK_DIR
