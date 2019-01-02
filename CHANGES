@@ -1,3 +1,8 @@
+# 19.01
+
+ -- the docs are now automatically build from the sphinx source
+    using travis on github.
+
 # 18.12
 
  -- simplify conductivity interface to match the eos interface by
