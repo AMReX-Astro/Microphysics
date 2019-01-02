@@ -16,7 +16,7 @@ module actual_eos_module
   implicit none
 
   character (len=64), public :: eos_name = "multigamma"
-  
+
   double precision, allocatable, save :: gammas(:)
 
 #ifdef AMREX_USE_CUDA
@@ -34,7 +34,7 @@ contains
     use network, only: network_species_index
 
     implicit none
- 
+
     integer :: idx
 
     ! Set the gammas for the species -- we have some runtime parameters
@@ -42,7 +42,7 @@ contains
     allocate(gammas(nspec))
     gammas(:) = eos_gamma_default
 
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
     print *, ""
     print *, "In actual_eos_init, species, gamma: "
     print *, "species a: ", trim(species_a_name), species_a_gamma
@@ -59,7 +59,7 @@ contains
 
     idx = network_species_index(species_c_name)
     if (idx > 0) gammas(idx) = species_c_gamma
- 
+
   end subroutine actual_eos_init
 
 
@@ -67,7 +67,7 @@ contains
   subroutine actual_eos(input, state)
 
     use fundamental_constants_module, only: k_B, n_A, hbar
-    
+
     implicit none
 
     integer,      intent(in   ) :: input
@@ -80,8 +80,10 @@ contains
     ! Get the mass of a nucleon from Avogadro's number.
     double precision, parameter :: m_nucleon = ONE / n_A
 
+    !$gpu
+
     ! Special gamma factors
-    
+
     sumY_gm1  = sum(state % xn(:)/(aion(:)*(gammas(:)-ONE)))
     sumYg_gm1 = sum(state % xn(:)*gammas(:)/(aion(:)*(gammas(:)-ONE)))
 
@@ -144,7 +146,7 @@ contains
     case (eos_input_ps)
 
        ! pressure entropy, and xmass are inputs
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_ps is not supported")
 #endif
 
@@ -160,13 +162,13 @@ contains
     case (eos_input_th)
 
        ! temperature, enthalpy and xmass are inputs
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_th is not supported")
 #endif
 
     case default
 
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error("EOS: invalid input.")
 #endif
 
@@ -193,7 +195,7 @@ contains
     state % s = (k_B/(state%abar*m_nucleon))*(2.5_rt + &
          log( ( (state%abar*m_nucleon)**2.5/dens )*(k_B*temp)**1.5_rt / (TWO*M_PI*hbar*hbar)**1.5_rt ) )
 
-    ! Compute the thermodynamic derivatives and specific heats 
+    ! Compute the thermodynamic derivatives and specific heats
     state % dpdT = state % p / temp
     state % dpdr = state % p / dens
     state % dedT = state % e / temp
@@ -221,7 +223,7 @@ contains
     state % dedZ = ZERO
 
     ! Composition derivatives
-    
+
     state % dpdX(:) = state % rho * k_B * state % T / (m_nucleon * aion(:))
     state % dedX(:) = k_B * state % T / (m_nucleon * aion(:) * (gammas(:) - ONE))
 
