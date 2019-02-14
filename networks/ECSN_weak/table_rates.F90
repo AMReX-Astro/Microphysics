@@ -9,13 +9,15 @@ module table_rates
   public tabular_evaluate
   public j_f20_o20
   public j_ne20_f20
+  public j_o20_f20
+  public j_f20_ne20
 
   public jtab_mu, jtab_dq, jtab_vs, jtab_rate, jtab_nuloss, jtab_gamma
 
   private num_tables
   private k_drate_dt, add_vars
 
-  integer, parameter :: num_tables   = 2
+  integer, parameter :: num_tables   = 4
   integer, parameter :: jtab_mu      = 1
   integer, parameter :: jtab_dq      = 2
   integer, parameter :: jtab_vs      = 3
@@ -31,6 +33,8 @@ module table_rates
 
   integer, parameter :: j_f20_o20   = 1
   integer, parameter :: j_ne20_f20   = 2
+  integer, parameter :: j_o20_f20   = 3
+  integer, parameter :: j_f20_ne20   = 4
 
   real(rt), allocatable :: rate_table_j_f20_o20(:,:,:), rhoy_table_j_f20_o20(:), temp_table_j_f20_o20(:)
   integer, allocatable  :: num_rhoy_j_f20_o20, num_temp_j_f20_o20, num_vars_j_f20_o20
@@ -44,6 +48,18 @@ module table_rates
   integer               :: num_header_j_ne20_f20
   logical, parameter    :: invert_chemical_potential_j_ne20_f20 = .false.
 
+  real(rt), allocatable :: rate_table_j_o20_f20(:,:,:), rhoy_table_j_o20_f20(:), temp_table_j_o20_f20(:)
+  integer, allocatable  :: num_rhoy_j_o20_f20, num_temp_j_o20_f20, num_vars_j_o20_f20
+  character(len=50)     :: rate_table_file_j_o20_f20
+  integer               :: num_header_j_o20_f20
+  logical, parameter    :: invert_chemical_potential_j_o20_f20 = .true.
+
+  real(rt), allocatable :: rate_table_j_f20_ne20(:,:,:), rhoy_table_j_f20_ne20(:), temp_table_j_f20_ne20(:)
+  integer, allocatable  :: num_rhoy_j_f20_ne20, num_temp_j_f20_ne20, num_vars_j_f20_ne20
+  character(len=50)     :: rate_table_file_j_f20_ne20
+  integer               :: num_header_j_f20_ne20
+  logical, parameter    :: invert_chemical_potential_j_f20_ne20 = .true.
+
 
 #ifdef AMREX_USE_CUDA
 
@@ -52,6 +68,12 @@ module table_rates
 
   attributes(managed) :: rate_table_j_ne20_f20, rhoy_table_j_ne20_f20, temp_table_j_ne20_f20
   attributes(managed) :: num_rhoy_j_ne20_f20, num_temp_j_ne20_f20, num_vars_j_ne20_f20
+
+  attributes(managed) :: rate_table_j_o20_f20, rhoy_table_j_o20_f20, temp_table_j_o20_f20
+  attributes(managed) :: num_rhoy_j_o20_f20, num_temp_j_o20_f20, num_vars_j_o20_f20
+
+  attributes(managed) :: rate_table_j_f20_ne20, rhoy_table_j_f20_ne20, temp_table_j_f20_ne20
+  attributes(managed) :: num_rhoy_j_f20_ne20, num_temp_j_f20_ne20, num_vars_j_f20_ne20
 
 #endif
 
@@ -67,7 +89,7 @@ contains
     num_rhoy_j_f20_o20 = 152
     num_vars_j_f20_o20 = 6
     num_header_j_f20_o20 = 5
-    rate_table_file_j_f20_o20 = trim("20f-20o.dat")
+    rate_table_file_j_f20_o20 = trim("20f-20o_electroncapture.dat")
     allocate(rate_table_j_f20_o20(num_temp_j_f20_o20, num_rhoy_j_f20_o20, num_vars_j_f20_o20))
     allocate(rhoy_table_j_f20_o20(num_rhoy_j_f20_o20))
     allocate(temp_table_j_f20_o20(num_temp_j_f20_o20))
@@ -80,11 +102,37 @@ contains
     num_rhoy_j_ne20_f20 = 152
     num_vars_j_ne20_f20 = 6
     num_header_j_ne20_f20 = 7
-    rate_table_file_j_ne20_f20 = trim("20ne-20f.dat")
+    rate_table_file_j_ne20_f20 = trim("20ne-20f_electroncapture.dat")
     allocate(rate_table_j_ne20_f20(num_temp_j_ne20_f20, num_rhoy_j_ne20_f20, num_vars_j_ne20_f20))
     allocate(rhoy_table_j_ne20_f20(num_rhoy_j_ne20_f20))
     allocate(temp_table_j_ne20_f20(num_temp_j_ne20_f20))
     call init_tab_info(rate_table_j_ne20_f20, rhoy_table_j_ne20_f20, temp_table_j_ne20_f20, num_rhoy_j_ne20_f20, num_temp_j_ne20_f20, num_vars_j_ne20_f20, rate_table_file_j_ne20_f20, num_header_j_ne20_f20, invert_chemical_potential_j_ne20_f20)
+
+    allocate(num_temp_j_o20_f20)
+    allocate(num_rhoy_j_o20_f20)
+    allocate(num_vars_j_o20_f20)
+    num_temp_j_o20_f20 = 39
+    num_rhoy_j_o20_f20 = 152
+    num_vars_j_o20_f20 = 6
+    num_header_j_o20_f20 = 6
+    rate_table_file_j_o20_f20 = trim("20o-20f_betadecay.dat")
+    allocate(rate_table_j_o20_f20(num_temp_j_o20_f20, num_rhoy_j_o20_f20, num_vars_j_o20_f20))
+    allocate(rhoy_table_j_o20_f20(num_rhoy_j_o20_f20))
+    allocate(temp_table_j_o20_f20(num_temp_j_o20_f20))
+    call init_tab_info(rate_table_j_o20_f20, rhoy_table_j_o20_f20, temp_table_j_o20_f20, num_rhoy_j_o20_f20, num_temp_j_o20_f20, num_vars_j_o20_f20, rate_table_file_j_o20_f20, num_header_j_o20_f20, invert_chemical_potential_j_o20_f20)
+
+    allocate(num_temp_j_f20_ne20)
+    allocate(num_rhoy_j_f20_ne20)
+    allocate(num_vars_j_f20_ne20)
+    num_temp_j_f20_ne20 = 39
+    num_rhoy_j_f20_ne20 = 152
+    num_vars_j_f20_ne20 = 6
+    num_header_j_f20_ne20 = 7
+    rate_table_file_j_f20_ne20 = trim("20f-20ne_betadecay.dat")
+    allocate(rate_table_j_f20_ne20(num_temp_j_f20_ne20, num_rhoy_j_f20_ne20, num_vars_j_f20_ne20))
+    allocate(rhoy_table_j_f20_ne20(num_rhoy_j_f20_ne20))
+    allocate(temp_table_j_f20_ne20(num_temp_j_f20_ne20))
+    call init_tab_info(rate_table_j_f20_ne20, rhoy_table_j_f20_ne20, temp_table_j_f20_ne20, num_rhoy_j_f20_ne20, num_temp_j_f20_ne20, num_vars_j_f20_ne20, rate_table_file_j_f20_ne20, num_header_j_f20_ne20, invert_chemical_potential_j_f20_ne20)
 
 
   end subroutine init_tabular
@@ -105,6 +153,20 @@ contains
     deallocate(rate_table_j_ne20_f20)
     deallocate(rhoy_table_j_ne20_f20)
     deallocate(temp_table_j_ne20_f20)
+
+    deallocate(num_temp_j_o20_f20)
+    deallocate(num_rhoy_j_o20_f20)
+    deallocate(num_vars_j_o20_f20)
+    deallocate(rate_table_j_o20_f20)
+    deallocate(rhoy_table_j_o20_f20)
+    deallocate(temp_table_j_o20_f20)
+
+    deallocate(num_temp_j_f20_ne20)
+    deallocate(num_rhoy_j_f20_ne20)
+    deallocate(num_vars_j_f20_ne20)
+    deallocate(rate_table_j_f20_ne20)
+    deallocate(rhoy_table_j_f20_ne20)
+    deallocate(temp_table_j_f20_ne20)
 
 
   end subroutine term_table_meta

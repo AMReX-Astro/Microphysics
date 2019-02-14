@@ -30,11 +30,11 @@ module actual_network
   integer, parameter :: nspec = 11
 
   ! Number of reaclib rates
-  integer, parameter :: nrat_reaclib = 16
-  integer, parameter :: number_reaclib_sets = 36
+  integer, parameter :: nrat_reaclib = 14
+  integer, parameter :: number_reaclib_sets = 34
 
   ! Number of tabular rates
-  integer, parameter :: nrat_tabular = 2
+  integer, parameter :: nrat_tabular = 4
 
   ! Binding Energies Per Nucleon (MeV)
   real(rt) :: ebind_per_nucleon(nspec)
@@ -58,24 +58,24 @@ module actual_network
   integer, parameter :: js32   = 11
 
   ! Reactions
-  integer, parameter :: k_o20__f20__weak__wc12   = 1
-  integer, parameter :: k_f20__ne20__weak__wc12   = 2
-  integer, parameter :: k_ne20__he4_o16   = 3
-  integer, parameter :: k_he4_o16__ne20   = 4
-  integer, parameter :: k_he4_ne20__mg24   = 5
-  integer, parameter :: k_he4_mg24__si28   = 6
-  integer, parameter :: k_p_al27__si28   = 7
-  integer, parameter :: k_he4_al27__p31   = 8
-  integer, parameter :: k_he4_si28__s32   = 9
-  integer, parameter :: k_p_p31__s32   = 10
-  integer, parameter :: k_o16_o16__p_p31   = 11
-  integer, parameter :: k_o16_o16__he4_si28   = 12
-  integer, parameter :: k_he4_mg24__p_al27   = 13
-  integer, parameter :: k_p_al27__he4_mg24   = 14
-  integer, parameter :: k_he4_si28__p_p31   = 15
-  integer, parameter :: k_p_p31__he4_si28   = 16
-  integer, parameter :: k_f20__o20   = 17
-  integer, parameter :: k_ne20__f20   = 18
+  integer, parameter :: k_ne20__he4_o16   = 1
+  integer, parameter :: k_he4_o16__ne20   = 2
+  integer, parameter :: k_he4_ne20__mg24   = 3
+  integer, parameter :: k_he4_mg24__si28   = 4
+  integer, parameter :: k_p_al27__si28   = 5
+  integer, parameter :: k_he4_al27__p31   = 6
+  integer, parameter :: k_he4_si28__s32   = 7
+  integer, parameter :: k_p_p31__s32   = 8
+  integer, parameter :: k_o16_o16__p_p31   = 9
+  integer, parameter :: k_o16_o16__he4_si28   = 10
+  integer, parameter :: k_he4_mg24__p_al27   = 11
+  integer, parameter :: k_p_al27__he4_mg24   = 12
+  integer, parameter :: k_he4_si28__p_p31   = 13
+  integer, parameter :: k_p_p31__he4_si28   = 14
+  integer, parameter :: k_f20__o20   = 15
+  integer, parameter :: k_ne20__f20   = 16
+  integer, parameter :: k_o20__f20   = 17
+  integer, parameter :: k_f20__ne20   = 18
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
