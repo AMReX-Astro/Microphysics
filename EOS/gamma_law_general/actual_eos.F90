@@ -56,6 +56,8 @@ contains
 
   subroutine actual_eos(input, state)
 
+    !$acc routine seq
+
     use fundamental_constants_module, only: k_B, n_A, hbar
 
     implicit none
