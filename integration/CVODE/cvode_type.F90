@@ -354,9 +354,10 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
     use amrex_constants_module, only: ONE, ZERO
-    use extern_probin_module, only: burning_mode, dT_crit
+    use extern_probin_module, only: dT_crit
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, burn_to_eos
     use burn_type_module, only: normalize_abundances_burn
+    use temperature_integration_module, only: self_heat
     use eos_type_module, only: eos_t, eos_input_rt, copy_eos_t
     use eos_module, only: eos
     use network, only: nspec_evolve, aion_inv
@@ -393,12 +394,10 @@ contains
     y(net_ienuc) = eos_state % e * inv_ener_scale
 
     ! Detect burning mode
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       rpar(irp_self_heat) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
+    if (self_heat) then
        rpar(irp_self_heat) = ONE
     else
-       stop
+       rpar(irp_self_heat) = -ONE
     endif
 
     ! Set sound crossing time
