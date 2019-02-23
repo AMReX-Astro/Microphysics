@@ -38,6 +38,7 @@ contains
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
+    use temperature_integration_module, only: self_heat
 
     implicit none
 
@@ -124,12 +125,7 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       bs % burn_s % self_heat = .false.
-
-    else if (burning_mode == 1 .or. burning_mode == 3) then
-       bs % burn_s % self_heat = .true.
-    endif
+    bs % burn_s % self_heat = self_heat
 
     ! Copy in the zone size.
 

@@ -154,14 +154,10 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       dvode_state % rpar(irp_self_heat) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
+    if (self_heat) then
        dvode_state % rpar(irp_self_heat) = ONE
     else
-       stop
-       !CUDA
-       !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+       dvode_state % rpar(irp_self_heat) = -ONE
     endif
 
     ! Copy in the zone size.
