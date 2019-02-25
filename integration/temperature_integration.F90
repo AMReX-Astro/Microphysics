@@ -8,6 +8,8 @@ module temperature_integration_module
   attributes(managed) :: self_heat
 #endif
 
+  !$acc declare create(self_heat)
+
   public
 
 contains
@@ -188,6 +190,8 @@ contains
     else
        call amrex_error("Error: unknown burning_mode in temperature_rhs_init()")
     end if
+
+    !$acc update device(self_heat)
 
   end subroutine temperature_rhs_init
 
