@@ -40,10 +40,6 @@ program burn_cell
   ! runtime
   call runtime_init(.true.)
 
-  ! xinlong xinlong
-  call microphysics_init()
-
-  
   ! microphysics
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
   call eos_get_small_temp(small_temp)
