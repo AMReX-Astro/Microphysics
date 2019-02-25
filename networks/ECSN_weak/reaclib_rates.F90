@@ -32,16 +32,26 @@ contains
 
     implicit none
 
+!    print*,"0", number_reaclib_sets
+
     integer :: unit, ireaclib, icoeff
+
+    print*,"1", number_reaclib_sets
 
     allocate( ctemp_rate(7, number_reaclib_sets) )
     allocate( rate_start_idx(nrat_reaclib) )
     allocate( rate_extra_mult(nrat_reaclib) )
 
+    print*,"2", number_reaclib_sets
+
     open(newunit=unit, file='reaclib_rate_metadata.dat')
 
+    print*,"3", number_reaclib_sets
+
     do ireaclib = 1, number_reaclib_sets
+       print*,"4", number_reaclib_sets
        do icoeff = 1, 7
+          print*,"5", number_reaclib_sets
           read(unit, *) ctemp_rate(icoeff, ireaclib)
        enddo
     enddo
