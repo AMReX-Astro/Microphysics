@@ -42,7 +42,8 @@ contains
     use eos_type_module, only: eos_t, copy_eos_t
     use cuvode_types_module, only: dvode_t, rwork_t
     use amrex_constants_module, only: ZERO, ONE
-    use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale    
+    use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale
+    use temperature_integration_module, only: self_heat
 
     implicit none
 
