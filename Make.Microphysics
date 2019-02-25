@@ -171,6 +171,7 @@ endif
 urcatables:
 	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
 	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
+	@if [ ! -f reaclib_rate_metadata.dat ]; then echo ${bold}Linking reaclib_rate_metadata.dat${normal}; ln -s $(NETWORK_PATH)/reaclib_rate_metadata.dat .; fi
 
 # Pynucastro networks read rate data from an external file
 ifeq ($(USE_READ_RATE_DATA), TRUE)
