@@ -101,11 +101,16 @@ program burn_cell
   call write_burn_t(out_name, burn_state_in)
   
   dt = tmax/numsteps
+
+!  print*, "energy = ", energy
   
   do i = 1, numsteps
      ! Do burn
      call actual_burner(burn_state_in, burn_state_out, dt, time)
      energy = energy + burn_state_out % e
+
+     print*, "energy = ", energy
+
      burn_state_in = burn_state_out
      burn_state_in % e = ZERO
      write(*,*) 'Completed burn to: ', burn_state_out % time, ' seconds'
@@ -117,6 +122,8 @@ program burn_cell
 
      time = burn_state_out % time
   end do
+  
+  print*, "energy_end = ", energy
 
   call microphysics_finalize()
 
