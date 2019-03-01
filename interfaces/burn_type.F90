@@ -93,6 +93,8 @@ contains
   ! (yet) support derived type copying on the device.
   subroutine copy_burn_t(to_state, from_state)
 
+    !$acc routine seq
+
     implicit none
 
     type (burn_t), intent(in   ) :: from_state

@@ -17,6 +17,7 @@ contains
 #else
     use actual_integrator_module, only: actual_integrator_init
 #endif
+    use temperature_integration_module, only: temperature_rhs_init
 
     implicit none
 
@@ -27,6 +28,7 @@ contains
 #else
     call actual_integrator_init()
 #endif
+    call temperature_rhs_init()
 
   end subroutine integrator_init
 

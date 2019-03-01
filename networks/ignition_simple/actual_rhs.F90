@@ -19,7 +19,7 @@ contains
 
   subroutine actual_rhs(state)
 
-    !$gpu
+    !$acc routine seq
 
     use extern_probin_module, only: do_constant_volume_burn
 
@@ -115,6 +115,8 @@ contains
 
   subroutine actual_jac(state)
 
+    !$acc routine seq
+
     use extern_probin_module, only: do_constant_volume_burn
     use jacobian_sparsity_module, only: set_jac_zero, get_jac_entry, set_jac_entry, scale_jac_entry
 
@@ -201,7 +203,7 @@ contains
 
   subroutine evaluate_rates(state, rr)
 
-    !$gpu
+    !$acc routine seq
 
     use screening_module, only: screenz
 
@@ -266,9 +268,9 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
+    !$acc routine seq
+    
     use network
-
-    !$gpu
 
     implicit none
 
@@ -291,7 +293,7 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    !$gpu
+    !$acc routine seq
 
     implicit none
 
