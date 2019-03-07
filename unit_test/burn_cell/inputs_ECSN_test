@@ -28,8 +28,8 @@
   tmax     = 1.0d-4
   numsteps = 1
 
-  density       = 8.3d9
-  temperature   = 7.d8
+  density       = 8.32d9
+  temperature   = 6.91d8
 
   massfractions(1)  = 0.5d0
   massfractions(2)  = 0.5d0

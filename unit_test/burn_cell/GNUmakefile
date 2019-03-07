@@ -17,7 +17,7 @@ EOS_DIR := helmholtz
 #NETWORK_DIR := ignition_chamulak
 #NETWORK_DIR := subch
 #NETWORK_DIR := ignition_reaclib/URCA-simple
-NETWORK_DIR := network_test
+NETWORK_DIR := ECSN_weak
 
 INTEGRATOR_DIR := VODE
 
