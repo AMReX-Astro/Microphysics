@@ -3,8 +3,6 @@ module actual_rhs_module
   use network
   use eos_type_module
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
-  use sneut_module, only: sneut5
   use actual_network, only: nrates
   use rate_type_module
 
@@ -24,6 +22,10 @@ module actual_rhs_module
   double precision, allocatable :: drattabdt(:,:)
   double precision, allocatable :: drattabdd(:,:)
   double precision, allocatable :: ttab(:)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: rattab, drattabdt, drattabdd, ttab
+#endif
 
 contains
 
@@ -74,6 +76,8 @@ contains
     double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
     double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
+    !$gpu
+
     ! Get the data from the state
 
     rho  = state % rho
@@ -121,6 +125,8 @@ contains
     double precision :: alfa, beta, gama, delt
 
     double precision :: dtab(nrates)
+
+    !$gpu
 
     ! Set the density dependence array
     dtab(ircag)  = bden
@@ -243,6 +249,9 @@ contains
 
   subroutine actual_rhs(state)
 
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_rhs
+
     implicit none
 
     ! This routine sets up the system of ODE's for the iso7
@@ -254,13 +263,15 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical          :: deriva = .false.
+    logical          :: deriva
 
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
 
     double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec)
+    double precision :: y(nspec), ydot(nspec)
+
+    !$gpu
 
     ! Get the data from the state
 
@@ -274,7 +285,8 @@ contains
 
     ! Call the RHS to actually get dydt.
 
-    call rhs(y, rr % rates(1,:), rr % rates(1,:), state % ydot(1:nspec), deriva)
+    deriva = .false.
+    call rhs(y, rr, ydot, deriva, for_jacobian_tderiv = .false.)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -301,20 +313,24 @@ contains
   subroutine actual_jac(state)
 
     use amrex_constants_module, only: ZERO
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_jac
 
     implicit none
 
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical          :: deriva = .true.
+    logical          :: deriva
 
     double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
     integer          :: j
 
     double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec)
+    double precision :: y(nspec), yderivs(nspec)
+
+    !$gpu
 
     state % jac(:,:) = ZERO
 
@@ -330,8 +346,7 @@ contains
 
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_iso7(y, state % jac(1:nspec,1:nspec), rr % rates(1,:), &
-                            rr % rates(3,:), rr % rates(4,:))
+    call dfdy_isotopes_iso7(y, state, rr)
 
     ! Energy generation rate Jacobian elements with respect to species
 
@@ -351,7 +366,10 @@ contains
     ! Evaluate the Jacobian elements with respect to temperature by
     ! calling the RHS using d(ratdum) / dT
 
-    call rhs(y, rr % rates(2,:), rr % rates(1,:), state % jac(1:nspec,net_itemp), deriva)
+    deriva = .true.
+    call rhs(y, rr, yderivs, deriva, for_jacobian_tderiv = .true.)
+
+    state % jac(1:nspec,net_itemp) = yderivs
 
     call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
     state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
@@ -366,96 +384,105 @@ contains
 
   ! Evaluates the right hand side of the iso7 ODEs
 
-  subroutine rhs(y, rate, ratdum, dydt, deriva)
+  subroutine rhs(y, rr, dydt, deriva, for_jacobian_tderiv)
 
     use amrex_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum5, esum6, esum15
+    use microphysics_math_module, only: esum5, esum6, esum15 ! function
 
     implicit none
 
     ! deriva is used in forming the analytic Jacobian to get
     ! the derivative wrt A
 
-    logical          :: deriva
-    double precision :: y(nspec), rate(nrates), ratdum(nrates), dydt(nspec)
+    logical          :: deriva, for_jacobian_tderiv
+    double precision :: y(nspec), dydt(nspec)
+    type (rate_t)    :: rr
 
     ! local variables
-    integer          :: i
+    integer          :: i, index_rate
     double precision :: a(15)
+
+    if (for_jacobian_tderiv) then
+       index_rate = 2
+    else
+       index_rate = 1
+    endif
+
+    !$gpu
 
     dydt(1:nspec) = ZERO
 
     ! set up the system of ode's :
     ! 4he reactions
-    a(1)  =  3.0d0 * y(ic12) * rate(irg3a)
-    a(2)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
-    a(3)  =  y(io16) * rate(iroga)
-    a(4)  = -y(ic12) * y(ihe4) * rate(ircag)
-    a(5)  =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
-    a(6)  =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
-    a(7)  =  0.5d0 * y(io16) * y(io16) * rate(ir1616)
-    a(8)  = -y(io16) * y(ihe4) * rate(iroag)
-    a(9)  =  y(ine20) * rate(irnega)
-    a(10) =  y(img24) * rate(irmgga)
-    a(11) = -y(ine20) * y(ihe4) * rate(irneag)
-    a(12) =  y(isi28) * rate(irsiga)
-    a(13) = -y(img24) * y(ihe4) * rate(irmgag)
-    a(14) = -7.0d0 * rate(irsi2ni) * y(ihe4)
-    a(15) =  7.0d0 * rate(irni2si) * y(ini56)
+    a(1)  =  3.0d0 * y(ic12) * rr % rates(index_rate,irg3a)
+    a(2)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rr % rates(index_rate,ir3a)
+    a(3)  =  y(io16) * rr % rates(index_rate,iroga)
+    a(4)  = -y(ic12) * y(ihe4) * rr % rates(index_rate,ircag)
+    a(5)  =  0.5d0 * y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
+    a(6)  =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(7)  =  0.5d0 * y(io16) * y(io16) * rr % rates(index_rate,ir1616)
+    a(8)  = -y(io16) * y(ihe4) * rr % rates(index_rate,iroag)
+    a(9)  =  y(ine20) * rr % rates(index_rate,irnega)
+    a(10) =  y(img24) * rr % rates(index_rate,irmgga)
+    a(11) = -y(ine20) * y(ihe4) * rr % rates(index_rate,irneag)
+    a(12) =  y(isi28) * rr % rates(index_rate,irsiga)
+    a(13) = -y(img24) * y(ihe4) * rr % rates(index_rate,irmgag)
+    a(14) = -7.0d0 * rr % rates(index_rate,irsi2ni) * y(ihe4)
+    a(15) =  7.0d0 * rr % rates(index_rate,irni2si) * y(ini56)
 
     dydt(ihe4) = esum15(a)
 
     ! 12c reactions
-    a(1) =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rate(ir3a)
-    a(2) = -y(ic12) * rate(irg3a)
-    a(3) =  y(io16) * rate(iroga)
-    a(4) = -y(ic12) * y(ihe4) * rate(ircag)
-    a(5) = -y(ic12) * y(ic12) * rate(ir1212)
-    a(6) = -y(ic12) * y(io16) * rate(ir1216)
+    a(1) =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rr % rates(index_rate,ir3a)
+    a(2) = -y(ic12) * rr % rates(index_rate,irg3a)
+    a(3) =  y(io16) * rr % rates(index_rate,iroga)
+    a(4) = -y(ic12) * y(ihe4) * rr % rates(index_rate,ircag)
+    a(5) = -y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
+    a(6) = -y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
 
     dydt(ic12) = esum6(a)
 
     ! 16o reactions
-    a(1) = -y(io16) * rate(iroga)
-    a(2) =  y(ic12) * y(ihe4) * rate(ircag)
-    a(3) = -y(ic12) * y(io16) * rate(ir1216)
-    a(4) = -y(io16) * y(io16) * rate(ir1616)
-    a(5) = -y(io16) * y(ihe4) * rate(iroag)
-    a(6) =  y(ine20) * rate(irnega)
+    a(1) = -y(io16) * rr % rates(index_rate,iroga)
+    a(2) =  y(ic12) * y(ihe4) * rr % rates(index_rate,ircag)
+    a(3) = -y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(4) = -y(io16) * y(io16) * rr % rates(index_rate,ir1616)
+    a(5) = -y(io16) * y(ihe4) * rr % rates(index_rate,iroag)
+    a(6) =  y(ine20) * rr % rates(index_rate,irnega)
 
     dydt(io16) = esum6(a)
 
     ! 20ne reactions
-    a(1) =  0.5d0 * y(ic12) * y(ic12) * rate(ir1212)
-    a(2) =  y(io16) * y(ihe4) * rate(iroag)
-    a(3) = -y(ine20) * rate(irnega)
-    a(4) =  y(img24) * rate(irmgga)
-    a(5) = -y(ine20) * y(ihe4) * rate(irneag)
+    a(1) =  0.5d0 * y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
+    a(2) =  y(io16) * y(ihe4) * rr % rates(index_rate,iroag)
+    a(3) = -y(ine20) * rr % rates(index_rate,irnega)
+    a(4) =  y(img24) * rr % rates(index_rate,irmgga)
+    a(5) = -y(ine20) * y(ihe4) * rr % rates(index_rate,irneag)
 
     dydt(ine20) = esum5(a)
 
     ! 24mg reactions
-    a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
-    a(2) = -y(img24) * rate(irmgga)
-    a(3) =  y(ine20) * y(ihe4) * rate(irneag)
-    a(4) =  y(isi28) * rate(irsiga)
-    a(5) = -y(img24) * y(ihe4) * rate(irmgag)
+    a(1) =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(2) = -y(img24) * rr % rates(index_rate,irmgga)
+    a(3) =  y(ine20) * y(ihe4) * rr % rates(index_rate,irneag)
+    a(4) =  y(isi28) * rr % rates(index_rate,irsiga)
+    a(5) = -y(img24) * y(ihe4) * rr % rates(index_rate,irmgag)
 
     dydt(img24) = esum5(a)
 
     ! 28si reactions
-    a(1) =  0.5d0 * y(ic12) * y(io16) * rate(ir1216)
-    a(2) =  0.5d0 * y(io16) * y(io16) * rate(ir1616)
-    a(3) = -y(isi28) * rate(irsiga)
-    a(4) =  y(img24) * y(ihe4) * rate(irmgag)
-    a(5) = -rate(irsi2ni) * y(ihe4)
-    a(6) =  rate(irni2si) * y(ini56)
+    a(1) =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(2) =  0.5d0 * y(io16) * y(io16) * rr % rates(index_rate,ir1616)
+    a(3) = -y(isi28) * rr % rates(index_rate,irsiga)
+    a(4) =  y(img24) * y(ihe4) * rr % rates(index_rate,irmgag)
+    a(5) = -rr % rates(index_rate,irsi2ni) * y(ihe4)
+    a(6) =  rr % rates(index_rate,irni2si) * y(ini56)
 
     dydt(isi28) = esum6(a)
 
     ! ni56 reactions
-    a(1) =  rate(irsi2ni) * y(ihe4)
-    a(2) = -rate(irni2si) * y(ini56)
+    a(1) =  rr % rates(index_rate,irsi2ni) * y(ihe4)
+    a(2) = -rr % rates(index_rate,irni2si) * y(ini56)
 
     dydt(ini56) = sum(a(1:2))
 
@@ -481,6 +508,8 @@ contains
     double precision :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
     type (tf_t)      :: tf
 
+    !$gpu
+    
     do i=1,nrates
        ratraw(i)    = ZERO
        dratrawdt(i) = ZERO
@@ -581,6 +610,8 @@ contains
     type (plasma_state) :: pstate
     type (tf_t)         :: tf
 
+    !$gpu
+    
     ! initialize
     do i = 1, nrates
        ratdum(i)     = ratraw(i)
@@ -785,239 +816,242 @@ contains
 
 
 
-  subroutine dfdy_isotopes_iso7(y,dfdy,ratdum,dratdumdy1,dratdumdy2)
+  subroutine dfdy_isotopes_iso7(y, state, rr)
 
     use network
-    use microphysics_math_module, only: esum3, esum4, esum8
+    use microphysics_math_module, only: esum3, esum4, esum8 ! function
 
     implicit none
 
     ! this routine sets up the dense iso7 jacobian for the isotopes
 
-    double precision :: y(nspec), dfdy(nspec,nspec)
-    double precision :: ratdum(nrates), dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
+    type (burn_t) :: state
+    double precision :: y(nspec)
+    type (rate_t)    :: rr
 
     double precision :: b(8)
+
+    !$gpu
 
     ! set up the jacobian
     ! 4he jacobian elements
     ! d(he4)/d(he4)
-    b(1) = -1.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a)
-    b(2) = -y(ic12) * ratdum(ircag)
-    b(3) = -y(io16) * ratdum(iroag)
-    b(4) = -y(ine20) * ratdum(irneag)
-    b(5) = -y(img24) * ratdum(irmgag)
-    b(6) = -7.0d0 * ratdum(irsi2ni)
-    b(7) = -7.0d0 * dratdumdy1(irsi2ni) * y(ihe4)
-    b(8) =  7.0d0 * dratdumdy1(irni2si) * y(ini56)
+    b(1) = -1.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
+    b(2) = -y(ic12) * rr % rates(1,ircag)
+    b(3) = -y(io16) * rr % rates(1,iroag)
+    b(4) = -y(ine20) * rr % rates(1,irneag)
+    b(5) = -y(img24) * rr % rates(1,irmgag)
+    b(6) = -7.0d0 * rr % rates(1,irsi2ni)
+    b(7) = -7.0d0 * rr % rates(3,irsi2ni) * y(ihe4)
+    b(8) =  7.0d0 * rr % rates(3,irni2si) * y(ini56)
 
-    dfdy(ihe4,ihe4) = esum8(b)
+    state%jac(ihe4,ihe4) = esum8(b)
 
     ! d(he4)/d(c12)
-    b(1) =  3.0d0 * ratdum(irg3a)
-    b(2) = -y(ihe4) * ratdum(ircag)
-    b(3) =  y(ic12) * ratdum(ir1212)
-    b(4) =  0.5d0 * y(io16) * ratdum(ir1216)
+    b(1) =  3.0d0 * rr % rates(1,irg3a)
+    b(2) = -y(ihe4) * rr % rates(1,ircag)
+    b(3) =  y(ic12) * rr % rates(1,ir1212)
+    b(4) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
 
-    dfdy(ihe4,ic12) = esum4(b)
+    state%jac(ihe4,ic12) = esum4(b)
 
     ! d(he4)/d(o16)
-    b(1) =  ratdum(iroga)
-    b(2) =  0.5d0 * y(ic12) * ratdum(ir1216)
-    b(3) =  y(io16) * ratdum(ir1616)
-    b(4) = -y(ihe4) * ratdum(iroag)
+    b(1) =  rr % rates(1,iroga)
+    b(2) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
+    b(3) =  y(io16) * rr % rates(1,ir1616)
+    b(4) = -y(ihe4) * rr % rates(1,iroag)
 
-    dfdy(ihe4,io16) = esum4(b)
+    state%jac(ihe4,io16) = esum4(b)
 
     ! d(he4)/d(ne20)
-    b(1) =  ratdum(irnega)
-    b(2) = -y(ihe4) * ratdum(irneag)
+    b(1) =  rr % rates(1,irnega)
+    b(2) = -y(ihe4) * rr % rates(1,irneag)
 
-    dfdy(ihe4,ine20) = sum(b(1:2))
+    state%jac(ihe4,ine20) = sum(b(1:2))
 
     ! d(he4)/d(mg24)
-    b(1) =  ratdum(irmgga)
-    b(2) = -y(ihe4) * ratdum(irmgag)
+    b(1) =  rr % rates(1,irmgga)
+    b(2) = -y(ihe4) * rr % rates(1,irmgag)
 
-    dfdy(ihe4,img24) = sum(b(1:2))
+    state%jac(ihe4,img24) = sum(b(1:2))
 
     ! d(he4)/d(si28)
-    b(1) =  ratdum(irsiga)
-    b(2) = -7.0d0 * dratdumdy2(irsi2ni) * y(ihe4)
+    b(1) =  rr % rates(1,irsiga)
+    b(2) = -7.0d0 * rr % rates(4,irsi2ni) * y(ihe4)
 
-    dfdy(ihe4,isi28) = sum(b(1:2))
+    state%jac(ihe4,isi28) = sum(b(1:2))
 
     ! d(he4)/d(ni56)
-    b(1) =  7.0d0 * ratdum(irni2si)
+    b(1) =  7.0d0 * rr % rates(1,irni2si)
 
-    dfdy(ihe4,ini56) = b(1)
+    state%jac(ihe4,ini56) = b(1)
 
 
 
     ! 12c jacobian elements
     ! d(c12)/d(he4)
-    b(1) =  0.5d0 * y(ihe4) * y(ihe4) * ratdum(ir3a)
-    b(2) = -y(ic12) * ratdum(ircag)
+    b(1) =  0.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
+    b(2) = -y(ic12) * rr % rates(1,ircag)
 
-    dfdy(ic12,ihe4) = sum(b(1:2))
+    state%jac(ic12,ihe4) = sum(b(1:2))
 
     ! d(c12)/d(c12)
-    b(1) = -ratdum(irg3a)
-    b(2) = -y(ihe4) * ratdum(ircag)
-    b(3) = -2.0d0 * y(ic12) * ratdum(ir1212)
-    b(4) = -y(io16) * ratdum(ir1216)
+    b(1) = -rr % rates(1,irg3a)
+    b(2) = -y(ihe4) * rr % rates(1,ircag)
+    b(3) = -2.0d0 * y(ic12) * rr % rates(1,ir1212)
+    b(4) = -y(io16) * rr % rates(1,ir1216)
 
-    dfdy(ic12,ic12) = esum4(b)
+    state%jac(ic12,ic12) = esum4(b)
 
     ! d(c12)/d(o16)
-    b(1) =  ratdum(iroga)
-    b(2) = -y(ic12) * ratdum(ir1216)
+    b(1) =  rr % rates(1,iroga)
+    b(2) = -y(ic12) * rr % rates(1,ir1216)
 
-    dfdy(ic12,io16) = sum(b(1:2))
+    state%jac(ic12,io16) = sum(b(1:2))
 
 
     ! 16o jacobian elements
     ! d(o16)/d(he4)
-    b(1) =  y(ic12) * ratdum(ircag)
-    b(2) = -y(io16) * ratdum(iroag)
+    b(1) =  y(ic12) * rr % rates(1,ircag)
+    b(2) = -y(io16) * rr % rates(1,iroag)
 
-    dfdy(io16,ihe4) = sum(b(1:2))
+    state%jac(io16,ihe4) = sum(b(1:2))
 
     ! d(o16)/d(c12)
-    b(1) =  y(ihe4) * ratdum(ircag)
-    b(2) = -y(io16) * ratdum(ir1216)
+    b(1) =  y(ihe4) * rr % rates(1,ircag)
+    b(2) = -y(io16) * rr % rates(1,ir1216)
 
-    dfdy(io16,ic12) = sum(b(1:2))
+    state%jac(io16,ic12) = sum(b(1:2))
 
     ! d(o16)/d(o16)
-    b(1) = -ratdum(iroga)
-    b(2) = -y(ic12) * ratdum(ir1216)
-    b(3) = -2.0d0 * y(io16) * ratdum(ir1616)
-    b(4) = -y(ihe4) * ratdum(iroag)
+    b(1) = -rr % rates(1,iroga)
+    b(2) = -y(ic12) * rr % rates(1,ir1216)
+    b(3) = -2.0d0 * y(io16) * rr % rates(1,ir1616)
+    b(4) = -y(ihe4) * rr % rates(1,iroag)
 
-    dfdy(io16,io16) = esum4(b)
+    state%jac(io16,io16) = esum4(b)
 
     ! d(o16)/d(ne20)
-    b(1) =  ratdum(irnega)
+    b(1) =  rr % rates(1,irnega)
 
-    dfdy(io16,ine20) = b(1)
+    state%jac(io16,ine20) = b(1)
 
 
 
     ! 20ne jacobian elements
     ! d(ne20)/d(he4)
-    b(1) =  y(io16) * ratdum(iroag) - y(ine20) * ratdum(irneag)
+    b(1) =  y(io16) * rr % rates(1,iroag) - y(ine20) * rr % rates(1,irneag)
 
-    dfdy(ine20,ihe4) = b(1)
+    state%jac(ine20,ihe4) = b(1)
 
     ! d(ne20)/d(c12)
-    b(1) =  y(ic12) * ratdum(ir1212)
+    b(1) =  y(ic12) * rr % rates(1,ir1212)
 
-    dfdy(ine20,ic12) = b(1)
+    state%jac(ine20,ic12) = b(1)
 
     ! d(ne20)/d(o16)
-    b(1) =  y(ihe4) * ratdum(iroag)
+    b(1) =  y(ihe4) * rr % rates(1,iroag)
 
-    dfdy(ine20,io16) = b(1)
+    state%jac(ine20,io16) = b(1)
 
     ! d(ne20)/d(ne20)
-    b(1) = -ratdum(irnega) - y(ihe4) * ratdum(irneag)
+    b(1) = -rr % rates(1,irnega) - y(ihe4) * rr % rates(1,irneag)
 
-    dfdy(ine20,ine20) = b(1)
+    state%jac(ine20,ine20) = b(1)
 
     ! d(ne20)/d(mg24)
-    b(1) =  ratdum(irmgga)
+    b(1) =  rr % rates(1,irmgga)
 
-    dfdy(ine20,img24) = b(1)
+    state%jac(ine20,img24) = b(1)
 
 
 
     ! 24mg jacobian elements
     ! d(mg24)/d(he4)
-    b(1) =  y(ine20) * ratdum(irneag)
-    b(2) = -y(img24) * ratdum(irmgag)
+    b(1) =  y(ine20) * rr % rates(1,irneag)
+    b(2) = -y(img24) * rr % rates(1,irmgag)
 
-    dfdy(img24,ihe4) = sum(b(1:2))
+    state%jac(img24,ihe4) = sum(b(1:2))
 
     ! d(mg24)/d(c12)
-    b(1) =  0.5d0 * y(io16) * ratdum(ir1216)
+    b(1) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
 
-    dfdy(img24,ic12) = b(1)
+    state%jac(img24,ic12) = b(1)
 
     ! d(mg24)/d(o16)
-    b(1) =  0.5d0 * y(ic12) * ratdum(ir1216)
+    b(1) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
 
-    dfdy(img24,io16) = b(1)
+    state%jac(img24,io16) = b(1)
 
     ! d(mg24)/d(ne20)
-    b(1) =  y(ihe4) * ratdum(irneag)
+    b(1) =  y(ihe4) * rr % rates(1,irneag)
 
-    dfdy(img24,ine20) = b(1)
+    state%jac(img24,ine20) = b(1)
 
     ! d(mg24)/d(mg24)
-    b(1) = -ratdum(irmgga)
-    b(2) = -y(ihe4) * ratdum(irmgag)
+    b(1) = -rr % rates(1,irmgga)
+    b(2) = -y(ihe4) * rr % rates(1,irmgag)
 
-    dfdy(img24,img24) = sum(b(1:2))
+    state%jac(img24,img24) = sum(b(1:2))
 
     ! d(mg24)/d(si28)
-    b(1) =  ratdum(irsiga)
+    b(1) =  rr % rates(1,irsiga)
 
-    dfdy(img24,isi28) = b(1)
+    state%jac(img24,isi28) = b(1)
 
     ! 28si jacobian elements
     ! d(si28)/d(he4)
-    b(1) =  y(img24) * ratdum(irmgag)
-    b(2) = -ratdum(irsi2ni)
-    b(3) = -dratdumdy1(irsi2ni) * y(ihe4)
-    b(4) =  dratdumdy1(irni2si) * y(ini56)
+    b(1) =  y(img24) * rr % rates(1,irmgag)
+    b(2) = -rr % rates(1,irsi2ni)
+    b(3) = -rr % rates(3,irsi2ni) * y(ihe4)
+    b(4) =  rr % rates(3,irni2si) * y(ini56)
 
-    dfdy(isi28,ihe4) = esum4(b)
+    state%jac(isi28,ihe4) = esum4(b)
 
     ! d(si28)/d(c12)
-    b(1) =  0.5d0 * y(io16) * ratdum(ir1216)
+    b(1) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
 
-    dfdy(isi28,ic12) = b(1)
+    state%jac(isi28,ic12) = b(1)
 
     ! d(si28)/d(o16)
-    b(1) =  y(io16) * ratdum(ir1616)
-    b(2) =  0.5d0 * y(ic12) * ratdum(ir1216)
+    b(1) =  y(io16) * rr % rates(1,ir1616)
+    b(2) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
 
-    dfdy(isi28,io16) = sum(b(1:2))
+    state%jac(isi28,io16) = sum(b(1:2))
 
     ! d(si28)/d(mg24)
-    b(1) =  y(ihe4) * ratdum(irmgag)
+    b(1) =  y(ihe4) * rr % rates(1,irmgag)
 
-    dfdy(isi28,img24) = b(1)
+    state%jac(isi28,img24) = b(1)
 
     ! d(si28)/d(si28)
-    b(1) = -ratdum(irsiga)
-    b(2) = -dratdumdy2(irsi2ni) * y(ihe4)
+    b(1) = -rr % rates(1,irsiga)
+    b(2) = -rr % rates(4,irsi2ni) * y(ihe4)
 
-    dfdy(isi28,isi28) = sum(b(1:2))
+    state%jac(isi28,isi28) = sum(b(1:2))
 
     ! d(si28)/d(ni56)
-    b(1) =  ratdum(irni2si)
+    b(1) =  rr % rates(1,irni2si)
 
-    dfdy(isi28,ini56) = b(1)
+    state%jac(isi28,ini56) = b(1)
 
     ! ni56 jacobian elements
     ! d(ni56)/d(he4)
-    b(1) =  ratdum(irsi2ni)
-    b(2) =  dratdumdy1(irsi2ni) * y(ihe4)
-    b(3) = -dratdumdy1(irni2si) * y(ini56)
+    b(1) =  rr % rates(1,irsi2ni)
+    b(2) =  rr % rates(3,irsi2ni) * y(ihe4)
+    b(3) = -rr % rates(3,irni2si) * y(ini56)
 
-    dfdy(ini56,ihe4) = esum3(b)
+    state%jac(ini56,ihe4) = esum3(b)
 
     ! d(ni56)/d(si28)
-    b(1) = dratdumdy2(irsi2ni) * y(ihe4)
+    b(1) = rr % rates(4,irsi2ni) * y(ihe4)
 
-    dfdy(ini56,isi28) = b(1)
+    state%jac(ini56,isi28) = b(1)
 
     ! d(ni56)/d(ni56)
-    b(1) = -ratdum(irni2si)
+    b(1) = -rr % rates(1,irni2si)
 
-    dfdy(ini56,ini56) = b(1)
+    state%jac(ini56,ini56) = b(1)
 
   end subroutine dfdy_isotopes_iso7
 
@@ -1032,6 +1066,8 @@ contains
     implicit none
 
     double precision :: dydt(nspec), enuc
+
+    !$gpu
 
     ! This is basically e = m c**2
 

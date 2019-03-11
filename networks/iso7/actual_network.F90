@@ -19,6 +19,10 @@ module actual_network
   double precision, save :: aion(nspec), zion(nspec), nion(nspec)
   double precision, save :: bion(nspec), mion(nspec), wion(nspec)
 
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: aion, zion, nion, bion, mion, wion
+#endif
+
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
