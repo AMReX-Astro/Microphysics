@@ -123,7 +123,7 @@ program burn_cell
      time = burn_state_out % time
   end do
   
-  print*, "energy_end = ", energy
+  print*, "energy_per_second = ", energy/tmax ,"erg/s"
 
   call microphysics_finalize()
 
