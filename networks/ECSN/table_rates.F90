@@ -410,7 +410,7 @@ contains
                               rhoy, temp, reactvec)
 
     use actual_network, only: num_rate_groups
-    use extern_probin_module, only: disable_fermi_heating
+
     implicit none
 
     integer  :: num_rhoy, num_temp, num_vars, num_header
@@ -432,11 +432,8 @@ contains
     reactvec(2) = entries(k_drate_dt)
     reactvec(3) = 1.0d0
     reactvec(4) = 0.0d0
-    reactvec(5) = entries(jtab_dq)
-    if (.not. disable_fermi_heating) then
-       reactvec(5) = reactvec(5) + entries(jtab_mu) - entries(jtab_vs)
-    end if
-    reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
+    reactvec(5) = 0.0d0
+    reactvec(6) = -entries(jtab_nuloss)
 
   end subroutine tabular_evaluate
 
