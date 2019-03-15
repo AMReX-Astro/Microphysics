@@ -97,6 +97,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime parameters</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">BS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cvode">CVODE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ecsn">ECSN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#urca-simple">URCA-simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vbdf">VBDF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vode">VODE</a></li>
@@ -330,6 +331,32 @@ step and retrying with a smaller step?</td>
 <tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">num_steps_save_jacobian</span></code></td>
 <td>&#160;</td>
 <td>-1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="ecsn">
+<h1>ECSN<a class="headerlink" href="#ecsn" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="54%" />
+<col width="14%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">parameter</th>
+<th class="head">description</th>
+<th class="head">default value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">disable_fermi_heating</span></code></td>
+<td>Turn off heating due to the relaxation of the electron
+fermi distribution at high densities caused by electron
+capture reactions. Turning off heating in this way is
+unphysical but can be useful for measuring the size of
+this heating effect.</td>
+<td>.false.</td>
 </tr>
 </tbody>
 </table>
