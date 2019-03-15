@@ -701,7 +701,7 @@ contains
     xnumdt = -2.066d0*xnum/a0 * 2.045d0*xldt
 
     dum    = 1.875d8*xl + 1.653d8*xl2 + 8.499d8*xl3 - 1.604d8*xl4
-    dumdt  = xldt*(1.875d8 + 2.0d0*1.653d8*xl + 3.0d0*8.449d8*xl2 &
+    dumdt  = xldt*(1.875d8 + 2.0d0*1.653d8*xl + 3.0d0*8.499d8*xl2 &
          - 4.0d0*1.604d8*xl3)
 
     z      = 1.0d0/dum
