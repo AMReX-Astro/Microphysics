@@ -180,7 +180,7 @@ contains
     
     !$acc routine seq
 
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
     use burn_type_module, only: net_itemp, net_ienuc
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
@@ -228,7 +228,11 @@ contains
 
 
     ! Get the thermal neutrino losses
-    call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    else
+       sneut = 0.0d0
+    end if
 
     ! Append the energy equation (this is erg/g/s)
     state % ydot(net_ienuc) = enuc - sneut
