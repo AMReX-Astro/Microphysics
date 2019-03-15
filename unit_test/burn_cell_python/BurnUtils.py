@@ -107,6 +107,12 @@ class BurnerDriver(object):
     def save(self, file_name):
         self.history.save(self.species_names, self.initial_burn_state, file_name)
 
+    def get_temp_dot(self, burn_state):
+        return burn_state.ydot[-2]
+
+    def get_enuc_dot(self, burn_state):
+        return burn_state.ydot[-1]
+
 class History(object):
     def __init__(self):
         self.nspec = SKM.Actual_Network().nspec
