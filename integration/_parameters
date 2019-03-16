@@ -81,7 +81,7 @@ abort_on_failure         logical   .true.
 
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
-renormalize_abundances   logical   .false.
+renormalize_abundances   logical   .true.
 
 # The absolute cutoff for species -- note that this might be larger
 # than {\tt small\_x}, but the issue is that we need to prevent underflow
