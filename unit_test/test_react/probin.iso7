@@ -1,0 +1,25 @@
+&extern
+
+  small_dens = 1.0d0
+
+  dens_min   = 1.d7
+  dens_max   = 1.d9
+  temp_min   = 5.d7
+  temp_max   = 5.d9
+
+  tmax = 1.d-4
+
+  xin_file = "xin.iso7"
+
+  do_constant_volume_burn = T
+
+  rtol_spec = 1.d-6
+  atol_spec = 1.d-6
+
+  rtol_temp = 1.d-6
+  atol_temp = 1.d-6
+
+  rtol_enuc = 1.d-6
+  atol_enuc = 1.d-6
+
+/
