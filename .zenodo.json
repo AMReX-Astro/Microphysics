@@ -3,6 +3,10 @@
         {
             "name": "the StarKiller Microphysics Development Team"
         },
+        {   "affiliation": "Michigan State University",
+            "name": "Fields, Carl E.",
+            "orcid": "0000-0002-8925-057X"
+        },
         {
             "affiliation": "NVIDIA Corporation",
             "name": "Katz, Maximilian",
