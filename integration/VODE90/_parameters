@@ -1,2 +1,0 @@
-# Whether to use Jacobian caching in VODE90
-use_jacobian_caching    logical   .true.
