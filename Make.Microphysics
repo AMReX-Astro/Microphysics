@@ -92,10 +92,6 @@ ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
   DEFINES += -DCOMPILE_WITH_F2PY
 endif
 
-ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
-  DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
-endif
-
 #------------------------------------------------------------------------------
 # CVODE directories
 #------------------------------------------------------------------------------
