@@ -277,21 +277,17 @@ step and retrying with a smaller step?</td>
 <td>use the VODE algorithm’s initial timestep estimator?</td>
 <td>.false.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></td>
-<td>Maximum number of steps to use in the ODE integration</td>
-<td>10000</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code></td>
 <td>Floor to use for the ODE scaling vector</td>
 <td>1.d-6</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_method</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">ode_method</span></code></td>
 <td>use an implementation of the Bulirsch-Stoer semi-
 implicit extrapolation method (1) or a Rosenbrock
 method (2)</td>
 <td>1</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">safety_factor</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">safety_factor</span></code></td>
 <td>when constructing the intermediate steps in the stiff
 ODE integration by how much do we allow the state
 variables to change over a dt before giving up on the
