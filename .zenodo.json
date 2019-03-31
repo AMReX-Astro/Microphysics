@@ -3,9 +3,18 @@
         {
             "name": "the StarKiller Microphysics Development Team"
         },
+        {   "affiliation": "Stony Brook University",
+            "name": "Bishop, Abigail",
+            "orcid": "0000-0002-0375-644X"
+        },
         {   "affiliation": "Michigan State University",
             "name": "Fields, Carl E.",
             "orcid": "0000-0002-8925-057X"
+        },
+        {
+            "affiliation": "Michigan State University",
+            "name": "Jacobs, Adam M.",
+            "orcid": "0000-0002-3580-2420"
         },
         {
             "affiliation": "NVIDIA Corporation",
@@ -15,6 +24,11 @@
         {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
             "name": "Li, Xinlong",
             "orcid": "0000-0002-3143-6136"
+        },
+        {
+            "affiliation": "Los Alamos National Laboratory",
+            "name": "Malone, Chris",
+            "orcid": "0000-0002-4045-7932"
         },
         {
             "affiliation": "Arizona State University",
