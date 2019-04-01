@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
+
 # Microphysics
 
 *A collection of astrophysical microphysics routines for stellar explosions*
