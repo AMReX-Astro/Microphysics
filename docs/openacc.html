@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>GPUs &mdash; StarKiller Microphysics 19.02
+  <title>GPUs &mdash; StarKiller Microphysics 19.04
  documentation</title>
   
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                19.02
+                19.04
 
               </div>
             
@@ -221,7 +221,7 @@
 <div class="section" id="compilation-errors">
 <h4>Compilation errors<a class="headerlink" href="#compilation-errors" title="Permalink to this headline">¶</a></h4>
 <ul>
-<li><p class="first"><em>Multiple exit statements</em></p>
+<li><p><em>Multiple exit statements</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Compiler</span> <span class="n">failed</span> <span class="n">to</span> <span class="n">translate</span> <span class="n">accelerator</span> <span class="n">region</span> <span class="p">(</span><span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span><span class="p">):</span>
 <span class="n">Unexpected</span> <span class="n">flow</span> <span class="n">graph</span> <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">single_step_rosen</span><span class="p">:</span>
@@ -233,7 +233,7 @@ a loop and have at most a single exit statement.</p>
 <p>Note: sometimes a do while can help here, but there is a sense
 that while-loops do not perform optimally on GPUs.</p>
 </li>
-<li><p class="first"><em>ACC routines not in Fortran modules</em></p>
+<li><p><em>ACC routines not in Fortran modules</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Procedures</span> <span class="n">called</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">compute</span> <span class="n">region</span> <span class="n">must</span> <span class="n">have</span> <span class="n">acc</span> <span class="n">routine</span> <span class="n">information</span><span class="p">:</span>
   <span class="n">dgefa</span> <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span> <span class="mi">711</span><span class="p">)</span>
 <span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Accelerator</span> <span class="n">region</span> <span class="n">ignored</span><span class="p">;</span> <span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span>
@@ -256,7 +256,7 @@ of a Fortran 90 module. In this case, even if that routine already has</p>
 <div class="section" id="runtime-errors">
 <h4>Runtime errors<a class="headerlink" href="#runtime-errors" title="Permalink to this headline">¶</a></h4>
 <ul>
-<li><p class="first"><em>Multi-d array copies</em></p>
+<li><p><em>Multi-d array copies</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Unhandled</span> <span class="n">builtin</span><span class="p">:</span> <span class="mi">601</span> <span class="p">(</span><span class="n">pgf90_mzero8</span><span class="p">)</span>
 <span class="n">PGF90</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">0000</span><span class="o">-</span><span class="n">Internal</span> <span class="n">compiler</span> <span class="n">error</span><span class="o">.</span> <span class="n">Unhandled</span> <span class="n">builtin</span> <span class="n">function</span><span class="o">.</span>
   <span class="mi">0</span> <span class="p">(</span><span class="o">../../</span><span class="n">networks</span><span class="o">/</span><span class="n">triple_alpha_plus_cago</span><span class="o">/</span><span class="n">actual_rhs</span><span class="o">.</span><span class="n">f90</span><span class="p">:</span> <span class="mi">146</span><span class="p">)</span>
@@ -267,7 +267,7 @@ of a Fortran 90 module. In this case, even if that routine already has</p>
 notation) in GPU code. The fix is to explicitly write out a loop over
 rows.</p>
 </li>
-<li><p class="first"><em>Illegal memory access</em></p>
+<li><p><em>Illegal memory access</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="n">to</span> <span class="n">cuMemcpyDtoHAsync</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
 <span class="n">call</span> <span class="n">to</span> <span class="n">cuMemFreeHost</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
 </pre></div>

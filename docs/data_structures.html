@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data Structures &mdash; StarKiller Microphysics 19.02
+  <title>Data Structures &mdash; StarKiller Microphysics 19.04
  documentation</title>
   
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                19.02
+                19.04
 
               </div>
             
@@ -222,14 +222,14 @@ and in the Fortran syntax we access them with the <code class="docutils literal 
 particular instantiation named eos_state, the most important
 data is the following:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">rho</span></code> : density [<span class="math notranslate nohighlight">\(\mathrm{g~cm^{-3}}\)</span>]</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">T</span></code> : temperature [K]</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">p</span></code> : pressure [<span class="math notranslate nohighlight">\(\mathrm{erg~cm^{-3}}\)</span>]</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">e</span></code> : specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">h</span></code> : specific enthalpy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">s</span></code> : specific entropy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}~K^{-1}}\)</span>]</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">xn</span></code> : mass fractions of species (this is an array, dimensioned to be the number of species, <code class="docutils literal notranslate"><span class="pre">nspec</span></code> )</li>
-<li><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">aux</span></code> : any auxiliary variables carried with the fluid (this is an array, dimensioned to be the number of auxiliary quantities, <code class="docutils literal notranslate"><span class="pre">naux</span></code> )</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">rho</span></code> : density [<span class="math notranslate nohighlight">\(\mathrm{g~cm^{-3}}\)</span>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">T</span></code> : temperature [K]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">p</span></code> : pressure [<span class="math notranslate nohighlight">\(\mathrm{erg~cm^{-3}}\)</span>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">e</span></code> : specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">h</span></code> : specific enthalpy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">s</span></code> : specific entropy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}~K^{-1}}\)</span>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">xn</span></code> : mass fractions of species (this is an array, dimensioned to be the number of species, <code class="docutils literal notranslate"><span class="pre">nspec</span></code> )</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state</span> <span class="pre">%</span> <span class="pre">aux</span></code> : any auxiliary variables carried with the fluid (this is an array, dimensioned to be the number of auxiliary quantities, <code class="docutils literal notranslate"><span class="pre">naux</span></code> )</p></li>
 </ul>
 <p>Note that both <code class="docutils literal notranslate"><span class="pre">nspec</span></code> and <code class="docutils literal notranslate"><span class="pre">naux</span></code> are meant to be properties of the
 network, and they will come in through the <code class="docutils literal notranslate"><span class="pre">network</span></code> module.</p>
@@ -250,11 +250,9 @@ state, and a lot of internal information used by the reaction network
 (e.g. the righthand side of the ODEs, the Jacobian, etc.). Typically
 the user will only need to fill/use the following information:</p>
 <ul>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">rho</span></code>: density [<span class="math notranslate nohighlight">\(\mathrm{g~cm^{-3}}\)</span>]</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">T</span></code>: temperature [K]</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">e</span></code>: the specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">rho</span></code>: density [<span class="math notranslate nohighlight">\(\mathrm{g~cm^{-3}}\)</span>]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">T</span></code>: temperature [K]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">e</span></code>: the specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</p>
 <blockquote>
 <div><p>Note: this has two different contexts, depending on when it is
 accessed.</p>
@@ -268,13 +266,10 @@ is subtracted off, and e now represents the specifc nuclear
 energy release from the reactions.</p>
 </div></blockquote>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">xn(:)</span></code>: the mass fractions</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">aux(:)</span></code>: any auxiliary quantities (like <span class="math notranslate nohighlight">\(Y_e\)</span>)</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">j</span></code>, <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">k</span></code>: hydrodynamic zone i, j, k for bug reporting, diagnostics</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">time</span></code>: the time since the start of the integration [s]</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">xn(:)</span></code>: the mass fractions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">aux(:)</span></code>: any auxiliary quantities (like <span class="math notranslate nohighlight">\(Y_e\)</span>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">j</span></code>, <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">k</span></code>: hydrodynamic zone i, j, k for bug reporting, diagnostics</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">time</span></code>: the time since the start of the integration [s]</p>
 <blockquote>
 <div><p>Note this is not the same as the simulation time. Each integrator
 will also store the simulation time at the start of integration
@@ -282,8 +277,7 @@ in their local storage—this can be used as an offset to convert
 between integration and simulation time.</p>
 </div></blockquote>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">shock</span></code>: are we inside of a hydrodynamic shock (the burner may wish to take action in this case)</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_state</span> <span class="pre">%</span> <span class="pre">shock</span></code>: are we inside of a hydrodynamic shock (the burner may wish to take action in this case)</p></li>
 </ul>
 </div>
 <div class="section" id="rate-t">
@@ -302,15 +296,13 @@ used in dimensioning this are network-dependent.</p>
 also defines integer indices into the solution vector that can be used
 to access the different components of the state:</p>
 <ul>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">neqs</span></code> : the total number of variables we are integrating.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">neqs</span></code> : the total number of variables we are integrating.</p>
 <blockquote>
 <div><p>It is assumed that the first <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> are the species.</p>
 </div></blockquote>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">net_itemp</span></code> : the index of the temperature in the solution vector</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">net_ienuc</span></code> : the index of the specifc internal energy in the solution vector</p>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">net_itemp</span></code> : the index of the temperature in the solution vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">net_ienuc</span></code> : the index of the specifc internal energy in the solution vector</p></li>
 </ul>
 </div>
 </div>

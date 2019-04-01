@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>StarKiller Basics &mdash; StarKiller Microphysics 19.02
+  <title>StarKiller Basics &mdash; StarKiller Microphysics 19.04
  documentation</title>
   
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                19.02
+                19.04
 
               </div>
             
@@ -228,43 +228,43 @@ code. Note that there are a few AMReX files required at the moment
 <p>The high-level directory structure delineates the types of microphysics
 and the generic solvers:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">docs/</span></code>: this User’s Guide</li>
-<li><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the</dt>
-<dd>reaction networks</dd>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code>: this User’s Guide</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the</dt><dd><p>reaction networks</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to</dt>
-<dd>interface with the EOS and reaction networks. Note that most application
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to</dt><dd><p>interface with the EOS and reaction networks. Note that most application
 codes will have their own local copies. These are provided for unit testing
-in Microphysics.</dd>
+in Microphysics.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the</dt>
-<dd>righthand side of the network, as the actual integrators are decoupled from
-the network.</dd>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the</dt><dd><p>righthand side of the network, as the actual integrators are decoupled from
+the network.</p>
+</dd>
 </dl>
 </li>
-<li><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the</dt>
-<dd>networks.</dd>
+<li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the</dt><dd><p>networks.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the</dt>
-<dd>reaction networks.</dd>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the</dt><dd><p>reaction networks.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t</dt>
-<dd>need any application code to build, but will require AMReX.</dd>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t</dt><dd><p>need any application code to build, but will require AMReX.</p>
+</dd>
 </dl>
 </li>
-<li><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
 </ul>
 </div>
 <div class="section" id="design-philosophy">

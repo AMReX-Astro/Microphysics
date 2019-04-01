@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Unit Tests &mdash; StarKiller Microphysics 19.02
+  <title>Unit Tests &mdash; StarKiller Microphysics 19.04
  documentation</title>
   
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                19.02
+                19.04
 
               </div>
             
@@ -227,43 +227,42 @@ of state in Microphysics. It sets up a cube of data, with
 dimensions, and then calls the EOS in each zone. Calls are done to
 exercise all modes of calling the EOS, in order:</p>
 <ul>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, T\)</span>. this is the
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, T\)</span>. this is the
 reference call, and we save the <span class="math notranslate nohighlight">\(h\)</span>, <span class="math notranslate nohighlight">\(e\)</span>, <span class="math notranslate nohighlight">\(p\)</span>, and
-<span class="math notranslate nohighlight">\(s\)</span> from here to use in subsequent calls.</p>
-</li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_rh</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, h\)</span>, to recover
+<span class="math notranslate nohighlight">\(s\)</span> from here to use in subsequent calls.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rh</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, h\)</span>, to recover
 the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to do, we
 perturb the initial temperature.</p>
 <p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_tp</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(T, p\)</span>, to recover the
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_tp</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(T, p\)</span>, to recover the
 original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to do, we
 perturb the initial density.</p>
 <p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_rp</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, p\)</span>, to recover
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rp</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, p\)</span>, to recover
 the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to do, we
 perturb the initial temperature.</p>
 <p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_re</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, e\)</span>, to recover
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_re</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, e\)</span>, to recover
 the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to do, we
 perturb the initial temperature.</p>
 <p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_ps</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(p, s\)</span>, to recover the
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_ps</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(p, s\)</span>, to recover the
 original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to do,
 we perturb the initial density and temperature.</p>
 <p>Note: entropy is not well-defined for some EOSs, so we only attempt
 the root find if <span class="math notranslate nohighlight">\(s &gt; 0\)</span>.</p>
 <p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_ph</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(p, h\)</span>, to recover the
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_ph</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(p, h\)</span>, to recover the
 original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to do,
 we perturb the initial density and temperature.</p>
 <p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eos_input_th</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(T, h\)</span>, to recover the
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_th</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(T, h\)</span>, to recover the
 original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to do, we
 perturb the initial density.</p>
 <p>Note: for some EOSs, <span class="math notranslate nohighlight">\(h = h(\rho)\)</span> (e.g., an ideal gas), so there
@@ -316,11 +315,11 @@ as well as to optimize the GPU performance of the burners.</p>
 usually 3 different drivers there that can be used to evaluate the
 network or Jacobian on a single state:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">eval.f90</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">testburn.f90</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">testjacobian.f90</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eval.f90</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testburn.f90</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testjacobian.f90</span></code></p></li>
 </ul>
-<p>These all use the F90 AMReX&nbsp;build system and the macros in
+<p>These all use the F90 AMReX build system and the macros in
 <code class="docutils literal notranslate"><span class="pre">GMicrophysics.mak</span></code> to build the executable. To make
 individual tests you can use the programs variable, e.g.,:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">programs</span><span class="o">=</span><span class="nb">eval</span>
@@ -355,27 +354,27 @@ asks for so that the user does not have to input all 5+
 parameters that are required everytime the test is run.  Each input
 required is defined and initialized on the lines following
 <code class="docutils literal notranslate"><span class="pre">&amp;cellparams</span></code>.  The use of the parameters is show below:</p>
-<table border="1" class="docutils" id="id1">
+<table class="docutils align-center" id="id1">
 <caption><span class="caption-text">The definition of parameters used in the burn_cell unit tests and specified in the second half of each inputs file.</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col width="37%" />
-<col width="63%" />
+<col style="width: 37%" />
+<col style="width: 63%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">tmax</span></code></td>
-<td>Maximum Time (s)</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<td><p>Maximum Time (s)</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></td>
-<td>Number of time subdivisions</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p></td>
+<td><p>Number of time subdivisions</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">density</span></code></td>
-<td>State Density (<span class="math notranslate nohighlight">\(\frac{g}{cm^3}\)</span>)</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td><p>State Density (<span class="math notranslate nohighlight">\(\frac{g}{cm^3}\)</span>)</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temperature</span></code></td>
-<td>State Temperature (K)</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td><p>State Temperature (K)</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">massfractions(i)</span></code></td>
-<td>Mass Fraction for element i</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">massfractions(i)</span></code></p></td>
+<td><p>Mass Fraction for element i</p></td>
 </tr>
 </tbody>
 </table>
@@ -406,10 +405,10 @@ output files and compile them into three graphs explained below.</p>
 graph of the chemical abundances as a function of the time, both on
 logarithmic scales, for all species involved in the simulation.  An
 example of this graph is shown below.</p>
-<div class="figure" id="id2">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/react_aprox13_logX.png"><img alt="An example of a plot output by the burn_cell unit test. This is the logX output cooresponding to the network aprox13." src="_images/react_aprox13_logX.png" style="width: 4.5in;" /></a>
 <p class="caption"><span class="caption-text">An example of a plot output by the burn_cell unit test. This is the
-logX output cooresponding to the network aprox13.</span></p>
+logX output cooresponding to the network aprox13.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p>The file <code class="docutils literal notranslate"><span class="pre">run-prefix_ydot.png</span></code> and <code class="docutils literal notranslate"><span class="pre">run-prefix_ydot.eps</span></code> will display the
 molar fraction (mass fraction / atomic weight) as a function of time,

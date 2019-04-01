@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>BS &mdash; StarKiller Microphysics 19.02
+  <title>BS &mdash; StarKiller Microphysics 19.04
  documentation</title>
   
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                19.02
+                19.04
 
               </div>
             
@@ -225,459 +225,459 @@
 </style>
 <div class="section" id="bs">
 <h1>BS<a class="headerlink" href="#bs" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code></td>
-<td>Which choice to use for the ODE scaling 1: <span class="math notranslate nohighlight">\(|y| +
-|dy/dt|\)</span> 2: <span class="math notranslate nohighlight">\(\max(|y|, K)\)</span> with K = constant</td>
-<td>2</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code></p></td>
+<td><p>Which choice to use for the ODE scaling 1: <span class="math notranslate nohighlight">\(|y| +
+|dy/dt|\)</span> 2: <span class="math notranslate nohighlight">\(\max(|y|, K)\)</span> with K = constant</p></td>
+<td><p>2</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_timestep_estimator</span></code></td>
-<td>use the VODE algorithm’s initial timestep estimator?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_timestep_estimator</span></code></p></td>
+<td><p>use the VODE algorithm’s initial timestep estimator?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></td>
-<td>Maximum number of steps to use in the ODE integration</td>
-<td>10000</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
+<td><p>Maximum number of steps to use in the ODE integration</p></td>
+<td><p>10000</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code></td>
-<td>Floor to use for the ODE scaling vector</td>
-<td>1.d-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code></p></td>
+<td><p>Floor to use for the ODE scaling vector</p></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_method</span></code></td>
-<td>use an implementation of the Bulirsch-Stoer semi-
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_method</span></code></p></td>
+<td><p>use an implementation of the Bulirsch-Stoer semi-
 implicit extrapolation method (1) or a Rosenbrock
-method (2)</td>
-<td>1</td>
+method (2)</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">safety_factor</span></code></td>
-<td>when constructing the intermediate steps in the stiff
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">safety_factor</span></code></p></td>
+<td><p>when constructing the intermediate steps in the stiff
 ODE integration by how much do we allow the state
 variables to change over a dt before giving up on the
-step and retrying with a smaller step?</td>
-<td>1.d9</td>
+step and retrying with a smaller step?</p></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code></td>
-<td>Which choice to use for the ODE scaling 1: <span class="math notranslate nohighlight">\(|y| +
-|dy/dt|\)</span> 2: <span class="math notranslate nohighlight">\(\max(|y|, K)\)</span> with K = constant</td>
-<td>2</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code></p></td>
+<td><p>Which choice to use for the ODE scaling 1: <span class="math notranslate nohighlight">\(|y| +
+|dy/dt|\)</span> 2: <span class="math notranslate nohighlight">\(\max(|y|, K)\)</span> with K = constant</p></td>
+<td><p>2</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_timestep_estimator</span></code></td>
-<td>use the VODE algorithm’s initial timestep estimator?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_timestep_estimator</span></code></p></td>
+<td><p>use the VODE algorithm’s initial timestep estimator?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code></td>
-<td>Floor to use for the ODE scaling vector</td>
-<td>1.d-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code></p></td>
+<td><p>Floor to use for the ODE scaling vector</p></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">ode_method</span></code></td>
-<td>use an implementation of the Bulirsch-Stoer semi-
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_method</span></code></p></td>
+<td><p>use an implementation of the Bulirsch-Stoer semi-
 implicit extrapolation method (1) or a Rosenbrock
-method (2)</td>
-<td>1</td>
+method (2)</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">safety_factor</span></code></td>
-<td>when constructing the intermediate steps in the stiff
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">safety_factor</span></code></p></td>
+<td><p>when constructing the intermediate steps in the stiff
 ODE integration by how much do we allow the state
 variables to change over a dt before giving up on the
-step and retrying with a smaller step?</td>
-<td>1.d9</td>
+step and retrying with a smaller step?</p></td>
+<td><p>1.d9</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="cvode">
 <h1>CVODE<a class="headerlink" href="#cvode" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">store_jacobian</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">store_jacobian</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">num_steps_save_jacobian</span></code></td>
-<td>&#160;</td>
-<td>-1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">num_steps_save_jacobian</span></code></p></td>
+<td></td>
+<td><p>-1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">store_jacobian</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">store_jacobian</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">num_steps_save_jacobian</span></code></td>
-<td>&#160;</td>
-<td>-1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">num_steps_save_jacobian</span></code></p></td>
+<td></td>
+<td><p>-1</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="ecsn">
 <h1>ECSN<a class="headerlink" href="#ecsn" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></td>
-<td>Turn off thermal neutrino losses</td>
-<td>.false.</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
+<td><p>Turn off thermal neutrino losses</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="urca-simple">
 <h1>URCA-simple<a class="headerlink" href="#urca-simple" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">disable_fermi_heating</span></code></td>
-<td>Turn off heating due to the relaxation of the electron
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_fermi_heating</span></code></p></td>
+<td><p>Turn off heating due to the relaxation of the electron
 fermi distribution at high densities caused by electron
 capture reactions. Turning off heating in this way is
 unphysical but can be useful for measuring the size of
-this heating effect.</td>
-<td>.false.</td>
+this heating effect.</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="vbdf">
 <h1>VBDF<a class="headerlink" href="#vbdf" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dt_min</span></code></td>
-<td>minimum allowable timestep</td>
-<td>1.d-24</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dt_min</span></code></p></td>
+<td><p>minimum allowable timestep</p></td>
+<td><p>1.d-24</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jac_age</span></code></td>
-<td>number of times we can use the Jacobian before
-rebuilding</td>
-<td>50</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jac_age</span></code></p></td>
+<td><p>number of times we can use the Jacobian before
+rebuilding</p></td>
+<td><p>50</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">p_age</span></code></td>
-<td>number of times we use the same Newton iteration matrix
-before rebuilding</td>
-<td>20</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">p_age</span></code></p></td>
+<td><p>number of times we use the same Newton iteration matrix
+before rebuilding</p></td>
+<td><p>20</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">reuse_jac</span></code></td>
-<td>reuse the Jacobian?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reuse_jac</span></code></p></td>
+<td><p>reuse the Jacobian?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dt_min</span></code></td>
-<td>minimum allowable timestep</td>
-<td>1.d-24</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dt_min</span></code></p></td>
+<td><p>minimum allowable timestep</p></td>
+<td><p>1.d-24</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jac_age</span></code></td>
-<td>number of times we can use the Jacobian before
-rebuilding</td>
-<td>50</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jac_age</span></code></p></td>
+<td><p>number of times we can use the Jacobian before
+rebuilding</p></td>
+<td><p>50</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">p_age</span></code></td>
-<td>number of times we use the same Newton iteration matrix
-before rebuilding</td>
-<td>20</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">p_age</span></code></p></td>
+<td><p>number of times we use the same Newton iteration matrix
+before rebuilding</p></td>
+<td><p>20</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">reuse_jac</span></code></td>
-<td>reuse the Jacobian?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reuse_jac</span></code></p></td>
+<td><p>reuse the Jacobian?</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="vode">
 <h1>VODE<a class="headerlink" href="#vode" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></td>
-<td>maximum number of timesteps</td>
-<td>150000</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
+<td><p>maximum number of timesteps</p></td>
+<td><p>150000</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="vode90">
 <h1>VODE90<a class="headerlink" href="#vode90" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></td>
-<td>Whether to use Jacobian caching in VODE90</td>
-<td>.true.</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
+<td><p>Whether to use Jacobian caching in VODE90</p></td>
+<td><p>.true.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="breakout">
 <h1>breakout<a class="headerlink" href="#breakout" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></td>
-<td>&#160;</td>
-<td>0.d0</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
+<td></td>
+<td><p>0.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></td>
-<td>&#160;</td>
-<td>0.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
+<td></td>
+<td><p>0.d0</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="burn-cell">
 <h1>burn_cell<a class="headerlink" href="#burn-cell" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="cj-detonation">
 <h1>cj_detonation<a class="headerlink" href="#cj-detonation" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">smallx</span></code></td>
-<td>&#160;</td>
-<td>1.e-10</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smallx</span></code></p></td>
+<td></td>
+<td><p>1.e-10</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">smallx</span></code></td>
-<td>&#160;</td>
-<td>1.e-10</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smallx</span></code></p></td>
+<td></td>
+<td><p>1.e-10</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="gamma-law-general">
 <h1>gamma_law_general<a class="headerlink" href="#gamma-law-general" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></td>
-<td>&#160;</td>
-<td>5.d0/3.d0</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
+<td></td>
+<td><p>5.d0/3.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></td>
-<td>&#160;</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
+<td></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></td>
-<td>&#160;</td>
-<td>5.d0/3.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
+<td></td>
+<td><p>5.d0/3.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></td>
-<td>&#160;</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
+<td></td>
+<td><p>.true.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="helmholtz">
 <h1>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">use_eos_coulomb</span></code></td>
-<td>use the Coulomb corrections</td>
-<td>.true.</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_eos_coulomb</span></code></p></td>
+<td><p>use the Coulomb corrections</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code></td>
-<td>Force the EOS output quantities to match input</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code></p></td>
+<td><p>Force the EOS output quantities to match input</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code></td>
-<td>Tolerance for iterations with respect to temperature</td>
-<td>1.0d-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code></p></td>
+<td><p>Tolerance for iterations with respect to temperature</p></td>
+<td><p>1.0d-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code></td>
-<td>Tolerance for iterations with respect to density</td>
-<td>1.0d-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code></p></td>
+<td><p>Tolerance for iterations with respect to density</p></td>
+<td><p>1.0d-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">use_eos_coulomb</span></code></td>
-<td>use the Coulomb corrections</td>
-<td>.true.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_eos_coulomb</span></code></p></td>
+<td><p>use the Coulomb corrections</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code></td>
-<td>Force the EOS output quantities to match input</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code></p></td>
+<td><p>Force the EOS output quantities to match input</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code></td>
-<td>Tolerance for iterations with respect to temperature</td>
-<td>1.0d-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code></p></td>
+<td><p>Tolerance for iterations with respect to temperature</p></td>
+<td><p>1.0d-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code></td>
-<td>Tolerance for iterations with respect to density</td>
-<td>1.0d-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code></p></td>
+<td><p>Tolerance for iterations with respect to density</p></td>
+<td><p>1.0d-8</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="integration">
 <h1>integration<a class="headerlink" href="#integration" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>When evolving the temperature, should we assume a
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>When evolving the temperature, should we assume a
 constant pressure (default) or a constant volume
-(do_constant_volume_burn = T)?</td>
-<td>.false.</td>
+(do_constant_volume_burn = T)?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></td>
-<td>Do we call the EOS each time we enter the EOS?  This is
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
+<td><p>Do we call the EOS each time we enter the EOS?  This is
 expensive, but more accurate.  Otherwise, we instead
 call the EOS at the start of the integration and freeze
 the thermodynamics throughout the RHS evalulation.
@@ -685,21 +685,21 @@ This only affects the temperature integration (which is
 the input to the rate evaluation). In particular, since
 we calculate the composition factors either way, this
 determines whether we’re updating the thermodynamic
-derivatives and other quantities (cp and cv) as we go.</td>
-<td>.false.</td>
+derivatives and other quantities (cp and cv) as we go.</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></td>
-<td>If we want to call the EOS in general, but don’t want
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></p></td>
+<td><p>If we want to call the EOS in general, but don’t want
 to overdo it, we can set a fraction dT_crit such that
 we only do the EOS call if the temperature has changed
 by a relative fraction $&gt;$ dT_crit. If we use this
 option, we will do a linear fit to c_v and c_p in
 between EOS calls. This will work regardless of
-call_eos_in_rhs.</td>
-<td>1.0d20</td>
+call_eos_in_rhs.</p></td>
+<td><p>1.0d20</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>Integration mode: if 0, a hydrostatic burn (temperature
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>Integration mode: if 0, a hydrostatic burn (temperature
 and density remain constant), and if 1, a self-heating
 burn (temperature/energy evolve with the burning). If
 2, a hybrid approach presented by Raskin et al. (2010):
@@ -711,127 +711,127 @@ that $dot{e} = f_s e / t_s$, where $dot{e}$ is the
 energy injection rate, $e$ is the internal energy of
 the zone, $t_s$ is the sound crossing time, and $f_s$
 is a safety factor. $L$ is computed as min(1, $f_s (e /
-dot{e}) / t_s$).</td>
-<td>1</td>
+dot{e}) / t_s$).</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode_factor</span></code></td>
-<td>If we’re using burning_mode == 3, this is the safety
-factor $f_s$ to use.</td>
-<td>1.d-1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode_factor</span></code></p></td>
+<td><p>If we’re using burning_mode == 3, this is the safety
+factor $f_s$ to use.</p></td>
+<td><p>1.d-1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">integrate_temperature</span></code></td>
-<td>Allow the temperature integration to be disabled by
-setting the RHS to zero.</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_temperature</span></code></p></td>
+<td><p>Allow the temperature integration to be disabled by
+setting the RHS to zero.</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></td>
-<td>Allow the energy integration to be disabled by setting
-the RHS to zero.</td>
-<td>.true.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></p></td>
+<td><p>Allow the energy integration to be disabled by setting
+the RHS to zero.</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>Whether to use an analytical or numerical Jacobian. 1
-== Analytical 2 == Numerical</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>Whether to use an analytical or numerical Jacobian. 1
+== Analytical 2 == Numerical</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">centered_diff_jac</span></code></td>
-<td>one-sided numerical jacobian (.False.) or centered-
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">centered_diff_jac</span></code></p></td>
+<td><p>one-sided numerical jacobian (.False.) or centered-
 difference Jacobian (.true.).  Note: the centered-
-difference requires twice as many RHS calls</td>
-<td>.false.</td>
+difference requires twice as many RHS calls</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></td>
-<td>Should we print out diagnostic output after the solve?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></p></td>
+<td><p>Should we print out diagnostic output after the solve?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>Tolerances for the solver (relative and absolute), for
-the species, temperature, and energy equations.</td>
-<td>1.d-12</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td><p>Tolerances for the solver (relative and absolute), for
+the species, temperature, and energy equations.</p></td>
+<td><p>1.d-12</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.d-12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td></td>
+<td><p>1.d-12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">retry_burn</span></code></td>
-<td>If we fail to find a solution consistent with the
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn</span></code></p></td>
+<td><p>If we fail to find a solution consistent with the
 tolerances, do we want to try again with a looser
-tolerance?</td>
-<td>.false.</td>
+tolerance?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">retry_burn_factor</span></code></td>
-<td>If we do retry a burn, by what factor should we loosen
-the tolerance?</td>
-<td>1.25d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn_factor</span></code></p></td>
+<td><p>If we do retry a burn, by what factor should we loosen
+the tolerance?</p></td>
+<td><p>1.25d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">retry_burn_max_change</span></code></td>
-<td>What is the maximum factor we can increase the original
-tolerances by?</td>
-<td>1.0d2</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn_max_change</span></code></p></td>
+<td><p>What is the maximum factor we can increase the original
+tolerances by?</p></td>
+<td><p>1.0d2</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></td>
-<td>Should we abort the run when the burn fails?</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></p></td>
+<td><p>Should we abort the run when the burn fails?</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></td>
-<td>Whether to renormalize the mass fractions at each step
-in the evolution so that they sum to unity.</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
+<td><p>Whether to renormalize the mass fractions at each step
+in the evolution so that they sum to unity.</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></td>
-<td>The absolute cutoff for species – note that this might
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
+<td><p>The absolute cutoff for species – note that this might
 be larger than {tt small_x}, but the issue is that we
 need to prevent underflow issues and keep mass
 fractions positive in the integrator.  You may have to
 increase the floor to, e.g. {tt 1.d-20} if your rates
-are large.</td>
-<td>1.0d-30</td>
+are large.</p></td>
+<td><p>1.0d-30</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></td>
-<td>The maximum temperature for reactions in the
-integration.</td>
-<td>1.0d11</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
+<td><p>The maximum temperature for reactions in the
+integration.</p></td>
+<td><p>1.0d11</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></td>
-<td>boost the reaction rates by a factor &gt; 1</td>
-<td>-1.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
+<td><p>boost the reaction rates by a factor &gt; 1</p></td>
+<td><p>-1.d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">reactions_density_scale</span></code></td>
-<td>density, temperature, and energy scaling factors</td>
-<td>1.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reactions_density_scale</span></code></p></td>
+<td><p>density, temperature, and energy scaling factors</p></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">reactions_temperature_scale</span></code></td>
-<td>&#160;</td>
-<td>1.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reactions_temperature_scale</span></code></p></td>
+<td></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">reactions_energy_scale</span></code></td>
-<td>&#160;</td>
-<td>1.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reactions_energy_scale</span></code></p></td>
+<td></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>When evolving the temperature, should we assume a
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>When evolving the temperature, should we assume a
 constant pressure (default) or a constant volume
-(do_constant_volume_burn = T)?</td>
-<td>.false.</td>
+(do_constant_volume_burn = T)?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></td>
-<td>Do we call the EOS each time we enter the EOS?  This is
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
+<td><p>Do we call the EOS each time we enter the EOS?  This is
 expensive, but more accurate.  Otherwise, we instead
 call the EOS at the start of the integration and freeze
 the thermodynamics throughout the RHS evalulation.
@@ -839,21 +839,21 @@ This only affects the temperature integration (which is
 the input to the rate evaluation). In particular, since
 we calculate the composition factors either way, this
 determines whether we’re updating the thermodynamic
-derivatives and other quantities (cp and cv) as we go.</td>
-<td>.false.</td>
+derivatives and other quantities (cp and cv) as we go.</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></td>
-<td>If we want to call the EOS in general, but don’t want
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></p></td>
+<td><p>If we want to call the EOS in general, but don’t want
 to overdo it, we can set a fraction dT_crit such that
 we only do the EOS call if the temperature has changed
 by a relative fraction $&gt;$ dT_crit. If we use this
 option, we will do a linear fit to c_v and c_p in
 between EOS calls. This will work regardless of
-call_eos_in_rhs.</td>
-<td>1.0d20</td>
+call_eos_in_rhs.</p></td>
+<td><p>1.0d20</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>Integration mode: if 0, a hydrostatic burn (temperature
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>Integration mode: if 0, a hydrostatic burn (temperature
 and density remain constant), and if 1, a self-heating
 burn (temperature/energy evolve with the burning). If
 2, a hybrid approach presented by Raskin et al. (2010):
@@ -865,1264 +865,1264 @@ that $dot{e} = f_s e / t_s$, where $dot{e}$ is the
 energy injection rate, $e$ is the internal energy of
 the zone, $t_s$ is the sound crossing time, and $f_s$
 is a safety factor. $L$ is computed as min(1, $f_s (e /
-dot{e}) / t_s$).</td>
-<td>1</td>
+dot{e}) / t_s$).</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">burning_mode_factor</span></code></td>
-<td>If we’re using burning_mode == 3, this is the safety
-factor $f_s$ to use.</td>
-<td>1.d-1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode_factor</span></code></p></td>
+<td><p>If we’re using burning_mode == 3, this is the safety
+factor $f_s$ to use.</p></td>
+<td><p>1.d-1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">integrate_temperature</span></code></td>
-<td>Allow the temperature integration to be disabled by
-setting the RHS to zero.</td>
-<td>.true.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_temperature</span></code></p></td>
+<td><p>Allow the temperature integration to be disabled by
+setting the RHS to zero.</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></td>
-<td>Allow the energy integration to be disabled by setting
-the RHS to zero.</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></p></td>
+<td><p>Allow the energy integration to be disabled by setting
+the RHS to zero.</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>Whether to use an analytical or numerical Jacobian. 1
-== Analytical 2 == Numerical</td>
-<td>1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>Whether to use an analytical or numerical Jacobian. 1
+== Analytical 2 == Numerical</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">centered_diff_jac</span></code></td>
-<td>one-sided numerical jacobian (.False.) or centered-
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">centered_diff_jac</span></code></p></td>
+<td><p>one-sided numerical jacobian (.False.) or centered-
 difference Jacobian (.true.).  Note: the centered-
-difference requires twice as many RHS calls</td>
-<td>.false.</td>
+difference requires twice as many RHS calls</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></td>
-<td>Should we print out diagnostic output after the solve?</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></p></td>
+<td><p>Should we print out diagnostic output after the solve?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>Tolerances for the solver (relative and absolute), for
-the species, temperature, and energy equations.</td>
-<td>1.d-12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td><p>Tolerances for the solver (relative and absolute), for
+the species, temperature, and energy equations.</p></td>
+<td><p>1.d-12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.d-12</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td></td>
+<td><p>1.d-12</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.d-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.d-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">retry_burn</span></code></td>
-<td>If we fail to find a solution consistent with the
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn</span></code></p></td>
+<td><p>If we fail to find a solution consistent with the
 tolerances, do we want to try again with a looser
-tolerance?</td>
-<td>.false.</td>
+tolerance?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">retry_burn_factor</span></code></td>
-<td>If we do retry a burn, by what factor should we loosen
-the tolerance?</td>
-<td>1.25d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn_factor</span></code></p></td>
+<td><p>If we do retry a burn, by what factor should we loosen
+the tolerance?</p></td>
+<td><p>1.25d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">retry_burn_max_change</span></code></td>
-<td>What is the maximum factor we can increase the original
-tolerances by?</td>
-<td>1.0d2</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn_max_change</span></code></p></td>
+<td><p>What is the maximum factor we can increase the original
+tolerances by?</p></td>
+<td><p>1.0d2</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></td>
-<td>Should we abort the run when the burn fails?</td>
-<td>.true.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></p></td>
+<td><p>Should we abort the run when the burn fails?</p></td>
+<td><p>.true.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></td>
-<td>Whether to renormalize the mass fractions at each step
-in the evolution so that they sum to unity.</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
+<td><p>Whether to renormalize the mass fractions at each step
+in the evolution so that they sum to unity.</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></td>
-<td>The absolute cutoff for species – note that this might
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
+<td><p>The absolute cutoff for species – note that this might
 be larger than {tt small_x}, but the issue is that we
 need to prevent underflow issues and keep mass
 fractions positive in the integrator.  You may have to
 increase the floor to, e.g. {tt 1.d-20} if your rates
-are large.</td>
-<td>1.0d-30</td>
+are large.</p></td>
+<td><p>1.0d-30</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></td>
-<td>The maximum temperature for reactions in the
-integration.</td>
-<td>1.0d11</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
+<td><p>The maximum temperature for reactions in the
+integration.</p></td>
+<td><p>1.0d11</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></td>
-<td>boost the reaction rates by a factor &gt; 1</td>
-<td>-1.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
+<td><p>boost the reaction rates by a factor &gt; 1</p></td>
+<td><p>-1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">reactions_density_scale</span></code></td>
-<td>density, temperature, and energy scaling factors</td>
-<td>1.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reactions_density_scale</span></code></p></td>
+<td><p>density, temperature, and energy scaling factors</p></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">reactions_temperature_scale</span></code></td>
-<td>&#160;</td>
-<td>1.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reactions_temperature_scale</span></code></p></td>
+<td></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">reactions_energy_scale</span></code></td>
-<td>&#160;</td>
-<td>1.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reactions_energy_scale</span></code></p></td>
+<td></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></td>
-<td>maximum number of timesteps for VODE</td>
-<td>150000</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
+<td><p>maximum number of timesteps for VODE</p></td>
+<td><p>150000</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></td>
-<td>Whether to use Jacobian caching in VODE90</td>
-<td>.true.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
+<td><p>Whether to use Jacobian caching in VODE90</p></td>
+<td><p>.true.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="kpp">
 <h1>kpp<a class="headerlink" href="#kpp" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">A_burn</span></code></td>
-<td>&#160;</td>
-<td>10.d0</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">A_burn</span></code></p></td>
+<td></td>
+<td><p>10.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">A_burn</span></code></td>
-<td>&#160;</td>
-<td>10.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">A_burn</span></code></p></td>
+<td></td>
+<td><p>10.d0</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="multigamma">
 <h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">species_a_name</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_name</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">species_a_gamma</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_gamma</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">species_b_name</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_name</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">species_b_gamma</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_gamma</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">species_c_name</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_name</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">species_c_gamma</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_gamma</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">species_a_name</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_name</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">species_a_gamma</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_gamma</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">species_b_name</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_name</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">species_b_gamma</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_gamma</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">species_c_name</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_name</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">species_c_gamma</span></code></td>
-<td>&#160;</td>
-<td>1.4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_gamma</span></code></p></td>
+<td></td>
+<td><p>1.4</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="networks">
 <h1>networks<a class="headerlink" href="#networks" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_x</span></code></td>
-<td>cutoff for species mass fractions</td>
-<td>1.d-30</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
+<td><p>cutoff for species mass fractions</p></td>
+<td><p>1.d-30</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></td>
-<td>Should we use rate tables if they are present in the
-network?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
+<td><p>Should we use rate tables if they are present in the
+network?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></td>
-<td>Should we use Deboer + 2017 rate for c12(a,g)o16?</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
+<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_x</span></code></td>
-<td>cutoff for species mass fractions</td>
-<td>1.d-30</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
+<td><p>cutoff for species mass fractions</p></td>
+<td><p>1.d-30</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></td>
-<td>Should we use rate tables if they are present in the
-network?</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
+<td><p>Should we use rate tables if they are present in the
+network?</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></td>
-<td>Should we use Deboer + 2017 rate for c12(a,g)o16?</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
+<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="polytrope">
 <h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code></td>
-<td>&#160;</td>
-<td>0</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></td>
-<td>&#160;</td>
-<td>0.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></td>
-<td>&#160;</td>
-<td>0.0d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></td>
-<td>&#160;</td>
-<td>2.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></p></td>
+<td></td>
+<td><p>2.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code></td>
-<td>&#160;</td>
-<td>0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></td>
-<td>&#160;</td>
-<td>0.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></td>
-<td>&#160;</td>
-<td>0.0d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></td>
-<td>&#160;</td>
-<td>2.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></p></td>
+<td></td>
+<td><p>2.0d0</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="powerlaw">
 <h1>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></td>
-<td>the coefficient for the reaction rate</td>
-<td>1.d0</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></p></td>
+<td><p>the coefficient for the reaction rate</p></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">nu</span></code></td>
-<td>exponent for the temperature</td>
-<td>4.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nu</span></code></p></td>
+<td><p>exponent for the temperature</p></td>
+<td><p>4.d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">specific_q_burn</span></code></td>
-<td>reaction specific q-value (in erg/g)</td>
-<td>10.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">specific_q_burn</span></code></p></td>
+<td><p>reaction specific q-value (in erg/g)</p></td>
+<td><p>10.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">T_burn_ref</span></code></td>
-<td>reaction thresholds (for the power law)</td>
-<td>1.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_burn_ref</span></code></p></td>
+<td><p>reaction thresholds (for the power law)</p></td>
+<td><p>1.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rho_burn_ref</span></code></td>
-<td>&#160;</td>
-<td>1.0d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_burn_ref</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">f_act</span></code></td>
-<td>&#160;</td>
-<td>1.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">f_act</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override the default Jacobian mode with a higher
-priority</td>
-<td>2</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override the default Jacobian mode with a higher
+priority</p></td>
+<td><p>2</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></td>
-<td>the coefficient for the reaction rate</td>
-<td>1.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></p></td>
+<td><p>the coefficient for the reaction rate</p></td>
+<td><p>1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">nu</span></code></td>
-<td>exponent for the temperature</td>
-<td>4.d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nu</span></code></p></td>
+<td><p>exponent for the temperature</p></td>
+<td><p>4.d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">specific_q_burn</span></code></td>
-<td>reaction specific q-value (in erg/g)</td>
-<td>10.d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">specific_q_burn</span></code></p></td>
+<td><p>reaction specific q-value (in erg/g)</p></td>
+<td><p>10.d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">T_burn_ref</span></code></td>
-<td>reaction thresholds (for the power law)</td>
-<td>1.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_burn_ref</span></code></p></td>
+<td><p>reaction thresholds (for the power law)</p></td>
+<td><p>1.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rho_burn_ref</span></code></td>
-<td>&#160;</td>
-<td>1.0d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_burn_ref</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">f_act</span></code></td>
-<td>&#160;</td>
-<td>1.0d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">f_act</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override the default Jacobian mode with a higher
-priority</td>
-<td>2</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override the default Jacobian mode with a higher
+priority</p></td>
+<td><p>2</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="python-library">
 <h1>python_library<a class="headerlink" href="#python-library" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="rprox">
 <h1>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>1</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>override the default tolerances for backwards
-compatibility</td>
-<td>1.0e-11</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td><p>override the default tolerances for backwards
+compatibility</p></td>
+<td><p>1.0e-11</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.0e-12</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override so that the default is an analytical Jacobian</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override so that the default is an analytical Jacobian</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>we typically run this network for constant-pressure
-burns</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>we typically run this network for constant-pressure
+burns</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>override the default tolerances for backwards
-compatibility</td>
-<td>1.0e-11</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td><p>override the default tolerances for backwards
+compatibility</p></td>
+<td><p>1.0e-11</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.0e-12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override so that the default is an analytical Jacobian</td>
-<td>1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override so that the default is an analytical Jacobian</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>we typically run this network for constant-pressure
-burns</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>we typically run this network for constant-pressure
+burns</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="stellarcollapse">
 <h1>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_file</span></code></td>
-<td>name of the HDF5 file containing tabulated data</td>
-<td>“”</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_file</span></code></p></td>
+<td><p>name of the HDF5 file containing tabulated data</p></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_energy_shift</span></code></td>
-<td>&#160;</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_energy_shift</span></code></p></td>
+<td></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">eos_file</span></code></td>
-<td>name of the HDF5 file containing tabulated data</td>
-<td>“”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_file</span></code></p></td>
+<td><p>name of the HDF5 file containing tabulated data</p></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">use_energy_shift</span></code></td>
-<td>&#160;</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_energy_shift</span></code></p></td>
+<td></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="test-conductivity">
 <h1>test_conductivity<a class="headerlink" href="#test-conductivity" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e-4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e-4</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e-4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e-4</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="test-cvode-react">
 <h1>test_cvode_react<a class="headerlink" href="#test-cvode-react" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d15</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></td>
-<td>&#160;</td>
-<td>“uniform”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
+<td></td>
+<td><p>“uniform”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d15</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></td>
-<td>&#160;</td>
-<td>“uniform”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
+<td></td>
+<td><p>“uniform”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="test-eos">
 <h1>test_eos<a class="headerlink" href="#test-eos" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e-4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e-4</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e4</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e4</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e-4</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e-4</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="test-reaclib-rates">
 <h1>test_reaclib_rates<a class="headerlink" href="#test-reaclib-rates" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="test-react">
 <h1>test_react<a class="headerlink" href="#test-react" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d15</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></td>
-<td>&#160;</td>
-<td>“uniform”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
+<td></td>
+<td><p>“uniform”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">tmax</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d15</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></td>
-<td>&#160;</td>
-<td>“uniform”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
+<td></td>
+<td><p>“uniform”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></td>
-<td>&#160;</td>
-<td>“”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">test_set</span></code></td>
-<td>&#160;</td>
-<td>“gr0_3d”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
+<td></td>
+<td><p>“gr0_3d”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">tmax</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="test-sdc">
 <h1>test_sdc<a class="headerlink" href="#test-sdc" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d15</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></td>
-<td>&#160;</td>
-<td>“uniform”</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
+<td></td>
+<td><p>“uniform”</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">tmax</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></td>
-<td>&#160;</td>
-<td>1.d9</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></td>
-<td>&#160;</td>
-<td>1.d6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></td>
-<td>&#160;</td>
-<td>1.d15</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></td>
-<td>&#160;</td>
-<td>“uniform”</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
+<td></td>
+<td><p>“uniform”</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">tmax</span></code></td>
-<td>&#160;</td>
-<td>0.1d0</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></td>
-<td>&#160;</td>
-<td>1.e5</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></td>
-<td>&#160;</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="triple-alpha-plus-cago">
 <h1>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>1</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>override the default tolerances for backwards
-compatibility</td>
-<td>1.0e-12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td><p>override the default tolerances for backwards
+compatibility</p></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.0e-12</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-6</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-6</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override so that the default is an analytical Jacobian</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override so that the default is an analytical Jacobian</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>we typically run this network for constant-pressure
-burns</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>we typically run this network for constant-pressure
+burns</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>override the default tolerances for backwards
-compatibility</td>
-<td>1.0e-12</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td><p>override the default tolerances for backwards
+compatibility</p></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.0e-12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-6</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-6</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override so that the default is an analytical Jacobian</td>
-<td>1</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override so that the default is an analytical Jacobian</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>we typically run this network for constant-pressure
-burns</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>we typically run this network for constant-pressure
+burns</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="xrb-simple">
 <h1>xrb_simple<a class="headerlink" href="#xrb-simple" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="32%" />
-<col width="54%" />
-<col width="14%" />
+<col style="width: 32%" />
+<col style="width: 54%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">parameter</th>
-<th class="head">description</th>
-<th class="head">default value</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>1</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>override the default tolerances for backwards
-compatibility</td>
-<td>1.0e-11</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td><p>override the default tolerances for backwards
+compatibility</p></td>
+<td><p>1.0e-11</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.0e-12</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override so that the default is a numerical Jacobian;
-we don’t yet have an analytical Jacobian</td>
-<td>2</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override so that the default is a numerical Jacobian;
+we don’t yet have an analytical Jacobian</p></td>
+<td><p>2</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>we typically run this network for constant-pressure
-burns</td>
-<td>.false.</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>we typically run this network for constant-pressure
+burns</p></td>
+<td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></td>
-<td>override the default burning mode with a higher
-priority</td>
-<td>1</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
+<td><p>override the default burning mode with a higher
+priority</p></td>
+<td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></td>
-<td>override the default tolerances for backwards
-compatibility</td>
-<td>1.0e-11</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<td><p>override the default tolerances for backwards
+compatibility</p></td>
+<td><p>1.0e-11</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></td>
-<td>&#160;</td>
-<td>1.0e-12</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<td></td>
+<td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></td>
-<td>&#160;</td>
-<td>1.0e-8</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<td></td>
+<td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></td>
-<td>override so that the default is a numerical Jacobian;
-we don’t yet have an analytical Jacobian</td>
-<td>2</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<td><p>override so that the default is a numerical Jacobian;
+we don’t yet have an analytical Jacobian</p></td>
+<td><p>2</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></td>
-<td>we typically run this network for constant-pressure
-burns</td>
-<td>.false.</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<td><p>we typically run this network for constant-pressure
+burns</p></td>
+<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
