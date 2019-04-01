@@ -34,6 +34,7 @@ ifdef USE_CUDA
   ifeq ($(USE_CUDA),TRUE)
     MANAGED_PROBIN_FLAG := --managed
     USE_GPU_PRAGMA = TRUE
+    DEFINES += -DCUDA
   endif
 endif
 

@@ -80,6 +80,9 @@ contains
     ! -----------------------------------------------------------------------
     !
     use vode_rhs_module, only: f_rhs, jac
+#ifdef CLEAN_INTEGRATOR_CORRECTION
+    use vode_type_module, only: clean_state
+#endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
@@ -192,12 +195,31 @@ contains
        CSCALE = TWO/(ONE + vstate % RC)
        CALL DSCALN (VODE_NEQS, CSCALE, vstate % Y, 1)
     ENDIF
+
+#ifdef CLEAN_INTEGRATOR_CORRECTION
+    ! Clean the correction to Y. Use vstate % Y as scratch space.
+
+    ! Find the corrected Y: Yc = Y_previous + Y_delta
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = vstate % Y(I) + (rwork % YH(I,1) + rwork % ACOR(I))
+    end do
+
+    ! Clean the corrected Y: Yc' = clean(Yc)
+    call clean_state(vstate % Y, vstate % RPAR)
+
+    ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
+    do I = 1,VODE_NEQS
+       vstate % Y(I) = vstate % Y(I) - (rwork % YH(I,1) + rwork % ACOR(I))
+    end do
+#endif
+
     DEL = DVNORM (vstate % Y, rwork % EWT)
     call daxpyn(VODE_NEQS, ONE, vstate % Y, 1, rwork % acor, 1)
 
     do I = 1,VODE_NEQS
        vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
     end do
+
     ! -----------------------------------------------------------------------
     !  Test for convergence.  If M .gt. 0, an estimate of the convergence
     !  rate constant is stored in CRATE, and this is used in the test.
