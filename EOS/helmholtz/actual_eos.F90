@@ -60,7 +60,7 @@ module actual_eos_module
     integer, parameter          :: max_newton = 100
 
     ! 2006 CODATA physical constants
-private
+
     ! Math constants
     double precision, parameter :: pi       = 3.1415926535897932384d0
 
