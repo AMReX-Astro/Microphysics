@@ -8,6 +8,6 @@ setup(name='StarKiller',
       author_email='michael.zingale@stonybrook.edu',
       license='BSD',
       packages=find_packages(),
-      package_data={"StarKiller": ["burner/*", "eos/*", "network/*", "interfaces/*", "integration/*"]},
+      package_data={"StarKiller": ["burner/*", "eos/*", "network/*", "interfaces/*", "integration/*", "examples/*"]},
       install_requires=['numpy', 'matplotlib'],
       zip_safe=False)
