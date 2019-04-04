@@ -9,12 +9,27 @@ This is developed and tested with Python 3.
 ## Step 1: Install the StarKiller python package
 
 ```
-python3 setup.py install --user
+$> python3 setup.py install --user
 ```
 
 This only needs to be done once.
 
-## Step 2: Compile the Fortran and Python wrappers
+## Step 2: Install f2py and f90wrap
+
+Install f2py for Python 3 using the package manager.
+
+The version of f90wrap on pip is too old, so we need to install
+f90wrap from source.
+
+Download f90wrap from https://github.com/jameskermode/f90wrap
+
+Install f90wrap using Python3:
+
+```
+$> python3 setup.py install --user
+```
+
+## Step 3: Compile the Fortran and Python wrappers
 
 To build the python library for this, go to the
 `Microphysics/python_library` directory, and `make`. This should
@@ -30,7 +45,7 @@ is desired.
 Add the `Microphysics/python_library` path to your `PYTHONPATH`
 environment variable so python can find the library file.
 
-## Step 3: Copy files to the working directory
+## Step 4: Copy files to the working directory
 
 - Copy `Microphysics/python_library/helm_table.dat` to your current
   working directory after building the library.
@@ -42,7 +57,7 @@ environment variable so python can find the library file.
 - Copy the desired "probin" initialization file to your working
   directory. The default is "StarKiller/examples/probin_aprox13".
 
-## Step 4: Try a test problem
+## Step 5: Try a test problem
 
 As an example of the EOS interface, try running `python3 call_eos.py -h`
 to see input options.
