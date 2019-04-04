@@ -1,16 +1,14 @@
 import StarKillerMicrophysics as SKM
 
-EosTypeModule = SKM.Eos_Type_Module()
-
 class EosType(object):
-    eos_input_rt = EosTypeModule.eos_input_rt
-    eos_input_rh = EosTypeModule.eos_input_rh
-    eos_input_tp = EosTypeModule.eos_input_tp
-    eos_input_rp = EosTypeModule.eos_input_rp
-    eos_input_re = EosTypeModule.eos_input_re
-    eos_input_ps = EosTypeModule.eos_input_ps
-    eos_input_ph = EosTypeModule.eos_input_ph
-    eos_input_th = EosTypeModule.eos_input_th    
-    
     def __init__(self):
-        self.state = EosTypeModule.eos_t()
+        self.EosTypeModule = SKM.Eos_Type_Module()
+        self.eos_input_rt = self.EosTypeModule.eos_input_rt
+        self.eos_input_rh = self.EosTypeModule.eos_input_rh
+        self.eos_input_tp = self.EosTypeModule.eos_input_tp
+        self.eos_input_rp = self.EosTypeModule.eos_input_rp
+        self.eos_input_re = self.EosTypeModule.eos_input_re
+        self.eos_input_ps = self.EosTypeModule.eos_input_ps
+        self.eos_input_ph = self.EosTypeModule.eos_input_ph
+        self.eos_input_th = self.EosTypeModule.eos_input_th
+        self.state = self.EosTypeModule.eos_t()
