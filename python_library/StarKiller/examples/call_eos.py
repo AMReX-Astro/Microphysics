@@ -36,6 +36,8 @@ if args.mass_fractions:
 else:
     eos_state.state.abar = args.abar
     eos_state.state.zbar = args.zbar
+    eos_state.state.y_e = args.zbar/args.abar
+    eos_state.state.mu_e = 1.0/eos_state.state.y_e
     use_raw_inputs = True
 
 print("Before EOS call:")
