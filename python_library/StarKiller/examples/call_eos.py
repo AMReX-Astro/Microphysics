@@ -47,7 +47,7 @@ print(eos_state.state)
 # use the mass fractions to set abar, zbar before calling
 # the actual EOS subroutine.
 eos = Eos()
-eos.evaluate(EosType.eos_input_rt, eos_state, use_raw_inputs=use_raw_inputs)
+eos.evaluate(eos_state.eos_input_rt, eos_state, use_raw_inputs=use_raw_inputs)
 
 print("After EOS call:")
 print(eos_state.state)
