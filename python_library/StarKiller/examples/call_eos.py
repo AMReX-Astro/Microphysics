@@ -46,7 +46,8 @@ print(eos_state.state)
 # use_raw_inputs = True will tell the EOS interface not to
 # use the mass fractions to set abar, zbar before calling
 # the actual EOS subroutine.
-Eos.evaluate(EosType.eos_input_rt, eos_state, use_raw_inputs=use_raw_inputs)
+eos = Eos()
+eos.evaluate(EosType.eos_input_rt, eos_state, use_raw_inputs=use_raw_inputs)
 
 print("After EOS call:")
 print(eos_state.state)
