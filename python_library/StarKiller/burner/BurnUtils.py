@@ -2,7 +2,10 @@ from __future__ import print_function
 import numpy as np
 from cycler import cycler
 import matplotlib.pyplot as plt
+from matplotlib import rc
 import StarKillerMicrophysics as SKM
+
+rc('text', usetex=True)
 
 class BurnerDriver(object):
     def __init__(self, probin_file):
@@ -13,7 +16,7 @@ class BurnerDriver(object):
         self.short_species_names = [SKM.Network().get_network_short_species_name(i+1).decode("ASCII").strip().lower() for i in range(self.nspec)]
         self.species_names = [SKM.Network().get_network_species_name(i+1).decode("ASCII").strip().lower() for i in range(self.nspec)]
 
-        self.history = History()
+        self.history = BurnHistory()
         self.plotting = BurnPlotting()
 
         self.burn_module = SKM.Actual_Burner_Module()
