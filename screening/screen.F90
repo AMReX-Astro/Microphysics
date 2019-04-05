@@ -50,7 +50,7 @@ module screening_module
 
   end type plasma_state
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: z1scr, z2scr, a1scr, a2scr
   attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
 #endif
@@ -220,6 +220,8 @@ contains
 
   subroutine fill_plasma_state(state, temp, dens, y)
 
+    !$acc routine seq
+
     use network, only: nspec, zion
 
     ! Input variables
@@ -270,6 +272,8 @@ contains
 
 
   subroutine screen5(state,jscreen,scor,scordt,scordd)
+
+    !$acc routine seq
 
     use amrex_constants_module, only: M_PI
     use amrex_fort_module, only : rt => amrex_real
@@ -491,6 +495,8 @@ contains
 
 
   subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
+
+    !$acc routine seq
 
     use network, only: aion, zion, nspec
 

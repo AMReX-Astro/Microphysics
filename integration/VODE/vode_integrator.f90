@@ -81,6 +81,7 @@ contains
     use actual_rhs_module, only : update_unevolved_species
     use amrex_constants_module, only : ZERO, ONE
     use integration_data, only: integration_status_t
+    use temperature_integration_module, only: self_heat
 
     implicit none
 
@@ -199,12 +200,10 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       rpar(irp_self_heat) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
+    if (self_heat) then
        rpar(irp_self_heat) = ONE
     else
-       call amrex_error("Error: unknown burning_mode in vode_integrator.f90.")
+       rpar(irp_self_heat) = -ONE
     endif
 
     ! Copy in the zone size.

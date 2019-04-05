@@ -1,0 +1,21 @@
+&extern
+
+  dens_min   = 1.d9
+  dens_max   = 1.d9
+  temp_min   = 1.d9
+  temp_max   = 1.d9
+
+
+  xin_file   = "xin.reaclib_urca"
+
+  burner_verbose = .false.
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 1
+
+  retry_burn = .false.
+  renormalize_abundances = .false.
+
+/

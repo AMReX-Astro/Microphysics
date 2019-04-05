@@ -1,2 +1,2 @@
-f90EXE_sources += stellar_conductivity.f90
+F90EXE_sources += stellar_conductivity.F90
 

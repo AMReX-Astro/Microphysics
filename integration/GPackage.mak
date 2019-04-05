@@ -8,3 +8,5 @@ endif
 f90sources += integration_data.f90
 F90sources += temperature_integration.F90
 F90sources += rpar.F90
+F90sources += integrator_scaling.F90
+F90sources += jacobian_sparsity.F90

@@ -10,21 +10,25 @@ contains
 
   subroutine integrator_init()
 
+    use integrator_scaling_module, only: integrator_scaling_init
 #if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     use vode_integrator_module, only: vode_integrator_init
     use bs_integrator_module, only: bs_integrator_init
 #else
     use actual_integrator_module, only: actual_integrator_init
 #endif
+    use temperature_integration_module, only: temperature_rhs_init
 
     implicit none
 
+    call integrator_scaling_init()
 #if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
     call vode_integrator_init()
     call bs_integrator_init()
 #else
     call actual_integrator_init()
 #endif
+    call temperature_rhs_init()
 
   end subroutine integrator_init
 

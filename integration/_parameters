@@ -95,3 +95,13 @@ MAX_TEMP                     real            1.0d11
 # boost the reaction rates by a factor > 1
 react_boost                 real         -1.d0
 
+# density, temperature, and energy scaling factors
+reactions_density_scale          real         1.d0
+reactions_temperature_scale      real         1.d0
+reactions_energy_scale           real         1.d0
+
+# maximum number of timesteps for VODE
+ode_max_steps              integer      150000
+
+# Whether to use Jacobian caching in VODE90
+use_jacobian_caching    logical   .true.

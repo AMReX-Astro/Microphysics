@@ -6,10 +6,10 @@ else
   F90sources += actual_integrator.F90
   F90sources += vode_rhs.F90
   F90sources += vode_type.F90
-  F90sources += vode_parameters.F90
+  F90sources += cuvode_parameters.F90
 endif
 
-VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/vode_source/
+VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source/
 include $(VODE_SOURCE_DIR)/GPackage.mak
 
 INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)

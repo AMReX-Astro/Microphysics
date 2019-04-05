@@ -25,20 +25,22 @@
 
 &cellparams
 
-  tmax     = 1.0d3
+  tmax     = 1.0d1
   numsteps = 1000
 
   density       = 1.0d6
-  temperature   = 0.3d9
+  temperature   = 3.0d8
 
-  massfractions(1)  = 0.0000000000000000d0
-  massfractions(2)  = 0.0000000000000000d0
-  massfractions(3)  = 0.2075000000000000d0
-  massfractions(4)  = 0.0066666666666667d0
-  massfractions(5)  = 0.0053571430000000d0
-  massfractions(6)  = 0.0000000000000000d0
-  massfractions(7)  = 0.0000000000000000d0
-  massfractions(8)  = 0.0000000000000000d0
-  massfractions(9)  = 0.0000000000000000d0
+  massfractions(1)  = 0.0d0
+  massfractions(2)  = 0.83d0
+  massfractions(3)  = 0.08d0
+  massfractions(4)  = 0.0d0
+  massfractions(5)  = 0.0d0
+  massfractions(6)  = 0.01d0
+  massfractions(7)  = 0.08d0
+  massfractions(8)  = 0.0d0
+  massfractions(9)  = 0.0d0
+  massfractions(10) = 0.0d0
+  massfractions(11) = 0.0d0
 
 /

@@ -1,0 +1,20 @@
+CEXE_sources += main.cpp
+
+ifeq ($(USE_CUDA), TRUE)
+  ifeq ($(USE_CVODE_CUSOLVER), TRUE)
+    CEXE_sources += react_cuda_cusolver.cpp
+  else
+    CEXE_sources += react_cuda.cpp
+  endif
+else
+CEXE_sources += react_serial.cpp
+endif
+
+FEXE_headers = test_react_F.H
+CEXE_headers = test_react.H
+
+F90EXE_sources += variables.F90
+f90EXE_sources += unit_test.f90
+f90EXE_sources += util.f90
+
+F90EXE_sources += react_utils.F90

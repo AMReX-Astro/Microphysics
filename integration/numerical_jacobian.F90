@@ -15,6 +15,7 @@ contains
 
     use actual_rhs_module, only: actual_rhs
     use extern_probin_module, only : centered_diff_jac
+    use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry
 
     implicit none
 
@@ -27,10 +28,11 @@ contains
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
     real(rt), parameter :: eps = 1.d-8
+    real(rt) :: scratch
 
     !$gpu
 
-    state % jac(:,:) = ZERO
+    call set_jac_zero(state)
 
     ! default
     call actual_rhs(state)
@@ -60,8 +62,9 @@ contains
           state_delm % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           do m = 1, neqs
-             state % jac(m,n) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
-                  (eps * state % xn(n))
+             scratch = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+                            (eps * state % xn(n))
+             call set_jac_entry(state, m, n, scratch)
           enddo
        enddo
 
@@ -77,13 +80,15 @@ contains
        call actual_rhs(state_delm)
 
        do m = 1, neqs
-          state % jac(m,net_itemp) = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
-               (eps * state % T)
+          scratch = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+                         (eps * state % T)
+          call set_jac_entry(state, m, net_itemp, scratch)
        enddo
 
        ! energy derivatives -- these are all 0! (yay!)
+       scratch = ZERO
        do m = 1, neqs
-          state % jac(m,net_ienuc) = ZERO
+          call set_jac_entry(state, m, net_ienuc, scratch)
        enddo
 
     else
@@ -98,7 +103,8 @@ contains
           call actual_rhs(state_del)
 
           do m = 1, neqs
-             state % jac(m,n) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n))
+             scratch = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n))
+             call set_jac_entry(state, m, n, scratch)
           enddo
        enddo
 
@@ -109,29 +115,34 @@ contains
        call actual_rhs(state_del)
 
        do m = 1, neqs
-          state % jac(m,net_itemp) = (state_del % ydot(m) - state % ydot(m)) / (eps * state % T)
+          scratch = (state_del % ydot(m) - state % ydot(m)) / (eps * state % T)
+          call set_jac_entry(state, m, net_itemp, scratch)
        enddo
 
        ! energy derivatives -- these are all 0! (yay!)
+       scratch = ZERO
        do m = 1, neqs
-          state % jac(m,net_ienuc) = ZERO
+          call set_jac_entry(state, m, net_ienuc, scratch)
        enddo
 
     endif
 
   end subroutine numerical_jac
 
-#ifndef CUDA
+#ifndef AMREX_USE_CUDA
   subroutine test_numerical_jac(state)
     ! compare the analytic Jacobian to the numerically differenced one
 
     use actual_rhs_module
     use eos_module, only : eos
     use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
+    use jacobian_sparsity_module, only: get_jac_entry    
 
     type (burn_t) :: state
     type (burn_t) :: state_num
     type (eos_t) :: eos_state
+
+    real(rt) :: scratch, scratch_num
 
     integer :: i, j
     character(len=16) :: namei, namej  
@@ -184,14 +195,16 @@ contains
           endif
 
           ! only dump the ones that don't match
-          if (state_num % jac(i,j) /= state % jac(i,j)) then
-             if (state_num % jac(i,j) /= ZERO) then
+          call get_jac_entry(state_num, i, j, scratch_num)
+          call get_jac_entry(state, i, j, scratch)
+          if (scratch_num /= scratch) then
+             if (scratch_num /= ZERO) then
                 write (*,999) trim(namei), &
-                     trim(namej), state_num % jac(i,j), state % jac(i,j), &
-                     (state_num % jac(i,j) - state % jac(i,j))/state_num % jac(i,j)
+                     trim(namej), scratch_num, scratch, &
+                     (scratch_num - scratch)/scratch_num
              else
                 write (*,999) trim(namei), &
-                     trim(namej), state_num % jac(i,j), state % jac(i,j)
+                     trim(namej), scratch_num, scratch
              endif
           endif
 

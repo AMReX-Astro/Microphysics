@@ -42,7 +42,7 @@ module actual_eos_module
                                      dd_sav(:), dd2_sav(:),          &
                                      ddi_sav(:), dd2i_sav(:)
 
-#ifdef CUDA
+#ifdef AMREX_USE_CUDA
     attributes(managed) :: do_coulomb, input_is_constant
     attributes(managed) :: itmax, jtmax
     attributes(managed) :: d, t
@@ -60,7 +60,7 @@ module actual_eos_module
     integer, parameter          :: max_newton = 100
 
     ! 2006 CODATA physical constants
-private
+
     ! Math constants
     double precision, parameter :: pi       = 3.1415926535897932384d0
 
@@ -151,6 +151,8 @@ contains
 
     subroutine actual_eos(input, state)
 
+        !$acc routine seq
+      
         use amrex_constants_module, only: ZERO, HALF, TWO
 
         implicit none
@@ -1232,7 +1234,9 @@ contains
 
         use amrex_error_module
         use extern_probin_module, only: eos_input_is_constant, use_eos_coulomb, eos_ttol, eos_dtol
+#ifndef COMPILE_WITH_F2PY
         use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast, amrex_pd_ioprocessor
+#endif
 
         implicit none
 
@@ -1297,7 +1301,9 @@ contains
         ttol = eos_ttol
         dtol = eos_dtol
 
+#ifndef COMPILE_WITH_F2PY
         if (amrex_pd_ioprocessor()) then
+#endif
            print *, ''
            if (do_coulomb) then
               print *, "Initializing Helmholtz EOS and using Coulomb corrections."
@@ -1305,7 +1311,9 @@ contains
               print *, "Initializing Helmholtz EOS without using Coulomb corrections."
            endif
            print *, ''
+#ifndef COMPILE_WITH_F2PY
         endif
+#endif
 
         !..   read the helmholtz free energy table
         itmax = imax
@@ -1328,7 +1336,9 @@ contains
            end do
         end do
 
+#ifndef COMPILE_WITH_F2PY
         if (amrex_pd_ioprocessor()) then
+#endif
 
            !..   open the table
            open(unit=2,file='helm_table.dat',status='old',iostat=status,action='read')
@@ -1366,9 +1376,11 @@ contains
                  read(2,*) xf(i,j),xfd(i,j),xft(i,j),xfdt(i,j)
               end do
            end do
-
+#ifndef COMPILE_WITH_F2PY
         end if
+#endif
 
+#ifndef COMPILE_WITH_F2PY
         call parallel_bcast(f)
         call parallel_bcast(fd)
         call parallel_bcast(ft)
@@ -1390,6 +1402,7 @@ contains
         call parallel_bcast(xfd)
         call parallel_bcast(xft)
         call parallel_bcast(xfdt)
+#endif
 
         !..   construct the temperature and density deltas and their inverses
         do j = 1, jmax-1
@@ -1413,9 +1426,13 @@ contains
            dd2i_sav(i) = dd2i
         end do
 
+#ifndef COMPILE_WITH_F2PY
         if (amrex_pd_ioprocessor()) then
+#endif
            close(unit=2)
+#ifndef COMPILE_WITH_F2PY
         endif
+#endif
 
         ! Set up the minimum and maximum possible densities.
 
@@ -1444,13 +1461,15 @@ contains
     ! quintic hermite polynomial functions
     ! psi0 and its derivatives
     pure function psi0(z) result(psi0r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: psi0r
       !$gpu
       psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
     end function psi0
 
-    pure function dpsi0(z) result(dpsi0r) 
+    pure function dpsi0(z) result(dpsi0r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: dpsi0r
       !$gpu
@@ -1458,6 +1477,7 @@ contains
     end function dpsi0
 
     pure function ddpsi0(z) result(ddpsi0r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: ddpsi0r
       !$gpu
@@ -1466,6 +1486,7 @@ contains
 
     ! psi1 and its derivatives
     pure function psi1(z) result(psi1r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: psi1r
       !$gpu
@@ -1473,6 +1494,7 @@ contains
     end function psi1
 
     pure function dpsi1(z) result(dpsi1r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: dpsi1r
       !$gpu
@@ -1480,6 +1502,7 @@ contains
     end function dpsi1
 
     pure function ddpsi1(z) result(ddpsi1r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: ddpsi1r
       !$gpu
@@ -1488,6 +1511,7 @@ contains
 
     ! psi2  and its derivatives
     pure function psi2(z) result(psi2r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: psi2r
       !$gpu
@@ -1495,6 +1519,7 @@ contains
     end function psi2
 
     pure function dpsi2(z) result(dpsi2r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: dpsi2r
       !$gpu
@@ -1502,6 +1527,7 @@ contains
     end function dpsi2
 
     pure function ddpsi2(z) result(ddpsi2r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: ddpsi2r
       !$gpu
@@ -1511,6 +1537,7 @@ contains
 
     ! biquintic hermite polynomial function
     pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
+      !$acc routine seq
       double precision, intent(in) :: fi(36)
       double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
       double precision :: h5r
@@ -1541,6 +1568,7 @@ contains
     ! cubic hermite polynomial functions
     ! psi0 & derivatives
     pure function xpsi0(z) result(xpsi0r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: xpsi0r
       !$gpu
@@ -1548,6 +1576,7 @@ contains
     end function xpsi0
 
     pure function xdpsi0(z) result(xdpsi0r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: xdpsi0r
       !$gpu
@@ -1557,6 +1586,7 @@ contains
 
     ! psi1 & derivatives
     pure function xpsi1(z) result(xpsi1r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: xpsi1r
       !$gpu
@@ -1564,6 +1594,7 @@ contains
     end function xpsi1
 
     pure function xdpsi1(z) result(xdpsi1r)
+      !$acc routine seq
       double precision, intent(in) :: z
       double precision :: xdpsi1r
       !$gpu
@@ -1572,6 +1603,7 @@ contains
 
     ! bicubic hermite polynomial function
     pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
+      !$acc routine seq
       double precision, intent(in) :: fi(36)
       double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
       double precision :: h3r
