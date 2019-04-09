@@ -363,7 +363,7 @@ contains
     a(4) =  y(ini56) * y(iprot) * rate(ir8f54)
     a(5) = -y(ihe4) * rate(iralf1)
     a(6) =  y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
-    a(7) =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(7) =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3)
     a(8) = -y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
     dydt(ihe4) =  dydt(ihe4) + esum8(a)
@@ -712,22 +712,22 @@ contains
     a(4)  =  y(ini56) * rate(ir4f54)
     a(5)  = -y(ife54) * y(iprot) * y(iprot) * rate(ir5f54)
     a(6)  =  y(ife52) * y(ihe4) * rate(ir6f54)
-    a(7)  =  y(ife56) * rate(irfe56_aux1) 
-    a(8)  = -y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2) 
-    a(9)  =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
-    a(10) = -y(ife54) * y(ihe4) * rate(irfe56_aux4) 
+    a(7)  =  y(ife56) * rate(irfe56_aux1)
+    a(8)  = -y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)
+    a(9)  =  y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3)
+    a(10) = -y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
     dydt(ife54) =  dydt(ife54) + esum10(a)
 
     ! fe56 reactions
-    a(1) =  y(ini56) * rate(irn56ec) 
-    a(2) = -y(ife56) * 1.0d-04 * rate(irn56ec) 
-    a(3) = -y(ife56) * rate(irfe56_aux1) 
-    a(4) =  y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)  
-    a(5) = -y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
-    a(6) =  y(ife54) * y(ihe4) * rate(irfe56_aux4) 
+    a(1) =  y(ini56) * rate(irn56ec)
+    a(2) = -y(ife56) * 1.0d-04 * rate(irn56ec)
+    a(3) = -y(ife56) * rate(irfe56_aux1)
+    a(4) =  y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)
+    a(5) = -y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3)
+    a(6) =  y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
-    dydt(ife56) =  dydt(ife56) + esum6(a) 
+    dydt(ife56) =  dydt(ife56) + esum6(a)
 
     ! ni56 reactions
     a(1) =  y(ife52) * y(ihe4) * rate(irfeag)
@@ -753,7 +753,7 @@ contains
     a(4) = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
     a(5) =  y(iprot) * rate(irpen)
     a(6) = -y(ineut) * rate(irnep)
-    a(7) =  2.0d0 * y(ife56) * rate(irfe56_aux1) 
+    a(7) =  2.0d0 * y(ife56) * rate(irfe56_aux1)
     a(8) = -2.0d0 * y(ife54) * y(ineut) * y(ineut) * rate(irfe56_aux2)
 
     dydt(ineut) =  dydt(ineut) + esum8(a)
@@ -768,7 +768,7 @@ contains
     a(6)  = -2.0d0 * y(ineut)*y(ineut) * y(iprot)*y(iprot) * rate(iralf2)
     a(7)  = -y(iprot) * rate(irpen)
     a(8)  =  y(ineut) * rate(irnep)
-    a(9)  = -2.0d0 * y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3) 
+    a(9)  = -2.0d0 * y(ife56) * y(iprot) * y(iprot) * rate(irfe56_aux3)
     a(10) =  2.0d0 * y(ife54) * y(ihe4) * rate(irfe56_aux4)
 
     dydt(iprot) =  dydt(iprot) + esum10(a)
@@ -2308,7 +2308,7 @@ contains
     ! d(he4)/d(ni56)
     b(1) = ratdum(irniga)
     b(2) = y(iprot) * ratdum(ir8f54)
-
+    dfdy(ihe4,ini56) = sum(b(1:2))
 
     ! d(he4)/d(neut)
     b(1) = -y(ihe4) * dratdumdy1(iralf1)
