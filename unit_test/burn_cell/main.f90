@@ -108,7 +108,7 @@ program burn_cell
      energy = energy + burn_state_out % e
      burn_state_in = burn_state_out
      burn_state_in % e = ZERO
-     write(*,*) 'Completed burn to: ', burn_state_out % time, ' seconds'
+     write(*,*) 'Completed burn to: ', burn_state_out % time, ' seconds, Hnuc = ', burn_state_out % e / dt
      
      ! output burn type data
      write(out_num,'(I6.6)') i
@@ -117,6 +117,9 @@ program burn_cell
 
      time = burn_state_out % time
   end do
+
+  print *, "Total generated energy: ", energy
+  print *, "Average energy generation rate: ", energy/tmax
 
   call microphysics_finalize()
 
