@@ -13,7 +13,8 @@ program burn_cell
   use burn_type_module
   use actual_burner_module
   use microphysics_module
-  use eos_type_module, only : eos_get_small_temp, eos_get_small_dens
+  use eos_type_module, only : eos_get_small_temp, eos_get_small_dens, eos_t, &
+                              eos_input_rt
   use eos_module
   use network
   use build_info_module
@@ -21,6 +22,7 @@ program burn_cell
   implicit none
 
   type (burn_t)       :: burn_state_in, burn_state_out
+  type (eos_t)        :: eos_state_in, eos_state_out
 
   real (rt)    :: tmax, energy, time, dt
   integer             :: numsteps, i, istate
@@ -34,6 +36,9 @@ program burn_cell
 
   ! Starting conditions for integration
   real (rt)    :: density, temperature, massfractions(nspec)
+
+  ! Useful for evaluating final values
+  real (rt)    :: eos_energy_generated, eos_energy_rate
 
   namelist /cellparams/ tmax, numsteps, density, temperature, massfractions
 
@@ -95,20 +100,35 @@ program burn_cell
   ! output initial burn type data
   time = ZERO
 
+  ! call the EOS to set initial e
+  call burn_to_eos(burn_state_in, eos_state_in)
+  call eos(eos_input_rt, eos_state_in)
+  call eos_to_burn(eos_state_in, burn_state_in)
+
   write(out_num,'(I6.6)') 0
   out_name = trim(out_directory_name) // '/' // trim(run_prefix) // out_num
   burn_state_in % time = time
   call write_burn_t(out_name, burn_state_in)
   
   dt = tmax/numsteps
-  
+
   do i = 1, numsteps
      ! Do burn
      call actual_burner(burn_state_in, burn_state_out, dt, time)
      energy = energy + burn_state_out % e
      burn_state_in = burn_state_out
      burn_state_in % e = ZERO
-     write(*,*) 'Completed burn to: ', burn_state_out % time, ' seconds, Hnuc = ', burn_state_out % e / dt
+
+     ! call the EOS to check consistency of integrated e
+     call burn_to_eos(burn_state_out, eos_state_out)
+     call eos(eos_input_rt, eos_state_out)
+
+     write(*,*) "------------------------------------"
+     write(*,*) "Completed burn to: ", burn_state_out % time, " seconds:"
+     write(*,*) " - Hnuc = ", burn_state_out % e / dt
+     write(*,*) " - integrated e = ", eos_state_in % e + energy
+     write(*,*) " - EOS e(rho, T) = ", eos_state_out % e
+     write(*,*) " - integrated/EOS percent diff. = ", 100.0d0 * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
      
      ! output burn type data
      write(out_num,'(I6.6)') i
@@ -118,8 +138,17 @@ program burn_cell
      time = burn_state_out % time
   end do
 
-  print *, "Total generated energy: ", energy
-  print *, "Average energy generation rate: ", energy/tmax
+  write(*,*) "------------------------------------"
+  write(*,*) "EOS e(rho, T) initial = ", eos_state_in % e
+  write(*,*) "EOS e(rho, T) final = ", eos_state_out % e
+  eos_energy_generated = eos_state_out % e - eos_state_in % e
+  write(*,*) "EOS e(rho, T) generated = ", eos_energy_generated
+  eos_energy_rate = (eos_state_out % e - eos_state_in % e)/tmax
+  write(*,*) "EOS e(rho, T) generation rate = ", eos_energy_rate
+  write(*,*) "Integrator total generated energy: ", energy
+  write(*,*) "Integrator average energy generation rate: ", energy/tmax
+  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0d0 * (energy - eos_energy_generated)/eos_energy_generated
+  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0d0 * (energy/tmax - eos_energy_rate)/eos_energy_rate
 
   call microphysics_finalize()
 
