@@ -1,3 +1,10 @@
+# changes since the last release
+
+  -- The aprox21 network was missing the analytic Jacobian term for
+     the derivative of He4 with respect to Ni56. This is fixed. (#175)
+
+# 19.03
+
 # 19.02
 
 # 19.01
