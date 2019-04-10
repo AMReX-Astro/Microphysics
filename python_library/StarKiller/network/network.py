@@ -22,12 +22,12 @@ class Network(object):
 
     def rhs(self, burn_state):
         eos_state = burn_state.to_eos_type()
-        self.eos.evaluate(EosType.eos_input_rt, eos_state)
+        self.eos.evaluate(eos_state.eos_input_rt, eos_state)
         burn_state.from_eos_type(eos_state)
         self.RHSModule.actual_rhs(burn_state.state)
 
     def jacobian(self, burn_state):
         eos_state = burn_state.to_eos_type()
-        self.eos.evaluate(EosType.eos_input_rt, eos_state)
+        self.eos.evaluate(eos_state.eos_input_rt, eos_state)
         burn_state.from_eos_type(eos_state)
         self.RHSModule.actual_jac(burn_state.state)
