@@ -8,7 +8,6 @@ class AmrexAstroModel(object):
         self.model_data = {}
 
         self.network = Network()
-        print(self.network.species_names)
 
         self.filename = input_file
         self.read(self.filename)
