@@ -121,7 +121,7 @@ contains
             rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
           do I = 0, LENP-1
-             rwork % WM(3 + I) = rwork % WM(vstate % LOCJS + I)
+             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
           end do
        endif
     ENDIF
@@ -152,7 +152,7 @@ contains
        LENP = VODE_NEQS * VODE_NEQS
        if (vstate % JSV .EQ. 1) then
           do I = 0, LENP-1
-             rwork % WM(3 + I) = rwork % WM(vstate % LOCJS + I)
+             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
           end do
        end if
     ENDIF
@@ -161,7 +161,7 @@ contains
        vstate % JCUR = 0
        LENP = VODE_NEQS * VODE_NEQS
        do I = 0, LENP - 1
-          rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+           rwork % WM(3 + I) = rwork % WM(vstate % LOCJS + I)
        end do
     ENDIF
 
