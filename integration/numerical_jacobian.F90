@@ -27,8 +27,8 @@ contains
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
-    real(rt), parameter :: eps = 1.d-8
-    real(rt) :: scratch
+    real(rt), parameter :: eps = 1.e-8_rt
+    real(rt) :: scratch, h
 
     !$gpu
 
@@ -98,24 +98,42 @@ contains
        do n = 1, nspec_evolve
           ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
           state_del % xn = state % xn
-          state_del % xn(n) = state % xn(n) * (ONE + eps)
+
+          h = eps * abs(state % xn(n))
+          if (h == 0) then
+             h = eps
+          endif
+          scratch = state % xn(n)
+          state_del % xn(n) = state % xn(n) + h
+
+          ! minimize roundoff
+          h = state_del % xn(n) - scratch
 
           call actual_rhs(state_del)
 
           do m = 1, neqs
-             scratch = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n))
+             scratch = (state_del % ydot(m) - state % ydot(m)) / h
              call set_jac_entry(state, m, n, scratch)
           enddo
        enddo
 
        ! temperature derivative
        state_del % xn = state % xn
-       state_del % T  = state % T * (ONE + eps)
+
+       h = eps * abs(state % T)
+       if (h == 0) then
+          h = eps
+       endif
+       scratch = state % T
+       state_del % T = state % T + h
+
+       ! minimize roundoff
+       h = state_del % T - scratch
 
        call actual_rhs(state_del)
 
        do m = 1, neqs
-          scratch = (state_del % ydot(m) - state % ydot(m)) / (eps * state % T)
+          scratch = (state_del % ydot(m) - state % ydot(m)) / h
           call set_jac_entry(state, m, net_itemp, scratch)
        enddo
 
