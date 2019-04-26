@@ -120,8 +120,9 @@ contains
        CALL JAC (vstate % TN, vstate % Y, 0, 0, &
             rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          do I = 0, LENP-1
+             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+          end do
        endif
     ENDIF
 
@@ -150,16 +151,18 @@ contains
        vstate % NFE = vstate % NFE + VODE_NEQS
        LENP = VODE_NEQS * VODE_NEQS
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          do I = 0, LENP-1
+             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+          end do
        end if
     ENDIF
 
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
        LENP = VODE_NEQS * VODE_NEQS
-       CALL DCOPYN (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
-            rwork % WM(3:3 + LENP - 1), 1)
+       do I = 0, LENP - 1
+           rwork % WM(3 + I) = rwork % WM(vstate % LOCJS + I)
+       end do
     ENDIF
 
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN

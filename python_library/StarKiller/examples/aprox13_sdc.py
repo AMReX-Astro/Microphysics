@@ -1,8 +1,8 @@
-from StarKiller.initialization import StarKiller_initialize
+from StarKiller.initialization import starkiller_initialize
 from StarKiller.integration import SDCOde
 from StarKiller.interfaces import BurnType
 
-StarKiller_initialize("probin_aprox13")
+starkiller_initialize("probin_aprox13")
 
 sdc = SDCOde()
 
