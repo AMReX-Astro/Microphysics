@@ -74,10 +74,14 @@ contains
 
        call actual_rhs(state_del)
 
+       state_del % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
        state_delm % xn = state % xn
        state_delm % T  = state % T * (ONE - eps)
 
        call actual_rhs(state_delm)
+
+       state_delm % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        do m = 1, neqs
           scratch = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
@@ -103,13 +107,14 @@ contains
           if (h == 0) then
              h = eps
           endif
-          scratch = state % xn(n)
+
           state_del % xn(n) = state % xn(n) + h
 
-          ! minimize roundoff
-          h = state_del % xn(n) - scratch
-
           call actual_rhs(state_del)
+
+          ! We integrate X, so convert from the Y we got back from the RHS
+
+          state_del % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           do m = 1, neqs
              scratch = (state_del % ydot(m) - state % ydot(m)) / h
@@ -124,13 +129,12 @@ contains
        if (h == 0) then
           h = eps
        endif
-       scratch = state % T
+
        state_del % T = state % T + h
 
-       ! minimize roundoff
-       h = state_del % T - scratch
-
        call actual_rhs(state_del)
+
+       state_del % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        do m = 1, neqs
           scratch = (state_del % ydot(m) - state % ydot(m)) / h
