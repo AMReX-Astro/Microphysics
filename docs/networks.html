@@ -593,6 +593,15 @@ being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.</p>
 <div class="section" id="interfaces">
 <h3>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>StarKiller integrates the reaction system in terms of mass fractions,
+<span class="math notranslate nohighlight">\(X_k\)</span>, but most astrophysical networks use molar fractions,
+<span class="math notranslate nohighlight">\(Y_k\)</span>.  As a result, we expect the networks to return the
+righthand side and Jacobians in terms of molar fractions.  The StarKiller
+routines will internally convert to mass fractions as needed for the
+integrators.</p>
+</div>
 <p>The righthand side of the network is implemented by
 <code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> <code class="docutils literal notranslate"><span class="pre">in</span> <span class="pre">actual_rhs.f90</span></code>, and appears as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_rhs</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
