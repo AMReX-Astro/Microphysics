@@ -137,7 +137,7 @@ contains
     M = 0
     DELP = ZERO
 
-    CALL DCOPYN(VODE_NEQS, rwork % yh(:,1), 1, vstate % Y, 1)
+    vstate % Y(1:VODE_NEQS) = rwork % yh(1:VODE_NEQS,1)
     CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
@@ -174,7 +174,7 @@ contains
     do I = 1,VODE_NEQS
        vstate % Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
     end do
-    CALL DCOPYN(VODE_NEQS, rwork % SAVF, 1, rwork % ACOR, 1)
+    rwork % ACOR(1:VODE_NEQS) = rwork % SAVF(1:VODE_NEQS)
 
     GO TO 400
     ! -----------------------------------------------------------------------
