@@ -20,7 +20,7 @@ constrained via :math:`\sum_k X_k = 1`, :math:`\Ub` is the velocity vector, and
 energy, :math:`e`, via :math:`E = e + |\Ub|^2/2`. Here :math:`\Advs{\Uc}` is the
 advective source term (including any hydrodynamical sources),
 
-.. math:: \Advs{\Uc} = - \nabla \cdot \Fb(\Uc) + \Sb_\mathrm{hydro}
+.. math:: \Advs{\Uc} = - \nabla \cdot \Fb(\Uc) + \Shydro
 
 and :math:`\Rb(\Uc)`
 is the reaction source term.
@@ -32,7 +32,7 @@ sdc_t
 -----
 
 To accommodate the increased information required to evolve the
-coupled system, we introduce a new data type, sdc_t. This is
+coupled system, we introduce a new data type, ``sdc_t``. This is
 used to pass information to/from the integration routine from the
 hydrodynamics code.
 
@@ -81,13 +81,13 @@ point, actual_integrator.
         real(dp_t),    intent(in   ) :: dt, time
 
 The main difference here is that the type that comes in and out of the
-interface is no longer a burn_t, but instead is an
-sdc_t.
+interface is no longer a ``burn_t``, but instead is an
+``sdc_t``.
 
 The flow of this main routine is simpler than the non-SDC version:
 
-#. Convert from the sdc_t type to the integrator’s internal
-   representation (e.g., sdc_to_bs converts from a bs_t
+#. Convert from the ``sdc_t`` type to the integrator’s internal
+   representation (e.g., ``sdc_to_bs`` converts from a ``bs_t``
    for the BS integrator).
 
    This copies the state variables and advective sources into the
@@ -100,7 +100,7 @@ The flow of this main routine is simpler than the non-SDC version:
    through the desired time interval, producing the new, output state.
 
 #. Convert back from the internal representation (e.g., a
-   bs_t) to the sdc_t type.
+   ``bs_t``) to the ``sdc_t`` type.
 
 Righthand side wrapper
 ----------------------
@@ -111,9 +111,9 @@ fractions and internal energy, but
 we need to convert these to the conservative system we are
 integrating, including the advective terms.
 
-#. Convert to a burn_t type, for instance via bs_to_burn:
+#. Convert to a ``burn_t`` type, for instance via ``bs_to_burn``:
 
-   #. call fill_unevolved_variables to update the density
+   #. call ``fill_unevolved_variables`` to update the density
       and momentum. Since these don’t depend on reactions, this is a
       simple algebraic update based on the piecewise-constant-in-time
       advective term:
@@ -130,27 +130,27 @@ integrating, including the advective terms.
 
    #. compute the specific internal energy, :math:`e`, from either the
       total minus kinetic energy or internal energy carried by the
-      integrator (depending on the value of T_from_eden).
+      integrator (depending on the value of ``T_from_eden``).
 
    #. get the temperature from the equation of state
 
-   #. convert to a burn_t type, for instance via eos_to_burn:
+   #. convert to a ``burn_t`` type, for instance via ``eos_to_burn``:
 
-#. Call the network’s actual_rhs routine to get just the
+#. Call the network’s ``actual_rhs`` routine to get just the
    reaction sources to the update. In particular, this returns
    the change in molar fractions, :math:`\dot{Y}_k` and the nuclear energy
    release, :math:`\dot{S}`.
 
 #. Convert back to the integrator’s internal representation (e.g.,
-   a bs_t, via rhs_to_bs)
+   a ``bs_t``, via ``rhs_to_bs``)
 
-   #. call fill_unevolved_variables
+    #. call ``fill_unevolved_variables``
 
-   #. fill the ydot array in the integrator type (e.g.,
-      bs_t) with the advective sources that originally came into the
-      intergrator through the sdc_t.
+    #. fill the ydot array in the integrator type (e.g.,
+       ``bs_t``) with the advective sources that originally came into the
+       intergrator through the ``sdc_t``.
 
-   #. Add the reacting terms. This is done as:
+    #. Add the reacting terms. This is done as:
 
       .. math::
 
