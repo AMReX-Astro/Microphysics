@@ -189,6 +189,14 @@ contains
     call actual_rhs(state)
     call actual_jac(state)
 
+    ! the analytic Jacobian is in terms of Y, since that's what the
+    ! nets work with, so we convert it to derivatives with respect to
+    ! X and of mass fraction creation rates
+    do n = 1, nspec_evolve
+       state % jac(n,:) = state % jac(n,:) * aion(n)
+       state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+    enddo
+
     ! Now compute the numerical Jacobian.
     call actual_rhs(state_num)
     call numerical_jac(state_num)
