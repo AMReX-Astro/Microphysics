@@ -117,7 +117,7 @@ contains
   end subroutine eos_finalize
 
 
-  subroutine eos(input, state)
+  subroutine eos(input, state, use_raw_inputs)
 
     !$acc routine seq
 
@@ -137,8 +137,9 @@ contains
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
+    logical, optional, intent(in) :: use_raw_inputs
 
-    logical :: has_been_reset
+    logical :: has_been_reset, use_composition_routine
 
     !$gpu
 
@@ -148,9 +149,17 @@ contains
     if (.not. initialized) call amrex_error('EOS: not initialized')
 #endif
 
-    ! Get abar, zbar, etc.
+    if (present(use_raw_inputs)) then
+       use_composition_routine = .not. use_raw_inputs
+    else
+       use_composition_routine = .true.
+    end if
 
-    call composition(state)
+    if (use_composition_routine) then
+       ! Get abar, zbar, etc.
+
+       call composition(state)
+    end if
 
     ! Force the inputs to be valid.
 

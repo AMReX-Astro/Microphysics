@@ -302,7 +302,7 @@ contains
     vstate % JSTART = -1
     IF (vstate % NQ .LE. VODE_MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    CALL DCOPYN(VODE_NEQS, rwork % wm, 1, rwork % savf, 1)
+    rwork % savf(1:VODE_NEQS) = rwork % wm(1:VODE_NEQS)
 
     ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
 90  continue
@@ -356,7 +356,7 @@ contains
     CALL f_rhs (vstate % T, vstate % Y, rwork % yh(:,2), vstate % RPAR)
     vstate % NFE = 1
     ! Load the initial value array in YH. ---------------------------------
-    CALL DCOPYN(VODE_NEQS, vstate % Y, 1, rwork % YH(:,1), 1)
+    rwork % YH(1:VODE_NEQS,1) = vstate % Y(1:VODE_NEQS)
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
@@ -641,7 +641,7 @@ contains
     ! -----------------------------------------------------------------------
 
 400 CONTINUE
-    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
+    vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
 
     vstate % T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
@@ -732,7 +732,7 @@ contains
     IWORK(16) = IMXER
     ! Set Y array, T, and optional output. --------------------------------
 580 CONTINUE
-    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
+    vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
 
     vstate % T = vstate % TN
     IWORK(11) = vstate % NST
