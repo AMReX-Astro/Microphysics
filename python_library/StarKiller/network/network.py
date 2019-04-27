@@ -12,6 +12,9 @@ class Network(object):
         self.nspec = self.ActualNetworkModule.nspec
         self.nspec_evolve = self.ActualNetworkModule.nspec_evolve
 
+        self.aion = self.ActualNetworkModule.aion
+        self.aion_inv = self.NetworkModule.aion_inv
+
         # These are python zero based indexes
         self.net_itemp = self.nspec_evolve
         self.net_ienuc = self.nspec_evolve + 1
