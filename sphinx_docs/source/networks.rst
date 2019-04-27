@@ -423,6 +423,15 @@ new network that defines the RHS in whatever way you like.
 Interfaces
 ----------
 
+.. note::
+
+   StarKiller integrates the reaction system in terms of mass fractions,
+   :math:`X_k`, but most astrophysical networks use molar fractions,
+   :math:`Y_k`.  As a result, we expect the networks to return the
+   righthand side and Jacobians in terms of molar fractions.  The StarKiller
+   routines will internally convert to mass fractions as needed for the
+   integrators.
+
 The righthand side of the network is implemented by
 ``actual_rhs()`` ``in actual_rhs.f90``, and appears as:
 
