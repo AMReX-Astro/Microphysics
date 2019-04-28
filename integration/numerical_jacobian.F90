@@ -25,7 +25,7 @@ contains
 
     type (burn_t)    :: state_delp, state_delm, state_0
 
-    ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
+    ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon.
     ! this balances truncation vs. roundoff error in the differencing
     real(rt), parameter :: eps = 1.e-8_rt
     real(rt) :: scratch, h
@@ -161,7 +161,7 @@ contains
     use actual_rhs_module
     use eos_module, only : eos
     use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
-    use jacobian_sparsity_module, only: get_jac_entry    
+    use jacobian_sparsity_module, only: get_jac_entry
 
     type (burn_t) :: state
     type (burn_t) :: state_num
@@ -169,9 +169,9 @@ contains
 
     real(rt) :: scratch, scratch_num
 
-    integer :: i, j
-    character(len=16) :: namei, namej  
-      
+    integer :: i, j, n
+    character(len=16) :: namei, namej
+
     ! Set up state
 
     call burn_to_eos(state, eos_state)
@@ -200,13 +200,13 @@ contains
     ! Now compute the numerical Jacobian.
     call actual_rhs(state_num)
     call numerical_jac(state_num)
-  
+
 888 format(a,"-derivatives that don't match:")
 999 format(5x, "df(",a,")/dy(",a,")", g18.10, g18.10, g18.10)
 
     ! how'd we do?
     do j = 1, neqs
-     
+
        if (j <= nspec_evolve) then
           namej = short_spec_names(j)
        else if (j == net_ienuc) then
