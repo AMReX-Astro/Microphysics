@@ -23,12 +23,12 @@ contains
 
     integer          :: m, n
 
-    type (burn_t)    :: state_del, state_delm
+    type (burn_t)    :: state_delp, state_delm, state_0
 
-    ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
+    ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon.
     ! this balances truncation vs. roundoff error in the differencing
-    real(rt), parameter :: eps = 1.d-8
-    real(rt) :: scratch
+    real(rt), parameter :: eps = 1.e-8_rt
+    real(rt) :: scratch, h
 
     !$gpu
 
@@ -39,48 +39,52 @@ contains
 
 
     if (centered_diff_jac) then
-       call copy_burn_t(state_del, state)
+       call copy_burn_t(state_delp, state)
        call copy_burn_t(state_delm, state)
 
        ! species derivatives
        do n = 1, nspec_evolve
           ! perturb species
-          state_del % xn = state % xn
-          state_del % xn(n) = state % xn(n) * (ONE + eps)
+          state_delp % xn = state % xn
+          state_delp % xn(n) = state % xn(n) * (ONE + eps)
 
-          call actual_rhs(state_del)
+          call actual_rhs(state_delp)
 
           ! We integrate X, so convert from the Y we got back from the RHS
 
-          state_del % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+          state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           state_delm % xn = state % xn
           state_delm % xn(n) = state % xn(n) * (ONE - eps)
 
           call actual_rhs(state_delm)
 
-          state_delm % ydot(1:nspec_evolve) = state_del % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+          state_delm % ydot(1:nspec_evolve) = state_delm % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           do m = 1, neqs
-             scratch = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+             scratch = HALF*(state_delp % ydot(m) - state_delm % ydot(m)) / &
                             (eps * state % xn(n))
              call set_jac_entry(state, m, n, scratch)
           enddo
        enddo
 
        ! temperature derivative
-       state_del % xn = state % xn
-       state_del % T  = state % T * (ONE + eps)
+       state_delp % xn = state % xn
+       state_delp % T  = state % T * (ONE + eps)
 
-       call actual_rhs(state_del)
+       call actual_rhs(state_delp)
+
+       state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        state_delm % xn = state % xn
        state_delm % T  = state % T * (ONE - eps)
 
        call actual_rhs(state_delm)
 
+       state_delm % ydot(1:nspec_evolve) = state_delm % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
        do m = 1, neqs
-          scratch = HALF*(state_del % ydot(m) - state_delm % ydot(m)) / &
+          scratch = HALF*(state_delp % ydot(m) - state_delm % ydot(m)) / &
                          (eps * state % T)
           call set_jac_entry(state, m, net_itemp, scratch)
        enddo
@@ -92,30 +96,51 @@ contains
        enddo
 
     else
-       call copy_burn_t(state_del, state)
+       call copy_burn_t(state_delp, state)
+       call copy_burn_t(state_0, state)
+
+       state_0 % ydot(1:nspec_evolve) = state_0 % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        ! species derivatives
        do n = 1, nspec_evolve
           ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
-          state_del % xn = state % xn
-          state_del % xn(n) = state % xn(n) * (ONE + eps)
+          state_delp % xn = state % xn
 
-          call actual_rhs(state_del)
+          h = eps * abs(state % xn(n))
+          if (h == 0) then
+             h = eps
+          endif
+
+          state_delp % xn(n) = state % xn(n) + h
+
+          call actual_rhs(state_delp)
+
+          ! We integrate X, so convert from the Y we got back from the RHS
+
+          state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           do m = 1, neqs
-             scratch = (state_del % ydot(m) - state % ydot(m)) / (eps * state % xn(n))
+             scratch = (state_delp % ydot(m) - state_0 % ydot(m)) / h
              call set_jac_entry(state, m, n, scratch)
           enddo
        enddo
 
        ! temperature derivative
-       state_del % xn = state % xn
-       state_del % T  = state % T * (ONE + eps)
+       state_delp % xn = state % xn
 
-       call actual_rhs(state_del)
+       h = eps * abs(state % T)
+       if (h == 0) then
+          h = eps
+       endif
+
+       state_delp % T = state % T + h
+
+       call actual_rhs(state_delp)
+
+       state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        do m = 1, neqs
-          scratch = (state_del % ydot(m) - state % ydot(m)) / (eps * state % T)
+          scratch = (state_delp % ydot(m) - state_0 % ydot(m)) / h
           call set_jac_entry(state, m, net_itemp, scratch)
        enddo
 
@@ -136,7 +161,7 @@ contains
     use actual_rhs_module
     use eos_module, only : eos
     use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
-    use jacobian_sparsity_module, only: get_jac_entry    
+    use jacobian_sparsity_module, only: get_jac_entry
 
     type (burn_t) :: state
     type (burn_t) :: state_num
@@ -144,9 +169,9 @@ contains
 
     real(rt) :: scratch, scratch_num
 
-    integer :: i, j
-    character(len=16) :: namei, namej  
-      
+    integer :: i, j, n
+    character(len=16) :: namei, namej
+
     ! Set up state
 
     call burn_to_eos(state, eos_state)
@@ -164,16 +189,24 @@ contains
     call actual_rhs(state)
     call actual_jac(state)
 
+    ! the analytic Jacobian is in terms of Y, since that's what the
+    ! nets work with, so we convert it to derivatives with respect to
+    ! X and of mass fraction creation rates
+    do n = 1, nspec_evolve
+       state % jac(n,:) = state % jac(n,:) * aion(n)
+       state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+    enddo
+
     ! Now compute the numerical Jacobian.
     call actual_rhs(state_num)
     call numerical_jac(state_num)
-  
+
 888 format(a,"-derivatives that don't match:")
 999 format(5x, "df(",a,")/dy(",a,")", g18.10, g18.10, g18.10)
 
     ! how'd we do?
     do j = 1, neqs
-     
+
        if (j <= nspec_evolve) then
           namej = short_spec_names(j)
        else if (j == net_ienuc) then
