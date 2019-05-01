@@ -4,11 +4,6 @@ module screening_module
 
   implicit none
 
-  private
-  public :: screen5, screenz, add_screening_factor, &
-            screening_init, screening_finalize, &
-            plasma_state, fill_plasma_state
-
   integer :: nscreen = 0
 
   double precision, parameter :: fact       = 1.25992104989487d0
@@ -34,6 +29,10 @@ module screening_module
   double precision, allocatable, save :: zhat2(:)
   double precision, allocatable, save :: lzav(:)
   double precision, allocatable, save :: aznut(:)
+
+  private :: fact, co2, gamefx, gamefs
+  private :: z1scr, z2scr, a1scr, a2scr
+  private :: zs13, zs13inv, zhat, zhat2, lzav, aznut
 
   type :: plasma_state
 

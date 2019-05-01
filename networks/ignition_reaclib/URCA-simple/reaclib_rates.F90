@@ -98,7 +98,7 @@ contains
     real(rt), intent(in) :: temp
     integer, intent(in) :: iwhich
 
-    real(rt), intent(inout) :: reactvec(num_rate_groups+2)
+    real(rt), intent(inout) :: reactvec(num_rate_groups)
     ! reactvec(1) = rate     , the reaction rate
     ! reactvec(2) = drate_dt , the Temperature derivative of rate
     ! reactvec(3) = scor     , the screening factor
@@ -160,8 +160,6 @@ contains
     reactvec(i_drate_dt) = drate_dt
     reactvec(i_scor)     = 1.0d0
     reactvec(i_dscor_dt) = 0.0d0
-    reactvec(i_dqweak)   = 0.0d0
-    reactvec(i_epart)    = 0.0d0
 
     ! write(*,*) '----------------------------------------'
     ! write(*,*) 'IWHICH: ', iwhich
@@ -169,8 +167,6 @@ contains
     ! write(*,*) 'reactvec(i_drate_dt)', reactvec(i_drate_dt)
     ! write(*,*) 'reactvec(i_scor)', reactvec(i_scor)
     ! write(*,*) 'reactvec(i_dscor_dt)', reactvec(i_dscor_dt)
-    ! write(*,*) 'reactvec(i_dqweak)', reactvec(i_dqweak)
-    ! write(*,*) 'reactvec(i_epart)', reactvec(i_epart)
     ! write(*,*) '----------------------------------------'
 
   end subroutine reaclib_evaluate
