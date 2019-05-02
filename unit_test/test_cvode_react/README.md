@@ -13,7 +13,25 @@ directory, containing the `include` and `lib` subdirectories.
 
 # Building on Summit
 
-## Aprox13 + CUDA + cuSOLVER
+## Aprox13 + CVODE serial
+
+The following compiles in the interface to serial CVODE in `react_serial.cpp`:
+
+```
+make -j USE_CUDA=FALSE COMP=GNU EOS_DIR=helmholtz INTEGRATOR_DIR=CVODE NETWORK_DIR=aprox13 USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE CVODE_HOME=/ccs/home/dwillcox/run-cuda-vode-cpp/cvode-cusolver/instdir USE_CVODE_CUSOLVER=FALSE USE_GPU_PRAGMA=FALSE USE_SPARSE_STOP_ON_OOB=FALSE DEBUG=FALSE USE_CUDA_CVODE=FALSE
+```
+
+## Aprox13 + CUDA + CVODE SPGMR solver
+
+The following compiles in the interface to CUDA CVODE with the SPGMR linear solver in `react_cuda.cpp`:
+
+```
+make -j USE_CUDA=TRUE COMP=PGI EOS_DIR=helmholtz INTEGRATOR_DIR=CVODE NETWORK_DIR=aprox13 USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE CVODE_HOME=/ccs/home/dwillcox/run-cuda-vode-cpp/cvode-cusolver/instdir USE_CVODE_CUSOLVER=FALSE USE_GPU_PRAGMA=TRUE USE_SPARSE_STOP_ON_OOB=FALSE DEBUG=FALSE
+```
+
+## Aprox13 + CUDA + CVODE with cuSOLVER
+
+The following compiles in the interface to CUDA CVODE with the cuSOLVER batched QR linear solver in `react_cuda_cusolver.cpp`:
 
 ```
 make -j COMP=PGI USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=TRUE USE_CUDA_CVODE=TRUE USE_CVODE_CUSOLVER=TRUE AMREX_USE_CUDA=TRUE USE_GPU_PRAGMA=TRUE USE_SPARSE_STOP_ON_OOB=FALSE NETWORK_DIR=aprox13 CVODE_HOME=/ccs/home/dwillcox/run-cuda-vode-cpp/cvode-cusolver/instdir
