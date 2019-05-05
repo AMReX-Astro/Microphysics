@@ -384,10 +384,6 @@ contains
 
     enuc = sum(dydt(:) * mion(:)) * enuc_conv2
 
-!    print*,"enuc =",enuc
-!    print*,"dydt(:) =",dydt(:)
-!    print*,"mion(:) =",mion(:)
-
   end subroutine ener_gener_rate
 
 end module actual_network
