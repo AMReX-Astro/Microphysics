@@ -1,5 +1,5 @@
       SUBROUTINE DFDJC1 (FCN, N, X, FVEC, FJAC, LDFJAC, IFLAG, ML, MU,
-     +   EPSFCN, WA1, WA2)
+     +   EPSFCN, WA1, WA2, rpar)
 C***BEGIN PROLOGUE  DFDJC1
 C***SUBSIDIARY
 C***PURPOSE  Subsidiary to DNSQ and DNSQE
@@ -93,6 +93,7 @@ C***END PROLOGUE  DFDJC1
       INTEGER I, IFLAG, J, K, LDFJAC, ML, MSUM, MU, N
       DOUBLE PRECISION EPS, EPSFCN, EPSMCH, FJAC(LDFJAC,*),
      1     FVEC(*), H, TEMP, WA1(*), WA2(*), X(*), ZERO
+      double precision rpar(*)
       SAVE ZERO
       DATA ZERO /0.0D0/
 C
@@ -112,7 +113,7 @@ C
             H = EPS*ABS(TEMP)
             IF (H .EQ. ZERO) H = EPS
             X(J) = TEMP + H
-            CALL FCN(N,X,WA1,IFLAG)
+            CALL FCN(N,X,WA1,IFLAG, rpar)
             IF (IFLAG .LT. 0) GO TO 30
             X(J) = TEMP
             DO 10 I = 1, N
@@ -132,7 +133,7 @@ C
                IF (H .EQ. ZERO) H = EPS
                X(J) = WA2(J) + H
    60          CONTINUE
-            CALL FCN(N,X,WA1,IFLAG)
+            CALL FCN(N,X,WA1,IFLAG, rpar)
             IF (IFLAG .LT. 0) GO TO 100
             DO 80 J = K, N, MSUM
                X(J) = WA2(J)

@@ -161,7 +161,7 @@ contains
     use actual_rhs_module
     use eos_module, only : eos
     use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
-    use jacobian_sparsity_module, only: get_jac_entry
+    use jacobian_sparsity_module, only: get_jac_entry, scale_jac_entry
 
     type (burn_t) :: state
     type (burn_t) :: state_num
@@ -193,8 +193,10 @@ contains
     ! nets work with, so we convert it to derivatives with respect to
     ! X and of mass fraction creation rates
     do n = 1, nspec_evolve
-       state % jac(n,:) = state % jac(n,:) * aion(n)
-       state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+       do j = 1, neqs
+          call scale_jac_entry(state, n, j, aion(n))
+          call scale_jac_entry(state, j, n, aion_inv(n))
+       enddo
     enddo
 
     ! Now compute the numerical Jacobian.
