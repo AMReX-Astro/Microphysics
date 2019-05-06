@@ -6,6 +6,7 @@ program test
   double precision :: tol, fnorm
   double precision :: x(9), fvec(9), wa(180)
   double precision :: denorm, d1mach
+  double precision :: rpar(2)
 
   external fcn
 
@@ -24,7 +25,7 @@ program test
   ! precision solutions are required, this is the recommended setting.
   tol = sqrt(d1mach(4))
 
-  call dnsqe(fcn, jac, iopt, n, x, fvec, tol, nprint, info, wa, lwa)
+  call dnsqe(fcn, jac, iopt, n, x, fvec, tol, nprint, info, wa, lwa, rpar)
   fnorm = denorm(n,fvec)
   write (* ,1000) fnorm, info, (x(j),j=1,n)
   
@@ -33,10 +34,12 @@ program test
              5x,' final approximate solution' // (5x,3e15.7))
 end program test
 
-subroutine fcn(n, x, fvec, iflag)
+subroutine fcn(n, x, fvec, iflag, rpar)
 
   integer :: n, iflag
   double precision :: x(n), fvec(n)
+  double precision :: rpar(*)
+
   integer :: k
   double precision :: temp, temp1, temp2
   double precision, parameter :: zero = 0.0d0
