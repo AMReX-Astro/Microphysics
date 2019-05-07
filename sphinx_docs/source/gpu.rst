@@ -7,12 +7,12 @@ General Ideas
 
 The current strategy for StarKiller Microphysics is to use CUDA
 Fortran for all microphysics routines necessary to evaluate the EOS
-and integrate a reaction network so that the high level wrappers `eos`
-and `burner` can be called from a global CUDA kernel in which each
+and integrate a reaction network so that the high level wrappers ``eos``
+and ``burner`` can be called from a global CUDA kernel in which each
 cell in a grid is assigned to a GPU thread.
 
 This global kernel loops through the grid, creating thread-local
-variables from the derived types in `Microphysics/interfaces` with
+variables from the derived types in ``Microphysics/interfaces`` with
 initial conditions from the grid. These interface types are passed to
 the microphysics routines by each thread and the desired results are
 saved back to the grid.
@@ -29,13 +29,13 @@ for production simulations at this time.
 VODE90 - CUDA Fortran VODE
 --------------------------
 
-This integrator is located in `Microphysics/integration/VODE90` and
+This integrator is located in ``Microphysics/integration/VODE90`` and
 follows the paradigm described above where it is designed to be called
 from a single GPU thread and uses only local thread memory. It is a
-port of the legacy Fortran 77 `dvode` code to CUDA Fortran.
+port of the legacy Fortran 77 ``dvode`` code to CUDA Fortran.
 
-By necessity, this port reorganized the local data layout in `VODE` to
-eliminate `common` blocks in favor of derived types and eliminate
+By necessity, this port reorganized the local data layout in VODE to
+eliminate ``common`` blocks in favor of derived types and eliminate
 assumed-size or assumed-shape arrays in favor of arrays with sizes
 explicitly known as compile time parameters. This allows the CUDA
 Fortran compiler to avoid costly global memory allocations at runtime.
@@ -43,8 +43,8 @@ Fortran compiler to avoid costly global memory allocations at runtime.
 To reduce memory, this port also eliminated support for VODE's
 explicit Adams-Moulton integration, as we use only the implicit BDF
 method provided by VODE for reaction networks. This code has been
-tested against the original `dvode` integrator in
-`Microphysics/integration/VODE` and yields the same results.
+tested against the original ``dvode`` integrator in
+``Microphysics/integration/VODE`` and yields the same results.
 
 Standalone Test
 ^^^^^^^^^^^^^^^
@@ -54,7 +54,7 @@ integrator that integrates a grid of cells, with the original VODE
 test problem in each cell.
 
 To run this problem, see the test setup in
-`Microphysics/integration/VODE90/cuVODE/test` and the Readme file
+``Microphysics/integration/VODE90/cuVODE/test`` and the Readme file
 located there.
 
 Reaction Network Test
@@ -65,7 +65,7 @@ other integrators in Microphysics) on our reaction networks while
 optionally calling the EOS in the right hand side evaluation. This
 test thus closely emulates the environment of a production simulation.
 
-To run this test, see the setup in `Microphysics/unit_test/test_react`
+To run this test, see the setup in ``Microphysics/unit_test/test_react``
 and the included Readme file.
 
 CVODE
@@ -84,9 +84,9 @@ equation for such a system is block-diagonal. All cells are integrated
 together in lock-step as if there were only one system of ODEs.
 
 CVODE implements GPU parallelism by expressing vector operations as
-operations on `NVector` data structures that exist in GPU
-memory. Arithmetic operations on `NVector` objects are implemented as
-CUDA kernels operating on the GPU-resident `NVector` data.
+operations on ``NVector`` data structures that exist in GPU
+memory. Arithmetic operations on ``NVector`` objects are implemented as
+CUDA kernels operating on the GPU-resident ``NVector`` data.
 
 This interface is under development and testing and is not ready for
 production use.
@@ -95,11 +95,11 @@ Reaction Network Test
 ^^^^^^^^^^^^^^^^^^^^^
 
 There is a test setup that exercises the CVODE interface in
-`Microphysics/unit_test/test_cvode_react` along with a Readme file
+``Microphysics/unit_test/test_cvode_react`` along with a Readme file
 with details for compiling and running.
 
 It is recommended to experiment with the different linear solvers to
-determine which is best for a given network. For `aprox13` the sparse
+determine which is best for a given network. For ``aprox13`` the sparse
 direct solver in the cuSOLVER toolkit is preferred.
 
 At present, this setup requires a modified version of CVODE
