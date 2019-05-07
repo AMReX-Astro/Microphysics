@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GPUs &mdash; StarKiller Microphysics flame_wave
+ documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Unit Tests" href="unit_tests.html" />
+    <link rel="prev" title="Transport Coefficients" href="transport.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> StarKiller Microphysics
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                flame_wave
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">StarKiller basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GPUs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-ideas">General Ideas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reaction-network-integration">Reaction Network Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vode90-cuda-fortran-vode">VODE90 - CUDA Fortran VODE</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#standalone-test">Standalone Test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reaction-network-test">Reaction Network Test</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cvode">CVODE</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Reaction Network Test</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#common-compiler-errors">Common Compiler Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pgi-openacc">PGI - OpenACC</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#compilation-errors">Compilation errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runtime-errors">Runtime errors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cuda-gdb">cuda-gdb</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">StarKiller Microphysics</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>GPUs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/gpu.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="gpus">
+<h1>GPUs<a class="headerlink" href="#gpus" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="general-ideas">
+<h2>General Ideas<a class="headerlink" href="#general-ideas" title="Permalink to this headline">¶</a></h2>
+<p>The current strategy for StarKiller Microphysics is to use CUDA
+Fortran for all microphysics routines necessary to evaluate the EOS
+and integrate a reaction network so that the high level wrappers <code class="docutils literal notranslate"><span class="pre">eos</span></code>
+and <code class="docutils literal notranslate"><span class="pre">burner</span></code> can be called from a global CUDA kernel in which each
+cell in a grid is assigned to a GPU thread.</p>
+<p>This global kernel loops through the grid, creating thread-local
+variables from the derived types in <code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces</span></code> with
+initial conditions from the grid. These interface types are passed to
+the microphysics routines by each thread and the desired results are
+saved back to the grid.</p>
+</div>
+<div class="section" id="reaction-network-integration">
+<h2>Reaction Network Integration<a class="headerlink" href="#reaction-network-integration" title="Permalink to this headline">¶</a></h2>
+<p>There are currently two ways to integrate reaction networks using
+GPUs: CUDA Fortran VODE and CVODE.</p>
+<p>We recommend using CUDA Fortran VODE for the networks in Microphysics
+for production simulations at this time.</p>
+<div class="section" id="vode90-cuda-fortran-vode">
+<h3>VODE90 - CUDA Fortran VODE<a class="headerlink" href="#vode90-cuda-fortran-vode" title="Permalink to this headline">¶</a></h3>
+<p>This integrator is located in <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE90</span></code> and
+follows the paradigm described above where it is designed to be called
+from a single GPU thread and uses only local thread memory. It is a
+port of the legacy Fortran 77 <code class="docutils literal notranslate"><span class="pre">dvode</span></code> code to CUDA Fortran.</p>
+<p>By necessity, this port reorganized the local data layout in VODE to
+eliminate <code class="docutils literal notranslate"><span class="pre">common</span></code> blocks in favor of derived types and eliminate
+assumed-size or assumed-shape arrays in favor of arrays with sizes
+explicitly known as compile time parameters. This allows the CUDA
+Fortran compiler to avoid costly global memory allocations at runtime.</p>
+<p>To reduce memory, this port also eliminated support for VODE’s
+explicit Adams-Moulton integration, as we use only the implicit BDF
+method provided by VODE for reaction networks. This code has been
+tested against the original <code class="docutils literal notranslate"><span class="pre">dvode</span></code> integrator in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE</span></code> and yields the same results.</p>
+<div class="section" id="standalone-test">
+<h4>Standalone Test<a class="headerlink" href="#standalone-test" title="Permalink to this headline">¶</a></h4>
+<p>There is a standalone test problem for the CUDA Fortran VODE
+integrator that integrates a grid of cells, with the original VODE
+test problem in each cell.</p>
+<p>To run this problem, see the test setup in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE90/cuVODE/test</span></code> and the Readme file
+located there.</p>
+</div>
+<div class="section" id="reaction-network-test">
+<h4>Reaction Network Test<a class="headerlink" href="#reaction-network-test" title="Permalink to this headline">¶</a></h4>
+<p>There is also a test setup that exercises this integrator (as well as
+other integrators in Microphysics) on our reaction networks while
+optionally calling the EOS in the right hand side evaluation. This
+test thus closely emulates the environment of a production simulation.</p>
+<p>To run this test, see the setup in <code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_react</span></code>
+and the included Readme file.</p>
+</div>
+</div>
+<div class="section" id="cvode">
+<h3>CVODE<a class="headerlink" href="#cvode" title="Permalink to this headline">¶</a></h3>
+<p>Microphysics also includes a test setup and interfaces for using CVODE
+to integrate an entire grid of cells together either serially, on the
+GPU using CVODE’s Krylov linear solver, or on the GPU using cuSOLVER’s
+batched sparse QR linear solver.</p>
+<p>This approach does not follow the GPU paradigm of one thread per cell
+as in the case of CUDA Fortran VODE. The CVODE interface packs the
+network ODEs from an entire grid into a single vector of
+ODEs. Logically, the linear system that arises when solving the BDF
+equation for such a system is block-diagonal. All cells are integrated
+together in lock-step as if there were only one system of ODEs.</p>
+<p>CVODE implements GPU parallelism by expressing vector operations as
+operations on <code class="docutils literal notranslate"><span class="pre">NVector</span></code> data structures that exist in GPU
+memory. Arithmetic operations on <code class="docutils literal notranslate"><span class="pre">NVector</span></code> objects are implemented as
+CUDA kernels operating on the GPU-resident <code class="docutils literal notranslate"><span class="pre">NVector</span></code> data.</p>
+<p>This interface is under development and testing and is not ready for
+production use.</p>
+<div class="section" id="id1">
+<h4>Reaction Network Test<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>There is a test setup that exercises the CVODE interface in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_cvode_react</span></code> along with a Readme file
+with details for compiling and running.</p>
+<p>It is recommended to experiment with the different linear solvers to
+determine which is best for a given network. For <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> the sparse
+direct solver in the cuSOLVER toolkit is preferred.</p>
+<p>At present, this setup requires a modified version of CVODE
+incorporating the interface to the batched sparse QR linear solver in
+the cuSOLVER toolkit. The modified version of CVODE is located here:</p>
+<p><a class="reference external" href="https://github.com/dwillcox/cvode-4.0.0-development">https://github.com/dwillcox/cvode-4.0.0-development</a></p>
+<p>Note that because this integrator interface effectively couples many
+independent cells together, the error norm check in the nonlinear
+solver may not be sensitive to relatively large convergence errors in
+only a small subset of the grid cells. As a result, it can occur that
+this integration scheme will not yield results identical to
+integrating each cell independently of the others.</p>
+</div>
+</div>
+</div>
+<div class="section" id="common-compiler-errors">
+<h2>Common Compiler Errors<a class="headerlink" href="#common-compiler-errors" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pgi-openacc">
+<h3>PGI - OpenACC<a class="headerlink" href="#pgi-openacc" title="Permalink to this headline">¶</a></h3>
+<p>To get more detailed about what kernels are launching, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">PGI_ACC_NOTIFY</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<div class="section" id="compilation-errors">
+<h4>Compilation errors<a class="headerlink" href="#compilation-errors" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><em>Multiple exit statements</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Compiler</span> <span class="n">failed</span> <span class="n">to</span> <span class="n">translate</span> <span class="n">accelerator</span> <span class="n">region</span> <span class="p">(</span><span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span><span class="p">):</span>
+<span class="n">Unexpected</span> <span class="n">flow</span> <span class="n">graph</span> <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">single_step_rosen</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>This results when you have multiple exit statements from a
+do-loop. You need to consolidate any error/convergence checking in
+a loop and have at most a single exit statement.</p>
+<p>Note: sometimes a do while can help here, but there is a sense
+that while-loops do not perform optimally on GPUs.</p>
+</li>
+<li><p><em>ACC routines not in Fortran modules</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Procedures</span> <span class="n">called</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">compute</span> <span class="n">region</span> <span class="n">must</span> <span class="n">have</span> <span class="n">acc</span> <span class="n">routine</span> <span class="n">information</span><span class="p">:</span>
+  <span class="n">dgefa</span> <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">:</span> <span class="mi">711</span><span class="p">)</span>
+<span class="n">PGF90</span><span class="o">-</span><span class="n">S</span><span class="o">-</span><span class="mi">0155</span><span class="o">-</span><span class="n">Accelerator</span> <span class="n">region</span> <span class="n">ignored</span><span class="p">;</span> <span class="n">see</span> <span class="o">-</span><span class="n">Minfo</span> <span class="n">messages</span>
+  <span class="p">(</span><span class="o">../../</span><span class="n">integration</span><span class="o">/</span><span class="n">BS</span><span class="o">/</span><span class="n">stiff_ode</span><span class="o">.</span><span class="n">F90</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This occurs when a subroutine relies on another routine that is not part
+of a Fortran 90 module. In this case, even if that routine already has</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!$acc routine seq
+</pre></div>
+</div>
+<p>we need to mark the <em>calling</em> routine as well, with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!$acc routine(dgesl) seq
+</pre></div>
+</div>
+<p>(e.g., for the Fortran routine dgesl).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="runtime-errors">
+<h4>Runtime errors<a class="headerlink" href="#runtime-errors" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p><em>Multi-d array copies</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Unhandled</span> <span class="n">builtin</span><span class="p">:</span> <span class="mi">601</span> <span class="p">(</span><span class="n">pgf90_mzero8</span><span class="p">)</span>
+<span class="n">PGF90</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">0000</span><span class="o">-</span><span class="n">Internal</span> <span class="n">compiler</span> <span class="n">error</span><span class="o">.</span> <span class="n">Unhandled</span> <span class="n">builtin</span> <span class="n">function</span><span class="o">.</span>
+  <span class="mi">0</span> <span class="p">(</span><span class="o">../../</span><span class="n">networks</span><span class="o">/</span><span class="n">triple_alpha_plus_cago</span><span class="o">/</span><span class="n">actual_rhs</span><span class="o">.</span><span class="n">f90</span><span class="p">:</span> <span class="mi">146</span><span class="p">)</span>
+<span class="n">PGF90</span><span class="o">/</span><span class="n">x86</span><span class="o">-</span><span class="mi">64</span> <span class="n">Linux</span> <span class="mf">16.5</span><span class="o">-</span><span class="mi">0</span><span class="p">:</span> <span class="n">compilation</span> <span class="n">aborted</span>
+</pre></div>
+</div>
+<p>This error results from doing a multi-d array copy (with Fortran
+notation) in GPU code. The fix is to explicitly write out a loop over
+rows.</p>
+</li>
+<li><p><em>Illegal memory access</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="n">to</span> <span class="n">cuMemcpyDtoHAsync</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
+<span class="n">call</span> <span class="n">to</span> <span class="n">cuMemFreeHost</span> <span class="n">returned</span> <span class="n">error</span> <span class="mi">700</span><span class="p">:</span> <span class="n">Illegal</span> <span class="n">address</span> <span class="n">during</span> <span class="n">kernel</span> <span class="n">execution</span>
+</pre></div>
+</div>
+<p>This indicates that you went out of bounds in memory access or,
+sometimes it seems, generated some NaNs.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cuda-gdb">
+<h3>cuda-gdb<a class="headerlink" href="#cuda-gdb" title="Permalink to this headline">¶</a></h3>
+<p>Basic debugging can be done using cuda-gdb. This will work just
+like gdb and can give you the name of a routine where a crash
+occurred, but generally doesn’t produce line numbers.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="unit_tests.html" class="btn btn-neutral float-right" title="Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="transport.html" class="btn btn-neutral float-left" title="Transport Coefficients" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, StarKiller Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
