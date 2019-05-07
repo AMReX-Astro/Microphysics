@@ -14,6 +14,11 @@ your application code that integrates ODEs in a loop over zones.
 
 # Building with CUDA
 
-To build the example with CUDA Fortran, use the PGI compiler and do
-`make COMP=PGI USE_CUDA=TRUE CUDA_VERSION=9.0` if, e.g., you are using
-CUDA 9.
+To build the example with CUDA Fortran, use the PGI compiler and do:
+
+```
+make -j COMP=PGI USE_CUDA=TRUE AMREX_USE_CUDA=TRUE USE_GPU_PRAGMA=TRUE CUDA_VERSION=9.0
+```
+
+This was tested with PGI 18.10 and CUDA 9.2.148.
+

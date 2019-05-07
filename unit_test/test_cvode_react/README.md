@@ -13,6 +13,23 @@ directory, containing the `include` and `lib` subdirectories.
 
 # Building on Summit
 
+Tested with:
+
+- amrex (development branch): https://github.com/amrex-codes/amrex (f753c13992d82e86df58f33c1a2ffa8e2263a606)
+- Microphysics (development branch): https://github.com/starkiller-astro/Microphysics (9c4a91afa3c16f1dbf171279ad31031f7d4546db)
+- modified CVODE (master branch): https://github.com/dwillcox/cvode-4.0.0-development (b9876e6d68c6f9bc568e479381c3ad5b40acbd71)
+- cmake/3.13.4
+- pgi/18.10
+- cuda/9.2.148
+
+Here is the cmake command for CVODE:
+
+```
+cmake -DCMAKE_INSTALL_PREFIX=/ccs/home/dwillcox/run-cuda-vode-cpp/cvode-cusolver/instdir -DEXAMPLES_INSTALL_PATH=/ccs/home/dwillcox/run-cuda-vode-cpp/cvode-cusolver/instdir/examples -DCUDA_ENABLE=ON -DEXAMPLES_ENABLE_CUDA=ON ../../cvode-4.0.0-development
+```
+
+I compiled CVODE with gcc 4.8.5.
+
 ## Aprox13 + CVODE serial
 
 The following compiles in the interface to serial CVODE in `react_serial.cpp`:
@@ -35,20 +52,6 @@ The following compiles in the interface to CUDA CVODE with the cuSOLVER batched 
 
 ```
 make -j COMP=PGI USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=TRUE USE_CUDA_CVODE=TRUE USE_CVODE_CUSOLVER=TRUE AMREX_USE_CUDA=TRUE USE_GPU_PRAGMA=TRUE USE_SPARSE_STOP_ON_OOB=FALSE NETWORK_DIR=aprox13 CVODE_HOME=/ccs/home/dwillcox/run-cuda-vode-cpp/cvode-cusolver/instdir
-```
-
-# Building on Groot
-
-## Ignition Simple Network and CUDA
-
-```
-make -j 4 CUDA_ARCH=60 COMPILE_CUDA_PATH=/usr/local/cuda-9.2 USE_CUDA=TRUE COMP=PGI EOS_DIR=helmholtz INTEGRATOR_DIR=CVODE NETWORK_DIR=ignition_simple USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE CVODE_HOME=/home/dwillcox/dev-ode/cvode/instdir
-```
-
-## Ignition Simple Network and Serial
-
-```
-make -j 4 USE_CUDA=FALSE COMP=GNU EOS_DIR=helmholtz INTEGRATOR_DIR=CVODE NETWORK_DIR=ignition_simple USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE CVODE_HOME=/home/dwillcox/dev-ode/cvode/instdir USE_CUDA_CVODE=FALSE
 ```
 
 # Comparing with test_react
@@ -83,4 +86,16 @@ On Summit, use:
 jsrun -n 1 -a 1 -g 1 ./[executable] inputs_aprox13
 ```
 
+# Building on Groot
 
+## Ignition Simple Network and CUDA
+
+```
+make -j 4 CUDA_ARCH=60 COMPILE_CUDA_PATH=/usr/local/cuda-9.2 USE_CUDA=TRUE COMP=PGI EOS_DIR=helmholtz INTEGRATOR_DIR=CVODE NETWORK_DIR=ignition_simple USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE CVODE_HOME=/home/dwillcox/dev-ode/cvode/instdir
+```
+
+## Ignition Simple Network and Serial
+
+```
+make -j 4 USE_CUDA=FALSE COMP=GNU EOS_DIR=helmholtz INTEGRATOR_DIR=CVODE NETWORK_DIR=ignition_simple USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE CVODE_HOME=/home/dwillcox/dev-ode/cvode/instdir USE_CUDA_CVODE=FALSE
+```
