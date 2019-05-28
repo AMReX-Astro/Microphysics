@@ -17,10 +17,12 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
+  double precision, allocatable :: aion(:), zion(:), ebin(:)
 
-  !$acc declare create(aion, zion, ebin)
-  
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: aion, zion, ebin
+#endif
+
   character (len=32), parameter :: network_name = "triple_alpha_plus_cago"
 
   ! Rates data
@@ -48,6 +50,9 @@ contains
     short_spec_names(io16)  = "O16"
     short_spec_names(ife56) = "Fe56"
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(ebin(nspec))
 
     ! set the species properties
     aion(ihe4)  =  4.0_rt
@@ -60,9 +65,9 @@ contains
     zion(io16)  =  8.0_rt
     zion(ife56) = 26.0_rt
 
-    ! our convention is that binding energy is negative.  The following are 
+    ! our convention is that binding energy is negative.  The following are
     ! the binding energies per unit mass (erg / g) obtained by converting
-    ! the energies in MeV to erg then multiplying by (N_A / aion) where 
+    ! the energies in MeV to erg then multiplying by (N_A / aion) where
     ! N_A = 6.0221415e23 is Avogadro's number
     ebin(ihe4)  = -6.8253797e18_rt    !  28.39603 MeV / nucleon
     ebin(ic12)  = -7.4103097e18_rt    !  92.16294 MeV / nucleon
@@ -74,7 +79,7 @@ contains
     reac_names(ircago) = "cago"   ! C12 + He4 --> O16
 
     !$acc update device(aion, zion, ebin)
-    
+
   end subroutine actual_network_init
 
 
@@ -102,7 +107,15 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(ebin)) then
+       deallocate(ebin)
+    endif
 
   end subroutine actual_network_finalize
 
