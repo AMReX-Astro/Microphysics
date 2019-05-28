@@ -1,6 +1,6 @@
 ! This module contains the screen routine which applies screening corrections
-! to the reaction rates.  The input composition must be in terms of molar 
-! fractions.  The triple-alpha reaction goes through a compound nucleus 
+! to the reaction rates.  The input composition must be in terms of molar
+! fractions.  The triple-alpha reaction goes through a compound nucleus
 ! channel and therefore screening must be applied to both reactions.
 !
 ! A call is made to screenz which lives in screen.f to apply the screening
@@ -18,7 +18,7 @@ contains
   subroutine screen(temp, dens, ymol, rates, dratesdt)
 
     !$acc routine seq
-    
+
     use screening_module, only: screenz
 
     real(rt), intent(IN   ) :: temp, dens, ymol(nspec)
@@ -31,10 +31,11 @@ contains
 
     real(rt) :: rates_in(nrates), dratesdt_in(nrates)
 
+    !$gpu
     
     rates_in    = rates
     dratesdt_in = dratesdt
-    
+
     ! triple alpha going through compound nucleus channel
     call screenz(temp, dens,              &
          zion(ihe4), zion(ihe4),          &
