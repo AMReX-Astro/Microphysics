@@ -20,7 +20,7 @@ contains
   subroutine actual_burner(state_in, state_out, dt, time)
 
     !$acc routine seq
-    
+
     use integrator_module, only: integrator
 
     implicit none
@@ -29,6 +29,8 @@ contains
     type (burn_t),    intent(inout) :: state_out
     double precision, intent(in   ) :: dt, time
 
+    !$gpu
+
     call integrator(state_in, state_out, dt, time)
 
   end subroutine actual_burner
@@ -36,7 +38,7 @@ contains
 
 
   subroutine get_enuc_T_sensitivity(dens, temp, X, denucdT)
-    
+
     ! Calculate the energy generation rate's temperature sensitivity
     ! Used for diagnostic purposes only
 
@@ -55,6 +57,8 @@ contains
     real(kind=rt) :: dXdotdT(nspec)
     integer :: k
 
+    !$gpu
+
     ! calculate ymol
     ymol = X * aion_inv
 
@@ -64,7 +68,7 @@ contains
     call dydt(ymol, dratesdt, dXdotdT)
 
     ! calculate temperature sensitivity
-    denucdT = - sum(dXdotdT*ebin)    
+    denucdT = - sum(dXdotdT*ebin)
 
   end subroutine get_enuc_T_sensitivity
 

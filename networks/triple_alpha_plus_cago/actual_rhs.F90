@@ -17,13 +17,15 @@ contains
 
     implicit none
 
+    !$gpu
+
   end subroutine actual_rhs_init
 
 
   subroutine get_rates(state, rr)
 
     !$acc routine seq
-    
+
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -32,25 +34,27 @@ contains
 
     double precision :: rates(nrates), dratesdt(nrates)
 
+    !$gpu
+
     temp = state % T
     dens = state % rho
     ymol = state % xn * aion_inv
 
     call make_rates(temp, dens, rates, dratesdt)
     call screen(temp, dens, ymol, rates, dratesdt)
-    
+
     rr % rates(1,:) = rates(:)
     rr % rates(2,:) = dratesdt(:)
 
     rr % T_eval = temp
 
   end subroutine get_rates
-    
+
 
   subroutine actual_rhs(state)
 
     !$acc routine seq
-    
+
     use temperature_integration_module, only: temperature_rhs
 
     implicit none
@@ -59,7 +63,10 @@ contains
     type (rate_t) :: rr
 
     double precision :: ymol(nspec)
+    double precision :: rates(nrates)
     integer :: k
+
+    !$gpu
 
     state % ydot = ZERO
 
@@ -70,7 +77,9 @@ contains
 
     call get_rates(state, rr)
 
-    call dydt(ymol, rr % rates(1,:), state % ydot(1:nspec_evolve))
+    rates(:)    = rr % rates(1,:)
+
+    call dydt(ymol, rates, state % ydot(1:nspec_evolve))
 
     ! Energy generation rate
 
@@ -99,6 +108,8 @@ contains
 
     integer :: i, j
 
+    !$gpu
+
     call get_rates(state, rr)
 
     rates(:)    = rr % rates(1,:)
@@ -108,7 +119,7 @@ contains
     do j = 1, neqs
        state % jac(:,j) = ZERO
     enddo
-    
+
     ymol = state % xn * aion_inv
 
     ! ======================================================================
@@ -152,10 +163,12 @@ contains
   subroutine ener_gener_rate(dydt, enuc)
 
     !$acc routine seq
-    
+
     use network
 
     implicit none
+
+    !$gpu
 
     double precision :: dydt(nspec_evolve), enuc
 
@@ -170,6 +183,8 @@ contains
     implicit none
 
     type (burn_t)    :: state
+
+    !$gpu
 
     ! although we nspec_evolve < nspec, we never change the Fe56
     ! abundance, so there is no algebraic relation we need to
