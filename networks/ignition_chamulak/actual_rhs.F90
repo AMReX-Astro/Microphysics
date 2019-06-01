@@ -5,7 +5,6 @@ module actual_rhs_module
   use network
   use actual_network
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
   use rate_type_module
 
   implicit none
@@ -17,6 +16,46 @@ contains
     implicit none
 
   end subroutine actual_rhs_init
+
+  subroutine get_ebin(density, ebin)
+
+    use amrex_constants_module, only: ZERO
+    use fundamental_constants_module
+
+    implicit none
+
+    double precision, intent(in   ) :: density
+    double precision, intent(inout) :: ebin(nspec)
+
+    double precision :: rho9, q_eff
+
+    !$gpu
+
+    ebin(1:nspec) = ZERO
+
+    ! Chamulak et al. provide the q-value resulting from C12 burning,
+    ! given as 3 different values (corresponding to 3 different densities).
+    ! Here we do a simple quadratic fit to the 3 values provided (see
+    ! Chamulak et al., p. 164, column 2).
+
+    ! our convention is that the binding energies are negative.  We convert
+    ! from the MeV values that are traditionally written in astrophysics
+    ! papers by multiplying by 1.e6 eV/MeV * 1.60217646e-12 erg/eV.  The
+    ! MeV values are per nucleus, so we divide by aion to make it per
+    ! nucleon and we multiple by Avogardo's # (6.0221415e23) to get the
+    ! value in erg/g
+    rho9 = density/1.0d9
+
+    ! q_eff is effective heat evolved per reaction (given in MeV)
+    q_eff = 0.06d0*rho9**2 + 0.02d0*rho9 + 8.83d0
+
+    ! convert from MeV to ergs / gram.  Here M12_chamulak is the
+    ! number of C12 nuclei destroyed in a single reaction and 12.0 is
+    ! the mass of a single C12 nuclei.  Also note that our convention
+    ! is that binding energies are negative.
+    ebin(ic12) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0d0)
+
+  end subroutine get_ebin
 
   subroutine get_rates(state, rr)
 
@@ -37,6 +76,8 @@ contains
     double precision :: y(nspec)
 
     double precision, parameter :: FIVE6TH = FIVE / SIX
+
+    !$gpu
 
     temp = state % T
     dens = state % rho
@@ -92,6 +133,8 @@ contains
 
     double precision, parameter :: FIVE6TH = FIVE / SIX
 
+    !$gpu
+
     state % ydot = ZERO
 
     ! we enforce that O16 doesn't change and any C12 change goes to ash
@@ -99,7 +142,7 @@ contains
 
     call get_rates(state, rr)
 
-    rate = rr % rates(1,1) 
+    rate = rr % rates(1,1)
     dratedt = rr % rates(2,1)
     sc1212 = rr % rates(3,1)
     dsc1212dt = rr % rates(4,1)
@@ -128,8 +171,8 @@ contains
     !
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
-    xc12tmp = max(y(ic12_) * aion(ic12_),0.d0)
-    state % ydot(ic12_) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
+    xc12tmp = max(y(ic12) * aion(ic12),0.d0)
+    state % ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
 
     ! Convert back to molar form
 
@@ -156,6 +199,8 @@ contains
 
   subroutine actual_jac(state)
 
+    use temperature_integration_module, only: temperature_jac
+
     implicit none
 
     type (burn_t)    :: state
@@ -168,6 +213,8 @@ contains
 
     integer          :: j
 
+    !$gpu
+
     state % jac(:,:)  = ZERO
 
     ! Get data from the state
@@ -179,15 +226,15 @@ contains
     dratedt  = rr % rates(2,1)
     scorr    = rr % rates(3,1)
     dscorrdt = rr % rates(4,1)
-    xc12tmp  = max(state % xn(ic12_), ZERO)
+    xc12tmp  = max(state % xn(ic12), ZERO)
 
     ! carbon jacobian elements
 
-    state % jac(ic12_, ic12_) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
+    state % jac(ic12, ic12) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
 
     ! add the temperature derivatives: df(y_i) / dT
 
-    state % jac(ic12_,net_itemp) = -TWELFTH * M12_chamulak * HALF * &
+    state % jac(ic12,net_itemp) = -TWELFTH * M12_chamulak * HALF * &
                                    (dens*rate*xc12tmp**2*dscorrdt  &
                                   + dens*scorr*xc12tmp**2*dratedt)
 
@@ -223,7 +270,9 @@ contains
 
     double precision :: dydt(nspec_evolve), ebin(nspec), enuc
 
-    enuc = dydt(ic12_) * aion(ic12_) * ebin(ic12_)
+    !$gpu
+
+    enuc = dydt(ic12) * aion(ic12) * ebin(ic12)
 
   end subroutine ener_gener_rate
 
@@ -235,7 +284,9 @@ contains
 
     type (burn_t)    :: state
 
-    state % xn(iash_) = ONE - state % xn(ic12_) - state % xn(io16_)
+    !$gpu
+
+    state % xn(iash) = ONE - state % xn(ic12) - state % xn(io16)
 
   end subroutine update_unevolved_species
 

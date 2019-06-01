@@ -200,10 +200,6 @@ contains
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
 
-!    print*, "Y(:) =", Y(:)
-!    print*, "state % xn(:) =",state % xn(:)
-!    print*, "aion_inv(:) =",aion_inv(:)
-
     call evaluate_rates(state, rate_eval)
 
     call rhs_nuc(state, ydot_nuc, Y, rate_eval % screened_rates)

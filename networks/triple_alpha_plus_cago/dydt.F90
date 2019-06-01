@@ -1,4 +1,4 @@
-! This module contains the dydt routine which change in species with respect 
+! This module contains the dydt routine which change in species with respect
 ! to time based on the reaction rates.
 
 module dydt_module
@@ -8,14 +8,16 @@ module dydt_module
 
   implicit none
 
-contains 
+contains
 
   subroutine dydt(ymol, rates, ydot)
 
     !$acc routine seq
-    
+
     double precision, intent(IN   ) :: ymol(nspec), rates(nrates)
     double precision, intent(  OUT) :: ydot(nspec_evolve)
+
+    !$gpu
 
     ydot(:) = ZERO
 

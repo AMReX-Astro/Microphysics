@@ -5,7 +5,7 @@
 ! addition, we include the C12 + He4 --> O16 forward and reverse rates
 ! also from cf88
 !
-! The rates calculated here are NOT screened and therefore an explicit 
+! The rates calculated here are NOT screened and therefore an explicit
 ! screening routine must be applied via screen.f
 !
 
@@ -14,7 +14,7 @@ module rates_module
 
   use amrex_constants_module
   use amrex_fort_module, only : rt => amrex_real
-  
+
   use network
 
   implicit none
@@ -24,12 +24,12 @@ contains
   subroutine make_rates(temp, dens, rates, dratesdt)
 
     !$acc routine seq
-    
+
     ! rates given in terms of molar fractions
 
     real(rt), intent(IN   ) :: temp, dens
     real(rt), intent(  OUT) :: rates(nrates),dratesdt(nrates)
-    
+
     real(rt) :: t9r, t9r32, t9ri, t9ri2, t9, t9i, t913, t9i13, t923, &
                        t9i23, t943, t9i43, t932, t9i32, t953, t9i53, t92, t9i2
 
@@ -48,6 +48,7 @@ contains
                      THREE_HALVES = THREE * HALF, &
                      T2T9         = 1.0e-9_rt
 
+    !$gpu
 
     t9r   = temp * T2T9
     t9r32 = t9r**THREE_HALVES
@@ -94,9 +95,9 @@ contains
 
 
     ! q = 7.367;      He4 + Be8 --> C12
-    a    = (130_rt * t9i32) * dexp(-3.3364_rt * t9i) 
+    a    = (130_rt * t9i32) * dexp(-3.3364_rt * t9i)
     dadt = -a * THREE_HALVES * t9i + a * 3.3364_rt * t9i2
-    
+
     b    = 2.51e7_rt * t9i23 * dexp(-23.57_rt * t9i13 -                   &
                                       t92 / 0.055225_rt)
     dbdt = b * TWO3RD * t9i + b * (23.57_rt * THIRD * t9i43 -               &
@@ -133,7 +134,7 @@ contains
 
        b    = 1.e-2_rt + 0.2_rt * b1 / b2
        dbdt = 0.2_rt * (db1dt / b2 - b1 * db2dt / (b2 * b2))
-            
+
        c    = 0.1_rt * 1.35e-7_rt * t9i32 * dexp(-24.811_rt * t9i)
        dcdt = -c * THREE_HALVES * t9i + 24.811_rt * c * t9i2
 
@@ -157,12 +158,12 @@ contains
 
     a    = t9i2 * b1**2 * dexp(b2)
     dadt = a * (-TWO * t9i + TWO * db1dt / b1 + db2dt)
-    
+
     !------------------------
 
     b2    = ONE + 0.2654_rt * t9i23
     db2dt = -0.2654_rt * TWO3RD * t9i53
-    
+
     c    = -32.120_rt * t9i13
     dcdt = -THIRD * c * t9i
 
@@ -178,7 +179,7 @@ contains
     db2dt = b2 * (-THREE_HALVES * t9i + dcdt)
 
     !------------------------
-    
+
     c    = t92 * t92 * t9 * dexp(-15.541_rt * t9i)
     dcdt = c * (FIVE * t9i + 15.541_rt * t9i2)
 
