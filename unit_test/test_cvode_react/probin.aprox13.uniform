@@ -1,0 +1,21 @@
+&extern
+
+  small_dens = 1.0d0
+
+  dens_min   = 1.d8
+  dens_max   = 1.d8
+  temp_min   = 1.d9
+  temp_max   = 1.d9
+
+  reactions_density_scale = 1.d8
+  reactions_temperature_scale = 1.d9
+  reactions_energy_scale = 1.d24
+
+  store_jacobian = 1
+
+  num_steps_save_jacobian = 0
+
+  xin_file   = "xin.aprox13"
+
+/
+

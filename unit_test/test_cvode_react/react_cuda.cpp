@@ -83,7 +83,7 @@ void do_react(const int* lo, const int* hi,
 	int scomp = 0;
         for (int n=idx_spec_old; n<idx_spec_old+nspec_evolve; n++) {
           get_state(state, s_lo, s_hi, ncomp, i, j, k, n, &state_y[nzone*neqs + scomp]);
-	  abstol_values[nzone*neqs + scomp] = 1.0e-6;
+	  abstol_values[nzone*neqs + scomp] = 1.0e-12;
 	  scomp++;
         }
 
