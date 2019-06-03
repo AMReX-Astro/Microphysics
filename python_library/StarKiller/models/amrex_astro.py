@@ -6,11 +6,16 @@ class AmrexAstroModel(object):
         self.filename = input_file
         self.variables = []
         self.model_data = {}
+        self.number_points = 0
 
         self.network = Network()
 
         self.filename = input_file
         self.read(self.filename)
+
+    @property
+    def size(self):
+        return self.number_points
 
     @property
     def fields(self):
@@ -40,6 +45,7 @@ class AmrexAstroModel(object):
         
         num_points_line = f.readline()
         num_points = int(num_points_line.split('=')[-1].strip())
+        self.number_points = num_points
 
         num_variables_line = f.readline()
         # add 1 for the radius variable
