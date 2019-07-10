@@ -4,7 +4,6 @@ module actual_eos_module
 
   use UnitsModule, only: Gram, Centimeter, Kelvin
   use wlEquationOfStateTableModule, only: EquationOfStateTableType
-  use wlEOSInversionModule, only: ComputeTemperatureWith_DEY
   use wlInterpolationModule, only: LogInterpolateSingleVariable, &
                                    LogInterpolateDifferentiateSingleVariable, &
                                    ComputeTempFromIntEnergy_Lookup, &
@@ -15,7 +14,7 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "weaklib"
   type (EquationOfStateTableType), target, public :: eos_table
-  type (EquationOfStateTableType), pointer, public :: eos_pointer
+  type (EquationOfStateTableType), pointer, public :: eos_pointer => eos_table
 
   public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
@@ -32,21 +31,6 @@ module actual_eos_module
        OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm
   real(rt), dimension(:), allocatable :: &
        Ds_T, Ts_T, Ys_T
-  real(rt), dimension(:,:,:), allocatable :: &
-    Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, &
-    Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T
-
-#if defined(WEAKLIB_OMP_OL)
-  !$OMP DECLARE TARGET &
-  !$OMP ( Ds_T, Ts_T, Ys_T, &
-  !$OMP   OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm, &
-  !$OMP   Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T )
-#elif defined(WEAKLIB_OACC)
-  !$ACC DECLARE CREATE &
-  !$ACC ( Ds_T, Ts_T, Ys_T, &
-  !$ACC   OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm, &
-  !$ACC   Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T )
-#endif
 
 contains
 
@@ -214,8 +198,6 @@ contains
        print *, ''
     endif
 
-    eos_pointer => eos_table
-
     call InitializeHDF()
     call ReadEquationOfStateTableHDF(eos_table, trim(weaklib_eos_table_name))
     call FinalizeHDF()
@@ -267,44 +249,6 @@ contains
     OS_Xh = eos_table % DV % Offsets(iXh_T)
     OS_Gm = eos_table % DV % Offsets(iGm_T)
 
-    ALLOCATE( Ps_T (1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Ss_T (1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Es_T (1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Mes_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Mps_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Mns_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Xps_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Xns_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Xas_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Xhs_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-    ALLOCATE( Gms_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
-
-    Ps_T (:,:,:) = eos_table % DV % Variables(iP_T ) % Values(:,:,:)
-    Ss_T (:,:,:) = eos_table % DV % Variables(iS_T ) % Values(:,:,:)
-    Es_T (:,:,:) = eos_table % DV % Variables(iE_T ) % Values(:,:,:)
-    Mes_T(:,:,:) = eos_table % DV % Variables(iMe_T) % Values(:,:,:)
-    Mps_T(:,:,:) = eos_table % DV % Variables(iMp_T) % Values(:,:,:)
-    Mns_T(:,:,:) = eos_table % DV % Variables(iMn_T) % Values(:,:,:)
-    Xps_T(:,:,:) = eos_table % DV % Variables(iXp_T) % Values(:,:,:)
-    Xns_T(:,:,:) = eos_table % DV % Variables(iXn_T) % Values(:,:,:)
-    Xas_T(:,:,:) = eos_table % DV % Variables(iXa_T) % Values(:,:,:)
-    Xhs_T(:,:,:) = eos_table % DV % Variables(iXh_T) % Values(:,:,:)
-    Gms_T(:,:,:) = eos_table % DV % Variables(iGm_T) % Values(:,:,:)
-
-#if defined(WEAKLIB_OMP_OL)
-    !$OMP TARGET UPDATE TO &
-    !$OMP ( OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm )
-
-    !$OMP TARGET ENTER DATA &
-    !$OMP MAP( to: Ds_T, Ts_T, Ys_T, &
-    !$OMP          Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T )
-#elif defined(WEAKLIB_OACC)
-    !$ACC UPDATE DEVICE &
-    !$ACC ( Ds_T, Ts_T, Ys_T, &
-    !$ACC   OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm, &
-    !$ACC   Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T )
-#endif
-
   end subroutine actual_eos_init
 
 
@@ -313,25 +257,7 @@ contains
 
     implicit none
 
-#if defined(WEAKLIB_OMP_OL)
-    !$OMP TARGET EXIT DATA &
-    !$OMP MAP( release: Ds_T, Ts_T, Ys_T, &
-    !$OMP               Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T )
-#endif
-
     deallocate(Ds_T, Ts_T, Ys_T)
-
-    deallocate( Ps_T  )
-    deallocate( Ss_T  )
-    deallocate( Es_T  )
-    deallocate( Mes_T )
-    deallocate( Mps_T )
-    deallocate( Mns_T )
-    deallocate( Xps_T )
-    deallocate( Xns_T )
-    deallocate( Xas_T )
-    deallocate( Xhs_T )
-    deallocate( Gms_T )
 
   end subroutine actual_eos_finalize
 
@@ -347,75 +273,67 @@ contains
 
     ! --- Interpolate Pressure ----------------------------------------
 
-    call ComputeDependentVariable(state, state % pressure, Ps_T, OS_P)
+    call ComputeDependentVariable(state, state % pressure, iP_T, OS_P)
 
     ! --- Interpolate Entropy Per Baryon ------------------------------
 
-    call ComputeDependentVariable(state, state % entropy_per_baryon, Ss_T, OS_S)
+    call ComputeDependentVariable(state, state % entropy_per_baryon, iS_T, OS_S)
 
     ! --- Interpolate Specific Internal Energy ------------------------
 
-    call ComputeDependentVariable(state, state % specific_internal_energy, Es_T, OS_E)
+    call ComputeDependentVariable(state, state % specific_internal_energy, iE_T, OS_E)
 
     ! --- Interpolate Electron Chemical Potential ---------------------
 
-    call ComputeDependentVariable(state, state % electron_chemical_potential, Mes_T, OS_Me)
+    call ComputeDependentVariable(state, state % electron_chemical_potential, iMe_T, OS_Me)
 
     ! --- Interpolate Proton Chemical Potential -----------------------
 
-    call ComputeDependentVariable(state, state % proton_chemical_potential, Mps_T, OS_Mp)
+    call ComputeDependentVariable(state, state % proton_chemical_potential, iMp_T, OS_Mp)
 
     ! --- Interpolate Neutron Chemical Potential ----------------------
 
-    call ComputeDependentVariable(state, state % neutron_chemical_potential, Mns_T, OS_Mn)
+    call ComputeDependentVariable(state, state % neutron_chemical_potential, iMn_T, OS_Mn)
 
     ! --- Interpolate Proton Mass Fraction ----------------------------
 
-    call ComputeDependentVariable(state, state % proton_mass_fraction, Xps_T, OS_Xp)
+    call ComputeDependentVariable(state, state % proton_mass_fraction, iXp_T, OS_Xp)
 
     ! --- Interpolate Neutron Mass Fraction ---------------------------
 
-    call ComputeDependentVariable(state, state % neutron_mass_fraction, Xns_T, OS_Xn)
+    call ComputeDependentVariable(state, state % neutron_mass_fraction, iXn_T, OS_Xn)
 
     ! --- Interpolate Alpha Mass Fraction -----------------------------
 
-    call ComputeDependentVariable(state, state % alpha_mass_fraction, Xas_T, OS_Xa)
+    call ComputeDependentVariable(state, state % alpha_mass_fraction, iXa_T, OS_Xa)
 
     ! --- Interpolate Heavy Mass Fraction -----------------------------
 
-    call ComputeDependentVariable(state, state % heavy_mass_fraction, Xhs_T, OS_Xh)
+    call ComputeDependentVariable(state, state % heavy_mass_fraction, iXh_T, OS_Xh)
 
     ! --- Gamma1 ------------------------------------------------------
 
-    call ComputeDependentVariable(state, state % gamma_one, Gms_T, OS_Gm)
+    call ComputeDependentVariable(state, state % gamma_one, iGm_T, OS_Gm)
 
   end subroutine ApplyEquationOfState
 
 
   subroutine ComputeTemperatureFromSpecificInternalEnergy(state)
-#if defined(WEAKLIB_OMP_OL)
-    !$OMP DECLARE TARGET
-#elif defined(WEAKLIB_OACC)
-    !$ACC ROUTINE SEQ
-#endif
 
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
-    real(rt) :: d_p, e_p, y_p, t_lookup
-    integer :: error
+    real(rt) :: actual_temperature(1)
 
-    d_p = state % density
-    e_p = state % specific_internal_energy
-    y_p = state % electron_fraction
+    call ComputeTempFromIntEnergy_Lookup(     &
+         [state % density], [state % specific_internal_energy], [state % electron_fraction], &
+         Ds_T, Ts_T, Ys_T, LogInterp, &
+         eos_table % DV % Variables(iE_T) % Values, OS_E, &
+         actual_temperature)
 
-    call ComputeTemperatureWith_DEY &
-           ( d_p, e_p, y_p, Ds_T, Ts_T, Ys_T, Es_T, OS_E, t_lookup, &
-             Error_Option = error )
-
-    state % temperature = t_lookup
+    state % temperature = actual_temperature(1)
 
   end subroutine ComputeTemperatureFromSpecificInternalEnergy
 
@@ -440,12 +358,7 @@ contains
   end subroutine ComputeTemperatureFromPressure
 
 
-  subroutine ComputeDependentVariable(state, variable, V_T, OS_V)
-#if defined(WEAKLIB_OMP_OL)
-    !$OMP DECLARE TARGET
-#elif defined(WEAKLIB_OACC)
-    !$ACC ROUTINE SEQ
-#endif
+  subroutine ComputeDependentVariable(state, variable, iV, OS_V)
 
     use weaklib_type_module, only: weaklib_eos_t
 
@@ -453,18 +366,17 @@ contains
 
     type (weaklib_eos_t), intent(inout) :: state
     real(rt), intent(inout) :: variable
-    real(rt), dimension(:,:,:), intent(in)  :: V_T
+    integer,                intent(in)  :: iV
     real(rt),               intent(in)  :: OS_V
-    real(rt) :: d_p, t_p, y_p, v_p
+    real(rt) :: actual_variable(1)
 
-    d_p = state % density
-    t_p = state % temperature
-    y_p = state % electron_fraction
+    call LogInterpolateSingleVariable(         &
+         [state % density], [state % temperature], [state % electron_fraction], &
+         Ds_T, Ts_T, Ys_T,          &
+         LogInterp, OS_V,                 &
+         eos_table % DV % Variables(iV) % Values, actual_variable)
 
-    CALL LogInterpolateSingleVariable &
-           ( d_p, t_p, y_p, Ds_T, Ts_T, Ys_T, OS_V, V_T, v_p )
-
-    variable = v_p
+    variable = actual_variable(1)
 
   end subroutine ComputeDependentVariable
 

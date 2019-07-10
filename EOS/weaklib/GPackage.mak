@@ -6,12 +6,11 @@ f90sources += wlKindModule.f90
 f90sources += wlGridModule.f90
 f90sources += wlThermoStateModule.f90
 f90sources += wlDependentVariablesModule.f90
-F90sources += wlInterpolationModule.F90
+f90sources += wlInterpolationModule.f90
 f90sources += wlIOModuleHDF.f90
 
 # In weaklib/Distributions/EOSSource
 f90sources += wlEquationOfStateTableModule.f90
-F90sources += wlEOSInversionModule.F90
 f90sources += wlEOSIOModuleHDF.f90
 
 # In weaklib/Distributions/OpacitySource
