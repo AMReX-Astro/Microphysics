@@ -17,6 +17,14 @@ module extern_probin_module
 
 end module extern_probin_module
 
+#ifdef COMPILE_WITH_F2PY
+subroutine runtime_init(probin)
+
+  use extern_probin_module
+
+  implicit none
+
+#else
 subroutine runtime_init(name,namlen)
 
   use extern_probin_module
@@ -25,6 +33,7 @@ subroutine runtime_init(name,namlen)
 
   integer :: namlen
   integer :: name(namlen)
+#endif
 
   integer :: un, i, status
 
@@ -38,7 +47,7 @@ subroutine runtime_init(name,namlen)
 
   @@defaults@@
 
-
+#ifndef COMPILE_WITH_F2PY
   ! create the filename
 #ifndef AMREX_USE_CUDA
   if (namlen > maxlen) then
@@ -55,6 +64,11 @@ subroutine runtime_init(name,namlen)
   ! read in the namelist
   un = 9
   open (unit=un, file=probin(1:namlen), form='formatted', status='old')
+#else
+  ! read in the namelist
+  un = 9
+  open (unit=un, file=trim(probin), form='formatted', status='old')
+#endif
   read (unit=un, nml=extern, iostat=status)
 
   if (status < 0) then

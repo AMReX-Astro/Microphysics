@@ -29,8 +29,13 @@ contains
     integer :: ii, jj, kk
     real(rt) :: sum_X
 
-    dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
-    dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
+    if (npts > 1) then
+       dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
+       dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
+    else
+       dlogrho = ZERO
+       dlogT = ZERO
+    endif
 
     allocate(xn_zone(nspec, 0:npts-1))   ! this assumes that lo(3) = 0
 
@@ -162,5 +167,17 @@ contains
     sjac = store_jacobian
 
   end subroutine get_store_jacobian
+
+  subroutine get_num_steps_save_jacobian(sjac) bind(C, name="sk_get_num_steps_save_jacobian")
+
+    use extern_probin_module, only: num_steps_save_jacobian
+
+    implicit none
+
+    integer, intent(inout) :: sjac
+
+    sjac = num_steps_save_jacobian
+
+  end subroutine get_num_steps_save_jacobian
 
 end module react_utils_module

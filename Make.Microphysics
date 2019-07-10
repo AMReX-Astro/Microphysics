@@ -4,6 +4,12 @@ CVODE_HOME ?= /path/to/CVODE
 WEAKLIB_HOME ?= /path/to/weaklib
 HDF5_HOME ?= /path/to/hdf5
 
+# default is not to compile with CUDA
+USE_CUDA ?= FALSE
+
+# default is not to compile in the conductivity
+USE_CONDUCTIVITY ?= FALSE
+
 # system blas
 BLAS_LIBRARY ?= -lopenblas
 
@@ -12,6 +18,7 @@ TOP := $(MICROPHYSICS_HOME)
 # default microphysics locations
 EOS_HOME ?= $(TOP)/EOS
 NETWORK_HOME ?= $(TOP)/networks
+CONDUCTIVITY_HOME ?= $(TOP)/conductivity
 
 EBASE ?= main
 
@@ -29,18 +36,27 @@ ifdef USE_CUDA
   ifeq ($(USE_CUDA),TRUE)
     MANAGED_PROBIN_FLAG := --managed
     USE_GPU_PRAGMA = TRUE
+    DEFINES += -DCUDA
   endif
 endif
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
-all: build_status $(executable)
+all: build_status $(executable) starkiller_library
 	@echo SUCCESS
 
 build_status:
 	$(AMREX_HOME)/Tools/C_scripts/describe_sources.py \
           --git_names "Castro AMReX Microphysics" \
           --git_dirs "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+
+starkiller_library: $(executable)
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+	@echo Wrapping sources with f90wrap ...
+	sh dowrap.sh
+	@echo Linking objects with f2py ...
+	sh dof2py.sh
+endif
 
 # Use a coarse grained OMP approach
 DEFINES += -DCRSEGRNDOMP
@@ -49,6 +65,10 @@ DEFINES += -DCRSEGRNDOMP
 # OpenACC support
 ifeq ($(USE_ACC), TRUE)
   DEFINES += -DACC
+endif
+
+ifeq ($(USE_EXTRA_THERMO), TRUE)
+  DEFINES += -DEXTRA_THERMO
 endif
 
 ifeq ($(USE_SDC), TRUE)
@@ -70,6 +90,9 @@ ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
   endif
 endif
 
+ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
+  DEFINES += -DCOMPILE_WITH_F2PY
+endif
 
 #------------------------------------------------------------------------------
 # CVODE directories
@@ -82,10 +105,14 @@ ifeq ($(INTEGRATOR_DIR), CVODE)
   LIBRARY_LOCATIONS += $(CVODE_HOME)/lib
   LIBRARIES += -lsundials_cvode -lsundials_sunlinsolband -lsundials_sunlinsolspbcgs -lsundials_sunlinsolsptfqmr -lsundials_sunmatrixsparse -lsundials_nveccuda -lsundials_sunlinsoldense -lsundials_sunlinsolspfgmr -lsundials_sunmatrixband -lsundials_sunnonlinsolfixedpoint -lsundials_nvecserial -lsundials_sunlinsolpcg -lsundials_sunlinsolspgmr -lsundials_sunmatrixdense -lsundials_sunnonlinsolnewton
 
+ifeq ($(USE_CUDA_CVODE),TRUE)
+  LIBRARIES += -rpath=$(CVODE_HOME)/lib
+else
+  LIBRARIES += -Wl,-rpath,$(CVODE_HOME)/lib
+endif
+
   ifeq ($(USE_CUDA_CVODE), TRUE)
     DEFINES += -DCUDA_CVODE
-
-    LIBRARIES += -rpath=$(CVODE_HOME)/lib
   endif
 
   ifeq ($(USE_CVODE_CUSOLVER), TRUE)
@@ -156,6 +183,7 @@ Bpack	+= $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
 NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
 
 
 # Problems can specify the input file for general_null by setting
@@ -177,6 +205,17 @@ endif
 urcatables:
 	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
 	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
+	@if [ ! -f reaclib_rate_metadata.dat ]; then echo ${bold}Linking reaclib_rate_metadata.dat${normal}; ln -s $(NETWORK_PATH)/reaclib_rate_metadata.dat .; fi
+
+# Pynucastro networks read rate data from an external file
+ifeq ($(USE_READ_RATE_DATA), TRUE)
+  all: pynucastrorates
+endif
+
+# do not check to see if the file already exists, just force-link it in
+# because different Reaclib networks will have different versions of the file
+pynucastrorates:
+	echo ${bold}Linking reaclib_rate_metadata.dat${normal}; ln -sf $(NETWORK_PATH)/reaclib_rate_metadata.dat .
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
@@ -194,7 +233,16 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
+# include the conductivity
+ifdef USE_CONDUCTIVITY
+  ifeq ($(USE_CONDUCTIVITY),TRUE)
+    DEFINES += -DCONDUCTIVITY
+    EXTERN_CORE += $(CONDUCTIVITY_HOME)
+    EXTERN_CORE += $(CONDUCTIVITY_PATH)
+  endif
+endif
 
+# include the network
 EXTERN_CORE += $(NETWORK_HOME)
 EXTERN_CORE += $(NETWORK_PATH)
 
@@ -240,7 +288,6 @@ ifdef MICROPHYSICS_HOME
 endif
 
 EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
-
 
 extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
 	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \

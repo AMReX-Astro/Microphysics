@@ -39,7 +39,7 @@ contains
     !$gpu
 
     do IC = 1,NCOL
-       CALL DCOPYN (NROW, A(:,IC), 1, B(:,IC), 1)
+       B(1:NROW,IC) = A(1:NROW,IC)
     end do
     RETURN
   end subroutine dacopy

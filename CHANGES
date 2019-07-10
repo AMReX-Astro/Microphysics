@@ -1,5 +1,36 @@
+# 19.05
 
-# changes since the last release
+  -- The aprox21 network was missing the analytic Jacobian term for
+     the derivative of He4 with respect to Ni56. This is fixed. (#175)
+
+  -- The numerical Jacobian module, used by the BS and VBDF integrators
+     had some wrong scalings.  These have now been fixed (#179, #180)
+
+# 19.01
+
+ -- the docs are now automatically build from the sphinx source
+    using travis on github.
+
+# 18.12
+
+ -- simplify conductivity interface to match the eos interface by
+    moving the conductivity into the eos type
+
+# 18.11
+
+ -- new python bindings have been added
+
+ -- the documentation has been switched to Sphinx and is now hosted
+    online.
+
+ -- a bug was fixed in the stellarcollapse EOS where the energy offset
+    was being applied incorrectly.
+
+
+# 18.10
+
+ -- test_eos and test_react now both work on GPUs (using the AMReX
+    `gpu` branch)
 
  -- the intermediate blending of the weak and strong screening regimes
     was wrong, and has been fixed.  We've also synced some parameters

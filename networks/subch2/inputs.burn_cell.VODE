@@ -1,0 +1,119 @@
+&PROBIN
+
+  run_prefix = "react_pynucastro_"
+  
+  small_temp = 1d5
+  small_dens = 1d5
+  
+  burner_verbose = .false.
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 1
+
+  renormalize_abundances = .true.
+
+  rtol_spec = 1.0d-9
+  rtol_enuc = 1.0d-6
+  rtol_temp = 1.0d-6
+  atol_spec = 1.0d-9
+  atol_enuc = 1.0d-6
+  atol_temp = 1.0d-6
+
+/
+
+&cellparams
+
+  tmax     = 1.0d0
+  numsteps = 1000
+
+  density       = 1.0d7
+  temperature   = 1.0d8
+
+
+! p     initial mass fraction
+  massfractions(1) = 0.0d0
+
+! he4   initial mass fraction
+  massfractions(2) = 0.0d0
+
+! c12   initial mass fraction
+  massfractions(3) = 0.0d0
+
+! c14   initial mass fraction
+  massfractions(4) = 0.0d0
+
+! n13   initial mass fraction
+  massfractions(5) = 0.0d0
+
+! n14   initial mass fraction
+  massfractions(6) = 0.0d0
+
+! o16   initial mass fraction
+  massfractions(7) = 0.0d0
+
+! o18   initial mass fraction
+  massfractions(8) = 0.0d0
+
+! f18   initial mass fraction
+  massfractions(9) = 0.0d0
+
+! ne20  initial mass fraction
+  massfractions(10) = 0.0d0
+
+! ne21  initial mass fraction
+  massfractions(11) = 0.0d0
+
+! mg24  initial mass fraction
+  massfractions(12) = 0.0d0
+
+! al27  initial mass fraction
+  massfractions(13) = 0.0d0
+
+! si28  initial mass fraction
+  massfractions(14) = 0.0d0
+
+! p31   initial mass fraction
+  massfractions(15) = 0.0d0
+
+! s32   initial mass fraction
+  massfractions(16) = 0.0d0
+
+! cl35  initial mass fraction
+  massfractions(17) = 0.0d0
+
+! ar36  initial mass fraction
+  massfractions(18) = 0.0d0
+
+! k39   initial mass fraction
+  massfractions(19) = 0.0d0
+
+! ca40  initial mass fraction
+  massfractions(20) = 0.0d0
+
+! sc43  initial mass fraction
+  massfractions(21) = 0.0d0
+
+! ti44  initial mass fraction
+  massfractions(22) = 0.0d0
+
+! v47   initial mass fraction
+  massfractions(23) = 0.0d0
+
+! cr48  initial mass fraction
+  massfractions(24) = 0.0d0
+
+! mn51  initial mass fraction
+  massfractions(25) = 0.0d0
+
+! fe52  initial mass fraction
+  massfractions(26) = 0.0d0
+
+! co55  initial mass fraction
+  massfractions(27) = 0.0d0
+
+! ni56  initial mass fraction
+  massfractions(28) = 0.0d0
+
+/

@@ -31,6 +31,7 @@ module actual_network
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 5
+  integer, parameter :: number_reaclib_sets = 6
 
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 2
@@ -68,8 +69,7 @@ module actual_network
   integer, parameter :: i_drate_dt    = 2
   integer, parameter :: i_scor        = 3
   integer, parameter :: i_dscor_dt    = 4
-  integer, parameter :: i_dqweak      = 5
-  integer, parameter :: i_epart       = 6
+  integer, parameter :: i_eneut       = 4
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)

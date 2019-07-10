@@ -135,6 +135,7 @@ contains
     close(11)
 
     rate_table(:,:,:) = rate_table_scratch(:,:,3:num_vars+2)
+
     do i = 1, num_rhoy
        rhoy_table(i) = rate_table_scratch(1, i, 1)
     end do
@@ -336,14 +337,15 @@ contains
                               num_rhoy, num_temp, num_vars, &
                               rhoy, temp, reactvec)
 
-    use actual_network, only: num_rate_groups
+    use actual_network, only: num_rate_groups, i_rate, i_drate_dt, i_scor, i_eneut
+
     implicit none
 
     integer  :: num_rhoy, num_temp, num_vars, num_header
     real(rt) :: rate_table(num_temp, num_rhoy, num_vars), rhoy_table(num_rhoy), temp_table(num_temp)
 
     real(rt), intent(in)    :: rhoy, temp
-    real(rt), intent(inout) :: reactvec(num_rate_groups+2)
+    real(rt), intent(inout) :: reactvec(num_rate_groups)
     real(rt) :: entries(num_vars+add_vars)
 
     !$gpu
@@ -354,12 +356,10 @@ contains
                      rhoy, temp, entries)
 
     ! Recast entries into reactvec
-    reactvec(1) = entries(jtab_rate)
-    reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0
-    reactvec(4) = 0.0d0
-    reactvec(5) = entries(jtab_dq)
-    reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
+    reactvec(i_rate)     = entries(jtab_rate)
+    reactvec(i_drate_dt) = entries(k_drate_dt)
+    reactvec(i_scor)     = 1.0d0
+    reactvec(i_eneut)    = -entries(jtab_nuloss)
 
   end subroutine tabular_evaluate
 

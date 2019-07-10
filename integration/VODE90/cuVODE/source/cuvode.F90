@@ -302,7 +302,7 @@ contains
     vstate % JSTART = -1
     IF (vstate % NQ .LE. VODE_MAXORD) GO TO 90
     ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    CALL DCOPYN(VODE_NEQS, rwork % wm, 1, rwork % savf, 1)
+    rwork % savf(1:VODE_NEQS) = rwork % wm(1:VODE_NEQS)
 
     ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
 90  continue
@@ -356,7 +356,7 @@ contains
     CALL f_rhs (vstate % T, vstate % Y, rwork % yh(:,2), vstate % RPAR)
     vstate % NFE = 1
     ! Load the initial value array in YH. ---------------------------------
-    CALL DCOPYN(VODE_NEQS, vstate % Y, 1, rwork % YH(:,1), 1)
+    rwork % YH(1:VODE_NEQS,1) = vstate % Y(1:VODE_NEQS)
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
@@ -410,7 +410,19 @@ contains
     NSLAST = vstate % NST
     vstate % KUTH = 0
 
-    GO TO (210, 250, 220, 230, 240), ITASK
+    select case (ITASK)
+    case (1)
+       go to 210
+    case (2)
+       go to 250
+    case (3)
+       go to 220
+    case (4)
+       go to 230
+    case (5)
+       go to 240
+    end select
+
 210 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
     CALL DVINDY (vstate, rwork, IFLAG)
 
@@ -560,7 +572,15 @@ contains
     KGO = 1 - vstate % KFLAG
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
-    GO TO (300, 530, 540), KGO
+
+    select case (KGO)
+    case (1)
+       go to 300
+    case (2)
+       go to 530
+    case (3)
+       go to 540
+    end select
 
     ! -----------------------------------------------------------------------
     !  Block F.
@@ -571,7 +591,20 @@ contains
 300 continue
     vstate % INIT = 1
     vstate % KUTH = 0
-    GO TO (310, 400, 330, 340, 350), ITASK
+
+    select case (ITASK)
+    case (1)
+       go to 310
+    case (2)
+       go to 400
+    case (3)
+       go to 330
+    case (4)
+       go to 340
+    case (5)
+       go to 350
+    end select
+
     ! ITASK = 1.  If TOUT has been reached, interpolate. -------------------
 310 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
     CALL DVINDY (vstate, rwork, IFLAG)
@@ -608,7 +641,7 @@ contains
     ! -----------------------------------------------------------------------
 
 400 CONTINUE
-    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
+    vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
 
     vstate % T = vstate % TN
     IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
@@ -699,7 +732,7 @@ contains
     IWORK(16) = IMXER
     ! Set Y array, T, and optional output. --------------------------------
 580 CONTINUE
-    CALL DCOPYN(VODE_NEQS, rwork % YH(:,1), 1, vstate % Y, 1)
+    vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
 
     vstate % T = vstate % TN
     IWORK(11) = vstate % NST

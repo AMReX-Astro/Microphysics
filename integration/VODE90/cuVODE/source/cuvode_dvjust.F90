@@ -53,7 +53,14 @@ contains
     IF ((vstate % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN
     NQM1 = vstate % NQ - 1
     NQM2 = vstate % NQ - 2
-    GO TO (100, 200), vstate % METH
+
+    select case (vstate % METH)
+    case (1)
+       go to 100
+    case (2)
+       go to 200
+    end select
+
     ! -----------------------------------------------------------------------
     !  Nonstiff option...
     !  Check to see if the order is being increased or decreased.

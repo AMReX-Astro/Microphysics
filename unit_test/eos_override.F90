@@ -10,7 +10,12 @@ contains
 
   subroutine eos_override(state)
 
+<<<<<<< HEAD
     use extern_probin_module
+=======
+    !$acc routine seq
+
+>>>>>>> development
     use eos_type_module, only: eos_t
     use actual_eos_module, only: eos_name
 

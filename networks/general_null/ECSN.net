@@ -1,0 +1,14 @@
+# The ignition network is used for wdconvect with the ignition_chamulak burner.
+
+# name       short name    aion     zion
+ neon-20        Ne20        20.0     10.0
+ oxygen-16      O16         16.0     8.0
+ oxygen-20      O20         20.0     8.0
+ magnesium-24   Mg24        24.0     12.0
+ fluorine-20    F20         20.0     9.0
+ helium-4       He4         4.0      2.0
+ aluminum-27    Al27        27.0     13.0
+ silicon-28     Si28        28.0     14.0
+ sulfur-32      S32         32.0     16.0
+ phosphorus-31  P31         31.0     15.0
+ hydrogen-1     h1          1.0      1.0

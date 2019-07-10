@@ -1,6 +1,6 @@
       SUBROUTINE DNSQ (FCN, JAC, IOPT, N, X, FVEC, FJAC, LDFJAC, XTOL,
      +   MAXFEV, ML, MU, EPSFCN, DIAG, MODE, FACTOR, NPRINT, INFO, NFEV,
-     +   NJEV, R, LR, QTF, WA1, WA2, WA3, WA4)
+     +   NJEV, R, LR, QTF, WA1, WA2, WA3, WA4, rpar)
 C***BEGIN PROLOGUE  DNSQ
 C***PURPOSE  Find a zero of a system of a N nonlinear functions in N
 C            variables by a modification of the Powell hybrid method.
@@ -427,6 +427,7 @@ C***END PROLOGUE  DNSQ
      1     FJAC(LDFJAC,*), FNORM, FNORM1, FVEC(*), ONE, P0001, P001,
      2     P1, P5, PNORM, PRERED, QTF(*), R(*), RATIO, SUM, TEMP,
      3     WA1(*), WA2(*), WA3(*), WA4(*), X(*), XNORM, XTOL, ZERO
+      double precision rpar(*)
       EXTERNAL FCN
       LOGICAL JEVAL,SING
       SAVE ONE, P1, P5, P001, P0001, ZERO
@@ -460,7 +461,7 @@ C        EVALUATE THE FUNCTION AT THE STARTING POINT
 C        AND CALCULATE ITS NORM.
 C
          IFLAG = 1
-         CALL FCN(N,X,FVEC,IFLAG)
+         CALL FCN(N,X,FVEC,IFLAG, rpar)
          NFEV = 1
 C     ...EXIT
          IF (IFLAG .LT. 0) GO TO 320
@@ -486,7 +487,7 @@ C
 C
 C                 USER SUPPLIES JACOBIAN
 C
-                  CALL JAC(N,X,FVEC,FJAC,LDFJAC,IFLAG)
+                  CALL JAC(N,X,FVEC,FJAC,LDFJAC,IFLAG, rpar)
                   NJEV = NJEV + 1
                GO TO 50
    40          CONTINUE
@@ -495,7 +496,7 @@ C                 CODE APPROXIMATES THE JACOBIAN
 C
                   IFLAG = 2
                   CALL DFDJC1(FCN,N,X,FVEC,FJAC,LDFJAC,IFLAG,ML,MU,
-     1                        EPSFCN,WA1,WA2)
+     1                        EPSFCN,WA1,WA2, rpar)
                   NFEV = NFEV + MIN(ML+MU+1,N)
    50          CONTINUE
 C
@@ -584,7 +585,7 @@ C
                IF (NPRINT .LE. 0) GO TO 210
                   IFLAG = 0
                   IF (MOD(ITER-1,NPRINT) .EQ. 0)
-     1               CALL FCN(N,X,FVEC,IFLAG)
+     1               CALL FCN(N,X,FVEC,IFLAG, rpar)
 C     ............EXIT
                   IF (IFLAG .LT. 0) GO TO 320
   210          CONTINUE
@@ -609,7 +610,7 @@ C
 C              EVALUATE THE FUNCTION AT X + P AND CALCULATE ITS NORM.
 C
                IFLAG = 1
-               CALL FCN(N,WA2,WA4,IFLAG)
+               CALL FCN(N,WA2,WA4,IFLAG, rpar)
                NFEV = NFEV + 1
 C     .........EXIT
                IF (IFLAG .LT. 0) GO TO 320
@@ -733,7 +734,7 @@ C     TERMINATION, EITHER NORMAL OR USER IMPOSED.
 C
       IF (IFLAG .LT. 0) INFO = IFLAG
       IFLAG = 0
-      IF (NPRINT .GT. 0) CALL FCN(N,X,FVEC,IFLAG)
+      IF (NPRINT .GT. 0) CALL FCN(N,X,FVEC,IFLAG, rpar)
       IF (INFO .LT. 0) CALL XERMSG ('SLATEC', 'DNSQ',
      +   'EXECUTION TERMINATED BECAUSE USER SET IFLAG NEGATIVE.', 1, 1)
       IF (INFO .EQ. 0) CALL XERMSG ('SLATEC', 'DNSQ',

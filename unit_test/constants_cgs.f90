@@ -4,13 +4,13 @@ module fundamental_constants_module
 
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module, only: M_PI
-  
+
   implicit none
 
   ! newton's gravitational constant
   real(kind=rt), parameter :: Gconst = 6.67428e-8_rt      ! cm^3/g/s^2
-! new value; if uncommented initial models will need to be re-HSE'ed
-!  real(kind=rt), parameter :: Gconst = 6.67384e-8_rt      ! cm^3/g/s^2
+  ! new value; if uncommented initial models will need to be re-HSE'ed
+  !  real(kind=rt), parameter :: Gconst = 6.67384e-8_rt      ! cm^3/g/s^2
 
   ! boltzmann's constant
   real(kind=rt), parameter :: k_B    = 1.3806488e-16_rt   ! erg/K
@@ -18,7 +18,7 @@ module fundamental_constants_module
   ! planck's constant over 2pi
   real(kind=rt), parameter :: hbar   = 1.054571726e-27_rt ! erg s
 
-  ! planck's constant 
+  ! planck's constant
   real(kind=rt), parameter :: hplanck = 6.62606957e-27_rt ! erg s
 
   ! avogradro's Number
@@ -69,5 +69,8 @@ module fundamental_constants_module
 
   ! solar mass (from http://asa.usno.navy.mil/SecK/Constants.html)
   real(kind=rt), parameter :: M_solar = 1.9884e33_rt
+
+  ! solar radius
+  real(kind=rt), parameter :: R_solar = 6.957e10_rt
 
 end module fundamental_constants_module
