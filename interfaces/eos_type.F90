@@ -122,6 +122,7 @@ module eos_type_module
   ! dedZ     -- d energy/ d zbar
   ! dpde     -- d pressure / d energy |_rho
   ! dpdr_e   -- d pressure / d rho |_energy
+  ! conductivity -- thermal conductivity (in erg/cm/K/sec)
 
   type :: eos_t
 
@@ -172,6 +173,8 @@ module eos_type_module
     real(rt) :: dedA
     real(rt) :: dedZ
 #endif
+
+    real(rt) :: conductivity
 
   end type eos_t
 
@@ -234,6 +237,9 @@ contains
     to_eos % dedA = from_eos % dedA
     to_eos % dedZ = from_eos % dedZ
 #endif
+
+    to_eos % conductivity = from_eos % conductivity
+
   end subroutine copy_eos_t
 
 
@@ -241,6 +247,8 @@ contains
   ! on the composition like abar and zbar.
 
   subroutine composition(state)
+
+    !$acc routine seq
 
     use amrex_constants_module, only: ONE
     use network, only: aion, aion_inv, zion
@@ -357,6 +365,8 @@ contains
 
   subroutine eos_get_small_temp(small_temp_out)
 
+    !$acc routine seq
+
     implicit none
 
     real(rt), intent(out) :: small_temp_out
@@ -370,6 +380,8 @@ contains
 
 
   subroutine eos_get_small_dens(small_dens_out)
+
+    !$acc routine seq
 
     implicit none
 
@@ -385,6 +397,8 @@ contains
 
   subroutine eos_get_max_temp(max_temp_out)
 
+    !$acc routine seq
+
     implicit none
 
     real(rt), intent(out) :: max_temp_out
@@ -398,6 +412,8 @@ contains
 
 
   subroutine eos_get_max_dens(max_dens_out)
+
+    !$acc routine seq
 
     implicit none
 

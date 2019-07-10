@@ -9,8 +9,7 @@ contains
   ! This is a user hook to override the details of the EOS state.
 
   subroutine eos_override(state)
-
-    use extern_probin_module
+    !$acc routine seq
     use eos_type_module, only: eos_t
     use actual_eos_module, only: eos_name
 

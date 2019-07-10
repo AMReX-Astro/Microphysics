@@ -28,7 +28,8 @@ contains
     !$acc routine seq
 
     use rpar_indices
-    use extern_probin_module, only: jacobian, burner_verbose, &
+    use extern_probin_module, only: jacobian, use_jacobian_caching, &
+         burner_verbose, &
          rtol_spec, rtol_temp, rtol_enuc, &
          atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
@@ -41,7 +42,8 @@ contains
     use eos_type_module, only: eos_t, copy_eos_t
     use cuvode_types_module, only: dvode_t, rwork_t
     use amrex_constants_module, only: ZERO, ONE
-    use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale    
+    use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale
+    use temperature_integration_module, only: self_heat
 
     implicit none
 
@@ -77,13 +79,17 @@ contains
     !$gpu
 
     if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC
+       MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC
+       MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
        stop
        !CUDA
        !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+    endif
+
+    if (.not. use_jacobian_caching) then
+       MF_JAC = -MF_JAC
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -149,14 +155,10 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       dvode_state % rpar(irp_self_heat) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
+    if (self_heat) then
        dvode_state % rpar(irp_self_heat) = ONE
     else
-       stop
-       !CUDA
-       !call bl_error("Error: unknown burning_mode in actual_integrator.f90.")
+       dvode_state % rpar(irp_self_heat) = -ONE
     endif
 
     ! Copy in the zone size.
