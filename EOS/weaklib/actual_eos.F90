@@ -14,7 +14,7 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "weaklib"
   type (EquationOfStateTableType), target, public :: eos_table
-  type (EquationOfStateTableType), pointer, public :: eos_pointer => eos_table
+  type (EquationOfStateTableType), pointer, public :: eos_pointer
 
   public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
 
@@ -197,6 +197,8 @@ contains
        print *, "Initializing Weaklib EOS on all MPI ranks from table file: ", trim(weaklib_eos_table_name)
        print *, ''
     endif
+
+    eos_pointer => eos_table
 
     call InitializeHDF()
     call ReadEquationOfStateTableHDF(eos_table, trim(weaklib_eos_table_name))
