@@ -59,7 +59,7 @@ contains
     type (bs_t) :: bs
 
     real(rt) :: ener_offset
-    real(rt) :: edot, t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, t_sound, limit_factor
 
     logical :: success
 
