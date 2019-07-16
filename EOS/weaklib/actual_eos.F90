@@ -4,17 +4,15 @@ module actual_eos_module
 
   use UnitsModule, only: Gram, Centimeter, Kelvin
   use wlEquationOfStateTableModule, only: EquationOfStateTableType
-  use wlInterpolationModule, only: LogInterpolateSingleVariable_3D_Custom_Point, &
-                                   ComputeTemperatureWith_DEY_Single_Guess, &
-                                   ComputeTemperatureWith_DPY_Single_Guess
+  use wlEOSInversionModule, only: ComputeTemperatureWith_DEY_Single_Guess, &
+                                  ComputeTemperatureWith_DPY_Single_Guess
+  use wlInterpolationModule, only: LogInterpolateSingleVariable_3D_Custom_Point
+
+  public
 
   character (len=64), public :: eos_name = "weaklib"
   type (EquationOfStateTableType), target, public :: eos_table
   type (EquationOfStateTableType), pointer, public :: eos_pointer
-
-  public actual_eos, actual_eos_init, actual_eos_finalize, eos_supports_input_type
-
-  private
 
   integer, allocatable :: &
        iD_T, iT_T, iY_T, &
@@ -43,6 +41,7 @@ module actual_eos_module
   attributes(managed) :: Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T
 #endif
 
+#ifdef AMREX_USE_ACC
   !$acc declare &
   !$acc create(iD_T, iT_T, iY_T) &
   !$acc create(iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T) &
@@ -53,6 +52,7 @@ module actual_eos_module
   !$acc create(Ds_T, Ts_T, Ys_T) &
   !$acc create(Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T) &
   !$acc create(Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T)
+#endif
 
 contains
 
@@ -84,7 +84,9 @@ contains
 
   subroutine actual_eos(input, state)
 
+#ifdef AMREX_USE_ACC
     !$acc routine seq
+#endif
 
     ! Weaklib EOS
     !
@@ -106,8 +108,6 @@ contains
 
     ! Local state
     type (weaklib_eos_t) :: weaklib_state
-
-    !$gpu
 
     call eos_to_weaklib(state, weaklib_state)
 
@@ -323,6 +323,7 @@ contains
     Xhs_T(:,:,:) = eos_table % DV % Variables(iXh_T) % Values(:,:,:)
     Gms_T(:,:,:) = eos_table % DV % Variables(iGm_T) % Values(:,:,:)
 
+#ifdef AMREX_USE_ACC
     !$acc update &
     !$acc device(iD_T, iT_T, iY_T) &
     !$acc device(iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T) &
@@ -333,6 +334,7 @@ contains
     !$acc device(Ds_T, Ts_T, Ys_T) &
     !$acc device(Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T) &
     !$acc device(Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T)
+#endif
 
   end subroutine actual_eos_init
 
@@ -354,15 +356,15 @@ contains
 
   subroutine ApplyEquationOfState(state)
 
+#ifdef AMREX_USE_ACC
     !$acc routine seq
+#endif
 
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
-
-    !$gpu
 
     ! --- Interpolate Pressure ----------------------------------------
 
@@ -413,7 +415,9 @@ contains
 
   subroutine ComputeTemperatureFromSpecificInternalEnergy(state)
 
+#ifdef AMREX_USE_ACC
     !$acc routine seq
+#endif
 
     use weaklib_type_module, only: weaklib_eos_t
 
@@ -421,8 +425,6 @@ contains
 
     type (weaklib_eos_t), intent(inout) :: state
     real(rt) :: t_guess
-
-    !$gpu
 
     t_guess = state % temperature
 
@@ -436,7 +438,9 @@ contains
 
   subroutine ComputeTemperatureFromPressure(state)
 
+#ifdef AMREX_USE_ACC
     !$acc routine seq
+#endif
 
     use weaklib_type_module, only: weaklib_eos_t
 
@@ -444,8 +448,6 @@ contains
 
     type (weaklib_eos_t), intent(inout) :: state
     real(rt) :: t_guess
-
-    !$gpu
 
     t_guess = state % temperature
 
@@ -459,7 +461,9 @@ contains
 
   subroutine ComputeDependentVariable(state, variable, V_T, OS_V)
 
+#ifdef AMREX_USE_ACC
     !$acc routine seq
+#endif
 
     use weaklib_type_module, only: weaklib_eos_t
 
@@ -469,16 +473,11 @@ contains
     real(rt), intent(inout) :: variable
     real(rt), dimension(:,:,:), intent(in)  :: V_T
     real(rt),               intent(in)  :: OS_V
-    real(rt) :: actual_variable
-
-    !$gpu
 
     call LogInterpolateSingleVariable_3D_Custom_Point( &
          state % density, state % temperature, state % electron_fraction, &
          Ds_T, Ts_T, Ys_T, OS_V, &
-         V_T, actual_variable)
-
-    variable = actual_variable
+         V_T, variable)
 
   end subroutine ComputeDependentVariable
 
