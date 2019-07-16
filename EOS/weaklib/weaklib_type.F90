@@ -38,12 +38,16 @@ contains
 
   subroutine eos_to_weaklib(eos_state, weaklib_state)
 
+    !$acc routine seq
+
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     type (eos_t), intent(inout) :: eos_state
     type (weaklib_eos_t), intent(out) :: weaklib_state
+
+    !$gpu
 
     call convert_to_table_format(eos_state)
 
@@ -71,6 +75,8 @@ contains
 
   subroutine weaklib_to_eos(weaklib_state, eos_state)
 
+    !$acc routine seq
+
     implicit none
 
     type (weaklib_eos_t), intent(in) :: weaklib_state
@@ -78,6 +84,8 @@ contains
     ! eos_state is intent(inout) so we don't reset
     ! quantities that are calculated outside this EOS
     type (eos_t), intent(inout) :: eos_state
+
+    !$gpu
 
     eos_state % rho = weaklib_state % density
     eos_state % T   = weaklib_state % temperature
@@ -113,9 +121,13 @@ contains
   ! entropy in units of k_B / baryon
   subroutine convert_to_table_format(state)
 
+    !$acc routine seq
+
     implicit none
 
     type(eos_t), intent(inout) :: state
+
+    !$gpu
 
     state % s = state % s * (AtomicMassUnitCGS/BoltzmannConstantCGS)
 
@@ -124,9 +136,13 @@ contains
 
   subroutine convert_from_table_format(state)
 
+    !$acc routine seq
+
     implicit none
 
     type(eos_t), intent(inout) :: state
+
+    !$gpu
 
     state % s = state % s / (AtomicMassUnitCGS/BoltzmannConstantCGS)
 

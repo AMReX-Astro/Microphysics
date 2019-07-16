@@ -4,13 +4,9 @@ module actual_eos_module
 
   use UnitsModule, only: Gram, Centimeter, Kelvin
   use wlEquationOfStateTableModule, only: EquationOfStateTableType
-  use wlInterpolationModule, only: LogInterpolateSingleVariable, &
-                                   LogInterpolateDifferentiateSingleVariable, &
-                                   ComputeTempFromIntEnergy_Lookup, &
-                                   ComputeTempFromIntEnergy_Bisection, &
-                                   ComputeTempFromIntEnergy_Secant, &
-                                   ComputeTempFromPressure, &
-                                   ComputeTempFromPressure_Bisection
+  use wlInterpolationModule, only: LogInterpolateSingleVariable_3D_Custom_Point, &
+                                   ComputeTemperatureWith_DEY_Single_Guess, &
+                                   ComputeTemperatureWith_DPY_Single_Guess
 
   character (len=64), public :: eos_name = "weaklib"
   type (EquationOfStateTableType), target, public :: eos_table
@@ -20,17 +16,43 @@ module actual_eos_module
 
   private
 
-  integer :: &
+  integer, allocatable :: &
        iD_T, iT_T, iY_T, &
        iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T, &
        iXp_T, iXn_T, iXa_T, iXh_T, iGm_T
-  integer, dimension(3) :: &
+  integer, dimension(:), allocatable :: &
        LogInterp
-  real(rt) :: &
+  real(rt), allocatable :: &
        OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn, &
        OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm
   real(rt), dimension(:), allocatable :: &
        Ds_T, Ts_T, Ys_T
+  real(rt), dimension(:,:,:), allocatable :: &
+       Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T, &
+       Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: iD_T, iT_T, iY_T
+  attributes(managed) :: iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T
+  attributes(managed) :: iXp_T, iXn_T, iXa_T, iXh_T, iGm_T
+  attributes(managed) :: LogInterp
+  attributes(managed) :: OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn
+  attributes(managed) :: OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm
+  attributes(managed) :: Ds_T, Ts_T, Ys_T
+  attributes(managed) :: Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T
+  attributes(managed) :: Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T
+#endif
+
+  !$acc declare &
+  !$acc create(iD_T, iT_T, iY_T) &
+  !$acc create(iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T) &
+  !$acc create(iXp_T, iXn_T, iXa_T, iXh_T, iGm_T) &
+  !$acc create(LogInterp) &
+  !$acc create(OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn) &
+  !$acc create(OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm) &
+  !$acc create(Ds_T, Ts_T, Ys_T) &
+  !$acc create(Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T) &
+  !$acc create(Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T)
 
 contains
 
@@ -62,6 +84,8 @@ contains
 
   subroutine actual_eos(input, state)
 
+    !$acc routine seq
+
     ! Weaklib EOS
     !
     ! The weaklib tables are indexed by log(density),
@@ -70,7 +94,7 @@ contains
     !
     ! Make sure you use a network that uses ye as a species!
 
-    use amrex_error_module, only: amrex_error
+    use amrex_error_module
     use eos_type_module
     use weaklib_type_module, only: weaklib_eos_t, eos_to_weaklib, weaklib_to_eos
 
@@ -82,6 +106,8 @@ contains
 
     ! Local state
     type (weaklib_eos_t) :: weaklib_state
+
+    !$gpu
 
     call eos_to_weaklib(state, weaklib_state)
 
@@ -104,7 +130,9 @@ contains
     case (eos_input_rh)
 
        ! NOT CURRENTLY IMPLEMENTED
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_th is not supported")
+#endif
 
 
        !---------------------------------------------------------------------------
@@ -114,7 +142,9 @@ contains
     case (eos_input_tp)
 
        ! NOT CURRENTLY IMPLEMENTED
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_th is not supported")
+#endif
 
 
        !---------------------------------------------------------------------------
@@ -140,8 +170,11 @@ contains
        !---------------------------------------------------------------------------
 
     case (eos_input_ps)
+
        ! NOT CURRENTLY IMPLEMENTED
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_ps is not supported")
+#endif
 
 
        !---------------------------------------------------------------------------
@@ -149,8 +182,11 @@ contains
        !---------------------------------------------------------------------------
 
     case (eos_input_ph)
+
        ! NOT CURRENTLY IMPLEMENTED
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_ph is not supported")
+#endif
 
 
        !---------------------------------------------------------------------------
@@ -158,8 +194,11 @@ contains
        !---------------------------------------------------------------------------
 
     case (eos_input_th)
+
        ! NOT CURRENTLY IMPLEMENTED
+#ifndef AMREX_USE_GPU
        call amrex_error("eos_input_th is not supported")
+#endif
 
 
        !---------------------------------------------------------------------------
@@ -168,7 +207,9 @@ contains
 
     case default
 
+#ifndef AMREX_USE_GPU
        call amrex_error("EOS: invalid input")
+#endif
 
     end select
 
@@ -178,8 +219,6 @@ contains
     call weaklib_to_eos(weaklib_state, state)
 
   end subroutine actual_eos
-
-
 
 
   subroutine actual_eos_init
@@ -206,6 +245,8 @@ contains
 
     ! --- Thermodynamic State Indices ---
 
+    allocate( iD_T, iT_T, iY_T )
+
     iD_T = eos_table % TS % Indices % iRho
     iT_T = eos_table % TS % Indices % iT
     iY_T = eos_table % TS % Indices % iYe
@@ -221,9 +262,13 @@ contains
     allocate( Ys_T(eos_table % TS % nPoints(iY_T)) )
     Ys_T = eos_table % TS % States(iY_T) % Values
 
+    allocate( LogInterp(3) )
     LogInterp = eos_table % TS % LogInterp
 
     ! --- Dependent Variables Indices ---
+
+    allocate( iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T )
+    allocate( iXp_T, iXn_T, iXa_T, iXh_T, iGm_T )
 
     iP_T  = eos_table % DV % Indices % iPressure
     iS_T  = eos_table % DV % Indices % iEntropyPerBaryon
@@ -239,6 +284,9 @@ contains
 
     ! --- Dependent Variables Offsets ---
 
+    allocate( OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn )
+    allocate( OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm )
+
     OS_P  = eos_table % DV % Offsets(iP_T)
     OS_S  = eos_table % DV % Offsets(iS_T)
     OS_E  = eos_table % DV % Offsets(iE_T)
@@ -251,21 +299,62 @@ contains
     OS_Xh = eos_table % DV % Offsets(iXh_T)
     OS_Gm = eos_table % DV % Offsets(iGm_T)
 
-  end subroutine actual_eos_init
+    allocate( Ps_T (1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Ss_T (1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Es_T (1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Mes_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Mps_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Mns_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Xps_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Xns_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Xas_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Xhs_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
+    allocate( Gms_T(1:eos_table % DV % nPoints(1), 1:eos_table % DV % nPoints(2), 1:eos_table % DV % nPoints(3)) )
 
+    Ps_T (:,:,:) = eos_table % DV % Variables(iP_T ) % Values(:,:,:)
+    Ss_T (:,:,:) = eos_table % DV % Variables(iS_T ) % Values(:,:,:)
+    Es_T (:,:,:) = eos_table % DV % Variables(iE_T ) % Values(:,:,:)
+    Mes_T(:,:,:) = eos_table % DV % Variables(iMe_T) % Values(:,:,:)
+    Mps_T(:,:,:) = eos_table % DV % Variables(iMp_T) % Values(:,:,:)
+    Mns_T(:,:,:) = eos_table % DV % Variables(iMn_T) % Values(:,:,:)
+    Xps_T(:,:,:) = eos_table % DV % Variables(iXp_T) % Values(:,:,:)
+    Xns_T(:,:,:) = eos_table % DV % Variables(iXn_T) % Values(:,:,:)
+    Xas_T(:,:,:) = eos_table % DV % Variables(iXa_T) % Values(:,:,:)
+    Xhs_T(:,:,:) = eos_table % DV % Variables(iXh_T) % Values(:,:,:)
+    Gms_T(:,:,:) = eos_table % DV % Variables(iGm_T) % Values(:,:,:)
+
+    !$acc update &
+    !$acc device(iD_T, iT_T, iY_T) &
+    !$acc device(iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T) &
+    !$acc device(iXp_T, iXn_T, iXa_T, iXh_T, iGm_T) &
+    !$acc device(LogInterp) &
+    !$acc device(OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn) &
+    !$acc device(OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm) &
+    !$acc device(Ds_T, Ts_T, Ys_T) &
+    !$acc device(Ps_T, Ss_T, Es_T, Mes_T, Mps_T, Mns_T) &
+    !$acc device(Xps_T, Xns_T, Xas_T, Xhs_T, Gms_T)
+
+  end subroutine actual_eos_init
 
 
   subroutine actual_eos_finalize
 
     implicit none
 
+    deallocate(iD_T, iT_T, iY_T)
     deallocate(Ds_T, Ts_T, Ys_T)
+    deallocate(LogInterp)
+    deallocate(iP_T, iS_T, iE_T, iMe_T, iMp_T, iMn_T)
+    deallocate(iXp_T, iXn_T, iXa_T, iXh_T, iGm_T)
+    deallocate(OS_P, OS_S, OS_E, OS_Me, OS_Mp, OS_Mn)
+    deallocate(OS_Xp, OS_Xn, OS_Xa, OS_Xh, OS_Gm)
 
   end subroutine actual_eos_finalize
 
 
-
   subroutine ApplyEquationOfState(state)
+
+    !$acc routine seq
 
     use weaklib_type_module, only: weaklib_eos_t
 
@@ -273,94 +362,104 @@ contains
 
     type (weaklib_eos_t), intent(inout) :: state
 
+    !$gpu
+
     ! --- Interpolate Pressure ----------------------------------------
 
-    call ComputeDependentVariable(state, state % pressure, iP_T, OS_P)
+    call ComputeDependentVariable(state, state % pressure, Ps_T, OS_P)
 
     ! --- Interpolate Entropy Per Baryon ------------------------------
 
-    call ComputeDependentVariable(state, state % entropy_per_baryon, iS_T, OS_S)
+    call ComputeDependentVariable(state, state % entropy_per_baryon, Ss_T, OS_S)
 
     ! --- Interpolate Specific Internal Energy ------------------------
 
-    call ComputeDependentVariable(state, state % specific_internal_energy, iE_T, OS_E)
+    call ComputeDependentVariable(state, state % specific_internal_energy, Es_T, OS_E)
 
     ! --- Interpolate Electron Chemical Potential ---------------------
 
-    call ComputeDependentVariable(state, state % electron_chemical_potential, iMe_T, OS_Me)
+    call ComputeDependentVariable(state, state % electron_chemical_potential, Mes_T, OS_Me)
 
     ! --- Interpolate Proton Chemical Potential -----------------------
 
-    call ComputeDependentVariable(state, state % proton_chemical_potential, iMp_T, OS_Mp)
+    call ComputeDependentVariable(state, state % proton_chemical_potential, Mps_T, OS_Mp)
 
     ! --- Interpolate Neutron Chemical Potential ----------------------
 
-    call ComputeDependentVariable(state, state % neutron_chemical_potential, iMn_T, OS_Mn)
+    call ComputeDependentVariable(state, state % neutron_chemical_potential, Mns_T, OS_Mn)
 
     ! --- Interpolate Proton Mass Fraction ----------------------------
 
-    call ComputeDependentVariable(state, state % proton_mass_fraction, iXp_T, OS_Xp)
+    call ComputeDependentVariable(state, state % proton_mass_fraction, Xps_T, OS_Xp)
 
     ! --- Interpolate Neutron Mass Fraction ---------------------------
 
-    call ComputeDependentVariable(state, state % neutron_mass_fraction, iXn_T, OS_Xn)
+    call ComputeDependentVariable(state, state % neutron_mass_fraction, Xns_T, OS_Xn)
 
     ! --- Interpolate Alpha Mass Fraction -----------------------------
 
-    call ComputeDependentVariable(state, state % alpha_mass_fraction, iXa_T, OS_Xa)
+    call ComputeDependentVariable(state, state % alpha_mass_fraction, Xas_T, OS_Xa)
 
     ! --- Interpolate Heavy Mass Fraction -----------------------------
 
-    call ComputeDependentVariable(state, state % heavy_mass_fraction, iXh_T, OS_Xh)
+    call ComputeDependentVariable(state, state % heavy_mass_fraction, Xhs_T, OS_Xh)
 
     ! --- Gamma1 ------------------------------------------------------
 
-    call ComputeDependentVariable(state, state % gamma_one, iGm_T, OS_Gm)
+    call ComputeDependentVariable(state, state % gamma_one, Gms_T, OS_Gm)
 
   end subroutine ApplyEquationOfState
 
 
   subroutine ComputeTemperatureFromSpecificInternalEnergy(state)
 
+    !$acc routine seq
+
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
-    real(rt) :: actual_temperature(1)
+    real(rt) :: t_guess
 
-    call ComputeTempFromIntEnergy_Lookup(     &
-         [state % density], [state % specific_internal_energy], [state % electron_fraction], &
-         Ds_T, Ts_T, Ys_T, LogInterp, &
-         eos_table % DV % Variables(iE_T) % Values, OS_E, &
-         actual_temperature)
+    !$gpu
 
-    state % temperature = actual_temperature(1)
+    t_guess = state % temperature
+
+    call ComputeTemperatureWith_DEY_Single_Guess( &
+         state % density, state % specific_internal_energy, state % electron_fraction, &
+         Ds_T, Ts_T, Ys_T, Es_T, OS_E, &
+         state % temperature, t_guess )
 
   end subroutine ComputeTemperatureFromSpecificInternalEnergy
 
 
   subroutine ComputeTemperatureFromPressure(state)
 
+    !$acc routine seq
+
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
-    real(rt) :: actual_temperature(1)
+    real(rt) :: t_guess
 
-    call ComputeTempFromPressure_Bisection( &
-         [state % density], [state % pressure], [state % electron_fraction], &
-         Ds_T, Ts_T, Ys_T, LogInterp, &
-         eos_table % DV % Variables(iP_T) % Values, OS_P, &
-         actual_temperature)
+    !$gpu
 
-    state % temperature = actual_temperature(1)
+    t_guess = state % temperature
+
+    call ComputeTemperatureWith_DPY_Single_Guess( &
+         state % density, state % pressure, state % electron_fraction, &
+         Ds_T, Ts_T, Ys_T, Ps_T, OS_P, &
+         state % temperature, t_guess )
 
   end subroutine ComputeTemperatureFromPressure
 
 
-  subroutine ComputeDependentVariable(state, variable, iV, OS_V)
+  subroutine ComputeDependentVariable(state, variable, V_T, OS_V)
+
+    !$acc routine seq
 
     use weaklib_type_module, only: weaklib_eos_t
 
@@ -368,17 +467,18 @@ contains
 
     type (weaklib_eos_t), intent(inout) :: state
     real(rt), intent(inout) :: variable
-    integer,                intent(in)  :: iV
+    real(rt), dimension(:,:,:), intent(in)  :: V_T
     real(rt),               intent(in)  :: OS_V
-    real(rt) :: actual_variable(1)
+    real(rt) :: actual_variable
 
-    call LogInterpolateSingleVariable(         &
-         [state % density], [state % temperature], [state % electron_fraction], &
-         Ds_T, Ts_T, Ys_T,          &
-         LogInterp, OS_V,                 &
-         eos_table % DV % Variables(iV) % Values, actual_variable)
+    !$gpu
 
-    variable = actual_variable(1)
+    call LogInterpolateSingleVariable_3D_Custom_Point( &
+         state % density, state % temperature, state % electron_fraction, &
+         Ds_T, Ts_T, Ys_T, OS_V, &
+         V_T, actual_variable)
+
+    variable = actual_variable
 
   end subroutine ComputeDependentVariable
 
