@@ -38,6 +38,10 @@ contains
 
   subroutine eos_to_weaklib(eos_state, weaklib_state)
 
+#ifdef AMREX_USE_ACC
+    !$acc routine seq
+#endif
+
     use amrex_constants_module, only: ZERO
 
     implicit none
@@ -70,6 +74,10 @@ contains
 
 
   subroutine weaklib_to_eos(weaklib_state, eos_state)
+
+#ifdef AMREX_USE_ACC
+    !$acc routine seq
+#endif
 
     implicit none
 
@@ -113,6 +121,10 @@ contains
   ! entropy in units of k_B / baryon
   subroutine convert_to_table_format(state)
 
+#ifdef AMREX_USE_ACC
+    !$acc routine seq
+#endif
+
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -123,6 +135,10 @@ contains
 
 
   subroutine convert_from_table_format(state)
+
+#ifdef AMREX_USE_ACC
+    !$acc routine seq
+#endif
 
     implicit none
 
