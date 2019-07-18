@@ -18,12 +18,3 @@ f90EXE_sources += wlEOSIOModuleHDF.f90
 f90EXE_sources += wlOpacityFieldsModule.f90
 f90EXE_sources += wlOpacityTableModule.f90
 f90EXE_sources += wlOpacityTableIOModuleHDF.f90
-
-#ifeq ($(USE_GPU),TRUE)
-  DEFINES += -DWEAKLIB_GPU
-  #ifeq ($(USE_ACC),TRUE)
-    DEFINES += -DWEAKLIB_OACC
-  #else ifeq ($(USE_OMP_OFFLOAD), TRUE)
-  #  DEFINES += -DWEAKLIB_OMP_OL
-  #endif
-#endif
