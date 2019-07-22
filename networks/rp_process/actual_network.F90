@@ -19,19 +19,19 @@ module actual_network
   real(rt), parameter :: mass_proton   = 1.67262163783d-24
   real(rt), parameter :: mass_electron = 9.10938215450d-28
 
-  integer, parameter :: nrates = 506
+  integer, parameter :: nrates = 1174
   integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
-  integer, parameter :: nspec_evolve = 189
+  integer, parameter :: nspec_evolve = 197
   integer, parameter :: naux  = 0
 
   ! Number of nuclear species in the network
-  integer, parameter :: nspec = 189
+  integer, parameter :: nspec = 197
 
   ! Number of reaclib rates
-  integer, parameter :: nrat_reaclib = 506
-  integer, parameter :: number_reaclib_sets = 762
+  integer, parameter :: nrat_reaclib = 1174
+  integer, parameter :: number_reaclib_sets = 1601
 
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 0
@@ -55,185 +55,193 @@ module actual_network
   integer, parameter :: jb8   = 8
   integer, parameter :: jc12   = 9
   integer, parameter :: jc13   = 10
-  integer, parameter :: jn13   = 11
-  integer, parameter :: jn14   = 12
-  integer, parameter :: jn15   = 13
-  integer, parameter :: jo14   = 14
-  integer, parameter :: jo15   = 15
-  integer, parameter :: jo16   = 16
-  integer, parameter :: jo17   = 17
-  integer, parameter :: jo18   = 18
-  integer, parameter :: jf16   = 19
-  integer, parameter :: jf17   = 20
-  integer, parameter :: jf18   = 21
-  integer, parameter :: jf19   = 22
-  integer, parameter :: jf20   = 23
-  integer, parameter :: jne18   = 24
-  integer, parameter :: jne19   = 25
-  integer, parameter :: jne20   = 26
-  integer, parameter :: jne21   = 27
-  integer, parameter :: jne22   = 28
-  integer, parameter :: jna19   = 29
-  integer, parameter :: jna20   = 30
-  integer, parameter :: jna21   = 31
-  integer, parameter :: jna22   = 32
-  integer, parameter :: jna23   = 33
-  integer, parameter :: jna24   = 34
-  integer, parameter :: jmg21   = 35
-  integer, parameter :: jmg22   = 36
-  integer, parameter :: jmg23   = 37
-  integer, parameter :: jmg24   = 38
-  integer, parameter :: jmg25   = 39
-  integer, parameter :: jmg26   = 40
-  integer, parameter :: jal22   = 41
-  integer, parameter :: jal23   = 42
-  integer, parameter :: jal24   = 43
-  integer, parameter :: jal25   = 44
-  integer, parameter :: jal26   = 45
-  integer, parameter :: jal27   = 46
-  integer, parameter :: jal28   = 47
-  integer, parameter :: jsi24   = 48
-  integer, parameter :: jsi25   = 49
-  integer, parameter :: jsi26   = 50
-  integer, parameter :: jsi27   = 51
-  integer, parameter :: jsi28   = 52
-  integer, parameter :: jsi29   = 53
-  integer, parameter :: jsi30   = 54
-  integer, parameter :: jp26   = 55
-  integer, parameter :: jp27   = 56
-  integer, parameter :: jp28   = 57
-  integer, parameter :: jp29   = 58
-  integer, parameter :: jp30   = 59
-  integer, parameter :: jp31   = 60
-  integer, parameter :: jp32   = 61
-  integer, parameter :: js28   = 62
-  integer, parameter :: js29   = 63
-  integer, parameter :: js30   = 64
-  integer, parameter :: js31   = 65
-  integer, parameter :: js32   = 66
-  integer, parameter :: js33   = 67
-  integer, parameter :: js34   = 68
-  integer, parameter :: jcl29   = 69
-  integer, parameter :: jcl30   = 70
-  integer, parameter :: jcl31   = 71
-  integer, parameter :: jcl32   = 72
-  integer, parameter :: jcl33   = 73
-  integer, parameter :: jcl34   = 74
-  integer, parameter :: jcl35   = 75
-  integer, parameter :: jcl36   = 76
-  integer, parameter :: jcl37   = 77
-  integer, parameter :: jar31   = 78
-  integer, parameter :: jar32   = 79
-  integer, parameter :: jar33   = 80
-  integer, parameter :: jar34   = 81
-  integer, parameter :: jar35   = 82
-  integer, parameter :: jar36   = 83
-  integer, parameter :: jar37   = 84
-  integer, parameter :: jar38   = 85
-  integer, parameter :: jk33   = 86
-  integer, parameter :: jk34   = 87
-  integer, parameter :: jk35   = 88
-  integer, parameter :: jk36   = 89
-  integer, parameter :: jk37   = 90
-  integer, parameter :: jk38   = 91
-  integer, parameter :: jk39   = 92
-  integer, parameter :: jk40   = 93
-  integer, parameter :: jk41   = 94
-  integer, parameter :: jca34   = 95
-  integer, parameter :: jca35   = 96
-  integer, parameter :: jca36   = 97
-  integer, parameter :: jca37   = 98
-  integer, parameter :: jca38   = 99
-  integer, parameter :: jca39   = 100
-  integer, parameter :: jca40   = 101
-  integer, parameter :: jca41   = 102
-  integer, parameter :: jca42   = 103
-  integer, parameter :: jca43   = 104
-  integer, parameter :: jca44   = 105
-  integer, parameter :: jsc36   = 106
-  integer, parameter :: jsc37   = 107
-  integer, parameter :: jsc38   = 108
-  integer, parameter :: jsc39   = 109
-  integer, parameter :: jsc40   = 110
-  integer, parameter :: jsc41   = 111
-  integer, parameter :: jsc42   = 112
-  integer, parameter :: jsc43   = 113
-  integer, parameter :: jsc44   = 114
-  integer, parameter :: jsc45   = 115
-  integer, parameter :: jti38   = 116
-  integer, parameter :: jti39   = 117
-  integer, parameter :: jti40   = 118
-  integer, parameter :: jti41   = 119
-  integer, parameter :: jti42   = 120
-  integer, parameter :: jti43   = 121
-  integer, parameter :: jti44   = 122
-  integer, parameter :: jti45   = 123
-  integer, parameter :: jti46   = 124
-  integer, parameter :: jti47   = 125
-  integer, parameter :: jti48   = 126
-  integer, parameter :: jv40   = 127
-  integer, parameter :: jv41   = 128
-  integer, parameter :: jv42   = 129
-  integer, parameter :: jv43   = 130
-  integer, parameter :: jv44   = 131
-  integer, parameter :: jv45   = 132
-  integer, parameter :: jv46   = 133
-  integer, parameter :: jv47   = 134
-  integer, parameter :: jv48   = 135
-  integer, parameter :: jv49   = 136
-  integer, parameter :: jcr42   = 137
-  integer, parameter :: jcr43   = 138
-  integer, parameter :: jcr44   = 139
-  integer, parameter :: jcr45   = 140
-  integer, parameter :: jcr46   = 141
-  integer, parameter :: jcr47   = 142
-  integer, parameter :: jcr48   = 143
-  integer, parameter :: jcr49   = 144
-  integer, parameter :: jcr50   = 145
-  integer, parameter :: jcr51   = 146
-  integer, parameter :: jcr52   = 147
-  integer, parameter :: jmn44   = 148
-  integer, parameter :: jmn45   = 149
-  integer, parameter :: jmn46   = 150
-  integer, parameter :: jmn47   = 151
-  integer, parameter :: jmn48   = 152
-  integer, parameter :: jmn49   = 153
-  integer, parameter :: jmn50   = 154
-  integer, parameter :: jmn51   = 155
-  integer, parameter :: jmn52   = 156
-  integer, parameter :: jmn53   = 157
-  integer, parameter :: jmn55   = 158
-  integer, parameter :: jfe45   = 159
-  integer, parameter :: jfe46   = 160
-  integer, parameter :: jfe47   = 161
-  integer, parameter :: jfe48   = 162
-  integer, parameter :: jfe49   = 163
-  integer, parameter :: jfe50   = 164
-  integer, parameter :: jfe51   = 165
-  integer, parameter :: jfe52   = 166
-  integer, parameter :: jfe53   = 167
-  integer, parameter :: jfe54   = 168
-  integer, parameter :: jfe55   = 169
-  integer, parameter :: jfe56   = 170
-  integer, parameter :: jco47   = 171
-  integer, parameter :: jco48   = 172
-  integer, parameter :: jco49   = 173
-  integer, parameter :: jco50   = 174
-  integer, parameter :: jco51   = 175
-  integer, parameter :: jco52   = 176
-  integer, parameter :: jco53   = 177
-  integer, parameter :: jco54   = 178
-  integer, parameter :: jco55   = 179
-  integer, parameter :: jco56   = 180
-  integer, parameter :: jni48   = 181
-  integer, parameter :: jni49   = 182
-  integer, parameter :: jni50   = 183
-  integer, parameter :: jni51   = 184
-  integer, parameter :: jni52   = 185
-  integer, parameter :: jni53   = 186
-  integer, parameter :: jni54   = 187
-  integer, parameter :: jni55   = 188
-  integer, parameter :: jni56   = 189
+  integer, parameter :: jn12   = 11
+  integer, parameter :: jn13   = 12
+  integer, parameter :: jn14   = 13
+  integer, parameter :: jn15   = 14
+  integer, parameter :: jo14   = 15
+  integer, parameter :: jo15   = 16
+  integer, parameter :: jo16   = 17
+  integer, parameter :: jo17   = 18
+  integer, parameter :: jo18   = 19
+  integer, parameter :: jf16   = 20
+  integer, parameter :: jf17   = 21
+  integer, parameter :: jf18   = 22
+  integer, parameter :: jf19   = 23
+  integer, parameter :: jf20   = 24
+  integer, parameter :: jne17   = 25
+  integer, parameter :: jne18   = 26
+  integer, parameter :: jne19   = 27
+  integer, parameter :: jne20   = 28
+  integer, parameter :: jne21   = 29
+  integer, parameter :: jne22   = 30
+  integer, parameter :: jna19   = 31
+  integer, parameter :: jna20   = 32
+  integer, parameter :: jna21   = 33
+  integer, parameter :: jna22   = 34
+  integer, parameter :: jna23   = 35
+  integer, parameter :: jna24   = 36
+  integer, parameter :: jmg21   = 37
+  integer, parameter :: jmg22   = 38
+  integer, parameter :: jmg23   = 39
+  integer, parameter :: jmg24   = 40
+  integer, parameter :: jmg25   = 41
+  integer, parameter :: jmg26   = 42
+  integer, parameter :: jal22   = 43
+  integer, parameter :: jal23   = 44
+  integer, parameter :: jal24   = 45
+  integer, parameter :: jal25   = 46
+  integer, parameter :: jal26   = 47
+  integer, parameter :: jal27   = 48
+  integer, parameter :: jal28   = 49
+  integer, parameter :: jsi24   = 50
+  integer, parameter :: jsi25   = 51
+  integer, parameter :: jsi26   = 52
+  integer, parameter :: jsi27   = 53
+  integer, parameter :: jsi28   = 54
+  integer, parameter :: jsi29   = 55
+  integer, parameter :: jsi30   = 56
+  integer, parameter :: jp26   = 57
+  integer, parameter :: jp27   = 58
+  integer, parameter :: jp28   = 59
+  integer, parameter :: jp29   = 60
+  integer, parameter :: jp30   = 61
+  integer, parameter :: jp31   = 62
+  integer, parameter :: jp32   = 63
+  integer, parameter :: jp33   = 64
+  integer, parameter :: js28   = 65
+  integer, parameter :: js29   = 66
+  integer, parameter :: js30   = 67
+  integer, parameter :: js31   = 68
+  integer, parameter :: js32   = 69
+  integer, parameter :: js33   = 70
+  integer, parameter :: js34   = 71
+  integer, parameter :: js35   = 72
+  integer, parameter :: jcl29   = 73
+  integer, parameter :: jcl30   = 74
+  integer, parameter :: jcl31   = 75
+  integer, parameter :: jcl32   = 76
+  integer, parameter :: jcl33   = 77
+  integer, parameter :: jcl34   = 78
+  integer, parameter :: jcl35   = 79
+  integer, parameter :: jcl36   = 80
+  integer, parameter :: jcl37   = 81
+  integer, parameter :: jar31   = 82
+  integer, parameter :: jar32   = 83
+  integer, parameter :: jar33   = 84
+  integer, parameter :: jar34   = 85
+  integer, parameter :: jar35   = 86
+  integer, parameter :: jar36   = 87
+  integer, parameter :: jar37   = 88
+  integer, parameter :: jar38   = 89
+  integer, parameter :: jar39   = 90
+  integer, parameter :: jk33   = 91
+  integer, parameter :: jk34   = 92
+  integer, parameter :: jk35   = 93
+  integer, parameter :: jk36   = 94
+  integer, parameter :: jk37   = 95
+  integer, parameter :: jk38   = 96
+  integer, parameter :: jk39   = 97
+  integer, parameter :: jk40   = 98
+  integer, parameter :: jk41   = 99
+  integer, parameter :: jca34   = 100
+  integer, parameter :: jca35   = 101
+  integer, parameter :: jca36   = 102
+  integer, parameter :: jca37   = 103
+  integer, parameter :: jca38   = 104
+  integer, parameter :: jca39   = 105
+  integer, parameter :: jca40   = 106
+  integer, parameter :: jca41   = 107
+  integer, parameter :: jca42   = 108
+  integer, parameter :: jca43   = 109
+  integer, parameter :: jca44   = 110
+  integer, parameter :: jsc36   = 111
+  integer, parameter :: jsc37   = 112
+  integer, parameter :: jsc38   = 113
+  integer, parameter :: jsc39   = 114
+  integer, parameter :: jsc40   = 115
+  integer, parameter :: jsc41   = 116
+  integer, parameter :: jsc42   = 117
+  integer, parameter :: jsc43   = 118
+  integer, parameter :: jsc44   = 119
+  integer, parameter :: jsc45   = 120
+  integer, parameter :: jsc46   = 121
+  integer, parameter :: jti38   = 122
+  integer, parameter :: jti39   = 123
+  integer, parameter :: jti40   = 124
+  integer, parameter :: jti41   = 125
+  integer, parameter :: jti42   = 126
+  integer, parameter :: jti43   = 127
+  integer, parameter :: jti44   = 128
+  integer, parameter :: jti45   = 129
+  integer, parameter :: jti46   = 130
+  integer, parameter :: jti47   = 131
+  integer, parameter :: jti48   = 132
+  integer, parameter :: jv40   = 133
+  integer, parameter :: jv41   = 134
+  integer, parameter :: jv42   = 135
+  integer, parameter :: jv43   = 136
+  integer, parameter :: jv44   = 137
+  integer, parameter :: jv45   = 138
+  integer, parameter :: jv46   = 139
+  integer, parameter :: jv47   = 140
+  integer, parameter :: jv48   = 141
+  integer, parameter :: jv49   = 142
+  integer, parameter :: jv50   = 143
+  integer, parameter :: jcr42   = 144
+  integer, parameter :: jcr43   = 145
+  integer, parameter :: jcr44   = 146
+  integer, parameter :: jcr45   = 147
+  integer, parameter :: jcr46   = 148
+  integer, parameter :: jcr47   = 149
+  integer, parameter :: jcr48   = 150
+  integer, parameter :: jcr49   = 151
+  integer, parameter :: jcr50   = 152
+  integer, parameter :: jcr51   = 153
+  integer, parameter :: jcr52   = 154
+  integer, parameter :: jmn44   = 155
+  integer, parameter :: jmn45   = 156
+  integer, parameter :: jmn46   = 157
+  integer, parameter :: jmn47   = 158
+  integer, parameter :: jmn48   = 159
+  integer, parameter :: jmn49   = 160
+  integer, parameter :: jmn50   = 161
+  integer, parameter :: jmn51   = 162
+  integer, parameter :: jmn52   = 163
+  integer, parameter :: jmn53   = 164
+  integer, parameter :: jmn54   = 165
+  integer, parameter :: jmn55   = 166
+  integer, parameter :: jfe45   = 167
+  integer, parameter :: jfe46   = 168
+  integer, parameter :: jfe47   = 169
+  integer, parameter :: jfe48   = 170
+  integer, parameter :: jfe49   = 171
+  integer, parameter :: jfe50   = 172
+  integer, parameter :: jfe51   = 173
+  integer, parameter :: jfe52   = 174
+  integer, parameter :: jfe53   = 175
+  integer, parameter :: jfe54   = 176
+  integer, parameter :: jfe55   = 177
+  integer, parameter :: jfe56   = 178
+  integer, parameter :: jco47   = 179
+  integer, parameter :: jco48   = 180
+  integer, parameter :: jco49   = 181
+  integer, parameter :: jco50   = 182
+  integer, parameter :: jco51   = 183
+  integer, parameter :: jco52   = 184
+  integer, parameter :: jco53   = 185
+  integer, parameter :: jco54   = 186
+  integer, parameter :: jco55   = 187
+  integer, parameter :: jco56   = 188
+  integer, parameter :: jni48   = 189
+  integer, parameter :: jni49   = 190
+  integer, parameter :: jni50   = 191
+  integer, parameter :: jni51   = 192
+  integer, parameter :: jni52   = 193
+  integer, parameter :: jni53   = 194
+  integer, parameter :: jni54   = 195
+  integer, parameter :: jni55   = 196
+  integer, parameter :: jni56   = 197
 
   ! Reactions
   integer, parameter :: k_be7__li7__weak__electron_capture   = 1
@@ -328,420 +336,1088 @@ module actual_network
   integer, parameter :: k_p_he4_he4__d_be7   = 90
   integer, parameter :: k_p_p_he4_he4__he3_be7   = 91
   integer, parameter :: k_n13__c13__weak__wc12   = 92
-  integer, parameter :: k_p_o15__f16   = 93
-  integer, parameter :: k_he4_o18__ne22   = 94
-  integer, parameter :: k_he4_f17__na21   = 95
-  integer, parameter :: k_he4_f18__na22   = 96
-  integer, parameter :: k_he4_f19__na23   = 97
-  integer, parameter :: k_he4_f20__na24   = 98
-  integer, parameter :: k_p_ne18__na19   = 99
-  integer, parameter :: k_he4_ne18__mg22   = 100
-  integer, parameter :: k_p_ne19__na20   = 101
-  integer, parameter :: k_he4_ne19__mg23   = 102
-  integer, parameter :: k_p_ne20__na21   = 103
-  integer, parameter :: k_he4_ne20__mg24   = 104
-  integer, parameter :: k_p_ne21__na22   = 105
-  integer, parameter :: k_he4_ne21__mg25   = 106
-  integer, parameter :: k_p_c13__n14   = 107
-  integer, parameter :: k_he4_f16__na20   = 108
-  integer, parameter :: k_p_ne22__na23   = 109
-  integer, parameter :: k_he4_ne22__mg26   = 110
-  integer, parameter :: k_na21__ne21__weak__wc12   = 111
-  integer, parameter :: k_p_na21__mg22   = 112
-  integer, parameter :: k_he4_na21__al25   = 113
-  integer, parameter :: k_na22__ne22__weak__wc12   = 114
-  integer, parameter :: k_p_na22__mg23   = 115
-  integer, parameter :: k_he4_na22__al26   = 116
-  integer, parameter :: k_p_na23__mg24   = 117
-  integer, parameter :: k_he4_na23__al27   = 118
-  integer, parameter :: k_p_na24__mg25   = 119
-  integer, parameter :: k_he4_na24__al28   = 120
-  integer, parameter :: k_mg22__na22__weak__wc12   = 121
-  integer, parameter :: k_p_mg22__al23   = 122
-  integer, parameter :: k_he4_mg22__si26   = 123
-  integer, parameter :: k_na19__ne19__weak__bqa_pos_   = 124
-  integer, parameter :: k_he4_na19__al23   = 125
-  integer, parameter :: k_na20__ne20__weak__wc12   = 126
-  integer, parameter :: k_p_na20__mg21   = 127
-  integer, parameter :: k_he4_na20__al24   = 128
-  integer, parameter :: k_mg23__na23__weak__wc12   = 129
-  integer, parameter :: k_p_mg23__al24   = 130
-  integer, parameter :: k_he4_mg23__si27   = 131
-  integer, parameter :: k_p_mg24__al25   = 132
-  integer, parameter :: k_he4_mg24__si28   = 133
-  integer, parameter :: k_p_mg25__al26   = 134
-  integer, parameter :: k_he4_mg25__si29   = 135
-  integer, parameter :: k_p_mg26__al27   = 136
-  integer, parameter :: k_he4_mg26__si30   = 137
-  integer, parameter :: k_al25__mg25__weak__wc12   = 138
-  integer, parameter :: k_p_al25__si26   = 139
-  integer, parameter :: k_he4_al25__p29   = 140
-  integer, parameter :: k_al26__mg26__weak__wc12   = 141
-  integer, parameter :: k_p_al26__si27   = 142
-  integer, parameter :: k_he4_al26__p30   = 143
-  integer, parameter :: k_p_al27__si28   = 144
-  integer, parameter :: k_he4_al27__p31   = 145
-  integer, parameter :: k_p_al28__si29   = 146
-  integer, parameter :: k_he4_al28__p32   = 147
-  integer, parameter :: k_si26__al26__weak__wc12   = 148
-  integer, parameter :: k_p_si26__p27   = 149
-  integer, parameter :: k_he4_si26__s30   = 150
-  integer, parameter :: k_al23__mg23__weak__wc12   = 151
-  integer, parameter :: k_p_al23__si24   = 152
-  integer, parameter :: k_he4_al23__p27   = 153
-  integer, parameter :: k_al24__mg24__weak__wc12   = 154
-  integer, parameter :: k_p_al24__si25   = 155
-  integer, parameter :: k_he4_al24__p28   = 156
-  integer, parameter :: k_mg21__na21__weak__wc12   = 157
-  integer, parameter :: k_p_mg21__al22   = 158
-  integer, parameter :: k_he4_mg21__si25   = 159
-  integer, parameter :: k_si27__al27__weak__wc12   = 160
-  integer, parameter :: k_p_si27__p28   = 161
-  integer, parameter :: k_he4_si27__s31   = 162
-  integer, parameter :: k_p_si28__p29   = 163
-  integer, parameter :: k_he4_si28__s32   = 164
-  integer, parameter :: k_p_si29__p30   = 165
-  integer, parameter :: k_he4_si29__s33   = 166
-  integer, parameter :: k_p_si30__p31   = 167
-  integer, parameter :: k_he4_si30__s34   = 168
-  integer, parameter :: k_p29__si29__weak__wc12   = 169
-  integer, parameter :: k_p_p29__s30   = 170
-  integer, parameter :: k_he4_p29__cl33   = 171
-  integer, parameter :: k_p30__si30__weak__wc12   = 172
-  integer, parameter :: k_p_p30__s31   = 173
-  integer, parameter :: k_he4_p30__cl34   = 174
-  integer, parameter :: k_p_p31__s32   = 175
-  integer, parameter :: k_he4_p31__cl35   = 176
-  integer, parameter :: k_p_p32__s33   = 177
-  integer, parameter :: k_he4_p32__cl36   = 178
-  integer, parameter :: k_s30__p30__weak__wc12   = 179
-  integer, parameter :: k_p_s30__cl31   = 180
-  integer, parameter :: k_he4_s30__ar34   = 181
-  integer, parameter :: k_p27__si27__weak__wc12   = 182
-  integer, parameter :: k_p_p27__s28   = 183
-  integer, parameter :: k_he4_p27__cl31   = 184
-  integer, parameter :: k_si24__al24__weak__wc12   = 185
-  integer, parameter :: k_he4_si24__s28   = 186
-  integer, parameter :: k_p28__si28__weak__wc12   = 187
-  integer, parameter :: k_p_p28__s29   = 188
-  integer, parameter :: k_he4_p28__cl32   = 189
-  integer, parameter :: k_si25__al25__weak__wc12   = 190
-  integer, parameter :: k_p_si25__p26   = 191
-  integer, parameter :: k_he4_si25__s29   = 192
-  integer, parameter :: k_al22__mg22__weak__wc12   = 193
-  integer, parameter :: k_he4_al22__p26   = 194
-  integer, parameter :: k_s31__p31__weak__wc12   = 195
-  integer, parameter :: k_p_s31__cl32   = 196
-  integer, parameter :: k_he4_s31__ar35   = 197
-  integer, parameter :: k_p_s32__cl33   = 198
-  integer, parameter :: k_he4_s32__ar36   = 199
-  integer, parameter :: k_p_s33__cl34   = 200
-  integer, parameter :: k_he4_s33__ar37   = 201
-  integer, parameter :: k_p_s34__cl35   = 202
-  integer, parameter :: k_he4_s34__ar38   = 203
-  integer, parameter :: k_cl33__s33__weak__wc12   = 204
-  integer, parameter :: k_p_cl33__ar34   = 205
-  integer, parameter :: k_he4_cl33__k37   = 206
-  integer, parameter :: k_cl34__s34__weak__wc12   = 207
-  integer, parameter :: k_p_cl34__ar35   = 208
-  integer, parameter :: k_he4_cl34__k38   = 209
-  integer, parameter :: k_p_cl35__ar36   = 210
-  integer, parameter :: k_he4_cl35__k39   = 211
-  integer, parameter :: k_p_cl36__ar37   = 212
-  integer, parameter :: k_he4_cl36__k40   = 213
-  integer, parameter :: k_cl31__s31__weak__wc12   = 214
-  integer, parameter :: k_p_cl31__ar32   = 215
-  integer, parameter :: k_he4_cl31__k35   = 216
-  integer, parameter :: k_ar34__cl34__weak__wc12   = 217
-  integer, parameter :: k_p_ar34__k35   = 218
-  integer, parameter :: k_he4_ar34__ca38   = 219
-  integer, parameter :: k_s28__p28__weak__wc12   = 220
-  integer, parameter :: k_p_s28__cl29   = 221
-  integer, parameter :: k_he4_s28__ar32   = 222
-  integer, parameter :: k_cl32__s32__weak__wc12   = 223
-  integer, parameter :: k_p_cl32__ar33   = 224
-  integer, parameter :: k_he4_cl32__k36   = 225
-  integer, parameter :: k_s29__p29__weak__wc12   = 226
-  integer, parameter :: k_p_s29__cl30   = 227
-  integer, parameter :: k_he4_s29__ar33   = 228
-  integer, parameter :: k_p26__si26__weak__wc12   = 229
-  integer, parameter :: k_he4_p26__cl30   = 230
-  integer, parameter :: k_ar35__cl35__weak__wc12   = 231
-  integer, parameter :: k_p_ar35__k36   = 232
-  integer, parameter :: k_he4_ar35__ca39   = 233
-  integer, parameter :: k_p_ar36__k37   = 234
-  integer, parameter :: k_he4_ar36__ca40   = 235
-  integer, parameter :: k_ar37__cl37__weak__wc12   = 236
-  integer, parameter :: k_p_ar37__k38   = 237
-  integer, parameter :: k_he4_ar37__ca41   = 238
-  integer, parameter :: k_p_ar38__k39   = 239
-  integer, parameter :: k_he4_ar38__ca42   = 240
-  integer, parameter :: k_k37__ar37__weak__wc12   = 241
-  integer, parameter :: k_p_k37__ca38   = 242
-  integer, parameter :: k_he4_k37__sc41   = 243
-  integer, parameter :: k_k38__ar38__weak__wc12   = 244
-  integer, parameter :: k_p_k38__ca39   = 245
-  integer, parameter :: k_he4_k38__sc42   = 246
-  integer, parameter :: k_p_k39__ca40   = 247
-  integer, parameter :: k_he4_k39__sc43   = 248
-  integer, parameter :: k_p_k40__ca41   = 249
-  integer, parameter :: k_he4_k40__sc44   = 250
-  integer, parameter :: k_ar32__cl32__weak__wc12   = 251
-  integer, parameter :: k_p_ar32__k33   = 252
-  integer, parameter :: k_he4_ar32__ca36   = 253
-  integer, parameter :: k_k35__ar35__weak__wc12   = 254
-  integer, parameter :: k_p_k35__ca36   = 255
-  integer, parameter :: k_he4_k35__sc39   = 256
-  integer, parameter :: k_ca38__k38__weak__wc12   = 257
-  integer, parameter :: k_p_ca38__sc39   = 258
-  integer, parameter :: k_he4_ca38__ti42   = 259
-  integer, parameter :: k_cl29__s29__weak__bqa_pos_   = 260
-  integer, parameter :: k_he4_cl29__k33   = 261
-  integer, parameter :: k_ar33__cl33__weak__wc12   = 262
-  integer, parameter :: k_p_ar33__k34   = 263
-  integer, parameter :: k_he4_ar33__ca37   = 264
-  integer, parameter :: k_k36__ar36__weak__wc12   = 265
-  integer, parameter :: k_p_k36__ca37   = 266
-  integer, parameter :: k_he4_k36__sc40   = 267
-  integer, parameter :: k_cl30__s30__weak__bqa_pos_   = 268
-  integer, parameter :: k_p_cl30__ar31   = 269
-  integer, parameter :: k_he4_cl30__k34   = 270
-  integer, parameter :: k_ca39__k39__weak__wc12   = 271
-  integer, parameter :: k_p_ca39__sc40   = 272
-  integer, parameter :: k_he4_ca39__ti43   = 273
-  integer, parameter :: k_p_ca40__sc41   = 274
-  integer, parameter :: k_he4_ca40__ti44   = 275
-  integer, parameter :: k_p_cl37__ar38   = 276
-  integer, parameter :: k_he4_cl37__k41   = 277
-  integer, parameter :: k_ca41__k41__weak__wc12   = 278
-  integer, parameter :: k_p_ca41__sc42   = 279
-  integer, parameter :: k_he4_ca41__ti45   = 280
-  integer, parameter :: k_p_ca42__sc43   = 281
-  integer, parameter :: k_he4_ca42__ti46   = 282
-  integer, parameter :: k_sc41__ca41__weak__wc12   = 283
-  integer, parameter :: k_p_sc41__ti42   = 284
-  integer, parameter :: k_he4_sc41__v45   = 285
-  integer, parameter :: k_sc42__ca42__weak__wc12   = 286
-  integer, parameter :: k_p_sc42__ti43   = 287
-  integer, parameter :: k_he4_sc42__v46   = 288
-  integer, parameter :: k_sc43__ca43__weak__wc12   = 289
-  integer, parameter :: k_p_sc43__ti44   = 290
-  integer, parameter :: k_he4_sc43__v47   = 291
-  integer, parameter :: k_sc44__ca44__weak__wc12   = 292
-  integer, parameter :: k_p_sc44__ti45   = 293
-  integer, parameter :: k_he4_sc44__v48   = 294
-  integer, parameter :: k_ca36__k36__weak__wc12   = 295
-  integer, parameter :: k_p_ca36__sc37   = 296
-  integer, parameter :: k_he4_ca36__ti40   = 297
-  integer, parameter :: k_k33__ar33__weak__bqa_pos_   = 298
-  integer, parameter :: k_p_k33__ca34   = 299
-  integer, parameter :: k_he4_k33__sc37   = 300
-  integer, parameter :: k_sc39__ca39__weak__mo97   = 301
-  integer, parameter :: k_p_sc39__ti40   = 302
-  integer, parameter :: k_he4_sc39__v43   = 303
-  integer, parameter :: k_ti42__sc42__weak__wc12   = 304
-  integer, parameter :: k_p_ti42__v43   = 305
-  integer, parameter :: k_he4_ti42__cr46   = 306
-  integer, parameter :: k_k34__ar34__weak__bqa_pos_   = 307
-  integer, parameter :: k_p_k34__ca35   = 308
-  integer, parameter :: k_he4_k34__sc38   = 309
-  integer, parameter :: k_ca37__k37__weak__wc12   = 310
-  integer, parameter :: k_p_ca37__sc38   = 311
-  integer, parameter :: k_he4_ca37__ti41   = 312
-  integer, parameter :: k_sc40__ca40__weak__wc12   = 313
-  integer, parameter :: k_p_sc40__ti41   = 314
-  integer, parameter :: k_he4_sc40__v44   = 315
-  integer, parameter :: k_ar31__cl31__weak__wc12   = 316
-  integer, parameter :: k_he4_ar31__ca35   = 317
-  integer, parameter :: k_ti43__sc43__weak__wc12   = 318
-  integer, parameter :: k_p_ti43__v44   = 319
-  integer, parameter :: k_he4_ti43__cr47   = 320
-  integer, parameter :: k_ti44__sc44__weak__wc12   = 321
-  integer, parameter :: k_p_ti44__v45   = 322
-  integer, parameter :: k_he4_ti44__cr48   = 323
-  integer, parameter :: k_p_k41__ca42   = 324
-  integer, parameter :: k_he4_k41__sc45   = 325
-  integer, parameter :: k_ti45__sc45__weak__wc12   = 326
-  integer, parameter :: k_p_ti45__v46   = 327
-  integer, parameter :: k_he4_ti45__cr49   = 328
-  integer, parameter :: k_p_ti46__v47   = 329
-  integer, parameter :: k_he4_ti46__cr50   = 330
-  integer, parameter :: k_v45__ti45__weak__wc12   = 331
-  integer, parameter :: k_p_v45__cr46   = 332
-  integer, parameter :: k_he4_v45__mn49   = 333
-  integer, parameter :: k_v46__ti46__weak__wc12   = 334
-  integer, parameter :: k_p_v46__cr47   = 335
-  integer, parameter :: k_he4_v46__mn50   = 336
-  integer, parameter :: k_p_ca43__sc44   = 337
-  integer, parameter :: k_he4_ca43__ti47   = 338
-  integer, parameter :: k_v47__ti47__weak__wc12   = 339
-  integer, parameter :: k_p_v47__cr48   = 340
-  integer, parameter :: k_he4_v47__mn51   = 341
-  integer, parameter :: k_v48__ti48__weak__wc12   = 342
-  integer, parameter :: k_p_v48__cr49   = 343
-  integer, parameter :: k_he4_v48__mn52   = 344
-  integer, parameter :: k_p_ca44__sc45   = 345
-  integer, parameter :: k_he4_ca44__ti48   = 346
-  integer, parameter :: k_ti40__sc40__weak__wc17   = 347
-  integer, parameter :: k_p_ti40__v41   = 348
-  integer, parameter :: k_he4_ti40__cr44   = 349
-  integer, parameter :: k_sc37__ca37__weak__bqa_pos_   = 350
-  integer, parameter :: k_p_sc37__ti38   = 351
-  integer, parameter :: k_he4_sc37__v41   = 352
-  integer, parameter :: k_ca34__k34__weak__bqa_pos_   = 353
-  integer, parameter :: k_he4_ca34__ti38   = 354
-  integer, parameter :: k_v43__ti43__weak__wc12   = 355
-  integer, parameter :: k_p_v43__cr44   = 356
-  integer, parameter :: k_he4_v43__mn47   = 357
-  integer, parameter :: k_cr46__v46__weak__wc12   = 358
-  integer, parameter :: k_p_cr46__mn47   = 359
-  integer, parameter :: k_he4_cr46__fe50   = 360
-  integer, parameter :: k_ca35__k35__weak__wc17   = 361
-  integer, parameter :: k_p_ca35__sc36   = 362
-  integer, parameter :: k_he4_ca35__ti39   = 363
-  integer, parameter :: k_sc38__ca38__weak__mo97   = 364
-  integer, parameter :: k_p_sc38__ti39   = 365
-  integer, parameter :: k_he4_sc38__v42   = 366
-  integer, parameter :: k_ti41__sc41__weak__wc17   = 367
-  integer, parameter :: k_p_ti41__v42   = 368
-  integer, parameter :: k_he4_ti41__cr45   = 369
-  integer, parameter :: k_v44__ti44__weak__wc12   = 370
-  integer, parameter :: k_p_v44__cr45   = 371
-  integer, parameter :: k_he4_v44__mn48   = 372
-  integer, parameter :: k_cr47__v47__weak__wc12   = 373
-  integer, parameter :: k_p_cr47__mn48   = 374
-  integer, parameter :: k_he4_cr47__fe51   = 375
-  integer, parameter :: k_cr48__v48__weak__wc12   = 376
-  integer, parameter :: k_p_cr48__mn49   = 377
-  integer, parameter :: k_he4_cr48__fe52   = 378
-  integer, parameter :: k_p_sc45__ti46   = 379
-  integer, parameter :: k_he4_sc45__v49   = 380
-  integer, parameter :: k_cr49__v49__weak__wc12   = 381
-  integer, parameter :: k_p_cr49__mn50   = 382
-  integer, parameter :: k_he4_cr49__fe53   = 383
-  integer, parameter :: k_p_cr50__mn51   = 384
-  integer, parameter :: k_he4_cr50__fe54   = 385
-  integer, parameter :: k_mn49__cr49__weak__wc12   = 386
-  integer, parameter :: k_p_mn49__fe50   = 387
-  integer, parameter :: k_he4_mn49__co53   = 388
-  integer, parameter :: k_mn50__cr50__weak__wc12   = 389
-  integer, parameter :: k_p_mn50__fe51   = 390
-  integer, parameter :: k_he4_mn50__co54   = 391
-  integer, parameter :: k_p_ti47__v48   = 392
-  integer, parameter :: k_he4_ti47__cr51   = 393
-  integer, parameter :: k_mn51__cr51__weak__wc12   = 394
-  integer, parameter :: k_p_mn51__fe52   = 395
-  integer, parameter :: k_he4_mn51__co55   = 396
-  integer, parameter :: k_p_ti48__v49   = 397
-  integer, parameter :: k_he4_ti48__cr52   = 398
-  integer, parameter :: k_mn52__cr52__weak__wc12   = 399
-  integer, parameter :: k_p_mn52__fe53   = 400
-  integer, parameter :: k_he4_mn52__co56   = 401
-  integer, parameter :: k_cr44__v44__weak__wc12   = 402
-  integer, parameter :: k_p_cr44__mn45   = 403
-  integer, parameter :: k_he4_cr44__fe48   = 404
-  integer, parameter :: k_v41__ti41__weak__bqa_pos_   = 405
-  integer, parameter :: k_p_v41__cr42   = 406
-  integer, parameter :: k_he4_v41__mn45   = 407
-  integer, parameter :: k_ti38__sc38__weak__mo97   = 408
-  integer, parameter :: k_he4_ti38__cr42   = 409
-  integer, parameter :: k_mn47__cr47__weak__wc17   = 410
-  integer, parameter :: k_p_mn47__fe48   = 411
-  integer, parameter :: k_he4_mn47__co51   = 412
-  integer, parameter :: k_fe50__mn50__weak__wc12   = 413
-  integer, parameter :: k_p_fe50__co51   = 414
-  integer, parameter :: k_he4_fe50__ni54   = 415
-  integer, parameter :: k_sc36__ca36__weak__bqa_pos_   = 416
-  integer, parameter :: k_he4_sc36__v40   = 417
-  integer, parameter :: k_ti39__sc39__weak__wc17   = 418
-  integer, parameter :: k_p_ti39__v40   = 419
-  integer, parameter :: k_he4_ti39__cr43   = 420
-  integer, parameter :: k_v42__ti42__weak__mo97   = 421
-  integer, parameter :: k_p_v42__cr43   = 422
-  integer, parameter :: k_he4_v42__mn46   = 423
-  integer, parameter :: k_cr45__v45__weak__wc12   = 424
-  integer, parameter :: k_p_cr45__mn46   = 425
-  integer, parameter :: k_he4_cr45__fe49   = 426
-  integer, parameter :: k_mn48__cr48__weak__wc12   = 427
-  integer, parameter :: k_p_mn48__fe49   = 428
-  integer, parameter :: k_he4_mn48__co52   = 429
-  integer, parameter :: k_fe51__mn51__weak__wc12   = 430
-  integer, parameter :: k_p_fe51__co52   = 431
-  integer, parameter :: k_he4_fe51__ni55   = 432
-  integer, parameter :: k_fe52__mn52__weak__wc12   = 433
-  integer, parameter :: k_p_fe52__co53   = 434
-  integer, parameter :: k_he4_fe52__ni56   = 435
-  integer, parameter :: k_p_v49__cr50   = 436
-  integer, parameter :: k_he4_v49__mn53   = 437
-  integer, parameter :: k_fe53__mn53__weak__wc12   = 438
-  integer, parameter :: k_p_fe53__co54   = 439
-  integer, parameter :: k_p_fe54__co55   = 440
-  integer, parameter :: k_co53__fe53__weak__wc12   = 441
-  integer, parameter :: k_p_co53__ni54   = 442
-  integer, parameter :: k_co54__fe54__weak__wc12   = 443
-  integer, parameter :: k_p_co54__ni55   = 444
-  integer, parameter :: k_p_cr51__mn52   = 445
-  integer, parameter :: k_he4_cr51__fe55   = 446
-  integer, parameter :: k_co55__fe55__weak__wc12   = 447
-  integer, parameter :: k_p_co55__ni56   = 448
-  integer, parameter :: k_p_cr52__mn53   = 449
-  integer, parameter :: k_he4_cr52__fe56   = 450
-  integer, parameter :: k_co56__fe56__weak__wc12   = 451
-  integer, parameter :: k_mn45__cr45__weak__bqa_pos_   = 452
-  integer, parameter :: k_p_mn45__fe46   = 453
-  integer, parameter :: k_he4_mn45__co49   = 454
-  integer, parameter :: k_fe48__mn48__weak__wc12   = 455
-  integer, parameter :: k_p_fe48__co49   = 456
-  integer, parameter :: k_he4_fe48__ni52   = 457
-  integer, parameter :: k_cr42__v42__weak__wc12   = 458
-  integer, parameter :: k_he4_cr42__fe46   = 459
-  integer, parameter :: k_co51__fe51__weak__mo97   = 460
-  integer, parameter :: k_p_co51__ni52   = 461
-  integer, parameter :: k_ni54__co54__weak__wc12   = 462
-  integer, parameter :: k_v40__ti40__weak__bqa_pos_   = 463
-  integer, parameter :: k_he4_v40__mn44   = 464
-  integer, parameter :: k_cr43__v43__weak__wc12   = 465
-  integer, parameter :: k_p_cr43__mn44   = 466
-  integer, parameter :: k_he4_cr43__fe47   = 467
-  integer, parameter :: k_mn46__cr46__weak__wc12   = 468
-  integer, parameter :: k_p_mn46__fe47   = 469
-  integer, parameter :: k_he4_mn46__co50   = 470
-  integer, parameter :: k_fe49__mn49__weak__wc12   = 471
-  integer, parameter :: k_p_fe49__co50   = 472
-  integer, parameter :: k_he4_fe49__ni53   = 473
-  integer, parameter :: k_co52__fe52__weak__wc12   = 474
-  integer, parameter :: k_p_co52__ni53   = 475
-  integer, parameter :: k_ni55__co55__weak__wc12   = 476
-  integer, parameter :: k_ni56__co56__weak__wc12   = 477
-  integer, parameter :: k_p_mn53__fe54   = 478
-  integer, parameter :: k_fe55__mn55__weak__wc12   = 479
-  integer, parameter :: k_p_fe55__co56   = 480
-  integer, parameter :: k_fe46__mn46__weak__wc12   = 481
-  integer, parameter :: k_p_fe46__co47   = 482
-  integer, parameter :: k_he4_fe46__ni50   = 483
-  integer, parameter :: k_co49__fe49__weak__bqa_pos_   = 484
-  integer, parameter :: k_p_co49__ni50   = 485
-  integer, parameter :: k_ni52__co52__weak__wc12   = 486
-  integer, parameter :: k_mn44__cr44__weak__bqa_pos_   = 487
-  integer, parameter :: k_p_mn44__fe45   = 488
-  integer, parameter :: k_he4_mn44__co48   = 489
-  integer, parameter :: k_fe47__mn47__weak__wc12   = 490
-  integer, parameter :: k_p_fe47__co48   = 491
-  integer, parameter :: k_he4_fe47__ni51   = 492
-  integer, parameter :: k_co50__fe50__weak__wc12   = 493
-  integer, parameter :: k_p_co50__ni51   = 494
-  integer, parameter :: k_ni53__co53__weak__wc12   = 495
-  integer, parameter :: k_p_mn55__fe56   = 496
-  integer, parameter :: k_ni50__co50__weak__wc12   = 497
-  integer, parameter :: k_co47__fe47__weak__bqa_pos_   = 498
-  integer, parameter :: k_p_co47__ni48   = 499
-  integer, parameter :: k_fe45__mn45__weak__wc17   = 500
-  integer, parameter :: k_he4_fe45__ni49   = 501
-  integer, parameter :: k_co48__fe48__weak__bqa_pos_   = 502
-  integer, parameter :: k_p_co48__ni49   = 503
-  integer, parameter :: k_ni51__co51__weak__wc17   = 504
-  integer, parameter :: k_ni48__co48__weak__wc17   = 505
-  integer, parameter :: k_ni49__co49__weak__wc12   = 506
+  integer, parameter :: k_n14__p_c13   = 93
+  integer, parameter :: k_p_o15__f16   = 94
+  integer, parameter :: k_p_o15__he4_n12   = 95
+  integer, parameter :: k_he4_o18__ne22   = 96
+  integer, parameter :: k_he4_f17__na21   = 97
+  integer, parameter :: k_he4_f18__na22   = 98
+  integer, parameter :: k_he4_f19__na23   = 99
+  integer, parameter :: k_he4_f19__p_ne22   = 100
+  integer, parameter :: k_he4_f20__na24   = 101
+  integer, parameter :: k_p_ne18__na19   = 102
+  integer, parameter :: k_he4_ne18__mg22   = 103
+  integer, parameter :: k_he4_ne18__p_na21   = 104
+  integer, parameter :: k_p_ne19__na20   = 105
+  integer, parameter :: k_he4_ne19__mg23   = 106
+  integer, parameter :: k_p_ne19__he4_f16   = 107
+  integer, parameter :: k_he4_ne19__p_na22   = 108
+  integer, parameter :: k_p_ne20__na21   = 109
+  integer, parameter :: k_he4_ne20__mg24   = 110
+  integer, parameter :: k_he4_ne20__p_na23   = 111
+  integer, parameter :: k_p_ne21__na22   = 112
+  integer, parameter :: k_he4_ne21__mg25   = 113
+  integer, parameter :: k_he4_ne21__p_na24   = 114
+  integer, parameter :: k_p_c13__n14   = 115
+  integer, parameter :: k_n12__c12__weak__wc12   = 116
+  integer, parameter :: k_he4_n12__p_o15   = 117
+  integer, parameter :: k_f16__p_o15   = 118
+  integer, parameter :: k_he4_f16__na20   = 119
+  integer, parameter :: k_he4_f16__p_ne19   = 120
+  integer, parameter :: k_p_ne22__na23   = 121
+  integer, parameter :: k_he4_ne22__mg26   = 122
+  integer, parameter :: k_p_ne22__he4_f19   = 123
+  integer, parameter :: k_na21__ne21__weak__wc12   = 124
+  integer, parameter :: k_na21__p_ne20   = 125
+  integer, parameter :: k_na21__he4_f17   = 126
+  integer, parameter :: k_p_na21__mg22   = 127
+  integer, parameter :: k_he4_na21__al25   = 128
+  integer, parameter :: k_p_na21__he4_ne18   = 129
+  integer, parameter :: k_he4_na21__p_mg24   = 130
+  integer, parameter :: k_na22__ne22__weak__wc12   = 131
+  integer, parameter :: k_na22__p_ne21   = 132
+  integer, parameter :: k_na22__he4_f18   = 133
+  integer, parameter :: k_p_na22__mg23   = 134
+  integer, parameter :: k_he4_na22__al26   = 135
+  integer, parameter :: k_p_na22__he4_ne19   = 136
+  integer, parameter :: k_he4_na22__p_mg25   = 137
+  integer, parameter :: k_na23__p_ne22   = 138
+  integer, parameter :: k_na23__he4_f19   = 139
+  integer, parameter :: k_p_na23__mg24   = 140
+  integer, parameter :: k_he4_na23__al27   = 141
+  integer, parameter :: k_p_na23__he4_ne20   = 142
+  integer, parameter :: k_he4_na23__p_mg26   = 143
+  integer, parameter :: k_p_na24__mg25   = 144
+  integer, parameter :: k_he4_na24__al28   = 145
+  integer, parameter :: k_p_na24__he4_ne21   = 146
+  integer, parameter :: k_na19__ne19__weak__bqa_pos_   = 147
+  integer, parameter :: k_na19__p_ne18   = 148
+  integer, parameter :: k_he4_na19__al23   = 149
+  integer, parameter :: k_he4_na19__p_mg22   = 150
+  integer, parameter :: k_mg22__na22__weak__wc12   = 151
+  integer, parameter :: k_mg22__p_na21   = 152
+  integer, parameter :: k_mg22__he4_ne18   = 153
+  integer, parameter :: k_p_mg22__al23   = 154
+  integer, parameter :: k_he4_mg22__si26   = 155
+  integer, parameter :: k_p_mg22__he4_na19   = 156
+  integer, parameter :: k_he4_mg22__p_al25   = 157
+  integer, parameter :: k_na20__ne20__weak__wc12   = 158
+  integer, parameter :: k_na20__p_ne19   = 159
+  integer, parameter :: k_na20__he4_f16   = 160
+  integer, parameter :: k_na20__he4_o16__weak__wc12   = 161
+  integer, parameter :: k_p_na20__mg21   = 162
+  integer, parameter :: k_he4_na20__al24   = 163
+  integer, parameter :: k_p_na20__he4_ne17   = 164
+  integer, parameter :: k_he4_na20__p_mg23   = 165
+  integer, parameter :: k_mg23__na23__weak__wc12   = 166
+  integer, parameter :: k_mg23__p_na22   = 167
+  integer, parameter :: k_mg23__he4_ne19   = 168
+  integer, parameter :: k_p_mg23__al24   = 169
+  integer, parameter :: k_he4_mg23__si27   = 170
+  integer, parameter :: k_p_mg23__he4_na20   = 171
+  integer, parameter :: k_he4_mg23__p_al26   = 172
+  integer, parameter :: k_mg24__p_na23   = 173
+  integer, parameter :: k_mg24__he4_ne20   = 174
+  integer, parameter :: k_p_mg24__al25   = 175
+  integer, parameter :: k_he4_mg24__si28   = 176
+  integer, parameter :: k_p_mg24__he4_na21   = 177
+  integer, parameter :: k_he4_mg24__p_al27   = 178
+  integer, parameter :: k_mg25__p_na24   = 179
+  integer, parameter :: k_mg25__he4_ne21   = 180
+  integer, parameter :: k_p_mg25__al26   = 181
+  integer, parameter :: k_he4_mg25__si29   = 182
+  integer, parameter :: k_p_mg25__he4_na22   = 183
+  integer, parameter :: k_he4_mg25__p_al28   = 184
+  integer, parameter :: k_mg26__he4_ne22   = 185
+  integer, parameter :: k_p_mg26__al27   = 186
+  integer, parameter :: k_he4_mg26__si30   = 187
+  integer, parameter :: k_p_mg26__he4_na23   = 188
+  integer, parameter :: k_al25__mg25__weak__wc12   = 189
+  integer, parameter :: k_al25__p_mg24   = 190
+  integer, parameter :: k_al25__he4_na21   = 191
+  integer, parameter :: k_p_al25__si26   = 192
+  integer, parameter :: k_he4_al25__p29   = 193
+  integer, parameter :: k_p_al25__he4_mg22   = 194
+  integer, parameter :: k_he4_al25__p_si28   = 195
+  integer, parameter :: k_al26__mg26__weak__wc12   = 196
+  integer, parameter :: k_al26__p_mg25   = 197
+  integer, parameter :: k_al26__he4_na22   = 198
+  integer, parameter :: k_p_al26__si27   = 199
+  integer, parameter :: k_he4_al26__p30   = 200
+  integer, parameter :: k_p_al26__he4_mg23   = 201
+  integer, parameter :: k_he4_al26__p_si29   = 202
+  integer, parameter :: k_al27__p_mg26   = 203
+  integer, parameter :: k_al27__he4_na23   = 204
+  integer, parameter :: k_p_al27__si28   = 205
+  integer, parameter :: k_he4_al27__p31   = 206
+  integer, parameter :: k_p_al27__he4_mg24   = 207
+  integer, parameter :: k_he4_al27__p_si30   = 208
+  integer, parameter :: k_al28__he4_na24   = 209
+  integer, parameter :: k_p_al28__si29   = 210
+  integer, parameter :: k_he4_al28__p32   = 211
+  integer, parameter :: k_p_al28__he4_mg25   = 212
+  integer, parameter :: k_al23__mg23__weak__wc12   = 213
+  integer, parameter :: k_al23__p_mg22   = 214
+  integer, parameter :: k_al23__p_na22__weak__wc12   = 215
+  integer, parameter :: k_al23__he4_na19   = 216
+  integer, parameter :: k_p_al23__si24   = 217
+  integer, parameter :: k_he4_al23__p27   = 218
+  integer, parameter :: k_he4_al23__p_si26   = 219
+  integer, parameter :: k_si26__al26__weak__wc12   = 220
+  integer, parameter :: k_si26__p_al25   = 221
+  integer, parameter :: k_si26__he4_mg22   = 222
+  integer, parameter :: k_p_si26__p27   = 223
+  integer, parameter :: k_he4_si26__s30   = 224
+  integer, parameter :: k_p_si26__he4_al23   = 225
+  integer, parameter :: k_he4_si26__p_p29   = 226
+  integer, parameter :: k_ne17__f17__weak__wc17   = 227
+  integer, parameter :: k_ne17__p_o16__weak__wc12   = 228
+  integer, parameter :: k_he4_ne17__mg21   = 229
+  integer, parameter :: k_he4_ne17__p_na20   = 230
+  integer, parameter :: k_mg21__na21__weak__wc12   = 231
+  integer, parameter :: k_mg21__p_ne20__weak__wc12   = 232
+  integer, parameter :: k_mg21__p_na20   = 233
+  integer, parameter :: k_mg21__he4_ne17   = 234
+  integer, parameter :: k_p_mg21__al22   = 235
+  integer, parameter :: k_he4_mg21__si25   = 236
+  integer, parameter :: k_he4_mg21__p_al24   = 237
+  integer, parameter :: k_al24__mg24__weak__wc12   = 238
+  integer, parameter :: k_al24__p_mg23   = 239
+  integer, parameter :: k_al24__p_na23__weak__wc12   = 240
+  integer, parameter :: k_al24__he4_na20   = 241
+  integer, parameter :: k_al24__he4_ne20__weak__wc12   = 242
+  integer, parameter :: k_p_al24__si25   = 243
+  integer, parameter :: k_he4_al24__p28   = 244
+  integer, parameter :: k_p_al24__he4_mg21   = 245
+  integer, parameter :: k_he4_al24__p_si27   = 246
+  integer, parameter :: k_si27__al27__weak__wc12   = 247
+  integer, parameter :: k_si27__p_al26   = 248
+  integer, parameter :: k_si27__he4_mg23   = 249
+  integer, parameter :: k_p_si27__p28   = 250
+  integer, parameter :: k_he4_si27__s31   = 251
+  integer, parameter :: k_p_si27__he4_al24   = 252
+  integer, parameter :: k_he4_si27__p_p30   = 253
+  integer, parameter :: k_si28__p_al27   = 254
+  integer, parameter :: k_si28__he4_mg24   = 255
+  integer, parameter :: k_p_si28__p29   = 256
+  integer, parameter :: k_he4_si28__s32   = 257
+  integer, parameter :: k_p_si28__he4_al25   = 258
+  integer, parameter :: k_he4_si28__p_p31   = 259
+  integer, parameter :: k_si29__p_al28   = 260
+  integer, parameter :: k_si29__he4_mg25   = 261
+  integer, parameter :: k_p_si29__p30   = 262
+  integer, parameter :: k_he4_si29__s33   = 263
+  integer, parameter :: k_p_si29__he4_al26   = 264
+  integer, parameter :: k_he4_si29__p_p32   = 265
+  integer, parameter :: k_si30__he4_mg26   = 266
+  integer, parameter :: k_p_si30__p31   = 267
+  integer, parameter :: k_he4_si30__s34   = 268
+  integer, parameter :: k_p_si30__he4_al27   = 269
+  integer, parameter :: k_he4_si30__p_p33   = 270
+  integer, parameter :: k_p29__si29__weak__wc12   = 271
+  integer, parameter :: k_p29__p_si28   = 272
+  integer, parameter :: k_p29__he4_al25   = 273
+  integer, parameter :: k_p_p29__s30   = 274
+  integer, parameter :: k_he4_p29__cl33   = 275
+  integer, parameter :: k_p_p29__he4_si26   = 276
+  integer, parameter :: k_he4_p29__p_s32   = 277
+  integer, parameter :: k_p30__si30__weak__wc12   = 278
+  integer, parameter :: k_p30__p_si29   = 279
+  integer, parameter :: k_p30__he4_al26   = 280
+  integer, parameter :: k_p_p30__s31   = 281
+  integer, parameter :: k_he4_p30__cl34   = 282
+  integer, parameter :: k_p_p30__he4_si27   = 283
+  integer, parameter :: k_he4_p30__p_s33   = 284
+  integer, parameter :: k_p31__p_si30   = 285
+  integer, parameter :: k_p31__he4_al27   = 286
+  integer, parameter :: k_p_p31__s32   = 287
+  integer, parameter :: k_he4_p31__cl35   = 288
+  integer, parameter :: k_p_p31__he4_si28   = 289
+  integer, parameter :: k_he4_p31__p_s34   = 290
+  integer, parameter :: k_p32__he4_al28   = 291
+  integer, parameter :: k_p_p32__s33   = 292
+  integer, parameter :: k_he4_p32__cl36   = 293
+  integer, parameter :: k_p_p32__he4_si29   = 294
+  integer, parameter :: k_he4_p32__p_s35   = 295
+  integer, parameter :: k_si24__al24__weak__wc12   = 296
+  integer, parameter :: k_si24__p_al23   = 297
+  integer, parameter :: k_si24__p_mg23__weak__wc12   = 298
+  integer, parameter :: k_he4_si24__s28   = 299
+  integer, parameter :: k_he4_si24__p_p27   = 300
+  integer, parameter :: k_p27__si27__weak__wc12   = 301
+  integer, parameter :: k_p27__p_si26   = 302
+  integer, parameter :: k_p27__p_al26__weak__wc12   = 303
+  integer, parameter :: k_p27__he4_al23   = 304
+  integer, parameter :: k_p_p27__s28   = 305
+  integer, parameter :: k_he4_p27__cl31   = 306
+  integer, parameter :: k_p_p27__he4_si24   = 307
+  integer, parameter :: k_he4_p27__p_s30   = 308
+  integer, parameter :: k_s30__p30__weak__wc12   = 309
+  integer, parameter :: k_s30__p_p29   = 310
+  integer, parameter :: k_s30__he4_si26   = 311
+  integer, parameter :: k_p_s30__cl31   = 312
+  integer, parameter :: k_he4_s30__ar34   = 313
+  integer, parameter :: k_p_s30__he4_p27   = 314
+  integer, parameter :: k_he4_s30__p_cl33   = 315
+  integer, parameter :: k_al22__mg22__weak__wc12   = 316
+  integer, parameter :: k_al22__p_mg21   = 317
+  integer, parameter :: k_al22__p_na21__weak__wc17   = 318
+  integer, parameter :: k_al22__he4_ne18__weak__wc12   = 319
+  integer, parameter :: k_al22__p_p_ne20__weak__wc12   = 320
+  integer, parameter :: k_he4_al22__p26   = 321
+  integer, parameter :: k_he4_al22__p_si25   = 322
+  integer, parameter :: k_si25__al25__weak__wc12   = 323
+  integer, parameter :: k_si25__p_al24   = 324
+  integer, parameter :: k_si25__p_mg24__weak__wc12   = 325
+  integer, parameter :: k_si25__he4_mg21   = 326
+  integer, parameter :: k_p_si25__p26   = 327
+  integer, parameter :: k_he4_si25__s29   = 328
+  integer, parameter :: k_p_si25__he4_al22   = 329
+  integer, parameter :: k_he4_si25__p_p28   = 330
+  integer, parameter :: k_p28__si28__weak__wc12   = 331
+  integer, parameter :: k_p28__p_si27   = 332
+  integer, parameter :: k_p28__p_al27__weak__wc12   = 333
+  integer, parameter :: k_p28__he4_al24   = 334
+  integer, parameter :: k_p28__he4_mg24__weak__wc12   = 335
+  integer, parameter :: k_p_p28__s29   = 336
+  integer, parameter :: k_he4_p28__cl32   = 337
+  integer, parameter :: k_p_p28__he4_si25   = 338
+  integer, parameter :: k_he4_p28__p_s31   = 339
+  integer, parameter :: k_s31__p31__weak__wc12   = 340
+  integer, parameter :: k_s31__p_p30   = 341
+  integer, parameter :: k_s31__he4_si27   = 342
+  integer, parameter :: k_p_s31__cl32   = 343
+  integer, parameter :: k_he4_s31__ar35   = 344
+  integer, parameter :: k_p_s31__he4_p28   = 345
+  integer, parameter :: k_he4_s31__p_cl34   = 346
+  integer, parameter :: k_s32__p_p31   = 347
+  integer, parameter :: k_s32__he4_si28   = 348
+  integer, parameter :: k_p_s32__cl33   = 349
+  integer, parameter :: k_he4_s32__ar36   = 350
+  integer, parameter :: k_p_s32__he4_p29   = 351
+  integer, parameter :: k_he4_s32__p_cl35   = 352
+  integer, parameter :: k_s33__p_p32   = 353
+  integer, parameter :: k_s33__he4_si29   = 354
+  integer, parameter :: k_p_s33__cl34   = 355
+  integer, parameter :: k_he4_s33__ar37   = 356
+  integer, parameter :: k_p_s33__he4_p30   = 357
+  integer, parameter :: k_he4_s33__p_cl36   = 358
+  integer, parameter :: k_p_p33__s34   = 359
+  integer, parameter :: k_he4_p33__cl37   = 360
+  integer, parameter :: k_p_p33__he4_si30   = 361
+  integer, parameter :: k_s34__p_p33   = 362
+  integer, parameter :: k_s34__he4_si30   = 363
+  integer, parameter :: k_p_s34__cl35   = 364
+  integer, parameter :: k_he4_s34__ar38   = 365
+  integer, parameter :: k_p_s34__he4_p31   = 366
+  integer, parameter :: k_he4_s34__p_cl37   = 367
+  integer, parameter :: k_cl33__s33__weak__wc12   = 368
+  integer, parameter :: k_cl33__p_s32   = 369
+  integer, parameter :: k_cl33__he4_p29   = 370
+  integer, parameter :: k_p_cl33__ar34   = 371
+  integer, parameter :: k_he4_cl33__k37   = 372
+  integer, parameter :: k_p_cl33__he4_s30   = 373
+  integer, parameter :: k_he4_cl33__p_ar36   = 374
+  integer, parameter :: k_cl34__s34__weak__wc12   = 375
+  integer, parameter :: k_cl34__p_s33   = 376
+  integer, parameter :: k_cl34__he4_p30   = 377
+  integer, parameter :: k_p_cl34__ar35   = 378
+  integer, parameter :: k_he4_cl34__k38   = 379
+  integer, parameter :: k_p_cl34__he4_s31   = 380
+  integer, parameter :: k_he4_cl34__p_ar37   = 381
+  integer, parameter :: k_cl35__p_s34   = 382
+  integer, parameter :: k_cl35__he4_p31   = 383
+  integer, parameter :: k_p_cl35__ar36   = 384
+  integer, parameter :: k_he4_cl35__k39   = 385
+  integer, parameter :: k_p_cl35__he4_s32   = 386
+  integer, parameter :: k_he4_cl35__p_ar38   = 387
+  integer, parameter :: k_p_s35__cl36   = 388
+  integer, parameter :: k_he4_s35__ar39   = 389
+  integer, parameter :: k_p_s35__he4_p32   = 390
+  integer, parameter :: k_cl36__p_s35   = 391
+  integer, parameter :: k_cl36__he4_p32   = 392
+  integer, parameter :: k_p_cl36__ar37   = 393
+  integer, parameter :: k_he4_cl36__k40   = 394
+  integer, parameter :: k_p_cl36__he4_s33   = 395
+  integer, parameter :: k_he4_cl36__p_ar39   = 396
+  integer, parameter :: k_s28__p28__weak__wc12   = 397
+  integer, parameter :: k_s28__p_p27   = 398
+  integer, parameter :: k_s28__p_si27__weak__wc12   = 399
+  integer, parameter :: k_s28__he4_si24   = 400
+  integer, parameter :: k_p_s28__cl29   = 401
+  integer, parameter :: k_he4_s28__ar32   = 402
+  integer, parameter :: k_he4_s28__p_cl31   = 403
+  integer, parameter :: k_cl31__s31__weak__wc12   = 404
+  integer, parameter :: k_cl31__p_s30   = 405
+  integer, parameter :: k_cl31__p_p30__weak__wc12   = 406
+  integer, parameter :: k_cl31__he4_p27   = 407
+  integer, parameter :: k_p_cl31__ar32   = 408
+  integer, parameter :: k_he4_cl31__k35   = 409
+  integer, parameter :: k_p_cl31__he4_s28   = 410
+  integer, parameter :: k_he4_cl31__p_ar34   = 411
+  integer, parameter :: k_ar34__cl34__weak__wc12   = 412
+  integer, parameter :: k_ar34__p_cl33   = 413
+  integer, parameter :: k_ar34__he4_s30   = 414
+  integer, parameter :: k_p_ar34__k35   = 415
+  integer, parameter :: k_he4_ar34__ca38   = 416
+  integer, parameter :: k_p_ar34__he4_cl31   = 417
+  integer, parameter :: k_he4_ar34__p_k37   = 418
+  integer, parameter :: k_p26__si26__weak__wc12   = 419
+  integer, parameter :: k_p26__p_si25   = 420
+  integer, parameter :: k_p26__he4_al22   = 421
+  integer, parameter :: k_he4_p26__cl30   = 422
+  integer, parameter :: k_he4_p26__p_s29   = 423
+  integer, parameter :: k_s29__p29__weak__wc12   = 424
+  integer, parameter :: k_s29__p_p28   = 425
+  integer, parameter :: k_s29__p_si28__weak__wc12   = 426
+  integer, parameter :: k_s29__he4_si25   = 427
+  integer, parameter :: k_p_s29__cl30   = 428
+  integer, parameter :: k_he4_s29__ar33   = 429
+  integer, parameter :: k_p_s29__he4_p26   = 430
+  integer, parameter :: k_he4_s29__p_cl32   = 431
+  integer, parameter :: k_cl32__s32__weak__wc12   = 432
+  integer, parameter :: k_cl32__p_s31   = 433
+  integer, parameter :: k_cl32__p_p31__weak__wc12   = 434
+  integer, parameter :: k_cl32__he4_p28   = 435
+  integer, parameter :: k_cl32__he4_si28__weak__wc12   = 436
+  integer, parameter :: k_p_cl32__ar33   = 437
+  integer, parameter :: k_he4_cl32__k36   = 438
+  integer, parameter :: k_p_cl32__he4_s29   = 439
+  integer, parameter :: k_he4_cl32__p_ar35   = 440
+  integer, parameter :: k_ar35__cl35__weak__wc12   = 441
+  integer, parameter :: k_ar35__p_cl34   = 442
+  integer, parameter :: k_ar35__he4_s31   = 443
+  integer, parameter :: k_p_ar35__k36   = 444
+  integer, parameter :: k_he4_ar35__ca39   = 445
+  integer, parameter :: k_p_ar35__he4_cl32   = 446
+  integer, parameter :: k_he4_ar35__p_k38   = 447
+  integer, parameter :: k_ar36__p_cl35   = 448
+  integer, parameter :: k_ar36__he4_s32   = 449
+  integer, parameter :: k_p_ar36__k37   = 450
+  integer, parameter :: k_he4_ar36__ca40   = 451
+  integer, parameter :: k_p_ar36__he4_cl33   = 452
+  integer, parameter :: k_he4_ar36__p_k39   = 453
+  integer, parameter :: k_ar37__cl37__weak__wc12   = 454
+  integer, parameter :: k_ar37__p_cl36   = 455
+  integer, parameter :: k_ar37__he4_s33   = 456
+  integer, parameter :: k_p_ar37__k38   = 457
+  integer, parameter :: k_he4_ar37__ca41   = 458
+  integer, parameter :: k_p_ar37__he4_cl34   = 459
+  integer, parameter :: k_he4_ar37__p_k40   = 460
+  integer, parameter :: k_cl37__he4_p33   = 461
+  integer, parameter :: k_p_cl37__ar38   = 462
+  integer, parameter :: k_he4_cl37__k41   = 463
+  integer, parameter :: k_p_cl37__he4_s34   = 464
+  integer, parameter :: k_ar38__p_cl37   = 465
+  integer, parameter :: k_ar38__he4_s34   = 466
+  integer, parameter :: k_p_ar38__k39   = 467
+  integer, parameter :: k_he4_ar38__ca42   = 468
+  integer, parameter :: k_p_ar38__he4_cl35   = 469
+  integer, parameter :: k_he4_ar38__p_k41   = 470
+  integer, parameter :: k_k37__ar37__weak__wc12   = 471
+  integer, parameter :: k_k37__p_ar36   = 472
+  integer, parameter :: k_k37__he4_cl33   = 473
+  integer, parameter :: k_p_k37__ca38   = 474
+  integer, parameter :: k_he4_k37__sc41   = 475
+  integer, parameter :: k_p_k37__he4_ar34   = 476
+  integer, parameter :: k_he4_k37__p_ca40   = 477
+  integer, parameter :: k_k38__ar38__weak__wc12   = 478
+  integer, parameter :: k_k38__p_ar37   = 479
+  integer, parameter :: k_k38__he4_cl34   = 480
+  integer, parameter :: k_p_k38__ca39   = 481
+  integer, parameter :: k_he4_k38__sc42   = 482
+  integer, parameter :: k_p_k38__he4_ar35   = 483
+  integer, parameter :: k_he4_k38__p_ca41   = 484
+  integer, parameter :: k_k39__p_ar38   = 485
+  integer, parameter :: k_k39__he4_cl35   = 486
+  integer, parameter :: k_p_k39__ca40   = 487
+  integer, parameter :: k_he4_k39__sc43   = 488
+  integer, parameter :: k_p_k39__he4_ar36   = 489
+  integer, parameter :: k_he4_k39__p_ca42   = 490
+  integer, parameter :: k_ar39__he4_s35   = 491
+  integer, parameter :: k_p_ar39__k40   = 492
+  integer, parameter :: k_he4_ar39__ca43   = 493
+  integer, parameter :: k_p_ar39__he4_cl36   = 494
+  integer, parameter :: k_k40__p_ar39   = 495
+  integer, parameter :: k_k40__he4_cl36   = 496
+  integer, parameter :: k_p_k40__ca41   = 497
+  integer, parameter :: k_he4_k40__sc44   = 498
+  integer, parameter :: k_p_k40__he4_ar37   = 499
+  integer, parameter :: k_he4_k40__p_ca43   = 500
+  integer, parameter :: k_cl29__s29__weak__bqa_pos_   = 501
+  integer, parameter :: k_cl29__p_s28   = 502
+  integer, parameter :: k_he4_cl29__k33   = 503
+  integer, parameter :: k_he4_cl29__p_ar32   = 504
+  integer, parameter :: k_ar32__cl32__weak__wc12   = 505
+  integer, parameter :: k_ar32__p_cl31   = 506
+  integer, parameter :: k_ar32__p_s31__weak__wc12   = 507
+  integer, parameter :: k_ar32__he4_s28   = 508
+  integer, parameter :: k_p_ar32__k33   = 509
+  integer, parameter :: k_he4_ar32__ca36   = 510
+  integer, parameter :: k_p_ar32__he4_cl29   = 511
+  integer, parameter :: k_he4_ar32__p_k35   = 512
+  integer, parameter :: k_k35__ar35__weak__wc12   = 513
+  integer, parameter :: k_k35__p_ar34   = 514
+  integer, parameter :: k_k35__p_cl34__weak__wc12   = 515
+  integer, parameter :: k_k35__he4_cl31   = 516
+  integer, parameter :: k_p_k35__ca36   = 517
+  integer, parameter :: k_he4_k35__sc39   = 518
+  integer, parameter :: k_p_k35__he4_ar32   = 519
+  integer, parameter :: k_he4_k35__p_ca38   = 520
+  integer, parameter :: k_ca38__k38__weak__wc12   = 521
+  integer, parameter :: k_ca38__p_k37   = 522
+  integer, parameter :: k_ca38__he4_ar34   = 523
+  integer, parameter :: k_p_ca38__sc39   = 524
+  integer, parameter :: k_he4_ca38__ti42   = 525
+  integer, parameter :: k_p_ca38__he4_k35   = 526
+  integer, parameter :: k_he4_ca38__p_sc41   = 527
+  integer, parameter :: k_p_p_ca38__he4_ca36   = 528
+  integer, parameter :: k_cl30__s30__weak__bqa_pos_   = 529
+  integer, parameter :: k_cl30__p_s29   = 530
+  integer, parameter :: k_cl30__he4_p26   = 531
+  integer, parameter :: k_p_cl30__ar31   = 532
+  integer, parameter :: k_he4_cl30__k34   = 533
+  integer, parameter :: k_he4_cl30__p_ar33   = 534
+  integer, parameter :: k_ar33__cl33__weak__wc12   = 535
+  integer, parameter :: k_ar33__p_cl32   = 536
+  integer, parameter :: k_ar33__p_s32__weak__wc12   = 537
+  integer, parameter :: k_ar33__he4_s29   = 538
+  integer, parameter :: k_p_ar33__k34   = 539
+  integer, parameter :: k_he4_ar33__ca37   = 540
+  integer, parameter :: k_p_ar33__he4_cl30   = 541
+  integer, parameter :: k_he4_ar33__p_k36   = 542
+  integer, parameter :: k_k36__ar36__weak__wc12   = 543
+  integer, parameter :: k_k36__p_ar35   = 544
+  integer, parameter :: k_k36__p_cl35__weak__wc12   = 545
+  integer, parameter :: k_k36__he4_cl32   = 546
+  integer, parameter :: k_k36__he4_s32__weak__wc12   = 547
+  integer, parameter :: k_p_k36__ca37   = 548
+  integer, parameter :: k_he4_k36__sc40   = 549
+  integer, parameter :: k_p_k36__he4_ar33   = 550
+  integer, parameter :: k_he4_k36__p_ca39   = 551
+  integer, parameter :: k_ca39__k39__weak__wc12   = 552
+  integer, parameter :: k_ca39__p_k38   = 553
+  integer, parameter :: k_ca39__he4_ar35   = 554
+  integer, parameter :: k_p_ca39__sc40   = 555
+  integer, parameter :: k_he4_ca39__ti43   = 556
+  integer, parameter :: k_p_ca39__he4_k36   = 557
+  integer, parameter :: k_he4_ca39__p_sc42   = 558
+  integer, parameter :: k_ca40__p_k39   = 559
+  integer, parameter :: k_ca40__he4_ar36   = 560
+  integer, parameter :: k_p_ca40__sc41   = 561
+  integer, parameter :: k_he4_ca40__ti44   = 562
+  integer, parameter :: k_p_ca40__he4_k37   = 563
+  integer, parameter :: k_he4_ca40__p_sc43   = 564
+  integer, parameter :: k_ca41__k41__weak__wc12   = 565
+  integer, parameter :: k_ca41__p_k40   = 566
+  integer, parameter :: k_ca41__he4_ar37   = 567
+  integer, parameter :: k_p_ca41__sc42   = 568
+  integer, parameter :: k_he4_ca41__ti45   = 569
+  integer, parameter :: k_p_ca41__he4_k38   = 570
+  integer, parameter :: k_he4_ca41__p_sc44   = 571
+  integer, parameter :: k_k41__he4_cl37   = 572
+  integer, parameter :: k_p_k41__ca42   = 573
+  integer, parameter :: k_he4_k41__sc45   = 574
+  integer, parameter :: k_p_k41__he4_ar38   = 575
+  integer, parameter :: k_he4_k41__p_ca44   = 576
+  integer, parameter :: k_ca42__p_k41   = 577
+  integer, parameter :: k_ca42__he4_ar38   = 578
+  integer, parameter :: k_p_ca42__sc43   = 579
+  integer, parameter :: k_he4_ca42__ti46   = 580
+  integer, parameter :: k_p_ca42__he4_k39   = 581
+  integer, parameter :: k_he4_ca42__p_sc45   = 582
+  integer, parameter :: k_sc41__ca41__weak__wc12   = 583
+  integer, parameter :: k_sc41__p_ca40   = 584
+  integer, parameter :: k_sc41__he4_k37   = 585
+  integer, parameter :: k_p_sc41__ti42   = 586
+  integer, parameter :: k_he4_sc41__v45   = 587
+  integer, parameter :: k_p_sc41__he4_ca38   = 588
+  integer, parameter :: k_he4_sc41__p_ti44   = 589
+  integer, parameter :: k_sc42__ca42__weak__wc12   = 590
+  integer, parameter :: k_sc42__p_ca41   = 591
+  integer, parameter :: k_sc42__he4_k38   = 592
+  integer, parameter :: k_p_sc42__ti43   = 593
+  integer, parameter :: k_he4_sc42__v46   = 594
+  integer, parameter :: k_p_sc42__he4_ca39   = 595
+  integer, parameter :: k_he4_sc42__p_ti45   = 596
+  integer, parameter :: k_sc43__ca43__weak__wc12   = 597
+  integer, parameter :: k_sc43__p_ca42   = 598
+  integer, parameter :: k_sc43__he4_k39   = 599
+  integer, parameter :: k_p_sc43__ti44   = 600
+  integer, parameter :: k_he4_sc43__v47   = 601
+  integer, parameter :: k_p_sc43__he4_ca40   = 602
+  integer, parameter :: k_he4_sc43__p_ti46   = 603
+  integer, parameter :: k_ca43__he4_ar39   = 604
+  integer, parameter :: k_p_ca43__sc44   = 605
+  integer, parameter :: k_he4_ca43__ti47   = 606
+  integer, parameter :: k_p_ca43__he4_k40   = 607
+  integer, parameter :: k_he4_ca43__p_sc46   = 608
+  integer, parameter :: k_sc44__ca44__weak__wc12   = 609
+  integer, parameter :: k_sc44__p_ca43   = 610
+  integer, parameter :: k_sc44__he4_k40   = 611
+  integer, parameter :: k_p_sc44__ti45   = 612
+  integer, parameter :: k_he4_sc44__v48   = 613
+  integer, parameter :: k_p_sc44__he4_ca41   = 614
+  integer, parameter :: k_he4_sc44__p_ti47   = 615
+  integer, parameter :: k_k33__ar33__weak__bqa_pos_   = 616
+  integer, parameter :: k_k33__p_ar32   = 617
+  integer, parameter :: k_k33__he4_cl29   = 618
+  integer, parameter :: k_p_k33__ca34   = 619
+  integer, parameter :: k_he4_k33__sc37   = 620
+  integer, parameter :: k_he4_k33__p_ca36   = 621
+  integer, parameter :: k_ca36__k36__weak__wc12   = 622
+  integer, parameter :: k_ca36__p_k35   = 623
+  integer, parameter :: k_ca36__p_ar35__weak__wc12   = 624
+  integer, parameter :: k_ca36__he4_ar32   = 625
+  integer, parameter :: k_p_ca36__sc37   = 626
+  integer, parameter :: k_he4_ca36__ti40   = 627
+  integer, parameter :: k_p_ca36__he4_k33   = 628
+  integer, parameter :: k_he4_ca36__p_sc39   = 629
+  integer, parameter :: k_he4_ca36__p_p_ca38   = 630
+  integer, parameter :: k_sc39__ca39__weak__mo97   = 631
+  integer, parameter :: k_sc39__p_ca38   = 632
+  integer, parameter :: k_sc39__he4_k35   = 633
+  integer, parameter :: k_p_sc39__ti40   = 634
+  integer, parameter :: k_he4_sc39__v43   = 635
+  integer, parameter :: k_p_sc39__he4_ca36   = 636
+  integer, parameter :: k_he4_sc39__p_ti42   = 637
+  integer, parameter :: k_ti42__sc42__weak__wc12   = 638
+  integer, parameter :: k_ti42__p_sc41   = 639
+  integer, parameter :: k_ti42__he4_ca38   = 640
+  integer, parameter :: k_p_ti42__v43   = 641
+  integer, parameter :: k_he4_ti42__cr46   = 642
+  integer, parameter :: k_p_ti42__he4_sc39   = 643
+  integer, parameter :: k_he4_ti42__p_v45   = 644
+  integer, parameter :: k_ar31__cl31__weak__wc12   = 645
+  integer, parameter :: k_ar31__p_cl30   = 646
+  integer, parameter :: k_ar31__p_s30__weak__wc17   = 647
+  integer, parameter :: k_ar31__p_p_p29__weak__wc12   = 648
+  integer, parameter :: k_he4_ar31__ca35   = 649
+  integer, parameter :: k_he4_ar31__p_k34   = 650
+  integer, parameter :: k_k34__ar34__weak__bqa_pos_   = 651
+  integer, parameter :: k_k34__p_ar33   = 652
+  integer, parameter :: k_k34__he4_cl30   = 653
+  integer, parameter :: k_p_k34__ca35   = 654
+  integer, parameter :: k_he4_k34__sc38   = 655
+  integer, parameter :: k_p_k34__he4_ar31   = 656
+  integer, parameter :: k_he4_k34__p_ca37   = 657
+  integer, parameter :: k_ca37__k37__weak__wc12   = 658
+  integer, parameter :: k_ca37__p_ar36__weak__wc12   = 659
+  integer, parameter :: k_ca37__p_k36   = 660
+  integer, parameter :: k_ca37__he4_ar33   = 661
+  integer, parameter :: k_p_ca37__sc38   = 662
+  integer, parameter :: k_he4_ca37__ti41   = 663
+  integer, parameter :: k_p_ca37__he4_k34   = 664
+  integer, parameter :: k_he4_ca37__p_sc40   = 665
+  integer, parameter :: k_sc40__ca40__weak__wc12   = 666
+  integer, parameter :: k_sc40__p_ca39   = 667
+  integer, parameter :: k_sc40__p_k39__weak__wc12   = 668
+  integer, parameter :: k_sc40__he4_k36   = 669
+  integer, parameter :: k_sc40__he4_ar36__weak__wc12   = 670
+  integer, parameter :: k_p_sc40__ti41   = 671
+  integer, parameter :: k_he4_sc40__v44   = 672
+  integer, parameter :: k_p_sc40__he4_ca37   = 673
+  integer, parameter :: k_he4_sc40__p_ti43   = 674
+  integer, parameter :: k_ti43__sc43__weak__wc12   = 675
+  integer, parameter :: k_ti43__p_sc42   = 676
+  integer, parameter :: k_ti43__he4_ca39   = 677
+  integer, parameter :: k_p_ti43__v44   = 678
+  integer, parameter :: k_he4_ti43__cr47   = 679
+  integer, parameter :: k_p_ti43__he4_sc40   = 680
+  integer, parameter :: k_he4_ti43__p_v46   = 681
+  integer, parameter :: k_ti44__sc44__weak__wc12   = 682
+  integer, parameter :: k_ti44__p_sc43   = 683
+  integer, parameter :: k_ti44__he4_ca40   = 684
+  integer, parameter :: k_p_ti44__v45   = 685
+  integer, parameter :: k_he4_ti44__cr48   = 686
+  integer, parameter :: k_p_ti44__he4_sc41   = 687
+  integer, parameter :: k_he4_ti44__p_v47   = 688
+  integer, parameter :: k_ti45__sc45__weak__wc12   = 689
+  integer, parameter :: k_ti45__p_sc44   = 690
+  integer, parameter :: k_ti45__he4_ca41   = 691
+  integer, parameter :: k_p_ti45__v46   = 692
+  integer, parameter :: k_he4_ti45__cr49   = 693
+  integer, parameter :: k_p_ti45__he4_sc42   = 694
+  integer, parameter :: k_he4_ti45__p_v48   = 695
+  integer, parameter :: k_p_ca44__sc45   = 696
+  integer, parameter :: k_he4_ca44__ti48   = 697
+  integer, parameter :: k_p_ca44__he4_k41   = 698
+  integer, parameter :: k_sc45__p_ca44   = 699
+  integer, parameter :: k_sc45__he4_k41   = 700
+  integer, parameter :: k_p_sc45__ti46   = 701
+  integer, parameter :: k_he4_sc45__v49   = 702
+  integer, parameter :: k_p_sc45__he4_ca42   = 703
+  integer, parameter :: k_he4_sc45__p_ti48   = 704
+  integer, parameter :: k_ti46__p_sc45   = 705
+  integer, parameter :: k_ti46__he4_ca42   = 706
+  integer, parameter :: k_p_ti46__v47   = 707
+  integer, parameter :: k_he4_ti46__cr50   = 708
+  integer, parameter :: k_p_ti46__he4_sc43   = 709
+  integer, parameter :: k_he4_ti46__p_v49   = 710
+  integer, parameter :: k_v45__ti45__weak__wc12   = 711
+  integer, parameter :: k_v45__p_ti44   = 712
+  integer, parameter :: k_v45__he4_sc41   = 713
+  integer, parameter :: k_p_v45__cr46   = 714
+  integer, parameter :: k_he4_v45__mn49   = 715
+  integer, parameter :: k_p_v45__he4_ti42   = 716
+  integer, parameter :: k_he4_v45__p_cr48   = 717
+  integer, parameter :: k_v46__ti46__weak__wc12   = 718
+  integer, parameter :: k_v46__p_ti45   = 719
+  integer, parameter :: k_v46__he4_sc42   = 720
+  integer, parameter :: k_p_v46__cr47   = 721
+  integer, parameter :: k_he4_v46__mn50   = 722
+  integer, parameter :: k_p_v46__he4_ti43   = 723
+  integer, parameter :: k_he4_v46__p_cr49   = 724
+  integer, parameter :: k_v47__ti47__weak__wc12   = 725
+  integer, parameter :: k_v47__p_ti46   = 726
+  integer, parameter :: k_v47__he4_sc43   = 727
+  integer, parameter :: k_p_v47__cr48   = 728
+  integer, parameter :: k_he4_v47__mn51   = 729
+  integer, parameter :: k_p_v47__he4_ti44   = 730
+  integer, parameter :: k_he4_v47__p_cr50   = 731
+  integer, parameter :: k_p_sc46__ti47   = 732
+  integer, parameter :: k_he4_sc46__v50   = 733
+  integer, parameter :: k_p_sc46__he4_ca43   = 734
+  integer, parameter :: k_ti47__p_sc46   = 735
+  integer, parameter :: k_ti47__he4_ca43   = 736
+  integer, parameter :: k_p_ti47__v48   = 737
+  integer, parameter :: k_he4_ti47__cr51   = 738
+  integer, parameter :: k_p_ti47__he4_sc44   = 739
+  integer, parameter :: k_he4_ti47__p_v50   = 740
+  integer, parameter :: k_v48__ti48__weak__wc12   = 741
+  integer, parameter :: k_v48__p_ti47   = 742
+  integer, parameter :: k_v48__he4_sc44   = 743
+  integer, parameter :: k_p_v48__cr49   = 744
+  integer, parameter :: k_he4_v48__mn52   = 745
+  integer, parameter :: k_p_v48__he4_ti45   = 746
+  integer, parameter :: k_he4_v48__p_cr51   = 747
+  integer, parameter :: k_ca34__k34__weak__bqa_pos_   = 748
+  integer, parameter :: k_ca34__p_k33   = 749
+  integer, parameter :: k_he4_ca34__ti38   = 750
+  integer, parameter :: k_he4_ca34__p_sc37   = 751
+  integer, parameter :: k_sc37__ca37__weak__bqa_pos_   = 752
+  integer, parameter :: k_sc37__p_ca36   = 753
+  integer, parameter :: k_sc37__he4_k33   = 754
+  integer, parameter :: k_p_sc37__ti38   = 755
+  integer, parameter :: k_he4_sc37__v41   = 756
+  integer, parameter :: k_p_sc37__he4_ca34   = 757
+  integer, parameter :: k_he4_sc37__p_ti40   = 758
+  integer, parameter :: k_ti40__sc40__weak__wc17   = 759
+  integer, parameter :: k_ti40__p_sc39   = 760
+  integer, parameter :: k_ti40__p_ca39__weak__wc12   = 761
+  integer, parameter :: k_ti40__he4_ca36   = 762
+  integer, parameter :: k_p_ti40__v41   = 763
+  integer, parameter :: k_he4_ti40__cr44   = 764
+  integer, parameter :: k_p_ti40__he4_sc37   = 765
+  integer, parameter :: k_he4_ti40__p_v43   = 766
+  integer, parameter :: k_v43__ti43__weak__wc12   = 767
+  integer, parameter :: k_v43__p_ti42   = 768
+  integer, parameter :: k_v43__he4_sc39   = 769
+  integer, parameter :: k_p_v43__cr44   = 770
+  integer, parameter :: k_he4_v43__mn47   = 771
+  integer, parameter :: k_p_v43__he4_ti40   = 772
+  integer, parameter :: k_he4_v43__p_cr46   = 773
+  integer, parameter :: k_cr46__v46__weak__wc12   = 774
+  integer, parameter :: k_cr46__p_v45   = 775
+  integer, parameter :: k_cr46__he4_ti42   = 776
+  integer, parameter :: k_p_cr46__mn47   = 777
+  integer, parameter :: k_he4_cr46__fe50   = 778
+  integer, parameter :: k_p_cr46__he4_v43   = 779
+  integer, parameter :: k_he4_cr46__p_mn49   = 780
+  integer, parameter :: k_ca35__k35__weak__wc17   = 781
+  integer, parameter :: k_ca35__p_k34   = 782
+  integer, parameter :: k_ca35__p_ar34__weak__wc17   = 783
+  integer, parameter :: k_ca35__he4_ar31   = 784
+  integer, parameter :: k_ca35__p_p_cl33__weak__wc12   = 785
+  integer, parameter :: k_p_ca35__sc36   = 786
+  integer, parameter :: k_he4_ca35__ti39   = 787
+  integer, parameter :: k_he4_ca35__p_sc38   = 788
+  integer, parameter :: k_sc38__ca38__weak__mo97   = 789
+  integer, parameter :: k_sc38__p_ca37   = 790
+  integer, parameter :: k_sc38__he4_k34   = 791
+  integer, parameter :: k_p_sc38__ti39   = 792
+  integer, parameter :: k_he4_sc38__v42   = 793
+  integer, parameter :: k_p_sc38__he4_ca35   = 794
+  integer, parameter :: k_he4_sc38__p_ti41   = 795
+  integer, parameter :: k_ti41__sc41__weak__wc17   = 796
+  integer, parameter :: k_ti41__p_sc40   = 797
+  integer, parameter :: k_ti41__p_ca40__weak__wc12   = 798
+  integer, parameter :: k_ti41__he4_ca37   = 799
+  integer, parameter :: k_p_ti41__v42   = 800
+  integer, parameter :: k_he4_ti41__cr45   = 801
+  integer, parameter :: k_p_ti41__he4_sc38   = 802
+  integer, parameter :: k_he4_ti41__p_v44   = 803
+  integer, parameter :: k_v44__ti44__weak__wc12   = 804
+  integer, parameter :: k_v44__p_ti43   = 805
+  integer, parameter :: k_v44__he4_sc40   = 806
+  integer, parameter :: k_p_v44__cr45   = 807
+  integer, parameter :: k_he4_v44__mn48   = 808
+  integer, parameter :: k_p_v44__he4_ti41   = 809
+  integer, parameter :: k_he4_v44__p_cr47   = 810
+  integer, parameter :: k_cr47__v47__weak__wc12   = 811
+  integer, parameter :: k_cr47__p_v46   = 812
+  integer, parameter :: k_cr47__he4_ti43   = 813
+  integer, parameter :: k_p_cr47__mn48   = 814
+  integer, parameter :: k_he4_cr47__fe51   = 815
+  integer, parameter :: k_p_cr47__he4_v44   = 816
+  integer, parameter :: k_he4_cr47__p_mn50   = 817
+  integer, parameter :: k_cr48__v48__weak__wc12   = 818
+  integer, parameter :: k_cr48__p_v47   = 819
+  integer, parameter :: k_cr48__he4_ti44   = 820
+  integer, parameter :: k_p_cr48__mn49   = 821
+  integer, parameter :: k_he4_cr48__fe52   = 822
+  integer, parameter :: k_p_cr48__he4_v45   = 823
+  integer, parameter :: k_he4_cr48__p_mn51   = 824
+  integer, parameter :: k_cr49__v49__weak__wc12   = 825
+  integer, parameter :: k_cr49__p_v48   = 826
+  integer, parameter :: k_cr49__he4_ti45   = 827
+  integer, parameter :: k_p_cr49__mn50   = 828
+  integer, parameter :: k_he4_cr49__fe53   = 829
+  integer, parameter :: k_p_cr49__he4_v46   = 830
+  integer, parameter :: k_he4_cr49__p_mn52   = 831
+  integer, parameter :: k_ti48__he4_ca44   = 832
+  integer, parameter :: k_p_ti48__v49   = 833
+  integer, parameter :: k_he4_ti48__cr52   = 834
+  integer, parameter :: k_p_ti48__he4_sc45   = 835
+  integer, parameter :: k_v49__p_ti48   = 836
+  integer, parameter :: k_v49__he4_sc45   = 837
+  integer, parameter :: k_p_v49__cr50   = 838
+  integer, parameter :: k_he4_v49__mn53   = 839
+  integer, parameter :: k_p_v49__he4_ti46   = 840
+  integer, parameter :: k_he4_v49__p_cr52   = 841
+  integer, parameter :: k_cr50__p_v49   = 842
+  integer, parameter :: k_cr50__he4_ti46   = 843
+  integer, parameter :: k_p_cr50__mn51   = 844
+  integer, parameter :: k_he4_cr50__fe54   = 845
+  integer, parameter :: k_p_cr50__he4_v47   = 846
+  integer, parameter :: k_he4_cr50__p_mn53   = 847
+  integer, parameter :: k_mn49__cr49__weak__wc12   = 848
+  integer, parameter :: k_mn49__p_cr48   = 849
+  integer, parameter :: k_mn49__he4_v45   = 850
+  integer, parameter :: k_p_mn49__fe50   = 851
+  integer, parameter :: k_he4_mn49__co53   = 852
+  integer, parameter :: k_p_mn49__he4_cr46   = 853
+  integer, parameter :: k_he4_mn49__p_fe52   = 854
+  integer, parameter :: k_mn50__cr50__weak__wc12   = 855
+  integer, parameter :: k_mn50__p_cr49   = 856
+  integer, parameter :: k_mn50__he4_v46   = 857
+  integer, parameter :: k_p_mn50__fe51   = 858
+  integer, parameter :: k_he4_mn50__co54   = 859
+  integer, parameter :: k_p_mn50__he4_cr47   = 860
+  integer, parameter :: k_he4_mn50__p_fe53   = 861
+  integer, parameter :: k_mn51__cr51__weak__wc12   = 862
+  integer, parameter :: k_mn51__p_cr50   = 863
+  integer, parameter :: k_mn51__he4_v47   = 864
+  integer, parameter :: k_p_mn51__fe52   = 865
+  integer, parameter :: k_he4_mn51__co55   = 866
+  integer, parameter :: k_p_mn51__he4_cr48   = 867
+  integer, parameter :: k_he4_mn51__p_fe54   = 868
+  integer, parameter :: k_v50__he4_sc46   = 869
+  integer, parameter :: k_p_v50__cr51   = 870
+  integer, parameter :: k_he4_v50__mn54   = 871
+  integer, parameter :: k_p_v50__he4_ti47   = 872
+  integer, parameter :: k_cr51__p_v50   = 873
+  integer, parameter :: k_cr51__he4_ti47   = 874
+  integer, parameter :: k_p_cr51__mn52   = 875
+  integer, parameter :: k_he4_cr51__fe55   = 876
+  integer, parameter :: k_p_cr51__he4_v48   = 877
+  integer, parameter :: k_he4_cr51__p_mn54   = 878
+  integer, parameter :: k_mn52__cr52__weak__wc12   = 879
+  integer, parameter :: k_mn52__p_cr51   = 880
+  integer, parameter :: k_mn52__he4_v48   = 881
+  integer, parameter :: k_p_mn52__fe53   = 882
+  integer, parameter :: k_he4_mn52__co56   = 883
+  integer, parameter :: k_p_mn52__he4_cr49   = 884
+  integer, parameter :: k_he4_mn52__p_fe55   = 885
+  integer, parameter :: k_ti38__sc38__weak__mo97   = 886
+  integer, parameter :: k_ti38__p_sc37   = 887
+  integer, parameter :: k_ti38__he4_ca34   = 888
+  integer, parameter :: k_he4_ti38__cr42   = 889
+  integer, parameter :: k_he4_ti38__p_v41   = 890
+  integer, parameter :: k_v41__ti41__weak__bqa_pos_   = 891
+  integer, parameter :: k_v41__p_ti40   = 892
+  integer, parameter :: k_v41__he4_sc37   = 893
+  integer, parameter :: k_p_v41__cr42   = 894
+  integer, parameter :: k_he4_v41__mn45   = 895
+  integer, parameter :: k_p_v41__he4_ti38   = 896
+  integer, parameter :: k_he4_v41__p_cr44   = 897
+  integer, parameter :: k_cr44__v44__weak__wc12   = 898
+  integer, parameter :: k_cr44__p_v43   = 899
+  integer, parameter :: k_cr44__p_ti43__weak__wc12   = 900
+  integer, parameter :: k_cr44__he4_ti40   = 901
+  integer, parameter :: k_p_cr44__mn45   = 902
+  integer, parameter :: k_he4_cr44__fe48   = 903
+  integer, parameter :: k_p_cr44__he4_v41   = 904
+  integer, parameter :: k_he4_cr44__p_mn47   = 905
+  integer, parameter :: k_mn47__cr47__weak__wc17   = 906
+  integer, parameter :: k_mn47__p_cr46   = 907
+  integer, parameter :: k_mn47__he4_v43   = 908
+  integer, parameter :: k_p_mn47__fe48   = 909
+  integer, parameter :: k_he4_mn47__co51   = 910
+  integer, parameter :: k_p_mn47__he4_cr44   = 911
+  integer, parameter :: k_he4_mn47__p_fe50   = 912
+  integer, parameter :: k_fe50__mn50__weak__wc12   = 913
+  integer, parameter :: k_fe50__p_mn49   = 914
+  integer, parameter :: k_fe50__he4_cr46   = 915
+  integer, parameter :: k_p_fe50__co51   = 916
+  integer, parameter :: k_he4_fe50__ni54   = 917
+  integer, parameter :: k_p_fe50__he4_mn47   = 918
+  integer, parameter :: k_he4_fe50__p_co53   = 919
+  integer, parameter :: k_sc36__ca36__weak__bqa_pos_   = 920
+  integer, parameter :: k_sc36__p_ca35   = 921
+  integer, parameter :: k_he4_sc36__v40   = 922
+  integer, parameter :: k_he4_sc36__p_ti39   = 923
+  integer, parameter :: k_ti39__sc39__weak__wc17   = 924
+  integer, parameter :: k_ti39__p_sc38   = 925
+  integer, parameter :: k_ti39__p_ca38__weak__wc12   = 926
+  integer, parameter :: k_ti39__he4_ca35   = 927
+  integer, parameter :: k_p_ti39__v40   = 928
+  integer, parameter :: k_he4_ti39__cr43   = 929
+  integer, parameter :: k_p_ti39__he4_sc36   = 930
+  integer, parameter :: k_he4_ti39__p_v42   = 931
+  integer, parameter :: k_v42__ti42__weak__mo97   = 932
+  integer, parameter :: k_v42__p_ti41   = 933
+  integer, parameter :: k_v42__he4_sc38   = 934
+  integer, parameter :: k_p_v42__cr43   = 935
+  integer, parameter :: k_he4_v42__mn46   = 936
+  integer, parameter :: k_p_v42__he4_ti39   = 937
+  integer, parameter :: k_he4_v42__p_cr45   = 938
+  integer, parameter :: k_cr45__v45__weak__wc12   = 939
+  integer, parameter :: k_cr45__p_v44   = 940
+  integer, parameter :: k_cr45__p_ti44__weak__wc12   = 941
+  integer, parameter :: k_cr45__he4_ti41   = 942
+  integer, parameter :: k_p_cr45__mn46   = 943
+  integer, parameter :: k_he4_cr45__fe49   = 944
+  integer, parameter :: k_p_cr45__he4_v42   = 945
+  integer, parameter :: k_he4_cr45__p_mn48   = 946
+  integer, parameter :: k_mn48__cr48__weak__wc12   = 947
+  integer, parameter :: k_mn48__p_cr47   = 948
+  integer, parameter :: k_mn48__p_v47__weak__wc12   = 949
+  integer, parameter :: k_mn48__he4_v44   = 950
+  integer, parameter :: k_p_mn48__fe49   = 951
+  integer, parameter :: k_he4_mn48__co52   = 952
+  integer, parameter :: k_p_mn48__he4_cr45   = 953
+  integer, parameter :: k_he4_mn48__p_fe51   = 954
+  integer, parameter :: k_fe51__mn51__weak__wc12   = 955
+  integer, parameter :: k_fe51__p_mn50   = 956
+  integer, parameter :: k_fe51__he4_cr47   = 957
+  integer, parameter :: k_p_fe51__co52   = 958
+  integer, parameter :: k_he4_fe51__ni55   = 959
+  integer, parameter :: k_p_fe51__he4_mn48   = 960
+  integer, parameter :: k_he4_fe51__p_co54   = 961
+  integer, parameter :: k_fe52__mn52__weak__wc12   = 962
+  integer, parameter :: k_fe52__p_mn51   = 963
+  integer, parameter :: k_fe52__he4_cr48   = 964
+  integer, parameter :: k_p_fe52__co53   = 965
+  integer, parameter :: k_he4_fe52__ni56   = 966
+  integer, parameter :: k_p_fe52__he4_mn49   = 967
+  integer, parameter :: k_he4_fe52__p_co55   = 968
+  integer, parameter :: k_fe53__mn53__weak__wc12   = 969
+  integer, parameter :: k_fe53__p_mn52   = 970
+  integer, parameter :: k_fe53__he4_cr49   = 971
+  integer, parameter :: k_p_fe53__co54   = 972
+  integer, parameter :: k_p_fe53__he4_mn50   = 973
+  integer, parameter :: k_he4_fe53__p_co56   = 974
+  integer, parameter :: k_cr52__he4_ti48   = 975
+  integer, parameter :: k_p_cr52__mn53   = 976
+  integer, parameter :: k_he4_cr52__fe56   = 977
+  integer, parameter :: k_p_cr52__he4_v49   = 978
+  integer, parameter :: k_he4_cr52__p_mn55   = 979
+  integer, parameter :: k_mn53__p_cr52   = 980
+  integer, parameter :: k_mn53__he4_v49   = 981
+  integer, parameter :: k_p_mn53__fe54   = 982
+  integer, parameter :: k_p_mn53__he4_cr50   = 983
+  integer, parameter :: k_he4_mn53__p_fe56   = 984
+  integer, parameter :: k_fe54__p_mn53   = 985
+  integer, parameter :: k_fe54__he4_cr50   = 986
+  integer, parameter :: k_p_fe54__co55   = 987
+  integer, parameter :: k_p_fe54__he4_mn51   = 988
+  integer, parameter :: k_co53__fe53__weak__wc12   = 989
+  integer, parameter :: k_co53__p_fe52   = 990
+  integer, parameter :: k_co53__he4_mn49   = 991
+  integer, parameter :: k_p_co53__ni54   = 992
+  integer, parameter :: k_p_co53__he4_fe50   = 993
+  integer, parameter :: k_he4_co53__p_ni56   = 994
+  integer, parameter :: k_co54__fe54__weak__wc12   = 995
+  integer, parameter :: k_co54__p_fe53   = 996
+  integer, parameter :: k_co54__he4_mn50   = 997
+  integer, parameter :: k_p_co54__ni55   = 998
+  integer, parameter :: k_p_co54__he4_fe51   = 999
+  integer, parameter :: k_co55__fe55__weak__wc12   = 1000
+  integer, parameter :: k_co55__p_fe54   = 1001
+  integer, parameter :: k_co55__he4_mn51   = 1002
+  integer, parameter :: k_p_co55__ni56   = 1003
+  integer, parameter :: k_p_co55__he4_fe52   = 1004
+  integer, parameter :: k_mn54__he4_v50   = 1005
+  integer, parameter :: k_p_mn54__fe55   = 1006
+  integer, parameter :: k_p_mn54__he4_cr51   = 1007
+  integer, parameter :: k_fe55__mn55__weak__wc12   = 1008
+  integer, parameter :: k_fe55__p_mn54   = 1009
+  integer, parameter :: k_fe55__he4_cr51   = 1010
+  integer, parameter :: k_p_fe55__co56   = 1011
+  integer, parameter :: k_p_fe55__he4_mn52   = 1012
+  integer, parameter :: k_co56__fe56__weak__wc12   = 1013
+  integer, parameter :: k_co56__p_fe55   = 1014
+  integer, parameter :: k_co56__he4_mn52   = 1015
+  integer, parameter :: k_p_co56__he4_fe53   = 1016
+  integer, parameter :: k_cr42__v42__weak__wc12   = 1017
+  integer, parameter :: k_cr42__p_v41   = 1018
+  integer, parameter :: k_cr42__p_ti41__weak__wc12   = 1019
+  integer, parameter :: k_cr42__he4_ti38   = 1020
+  integer, parameter :: k_he4_cr42__fe46   = 1021
+  integer, parameter :: k_he4_cr42__p_mn45   = 1022
+  integer, parameter :: k_mn45__cr45__weak__bqa_pos_   = 1023
+  integer, parameter :: k_mn45__p_cr44   = 1024
+  integer, parameter :: k_mn45__he4_v41   = 1025
+  integer, parameter :: k_p_mn45__fe46   = 1026
+  integer, parameter :: k_he4_mn45__co49   = 1027
+  integer, parameter :: k_p_mn45__he4_cr42   = 1028
+  integer, parameter :: k_he4_mn45__p_fe48   = 1029
+  integer, parameter :: k_fe48__mn48__weak__wc12   = 1030
+  integer, parameter :: k_fe48__p_mn47   = 1031
+  integer, parameter :: k_fe48__p_cr47__weak__wc12   = 1032
+  integer, parameter :: k_fe48__he4_cr44   = 1033
+  integer, parameter :: k_p_fe48__co49   = 1034
+  integer, parameter :: k_he4_fe48__ni52   = 1035
+  integer, parameter :: k_p_fe48__he4_mn45   = 1036
+  integer, parameter :: k_he4_fe48__p_co51   = 1037
+  integer, parameter :: k_co51__fe51__weak__mo97   = 1038
+  integer, parameter :: k_co51__p_fe50   = 1039
+  integer, parameter :: k_co51__he4_mn47   = 1040
+  integer, parameter :: k_p_co51__ni52   = 1041
+  integer, parameter :: k_p_co51__he4_fe48   = 1042
+  integer, parameter :: k_he4_co51__p_ni54   = 1043
+  integer, parameter :: k_ni54__co54__weak__wc12   = 1044
+  integer, parameter :: k_ni54__p_co53   = 1045
+  integer, parameter :: k_ni54__he4_fe50   = 1046
+  integer, parameter :: k_p_ni54__he4_co51   = 1047
+  integer, parameter :: k_v40__ti40__weak__bqa_pos_   = 1048
+  integer, parameter :: k_v40__p_ti39   = 1049
+  integer, parameter :: k_v40__he4_sc36   = 1050
+  integer, parameter :: k_he4_v40__mn44   = 1051
+  integer, parameter :: k_he4_v40__p_cr43   = 1052
+  integer, parameter :: k_cr43__v43__weak__wc12   = 1053
+  integer, parameter :: k_cr43__p_v42   = 1054
+  integer, parameter :: k_cr43__p_ti42__weak__wc17   = 1055
+  integer, parameter :: k_cr43__he4_ti39   = 1056
+  integer, parameter :: k_cr43__p_p_sc41__weak__wc12   = 1057
+  integer, parameter :: k_p_cr43__mn44   = 1058
+  integer, parameter :: k_he4_cr43__fe47   = 1059
+  integer, parameter :: k_p_cr43__he4_v40   = 1060
+  integer, parameter :: k_he4_cr43__p_mn46   = 1061
+  integer, parameter :: k_cr43__p_p_p_ca40__weak__wc12   = 1062
+  integer, parameter :: k_mn46__cr46__weak__wc12   = 1063
+  integer, parameter :: k_mn46__p_cr45   = 1064
+  integer, parameter :: k_mn46__p_v45__weak__wc12   = 1065
+  integer, parameter :: k_mn46__he4_v42   = 1066
+  integer, parameter :: k_p_mn46__fe47   = 1067
+  integer, parameter :: k_he4_mn46__co50   = 1068
+  integer, parameter :: k_p_mn46__he4_cr43   = 1069
+  integer, parameter :: k_he4_mn46__p_fe49   = 1070
+  integer, parameter :: k_fe49__mn49__weak__wc12   = 1071
+  integer, parameter :: k_fe49__p_mn48   = 1072
+  integer, parameter :: k_fe49__p_cr48__weak__wc12   = 1073
+  integer, parameter :: k_fe49__he4_cr45   = 1074
+  integer, parameter :: k_p_fe49__co50   = 1075
+  integer, parameter :: k_he4_fe49__ni53   = 1076
+  integer, parameter :: k_p_fe49__he4_mn46   = 1077
+  integer, parameter :: k_he4_fe49__p_co52   = 1078
+  integer, parameter :: k_co52__fe52__weak__wc12   = 1079
+  integer, parameter :: k_co52__p_fe51   = 1080
+  integer, parameter :: k_co52__he4_mn48   = 1081
+  integer, parameter :: k_p_co52__ni53   = 1082
+  integer, parameter :: k_p_co52__he4_fe49   = 1083
+  integer, parameter :: k_he4_co52__p_ni55   = 1084
+  integer, parameter :: k_ni55__co55__weak__wc12   = 1085
+  integer, parameter :: k_ni55__p_co54   = 1086
+  integer, parameter :: k_ni55__he4_fe51   = 1087
+  integer, parameter :: k_p_ni55__he4_co52   = 1088
+  integer, parameter :: k_ni56__co56__weak__wc12   = 1089
+  integer, parameter :: k_ni56__p_co55   = 1090
+  integer, parameter :: k_ni56__he4_fe52   = 1091
+  integer, parameter :: k_p_ni56__he4_co53   = 1092
+  integer, parameter :: k_p_mn55__fe56   = 1093
+  integer, parameter :: k_p_mn55__he4_cr52   = 1094
+  integer, parameter :: k_fe56__p_mn55   = 1095
+  integer, parameter :: k_fe56__he4_cr52   = 1096
+  integer, parameter :: k_p_fe56__he4_mn53   = 1097
+  integer, parameter :: k_fe46__mn46__weak__wc12   = 1098
+  integer, parameter :: k_fe46__p_mn45   = 1099
+  integer, parameter :: k_fe46__p_cr45__weak__wc12   = 1100
+  integer, parameter :: k_fe46__he4_cr42   = 1101
+  integer, parameter :: k_p_fe46__co47   = 1102
+  integer, parameter :: k_he4_fe46__ni50   = 1103
+  integer, parameter :: k_he4_fe46__p_co49   = 1104
+  integer, parameter :: k_co49__fe49__weak__bqa_pos_   = 1105
+  integer, parameter :: k_co49__p_fe48   = 1106
+  integer, parameter :: k_co49__he4_mn45   = 1107
+  integer, parameter :: k_p_co49__ni50   = 1108
+  integer, parameter :: k_p_co49__he4_fe46   = 1109
+  integer, parameter :: k_he4_co49__p_ni52   = 1110
+  integer, parameter :: k_ni52__co52__weak__wc12   = 1111
+  integer, parameter :: k_ni52__p_co51   = 1112
+  integer, parameter :: k_ni52__p_fe51__weak__wc12   = 1113
+  integer, parameter :: k_ni52__he4_fe48   = 1114
+  integer, parameter :: k_p_ni52__he4_co49   = 1115
+  integer, parameter :: k_mn44__cr44__weak__bqa_pos_   = 1116
+  integer, parameter :: k_mn44__p_cr43   = 1117
+  integer, parameter :: k_mn44__he4_v40   = 1118
+  integer, parameter :: k_p_mn44__fe45   = 1119
+  integer, parameter :: k_he4_mn44__co48   = 1120
+  integer, parameter :: k_he4_mn44__p_fe47   = 1121
+  integer, parameter :: k_fe47__mn47__weak__wc12   = 1122
+  integer, parameter :: k_fe47__p_mn46   = 1123
+  integer, parameter :: k_fe47__p_cr46__weak__wc12   = 1124
+  integer, parameter :: k_fe47__he4_cr43   = 1125
+  integer, parameter :: k_p_fe47__co48   = 1126
+  integer, parameter :: k_he4_fe47__ni51   = 1127
+  integer, parameter :: k_p_fe47__he4_mn44   = 1128
+  integer, parameter :: k_he4_fe47__p_co50   = 1129
+  integer, parameter :: k_co50__fe50__weak__wc12   = 1130
+  integer, parameter :: k_co50__p_fe49   = 1131
+  integer, parameter :: k_co50__p_mn49__weak__wc12   = 1132
+  integer, parameter :: k_co50__he4_mn46   = 1133
+  integer, parameter :: k_p_co50__ni51   = 1134
+  integer, parameter :: k_p_co50__he4_fe47   = 1135
+  integer, parameter :: k_he4_co50__p_ni53   = 1136
+  integer, parameter :: k_ni53__co53__weak__wc12   = 1137
+  integer, parameter :: k_ni53__p_co52   = 1138
+  integer, parameter :: k_ni53__p_fe52__weak__wc12   = 1139
+  integer, parameter :: k_ni53__he4_fe49   = 1140
+  integer, parameter :: k_p_ni53__he4_co50   = 1141
+  integer, parameter :: k_co47__fe47__weak__bqa_pos_   = 1142
+  integer, parameter :: k_co47__p_fe46   = 1143
+  integer, parameter :: k_p_co47__ni48   = 1144
+  integer, parameter :: k_he4_co47__p_ni50   = 1145
+  integer, parameter :: k_ni50__co50__weak__wc12   = 1146
+  integer, parameter :: k_ni50__p_co49   = 1147
+  integer, parameter :: k_ni50__p_fe49__weak__wc12   = 1148
+  integer, parameter :: k_ni50__he4_fe46   = 1149
+  integer, parameter :: k_p_ni50__he4_co47   = 1150
+  integer, parameter :: k_fe45__mn45__weak__wc17   = 1151
+  integer, parameter :: k_fe45__p_mn44   = 1152
+  integer, parameter :: k_fe45__p_cr44__weak__wc17   = 1153
+  integer, parameter :: k_fe45__p_p_v43__weak__wc12   = 1154
+  integer, parameter :: k_he4_fe45__ni49   = 1155
+  integer, parameter :: k_he4_fe45__p_co48   = 1156
+  integer, parameter :: k_fe45__p_p_p_ti42__weak__wc12   = 1157
+  integer, parameter :: k_co48__fe48__weak__bqa_pos_   = 1158
+  integer, parameter :: k_co48__p_fe47   = 1159
+  integer, parameter :: k_co48__he4_mn44   = 1160
+  integer, parameter :: k_p_co48__ni49   = 1161
+  integer, parameter :: k_p_co48__he4_fe45   = 1162
+  integer, parameter :: k_he4_co48__p_ni51   = 1163
+  integer, parameter :: k_ni51__co51__weak__wc17   = 1164
+  integer, parameter :: k_ni51__p_co50   = 1165
+  integer, parameter :: k_ni51__p_fe50__weak__wc12   = 1166
+  integer, parameter :: k_ni51__he4_fe47   = 1167
+  integer, parameter :: k_p_ni51__he4_co48   = 1168
+  integer, parameter :: k_ni48__co48__weak__wc17   = 1169
+  integer, parameter :: k_ni48__p_co47   = 1170
+  integer, parameter :: k_ni49__co49__weak__wc12   = 1171
+  integer, parameter :: k_ni49__p_co48   = 1172
+  integer, parameter :: k_ni49__p_fe48__weak__wc12   = 1173
+  integer, parameter :: k_ni49__he4_fe45   = 1174
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
@@ -766,7 +1442,7 @@ module actual_network
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
-  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 1940
+  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 2722
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
 
 #ifdef AMREX_USE_CUDA
@@ -800,6 +1476,7 @@ contains
     spec_names(jb8)   = "boron-8"
     spec_names(jc12)   = "carbon-12"
     spec_names(jc13)   = "carbon-13"
+    spec_names(jn12)   = "nitrogen-12"
     spec_names(jn13)   = "nitrogen-13"
     spec_names(jn14)   = "nitrogen-14"
     spec_names(jn15)   = "nitrogen-15"
@@ -813,6 +1490,7 @@ contains
     spec_names(jf18)   = "fluorine-18"
     spec_names(jf19)   = "fluorine-19"
     spec_names(jf20)   = "fluorine-20"
+    spec_names(jne17)   = "neon-17"
     spec_names(jne18)   = "neon-18"
     spec_names(jne19)   = "neon-19"
     spec_names(jne20)   = "neon-20"
@@ -851,6 +1529,7 @@ contains
     spec_names(jp30)   = "phosphorus-30"
     spec_names(jp31)   = "phosphorus-31"
     spec_names(jp32)   = "phosphorus-32"
+    spec_names(jp33)   = "phosphorus-33"
     spec_names(js28)   = "sulfur-28"
     spec_names(js29)   = "sulfur-29"
     spec_names(js30)   = "sulfur-30"
@@ -858,6 +1537,7 @@ contains
     spec_names(js32)   = "sulfur-32"
     spec_names(js33)   = "sulfur-33"
     spec_names(js34)   = "sulfur-34"
+    spec_names(js35)   = "sulfur-35"
     spec_names(jcl29)   = "chlorine-29"
     spec_names(jcl30)   = "chlorine-30"
     spec_names(jcl31)   = "chlorine-31"
@@ -875,6 +1555,7 @@ contains
     spec_names(jar36)   = "argon-36"
     spec_names(jar37)   = "argon-37"
     spec_names(jar38)   = "argon-38"
+    spec_names(jar39)   = "argon-39"
     spec_names(jk33)   = "potassium-33"
     spec_names(jk34)   = "potassium-34"
     spec_names(jk35)   = "potassium-35"
@@ -905,6 +1586,7 @@ contains
     spec_names(jsc43)   = "scandium-43"
     spec_names(jsc44)   = "scandium-44"
     spec_names(jsc45)   = "scandium-45"
+    spec_names(jsc46)   = "scandium-46"
     spec_names(jti38)   = "titanium-38"
     spec_names(jti39)   = "titanium-39"
     spec_names(jti40)   = "titanium-40"
@@ -926,6 +1608,7 @@ contains
     spec_names(jv47)   = "vanadium-47"
     spec_names(jv48)   = "vanadium-48"
     spec_names(jv49)   = "vanadium-49"
+    spec_names(jv50)   = "vanadium-50"
     spec_names(jcr42)   = "chromium-42"
     spec_names(jcr43)   = "chromium-43"
     spec_names(jcr44)   = "chromium-44"
@@ -947,6 +1630,7 @@ contains
     spec_names(jmn51)   = "manganese-51"
     spec_names(jmn52)   = "manganese-52"
     spec_names(jmn53)   = "manganese-53"
+    spec_names(jmn54)   = "manganese-54"
     spec_names(jmn55)   = "manganese-55"
     spec_names(jfe45)   = "iron-45"
     spec_names(jfe46)   = "iron-46"
@@ -990,6 +1674,7 @@ contains
     short_spec_names(jb8)   = "b8"
     short_spec_names(jc12)   = "c12"
     short_spec_names(jc13)   = "c13"
+    short_spec_names(jn12)   = "n12"
     short_spec_names(jn13)   = "n13"
     short_spec_names(jn14)   = "n14"
     short_spec_names(jn15)   = "n15"
@@ -1003,6 +1688,7 @@ contains
     short_spec_names(jf18)   = "f18"
     short_spec_names(jf19)   = "f19"
     short_spec_names(jf20)   = "f20"
+    short_spec_names(jne17)   = "ne17"
     short_spec_names(jne18)   = "ne18"
     short_spec_names(jne19)   = "ne19"
     short_spec_names(jne20)   = "ne20"
@@ -1041,6 +1727,7 @@ contains
     short_spec_names(jp30)   = "p30"
     short_spec_names(jp31)   = "p31"
     short_spec_names(jp32)   = "p32"
+    short_spec_names(jp33)   = "p33"
     short_spec_names(js28)   = "s28"
     short_spec_names(js29)   = "s29"
     short_spec_names(js30)   = "s30"
@@ -1048,6 +1735,7 @@ contains
     short_spec_names(js32)   = "s32"
     short_spec_names(js33)   = "s33"
     short_spec_names(js34)   = "s34"
+    short_spec_names(js35)   = "s35"
     short_spec_names(jcl29)   = "cl29"
     short_spec_names(jcl30)   = "cl30"
     short_spec_names(jcl31)   = "cl31"
@@ -1065,6 +1753,7 @@ contains
     short_spec_names(jar36)   = "ar36"
     short_spec_names(jar37)   = "ar37"
     short_spec_names(jar38)   = "ar38"
+    short_spec_names(jar39)   = "ar39"
     short_spec_names(jk33)   = "k33"
     short_spec_names(jk34)   = "k34"
     short_spec_names(jk35)   = "k35"
@@ -1095,6 +1784,7 @@ contains
     short_spec_names(jsc43)   = "sc43"
     short_spec_names(jsc44)   = "sc44"
     short_spec_names(jsc45)   = "sc45"
+    short_spec_names(jsc46)   = "sc46"
     short_spec_names(jti38)   = "ti38"
     short_spec_names(jti39)   = "ti39"
     short_spec_names(jti40)   = "ti40"
@@ -1116,6 +1806,7 @@ contains
     short_spec_names(jv47)   = "v47"
     short_spec_names(jv48)   = "v48"
     short_spec_names(jv49)   = "v49"
+    short_spec_names(jv50)   = "v50"
     short_spec_names(jcr42)   = "cr42"
     short_spec_names(jcr43)   = "cr43"
     short_spec_names(jcr44)   = "cr44"
@@ -1137,6 +1828,7 @@ contains
     short_spec_names(jmn51)   = "mn51"
     short_spec_names(jmn52)   = "mn52"
     short_spec_names(jmn53)   = "mn53"
+    short_spec_names(jmn54)   = "mn54"
     short_spec_names(jmn55)   = "mn55"
     short_spec_names(jfe45)   = "fe45"
     short_spec_names(jfe46)   = "fe46"
@@ -1180,6 +1872,7 @@ contains
     ebind_per_nucleon(jb8)   = 4.71715500000000d+00
     ebind_per_nucleon(jc12)   = 7.68014400000000d+00
     ebind_per_nucleon(jc13)   = 7.46984900000000d+00
+    ebind_per_nucleon(jn12)   = 6.17010900000000d+00
     ebind_per_nucleon(jn13)   = 7.23886300000000d+00
     ebind_per_nucleon(jn14)   = 7.47561400000000d+00
     ebind_per_nucleon(jn15)   = 7.69946000000000d+00
@@ -1193,6 +1886,7 @@ contains
     ebind_per_nucleon(jf18)   = 7.63163800000000d+00
     ebind_per_nucleon(jf19)   = 7.77901800000000d+00
     ebind_per_nucleon(jf20)   = 7.72013400000000d+00
+    ebind_per_nucleon(jne17)   = 6.64049900000000d+00
     ebind_per_nucleon(jne18)   = 7.34125700000000d+00
     ebind_per_nucleon(jne19)   = 7.56734300000000d+00
     ebind_per_nucleon(jne20)   = 8.03224000000000d+00
@@ -1231,6 +1925,7 @@ contains
     ebind_per_nucleon(jp30)   = 8.35350600000000d+00
     ebind_per_nucleon(jp31)   = 8.48116700000000d+00
     ebind_per_nucleon(jp32)   = 8.46412000000000d+00
+    ebind_per_nucleon(jp33)   = 8.51380600000000d+00
     ebind_per_nucleon(js28)   = 7.47879000000000d+00
     ebind_per_nucleon(js29)   = 7.74852000000000d+00
     ebind_per_nucleon(js30)   = 8.12270700000000d+00
@@ -1238,6 +1933,7 @@ contains
     ebind_per_nucleon(js32)   = 8.49312900000000d+00
     ebind_per_nucleon(js33)   = 8.49763000000000d+00
     ebind_per_nucleon(js34)   = 8.58349800000000d+00
+    ebind_per_nucleon(js35)   = 8.53785000000000d+00
     ebind_per_nucleon(jcl29)   = 7.15883200000000d+00
     ebind_per_nucleon(jcl30)   = 7.48000000000000d+00
     ebind_per_nucleon(jcl31)   = 7.86920900000000d+00
@@ -1255,6 +1951,7 @@ contains
     ebind_per_nucleon(jar36)   = 8.51990900000000d+00
     ebind_per_nucleon(jar37)   = 8.52713900000000d+00
     ebind_per_nucleon(jar38)   = 8.61428000000000d+00
+    ebind_per_nucleon(jar39)   = 8.56259800000000d+00
     ebind_per_nucleon(jk33)   = 7.40700000000000d+00
     ebind_per_nucleon(jk34)   = 7.67000000000000d+00
     ebind_per_nucleon(jk35)   = 7.96584000000000d+00
@@ -1285,6 +1982,7 @@ contains
     ebind_per_nucleon(jsc43)   = 8.53082500000000d+00
     ebind_per_nucleon(jsc44)   = 8.55737900000000d+00
     ebind_per_nucleon(jsc45)   = 8.61893100000000d+00
+    ebind_per_nucleon(jsc46)   = 8.62201200000000d+00
     ebind_per_nucleon(jti38)   = 7.33200000000000d+00
     ebind_per_nucleon(jti39)   = 7.57400000000000d+00
     ebind_per_nucleon(jti40)   = 7.86228600000000d+00
@@ -1306,6 +2004,7 @@ contains
     ebind_per_nucleon(jv47)   = 8.58222500000000d+00
     ebind_per_nucleon(jv48)   = 8.62306100000000d+00
     ebind_per_nucleon(jv49)   = 8.68290800000000d+00
+    ebind_per_nucleon(jv50)   = 8.69591800000000d+00
     ebind_per_nucleon(jcr42)   = 7.46400000000000d+00
     ebind_per_nucleon(jcr43)   = 7.68000000000000d+00
     ebind_per_nucleon(jcr44)   = 7.94800000000000d+00
@@ -1327,6 +2026,7 @@ contains
     ebind_per_nucleon(jmn51)   = 8.63377200000000d+00
     ebind_per_nucleon(jmn52)   = 8.67032900000000d+00
     ebind_per_nucleon(jmn53)   = 8.73417500000000d+00
+    ebind_per_nucleon(jmn54)   = 8.73796500000000d+00
     ebind_per_nucleon(jmn55)   = 8.76502200000000d+00
     ebind_per_nucleon(jfe45)   = 7.31300000000000d+00
     ebind_per_nucleon(jfe46)   = 7.60900000000000d+00
@@ -1370,6 +2070,7 @@ contains
     aion(jb8)   = 8.00000000000000d+00
     aion(jc12)   = 1.20000000000000d+01
     aion(jc13)   = 1.30000000000000d+01
+    aion(jn12)   = 1.20000000000000d+01
     aion(jn13)   = 1.30000000000000d+01
     aion(jn14)   = 1.40000000000000d+01
     aion(jn15)   = 1.50000000000000d+01
@@ -1383,6 +2084,7 @@ contains
     aion(jf18)   = 1.80000000000000d+01
     aion(jf19)   = 1.90000000000000d+01
     aion(jf20)   = 2.00000000000000d+01
+    aion(jne17)   = 1.70000000000000d+01
     aion(jne18)   = 1.80000000000000d+01
     aion(jne19)   = 1.90000000000000d+01
     aion(jne20)   = 2.00000000000000d+01
@@ -1421,6 +2123,7 @@ contains
     aion(jp30)   = 3.00000000000000d+01
     aion(jp31)   = 3.10000000000000d+01
     aion(jp32)   = 3.20000000000000d+01
+    aion(jp33)   = 3.30000000000000d+01
     aion(js28)   = 2.80000000000000d+01
     aion(js29)   = 2.90000000000000d+01
     aion(js30)   = 3.00000000000000d+01
@@ -1428,6 +2131,7 @@ contains
     aion(js32)   = 3.20000000000000d+01
     aion(js33)   = 3.30000000000000d+01
     aion(js34)   = 3.40000000000000d+01
+    aion(js35)   = 3.50000000000000d+01
     aion(jcl29)   = 2.90000000000000d+01
     aion(jcl30)   = 3.00000000000000d+01
     aion(jcl31)   = 3.10000000000000d+01
@@ -1445,6 +2149,7 @@ contains
     aion(jar36)   = 3.60000000000000d+01
     aion(jar37)   = 3.70000000000000d+01
     aion(jar38)   = 3.80000000000000d+01
+    aion(jar39)   = 3.90000000000000d+01
     aion(jk33)   = 3.30000000000000d+01
     aion(jk34)   = 3.40000000000000d+01
     aion(jk35)   = 3.50000000000000d+01
@@ -1475,6 +2180,7 @@ contains
     aion(jsc43)   = 4.30000000000000d+01
     aion(jsc44)   = 4.40000000000000d+01
     aion(jsc45)   = 4.50000000000000d+01
+    aion(jsc46)   = 4.60000000000000d+01
     aion(jti38)   = 3.80000000000000d+01
     aion(jti39)   = 3.90000000000000d+01
     aion(jti40)   = 4.00000000000000d+01
@@ -1496,6 +2202,7 @@ contains
     aion(jv47)   = 4.70000000000000d+01
     aion(jv48)   = 4.80000000000000d+01
     aion(jv49)   = 4.90000000000000d+01
+    aion(jv50)   = 5.00000000000000d+01
     aion(jcr42)   = 4.20000000000000d+01
     aion(jcr43)   = 4.30000000000000d+01
     aion(jcr44)   = 4.40000000000000d+01
@@ -1517,6 +2224,7 @@ contains
     aion(jmn51)   = 5.10000000000000d+01
     aion(jmn52)   = 5.20000000000000d+01
     aion(jmn53)   = 5.30000000000000d+01
+    aion(jmn54)   = 5.40000000000000d+01
     aion(jmn55)   = 5.50000000000000d+01
     aion(jfe45)   = 4.50000000000000d+01
     aion(jfe46)   = 4.60000000000000d+01
@@ -1560,6 +2268,7 @@ contains
     zion(jb8)   = 5.00000000000000d+00
     zion(jc12)   = 6.00000000000000d+00
     zion(jc13)   = 6.00000000000000d+00
+    zion(jn12)   = 7.00000000000000d+00
     zion(jn13)   = 7.00000000000000d+00
     zion(jn14)   = 7.00000000000000d+00
     zion(jn15)   = 7.00000000000000d+00
@@ -1573,6 +2282,7 @@ contains
     zion(jf18)   = 9.00000000000000d+00
     zion(jf19)   = 9.00000000000000d+00
     zion(jf20)   = 9.00000000000000d+00
+    zion(jne17)   = 1.00000000000000d+01
     zion(jne18)   = 1.00000000000000d+01
     zion(jne19)   = 1.00000000000000d+01
     zion(jne20)   = 1.00000000000000d+01
@@ -1611,6 +2321,7 @@ contains
     zion(jp30)   = 1.50000000000000d+01
     zion(jp31)   = 1.50000000000000d+01
     zion(jp32)   = 1.50000000000000d+01
+    zion(jp33)   = 1.50000000000000d+01
     zion(js28)   = 1.60000000000000d+01
     zion(js29)   = 1.60000000000000d+01
     zion(js30)   = 1.60000000000000d+01
@@ -1618,6 +2329,7 @@ contains
     zion(js32)   = 1.60000000000000d+01
     zion(js33)   = 1.60000000000000d+01
     zion(js34)   = 1.60000000000000d+01
+    zion(js35)   = 1.60000000000000d+01
     zion(jcl29)   = 1.70000000000000d+01
     zion(jcl30)   = 1.70000000000000d+01
     zion(jcl31)   = 1.70000000000000d+01
@@ -1635,6 +2347,7 @@ contains
     zion(jar36)   = 1.80000000000000d+01
     zion(jar37)   = 1.80000000000000d+01
     zion(jar38)   = 1.80000000000000d+01
+    zion(jar39)   = 1.80000000000000d+01
     zion(jk33)   = 1.90000000000000d+01
     zion(jk34)   = 1.90000000000000d+01
     zion(jk35)   = 1.90000000000000d+01
@@ -1665,6 +2378,7 @@ contains
     zion(jsc43)   = 2.10000000000000d+01
     zion(jsc44)   = 2.10000000000000d+01
     zion(jsc45)   = 2.10000000000000d+01
+    zion(jsc46)   = 2.10000000000000d+01
     zion(jti38)   = 2.20000000000000d+01
     zion(jti39)   = 2.20000000000000d+01
     zion(jti40)   = 2.20000000000000d+01
@@ -1686,6 +2400,7 @@ contains
     zion(jv47)   = 2.30000000000000d+01
     zion(jv48)   = 2.30000000000000d+01
     zion(jv49)   = 2.30000000000000d+01
+    zion(jv50)   = 2.30000000000000d+01
     zion(jcr42)   = 2.40000000000000d+01
     zion(jcr43)   = 2.40000000000000d+01
     zion(jcr44)   = 2.40000000000000d+01
@@ -1707,6 +2422,7 @@ contains
     zion(jmn51)   = 2.50000000000000d+01
     zion(jmn52)   = 2.50000000000000d+01
     zion(jmn53)   = 2.50000000000000d+01
+    zion(jmn54)   = 2.50000000000000d+01
     zion(jmn55)   = 2.50000000000000d+01
     zion(jfe45)   = 2.60000000000000d+01
     zion(jfe46)   = 2.60000000000000d+01
@@ -1750,6 +2466,7 @@ contains
     nion(jb8)   = 3.00000000000000d+00
     nion(jc12)   = 6.00000000000000d+00
     nion(jc13)   = 7.00000000000000d+00
+    nion(jn12)   = 5.00000000000000d+00
     nion(jn13)   = 6.00000000000000d+00
     nion(jn14)   = 7.00000000000000d+00
     nion(jn15)   = 8.00000000000000d+00
@@ -1763,6 +2480,7 @@ contains
     nion(jf18)   = 9.00000000000000d+00
     nion(jf19)   = 1.00000000000000d+01
     nion(jf20)   = 1.10000000000000d+01
+    nion(jne17)   = 7.00000000000000d+00
     nion(jne18)   = 8.00000000000000d+00
     nion(jne19)   = 9.00000000000000d+00
     nion(jne20)   = 1.00000000000000d+01
@@ -1801,6 +2519,7 @@ contains
     nion(jp30)   = 1.50000000000000d+01
     nion(jp31)   = 1.60000000000000d+01
     nion(jp32)   = 1.70000000000000d+01
+    nion(jp33)   = 1.80000000000000d+01
     nion(js28)   = 1.20000000000000d+01
     nion(js29)   = 1.30000000000000d+01
     nion(js30)   = 1.40000000000000d+01
@@ -1808,6 +2527,7 @@ contains
     nion(js32)   = 1.60000000000000d+01
     nion(js33)   = 1.70000000000000d+01
     nion(js34)   = 1.80000000000000d+01
+    nion(js35)   = 1.90000000000000d+01
     nion(jcl29)   = 1.20000000000000d+01
     nion(jcl30)   = 1.30000000000000d+01
     nion(jcl31)   = 1.40000000000000d+01
@@ -1825,6 +2545,7 @@ contains
     nion(jar36)   = 1.80000000000000d+01
     nion(jar37)   = 1.90000000000000d+01
     nion(jar38)   = 2.00000000000000d+01
+    nion(jar39)   = 2.10000000000000d+01
     nion(jk33)   = 1.40000000000000d+01
     nion(jk34)   = 1.50000000000000d+01
     nion(jk35)   = 1.60000000000000d+01
@@ -1855,6 +2576,7 @@ contains
     nion(jsc43)   = 2.20000000000000d+01
     nion(jsc44)   = 2.30000000000000d+01
     nion(jsc45)   = 2.40000000000000d+01
+    nion(jsc46)   = 2.50000000000000d+01
     nion(jti38)   = 1.60000000000000d+01
     nion(jti39)   = 1.70000000000000d+01
     nion(jti40)   = 1.80000000000000d+01
@@ -1876,6 +2598,7 @@ contains
     nion(jv47)   = 2.40000000000000d+01
     nion(jv48)   = 2.50000000000000d+01
     nion(jv49)   = 2.60000000000000d+01
+    nion(jv50)   = 2.70000000000000d+01
     nion(jcr42)   = 1.80000000000000d+01
     nion(jcr43)   = 1.90000000000000d+01
     nion(jcr44)   = 2.00000000000000d+01
@@ -1897,6 +2620,7 @@ contains
     nion(jmn51)   = 2.60000000000000d+01
     nion(jmn52)   = 2.70000000000000d+01
     nion(jmn53)   = 2.80000000000000d+01
+    nion(jmn54)   = 2.90000000000000d+01
     nion(jmn55)   = 3.00000000000000d+01
     nion(jfe45)   = 1.90000000000000d+01
     nion(jfe46)   = 2.00000000000000d+01
@@ -1969,6 +2693,7 @@ contains
       16, &
       17, &
       18, &
+      19, &
       20, &
       21, &
       22, &
@@ -1978,6 +2703,7 @@ contains
       26, &
       27, &
       28, &
+      29, &
       30, &
       31, &
       32, &
@@ -1989,18 +2715,21 @@ contains
       38, &
       39, &
       40, &
+      41, &
       42, &
       43, &
       44, &
       45, &
       46, &
       47, &
+      48, &
       49, &
       50, &
       51, &
       52, &
       53, &
       54, &
+      55, &
       56, &
       57, &
       58, &
@@ -2014,6 +2743,7 @@ contains
       66, &
       67, &
       68, &
+      69, &
       70, &
       71, &
       72, &
@@ -2022,6 +2752,7 @@ contains
       75, &
       76, &
       77, &
+      78, &
       79, &
       80, &
       81, &
@@ -2038,6 +2769,7 @@ contains
       92, &
       93, &
       94, &
+      95, &
       96, &
       97, &
       98, &
@@ -2048,6 +2780,7 @@ contains
       103, &
       104, &
       105, &
+      106, &
       107, &
       108, &
       109, &
@@ -2057,6 +2790,7 @@ contains
       113, &
       114, &
       115, &
+      116, &
       117, &
       118, &
       119, &
@@ -2067,6 +2801,7 @@ contains
       124, &
       125, &
       126, &
+      127, &
       128, &
       129, &
       130, &
@@ -2076,6 +2811,7 @@ contains
       134, &
       135, &
       136, &
+      137, &
       138, &
       139, &
       140, &
@@ -2097,6 +2833,7 @@ contains
       156, &
       157, &
       158, &
+      159, &
       160, &
       161, &
       162, &
@@ -2107,1420 +2844,55 @@ contains
       167, &
       168, &
       169, &
-      171, &
-      172, &
-      173, &
-      174, &
-      175, &
-      176, &
-      177, &
-      178, &
-      179, &
-      190, &
-      1, &
-      2, &
-      3, &
-      4, &
-      6, &
-      190, &
-      1, &
-      2, &
-      3, &
-      4, &
-      6, &
-      190, &
-      1, &
-      2, &
-      3, &
-      4, &
-      5, &
-      6, &
-      8, &
-      9, &
-      11, &
-      12, &
-      13, &
-      14, &
-      15, &
-      16, &
-      17, &
-      18, &
-      19, &
-      20, &
-      21, &
-      22, &
-      23, &
-      24, &
-      25, &
-      26, &
-      27, &
-      28, &
-      29, &
-      30, &
-      31, &
-      32, &
-      33, &
-      34, &
-      35, &
-      36, &
-      37, &
-      38, &
-      39, &
-      40, &
-      41, &
-      42, &
-      43, &
-      44, &
-      45, &
-      46, &
-      47, &
-      48, &
-      49, &
-      50, &
-      51, &
-      52, &
-      53, &
-      54, &
-      55, &
-      56, &
-      57, &
-      58, &
-      59, &
-      60, &
-      61, &
-      62, &
-      63, &
-      64, &
-      65, &
-      66, &
-      67, &
-      68, &
-      69, &
-      70, &
-      71, &
-      72, &
-      73, &
-      74, &
-      75, &
-      76, &
-      77, &
-      78, &
-      79, &
-      80, &
-      81, &
-      82, &
-      83, &
-      84, &
-      85, &
-      86, &
-      87, &
-      88, &
-      89, &
-      90, &
-      91, &
-      92, &
-      93, &
-      94, &
-      95, &
-      96, &
-      97, &
-      98, &
-      99, &
-      100, &
-      101, &
-      102, &
-      103, &
-      104, &
-      105, &
-      106, &
-      107, &
-      108, &
-      109, &
-      110, &
-      111, &
-      112, &
-      113, &
-      114, &
-      115, &
-      116, &
-      117, &
-      118, &
-      119, &
-      120, &
-      121, &
-      122, &
-      123, &
-      124, &
-      125, &
-      126, &
-      127, &
-      128, &
-      129, &
-      130, &
-      131, &
-      132, &
-      133, &
-      134, &
-      135, &
-      136, &
-      137, &
-      138, &
-      139, &
-      140, &
-      141, &
-      142, &
-      143, &
-      144, &
-      145, &
-      146, &
-      147, &
-      148, &
-      149, &
-      150, &
-      151, &
-      152, &
-      153, &
-      154, &
-      155, &
-      156, &
-      159, &
-      160, &
-      161, &
-      162, &
-      163, &
-      164, &
-      165, &
-      166, &
-      190, &
-      1, &
-      4, &
-      5, &
-      6, &
-      190, &
-      1, &
-      2, &
-      3, &
-      4, &
-      6, &
-      8, &
-      190, &
-      7, &
-      8, &
-      190, &
-      1, &
-      6, &
-      8, &
-      190, &
-      1, &
-      4, &
-      9, &
-      11, &
-      13, &
-      16, &
-      26, &
-      190, &
-      1, &
-      10, &
-      11, &
-      190, &
-      1, &
-      4, &
-      9, &
-      11, &
-      14, &
-      16, &
-      190, &
-      1, &
-      4, &
-      10, &
-      12, &
-      14, &
-      15, &
-      17, &
-      21, &
-      190, &
-      1, &
-      4, &
-      9, &
-      13, &
-      15, &
-      16, &
-      18, &
-      22, &
-      190, &
-      1, &
-      4, &
-      11, &
-      14, &
-      20, &
-      24, &
-      190, &
-      1, &
-      4, &
-      12, &
-      15, &
-      21, &
-      25, &
-      190, &
-      1, &
-      4, &
-      9, &
-      11, &
-      13, &
-      16, &
-      20, &
-      22, &
-      26, &
-      190, &
-      1, &
-      4, &
-      12, &
-      17, &
-      20, &
-      21, &
-      23, &
-      27, &
-      190, &
-      1, &
-      4, &
-      13, &
-      18, &
-      21, &
-      22, &
-      190, &
-      1, &
-      4, &
-      15, &
-      19, &
-      190, &
-      1, &
-      4, &
-      14, &
-      16, &
-      20, &
-      24, &
-      26, &
-      190, &
-      1, &
-      4, &
-      12, &
-      15, &
-      17, &
-      21, &
-      24, &
-      25, &
-      27, &
-      190, &
-      1, &
-      4, &
-      13, &
-      16, &
-      18, &
-      22, &
-      25, &
-      26, &
-      190, &
-      1, &
-      4, &
-      17, &
-      23, &
-      27, &
-      190, &
-      1, &
-      4, &
-      14, &
-      20, &
-      24, &
-      190, &
-      1, &
-      4, &
-      15, &
-      21, &
-      25, &
-      29, &
-      190, &
-      1, &
-      4, &
-      9, &
-      16, &
-      20, &
-      22, &
-      23, &
-      26, &
-      30, &
-      190, &
-      1, &
-      4, &
-      17, &
-      21, &
-      23, &
-      27, &
-      31, &
-      190, &
-      1, &
-      4, &
-      18, &
-      28, &
-      32, &
-      190, &
-      1, &
-      4, &
-      24, &
-      29, &
-      190, &
-      1, &
-      4, &
-      19, &
-      25, &
-      30, &
-      190, &
-      1, &
-      4, &
-      20, &
-      26, &
-      31, &
-      35, &
-      190, &
-      1, &
-      4, &
-      21, &
-      27, &
-      32, &
-      36, &
-      190, &
-      1, &
-      4, &
-      22, &
-      28, &
-      33, &
-      37, &
-      190, &
-      1, &
-      4, &
-      23, &
-      34, &
-      190, &
-      1, &
-      4, &
-      30, &
-      35, &
-      190, &
-      1, &
-      4, &
-      24, &
-      31, &
-      36, &
-      41, &
-      190, &
-      1, &
-      4, &
-      25, &
-      32, &
-      37, &
-      42, &
-      190, &
-      1, &
-      4, &
-      26, &
-      33, &
-      38, &
-      43, &
-      190, &
-      1, &
-      4, &
-      27, &
-      34, &
-      39, &
-      44, &
-      190, &
-      1, &
-      4, &
-      28, &
-      40, &
-      45, &
-      190, &
-      1, &
-      4, &
-      35, &
-      41, &
-      190, &
-      1, &
-      4, &
-      29, &
-      36, &
-      42, &
-      190, &
-      1, &
-      4, &
-      30, &
-      37, &
-      43, &
-      48, &
-      190, &
-      1, &
-      4, &
-      31, &
-      38, &
-      44, &
-      49, &
-      190, &
-      1, &
-      4, &
-      32, &
-      39, &
-      45, &
-      50, &
-      190, &
-      1, &
-      4, &
-      33, &
-      40, &
-      46, &
-      51, &
-      190, &
-      1, &
-      4, &
-      34, &
-      47, &
-      190, &
-      1, &
-      4, &
-      42, &
-      48, &
-      190, &
-      1, &
-      4, &
-      35, &
-      43, &
-      49, &
-      190, &
-      1, &
-      4, &
-      36, &
-      44, &
-      50, &
-      55, &
-      190, &
-      1, &
-      4, &
-      37, &
-      45, &
-      51, &
-      56, &
-      190, &
-      1, &
-      4, &
-      38, &
-      46, &
-      52, &
-      57, &
-      190, &
-      1, &
-      4, &
-      39, &
-      47, &
-      53, &
-      58, &
-      190, &
-      1, &
-      4, &
-      40, &
-      54, &
-      59, &
-      190, &
-      1, &
-      4, &
-      41, &
-      49, &
-      55, &
-      190, &
-      1, &
-      4, &
-      42, &
-      50, &
-      56, &
-      190, &
-      1, &
-      4, &
-      43, &
-      51, &
-      57, &
-      62, &
-      190, &
-      1, &
-      4, &
-      44, &
-      52, &
-      58, &
-      63, &
-      190, &
-      1, &
-      4, &
-      45, &
-      53, &
-      59, &
-      64, &
-      190, &
-      1, &
-      4, &
-      46, &
-      54, &
-      60, &
-      65, &
-      190, &
-      1, &
-      4, &
-      47, &
-      61, &
-      190, &
-      1, &
-      4, &
-      48, &
-      56, &
-      62, &
-      190, &
-      1, &
-      4, &
-      49, &
-      57, &
-      63, &
-      69, &
-      190, &
-      1, &
-      4, &
-      50, &
-      58, &
-      64, &
-      70, &
-      190, &
-      1, &
-      4, &
-      51, &
-      59, &
-      65, &
-      71, &
-      190, &
-      1, &
-      4, &
-      52, &
-      60, &
-      66, &
-      72, &
-      190, &
-      1, &
-      4, &
-      53, &
-      61, &
-      67, &
-      73, &
-      190, &
-      1, &
-      4, &
-      54, &
-      68, &
-      74, &
-      190, &
-      1, &
-      4, &
-      62, &
-      69, &
-      190, &
-      1, &
-      4, &
-      55, &
-      63, &
-      70, &
-      190, &
-      1, &
-      4, &
-      56, &
-      64, &
-      71, &
-      78, &
-      190, &
-      1, &
-      4, &
-      57, &
-      65, &
-      72, &
-      79, &
-      190, &
-      1, &
-      4, &
-      58, &
-      66, &
-      73, &
-      80, &
-      190, &
-      1, &
-      4, &
-      59, &
-      67, &
-      74, &
-      81, &
-      190, &
-      1, &
-      4, &
-      60, &
-      68, &
-      75, &
-      82, &
-      190, &
-      1, &
-      4, &
-      61, &
-      76, &
-      190, &
-      1, &
-      4, &
-      77, &
-      84, &
-      190, &
-      1, &
-      4, &
-      70, &
-      78, &
-      190, &
-      1, &
-      4, &
-      62, &
-      71, &
-      79, &
-      190, &
-      1, &
-      4, &
-      63, &
-      72, &
-      80, &
-      86, &
-      190, &
-      1, &
-      4, &
-      64, &
-      73, &
-      81, &
-      87, &
-      190, &
-      1, &
-      4, &
-      65, &
-      74, &
-      82, &
-      88, &
-      190, &
-      1, &
-      4, &
-      66, &
-      75, &
-      83, &
-      89, &
-      190, &
-      1, &
-      4, &
-      67, &
-      76, &
-      84, &
-      90, &
-      190, &
-      1, &
-      4, &
-      68, &
-      77, &
-      85, &
-      91, &
-      190, &
-      1, &
-      4, &
-      69, &
-      79, &
-      86, &
-      190, &
-      1, &
-      4, &
-      70, &
-      80, &
-      87, &
-      95, &
-      190, &
-      1, &
-      4, &
-      71, &
-      81, &
-      88, &
-      96, &
-      190, &
-      1, &
-      4, &
-      72, &
-      82, &
-      89, &
-      97, &
-      190, &
-      1, &
-      4, &
-      73, &
-      83, &
-      90, &
-      98, &
-      190, &
-      1, &
-      4, &
-      74, &
-      84, &
-      91, &
-      99, &
-      190, &
-      1, &
-      4, &
-      75, &
-      85, &
-      92, &
-      100, &
-      190, &
-      1, &
-      4, &
-      76, &
-      93, &
-      190, &
-      1, &
-      4, &
-      77, &
-      94, &
-      102, &
-      190, &
-      1, &
-      4, &
-      86, &
-      95, &
-      190, &
-      1, &
-      4, &
-      78, &
-      87, &
-      96, &
-      190, &
-      1, &
-      4, &
-      79, &
-      88, &
-      97, &
-      106, &
-      190, &
-      1, &
-      4, &
-      80, &
-      89, &
-      98, &
-      107, &
-      190, &
-      1, &
-      4, &
-      81, &
-      90, &
-      99, &
-      108, &
-      190, &
-      1, &
-      4, &
-      82, &
-      91, &
-      100, &
-      109, &
-      190, &
-      1, &
-      4, &
-      83, &
-      92, &
-      101, &
-      110, &
-      190, &
-      1, &
-      4, &
-      84, &
-      93, &
-      102, &
-      111, &
-      190, &
-      1, &
-      4, &
-      85, &
-      94, &
-      103, &
-      112, &
-      190, &
-      1, &
-      4, &
-      104, &
-      113, &
-      190, &
-      1, &
-      4, &
-      105, &
-      114, &
-      190, &
-      1, &
-      4, &
-      96, &
-      106, &
-      190, &
-      1, &
-      4, &
-      86, &
-      97, &
-      107, &
-      190, &
-      1, &
-      4, &
-      87, &
-      98, &
-      108, &
-      116, &
-      190, &
-      1, &
-      4, &
-      88, &
-      99, &
-      109, &
-      117, &
-      190, &
-      1, &
-      4, &
-      89, &
-      100, &
-      110, &
-      118, &
-      190, &
-      1, &
-      4, &
-      90, &
-      101, &
-      111, &
-      119, &
-      190, &
-      1, &
-      4, &
-      91, &
-      102, &
-      112, &
-      120, &
-      190, &
-      1, &
-      4, &
-      92, &
-      103, &
-      113, &
-      121, &
-      190, &
-      1, &
-      4, &
-      93, &
-      104, &
-      114, &
-      122, &
-      190, &
-      1, &
-      4, &
-      94, &
-      105, &
-      115, &
-      123, &
-      190, &
-      1, &
-      4, &
-      95, &
-      107, &
-      116, &
-      190, &
-      1, &
-      4, &
-      96, &
-      108, &
-      117, &
-      190, &
-      1, &
-      4, &
-      97, &
-      109, &
-      118, &
-      127, &
-      190, &
-      1, &
-      4, &
-      98, &
-      110, &
-      119, &
-      128, &
-      190, &
-      1, &
-      4, &
-      99, &
-      111, &
-      120, &
-      129, &
-      190, &
-      1, &
-      4, &
-      100, &
-      112, &
-      121, &
-      130, &
-      190, &
-      1, &
-      4, &
-      101, &
-      113, &
-      122, &
-      131, &
-      190, &
-      1, &
-      4, &
-      102, &
-      114, &
-      123, &
-      132, &
-      190, &
-      1, &
-      4, &
-      103, &
-      115, &
-      124, &
-      133, &
-      190, &
-      1, &
-      4, &
-      104, &
-      125, &
-      134, &
-      190, &
-      1, &
-      4, &
-      105, &
-      126, &
-      135, &
-      190, &
-      1, &
-      4, &
-      106, &
-      117, &
-      127, &
-      190, &
-      1, &
-      4, &
-      107, &
-      118, &
-      128, &
-      190, &
-      1, &
-      4, &
-      108, &
-      119, &
-      129, &
-      137, &
-      190, &
-      1, &
-      4, &
-      109, &
-      120, &
-      130, &
-      138, &
-      190, &
-      1, &
-      4, &
-      110, &
-      121, &
-      131, &
-      139, &
-      190, &
-      1, &
-      4, &
-      111, &
-      122, &
-      132, &
-      140, &
-      190, &
-      1, &
-      4, &
-      112, &
-      123, &
-      133, &
-      141, &
-      190, &
-      1, &
-      4, &
-      113, &
-      124, &
-      134, &
-      142, &
-      190, &
-      1, &
-      4, &
-      114, &
-      125, &
-      135, &
-      143, &
-      190, &
-      1, &
-      4, &
-      115, &
-      126, &
-      136, &
-      144, &
-      190, &
-      1, &
-      4, &
-      116, &
-      128, &
-      137, &
-      190, &
-      1, &
-      4, &
-      117, &
-      129, &
-      138, &
-      190, &
-      1, &
-      4, &
-      118, &
-      130, &
-      139, &
-      148, &
-      190, &
-      1, &
-      4, &
-      119, &
-      131, &
-      140, &
-      149, &
-      190, &
-      1, &
-      4, &
-      120, &
-      132, &
-      141, &
-      150, &
-      190, &
-      1, &
-      4, &
-      121, &
-      133, &
-      142, &
-      151, &
-      190, &
-      1, &
-      4, &
-      122, &
-      134, &
-      143, &
-      152, &
-      190, &
-      1, &
-      4, &
-      123, &
-      135, &
-      144, &
-      153, &
-      190, &
-      1, &
-      4, &
-      124, &
-      136, &
-      145, &
-      154, &
-      190, &
-      1, &
-      4, &
-      125, &
-      146, &
-      155, &
-      190, &
-      1, &
-      4, &
-      126, &
-      147, &
-      156, &
-      190, &
-      1, &
-      4, &
-      127, &
-      138, &
-      148, &
-      190, &
-      1, &
-      4, &
-      128, &
-      139, &
-      149, &
-      159, &
-      190, &
-      1, &
-      4, &
-      129, &
-      140, &
-      150, &
-      160, &
-      190, &
-      1, &
-      4, &
-      130, &
-      141, &
-      151, &
-      161, &
-      190, &
-      1, &
-      4, &
-      131, &
-      142, &
-      152, &
-      162, &
-      190, &
-      1, &
-      4, &
-      132, &
-      143, &
-      153, &
-      163, &
-      190, &
-      1, &
-      4, &
-      133, &
-      144, &
-      154, &
-      164, &
-      190, &
-      1, &
-      4, &
-      134, &
-      145, &
-      155, &
-      165, &
-      190, &
-      1, &
-      4, &
-      135, &
-      146, &
-      156, &
-      166, &
-      190, &
-      1, &
-      4, &
-      136, &
-      147, &
-      157, &
-      167, &
-      190, &
-      1, &
-      158, &
-      169, &
-      190, &
-      1, &
-      4, &
-      148, &
-      159, &
-      190, &
-      1, &
-      4, &
-      137, &
-      149, &
-      160, &
-      190, &
-      1, &
-      4, &
-      138, &
-      150, &
-      161, &
-      171, &
-      190, &
-      1, &
-      4, &
-      139, &
-      151, &
-      162, &
-      172, &
-      190, &
-      1, &
-      4, &
-      140, &
-      152, &
-      163, &
-      173, &
-      190, &
-      1, &
-      4, &
-      141, &
-      153, &
-      164, &
-      174, &
-      190, &
-      1, &
-      4, &
-      142, &
-      154, &
-      165, &
-      175, &
-      190, &
-      1, &
-      4, &
-      143, &
-      155, &
-      166, &
-      176, &
-      190, &
-      1, &
-      4, &
-      144, &
-      156, &
-      167, &
-      177, &
-      190, &
-      1, &
-      4, &
-      145, &
-      157, &
-      168, &
-      178, &
-      190, &
-      1, &
-      4, &
-      146, &
-      169, &
-      179, &
-      190, &
-      1, &
-      4, &
-      147, &
-      158, &
       170, &
-      180, &
-      190, &
-      1, &
-      160, &
       171, &
-      190, &
-      1, &
-      4, &
-      148, &
-      161, &
       172, &
-      181, &
-      190, &
-      1, &
-      4, &
-      149, &
-      162, &
       173, &
-      182, &
-      190, &
-      1, &
-      4, &
-      150, &
-      163, &
       174, &
-      183, &
-      190, &
-      1, &
-      4, &
-      151, &
-      164, &
       175, &
-      184, &
-      190, &
-      1, &
-      4, &
-      152, &
-      165, &
       176, &
-      185, &
-      190, &
-      1, &
-      4, &
-      153, &
-      166, &
       177, &
-      186, &
-      190, &
-      1, &
-      4, &
-      154, &
-      167, &
       178, &
-      187, &
-      190, &
-      1, &
-      4, &
-      155, &
-      168, &
       179, &
-      188, &
-      190, &
-      1, &
-      4, &
-      156, &
-      169, &
       180, &
+      181, &
+      182, &
+      183, &
+      184, &
+      185, &
+      186, &
+      187, &
+      188, &
       189, &
       190, &
+      191, &
+      192, &
+      193, &
+      194, &
+      195, &
+      196, &
+      197, &
+      198, &
       1, &
-      171, &
-      181, &
-      190, &
-      1, &
+      2, &
+      3, &
       4, &
-      159, &
-      172, &
-      182, &
-      190, &
+      6, &
+      198, &
       1, &
+      2, &
+      3, &
       4, &
-      160, &
-      173, &
-      183, &
-      190, &
-      1, &
-      4, &
-      161, &
-      174, &
-      184, &
-      190, &
-      1, &
-      4, &
-      162, &
-      175, &
-      185, &
-      190, &
-      1, &
-      4, &
-      163, &
-      176, &
-      186, &
-      190, &
-      1, &
-      4, &
-      164, &
-      177, &
-      187, &
-      190, &
-      1, &
-      4, &
-      165, &
-      178, &
-      188, &
-      190, &
-      1, &
-      4, &
-      166, &
-      179, &
-      189, &
-      190, &
+      6, &
+      198, &
       1, &
       2, &
       3, &
       4, &
       5, &
       6, &
-      7, &
       8, &
       9, &
-      10, &
       11, &
       12, &
       13, &
@@ -3699,8 +3071,1936 @@ contains
       186, &
       187, &
       188, &
+      190, &
+      191, &
+      192, &
+      193, &
+      194, &
+      195, &
+      196, &
+      197, &
+      198, &
+      1, &
+      4, &
+      5, &
+      6, &
+      198, &
+      1, &
+      2, &
+      3, &
+      4, &
+      6, &
+      8, &
+      198, &
+      7, &
+      8, &
+      198, &
+      1, &
+      6, &
+      8, &
+      198, &
+      1, &
+      4, &
+      9, &
+      11, &
+      12, &
+      14, &
+      17, &
+      28, &
+      198, &
+      1, &
+      10, &
+      12, &
+      13, &
+      198, &
+      1, &
+      4, &
+      11, &
+      16, &
+      198, &
+      1, &
+      4, &
+      9, &
+      12, &
+      15, &
+      17, &
+      198, &
+      1, &
+      4, &
+      10, &
+      13, &
+      15, &
+      16, &
+      18, &
+      22, &
+      198, &
+      1, &
+      4, &
+      9, &
+      14, &
+      16, &
+      17, &
+      19, &
+      23, &
+      198, &
+      1, &
+      4, &
+      12, &
+      15, &
+      21, &
+      26, &
+      198, &
+      1, &
+      4, &
+      11, &
+      13, &
+      16, &
+      20, &
+      22, &
+      27, &
+      198, &
+      1, &
+      4, &
+      9, &
+      12, &
+      14, &
+      17, &
+      21, &
+      23, &
+      25, &
+      28, &
+      32, &
+      198, &
+      1, &
+      4, &
+      13, &
+      18, &
+      21, &
+      22, &
+      24, &
+      29, &
+      198, &
+      1, &
+      4, &
+      14, &
+      19, &
+      22, &
+      23, &
+      198, &
+      1, &
+      4, &
+      16, &
+      20, &
+      27, &
+      32, &
+      198, &
+      1, &
+      4, &
+      15, &
+      17, &
+      21, &
+      25, &
+      26, &
+      28, &
+      33, &
+      198, &
+      1, &
+      4, &
+      13, &
+      16, &
+      18, &
+      22, &
+      26, &
+      27, &
+      29, &
+      34, &
+      198, &
+      1, &
+      4, &
+      14, &
+      17, &
+      19, &
+      23, &
+      27, &
+      28, &
+      30, &
+      35, &
+      198, &
+      1, &
+      4, &
+      18, &
+      24, &
+      29, &
+      198, &
+      1, &
+      4, &
+      25, &
+      32, &
+      37, &
+      198, &
+      1, &
+      4, &
+      15, &
+      21, &
+      26, &
+      31, &
+      33, &
+      38, &
+      43, &
+      198, &
+      1, &
+      4, &
+      16, &
+      20, &
+      22, &
+      27, &
+      31, &
+      32, &
+      34, &
+      39, &
+      198, &
+      1, &
+      4, &
+      9, &
+      17, &
+      21, &
+      23, &
+      24, &
+      28, &
+      32, &
+      33, &
+      35, &
+      37, &
+      40, &
+      43, &
+      45, &
+      198, &
+      1, &
+      4, &
+      18, &
+      22, &
+      24, &
+      29, &
+      33, &
+      34, &
+      36, &
+      41, &
+      198, &
+      1, &
+      4, &
+      19, &
+      23, &
+      30, &
+      34, &
+      35, &
+      42, &
+      198, &
+      1, &
+      4, &
+      26, &
+      31, &
+      38, &
+      44, &
+      198, &
+      1, &
+      4, &
+      20, &
+      25, &
+      27, &
+      32, &
+      37, &
+      39, &
+      45, &
+      198, &
+      1, &
+      4, &
+      21, &
+      26, &
+      28, &
+      33, &
+      37, &
+      38, &
+      40, &
+      43, &
+      46, &
+      198, &
+      1, &
+      4, &
+      22, &
+      27, &
+      29, &
+      34, &
+      38, &
+      39, &
+      41, &
+      44, &
+      47, &
+      198, &
+      1, &
+      4, &
+      23, &
+      28, &
+      30, &
+      35, &
+      39, &
+      40, &
+      42, &
+      45, &
+      48, &
+      198, &
+      1, &
+      4, &
+      24, &
+      29, &
+      36, &
+      41, &
+      49, &
+      198, &
+      1, &
+      4, &
+      25, &
+      32, &
+      37, &
+      43, &
+      45, &
+      51, &
+      198, &
+      1, &
+      4, &
+      26, &
+      31, &
+      33, &
+      38, &
+      43, &
+      44, &
+      46, &
+      52, &
+      198, &
+      1, &
+      4, &
+      27, &
+      32, &
+      34, &
+      39, &
+      44, &
+      45, &
+      47, &
+      50, &
+      53, &
+      198, &
+      1, &
+      4, &
+      28, &
+      33, &
+      35, &
+      40, &
+      45, &
+      46, &
+      48, &
+      51, &
+      54, &
+      59, &
+      198, &
+      1, &
+      4, &
+      29, &
+      34, &
+      36, &
+      41, &
+      46, &
+      47, &
+      49, &
+      55, &
+      198, &
+      1, &
+      4, &
+      30, &
+      35, &
+      42, &
+      47, &
+      48, &
+      56, &
+      198, &
+      1, &
+      4, &
+      37, &
+      43, &
+      51, &
+      57, &
+      198, &
+      1, &
+      4, &
+      31, &
+      38, &
+      44, &
+      50, &
+      52, &
+      58, &
+      198, &
+      1, &
+      4, &
+      32, &
+      37, &
+      39, &
+      45, &
+      50, &
+      51, &
+      53, &
+      59, &
+      198, &
+      1, &
+      4, &
+      33, &
+      38, &
+      40, &
+      46, &
+      51, &
+      52, &
+      54, &
+      60, &
+      198, &
+      1, &
+      4, &
+      34, &
+      39, &
+      41, &
+      47, &
+      52, &
+      53, &
+      55, &
+      58, &
+      61, &
+      198, &
+      1, &
+      4, &
+      35, &
+      40, &
+      42, &
+      48, &
+      53, &
+      54, &
+      56, &
+      59, &
+      62, &
+      198, &
+      1, &
+      4, &
+      36, &
+      41, &
+      49, &
+      55, &
+      63, &
+      198, &
+      1, &
+      4, &
+      44, &
+      50, &
+      58, &
+      65, &
+      198, &
+      1, &
+      4, &
+      37, &
+      43, &
+      45, &
+      51, &
+      57, &
+      59, &
+      66, &
+      198, &
+      1, &
+      4, &
+      38, &
+      44, &
+      46, &
+      52, &
+      57, &
+      58, &
+      60, &
+      67, &
+      198, &
+      1, &
+      4, &
+      39, &
+      45, &
+      47, &
+      53, &
+      58, &
+      59, &
+      61, &
+      65, &
+      68, &
+      198, &
+      1, &
+      4, &
+      40, &
+      46, &
+      48, &
+      54, &
+      59, &
+      60, &
+      62, &
+      66, &
+      69, &
+      76, &
+      198, &
+      1, &
+      4, &
+      41, &
+      47, &
+      49, &
+      55, &
+      60, &
+      61, &
+      63, &
+      70, &
+      198, &
+      1, &
+      4, &
+      42, &
+      48, &
+      56, &
+      61, &
+      62, &
+      64, &
+      71, &
+      198, &
+      1, &
+      4, &
+      43, &
+      51, &
+      57, &
+      66, &
+      74, &
+      198, &
+      1, &
+      4, &
+      44, &
+      50, &
+      52, &
+      58, &
+      65, &
+      67, &
+      75, &
+      198, &
+      1, &
+      4, &
+      45, &
+      51, &
+      53, &
+      59, &
+      65, &
+      66, &
+      68, &
+      76, &
+      198, &
+      1, &
+      4, &
+      46, &
+      52, &
+      54, &
+      60, &
+      66, &
+      67, &
+      69, &
+      77, &
+      82, &
+      198, &
+      1, &
+      4, &
+      47, &
+      53, &
+      55, &
+      61, &
+      67, &
+      68, &
+      70, &
+      75, &
+      78, &
+      198, &
+      1, &
+      4, &
+      48, &
+      54, &
+      56, &
+      62, &
+      68, &
+      69, &
+      71, &
+      76, &
+      79, &
+      198, &
+      1, &
+      4, &
+      49, &
+      55, &
+      63, &
+      70, &
+      72, &
+      80, &
+      198, &
+      1, &
+      4, &
+      56, &
+      64, &
+      71, &
+      81, &
+      198, &
+      1, &
+      4, &
+      50, &
+      58, &
+      65, &
+      73, &
+      75, &
+      83, &
+      198, &
+      1, &
+      4, &
+      51, &
+      57, &
+      59, &
+      66, &
+      73, &
+      74, &
+      76, &
+      84, &
+      198, &
+      1, &
+      4, &
+      52, &
+      58, &
+      60, &
+      67, &
+      74, &
+      75, &
+      77, &
+      82, &
+      85, &
+      198, &
+      1, &
+      4, &
+      53, &
+      59, &
+      61, &
+      68, &
+      75, &
+      76, &
+      78, &
+      83, &
+      86, &
+      198, &
+      1, &
+      4, &
+      54, &
+      60, &
+      62, &
+      69, &
+      76, &
+      77, &
+      79, &
+      84, &
+      87, &
+      94, &
+      198, &
+      1, &
+      4, &
+      55, &
+      61, &
+      63, &
+      70, &
+      77, &
+      78, &
+      80, &
+      88, &
+      198, &
+      1, &
+      4, &
+      56, &
+      62, &
+      64, &
+      71, &
+      78, &
+      79, &
+      81, &
+      89, &
+      198, &
+      1, &
+      4, &
+      63, &
+      72, &
+      80, &
+      90, &
+      198, &
+      1, &
+      4, &
+      65, &
+      73, &
+      83, &
+      91, &
+      198, &
+      1, &
+      4, &
+      57, &
+      66, &
+      74, &
+      82, &
+      84, &
+      92, &
+      198, &
+      1, &
+      4, &
+      58, &
+      65, &
+      67, &
+      75, &
+      82, &
+      83, &
+      85, &
+      93, &
+      198, &
+      1, &
+      4, &
+      59, &
+      66, &
+      68, &
+      76, &
+      83, &
+      84, &
+      86, &
+      94, &
+      198, &
+      1, &
+      4, &
+      60, &
+      67, &
+      69, &
+      77, &
+      84, &
+      85, &
+      87, &
+      95, &
+      101, &
+      198, &
+      1, &
+      4, &
+      61, &
+      68, &
+      70, &
+      78, &
+      85, &
+      86, &
+      88, &
+      93, &
+      96, &
+      198, &
+      1, &
+      4, &
+      62, &
+      69, &
+      71, &
+      79, &
+      86, &
+      87, &
+      89, &
+      94, &
+      97, &
+      198, &
+      1, &
+      4, &
+      63, &
+      70, &
+      72, &
+      80, &
+      88, &
+      90, &
+      98, &
+      198, &
+      1, &
+      4, &
+      64, &
+      71, &
+      81, &
+      88, &
+      89, &
+      99, &
+      198, &
+      1, &
+      4, &
+      74, &
+      82, &
+      92, &
+      101, &
+      198, &
+      1, &
+      4, &
+      65, &
+      73, &
+      75, &
+      83, &
+      91, &
+      93, &
+      102, &
+      198, &
+      1, &
+      4, &
+      66, &
+      74, &
+      76, &
+      84, &
+      91, &
+      92, &
+      94, &
+      103, &
+      198, &
+      1, &
+      4, &
+      67, &
+      75, &
+      77, &
+      85, &
+      92, &
+      93, &
+      95, &
+      101, &
+      104, &
+      198, &
+      1, &
+      4, &
+      68, &
+      76, &
+      78, &
+      86, &
+      93, &
+      94, &
+      96, &
+      102, &
+      105, &
+      198, &
+      1, &
+      4, &
+      69, &
+      77, &
+      79, &
+      87, &
+      94, &
+      95, &
+      97, &
+      103, &
+      106, &
+      115, &
+      198, &
+      1, &
+      4, &
+      70, &
+      78, &
+      80, &
+      88, &
+      95, &
+      96, &
+      98, &
+      107, &
+      198, &
+      1, &
+      4, &
+      71, &
+      79, &
+      81, &
+      89, &
+      96, &
+      97, &
+      99, &
+      108, &
+      198, &
+      1, &
+      4, &
+      72, &
+      80, &
+      90, &
+      98, &
+      109, &
+      198, &
+      1, &
+      4, &
+      73, &
+      83, &
+      91, &
+      100, &
+      102, &
+      112, &
+      198, &
+      1, &
+      4, &
+      74, &
+      82, &
+      84, &
+      92, &
+      100, &
+      101, &
+      103, &
+      113, &
+      198, &
+      1, &
+      4, &
+      75, &
+      83, &
+      85, &
+      93, &
+      101, &
+      102, &
+      104, &
+      114, &
+      198, &
+      1, &
+      4, &
+      76, &
+      84, &
+      86, &
+      94, &
+      102, &
+      103, &
+      105, &
+      115, &
+      198, &
+      1, &
+      4, &
+      77, &
+      85, &
+      87, &
+      95, &
+      103, &
+      104, &
+      106, &
+      116, &
+      198, &
+      1, &
+      4, &
+      78, &
+      86, &
+      88, &
+      96, &
+      104, &
+      105, &
+      107, &
+      117, &
+      198, &
+      1, &
+      4, &
+      79, &
+      87, &
+      89, &
+      97, &
+      105, &
+      106, &
+      108, &
+      115, &
+      118, &
+      198, &
+      1, &
+      4, &
+      80, &
+      88, &
+      90, &
+      98, &
+      107, &
+      109, &
+      119, &
+      198, &
+      1, &
+      4, &
+      81, &
+      89, &
+      99, &
+      107, &
+      108, &
+      110, &
+      120, &
+      198, &
+      1, &
+      4, &
+      91, &
+      100, &
+      112, &
+      122, &
+      198, &
+      1, &
+      4, &
+      82, &
+      92, &
+      101, &
+      111, &
+      113, &
+      123, &
+      198, &
+      1, &
+      4, &
+      83, &
+      91, &
+      93, &
+      102, &
+      104, &
+      111, &
+      112, &
+      114, &
+      124, &
+      198, &
+      1, &
+      4, &
+      84, &
+      92, &
+      94, &
+      103, &
+      112, &
+      113, &
+      115, &
+      125, &
+      198, &
+      1, &
+      4, &
+      85, &
+      93, &
+      95, &
+      102, &
+      104, &
+      113, &
+      114, &
+      116, &
+      123, &
+      126, &
+      198, &
+      1, &
+      4, &
+      86, &
+      94, &
+      96, &
+      105, &
+      114, &
+      115, &
+      117, &
+      124, &
+      127, &
+      198, &
+      1, &
+      4, &
+      87, &
+      95, &
+      97, &
+      106, &
+      115, &
+      116, &
+      118, &
+      125, &
+      128, &
+      145, &
+      198, &
+      1, &
+      4, &
+      88, &
+      96, &
+      98, &
+      107, &
+      116, &
+      117, &
+      119, &
+      129, &
+      198, &
+      1, &
+      4, &
+      89, &
+      97, &
+      99, &
+      108, &
+      117, &
+      118, &
+      120, &
+      130, &
+      198, &
+      1, &
+      4, &
+      90, &
+      98, &
+      109, &
+      118, &
+      119, &
+      121, &
+      131, &
+      198, &
+      1, &
+      4, &
+      99, &
+      110, &
+      119, &
+      120, &
+      132, &
+      198, &
+      1, &
+      4, &
+      101, &
+      111, &
+      123, &
+      133, &
+      198, &
+      1, &
+      4, &
+      91, &
+      100, &
+      102, &
+      112, &
+      122, &
+      124, &
+      134, &
+      198, &
+      1, &
+      4, &
+      92, &
+      101, &
+      103, &
+      113, &
+      122, &
+      123, &
+      125, &
+      135, &
+      198, &
+      1, &
+      4, &
+      93, &
+      102, &
+      104, &
+      114, &
+      123, &
+      124, &
+      126, &
+      136, &
+      198, &
+      1, &
+      4, &
+      94, &
+      103, &
+      105, &
+      115, &
+      124, &
+      125, &
+      127, &
+      137, &
+      198, &
+      1, &
+      4, &
+      95, &
+      104, &
+      106, &
+      116, &
+      125, &
+      126, &
+      128, &
+      138, &
+      145, &
+      198, &
+      1, &
+      4, &
+      96, &
+      105, &
+      107, &
+      117, &
+      126, &
+      127, &
+      129, &
+      139, &
+      198, &
+      1, &
+      4, &
+      97, &
+      106, &
+      108, &
+      118, &
+      127, &
+      128, &
+      130, &
+      140, &
+      198, &
+      1, &
+      4, &
+      98, &
+      107, &
+      109, &
+      119, &
+      128, &
+      129, &
+      131, &
+      141, &
+      198, &
+      1, &
+      4, &
+      99, &
+      108, &
+      110, &
+      120, &
+      129, &
+      130, &
+      132, &
+      142, &
+      198, &
+      1, &
+      4, &
+      109, &
+      121, &
+      131, &
+      143, &
+      198, &
+      1, &
+      4, &
+      100, &
+      112, &
+      122, &
+      134, &
+      144, &
+      198, &
+      1, &
+      4, &
+      101, &
+      111, &
+      113, &
+      123, &
+      133, &
+      135, &
+      145, &
+      198, &
+      1, &
+      4, &
+      102, &
+      112, &
+      114, &
+      124, &
+      133, &
+      134, &
+      136, &
+      146, &
+      198, &
+      1, &
+      4, &
+      103, &
+      113, &
+      115, &
+      125, &
+      134, &
+      135, &
+      137, &
+      144, &
+      147, &
+      198, &
+      1, &
+      4, &
+      104, &
+      114, &
+      116, &
+      126, &
+      135, &
+      136, &
+      138, &
+      145, &
+      148, &
+      167, &
+      198, &
+      1, &
+      4, &
+      105, &
+      115, &
+      117, &
+      127, &
+      136, &
+      137, &
+      139, &
+      146, &
+      149, &
+      198, &
+      1, &
+      4, &
+      106, &
+      116, &
+      118, &
+      128, &
+      137, &
+      138, &
+      140, &
+      147, &
+      150, &
+      198, &
+      1, &
+      4, &
+      107, &
+      117, &
+      119, &
+      129, &
+      138, &
+      139, &
+      141, &
+      151, &
+      198, &
+      1, &
+      4, &
+      108, &
+      118, &
+      120, &
+      130, &
+      139, &
+      140, &
+      142, &
+      152, &
+      198, &
+      1, &
+      4, &
+      109, &
+      119, &
+      121, &
+      131, &
+      140, &
+      141, &
+      143, &
+      153, &
+      198, &
+      1, &
+      4, &
+      110, &
+      120, &
+      132, &
+      141, &
+      142, &
+      154, &
+      198, &
+      1, &
+      4, &
+      111, &
+      123, &
+      133, &
+      145, &
+      155, &
+      198, &
+      1, &
+      4, &
+      112, &
+      122, &
+      124, &
+      134, &
+      144, &
+      146, &
+      156, &
+      198, &
+      1, &
+      4, &
+      113, &
+      123, &
+      125, &
+      135, &
+      144, &
+      145, &
+      147, &
+      157, &
+      198, &
+      1, &
+      4, &
+      114, &
+      124, &
+      126, &
+      136, &
+      145, &
+      146, &
+      148, &
+      158, &
+      167, &
+      198, &
+      1, &
+      4, &
+      115, &
+      125, &
+      127, &
+      137, &
+      146, &
+      147, &
+      149, &
+      159, &
+      198, &
+      1, &
+      4, &
+      116, &
+      126, &
+      128, &
+      138, &
+      147, &
+      148, &
+      150, &
+      157, &
+      160, &
+      198, &
+      1, &
+      4, &
+      117, &
+      127, &
+      129, &
+      139, &
+      148, &
+      149, &
+      151, &
+      161, &
+      198, &
+      1, &
+      4, &
+      118, &
+      128, &
+      130, &
+      140, &
+      149, &
+      150, &
+      152, &
+      159, &
+      162, &
+      198, &
+      1, &
+      4, &
+      119, &
+      129, &
+      131, &
+      141, &
+      150, &
+      151, &
+      153, &
+      163, &
+      198, &
+      1, &
+      4, &
+      120, &
+      130, &
+      132, &
+      142, &
+      151, &
+      152, &
+      154, &
+      164, &
+      198, &
+      1, &
+      4, &
+      121, &
+      131, &
+      143, &
+      153, &
+      165, &
+      198, &
+      1, &
+      4, &
+      122, &
+      134, &
+      144, &
+      156, &
+      168, &
+      198, &
+      1, &
+      4, &
+      123, &
+      133, &
+      135, &
+      145, &
+      155, &
+      157, &
+      169, &
+      198, &
+      1, &
+      4, &
+      124, &
+      134, &
+      136, &
+      146, &
+      155, &
+      156, &
+      158, &
+      167, &
+      170, &
+      198, &
+      1, &
+      4, &
+      125, &
+      135, &
+      137, &
+      147, &
+      156, &
+      157, &
+      159, &
+      168, &
+      171, &
+      198, &
+      1, &
+      4, &
+      126, &
+      136, &
+      138, &
+      148, &
+      157, &
+      158, &
+      160, &
+      169, &
+      172, &
+      198, &
+      1, &
+      4, &
+      127, &
+      137, &
+      139, &
+      149, &
+      158, &
+      159, &
+      161, &
+      170, &
+      173, &
+      198, &
+      1, &
+      4, &
+      128, &
+      138, &
+      140, &
+      150, &
+      159, &
+      160, &
+      162, &
+      171, &
+      174, &
+      198, &
+      1, &
+      4, &
+      129, &
+      139, &
+      141, &
+      151, &
+      160, &
+      161, &
+      163, &
+      175, &
+      198, &
+      1, &
+      4, &
+      130, &
+      140, &
+      142, &
+      152, &
+      161, &
+      162, &
+      164, &
+      176, &
+      198, &
+      1, &
+      4, &
+      131, &
+      141, &
+      143, &
+      153, &
+      162, &
+      163, &
+      165, &
+      177, &
+      198, &
+      1, &
+      4, &
+      132, &
+      142, &
+      154, &
+      163, &
+      164, &
+      166, &
+      178, &
+      198, &
+      1, &
+      4, &
+      133, &
+      145, &
+      155, &
+      167, &
+      169, &
+      180, &
+      198, &
+      1, &
+      4, &
+      134, &
+      144, &
+      146, &
+      156, &
+      167, &
+      168, &
+      170, &
+      181, &
+      198, &
+      1, &
+      4, &
+      135, &
+      145, &
+      147, &
+      157, &
+      168, &
+      169, &
+      171, &
+      182, &
+      198, &
+      1, &
+      4, &
+      136, &
+      146, &
+      148, &
+      158, &
+      169, &
+      170, &
+      172, &
+      183, &
+      198, &
+      1, &
+      4, &
+      137, &
+      147, &
+      149, &
+      159, &
+      170, &
+      171, &
+      173, &
+      184, &
+      198, &
+      1, &
+      4, &
+      138, &
+      148, &
+      150, &
+      160, &
+      171, &
+      172, &
+      174, &
+      182, &
+      185, &
+      198, &
+      1, &
+      4, &
+      139, &
+      149, &
+      151, &
+      161, &
+      172, &
+      173, &
+      175, &
+      186, &
+      198, &
+      1, &
+      4, &
+      140, &
+      150, &
+      152, &
+      162, &
+      173, &
+      174, &
+      176, &
+      187, &
+      198, &
+      1, &
+      4, &
+      141, &
+      151, &
+      153, &
+      163, &
+      174, &
+      175, &
+      177, &
+      188, &
+      198, &
+      1, &
+      4, &
+      142, &
+      152, &
+      154, &
+      164, &
+      175, &
+      176, &
+      178, &
+      198, &
+      1, &
+      4, &
+      143, &
+      153, &
+      165, &
+      177, &
+      198, &
+      1, &
+      4, &
+      154, &
+      166, &
+      177, &
+      178, &
+      198, &
+      1, &
+      4, &
+      155, &
+      167, &
+      180, &
+      190, &
+      198, &
+      1, &
+      4, &
+      144, &
+      156, &
+      168, &
+      179, &
+      181, &
+      191, &
+      198, &
+      1, &
+      4, &
+      145, &
+      155, &
+      157, &
+      169, &
+      179, &
+      180, &
+      182, &
+      192, &
+      198, &
+      1, &
+      4, &
+      146, &
+      156, &
+      158, &
+      170, &
+      180, &
+      181, &
+      183, &
+      190, &
+      193, &
+      198, &
+      1, &
+      4, &
+      147, &
+      157, &
+      159, &
+      171, &
+      181, &
+      182, &
+      184, &
+      191, &
+      194, &
+      198, &
+      1, &
+      4, &
+      148, &
+      158, &
+      160, &
+      172, &
+      182, &
+      183, &
+      185, &
+      192, &
+      195, &
+      198, &
+      1, &
+      4, &
+      149, &
+      159, &
+      161, &
+      173, &
+      183, &
+      184, &
+      186, &
+      193, &
+      196, &
+      198, &
+      1, &
+      4, &
+      150, &
+      160, &
+      162, &
+      174, &
+      184, &
+      185, &
+      187, &
+      194, &
+      197, &
+      198, &
+      1, &
+      4, &
+      151, &
+      161, &
+      163, &
+      175, &
+      185, &
+      186, &
+      188, &
+      198, &
+      1, &
+      4, &
+      152, &
+      162, &
+      164, &
+      176, &
+      186, &
+      187, &
+      198, &
+      1, &
+      4, &
+      153, &
+      163, &
+      165, &
+      177, &
+      187, &
+      188, &
+      198, &
+      1, &
+      4, &
+      154, &
+      164, &
+      166, &
+      178, &
+      188, &
+      198, &
+      1, &
+      4, &
+      168, &
+      179, &
+      189, &
+      191, &
+      198, &
+      1, &
+      4, &
+      155, &
+      167, &
+      169, &
+      180, &
       189, &
       190, &
+      192, &
+      198, &
+      1, &
+      4, &
+      156, &
+      168, &
+      170, &
+      181, &
+      190, &
+      191, &
+      193, &
+      198, &
+      1, &
+      4, &
+      157, &
+      169, &
+      171, &
+      182, &
+      191, &
+      192, &
+      194, &
+      198, &
+      1, &
+      4, &
+      158, &
+      170, &
+      172, &
+      183, &
+      192, &
+      193, &
+      195, &
+      198, &
+      1, &
+      4, &
+      159, &
+      171, &
+      173, &
+      184, &
+      193, &
+      194, &
+      196, &
+      198, &
+      1, &
+      4, &
+      160, &
+      172, &
+      174, &
+      185, &
+      194, &
+      195, &
+      197, &
+      198, &
+      1, &
+      4, &
+      161, &
+      173, &
+      175, &
+      186, &
+      195, &
+      196, &
+      198, &
+      1, &
+      4, &
+      162, &
+      174, &
+      176, &
+      187, &
+      196, &
+      197, &
+      198, &
+      1, &
+      4, &
+      163, &
+      175, &
+      177, &
+      188, &
+      197, &
+      198, &
+      1, &
+      179, &
+      189, &
+      198, &
+      1, &
+      4, &
+      167, &
+      180, &
+      190, &
+      198, &
+      1, &
+      4, &
+      168, &
+      179, &
+      181, &
+      191, &
+      198, &
+      1, &
+      4, &
+      169, &
+      180, &
+      182, &
+      192, &
+      198, &
+      1, &
+      4, &
+      170, &
+      181, &
+      183, &
+      193, &
+      198, &
+      1, &
+      4, &
+      171, &
+      182, &
+      184, &
+      194, &
+      198, &
+      1, &
+      4, &
+      172, &
+      183, &
+      185, &
+      195, &
+      198, &
+      1, &
+      4, &
+      173, &
+      184, &
+      186, &
+      196, &
+      198, &
+      1, &
+      4, &
+      174, &
+      185, &
+      187, &
+      197, &
+      198, &
       1, &
       2, &
       3, &
@@ -3891,201 +5191,415 @@ contains
       188, &
       189, &
       190, &
-      191  ]
+      191, &
+      192, &
+      193, &
+      194, &
+      195, &
+      196, &
+      197, &
+      198, &
+      1, &
+      2, &
+      3, &
+      4, &
+      5, &
+      6, &
+      7, &
+      8, &
+      9, &
+      10, &
+      11, &
+      12, &
+      13, &
+      14, &
+      15, &
+      16, &
+      17, &
+      18, &
+      19, &
+      20, &
+      21, &
+      22, &
+      23, &
+      24, &
+      25, &
+      26, &
+      27, &
+      28, &
+      29, &
+      30, &
+      31, &
+      32, &
+      33, &
+      34, &
+      35, &
+      36, &
+      37, &
+      38, &
+      39, &
+      40, &
+      41, &
+      42, &
+      43, &
+      44, &
+      45, &
+      46, &
+      47, &
+      48, &
+      49, &
+      50, &
+      51, &
+      52, &
+      53, &
+      54, &
+      55, &
+      56, &
+      57, &
+      58, &
+      59, &
+      60, &
+      61, &
+      62, &
+      63, &
+      64, &
+      65, &
+      66, &
+      67, &
+      68, &
+      69, &
+      70, &
+      71, &
+      72, &
+      73, &
+      74, &
+      75, &
+      76, &
+      77, &
+      78, &
+      79, &
+      80, &
+      81, &
+      82, &
+      83, &
+      84, &
+      85, &
+      86, &
+      87, &
+      88, &
+      89, &
+      90, &
+      91, &
+      92, &
+      93, &
+      94, &
+      95, &
+      96, &
+      97, &
+      98, &
+      99, &
+      100, &
+      101, &
+      102, &
+      103, &
+      104, &
+      105, &
+      106, &
+      107, &
+      108, &
+      109, &
+      110, &
+      111, &
+      112, &
+      113, &
+      114, &
+      115, &
+      116, &
+      117, &
+      118, &
+      119, &
+      120, &
+      121, &
+      122, &
+      123, &
+      124, &
+      125, &
+      126, &
+      127, &
+      128, &
+      129, &
+      130, &
+      131, &
+      132, &
+      133, &
+      134, &
+      135, &
+      136, &
+      137, &
+      138, &
+      139, &
+      140, &
+      141, &
+      142, &
+      143, &
+      144, &
+      145, &
+      146, &
+      147, &
+      148, &
+      149, &
+      150, &
+      151, &
+      152, &
+      153, &
+      154, &
+      155, &
+      156, &
+      157, &
+      158, &
+      159, &
+      160, &
+      161, &
+      162, &
+      163, &
+      164, &
+      165, &
+      166, &
+      167, &
+      168, &
+      169, &
+      170, &
+      171, &
+      172, &
+      173, &
+      174, &
+      175, &
+      176, &
+      177, &
+      178, &
+      179, &
+      180, &
+      181, &
+      182, &
+      183, &
+      184, &
+      185, &
+      186, &
+      187, &
+      188, &
+      189, &
+      190, &
+      191, &
+      192, &
+      193, &
+      194, &
+      195, &
+      196, &
+      197, &
+      198, &
+      199  ]
 
     csr_jac_row_count = [ &
       1, &
-      166, &
-      172, &
-      178, &
-      341, &
-      346, &
-      353, &
-      356, &
-      360, &
-      368, &
-      372, &
-      379, &
-      388, &
-      397, &
-      404, &
-      411, &
-      421, &
-      430, &
-      437, &
-      442, &
+      198, &
+      204, &
+      210, &
+      405, &
+      410, &
+      417, &
+      420, &
+      424, &
+      433, &
+      438, &
+      443, &
       450, &
-      460, &
-      469, &
+      459, &
+      468, &
       475, &
-      481, &
-      488, &
-      498, &
-      506, &
+      484, &
+      496, &
+      505, &
       512, &
-      517, &
-      523, &
-      530, &
-      537, &
-      544, &
-      549, &
-      554, &
-      561, &
-      568, &
-      575, &
-      582, &
-      588, &
-      593, &
-      599, &
-      606, &
-      613, &
+      519, &
+      529, &
+      540, &
+      551, &
+      557, &
+      563, &
+      573, &
+      584, &
+      600, &
+      611, &
       620, &
       627, &
-      632, &
       637, &
-      643, &
-      650, &
-      657, &
-      664, &
-      671, &
-      677, &
-      683, &
-      689, &
-      696, &
-      703, &
-      710, &
-      717, &
-      722, &
-      728, &
-      735, &
-      742, &
-      749, &
-      756, &
-      763, &
-      769, &
-      774, &
-      780, &
-      787, &
-      794, &
-      801, &
+      649, &
+      661, &
+      673, &
+      681, &
+      690, &
+      701, &
+      713, &
+      726, &
+      737, &
+      746, &
+      753, &
+      762, &
+      773, &
+      784, &
+      796, &
       808, &
-      815, &
-      820, &
-      825, &
-      830, &
-      836, &
-      843, &
-      850, &
-      857, &
-      864, &
-      871, &
-      878, &
-      884, &
-      891, &
+      816, &
+      823, &
+      833, &
+      844, &
+      856, &
+      869, &
+      880, &
+      890, &
       898, &
-      905, &
-      912, &
+      908, &
       919, &
-      926, &
       931, &
-      937, &
-      942, &
-      948, &
+      943, &
       955, &
-      962, &
-      969, &
-      976, &
-      983, &
-      990, &
-      997, &
-      1002, &
-      1007, &
-      1012, &
-      1018, &
-      1025, &
-      1032, &
+      964, &
+      971, &
+      980, &
+      991, &
+      1003, &
+      1015, &
+      1028, &
       1039, &
-      1046, &
-      1053, &
-      1060, &
-      1067, &
-      1074, &
-      1080, &
-      1086, &
-      1093, &
-      1100, &
+      1050, &
+      1057, &
+      1064, &
+      1073, &
+      1084, &
+      1095, &
       1107, &
-      1114, &
-      1121, &
-      1128, &
-      1135, &
+      1119, &
+      1131, &
       1141, &
-      1147, &
-      1153, &
-      1159, &
-      1166, &
-      1173, &
-      1180, &
-      1187, &
-      1194, &
-      1201, &
-      1208, &
+      1150, &
+      1157, &
+      1167, &
+      1178, &
+      1190, &
+      1202, &
       1215, &
-      1221, &
-      1227, &
-      1234, &
-      1241, &
-      1248, &
-      1255, &
-      1262, &
-      1269, &
+      1226, &
+      1237, &
+      1245, &
+      1254, &
+      1265, &
       1276, &
-      1282, &
-      1288, &
-      1294, &
-      1301, &
-      1308, &
-      1315, &
-      1322, &
-      1329, &
-      1336, &
-      1343, &
-      1350, &
+      1287, &
+      1298, &
+      1309, &
+      1321, &
+      1331, &
+      1341, &
+      1348, &
       1357, &
-      1361, &
-      1366, &
-      1372, &
-      1379, &
-      1386, &
+      1369, &
+      1380, &
       1393, &
-      1400, &
-      1407, &
-      1414, &
-      1421, &
-      1428, &
-      1434, &
-      1441, &
-      1445, &
-      1452, &
-      1459, &
-      1466, &
-      1473, &
-      1480, &
-      1487, &
-      1494, &
-      1501, &
+      1405, &
+      1418, &
+      1429, &
+      1440, &
+      1450, &
+      1458, &
+      1465, &
+      1475, &
+      1486, &
+      1497, &
       1508, &
-      1512, &
-      1518, &
-      1524, &
-      1530, &
-      1536, &
+      1520, &
+      1531, &
       1542, &
-      1548, &
-      1554, &
-      1560, &
-      1750, &
-      1941  ]
+      1553, &
+      1564, &
+      1571, &
+      1579, &
+      1589, &
+      1600, &
+      1612, &
+      1625, &
+      1637, &
+      1649, &
+      1660, &
+      1671, &
+      1682, &
+      1691, &
+      1699, &
+      1709, &
+      1720, &
+      1732, &
+      1743, &
+      1755, &
+      1766, &
+      1778, &
+      1789, &
+      1800, &
+      1808, &
+      1816, &
+      1826, &
+      1838, &
+      1850, &
+      1862, &
+      1874, &
+      1886, &
+      1897, &
+      1908, &
+      1919, &
+      1929, &
+      1938, &
+      1949, &
+      1960, &
+      1971, &
+      1982, &
+      1994, &
+      2005, &
+      2016, &
+      2027, &
+      2037, &
+      2044, &
+      2051, &
+      2058, &
+      2067, &
+      2078, &
+      2090, &
+      2102, &
+      2114, &
+      2126, &
+      2138, &
+      2148, &
+      2157, &
+      2166, &
+      2174, &
+      2181, &
+      2191, &
+      2201, &
+      2211, &
+      2221, &
+      2231, &
+      2241, &
+      2250, &
+      2259, &
+      2267, &
+      2271, &
+      2277, &
+      2284, &
+      2291, &
+      2298, &
+      2305, &
+      2312, &
+      2319, &
+      2326, &
+      2524, &
+      2723  ]
 #endif
 
   end subroutine actual_network_init

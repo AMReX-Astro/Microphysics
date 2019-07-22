@@ -215,6 +215,9 @@ contains
       zion(jc13), aion(jc13))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jn12), aion(jn12))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jf16), aion(jf16))
 
     call add_screening_factor(zion(jp), aion(jp), &
@@ -247,16 +250,16 @@ contains
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jna24), aion(jna24))
 
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jmg22), aion(jmg22))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jmg22), aion(jmg22))
-
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jna19), aion(jna19))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jmg22), aion(jmg22))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jmg22), aion(jmg22))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jna20), aion(jna20))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
@@ -311,28 +314,31 @@ contains
       zion(jal28), aion(jal28))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jsi26), aion(jsi26))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jsi26), aion(jsi26))
-
-    call add_screening_factor(zion(jp), aion(jp), &
       zion(jal23), aion(jal23))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jal23), aion(jal23))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jal24), aion(jal24))
+      zion(jsi26), aion(jsi26))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jal24), aion(jal24))
+      zion(jsi26), aion(jsi26))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jne17), aion(jne17))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jmg21), aion(jmg21))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jmg21), aion(jmg21))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jal24), aion(jal24))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jal24), aion(jal24))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jsi27), aion(jsi27))
@@ -381,38 +387,38 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jp32), aion(jp32))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(js30), aion(js30))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(js30), aion(js30))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jp27), aion(jp27))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jp27), aion(jp27))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jsi24), aion(jsi24))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jp28), aion(jp28))
+      zion(jp27), aion(jp27))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jp28), aion(jp28))
+      zion(jp27), aion(jp27))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jsi25), aion(jsi25))
+      zion(js30), aion(js30))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jsi25), aion(jsi25))
+      zion(js30), aion(js30))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jal22), aion(jal22))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jsi25), aion(jsi25))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jsi25), aion(jsi25))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jp28), aion(jp28))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jp28), aion(jp28))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(js31), aion(js31))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
@@ -429,6 +435,12 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(js33), aion(js33))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jp33), aion(jp33))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jp33), aion(jp33))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(js34), aion(js34))
@@ -455,10 +467,22 @@ contains
       zion(jcl35), aion(jcl35))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(js35), aion(js35))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(js35), aion(js35))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jcl36), aion(jcl36))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jcl36), aion(jcl36))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(js28), aion(js28))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(js28), aion(js28))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jcl31), aion(jcl31))
@@ -471,29 +495,23 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jar34), aion(jar34))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(js28), aion(js28))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(js28), aion(js28))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcl32), aion(jcl32))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcl32), aion(jcl32))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(js29), aion(js29))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(js29), aion(js29))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jp26), aion(jp26))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(js29), aion(js29))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(js29), aion(js29))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jcl32), aion(jcl32))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jcl32), aion(jcl32))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jar35), aion(jar35))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
@@ -510,6 +528,12 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jar37), aion(jar37))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jcl37), aion(jcl37))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jcl37), aion(jcl37))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jar38), aion(jar38))
@@ -536,33 +560,45 @@ contains
       zion(jk39), aion(jk39))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jar39), aion(jar39))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jar39), aion(jar39))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jk40), aion(jk40))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jk40), aion(jk40))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jar32), aion(jar32))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jar32), aion(jar32))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jk35), aion(jk35))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jk35), aion(jk35))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jca38), aion(jca38))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jca38), aion(jca38))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jcl29), aion(jcl29))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jar32), aion(jar32))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jar32), aion(jar32))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jk35), aion(jk35))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jk35), aion(jk35))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jca38), aion(jca38))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jca38), aion(jca38))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jcl30), aion(jcl30))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jcl30), aion(jcl30))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jar33), aion(jar33))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
@@ -573,12 +609,6 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jk36), aion(jk36))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcl30), aion(jcl30))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcl30), aion(jcl30))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jca39), aion(jca39))
@@ -593,16 +623,16 @@ contains
       zion(jca40), aion(jca40))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcl37), aion(jcl37))
+      zion(jca41), aion(jca41))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcl37), aion(jcl37))
+      zion(jca41), aion(jca41))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jca41), aion(jca41))
+      zion(jk41), aion(jk41))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jca41), aion(jca41))
+      zion(jk41), aion(jk41))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jca42), aion(jca42))
@@ -629,22 +659,28 @@ contains
       zion(jsc43), aion(jsc43))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jca43), aion(jca43))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jca43), aion(jca43))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jsc44), aion(jsc44))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jsc44), aion(jsc44))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jca36), aion(jca36))
+      zion(jk33), aion(jk33))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jca36), aion(jca36))
+      zion(jk33), aion(jk33))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jk33), aion(jk33))
+      zion(jca36), aion(jca36))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jk33), aion(jk33))
+      zion(jca36), aion(jca36))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jsc39), aion(jsc39))
@@ -657,29 +693,29 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jti42), aion(jti42))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jk34), aion(jk34))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jk34), aion(jk34))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jca37), aion(jca37))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jca37), aion(jca37))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jsc40), aion(jsc40))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jsc40), aion(jsc40))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jar31), aion(jar31))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jk34), aion(jk34))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jk34), aion(jk34))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jca37), aion(jca37))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jca37), aion(jca37))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jsc40), aion(jsc40))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jsc40), aion(jsc40))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jti43), aion(jti43))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
@@ -692,16 +728,22 @@ contains
       zion(jti44), aion(jti44))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jk41), aion(jk41))
+      zion(jti45), aion(jti45))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jk41), aion(jk41))
+      zion(jti45), aion(jti45))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jti45), aion(jti45))
+      zion(jca44), aion(jca44))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jti45), aion(jti45))
+      zion(jca44), aion(jca44))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jsc45), aion(jsc45))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jsc45), aion(jsc45))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jti46), aion(jti46))
@@ -722,45 +764,45 @@ contains
       zion(jv46), aion(jv46))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jca43), aion(jca43))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jca43), aion(jca43))
-
-    call add_screening_factor(zion(jp), aion(jp), &
       zion(jv47), aion(jv47))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jv47), aion(jv47))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jsc46), aion(jsc46))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jsc46), aion(jsc46))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jti47), aion(jti47))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jti47), aion(jti47))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jv48), aion(jv48))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jv48), aion(jv48))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jca44), aion(jca44))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jca44), aion(jca44))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jti40), aion(jti40))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jti40), aion(jti40))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jsc37), aion(jsc37))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jsc37), aion(jsc37))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jca34), aion(jca34))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jsc37), aion(jsc37))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jsc37), aion(jsc37))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jti40), aion(jti40))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jti40), aion(jti40))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jv43), aion(jv43))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
@@ -809,16 +851,22 @@ contains
       zion(jcr48), aion(jcr48))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jsc45), aion(jsc45))
+      zion(jcr49), aion(jcr49))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jsc45), aion(jsc45))
+      zion(jcr49), aion(jcr49))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcr49), aion(jcr49))
+      zion(jti48), aion(jti48))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcr49), aion(jcr49))
+      zion(jti48), aion(jti48))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jv49), aion(jv49))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jv49), aion(jv49))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jcr50), aion(jcr50))
@@ -839,43 +887,43 @@ contains
       zion(jmn50), aion(jmn50))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jti47), aion(jti47))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jti47), aion(jti47))
-
-    call add_screening_factor(zion(jp), aion(jp), &
       zion(jmn51), aion(jmn51))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jmn51), aion(jmn51))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jti48), aion(jti48))
+      zion(jv50), aion(jv50))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jti48), aion(jti48))
+      zion(jv50), aion(jv50))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jcr51), aion(jcr51))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jcr51), aion(jcr51))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jmn52), aion(jmn52))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jmn52), aion(jmn52))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcr44), aion(jcr44))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcr44), aion(jcr44))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jv41), aion(jv41))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jv41), aion(jv41))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jti38), aion(jti38))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jv41), aion(jv41))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jv41), aion(jv41))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jcr44), aion(jcr44))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jcr44), aion(jcr44))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jmn47), aion(jmn47))
@@ -929,13 +977,22 @@ contains
       zion(jfe52), aion(jfe52))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jv49), aion(jv49))
+      zion(jfe53), aion(jfe53))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jv49), aion(jv49))
+      zion(jfe53), aion(jfe53))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jfe53), aion(jfe53))
+      zion(jcr52), aion(jcr52))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jcr52), aion(jcr52))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jmn53), aion(jmn53))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jmn53), aion(jmn53))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jfe54), aion(jfe54))
@@ -943,41 +1000,47 @@ contains
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco53), aion(jco53))
 
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco53), aion(jco53))
+
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco54), aion(jco54))
-
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcr51), aion(jcr51))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcr51), aion(jcr51))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco55), aion(jco55))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jcr52), aion(jcr52))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jcr52), aion(jcr52))
+      zion(jmn54), aion(jmn54))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jmn45), aion(jmn45))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jmn45), aion(jmn45))
+      zion(jfe55), aion(jfe55))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jfe48), aion(jfe48))
-
-    call add_screening_factor(zion(jhe4), aion(jhe4), &
-      zion(jfe48), aion(jfe48))
+      zion(jco56), aion(jco56))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jcr42), aion(jcr42))
 
     call add_screening_factor(zion(jp), aion(jp), &
+      zion(jmn45), aion(jmn45))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jmn45), aion(jmn45))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jfe48), aion(jfe48))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jfe48), aion(jfe48))
+
+    call add_screening_factor(zion(jp), aion(jp), &
       zion(jco51), aion(jco51))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco51), aion(jco51))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jni54), aion(jni54))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jv40), aion(jv40))
@@ -1003,11 +1066,20 @@ contains
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco52), aion(jco52))
 
-    call add_screening_factor(zion(jp), aion(jp), &
-      zion(jmn53), aion(jmn53))
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco52), aion(jco52))
 
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jfe55), aion(jfe55))
+      zion(jni55), aion(jni55))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jni56), aion(jni56))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jmn55), aion(jmn55))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jfe56), aion(jfe56))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jfe46), aion(jfe46))
@@ -1017,6 +1089,12 @@ contains
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco49), aion(jco49))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco49), aion(jco49))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jni52), aion(jni52))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jmn44), aion(jmn44))
@@ -1033,17 +1111,32 @@ contains
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco50), aion(jco50))
 
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco50), aion(jco50))
+
     call add_screening_factor(zion(jp), aion(jp), &
-      zion(jmn55), aion(jmn55))
+      zion(jni53), aion(jni53))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco47), aion(jco47))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco47), aion(jco47))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jni50), aion(jni50))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jfe45), aion(jfe45))
 
     call add_screening_factor(zion(jp), aion(jp), &
       zion(jco48), aion(jco48))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      zion(jco48), aion(jco48))
+
+    call add_screening_factor(zion(jp), aion(jp), &
+      zion(jni51), aion(jni51))
 
 
     call screening_init()
