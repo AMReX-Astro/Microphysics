@@ -1,6 +1,7 @@
 import StarKillerMicrophysics as SKM
 from StarKiller.interfaces import BurnType, EosType
 from StarKiller.eos import Eos
+import numpy as np
 
 class Network(object):
     def __init__(self):
@@ -45,7 +46,6 @@ class Network(object):
         burn_state.state.n_rhs = n_rhs
         burn_state.state.n_jac = n_jac
 
-
     def jacobian(self, burn_state):
         n_rhs = burn_state.state.n_rhs
         n_jac = burn_state.state.n_jac
@@ -59,3 +59,17 @@ class Network(object):
         # statistics of a preceding burn.
         burn_state.state.n_rhs = n_rhs
         burn_state.state.n_jac = n_jac
+
+    def get_species_molar_rhs(self, burn_state):
+        species_molar_rhs  = np.zeros_like(burn_state.state.xn)
+        species_molar_rhs[:self.nspec_evolve] = burn_state.state.ydot[:self.nspec_evolve]
+        return species_molar_rhs
+
+    def get_species_energy_rates(self, burn_state):
+        # Given a burn_state for which the RHS has been
+        # evaluated, return the vector of energy
+        # generation rates per species
+        species_energy_rates = np.zeros_like(burn_state.state.xn)
+        species_molar_rates  = self.get_species_molar_rhs(burn_state)
+        self.ActualNetworkModule.species_energy_rates(species_molar_rates, species_energy_rates)
+        return species_energy_rates
