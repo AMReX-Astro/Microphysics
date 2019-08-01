@@ -1133,7 +1133,7 @@ contains
     double precision, intent(in   ) :: y(nspec)
     type (rate_t),    intent(inout) :: rr
 
-    integer          :: i, jscr
+    integer          :: jscr
     double precision :: sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt
     double precision :: sc1add,sc2add
 !    double precision :: sc3add

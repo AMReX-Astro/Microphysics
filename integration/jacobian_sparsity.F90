@@ -192,8 +192,6 @@ contains
     integer, intent(in) :: row, col
     real(rt), intent(out) :: val
 
-    integer :: csr_loc
-
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
