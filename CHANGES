@@ -1,4 +1,4 @@
-# changes since last release
+# 19.08
 
   -- A new network, subch2, was added that combines aprox13 and the
      subch networks. (#184)
