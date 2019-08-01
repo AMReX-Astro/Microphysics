@@ -1,3 +1,8 @@
+# changes since last release
+
+  -- A new network, subch2, was added that combines aprox13 and the
+     subch networks. (#184)
+
 # 19.05
 
   -- The aprox21 network was missing the analytic Jacobian term for
