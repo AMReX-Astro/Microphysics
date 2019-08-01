@@ -77,7 +77,7 @@ contains
     spec_names(io14)  = "oxygen-14"
     spec_names(io15)  = "oxygen-15"
     spec_names(io16)  = "oxygen-16"
-    spec_names(if17)  = "flourine-17"
+    spec_names(if17)  = "fluorine-17"
     spec_names(img22) = "magnesium-22"
     spec_names(is30)  = "sulfur-30"
     spec_names(ini56) = "nickel-56"
