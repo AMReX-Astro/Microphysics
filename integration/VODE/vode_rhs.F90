@@ -13,7 +13,11 @@
                                     integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, &
                                 burn_to_vode, vode_to_burn
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_i
+    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_i, irp_t0
+
+#ifdef NONAKA_PLOT
+    use nonaka_plot_module, only: nonaka_rhs
+#endif
 
     implicit none
 
@@ -25,6 +29,10 @@
     type (burn_t) :: burn_state
 
     real(rt) :: limit_factor, t_sound, t_enuc
+
+#ifdef NONAKA_PLOT
+    real(rt) :: simulation_time
+#endif
 
     ! We are integrating a system of
     !
@@ -52,6 +60,11 @@
     ! We integrate X, not Y
     burn_state % ydot(1:nspec_evolve) = &
          burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
+#ifdef NONAKA_PLOT
+    simulation_time = rpar(irp_t0) + time
+    call nonaka_rhs(burn_state, simulation_time)
+#endif
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then

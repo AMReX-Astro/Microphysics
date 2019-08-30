@@ -4,8 +4,8 @@ ifeq ($(USE_SDC), TRUE)
   f90EXE_sources += vode_type_sdc.f90
 else
   f90EXE_sources += vode_integrator.f90
-  f90EXE_sources += vode_rhs.f90
-  f90EXE_sources += vode_type.f90
+  F90EXE_sources += vode_rhs.F90
+  F90EXE_sources += vode_type.F90
 endif
 
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/vode_source/

@@ -273,7 +273,7 @@ contains
     use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps, n_not_evolved, irp_i, irp_j, irp_k
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -310,6 +310,12 @@ contains
     else
        state % self_heat = .false.
     endif
+
+#ifdef NONAKA_PLOT
+    state % i = rpar(irp_i)
+    state % j = rpar(irp_j)
+    state % k = rpar(irp_k)
+#endif
 
   end subroutine vode_to_burn
 
