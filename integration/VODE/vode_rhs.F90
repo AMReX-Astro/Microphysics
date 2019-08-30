@@ -57,14 +57,14 @@
     burn_state % time = time
     call actual_rhs(burn_state)
 
-    ! We integrate X, not Y
-    burn_state % ydot(1:nspec_evolve) = &
-         burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
-
 #ifdef NONAKA_PLOT
     simulation_time = rpar(irp_t0) + time
     call nonaka_rhs(burn_state, simulation_time)
 #endif
+
+    ! We integrate X, not Y
+    burn_state % ydot(1:nspec_evolve) = &
+         burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
