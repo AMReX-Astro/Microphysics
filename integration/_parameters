@@ -105,3 +105,9 @@ ode_max_steps              integer      150000
 
 # Whether to use Jacobian caching in VODE90
 use_jacobian_caching    logical   .true.
+
+# Inputs for generating a Nonaka Plot (TM)
+nonaka_i                integer           0
+nonaka_j                integer           0
+nonaka_k                integer           0
+nonaka_file             character         "nonaka_plot.dat"

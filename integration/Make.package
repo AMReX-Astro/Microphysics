@@ -61,7 +61,10 @@ else
 
 endif
 
-
+# Check if we should make a Nonaka plot and add to cpp definitions
+ifeq ($(USE_NONAKA_PLOT), TRUE)
+  DEFINES += -DNONAKA_PLOT
+endif
 
 ifeq ($(USE_SDC), TRUE)
   F90EXE_sources += integrator_sdc.F90
@@ -75,3 +78,4 @@ F90EXE_sources += integrator_scaling.F90
 f90EXE_sources += integration_data.f90
 F90EXE_sources += temperature_integration.F90
 F90EXE_sources += rpar.F90
+f90EXE_sources += nonaka_plot.f90
