@@ -19,6 +19,10 @@ contains
 #endif
     use temperature_integration_module, only: temperature_rhs_init
 
+#ifdef NONAKA_PLOT
+    use nonaka_plot_module, only: nonaka_init
+#endif
+
     implicit none
 
     call integrator_scaling_init()
@@ -29,6 +33,10 @@ contains
     call actual_integrator_init()
 #endif
     call temperature_rhs_init()
+
+#ifdef NONAKA_PLOT
+    call nonaka_init()
+#endif
 
   end subroutine integrator_init
 
