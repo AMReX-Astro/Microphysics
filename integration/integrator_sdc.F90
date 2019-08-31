@@ -15,6 +15,10 @@ contains
     use actual_integrator_module, only: actual_integrator_init
 #endif
 
+#ifdef NONAKA_PLOT
+    use nonaka_plot_module, only: nonaka_init
+#endif
+
     implicit none
 
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
@@ -22,6 +26,10 @@ contains
     call bs_integrator_init()
 #else
     call actual_integrator_init()
+#endif
+
+#ifdef NONAKA_PLOT
+    call nonaka_init()
 #endif
 
   end subroutine integrator_init
