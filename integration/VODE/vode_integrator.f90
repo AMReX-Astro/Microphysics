@@ -6,7 +6,7 @@ module vode_integrator_module
   use eos_module, only : eos
   use eos_type_module, only: eos_t, eos_input_rt
   use network
-  use rpar_indices
+  use vode_rpar_indices
   use vode_type_module
   use burn_type_module
   use amrex_error_module
@@ -75,7 +75,7 @@ contains
 
   subroutine vode_integrator(state_in, state_out, dt, time, status)
 
-    use rpar_indices
+    use vode_rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species

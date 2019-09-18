@@ -14,7 +14,7 @@ contains
     use amrex_constants_module, only: ONE
     use actual_network, only: nspec, nspec_evolve
     use burn_type_module, only: neqs, net_itemp
-    use rpar_indices, only: n_rpar_comps
+    use vode_rpar_indices, only: n_rpar_comps
     use eos_type_module, only : eos_get_small_temp
     use extern_probin_module, only: renormalize_abundances, SMALL_X_SAFE, MAX_TEMP
 
@@ -47,7 +47,7 @@ contains
 
     use network, only: nspec, nspec_evolve
     use burn_type_module, only: neqs
-    use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
+    use vode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
     implicit none
 
@@ -72,7 +72,7 @@ contains
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
-    use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
+    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
     use burn_type_module, only: neqs
 
     implicit none
@@ -140,7 +140,7 @@ contains
 
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
@@ -176,7 +176,7 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
@@ -211,7 +211,7 @@ contains
 
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
@@ -270,7 +270,7 @@ contains
 
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved, irp_i, irp_j, irp_k
