@@ -36,7 +36,7 @@ contains
   end subroutine nonaka_init
 
 
-  subroutine nonaka_rhs(state, time)
+  subroutine nonaka_rhs(state)
 
     use extern_probin_module, only: nonaka_i, nonaka_j, nonaka_k, nonaka_file
     use amrex_fort_module, only: rt => amrex_real
@@ -46,7 +46,6 @@ contains
     implicit none
 
     type (burn_t), intent(in) :: state
-    real(rt), intent(in) :: time
 
     integer :: nonaka_file_unit, j
 
@@ -64,7 +63,7 @@ contains
         write(scalar_format, '("(", I0, "E30.16E5", ")")') 1
         
         open(newunit=nonaka_file_unit, file=nonaka_file, status="old", position="append", action="write")
-        write(unit=nonaka_file_unit, fmt=scalar_format, advance="no") time
+        write(unit=nonaka_file_unit, fmt=scalar_format, advance="no") state % time
 
         ! Mass fractions X
         write(unit=nonaka_file_unit, fmt=vector_format, advance="no") (state % xn(j), j = 1, nspec)
