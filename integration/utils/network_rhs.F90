@@ -1,4 +1,4 @@
-module integrator_rhs_module
+module network_rhs_module
 
   implicit none
 
@@ -6,7 +6,7 @@ module integrator_rhs_module
 
 contains
 
-  subroutine integrator_rhs(state)
+  subroutine network_rhs(state)
 
     use actual_rhs_module, only: actual_rhs
     use burn_type_module, only: burn_t
@@ -27,10 +27,10 @@ contains
     call nonaka_rhs(state)
 #endif
 
-  end subroutine integrator_rhs
+  end subroutine network_rhs
 
 
-  subroutine integrator_jac(state)
+  subroutine network_jac(state)
 
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t
@@ -43,6 +43,6 @@ contains
 
     call actual_jac(state)
 
-  end subroutine integrator_jac
+  end subroutine network_jac
 
-end module integrator_rhs_module
+end module network_rhs_module

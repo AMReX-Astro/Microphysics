@@ -5,7 +5,7 @@
   subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
     use amrex_fort_module, only : rt => amrex_real
-    use integrator_rhs_module, only: integrator_rhs
+    use network_rhs_module, only: network_rhs
     use actual_network, only: aion, nspec_evolve
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
@@ -47,7 +47,7 @@
     call vode_to_burn(y, rpar, burn_state)
 
     burn_state % time = rpar(irp_t0) + time
-    call integrator_rhs(burn_state)
+    call network_rhs(burn_state)
 
     ! We integrate X, not Y
     burn_state % ydot(1:nspec_evolve) = &
@@ -80,7 +80,7 @@
     use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use network, only: aion, aion_inv, nspec_evolve
-    use integrator_rhs_module, only: integrator_jac
+    use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode
     use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
@@ -100,7 +100,7 @@
 
     call vode_to_burn(y, rpar, state)
     state % time = rpar(irp_t0) + time
-    call integrator_jac(state)
+    call network_jac(state)
 
     ! We integrate X, not Y
     do n = 1, nspec_evolve
