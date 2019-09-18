@@ -1,5 +1,5 @@
 F90EXE_sources += vbdf_integrator.F90
-F90EXE_sources += rpar.F90
+F90EXE_sources += vbdf_rpar.F90
 f90EXE_sources += bdf_rhs.f90
 f90EXE_sources += bdf.f90
 f90EXE_sources += bdf_type.f90
