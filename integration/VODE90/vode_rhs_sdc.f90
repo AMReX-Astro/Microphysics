@@ -12,7 +12,7 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   use actual_rhs_module, only: actual_rhs
   use vode_type_module, only: clean_state, renormalize_species, &
        rhs_to_vode, vode_to_burn
-  use rpar_indices
+  use vode_rpar_indices
 
   implicit none
 
@@ -60,7 +60,7 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   use actual_rhs_module, only: actual_jac
   use burn_type_module, only: burn_t, net_ienuc
   use amrex_fort_module, only: rt => amrex_real
-  use rpar_indices
+  use vode_rpar_indices
   use vode_type_module, only: clean_state, renormalize_species, &
        jac_to_vode, vode_to_burn
 

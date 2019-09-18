@@ -9,6 +9,8 @@ else
   F90sources += cuvode_parameters.F90
 endif
 
+F90sources += vode_rpar.F90
+
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source/
 include $(VODE_SOURCE_DIR)/GPackage.mak
 
