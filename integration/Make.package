@@ -78,5 +78,4 @@ F90EXE_sources += jacobian_sparsity.F90
 F90EXE_sources += integrator_scaling.F90
 f90EXE_sources += integration_data.f90
 F90EXE_sources += temperature_integration.F90
-F90EXE_sources += rpar.F90
 f90EXE_sources += nonaka_plot.f90
