@@ -9,7 +9,7 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO
-    use actual_rhs_module, only: actual_jac
+    use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian
     use burn_type_module, only: burn_t
@@ -32,7 +32,7 @@ contains
 
        call bs_to_burn(bs, burn)
 
-       call actual_jac(burn)
+       call network_jac(burn)
 
        call jac_to_bs(bs, burn)
 

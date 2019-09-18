@@ -11,7 +11,7 @@ contains
     use network, only: aion, aion_inv, nspec_evolve
     use amrex_constants_module, only: ZERO, ONE
     use amrex_fort_module, only : rt => amrex_real
-    use actual_rhs_module, only: actual_jac
+    use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
@@ -33,7 +33,7 @@ contains
 
     if (jacobian == 1) then
 
-       call actual_jac(bs % burn_s)
+       call network_jac(bs % burn_s)
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve
