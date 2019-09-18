@@ -73,3 +73,10 @@ else
 endif
 F90EXE_sources += integrator_scaling.F90
 f90EXE_sources += integration_data.f90
+
+
+INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
+VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils
+EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/utils
+
+include $(MICROPHYSICS_HOME)/integration/utils/Make.package
