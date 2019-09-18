@@ -16,7 +16,7 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
-    use actual_rhs_module, only: actual_rhs
+    use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, &
          integrate_temperature, integrate_energy
     use cvode_type_module, only: sk_clean_state, sk_renormalize_species, sk_update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
@@ -61,7 +61,7 @@ contains
     call vode_to_burn(y, rpar, burn_state)
 
     burn_state % time = time
-    call actual_rhs(burn_state)
+    call network_rhs(burn_state)
 
     ! We integrate X, not Y
     burn_state % ydot(1:nspec_evolve) = &
@@ -89,7 +89,7 @@ contains
     
     use network, only: aion, aion_inv, nspec_evolve, NETWORK_SPARSE_JAC_NNZ
     use amrex_constants_module, only: ZERO
-    use actual_rhs_module, only: actual_jac
+    use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, scale_jac_entry
     use cvode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
@@ -117,7 +117,7 @@ contains
 
     call vode_to_burn(y, rpar, state)
     state % time = time
-    call actual_jac(state)
+    call network_jac(state)
 
     ! We integrate X, not Y
     do n = 1, nspec_evolve
