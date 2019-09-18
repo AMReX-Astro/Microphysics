@@ -16,7 +16,7 @@ contains
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
-    use rpar_indices, only: irp_y_init
+    use bs_rpar_indices, only: irp_y_init
 
     implicit none
 

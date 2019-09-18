@@ -18,7 +18,7 @@ contains
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
     use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
                               burn_to_bs, bs_to_burn
-    use rpar_indices, only: irp_y_init
+    use bs_rpar_indices, only: irp_y_init
 
     implicit none
 
