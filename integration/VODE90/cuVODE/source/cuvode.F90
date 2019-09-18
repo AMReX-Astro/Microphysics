@@ -3,7 +3,7 @@ module cuvode_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
-  use rpar_indices
+  use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
   use blas_module
   use linpack_module
