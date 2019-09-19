@@ -8,7 +8,7 @@ module actual_integrator_module
   use eos_type_module
   use eos_module
   use network
-  use rpar_indices
+  use vbdf_rpar_indices
   use burn_type_module
   use bdf_type_module
   use bdf
@@ -38,7 +38,7 @@ contains
 
     !$acc routine seq
 
-    use rpar_indices
+    use vbdf_rpar_indices
     use extern_probin_module, only: burner_verbose, &
                                     reuse_jac, &
                                     rtol_spec, rtol_temp, rtol_enuc, &

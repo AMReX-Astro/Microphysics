@@ -6,7 +6,7 @@ module bs_integrator_module
   use eos_module
   use eos_type_module
   use network
-  use rpar_indices
+  use bs_rpar_indices
   use burn_type_module
   use stiff_ode
   use bs_type_module
@@ -33,7 +33,7 @@ contains
 
     !$acc routine seq
 
-    use rpar_indices
+    use bs_rpar_indices
     use amrex_fort_module, only : rt => amrex_real
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species

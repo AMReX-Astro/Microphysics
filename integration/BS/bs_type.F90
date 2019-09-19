@@ -2,7 +2,7 @@ module bs_type_module
 
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module, only: neqs, burn_t
-  use rpar_indices, only: n_rpar_comps
+  use bs_rpar_indices, only: n_rpar_comps
 
   implicit none
 
@@ -76,7 +76,7 @@ contains
 
     use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
 
     implicit none
 
@@ -104,7 +104,7 @@ contains
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : nspec, nspec_evolve
 
     implicit none
@@ -188,7 +188,7 @@ contains
 
     use actual_network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
     implicit none
@@ -218,7 +218,7 @@ contains
 
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
     implicit none
@@ -256,7 +256,7 @@ contains
     !$acc routine seq
 
     use network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ONE
 
@@ -288,7 +288,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ZERO, ONE
 

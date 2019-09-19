@@ -6,7 +6,7 @@ contains
   subroutine f_rhs(time, y, ydot, rpar)
 
     use cuvode_parameters_module, only: VODE_NEQS
-    use rpar_indices, only: n_rpar_comps
+    use vode_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
     implicit none
@@ -28,7 +28,7 @@ contains
   subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
     use cuvode_parameters_module, only: VODE_NEQS
-    use rpar_indices, only: n_rpar_comps    
+    use vode_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
     implicit none

@@ -59,7 +59,7 @@ contains
 
   subroutine vode_integrator(state_in, state_out, dt, time, status)
 
-    use rpar_indices
+    use vode_rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     burning_mode, call_eos_in_rhs, dT_crit
     use integration_data, only: integration_status_t

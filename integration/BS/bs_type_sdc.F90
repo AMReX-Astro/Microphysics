@@ -3,7 +3,7 @@ module bs_type_module
   use amrex_constants_module, only: HALF, ONE
   use amrex_fort_module, only : rt => amrex_real
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
-  use rpar_indices, only: n_rpar_comps
+  use bs_rpar_indices, only: n_rpar_comps
 
   implicit none
 
@@ -52,7 +52,7 @@ contains
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: nspec
     use sdc_type_module, only: SFS, SEDEN, SEINT
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
     use eos_module, only: eos
     use eos_type_module, only: eos_input_rt, eos_t, eos_get_small_dens, eos_get_max_dens
 
@@ -108,7 +108,7 @@ contains
     !$acc routine seq
 
     use sdc_type_module, only: SRHO, SMX, SMZ
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
@@ -134,7 +134,7 @@ contains
 
     use sdc_type_module, only: SFS
     use actual_network, only: nspec
-    use rpar_indices, only: irp_SRHO
+    use bs_rpar_indices, only: irp_SRHO
 
     implicit none
 
@@ -159,7 +159,7 @@ contains
     !$acc routine seq
 
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE, SRHO, SMX, SMZ
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
@@ -196,7 +196,7 @@ contains
     !$acc routine seq
 
     use sdc_type_module, only: sdc_t, SRHO, SMX, SMZ
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
@@ -224,7 +224,7 @@ contains
     use actual_network, only: nspec_evolve, aion
     use burn_type_module, only: burn_t, net_ienuc
     use sdc_type_module, only: SVAR_EVOLVE, SEDEN, SEINT, SFS
-    use rpar_indices, only: irp_SRHO
+    use bs_rpar_indices, only: irp_SRHO
 
     implicit none
 
@@ -301,7 +301,7 @@ contains
     use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
     use eos_module, only: eos
     use sdc_type_module, only: SEDEN, SEINT, SFS
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 
     implicit none
 
@@ -350,7 +350,7 @@ contains
     
     use eos_type_module, only: eos_input_re, eos_t, eos_get_small_temp, eos_get_max_temp
     use sdc_type_module, only: SEDEN, SEINT, SFS
-    use rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+    use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
     use actual_network, only: nspec
     use eos_module, only: eos
 

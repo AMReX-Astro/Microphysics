@@ -16,7 +16,7 @@ contains
     
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs
-    use rpar_indices, only: n_rpar_comps
+    use cvode_rpar_indices, only: n_rpar_comps
 
     implicit none
 
@@ -37,7 +37,7 @@ contains
     
     use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
-    use rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
+    use cvode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
     use extern_probin_module, only: renormalize_abundances
 
     implicit none
@@ -67,7 +67,7 @@ contains
     use extern_probin_module, only: call_eos_in_rhs, dt_crit
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
-    use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
+    use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
     use burn_type_module, only: neqs
 
     implicit none
@@ -139,7 +139,7 @@ contains
     use integrator_scaling_module, only: dens_scale, temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
@@ -178,7 +178,7 @@ contains
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp, net_ienuc
 
@@ -217,7 +217,7 @@ contains
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve, aion, aion_inv, NETWORK_SPARSE_JAC_NNZ
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
@@ -304,7 +304,7 @@ contains
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
-    use rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
@@ -361,7 +361,7 @@ contains
     use eos_type_module, only: eos_t, eos_input_rt, copy_eos_t
     use eos_module, only: eos
     use network, only: nspec_evolve, aion_inv
-    use rpar_indices, only: n_rpar_comps, irp_self_heat, irp_t_sound, irp_dx, irp_dens, &
+    use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_t_sound, irp_dx, irp_dens, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_y_init, irp_energy_offset
 
     implicit none
@@ -434,7 +434,7 @@ contains
     use network, only: nspec, nspec_evolve
     use actual_rhs_module, only : update_unevolved_species
     use burn_type_module, only: neqs, burn_t, net_ienuc, net_itemp, normalize_abundances_burn
-    use rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens
+    use cvode_rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens
 
     implicit none
 

@@ -14,11 +14,11 @@ contains
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use amrex_fort_module, only : rt => amrex_real
-    use actual_rhs_module, only: actual_rhs
+    use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, integrate_temperature, integrate_energy, react_boost
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
-    use rpar_indices, only: irp_y_init, irp_t_sound
+    use vbdf_rpar_indices, only: irp_y_init, irp_t_sound
 
     implicit none
 
@@ -55,7 +55,7 @@ contains
     ! Call the specific network routine to get the RHS.
 
     call vbdf_to_burn(ts, burn_state)
-    call actual_rhs(burn_state)
+    call network_rhs(burn_state)
 
     ! We integrate X not Y, so convert here
     burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
@@ -94,12 +94,12 @@ contains
     use network, only: aion, aion_inv, nspec_evolve
     use amrex_constants_module, only: ZERO, ONE
     use amrex_fort_module, only : rt => amrex_real
-    use actual_rhs_module, only: actual_jac
+    use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
-    use rpar_indices, only: irp_y_init, irp_t_sound
+    use vbdf_rpar_indices, only: irp_y_init, irp_t_sound
 
     implicit none
 
@@ -121,7 +121,7 @@ contains
 
     if (jacobian == 1) then
 
-       call actual_jac(state)
+       call network_jac(state)
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve

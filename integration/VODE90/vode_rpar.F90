@@ -5,7 +5,7 @@
 ! SDC TODO: we need to store the advective sources here.  Also some bits
 ! are not needed in the SDC implementation (like the cv and cp stuff)
 
-module rpar_indices
+module vode_rpar_indices
 
 #ifndef SDC
   use actual_network, only: nspec, nspec_evolve
@@ -37,10 +37,8 @@ module rpar_indices
   integer, parameter :: irp_dcvdt = irp_Told + 1
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1
   integer, parameter :: irp_t0 = irp_dcpdt + 1
-  integer, parameter :: irp_i = irp_t0 + 1
-  integer, parameter :: irp_j = irp_t0 + 2
-  integer, parameter :: irp_k = irp_t0 + 3
-  integer, parameter :: n_rpar_comps = irp_k
+
+  integer, parameter :: n_rpar_comps = irp_t0 + 1
 #else
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a and irp_u_init
@@ -61,13 +59,10 @@ module rpar_indices
 
   integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
-  integer, parameter :: irp_t0 = irp_T_from_eden + 1
-  integer, parameter :: irp_i = irp_t0 + 1
-  integer, parameter :: irp_j = irp_t0 + 2
-  integer, parameter :: irp_k = irp_t0 + 3
-  integer, parameter :: irp_iter = irp_k + 1
-  integer, parameter :: n_rpar_comps = irp_iter
+  integer, parameter :: irp_t0 = irp_self_heat + 1
 
+  integer, parameter :: n_rpar_comps = irp_t0
 #endif
+  
 
-end module rpar_indices
+end module vode_rpar_indices

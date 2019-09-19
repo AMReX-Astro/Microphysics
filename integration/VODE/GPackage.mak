@@ -7,3 +7,5 @@ else
   F90sources += vode_rhs.F90
   F90sources += vode_type.F90
 endif
+
+F90sources += vode_rpar.F90
