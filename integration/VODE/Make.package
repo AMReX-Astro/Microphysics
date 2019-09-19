@@ -8,6 +8,8 @@ else
   F90EXE_sources += vode_type.F90
 endif
 
+F90EXE_sources += vode_rpar.F90
+
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/vode_source/
 include $(VODE_SOURCE_DIR)/Make.package
 

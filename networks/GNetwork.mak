@@ -62,6 +62,7 @@ else
 endif
 
 INT_DIRS += $(MICROPHYSICS_HOME)/integration
+INT_DIRS += $(MICROPHYSICS_HOME)/integration/utils
 
 # we'll assume that all integrators need the linear algebra packages
 INT_DIRS += $(MICROPHYSICS_HOME)/util/

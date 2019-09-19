@@ -3,10 +3,10 @@
 !
 ! This module is a stub for the user to extend, use this to store indices.
 !
-module rpar_indices
+module vode_rpar_indices
 
   implicit none
 
   integer, parameter :: n_rpar_comps = 0
 
-end module rpar_indices
+end module vode_rpar_indices

@@ -10,3 +10,4 @@ else
   F90sources += bs_jac.F90
 endif
 F90sources += stiff_ode.F90
+F90sources += bs_rpar.F90

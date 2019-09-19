@@ -2,7 +2,7 @@
 ! and forth between the Microphysics data format and the specific data format
 ! used by the integrators.
 
-module rpar_indices
+module bs_rpar_indices
 
 #ifndef SDC
   use actual_network, only: nspec, nspec_evolve
@@ -35,4 +35,4 @@ module rpar_indices
   integer, parameter :: n_rpar_comps = irp_t0
 #endif
 
-end module rpar_indices
+end module bs_rpar_indices

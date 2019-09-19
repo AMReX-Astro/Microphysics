@@ -2,7 +2,7 @@
 ! and forth between the Microphysics data format and the specific data format
 ! used by the integrators.
 
-module rpar_indices
+module vbdf_rpar_indices
 
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
@@ -31,4 +31,4 @@ module rpar_indices
 
   integer, parameter :: n_rpar_comps = irp_t0
 
-end module rpar_indices
+end module vbdf_rpar_indices
