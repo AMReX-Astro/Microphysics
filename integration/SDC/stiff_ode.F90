@@ -307,16 +307,22 @@ contains
           ! loop over time nodes
           do m = 0, SDC_NODES-2
 
+             ! load the initial data for node m
+             sdc_temp % y(:) = y_node(m, :)
+
              dt_m = dt * (dt_sdc[m+1] - dt_sdc[m])
 
              ! compute the integral term
-             call sdc_integral(m, f_old, I)
+             call sdc_integral(m, dt, dt_m, f_old, C)
 
              ! compute the explicit source
-             f_source(:) = y_node(m, :) + I(:)
+             f_source(:) = y_node(m, :) + C(:)
 
              ! do the nonlinear solve to find the solution at time node m+1
+             call sdc_newton_solve(dt_m, sdc_temp, y_node(m+1, :), f_source, k, ierr)
 
+             ! did the solve converge?
+             
           end do
 
           ! recompute f on all time nodes and store
