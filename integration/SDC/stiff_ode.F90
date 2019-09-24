@@ -245,20 +245,27 @@ contains
     real(rt), intent(in) :: yscal(sdc_neqs)
     integer, intent(out) :: ierr
 
-    real(rt) :: y_save(sdc_neqs), yerr(sdc_neqs), yseq(sdc_neqs)
-    real(rt) :: err(KMAXX)
+    real(rt) :: y_save(sdc_neqs), y_s(sdc_neqs), y_d(sdc_neqs)
 
-    real(rt) :: dt, fac, scale, red, eps1, work, work_min, xest
+    ! storage for the solution on each time node
+    real(rt) :: y_node(0:SDC_NODES-1, sdc_neqs)
+
+    ! storage for the previous iteration's RHS
+    real(rt) :: f_old(0:SDC_NODES-1, sdc_neqs)
+    real(rt) :: f_new(0:SDC_NODES-1, sdc_neqs)
+
+    real(rt) :: dt
     real(rt) :: err_max
 
-    logical :: converged, reduce, skip_loop, retry
+    logical :: converged
 
-    integer :: i, k, n, kk, km, kstop, ierr_temp
-    integer, parameter :: max_iters = 10 ! Should not need more than this
+    integer :: i, n
 
+    ! this is the number of time step attempts we try
+    integer, parameter :: max_timestep_attempts = 10
 
     dt = bs % dt
-    y_save(:) = bs % y(:)
+    y_save(:) = sdc % y(:)
 
     ! get the jacobian
     call jac(sdc)
@@ -267,7 +274,7 @@ contains
 
     converged = .false.
 
-    do n = 1, max_iters
+    do n = 1, max_timestep_attempts
 
        ! setting skip_loop = .true. in the next loop is a GPU-safe-way to
        ! indicate that we are discarding this timestep attempt and will
@@ -279,138 +286,69 @@ contains
        ! errors at the start of the attempt
        ierr = IERR_NONE
 
-       do k = 1, bs % kmax
+       t_start = sdc % t
 
-          if (.not. skip_loop) then
+       sdc % t_new = sdc % t + dt
 
-             bs % t_new = bs % t + dt
+       ! we start integrating from y_save(:)
+       sdc_temp = sdc
+       sdc_temp % y(:) = y_save(:)
 
-             call semi_implicit_extrap(bs, y_save, dt, nseq(k), yseq, ierr_temp)
-             ierr = ierr_temp
-             if (ierr == IERR_LU_DECOMPOSITION_ERROR) then
-                skip_loop = .true.
-                red = ONE/nseq(k)
-             endif
+       y_node(0:SDC_NODES-1, :) = y_save(:)
 
-             call safety_check(y_save, yseq, retry)
-             if (retry) then
-                skip_loop = .true.
-                red = RED_BIG_FACTOR
-             endif
+       ! compute an estimate for the RHS at the "old" iteration
+       call f_rhs(sdc_temp)
 
-             if (ierr == IERR_NONE .and. .not. retry) then
-                xest = (dt/nseq(k))**2
-                call poly_extrap(k, xest, yseq, bs % y, yerr, t_extrap, qcol)
+       f_old(0:SDC_NODES-1, :) = sdc_temp % burn_s % ydot(:)
 
-                if (k /= 1) then
-                   err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
-                   err_max = err_max / eps
-                   km = k - 1
-                   err(km) = (err_max/S1)**(1.0/(2*km+1))
-                endif
+       do k = 1, SDC_MAX_ITERATIONS
 
-                if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
 
-                   if (err_max < 1) then
-                      converged = .true.
-                      kstop = k
-                      exit
-                   else
+          ! loop over time nodes
+          do m = 0, SDC_NODES-2
 
-                      ! reduce stepsize if necessary
-                      if (k == bs % kmax .or. k == bs % kopt+1) then
-                         red = S2/err(km)
-                         reduce = .true.
-                         skip_loop = .true.
-                      else if (k == bs % kopt) then
-                         if (bs % alpha(bs % kopt-1, bs % kopt) < err(km)) then
-                            red = ONE/err(km)
-                            reduce = .true.
-                            skip_loop = .true.
-                         endif
-                      else if (bs % kopt == bs % kmax) then
-                         if (bs % alpha(km, bs % kmax-1) < err(km)) then
-                            red = bs % alpha(km, bs % kmax-1)*S2/err(km)
-                            reduce = .true.
-                            skip_loop = .true.
-                         endif
-                      else if (bs % alpha(km, bs % kopt) < err(km)) then
-                         red = bs % alpha(km, bs % kopt - 1)/err(km)
-                         reduce = .true.
-                         skip_loop = .true.
-                      endif
-                   endif
+             dt_m = dt * (dt_sdc[m+1] - dt_sdc[m])
 
-                endif
+             ! compute the integral term
+             call sdc_integral(m, f_old, I)
 
-                kstop = k
-             endif
-          endif
+             ! compute the explicit source
+             f_source(:) = y_node(m, :) + I(:)
 
-       enddo
+             ! do the nonlinear solve to find the solution at time node m+1
 
-       if (.not. converged) then
-          ! note, even if ierr /= IERR_NONE, we still try again, since
-          ! we may eliminate LU decomposition errors (singular matrix)
-          ! with a smaller timestep
-          red = max(min(red, RED_BIG_FACTOR), RED_SMALL_FACTOR)
-          dt = dt*red
-       else
-          exit
-       endif
+          end do
 
-    enddo   ! iteration loop (n) varying dt
+          ! recompute f on all time nodes and store
+          do m = 0, SDC_NODES-1
+             sdc_temp % y(:) = y_node(m, :)
+             call f_rhs(sdc_temp)
+
+             f_old(:, :) = sdc_temp % burn_s % ydot(:)
+          end do
+
+       end do
+
+       ! did we converge? if so, break out
+
+       ! if we didn't converge, reduce the timestep and try again
+
+
+    end do
+
 
     if (.not. converged .and. ierr == IERR_NONE) then
        ierr = IERR_NO_CONVERGENCE
-#ifndef ACC
-       print *, "Integration failed due to non-convergence in single_step_bs"
-       call dump_bs_state(bs)
+       print *, "Integration failed due to non-convergence in single_step_sdc"
+       call dump_bs_state(sdc)
        return
-#endif
     endif
 
-#ifndef ACC
-    ! km and kstop should have been set during the main loop.
-    ! If they never got updated from the original nonsense values,
-    ! that means something went really wrong and we should abort.
+    sdc % t = sdc % t_new
+    sdc % sdc_did = dt
 
-    if (km < 0) then
-       call amrex_error("Error: km < 0 in subroutine single_step_bs, something has gone wrong.")
-    endif
-
-    if (kstop < 0) then
-       call amrex_error("Error: kstop < 0 in subroutine single_step_bs, something has gone wrong.")
-    endif
-#endif
-
-    bs % t = bs % t_new
-    bs % dt_did = dt
-    bs % first = .false.
-
-    ! optimal convergence properties
-    work_min = 1.e35
-    do kk = 1, km
-       fac = max(err(kk), SCALMX)
-       work = fac*bs % a(kk+1)
-
-       if (work < work_min) then
-          scale = fac
-          work_min = work
-          bs % kopt = kk+1
-       endif
-    enddo
-
-    ! increase in order
-    bs % dt_next = dt / scale
-
-    if (bs % kopt >= kstop .and. bs % kopt /= bs % kmax .and. .not. reduce) then
-       fac = max(scale/bs % alpha(bs % kopt-1, bs % kopt), SCALMX)
-       if (bs % a(bs % kopt+1)*fac <= work_min) then
-          bs % dt_next = dt/fac
-          bs % kopt = bs % kopt + 1
-       endif
-    endif
+    ! compute the next timestep
+    bs % dt_next =
 
   end subroutine single_step_bs
 

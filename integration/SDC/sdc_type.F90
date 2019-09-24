@@ -9,20 +9,12 @@ module sdc_type_module
   integer, parameter :: sdc_neqs = neqs
 
   type sdc_t
-     logical :: first
-     real(rt) :: eps_old
      real(rt) :: dt_did
      real(rt) :: dt_next
      real(rt) :: t_new
 
      ! storage for the solution
      real(rt) :: y(neqs)
-
-     ! storage for the solution on each time node
-     real(rt) :: y_node(0:SDC_NODES-1, neqs)
-
-     ! storage for the previous iteration's RHS
-     real(rt) :: f_old(0:SDC_NODES-1, neqs)
 
      real(rt) :: atol(neqs), rtol(neqs)
      real(rt) :: upar(n_rpar_comps)
