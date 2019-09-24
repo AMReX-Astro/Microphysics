@@ -17,6 +17,9 @@ module cuvode_dvstep_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvstep(IWM, rwork, vstate)
 
     !$acc routine seq
