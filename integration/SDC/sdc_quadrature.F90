@@ -1,13 +1,17 @@
 module sdc_quadrature_module
 
+  use amrex_fort_module, only : rt => amrex_real
+
+  implicit none
+
   ! these are parameters for the SDC 4th order Radau method
   integer, parameter :: SDC_NODES = 4
   integer, parameter :: SDC_MAX_ITERATIONS = 4
 
-  real(rt), parameter :: dt_sdc = [0.0d0, (4.0d0 - sqrt(6.0d0))/10.0d0, &
-                                   (4.0d0 + qrt(6.0d0))/10.0d0, 1.0d0]
-  real(rt), parameter :: node_weights = [0.0d0, (16.0d0 - sqrt(6.0d0))/36.0d0, &
-                                        (16.0d0 + std::sqrt(6.0d0))/36.0d0, 1.0d0/9.0d0]
+  real(rt), parameter :: dt_sdc(:) = [0.0d0, (4.0d0 - sqrt(6.0d0))/10.0d0, &
+                                   (4.0d0 + sqrt(6.0d0))/10.0d0, 1.0d0]
+  real(rt), parameter :: node_weights(:) = [0.0d0, (16.0d0 - sqrt(6.0d0))/36.0d0, &
+                                        (16.0d0 + sqrt(6.0d0))/36.0d0, 1.0d0/9.0d0]
 
 contains
 
@@ -19,6 +23,7 @@ contains
     real(rt), intent(in) :: f_old(0:SDC_NODES-1, sdc_neqs)
     real(rt), intent(inout) :: C(sdc_neqs)
 
+    real(rt) :: integral(sdc_neqs)
 
     if (m_start == 0) then
        ! compute the integral from [t_m, t_{m+1}], normalized by dt_m
@@ -60,15 +65,8 @@ contains
     ! here, U_new should come in as a guess for the new U and will be
     ! returned with the value that satisfies the nonlinear function
 
-    use meth_params_module, only : NVAR, UEDEN, UEINT, URHO, UFS, UMX, UMZ, UTEMP, &
-                                   sdc_order, &
-                                   sdc_solver_tol_dens, sdc_solver_tol_spec, sdc_solver_tol_ener, &
-                                   sdc_solver_atol, &
-                                   sdc_solver_relax_factor, &
-                                   sdc_solve_for_rhoe
     use amrex_constants_module, only : ZERO, HALF, ONE
     use burn_type_module, only : burn_t
-    use react_util_module
     use network, only : nspec, nspec_evolve
     use rpar_sdc_module
     use extern_probin_module, only : small_x

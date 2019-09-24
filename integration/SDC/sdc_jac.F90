@@ -15,8 +15,8 @@ contains
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
-    use bs_rpar_indices, only: irp_y_init
+    use sdc_type_module, only: sdc_t, sdc_to_burn, burn_to_sdc
+    use sdc__rpar_indices, only: irp_y_init
 
     implicit none
 
