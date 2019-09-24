@@ -104,7 +104,7 @@ contains
     type (sdc_t) :: state
     type (eos_t) :: eos_state
 
-    ! Several thermodynamic quantities come in via bs % upar -- note: these
+    ! Several thermodynamic quantities come in via sdc % upar -- note: these
     ! are evaluated at the start of the integration, so if things change
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
@@ -126,7 +126,7 @@ contains
     if (call_eos_in_rhs .and. state % burn_s % self_heat) then
 
        call eos(eos_input_rt, eos_state)
-       call eos_to_bs(eos_state, state)
+       call eos_to_sdc(eos_state, state)
 
     else if (abs(eos_state % T - state % burn_s % T_old) > &
          dT_crit * eos_state % T .and. state % burn_s % self_heat) then
@@ -140,8 +140,8 @@ contains
        state % burn_s % T_old  = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
-       ! in the call to eos_to_bs that follows 
-       call eos_to_bs(eos_state, state)
+       ! in the call to eos_to_sdc that follows 
+       call eos_to_sdc(eos_state, state)
 
     else
 
@@ -180,7 +180,7 @@ contains
 
     use actual_network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use bs_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
     implicit none

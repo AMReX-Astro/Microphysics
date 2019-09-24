@@ -2,11 +2,11 @@ module rhs_module
 
 contains
 
-  ! The rhs routine provides the right-hand-side for the BS solver.
+  ! The rhs routine provides the right-hand-side for the SDC solver.
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
-  subroutine f_rhs(bs)
+  subroutine f_rhs(sdc)
 
     !$acc routine seq
 
@@ -16,13 +16,13 @@ contains
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
-    use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &
-                              burn_to_bs, bs_to_burn
-    use bs_rpar_indices, only: irp_y_init
+    use sdc_type_module, only: sdc_t, clean_state, renormalize_species, update_thermodynamics, &
+                              burn_to_sdc, sdc_to_burn
+    use sdc_rpar_indices, only: irp_y_init
 
     implicit none
 
-    type (bs_t) :: bs
+    type (sdc_t) :: sdc
 
     ! We are integrating a system of
     !
@@ -32,41 +32,41 @@ contains
 
     ! Initialize the RHS to zero.
 
-    bs % burn_s % ydot(:) = ZERO
+    sdc % burn_s % ydot(:) = ZERO
 
     ! Fix the state as necessary.
-    call clean_state(bs)
+    call clean_state(sdc)
 
     ! Update the thermodynamic quantities as necessary.
-    call update_thermodynamics(bs)
+    call update_thermodynamics(sdc)
 
     ! Call the specific network routine to get the RHS.
-    call bs_to_burn(bs)
-    call network_rhs(bs % burn_s)
+    call sdc_to_burn(sdc)
+    call network_rhs(sdc % burn_s)
 
     ! We integrate X, not Y
-    bs % burn_s % ydot(1:nspec_evolve) = &
-         bs % burn_s % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    sdc % burn_s % ydot(1:nspec_evolve) = &
+         sdc % burn_s % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
-       bs % burn_s % ydot(net_itemp) = ZERO
+       sdc % burn_s % ydot(net_itemp) = ZERO
     endif
 
     if (.not. integrate_energy) then
-       bs % burn_s % ydot(net_ienuc) = ZERO
+       sdc % burn_s % ydot(net_ienuc) = ZERO
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       bs % burn_s % ydot(:) = react_boost * bs % burn_s % ydot(:)
+       sdc % burn_s % ydot(:) = react_boost * sdc % burn_s % ydot(:)
     endif
 
-    call burn_to_bs(bs)
+    call burn_to_sdc(sdc)
 
     ! Increment the evaluation counter.
 
-    bs % burn_s % n_rhs = bs % burn_s % n_rhs + 1
+    sdc % burn_s % n_rhs = sdc % burn_s % n_rhs + 1
 
   end subroutine f_rhs
 

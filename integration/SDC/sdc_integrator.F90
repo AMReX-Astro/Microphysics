@@ -1,39 +1,34 @@
 ! Common variables and routines for burners
-! that use BS for their integration.
+! that use SDC for their integration.
 
-module bs_integrator_module
+module sdc_integrator_module
 
   use eos_module
   use eos_type_module
   use network
-  use bs_rpar_indices
+  use sdc_rpar_indices
   use burn_type_module
   use stiff_ode
-  use bs_type_module
+  use sdc_type_module
 
   implicit none
 
 contains
 
-  subroutine bs_integrator_init()
+  subroutine sdc_integrator_init()
 
     implicit none
 
-    nseq = [2, 6, 10, 14, 22, 34, 50, 70]
-
-    !$acc update device(nseq)
-
-  end subroutine bs_integrator_init
-
+  end subroutine sdc_integrator_init
 
 
   ! Main interface
 
-  subroutine bs_integrator(state_in, state_out, dt, time, status)
+  subroutine sdc_integrator(state_in, state_out, dt, time, status)
 
     !$acc routine seq
 
-    use bs_rpar_indices
+    use sdc_rpar_indices
     use amrex_fort_module, only : rt => amrex_real
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
@@ -56,7 +51,7 @@ contains
     real(rt) :: t0, t1
 
     type (eos_t) :: eos_state_in, eos_state_temp
-    type (bs_t) :: bs
+    type (sdc_t) :: sdc
 
     real(rt) :: ener_offset
     real(rt) :: t_enuc, t_sound, limit_factor
@@ -82,8 +77,8 @@ contains
     ! to be the largest of the relative error tolerances for any
     ! equation. We may expand this capability in the future.
 
-    bs % atol = atol
-    bs % rtol = rtol
+    sdc % atol = atol
+    sdc % rtol = rtol
 
     ! Start out by assuming a successful burn.
 
@@ -102,17 +97,17 @@ contains
 
     call eos(eos_input_rt, eos_state_in)
 
-    ! Convert the EOS state data into the form BS expects.
+    ! Convert the EOS state data into the form SDC expects.
 
-    ! at this point, the burn_t that we care about is part of bs
-    call eos_to_bs(eos_state_in, bs)
+    ! at this point, the burn_t that we care about is part of SDC
+    call eos_to_sdc(eos_state_in, sdc)
 
-    bs % burn_s % i = state_in % i
-    bs % burn_s % j = state_in % j
-    bs % burn_s % k = state_in % k
+    sdc % burn_s % i = state_in % i
+    sdc % burn_s % j = state_in % j
+    sdc % burn_s % k = state_in % k
 
-    bs % burn_s % n_rhs = 0
-    bs % burn_s % n_jac = 0
+    sdc % burn_s % n_rhs = 0
+    sdc % burn_s % n_jac = 0
 
     ! Get the internal energy e that is consistent with this T.
     ! We will start the zone with this energy and subtract it at
@@ -121,31 +116,31 @@ contains
 
     ener_offset = eos_state_in % e
 
-    bs % y(net_ienuc) = ener_offset
+    sdc % y(net_ienuc) = ener_offset
 
     ! Pass through whether we are doing self-heating.
 
-    bs % burn_s % self_heat = self_heat
+    sdc % burn_s % self_heat = self_heat
 
     ! Copy in the zone size.
 
-    bs % burn_s % dx = state_in % dx
+    sdc % burn_s % dx = state_in % dx
 
     ! Set the sound crossing time.
 
-    bs % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
+    sdc % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
     ! set the time offset -- we integrate from 0 to dt, so this
     ! is the offset to simulation time
     
-    bs % upar(irp_t0) = time
+    sdc % upar(irp_t0) = time
 
 
     ! If we are using the dT_crit functionality and therefore doing a
     ! linear interpolation of the specific heat in between EOS calls,
     ! do a second EOS call here to establish an initial slope.
 
-    bs % burn_s % T_old = eos_state_in % T
+    sdc % burn_s % T_old = eos_state_in % T
 
     if (dT_crit < 1.0d19) then
 
@@ -154,45 +149,45 @@ contains
 
        call eos(eos_input_rt, eos_state_temp)
 
-       bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
+       sdc % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
             (eos_state_temp % T - eos_state_in % T)
 
-       bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
+       sdc % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
             (eos_state_temp % T - eos_state_in % T)
     endif
 
     ! Save the initial state.
 
-    bs % upar(irp_y_init:irp_y_init + neqs - 1) = bs % y
+    sdc % upar(irp_y_init:irp_y_init + neqs - 1) = sdc % y
 
     ! Call the integration routine.
-    call ode(bs, t0, t1, maxval(rtol), ierr)
+    call ode(sdc, t0, t1, maxval(rtol), ierr)
 
     ! If we are using hybrid burning and the energy release was
     ! negative (or we failed), re-run this in self-heating mode.
 
     if ( burning_mode == 2 .and. &
-         (bs % y(net_ienuc) - ener_offset < ZERO .or. &
+         (sdc % y(net_ienuc) - ener_offset < ZERO .or. &
          ierr /= IERR_NONE) ) then
 
-       bs % burn_s % self_heat = .true.
+       sdc % burn_s % self_heat = .true.
 
-       call eos_to_bs(eos_state_in, bs)
+       call eos_to_sdc(eos_state_in, sdc)
 
-       bs % y(net_ienuc) = ener_offset
+       sdc % y(net_ienuc) = ener_offset
 
        ! redo the T_old, cv / cp extrapolation
-       bs % burn_s % T_old = eos_state_in % T
+       sdc % burn_s % T_old = eos_state_in % T
 
        if (dT_crit < 1.0d19) then
-          bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
+          sdc % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
                (eos_state_temp % T - eos_state_in % T)
 
-          bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
+          sdc % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
                (eos_state_temp % T - eos_state_in % T)
        endif
 
-       call ode(bs, t0, t1, maxval(rtol), ierr)
+       call ode(sdc, t0, t1, maxval(rtol), ierr)
 
     endif
 
@@ -205,14 +200,14 @@ contains
        print *, 'ierr = ', ierr
        print *, 'dt = ', dt
        print *, 'time start = ', time
-       print *, 'time current = ', bs % t
+       print *, 'time current = ', sdc % t
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', bs % y(net_itemp)
-       print *, 'xn current = ', bs % y(1:nspec_evolve), &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
-       print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
+       print *, 'temp current = ', sdc % y(net_itemp)
+       print *, 'xn current = ', sdc % y(1:nspec_evolve), &
+            sdc % upar(irp_nspec:irp_nspec+n_not_evolved-1)
+       print *, 'energy generated = ', sdc % y(net_ienuc) - ener_offset
 #endif
 
        state_out % success = .false.
@@ -222,15 +217,15 @@ contains
 
     ! Subtract the energy offset.
 
-    bs % y(net_ienuc) = bs % y(net_ienuc) - ener_offset
+    sdc % y(net_ienuc) = sdc % y(net_ienuc) - ener_offset
 
     ! Store the final data, and then normalize abundances.
-    call bs_to_burn(bs)
+    call sdc_to_burn(sdc)
 
     ! cache the success
     success = state_out % success
 
-    state_out = bs % burn_s
+    state_out = sdc % burn_s
 
     state_out % success = success
 
@@ -262,20 +257,20 @@ contains
        print *, 'integration summary: '
        print *, 'dt = ', dt
        print *, 'time start = ', time
-       print *, 'time final = ', bs % t
+       print *, 'time final = ', sdc % t
        print *, 'dens = ', state_out % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp final = ', state_out % T
        print *, 'xn final = ', state_out % xn
        print *, 'energy generated = ', state_out % e - state_in % e
-       print *, 'number of steps taken: ', bs % n
+       print *, 'number of steps taken: ', sdc % n
        print *, 'number of RHS evaluations: ', state_out % n_rhs
        print *, 'number of Jacobian evaluations: ', state_out % n_jac
 
     endif
 #endif
 
-  end subroutine bs_integrator
+  end subroutine sdc_integrator
 
-end module bs_integrator_module
+end module sdc_integrator_module
