@@ -23,6 +23,9 @@ module cuvode_module
   
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvode(vstate, rwork, IWORK, ITASK, IOPT, MF)
 
     !$acc routine seq

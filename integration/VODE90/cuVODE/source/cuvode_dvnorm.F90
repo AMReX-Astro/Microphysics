@@ -10,6 +10,9 @@ module cuvode_dvnorm_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   function dvnorm(V, W) result(dvn)
 
     !$acc routine seq
