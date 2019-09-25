@@ -5,7 +5,6 @@ module blas_module
 contains
 
   SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
-    !$gpu
     INTEGER INCX,INCY,N
     DOUBLE PRECISION DX(:),DY(:)
 ! *  Purpose
@@ -16,6 +15,8 @@ contains
 ! *     jack dongarra, linpack, 3/11/78.
 ! *     modified 12/3/93, array(1) declarations changed to array(*)
     INTEGER I,IX,IY,M,MP1
+
+    !$gpu
 
     IF (N.LE.0) RETURN
     IF (INCX.EQ.1 .AND. INCY.EQ.1) GO TO 20
@@ -59,7 +60,6 @@ contains
 
 
   SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
-    !$gpu
   ! Only operates on arrays of size N
 
     !     .. Scalar Arguments ..
@@ -81,6 +81,8 @@ contains
     ! 
     !      .. Local Scalars ..
     INTEGER I,IX,IY,M,MP1
+
+    !$gpu
 
     IF (N.LE.0) RETURN
     IF (DA.EQ.0.0d0) RETURN
@@ -123,7 +125,6 @@ contains
 
   
   SUBROUTINE daxpy(N,DA,DX,INCX,DY,INCY)
-    !$gpu
     !     .. Scalar Arguments ..
     DOUBLE PRECISION DA
     INTEGER INCX,INCY,N
@@ -143,6 +144,8 @@ contains
     ! 
     !      .. Local Scalars ..
     INTEGER I,IX,IY,M,MP1
+
+    !$gpu
 
     IF (N.LE.0) RETURN
     IF (DA.EQ.0.0d0) RETURN
@@ -185,7 +188,6 @@ contains
 
 
   FUNCTION DDOT(N,DX,INCX,DY,INCY) result(dotval)
-    !$gpu
     DOUBLE PRECISION dotval
     !      .. Scalar Arguments ..
     INTEGER INCX,INCY,N
@@ -206,6 +208,8 @@ contains
     !      .. Local Scalars ..
     DOUBLE PRECISION DTEMP
     INTEGER I,IX,IY,M,MP1
+
+    !$gpu
 
     dotval = 0.0d0
     DTEMP = 0.0d0
@@ -248,7 +252,6 @@ contains
   END FUNCTION DDOT
 
   SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
-    !$gpu
     !      .. Scalar Arguments ..
     DOUBLE PRECISION ALPHA,BETA
     INTEGER K,LDA,LDB,LDC,M,N
@@ -397,6 +400,9 @@ contains
     !      .. Parameters ..
     DOUBLE PRECISION ONE,ZERO
     PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+
+    !$gpu
+
     !      ..
     ! 
     !      Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not
@@ -571,7 +577,6 @@ contains
 
 
   SUBROUTINE DSCALN(N,DA,DX,INCX)
-    !$gpu
     ! Only operates on arrays of size N
 
     !      .. Scalar Arguments ..
@@ -597,6 +602,7 @@ contains
     !      ..
     !      .. Intrinsic Functions ..
     INTRINSIC MOD
+    !$gpu
     !      ..
     IF (N.LE.0 .OR. INCX.LE.0) RETURN
     IF (INCX.EQ.1) GO TO 20
@@ -633,7 +639,6 @@ contains
 
   
   SUBROUTINE DSCAL(N,DA,DX,INCX)
-    !$gpu
     !      .. Scalar Arguments ..
     DOUBLE PRECISION DA
     INTEGER INCX,N
@@ -657,6 +662,7 @@ contains
     !      ..
     !      .. Intrinsic Functions ..
     INTRINSIC MOD
+    !$gpu
     !      ..
     IF (N.LE.0 .OR. INCX.LE.0) RETURN
     IF (INCX.EQ.1) GO TO 20
@@ -692,7 +698,6 @@ contains
   END SUBROUTINE DSCAL
 
   FUNCTION IDAMAX(N,DX,INCX) result(index)
-    !$gpu
     !      .. Scalar Arguments ..
     INTEGER INCX,N
     !      ..
@@ -715,6 +720,7 @@ contains
     !      ..
     !      .. Intrinsic Functions ..
     INTRINSIC DABS
+    !$gpu
     !      ..
     index = 0
     IF (N.LT.1 .OR. INCX.LE.0) RETURN
