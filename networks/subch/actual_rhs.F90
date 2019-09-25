@@ -27,20 +27,20 @@ contains
   end subroutine actual_rhs_init
   
   subroutine update_unevolved_species(state)
-    !$gpu
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
+    !$gpu
     return
   end subroutine update_unevolved_species
 
   subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
-    !$gpu
 
     implicit none
 
     double precision :: dydt(nspec), enuc
+    !$gpu
 
     ! This is basically e = m c**2
 
@@ -50,7 +50,6 @@ contains
 
   subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
-    !$gpu
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
@@ -59,6 +58,7 @@ contains
     double precision :: reactvec(num_rate_groups+2)
     integer :: i, j
     double precision :: dens, temp, rhoy
+    !$gpu
 
     Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
@@ -136,7 +136,6 @@ contains
   subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
-    !$gpu
 
     
     double precision, intent(out) :: ydot_nuc(nspec)
@@ -145,6 +144,7 @@ contains
     double precision, intent(in)  :: dens
 
 
+    !$gpu
 
     ydot_nuc(jp) = ( &
       screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*dens + &
@@ -210,7 +210,6 @@ contains
   subroutine actual_jac(state)
 
     !$acc routine seq
-    !$gpu
 
     use burn_type_module, only: net_itemp, net_ienuc
     
@@ -227,6 +226,7 @@ contains
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     integer :: i, j
 
+    !$gpu
     dens = state%rho
     temp = state%T
 
@@ -280,7 +280,6 @@ contains
   subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
 
     !$acc routine seq
-    !$gpu
 
     double precision, intent(out) :: dfdy_nuc(nspec, nspec)
     double precision, intent(in)  :: Y(nspec)
@@ -288,6 +287,7 @@ contains
     double precision, intent(in)  :: dens
 
 
+    !$gpu
 
     dfdy_nuc(jp,jp) = ( &
       -screened_rates(k_p_c12__n13)*Y(jc12)*dens &
