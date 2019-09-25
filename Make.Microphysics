@@ -34,6 +34,7 @@ ifdef USE_CUDA
   ifeq ($(USE_CUDA),TRUE)
     MANAGED_PROBIN_FLAG := --managed
     USE_GPU_PRAGMA = TRUE
+    DEFINES += -DCUDA
   endif
 endif
 
@@ -101,10 +102,14 @@ ifeq ($(INTEGRATOR_DIR), CVODE)
   LIBRARY_LOCATIONS += $(CVODE_HOME)/lib
   LIBRARIES += -lsundials_cvode -lsundials_sunlinsolband -lsundials_sunlinsolspbcgs -lsundials_sunlinsolsptfqmr -lsundials_sunmatrixsparse -lsundials_nveccuda -lsundials_sunlinsoldense -lsundials_sunlinsolspfgmr -lsundials_sunmatrixband -lsundials_sunnonlinsolfixedpoint -lsundials_nvecserial -lsundials_sunlinsolpcg -lsundials_sunlinsolspgmr -lsundials_sunmatrixdense -lsundials_sunnonlinsolnewton
 
+ifeq ($(USE_CUDA_CVODE),TRUE)
+  LIBRARIES += -rpath=$(CVODE_HOME)/lib
+else
+  LIBRARIES += -Wl,-rpath,$(CVODE_HOME)/lib
+endif
+
   ifeq ($(USE_CUDA_CVODE), TRUE)
     DEFINES += -DCUDA_CVODE
-
-    LIBRARIES += -rpath=$(CVODE_HOME)/lib
   endif
 
   ifeq ($(USE_CVODE_CUSOLVER), TRUE)

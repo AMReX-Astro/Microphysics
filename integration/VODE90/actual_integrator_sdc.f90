@@ -60,7 +60,7 @@ contains
 
   subroutine actual_integrator(state_in, state_out, dt, time)
 
-    use rpar_indices
+    use vode_rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &

@@ -6,5 +6,5 @@ CEXE_headers = test_react.H
 F90EXE_sources += react_zones.F90
 F90EXE_sources += cuvode_parameters.F90
 F90EXE_sources += vode_rhs.F90
-F90EXE_sources += rpar.F90
+F90EXE_sources += vode_rpar.F90
 

@@ -5,7 +5,6 @@ module linpack_module
 contains
   
   subroutine dgesl(a,lda,n,ipvt,b,job)
-    !$gpu
 
     use blas_module, only: daxpy
 
@@ -70,6 +69,7 @@ contains
     ! 
     double precision t
     integer k,kb,l,nm1
+    !$gpu
     ! 
     nm1 = n - 1
     if (job .ne. 0) goto 50
@@ -126,7 +126,6 @@ contains
   end subroutine dgesl
 
   SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
-    !$gpu
 
     use blas_module, only: daxpy, dscal
     use blas_module, only: idamax ! function
@@ -229,6 +228,7 @@ contains
     ! 
     DOUBLE PRECISION T
     INTEGER I,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
+    !$gpu
     ! 
     ! ***FIRST EXECUTABLE STATEMENT  DGBFA
     M = ML + MU + 1
@@ -317,7 +317,6 @@ contains
   END SUBROUTINE DGBFA
 
   SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
-    !$gpu
 
     use blas_module, only: daxpy, ddot ! function
 
@@ -401,6 +400,7 @@ contains
     ! 
     DOUBLE PRECISION T
     INTEGER K,KB,L,LA,LB,LM,M,NM1
+    !$gpu
     ! ***FIRST EXECUTABLE STATEMENT  DGBSL
     M = MU + ML + 1
     NM1 = N - 1
@@ -469,7 +469,6 @@ contains
   END SUBROUTINE DGBSL
 
   subroutine dgefa (a,lda,n,ipvt,info)
-    !$gpu
 
     use blas_module, only: daxpy, dscal
     use blas_module, only: idamax ! function
@@ -524,6 +523,7 @@ contains
     ! 
     double precision t
     integer j,k,kp1,l,nm1
+    !$gpu
     ! 
     ! 
     !      gaussian elimination with partial pivoting
@@ -579,7 +579,6 @@ contains
   end subroutine dgefa
 
   function vddot (n,dx,incx,dy,incy) result(dotval)
-    !$gpu
 
     ! 
     !      forms the dot product of two arrays.
@@ -589,6 +588,7 @@ contains
     double precision dotval
     double precision dx(:),dy(:),dtemp
     integer i,incx,incy,ix,iy,m,mp1,n
+    !$gpu
     ! 
     dotval = 0.0d0
     dtemp = 0.0d0

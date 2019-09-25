@@ -74,7 +74,6 @@ contains
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
     double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     !$gpu
 
@@ -95,8 +94,7 @@ contains
     call screen_iso7(temp, rho, y,                 &
                      ratraw, dratrawdt, dratrawdd, &
                      ratdum, dratdumdt, dratdumdd, &
-                     dratdumdy1, dratdumdy2,       &
-                     scfac,  dscfacdt,  dscfacdd)
+                     dratdumdy1, dratdumdy2)
 
     ! Save the rate data, for the Jacobian later if we need it.
 
@@ -582,8 +580,7 @@ contains
   subroutine screen_iso7(btemp, bden, y, &
                          ratraw, dratrawdt, dratrawdd, &
                          ratdum, dratdumdt, dratdumdd, &
-                         dratdumdy1, dratdumdy2, &
-                         scfac, dscfacdt, dscfacdd)
+                         dratdumdy1, dratdumdy2)
 
     use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -599,7 +596,6 @@ contains
     double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
     double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
     double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     integer          :: i, jscr
     double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
@@ -617,9 +613,6 @@ contains
        ratdum(i)     = ratraw(i)
        dratdumdt(i)  = dratrawdt(i)
        dratdumdd(i)  = dratrawdd(i)
-       scfac(i)      = ONE
-       dscfacdt(i)   = ZERO
-       dscfacdd(i)   = ZERO
     enddo
 
     dratdumdy1(:) = ZERO
@@ -647,9 +640,6 @@ contains
     dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
     !dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
 
-    scfac(ir3a)     = sc3a
-    dscfacdt(ir3a)  = sc3adt
-    !dscfacdd(ir3a)  = sc3add
 
 
     ! c12 to o16
@@ -660,9 +650,6 @@ contains
     dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
     !dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
 
-    scfac(ircag)      = sc1a
-    dscfacdt(ircag)   = sc1adt
-    !dscfacdd(ircag)   = sc1add
 
 
 
@@ -674,9 +661,6 @@ contains
     dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
     !dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
 
-    scfac(ir1212)     = sc1a
-    dscfacdt(ir1212)  = sc1adt
-    !dscfacdd(ir1212)  = sc1add
 
 
 
@@ -688,9 +672,6 @@ contains
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
     !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
 
-    scfac(ir1216)     = sc1a
-    dscfacdt(ir1216)  = sc1adt
-    !dscfacdd(ir1216)  = sc1add
 
 
 
@@ -702,9 +683,6 @@ contains
     dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
     !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
 
-    scfac(ir1216)     = sc1a
-    dscfacdt(ir1216)  = sc1adt
-    !dscfacdd(ir1216)  = sc1add
 
 
 
@@ -716,9 +694,6 @@ contains
     dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
     !dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
 
-    scfac(iroag)     = sc1a
-    dscfacdt(iroag)  = sc1adt
-    !dscfacdd(iroag)  = sc1add
 
 
 
@@ -730,9 +705,6 @@ contains
     dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
     !dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
 
-    scfac(irneag)     = sc1a
-    dscfacdt(irneag)  = sc1adt
-    !dscfacdd(irneag)  = sc1add
 
 
     ! mg24 to si28
@@ -743,9 +715,6 @@ contains
     dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
     !dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
 
-    scfac(irmgag)     = sc1a
-    dscfacdt(irmgag)  = sc1adt
-    !dscfacdd(irmgag)  = sc1add
 
 
 
@@ -757,9 +726,6 @@ contains
     dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
     !dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
 
-    scfac(ircaag)     = sc1a
-    dscfacdt(ircaag)  = sc1adt
-    !dscfacdd(ircaag)  = sc1add
 
 
 

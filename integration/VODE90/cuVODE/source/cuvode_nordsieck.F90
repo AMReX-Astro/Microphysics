@@ -10,6 +10,9 @@ module cuvode_nordsieck_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine advance_nordsieck(rwork, vstate)
 
     ! Effectively multiplies the Nordsieck history
@@ -37,6 +40,9 @@ contains
   end subroutine advance_nordsieck
 
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine retract_nordsieck(rwork, vstate)
 
     ! Undoes the Pascal triangle matrix multiplication

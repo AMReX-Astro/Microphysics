@@ -1,4 +1,4 @@
-! a simple code to check the analytic Jacobian via numerical 
+! a simple code to check the analytic Jacobian via numerical
 ! differencing
 
 program testjacobian
@@ -23,9 +23,9 @@ program testjacobian
   dens = 2.6e9_rt
   temp = 6.e8_rt
 
-  Xin(ic12_)  = 0.5_rt
-  Xin(io16_)  = 0.5_rt
-  Xin(iash_)  = 0.0_rt
+  Xin(ic12)  = 0.5_rt
+  Xin(io16)  = 0.5_rt
+  Xin(iash)  = 0.0_rt
 
   state % rho = dens
   state % T = temp

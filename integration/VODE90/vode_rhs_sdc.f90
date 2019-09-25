@@ -9,10 +9,10 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   use amrex_fort_module, only: rt => amrex_real
   use burn_type_module, only: burn_t, net_ienuc, net_itemp
   use amrex_constants_module, only: ZERO, ONE
-  use actual_rhs_module, only: actual_rhs
+  use network_rhs_module, only: network_rhs
   use vode_type_module, only: clean_state, renormalize_species, &
        rhs_to_vode, vode_to_burn
-  use rpar_indices
+  use vode_rpar_indices
 
   implicit none
 
@@ -37,7 +37,7 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
 
   ! call the specific network to get the RHS
 
-  call actual_rhs(burn_state)
+  call network_rhs(burn_state)
 
   ! convert back to the vode type -- this will add the advective terms
 
@@ -57,10 +57,10 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
 
   use network, only: aion, aion_inv, nspec_evolve
   use amrex_constants_module, only: ZERO
-  use actual_rhs_module, only: actual_jac
+  use network_rhs_module, only: network_jac
   use burn_type_module, only: burn_t, net_ienuc
   use amrex_fort_module, only: rt => amrex_real
-  use rpar_indices
+  use vode_rpar_indices
   use vode_type_module, only: clean_state, renormalize_species, &
        jac_to_vode, vode_to_burn
 
@@ -81,7 +81,7 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   state % time = time
 
   ! call the analytic Jacobian
-  call actual_jac(state)
+  call network_jac(state)
 
   ! convert to the system we are using
   call jac_to_vode(time, state, y, pd, rpar)
