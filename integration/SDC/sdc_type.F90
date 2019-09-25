@@ -3,7 +3,8 @@ module sdc_type_module
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module, only: neqs, burn_t
   use sdc_rpar_indices, only: n_rpar_comps
-  use sdc_quadrature_module, only : SDC_NODES
+  use sdc_sizes_module, only : SDC_NODES
+
   implicit none
 
   integer, parameter :: sdc_neqs = neqs

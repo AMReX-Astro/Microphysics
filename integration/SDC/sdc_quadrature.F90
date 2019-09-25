@@ -1,25 +1,22 @@
 module sdc_quadrature_module
 
+  use sdc_sizes_module
   use amrex_fort_module, only : rt => amrex_real
+  use sdc_type_module
+  use amrex_constants_module
 
   implicit none
-
-  ! these are parameters for the SDC 4th order Radau method
-  integer, parameter :: SDC_NODES = 4
-  integer, parameter :: SDC_MAX_ITERATIONS = 4
-
-  real(rt), parameter :: dt_sdc(:) = [0.0d0, (4.0d0 - sqrt(6.0d0))/10.0d0, &
-                                   (4.0d0 + sqrt(6.0d0))/10.0d0, 1.0d0]
-  real(rt), parameter :: node_weights(:) = [0.0d0, (16.0d0 - sqrt(6.0d0))/36.0d0, &
-                                        (16.0d0 + sqrt(6.0d0))/36.0d0, 1.0d0/9.0d0]
 
 contains
 
   subroutine sdc_C_source(m_start, dt, dt_m, f_old, C)
 
+    use amrex_error_module, only : amrex_error
+
     implicit none
 
     integer, intent(in) :: m_start
+    real(rt), intent(in) :: dt, dt_m
     real(rt), intent(in) :: f_old(0:SDC_NODES-1, sdc_neqs)
     real(rt), intent(inout) :: C(sdc_neqs)
 
@@ -68,8 +65,10 @@ contains
     use amrex_constants_module, only : ZERO, HALF, ONE
     use burn_type_module, only : burn_t
     use network, only : nspec, nspec_evolve
-    use rpar_sdc_module
     use extern_probin_module, only : small_x
+    use sdc_type_module, only : sdc_t
+    use rhs_module, only : f_rhs
+    use jac_module, only : jac
 
     implicit none
 
@@ -80,9 +79,13 @@ contains
     integer, intent(in) :: sdc_iteration
     integer, intent(out) :: ierr
 
-    real(rt) :: w(0:nspec_evolve+1)
+    real(rt) :: A(sdc_neqs, sdc_neqs)
+    real(rt) :: rhs(sdc_neqs)
+    real(rt) :: dy(sdc_neqs)
 
-    integer :: ipvt(nspec_evolve+2)
+    real(rt) :: w(sdc_neqs)
+
+    integer :: ipvt(sdc_neqs)
     integer :: info
 
     logical :: converged
@@ -96,7 +99,7 @@ contains
 
     integer :: max_newton_iter
 
-    integer :: k
+    integer :: k, n
 
     ierr = NEWTON_SUCCESS
 
@@ -123,7 +126,7 @@ contains
 
        A(:,:) = A(:,:) - dt_m * sdc % burn_s % jac(:, :)
 
-       rhs(:) = -sdc % y(:) + dt_m * sdc % burn % ydot(:) - f_source(:)
+       rhs(:) = -sdc % y(:) + dt_m * sdc % burn_s % ydot(:) - f_source(:)
 
        ! solve the linear system: A dy_react = rhs
        call dgefa(A, sdc_neqs, sdc_neqs, ipvt, info)

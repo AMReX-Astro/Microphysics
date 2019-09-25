@@ -4,7 +4,7 @@ module jac_module
 
 contains
 
-  subroutine jac(bs)
+  subroutine jac(sdc)
 
     !$acc routine seq
 
@@ -16,56 +16,56 @@ contains
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use sdc_type_module, only: sdc_t, sdc_to_burn, burn_to_sdc
-    use sdc__rpar_indices, only: irp_y_init
+    use sdc_rpar_indices, only: irp_y_init
 
     implicit none
 
-    type (bs_t) :: bs
+    type (sdc_t) :: sdc
 
     integer :: n
 
     ! Initialize the Jacobian to zero.
-    bs % burn_s % jac(:,:) = ZERO
+    sdc % burn_s % jac(:,:) = ZERO
 
     ! Call the specific network routine to get the Jacobian.
 
-    call bs_to_burn(bs)
+    call sdc_to_burn(sdc)
 
     if (jacobian == 1) then
 
-       call network_jac(bs % burn_s)
+       call network_jac(sdc % burn_s)
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve
-          bs % burn_s % jac(n,:) = bs % burn_s % jac(n,:) * aion(n)
-          bs % burn_s % jac(:,n) = bs % burn_s % jac(:,n) * aion_inv(n)
+          sdc % burn_s % jac(n,:) = sdc % burn_s % jac(n,:) * aion(n)
+          sdc % burn_s % jac(:,n) = sdc % burn_s % jac(:,n) * aion_inv(n)
        enddo
 
        ! Allow temperature and energy integration to be disabled.
        if (.not. integrate_temperature) then
-          bs % burn_s % jac(net_itemp,:) = ZERO
+          sdc % burn_s % jac(net_itemp,:) = ZERO
        endif
 
        if (.not. integrate_energy) then
-          bs % burn_s % jac(net_ienuc,:) = ZERO
+          sdc % burn_s % jac(net_ienuc,:) = ZERO
        endif
 
     else
 
-       call numerical_jac(bs % burn_s)
+       call numerical_jac(sdc % burn_s)
 
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       bs % burn_s % jac(:,:) = react_boost * bs % burn_s % jac(:,:)
+       sdc % burn_s % jac(:,:) = react_boost * sdc % burn_s % jac(:,:)
     endif
 
-    call burn_to_bs(bs)
+    call burn_to_sdc(sdc)
 
     ! Increment the evaluation counter.
 
-    bs % burn_s % n_jac = bs % burn_s % n_jac + 1
+    sdc % burn_s % n_jac = sdc % burn_s % n_jac + 1
 
   end subroutine jac
 

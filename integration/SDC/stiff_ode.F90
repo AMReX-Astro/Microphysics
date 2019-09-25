@@ -4,13 +4,10 @@ module stiff_ode
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module
   use sdc_type_module
-#ifdef SDC
-  use sdc_rhs_module
-  use sdc_jac_module
-#else
   use rhs_module
   use jac_module
-#endif
+  use sdc_sizes_module
+  use sdc_quadrature_module
 
   implicit none
 
@@ -95,8 +92,6 @@ contains
     finished = .false.
     ierr = IERR_NONE
 
-    sdc % eps_old = ZERO
-
     if (use_timestep_estimator) then
        call f_rhs(sdc)
        call initial_timestep(sdc)
@@ -177,7 +172,7 @@ contains
        ! Get the error weighting -- this is similar to VODE's dewset
        ! routine
 
-       ewt = sdc % rtol(:) * abs(sdc % y) + sdc & atol(:)
+       ewt = sdc % rtol(:) * abs(sdc % y) + sdc % atol(:)
 
        ! Construct the trial point.
 
@@ -216,7 +211,7 @@ contains
   end subroutine initial_timestep
 
 
-  subroutine single_step_sdc(sdc, eps, yscal, ierr)
+  subroutine single_step_sdc(sdc, eps, ierr)
 
     ! This routine will do the following:
     !
@@ -242,7 +237,6 @@ contains
 
     type (sdc_t) :: sdc
     real(rt), intent(in) :: eps
-    real(rt), intent(in) :: yscal(sdc_neqs)
     integer, intent(out) :: ierr
 
     real(rt) :: y_save(sdc_neqs), y_s(sdc_neqs), y_d(sdc_neqs)
@@ -252,35 +246,31 @@ contains
 
     ! storage for the previous iteration's RHS
     real(rt) :: f_old(0:SDC_NODES-1, sdc_neqs)
-    real(rt) :: f_new(0:SDC_NODES-1, sdc_neqs)
 
-    real(rt) :: dt
+    real(rt) :: f_source(sdc_neqs), C(sdc_neqs)
+
+    real(rt) :: dt, dt_m
+    real(rt) :: t_start
     real(rt) :: err_max
+
+    type (sdc_t) :: sdc_temp
 
     logical :: converged
 
-    integer :: i, n
+    integer :: i, k, m, n
 
     ! this is the number of time step attempts we try
     integer, parameter :: max_timestep_attempts = 10
 
-    dt = bs % dt
+    dt = sdc % dt
     y_save(:) = sdc % y(:)
 
     ! get the jacobian
     call jac(sdc)
 
-    reduce = .false.
-
     converged = .false.
 
     do n = 1, max_timestep_attempts
-
-       ! setting skip_loop = .true. in the next loop is a GPU-safe-way to
-       ! indicate that we are discarding this timestep attempt and will
-       ! instead try again in the next `n` iteration
-       skip_loop = .false.
-       retry = .false.
 
        ! each iteration is a new attempt at taking a step, so reset
        ! errors at the start of the attempt
@@ -294,12 +284,16 @@ contains
        sdc_temp = sdc
        sdc_temp % y(:) = y_save(:)
 
-       y_node(0:SDC_NODES-1, :) = y_save(:)
+       do m = 0, SDC_NODES-1
+          y_node(m, :) = y_save(:)
+       end do
 
        ! compute an estimate for the RHS at the "old" iteration
        call f_rhs(sdc_temp)
 
-       f_old(0:SDC_NODES-1, :) = sdc_temp % burn_s % ydot(:)
+       do m = 0, SDC_NODES-1
+          f_old(m, :) = sdc_temp % burn_s % ydot(:)
+       end do
 
        do k = 1, SDC_MAX_ITERATIONS
 
@@ -310,10 +304,10 @@ contains
              ! load the initial data for node m
              sdc_temp % y(:) = y_node(m, :)
 
-             dt_m = dt * (dt_sdc[m+1] - dt_sdc[m])
+             dt_m = dt * (dt_sdc(m+1) - dt_sdc(m))
 
              ! compute the integral term
-             call sdc_integral(m, dt, dt_m, f_old, C)
+             call sdc_C_source(m, dt, dt_m, f_old, C)
 
              ! compute the explicit source
              f_source(:) = y_node(m, :) + C(:)
@@ -330,7 +324,7 @@ contains
              sdc_temp % y(:) = y_node(m, :)
              call f_rhs(sdc_temp)
 
-             f_old(:, :) = sdc_temp % burn_s % ydot(:)
+             f_old(m, :) = sdc_temp % burn_s % ydot(:)
           end do
 
        end do
@@ -346,16 +340,16 @@ contains
     if (.not. converged .and. ierr == IERR_NONE) then
        ierr = IERR_NO_CONVERGENCE
        print *, "Integration failed due to non-convergence in single_step_sdc"
-       call dump_bs_state(sdc)
+       call dump_sdc_state(sdc)
        return
     endif
 
     sdc % t = sdc % t_new
-    sdc % sdc_did = dt
+    sdc % dt_did = dt
 
     ! compute the next timestep
-    bs % dt_next =
+    !sdc % dt_next = 
 
-  end subroutine single_step_bs
+  end subroutine single_step_sdc
 
 end module stiff_ode

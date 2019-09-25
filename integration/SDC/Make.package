@@ -4,4 +4,5 @@ F90EXE_sources += sdc_rhs.F90
 F90EXE_sources += sdc_jac.F90
 F90EXE_sources += stiff_ode.F90
 F90EXE_sources += sdc_quadrature.F90
+F90EXE_sources += sdc_sizes.F90
 F90EXE_sources += sdc_rpar.F90
