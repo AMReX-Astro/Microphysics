@@ -4,6 +4,9 @@ module blas_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
     INTEGER INCX,INCY,N
     DOUBLE PRECISION DX(:),DY(:)
@@ -58,7 +61,9 @@ contains
     RETURN
   end SUBROUTINE DCOPY
 
-
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DAXPYN(N,DA,DX,INCX,DY,INCY)
   ! Only operates on arrays of size N
 
@@ -123,7 +128,9 @@ contains
     RETURN
   END SUBROUTINE DAXPYN
 
-  
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE daxpy(N,DA,DX,INCX,DY,INCY)
     !     .. Scalar Arguments ..
     DOUBLE PRECISION DA
@@ -186,7 +193,9 @@ contains
     RETURN
   END SUBROUTINE daxpy
 
-
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   FUNCTION DDOT(N,DX,INCX,DY,INCY) result(dotval)
     DOUBLE PRECISION dotval
     !      .. Scalar Arguments ..
@@ -251,6 +260,9 @@ contains
     RETURN
   END FUNCTION DDOT
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
     !      .. Scalar Arguments ..
     DOUBLE PRECISION ALPHA,BETA
@@ -575,7 +587,9 @@ contains
     ! 
   end SUBROUTINE DGEMM
 
-
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DSCALN(N,DA,DX,INCX)
     ! Only operates on arrays of size N
 
@@ -637,7 +651,9 @@ contains
     RETURN
   END SUBROUTINE DSCALN
 
-  
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DSCAL(N,DA,DX,INCX)
     !      .. Scalar Arguments ..
     DOUBLE PRECISION DA
@@ -697,6 +713,9 @@ contains
     RETURN
   END SUBROUTINE DSCAL
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   FUNCTION IDAMAX(N,DX,INCX) result(index)
     !      .. Scalar Arguments ..
     INTEGER INCX,N
