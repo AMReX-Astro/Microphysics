@@ -16,9 +16,9 @@ contains
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, &
-         integrate_temperature, integrate_energy
+         integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
-    use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
 
     implicit none
 
@@ -44,12 +44,6 @@ contains
 
     call clean_state(y, rpar)
 
-    ! Renormalize the abundances as necessary.
-
-    if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
-    endif
-
     ! Update the thermodynamics as necessary.
 
     call update_thermodynamics(y, rpar)
@@ -58,7 +52,7 @@ contains
 
     call vode_to_burn(y, rpar, burn_state)
 
-    burn_state % time = time
+    burn_state % time = rpar(irp_t0) + time
     call network_rhs(burn_state)
 
     ! We integrate X, not Y
@@ -74,6 +68,11 @@ contains
        burn_state % ydot(net_ienuc) = ZERO
     endif
 
+    ! apply fudge factor:
+    if (react_boost > ZERO) then
+       burn_state % ydot(:) = react_boost * burn_state % ydot(:)
+    endif
+
     call burn_to_vode(burn_state, y, rpar, ydot = ydot)
 
   end subroutine f_rhs
@@ -81,6 +80,7 @@ contains
 
 
   ! Analytical Jacobian
+
   subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
     !$acc routine seq
@@ -90,9 +90,9 @@ contains
     use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
-    use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
     use amrex_fort_module, only: rt => amrex_real
-    use extern_probin_module, only: integrate_temperature, integrate_energy
+    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
 
     implicit none
 
@@ -109,7 +109,7 @@ contains
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
-    state % time = time
+    state % time = rpar(irp_t0) + time
     call network_jac(state)
 
     ! We integrate X, not Y
@@ -117,6 +117,11 @@ contains
        state % jac(n,:) = state % jac(n,:) * aion(n)
        state % jac(:,n) = state % jac(:,n) * aion_inv(n)
     enddo
+
+    ! apply fudge factor:
+    if (react_boost > ZERO) then
+       state % jac(:,:) = react_boost * state % jac(:,:)
+    endif
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
