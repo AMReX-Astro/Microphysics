@@ -285,6 +285,7 @@ contains
 
     deriva = .false.
     call rhs(y, rr, ydot, deriva, for_jacobian_tderiv = .false.)
+    state % ydot(1:nspec) = ydot(1:nspec)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
