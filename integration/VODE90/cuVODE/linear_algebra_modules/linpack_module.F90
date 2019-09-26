@@ -3,7 +3,10 @@ module linpack_module
   implicit none
   
 contains
-  
+
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif  
   subroutine dgesl(a,lda,n,ipvt,b,job)
 
     use blas_module, only: daxpy
@@ -125,6 +128,9 @@ contains
 100 continue
   end subroutine dgesl
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
 
     use blas_module, only: daxpy, dscal
@@ -316,6 +322,9 @@ contains
     RETURN
   END SUBROUTINE DGBFA
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
 
     use blas_module, only: daxpy, ddot ! function
@@ -468,6 +477,9 @@ contains
     RETURN
   END SUBROUTINE DGBSL
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dgefa (a,lda,n,ipvt,info)
 
     use blas_module, only: daxpy, dscal
@@ -578,6 +590,9 @@ contains
     if (a(n,n) .eq. 0.0d0) info = n
   end subroutine dgefa
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   function vddot (n,dx,incx,dy,incy) result(dotval)
 
     ! 
