@@ -1072,7 +1072,9 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t) :: state
+
+    !$gpu
 
   end subroutine update_unevolved_species
 
