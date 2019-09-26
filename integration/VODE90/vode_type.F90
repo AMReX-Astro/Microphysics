@@ -10,22 +10,40 @@ contains
   subroutine clean_state(y, rpar)
 
     !$acc routine seq
-    
+
+    use amrex_constants_module, only: ONE
     use actual_network, only: aion, nspec, nspec_evolve
-    use burn_type_module, only: neqs
+    use burn_type_module, only: neqs, net_itemp
     use vode_rpar_indices, only: n_rpar_comps
+    use eos_type_module, only : eos_get_small_temp
+    use extern_probin_module, only: renormalize_abundances, SMALL_X_SAFE, MAX_TEMP
 
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
 
+    real(rt) :: small_temp
+
     !$gpu
 
-    ! Ensure that mass fractions always stay positive.
+    ! Ensure that mass fractions always stay positive and less than or equal to 1.
 
-    y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
+    y(1:nspec_evolve) = max(min(y(1:nspec_evolve), ONE), SMALL_X_SAFE)
+
+    ! Renormalize the abundances as necessary.
+
+    if (renormalize_abundances) then
+       call renormalize_species(y, rpar)
+    endif
+
+    ! Ensure that the temperature always stays within reasonable limits.
+
+    call eos_get_small_temp(small_temp)
+
+    y(net_itemp) = min(MAX_TEMP, max(y(net_itemp), small_temp))
 
   end subroutine clean_state
+
 
   subroutine renormalize_species(y, rpar)
 
@@ -53,12 +71,13 @@ contains
 
   end subroutine renormalize_species
 
+
   subroutine update_thermodynamics(y, rpar)
 
     !$acc routine seq
     
     use amrex_constants_module, only: ZERO
-    use extern_probin_module, only: call_eos_in_rhs, dt_crit
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
     use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
@@ -95,7 +114,7 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-    else if (abs(eos_state % T - rpar(irp_Told)) > dt_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
+    else if (abs(eos_state % T - rpar(irp_Told)) > dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
@@ -126,6 +145,7 @@ contains
   ! it is always in (rho, T) mode and (2) converting back would imply subtracting
   ! off the nuclear energy from the zone's internal energy, which could lead to
   ! issues from roundoff error if the energy released from burning is small.
+
   subroutine vode_to_eos(state, y, rpar)
 
     !$acc routine seq
@@ -165,6 +185,7 @@ contains
 
 
   ! Given an EOS state, fill the rpar and integration state data.
+
   subroutine eos_to_vode(state, y, rpar)
 
     !$acc routine seq
@@ -204,13 +225,14 @@ contains
 
 
   ! Given a burn state, fill the rpar and integration state data.
+
   subroutine burn_to_vode(state, y, rpar, ydot, jac)
 
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, nspec_evolve
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -272,6 +294,7 @@ contains
 
 
   ! Given an rpar array and the integration state, set up a burn state.
+
   subroutine vode_to_burn(y, rpar, state)
 
     !$acc routine seq
