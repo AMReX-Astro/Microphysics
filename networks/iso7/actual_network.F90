@@ -16,8 +16,12 @@ module actual_network
   integer, parameter :: isi28 = 6
   integer, parameter :: ini56 = 7
 
-  double precision, save :: aion(nspec), zion(nspec), nion(nspec)
-  double precision, save :: bion(nspec), mion(nspec), wion(nspec)
+  double precision, allocatable :: aion(:), zion(:), nion(:)
+  double precision, allocatable :: bion(:), mion(:), wion(:)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: aion, zion, nion, bion, mion, wion
+#endif
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
@@ -90,6 +94,13 @@ contains
     spec_names(ini56) = "nickel-56"
 
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(nion(nspec))
+    allocate(bion(nspec))
+    allocate(mion(nspec))
+    allocate(wion(nspec))
+
     ! Set the number of nucleons in the element
     aion(ihe4)  = 4.0d0
     aion(ic12)  = 12.0d0
@@ -157,7 +168,24 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
 
   end subroutine actual_network_finalize
 
