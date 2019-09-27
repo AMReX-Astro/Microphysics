@@ -1,7 +1,7 @@
 ifeq ($(USE_SDC), TRUE)
-  f90EXE_sources += actual_integrator_sdc.F90
-  f90EXE_sources += vode_rhs_sdc.F90
-  f90EXE_sources += vode_type_sdc.F90
+  F90EXE_sources += actual_integrator_sdc.F90
+  F90EXE_sources += vode_rhs_sdc.F90
+  F90EXE_sources += vode_type_sdc.F90
 else
   F90EXE_sources += actual_integrator.F90
   F90EXE_sources += vode_rhs.F90
