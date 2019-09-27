@@ -9,6 +9,7 @@ module actual_integrator_module
 
   use sdc_type_module
   use vode_type_module
+  use vode_rhs_module
 
   implicit none
 
@@ -97,9 +98,6 @@ contains
 
     real(rt) :: sum
     real(rt) :: retry_change_factor
-
-
-    EXTERNAL jac, f_rhs
 
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC
