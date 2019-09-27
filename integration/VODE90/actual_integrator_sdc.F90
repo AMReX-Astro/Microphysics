@@ -34,7 +34,9 @@ contains
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit
+                                    call_eos_in_rhs, dT_crit,use_jacobian_caching
+    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_module, only: dvode
 
     implicit none
 
@@ -125,7 +127,7 @@ contains
 
     ! Convert our input sdc state into the form VODE expects
 
-    call sdc_to_vode(state_in, y, dvode_state % rpar)
+    call sdc_to_vode(state_in, dvode_state % y, dvode_state % rpar)
 
 
     ! this is not used but we set it to prevent accessing uninitialzed
@@ -142,7 +144,7 @@ contains
     call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
     ! Store the final data
-    call vode_to_sdc(time, y, dvode_state % rpar, state_out)
+    call vode_to_sdc(time, dvode_state % y, dvode_state % rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
