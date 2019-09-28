@@ -1,27 +1,24 @@
-NDEBUG := 
-MPI    :=
-OMP    :=
+PRECISION  = DOUBLE
+PROFILE    = FALSE
 
-COMP := gfortran
+DEBUG      = FALSE
 
-MKVERBOSE := t
+DIM        = 3
 
-MICROPHYSICS_HOME := ../../..
+COMP	   = gnu
 
-# programs to be compiled
-programs += test
+USE_MPI    = FALSE
+USE_OMP    = FALSE
 
-EOS_DIR := helmholtz
-NETWORK_DIR := triple_alpha_plus_cago
+EBASE = main
 
-TEST_DIR = $(MICROPHYSICS_HOME)/networks/triple_alpha_plus_cago/test
+EXTERN_SEARCH += .
 
-ALL:
+SDC_HOME = ../.
 
-include $(MICROPHYSICS_HOME)/GMicrophysics.mak
+Bpack   := ./Make.package
+Blocs   := .
 
-ALL: $(pnames)
+include Make.SDC
 
-# include the fParallel Makefile rules
-include $(BOXLIB_HOME)/Tools/F_mk/GMakerules.mak
 
