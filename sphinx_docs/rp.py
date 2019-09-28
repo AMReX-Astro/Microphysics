@@ -1,28 +1,26 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import os
 import sys
 import textwrap
 
-main_header = """
-+----------------------------------+---------------------------------------------------------+---------------+
-| parameter                        | description                                             | default value |
-+==================================+=========================================================+===============+
+MAIN_HEADER = """
++----------------------------------+---------------------------------------------------------+--------------------+
+| parameter                        | description                                             | default value      |
++==================================+=========================================================+====================+
 """
 
-separator = """
-+----------------------------------+---------------------------------------------------------+---------------+
+SEPARATOR = """
++----------------------------------+---------------------------------------------------------+--------------------+
 """
 
-entry = """
-| {:32} | {:55} | {:13} |
+ENTRY = """
+| {:32} | {:55} | {:18} |
 """
 
 WRAP_LEN = 55
 
-class Parameter(object):
+class Parameter:
     # container class for the parameters
 
     def __init__(self):
@@ -35,21 +33,22 @@ class Parameter(object):
         """ the value is what we sort based on """
         return self.category + "." + self.var
 
-    def __cmp__(self, other):
-        return cmp(self.value(), other.value())
+    def __lt__(self, other):
+        return self.value() < other.value()
 
 
 def make_rest_table(param_files):
 
-    params_list=[]
+    params_list = []
 
     for pf in param_files:
 
         # each file is a category
-        category = os.path.basename(os.path.dirname(pf)).replace("_", "\_")
+        category = os.path.basename(os.path.dirname(pf))
 
         # open the file
-        try: f = open(pf, "r")
+        try:
+            f = open(pf, "r")
         except IOError:
             sys.exit("ERROR: {} does not exist".format(pf))
 
@@ -75,7 +74,7 @@ def make_rest_table(param_files):
             # find the description
             if line.startswith("#"):
                 # handle descriptions here
-                descr += line[1:].rstrip().replace("@@",r"\newline")
+                descr += line[1:].rstrip().replace("@@", r"\newline")
                 line = f.readline()
                 continue
 
@@ -84,7 +83,7 @@ def make_rest_table(param_files):
                 line_list = line.split()
 
                 current_param.var = line_list[0]
-                current_param.default = line_list[2].replace("_", "\_")
+                current_param.default = line_list[2]
                 current_param.description = descr
                 current_param.category = category
 
@@ -96,9 +95,9 @@ def make_rest_table(param_files):
             line = f.readline()
 
 
-    categories = sorted (set([q.category for q in params_list]))
+    categories = {q.category for q in params_list}
 
-    for c in categories:
+    for c in sorted(categories):
 
         # print the heading
 
@@ -108,24 +107,24 @@ def make_rest_table(param_files):
         print(c)
         print(clen*"=" + "\n")
 
-        print(main_header.strip())
+        print(MAIN_HEADER.strip())
 
         for p in params:
             desc = list(textwrap.wrap(p.description.strip(), WRAP_LEN))
-            if len(desc) == 0:
+            if not desc:
                 desc = [""]
 
             for n, d in enumerate(desc):
                 if n == 0:
-                    print(entry.format("``"+p.var+"``", d, p.default).strip())
+                    print(ENTRY.format("``"+p.var+"``", d, p.default).strip())
                 else:
-                    print(entry.format(" ", d, " ").strip())
+                    print(ENTRY.format(" ", d, " ").strip())
 
-            print(separator.strip())
+            print(SEPARATOR.strip())
 
         print("\n\n")
 
-if __name__ == "__main__":
+def main():
 
     # find all of the _parameter files
     top_dir = "../"
@@ -137,3 +136,6 @@ if __name__ == "__main__":
                 param_files.append(os.path.normpath("/".join([root, f])))
 
     make_rest_table(param_files)
+
+if __name__ == "__main__":
+    main()

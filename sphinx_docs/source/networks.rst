@@ -387,12 +387,16 @@ fractions for the integrator.
 The equations we integrate to do a nuclear burn are:
 
 .. math::
+   \frac{dX_k}{dt} = \omegadot_k(\rho,X_k,T)
+   :label: eq:spec_integrate
 
-   \begin{align}
-     \frac{dX_k}{dt} &= \omegadot_k(\rho,X_k,T), \label{eq:spec_integrate} \\
-     \frac{d\enuc}{dt} &= f(\dot{X}_k) \label{eq:enuc_integrate} \\
-     \frac{dT}{dt} &=\frac{\edot}{c_x}. \label{eq:temp_integrate}
-   \end{align}
+.. math::
+   \frac{d\enuc}{dt} = f(\dot{X}_k)
+   :label: eq:enuc_integrate
+
+.. math::
+   \frac{dT}{dt} =\frac{\edot}{c_x}.
+   :label: eq:temp_integrate
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`\enuc` is the specifc
 nuclear energy created through reactions, :math:`T` is the
@@ -555,10 +559,9 @@ via the burning_mode runtime parameter:
 
   :math:`T` evolves with the burning according to the temperature
   evolution equation. This is the “usual” way of thinking of the
-  burning—all three equations (Eqs. `[eq:spec_integrate]
-  <#eq:spec_integrate>`__, `[eq:enuc_integrate]
-  <#eq:enuc_integrate>`__, and `[eq:temp_integrate]
-  <#eq:temp_integrate>`__) are solved simultaneously.
+  burning—all three equations (:eq:`eq:spec_integrate`,
+  :eq:`eq:enuc_integrate`, and :eq:`eq:temp_integrate`) are solved
+  simultaneously.
 
 * ``burning_mode = 2`` : hybrid approach
 
@@ -758,7 +761,7 @@ relative tolerances and atol values will set the absolute tolerances
 for the ODE solver.  Often, one can find and set these values in an
 input file for a simulation.
 
-Figure `[fig:tolerances] <#fig:tolerances>`__ shows the results of a simple simulation using the
+:numref:`fig:tolerances` shows the results of a simple simulation using the
 burn_cell unit test to determine
 what tolerances are ideal for simulations.
 For this investigation, it was assumed that a run with a tolerance of :math:`10^{-12}`
@@ -771,9 +774,10 @@ However, the test with a tolerance of :math:`10^{-9}` is accurate
 and not so low that it takes incredible amounts of computer time,
 so :math:`10^{-9}` should be used as the default tolerance in future simulations.
 
+.. _fig:tolerances:
 .. figure:: tolerances.png
-   :alt: Relative error of runs with varying tolerances as compared to a run with an ODE tolerance of :math:`10^{-12}`.
-   :scale: 80%
+   :alt: Relative error plot
+   :width: 100%
 
    Relative error of runs with varying tolerances as compared
    to a run with an ODE tolerance of :math:`10^{-12}`.
@@ -786,8 +790,8 @@ Stiff ODE Solvers
 The integration tolerances for the burn are controlled by
 ``rtol_spec``, ``rtol_enuc``, and ``rtol_temp``,
 which are the relative error tolerances for
-Eqs. \ `[eq:spec_integrate] <#eq:spec_integrate>`__, `[eq:enuc_integrate] <#eq:enuc_integrate>`__, and
-`[eq:temp_integrate] <#eq:temp_integrate>`__, respectively. There are corresponding
+:eq:`eq:spec_integrate`, :eq:`eq:enuc_integrate`, and
+:eq:`eq:temp_integrate`, respectively. There are corresponding
 ``atol`` parameters for the absolute error tolerances. Note that
 not all integrators handle error tolerances the same way—see the
 sections below for integrator-specific information.
@@ -969,15 +973,16 @@ to compare against, :math:`{\bf y}_\mathrm{scal}`, are:
 
 * ``scaling_method`` = 2 :
 
-  .. math:: ({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )
+  .. math::
+     ({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )
 
-  for :math:`j = 1, \ldots, {\tt neq}`. Here, ode_scale_floor is a
-   runtime parameter that sets a lower-limit to the scaling for each
-   variable in the vector :math:`{\bf y}_\mathrm{scal}`. The default
-   value is currently :math:`10^{-6}` (although any network can
-   override this using priorities). The effect of this scaling is that
-   species with an abundance :math:`\ll` ``ode_scal_floor`` will not be
-   used as strongly in assessing the accuracy of a step.
+  for :math:`j = 1, \ldots, {\tt neq}`.  Here, ``ode_scale_floor`` is
+  a runtime parameter that sets a lower-limit to the scaling for each
+  variable in the vector :math:`{\bf y}_\mathrm{scal}`. The default
+  value is currently :math:`10^{-6}` (although any network can
+  override this using priorities). The effect of this scaling is that
+  species with an abundance :math:`\ll` ``ode_scal_floor`` will not be
+  used as strongly in assessing the accuracy of a step.
 
 These correspond to the options presented in :cite:`NR`.
 
