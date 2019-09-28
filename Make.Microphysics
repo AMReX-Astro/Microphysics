@@ -69,7 +69,7 @@ ifeq ($(USE_EXTRA_THERMO), TRUE)
   DEFINES += -DEXTRA_THERMO
 endif
 
-ifeq ($(USE_SDC), TRUE)
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSDC
 endif
 
