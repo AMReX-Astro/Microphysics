@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -22,7 +20,7 @@ entry = """
 
 WRAP_LEN = 55
 
-class Parameter(object):
+class Parameter:
     # container class for the parameters
 
     def __init__(self):
@@ -41,12 +39,12 @@ class Parameter(object):
 
 def make_rest_table(param_files):
 
-    params_list=[]
+    params_list = []
 
     for pf in param_files:
 
         # each file is a category
-        category = os.path.basename(os.path.dirname(pf)).replace("_", "\_")
+        category = os.path.basename(os.path.dirname(pf))
 
         # open the file
         try: f = open(pf, "r")
@@ -75,7 +73,7 @@ def make_rest_table(param_files):
             # find the description
             if line.startswith("#"):
                 # handle descriptions here
-                descr += line[1:].rstrip().replace("@@",r"\newline")
+                descr += line[1:].rstrip().replace("@@", r"\newline")
                 line = f.readline()
                 continue
 
@@ -84,7 +82,7 @@ def make_rest_table(param_files):
                 line_list = line.split()
 
                 current_param.var = line_list[0]
-                current_param.default = line_list[2].replace("_", "\_")
+                current_param.default = line_list[2]
                 current_param.description = descr
                 current_param.category = category
 
@@ -96,9 +94,9 @@ def make_rest_table(param_files):
             line = f.readline()
 
 
-    categories = sorted (set([q.category for q in params_list]))
+    categories = {q.category for q in params_list}
 
-    for c in categories:
+    for c in sorted(categories):
 
         # print the heading
 

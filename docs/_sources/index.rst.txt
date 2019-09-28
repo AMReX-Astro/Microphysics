@@ -17,7 +17,7 @@ StarKiller Microphysics
    eos
    networks
    transport
-   openacc
+   gpu
    unit_tests
    sdc
    references
