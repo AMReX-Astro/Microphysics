@@ -122,6 +122,7 @@ with open('mathsymbols.tex', 'r') as f:
             else:
                 mathjax_config['TeX']['Macros'][macro[0]] = ["{"+macro[3]+"}", int(macro[2])]
 
+numfig = True
 
 # -- Options for HTML output ----------------------------------------------
 
