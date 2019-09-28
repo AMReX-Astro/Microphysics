@@ -82,7 +82,11 @@ contains
     !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
     !
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only: f_rhs, jac
+#else
     use vode_rhs_module, only: f_rhs, jac
+#endif
 #ifdef CLEAN_INTEGRATOR_CORRECTION
     use vode_type_module, only: clean_state
 #endif
