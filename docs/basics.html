@@ -230,40 +230,22 @@ and the generic solvers:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code>: this User’s Guide</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the</dt><dd><p>reaction networks</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to</dt><dd><p>interface with the EOS and reaction networks. Note that most application
+<li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
+reaction networks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to
+interface with the EOS and reaction networks. Note that most application
 codes will have their own local copies. These are provided for unit testing
-in Microphysics.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the</dt><dd><p>righthand side of the network, as the actual integrators are decoupled from
-the network.</p>
-</dd>
-</dl>
-</li>
+in Microphysics.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the
+righthand side of the network, as the actual integrators are decoupled from
+the network.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</p></li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the</dt><dd><p>networks.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the</dt><dd><p>reaction networks.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t</dt><dd><p>need any application code to build, but will require AMReX.</p>
-</dd>
-</dl>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the
+networks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the
+reaction networks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t
+need any application code to build, but will require AMReX.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
 </ul>
 </div>
