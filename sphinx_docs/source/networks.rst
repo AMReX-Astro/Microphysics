@@ -973,10 +973,11 @@ to compare against, :math:`{\bf y}_\mathrm{scal}`, are:
 
 * ``scaling_method`` = 2 :
 
-  .. math:: ({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )
+  .. math::
+     ({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )
 
-  for :math:`j = 1, \ldots, {\tt neq}`. Here, ode_scale_floor is a
-  runtime parameter that sets a lower-limit to the scaling for each
+  for :math:`j = 1, \ldots, {\tt neq}`.  Here, ``ode_scale_floor`` is
+  a runtime parameter that sets a lower-limit to the scaling for each
   variable in the vector :math:`{\bf y}_\mathrm{scal}`. The default
   value is currently :math:`10^{-6}` (although any network can
   override this using priorities). The effect of this scaling is that
