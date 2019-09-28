@@ -1,5 +1,5 @@
 *******
-preface
+Preface
 *******
 
 Welcome to the StarKiller Microphysics!
