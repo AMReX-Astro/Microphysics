@@ -1048,15 +1048,13 @@ to prevent any scale from being zero.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code> = 2 :</p>
 <div class="math notranslate nohighlight">
 \[({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )\]</div>
-<dl class="simple">
-<dt>for <span class="math notranslate nohighlight">\(j = 1, \ldots, {\tt neq}\)</span>. Here, ode_scale_floor is a</dt><dd><p>runtime parameter that sets a lower-limit to the scaling for each
+<p>for <span class="math notranslate nohighlight">\(j = 1, \ldots, {\tt neq}\)</span>. Here, ode_scale_floor is a
+runtime parameter that sets a lower-limit to the scaling for each
 variable in the vector <span class="math notranslate nohighlight">\({\bf y}_\mathrm{scal}\)</span>. The default
 value is currently <span class="math notranslate nohighlight">\(10^{-6}\)</span> (although any network can
 override this using priorities). The effect of this scaling is that
 species with an abundance <span class="math notranslate nohighlight">\(\ll\)</span> <code class="docutils literal notranslate"><span class="pre">ode_scal_floor</span></code> will not be
 used as strongly in assessing the accuracy of a step.</p>
-</dd>
-</dl>
 </li>
 </ul>
 <p>These correspond to the options presented in <a class="bibtex reference internal" href="references.html#nr" id="id16">[PressTeukolskyVetterlingFlannery92]</a>.</p>

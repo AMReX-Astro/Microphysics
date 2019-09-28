@@ -976,12 +976,12 @@ to compare against, :math:`{\bf y}_\mathrm{scal}`, are:
   .. math:: ({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )
 
   for :math:`j = 1, \ldots, {\tt neq}`. Here, ode_scale_floor is a
-   runtime parameter that sets a lower-limit to the scaling for each
-   variable in the vector :math:`{\bf y}_\mathrm{scal}`. The default
-   value is currently :math:`10^{-6}` (although any network can
-   override this using priorities). The effect of this scaling is that
-   species with an abundance :math:`\ll` ``ode_scal_floor`` will not be
-   used as strongly in assessing the accuracy of a step.
+  runtime parameter that sets a lower-limit to the scaling for each
+  variable in the vector :math:`{\bf y}_\mathrm{scal}`. The default
+  value is currently :math:`10^{-6}` (although any network can
+  override this using priorities). The effect of this scaling is that
+  species with an abundance :math:`\ll` ``ode_scal_floor`` will not be
+  used as strongly in assessing the accuracy of a step.
 
 These correspond to the options presented in :cite:`NR`.
 
