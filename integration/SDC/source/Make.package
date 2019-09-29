@@ -1,0 +1,2 @@
+F90EXE_sources += sdc_ode.F90
+F90EXE_sources += sdc_quadrature.F90
