@@ -1,11 +1,8 @@
-module stiff_ode
+module sdc_ode_module
 
   use amrex_constants_module
   use amrex_fort_module, only : rt => amrex_real
-  use burn_type_module
-  use sdc_type_module
   use rhs_module
-  use jac_module
   use sdc_sizes_module
   use sdc_quadrature_module
 
@@ -352,4 +349,4 @@ contains
 
   end subroutine single_step_sdc
 
-end module stiff_ode
+end module sdc_ode_module

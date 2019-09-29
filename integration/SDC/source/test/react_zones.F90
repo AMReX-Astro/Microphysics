@@ -36,9 +36,7 @@ contains
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
-    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC, VODE_LIW, IOPT, ITASK
-    use cuvode_types_module, only: dvode_t, rwork_t
-    use cuvode_module, only: dvode
+    use sdc_ode_module, only: ode
 
     implicit none
 
@@ -51,10 +49,6 @@ contains
     integer         :: ii, jj, kk, n
 
     ! VODE variables
-    type (dvode_t) :: dvode_state
-    type (rwork_t) :: rwork
-    integer :: iwork(VODE_LIW)
-    integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.

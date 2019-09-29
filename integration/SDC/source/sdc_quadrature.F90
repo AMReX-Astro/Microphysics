@@ -2,7 +2,7 @@ module sdc_quadrature_module
 
   use sdc_sizes_module
   use amrex_fort_module, only : rt => amrex_real
-  use sdc_type_module
+  use sdc_parameters_module
   use amrex_constants_module
 
   implicit none
@@ -17,10 +17,10 @@ contains
 
     integer, intent(in) :: m_start
     real(rt), intent(in) :: dt, dt_m
-    real(rt), intent(in) :: f_old(0:SDC_NODES-1, sdc_neqs)
-    real(rt), intent(inout) :: C(sdc_neqs)
+    real(rt), intent(in) :: f_old(0:SDC_NODES-1, SDC_NEQS)
+    real(rt), intent(inout) :: C(SDC_NEQS)
 
-    real(rt) :: integral(sdc_neqs)
+    real(rt) :: integral(SDC_NEQS)
 
     if (m_start == 0) then
        ! compute the integral from [t_m, t_{m+1}], normalized by dt_m
@@ -63,34 +63,31 @@ contains
     ! returned with the value that satisfies the nonlinear function
 
     use amrex_constants_module, only : ZERO, HALF, ONE
-    use burn_type_module, only : burn_t
-    use network, only : nspec, nspec_evolve
     use extern_probin_module, only : small_x
-    use sdc_type_module, only : sdc_t
-    use rhs_module, only : f_rhs
-    use jac_module, only : jac
+    use rhs_module, only : f_rhs, jac
+    use sdc_parameters_module, only : SDC_NEQS
 
     implicit none
 
     real(rt), intent(in) :: dt_m
     type(sdc_t) :: sdc
-    real(rt), intent(inout) :: y_new(sdc_neqs)
-    real(rt), intent(in) :: f_source(sdc_neqs)
+    real(rt), intent(inout) :: y_new(SDC_NEQS)
+    real(rt), intent(in) :: f_source(SDC_NEQS)
     integer, intent(in) :: sdc_iteration
     integer, intent(out) :: ierr
 
-    real(rt) :: A(sdc_neqs, sdc_neqs)
-    real(rt) :: rhs(sdc_neqs)
-    real(rt) :: dy(sdc_neqs)
+    real(rt) :: A(SDC_NEQS, SDC_NEQS)
+    real(rt) :: rhs(SDC_NEQS)
+    real(rt) :: dy(SDC_NEQS)
 
-    real(rt) :: w(sdc_neqs)
+    real(rt) :: w(SDC_NEQS)
 
-    integer :: ipvt(sdc_neqs)
+    integer :: ipvt(SDC_NEQS)
     integer :: info
 
     logical :: converged
 
-    real(rt) :: eps_tot(sdc_neqs)
+    real(rt) :: eps_tot(SDC_NEQS)
 
     real(rt) :: err, eta
 
@@ -120,7 +117,7 @@ contains
 
        ! create the matrix for our linear system
        A(:,:) = 0.0_rt
-       do n = 1, sdc_neqs
+       do n = 1, SDC_NEQS
           A(n, n) = 1.0_rt
        end do
 
@@ -129,13 +126,13 @@ contains
        rhs(:) = -sdc % y(:) + dt_m * sdc % burn_s % ydot(:) - f_source(:)
 
        ! solve the linear system: A dy_react = rhs
-       call dgefa(A, sdc_neqs, sdc_neqs, ipvt, info)
+       call dgefa(A, SDC_NEQS, SDC_NEQS, ipvt, info)
        if (info /= 0) then
           ierr = SINGULAR_MATRIX
           return
        endif
 
-       call dgesl(A, sdc_neqs, sdc_neqs, ipvt, rhs, 0)
+       call dgesl(A, SDC_NEQS, SDC_NEQS, ipvt, rhs, 0)
 
        dy(:) = rhs(:)
 
@@ -150,7 +147,7 @@ contains
        eps_tot(:) = sdc % rtol(:) * abs(sdc % y(:)) + sdc % atol(:)
 
        ! compute the norm of the weighted error, where the weights are 1/eps_tot
-       err = sqrt(sum((dy/eps_tot)**2)/sdc_neqs)
+       err = sqrt(sum((dy/eps_tot)**2)/SDC_NEQS)
 
        if (err < ONE) then
           converged = .true.

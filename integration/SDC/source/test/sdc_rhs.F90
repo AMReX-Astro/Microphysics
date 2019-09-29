@@ -5,15 +5,15 @@ contains
   ! The f_rhs routine provides the right-hand-side for the DVODE solver.
   subroutine f_rhs(time, y, ydot, rpar)
 
-    use cuvode_parameters_module, only: VODE_NEQS
-    use vode_rpar_indices, only: n_rpar_comps
+    use sdc_parameters_module, only: SDC_NEQS
+    use sdc_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
     implicit none
 
-    real(rt), intent(INOUT) :: time, y(VODE_NEQS)
+    real(rt), intent(INOUT) :: time, y(SDC_NEQS)
     real(rt), intent(INOUT) :: rpar(n_rpar_comps)
-    real(rt), intent(INOUT) :: ydot(VODE_NEQS)
+    real(rt), intent(INOUT) :: ydot(SDC_NEQS)
 
     !$gpu
 
@@ -27,15 +27,15 @@ contains
   ! Analytical Jacobian
   subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
-    use cuvode_parameters_module, only: VODE_NEQS
-    use vode_rpar_indices, only: n_rpar_comps
+    use sdc_parameters_module, only: SDC_NEQS
+    use sdc_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
     implicit none
 
     integer   , intent(IN   ) :: ml, mu, nrpd
-    real(rt), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
-    real(rt), intent(  OUT) :: pd(VODE_NEQS,VODE_NEQS)
+    real(rt), intent(INOUT) :: y(SDC_NEQS), rpar(n_rpar_comps), time
+    real(rt), intent(  OUT) :: pd(SDC_NEQS,SDC_NEQS)
 
     !$gpu
 

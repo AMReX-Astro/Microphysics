@@ -6,4 +6,5 @@ CEXE_headers = test_react.H
 F90EXE_sources += react_zones.F90
 F90EXE_sources += sdc_rhs.F90
 F90EXE_sources += sdc_rpar.F90
+F90EXE_sources += sdc_parameters.F90
 
