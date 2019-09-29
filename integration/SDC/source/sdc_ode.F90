@@ -5,6 +5,7 @@ module sdc_ode_module
   use rhs_module
   use sdc_sizes_module
   use sdc_quadrature_module
+  use sdc_parameters_module
 
   implicit none
 
@@ -23,6 +24,17 @@ module sdc_ode_module
   integer, parameter :: IERR_LU_DECOMPOSITION_ERROR = -200
 
   integer, parameter :: MAX_TRY = 50
+
+  type :: sdc_t
+     real(rt) :: rpar(N_RPAR_COMPS)
+     real(rt) :: rtol(SDC_NEQS)
+     real(rt) :: atol(SDC_NEQS)
+     real(rt) :: y(SDC_NEQS)
+
+     real(rt) :: t, tmax, dt, dt_next
+     integer :: n
+
+  end type sdc_t
 
 contains
 
@@ -55,7 +67,7 @@ contains
   end subroutine safety_check
 
 
-  subroutine ode(sdc, t, tmax, eps, ierr)
+  subroutine ode(sdc, t, tmax, ierr)
 
     ! this is a basic driver for the ODE integration, based on the NR
     ! routine.  This calls an integration method to take a single step
@@ -71,10 +83,8 @@ contains
 #endif
 
     type (sdc_t), intent(inout) :: sdc
-
     real(rt), intent(inout) :: t
     real(rt), intent(in) :: tmax
-    real(rt), intent(in) :: eps
     integer, intent(out) :: ierr
 
     logical :: finished
@@ -83,6 +93,7 @@ contains
 
     ! initialize
 
+    ! store local copies
     sdc % t = t
     sdc % tmax = tmax
 
@@ -90,8 +101,8 @@ contains
     ierr = IERR_NONE
 
     if (use_timestep_estimator) then
-       call f_rhs(sdc)
-       call initial_timestep(sdc)
+       call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
+       call initial_timestep(sdc, ydot)
     else
        sdc % dt = dt_ini
     endif
@@ -104,7 +115,7 @@ contains
        ! take a step -- this routine will update the solution array,
        ! advance the time, and also give an estimate of the next step
        ! size
-       call single_step_sdc(sdc, eps, ierr)
+       call single_step_sdc(sdc, ierr)
 
        if (ierr /= IERR_NONE) then
           exit
@@ -135,7 +146,7 @@ contains
   end subroutine ode
 
 
-  subroutine initial_timestep(sdc)
+  subroutine initial_timestep(sdc, ydot)
 
     ! this is a version of the timestep estimation algorithm used by
     ! VODE
@@ -145,7 +156,8 @@ contains
     type (sdc_t), intent(inout) :: sdc
 
     type (sdc_t) :: sdc_temp
-    real(rt) :: h, h_old, hL, hU, ddydtt(sdc_neqs), eps, ewt(sdc_neqs), yddnorm
+    real(rt) :: h, h_old, hL, hU, ddydtt(SDC_NEQS), eps, ewt(SDC_NEQS), yddnorm
+    real(rt) :: ydot_temp(SDC_NEQS)
     integer :: n
 
     sdc_temp = sdc
@@ -174,19 +186,12 @@ contains
        ! Construct the trial point.
 
        sdc_temp % t = sdc % t + h
-#ifdef SDC
-       sdc_temp % y = sdc % y + h * sdc % ydot
-#else
-       sdc_temp % y = sdc % y + h * sdc % burn_s % ydot
-#endif
+       sdc_temp % y = sdc % y + h * ydot
 
        ! Call the RHS, then estimate the finite difference.
-       call f_rhs(sdc_temp)
-#ifdef SDC
-       ddydtt = (sdc_temp % ydot - sdc % ydot) / h
-#else
-       ddydtt = (sdc_temp % burn_s % ydot - sdc % burn_s % ydot) / h
-#endif
+       call f_rhs(sdc_temp % t, sdc_temp % y, ydot_temp, sdc_temp % rpar)
+
+       ddydtt = (ydot_temp - ydot) / h
 
        yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / sdc_neqs )
 
@@ -208,7 +213,7 @@ contains
   end subroutine initial_timestep
 
 
-  subroutine single_step_sdc(sdc, eps, ierr)
+  subroutine single_step_sdc(sdc, ierr)
 
     ! This routine will do the following:
     !
@@ -232,8 +237,7 @@ contains
 
     implicit none
 
-    type (sdc_t) :: sdc
-    real(rt), intent(in) :: eps
+    type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
 
     real(rt) :: y_save(sdc_neqs), y_s(sdc_neqs), y_d(sdc_neqs)
@@ -247,7 +251,7 @@ contains
     real(rt) :: f_source(sdc_neqs), C(sdc_neqs)
 
     real(rt) :: dt, dt_m
-    real(rt) :: t_start
+   real(rt) :: t_start
     real(rt) :: err_max
 
     type (sdc_t) :: sdc_temp
