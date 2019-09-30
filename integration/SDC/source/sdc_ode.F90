@@ -21,10 +21,15 @@ module sdc_ode_module
   integer, parameter :: IERR_TOO_MANY_STEPS = -101
   integer, parameter :: IERR_DT_UNDERFLOW = -102
   integer, parameter :: IERR_NO_CONVERGENCE = -103
+  integer, parameter :: IERR_TOO_MANY_DT_ATTEMPTS = -104
 
   integer, parameter :: IERR_LU_DECOMPOSITION_ERROR = -200
 
   integer, parameter :: MAX_TRY = 50
+
+  ! timestep control
+  real, parameter :: S1 = 0.9_rt
+  real, parameter :: S2 = 4.0_rt
 
   type :: sdc_t
      real(rt) :: rpar(N_RPAR_COMPS)
@@ -91,7 +96,7 @@ contains
        ! take a step -- this routine will update the solution array,
        ! advance the time, and also give an estimate of the next step
        ! size
-       call single_step_sdc(sdc, ierr)
+       call adaptive_step_driver(sdc, ierr)
 
        if (ierr /= IERR_NONE) then
           exit
@@ -119,6 +124,10 @@ contains
     if (.not. finished .and. ierr == IERR_NONE) then
        ierr = IERR_TOO_MANY_STEPS
     endif
+
+    if (ierr /= IERR_NONE) then
+       print *, "errors encountered"
+    end if
 
     print *, "done: ", sdc % y(:)
 
@@ -221,9 +230,100 @@ contains
     integer, intent(out) :: ierr
 
     ! this is the number of time step attempts we try
-    integer, parameter :: max_timestep_attempts = 10
+    integer, parameter :: MAX_TIMESTEP_ATTEMPTS = 10
+
+    type (sdc_t) :: sdc_s, sdc_d
 
     real(rt) :: y_save(SDC_NEQS), y_s(SDC_NEQS), y_d(SDC_NEQS)
+    real(rt) :: t_save, dt_save
+    real(rt) :: eps
+    logical :: converged
+
+    real(rt) :: weights(SDC_NEQS)
+    real(rt) :: dt, dt_est
+
+    integer :: i
+
+    ! store the initial state
+    t_save = sdc % t
+    dt_save = sdc % dt
+    y_save(:) = sdc % y(:)
+
+    ! main attempt loop
+    dt = dt_save
+    converged = .false.
+
+    weights(:) = 1.0_rt / (sdc % rtol(:) * abs(y_save(:)) + sdc % atol(:))
+
+    do i = 1, MAX_TIMESTEP_ATTEMPTS
+
+       print *, "trying dt = ", dt
+
+       ! take a single step of size dt
+       sdc_s = sdc
+       sdc_s % t = t_save
+       sdc_s % dt = dt
+       sdc_s % y(:) = y_save(:)
+
+       call single_step_sdc(sdc_s, ierr)
+
+       ! if this was successful, the in all likelihood, the two
+       ! integrations with dt/2 will be too.  Otherwise, bail here and
+       ! cut the timestep
+       if (ierr /= IERR_NONE) then
+          ! maybe we can do something more smartly here later
+          dt = 0.5d0 * dt
+          continue
+       end if
+
+       ! now take two steps of since dt/2
+       sdc_d = sdc
+       sdc_d % t = t_save
+       sdc_d % dt = 0.5d0 * dt
+       sdc_d % y(:) = y_save(:)
+
+       call single_step_sdc(sdc_d, ierr)
+
+       if (ierr /= IERR_NONE) then
+          dt = 0.5d0 * dt
+          continue
+       end if
+
+       call single_step_sdc(sdc_d, ierr)
+
+       if (ierr /= IERR_NONE) then
+          dt = 0.5d0 * dt
+          continue
+       end if
+
+       ! now the single dt and the two dt/2 attempts are at the same
+       ! time.  check convergence as |y_s - y_d| < rtol * |y_old| + atol
+       eps = sqrt(sum(weights(:) * abs(sdc_s % y(:) - sdc_d % y(:))) / SDC_NEQS)
+
+       print *, eps
+
+       ! predict the new timestep -- if we converged, we'll pass this
+       ! out.  Otherwise, we will use this for the next attempt.
+       dt_est = dt * eps**(-0.2)
+       dt = min(max(S1 * dt_est, dt/S2), S2 * dt)
+
+       if (eps < 1.0_rt) then
+          ! we converged!!!
+          ierr = IERR_NONE
+          converged = .true.
+          exit
+       end if
+
+    end do
+
+    if (.not. converged) then
+       ierr = IERR_TOO_MANY_DT_ATTEMPTS
+    end if
+
+    ! Store the solution
+    sdc % y(:) = sdc_d % y(:)
+    sdc % t = sdc_d % t
+    sdc % dt = dt
 
   end subroutine adaptive_step_driver
 

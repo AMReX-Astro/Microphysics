@@ -24,7 +24,7 @@ contains
     sdc_state % atol(3) = 1.d-6
 
     ! Set the relative tolerances
-    sdc_state % rtol(:) = 1.d-4
+    sdc_state % rtol(:) = 1.d-6
 
     ! Initialize the integration time and set the final time to dt
     sdc_state % t = ZERO
@@ -45,7 +45,7 @@ contains
 
     ! print the final result
     print *, sdc_state % y(:)
-
+    print *, "number of steps = ", sdc_state % n
   end subroutine react_test
 
 end module react_zones_module

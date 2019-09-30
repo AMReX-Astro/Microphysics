@@ -31,7 +31,7 @@ void main_main ()
     Real time = 0.0;
 
     // end time
-    Real dt = 0.40;
+    Real dt = 4.e2;
 
     react_test(dt);
 
