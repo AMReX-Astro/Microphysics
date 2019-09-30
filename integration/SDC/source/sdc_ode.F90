@@ -93,8 +93,6 @@ contains
        ! size
        call single_step_sdc(sdc, ierr)
 
-       print *, "finished a step", sdc % t
-
        if (ierr /= IERR_NONE) then
           exit
        end if
@@ -121,6 +119,8 @@ contains
     if (.not. finished .and. ierr == IERR_NONE) then
        ierr = IERR_TOO_MANY_STEPS
     endif
+
+    print *, "done: ", sdc % y(:)
 
   end subroutine ode
 
@@ -173,6 +173,7 @@ contains
        call f_rhs(t_temp, y_temp, ydot_temp, sdc % rpar)
 
        ddydtt = (ydot_temp - ydot) / h
+
 
        yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / SDC_NEQS )
 

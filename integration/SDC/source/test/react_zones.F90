@@ -7,90 +7,45 @@ module react_zones_module
 
 contains
 
-  subroutine init_state(lo, hi, &
-                        state, s_lo, s_hi, ncomp, npts) bind(C, name="init_state")
-
-    integer, intent(in) :: lo(3), hi(3)
-    integer, intent(in) :: s_lo(3), s_hi(3)
-    real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
-    integer, intent(in) :: npts, ncomp
-
-    integer :: i, j, k, n
-
-    n = 0
-    do k = lo(3), hi(3)
-       do j = lo(2), hi(2)
-          do i = lo(1), hi(1)
-             state(i, j, k, 1) = ONE - real(n, kind=rt)/real(npts**3, kind=rt)
-             state(i, j, k, 2) = ZERO
-             state(i, j, k, 3) = ZERO
-
-             n = n + 1
-          enddo
-       enddo
-    enddo
-
-  end subroutine init_state
-
-
-  subroutine do_react(lo, hi, &
-                      state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
+  subroutine react_test(dt) bind(C, name="react_test")
 
     use sdc_ode_module, only: ode, sdc_t
 
     implicit none
 
-    integer, intent(in) :: lo(3), hi(3)
-    integer, intent(in) :: s_lo(3), s_hi(3)
-    real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
-    integer, intent(in), value :: ncomp
     real(rt), intent(in), value :: dt
 
     type(sdc_t) :: sdc_state
     integer :: ierr
-    integer :: ii, jj, kk, n
 
-    !$gpu
+    ! Set the absolute tolerances
+    sdc_state % atol(1) = 1.d-8
+    sdc_state % atol(2) = 1.d-14
+    sdc_state % atol(3) = 1.d-6
 
-    do ii = lo(1), hi(1)
-       do jj = lo(2), hi(2)
-          do kk = lo(3), hi(3)
+    ! Set the relative tolerances
+    sdc_state % rtol(:) = 1.d-4
 
-             ! Set the absolute tolerances
-             sdc_state % atol(1) = 1.d-8
-             sdc_state % atol(2) = 1.d-14
-             sdc_state % atol(3) = 1.d-6
+    ! Initialize the integration time and set the final time to dt
+    sdc_state % t = ZERO
+    sdc_state % tmax = dt
 
-             ! Set the relative tolerances
-             sdc_state % rtol(1) = 1.d-4
+    ! Initialize the initial conditions
+    sdc_state % y(:) = 0.0_rt
+    sdc_state % y(1) = 1.0_rt
 
-             ! Initialize the integration time and set the final time to dt
-             sdc_state % t = ZERO
-             sdc_state % tmax = dt
+    ! Call the integration routine.
+    call ode(sdc_state, ierr)
 
-             ! Initialize the initial conditions
-             do n = 1, ncomp
-                sdc_state % y(n) = state(ii, jj, kk, n)
-             enddo
+    ! Check if the integration failed
+    if (ierr  < 0) then
+       print *, 'ERROR: integration failed', ierr
+       stop
+    endif
 
-             ! Call the integration routine.
-             call ode(sdc_state, ierr)
+    ! print the final result
+    print *, sdc_state % y(:)
 
-             ! Check if the integration failed
-             if (ierr  < 0) then
-                print *, 'ERROR: integration failed', ierr
-                stop
-             endif
-
-             ! Store the final result
-             do n = 1, ncomp
-                state(ii, jj, kk, n) = sdc_state % y(n)
-             enddo
-
-          enddo
-       enddo
-    enddo
-
-  end subroutine do_react
+  end subroutine react_test
 
 end module react_zones_module

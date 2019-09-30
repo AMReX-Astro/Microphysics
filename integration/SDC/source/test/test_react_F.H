@@ -9,13 +9,7 @@ extern "C"
 {
 #endif
 
-  void init_state(const int* lo, const int* hi,
-                  amrex::Real* state, const int* s_lo, const int* s_hi,
-                  const int* ncomp, const int* npts);
-
-  void do_react(const int* lo, const int* hi,
-                amrex::Real* state, const int* s_lo, const int* s_hi,
-                const int ncomp, const amrex::Real dt);
+  void react_test(const amrex::Real dt);
 
 #ifdef __cplusplus
 }

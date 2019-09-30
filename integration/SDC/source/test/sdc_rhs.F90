@@ -17,9 +17,9 @@ contains
 
     !$gpu
 
-    YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
-    YDOT(3) = 3.D7*Y(2)*Y(2)
-    YDOT(2) = -YDOT(1) - YDOT(3)
+    ydot(1) = -0.04d0 * y(1) + 1.d4 * y(2) * y(3)
+    ydot(2) = 0.04d0 * y(1) - 1.d4 * y(2) * y(3) - 3.e7 * y(2)**2
+    ydot(3) = 3.e7 * y(2)**2
 
   end subroutine f_rhs
 
@@ -40,13 +40,15 @@ contains
 
     !$gpu
 
-    PD(1,1) = -.04D0
-    PD(1,2) = 1.D4*Y(3)
-    PD(1,3) = 1.D4*Y(2)
-    PD(2,1) = .04D0
-    PD(2,3) = -PD(1,3)
-    PD(3,2) = 6.D7*Y(2)
-    PD(2,2) = -PD(1,2) - PD(3,2)
+    pd(:,:) = 0.0d0
+
+    pd(1,1) = -0.04d0
+    pd(1,2) = 1.d4 * y(3)
+    pd(1,3) = 1.d4 * y(2)
+    pd(2,1) = 0.0d0
+    pd(2,3) = -pd(1,3)
+    pd(3,2) = 6.d7 * y(2)
+    pd(2,2) = -pd(1,2) - pd(3,2)
 
   end subroutine jac
 
