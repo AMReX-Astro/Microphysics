@@ -322,6 +322,7 @@ contains
 
     if (ierr == IERR_NONE) then
        sdc % t = t_start + dt
+       sdc % y = y_node(SDC_NODES-1, :)
     end if
 
   end subroutine single_step_sdc
