@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-  void react_test(const amrex::Real dt);
+  void react_test();
 
 #ifdef __cplusplus
 }

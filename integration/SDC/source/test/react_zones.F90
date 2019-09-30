@@ -7,16 +7,15 @@ module react_zones_module
 
 contains
 
-  subroutine react_test(dt) bind(C, name="react_test")
+  subroutine react_test() bind(C, name="react_test")
 
     use sdc_ode_module, only: ode, sdc_t
 
     implicit none
 
-    real(rt), intent(in), value :: dt
-
     type(sdc_t) :: sdc_state
     integer :: ierr
+    integer :: i
 
     ! Set the absolute tolerances
     sdc_state % atol(1) = 1.d-8
@@ -24,27 +23,38 @@ contains
     sdc_state % atol(3) = 1.d-6
 
     ! Set the relative tolerances
-    sdc_state % rtol(:) = 1.d-6
+    sdc_state % rtol(:) = 1.d-4
 
     ! Initialize the integration time and set the final time to dt
     sdc_state % t = ZERO
-    sdc_state % tmax = dt
 
     ! Initialize the initial conditions
     sdc_state % y(:) = 0.0_rt
     sdc_state % y(1) = 1.0_rt
 
-    ! Call the integration routine.
-    call ode(sdc_state, ierr)
+    sdc_state % tmax = 0.4_rt
 
-    ! Check if the integration failed
-    if (ierr  < 0) then
-       print *, 'ERROR: integration failed', ierr
-       stop
-    endif
+    ! for a timestep estimation
+    sdc_state % dt_ini = -1.0_rt
 
-    ! print the final result
-    print *, sdc_state % y(:)
+    do i = 1, 12
+
+       ! Call the integration routine.
+       call ode(sdc_state, ierr)
+
+       ! Check if the integration failed
+       if (ierr  < 0) then
+          print *, "ERROR: integration failed", ierr
+          print *, sdc_state % t
+          stop
+       endif
+
+       print *, sdc_state % t, sdc_state % n, sdc_state % y(:)
+
+       sdc_state % tmax = 10.0_rt * sdc_state % tmax
+
+    end do
+
     print *, "number of steps = ", sdc_state % n
   end subroutine react_test
 

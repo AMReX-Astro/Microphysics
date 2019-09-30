@@ -27,12 +27,6 @@ int main (int argc, char* argv[])
 void main_main ()
 {
 
-    // time = starting time in the simulation
-    Real time = 0.0;
-
-    // end time
-    Real dt = 4.e2;
-
-    react_test(dt);
+    react_test();
 
 }

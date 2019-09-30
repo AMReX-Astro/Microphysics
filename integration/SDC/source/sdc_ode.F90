@@ -25,7 +25,8 @@ module sdc_ode_module
 
   integer, parameter :: IERR_LU_DECOMPOSITION_ERROR = -200
 
-  integer, parameter :: MAX_TRY = 50
+  ! this is the number of time step attempts we try
+  integer, parameter :: MAX_TIMESTEP_ATTEMPTS = 50
 
   ! timestep control
   real, parameter :: S1 = 0.9_rt
@@ -40,8 +41,9 @@ module sdc_ode_module
      real(rt) :: t
      real(rt) :: tmax
      real(rt) :: dt
-     real(rt) :: dt_next
-     real(rt) :: dt_did
+
+     ! if dt_ini < 0 then we estimate the initial timestep
+     real(rt) :: dt_ini
 
      integer :: n
 
@@ -83,8 +85,12 @@ contains
     ierr = IERR_NONE
 
     ! estimate the initial timestep
-    call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
-    call initial_timestep(sdc, ydot)
+    if (sdc % dt_ini < 0.0_rt) then
+       call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
+       call initial_timestep(sdc, ydot)
+    else
+       sdc % dt = sdc % dt_ini
+    end if
 
     print *, "initial timestep = ", sdc % dt
 
@@ -120,6 +126,8 @@ contains
 
     enddo
 
+    ! store an estimate for next time
+    sdc % dt_ini = sdc % dt
 
     if (.not. finished .and. ierr == IERR_NONE) then
        ierr = IERR_TOO_MANY_STEPS
@@ -128,8 +136,6 @@ contains
     if (ierr /= IERR_NONE) then
        print *, "errors encountered"
     end if
-
-    print *, "done: ", sdc % y(:)
 
   end subroutine ode
 
@@ -229,9 +235,6 @@ contains
     type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
 
-    ! this is the number of time step attempts we try
-    integer, parameter :: MAX_TIMESTEP_ATTEMPTS = 10
-
     type (sdc_t) :: sdc_s, sdc_d
 
     real(rt) :: y_save(SDC_NEQS), y_s(SDC_NEQS), y_d(SDC_NEQS)
@@ -256,8 +259,6 @@ contains
     weights(:) = 1.0_rt / (sdc % rtol(:) * abs(y_save(:)) + sdc % atol(:))
 
     do i = 1, MAX_TIMESTEP_ATTEMPTS
-
-       print *, "trying dt = ", dt
 
        ! take a single step of size dt
        sdc_s = sdc
@@ -299,8 +300,6 @@ contains
        ! now the single dt and the two dt/2 attempts are at the same
        ! time.  check convergence as |y_s - y_d| < rtol * |y_old| + atol
        eps = sqrt(sum(weights(:) * abs(sdc_s % y(:) - sdc_d % y(:))) / SDC_NEQS)
-
-       print *, eps
 
        ! predict the new timestep -- if we converged, we'll pass this
        ! out.  Otherwise, we will use this for the next attempt.
