@@ -81,6 +81,8 @@ contains
     call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
     call initial_timestep(sdc, ydot)
 
+    print *, "initial timestep = ", sdc % dt
+
     do n = 1, ode_max_steps
 
        ! make sure we don't overshoot the ending time
@@ -91,6 +93,8 @@ contains
        ! size
        call single_step_sdc(sdc, ierr)
 
+       print *, "finished a step", sdc % t
+
        if (ierr /= IERR_NONE) then
           exit
        end if
@@ -100,7 +104,7 @@ contains
           finished = .true.
        endif
 
-       sdc % dt = sdc % dt_next
+       !sdc % dt = sdc % dt_next
 
        if (sdc % dt < dt_min) then
           ierr = IERR_DT_TOO_SMALL
@@ -190,7 +194,7 @@ contains
   end subroutine initial_timestep
 
 
-  subroutine single_step_sdc(sdc, ierr)
+  subroutine adaptive_step_driver(sdc, ierr)
 
     ! This routine will do the following:
     !
@@ -210,14 +214,29 @@ contains
     !
     !   - otherwise, the error was too large, so we redo the step
 
+    implicit none
+
+    type (sdc_t), intent(inout) :: sdc
+    integer, intent(out) :: ierr
+
+    ! this is the number of time step attempts we try
+    integer, parameter :: max_timestep_attempts = 10
+
+    real(rt) :: y_save(SDC_NEQS), y_s(SDC_NEQS), y_d(SDC_NEQS)
+
+  end subroutine adaptive_step_driver
+
+  subroutine single_step_sdc(sdc, ierr)
+
+    ! for a given state and timestep (encoded in sdc_t), we do the
+    ! update to the new time
+
     use amrex_error_module, only: amrex_error
 
     implicit none
 
     type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
-
-    real(rt) :: y_save(SDC_NEQS), y_s(SDC_NEQS), y_d(SDC_NEQS)
 
     ! storage for the solution on each time node
     real(rt) :: y_node(0:SDC_NODES-1, SDC_NEQS)
@@ -232,91 +251,77 @@ contains
     real(rt) :: t_start
     real(rt) :: err_max
 
-    logical :: converged
-
     integer :: i, k, m, n
-
-    ! this is the number of time step attempts we try
-    integer, parameter :: max_timestep_attempts = 10
+    integer :: inewton_err
 
     dt = sdc % dt
-    y_save(:) = sdc % y(:)
-
-    converged = .false.
 
     t_start = sdc % t
 
-    do n = 1, max_timestep_attempts
+    ! set the error counter to "all clear"
+    ierr = IERR_NONE
 
-       ! each iteration is a new attempt at taking a step, so reset
-       ! errors at the start of the attempt
-       ierr = IERR_NONE
+    do m = 0, SDC_NODES-1
+       y_node(m, :) = sdc % y(:)
+    end do
 
-       do m = 0, SDC_NODES-1
-          y_node(m, :) = y_save(:)
+    ! compute an estimate for the RHS at the "old" iteration
+    call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
+
+    do m = 0, SDC_NODES-1
+       f_old(m, :) = ydot(:)
+    end do
+
+    do k = 1, SDC_MAX_ITERATIONS
+
+       ! loop over time nodes
+       do m = 0, SDC_NODES-2
+
+          ! our starting point is y_node(m, :)
+
+          dt_m = dt * (dt_sdc(m+1) - dt_sdc(m))
+
+          ! compute the integral term
+          call sdc_C_source(m, dt, dt_m, f_old, C)
+
+          ! compute the explicit source
+          Z_source(:) = y_node(m, :) + dt_m * C(:)
+
+          ! initial guess
+          y_node(m+1, :) = y_node(m, :)
+
+          ! do the nonlinear solve to find the solution at time node m+1
+          weights(:) = 1.0_rt/(sdc % rtol(:) * abs(y_node(m, :)) + sdc % atol(:))
+
+          call sdc_newton_solve(t_start + dt_sdc(m+1), dt_m, &
+                                y_node(m+1, :), Z_source, k, sdc % rpar, weights, inewton_err)
+
+          ! did the solve converge?
+          if (inewton_err /= NEWTON_SUCCESS) then
+             ierr = IERR_NO_CONVERGENCE
+             exit
+          end if
+
        end do
 
-       ! compute an estimate for the RHS at the "old" iteration
-       call f_rhs(sdc % t, y_save, ydot, sdc % rpar)
-
-       do m = 0, SDC_NODES-1
-          f_old(m, :) = ydot(:)
-       end do
-
-       do k = 1, SDC_MAX_ITERATIONS
-
-          ! loop over time nodes
-          do m = 0, SDC_NODES-2
-
-             ! our starting point is y_node(m, :)
-
-             dt_m = dt * (dt_sdc(m+1) - dt_sdc(m))
-
-             ! compute the integral term
-             call sdc_C_source(m, dt, dt_m, f_old, C)
-
-             ! compute the explicit source
-             Z_source(:) = y_node(m, :) + C(:)
-
-             ! initial guess
-             y_node(m+1, :) = y_node(m, :)
-
-             ! do the nonlinear solve to find the solution at time node m+1
-             weights(:) = 1.0_rt/(sdc % rtol(:) * abs(y_node(m, :)) + sdc % atol(:))
-
-             call sdc_newton_solve(t_start + dt_sdc(m+1), dt_m, &
-                                   y_node(m+1, :), Z_source, k, sdc % rpar, weights, ierr)
-
-             ! did the solve converge?
-
-          end do
-
+       if (ierr == IERR_NONE) then
           ! recompute f on all time nodes and store
           do m = 0, SDC_NODES-1
              call f_rhs(sdc % t + dt*dt_sdc(m), y_node(m, :), ydot, sdc % rpar)
              f_old(m, :) = ydot(:)
           end do
 
-       end do
-
-       ! did we converge? if so, break out
-
-       ! if we didn't converge, reduce the timestep and try again
-
+       else
+          ! no reason to keep going -- bail out to the caller and have
+          ! it handle things
+          exit
+       end if
 
     end do
 
-
-    if (.not. converged .and. ierr == IERR_NONE) then
-       ierr = IERR_NO_CONVERGENCE
-       print *, "Integration failed due to non-convergence in single_step_sdc"
-       return
-    endif
-
-    sdc % t = t_start + dt
-
-    ! compute the next timestep
-    !sdc % dt_next = 
+    if (ierr == IERR_NONE) then
+       sdc % t = t_start + dt
+    end if
 
   end subroutine single_step_sdc
 

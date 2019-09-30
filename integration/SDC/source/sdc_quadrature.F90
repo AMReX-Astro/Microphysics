@@ -55,7 +55,7 @@ contains
 
   end subroutine sdc_C_source
 
-  subroutine sdc_newton_solve(time, dt_m, y, f_source, sdc_iteration, rpar, weights, ierr)
+  subroutine sdc_newton_solve(time, dt_m, y_new, Z_source, sdc_iteration, rpar, weights, ierr)
     ! the purpose of this function is to solve the system
     ! U - dt R(U) = U_old + dt C using a Newton solve.
     !
@@ -71,16 +71,14 @@ contains
     implicit none
 
     real(rt), intent(in) :: time, dt_m
-    real(rt), intent(inout) :: y(SDC_NEQS)
-    real(rt), intent(in) :: f_source(SDC_NEQS)
+    real(rt), intent(inout) :: y_new(SDC_NEQS)
+    real(rt), intent(in) :: Z_source(SDC_NEQS)
     integer, intent(in) :: sdc_iteration
     integer, intent(out) :: ierr
     real(rt), intent(inout) :: rpar(n_rpar_comps)
     real(rt), intent(in) :: weights(SDC_NEQS)
 
     real(rt) :: J(SDC_NEQS, SDC_NEQS)
-    real(rt) :: y_orig(SDC_NEQS)
-    real(rt) :: y_new(SDC_NEQS)
     real(rt) :: ydot(SDC_NEQS)
     real(rt) :: rhs(SDC_NEQS)
     real(rt) :: dy(SDC_NEQS)
@@ -115,8 +113,6 @@ contains
     err = 1.e30_rt
     converged = .false.
 
-    y_orig(:) = y(:)
-
     do while (.not. converged .and. iter < max_newton_iter)
 
        J(:,:) = 0.0_rt
@@ -133,7 +129,7 @@ contains
        end do
 
 
-       rhs(:) = -y_orig(:) + dt_m * ydot(:) - f_source(:)
+       rhs(:) = -y_new(:) + dt_m * ydot(:) + Z_source(:)
 
        ! solve the linear system: A dy_react = rhs
        call dgefa(J, SDC_NEQS, SDC_NEQS, ipvt, info)
@@ -149,7 +145,7 @@ contains
        ! how much of dU_react should we apply?
        eta = ONE
 
-       y(:) = y(:) + dy(:)
+       y_new(:) = y_new(:) + dy(:)
 
        ! we still need to normalize here
        !call clean_state(sdc)
