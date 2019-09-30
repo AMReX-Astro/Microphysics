@@ -23,7 +23,7 @@ DEFINES += -DCRSEGRNDOMP
 # SDC directories
 #------------------------------------------------------------------------------
 
-Bdirs := . $(SDC_HOME)/../../util/LINPACK
+Bdirs := . $(SDC_HOME)/../../util/LINPACK $(SDC_HOME)/../../util/BLAS
 
 Bpack += $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
 Blocs += $(foreach dir, $(Bdirs), $(TOP)/$(dir))

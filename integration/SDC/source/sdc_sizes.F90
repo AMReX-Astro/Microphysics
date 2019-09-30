@@ -8,9 +8,9 @@ module sdc_sizes_module
   integer, parameter :: SDC_NODES = 4
   integer, parameter :: SDC_MAX_ITERATIONS = 4
 
-  real(rt), parameter :: dt_sdc(SDC_NODES) = [0.0d0, (4.0d0 - sqrt(6.0d0))/10.0d0, &
+  real(rt), parameter :: dt_sdc(0:SDC_NODES-1) = [0.0d0, (4.0d0 - sqrt(6.0d0))/10.0d0, &
                                    (4.0d0 + sqrt(6.0d0))/10.0d0, 1.0d0]
-  real(rt), parameter :: node_weights(SDC_NODES) = [0.0d0, (16.0d0 - sqrt(6.0d0))/36.0d0, &
+  real(rt), parameter :: node_weights(0:SDC_NODES-1) = [0.0d0, (16.0d0 - sqrt(6.0d0))/36.0d0, &
                                         (16.0d0 + sqrt(6.0d0))/36.0d0, 1.0d0/9.0d0]
 
   integer, parameter :: NEWTON_SUCCESS = 0

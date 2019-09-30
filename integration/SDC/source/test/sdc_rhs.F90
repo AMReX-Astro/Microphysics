@@ -11,7 +11,7 @@ contains
 
     implicit none
 
-    real(rt), intent(INOUT) :: time, y(SDC_NEQS)
+    real(rt), intent(IN) :: time, y(SDC_NEQS)
     real(rt), intent(INOUT) :: rpar(n_rpar_comps)
     real(rt), intent(INOUT) :: ydot(SDC_NEQS)
 
@@ -33,8 +33,9 @@ contains
 
     implicit none
 
-    integer   , intent(IN   ) :: ml, mu, nrpd
-    real(rt), intent(INOUT) :: y(SDC_NEQS), rpar(n_rpar_comps), time
+    integer, intent(IN   ) :: ml, mu, nrpd
+    real(rt), intent(in) :: time
+    real(rt), intent(INOUT) :: y(SDC_NEQS), rpar(n_rpar_comps)
     real(rt), intent(  OUT) :: pd(SDC_NEQS,SDC_NEQS)
 
     !$gpu

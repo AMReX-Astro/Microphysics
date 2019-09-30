@@ -12,7 +12,7 @@ USE_OMP    = FALSE
 
 EBASE = main
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 SDC_HOME = ../.
 

@@ -6,6 +6,7 @@ module sdc_ode_module
   use sdc_sizes_module
   use sdc_quadrature_module
   use sdc_parameters_module
+  use sdc_rpar_indices, only : N_RPAR_COMPS
 
   implicit none
 
@@ -31,7 +32,12 @@ module sdc_ode_module
      real(rt) :: atol(SDC_NEQS)
      real(rt) :: y(SDC_NEQS)
 
-     real(rt) :: t, tmax, dt, dt_next
+     real(rt) :: t
+     real(rt) :: tmax
+     real(rt) :: dt
+     real(rt) :: dt_next
+     real(rt) :: dt_did
+
      integer :: n
 
   end type sdc_t
@@ -40,34 +46,8 @@ contains
 
   ! integrate from t to tmax
 
-  subroutine safety_check(y_old, y, retry)
-    !$acc routine seq
 
-    use extern_probin_module, only: safety_factor
-
-    real(rt), intent(in) :: y_old(sdc_neqs), y(sdc_neqs)
-    logical, intent(out) :: retry
-
-    real(rt) :: ratio
-
-    retry = .false.
-
-    ratio = abs(y(net_itemp)/y_old(net_itemp))
-    if (ratio > safety_factor) then ! .or. ratio < ONE/safety_factor) then
-       retry = .true.
-    endif
-
-    ratio = abs(y(net_ienuc)/y_old(net_ienuc))
-    if (ratio > safety_factor) then ! .or. ratio < ONE/safety_factor) then
-       retry = .true.
-    endif
-
-    ! not sure what check to do on species
-
-  end subroutine safety_check
-
-
-  subroutine ode(sdc, t, tmax, ierr)
+  subroutine ode(sdc, ierr)
 
     ! this is a basic driver for the ODE integration, based on the NR
     ! routine.  This calls an integration method to take a single step
@@ -76,36 +56,30 @@ contains
 
     !$acc routine seq
 
-    use extern_probin_module, only: ode_max_steps, use_timestep_estimator, &
-                                    scaling_method, ode_scale_floor, ode_method
-#ifndef ACC
+    use extern_probin_module, only: ode_max_steps
     use amrex_error_module, only: amrex_error
-#endif
 
     type (sdc_t), intent(inout) :: sdc
-    real(rt), intent(inout) :: t
-    real(rt), intent(in) :: tmax
     integer, intent(out) :: ierr
 
+    real(rt) :: ydot(SDC_NEQS)
     logical :: finished
+    real(rt) :: t_start, tmax
 
     integer :: n
 
     ! initialize
 
     ! store local copies
-    sdc % t = t
-    sdc % tmax = tmax
+    t_start = sdc % t
+    tmax = sdc % tmax
 
     finished = .false.
     ierr = IERR_NONE
 
-    if (use_timestep_estimator) then
-       call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
-       call initial_timestep(sdc, ydot)
-    else
-       sdc % dt = dt_ini
-    endif
+    ! estimate the initial timestep
+    call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
+    call initial_timestep(sdc, ydot)
 
     do n = 1, ode_max_steps
 
@@ -133,11 +107,12 @@ contains
           exit
        endif
 
+       sdc % n = n
+
        if (finished) exit
 
     enddo
 
-    sdc % n = n
 
     if (.not. finished .and. ierr == IERR_NONE) then
        ierr = IERR_TOO_MANY_STEPS
@@ -154,13 +129,15 @@ contains
     !$acc routine seq
 
     type (sdc_t), intent(inout) :: sdc
+    real(rt), intent(in) :: ydot(SDC_NEQS)
 
-    type (sdc_t) :: sdc_temp
     real(rt) :: h, h_old, hL, hU, ddydtt(SDC_NEQS), eps, ewt(SDC_NEQS), yddnorm
+    real(rt) :: t_temp
+    real(rt) :: y_temp(SDC_NEQS)
     real(rt) :: ydot_temp(SDC_NEQS)
     integer :: n
 
-    sdc_temp = sdc
+    y_temp = sdc % y
 
     ! Initial lower and upper bounds on the timestep
 
@@ -185,15 +162,15 @@ contains
 
        ! Construct the trial point.
 
-       sdc_temp % t = sdc % t + h
-       sdc_temp % y = sdc % y + h * ydot
+       t_temp = sdc % t + h
+       y_temp = sdc % y + h * ydot
 
        ! Call the RHS, then estimate the finite difference.
-       call f_rhs(sdc_temp % t, sdc_temp % y, ydot_temp, sdc_temp % rpar)
+       call f_rhs(t_temp, y_temp, ydot_temp, sdc % rpar)
 
        ddydtt = (ydot_temp - ydot) / h
 
-       yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / sdc_neqs )
+       yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / SDC_NEQS )
 
        if (yddnorm*hU*hU > TWO) then
           h = sqrt(TWO / yddnorm)
@@ -240,21 +217,20 @@ contains
     type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
 
-    real(rt) :: y_save(sdc_neqs), y_s(sdc_neqs), y_d(sdc_neqs)
+    real(rt) :: y_save(SDC_NEQS), y_s(SDC_NEQS), y_d(SDC_NEQS)
 
     ! storage for the solution on each time node
-    real(rt) :: y_node(0:SDC_NODES-1, sdc_neqs)
+    real(rt) :: y_node(0:SDC_NODES-1, SDC_NEQS)
 
     ! storage for the previous iteration's RHS
-    real(rt) :: f_old(0:SDC_NODES-1, sdc_neqs)
-
-    real(rt) :: f_source(sdc_neqs), C(sdc_neqs)
+    real(rt) :: f_old(0:SDC_NODES-1, SDC_NEQS)
+    real(rt) :: ydot(SDC_NEQS)
+    real(rt) :: Z_source(SDC_NEQS), C(SDC_NEQS)
+    real(rt) :: weights(SDC_NEQS)
 
     real(rt) :: dt, dt_m
-   real(rt) :: t_start
+    real(rt) :: t_start
     real(rt) :: err_max
-
-    type (sdc_t) :: sdc_temp
 
     logical :: converged
 
@@ -266,10 +242,9 @@ contains
     dt = sdc % dt
     y_save(:) = sdc % y(:)
 
-    ! get the jacobian
-    call jac(sdc)
-
     converged = .false.
+
+    t_start = sdc % t
 
     do n = 1, max_timestep_attempts
 
@@ -277,33 +252,23 @@ contains
        ! errors at the start of the attempt
        ierr = IERR_NONE
 
-       t_start = sdc % t
-
-       sdc % t_new = sdc % t + dt
-
-       ! we start integrating from y_save(:)
-       sdc_temp = sdc
-       sdc_temp % y(:) = y_save(:)
-
        do m = 0, SDC_NODES-1
           y_node(m, :) = y_save(:)
        end do
 
        ! compute an estimate for the RHS at the "old" iteration
-       call f_rhs(sdc_temp)
+       call f_rhs(sdc % t, y_save, ydot, sdc % rpar)
 
        do m = 0, SDC_NODES-1
-          f_old(m, :) = sdc_temp % burn_s % ydot(:)
+          f_old(m, :) = ydot(:)
        end do
 
        do k = 1, SDC_MAX_ITERATIONS
 
-
           ! loop over time nodes
           do m = 0, SDC_NODES-2
 
-             ! load the initial data for node m
-             sdc_temp % y(:) = y_node(m, :)
+             ! our starting point is y_node(m, :)
 
              dt_m = dt * (dt_sdc(m+1) - dt_sdc(m))
 
@@ -311,21 +276,25 @@ contains
              call sdc_C_source(m, dt, dt_m, f_old, C)
 
              ! compute the explicit source
-             f_source(:) = y_node(m, :) + C(:)
+             Z_source(:) = y_node(m, :) + C(:)
+
+             ! initial guess
+             y_node(m+1, :) = y_node(m, :)
 
              ! do the nonlinear solve to find the solution at time node m+1
-             call sdc_newton_solve(dt_m, sdc_temp, y_node(m+1, :), f_source, k, ierr)
+             weights(:) = 1.0_rt/(sdc % rtol(:) * abs(y_node(m, :)) + sdc % atol(:))
+
+             call sdc_newton_solve(t_start + dt_sdc(m+1), dt_m, &
+                                   y_node(m+1, :), Z_source, k, sdc % rpar, weights, ierr)
 
              ! did the solve converge?
-             
+
           end do
 
           ! recompute f on all time nodes and store
           do m = 0, SDC_NODES-1
-             sdc_temp % y(:) = y_node(m, :)
-             call f_rhs(sdc_temp)
-
-             f_old(m, :) = sdc_temp % burn_s % ydot(:)
+             call f_rhs(sdc % t + dt*dt_sdc(m), y_node(m, :), ydot, sdc % rpar)
+             f_old(m, :) = ydot(:)
           end do
 
        end do
@@ -341,12 +310,10 @@ contains
     if (.not. converged .and. ierr == IERR_NONE) then
        ierr = IERR_NO_CONVERGENCE
        print *, "Integration failed due to non-convergence in single_step_sdc"
-       call dump_sdc_state(sdc)
        return
     endif
 
-    sdc % t = sdc % t_new
-    sdc % dt_did = dt
+    sdc % t = t_start + dt
 
     ! compute the next timestep
     !sdc % dt_next = 
