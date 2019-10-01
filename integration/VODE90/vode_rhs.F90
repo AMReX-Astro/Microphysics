@@ -28,8 +28,6 @@ contains
 
     type (burn_t) :: burn_state
 
-    real(rt) :: limit_factor, t_sound, t_enuc
-
     !$gpu
 
     ! We are integrating a system of
@@ -101,7 +99,6 @@ contains
     real(rt), intent(  OUT) :: pd(VODE_NEQS,VODE_NEQS)
 
     type (burn_t) :: state
-    real(rt) :: limit_factor, t_sound, t_enuc
     integer :: n
 
     !$gpu
