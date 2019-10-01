@@ -45,8 +45,6 @@ contains
     ! Local variables
     integer :: ierr
 
-    real(rt) :: t0, t1
-
     type (eos_t) :: eos_state_in, eos_state_temp
 
     real(rt) :: ener_offset
@@ -74,7 +72,7 @@ contains
 
     ! Initialize the integration time.
     sdc_state % t = ZERO
-    sdc_state % tmax = t0 + dt
+    sdc_state % tmax = sdc_state % t + dt
 
     ! Convert our input burn state into an EOS type.
 
