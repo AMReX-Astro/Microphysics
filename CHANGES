@@ -1,3 +1,16 @@
+# 19.10
+
+  -- The iso7 network was ported to GPUs (#172)
+
+  -- VODE90 now better agrees with VODE (#192)
+
+  -- When building with multiple integrators, the contents of the rpar
+     modules could clash.  This has been fixedc (#136)
+
+  -- A module for making the "Nonaka plot" tracking the evolution of a
+     quantity during the burn was added, and is enabled with
+     USE_NONAKA_PLOT=TRUE
+
 # 19.08
 
   -- A new network, subch2, was added that combines aprox13 and the
