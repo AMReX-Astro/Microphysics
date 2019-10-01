@@ -48,7 +48,6 @@ contains
     real(rt) :: t0, t1
 
     type (eos_t) :: eos_state_in, eos_state_temp
-    type (sdc_t) :: sdc
 
     real(rt) :: ener_offset
     real(rt) :: t_enuc, t_sound, limit_factor
@@ -145,8 +144,12 @@ contains
 
     sdc_state % rpar(irp_y_init:irp_y_init + neqs - 1) = sdc_state % y
 
+
+    ! Have the integrator estimate the starting timestep for us
+    sdc_state % dt_ini = -1.0_rt
+
     ! Call the integration routine.
-    call ode(sdc, ierr)
+    call ode(sdc_state, ierr)
 
     ! If we are using hybrid burning and the energy release was
     ! negative (or we failed), re-run this in self-heating mode.
@@ -173,7 +176,7 @@ contains
                                         (eos_state_temp % T - eos_state_in % T)
        endif
 
-       call ode(sdc, ierr)
+       call ode(sdc_state, ierr)
 
     endif
 
@@ -186,14 +189,14 @@ contains
        print *, 'ierr = ', ierr
        print *, 'dt = ', dt
        print *, 'time start = ', time
-       print *, 'time current = ', sdc % t
+       print *, 'time current = ', sdc_state % t
        print *, 'dens = ', state_in % rho
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
-       print *, 'temp current = ', sdc % y(net_itemp)
-       print *, 'xn current = ', sdc % y(1:nspec_evolve), &
+       print *, 'temp current = ', sdc_state % y(net_itemp)
+       print *, 'xn current = ', sdc_state % y(1:nspec_evolve), &
             sdc_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1)
-       print *, 'energy generated = ', sdc % y(net_ienuc) - ener_offset
+       print *, 'energy generated = ', sdc_state % y(net_ienuc) - ener_offset
 #endif
 
        state_out % success = .false.
