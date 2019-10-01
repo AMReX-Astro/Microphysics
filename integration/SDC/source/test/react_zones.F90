@@ -18,12 +18,12 @@ contains
     integer :: i
 
     ! Set the absolute tolerances
-    sdc_state % atol(1) = 1.d-8
+    sdc_state % atol(1) = 1.d-10
     sdc_state % atol(2) = 1.d-14
-    sdc_state % atol(3) = 1.d-6
+    sdc_state % atol(3) = 1.d-8
 
     ! Set the relative tolerances
-    sdc_state % rtol(:) = 1.d-4
+    sdc_state % rtol(:) = 1.d-7
 
     ! Initialize the integration time and set the final time to dt
     sdc_state % t = ZERO

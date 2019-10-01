@@ -274,7 +274,7 @@ contains
        if (ierr /= IERR_NONE) then
           ! maybe we can do something more smartly here later
           dt = 0.5d0 * dt
-          continue
+          cycle
        end if
 
        ! now take two steps of since dt/2
@@ -287,14 +287,14 @@ contains
 
        if (ierr /= IERR_NONE) then
           dt = 0.5d0 * dt
-          continue
+          cycle
        end if
 
        call single_step_sdc(sdc_d, ierr)
 
        if (ierr /= IERR_NONE) then
           dt = 0.5d0 * dt
-          continue
+          cycle
        end if
 
        ! now the single dt and the two dt/2 attempts are at the same
@@ -303,7 +303,7 @@ contains
 
        ! predict the new timestep -- if we converged, we'll pass this
        ! out.  Otherwise, we will use this for the next attempt.
-       dt_est = dt * eps**(-0.2)
+       dt_est = dt * eps**(-0.2_rt)
        dt = min(max(S1 * dt_est, dt/S2), S2 * dt)
 
        if (eps < 1.0_rt) then
@@ -388,7 +388,7 @@ contains
           Z_source(:) = y_node(m, :) + dt_m * C(:)
 
           ! initial guess
-          y_node(m+1, :) = y_node(m, :)
+          y_node(m+1, :) = y_node(m, :) !+ dt_m * f_old(m+1, :)
 
           ! do the nonlinear solve to find the solution at time node m+1
           weights(:) = 1.0_rt/(sdc % rtol(:) * abs(y_node(m, :)) + sdc % atol(:))

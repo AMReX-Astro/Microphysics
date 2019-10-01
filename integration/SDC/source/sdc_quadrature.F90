@@ -81,7 +81,6 @@ contains
     real(rt) :: J(SDC_NEQS, SDC_NEQS)
     real(rt) :: ydot(SDC_NEQS)
     real(rt) :: rhs(SDC_NEQS)
-    real(rt) :: dy(SDC_NEQS)
 
     real(rt) :: w(SDC_NEQS)
 
@@ -93,7 +92,7 @@ contains
 
     real(rt) :: eps_tot(SDC_NEQS)
 
-    real(rt) :: err, eta
+    real(rt) :: err
 
     integer, parameter :: MAX_ITER = 100
     integer :: iter
@@ -128,7 +127,6 @@ contains
           J(n, n) = 1.0_rt + J(n,n)
        end do
 
-
        rhs(:) = -y_new(:) + dt_m * ydot(:) + Z_source(:)
 
        ! solve the linear system: A dy_react = rhs
@@ -140,19 +138,10 @@ contains
 
        call dgesl(J, SDC_NEQS, SDC_NEQS, ipvt, rhs, 0)
 
-       dy(:) = rhs(:)
-
-       ! how much of dU_react should we apply?
-       eta = ONE
-
-       y_new(:) = y_new(:) + dy(:)
-
-       ! we still need to normalize here
-       !call clean_state(sdc)
-
+       y_new(:) = y_new(:) + rhs(:)
 
        ! compute the norm of the weighted error, where the weights are 1/eps_tot
-       err = sqrt(sum((weights * dy)**2)/SDC_NEQS)
+       err = sqrt(sum((weights * rhs)**2)/SDC_NEQS)
 
        if (err < ONE) then
           converged = .true.
