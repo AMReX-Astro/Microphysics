@@ -3,3 +3,10 @@ F90EXE_sources += sdc_type.F90
 F90EXE_sources += sdc_rhs.F90
 F90EXE_sources += sdc_rpar.F90
 F90EXE_sources += sdc_parameters.F90
+
+SDC_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/SDC/source/
+include $(SDC_SOURCE_DIR)/Make.package
+
+INCLUDE_LOCATIONS += $(SDC_SOURCE_DIR)
+VPATH_LOCATIONS   += $(SDC_SOURCE_DIR)
+EXTERN_CORE       += $(SDC_SOURCE_DIR)

@@ -8,7 +8,7 @@ module actual_integrator_module
   use network
   use sdc_rpar_indices
   use burn_type_module
-  use stiff_ode
+  use sdc_ode_module
   use sdc_type_module
 
   implicit none

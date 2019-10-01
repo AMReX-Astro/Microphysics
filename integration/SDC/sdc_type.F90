@@ -1,108 +1,83 @@
 module sdc_type_module
 
   use amrex_fort_module, only : rt => amrex_real
-  use burn_type_module, only: neqs, burn_t
-  use sdc_rpar_indices, only: n_rpar_comps
-  use sdc_sizes_module, only : SDC_NODES
+  use sdc_parameters_module, only : SDC_NEQS
 
   implicit none
 
-  integer, parameter :: sdc_neqs = neqs
-
-  type sdc_t
-     real(rt) :: dt_did
-     real(rt) :: dt_next
-     real(rt) :: t_new
-
-     ! storage for the solution
-     real(rt) :: y(neqs)
-
-     real(rt) :: atol(neqs), rtol(neqs)
-     real(rt) :: upar(n_rpar_comps)
-     real(rt) :: t, dt, tmax
-     integer :: n
-
-     type(burn_t) :: burn_s
-
-  end type sdc_t
-
-  !$acc declare create(nseq)
-
 contains
 
-  subroutine clean_state(state)
-
-    !$acc routine seq
+  subroutine clean_state(y, rpar)
 
     use amrex_constants_module, only: ONE
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances, MAX_TEMP
     use actual_network, only: nspec, nspec_evolve
     use burn_type_module, only: net_itemp
     use eos_type_module, only : eos_get_small_temp
+    use sdc_rpar_indices, only : n_rpar_comps
 
     implicit none
 
-    type (sdc_t), intent(inout) :: state
+    real(rt) :: y(SDC_NEQS), rpar(n_rpar_comps)
 
     real (rt) :: small_temp
 
     ! Ensure that mass fractions always stay positive and sum to 1.
-    state % y(1:nspec_evolve) = &
-         max(min(state % y(1:nspec_evolve), ONE), SMALL_X_SAFE)
+    y(1:nspec_evolve) = max(min(y(1:nspec_evolve), ONE), SMALL_X_SAFE)
 
     ! Renormalize abundances as necessary.
     if (renormalize_abundances) then
-       call renormalize_species(state)
+       call renormalize_species(y, rpar)
     endif
 
     ! Ensure that the temperature always stays within reasonable limits.
+
     call eos_get_small_temp(small_temp)
 
-    state % y(net_itemp) = min(MAX_TEMP, max(state % y(net_itemp), small_temp))
+    y(net_itemp) = min(MAX_TEMP, max(y(net_itemp), small_temp))
 
   end subroutine clean_state
 
 
-  subroutine renormalize_species(state)
-
-    !$acc routine seq
+  subroutine renormalize_species(y, rpar)
 
     use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, nspec_evolve
-    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
     implicit none
 
-    type (sdc_t) :: state
+    real(rt) :: y(SDC_NEQS), rpar(n_rpar_comps)
 
     real(rt) :: nspec_sum
 
     nspec_sum = &
-         sum(state % y(1:nspec_evolve)) + &
-         sum(state % upar(irp_nspec:irp_nspec+n_not_evolved-1))
+         sum(y(1:nspec_evolve)) + &
+         sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
 
-    state % y(1:nspec_evolve) = state % y(1:nspec_evolve) / nspec_sum
-    state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         state % upar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
+    y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
 
   end subroutine renormalize_species
 
 
-  subroutine update_thermodynamics(state)
-
-    !$acc routine seq
+  subroutine update_thermodynamics(y, rpar)
 
     use amrex_constants_module, only: ZERO
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed
-    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved, &
+                                irp_cv, irp_cp, irp_dcvdt, irp_dcpdt, &
+                                irp_self_heat, irp_Told
     use actual_network, only : nspec, nspec_evolve
 
     implicit none
 
-    type (sdc_t) :: state
+    real(rt) :: y(SDC_NEQS), rpar(n_rpar_comps)
+
     type (eos_t) :: eos_state
 
     ! Several thermodynamic quantities come in via sdc % upar -- note: these
@@ -110,7 +85,7 @@ contains
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
 
-    call sdc_to_eos(eos_state, state)
+    call sdc_to_eos(eos_state, y, rpar)
 
     ! Evaluate the thermodynamics -- if desired. Note that
     ! even if this option is selected, we don't need to do it
@@ -124,45 +99,31 @@ contains
     ! that's needed to construct dY/dt. Then make sure
     ! the abundances are safe.
 
-    if (call_eos_in_rhs .and. state % burn_s % self_heat) then
-
-       call eos(eos_input_rt, eos_state)
-       call eos_to_sdc(eos_state, state)
-
-    else if (abs(eos_state % T - state % burn_s % T_old) > &
-         dT_crit * eos_state % T .and. state % burn_s % self_heat) then
+    if (call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
-       state % burn_s % dcvdt = (eos_state % cv - state % burn_s % cv) / &
-            (eos_state % T - state % burn_s % T_old)
-       state % burn_s % dcpdt = (eos_state % cp - state % burn_s % cp) / &
-            (eos_state % T - state % burn_s % T_old)
-       state % burn_s % T_old  = eos_state % T
+    else if (abs(eos_state % T - rpar(irp_Told)) > &
+         dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
+
+       call eos(eos_input_rt, eos_state)
+
+       rpar(irp_dcvdt) = (eos_state % cv - rpar(irp_cv)) / &
+            (eos_state % T - rpar(irp_Told))
+       rpar(irp_dcpdt) = (eos_state % cp - rpar(irp_cp)) / &
+            (eos_state % T - rpar(irp_cp))
+       rpar(irp_Told) = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
-       ! in the call to eos_to_sdc that follows 
-       call eos_to_sdc(eos_state, state)
+       ! in the call to eos_to_sdc that follows
 
     else
 
        call composition(eos_state)
 
-       ! just update what is needed here
-       state % burn_s % y_e = eos_state % y_e
-       state % burn_s % abar = eos_state % abar
-       state % burn_s % zbar = eos_state % zbar
-
-       ! this shouldn't actually be necessary -- we haven't changed X at all,
-       ! but roundoff in the multiply / divide change answers slightly.  Leaving
-       ! this in for now for the test suite
-       state % y(1:nspec_evolve) = eos_state % xn(1:nspec_evolve)
-       state % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-            eos_state % xn(nspec_evolve+1:nspec) 
-
     endif
 
-
+    call eos_to_sdc(eos_state, y, rpar)
 
   end subroutine update_thermodynamics
 
@@ -175,29 +136,33 @@ contains
   ! off the nuclear energy from the zone's internal energy, which could lead to
   ! issues from roundoff error if the energy released from burning is small.
 
-  subroutine sdc_to_eos(state, sdc)
-
-    !$acc routine seq
+  subroutine sdc_to_eos(state, y, rpar)
 
     use actual_network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved, &
+                                irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, irp_eta, irp_ye, irp_cs
     use burn_type_module, only: net_itemp
 
     implicit none
 
     type (eos_t) :: state
-    type (sdc_t) :: sdc
+    real(rt) :: y(SDC_NEQS), rpar(n_rpar_comps)
 
-    state % rho     = sdc % burn_s % rho
-    state % T       = sdc % y(net_itemp)
+    state % rho     = rpar(irp_dens)
+    state % T       = y(net_itemp)
 
-    state % xn(1:nspec_evolve) = sdc % y(1:nspec_evolve)
+    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
-         sdc % upar(irp_nspec:irp_nspec+n_not_evolved-1)
+         rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    ! we don't copy any of the other quantities, since we can always
-    ! access them through the original sdc type
+    state % cp      = rpar(irp_cp)
+    state % cv      = rpar(irp_cv)
+    state % abar    = rpar(irp_abar)
+    state % zbar    = rpar(irp_zbar)
+    state % eta     = rpar(irp_eta)
+    state % y_e     = rpar(irp_ye)
+    state % cs      = rpar(irp_cs)
 
   end subroutine sdc_to_eos
 
@@ -205,116 +170,148 @@ contains
 
   ! Given an EOS state, fill the rpar and integration state data.
 
-  subroutine eos_to_sdc(state, sdc)
+  subroutine eos_to_sdc(state, y, rpar)
 
     !$acc routine seq
 
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved, &
+                                irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, irp_eta, irp_ye, irp_cs
     use burn_type_module, only: net_itemp
 
     implicit none
 
     type (eos_t) :: state
-    type (sdc_t) :: sdc
+    real(rt)   :: y(SDC_NEQS), rpar(n_rpar_comps)
 
-    sdc % burn_s % rho = state % rho
+    rpar(irp_dens) = state % rho
+    y(net_itemp) = state % T
 
-    ! T is funny -- it is both an integration variable and a member of burn_t
-    sdc % y(net_itemp) = state % T
-    sdc % burn_s % T = state % T 
+    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         state % xn(nspec_evolve+1:nspec)
 
-    sdc % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    sdc % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         state % xn(nspec_evolve+1:nspec) 
-
-    sdc % burn_s % cp = state % cp
-    sdc % burn_s % cv = state % cv
-    sdc % burn_s % abar = state % abar
-    sdc % burn_s % zbar = state % zbar
-    sdc % burn_s % eta = state % eta
-    sdc % burn_s % y_e = state % y_e
-    sdc % burn_s % cs = state % cs
+    rpar(irp_cp)                    = state % cp
+    rpar(irp_cv)                    = state % cv
+    rpar(irp_abar)                  = state % abar
+    rpar(irp_zbar)                  = state % zbar
+    rpar(irp_eta)                   = state % eta
+    rpar(irp_ye)                    = state % y_e
+    rpar(irp_cs)                    = state % cs
 
   end subroutine eos_to_sdc
 
 
-  subroutine burn_to_sdc(sdc)
+  subroutine burn_to_sdc(state, y, rpar, ydot, jac)
 
-    ! Given a burn state, fill the sdc_t.  For this implementation, we just
-    ! modify the burn_t that is part of the sdc_t, in place
-
-    !$acc routine seq
+    ! Given a burn state, fill the rpar and integration state data.
 
     use network, only: nspec, nspec_evolve
-    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved, &
+                                irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
+                                irp_ye, irp_eta, irp_cs, irp_dx, irp_Told, irp_dcvdt, irp_dcpdt, &
+                                irp_self_heat
+    
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ONE
 
     implicit none
 
-    type (sdc_t) :: sdc
+    type (burn_t) :: state
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(SDC_NEQS)
+    real(rt), optional :: ydot(SDC_NEQS), jac(SDC_NEQS, SDC_NEQS)
 
-    sdc % burn_s % rho = sdc % burn_s % rho
-    sdc % y(net_itemp) = sdc % burn_s % T
+    rpar(irp_dens) = state % rho
+    y(net_itemp) = state % T
 
-    sdc % y(1:nspec_evolve) = sdc % burn_s % xn(1:nspec_evolve)
-    sdc % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         sdc % burn_s % xn(nspec_evolve+1:nspec) 
+    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
-    sdc % y(net_ienuc) = sdc % burn_s % e
+    y(net_ienuc)                             = state % e
 
-    ! we don't need to do anything to thermodynamic quantities, cp, cv, ...
+    rpar(irp_cp)                             = state % cp
+    rpar(irp_cv)                             = state % cv
+    rpar(irp_abar)                           = state % abar
+    rpar(irp_zbar)                           = state % zbar
+    rpar(irp_ye)                             = state % y_e
+    rpar(irp_eta)                            = state % eta
+    rpar(irp_cs)                             = state % cs
+    rpar(irp_dx)                             = state % dx
 
-    ! we don't need to do anything to self_heat
+    rpar(irp_Told)                           = state % T_old
+    rpar(irp_dcvdt)                          = state % dcvdt
+    rpar(irp_dcpdt)                          = state % dcpdt
+
+    if (present(ydot)) then
+       ydot = state % ydot
+       ydot(net_itemp) = ydot(net_itemp)
+       ydot(net_ienuc) = ydot(net_ienuc)
+    endif
+
+    if (present(jac)) then
+       jac = state % jac
+       jac(net_itemp,:) = jac(net_itemp,:)
+       jac(net_ienuc,:) = jac(net_ienuc,:)
+       jac(:,net_itemp) = jac(:,net_itemp)
+       jac(:,net_ienuc) = jac(:,net_ienuc)
+    endif
+
+    if (state % self_heat) then
+       rpar(irp_self_heat) = ONE
+    else
+       rpar(irp_self_heat) = -ONE
+    endif
 
   end subroutine burn_to_sdc
 
 
-  subroutine sdc_to_burn(sdc)
-    ! Given a sdc_t, set up a burn state.  For this implementation, we just
-    ! modify the burn_t that is part of the sdc_t, in place
-    
-    !$acc routine seq
+  subroutine sdc_to_burn(y, rpar, state)
+    ! Given an rpar array and the integration state, setup a burn
+    ! state.
 
     use actual_network, only: nspec, nspec_evolve
-    use sdc_rpar_indices, only: irp_nspec, n_not_evolved
+    use sdc_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved, &
+                                irp_cp, irp_cv, irp_abar, irp_zbar, &
+                                irp_ye, irp_eta, irp_cs, irp_dx, irp_Told, &
+                                irp_dcvdt, irp_dcpdt, irp_dens, irp_self_heat
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ZERO, ONE
 
     implicit none
 
-    type (sdc_t) :: sdc
+    type (burn_t) :: state
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(SDC_NEQS)
 
-    sdc % burn_s % rho = sdc % burn_s % rho
-    sdc % burn_s % T = sdc % y(net_itemp)
-    sdc % burn_s % e = sdc % y(net_ienuc)
+    state % rho      = rpar(irp_dens)
+    state % T        = y(net_itemp)
+    state % e        = y(net_ienuc)
 
-    sdc % burn_s % xn(1:nspec_evolve) = sdc % y(1:nspec_evolve)
-    sdc % burn_s % xn(nspec_evolve+1:nspec) = &
-         sdc % upar(irp_nspec:irp_nspec+n_not_evolved-1)
+    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    state % xn(nspec_evolve+1:nspec) = &
+         rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    ! all the other thermodynamic quantities (cp, cv, ...) are already
-    ! in the burn_t
+    state % cp       = rpar(irp_cp)
+    state % cv       = rpar(irp_cv)
+    state % abar     = rpar(irp_abar)
+    state % zbar     = rpar(irp_zbar)
+    state % y_e      = rpar(irp_ye)
+    state % eta      = rpar(irp_eta)
+    state % cs       = rpar(irp_cs)
+    state % dx       = rpar(irp_dx)
 
-    ! self_heat is already set
+    state % T_old    = rpar(irp_Told)
+    state % dcvdt    = rpar(irp_dcvdt)
+    state % dcpdt    = rpar(irp_dcpdt)
 
-    sdc % burn_s % time = sdc % t
+    if (rpar(irp_self_heat) > ZERO) then
+       state % self_heat = .true.
+    else
+       state % self_heat = .false.
+    endif
 
   end subroutine sdc_to_burn
-
-  subroutine dump_sdc_state(sdc)
-
-    implicit none
-
-    type (sdc_t) :: sdc
-
-    print *, "time: ", sdc % t
-    print *, "T:    ", sdc % burn_s % T 
-    print *, "rho:  ", sdc % burn_s % rho 
-    print *, "X:    ", sdc % burn_s % xn(:)
-
-  end subroutine dump_sdc_state
 
 end module sdc_type_module
