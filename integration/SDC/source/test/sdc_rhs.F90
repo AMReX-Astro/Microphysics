@@ -18,8 +18,8 @@ contains
     !$gpu
 
     ydot(1) = -0.04d0 * y(1) + 1.d4 * y(2) * y(3)
-    ydot(2) = 0.04d0 * y(1) - 1.d4 * y(2) * y(3) - 3.e7 * y(2)**2
-    ydot(3) = 3.e7 * y(2)**2
+    ydot(3) = 3.d7 * y(2)**2
+    ydot(2) = -ydot(1) - ydot(3)
 
   end subroutine f_rhs
 
@@ -45,7 +45,7 @@ contains
     pd(1,1) = -0.04d0
     pd(1,2) = 1.d4 * y(3)
     pd(1,3) = 1.d4 * y(2)
-    pd(2,1) = 0.0d0
+    pd(2,1) = 0.04d0
     pd(2,3) = -pd(1,3)
     pd(3,2) = 6.d7 * y(2)
     pd(2,2) = -pd(1,2) - pd(3,2)
