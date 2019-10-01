@@ -120,7 +120,8 @@ contains
           exit
        endif
 
-       sdc % n = n
+       ! each "step" is actually 2 half steps
+       sdc % n = 2*n
 
        if (finished) exit
 
