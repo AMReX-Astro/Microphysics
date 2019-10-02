@@ -55,7 +55,7 @@ contains
 
   end subroutine sdc_C_source
 
-  subroutine sdc_newton_solve(time, dt_m, y_new, Z_source, sdc_iteration, rpar, weights, ierr)
+  subroutine sdc_newton_solve(time, dt_m, y_new, Z_source, sdc_iteration, rpar, weights, icount, ierr)
     ! the purpose of this function is to solve the system
     ! U - dt R(U) = U_old + dt C using a Newton solve.
     !
@@ -74,9 +74,10 @@ contains
     real(rt), intent(inout) :: y_new(SDC_NEQS)
     real(rt), intent(in) :: Z_source(SDC_NEQS)
     integer, intent(in) :: sdc_iteration
-    integer, intent(out) :: ierr
     real(rt), intent(inout) :: rpar(n_rpar_comps)
     real(rt), intent(in) :: weights(SDC_NEQS)
+    integer, intent(inout) :: icount
+    integer, intent(out) :: ierr
 
     real(rt) :: J(SDC_NEQS, SDC_NEQS)
     real(rt) :: ydot(SDC_NEQS)
