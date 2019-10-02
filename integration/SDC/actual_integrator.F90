@@ -43,7 +43,7 @@ contains
     real(rt)     , intent(in   ) :: dt, time
 
     ! Local variables
-    integer :: ierr
+    integer :: icount, ierr
 
     type (eos_t) :: eos_state_in, eos_state_temp
 
@@ -147,7 +147,7 @@ contains
     sdc_state % dt_ini = -1.0_rt
 
     ! Call the integration routine.
-    call ode(sdc_state, ierr)
+    call ode(sdc_state, icount, ierr)
 
     ! If we are using hybrid burning and the energy release was
     ! negative (or we failed), re-run this in self-heating mode.
@@ -174,7 +174,7 @@ contains
                                         (eos_state_temp % T - eos_state_in % T)
        endif
 
-       call ode(sdc_state, ierr)
+       call ode(sdc_state, icount, ierr)
 
     endif
 
@@ -213,6 +213,8 @@ contains
     success = state_out % success
 
     state_out % success = success
+
+    state_out % n_rhs = icount
 
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)
