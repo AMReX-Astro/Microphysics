@@ -54,7 +54,7 @@ contains
   ! integrate from t to tmax
 
 
-  subroutine ode(sdc, icount, ierr)
+  subroutine ode(sdc, idiag, ierr)
 
     ! this is a basic driver for the ODE integration, based on the NR
     ! routine.  This calls an integration method to take a single step
@@ -68,15 +68,16 @@ contains
 
     type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
-    integer, intent(out) :: icount
+    type (sdc_diag_t), intent(out) :: idiag
 
     real(rt) :: ydot(SDC_NEQS)
     logical :: finished
     real(rt) :: t_start, tmax
     integer :: n
 
-    ! initialize the RHS call counter 
-    icount = 0
+    ! initialize the RHS call diags
+    idiag % count = 0
+    idiag % retries = 0
 
     ! store local copies
     t_start = sdc % t
@@ -88,8 +89,8 @@ contains
     ! estimate the initial timestep
     if (sdc % dt_ini < 0.0_rt) then
        call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
-       icount = icount + 1
-       call initial_timestep(sdc, icount, ydot)
+       idiag % count = idiag % count + 1
+       call initial_timestep(sdc, idiag, ydot)
     else
        sdc % dt = sdc % dt_ini
     end if
@@ -104,7 +105,7 @@ contains
        ! take a step -- this routine will update the solution array,
        ! advance the time, and also give an estimate of the next step
        ! size
-       call adaptive_step_driver(sdc, icount, ierr)
+       call adaptive_step_driver(sdc, idiag, ierr)
 
        if (ierr /= IERR_NONE) then
           exit
@@ -143,7 +144,7 @@ contains
   end subroutine ode
 
 
-  subroutine initial_timestep(sdc, icount, ydot)
+  subroutine initial_timestep(sdc, idiag, ydot)
 
     ! this is a version of the timestep estimation algorithm used by
     ! VODE
@@ -152,7 +153,7 @@ contains
 
     type (sdc_t), intent(inout) :: sdc
     real(rt), intent(in) :: ydot(SDC_NEQS)
-    integer, intent(inout) :: icount
+    type (sdc_diag_t), intent(inout) :: idiag
 
     real(rt) :: h, h_old, hL, hU, ddydtt(SDC_NEQS), eps, ewt(SDC_NEQS), yddnorm
     real(rt) :: t_temp
@@ -190,7 +191,7 @@ contains
 
        ! Call the RHS, then estimate the finite difference.
        call f_rhs(t_temp, y_temp, ydot_temp, sdc % rpar)
-       icount = icount + 1
+       idiag % count = idiag % count + 1
 
        ddydtt = (ydot_temp - ydot) / h
 
@@ -215,7 +216,7 @@ contains
   end subroutine initial_timestep
 
 
-  subroutine adaptive_step_driver(sdc, icount, ierr)
+  subroutine adaptive_step_driver(sdc, idiag, ierr)
 
     ! This routine will do the following:
     !
@@ -239,7 +240,7 @@ contains
 
     type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
-    integer, intent(inout) :: icount
+    type (sdc_diag_t), intent(inout) :: idiag
 
     type (sdc_t) :: sdc_s, sdc_d
 
@@ -272,7 +273,7 @@ contains
        sdc_s % dt = dt
        sdc_s % y(:) = y_save(:)
 
-       call single_step_sdc(sdc_s, icount, ierr)
+       call single_step_sdc(sdc_s, idiag, ierr)
 
        ! if this was successful, the in all likelihood, the two
        ! integrations with dt/2 will be too.  Otherwise, bail here and
@@ -289,14 +290,14 @@ contains
        sdc_d % dt = 0.5d0 * dt
        sdc_d % y(:) = y_save(:)
 
-       call single_step_sdc(sdc_d, icount, ierr)
+       call single_step_sdc(sdc_d, idiag, ierr)
 
        if (ierr /= IERR_NONE) then
           dt = 0.5d0 * dt
           cycle
        end if
 
-       call single_step_sdc(sdc_d, icount, ierr)
+       call single_step_sdc(sdc_d, idiag, ierr)
 
        if (ierr /= IERR_NONE) then
           dt = 0.5d0 * dt
@@ -332,7 +333,7 @@ contains
 
   end subroutine adaptive_step_driver
 
-  subroutine single_step_sdc(sdc, icount, ierr)
+  subroutine single_step_sdc(sdc, idiag, ierr)
 
     ! for a given state and timestep (encoded in sdc_t), we do the
     ! update to the new time
@@ -343,7 +344,7 @@ contains
 
     type (sdc_t), intent(inout) :: sdc
     integer, intent(out) :: ierr
-    integer, intent(inout) :: icount
+    type (sdc_diag_t), intent(inout) :: idiag
 
     ! storage for the solution on each time node
     real(rt) :: y_node(0:SDC_NODES-1, SDC_NEQS)
@@ -365,7 +366,7 @@ contains
 
     t_start = sdc % t
 
-    ! set the error counter to "all clear"
+    ! set the error to "all clear"
     ierr = IERR_NONE
 
     do m = 0, SDC_NODES-1
@@ -374,7 +375,7 @@ contains
 
     ! compute an estimate for the RHS at the "old" iteration
     call f_rhs(sdc % t, sdc % y, ydot, sdc % rpar)
-    icount = icount + 1
+    idiag % count = idiag % count + 1
 
     do m = 0, SDC_NODES-1
        f_old(m, :) = ydot(:)
@@ -406,7 +407,7 @@ contains
 
           call sdc_newton_solve(t_start + dt_sdc(m+1), dt_m, &
                                 y_node(m+1, :), Z_source, k, sdc % rpar, weights, &
-                                icount, inewton_err)
+                                idiag, inewton_err)
 
           ! did the solve converge?
           if (inewton_err /= NEWTON_SUCCESS) then
@@ -420,7 +421,7 @@ contains
           ! recompute f on all time nodes and store
           do m = 0, SDC_NODES-1
              call f_rhs(sdc % t + dt*dt_sdc(m), y_node(m, :), ydot, sdc % rpar)
-             icount = icount + 1
+             idiag % count = idiag % count + 1
              f_old(m, :) = ydot(:)
           end do
 

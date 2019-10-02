@@ -55,7 +55,7 @@ contains
 
   end subroutine sdc_C_source
 
-  subroutine sdc_newton_solve(time, dt_m, y_new, Z_source, sdc_iteration, rpar, weights, icount, ierr)
+  subroutine sdc_newton_solve(time, dt_m, y_new, Z_source, sdc_iteration, rpar, weights, idiag, ierr)
     ! the purpose of this function is to solve the system
     ! U - dt R(U) = U_old + dt C using a Newton solve.
     !
@@ -76,7 +76,7 @@ contains
     integer, intent(in) :: sdc_iteration
     real(rt), intent(inout) :: rpar(n_rpar_comps)
     real(rt), intent(in) :: weights(SDC_NEQS)
-    integer, intent(inout) :: icount
+    type (sdc_diag_t), intent(inout) :: idiag
     integer, intent(out) :: ierr
 
     real(rt) :: J(SDC_NEQS, SDC_NEQS)
@@ -119,6 +119,7 @@ contains
 
        ! get the Jacobian and the RHS
        call f_rhs(time, y_new, ydot, rpar)
+       idiag % count = idiag % count + 1
        call jac(time, y_new, ml, mu, J, nrpd, rpar)
 
        ! create the matrix for our linear system, A = 1 - dt J

@@ -17,4 +17,10 @@ module sdc_sizes_module
   integer, parameter :: SINGULAR_MATRIX = -1
   integer, parameter :: CONVERGENCE_FAILURE = -2
 
+  type ::sdc_diag_t
+     integer :: count
+     integer :: retries
+
+  end type sdc_diag_t
+
 end module sdc_sizes_module
