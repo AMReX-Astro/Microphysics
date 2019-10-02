@@ -139,10 +139,12 @@ contains
           return
        endif
 
+#ifdef DEBUG
        print *, "calling dgesl", rhs
        print *, "y_new = ", y_new
        print *, "ydot = ", ydot
        print *, "Z_source = ", Z_source
+#endif
 
        call dgesl(J, SDC_NEQS, SDC_NEQS, ipvt, rhs, 0)
 
@@ -150,12 +152,14 @@ contains
 
        ! compute the norm of the weighted error, where the weights are 1/eps_tot
        err = sqrt(sum((weights * rhs)**2)/SDC_NEQS)
+
+#ifdef DEBUG
        print *, "Jac = ", J
        print *, "rhs = ", rhs
        print *, "weights = ", weights
        print *, "dt_m = ", dt_m
        print *, "err = ", err
-       stop
+#endif
 
        if (err < ONE) then
           converged = .true.

@@ -10,11 +10,13 @@ contains
   subroutine react_test() bind(C, name="react_test")
 
     use sdc_ode_module, only: ode, sdc_t
-
+    use sdc_sizes_module, only : sdc_diag_t
     implicit none
 
     type(sdc_t) :: sdc_state
     integer :: ierr
+    type(sdc_diag_t) :: idiag
+
     integer :: i
 
     ! Set the absolute tolerances
@@ -40,7 +42,7 @@ contains
     do i = 1, 12
 
        ! Call the integration routine.
-       call ode(sdc_state, ierr)
+       call ode(sdc_state, idiag, ierr)
 
        ! Check if the integration failed
        if (ierr  < 0) then

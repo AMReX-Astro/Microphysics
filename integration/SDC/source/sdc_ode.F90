@@ -443,8 +443,8 @@ contains
        sdc % y = y_node(SDC_NODES-1, :)
     end if
 
-    print *, "count, retries: ", idiag % count, idiag % retries, &
-         float(idiag % newton_iterations) / idiag % newton_solver_calls
+    !print *, "count, retries: ", idiag % count, idiag % retries, &
+    !     float(idiag % newton_iterations) / idiag % newton_solver_calls
 
   end subroutine single_step_sdc
 
