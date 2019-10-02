@@ -78,6 +78,8 @@ contains
     ! initialize the RHS call diags
     idiag % count = 0
     idiag % retries = 0
+    idiag % newton_solver_calls = 0
+    idiag % newton_iterations = 0
 
     ! store local copies
     t_start = sdc % t
@@ -281,6 +283,7 @@ contains
        if (ierr /= IERR_NONE) then
           ! maybe we can do something more smartly here later
           dt = 0.5d0 * dt
+          idiag % retries = idiag % retries + 1
           cycle
        end if
 
@@ -294,6 +297,7 @@ contains
 
        if (ierr /= IERR_NONE) then
           dt = 0.5d0 * dt
+          idiag % retries = idiag % retries + 1
           cycle
        end if
 
@@ -301,6 +305,7 @@ contains
 
        if (ierr /= IERR_NONE) then
           dt = 0.5d0 * dt
+          idiag % retries = idiag % retries + 1
           cycle
        end if
 
@@ -437,6 +442,9 @@ contains
        sdc % t = t_start + dt
        sdc % y = y_node(SDC_NODES-1, :)
     end if
+
+    print *, "count, retries: ", idiag % count, idiag % retries, &
+         float(idiag % newton_iterations) / idiag % newton_solver_calls
 
   end subroutine single_step_sdc
 

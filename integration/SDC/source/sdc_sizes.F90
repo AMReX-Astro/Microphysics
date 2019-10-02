@@ -20,6 +20,8 @@ module sdc_sizes_module
   type ::sdc_diag_t
      integer :: count
      integer :: retries
+     integer :: newton_solver_calls
+     integer :: newton_iterations
 
   end type sdc_diag_t
 

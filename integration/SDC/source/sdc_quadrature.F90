@@ -95,10 +95,8 @@ contains
 
     real(rt) :: err
 
-    integer, parameter :: MAX_ITER = 100
+    integer, parameter :: MAX_ITER = 10
     integer :: iter
-
-    integer :: max_newton_iter
 
     integer :: k, n
 
@@ -108,12 +106,15 @@ contains
 
     ! iterative loop
     iter = 0
-    max_newton_iter = MAX_ITER
 
     err = 1.e30_rt
     converged = .false.
 
-    do while (.not. converged .and. iter < max_newton_iter)
+    idiag % newton_solver_calls = idiag % newton_solver_calls + 1
+
+    do while (.not. converged .and. iter < MAX_ITER)
+
+       idiag % newton_iterations = idiag % newton_iterations + 1
 
        J(:,:) = 0.0_rt
 
@@ -138,12 +139,23 @@ contains
           return
        endif
 
+       print *, "calling dgesl", rhs
+       print *, "y_new = ", y_new
+       print *, "ydot = ", ydot
+       print *, "Z_source = ", Z_source
+
        call dgesl(J, SDC_NEQS, SDC_NEQS, ipvt, rhs, 0)
 
        y_new(:) = y_new(:) + rhs(:)
 
        ! compute the norm of the weighted error, where the weights are 1/eps_tot
        err = sqrt(sum((weights * rhs)**2)/SDC_NEQS)
+       print *, "Jac = ", J
+       print *, "rhs = ", rhs
+       print *, "weights = ", weights
+       print *, "dt_m = ", dt_m
+       print *, "err = ", err
+       stop
 
        if (err < ONE) then
           converged = .true.
