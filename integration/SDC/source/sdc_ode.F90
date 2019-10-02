@@ -311,7 +311,7 @@ contains
 
        ! now the single dt and the two dt/2 attempts are at the same
        ! time.  check convergence as |y_s - y_d| < rtol * |y_old| + atol
-       eps = sqrt(sum(weights(:) * abs(sdc_s % y(:) - sdc_d % y(:))) / SDC_NEQS)
+       eps = sqrt(sum((weights(:) * abs(sdc_s % y(:) - sdc_d % y(:)))**2) / SDC_NEQS)
 
        ! predict the new timestep -- if we converged, we'll pass this
        ! out.  Otherwise, we will use this for the next attempt.
@@ -405,14 +405,17 @@ contains
           y_node(m+1, :) = y_node(m, :) + dt_m * f_old(m+1, :)
 
           ! Mike's initial guess
-          y_node(m+1, :) = Z_source(:) + dt_m * f_old(m, :)
+          !y_node(m+1, :) = Z_source(:) + dt_m * f_old(m, :)
 
           ! do the nonlinear solve to find the solution at time node m+1
           weights(:) = 1.0_rt/(sdc % rtol(:) * abs(y_node(m, :)) + sdc % atol(:))
+          !print *, "weights = ", weights
 
           call sdc_newton_solve(t_start + dt_sdc(m+1), dt_m, &
                                 y_node(m+1, :), Z_source, k, sdc % rpar, weights, &
                                 idiag, inewton_err)
+          !print *, "inewton_err = ", inewton_err
+
 
           ! did the solve converge?
           if (inewton_err /= NEWTON_SUCCESS) then

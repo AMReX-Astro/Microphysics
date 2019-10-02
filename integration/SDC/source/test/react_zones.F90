@@ -51,7 +51,8 @@ contains
           stop
        endif
 
-       print *, sdc_state % t, sdc_state % n, sdc_state % y(:)
+       print *, "state: ", sdc_state % t, sdc_state % n, sdc_state % y(:)
+       print *, "diag:  ", idiag % count, idiag % retries, float(idiag % newton_iterations)/idiag % newton_solver_calls
 
        sdc_state % tmax = 10.0_rt * sdc_state % tmax
 
