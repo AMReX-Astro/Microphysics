@@ -1,6 +1,6 @@
 &PROBIN
 
-  run_prefix = "react_urca_"
+  run_prefix = "react_aprox19_"
   
   small_temp = 1d5
   small_dens = 1d5
