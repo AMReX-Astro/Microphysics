@@ -7,7 +7,7 @@
 
 module vode_rpar_indices
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
 #elif TRUE_SDC
   use actual_network, only: nspec, nspec_evolve
@@ -19,7 +19,7 @@ module vode_rpar_indices
   implicit none
 
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a and irp_u_init
   integer, parameter :: irp_SRHO = 1

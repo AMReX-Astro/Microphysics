@@ -1,4 +1,4 @@
-ifdef SDC
+ifdef SIMPLIFIED_SDC
   F90sources += integrator_sdc.F90
 else
   F90sources += integrator.F90

@@ -4,7 +4,7 @@
 
 module bs_rpar_indices
 
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
 #else
