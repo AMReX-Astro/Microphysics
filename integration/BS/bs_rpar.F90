@@ -13,7 +13,7 @@ module bs_rpar_indices
 
   implicit none
 
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
   integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
   integer, parameter :: irp_nspec = 1
