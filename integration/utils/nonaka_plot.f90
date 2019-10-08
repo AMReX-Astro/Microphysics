@@ -36,13 +36,17 @@ contains
   end subroutine nonaka_init
 
 
-  subroutine nonaka_rhs(state, reference_time)
+  subroutine nonaka_rhs(state, reference_time, trim_after_timestep)
 
     ! state: the burn_t corresponding to the current state
     !        with state % time relative to the start of the current burn call.
     ! reference_time: the simulation time at the start of the current burn call.
     !
     ! The current simulation time is state % time + reference_time
+    !
+    ! trim_after_timestep: if trim_after_timestep = .true. then this call is after the
+    !               ODE integrator has finished the timestep for the current burn call.
+    !               In that case, we trim entries in the nonaka file past the timestep end.
 
     use extern_probin_module, only: nonaka_i, nonaka_j, nonaka_k, nonaka_file
     use amrex_fort_module, only: rt => amrex_real
@@ -53,8 +57,13 @@ contains
 
     type (burn_t), intent(in) :: state
     real(rt),      intent(in) :: reference_time
+    
+    ! optional: trim entries past end of timestep
+    logical, intent(in), optional :: trim_after_timestep
 
     integer :: nonaka_file_unit, j
+    integer :: i, nextline
+    real(rt) :: tprev
 
     character(len=20) :: vector_format = ''
     character(len=20) :: scalar_format = ''
@@ -68,9 +77,32 @@ contains
 
         write(vector_format, '("(", I0, "E30.16E5", ")")') nspec
         write(scalar_format, '("(", I0, "E30.16E5", ")")') 1
+        
+        open(newunit=nonaka_file_unit, file=nonaka_file, status="old", position="append", action="readwrite", &
+             access="stream", form="formatted")
 
-        open(newunit=nonaka_file_unit, file=nonaka_file, status="old", position="append", action="write")
-        write(unit=nonaka_file_unit, fmt=scalar_format, advance="no") (state % time + reference_time)
+        inquire(unit=nonaka_file_unit, pos=nextline)
+        
+        if (present(trim_after_timestep)) then
+            if (trim_after_timestep) then
+                ! determine last timestep in file
+                nextline = nextline - ( 30*(1 + 2*nspec) + 1 )
+                read(unit=nonaka_file_unit, pos=nextline, fmt=scalar_format) tprev
+
+                i = 0
+                ! remove last rows where VODE took a much too large timestep
+                do while (tprev >= time .and. i < 2)
+                    nextline = nextline - ( 30*(1 + 2*nspec) + 1 )
+                    read(unit=nonaka_file_unit, pos=nextline, fmt=scalar_format) tprev
+                    i = i + 1
+                end do
+
+                ! store where to write new data
+                nextline = nextline + ( 30*(1 + 2*nspec) + 1 )
+            end if
+        end if
+           
+        write(unit=nonaka_file_unit, fmt=scalar_format, pos=nextline, advance="no") (state % time + reference_time)
 
         ! Mass fractions X
         write(unit=nonaka_file_unit, fmt=vector_format, advance="no") (state % xn(j), j = 1, nspec)
