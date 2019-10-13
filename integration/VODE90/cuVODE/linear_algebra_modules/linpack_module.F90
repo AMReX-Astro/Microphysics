@@ -9,8 +9,6 @@ contains
 #endif  
   subroutine dgesl(a,lda,n,ipvt,b,job)
 
-    use blas_module, only: daxpy
-
     integer lda,n,ipvt(:),job
     double precision a(lda,n),b(:)
     ! 
@@ -88,7 +86,7 @@ contains
        b(l) = b(k)
        b(k) = t
 10     continue
-       call daxpy(n-k,t,a(k+1:n,k),1,b(k+1:n),1)
+       b(k+1:n) = b(k+1:n) + t * a(k+1:n,k)
     enddo
 30  continue
     ! 
@@ -98,7 +96,7 @@ contains
        k = n + 1 - kb
        b(k) = b(k)/a(k,k)
        t = -b(k)
-       call daxpy(k-1,t,a(1:k-1,k),1,b(1:k-1),1)
+       b(1:k-1) = b(1:k-1) + t * a(1:k-1,k)
     enddo
     go to 100
 50  continue
@@ -133,7 +131,7 @@ contains
 #endif
   SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
 
-    use blas_module, only: daxpy, dscal
+    use blas_module, only: dscal
     use blas_module, only: idamax ! function
 
     ! ***BEGIN PROLOGUE  DGBFA
@@ -218,7 +216,7 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  DAXPY, DSCAL, IDAMAX
+    ! ***ROUTINES CALLED  DSCAL, IDAMAX
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -230,7 +228,7 @@ contains
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBFA
     INTEGER LDA,N,ML,MU,IPVT(:),INFO
-    DOUBLE PRECISION ABD(LDA, N)
+    DOUBLE PRECISION ABD(LDA, N), dABD(LDA)
     ! 
     DOUBLE PRECISION T
     INTEGER I,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
@@ -308,7 +306,8 @@ contains
           ABD(L,J) = ABD(MM,J)
           ABD(MM,J) = T
 70        CONTINUE
-          CALL DAXPY(LM,T,ABD(M+1:M+LM,K),1,ABD(MM+1:MM+LM,J),1)
+          dABD(M+1:M+LM) = T * ABD(M+1:M+LM,K)
+          ABD(MM+1:MM+LM,J) = ABD(MM+1:MM+LM,J) + dABD(M+1:M+LM)
        end do
 90     CONTINUE
        GO TO 110
@@ -327,7 +326,7 @@ contains
 #endif
   SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
 
-    use blas_module, only: daxpy, ddot ! function
+    use blas_module, only: ddot ! function
 
     ! ***BEGIN PROLOGUE  DGBSL
     ! ***PURPOSE  Solve the real band system A*X=B or TRANS(A)*X=B using
@@ -393,7 +392,7 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  DAXPY, DDOT
+    ! ***ROUTINES CALLED  DDOT
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -428,7 +427,7 @@ contains
        B(L) = B(K)
        B(K) = T
 10     CONTINUE
-       CALL DAXPY(LM,T,ABD(M+1:M+LM,K),1,B(K+1:K+LM),1)
+       B(K+1:K+LM) = B(K+1:K+LM) + T * ABD(M+1:M+LM,K)
     end do
 30  CONTINUE
     ! 
@@ -441,7 +440,7 @@ contains
        LA = M - LM
        LB = K - LM
        T = -B(K)
-       CALL DAXPY(LM,T,ABD(LA:LA + LM - 1,K),1,B(LB:LB + LM - 1),1)
+       B(LB:LB+LM-1) = B(LB:LB+LM-1) + T * ABD(LA:LA+LM-1,K)
     end do
     GO TO 100
 50  CONTINUE
@@ -482,7 +481,7 @@ contains
 #endif
   subroutine dgefa (a,lda,n,ipvt,info)
 
-    use blas_module, only: daxpy, dscal
+    use blas_module, only: dscal
     use blas_module, only: idamax ! function
 
     integer lda,n,ipvt(:),info
@@ -578,7 +577,7 @@ contains
           a(l,j) = a(k,j)
           a(k,j) = t
 20        continue
-          call daxpy(n-k,t,a(k+1:n,k),1,a(k+1:n,j),1)
+          a(k+1:n,j) = a(k+1:n,j) + t * a(k+1:n,k)
        enddo
        goto 50
 40     continue
