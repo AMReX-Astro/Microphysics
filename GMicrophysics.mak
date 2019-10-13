@@ -19,7 +19,7 @@ endif
 
 ifdef SDC
   ifeq ($(SDC), t)
-    FPP_DEFINES += -DSDC
+    FPP_DEFINES += -DSIMPLIFIED_SDC
   endif
 endif
 

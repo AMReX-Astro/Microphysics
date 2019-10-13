@@ -69,8 +69,8 @@ ifeq ($(USE_EXTRA_THERMO), TRUE)
   DEFINES += -DEXTRA_THERMO
 endif
 
-ifeq ($(USE_SDC), TRUE)
-  DEFINES += -DSDC
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+  DEFINES += -DSIMPLIFIED_SDC
 endif
 
 ifeq ($(USE_REACT), TRUE)

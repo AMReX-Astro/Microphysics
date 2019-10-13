@@ -1,9 +1,12 @@
+module vode_rhs_module
+
+  contains
 
 ! The f_rhs routine provides the right-hand-side for the DVODE solver.
 ! This is a generic interface that calls the specific RHS routine in the
 ! network you're actually using.
 
-subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
+subroutine f_rhs(time, y, ydot, rpar)
 
   use actual_network, only: aion, nspec_evolve
   use amrex_fort_module, only: rt => amrex_real
@@ -13,13 +16,13 @@ subroutine f_rhs(neq, time, y, ydot, rpar, ipar)
   use vode_type_module, only: clean_state, renormalize_species, &
        rhs_to_vode, vode_to_burn
   use vode_rpar_indices
+  use cuvode_parameters_module
 
   implicit none
 
-  integer,    intent(IN   ) :: neq, ipar
-  real(rt), intent(INOUT) :: time, y(neq)
+  real(rt), intent(INOUT) :: time, y(VODE_NEQS)
   real(rt), intent(INOUT) :: rpar(n_rpar_comps)
-  real(rt), intent(  OUT) :: ydot(neq)
+  real(rt), intent(  OUT) :: ydot(VODE_NEQS)
 
   type (burn_t) :: burn_state
 
@@ -49,7 +52,7 @@ end subroutine f_rhs
 
 ! Analytical Jacobian
 
-subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
+subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
   ! with VODE, we will only ever enter this routine if we choose to
   ! use an analytic Jacobian.  Otherwise, VODE will use its internal
@@ -63,13 +66,13 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   use vode_rpar_indices
   use vode_type_module, only: clean_state, renormalize_species, &
        jac_to_vode, vode_to_burn
-
+  use cuvode_parameters_module
 
   implicit none
 
-  integer   , intent(IN   ) :: neq, ml, mu, nrpd, ipar
-  real(rt), intent(INOUT) :: y(neq), rpar(n_rpar_comps), time
-  real(rt), intent(  OUT) :: pd(neq,neq)
+  integer   , intent(IN   ) :: ml, mu, nrpd
+  real(rt), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
+  real(rt), intent(  OUT) :: pd(VODE_NEQS, VODE_NEQS)
 
   type (burn_t) :: state
   integer :: n
@@ -87,3 +90,5 @@ subroutine jac(neq, time, y, ml, mu, pd, nrpd, rpar, ipar)
   call jac_to_vode(time, state, y, pd, rpar)
 
 end subroutine jac
+
+end module vode_rhs_module

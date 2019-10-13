@@ -1,10 +1,15 @@
 module cuvode_parameters_module
 
   use burn_type_module, only: neqs
+  use network, only : nspec_evolve
 
   implicit none
 
+#ifdef TRUE_SDC
+  integer, parameter :: VODE_NEQS = nspec_evolve + 2
+#else
   integer, parameter :: VODE_NEQS = neqs
+#endif
 
   ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
   ! function is supplied; 22 means stiff, figure out my jacobian through

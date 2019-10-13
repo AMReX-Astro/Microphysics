@@ -1,6 +1,5 @@
 module cuvode_dvhin_module
 
-  use vode_rhs_module, only: f_rhs, jac
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
@@ -73,8 +72,13 @@ contains
     !    y = vstate % y
     !    temp = rwork % acor
   
-    use vode_rhs_module, only: f_rhs
     use cuvode_dvnorm_module, only: dvnorm ! function
+
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only : f_rhs
+#else
+    use vode_rhs_module, only: f_rhs
+#endif
 
     implicit none
 

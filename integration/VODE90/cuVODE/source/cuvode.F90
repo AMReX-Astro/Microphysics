@@ -33,7 +33,11 @@ contains
 #ifndef AMREX_USE_CUDA
     use cuvode_output_module, only: xerrwd
 #endif
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only: f_rhs, jac
+#else
     use vode_rhs_module, only: f_rhs, jac
+#endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
