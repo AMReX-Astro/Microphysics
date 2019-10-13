@@ -82,11 +82,11 @@ contains
     ! steps allowed.
 
     dvode_state % atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
-    dvode_state % atol(SEDEN)           = atol_temp ! temperature
+    dvode_state % atol(SEDEN)           = atol_enuc ! temperature
     dvode_state % atol(SEINT)           = atol_enuc ! energy generated
 
     dvode_state % rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
-    dvode_state % rtol(SEDEN)           = rtol_temp ! temperature
+    dvode_state % rtol(SEDEN)           = rtol_enuc ! temperature
     dvode_state % rtol(SEINT)           = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
