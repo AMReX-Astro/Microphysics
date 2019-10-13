@@ -221,7 +221,7 @@ contains
 #endif
 
     DEL = DVNORM (vstate % Y, rwork % EWT)
-    call daxpyn(VODE_NEQS, ONE, vstate % Y, 1, rwork % acor, 1)
+    rwork % acor(:) = rwork % acor(:) + vstate % Y(:)
 
     do I = 1,VODE_NEQS
        vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)

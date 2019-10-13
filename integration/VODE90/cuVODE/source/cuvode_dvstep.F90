@@ -296,7 +296,7 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-       CALL DAXPYN(VODE_NEQS, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
