@@ -4,7 +4,7 @@ module microphysics_module
   use eos_module, only : eos_init
   use actual_rhs_module, only : actual_rhs_init
 
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
   use actual_burner_module, only : actual_burner_init
 #endif
 
@@ -34,7 +34,7 @@ contains
     call network_init()
     call actual_rhs_init()
 
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
     call actual_burner_init()
 #endif
 

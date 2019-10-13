@@ -1,4 +1,4 @@
-ifdef SDC
+ifdef SIMPLIFIED_SDC
   f90sources += actual_integrator_sdc.f90
   f90sources += vode_rhs_sdc.f90
   f90sources += vode_type_sdc.f90

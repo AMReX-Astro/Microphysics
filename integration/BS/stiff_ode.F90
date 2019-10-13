@@ -4,7 +4,7 @@ module stiff_ode
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module
   use bs_type_module
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
   use bs_rhs_module
   use bs_jac_module
 #else
@@ -154,7 +154,7 @@ contains
        call f_rhs(bs)
 
        if (scaling_method == 1) then
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
           yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % ydot(:)) + SMALL
 #else
           yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
@@ -256,7 +256,7 @@ contains
        ! Construct the trial point.
 
        bs_temp % t = bs % t + h
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        bs_temp % y = bs % y + h * bs % ydot
 #else
        bs_temp % y = bs % y + h * bs % burn_s % ydot
@@ -264,7 +264,7 @@ contains
 
        ! Call the RHS, then estimate the finite difference.
        call f_rhs(bs_temp)
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        ddydtt = (bs_temp % ydot - bs % ydot) / h
 #else
        ddydtt = (bs_temp % burn_s % ydot - bs % burn_s % ydot) / h
@@ -321,7 +321,7 @@ contains
     h = dt_tot/N_sub
 
     ! I - h J
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
     A(:,:) = -h * bs % jac(:,:)
 #else
     A(:,:) = -h * bs % burn_s % jac(:,:)
@@ -338,7 +338,7 @@ contains
 
     if (ierr == IERR_NONE) then
        bs_temp = bs
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        bs_temp % n_rhs = 0
 #else
        bs_temp % burn_s % n_rhs = 0
@@ -346,7 +346,7 @@ contains
 
        ! do an Euler step to get the RHS for the first substep
        t = bs % t
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        y_out(:) = h * bs % ydot(:)
 #else
        y_out(:) = h * bs % burn_s % ydot(:)
@@ -363,7 +363,7 @@ contains
        call f_rhs(bs_temp)
 
        do n = 2, N_sub
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
           y_out(:) = h * bs_temp % ydot(:) - del(:)
 #else
           y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
@@ -380,7 +380,7 @@ contains
           call f_rhs(bs_temp)
        enddo
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        y_out(:) = h * bs_temp % ydot(:) - del(:)
 #else
        y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
@@ -394,7 +394,7 @@ contains
     
        ! Store the number of function evaluations.
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
 #else
        bs % burn_s % n_rhs = bs % burn_s % n_rhs + bs_temp % burn_s % n_rhs
@@ -748,7 +748,7 @@ contains
 
        ! create I/(gamma h) - ydot -- this is the matrix used for all the
        ! linear systems that comprise a single step
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        A(:,:) = -bs % jac(:,:)
 #else
        A(:,:) = -bs % burn_s % jac(:,:)
@@ -765,7 +765,7 @@ contains
        
        ! setup the first RHS and solve the linear system (note: the linear
        ! solve replaces the RHS with the solution in place)
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        g1(:) = bs % ydot(:)
 #else
        g1(:) = bs % burn_s % ydot(:)
@@ -781,7 +781,7 @@ contains
        ! RHS
        call f_rhs(bs_temp)
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
 #else
        g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
@@ -796,7 +796,7 @@ contains
        ! RHS
        call f_rhs(bs_temp)
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
 #else
        g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
@@ -808,7 +808,7 @@ contains
        ! evaluation here
 
        ! final intermediate RHS
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        g4(:) = bs_temp % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
 #else
        g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
@@ -833,7 +833,7 @@ contains
           ! we were successful -- store the solution
           bs % y(:) = bs_temp % y(:)
           bs % t = bs_temp % t
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
           bs % n_rhs = bs_temp % n_rhs
 #else
           bs % burn_s % n_rhs = bs_temp % burn_s % n_rhs

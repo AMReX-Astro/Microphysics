@@ -66,7 +66,7 @@ ifeq ($(USE_NONAKA_PLOT), TRUE)
   DEFINES += -DNONAKA_PLOT
 endif
 
-ifeq ($(USE_SDC), TRUE)
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   F90EXE_sources += integrator_sdc.F90
 else
   F90EXE_sources += integrator.F90

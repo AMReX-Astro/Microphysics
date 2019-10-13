@@ -35,6 +35,8 @@ contains
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
     use bs_integrator_module, only: bs_integrator
+#else
+    use actual_integrator_module, only : actual_integrator
 #endif
 
     use amrex_error_module, only: amrex_error
@@ -65,6 +67,8 @@ contains
     call vode_integrator(state_in, state_out, dt, time, status)
 #elif INTEGRATOR == 1
     call bs_integrator(state_in, state_out, dt, time, status)
+#elif INTEGRATOR == 3
+    call actual_integrator(state_in, state_out, dt, time)
 #else
     call amrex_error("Unknown integrator.")
 #endif

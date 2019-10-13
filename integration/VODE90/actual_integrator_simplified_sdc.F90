@@ -1,5 +1,4 @@
-! Common variables and routines for burners
-! that use VODE for their integration.
+! This is the interface to the burner for the simplified SDC case.
 
 module actual_integrator_module
 
@@ -10,46 +9,9 @@ module actual_integrator_module
   use sdc_type_module
   use vode_type_module
 
+  use cuvode_parameters_module
+
   implicit none
-
-  ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
-  ! function is supplied; 22 means stiff, figure out my jacobian through
-  ! differencing.
-
-  integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-
-  ! Tolerance parameters:
-  !
-  !  itol specifies whether to use an single absolute tolerance for
-  !  all variables (1), or to pass an array of absolute tolerances, one
-  !  for each variable with a scalar relative tol (2), a scalar absolute
-  !  and array of relative tolerances (3), or arrays for both (4).
-  !
-  !  The error is determined as e(i) = rtol*abs(y(i)) + atol, and must
-  !  be > 0.  Since we have some compositions that may be 0 initially,
-  !  we will specify both an absolute and a relative tolerance.
-  !
-  ! We will use arrays for both the absolute and relative tolerances,
-  ! since we want to be easier on the temperature than the species.
-
-  integer, parameter :: ITOL = 4
-
-  ! We want to do a normal computation, and get the output values of y(t)
-  ! after stepping though dt.
-
-  integer, PARAMETER :: ITASK = 1
-
-  ! We will override the maximum number of steps, so turn on the
-  ! optional arguments flag.
-
-  integer, parameter :: IOPT = 1
-
-  ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
-  ! integer work array of size 30 + NEQ. These are VODE constants
-  ! that depend on the integration mode we're using -- see dvode.f.
-
-  integer, parameter :: LRW = 22 + 9*VODE_NEQS + 2*VODE_NEQS**2
-  integer, parameter :: LIW = 30 + VODE_NEQS
 
 contains
 
@@ -61,12 +23,16 @@ contains
   subroutine actual_integrator(state_in, state_out, dt, time)
 
     use vode_rpar_indices
+    use vode_rhs_module
+    use cuvode_module, only: dvode
+    use cuvode_types_module, only: dvode_t, rwork_t
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit
+                                    call_eos_in_rhs, dT_crit, use_jacobian_caching
+    use cuvode_parameters_module
 
     ! Input arguments
 
@@ -80,11 +46,8 @@ contains
 
     ! Work arrays
 
-    real(rt) :: y(VODE_NEQS)
-    real(rt) :: atol(VODE_NEQS), rtol(VODE_NEQS)
-    real(rt) :: rwork(LRW)
-    integer    :: iwork(LIW)
-    real(rt) :: rpar(n_rpar_comps)
+    type(rwork_t) :: rwork
+    integer    :: iwork(VODE_LIW)
 
     integer :: MF_JAC
 
@@ -97,16 +60,18 @@ contains
 
     real(rt) :: sum
     real(rt) :: retry_change_factor
-
-
-    EXTERNAL jac, f_rhs
+    type (dvode_t) :: dvode_state
 
     if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC
+       MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC
+       MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
        call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+    endif
+
+    if (.not. use_jacobian_caching) then
+       MF_JAC = -MF_JAC
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -116,21 +81,25 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
-    atol(SEDEN)           = atol_enuc ! total energy
-    atol(SEINT)           = atol_enuc ! internal energy
+    dvode_state % atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
+    dvode_state % atol(SEDEN)           = atol_enuc ! temperature
+    dvode_state % atol(SEINT)           = atol_enuc ! energy generated
 
-    rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
-    rtol(SEDEN)           = rtol_enuc ! total energy
-    rtol(SEINT)           = rtol_enuc ! internal energy
+    dvode_state % rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
+    dvode_state % rtol(SEDEN)           = rtol_enuc ! temperature
+    dvode_state % rtol(SEINT)           = rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
-    istate = 1
+    dvode_state % istate = 1
 
     ! Initialize work arrays to zero.
-
-    rwork(:) = ZERO
+    rwork % CONDOPT = ZERO
+    rwork % YH   = ZERO
+    rwork % WM   = ZERO
+    rwork % EWT  = ZERO
+    rwork % SAVF = ZERO
+    rwork % ACOR = ZERO    
     iwork(:) = 0
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
@@ -147,30 +116,29 @@ contains
 
     ! Initialize the integration time.
 
-    local_time = ZERO
+    dvode_state % T = ZERO
+    dvode_state % TOUT = dt
 
     ! Convert our input sdc state into the form VODE expects
 
-    call sdc_to_vode(state_in, y, rpar)
+    call sdc_to_vode(state_in, dvode_state % y, dvode_state % rpar)
 
 
     ! this is not used but we set it to prevent accessing uninitialzed
     ! data in common routines with the non-SDC integrator
-    rpar(irp_self_heat) = -ONE
+    dvode_state % rpar(irp_self_heat) = -ONE
 
     ! Set the time offset -- this converts between the local integration
     ! time and the simulation time
-    rpar(irp_t0) = time
+    dvode_state % rpar(irp_t0) = time
 
 
     ! Call the integration routine.
-    call dvode(f_rhs, VODE_NEQS, y, local_time, local_time + dt, &
-               ITOL, rtol, atol, ITASK, &
-               istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
+    call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
 
     ! Store the final data
-    call vode_to_sdc(time, y, rpar, state_out)
+    call vode_to_sdc(time, dvode_state % y, dvode_state % rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
