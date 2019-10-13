@@ -131,8 +131,6 @@ contains
 #endif
   SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
 
-    use blas_module, only: idamax ! function
-
     ! ***BEGIN PROLOGUE  DGBFA
     ! ***PURPOSE  Factor a band matrix using Gaussian elimination.
     ! ***CATEGORY  D2A2
@@ -215,7 +213,6 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  IDAMAX
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -272,7 +269,7 @@ contains
        !         FIND L = PIVOT INDEX
        ! 
        LM = MIN(ML,N-K)
-       L = IDAMAX(LM+1,ABD(M:M+LM,K)) + M - 1
+       L = idamax(LM+1,ABD(M:M+LM,K)) + M - 1
        IPVT(K) = L + K - M
        ! 
        !         ZERO PIVOT IMPLIES THIS COLUMN ALREADY TRIANGULARIZED
@@ -477,8 +474,6 @@ contains
 #endif
   subroutine dgefa (a,lda,n,ipvt,info)
 
-    use blas_module, only: idamax ! function
-
     integer lda,n,ipvt(:),info
     double precision a(lda, n)
     ! 
@@ -523,7 +518,7 @@ contains
     ! 
     !      subroutines and functions
     ! 
-    !      blas vdaxpy,idamax
+    !      blas vdaxpy
     ! 
     !      internal variables
     ! 
@@ -636,5 +631,30 @@ contains
     enddo
 60  dotval = dtemp
   end function vddot
-  
+
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
+  function idamax(N, x) result(index)
+
+    implicit none
+
+    integer, intent(in) :: N
+    double precision, intent(in) :: x(N)
+
+    double precision :: dmax
+    integer :: i, index
+
+    !$gpu
+
+    index = 1
+
+    dmax = abs(x(1))
+    DO i = 2, N
+       IF (abs(X(i)) .le. dmax) cycle
+       index = i
+       dmax = abs(x(i))
+    end do
+  end function idamax
+
 end module linpack_module
