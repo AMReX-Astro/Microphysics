@@ -62,10 +62,6 @@ contains
     !      linpack. this version dated 08/14/78 .
     !      cleve moler, university of new mexico, argonne national lab.
     ! 
-    !      subroutines and functions
-    ! 
-    !      blas vdaxpy,vddot
-    ! 
     !      internal variables
     ! 
     double precision t
@@ -105,7 +101,7 @@ contains
     !         first solve  trans(u)*y = b
     ! 
     do k = 1, n
-       t = vddot(k-1,a(1:k-1,k),1,b(1:k-1),1)
+       t = sum(a(1:k-1,k) * b(1:k-1))
        b(k) = (b(k) - t)/a(k,k)
     enddo
     ! 
@@ -114,7 +110,7 @@ contains
     if (nm1 .lt. 1) goto 90
     do kb = 1, nm1
        k = n - kb
-       b(k) = b(k) + vddot(n-k,a(k+1:n,k),1,b(k+1:n),1)
+       b(k) = b(k) + sum(a(k+1:n,k) * b(k+1:n))
        l = ipvt(k)
        if (l .eq. k) go to 70
        t = b(l)
@@ -578,59 +574,6 @@ contains
     ipvt(n) = n
     if (a(n,n) .eq. 0.0d0) info = n
   end subroutine dgefa
-
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  function vddot (n,dx,incx,dy,incy) result(dotval)
-
-    ! 
-    !      forms the dot product of two arrays.
-    !      uses unrolled loops for increments equal to one.
-    !      jack dongarra, linpack, 3/11/78.
-    !
-    double precision dotval
-    double precision dx(:),dy(:),dtemp
-    integer i,incx,incy,ix,iy,m,mp1,n
-    !$gpu
-    ! 
-    dotval = 0.0d0
-    dtemp = 0.0d0
-    if (n.le.0) return
-    if (incx.eq.1.and.incy.eq.1) go to 20
-    ! 
-    !      code for unequal increments or equal increments not equal to 1
-    ! 
-    ix = 1
-    iy = 1
-    if (incx.lt.0) ix = (-n+1)*incx + 1
-    if (incy.lt.0) iy = (-n+1)*incy + 1
-    do i = 1,n
-       dtemp = dtemp + dx(ix)*dy(iy)
-       ix = ix + incx
-       iy = iy + incy
-    enddo
-    dotval = dtemp
-    return
-    ! 
-    !      code for both increments equal to 1
-    ! 
-    ! 
-    !      clean-up loop
-    ! 
-20  m = mod(n,5)
-    if ( m .eq. 0 ) go to 40
-    do i = 1,m
-       dtemp = dtemp + dx(i)*dy(i)
-    enddo
-    if( n .lt. 5 ) go to 60
-40  mp1 = m + 1
-    do i = mp1,n,5
-       dtemp = dtemp + dx(i)*dy(i) + dx(i + 1)*dy(i + 1) + &
-            dx(i + 2)*dy(i + 2) + dx(i + 3)*dy(i + 3) + dx(i + 4)*dy(i + 4)
-    enddo
-60  dotval = dtemp
-  end function vddot
 
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
