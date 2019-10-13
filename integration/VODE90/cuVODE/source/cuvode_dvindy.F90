@@ -120,7 +120,7 @@ contains
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCALN (VODE_NEQS, R, vstate % Y, 1)
+    vstate % Y(:) = vstate % Y(:) * R
     RETURN
 
 80  continue

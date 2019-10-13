@@ -226,7 +226,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCALN (VODE_NEQS, R, rwork % YH(1:VODE_NEQS,J), 1)
+       rwork % YH(:,J) = rwork % YH(:,J) * R
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -440,7 +440,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCALN (VODE_NEQS, R, rwork % acor, 1)
+    rwork % acor(:) = rwork % acor(:) * R
 
 720 continue
     vstate % JSTART = 1

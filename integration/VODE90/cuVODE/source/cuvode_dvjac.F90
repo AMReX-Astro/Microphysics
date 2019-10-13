@@ -175,7 +175,7 @@ contains
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-       CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
        J = 3
        NP1 = VODE_NEQS + 1
        do I = 1,VODE_NEQS
@@ -289,7 +289,7 @@ contains
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-    CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
     II = MBAND + 2
     do I = 1,VODE_NEQS
        rwork % WM(II) = rwork % WM(II) + ONE
