@@ -403,7 +403,7 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-    CALL DSCALN (VODE_NEQS, H0, rwork % YH(:,2), 1)
+    rwork % YH(:,2) = rwork % YH(:,2) * H0
 
     GO TO 270
 

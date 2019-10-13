@@ -200,7 +200,7 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCALN (VODE_NEQS, CSCALE, vstate % Y, 1)
+       vstate % Y(:) = vstate % Y(:) * CSCALE
     ENDIF
 
 #ifdef CLEAN_INTEGRATOR_CORRECTION
