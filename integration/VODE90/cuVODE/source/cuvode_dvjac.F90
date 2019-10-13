@@ -5,8 +5,6 @@ module cuvode_dvjac_module
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
-  use blas_module
-
   use cuvode_dacopy_module
 
   use cuvode_constants_module

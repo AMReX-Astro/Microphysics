@@ -5,7 +5,6 @@ module cuvode_module
   use cuvode_types_module, only: dvode_t, rwork_t
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
   use linpack_module
 #ifdef AMREX_USE_CUDA
   use cudafor

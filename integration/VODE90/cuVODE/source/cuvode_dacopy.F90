@@ -1,8 +1,6 @@
 module cuvode_dacopy_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
-  
   use cuvode_constants_module
 
   implicit none

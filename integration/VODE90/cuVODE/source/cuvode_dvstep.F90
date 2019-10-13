@@ -4,7 +4,6 @@ module cuvode_dvstep_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
 
   use cuvode_dvset_module
   use cuvode_dvjust_module
