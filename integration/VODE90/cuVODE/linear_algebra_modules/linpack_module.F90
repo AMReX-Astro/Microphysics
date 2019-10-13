@@ -272,7 +272,7 @@ contains
        !         FIND L = PIVOT INDEX
        ! 
        LM = MIN(ML,N-K)
-       L = IDAMAX(LM+1,ABD(M:M+LM,K),1) + M - 1
+       L = IDAMAX(LM+1,ABD(M:M+LM,K)) + M - 1
        IPVT(K) = L + K - M
        ! 
        !         ZERO PIVOT IMPLIES THIS COLUMN ALREADY TRIANGULARIZED
@@ -544,7 +544,7 @@ contains
        ! 
        !         find l = pivot index
        ! 
-       l = idamax(n-k+1,a(k:n,k),1) + k - 1
+       l = idamax(n-k+1,a(k:n,k)) + k - 1
        ipvt(k) = l
        ! 
        !         zero pivot implies this column already triangularized
