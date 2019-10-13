@@ -326,8 +326,6 @@ contains
 #endif
   SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
 
-    use blas_module, only: ddot ! function
-
     ! ***BEGIN PROLOGUE  DGBSL
     ! ***PURPOSE  Solve the real band system A*X=B or TRANS(A)*X=B using
     !             the factors computed by DGBCO or DGBFA.
@@ -392,7 +390,6 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  DDOT
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -452,7 +449,7 @@ contains
        LM = MIN(K,M) - 1
        LA = M - LM
        LB = K - LM
-       T = DDOT(LM,ABD(LA:LA + LM - 1,K),1,B(LB:LB + LM - 1),1)
+       T = sum(ABD(LA:LA + LM - 1,K) * B(LB:LB + LM - 1))
        B(K) = (B(K) - T)/ABD(M,K)
     end do
     ! 
@@ -463,7 +460,7 @@ contains
     DO KB = 1, NM1
        K = N - KB
        LM = MIN(ML,N-K)
-       B(K) = B(K) + DDOT(LM,ABD(M+1:M+LM,K),1,B(K+1:K+LM),1)
+       B(K) = B(K) + sum(ABD(M+1:M+LM,K) * B(K+1:K+LM))
        L = IPVT(K)
        IF (L .EQ. K) GO TO 70
        T = B(L)
