@@ -131,7 +131,6 @@ contains
 #endif
   SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
 
-    use blas_module, only: dscal
     use blas_module, only: idamax ! function
 
     ! ***BEGIN PROLOGUE  DGBFA
@@ -216,7 +215,7 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  DSCAL, IDAMAX
+    ! ***ROUTINES CALLED  IDAMAX
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -291,7 +290,7 @@ contains
        !            COMPUTE MULTIPLIERS
        ! 
        T = -1.0D0/ABD(M,K)
-       CALL DSCAL(LM,T,ABD(M+1:M+LM,K),1)
+       ABD(M+1:M+LM,K) = ABD(M+1:M+LM,K) * T
        ! 
        !            ROW ELIMINATION WITH COLUMN INDEXING
        ! 
@@ -478,7 +477,6 @@ contains
 #endif
   subroutine dgefa (a,lda,n,ipvt,info)
 
-    use blas_module, only: dscal
     use blas_module, only: idamax ! function
 
     integer lda,n,ipvt(:),info
@@ -525,7 +523,7 @@ contains
     ! 
     !      subroutines and functions
     ! 
-    !      blas vdaxpy,dscal,idamax
+    !      blas vdaxpy,idamax
     ! 
     !      internal variables
     ! 
@@ -564,7 +562,7 @@ contains
        !            compute multipliers
        ! 
        t = -1.0d0/a(k,k)
-       call dscal(n-k,t,a(k+1:n,k),1)
+       a(k+1:n,k) = a(k+1:n,k) * t
        ! 
        !            row elimination with column indexing
        ! 
