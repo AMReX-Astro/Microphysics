@@ -135,7 +135,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
+  subroutine DGBFA (ABD, LDA, ML, MU, IPVT, INFO)
 
     ! ***BEGIN PROLOGUE  DGBFA
     ! ***PURPOSE  Factor a band matrix using Gaussian elimination.
@@ -228,8 +228,9 @@ contains
     !    900326  Removed duplicate information from DESCRIPTION section.
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
-    ! ***END PROLOGUE  DGBFA
-    INTEGER LDA,N,ML,MU,IPVT(:),INFO
+  ! ***END PROLOGUE  DGBFA
+    integer, parameter :: N = VODE_NEQS
+    INTEGER LDA,ML,MU,IPVT(:),INFO
     DOUBLE PRECISION ABD(LDA, N), dABD(LDA)
     ! 
     DOUBLE PRECISION T
