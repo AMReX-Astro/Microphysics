@@ -294,7 +294,7 @@ contains
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
-    CALL DGBFA (rwork % WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, ML, &
+    CALL DGBFA (rwork % WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, ML, &
          MU, IWM(31:31 + VODE_NEQS - 1), IER)
     if (IER .NE. 0) then
        IERPJ = 1
