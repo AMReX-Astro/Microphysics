@@ -1,5 +1,7 @@
 module linpack_module
 
+  use cuvode_parameters_module, only: VODE_NEQS
+
   implicit none
 
 contains
@@ -7,10 +9,18 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif  
-  subroutine dgesl(a,lda,n,ipvt,b,job)
+  subroutine dgesl(a, ipvt, b)
 
-    integer lda,n,ipvt(:),job
-    double precision a(lda,n),b(:)
+    implicit none
+
+    integer, parameter :: lda = VODE_NEQS
+    integer, parameter :: n = VODE_NEQS
+    integer, parameter :: job = 0
+
+    integer, intent(in) :: ipvt(n)
+    double precision, intent(in) :: a(lda,n)
+    double precision, intent(inout) :: b(n)
+
     ! 
     !      dgesl solves the double precision system
     !      a * x = b  or  trans(a) * x = b

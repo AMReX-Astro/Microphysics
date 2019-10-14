@@ -68,8 +68,7 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, VODE_NEQS, &
-         IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
+    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), vstate % Y(:))
     RETURN
 
 300 continue
