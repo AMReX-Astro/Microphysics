@@ -47,7 +47,7 @@ module vode_rpar_indices
   ! f_source is function we are zeroing.  There are nspec_evolve + 2
   ! components (density and energy), since those are the unknowns for
   ! the nonlinear system
-  integer, parameter :: irp_f_source = 0
+  integer, parameter :: irp_f_source = 1
 
   ! dt is the timestep (1 component)
   integer, parameter :: irp_dt = irp_f_source + nspec_evolve + 2
