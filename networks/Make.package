@@ -28,14 +28,6 @@ ifneq ($(USE_SYSTEM_BLAS), TRUE)
   endif
 endif
 
-ifeq ($(INTEGRATOR_DIR), VODE90)
-  CUVODE_PATH := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE
-  INCLUDE_LOCATIONS += $(CUVODE_PATH)/linear_algebra_modules
-  VPATH_LOCATIONS   += $(CUVODE_PATH)/linear_algebra_modules
-
-  include $(CUVODE_PATH)/linear_algebra_modules/Make.package
-endif
-
 VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
 f90EXE_sources += rate_type.f90
 

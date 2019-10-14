@@ -23,7 +23,7 @@ DEFINES += -DCRSEGRNDOMP
 # cuVODE directories
 #------------------------------------------------------------------------------
 
-Bdirs := source linear_algebra_modules
+Bdirs := source
 
 Bpack += $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
 Blocs += $(foreach dir, $(Bdirs), $(TOP)/$(dir))
