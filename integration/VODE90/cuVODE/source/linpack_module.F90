@@ -327,7 +327,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
+  SUBROUTINE DGBSL (ABD, LDA, ML, MU, IPVT, B, JOB)
 
     ! ***BEGIN PROLOGUE  DGBSL
     ! ***PURPOSE  Solve the real band system A*X=B or TRANS(A)*X=B using
@@ -403,7 +403,8 @@ contains
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBSL
-    INTEGER LDA,N,ML,MU,IPVT(:),JOB
+    integer, parameter :: N = VODE_NEQS
+    INTEGER LDA,ML,MU,IPVT(:),JOB
     DOUBLE PRECISION ABD(LDA,N),B(:)
     ! 
     DOUBLE PRECISION T
@@ -479,9 +480,11 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dgefa (a,lda,n,ipvt,info)
+  subroutine dgefa (a, ipvt, info)
 
-    integer lda,n,ipvt(:),info
+    integer, parameter :: lda = VODE_NEQS
+    integer, parameter :: n = VODE_NEQS
+    integer ipvt(n), info
     double precision a(lda, n)
     ! 
     !      dgefa factors a double precision matrix by gaussian elimination.
