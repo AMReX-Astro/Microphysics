@@ -14,3 +14,4 @@ F90EXE_sources += cuvode_dvsol.F90
 F90EXE_sources += cuvode_dvstep.F90
 F90EXE_sources += cuvode_nordsieck.F90
 F90EXE_sources += cuvode_constants.F90
+F90EXE_sources += linpack_module.F90

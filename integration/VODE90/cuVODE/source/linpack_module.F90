@@ -1,7 +1,7 @@
 module linpack_module
-  
+
   implicit none
-  
+
 contains
 
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
