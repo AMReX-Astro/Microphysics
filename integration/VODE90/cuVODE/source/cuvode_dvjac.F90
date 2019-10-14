@@ -181,8 +181,7 @@ contains
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
-       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, &
-            VODE_NEQS, IWM(31:31 + VODE_NEQS - 1), IER)
+       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF

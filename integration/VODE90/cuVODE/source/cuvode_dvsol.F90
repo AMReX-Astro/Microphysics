@@ -96,7 +96,7 @@ contains
     ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, &
+    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, &
          ML, MU, IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
     RETURN
   end subroutine dvsol
