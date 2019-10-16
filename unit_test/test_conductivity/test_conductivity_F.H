@@ -16,9 +16,9 @@ extern "C"
 
   void get_var_name(char* cstring[], int* idx);
 
-  void get_eos_len(int* eos_len);
+  void get_cond_len(int* cond_len);
 
-  void get_eos_name(char* eos_string[]);
+  void get_cond_name(char* cond_string[]);
 
   void init_unit_test(const int* name, const int* namlen); 
 
