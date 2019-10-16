@@ -1,4 +1,4 @@
-module conductivity_module
+module actual_conductivity_module
 
   implicit none
 
@@ -18,7 +18,7 @@ module conductivity_module
 
 contains
 
-  subroutine cond_init()
+  subroutine actual_conductivity_init()
 
     implicit none
 
@@ -41,6 +41,17 @@ contains
     close(unit=unit)
  
   end subroutine cond_init
+
+  subroutine actual_conductivity(state)
+
+    use eos_type_module, only: eos_t
+    use network, only : zion, aion, nspec
+
+    implicit none
+
+    type(eos_t), intent(inout) :: state
+
+  end subroutine actual_conductivity
 
   subroutine CONINTER(Zion,TLG,RLG,CK,DRK,DTK)
     !
@@ -284,4 +295,4 @@ contains
 
   end subroutine HUNT
 
-end module conductivity_module
+end module actual_conductivity_module
