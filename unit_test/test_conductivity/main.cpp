@@ -142,16 +142,16 @@ void main_main ()
 
     std::string name = "test_conductivity.";
 
-    // get the name of the EOS
-    int eos_len = -1;
-    get_eos_len(&eos_len);
+    // get the name of the conductivity routine
+    int cond_len = -1;
+    get_cond_len(&cond_len);
 
-    char* eos_string[eos_len+1];
-    get_eos_name(eos_string);
-    std::string eos(*eos_string);
+    char* cond_string[cond_len+1];
+    get_cond_name(cond_string);
+    std::string cond(*cond_string);
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(name + cond, state, varnames, geom, time, 0);
 
 
     // Call the timer again and compute the maximum difference between
