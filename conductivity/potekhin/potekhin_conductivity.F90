@@ -1,13 +1,15 @@
 module actual_conductivity_module
 
+  use amrex_fort_module, only : rt => amrex_real
+
   implicit none
 
-  real(rt), parameter :: Zmin=1.0_rt
-  real(rt), parameter :: Zmax=60.0_rt
-  real(rt), parameter :: TLGmin=3.0_rt
-  real(rt), parameter :: TLGmax=9.0_rt
-  real(rt), parameter :: RLGmin=-6.0_rt
-  real(rt), parameter :: RLGmax=9.75_rt
+  real(rt), parameter :: Zmin = 1.0_rt
+  real(rt), parameter :: Zmax = 60.0_rt
+  real(rt), parameter :: TLGmin = 3.0_rt
+  real(rt), parameter :: TLGmax = 9.0_rt
+  real(rt), parameter :: RLGmin = -6.0_rt
+  real(rt), parameter :: RLGmax = 9.75_rt
 
   ! NB: These parameters must be consistent with the table "condall06.d"
   integer, parameter :: MAXT = 19
@@ -23,6 +25,9 @@ contains
     implicit none
 
     integer :: iz, ir, it
+    integer :: unit
+
+    real(rt) :: z
 
     ! read in the conductivity table and initialize any data
     open(newunit=unit, file='condall06.d', status='OLD')
@@ -39,8 +44,8 @@ contains
        enddo
     enddo
     close(unit=unit)
- 
-  end subroutine cond_init
+
+  end subroutine actual_conductivity_init
 
   subroutine actual_conductivity(state)
 
@@ -53,7 +58,7 @@ contains
 
   end subroutine actual_conductivity
 
-  subroutine CONINTER(Zion,TLG,RLG,CK,DRK,DTK)
+  subroutine CONINTER(Zion, TLG, RLG, CK, DRK, DTK)
     !
     ! This subroutine interpolates the electron thermal conductivity
     ! from the data file "condall06.d"
@@ -68,8 +73,28 @@ contains
 
     implicit none
 
+    real(rt), intent(in) :: Zion, TLG, RLG
+    real(rt), intent(out) :: ck, drk, dtk
 
-    ZLG=dlog10(Zion)
+    real(rt) :: ckt0, ckt0z0, ckt0z1
+    real(rt) :: ckt1, ckt1z0, ckt1z1
+    real(rt) :: cktm, cktmz0, cktmz1
+    real(rt) :: cktp, cktpz0, cktpz1
+    real(rt) :: dr2kt0, dr2kt0z0, dr2kt0z1
+    real(rt) :: dr2kt1, dr2kt1z0, dr2kt1z1
+    real(rt) :: dr2ktm, dr2ktmz0, dr2ktmz1
+    real(rt) :: dr2ktp, dr2ktpz0, dr2ktpz1
+    real(rt) :: drkt0, drkt0z0, drkt0z1
+    real(rt) :: drkt1, drkt1z0, drkt1z1
+    real(rt) :: drktm, drktmz0, drktmz1
+    real(rt) :: drktp, drktpz0, drktpz1
+    real(rt) :: drt2k, drtk, dt2k
+
+    integer :: iz, it, ir
+    integer :: irm, irp, itm, itp
+    real(rt) :: xr, xt, xz0, xz1, zlg
+
+    ZLG = log10(Zion)
 
     ! initial guess
     iz = MAXZ/2+1
@@ -82,7 +107,7 @@ contains
     end if
 
     call HUNT(AT, MAXT, TLG, it)
-    if (it ==  0 .or it == MAXT) then
+    if (it == 0 .or. it == MAXT) then
        call amrex_error('CONINTER: T out of range')
     end if
 
@@ -143,21 +168,21 @@ contains
     XZ1=(ZLG-AZ(IZ))/(AZ(IZ+1)-AZ(IZ))
     XZ0=1.-XZ1
 
-    CKTM=XZ0*CKTMZ0+XZ1*CKTMZ1
-    DRKTM=XZ0*DRKTMZ0+XZ1*DRKTMZ1
-    DR2KTM=XZ0*DR2KTMZ0+XZ1*DR2KTMZ1
+    CKTM = XZ0*CKTMZ0 + XZ1*CKTMZ1
+    DRKTM = XZ0*DRKTMZ0 + XZ1*DRKTMZ1
+    DR2KTM = XZ0*DR2KTMZ0 + XZ1*DR2KTMZ1
 
-    CKT0=XZ0*CKT0Z0+XZ1*CKT0Z1
-    DRKT0=XZ0*DRKT0Z0+XZ1*DRKT0Z1
-    DR2KT0=XZ0*DR2KT0Z0+XZ1*DR2KT0Z1
+    CKT0 = XZ0*CKT0Z0 + XZ1*CKT0Z1
+    DRKT0 = XZ0*DRKT0Z0 + XZ1*DRKT0Z1
+    DR2KT0 = XZ0*DR2KT0Z0 + XZ1*DR2KT0Z1
 
-    CKT1=XZ0*CKT1Z0+XZ1*CKT1Z1
-    DRKT1=XZ0*DRKT1Z0+XZ1*DRKT1Z1
-    DR2KT1=XZ0*DR2KT1Z0+XZ1*DR2KT1Z1
+    CKT1 = XZ0*CKT1Z0 + XZ1*CKT1Z1
+    DRKT1 = XZ0*DRKT1Z0 + XZ1*DRKT1Z1
+    DR2KT1 = XZ0*DR2KT1Z0 + XZ1*DR2KT1Z1
 
-    CKTP=XZ0*CKTPZ0+XZ1*CKTPZ1
-    DRKTP=XZ0*DRKTPZ0+XZ1*DRKTPZ1
-    DR2KTP=XZ0*DR2KTPZ0+XZ1*DR2KTPZ1
+    CKTP = XZ0*CKTPZ0 + XZ1*CKTPZ1
+    DRKTP = XZ0*DRKTPZ0 + XZ1*DRKTPZ1
+    DR2KTP = XZ0*DR2KTPZ0 + XZ1*DR2KTPZ1
 
     ! Cubic interpolation in TLG:
     call CINTERP3(AT(ITM),AT(IT),AT(IT+1),AT(ITP),TLG,IT,MAXT, &
@@ -170,7 +195,7 @@ contains
 
   end subroutine CONINTER
 
-  subroutine CINTERP3(ZM,Z0,Z1,ZP,Z,N0,MXNV,VM,V0,V1,VP,VF,DF,D2,XH)
+  subroutine CINTERP3(ZM, Z0, Z1, ZP, Z, N0, MXNV, VM, V0, V1, VP, VF, DF, D2, XH)
     ! Given 4 values of Z and 4 values of V, find VF corresponding to 5th Z
     !                                                      Version 23.05.99
     ! Output: VF - interpolated value of function
@@ -178,44 +203,53 @@ contains
     !         D2 - interpolated second derivative
     !         XH - fraction of the path from N0 to N0+1
 
+    real(rt), intent(in) :: zm, z0, z1, zp
+    real(rt), intent(in) :: vm, v0, v1, vp
+    real(rt), intent(in) :: z
+    integer, intent(in) :: n0, mxnv
+    real(rt), intent(out) :: vf, df, d2, xh
+
+    real(rt) :: c2, c3, h, hm, hp
+    real(rt) :: v01, v11
+    real(rt) :: x
 
     if (N0 <= 0 .or. N0 >= MXNV) then
        call amrex_error('CINTERP: N0 out of range')
     end if
 
-    X=Z-Z0
-    H=Z1-Z0   ! basic interval
-    XH=X/H
+    X = Z - Z0
+    H = Z1 - Z0   ! basic interval
+    XH = X/H
 
-    if (N0.gt.1) then
-       HM=Z0-ZM  ! left adjoint interval
-       V01=((V1-V0)/H**2+(V0-VM)/HM**2)/(1./H+1./HM) ! left derivative
+    if (N0 .gt. 1) then
+       HM = Z0 - ZM  ! left adjoint interval
+       V01 = ((V1-V0)/H**2 + (V0-VM)/HM**2) / (1./H+1./HM) ! left derivative
     endif
 
-    if (N0.lt.MXNV-1) then
-       HP=ZP-Z1 ! right adjoint interval
-       V11=((V1-V0)/H**2+(VP-V1)/HP**2)/(1./H+1./HP) ! right derivative
+    if (N0 .lt. MXNV-1) then
+       HP = ZP - Z1 ! right adjoint interval
+       V11 = ((V1-V0)/H**2 + (VP-V1)/HP**2) / (1./H+1./HP) ! right derivative
     endif
 
-    if (N0.gt.1.and.N0.lt.MXNV-1) then   ! Cubic interpolation
-       C2=3.*(V1-V0)-H*(V11+2.*V01)
-       C3=H*(V01+V11)-2.*(V1-V0)
-       VF=V0+V01*X+C2*XH**2+C3*XH**3
-       DF=V01+(2.*C2*XH+3.*C3*XH**2)/H
-       D2=(2.*C2+6.*C3*XH)/H**2
+    if (N0 .gt. 1 .and. N0 .lt. MXNV-1) then   ! Cubic interpolation
+       C2 = 3.*(V1-V0)-H*(V11+2.*V01)
+       C3 = H*(V01+V11)-2.*(V1-V0)
+       VF = V0+V01*X+C2*XH**2+C3*XH**3
+       DF = V01+(2.*C2*XH+3.*C3*XH**2)/H
+       D2 = (2.*C2+6.*C3*XH)/H**2
        return
     endif
 
-    if (N0.eq.1) then   ! Quadratic interpolation
-       C2=V0-V1+V11*H
-       VF=V1-V11*(H-X)+C2*(1.-XH)**2
-       DF=V11-2.*C2*(1.-XH)/H
-       D2=2.*C2/H**2
+    if (N0 .eq. 1) then   ! Quadratic interpolation
+       C2 = V0-V1+V11*H
+       VF = V1-V11*(H-X)+C2*(1.-XH)**2
+       DF = V11-2.*C2*(1.-XH)/H
+       D2 = 2.*C2/H**2
     else  ! N0=MXNV-1
-       C2=V1-V0-V01*H
-       VF=V0+V01*X+C2*XH**2
-       DF=V01+2.*C2*XH/H
-       D2=2.*C2/H**2
+       C2 = V1-V0-V01*H
+       VF = V0+V01*X+C2*XH**2
+       DF = V01+2.*C2*XH/H
+       D2 = 2.*C2/H**2
     endif
 
   end subroutine CINTERP3
@@ -230,10 +264,16 @@ contains
     !     JLO on input is taken as the initial guess for JLO on output.
 
 
-    real(rt), intent(in) :: XX(:)
+    integer, intent(in) :: n
+    real(rt), intent(in) :: xx(n)
+    real(rt), intent(in) :: x
+    integer, intent(inout) :: jlo
 
     logical :: ASCND
     logical :: bisect
+
+    integer :: inc
+    integer :: jm, jhi
 
     ASCND = XX(N) .gt. XX(1) ! true if ascending order, false otherwise
 
@@ -248,10 +288,10 @@ contains
     if (.not. bisect) then
 
        INC=1 ! set the hunting increment
-       if (X.ge.XX(JLO).eqv.ASCND) then ! Hunt up:
+       if (X .ge. XX(JLO) .eqv. ASCND) then ! Hunt up:
 
          JHI=JLO+INC
-          do while (X >= XX(jhi) .eqv ASCND)
+          do while (X >= XX(jhi) .eqv. ASCND)
 
              if (JHI .gt. N) then ! Done hunting, since off end of table
                 JHI=N+1
@@ -284,7 +324,7 @@ contains
     end if
 
     ! Hunt is done, so begin the final bisection phase:
-    do while (JHI - JLO /= 1) return
+    do while (JHI - JLO /= 1)
        JM = (JHI+JLO)/2.
        if (X .ge. XX(JM) .eqv. ASCND) then
           JLO=JM
