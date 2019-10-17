@@ -1,5 +1,5 @@
       SUBROUTINE DNSQE (FCN, JAC, IOPT, N, X, FVEC, TOL, NPRINT, INFO,
-     +   WA, LWA)
+     +                  WA, LWA, rpar)
 C***BEGIN PROLOGUE  DNSQE
 C***PURPOSE  An easy-to-use code to find a zero of a system of N
 C            nonlinear functions in N variables by a modification of
@@ -336,6 +336,7 @@ C***END PROLOGUE  DNSQE
      1     NFEV, NJEV, NPRINT
       DOUBLE PRECISION EPSFCN, FACTOR, FVEC(*), ONE, TOL, WA(*),
      1     X(*), XTOL, ZERO
+      DOUBLE PRECISION rpar(*)
       EXTERNAL FCN, JAC
       SAVE FACTOR, ONE, ZERO
       DATA FACTOR,ONE,ZERO /1.0D2,1.0D0,0.0D0/
@@ -367,7 +368,7 @@ C
          CALL DNSQ(FCN,JAC,IOPT,N,X,FVEC,WA(INDEX+1),N,XTOL,MAXFEV,ML,
      1             MU,EPSFCN,WA(1),MODE,FACTOR,NPRINT,INFO,NFEV,NJEV,
      2             WA(6*N+1),LR,WA(N+1),WA(2*N+1),WA(3*N+1),WA(4*N+1),
-     3             WA(5*N+1))
+     3             WA(5*N+1), rpar)
          IF (INFO .EQ. 5) INFO = 4
    20 CONTINUE
       IF (INFO .EQ. 0) CALL XERMSG ('SLATEC', 'DNSQE',

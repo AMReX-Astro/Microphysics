@@ -116,11 +116,11 @@ contains
                 state(ii, jj, kk, p % ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
              enddo
 
-             ! do j=1, nspec
-             !    ! an explicit loop is needed here to keep the GPU happy
-             !    state(ii, jj, kk, irodot + j - 1) = &
-             !         (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
-             ! enddo
+             do j=1, nspec
+                ! an explicit loop is needed here to keep the GPU happy
+                state(ii, jj, kk, p % irodot + j - 1) = &
+                     (sdc_state_out % y(SFS+j-1) - sdc_state_in % y(SFS+j-1)) / tmax
+             enddo
 
              state(ii, jj, kk, p % irho_hnuc) = &
                   (sdc_state_out % y(SEINT) - sdc_state_in % y(SEINT)) / tmax

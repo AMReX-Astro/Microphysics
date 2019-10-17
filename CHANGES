@@ -1,5 +1,54 @@
+# 19.10
 
-# changes since the last release
+  -- The iso7 network was ported to GPUs (#172)
+
+  -- VODE90 now better agrees with VODE (#192)
+
+  -- When building with multiple integrators, the contents of the rpar
+     modules could clash.  This has been fixedc (#136)
+
+  -- A module for making the "Nonaka plot" tracking the evolution of a
+     quantity during the burn was added, and is enabled with
+     USE_NONAKA_PLOT=TRUE
+
+# 19.08
+
+  -- A new network, subch2, was added that combines aprox13 and the
+     subch networks. (#184)
+
+# 19.05
+
+  -- The aprox21 network was missing the analytic Jacobian term for
+     the derivative of He4 with respect to Ni56. This is fixed. (#175)
+
+  -- The numerical Jacobian module, used by the BS and VBDF integrators
+     had some wrong scalings.  These have now been fixed (#179, #180)
+
+# 19.01
+
+ -- the docs are now automatically build from the sphinx source
+    using travis on github.
+
+# 18.12
+
+ -- simplify conductivity interface to match the eos interface by
+    moving the conductivity into the eos type
+
+# 18.11
+
+ -- new python bindings have been added
+
+ -- the documentation has been switched to Sphinx and is now hosted
+    online.
+
+ -- a bug was fixed in the stellarcollapse EOS where the energy offset
+    was being applied incorrectly.
+
+
+# 18.10
+
+ -- test_eos and test_react now both work on GPUs (using the AMReX
+    `gpu` branch)
 
  -- the intermediate blending of the weak and strong screening regimes
     was wrong, and has been fixed.  We've also synced some parameters

@@ -6,7 +6,7 @@ module bs_integrator_module
   use eos_module
   use eos_type_module
   use network
-  use rpar_indices
+  use bs_rpar_indices
   use burn_type_module
   use stiff_ode
   use bs_type_module
@@ -33,11 +33,12 @@ contains
 
     !$acc routine seq
 
-    use rpar_indices
+    use bs_rpar_indices
     use amrex_fort_module, only : rt => amrex_real
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
+    use temperature_integration_module, only: self_heat
 
     implicit none
 
@@ -58,7 +59,7 @@ contains
     type (bs_t) :: bs
 
     real(rt) :: ener_offset
-    real(rt) :: edot, t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, t_sound, limit_factor
 
     logical :: success
 
@@ -124,12 +125,7 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       bs % burn_s % self_heat = .false.
-
-    else if (burning_mode == 1 .or. burning_mode == 3) then
-       bs % burn_s % self_heat = .true.
-    endif
+    bs % burn_s % self_heat = self_heat
 
     ! Copy in the zone size.
 

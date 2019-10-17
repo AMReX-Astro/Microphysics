@@ -1,14 +1,15 @@
 module cuvode_dacopy_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
-  
   use cuvode_constants_module
 
   implicit none
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dacopy(NROW, NCOL, A, NROWA, B, NROWB)
 
     !$acc routine seq
@@ -39,7 +40,7 @@ contains
     !$gpu
 
     do IC = 1,NCOL
-       CALL DCOPYN (NROW, A(:,IC), 1, B(:,IC), 1)
+       B(1:NROW,IC) = A(1:NROW,IC)
     end do
     RETURN
   end subroutine dacopy

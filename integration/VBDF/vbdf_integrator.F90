@@ -8,7 +8,7 @@ module actual_integrator_module
   use eos_type_module
   use eos_module
   use network
-  use rpar_indices
+  use vbdf_rpar_indices
   use burn_type_module
   use bdf_type_module
   use bdf
@@ -38,7 +38,7 @@ contains
 
     !$acc routine seq
 
-    use rpar_indices
+    use vbdf_rpar_indices
     use extern_probin_module, only: burner_verbose, &
                                     reuse_jac, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
@@ -47,6 +47,7 @@ contains
                                     retry_burn, retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
     use actual_rhs_module, only : update_unevolved_species
+    use temperature_integration_module, only: self_heat
 
     implicit none
 
@@ -123,14 +124,10 @@ contains
 
     ! Pass through whether we are doing self-heating.
 
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       ts % upar(irp_self_heat,1) = -ONE
-    else if (burning_mode == 1 .or. burning_mode == 3) then
+    if (self_heat) then
        ts % upar(irp_self_heat,1) = ONE
     else
-#ifndef ACC
-       call amrex_error("Error: unknown burning_mode in vbdf_integrator.f90.")
-#endif
+       ts % upar(irp_self_heat,1) = -ONE
     endif
 
     ! Copy in the zone size.

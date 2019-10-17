@@ -18,14 +18,15 @@ module actual_rhs_module
 
   double precision, allocatable :: rattab(:,:)
   double precision, allocatable :: drattabdt(:,:)
-  double precision, allocatable :: drattabdd(:,:)
+!  double precision, allocatable :: drattabdd(:,:)
   double precision, allocatable :: ttab(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: rattab, drattabdt, drattabdd, ttab
+  attributes(managed) :: rattab, drattabdt, ttab !, drattabdd
 #endif
 
-  !$acc declare create(rattab, drattabdt, drattabdd, ttab)
+  !$acc declare create(rattab, drattabdt, ttab)
+  !!$acc declare create(drattabdd)
 
 contains
 
@@ -222,12 +223,8 @@ contains
 
     implicit none
 
-    type (burn_t), intent(in)    :: state
+    type (burn_t), intent(in)  :: state
     type (rate_t), intent(out) :: rr
-
-    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
-    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
 
     double precision :: rho, temp, abar, zbar
 
@@ -243,31 +240,27 @@ contains
 
     ! Get the raw reaction rates
     if (use_tables) then
-       call aprox13tab(temp, rho, ratraw, dratrawdt, dratrawdd)
+       call aprox13tab(temp, rho, rr)
     else
-       call aprox13rat(temp, rho, ratraw, dratrawdt, dratrawdd)
+       call aprox13rat(temp, rho, rr)
     endif
 
     ! Do the screening here because the corrections depend on the composition
-    call screen_aprox13(temp, rho, y,                 &
-                        ratraw, dratrawdt, dratrawdd, &
-                        ratdum, dratdumdt, dratdumdd, &
-                        scfac,  dscfacdt,  dscfacdd)
+    call screen_aprox13(temp, rho, y, rr)
 
     ! Save the rate data in the state.
     rr % T_eval = temp
-    rr % rates(1,:) = ratdum
-    rr % rates(2,:) = dratdumdt
 
   end subroutine evaluate_rates
 
 
 
-  subroutine aprox13tab(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  subroutine aprox13tab(btemp, bden, rr)
 
     implicit none
 
-    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision, intent(in   ) :: btemp, bden
+    type (rate_t),    intent(inout) :: rr
 
     integer, parameter :: mp = 4
 
@@ -378,25 +371,25 @@ contains
     ! crank off the raw reaction rates
     do j = 1, nrates
 
-       ratraw(j) = (alfa * rattab(j,iat) &
-                    + beta * rattab(j,iat+1) &
-                    + gama * rattab(j,iat+2) &
-                    + delt * rattab(j,iat+3) ) * dtab(j)
+       rr % rates(1, j) = (alfa * rattab(j,iat  ) + &
+                           beta * rattab(j,iat+1) + &
+                           gama * rattab(j,iat+2) + &
+                           delt * rattab(j,iat+3) ) * dtab(j)
 
-       dratrawdt(j) = (alfa * drattabdt(j,iat) &
-                       + beta * drattabdt(j,iat+1) &
-                       + gama * drattabdt(j,iat+2) &
-                       + delt * drattabdt(j,iat+3) ) * dtab(j)
+       rr % rates(2, j) = (alfa * drattabdt(j,iat  ) + &
+                           beta * drattabdt(j,iat+1) + &
+                           gama * drattabdt(j,iat+2) + &
+                           delt * drattabdt(j,iat+3) ) * dtab(j)
 
-       dratrawdd(j) = alfa * drattabdd(j,iat) &
-                    + beta * drattabdd(j,iat+1) &
-                    + gama * drattabdd(j,iat+2) &
-                    + delt * drattabdd(j,iat+3)
+       !dratrawdd(j) = alfa * drattabdd(j,iat) &
+       !             + beta * drattabdd(j,iat+1) &
+       !             + gama * drattabdd(j,iat+2) &
+       !             + delt * drattabdd(j,iat+3)
 
     enddo
 
     ! hand finish the three body reactions
-    dratrawdd(ir3a) = bden * dratrawdd(ir3a)
+    !dratrawdd(ir3a) = bden * dratrawdd(ir3a)
 
   end subroutine aprox13tab
 
@@ -415,7 +408,7 @@ contains
     ! Allocate memory for the tables
     allocate(rattab(nrates, nrattab))
     allocate(drattabdt(nrates, nrattab))
-    allocate(drattabdd(nrates, nrattab))
+!    allocate(drattabdd(nrates, nrattab))
     allocate(ttab(nrattab))
 
 #ifdef AMREX_USE_CUDA
@@ -425,7 +418,8 @@ contains
     call set_aprox13rat()
 #endif
 
-    !$acc update device(rattab, drattabdt, drattabdd, ttab)
+    !$acc update device(rattab, drattabdt, ttab)
+    !!$acc update device(drattabdd)
 
   end subroutine create_rates_table
 
@@ -437,7 +431,9 @@ contains
 #ifdef AMREX_USE_CUDA
     use cudafor
 #endif
-    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision :: btemp, bden
+    type (rate_t)    :: rr
+
     integer :: i, j
 
     bden = 1.0d0
@@ -453,18 +449,18 @@ contains
           btemp = 10.0d0**(btemp)
 
 #ifdef AMREX_USE_CUDA
-          call aprox13rat_device(btemp, bden, ratraw, dratrawdt, dratrawdd)
+          call aprox13rat_device(btemp, bden, rr)
 #else
-          call aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+          call aprox13rat(btemp, bden, rr)
 #endif
 
           ttab(i) = btemp
 
           do j = 1, nrates
 
-             rattab(j,i)    = ratraw(j)
-             drattabdt(j,i) = dratrawdt(j)
-             drattabdd(j,i) = dratrawdd(j)
+             rattab(j,i)    = rr % rates(1, j)
+             drattabdt(j,i) = rr % rates(2, j)
+             !drattabdd(j,i) = dratrawdd(j)
 
           enddo
 
@@ -920,7 +916,7 @@ contains
   end subroutine rhs
 
 
-  subroutine aprox13rat(btemp, bden, ratraw, dratrawdt, dratrawdd)
+  subroutine aprox13rat(btemp, bden, rr)
 
     ! this routine generates unscreened
     ! nuclear reaction rates for the aprox13 network.
@@ -932,19 +928,20 @@ contains
 
     implicit none
 
-    double precision :: btemp, bden
-    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
+    double precision, intent(in   ) :: btemp, bden
+    type (rate_t),    intent(inout) :: rr
 
     integer          :: i
-    double precision :: rrate,drratedt,drratedd
+    double precision :: rrate,drratedt
+    double precision :: dratedd1, dratedd2
     type (tf_t)      :: tf
 
     !$gpu
 
     do i=1,nrates
-       ratraw(i)    = ZERO
-       dratrawdt(i) = ZERO
-       dratrawdd(i) = ZERO
+       rr % rates(1,i) = ZERO
+       rr % rates(2,i) = ZERO
+       !dratrawdd(i) = ZERO
     enddo
 
     if (btemp .lt. 1.0d6) return
@@ -957,173 +954,170 @@ contains
     if (use_c12ag_deboer17) then
     ! deboer + 2017 c12(a,g)o16 rate
        call rate_c12ag_deboer17(tf,bden, &
-                    ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
-                    ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+                    rr % rates(1,ircag),rr % rates(2,ircag),dratedd1, &
+                    rr % rates(1,iroga),rr % rates(2,iroga),dratedd2)
     else
     ! 1.7 times cf88 c12(a,g)o16 rate
        call rate_c12ag(tf,bden, &
-                    ratraw(ircag),dratrawdt(ircag),dratrawdd(ircag), &
-                    ratraw(iroga),dratrawdt(iroga),dratrawdd(iroga))
+                    rr % rates(1,ircag),rr % rates(2,ircag),dratedd1, &
+                    rr % rates(1,iroga),rr % rates(2,iroga),dratedd2)
     endif
 
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
-                      ratraw(ir3a),dratrawdt(ir3a),dratrawdd(ir3a), &
-                      ratraw(irg3a),dratrawdt(irg3a),dratrawdd(irg3a))
+                      rr % rates(1,ir3a),rr % rates(2,ir3a),dratedd1, &
+                      rr % rates(1,irg3a),rr % rates(2,irg3a),dratedd2)
 
     ! c12 + c12
     call rate_c12c12(tf,bden, &
-                     ratraw(ir1212),dratrawdt(ir1212),dratrawdd(ir1212), &
-                     rrate,drratedt,drratedd)
+                     rr % rates(1,ir1212),rr % rates(2,ir1212),dratedd1, &
+                     rrate,drratedt,dratedd2)
 
     ! c12 + o16
     call rate_c12o16(tf,bden, &
-                     ratraw(ir1216),dratrawdt(ir1216),dratrawdd(ir1216), &
-                     rrate,drratedt,drratedd)
+                     rr % rates(1,ir1216),rr % rates(2,ir1216),dratedd1, &
+                     rrate,drratedt,dratedd2)
 
     ! o16 + o16
     call rate_o16o16(tf,bden, &
-                     ratraw(ir1616),dratrawdt(ir1616),dratrawdd(ir1616), &
-                     rrate,drratedt,drratedd)
+                     rr % rates(1,ir1616),rr % rates(2,ir1616),dratedd1, &
+                     rrate,drratedt,dratedd2)
 
     ! o16(a,g)ne20
     call rate_o16ag(tf,bden, &
-                    ratraw(iroag),dratrawdt(iroag),dratrawdd(iroag), &
-                    ratraw(irnega),dratrawdt(irnega),dratrawdd(irnega))
+                    rr % rates(1,iroag),rr % rates(2,iroag),dratedd1, &
+                    rr % rates(1,irnega),rr % rates(2,irnega),dratedd2)
 
     ! ne20(a,g)mg24
     call rate_ne20ag(tf,bden, &
-                     ratraw(irneag),dratrawdt(irneag),dratrawdd(irneag), &
-                     ratraw(irmgga),dratrawdt(irmgga),dratrawdd(irmgga))
+                     rr % rates(1,irneag),rr % rates(2,irneag),dratedd1, &
+                     rr % rates(1,irmgga),rr % rates(2,irmgga),dratedd2)
 
     ! mg24(a,g)si28
     call rate_mg24ag(tf,bden, &
-                     ratraw(irmgag),dratrawdt(irmgag),dratrawdd(irmgag), &
-                     ratraw(irsiga),dratrawdt(irsiga),dratrawdd(irsiga))
+                     rr % rates(1,irmgag),rr % rates(2,irmgag),dratedd1, &
+                     rr % rates(1,irsiga),rr % rates(2,irsiga),dratedd2)
 
     ! mg24(a,p)al27
     call rate_mg24ap(tf,bden, &
-                     ratraw(irmgap),dratrawdt(irmgap),dratrawdd(irmgap), &
-                     ratraw(iralpa),dratrawdt(iralpa),dratrawdd(iralpa))
+                     rr % rates(1,irmgap),rr % rates(2,irmgap),dratedd1, &
+                     rr % rates(1,iralpa),rr % rates(2,iralpa),dratedd2)
 
     ! al27(p,g)si28
     call rate_al27pg(tf,bden, &
-                     ratraw(iralpg),dratrawdt(iralpg),dratrawdd(iralpg), &
-                     ratraw(irsigp),dratrawdt(irsigp),dratrawdd(irsigp))
+                     rr % rates(1,iralpg),rr % rates(2,iralpg),dratedd1, &
+                     rr % rates(1,irsigp),rr % rates(2,irsigp),dratedd2)
 
     ! si28(a,g)s32
     call rate_si28ag(tf,bden, &
-                     ratraw(irsiag),dratrawdt(irsiag),dratrawdd(irsiag), &
-                     ratraw(irsga),dratrawdt(irsga),dratrawdd(irsga))
+                     rr % rates(1,irsiag),rr % rates(2,irsiag),dratedd1, &
+                     rr % rates(1,irsga),rr % rates(2,irsga),dratedd2)
 
     ! si28(a,p)p31
     call rate_si28ap(tf,bden, &
-                     ratraw(irsiap),dratrawdt(irsiap),dratrawdd(irsiap), &
-                     ratraw(irppa),dratrawdt(irppa),dratrawdd(irppa))
+                     rr % rates(1,irsiap),rr % rates(2,irsiap),dratedd1, &
+                     rr % rates(1,irppa),rr % rates(2,irppa),dratedd2)
 
     ! p31(p,g)s32
     call rate_p31pg(tf,bden, &
-                    ratraw(irppg),dratrawdt(irppg),dratrawdd(irppg), &
-                    ratraw(irsgp),dratrawdt(irsgp),dratrawdd(irsgp))
+                    rr % rates(1,irppg),rr % rates(2,irppg),dratedd1, &
+                    rr % rates(1,irsgp),rr % rates(2,irsgp),dratedd2)
 
     ! s32(a,g)ar36
     call rate_s32ag(tf,bden, &
-                    ratraw(irsag),dratrawdt(irsag),dratrawdd(irsag), &
-                    ratraw(irarga),dratrawdt(irarga),dratrawdd(irarga))
+                    rr % rates(1,irsag),rr % rates(2,irsag),dratedd1, &
+                    rr % rates(1,irarga),rr % rates(2,irarga),dratedd2)
 
     ! s32(a,p)cl35
     call rate_s32ap(tf,bden, &
-                    ratraw(irsap),dratrawdt(irsap),dratrawdd(irsap), &
-                    ratraw(irclpa),dratrawdt(irclpa),dratrawdd(irclpa))
+                    rr % rates(1,irsap),rr % rates(2,irsap),dratedd1, &
+                    rr % rates(1,irclpa),rr % rates(2,irclpa),dratedd2)
 
     ! cl35(p,g)ar36
     call rate_cl35pg(tf,bden, &
-                     ratraw(irclpg),dratrawdt(irclpg),dratrawdd(irclpg), &
-                     ratraw(irargp),dratrawdt(irargp),dratrawdd(irargp))
+                     rr % rates(1,irclpg),rr % rates(2,irclpg),dratedd1, &
+                     rr % rates(1,irargp),rr % rates(2,irargp),dratedd2)
 
     ! ar36(a,g)ca40
     call rate_ar36ag(tf,bden, &
-                     ratraw(irarag),dratrawdt(irarag),dratrawdd(irarag), &
-                     ratraw(ircaga),dratrawdt(ircaga),dratrawdd(ircaga))
+                     rr % rates(1,irarag),rr % rates(2,irarag),dratedd1, &
+                     rr % rates(1,ircaga),rr % rates(2,ircaga),dratedd2)
 
     ! ar36(a,p)k39
     call rate_ar36ap(tf,bden, &
-                     ratraw(irarap),dratrawdt(irarap),dratrawdd(irarap), &
-                     ratraw(irkpa),dratrawdt(irkpa),dratrawdd(irkpa))
+                     rr % rates(1,irarap),rr % rates(2,irarap),dratedd1, &
+                     rr % rates(1,irkpa),rr % rates(2,irkpa),dratedd2)
 
     ! k39(p,g)ca40
     call rate_k39pg(tf,bden, &
-                    ratraw(irkpg),dratrawdt(irkpg),dratrawdd(irkpg), &
-                    ratraw(ircagp),dratrawdt(ircagp),dratrawdd(ircagp))
+                    rr % rates(1,irkpg),rr % rates(2,irkpg),dratedd1, &
+                    rr % rates(1,ircagp),rr % rates(2,ircagp),dratedd2)
 
     ! ca40(a,g)ti44
     call rate_ca40ag(tf,bden, &
-                     ratraw(ircaag),dratrawdt(ircaag),dratrawdd(ircaag), &
-                     ratraw(irtiga),dratrawdt(irtiga),dratrawdd(irtiga))
+                     rr % rates(1,ircaag),rr % rates(2,ircaag),dratedd1, &
+                     rr % rates(1,irtiga),rr % rates(2,irtiga),dratedd2)
 
     ! ca40(a,p)sc43
     call rate_ca40ap(tf,bden, &
-                     ratraw(ircaap),dratrawdt(ircaap),dratrawdd(ircaap), &
-                     ratraw(irscpa),dratrawdt(irscpa),dratrawdd(irscpa))
+                     rr % rates(1,ircaap),rr % rates(2,ircaap),dratedd1, &
+                     rr % rates(1,irscpa),rr % rates(2,irscpa),dratedd2)
 
     ! sc43(p,g)ti44
     call rate_sc43pg(tf,bden, &
-                     ratraw(irscpg),dratrawdt(irscpg),dratrawdd(irscpg), &
-                     ratraw(irtigp),dratrawdt(irtigp),dratrawdd(irtigp))
+                     rr % rates(1,irscpg),rr % rates(2,irscpg),dratedd1, &
+                     rr % rates(1,irtigp),rr % rates(2,irtigp),dratedd2)
 
     ! ti44(a,g)cr48
     call rate_ti44ag(tf,bden, &
-                     ratraw(irtiag),dratrawdt(irtiag),dratrawdd(irtiag), &
-                     ratraw(ircrga),dratrawdt(ircrga),dratrawdd(ircrga))
+                     rr % rates(1,irtiag),rr % rates(2,irtiag),dratedd1, &
+                     rr % rates(1,ircrga),rr % rates(2,ircrga),dratedd2)
 
     ! ti44(a,p)v47
     call rate_ti44ap(tf,bden, &
-                     ratraw(irtiap),dratrawdt(irtiap),dratrawdd(irtiap), &
-                     ratraw(irvpa),dratrawdt(irvpa),dratrawdd(irvpa))
+                     rr % rates(1,irtiap),rr % rates(2,irtiap),dratedd1, &
+                     rr % rates(1,irvpa),rr % rates(2,irvpa),dratedd2)
 
     ! v47(p,g)cr48
     call rate_v47pg(tf,bden, &
-                    ratraw(irvpg),dratrawdt(irvpg),dratrawdd(irvpg), &
-                    ratraw(ircrgp),dratrawdt(ircrgp),dratrawdd(ircrgp))
+                    rr % rates(1,irvpg),rr % rates(2,irvpg),dratedd1, &
+                    rr % rates(1,ircrgp),rr % rates(2,ircrgp),dratedd2)
 
     ! cr48(a,g)fe52
     call rate_cr48ag(tf,bden, &
-                     ratraw(ircrag),dratrawdt(ircrag),dratrawdd(ircrag), &
-                     ratraw(irfega),dratrawdt(irfega),dratrawdd(irfega))
+                     rr % rates(1,ircrag),rr % rates(2,ircrag),dratedd1, &
+                     rr % rates(1,irfega),rr % rates(2,irfega),dratedd2)
 
     ! cr48(a,p)mn51
     call rate_cr48ap(tf,bden, &
-                     ratraw(ircrap),dratrawdt(ircrap),dratrawdd(ircrap), &
-                     ratraw(irmnpa),dratrawdt(irmnpa),dratrawdd(irmnpa))
+                     rr % rates(1,ircrap),rr % rates(2,ircrap),dratedd1, &
+                     rr % rates(1,irmnpa),rr % rates(2,irmnpa),dratedd2)
 
     ! mn51(p,g)fe52
     call rate_mn51pg(tf,bden, &
-                     ratraw(irmnpg),dratrawdt(irmnpg),dratrawdd(irmnpg), &
-                     ratraw(irfegp),dratrawdt(irfegp),dratrawdd(irfegp))
+                     rr % rates(1,irmnpg),rr % rates(2,irmnpg),dratedd1, &
+                     rr % rates(1,irfegp),rr % rates(2,irfegp),dratedd2)
 
     ! fe52(a,g)ni56
     call rate_fe52ag(tf,bden, &
-                     ratraw(irfeag),dratrawdt(irfeag),dratrawdd(irfeag), &
-                     ratraw(irniga),dratrawdt(irniga),dratrawdd(irniga))
+                     rr % rates(1,irfeag),rr % rates(2,irfeag),dratedd1, &
+                     rr % rates(1,irniga),rr % rates(2,irniga),dratedd2)
 
     ! fe52(a,p)co55
     call rate_fe52ap(tf,bden, &
-                     ratraw(irfeap),dratrawdt(irfeap),dratrawdd(irfeap), &
-                     ratraw(ircopa),dratrawdt(ircopa),dratrawdd(ircopa))
+                     rr % rates(1,irfeap),rr % rates(2,irfeap),dratedd1, &
+                     rr % rates(1,ircopa),rr % rates(2,ircopa),dratedd2)
 
     ! co55(p,g)ni56
     call rate_co55pg(tf,bden, &
-                     ratraw(ircopg),dratrawdt(ircopg),dratrawdd(ircopg), &
-                     ratraw(irnigp),dratrawdt(irnigp),dratrawdd(irnigp))
+                     rr % rates(1,ircopg),rr % rates(2,ircopg),dratedd1, &
+                     rr % rates(1,irnigp),rr % rates(2,irnigp),dratedd2)
 
   end subroutine aprox13rat
 
 
 
-  subroutine screen_aprox13(btemp, bden, y, &
-                                         ratraw, dratrawdt, dratrawdd, &
-                                         ratdum, dratdumdt, dratdumdd, &
-                                         scfac, dscfacdt, dscfacdd)
+  subroutine screen_aprox13(btemp, bden, y, rr)
 
     use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -1135,13 +1129,11 @@ contains
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
 
-    double precision :: btemp, bden
-    double precision :: y(nspec)
-    double precision :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
-    double precision :: ratdum(nrates), dratdumdt(nrates), dratdumdd(nrates)
-    double precision :: scfac(nrates),  dscfacdt(nrates),  dscfacdd(nrates)
+    double precision, intent(in   ) :: btemp, bden
+    double precision, intent(in   ) :: y(nspec)
+    type (rate_t),    intent(inout) :: rr
 
-    integer          :: i, jscr
+    integer          :: jscr
     double precision :: sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt
     double precision :: sc1add,sc2add
 !    double precision :: sc3add
@@ -1149,21 +1141,11 @@ contains
     double precision :: denom,denomdt,zz
 !    double precision :: denomdd,r1dd,s1dd,t1dd,u1dd,v1dd,w1dd,x1dd,y1dd
 
+    double precision :: ratraw
+
     type (plasma_state) :: state
 
     !$gpu
-
-    ! initialize
-    do i=1,nrates
-       ratdum(i)    = ratraw(i)
-       dratdumdt(i) = dratrawdt(i)
-       dratdumdd(i) = dratrawdd(i)
-       scfac(i)     = ONE
-       dscfacdt(i)  = ZERO
-       dscfacdd(i)  = ZERO
-    end do
-
-
 
     ! Set up the state data, which is the same for all screening factors.
 
@@ -1182,21 +1164,15 @@ contains
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
     !sc3add = sc1add*sc2a + sc1a*sc2add
 
-    ratdum(ir3a)    = ratraw(ir3a) * sc3a
-    dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
-    !dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + ratraw(ir3a)*sc3add
+    ratraw = rr % rates(1,ir3a)
+    rr % rates(1,ir3a) = ratraw * sc3a
+    rr % rates(2,ir3a) = rr % rates(2,ir3a)*sc3a + ratraw*sc3adt
+    !dratdumdd(ir3a) = dratrawdd(ir3a)*sc3a + rr % rates(1,ir3a)*sc3add
 
-    scfac(ir3a) = sc3a
-    dscfacdt(ir3a)  = sc3adt
-    !dscfacdd(ir3a)  = sc3add
-
-    ratdum(irg3a)    = ratraw(irg3a) * sc3a
-    dratdumdt(irg3a) = dratrawdt(irg3a)*sc3a + ratraw(irg3a)*sc3adt
-    !dratdumdd(irg3a) = dratrawdd(irg3a)*sc3a + ratraw(irg3a)*sc3add
-
-    scfac(irg3a)  = sc3a
-    dscfacdt(irg3a)  = sc3adt
-    !dscfacdd(irg3a)  = sc3add
+    ratraw = rr % rates(1,irg3a)
+    rr % rates(1,irg3a) = ratraw * sc3a
+    rr % rates(2,irg3a) = rr % rates(2,irg3a)*sc3a + ratraw*sc3adt
+    !dratdumdd(irg3a) = dratrawdd(irg3a)*sc3a + rr % rates(1,irg3a)*sc3add
 
 
     ! c12 to o16
@@ -1204,64 +1180,45 @@ contains
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ircag)     = ratraw(ircag) * sc1a
-    dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
-    !dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + ratraw(ircag)*sc1add
+    ratraw = rr % rates(1,ircag)
+    rr % rates(1,ircag)  = ratraw * sc1a
+    rr % rates(2,ircag)  = rr % rates(2,ircag)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircag)  = dratrawdd(ircag)*sc1a + rr % rates(1,ircag)*sc1add
 
-    scfac(ircag)  = sc1a
-    dscfacdt(ircag)   = sc1adt
-    !dscfacdd(ircag)   = sc1add
-
-    ratdum(iroga)     = ratraw(iroga) * sc1a
-    dratdumdt(iroga)  = dratrawdt(iroga)*sc1a + ratraw(iroga)*sc1adt
-    !dratdumdd(iroga)  = dratrawdd(iroga)*sc1a + ratraw(iroga)*sc1add
-
-    scfac(iroga)  = sc1a
-    dscfacdt(iroga)   = sc1adt
-    !dscfacdd(iroga)   = sc1add
+    ratraw = rr % rates(1,iroga)
+    rr % rates(1,iroga)  = ratraw * sc1a
+    rr % rates(2,iroga)  = rr % rates(2,iroga)*sc1a + ratraw*sc1adt
+    !dratdumdd(iroga)  = dratrawdd(iroga)*sc1a + rr % rates(1,iroga)*sc1add
 
 
     ! c12 + c12
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
-
-    ratdum(ir1212)    = ratraw(ir1212) * sc1a
-    dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
-    !dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + ratraw(ir1212)*sc1add
-
-    scfac(ir1212)     = sc1a
-    dscfacdt(ir1212)  = sc1adt
-    !dscfacdd(ir1212)  = sc1add
-
+    ratraw = rr % rates(1,ir1212)
+    rr % rates(1,ir1212) = ratraw * sc1a
+    rr % rates(2,ir1212) = rr % rates(2,ir1212)*sc1a + ratraw*sc1adt
+    !dratdumdd(ir1212) = dratrawdd(ir1212)*sc1a + rr % rates(1,ir1212)*sc1add
 
 
     ! c12 + o16
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ir1216)    = ratraw(ir1216) * sc1a
-    dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
-
-    scfac(ir1216)     = sc1a
-    dscfacdt(ir1216)  = sc1adt
-    !dscfacdd(ir1216)  = sc1add
+    ratraw = rr % rates(1,ir1216)
+    rr % rates(1,ir1216) = ratraw * sc1a
+    rr % rates(2,ir1216) = rr % rates(2,ir1216)*sc1a + ratraw*sc1adt
+    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + rr % rates(1,ir1216)*sc1add
 
 
     ! o16 + o16
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
-
-    ratdum(ir1616)    = ratraw(ir1616) * sc1a
-    dratdumdt(ir1616) = dratrawdt(ir1616)*sc1a + ratraw(ir1616)*sc1adt
-    !dratdumdd(ir1616) = dratrawdd(ir1616)*sc1a + ratraw(ir1616)*sc1add
-
-    scfac(ir1616)     = sc1a
-    dscfacdt(ir1616)  = sc1adt
-    !dscfacdd(ir1616)  = sc1add
-
+    ratraw = rr % rates(1,ir1616)
+    rr % rates(1,ir1616) = ratraw * sc1a
+    rr % rates(2,ir1616) = rr % rates(2,ir1616)*sc1a + ratraw*sc1adt
+    !dratdumdd(ir1616) = dratrawdd(ir1616)*sc1a + rr % rates(1,ir1616)*sc1add
 
 
     ! o16 to ne20
@@ -1270,21 +1227,15 @@ contains
 
 
     ! o16(a,g)ne20
-    ratdum(iroag)    = ratraw(iroag) * sc1a
-    dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
-    !dratdumdd(iroag) = dratrawdd(iroag)*sc1a + ratraw(iroag)*sc1add
+    ratraw = rr % rates(1,iroag)
+    rr % rates(1,iroag) = ratraw * sc1a
+    rr % rates(2,iroag) = rr % rates(2,iroag)*sc1a + ratraw*sc1adt
+    !dratdumdd(iroag) = dratrawdd(iroag)*sc1a + rr % rates(1,iroag)*sc1add
 
-    scfac(iroag)  = sc1a
-    dscfacdt(iroag)  = sc1adt
-    !dscfacdd(iroag)  = sc1add
-
-    ratdum(irnega)    = ratraw(irnega) * sc1a
-    dratdumdt(irnega) = dratrawdt(irnega)*sc1a + ratraw(irnega)*sc1adt
-    !dratdumdd(irnega) = dratrawdd(irnega)*sc1a + ratraw(irnega)*sc1add
-
-    scfac(irnega)  = sc1a
-    dscfacdt(irnega)  = sc1adt
-    !dscfacdd(irnega)  = sc1add
+    ratraw = rr % rates(1,irnega)
+    rr % rates(1,irnega) = ratraw * sc1a
+    rr % rates(2,irnega) = rr % rates(2,irnega)*sc1a + ratraw*sc1adt
+    !dratdumdd(irnega) = dratrawdd(irnega)*sc1a + rr % rates(1,irnega)*sc1add
 
 
     ! ne20 to mg24
@@ -1293,22 +1244,15 @@ contains
 
 
     ! ne20(a,g)mg24
-    ratdum(irneag)    = ratraw(irneag) * sc1a
-    dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
-    !dratdumdd(irneag) = dratrawdd(irneag)*sc1a + ratraw(irneag)*sc1add
+    ratraw = rr % rates(1,irneag)
+    rr % rates(1,irneag) = ratraw * sc1a
+    rr % rates(2,irneag) = rr % rates(2,irneag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irneag) = dratrawdd(irneag)*sc1a + rr % rates(1,irneag)*sc1add
 
-    scfac(irneag) = sc1a
-    dscfacdt(irneag)  = sc1adt
-    !dscfacdd(irneag)  = sc1add
-
-    ratdum(irmgga)    = ratraw(irmgga) * sc1a
-    dratdumdt(irmgga) = dratrawdt(irmgga)*sc1a + ratraw(irmgga)*sc1adt
-    !dratdumdd(irmgga) = dratrawdd(irmgga)*sc1a + ratraw(irmgga)*sc1add
-
-    scfac(irmgga) = sc1a
-    dscfacdt(irmgga)  = sc1adt
-    !dscfacdd(irmgga)  = sc1add
-
+    ratraw = rr % rates(1,irmgga)
+    rr % rates(1,irmgga) = ratraw * sc1a
+    rr % rates(2,irmgga) = rr % rates(2,irmgga)*sc1a + ratraw*sc1adt
+    !dratdumdd(irmgga) = dratrawdd(irmgga)*sc1a + rr % rates(1,irmgga)*sc1add
 
 
     ! mg24 to si28
@@ -1317,60 +1261,42 @@ contains
 
 
     ! mg24(a,g)si28
-    ratdum(irmgag)    = ratraw(irmgag) * sc1a
-    dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
-    !dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + ratraw(irmgag)*sc1add
+    ratraw = rr % rates(1,irmgag)
+    rr % rates(1,irmgag) = ratraw * sc1a
+    rr % rates(2,irmgag) = rr % rates(2,irmgag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irmgag) = dratrawdd(irmgag)*sc1a + rr % rates(1,irmgag)*sc1add
 
-    scfac(irmgag) = sc1a
-    dscfacdt(irmgag)  = sc1adt
-    !dscfacdd(irmgag)  = sc1add
-
-    ratdum(irsiga)    = ratraw(irsiga) * sc1a
-    dratdumdt(irsiga) = dratrawdt(irsiga)*sc1a + ratraw(irsiga)*sc1adt
-    !dratdumdd(irsiga) = dratrawdd(irsiga)*sc1a + ratraw(irsiga)*sc1add
-
-    scfac(irsiga) = sc1a
-    dscfacdt(irsiga)  = sc1adt
-    !dscfacdd(irsiga)  = sc1add
+    ratraw = rr % rates(1,irsiga)
+    rr % rates(1,irsiga) = ratraw * sc1a
+    rr % rates(2,irsiga) = rr % rates(2,irsiga)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsiga) = dratrawdd(irsiga)*sc1a + rr % rates(1,irsiga)*sc1add
 
 
     ! mg24(a,p)al27
-    ratdum(irmgap)    = ratraw(irmgap) * sc1a
-    dratdumdt(irmgap) = dratrawdt(irmgap)*sc1a + ratraw(irmgap)*sc1adt
-    !dratdumdd(irmgap) = dratrawdd(irmgap)*sc1a + ratraw(irmgap)*sc1add
+    ratraw = rr % rates(1,irmgap)
+    rr % rates(1,irmgap) = ratraw * sc1a
+    rr % rates(2,irmgap) = rr % rates(2,irmgap)*sc1a + ratraw*sc1adt
+    !dratdumdd(irmgap) = dratrawdd(irmgap)*sc1a + rr % rates(1,irmgap)*sc1add
 
-    scfac(irmgap)     = sc1a
-    dscfacdt(irmgap)  = sc1adt
-    !dscfacdd(irmgap)  = sc1add
-
-    ratdum(iralpa)    = ratraw(iralpa) * sc1a
-    dratdumdt(iralpa) = dratrawdt(iralpa)*sc1a + ratraw(iralpa)*sc1adt
-    !dratdumdd(iralpa) = dratrawdd(iralpa)*sc1a + ratraw(iralpa)*sc1add
-
-    scfac(iralpa)     = sc1a
-    dscfacdt(iralpa)  = sc1adt
-    !dscfacdd(iralpa)  = sc1add
+    ratraw = rr % rates(1,iralpa)
+    rr % rates(1,iralpa) = ratraw * sc1a
+    rr % rates(2,iralpa) = rr % rates(2,iralpa)*sc1a + ratraw*sc1adt
+    !dratdumdd(iralpa) = dratrawdd(iralpa)*sc1a + rr % rates(1,iralpa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! al27(p,g)si28
-    ratdum(iralpg)    = ratraw(iralpg) * sc1a
-    dratdumdt(iralpg) = dratrawdt(iralpg)*sc1a + ratraw(iralpg)*sc1adt
-    !dratdumdd(iralpg) = dratrawdd(iralpg)*sc1a + ratraw(iralpg)*sc1add
+    ratraw = rr % rates(1,iralpg)
+    rr % rates(1,iralpg) = ratraw * sc1a
+    rr % rates(2,iralpg) = rr % rates(2,iralpg)*sc1a + ratraw*sc1adt
+    !dratdumdd(iralpg) = dratrawdd(iralpg)*sc1a + rr % rates(1,iralpg)*sc1add
 
-    scfac(iralpg)     = sc1a
-    dscfacdt(iralpg)  = sc1adt
-    !dscfacdd(iralpg)  = sc1add
-
-    ratdum(irsigp)    = ratraw(irsigp) * sc1a
-    dratdumdt(irsigp) = dratrawdt(irsigp)*sc1a + ratraw(irsigp)*sc1adt
-    !dratdumdd(irsigp) = dratrawdd(irsigp)*sc1a + ratraw(irsigp)*sc1add
-
-    scfac(irsigp)     = sc1a
-    dscfacdt(irsigp)  = sc1adt
-    !dscfacdd(irsigp)  = sc1add
+    ratraw = rr % rates(1,irsigp)
+    rr % rates(1,irsigp) = ratraw * sc1a
+    rr % rates(2,irsigp) = rr % rates(2,irsigp)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsigp) = dratrawdd(irsigp)*sc1a + rr % rates(1,irsigp)*sc1add
 
 
     ! si28 to s32
@@ -1379,61 +1305,42 @@ contains
 
 
     ! si28(a,g)s32
-    ratdum(irsiag)    = ratraw(irsiag) * sc1a
-    dratdumdt(irsiag) = dratrawdt(irsiag)*sc1a + ratraw(irsiag)*sc1adt
-    !dratdumdd(irsiag) = dratrawdd(irsiag)*sc1a + ratraw(irsiag)*sc1add
+    ratraw = rr % rates(1,irsiag)
+    rr % rates(1,irsiag) = ratraw * sc1a
+    rr % rates(2,irsiag) = rr % rates(2,irsiag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsiag) = dratrawdd(irsiag)*sc1a + rr % rates(1,irsiag)*sc1add
 
-    scfac(irsiag)     = sc1a
-    dscfacdt(irsiag)  = sc1adt
-    !dscfacdd(irsiag)  = sc1add
-
-    ratdum(irsga)    = ratraw(irsga) * sc1a
-    dratdumdt(irsga) = dratrawdt(irsga)*sc1a + ratraw(irsga)*sc1adt
-    !dratdumdd(irsga) = dratrawdd(irsga)*sc1a + ratraw(irsga)*sc1add
-
-    scfac(irsga)     = sc1a
-    dscfacdt(irsga)  = sc1adt
-    !dscfacdd(irsga)  = sc1add
+    ratraw = rr % rates(1,irsga)
+    rr % rates(1,irsga) = ratraw * sc1a
+    rr % rates(2,irsga) = rr % rates(2,irsga)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsga) = dratrawdd(irsga)*sc1a + rr % rates(1,irsga)*sc1add
 
 
     ! si28(a,p)p31
-    ratdum(irsiap)    = ratraw(irsiap) * sc1a
-    dratdumdt(irsiap) = dratrawdt(irsiap)*sc1a + ratraw(irsiap)*sc1adt
-    !dratdumdd(irsiap) = dratrawdd(irsiap)*sc1a + ratraw(irsiap)*sc1add
+    ratraw = rr % rates(1,irsiap)
+    rr % rates(1,irsiap) = ratraw * sc1a
+    rr % rates(2,irsiap) = rr % rates(2,irsiap)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsiap) = dratrawdd(irsiap)*sc1a + rr % rates(1,irsiap)*sc1add
 
-    scfac(irsiap)     = sc1a
-    dscfacdt(irsiap)  = sc1adt
-    !dscfacdd(irsiap)  = sc1add
-
-    ratdum(irppa)     = ratraw(irppa) * sc1a
-    dratdumdt(irppa)  = dratrawdt(irppa)*sc1a  + ratraw(irppa)*sc1adt
-    !dratdumdd(irppa)  = dratrawdd(irppa)*sc1a  + ratraw(irppa)*sc1add
-
-    scfac(irppa)      = sc1a
-    dscfacdt(irppa)   = sc1adt
-    !dscfacdd(irppa)   = sc1add
+    ratraw = rr % rates(1,irppa)
+    rr % rates(1,irppa)  = ratraw * sc1a
+    rr % rates(2,irppa)  = rr % rates(2,irppa)*sc1a  + ratraw*sc1adt
+    !dratdumdd(irppa)  = dratrawdd(irppa)*sc1a  + rr % rates(1,irppa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! p31(p,g)s32
-    ratdum(irppg)     = ratraw(irppg) * sc1a
-    dratdumdt(irppg)  = dratrawdt(irppg)*sc1a + ratraw(irppg)*sc1adt
-    !dratdumdd(irppg)  = dratrawdd(irppg)*sc1a + ratraw(irppg)*sc1add
+    ratraw = rr % rates(1,irppg)
+    rr % rates(1,irppg)  = ratraw * sc1a
+    rr % rates(2,irppg)  = rr % rates(2,irppg)*sc1a + ratraw*sc1adt
+    !dratdumdd(irppg)  = dratrawdd(irppg)*sc1a + rr % rates(1,irppg)*sc1add
 
-    scfac(irppg)      = sc1a
-    dscfacdt(irppg)   = sc1adt
-    !dscfacdd(irppg)   = sc1add
-
-    ratdum(irsgp)     = ratraw(irsgp) * sc1a
-    dratdumdt(irsgp)  = dratrawdt(irsgp)*sc1a + ratraw(irsgp)*sc1adt
-    !dratdumdd(irsgp)  = dratrawdd(irsgp)*sc1a + ratraw(irsgp)*sc1add
-
-    scfac(irsgp)      = sc1a
-    dscfacdt(irsgp)   = sc1adt
-    !dscfacdd(irsgp)   = sc1add
-
+    ratraw = rr % rates(1,irsgp)
+    rr % rates(1,irsgp)  = ratraw * sc1a
+    rr % rates(2,irsgp)  = rr % rates(2,irsgp)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsgp)  = dratrawdd(irsgp)*sc1a + rr % rates(1,irsgp)*sc1add
 
 
     ! s32 to ar36
@@ -1442,60 +1349,41 @@ contains
 
 
     ! s32(a,g)ar36
-    ratdum(irsag)     = ratraw(irsag) * sc1a
-    dratdumdt(irsag)  = dratrawdt(irsag)*sc1a + ratraw(irsag)*sc1adt
-    !dratdumdd(irsag)  = dratrawdd(irsag)*sc1a + ratraw(irsag)*sc1add
+    ratraw = rr % rates(1,irsag)
+    rr % rates(1,irsag)  = ratraw * sc1a
+    rr % rates(2,irsag)  = rr % rates(2,irsag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsag)  = dratrawdd(irsag)*sc1a + rr % rates(1,irsag)*sc1add
 
-    scfac(irsag)      = sc1a
-    dscfacdt(irsag)   = sc1adt
-    !dscfacdd(irsag)   = sc1add
-
-    ratdum(irarga)     = ratraw(irarga) * sc1a
-    dratdumdt(irarga)  = dratrawdt(irarga)*sc1a + ratraw(irarga)*sc1adt
-    !dratdumdd(irarga)  = dratrawdd(irarga)*sc1a + ratraw(irarga)*sc1add
-
-    scfac(irarga)      = sc1a
-    dscfacdt(irarga)   = sc1adt
-    !dscfacdd(irarga)   = sc1add
+    ratraw = rr % rates(1,irarga)
+    rr % rates(1,irarga)  = ratraw * sc1a
+    rr % rates(2,irarga)  = rr % rates(2,irarga)*sc1a + ratraw*sc1adt
+    !dratdumdd(irarga)  = dratrawdd(irarga)*sc1a + rr % rates(1,irarga)*sc1add
 
     ! s32(a,p)cl35
-    ratdum(irsap)     = ratraw(irsap) * sc1a
-    dratdumdt(irsap)  = dratrawdt(irsap)*sc1a + ratraw(irsap)*sc1adt
-    !dratdumdd(irsap)  = dratrawdd(irsap)*sc1a + ratraw(irsap)*sc1add
+    ratraw = rr % rates(1,irsap)
+    rr % rates(1,irsap)  = ratraw * sc1a
+    rr % rates(2,irsap)  = rr % rates(2,irsap)*sc1a + ratraw*sc1adt
+    !dratdumdd(irsap)  = dratrawdd(irsap)*sc1a + rr % rates(1,irsap)*sc1add
 
-    scfac(irsap)      = sc1a
-    dscfacdt(irsap)   = sc1adt
-    !dscfacdd(irsap)   = sc1add
-
-    ratdum(irclpa)    = ratraw(irclpa) * sc1a
-    dratdumdt(irclpa) = dratrawdt(irclpa)*sc1a + ratraw(irclpa)*sc1adt
-    !dratdumdd(irclpa) = dratrawdd(irclpa)*sc1a + ratraw(irclpa)*sc1add
-
-    scfac(irclpa)     = sc1a
-    dscfacdt(irclpa)  = sc1adt
-    !dscfacdt(irclpa)  = sc1add
+    ratraw = rr % rates(1,irclpa)
+    rr % rates(1,irclpa) = ratraw * sc1a
+    rr % rates(2,irclpa) = rr % rates(2,irclpa)*sc1a + ratraw*sc1adt
+    !dratdumdd(irclpa) = dratrawdd(irclpa)*sc1a + rr % rates(1,irclpa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! cl35(p,g)ar36
-    ratdum(irclpg)    = ratraw(irclpg) * sc1a
-    dratdumdt(irclpg) = dratrawdt(irclpg)*sc1a + ratraw(irclpg)*sc1adt
-    !dratdumdd(irclpg) = dratrawdd(irclpg)*sc1a + ratraw(irclpg)*sc1add
+    ratraw = rr % rates(1,irclpg)
+    rr % rates(1,irclpg) = ratraw * sc1a
+    rr % rates(2,irclpg) = rr % rates(2,irclpg)*sc1a + ratraw*sc1adt
+    !dratdumdd(irclpg) = dratrawdd(irclpg)*sc1a + rr % rates(1,irclpg)*sc1add
 
-    scfac(irclpg)     = sc1a
-    dscfacdt(irclpg)  = sc1adt
-    !dscfacdd(irclpg)  = sc1add
-
-    ratdum(irargp)    = ratraw(irargp) * sc1a
-    dratdumdt(irargp) = dratrawdt(irargp)*sc1a + ratraw(irargp)*sc1adt
-    !dratdumdd(irargp) = dratrawdd(irargp)*sc1a + ratraw(irargp)*sc1add
-
-    scfac(irargp)     = sc1a
-    dscfacdt(irargp)  = sc1adt
-    !dscfacdd(irargp)  = sc1add
-
+    ratraw = rr % rates(1,irargp)
+    rr % rates(1,irargp) = ratraw * sc1a
+    rr % rates(2,irargp) = rr % rates(2,irargp)*sc1a + ratraw*sc1adt
+    !dratdumdd(irargp) = dratrawdd(irargp)*sc1a + rr % rates(1,irargp)*sc1add
 
 
     ! ar36 to ca40
@@ -1504,61 +1392,42 @@ contains
 
 
     ! ar36(a,g)ca40
-    ratdum(irarag)    = ratraw(irarag) * sc1a
-    dratdumdt(irarag) = dratrawdt(irarag)*sc1a + ratraw(irarag)*sc1adt
-    !dratdumdd(irarag) = dratrawdd(irarag)*sc1a + ratraw(irarag)*sc1add
+    ratraw = rr % rates(1,irarag)
+    rr % rates(1,irarag) = ratraw * sc1a
+    rr % rates(2,irarag) = rr % rates(2,irarag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irarag) = dratrawdd(irarag)*sc1a + rr % rates(1,irarag)*sc1add
 
-    scfac(irarag)     = sc1a
-    dscfacdt(irarag)  = sc1adt
-    !dscfacdd(irarag)  = sc1add
-
-    ratdum(ircaga)    = ratraw(ircaga) * sc1a
-    dratdumdt(ircaga) = dratrawdt(ircaga)*sc1a + ratraw(ircaga)*sc1adt
-    !dratdumdd(ircaga) = dratrawdd(ircaga)*sc1a + ratraw(ircaga)*sc1add
-
-    scfac(ircaga)     = sc1a
-    dscfacdt(ircaga)  = sc1adt
-    !dscfacdd(ircaga)  = sc1add
+    ratraw = rr % rates(1,ircaga)
+    rr % rates(1,ircaga) = ratraw * sc1a
+    rr % rates(2,ircaga) = rr % rates(2,ircaga)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircaga) = dratrawdd(ircaga)*sc1a + rr % rates(1,ircaga)*sc1add
 
 
     ! ar36(a,p)k39
-    ratdum(irarap)    = ratraw(irarap) * sc1a
-    dratdumdt(irarap) = dratrawdt(irarap)*sc1a + ratraw(irarap)*sc1adt
-    !dratdumdd(irarap) = dratrawdd(irarap)*sc1a + ratraw(irarap)*sc1add
+    ratraw = rr % rates(1,irarap)
+    rr % rates(1,irarap) = ratraw * sc1a
+    rr % rates(2,irarap) = rr % rates(2,irarap)*sc1a + ratraw*sc1adt
+    !dratdumdd(irarap) = dratrawdd(irarap)*sc1a + rr % rates(1,irarap)*sc1add
 
-    scfac(irarap)     = sc1a
-    dscfacdt(irarap)  = sc1adt
-    !dscfacdd(irarap)  = sc1add
-
-    ratdum(irkpa)     = ratraw(irkpa) * sc1a
-    dratdumdt(irkpa)  = dratrawdt(irkpa)*sc1a  + ratraw(irkpa)*sc1adt
-    !dratdumdd(irkpa)  = dratrawdd(irkpa)*sc1a  + ratraw(irkpa)*sc1add
-
-    scfac(irkpa)      = sc1a
-    dscfacdt(irkpa)   = sc1adt
-    !dscfacdd(irkpa)   = sc1add
+    ratraw = rr % rates(1,irkpa)
+    rr % rates(1,irkpa) = ratraw * sc1a
+    rr % rates(2,irkpa) = rr % rates(2,irkpa)*sc1a  + ratraw*sc1adt
+    !dratdumdd(irkpa)  = dratrawdd(irkpa)*sc1a  + rr % rates(1,irkpa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! k39(p,g)ca40
-    ratdum(irkpg)     = ratraw(irkpg) * sc1a
-    dratdumdt(irkpg)  = dratrawdt(irkpg)*sc1a  + ratraw(irkpg)*sc1adt
-    !dratdumdd(irkpg)  = dratrawdd(irkpg)*sc1a  + ratraw(irkpg)*sc1add
+    ratraw = rr % rates(1,irkpg)
+    rr % rates(1,irkpg) = ratraw * sc1a
+    rr % rates(2,irkpg) = rr % rates(2,irkpg)*sc1a  + ratraw*sc1adt
+    !dratdumdd(irkpg)  = dratrawdd(irkpg)*sc1a  + rr % rates(1,irkpg)*sc1add
 
-    scfac(irkpg)      = sc1a
-    dscfacdt(irkpg)   = sc1adt
-    !dscfacdd(irkpg)   = sc1add
-
-    ratdum(ircagp)     = ratraw(ircagp) * sc1a
-    dratdumdt(ircagp)  = dratrawdt(ircagp)*sc1a  + ratraw(ircagp)*sc1adt
-    !dratdumdd(ircagp)  = dratrawdd(ircagp)*sc1a  + ratraw(ircagp)*sc1add
-
-    scfac(ircagp)      = sc1a
-    dscfacdt(ircagp)   = sc1adt
-    !dscfacdd(ircagp)   = sc1add
-
+    ratraw = rr % rates(1,ircagp)
+    rr % rates(1,ircagp) = ratraw * sc1a
+    rr % rates(2,ircagp) = rr % rates(2,ircagp)*sc1a  + ratraw*sc1adt
+    !dratdumdd(ircagp)  = dratrawdd(ircagp)*sc1a  + rr % rates(1,ircagp)*sc1add
 
 
     ! ca40 to ti44
@@ -1567,61 +1436,42 @@ contains
 
 
     ! ca40(a,g)ti44
-    ratdum(ircaag)    = ratraw(ircaag) * sc1a
-    dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
-    !dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + ratraw(ircaag)*sc1add
+    ratraw = rr % rates(1,ircaag)
+    rr % rates(1,ircaag) = ratraw * sc1a
+    rr % rates(2,ircaag) = rr % rates(2,ircaag)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircaag) = dratrawdd(ircaag)*sc1a + rr % rates(1,ircaag)*sc1add
 
-    scfac(ircaag)     = sc1a
-    dscfacdt(ircaag)  = sc1adt
-    !dscfacdd(ircaag)  = sc1add
-
-    ratdum(irtiga)    = ratraw(irtiga) * sc1a
-    dratdumdt(irtiga) = dratrawdt(irtiga)*sc1a + ratraw(irtiga)*sc1adt
-    !dratdumdd(irtiga) = dratrawdd(irtiga)*sc1a + ratraw(irtiga)*sc1add
-
-    scfac(irtiga)     = sc1a
-    dscfacdt(irtiga)  = sc1adt
-    !dscfacdd(irtiga)  = sc1add
+    ratraw = rr % rates(1,irtiga)
+    rr % rates(1,irtiga) = ratraw * sc1a
+    rr % rates(2,irtiga) = rr % rates(2,irtiga)*sc1a + ratraw*sc1adt
+    !dratdumdd(irtiga) = dratrawdd(irtiga)*sc1a + rr % rates(1,irtiga)*sc1add
 
 
     ! ca40(a,p)sc43
-    ratdum(ircaap)    = ratraw(ircaap) * sc1a
-    dratdumdt(ircaap) = dratrawdt(ircaap)*sc1a + ratraw(ircaap)*sc1adt
-    !dratdumdd(ircaap) = dratrawdd(ircaap)*sc1a + ratraw(ircaap)*sc1add
+    ratraw = rr % rates(1,ircaap)
+    rr % rates(1,ircaap) = ratraw * sc1a
+    rr % rates(2,ircaap) = rr % rates(2,ircaap)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircaap) = dratrawdd(ircaap)*sc1a + rr % rates(1,ircaap)*sc1add
 
-    scfac(ircaap)     = sc1a
-    dscfacdt(ircaap)  = sc1adt
-    !dscfacdd(ircaap)  = sc1add
-
-    ratdum(irscpa)    = ratraw(irscpa) * sc1a
-    dratdumdt(irscpa) = dratrawdt(irscpa)*sc1a + ratraw(irscpa)*sc1adt
-    !dratdumdd(irscpa) = dratrawdd(irscpa)*sc1a + ratraw(irscpa)*sc1add
-
-    scfac(irscpa)     = sc1a
-    dscfacdt(irscpa)  = sc1adt
-    !dscfacdd(irscpa)  = sc1add
+    ratraw = rr % rates(1,irscpa)
+    rr % rates(1,irscpa) = ratraw * sc1a
+    rr % rates(2,irscpa) = rr % rates(2,irscpa)*sc1a + ratraw*sc1adt
+    !dratdumdd(irscpa) = dratrawdd(irscpa)*sc1a + rr % rates(1,irscpa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! sc43(p,g)ti44
-    ratdum(irscpg)    = ratraw(irscpg) * sc1a
-    dratdumdt(irscpg) = dratrawdt(irscpg)*sc1a + ratraw(irscpg)*sc1adt
-    !dratdumdd(irscpg) = dratrawdd(irscpg)*sc1a + ratraw(irscpg)*sc1add
+    ratraw = rr % rates(1,irscpg)
+    rr % rates(1,irscpg) = ratraw * sc1a
+    rr % rates(2,irscpg) = rr % rates(2,irscpg)*sc1a + ratraw*sc1adt
+    !dratdumdd(irscpg) = dratrawdd(irscpg)*sc1a + rr % rates(1,irscpg)*sc1add
 
-    scfac(irscpg)     = sc1a
-    dscfacdt(irscpg)  = sc1adt
-    !dscfacdd(irscpg)  = sc1add
-
-    ratdum(irtigp)    = ratraw(irtigp) * sc1a
-    dratdumdt(irtigp) = dratrawdt(irtigp)*sc1a + ratraw(irtigp)*sc1adt
-    !dratdumdd(irtigp) = dratrawdd(irtigp)*sc1a + ratraw(irtigp)*sc1add
-
-    scfac(irtigp)     = sc1a
-    dscfacdt(irtigp)  = sc1adt
-    !dscfacdd(irtigp)  = sc1add
-
+    ratraw = rr % rates(1,irtigp)
+    rr % rates(1,irtigp) = ratraw * sc1a
+    rr % rates(2,irtigp) = rr % rates(2,irtigp)*sc1a + ratraw*sc1adt
+    !dratdumdd(irtigp) = dratrawdd(irtigp)*sc1a + rr % rates(1,irtigp)*sc1add
 
 
     ! ti44 to cr48
@@ -1630,60 +1480,41 @@ contains
 
 
     ! ti44(a,g)cr48
-    ratdum(irtiag)    = ratraw(irtiag) * sc1a
-    dratdumdt(irtiag) = dratrawdt(irtiag)*sc1a + ratraw(irtiag)*sc1adt
-    !dratdumdd(irtiag) = dratrawdd(irtiag)*sc1a + ratraw(irtiag)*sc1add
+    ratraw = rr % rates(1,irtiag)
+    rr % rates(1,irtiag) = ratraw * sc1a
+    rr % rates(2,irtiag) = rr % rates(2,irtiag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irtiag) = dratrawdd(irtiag)*sc1a + rr % rates(1,irtiag)*sc1add
 
-    scfac(irtiag)     = sc1a
-    dscfacdt(irtiag)  = sc1adt
-    !dscfacdd(irtiag)  = sc1add
-
-    ratdum(ircrga)    = ratraw(ircrga) * sc1a
-    dratdumdt(ircrga) = dratrawdt(ircrga)*sc1a + ratraw(ircrga)*sc1adt
-    !dratdumdd(ircrga) = dratrawdd(ircrga)*sc1a + ratraw(ircrga)*sc1add
-
-    scfac(ircrga)     = sc1a
-    dscfacdt(ircrga)  = sc1adt
-    !dscfacdd(ircrga)  = sc1add
+    ratraw = rr % rates(1,ircrga)
+    rr % rates(1,ircrga) = ratraw * sc1a
+    rr % rates(2,ircrga) = rr % rates(2,ircrga)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircrga) = dratrawdd(ircrga)*sc1a + rr % rates(1,ircrga)*sc1add
 
     ! ti44(a,p)v47
-    ratdum(irtiap)    = ratraw(irtiap) * sc1a
-    dratdumdt(irtiap) = dratrawdt(irtiap)*sc1a + ratraw(irtiap)*sc1adt
-    !dratdumdd(irtiap) = dratrawdd(irtiap)*sc1a + ratraw(irtiap)*sc1add
+    ratraw = rr % rates(1,irtiap)
+    rr % rates(1,irtiap) = ratraw * sc1a
+    rr % rates(2,irtiap) = rr % rates(2,irtiap)*sc1a + ratraw*sc1adt
+    !dratdumdd(irtiap) = dratrawdd(irtiap)*sc1a + rr % rates(1,irtiap)*sc1add
 
-    scfac(irtiap)  = sc1a
-    dscfacdt(irtiap)  = sc1adt
-    !dscfacdd(irtiap)  = sc1add
-
-    ratdum(irvpa)     = ratraw(irvpa) * sc1a
-    dratdumdt(irvpa)  = dratrawdt(irvpa)*sc1a  + ratraw(irvpa)*sc1adt
-    !dratdumdd(irvpa)  = dratrawdd(irvpa)*sc1a  + ratraw(irvpa)*sc1add
-
-    scfac(irvpa)      = sc1a
-    dscfacdt(irvpa)   = sc1adt
-    !dscfacdd(irvpa)   = sc1add
+    ratraw = rr % rates(1,irvpa)
+    rr % rates(1,irvpa) = ratraw * sc1a
+    rr % rates(2,irvpa) = rr % rates(2,irvpa)*sc1a  + ratraw*sc1adt
+    !dratdumdd(irvpa)  = dratrawdd(irvpa)*sc1a  + rr % rates(1,irvpa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! v47(p,g)cr48
-    ratdum(irvpg)     = ratraw(irvpg) * sc1a
-    dratdumdt(irvpg)  = dratrawdt(irvpg)*sc1a  + ratraw(irvpg)*sc1adt
-    !dratdumdd(irvpg)  = dratrawdd(irvpg)*sc1a  + ratraw(irvpg)*sc1add
+    ratraw = rr % rates(1,irvpg)
+    rr % rates(1,irvpg) = ratraw * sc1a
+    rr % rates(2,irvpg) = rr % rates(2,irvpg)*sc1a  + ratraw*sc1adt
+    !dratdumdd(irvpg)  = dratrawdd(irvpg)*sc1a  + rr % rates(1,irvpg)*sc1add
 
-    scfac(irvpg)      = sc1a
-    dscfacdt(irvpg)   = sc1adt
-    !dscfacdd(irvpg)   = sc1add
-
-    ratdum(ircrgp)     = ratraw(ircrgp) * sc1a
-    dratdumdt(ircrgp)  = dratrawdt(ircrgp)*sc1a  + ratraw(ircrgp)*sc1adt
-    !dratdumdd(ircrgp)  = dratrawdd(ircrgp)*sc1a  + ratraw(ircrgp)*sc1add
-
-    scfac(ircrgp)      = sc1a
-    dscfacdt(ircrgp)   = sc1adt
-    !dscfacdd(ircrgp)   = sc1add
-
+    ratraw = rr % rates(1,ircrgp)
+    rr % rates(1,ircrgp)  = ratraw * sc1a
+    rr % rates(2,ircrgp)  = rr % rates(2,ircrgp)*sc1a  + ratraw*sc1adt
+    !dratdumdd(ircrgp)  = dratrawdd(ircrgp)*sc1a  + rr % rates(1,ircrgp)*sc1add
 
 
     ! cr48 to fe52
@@ -1692,61 +1523,42 @@ contains
 
 
     ! cr48(a,g)fe52
-    ratdum(ircrag)    = ratraw(ircrag) * sc1a
-    dratdumdt(ircrag) = dratrawdt(ircrag)*sc1a + ratraw(ircrag)*sc1adt
-    !dratdumdd(ircrag) = dratrawdd(ircrag)*sc1a + ratraw(ircrag)*sc1add
+    ratraw = rr % rates(1,ircrag)
+    rr % rates(1,ircrag) = ratraw * sc1a
+    rr % rates(2,ircrag) = rr % rates(2,ircrag)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircrag) = dratrawdd(ircrag)*sc1a + rr % rates(1,ircrag)*sc1add
 
-    scfac(ircrag)     = sc1a
-    dscfacdt(ircrag)  = sc1adt
-    !dscfacdd(ircrag)  = sc1add
-
-    ratdum(irfega)    = ratraw(irfega) * sc1a
-    dratdumdt(irfega) = dratrawdt(irfega)*sc1a + ratraw(irfega)*sc1adt
-    !dratdumdd(irfega) = dratrawdd(irfega)*sc1a + ratraw(irfega)*sc1add
-
-    scfac(irfega)     = sc1a
-    dscfacdt(irfega)  = sc1adt
-    !dscfacdd(irfega)  = sc1add
+    ratraw = rr % rates(1,irfega)
+    rr % rates(1,irfega) = ratraw * sc1a
+    rr % rates(2,irfega) = rr % rates(2,irfega)*sc1a + ratraw*sc1adt
+    !dratdumdd(irfega) = dratrawdd(irfega)*sc1a + rr % rates(1,irfega)*sc1add
 
 
     ! cr48(a,p)mn51
-    ratdum(ircrap)    = ratraw(ircrap) * sc1a
-    dratdumdt(ircrap) = dratrawdt(ircrap)*sc1a + ratraw(ircrap)*sc1adt
-    !dratdumdd(ircrap) = dratrawdd(ircrap)*sc1a + ratraw(ircrap)*sc1add
+    ratraw = rr % rates(1,ircrap)
+    rr % rates(1,ircrap) = ratraw * sc1a
+    rr % rates(2,ircrap) = rr % rates(2,ircrap)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircrap) = dratrawdd(ircrap)*sc1a + rr % rates(1,ircrap)*sc1add
 
-    scfac(ircrap)     = sc1a
-    dscfacdt(ircrap)  = sc1adt
-    !dscfacdd(ircrap)  = sc1add
-
-    ratdum(irmnpa)    = ratraw(irmnpa) * sc1a
-    dratdumdt(irmnpa) = dratrawdt(irmnpa)*sc1a + ratraw(irmnpa)*sc1adt
-    !dratdumdd(irmnpa) = dratrawdd(irmnpa)*sc1a + ratraw(irmnpa)*sc1add
-
-    scfac(irmnpa)     = sc1a
-    dscfacdt(irmnpa)  = sc1adt
-    !dscfacdd(irmnpa)  = sc1add
+    ratraw = rr % rates(1,irmnpa)
+    rr % rates(1,irmnpa) = ratraw * sc1a
+    rr % rates(2,irmnpa) = rr % rates(2,irmnpa)*sc1a + ratraw*sc1adt
+    !dratdumdd(irmnpa) = dratrawdd(irmnpa)*sc1a + rr % rates(1,irmnpa)*sc1add
 
 
     jscr = jscr + 1
     call screen5(state,jscr,sc1a,sc1adt,sc1add)
 
     ! mn51(p,g)fe52
-    ratdum(irmnpg)    = ratraw(irmnpg) * sc1a
-    dratdumdt(irmnpg) = dratrawdt(irmnpg)*sc1a + ratraw(irmnpg)*sc1adt
-    !dratdumdd(irmnpg) = dratrawdd(irmnpg)*sc1a + ratraw(irmnpg)*sc1add
+    ratraw = rr % rates(1,irmnpg)
+    rr % rates(1,irmnpg) = ratraw * sc1a
+    rr % rates(2,irmnpg) = rr % rates(2,irmnpg)*sc1a + ratraw*sc1adt
+    !dratdumdd(irmnpg) = dratrawdd(irmnpg)*sc1a + rr % rates(1,irmnpg)*sc1add
 
-    scfac(irmnpg)     = sc1a
-    dscfacdt(irmnpg)  = sc1adt
-    !dscfacdd(irmnpg)  = sc1add
-
-    ratdum(irfegp)    = ratraw(irfegp) * sc1a
-    dratdumdt(irfegp) = dratrawdt(irfegp)*sc1a + ratraw(irfegp)*sc1adt
-    !dratdumdd(irfegp) = dratrawdd(irfegp)*sc1a + ratraw(irfegp)*sc1add
-
-    scfac(irfegp)     = sc1a
-    dscfacdt(irfegp)  = sc1adt
-    !dscfacdd(irfegp)  = sc1add
-
+    ratraw = rr % rates(1,irfegp)
+    rr % rates(1,irfegp) = ratraw * sc1a
+    rr % rates(2,irfegp) = rr % rates(2,irfegp)*sc1a + ratraw*sc1adt
+    !dratdumdd(irfegp) = dratrawdd(irfegp)*sc1a + rr % rates(1,irfegp)*sc1add
 
 
     ! fe52 to ni56
@@ -1755,39 +1567,27 @@ contains
 
 
     ! fe52(a,g)ni56
-    ratdum(irfeag)    = ratraw(irfeag) * sc1a
-    dratdumdt(irfeag) = dratrawdt(irfeag)*sc1a + ratraw(irfeag)*sc1adt
-    !dratdumdd(irfeag) = dratrawdd(irfeag)*sc1a + ratraw(irfeag)*sc1add
+    ratraw = rr % rates(1,irfeag)
+    rr % rates(1,irfeag) = ratraw * sc1a
+    rr % rates(2,irfeag) = rr % rates(2,irfeag)*sc1a + ratraw*sc1adt
+    !dratdumdd(irfeag) = dratrawdd(irfeag)*sc1a + rr % rates(1,irfeag)*sc1add
 
-    scfac(irfeag)     = sc1a
-    dscfacdt(irfeag)  = sc1adt
-    !dscfacdd(irfeag)  = sc1add
-
-    ratdum(irniga)    = ratraw(irniga) * sc1a
-    dratdumdt(irniga) = dratrawdt(irniga)*sc1a + ratraw(irniga)*sc1adt
-    !dratdumdd(irniga) = dratrawdd(irniga)*sc1a + ratraw(irniga)*sc1add
-
-    scfac(irniga)     = sc1a
-    dscfacdt(irniga)  = sc1adt
-    !dscfacdd(irniga)  = sc1add
+    ratraw = rr % rates(1,irniga)
+    rr % rates(1,irniga) = ratraw * sc1a
+    rr % rates(2,irniga) = rr % rates(2,irniga)*sc1a + ratraw*sc1adt
+    !dratdumdd(irniga) = dratrawdd(irniga)*sc1a + rr % rates(1,irniga)*sc1add
 
 
     ! fe52(a,p)co55
-    ratdum(irfeap) = ratraw(irfeap) * sc1a
-    dratdumdt(irfeap) = dratrawdt(irfeap)*sc1a + ratraw(irfeap)*sc1adt
-    !dratdumdd(irfeap) = dratrawdd(irfeap)*sc1a + ratraw(irfeap)*sc1add
+    ratraw = rr % rates(1,irfeap)
+    rr % rates(1,irfeap) = ratraw * sc1a
+    rr % rates(2,irfeap) = rr % rates(2,irfeap)*sc1a + ratraw*sc1adt
+    !dratdumdd(irfeap) = dratrawdd(irfeap)*sc1a + rr % rates(1,irfeap)*sc1add
 
-    scfac(irfeap)     = sc1a
-    dscfacdt(irfeap)  = sc1adt
-    !dscfacdd(irfeap)  = sc1add
-
-    ratdum(ircopa)    = ratraw(ircopa) * sc1a
-    dratdumdt(ircopa) = dratrawdt(ircopa)*sc1a + ratraw(ircopa)*sc1adt
-    !dratdumdd(ircopa) = dratrawdd(ircopa)*sc1a + ratraw(ircopa)*sc1add
-
-    scfac(ircopa)     = sc1a
-    dscfacdt(ircopa)  = sc1adt
-    !dscfacdd(ircopa)  = sc1add
+    ratraw = rr % rates(1,ircopa)
+    rr % rates(1,ircopa) = ratraw * sc1a
+    rr % rates(2,ircopa) = rr % rates(2,ircopa)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircopa) = dratrawdd(ircopa)*sc1a + rr % rates(1,ircopa)*sc1add
 
 
     jscr = jscr + 1
@@ -1795,136 +1595,129 @@ contains
 
 
     ! co55(p,g)ni56
-    ratdum(ircopg)    = ratraw(ircopg) * sc1a
-    dratdumdt(ircopg) = dratrawdt(ircopg)*sc1a + ratraw(ircopg)*sc1adt
-    !dratdumdd(ircopg) = dratrawdd(ircopg)*sc1a + ratraw(ircopg)*sc1add
+    ratraw = rr % rates(1,ircopg)
+    rr % rates(1,ircopg) = ratraw * sc1a
+    rr % rates(2,ircopg) = rr % rates(2,ircopg)*sc1a + ratraw*sc1adt
+    !dratdumdd(ircopg) = dratrawdd(ircopg)*sc1a + rr % rates(1,ircopg)*sc1add
 
-    scfac(ircopg)     = sc1a
-    dscfacdt(ircopg)  = sc1adt
-    !dscfacdd(ircopg)  = sc1add
-
-    ratdum(irnigp)    = ratraw(irnigp) * sc1a
-    dratdumdt(irnigp) = dratrawdt(irnigp)*sc1a + ratraw(irnigp)*sc1adt
-    !dratdumdd(irnigp) = dratrawdd(irnigp)*sc1a + ratraw(irnigp)*sc1add
-
-    scfac(irnigp)     = sc1a
-    dscfacdt(irnigp)  = sc1adt
-    !dscfacdd(irniga)  = sc1add
-
+    ratraw = rr % rates(1,irnigp)
+    rr % rates(1,irnigp) = ratraw * sc1a
+    rr % rates(2,irnigp) = rr % rates(2,irnigp)*sc1a + ratraw*sc1adt
+    !dratdumdd(irnigp) = dratrawdd(irnigp)*sc1a + rr % rates(1,irnigp)*sc1add
 
 
     ! now form those lovely dummy proton link rates
 
     ! mg24(a,p)27al(p,g)28si
-    ratdum(irr1)     = 0.0d0
-    dratdumdt(irr1)  = 0.0d0
+    rr % rates(1,irr1)  = 0.0d0
+    rr % rates(2,irr1)  = 0.0d0
     !dratdumdd(irr1)  = 0.0d0
-    denom    = ratdum(iralpa) + ratdum(iralpg)
-    denomdt  = dratdumdt(iralpa) + dratdumdt(iralpg)
+    denom    = rr % rates(1,iralpa) + rr % rates(1,iralpg)
+    denomdt  = rr % rates(2,iralpa) + rr % rates(2,iralpg)
     !denomdd  = dratdumdd(iralpa) + dratdumdd(iralpg)
     if (denom .gt. 1.0d-30) then
        zz = 1.0d0/denom
-       ratdum(irr1)    = ratdum(iralpa)*zz
-       dratdumdt(irr1) = (dratdumdt(iralpa) - ratdum(irr1)*denomdt)*zz
-       !dratdumdd(irr1) = (dratdumdd(iralpa) - ratdum(irr1)*denomdd)*zz
+       rr % rates(1,irr1) = rr % rates(1,iralpa)*zz
+       rr % rates(2,irr1) = (rr % rates(2,iralpa) - rr % rates(1,irr1)*denomdt)*zz
+       !dratdumdd(irr1) = (dratdumdd(iralpa) - rr % rates(1,irr1)*denomdd)*zz
     end if
 
     ! si28(a,p)p31(p,g)s32
-    ratdum(irs1)     = 0.0d0
-    dratdumdt(irs1)  = 0.0d0
+    rr % rates(1,irs1)  = 0.0d0
+    rr % rates(2,irs1)  = 0.0d0
     !dratdumdd(irs1)  = 0.0d0
-    denom    = ratdum(irppa) + ratdum(irppg)
-    denomdt  = dratdumdt(irppa) + dratdumdt(irppg)
+    denom    = rr % rates(1,irppa) + rr % rates(1,irppg)
+    denomdt  = rr % rates(2,irppa) + rr % rates(2,irppg)
     !denomdd  = dratdumdd(irppa) + dratdumdd(irppg)
     if (denom .gt. 1.0d-30) then
        zz = 1.0d0/denom
-       ratdum(irs1)    = ratdum(irppa)*zz
-       dratdumdt(irs1) = (dratdumdt(irppa) - ratdum(irs1)*denomdt)*zz
-       !dratdumdd(irs1) = (dratdumdd(irppa) - ratdum(irs1)*denomdd)*zz
+       rr % rates(1,irs1) = rr % rates(1,irppa)*zz
+       rr % rates(2,irs1) = (rr % rates(2,irppa) - rr % rates(1,irs1)*denomdt)*zz
+       !dratdumdd(irs1) = (dratdumdd(irppa) - rr % rates(1,irs1)*denomdd)*zz
     end if
 
     ! s32(a,p)cl35(p,g)ar36
-    ratdum(irt1)     = 0.0d0
-    dratdumdt(irt1)  = 0.0d0
+    rr % rates(1,irt1)  = 0.0d0
+    rr % rates(2,irt1)  = 0.0d0
     !dratdumdd(irt1)  = 0.0d0
-    denom    = ratdum(irclpa) + ratdum(irclpg)
-    denomdt  = dratdumdt(irclpa) + dratdumdt(irclpg)
+    denom    = rr % rates(1,irclpa) + rr % rates(1,irclpg)
+    denomdt  = rr % rates(2,irclpa) + rr % rates(2,irclpg)
     !denomdd  = dratdumdd(irclpa) + dratdumdd(irclpg)
     if (denom .gt. 1.0d-30) then
        zz = 1.0d0/denom
-       ratdum(irt1)    = ratdum(irclpa)*zz
-       dratdumdt(irt1) = (dratdumdt(irclpa) - ratdum(irt1)*denomdt)*zz
-       !dratdumdd(irt1) = (dratdumdd(irclpa) - ratdum(irt1)*denomdd)*zz
+       rr % rates(1,irt1) = rr % rates(1,irclpa)*zz
+       rr % rates(2,irt1) = (rr % rates(2,irclpa) - rr % rates(1,irt1)*denomdt)*zz
+       !dratdumdd(irt1) = (dratdumdd(irclpa) - rr % rates(1,irt1)*denomdd)*zz
     end if
 
     ! ar36(a,p)k39(p,g)ca40
-    ratdum(iru1)     = 0.0d0
-    dratdumdt(iru1)  = 0.0d0
+    rr % rates(1,iru1)  = 0.0d0
+    rr % rates(2,iru1)  = 0.0d0
     !dratdumdd(iru1)  = 0.0d0
-    denom    = ratdum(irkpa) + ratdum(irkpg)
-    denomdt  = dratdumdt(irkpa) + dratdumdt(irkpg)
+    denom    = rr % rates(1,irkpa) + rr % rates(1,irkpg)
+    denomdt  = rr % rates(2,irkpa) + rr % rates(2,irkpg)
     !denomdd  = dratdumdd(irkpa) + dratdumdd(irkpg)
     if (denom .gt. 1.0d-30) then
        zz   = 1.0d0/denom
-       ratdum(iru1)   = ratdum(irkpa)*zz
-       dratdumdt(iru1) = (dratdumdt(irkpa) - ratdum(iru1)*denomdt)*zz
-       !dratdumdd(iru1) = (dratdumdd(irkpa) - ratdum(iru1)*denomdd)*zz
+       rr % rates(1,iru1)   = rr % rates(1,irkpa)*zz
+       rr % rates(2,iru1) = (rr % rates(2,irkpa) - rr % rates(1,iru1)*denomdt)*zz
+       !dratdumdd(iru1) = (dratdumdd(irkpa) - rr % rates(1,iru1)*denomdd)*zz
     end if
 
     ! ca40(a,p)sc43(p,g)ti44
-    ratdum(irv1)     = 0.0d0
-    dratdumdt(irv1)  = 0.0d0
+    rr % rates(1,irv1)  = 0.0d0
+    rr % rates(2,irv1)  = 0.0d0
     !dratdumdd(irv1)  = 0.0d0
-    denom    = ratdum(irscpa) + ratdum(irscpg)
-    denomdt  = dratdumdt(irscpa) + dratdumdt(irscpg)
+    denom    = rr % rates(1,irscpa) + rr % rates(1,irscpg)
+    denomdt  = rr % rates(2,irscpa) + rr % rates(2,irscpg)
     !denomdd  = dratdumdd(irscpa) + dratdumdd(irscpg)
     if (denom .gt. 1.0d-30) then
        zz  = 1.0d0/denom
-       ratdum(irv1)    = ratdum(irscpa)*zz
-       dratdumdt(irv1) = (dratdumdt(irscpa) - ratdum(irv1)*denomdt)*zz
-       !dratdumdd(irv1) = (dratdumdd(irscpa) - ratdum(irv1)*denomdd)*zz
+       rr % rates(1,irv1) = rr % rates(1,irscpa)*zz
+       rr % rates(2,irv1) = (rr % rates(2,irscpa) - rr % rates(1,irv1)*denomdt)*zz
+       !dratdumdd(irv1) = (dratdumdd(irscpa) - rr % rates(1,irv1)*denomdd)*zz
     end if
 
     ! ti44(a,p)v47(p,g)cr48
-    ratdum(irw1)    = 0.0d0
-    dratdumdt(irw1) = 0.0d0
+    rr % rates(1,irw1) = 0.0d0
+    rr % rates(2,irw1) = 0.0d0
     !dratdumdd(irw1) = 0.0d0
-    denom    = ratdum(irvpa) + ratdum(irvpg)
-    denomdt  = dratdumdt(irvpa) + dratdumdt(irvpg)
+    denom    = rr % rates(1,irvpa) + rr % rates(1,irvpg)
+    denomdt  = rr % rates(2,irvpa) + rr % rates(2,irvpg)
     !denomdd  = dratdumdd(irvpa) + dratdumdd(irvpg)
     if (denom .gt. 1.0d-30) then
        zz = 1.0d0/denom
-       ratdum(irw1)    = ratdum(irvpa)*zz
-       dratdumdt(irw1) = (dratdumdt(irvpa) - ratdum(irw1)*denomdt)*zz
-       !dratdumdd(irw1) = (dratdumdd(irvpa) - ratdum(irw1)*denomdd)*zz
+       rr % rates(1,irw1) = rr % rates(1,irvpa)*zz
+       rr % rates(2,irw1) = (rr % rates(2,irvpa) - rr % rates(1,irw1)*denomdt)*zz
+       !dratdumdd(irw1) = (dratdumdd(irvpa) - rr % rates(1,irw1)*denomdd)*zz
     end if
 
     ! cr48(a,p)mn51(p,g)fe52
-    ratdum(irx1)    = 0.0d0
-    dratdumdt(irx1) = 0.0d0
+    rr % rates(1,irx1) = 0.0d0
+    rr % rates(2,irx1) = 0.0d0
     !dratdumdd(irx1) = 0.0d0
-    denom    = ratdum(irmnpa) + ratdum(irmnpg)
-    denomdt  = dratdumdt(irmnpa) + dratdumdt(irmnpg)
+    denom    = rr % rates(1,irmnpa) + rr % rates(1,irmnpg)
+    denomdt  = rr % rates(2,irmnpa) + rr % rates(2,irmnpg)
     !denomdd  = dratdumdd(irmnpa) + dratdumdd(irmnpg)
     if (denom .gt. 1.0d-30) then
        zz = 1.0d0/denom
-       ratdum(irx1)    = ratdum(irmnpa)*zz
-       dratdumdt(irx1) = (dratdumdt(irmnpa) - ratdum(irx1)*denomdt)*zz
-       !dratdumdd(irx1) = (dratdumdd(irmnpa) - ratdum(irx1)*denomdd)*zz
+       rr % rates(1,irx1) = rr % rates(1,irmnpa)*zz
+       rr % rates(2,irx1) = (rr % rates(2,irmnpa) - rr % rates(1,irx1)*denomdt)*zz
+       !dratdumdd(irx1) = (dratdumdd(irmnpa) - rr % rates(1,irx1)*denomdd)*zz
     endif
 
     ! fe52(a,p)co55(p,g)ni56
-    ratdum(iry1)    = 0.0d0
-    dratdumdt(iry1) = 0.0d0
+    rr % rates(1,iry1) = 0.0d0
+    rr % rates(2,iry1) = 0.0d0
     !dratdumdd(iry1) = 0.0d0
-    denom    = ratdum(ircopa) + ratdum(ircopg)
-    denomdt  = dratdumdt(ircopa) + dratdumdt(ircopg)
+    denom    = rr % rates(1,ircopa) + rr % rates(1,ircopg)
+    denomdt  = rr % rates(2,ircopa) + rr % rates(2,ircopg)
     !denomdd  = dratdumdd(ircopa) + dratdumdd(ircopg)
     if (denom .gt. 1.0d-30) then
        zz = 1.0d0/denom
-       ratdum(iry1)    = ratdum(ircopa)*zz
-       dratdumdt(iry1) = (dratdumdt(ircopa) - ratdum(iry1)*denomdt)*zz
-       !dratdumdd(iry1) = (dratdumdd(ircopa) - ratdum(iry1)*denomdd)*zz
+       rr % rates(1,iry1) = rr % rates(1,ircopa)*zz
+       rr % rates(2,iry1) = (rr % rates(2,ircopa) - rr % rates(1,iry1)*denomdt)*zz
+       !dratdumdd(iry1) = (dratdumdd(ircopa) - rr % rates(1,iry1)*denomdd)*zz
     end if
 
   end subroutine screen_aprox13

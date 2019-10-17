@@ -4,7 +4,6 @@ module cuvode_dvstep_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
 
   use cuvode_dvset_module
   use cuvode_dvjust_module
@@ -17,6 +16,9 @@ module cuvode_dvstep_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvstep(IWM, rwork, vstate)
 
     !$acc routine seq
@@ -76,7 +78,11 @@ contains
     !           whose real name is dependent on the method used.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only: f_rhs, jac
+#else
     use vode_rhs_module, only: f_rhs, jac
+#endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
@@ -219,7 +225,7 @@ contains
 
     do J = 2, vstate % L
        R = R * vstate % ETA
-       CALL DSCALN (VODE_NEQS, R, rwork % YH(1:VODE_NEQS,J), 1)
+       rwork % YH(:,J) = rwork % YH(:,J) * R
     end do
     vstate % H = vstate % HSCAL * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -289,11 +295,11 @@ contains
     end do
     vstate % TAU(1) = vstate % H
     do J = 1, vstate % L
-       CALL DAXPYN(VODE_NEQS, vstate % EL(J), rwork % acor, 1, rwork % yh(:,J), 1)
+       rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
     end do
     vstate % NQWAIT = vstate % NQWAIT - 1
     IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,VODE_LMAX), 1)
+    rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
     
     vstate % CONP = vstate % TQ(5)
 490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
@@ -401,7 +407,7 @@ contains
 620 continue
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
-    CALL DCOPYN(VODE_NEQS, rwork % acor, 1, rwork % yh(:,VODE_LMAX), 1)
+    rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
     vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
@@ -433,7 +439,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    CALL DSCALN (VODE_NEQS, R, rwork % acor, 1)
+    rwork % acor(:) = rwork % acor(:) * R
 
 720 continue
     vstate % JSTART = 1

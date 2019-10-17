@@ -279,7 +279,6 @@ contains
 
   subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
-    !$gpu
 
     implicit none
     
@@ -310,6 +309,7 @@ contains
     double precision :: ri, T9, T9_exp, lnirate, irate, dirate_dt, dlnirate_dt
     integer :: i, j, m, istart
 
+    !$gpu
     ri = 0.0d0
     rate = 0.0d0
     drate_dt = 0.0d0

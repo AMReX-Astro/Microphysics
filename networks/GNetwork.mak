@@ -53,7 +53,6 @@ else ifeq ($(INTEGRATOR_DIR),VODE90)
   # Include VODE90 and the linear algebra modules it relies on
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source
-  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/linear_algebra_modules
 
 else
 
@@ -62,6 +61,7 @@ else
 endif
 
 INT_DIRS += $(MICROPHYSICS_HOME)/integration
+INT_DIRS += $(MICROPHYSICS_HOME)/integration/utils
 
 # we'll assume that all integrators need the linear algebra packages
 INT_DIRS += $(MICROPHYSICS_HOME)/util/

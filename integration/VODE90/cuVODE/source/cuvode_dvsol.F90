@@ -12,6 +12,9 @@ module cuvode_dvsol_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvsol(WM, IWM, IERSL, vstate)
 
     !$acc routine seq
@@ -65,8 +68,7 @@ contains
     IERSL = 0
     GO TO (100, 100, 300, 400, 400), vstate % MITER
 100 continue
-    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, VODE_NEQS, &
-         IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
+    CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), vstate % Y(:))
     RETURN
 
 300 continue
@@ -94,7 +96,7 @@ contains
     ML = IWM(1)
     MU = IWM(2)
     MEBAND = 2*ML + MU + 1
-    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, &
+    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, &
          ML, MU, IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
     RETURN
   end subroutine dvsol

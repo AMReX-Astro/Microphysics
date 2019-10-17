@@ -5,8 +5,6 @@ module cuvode_dvjac_module
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
-  use blas_module
-
   use cuvode_dacopy_module
 
   use cuvode_constants_module
@@ -15,6 +13,9 @@ module cuvode_dvjac_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvjac(IWM, IERPJ, rwork, vstate)
 
     !$acc routine seq
@@ -76,7 +77,11 @@ contains
     !               JCUR = 1 means J is current.
     ! -----------------------------------------------------------------------
     ! 
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only: f_rhs, jac
+#else
     use vode_rhs_module, only: f_rhs, jac
+#endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
@@ -120,8 +125,9 @@ contains
        CALL JAC (vstate % TN, vstate % Y, 0, 0, &
             rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          do I = 0, LENP-1
+             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+          end do
        endif
     ENDIF
 
@@ -150,22 +156,24 @@ contains
        vstate % NFE = vstate % NFE + VODE_NEQS
        LENP = VODE_NEQS * VODE_NEQS
        if (vstate % JSV .EQ. 1) then
-          CALL DCOPYN (LENP, rwork % WM(3:3 + LENP - 1), 1, &
-               rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1)
+          do I = 0, LENP-1
+             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+          end do
        end if
     ENDIF
 
     IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
        vstate % JCUR = 0
        LENP = VODE_NEQS * VODE_NEQS
-       CALL DCOPYN (LENP, rwork % WM(vstate % LOCJS:vstate % LOCJS + LENP - 1), 1, &
-            rwork % WM(3:3 + LENP - 1), 1)
+       do I = 0, LENP - 1
+           rwork % WM(3 + I) = rwork % WM(vstate % LOCJS + I)
+       end do
     ENDIF
 
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
        CON = -HRL1
-       CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1)
+       rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
        J = 3
        NP1 = VODE_NEQS + 1
        do I = 1,VODE_NEQS
@@ -173,8 +181,7 @@ contains
           J = J + NP1
        end do
        vstate % NLU = vstate % NLU + 1
-       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, &
-            VODE_NEQS, IWM(31:31 + VODE_NEQS - 1), IER)
+       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), IER)
        IF (IER .NE. 0) IERPJ = 1
        RETURN
     ENDIF
@@ -279,14 +286,14 @@ contains
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition.
     CON = -HRL1
-    CALL DSCALN (LENP, CON, rwork % WM(3:3 + LENP - 1), 1 )
+    rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
     II = MBAND + 2
     do I = 1,VODE_NEQS
        rwork % WM(II) = rwork % WM(II) + ONE
        II = II + MEBAND
     end do
     vstate % NLU = vstate % NLU + 1
-    CALL DGBFA (rwork % WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, VODE_NEQS, ML, &
+    CALL DGBFA (rwork % WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, ML, &
          MU, IWM(31:31 + VODE_NEQS - 1), IER)
     if (IER .NE. 0) then
        IERPJ = 1

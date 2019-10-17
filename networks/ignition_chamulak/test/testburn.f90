@@ -12,20 +12,20 @@ program testburn
 
   real(rt) :: dens, temp, dt
   real(rt), dimension(nspec) :: Xin
-  type(burn_t) :: state_in, state_out 
+  type(burn_t) :: state_in, state_out
 
   call microphysics_init()
 
   dens = 2.6e9_rt
   temp = 6.e8_rt
 
-  Xin(ic12_)  = 0.5_rt
-  Xin(io16_)  = 0.5_rt
-  Xin(iash_)  = 0.0_rt
+  Xin(ic12)  = 0.5_rt
+  Xin(io16)  = 0.5_rt
+  Xin(iash)  = 0.0_rt
 
   dt = 0.06_rt
 
-  
+
   print *, 'calling the burner...', nspec, nspec_evolve, neqs
 
   state_in % rho = dens

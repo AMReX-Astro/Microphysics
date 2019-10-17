@@ -4,7 +4,6 @@ module cuvode_dvjust_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
 
   use cuvode_constants_module
 
@@ -12,6 +11,9 @@ module cuvode_dvjust_module
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvjust(IORD, rwork, vstate)
 
     !$acc routine seq
@@ -53,7 +55,14 @@ contains
     IF ((vstate % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN
     NQM1 = vstate % NQ - 1
     NQM2 = vstate % NQ - 2
-    GO TO (100, 200), vstate % METH
+
+    select case (vstate % METH)
+    case (1)
+       go to 100
+    case (2)
+       go to 200
+    end select
+
     ! -----------------------------------------------------------------------
     !  Nonstiff option...
     !  Check to see if the order is being increased or decreased.
@@ -162,8 +171,7 @@ contains
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPYN(VODE_NEQS, vstate % EL(J), &
-            rwork % YH(1:VODE_NEQS, LP1), 1, rwork % YH(1:VODE_NEQS, J), 1)
+       rwork % YH(:,J) = rwork % YH(:,J) + vstate % EL(J) * rwork % YH(:,LP1)
     end do
     RETURN
   end subroutine dvjust

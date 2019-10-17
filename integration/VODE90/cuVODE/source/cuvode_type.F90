@@ -2,10 +2,10 @@ module cuvode_types_module
 
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
-  use rpar_indices, only: n_rpar_comps
+  use vode_rpar_indices, only: n_rpar_comps
 
   use cuvode_constants_module
-  
+
   implicit none
 
   ! Type dvode_t contains the integration solution and control variables
@@ -15,7 +15,7 @@ module cuvode_types_module
      real(rt) :: ACNRM, CCMXJ, CONP, CRATE, DRC, EL(13)
      real(rt) :: ETA, ETAMAX, H, HMIN, HMXI, HNEW, HSCAL, PRL1
      real(rt) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
-     integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST     
+     integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
      integer    :: L, LENWM
      integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
@@ -48,11 +48,11 @@ module cuvode_types_module
      real(rt) :: ewt(VODE_NEQS)
      real(rt) :: savf(VODE_NEQS)
      real(rt) :: acor(VODE_NEQS)
-  end type rwork_t  
-  
+  end type rwork_t
+
 contains
 
-#ifndef AMREX_USE_CUDA  
+#ifndef AMREX_USE_CUDA
   subroutine print_state(dvode_state)
     type(dvode_t) :: dvode_state
 
@@ -139,5 +139,5 @@ contains
     write(*,*) 'NSLP = ', dvode_state % NSLP
   end subroutine print_state
 #endif
-  
+
 end module cuvode_types_module

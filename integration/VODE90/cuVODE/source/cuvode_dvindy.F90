@@ -4,15 +4,15 @@ module cuvode_dvindy_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
-
-  use blas_module
-
   use cuvode_constants_module
 
   implicit none
 
 contains
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine dvindy(vstate, rwork, IFLAG)
   
     !$acc routine seq
@@ -117,7 +117,7 @@ contains
 55  continue
     R = vstate % H**(-K)
 
-    CALL DSCALN (VODE_NEQS, R, vstate % Y, 1)
+    vstate % Y(:) = vstate % Y(:) * R
     RETURN
 
 80  continue

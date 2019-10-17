@@ -13,6 +13,10 @@ ifneq ($(INTEGRATOR_DIR), VODE90)
   VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/LINPACK
 
   include $(MICROPHYSICS_UTIL_PATH)/LINPACK/Make.package
+else
+  ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
+    DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
+  endif
 endif
 
 ifneq ($(USE_SYSTEM_BLAS), TRUE)
@@ -22,14 +26,6 @@ ifneq ($(USE_SYSTEM_BLAS), TRUE)
 
     include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
   endif
-endif
-
-ifeq ($(INTEGRATOR_DIR), VODE90)
-  CUVODE_PATH := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE
-  INCLUDE_LOCATIONS += $(CUVODE_PATH)/linear_algebra_modules
-  VPATH_LOCATIONS   += $(CUVODE_PATH)/linear_algebra_modules
-
-  include $(CUVODE_PATH)/linear_algebra_modules/Make.package
 endif
 
 VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks

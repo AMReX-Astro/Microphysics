@@ -14,11 +14,11 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
-    use actual_rhs_module, only: actual_rhs
+    use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, &
-         integrate_temperature, integrate_energy
+         integrate_temperature, integrate_energy, react_boost
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
 
     implicit none
 
@@ -27,8 +27,6 @@ contains
     real(rt), intent(INOUT) :: ydot(VODE_NEQS)
 
     type (burn_t) :: burn_state
-
-    real(rt) :: limit_factor, t_sound, t_enuc
 
     !$gpu
 
@@ -44,12 +42,6 @@ contains
 
     call clean_state(y, rpar)
 
-    ! Renormalize the abundances as necessary.
-
-    if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
-    endif
-
     ! Update the thermodynamics as necessary.
 
     call update_thermodynamics(y, rpar)
@@ -58,8 +50,8 @@ contains
 
     call vode_to_burn(y, rpar, burn_state)
 
-    burn_state % time = time
-    call actual_rhs(burn_state)
+    burn_state % time = rpar(irp_t0) + time
+    call network_rhs(burn_state)
 
     ! We integrate X, not Y
     burn_state % ydot(1:nspec_evolve) = &
@@ -74,6 +66,11 @@ contains
        burn_state % ydot(net_ienuc) = ZERO
     endif
 
+    ! apply fudge factor:
+    if (react_boost > ZERO) then
+       burn_state % ydot(:) = react_boost * burn_state % ydot(:)
+    endif
+
     call burn_to_vode(burn_state, y, rpar, ydot = ydot)
 
   end subroutine f_rhs
@@ -81,18 +78,19 @@ contains
 
 
   ! Analytical Jacobian
+
   subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
     !$acc routine seq
     
     use network, only: aion, aion_inv, nspec_evolve
     use amrex_constants_module, only: ZERO
-    use actual_rhs_module, only: actual_jac
+    use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
-    use rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
     use amrex_fort_module, only: rt => amrex_real
-    use extern_probin_module, only: integrate_temperature, integrate_energy
+    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
 
     implicit none
 
@@ -101,7 +99,6 @@ contains
     real(rt), intent(  OUT) :: pd(VODE_NEQS,VODE_NEQS)
 
     type (burn_t) :: state
-    real(rt) :: limit_factor, t_sound, t_enuc
     integer :: n
 
     !$gpu
@@ -109,14 +106,19 @@ contains
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
-    state % time = time
-    call actual_jac(state)
+    state % time = rpar(irp_t0) + time
+    call network_jac(state)
 
     ! We integrate X, not Y
     do n = 1, nspec_evolve
        state % jac(n,:) = state % jac(n,:) * aion(n)
        state % jac(:,n) = state % jac(:,n) * aion_inv(n)
     enddo
+
+    ! apply fudge factor:
+    if (react_boost > ZERO) then
+       state % jac(:,:) = react_boost * state % jac(:,:)
+    endif
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
