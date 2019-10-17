@@ -1,6 +1,7 @@
 module actual_conductivity_module
 
   use amrex_fort_module, only : rt => amrex_real
+  use amrex_error_module, only : amrex_error
 
   implicit none
 
@@ -34,7 +35,7 @@ contains
 
     print*,'Reading thermal conductivity data...'
 
-    read(1,'(A)') ! skip the first line
+    read(unit,'(A)') ! skip the first line
 
     do iz = 1, MAXZ
        read(unit,*) Z, (AT(it), it = 1,MAXT)
@@ -49,12 +50,27 @@ contains
 
   subroutine actual_conductivity(state)
 
-    use eos_type_module, only: eos_t
-    use network, only : zion, aion, nspec
+    use eos_type_module, only: eos_t, composition
 
     implicit none
 
     type(eos_t), intent(inout) :: state
+
+    real(rt) :: rlg, tlg, ck, drk, dtk, zbar
+
+    ! unpack the state
+    rlg = log10(state % rho)
+    tlg = log10(state % T)
+
+    ! compute zbar
+    call composition(state)
+    zbar = state % zbar
+
+    ! call the conductivity routine
+    call coninter(zbar, tlg, rlg, ck, drk, dtk)
+
+    ! it returned the log, so we need to delog it and store it in the state
+    state % conductivity = 10.0_rt**ck
 
   end subroutine actual_conductivity
 
@@ -108,6 +124,7 @@ contains
 
     call HUNT(AT, MAXT, TLG, it)
     if (it == 0 .or. it == MAXT) then
+       print *, "tlg: ", tlg
        call amrex_error('CONINTER: T out of range')
     end if
 
