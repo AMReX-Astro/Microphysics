@@ -178,42 +178,16 @@ contains
     double precision :: xnew, xtol, dvdx, smallx, error, v
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
-    double precision :: x,y,zz,zzi,deni,tempi, &
-                        dpepdt,dpepdd,deepdt,deepdd,dsepdd,dsepdt, &
-                        dpraddd,dpraddt,deraddd,deraddt,dpiondd,dpiondt, &
-                        deiondd,deiondt,dsraddd,dsraddt,dsiondd,dsiondt, &
-                        dse,dpe,dsp,kt,ktinv,prad,erad,srad,pion,eion, &
-                        sion,xnem,pele,eele,sele,pres,ener,entr,dpresdd, &
+    double precision :: x,y,z,zz,zzi,deni,tempi, &
+                        dse,dpe,dsp,kt,ktinv, &
+                        pres,ener,entr,dpresdd, &
                         dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
                         gam1,gam2,gam3,chit,chid,nabad,sound,etaele, &
                         detadt,detadd,xnefer,dxnedt,dxnedd,s, &
-                        temp,den,abar,zbar,ytot1,ye
+                        temp,den,abar,zbar,ytot1,ye,din,pele
 
-    !..for the abar derivatives
-    double precision :: dpradda,deradda,dsradda, &
-                        dpionda,deionda,dsionda, &
-                        dpepda,deepda,dsepda,    &
-                        dpresda,denerda,dentrda, &
-                        detada,dxneda
-
-
-    !..for the zbar derivatives
-    double precision :: dpraddz,deraddz,dsraddz, &
-                        dpiondz,deiondz,dsiondz, &
-                        dpepdz,deepdz,dsepdz,    &
-                        dpresdz,denerdz,dentrdz ,&
-                        detadz,dxnedz
-
-    !..for the interpolations
-    integer          :: iat,jat
-    double precision :: free,df_d,df_t,df_tt,df_dt
-    double precision :: xt,xd,mxt,mxd, &
-                        si0t,si1t,si2t,si0mt,si1mt,si2mt, &
-                        si0d,si1d,si2d,si0md,si1md,si2md, &
-                        dsi0t,dsi1t,dsi2t,dsi0mt,dsi1mt,dsi2mt, &
-                        dsi0d,dsi1d,dsi2d,dsi0md,dsi1md,dsi2md, &
-                        ddsi0t,ddsi1t,ddsi2t,ddsi0mt,ddsi1mt,ddsi2mt, &
-                        z,din,fi(36)
+    double precision :: dpresda, denerda, dentrda
+    double precision :: dpresdz, denerdz, dentrdz
 
     double precision :: smallt, smalld
 
@@ -347,34 +321,9 @@ contains
        ktinv   = 1.0d0/kt
 
        call apply_radiation(deni, temp, tempi, &
-                            prad, dpraddd, dpraddt, dpradda, dpraddz, &
-                            erad, deraddd, deraddt, deradda, deraddz, &
-                            srad, dsraddd, dsraddt, dsradda, dsraddz)
-
-       pres    = prad
-       ener    = erad
-       entr    = srad
-
-       dpresdd = dpraddd
-       dpresdt = dpraddt
-#ifdef EXTRA_THERMO
-       dpresda = dpradda
-       dpresdz = dpraddz
-#endif
-
-       denerdd = deraddd
-       denerdt = deraddt
-#ifdef EXTRA_THERMO
-       denerda = deradda
-       denerdz = deraddz
-#endif
-
-       dentrdd = dsraddd
-       dentrdt = dsraddt
-#ifdef EXTRA_THERMO
-       dentrda = dsradda
-       dentrdz = dsraddz
-#endif
+                            pres, dpresdd, dpresdt, dpresda, dpresdz, &
+                            ener, denerdd, denerdt, denerda, denerdz, &
+                            entr, dentrdd, dentrdt, dentrda, dentrdz)
 
        call apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
@@ -1156,16 +1105,20 @@ contains
 
   
   subroutine apply_radiation(deni, temp, tempi, &
-                             prad, dpraddd, dpraddt, dpradda, dpraddz, &
-                             erad, deraddd, deraddt, deradda, deraddz, &
-                             srad, dsraddd, dsraddt, dsradda, dsraddz)
+                             pres, dpresdd, dpresdt, dpresda, dpresdz, &
+                             ener, denerdd, denerdt, denerda, denerdz, &
+                             entr, dentrdd, dentrdt, dentrda, dentrdz)
 
     implicit none
 
     double precision, intent(in   ) :: deni, temp, tempi
-    double precision, intent(inout) :: prad, dpraddd, dpraddt, dpradda, dpraddz
-    double precision, intent(inout) :: erad, deraddd, deraddt, deradda, deraddz
-    double precision, intent(inout) :: srad, dsraddd, dsraddt, dsradda, dsraddz
+    double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
+    double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
+    double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
+
+    double precision :: prad, dpraddd, dpraddt, dpradda, dpraddz
+    double precision :: erad, deraddd, deraddt, deradda, deraddz
+    double precision :: srad, dsraddd, dsraddt, dsradda, dsraddz
 
     prad    = asoli3 * temp * temp * temp * temp
     dpraddd = 0.0d0
@@ -1189,6 +1142,35 @@ contains
 #ifdef EXTRA_THERMO
     dsradda = 0.0d0
     dsraddz = 0.0d0
+#endif
+
+    ! Note that unlike the other terms, radiation
+    ! sets these terms instead of adding to them,
+    ! since it comes first.
+
+    pres    = prad
+    ener    = erad
+    entr    = srad
+
+    dpresdd = dpraddd
+    dpresdt = dpraddt
+#ifdef EXTRA_THERMO
+    dpresda = dpradda
+    dpresdz = dpraddz
+#endif
+
+    denerdd = deraddd
+    denerdt = deraddt
+#ifdef EXTRA_THERMO
+    denerda = deradda
+    denerdz = deraddz
+#endif
+
+    dentrdd = dsraddd
+    dentrdt = dsraddt
+#ifdef EXTRA_THERMO
+    dentrda = dsradda
+    dentrdz = dsraddz
 #endif
 
   end subroutine apply_radiation
