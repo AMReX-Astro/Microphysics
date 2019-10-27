@@ -1,5 +1,1 @@
 F90EXE_sources += actual_eos.F90
-F90EXE_sources += helmholtz_constants.F90
-F90EXE_sources += coulomb.F90
-F90EXE_sources += helmholtz_radiation.F90
-F90EXE_sources += helmholtz_ions.F90
