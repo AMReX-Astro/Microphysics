@@ -136,37 +136,7 @@ contains
     integer, parameter :: max_newton = 100
 
     !..rows to store EOS data
-    double precision :: temp_row, &
-                        den_row, &
-                        abar_row, &
-                        zbar_row, &
-                        ye_row, &
-                        etot_row, &
-                        ptot_row, &
-                        cv_row, &
-                        cp_row,  &
-                        xne_row, &
-                        xnp_row, &
-                        etaele_row, &
-                        pele_row, &
-                        ppos_row, &
-                        dpd_row,  &
-                        dpt_row, &
-                        dpa_row, &
-                        dpz_row,  &
-                        ded_row, &
-                        det_row, &
-                        dea_row,  &
-                        dez_row,  &
-                        stot_row, &
-                        dsd_row, &
-                        dst_row, &
-                        htot_row, &
-                        dhd_row, &
-                        dht_row, &
-                        dpe_row, &
-                        dpdr_e_row, &
-                        gam1_row
+    double precision :: temp_row, den_row
 
     !..declare local variables
 
@@ -197,9 +167,6 @@ contains
 
     temp_row = state % T
     den_row  = state % rho
-    abar_row = state % abar
-    zbar_row = state % zbar
-    ye_row   = state % y_e
 
     ! Initial setup for iterations
 
@@ -263,39 +230,43 @@ contains
 
     endif
 
-    ptot_row = 0.0d0
-    dpt_row = 0.0d0
-    dpd_row = 0.0d0
-    dpa_row = 0.0d0
-    dpz_row = 0.0d0
-    dpe_row = 0.0d0
-    dpdr_e_row = 0.0d0
+    state % p = 0.0d0
+    state % dpdT = 0.0d0
+    state % dpdr = 0.0d0
+#ifdef EXTRA_THERMO
+    state % dpdA = 0.0d0
+    state % dpdZ = 0.0d0
+#endif
+    state % dpde = 0.0d0
+    state % dpdr_e = 0.0d0
 
-    etot_row = 0.0d0
-    det_row = 0.0d0
-    ded_row = 0.0d0
-    dea_row = 0.0d0
-    dez_row = 0.0d0
+    state % e = 0.0d0
+    state % dedT = 0.0d0
+    state % dedr = 0.0d0
+#ifdef EXTRA_THERMO
+    state % dedA = 0.0d0
+    state % dedZ = 0.0d0
+#endif
 
-    stot_row = 0.0d0
-    dst_row = 0.0d0
-    dsd_row = 0.0d0
+    state % s = 0.0d0
+    state % dsdT = 0.0d0
+    state % dsdr = 0.0d0
 
-    htot_row = 0.0d0
-    dhd_row = 0.0d0
-    dht_row = 0.0d0
+    state % h = 0.0d0
+    state % dhdr = 0.0d0
+    state % dhdT = 0.0d0
 
-    pele_row = 0.0d0
-    ppos_row = 0.0d0
+    state % pele = 0.0d0
+    state % ppos = 0.0d0
 
-    xne_row = 0.0d0
-    xnp_row = 0.0d0
+    state % xne = 0.0d0
+    state % xnp = 0.0d0
 
-    etaele_row = 0.0d0
+    state % eta = 0.0d0
 
-    cv_row = 0.0d0
-    cp_row = 0.0d0
-    gam1_row = 0.0d0
+    state % cv = 0.0d0
+    state % cp = 0.0d0
+    state % gam1 = 0.0d0
 
     converged = .false.
 
@@ -305,11 +276,11 @@ contains
 
        temp  = temp_row
        den   =  den_row
-       abar  = abar_row
-       zbar  = zbar_row
+       abar  = state % abar
+       zbar  = state % zbar
 
        ytot1 = 1.0d0 / abar
-       ye    = ye_row
+       ye    = state % y_e
 
        !..initialize
        deni    = 1.0d0/den
@@ -358,43 +329,43 @@ contains
        gam1  = chit*x + chid
        cp    = cv * gam1/chid
 
-       ptot_row = pres
-       dpt_row = dpresdt
-       dpd_row = dpresdd
+       state % p = pres
+       state % dpdT = dpresdt
+       state % dpdr = dpresdd
 #ifdef EXTRA_THERMO
-       dpa_row = dpresda
-       dpz_row = dpresdz
+       state % dpdA = dpresda
+       state % dpdZ = dpresdz
 #endif
-       dpe_row = dpresdt / denerdt
-       dpdr_e_row = dpresdd - dpresdt * denerdd / denerdt
+       state % dpde = dpresdt / denerdt
+       state % dpdr_e = dpresdd - dpresdt * denerdd / denerdt
 
-       etot_row = ener
-       det_row = denerdt
-       ded_row = denerdd
+       state % e = ener
+       state % dedT = denerdt
+       state % dedr = denerdd
 #ifdef EXTRA_THERMO
-       dea_row = denerda
-       dez_row = denerdz
+       state % dedA = denerda
+       state % dedZ = denerdz
 #endif
 
-       stot_row = entr
-       dst_row = dentrdt
-       dsd_row = dentrdd
+       state % s = entr
+       state % dsdT = dentrdt
+       state % dsdr = dentrdd
 
-       htot_row = ener + pres / den
-       dhd_row = denerdd + dpresdd / den - pres / den**2
-       dht_row = denerdt + dpresdt / den
+       state % h = ener + pres / den
+       state % dhdr = denerdd + dpresdd / den - pres / den**2
+       state % dhdT = denerdt + dpresdt / den
 
-       pele_row = pele
-       ppos_row = 0.0d0
+       state % pele = pele
+       state % ppos = 0.0d0
 
-       xne_row = xnefer
-       xnp_row = 0.0d0
+       state % xne = xnefer
+       state % xnp = 0.0d0
 
-       etaele_row = etaele
+       state % eta = etaele
 
-       cv_row = cv
-       cp_row = cp
-       gam1_row = gam1
+       state % cv = cv
+       state % cp = cp
+       state % gam1 = gam1
 
        if (converged) then
 
@@ -409,17 +380,17 @@ contains
              xtol = ttol
 
              if (var .eq. ipres) then
-                v    = ptot_row
-                dvdx = dpt_row
+                v    = state % p
+                dvdx = state % dpdT
              elseif (var .eq. iener) then
-                v    = etot_row
-                dvdx = det_row
+                v    = state % e
+                dvdx = state % dedT
              elseif (var .eq. ientr) then
-                v    = stot_row
-                dvdx = dst_row
+                v    = state % s
+                dvdx = state % dsdT
              elseif (var .eq. ienth) then
-                v    = htot_row
-                dvdx = dht_row
+                v    = state % h
+                dvdx = state % dhdT
              else
                 exit
              endif
@@ -431,17 +402,17 @@ contains
              xtol = dtol
 
              if (var .eq. ipres) then
-                v    = ptot_row
-                dvdx = dpd_row
+                v    = state % p
+                dvdx = state % dpdr
              elseif (var .eq. iener) then
-                v    = etot_row
-                dvdx = ded_row
+                v    = state % e
+                dvdx = state % dedr
              elseif (var .eq. ientr) then
-                v    = stot_row
-                dvdx = dsd_row
+                v    = state % s
+                dvdx = state % dsdr
              elseif (var .eq. ienth) then
-                v    = htot_row
-                dvdx = dhd_row
+                v    = state % h
+                dvdx = state % dhdr
              else
                 exit
              endif
@@ -480,41 +451,41 @@ contains
           rold = den_row
 
           if (var1 .eq. ipres) then
-             v1    = ptot_row
-             dv1dt = dpt_row
-             dv1dr = dpd_row
+             v1    = state % p
+             dv1dt = state % dpdT
+             dv1dr = state % dpdr
           elseif (var1 .eq. iener) then
-             v1    = etot_row
-             dv1dt = det_row
-             dv1dr = ded_row
+             v1    = state % e
+             dv1dt = state % dedT
+             dv1dr = state % dedr
           elseif (var1 .eq. ientr) then
-             v1    = stot_row
-             dv1dt = dst_row
-             dv1dr = dsd_row
+             v1    = state % s
+             dv1dt = state % dsdT
+             dv1dr = state % dsdr
           elseif (var1 .eq. ienth) then
-             v1    = htot_row
-             dv1dt = dht_row
-             dv1dr = dhd_row
+             v1    = state % h
+             dv1dt = state % dhdT
+             dv1dr = state % dhdr
           else
              exit
           endif
 
           if (var2 .eq. ipres) then
-             v2    = ptot_row
-             dv2dt = dpt_row
-             dv2dr = dpd_row
+             v2    = state % p
+             dv2dt = state % dpdT
+             dv2dr = state % dpdr
           elseif (var2 .eq. iener) then
-             v2    = etot_row
-             dv2dt = det_row
-             dv2dr = ded_row
+             v2    = state % e
+             dv2dt = state % dedT
+             dv2dr = state % dedr
           elseif (var2 .eq. ientr) then
-             v2    = stot_row
-             dv2dt = dst_row
-             dv2dr = dsd_row
+             v2    = state % s
+             dv2dt = state % dsdT
+             dv2dr = state % dsdr
           elseif (var2 .eq. ienth) then
-             v2    = htot_row
-             dv2dt = dht_row
-             dv2dr = dhd_row
+             v2    = state % h
+             dv2dt = state % dhdT
+             dv2dr = state % dhdr
           else
              exit
           endif
@@ -560,47 +531,6 @@ contains
 
     state % T    = temp_row
     state % rho  = den_row
-
-    state % p    = ptot_row
-    state % dpdT = dpt_row
-    state % dpdr = dpd_row
-
-#ifdef EXTRA_THERMO
-    state % dpdA = dpa_row
-    state % dpdZ = dpz_row
-#endif
-
-    state % dpde = dpe_row
-    state % dpdr_e = dpdr_e_row
-
-    state % e    = etot_row
-    state % dedT = det_row
-    state % dedr = ded_row
-
-#ifdef EXTRA_THERMO
-    state % dedA = dea_row
-    state % dedZ = dez_row
-#endif
-
-    state % s    = stot_row
-    state % dsdT = dst_row
-    state % dsdr = dsd_row
-
-    state % h    = htot_row
-    state % dhdR = dhd_row
-    state % dhdT = dht_row
-
-    state % pele = pele_row
-    state % ppos = ppos_row
-
-    state % xne = xne_row
-    state % xnp = xnp_row
-
-    state % eta = etaele_row
-
-    state % cv   = cv_row
-    state % cp   = cp_row
-    state % gam1 = gam1_row
 
     ! Take care of final housekeeping.
 
