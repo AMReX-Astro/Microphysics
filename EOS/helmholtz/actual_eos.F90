@@ -230,8 +230,6 @@ contains
 
     endif
 
-    call clear_state(state)
-
     converged = .false.
 
     if (input .eq. eos_input_rt) converged = .true.
@@ -1248,54 +1246,6 @@ contains
     dentrdz = dentrdz + dscouldz
 
   end subroutine apply_coulomb_corrections
-
-
-
-  subroutine clear_state(state)
-
-    implicit none
-
-    type(eos_t), intent(inout) :: state
-    
-    state % p = 0.0d0
-    state % dpdT = 0.0d0
-    state % dpdr = 0.0d0
-#ifdef EXTRA_THERMO
-    state % dpdA = 0.0d0
-    state % dpdZ = 0.0d0
-#endif
-    state % dpde = 0.0d0
-    state % dpdr_e = 0.0d0
-
-    state % e = 0.0d0
-    state % dedT = 0.0d0
-    state % dedr = 0.0d0
-#ifdef EXTRA_THERMO
-    state % dedA = 0.0d0
-    state % dedZ = 0.0d0
-#endif
-
-    state % s = 0.0d0
-    state % dsdT = 0.0d0
-    state % dsdr = 0.0d0
-
-    state % h = 0.0d0
-    state % dhdr = 0.0d0
-    state % dhdT = 0.0d0
-
-    state % pele = 0.0d0
-    state % ppos = 0.0d0
-
-    state % xne = 0.0d0
-    state % xnp = 0.0d0
-
-    state % eta = 0.0d0
-
-    state % cv = 0.0d0
-    state % cp = 0.0d0
-    state % gam1 = 0.0d0
-
-  end subroutine clear_state
 
 
 
