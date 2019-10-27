@@ -167,6 +167,10 @@ contains
 
     temp_row = state % T
     den_row  = state % rho
+    abar  = state % abar
+    zbar  = state % zbar
+    ytot1 = 1.0d0 / abar
+    ye    = state % y_e
 
     ! Initial setup for iterations
 
@@ -238,11 +242,6 @@ contains
 
        temp  = temp_row
        den   =  den_row
-       abar  = state % abar
-       zbar  = state % zbar
-
-       ytot1 = 1.0d0 / abar
-       ye    = state % y_e
 
        !..initialize
        deni    = 1.0d0/den
