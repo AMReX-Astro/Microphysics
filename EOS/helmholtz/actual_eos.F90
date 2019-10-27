@@ -357,36 +357,36 @@ contains
                        eion, deiondd, deiondt, deionda, deiondz, &
                        sion, dsiondd, dsiondt, dsionda, dsiondz)
 
+       pres    = prad + pion
+       ener    = erad + eion
+       entr    = srad + sion
+
+       dpresdd = dpraddd + dpiondd
+       dpresdt = dpraddt + dpiondt
+#ifdef EXTRA_THERMO
+       dpresda = dpradda + dpionda
+       dpresdz = dpraddz + dpiondz
+#endif
+
+       denerdd = deraddd + deiondd
+       denerdt = deraddt + deiondt
+#ifdef EXTRA_THERMO
+       denerda = deradda + deionda
+       denerdz = deraddz + deiondz
+#endif
+
+       dentrdd = dsraddd + dsiondd
+       dentrdt = dsraddt + dsiondt
+#ifdef EXTRA_THERMO
+       dentrda = dsradda + dsionda
+       dentrdz = dsraddz + dsiondz
+#endif
+
        call apply_electrons(den, temp, ye, ytot1, xni, zbar, &
-                            pele, dpepdt, dpepdd, dpepda, dpepdz, &
-                            sele, dsepdt, dsepdd, dsepda, dsepdz, &
-                            eele, deepdt, deepdd, deepda, deepdz, &
+                            pres, dpresdt, dpresdd, dpresda, dpresdz, &
+                            entr, dentrdt, dentrdd, dentrda, dentrdz, &
+                            ener, denerdt, denerdd, denerda, denerdz, &
                             etaele, detadt, detadd, xnefer)
-
-       pres    = prad + pion + pele
-       ener    = erad + eion + eele
-       entr    = srad + sion + sele
-
-       dpresdd = dpraddd + dpiondd + dpepdd
-       dpresdt = dpraddt + dpiondt + dpepdt
-#ifdef EXTRA_THERMO
-       dpresda = dpradda + dpionda + dpepda
-       dpresdz = dpraddz + dpiondz + dpepdz
-#endif
-
-       denerdd = deraddd + deiondd + deepdd
-       denerdt = deraddt + deiondt + deepdt
-#ifdef EXTRA_THERMO
-       denerda = deradda + deionda + deepda
-       denerdz = deraddz + deiondz + deepdz
-#endif
-
-       dentrdd = dsraddd + dsiondd + dsepdd
-       dentrdt = dsraddt + dsiondt + dsepdt
-#ifdef EXTRA_THERMO
-       dentrda = dsradda + dsionda + dsepda
-       dentrdz = dsraddz + dsiondz + dsepdz
-#endif
 
        if (do_coulomb) then
 
@@ -724,19 +724,22 @@ contains
 
 
   subroutine apply_electrons(den, temp, ye, ytot1, xni, zbar, &
-                             pele, dpepdt, dpepdd, dpepda, dpepdz, &
-                             sele, dsepdt, dsepdd, dsepda, dsepdz, &
-                             eele, deepdt, deepdd, deepda, deepdz, &
+                             pres, dpresdt, dpresdd, dpresda, dpresdz, &
+                             entr, dentrdt, dentrdd, dentrda, dentrdz, &
+                             ener, denerdt, denerdd, denerda, denerdz, &
                              etaele, detadt, detadd, xnefer)
 
     implicit none
 
     double precision, intent(in   ) :: den, temp, ye, ytot1, xni, zbar
-    double precision, intent(inout) :: pele, dpepdt, dpepdd, dpepda, dpepdz
-    double precision, intent(inout) :: sele, dsepdt, dsepdd, dsepda, dsepdz
-    double precision, intent(inout) :: eele, deepdt, deepdd, deepda, deepdz
+    double precision, intent(inout) :: pres, dpresdt, dpresdd, dpresda, dpresdz
+    double precision, intent(inout) :: entr, dentrdt, dentrdd, dentrda, dentrdz
+    double precision, intent(inout) :: ener, denerdt, denerdd, denerda, denerdz
     double precision, intent(inout) :: etaele, detadt, detadd, xnefer
 
+    double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
+    double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
+    double precision :: eele, deepdt, deepdd, deepda, deepdz
     double precision :: dxnedt, dxnedd, xnem, din, x, s
 
     !..for the interpolations
@@ -1037,6 +1040,30 @@ contains
 #ifdef EXTRA_THERMO
     deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
     deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+#endif
+
+    pres    = pres + pele
+    dpresdt = dpresdt + dpepdt
+    dpresdd = dpresdd + dpepdd
+#ifdef EXTRA_THERMO
+    dpresda = dpresda + dpepda
+    dpresdz = dpresdz + dpepedz
+#endif
+
+    entr    = entr + sele
+    dentrdt = dentrdt + dsepdt
+    dentrdd = dentrdd + dsepdd
+#ifdef EXTRA_THERMO
+    dentrda = dentrda + dsepda
+    dentrdz = dentrdz + dsepdz
+#endif
+
+    ener    = ener + eele
+    denerdt = denerdt + deepdt
+    denerdd = denerdd + deepdd
+#ifdef EXTRA_THERMO
+    denerda = denerda + deepda
+    denerdz = denerdz + deepdz
 #endif
 
   end subroutine apply_electrons
