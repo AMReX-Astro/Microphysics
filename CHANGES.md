@@ -146,7 +146,7 @@ changes since last release:
   * the VODE integrator now does some additional checks on the
     state to ensure consistency (PR #47)
 
-* 17.09
+# 17.09
 
   * a new rety mechanism was implemented that allows a different
     integrator to be used if the primary integrator fails
@@ -156,7 +156,7 @@ changes since last release:
     Carl Fields for this contribution.  Pull request #40
 
 
-* 17.08
+# 17.08
 
   * fix to aprox21 from Aron Michel (HITS) that fills in missing
     reactions
@@ -169,14 +169,14 @@ changes since last release:
   * add stellar conductivities from Frank Timmes
 
 
-* 17.06
+# 17.06
 
   * a new Fortran 90 port of VODE has been added
 
   * the unit tests now require AMReX instead of BoxLib to build
 
 
-* 17.01
+# 17.01
 
   * we've removed the option to integrate molar fractions and instead
     the ODE system always operates on mass fractions (the networks
@@ -184,7 +184,7 @@ changes since last release:
     converted).
 
 
-* 16.12
+# 16.12
 
   * a new unit test, test_sdc, was created to test the SDC interface
     to the networks
@@ -194,7 +194,7 @@ changes since last release:
   * the VODE integrator now supports SDC integration
 
 
-* 16.09
+# 16.09
 
   * num_rate_groups is now a property of the individual networks
 
@@ -209,7 +209,7 @@ changes since last release:
     burner and hydro was added to the BS integrator
 
 
-* 16.08
+# 16.08
 
   * Microphysics/eos/ has been renamed Microphysics/EOS/ to better
     conform to the conventions used in Castro and Maestro
@@ -248,7 +248,7 @@ changes since last release:
   * a centered difference numerical Jacobian option was added
 
 
-* 16.07
+# 16.07
 
   * we now use MICROPHYSICS_HOME instead of MICROPHYSICS_DIR as the
     environment variable to point to the Microphysics/ directory.
