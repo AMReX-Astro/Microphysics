@@ -166,8 +166,7 @@ contains
                         dht_row, &
                         dpe_row, &
                         dpdr_e_row, &
-                        gam1_row, &
-                        cs_row
+                        gam1_row
 
     !..declare local variables
 
@@ -182,9 +181,9 @@ contains
                         kt,ktinv, &
                         pres,ener,entr,dpresdd, &
                         dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
-                        gam1,gam2,gam3,chit,chid,nabad,sound,etaele, &
+                        gam1,chit,chid,etaele, &
                         detadt,detadd,xnefer,dxnedt,dxnedd,s, &
-                        temp,den,abar,zbar,ytot1,ye,din,pele
+                        temp,den,abar,zbar,ytot1,ye,pele
 
     double precision :: dpresda, denerda, dentrda
     double precision :: dpresdz, denerdz, dentrdz
@@ -296,7 +295,6 @@ contains
 
     cv_row = 0.0d0
     cp_row = 0.0d0
-    cs_row = 0.0d0
     gam1_row = 0.0d0
 
     converged = .false.
@@ -312,7 +310,6 @@ contains
 
        ytot1 = 1.0d0 / abar
        ye    = ye_row
-       din   = ye * den
 
        !..initialize
        deni    = 1.0d0/den
@@ -358,13 +355,8 @@ contains
        chid  = dpresdd*zzi
        cv    = denerdt
        x     = zz * chit/(temp * cv)
-       gam3  = x + 1.0d0
        gam1  = chit*x + chid
-       nabad = x/gam1
-       gam2  = 1.0d0/(1.0d0 - nabad)
        cp    = cv * gam1/chid
-       z     = 1.0d0 + (ener + light2)*zzi
-       sound = clight * sqrt(gam1/z)
 
        ptot_row = pres
        dpt_row = dpresdt
@@ -402,7 +394,6 @@ contains
 
        cv_row = cv
        cp_row = cp
-       cs_row = sound
        gam1_row = gam1
 
        if (converged) then
@@ -610,7 +601,6 @@ contains
     state % cv   = cv_row
     state % cp   = cp_row
     state % gam1 = gam1_row
-    ! state % cs   = cs_row
 
     ! Take care of final housekeeping.
 
