@@ -103,6 +103,7 @@ contains
       
         use amrex_constants_module, only: ZERO, HALF, TWO
         use coulomb_module, only: apply_coulomb_corrections
+        use helmholtz_radiation_module, only: apply_radiation
 
         implicit none
 
@@ -164,7 +165,6 @@ contains
                             detadt,detadd,xnefer,dxnedt,dxnedd,s, &
                             temp,den,abar,zbar,ytot1,ye
 
-#ifdef EXTRA_THERMO
         !..for the abar derivatives
         double precision :: dpradda,deradda,dsradda, &
                             dpionda,deionda,dsionda, &
@@ -179,8 +179,6 @@ contains
                             dpepdz,deepdz,dsepdz,    &
                             dpresdz,denerdz,dentrdz ,&
                             detadz,dxnedz
-#endif
-
 
         !..for the interpolations
         integer          :: iat,jat
@@ -329,30 +327,10 @@ contains
            kt      = kerg * temp
            ktinv   = 1.0d0/kt
 
-           !..radiation section:
-           prad    = asoli3 * temp * temp * temp * temp
-           dpraddd = 0.0d0
-           dpraddt = 4.0d0 * prad*tempi
-#ifdef EXTRA_THERMO
-           dpradda = 0.0d0
-           dpraddz = 0.0d0
-#endif
-
-           erad    = 3.0d0 * prad*deni
-           deraddd = -erad*deni
-           deraddt = 3.0d0 * dpraddt*deni
-#ifdef EXTRA_THERMO
-           deradda = 0.0d0
-           deraddz = 0.0d0
-#endif
-
-           srad    = (prad*deni + erad)*tempi
-           dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
-           dsraddt = (dpraddt*deni + deraddt - srad)*tempi
-#ifdef EXTRA_THERMO
-           dsradda = 0.0d0
-           dsraddz = 0.0d0
-#endif
+           call apply_radiation(deni, temp, tempi, &
+                                prad, dpraddd, dpraddt, dpradda, dpraddz, &
+                                erad, deraddd, deraddt, deradda, deraddz, &
+                                srad, dsraddd, dsraddt, dsradda, dsraddz)
 
            !..ion section:
            xni     = avo_eos * ytot1 * den
