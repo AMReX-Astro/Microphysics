@@ -179,7 +179,7 @@ contains
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
     double precision :: x,y,z,zz,zzi,deni,tempi, &
-                        dse,dpe,dsp,kt,ktinv, &
+                        kt,ktinv, &
                         pres,ener,entr,dpresdd, &
                         dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
                         gam1,gam2,gam3,chit,chid,nabad,sound,etaele, &
@@ -365,12 +365,6 @@ contains
        cp    = cv * gam1/chid
        z     = 1.0d0 + (ener + light2)*zzi
        sound = clight * sqrt(gam1/z)
-
-       !..maxwell relations; each is zero if the consistency is perfect
-       x   = den * den
-       dse = temp*dentrdt/denerdt - 1.0d0
-       dpe = (denerdd*x + temp*dpresdt)/pres - 1.0d0
-       dsp = -dentrdd*x/dpresdt - 1.0d0
 
        ptot_row = pres
        dpt_row = dpresdt
