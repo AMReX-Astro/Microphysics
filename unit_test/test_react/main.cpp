@@ -145,12 +145,12 @@ void main_main ()
 
     }
 
-    // What time is it now?  We'll use this to compute total react time.
-    Real strt_time = ParallelDescriptor::second();
-
     // allocate a multifab for the number of RHS calls
     // so we can manually do the reductions (for GPU)
     iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
+
+    // What time is it now?  We'll use this to compute total react time.
+    Real strt_time = ParallelDescriptor::second();
 
     // Do the reactions
 #ifdef _OPENMP
@@ -169,6 +169,12 @@ void main_main ()
 	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
 		     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
     }
+
+    // Call the timer again and compute the maximum difference between
+    // the start time and stop time over all processors
+    Real stop_time = ParallelDescriptor::second() - strt_time;
+    const int IOProc = ParallelDescriptor::IOProcessorNumber();
+    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     int n_rhs_min = integrator_n_rhs.min(0);
     int n_rhs_max = integrator_n_rhs.max(0);
@@ -194,13 +200,6 @@ void main_main ()
     int n = 0;
 
     WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
-
-
-    // Call the timer again and compute the maximum difference between
-    // the start time and stop time over all processors
-    Real stop_time = ParallelDescriptor::second() - strt_time;
-    const int IOProc = ParallelDescriptor::IOProcessorNumber();
-    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
