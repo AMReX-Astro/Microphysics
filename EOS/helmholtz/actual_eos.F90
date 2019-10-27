@@ -339,310 +339,11 @@ contains
                            eion, deiondd, deiondt, deionda, deiondz, &
                            sion, dsiondd, dsiondt, dsionda, dsiondz)
 
-           !..electron-positron section:
-           !..assume complete ionization
-           xnem    = xni * zbar
-
-           !..enter the table with ye*den
-           din = ye*den
-
-           !..hash locate this temperature and density
-           jat = int((log10(temp) - tlo)*tstpi) + 1
-           jat = max(1,min(jat,jtmax-1))
-           iat = int((log10(din) - dlo)*dstpi) + 1
-           iat = max(1,min(iat,itmax-1))
-
-           !..access the table locations only once
-           fi(1)  = f(iat,jat)
-           fi(2)  = f(iat+1,jat)
-           fi(3)  = f(iat,jat+1)
-           fi(4)  = f(iat+1,jat+1)
-           fi(5)  = ft(iat,jat)
-           fi(6)  = ft(iat+1,jat)
-           fi(7)  = ft(iat,jat+1)
-           fi(8)  = ft(iat+1,jat+1)
-           fi(9)  = ftt(iat,jat)
-           fi(10) = ftt(iat+1,jat)
-           fi(11) = ftt(iat,jat+1)
-           fi(12) = ftt(iat+1,jat+1)
-           fi(13) = fd(iat,jat)
-           fi(14) = fd(iat+1,jat)
-           fi(15) = fd(iat,jat+1)
-           fi(16) = fd(iat+1,jat+1)
-           fi(17) = fdd(iat,jat)
-           fi(18) = fdd(iat+1,jat)
-           fi(19) = fdd(iat,jat+1)
-           fi(20) = fdd(iat+1,jat+1)
-           fi(21) = fdt(iat,jat)
-           fi(22) = fdt(iat+1,jat)
-           fi(23) = fdt(iat,jat+1)
-           fi(24) = fdt(iat+1,jat+1)
-           fi(25) = fddt(iat,jat)
-           fi(26) = fddt(iat+1,jat)
-           fi(27) = fddt(iat,jat+1)
-           fi(28) = fddt(iat+1,jat+1)
-           fi(29) = fdtt(iat,jat)
-           fi(30) = fdtt(iat+1,jat)
-           fi(31) = fdtt(iat,jat+1)
-           fi(32) = fdtt(iat+1,jat+1)
-           fi(33) = fddtt(iat,jat)
-           fi(34) = fddtt(iat+1,jat)
-           fi(35) = fddtt(iat,jat+1)
-           fi(36) = fddtt(iat+1,jat+1)
-
-           !..various differences
-           xt  = max( (temp - t(jat))*dti_sav(jat), 0.0d0)
-           xd  = max( (din - d(iat))*ddi_sav(iat), 0.0d0)
-           mxt = 1.0d0 - xt
-           mxd = 1.0d0 - xd
-
-           !..the six density and six temperature basis functions
-           si0t =   psi0(xt)
-           si1t =   psi1(xt)*dt_sav(jat)
-           si2t =   psi2(xt)*dt2_sav(jat)
-
-           si0mt =  psi0(mxt)
-           si1mt = -psi1(mxt)*dt_sav(jat)
-           si2mt =  psi2(mxt)*dt2_sav(jat)
-
-           si0d =   psi0(xd)
-           si1d =   psi1(xd)*dd_sav(iat)
-           si2d =   psi2(xd)*dd2_sav(iat)
-
-           si0md =  psi0(mxd)
-           si1md = -psi1(mxd)*dd_sav(iat)
-           si2md =  psi2(mxd)*dd2_sav(iat)
-
-           !..derivatives of the weight functions
-           dsi0t =   dpsi0(xt)*dti_sav(jat)
-           dsi1t =   dpsi1(xt)
-           dsi2t =   dpsi2(xt)*dt_sav(jat)
-
-           dsi0mt = -dpsi0(mxt)*dti_sav(jat)
-           dsi1mt =  dpsi1(mxt)
-           dsi2mt = -dpsi2(mxt)*dt_sav(jat)
-
-           dsi0d =   dpsi0(xd)*ddi_sav(iat)
-           dsi1d =   dpsi1(xd)
-           dsi2d =   dpsi2(xd)*dd_sav(iat)
-
-           dsi0md = -dpsi0(mxd)*ddi_sav(iat)
-           dsi1md =  dpsi1(mxd)
-           dsi2md = -dpsi2(mxd)*dd_sav(iat)
-
-           !..second derivatives of the weight functions
-           ddsi0t =   ddpsi0(xt)*dt2i_sav(jat)
-           ddsi1t =   ddpsi1(xt)*dti_sav(jat)
-           ddsi2t =   ddpsi2(xt)
-
-           ddsi0mt =  ddpsi0(mxt)*dt2i_sav(jat)
-           ddsi1mt = -ddpsi1(mxt)*dti_sav(jat)
-           ddsi2mt =  ddpsi2(mxt)
-
-           !     ddsi0d =   ddpsi0(xd)*dd2i_sav(iat)
-           !     ddsi1d =   ddpsi1(xd)*ddi_sav(iat)
-           !     ddsi2d =   ddpsi2(xd)
-
-           !     ddsi0md =  ddpsi0(mxd)*dd2i_sav(iat)
-           !     ddsi1md = -ddpsi1(mxd)*ddi_sav(iat)
-           !     ddsi2md =  ddpsi2(mxd)
-
-
-           !..the free energy
-           free  = h5( fi, &
-                si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-           !..derivative with respect to density
-           df_d  = h5( fi, &
-                si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-                dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
-
-           !..derivative with respect to temperature
-           df_t = h5( fi, &
-                dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
-                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-           !..derivative with respect to density**2
-           !     df_dd = h5( &
-           !               si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-           !               ddsi0d, ddsi1d, ddsi2d, ddsi0md, ddsi1md, ddsi2md)
-
-           !..derivative with respect to temperature**2
-           df_tt = h5( fi, &
-                ddsi0t, ddsi1t, ddsi2t, ddsi0mt, ddsi1mt, ddsi2mt, &
-                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-           !..derivative with respect to temperature and density
-           df_dt = h5( fi, &
-                dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
-                dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
-
-           !..now get the pressure derivative with density, chemical potential, and
-           !..electron positron number densities
-           !..get the interpolation weight functions
-           si0t   =  xpsi0(xt)
-           si1t   =  xpsi1(xt)*dt_sav(jat)
-
-           si0mt  =  xpsi0(mxt)
-           si1mt  =  -xpsi1(mxt)*dt_sav(jat)
-
-           si0d   =  xpsi0(xd)
-           si1d   =  xpsi1(xd)*dd_sav(iat)
-
-           si0md  =  xpsi0(mxd)
-           si1md  =  -xpsi1(mxd)*dd_sav(iat)
-
-           !..derivatives of weight functions
-           dsi0t  = xdpsi0(xt)*dti_sav(jat)
-           dsi1t  = xdpsi1(xt)
-
-           dsi0mt = -xdpsi0(mxt)*dti_sav(jat)
-           dsi1mt = xdpsi1(mxt)
-
-           dsi0d  = xdpsi0(xd)*ddi_sav(iat)
-           dsi1d  = xdpsi1(xd)
-
-           dsi0md = -xdpsi0(mxd)*ddi_sav(iat)
-           dsi1md = xdpsi1(mxd)
-
-           !..look in the pressure derivative only once
-           fi(1)  = dpdf(iat,jat)
-           fi(2)  = dpdf(iat+1,jat)
-           fi(3)  = dpdf(iat,jat+1)
-           fi(4)  = dpdf(iat+1,jat+1)
-           fi(5)  = dpdft(iat,jat)
-           fi(6)  = dpdft(iat+1,jat)
-           fi(7)  = dpdft(iat,jat+1)
-           fi(8)  = dpdft(iat+1,jat+1)
-           fi(9)  = dpdfd(iat,jat)
-           fi(10) = dpdfd(iat+1,jat)
-           fi(11) = dpdfd(iat,jat+1)
-           fi(12) = dpdfd(iat+1,jat+1)
-           fi(13) = dpdfdt(iat,jat)
-           fi(14) = dpdfdt(iat+1,jat)
-           fi(15) = dpdfdt(iat,jat+1)
-           fi(16) = dpdfdt(iat+1,jat+1)
-
-           !..pressure derivative with density
-           dpepdd  = h3(   fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                si0d,   si1d,   si0md,   si1md)
-           dpepdd  = max(ye * dpepdd,0.0d0)
-
-           !..look in the electron chemical potential table only once
-           fi(1)  = ef(iat,jat)
-           fi(2)  = ef(iat+1,jat)
-           fi(3)  = ef(iat,jat+1)
-           fi(4)  = ef(iat+1,jat+1)
-           fi(5)  = eft(iat,jat)
-           fi(6)  = eft(iat+1,jat)
-           fi(7)  = eft(iat,jat+1)
-           fi(8)  = eft(iat+1,jat+1)
-           fi(9)  = efd(iat,jat)
-           fi(10) = efd(iat+1,jat)
-           fi(11) = efd(iat,jat+1)
-           fi(12) = efd(iat+1,jat+1)
-           fi(13) = efdt(iat,jat)
-           fi(14) = efdt(iat+1,jat)
-           fi(15) = efdt(iat,jat+1)
-           fi(16) = efdt(iat+1,jat+1)
-
-           !..electron chemical potential etaele
-           etaele  = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                si0d,   si1d,   si0md,   si1md)
-
-           !..derivative with respect to density
-           x       = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                dsi0d,  dsi1d,  dsi0md,  dsi1md)
-           detadd  = ye * x
-
-           !..derivative with respect to temperature
-           detadt  = h3( fi, &
-                dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-           !..derivative with respect to abar and zbar
-           detada = -x * din * ytot1
-           detadz =  x * den * ytot1
-#endif
-
-           !..look in the number density table only once
-           fi(1)  = xf(iat,jat)
-           fi(2)  = xf(iat+1,jat)
-           fi(3)  = xf(iat,jat+1)
-           fi(4)  = xf(iat+1,jat+1)
-           fi(5)  = xft(iat,jat)
-           fi(6)  = xft(iat+1,jat)
-           fi(7)  = xft(iat,jat+1)
-           fi(8)  = xft(iat+1,jat+1)
-           fi(9)  = xfd(iat,jat)
-           fi(10) = xfd(iat+1,jat)
-           fi(11) = xfd(iat,jat+1)
-           fi(12) = xfd(iat+1,jat+1)
-           fi(13) = xfdt(iat,jat)
-           fi(14) = xfdt(iat+1,jat)
-           fi(15) = xfdt(iat,jat+1)
-           fi(16) = xfdt(iat+1,jat+1)
-
-           !..electron + positron number densities
-           xnefer   = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                si0d,   si1d,   si0md,   si1md)
-
-           !..derivative with respect to density
-           x        = h3( fi, &
-                si0t,   si1t,   si0mt,   si1mt, &
-                dsi0d,  dsi1d,  dsi0md,  dsi1md)
-           x = max(x,0.0d0)
-           dxnedd   = ye * x
-
-           !..derivative with respect to temperature
-           dxnedt   = h3( fi, &
-                dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-           !..derivative with respect to abar and zbar
-           dxneda = -x * din * ytot1
-           dxnedz =  x  * den * ytot1
-#endif
-
-           !..the desired electron-positron thermodynamic quantities
-
-           !..dpepdd at high temperatures and low densities is below the
-           !..floating point limit of the subtraction of two large terms.
-           !..since dpresdd doesn't enter the maxwell relations at all, use the
-           !..bicubic interpolation done above instead of this one
-           x       = din * din
-           pele    = x * df_d
-           dpepdt  = x * df_dt
-           !     dpepdd  = ye * (x * df_dd + 2.0d0 * din * df_d)
-           s       = dpepdd/ye - 2.0d0 * din * df_d
-#ifdef EXTRA_THERMO
-           dpepda  = -ytot1 * (2.0d0 * pele + s * din)
-           dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
-#endif
-
-           x       = ye * ye
-           sele    = -df_t * ye
-           dsepdt  = -df_tt * ye
-           dsepdd  = -df_dt * x
-#ifdef EXTRA_THERMO
-           dsepda  = ytot1 * (ye * df_dt * din - sele)
-           dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
-#endif
-
-           eele    = ye*free + temp * sele
-           deepdt  = temp * dsepdt
-           deepdd  = x * df_d + temp * dsepdd
-#ifdef EXTRA_THERMO
-           deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
-           deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
-#endif
+           call apply_electrons(den, temp, ye, ytot1, xni, zbar, &
+                                pele, dpepdt, dpepdd, dpepda, dpepdz, &
+                                sele, dsepdt, dsepdd, dsepda, dsepdz, &
+                                eele, deepdt, deepdd, deepda, deepdz, &
+                                etaele, detadt, detadd, xnefer)
 
            if (do_coulomb) then
 
@@ -1002,6 +703,327 @@ contains
         endif
 
     end subroutine actual_eos
+
+
+
+
+    subroutine apply_electrons(den, temp, ye, ytot1, xni, zbar, &
+                               pele, dpepdt, dpepdd, dpepda, dpepdz, &
+                               sele, dsepdt, dsepdd, dsepda, dsepdz, &
+                               eele, deepdt, deepdd, deepda, deepdz, &
+                               etaele, detadt, detadd, xnefer)
+
+      implicit none
+
+      double precision, intent(in   ) :: den, temp, ye, ytot1, xni, zbar
+      double precision, intent(inout) :: pele, dpepdt, dpepdd, dpepda, dpepdz
+      double precision, intent(inout) :: sele, dsepdt, dsepdd, dsepda, dsepdz
+      double precision, intent(inout) :: eele, deepdt, deepdd, deepda, deepdz
+      double precision, intent(inout) :: etaele, detadt, detadd, xnefer
+
+      double precision :: dxnedt, dxnedd, xnem, din, x, s
+
+      !..for the interpolations
+      integer          :: iat,jat
+      double precision :: free,df_d,df_t,df_tt,df_dt
+      double precision :: xt,xd,mxt,mxd, &
+                          si0t,si1t,si2t,si0mt,si1mt,si2mt, &
+                          si0d,si1d,si2d,si0md,si1md,si2md, &
+                          dsi0t,dsi1t,dsi2t,dsi0mt,dsi1mt,dsi2mt, &
+                          dsi0d,dsi1d,dsi2d,dsi0md,dsi1md,dsi2md, &
+                          ddsi0t,ddsi1t,ddsi2t,ddsi0mt,ddsi1mt,ddsi2mt, &
+                          fi(36)
+
+      !..assume complete ionization
+      xnem = xni * zbar
+
+      !..enter the table with ye*den
+      din = ye*den
+
+      !..hash locate this temperature and density
+      jat = int((log10(temp) - tlo)*tstpi) + 1
+      jat = max(1,min(jat,jtmax-1))
+      iat = int((log10(din) - dlo)*dstpi) + 1
+      iat = max(1,min(iat,itmax-1))
+
+      !..access the table locations only once
+      fi(1)  = f(iat,jat)
+      fi(2)  = f(iat+1,jat)
+      fi(3)  = f(iat,jat+1)
+      fi(4)  = f(iat+1,jat+1)
+      fi(5)  = ft(iat,jat)
+      fi(6)  = ft(iat+1,jat)
+      fi(7)  = ft(iat,jat+1)
+      fi(8)  = ft(iat+1,jat+1)
+      fi(9)  = ftt(iat,jat)
+      fi(10) = ftt(iat+1,jat)
+      fi(11) = ftt(iat,jat+1)
+      fi(12) = ftt(iat+1,jat+1)
+      fi(13) = fd(iat,jat)
+      fi(14) = fd(iat+1,jat)
+      fi(15) = fd(iat,jat+1)
+      fi(16) = fd(iat+1,jat+1)
+      fi(17) = fdd(iat,jat)
+      fi(18) = fdd(iat+1,jat)
+      fi(19) = fdd(iat,jat+1)
+      fi(20) = fdd(iat+1,jat+1)
+      fi(21) = fdt(iat,jat)
+      fi(22) = fdt(iat+1,jat)
+      fi(23) = fdt(iat,jat+1)
+      fi(24) = fdt(iat+1,jat+1)
+      fi(25) = fddt(iat,jat)
+      fi(26) = fddt(iat+1,jat)
+      fi(27) = fddt(iat,jat+1)
+      fi(28) = fddt(iat+1,jat+1)
+      fi(29) = fdtt(iat,jat)
+      fi(30) = fdtt(iat+1,jat)
+      fi(31) = fdtt(iat,jat+1)
+      fi(32) = fdtt(iat+1,jat+1)
+      fi(33) = fddtt(iat,jat)
+      fi(34) = fddtt(iat+1,jat)
+      fi(35) = fddtt(iat,jat+1)
+      fi(36) = fddtt(iat+1,jat+1)
+
+      !..various differences
+      xt  = max( (temp - t(jat))*dti_sav(jat), 0.0d0)
+      xd  = max( (din - d(iat))*ddi_sav(iat), 0.0d0)
+      mxt = 1.0d0 - xt
+      mxd = 1.0d0 - xd
+
+      !..the six density and six temperature basis functions
+      si0t =   psi0(xt)
+      si1t =   psi1(xt)*dt_sav(jat)
+      si2t =   psi2(xt)*dt2_sav(jat)
+
+      si0mt =  psi0(mxt)
+      si1mt = -psi1(mxt)*dt_sav(jat)
+      si2mt =  psi2(mxt)*dt2_sav(jat)
+
+      si0d =   psi0(xd)
+      si1d =   psi1(xd)*dd_sav(iat)
+      si2d =   psi2(xd)*dd2_sav(iat)
+
+      si0md =  psi0(mxd)
+      si1md = -psi1(mxd)*dd_sav(iat)
+      si2md =  psi2(mxd)*dd2_sav(iat)
+
+      !..derivatives of the weight functions
+      dsi0t =   dpsi0(xt)*dti_sav(jat)
+      dsi1t =   dpsi1(xt)
+      dsi2t =   dpsi2(xt)*dt_sav(jat)
+
+      dsi0mt = -dpsi0(mxt)*dti_sav(jat)
+      dsi1mt =  dpsi1(mxt)
+      dsi2mt = -dpsi2(mxt)*dt_sav(jat)
+
+      dsi0d =   dpsi0(xd)*ddi_sav(iat)
+      dsi1d =   dpsi1(xd)
+      dsi2d =   dpsi2(xd)*dd_sav(iat)
+
+      dsi0md = -dpsi0(mxd)*ddi_sav(iat)
+      dsi1md =  dpsi1(mxd)
+      dsi2md = -dpsi2(mxd)*dd_sav(iat)
+
+      !..second derivatives of the weight functions
+      ddsi0t =   ddpsi0(xt)*dt2i_sav(jat)
+      ddsi1t =   ddpsi1(xt)*dti_sav(jat)
+      ddsi2t =   ddpsi2(xt)
+
+      ddsi0mt =  ddpsi0(mxt)*dt2i_sav(jat)
+      ddsi1mt = -ddpsi1(mxt)*dti_sav(jat)
+      ddsi2mt =  ddpsi2(mxt)
+
+      !..the free energy
+      free  = h5(fi, &
+                 si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
+                 si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+
+      !..derivative with respect to density
+      df_d  = h5(fi, &
+                 si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
+                 dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+
+      !..derivative with respect to temperature
+      df_t = h5(fi, &
+                dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
+                si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+
+      !..derivative with respect to temperature**2
+      df_tt = h5(fi, &
+                 ddsi0t, ddsi1t, ddsi2t, ddsi0mt, ddsi1mt, ddsi2mt, &
+                 si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+
+      !..derivative with respect to temperature and density
+      df_dt = h5(fi, &
+                 dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
+                 dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+
+      !..now get the pressure derivative with density, chemical potential, and
+      !..electron positron number densities
+      !..get the interpolation weight functions
+      si0t   =  xpsi0(xt)
+      si1t   =  xpsi1(xt)*dt_sav(jat)
+
+      si0mt  =  xpsi0(mxt)
+      si1mt  =  -xpsi1(mxt)*dt_sav(jat)
+
+      si0d   =  xpsi0(xd)
+      si1d   =  xpsi1(xd)*dd_sav(iat)
+
+      si0md  =  xpsi0(mxd)
+      si1md  =  -xpsi1(mxd)*dd_sav(iat)
+
+      !..derivatives of weight functions
+      dsi0t  = xdpsi0(xt)*dti_sav(jat)
+      dsi1t  = xdpsi1(xt)
+
+      dsi0mt = -xdpsi0(mxt)*dti_sav(jat)
+      dsi1mt = xdpsi1(mxt)
+
+      dsi0d  = xdpsi0(xd)*ddi_sav(iat)
+      dsi1d  = xdpsi1(xd)
+
+      dsi0md = -xdpsi0(mxd)*ddi_sav(iat)
+      dsi1md = xdpsi1(mxd)
+
+      !..look in the pressure derivative only once
+      fi(1)  = dpdf(iat,jat)
+      fi(2)  = dpdf(iat+1,jat)
+      fi(3)  = dpdf(iat,jat+1)
+      fi(4)  = dpdf(iat+1,jat+1)
+      fi(5)  = dpdft(iat,jat)
+      fi(6)  = dpdft(iat+1,jat)
+      fi(7)  = dpdft(iat,jat+1)
+      fi(8)  = dpdft(iat+1,jat+1)
+      fi(9)  = dpdfd(iat,jat)
+      fi(10) = dpdfd(iat+1,jat)
+      fi(11) = dpdfd(iat,jat+1)
+      fi(12) = dpdfd(iat+1,jat+1)
+      fi(13) = dpdfdt(iat,jat)
+      fi(14) = dpdfdt(iat+1,jat)
+      fi(15) = dpdfdt(iat,jat+1)
+      fi(16) = dpdfdt(iat+1,jat+1)
+
+      !..pressure derivative with density
+      dpepdd  = h3(fi, &
+                   si0t,   si1t,   si0mt,   si1mt, &
+                   si0d,   si1d,   si0md,   si1md)
+      dpepdd  = max(ye * dpepdd,0.0d0)
+
+      !..look in the electron chemical potential table only once
+      fi(1)  = ef(iat,jat)
+      fi(2)  = ef(iat+1,jat)
+      fi(3)  = ef(iat,jat+1)
+      fi(4)  = ef(iat+1,jat+1)
+      fi(5)  = eft(iat,jat)
+      fi(6)  = eft(iat+1,jat)
+      fi(7)  = eft(iat,jat+1)
+      fi(8)  = eft(iat+1,jat+1)
+      fi(9)  = efd(iat,jat)
+      fi(10) = efd(iat+1,jat)
+      fi(11) = efd(iat,jat+1)
+      fi(12) = efd(iat+1,jat+1)
+      fi(13) = efdt(iat,jat)
+      fi(14) = efdt(iat+1,jat)
+      fi(15) = efdt(iat,jat+1)
+      fi(16) = efdt(iat+1,jat+1)
+
+      !..electron chemical potential etaele
+      etaele  = h3(fi, &
+                   si0t,   si1t,   si0mt,   si1mt, &
+                   si0d,   si1d,   si0md,   si1md)
+
+      !..derivative with respect to density
+      x       = h3(fi, &
+                   si0t,   si1t,   si0mt,   si1mt, &
+                   dsi0d,  dsi1d,  dsi0md,  dsi1md)
+      detadd  = ye * x
+
+      !..derivative with respect to temperature
+      detadt  = h3(fi, &
+                   dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
+                   si0d,   si1d,   si0md,   si1md)
+
+#ifdef EXTRA_THERMO
+      !..derivative with respect to abar and zbar
+      detada = -x * din * ytot1
+      detadz =  x * den * ytot1
+#endif
+
+      !..look in the number density table only once
+      fi(1)  = xf(iat,jat)
+      fi(2)  = xf(iat+1,jat)
+      fi(3)  = xf(iat,jat+1)
+      fi(4)  = xf(iat+1,jat+1)
+      fi(5)  = xft(iat,jat)
+      fi(6)  = xft(iat+1,jat)
+      fi(7)  = xft(iat,jat+1)
+      fi(8)  = xft(iat+1,jat+1)
+      fi(9)  = xfd(iat,jat)
+      fi(10) = xfd(iat+1,jat)
+      fi(11) = xfd(iat,jat+1)
+      fi(12) = xfd(iat+1,jat+1)
+      fi(13) = xfdt(iat,jat)
+      fi(14) = xfdt(iat+1,jat)
+      fi(15) = xfdt(iat,jat+1)
+      fi(16) = xfdt(iat+1,jat+1)
+
+      !..electron + positron number densities
+      xnefer   = h3(fi, &
+                    si0t,   si1t,   si0mt,   si1mt, &
+                    si0d,   si1d,   si0md,   si1md)
+
+      !..derivative with respect to density
+      x        = h3(fi, &
+                    si0t,   si1t,   si0mt,   si1mt, &
+                    dsi0d,  dsi1d,  dsi0md,  dsi1md)
+      x = max(x,0.0d0)
+      dxnedd   = ye * x
+
+      !..derivative with respect to temperature
+      dxnedt   = h3(fi, &
+                    dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
+                    si0d,   si1d,   si0md,   si1md)
+
+#ifdef EXTRA_THERMO
+      !..derivative with respect to abar and zbar
+      dxneda = -x * din * ytot1
+      dxnedz =  x  * den * ytot1
+#endif
+
+      !..the desired electron-positron thermodynamic quantities
+
+      !..dpepdd at high temperatures and low densities is below the
+      !..floating point limit of the subtraction of two large terms.
+      !..since dpresdd doesn't enter the maxwell relations at all, use the
+      !..bicubic interpolation done above instead of this one
+      x       = din * din
+      pele    = x * df_d
+      dpepdt  = x * df_dt
+      s       = dpepdd/ye - 2.0d0 * din * df_d
+#ifdef EXTRA_THERMO
+      dpepda  = -ytot1 * (2.0d0 * pele + s * din)
+      dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
+#endif
+
+      x       = ye * ye
+      sele    = -df_t * ye
+      dsepdt  = -df_tt * ye
+      dsepdd  = -df_dt * x
+#ifdef EXTRA_THERMO
+      dsepda  = ytot1 * (ye * df_dt * din - sele)
+      dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
+#endif
+
+      eele    = ye*free + temp * sele
+      deepdt  = temp * dsepdt
+      deepdd  = x * df_d + temp * dsepdd
+#ifdef EXTRA_THERMO
+      deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
+      deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+#endif
+      
+    end subroutine apply_electrons
 
 
 
