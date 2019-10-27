@@ -178,7 +178,7 @@ contains
     double precision :: xnew, xtol, dvdx, smallx, error, v
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
-    double precision :: x,y,zz,zzi,deni,tempi,xni,dxnidd,dxnida, &
+    double precision :: x,y,zz,zzi,deni,tempi, &
                         dpepdt,dpepdd,deepdt,deepdd,dsepdd,dsepdt, &
                         dpraddd,dpraddt,deraddd,deraddt,dpiondd,dpiondt, &
                         deiondd,deiondt,dsraddd,dsraddt,dsiondd,dsiondt, &
@@ -377,12 +377,11 @@ contains
 #endif
 
        call apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
-                       xni, dxnidd, dxnida, &
                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
                        ener, denerdd, denerdt, denerda, denerdz, &
                        entr, dentrdd, dentrdt, dentrda, dentrdz)
 
-       call apply_electrons(den, temp, ye, ytot1, xni, zbar, &
+       call apply_electrons(den, temp, ye, ytot1, zbar, &
                             pres, dpresdt, dpresdd, dpresda, dpresdz, &
                             entr, dentrdt, dentrdd, dentrda, dentrdz, &
                             ener, denerdt, denerdd, denerda, denerdz, &
@@ -390,7 +389,7 @@ contains
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, xni, dxnidd, dxnida, &
+          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
                                          ener, denerdd, denerdt, denerda, denerdz, &
                                          pres, dpresdd, dpresdt, dpresda, dpresdz, &
                                          entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -722,7 +721,7 @@ contains
 
 
 
-  subroutine apply_electrons(den, temp, ye, ytot1, xni, zbar, &
+  subroutine apply_electrons(den, temp, ye, ytot1, zbar, &
                              pres, dpresdt, dpresdd, dpresda, dpresdz, &
                              entr, dentrdt, dentrdd, dentrda, dentrdz, &
                              ener, denerdt, denerdd, denerda, denerdz, &
@@ -730,7 +729,7 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: den, temp, ye, ytot1, xni, zbar
+    double precision, intent(in   ) :: den, temp, ye, ytot1, zbar
     double precision, intent(inout) :: pres, dpresdt, dpresdd, dpresda, dpresdz
     double precision, intent(inout) :: entr, dentrdt, dentrdd, dentrda, dentrdz
     double precision, intent(inout) :: ener, denerdt, denerdd, denerda, denerdz
@@ -739,7 +738,7 @@ contains
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
     double precision :: eele, deepdt, deepdd, deepda, deepdz
-    double precision :: dxnedt, dxnedd, xnem, din, x, s
+    double precision :: xni, dxnedt, dxnedd, xnem, din, x, s
 
     !..for the interpolations
     integer          :: iat,jat
@@ -753,6 +752,7 @@ contains
                         fi(36)
 
     !..assume complete ionization
+    xni  = avo_eos * ytot1 * den
     xnem = xni * zbar
 
     !..enter the table with ye*den
@@ -1070,7 +1070,6 @@ contains
 
 
   subroutine apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
-                        xni, dxnidd, dxnida, &
                         pres, dpresdd, dpresdt, dpresda, dpresdz, &
                         ener, denerdd, denerdt, denerda, denerdz, &
                         entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -1078,7 +1077,6 @@ contains
     implicit none
 
     double precision, intent(in   ) :: den, deni, temp, tempi, kt, abar, ytot1
-    double precision, intent(inout) :: xni, dxnidd, dxnida
     double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
     double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
     double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
@@ -1086,6 +1084,8 @@ contains
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
     double precision :: sion, dsiondd, dsiondt, dsionda, dsiondz
+
+    double precision :: xni, dxnidd, dxnida
 
     double precision :: s, x, y, z
 
@@ -1195,7 +1195,7 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, xni, dxnidd, dxnida, &
+  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
                                        ener, denerdd, denerdt, denerda, denerdz, &
                                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
                                        entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -1204,7 +1204,7 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: den, temp, kt, ktinv, abar, zbar, ytot1, xni, dxnidd, dxnida
+    double precision, intent(in   ) :: den, temp, kt, ktinv, abar, zbar, ytot1
     double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
     double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
     double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
@@ -1215,7 +1215,7 @@ contains
 
     double precision :: dsdd, dsda, lami, inv_lami, lamida, lamidd
     double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
-    double precision :: pion, dpiondt, dpiondd
+    double precision :: pion, dpiondt, dpiondd, xni, dxnidd, dxnida
 
     double precision :: s, x, y, z
     double precision :: p_temp, e_temp
@@ -1252,6 +1252,11 @@ contains
     !..from yakovlev & shalybkov 1989
     !..lami is the average ion seperation
     !..plasg is the plasma coupling parameter
+
+    xni     = avo_eos * ytot1 * den
+    dxnidd  = avo_eos * ytot1
+    dxnida  = -xni * ytot1
+
     z        = forth * pi
     s        = z * xni
     dsdd     = z * dxnidd
@@ -1300,7 +1305,7 @@ contains
 
        !...yakovlev & shalybkov 1989 equations 102, 103, 104
     else if (plasg .lt. 1.0D0) then
-       
+
        pion    = xni * kt
        dpiondd = dxnidd * kt
        dpiondt = xni * kerg
