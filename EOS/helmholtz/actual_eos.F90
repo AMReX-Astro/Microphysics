@@ -148,7 +148,6 @@ contains
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
     double precision :: x,y,z,zz,zzi,deni,tempi, &
-                        kt,ktinv, &
                         pres,ener,entr,dpresdd, &
                         dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
                         gam1,chit,chid,etaele, &
@@ -243,18 +242,15 @@ contains
        temp  = temp_row
        den   =  den_row
 
-       !..initialize
        deni    = 1.0d0/den
        tempi   = 1.0d0/temp
-       kt      = kerg * temp
-       ktinv   = 1.0d0/kt
 
        call apply_radiation(deni, temp, tempi, &
                             pres, dpresdd, dpresdt, dpresda, dpresdz, &
                             ener, denerdd, denerdt, denerda, denerdz, &
                             entr, dentrdd, dentrdt, dentrda, dentrdz)
 
-       call apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
+       call apply_ions(den, deni, temp, tempi, abar, ytot1, &
                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
                        ener, denerdd, denerdt, denerda, denerdz, &
                        entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -267,7 +263,7 @@ contains
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
+          call apply_coulomb_corrections(den, temp, abar, zbar, ytot1, &
                                          ener, denerdd, denerdt, denerda, denerdz, &
                                          pres, dpresdd, dpresdt, dpresda, dpresdz, &
                                          entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -893,14 +889,14 @@ contains
 
 
 
-  subroutine apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
+  subroutine apply_ions(den, deni, temp, tempi, abar, ytot1, &
                         pres, dpresdd, dpresdt, dpresda, dpresdz, &
                         ener, denerdd, denerdt, denerda, denerdz, &
                         entr, dentrdd, dentrdt, dentrda, dentrdz)
 
     implicit none
 
-    double precision, intent(in   ) :: den, deni, temp, tempi, kt, abar, ytot1
+    double precision, intent(in   ) :: den, deni, temp, tempi, abar, ytot1
     double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
     double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
     double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
@@ -909,13 +905,15 @@ contains
     double precision :: eion, deiondd, deiondt, deionda, deiondz
     double precision :: sion, dsiondd, dsiondt, dsionda, dsiondz
 
-    double precision :: xni, dxnidd, dxnida
+    double precision :: xni, dxnidd, dxnida, kt
 
     double precision :: s, x, y, z
 
     xni     = avo_eos * ytot1 * den
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
+
+    kt = kerg * temp
 
     pion    = xni * kt
     dpiondd = dxnidd * kt
@@ -1052,7 +1050,7 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
+  subroutine apply_coulomb_corrections(den, temp, abar, zbar, ytot1, &
                                        ener, denerdd, denerdt, denerda, denerdz, &
                                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
                                        entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -1061,7 +1059,7 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: den, temp, kt, ktinv, abar, zbar, ytot1
+    double precision, intent(in   ) :: den, temp, abar, zbar, ytot1
     double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
     double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
     double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
@@ -1074,6 +1072,7 @@ contains
     double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
     double precision :: pion, dpiondt, dpiondd, xni, dxnidd, dxnida
 
+    double precision :: kt, ktinv
     double precision :: s, x, y, z
     double precision :: p_temp, e_temp
 
@@ -1113,6 +1112,9 @@ contains
     xni     = avo_eos * ytot1 * den
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
+
+    kt      = kerg * temp
+    ktinv   = 1.0d0/kt
 
     z        = forth * pi
     s        = z * xni
