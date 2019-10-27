@@ -351,36 +351,36 @@ contains
                             erad, deraddd, deraddt, deradda, deraddz, &
                             srad, dsraddd, dsraddt, dsradda, dsraddz)
 
+       pres    = prad
+       ener    = erad
+       entr    = srad
+
+       dpresdd = dpraddd
+       dpresdt = dpraddt
+#ifdef EXTRA_THERMO
+       dpresda = dpradda
+       dpresdz = dpraddz
+#endif
+
+       denerdd = deraddd
+       denerdt = deraddt
+#ifdef EXTRA_THERMO
+       denerda = deradda
+       denerdz = deraddz
+#endif
+
+       dentrdd = dsraddd
+       dentrdt = dsraddt
+#ifdef EXTRA_THERMO
+       dentrda = dsradda
+       dentrdz = dsraddz
+#endif
+
        call apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
                        xni, dxnidd, dxnida, &
-                       pion, dpiondd, dpiondt, dpionda, dpiondz, &
-                       eion, deiondd, deiondt, deionda, deiondz, &
-                       sion, dsiondd, dsiondt, dsionda, dsiondz)
-
-       pres    = prad + pion
-       ener    = erad + eion
-       entr    = srad + sion
-
-       dpresdd = dpraddd + dpiondd
-       dpresdt = dpraddt + dpiondt
-#ifdef EXTRA_THERMO
-       dpresda = dpradda + dpionda
-       dpresdz = dpraddz + dpiondz
-#endif
-
-       denerdd = deraddd + deiondd
-       denerdt = deraddt + deiondt
-#ifdef EXTRA_THERMO
-       denerda = deradda + deionda
-       denerdz = deraddz + deiondz
-#endif
-
-       dentrdd = dsraddd + dsiondd
-       dentrdt = dsraddt + dsiondt
-#ifdef EXTRA_THERMO
-       dentrda = dsradda + dsionda
-       dentrdz = dsraddz + dsiondz
-#endif
+                       pres, dpresdd, dpresdt, dpresda, dpresdz, &
+                       ener, denerdd, denerdt, denerda, denerdz, &
+                       entr, dentrdd, dentrdt, dentrda, dentrdz)
 
        call apply_electrons(den, temp, ye, ytot1, xni, zbar, &
                             pres, dpresdt, dpresdd, dpresda, dpresdz, &
@@ -390,8 +390,7 @@ contains
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
-                                         pion, dpiondd, dpiondt, xni, dxnidd, dxnida, &
+          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, xni, dxnidd, dxnida, &
                                          ener, denerdd, denerdt, denerda, denerdz, &
                                          pres, dpresdd, dpresdt, dpresda, dpresdz, &
                                          entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -1072,17 +1071,21 @@ contains
 
   subroutine apply_ions(den, deni, temp, tempi, kt, abar, ytot1, &
                         xni, dxnidd, dxnida, &
-                        pion, dpiondd, dpiondt, dpionda, dpiondz, &
-                        eion, deiondd, deiondt, deionda, deiondz, &
-                        sion, dsiondd, dsiondt, dsionda, dsiondz)
+                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
+                        ener, denerdd, denerdt, denerda, denerdz, &
+                        entr, dentrdd, dentrdt, dentrda, dentrdz)
 
     implicit none
 
     double precision, intent(in   ) :: den, deni, temp, tempi, kt, abar, ytot1
     double precision, intent(inout) :: xni, dxnidd, dxnida
-    double precision, intent(inout) :: pion, dpiondd, dpiondt, dpionda, dpiondz
-    double precision, intent(inout) :: eion, deiondd, deiondt, deionda, deiondz
-    double precision, intent(inout) :: sion, dsiondd, dsiondt, dsionda, dsiondz
+    double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
+    double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
+    double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
+
+    double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
+    double precision :: eion, deiondd, deiondt, deionda, deiondz
+    double precision :: sion, dsiondd, dsiondt, dsionda, dsiondz
 
     double precision :: s, x, y, z
 
@@ -1121,6 +1124,30 @@ contains
     dsionda = (dpionda*deni + deionda)*tempi  &
               + kergavo*ytot1*ytot1* (2.5d0 - y)
     dsiondz = 0.0d0
+#endif
+
+    pres    = pres + pion
+    dpresdt = dpresdt + dpiondt
+    dpresdd = dpresdd + dpiondd
+#ifdef EXTRA_THERMO
+    dpresda = dpresda + dpionda
+    dpresdz = dpresdz + dpiondz
+#endif
+
+    ener    = ener + eion
+    denerdt = denerdt + deiondt
+    denerdd = denerdd + deiondd
+#ifdef EXTRA_THERMO
+    denerda = denerda + deionda
+    denerdz = denerdz + deiondz
+#endif
+
+    entr    = entr + sion
+    dentrdt = dentrdt + dsiondt
+    dentrdd = dentrdd + dsiondd
+#ifdef EXTRA_THERMO
+    dentrda = dentrda + dsionda
+    dentrdz = dentrdz + dsiondz
 #endif
 
   end subroutine apply_ions
@@ -1168,8 +1195,7 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
-                                       pion, dpiondd, dpiondt, xni, dxnidd, dxnida, &
+  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, xni, dxnidd, dxnida, &
                                        ener, denerdd, denerdt, denerda, denerdz, &
                                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
                                        entr, dentrdd, dentrdt, dentrda, dentrdz)
@@ -1178,8 +1204,7 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: den, temp, kt, ktinv, abar, zbar, ytot1, xni
-    double precision, intent(in   ) :: pion, dpiondd, dpiondt, dxnidd, dxnida
+    double precision, intent(in   ) :: den, temp, kt, ktinv, abar, zbar, ytot1, xni, dxnidd, dxnida
     double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
     double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
     double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
@@ -1190,6 +1215,7 @@ contains
 
     double precision :: dsdd, dsda, lami, inv_lami, lamida, lamidd
     double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
+    double precision :: pion, dpiondt, dpiondd
 
     double precision :: s, x, y, z
     double precision :: p_temp, e_temp
@@ -1274,6 +1300,15 @@ contains
 
        !...yakovlev & shalybkov 1989 equations 102, 103, 104
     else if (plasg .lt. 1.0D0) then
+       
+       pion    = xni * kt
+       dpiondd = dxnidd * kt
+       dpiondt = xni * kerg
+#ifdef EXTRA_THERMO
+       dpionda = dxnida * kt
+       dpiondz = 0.0d0
+#endif
+
        x        = plasg*sqrt(plasg)
        y        = plasg**b2
        z        = c2 * x - onethird * a2 * y
