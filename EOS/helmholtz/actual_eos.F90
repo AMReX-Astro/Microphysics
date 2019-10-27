@@ -215,11 +215,6 @@ contains
                         ddsi0t,ddsi1t,ddsi2t,ddsi0mt,ddsi1mt,ddsi2mt, &
                         z,din,fi(36)
 
-    !..for the coulomb corrections
-    double precision :: ecoul,decouldd,decouldt,decoulda,decouldz, &
-                        pcoul,dpcouldd,dpcouldt,dpcoulda,dpcouldz, &
-                        scoul,dscouldd,dscouldt,dscoulda,dscouldz
-
     double precision :: smallt, smalld
 
     !$gpu
@@ -368,41 +363,40 @@ contains
                             eele, deepdt, deepdd, deepda, deepdz, &
                             etaele, detadt, detadd, xnefer)
 
+       pres    = prad + pion + pele
+       ener    = erad + eion + eele
+       entr    = srad + sion + sele
+
+       dpresdd = dpraddd + dpiondd + dpepdd
+       dpresdt = dpraddt + dpiondt + dpepdt
+#ifdef EXTRA_THERMO
+       dpresda = dpradda + dpionda + dpepda
+       dpresdz = dpraddz + dpiondz + dpepdz
+#endif
+
+       denerdd = deraddd + deiondd + deepdd
+       denerdt = deraddt + deiondt + deepdt
+#ifdef EXTRA_THERMO
+       denerda = deradda + deionda + deepda
+       denerdz = deraddz + deiondz + deepdz
+#endif
+
+       dentrdd = dsraddd + dsiondd + dsepdd
+       dentrdt = dsraddt + dsiondt + dsepdt
+#ifdef EXTRA_THERMO
+       dentrda = dsradda + dsionda + dsepda
+       dentrdz = dsraddz + dsiondz + dsepdz
+#endif
+
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, xni, &
-                                         dpiondd, dpiondt, dxnidd, dxnida, &
-                                         prad, pion, pele, erad, eion, eele, &
-                                         ecoul, decouldd, decouldt, decoulda, decouldz, &
-                                         pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz, &
-                                         scoul, dscouldd, dscouldt, dscoulda, dscouldz)
+          call apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
+                                         pion, dpiondd, dpiondt, xni, dxnidd, dxnida, &
+                                         ener, denerdd, denerdt, denerda, denerdz, &
+                                         pres, dpresdd, dpresdt, dpresda, dpresdz, &
+                                         entr, dentrdd, dentrdt, dentrda, dentrdz)
 
        end if
-
-       !..sum all the components
-       pres    = prad + pion + pele + pcoul
-       ener    = erad + eion + eele + ecoul
-       entr    = srad + sion + sele + scoul
-
-       dpresdd = dpraddd + dpiondd + dpepdd + dpcouldd
-       dpresdt = dpraddt + dpiondt + dpepdt + dpcouldt
-#ifdef EXTRA_THERMO
-       dpresda = dpradda + dpionda + dpepda + dpcoulda
-       dpresdz = dpraddz + dpiondz + dpepdz + dpcouldz
-#endif
-       denerdd = deraddd + deiondd + deepdd + decouldd
-       denerdt = deraddt + deiondt + deepdt + decouldt
-#ifdef EXTRA_THERMO
-       denerda = deradda + deionda + deepda + decoulda
-       denerdz = deraddz + deiondz + deepdz + decouldz
-#endif
-
-       dentrdd = dsraddd + dsiondd + dsepdd + dscouldd
-       dentrdt = dsraddt + dsiondt + dsepdt + dscouldt
-#ifdef EXTRA_THERMO
-       dentrda = dsradda + dsionda + dsepda + dscoulda
-       dentrdz = dsraddz + dsiondz + dsepdz + dscouldz
-#endif
 
        !..the temperature and density exponents (c&g 9.81 9.82)
        !..the specific heat at constant volume (c&g 9.92)
@@ -1147,24 +1141,25 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, xni, &
-                                       dpiondd, dpiondt, dxnidd, dxnida, &
-                                       prad, pion, pele, erad, eion, eele, &
-                                       ecoul, decouldd, decouldt, decoulda, decouldz, &
-                                       pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz, &
-                                       scoul, dscouldd, dscouldt, dscoulda, dscouldz)
+  subroutine apply_coulomb_corrections(den, temp, kt, ktinv, abar, zbar, ytot1, &
+                                       pion, dpiondd, dpiondt, xni, dxnidd, dxnida, &
+                                       ener, denerdd, denerdt, denerda, denerdz, &
+                                       pres, dpresdd, dpresdt, dpresda, dpresdz, &
+                                       entr, dentrdd, dentrdt, dentrda, dentrdz)
 
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     double precision, intent(in   ) :: den, temp, kt, ktinv, abar, zbar, ytot1, xni
-    double precision, intent(in   ) :: dpiondd, dpiondt, dxnidd, dxnida
-    double precision, intent(in   ) :: prad, pion, pele
-    double precision, intent(in   ) :: erad, eion, eele
-    double precision, intent(inout) :: ecoul, decouldd, decouldt, decoulda, decouldz
-    double precision, intent(inout) :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
-    double precision, intent(inout) :: scoul, dscouldd, dscouldt, dscoulda, dscouldz
+    double precision, intent(in   ) :: pion, dpiondd, dpiondt, dxnidd, dxnida
+    double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
+    double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
+    double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
+
+    double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
+    double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
+    double precision :: scoul, dscouldd, dscouldt, dscoulda, dscouldz
 
     double precision :: dsdd, dsda, lami, inv_lami, lamida, lamidd
     double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
@@ -1284,8 +1279,8 @@ contains
     ! Disable Coulomb corrections if they cause
     ! the energy or pressure to go negative.
 
-    p_temp = prad + pion + pele + pcoul
-    e_temp = erad + eion + eele + ecoul
+    p_temp = pres + pcoul
+    e_temp = ener + ecoul
 
     if (p_temp .le. ZERO .or. e_temp .le. ZERO) then
 
@@ -1306,7 +1301,25 @@ contains
        dscouldz = 0.0d0
 
     end if
- 
+
+    pres    = pres + pcoul
+    dpresdd = dpresdd + dpcouldd
+    dpresdt = dpresdt + dpcouldt
+    dpresda = dpresda + dpcoulda
+    dpresdz = dpresdz + dpcouldz
+
+    ener    = ener + ecoul
+    denerdd = denerdd + decouldd
+    denerdt = denerdt + decouldt
+    denerda = denerda + decoulda
+    denerdz = denerdz + decouldz
+
+    entr    = entr + scoul
+    dentrdd = dentrdd + dscouldd
+    dentrdt = dentrdt + dscouldt
+    dentrda = dentrda + dscoulda
+    dentrdz = dentrdz + dscouldz
+
   end subroutine apply_coulomb_corrections
 
 
