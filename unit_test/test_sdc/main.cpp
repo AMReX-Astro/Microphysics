@@ -141,12 +141,12 @@ void main_main ()
 
     }
 
-    // What time is it now?  We'll use this to compute total react time.
-    Real strt_time = ParallelDescriptor::second();
-
     int n_rhs_min = 1000000000;
     int n_rhs_max = -1000000000;
     int n_rhs_sum = 0;
+
+    // What time is it now?  We'll use this to compute total react time.
+    Real strt_time = ParallelDescriptor::second();
 
     // Do the reactions
 #ifdef _OPENMP
@@ -161,6 +161,12 @@ void main_main ()
                  &n_rhs_min, &n_rhs_max, &n_rhs_sum);
 
     }
+
+    // Call the timer again and compute the maximum difference between
+    // the start time and stop time over all processors
+    Real stop_time = ParallelDescriptor::second() - strt_time;
+    const int IOProc = ParallelDescriptor::IOProcessorNumber();
+    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
     // get the name of the integrator from the build info functions
@@ -183,13 +189,6 @@ void main_main ()
     int n = 0;
 
     WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
-
-
-    // Call the timer again and compute the maximum difference between
-    // the start time and stop time over all processors
-    Real stop_time = ParallelDescriptor::second() - strt_time;
-    const int IOProc = ParallelDescriptor::IOProcessorNumber();
-    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

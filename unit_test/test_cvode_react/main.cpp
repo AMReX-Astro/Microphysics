@@ -181,12 +181,12 @@ void main_main ()
 
     int n_reacting_boxes = 0;
 
-    // What time is it now?  We'll use this to compute total react time.
-    Real strt_time = ParallelDescriptor::second();
-
     if (ParallelDescriptor::IOProcessor()) {
       std::cout << "reacting state with timestep " << tmax << " ..." << std::endl;
     }
+
+    // What time is it now?  We'll use this to compute total react time.
+    Real strt_time = ParallelDescriptor::second();
 
     // Do the reactions
 #ifdef _OPENMP
@@ -217,6 +217,12 @@ void main_main ()
 	n_reacting_boxes++;
     }
 
+    // Call the timer again and compute the maximum difference between
+    // the start time and stop time over all processors
+    Real stop_time = ParallelDescriptor::second() - strt_time;
+    const int IOProc = ParallelDescriptor::IOProcessorNumber();
+    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
+
     if (ParallelDescriptor::IOProcessor()) {
       std::cout << "finished reacting state ..." << std::endl;
     }
@@ -241,13 +247,6 @@ void main_main ()
     int n = 0;
 
     WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
-
-
-    // Call the timer again and compute the maximum difference between
-    // the start time and stop time over all processors
-    Real stop_time = ParallelDescriptor::second() - strt_time;
-    const int IOProc = ParallelDescriptor::IOProcessorNumber();
-    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
