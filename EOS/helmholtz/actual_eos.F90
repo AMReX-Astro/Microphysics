@@ -180,13 +180,13 @@ contains
     xnem = xni * state % zbar
 
     !..enter the table with ye*den
-    din = state % y_e*state % rho
+    din = state % y_e * state % rho
 
     !..hash locate this temperature and density
-    jat = int((log10(state % T) - tlo)*tstpi) + 1
-    jat = max(1,min(jat,jtmax-1))
-    iat = int((log10(din) - dlo)*dstpi) + 1
-    iat = max(1,min(iat,itmax-1))
+    jat = int((log10(state % T) - tlo) * tstpi) + 1
+    jat = max(1, min(jat, jtmax-1))
+    iat = int((log10(din) - dlo) * dstpi) + 1
+    iat = max(1, min(iat, itmax-1))
 
     !..access the table locations only once
     fi(1:9)   = f(1:9, iat  ,jat  ) ! f, ft, ftt, fd, fdd, fdt, fddt, fdtt, fddtt
@@ -195,52 +195,52 @@ contains
     fi(28:36) = f(1:9, iat+1,jat+1)
 
     !..various differences
-    xt  = max( (state % T - t(jat))*dti_sav(jat), 0.0d0)
-    xd  = max( (din - d(iat))*ddi_sav(iat), 0.0d0)
+    xt  = max( (state % T - t(jat)) * dti_sav(jat), 0.0d0)
+    xd  = max( (din - d(iat)) * ddi_sav(iat), 0.0d0)
     mxt = 1.0d0 - xt
     mxd = 1.0d0 - xd
 
     !..the six density and six temperature basis functions
     sit(1) = psi0(xt)
-    sit(2) = psi1(xt)*dt_sav(jat)
-    sit(3) = psi2(xt)*dt2_sav(jat)
+    sit(2) = psi1(xt) * dt_sav(jat)
+    sit(3) = psi2(xt) * dt2_sav(jat)
 
     sit(4) =  psi0(mxt)
-    sit(5) = -psi1(mxt)*dt_sav(jat)
-    sit(6) =  psi2(mxt)*dt2_sav(jat)
+    sit(5) = -psi1(mxt) * dt_sav(jat)
+    sit(6) =  psi2(mxt) * dt2_sav(jat)
 
     sid(1) =   psi0(xd)
-    sid(2) =   psi1(xd)*dd_sav(iat)
-    sid(3) =   psi2(xd)*dd2_sav(iat)
+    sid(2) =   psi1(xd) * dd_sav(iat)
+    sid(3) =   psi2(xd) * dd2_sav(iat)
 
     sid(4) =  psi0(mxd)
-    sid(5) = -psi1(mxd)*dd_sav(iat)
-    sid(6) =  psi2(mxd)*dd2_sav(iat)
+    sid(5) = -psi1(mxd) * dd_sav(iat)
+    sid(6) =  psi2(mxd) * dd2_sav(iat)
 
     !..derivatives of the weight functions
-    dsit(1) =   dpsi0(xt)*dti_sav(jat)
+    dsit(1) =   dpsi0(xt) * dti_sav(jat)
     dsit(2) =   dpsi1(xt)
-    dsit(3) =   dpsi2(xt)*dt_sav(jat)
+    dsit(3) =   dpsi2(xt) * dt_sav(jat)
 
-    dsit(4) = -dpsi0(mxt)*dti_sav(jat)
+    dsit(4) = -dpsi0(mxt) * dti_sav(jat)
     dsit(5) =  dpsi1(mxt)
-    dsit(6) = -dpsi2(mxt)*dt_sav(jat)
+    dsit(6) = -dpsi2(mxt) * dt_sav(jat)
 
-    dsid(1) =   dpsi0(xd)*ddi_sav(iat)
+    dsid(1) =   dpsi0(xd) * ddi_sav(iat)
     dsid(2) =   dpsi1(xd)
-    dsid(3) =   dpsi2(xd)*dd_sav(iat)
+    dsid(3) =   dpsi2(xd) * dd_sav(iat)
 
-    dsid(4) = -dpsi0(mxd)*ddi_sav(iat)
+    dsid(4) = -dpsi0(mxd) * ddi_sav(iat)
     dsid(5) =  dpsi1(mxd)
-    dsid(6) = -dpsi2(mxd)*dd_sav(iat)
+    dsid(6) = -dpsi2(mxd) * dd_sav(iat)
 
     !..second derivatives of the weight functions
-    ddsit(1) =   ddpsi0(xt)*dt2i_sav(jat)
-    ddsit(2) =   ddpsi1(xt)*dti_sav(jat)
+    ddsit(1) =   ddpsi0(xt) * dt2i_sav(jat)
+    ddsit(2) =   ddpsi1(xt) * dti_sav(jat)
     ddsit(3) =   ddpsi2(xt)
 
-    ddsit(4) =  ddpsi0(mxt)*dt2i_sav(jat)
-    ddsit(5) = -ddpsi1(mxt)*dti_sav(jat)
+    ddsit(4) =  ddpsi0(mxt) * dt2i_sav(jat)
+    ddsit(5) = -ddpsi1(mxt) * dti_sav(jat)
     ddsit(6) =  ddpsi2(mxt)
 
     ! This array saves some subexpressions that go into
@@ -274,28 +274,28 @@ contains
     !..electron positron number densities
     !..get the interpolation weight functions
     sit(1) = xpsi0(xt)
-    sit(2) = xpsi1(xt)*dt_sav(jat)
+    sit(2) = xpsi1(xt) * dt_sav(jat)
 
     sit(3) = xpsi0(mxt)
-    sit(4) = -xpsi1(mxt)*dt_sav(jat)
+    sit(4) = -xpsi1(mxt) * dt_sav(jat)
 
     sid(1) = xpsi0(xd)
-    sid(2) = xpsi1(xd)*dd_sav(iat)
+    sid(2) = xpsi1(xd) * dd_sav(iat)
 
     sid(3) = xpsi0(mxd)
-    sid(4) = -xpsi1(mxd)*dd_sav(iat)
+    sid(4) = -xpsi1(mxd) * dd_sav(iat)
 
     !..derivatives of weight functions
-    dsit(1) = xdpsi0(xt)*dti_sav(jat)
+    dsit(1) = xdpsi0(xt) * dti_sav(jat)
     dsit(2) = xdpsi1(xt)
 
-    dsit(3) = -xdpsi0(mxt)*dti_sav(jat)
+    dsit(3) = -xdpsi0(mxt) * dti_sav(jat)
     dsit(4) = xdpsi1(mxt)
 
-    dsid(1) = xdpsi0(xd)*ddi_sav(iat)
+    dsid(1) = xdpsi0(xd) * ddi_sav(iat)
     dsid(2) = xdpsi1(xd)
 
-    dsid(3) = -xdpsi0(mxd)*ddi_sav(iat)
+    dsid(3) = -xdpsi0(mxd) * ddi_sav(iat)
     dsid(4) = xdpsi1(mxd)
 
     ! Reuse subexpressions that would go into computing h3.
@@ -311,8 +311,8 @@ contains
     fi([11, 12, 15, 16]) = dpdf(1:4, iat+1, jat+1)
 
     !..pressure derivative with density
-    dpepdd  = sum(fi(1:16) * wdt)
-    dpepdd  = max(state % y_e * dpepdd, 0.0d0)
+    dpepdd = sum(fi(1:16) * wdt)
+    dpepdd = max(state % y_e * dpepdd, 0.0d0)
 
     !..look in the electron chemical potential table only once
     fi([ 1,  2,  5,  6]) = ef(1:4,iat  ,jat  )
@@ -321,7 +321,7 @@ contains
     fi([11, 12, 15, 16]) = ef(1:4,iat+1,jat+1)
 
     !..electron chemical potential etaele
-    etaele  = sum(fi(1:16) * wdt)
+    etaele = sum(fi(1:16) * wdt)
 
     !..look in the number density table only once
     fi([ 1,  2,  5,  6]) = xf(1:4,iat  ,jat  )
@@ -330,7 +330,7 @@ contains
     fi([11, 12, 15, 16]) = xf(1:4,iat+1,jat+1)
 
     !..electron + positron number densities
-    xnefer   = sum(fi(1:16) * wdt)
+    xnefer = sum(fi(1:16) * wdt)
 
     wdt(1:4)   = dsid(1) * sit(1:4)
     wdt(5:8)   = dsid(2) * sit(1:4)
@@ -339,7 +339,7 @@ contains
 
     !..derivative with respect to density
     x = sum(fi(1:16) * wdt)
-    x = max(x,0.0d0)
+    x = max(x, 0.0d0)
 
     !..the desired electron-positron thermodynamic quantities
 
