@@ -141,13 +141,10 @@ contains
     integer :: var, dvar, var1, var2, iter
     double precision :: v_want
     double precision :: v1_want, v2_want
-    double precision :: xnew, xtol, dvdx, smallx, error, v
+    double precision :: x, xnew, xtol, dvdx, smallx, error, v
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
-    double precision :: x,y,z,zz,zzi, &
-                        cv,cp, &
-                        gam1,chit,chid, &
-                        s
+    double precision :: chit, chid
 
     double precision :: smallt, smalld
 
@@ -236,32 +233,11 @@ contains
 
        end if
 
-       !..the temperature and density exponents (c&g 9.81 9.82)
-       !..the specific heat at constant volume (c&g 9.92)
-       !..the third adiabatic exponent (c&g 9.93)
-       !..the first adiabatic exponent (c&g 9.97)
-       !..the second adiabatic exponent (c&g 9.105)
-       !..the specific heat at constant pressure (c&g 9.98)
-       !..and relativistic formula for the sound speed (c&g 14.29)
-       zz    = state % p / state % rho
-       zzi   = state % rho/state % p
-       chit  = state % T/state % p * state % dpdT
-       chid  = state % dpdr*zzi
-       cv    = state % dedT
-       x     = zz * chit/(state % T * cv)
-       gam1  = chit*x + chid
-       cp    = cv * gam1/chid
-
-       state % dpde = state % dpdT / state % dedT
-       state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
+       ! Calculate enthalpy the usual way, h = e + p / rho.
 
        state % h = state % e + state % p / state % rho
        state % dhdr = state % dedr + state % dpdr / state % rho - state % p / state % rho**2
        state % dhdT = state % dedT + state % dpdT / state % rho
-
-       state % cv = cv
-       state % cp = cp
-       state % gam1 = gam1
 
        if (converged) then
 
@@ -425,9 +401,20 @@ contains
 
     enddo
 
+    ! Calculate some remaining derivatives
+    state % dpde = state % dpdT / state % dedT
+    state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
+
+    ! Specific heats and Gamma_1
+    chit = state % T / state % p * state % dpdT
+    chid = state % dpdr * state % rho / state % p
+
+    state % cv = state % dedT
+    state % gam1 = (chit * (state % p / state % rho)) * (chit / (state % T * state % cv)) + chid
+    state % cp = state % cv * state % gam1 / chid
+
     ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     ! This replaces the relativistic version that comes out of helmeos.
-
     state % cs = sqrt(state % gam1 * state % p / state % rho)
 
     if (input_is_constant) then
