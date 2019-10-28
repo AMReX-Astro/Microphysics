@@ -148,14 +148,10 @@ contains
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
     double precision :: x,y,z,zz,zzi,deni,tempi, &
-                        pres,ener,entr,dpresdd, &
-                        dpresdt,denerdd,denerdt,dentrdd,dentrdt,cv,cp, &
-                        gam1,chit,chid,etaele, &
-                        detadt,detadd,xnefer,dxnedt,dxnedd,s, &
-                        temp,den,abar,zbar,ytot1,ye,pele
-
-    double precision :: dpresda, denerda, dentrda
-    double precision :: dpresdz, denerdz, dentrdz
+                        cv,cp, &
+                        gam1,chit,chid, &
+                        s, &
+                        temp,den,abar,zbar,ytot1,ye
 
     double precision :: smallt, smalld
 
@@ -245,28 +241,15 @@ contains
        deni    = 1.0d0/den
        tempi   = 1.0d0/temp
 
-       call apply_radiation(deni, temp, tempi, &
-                            pres, dpresdd, dpresdt, dpresda, dpresdz, &
-                            ener, denerdd, denerdt, denerda, denerdz, &
-                            entr, dentrdd, dentrdt, dentrda, dentrdz)
+       call apply_radiation(state, deni, temp, tempi)
 
-       call apply_ions(den, deni, temp, tempi, abar, ytot1, &
-                       pres, dpresdd, dpresdt, dpresda, dpresdz, &
-                       ener, denerdd, denerdt, denerda, denerdz, &
-                       entr, dentrdd, dentrdt, dentrda, dentrdz)
+       call apply_ions(state, den, deni, temp, tempi, abar, ytot1)
 
-       call apply_electrons(den, temp, ye, ytot1, zbar, &
-                            pres, dpresdt, dpresdd, dpresda, dpresdz, &
-                            entr, dentrdt, dentrdd, dentrda, dentrdz, &
-                            ener, denerdt, denerdd, denerda, denerdz, &
-                            etaele, detadt, detadd, xnefer)
+       call apply_electrons(state, den, temp, ye, ytot1, zbar)
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(den, temp, abar, zbar, ytot1, &
-                                         ener, denerdd, denerdt, denerda, denerdz, &
-                                         pres, dpresdd, dpresdt, dpresda, dpresdz, &
-                                         entr, dentrdd, dentrdt, dentrda, dentrdz)
+          call apply_coulomb_corrections(state, den, temp, abar, zbar, ytot1)
 
        end if
 
@@ -277,48 +260,21 @@ contains
        !..the second adiabatic exponent (c&g 9.105)
        !..the specific heat at constant pressure (c&g 9.98)
        !..and relativistic formula for the sound speed (c&g 14.29)
-       zz    = pres*deni
-       zzi   = den/pres
-       chit  = temp/pres * dpresdt
-       chid  = dpresdd*zzi
-       cv    = denerdt
+       zz    = state % p * deni
+       zzi   = den/state % p
+       chit  = temp/state % p * state % dpdT
+       chid  = state % dpdr*zzi
+       cv    = state % dedT
        x     = zz * chit/(temp * cv)
        gam1  = chit*x + chid
        cp    = cv * gam1/chid
 
-       state % p = pres
-       state % dpdT = dpresdt
-       state % dpdr = dpresdd
-#ifdef EXTRA_THERMO
-       state % dpdA = dpresda
-       state % dpdZ = dpresdz
-#endif
-       state % dpde = dpresdt / denerdt
-       state % dpdr_e = dpresdd - dpresdt * denerdd / denerdt
+       state % dpde = state % dpdT / state % dedT
+       state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
 
-       state % e = ener
-       state % dedT = denerdt
-       state % dedr = denerdd
-#ifdef EXTRA_THERMO
-       state % dedA = denerda
-       state % dedZ = denerdz
-#endif
-
-       state % s = entr
-       state % dsdT = dentrdt
-       state % dsdr = dentrdd
-
-       state % h = ener + pres / den
-       state % dhdr = denerdd + dpresdd / den - pres / den**2
-       state % dhdT = denerdt + dpresdt / den
-
-       state % pele = pele
-       state % ppos = 0.0d0
-
-       state % xne = xnefer
-       state % xnp = 0.0d0
-
-       state % eta = etaele
+       state % h = state % e + state % p / den
+       state % dhdr = state % dedr + state % dpdr / den - state % p / den**2
+       state % dhdT = state % dedT + state % dpdT / den
 
        state % cv = cv
        state % cp = cp
@@ -489,13 +445,6 @@ contains
     state % T    = temp_row
     state % rho  = den_row
 
-    ! Take care of final housekeeping.
-
-    ! Count the positron contribution in the electron quantities.
-
-    state % xne  = state % xne  + state % xnp
-    state % pele = state % pele + state % ppos
-
     ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     ! This replaces the relativistic version that comes out of helmeos.
 
@@ -541,24 +490,17 @@ contains
 
 
 
-  subroutine apply_electrons(den, temp, ye, ytot1, zbar, &
-                             pres, dpresdt, dpresdd, dpresda, dpresdz, &
-                             entr, dentrdt, dentrdd, dentrda, dentrdz, &
-                             ener, denerdt, denerdd, denerda, denerdz, &
-                             etaele, detadt, detadd, xnefer)
+  subroutine apply_electrons(state, den, temp, ye, ytot1, zbar)
 
     implicit none
 
+    type(eos_t),      intent(inout) :: state
     double precision, intent(in   ) :: den, temp, ye, ytot1, zbar
-    double precision, intent(inout) :: pres, dpresdt, dpresdd, dpresda, dpresdz
-    double precision, intent(inout) :: entr, dentrdt, dentrdd, dentrda, dentrdz
-    double precision, intent(inout) :: ener, denerdt, denerdd, denerda, denerdz
-    double precision, intent(inout) :: etaele, detadt, detadd, xnefer
 
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
     double precision :: eele, deepdt, deepdd, deepda, deepdz
-    double precision :: xni, dxnedt, dxnedd, xnem, din, x, s
+    double precision :: xni, dxnedt, dxnedd, xnem, din, x, s, etaele, xnefer
 
     !..for the interpolations
     integer          :: iat,jat
@@ -771,23 +713,6 @@ contains
                  si0t,   si1t,   si0mt,   si1mt, &
                  si0d,   si1d,   si0md,   si1md)
 
-    !..derivative with respect to density
-    x       = h3(fi, &
-                 si0t,   si1t,   si0mt,   si1mt, &
-                 dsi0d,  dsi1d,  dsi0md,  dsi1md)
-    detadd  = ye * x
-
-    !..derivative with respect to temperature
-    detadt  = h3(fi, &
-                 dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                 si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-    !..derivative with respect to abar and zbar
-    detada = -x * din * ytot1
-    detadz =  x * den * ytot1
-#endif
-
     !..look in the number density table only once
     fi(1)  = xf(iat,jat)
     fi(2)  = xf(iat+1,jat)
@@ -833,7 +758,7 @@ contains
 
     !..dpepdd at high temperatures and low densities is below the
     !..floating point limit of the subtraction of two large terms.
-    !..since dpresdd doesn't enter the maxwell relations at all, use the
+    !..since state % dpdr doesn't enter the maxwell relations at all, use the
     !..bicubic interpolation done above instead of this one
     x       = din * din
     pele    = x * df_d
@@ -861,45 +786,47 @@ contains
     deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
 #endif
 
-    pres    = pres + pele
-    dpresdt = dpresdt + dpepdt
-    dpresdd = dpresdd + dpepdd
+    state % p    = state % p + pele
+    state % dpdT = state % dpdT + dpepdt
+    state % dpdr = state % dpdr + dpepdd
 #ifdef EXTRA_THERMO
-    dpresda = dpresda + dpepda
-    dpresdz = dpresdz + dpepedz
+    state % dpdA = state % dpdA + dpepda
+    state % dpdZ = state % dpdZ + dpepedz
 #endif
 
-    entr    = entr + sele
-    dentrdt = dentrdt + dsepdt
-    dentrdd = dentrdd + dsepdd
+    state % s    = state % s + sele
+    state % dsdT = state % dsdT + dsepdt
+    state % dsdr = state % dsdr + dsepdd
 #ifdef EXTRA_THERMO
-    dentrda = dentrda + dsepda
-    dentrdz = dentrdz + dsepdz
+    state % dsdA = state % dsdA + dsepda
+    state % dsdZ = state % dsdZ + dsepdz
 #endif
 
-    ener    = ener + eele
-    denerdt = denerdt + deepdt
-    denerdd = denerdd + deepdd
+    state % e    = state % e + eele
+    state % dedT = state % dedT + deepdt
+    state % dedr = state % dedr + deepdd
 #ifdef EXTRA_THERMO
-    denerda = denerda + deepda
-    denerdz = denerdz + deepdz
+    state % dedA = state % dedA + deepda
+    state % dedZ = state % dedZ + deepdz
 #endif
+
+    state % eta = etaele
+    state % xne = xnefer
+    state % xnp = 0.0d0
+
+    state % pele = pele
+    state % ppos = 0.0d0
 
   end subroutine apply_electrons
 
 
 
-  subroutine apply_ions(den, deni, temp, tempi, abar, ytot1, &
-                        pres, dpresdd, dpresdt, dpresda, dpresdz, &
-                        ener, denerdd, denerdt, denerda, denerdz, &
-                        entr, dentrdd, dentrdt, dentrda, dentrdz)
+  subroutine apply_ions(state, den, deni, temp, tempi, abar, ytot1)
 
     implicit none
 
+    type(eos_t),      intent(inout) :: state
     double precision, intent(in   ) :: den, deni, temp, tempi, abar, ytot1
-    double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
-    double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
-    double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
 
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
@@ -948,28 +875,28 @@ contains
     dsiondz = 0.0d0
 #endif
 
-    pres    = pres + pion
-    dpresdt = dpresdt + dpiondt
-    dpresdd = dpresdd + dpiondd
+    state % p    = state % p + pion
+    state % dpdT = state % dpdT + dpiondt
+    state % dpdr = state % dpdr + dpiondd
 #ifdef EXTRA_THERMO
-    dpresda = dpresda + dpionda
-    dpresdz = dpresdz + dpiondz
+    state % dpdA = state % dpdA + dpionda
+    state % dpdZ = state % dpdZ + dpiondz
 #endif
 
-    ener    = ener + eion
-    denerdt = denerdt + deiondt
-    denerdd = denerdd + deiondd
+    state % e    = state % e + eion
+    state % dedT = state % dedT + deiondt
+    state % dedr = state % dedr + deiondd
 #ifdef EXTRA_THERMO
-    denerda = denerda + deionda
-    denerdz = denerdz + deiondz
+    state % dedA = state % dedA + deionda
+    state % dedZ = state % dedZ + deiondz
 #endif
 
-    entr    = entr + sion
-    dentrdt = dentrdt + dsiondt
-    dentrdd = dentrdd + dsiondd
+    state % s    = state % s + sion
+    state % dsdT = state % dsdT + dsiondt
+    state % dsdr = state % dsdr + dsiondd
 #ifdef EXTRA_THERMO
-    dentrda = dentrda + dsionda
-    dentrdz = dentrdz + dsiondz
+    state % dsdA = state % dsdA + dsionda
+    state % dsdZ = state % dsdZ + dsiondz
 #endif
 
   end subroutine apply_ions
@@ -977,17 +904,12 @@ contains
 
 
   
-  subroutine apply_radiation(deni, temp, tempi, &
-                             pres, dpresdd, dpresdt, dpresda, dpresdz, &
-                             ener, denerdd, denerdt, denerda, denerdz, &
-                             entr, dentrdd, dentrdt, dentrda, dentrdz)
+  subroutine apply_radiation(state, deni, temp, tempi)
 
     implicit none
 
+    type(eos_t),      intent(inout) :: state
     double precision, intent(in   ) :: deni, temp, tempi
-    double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
-    double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
-    double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
 
     double precision :: prad, dpraddd, dpraddt, dpradda, dpraddz
     double precision :: erad, deraddd, deraddt, deradda, deraddz
@@ -1021,48 +943,42 @@ contains
     ! sets these terms instead of adding to them,
     ! since it comes first.
 
-    pres    = prad
-    ener    = erad
-    entr    = srad
-
-    dpresdd = dpraddd
-    dpresdt = dpraddt
+    state % p    = prad
+    state % dpdr = dpraddd
+    state % dpdT = dpraddt
 #ifdef EXTRA_THERMO
-    dpresda = dpradda
-    dpresdz = dpraddz
+    state % dpdA = dpradda
+    state % dpdZ = dpraddz
 #endif
 
-    denerdd = deraddd
-    denerdt = deraddt
+    state % e    = erad
+    state % dedr = deraddd
+    state % dedT = deraddt
 #ifdef EXTRA_THERMO
-    denerda = deradda
-    denerdz = deraddz
+    state % dedA = deradda
+    state % dedZ = deraddz
 #endif
 
-    dentrdd = dsraddd
-    dentrdt = dsraddt
+    state % s    = srad
+    state % dsdr = dsraddd
+    state % dsdT = dsraddt
 #ifdef EXTRA_THERMO
-    dentrda = dsradda
-    dentrdz = dsraddz
+    state % dsdA = dsradda
+    state % dsdZ = dsraddz
 #endif
 
   end subroutine apply_radiation
 
 
 
-  subroutine apply_coulomb_corrections(den, temp, abar, zbar, ytot1, &
-                                       ener, denerdd, denerdt, denerda, denerdz, &
-                                       pres, dpresdd, dpresdt, dpresda, dpresdz, &
-                                       entr, dentrdd, dentrdt, dentrda, dentrdz)
+  subroutine apply_coulomb_corrections(state, den, temp, abar, zbar, ytot1)
 
     use amrex_constants_module, only: ZERO
 
     implicit none
 
+    type(eos_t),      intent(inout) :: state
     double precision, intent(in   ) :: den, temp, abar, zbar, ytot1
-    double precision, intent(inout) :: ener, denerdd, denerdt, denerda, denerdz
-    double precision, intent(inout) :: pres, dpresdd, dpresdt, dpresda, dpresdz
-    double precision, intent(inout) :: entr, dentrdd, dentrdt, dentrda, dentrdz
 
     double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
     double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
@@ -1205,8 +1121,8 @@ contains
     ! Disable Coulomb corrections if they cause
     ! the energy or pressure to go negative.
 
-    p_temp = pres + pcoul
-    e_temp = ener + ecoul
+    p_temp = state % p + pcoul
+    e_temp = state % e + ecoul
 
     if (p_temp .le. ZERO .or. e_temp .le. ZERO) then
 
@@ -1228,23 +1144,29 @@ contains
 
     end if
 
-    pres    = pres + pcoul
-    dpresdd = dpresdd + dpcouldd
-    dpresdt = dpresdt + dpcouldt
-    dpresda = dpresda + dpcoulda
-    dpresdz = dpresdz + dpcouldz
+    state % p    = state % p + pcoul
+    state % dpdr = state % dpdr + dpcouldd
+    state % dpdT = state % dpdT + dpcouldt
+#ifdef EXTRA_THERMO
+    state % dpdA = state % dpdA + dpcoulda
+    state % dpdZ = state % dpdZ + dpcouldz
+#endif
 
-    ener    = ener + ecoul
-    denerdd = denerdd + decouldd
-    denerdt = denerdt + decouldt
-    denerda = denerda + decoulda
-    denerdz = denerdz + decouldz
+    state % e    = state % e + ecoul
+    state % dedr = state % dedr + decouldd
+    state % dedT = state % dedT + decouldt
+#ifdef EXTRA_THERMO
+    state % dedA = state % dedA + decoulda
+    state % dedZ = state % dedZ + decouldz
+#endif
 
-    entr    = entr + scoul
-    dentrdd = dentrdd + dscouldd
-    dentrdt = dentrdt + dscouldt
-    dentrda = dentrda + dscoulda
-    dentrdz = dentrdz + dscouldz
+    state % s    = state % s + scoul
+    state % dsdr = state % dsdr + dscouldd
+    state % dsdT = state % dsdT + dscouldt
+#ifdef EXTRA_THERMO
+    state % dsdA = state % dsdA + dscoulda
+    state % dsdZ = state % dsdZ + dscouldz
+#endif
 
   end subroutine apply_coulomb_corrections
 
