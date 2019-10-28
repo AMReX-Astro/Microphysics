@@ -187,6 +187,8 @@ contains
                         ddsi0t,ddsi1t,ddsi2t,ddsi0mt,ddsi1mt,ddsi2mt, &
                         fi(36)
 
+    !$gpu
+
     !..assume complete ionization
     ytot1 = 1.0d0 / state % abar
     xni  = avo_eos * ytot1 * state % rho
@@ -496,6 +498,8 @@ contains
     double precision, parameter :: sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
     double precision, parameter :: kergavo = kerg * avo_eos
 
+    !$gpu
+
     deni = 1.0d0 / state % rho
     tempi = 1.0d0 / state % T
 
@@ -588,6 +592,8 @@ contains
 #endif
     double precision, parameter :: asol    = 4.0d0 * ssol / clight
     double precision, parameter :: asoli3  = asol/3.0d0
+
+    !$gpu
     
     deni = 1.0d0 / state % rho
     tempi = 1.0d0 / state % T
@@ -682,6 +688,8 @@ contains
     double precision, parameter :: onethird = 1.0d0/3.0d0
     double precision, parameter :: forth = 4.0d0/3.0d0
     double precision, parameter :: pi    = 3.1415926535897932384d0
+
+    !$gpu
 
     pcoul    = ZERO
     dpcouldd = ZERO
@@ -862,6 +870,8 @@ contains
     double precision, intent(inout) :: v_want, v1_want, v2_want
     integer,          intent(inout) :: var, dvar, var1, var2
 
+    !$gpu
+
     single_iter = .true.
 
     if (input .eq. eos_input_rt) then
@@ -930,6 +940,8 @@ contains
     logical,          intent(inout) :: converged
 
     double precision :: x, xnew, v, dvdx, xtol, smallx, smallt, smalld, error
+
+    !$gpu
 
     call eos_get_small_temp(smallt)
     call eos_get_small_dens(smalld)
@@ -1018,6 +1030,8 @@ contains
     double precision :: told, rold, delr, rnew, tnew
     double precision :: v1, dv1dt, dv1dr, v2, dv2dt, dv2dr, v1i, v2i
     double precision :: error1, error2, smallt, smalld
+
+    !$gpu
 
     call eos_get_small_temp(smallt)
     call eos_get_small_dens(smalld)
@@ -1111,6 +1125,8 @@ contains
     double precision, intent(in   ) :: v_want, v1_want, v2_want
 
     double precision :: chit, chid
+
+    !$gpu
 
     ! Calculate some remaining derivatives
     state % dpde = state % dpdT / state % dedT
