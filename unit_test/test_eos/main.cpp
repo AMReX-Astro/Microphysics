@@ -125,6 +125,10 @@ void main_main ()
     // we allocate our main multifabs
     MultiFab state(ba, dm, Ncomp, Nghost);
 
+    // Initialize the state to zero; we will fill
+    // it in below in do_eos.
+    state.setVal(0.0);
+
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
 
