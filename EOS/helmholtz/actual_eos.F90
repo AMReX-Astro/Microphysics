@@ -19,22 +19,16 @@ module actual_eos_module
   double precision, allocatable :: ttol, dtol
 
   !..for the helmholtz free energy tables
-  double precision, allocatable :: f(:,:), fd(:,:),                &
-                                   ft(:,:), fdd(:,:), ftt(:,:),    &
-                                   fdt(:,:), fddt(:,:), fdtt(:,:), &
-                                   fddtt(:,:)
+  double precision, allocatable :: f(:,:,:)
 
-  !..for the pressure derivative with density ables
-  double precision, allocatable :: dpdf(:,:), dpdfd(:,:),          &
-                                   dpdft(:,:), dpdfdt(:,:)
+  !..for the pressure derivative with density tables
+  double precision, allocatable :: dpdf(:,:,:)
 
   !..for chemical potential tables
-  double precision, allocatable :: ef(:,:), efd(:,:),              &
-                                   eft(:,:), efdt(:,:)
+  double precision, allocatable :: ef(:,:,:)
 
   !..for the number density tables
-  double precision, allocatable :: xf(:,:), xfd(:,:),              &
-                                   xft(:,:), xfdt(:,:)
+  double precision, allocatable :: xf(:,:,:)
 
   !..for storing the differences
   double precision, allocatable :: dt_sav(:), dt2_sav(:),          &
@@ -49,10 +43,7 @@ module actual_eos_module
   attributes(managed) :: tlo, thi, tstp, tstpi
   attributes(managed) :: dlo, dhi, dstp, dstpi
   attributes(managed) :: ttol, dtol
-  attributes(managed) :: f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt
-  attributes(managed) :: dpdf, dpdfd, dpdft, dpdfdt
-  attributes(managed) :: ef, efd, eft, efdt
-  attributes(managed) :: xf, xfd, xft, xfdt
+  attributes(managed) :: f, dpdf, ef, xf
   attributes(managed) :: dt_sav, dt2_sav, dti_sav, dt2i_sav
   attributes(managed) :: dd_sav, dd2_sav, ddi_sav, dd2i_sav
 #endif
@@ -68,9 +59,7 @@ module actual_eos_module
   !$acc create(tstp, tstpi, dstp, dstpi) &
   !$acc create(ttol, dtol) &
   !$acc create(itmax, jtmax, d, t) &
-  !$acc create(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
-  !$acc create(dpdf, dpdfd, dpdft, dpdfdt) &
-  !$acc create(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+  !$acc create(f, dpdf, ef, xf) &
   !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
   !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
   !$acc create(do_coulomb, input_is_constant)
@@ -177,15 +166,11 @@ contains
     double precision :: xni, xnem, din, x, s, etaele, xnefer, ytot1
 
     !..for the interpolations
-    integer          :: iat,jat
-    double precision :: free,df_d,df_t,df_tt,df_dt
-    double precision :: xt,xd,mxt,mxd, &
-                        si0t,si1t,si2t,si0mt,si1mt,si2mt, &
-                        si0d,si1d,si2d,si0md,si1md,si2md, &
-                        dsi0t,dsi1t,dsi2t,dsi0mt,dsi1mt,dsi2mt, &
-                        dsi0d,dsi1d,dsi2d,dsi0md,dsi1md,dsi2md, &
-                        ddsi0t,ddsi1t,ddsi2t,ddsi0mt,ddsi1mt,ddsi2mt, &
-                        fi(36)
+    integer          :: iat, jat
+    double precision :: free, df_d, df_t, df_tt, df_dt
+    double precision :: xt, xd, mxt, mxd
+    double precision :: fi(36)
+    double precision :: wdt(16), sit(6), sid(6), dsit(6), dsid(6), fwtr(6), ddsit(6)
 
     !$gpu
 
@@ -204,42 +189,10 @@ contains
     iat = max(1,min(iat,itmax-1))
 
     !..access the table locations only once
-    fi(1)  = f(iat,jat)
-    fi(2)  = f(iat+1,jat)
-    fi(3)  = f(iat,jat+1)
-    fi(4)  = f(iat+1,jat+1)
-    fi(5)  = ft(iat,jat)
-    fi(6)  = ft(iat+1,jat)
-    fi(7)  = ft(iat,jat+1)
-    fi(8)  = ft(iat+1,jat+1)
-    fi(9)  = ftt(iat,jat)
-    fi(10) = ftt(iat+1,jat)
-    fi(11) = ftt(iat,jat+1)
-    fi(12) = ftt(iat+1,jat+1)
-    fi(13) = fd(iat,jat)
-    fi(14) = fd(iat+1,jat)
-    fi(15) = fd(iat,jat+1)
-    fi(16) = fd(iat+1,jat+1)
-    fi(17) = fdd(iat,jat)
-    fi(18) = fdd(iat+1,jat)
-    fi(19) = fdd(iat,jat+1)
-    fi(20) = fdd(iat+1,jat+1)
-    fi(21) = fdt(iat,jat)
-    fi(22) = fdt(iat+1,jat)
-    fi(23) = fdt(iat,jat+1)
-    fi(24) = fdt(iat+1,jat+1)
-    fi(25) = fddt(iat,jat)
-    fi(26) = fddt(iat+1,jat)
-    fi(27) = fddt(iat,jat+1)
-    fi(28) = fddt(iat+1,jat+1)
-    fi(29) = fdtt(iat,jat)
-    fi(30) = fdtt(iat+1,jat)
-    fi(31) = fdtt(iat,jat+1)
-    fi(32) = fdtt(iat+1,jat+1)
-    fi(33) = fddtt(iat,jat)
-    fi(34) = fddtt(iat+1,jat)
-    fi(35) = fddtt(iat,jat+1)
-    fi(36) = fddtt(iat+1,jat+1)
+    fi(1:9)   = f(1:9, iat  ,jat  ) ! f, ft, ftt, fd, fdd, fdt, fddt, fdtt, fddtt
+    fi(10:18) = f(1:9, iat+1,jat  )
+    fi(19:27) = f(1:9, iat  ,jat+1)
+    fi(28:36) = f(1:9, iat+1,jat+1)
 
     !..various differences
     xt  = max( (state % T - t(jat))*dti_sav(jat), 0.0d0)
@@ -248,170 +201,145 @@ contains
     mxd = 1.0d0 - xd
 
     !..the six density and six temperature basis functions
-    si0t =   psi0(xt)
-    si1t =   psi1(xt)*dt_sav(jat)
-    si2t =   psi2(xt)*dt2_sav(jat)
+    sit(1) = psi0(xt)
+    sit(2) = psi1(xt)*dt_sav(jat)
+    sit(3) = psi2(xt)*dt2_sav(jat)
 
-    si0mt =  psi0(mxt)
-    si1mt = -psi1(mxt)*dt_sav(jat)
-    si2mt =  psi2(mxt)*dt2_sav(jat)
+    sit(4) =  psi0(mxt)
+    sit(5) = -psi1(mxt)*dt_sav(jat)
+    sit(6) =  psi2(mxt)*dt2_sav(jat)
 
-    si0d =   psi0(xd)
-    si1d =   psi1(xd)*dd_sav(iat)
-    si2d =   psi2(xd)*dd2_sav(iat)
+    sid(1) =   psi0(xd)
+    sid(2) =   psi1(xd)*dd_sav(iat)
+    sid(3) =   psi2(xd)*dd2_sav(iat)
 
-    si0md =  psi0(mxd)
-    si1md = -psi1(mxd)*dd_sav(iat)
-    si2md =  psi2(mxd)*dd2_sav(iat)
+    sid(4) =  psi0(mxd)
+    sid(5) = -psi1(mxd)*dd_sav(iat)
+    sid(6) =  psi2(mxd)*dd2_sav(iat)
 
     !..derivatives of the weight functions
-    dsi0t =   dpsi0(xt)*dti_sav(jat)
-    dsi1t =   dpsi1(xt)
-    dsi2t =   dpsi2(xt)*dt_sav(jat)
+    dsit(1) =   dpsi0(xt)*dti_sav(jat)
+    dsit(2) =   dpsi1(xt)
+    dsit(3) =   dpsi2(xt)*dt_sav(jat)
 
-    dsi0mt = -dpsi0(mxt)*dti_sav(jat)
-    dsi1mt =  dpsi1(mxt)
-    dsi2mt = -dpsi2(mxt)*dt_sav(jat)
+    dsit(4) = -dpsi0(mxt)*dti_sav(jat)
+    dsit(5) =  dpsi1(mxt)
+    dsit(6) = -dpsi2(mxt)*dt_sav(jat)
 
-    dsi0d =   dpsi0(xd)*ddi_sav(iat)
-    dsi1d =   dpsi1(xd)
-    dsi2d =   dpsi2(xd)*dd_sav(iat)
+    dsid(1) =   dpsi0(xd)*ddi_sav(iat)
+    dsid(2) =   dpsi1(xd)
+    dsid(3) =   dpsi2(xd)*dd_sav(iat)
 
-    dsi0md = -dpsi0(mxd)*ddi_sav(iat)
-    dsi1md =  dpsi1(mxd)
-    dsi2md = -dpsi2(mxd)*dd_sav(iat)
+    dsid(4) = -dpsi0(mxd)*ddi_sav(iat)
+    dsid(5) =  dpsi1(mxd)
+    dsid(6) = -dpsi2(mxd)*dd_sav(iat)
 
     !..second derivatives of the weight functions
-    ddsi0t =   ddpsi0(xt)*dt2i_sav(jat)
-    ddsi1t =   ddpsi1(xt)*dti_sav(jat)
-    ddsi2t =   ddpsi2(xt)
+    ddsit(1) =   ddpsi0(xt)*dt2i_sav(jat)
+    ddsit(2) =   ddpsi1(xt)*dti_sav(jat)
+    ddsit(3) =   ddpsi2(xt)
 
-    ddsi0mt =  ddpsi0(mxt)*dt2i_sav(jat)
-    ddsi1mt = -ddpsi1(mxt)*dti_sav(jat)
-    ddsi2mt =  ddpsi2(mxt)
+    ddsit(4) =  ddpsi0(mxt)*dt2i_sav(jat)
+    ddsit(5) = -ddpsi1(mxt)*dti_sav(jat)
+    ddsit(6) =  ddpsi2(mxt)
+
+    ! This array saves some subexpressions that go into
+    ! computing the biquintic polynomial. Instead of explicitly
+    ! constructing it in full, we'll use these subexpressions
+    ! and then compute the result as
+    ! (table data * temperature terms) * density terms.
+
+    fwtr(1:6) = fwt(fi, sit)
 
     !..the free energy
-    free  = h5(fi, &
-               si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-               si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+    free  = sum(fwtr * sid)
 
     !..derivative with respect to density
-    df_d  = h5(fi, &
-               si0t,   si1t,   si2t,   si0mt,   si1mt,   si2mt, &
-               dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+    df_d  = sum(fwtr * dsid)
+
+    fwtr(1:6) = fwt(fi, dsit)
 
     !..derivative with respect to temperature
-    df_t = h5(fi, &
-              dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
-              si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
-
-    !..derivative with respect to temperature**2
-    df_tt = h5(fi, &
-               ddsi0t, ddsi1t, ddsi2t, ddsi0mt, ddsi1mt, ddsi2mt, &
-               si0d,   si1d,   si2d,   si0md,   si1md,   si2md)
+    df_t  = sum(fwtr * sid)
 
     !..derivative with respect to temperature and density
-    df_dt = h5(fi, &
-               dsi0t,  dsi1t,  dsi2t,  dsi0mt,  dsi1mt,  dsi2mt, &
-               dsi0d,  dsi1d,  dsi2d,  dsi0md,  dsi1md,  dsi2md)
+    df_dt = sum(fwtr * dsid)
+
+    fwtr(1:6) = fwt(fi, ddsit)
+
+    !..derivative with respect to temperature**2
+    df_tt = sum(fwtr * sid)
 
     !..now get the pressure derivative with density, chemical potential, and
     !..electron positron number densities
     !..get the interpolation weight functions
-    si0t   =  xpsi0(xt)
-    si1t   =  xpsi1(xt)*dt_sav(jat)
+    sit(1) = xpsi0(xt)
+    sit(2) = xpsi1(xt)*dt_sav(jat)
 
-    si0mt  =  xpsi0(mxt)
-    si1mt  =  -xpsi1(mxt)*dt_sav(jat)
+    sit(3) = xpsi0(mxt)
+    sit(4) = -xpsi1(mxt)*dt_sav(jat)
 
-    si0d   =  xpsi0(xd)
-    si1d   =  xpsi1(xd)*dd_sav(iat)
+    sid(1) = xpsi0(xd)
+    sid(2) = xpsi1(xd)*dd_sav(iat)
 
-    si0md  =  xpsi0(mxd)
-    si1md  =  -xpsi1(mxd)*dd_sav(iat)
+    sid(3) = xpsi0(mxd)
+    sid(4) = -xpsi1(mxd)*dd_sav(iat)
 
     !..derivatives of weight functions
-    dsi0t  = xdpsi0(xt)*dti_sav(jat)
-    dsi1t  = xdpsi1(xt)
+    dsit(1) = xdpsi0(xt)*dti_sav(jat)
+    dsit(2) = xdpsi1(xt)
 
-    dsi0mt = -xdpsi0(mxt)*dti_sav(jat)
-    dsi1mt = xdpsi1(mxt)
+    dsit(3) = -xdpsi0(mxt)*dti_sav(jat)
+    dsit(4) = xdpsi1(mxt)
 
-    dsi0d  = xdpsi0(xd)*ddi_sav(iat)
-    dsi1d  = xdpsi1(xd)
+    dsid(1) = xdpsi0(xd)*ddi_sav(iat)
+    dsid(2) = xdpsi1(xd)
 
-    dsi0md = -xdpsi0(mxd)*ddi_sav(iat)
-    dsi1md = xdpsi1(mxd)
+    dsid(3) = -xdpsi0(mxd)*ddi_sav(iat)
+    dsid(4) = xdpsi1(mxd)
+
+    ! Reuse subexpressions that would go into computing h3.
+    wdt(1:4)   = sid(1) * sit(1:4)
+    wdt(5:8)   = sid(2) * sit(1:4)
+    wdt(9:12)  = sid(3) * sit(1:4)
+    wdt(13:16) = sid(4) * sit(1:4)
 
     !..look in the pressure derivative only once
-    fi(1)  = dpdf(iat,jat)
-    fi(2)  = dpdf(iat+1,jat)
-    fi(3)  = dpdf(iat,jat+1)
-    fi(4)  = dpdf(iat+1,jat+1)
-    fi(5)  = dpdft(iat,jat)
-    fi(6)  = dpdft(iat+1,jat)
-    fi(7)  = dpdft(iat,jat+1)
-    fi(8)  = dpdft(iat+1,jat+1)
-    fi(9)  = dpdfd(iat,jat)
-    fi(10) = dpdfd(iat+1,jat)
-    fi(11) = dpdfd(iat,jat+1)
-    fi(12) = dpdfd(iat+1,jat+1)
-    fi(13) = dpdfdt(iat,jat)
-    fi(14) = dpdfdt(iat+1,jat)
-    fi(15) = dpdfdt(iat,jat+1)
-    fi(16) = dpdfdt(iat+1,jat+1)
+    fi([ 1,  2,  5,  6]) = dpdf(1:4, iat,   jat  )
+    fi([ 9, 10, 13, 14]) = dpdf(1:4, iat+1, jat  )
+    fi([ 3,  4,  7,  8]) = dpdf(1:4, iat,   jat+1)
+    fi([11, 12, 15, 16]) = dpdf(1:4, iat+1, jat+1)
 
     !..pressure derivative with density
-    dpepdd  = h3(fi, &
-                 si0t,   si1t,   si0mt,   si1mt, &
-                 si0d,   si1d,   si0md,   si1md)
-    dpepdd  = max(state % y_e * dpepdd,0.0d0)
+    dpepdd  = sum(fi(1:16) * wdt)
+    dpepdd  = max(state % y_e * dpepdd, 0.0d0)
 
     !..look in the electron chemical potential table only once
-    fi(1)  = ef(iat,jat)
-    fi(2)  = ef(iat+1,jat)
-    fi(3)  = ef(iat,jat+1)
-    fi(4)  = ef(iat+1,jat+1)
-    fi(5)  = eft(iat,jat)
-    fi(6)  = eft(iat+1,jat)
-    fi(7)  = eft(iat,jat+1)
-    fi(8)  = eft(iat+1,jat+1)
-    fi(9)  = efd(iat,jat)
-    fi(10) = efd(iat+1,jat)
-    fi(11) = efd(iat,jat+1)
-    fi(12) = efd(iat+1,jat+1)
-    fi(13) = efdt(iat,jat)
-    fi(14) = efdt(iat+1,jat)
-    fi(15) = efdt(iat,jat+1)
-    fi(16) = efdt(iat+1,jat+1)
+    fi([ 1,  2,  5,  6]) = ef(1:4,iat  ,jat  )
+    fi([ 9, 10, 13, 14]) = ef(1:4,iat+1,jat  )
+    fi([ 3,  4,  7,  8]) = ef(1:4,iat  ,jat+1)
+    fi([11, 12, 15, 16]) = ef(1:4,iat+1,jat+1)
 
     !..electron chemical potential etaele
-    etaele  = h3(fi, &
-                 si0t,   si1t,   si0mt,   si1mt, &
-                 si0d,   si1d,   si0md,   si1md)
+    etaele  = sum(fi(1:16) * wdt)
 
     !..look in the number density table only once
-    fi(1)  = xf(iat,jat)
-    fi(2)  = xf(iat+1,jat)
-    fi(3)  = xf(iat,jat+1)
-    fi(4)  = xf(iat+1,jat+1)
-    fi(5)  = xft(iat,jat)
-    fi(6)  = xft(iat+1,jat)
-    fi(7)  = xft(iat,jat+1)
-    fi(8)  = xft(iat+1,jat+1)
-    fi(9)  = xfd(iat,jat)
-    fi(10) = xfd(iat+1,jat)
-    fi(11) = xfd(iat,jat+1)
-    fi(12) = xfd(iat+1,jat+1)
-    fi(13) = xfdt(iat,jat)
-    fi(14) = xfdt(iat+1,jat)
-    fi(15) = xfdt(iat,jat+1)
-    fi(16) = xfdt(iat+1,jat+1)
+    fi([ 1,  2,  5,  6]) = xf(1:4,iat  ,jat  )
+    fi([ 9, 10, 13, 14]) = xf(1:4,iat+1,jat  )
+    fi([ 3,  4,  7,  8]) = xf(1:4,iat  ,jat+1)
+    fi([11, 12, 15, 16]) = xf(1:4,iat+1,jat+1)
 
     !..electron + positron number densities
-    xnefer   = h3(fi, &
-                  si0t,   si1t,   si0mt,   si1mt, &
-                  si0d,   si1d,   si0md,   si1md)
+    xnefer   = sum(fi(1:16) * wdt)
+
+    wdt(1:4)   = dsid(1) * sit(1:4)
+    wdt(5:8)   = dsid(2) * sit(1:4)
+    wdt(9:12)  = dsid(3) * sit(1:4)
+    wdt(13:16) = dsid(4) * sit(1:4)
+
+    !..derivative with respect to density
+    x = sum(fi(1:16) * wdt)
+    x = max(x,0.0d0)
 
     !..the desired electron-positron thermodynamic quantities
 
@@ -1218,27 +1146,10 @@ contains
     allocate(dstpi)
     allocate(ttol)
     allocate(dtol)
-    allocate(f(imax,jmax))
-    allocate(fd(imax,jmax))
-    allocate(ft(imax,jmax))
-    allocate(fdd(imax,jmax))
-    allocate(ftt(imax,jmax))
-    allocate(fdt(imax,jmax))
-    allocate(fddt(imax,jmax))
-    allocate(fdtt(imax,jmax))
-    allocate(fddtt(imax,jmax))
-    allocate(dpdf(imax,jmax))
-    allocate(dpdfd(imax,jmax))
-    allocate(dpdft(imax,jmax))
-    allocate(dpdfdt(imax,jmax))
-    allocate(ef(imax,jmax))
-    allocate(efd(imax,jmax))
-    allocate(eft(imax,jmax))
-    allocate(efdt(imax,jmax))
-    allocate(xf(imax,jmax))
-    allocate(xfd(imax,jmax))
-    allocate(xft(imax,jmax))
-    allocate(xfdt(imax,jmax))
+    allocate(f(9,imax,jmax))
+    allocate(dpdf(4,imax,jmax))
+    allocate(ef(4,imax,jmax))
+    allocate(xf(4,imax,jmax))
     allocate(dt_sav(jmax))
     allocate(dt2_sav(jmax))
     allocate(dti_sav(jmax))
@@ -1305,29 +1216,29 @@ contains
        !...  read in the free energy table
        do j=1,jmax
           do i=1,imax
-             read(2,*) f(i,j),fd(i,j),ft(i,j),fdd(i,j),ftt(i,j),fdt(i,j), &
-                  fddt(i,j),fdtt(i,j),fddtt(i,j)
+             read(2,*) f(1,i,j),f(4,i,j),f(2,i,j),f(5,i,j),f(3,i,j),f(6,i,j), &
+                       f(7,i,j),f(8,i,j),f(9,i,j)
           end do
        end do
 
        !..   read the pressure derivative with density table
        do j = 1, jmax
           do i = 1, imax
-             read(2,*) dpdf(i,j),dpdfd(i,j),dpdft(i,j),dpdfdt(i,j)
+             read(2,*) dpdf(1,i,j), dpdf(3,i,j), dpdf(2,i,j), dpdf(4,i,j)
           end do
        end do
 
        !..   read the electron chemical potential table
        do j = 1, jmax
           do i = 1, imax
-             read(2,*) ef(i,j),efd(i,j),eft(i,j),efdt(i,j)
+             read(2,*) ef(1,i,j), ef(3,i,j), ef(2,i,j), ef(4,i,j)
           end do
        end do
 
        !..   read the number density table
        do j = 1, jmax
           do i = 1, imax
-             read(2,*) xf(i,j),xfd(i,j),xft(i,j),xfdt(i,j)
+             read(2,*) xf(1,i,j), xf(3,i,j), xf(2,i,j), xf(4,i,j)
           end do
        end do
 #ifndef COMPILE_WITH_F2PY
@@ -1336,26 +1247,9 @@ contains
 
 #ifndef COMPILE_WITH_F2PY
     call parallel_bcast(f)
-    call parallel_bcast(fd)
-    call parallel_bcast(ft)
-    call parallel_bcast(fdd)
-    call parallel_bcast(ftt)
-    call parallel_bcast(fdt)
-    call parallel_bcast(fddt)
-    call parallel_bcast(fdtt)
-    call parallel_bcast(fddtt)
     call parallel_bcast(dpdf)
-    call parallel_bcast(dpdfd)
-    call parallel_bcast(dpdft)
-    call parallel_bcast(dpdfdt)
     call parallel_bcast(ef)
-    call parallel_bcast(efd)
-    call parallel_bcast(eft)
-    call parallel_bcast(efdt)
     call parallel_bcast(xf)
-    call parallel_bcast(xfd)
-    call parallel_bcast(xft)
-    call parallel_bcast(xfdt)
 #endif
 
     !..   construct the temperature and density deltas and their inverses
@@ -1401,9 +1295,7 @@ contains
     !$acc device(tlo, thi, dlo, dhi) &
     !$acc device(tstp, tstpi, dstp, dstpi) &
     !$acc device(itmax, jtmax, d, t) &
-    !$acc device(f, fd, ft, fdd, ftt, fdt, fddt, fdtt, fddtt) &
-    !$acc device(dpdf, dpdfd, dpdft, dpdfdt) &
-    !$acc device(ef, efd, eft, efdt, xf, xfd, xft, xfdt)  &
+    !$acc device(f, dpdf, ef, xf) &
     !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
     !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
     !$acc device(do_coulomb, input_is_constant)
@@ -1488,35 +1380,22 @@ contains
     ddpsi2r = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
   end function ddpsi2
 
-
-  ! biquintic hermite polynomial function
-  pure function h5(fi,w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md) result(h5r)
+  pure function fwt(fi, wt) result(fwtr)
     !$acc routine seq
-    double precision, intent(in) :: fi(36)
-    double precision, intent(in) :: w0t,w1t,w2t,w0mt,w1mt,w2mt,w0d,w1d,w2d,w0md,w1md,w2md
-    double precision :: h5r
+    double precision, intent(in) :: fi(36), wt(6)
+    double precision :: fwtr(6)
 
     !$gpu
 
-    h5r =  fi(1)  *w0d*w0t   + fi(2)  *w0md*w0t &
-         + fi(3)  *w0d*w0mt  + fi(4)  *w0md*w0mt &
-         + fi(5)  *w0d*w1t   + fi(6)  *w0md*w1t &
-         + fi(7)  *w0d*w1mt  + fi(8)  *w0md*w1mt &
-         + fi(9)  *w0d*w2t   + fi(10) *w0md*w2t &
-         + fi(11) *w0d*w2mt  + fi(12) *w0md*w2mt &
-         + fi(13) *w1d*w0t   + fi(14) *w1md*w0t &
-         + fi(15) *w1d*w0mt  + fi(16) *w1md*w0mt &
-         + fi(17) *w2d*w0t   + fi(18) *w2md*w0t &
-         + fi(19) *w2d*w0mt  + fi(20) *w2md*w0mt &
-         + fi(21) *w1d*w1t   + fi(22) *w1md*w1t &
-         + fi(23) *w1d*w1mt  + fi(24) *w1md*w1mt &
-         + fi(25) *w2d*w1t   + fi(26) *w2md*w1t &
-         + fi(27) *w2d*w1mt  + fi(28) *w2md*w1mt &
-         + fi(29) *w1d*w2t   + fi(30) *w1md*w2t &
-         + fi(31) *w1d*w2mt  + fi(32) *w1md*w2mt &
-         + fi(33) *w2d*w2t   + fi(34) *w2md*w2t &
-         + fi(35) *w2d*w2mt  + fi(36) *w2md*w2mt
-  end function h5
+    fwtr(1) = fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)
+    fwtr(2) = fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)
+    fwtr(3) = fi( 5)*wt(1) + fi( 7)*wt(2) + fi( 9)*wt(3) + fi(23)*wt(4) + fi(25)*wt(5) + fi(27)*wt(6)
+    fwtr(4) = fi(10)*wt(1) + fi(11)*wt(2) + fi(12)*wt(3) + fi(28)*wt(4) + fi(29)*wt(5) + fi(30)*wt(6)
+    fwtr(5) = fi(13)*wt(1) + fi(15)*wt(2) + fi(17)*wt(3) + fi(31)*wt(4) + fi(33)*wt(5) + fi(35)*wt(6)
+    fwtr(6) = fi(14)*wt(1) + fi(16)*wt(2) + fi(18)*wt(3) + fi(32)*wt(4) + fi(34)*wt(5) + fi(36)*wt(6)
+
+  end function fwt
+
 
 
   ! cubic hermite polynomial functions
@@ -1555,22 +1434,7 @@ contains
     xdpsi1r = z * (3.0d0*z - 4.0d0) + 1.0d0
   end function xdpsi1
 
-  ! bicubic hermite polynomial function
-  pure function h3(fi,w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md) result(h3r)
-    !$acc routine seq
-    double precision, intent(in) :: fi(36)
-    double precision, intent(in) :: w0t,w1t,w0mt,w1mt,w0d,w1d,w0md,w1md
-    double precision :: h3r
-    !$gpu
-    h3r =   fi(1)  *w0d*w0t   +  fi(2)  *w0md*w0t &
-         + fi(3)  *w0d*w0mt  +  fi(4)  *w0md*w0mt &
-         + fi(5)  *w0d*w1t   +  fi(6)  *w0md*w1t &
-         + fi(7)  *w0d*w1mt  +  fi(8)  *w0md*w1mt &
-         + fi(9)  *w1d*w0t   +  fi(10) *w1md*w0t &
-         + fi(11) *w1d*w0mt  +  fi(12) *w1md*w0mt &
-         + fi(13) *w1d*w1t   +  fi(14) *w1md*w1t &
-         + fi(15) *w1d*w1mt  +  fi(16) *w1md*w1mt
-  end function h3
+
 
   subroutine actual_eos_finalize
 
@@ -1595,26 +1459,9 @@ contains
     deallocate(ttol)
     deallocate(dtol)
     deallocate(f)
-    deallocate(fd)
-    deallocate(ft)
-    deallocate(fdd)
-    deallocate(ftt)
-    deallocate(fdt)
-    deallocate(fddt)
-    deallocate(fdtt)
-    deallocate(fddtt)
     deallocate(dpdf)
-    deallocate(dpdfd)
-    deallocate(dpdft)
-    deallocate(dpdfdt)
     deallocate(ef)
-    deallocate(efd)
-    deallocate(eft)
-    deallocate(efdt)
     deallocate(xf)
-    deallocate(xfd)
-    deallocate(xft)
-    deallocate(xfdt)
     deallocate(dt_sav)
     deallocate(dt2_sav)
     deallocate(dti_sav)
