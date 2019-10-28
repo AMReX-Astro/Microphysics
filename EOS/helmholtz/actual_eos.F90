@@ -125,8 +125,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO, HALF, TWO
-
     implicit none
 
     !..input arguments
@@ -135,89 +133,26 @@ contains
 
     integer, parameter :: max_newton = 100
 
-    !..declare local variables
-
-    logical :: single_iter, double_iter, converged
+    logical :: single_iter, converged
     integer :: var, dvar, var1, var2, iter
-    double precision :: v_want
-    double precision :: v1_want, v2_want
-    double precision :: x, xnew, xtol, dvdx, smallx, error, v
-    double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
+    double precision :: v_want, v1_want, v2_want
 
     double precision :: chit, chid
 
-    double precision :: smallt, smalld
-
     !$gpu
 
-    call eos_get_small_temp(smallt)
-    call eos_get_small_dens(smalld)
+    ! Initial setup for iterations.
 
-    ! Initial setup for iterations
-
-    single_iter = .false.
-    double_iter = .false.
-
-    if (input .eq. eos_input_rt) then
-
-       ! Nothing to do here.
-
-    elseif (input .eq. eos_input_rh) then
-
-       single_iter = .true.
-       v_want = state % h
-       var  = ienth
-       dvar = itemp
-
-    elseif (input .eq. eos_input_tp) then
-
-       single_iter = .true.
-       v_want = state % p
-       var  = ipres
-       dvar = idens
-
-    elseif (input .eq. eos_input_rp) then
-
-       single_iter = .true.
-       v_want = state % p
-       var  = ipres
-       dvar = itemp
-
-    elseif (input .eq. eos_input_re) then
-
-       single_iter = .true.
-       v_want = state % e
-       var  = iener
-       dvar = itemp
-
-    elseif (input .eq. eos_input_ps) then
-
-       double_iter = .true.
-       v1_want = state % p
-       v2_want = state % s
-       var1 = ipres
-       var2 = ientr
-
-    elseif (input .eq. eos_input_ph) then
-
-       double_iter = .true.
-       v1_want = state % p
-       v2_want = state % h
-       var1 = ipres
-       var2 = ienth
-
-    elseif (input .eq. eos_input_th) then
-
-       single_iter = .true.
-       v_want = state % h
-       var  = ienth
-       dvar = idens
-
-    endif
+    call prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2)
 
     converged = .false.
 
+    ! Only take a single step if we're coming in with both rho and T;
+    ! in this call we just want the EOS to fill the other thermodynamic quantities.
+
     if (input .eq. eos_input_rt) converged = .true.
+
+    ! Iterate until converged.
 
     do iter = 1, max_newton
 
@@ -228,9 +163,7 @@ contains
        call apply_electrons(state)
 
        if (do_coulomb) then
-
           call apply_coulomb_corrections(state)
-
        end if
 
        ! Calculate enthalpy the usual way, h = e + p / rho.
@@ -240,163 +173,11 @@ contains
        state % dhdT = state % dedT + state % dpdT / state % rho
 
        if (converged) then
-
           exit
-
        elseif (single_iter) then
-
-          if (dvar .eq. itemp) then
-
-             x = state % T
-             smallx = smallt
-             xtol = ttol
-
-             if (var .eq. ipres) then
-                v    = state % p
-                dvdx = state % dpdT
-             elseif (var .eq. iener) then
-                v    = state % e
-                dvdx = state % dedT
-             elseif (var .eq. ientr) then
-                v    = state % s
-                dvdx = state % dsdT
-             elseif (var .eq. ienth) then
-                v    = state % h
-                dvdx = state % dhdT
-             else
-                exit
-             endif
-
-          else ! dvar == density
-
-             x = state % rho
-             smallx = smalld
-             xtol = dtol
-
-             if (var .eq. ipres) then
-                v    = state % p
-                dvdx = state % dpdr
-             elseif (var .eq. iener) then
-                v    = state % e
-                dvdx = state % dedr
-             elseif (var .eq. ientr) then
-                v    = state % s
-                dvdx = state % dsdr
-             elseif (var .eq. ienth) then
-                v    = state % h
-                dvdx = state % dhdr
-             else
-                exit
-             endif
-
-          endif
-
-          ! Now do the calculation for the next guess for T/rho
-
-          xnew = x - (v - v_want) / dvdx
-
-          ! Don't let the temperature/density change by more than a factor of two
-          xnew = max(0.5 * x, min(xnew, 2.0 * x))
-
-          ! Don't let us freeze/evacuate
-          xnew = max(smallx, xnew)
-
-          ! Store the new temperature/density
-
-          if (dvar .eq. itemp) then
-             state % T = xnew
-          else
-             state % rho  = xnew
-          endif
-
-          ! Compute the error from the last iteration
-
-          error = abs( (xnew - x) / x )
-
-          if (error .lt. xtol) converged = .true.
-
-       elseif (double_iter) then
-
-          ! Figure out which variables we're using
-
-          told = state % T
-          rold = state % rho
-
-          if (var1 .eq. ipres) then
-             v1    = state % p
-             dv1dt = state % dpdT
-             dv1dr = state % dpdr
-          elseif (var1 .eq. iener) then
-             v1    = state % e
-             dv1dt = state % dedT
-             dv1dr = state % dedr
-          elseif (var1 .eq. ientr) then
-             v1    = state % s
-             dv1dt = state % dsdT
-             dv1dr = state % dsdr
-          elseif (var1 .eq. ienth) then
-             v1    = state % h
-             dv1dt = state % dhdT
-             dv1dr = state % dhdr
-          else
-             exit
-          endif
-
-          if (var2 .eq. ipres) then
-             v2    = state % p
-             dv2dt = state % dpdT
-             dv2dr = state % dpdr
-          elseif (var2 .eq. iener) then
-             v2    = state % e
-             dv2dt = state % dedT
-             dv2dr = state % dedr
-          elseif (var2 .eq. ientr) then
-             v2    = state % s
-             dv2dt = state % dsdT
-             dv2dr = state % dsdr
-          elseif (var2 .eq. ienth) then
-             v2    = state % h
-             dv2dt = state % dhdT
-             dv2dr = state % dhdr
-          else
-             exit
-          endif
-
-          ! Two functions, f and g, to iterate over
-          v1i = v1_want - v1
-          v2i = v2_want - v2
-
-          !
-          ! 0 = f + dfdr * delr + dfdt * delt
-          ! 0 = g + dgdr * delr + dgdt * delt
-          !
-
-          ! note that dfi/dT = - df/dT
-          delr = (-v1i*dv2dt + v2i*dv1dt) / (dv2dr*dv1dt - dv2dt*dv1dr)
-
-          rnew = rold + delr
-
-          tnew = told + (v1i - dv1dr*delr) / dv1dt
-
-          ! Don't let the temperature or density change by more
-          ! than a factor of two
-          tnew = max(HALF * told, min(tnew, TWO * told))
-          rnew = max(HALF * rold, min(rnew, TWO * rold))
-
-          ! Don't let us freeze or evacuate
-          tnew = max(smallt, tnew)
-          rnew = max(smalld, rnew)
-
-          ! Store the new temperature and density
-          state % rho = rnew
-          state % T = tnew
-
-          ! Compute the errors
-          error1 = abs( (rnew - rold) / rold )
-          error2 = abs( (tnew - told) / told )
-
-          if (error1 .LT. dtol .and. error2 .LT. ttol) converged = .true.
-
+          call single_iter_update(state, var, dvar, v_want, converged)
+       else
+          call double_iter_update(state, var1, var2, v1_want, v2_want, converged) 
        endif
 
     enddo
@@ -1125,6 +906,256 @@ contains
 #endif
 
   end subroutine apply_coulomb_corrections
+
+
+
+  subroutine prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2)
+
+    implicit none
+
+    integer,          intent(in   ) :: input
+    type(eos_t),      intent(in   ) :: state
+    logical,          intent(inout) :: single_iter
+    double precision, intent(inout) :: v_want, v1_want, v2_want
+    integer,          intent(inout) :: var, dvar, var1, var2
+
+    single_iter = .true.
+
+    if (input .eq. eos_input_rt) then
+
+       ! Nothing to do here.
+
+    elseif (input .eq. eos_input_rh) then
+
+       v_want = state % h
+       var  = ienth
+       dvar = itemp
+
+    elseif (input .eq. eos_input_tp) then
+
+       v_want = state % p
+       var  = ipres
+       dvar = idens
+
+    elseif (input .eq. eos_input_rp) then
+
+       v_want = state % p
+       var  = ipres
+       dvar = itemp
+
+    elseif (input .eq. eos_input_re) then
+
+       v_want = state % e
+       var  = iener
+       dvar = itemp
+
+    elseif (input .eq. eos_input_ps) then
+
+       single_iter = .false.
+       v1_want = state % p
+       v2_want = state % s
+       var1 = ipres
+       var2 = ientr
+
+    elseif (input .eq. eos_input_ph) then
+
+       single_iter = .false.
+       v1_want = state % p
+       v2_want = state % h
+       var1 = ipres
+       var2 = ienth
+
+    elseif (input .eq. eos_input_th) then
+
+       v_want = state % h
+       var  = ienth
+       dvar = idens
+
+    endif
+
+  end subroutine prepare_for_iterations
+
+
+
+  subroutine single_iter_update(state, var, dvar, v_want, converged)
+
+    implicit none
+
+    type(eos_t),      intent(inout) :: state
+    integer,          intent(in   ) :: var, dvar
+    double precision, intent(in   ) :: v_want
+    logical,          intent(inout) :: converged
+
+    double precision :: x, xnew, v, dvdx, xtol, smallx, smallt, smalld, error
+
+    call eos_get_small_temp(smallt)
+    call eos_get_small_dens(smalld)
+
+    if (dvar .eq. itemp) then
+
+       x = state % T
+       smallx = smallt
+       xtol = ttol
+
+       if (var .eq. ipres) then
+          v    = state % p
+          dvdx = state % dpdT
+       elseif (var .eq. iener) then
+          v    = state % e
+          dvdx = state % dedT
+       elseif (var .eq. ientr) then
+          v    = state % s
+          dvdx = state % dsdT
+       elseif (var .eq. ienth) then
+          v    = state % h
+          dvdx = state % dhdT
+       endif
+
+    else ! dvar == density
+
+       x = state % rho
+       smallx = smalld
+       xtol = dtol
+
+       if (var .eq. ipres) then
+          v    = state % p
+          dvdx = state % dpdr
+       elseif (var .eq. iener) then
+          v    = state % e
+          dvdx = state % dedr
+       elseif (var .eq. ientr) then
+          v    = state % s
+          dvdx = state % dsdr
+       elseif (var .eq. ienth) then
+          v    = state % h
+          dvdx = state % dhdr
+       endif
+
+    endif
+
+    ! Now do the calculation for the next guess for T/rho
+
+    xnew = x - (v - v_want) / dvdx
+
+    ! Don't let the temperature/density change by more than a factor of two
+    xnew = max(0.5 * x, min(xnew, 2.0 * x))
+
+    ! Don't let us freeze/evacuate
+    xnew = max(smallx, xnew)
+
+    ! Store the new temperature/density
+
+    if (dvar .eq. itemp) then
+       state % T = xnew
+    else
+       state % rho  = xnew
+    endif
+
+    ! Compute the error from the last iteration
+
+    error = abs( (xnew - x) / x )
+
+    if (error .lt. xtol) converged = .true.
+
+  end subroutine single_iter_update
+
+
+
+  subroutine double_iter_update(state, var1, var2, v1_want, v2_want, converged)
+
+    use amrex_constants_module, only: HALF, TWO
+
+    implicit none
+
+    type(eos_t),      intent(inout) :: state
+    integer,          intent(in   ) :: var1, var2
+    double precision, intent(in   ) :: v1_want, v2_want
+    logical,          intent(inout) :: converged
+
+    double precision :: told, rold, delr, rnew, tnew
+    double precision :: v1, dv1dt, dv1dr, v2, dv2dt, dv2dr, v1i, v2i
+    double precision :: error1, error2, smallt, smalld
+
+    call eos_get_small_temp(smallt)
+    call eos_get_small_dens(smalld)
+
+    ! Figure out which variables we're using
+
+    told = state % T
+    rold = state % rho
+
+    if (var1 .eq. ipres) then
+       v1    = state % p
+       dv1dt = state % dpdT
+       dv1dr = state % dpdr
+    elseif (var1 .eq. iener) then
+       v1    = state % e
+       dv1dt = state % dedT
+       dv1dr = state % dedr
+    elseif (var1 .eq. ientr) then
+       v1    = state % s
+       dv1dt = state % dsdT
+       dv1dr = state % dsdr
+    elseif (var1 .eq. ienth) then
+       v1    = state % h
+       dv1dt = state % dhdT
+       dv1dr = state % dhdr
+    endif
+
+    if (var2 .eq. ipres) then
+       v2    = state % p
+       dv2dt = state % dpdT
+       dv2dr = state % dpdr
+    elseif (var2 .eq. iener) then
+       v2    = state % e
+       dv2dt = state % dedT
+       dv2dr = state % dedr
+    elseif (var2 .eq. ientr) then
+       v2    = state % s
+       dv2dt = state % dsdT
+       dv2dr = state % dsdr
+    elseif (var2 .eq. ienth) then
+       v2    = state % h
+       dv2dt = state % dhdT
+       dv2dr = state % dhdr
+    endif
+
+    ! Two functions, f and g, to iterate over
+    v1i = v1_want - v1
+    v2i = v2_want - v2
+
+    !
+    ! 0 = f + dfdr * delr + dfdt * delt
+    ! 0 = g + dgdr * delr + dgdt * delt
+    !
+
+    ! note that dfi/dT = - df/dT
+    delr = (-v1i*dv2dt + v2i*dv1dt) / (dv2dr*dv1dt - dv2dt*dv1dr)
+
+    rnew = rold + delr
+
+    tnew = told + (v1i - dv1dr*delr) / dv1dt
+
+    ! Don't let the temperature or density change by more
+    ! than a factor of two
+    tnew = max(HALF * told, min(tnew, TWO * told))
+    rnew = max(HALF * rold, min(rnew, TWO * rold))
+
+    ! Don't let us freeze or evacuate
+    tnew = max(smallt, tnew)
+    rnew = max(smalld, rnew)
+
+    ! Store the new temperature and density
+    state % rho = rnew
+    state % T = tnew
+
+    ! Compute the errors
+    error1 = abs( (rnew - rold) / rold )
+    error2 = abs( (tnew - told) / told )
+
+    if (error1 .LT. dtol .and. error2 .LT. ttol) converged = .true.
+
+  end subroutine double_iter_update
 
 
 
