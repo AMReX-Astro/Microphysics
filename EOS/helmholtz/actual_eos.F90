@@ -504,7 +504,7 @@ contains
 
     implicit none
 
-    type(eos_t),      intent(inout) :: state
+    type(eos_t), intent(inout) :: state
 
     double precision :: prad, dpraddd, dpraddt, dpradda, dpraddz
     double precision :: erad, deraddd, deraddt, deradda, deraddz
@@ -588,7 +588,7 @@ contains
 
     implicit none
 
-    type(eos_t),      intent(inout) :: state
+    type(eos_t), intent(inout) :: state
 
     double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
     double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
