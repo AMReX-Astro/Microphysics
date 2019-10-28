@@ -137,8 +137,6 @@ contains
     integer :: var, dvar, var1, var2, iter
     double precision :: v_want, v1_want, v2_want
 
-    double precision :: chit, chid
-
     !$gpu
 
     ! Initial setup for iterations.
@@ -182,57 +180,7 @@ contains
 
     enddo
 
-    ! Calculate some remaining derivatives
-    state % dpde = state % dpdT / state % dedT
-    state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
-
-    ! Specific heats and Gamma_1
-    chit = state % T / state % p * state % dpdT
-    chid = state % dpdr * state % rho / state % p
-
-    state % cv = state % dedT
-    state % gam1 = (chit * (state % p / state % rho)) * (chit / (state % T * state % cv)) + chid
-    state % cp = state % cv * state % gam1 / chid
-
-    ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
-    ! This replaces the relativistic version that comes out of helmeos.
-    state % cs = sqrt(state % gam1 * state % p / state % rho)
-
-    if (input_is_constant) then
-
-       if (input .eq. eos_input_rh) then
-
-          state % h = v_want
-
-       elseif (input .eq. eos_input_tp) then
-
-          state % p = v_want
-
-       elseif (input .eq. eos_input_rp) then
-
-          state % p = v_want
-
-       elseif (input .eq. eos_input_re) then
-
-          state % e = v_want
-
-       elseif (input .eq. eos_input_ps) then
-
-          state % p = v1_want
-          state % s = v2_want
-
-       elseif (input .eq. eos_input_ph) then
-
-          state % p = v1_want
-          state % h = v2_want
-
-       elseif (input .eq. eos_input_th) then
-
-          state % h = v_want
-
-       endif
-
-    endif
+    call finalize_state(input, state, v_want, v1_want, v2_want)
 
   end subroutine actual_eos
 
@@ -242,7 +190,7 @@ contains
 
     implicit none
 
-    type(eos_t),      intent(inout) :: state
+    type(eos_t), intent(inout) :: state
 
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
@@ -1156,6 +1104,72 @@ contains
     if (error1 .LT. dtol .and. error2 .LT. ttol) converged = .true.
 
   end subroutine double_iter_update
+
+
+
+  subroutine finalize_state(input, state, v_want, v1_want, v2_want)
+
+    implicit none
+
+    integer,          intent(in   ) :: input
+    type(eos_t),      intent(inout) :: state
+    double precision, intent(in   ) :: v_want, v1_want, v2_want
+
+    double precision :: chit, chid
+
+    ! Calculate some remaining derivatives
+    state % dpde = state % dpdT / state % dedT
+    state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
+
+    ! Specific heats and Gamma_1
+    chit = state % T / state % p * state % dpdT
+    chid = state % dpdr * state % rho / state % p
+
+    state % cv = state % dedT
+    state % gam1 = (chit * (state % p / state % rho)) * (chit / (state % T * state % cv)) + chid
+    state % cp = state % cv * state % gam1 / chid
+
+    ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
+    ! This replaces the relativistic version that comes out of helmeos.
+    state % cs = sqrt(state % gam1 * state % p / state % rho)
+
+    if (input_is_constant) then
+
+       if (input .eq. eos_input_rh) then
+
+          state % h = v_want
+
+       elseif (input .eq. eos_input_tp) then
+
+          state % p = v_want
+
+       elseif (input .eq. eos_input_rp) then
+
+          state % p = v_want
+
+       elseif (input .eq. eos_input_re) then
+
+          state % e = v_want
+
+       elseif (input .eq. eos_input_ps) then
+
+          state % p = v1_want
+          state % s = v2_want
+
+       elseif (input .eq. eos_input_ph) then
+
+          state % p = v1_want
+          state % h = v2_want
+
+       elseif (input .eq. eos_input_th) then
+
+          state % h = v_want
+
+       endif
+
+    endif
+
+  end subroutine finalize_state
 
 
 
