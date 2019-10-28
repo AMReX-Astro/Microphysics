@@ -151,7 +151,7 @@ contains
                         cv,cp, &
                         gam1,chit,chid, &
                         s, &
-                        temp,den,ytot1
+                        temp,den
 
     double precision :: smallt, smalld
 
@@ -162,7 +162,6 @@ contains
 
     temp_row = state % T
     den_row  = state % rho
-    ytot1 = 1.0d0 / state % abar
 
     ! Initial setup for iterations
 
@@ -240,13 +239,13 @@ contains
 
        call apply_radiation(state, deni, temp, tempi)
 
-       call apply_ions(state, den, deni, temp, tempi, ytot1)
+       call apply_ions(state, den, deni, temp, tempi)
 
-       call apply_electrons(state, den, temp, ytot1)
+       call apply_electrons(state, den, temp)
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(state, den, temp, ytot1)
+          call apply_coulomb_corrections(state, den, temp)
 
        end if
 
@@ -487,17 +486,17 @@ contains
 
 
 
-  subroutine apply_electrons(state, den, temp, ytot1)
+  subroutine apply_electrons(state, den, temp)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp, ytot1
+    double precision, intent(in   ) :: den, temp
 
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
     double precision :: eele, deepdt, deepdd, deepda, deepdz
-    double precision :: xni, xnem, din, x, s, etaele, xnefer
+    double precision :: xni, xnem, din, x, s, etaele, xnefer, ytot1
 
     !..for the interpolations
     integer          :: iat,jat
@@ -511,6 +510,7 @@ contains
                         fi(36)
 
     !..assume complete ionization
+    ytot1 = 1.0d0 / state % abar
     xni  = avo_eos * ytot1 * den
     xnem = xni * state % zbar
 
@@ -800,21 +800,22 @@ contains
 
 
 
-  subroutine apply_ions(state, den, deni, temp, tempi, ytot1)
+  subroutine apply_ions(state, den, deni, temp, tempi)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, deni, temp, tempi, ytot1
+    double precision, intent(in   ) :: den, deni, temp, tempi
 
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
     double precision :: sion, dsiondd, dsiondt, dsionda, dsiondz
 
-    double precision :: xni, dxnidd, dxnida, kt
+    double precision :: xni, dxnidd, dxnida, kt, ytot1
 
     double precision :: s, x, y, z
 
+    ytot1   = 1.0d0 / state % abar
     xni     = avo_eos * ytot1 * den
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
@@ -950,14 +951,14 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(state, den, temp, ytot1)
+  subroutine apply_coulomb_corrections(state, den, temp)
 
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp, ytot1
+    double precision, intent(in   ) :: den, temp
 
     double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
     double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
@@ -967,7 +968,7 @@ contains
     double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
     double precision :: pion, dpiondt, dpiondd, xni, dxnidd, dxnida
 
-    double precision :: kt, ktinv
+    double precision :: kt, ktinv, ytot1
     double precision :: s, x, y, z
     double precision :: p_temp, e_temp
 
@@ -1004,6 +1005,7 @@ contains
     !..lami is the average ion seperation
     !..plasg is the plasma coupling parameter
 
+    ytot1 = 1.0d0 / state % abar
     xni     = avo_eos * ytot1 * den
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
