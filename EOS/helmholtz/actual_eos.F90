@@ -135,9 +135,6 @@ contains
 
     integer, parameter :: max_newton = 100
 
-    !..rows to store EOS data
-    double precision :: temp_row, den_row
-
     !..declare local variables
 
     logical :: single_iter, double_iter, converged
@@ -150,8 +147,7 @@ contains
     double precision :: x,y,z,zz,zzi, &
                         cv,cp, &
                         gam1,chit,chid, &
-                        s, &
-                        temp,den
+                        s
 
     double precision :: smallt, smalld
 
@@ -159,9 +155,6 @@ contains
 
     call eos_get_small_temp(smallt)
     call eos_get_small_dens(smalld)
-
-    temp_row = state % T
-    den_row  = state % rho
 
     ! Initial setup for iterations
 
@@ -231,18 +224,15 @@ contains
 
     do iter = 1, max_newton
 
-       temp  = temp_row
-       den   =  den_row
+       call apply_radiation(state)
 
-       call apply_radiation(state, den, temp)
+       call apply_ions(state)
 
-       call apply_ions(state, den, temp)
-
-       call apply_electrons(state, den, temp)
+       call apply_electrons(state)
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(state, den, temp)
+          call apply_coulomb_corrections(state)
 
        end if
 
@@ -253,21 +243,21 @@ contains
        !..the second adiabatic exponent (c&g 9.105)
        !..the specific heat at constant pressure (c&g 9.98)
        !..and relativistic formula for the sound speed (c&g 14.29)
-       zz    = state % p / den
-       zzi   = den/state % p
-       chit  = temp/state % p * state % dpdT
+       zz    = state % p / state % rho
+       zzi   = state % rho/state % p
+       chit  = state % T/state % p * state % dpdT
        chid  = state % dpdr*zzi
        cv    = state % dedT
-       x     = zz * chit/(temp * cv)
+       x     = zz * chit/(state % T * cv)
        gam1  = chit*x + chid
        cp    = cv * gam1/chid
 
        state % dpde = state % dpdT / state % dedT
        state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
 
-       state % h = state % e + state % p / den
-       state % dhdr = state % dedr + state % dpdr / den - state % p / den**2
-       state % dhdT = state % dedT + state % dpdT / den
+       state % h = state % e + state % p / state % rho
+       state % dhdr = state % dedr + state % dpdr / state % rho - state % p / state % rho**2
+       state % dhdT = state % dedT + state % dpdT / state % rho
 
        state % cv = cv
        state % cp = cp
@@ -281,7 +271,7 @@ contains
 
           if (dvar .eq. itemp) then
 
-             x = temp_row
+             x = state % T
              smallx = smallt
              xtol = ttol
 
@@ -303,7 +293,7 @@ contains
 
           else ! dvar == density
 
-             x = den_row
+             x = state % rho
              smallx = smalld
              xtol = dtol
 
@@ -338,9 +328,9 @@ contains
           ! Store the new temperature/density
 
           if (dvar .eq. itemp) then
-             temp_row = xnew
+             state % T = xnew
           else
-             den_row  = xnew
+             state % rho  = xnew
           endif
 
           ! Compute the error from the last iteration
@@ -353,8 +343,8 @@ contains
 
           ! Figure out which variables we're using
 
-          told = temp_row
-          rold = den_row
+          told = state % T
+          rold = state % rho
 
           if (var1 .eq. ipres) then
              v1    = state % p
@@ -422,8 +412,8 @@ contains
           rnew = max(smalld, rnew)
 
           ! Store the new temperature and density
-          den_row  = rnew
-          temp_row = tnew
+          state % rho = rnew
+          state % T = tnew
 
           ! Compute the errors
           error1 = abs( (rnew - rold) / rold )
@@ -434,9 +424,6 @@ contains
        endif
 
     enddo
-
-    state % T    = temp_row
-    state % rho  = den_row
 
     ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     ! This replaces the relativistic version that comes out of helmeos.
@@ -483,12 +470,11 @@ contains
 
 
 
-  subroutine apply_electrons(state, den, temp)
+  subroutine apply_electrons(state)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp
 
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
@@ -508,14 +494,14 @@ contains
 
     !..assume complete ionization
     ytot1 = 1.0d0 / state % abar
-    xni  = avo_eos * ytot1 * den
+    xni  = avo_eos * ytot1 * state % rho
     xnem = xni * state % zbar
 
     !..enter the table with ye*den
-    din = state % y_e*den
+    din = state % y_e*state % rho
 
     !..hash locate this temperature and density
-    jat = int((log10(temp) - tlo)*tstpi) + 1
+    jat = int((log10(state % T) - tlo)*tstpi) + 1
     jat = max(1,min(jat,jtmax-1))
     iat = int((log10(din) - dlo)*dstpi) + 1
     iat = max(1,min(iat,itmax-1))
@@ -559,7 +545,7 @@ contains
     fi(36) = fddtt(iat+1,jat+1)
 
     !..various differences
-    xt  = max( (temp - t(jat))*dti_sav(jat), 0.0d0)
+    xt  = max( (state % T - t(jat))*dti_sav(jat), 0.0d0)
     xd  = max( (din - d(iat))*ddi_sav(iat), 0.0d0)
     mxt = 1.0d0 - xt
     mxd = 1.0d0 - xd
@@ -742,7 +728,7 @@ contains
     s       = dpepdd/state % y_e - 2.0d0 * din * df_d
 #ifdef EXTRA_THERMO
     dpepda  = -ytot1 * (2.0d0 * pele + s * din)
-    dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
+    dpepdz  = state % rho*ytot1*(2.0d0 * din * df_d  +  s)
 #endif
 
     x       = state % y_e * state % y_e
@@ -751,15 +737,15 @@ contains
     dsepdd  = -df_dt * x
 #ifdef EXTRA_THERMO
     dsepda  = ytot1 * (state % y_e * df_dt * din - sele)
-    dsepdz  = -ytot1 * (state % y_e * df_dt * den  + df_t)
+    dsepdz  = -ytot1 * (state % y_e * df_dt * state % rho  + df_t)
 #endif
 
-    eele    = state % y_e*free + temp * sele
-    deepdt  = temp * dsepdt
-    deepdd  = x * df_d + temp * dsepdd
+    eele    = state % y_e*free + state % T * sele
+    deepdt  = state % T * dsepdt
+    deepdd  = x * df_d + state % T * dsepdd
 #ifdef EXTRA_THERMO
-    deepda  = -state % y_e * ytot1 * (free +  df_d * din) + temp * dsepda
-    deepdz  = ytot1* (free + state % y_e * df_d * den) + temp * dsepdz
+    deepda  = -state % y_e * ytot1 * (free +  df_d * din) + state % T * dsepda
+    deepdz  = ytot1* (free + state % y_e * df_d * state % rho) + state % T * dsepdz
 #endif
 
     state % p    = state % p + pele
@@ -797,12 +783,11 @@ contains
 
 
 
-  subroutine apply_ions(state, den, temp)
+  subroutine apply_ions(state)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp
 
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
@@ -812,15 +797,15 @@ contains
 
     double precision :: s, x, y, z
 
-    deni = 1.0d0 / den
-    tempi = 1.0d0 / temp
+    deni = 1.0d0 / state % rho
+    tempi = 1.0d0 / state % T
 
     ytot1   = 1.0d0 / state % abar
-    xni     = avo_eos * ytot1 * den
+    xni     = avo_eos * ytot1 * state % rho
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
 
-    kt = kerg * temp
+    kt = kerg * state % T
 
     pion    = xni * kt
     dpiondd = dxnidd * kt
@@ -839,7 +824,7 @@ contains
 #endif
 
     x       = state % abar*state % abar*sqrt(state % abar) * deni/avo_eos
-    s       = sioncon * temp
+    s       = sioncon * state % T
     z       = x * s * sqrt(s)
     y       = log(z)
     sion    = (pion*deni + eion)*tempi + kergavo * ytot1 * y
@@ -884,12 +869,11 @@ contains
 
 
   
-  subroutine apply_radiation(state, den, temp)
+  subroutine apply_radiation(state)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp
 
     double precision :: prad, dpraddd, dpraddt, dpradda, dpraddz
     double precision :: erad, deraddd, deraddt, deradda, deraddz
@@ -897,10 +881,10 @@ contains
 
     double precision :: deni, tempi
 
-    deni = 1.0d0 / den
-    tempi = 1.0d0 / temp
+    deni = 1.0d0 / state % rho
+    tempi = 1.0d0 / state % T
 
-    prad    = asoli3 * temp * temp * temp * temp
+    prad    = asoli3 * state % T * state % T * state % T * state % T
     dpraddd = 0.0d0
     dpraddt = 4.0d0 * prad*tempi
 #ifdef EXTRA_THERMO
@@ -956,14 +940,13 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(state, den, temp)
+  subroutine apply_coulomb_corrections(state)
 
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp
 
     double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
     double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
@@ -1011,11 +994,11 @@ contains
     !..plasg is the plasma coupling parameter
 
     ytot1 = 1.0d0 / state % abar
-    xni     = avo_eos * ytot1 * den
+    xni     = avo_eos * ytot1 * state % rho
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
 
-    kt      = kerg * temp
+    kt      = kerg * state % T
     ktinv   = 1.0d0/kt
 
     z        = forth * pi
@@ -1040,18 +1023,18 @@ contains
     if (plasg .ge. 1.0D0) then
        x        = plasg**(0.25d0)
        y        = avo_eos * ytot1 * kerg
-       ecoul    = y * temp * (a1*plasg + b1*x + c1/x + d1)
-       pcoul    = onethird * den * ecoul
+       ecoul    = y * state % T * (a1*plasg + b1*x + c1/x + d1)
+       pcoul    = onethird * state % rho * ecoul
        scoul    = -y * (3.0d0*b1*x - 5.0d0*c1/x &
                   + d1 * (log(plasg) - 1.0d0) - e1)
 
        y        = avo_eos*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
        decouldd = y * plasgdd
-       decouldt = y * plasgdt + ecoul/temp
+       decouldt = y * plasgdt + ecoul/state % T
        decoulda = y * plasgda - ecoul/state % abar
        decouldz = y * plasgdz
 
-       y        = onethird * den
+       y        = onethird * state % rho
        dpcouldd = onethird * ecoul + y*decouldd
        dpcouldt = y * decouldt
        dpcoulda = y * decoulda
@@ -1079,7 +1062,7 @@ contains
        y        = plasg**b2
        z        = c2 * x - onethird * a2 * y
        pcoul    = -pion * z
-       ecoul    = 3.0d0 * pcoul/den
+       ecoul    = 3.0d0 * pcoul/state % rho
        scoul    = -avo_eos/state % abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
 
        s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
@@ -1090,8 +1073,8 @@ contains
        dpcouldz = -dpiondz*z - pion*s*plasgdz
 #endif
 
-       s        = 3.0d0/den
-       decouldd = s * dpcouldd - ecoul/den
+       s        = 3.0d0/state % rho
+       decouldd = s * dpcouldd - ecoul/state % rho
        decouldt = s * dpcouldt
        decoulda = s * dpcoulda
        decouldz = s * dpcouldz
