@@ -151,7 +151,7 @@ contains
                         cv,cp, &
                         gam1,chit,chid, &
                         s, &
-                        temp,den,abar,zbar,ytot1,ye
+                        temp,den,ytot1,ye
 
     double precision :: smallt, smalld
 
@@ -162,9 +162,7 @@ contains
 
     temp_row = state % T
     den_row  = state % rho
-    abar  = state % abar
-    zbar  = state % zbar
-    ytot1 = 1.0d0 / abar
+    ytot1 = 1.0d0 / state % abar
     ye    = state % y_e
 
     ! Initial setup for iterations
@@ -243,13 +241,13 @@ contains
 
        call apply_radiation(state, deni, temp, tempi)
 
-       call apply_ions(state, den, deni, temp, tempi, abar, ytot1)
+       call apply_ions(state, den, deni, temp, tempi, ytot1)
 
-       call apply_electrons(state, den, temp, ye, ytot1, zbar)
+       call apply_electrons(state, den, temp, ye, ytot1)
 
        if (do_coulomb) then
 
-          call apply_coulomb_corrections(state, den, temp, abar, zbar, ytot1)
+          call apply_coulomb_corrections(state, den, temp, ytot1)
 
        end if
 
@@ -490,12 +488,12 @@ contains
 
 
 
-  subroutine apply_electrons(state, den, temp, ye, ytot1, zbar)
+  subroutine apply_electrons(state, den, temp, ye, ytot1)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp, ye, ytot1, zbar
+    double precision, intent(in   ) :: den, temp, ye, ytot1
 
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
@@ -515,7 +513,7 @@ contains
 
     !..assume complete ionization
     xni  = avo_eos * ytot1 * den
-    xnem = xni * zbar
+    xnem = xni * state % zbar
 
     !..enter the table with ye*den
     din = ye*den
@@ -821,12 +819,12 @@ contains
 
 
 
-  subroutine apply_ions(state, den, deni, temp, tempi, abar, ytot1)
+  subroutine apply_ions(state, den, deni, temp, tempi, ytot1)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, deni, temp, tempi, abar, ytot1
+    double precision, intent(in   ) :: den, deni, temp, tempi, ytot1
 
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
@@ -858,7 +856,7 @@ contains
     deiondz = 0.0d0
 #endif
 
-    x       = abar*abar*sqrt(abar) * deni/avo_eos
+    x       = state % abar*state % abar*sqrt(state % abar) * deni/avo_eos
     s       = sioncon * temp
     z       = x * s * sqrt(s)
     y       = log(z)
@@ -868,7 +866,7 @@ contains
     dsiondt = (dpiondt*deni + deiondt)*tempi -  &
               (pion*deni + eion) * tempi*tempi  &
               + 1.5d0 * kergavo * tempi*ytot1
-    x       = avo_eos*kerg/abar
+    x       = avo_eos*kerg/state % abar
 #ifdef EXTRA_THERMO
     dsionda = (dpionda*deni + deionda)*tempi  &
               + kergavo*ytot1*ytot1* (2.5d0 - y)
@@ -971,14 +969,14 @@ contains
 
 
 
-  subroutine apply_coulomb_corrections(state, den, temp, abar, zbar, ytot1)
+  subroutine apply_coulomb_corrections(state, den, temp, ytot1)
 
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp, abar, zbar, ytot1
+    double precision, intent(in   ) :: den, temp, ytot1
 
     double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
     double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
@@ -1043,12 +1041,12 @@ contains
     lamidd   = z * dsdd/s
     lamida   = z * dsda/s
 
-    plasg    = zbar*zbar*esqu*ktinv*inv_lami
+    plasg    = state % zbar*state % zbar*esqu*ktinv*inv_lami
     z        = -plasg * inv_lami
     plasgdd  = z * lamidd
     plasgda  = z * lamida
     plasgdt  = -plasg*ktinv * kerg
-    plasgdz  = 2.0d0 * plasg/zbar
+    plasgdz  = 2.0d0 * plasg/state % zbar
 
     !...yakovlev & shalybkov 1989 equations 82, 85, 86, 87
     if (plasg .ge. 1.0D0) then
@@ -1062,7 +1060,7 @@ contains
        y        = avo_eos*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
        decouldd = y * plasgdd
        decouldt = y * plasgdt + ecoul/temp
-       decoulda = y * plasgda - ecoul/abar
+       decoulda = y * plasgda - ecoul/state % abar
        decouldz = y * plasgdz
 
        y        = onethird * den
@@ -1071,11 +1069,11 @@ contains
        dpcoulda = y * decoulda
        dpcouldz = y * decouldz
 
-       y        = -avo_eos*kerg/(abar*plasg)* &
+       y        = -avo_eos*kerg/(state % abar*plasg)* &
                   (0.75d0*b1*x+1.25d0*c1/x+d1)
        dscouldd = y * plasgdd
        dscouldt = y * plasgdt
-       dscoulda = y * plasgda - scoul/abar
+       dscoulda = y * plasgda - scoul/state % abar
        dscouldz = y * plasgdz
 
        !...yakovlev & shalybkov 1989 equations 102, 103, 104
@@ -1094,7 +1092,7 @@ contains
        z        = c2 * x - onethird * a2 * y
        pcoul    = -pion * z
        ecoul    = 3.0d0 * pcoul/den
-       scoul    = -avo_eos/abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
+       scoul    = -avo_eos/state % abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
 
        s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
        dpcouldd = -dpiondd*z - pion*s*plasgdd
@@ -1110,11 +1108,11 @@ contains
        decoulda = s * dpcoulda
        decouldz = s * dpcouldz
 
-       s        = -avo_eos*kerg/(abar*plasg)* &
+       s        = -avo_eos*kerg/(state % abar*plasg)* &
                   (1.5d0*c2*x-a2*(b2-1.0d0)*y)
        dscouldd = s * plasgdd
        dscouldt = s * plasgdt
-       dscoulda = s * plasgda - scoul/abar
+       dscoulda = s * plasgda - scoul/state % abar
        dscouldz = s * plasgdz
     end if
 
