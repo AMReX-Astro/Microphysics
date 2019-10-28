@@ -498,7 +498,7 @@ contains
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
     double precision :: eele, deepdt, deepdd, deepda, deepdz
-    double precision :: xni, dxnedt, dxnedd, xnem, din, x, s, etaele, xnefer
+    double precision :: xni, xnem, din, x, s, etaele, xnefer
 
     !..for the interpolations
     integer          :: iat,jat
@@ -733,24 +733,6 @@ contains
     xnefer   = h3(fi, &
                   si0t,   si1t,   si0mt,   si1mt, &
                   si0d,   si1d,   si0md,   si1md)
-
-    !..derivative with respect to density
-    x        = h3(fi, &
-                  si0t,   si1t,   si0mt,   si1mt, &
-                  dsi0d,  dsi1d,  dsi0md,  dsi1md)
-    x = max(x,0.0d0)
-    dxnedd   = ye * x
-
-    !..derivative with respect to temperature
-    dxnedt   = h3(fi, &
-                  dsi0t,  dsi1t,  dsi0mt,  dsi1mt, &
-                  si0d,   si1d,   si0md,   si1md)
-
-#ifdef EXTRA_THERMO
-    !..derivative with respect to abar and zbar
-    dxneda = -x * din * ytot1
-    dxnedz =  x  * den * ytot1
-#endif
 
     !..the desired electron-positron thermodynamic quantities
 
