@@ -867,17 +867,14 @@ contains
     double precision, intent(in   ) :: v_want
     logical,          intent(inout) :: converged
 
-    double precision :: x, xnew, v, dvdx, xtol, smallx, smallt, smalld, error
+    double precision :: x, xnew, v, dvdx, xtol, smallx, error
 
     !$gpu
-
-    call eos_get_small_temp(smallt)
-    call eos_get_small_dens(smalld)
 
     if (dvar .eq. itemp) then
 
        x = state % T
-       smallx = smallt
+       smallx = mintemp
        xtol = ttol
 
        if (var .eq. ipres) then
@@ -897,7 +894,7 @@ contains
     else ! dvar == density
 
        x = state % rho
-       smallx = smalld
+       smallx = mindens
        xtol = dtol
 
        if (var .eq. ipres) then
@@ -957,12 +954,9 @@ contains
 
     double precision :: told, rold, delr, rnew, tnew
     double precision :: v1, dv1dt, dv1dr, v2, dv2dt, dv2dr, v1i, v2i
-    double precision :: error1, error2, smallt, smalld
+    double precision :: error1, error2
 
     !$gpu
-
-    call eos_get_small_temp(smallt)
-    call eos_get_small_dens(smalld)
 
     ! Figure out which variables we're using
 
@@ -1027,8 +1021,8 @@ contains
     rnew = max(HALF * rold, min(rnew, TWO * rold))
 
     ! Don't let us freeze or evacuate
-    tnew = max(smallt, tnew)
-    rnew = max(smalld, rnew)
+    tnew = max(mintemp, tnew)
+    rnew = max(mindens, rnew)
 
     ! Store the new temperature and density
     state % rho = rnew
