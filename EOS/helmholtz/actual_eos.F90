@@ -147,7 +147,7 @@ contains
     double precision :: xnew, xtol, dvdx, smallx, error, v
     double precision :: v1, v2, dv1dt, dv1dr, dv2dt,dv2dr, delr, error1, error2, told, rold, tnew, rnew, v1i, v2i
 
-    double precision :: x,y,z,zz,zzi,deni,tempi, &
+    double precision :: x,y,z,zz,zzi, &
                         cv,cp, &
                         gam1,chit,chid, &
                         s, &
@@ -234,12 +234,9 @@ contains
        temp  = temp_row
        den   =  den_row
 
-       deni    = 1.0d0/den
-       tempi   = 1.0d0/temp
+       call apply_radiation(state, den, temp)
 
-       call apply_radiation(state, deni, temp, tempi)
-
-       call apply_ions(state, den, deni, temp, tempi)
+       call apply_ions(state, den, temp)
 
        call apply_electrons(state, den, temp)
 
@@ -256,7 +253,7 @@ contains
        !..the second adiabatic exponent (c&g 9.105)
        !..the specific heat at constant pressure (c&g 9.98)
        !..and relativistic formula for the sound speed (c&g 14.29)
-       zz    = state % p * deni
+       zz    = state % p / den
        zzi   = den/state % p
        chit  = temp/state % p * state % dpdT
        chid  = state % dpdr*zzi
@@ -800,20 +797,23 @@ contains
 
 
 
-  subroutine apply_ions(state, den, deni, temp, tempi)
+  subroutine apply_ions(state, den, temp)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, deni, temp, tempi
+    double precision, intent(in   ) :: den, temp
 
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
     double precision :: sion, dsiondd, dsiondt, dsionda, dsiondz
 
-    double precision :: xni, dxnidd, dxnida, kt, ytot1
+    double precision :: xni, dxnidd, dxnida, kt, ytot1, deni, tempi
 
     double precision :: s, x, y, z
+
+    deni = 1.0d0 / den
+    tempi = 1.0d0 / temp
 
     ytot1   = 1.0d0 / state % abar
     xni     = avo_eos * ytot1 * den
@@ -884,16 +884,21 @@ contains
 
 
   
-  subroutine apply_radiation(state, deni, temp, tempi)
+  subroutine apply_radiation(state, den, temp)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: deni, temp, tempi
+    double precision, intent(in   ) :: den, temp
 
     double precision :: prad, dpraddd, dpraddt, dpradda, dpraddz
     double precision :: erad, deraddd, deraddt, deradda, deraddz
     double precision :: srad, dsraddd, dsraddt, dsradda, dsraddz
+
+    double precision :: deni, tempi
+
+    deni = 1.0d0 / den
+    tempi = 1.0d0 / temp
 
     prad    = asoli3 * temp * temp * temp * temp
     dpraddd = 0.0d0
