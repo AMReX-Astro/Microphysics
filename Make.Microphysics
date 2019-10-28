@@ -5,6 +5,8 @@ CVODE_HOME ?= /path/to/CVODE
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
 
+CUDA_VERBOSE ?= FALSE
+
 # default is not to compile in the conductivity
 USE_CONDUCTIVITY ?= FALSE
 
