@@ -151,7 +151,7 @@ contains
                         cv,cp, &
                         gam1,chit,chid, &
                         s, &
-                        temp,den,ytot1,ye
+                        temp,den,ytot1
 
     double precision :: smallt, smalld
 
@@ -163,7 +163,6 @@ contains
     temp_row = state % T
     den_row  = state % rho
     ytot1 = 1.0d0 / state % abar
-    ye    = state % y_e
 
     ! Initial setup for iterations
 
@@ -243,7 +242,7 @@ contains
 
        call apply_ions(state, den, deni, temp, tempi, ytot1)
 
-       call apply_electrons(state, den, temp, ye, ytot1)
+       call apply_electrons(state, den, temp, ytot1)
 
        if (do_coulomb) then
 
@@ -488,12 +487,12 @@ contains
 
 
 
-  subroutine apply_electrons(state, den, temp, ye, ytot1)
+  subroutine apply_electrons(state, den, temp, ytot1)
 
     implicit none
 
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: den, temp, ye, ytot1
+    double precision, intent(in   ) :: den, temp, ytot1
 
     double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
     double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
@@ -516,7 +515,7 @@ contains
     xnem = xni * state % zbar
 
     !..enter the table with ye*den
-    din = ye*den
+    din = state % y_e*den
 
     !..hash locate this temperature and density
     jat = int((log10(temp) - tlo)*tstpi) + 1
@@ -686,7 +685,7 @@ contains
     dpepdd  = h3(fi, &
                  si0t,   si1t,   si0mt,   si1mt, &
                  si0d,   si1d,   si0md,   si1md)
-    dpepdd  = max(ye * dpepdd,0.0d0)
+    dpepdd  = max(state % y_e * dpepdd,0.0d0)
 
     !..look in the electron chemical potential table only once
     fi(1)  = ef(iat,jat)
@@ -743,27 +742,27 @@ contains
     x       = din * din
     pele    = x * df_d
     dpepdt  = x * df_dt
-    s       = dpepdd/ye - 2.0d0 * din * df_d
+    s       = dpepdd/state % y_e - 2.0d0 * din * df_d
 #ifdef EXTRA_THERMO
     dpepda  = -ytot1 * (2.0d0 * pele + s * din)
     dpepdz  = den*ytot1*(2.0d0 * din * df_d  +  s)
 #endif
 
-    x       = ye * ye
-    sele    = -df_t * ye
-    dsepdt  = -df_tt * ye
+    x       = state % y_e * state % y_e
+    sele    = -df_t * state % y_e
+    dsepdt  = -df_tt * state % y_e
     dsepdd  = -df_dt * x
 #ifdef EXTRA_THERMO
-    dsepda  = ytot1 * (ye * df_dt * din - sele)
-    dsepdz  = -ytot1 * (ye * df_dt * den  + df_t)
+    dsepda  = ytot1 * (state % y_e * df_dt * din - sele)
+    dsepdz  = -ytot1 * (state % y_e * df_dt * den  + df_t)
 #endif
 
-    eele    = ye*free + temp * sele
+    eele    = state % y_e*free + temp * sele
     deepdt  = temp * dsepdt
     deepdd  = x * df_d + temp * dsepdd
 #ifdef EXTRA_THERMO
-    deepda  = -ye * ytot1 * (free +  df_d * din) + temp * dsepda
-    deepdz  = ytot1* (free + ye * df_d * den) + temp * dsepdz
+    deepda  = -state % y_e * ytot1 * (free +  df_d * din) + temp * dsepda
+    deepdz  = ytot1* (free + state % y_e * df_d * den) + temp * dsepdz
 #endif
 
     state % p    = state % p + pele
