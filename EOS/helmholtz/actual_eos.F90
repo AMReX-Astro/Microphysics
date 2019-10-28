@@ -58,31 +58,10 @@ module actual_eos_module
 #endif
 
   ! 2006 CODATA physical constants
-
-  ! Math constants
-  double precision, parameter :: pi       = 3.1415926535897932384d0
-
-  ! Physical constants
   double precision, parameter :: h       = 6.6260689633d-27
-  double precision, parameter :: qe      = 4.8032042712d-10
   double precision, parameter :: avo_eos = 6.0221417930d23
-  double precision, parameter :: clight  = 2.99792458d10
   double precision, parameter :: kerg    = 1.380650424d-16
   double precision, parameter :: amu     = 1.66053878283d-24
-
-#ifdef RADIATION
-  double precision, parameter :: ssol    = 0.0d0
-#else
-  double precision, parameter :: ssol    = 5.67051d-5
-#endif
-  double precision, parameter :: asol    = 4.0d0 * ssol / clight
-
-  ! Some other useful combinations of the constants
-  double precision, parameter :: sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
-  double precision, parameter :: forth   = 4.0d0/3.0d0
-  double precision, parameter :: kergavo = kerg * avo_eos
-  double precision, parameter :: asoli3  = asol/3.0d0
-  double precision, parameter :: light2  = clight * clight
 
   !$acc declare &
   !$acc create(tlo, thi, dlo, dhi) &
@@ -503,7 +482,7 @@ contains
 
     implicit none
 
-    type(eos_t),      intent(inout) :: state
+    type(eos_t), intent(inout) :: state
 
     double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
     double precision :: eion, deiondd, deiondt, deionda, deiondz
@@ -512,6 +491,10 @@ contains
     double precision :: xni, dxnidd, dxnida, kt, ytot1, deni, tempi
 
     double precision :: s, x, y, z
+
+    double precision, parameter :: pi      = 3.1415926535897932384d0
+    double precision, parameter :: sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
+    double precision, parameter :: kergavo = kerg * avo_eos
 
     deni = 1.0d0 / state % rho
     tempi = 1.0d0 / state % T
@@ -597,6 +580,15 @@ contains
 
     double precision :: deni, tempi
 
+    double precision, parameter :: clight  = 2.99792458d10
+#ifdef RADIATION
+    double precision, parameter :: ssol    = 0.0d0
+#else
+    double precision, parameter :: ssol    = 5.67051d-5
+#endif
+    double precision, parameter :: asol    = 4.0d0 * ssol / clight
+    double precision, parameter :: asoli3  = asol/3.0d0
+    
     deni = 1.0d0 / state % rho
     tempi = 1.0d0 / state % T
 
@@ -685,8 +677,11 @@ contains
     double precision, parameter :: a2 =  0.29561d0
     double precision, parameter :: b2 =  1.9885d0
     double precision, parameter :: c2 =  0.288675d0
-    double precision, parameter :: onethird = 1.0d0/3.0d0
+    double precision, parameter :: qe   = 4.8032042712d-10
     double precision, parameter :: esqu = qe * qe
+    double precision, parameter :: onethird = 1.0d0/3.0d0
+    double precision, parameter :: forth = 4.0d0/3.0d0
+    double precision, parameter :: pi    = 3.1415926535897932384d0
 
     pcoul    = ZERO
     dpcouldd = ZERO
