@@ -55,8 +55,8 @@ module cuvode_parameters_module
   ! integer work array of size 30 + NEQ. These are VODE constants
   ! that depend on the integration mode we're using -- see dvode.f.
 
-  integer, parameter :: VODE_LRW = 22 + 9*neqs + 2*neqs**2
-  integer, parameter :: VODE_LIW = 30 + neqs
+  integer, parameter :: VODE_LRW = 22 + 9*VODE_NEQS + 2*VODE_NEQS**2
+  integer, parameter :: VODE_LIW = 30 + VODE_NEQS
 
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
@@ -73,6 +73,6 @@ module cuvode_parameters_module
   integer, parameter :: VODE_MAXORD = 5
 
   integer, parameter :: VODE_LMAX = VODE_MAXORD + 1
-  integer, parameter :: VODE_LENWM = 2 + 2 * neqs**2
+  integer, parameter :: VODE_LENWM = 2 + 2 * VODE_NEQS**2
 
 end module cuvode_parameters_module
