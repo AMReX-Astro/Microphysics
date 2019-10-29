@@ -6,6 +6,7 @@ module vode_type_module
   use burn_type_module, only : burn_t, net_ienuc, eos_to_burn
   use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_get_small_temp, eos_get_max_temp
   use eos_module, only : eos
+  use cuvode_parameters_module, only : VODE_NEQS
 
   use network, only : nspec, aion, aion_inv
 
@@ -21,9 +22,6 @@ module vode_type_module
   ! this should be larger than any reasonable temperature we will encounter   
   real (kind=rt), parameter :: MAX_TEMP = 1.0d11          
 
-  integer, parameter :: VODE_NEQS = SVAR_EVOLVE
-
-  public :: VODE_NEQS
   public :: clean_state, fill_unevolved_variables, &
        renormalize_species, sdc_to_vode, vode_to_sdc, &
        rhs_to_vode, jac_to_vode, vode_to_burn
