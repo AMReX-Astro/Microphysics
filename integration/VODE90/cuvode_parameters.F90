@@ -1,12 +1,17 @@
 module cuvode_parameters_module
 
   use burn_type_module, only: neqs
+#ifdef SIMPLIFIED_SDC
+  use sdc_type_module, only : SVAR_EVOLVE
+#endif
   use network, only : nspec_evolve
 
   implicit none
 
 #ifdef TRUE_SDC
   integer, parameter :: VODE_NEQS = nspec_evolve + 2
+#elif SIMPLIFIED_SDC
+  integer, parameter :: VODE_NEQS = SVAR_EVOLVE
 #else
   integer, parameter :: VODE_NEQS = neqs
 #endif
