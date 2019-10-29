@@ -378,7 +378,7 @@ contains
     state % dpdr = state % dpdr + dpepdd
 #ifdef EXTRA_THERMO
     state % dpdA = state % dpdA + dpepda
-    state % dpdZ = state % dpdZ + dpepedz
+    state % dpdZ = state % dpdZ + dpepdz
 #endif
 
     state % s    = state % s + sele
@@ -584,7 +584,7 @@ contains
 
     double precision :: dsdd, dsda, lami, inv_lami, lamida, lamidd
     double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
-    double precision :: pion, dpiondt, dpiondd, xni, dxnidd, dxnida
+    double precision :: pion, dpiondt, dpiondd, dpionda, dpiondz, xni, dxnidd, dxnida
 
     double precision :: kt, ktinv, ytot1
     double precision :: s, x, y, z
