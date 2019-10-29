@@ -384,10 +384,6 @@ contains
     state % s    = state % s + sele
     state % dsdT = state % dsdT + dsepdt
     state % dsdr = state % dsdr + dsepdd
-#ifdef EXTRA_THERMO
-    state % dsdA = state % dsdA + dsepda
-    state % dsdZ = state % dsdZ + dsepdz
-#endif
 
     state % e    = state % e + eele
     state % dedT = state % dedT + deepdt
@@ -490,10 +486,6 @@ contains
     state % s    = state % s + sion
     state % dsdT = state % dsdT + dsiondt
     state % dsdr = state % dsdr + dsiondd
-#ifdef EXTRA_THERMO
-    state % dsdA = state % dsdA + dsionda
-    state % dsdZ = state % dsdZ + dsiondz
-#endif
 
   end subroutine apply_ions
 
@@ -573,10 +565,6 @@ contains
     state % s    = srad
     state % dsdr = dsraddd
     state % dsdT = dsraddt
-#ifdef EXTRA_THERMO
-    state % dsdA = dsradda
-    state % dsdZ = dsraddz
-#endif
 
   end subroutine apply_radiation
 
@@ -779,10 +767,6 @@ contains
     state % s    = state % s + scoul
     state % dsdr = state % dsdr + dscouldd
     state % dsdT = state % dsdT + dscouldt
-#ifdef EXTRA_THERMO
-    state % dsdA = state % dsdA + dscoulda
-    state % dsdZ = state % dsdZ + dscouldz
-#endif
 
   end subroutine apply_coulomb_corrections
 
