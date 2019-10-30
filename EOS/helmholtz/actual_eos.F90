@@ -301,13 +301,21 @@ contains
     dsid(3) = -xdpsi0(mxd) * ddi_sav(iat)
     dsid(4) = xdpsi1(mxd)
 
-    ! Reuse subexpressions that would go into computing h3.
+    ! Reuse subexpressions that would go into computing the
+    ! cubic interpolation.
     wdt(1:4)   = sid(1) * sit(1:4)
     wdt(5:8)   = sid(2) * sit(1:4)
     wdt(9:12)  = sid(3) * sit(1:4)
     wdt(13:16) = sid(4) * sit(1:4)
 
-    !..look in the pressure derivative only once
+    ! Read in the tabular data for the pressure derivatives.
+    ! We have some freedom in how we store it in the local
+    ! array. We choose here to index it such that we can
+    ! immediately evaluate the cubic interpolant below as
+    ! fi * wdt, which ensures that we have the right combination
+    ! of grid points and derivatives at grid points to evaluate
+    ! the interpolation correctly. Alternate indexing schemes are
+    ! possible if we were to reorder wdt.
     fi([ 1,  2,  5,  6]) = dpdf(1:4, iat,   jat  )
     fi([ 9, 10, 13, 14]) = dpdf(1:4, iat+1, jat  )
     fi([ 3,  4,  7,  8]) = dpdf(1:4, iat,   jat+1)
@@ -317,7 +325,7 @@ contains
     dpepdd = sum(fi(1:16) * wdt)
     dpepdd = max(state % y_e * dpepdd, 0.0d0)
 
-    !..look in the electron chemical potential table only once
+    ! Read in the tabular data for the electron chemical potential.
     fi([ 1,  2,  5,  6]) = ef(1:4,iat  ,jat  )
     fi([ 9, 10, 13, 14]) = ef(1:4,iat+1,jat  )
     fi([ 3,  4,  7,  8]) = ef(1:4,iat  ,jat+1)
@@ -326,7 +334,7 @@ contains
     !..electron chemical potential etaele
     etaele = sum(fi(1:16) * wdt)
 
-    !..look in the number density table only once
+    ! Read in the tabular data for the number density.
     fi([ 1,  2,  5,  6]) = xf(1:4,iat  ,jat  )
     fi([ 9, 10, 13, 14]) = xf(1:4,iat+1,jat  )
     fi([ 3,  4,  7,  8]) = xf(1:4,iat  ,jat+1)
