@@ -122,6 +122,9 @@ contains
 
     do iter = 1, max_newton
 
+       ! Radiation must come first since it initializes the
+       ! state instead of adding to it.
+
        call apply_radiation(state)
 
        call apply_ions(state)
