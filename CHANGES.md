@@ -4,6 +4,8 @@ changes since last release:
      and the preprocessor option for this SDC was changed to
      SIMPLIFIED_SDC (#194)
 
+   * rprox now works on GPUs
+
 # 19.10
 
    * The iso7 network was ported to GPUs (#172)
