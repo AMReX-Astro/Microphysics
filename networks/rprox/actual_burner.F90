@@ -25,7 +25,7 @@ contains
 
 
 
-  subroutine actual_burner(state_in, state_out, dt, time)  
+  subroutine actual_burner(state_in, state_out, dt, time)
 
     use integrator_module, only: integrator
 
@@ -33,9 +33,11 @@ contains
 
     type (burn_t),    intent(in   ) :: state_in
     type (burn_t),    intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time    
+    double precision, intent(in   ) :: dt, time
 
     double precision :: T9
+
+    !$gpu
 
     T9 = state_in % T * 1.e-9_rt
 
@@ -49,7 +51,7 @@ contains
        call integrator(state_in, state_out, dt, time)
 
     endif
-    
+
   end subroutine actual_burner
 
 end module actual_burner_module
