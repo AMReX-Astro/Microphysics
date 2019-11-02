@@ -12,8 +12,7 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 else ifeq ($(INTEGRATOR_DIR),VBDF)
   INTEGRATOR_NUM := 2
 else ifeq ($(INTEGRATOR_DIR),VODE90)
-  # VODE90 is a drop-in replacement for VODE, treat it the same way.
-  INTEGRATOR_NUM := 0
+  INTEGRATOR_NUM := 3
 endif
 
 DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
