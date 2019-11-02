@@ -29,11 +29,15 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 
   include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
 
+  DEFINES += -DVODE
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else ifeq ($(INTEGRATOR_DIR),VODE90)
 
@@ -45,11 +49,15 @@ else ifeq ($(INTEGRATOR_DIR),VODE90)
 
   include $(MICROPHYSICS_HOME)/integration/VODE90/Make.package
 
+  DEFINES += -DVODE90
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else ifeq ($(INTEGRATOR_DIR),BS)
 
@@ -61,11 +69,15 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 
   include $(MICROPHYSICS_HOME)/integration/VODE90/Make.package
 
+  DEFINES += -DVODE90
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else
 
