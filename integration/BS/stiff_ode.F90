@@ -294,7 +294,12 @@ contains
 
     !$acc routine seq
 
+#ifdef VODE90
     use linpack_module, only: dgesl, dgefa
+#else
+    !$acc routine(dgesl) seq
+    !$acc routine(dgefa) seq
+#endif
 
     implicit none
 
@@ -333,7 +338,11 @@ contains
     enddo
 
     ! get the LU decomposition from LINPACK
+#ifdef VODE90
     call dgefa(A, ipiv, ierr_linpack)
+#else
+    call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+#endif
     if (ierr_linpack /= 0) then
        ierr = IERR_LU_DECOMPOSITION_ERROR
     endif
@@ -355,7 +364,11 @@ contains
 #endif
 
        ! solve the first step using the LU solver
+#ifdef VODE90
        call dgesl(A, ipiv, y_out)
+#else
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+#endif
 
        del(:) = y_out(:)
        bs_temp % y(:) = y(:) + del(:)
@@ -372,7 +385,11 @@ contains
 #endif
 
           ! LU solve
+#ifdef VODE90
           call dgesl(A, ipiv, y_out)
+#else
+          call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+#endif
 
           del(:) = del(:) + TWO * y_out(:)
           bs_temp % y = bs_temp % y + del(:)
@@ -389,7 +406,11 @@ contains
 #endif
 
        ! last LU solve
+#ifdef VODE90
        call dgesl(A, ipiv, y_out)
+#else
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+#endif
 
        ! last step
        y_out(:) = bs_temp % y(:) + y_out(:)
@@ -704,11 +725,16 @@ contains
 
     !$acc routine seq
 
+#ifdef VODE90
+    use linpack_module, only: dgesl, dgefa
+#else
+    !$acc routine(dgesl) seq
+    !$acc routine(dgefa) seq
+#endif
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
     use amrex_fort_module, only : rt => amrex_real
-    use linpack_module, only: dgesl, dgefa
 
     implicit none
 
@@ -759,7 +785,11 @@ contains
        enddo
        
        ! LU decomposition
+#ifdef VODE90
        call dgefa(A, ipiv, ierr_linpack)
+#else
+       call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+#endif
        if (ierr_linpack /= 0) then
           ierr = IERR_LU_DECOMPOSITION_ERROR
        endif
@@ -772,7 +802,11 @@ contains
        g1(:) = bs % burn_s % ydot(:)
 #endif
 
+#ifdef VODE90
        call dgesl(A, ipiv, g1)
+#else
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g1, 0)
+#endif
 
        ! new value of y
        bs_temp % y(:) = bs % y(:) + A21*g1(:)
@@ -786,8 +820,12 @@ contains
        g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
 #else
        g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
-#endif       
+#endif
+#ifdef VODE90
        call dgesl(A, ipiv, g2)
+#else
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g2, 0)
+#endif
 
        ! new value of y
        bs_temp % y(:) = bs % y(:) + A31*g1(:) + A32*g2(:)
@@ -802,8 +840,11 @@ contains
 #else
        g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
 #endif
-       
+#ifdef VODE90
        call dgesl(A, ipiv, g3)
+#else
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g3, 0)
+#endif
 
        ! our choice of parameters prevents us from needing another RHS 
        ! evaluation here
@@ -814,8 +855,11 @@ contains
 #else
        g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
 #endif
-       
+#ifdef VODE90
        call dgesl(A, ipiv, g4)
+#else
+       call dgesl(A, bs_neqs, bs_neqs, ipiv, g4, 0)
+#endif
 
        ! now construct our 4th order estimate of y
        bs_temp % y(:) = bs % y(:) + B1*g1(:) + B2*g2(:) + B3*g3(:) + B4*g4(:)
