@@ -9,4 +9,6 @@
 
   xin_file   = "xin.3alpha_plus_o"
 
+  retry_burn = T
+
 /
