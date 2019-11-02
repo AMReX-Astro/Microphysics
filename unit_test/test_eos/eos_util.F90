@@ -24,7 +24,7 @@ subroutine do_eos(lo, hi, &
   type(eos_t) :: eos_state
   type(eos_t) :: eos_state_reference
 
-  integer :: ii, jj, kk
+  integer :: ii, jj, kk, n
 
   !$gpu
   
@@ -64,6 +64,39 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % ie) = eos_state % e
            sp(ii, jj, kk, p % ip) = eos_state % p
            sp(ii, jj, kk, p % is) = eos_state % s
+
+           sp(ii, jj, kk, p % icv) = eos_state % cv
+           sp(ii, jj, kk, p % icp) = eos_state % cp
+           sp(ii, jj, kk, p % ine) = eos_state % xne
+           sp(ii, jj, kk, p % inp) = eos_state % xnp
+           sp(ii, jj, kk, p % ieta) = eos_state % eta
+           sp(ii, jj, kk, p % ipele) = eos_state % pele
+           sp(ii, jj, kk, p % ippos) = eos_state % ppos
+           sp(ii, jj, kk, p % imu) = eos_state % mu
+           sp(ii, jj, kk, p % imue) = eos_state % mu_e
+           sp(ii, jj, kk, p % idpdt) = eos_state % dpdt
+           sp(ii, jj, kk, p % idpdr) = eos_state % dpdr
+           sp(ii, jj, kk, p % idedt) = eos_state % dedt
+           sp(ii, jj, kk, p % idedr) = eos_state % dedr
+           sp(ii, jj, kk, p % idhdt) = eos_state % dhdt
+           sp(ii, jj, kk, p % idhdr) = eos_state % dhdr
+           sp(ii, jj, kk, p % idsdt) = eos_state % dsdt
+           sp(ii, jj, kk, p % idsdr) = eos_state % dsdr
+           do n = 0, nspec-1
+              sp(ii, jj, kk, p % idpdx + n) = eos_state % dpdx(n+1)
+              sp(ii, jj, kk, p % idedx + n) = eos_state % dedx(n+1)
+              sp(ii, jj, kk, p % idhdx + n) = eos_state % dhdx(n+1)
+           end do
+           sp(ii, jj, kk, p % igam1) = eos_state % gam1
+           sp(ii, jj, kk, p % ics) = eos_state % cs
+           sp(ii, jj, kk, p % iabar) = eos_state % abar
+           sp(ii, jj, kk, p % izbar) = eos_state % zbar
+           sp(ii, jj, kk, p % idpda) = eos_state % dpda
+           sp(ii, jj, kk, p % idpdz) = eos_state % dpdz
+           sp(ii, jj, kk, p % ideda) = eos_state % deda
+           sp(ii, jj, kk, p % idedz) = eos_state % dedz
+           sp(ii, jj, kk, p % idpde) = eos_state % dpde
+           sp(ii, jj, kk, p % idpdre) = eos_state % dpdr_e
 
 
            ! call EOS using rho, h

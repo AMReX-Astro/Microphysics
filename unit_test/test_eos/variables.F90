@@ -33,6 +33,38 @@ module variables
      integer :: ierr_T_eos_ph = -1
      integer :: ierr_rho_eos_th = -1
 
+     integer :: icv = -1
+     integer :: icp = -1
+     integer :: ine = -1
+     integer :: inp = -1
+     integer :: ieta = -1
+     integer :: ipele = -1
+     integer :: ippos = -1
+     integer :: imu = -1
+     integer :: imue = -1
+     integer :: iye = -1
+     integer :: idpdt = -1
+     integer :: idpdr = -1
+     integer :: idedt = -1
+     integer :: idedr = -1
+     integer :: idsdt = -1
+     integer :: idsdr = -1
+     integer :: idhdt = -1
+     integer :: idhdr = -1
+     integer :: idpdx = -1
+     integer :: idedx = -1
+     integer :: idhdx = -1
+     integer :: igam1 = -1
+     integer :: ics = -1
+     integer :: iabar = -1
+     integer :: izbar = -1
+     integer :: idpda = -1
+     integer :: idpdz = -1
+     integer :: ideda = -1
+     integer :: idedz = -1
+     integer :: idpde = -1
+     integer :: idpdre = -1
+
      integer :: n_plot_comps = 0
 
      character(len=MAX_NAME_LEN), allocatable :: names(:)
@@ -91,6 +123,38 @@ contains
     p % ierr_T_eos_ph = p % next_index(1)
     p % ierr_rho_eos_th = p % next_index(1)
 
+    p % icv = p % next_index(1)
+    p % icp = p % next_index(1)
+    p % ine = p % next_index(1)
+    p % inp = p % next_index(1)
+    p % ieta = p % next_index(1)
+    p % ipele = p % next_index(1)
+    p % ippos = p % next_index(1)
+    p % imu = p % next_index(1)
+    p % imue = p % next_index(1)
+    p % iye = p % next_index(1)
+    p % idpdt = p % next_index(1)
+    p % idpdr = p % next_index(1)
+    p % idedt = p % next_index(1)
+    p % idedr = p % next_index(1)
+    p % idsdt = p % next_index(1)
+    p % idsdr = p % next_index(1)
+    p % idhdt = p % next_index(1)
+    p % idhdr = p % next_index(1)
+    p % idpdx = p % next_index(nspec)
+    p % idedx = p % next_index(nspec)
+    p % idhdx = p % next_index(nspec)
+    p % igam1 = p % next_index(1)
+    p % ics = p % next_index(1)
+    p % iabar = p % next_index(1)
+    p % izbar = p % next_index(1)
+    p % idpda = p % next_index(1)
+    p % idpdz = p % next_index(1)
+    p % ideda = p % next_index(1)
+    p % idedz = p % next_index(1)
+    p % idpde = p % next_index(1)
+    p % idpdre = p % next_index(1)
+
     allocate(p%names(p%n_plot_comps))
 
     p % names(p % irho) = "density"
@@ -112,6 +176,40 @@ contains
     p % names(p % ierr_rho_eos_ph) = "err_rho_eos_ph"
     p % names(p % ierr_T_eos_ph)   = "err_T_eos_ph"
     p % names(p % ierr_rho_eos_th) = "err_rho_eos_th"
+
+    p % names(p % icv) = "c_v"
+    p % names(p % icp) = "c_p"
+    p % names(p % ine) = "n_e"
+    p % names(p % inp) = "n_p"
+    p % names(p % ieta) = "eta"
+    p % names(p % ipele) = "p_ele"
+    p % names(p % ippos) = "p_pos"
+    p % names(p % imu) = "mu"
+    p % names(p % imue) = "mu_e"
+    p % names(p % iye) = "Y_e"
+    p % names(p % idpdt) = "dp_dT"
+    p % names(p % idpdr) = "dp_drho"
+    p % names(p % idedt) = "de_dT"
+    p % names(p % idedr) = "de_drho"
+    p % names(p % idsdt) = "ds_dT"
+    p % names(p % idsdr) = "ds_drho"
+    p % names(p % idhdt) = "dh_dT"
+    p % names(p % idhdr) = "dh_drho"
+    do n = 0, nspec-1
+       p % names(p % idpdx + n) = "dp_dX_" // adjustl(trim(spec_names(n+1)))
+       p % names(p % idedx + n) = "de_dX_" // adjustl(trim(spec_names(n+1)))
+       p % names(p % idhdx + n) = "dh_dX_" // adjustl(trim(spec_names(n+1)))
+    enddo
+    p % names(p % igam1) = "Gamma_1"
+    p % names(p % ics) = "sound speed"
+    p % names(p % iabar) = "Abar"
+    p % names(p % izbar) = "Zbar"
+    p % names(p % idpda) = "dp_dA"
+    p % names(p % idpdz) = "dp_dZ"
+    p % names(p % ideda) = "dp_dA"
+    p % names(p % idedz) = "de_dZ"
+    p % names(p % idpde) = "dp_de_rho"
+    p % names(p % idpdre) = "dp_drho_e"
 
   end subroutine init_variables
 
