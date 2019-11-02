@@ -1,6 +1,6 @@
 ! This is the interface to the burner for the simplified SDC case.
 
-module actual_integrator_module
+module vode_integrator_module
 
   use amrex_error_module
   use amrex_fort_module, only: rt => amrex_real
@@ -15,12 +15,12 @@ module actual_integrator_module
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine vode_integrator_init()
 
-  end subroutine actual_integrator_init
+  end subroutine vode_integrator_init
 
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine vode_integrator(state_in, state_out, dt, time)
 
     use vode_rpar_indices
     use vode_rhs_module
@@ -145,6 +145,6 @@ contains
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
 
-  end subroutine actual_integrator
+  end subroutine vode_integrator
 
-end module actual_integrator_module
+end module vode_integrator_module

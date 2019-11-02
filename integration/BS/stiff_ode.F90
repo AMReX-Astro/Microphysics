@@ -293,8 +293,10 @@ contains
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
 
     !$acc routine seq
-    !$acc routine(dgesl) seq
-    !$acc routine(dgefa) seq
+
+    use linpack_module, only: dgesl, dgefa
+
+    implicit none
 
     type (bs_t), intent(inout) :: bs
     real(rt), intent(in) :: y(bs_neqs)
@@ -331,7 +333,7 @@ contains
     enddo
 
     ! get the LU decomposition from LINPACK
-    call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+    call dgefa(A, ipiv, ierr_linpack)
     if (ierr_linpack /= 0) then
        ierr = IERR_LU_DECOMPOSITION_ERROR
     endif
@@ -353,7 +355,7 @@ contains
 #endif
 
        ! solve the first step using the LU solver
-       call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+       call dgesl(A, ipiv, y_out)
 
        del(:) = y_out(:)
        bs_temp % y(:) = y(:) + del(:)
@@ -370,7 +372,7 @@ contains
 #endif
 
           ! LU solve
-          call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+          call dgesl(A, ipiv, y_out)
 
           del(:) = del(:) + TWO * y_out(:)
           bs_temp % y = bs_temp % y + del(:)
@@ -387,7 +389,7 @@ contains
 #endif
 
        ! last LU solve
-       call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+       call dgesl(A, ipiv, y_out)
 
        ! last step
        y_out(:) = bs_temp % y(:) + y_out(:)
@@ -701,13 +703,12 @@ contains
     ! only of our integration variable, y
 
     !$acc routine seq
-    !$acc routine(dgesl) seq
-    !$acc routine(dgefa) seq
 
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
     use amrex_fort_module, only : rt => amrex_real
+    use linpack_module, only: dgesl, dgefa
 
     implicit none
 
@@ -758,7 +759,7 @@ contains
        enddo
        
        ! LU decomposition
-       call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+       call dgefa(A, ipiv, ierr_linpack)
        if (ierr_linpack /= 0) then
           ierr = IERR_LU_DECOMPOSITION_ERROR
        endif
@@ -771,7 +772,7 @@ contains
        g1(:) = bs % burn_s % ydot(:)
 #endif
 
-       call dgesl(A, bs_neqs, bs_neqs, ipiv, g1, 0)
+       call dgesl(A, ipiv, g1)
 
        ! new value of y
        bs_temp % y(:) = bs % y(:) + A21*g1(:)
@@ -786,7 +787,7 @@ contains
 #else
        g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
 #endif       
-       call dgesl(A, bs_neqs, bs_neqs, ipiv, g2, 0)
+       call dgesl(A, ipiv, g2)
 
        ! new value of y
        bs_temp % y(:) = bs % y(:) + A31*g1(:) + A32*g2(:)
@@ -802,7 +803,7 @@ contains
        g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
 #endif
        
-       call dgesl(A, bs_neqs, bs_neqs, ipiv, g3, 0)
+       call dgesl(A, ipiv, g3)
 
        ! our choice of parameters prevents us from needing another RHS 
        ! evaluation here
@@ -814,7 +815,7 @@ contains
        g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
 #endif
        
-       call dgesl(A, bs_neqs, bs_neqs, ipiv, g4, 0)
+       call dgesl(A, ipiv, g4)
 
        ! now construct our 4th order estimate of y
        bs_temp % y(:) = bs % y(:) + B1*g1(:) + B2*g2(:) + B3*g3(:) + B4*g4(:)
