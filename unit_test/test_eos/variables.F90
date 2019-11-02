@@ -201,7 +201,7 @@ contains
        p % names(p % idhdx + n) = "dh_dX_" // adjustl(trim(spec_names(n+1)))
     enddo
     p % names(p % igam1) = "Gamma_1"
-    p % names(p % ics) = "sound speed"
+    p % names(p % ics) = "soundspeed"
     p % names(p % iabar) = "Abar"
     p % names(p % izbar) = "Zbar"
     p % names(p % idpda) = "dp_dA"
