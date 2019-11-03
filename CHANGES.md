@@ -1,5 +1,10 @@
 # changes since the last release
 
+   * iso7 now always uses rate tabulation instead of direct rate
+     evaluation when the RHS and Jacobian are evaluated. The iso7
+     rate table was made twice as dense, as well, since the tabulated
+     rates were not accurate enough.
+
    * The test_eos unit test now outputs all of the variables in the
      eos_t type.
 
