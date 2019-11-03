@@ -680,9 +680,9 @@ contains
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ir1216)    = ratraw(ir1216) * sc1a
-    dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
-    !dratdumdd(ir1216) = dratrawdd(ir1216)*sc1a + ratraw(ir1216)*sc1add
+    ratdum(ir1616)    = ratraw(ir1616) * sc1a
+    dratdumdt(ir1616) = dratrawdt(ir1616)*sc1a + ratraw(ir1616)*sc1adt
+    !dratdumdd(ir1616) = dratrawdd(ir1616)*sc1a + ratraw(ir1616)*sc1add
 
 
 
