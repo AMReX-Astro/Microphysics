@@ -1,3 +1,8 @@
+# changes since the last release
+
+   * The test_eos unit test now outputs all of the variables in the
+     eos_t type.
+
 # 19.11
 
    * VODE90 now works with the simplified SDC time step algorithms,
