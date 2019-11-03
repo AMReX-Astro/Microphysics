@@ -6,11 +6,11 @@ module eos_composition_module
 
   implicit none
 
-  type :: eos_comp_t
+  type :: eos_xderivs_t
     real(rt) :: dedX(nspec)
     real(rt) :: dpdX(nspec)
     real(rt) :: dhdX(nspec)
- end type eos_comp_t
+ end type eos_xderivs_t
 
 contains
 
@@ -45,7 +45,7 @@ contains
 
   ! Compute thermodynamic derivatives with respect to xn(:)
 
-  subroutine composition_derivatives(state, state_comp)
+  subroutine composition_derivatives(state, state_xderivs)
 
     use amrex_constants_module, only: ZERO
     use network, only: aion, aion_inv, zion
@@ -53,26 +53,26 @@ contains
     implicit none
 
     type (eos_t), intent(in) :: state
-    type (eos_comp_t), intent(out) :: state_comp
+    type (eos_xderivs_t), intent(out) :: state_xderivs
 
     !$gpu
 
 #ifdef EXTRA_THERMO
-    state_comp % dpdX(:) = state % dpdA * (state % abar * aion_inv(:))   &
+    state_xderivs % dpdX(:) = state % dpdA * (state % abar * aion_inv(:))   &
                                         * (aion(:) - state % abar) &
-                         + state % dpdZ * (state % abar * aion_inv(:))   &
+                            + state % dpdZ * (state % abar * aion_inv(:))   &
                                         * (zion(:) - state % zbar)
 
-    state_comp % dEdX(:) = state % dedA * (state % abar * aion_inv(:))   &
+    state_xderivs % dEdX(:) = state % dedA * (state % abar * aion_inv(:))   &
                                         * (aion(:) - state % abar) &
-                         + state % dedZ * (state % abar * aion_inv(:))   &
+                            + state % dedZ * (state % abar * aion_inv(:))   &
                                         * (zion(:) - state % zbar)
 
     if (state % dPdr .ne. ZERO) then
 
-       state_comp % dhdX(:) = state_comp % dedX(:) &
+       state_xderivs % dhdX(:) = state_xderivs % dedX(:) &
             + (state % p / state % rho**2 - state % dedr) &
-            *  state_comp % dPdX(:) / state % dPdr
+            *  state_xderivs % dPdX(:) / state % dPdr
 
     endif
 #endif
