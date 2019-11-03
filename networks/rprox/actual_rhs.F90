@@ -1,7 +1,6 @@
 module actual_rhs_module
 
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
   use rate_type_module
 
   implicit none
@@ -21,6 +20,7 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network
     use rates_module
+    use temperature_integration_module, only: temperature_rhs
 
     implicit none
 
@@ -28,6 +28,8 @@ contains
     type (rate_t)    :: rr
 
     double precision :: dens, t9, y(nspec), ydot(nspec)
+
+    !$gpu
 
     state % ydot = ZERO
 
@@ -57,6 +59,8 @@ contains
 
     use amrex_constants_module
     use amrex_fort_module, only : rt => amrex_real
+    use tfactors_module, only : temp_t
+    use tfactors_module, only : calc_tfactors
     use rates_module
     use network
 
@@ -82,11 +86,13 @@ contains
 
     type (temp_t) :: tfactors
 
+    !$gpu
+
     rr % rates(:,:) = ZERO ! Zero out rates
 
     rr % T_eval = T9 * 1.e9_rt
 
-    tfactors = calc_tfactors(T9)
+    call calc_tfactors(T9, tfactors)
 
     ! some common parameters
     rr % rates(1,irLweak) = Lweak
@@ -257,6 +263,8 @@ contains
     double precision :: ddelta1, ddelta2
     double precision :: dens
 
+    !$gpu
+
     ! initialize
     dydt = ZERO
     dens = state % rho
@@ -389,6 +397,7 @@ contains
     use amrex_constants_module
     use amrex_fort_module, only : rt => amrex_real
     use network
+    use temperature_integration_module, only: temperature_jac
 
     implicit none
 
@@ -398,6 +407,8 @@ contains
     double precision :: dens, ymol(nspec), T9, ydot(nspec)
     double precision :: psum
     integer          :: i, j
+
+    !$gpu
 
     ! initialize
     state % jac(:,:) = ZERO
@@ -564,6 +575,8 @@ contains
 
     double precision :: dydt(nspec_evolve), enuc
 
+    !$gpu
+
     enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 
   end subroutine ener_gener_rate
@@ -571,6 +584,8 @@ contains
   subroutine update_unevolved_species(state)
 
     implicit none
+
+    !$gpu
 
     type (burn_t)    :: state
 

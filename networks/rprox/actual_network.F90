@@ -26,7 +26,11 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
+  double precision, allocatable :: aion(:), zion(:), ebin(:)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: aion, zion, ebin
+#endif
 
   character (len=32), parameter :: network_name = "rprox"
 
@@ -95,6 +99,10 @@ contains
     short_spec_names(ihe4)  = "He4"
     short_spec_names(ih1)   = "H1"    
 
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+    allocate(ebin(nspec))
+
     ! set the species properties
     aion(ic12)  = TWELVE
     aion(io14)  = 14.0_rt
@@ -161,7 +169,15 @@ contains
 
     implicit none
 
-    ! Nothing to do here.
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+    if (allocated(ebin)) then
+       deallocate(ebin)
+    endif
 
   end subroutine actual_network_finalize
 

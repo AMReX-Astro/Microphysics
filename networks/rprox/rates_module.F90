@@ -10,15 +10,6 @@ module rates_module
 
   implicit none
 
-  type temp_t
-     double precision :: t9
-     double precision :: t9i
-     double precision :: t9i13
-     double precision :: t913
-     double precision :: t953
-     double precision :: lnt9
-  end type temp_t
-
   double precision, parameter :: f17_to_o17 = exp(-4.53302d0)
   double precision, parameter :: ne18_to_f18 = exp(-0.880534d0)
   double precision, parameter :: ne19_to_f19 = exp(-3.21258d0)
@@ -28,22 +19,9 @@ module rates_module
 
 contains
 
-  function calc_tfactors(t9) result (tfactors)
-
-    double precision, intent(in   ) :: t9
-    type (temp_t) :: tfactors
-
-    tfactors%t9 = t9
-    tfactors%t9i = 1.d0 / tfactors%t9
-    tfactors%t9i13 = tfactors%t9i**THIRD
-    tfactors%t913 = tfactors%t9**THIRD
-    tfactors%t953 = tfactors%t9 * tfactors%t913 * tfactors%t913
-    tfactors%lnt9 = log(tfactors%t9)
-
-  end function calc_tfactors
-
-
   subroutine rate_p_c12_to_n13(tfactors,rate,dratedt)
+
+    use tfactors_module, only : temp_t
 
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
@@ -53,6 +31,8 @@ contains
 
     double precision :: r0, r1
     double precision :: dr0dt, dr1dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -106,6 +86,8 @@ contains
 
   subroutine rate_f17_to_p_o16(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -114,6 +96,8 @@ contains
 
     double precision :: r0
     double precision :: dr0dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -150,18 +134,23 @@ contains
 
   subroutine rate_f17_to_o17(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
 
+    !$gpu
 
     rate = f17_to_o17
     dratedt = ZERO
 
-  end subroutine
+  end subroutine rate_f17_to_o17
 
 
   subroutine rate_p_f17_to_ne18(tfactors,rate,dratedt)
+
+    use tfactors_module, only : temp_t
 
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
@@ -171,6 +160,8 @@ contains
 
     double precision :: r0, r1
     double precision :: dr0dt, dr1dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -230,6 +221,8 @@ contains
 
   subroutine rate_he4_he4_he4_to_c12(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -238,6 +231,8 @@ contains
 
     double precision :: r0, r1, r2
     double precision :: dr0dt, dr1dt, dr2dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -317,6 +312,8 @@ contains
 
   subroutine rate_p_n14_to_o15(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -325,6 +322,8 @@ contains
 
     double precision :: r0, r1, r2, r3
     double precision :: dr0dt, dr1dt, dr2dt, dr3dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -400,6 +399,8 @@ contains
 
   subroutine rate_he4_ne18_to_p_na21(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -408,6 +409,8 @@ contains
 
     double precision :: r0, r1, r2, r3, r4, r5, r6
     double precision :: dr0dt, dr1dt, dr2dt, dr3dt, dr4dt, dr5dt, dr6dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -510,31 +513,39 @@ contains
 
   subroutine rate_ne18_to_f18(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
 
+    !$gpu
 
     rate = ne18_to_f18
     dratedt = ZERO
 
-  end subroutine
+  end subroutine rate_ne18_to_f18
 
 
   subroutine rate_ne19_to_f19(tfactors,rate,dratedt)
+
+    use tfactors_module, only : temp_t
 
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
 
+    !$gpu
 
     rate = ne19_to_f19
     dratedt = ZERO
 
-  end subroutine
+  end subroutine rate_ne19_to_f19
 
 
   subroutine rate_p_ne19_to_na20(tfactors,rate,dratedt)
+
+    use tfactors_module, only : temp_t
 
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
@@ -544,6 +555,8 @@ contains
 
     double precision :: r0, r1
     double precision :: dr0dt, dr1dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -597,6 +610,8 @@ contains
 
   subroutine rate_he4_o14_to_p_f17(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -605,6 +620,8 @@ contains
 
     double precision :: r0, r1, r2, r3, r4, r5
     double precision :: dr0dt, dr1dt, dr2dt, dr3dt, dr4dt, dr5dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -693,18 +710,23 @@ contains
 
   subroutine rate_o14_to_n14(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
 
+    !$gpu
 
     rate = o14_to_n14
     dratedt = ZERO
 
-  end subroutine
+  end subroutine rate_o14_to_n14
 
 
   subroutine rate_he4_o15_to_ne19(tfactors,rate,dratedt)
+
+    use tfactors_module, only : temp_t
 
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
@@ -714,6 +736,8 @@ contains
 
     double precision :: r0, r1, r2
     double precision :: dr0dt, dr1dt, dr2dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -775,18 +799,23 @@ contains
 
   subroutine rate_o15_to_n15(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
 
+    !$gpu
 
     rate = o15_to_n15
     dratedt = ZERO
 
-  end subroutine
+  end subroutine rate_o15_to_n15
 
 
   subroutine rate_he4_o16_to_ne20(tfactors,rate,dratedt)
+
+    use tfactors_module, only : temp_t
 
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
@@ -796,6 +825,8 @@ contains
 
     double precision :: r0, r1, r2
     double precision :: dr0dt, dr1dt, dr2dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -860,6 +891,8 @@ contains
 
   subroutine rate_p_o16_to_f17(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -868,6 +901,8 @@ contains
 
     double precision :: r0
     double precision :: dr0dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -901,6 +936,8 @@ contains
 
   subroutine rate_he4_si26_to_p_p29(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -909,6 +946,8 @@ contains
 
     double precision :: r0
     double precision :: dr0dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -942,6 +981,8 @@ contains
 
   subroutine rate_he4_ti44_to_p_v47(tfactors,rate,dratedt)
 
+    use tfactors_module, only : temp_t
+
     type (temp_t),    intent(in   ) :: tfactors
     double precision, intent(  out) :: rate
     double precision, intent(  out) :: dratedt
@@ -950,6 +991,8 @@ contains
 
     double precision :: r0
     double precision :: dr0dt
+
+    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -982,7 +1025,5 @@ contains
     dratedt = dr0dt 
 
   end subroutine rate_he4_ti44_to_p_v47
-
-
 
 end module rates_module
