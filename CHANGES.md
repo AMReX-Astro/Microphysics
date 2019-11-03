@@ -1,5 +1,8 @@
 # changes since the last release
 
+   * An indexing bug in iso7 was fixed, affecting the screening term
+     on the O16+O16 reaction rate.
+
    * The test_eos unit test now outputs all of the variables in the
      eos_t type.
 
