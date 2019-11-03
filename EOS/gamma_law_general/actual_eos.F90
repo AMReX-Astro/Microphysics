@@ -212,8 +212,6 @@ contains
     state % pele = ZERO
     state % ppos = ZERO
     state % mu = ZERO
-    state % mu_e = ZERO
-    state % y_e = ZERO
 
     state % cv = state % dedT
     state % cp = gamma_const * state % cv
