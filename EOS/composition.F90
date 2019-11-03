@@ -70,9 +70,9 @@ contains
 
     if (state % dPdr .ne. ZERO) then
 
-       state_comp % dhdX(:) = state % dedX(:) &
+       state_comp % dhdX(:) = state_comp % dedX(:) &
             + (state % p / state % rho**2 - state % dedr) &
-            *  state % dPdX(:) / state % dPdr
+            *  state_comp % dPdX(:) / state % dPdr
 
     endif
 #endif
