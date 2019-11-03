@@ -13,7 +13,7 @@ module actual_rhs_module
   ! Table interpolation data
 
   double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
-  integer, parameter :: tab_per_decade = 500
+  integer, parameter :: tab_per_decade = 1000
   integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
   integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
   double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
@@ -32,7 +32,6 @@ contains
   subroutine actual_rhs_init()
 
     use aprox_rates_module, only: rates_init
-    use extern_probin_module, only: use_tables
     use screening_module, only: screening_init
     use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
@@ -44,24 +43,12 @@ contains
 
     call screening_init()
 
-    if (use_tables) then
-
-       if (parallel_IOProcessor()) then
-          print *, ""
-          print *, "Initializing iso7 rate table"
-          print *, ""
-       endif
-
-       call create_rates_table()
-
-    endif
+    call create_rates_table()
 
   end subroutine actual_rhs_init
 
 
   subroutine get_rates(state, rr)
-
-    use extern_probin_module, only: use_tables
 
     implicit none
 
@@ -84,11 +71,7 @@ contains
     y    = state % xn * aion_inv
 
     ! Get the raw reaction rates
-    if (use_tables) then
-       call iso7tab(temp, rho, ratraw, dratrawdt, dratrawdd)
-    else
-       call iso7rat(temp, rho, ratraw, dratrawdt, dratrawdd)
-    endif
+    call iso7tab(temp, rho, ratraw, dratrawdt, dratrawdd)
 
     ! Do the screening here because the corrections depend on the composition
     call screen_iso7(temp, rho, y,                 &
