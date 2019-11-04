@@ -3,8 +3,11 @@ subroutine do_eos(lo, hi, &
 
   use variables
   use network
-  use eos_type_module
-  use eos_module
+  use eos_type_module, only: eos_t, eos_input_rt, eos_input_rp, eos_input_tp, eos_input_re, &
+                             eos_input_ph, eos_input_ps, eos_input_rh, eos_input_th, &
+                             copy_eos_t
+  use eos_module, only : eos
+  use eos_composition_module, only : eos_xderivs_t, composition, composition_derivatives
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module
   use extern_probin_module
@@ -23,6 +26,7 @@ subroutine do_eos(lo, hi, &
 
   type(eos_t) :: eos_state
   type(eos_t) :: eos_state_reference
+  type(eos_xderivs_t) :: eos_xderivs
 
   integer :: ii, jj, kk, n
 
@@ -57,6 +61,7 @@ subroutine do_eos(lo, hi, &
 
            ! call EOS using rho, T
            call eos(eos_input_rt, eos_state)
+           call composition_derivatives(eos_state, eos_xderivs)
 
            call copy_eos_t(eos_state_reference, eos_state)
 
@@ -83,9 +88,9 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % idsdt) = eos_state % dsdt
            sp(ii, jj, kk, p % idsdr) = eos_state % dsdr
            do n = 0, nspec-1
-              sp(ii, jj, kk, p % idpdx + n) = eos_state % dpdx(n+1)
-              sp(ii, jj, kk, p % idedx + n) = eos_state % dedx(n+1)
-              sp(ii, jj, kk, p % idhdx + n) = eos_state % dhdx(n+1)
+              sp(ii, jj, kk, p % idpdx + n) = eos_xderivs % dpdx(n+1)
+              sp(ii, jj, kk, p % idedx + n) = eos_xderivs % dedx(n+1)
+              sp(ii, jj, kk, p % idhdx + n) = eos_xderivs % dhdx(n+1)
            end do
            sp(ii, jj, kk, p % igam1) = eos_state % gam1
            sp(ii, jj, kk, p % ics) = eos_state % cs
