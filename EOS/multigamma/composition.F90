@@ -4,7 +4,7 @@ module eos_composition_module
   use network, only: nspec, aion, zion
   use amrex_fort_module, only : rt => amrex_real
 
-  implcit none
+  implicit none
 
   type :: eos_xderivs_t
     real(rt) :: dedX(nspec)
