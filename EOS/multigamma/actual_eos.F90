@@ -221,14 +221,6 @@ contains
 
     state % dpdZ = ZERO
     state % dedZ = ZERO
-
-    ! Composition derivatives
-
-    state % dpdX(:) = state % rho * k_B * state % T / (m_nucleon * aion(:))
-    state % dedX(:) = k_B * state % T / (m_nucleon * aion(:) * (gammas(:) - ONE))
-
-    state % dhdX(:) = state % dedX(:) + (state % p / state % rho**2 - state % dedr) &
-         *  state % dpdX(:) / state % dpdr
 #endif
 
     ! Sound speed
