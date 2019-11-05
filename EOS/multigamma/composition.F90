@@ -47,14 +47,19 @@ contains
 
   subroutine composition_derivatives(state, state_xderivs)
 
-    use amrex_constants_module, only: ZERO
+    use amrex_constants_module, only: ZERO, ONE
     use network, only: aion, aion_inv, zion
+    use actual_eos_module, only: gammas
+    use fundamental_constants_module, only: k_B, n_A
 
     implicit none
 
     type (eos_t), intent(in) :: state
     type (eos_xderivs_t), intent(out) :: state_xderivs
 
+    ! Get the mass of a nucleon from Avogadro's number.
+    double precision, parameter :: m_nucleon = ONE / n_A
+    
     !$gpu
 
     ! Composition derivatives
@@ -63,8 +68,8 @@ contains
     state_xderivs % dpdX(:) = state % rho * k_B * state % T / (m_nucleon * aion(:))
     state_xderivs % dedX(:) = k_B * state % T / (m_nucleon * aion(:) * (gammas(:) - ONE))
 
-    state_xderivs % dhdX(:) = state % dedX(:) + (state % p / state % rho**2 - state % dedr) &
-         *  state % dpdX(:) / state % dpdr
+    state_xderivs % dhdX(:) = state_xderivs % dedX(:) + (state % p / state % rho**2 - state % dedr) &
+         *  state_xderivs % dpdX(:) / state % dpdr
 #endif
 
   end subroutine composition_derivatives
