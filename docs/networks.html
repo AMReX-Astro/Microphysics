@@ -471,8 +471,8 @@ the reaction zone thickness. In terms of mass fractions, <span class="math notra
 X_a / (A_a m_u)\)</span>, our rate equation is</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align}
- \frac{dX_f}{dt} &amp;= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f \label{eq:Xf} \\
- \frac{dX_a}{dt} &amp;= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu  \label{eq:Xa}
+ \frac{dX_f}{dt} &amp;= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
+ \frac{dX_a}{dt} &amp;= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
 \end{align}\end{split}\]</div>
 <p>We define a new rate constant, <span class="math notranslate nohighlight">\(\rt\)</span> with units of <span class="math notranslate nohighlight">\([\mathrm{s^{-1}}]\)</span> as</p>
 <div class="math notranslate nohighlight">
@@ -544,12 +544,12 @@ this networks are as follows:</p>
     \isotm{O}{16} + \isotm{He}{4} &amp;\rightarrow \isotm{Ne}{20} + \gamma \\
     \isotm{C}{14} + \isotm{He}{4} &amp;\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}
 \end{aligned}\end{split}\]</div>
-<p>The main reactions suggested by Shen and Bildsten were the reaction series of
-chemical equation <a class="reference external" href="#chemeq:1.1">[chemeq:1.1]</a> leading into equation <a class="reference external" href="#chemeq:1.2">[chemeq:1.2]</a>,
-chemical equation <a class="reference external" href="#chemeq:2.1">[chemeq:2.1]</a> leading into equation <a class="reference external" href="#chemeq:2.2">[chemeq:2.2]</a>,
-and chemical equation <a class="reference external" href="#chemeq:3.2">[chemeq:3.2]</a> <a class="bibtex reference internal" href="references.html#shenbildsten" id="id10">[ShenBildsten09]</a>.
+<p>The main reactions suggested by Shen and Bildsten were the <span class="math notranslate nohighlight">\(\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}\)</span>,
+leading into <span class="math notranslate nohighlight">\(\isotm{F}{18}(\alpha,p)\isotm{Ne}{21}\)</span>,
+<span class="math notranslate nohighlight">\(\isotm{C}{12}(p,\gamma)\isotm{N}{13}\)</span> leading into <span class="math notranslate nohighlight">\(\isotm{N}{13}(\alpha,p)\isotm{O}{16}\)</span>,
+and <span class="math notranslate nohighlight">\(\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}\)</span> <a class="bibtex reference internal" href="references.html#shenbildsten" id="id10">[ShenBildsten09]</a>.
 The rates of these reactions are shown in the figure below.
-Notably, the reaction rate of chemical equation <a class="reference external" href="#chemeq:2.2">[chemeq:2.2]</a> is high and may produce Oxygen-16 more quickly than reactions involving only Helium-4, and Carbon-12.</p>
+Notably, the reaction <span class="math notranslate nohighlight">\(\isotm{N}{13}(\alpha,p)\isotm{O}{16}\)</span>, is high and may produce <span class="math notranslate nohighlight">\(\isotm{O}{16}\)</span> more quickly than reactions involving only <span class="math notranslate nohighlight">\(\isotm{He}{4}\)</span> and <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span>,</p>
 <div class="figure align-center" id="id21">
 <a class="reference internal image-reference" href="_images/subch.png"><img alt="pynucastro plot of the reaction rates of the subch network." src="_images/subch.png" style="width: 640.0px; height: 480.0px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">pynucastro plot of the reaction rates of the subch network.</span><a class="headerlink" href="#id21" title="Permalink to this image">¶</a></p>
@@ -604,7 +604,7 @@ routines will internally convert to mass fractions as needed for the
 integrators.</p>
 </div>
 <p>The righthand side of the network is implemented by
-<code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> <code class="docutils literal notranslate"><span class="pre">in</span> <span class="pre">actual_rhs.f90</span></code>, and appears as:</p>
+<code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> in <code class="docutils literal notranslate"><span class="pre">actual_rhs.f90</span></code>, and appears as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_rhs</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
   <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">)</span> <span class="p">::</span> <span class="n">state</span>
 </pre></div>
@@ -784,7 +784,7 @@ This is controlled by the parameter do_constant_volume_burn,
 which will use <span class="math notranslate nohighlight">\(c_v\)</span> if .true. and <span class="math notranslate nohighlight">\(c_p\)</span> is .false.. See
 <a class="bibtex reference internal" href="references.html#maestro-iii" id="id14">[AlmgrenBellNonakaZingale08]</a> for a discussion of the temperature evolution
 equation.</p>
-<p>A fully accurate integration of Equation <a class="reference external" href="#eq:temp_integrate">[eq:temp_integrate]</a>
+<p>A fully accurate integration of Equation <a class="reference internal" href="#equation-eq-temp-integrate">(3)</a>
 requires an evaluation of the specific heat at each integration step,
 which involves an EOS call given the current temperature. This is done
 if <code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code> = T, as discussed above.
