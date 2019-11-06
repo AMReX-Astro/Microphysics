@@ -1136,6 +1136,7 @@ contains
         state % T    = temp_row
         state % rho  = den_row
 
+        state % mu = state % abar
         state % p    = ptot_row
         state % dpdT = dpt_row
         state % dpdr = dpd_row
