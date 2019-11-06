@@ -26,6 +26,8 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   type (burn_t) :: burn_state
 
+  !$gpu
+
   ydot = ZERO
 
   ! Fix the state as necessary.
@@ -76,6 +78,8 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
 
   type (burn_t) :: state
   integer :: n
+
+  !$gpu
 
   pd(:,:) = ZERO
 
