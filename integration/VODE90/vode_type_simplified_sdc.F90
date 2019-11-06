@@ -2,10 +2,6 @@ module vode_type_module
 
   use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module
-
-  use burn_type_module, only : burn_t, net_ienuc, eos_to_burn
-  use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_get_small_temp, eos_get_max_temp
-  use eos_module, only : eos
   use cuvode_parameters_module, only : VODE_NEQS
 
   use network, only : nspec, aion, aion_inv
@@ -17,18 +13,17 @@ module vode_type_module
 
   implicit none
 
-  private
-
   ! this should be larger than any reasonable temperature we will encounter   
   real (kind=rt), parameter :: MAX_TEMP = 1.0d11          
 
-  public :: clean_state, fill_unevolved_variables, &
-       renormalize_species, sdc_to_vode, vode_to_sdc, &
-       rhs_to_vode, jac_to_vode, vode_to_burn
+  public
 
 contains
 
   subroutine clean_state(time, y, rpar)
+
+    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt
+    use eos_module, only : eos
 
     real(rt), intent(in) :: time
     real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
@@ -36,6 +31,8 @@ contains
     real(rt) :: max_e, ke
 
     type (eos_t) :: eos_state
+
+    !$gpu
 
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)
@@ -75,6 +72,8 @@ contains
     real(rt), intent(in) :: time
     real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
+    !$gpu
+
     ! we are always integrating from t = 0, so there is no offset
     ! time needed here.  The indexing of irp_ydot_a is based on
     ! the indices in sdc_type_module
@@ -94,6 +93,8 @@ contains
 
     real(rt) :: nspec_sum
 
+    !$gpu
+
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)
 
@@ -111,6 +112,8 @@ contains
     type (sdc_t) :: sdc
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(SVAR_EVOLVE)
+
+    !$gpu
 
     y(:) = sdc % y(1:SVAR_EVOLVE)
 
@@ -141,6 +144,8 @@ contains
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
 
+    !$gpu
+
     sdc % y(1:SVAR_EVOLVE) = y(:)
 
     ! unevolved state variables
@@ -154,10 +159,14 @@ contains
 
   subroutine rhs_to_vode(time, burn_state, y, ydot, rpar)
 
+    use burn_type_module, only : burn_t, net_ienuc
+
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
     type(burn_t), intent(in) :: burn_state
+
+    !$gpu
 
     call fill_unevolved_variables(time, y, rpar)
 
@@ -181,6 +190,8 @@ contains
 
     ! this is only used with an analytic Jacobian
 
+    use burn_type_module, only : burn_t, net_ienuc
+
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
@@ -188,6 +199,8 @@ contains
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
     integer :: n
+
+    !$gpu
 
     jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
     jac(SFS:SFS+nspec-1,SEDEN) = burn_state % jac(1:nspec,net_ienuc)
@@ -215,6 +228,11 @@ contains
 
   subroutine vode_to_burn(time, y, rpar, burn_state)
 
+    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt
+    use eos_type_module, only : eos_get_small_temp, eos_get_max_temp
+    use eos_module, only : eos
+    use burn_type_module, only : eos_to_burn, burn_t
+
     type (burn_t) :: burn_state
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
@@ -223,6 +241,8 @@ contains
     type(eos_t) :: eos_state
 
     real(rt) :: rhoInv, min_temp, max_temp                               
+
+    !$gpu
 
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)

@@ -62,6 +62,8 @@ contains
     real(rt) :: retry_change_factor
     type (dvode_t) :: dvode_state
 
+    !$gpu
+
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
