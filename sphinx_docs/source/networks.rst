@@ -265,8 +265,8 @@ X_a / (A_a m_u)`, our rate equation is
 .. math::
 
    \begin{align}
-    \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f \label{eq:Xf} \\
-    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu  \label{eq:Xa}
+    \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
+    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu 
    \end{align}
 
 We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
@@ -357,16 +357,13 @@ this networks are as follows:
        \isotm{C}{14} + \isotm{He}{4} &\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}
    \end{aligned}
 
-The main reactions suggested by Shen and Bildsten were the reaction series of
-chemical equation `[chemeq:1.1] <#chemeq:1.1>`__ leading into equation `[chemeq:1.2] <#chemeq:1.2>`__,
-chemical equation `[chemeq:2.1] <#chemeq:2.1>`__ leading into equation `[chemeq:2.2] <#chemeq:2.2>`__,
-and chemical equation `[chemeq:3.2] <#chemeq:3.2>`__ :cite:`ShenBildsten`.
+The main reactions suggested by Shen and Bildsten were the :math:`\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}`,
+leading into :math:`\isotm{F}{18}(\alpha,p)\isotm{Ne}{21}`,
+:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` leading into :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`,
+and :math:`\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}` :cite:`ShenBildsten`.
 The rates of these reactions are shown in the figure below.
-Notably, the reaction rate of chemical equation `[chemeq:2.2] <#chemeq:2.2>`__ is high and may produce Oxygen-16 more quickly than reactions involving only Helium-4, and Carbon-12.
+Notably, the reaction :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`, is high and may produce :math:`\isotm{O}{16}` more quickly than reactions involving only :math:`\isotm{He}{4}` and :math:`\isotm{C}{12}`,
 
-.. raw:: latex
-
-   \centering
 
 .. figure:: subch.png
    :alt: pynucastro plot of the reaction rates of the subch network.
@@ -437,7 +434,7 @@ Interfaces
    integrators.
 
 The righthand side of the network is implemented by
-``actual_rhs()`` ``in actual_rhs.f90``, and appears as:
+``actual_rhs()`` in ``actual_rhs.f90``, and appears as:
 
 ::
 
@@ -652,7 +649,7 @@ which will use :math:`c_v` if .true. and :math:`c_p` is .false.. See
 :cite:`maestro:III` for a discussion of the temperature evolution
 equation.
 
-A fully accurate integration of Equation `[eq:temp_integrate] <#eq:temp_integrate>`__
+A fully accurate integration of Equation :eq:`eq:temp_integrate`
 requires an evaluation of the specific heat at each integration step,
 which involves an EOS call given the current temperature. This is done
 if ``call_eos_in_rhs`` = T, as discussed above.
