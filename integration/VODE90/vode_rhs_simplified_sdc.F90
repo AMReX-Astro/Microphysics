@@ -13,8 +13,8 @@ subroutine f_rhs(time, y, ydot, rpar)
   use burn_type_module, only: burn_t, net_ienuc, net_itemp
   use amrex_constants_module, only: ZERO, ONE
   use network_rhs_module, only: network_rhs
-  use vode_type_module, only: clean_state, renormalize_species, &
-       rhs_to_vode, vode_to_burn
+  use vode_type_module, only: clean_state, renormalize_species
+  use vode_type_module, only: rhs_to_vode, vode_to_burn
   use vode_rpar_indices
   use cuvode_parameters_module
 
@@ -66,8 +66,8 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   use burn_type_module, only: burn_t, net_ienuc
   use amrex_fort_module, only: rt => amrex_real
   use vode_rpar_indices
-  use vode_type_module, only: clean_state, renormalize_species, &
-       jac_to_vode, vode_to_burn
+  use vode_type_module, only: clean_state, renormalize_species
+  use vode_type_module, only: jac_to_vode, vode_to_burn
   use cuvode_parameters_module
 
   implicit none
