@@ -69,7 +69,9 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
+#ifndef AMREX_USE_CUDA
        call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+#endif
     endif
 
     if (.not. use_jacobian_caching) then
