@@ -206,6 +206,12 @@ contains
     state % dhdT = state % dedT + state % dpdT * rhoinv
     state % dhdr = ZERO
 
+    state % xne = ZERO
+    state % xnp = ZERO
+    state % eta = ZERO
+    state % pele = ZERO
+    state % ppos = ZERO
+
     state % cv = state % dedT
     state % cp = gamma_const * state % cv
 

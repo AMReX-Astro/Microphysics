@@ -146,7 +146,8 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO
-    use eos_type_module, only: eos_input_rt, eos_t, composition
+    use eos_type_module, only: eos_input_rt, eos_t
+    use eos_composition_module, only: composition
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use vbdf_rpar_indices, only: irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt, irp_self_heat

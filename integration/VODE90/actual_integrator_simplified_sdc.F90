@@ -62,12 +62,16 @@ contains
     real(rt) :: retry_change_factor
     type (dvode_t) :: dvode_state
 
+    !$gpu
+
     if (jacobian == 1) then ! Analytical
        MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
+#ifndef AMREX_USE_CUDA
        call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+#endif
     endif
 
     if (.not. use_jacobian_caching) then
