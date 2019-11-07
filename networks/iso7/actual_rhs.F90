@@ -13,7 +13,7 @@ module actual_rhs_module
   ! Table interpolation data
 
   double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
-  integer, parameter :: tab_per_decade = 500
+  integer, parameter :: tab_per_decade = 2000
   integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
   integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
   double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
@@ -70,9 +70,8 @@ contains
     double precision :: rho, temp
     double precision :: y(nspec)
 
-    double precision :: ratraw(nrates), dratrawdt(nrates)
-    double precision :: ratdum(nrates), dratdumdt(nrates)
-    double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
+    double precision :: rate(nrates), dratedt(nrates)
+    double precision :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
 
     !$gpu
 
@@ -84,23 +83,22 @@ contains
 
     ! Get the raw reaction rates
     if (use_tables) then
-       call iso7tab(temp, rho, ratraw, dratrawdt)
+       call iso7tab(temp, rho, rate, dratedt)
     else
-       call iso7rat(temp, rho, ratraw, dratrawdt)
+       call iso7rat(temp, rho, rate, dratedt)
     endif
 
     ! Do the screening here because the corrections depend on the composition
     call screen_iso7(temp, rho, y,      &
-                     ratraw, dratrawdt, &
-                     ratdum, dratdumdt, &
-                     dratdumdy1, dratdumdy2)
+                     rate, dratedt, &
+                     dratedy1, dratedy2)
 
     ! Save the rate data, for the Jacobian later if we need it.
 
-    rr % rates(1,:) = ratdum
-    rr % rates(2,:) = dratdumdt
-    rr % rates(3,irsi2ni:irni2si) = dratdumdy1
-    rr % rates(4,irsi2ni:irni2si) = dratdumdy2
+    rr % rates(1,:) = rate
+    rr % rates(2,:) = dratedt
+    rr % rates(3,irsi2ni:irni2si) = dratedy1
+    rr % rates(4,irsi2ni:irni2si) = dratedy2
 
     rr % T_eval = temp
 
@@ -108,11 +106,11 @@ contains
 
 
 
-  subroutine iso7tab(btemp, bden, ratraw, dratrawdt)
+  subroutine iso7tab(btemp, bden, rate, dratedt)
 
     implicit none
 
-    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates)
+    double precision :: btemp, bden, rate(nrates), dratedt(nrates)
 
     integer, parameter :: mp = 4
 
@@ -172,15 +170,15 @@ contains
     ! crank off the raw reaction rates
     do j = 1, nrates
 
-       ratraw(j) = (alfa * rattab(j,iat) &
-                    + beta * rattab(j,iat+1) &
-                    + gama * rattab(j,iat+2) &
-                    + delt * rattab(j,iat+3) ) * dtab(j)
+       rate(j) = (alfa * rattab(j,iat) &
+                  + beta * rattab(j,iat+1) &
+                  + gama * rattab(j,iat+2) &
+                  + delt * rattab(j,iat+3) ) * dtab(j)
 
-       dratrawdt(j) = (alfa * drattabdt(j,iat) &
-                       + beta * drattabdt(j,iat+1) &
-                       + gama * drattabdt(j,iat+2) &
-                       + delt * drattabdt(j,iat+3) ) * dtab(j)
+       dratedt(j) = (alfa * drattabdt(j,iat) &
+                     + beta * drattabdt(j,iat+1) &
+                     + gama * drattabdt(j,iat+2) &
+                     + delt * drattabdt(j,iat+3) ) * dtab(j)
 
     enddo
 
@@ -207,7 +205,7 @@ contains
 
     implicit none
 
-    double precision :: btemp, bden, ratraw(nrates), dratrawdt(nrates)
+    double precision :: btemp, bden, rate(nrates), dratedt(nrates)
     integer :: i, j
 
     bden = 1.0d0
@@ -217,14 +215,14 @@ contains
        btemp = tab_tlo + dble(i-1) * tab_tstp
        btemp = 10.0d0**(btemp)
 
-       call iso7rat(btemp, bden, ratraw, dratrawdt)
+       call iso7rat(btemp, bden, rate, dratedt)
 
        ttab(i) = btemp
 
        do j = 1, nrates
 
-          rattab(j,i)    = ratraw(j)
-          drattabdt(j,i) = dratrawdt(j)
+          rattab(j,i)    = rate(j)
+          drattabdt(j,i) = dratedt(j)
 
        enddo
 
@@ -352,7 +350,7 @@ contains
     enddo
 
     ! Evaluate the Jacobian elements with respect to temperature by
-    ! calling the RHS using d(ratdum) / dT
+    ! calling the RHS using d(rate) / dT
 
     deriva = .true.
     call rhs(y, rr, yderivs, deriva, for_jacobian_tderiv = .true.)
@@ -478,7 +476,7 @@ contains
 
 
 
-  subroutine iso7rat(btemp, bden, ratraw, dratrawdt)
+  subroutine iso7rat(btemp, bden, rate, dratedt)
 
     ! this routine generates unscreened
     ! nuclear reaction rates for the iso7 network.
@@ -489,7 +487,7 @@ contains
     use extern_probin_module, only: use_c12ag_deboer17
 
     double precision :: btemp, bden
-    double precision :: ratraw(nrates), dratrawdt(nrates)
+    double precision :: rate(nrates), dratedt(nrates)
 
     integer          :: i
     double precision :: rrate,drratedt,drratedd,drratedd2
@@ -499,8 +497,8 @@ contains
     !$gpu
     
     do i=1,nrates
-       ratraw(i)    = ZERO
-       dratrawdt(i) = ZERO
+       rate(i)    = ZERO
+       dratedt(i) = ZERO
     enddo
 
     if (btemp .lt. 1.0d6) return
@@ -513,63 +511,62 @@ contains
     if (use_c12ag_deboer17) then
     ! deboer + 2017 c12(a,g)o16 rate
        call rate_c12ag_deboer17(tf,bden, &
-                    ratraw(ircag),dratrawdt(ircag),drratedd, &
-                    ratraw(iroga),dratrawdt(iroga),drratedd2)
+                    rate(ircag),dratedt(ircag),drratedd, &
+                    rate(iroga),dratedt(iroga),drratedd2)
     else
     ! 1.7 times cf88 c12(a,g)o16 rate
        call rate_c12ag(tf,bden, &
-                    ratraw(ircag),dratrawdt(ircag),drratedd, &
-                    ratraw(iroga),dratrawdt(iroga),drratedd2)
+                    rate(ircag),dratedt(ircag),drratedd, &
+                    rate(iroga),dratedt(iroga),drratedd2)
     endif
 
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
-                      ratraw(ir3a),dratrawdt(ir3a),drratedd, &
-                      ratraw(irg3a),dratrawdt(irg3a),drratedd2)
+                      rate(ir3a),dratedt(ir3a),drratedd, &
+                      rate(irg3a),dratedt(irg3a),drratedd2)
 
     ! c12 + c12
     call rate_c12c12(tf,bden, &
-                     ratraw(ir1212),dratrawdt(ir1212),drratedd2, &
+                     rate(ir1212),dratedt(ir1212),drratedd2, &
                      rrate,drratedt,drratedd)
 
     ! c12 + o16
     call rate_c12o16(tf,bden, &
-                     ratraw(ir1216),dratrawdt(ir1216),drratedd2, &
+                     rate(ir1216),dratedt(ir1216),drratedd2, &
                      rrate,drratedt,drratedd)
 
     ! 16o + 16o
     call rate_o16o16(tf,bden, &
-                     ratraw(ir1616),dratrawdt(ir1616),drratedd2, &
+                     rate(ir1616),dratedt(ir1616),drratedd2, &
                      rrate,drratedt,drratedd)
 
     ! o16(a,g)ne20
     call rate_o16ag(tf,bden, &
-                    ratraw(iroag),dratrawdt(iroag),drratedd, &
-                    ratraw(irnega),dratrawdt(irnega),drratedd2)
+                    rate(iroag),dratedt(iroag),drratedd, &
+                    rate(irnega),dratedt(irnega),drratedd2)
 
     ! ne20(a,g)mg24
     call rate_ne20ag(tf,bden, &
-                     ratraw(irneag),dratrawdt(irneag),drratedd, &
-                     ratraw(irmgga),dratrawdt(irmgga),drratedd2)
+                     rate(irneag),dratedt(irneag),drratedd, &
+                     rate(irmgga),dratedt(irmgga),drratedd2)
 
     ! mg24(a,g)si28
     call rate_mg24ag(tf,bden, &
-                     ratraw(irmgag),dratrawdt(irmgag),drratedd, &
-                     ratraw(irsiga),dratrawdt(irsiga),drratedd2)
+                     rate(irmgag),dratedt(irmgag),drratedd, &
+                     rate(irsiga),dratedt(irsiga),drratedd2)
 
     ! ca40(a,g)ti44
     call rate_ca40ag(tf,bden, &
-                     ratraw(ircaag),dratrawdt(ircaag),drratedd, &
-                     ratraw(irtiga),dratrawdt(irtiga),drratedd2)
+                     rate(ircaag),dratedt(ircaag),drratedd, &
+                     rate(irtiga),dratedt(irtiga),drratedd2)
 
   end subroutine iso7rat
 
 
 
   subroutine screen_iso7(btemp, bden, y, &
-                         ratraw, dratrawdt, &
-                         ratdum, dratdumdt, &
-                         dratdumdy1, dratdumdy2)
+                         rate, dratedt, &
+                         dratedy1, dratedy2)
 
     use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -582,9 +579,8 @@ contains
 
     double precision :: btemp, bden
     double precision :: y(nspec)
-    double precision :: ratraw(nrates), dratrawdt(nrates)
-    double precision :: ratdum(nrates), dratdumdt(nrates)
-    double precision :: dratdumdy1(irsi2ni:irni2si), dratdumdy2(irsi2ni:irni2si)
+    double precision :: rate(nrates), dratedt(nrates)
+    double precision :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
 
     integer          :: i, jscr
     double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
@@ -598,13 +594,8 @@ contains
     !$gpu
     
     ! initialize
-    do i = 1, nrates
-       ratdum(i)     = ratraw(i)
-       dratdumdt(i)  = dratrawdt(i)
-    enddo
-
-    dratdumdy1(:) = ZERO
-    dratdumdy2(:) = ZERO
+    dratedy1(:) = ZERO
+    dratedy2(:) = ZERO
 
     ! get the temperature factors
     call get_tfactors(btemp, tf)
@@ -623,64 +614,64 @@ contains
     sc3a   = sc1a * sc2a
     sc3adt = sc1adt*sc2a + sc1a*sc2adt
 
-    ratdum(ir3a)    = ratraw(ir3a) * sc3a
-    dratdumdt(ir3a) = dratrawdt(ir3a)*sc3a + ratraw(ir3a)*sc3adt
+    dratedt(ir3a) = dratedt(ir3a) * sc3a + rate(ir3a) * sc3adt
+    rate(ir3a)    = rate(ir3a) * sc3a
 
     ! c12 to o16
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ircag)     = ratraw(ircag) * sc1a
-    dratdumdt(ircag)  = dratrawdt(ircag)*sc1a + ratraw(ircag)*sc1adt
+    dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt
+    rate(ircag)     = rate(ircag) * sc1a
 
     ! c12 + c12
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ir1212)    = ratraw(ir1212) * sc1a
-    dratdumdt(ir1212) = dratrawdt(ir1212)*sc1a + ratraw(ir1212)*sc1adt
+    dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt
+    rate(ir1212)    = rate(ir1212) * sc1a
 
     ! c12 + o16
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ir1216)    = ratraw(ir1216) * sc1a
-    dratdumdt(ir1216) = dratrawdt(ir1216)*sc1a + ratraw(ir1216)*sc1adt
+    dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt
+    rate(ir1216)    = rate(ir1216) * sc1a
 
     ! o16 + o16
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ir1616)    = ratraw(ir1616) * sc1a
-    dratdumdt(ir1616) = dratrawdt(ir1616)*sc1a + ratraw(ir1616)*sc1adt
+    dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt
+    rate(ir1616)    = rate(ir1616) * sc1a
 
     ! o16 to ne20
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(iroag)    = ratraw(iroag) * sc1a
-    dratdumdt(iroag) = dratrawdt(iroag)*sc1a + ratraw(iroag)*sc1adt
+    dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt
+    rate(iroag)    = rate(iroag) * sc1a
 
     ! o16 to mg24
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(irneag)    = ratraw(irneag) * sc1a
-    dratdumdt(irneag) = dratrawdt(irneag)*sc1a + ratraw(irneag)*sc1adt
+    dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt
+    rate(irneag)    = rate(irneag) * sc1a
 
     ! mg24 to si28
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(irmgag)    = ratraw(irmgag) * sc1a
-    dratdumdt(irmgag) = dratrawdt(irmgag)*sc1a + ratraw(irmgag)*sc1adt
+    dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt
+    rate(irmgag)    = rate(irmgag) * sc1a
 
     ! ca40 to ti44
     jscr = jscr + 1
     call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    ratdum(ircaag)    = ratraw(ircaag) * sc1a
-    dratdumdt(ircaag) = dratrawdt(ircaag)*sc1a + ratraw(ircaag)*sc1adt
+    dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt
+    rate(ircaag)    = rate(ircaag) * sc1a
 
     ! the publication, timmes, woosley & hoffman apjs, 129, 377
     ! has a typo on page 393, where its says "y(ic12)+y(io16) .gt. 0.004"
@@ -701,24 +692,24 @@ contains
 
        denom     = (bden * y(ihe4))**3
 
-       ratdum(irsi2ni)     = yeff_ca40*denom*ratdum(ircaag)*y(isi28)
-       dratdumdy1(irsi2ni) = 3.0d0 * ratdum(irsi2ni)/y(ihe4)
-       dratdumdy2(irsi2ni) = yeff_ca40*denom*ratdum(ircaag)
-       dratdumdt(irsi2ni)  = (yeff_ca40dt*ratdum(ircaag) &
-            + yeff_ca40*dratdumdt(ircaag))*denom*y(isi28)*1.0d-9
+       rate(irsi2ni)     = yeff_ca40*denom*rate(ircaag)*y(isi28)
+       dratedy1(irsi2ni) = 3.0d0 * rate(irsi2ni)/y(ihe4)
+       dratedy2(irsi2ni) = yeff_ca40*denom*rate(ircaag)
+       dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag) &
+            + yeff_ca40*dratedt(ircaag))*denom*y(isi28)*1.0d-9
 
        if (denom .ne. 0.0) then
 
           zz     = 1.0d0/denom
-          ratdum(irni2si) = min(1.0d10,yeff_ti44*ratdum(irtiga)*zz)
+          rate(irni2si) = min(1.0d10,yeff_ti44*rate(irtiga)*zz)
 
-          if (ratdum(irni2si) .eq. 1.0d10) then
-             dratdumdy1(irni2si) = 0.0d0
-             dratdumdt(irni2si)  = 0.0d0
+          if (rate(irni2si) .eq. 1.0d10) then
+             dratedy1(irni2si) = 0.0d0
+             dratedt(irni2si)  = 0.0d0
           else
-             dratdumdy1(irni2si) = -3.0d0 * ratdum(irni2si)/y(ihe4)
-             dratdumdt(irni2si)  = (yeff_ti44dt*ratdum(irtiga) &
-                  + yeff_ti44*dratdumdt(irtiga))*zz*1.0d-9
+             dratedy1(irni2si) = -3.0d0 * rate(irni2si)/y(ihe4)
+             dratedt(irni2si)  = (yeff_ti44dt*rate(irtiga) &
+                  + yeff_ti44*dratedt(irtiga))*zz*1.0d-9
           end if
        endif
     end if
