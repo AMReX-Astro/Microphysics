@@ -39,7 +39,7 @@ module vode_rpar_indices
 
   integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
-  integer, parameter :: irp_t0 = irp_self_heat + 1
+  integer, parameter :: irp_t0 = irp_T_from_eden + 1
 
   integer, parameter :: n_rpar_comps = irp_t0
 
