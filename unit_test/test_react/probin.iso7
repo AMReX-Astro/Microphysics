@@ -22,5 +22,6 @@
   rtol_enuc = 1.d-6
   atol_enuc = 1.d-6
 
+  use_tables = T
 
 /
