@@ -345,7 +345,7 @@ contains
     call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
     do j = 1, nspec
-       b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
+       b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz)
        state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
     enddo
 
