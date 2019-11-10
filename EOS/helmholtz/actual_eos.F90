@@ -182,6 +182,9 @@ contains
     xni  = avo_eos * ytot1 * state % rho
     xnem = xni * state % zbar
 
+    ! define mu
+    state % mu = state % abar
+
     !..enter the table with ye*den
     din = state % y_e * state % rho
 
