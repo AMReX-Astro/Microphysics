@@ -182,8 +182,8 @@ contains
     xni  = avo_eos * ytot1 * state % rho
     xnem = xni * state % zbar
 
-    ! define mu
-    state % mu = state % abar
+    ! define mu -- the total mean molecular weight including both electrons and ions
+    state % mu = 1.0d0 / (1.0d0 / state % abar + 1.0d0 / state % mu_e)
 
     !..enter the table with ye*den
     din = state % y_e * state % rho
