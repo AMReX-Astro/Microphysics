@@ -1,5 +1,9 @@
 # changes since the last release
 
+   * The helmholtz EOS was restructured, splitting the different
+     components into different functions and optimizing the memory
+     accesses. (#200)
+
    * The derivatives with respect to mass fraction (dpdX, dedX, dhdX)
      were removed from eos_t and are now available through a new type,
      eos_xderivs_t and the composition_derivatives() routine.  (#207)

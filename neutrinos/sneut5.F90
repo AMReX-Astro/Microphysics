@@ -46,30 +46,28 @@ contains
                         c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12, &
                         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0, &
                         f1,deni,tempi,abari,zbari,f2,f3,z,xmue,ye, &
-                        dum,dumdt,gum,gumdt
-!    double precision :: dumdd,dumda,dumdz,gumdd,gumda,gumdz
-
+                        dum,dumdt,gum,gumdt,dumda,dumdz,gumdd,gumda,gumdz
 
     ! pair production
-    double precision :: rm,rmdd,rmda,rmdz,rmi,gl,gldt, &
+    double precision :: rm,rmi,gl,gldt, &
                         zeta,zetadt,zeta2,zeta3, &
                         xnum,xnumdt,xden,xdendt, &
-                        fpair,fpairdt,qpair,qpairdt
-!    double precision :: fpairdd,fpairda,fpairdz,qpairdd,qpairda,qpairdz
-!    double precision :: rmdd,rmda,rmdz,zetadd,zetada,zetadz
-!    double precision :: xnumdd,xnumda,xnumdz,xdendd,xdenda,xdenz
+                        fpair,fpairdt,qpair,qpairdt, &
+                        fpairda,fpairdz,qpairda,qpairdz, &
+                        rmda,rmdz,zetada,zetadz, &
+                        xnumda,xnumdz,xdenda,xdendz
 
     ! plasma
     double precision :: gl2,gl2dt,gl12,gl32,gl72,gl6, &
-                        ft,ftdt,fl,fldt,fxy,fxydt
-!    double precision :: fldd,flda,fldz,ftdd,ftda,ftdz
-!    double precision :: fxydd,fxyda,fxydz,gl2dd,gl2da,gl2dz
+                        ft,ftdt,fl,fldt,fxy,fxydt, &
+                        flda,fldz,ftda,ftdz, &
+                        fxyda,fxydz,gl2da,gl2dz
 
     ! photo
     double precision :: tau,taudt,cos1,cos2,cos3,cos4,cos5,sin1,sin2, &
                         sin3,sin4,sin5,last,xast, &
-                        fphot,fphotdt,qphot,qphotdt
-!    double precision :: fphotdd,fphotda,fphotdz,qphotdd,qphotda,qphotdz
+                        fphot,fphotdt,qphot,qphotdt, &
+                        fphotda,fphotdz,qphotda,qphotdz
 
     ! brem
     double precision :: t8,t812,t832,t82,t83,t85,t86,t8m1,t8m2,t8m3,t8m5, &
@@ -78,16 +76,13 @@ contains
                         fbrem,fbremdt, &
                         gbrem,gbremdt, &
                         u,gm1,gm2,gm13,gm23,gm43,gm53,v,w,fb,gt,gb, &
-                        fliq,fliqdt,gliq,gliqdt
-!    double precision :: etadd,etada,etadz
-!    double precision :: fbremdd,fbremda,fbremdz,gbremdd,gbremda,gbremdz
-!    double precision :: fliqdd,fliqda,fliqdz,gliqdd,gliqda,gliqdz
+                        fliq,fliqdt,gliq,gliqdt, &
+                        etadd,etada,etadz, &
+                        fbremda,fbremdz,gbremda,gbremdz, &
+                        fliqda,fliqdz,gliqda,gliqdz
 
     ! recomb
-    double precision :: nu,nudt,nu2,nu3,bigj,bigjdt
-!    double precision :: nudd,nuda,nudz
-!    double precision :: bigjdd,bigjda,bigjdz
-
+    double precision :: nu,nudt,nu2,nu3,bigj,bigjdt,nuda,nudz,bigjda,bigjdz
 
 
     ! numerical constants
@@ -99,7 +94,6 @@ contains
     double precision, parameter :: con1   = 1.0d0/5.9302d0
     double precision, parameter :: sixth  = 1.0d0/6.0d0
     double precision, parameter :: iln10  = 4.342944819032518d-1
-
 
     ! theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
     ! xnufam is the number of neutrino flavors = 3.02 plus/minus 0.005 (1998)
@@ -160,20 +154,15 @@ contains
 
     if (temp .lt. 1.0e7) return
 
-
     ! to avoid lots of divisions
     deni  = 1.0d0/den
     tempi = 1.0d0/temp
     abari = 1.0d0/abar
     zbari = 1.0d0/zbar
 
-
     ! some composition variables
     ye    = zbar*abari
     xmue  = abar*zbari
-
-
-
 
     ! some frequent factors
     t9     = temp * 1.0d-9
@@ -195,7 +184,6 @@ contains
     xlm4   = xlm1*xlm3
 
     rm     = den*ye
-    rmdd   = ye
     rmda   = -rm*abari
     rmdz   = den*abari
     rmi    = 1.0d0/rm
@@ -204,16 +192,12 @@ contains
     a1     = a0**oneth
     zeta   = a1 * xlm1
     zetadt = -a1 * xlm2 * xldt
-    !a2     = oneth * a1*rmi * xlm1
-    !zetadd = a2 * rmdd
-    !zetada = a2 * rmda
-    !zetadz = a2 * rmdz
+    a2     = oneth * a1*rmi * xlm1
+    zetada = a2 * rmda
+    zetadz = a2 * rmdz
 
     zeta2 = zeta * zeta
     zeta3 = zeta2 * zeta
-
-
-
 
     ! pair neutrino section
     ! for reactions like e+ + e- => nu_e + nubar_e
@@ -238,9 +222,8 @@ contains
     xnum   = a1 * b1
     c      = a2*b1 + a1*b2
     xnumdt = c*zetadt
-    !xnumdd = c*zetadd
-    !xnumda = c*zetada
-    !xnumdz = c*zetadz
+    xnumda = c*zetada
+    xnumdz = c*zetadz
 
     if (t9 .lt. 10.0) then
        a1   = 9.383d-1*xlm1 - 4.141d-1*xlm2 + 5.829d-2*xlm3
@@ -254,17 +237,14 @@ contains
 
     xden   = zeta3 + a1
     xdendt = b1*zetadt + a2*xldt
-    !xdendd = b1*zetadd
-    !xdenda = b1*zetada
-    !xdendz = b1*zetadz
+    xdenda = b1*zetada
+    xdendz = b1*zetadz
 
     a1      = 1.0d0/xden
     fpair   = xnum*a1
     fpairdt = (xnumdt - fpair*xdendt)*a1
-    !fpairdd = (xnumdd - fpair*xdendd)*a1
-    !fpairda = (xnumda - fpair*xdenda)*a1
-    !fpairdz = (xnumdz - fpair*xdendz)*a1
-
+    fpairda = (xnumda - fpair*xdenda)*a1
+    fpairdz = (xnumdz - fpair*xdendz)*a1
 
     ! equation 2.6
     a1     = 10.7480d0*xl2 + 0.3967d0*xlp5 + 1.005d0
@@ -282,17 +262,13 @@ contains
 
     d      = -0.3d0*xden/b1
     xdendt = -d*rm*c*c*a2
-    !xdendd = d*rmdd*c
-    !xdenda = d*rmda*c
-    !xdendz = d*rmdz*c
+    xdenda = d*rmda*c
+    xdendz = d*rmdz*c
 
     qpair   = xnum*xden
     qpairdt = xnumdt*xden + xnum*xdendt
-    !qpairdd = xnum*xdendd
-    !qpairda = xnum*xdenda
-    !qpairdz = xnum*xdendz
-
-
+    qpairda = xnum*xdenda
+    qpairdz = xnum*xdendz
 
     ! equation 2.5
     a1    = exp(-2.0d0*xlm1)
@@ -300,16 +276,14 @@ contains
 
     spair   = a1*fpair
     spairdt = a2*fpair + a1*fpairdt
-    !spairdd = a1*fpairdd
-    !spairda = a1*fpairda
-    !spairdz = a1*fpairdz
+    spairda = a1*fpairda
+    spairdz = a1*fpairdz
 
     a1      = spair
     spair   = gl*a1
     spairdt = gl*spairdt + gldt*a1
-    !spairdd = gl*spairdd
-    !spairda = gl*spairda
-    !spairdz = gl*spairdz
+    spairda = gl*spairda
+    spairdz = gl*spairdz
 
     a1      = tfac4*(1.0d0 + tfac3 * qpair)
     a2      = tfac4*tfac3
@@ -317,12 +291,8 @@ contains
     a3      = spair
     spair   = a1*a3
     spairdt = a1*spairdt + a2*qpairdt*a3
-    !spairdd = a1*spairdd + a2*qpairdd*a3
-    !spairda = a1*spairda + a2*qpairda*a3
-    !spairdz = a1*spairdz + a2*qpairdz*a3
-
-
-
+    spairda = a1*spairda + a2*qpairda*a3
+    spairdz = a1*spairdz + a2*qpairdz*a3
 
     ! plasma neutrino section
     ! for collective reactions like gamma_plasmon => nu_e + nubar_e
@@ -340,11 +310,9 @@ contains
     gl2   = 1.1095d11 * rm * c00
 
     gl2dt = -2.0d0*gl2*tempi
-    !d     = rm*c00*b2*0.5d0*b2*a3*1.019d-6
-    !gl2dd = 1.1095d11 * (rmdd*c00  - d*rmdd)
-    !gl2da = 1.1095d11 * (rmda*c00  - d*rmda)
-    !gl2dz = 1.1095d11 * (rmdz*c00  - d*rmdz)
-
+    d     = rm*c00*b2*0.5d0*b2*a3*1.019d-6
+    gl2da = 1.1095d11 * (rmda*c00  - d*rmda)
+    gl2dz = 1.1095d11 * (rmdz*c00  - d*rmdz)
 
     gl    = sqrt(gl2)
     gl12  = sqrt(gl)
@@ -352,16 +320,13 @@ contains
     gl72  = gl2 * gl32
     gl6   = gl2 * gl2 * gl2
 
-
     ! equation 4.7
     ft   = 2.4d0 + 0.6d0*gl12 + 0.51d0*gl + 1.25d0*gl32
     gum  = 1.0d0/gl2
     a1   =(0.25d0*0.6d0*gl12 +0.5d0*0.51d0*gl +0.75d0*1.25d0*gl32)*gum
     ftdt = a1*gl2dt
-    !ftdd = a1*gl2dd
-    !ftda = a1*gl2da
-    !ftdz = a1*gl2dz
-
+    ftda = a1*gl2da
+    ftdz = a1*gl2dz
 
     ! equation 4.8
     a1   = 8.6d0*gl2 + 1.35d0*gl72
@@ -375,10 +340,8 @@ contains
 
     d    = (a2 - fl*b2)*c
     fldt = d*gl2dt
-    !fldd = d*gl2dd
-    !flda = d*gl2da
-    !fldz = d*gl2dz
-
+    flda = d*gl2da
+    fldz = d*gl2dz
 
     ! equation 4.9 and 4.10
     cc   = log10(2.0d0*rm)
@@ -386,25 +349,21 @@ contains
 
     xnum   = sixth * (17.5d0 + cc - 3.0d0*xlnt)
     xnumdt = -iln10*0.5d0*tempi
-    !a2     = iln10*sixth*rmi
-    !xnumdd = a2*rmdd
-    !xnumda = a2*rmda
-    !xnumdz = a2*rmdz
+    a2     = iln10*sixth*rmi
+    xnumda = a2*rmda
+    xnumdz = a2*rmdz
 
     xden   = sixth * (-24.5d0 + cc + 3.0d0*xlnt)
     xdendt = iln10*0.5d0*tempi
-    !xdendd = a2*rmdd
-    !xdenda = a2*rmda
-    !xdendz = a2*rmdz
-
+    xdenda = a2*rmda
+    xdendz = a2*rmdz
 
     ! equation 4.11
     if (abs(xnum) .gt. 0.7d0  .or.  xden .lt. 0.0d0) then
        fxy   = 1.0d0
        fxydt = 0.0d0
-!       fxydd = 0.0d0
-!       fxydz = 0.0d0
-!       fxyda = 0.0d0
+       fxydz = 0.0d0
+       fxyda = 0.0d0
 
     else
 
@@ -417,14 +376,12 @@ contains
        c   = min(0.0d0, xden - 1.6d0 + 1.25d0*xnum)
        if (c .eq. 0.0) then
           dumdt = 0.0d0
-          !  dumdd = 0.0d0
-          !  dumda = 0.0d0
-          !  dumdz = 0.0d0
+          dumda = 0.0d0
+          dumdz = 0.0d0
        else
           dumdt = xdendt + 1.25d0*xnumdt
-          !  dumdd = xdendd + 1.25d0*xnumdd
-          !  dumda = xdenda + 1.25d0*xnumda
-          !  dumdz = xdendz + 1.25d0*xnumdz
+          dumda = xdenda + 1.25d0*xnumda
+          dumdz = xdendz + 1.25d0*xnumdz
        end if
 
        d   = 0.57d0 - 0.25d0*xnum
@@ -433,26 +390,21 @@ contains
 
        f1  = -c00*2.0d0*a3/d
        c01 = f1*(dumdt + a3*0.25d0*xnumdt)
-       !c02 = f1*(dumdd + a3*0.25d0*xnumdd)
-       !c03 = f1*(dumda + a3*0.25d0*xnumda)
-       !c04 = f1*(dumdz + a3*0.25d0*xnumdz)
+       c03 = f1*(dumda + a3*0.25d0*xnumda)
+       c04 = f1*(dumdz + a3*0.25d0*xnumdz)
 
        fxy   = 1.05d0 + (a1 - b1)*c00
        fxydt = (a2*xnumdt -  b2*xnumdt)*c00 + (a1-b1)*c01
-       !fxydd = (a2*xnumdd -  b2*xnumdd)*c00 + (a1-b1)*c02
-       !fxyda = (a2*xnumda -  b2*xnumda)*c00 + (a1-b1)*c03
-       !fxydz = (a2*xnumdz -  b2*xnumdz)*c00 + (a1-b1)*c04
+       fxyda = (a2*xnumda -  b2*xnumda)*c00 + (a1-b1)*c03
+       fxydz = (a2*xnumdz -  b2*xnumdz)*c00 + (a1-b1)*c04
 
     end if
-
-
 
     ! equation 4.1 and 4.5
     splas   = (ft + fl) * fxy
     splasdt = (ftdt + fldt)*fxy + (ft+fl)*fxydt
-    !splasdd = (ftdd + fldd)*fxy + (ft+fl)*fxydd
-    !splasda = (ftda + flda)*fxy + (ft+fl)*fxyda
-    !splasdz = (ftdz + fldz)*fxy + (ft+fl)*fxydz
+    splasda = (ftda + flda)*fxy + (ft+fl)*fxyda
+    splasdz = (ftdz + fldz)*fxy + (ft+fl)*fxydz
 
     a2      = exp(-gl)
     a3      = -0.5d0*a2*gl*gum
@@ -460,9 +412,8 @@ contains
     a1      = splas
     splas   = a2*a1
     splasdt = a2*splasdt + a3*gl2dt*a1
-    !splasdd = a2*splasdd + a3*gl2dd*a1
-    !splasda = a2*splasda + a3*gl2da*a1
-    !splasdz = a2*splasdz + a3*gl2dz*a1
+    splasda = a2*splasda + a3*gl2da*a1
+    splasdz = a2*splasdz + a3*gl2dz*a1
 
     a2      = gl6
     a3      = 3.0d0*gl6*gum
@@ -470,10 +421,8 @@ contains
     a1      = splas
     splas   = a2*a1
     splasdt = a2*splasdt + a3*gl2dt*a1
-    !splasdd = a2*splasdd + a3*gl2dd*a1
-    !splasda = a2*splasda + a3*gl2da*a1
-    !splasdz = a2*splasdz + a3*gl2dz*a1
-
+    splasda = a2*splasda + a3*gl2da*a1
+    splasdz = a2*splasdz + a3*gl2dz*a1
 
     a2      = 0.93153d0 * 3.0d21 * xl9
     a3      = 0.93153d0 * 3.0d21 * 9.0d0*xl8*xldt
@@ -481,12 +430,8 @@ contains
     a1      = splas
     splas   = a2*a1
     splasdt = a2*splasdt + a3*a1
-    !splasdd = a2*splasdd
-    !splasda = a2*splasda
-    !splasdz = a2*splasdz
-
-
-
+    splasda = a2*splasda
+    splasdz = a2*splasdz
 
     ! photoneutrino process section
     ! for reactions like e- + gamma => e- + nu_e + nubar_e
@@ -616,7 +561,6 @@ contains
 
     taudt = iln10*tempi
 
-
     ! equation 3.7, compute the expensive trig functions only one time
     cos1 = cos(fac1*tau)
     cos2 = cos(fac1*2.0d0*tau)
@@ -666,34 +610,29 @@ contains
     ! equation 3.4
     dum   = a0 + a1*zeta + a2*zeta2
     dumdt = f0 + f1*zeta + a1*zetadt + f2*zeta2 + 2.0d0*a2*zeta*zetadt
-    !dumdd = a1*zetadd + 2.0d0*a2*zeta*zetadd
-    !dumda = a1*zetada + 2.0d0*a2*zeta*zetada
-    !dumdz = a1*zetadz + 2.0d0*a2*zeta*zetadz
+    dumda = a1*zetada + 2.0d0*a2*zeta*zetada
+    dumdz = a1*zetadz + 2.0d0*a2*zeta*zetadz
 
     z      = exp(-cc*zeta)
 
     xnum   = dum*z
     xnumdt = dumdt*z - dum*z*cc*zetadt
-    !xnumdd = dumdd*z - dum*z*cc*zetadd
-    !xnumda = dumda*z - dum*z*cc*zetada
-    !xnumdz = dumdz*z - dum*z*cc*zetadz
+    xnumda = dumda*z - dum*z*cc*zetada
+    xnumdz = dumdz*z - dum*z*cc*zetadz
 
     xden   = zeta3 + 6.290d-3*xlm1 + 7.483d-3*xlm2 + 3.061d-4*xlm3
 
     dum    = 3.0d0*zeta2
     xdendt = dum*zetadt - xldt*(6.290d-3*xlm2 &
          + 2.0d0*7.483d-3*xlm3 + 3.0d0*3.061d-4*xlm4)
-    !xdendd = dum*zetadd
-    !xdenda = dum*zetada
-    !xdendz = dum*zetadz
+    xdenda = dum*zetada
+    xdendz = dum*zetadz
 
     dum      = 1.0d0/xden
     fphot   = xnum*dum
     fphotdt = (xnumdt - fphot*xdendt)*dum
-    !fphotdd = (xnumdd - fphot*xdendd)*dum
-    !fphotda = (xnumda - fphot*xdenda)*dum
-    !fphotdz = (xnumdz - fphot*xdendz)*dum
-
+    fphotda = (xnumda - fphot*xdenda)*dum
+    fphotdz = (xnumdz - fphot*xdendz)*dum
 
     ! equation 3.3
     a0     = 1.0d0 + 2.045d0 * xl
@@ -707,31 +646,27 @@ contains
     z      = 1.0d0/dum
     xden   = 1.0d0 + rm*z
     xdendt =  -rm*z*z*dumdt
-    !xdendd =  rmdd*z
-    !xdenda =  rmda*z
-    !xdendz =  rmdz*z
+    xdenda =  rmda*z
+    xdendz =  rmdz*z
 
     z      = 1.0d0/xden
     qphot = xnum*z
     qphotdt = (xnumdt - qphot*xdendt)*z
     dum      = -qphot*z
-    !qphotdd = dum*xdendd
-    !qphotda = dum*xdenda
-    !qphotdz = dum*xdendz
+    qphotda = dum*xdenda
+    qphotdz = dum*xdendz
 
     ! equation 3.2
     sphot   = xl5 * fphot
     sphotdt = 5.0d0*xl4*xldt*fphot + xl5*fphotdt
-    !sphotdd = xl5*fphotdd
-    !sphotda = xl5*fphotda
-    !sphotdz = xl5*fphotdz
+    sphotda = xl5*fphotda
+    sphotdz = xl5*fphotdz
 
     a1      = sphot
     sphot   = rm*a1
     sphotdt = rm*sphotdt
-    !sphotdd = rm*sphotdd + rmdd*a1
-    !sphotda = rm*sphotda + rmda*a1
-    !sphotdz = rm*sphotdz + rmdz*a1
+    sphotda = rm*sphotda + rmda*a1
+    sphotdz = rm*sphotdz + rmdz*a1
 
     a1      = tfac4*(1.0d0 - tfac3 * qphot)
     a2      = -tfac4*tfac3
@@ -739,9 +674,8 @@ contains
     a3      = sphot
     sphot   = a1*a3
     sphotdt = a1*sphotdt + a2*qphotdt*a3
-    !sphotdd = a1*sphotdd + a2*qphotdd*a3
-    !sphotda = a1*sphotda + a2*qphotda*a3
-    !sphotdz = a1*sphotdz + a2*qphotdz*a3
+    sphotda = a1*sphotda + a2*qphotda*a3
+    sphotdz = a1*sphotdz + a2*qphotdz*a3
 
     if (sphot .le. 0.0) then
        sphot   = 0.0d0
@@ -750,10 +684,6 @@ contains
        sphotda = 0.0d0
        sphotdz = 0.0d0
     end if
-
-
-
-
 
     ! bremsstrahlung neutrino section
     ! for reactions like e- + (z,a) => e- + (z,a) + nu + nubar
@@ -788,14 +718,12 @@ contains
        z     = 1.0d0/dum
        eta   = rm*z
        etadt = -rm*z*z*dumdt
-       !etadd = rmdd*z
-       !etada = rmda*z
-       !etadz = rmdz*z
+       etada = rmda*z
+       etadz = rmdz*z
 
        etam1 = 1.0d0/eta
        etam2 = etam1 * etam1
        etam3 = etam2 * etam1
-
 
        ! equation 5.2
        a0    = 23.5d0 + 6.83d4*t8m2 + 7.81d8*t8m5
@@ -805,30 +733,25 @@ contains
        dum   = 1.0d0 + 1.47d0*etam1 + 3.29d-2*etam2
        z     = -1.47d0*etam2 - 2.0d0*3.29d-2*etam3
        dumdt = z*etadt
-       !dumdd = z*etadd
-       !dumda = z*etada
-       !dumdz = z*etadz
+       dumda = z*etada
+       dumdz = z*etadz
 
        c00   = 1.26d0 * (1.0d0+etam1)
        z     = -1.26d0*etam2
        c01   = z*etadt
-       !c02   = z*etadd
-       !c03   = z*etada
-       !c04   = z*etadz
+       c03   = z*etada
+       c04   = z*etadz
 
        z      = 1.0d0/dum
        xden   = c00*z
        xdendt = (c01 - xden*dumdt)*z
-       !xdendd = (c02 - xden*dumdd)*z
-       !xdenda = (c03 - xden*dumda)*z
-       !xdendz = (c04 - xden*dumdz)*z
+       xdenda = (c03 - xden*dumda)*z
+       xdendz = (c04 - xden*dumdz)*z
 
        fbrem   = xnum + xden
        fbremdt = -xnum*xnum*f0 + xdendt
-       !fbremdd = xdendd
-       !fbremda = xdenda
-       !fbremdz = xdendz
-
+       fbremda = xdenda
+       fbremdz = xdendz
 
        ! equation 5.9
        a0    = 230.0d0 + 6.7d5*t8m2 + 7.66d9*t8m5
@@ -837,17 +760,15 @@ contains
        z     = 1.0d0 + rm*1.0d-9
        dum   = a0*z
        dumdt = f0*z
-       !z     = a0*1.0d-9
-       !dumdd = z*rmdd
-       !dumda = z*rmda
-       !dumdz = z*rmdz
+       z     = a0*1.0d-9
+       dumda = z*rmda
+       dumdz = z*rmdz
 
        xnum   = 1.0d0/dum
        z      = -xnum*xnum
        xnumdt = z*dumdt
-       !xnumdd = z*dumdd
-       !xnumda = z*dumda
-       !xnumdz = z*dumdz
+       xnumda = z*dumda
+       xnumdz = z*dumdz
 
        c00   = 7.75d5*t832 + 247.0d0*t8**(3.85d0)
        dd00  = (1.5d0*7.75d5*t812 + 3.85d0*247.0d0*t8**(2.85d0))*1.0d-8
@@ -861,41 +782,32 @@ contains
        z     = den**(0.656d0)
        dum   = c00*rmi  + c01  + c02*z
        dumdt = dd00*rmi + dd01 + dd02*z
-       !z     = -c00*rmi*rmi
-       !dumdd = z*rmdd + 0.656d0*c02*den**(-0.454d0)
-       !dumda = z*rmda
-       !dumdz = z*rmdz
+       z     = -c00*rmi*rmi
+       dumda = z*rmda
+       dumdz = z*rmdz
 
        xden  = 1.0d0/dum
        z      = -xden*xden
        xdendt = z*dumdt
-       !xdendd = z*dumdd
-       !xdenda = z*dumda
-       !xdendz = z*dumdz
+       xdenda = z*dumda
+       xdendz = z*dumdz
 
        gbrem   = xnum + xden
        gbremdt = xnumdt + xdendt
-       !gbremdd = xnumdd + xdendd
-       !gbremda = xnumda + xdenda
-       !gbremdz = xnumdz + xdendz
-
+       gbremda = xnumda + xdenda
+       gbremdz = xnumdz + xdendz
 
        ! equation 5.1
        dum    = 0.5738d0*zbar*ye*t86*den
        dumdt  = 0.5738d0*zbar*ye*6.0d0*t85*den*1.0d-8
-       !dumdd  = 0.5738d0*zbar*ye*t86
-       !dumda  = -dum*abari
-       !dumdz  = 0.5738d0*2.0d0*ye*t86*den
+       dumda  = -dum*abari
+       dumdz  = 0.5738d0*2.0d0*ye*t86*den
 
        z       = tfac4*fbrem - tfac5*gbrem
        sbrem   = dum * z
        sbremdt = dumdt*z + dum*(tfac4*fbremdt - tfac5*gbremdt)
-       !sbremdd = dumdd*z + dum*(tfac4*fbremdd - tfac5*gbremdd)
-       !sbremda = dumda*z + dum*(tfac4*fbremda - tfac5*gbremda)
-       !sbremdz = dumdz*z + dum*(tfac4*fbremdz - tfac5*gbremdz)
-
-
-
+       sbremda = dumda*z + dum*(tfac4*fbremda - tfac5*gbremda)
+       sbremdz = dumdz*z + dum*(tfac4*fbremdz - tfac5*gbremdz)
 
        ! liquid metal with c12 parameters (not too different for other elements)
        ! equation 5.18 and 5.16
@@ -932,7 +844,6 @@ contains
             + 0.00656d0*sin4*4.0d0 - 0.00281d0*cos4*4.0d0 &
             + 0.00519d0*sin5*5.0d0)
 
-
        ! equation 5.22
        ft =  0.5d0 * 0.06781d0 - 0.02342d0*u + 0.24819d0 &
             - 0.00944d0*cos1 - 0.02213d0*sin1 &
@@ -947,7 +858,6 @@ contains
             + 0.00589d0*sin3*3.0d0 - 0.00467d0*cos3*3.0d0 &
             + 0.00404d0*sin4*4.0d0 - 0.00131d0*cos4*4.0d0 &
             + 0.00330d0*sin5*5.0d0)
-
 
        ! equation 5.23
        gb =  0.5d0 * 0.00766d0 - 0.01259d0*u + 0.07917d0 &
@@ -964,7 +874,6 @@ contains
             - 0.00044d0*sin4*4.0d0 - 0.00089d0*cos4*4.0d0 &
             - 0.00158d0*sin5*5.0d0)
 
-
        ! equation 5.24
        gt =  -0.5d0 * 0.00769d0  - 0.00829d0*u + 0.05211d0 &
             + 0.00356d0*cos1 + 0.01052d0*sin1 &
@@ -980,12 +889,10 @@ contains
             - 0.00031d0*sin4*4.0d0 - 0.00018d0*cos4*4.0d0 &
             - 0.00069d0*sin5*5.0d0)
 
-
        dum   = 2.275d-1 * zbar * zbar*t8m1 * (den6*abari)**oneth
        dumdt = -dum*tempi
-       !dumdd = oneth*dum*deni
-       !dumda = -oneth*dum*abari
-       !dumdz = 2.0d0*dum*zbari
+       dumda = -oneth*dum*abari
+       dumdz = 2.0d0*dum*zbari
 
        gm1   = 1.0d0/dum
        gm2   = gm1*gm1
@@ -994,7 +901,6 @@ contains
        gm43  = gm13*gm1
        gm53  = gm23*gm1
 
-
        ! equation 5.25 and 5.26
        v  = -0.05483d0 - 0.01946d0*gm13 + 1.86310d0*gm23 - 0.78873d0*gm1
        a0 = oneth*0.01946d0*gm43 - twoth*1.86310d0*gm53 + 0.78873d0*gm2
@@ -1002,48 +908,38 @@ contains
        w  = -0.06711d0 + 0.06859d0*gm13 + 1.74360d0*gm23 - 0.74498d0*gm1
        a1 = -oneth*0.06859d0*gm43 - twoth*1.74360d0*gm53 + 0.74498d0*gm2
 
-
        ! equation 5.19 and 5.20
        fliq   = v*fb + (1.0d0 - v)*ft
        fliqdt = a0*dumdt*(fb - ft)
-       !fliqdd = a0*dumdd*(fb - ft) + v*c00 + (1.0d0 - v)*c01
-       !fliqda = a0*dumda*(fb - ft)
-       !fliqdz = a0*dumdz*(fb - ft)
+       fliqda = a0*dumda*(fb - ft)
+       fliqdz = a0*dumdz*(fb - ft)
 
        gliq   = w*gb + (1.0d0 - w)*gt
        gliqdt = a1*dumdt*(gb - gt)
-       !gliqdd = a1*dumdd*(gb - gt) + w*c02 + (1.0d0 - w)*c03
-       !gliqda = a1*dumda*(gb - gt)
-       !gliqdz = a1*dumdz*(gb - gt)
-
+       gliqda = a1*dumda*(gb - gt)
+       gliqdz = a1*dumdz*(gb - gt)
 
        ! equation 5.17
        dum    = 0.5738d0*zbar*ye*t86*den
        dumdt  = 0.5738d0*zbar*ye*6.0d0*t85*den*1.0d-8
-       !dumdd  = 0.5738d0*zbar*ye*t86
-       !dumda  = -dum*abari
-       !dumdz  = 0.5738d0*2.0d0*ye*t86*den
+       dumda  = -dum*abari
+       dumdz  = 0.5738d0*2.0d0*ye*t86*den
 
        z       = tfac4*fliq - tfac5*gliq
        sbrem   = dum * z
        sbremdt = dumdt*z + dum*(tfac4*fliqdt - tfac5*gliqdt)
-       !sbremdd = dumdd*z + dum*(tfac4*fliqdd - tfac5*gliqdd)
-       !sbremda = dumda*z + dum*(tfac4*fliqda - tfac5*gliqda)
-       !sbremdz = dumdz*z + dum*(tfac4*fliqdz - tfac5*gliqdz)
+       sbremda = dumda*z + dum*(tfac4*fliqda - tfac5*gliqda)
+       sbremdz = dumdz*z + dum*(tfac4*fliqdz - tfac5*gliqdz)
 
     end if
-
-
-
 
     ! recombination neutrino section
     ! for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e
     ! equation 6.11 solved for nu
     xnum   = 1.10520d8 * den * ye /(temp*sqrt(temp))
     xnumdt = -1.50d0*xnum*tempi
-    !xnumdd = xnum*deni
-    !xnumda = -xnum*abari
-    !xnumdz = xnum*zbari
+    xnumda = -xnum*abari
+    xnumdz = xnum*zbari
 
     ! the chemical potential
     nu   = ifermi12(xnum)
@@ -1051,9 +947,8 @@ contains
     ! a0 is d(nu)/d(xnum)
     a0 = 1.0d0/(0.5d0*zfermim12(nu))
     nudt = a0*xnumdt
-    !nudd = a0*xnumdd
-    !nuda = a0*xnumda
-    !nudz = a0*xnumdz
+    nuda = a0*xnumda
+    nudz = a0*xnumdz
 
     nu2  = nu * nu
     nu3  = nu2 * nu
@@ -1081,24 +976,20 @@ contains
        f3 = -1.04d-3
     end if
 
-
     ! equation 6.7, 6.13 and 6.14
     if (nu .ge. -20.0  .and.  nu .le. 10.0) then
 
        zeta   = 1.579d5*zbar*zbar*tempi
        zetadt = -zeta*tempi
-       !zetadd = 0.0d0
-       !zetada = 0.0d0
-       !zetadz = 2.0d0*zeta*zbari
+       zetada = 0.0d0
+       zetadz = 2.0d0*zeta*zbari
 
        c00    = 1.0d0/(1.0d0 + f1*nu + f2*nu2 + f3*nu3)
        c01    = f1 + f2*2.0d0*nu + f3*3.0d0*nu2
        dum    = zeta*c00
        dumdt  = zetadt*c00 + zeta*c01*nudt
-       !dumdd  = zeta*c01*nudd
-       !dumda  = zeta*c01*nuda
-       !dumdz  = zetadz*c00 + zeta*c01*nudz
-
+       dumda  = zeta*c01*nuda
+       dumdz  = zetadz*c00 + zeta*c01*nudz
 
        z      = 1.0d0/dum
        dd00   = dum**(-2.25)
@@ -1106,25 +997,20 @@ contains
        c00    = a1*z + a2*dd00 + a3*dd01
        c01    = -(a1*z + 2.25*a2*dd00 + 4.55*a3*dd01)*z
 
-
        z      = exp(c*nu)
        dd00   = b*z*(1.0d0 + d*dum)
        gum    = 1.0d0 + dd00
        gumdt  = dd00*c*nudt + b*z*d*dumdt
-       !gumdd  = dd00*c*nudd + b*z*d*dumdd
-       !gumda  = dd00*c*nuda + b*z*d*dumda
-       !gumdz  = dd00*c*nudz + b*z*d*dumdz
-
+       gumda  = dd00*c*nuda + b*z*d*dumda
+       gumdz  = dd00*c*nudz + b*z*d*dumdz
 
        z   = exp(nu)
        a1  = 1.0d0/gum
 
        bigj   = c00 * z * a1
        bigjdt = c01*dumdt*z*a1 + c00*z*nudt*a1 - c00*z*a1*a1 * gumdt
-       !bigjdd = c01*dumdd*z*a1 + c00*z*nudd*a1 - c00*z*a1*a1 * gumdd
-       !bigjda = c01*dumda*z*a1 + c00*z*nuda*a1 - c00*z*a1*a1 * gumda
-       !bigjdz = c01*dumdz*z*a1 + c00*z*nudz*a1 - c00*z*a1*a1 * gumdz
-
+       bigjda = c01*dumda*z*a1 + c00*z*nuda*a1 - c00*z*a1*a1 * gumda
+       bigjdz = c01*dumdz*z*a1 + c00*z*nudz*a1 - c00*z*a1*a1 * gumdz
 
        ! equation 6.5
        z     = exp(zeta + nu)
@@ -1134,53 +1020,44 @@ contains
 
        sreco   = tfac6 * 2.649d-18 * ye * zbar**13 * den * bigj*a1
        srecodt = sreco*(bigjdt*a2 - z*(zetadt + nudt)*a1)
-       !srecodd = sreco*(1.0d0*deni + bigjdd*a2 - z*(zetadd + nudd)*a1)
-       !srecoda = sreco*(-1.0d0*abari + bigjda*a2 - z*(zetada+nuda)*a1)
-       !srecodz = sreco*(14.0d0*zbari + bigjdz*a2 - z*(zetadz+nudz)*a1)
+       srecoda = sreco*(-1.0d0*abari + bigjda*a2 - z*(zetada+nuda)*a1)
+       srecodz = sreco*(14.0d0*zbari + bigjdz*a2 - z*(zetadz+nudz)*a1)
 
     end if
-
 
     ! convert from erg/cm^3/s to erg/g/s
     ! comment these out to duplicate the itoh et al plots
 
     spair   = spair*deni
     spairdt = spairdt*deni
-    !spairdd = spairdd*deni - spair*deni
-    !spairda = spairda*deni
-    !spairdz = spairdz*deni
+    spairda = spairda*deni
+    spairdz = spairdz*deni
 
     splas   = splas*deni
     splasdt = splasdt*deni
-    !splasdd = splasdd*deni - splas*deni
-    !splasda = splasda*deni
-    !splasdz = splasdz*deni
+    splasda = splasda*deni
+    splasdz = splasdz*deni
 
     sphot   = sphot*deni
     sphotdt = sphotdt*deni
-    !sphotdd = sphotdd*deni - sphot*deni
-    !sphotda = sphotda*deni
-    !sphotdz = sphotdz*deni
+    sphotda = sphotda*deni
+    sphotdz = sphotdz*deni
 
     sbrem   = sbrem*deni
     sbremdt = sbremdt*deni
-    !sbremdd = sbremdd*deni - sbrem*deni
-    !sbremda = sbremda*deni
-    !sbremdz = sbremdz*deni
+    sbremda = sbremda*deni
+    sbremdz = sbremdz*deni
 
     sreco   = sreco*deni
     srecodt = srecodt*deni
-    !srecodd = srecodd*deni - sreco*deni
-    !srecoda = srecoda*deni
-    !srecodz = srecodz*deni
-
+    srecoda = srecoda*deni
+    srecodz = srecodz*deni
 
     ! the total neutrino loss rate
     snu    =  splas + spair + sphot + sbrem + sreco
     dsnudt =  splasdt + spairdt + sphotdt + sbremdt + srecodt
-    !dsnudd =  splasdd + spairdd + sphotdd + sbremdd + srecodd
-    !dsnuda =  splasda + spairda + sphotda + sbremda + srecoda
-    !dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz
+    dsnuda =  splasda + spairda + sphotda + sbremda + srecoda
+    dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz
 
   end subroutine sneut5
 
