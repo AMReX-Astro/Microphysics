@@ -259,7 +259,7 @@ contains
     ! Account for the thermal neutrino losses
     call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
     do j = 1, nspec
-       b1 = ((aion(j) - state%abar) * state%abar * snuda + (zion(j) - state%zbar) * state%abar * snudz)
+       b1 = (-state%abar * state%abar * snuda + (zion(j) - state%zbar) * state%abar * snudz)
        state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
     enddo
 

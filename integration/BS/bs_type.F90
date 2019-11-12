@@ -100,7 +100,8 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO
-    use eos_type_module, only: eos_t, eos_input_rt, composition
+    use eos_type_module, only: eos_t, eos_input_rt
+    use eos_composition_module, only : composition
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed

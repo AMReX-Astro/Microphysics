@@ -10,9 +10,11 @@ COMP	   = gnu
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 
-USE_REACT = TRUE
+USE_REACT = FALSE
 
 EBASE = main
+
+USE_EXTRA_THERMO = TRUE
 
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
