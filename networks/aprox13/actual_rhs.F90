@@ -449,7 +449,11 @@ contains
           btemp = 10.0d0**(btemp)
 
 #ifdef AMREX_USE_CUDA
+#ifdef AMREX_GPU_PRAGMA_NO_HOST
+          call aprox13rat(btemp, bden, rr)
+#else
           call aprox13rat_device(btemp, bden, rr)
+#endif
 #else
           call aprox13rat(btemp, bden, rr)
 #endif
