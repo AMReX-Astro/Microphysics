@@ -1,11 +1,11 @@
 &extern
 
   dens_min   = 1.d-3
-  dens_max   = 5.d9
+  dens_max   = 3.d9
   temp_min   = 1.d7
   temp_max   = 6.d8
 
-  tmax = 1.0d-1
+  tmax = 1.0d-3
 
   primary_species_1 = "carbon-12"
   primary_species_2 = "oxygen-16"
@@ -17,16 +17,18 @@
   ! 2 = numerical jacobian
   jacobian   = 1
 
-  ode_max_steps = 1000
+  ode_scale_floor = 1.e-5
+
+  ode_max_steps = 4000
   scaling_method = 2
-  retry_burn = .false.
+  retry_burn = .true.
   renormalize_abundances = .false.
 
-  rtol_spec = 1.0d-12
-  rtol_enuc = 1.0d-9
-  rtol_temp = 1.0d-9
-  atol_spec = 1.0d-12
-  atol_enuc = 1.0d-9
-  atol_temp = 1.0d-9
+  rtol_spec = 1.0d-8
+  rtol_enuc = 1.0d-8
+  rtol_temp = 1.0d-8
+  atol_spec = 1.0d-8
+  atol_enuc = 1.0d-8
+  atol_temp = 1.0d-8
 
 /
