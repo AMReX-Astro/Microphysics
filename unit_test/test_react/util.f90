@@ -109,7 +109,7 @@ contains
 
        end do
 
-       print *, k, xn_zone(:, k)
+       print *, k, sum(xn_zone(:, k))
 
     end do
 
