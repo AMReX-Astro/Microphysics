@@ -7,7 +7,9 @@
 
   tmax = 1.0d-1
 
-  xin_file   = "xin.reaclib_ctest"
+  primary_species_1 = "helium-4"
+  primary_species_2 = "carbon-12"
+  primary_species_3 = "oxygen-16"
 
   burner_verbose = .false.
 
