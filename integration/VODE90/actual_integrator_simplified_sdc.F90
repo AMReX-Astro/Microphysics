@@ -85,6 +85,8 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
+#if defined(CASTRO)
+
     dvode_state % atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
     dvode_state % atol(SEDEN)           = atol_enuc ! temperature
     dvode_state % atol(SEINT)           = atol_enuc ! energy generated
@@ -92,6 +94,16 @@ contains
     dvode_state % rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
     dvode_state % rtol(SEDEN)           = rtol_enuc ! temperature
     dvode_state % rtol(SEINT)           = rtol_enuc ! energy generated
+
+#elif defined(MAESTROEX)
+
+    atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
+    atol(SENTH)           = status % atol_enuc ! enthalpy
+
+    rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
+    rtol(SENTH)           = status % rtol_enuc ! enthalpy
+
+#endif
 
     ! We want VODE to re-initialize each time we call it.
 
