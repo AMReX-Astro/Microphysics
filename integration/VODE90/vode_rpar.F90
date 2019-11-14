@@ -20,6 +20,9 @@ module vode_rpar_indices
 
 
 #ifdef SIMPLIFIED_SDC
+
+#if defined(CASTRO)
+
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a and irp_u_init
   integer, parameter :: irp_SRHO = 1
@@ -41,7 +44,40 @@ module vode_rpar_indices
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
   integer, parameter :: irp_t0 = irp_T_from_eden + 1
 
+#elif defined(MAESTROEX)
+
+  ! Note: we require these components to be first, to allow for offset
+  ! indexing with irp_ydot_a
+  integer, parameter :: irp_SRHO = 1
+
+  ! These are the SVAR advective terms.  Note: these need to be
+  ! indexed using the indices defined in sdc_type_module
+  integer, parameter :: irp_ydot_a = 2
+
+  ! This is the pressure component, carried in case we
+  ! wish to call the EOS using pressure as an input
+  integer, parameter :: irp_p0 = irp_ydot_a + SVAR
+
+  ! These are various bookkeeping parameters
+  integer, parameter :: irp_self_heat = irp_p0 + 1
+  integer, parameter :: irp_t0 = irp_self_heat + 1
+
+#endif
+
+#ifdef NONAKA_PLOT
+
+  integer, parameter :: irp_i = irp_t0 + 1
+  integer, parameter :: irp_j = irp_t0 + 2
+  integer, parameter :: irp_k = irp_t0 + 3
+  integer, parameter :: irp_iter = irp_k + 1
+
+  integer, parameter :: n_rpar_comps = irp_iter
+
+#else
+
   integer, parameter :: n_rpar_comps = irp_t0
+
+#endif
 
 #elif TRUE_SDC
   ! f_source is function we are zeroing.  There are nspec_evolve + 2
