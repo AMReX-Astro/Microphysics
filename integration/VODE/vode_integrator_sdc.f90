@@ -179,7 +179,7 @@ contains
 
 
 #ifdef NONAKA_PLOT
-    call vode_to_burn(time, y, rpar, burn_state)
+    call vode_to_burn(local_time, y, rpar, burn_state)
     burn_state % time = local_time
     call nonaka_rhs(burn_state, time, .true.)
 #endif
