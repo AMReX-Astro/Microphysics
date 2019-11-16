@@ -21,7 +21,7 @@ module vode_rpar_indices
 
 #ifdef SIMPLIFIED_SDC
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a and irp_u_init
@@ -44,7 +44,7 @@ module vode_rpar_indices
   integer, parameter :: irp_T_from_eden = irp_self_heat + 1
   integer, parameter :: irp_t0 = irp_T_from_eden + 1
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
   ! Note: we require these components to be first, to allow for offset
   ! indexing with irp_ydot_a

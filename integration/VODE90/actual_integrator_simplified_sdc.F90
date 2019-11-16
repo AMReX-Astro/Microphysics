@@ -85,7 +85,7 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     dvode_state % atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
     dvode_state % atol(SEDEN)           = atol_enuc ! temperature
@@ -95,7 +95,7 @@ contains
     dvode_state % rtol(SEDEN)           = rtol_enuc ! temperature
     dvode_state % rtol(SEINT)           = rtol_enuc ! energy generated
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
     atol(SENTH)           = status % atol_enuc ! enthalpy

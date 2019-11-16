@@ -47,7 +47,7 @@ contains
        call renormalize_species(time, y, rpar)
     endif
 
-#ifdef CASTRO
+#ifdef SDC_EVOLVE_ENERGY
 
     ! Ensure that internal energy never goes above the maximum limit
     ! provided by the EOS. Same for the internal energy implied by the
@@ -78,7 +78,7 @@ contains
 
     !$gpu
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     ! we are always integrating from t = 0, so there is no offset
     ! time needed here.  The indexing of irp_ydot_a is based on
@@ -90,7 +90,7 @@ contains
     rpar(irp_SMY) = rpar(irp_u_init-1+irp_SMY) + rpar(irp_ydot_a-1+SMY) * time
     rpar(irp_SMZ) = rpar(irp_u_init-1+irp_SMZ) + rpar(irp_ydot_a-1+SMZ) * time
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     ! Keep density consistent with the partial densities.
     rpar(irp_SRHO) = sum(y(SFS:SFS - 1 + nspec))
@@ -111,7 +111,7 @@ contains
     ! We only renormalize species for Castro because
     ! for MAESTROeX, we define the density as
     ! the sum of the partial densities rho*X for each species.
-#ifdef CASTRO
+#ifdef SDC_EVOLVE_ENERGY
 
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)
@@ -140,7 +140,7 @@ contains
     ! advective sources
     rpar(irp_ydot_a:irp_ydot_a-1+SVAR) = sdc % ydot_a(:)
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     ! unevolved state variables
     rpar(irp_SRHO) = sdc % y(SRHO)
@@ -157,7 +157,7 @@ contains
        rpar(irp_T_from_eden) = -ONE
     endif
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     rpar(irp_p0)   = sdc % p0
     rpar(irp_SRHO) = sdc % rho
@@ -190,12 +190,12 @@ contains
     ! unevolved state variables
     call fill_unevolved_variables(time, y, rpar)
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     sdc % y(SRHO) = rpar(irp_SRHO)
     sdc % y(SMX:SMZ) = rpar(irp_SMX:irp_SMZ)
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     sdc % p0  = rpar(irp_p0)
     sdc % rho = rpar(irp_SRHO)
@@ -237,12 +237,12 @@ contains
     ydot(SFS:SFS-1+nspec) = ydot(SFS:SFS-1+nspec) + &
          rpar(irp_SRHO) * aion(1:nspec) * burn_state % ydot(1:nspec)
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
     ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     ydot(SENTH) = ydot(SENTH) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
 
@@ -267,7 +267,7 @@ contains
 
     !$gpu
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
     jac(SFS:SFS+nspec-1,SEDEN) = burn_state % jac(1:nspec,net_ienuc)
@@ -281,7 +281,7 @@ contains
     jac(SEINT,SEDEN) = burn_state % jac(net_ienuc,net_ienuc)
     jac(SEINT,SEINT) = burn_state % jac(net_ienuc,net_ienuc)
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
     jac(SFS:SFS+nspec-1,SENTH) = burn_state % jac(1:nspec,net_ienuc)
@@ -310,7 +310,7 @@ contains
     use eos_module, only : eos
     use burn_type_module, only : eos_to_burn, burn_t
 
-#ifdef MAESTROEX
+#ifdef SDC_EVOLVE_ENTHALPY
     use meth_params_module, only: use_tfromp
 #endif
 
@@ -333,7 +333,7 @@ contains
     eos_state % rho = rpar(irp_SRHO)
     eos_state % xn  = y(SFS:SFS+nspec-1) * rhoInv
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     if (rpar(irp_T_from_eden) > ZERO) then
        eos_state % e = (y(SEDEN) - HALF*rhoInv*sum(rpar(irp_SMX:irp_SMZ)**2)) * rhoInv
@@ -341,7 +341,7 @@ contains
        eos_state % e = y(SEINT) * rhoInv
     endif
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     if (use_tfromp) then
        ! NOT SURE IF THIS IS VALID
@@ -360,11 +360,11 @@ contains
 
     eos_state % T = sqrt(min_temp * max_temp)
 
-#if defined(CASTRO)
+#if defined(SDC_EVOLVE_ENERGY)
 
     call eos(eos_input_re, eos_state)
 
-#elif defined(MAESTROEX)
+#elif defined(SDC_EVOLVE_ENTHALPY)
 
     if (use_tfromp) then
        ! NOT SURE IF THIS IS VALID
@@ -386,7 +386,7 @@ contains
        burn_state % self_heat = .false.       
     endif
 
-#ifdef MAESTROEX
+#ifdef SDC_EVOLVE_ENTHALPY
 
     burn_state % p0 = rpar(irp_p0)
 
