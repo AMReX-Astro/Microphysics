@@ -143,6 +143,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   call eos(eos_input_rt, eos_state_out)
 
   write(*,*) "------------------------------------"
+  write(*,*) "successful? ", burn_state_out % success
   write(*,*) "Completed burn to: ", burn_state_out % time, " seconds:"
   write(*,*) " - Hnuc = ", burn_state_out % e / dt
   write(*,*) " - integrated e = ", eos_state_in % e + energy
