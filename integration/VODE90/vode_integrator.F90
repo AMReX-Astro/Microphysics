@@ -306,6 +306,8 @@ contains
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
 
+    state_out % time = dvode_state % t
+
     if (nspec_evolve < nspec) then
        call update_unevolved_species(state_out)
     endif

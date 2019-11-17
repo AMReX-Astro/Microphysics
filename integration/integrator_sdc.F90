@@ -38,8 +38,9 @@ contains
 #else
     use actual_integrator_module, only : actual_integrator
 #endif
-
+#ifndef AMREX_USE_CUDA
     use amrex_error_module, only: amrex_error
+#endif
     use amrex_fort_module, only : rt => amrex_real
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
@@ -53,6 +54,8 @@ contains
     real(rt),    intent(in   ) :: dt, time
 
     type (integration_status_t) :: status
+
+    !$gpu
 
     status % atol_spec = atol_spec
     status % rtol_spec = rtol_spec
@@ -70,7 +73,9 @@ contains
 #elif INTEGRATOR == 3
     call actual_integrator(state_in, state_out, dt, time)
 #else
+#ifndef AMREX_USE_CUDA
     call amrex_error("Unknown integrator.")
+#endif
 #endif
 
   end subroutine integrator

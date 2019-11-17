@@ -170,7 +170,7 @@ contains
 
 
     ! Store the final data
-    call vode_to_sdc(time, y, rpar, state_out)
+    call vode_to_sdc(local_time, y, rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
