@@ -1,0 +1,5 @@
+CEXE_sources += main.cpp
+
+F90EXE_sources += burn_cell.F90
+
+FEXE_headers = burn_cell_F.H
