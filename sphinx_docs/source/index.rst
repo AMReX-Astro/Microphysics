@@ -20,7 +20,7 @@ StarKiller Microphysics
    gpu
    unit_tests
    sdc
-   references
+   zreferences
 
 
 Indices and tables
