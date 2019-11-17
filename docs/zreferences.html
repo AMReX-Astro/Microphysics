@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>StarKiller Basics &mdash; StarKiller Microphysics 19.11
+  <title>References &mdash; StarKiller Microphysics 19.11
  documentation</title>
   
 
@@ -40,8 +40,7 @@
   <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Data Structures" href="data_structures.html" />
-    <link rel="prev" title="Preface" href="preface.html" /> 
+    <link rel="prev" title="Spectral Deferred Corrections" href="sdc.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,12 +92,7 @@
               <p class="caption"><span class="caption-text">StarKiller basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">StarKiller Basics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design Philosophy</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
@@ -107,7 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">References</a></li>
 </ul>
 
             
@@ -153,13 +147,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>StarKiller Basics</li>
+      <li>References</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/basics.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/zreferences.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -196,84 +190,59 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="starkiller-basics">
-<h1>StarKiller Basics<a class="headerlink" href="#starkiller-basics" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="getting-started">
-<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<p>Getting started with Microphysics using either CASTRO or MAESTRO is
-straightforward. Because the modules here are already in a format that
-the AMReX codes understand, you only need to provide to the code
-calling these routines their location on your system. The code will do
-the rest. To do so, define the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> environment
-variable, either at a command line or (if you use the bash shell)
-through your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">texttt</span><span class="p">{</span><span class="n">export</span> <span class="n">MICROPHYSICS</span>\<span class="n">_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">Microphysics</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>For CASTRO  the name of the EOS and network are set via the make
-variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>. The macros in CASTRO’s
-<code class="docutils literal notranslate"><span class="pre">Make.Castro</span></code> will know to look in Microphysics using the
-<code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable to find the codes.</p>
-<p>For MAESTRO, the name of the EOS and network are set via the make
-variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>, and the macros in MAESTRO’s
-<code class="docutils literal notranslate"><span class="pre">GMaestro.mak</span></code> file will find the code, again using the
-<code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable.</p>
-<p>For other codes, one can use the interfaces in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code> and sample routines in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/</span></code> to incorporate these modules into your
-code. Note that there are a few AMReX files required at the moment
-(mainly error handling and constants).</p>
-</div>
-<div class="section" id="structure">
-<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
-<p>The high-level directory structure delineates the types of microphysics
-and the generic solvers:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code>: this User’s Guide</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
-reaction networks</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to
-interface with the EOS and reaction networks. Note that most application
-codes will have their own local copies. These are provided for unit testing
-in Microphysics.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the
-righthand side of the network, as the actual integrators are decoupled from
-the network.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the
-networks.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the
-reaction networks.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t
-need any application code to build, but will require AMReX.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
-</ul>
-</div>
-<div class="section" id="design-philosophy">
-<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permalink to this headline">¶</a></h2>
-<p>Any application that uses Microphysics will at minimum need to
-choose an EOS and a network. These two components work together. The
-design philosophy is that the EOS depends on the network, but not the
-other way around. The decision was made for the network to act as the
-core module, and lots of code depends on it. This avoids circular
-dependencies by having the main EOS datatype, <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>, and the
-main reaction network datatype, <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>, be built on top of the
-network.</p>
-<p>The network is meant to store the properties of the species (typically
-nuclear isotopes) including their atomic weights and numbers, and also
-describes any links between the species when burning.</p>
-<p>The equation of state relates the thermodynamic properties of the
-material. It depends on the composition of the material, typically
-specified via mass fractions of the species, and uses the properties
-of the species defined by the network to interpret the state.</p>
-<p>We try to maximize code reuse in the Microphysics source, so the
-solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) is separated from the specific implmentations of
-the microphysics.</p>
-<p><strong>All quantities are assumed to be in CGS units</strong>, unless otherwise
-specified.</p>
-</div>
+<div class="section" id="references">
+<h1>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h1>
+<p id="bibtex-bibliography-zreferences-0"><dl class="citation">
+<dt class="bibtex label" id="vode"><span class="brackets">BBH89</span></dt>
+<dd><p>P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. <em>SIAM J. Sci. Stat. Comput.</em>, 10:1038–1051, 1989.</p>
+</dd>
+<dt class="bibtex label" id="reaclib"><span class="brackets">CAF+10</span></dt>
+<dd><p>Richard H. Cyburt, A. Matthew Amthor, Ryan Ferguson, Zach Meisel, Karl Smith, Scott Warren, Alexander Heger, R. D. Hoffman, Thomas Rauscher, Alexander Sakharuk, Hendrik Schatz, F. K. Thielemann, and Michael Wiescher. The jina reaclib database: its recent updates and impact on type-i x-ray bursts. <em>\apjs </em>, 189(1):240, 2010. URL: <a class="reference external" href="http://stacks.iop.org/0067-0049/189/i=1/a=240">http://stacks.iop.org/0067-0049/189/i=1/a=240</a>.</p>
+</dd>
+<dt class="bibtex label" id="maestro-iii"><span class="brackets">AlmgrenBellNonakaZingale08</span></dt>
+<dd><p>A. S. Almgren, J. B. Bell, A. Nonaka, and M. Zingale. Low Mach Number Modeling of Type Ia Supernovae. III. Reactions. <em>ApJ</em>, 684:449–470, September 2008. <a class="reference external" href="https://doi.org/10.1086/590321">doi:10.1086/590321</a>.</p>
+</dd>
+<dt class="bibtex label" id="chamulak-2008"><span class="brackets">ChamulakBrownTimmesDupczak08</span></dt>
+<dd><p>D. A. Chamulak, E. F. Brown, F. X. Timmes, and K. Dupczak. The Reduction of the Electron Abundance during the Pre-explosion Simmering in White Dwarf Supernovae. <em>\apj </em>, 677:160–168, April 2008. <a class="reference external" href="https://arxiv.org/abs/0801.1643">arXiv:0801.1643</a>, <a class="reference external" href="https://doi.org/10.1086/528944">doi:10.1086/528944</a>.</p>
+</dd>
+<dt class="bibtex label" id="flash"><span class="brackets">FryxellOlsonRicker+00</span></dt>
+<dd><p>B. Fryxell, K. Olson, P. Ricker, F. X. Timmes, M. Zingale, D. Q. Lamb, P. MacNeice, R. Rosner, J. W. Truran, and H. Tufo. FLASH: An Adaptive Mesh Hydrodynamics Code for Modeling Astrophysical Thermonuclear Flashes. <em>ApJS</em>, 131:273–334, November 2000. <a class="reference external" href="https://doi.org/10.1086/317361">doi:10.1086/317361</a>.</p>
+</dd>
+<dt class="bibtex label" id="xrb-ii"><span class="brackets">MaloneZingaleNonaka+14</span></dt>
+<dd><p>C. M. Malone, M. Zingale, A. Nonaka, A. S. Almgren, and J. B. Bell. Multidimensional Modeling of Type I X-Ray Bursts. II. Two-dimensional Convection in a Mixed H/He Accretor. <em>\apj </em>, 788:115, June 2014. <a class="reference external" href="https://arxiv.org/abs/1404.6286">arXiv:1404.6286</a>, <a class="reference external" href="https://doi.org/10.1088/0004-637X/788/2/115">doi:10.1088/0004-637X/788/2/115</a>.</p>
+</dd>
+<dt class="bibtex label" id="nr"><span class="brackets">PressTeukolskyVetterlingFlannery92</span></dt>
+<dd><p>W. H. Press, S. A. Teukolsky, W. T. Vetterling, and B. P. Flannery. <em>Numerical recipes in FORTRAN. The art of scientific computing</em>. Cambridge: University Press, |c1992, 2nd ed., 1992.</p>
+</dd>
+<dt class="bibtex label" id="raskin-2010"><span class="brackets">RaskinScannapiecoRockefeller+10</span></dt>
+<dd><p>C. Raskin, E. Scannapieco, G. Rockefeller, C. Fryer, S. Diehl, and F. X. Timmes. $^56$Ni Production in Double-degenerate White Dwarf Collisions. <em>\apj </em>, 724:111–125, November 2010. <a class="reference external" href="https://arxiv.org/abs/1009.2507">arXiv:1009.2507</a>, <a class="reference external" href="https://doi.org/10.1088/0004-637X/724/1/111">doi:10.1088/0004-637X/724/1/111</a>.</p>
+</dd>
+<dt class="bibtex label" id="shenbildsten"><span class="brackets">ShenBildsten09</span></dt>
+<dd><p>K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. <em>\apj </em>, 699:10, March 2009. <a class="reference external" href="https://arxiv.org/abs/0903.0654v2">arXiv:0903.0654v2</a>.</p>
+</dd>
+<dt class="bibtex label" id="timmes-1999"><span class="brackets">TimmesArnett99</span></dt>
+<dd><p>F. X. Timmes and D. Arnett. The Accuracy, Consistency, and Speed of Five Equations of State for Stellar Hydrodynamics. <em>ApJS</em>, 125:277–294, November 1999. <a class="reference external" href="https://doi.org/10.1086/313271">doi:10.1086/313271</a>.</p>
+</dd>
+<dt class="bibtex label" id="timmes-2000"><span class="brackets">TimmesSwesty00</span></dt>
+<dd><p>F. X. Timmes and F. D. Swesty. The Accuracy, Consistency, and Speed of an Electron-Positron Equation of State Based on Table Interpolation of the Helmholtz Free Energy. <em>ApJS</em>, 126:501–516, February 2000. <a class="reference external" href="https://doi.org/10.1086/313304">doi:10.1086/313304</a>.</p>
+</dd>
+<dt class="bibtex label" id="wallacewoosley-1981"><span class="brackets">WallaceWoosley81</span></dt>
+<dd><p>R. K. Wallace and S. E. Woosley. Explosive hydrogen burning. <em>\apjs </em>, 45:389–420, February 1981. <a class="reference external" href="https://doi.org/10.1086/190717">doi:10.1086/190717</a>.</p>
+</dd>
+<dt class="bibtex label" id="lowmach4"><span class="brackets">ZingaleAlmgrenBell+09</span></dt>
+<dd><p>M. Zingale, A. S. Almgren, J. B. Bell, A. Nonaka, and S. E. Woosley. Low Mach Number Modeling of Type IA Supernovae. IV. White Dwarf Convection. <em>\apj </em>, 704:196–210, October 2009. <a class="reference external" href="https://arxiv.org/abs/0908.2668">arXiv:0908.2668</a>, <a class="reference external" href="https://doi.org/10.1088/0004-637X/704/1/196">doi:10.1088/0004-637X/704/1/196</a>.</p>
+</dd>
+<dt class="bibtex label" id="castro-sdc"><span class="brackets">ZingaleKatzBell+19</span></dt>
+<dd><p>M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. <em>arXiv e-prints</em>, pages arXiv:1908.03661, Aug 2019. <a class="reference external" href="https://arxiv.org/abs/1908.03661">arXiv:1908.03661</a>.</p>
+</dd>
+<dt class="bibtex label" id="xrb-iii"><span class="brackets">ZingaleMaloneNonaka+15</span></dt>
+<dd><p>M. Zingale, C. M. Malone, A. Nonaka, A. S. Almgren, and J. B. Bell. Comparisons of Two- and Three-Dimensional Convection in Type I X-Ray Bursts. <em>\apj </em>, 807:60, July 2015. <a class="reference external" href="https://arxiv.org/abs/1410.5796">arXiv:1410.5796</a>, <a class="reference external" href="https://doi.org/10.1088/0004-637X/807/1/60">doi:10.1088/0004-637X/807/1/60</a>.</p>
+</dd>
+<dt class="bibtex label" id="wdconvect"><span class="brackets">ZingaleNonakaAlmgren+11</span></dt>
+<dd><p>M. Zingale, A. Nonaka, A. S. Almgren, J. B. Bell, C. M. Malone, and S. E. Woosley. The Convective Phase Preceding Type Ia Supernovae. <em>\apj </em>, 740:8, October 2011. <a class="reference external" href="https://doi.org/10.1088/0004-637X/740/1/8">doi:10.1088/0004-637X/740/1/8</a>.</p>
+</dd>
+</dl>
+</p>
 </div>
 
 
@@ -284,10 +253,8 @@ specified.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="data_structures.html" class="btn btn-neutral float-right" title="Data Structures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="preface.html" class="btn btn-neutral float-left" title="Preface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sdc.html" class="btn btn-neutral float-left" title="Spectral Deferred Corrections" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
