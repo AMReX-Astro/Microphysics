@@ -208,18 +208,22 @@
 <h1>Spectral Deferred Corrections<a class="headerlink" href="#spectral-deferred-corrections" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>SDC provides a means to more strongly couple the reactions to the
-hydrodynamics by evolving the reactions together with an approximation
-of the advection over the timestep.</p>
+<p>The Simplified-SDC method provides a means to more strongly couple the
+reactions to the hydrodynamics by evolving the reactions together with
+an approximation of the advection over the timestep.</p>
 <p>We want to solve the coupled equations:</p>
 <div class="math notranslate nohighlight">
 \[\Uc_t = \Advs{\Uc} + \Rb(\Uc)\]</div>
-<p>where <span class="math notranslate nohighlight">\(\Uc\)</span> is the conserved state vector, <span class="math notranslate nohighlight">\(\Uc = (\rho, (\rho X_k),
-(\rho \Ub), (\rho E))^\intercal\)</span>, <span class="math notranslate nohighlight">\(X_k\)</span> are the mass fractions
-constrained via <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span>, <span class="math notranslate nohighlight">\(\Ub\)</span> is the velocity vector, and
-<span class="math notranslate nohighlight">\(E\)</span> is the specific total energy, related to the specific internal
-energy, <span class="math notranslate nohighlight">\(e\)</span>, via <span class="math notranslate nohighlight">\(E = e + |\Ub|^2/2\)</span>. Here <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is the
-advective source term (including any hydrodynamical sources),</p>
+<p>where <span class="math notranslate nohighlight">\(\Uc\)</span> is the conserved state vector, <span class="math notranslate nohighlight">\(\Uc = (\rho,
+(\rho X_k), (\rho \Ub), (\rho E))^\intercal\)</span>.  Here, <span class="math notranslate nohighlight">\(\rho\)</span> is
+the density, <span class="math notranslate nohighlight">\(X_k\)</span> are the mass fractions constrained via
+<span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span>, <span class="math notranslate nohighlight">\(\Ub\)</span> is the velocity vector, and
+<span class="math notranslate nohighlight">\(E\)</span> is the specific total energy, related to the specific
+internal energy, <span class="math notranslate nohighlight">\(e\)</span>, via</p>
+<div class="math notranslate nohighlight">
+\[E = e + |\Ub|^2/2 .\]</div>
+<p>The quantity <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> represents the advective source term (including any
+hydrodynamical sources),</p>
 <div class="math notranslate nohighlight">
 \[\Advs{\Uc} = - \nabla \cdot \Fb(\Uc) + \Shydro\]</div>
 <p>and <span class="math notranslate nohighlight">\(\Rb(\Uc)\)</span>
@@ -249,20 +253,23 @@ hydrodynamics code.</p>
 \left (
    \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \\ \rho \Sdot \end{array}
 \right )\end{split}\]</div>
-<p>where we include <span class="math notranslate nohighlight">\(e\)</span> in addition to <span class="math notranslate nohighlight">\(E\)</span> to provide additional thermodynamic
-information to help find a consistent <span class="math notranslate nohighlight">\(T\)</span>. Here the advective courses
-are piecewise-constant approximations to the change in the state due
-to the hydrodynamics, computed with the during the hydro step.</p>
+<p>where we include <span class="math notranslate nohighlight">\(e\)</span> in addition to <span class="math notranslate nohighlight">\(E\)</span> to provide
+additional thermodynamic information to help find a consistent
+<span class="math notranslate nohighlight">\(T\)</span>. Here the advective terms are piecewise-constant (in time)
+approximations to the change in the state due to the hydrodynamics,
+computed with the during the hydro step.</p>
 <p>However, to define the temperature, we need the kinetic energy (and
 hence momentum and density) at any intermediate time, <span class="math notranslate nohighlight">\(t\)</span>. We construct
-these as needed from</p>
+these as needed from the time-advanced momenta:</p>
+<div class="math notranslate nohighlight">
+\[(\rho \Ub)(t) = (\rho \Ub)^n + \Adv{\rho \Ub}^{n+1/2} (t - t^n)\]</div>
 </div>
 <div class="section" id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="actual-integrator">
 <h3>actual_integrator<a class="headerlink" href="#actual-integrator" title="Permalink to this headline">¶</a></h3>
-<p>SDC integration provides its own implementation of the main entry
-point, actual_integrator.</p>
+<p>Simplified-SDC integration provides its own implementation of the main entry
+point, <code class="docutils literal notranslate"><span class="pre">actual_integrator</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_integrator</span><span class="p">(</span><span class="n">state_in</span><span class="p">,</span> <span class="n">state_out</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
 
   <span class="nb">type</span> <span class="p">(</span><span class="n">sdc_t</span><span class="p">),</span> <span class="n">intent</span><span class="p">(</span><span class="ow">in</span>   <span class="p">)</span> <span class="p">::</span> <span class="n">state_in</span>
@@ -293,13 +300,20 @@ through the desired time interval, producing the new, output state.</p></li>
 <div class="section" id="righthand-side-wrapper">
 <h3>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this headline">¶</a></h3>
 <p>The manipulation of the righthand side is considerably more complex
-now. Each network only provides the change in molar
-fractions and internal energy, but
-we need to convert these to the conservative system we are
-integrating, including the advective terms.</p>
+now. Each network only provides the change in molar fractions and
+internal energy, but we need to convert these to the conservative
+system we are integrating, including the advective terms.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the example here, we’ll assume we are using the VODE90
+integrator, but the VODE and BS integrators also support
+simplified-SDC integration.</p>
+</div>
 <ol class="arabic">
-<li><p>Convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, for instance via <code class="docutils literal notranslate"><span class="pre">bs_to_burn</span></code>:</p>
-<ol class="arabic">
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code></p></li>
+<li><p>Convert the integrator-specific data structures (<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">rpar</span></code>
+for VODE90) to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type in <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code>.</p>
+<ol class="loweralpha">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">fill_unevolved_variables</span></code> to update the density
 and momentum. Since these don’t depend on reactions, this is a
 simple algebraic update based on the piecewise-constant-in-time
@@ -307,7 +321,7 @@ advective term:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
       \rho(t) &amp;= \rho^n + t \cdot \left [ \mathcal{A}(\rho) \right]^{n+1/2} \\
-      (\rho \Ub)(t) &amp;= (\rho \Ub)^n + t \cdot \left [ \mathcal{A}(\rho\Ub) \right]^{n+1/2}
+      (\rho \Ub)(t) &amp;= (\rho \Ub)^n + t  \cdot \left [ \mathcal{A}(\rho\Ub) \right]^{n+1/2}
     \end{aligned}\end{split}\]</div>
 <p>where here we assume that we are integrating in the ODE system
 starting with <span class="math notranslate nohighlight">\(t=0\)</span>.</p>
@@ -316,20 +330,22 @@ starting with <span class="math notranslate nohighlight">\(t=0\)</span>.</p>
 total minus kinetic energy or internal energy carried by the
 integrator (depending on the value of <code class="docutils literal notranslate"><span class="pre">T_from_eden</span></code>).</p></li>
 <li><p>get the temperature from the equation of state</p></li>
-<li><p>convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, for instance via <code class="docutils literal notranslate"><span class="pre">eos_to_burn</span></code>:</p></li>
+<li><p>convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type via <code class="docutils literal notranslate"><span class="pre">eos_to_burn</span></code>.  This
+<code class="docutils literal notranslate"><span class="pre">burn_t</span></code> variable has fields for <code class="docutils literal notranslate"><span class="pre">rho</span></code>, <code class="docutils literal notranslate"><span class="pre">T</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">xn</span></code>—everything that is needed to evaluate the reaction rates.</p></li>
 </ol>
 </li>
-<li><p>Call the network’s <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> routine to get just the
-reaction sources to the update. In particular, this returns
-the change in molar fractions, <span class="math notranslate nohighlight">\(\dot{Y}_k\)</span> and the nuclear energy
-release, <span class="math notranslate nohighlight">\(\dot{S}\)</span>.</p></li>
+<li><p>Call the <code class="docutils literal notranslate"><span class="pre">network_rhs</span></code> routine to get just the reaction sources
+to the update (this simply calls the network’s <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>). In
+particular, this returns the change in molar fractions,
+<span class="math notranslate nohighlight">\(\dot{Y}_k\)</span> and the nuclear energy release, <span class="math notranslate nohighlight">\(\dot{S}\)</span>.</p></li>
 <li><p>Convert back to the integrator’s internal representation (e.g.,
-a <code class="docutils literal notranslate"><span class="pre">bs_t</span></code>, via <code class="docutils literal notranslate"><span class="pre">rhs_to_bs</span></code>)</p>
+a <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">ydot</span></code>, and <code class="docutils literal notranslate"><span class="pre">rpar</span></code> for VODE via <code class="docutils literal notranslate"><span class="pre">rhs_to_vode</span></code>)</p>
 <blockquote>
-<div><ol class="arabic simple">
+<div><ol class="loweralpha simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">fill_unevolved_variables</span></code></p></li>
 <li><p>fill the ydot array in the integrator type (e.g.,
-<code class="docutils literal notranslate"><span class="pre">bs_t</span></code>) with the advective sources that originally came into the
+<code class="docutils literal notranslate"><span class="pre">rpar</span></code>) with the advective sources that originally came into the
 intergrator through the <code class="docutils literal notranslate"><span class="pre">sdc_t</span></code>.</p></li>
 <li><p>Add the reacting terms. This is done as:</p></li>
 </ol>
