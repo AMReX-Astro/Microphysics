@@ -10,6 +10,8 @@ using namespace amrex;
 
 int main(int argc, char *argv[]) {
 
+  amrex::Initialize(argc, argv);
+
   std::cout << "starting the single zone burn..." << std::endl;
 
   ParmParse ppa("amr");
@@ -17,6 +19,8 @@ int main(int argc, char *argv[]) {
   std::string probin_file = "probin";
 
   ppa.query("probin_file", probin_file);
+
+  std::cout << "probin = " << probin_file << std::endl;
 
   const int probin_file_length = probin_file.length();
   Vector<int> probin_file_name(probin_file_length);
@@ -26,4 +30,5 @@ int main(int argc, char *argv[]) {
 
   burn_cell(probin_file_name.dataPtr(), &probin_file_length);
 
+  amrex::Finalize();
 }

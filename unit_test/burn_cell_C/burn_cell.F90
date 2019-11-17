@@ -24,7 +24,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   type (burn_t)       :: burn_state_in, burn_state_out
   type (eos_t)        :: eos_state_in, eos_state_out
 
-  real (rt)    :: tmax, energy, time, dt
+  real (rt)    :: energy, time, dt
   integer             :: numsteps, i, istate
 
   character (len=256) :: params_file
@@ -35,12 +35,10 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   character (len=6)   :: out_num
 
   ! Starting conditions for integration
-  real (rt)    :: density, temperature, massfractions(nspec)
+  real (rt)    :: massfractions(nspec)
 
   ! Useful for evaluating final values
   real (rt)    :: eos_energy_generated, eos_energy_rate
-
-  namelist /cellparams/ tmax, numsteps, density, temperature, massfractions
 
   ! runtime
   call runtime_init(name, namlen)
@@ -56,15 +54,53 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   ! Set mass fractions to sanitize inputs for them
   massfractions = -1.0d0
 
-  ! Get initial conditions for the burn
-  call get_command_argument(1, value = params_file)
-
-  open(newunit=params_file_unit, file=params_file, status="old", action="read")
-  read(unit=params_file_unit, nml=cellparams)
-  close(unit=params_file_unit)
-
   ! Make sure user set all the mass fractions to values in the interval [0, 1]
   do i = 1, nspec
+     select case (i)
+     case (1)
+        massfractions(i) = X1
+     case (2)
+        massfractions(i) = X2
+     case (3)
+        massfractions(i) = X3
+     case (4)
+        massfractions(i) = X4
+     case (5)
+        massfractions(i) = X5
+     case (6)
+        massfractions(i) = X6
+     case (7)
+        massfractions(i) = X7
+     case (8)
+        massfractions(i) = X8
+     case (9)
+        massfractions(i) = X9
+     case (10)
+        massfractions(i) = X10
+     case (11)
+        massfractions(i) = X11
+     case (12)
+        massfractions(i) = X12
+     case (13)
+        massfractions(i) = X13
+     case (14)
+        massfractions(i) = X14
+     case (15)
+        massfractions(i) = X15
+     case (16)
+        massfractions(i) = X16
+     case (17)
+        massfractions(i) = X17
+     case (18)
+        massfractions(i) = X18
+     case (19)
+        massfractions(i) = X19
+     case (20)
+        massfractions(i) = X20
+     case (21)
+        massfractions(i) = X21
+     end select
+
      if (massfractions(i) .lt. 0 .or. massfractions(i) .gt. 1) then
         call amrex_error('mass fraction for ' // short_spec_names(i) // ' not initialized in the interval [0,1]!')
      end if
