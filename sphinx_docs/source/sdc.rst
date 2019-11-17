@@ -182,3 +182,20 @@ system we are integrating, including the advective terms.
                \dot{y}_{\rho e} &= \Adv{\rho e}^{n+1/2} +\rho \dot{S} \\
                \dot{y}_{\rho E} &= \Adv{\rho E}^{n+1/2} + \rho \dot{S}
              \end{aligned}
+
+Jacobian
+--------
+
+The Jacobian of this system is :math:`{\bf J} = \partial \Rb /
+\partial \Uc`, since :math:`\Advs{\Uc}` is held constant during the
+integration.  We follow the approach of :cite:`castro_sdc` and factor
+the Jacobian as:
+
+.. math::
+
+   {\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
+             \frac{\partial {\bf w}}{\partial \Uc}
+
+where :math:`{\bf w} = (\rho, X_k, T)^\intercal` are the more natural variables
+for a reaction network.
+
