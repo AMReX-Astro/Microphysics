@@ -25,7 +25,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   type (eos_t)        :: eos_state_in, eos_state_out
 
   real (rt)    :: energy, time, dt
-  integer             :: numsteps, i, istate
+  integer             :: i, istate
 
   character (len=256) :: params_file
   integer             :: params_file_unit
@@ -108,7 +108,6 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
 
   ! Echo initial conditions at burn and fill burn state input
   write(*,*) 'Maximum Time (s): ', tmax
-  write(*,*) 'Number of time subdivisions: ', numsteps
   write(*,*) 'State Density (g/cm^3): ', density
   write(*,*) 'State Temperature (K): ', temperature
   do i = 1, nspec
@@ -135,6 +134,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   call eos(eos_input_rt, eos_state_in)
   call eos_to_burn(eos_state_in, burn_state_in)
 
+  dt = tmax
   call actual_burner(burn_state_in, burn_state_out, dt, time)
   energy = energy + burn_state_out % e
 
@@ -150,7 +150,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   write(*,*) " - integrated/EOS percent diff. = ", 100.0d0 * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
 
   ! output burn type data
-  call write_burn_t(burn_state_out)
+  !call write_burn_t(burn_state_out)
 
   write(*,*) "------------------------------------"
   write(*,*) "EOS e(rho, T) initial = ", eos_state_in % e
