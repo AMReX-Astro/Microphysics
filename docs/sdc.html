@@ -111,6 +111,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfaces</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#actual-integrator">actual_integrator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#righthand-side-wrapper">Righthand side wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jacobian">Jacobian</a></li>
 </ul>
 </li>
 </ul>
@@ -360,6 +361,18 @@ intergrator through the <code class="docutils literal notranslate"><span class="
 </div></blockquote>
 </li>
 </ol>
+</div>
+<div class="section" id="jacobian">
+<h3>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this headline">¶</a></h3>
+<p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
+\partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
+integration.  We follow the approach of <span class="bibtex" id="id1">[castro_sdc]</span> and factor
+the Jacobian as:</p>
+<div class="math notranslate nohighlight">
+\[{\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
+          \frac{\partial {\bf w}}{\partial \Uc}\]</div>
+<p>where <span class="math notranslate nohighlight">\({\bf w} = (\rho, X_k, T)^\intercal\)</span> are the more natural variables
+for a reaction network.</p>
 </div>
 </div>
 </div>
