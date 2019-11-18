@@ -1,5 +1,8 @@
 # changes since the last release
 
+   * The parameter ode_max_steps was made consistent in VODE and
+     VODE90; in some places it was being ignored. (#214)
+
    * The helmholtz EOS was restructured, splitting the different
      components into different functions and optimizing the memory
      accesses. (#200)
