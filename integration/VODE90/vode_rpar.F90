@@ -40,9 +40,8 @@ module vode_rpar_indices
   ! using the components defined above (irp_SRHO, irp_SMX, ...)
   integer, parameter :: irp_u_init = irp_ydot_a + SVAR
 
-  integer, parameter :: irp_self_heat = irp_u_init + SVAR - SVAR_EVOLVE
-  integer, parameter :: irp_T_from_eden = irp_self_heat + 1
-  integer, parameter :: irp_t0 = irp_T_from_eden + 1
+  integer, parameter :: irp_T_from_eden = irp_u_init + SVAR - SVAR_EVOLVE
+  integer, parameter :: irp_self_heat = irp_T_from_eden + 1
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -60,9 +59,10 @@ module vode_rpar_indices
 
   ! These are various bookkeeping parameters
   integer, parameter :: irp_self_heat = irp_p0 + 1
-  integer, parameter :: irp_t0 = irp_self_heat + 1
 
 #endif
+
+  integer, parameter :: irp_t0 = irp_self_heat + 1
 
 #ifdef NONAKA_PLOT
 
