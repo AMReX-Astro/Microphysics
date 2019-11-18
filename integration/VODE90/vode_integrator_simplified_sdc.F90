@@ -1,6 +1,6 @@
 ! This is the interface to the burner for the simplified SDC case.
 
-module actual_integrator_module
+module vode_integrator_module
 
   use amrex_error_module
   use amrex_fort_module, only: rt => amrex_real
@@ -15,12 +15,12 @@ module actual_integrator_module
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine vode_integrator_init()
 
-  end subroutine actual_integrator_init
+  end subroutine vode_integrator_init
 
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine vode_integrator(state_in, state_out, dt, time, status)
 
     use vode_rpar_indices
     use vode_rhs_module
@@ -34,12 +34,14 @@ contains
                                     call_eos_in_rhs, dT_crit, use_jacobian_caching, &
                                     ode_max_steps
     use cuvode_parameters_module
+    use integration_data, only: integration_status_t
 
     ! Input arguments
 
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
     real(rt),    intent(in   ) :: dt, time
+    type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
@@ -86,13 +88,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    dvode_state % atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
-    dvode_state % atol(SEDEN)           = atol_enuc ! temperature
-    dvode_state % atol(SEINT)           = atol_enuc ! energy generated
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec
+    dvode_state % atol(SEDEN)           = status % atol_enuc
+    dvode_state % atol(SEINT)           = status % atol_enuc
 
-    dvode_state % rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
-    dvode_state % rtol(SEDEN)           = rtol_enuc ! temperature
-    dvode_state % rtol(SEINT)           = rtol_enuc ! energy generated
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec
+    dvode_state % rtol(SEDEN)           = status % rtol_enuc
+    dvode_state % rtol(SEINT)           = status % rtol_enuc
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -150,6 +152,6 @@ contains
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
 
-  end subroutine actual_integrator
+  end subroutine vode_integrator
 
-end module actual_integrator_module
+end module vode_integrator_module
