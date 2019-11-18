@@ -142,7 +142,11 @@ contains
     bs % eps_old = ZERO
 
     if (use_timestep_estimator) then
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs)
+#else
        call f_rhs(bs)
+#endif
        call initial_timestep(bs)
     else
        bs % dt = dt_ini
@@ -151,7 +155,11 @@ contains
     do n = 1, ode_max_steps
 
        ! Get the scaling.
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs)
+#else
        call f_rhs(bs)
+#endif
 
        if (scaling_method == 1) then
 #ifdef SIMPLIFIED_SDC
@@ -263,7 +271,12 @@ contains
 #endif
 
        ! Call the RHS, then estimate the finite difference.
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
+#else
        call f_rhs(bs_temp)
+#endif
+
 #ifdef SIMPLIFIED_SDC
        ddydtt = (bs_temp % ydot - bs % ydot) / h
 #else
@@ -375,7 +388,11 @@ contains
 
        t = t + h
        bs_temp % t = t
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
+#else
        call f_rhs(bs_temp)
+#endif
 
        do n = 2, N_sub
 #ifdef SIMPLIFIED_SDC
@@ -396,7 +413,11 @@ contains
 
           t = t + h
           bs_temp % t = t
+#ifdef SIMPLIFIED_SDC
+          call f_bs_rhs(bs_temp)
+#else
           call f_rhs(bs_temp)
+#endif
        enddo
 
 #ifdef SIMPLIFIED_SDC
@@ -500,7 +521,11 @@ contains
     y_save(:) = bs % y(:)
 
     ! get the jacobian
+#ifdef SIMPLIFIED_SDC
+    call bs_jac(bs)
+#else
     call jac(bs)
+#endif
 
     if (dt /= bs % dt_next .or. bs % t /= bs % t_new) then
        bs % first = .true.
@@ -762,7 +787,11 @@ contains
     ! note: we come in already with a RHS evalulation from the driver
 
     ! get the jacobian
+#ifdef SIMPLIFIED_SDC
+    call bs_jac(bs)
+#else
     call jac(bs)
+#endif
 
     ierr = IERR_NONE
 
@@ -814,7 +843,11 @@ contains
        
        ! get derivatives at this intermediate position and setup the next
        ! RHS
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
+#else
        call f_rhs(bs_temp)
+#endif
 
 #ifdef SIMPLIFIED_SDC
        g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
@@ -833,7 +866,11 @@ contains
 
        ! get derivatives at this intermediate position and setup the next
        ! RHS
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
+#else
        call f_rhs(bs_temp)
+#endif
 
 #ifdef SIMPLIFIED_SDC
        g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
