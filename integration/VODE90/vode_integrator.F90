@@ -35,7 +35,7 @@ contains
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
          call_eos_in_rhs, dt_crit, ode_max_steps
-    use vode_rhs_module, only: f_rhs, jac    
+    use vode_rhs_module, only: f_rhs, jac
     use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
     use eos_module, only: eos
@@ -282,7 +282,7 @@ contains
     ! If we failed, print out the current state of the integration.
 
     if (integration_failed) then
-#ifndef CUDA       
+#ifndef CUDA
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
        print *, 'time = ', dvode_state % T
@@ -329,13 +329,13 @@ contains
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
 
     endif
-    
+
     call normalize_abundances_burn(state_out)
 
     ! set the integration time for any diagnostics
     state_out % time = time + dt
 
-#ifndef CUDA    
+#ifndef CUDA
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
