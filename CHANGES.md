@@ -1,5 +1,8 @@
 # changes since the last release
 
+   * VODE90 can now participate in the retry strategy that was
+     previously available to the VODE and BS integrators. (#201)
+
    * The parameter ode_max_steps was made consistent in VODE and
      VODE90; in some places it was being ignored. (#214)
 
