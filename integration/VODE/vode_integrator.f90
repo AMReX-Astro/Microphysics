@@ -261,7 +261,7 @@ contains
        rwork(:) = ZERO
        iwork(:) = 0
 
-       iwork(6) = 150000
+       iwork(6) = max_steps
 
        local_time = ZERO
 

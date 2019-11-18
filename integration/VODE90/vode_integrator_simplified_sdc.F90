@@ -31,7 +31,8 @@ contains
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit, use_jacobian_caching
+                                    call_eos_in_rhs, dT_crit, use_jacobian_caching, &
+                                    ode_max_steps
     use cuvode_parameters_module
     use integration_data, only: integration_status_t
 
@@ -110,7 +111,7 @@ contains
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
-    iwork(6) = 150000
+    iwork(6) = ode_max_steps
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
