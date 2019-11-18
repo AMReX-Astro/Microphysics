@@ -34,7 +34,7 @@ contains
          atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
-         call_eos_in_rhs, dt_crit
+         call_eos_in_rhs, dt_crit, ode_max_steps
     use vode_rhs_module, only: f_rhs, jac    
     use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
@@ -122,7 +122,7 @@ contains
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
-    iwork(6) = 150000
+    iwork(6) = ode_max_steps
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
@@ -220,7 +220,7 @@ contains
        rwork % ACOR = ZERO    
        iwork(:) = 0
 
-       iwork(6) = 150000
+       iwork(6) = ode_max_steps
 
        dvode_state % T = ZERO
        dvode_state % TOUT = dt
@@ -294,7 +294,7 @@ contains
              dvode_state % atol = dvode_state % atol * retry_burn_factor
              dvode_state % rtol = dvode_state % rtol * retry_burn_factor
 
-             iwork(6) = 150000
+             iwork(6) = ode_max_steps
 
              dvode_state % T = ZERO
              dvode_state % TOUT = dt
