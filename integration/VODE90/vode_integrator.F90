@@ -1,7 +1,7 @@
 ! Common variables and routines for burners
 ! that use VODE for their integration.
 
-module actual_integrator_module
+module vode_integrator_module
 
   use eos_type_module, only: eos_input_rt
   use network
@@ -15,15 +15,15 @@ module actual_integrator_module
   
 contains
 
-  subroutine actual_integrator_init()
+  subroutine vode_integrator_init()
 
     implicit none
 
-  end subroutine actual_integrator_init
+  end subroutine vode_integrator_init
 
 
   ! Main interface
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine vode_integrator(state_in, state_out, dt, time, status)
 
     !$acc routine seq
 
@@ -35,7 +35,7 @@ contains
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
          call_eos_in_rhs, dt_crit, ode_max_steps
-    use vode_rhs_module, only: f_rhs, jac    
+    use vode_rhs_module, only: f_rhs, jac
     use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
     use eos_module, only: eos
@@ -43,7 +43,11 @@ contains
     use cuvode_types_module, only: dvode_t, rwork_t
     use amrex_constants_module, only: ZERO, ONE
     use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale
+    use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
+#ifndef CUDA
+    use amrex_error_module, only: amrex_error
+#endif
 
     implicit none
 
@@ -52,6 +56,7 @@ contains
     type (burn_t), intent(in   ) :: state_in
     type (burn_t), intent(inout) :: state_out
     real(rt),    intent(in   ) :: dt, time
+    type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
@@ -76,6 +81,9 @@ contains
     real(rt) :: ener_offset
     real(rt) :: edot, t_enuc, t_sound, limit_factor
 
+    logical :: integration_failed
+    real(rt), parameter :: failure_tolerance = 1.d-2
+
     !$gpu
 
     if (jacobian == 1) then ! Analytical
@@ -83,14 +91,16 @@ contains
     else if (jacobian == 2) then ! Numerical
        MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
-       stop
-       !CUDA
-       !call bl_error("Error: unknown Jacobian mode in actual_integrator.f90.")
+#ifndef CUDA
+       call amrex_error("Error: unknown Jacobian mode in vode_integrator.f90.")
+#endif
     endif
 
     if (.not. use_jacobian_caching) then
        MF_JAC = -MF_JAC
     endif
+
+    integration_failed = .false.
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
@@ -99,13 +109,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    dvode_state % atol(1:nspec_evolve) = atol_spec ! mass fractions
-    dvode_state % atol(net_itemp)      = atol_temp ! temperature
-    dvode_state % atol(net_ienuc)      = atol_enuc ! energy generated
+    dvode_state % atol(1:nspec_evolve) = status % atol_spec ! mass fractions
+    dvode_state % atol(net_itemp)      = status % atol_temp ! temperature
+    dvode_state % atol(net_ienuc)      = status % atol_enuc ! energy generated
 
-    dvode_state % rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    dvode_state % rtol(net_itemp)      = rtol_temp ! temperature
-    dvode_state % rtol(net_ienuc)      = rtol_enuc ! energy generated
+    dvode_state % rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
+    dvode_state % rtol(net_itemp)      = status % rtol_temp ! temperature
+    dvode_state % rtol(net_ienuc)      = status % rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -131,6 +141,10 @@ contains
     else
        iwork(7) = 0
     endif
+
+    ! Start off by assuming a successful burn.
+
+    state_out % success = .true.
 
     ! Initialize the integration time.
     dvode_state % T = ZERO
@@ -245,11 +259,30 @@ contains
 
     endif
 
-    ! If we still failed, print out the current state of the integration.
+    ! VODE does not always fail even though it can lead to unphysical states,
+    ! so add some sanity checks that trigger a retry even if VODE thinks
+    ! the integration was successful.
 
     if (dvode_state % istate < 0) then
-       
-#ifndef AMREX_USE_CUDA       
+       integration_failed = .true.
+    end if
+
+    if (dvode_state % y(net_itemp) < ZERO) then
+       integration_failed = .true.
+    end if
+
+    if (any(dvode_state % y(1:nspec_evolve) < -failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    if (any(dvode_state % y(1:nspec_evolve) > 1.d0 + failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    ! If we failed, print out the current state of the integration.
+
+    if (integration_failed) then
+#ifndef CUDA
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
        print *, 'time = ', dvode_state % T
@@ -261,74 +294,9 @@ contains
             dvode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
        print *, 'energy generated = ', (dvode_state % y(net_ienuc) - ener_offset) * ener_scale
 #endif
-       
-       if (.not. retry_burn) then
 
-          stop
-          !CUDA
-          !call bl_error("ERROR in burner: integration failed")
-
-       else
-
-#ifndef AMREX_USE_CUDA          
-          print *, 'Retrying burn with looser tolerances'
-#endif          
-
-          retry_change_factor = ONE
-
-          do while (dvode_state % istate < 0 .and. retry_change_factor <= retry_burn_max_change)
-
-             retry_change_factor = retry_change_factor * retry_burn_factor
-
-             dvode_state % istate = 1
-
-             rwork % CONDOPT = ZERO             
-             rwork % YH   = ZERO
-             rwork % WM   = ZERO
-             rwork % EWT  = ZERO
-             rwork % SAVF = ZERO
-             rwork % ACOR = ZERO    
-             iwork(:) = 0
-
-
-             dvode_state % atol = dvode_state % atol * retry_burn_factor
-             dvode_state % rtol = dvode_state % rtol * retry_burn_factor
-
-             iwork(6) = ode_max_steps
-
-             dvode_state % T = ZERO
-             dvode_state % TOUT = dt
-
-             call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
-
-             dvode_state % rpar(irp_Told) = eos_state_in % T
-
-             if (dT_crit < 1.0d19) then
-
-                dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
-                                                (eos_state_temp % T - eos_state_in % T)
-                dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
-                                                (eos_state_temp % T - eos_state_in % T)
-
-             endif
-
-             dvode_state % y(net_ienuc) = ener_offset
-
-             ! Call the integration routine.
-             call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
-
-          enddo
-
-          if (retry_change_factor > retry_burn_max_change .and. dvode_state % istate < 0) then
-
-             stop
-             !CUDA
-             !call bl_error("ERROR in burner: integration failed")
-
-          endif
-
-       endif
-
+       state_out % success = .false.
+       return
     endif
 
     ! Subtract the energy offset
@@ -361,10 +329,13 @@ contains
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
 
     endif
-    
+
     call normalize_abundances_burn(state_out)
 
-#ifndef AMREX_USE_CUDA    
+    ! set the integration time for any diagnostics
+    state_out % time = time + dt
+
+#ifndef CUDA
     if (burner_verbose) then
 
        ! Print out some integration statistics, if desired.
@@ -376,6 +347,6 @@ contains
     endif
 #endif
     
-  end subroutine actual_integrator
+  end subroutine vode_integrator
 
-end module actual_integrator_module
+end module vode_integrator_module

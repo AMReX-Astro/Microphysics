@@ -1,14 +1,14 @@
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
-  F90EXE_sources += actual_integrator_simplified_sdc.F90
+  F90EXE_sources += vode_integrator_simplified_sdc.F90
   F90EXE_sources += vode_rhs_simplified_sdc.F90
   F90EXE_sources += vode_type_simplified_sdc.F90
 else
   ifeq ($(USE_TRUE_SDC), TRUE)
-    F90EXE_sources += actual_integrator_true_sdc.F90
+    F90EXE_sources += vode_integrator_true_sdc.F90
     F90EXE_sources += vode_rhs_true_sdc.F90
     F90EXE_sources += vode_type_true_sdc.F90
   else
-    F90EXE_sources += actual_integrator.F90
+    F90EXE_sources += vode_integrator.F90
     F90EXE_sources += vode_rhs.F90
     F90EXE_sources += vode_type.F90
   endif
