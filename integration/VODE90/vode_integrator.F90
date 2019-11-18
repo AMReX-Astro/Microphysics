@@ -142,6 +142,10 @@ contains
        iwork(7) = 0
     endif
 
+    ! Start off by assuming a successful burn.
+
+    state_out % success = .true.
+
     ! Initialize the integration time.
     dvode_state % T = ZERO
     dvode_state % TOUT = dt
