@@ -47,7 +47,7 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical, save    :: deriva = .false.
+    logical          :: deriva
 
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
@@ -57,6 +57,8 @@ contains
     double precision :: y(nspec), r1(nrates), r2(nrates)
 
     !$gpu
+
+    deriva = .false.
 
     call evaluate_rates(state, rr)
 
@@ -107,7 +109,7 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical, save    :: deriva = .true.
+    logical          :: deriva
 
     double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
@@ -117,6 +119,8 @@ contains
     double precision :: y(nspec), r1(nrates), r2(nrates), r3(nrates), spec_jac(nspec,nspec)
 
     !$gpu
+
+    deriva = .true.
 
     state % jac(:,:) = ZERO
 
