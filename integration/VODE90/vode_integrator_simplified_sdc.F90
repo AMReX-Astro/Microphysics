@@ -65,6 +65,9 @@ contains
     real(rt) :: retry_change_factor
     type (dvode_t) :: dvode_state
 
+    logical :: integration_failed
+    real(rt), parameter :: failure_tolerance = 1.d-2
+
     !$gpu
 
     if (jacobian == 1) then ! Analytical
@@ -121,6 +124,11 @@ contains
        iwork(7) = 0
     endif
 
+    ! Start off by assuming a successful burn.
+
+    state_out % success = .true.
+    integration_failed = .false.
+
     ! Initialize the integration time.
 
     dvode_state % T = ZERO
@@ -143,9 +151,49 @@ contains
     ! Call the integration routine.
     call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
-
     ! Store the final data
     call vode_to_sdc(dvode_state % T, dvode_state % y, dvode_state % rpar, state_out)
+
+    ! VODE does not always fail even though it can lead to unphysical states,
+    ! so add some sanity checks that trigger a retry even if VODE thinks
+    ! the integration was successful.
+
+    if (dvode_state % istate < 0) then
+       integration_failed = .true.
+    end if
+
+    if (dvode_state % y(SEINT) < ZERO .or. dvode_state % y(SEDEN) < ZERO) then
+       integration_failed = .true.
+    end if
+
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) < -failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) > 1.d0 + failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    ! If we failed, print out the current state of the integration.
+
+    if (integration_failed) then
+#ifndef CUDA
+       print *, 'ERROR: integration failed in net'
+       print *, 'istate = ', dvode_state % istate
+       print *, 'time = ', dvode_state % T
+       print *, 'dens start = ', state_in % y(SRHO)
+       print *, 'eint start = ', state_in % y(SEINT) / state_in % y(SRHO)
+       print *, 'xn start = ', state_in % y(SFS:SFS+nspec-1) / state_in % y(SRHO)
+       print *, 'dens current = ', state_out % y(SRHO)
+       print *, 'eint current = ', state_out % y(SEINT) / state_out % y(SRHO)
+       print *, 'xn current = ', state_out % y(SFS:SFS+nspec-1) / state_out % y(SRHO)
+       print *, 'energy generated = ', state_out % y(SEDEN) / state_out % y(SRHO) - &
+                                       state_in % y(SEDEN) / state_in % y(SRHO)
+#endif
+
+       state_out % success = .false.
+       return
+    endif
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
