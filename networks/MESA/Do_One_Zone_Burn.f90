@@ -59,8 +59,8 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
 
    ! LOCAL:
    type (eos_t) :: eos_state
-   integer :: eos_input = 1
-   logical :: do_eos_diag = .false.
+   integer, save :: eos_input = 1
+   logical, save :: do_eos_diag = .false.
 
    real(rt) :: burn_tend, burn_rtol, burn_atol
 
@@ -87,7 +87,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
    
    integer :: ierr, iout, info, caller_id
 
-   logical :: clip = .true.
+   logical, save :: clip = .true.
 
    integer, parameter :: num_times = 1
    

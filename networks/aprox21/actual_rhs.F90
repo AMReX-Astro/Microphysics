@@ -47,7 +47,7 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical          :: deriva = .false.
+    logical, save    :: deriva = .false.
 
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
@@ -106,7 +106,7 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical          :: deriva = .true.
+    logical, save    :: deriva = .true.
 
     double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
