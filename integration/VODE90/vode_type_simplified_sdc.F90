@@ -108,8 +108,8 @@ contains
 
     !$gpu
 
-    ! We only renormalize species for Castro because
-    ! for MAESTROeX, we define the density as
+    ! We only renormalize species when evolving energy because
+    ! when we evolve enthalpy, we define the density as
     ! the sum of the partial densities rho*X for each species.
 #ifdef SDC_EVOLVE_ENERGY
 
