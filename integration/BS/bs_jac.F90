@@ -33,7 +33,7 @@ contains
 
     if (jacobian == 1) then
 
-       call network_jac(bs % burn_s, bs % u(irp_t0))
+       call network_jac(bs % burn_s, bs % upar(irp_t0))
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve

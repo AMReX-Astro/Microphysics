@@ -42,7 +42,7 @@ contains
 
     ! Call the specific network routine to get the RHS.
     call bs_to_burn(bs)
-    call network_rhs(bs % burn_s, bs % u(irp_t0))
+    call network_rhs(bs % burn_s, bs % upar(irp_t0))
 
     ! We integrate X, not Y
     bs % burn_s % ydot(1:nspec_evolve) = &
