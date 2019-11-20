@@ -14,6 +14,7 @@ contains
     use extern_probin_module, only: jacobian
     use burn_type_module, only: burn_t
     use bs_type_module, only: bs_t, bs_to_burn, jac_to_bs
+    use bs_rpar_indices, only: irp_t0
 
     implicit none
 
@@ -32,7 +33,7 @@ contains
 
        call bs_to_burn(bs, burn)
 
-       call network_jac(burn)
+       call network_jac(burn, bs % u(irp_t0))
 
        call jac_to_bs(bs, burn)
 

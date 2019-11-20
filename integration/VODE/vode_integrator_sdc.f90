@@ -65,6 +65,11 @@ contains
                                     ode_max_steps
     use integration_data, only: integration_status_t
 
+#ifdef NONAKA_PLOT
+    use burn_type_module, only: burn_t
+    use nonaka_plot_module
+#endif
+
     ! Input arguments
 
     type (sdc_t), intent(in   ) :: state_in
@@ -75,6 +80,10 @@ contains
     ! Local variables
 
     real(rt) :: local_time
+
+#ifdef NONAKA_PLOT
+    type(burn_t) :: burn_state
+#endif
 
     ! Work arrays
 
@@ -169,6 +178,12 @@ contains
                ITOL, rtol, atol, ITASK, &
                istate, IOPT, rwork, LRW, iwork, LIW, jac, MF_JAC, rpar, ipar)
 
+
+#ifdef NONAKA_PLOT
+    call vode_to_burn(local_time, y, rpar, burn_state)
+    burn_state % time = local_time
+    call nonaka_rhs(burn_state, time, .true.)
+#endif
 
     ! Store the final data
     call vode_to_sdc(local_time, y, rpar, state_out)
