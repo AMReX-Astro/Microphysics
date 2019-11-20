@@ -51,8 +51,13 @@ contains
 
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances
     use actual_network, only: nspec
+#if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: SFS, SEDEN, SEINT
     use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    use sdc_type_module, only: SFS, SENTH
+    use bs_rpar_indices, only: irp_SRHO, irp_p0
+#endif
     use eos_module, only: eos
     use eos_type_module, only: eos_input_rt, eos_t, eos_get_small_dens, eos_get_max_dens
 
@@ -111,11 +116,12 @@ contains
 
     !$acc routine seq
 
+    use actual_network, only: nspec
 #if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: SRHO, SMX, SMZ
     use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
 #elif defined(SDC_EVOLVE_ENTHALPY)
-    use sdc_type_module, only: SRHO, SFS
+    use sdc_type_module, only: SFS
     use bs_rpar_indices, only: irp_SRHO
 #endif
 
@@ -181,8 +187,13 @@ contains
 
     !$acc routine seq
 
+#if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE, SRHO, SMX, SMZ
     use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    use sdc_type_module, only: sdc_t, SVAR_EVOLVE
+    use bs_rpar_indices, only: irp_SRHO, irp_p0
+#endif
 
     implicit none
 
@@ -229,8 +240,13 @@ contains
 
     !$acc routine seq
 
+#if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: sdc_t, SRHO, SMX, SMZ
     use bs_rpar_indices, only: irp_SRHO, irp_SMX, irp_SMZ
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    use sdc_type_module, only: sdc_t
+    use bs_rpar_indices, only: irp_SRHO, irp_p0
+#endif
 
     implicit none
 
