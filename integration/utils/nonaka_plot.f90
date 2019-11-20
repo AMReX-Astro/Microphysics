@@ -63,10 +63,12 @@ contains
 
     integer :: nonaka_file_unit, j
     integer :: i, nextline
-    real(rt) :: tprev
+    real(rt) :: tprev, simulation_time
 
     character(len=20) :: vector_format = ''
     character(len=20) :: scalar_format = ''
+
+    simulation_time = state % time + reference_time
 
     if (state % i == nonaka_i .and. &
         state % j == nonaka_j .and. &
@@ -91,7 +93,7 @@ contains
 
                 i = 0
                 ! remove last rows where VODE took a much too large timestep
-                do while (tprev >= time .and. i < 2)
+                do while (tprev >= simulation_time .and. i < 2)
                     nextline = nextline - ( 30*(1 + 2*nspec) + 1 )
                     read(unit=nonaka_file_unit, pos=nextline, fmt=scalar_format) tprev
                     i = i + 1
@@ -102,7 +104,7 @@ contains
             end if
         end if
            
-        write(unit=nonaka_file_unit, fmt=scalar_format, pos=nextline, advance="no") (state % time + reference_time)
+        write(unit=nonaka_file_unit, fmt=scalar_format, pos=nextline, advance="no") simulation_time
 
         ! Mass fractions X
         write(unit=nonaka_file_unit, fmt=vector_format, advance="no") (state % xn(j), j = 1, nspec)
