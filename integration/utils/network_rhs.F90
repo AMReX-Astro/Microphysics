@@ -1,5 +1,7 @@
 module network_rhs_module
 
+  use amrex_fort_module, only: rt => amrex_real
+
   implicit none
 
   public
@@ -43,7 +45,7 @@ contains
 
     !$gpu
 
-    call actual_jac(state, reference_time)
+    call actual_jac(state)
 
   end subroutine network_jac
 
