@@ -8,9 +8,11 @@ contains
 
   subroutine integrator_init()
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
     use vode_integrator_module, only: vode_integrator_init
+#ifndef CUDA
     use bs_integrator_module, only: bs_integrator_init
+#endif
 #else
     use actual_integrator_module, only: actual_integrator_init
 #endif
@@ -21,9 +23,11 @@ contains
 
     implicit none
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
     call vode_integrator_init()
+#ifndef CUDA
     call bs_integrator_init()
+#endif
 #else
     call actual_integrator_init()
 #endif
@@ -40,14 +44,17 @@ contains
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
     use vode_integrator_module, only: vode_integrator
+#ifndef CUDA
     use bs_integrator_module, only: bs_integrator
+#endif
 #else
     use actual_integrator_module, only : actual_integrator
 #endif
-
+#ifndef AMREX_USE_CUDA
     use amrex_error_module, only: amrex_error
+#endif
     use amrex_fort_module, only : rt => amrex_real
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
@@ -62,6 +69,8 @@ contains
 
     type (integration_status_t) :: status
 
+    !$gpu
+
     status % atol_spec = atol_spec
     status % rtol_spec = rtol_spec
 
@@ -71,14 +80,13 @@ contains
     status % atol_enuc = atol_enuc
     status % rtol_enuc = rtol_enuc
 
-#if INTEGRATOR == 0
+#if (INTEGRATOR == 0 || INTEGRATOR == 3)
     call vode_integrator(state_in, state_out, dt, time, status)
 #elif INTEGRATOR == 1
     call bs_integrator(state_in, state_out, dt, time, status)
-#elif INTEGRATOR == 3
-    call actual_integrator(state_in, state_out, dt, time)
-#else
+#ifndef AMREX_USE_CUDA
     call amrex_error("Unknown integrator.")
+#endif
 #endif
 
   end subroutine integrator

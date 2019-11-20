@@ -61,7 +61,8 @@ contains
 
     use vode_rpar_indices
     use extern_probin_module, only: jacobian, burner_verbose, &
-                                    burning_mode, call_eos_in_rhs, dT_crit
+                                    burning_mode, call_eos_in_rhs, dT_crit, &
+                                    ode_max_steps
     use integration_data, only: integration_status_t
 
 #ifdef NONAKA_PLOT
@@ -140,7 +141,7 @@ contains
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
-    iwork(6) = 150000
+    iwork(6) = ode_max_steps
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
@@ -185,7 +186,7 @@ contains
 #endif
 
     ! Store the final data
-    call vode_to_sdc(time, y, rpar, state_out)
+    call vode_to_sdc(local_time, y, rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays

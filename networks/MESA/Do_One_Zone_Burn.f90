@@ -59,8 +59,8 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
 
    ! LOCAL:
    type (eos_t) :: eos_state
-   integer :: eos_input = 1
-   logical :: do_eos_diag = .false.
+   integer :: eos_input
+   logical :: do_eos_diag
 
    real(rt) :: burn_tend, burn_rtol, burn_atol
 
@@ -87,7 +87,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
    
    integer :: ierr, iout, info, caller_id
 
-   logical :: clip = .true.
+   logical :: clip
 
    integer, parameter :: num_times = 1
    
@@ -154,6 +154,10 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
 
    screening_mode = extended_screening
    theta_e_for_graboske_et_al = 1
+
+   clip = .true.
+   eos_input = 1
+   do_eos_diag = .false.
 
    !--- initialize burn parameters with incoming values
    burn_tend = tstop

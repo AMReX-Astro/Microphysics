@@ -1,6 +1,6 @@
 ! This is the interface to the burner for the simplified SDC case.
 
-module actual_integrator_module
+module vode_integrator_module
 
   use amrex_error_module
   use amrex_fort_module, only: rt => amrex_real
@@ -15,12 +15,12 @@ module actual_integrator_module
 
 contains
 
-  subroutine actual_integrator_init()
+  subroutine vode_integrator_init()
 
-  end subroutine actual_integrator_init
+  end subroutine vode_integrator_init
 
 
-  subroutine actual_integrator(state_in, state_out, dt, time)
+  subroutine vode_integrator(state_in, state_out, dt, time, status)
 
     use vode_rpar_indices
     use vode_rhs_module
@@ -31,14 +31,17 @@ contains
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit, use_jacobian_caching
+                                    call_eos_in_rhs, dT_crit, use_jacobian_caching, &
+                                    ode_max_steps
     use cuvode_parameters_module
+    use integration_data, only: integration_status_t
 
     ! Input arguments
 
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
     real(rt),    intent(in   ) :: dt, time
+    type (integration_status_t), intent(inout) :: status
 
     ! Local variables
 
@@ -87,21 +90,21 @@ contains
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    dvode_state % atol(SFS:SFS-1+nspec) = atol_spec ! mass fractions
-    dvode_state % atol(SEDEN)           = atol_enuc ! temperature
-    dvode_state % atol(SEINT)           = atol_enuc ! energy generated
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec
+    dvode_state % atol(SEDEN)           = status % atol_enuc
+    dvode_state % atol(SEINT)           = status % atol_enuc
 
-    dvode_state % rtol(SFS:SFS-1+nspec) = rtol_spec ! mass fractions
-    dvode_state % rtol(SEDEN)           = rtol_enuc ! temperature
-    dvode_state % rtol(SEINT)           = rtol_enuc ! energy generated
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec
+    dvode_state % rtol(SEDEN)           = status % rtol_enuc
+    dvode_state % rtol(SEINT)           = status % rtol_enuc
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
-    atol(SENTH)           = status % atol_enuc ! enthalpy
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
+    dvode_state % atol(SENTH)           = status % atol_enuc ! enthalpy
 
-    rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
-    rtol(SENTH)           = status % rtol_enuc ! enthalpy
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
+    dvode_state % rtol(SENTH)           = status % rtol_enuc ! enthalpy
 
 #endif
 
@@ -120,7 +123,7 @@ contains
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
 
-    iwork(6) = 150000
+    iwork(6) = ode_max_steps
 
     ! Disable printing of messages about T + H == T unless we are in verbose mode.
 
@@ -154,13 +157,13 @@ contains
 
 
     ! Store the final data
-    call vode_to_sdc(time, dvode_state % y, dvode_state % rpar, state_out)
+    call vode_to_sdc(dvode_state % T, dvode_state % y, dvode_state % rpar, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
     state_out % n_rhs = iwork(12)
     state_out % n_jac = iwork(13)
 
-  end subroutine actual_integrator
+  end subroutine vode_integrator
 
-end module actual_integrator_module
+end module vode_integrator_module
