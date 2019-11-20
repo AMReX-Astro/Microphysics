@@ -305,7 +305,7 @@ contains
 
   subroutine vode_to_burn(time, y, rpar, burn_state)
 
-    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt
+    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_input_rp, eos_input_rh
     use eos_type_module, only : eos_get_small_temp, eos_get_max_temp
     use eos_module, only : eos
     use burn_type_module, only : eos_to_burn, burn_t
