@@ -149,7 +149,7 @@ contains
        ! d(itemp)/d(yi)
        
        do k = 1, nspec_evolve
-          call get_jac_entry(state, net_ienuc, k, scratch)
+          call get_jac_entry(state, net_itemp, k, scratch)
           scratch = scratch * cspecInv
           call set_jac_entry(state, net_itemp, k, scratch)
        enddo
