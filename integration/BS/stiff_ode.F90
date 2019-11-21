@@ -517,7 +517,7 @@ contains
     y_save(:) = bs % y(:)
 
     ! get the jacobian
-#if SIMPLIFIED_SDC
+#ifdef SIMPLIFIED_SDC
     call bs_jac(bs)
 #else
     call jac(bs)
