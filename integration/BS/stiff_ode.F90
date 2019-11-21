@@ -341,11 +341,7 @@ contains
     h = dt_tot/N_sub
 
     ! I - h J
-#ifdef SIMPLIFIED_SDC
     A(:,:) = -h * bs % jac(:,:)
-#else
-    A(:,:) = -h * bs % burn_s % jac(:,:)
-#endif
     do n = 1, bs_neqs
        A(n,n) = ONE + A(n,n)
     enddo
@@ -521,7 +517,7 @@ contains
     y_save(:) = bs % y(:)
 
     ! get the jacobian
-#ifdef SIMPLIFIED_SDC
+#if SIMPLIFIED_SDC
     call bs_jac(bs)
 #else
     call jac(bs)
@@ -804,11 +800,7 @@ contains
 
        ! create I/(gamma h) - ydot -- this is the matrix used for all the
        ! linear systems that comprise a single step
-#ifdef SIMPLIFIED_SDC
        A(:,:) = -bs % jac(:,:)
-#else
-       A(:,:) = -bs % burn_s % jac(:,:)
-#endif
        do n = 1, bs_neqs
           A(n,n) = ONE/(gamma * h) + A(n,n)
        enddo

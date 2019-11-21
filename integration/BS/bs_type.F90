@@ -24,6 +24,7 @@ module bs_type_module
      integer :: kopt
 
      real(rt) :: y(neqs)
+     real(rt) :: jac(neqs, neqs)
      real(rt) :: atol(neqs), rtol(neqs)
      real(rt) :: upar(n_rpar_comps)
      real(rt) :: t, dt, tmax

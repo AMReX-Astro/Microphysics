@@ -101,28 +101,28 @@
     call vode_to_burn(y, rpar, state)
 
     state % time = time
-    call network_jac(state, rpar(irp_t0))
+    call network_jac(state, pd, rpar(irp_t0))
 
     ! We integrate X, not Y
     do n = 1, nspec_evolve
-       state % jac(n,:) = state % jac(n,:) * aion(n)
-       state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+       pd(n,:) = pd(n,:) * aion(n)
+       pd(:,n) = pd(:,n) * aion_inv(n)
     enddo
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       state % jac(:,:) = react_boost * state % jac(:,:)
+       pd(:,:) = react_boost * pd(:,:)
     endif
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
-       state % jac(net_itemp,:) = ZERO
+       pd(net_itemp,:) = ZERO
     endif
 
     if (.not. integrate_energy) then
-       state % jac(net_ienuc,:) = ZERO
+       pd(net_ienuc,:) = ZERO
     endif
 
-    call burn_to_vode(state, y, rpar, jac = pd)
+    call burn_to_vode(state, y, rpar)
 
   end subroutine jac
