@@ -93,7 +93,7 @@ contains
   ! within the actual_jac routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  subroutine temperature_jac(state)
+  subroutine temperature_jac(state, jac)
 
     !$acc routine seq
 
@@ -107,7 +107,7 @@ contains
     implicit none
 
     type (burn_t) :: state
-
+    real(rt) :: jac(neqs, neqs)
     real(rt) :: scratch, cspec, cspecInv
 
     integer :: k
@@ -149,21 +149,21 @@ contains
        ! d(itemp)/d(yi)
        
        do k = 1, nspec_evolve
-          call get_jac_entry(state, net_ienuc, k, scratch)
+          call get_jac_entry(jac, net_itemp, k, scratch)
           scratch = scratch * cspecInv
-          call set_jac_entry(state, net_itemp, k, scratch)
+          call set_jac_entry(jac, net_itemp, k, scratch)
        enddo
 
        ! d(itemp)/d(temp)
 
-       call get_jac_entry(state, net_ienuc, net_itemp, scratch)
+       call get_jac_entry(jac, net_ienuc, net_itemp, scratch)
        scratch = scratch * cspecInv
-       call set_jac_entry(state, net_itemp, net_itemp, scratch)
+       call set_jac_entry(jac, net_itemp, net_itemp, scratch)
 
        ! d(itemp)/d(enuc)
 
        scratch = ZERO
-       call set_jac_entry(state, net_itemp, net_ienuc, scratch)
+       call set_jac_entry(jac, net_itemp, net_ienuc, scratch)
 
     endif
 

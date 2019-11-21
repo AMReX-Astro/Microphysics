@@ -208,7 +208,7 @@ contains
 
   ! Given a burn state, fill the rpar and integration state data.
 
-  subroutine burn_to_vode(state, y, rpar, ydot, jac)
+  subroutine burn_to_vode(state, y, rpar, ydot)
 
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve
@@ -223,7 +223,7 @@ contains
     type (burn_t) :: state
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(neqs)
-    real(rt), optional :: ydot(neqs), jac(neqs, neqs)
+    real(rt), optional :: ydot(neqs)
 
     integer :: n
 
@@ -249,10 +249,6 @@ contains
 
     if (present(ydot)) then
        ydot = state % ydot
-    endif
-
-    if (present(jac)) then
-       jac = state % jac
     endif
 
     if (state % self_heat) then
