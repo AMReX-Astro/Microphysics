@@ -144,17 +144,18 @@ contains
 
        endif
 
-       cspecInv = ONE / cspec       
+       cspecInv = ONE / cspec
 
        ! d(itemp)/d(yi)
-       
+
        do k = 1, nspec_evolve
           call get_jac_entry(jac, net_itemp, k, scratch)
           scratch = scratch * cspecInv
           call set_jac_entry(jac, net_itemp, k, scratch)
        enddo
 
-       ! d(itemp)/d(temp)
+       ! d(itemp)/d(temp) -- we get this from the equation for d (denuc / dt) / dT
+       ! since dT/dt = 1/c_x denuc/dt in our formalism
 
        call get_jac_entry(jac, net_ienuc, net_itemp, scratch)
        scratch = scratch * cspecInv
