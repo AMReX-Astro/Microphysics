@@ -58,6 +58,11 @@ subroutine do_eos(lo, hi, &
            eos_state % T = temp_zone
            eos_state % xn(:) = xn_zone(:)
 
+           ! For the weaklib EOS, set the electron fraction from probin
+           if (trim(eos_name) == "weaklib") then
+              eos_state % y_e = weaklib_electron_fraction
+           endif
+
            ! store default state
            sp(ii, jj, kk, p % irho) = dens_zone
            sp(ii, jj, kk, p % itemp) = temp_zone
