@@ -1,18 +1,26 @@
 module linpack_module
-  
+
+  use cuvode_parameters_module, only: VODE_NEQS
+
   implicit none
-  
+
 contains
 
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif  
-  subroutine dgesl(a,lda,n,ipvt,b,job)
+  subroutine dgesl(a, ipvt, b)
 
-    use blas_module, only: daxpy
+    implicit none
 
-    integer lda,n,ipvt(:),job
-    double precision a(lda,n),b(:)
+    integer, parameter :: lda = VODE_NEQS
+    integer, parameter :: n = VODE_NEQS
+    integer, parameter :: job = 0
+
+    integer, intent(in) :: ipvt(n)
+    double precision, intent(in) :: a(lda,n)
+    double precision, intent(inout) :: b(n)
+
     ! 
     !      dgesl solves the double precision system
     !      a * x = b  or  trans(a) * x = b
@@ -64,10 +72,6 @@ contains
     !      linpack. this version dated 08/14/78 .
     !      cleve moler, university of new mexico, argonne national lab.
     ! 
-    !      subroutines and functions
-    ! 
-    !      blas vdaxpy,vddot
-    ! 
     !      internal variables
     ! 
     double precision t
@@ -88,7 +92,7 @@ contains
        b(l) = b(k)
        b(k) = t
 10     continue
-       call daxpy(n-k,t,a(k+1:n,k),1,b(k+1:n),1)
+       b(k+1:n) = b(k+1:n) + t * a(k+1:n,k)
     enddo
 30  continue
     ! 
@@ -98,7 +102,7 @@ contains
        k = n + 1 - kb
        b(k) = b(k)/a(k,k)
        t = -b(k)
-       call daxpy(k-1,t,a(1:k-1,k),1,b(1:k-1),1)
+       b(1:k-1) = b(1:k-1) + t * a(1:k-1,k)
     enddo
     go to 100
 50  continue
@@ -107,7 +111,7 @@ contains
     !         first solve  trans(u)*y = b
     ! 
     do k = 1, n
-       t = vddot(k-1,a(1:k-1,k),1,b(1:k-1),1)
+       t = sum(a(1:k-1,k) * b(1:k-1))
        b(k) = (b(k) - t)/a(k,k)
     enddo
     ! 
@@ -116,7 +120,7 @@ contains
     if (nm1 .lt. 1) goto 90
     do kb = 1, nm1
        k = n - kb
-       b(k) = b(k) + vddot(n-k,a(k+1:n,k),1,b(k+1:n),1)
+       b(k) = b(k) + sum(a(k+1:n,k) * b(k+1:n))
        l = ipvt(k)
        if (l .eq. k) go to 70
        t = b(l)
@@ -131,10 +135,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  SUBROUTINE DGBFA (ABD, LDA, N, ML, MU, IPVT, INFO)
-
-    use blas_module, only: daxpy, dscal
-    use blas_module, only: idamax ! function
+  subroutine DGBFA (ABD, LDA, ML, MU, IPVT, INFO)
 
     ! ***BEGIN PROLOGUE  DGBFA
     ! ***PURPOSE  Factor a band matrix using Gaussian elimination.
@@ -218,7 +219,6 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  DAXPY, DSCAL, IDAMAX
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -228,9 +228,10 @@ contains
     !    900326  Removed duplicate information from DESCRIPTION section.
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
-    ! ***END PROLOGUE  DGBFA
-    INTEGER LDA,N,ML,MU,IPVT(:),INFO
-    DOUBLE PRECISION ABD(LDA, N)
+  ! ***END PROLOGUE  DGBFA
+    integer, parameter :: N = VODE_NEQS
+    INTEGER LDA,ML,MU,IPVT(:),INFO
+    DOUBLE PRECISION ABD(LDA, N), dABD(LDA)
     ! 
     DOUBLE PRECISION T
     INTEGER I,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
@@ -275,7 +276,7 @@ contains
        !         FIND L = PIVOT INDEX
        ! 
        LM = MIN(ML,N-K)
-       L = IDAMAX(LM+1,ABD(M:M+LM,K),1) + M - 1
+       L = idamax(LM+1,ABD(M:M+LM,K)) + M - 1
        IPVT(K) = L + K - M
        ! 
        !         ZERO PIVOT IMPLIES THIS COLUMN ALREADY TRIANGULARIZED
@@ -293,7 +294,7 @@ contains
        !            COMPUTE MULTIPLIERS
        ! 
        T = -1.0D0/ABD(M,K)
-       CALL DSCAL(LM,T,ABD(M+1:M+LM,K),1)
+       ABD(M+1:M+LM,K) = ABD(M+1:M+LM,K) * T
        ! 
        !            ROW ELIMINATION WITH COLUMN INDEXING
        ! 
@@ -308,7 +309,8 @@ contains
           ABD(L,J) = ABD(MM,J)
           ABD(MM,J) = T
 70        CONTINUE
-          CALL DAXPY(LM,T,ABD(M+1:M+LM,K),1,ABD(MM+1:MM+LM,J),1)
+          dABD(M+1:M+LM) = T * ABD(M+1:M+LM,K)
+          ABD(MM+1:MM+LM,J) = ABD(MM+1:MM+LM,J) + dABD(M+1:M+LM)
        end do
 90     CONTINUE
        GO TO 110
@@ -325,9 +327,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  SUBROUTINE DGBSL (ABD, LDA, N, ML, MU, IPVT, B, JOB)
-
-    use blas_module, only: daxpy, ddot ! function
+  SUBROUTINE DGBSL (ABD, LDA, ML, MU, IPVT, B, JOB)
 
     ! ***BEGIN PROLOGUE  DGBSL
     ! ***PURPOSE  Solve the real band system A*X=B or TRANS(A)*X=B using
@@ -393,7 +393,6 @@ contains
     ! 
     ! ***REFERENCES  J. J. Dongarra, J. R. Bunch, C. B. Moler, and G. W.
     !                  Stewart, LINPACK Users' Guide, SIAM, 1979.
-    ! ***ROUTINES CALLED  DAXPY, DDOT
     ! ***REVISION HISTORY  (YYMMDD)
     !    780814  DATE WRITTEN
     !    890531  Changed all specific intrinsics to generic.  (WRB)
@@ -404,7 +403,8 @@ contains
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBSL
-    INTEGER LDA,N,ML,MU,IPVT(:),JOB
+    integer, parameter :: N = VODE_NEQS
+    INTEGER LDA,ML,MU,IPVT(:),JOB
     DOUBLE PRECISION ABD(LDA,N),B(:)
     ! 
     DOUBLE PRECISION T
@@ -428,7 +428,7 @@ contains
        B(L) = B(K)
        B(K) = T
 10     CONTINUE
-       CALL DAXPY(LM,T,ABD(M+1:M+LM,K),1,B(K+1:K+LM),1)
+       B(K+1:K+LM) = B(K+1:K+LM) + T * ABD(M+1:M+LM,K)
     end do
 30  CONTINUE
     ! 
@@ -441,7 +441,7 @@ contains
        LA = M - LM
        LB = K - LM
        T = -B(K)
-       CALL DAXPY(LM,T,ABD(LA:LA + LM - 1,K),1,B(LB:LB + LM - 1),1)
+       B(LB:LB+LM-1) = B(LB:LB+LM-1) + T * ABD(LA:LA+LM-1,K)
     end do
     GO TO 100
 50  CONTINUE
@@ -453,7 +453,7 @@ contains
        LM = MIN(K,M) - 1
        LA = M - LM
        LB = K - LM
-       T = DDOT(LM,ABD(LA:LA + LM - 1,K),1,B(LB:LB + LM - 1),1)
+       T = sum(ABD(LA:LA + LM - 1,K) * B(LB:LB + LM - 1))
        B(K) = (B(K) - T)/ABD(M,K)
     end do
     ! 
@@ -464,7 +464,7 @@ contains
     DO KB = 1, NM1
        K = N - KB
        LM = MIN(ML,N-K)
-       B(K) = B(K) + DDOT(LM,ABD(M+1:M+LM,K),1,B(K+1:K+LM),1)
+       B(K) = B(K) + sum(ABD(M+1:M+LM,K) * B(K+1:K+LM))
        L = IPVT(K)
        IF (L .EQ. K) GO TO 70
        T = B(L)
@@ -480,12 +480,11 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dgefa (a,lda,n,ipvt,info)
+  subroutine dgefa (a, ipvt, info)
 
-    use blas_module, only: daxpy, dscal
-    use blas_module, only: idamax ! function
-
-    integer lda,n,ipvt(:),info
+    integer, parameter :: lda = VODE_NEQS
+    integer, parameter :: n = VODE_NEQS
+    integer ipvt(n), info
     double precision a(lda, n)
     ! 
     !      dgefa factors a double precision matrix by gaussian elimination.
@@ -529,7 +528,7 @@ contains
     ! 
     !      subroutines and functions
     ! 
-    !      blas vdaxpy,dscal,idamax
+    !      blas vdaxpy
     ! 
     !      internal variables
     ! 
@@ -550,7 +549,7 @@ contains
        ! 
        !         find l = pivot index
        ! 
-       l = idamax(n-k+1,a(k:n,k),1) + k - 1
+       l = idamax(n-k+1,a(k:n,k)) + k - 1
        ipvt(k) = l
        ! 
        !         zero pivot implies this column already triangularized
@@ -568,7 +567,7 @@ contains
        !            compute multipliers
        ! 
        t = -1.0d0/a(k,k)
-       call dscal(n-k,t,a(k+1:n,k),1)
+       a(k+1:n,k) = a(k+1:n,k) * t
        ! 
        !            row elimination with column indexing
        ! 
@@ -578,7 +577,7 @@ contains
           a(l,j) = a(k,j)
           a(k,j) = t
 20        continue
-          call daxpy(n-k,t,a(k+1:n,k),1,a(k+1:n,j),1)
+          a(k+1:n,j) = a(k+1:n,j) + t * a(k+1:n,k)
        enddo
        goto 50
 40     continue
@@ -593,54 +592,26 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  function vddot (n,dx,incx,dy,incy) result(dotval)
+  function idamax(N, x) result(index)
 
-    ! 
-    !      forms the dot product of two arrays.
-    !      uses unrolled loops for increments equal to one.
-    !      jack dongarra, linpack, 3/11/78.
-    !
-    double precision dotval
-    double precision dx(:),dy(:),dtemp
-    integer i,incx,incy,ix,iy,m,mp1,n
+    implicit none
+
+    integer, intent(in) :: N
+    double precision, intent(in) :: x(N)
+
+    double precision :: dmax
+    integer :: i, index
+
     !$gpu
-    ! 
-    dotval = 0.0d0
-    dtemp = 0.0d0
-    if (n.le.0) return
-    if (incx.eq.1.and.incy.eq.1) go to 20
-    ! 
-    !      code for unequal increments or equal increments not equal to 1
-    ! 
-    ix = 1
-    iy = 1
-    if (incx.lt.0) ix = (-n+1)*incx + 1
-    if (incy.lt.0) iy = (-n+1)*incy + 1
-    do i = 1,n
-       dtemp = dtemp + dx(ix)*dy(iy)
-       ix = ix + incx
-       iy = iy + incy
-    enddo
-    dotval = dtemp
-    return
-    ! 
-    !      code for both increments equal to 1
-    ! 
-    ! 
-    !      clean-up loop
-    ! 
-20  m = mod(n,5)
-    if ( m .eq. 0 ) go to 40
-    do i = 1,m
-       dtemp = dtemp + dx(i)*dy(i)
-    enddo
-    if( n .lt. 5 ) go to 60
-40  mp1 = m + 1
-    do i = mp1,n,5
-       dtemp = dtemp + dx(i)*dy(i) + dx(i + 1)*dy(i + 1) + &
-            dx(i + 2)*dy(i + 2) + dx(i + 3)*dy(i + 3) + dx(i + 4)*dy(i + 4)
-    enddo
-60  dotval = dtemp
-  end function vddot
-  
+
+    index = 1
+
+    dmax = abs(x(1))
+    DO i = 2, N
+       IF (abs(X(i)) .le. dmax) cycle
+       index = i
+       dmax = abs(x(i))
+    end do
+  end function idamax
+
 end module linpack_module

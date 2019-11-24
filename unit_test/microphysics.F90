@@ -2,10 +2,11 @@ module microphysics_module
 
   use network
   use eos_module, only : eos_init
+#ifdef REACTIONS
   use actual_rhs_module, only : actual_rhs_init
-
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
   use actual_burner_module, only : actual_burner_init
+#endif
 #endif
 
 #ifdef CONDUCTIVITY
@@ -32,10 +33,11 @@ contains
     endif
 
     call network_init()
+#ifdef REACTIONS
     call actual_rhs_init()
-
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
     call actual_burner_init()
+#endif
 #endif
 
 #ifdef CONDUCTIVITY

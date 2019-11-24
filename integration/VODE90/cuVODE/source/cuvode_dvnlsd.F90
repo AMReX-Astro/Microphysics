@@ -4,7 +4,6 @@ module cuvode_dvnlsd_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
   use linpack_module
 
   use cuvode_dvjac_module
@@ -82,7 +81,11 @@ contains
     !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
     !
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only: f_rhs, jac
+#else
     use vode_rhs_module, only: f_rhs, jac
+#endif
 #ifdef CLEAN_INTEGRATOR_CORRECTION
     use vode_type_module, only: clean_state
 #endif
@@ -196,7 +199,7 @@ contains
     IF (IERSL .GT. 0) GO TO 410
     IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
        CSCALE = TWO/(ONE + vstate % RC)
-       CALL DSCALN (VODE_NEQS, CSCALE, vstate % Y, 1)
+       vstate % Y(:) = vstate % Y(:) * CSCALE
     ENDIF
 
 #ifdef CLEAN_INTEGRATOR_CORRECTION
@@ -217,7 +220,7 @@ contains
 #endif
 
     DEL = DVNORM (vstate % Y, rwork % EWT)
-    call daxpyn(VODE_NEQS, ONE, vstate % Y, 1, rwork % acor, 1)
+    rwork % acor(:) = rwork % acor(:) + vstate % Y(:)
 
     do I = 1,VODE_NEQS
        vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)

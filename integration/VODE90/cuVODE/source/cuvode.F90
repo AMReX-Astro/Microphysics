@@ -5,7 +5,6 @@ module cuvode_module
   use cuvode_types_module, only: dvode_t, rwork_t
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
   use linpack_module
 #ifdef AMREX_USE_CUDA
   use cudafor
@@ -33,7 +32,11 @@ contains
 #ifndef AMREX_USE_CUDA
     use cuvode_output_module, only: xerrwd
 #endif
+#ifdef TRUE_SDC
+    use sdc_vode_rhs_module, only: f_rhs, jac
+#else
     use vode_rhs_module, only: f_rhs, jac
+#endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
@@ -399,7 +402,7 @@ contains
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-    CALL DSCALN (VODE_NEQS, H0, rwork % YH(:,2), 1)
+    rwork % YH(:,2) = rwork % YH(:,2) * H0
 
     GO TO 270
 

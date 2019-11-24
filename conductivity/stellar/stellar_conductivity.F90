@@ -4,6 +4,9 @@ module actual_conductivity_module
 
   implicit none
 
+  character (len=64), public :: cond_name = "stellar"
+
+
 contains
 
   subroutine actual_conductivity_init()

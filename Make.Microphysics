@@ -5,6 +5,8 @@ CVODE_HOME ?= /path/to/CVODE
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
 
+CUDA_VERBOSE ?= FALSE
+
 # default is not to compile in the conductivity
 USE_CONDUCTIVITY ?= FALSE
 
@@ -69,8 +71,8 @@ ifeq ($(USE_EXTRA_THERMO), TRUE)
   DEFINES += -DEXTRA_THERMO
 endif
 
-ifeq ($(USE_SDC), TRUE)
-  DEFINES += -DSDC
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+  DEFINES += -DSIMPLIFIED_SDC
 endif
 
 ifeq ($(USE_REACT), TRUE)

@@ -1,4 +1,4 @@
-ifdef SDC
+ifdef SIMPLIFIED_SDC
   f90sources += numerical_jacobian_sdc.f90
 else
   F90sources += numerical_jacobian.F90

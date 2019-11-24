@@ -47,7 +47,7 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical          :: deriva = .false.
+    logical          :: deriva
 
     double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
     double precision :: enuc
@@ -56,6 +56,8 @@ contains
     double precision :: y(nspec), ydot_species(nspec)
 
     !$gpu
+
+    deriva = .false.
 
     call evaluate_rates(state, rr)
 
@@ -106,7 +108,7 @@ contains
     type (burn_t)    :: state
     type (rate_t)    :: rr
 
-    logical          :: deriva = .true.
+    logical          :: deriva
 
     double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
@@ -116,6 +118,8 @@ contains
     double precision :: y(nspec), yderivs(nspec), scratch
 
     !$gpu
+
+    deriva = .true.
 
     call set_jac_zero(state)
 
@@ -148,7 +152,7 @@ contains
     call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
     do j = 1, nspec
-       b1 = ((aion(j) - abar) * abar * snuda + (zion(j) - zbar) * abar * snudz)
+       b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz)
        call get_jac_entry(state, net_ienuc, j, scratch)
        scratch = scratch - b1
        call set_jac_entry(state, net_ienuc, j, scratch)

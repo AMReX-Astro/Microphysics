@@ -1,2 +1,0 @@
-F90EXE_sources += blas_module.F90
-F90EXE_sources += linpack_module.F90

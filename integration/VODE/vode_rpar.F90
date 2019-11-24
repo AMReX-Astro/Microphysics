@@ -7,7 +7,7 @@
 
 module vode_rpar_indices
 
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
 #else
@@ -17,7 +17,7 @@ module vode_rpar_indices
   implicit none
 
 
-#ifndef SDC
+#ifndef SIMPLIFIED_SDC
   integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
   integer, parameter :: irp_dens = 1

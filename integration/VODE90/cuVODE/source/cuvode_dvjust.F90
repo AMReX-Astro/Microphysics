@@ -4,7 +4,6 @@ module cuvode_dvjust_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
-  use blas_module
 
   use cuvode_constants_module
 
@@ -172,8 +171,7 @@ contains
     ! Add correction terms to YH array. ------------------------------------
     NQP1 = vstate % NQ + 1
     do J = 3, NQP1
-       CALL DAXPYN(VODE_NEQS, vstate % EL(J), &
-            rwork % YH(1:VODE_NEQS, LP1), 1, rwork % YH(1:VODE_NEQS, J), 1)
+       rwork % YH(:,J) = rwork % YH(:,J) + vstate % EL(J) * rwork % YH(:,LP1)
     end do
     RETURN
   end subroutine dvjust
