@@ -47,6 +47,8 @@ contains
        call renormalize_species(time, y, rpar)
     endif
 
+#ifdef SDC_EVOLVE_ENERGY
+
     ! Ensure that internal energy never goes above the maximum limit
     ! provided by the EOS. Same for the internal energy implied by the
     ! total energy (which we get by subtracting kinetic energy).
@@ -64,6 +66,8 @@ contains
 
     y(SEDEN) = min(rpar(irp_SRHO) * max_e + ke, y(SEDEN))
 
+#endif
+
   end subroutine clean_state
 
 
@@ -74,6 +78,8 @@ contains
 
     !$gpu
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     ! we are always integrating from t = 0, so there is no offset
     ! time needed here.  The indexing of irp_ydot_a is based on
     ! the indices in sdc_type_module
@@ -83,6 +89,13 @@ contains
     rpar(irp_SMX) = rpar(irp_u_init-1+irp_SMX) + rpar(irp_ydot_a-1+SMX) * time
     rpar(irp_SMY) = rpar(irp_u_init-1+irp_SMY) + rpar(irp_ydot_a-1+SMY) * time
     rpar(irp_SMZ) = rpar(irp_u_init-1+irp_SMZ) + rpar(irp_ydot_a-1+SMZ) * time
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    ! Keep density consistent with the partial densities.
+    rpar(irp_SRHO) = sum(y(SFS:SFS - 1 + nspec))
+
+#endif
 
   end subroutine fill_unevolved_variables
 
@@ -95,12 +108,19 @@ contains
 
     !$gpu
 
+    ! We only renormalize species when evolving energy because
+    ! when we evolve enthalpy, we define the density as
+    ! the sum of the partial densities rho*X for each species.
+#ifdef SDC_EVOLVE_ENERGY
+
     ! update rho, rho*u, etc.
     call fill_unevolved_variables(time, y, rpar)
 
     nspec_sum = sum(y(SFS:SFS-1+nspec)) / rpar(irp_SRHO)
 
     y(SFS:SFS-1+nspec) = y(SFS:SFS-1+nspec) / nspec_sum
+
+#endif
 
   end subroutine renormalize_species
 
@@ -117,12 +137,14 @@ contains
 
     y(:) = sdc % y(1:SVAR_EVOLVE)
 
+    ! advective sources
+    rpar(irp_ydot_a:irp_ydot_a-1+SVAR) = sdc % ydot_a(:)
+
+#if defined(SDC_EVOLVE_ENERGY)
+
     ! unevolved state variables
     rpar(irp_SRHO) = sdc % y(SRHO)
     rpar(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
-
-    ! advective sources
-    rpar(irp_ydot_a:irp_ydot_a-1+SVAR) = sdc % ydot_a(:)
 
     ! initial state for unevolved variables
     rpar(irp_u_init-1+irp_SRHO) = sdc % y(SRHO)
@@ -134,6 +156,23 @@ contains
     else
        rpar(irp_T_from_eden) = -ONE
     endif
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    rpar(irp_p0)   = sdc % p0
+    rpar(irp_SRHO) = sdc % rho
+
+#endif
+
+#ifdef NONAKA_PLOT
+
+    ! bookkeeping information
+    rpar(irp_i) = sdc % i
+    rpar(irp_j) = sdc % j
+    rpar(irp_k) = sdc % k
+    rpar(irp_iter) = sdc % sdc_iter
+
+#endif
 
   end subroutine sdc_to_vode
 
@@ -151,8 +190,26 @@ contains
     ! unevolved state variables
     call fill_unevolved_variables(time, y, rpar)
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     sdc % y(SRHO) = rpar(irp_SRHO)
     sdc % y(SMX:SMZ) = rpar(irp_SMX:irp_SMZ)
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    sdc % p0  = rpar(irp_p0)
+    sdc % rho = rpar(irp_SRHO)
+
+#endif
+
+#ifdef NONAKA_PLOT
+
+    sdc % i = rpar(irp_i)
+    sdc % j = rpar(irp_j)
+    sdc % k = rpar(irp_k)
+    sdc % sdc_iter = rpar(irp_iter)
+
+#endif
 
   end subroutine vode_to_sdc
 
@@ -180,8 +237,16 @@ contains
     ydot(SFS:SFS-1+nspec) = ydot(SFS:SFS-1+nspec) + &
          rpar(irp_SRHO) * aion(1:nspec) * burn_state % ydot(1:nspec)
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
     ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    ydot(SENTH) = ydot(SENTH) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+
+#endif
 
   end subroutine rhs_to_vode
 
@@ -319,15 +384,37 @@ contains
 
     jac(:,:) = matmul(dRdw, dwdU)
 
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
+    jac(SFS:SFS+nspec-1,SENTH) = burn_state % jac(1:nspec,net_ienuc)
+
+    jac(SENTH,SFS:SFS+nspec-1) = burn_state % jac(net_ienuc,1:nspec)
+    jac(SENTH,SENTH) = burn_state % jac(net_ienuc,net_ienuc)
+
+    ! Scale it to match our variables. We don't need to worry about
+    ! the rho dependence, since every one of the SDC variables is
+    ! linear in rho, so we just need to focus on the Y --> X
+    ! conversion.
+    do n = 1, nspec
+       jac(SFS+n-1,:) = jac(SFS+n-1,:) * aion(n)
+       jac(:,SFS+n-1) = jac(:,SFS+n-1) * aion_inv(n)
+    end do
+#endif
+
   end subroutine jac_to_vode
 
 
   subroutine vode_to_burn(time, y, rpar, burn_state)
 
-    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt
+    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_input_rp, eos_input_rh
     use eos_type_module, only : eos_get_small_temp, eos_get_max_temp
     use eos_module, only : eos
     use burn_type_module, only : eos_to_burn, burn_t
+
+#ifdef SDC_EVOLVE_ENTHALPY
+    use meth_params_module, only: use_tfromp
+#endif
 
     type (burn_t) :: burn_state
     real(rt), intent(in) :: time
@@ -348,11 +435,24 @@ contains
     eos_state % rho = rpar(irp_SRHO)
     eos_state % xn  = y(SFS:SFS+nspec-1) * rhoInv
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     if (rpar(irp_T_from_eden) > ZERO) then
        eos_state % e = (y(SEDEN) - HALF*rhoInv*sum(rpar(irp_SMX:irp_SMZ)**2)) * rhoInv
     else
        eos_state % e = y(SEINT) * rhoInv
     endif
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    if (use_tfromp) then
+       ! NOT SURE IF THIS IS VALID
+       eos_state % p = rpar(irp_p0)
+    else
+       eos_state % h = y(SENTH) * rhoInv
+    endif
+
+#endif
 
     ! Give the temperature an initial guess -- use the geometric mean
     ! of the minimum and maximum temperatures.
@@ -362,7 +462,22 @@ contains
 
     eos_state % T = sqrt(min_temp * max_temp)
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     call eos(eos_input_re, eos_state)
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    if (use_tfromp) then
+       ! NOT SURE IF THIS IS VALID
+       ! used to be an Abort statement
+       call eos(eos_input_rp, eos_state)
+    else
+       call eos(eos_input_rh, eos_state)
+    endif
+
+#endif
+
     call eos_to_burn(eos_state, burn_state)
 
     burn_state % time = time
@@ -372,6 +487,20 @@ contains
     else
        burn_state % self_heat = .false.       
     endif
+
+#ifdef SDC_EVOLVE_ENTHALPY
+
+    burn_state % p0 = rpar(irp_p0)
+
+#endif
+
+#ifdef NONAKA_PLOT
+
+    burn_state % i = rpar(irp_i)
+    burn_state % j = rpar(irp_j)
+    burn_state % k = rpar(irp_k)
+
+#endif
 
   end subroutine vode_to_burn
 

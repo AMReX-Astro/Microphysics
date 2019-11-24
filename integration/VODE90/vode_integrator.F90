@@ -35,7 +35,6 @@ contains
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
          call_eos_in_rhs, dt_crit, ode_max_steps
-    use vode_rhs_module, only: f_rhs, jac
     use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
     use eos_module, only: eos

@@ -14,6 +14,7 @@ contains
     use amrex_constants_module, only: ZERO
     use network_rhs_module, only: network_rhs
     use bs_type_module, only: bs_t, clean_state, rhs_to_bs, bs_to_burn
+    use bs_rpar_indices, only: irp_t0
 
     implicit none
 
@@ -37,7 +38,7 @@ contains
 
     ! Call the specific network routine to get its RHS.
 
-    call network_rhs(burn)
+    call network_rhs(burn, bs % u(irp_t0))
 
     ! Feed the network evaluation into the integration.
 

@@ -18,7 +18,7 @@ contains
     use extern_probin_module, only: renormalize_abundances, integrate_temperature, integrate_energy, react_boost
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
                                burn_to_vbdf, vbdf_to_burn
-    use vbdf_rpar_indices, only: irp_y_init, irp_t_sound
+    use vbdf_rpar_indices, only: irp_y_init, irp_t_sound, irp_t0
 
     implicit none
 
@@ -55,7 +55,7 @@ contains
     ! Call the specific network routine to get the RHS.
 
     call vbdf_to_burn(ts, burn_state)
-    call network_rhs(burn_state)
+    call network_rhs(burn_state, ts % upar(irp_t0,1))
 
     ! We integrate X not Y, so convert here
     burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
@@ -99,7 +99,7 @@ contains
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
-    use vbdf_rpar_indices, only: irp_y_init, irp_t_sound
+    use vbdf_rpar_indices, only: irp_y_init, irp_t_sound, irp_t0
 
     implicit none
 
@@ -121,7 +121,7 @@ contains
 
     if (jacobian == 1) then
 
-       call network_jac(state)
+       call network_jac(state, ts % upar(irp_t0,1))
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve
