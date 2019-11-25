@@ -146,6 +146,12 @@ module eos_type_module
     real(rt) :: dpde
     real(rt) :: dpdr_e
 
+#ifdef NUCLEAR_EOS
+    real(rt) :: electron_chemical_potential
+    real(rt) :: proton_chemical_potential
+    real(rt) :: neutron_chemical_potential
+#endif
+
     real(rt) :: cv
     real(rt) :: cp
     real(rt) :: xne
@@ -209,6 +215,12 @@ contains
     to_eos % dsdr = from_eos % dsdr
     to_eos % dpde = from_eos % dpde
     to_eos % dpdr_e = from_eos % dpdr_e
+
+#ifdef NUCLEAR_EOS
+    to_eos % electron_chemical_potential = from_eos % electron_chemical_potential
+    to_eos % proton_chemical_potential   = from_eos % proton_chemical_potential
+    to_eos % neutron_chemical_potential  = from_eos % neutron_chemical_potential
+#endif
 
     to_eos % cv = from_eos % cv
     to_eos % cp = from_eos % cp
