@@ -1,5 +1,8 @@
 #!/usr/bin/sh
-cd tmp_build_dir/o/3d.gnu.EXE
+# Usage in an AMReX makefile (after including Make.defs):
+#       $ sh dof2py.sh $(objEXETempDir)
+# First argument: AMReX temporary build directory holding compiled object files
+cd $1
 f2py3 -c -m _StarKillerMicrophysics *.o f90wrap_*.f90 -lstdc++
 cd ../../..
-mv tmp_build_dir/o/3d.gnu.EXE/*.so .
+mv $1/*.so .

@@ -53,9 +53,9 @@ build_status:
 starkiller_library: $(executable)
 ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
 	@echo Wrapping sources with f90wrap ...
-	sh dowrap.sh
+	sh dowrap.sh $(f77EXETempDir) $(objEXETempDir)
 	@echo Linking objects with f2py ...
-	sh dof2py.sh
+	sh dof2py.sh $(objEXETempDir)
 endif
 
 # Use a coarse grained OMP approach
@@ -131,12 +131,12 @@ endif
 
 ifeq ($(USE_WEAKLIB), TRUE)
   DEFINES += -DMICROPHYSICS_WEAKLIB
+  DEFINES += -DNUCLEAR_EOS
 
   Blocs += $(WEAKLIB_HOME)/Distributions/Library
   Blocs += $(WEAKLIB_HOME)/Distributions/EOSSource
   Blocs += $(WEAKLIB_HOME)/Distributions/OpacitySource
 endif
-
 
 #------------------------------------------------------------------------------
 # HDF5 Library
