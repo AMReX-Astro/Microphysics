@@ -6,7 +6,7 @@ f90EXE_sources += wlKindModule.f90
 f90EXE_sources += wlGridModule.f90
 f90EXE_sources += wlThermoStateModule.f90
 f90EXE_sources += wlDependentVariablesModule.f90
-f90EXE_sources += wlInterpolationModule.f90
+F90EXE_sources += wlInterpolationModule.F90
 f90EXE_sources += wlIOModuleHDF.f90
 
 # In weaklib/Distributions/EOSSource
