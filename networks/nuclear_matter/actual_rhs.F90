@@ -40,4 +40,14 @@ contains
 
   end subroutine actual_jac
 
+  subroutine update_unevolved_species(state)
+
+    implicit none
+
+    type (burn_t)    :: state
+
+    !$gpu
+
+  end subroutine update_unevolved_species
+
 end module actual_rhs_module
