@@ -1,5 +1,8 @@
 # changes since the last release
 
+   * Simplified SDC integration now uses the same retry strategy
+     as the default (non-SDC) integration. (#215)
+
    * VODE90 can now participate in the retry strategy that was
      previously available to the VODE integrator, where it can
      switch to the BS integrator if loosening the tolerances
