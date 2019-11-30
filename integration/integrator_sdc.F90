@@ -8,7 +8,7 @@ contains
 
   subroutine integrator_init()
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
 #ifndef CUDA
     use bs_integrator_module, only: bs_integrator_init
@@ -23,7 +23,7 @@ contains
 
     implicit none
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     call vode_integrator_init()
 #ifndef CUDA
     call bs_integrator_init()
@@ -44,7 +44,7 @@ contains
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
 #ifndef CUDA
     use bs_integrator_module, only: bs_integrator
@@ -80,7 +80,7 @@ contains
     status % atol_enuc = atol_enuc
     status % rtol_enuc = rtol_enuc
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0)
     call vode_integrator(state_in, state_out, dt, time, status)
 #elif INTEGRATOR == 1
     call bs_integrator(state_in, state_out, dt, time, status)
