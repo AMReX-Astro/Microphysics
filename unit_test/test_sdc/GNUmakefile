@@ -24,7 +24,8 @@ EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox13
-INTEGRATOR_DIR := VODE
+INTEGRATOR_DIR := VODE90
+DEFINES += -DSDC_EVOLVE_ENERGY
 
 CONDUCTIVITY_DIR := stellar
 

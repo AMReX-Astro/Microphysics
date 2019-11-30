@@ -16,7 +16,7 @@ contains
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
-    use bs_rpar_indices, only: irp_y_init
+    use bs_rpar_indices, only: irp_y_init, irp_t0
 
     implicit none
 
@@ -33,7 +33,7 @@ contains
 
     if (jacobian == 1) then
 
-       call network_jac(bs % burn_s)
+       call network_jac(bs % burn_s, bs % upar(irp_t0))
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve

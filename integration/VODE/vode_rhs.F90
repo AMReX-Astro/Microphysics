@@ -46,8 +46,8 @@
 
     call vode_to_burn(y, rpar, burn_state)
 
-    burn_state % time = rpar(irp_t0) + time
-    call network_rhs(burn_state)
+    burn_state % time = time
+    call network_rhs(burn_state, rpar(irp_t0))
 
     ! We integrate X, not Y
     burn_state % ydot(1:nspec_evolve) = &
@@ -99,8 +99,9 @@
     ! Call the specific network routine to get the Jacobian.
 
     call vode_to_burn(y, rpar, state)
-    state % time = rpar(irp_t0) + time
-    call network_jac(state)
+
+    state % time = time
+    call network_jac(state, rpar(irp_t0))
 
     ! We integrate X, not Y
     do n = 1, nspec_evolve

@@ -42,7 +42,7 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   ! call the specific network to get the RHS
 
-  call network_rhs(burn_state)
+  call network_rhs(burn_state, rpar(irp_t0))
 
   ! convert back to the vode type -- this will add the advective terms
 
@@ -88,7 +88,7 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   state % time = time
 
   ! call the analytic Jacobian
-  call network_jac(state)
+  call network_jac(state, rpar(irp_t0))
 
   ! convert to the system we are using
   call jac_to_vode(time, state, y, pd, rpar)

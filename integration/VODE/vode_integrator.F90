@@ -83,6 +83,10 @@ contains
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 
+#ifdef NONAKA_PLOT
+    use nonaka_plot_module
+#endif
+
     implicit none
 
     ! Input arguments
@@ -214,7 +218,7 @@ contains
 
     rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
-    ! Set the time offset -- this converts between the local integration 
+    ! Set the time offset -- this converts between the local integration
     ! time and the simulation time
 
     rpar(irp_t0) = time
@@ -325,6 +329,11 @@ contains
 
     ! Store the final data, and then normalize abundances.
     call vode_to_burn(y, rpar, state_out)
+
+#ifdef NONAKA_PLOT
+    state_out % time = local_time
+    call nonaka_rhs(state_out, time, .true.)
+#endif
 
     ! Get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
