@@ -7,6 +7,11 @@ include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 ifeq ($(USE_REACT), TRUE)
 
+ifeq ($(INTEGRATOR_DIR), VODE90)
+  override INTEGRATOR_DIR = VODE
+  $(warn VODE90 has been renamed VODE)
+endif
+
 ifneq ($(INTEGRATOR_DIR), VODE)
 
   INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/LINPACK

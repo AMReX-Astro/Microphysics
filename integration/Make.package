@@ -13,7 +13,7 @@ else ifeq ($(INTEGRATOR_DIR),VBDF)
   INTEGRATOR_NUM := 2
 else ifeq ($(INTEGRATOR_DIR),VODE90)
   $(warn VODE90 has been renamed VODE)
-  INTEGRATOR_DIR = VODE
+  override INTEGRATOR_DIR := VODE
   INTEGRATOR_NUM := 0
 endif
 
