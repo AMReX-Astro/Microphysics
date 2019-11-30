@@ -10,9 +10,9 @@ nucleosynthesis.
 
   * Compile the unit test:
 
-    `make -j NETWORK_DIR=ignition_reaclib/URCA-simple INTEGRATOR_DIR=VODE90`
+    `make -j NETWORK_DIR=ignition_reaclib/URCA-simple INTEGRATOR_DIR=VODE`
 
-    This builds an executable that uses the `VODE90` ODE integrator to
+    This builds an executable that uses the `VODE` ODE integrator to
     solve the differential equations corresponding to the reaction
     network `ignition_reaclib/URCA-simple`.  You can experiment with
     other networks and integrators too.
