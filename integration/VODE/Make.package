@@ -17,7 +17,7 @@ endif
 F90EXE_sources += cuvode_parameters.F90
 F90EXE_sources += vode_rpar.F90
 
-VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source/
+VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source/
 include $(VODE_SOURCE_DIR)/Make.package
 
 INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
