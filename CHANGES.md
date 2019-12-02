@@ -1,4 +1,4 @@
-# changes since the last release
+# 19.12
 
    * Simplified SDC integration now uses the same retry strategy
      as the default (non-SDC) integration. (#215)
