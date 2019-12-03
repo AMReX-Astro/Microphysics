@@ -18,7 +18,7 @@ contains
 
   subroutine vode_integrator(state_in, state_out, dt, time, status)
 
-    use integration_data
+    use integration_data, only: integration_status_t
 
     implicit none
 
