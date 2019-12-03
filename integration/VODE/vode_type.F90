@@ -1,18 +1,18 @@
 module vode_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
-  use burn_type_module, only: neqs
+  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
+  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
 
-  integer, parameter :: VODE_NEQS = neqs
-
 contains
-
+  
   subroutine clean_state(y, rpar)
 
+    !$acc routine seq
+
     use amrex_constants_module, only: ONE
-    use actual_network, only: nspec, nspec_evolve
+    use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs, net_itemp
     use vode_rpar_indices, only: n_rpar_comps
     use eos_type_module, only : eos_get_small_temp
@@ -23,6 +23,8 @@ contains
     real(rt) :: y(neqs), rpar(n_rpar_comps)
 
     real(rt) :: small_temp
+
+    !$gpu
 
     ! Ensure that mass fractions always stay positive and less than or equal to 1.
 
@@ -45,7 +47,9 @@ contains
 
   subroutine renormalize_species(y, rpar)
 
-    use network, only: nspec, nspec_evolve
+    !$acc routine seq
+    
+    use network, only: aion, aion_inv, nspec, nspec_evolve
     use burn_type_module, only: neqs
     use vode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
@@ -54,6 +58,8 @@ contains
     real(rt) :: y(neqs), rpar(n_rpar_comps)
 
     real(rt) :: nspec_sum
+
+    !$gpu
 
     nspec_sum = &
          sum(y(1:nspec_evolve)) + &
@@ -68,6 +74,8 @@ contains
 
   subroutine update_thermodynamics(y, rpar)
 
+    !$acc routine seq
+    
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt
@@ -81,6 +89,8 @@ contains
     real(rt) :: y(neqs), rpar(n_rpar_comps)
 
     type (eos_t) :: eos_state
+
+    !$gpu
 
     ! Several thermodynamic quantities come in via rpar -- note: these
     ! are evaluated at the start of the integration, so if things change
@@ -139,7 +149,10 @@ contains
 
   subroutine vode_to_eos(state, y, rpar)
 
-    use network, only: nspec, nspec_evolve
+    !$acc routine seq
+
+    use integrator_scaling_module, only: dens_scale, temp_scale
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -151,8 +164,10 @@ contains
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(neqs)
 
-    state % rho     = rpar(irp_dens)
-    state % T       = y(net_itemp)
+    !$gpu
+
+    state % rho     = rpar(irp_dens) * dens_scale
+    state % T       = y(net_itemp) * temp_scale
 
     state % xn(1:nspec_evolve) = y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
@@ -174,8 +189,10 @@ contains
 
   subroutine eos_to_vode(state, y, rpar)
 
-    use amrex_fort_module, only : rt => amrex_real
-    use network, only: nspec, nspec_evolve
+    !$acc routine seq
+
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
@@ -187,8 +204,10 @@ contains
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(neqs)
 
-    rpar(irp_dens) = state % rho
-    y(net_itemp) = state % T
+    !$gpu
+
+    rpar(irp_dens) = state % rho * inv_dens_scale
+    y(net_itemp) = state % T * inv_temp_scale
 
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
@@ -210,6 +229,9 @@ contains
 
   subroutine burn_to_vode(state, y, rpar, ydot)
 
+    !$acc routine seq
+
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -225,15 +247,16 @@ contains
     real(rt)    :: y(neqs)
     real(rt), optional :: ydot(neqs)
 
-    integer :: n
+    !$gpu
 
-    rpar(irp_dens) = state % rho
-    y(net_itemp) = state % T
+    rpar(irp_dens) = state % rho * inv_dens_scale
+    y(net_itemp) = state % T * inv_temp_scale
 
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
-    y(net_ienuc)                             = state % e
+    y(net_ienuc)                             = state % e * inv_ener_scale
+
     rpar(irp_cp)                             = state % cp
     rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
@@ -249,8 +272,21 @@ contains
 
     if (present(ydot)) then
        ydot = state % ydot
+       ydot(net_itemp) = ydot(net_itemp) * inv_temp_scale
+       ydot(net_ienuc) = ydot(net_ienuc) * inv_ener_scale
     endif
 
+<<<<<<< HEAD
+=======
+    if (present(jac)) then
+       jac = state % jac
+       jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
+       jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
+       jac(:,net_itemp) = jac(:,net_itemp) * temp_scale
+       jac(:,net_ienuc) = jac(:,net_ienuc) * ener_scale
+    endif
+
+>>>>>>> bye_bye_vode
     if (state % self_heat) then
        rpar(irp_self_heat) = ONE
     else
@@ -265,12 +301,15 @@ contains
 
   subroutine vode_to_burn(y, rpar, state)
 
+    !$acc routine seq
+
+    use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
-    use network, only: nspec, nspec_evolve
+    use network, only: nspec, nspec_evolve, aion, aion_inv
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved, irp_i, irp_j, irp_k
+                            n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -281,9 +320,11 @@ contains
 
     integer :: n
 
-    state % rho      = rpar(irp_dens)
-    state % T        = y(net_itemp)
-    state % e        = y(net_ienuc)
+    !$gpu
+
+    state % rho      = rpar(irp_dens) * dens_scale
+    state % T        = y(net_itemp) * temp_scale
+    state % e        = y(net_ienuc) * ener_scale
 
     state % xn(1:nspec_evolve) = y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
@@ -307,12 +348,6 @@ contains
     else
        state % self_heat = .false.
     endif
-
-#ifdef NONAKA_PLOT
-    state % i = rpar(irp_i)
-    state % j = rpar(irp_j)
-    state % k = rpar(irp_k)
-#endif
 
   end subroutine vode_to_burn
 
