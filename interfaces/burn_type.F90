@@ -55,9 +55,6 @@ module burn_type_module
     ! It can be reconstructed from all of the above
     ! data, particularly xn, e, and T.
 
-    real(rt) :: ydot(neqs)
-
-
     ! Whether we are self-heating or not.
 
     logical          :: self_heat
@@ -120,8 +117,6 @@ contains
 
     to_state % dcvdT = from_state % dcvdT
     to_state % dcpdT = from_state % dcpdT
-
-    to_state % ydot(1:neqs) = from_state % ydot(1:neqs)
 
     to_state % self_heat = from_state % self_heat
 

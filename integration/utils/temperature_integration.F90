@@ -18,7 +18,7 @@ contains
   ! within the actual_rhs routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  subroutine temperature_rhs(state)
+  subroutine temperature_rhs(state, ydot)
 
     !$acc routine seq
 
@@ -32,6 +32,8 @@ contains
     implicit none
 
     type (burn_t) :: state
+    real(rt), intent(inout) :: ydot(neqs)
+
     real(rt) :: cv, cp, cvInv, cpInv
 
     !$gpu
@@ -63,7 +65,7 @@ contains
 
           cvInv = ONE / cv
 
-          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
+          ydot(net_itemp) = ydot(net_ienuc) * cvInv
 
        else
 
@@ -79,7 +81,7 @@ contains
 
           cpInv = ONE / cp
 
-          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
+          ydot(net_itemp) = ydot(net_ienuc) * cpInv
 
        endif
 
