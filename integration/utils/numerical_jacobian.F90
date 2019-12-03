@@ -23,7 +23,7 @@ contains
 
     integer          :: m, n
 
-    type (burn_t)    :: state_delp, state_delm, state_0
+    type (burn_t)    :: state_delp, state_delm
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon.
     ! this balances truncation vs. roundoff error in the differencing
@@ -97,9 +97,9 @@ contains
 
     else
        call copy_burn_t(state_delp, state)
-       call copy_burn_t(state_0, state)
+       call copy_burn_t(state_delm, state)   ! note: delm here is actually just the input
 
-       state_0 % ydot(1:nspec_evolve) = state_0 % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+       state_delm % ydot(1:nspec_evolve) = state_delm % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        ! species derivatives
        do n = 1, nspec_evolve
@@ -120,7 +120,7 @@ contains
           state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
           do m = 1, neqs
-             scratch = (state_delp % ydot(m) - state_0 % ydot(m)) / h
+             scratch = (state_delp % ydot(m) - state_delm % ydot(m)) / h
              call set_jac_entry(state, m, n, scratch)
           enddo
        enddo
@@ -140,7 +140,7 @@ contains
        state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
        do m = 1, neqs
-          scratch = (state_delp % ydot(m) - state_0 % ydot(m)) / h
+          scratch = (state_delp % ydot(m) - state_delm % ydot(m)) / h
           call set_jac_entry(state, m, net_itemp, scratch)
        enddo
 
