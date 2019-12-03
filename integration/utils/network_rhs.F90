@@ -8,10 +8,10 @@ module network_rhs_module
 
 contains
 
-  subroutine network_rhs(state, reference_time)
+  subroutine network_rhs(state, ydot, reference_time)
 
     use actual_rhs_module, only: actual_rhs
-    use burn_type_module, only: burn_t
+    use burn_type_module, only: burn_t, neqs
 
 #ifdef NONAKA_PLOT
     use nonaka_plot_module, only: nonaka_rhs
@@ -20,14 +20,15 @@ contains
     implicit none
 
     type(burn_t), intent(inout) :: state
+    real(rt), intent(inout) :: ydot(neqs)
     real(rt),     intent(in)    :: reference_time
 
     !$gpu
 
-    call actual_rhs(state)
+    call actual_rhs(state, ydot)
 
 #ifdef NONAKA_PLOT
-    call nonaka_rhs(state, reference_time)
+    call nonaka_rhs(state, ydot, reference_time)
 #endif
 
   end subroutine network_rhs

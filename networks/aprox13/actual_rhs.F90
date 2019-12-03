@@ -62,7 +62,7 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use amrex_constants_module, only: ZERO
     use sneut_module, only: sneut5
@@ -79,6 +79,7 @@ contains
 
     type (burn_t)    :: state
     type (rate_t)    :: rr
+    double precision, intent(inout) :: ydot(neqs)
 
     logical          :: deriva
 
@@ -87,7 +88,7 @@ contains
 
     double precision :: rho, temp, abar, zbar
 
-    double precision :: y(nspec), ydot(nspec)
+    double precision :: y(nspec)
 
     !$gpu
 
@@ -107,7 +108,6 @@ contains
 
     ydot = ZERO
     call rhs(y, rr, ydot, deriva, for_jacobian_tderiv = .false.)
-    state % ydot(1:nspec) = ydot
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -119,11 +119,11 @@ contains
 
     ! Append the energy equation (this is erg/g/s)
 
-    state % ydot(net_ienuc) = enuc - sneut
+    ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
 
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 

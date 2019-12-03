@@ -23,6 +23,8 @@ contains
     real(rt) :: jac(neqs, neqs)
     integer          :: m, n
 
+    real(rt) :: ydot0(neqs), ydotp(neqs), ydotm(neqs)
+
     type (burn_t)    :: state_delp, state_delm, state_0
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon.
