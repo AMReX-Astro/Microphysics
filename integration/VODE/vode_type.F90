@@ -276,17 +276,6 @@ contains
        ydot(net_ienuc) = ydot(net_ienuc) * inv_ener_scale
     endif
 
-<<<<<<< HEAD
-=======
-    if (present(jac)) then
-       jac = state % jac
-       jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
-       jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
-       jac(:,net_itemp) = jac(:,net_itemp) * temp_scale
-       jac(:,net_ienuc) = jac(:,net_ienuc) * ener_scale
-    endif
-
->>>>>>> bye_bye_vode
     if (state % self_heat) then
        rpar(irp_self_heat) = ONE
     else
