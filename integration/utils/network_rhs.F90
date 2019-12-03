@@ -34,7 +34,7 @@ contains
   end subroutine network_rhs
 
 
-  subroutine network_jac(state, jac, reference_time)
+  subroutine network_jac(state, ydot, jac, reference_time)
 
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, neqs
@@ -42,12 +42,13 @@ contains
     implicit none
 
     type(burn_t), intent(inout) :: state
+    real(rt) :: ydot(neqs)
     real(rt) :: jac(neqs, neqs)
     real(rt),     intent(in)    :: reference_time
 
     !$gpu
 
-    call actual_jac(state, jac)
+    call actual_jac(state, ydot, jac)
 
   end subroutine network_jac
 
