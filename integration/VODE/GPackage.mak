@@ -1,9 +1,9 @@
 ifdef SIMPLIFIED_SDC
-  f90sources += actual_integrator_sdc.f90
-  f90sources += vode_rhs_sdc.f90
-  f90sources += vode_type_sdc.f90
+  F90sources += vode_integrator_simplified_sdc.F90
+  F90sources += vode_rhs_simplified_sdc.F90
+  F90sources += vode_type_simplified_sdc.F90
 else
-  F90sources += actual_integrator.F90
+  F90sources += vode_integrator.F90
   F90sources += vode_rhs.F90
   F90sources += vode_type.F90
   F90sources += cuvode_parameters.F90
