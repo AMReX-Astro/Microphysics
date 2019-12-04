@@ -174,6 +174,7 @@ contains
        integration_failed = .true.
     end if
 
+#if defined(SDC_EVOLVE_ENERGY)
     if (dvode_state % y(SEINT) < ZERO .or. dvode_state % y(SEDEN) < ZERO) then
        integration_failed = .true.
     end if
@@ -185,11 +186,21 @@ contains
     if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) > 1.d0 + failure_tolerance)) then
        integration_failed = .true.
     end if
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % rho < -failure_tolerance)) then
+       integration_failed = .true.
+    end if
+
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % rho > 1.d0 + failure_tolerance)) then
+       integration_failed = .true.
+    end if
+#endif
 
     ! If we failed, print out the current state of the integration.
 
     if (integration_failed) then
 #ifndef CUDA
+#if defined(SDC_EVOLVE_ENERGY)
        print *, 'ERROR: integration failed in net'
        print *, 'istate = ', dvode_state % istate
        print *, 'time = ', dvode_state % T
@@ -200,7 +211,8 @@ contains
        print *, 'eint current = ', state_out % y(SEINT) / state_out % y(SRHO)
        print *, 'xn current = ', state_out % y(SFS:SFS+nspec-1) / state_out % y(SRHO)
        print *, 'energy generated = ', state_out % y(SEDEN) / state_out % y(SRHO) - &
-                                       state_in % y(SEDEN) / state_in % y(SRHO)
+            state_in % y(SEDEN) / state_in % y(SRHO)
+#endif
 #endif
 
        state_out % success = .false.
