@@ -185,11 +185,8 @@ contains
 
     state_num = state
 
-    ! Evaluate the analytical Jacobian. Note that we need to call
-    ! f_rhs first because that will fill the state with the rates that
-    ! the Jacobian needs.
-    call actual_rhs(state, ydot)
-    call actual_jac(state, ydot, jac_analytic)
+    ! Evaluate the analytical Jacobian.
+    call actual_jac(state, jac_analytic)
 
     ! the analytic Jacobian is in terms of Y, since that's what the
     ! nets work with, so we convert it to derivatives with respect to

@@ -51,27 +51,26 @@ contains
     call vode_to_burn(y, rpar, burn_state)
 
     burn_state % time = time
-    call network_rhs(burn_state, rpar(irp_t0))
+    call network_rhs(burn_state, ydot, rpar(irp_t0))
 
     ! We integrate X, not Y
-    burn_state % ydot(1:nspec_evolve) = &
-         burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
-       burn_state % ydot(net_itemp) = ZERO
+       ydot(net_itemp) = ZERO
     endif
 
     if (.not. integrate_energy) then
-       burn_state % ydot(net_ienuc) = ZERO
+       ydot(net_ienuc) = ZERO
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       burn_state % ydot(:) = react_boost * burn_state % ydot(:)
+       ydot(:) = react_boost * ydot(:)
     endif
 
-    call burn_to_vode(burn_state, y, rpar, ydot = ydot)
+    call burn_to_vode(burn_state, y, rpar)
 
   end subroutine f_rhs
 

@@ -131,7 +131,7 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(state, ydot, jac)
+  subroutine actual_jac(state, jac)
 
     use amrex_constants_module, only: ZERO
     use eos_module
@@ -141,9 +141,8 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
-    real(rt) :: ydot(neqs)
-    real(rt) :: jac(neqs, neqs)
+    type (burn_t), intent(in)    :: state
+    real(rt), intent(inout) :: jac(neqs, neqs)
     type (rate_t)    :: rr
 
     logical          :: deriva

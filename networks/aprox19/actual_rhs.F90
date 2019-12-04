@@ -29,7 +29,7 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use temperature_integration_module, only: temperature_rhs
     use sneut_module, only: sneut5
@@ -46,6 +46,7 @@ contains
 
     type (burn_t)    :: state
     type (rate_t)    :: rr
+    double precision, intent(inout) :: ydot(neqs)
 
     logical          :: deriva
 
@@ -73,11 +74,11 @@ contains
     ! Call the RHS to actually get dydt.
     r1 = rr % rates(1,:)
     r2 = rr % rates(1,:)
-    call rhs(y, r1, r2, state % ydot(1:nspec), deriva)
+    call rhs(y, r1, r2, ydot(1:nspec), deriva)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
-    call ener_gener_rate(state % ydot(1:nspec), enuc)
+    call ener_gener_rate(ydot(1:nspec), enuc)
 
     ! Get the neutrino losses
 
@@ -85,11 +86,11 @@ contains
 
     ! Append the energy equation (this is erg/g/s)
 
-    state % ydot(net_ienuc) = enuc - sneut
+    ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
 
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
@@ -97,7 +98,7 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use temperature_integration_module, only: temperature_jac
     use sneut_module, only: sneut5
@@ -106,7 +107,9 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    real(rt), intent(inout) :: jac(neqs, neqs)
+
     type (rate_t)    :: rr
 
     logical          :: deriva
@@ -122,7 +125,7 @@ contains
 
     deriva = .true.
 
-    state % jac(:,:) = ZERO
+    jac(:,:) = ZERO
 
     call evaluate_rates(state, rr)
 
@@ -138,14 +141,14 @@ contains
     r1 = rr % rates(1,:)
     r2 = rr % rates(3,:)
     r3 = rr % rates(4,:)
-    spec_jac = state % jac(1:nspec,1:nspec)
+    spec_jac = jac(1:nspec,1:nspec)
     call dfdy_isotopes_aprox19(y, spec_jac, r1, r2, r3)
-    state % jac(1:nspec,1:nspec) = spec_jac
+    jac(1:nspec,1:nspec) = spec_jac
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
+       call ener_gener_rate(jac(1:nspec,j), jac(net_ienuc,j))
     enddo
 
     ! Account for the thermal neutrino losses
@@ -154,21 +157,21 @@ contains
 
     do j = 1, nspec
        b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz)
-       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
+       jac(net_ienuc,j) = jac(net_ienuc,j) - b1
     enddo
 
     ! Evaluate the Jacobian elements with respect to temperature by
     ! calling the RHS using d(ratdum) / dT
     r1 = rr % rates(1,:)
     r2 = rr % rates(2,:)
-    call rhs(y, r2, r1, state % jac(1:nspec,net_itemp), deriva)
+    call rhs(y, r2, r1, jac(1:nspec,net_itemp), deriva)
 
-    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
-    state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
+    call ener_gener_rate(jac(1:nspec,net_itemp), jac(net_ienuc,net_itemp))
+    jac(net_ienuc,net_itemp) = jac(net_ienuc,net_itemp) - dsneutdt
 
     ! Temperature Jacobian elements
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 
