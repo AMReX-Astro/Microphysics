@@ -28,7 +28,11 @@ contains
     !$acc routine seq
 
     use extern_probin_module, only: burner_verbose
+#if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: sdc_t, SRHO, SEINT, SEDEN, SFS
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    use sdc_type_module, only: sdc_t, SFS, SENTH
+#endif
     use network, only: nspec
     use stiff_ode, only: ode, IERR_NONE
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
@@ -90,6 +94,7 @@ contains
     if (ierr /= IERR_NONE) then
 
 #ifndef CUDA
+#if defined(SDC_EVOLVE_ENERGY)
        print *, 'ERROR: integration failed in net'
        print *, 'ierr = ', ierr
        print *, 'time = ', bs % t
@@ -100,7 +105,8 @@ contains
        print *, 'eint current = ', state_out % y(SEINT) / state_out % y(SRHO)
        print *, 'xn current = ', state_out % y(SFS:SFS+nspec-1) / state_out % y(SRHO)
        print *, 'energy generated = ', state_out % y(SEDEN) / state_out % y(SRHO) - &
-                                       state_in % y(SEDEN) / state_in % y(SRHO)
+            state_in % y(SEDEN) / state_in % y(SRHO)
+#endif
 #endif
 
        state_out % success = .false.
