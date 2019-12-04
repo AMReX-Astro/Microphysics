@@ -9,22 +9,22 @@ contains
   subroutine nonaka_init()
 
     use extern_probin_module, only: nonaka_file
-    use actual_network, only: nspec, short_spec_names
+    use actual_network, only: nspec_evolve, short_spec_names
 
     implicit none
 
     integer :: nonaka_file_unit, i
-    character(len=20*nspec+10) :: header_line
+    character(len=20*nspec_evolve+10) :: header_line
     character(len=20) :: scratch
 
     header_line = "time"
 
-    do i = 1, nspec
+    do i = 1, nspec_evolve
       scratch = "X("//trim(short_spec_names(i))//")"
       header_line = trim(header_line)//" "//trim(scratch)
     end do
 
-    do i = 1, nspec
+    do i = 1, nspec_evolve
       scratch = "dXdt("//trim(short_spec_names(i))//")"
       header_line = trim(header_line)//" "//trim(scratch)
     end do
@@ -51,7 +51,7 @@ contains
     use extern_probin_module, only: nonaka_i, nonaka_j, nonaka_k, nonaka_file
     use amrex_fort_module, only: rt => amrex_real
     use burn_type_module, only: burn_t, neqs
-    use actual_network, only: nspec, aion
+    use actual_network, only: nspec_evolve, aion
 
     implicit none
 
@@ -78,7 +78,7 @@ contains
         ! append current state to nonaka log
         ! at the current simulation time
 
-        write(vector_format, '("(", I0, "E30.16E5", ")")') nspec
+        write(vector_format, '("(", I0, "E30.16E5", ")")') nspec_evolve
         write(scalar_format, '("(", I0, "E30.16E5", ")")') 1
         
         open(newunit=nonaka_file_unit, file=nonaka_file, status="old", position="append", action="readwrite", &
@@ -89,29 +89,30 @@ contains
         if (present(trim_after_timestep)) then
             if (trim_after_timestep) then
                 ! determine last timestep in file
-                nextline = nextline - ( 30*(1 + 2*nspec) + 1 )
+                nextline = nextline - ( 30*(1 + 2*nspec_evolve) + 1 )
                 read(unit=nonaka_file_unit, pos=nextline, fmt=scalar_format) tprev
 
                 i = 0
                 ! remove last rows where VODE took a much too large timestep
                 do while (tprev >= simulation_time .and. i < 2)
-                    nextline = nextline - ( 30*(1 + 2*nspec) + 1 )
+                    nextline = nextline - ( 30*(1 + 2*nspec_evolve) + 1 )
                     read(unit=nonaka_file_unit, pos=nextline, fmt=scalar_format) tprev
                     i = i + 1
                 end do
 
                 ! store where to write new data
-                nextline = nextline + ( 30*(1 + 2*nspec) + 1 )
+                nextline = nextline + ( 30*(1 + 2*nspec_evolve) + 1 )
             end if
         end if
            
         write(unit=nonaka_file_unit, fmt=scalar_format, pos=nextline, advance="no") simulation_time
 
         ! Mass fractions X
-        write(unit=nonaka_file_unit, fmt=vector_format, advance="no") (state % xn(j), j = 1, nspec)
+        write(unit=nonaka_file_unit, fmt=vector_format, advance="no") (state % xn(j), j = 1, nspec_evolve)
 
         ! Convert molar fraction rhs to mass fraction rhs dX/dt
-        write(unit=nonaka_file_unit, fmt=vector_format) (ydot(j) * aion(j), j = 1, nspec)
+        write(unit=nonaka_file_unit, fmt=vector_format) (ydot(j) * aion(j), j = 1, nspec_evolve)
+
         close(unit=nonaka_file_unit)
 
     end if
