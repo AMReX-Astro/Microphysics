@@ -1,6 +1,6 @@
 module actual_rhs_module
 
-  use burn_type_module, only: burn_t, net_ienuc
+  use burn_type_module, only: burn_t, net_ienuc, neqs
   use rate_type_module
 
   implicit none
@@ -15,7 +15,7 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use amrex_constants_module, only: ZERO
     use amrex_fort_module, only : rt => amrex_real
@@ -24,13 +24,15 @@ contains
     
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    double precision, intent(inout) :: ydot(neqs)
+
     type (rate_t) :: rr
 
     real(rt), parameter :: T2T9 = 1.0e-9_rt
 
     real(rt) :: dens, t9
-    real(rt) :: ymol(nspec), ydot(nspec)
+    real(rt) :: ymol(nspec)
 
     ydot = ZERO
 
@@ -45,18 +47,16 @@ contains
     ! set up the ODEs
     call make_ydots(ymol, t9, state, ydot(1:nspec), rr)
 
-    state % ydot(1:nspec) = ydot
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
-    call ener_gener_rate(state % ydot(1:nspec), state % ydot(net_ienuc))
-
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
 
 
   ! TODO - make this an analytic jacobian
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use amrex_constants_module, only: ZERO
     use amrex_fort_module, only : rt => amrex_real
@@ -64,8 +64,9 @@ contains
     implicit none
 
     type (burn_t) :: state
+    double precision, intent(inout) :: jac(neqs, neqs)
 
-    state % jac = ZERO
+    jac = ZERO
 
   end subroutine actual_jac
 
