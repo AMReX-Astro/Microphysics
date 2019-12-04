@@ -11,7 +11,7 @@ endif
 
 F90sources += vode_rpar.F90
 
-VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source/
+VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source/
 include $(VODE_SOURCE_DIR)/GPackage.mak
 
 INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
