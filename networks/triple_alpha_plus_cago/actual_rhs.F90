@@ -51,7 +51,7 @@ contains
   end subroutine get_rates
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     !$acc routine seq
 
@@ -59,7 +59,9 @@ contains
 
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    double precision :: ydot(neqs)
+
     type (rate_t) :: rr
 
     double precision :: ymol(nspec)
@@ -68,7 +70,7 @@ contains
 
     !$gpu
 
-    state % ydot = ZERO
+    ydot = ZERO
 
     ymol = state % xn * aion_inv
 
@@ -79,19 +81,19 @@ contains
 
     rates(:)    = rr % rates(1,:)
 
-    call dydt(ymol, rates, state % ydot(1:nspec_evolve))
+    call dydt(ymol, rates, ydot(1:nspec_evolve))
 
     ! Energy generation rate
 
-    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
 
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     !$acc routine seq
 
@@ -100,7 +102,9 @@ contains
 
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    double precision :: jac(neqs, neqs)
+
     type (rate_t) :: rr
 
     double precision :: ymol(nspec)
@@ -117,7 +121,7 @@ contains
 
     ! initialize
     do j = 1, neqs
-       state % jac(:,j) = ZERO
+       jac(:,j) = ZERO
     enddo
 
     ymol = state % xn * aion_inv
@@ -126,36 +130,36 @@ contains
     ! THESE ARE IN TERMS OF MOLAR FRACTIONS
 
     ! helium jacobian elements
-    state % jac(ihe4,ihe4)  = - NINE * ymol(ihe4) * ymol(ihe4) * rates(ir3a) &
+    jac(ihe4,ihe4)  = - NINE * ymol(ihe4) * ymol(ihe4) * rates(ir3a) &
                               - ONE * ymol(ic12) * rates(ircago)
-    state % jac(ihe4,ic12)  = - ONE * ymol(ihe4) * rates(ircago)
+    jac(ihe4,ic12)  = - ONE * ymol(ihe4) * rates(ircago)
 
     ! carbon jacobian elements
-    state % jac(ic12,ihe4) =   THREE * ymol(ihe4) * ymol(ihe4) * rates(ir3a) &
+    jac(ic12,ihe4) =   THREE * ymol(ihe4) * ymol(ihe4) * rates(ir3a) &
                              - ONE * ymol(ic12) * rates(ircago)
-    state % jac(ic12,ic12) = - ONE * ymol(ihe4) * rates(ircago)
+    jac(ic12,ic12) = - ONE * ymol(ihe4) * rates(ircago)
 
     ! oxygen jacobian elements
-    state % jac(io16,ihe4) = ONE * ymol(ic12) * rates(ircago)
-    state % jac(io16,ic12) = ONE * ymol(ihe4) * rates(ircago)
+    jac(io16,ihe4) = ONE * ymol(ic12) * rates(ircago)
+    jac(io16,ic12) = ONE * ymol(ihe4) * rates(ircago)
 
     ! ======================================================================
 
     ! Add the temperature derivatives: df(y_i) / dT
 
-    call dydt(ymol, dratesdt, state % jac(1:nspec_evolve,net_itemp))
+    call dydt(ymol, dratesdt, jac(1:nspec_evolve,net_itemp))
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec_evolve
-       call ener_gener_rate(state % jac(1:nspec_evolve,j), state % jac(net_ienuc,j))
+       call ener_gener_rate(jac(1:nspec_evolve,j), jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), jac(net_ienuc,net_itemp))
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 

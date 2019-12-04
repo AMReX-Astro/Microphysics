@@ -17,7 +17,7 @@ contains
   end subroutine actual_rhs_init
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     !$acc routine seq
 
@@ -25,7 +25,9 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: ydot(neqs)
+
     type (rate_t)    :: rr
 
     double precision :: temp, T9, T9a, dT9dt, dT9adt
@@ -88,13 +90,13 @@ contains
     ! species ordering
 
     xc12tmp = max(state % xn(ic12), ZERO)
-    state % ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
+    ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
 
     ! Convert back to molar form
 
-    state % ydot(ic12) = state % ydot(ic12) * aion_inv(ic12)
+    ydot(ic12) = ydot(ic12) * aion_inv(ic12)
 
-    call ener_gener_rate(state % ydot(ic12), state % ydot(net_ienuc))
+    call ener_gener_rate(ydot(ic12), ydot(net_ienuc))
 
     ! Do the temperature equation explicitly here since
     ! the generic form doesn't work when nspec_evolve < nspec.
@@ -102,10 +104,10 @@ contains
     if (state % self_heat) then
 
        if (do_constant_volume_burn) then
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
+          ydot(net_itemp) = ydot(net_ienuc) / state % cv
 
        else
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
+          ydot(net_itemp) = ydot(net_ienuc) / state % cp
 
        endif
     endif
@@ -113,7 +115,7 @@ contains
   end subroutine actual_rhs
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     !$acc routine seq
 
@@ -122,7 +124,9 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: jac(neqs, neqs)
+
     type (rate_t)    :: rr
 
     double precision :: dens
@@ -145,31 +149,31 @@ contains
     xc12tmp  = max(state % xn(ic12), ZERO)
 
     ! initialize
-    call set_jac_zero(state)
+    call set_jac_zero(jac)
 
     ! carbon jacobian elements
     scratch  = -SIXTH * dens * scorr * rate * xc12tmp
-    call set_jac_entry(state, ic12, ic12, scratch)
+    call set_jac_entry(jac, ic12, ic12, scratch)
 
     ! add the temperature derivatives: df(y_i) / dT
     scratch  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
                             dens * scorr * xc12tmp**2 * dratedt )
-    call set_jac_entry(state, ic12, net_itemp, scratch)
+    call set_jac_entry(jac, ic12, net_itemp, scratch)
 
     ! Convert back to molar form
     ! Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
     ! so this conversion is necessarily only for the temperature derivative.
-    call scale_jac_entry(state, ic12, net_itemp, aion_inv(ic12))
+    call scale_jac_entry(jac, ic12, net_itemp, aion_inv(ic12))
 
     ! Energy generation rate Jacobian elements with respect to species
-    call get_jac_entry(state, ic12, ic12, scratch)
+    call get_jac_entry(jac, ic12, ic12, scratch)
     call ener_gener_rate(scratch, scratch2)
-    call set_jac_entry(state, net_ienuc, ic12, scratch2)
+    call set_jac_entry(jac, net_ienuc, ic12, scratch2)
 
     ! Jacobian elements with respect to temperature
-    call get_jac_entry(state, ic12, net_itemp, scratch)
+    call get_jac_entry(jac, ic12, net_itemp, scratch)
     call ener_gener_rate(scratch, scratch2)
-    call set_jac_entry(state, net_ienuc, net_itemp, scratch2)
+    call set_jac_entry(jac, net_ienuc, net_itemp, scratch2)
 
     if (state % self_heat) then
 
@@ -185,15 +189,15 @@ contains
 
        ! d(itemp)/d(yi)
 
-       call get_jac_entry(state, net_ienuc, ic12, scratch)
+       call get_jac_entry(jac, net_ienuc, ic12, scratch)
        scratch = scratch * cInv
-       call set_jac_entry(state, net_itemp, ic12, scratch)
+       call set_jac_entry(jac, net_itemp, ic12, scratch)
        
        ! d(itemp)/d(temp)
 
-       call get_jac_entry(state, net_ienuc, net_itemp, scratch)
+       call get_jac_entry(jac, net_ienuc, net_itemp, scratch)
        scratch = scratch * cInv
-       call set_jac_entry(state, net_itemp, net_itemp, scratch)
+       call set_jac_entry(jac, net_itemp, net_itemp, scratch)
        
     endif
 
