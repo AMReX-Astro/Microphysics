@@ -8,7 +8,7 @@ contains
 
   subroutine integrator_init()
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
 #ifndef CUDA
     use bs_integrator_module, only: bs_integrator_init
@@ -23,7 +23,7 @@ contains
 
     implicit none
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     call vode_integrator_init()
 #ifndef CUDA
     call bs_integrator_init()
@@ -44,7 +44,7 @@ contains
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
 #ifndef CUDA
     use bs_integrator_module, only: bs_integrator
@@ -101,7 +101,7 @@ contains
 
        do
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0)
 #ifndef CUDA
           if (current_integrator == 0) then
 #endif
@@ -151,7 +151,7 @@ contains
              if (current_integrator < 1) then
 
 #ifndef CUDA
-#if (INTEGRATOR == 0 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0)
                 print *, "Retrying burn with BS integrator"
 #elif (INTEGRATOR == 1)
                 print *, "Retrying burn with VODE integrator"

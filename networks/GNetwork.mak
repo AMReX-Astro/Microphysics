@@ -23,7 +23,8 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 else ifeq ($(INTEGRATOR_DIR),VBDF)
   INTEGRATOR_NUM := 2
 else ifeq ($(INTEGRATOR_DIR),VODE90)
-  INTEGRATOR_NUM := 3
+  INTEGRATOR_DIR = VODE
+  INTEGRATOR_NUM := 0
 endif
 
 FPP_DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
@@ -35,7 +36,7 @@ ifeq ($(INTEGRATOR_DIR),VODE)
   # Include VODE and BS
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE
-  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE/vode_source
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/BS
 
@@ -44,15 +45,9 @@ else ifeq ($(INTEGRATOR_DIR),BS)
   # Include BS and VODE
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE
-  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE/vode_source
+  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source
 
   INT_DIRS += $(MICROPHYSICS_HOME)/integration/BS
-
-else ifeq ($(INTEGRATOR_DIR),VODE90)
-
-  # Include VODE90 and the linear algebra modules it relies on
-  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90
-  INT_DIRS += $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE/source
 
 else
 
@@ -66,7 +61,7 @@ INT_DIRS += $(MICROPHYSICS_HOME)/integration/utils
 # we'll assume that all integrators need the linear algebra packages
 INT_DIRS += $(MICROPHYSICS_HOME)/util/
 
-ifneq ($(INTEGRATOR_DIR),VODE90)
+ifneq ($(INTEGRATOR_DIR),VODE)
   ifndef SYSTEM_BLAS
     INT_DIRS += $(MICROPHYSICS_HOME)/util/BLAS
   endif
