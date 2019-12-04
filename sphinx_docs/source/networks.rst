@@ -809,7 +809,7 @@ type required by the ``actual_rhs`` and ``actual_jac`` routine.
 
 The name of the integrator can be selected at compile time using
 the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
-the allowed options are BS, VBDF, VODE, and VODE90.
+the allowed options are BS, VBDF, and VODE.
 
 actual_integrator
 -----------------
