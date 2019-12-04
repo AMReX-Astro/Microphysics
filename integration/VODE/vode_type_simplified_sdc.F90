@@ -214,20 +214,22 @@ contains
   end subroutine vode_to_sdc
 
 
-  subroutine rhs_to_vode(time, burn_state, y, ydot, rpar)
+  subroutine rhs_to_vode(time, burn_state, ydot_react, y, ydot, rpar)
 
-    use burn_type_module, only : burn_t, net_ienuc
+    use burn_type_module, only : burn_t, net_ienuc, neqs
 
     real(rt), intent(in) :: time
-    real(rt)    :: rpar(n_rpar_comps)
-    real(rt)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
+    real(rt), intent(in) :: rpar(n_rpar_comps)
+    real(rt), intent(in) :: y(SVAR_EVOLVE)
     type(burn_t), intent(in) :: burn_state
+    real(rt), intent(in) :: ydot_react(neqs)
+    real(rt), intent(out) :: ydot(SVAR_EVOLVE)
 
     !$gpu
 
     call fill_unevolved_variables(time, y, rpar)
 
-    ! burn_t % ydot has just the contribution to the RHS from the
+    ! ydot_react has just the contribution to the RHS from the
     ! reaction network.  Note that these are in terms of dY/dt
 
     ! start with the contribution from the non-reacting sources
@@ -235,32 +237,32 @@ contains
 
     ! add in the reacting terms -- here we convert from dY/dt to dX/dt
     ydot(SFS:SFS-1+nspec) = ydot(SFS:SFS-1+nspec) + &
-         rpar(irp_SRHO) * aion(1:nspec) * burn_state % ydot(1:nspec)
+         rpar(irp_SRHO) * aion(1:nspec) * ydot_react(1:nspec)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
-    ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+    ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * ydot_react(net_ienuc)
+    ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * ydot_react(net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH) = ydot(SENTH) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+    ydot(SENTH) = ydot(SENTH) + rpar(irp_SRHO) * ydot_react(net_ienuc)
 
 #endif
 
   end subroutine rhs_to_vode
 
 
-  subroutine jac_to_vode(time, burn_state, y, jac, rpar)
+  subroutine jac_to_vode(time, jac_react, y, jac, rpar)
 
     ! this is only used with an analytic Jacobian
 
-    use burn_type_module, only : burn_t, net_ienuc
+    use burn_type_module, only : net_ienuc, neqs
 
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
-    type(burn_t), intent(in) :: burn_state
+    real(rt), intent(in) :: jac_react(neqs, neqs)
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
     integer :: n
@@ -269,25 +271,25 @@ contains
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
-    jac(SFS:SFS+nspec-1,SEDEN) = burn_state % jac(1:nspec,net_ienuc)
-    jac(SFS:SFS+nspec-1,SEINT) = burn_state % jac(1:nspec,net_ienuc)
+    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac_react(1:nspec,1:nspec)
+    jac(SFS:SFS+nspec-1,SEDEN) = jac_react(1:nspec,net_ienuc)
+    jac(SFS:SFS+nspec-1,SEINT) = jac_react(1:nspec,net_ienuc)
 
-    jac(SEDEN,SFS:SFS+nspec-1) = burn_state % jac(net_ienuc,1:nspec)
-    jac(SEDEN,SEDEN) = burn_state % jac(net_ienuc,net_ienuc)
-    jac(SEDEN,SEINT) = burn_state % jac(net_ienuc,net_ienuc)
+    jac(SEDEN,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
+    jac(SEDEN,SEDEN) = jac_react(net_ienuc,net_ienuc)
+    jac(SEDEN,SEINT) = jac_react(net_ienuc,net_ienuc)
 
-    jac(SEINT,SFS:SFS+nspec-1) = burn_state % jac(net_ienuc,1:nspec)
-    jac(SEINT,SEDEN) = burn_state % jac(net_ienuc,net_ienuc)
-    jac(SEINT,SEINT) = burn_state % jac(net_ienuc,net_ienuc)
+    jac(SEINT,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
+    jac(SEINT,SEDEN) = jac_react(net_ienuc,net_ienuc)
+    jac(SEINT,SEINT) = jac_react(net_ienuc,net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = burn_state % jac(1:nspec,1:nspec)
-    jac(SFS:SFS+nspec-1,SENTH) = burn_state % jac(1:nspec,net_ienuc)
+    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac_react(1:nspec,1:nspec)
+    jac(SFS:SFS+nspec-1,SENTH) = jac_react(1:nspec,net_ienuc)
 
-    jac(SENTH,SFS:SFS+nspec-1) = burn_state % jac(net_ienuc,1:nspec)
-    jac(SENTH,SENTH) = burn_state % jac(net_ienuc,net_ienuc)
+    jac(SENTH,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
+    jac(SENTH,SENTH) = jac_react(net_ienuc,net_ienuc)
 
 #endif
 
