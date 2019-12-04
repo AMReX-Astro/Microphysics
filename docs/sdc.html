@@ -306,14 +306,14 @@ internal energy, but we need to convert these to the conservative
 system we are integrating, including the advective terms.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In the example here, we’ll assume we are using the VODE90
-integrator, but the VODE and BS integrators also support
+<p>In the example here, we’ll assume we are using the VODE
+integrator, but the BS integrator also supports
 simplified-SDC integration.</p>
 </div>
 <ol class="arabic">
 <li><p>Call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code></p></li>
 <li><p>Convert the integrator-specific data structures (<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">rpar</span></code>
-for VODE90) to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type in <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code>.</p>
+for VODE) to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type in <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code>.</p>
 <ol class="loweralpha">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">fill_unevolved_variables</span></code> to update the density
 and momentum. Since these don’t depend on reactions, this is a

@@ -102,7 +102,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GPUs</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#general-ideas">General Ideas</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reaction-network-integration">Reaction Network Integration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#vode90-cuda-fortran-vode">VODE90 - CUDA Fortran VODE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vode-cuda-fortran-vode">VODE - CUDA Fortran VODE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#standalone-test">Standalone Test</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reaction-network-test">Reaction Network Test</a></li>
 </ul>
@@ -239,12 +239,16 @@ saved back to the grid.</p>
 GPUs: CUDA Fortran VODE and CVODE.</p>
 <p>We recommend using CUDA Fortran VODE for the networks in Microphysics
 for production simulations at this time.</p>
-<div class="section" id="vode90-cuda-fortran-vode">
-<h3>VODE90 - CUDA Fortran VODE<a class="headerlink" href="#vode90-cuda-fortran-vode" title="Permalink to this headline">¶</a></h3>
-<p>This integrator is located in <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE90</span></code> and
+<div class="section" id="vode-cuda-fortran-vode">
+<h3>VODE - CUDA Fortran VODE<a class="headerlink" href="#vode-cuda-fortran-vode" title="Permalink to this headline">¶</a></h3>
+<p>This integrator is located in <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE</span></code> and
 follows the paradigm described above where it is designed to be called
 from a single GPU thread and uses only local thread memory. It is a
 port of the legacy Fortran 77 <code class="docutils literal notranslate"><span class="pre">dvode</span></code> code to CUDA Fortran.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This integrator was formerly called <code class="docutils literal notranslate"><span class="pre">VODE90</span></code></p>
+</div>
 <p>By necessity, this port reorganized the local data layout in VODE to
 eliminate <code class="docutils literal notranslate"><span class="pre">common</span></code> blocks in favor of derived types and eliminate
 assumed-size or assumed-shape arrays in favor of arrays with sizes
@@ -261,7 +265,7 @@ tested against the original <code class="docutils literal notranslate"><span cla
 integrator that integrates a grid of cells, with the original VODE
 test problem in each cell.</p>
 <p>To run this problem, see the test setup in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE90/cuVODE/test</span></code> and the Readme file
+<code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE/cuVODE/test</span></code> and the Readme file
 located there.</p>
 </div>
 <div class="section" id="reaction-network-test">
