@@ -55,28 +55,28 @@ contains
     ! Call the specific network routine to get the RHS.
 
     call vbdf_to_burn(ts, burn_state)
-    call network_rhs(burn_state, ts % upar(irp_t0,1))
+    call network_rhs(burn_state, ts % yd(:,1), ts % upar(irp_t0,1))
 
     ! We integrate X not Y, so convert here
-    burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ts % yd(1:nspec_evolve,1) = ts % yd(1:nspec_evolve,1) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
 
     if (.not. integrate_temperature) then
 
-       burn_state % ydot(net_itemp) = ZERO
+       ts % yd(net_itemp,1) = ZERO
 
     endif
 
     if (.not. integrate_energy) then
 
-       burn_state % ydot(net_ienuc) = ZERO
+       ts % yd(net_ienuc,1) = ZERO
 
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       burn_state % ydot(:) = react_boost * burn_state % ydot(:)
+       ts % yd(:,1) = react_boost * ts % yd(:,1)
     endif
 
     call burn_to_vbdf(burn_state, ts)
@@ -121,32 +121,32 @@ contains
 
     if (jacobian == 1) then
 
-       call network_jac(state, ts % upar(irp_t0,1))
+       call network_jac(state, ts % J(:,:,1), ts % upar(irp_t0,1))
 
        ! We integrate X, not Y
        do n = 1, nspec_evolve
-          state % jac(n,:) = state % jac(n,:) * aion(n)
-          state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+          ts % J(n,:,1) = ts % J(n,:,1) * aion(n)
+          ts % J(:,n,1) = ts % J(:,n,1) * aion_inv(n)
        enddo
 
        ! Allow temperature and energy integration to be disabled.
        if (.not. integrate_temperature) then
-          state % jac(net_itemp,:) = ZERO
+          ts % J(net_itemp,:,1) = ZERO
        endif
 
        if (.not. integrate_energy) then
-          state % jac(net_ienuc,:) = ZERO
+          ts % J(net_ienuc,:,1) = ZERO
        endif
 
     else
 
-       call numerical_jac(state)
+       call numerical_jac(state, ts % J(:,:,1))
 
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       state % jac(:,:) = react_boost * state % jac(:,:)
+       ts % J(:,:,1) = react_boost * ts % J(:,:,1)
     endif
 
     call burn_to_vbdf(state, ts)
