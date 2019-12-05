@@ -93,21 +93,21 @@ contains
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    dvode_state % atol(SFS:SFS-1+nspec_evolve) = status % atol_spec
-    dvode_state % atol(SEDEN)                  = status % atol_enuc
-    dvode_state % atol(SEINT)                  = status % atol_enuc
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec
+    dvode_state % atol(SEDEN)           = status % atol_enuc
+    dvode_state % atol(SEINT)           = status % atol_enuc
 
-    dvode_state % rtol(SFS:SFS-1+nspec_evolve) = status % rtol_spec
-    dvode_state % rtol(SEDEN)                  = status % rtol_enuc
-    dvode_state % rtol(SEINT)                  = status % rtol_enuc
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec
+    dvode_state % rtol(SEDEN)           = status % rtol_enuc
+    dvode_state % rtol(SEINT)           = status % rtol_enuc
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    dvode_state % atol(SFS:SFS-1+nspec_evolve) = status % atol_spec ! mass fractions
-    dvode_state % atol(SENTH)                  = status % atol_enuc ! enthalpy
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
+    dvode_state % atol(SENTH)           = status % atol_enuc ! enthalpy
 
-    dvode_state % rtol(SFS:SFS-1+nspec_evolve) = status % rtol_spec ! mass fractions
-    dvode_state % rtol(SENTH)                  = status % rtol_enuc ! enthalpy
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
+    dvode_state % rtol(SENTH)           = status % rtol_enuc ! enthalpy
 
 #endif
 
@@ -179,19 +179,19 @@ contains
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(SFS:SFS+nspec_evolve-1) / state_out % y(SRHO) < -failure_tolerance)) then
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) < -failure_tolerance)) then
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(SFS:SFS+nspec_evolve-1) / state_out % y(SRHO) > 1.d0 + failure_tolerance)) then
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) > 1.d0 + failure_tolerance)) then
        integration_failed = .true.
     end if
 #elif defined(SDC_EVOLVE_ENTHALPY)
-    if (any(dvode_state % y(SFS:SFS+nspec_evolve-1) / state_out % rho < -failure_tolerance)) then
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % rho < -failure_tolerance)) then
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(SFS:SFS+nspec_evolve-1) / state_out % rho > 1.d0 + failure_tolerance)) then
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % rho > 1.d0 + failure_tolerance)) then
        integration_failed = .true.
     end if
 #endif
@@ -206,10 +206,10 @@ contains
        print *, 'time = ', dvode_state % T
        print *, 'dens start = ', state_in % y(SRHO)
        print *, 'eint start = ', state_in % y(SEINT) / state_in % y(SRHO)
-       print *, 'xn start = ', state_in % y(SFS:SFS+nspec_evolve-1) / state_in % y(SRHO)
+       print *, 'xn start = ', state_in % y(SFS:SFS+nspec-1) / state_in % y(SRHO)
        print *, 'dens current = ', state_out % y(SRHO)
        print *, 'eint current = ', state_out % y(SEINT) / state_out % y(SRHO)
-       print *, 'xn current = ', state_out % y(SFS:SFS+nspec_evolve-1) / state_out % y(SRHO)
+       print *, 'xn current = ', state_out % y(SFS:SFS+nspec-1) / state_out % y(SRHO)
        print *, 'energy generated = ', state_out % y(SEDEN) / state_out % y(SRHO) - &
             state_in % y(SEDEN) / state_in % y(SRHO)
 #endif
