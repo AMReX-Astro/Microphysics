@@ -1,7 +1,7 @@
 ! rpar is a set of real quantities that we use to convert auxiliary data back
 ! and forth between the rhs and jacobian routines and the calling scope for dvode.
 !
-! This module is a stub for the user to extend, use this to store indices.
+! This module is a template for the user to extend, use this to store indices.
 !
 module vode_rpar_indices
 
