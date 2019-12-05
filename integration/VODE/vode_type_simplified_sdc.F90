@@ -267,8 +267,6 @@ contains
 
     !$gpu
 
-    jac(:,:) = ZERO
-
 #if defined(SDC_EVOLVE_ENERGY)
 
     jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn_state % jac(1:nspec_evolve,1:nspec_evolve)
