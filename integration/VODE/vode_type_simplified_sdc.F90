@@ -4,7 +4,7 @@ module vode_type_module
   use amrex_constants_module
   use cuvode_parameters_module, only : VODE_NEQS
 
-  use network, only : nspec, aion, aion_inv
+  use network, only : nspec, nspec_evolve, aion, aion_inv
 
   use vode_rpar_indices
   use sdc_type_module
@@ -236,8 +236,8 @@ contains
     ydot(:) = rpar(irp_ydot_a:irp_ydot_a-1+SVAR_EVOLVE)
 
     ! add in the reacting terms -- here we convert from dY/dt to dX/dt
-    ydot(SFS:SFS-1+nspec) = ydot(SFS:SFS-1+nspec) + &
-         rpar(irp_SRHO) * aion(1:nspec) * ydot_react(1:nspec)
+    ydot(SFS:SFS-1+nspec_evolve) = ydot(SFS:SFS-1+nspec_evolve) + &
+         rpar(irp_SRHO) * aion(1:nspec_evolve) * ydot_react(1:nspec_evolve)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
@@ -271,24 +271,24 @@ contains
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac_react(1:nspec,1:nspec)
-    jac(SFS:SFS+nspec-1,SEDEN) = jac_react(1:nspec,net_ienuc)
-    jac(SFS:SFS+nspec-1,SEINT) = jac_react(1:nspec,net_ienuc)
+    jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac_react(1:nspec_evolve,1:nspec_evolve)
+    jac(SFS:SFS+nspec_evolve-1,SEDEN) = jac_react(1:nspec_evolve,net_ienuc)
+    jac(SFS:SFS+nspec_evolve-1,SEINT) = jac_react(1:nspec_evolve,net_ienuc)
 
-    jac(SEDEN,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
+    jac(SEDEN,SFS:SFS+nspec_evolve-1) = jac_react(net_ienuc,1:nspec_evolve)
     jac(SEDEN,SEDEN) = jac_react(net_ienuc,net_ienuc)
     jac(SEDEN,SEINT) = jac_react(net_ienuc,net_ienuc)
 
-    jac(SEINT,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
+    jac(SEINT,SFS:SFS+nspec_evolve-1) = jac_react(net_ienuc,1:nspec_evolve)
     jac(SEINT,SEDEN) = jac_react(net_ienuc,net_ienuc)
     jac(SEINT,SEINT) = jac_react(net_ienuc,net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac_react(1:nspec,1:nspec)
-    jac(SFS:SFS+nspec-1,SENTH) = jac_react(1:nspec,net_ienuc)
+    jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac_react(1:nspec_evolve,1:nspec_evolve)
+    jac(SFS:SFS+nspec_evolve-1,SENTH) = jac_react(1:nspec_evolve,net_ienuc)
 
-    jac(SENTH,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
+    jac(SENTH,SFS:SFS+nspec_evolve-1) = jac_react(net_ienuc,1:nspec_evolve)
     jac(SENTH,SENTH) = jac_react(net_ienuc,net_ienuc)
 
 #endif
