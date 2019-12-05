@@ -38,8 +38,8 @@ contains
     call fill_unevolved_variables(time, y, rpar)
 
     ! Ensure that mass fractions always stay positive.
-    y(SFS:SFS+nspec_evolve-1) = &
-         max(min(y(SFS:SFS+nspec_evolve-1), rpar(irp_SRHO)), &
+    y(SFS:SFS+nspec-1) = &
+         max(min(y(SFS:SFS+nspec-1), rpar(irp_SRHO)), &
              rpar(irp_SRHO) * 1.d-200)
 
     ! renormalize abundances as necessary
@@ -54,7 +54,7 @@ contains
     ! total energy (which we get by subtracting kinetic energy).
     eos_state % rho = rpar(irp_SRHO)
     eos_state % T = MAX_TEMP
-    eos_state % xn(1:nspec_evolve) = y(SFS:SFS+nspec_evolve-1) / rpar(irp_SRHO)
+    eos_state % xn = y(SFS:SFS+nspec-1) / rpar(irp_SRHO)
 
     call eos(eos_input_rt, eos_state)
 
