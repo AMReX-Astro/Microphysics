@@ -40,7 +40,7 @@ contains
     aux_names(1) = "Ne"
     short_aux_names(1) = "Ne"
 
-    spec_names(iye)  = "electron-fraction"
+    spec_names(iye)  = "Ye"
 
     short_spec_names(iye)  = "Ye"
 
