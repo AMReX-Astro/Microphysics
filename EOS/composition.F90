@@ -2,7 +2,7 @@ module eos_composition_module
 
   use eos_type_module, only : eos_t
   use network, only: nspec, aion, zion
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module, only : rt
 
   implicit none
 

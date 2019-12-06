@@ -4,21 +4,20 @@
 !
 ! The ratio of specific heats (gamma) is allowed to vary.  NOTE: the
 ! expression for entropy is only valid for an ideal MONATOMIC gas
-! (gamma = 5/3).  
+! (gamma = 5/3).
 
 module actual_eos_module
 
   use amrex_error_module
-  use amrex_fort_module, only : rt => amrex_real
-  use amrex_constants_module
+  use microphysics_type_module
   use network, only: nspec, aion, aion_inv, zion
   use eos_type_module
 
   implicit none
 
-  character (len=64), public :: eos_name = "gamma_law_general"  
+  character (len=64), public :: eos_name = "gamma_law_general"
 
-  double precision, allocatable, save :: gamma_const
+  real(rt), allocatable, save :: gamma_const
 
   logical, allocatable, save :: assume_neutral
 
@@ -27,7 +26,7 @@ module actual_eos_module
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const, assume_neutral
 #endif
- 
+
 contains
 
   subroutine actual_eos_init
@@ -38,9 +37,9 @@ contains
 
     allocate(gamma_const)
     allocate(assume_neutral)
- 
+
     ! constant ratio of specific heats
-    if (eos_gamma .gt. 0.d0) then
+    if (eos_gamma .gt. ZERO) then
        gamma_const = eos_gamma
     else
        call amrex_error("gamma_const cannot be < 0")
@@ -49,7 +48,7 @@ contains
     assume_neutral = eos_assume_neutral
 
     !$acc update device(gamma_const, eos_assume_neutral)
-    
+
   end subroutine actual_eos_init
 
 
@@ -66,21 +65,21 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Get the mass of a nucleon from Avogadro's number.
-    double precision, parameter :: m_nucleon = ONE / n_A
-    double precision, parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5d0
+    real(rt), parameter :: m_nucleon = ONE / n_A
+    real(rt), parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5_rt
 
-    double precision :: Tinv, rhoinv
+    real(rt) :: Tinv, rhoinv
 
     !$gpu
 
     ! Calculate mu.
-    
+
     if (assume_neutral) then
        state % mu = state % abar
     else
        state % mu = ONE / sum( (ONE + zion(:)) * state % xn(:) * aion_inv(:) )
     endif
-    
+
     !-------------------------------------------------------------------------
     ! For all EOS input modes EXCEPT eos_input_rt, first compute dens
     ! and temp as needed from the inputs.
@@ -107,7 +106,7 @@ contains
     case (eos_input_tp)
 
        ! temp, pres, and xmass are inputs
-       
+
        ! Solve for the density:
        ! p = rho k T / (mu m_nucleon)
 
@@ -125,7 +124,7 @@ contains
     case (eos_input_re)
 
        ! dens, energy, and xmass are inputs
-       
+
        ! Solve for the temperature
        ! e = k T / [(mu m_nucleon)*(gamma-1)]
 
@@ -134,9 +133,9 @@ contains
     case (eos_input_ps)
 
        ! pressure, entropy, and xmass are inputs
-       
+
        ! Solve for the temperature
-       ! Invert Sackur-Tetrode eqn (below) using 
+       ! Invert Sackur-Tetrode eqn (below) using
        ! rho = p mu m_nucleon / (k T)
 
        state % T  = state % p**(TWO/FIVE) * &
@@ -145,13 +144,13 @@ contains
 
        ! Solve for the density
        ! rho = p mu m_nucleon / (k T)
-       
+
        state % rho =  state % p * state % mu * m_nucleon / (k_B * state % T)
 
     case (eos_input_ph)
 
        ! pressure, enthalpy and xmass are inputs
-       
+
        ! Solve for temperature and density
 
        state % rho = state % p / state % h * gamma_const / (gamma_const - ONE)
@@ -172,14 +171,14 @@ contains
 #ifndef AMREX_USE_GPU
        call amrex_error('EOS: invalid input.')
 #endif
-       
+
     end select
-    
+
     !-------------------------------------------------------------------------
     ! Now we have the density and temperature (and mass fractions /
     ! mu), regardless of the inputs.
     !-------------------------------------------------------------------------
-           
+
     Tinv = ONE / state % T
     rhoinv = ONE / state % rho
 
@@ -196,7 +195,7 @@ contains
     state % s = (k_B/(state % mu*m_nucleon))*(2.5_rt + &
          log( ( (state % mu*m_nucleon)**2.5_rt * rhoinv )*(k_B * state % T)**1.5_rt * fac ) )
 
-    ! Compute the thermodynamic derivatives and specific heats 
+    ! Compute the thermodynamic derivatives and specific heats
     state % dpdT = state % p * Tinv
     state % dpdr = state % p * rhoinv
     state % dedT = state % e * Tinv
@@ -239,12 +238,12 @@ contains
   end subroutine actual_eos
 
   subroutine actual_eos_finalize
-    
+
     implicit none
 
     deallocate(gamma_const)
     deallocate(assume_neutral)
-  
+
   end subroutine actual_eos_finalize
 
 end module actual_eos_module
