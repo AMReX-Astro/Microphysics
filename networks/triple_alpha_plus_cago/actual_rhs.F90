@@ -97,13 +97,13 @@ contains
 
     !$acc routine seq
 
-    use burn_type_module, only : neqs
+    use burn_type_module, only : neqs, njrows, njcols
     use temperature_integration_module, only: temperature_jac
 
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision :: jac(neqs, neqs)
+    double precision :: jac(njrows, njcols)
 
     type (rate_t) :: rr
 

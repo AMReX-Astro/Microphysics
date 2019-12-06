@@ -64,7 +64,7 @@ contains
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision, intent(inout) :: jac(neqs, neqs)
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     jac(:,:) = ZERO
 

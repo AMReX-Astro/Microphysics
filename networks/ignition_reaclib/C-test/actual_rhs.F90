@@ -198,7 +198,7 @@ contains
     implicit none
     
     type(burn_t), intent(in) :: state
-    real(rt) :: jac(neqs, neqs)
+    real(rt) :: jac(njrows, njcols)
 
     type(rate_eval_t) :: rate_eval
     real(rt) :: reactvec(num_rate_groups+2)
@@ -276,7 +276,7 @@ contains
     implicit none
 
     type(burn_t), intent(in) :: state
-    real(rt), intent(inout) :: jac(neqs, neqs)
+    real(rt), intent(inout) :: jac(njrows, njcols)
 
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)

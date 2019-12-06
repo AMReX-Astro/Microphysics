@@ -108,7 +108,7 @@ contains
     implicit none
 
     type (burn_t), intent(in)    :: state
-    real(rt), intent(inout) :: jac(neqs, neqs)
+    real(rt), intent(inout) :: jac(njrows, njcols)
 
     type (rate_t)    :: rr
 

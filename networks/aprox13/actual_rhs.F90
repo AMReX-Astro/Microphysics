@@ -142,7 +142,7 @@ contains
     implicit none
 
     type (burn_t), intent(in)    :: state
-    real(rt), intent(inout) :: jac(neqs, neqs)
+    real(rt), intent(inout) :: jac(njrows, njcols)
     type (rate_t)    :: rr
 
     logical          :: deriva
@@ -1740,7 +1740,7 @@ contains
     ! this routine sets up the dense aprox13 jacobian for the isotopes
 
     type (burn_t) :: state
-    real(rt) :: jac(neqs, neqs)
+    real(rt) :: jac(njrows, njcols)
     double precision :: y(nspec)
     type (rate_t)    :: rr
 

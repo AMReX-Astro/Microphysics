@@ -108,7 +108,7 @@ contains
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: jac(neqs, neqs)
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     type (rate_t)    :: rr
 
@@ -2153,7 +2153,7 @@ contains
     type (burn_t), intent(in) :: state
     double precision, intent(in) :: y(nspec)
     type (rate_t), intent(in) :: rr
-    double precision, intent(inout) :: jac(neqs, neqs)
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     double precision :: b(30)
 

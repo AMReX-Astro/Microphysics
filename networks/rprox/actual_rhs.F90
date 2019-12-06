@@ -401,7 +401,7 @@ contains
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: jac(neqs, neqs)
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     type (rate_t) :: rr
     double precision :: dens, ymol(nspec), T9, ydot(nspec)
