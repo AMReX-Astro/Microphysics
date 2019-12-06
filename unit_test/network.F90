@@ -21,7 +21,7 @@
 
 module network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use actual_network
 
   implicit none

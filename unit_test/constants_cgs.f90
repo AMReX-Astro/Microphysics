@@ -2,7 +2,7 @@
 
 module fundamental_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use amrex_constants_module, only: M_PI
 
   implicit none

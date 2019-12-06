@@ -43,7 +43,7 @@ contains
     ! Calculate the energy generation rate's temperature sensitivity
     ! Used for diagnostic purposes only
 
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use rates_module
     use screen_module
     use dydt_module

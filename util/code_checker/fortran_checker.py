@@ -48,5 +48,8 @@ def test_check_rt(filename):
                     assert re.fullmatch(rt, m.group(1)) is not None
 
                 assert re.search(double_prec, l.split('!')[0]) is None
+
+                assert 'use amrex_fort_module, only : rt => amrex_real' not in l.split('!')[0]
+                
         except UnicodeDecodeError:
             return 

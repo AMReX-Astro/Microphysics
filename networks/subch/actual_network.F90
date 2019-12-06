@@ -1,6 +1,6 @@
 module actual_network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use physical_constants, only: ERG_PER_MeV
   use microphysics_type_module
   

@@ -23,7 +23,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
 

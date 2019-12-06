@@ -11,7 +11,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: aion, nspec_evolve
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs

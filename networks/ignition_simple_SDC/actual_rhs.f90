@@ -61,7 +61,7 @@ contains
   subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
     use amrex_constants_module
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use network
 
     ! we get the thermodynamic state through the burner_aux module -- we freeze

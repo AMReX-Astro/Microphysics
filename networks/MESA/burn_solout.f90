@@ -27,7 +27,7 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
                     handle_net
    use network,   only: chem_id
    use amrex_error_module, only: amrex_error
-   use amrex_fort_module, only : rt => amrex_real
+   use microphysics_type_module
 
    implicit none
 

@@ -1,7 +1,7 @@
 module conductivity_module
   ! the general interface to thermal conductivities
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 

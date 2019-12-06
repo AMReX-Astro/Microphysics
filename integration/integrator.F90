@@ -58,7 +58,7 @@ contains
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
     use integration_data, only: integration_status_t

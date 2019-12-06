@@ -759,7 +759,7 @@ contains
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
 
     implicit none
 

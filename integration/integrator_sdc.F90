@@ -55,7 +55,7 @@ contains
 #ifndef AMREX_USE_CUDA
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use amrex_constants_module, only: ZERO, ONE
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t

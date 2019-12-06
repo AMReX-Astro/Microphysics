@@ -5,7 +5,7 @@ program testjacobian
 
   use amrex_constants_module
   use amrex_error_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use network
   use burn_type_module
   use microphysics_module

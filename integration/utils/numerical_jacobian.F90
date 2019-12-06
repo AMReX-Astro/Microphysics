@@ -1,7 +1,7 @@
 module numerical_jac_module
 
   use amrex_constants_module, only: ZERO, HALF, ONE
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use network
   use burn_type_module
 

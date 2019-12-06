@@ -276,7 +276,7 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: M_PI
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
 
     implicit none
 

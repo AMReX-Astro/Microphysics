@@ -5,7 +5,7 @@ module react_zones_module
   use eos_type_module
   use eos_module
   use burn_type_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use amrex_constants_module
   use extern_probin_module
   use util_module

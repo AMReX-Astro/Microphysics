@@ -4,7 +4,7 @@
 !
 module variables
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   use network, only: nspec, spec_names
 

@@ -6,7 +6,7 @@ subroutine setup_mesa_net()
 
    ! Boxlib:
    use amrex_error_module
-   use amrex_fort_module, only : rt => amrex_real
+   use microphysics_type_module
    use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
    ! MAESTRO:

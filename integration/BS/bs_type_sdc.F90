@@ -154,7 +154,7 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
 
     use sdc_type_module, only: SFS
     use actual_network, only: nspec

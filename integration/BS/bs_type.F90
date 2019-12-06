@@ -1,6 +1,6 @@
 module bs_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use burn_type_module, only: neqs, burn_t
   use bs_rpar_indices, only: n_rpar_comps
 
@@ -74,7 +74,7 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use actual_network, only: nspec, nspec_evolve
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
 
