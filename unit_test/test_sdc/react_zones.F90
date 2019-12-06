@@ -5,7 +5,7 @@ module react_zones_module
   use eos_type_module
   use eos_module
   use sdc_type_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use amrex_constants_module
   use extern_probin_module
   use util_module
@@ -91,7 +91,7 @@ contains
              sdc_state_in % y(SRHO) = state(ii, jj, kk, p % irho)
 
              ! we will pick velocities to be 10% of the sound speed
-             sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1 * eos_state % cs
+             sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1_rt * eos_state % cs
 
              sdc_state_in % y(SEINT) = sdc_state_in % y(SRHO) * eos_state % e
              sdc_state_in % y(SEDEN) = sdc_state_in % y(SEINT) + &

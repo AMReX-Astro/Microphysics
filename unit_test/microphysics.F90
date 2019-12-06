@@ -1,6 +1,7 @@
 module microphysics_module
 
   use network
+  use microphysics_type_module
   use eos_module, only : eos_init
 #ifdef REACTIONS
   use actual_rhs_module, only : actual_rhs_init
@@ -19,8 +20,8 @@ contains
 
   subroutine microphysics_init(small_temp, small_dens)
 
-    double precision, optional :: small_temp
-    double precision, optional :: small_dens
+    real(rt), optional :: small_temp
+    real(rt), optional :: small_dens
 
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)

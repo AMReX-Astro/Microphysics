@@ -6,6 +6,7 @@ module actual_rhs_module
   use rates_module
   use dydt_module
   use rate_type_module
+  use microphysics_type_module
 
   implicit none
 
@@ -29,10 +30,10 @@ contains
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
-    double precision :: temp, dens
-    double precision :: ymol(nspec)
+    real(rt) :: temp, dens
+    real(rt) :: ymol(nspec)
 
-    double precision :: rates(nrates), dratesdt(nrates)
+    real(rt) :: rates(nrates), dratesdt(nrates)
 
     !$gpu
 
@@ -62,8 +63,8 @@ contains
     type (burn_t) :: state
     type (rate_t) :: rr
 
-    double precision :: ymol(nspec)
-    double precision :: rates(nrates)
+    real(rt) :: ymol(nspec)
+    real(rt) :: rates(nrates)
     integer :: k
 
     !$gpu
@@ -103,8 +104,8 @@ contains
     type (burn_t) :: state
     type (rate_t) :: rr
 
-    double precision :: ymol(nspec)
-    double precision :: rates(nrates), dratesdt(nrates)
+    real(rt) :: ymol(nspec)
+    real(rt) :: rates(nrates), dratesdt(nrates)
 
     integer :: i, j
 
@@ -170,7 +171,7 @@ contains
 
     !$gpu
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt) :: dydt(nspec_evolve), enuc
 
     enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 

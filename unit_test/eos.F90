@@ -13,7 +13,7 @@ contains
 
   subroutine eos_init(small_temp, small_dens)
 
-    use amrex_fort_module, only: rt => amrex_real
+    use microphysics_type_module
     use amrex_error_module
     use amrex_paralleldescriptor_module, only : amrex_pd_ioprocessor
     use eos_type_module, only: mintemp, mindens, maxtemp, maxdens, &
@@ -45,22 +45,22 @@ contains
     allocate(minh)
     allocate(maxh)
 
-    mintemp = 1.d-200
-    maxtemp = 1.d200
-    mindens = 1.d-200
-    maxdens = 1.d200
-    minx    = 1.d-200
-    maxx    = 1.d0 + 1.d-12
-    minye   = 1.d-200
-    maxye   = 1.d0 + 1.d-12
-    mine    = 1.d-200
-    maxe    = 1.d200
-    minp    = 1.d-200
-    maxp    = 1.d200
-    mins    = 1.d-200
-    maxs    = 1.d200
-    minh    = 1.d-200
-    maxh    = 1.d200
+    mintemp = 1.e-200_rt
+    maxtemp = 1.e200_rt
+    mindens = 1.e-200_rt
+    maxdens = 1.e200_rt
+    minx    = 1.e-200_rt
+    maxx    = 1.e0_rt + 1.e-12_rt
+    minye   = 1.e-200_rt
+    maxye   = 1.e0_rt + 1.e-12_rt
+    mine    = 1.e-200_rt
+    maxe    = 1.e200_rt
+    minp    = 1.e-200_rt
+    maxp    = 1.e200_rt
+    mins    = 1.e-200_rt
+    maxs    = 1.e200_rt
+    minh    = 1.e-200_rt
+    maxh    = 1.e200_rt
 
     ! Set up any specific parameters or initialization steps required by the EOS we are using.
 

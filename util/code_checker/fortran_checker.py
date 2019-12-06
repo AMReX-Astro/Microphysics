@@ -31,14 +31,14 @@ def test_check_rt(filename):
     """
     make sure that all of the numerical constants use _rt and are defined as real(rt)
     """
-    ignore_dirs = ['util', 'tmp_build_dir', 't']
+    ignore_dirs = ['util', 'tmp_build_dir', 't', 'python_library']
     if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
         return 
 
     with open(filename, 'r') as file_dat:
 
-        r = re.compile(r'\W(\d*\.\d*[de]?-?\d+(?:_rt)?)')
-        rt = re.compile(r'(\d*\.\d*e?-?\d+_rt)')
+        r = re.compile(r'\W(\d*\.\d*[de]?-?\+?\d+(?:_rt)?)')
+        rt = re.compile(r'(\d*\.\d*e?-?\+?\d+_rt)')
 
         double_prec = re.compile(r'(double precision)')
 
@@ -50,7 +50,3 @@ def test_check_rt(filename):
                 assert re.search(double_prec, l.split('!')[0]) is None
         except UnicodeDecodeError:
             return 
-
-
-if __name__ == "__main__":
-    print([str(f) for f in find_fortran_files()])

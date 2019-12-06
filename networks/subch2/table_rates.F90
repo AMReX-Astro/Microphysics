@@ -2,7 +2,7 @@ module table_rates
   ! Table is expected to be in terms of dens*ye and temp (non-logarithmic, cgs units)
   ! Table energy units are expected in terms of ergs
 
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 
@@ -306,8 +306,8 @@ contains
     ! Recast entries into reactvec
     reactvec(1) = entries(jtab_rate)
     reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0
-    reactvec(4) = 0.0d0
+    reactvec(3) = 1.0e0_rt
+    reactvec(4) = 0.0e0_rt
     reactvec(5) = entries(jtab_dq)
     if (.not. disable_fermi_heating) then
        reactvec(5) = reactvec(5) + entries(jtab_mu) - entries(jtab_vs)

@@ -1,11 +1,11 @@
 module actual_network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 
-  double precision, parameter :: MeV2erg = 1.60217646e-6
-  double precision, parameter :: N_A = 6.0221415e23
+  real(rt), parameter :: MeV2erg = 1.60217646e-6_rt
+  real(rt), parameter :: N_A = 6.0221415e23_rt
 
   integer, parameter :: nspec = 10
   integer, parameter :: nspec_evolve = 10
@@ -26,7 +26,7 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable :: aion(:), zion(:), ebin(:)
+  real(rt), allocatable :: aion(:), zion(:), ebin(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, ebin

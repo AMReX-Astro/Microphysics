@@ -50,10 +50,10 @@ module actual_eos_module
 #endif
 
   ! 2006 CODATA physical constants
-  real(rt), parameter :: h       = 6.6260689633d-27
-  real(rt), parameter :: avo_eos = 6.0221417930d23
-  real(rt), parameter :: kerg    = 1.380650424d-16
-  real(rt), parameter :: amu     = 1.66053878283d-24
+  real(rt), parameter :: h       = 6.6260689633e-27_rt
+  real(rt), parameter :: avo_eos = 6.0221417930e23_rt
+  real(rt), parameter :: kerg    = 1.380650424e-16_rt
+  real(rt), parameter :: amu     = 1.66053878283e-24_rt
 
   !$acc declare &
   !$acc create(tlo, thi, dlo, dhi) &
@@ -917,7 +917,7 @@ contains
     xnew = x - (v - v_want) / dvdx
 
     ! Don't let the temperature/density change by more than a factor of two
-    xnew = max(0.5 * x, min(xnew, 2.0 * x))
+    xnew = max(0.5_rt * x, min(xnew, 2.0_rt * x))
 
     ! Don't let us freeze/evacuate
     xnew = max(smallx, xnew)

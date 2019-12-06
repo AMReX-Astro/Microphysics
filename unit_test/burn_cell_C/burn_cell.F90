@@ -4,7 +4,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
 
   use amrex_error_module
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   use extern_probin_module, only: run_prefix, small_temp, small_dens
   use extern_probin_module
@@ -52,7 +52,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   print *, "small_dens = ", small_dens
 
   ! Set mass fractions to sanitize inputs for them
-  massfractions = -1.0d0
+  massfractions = -1.0e0_rt
 
   ! Make sure user set all the mass fractions to values in the interval [0, 1]
   do i = 1, nspec
@@ -148,7 +148,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   write(*,*) " - Hnuc = ", burn_state_out % e / dt
   write(*,*) " - integrated e = ", eos_state_in % e + energy
   write(*,*) " - EOS e(rho, T) = ", eos_state_out % e
-  write(*,*) " - integrated/EOS percent diff. = ", 100.0d0 * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
+  write(*,*) " - integrated/EOS percent diff. = ", 100.0e0_rt * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
 
   ! output burn type data
   !call write_burn_t(burn_state_out)
@@ -162,8 +162,8 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   write(*,*) "EOS e(rho, T) generation rate = ", eos_energy_rate
   write(*,*) "Integrator total generated energy: ", energy
   write(*,*) "Integrator average energy generation rate: ", energy/tmax
-  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0d0 * (energy - eos_energy_generated)/eos_energy_generated
-  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0d0 * (energy/tmax - eos_energy_rate)/eos_energy_rate
+  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0e0_rt * (energy - eos_energy_generated)/eos_energy_generated
+  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0e0_rt * (energy/tmax - eos_energy_rate)/eos_energy_rate
 
   call microphysics_finalize()
 

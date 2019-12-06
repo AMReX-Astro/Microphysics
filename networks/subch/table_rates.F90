@@ -1,6 +1,8 @@
 module table_rates
   ! Table is expected to be in terms of dens*ye and temp (non-logarithmic, cgs units)
   ! Table energy units are expected in terms of ergs
+
+  use microphysics_type_module
   
   implicit none
 
@@ -26,9 +28,9 @@ module table_rates
 
 
   type :: table_info
-     double precision, allocatable :: rate_table(:,:,:)
-     double precision, allocatable :: rhoy_table(:)
-     double precision, allocatable :: temp_table(:)
+     real(rt), allocatable :: rate_table(:,:,:)
+     real(rt), allocatable :: rhoy_table(:)
+     real(rt), allocatable :: temp_table(:)
      integer :: num_rhoy
      integer :: num_temp
      integer :: num_vars
@@ -62,7 +64,7 @@ contains
   subroutine init_tab_info(self, self_read)
     type(table_info) :: self
     type(table_read_info) :: self_read
-    double precision, target, dimension(:,:,:), allocatable :: rate_table_scratch
+    real(rt), target, dimension(:,:,:), allocatable :: rate_table_scratch
     integer :: i, j, k
 
     allocate( self%rate_table( self%num_temp, self%num_rhoy, self%num_vars ) )
@@ -106,8 +108,8 @@ contains
     ! Return 1 if fvar < vector(1)
     ! Return size(vector)-1 if fvar > vector(size(vector))
     ! The interval [index, index+1] brackets fvar for fvar within the range of vector.
-    double precision, intent(in) :: vector(:)
-    double precision, intent(in) :: fvar
+    real(rt), intent(in) :: vector(:)
+    real(rt), intent(in) :: fvar
     integer, intent(out) :: index
     integer :: n, i, j, nup, ndn
 
@@ -146,8 +148,8 @@ contains
     ! Returns f(x), the values flo and fhi interpolated at x
     ! f(x) = flo if x <= xlo
     ! f(x) = fhi if x >= xhi
-    double precision, intent(in)  :: xlo, xhi, flo, fhi, x
-    double precision, intent(out) :: f
+    real(rt), intent(in)  :: xlo, xhi, flo, fhi, x
+    real(rt), intent(out) :: f
 
     !$gpu
 
@@ -169,8 +171,8 @@ contains
     ! fhi = f(xhi)
     ! Returns f(x), the values flo and fhi interpolated at x
     ! If x <= xlo or x >= xhi, f(x) is extrapolated at x
-    double precision, intent(in)  :: xlo, xhi, flo, fhi, x
-    double precision, intent(out) :: f
+    real(rt), intent(in)  :: xlo, xhi, flo, fhi, x
+    real(rt), intent(out) :: f
     
     !$gpu
 
@@ -181,17 +183,17 @@ contains
     !$acc routine seq
     
     type(table_info) :: self
-    double precision, intent(in) :: rhoy, temp
+    real(rt), intent(in) :: rhoy, temp
 
-    double precision, dimension(self%num_vars+1), intent(out) :: entries
+    real(rt), dimension(self%num_vars+1), intent(out) :: entries
     ! The last element of entries is the derivative of rate with temperature
     ! drate_dt, evaluated by central differencing at the box corners
     ! and then performing a bilinear interpolation on those central differences.
 
-    double precision :: f_im1, f_i, f_ip1, f_ip2
-    double precision :: t_im1, t_i, t_ip1, t_ip2
-    double precision :: drdt_i, drdt_ip1
-    double precision :: temp_lo, temp_hi, rhoy_lo, rhoy_hi
+    real(rt) :: f_im1, f_i, f_ip1, f_ip2
+    real(rt) :: t_im1, t_i, t_ip1, t_ip2
+    real(rt) :: drdt_i, drdt_ip1
+    real(rt) :: temp_lo, temp_hi, rhoy_lo, rhoy_hi
     integer :: irhoy_lo, irhoy_hi, itemp_lo, itemp_hi
     integer :: ivar
 
@@ -287,9 +289,9 @@ contains
     implicit none
     
     type(table_info) :: self
-    double precision, intent(in) :: rhoy, temp
-    double precision, dimension(num_rate_groups+2), intent(inout) :: reactvec
-    double precision, dimension(self%num_vars+add_vars) :: entries
+    real(rt), intent(in) :: rhoy, temp
+    real(rt), dimension(num_rate_groups+2), intent(inout) :: reactvec
+    real(rt), dimension(self%num_vars+add_vars) :: entries
   
     !$gpu
   
@@ -299,8 +301,8 @@ contains
     ! Recast entries into reactvec
     reactvec(1) = entries(jtab_rate)
     reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0 
-    reactvec(4) = 0.0d0
+    reactvec(3) = 1.0e0_rt 
+    reactvec(4) = 0.0e0_rt
     reactvec(5) = entries(jtab_dq) 
     reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
   end subroutine tabular_evaluate

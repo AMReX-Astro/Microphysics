@@ -288,14 +288,14 @@ contains
     mindens_tbl = eos_logrho(1)
     maxdens_tbl = eos_logrho(nrho)
 
-    mindens = 10.0**mindens_tbl
-    maxdens = 10.0**maxdens_tbl
+    mindens = 10.0_rt**mindens_tbl
+    maxdens = 10.0_rt**maxdens_tbl
 
     mintemp_tbl = eos_logtemp(1)
     maxtemp_tbl = eos_logtemp(ntemp)
 
-    mintemp = 10.0**mintemp_tbl / temp_conv
-    maxtemp = 10.0**maxtemp_tbl / temp_conv
+    mintemp = 10.0_rt**mintemp_tbl / temp_conv
+    maxtemp = 10.0_rt**maxtemp_tbl / temp_conv
 
     minye = eos_ye(1)
     maxye = eos_ye(nye)

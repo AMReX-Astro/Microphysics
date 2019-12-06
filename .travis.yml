@@ -31,7 +31,7 @@ before_script:
 script:
   - ls -l
   - pwd
-  - cd util/code_checker; python -q fortran_checker.py
+  - cd util/code_checker; pytest -q fortran_checker.py
 
 # after_success:
   - ./deploy_docs.sh

@@ -20,7 +20,7 @@
 module bdf
 
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use bdf_type_module
 
   implicit none
@@ -279,7 +279,7 @@ contains
 
     dt_rat = dt_adj / ts%dt_nwt
     if (ts%p_age > ts%max_p_age) ts%refactor = .true.
-    if (dt_rat < 0.7d0 .or. dt_rat > 1.429d0) ts%refactor = .true.
+    if (dt_rat < 0.7e0_rt .or. dt_rat > 1.429e0_rt) ts%refactor = .true.
 
     iterating = .true.
 
@@ -289,7 +289,7 @@ contains
        if (ts%refactor) then
           rebuild = .true.
           if (ts%ncse == 0 .and. ts%j_age < ts%max_j_age) rebuild = .false.
-          if (ts%ncse > 0  .and. (dt_rat < 0.2d0 .or. dt_rat > 5.d0)) rebuild = .false.
+          if (ts%ncse > 0  .and. (dt_rat < 0.2e0_rt .or. dt_rat > 5.e0_rt)) rebuild = .false.
 
           if (rebuild) then
              call jac(ts)
@@ -373,7 +373,7 @@ contains
     ! if solver failed to converge, shrink dt and try again
     if (ts%ncit >= ts%max_iters) then
        ts%refactor = .true.; ts%nse = ts%nse + 1; ts%ncse = ts%ncse + 1
-       call rescale_timestep(ts, 0.25d0, .false.)
+       call rescale_timestep(ts, 0.25e0_rt, .false.)
        retry = .true.
        return
     end if
@@ -383,7 +383,7 @@ contains
     do p = 1, ts%npt
        error = ts%tq(0) * norm(ts%e(:,p), ts%ewt(:,p))
        if (error > ONE) then
-          eta = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
+          eta = ONE / ( (6.e0_rt * error) ** (ONE / ts%k) + 1.e-6_rt )
           call rescale_timestep(ts, eta, .false.)
           retry = .true.
           !if (ts%dt < ts%dt_min + epsilon(ts%dt_min)) ts%ncdtmin = ts%ncdtmin + 1
@@ -453,11 +453,11 @@ contains
        ! compute eta(k-1), eta(k), eta(k+1)
        eta = 0
        error  = ts%tq(0) * norm(ts%e(:,p), ts%ewt(:,p))
-       eta(0) = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
+       eta(0) = ONE / ( (6.e0_rt * error) ** (ONE / ts%k) + 1.e-6_rt )
        if (ts%k_age > ts%k) then
           if (ts%k > 1) then
              error     = ts%tq(-1) * norm(ts%z(:,p,ts%k), ts%ewt(:,p))
-             eta(-1) = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
+             eta(-1) = ONE / ( (6.e0_rt * error) ** (ONE / ts%k) + 1.e-6_rt )
           end if
           if (ts%k < ts%max_order) then
              c = (ts%tq(2) / ts%tq2save) * (ts%h(0) / ts%h(2)) ** (ts%k+1)
@@ -470,7 +470,7 @@ contains
                 emcxe1(m,p) = ts%e(m,p) - cxe1(m,p)
              end do
              error  = ts%tq(1) * norm(emcxe1(:,p), ts%ewt(:,p))
-             eta(1) = ONE / ( (10.d0 * error) ** (ONE / (ts%k+2)) + 1.d-6 )
+             eta(1) = ONE / ( (10.e0_rt * error) ** (ONE / (ts%k+2)) + 1.e-6_rt )
           end if
           ts%k_age = 0
        end if
@@ -824,10 +824,10 @@ contains
 
     do n = 1, ts % npt
        do k = 1, neqs
-          ts % yd(k,n) = 0.0d0
+          ts % yd(k,n) = 0.0e0_rt
           do j = 1, neqs
-             ts % J(j,k,n) = 0.0d0
-             ts % P(j,k,n) = 0.0d0
+             ts % J(j,k,n) = 0.0e0_rt
+             ts % P(j,k,n) = 0.0e0_rt
           enddo
        enddo
     enddo
@@ -898,7 +898,7 @@ contains
 
     !shifted_arr = 0.0
     do i = 0, hi_shift
-       shifted_arr(i) = 0.0
+       shifted_arr(i) = 0.0_rt
     enddo
 
     if(sh > 0) then

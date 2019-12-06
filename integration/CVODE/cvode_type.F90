@@ -1,6 +1,6 @@
 module cvode_type_module
 
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
   use burn_type_module, only: neqs
 
   implicit none
@@ -26,7 +26,7 @@ contains
 
     ! Ensure that mass fractions always stay positive.
 
-    y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.d-200)
+    y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.e-200_rt)
 
   end subroutine sk_clean_state
 
@@ -407,7 +407,7 @@ contains
     ! interpolation of the specific heat in between EOS calls
     rpar(irp_Told) = eos_state % T
 
-    if (dT_crit < 1.0d19) then
+    if (dT_crit < 1.0e19_rt) then
 
        call copy_eos_t(eos_state_temp, eos_state)
        eos_state_temp % T = eos_state % T * (ONE + sqrt(epsilon(ONE)))

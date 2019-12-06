@@ -37,7 +37,7 @@ contains
     use stiff_ode, only: ode, IERR_NONE
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
     use amrex_constants_module, only: ZERO
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use bs_rpar_indices, only : irp_t0
     use integration_data, only: integration_status_t
 
@@ -58,7 +58,7 @@ contains
     type (bs_t) :: bs
 
     ! BS does not allow for per-equation tolerances, so aggregate them here
-    bs % atol(:) = 0.d0
+    bs % atol(:) = 0.e0_rt
     bs % rtol(:) = max(status % rtol_spec, status % rtol_temp, status % rtol_enuc)
 
     ! Start out by assuming a successful burn.

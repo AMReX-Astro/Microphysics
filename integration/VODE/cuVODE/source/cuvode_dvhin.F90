@@ -3,7 +3,7 @@ module cuvode_dvhin_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
 
   use cuvode_constants_module
 
@@ -93,7 +93,7 @@ contains
     real(rt) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
 
-    real(rt), parameter :: PT1 = 0.1D0
+    real(rt), parameter :: PT1 = 0.1e0_rt
 
     !$gpu
 

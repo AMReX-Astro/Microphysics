@@ -1,7 +1,7 @@
 program eval
 
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   use network
   use eos_module
@@ -20,16 +20,16 @@ program eval
   
   call microphysics_init()
 
-  dens = 6.558e5_dp_t
-  temp = 7.108e8_dp_t
+  dens = 6.558e5_rt
+  temp = 7.108e8_rt
 
   Xin(:) = ZERO
-  Xin(io14) = 1.027e-3_dp_t
-  Xin(io15) = 3.558e-3_dp_t
-  Xin(if17) = 2.788e-2_dp_t
-  Xin(is30) = 1.5735e-2_dp_t
-  Xin(ihe4) = 0.2624e0_dp_t
-  Xin(ih1) = 0.6894e0_dp_t
+  Xin(io14) = 1.027e-3_rt
+  Xin(io15) = 3.558e-3_rt
+  Xin(if17) = 2.788e-2_rt
+  Xin(is30) = 1.5735e-2_rt
+  Xin(ihe4) = 0.2624e0_rt
+  Xin(ih1) = 0.6894e0_rt
 
   print *, 'calling the burner RHS ...'
 

@@ -1,6 +1,6 @@
 module cuvode_dvnorm_module
 
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
 
@@ -53,7 +53,7 @@ contains
 
     !$gpu
 
-    SUM = 0.0D0
+    SUM = 0.0e0_rt
     do I = 1,VODE_NEQS
        SUM = SUM + (V(I)*W(I))**2
     end do

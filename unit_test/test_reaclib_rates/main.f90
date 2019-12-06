@@ -4,7 +4,7 @@ program test_rates
 
   use amrex_error_module
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   use fabio_module, only: fabio_mkdir
   use probin_module, only: run_prefix, small_temp, small_dens
@@ -42,7 +42,7 @@ program test_rates
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
 
   ! Set mass fractions to sanitize inputs for them
-  massfractions = -1.0d0
+  massfractions = -1.0e0_rt
 
   ! Get initial conditions for the burn
   call get_command_argument(1, value = params_file)

@@ -1,4 +1,6 @@
 module actual_network
+    
+  use microphysics_type_module
 
   implicit none
 
@@ -14,7 +16,7 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
+  real(rt), save :: aion(nspec), zion(nspec), ebin(nspec)
 
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
@@ -39,13 +41,13 @@ contains
     ! charge conservation require that A_f = A_a / 2 and Z_f = Z_a / 2
     ! inert is a third species that doesn't participate in any 
     ! reactions
-    aion(ifuel_)  = 2.0d0
-    aion(iash_)   = 4.0d0
-    aion(iinert_) = 8.0d0
+    aion(ifuel_)  = 2.0e0_rt
+    aion(iash_)   = 4.0e0_rt
+    aion(iinert_) = 8.0e0_rt
     
-    zion(ifuel_)  = 1.0d0
-    zion(iash_)   = 2.0d0
-    zion(iinert_) = 4.0d0
+    zion(ifuel_)  = 1.0e0_rt
+    zion(iash_)   = 2.0e0_rt
+    zion(iinert_) = 4.0e0_rt
 
     ! Binding energies in erg / g
 

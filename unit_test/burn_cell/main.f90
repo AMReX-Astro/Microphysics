@@ -4,7 +4,7 @@ program burn_cell
 
   use amrex_error_module
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   use fabio_module, only: fabio_mkdir
   use probin_module, only: run_prefix, small_temp, small_dens
@@ -53,7 +53,7 @@ program burn_cell
   print *, "small_dens = ", small_dens
 
   ! Set mass fractions to sanitize inputs for them
-  massfractions = -1.0d0
+  massfractions = -1.0e0_rt
 
   ! Get initial conditions for the burn
   call get_command_argument(1, value = params_file)
@@ -128,7 +128,7 @@ program burn_cell
      write(*,*) " - Hnuc = ", burn_state_out % e / dt
      write(*,*) " - integrated e = ", eos_state_in % e + energy
      write(*,*) " - EOS e(rho, T) = ", eos_state_out % e
-     write(*,*) " - integrated/EOS percent diff. = ", 100.0d0 * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
+     write(*,*) " - integrated/EOS percent diff. = ", 100.0e0_rt * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
      
      ! output burn type data
      write(out_num,'(I6.6)') i
@@ -147,8 +147,8 @@ program burn_cell
   write(*,*) "EOS e(rho, T) generation rate = ", eos_energy_rate
   write(*,*) "Integrator total generated energy: ", energy
   write(*,*) "Integrator average energy generation rate: ", energy/tmax
-  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0d0 * (energy - eos_energy_generated)/eos_energy_generated
-  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0d0 * (energy/tmax - eos_energy_rate)/eos_energy_rate
+  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0e0_rt * (energy - eos_energy_generated)/eos_energy_generated
+  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0e0_rt * (energy/tmax - eos_energy_rate)/eos_energy_rate
 
   call microphysics_finalize()
 

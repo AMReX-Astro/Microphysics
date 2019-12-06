@@ -1,7 +1,7 @@
 module actual_burner_module
 
   use amrex_constants_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   use network
   use burn_type_module
@@ -29,7 +29,7 @@ contains
 
     type (burn_t),    intent(in   ) :: state_in
     type (burn_t),    intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time
+    real(rt), intent(in   ) :: dt, time
 
     call integrator(state_in, state_out, dt, time)
 

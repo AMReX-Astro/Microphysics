@@ -1,7 +1,7 @@
 module cuvode_dvset_module
 
   use cuvode_types_module, only: dvode_t
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
 
   use cuvode_constants_module
 
@@ -76,7 +76,7 @@ contains
     integer    :: I, IBACK, J, JP1, NQM1, NQM2
 
     ! Parameter declaration
-    real(rt), parameter :: CORTES = 0.1D0
+    real(rt), parameter :: CORTES = 0.1e0_rt
 
     !$gpu
 

@@ -46,6 +46,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
 
    ! AMReX
    use amrex_error_module, only: amrex_error
+   use microphysics_type_module
 
    implicit none
 
@@ -248,7 +249,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
    time_doing_net = -1
 
    ! set initial value
-   burn_ergs_total = 0.0d0
+   burn_ergs_total = 0.0e0_rt
    !--------------------------------------------------------------
    !
    ! MESA one-zone-burn routine:

@@ -1,7 +1,7 @@
 module bs_type_module
 
   use amrex_constants_module, only: HALF, ONE, ZERO
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
   use bs_rpar_indices, only: n_rpar_comps
 
@@ -65,7 +65,7 @@ contains
     implicit none
 
     ! this should be larger than any reasonable temperature we will encounter
-    real (rt), parameter :: MAX_TEMP = 1.0d11
+    real (rt), parameter :: MAX_TEMP = 1.0e11_rt
 
     real (rt) :: max_e, ke
 

@@ -9,6 +9,7 @@ subroutine test_jacobian() bind(C)
   use actual_burner_module
   use actual_rhs_module
   use burn_type_module
+  use microphysics_type_module
   
   implicit none
 
@@ -20,9 +21,9 @@ subroutine test_jacobian() bind(C)
   integer :: probin_pass(32)
   integer :: i, j
 
-  double precision, parameter :: delta = 1.d-6
-  double precision, parameter :: SMALL = 1.d-12
-  double precision :: num_jac
+  real(rt), parameter :: delta = 1.e-6_rt
+  real(rt), parameter :: SMALL = 1.e-12_rt
+  real(rt) :: num_jac
 
   character(len=16) :: namei,namej  
   
@@ -39,8 +40,8 @@ subroutine test_jacobian() bind(C)
 
   ! Set up state
 
-  state % rho   = 2.0d7
-  state % T     = 8.0d9
+  state % rho   = 2.0e7_rt
+  state % T     = 8.0e9_rt
 
   state % xn(:) = ONE / nspec
 

@@ -34,7 +34,7 @@ contains
     !$acc routine seq
 
     use bs_rpar_indices
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
@@ -147,7 +147,7 @@ contains
 
     bs % burn_s % T_old = eos_state_in % T
 
-    if (dT_crit < 1.0d19) then
+    if (dT_crit < 1.0e19_rt) then
 
        eos_state_temp = eos_state_in
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
@@ -184,7 +184,7 @@ contains
        ! redo the T_old, cv / cp extrapolation
        bs % burn_s % T_old = eos_state_in % T
 
-       if (dT_crit < 1.0d19) then
+       if (dT_crit < 1.0e19_rt) then
           bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
                (eos_state_temp % T - eos_state_in % T)
 
@@ -242,10 +242,10 @@ contains
 
     if (burning_mode == 3) then
 
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
        t_sound = state_in % dx / eos_state_in % cs
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
 
        state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))

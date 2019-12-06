@@ -4,6 +4,7 @@ module actual_rhs_module
   use network
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
+  use microphysics_type_module
 
   implicit none
 
@@ -25,8 +26,8 @@ contains
 
     type (burn_t)    :: state
 
-    double precision :: xfueltmp
-    double precision :: dens, temp, rate, y(nspec)
+    real(rt) :: xfueltmp
+    real(rt) :: dens, temp, rate, y(nspec)
 
     state % ydot = ZERO
 
@@ -79,7 +80,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt) :: dydt(nspec_evolve), enuc
 
     ! This is basically e = m c**2
 

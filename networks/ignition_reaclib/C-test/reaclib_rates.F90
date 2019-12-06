@@ -1,6 +1,6 @@
 module reaclib_rates
 
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
   use screening_module, only: add_screening_factor, &
                               screening_init, screening_finalize, &
                               plasma_state, fill_plasma_state
@@ -33,22 +33,22 @@ contains
     allocate( ctemp_rate(7, 2) )
     ! he4_c12__o16
     ctemp_rate(:, 1) = [  &
-        6.96526000000000d+01, &
-        -1.39254000000000d+00, &
-        5.89128000000000d+01, &
-        -1.48273000000000d+02, &
-        9.08324000000000d+00, &
-        -5.41041000000000d-01, &
-        7.03554000000000d+01 ]
+        6.96526000000000e+01_rt, &
+        -1.39254000000000e+00_rt, &
+        5.89128000000000e+01_rt, &
+        -1.48273000000000e+02_rt, &
+        9.08324000000000e+00_rt, &
+        -5.41041000000000e-01_rt, &
+        7.03554000000000e+01_rt ]
 
     ctemp_rate(:, 2) = [  &
-        2.54634000000000d+02, &
-        -1.84097000000000d+00, &
-        1.03411000000000d+02, &
-        -4.20567000000000d+02, &
-        6.40874000000000d+01, &
-        -1.24624000000000d+01, &
-        1.37303000000000d+02 ]
+        2.54634000000000e+02_rt, &
+        -1.84097000000000e+00_rt, &
+        1.03411000000000e+02_rt, &
+        -4.20567000000000e+02_rt, &
+        6.40874000000000e+01_rt, &
+        -1.24624000000000e+01_rt, &
+        1.37303000000000e+02_rt ]
 
 
 
@@ -107,7 +107,7 @@ contains
     ! reactvec(5) = dqweak   , the weak reaction dq-value (ergs)
     !                          (This accounts for modification of the reaction Q
     !                           due to the local density and temperature of the plasma.
-    !                           For Reaclib rates, this is 0.0d0.)
+    !                           For Reaclib rates, this is 0.0e0_rt.)
     ! reactvec(6) = epart    , the particle energy generation rate (ergs/s)
     ! NOTE: The particle energy generation rate (returned in ergs/s)
     !       is the contribution to enuc from non-ion particles associated
@@ -124,13 +124,13 @@ contains
 
     !$gpu
 
-    ri = 0.0d0
-    rate = 0.0d0
-    drate_dt = 0.0d0
-    irate = 0.0d0
-    dirate_dt = 0.0d0
-    T9 = temp/1.0d9
-    T9_exp = 0.0d0
+    ri = 0.0e0_rt
+    rate = 0.0e0_rt
+    drate_dt = 0.0e0_rt
+    irate = 0.0e0_rt
+    dirate_dt = 0.0e0_rt
+    T9 = temp/1.0e9_rt
+    T9_exp = 0.0e0_rt
 
     ! Use reaction multiplicities to tell whether the rate is Reaclib
     m = rate_extra_mult(iwhich)
@@ -141,28 +141,28 @@ contains
        lnirate = ctemp_rate(1, istart+i) + ctemp_rate(7, istart+i) * LOG(T9)
        dlnirate_dt = ctemp_rate(7, istart+i)/T9
        do j = 2, 6
-          T9_exp = (2.0d0*dble(j-1)-5.0d0)/3.0d0
+          T9_exp = (2.0e0_rt*dble(j-1)-5.0e0_rt)/3.0e0_rt
           lnirate = lnirate + ctemp_rate(j, istart+i) * T9**T9_exp
           dlnirate_dt = dlnirate_dt + &
-               T9_exp * ctemp_rate(j, istart+i) * T9**(T9_exp-1.0d0)
+               T9_exp * ctemp_rate(j, istart+i) * T9**(T9_exp-1.0e0_rt)
        end do
        ! If the rate will be in the approx. interval [0.0, 1.0E-100], replace by 0.0
        ! This avoids issues with passing very large negative values to EXP
        ! and getting results between 0.0 and 1.0E-308, the limit for IEEE 754.
        ! And avoids SIGFPE in CVODE due to tiny rates.
-       lnirate = max(lnirate, -230.0d0)
+       lnirate = max(lnirate, -230.0e0_rt)
        irate = EXP(lnirate)
        rate = rate + irate
-       dirate_dt = irate * dlnirate_dt/1.0d9
+       dirate_dt = irate * dlnirate_dt/1.0e9_rt
        drate_dt = drate_dt + dirate_dt
     end do
 
     reactvec(i_rate)     = rate
     reactvec(i_drate_dt) = drate_dt
-    reactvec(i_scor)     = 1.0d0
-    reactvec(i_dscor_dt) = 0.0d0
-    reactvec(i_dqweak)   = 0.0d0
-    reactvec(i_epart)    = 0.0d0
+    reactvec(i_scor)     = 1.0e0_rt
+    reactvec(i_dscor_dt) = 0.0e0_rt
+    reactvec(i_dqweak)   = 0.0e0_rt
+    reactvec(i_epart)    = 0.0e0_rt
 
     ! write(*,*) '----------------------------------------'
     ! write(*,*) 'IWHICH: ', iwhich

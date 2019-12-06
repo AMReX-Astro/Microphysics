@@ -5,6 +5,7 @@ module actual_burner_module
   use eos_module
   use network
   use burn_type_module
+  use microphysics_type_module
 
   implicit none
 
@@ -18,7 +19,7 @@ contains
 
     type (burn_t),       intent(in   ) :: state_in
     type (burn_t),       intent(inout) :: state_out
-    double precision,    intent(in   ) :: dt, time
+    real(rt),    intent(in   ) :: dt, time
 
     !$gpu
 

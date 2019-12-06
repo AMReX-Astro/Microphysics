@@ -5,21 +5,22 @@ module actual_rhs_module
   use burn_type_module
   use actual_network, only: nrates
   use rate_type_module
+  use microphysics_type_module
 
   implicit none
 
   ! Table interpolation data
 
-  double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
+  real(rt), parameter :: tab_tlo = 6.0e0_rt, tab_thi = 10.0e0_rt
   integer, parameter :: tab_per_decade = 500
   integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
   integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
-  double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
+  real(rt), parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
 
-  double precision, allocatable :: rattab(:,:)
-  double precision, allocatable :: drattabdt(:,:)
-!  double precision, allocatable :: drattabdd(:,:)
-  double precision, allocatable :: ttab(:)
+  real(rt), allocatable :: rattab(:,:)
+  real(rt), allocatable :: drattabdt(:,:)
+!  real(rt), allocatable :: drattabdd(:,:)
+  real(rt), allocatable :: ttab(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: rattab, drattabdt, ttab !, drattabdd
@@ -82,12 +83,12 @@ contains
 
     logical          :: deriva
 
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
-    double precision :: enuc
+    real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt) :: enuc
 
-    double precision :: rho, temp, abar, zbar
+    real(rt) :: rho, temp, abar, zbar
 
-    double precision :: y(nspec), ydot(nspec)
+    real(rt) :: y(nspec), ydot(nspec)
 
     !$gpu
 
@@ -146,12 +147,12 @@ contains
 
     logical          :: deriva
 
-    double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt) :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
     integer          :: j, k
 
-    double precision :: rho, temp, abar, zbar, scratch
-    double precision :: y(nspec), yderivs(nspec)
+    real(rt) :: rho, temp, abar, zbar, scratch
+    real(rt) :: y(nspec), yderivs(nspec)
 
     !$gpu
 
@@ -226,9 +227,9 @@ contains
     type (burn_t), intent(in)  :: state
     type (rate_t), intent(out) :: rr
 
-    double precision :: rho, temp, abar, zbar
+    real(rt) :: rho, temp, abar, zbar
 
-    double precision :: y(nspec)
+    real(rt) :: y(nspec)
 
     !$gpu
 
@@ -259,89 +260,89 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: btemp, bden
+    real(rt), intent(in   ) :: btemp, bden
     type (rate_t),    intent(inout) :: rr
 
     integer, parameter :: mp = 4
 
     integer          :: j, iat
-    double precision :: x, x1, x2, x3, x4
-    double precision :: a, b, c, d, e, f, g, h, p, q
-    double precision :: alfa, beta, gama, delt
+    real(rt) :: x, x1, x2, x3, x4
+    real(rt) :: a, b, c, d, e, f, g, h, p, q
+    real(rt) :: alfa, beta, gama, delt
 
-    double precision :: dtab(nrates)
+    real(rt) :: dtab(nrates)
 
     !$gpu
 
     ! Set the density dependence array
 
     dtab(ir3a)   = bden*bden
-    dtab(irg3a)  = 1.0d0
+    dtab(irg3a)  = 1.0e0_rt
     dtab(ircag)  = bden
-    dtab(iroga)  = 1.0d0
+    dtab(iroga)  = 1.0e0_rt
     dtab(ir1212) = bden
     dtab(ir1216) = bden
     dtab(ir1616) = bden
     dtab(iroag)  = bden
-    dtab(irnega) = 1.0d0
+    dtab(irnega) = 1.0e0_rt
     dtab(irneag) = bden
-    dtab(irmgga) = 1.0d0
+    dtab(irmgga) = 1.0e0_rt
     dtab(irmgag) = bden
-    dtab(irsiga) = 1.0d0
+    dtab(irsiga) = 1.0e0_rt
     dtab(irmgap) = bden
     dtab(iralpa) = bden
     dtab(iralpg) = bden
-    dtab(irsigp) = 1.0d0
+    dtab(irsigp) = 1.0e0_rt
     dtab(irsiag) = bden
-    dtab(irsga)  = 1.0d0
+    dtab(irsga)  = 1.0e0_rt
     dtab(irppa)  = bden
     dtab(irsiap) = bden
     dtab(irppg)  = bden
-    dtab(irsgp)  = 1.0d0
+    dtab(irsgp)  = 1.0e0_rt
     dtab(irsag)  = bden
-    dtab(irarga) = 1.0d0
+    dtab(irarga) = 1.0e0_rt
     dtab(irsap)  = bden
     dtab(irclpa) = bden
     dtab(irclpg) = bden
-    dtab(irargp) = 1.0d0
+    dtab(irargp) = 1.0e0_rt
     dtab(irarag) = bden
-    dtab(ircaga) = 1.0d0
+    dtab(ircaga) = 1.0e0_rt
     dtab(irarap) = bden
     dtab(irkpa)  = bden
     dtab(irkpg)  = bden
-    dtab(ircagp) = 1.0d0
+    dtab(ircagp) = 1.0e0_rt
     dtab(ircaag) = bden
-    dtab(irtiga) = 1.0d0
+    dtab(irtiga) = 1.0e0_rt
     dtab(ircaap) = bden
     dtab(irscpa) = bden
     dtab(irscpg) = bden
-    dtab(irtigp) = 1.0d0
+    dtab(irtigp) = 1.0e0_rt
     dtab(irtiag) = bden
-    dtab(ircrga) = 1.0d0
+    dtab(ircrga) = 1.0e0_rt
     dtab(irtiap) = bden
     dtab(irvpa)  = bden
     dtab(irvpg)  = bden
-    dtab(ircrgp) = 1.0d0
+    dtab(ircrgp) = 1.0e0_rt
     dtab(ircrag) = bden
-    dtab(irfega) = 1.0d0
+    dtab(irfega) = 1.0e0_rt
     dtab(ircrap) = bden
     dtab(irmnpa) = bden
     dtab(irmnpg) = bden
-    dtab(irfegp) = 1.0d0
+    dtab(irfegp) = 1.0e0_rt
     dtab(irfeag) = bden
-    dtab(irniga) = 1.0d0
+    dtab(irniga) = 1.0e0_rt
     dtab(irfeap) = bden
     dtab(ircopa) = bden
     dtab(ircopg) = bden
-    dtab(irnigp) = 1.0d0
-    dtab(irr1)   = 0.0d0
-    dtab(irs1)   = 0.0d0
-    dtab(irt1)   = 0.0d0
-    dtab(iru1)   = 0.0d0
-    dtab(irv1)   = 0.0d0
-    dtab(irw1)   = 0.0d0
-    dtab(irx1)   = 0.0d0
-    dtab(iry1)   = 0.0d0
+    dtab(irnigp) = 1.0e0_rt
+    dtab(irr1)   = 0.0e0_rt
+    dtab(irs1)   = 0.0e0_rt
+    dtab(irt1)   = 0.0e0_rt
+    dtab(iru1)   = 0.0e0_rt
+    dtab(irv1)   = 0.0e0_rt
+    dtab(irw1)   = 0.0e0_rt
+    dtab(irx1)   = 0.0e0_rt
+    dtab(iry1)   = 0.0e0_rt
 
     ! hash locate
     iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
@@ -431,12 +432,12 @@ contains
 #ifdef AMREX_USE_CUDA
     use cudafor
 #endif
-    double precision :: btemp, bden
+    real(rt) :: btemp, bden
     type (rate_t)    :: rr
 
     integer :: i, j
 
-    bden = 1.0d0
+    bden = 1.0e0_rt
 
 #ifdef AMREX_USE_CUDA
     i = blockDim%x * (blockIdx%x - 1) + threadIdx%x
@@ -446,7 +447,7 @@ contains
 #endif
 
           btemp = tab_tlo + dble(i-1) * tab_tstp
-          btemp = 10.0d0**(btemp)
+          btemp = 10.0e0_rt**(btemp)
 
 #ifdef AMREX_USE_CUDA
 #ifdef AMREX_GPU_PRAGMA_NO_HOST
@@ -489,10 +490,10 @@ contains
     ! the derivative wrt A
 
     logical          :: deriva
-    double precision :: y(nspec), dydt(nspec)
+    real(rt) :: y(nspec), dydt(nspec)
     type (rate_t)    :: rr
 
-    double precision :: a(17)
+    real(rt) :: a(17)
 
     logical          :: for_jacobian_tderiv
     integer          :: index_rate
@@ -509,15 +510,15 @@ contains
 
     ! he4 reactions
     ! heavy ion reactions
-    a(1)  = 0.5d0 * y(ic12) * y(ic12) * rr % rates(index_rate, ir1212)
-    a(2)  = 0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate, ir1216)
-    a(3)  = 0.56d0 * 0.5d0 * y(io16) * y(io16) * rr % rates(index_rate, ir1616)
+    a(1)  = 0.5e0_rt * y(ic12) * y(ic12) * rr % rates(index_rate, ir1212)
+    a(2)  = 0.5e0_rt * y(ic12) * y(io16) * rr % rates(index_rate, ir1216)
+    a(3)  = 0.56e0_rt * 0.5e0_rt * y(io16) * y(io16) * rr % rates(index_rate, ir1616)
 
     dydt(ihe4) = dydt(ihe4) + esum3(a)
 
     ! (a,g) and (g,a) reactions
-    a(1)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rr % rates(index_rate, ir3a)
-    a(2)  =  3.0d0 * y(ic12) * rr % rates(index_rate, irg3a)
+    a(1)  = -0.5e0_rt * y(ihe4) * y(ihe4) * y(ihe4) * rr % rates(index_rate, ir3a)
+    a(2)  =  3.0e0_rt * y(ic12) * rr % rates(index_rate, irg3a)
     a(3)  = -y(ihe4)  * y(ic12) * rr % rates(index_rate, ircag)
     a(4)  =  y(io16)  * rr % rates(index_rate, iroga)
     a(5)  = -y(ihe4)  * y(io16) * rr % rates(index_rate, iroag)
@@ -550,64 +551,64 @@ contains
 
     if (.not.deriva) then
 
-       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16)*rr % rates(index_rate, irs1)*rr % rates(index_rate, ir1616)
-       a(2)  = -y(ihe4)  * y(img24) * rr % rates(index_rate, irmgap)*(1.0d0-rr % rates(index_rate, irr1))
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16)*rr % rates(index_rate, irs1)*rr % rates(index_rate, ir1616)
+       a(2)  = -y(ihe4)  * y(img24) * rr % rates(index_rate, irmgap)*(1.0e0_rt-rr % rates(index_rate, irr1))
        a(3)  =  y(isi28) * rr % rates(index_rate, irsigp) * rr % rates(index_rate, irr1)
-       a(4)  = -y(ihe4)  * y(isi28) * rr % rates(index_rate, irsiap)*(1.0d0-rr % rates(index_rate, irs1))
+       a(4)  = -y(ihe4)  * y(isi28) * rr % rates(index_rate, irsiap)*(1.0e0_rt-rr % rates(index_rate, irs1))
        a(5)  =  y(is32)  * rr % rates(index_rate, irsgp) * rr % rates(index_rate, irs1)
-       a(6)  = -y(ihe4)  * y(is32) * rr % rates(index_rate, irsap)*(1.0d0-rr % rates(index_rate, irt1))
+       a(6)  = -y(ihe4)  * y(is32) * rr % rates(index_rate, irsap)*(1.0e0_rt-rr % rates(index_rate, irt1))
        a(7)  =  y(iar36) * rr % rates(index_rate, irargp) * rr % rates(index_rate, irt1)
-       a(8)  = -y(ihe4)  * y(iar36) * rr % rates(index_rate, irarap)*(1.0d0-rr % rates(index_rate, iru1))
+       a(8)  = -y(ihe4)  * y(iar36) * rr % rates(index_rate, irarap)*(1.0e0_rt-rr % rates(index_rate, iru1))
        a(9)  =  y(ica40) * rr % rates(index_rate, ircagp) * rr % rates(index_rate, iru1)
-       a(10) = -y(ihe4)  * y(ica40) * rr % rates(index_rate, ircaap)*(1.0d0-rr % rates(index_rate, irv1))
+       a(10) = -y(ihe4)  * y(ica40) * rr % rates(index_rate, ircaap)*(1.0e0_rt-rr % rates(index_rate, irv1))
        a(11) =  y(iti44) * rr % rates(index_rate, irtigp) * rr % rates(index_rate, irv1)
-       a(12) = -y(ihe4)  * y(iti44) * rr % rates(index_rate, irtiap)*(1.0d0-rr % rates(index_rate, irw1))
+       a(12) = -y(ihe4)  * y(iti44) * rr % rates(index_rate, irtiap)*(1.0e0_rt-rr % rates(index_rate, irw1))
        a(13) =  y(icr48) * rr % rates(index_rate, ircrgp) * rr % rates(index_rate, irw1)
-       a(14) = -y(ihe4)  * y(icr48) * rr % rates(index_rate, ircrap)*(1.0d0-rr % rates(index_rate, irx1))
+       a(14) = -y(ihe4)  * y(icr48) * rr % rates(index_rate, ircrap)*(1.0e0_rt-rr % rates(index_rate, irx1))
        a(15) =  y(ife52) * rr % rates(index_rate, irfegp) * rr % rates(index_rate, irx1)
-       a(16) = -y(ihe4)  * y(ife52) * rr % rates(index_rate, irfeap)*(1.0d0-rr % rates(index_rate, iry1))
+       a(16) = -y(ihe4)  * y(ife52) * rr % rates(index_rate, irfeap)*(1.0e0_rt-rr % rates(index_rate, iry1))
        a(17) =  y(ini56) * rr % rates(index_rate, irnigp) * rr % rates(index_rate, iry1)
 
        dydt(ihe4) = dydt(ihe4) + esum17(a)
 
     else
-       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * rr % rates(1, irs1) * rr % rates(index_rate, ir1616)
-       a(2)  =  0.34d0*0.5d0*y(io16)*y(io16) * rr % rates(index_rate, irs1) * rr % rates(1, ir1616)
-       a(3)  = -y(ihe4)*y(img24) * rr % rates(index_rate, irmgap)*(1.0d0 - rr % rates(1, irr1))
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16) * rr % rates(1, irs1) * rr % rates(index_rate, ir1616)
+       a(2)  =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16) * rr % rates(index_rate, irs1) * rr % rates(1, ir1616)
+       a(3)  = -y(ihe4)*y(img24) * rr % rates(index_rate, irmgap)*(1.0e0_rt - rr % rates(1, irr1))
        a(4)  =  y(ihe4)*y(img24) * rr % rates(1, irmgap)*rr % rates(index_rate, irr1)
        a(5)  =  y(isi28) * rr % rates(1, irsigp) * rr % rates(index_rate, irr1)
        a(6)  =  y(isi28) * rr % rates(index_rate, irsigp) * rr % rates(1, irr1)
-       a(7)  = -y(ihe4)*y(isi28) * rr % rates(index_rate, irsiap)*(1.0d0 - rr % rates(1, irs1))
+       a(7)  = -y(ihe4)*y(isi28) * rr % rates(index_rate, irsiap)*(1.0e0_rt - rr % rates(1, irs1))
        a(8)  =  y(ihe4)*y(isi28) * rr % rates(1, irsiap) * rr % rates(index_rate, irs1)
        a(9)  =  y(is32)  * rr % rates(1, irsgp) * rr % rates(index_rate, irs1)
        a(10) =  y(is32)  * rr % rates(index_rate, irsgp) * rr % rates(1, irs1)
 
        dydt(ihe4) = dydt(ihe4) + esum10(a)
 
-       a(1)  = -y(ihe4)*y(is32) * rr % rates(index_rate, irsap)*(1.0d0 - rr % rates(1, irt1))
+       a(1)  = -y(ihe4)*y(is32) * rr % rates(index_rate, irsap)*(1.0e0_rt - rr % rates(1, irt1))
        a(2)  =  y(ihe4)*y(is32) * rr % rates(1, irsap)*rr % rates(index_rate, irt1)
        a(3)  =  y(iar36) * rr % rates(1, irargp) * rr % rates(index_rate, irt1)
        a(4)  =  y(iar36) * rr % rates(index_rate, irargp) * rr % rates(1, irt1)
-       a(5)  = -y(ihe4)*y(iar36) * rr % rates(index_rate, irarap)*(1.0d0 - rr % rates(1, iru1))
+       a(5)  = -y(ihe4)*y(iar36) * rr % rates(index_rate, irarap)*(1.0e0_rt - rr % rates(1, iru1))
        a(6)  =  y(ihe4)*y(iar36) * rr % rates(1, irarap)*rr % rates(index_rate, iru1)
        a(7)  =  y(ica40) * rr % rates(1, ircagp) * rr % rates(index_rate, iru1)
        a(8)  =  y(ica40) * rr % rates(index_rate, ircagp) * rr % rates(1, iru1)
-       a(9)  = -y(ihe4)*y(ica40) * rr % rates(index_rate, ircaap)*(1.0d0-rr % rates(1, irv1))
+       a(9)  = -y(ihe4)*y(ica40) * rr % rates(index_rate, ircaap)*(1.0e0_rt-rr % rates(1, irv1))
        a(10) =  y(ihe4)*y(ica40) * rr % rates(1, ircaap)*rr % rates(index_rate, irv1)
        a(11) =  y(iti44) * rr % rates(1, irtigp) * rr % rates(index_rate, irv1)
        a(12) =  y(iti44) * rr % rates(index_rate, irtigp) * rr % rates(1, irv1)
 
        dydt(ihe4) = dydt(ihe4) + esum12(a)
 
-       a(1)  = -y(ihe4)*y(iti44) * rr % rates(index_rate, irtiap)*(1.0d0 - rr % rates(1, irw1))
+       a(1)  = -y(ihe4)*y(iti44) * rr % rates(index_rate, irtiap)*(1.0e0_rt - rr % rates(1, irw1))
        a(2)  =  y(ihe4)*y(iti44) * rr % rates(1, irtiap)*rr % rates(index_rate, irw1)
        a(3)  =  y(icr48) * rr % rates(1, ircrgp) * rr % rates(index_rate, irw1)
        a(4)  =  y(icr48) * rr % rates(index_rate, ircrgp) * rr % rates(1, irw1)
-       a(5)  = -y(ihe4)*y(icr48) * rr % rates(index_rate, ircrap)*(1.0d0 - rr % rates(1, irx1))
+       a(5)  = -y(ihe4)*y(icr48) * rr % rates(index_rate, ircrap)*(1.0e0_rt - rr % rates(1, irx1))
        a(6)  =  y(ihe4)*y(icr48) * rr % rates(1, ircrap)*rr % rates(index_rate, irx1)
        a(7)  =  y(ife52) * rr % rates(1, irfegp) * rr % rates(index_rate, irx1)
        a(8)  =  y(ife52) * rr % rates(index_rate, irfegp) * rr % rates(1, irx1)
-       a(9)  = -y(ihe4)*y(ife52) * rr % rates(index_rate, irfeap)*(1.0d0 - rr % rates(1, iry1))
+       a(9)  = -y(ihe4)*y(ife52) * rr % rates(index_rate, irfeap)*(1.0e0_rt - rr % rates(1, iry1))
        a(10) =  y(ihe4)*y(ife52) * rr % rates(1, irfeap)*rr % rates(index_rate, iry1)
        a(11) =  y(ini56) * rr % rates(1, irnigp) * rr % rates(index_rate, iry1)
        a(12) =  y(ini56) * rr % rates(index_rate, irnigp) * rr % rates(1, iry1)
@@ -639,7 +640,7 @@ contains
 
 
     ! ne20 reactions
-    a(1) =  0.5d0 * y(ic12) * y(ic12) * rr % rates(index_rate, ir1212)
+    a(1) =  0.5e0_rt * y(ic12) * y(ic12) * rr % rates(index_rate, ir1212)
     a(2) =  y(io16) * y(ihe4) * rr % rates(index_rate, iroag)
     a(3) = -y(ine20) * y(ihe4) * rr % rates(index_rate, irneag)
     a(4) = -y(ine20) * rr % rates(index_rate, irnega)
@@ -649,7 +650,7 @@ contains
 
 
     ! mg24 reactions
-    a(1) =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate, ir1216)
+    a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr % rates(index_rate, ir1216)
     a(2) =  y(ine20) * y(ihe4) * rr % rates(index_rate, irneag)
     a(3) = -y(img24) * y(ihe4) * rr % rates(index_rate, irmgag)
     a(4) = -y(img24) * rr % rates(index_rate, irmgga)
@@ -658,13 +659,13 @@ contains
     dydt(img24) = dydt(img24) + esum5(a)
 
     if (.not.deriva) then
-       a(1) = -y(img24) * y(ihe4) * rr % rates(index_rate, irmgap)*(1.0d0-rr % rates(index_rate, irr1))
+       a(1) = -y(img24) * y(ihe4) * rr % rates(index_rate, irmgap)*(1.0e0_rt-rr % rates(index_rate, irr1))
        a(2) =  y(isi28) * rr % rates(index_rate, irr1) * rr % rates(index_rate, irsigp)
 
        dydt(img24) = dydt(img24) + sum(a(1:2))
 
     else
-       a(1) = -y(img24)*y(ihe4) * rr % rates(index_rate, irmgap)*(1.0d0 - rr % rates(1, irr1))
+       a(1) = -y(img24)*y(ihe4) * rr % rates(index_rate, irmgap)*(1.0e0_rt - rr % rates(1, irr1))
        a(2) =  y(img24)*y(ihe4) * rr % rates(1, irmgap)*rr % rates(index_rate, irr1)
        a(3) =  y(isi28) * rr % rates(1, irr1) * rr % rates(index_rate, irsigp)
        a(4) =  y(isi28) * rr % rates(index_rate, irr1) * rr % rates(1, irsigp)
@@ -675,8 +676,8 @@ contains
 
 
     ! si28 reactions
-    a(1) =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate, ir1216)
-    a(2) =  0.56d0 * 0.5d0*y(io16) * y(io16) * rr % rates(index_rate, ir1616)
+    a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr % rates(index_rate, ir1216)
+    a(2) =  0.56e0_rt * 0.5e0_rt*y(io16) * y(io16) * rr % rates(index_rate, ir1616)
     a(3) =  y(img24) * y(ihe4) * rr % rates(index_rate, irmgag)
     a(4) = -y(isi28) * y(ihe4) * rr % rates(index_rate, irsiag)
     a(5) = -y(isi28) * rr % rates(index_rate, irsiga)
@@ -686,22 +687,22 @@ contains
 
     if (.not.deriva) then
 
-       a(1) =  0.34d0*0.5d0*y(io16)*y(io16)*rr % rates(index_rate, irs1)*rr % rates(index_rate, ir1616)
-       a(2) =  y(img24) * y(ihe4) * rr % rates(index_rate, irmgap)*(1.0d0-rr % rates(index_rate, irr1))
+       a(1) =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16)*rr % rates(index_rate, irs1)*rr % rates(index_rate, ir1616)
+       a(2) =  y(img24) * y(ihe4) * rr % rates(index_rate, irmgap)*(1.0e0_rt-rr % rates(index_rate, irr1))
        a(3) = -y(isi28) * rr % rates(index_rate, irr1) * rr % rates(index_rate, irsigp)
-       a(4) = -y(isi28) * y(ihe4) * rr % rates(index_rate, irsiap)*(1.0d0-rr % rates(index_rate, irs1))
+       a(4) = -y(isi28) * y(ihe4) * rr % rates(index_rate, irsiap)*(1.0e0_rt-rr % rates(index_rate, irs1))
        a(5) =  y(is32)  * rr % rates(index_rate, irs1) * rr % rates(index_rate, irsgp)
 
        dydt(isi28) = dydt(isi28) + esum5(a)
 
     else
-       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * rr % rates(1, irs1)*rr % rates(index_rate, ir1616)
-       a(2)  =  0.34d0*0.5d0*y(io16)*y(io16) * rr % rates(index_rate, irs1)*rr % rates(1, ir1616)
-       a(3)  =  y(img24)*y(ihe4) * rr % rates(index_rate, irmgap)*(1.0d0 - rr % rates(1, irr1))
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16) * rr % rates(1, irs1)*rr % rates(index_rate, ir1616)
+       a(2)  =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16) * rr % rates(index_rate, irs1)*rr % rates(1, ir1616)
+       a(3)  =  y(img24)*y(ihe4) * rr % rates(index_rate, irmgap)*(1.0e0_rt - rr % rates(1, irr1))
        a(4)  = -y(img24)*y(ihe4) * rr % rates(1, irmgap)*rr % rates(index_rate, irr1)
        a(5)  = -y(isi28) * rr % rates(1, irr1) * rr % rates(index_rate, irsigp)
        a(6)  = -y(isi28) * rr % rates(index_rate, irr1) * rr % rates(1, irsigp)
-       a(7)  = -y(isi28)*y(ihe4) * rr % rates(index_rate, irsiap)*(1.0d0 - rr % rates(1, irs1))
+       a(7)  = -y(isi28)*y(ihe4) * rr % rates(index_rate, irsiap)*(1.0e0_rt - rr % rates(1, irs1))
        a(8)  =  y(isi28)*y(ihe4) * rr % rates(1, irsiap)*rr % rates(index_rate, irs1)
        a(9)  = y(is32) * rr % rates(1, irs1) * rr % rates(index_rate, irsgp)
        a(10) = y(is32) * rr % rates(index_rate, irs1) * rr % rates(1, irsgp)
@@ -712,7 +713,7 @@ contains
 
 
     ! s32 reactions
-    a(1) =  0.1d0 * 0.5d0*y(io16) * y(io16) * rr % rates(index_rate, ir1616)
+    a(1) =  0.1e0_rt * 0.5e0_rt*y(io16) * y(io16) * rr % rates(index_rate, ir1616)
     a(2) =  y(isi28) * y(ihe4) * rr % rates(index_rate, irsiag)
     a(3) = -y(is32) * y(ihe4) * rr % rates(index_rate, irsag)
     a(4) = -y(is32) * rr % rates(index_rate, irsga)
@@ -722,22 +723,22 @@ contains
 
 
     if (.not.deriva) then
-       a(1) =  0.34d0*0.5d0*y(io16)*y(io16)* rr % rates(index_rate, ir1616)*(1.0d0-rr % rates(index_rate, irs1))
-       a(2) =  y(isi28) * y(ihe4) * rr % rates(index_rate, irsiap)*(1.0d0-rr % rates(index_rate, irs1))
+       a(1) =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16)* rr % rates(index_rate, ir1616)*(1.0e0_rt-rr % rates(index_rate, irs1))
+       a(2) =  y(isi28) * y(ihe4) * rr % rates(index_rate, irsiap)*(1.0e0_rt-rr % rates(index_rate, irs1))
        a(3) = -y(is32) * rr % rates(index_rate, irs1) * rr % rates(index_rate, irsgp)
-       a(4) = -y(is32) * y(ihe4) * rr % rates(index_rate, irsap)*(1.0d0-rr % rates(index_rate, irt1))
+       a(4) = -y(is32) * y(ihe4) * rr % rates(index_rate, irsap)*(1.0e0_rt-rr % rates(index_rate, irt1))
        a(5) =  y(iar36) * rr % rates(index_rate, irt1) * rr % rates(index_rate, irargp)
 
        dydt(is32) = dydt(is32) + esum5(a)
 
     else
-       a(1)  =  0.34d0*0.5d0*y(io16)*y(io16) * rr % rates(index_rate, ir1616)*(1.0d0-rr % rates(1, irs1))
-       a(2)  = -0.34d0*0.5d0*y(io16)*y(io16) * rr % rates(1, ir1616)*rr % rates(index_rate, irs1)
-       a(3)  =  y(isi28)*y(ihe4) * rr % rates(index_rate, irsiap)*(1.0d0-rr % rates(1, irs1))
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(io16)*y(io16) * rr % rates(index_rate, ir1616)*(1.0e0_rt-rr % rates(1, irs1))
+       a(2)  = -0.34e0_rt*0.5e0_rt*y(io16)*y(io16) * rr % rates(1, ir1616)*rr % rates(index_rate, irs1)
+       a(3)  =  y(isi28)*y(ihe4) * rr % rates(index_rate, irsiap)*(1.0e0_rt-rr % rates(1, irs1))
        a(4)  = -y(isi28)*y(ihe4) * rr % rates(1, irsiap)*rr % rates(index_rate, irs1)
        a(5)  = -y(is32) * rr % rates(1, irs1) * rr % rates(index_rate, irsgp)
        a(6)  = -y(is32) * rr % rates(index_rate, irs1) * rr % rates(1, irsgp)
-       a(7)  = -y(is32)*y(ihe4) * rr % rates(index_rate, irsap)*(1.0d0-rr % rates(1, irt1))
+       a(7)  = -y(is32)*y(ihe4) * rr % rates(index_rate, irsap)*(1.0e0_rt-rr % rates(1, irt1))
        a(8)  =  y(is32)*y(ihe4) * rr % rates(1, irsap)*rr % rates(index_rate, irt1)
        a(9)  =  y(iar36) * rr % rates(1, irt1) * rr % rates(index_rate, irargp)
        a(10) =  y(iar36) * rr % rates(index_rate, irt1) * rr % rates(1, irargp)
@@ -755,19 +756,19 @@ contains
     dydt(iar36) = dydt(iar36) + esum4(a)
 
     if (.not.deriva) then
-       a(1) = y(is32)  * y(ihe4) * rr % rates(index_rate, irsap)*(1.0d0-rr % rates(index_rate, irt1))
+       a(1) = y(is32)  * y(ihe4) * rr % rates(index_rate, irsap)*(1.0e0_rt-rr % rates(index_rate, irt1))
        a(2) = -y(iar36) * rr % rates(index_rate, irt1) * rr % rates(index_rate, irargp)
-       a(3) = -y(iar36) * y(ihe4) * rr % rates(index_rate, irarap)*(1.0d0-rr % rates(index_rate, iru1))
+       a(3) = -y(iar36) * y(ihe4) * rr % rates(index_rate, irarap)*(1.0e0_rt-rr % rates(index_rate, iru1))
        a(4) =  y(ica40) * rr % rates(index_rate, ircagp) * rr % rates(index_rate, iru1)
 
        dydt(iar36) = dydt(iar36) + esum4(a)
 
     else
-       a(1) =  y(is32)*y(ihe4) * rr % rates(index_rate, irsap)*(1.0d0 - rr % rates(1, irt1))
+       a(1) =  y(is32)*y(ihe4) * rr % rates(index_rate, irsap)*(1.0e0_rt - rr % rates(1, irt1))
        a(2) = -y(is32)*y(ihe4) * rr % rates(1, irsap)*rr % rates(index_rate, irt1)
        a(3) = -y(iar36) * rr % rates(1, irt1) * rr % rates(index_rate, irargp)
        a(4) = -y(iar36) * rr % rates(index_rate, irt1) * rr % rates(1, irargp)
-       a(5) = -y(iar36)*y(ihe4) * rr % rates(index_rate, irarap)*(1.0d0-rr % rates(1, iru1))
+       a(5) = -y(iar36)*y(ihe4) * rr % rates(index_rate, irarap)*(1.0e0_rt-rr % rates(1, iru1))
        a(6) =  y(iar36)*y(ihe4) * rr % rates(1, irarap)*rr % rates(index_rate, iru1)
        a(7) =  y(ica40) * rr % rates(1, ircagp) * rr % rates(index_rate, iru1)
        a(8) =  y(ica40) * rr % rates(index_rate, ircagp) * rr % rates(1, iru1)
@@ -785,19 +786,19 @@ contains
     dydt(ica40) = dydt(ica40) + esum4(a)
 
     if (.not.deriva) then
-       a(1) =  y(iar36) * y(ihe4) * rr % rates(index_rate, irarap)*(1.0d0-rr % rates(index_rate, iru1))
+       a(1) =  y(iar36) * y(ihe4) * rr % rates(index_rate, irarap)*(1.0e0_rt-rr % rates(index_rate, iru1))
        a(2) = -y(ica40) * rr % rates(index_rate, ircagp) * rr % rates(index_rate, iru1)
-       a(3) = -y(ica40) * y(ihe4) * rr % rates(index_rate, ircaap)*(1.0d0-rr % rates(index_rate, irv1))
+       a(3) = -y(ica40) * y(ihe4) * rr % rates(index_rate, ircaap)*(1.0e0_rt-rr % rates(index_rate, irv1))
        a(4) =  y(iti44) * rr % rates(index_rate, irtigp) * rr % rates(index_rate, irv1)
 
        dydt(ica40) = dydt(ica40) + esum4(a)
 
     else
-       a(1) =  y(iar36)*y(ihe4) * rr % rates(index_rate, irarap)*(1.0d0-rr % rates(1, iru1))
+       a(1) =  y(iar36)*y(ihe4) * rr % rates(index_rate, irarap)*(1.0e0_rt-rr % rates(1, iru1))
        a(2) = -y(iar36)*y(ihe4) * rr % rates(1, irarap)*rr % rates(index_rate, iru1)
        a(3) = -y(ica40) * rr % rates(1, ircagp) * rr % rates(index_rate, iru1)
        a(4) = -y(ica40) * rr % rates(index_rate, ircagp) * rr % rates(1, iru1)
-       a(5) = -y(ica40)*y(ihe4) * rr % rates(index_rate, ircaap)*(1.0d0-rr % rates(1, irv1))
+       a(5) = -y(ica40)*y(ihe4) * rr % rates(index_rate, ircaap)*(1.0e0_rt-rr % rates(1, irv1))
        a(6) =  y(ica40)*y(ihe4) * rr % rates(1, ircaap)*rr % rates(index_rate, irv1)
        a(7) =  y(iti44) * rr % rates(1, irtigp) * rr % rates(index_rate, irv1)
        a(8) =  y(iti44) * rr % rates(index_rate, irtigp) * rr % rates(1, irv1)
@@ -815,19 +816,19 @@ contains
     dydt(iti44) = dydt(iti44) + esum4(a)
 
     if (.not.deriva) then
-       a(1) =  y(ica40) * y(ihe4) * rr % rates(index_rate, ircaap)*(1.0d0-rr % rates(index_rate, irv1))
+       a(1) =  y(ica40) * y(ihe4) * rr % rates(index_rate, ircaap)*(1.0e0_rt-rr % rates(index_rate, irv1))
        a(2) = -y(iti44) * rr % rates(index_rate, irv1) * rr % rates(index_rate, irtigp)
-       a(3) = -y(iti44) * y(ihe4) * rr % rates(index_rate, irtiap)*(1.0d0-rr % rates(index_rate, irw1))
+       a(3) = -y(iti44) * y(ihe4) * rr % rates(index_rate, irtiap)*(1.0e0_rt-rr % rates(index_rate, irw1))
        a(4) =  y(icr48) * rr % rates(index_rate, irw1) * rr % rates(index_rate, ircrgp)
 
        dydt(iti44) = dydt(iti44) + esum4(a)
 
     else
-       a(1) =  y(ica40)*y(ihe4) * rr % rates(index_rate, ircaap)*(1.0d0-rr % rates(1, irv1))
+       a(1) =  y(ica40)*y(ihe4) * rr % rates(index_rate, ircaap)*(1.0e0_rt-rr % rates(1, irv1))
        a(2) = -y(ica40)*y(ihe4) * rr % rates(1, ircaap)*rr % rates(index_rate, irv1)
        a(3) = -y(iti44) * rr % rates(1, irv1) * rr % rates(index_rate, irtigp)
        a(4) = -y(iti44) * rr % rates(index_rate, irv1) * rr % rates(1, irtigp)
-       a(5) = -y(iti44)*y(ihe4) * rr % rates(index_rate, irtiap)*(1.0d0-rr % rates(1, irw1))
+       a(5) = -y(iti44)*y(ihe4) * rr % rates(index_rate, irtiap)*(1.0e0_rt-rr % rates(1, irw1))
        a(6) =  y(iti44)*y(ihe4) * rr % rates(1, irtiap)*rr % rates(index_rate, irw1)
        a(7) =  y(icr48) * rr % rates(1, irw1) * rr % rates(index_rate, ircrgp)
        a(8) =  y(icr48) * rr % rates(index_rate, irw1) * rr % rates(1, ircrgp)
@@ -845,19 +846,19 @@ contains
     dydt(icr48) = dydt(icr48) + esum4(a)
 
     if (.not.deriva) then
-       a(1) =  y(iti44) * y(ihe4) * rr % rates(index_rate, irtiap)*(1.0d0-rr % rates(index_rate, irw1))
+       a(1) =  y(iti44) * y(ihe4) * rr % rates(index_rate, irtiap)*(1.0e0_rt-rr % rates(index_rate, irw1))
        a(2) = -y(icr48) * rr % rates(index_rate, irw1) * rr % rates(index_rate, ircrgp)
-       a(3) = -y(icr48) * y(ihe4) * rr % rates(index_rate, ircrap)*(1.0d0-rr % rates(index_rate, irx1))
+       a(3) = -y(icr48) * y(ihe4) * rr % rates(index_rate, ircrap)*(1.0e0_rt-rr % rates(index_rate, irx1))
        a(4) =  y(ife52) * rr % rates(index_rate, irx1) * rr % rates(index_rate, irfegp)
 
        dydt(icr48) = dydt(icr48) + esum4(a)
 
     else
-       a(1) =  y(iti44)*y(ihe4) * rr % rates(index_rate, irtiap)*(1.0d0-rr % rates(1, irw1))
+       a(1) =  y(iti44)*y(ihe4) * rr % rates(index_rate, irtiap)*(1.0e0_rt-rr % rates(1, irw1))
        a(2) = -y(iti44)*y(ihe4) * rr % rates(1, irtiap)*rr % rates(index_rate, irw1)
        a(3) = -y(icr48) * rr % rates(1, irw1) * rr % rates(index_rate, ircrgp)
        a(4) = -y(icr48) * rr % rates(index_rate, irw1) * rr % rates(1, ircrgp)
-       a(5) = -y(icr48)*y(ihe4) * rr % rates(index_rate, ircrap)*(1.0d0-rr % rates(1, irx1))
+       a(5) = -y(icr48)*y(ihe4) * rr % rates(index_rate, ircrap)*(1.0e0_rt-rr % rates(1, irx1))
        a(6) =  y(icr48)*y(ihe4) * rr % rates(1, ircrap)*rr % rates(index_rate, irx1)
        a(7) =  y(ife52) * rr % rates(1, irx1) * rr % rates(index_rate, irfegp)
        a(8) =  y(ife52) * rr % rates(index_rate, irx1) * rr % rates(1, irfegp)
@@ -875,19 +876,19 @@ contains
     dydt(ife52) = dydt(ife52) + esum4(a)
 
     if (.not.deriva) then
-       a(1) =  y(icr48) * y(ihe4) * rr % rates(index_rate, ircrap)*(1.0d0-rr % rates(index_rate, irx1))
+       a(1) =  y(icr48) * y(ihe4) * rr % rates(index_rate, ircrap)*(1.0e0_rt-rr % rates(index_rate, irx1))
        a(2) = -y(ife52) * rr % rates(index_rate, irx1) * rr % rates(index_rate, irfegp)
-       a(3) = -y(ife52) * y(ihe4) * rr % rates(index_rate, irfeap)*(1.0d0-rr % rates(index_rate, iry1))
+       a(3) = -y(ife52) * y(ihe4) * rr % rates(index_rate, irfeap)*(1.0e0_rt-rr % rates(index_rate, iry1))
        a(4) =  y(ini56) * rr % rates(index_rate, iry1) * rr % rates(index_rate, irnigp)
 
        dydt(ife52) = dydt(ife52) + esum4(a)
 
     else
-       a(1) =  y(icr48)*y(ihe4) * rr % rates(index_rate, ircrap)*(1.0d0-rr % rates(1, irx1))
+       a(1) =  y(icr48)*y(ihe4) * rr % rates(index_rate, ircrap)*(1.0e0_rt-rr % rates(1, irx1))
        a(2) = -y(icr48)*y(ihe4) * rr % rates(1, ircrap)*rr % rates(index_rate, irx1)
        a(3) = -y(ife52) * rr % rates(1, irx1) * rr % rates(index_rate, irfegp)
        a(4) = -y(ife52) * rr % rates(index_rate, irx1) * rr % rates(1, irfegp)
-       a(5) = -y(ife52)*y(ihe4) * rr % rates(index_rate, irfeap)*(1.0d0-rr % rates(1, iry1))
+       a(5) = -y(ife52)*y(ihe4) * rr % rates(index_rate, irfeap)*(1.0e0_rt-rr % rates(1, iry1))
        a(6) =  y(ife52)*y(ihe4) * rr % rates(1, irfeap)*rr % rates(index_rate, iry1)
        a(7) =  y(ini56) * rr % rates(1, iry1) * rr % rates(index_rate, irnigp)
        a(8) =  y(ini56) * rr % rates(index_rate, iry1) * rr % rates(1, irnigp)
@@ -903,13 +904,13 @@ contains
     dydt(ini56) = dydt(ini56) + sum(a(1:2))
 
     if (.not.deriva) then
-       a(1) =  y(ife52) * y(ihe4) * rr % rates(index_rate, irfeap)*(1.0d0-rr % rates(index_rate, iry1))
+       a(1) =  y(ife52) * y(ihe4) * rr % rates(index_rate, irfeap)*(1.0e0_rt-rr % rates(index_rate, iry1))
        a(2) = -y(ini56) * rr % rates(index_rate, iry1) * rr % rates(index_rate, irnigp)
 
        dydt(ini56) = dydt(ini56) + sum(a(1:2))
 
     else
-       a(1) =  y(ife52)*y(ihe4) * rr % rates(index_rate, irfeap)*(1.0d0-rr % rates(1, iry1))
+       a(1) =  y(ife52)*y(ihe4) * rr % rates(index_rate, irfeap)*(1.0e0_rt-rr % rates(1, iry1))
        a(2) = -y(ife52)*y(ihe4) * rr % rates(1, irfeap)*rr % rates(index_rate, iry1)
        a(3) = -y(ini56) * rr % rates(1, iry1) * rr % rates(index_rate, irnigp)
        a(4) = -y(ini56) * rr % rates(index_rate, iry1) * rr % rates(1, irnigp)
@@ -932,12 +933,12 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: btemp, bden
+    real(rt), intent(in   ) :: btemp, bden
     type (rate_t),    intent(inout) :: rr
 
     integer          :: i
-    double precision :: rrate,drratedt
-    double precision :: dratedd1, dratedd2
+    real(rt) :: rrate,drratedt
+    real(rt) :: dratedd1, dratedd2
     type (tf_t)      :: tf
 
     !$gpu
@@ -948,7 +949,7 @@ contains
        !dratrawdd(i) = ZERO
     enddo
 
-    if (btemp .lt. 1.0d6) return
+    if (btemp .lt. 1.0e6_rt) return
 
 
     ! get the temperature factors
@@ -1133,19 +1134,19 @@ contains
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
 
-    double precision, intent(in   ) :: btemp, bden
-    double precision, intent(in   ) :: y(nspec)
+    real(rt), intent(in   ) :: btemp, bden
+    real(rt), intent(in   ) :: y(nspec)
     type (rate_t),    intent(inout) :: rr
 
     integer          :: jscr
-    double precision :: sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt
-    double precision :: sc1add,sc2add
-!    double precision :: sc3add
+    real(rt) :: sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt
+    real(rt) :: sc1add,sc2add
+!    real(rt) :: sc3add
 
-    double precision :: denom,denomdt,zz
-!    double precision :: denomdd,r1dd,s1dd,t1dd,u1dd,v1dd,w1dd,x1dd,y1dd
+    real(rt) :: denom,denomdt,zz
+!    real(rt) :: denomdd,r1dd,s1dd,t1dd,u1dd,v1dd,w1dd,x1dd,y1dd
 
-    double precision :: ratraw
+    real(rt) :: ratraw
 
     type (plasma_state) :: state
 
@@ -1613,112 +1614,112 @@ contains
     ! now form those lovely dummy proton link rates
 
     ! mg24(a,p)27al(p,g)28si
-    rr % rates(1,irr1)  = 0.0d0
-    rr % rates(2,irr1)  = 0.0d0
-    !dratdumdd(irr1)  = 0.0d0
+    rr % rates(1,irr1)  = 0.0e0_rt
+    rr % rates(2,irr1)  = 0.0e0_rt
+    !dratdumdd(irr1)  = 0.0e0_rt
     denom    = rr % rates(1,iralpa) + rr % rates(1,iralpg)
     denomdt  = rr % rates(2,iralpa) + rr % rates(2,iralpg)
     !denomdd  = dratdumdd(iralpa) + dratdumdd(iralpg)
-    if (denom .gt. 1.0d-30) then
-       zz = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz = 1.0e0_rt/denom
        rr % rates(1,irr1) = rr % rates(1,iralpa)*zz
        rr % rates(2,irr1) = (rr % rates(2,iralpa) - rr % rates(1,irr1)*denomdt)*zz
        !dratdumdd(irr1) = (dratdumdd(iralpa) - rr % rates(1,irr1)*denomdd)*zz
     end if
 
     ! si28(a,p)p31(p,g)s32
-    rr % rates(1,irs1)  = 0.0d0
-    rr % rates(2,irs1)  = 0.0d0
-    !dratdumdd(irs1)  = 0.0d0
+    rr % rates(1,irs1)  = 0.0e0_rt
+    rr % rates(2,irs1)  = 0.0e0_rt
+    !dratdumdd(irs1)  = 0.0e0_rt
     denom    = rr % rates(1,irppa) + rr % rates(1,irppg)
     denomdt  = rr % rates(2,irppa) + rr % rates(2,irppg)
     !denomdd  = dratdumdd(irppa) + dratdumdd(irppg)
-    if (denom .gt. 1.0d-30) then
-       zz = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz = 1.0e0_rt/denom
        rr % rates(1,irs1) = rr % rates(1,irppa)*zz
        rr % rates(2,irs1) = (rr % rates(2,irppa) - rr % rates(1,irs1)*denomdt)*zz
        !dratdumdd(irs1) = (dratdumdd(irppa) - rr % rates(1,irs1)*denomdd)*zz
     end if
 
     ! s32(a,p)cl35(p,g)ar36
-    rr % rates(1,irt1)  = 0.0d0
-    rr % rates(2,irt1)  = 0.0d0
-    !dratdumdd(irt1)  = 0.0d0
+    rr % rates(1,irt1)  = 0.0e0_rt
+    rr % rates(2,irt1)  = 0.0e0_rt
+    !dratdumdd(irt1)  = 0.0e0_rt
     denom    = rr % rates(1,irclpa) + rr % rates(1,irclpg)
     denomdt  = rr % rates(2,irclpa) + rr % rates(2,irclpg)
     !denomdd  = dratdumdd(irclpa) + dratdumdd(irclpg)
-    if (denom .gt. 1.0d-30) then
-       zz = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz = 1.0e0_rt/denom
        rr % rates(1,irt1) = rr % rates(1,irclpa)*zz
        rr % rates(2,irt1) = (rr % rates(2,irclpa) - rr % rates(1,irt1)*denomdt)*zz
        !dratdumdd(irt1) = (dratdumdd(irclpa) - rr % rates(1,irt1)*denomdd)*zz
     end if
 
     ! ar36(a,p)k39(p,g)ca40
-    rr % rates(1,iru1)  = 0.0d0
-    rr % rates(2,iru1)  = 0.0d0
-    !dratdumdd(iru1)  = 0.0d0
+    rr % rates(1,iru1)  = 0.0e0_rt
+    rr % rates(2,iru1)  = 0.0e0_rt
+    !dratdumdd(iru1)  = 0.0e0_rt
     denom    = rr % rates(1,irkpa) + rr % rates(1,irkpg)
     denomdt  = rr % rates(2,irkpa) + rr % rates(2,irkpg)
     !denomdd  = dratdumdd(irkpa) + dratdumdd(irkpg)
-    if (denom .gt. 1.0d-30) then
-       zz   = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz   = 1.0e0_rt/denom
        rr % rates(1,iru1)   = rr % rates(1,irkpa)*zz
        rr % rates(2,iru1) = (rr % rates(2,irkpa) - rr % rates(1,iru1)*denomdt)*zz
        !dratdumdd(iru1) = (dratdumdd(irkpa) - rr % rates(1,iru1)*denomdd)*zz
     end if
 
     ! ca40(a,p)sc43(p,g)ti44
-    rr % rates(1,irv1)  = 0.0d0
-    rr % rates(2,irv1)  = 0.0d0
-    !dratdumdd(irv1)  = 0.0d0
+    rr % rates(1,irv1)  = 0.0e0_rt
+    rr % rates(2,irv1)  = 0.0e0_rt
+    !dratdumdd(irv1)  = 0.0e0_rt
     denom    = rr % rates(1,irscpa) + rr % rates(1,irscpg)
     denomdt  = rr % rates(2,irscpa) + rr % rates(2,irscpg)
     !denomdd  = dratdumdd(irscpa) + dratdumdd(irscpg)
-    if (denom .gt. 1.0d-30) then
-       zz  = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz  = 1.0e0_rt/denom
        rr % rates(1,irv1) = rr % rates(1,irscpa)*zz
        rr % rates(2,irv1) = (rr % rates(2,irscpa) - rr % rates(1,irv1)*denomdt)*zz
        !dratdumdd(irv1) = (dratdumdd(irscpa) - rr % rates(1,irv1)*denomdd)*zz
     end if
 
     ! ti44(a,p)v47(p,g)cr48
-    rr % rates(1,irw1) = 0.0d0
-    rr % rates(2,irw1) = 0.0d0
-    !dratdumdd(irw1) = 0.0d0
+    rr % rates(1,irw1) = 0.0e0_rt
+    rr % rates(2,irw1) = 0.0e0_rt
+    !dratdumdd(irw1) = 0.0e0_rt
     denom    = rr % rates(1,irvpa) + rr % rates(1,irvpg)
     denomdt  = rr % rates(2,irvpa) + rr % rates(2,irvpg)
     !denomdd  = dratdumdd(irvpa) + dratdumdd(irvpg)
-    if (denom .gt. 1.0d-30) then
-       zz = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz = 1.0e0_rt/denom
        rr % rates(1,irw1) = rr % rates(1,irvpa)*zz
        rr % rates(2,irw1) = (rr % rates(2,irvpa) - rr % rates(1,irw1)*denomdt)*zz
        !dratdumdd(irw1) = (dratdumdd(irvpa) - rr % rates(1,irw1)*denomdd)*zz
     end if
 
     ! cr48(a,p)mn51(p,g)fe52
-    rr % rates(1,irx1) = 0.0d0
-    rr % rates(2,irx1) = 0.0d0
-    !dratdumdd(irx1) = 0.0d0
+    rr % rates(1,irx1) = 0.0e0_rt
+    rr % rates(2,irx1) = 0.0e0_rt
+    !dratdumdd(irx1) = 0.0e0_rt
     denom    = rr % rates(1,irmnpa) + rr % rates(1,irmnpg)
     denomdt  = rr % rates(2,irmnpa) + rr % rates(2,irmnpg)
     !denomdd  = dratdumdd(irmnpa) + dratdumdd(irmnpg)
-    if (denom .gt. 1.0d-30) then
-       zz = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz = 1.0e0_rt/denom
        rr % rates(1,irx1) = rr % rates(1,irmnpa)*zz
        rr % rates(2,irx1) = (rr % rates(2,irmnpa) - rr % rates(1,irx1)*denomdt)*zz
        !dratdumdd(irx1) = (dratdumdd(irmnpa) - rr % rates(1,irx1)*denomdd)*zz
     endif
 
     ! fe52(a,p)co55(p,g)ni56
-    rr % rates(1,iry1) = 0.0d0
-    rr % rates(2,iry1) = 0.0d0
-    !dratdumdd(iry1) = 0.0d0
+    rr % rates(1,iry1) = 0.0e0_rt
+    rr % rates(2,iry1) = 0.0e0_rt
+    !dratdumdd(iry1) = 0.0e0_rt
     denom    = rr % rates(1,ircopa) + rr % rates(1,ircopg)
     denomdt  = rr % rates(2,ircopa) + rr % rates(2,ircopg)
     !denomdd  = dratdumdd(ircopa) + dratdumdd(ircopg)
-    if (denom .gt. 1.0d-30) then
-       zz = 1.0d0/denom
+    if (denom .gt. 1.0e-30_rt) then
+       zz = 1.0e0_rt/denom
        rr % rates(1,iry1) = rr % rates(1,ircopa)*zz
        rr % rates(2,iry1) = (rr % rates(2,ircopa) - rr % rates(1,iry1)*denomdt)*zz
        !dratdumdd(iry1) = (dratdumdd(ircopa) - rr % rates(1,iry1)*denomdd)*zz
@@ -1739,16 +1740,16 @@ contains
     ! this routine sets up the dense aprox13 jacobian for the isotopes
 
     type (burn_t) :: state
-    double precision :: y(nspec)
+    real(rt) :: y(nspec)
     type (rate_t)    :: rr
 
-    double precision :: b(30)
+    real(rt) :: b(30)
 
     !$gpu
 
     ! he4 jacobian elements
     ! d(he4)/d(he4)
-    b(1)  = -1.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
+    b(1)  = -1.5e0_rt * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
     b(2)  = -y(ic12)  * rr % rates(1,ircag)
     b(3)  = -y(io16)  * rr % rates(1,iroag)
     b(4)  = -y(ine20) * rr % rates(1,irneag)
@@ -1760,30 +1761,30 @@ contains
     b(10) = -y(iti44) * rr % rates(1,irtiag)
     b(11) = -y(icr48) * rr % rates(1,ircrag)
     b(12) = -y(ife52) * rr % rates(1,irfeag)
-    b(13) = -y(img24) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
-    b(14) = -y(isi28) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
-    b(15) = -y(is32)  * rr % rates(1,irsap)  * (1.0d0-rr % rates(1,irt1))
-    b(16) = -y(iar36) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
-    b(17) = -y(ica40) * rr % rates(1,ircaap) * (1.0d0-rr % rates(1,irv1))
-    b(18) = -y(iti44) * rr % rates(1,irtiap) * (1.0d0-rr % rates(1,irw1))
-    b(19) = -y(icr48) * rr % rates(1,ircrap) * (1.0d0-rr % rates(1,irx1))
-    b(20) = -y(ife52) * rr % rates(1,irfeap) * (1.0d0-rr % rates(1,iry1))
+    b(13) = -y(img24) * rr % rates(1,irmgap) * (1.0e0_rt-rr % rates(1,irr1))
+    b(14) = -y(isi28) * rr % rates(1,irsiap) * (1.0e0_rt-rr % rates(1,irs1))
+    b(15) = -y(is32)  * rr % rates(1,irsap)  * (1.0e0_rt-rr % rates(1,irt1))
+    b(16) = -y(iar36) * rr % rates(1,irarap) * (1.0e0_rt-rr % rates(1,iru1))
+    b(17) = -y(ica40) * rr % rates(1,ircaap) * (1.0e0_rt-rr % rates(1,irv1))
+    b(18) = -y(iti44) * rr % rates(1,irtiap) * (1.0e0_rt-rr % rates(1,irw1))
+    b(19) = -y(icr48) * rr % rates(1,ircrap) * (1.0e0_rt-rr % rates(1,irx1))
+    b(20) = -y(ife52) * rr % rates(1,irfeap) * (1.0e0_rt-rr % rates(1,iry1))
     b(30) = esum20(b)
     call set_jac_entry(state, ihe4, ihe4, b(30))
 
 
     ! d(he4)/d(c12)
     b(1) =  y(ic12) * rr % rates(1,ir1212)
-    b(2) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
-    b(3) =  3.0d0 * rr % rates(1,irg3a)
+    b(2) =  0.5e0_rt * y(io16) * rr % rates(1,ir1216)
+    b(3) =  3.0e0_rt * rr % rates(1,irg3a)
     b(4) = -y(ihe4) * rr % rates(1,ircag)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, ic12, b(30))
 
     ! d(he4)/d(o16)
-    b(1) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
-    b(2) =  1.12d0 * 0.5d0*y(io16) * rr % rates(1,ir1616)
-    b(3) =  0.68d0 * rr % rates(1,irs1) * 0.5d0*y(io16) * rr % rates(1,ir1616)
+    b(1) =  0.5e0_rt * y(ic12) * rr % rates(1,ir1216)
+    b(2) =  1.12e0_rt * 0.5e0_rt*y(io16) * rr % rates(1,ir1616)
+    b(3) =  0.68e0_rt * rr % rates(1,irs1) * 0.5e0_rt*y(io16) * rr % rates(1,ir1616)
     b(4) =  rr % rates(1,iroga)
     b(5) = -y(ihe4) * rr % rates(1,iroag)
     b(30) = esum5(b)
@@ -1798,14 +1799,14 @@ contains
     ! d(he4)/d(mg24)
     b(1) =  rr % rates(1,irmgga)
     b(2) = -y(ihe4) * rr % rates(1,irmgag)
-    b(3) = -y(ihe4) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
+    b(3) = -y(ihe4) * rr % rates(1,irmgap) * (1.0e0_rt-rr % rates(1,irr1))
     b(30) = esum3(b)
     call set_jac_entry(state, ihe4, img24, b(30))
 
     ! d(he4)/d(si28)
     b(1) =  rr % rates(1,irsiga)
     b(2) = -y(ihe4) * rr % rates(1,irsiag)
-    b(3) = -y(ihe4) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
+    b(3) = -y(ihe4) * rr % rates(1,irsiap) * (1.0e0_rt-rr % rates(1,irs1))
     b(4) =  rr % rates(1,irr1) * rr % rates(1,irsigp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, isi28, b(30))
@@ -1813,7 +1814,7 @@ contains
     ! d(he4)/d(s32)
     b(1) =  rr % rates(1,irsga)
     b(2) = -y(ihe4) * rr % rates(1,irsag)
-    b(3) = -y(ihe4) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
+    b(3) = -y(ihe4) * rr % rates(1,irsap) * (1.0e0_rt-rr % rates(1,irt1))
     b(4) =  rr % rates(1,irs1) * rr % rates(1,irsgp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, is32, b(30))
@@ -1821,7 +1822,7 @@ contains
     ! d(he4)/d(ar36)
     b(1)  =  rr % rates(1,irarga)
     b(2)  = -y(ihe4) * rr % rates(1,irarag)
-    b(3)  = -y(ihe4) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
+    b(3)  = -y(ihe4) * rr % rates(1,irarap) * (1.0e0_rt-rr % rates(1,iru1))
     b(4)  =  rr % rates(1,irt1) * rr % rates(1,irargp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, iar36, b(30))
@@ -1829,7 +1830,7 @@ contains
     ! d(he4)/d(ca40)
     b(1) =  rr % rates(1,ircaga)
     b(2) = -y(ihe4) * rr % rates(1,ircaag)
-    b(3) = -y(ihe4) * rr % rates(1,ircaap) * (1.0d0-rr % rates(1,irv1))
+    b(3) = -y(ihe4) * rr % rates(1,ircaap) * (1.0e0_rt-rr % rates(1,irv1))
     b(4) =  rr % rates(1,iru1) * rr % rates(1,ircagp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, ica40, b(30))
@@ -1837,7 +1838,7 @@ contains
     ! d(he4)/d(ti44)
     b(1) =  rr % rates(1,irtiga)
     b(2) = -y(ihe4) * rr % rates(1,irtiag)
-    b(3) = -y(ihe4) * rr % rates(1,irtiap) * (1.0d0-rr % rates(1,irw1))
+    b(3) = -y(ihe4) * rr % rates(1,irtiap) * (1.0e0_rt-rr % rates(1,irw1))
     b(4) =  rr % rates(1,irv1) * rr % rates(1,irtigp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, iti44, b(30))
@@ -1845,7 +1846,7 @@ contains
     ! d(he4)/d(cr48)
     b(1) =  rr % rates(1,ircrga)
     b(2) = -y(ihe4) * rr % rates(1,ircrag)
-    b(3) = -y(ihe4) * rr % rates(1,ircrap) * (1.0d0-rr % rates(1,irx1))
+    b(3) = -y(ihe4) * rr % rates(1,ircrap) * (1.0e0_rt-rr % rates(1,irx1))
     b(4) =  rr % rates(1,irw1) * rr % rates(1,ircrgp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, icr48, b(30))
@@ -1853,7 +1854,7 @@ contains
     ! d(he4)/d(fe52)
     b(1) =  rr % rates(1,irfega)
     b(2) = -y(ihe4) * rr % rates(1,irfeag)
-    b(3) = -y(ihe4) * rr % rates(1,irfeap) * (1.0d0-rr % rates(1,iry1))
+    b(3) = -y(ihe4) * rr % rates(1,irfeap) * (1.0e0_rt-rr % rates(1,iry1))
     b(4) =  rr % rates(1,irx1) * rr % rates(1,irfegp)
     b(30) = esum4(b)
     call set_jac_entry(state, ihe4, ife52, b(30))
@@ -1867,13 +1868,13 @@ contains
 
     ! c12 jacobian elements
     ! d(c12)/d(he4)
-    b(1) =  0.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
+    b(1) =  0.5e0_rt * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
     b(2) = -y(ic12) * rr % rates(1,ircag)
     b(30) = sum(b(1:2))
     call set_jac_entry(state, ic12, ihe4, b(30))
 
     ! d(c12)/d(c12)
-    b(1) = -2.0d0 * y(ic12) * rr % rates(1,ir1212)
+    b(1) = -2.0e0_rt * y(ic12) * rr % rates(1,ir1212)
     b(2) = -y(io16) * rr % rates(1,ir1216)
     b(3) = -rr % rates(1,irg3a)
     b(4) = -y(ihe4) * rr % rates(1,ircag)
@@ -1903,7 +1904,7 @@ contains
 
     ! d(o16)/d(o16)
     b(1) = -y(ic12) * rr % rates(1,ir1216)
-    b(2) = -2.0d0 * y(io16) * rr % rates(1,ir1616)
+    b(2) = -2.0e0_rt * y(io16) * rr % rates(1,ir1616)
     b(3) = -y(ihe4) * rr % rates(1,iroag)
     b(4) = -rr % rates(1,iroga)
     b(30) = esum4(b)
@@ -1943,16 +1944,16 @@ contains
     ! d(mg24)/d(he4)
     b(1) =  y(ine20) * rr % rates(1,irneag)
     b(2) = -y(img24) * rr % rates(1,irmgag)
-    b(3) = -y(img24) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
+    b(3) = -y(img24) * rr % rates(1,irmgap) * (1.0e0_rt-rr % rates(1,irr1))
     b(30) = esum3(b)
     call set_jac_entry(state, img24, ihe4, b(30))
 
     ! d(mg24)/d(c12)
-    b(30) = 0.5d0 * y(io16) * rr % rates(1,ir1216)
+    b(30) = 0.5e0_rt * y(io16) * rr % rates(1,ir1216)
     call set_jac_entry(state, img24, ic12, b(30))
 
     ! d(mg24)/d(o16)
-    b(30) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
+    b(30) =  0.5e0_rt * y(ic12) * rr % rates(1,ir1216)
     call set_jac_entry(state, img24, io16, b(30))
 
     ! d(mg24)/d(ne20)
@@ -1962,7 +1963,7 @@ contains
     ! d(mg24)/d(mg24)
     b(1) = -y(ihe4) * rr % rates(1,irmgag)
     b(2) = -rr % rates(1,irmgga)
-    b(3) = -y(ihe4) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
+    b(3) = -y(ihe4) * rr % rates(1,irmgap) * (1.0e0_rt-rr % rates(1,irr1))
     b(30) = esum3(b)
     call set_jac_entry(state, img24, img24, b(30))
 
@@ -1977,25 +1978,25 @@ contains
     ! d(si28)/d(he4)
     b(1) =  y(img24) * rr % rates(1,irmgag)
     b(2) = -y(isi28) * rr % rates(1,irsiag)
-    b(3) =  y(img24) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
-    b(4) = -y(isi28) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
+    b(3) =  y(img24) * rr % rates(1,irmgap) * (1.0e0_rt-rr % rates(1,irr1))
+    b(4) = -y(isi28) * rr % rates(1,irsiap) * (1.0e0_rt-rr % rates(1,irs1))
     b(30) = esum4(b)
     call set_jac_entry(state, isi28, ihe4, b(30))
 
     ! d(si28)/d(c12)
-    b(30) = 0.5d0 * y(io16) * rr % rates(1,ir1216)
+    b(30) = 0.5e0_rt * y(io16) * rr % rates(1,ir1216)
     call set_jac_entry(state, isi28, ic12, b(30))
 
     ! d(si28)/d(o16)
-    b(1) = 0.5d0 * y(ic12) * rr % rates(1,ir1216)
-    b(2) = 1.12d0 * 0.5d0*y(io16) * rr % rates(1,ir1616)
-    b(3) = 0.68d0 * 0.5d0*y(io16) * rr % rates(1,irs1) * rr % rates(1,ir1616)
+    b(1) = 0.5e0_rt * y(ic12) * rr % rates(1,ir1216)
+    b(2) = 1.12e0_rt * 0.5e0_rt*y(io16) * rr % rates(1,ir1616)
+    b(3) = 0.68e0_rt * 0.5e0_rt*y(io16) * rr % rates(1,irs1) * rr % rates(1,ir1616)
     b(30) = esum3(b)
     call set_jac_entry(state, isi28, io16, b(30))
 
     ! d(si28)/d(mg24)
     b(1) =  y(ihe4) * rr % rates(1,irmgag)
-    b(2) =  y(ihe4) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
+    b(2) =  y(ihe4) * rr % rates(1,irmgap) * (1.0e0_rt-rr % rates(1,irr1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, isi28, img24, b(30))
 
@@ -2003,7 +2004,7 @@ contains
     b(1) =  -y(ihe4) * rr % rates(1,irsiag)
     b(2) = -rr % rates(1,irsiga)
     b(3) = -rr % rates(1,irr1) * rr % rates(1,irsigp)
-    b(4) = -y(ihe4) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
+    b(4) = -y(ihe4) * rr % rates(1,irsiap) * (1.0e0_rt-rr % rates(1,irs1))
     b(30) = esum4(b)
     call set_jac_entry(state, isi28, isi28, b(30))
 
@@ -2018,20 +2019,20 @@ contains
     ! d(s32)/d(he4)
     b(1) =  y(isi28) * rr % rates(1,irsiag)
     b(2) = -y(is32) * rr % rates(1,irsag)
-    b(3) =  y(isi28) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
-    b(4) = -y(is32) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
+    b(3) =  y(isi28) * rr % rates(1,irsiap) * (1.0e0_rt-rr % rates(1,irs1))
+    b(4) = -y(is32) * rr % rates(1,irsap) * (1.0e0_rt-rr % rates(1,irt1))
     b(30) = esum4(b)
     call set_jac_entry(state, is32, ihe4, b(30))
 
     ! d(s32)/d(o16)
-    b(1) = 0.68d0*0.5d0*y(io16)*rr % rates(1,ir1616)*(1.0d0-rr % rates(1,irs1))
-    b(2) = 0.2d0 * 0.5d0*y(io16) * rr % rates(1,ir1616)
+    b(1) = 0.68e0_rt*0.5e0_rt*y(io16)*rr % rates(1,ir1616)*(1.0e0_rt-rr % rates(1,irs1))
+    b(2) = 0.2e0_rt * 0.5e0_rt*y(io16) * rr % rates(1,ir1616)
     b(30) = sum(b(1:2))
     call set_jac_entry(state, is32, io16, b(30))
 
     ! d(s32)/d(si28)
     b(1)  =y(ihe4) * rr % rates(1,irsiag)
-    b(2) = y(ihe4) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
+    b(2) = y(ihe4) * rr % rates(1,irsiap) * (1.0e0_rt-rr % rates(1,irs1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, is32, isi28, b(30))
 
@@ -2039,7 +2040,7 @@ contains
     b(1) = -y(ihe4) * rr % rates(1,irsag)
     b(2) = -rr % rates(1,irsga)
     b(3) = -rr % rates(1,irs1) * rr % rates(1,irsgp)
-    b(4) = -y(ihe4) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
+    b(4) = -y(ihe4) * rr % rates(1,irsap) * (1.0e0_rt-rr % rates(1,irt1))
     b(30) = esum4(b)
     call set_jac_entry(state, is32, is32, b(30))
 
@@ -2054,14 +2055,14 @@ contains
     ! d(ar36)/d(he4)
     b(1) =  y(is32)  * rr % rates(1,irsag)
     b(2) = -y(iar36) * rr % rates(1,irarag)
-    b(3) =  y(is32)  * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
-    b(4) = -y(iar36) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
+    b(3) =  y(is32)  * rr % rates(1,irsap) * (1.0e0_rt-rr % rates(1,irt1))
+    b(4) = -y(iar36) * rr % rates(1,irarap) * (1.0e0_rt-rr % rates(1,iru1))
     b(30) = esum4(b)
     call set_jac_entry(state, iar36, ihe4, b(30))
 
     ! d(ar36)/d(s32)
     b(1) = y(ihe4) * rr % rates(1,irsag)
-    b(2) = y(ihe4) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
+    b(2) = y(ihe4) * rr % rates(1,irsap) * (1.0e0_rt-rr % rates(1,irt1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, iar36, is32, b(30))
 
@@ -2069,7 +2070,7 @@ contains
     b(1) = -y(ihe4) * rr % rates(1,irarag)
     b(2) = -rr % rates(1,irarga)
     b(3) = -rr % rates(1,irt1) * rr % rates(1,irargp)
-    b(4) = -y(ihe4) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
+    b(4) = -y(ihe4) * rr % rates(1,irarap) * (1.0e0_rt-rr % rates(1,iru1))
     b(30) = esum4(b)
     call set_jac_entry(state, iar36, iar36, b(30))
 
@@ -2084,14 +2085,14 @@ contains
     ! d(ca40)/d(he4)
     b(1)  =  y(iar36) * rr % rates(1,irarag)
     b(2)  = -y(ica40) * rr % rates(1,ircaag)
-    b(3)  =  y(iar36) * rr % rates(1,irarap)*(1.0d0-rr % rates(1,iru1))
-    b(4)  = -y(ica40) * rr % rates(1,ircaap)*(1.0d0-rr % rates(1,irv1))
+    b(3)  =  y(iar36) * rr % rates(1,irarap)*(1.0e0_rt-rr % rates(1,iru1))
+    b(4)  = -y(ica40) * rr % rates(1,ircaap)*(1.0e0_rt-rr % rates(1,irv1))
     b(30) = esum4(b)
     call set_jac_entry(state, ica40, ihe4, b(30))
 
     ! d(ca40)/d(ar36)
     b(1) =  y(ihe4) * rr % rates(1,irarag)
-    b(2) =  y(ihe4) * rr % rates(1,irarap)*(1.0d0-rr % rates(1,iru1))
+    b(2) =  y(ihe4) * rr % rates(1,irarap)*(1.0e0_rt-rr % rates(1,iru1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, ica40, iar36, b(30))
 
@@ -2099,7 +2100,7 @@ contains
     b(1) = -y(ihe4) * rr % rates(1, ircaag)
     b(2) = -rr % rates(1, ircaga)
     b(3) = -rr % rates(1, ircagp) * rr % rates(1, iru1)
-    b(4) = -y(ihe4) * rr % rates(1, ircaap)*(1.0d0-rr % rates(1, irv1))
+    b(4) = -y(ihe4) * rr % rates(1, ircaap)*(1.0e0_rt-rr % rates(1, irv1))
     b(30) = esum4(b)
     call set_jac_entry(state, ica40, ica40, b(30))
 
@@ -2115,14 +2116,14 @@ contains
     ! d(ti44)/d(he4)
     b(1) =  y(ica40) * rr % rates(1, ircaag)
     b(2) = -y(iti44) * rr % rates(1, irtiag)
-    b(3) =  y(ica40) * rr % rates(1, ircaap)*(1.0d0-rr % rates(1, irv1))
-    b(4) = -y(iti44) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
+    b(3) =  y(ica40) * rr % rates(1, ircaap)*(1.0e0_rt-rr % rates(1, irv1))
+    b(4) = -y(iti44) * rr % rates(1, irtiap)*(1.0e0_rt-rr % rates(1, irw1))
     b(30) = esum4(b)
     call set_jac_entry(state, iti44, ihe4, b(30))
 
     ! d(ti44)/d(ca40)
     b(1) =  y(ihe4) * rr % rates(1, ircaag)
-    b(2) =  y(ihe4) * rr % rates(1, ircaap)*(1.0d0-rr % rates(1, irv1))
+    b(2) =  y(ihe4) * rr % rates(1, ircaap)*(1.0e0_rt-rr % rates(1, irv1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, iti44, ica40, b(30))
 
@@ -2130,7 +2131,7 @@ contains
     b(1) = -y(ihe4) * rr % rates(1, irtiag)
     b(2) = -rr % rates(1, irtiga)
     b(3) = -rr % rates(1, irv1) * rr % rates(1, irtigp)
-    b(4) = -y(ihe4) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
+    b(4) = -y(ihe4) * rr % rates(1, irtiap)*(1.0e0_rt-rr % rates(1, irw1))
     b(30) = esum4(b)
     call set_jac_entry(state, iti44, iti44, b(30))
 
@@ -2146,14 +2147,14 @@ contains
     ! d(cr48)/d(he4)
     b(1) =  y(iti44) * rr % rates(1, irtiag)
     b(2) = -y(icr48) * rr % rates(1, ircrag)
-    b(3) =  y(iti44) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
-    b(4) = -y(icr48) * rr % rates(1, ircrap)*(1.0d0-rr % rates(1, irx1))
+    b(3) =  y(iti44) * rr % rates(1, irtiap)*(1.0e0_rt-rr % rates(1, irw1))
+    b(4) = -y(icr48) * rr % rates(1, ircrap)*(1.0e0_rt-rr % rates(1, irx1))
     b(30) = esum4(b)
     call set_jac_entry(state, icr48, ihe4, b(30))
 
     ! d(cr48)/d(ti44)
     b(1) =  y(ihe4) * rr % rates(1, irtiag)
-    b(2) =  y(ihe4) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
+    b(2) =  y(ihe4) * rr % rates(1, irtiap)*(1.0e0_rt-rr % rates(1, irw1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, icr48, iti44, b(30))
 
@@ -2161,7 +2162,7 @@ contains
     b(1) = -y(ihe4) * rr % rates(1, ircrag)
     b(2) = -rr % rates(1, ircrga)
     b(3) = -rr % rates(1, irw1) * rr % rates(1, ircrgp)
-    b(4) = -y(ihe4) * rr % rates(1, ircrap)*(1.0d0-rr % rates(1, irx1))
+    b(4) = -y(ihe4) * rr % rates(1, ircrap)*(1.0e0_rt-rr % rates(1, irx1))
     b(30) = esum4(b)
     call set_jac_entry(state, icr48, icr48, b(30))
 
@@ -2177,14 +2178,14 @@ contains
     ! d(fe52)/d(he4)
     b(1) =  y(icr48) * rr % rates(1, ircrag)
     b(2) = -y(ife52) * rr % rates(1, irfeag)
-    b(3) =  y(icr48) * rr % rates(1, ircrap) * (1.0d0-rr % rates(1, irx1))
-    b(4) = -y(ife52) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
+    b(3) =  y(icr48) * rr % rates(1, ircrap) * (1.0e0_rt-rr % rates(1, irx1))
+    b(4) = -y(ife52) * rr % rates(1, irfeap) * (1.0e0_rt-rr % rates(1, iry1))
     b(30) = esum4(b)
     call set_jac_entry(state, ife52, ihe4, b(30))
 
     ! d(fe52)/d(cr48)
     b(1) = y(ihe4) * rr % rates(1, ircrag)
-    b(2) = y(ihe4) * rr % rates(1, ircrap) * (1.0d0-rr % rates(1, irx1))
+    b(2) = y(ihe4) * rr % rates(1, ircrap) * (1.0e0_rt-rr % rates(1, irx1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, ife52, icr48, b(30))
 
@@ -2192,7 +2193,7 @@ contains
     b(1) = -y(ihe4) * rr % rates(1, irfeag)
     b(2) = -rr % rates(1, irfega)
     b(3) = -rr % rates(1, irx1) * rr % rates(1, irfegp)
-    b(4) = -y(ihe4) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
+    b(4) = -y(ihe4) * rr % rates(1, irfeap) * (1.0e0_rt-rr % rates(1, iry1))
     b(30) = esum4(b)
     call set_jac_entry(state, ife52, ife52, b(30))
 
@@ -2206,13 +2207,13 @@ contains
     ! ni56 jacobian elements
     ! d(ni56)/d(he4)
     b(1) =  y(ife52) * rr % rates(1, irfeag)
-    b(2) =  y(ife52) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
+    b(2) =  y(ife52) * rr % rates(1, irfeap) * (1.0e0_rt-rr % rates(1, iry1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, ini56, ihe4, b(30))
 
     ! d(ni56)/d(fe52)
     b(1) = y(ihe4) * rr % rates(1, irfeag)
-    b(2) = y(ihe4) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
+    b(2) = y(ihe4) * rr % rates(1, irfeap) * (1.0e0_rt-rr % rates(1, iry1))
     b(30) = sum(b(1:2))
     call set_jac_entry(state, ini56, ife52, b(30))
 
@@ -2234,7 +2235,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    real(rt) :: dydt(nspec), enuc
 
     !$gpu
 
@@ -2261,7 +2262,7 @@ contains
 
     call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(zion(ihe4),aion(ihe4),4.0d0,8.0d0)
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
 
     call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
 
@@ -2277,35 +2278,35 @@ contains
 
     call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(13.0d0,27.0d0,1.0d0,1.0d0)
+    call add_screening_factor(13.0e0_rt,27.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(isi28),aion(isi28),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(15.0d0,31.0d0,1.0d0,1.0d0)
+    call add_screening_factor(15.0e0_rt,31.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(is32),aion(is32),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(17.0d0,35.0d0,1.0d0,1.0d0)
+    call add_screening_factor(17.0e0_rt,35.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(iar36),aion(iar36),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(19.0d0,39.0d0,1.0d0,1.0d0)
+    call add_screening_factor(19.0e0_rt,39.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(ica40),aion(ica40),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(21.0d0,43.0d0,1.0d0,1.0d0)
+    call add_screening_factor(21.0e0_rt,43.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(iti44),aion(iti44),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(23.0d0,47.0d0,1.0d0,1.0d0)
+    call add_screening_factor(23.0e0_rt,47.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(icr48),aion(icr48),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(25.0d0,51.0d0,1.0d0,1.0d0)
+    call add_screening_factor(25.0e0_rt,51.0e0_rt,1.0e0_rt,1.0e0_rt)
 
     call add_screening_factor(zion(ife52),aion(ife52),zion(ihe4),aion(ihe4))
 
-    call add_screening_factor(27.0d0,55.0d0,1.0d0,1.0d0)
+    call add_screening_factor(27.0e0_rt,55.0e0_rt,1.0e0_rt,1.0e0_rt)
 
   end subroutine set_up_screening_factors
 

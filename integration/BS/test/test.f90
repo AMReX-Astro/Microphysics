@@ -1,6 +1,6 @@
 program main
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use stiff_ode
 
   implicit none
@@ -12,7 +12,7 @@ program main
   
   external f_rhs
 
-  t = 0.0
+  t = 0.0_rt
   
   y(:) = [1.0_rt, 0.0_rt, 0.0_rt]
 

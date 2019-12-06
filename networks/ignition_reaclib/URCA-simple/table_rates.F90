@@ -2,7 +2,7 @@ module table_rates
   ! Table is expected to be in terms of dens*ye and temp (non-logarithmic, cgs units)
   ! Table energy units are expected in terms of ergs
 
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 
@@ -358,7 +358,7 @@ contains
     ! Recast entries into reactvec
     reactvec(i_rate)     = entries(jtab_rate)
     reactvec(i_drate_dt) = entries(k_drate_dt)
-    reactvec(i_scor)     = 1.0d0
+    reactvec(i_scor)     = 1.0e0_rt
     reactvec(i_eneut)    = -entries(jtab_nuloss)
 
   end subroutine tabular_evaluate

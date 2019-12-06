@@ -13,7 +13,7 @@ contains
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE
     use bs_type_module, only: bs_t
     use amrex_constants_module, only: ZERO, HALF, ONE
-    use amrex_fort_module, only : rt => amrex_real
+    use microphysics_type_module
 
     implicit none
 
@@ -24,7 +24,7 @@ contains
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon. 
     ! this balances truncation vs. roundoff error in the differencing
-    real(rt), parameter :: eps = 1.d-8, SMALL = 1.d-8
+    real(rt), parameter :: eps = 1.e-8_rt, SMALL = 1.e-8_rt
 
     state % jac(:,:) = ZERO
 

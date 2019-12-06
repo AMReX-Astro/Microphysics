@@ -2,7 +2,7 @@ module acutal_burner_module
 
   use amrex_constants_module
   use amrex_error_module
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
   use eos_module
   use network
 
@@ -126,11 +126,11 @@ contains
 
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
-    atol(1:nspec) = 1.d-12    ! density-weighted mass fractions
-    atol(nspec+1) = 1.d-8     ! enthalpy
+    atol(1:nspec) = 1.e-12_rt    ! density-weighted mass fractions
+    atol(nspec+1) = 1.e-8_rt     ! enthalpy
        
-    rtol(1:nspec) = 1.d-12    ! density-weighted mass fractions
-    rtol(nspec+1) = 1.d-8     ! enthalpy
+    rtol(1:nspec) = 1.e-12_rt    ! density-weighted mass fractions
+    rtol(nspec+1) = 1.e-8_rt     ! enthalpy
     
 
     ! we want VODE to re-initialize each time we call it
