@@ -32,7 +32,7 @@ script:
   - ls -l
   - pwd
   - cd util/code_checker; pytest -q fortran_checker.py
-  - cd
+  - cd ../..
 
 # after_success:
   - ./deploy_docs.sh
