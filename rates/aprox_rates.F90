@@ -7,7 +7,7 @@ module aprox_rates_module
   ! in our reaction networks.
 
   use tfactors_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

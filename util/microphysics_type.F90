@@ -20,10 +20,12 @@ module microphysics_type_module
   real(rt), parameter :: THOU = 1000.0_rt
 
   real(rt), parameter :: THIRD = 1.0_rt/3.0_rt
+  real(rt), parameter :: TWO3RD = 2.0_rt/3.0_rt
   real(rt), parameter :: FIVE3RD = 5.0_rt/3.0_rt
 
   real(rt), parameter :: FOURTH = 1.0_rt/4.0_rt
 
+  real(rt), parameter :: TWELFTH = 1.0_rt / 12.0_rt
   real(rt), parameter :: FIVE12TH = 5.0_rt/12.0_rt
   real(rt), parameter :: FIVE32ND = 5.0_rt/32.0_rt
 
