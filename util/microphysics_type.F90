@@ -16,12 +16,13 @@ module microphysics_type_module
   real(rt), parameter :: NINE = 9.0_rt
   real(rt), parameter :: TEN = 10.0_rt
   real(rt), parameter :: TWELVE = 12.0_rt
+  real(rt), parameter :: FIFTEEN = 15.0_rt
   real(rt), parameter :: HUN  = 100.0_rt
   real(rt), parameter :: THOU = 1000.0_rt
 
   real(rt), parameter :: THIRD = 1.0_rt/3.0_rt
   real(rt), parameter :: TWO3RD = 2.0_rt/3.0_rt
-  real(rt), parameter :: FOUR3RD = 5.0_rt/3.0_rt
+  real(rt), parameter :: FOUR3RD = 4.0_rt/3.0_rt
   real(rt), parameter :: FIVE3RD = 5.0_rt/3.0_rt
 
   real(rt), parameter :: FOURTH = 1.0_rt/4.0_rt

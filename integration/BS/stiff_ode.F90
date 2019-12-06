@@ -1,6 +1,6 @@
 module stiff_ode
 
-  use microphysics_type_module, only: rt, ZERO, ONE, TWO, THREE, FIVE, SIX, EIGHT, HALF, THIRD, TWELVE
+  use microphysics_type_module, only: rt, ZERO, ONE, TWO, THREE, FIVE, SIX, EIGHT, NINE, HALF, THIRD, TWELVE
   use burn_type_module
   use bs_type_module
 #ifdef SIMPLIFIED_SDC
