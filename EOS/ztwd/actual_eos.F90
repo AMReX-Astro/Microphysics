@@ -1,7 +1,7 @@
-! This is the equation of state for zero-temperature white dwarf 
+! This is the equation of state for zero-temperature white dwarf
 ! matter composed of degenerate electrons:
 ! P = A ( x * (2x**2 - 3)(x**2 + 1)**1/2 + 3 sinh**-1(x) )
-! 
+!
 ! where rho = B x**3 and the constants are given by:
 !
 ! A = pi m_e**4 c**5 / (3 h**3) = 6.0 x 10^22 dyne cm**-2
@@ -13,22 +13,22 @@
 ! h = (8A / B) (1 + x**2)**(1/2)
 !
 ! The internal energy is calculated using the standard relation:
-! 
+!
 ! h = e + P / rho
 
 module actual_eos_module
 
   use amrex_error_module
-  use amrex_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
+  use microphysics_type_module
 
   implicit none
 
   character (len=64), public :: eos_name = "ztwd"
-  
-  double precision, private :: A, B, B2
-  double precision, parameter, private :: iter_tol = 1.d-10
+
+  real(rt), private :: A, B, B2
+  real(rt), parameter, private :: iter_tol = 1.e-10_rt
   integer,          parameter, private :: max_iter = 1000
   !$OMP THREADPRIVATE(B)
 
@@ -41,7 +41,7 @@ contains
     use fundamental_constants_module, only: m_e, m_p, c_light, hplanck
 
     implicit none
- 
+
     A = M_PI * m_e**4 * c_light**5 / (THREE * hplanck**3)
     B2 = EIGHT * M_PI * m_e**3 * c_light**3 * m_p  / (THREE * hplanck**3)
 
@@ -57,8 +57,8 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables
-    double precision :: dens, temp, enth, pres, eint, entr
-    double precision :: x, dxdr
+    real(rt) :: dens, temp, enth, pres, eint, entr
+    real(rt) :: x, dxdr
 
     dens = state % rho
     temp = state % T
@@ -244,11 +244,11 @@ contains
 
 
 
-  double precision function pressure(x)
+  real(rt) function pressure(x)
 
     implicit none
 
-    double precision, intent(in)  :: x
+    real(rt), intent(in)  :: x
 
     pressure = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
 
@@ -256,11 +256,11 @@ contains
 
 
 
-  double precision function enthalpy(x)
+  real(rt) function enthalpy(x)
 
     implicit none
 
-    double precision, intent(in)  :: x
+    real(rt), intent(in)  :: x
 
     enthalpy = (EIGHT * A / B) * (ONE + x**2)**HALF
 
@@ -268,11 +268,11 @@ contains
 
 
 
-  double precision function dpdx(x)
+  real(rt) function dpdx(x)
 
     implicit none
 
-    double precision, intent(in) :: x
+    real(rt), intent(in) :: x
 
     dpdx = A * ( (TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
                  x * (4*x) * (x**2 + ONE)**HALF + &
@@ -283,11 +283,11 @@ contains
 
 
 
-  double precision function dhdx(x)
+  real(rt) function dhdx(x)
 
     implicit none
 
-    double precision, intent(in) :: x
+    real(rt), intent(in) :: x
 
     dhdx = enthalpy(x) * (x / (x**2 + ONE))
 
@@ -299,9 +299,9 @@ contains
 
     implicit none
 
-    double precision, intent(inout) :: pres, dens
+    real(rt), intent(inout) :: pres, dens
 
-    double precision :: x, dx
+    real(rt) :: x, dx
     integer          :: iter
 
     ! Starting guess for the iteration.

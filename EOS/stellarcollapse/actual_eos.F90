@@ -1,25 +1,24 @@
 module actual_eos_module
 
   use amrex_error_module
-  use amrex_constants_module, only: ZERO, HALF, TWO
-  use amrex_fort_module, only : rt => amrex_real
   use eos_type_module
   use eos_aux_data_module
+  use microphysics_type_module
 
   implicit none
 
   character (len=64), public :: eos_name = "stellarcollapse"
-  
+
   integer          :: max_newton = 100
 
-  double precision :: ttol = 1.0d-8
-  double precision :: dtol = 1.0d-8
+  real(rt) :: ttol = 1.0e-8_rt
+  real(rt) :: dtol = 1.0e-8_rt
 
   character(len=15) :: errfmt = '(3(e12.5,x))'
 
 contains
 
-  ! EOS initialization routine 
+  ! EOS initialization routine
   ! This reads in the HDF5 file containing the tabulated data
   subroutine actual_eos_init
 
@@ -28,7 +27,7 @@ contains
     use network, only: network_species_index
 
     implicit none
- 
+
     if (amrex_pd_ioprocessor()) print *, 'Reading HDF5 file', eos_file
     call read_stellarcollapse_file(eos_file,use_energy_shift)
 
@@ -39,8 +38,8 @@ contains
   subroutine actual_eos(input, state)
 
     ! Stellar Collapse EOS
-    ! 
-    ! The stellarcollapse tables are indexed by log(density), 
+    !
+    ! The stellarcollapse tables are indexed by log(density),
     ! log(temperature), and electron fraction.  As such, the usual
     ! 'composition' variable passed to the EOS is the electron fraction.
     !
@@ -53,8 +52,8 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables and arrays
-    double precision :: e_want, p_want, s_want, h_want
-    double precision, parameter :: tol = 1.0d-8
+    real(rt) :: e_want, p_want, s_want, h_want
+    real(rt), parameter :: tol = 1.0e-8_rt
 
     integer :: ierr
 
@@ -66,10 +65,10 @@ contains
     select case (input)
 
     !---------------------------------------------------------------------------
-    ! dens, temp, and ye are inputs; 
+    ! dens, temp, and ye are inputs;
     ! this is direct table interpolation, so nothing to do here
     !---------------------------------------------------------------------------
-       
+
     case (eos_input_rt)
 
        !---------------------------------------------------------------------------
@@ -77,9 +76,9 @@ contains
        !---------------------------------------------------------------------------
 
        continue
-       
+
     case (eos_input_rh)
-       
+
        ! NOT CURRENTLY IMPLEMENTED
        call amrex_error("eos_input_th is not supported")
 
@@ -170,7 +169,7 @@ contains
        ! The EOS input doesn't match any of the available options.
        !---------------------------------------------------------------------------
 
-    case default 
+    case default
 
        call amrex_error("EOS: invalid input")
 
@@ -204,12 +203,12 @@ contains
 
      type (eos_t),       intent(inout) :: state
      integer,            intent(in   ) :: var, dvar
-     double precision,   intent(in   ) :: f_want
+     real(rt),   intent(in   ) :: f_want
      integer,            intent(inout) :: ierr
 
      integer          :: iter, ivar
-     double precision :: smallx, error, xnew, xtol
-     double precision :: f, x, dfdx, df(3)
+     real(rt) :: smallx, error, xnew, xtol
+     real(rt) :: f, x, dfdx, df(3)
 
      logical :: converged, err
      character(len=128) :: errstring
@@ -297,7 +296,7 @@ contains
         error = abs( (xnew - x) / x )
 
         if (error .lt. xtol) converged = .true.
-               
+
      enddo
 
      ! Call error if too many iterations were needed
@@ -308,13 +307,13 @@ contains
 
 
   function get_munu(rho,T,ye) result(munu)
-    use interpolate_module 
+    use interpolate_module
 
-    double precision, intent(in   ) :: rho, T, ye
-    double precision                :: munu
+    real(rt), intent(in   ) :: rho, T, ye
+    real(rt)                :: munu
 
     type(eos_t) :: state
-    double precision :: derivs(3)
+    real(rt) :: derivs(3)
     logical :: err
     character(len=128) :: errstring
 
@@ -336,7 +335,7 @@ contains
        write(errstring,trim(errfmt)) state%rho,state%T,state%y_e
        call amrex_error('get_munu: tri-interpolate failure:',trim(errstring))
     endif
-    
+
   end function get_munu
 
 

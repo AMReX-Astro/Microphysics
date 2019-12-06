@@ -2,7 +2,7 @@ module eos_composition_module
 
   use eos_type_module, only : eos_t
   use network, only: nspec, aion, zion
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 
@@ -19,7 +19,6 @@ contains
 
   subroutine composition(state)
 
-    use amrex_constants_module, only: ONE
     use network, only: aion_inv, zion
 
     implicit none
@@ -47,7 +46,6 @@ contains
 
   subroutine composition_derivatives(state, state_xderivs)
 
-    use amrex_constants_module, only: ZERO, ONE
     use network, only: aion, aion_inv, zion
     use actual_eos_module, only: gammas
     use fundamental_constants_module, only: k_B, n_A
@@ -58,7 +56,7 @@ contains
     type (eos_xderivs_t), intent(out) :: state_xderivs
 
     ! Get the mass of a nucleon from Avogadro's number.
-    double precision, parameter :: m_nucleon = ONE / n_A
+    real(rt), parameter :: m_nucleon = ONE / n_A
     
     !$gpu
 

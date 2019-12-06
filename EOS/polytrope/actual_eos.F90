@@ -23,19 +23,19 @@
 module actual_eos_module
 
   use amrex_error_module
-  use amrex_constants_module
   use network, only: nspec, aion, zion
   use eos_type_module
+  use microphysics_type_module
 
   implicit none
 
   character (len=64), public :: eos_name = "polytrope"
   
-  double precision, allocatable, save :: gamma_const, K_const
-  double precision, allocatable, save :: mu_e
+  real(rt), allocatable, save :: gamma_const, K_const
+  real(rt), allocatable, save :: mu_e
   integer         , allocatable, save :: polytrope
 
-  double precision, allocatable, save :: gm1, polytrope_index
+  real(rt), allocatable, save :: gm1, polytrope_index
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
@@ -68,11 +68,11 @@ contains
       polytrope = polytrope_type
       if (polytrope .eq. 1) then
         gamma_const = FIVE3RD
-        K_const     = 9.9154d12 ! (3 / pi)^(2/3) * h^2 / (20 * m_e * m_p^(5/3))
+        K_const     = 9.9154e12_rt ! (3 / pi)^(2/3) * h^2 / (20 * m_e * m_p^(5/3))
         K_const     = K_const / mu_e**gamma_const
       elseif (polytrope .eq. 2) then
         gamma_const = FOUR3RD
-        K_const     = 1.2316d15 ! (3 / pi)^(1/3) * h c / (8 * m_p^(4/3))
+        K_const     = 1.2316e15_rt ! (3 / pi)^(1/3) * h c / (8 * m_p^(4/3))
         K_const     = K_const / mu_e**gamma_const
       else
         call amrex_error('EOS: Polytrope type currently not defined')
@@ -100,7 +100,7 @@ contains
   subroutine eos_get_polytrope_parameters(polytrope_out,gamma_out,K_out,mu_e_out)
 
     integer,          intent(out) :: polytrope_out
-    double precision, intent(out) :: gamma_out, K_out, mu_e_out
+    real(rt), intent(out) :: gamma_out, K_out, mu_e_out
 
     polytrope_out = polytrope
     gamma_out     = gamma_const
@@ -112,7 +112,7 @@ contains
   subroutine eos_set_polytrope_parameters(polytrope_in,gamma_in,K_in,mu_e_in)
 
     integer,          intent(in) :: polytrope_in
-    double precision, intent(in) :: gamma_in, K_in, mu_e_in
+    real(rt), intent(in) :: gamma_in, K_in, mu_e_in
 
     polytrope   = polytrope_in
     gamma_const = gamma_in
@@ -134,7 +134,7 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables
-    double precision :: dens, temp, enth, pres, eint, entr
+    real(rt) :: dens, temp, enth, pres, eint, entr
 
     !$gpu
 
