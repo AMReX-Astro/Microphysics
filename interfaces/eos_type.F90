@@ -1,7 +1,7 @@
 module eos_type_module
 
   use amrex_error_module, only: amrex_error
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ONE
   use network, only: nspec, naux
 
   implicit none

@@ -1,8 +1,9 @@
 module cuvode_types_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
   use vode_rpar_indices, only: n_rpar_comps
+  use cuvode_constants_module
 
   implicit none
 

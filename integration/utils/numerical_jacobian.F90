@@ -1,6 +1,6 @@
 module numerical_jac_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, HALF, ONE
   use network
   use burn_type_module
 

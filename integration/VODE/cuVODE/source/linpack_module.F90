@@ -1,7 +1,7 @@
 module linpack_module
 
   use cuvode_parameters_module, only: VODE_NEQS
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

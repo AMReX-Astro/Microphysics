@@ -12,7 +12,7 @@ contains
     use extern_probin_module, only: centered_diff_jac
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE
     use bs_type_module, only: bs_t
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, HALF, ONE
 
     implicit none
 

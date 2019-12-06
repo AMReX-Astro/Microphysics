@@ -4,13 +4,13 @@ subroutine do_burn() bind (C)
   use eos_module
   use burner_module
   use actual_burner_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE
 
   implicit none
 
   type (burn_t) :: state_in, state_out
 
-  real(rt) :: time = 0.0_rt, dt = 1.0e-6_rt
+  real(rt) :: time = ZERO, dt = 1.0e-6_rt
 
   type (eos_t) :: eos_state
 

@@ -7,7 +7,7 @@ contains
 
     use cuvode_parameters_module, only: VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
 
     implicit none
 
@@ -29,7 +29,7 @@ contains
 
     use cuvode_parameters_module, only: VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
 
     implicit none
 

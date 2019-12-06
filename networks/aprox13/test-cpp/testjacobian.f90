@@ -10,7 +10,7 @@ subroutine test_jacobian() bind(C)
   use actual_rhs_module
   use burn_type_module
   use numerical_jac_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   
   implicit none
 

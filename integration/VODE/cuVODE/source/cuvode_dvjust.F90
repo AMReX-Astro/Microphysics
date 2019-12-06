@@ -3,7 +3,8 @@ module cuvode_dvjust_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
+  use cuvode_constants_module
 
   implicit none
 

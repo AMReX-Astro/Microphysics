@@ -1,6 +1,7 @@
 module cuvode_dacopy_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
+  use cuvode_constants_module
 
   implicit none
 

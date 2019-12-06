@@ -5,7 +5,7 @@ subroutine do_burn() bind (C)
   use eos_module
   use burner_module
   use actual_burner_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

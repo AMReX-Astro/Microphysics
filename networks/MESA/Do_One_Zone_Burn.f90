@@ -46,7 +46,7 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
 
    ! AMReX
    use amrex_error_module, only: amrex_error
-   use microphysics_type_module
+   use microphysics_type_module, only: rt
 
    implicit none
 
@@ -109,7 +109,6 @@ subroutine Do_One_Zone_Burn(density, temperature, tstop, x_mesa_in, &
          ! rwork_y and iwork_y hold info for interp_y
          ! note that these are not the same as the rwork and iwork arrays for
          !   the solver.
-         use microphysics_type_module
          use num_lib,   only: safe_log10
          use net_lib,   only: chem_isos, del_Mn, del_Mp, num_categories, &
                           net_work_size, net_get

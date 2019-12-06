@@ -4,7 +4,7 @@ module cuvode_module
                                       VODE_LENWM, VODE_MAXORD, VODE_ITOL
   use cuvode_types_module, only: dvode_t, rwork_t
   use vode_rpar_indices
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use linpack_module
 #ifdef AMREX_USE_CUDA
   use cudafor

@@ -9,7 +9,7 @@ module vode_integrator_module
   use vode_type_module
   use burn_type_module
   use cuvode_parameters_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE
 
   implicit none
   

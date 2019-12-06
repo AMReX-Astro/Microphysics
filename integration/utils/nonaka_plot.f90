@@ -49,7 +49,7 @@ contains
     !               In that case, we trim entries in the nonaka file past the timestep end.
 
     use extern_probin_module, only: nonaka_i, nonaka_j, nonaka_k, nonaka_file
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
     use burn_type_module, only: burn_t
     use actual_network, only: nspec_evolve, aion
 

@@ -2,7 +2,7 @@ module actual_burner_module
 
   use burn_type_module
   use actual_network
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
 contains
 

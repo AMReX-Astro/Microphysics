@@ -1,6 +1,6 @@
 module sdc_type_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use actual_network, only: nspec
 
   implicit none

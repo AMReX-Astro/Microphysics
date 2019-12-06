@@ -1,7 +1,7 @@
 module integrator_scaling_module
 
   use extern_probin_module, only: reactions_density_scale, reactions_energy_scale, reactions_temperature_scale
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ONE
 
   implicit none
 

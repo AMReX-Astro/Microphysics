@@ -2,7 +2,7 @@
 
 subroutine f_rhs(neq, t, y, ydot)
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   integer, intent(in) :: neq
   real(rt) t, y(neq), ydot(neq)
@@ -15,7 +15,7 @@ end subroutine f_rhs
  
 subroutine jac(neq, t, y, dfdy)
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   integer, intent(in) :: neq
   real(rt) rpar, t, y(neq), dfdy(neq,neq)

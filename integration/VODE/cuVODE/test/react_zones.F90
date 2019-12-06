@@ -1,6 +1,6 @@
 module react_zones_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE
 
   implicit none
 

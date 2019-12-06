@@ -2,7 +2,7 @@ module eos_composition_module
 
   use eos_type_module, only : eos_t
   use network, only: nspec, aion, zion
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ONE
 
   implicit none
 

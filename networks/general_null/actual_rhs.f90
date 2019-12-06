@@ -1,5 +1,7 @@
 module actual_rhs_module
 
+    use microphysics_type_module, only: ZERO
+
   implicit none
 
 contains

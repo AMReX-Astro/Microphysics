@@ -19,7 +19,7 @@
 
 module bdf
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ONE
   use bdf_type_module
 
   implicit none

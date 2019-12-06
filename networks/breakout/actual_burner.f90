@@ -16,7 +16,7 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
     
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
 
     implicit none
 

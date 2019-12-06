@@ -4,7 +4,7 @@
 program testjacobian
 
   use amrex_error_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use network
   use burn_type_module
   use microphysics_module

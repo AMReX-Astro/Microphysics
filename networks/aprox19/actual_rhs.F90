@@ -5,7 +5,7 @@ module actual_rhs_module
   use burn_type_module
   use rate_type_module
   use actual_network, only: nrates
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
 
   implicit none
 

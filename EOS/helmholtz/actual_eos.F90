@@ -1,7 +1,7 @@
 module actual_eos_module
 
   use eos_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ONE, ZERO
 
   character (len=64), public :: eos_name = "helmholtz"
 

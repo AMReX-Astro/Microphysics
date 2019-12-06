@@ -1,7 +1,7 @@
 module burner_module
 
    use amrex_error_module
-   use microphysics_type_module
+   use microphysics_type_module, only: rt
    use eos_module
    use network
 

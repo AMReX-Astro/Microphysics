@@ -4,7 +4,7 @@
 module actual_integrator_module
 
   use burn_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
   

@@ -6,7 +6,7 @@ function get_mesa_ebin(i) result(ebin)
 
    ! AMReX
    use amrex_error_module, only: amrex_error
-   use microphysics_type_module
+   use microphysics_type_module, only: rt
 
    ! MAESTRO
    use network,   only: chem_id

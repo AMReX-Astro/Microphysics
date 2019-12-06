@@ -1,6 +1,6 @@
 module reaclib_rates
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use screening_module, only: add_screening_factor, &
                               screening_init, screening_finalize, &
                               plasma_state, fill_plasma_state

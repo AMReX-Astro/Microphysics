@@ -1,6 +1,6 @@
 program testburn
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
   use microphysics_module
   use network
   use eos_module

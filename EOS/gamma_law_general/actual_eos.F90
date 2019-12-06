@@ -9,7 +9,7 @@
 module actual_eos_module
 
   use amrex_error_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE, TWO, M_PI, THREE, FIVE
   use network, only: nspec, aion, aion_inv, zion
   use eos_type_module
 

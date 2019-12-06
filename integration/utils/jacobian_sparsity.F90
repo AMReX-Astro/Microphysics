@@ -5,7 +5,7 @@ module jacobian_sparsity_module
 #endif
 
   use burn_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
 
   implicit none
 

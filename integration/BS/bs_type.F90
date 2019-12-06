@@ -1,6 +1,6 @@
 module bs_type_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE
   use burn_type_module, only: neqs, burn_t
   use bs_rpar_indices, only: n_rpar_comps
 
@@ -72,8 +72,6 @@ contains
   subroutine renormalize_species(state)
 
     !$acc routine seq
-
-    use microphysics_type_module
     use actual_network, only: nspec, nspec_evolve
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
 

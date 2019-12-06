@@ -22,7 +22,7 @@ contains
 
     !$acc routine seq
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, ONE
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
@@ -96,7 +96,7 @@ contains
 
     !$acc routine seq
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, ONE
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry

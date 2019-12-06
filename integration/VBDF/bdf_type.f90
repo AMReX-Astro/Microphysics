@@ -1,6 +1,6 @@
 module bdf_type_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE
   use burn_type_module, only: neqs
   use vbdf_rpar_indices, only: n_rpar_comps
 

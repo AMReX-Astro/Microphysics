@@ -1,6 +1,6 @@
 module bs_type_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, HALF, ZERO, ONE
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
   use bs_rpar_indices, only: n_rpar_comps
 
@@ -152,9 +152,6 @@ contains
   subroutine renormalize_species(state)
 
     !$acc routine seq
-
-    use microphysics_type_module
-
     use sdc_type_module, only: SFS
     use actual_network, only: nspec
     use bs_rpar_indices, only: irp_SRHO

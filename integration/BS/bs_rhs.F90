@@ -11,7 +11,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: aion, nspec_evolve
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, ONE
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost

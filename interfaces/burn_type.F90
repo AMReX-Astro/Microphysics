@@ -6,7 +6,7 @@ module burn_type_module
   use actual_network, only: nspec, nspec_evolve, naux
 #endif
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ONE
 
   implicit none
 

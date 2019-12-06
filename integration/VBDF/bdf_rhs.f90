@@ -12,7 +12,7 @@ contains
 
     use actual_network, only: aion, nspec_evolve
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, ONE
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, integrate_temperature, integrate_energy, react_boost
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
@@ -91,7 +91,7 @@ contains
     !$acc routine seq
 
     use network, only: aion, aion_inv, nspec_evolve
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, ONE
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost

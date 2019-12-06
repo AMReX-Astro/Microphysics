@@ -3,7 +3,7 @@ module actual_burner_module
   use network
   use eos_type_module
   use burn_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

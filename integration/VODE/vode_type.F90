@@ -1,7 +1,7 @@
 module vode_type_module
 
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE
 
   implicit none
 
