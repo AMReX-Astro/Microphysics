@@ -11,9 +11,8 @@ contains
     !$acc routine seq
     
     use actual_network, only: aion, nspec_evolve
-    use amrex_fort_module, only: rt => amrex_real
+    use microphysics_type_module
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, &
          integrate_temperature, integrate_energy, react_boost
@@ -84,12 +83,11 @@ contains
     !$acc routine seq
     
     use network, only: aion, aion_inv, nspec_evolve
-    use amrex_constants_module, only: ZERO
     use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
-    use amrex_fort_module, only: rt => amrex_real
+    use microphysics_type_module
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
 
     implicit none

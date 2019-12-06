@@ -1,7 +1,6 @@
 module vode_type_module
 
   use microphysics_type_module
-  use amrex_constants_module
   use cuvode_parameters_module, only : VODE_NEQS
 
   use network, only : nspec, nspec_evolve, aion, aion_inv

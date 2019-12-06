@@ -238,7 +238,6 @@ contains
 
   subroutine normalize_abundances(state)
 
-    use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x
 
     implicit none

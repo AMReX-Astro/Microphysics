@@ -1,6 +1,5 @@
 module screening_module
 
-  use amrex_constants_module
   use microphysics_type_module
 
   implicit none
@@ -275,7 +274,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: M_PI
     use microphysics_type_module
 
     implicit none

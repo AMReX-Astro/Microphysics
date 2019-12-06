@@ -3,7 +3,6 @@
 subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
 
   use amrex_error_module
-  use amrex_constants_module
   use microphysics_type_module
 
   use extern_probin_module, only: run_prefix, small_temp, small_dens

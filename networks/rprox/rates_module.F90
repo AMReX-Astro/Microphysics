@@ -6,7 +6,6 @@
 ! This module is created via the make_rate_module.py routine.
 module rates_module
 
-  use amrex_constants_module
   use microphysics_type_module
 
   implicit none

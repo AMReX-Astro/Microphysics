@@ -74,8 +74,6 @@ contains
 
   subroutine actual_network_init
 
-    use amrex_constants_module
-
     ! set the names
     spec_names(ic12)  = "carbon-12"
     spec_names(io14)  = "oxygen-14"

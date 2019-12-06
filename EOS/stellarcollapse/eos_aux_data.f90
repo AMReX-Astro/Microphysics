@@ -309,7 +309,6 @@ contains
     use amrex_error_module, only: amrex_error
     use eos_type_module
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
-    use amrex_constants_module, only: ZERO, ONE
 
     implicit none
 
@@ -360,7 +359,6 @@ contains
 
     use fundamental_constants_module
     use eos_type_module
-    use amrex_constants_module, only: TEN
 
     implicit none
 

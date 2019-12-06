@@ -1,7 +1,6 @@
 module react_zones_module
 
   use microphysics_type_module
-  use amrex_constants_module
 
   implicit none
 

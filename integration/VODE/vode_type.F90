@@ -1,7 +1,7 @@
 module vode_type_module
 
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 
@@ -11,7 +11,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ONE
     use actual_network, only: aion, nspec, nspec_evolve
     use burn_type_module, only: neqs, net_itemp
     use vode_rpar_indices, only: n_rpar_comps
@@ -76,7 +75,6 @@ contains
 
     !$acc routine seq
     
-    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
@@ -232,7 +230,6 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
-    use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
@@ -301,7 +298,6 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
-    use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &

@@ -102,7 +102,6 @@ contains
 
     use temperature_integration_module, only: temperature_jac
     use sneut_module, only: sneut5
-    use amrex_constants_module, only: ZERO
     use eos_module
 
     implicit none
@@ -228,7 +227,6 @@ contains
 
   subroutine rhs(y, rate, ratdum, dydt, deriva)
 
-    use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15 ! function
 
     implicit none
@@ -780,7 +778,6 @@ contains
 
     use tfactors_module
     use aprox_rates_module
-    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
     real(rt) :: btemp, bden
@@ -1111,7 +1108,6 @@ contains
                             ratdum, dratdumdt, dratdumdd, &
                             dratdumdy1, dratdumdy2)
 
-    use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     ! this routine computes the screening factors

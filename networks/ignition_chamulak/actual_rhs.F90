@@ -1,6 +1,5 @@
 module actual_rhs_module
 
-  use amrex_constants_module
   use microphysics_type_module
   use network
   use actual_network
@@ -19,7 +18,6 @@ contains
 
   subroutine get_ebin(density, ebin)
 
-    use amrex_constants_module, only: ZERO
     use fundamental_constants_module
 
     implicit none

@@ -1,6 +1,5 @@
 module util_module
 
-  use amrex_constants_module
   use microphysics_type_module
 
   implicit none

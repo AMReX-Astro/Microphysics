@@ -3,7 +3,6 @@
 
 program testjacobian
 
-  use amrex_constants_module
   use amrex_error_module
   use microphysics_type_module
   use network
@@ -44,9 +43,9 @@ program testjacobian
   dens = 2.6e9_rt
   temp = 7.e8_rt
 
-  Xin(ic12) = 0.5_rt
-  Xin(io16) = 0.5_rt
-  Xin(img24) = 0.0_rt
+  Xin(ic12) = HALF
+  Xin(io16) = HALF
+  Xin(img24) = ZERO
 
 
   den_eos(1) = dens

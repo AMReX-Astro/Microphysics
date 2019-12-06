@@ -1,8 +1,6 @@
 module cuvode_output_module
 
-  use amrex_fort_module, only: rt => amrex_real
-
-  use cuvode_constants_module
+  use microphysics_type_module
   
   implicit none
 

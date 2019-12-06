@@ -41,7 +41,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ONE
     use extern_probin_module, only: SMALL_X_SAFE, renormalize_abundances, MAX_TEMP
     use actual_network, only: nspec, nspec_evolve
     use burn_type_module, only: net_itemp
@@ -99,7 +98,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
     use eos_module, only: eos
@@ -259,7 +257,6 @@ contains
     use network, only: nspec, nspec_evolve
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
-    use amrex_constants_module, only: ONE
 
     implicit none
 
@@ -291,7 +288,6 @@ contains
     use actual_network, only: nspec, nspec_evolve
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
-    use amrex_constants_module, only: ZERO, ONE
 
     implicit none
 

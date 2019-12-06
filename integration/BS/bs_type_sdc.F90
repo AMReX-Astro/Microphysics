@@ -1,6 +1,5 @@
 module bs_type_module
 
-  use amrex_constants_module, only: HALF, ONE, ZERO
   use microphysics_type_module
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
   use bs_rpar_indices, only: n_rpar_comps

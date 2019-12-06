@@ -13,7 +13,6 @@ contains
     use actual_network, only: aion, nspec_evolve
     use microphysics_type_module
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
     use bs_type_module, only: bs_t, clean_state, renormalize_species, update_thermodynamics, &

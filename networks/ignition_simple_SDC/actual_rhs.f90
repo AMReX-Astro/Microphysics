@@ -1,6 +1,5 @@
 module actual_rhs_module
 
-  use amrex_constants_module
   use microphysics_type_module
   use network
   use amrex_error_module
@@ -60,7 +59,6 @@ contains
 
   subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
-    use amrex_constants_module
     use microphysics_type_module
     use network
 

@@ -12,7 +12,6 @@
 
 module rates_module
 
-  use amrex_constants_module
   use microphysics_type_module
 
   use network

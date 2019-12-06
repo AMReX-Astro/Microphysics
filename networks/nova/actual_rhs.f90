@@ -1,7 +1,6 @@
 module actual_rhs_module
 
   use microphysics_type_module
-  use amrex_constants_module
   use physical_constants, only: N_AVO
   use network
   use reaclib_rates, only: screen_reaclib, reaclib_evaluate

@@ -299,7 +299,6 @@ contains
 
   subroutine actual_jac(state)
 
-    use amrex_constants_module, only: ZERO
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
 
@@ -373,7 +372,6 @@ contains
 
   subroutine rhs(y, rr, dydt, deriva, for_jacobian_tderiv)
 
-    use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum5, esum6, esum15 ! function
 
     implicit none
@@ -484,7 +482,6 @@ contains
 
     use tfactors_module
     use aprox_rates_module
-    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
     real(rt) :: btemp, bden
@@ -569,7 +566,6 @@ contains
                          rate, dratedt, &
                          dratedy1, dratedy2)
 
-    use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
     use tfactors_module
 

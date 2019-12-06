@@ -16,7 +16,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    use amrex_constants_module
     use microphysics_type_module
     use network
     use rates_module
@@ -57,7 +56,6 @@ contains
 
   subroutine make_rates(T9, dens, y, state, rr)
 
-    use amrex_constants_module
     use microphysics_type_module
     use tfactors_module, only : temp_t
     use tfactors_module, only : calc_tfactors
@@ -247,7 +245,6 @@ contains
 
   subroutine make_ydots(ymol, T9, state, rr, dydt, doing_dratesdt)
 
-    use amrex_constants_module
     use microphysics_type_module
     use network
 
@@ -394,7 +391,6 @@ contains
 
   subroutine actual_jac(state)
 
-    use amrex_constants_module
     use microphysics_type_module
     use network
     use temperature_integration_module, only: temperature_jac

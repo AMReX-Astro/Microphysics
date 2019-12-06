@@ -4,7 +4,6 @@ module vode_integrator_module
 
   use amrex_error_module
   use microphysics_type_module
-  use amrex_constants_module
 
   use sdc_type_module
   use vode_type_module

@@ -3,7 +3,6 @@
 module fundamental_constants_module
 
   use microphysics_type_module
-  use amrex_constants_module, only: M_PI
 
   implicit none
 

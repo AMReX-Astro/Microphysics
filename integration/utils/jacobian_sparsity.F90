@@ -113,8 +113,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO
-
     implicit none
 
     real(rt), intent(in) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -206,8 +204,6 @@ contains
   subroutine set_jac_zero(state)
 
     !$acc routine seq
-
-    use amrex_constants_module, only: ZERO
 
     implicit none
 

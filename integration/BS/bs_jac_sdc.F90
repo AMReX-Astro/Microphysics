@@ -8,7 +8,7 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO
+    use microphysics_type_module, only: ZERO
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian

@@ -221,7 +221,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x
 
     implicit none

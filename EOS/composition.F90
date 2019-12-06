@@ -2,7 +2,7 @@ module eos_composition_module
 
   use eos_type_module, only : eos_t
   use network, only: nspec, aion, zion
-  use microphysics_type_module, only : rt
+  use microphysics_type_module
 
   implicit none
 
@@ -19,7 +19,6 @@ contains
 
   subroutine composition(state)
 
-    use amrex_constants_module, only: ONE
     use network, only: aion_inv, zion
 
     implicit none
@@ -47,7 +46,6 @@ contains
 
   subroutine composition_derivatives(state, state_xderivs)
 
-    use amrex_constants_module, only: ZERO
     use network, only: aion, aion_inv, zion
 
     implicit none

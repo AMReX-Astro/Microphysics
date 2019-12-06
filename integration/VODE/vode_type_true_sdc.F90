@@ -1,6 +1,6 @@
 module vode_type_module
 
-  use amrex_fort_module, only: rt => amrex_real
+  use microphysics_type_module
 
   implicit none
 

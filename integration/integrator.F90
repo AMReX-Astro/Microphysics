@@ -59,7 +59,6 @@ contains
     use actual_integrator_module, only: actual_integrator
 #endif
     use microphysics_type_module
-    use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &

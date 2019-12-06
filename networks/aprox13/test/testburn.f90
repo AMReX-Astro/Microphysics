@@ -1,6 +1,5 @@
 program testburn
 
-  use amrex_constants_module
   use microphysics_type_module
   use microphysics_module
   use network

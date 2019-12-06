@@ -1,6 +1,5 @@
 module burner_module
 
-   use amrex_constants_module
    use amrex_error_module
    use microphysics_type_module
    use eos_module

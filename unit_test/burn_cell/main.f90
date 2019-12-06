@@ -3,7 +3,6 @@
 program burn_cell
 
   use amrex_error_module
-  use amrex_constants_module
   use microphysics_type_module
 
   use fabio_module, only: fabio_mkdir

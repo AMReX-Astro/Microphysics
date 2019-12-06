@@ -22,7 +22,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO, ONE
     use microphysics_type_module
     use network, only: nspec
     use burn_type_module
@@ -97,7 +96,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO, ONE
     use microphysics_type_module
     use network, only: nspec
     use burn_type_module

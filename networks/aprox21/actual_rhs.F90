@@ -31,7 +31,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    use amrex_constants_module, only: ZERO
     use temperature_integration_module, only: temperature_rhs
     use sneut_module, only: sneut5
 
@@ -99,7 +98,6 @@ contains
 
   subroutine actual_jac(state)
 
-    use amrex_constants_module, only: ZERO
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry, get_jac_entry
     use sneut_module, only: sneut5
@@ -235,7 +233,6 @@ contains
 
   subroutine rhs(y, rr, dydt, deriva, for_jacobian_tderiv)
 
-    use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15 ! function
 
     implicit none
@@ -815,7 +812,6 @@ contains
 
     use tfactors_module
     use aprox_rates_module
-    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
     real(rt) :: btemp, bden
@@ -1166,7 +1162,6 @@ contains
                             ratdum, dratdumdt, dratdumdd, &
                             dratdumdy1, dratdumdy2)
 
-    use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     ! this routine computes the screening factors
@@ -2141,7 +2136,6 @@ contains
     use network
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum9, esum10, esum13, esum26 ! function
     use jacobian_sparsity_module, only: set_jac_entry
-    use amrex_constants_module, only: ZERO
 
     implicit none
 

@@ -587,8 +587,6 @@ contains
 
   subroutine apply_coulomb_corrections(state)
 
-    use amrex_constants_module, only: ZERO
-
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -941,8 +939,6 @@ contains
 
 
   subroutine double_iter_update(state, var1, var2, v1_want, v2_want, converged)
-
-    use amrex_constants_module, only: HALF, TWO
 
     implicit none
 

@@ -345,8 +345,8 @@ contains
        ocond   = oh
     else if (dlog10 .gt. drel10  .and. dlog10 .lt. drelim) then
        x        = state % rho
-       x1       = real(rt)0e0_rt**drel10
-       x2       = real(rt)0e0_rt**drelim
+       x1       = 10.0e0_rt**drel10
+       x2       = 10.0e0_rt**drelim
        alfa     = (x-x2)/(x1-x2)
        beta     = (x-x1)/(x2-x1)
        ocond    = alfa*oh + beta*ov

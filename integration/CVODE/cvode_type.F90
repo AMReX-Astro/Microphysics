@@ -63,7 +63,6 @@ contains
 
     !$acc routine seq
     
-    use amrex_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dt_crit
     use eos_type_module, only: eos_t, eos_input_rt, composition
     use eos_module, only: eos
@@ -215,7 +214,6 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
-    use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve, aion, aion_inv, NETWORK_SPARSE_JAC_NNZ
     use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
@@ -302,7 +300,6 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
-    use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
@@ -353,7 +350,6 @@ contains
   subroutine sk_initialize_cell(y, rpar) bind(C, name="sk_initialize_cell")
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
-    use amrex_constants_module, only: ONE, ZERO
     use extern_probin_module, only: dT_crit
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc, burn_to_eos
     use burn_type_module, only: normalize_abundances_burn

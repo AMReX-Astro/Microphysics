@@ -85,7 +85,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ONE
     use actual_network, only: nspec, nspec_evolve, aion
     use burn_type_module, only: net_itemp
     use eos_type_module, only : eos_get_small_temp
@@ -145,7 +144,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_constants_module, only: ZERO
     use eos_type_module, only: eos_input_rt, eos_t
     use eos_composition_module, only: composition
     use eos_module, only: eos
@@ -296,7 +294,6 @@ contains
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
-    use amrex_constants_module, only: ONE
 
     implicit none
 
@@ -351,7 +348,6 @@ contains
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
-    use amrex_constants_module, only: ZERO
 
     implicit none
 

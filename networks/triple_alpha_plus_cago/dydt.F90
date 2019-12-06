@@ -3,7 +3,6 @@
 
 module dydt_module
 
-  use amrex_constants_module
   use network
   use microphysics_type_module
 

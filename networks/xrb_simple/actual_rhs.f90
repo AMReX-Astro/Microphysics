@@ -17,7 +17,6 @@ contains
 
   subroutine actual_rhs(state)
 
-    use amrex_constants_module, only: ZERO
     use microphysics_type_module
     use network, only: nspec, aion, aion_inv
     use temperature_integration_module, only: temperature_rhs
@@ -58,7 +57,6 @@ contains
   ! TODO - make this an analytic jacobian
   subroutine actual_jac(state)
 
-    use amrex_constants_module, only: ZERO
     use microphysics_type_module
 
     implicit none
@@ -73,7 +71,6 @@ contains
 
   subroutine make_rates(t9, dens, y, state, rr)
 
-    use amrex_constants_module, only: ZERO, THIRD, ONE, SIX
     use microphysics_type_module
     use actual_network, only: nspec, wk14o, wk15o, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
@@ -145,7 +142,6 @@ contains
 
   subroutine make_ydots(ymol, t9, state, dydt, rr)
 
-    use amrex_constants_module, only: ZERO, TWO, THREE, SIX
     use microphysics_type_module
     use actual_network, only: nspec, io14, io15, ine18, isi25, ihe4, ih1, ife56, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o

@@ -19,7 +19,6 @@
 
 module bdf
 
-  use amrex_constants_module
   use microphysics_type_module
   use bdf_type_module
 

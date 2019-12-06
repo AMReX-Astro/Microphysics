@@ -12,7 +12,6 @@ contains
 
     use actual_network, only: aion, nspec_evolve
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use amrex_constants_module, only: ZERO, ONE
     use microphysics_type_module
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, integrate_temperature, integrate_energy, react_boost
@@ -92,7 +91,6 @@ contains
     !$acc routine seq
 
     use network, only: aion, aion_inv, nspec_evolve
-    use amrex_constants_module, only: ZERO, ONE
     use microphysics_type_module
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac

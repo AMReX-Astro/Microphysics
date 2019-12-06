@@ -9,8 +9,6 @@ contains
   subroutine sneut5(temp,den,abar,zbar, &
                     snu,dsnudt,dsnudd,dsnuda,dsnudz)
 
-    use amrex_constants_module, only: M_PI
-
     implicit none
 
     ! this routine computes thermal neutrino losses from the analytic fits of

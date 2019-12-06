@@ -36,7 +36,6 @@ contains
     use network, only: nspec
     use stiff_ode, only: ode, IERR_NONE
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
-    use amrex_constants_module, only: ZERO
     use microphysics_type_module
     use bs_rpar_indices, only : irp_t0
     use integration_data, only: integration_status_t

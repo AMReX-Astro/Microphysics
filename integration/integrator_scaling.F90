@@ -1,8 +1,7 @@
 module integrator_scaling_module
 
   use extern_probin_module, only: reactions_density_scale, reactions_energy_scale, reactions_temperature_scale
-  use amrex_fort_module, only: rt => amrex_real
-  use amrex_constants_module, only: ONE
+  use microphysics_type_module
 
   implicit none
 

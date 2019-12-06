@@ -17,7 +17,6 @@ contains
   subroutine actual_rhs(state)
 
     use burn_type_module, only: burn_t
-    use amrex_constants_module, only: ZERO
 
     implicit none
 
@@ -34,7 +33,6 @@ contains
   subroutine actual_jac(state)
 
     use burn_type_module, only: burn_t
-    use amrex_constants_module, only: ZERO
 
     implicit none
 

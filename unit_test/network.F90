@@ -42,7 +42,6 @@ contains
   subroutine network_init()
 
     use amrex_error_module, only : amrex_error
-    use amrex_constants_module, only : ONE
 
     implicit none
 

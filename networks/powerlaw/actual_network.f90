@@ -26,7 +26,6 @@ contains
   subroutine actual_network_init
 
     use extern_probin_module, only: specific_q_burn
-    use amrex_constants_module, only: ZERO
     use fundamental_constants_module, only: N_A
 
     spec_names(ifuel_)  = "fuel"

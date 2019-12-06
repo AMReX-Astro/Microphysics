@@ -1,6 +1,5 @@
 subroutine f_rhs(n, t, y, ydot, rpar, ipar)
 
-  use amrex_constants_module
   use network  
   use microphysics_type_module
 
@@ -16,7 +15,7 @@ subroutine f_rhs(n, t, y, ydot, rpar, ipar)
   real(rt) :: t
   real(rt) :: xfueltmp
 
-  xfueltmp = max(y(ifuel_),0.e0_rt)
+  xfueltmp = max(y(ifuel_),ZERO)
 
   ydot(ifuel_) = -xfueltmp*(ONE-xfueltmp)
   ydot(iash_)  =  xfueltmp*(ONE-xfueltmp)
@@ -26,7 +25,6 @@ end subroutine f_rhs
 
 subroutine jac(neq, t, y, ml, mu, pd, nrpd, rpar, ipar)
 
-  use amrex_constants_module
   use network
 
   implicit none

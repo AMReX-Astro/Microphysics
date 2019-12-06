@@ -1,6 +1,5 @@
 module stiff_ode
 
-  use amrex_constants_module
   use microphysics_type_module
   use burn_type_module
   use bs_type_module

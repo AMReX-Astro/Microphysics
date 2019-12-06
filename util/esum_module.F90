@@ -28,8 +28,7 @@
 
 module esum_module
 
-  use amrex_fort_module, only : rt => amrex_real
-  use amrex_constants_module, only: ZERO
+  use microphysics_type_module
 
   implicit none
 

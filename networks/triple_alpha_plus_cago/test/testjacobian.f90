@@ -3,7 +3,6 @@
 
 program testjacobian
 
-  use amrex_constants_module
   use amrex_error_module
   use microphysics_type_module
   use network
