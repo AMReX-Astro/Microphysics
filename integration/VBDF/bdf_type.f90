@@ -4,6 +4,7 @@ module bdf_type_module
   use burn_type_module, only: neqs
   use vbdf_rpar_indices, only: n_rpar_comps
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: bdf_npt = 1         ! number of points
@@ -90,16 +91,17 @@ contains
     use burn_type_module, only: net_itemp
     use eos_type_module, only : eos_get_small_temp
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this should be larger than any reasonable temperature we will encounter
-    real (kind=rt), parameter :: MAX_TEMP = 1.0d11
+    real (kind=rt), parameter :: MAX_TEMP = 1.0e11_rt
 
     ! this is the absolute cutoff for species -- note that this might
     ! be larger than small_x that the user set, but the issue is that
     ! we can have underflow issues if the integrator has to keep track
     ! of species mass fractions much smaller than this.
-    real (kind=rt), parameter :: SMALL_X_SAFE = 1.0d-200
+    real (kind=rt), parameter :: SMALL_X_SAFE = 1.0e-200_rt
     real (kind=rt) :: small_temp
 
     type (bdf_ts) :: state
@@ -124,6 +126,7 @@ contains
     use actual_network, only: nspec, nspec_evolve, aion
     use vbdf_rpar_indices, only: irp_nspec, n_not_evolved
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bdf_ts) :: state
@@ -152,6 +155,7 @@ contains
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use vbdf_rpar_indices, only: irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt, irp_self_heat
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bdf_ts) :: state
@@ -224,6 +228,7 @@ contains
                             irp_eta, irp_ye, irp_cs, n_not_evolved
     use burn_type_module, only: net_itemp
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t)  :: state
@@ -260,6 +265,7 @@ contains
                             irp_eta, irp_ye, irp_cs, n_not_evolved
     use burn_type_module, only: net_itemp
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t)  :: state
@@ -298,6 +304,7 @@ contains
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ONE
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -353,6 +360,7 @@ contains
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ZERO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state

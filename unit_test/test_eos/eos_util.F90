@@ -13,6 +13,7 @@ subroutine do_eos(lo, hi, &
   use extern_probin_module
   use actual_eos_module, only : eos_name
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, intent(in) :: lo(3), hi(3)
@@ -107,7 +108,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using rho, h
 
            ! reset T to give it some work to do
-           eos_state % T = 100.d0
+           eos_state % T = 100.e0_rt
 
            call eos(eos_input_rh, eos_state)
 
@@ -120,7 +121,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using T, p
 
            ! reset rho to give it some work to do
-           eos_state % rho = 1.d0
+           eos_state % rho = 1.e0_rt
 
            call eos(eos_input_tp, eos_state)
 
@@ -133,7 +134,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using r, p
 
            ! reset T to give it some work to do
-           eos_state % T = 100.d0
+           eos_state % T = 100.e0_rt
 
            call eos(eos_input_rp, eos_state)
 
@@ -146,7 +147,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using r, e
 
            ! reset T to give it some work to do
-           eos_state % T = 100.d0
+           eos_state % T = 100.e0_rt
 
            call eos(eos_input_re, eos_state)
 
@@ -159,8 +160,8 @@ subroutine do_eos(lo, hi, &
            ! call EOS using p, s
 
            ! reset T and rho to give it some work to do
-           eos_state % T = 100.d0
-           eos_state % rho = 1.d0
+           eos_state % T = 100.e0_rt
+           eos_state % rho = 1.e0_rt
 
 
            ! some EOSes don't have physically valid treatments
@@ -187,8 +188,8 @@ subroutine do_eos(lo, hi, &
            ! call EOS using p, h
 
            ! reset T and rho to give it some work to do
-           eos_state % T = 100.d0
-           eos_state % rho = 1.d0
+           eos_state % T = 100.e0_rt
+           eos_state % rho = 1.e0_rt
 
            call eos(eos_input_ph, eos_state)
 

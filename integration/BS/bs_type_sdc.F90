@@ -5,6 +5,7 @@ module bs_type_module
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
   use bs_rpar_indices, only: n_rpar_comps
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! BS parameters -- see the discussion in 16.4
@@ -62,12 +63,13 @@ contains
     use eos_type_module, only: eos_input_rt, eos_t, eos_get_small_dens, eos_get_max_dens
 
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this should be larger than any reasonable temperature we will encounter
-    real (rt), parameter :: MAX_TEMP = 1.0d11
+    real(rt) , parameter :: MAX_TEMP = 1.0e11_rt
 
-    real (rt) :: max_e, ke
+    real(rt)  :: max_e, ke
 
     type (bs_t) :: state
 
@@ -125,6 +127,7 @@ contains
     use bs_rpar_indices, only: irp_SRHO
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: state
@@ -160,6 +163,7 @@ contains
     use actual_network, only: nspec
     use bs_rpar_indices, only: irp_SRHO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: state
@@ -195,6 +199,7 @@ contains
     use bs_rpar_indices, only: irp_SRHO, irp_p0
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (sdc_t) :: sdc
@@ -248,6 +253,7 @@ contains
     use bs_rpar_indices, only: irp_SRHO, irp_p0
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (sdc_t) :: sdc
@@ -295,6 +301,7 @@ contains
 
     use bs_rpar_indices, only: irp_SRHO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -342,6 +349,7 @@ contains
 #endif
 
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -409,6 +417,7 @@ contains
 
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -498,6 +507,7 @@ contains
 
     use burn_type_module, only: burn_t
 
+    use amrex_fort_module, only : rt => amrex_real
     type (bs_t) :: bs
     type (burn_t) :: burn
 

@@ -10,6 +10,7 @@ contains
 
    subroutine burner(dens, temp, Xin, dt, Xout, rho_omegadot, rho_Hnuc)
 
+      use amrex_fort_module, only : rt => amrex_real
       implicit none
    
       ! INPUT:

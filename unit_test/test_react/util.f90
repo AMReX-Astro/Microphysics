@@ -3,6 +3,7 @@ module util_module
   use amrex_constants_module
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -12,6 +13,7 @@ contains
     use network,       only: nspec, spec_names
     use extern_probin_module, only: xin_file
 
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(  out) :: xn_zone(:,:)
 
     integer         :: un, i

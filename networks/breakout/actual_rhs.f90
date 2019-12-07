@@ -2,12 +2,14 @@ module actual_rhs_module
 
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Do nothing in this RHS.
@@ -18,6 +20,7 @@ contains
 
   subroutine actual_rhs(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -32,6 +35,7 @@ contains
 
   subroutine actual_jac(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -44,6 +48,7 @@ contains
 
   subroutine update_unevolved_species(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

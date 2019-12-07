@@ -11,12 +11,14 @@ module bs_integrator_module
   use stiff_ode
   use bs_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine bs_integrator_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     nseq = [2, 6, 10, 14, 22, 34, 50, 70]
@@ -40,6 +42,7 @@ contains
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -147,7 +150,7 @@ contains
 
     bs % burn_s % T_old = eos_state_in % T
 
-    if (dT_crit < 1.0d19) then
+    if (dT_crit < 1.0e19_rt) then
 
        eos_state_temp = eos_state_in
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
@@ -184,7 +187,7 @@ contains
        ! redo the T_old, cv / cp extrapolation
        bs % burn_s % T_old = eos_state_in % T
 
-       if (dT_crit < 1.0d19) then
+       if (dT_crit < 1.0e19_rt) then
           bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
                (eos_state_temp % T - eos_state_in % T)
 
@@ -242,10 +245,10 @@ contains
 
     if (burning_mode == 3) then
 
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
        t_sound = state_in % dx / eos_state_in % cs
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
 
        state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))

@@ -21,6 +21,7 @@ module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=32), parameter :: network_name = "ignition_simple_SDC"
@@ -39,6 +40,7 @@ contains
   
   subroutine actual_network_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     integer :: ic12, io16, img24
 
     ! integer keys -- for convinence.  In all other places, we will find
@@ -79,4 +81,5 @@ contains
     ! stub routine for MAESTRO
   end subroutine network_finalize
 
+end module actual_network
 end module actual_network

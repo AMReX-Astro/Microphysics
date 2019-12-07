@@ -2,6 +2,7 @@ module cuvode_constants_module
 
   use amrex_fort_module, only: rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), parameter :: ZERO = 0.0_rt

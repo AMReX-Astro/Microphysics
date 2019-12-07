@@ -6,21 +6,22 @@ module actual_rhs_module
   use actual_network, only: nrates
   use rate_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  double precision, parameter :: c54 = 56.0d0/54.0d0
+  real(rt)        , parameter :: c54 = 56.0e0_rt/54.0e0_rt
 
   ! Table interpolation data
 
-  double precision, parameter :: tab_tlo = 6.0d0, tab_thi = 10.0d0
+  real(rt)        , parameter :: tab_tlo = 6.0e0_rt, tab_thi = 10.0e0_rt
   integer, parameter :: tab_per_decade = 2000
   integer, parameter :: nrattab = int(tab_thi - tab_tlo) * tab_per_decade + 1
   integer, parameter :: tab_imax = int(tab_thi - tab_tlo) * tab_per_decade + 1
-  double precision, parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
+  real(rt)        , parameter :: tab_tstp = (tab_thi - tab_tlo) / dble(tab_imax - 1)
 
-  double precision, allocatable :: rattab(:,:)
-  double precision, allocatable :: drattabdt(:,:)
-  double precision, allocatable :: ttab(:)
+  real(rt)        , allocatable :: rattab(:,:)
+  real(rt)        , allocatable :: drattabdt(:,:)
+  real(rt)        , allocatable :: ttab(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: rattab, drattabdt, ttab
@@ -35,6 +36,7 @@ contains
     use screening_module, only: screening_init
     use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call rates_init()
@@ -62,16 +64,17 @@ contains
 
     use extern_probin_module, only: use_tables
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
-    double precision :: rho, temp
-    double precision :: y(nspec)
+    real(rt)         :: rho, temp
+    real(rt)         :: y(nspec)
 
-    double precision :: rate(nrates), dratedt(nrates)
-    double precision :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
+    real(rt)         :: rate(nrates), dratedt(nrates)
+    real(rt)         :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
 
     !$gpu
 
@@ -108,39 +111,40 @@ contains
 
   subroutine iso7tab(btemp, bden, rate, dratedt)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: btemp, bden, rate(nrates), dratedt(nrates)
+    real(rt)         :: btemp, bden, rate(nrates), dratedt(nrates)
 
     integer, parameter :: mp = 4
 
     integer          :: j, iat
-    double precision :: x, x1, x2, x3, x4
-    double precision :: a, b, c, d, e, f, g, h, p, q
-    double precision :: alfa, beta, gama, delt
+    real(rt)         :: x, x1, x2, x3, x4
+    real(rt)         :: a, b, c, d, e, f, g, h, p, q
+    real(rt)         :: alfa, beta, gama, delt
 
-    double precision :: dtab(nrates)
+    real(rt)         :: dtab(nrates)
 
     !$gpu
 
     ! Set the density dependence array
     dtab(ircag)  = bden
-    dtab(iroga)  = 1.0d0
+    dtab(iroga)  = 1.0e0_rt
     dtab(ir3a)   = bden*bden
-    dtab(irg3a)  = 1.0d0
+    dtab(irg3a)  = 1.0e0_rt
     dtab(ir1212) = bden
     dtab(ir1216) = bden
     dtab(ir1616) = bden
     dtab(iroag)  = bden
-    dtab(irnega) = 1.0d0
+    dtab(irnega) = 1.0e0_rt
     dtab(irneag) = bden
-    dtab(irmgga) = 1.0d0
+    dtab(irmgga) = 1.0e0_rt
     dtab(irmgag) = bden
-    dtab(irsiga) = 1.0d0
+    dtab(irsiga) = 1.0e0_rt
     dtab(ircaag) = bden
-    dtab(irtiga) = 1.0d0
-    dtab(irsi2ni) = 0.0d0
-    dtab(irni2si) = 0.0d0
+    dtab(irtiga) = 1.0e0_rt
+    dtab(irsi2ni) = 0.0e0_rt
+    dtab(irni2si) = 0.0e0_rt
 
     ! hash locate
     iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
@@ -188,6 +192,7 @@ contains
 
   subroutine create_rates_table()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Allocate memory for the tables
@@ -203,17 +208,18 @@ contains
 
   subroutine set_iso7rat()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: btemp, bden, rate(nrates), dratedt(nrates)
+    real(rt)         :: btemp, bden, rate(nrates), dratedt(nrates)
     integer :: i, j
 
-    bden = 1.0d0
+    bden = 1.0e0_rt
 
     do i = 1, tab_imax
 
        btemp = tab_tlo + dble(i-1) * tab_tstp
-       btemp = 10.0d0**(btemp)
+       btemp = 10.0e0_rt**(btemp)
 
        call iso7rat(btemp, bden, rate, dratedt)
 
@@ -237,6 +243,7 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! This routine sets up the system of ODE's for the iso7
@@ -250,11 +257,11 @@ contains
 
     logical          :: deriva
 
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
-    double precision :: enuc
+    real(rt)         :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt)         :: enuc
 
-    double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec), ydot(nspec)
+    real(rt)         :: rho, temp, abar, zbar
+    real(rt)         :: y(nspec), ydot(nspec)
 
     !$gpu
 
@@ -302,6 +309,7 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state
@@ -309,12 +317,12 @@ contains
 
     logical          :: deriva
 
-    double precision :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt)         :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
 
     integer          :: j
 
-    double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec), yderivs(nspec)
+    real(rt)         :: rho, temp, abar, zbar
+    real(rt)         :: y(nspec), yderivs(nspec)
 
     !$gpu
 
@@ -375,18 +383,19 @@ contains
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum5, esum6, esum15 ! function
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! deriva is used in forming the analytic Jacobian to get
     ! the derivative wrt A
 
     logical          :: deriva, for_jacobian_tderiv
-    double precision :: y(nspec), dydt(nspec)
+    real(rt)         :: y(nspec), dydt(nspec)
     type (rate_t)    :: rr
 
     ! local variables
     integer          :: i, index_rate
-    double precision :: a(15)
+    real(rt)         :: a(15)
 
     if (for_jacobian_tderiv) then
        index_rate = 2
@@ -400,21 +409,21 @@ contains
 
     ! set up the system of ode's :
     ! 4he reactions
-    a(1)  =  3.0d0 * y(ic12) * rr % rates(index_rate,irg3a)
-    a(2)  = -0.5d0 * y(ihe4) * y(ihe4) * y(ihe4) * rr % rates(index_rate,ir3a)
+    a(1)  =  3.0e0_rt * y(ic12) * rr % rates(index_rate,irg3a)
+    a(2)  = -0.5e0_rt * y(ihe4) * y(ihe4) * y(ihe4) * rr % rates(index_rate,ir3a)
     a(3)  =  y(io16) * rr % rates(index_rate,iroga)
     a(4)  = -y(ic12) * y(ihe4) * rr % rates(index_rate,ircag)
-    a(5)  =  0.5d0 * y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
-    a(6)  =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
-    a(7)  =  0.5d0 * y(io16) * y(io16) * rr % rates(index_rate,ir1616)
+    a(5)  =  0.5e0_rt * y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
+    a(6)  =  0.5e0_rt * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(7)  =  0.5e0_rt * y(io16) * y(io16) * rr % rates(index_rate,ir1616)
     a(8)  = -y(io16) * y(ihe4) * rr % rates(index_rate,iroag)
     a(9)  =  y(ine20) * rr % rates(index_rate,irnega)
     a(10) =  y(img24) * rr % rates(index_rate,irmgga)
     a(11) = -y(ine20) * y(ihe4) * rr % rates(index_rate,irneag)
     a(12) =  y(isi28) * rr % rates(index_rate,irsiga)
     a(13) = -y(img24) * y(ihe4) * rr % rates(index_rate,irmgag)
-    a(14) = -7.0d0 * rr % rates(index_rate,irsi2ni) * y(ihe4)
-    a(15) =  7.0d0 * rr % rates(index_rate,irni2si) * y(ini56)
+    a(14) = -7.0e0_rt * rr % rates(index_rate,irsi2ni) * y(ihe4)
+    a(15) =  7.0e0_rt * rr % rates(index_rate,irni2si) * y(ini56)
 
     dydt(ihe4) = esum15(a)
 
@@ -439,7 +448,7 @@ contains
     dydt(io16) = esum6(a)
 
     ! 20ne reactions
-    a(1) =  0.5d0 * y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
+    a(1) =  0.5e0_rt * y(ic12) * y(ic12) * rr % rates(index_rate,ir1212)
     a(2) =  y(io16) * y(ihe4) * rr % rates(index_rate,iroag)
     a(3) = -y(ine20) * rr % rates(index_rate,irnega)
     a(4) =  y(img24) * rr % rates(index_rate,irmgga)
@@ -448,7 +457,7 @@ contains
     dydt(ine20) = esum5(a)
 
     ! 24mg reactions
-    a(1) =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
     a(2) = -y(img24) * rr % rates(index_rate,irmgga)
     a(3) =  y(ine20) * y(ihe4) * rr % rates(index_rate,irneag)
     a(4) =  y(isi28) * rr % rates(index_rate,irsiga)
@@ -457,8 +466,8 @@ contains
     dydt(img24) = esum5(a)
 
     ! 28si reactions
-    a(1) =  0.5d0 * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
-    a(2) =  0.5d0 * y(io16) * y(io16) * rr % rates(index_rate,ir1616)
+    a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr % rates(index_rate,ir1216)
+    a(2) =  0.5e0_rt * y(io16) * y(io16) * rr % rates(index_rate,ir1616)
     a(3) = -y(isi28) * rr % rates(index_rate,irsiga)
     a(4) =  y(img24) * y(ihe4) * rr % rates(index_rate,irmgag)
     a(5) = -rr % rates(index_rate,irsi2ni) * y(ihe4)
@@ -486,12 +495,13 @@ contains
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
-    double precision :: btemp, bden
-    double precision :: rate(nrates), dratedt(nrates)
+    use amrex_fort_module, only : rt => amrex_real
+    real(rt)         :: btemp, bden
+    real(rt)         :: rate(nrates), dratedt(nrates)
 
     integer          :: i
-    double precision :: rrate,drratedt,drratedd,drratedd2
-    double precision :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
+    real(rt)         :: rrate,drratedt,drratedd,drratedd2
+    real(rt)         :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
     type (tf_t)      :: tf
 
     !$gpu
@@ -501,7 +511,7 @@ contains
        dratedt(i) = ZERO
     enddo
 
-    if (btemp .lt. 1.0d6) return
+    if (btemp .lt. 1.0e6_rt) return
 
 
     ! get the temperature factors
@@ -577,13 +587,14 @@ contains
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
 
-    double precision :: btemp, bden
-    double precision :: y(nspec)
-    double precision :: rate(nrates), dratedt(nrates)
-    double precision :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
+    use amrex_fort_module, only : rt => amrex_real
+    real(rt)         :: btemp, bden
+    real(rt)         :: y(nspec)
+    real(rt)         :: rate(nrates), dratedt(nrates)
+    real(rt)         :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
 
     integer          :: i, jscr
-    double precision :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
+    real(rt)         :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
                         sc3a,sc3adt,sc3add,abar,zbar,ye,z2bar, &
                         t992,t9i92,yeff_ca40,yeff_ca40dt,yeff_ti44,yeff_ti44dt, &
                         denom,denomdt,denomdd,xx,zz
@@ -679,37 +690,37 @@ contains
     ! gets activated during silicon buring, after all the c + o from
     ! oxygen burning is gone.
 
-    if (tf%t9 .gt. 2.5 .and. y(ic12)+y(io16) .le. 4.0d-3) then
+    if (tf%t9 .gt. 2.5 .and. y(ic12)+y(io16) .le. 4.0e-3_rt) then
 
        t992  = tf%t972 * tf%t9
-       t9i92 = 1.0d0/t992
+       t9i92 = 1.0e0_rt/t992
 
        yeff_ca40   = t9i92 * exp(239.42*tf%t9i - 74.741)
-       yeff_ca40dt = -yeff_ca40*(239.42*tf%t9i2 + 4.5d0*tf%t9i)
+       yeff_ca40dt = -yeff_ca40*(239.42*tf%t9i2 + 4.5e0_rt*tf%t9i)
 
        yeff_ti44   = t992  * exp(-274.12*tf%t9i + 74.914)
-       yeff_ti44dt = yeff_ti44*(274.12*tf%t9i2 + 4.5d0*tf%t9i)
+       yeff_ti44dt = yeff_ti44*(274.12*tf%t9i2 + 4.5e0_rt*tf%t9i)
 
        denom     = (bden * y(ihe4))**3
 
        rate(irsi2ni)     = yeff_ca40*denom*rate(ircaag)*y(isi28)
-       dratedy1(irsi2ni) = 3.0d0 * rate(irsi2ni)/y(ihe4)
+       dratedy1(irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(ihe4)
        dratedy2(irsi2ni) = yeff_ca40*denom*rate(ircaag)
        dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag) &
-            + yeff_ca40*dratedt(ircaag))*denom*y(isi28)*1.0d-9
+            + yeff_ca40*dratedt(ircaag))*denom*y(isi28)*1.0e-9_rt
 
        if (denom .ne. 0.0) then
 
-          zz     = 1.0d0/denom
-          rate(irni2si) = min(1.0d10,yeff_ti44*rate(irtiga)*zz)
+          zz     = 1.0e0_rt/denom
+          rate(irni2si) = min(1.0e10_rt,yeff_ti44*rate(irtiga)*zz)
 
-          if (rate(irni2si) .eq. 1.0d10) then
-             dratedy1(irni2si) = 0.0d0
-             dratedt(irni2si)  = 0.0d0
+          if (rate(irni2si) .eq. 1.0e10_rt) then
+             dratedy1(irni2si) = 0.0e0_rt
+             dratedt(irni2si)  = 0.0e0_rt
           else
-             dratedy1(irni2si) = -3.0d0 * rate(irni2si)/y(ihe4)
+             dratedy1(irni2si) = -3.0e0_rt * rate(irni2si)/y(ihe4)
              dratedt(irni2si)  = (yeff_ti44dt*rate(irtiga) &
-                  + yeff_ti44*dratedt(irtiga))*zz*1.0d-9
+                  + yeff_ti44*dratedt(irtiga))*zz*1.0e-9_rt
           end if
        endif
     end if
@@ -723,43 +734,44 @@ contains
     use network
     use microphysics_math_module, only: esum3, esum4, esum8 ! function
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine sets up the dense iso7 jacobian for the isotopes
 
     type (burn_t) :: state
-    double precision :: y(nspec)
+    real(rt)         :: y(nspec)
     type (rate_t)    :: rr
 
-    double precision :: b(8)
+    real(rt)         :: b(8)
 
     !$gpu
 
     ! set up the jacobian
     ! 4he jacobian elements
     ! d(he4)/d(he4)
-    b(1) = -1.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
+    b(1) = -1.5e0_rt * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
     b(2) = -y(ic12) * rr % rates(1,ircag)
     b(3) = -y(io16) * rr % rates(1,iroag)
     b(4) = -y(ine20) * rr % rates(1,irneag)
     b(5) = -y(img24) * rr % rates(1,irmgag)
-    b(6) = -7.0d0 * rr % rates(1,irsi2ni)
-    b(7) = -7.0d0 * rr % rates(3,irsi2ni) * y(ihe4)
-    b(8) =  7.0d0 * rr % rates(3,irni2si) * y(ini56)
+    b(6) = -7.0e0_rt * rr % rates(1,irsi2ni)
+    b(7) = -7.0e0_rt * rr % rates(3,irsi2ni) * y(ihe4)
+    b(8) =  7.0e0_rt * rr % rates(3,irni2si) * y(ini56)
 
     state%jac(ihe4,ihe4) = esum8(b)
 
     ! d(he4)/d(c12)
-    b(1) =  3.0d0 * rr % rates(1,irg3a)
+    b(1) =  3.0e0_rt * rr % rates(1,irg3a)
     b(2) = -y(ihe4) * rr % rates(1,ircag)
     b(3) =  y(ic12) * rr % rates(1,ir1212)
-    b(4) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
+    b(4) =  0.5e0_rt * y(io16) * rr % rates(1,ir1216)
 
     state%jac(ihe4,ic12) = esum4(b)
 
     ! d(he4)/d(o16)
     b(1) =  rr % rates(1,iroga)
-    b(2) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
+    b(2) =  0.5e0_rt * y(ic12) * rr % rates(1,ir1216)
     b(3) =  y(io16) * rr % rates(1,ir1616)
     b(4) = -y(ihe4) * rr % rates(1,iroag)
 
@@ -779,12 +791,12 @@ contains
 
     ! d(he4)/d(si28)
     b(1) =  rr % rates(1,irsiga)
-    b(2) = -7.0d0 * rr % rates(4,irsi2ni) * y(ihe4)
+    b(2) = -7.0e0_rt * rr % rates(4,irsi2ni) * y(ihe4)
 
     state%jac(ihe4,isi28) = sum(b(1:2))
 
     ! d(he4)/d(ni56)
-    b(1) =  7.0d0 * rr % rates(1,irni2si)
+    b(1) =  7.0e0_rt * rr % rates(1,irni2si)
 
     state%jac(ihe4,ini56) = b(1)
 
@@ -792,7 +804,7 @@ contains
 
     ! 12c jacobian elements
     ! d(c12)/d(he4)
-    b(1) =  0.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
+    b(1) =  0.5e0_rt * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
     b(2) = -y(ic12) * rr % rates(1,ircag)
 
     state%jac(ic12,ihe4) = sum(b(1:2))
@@ -800,7 +812,7 @@ contains
     ! d(c12)/d(c12)
     b(1) = -rr % rates(1,irg3a)
     b(2) = -y(ihe4) * rr % rates(1,ircag)
-    b(3) = -2.0d0 * y(ic12) * rr % rates(1,ir1212)
+    b(3) = -2.0e0_rt * y(ic12) * rr % rates(1,ir1212)
     b(4) = -y(io16) * rr % rates(1,ir1216)
 
     state%jac(ic12,ic12) = esum4(b)
@@ -828,7 +840,7 @@ contains
     ! d(o16)/d(o16)
     b(1) = -rr % rates(1,iroga)
     b(2) = -y(ic12) * rr % rates(1,ir1216)
-    b(3) = -2.0d0 * y(io16) * rr % rates(1,ir1616)
+    b(3) = -2.0e0_rt * y(io16) * rr % rates(1,ir1616)
     b(4) = -y(ihe4) * rr % rates(1,iroag)
 
     state%jac(io16,io16) = esum4(b)
@@ -876,12 +888,12 @@ contains
     state%jac(img24,ihe4) = sum(b(1:2))
 
     ! d(mg24)/d(c12)
-    b(1) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
+    b(1) =  0.5e0_rt * y(io16) * rr % rates(1,ir1216)
 
     state%jac(img24,ic12) = b(1)
 
     ! d(mg24)/d(o16)
-    b(1) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
+    b(1) =  0.5e0_rt * y(ic12) * rr % rates(1,ir1216)
 
     state%jac(img24,io16) = b(1)
 
@@ -911,13 +923,13 @@ contains
     state%jac(isi28,ihe4) = esum4(b)
 
     ! d(si28)/d(c12)
-    b(1) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
+    b(1) =  0.5e0_rt * y(io16) * rr % rates(1,ir1216)
 
     state%jac(isi28,ic12) = b(1)
 
     ! d(si28)/d(o16)
     b(1) =  y(io16) * rr % rates(1,ir1616)
-    b(2) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
+    b(2) =  0.5e0_rt * y(ic12) * rr % rates(1,ir1216)
 
     state%jac(isi28,io16) = sum(b(1:2))
 
@@ -965,9 +977,10 @@ contains
 
     use actual_network, only: nspec, mion, enuc_conv2
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    real(rt)         :: dydt(nspec), enuc
 
     !$gpu
 
@@ -985,12 +998,13 @@ contains
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! note: we need to set these up in the same order that we evaluate the
     ! rates in actual_rhs.f90 (yes, it's ugly)
     call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
-    call add_screening_factor(zion(ihe4),aion(ihe4),4.0d0,8.0d0)
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
     call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
     call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
@@ -998,13 +1012,14 @@ contains
     call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ine20),aion(ine20),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))
-    call add_screening_factor(20.0d0,40.0d0,zion(ihe4),aion(ihe4))
+    call add_screening_factor(20.0e0_rt,40.0e0_rt,zion(ihe4),aion(ihe4))
 
   end subroutine set_up_screening_factors
 
 
   subroutine update_unevolved_species(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state

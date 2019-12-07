@@ -1,5 +1,6 @@
 module temperature_integration_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   logical, save, allocatable :: self_heat
@@ -29,6 +30,7 @@ contains
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -51,7 +53,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -67,7 +69,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -104,6 +106,7 @@ contains
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -120,7 +123,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cspec = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -132,7 +135,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cspec = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -177,6 +180,7 @@ contains
     use extern_probin_module, only: burning_mode
     use amrex_error_module, only: amrex_error
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Provide a default value, then consult the burning_mode.

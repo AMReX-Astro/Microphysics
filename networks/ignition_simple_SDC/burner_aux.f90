@@ -6,6 +6,7 @@ module burner_aux_module
   use amrex_fort_module, only : rt => amrex_real
   use network, only : nspec
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), save :: sdc_rhoX_pass(nspec)

@@ -1,5 +1,6 @@
 module numerical_jac_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -11,4 +12,5 @@ contains
     
   end subroutine numerical_jac
 
+end module numerical_jac_module
 end module numerical_jac_module

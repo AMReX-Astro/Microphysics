@@ -3,12 +3,14 @@ module actual_rhs_module
   use burn_type_module, only: burn_t, net_ienuc
   use rate_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -22,6 +24,7 @@ contains
     use network, only: nspec, aion, aion_inv
     use temperature_integration_module, only: temperature_rhs
     
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -61,6 +64,7 @@ contains
     use amrex_constants_module, only: ZERO
     use amrex_fort_module, only : rt => amrex_real
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -78,6 +82,7 @@ contains
     use actual_network, only: nspec, wk14o, wk15o, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(in   ) :: t9, dens, y(nspec)
@@ -109,7 +114,7 @@ contains
     ! TODO - temperature derivatives for use in analytic jacobian
     !**********************************************************************
     ! helium burning - has been divided by 6
-    rr % rates(1,ir3a) = 2.79d-8*t9m3*exp(-4.403_rt*t9m1)*dens*dens/SIX
+    rr % rates(1,ir3a) = 2.79e-8_rt*t9m3*exp(-4.403_rt*t9m1)*dens*dens/SIX
 
     ! 15o(ag)19ne
     rr % rates(1,irag15) = (19.0_rt * (t9**2.85_rt) * &
@@ -118,21 +123,21 @@ contains
 
     ! 14o(ap)17f
     ! an approx good below t9=0.5  is to drop first term, then
-    !  rap14 = 3.31d+04*t9m32*exp(-11.733*t9m1)
-    !   1  + 1.79d+07*t9m32*exp(-22.609/t9)+9000.*t9113*exp(-12.517/t9)
-    rr % rates(1,irap14) = 1.68d13*t9m23 * &
-         exp(-39.388d0*t9m13-(t9/0.717d0)**2) &
-         *(ONE+0.011d0*t913+13.117d0*t923+0.971d0*t9+85.295d0*t943 &
-         +16.06d0*t943)+3.31d4*t9m32*exp(-11.733d0*t9m1) &
-         +1.79d7*t9m32*exp(-22.609d0*t9m1) &
-         +9.00d+03*t9113*exp(-12.517d0*t9m1)
+    !  rap14 = 3.31e+04_rt*t9m32*exp(-11.733*t9m1)
+    !   1  + 1.79e+07_rt*t9m32*exp(-22.609/t9)+9000.*t9113*exp(-12.517/t9)
+    rr % rates(1,irap14) = 1.68e13_rt*t9m23 * &
+         exp(-39.388e0_rt*t9m13-(t9/0.717e0_rt)**2) &
+         *(ONE+0.011e0_rt*t913+13.117e0_rt*t923+0.971e0_rt*t9+85.295e0_rt*t943 &
+         +16.06e0_rt*t943)+3.31e4_rt*t9m32*exp(-11.733e0_rt*t9m1) &
+         +1.79e7_rt*t9m32*exp(-22.609e0_rt*t9m1) &
+         +9.00e+03_rt*t9113*exp(-12.517e0_rt*t9m1)
     rr % rates(1,irap14) = dens* rr % rates(1,irap14)
 
     ! 18ne(ap)21na
-    rr % rates(1,irap18) = exp(56.59577d0-2.006856d0*t9m1 &
-         +26.05828d0*t9m13 &
-         -87.88732d0*t913 + 3.718809d0*t9 - 0.1767444d0*t953 &
-         + 46.971960d0*t9log)
+    rr % rates(1,irap18) = exp(56.59577e0_rt-2.006856e0_rt*t9m1 &
+         +26.05828e0_rt*t9m13 &
+         -87.88732e0_rt*t913 + 3.718809e0_rt*t9 - 0.1767444e0_rt*t953 &
+         + 46.971960e0_rt*t9log)
     rr % rates(1,irap18) = dens * rr % rates(1,irap18)
 
     ! weak rates
@@ -150,6 +155,7 @@ contains
     use actual_network, only: nspec, io14, io15, ine18, isi25, ihe4, ih1, ife56, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(in   ) :: ymol(nspec), t9
@@ -215,9 +221,10 @@ contains
 
     use actual_network, only: nspec, aion, bion
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    real(rt)         :: dydt(nspec), enuc
 
     enuc = -sum(dydt(:) * aion * bion(1:nspec))
 
@@ -225,6 +232,7 @@ contains
 
   subroutine update_unevolved_species(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

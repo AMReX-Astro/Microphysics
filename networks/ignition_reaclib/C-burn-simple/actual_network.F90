@@ -3,21 +3,22 @@ module actual_network
   use physical_constants, only: ERG_PER_MeV
   use amrex_fort_module, only: rt => amrex_real
   
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
 
-  real(rt), parameter :: avo = 6.0221417930d23
-  real(rt), parameter :: c_light = 2.99792458d10
+  real(rt), parameter :: avo = 6.0221417930e23_rt
+  real(rt), parameter :: c_light = 2.99792458e10_rt
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  real(rt), parameter :: ev2erg  = 1.60217648740d-12
-  real(rt), parameter :: mev2erg = ev2erg*1.0d6
+  real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
+  real(rt), parameter :: mev2erg = ev2erg*1.0e6_rt
   real(rt), parameter :: mev2gr  = mev2erg/c_light**2
 
-  real(rt), parameter :: mass_neutron  = 1.67492721184d-24
-  real(rt), parameter :: mass_proton   = 1.67262163783d-24
-  real(rt), parameter :: mass_electron = 9.10938215450d-28
+  real(rt), parameter :: mass_neutron  = 1.67492721184e-24_rt
+  real(rt), parameter :: mass_proton   = 1.67262163783e-24_rt
+  real(rt), parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 5
   integer, parameter :: num_rate_groups = 4
@@ -85,6 +86,7 @@ contains
 
   subroutine actual_network_init()
     
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     integer :: i
@@ -115,41 +117,41 @@ contains
     short_spec_names(jna23)   = "na23"
     short_spec_names(jmg23)   = "mg23"
 
-    ebind_per_nucleon(jn)   = 0.00000000000000d+00
-    ebind_per_nucleon(jp)   = 0.00000000000000d+00
-    ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
-    ebind_per_nucleon(jc12)   = 7.68014400000000d+00
-    ebind_per_nucleon(jo16)   = 7.97620600000000d+00
-    ebind_per_nucleon(jne20)   = 8.03224000000000d+00
-    ebind_per_nucleon(jna23)   = 8.11149300000000d+00
-    ebind_per_nucleon(jmg23)   = 7.90111500000000d+00
+    ebind_per_nucleon(jn)   = 0.00000000000000e+00_rt
+    ebind_per_nucleon(jp)   = 0.00000000000000e+00_rt
+    ebind_per_nucleon(jhe4)   = 7.07391500000000e+00_rt
+    ebind_per_nucleon(jc12)   = 7.68014400000000e+00_rt
+    ebind_per_nucleon(jo16)   = 7.97620600000000e+00_rt
+    ebind_per_nucleon(jne20)   = 8.03224000000000e+00_rt
+    ebind_per_nucleon(jna23)   = 8.11149300000000e+00_rt
+    ebind_per_nucleon(jmg23)   = 7.90111500000000e+00_rt
 
-    aion(jn)   = 1.00000000000000d+00
-    aion(jp)   = 1.00000000000000d+00
-    aion(jhe4)   = 4.00000000000000d+00
-    aion(jc12)   = 1.20000000000000d+01
-    aion(jo16)   = 1.60000000000000d+01
-    aion(jne20)   = 2.00000000000000d+01
-    aion(jna23)   = 2.30000000000000d+01
-    aion(jmg23)   = 2.30000000000000d+01
+    aion(jn)   = 1.00000000000000e+00_rt
+    aion(jp)   = 1.00000000000000e+00_rt
+    aion(jhe4)   = 4.00000000000000e+00_rt
+    aion(jc12)   = 1.20000000000000e+01_rt
+    aion(jo16)   = 1.60000000000000e+01_rt
+    aion(jne20)   = 2.00000000000000e+01_rt
+    aion(jna23)   = 2.30000000000000e+01_rt
+    aion(jmg23)   = 2.30000000000000e+01_rt
 
-    zion(jn)   = 0.00000000000000d+00
-    zion(jp)   = 1.00000000000000d+00
-    zion(jhe4)   = 2.00000000000000d+00
-    zion(jc12)   = 6.00000000000000d+00
-    zion(jo16)   = 8.00000000000000d+00
-    zion(jne20)   = 1.00000000000000d+01
-    zion(jna23)   = 1.10000000000000d+01
-    zion(jmg23)   = 1.20000000000000d+01
+    zion(jn)   = 0.00000000000000e+00_rt
+    zion(jp)   = 1.00000000000000e+00_rt
+    zion(jhe4)   = 2.00000000000000e+00_rt
+    zion(jc12)   = 6.00000000000000e+00_rt
+    zion(jo16)   = 8.00000000000000e+00_rt
+    zion(jne20)   = 1.00000000000000e+01_rt
+    zion(jna23)   = 1.10000000000000e+01_rt
+    zion(jmg23)   = 1.20000000000000e+01_rt
 
-    nion(jn)   = 1.00000000000000d+00
-    nion(jp)   = 0.00000000000000d+00
-    nion(jhe4)   = 2.00000000000000d+00
-    nion(jc12)   = 6.00000000000000d+00
-    nion(jo16)   = 8.00000000000000d+00
-    nion(jne20)   = 1.00000000000000d+01
-    nion(jna23)   = 1.20000000000000d+01
-    nion(jmg23)   = 1.10000000000000d+01
+    nion(jn)   = 1.00000000000000e+00_rt
+    nion(jp)   = 0.00000000000000e+00_rt
+    nion(jhe4)   = 2.00000000000000e+00_rt
+    nion(jc12)   = 6.00000000000000e+00_rt
+    nion(jo16)   = 8.00000000000000e+00_rt
+    nion(jne20)   = 1.00000000000000e+01_rt
+    nion(jna23)   = 1.20000000000000e+01_rt
+    nion(jmg23)   = 1.10000000000000e+01_rt
 
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
@@ -185,6 +187,7 @@ contains
 
     !$acc routine seq
   
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: dydt(nspec), enuc

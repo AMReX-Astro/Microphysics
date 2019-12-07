@@ -4,6 +4,7 @@ module integrator_scaling_module
   use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module, only: ONE
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), allocatable :: dens_scale, ener_scale, temp_scale
@@ -18,6 +19,7 @@ contains
 
   subroutine integrator_scaling_init
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     allocate(dens_scale, ener_scale, temp_scale)

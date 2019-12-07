@@ -2,6 +2,7 @@ module net_utils
 
    use amrex_fort_module, only : rt => amrex_real
 
+   use amrex_fort_module, only : rt => amrex_real
    implicit none
 
    integer, save :: handle_net

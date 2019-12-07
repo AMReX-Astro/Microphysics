@@ -30,6 +30,7 @@ subroutine setup_mesa_net()
    use rates_lib,   only: rates_init
    use rates_def,   only: rates_reaction_id_max, reaction_Name
 
+   use amrex_fort_module, only : rt => amrex_real
    implicit none
 
    type(Net_General_Info), pointer :: g
@@ -252,6 +253,7 @@ subroutine setup_mesa_net()
 
    function lower_case(word) result(wordout)
 
+      use amrex_fort_module, only : rt => amrex_real
       character(len=5) :: word
       character(len=5) :: wordout
       integer :: i, ic, nlen

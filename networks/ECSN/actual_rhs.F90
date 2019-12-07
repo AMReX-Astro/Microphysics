@@ -7,6 +7,7 @@ module actual_rhs_module
   use table_rates
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: rate_eval_t
@@ -26,6 +27,7 @@ contains
 
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
+    use amrex_fort_module, only : rt => amrex_real
     type(burn_t)     :: state
 
     !$gpu
@@ -36,6 +38,7 @@ contains
 
   subroutine zero_rate_eval(rate_eval)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
@@ -59,6 +62,7 @@ contains
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t)     :: state
@@ -185,6 +189,7 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t) :: state
@@ -227,7 +232,7 @@ contains
     if (.not. disable_thermal_neutrinos) then
        call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
     else
-       sneut = 0.0d0
+       sneut = 0.0e0_rt
     end if
 
     ! Append the energy equation (this is erg/g/s)
@@ -243,6 +248,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -252,38 +258,38 @@ contains
 
     !$gpu
 
-    double precision :: scratch_0
-    double precision :: scratch_1
-    double precision :: scratch_2
-    double precision :: scratch_3
-    double precision :: scratch_4
-    double precision :: scratch_5
-    double precision :: scratch_6
-    double precision :: scratch_7
-    double precision :: scratch_8
-    double precision :: scratch_9
-    double precision :: scratch_10
-    double precision :: scratch_11
-    double precision :: scratch_12
-    double precision :: scratch_13
-    double precision :: scratch_14
-    double precision :: scratch_15
-    double precision :: scratch_16
-    double precision :: scratch_17
-    double precision :: scratch_18
-    double precision :: scratch_19
-    double precision :: scratch_20
-    double precision :: scratch_21
-    double precision :: scratch_22
-    double precision :: scratch_23
-    double precision :: scratch_24
-    double precision :: scratch_25
-    double precision :: scratch_26
-    double precision :: scratch_27
-    double precision :: scratch_28
-    double precision :: scratch_29
-    double precision :: scratch_30
-    double precision :: scratch_31
+    real(rt)         :: scratch_0
+    real(rt)         :: scratch_1
+    real(rt)         :: scratch_2
+    real(rt)         :: scratch_3
+    real(rt)         :: scratch_4
+    real(rt)         :: scratch_5
+    real(rt)         :: scratch_6
+    real(rt)         :: scratch_7
+    real(rt)         :: scratch_8
+    real(rt)         :: scratch_9
+    real(rt)         :: scratch_10
+    real(rt)         :: scratch_11
+    real(rt)         :: scratch_12
+    real(rt)         :: scratch_13
+    real(rt)         :: scratch_14
+    real(rt)         :: scratch_15
+    real(rt)         :: scratch_16
+    real(rt)         :: scratch_17
+    real(rt)         :: scratch_18
+    real(rt)         :: scratch_19
+    real(rt)         :: scratch_20
+    real(rt)         :: scratch_21
+    real(rt)         :: scratch_22
+    real(rt)         :: scratch_23
+    real(rt)         :: scratch_24
+    real(rt)         :: scratch_25
+    real(rt)         :: scratch_26
+    real(rt)         :: scratch_27
+    real(rt)         :: scratch_28
+    real(rt)         :: scratch_29
+    real(rt)         :: scratch_30
+    real(rt)         :: scratch_31
 
     scratch_0 = Y(jhe4)*Y(jmg24)*state % rho
     scratch_1 = screened_rates(k_he4_mg24__p_al27)*scratch_0
@@ -298,7 +304,7 @@ contains
     scratch_10 = Y(jp31)*Y(jp)*state % rho
     scratch_11 = screened_rates(k_p_p31__he4_si28)*scratch_10
     scratch_12 = screened_rates(k_p_p31__s32)*scratch_10
-    scratch_13 = -scratch_11 - scratch_12 + 0.5d0*scratch_7 + scratch_9
+    scratch_13 = -scratch_11 - scratch_12 + 0.5e0_rt*scratch_7 + scratch_9
     scratch_14 = screened_rates(k_ne20__he4_o16)*Y(jne20)
     scratch_15 = Y(jhe4)*state % rho
     scratch_16 = screened_rates(k_he4_al27__p31)*Y(jal27)*scratch_15
@@ -312,7 +318,7 @@ contains
     scratch_24 = -scratch_23
     scratch_25 = screened_rates(k_o16_o16__he4_si28)*scratch_6
     scratch_26 = screened_rates(k_he4_si28__s32)*scratch_8
-    scratch_27 = scratch_11 + 0.5d0*scratch_25 - scratch_26 - scratch_9
+    scratch_27 = scratch_11 + 0.5e0_rt*scratch_25 - scratch_26 - scratch_9
     scratch_28 = screened_rates(k_f20__o20)*Y(jf20)
     scratch_29 = screened_rates(k_o20__f20)*Y(jo20)
     scratch_30 = screened_rates(k_ne20__f20)*Y(jne20)
@@ -376,6 +382,7 @@ contains
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t) :: state
@@ -452,6 +459,7 @@ contains
 
     use jacobian_sparsity_module, only: set_jac_entry
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(inout) :: state
@@ -459,53 +467,53 @@ contains
     real(rt), intent(in)  :: screened_rates(nrates)
     real(rt) :: scratch
 
-    double precision :: scratch_0
-    double precision :: scratch_1
-    double precision :: scratch_2
-    double precision :: scratch_3
-    double precision :: scratch_4
-    double precision :: scratch_5
-    double precision :: scratch_6
-    double precision :: scratch_7
-    double precision :: scratch_8
-    double precision :: scratch_9
-    double precision :: scratch_10
-    double precision :: scratch_11
-    double precision :: scratch_12
-    double precision :: scratch_13
-    double precision :: scratch_14
-    double precision :: scratch_15
-    double precision :: scratch_16
-    double precision :: scratch_17
-    double precision :: scratch_18
-    double precision :: scratch_19
-    double precision :: scratch_20
-    double precision :: scratch_21
-    double precision :: scratch_22
-    double precision :: scratch_23
-    double precision :: scratch_24
-    double precision :: scratch_25
-    double precision :: scratch_26
-    double precision :: scratch_27
-    double precision :: scratch_28
-    double precision :: scratch_29
-    double precision :: scratch_30
-    double precision :: scratch_31
-    double precision :: scratch_32
-    double precision :: scratch_33
-    double precision :: scratch_34
-    double precision :: scratch_35
-    double precision :: scratch_36
-    double precision :: scratch_37
-    double precision :: scratch_38
-    double precision :: scratch_39
-    double precision :: scratch_40
-    double precision :: scratch_41
-    double precision :: scratch_42
-    double precision :: scratch_43
-    double precision :: scratch_44
-    double precision :: scratch_45
-    double precision :: scratch_46
+    real(rt)         :: scratch_0
+    real(rt)         :: scratch_1
+    real(rt)         :: scratch_2
+    real(rt)         :: scratch_3
+    real(rt)         :: scratch_4
+    real(rt)         :: scratch_5
+    real(rt)         :: scratch_6
+    real(rt)         :: scratch_7
+    real(rt)         :: scratch_8
+    real(rt)         :: scratch_9
+    real(rt)         :: scratch_10
+    real(rt)         :: scratch_11
+    real(rt)         :: scratch_12
+    real(rt)         :: scratch_13
+    real(rt)         :: scratch_14
+    real(rt)         :: scratch_15
+    real(rt)         :: scratch_16
+    real(rt)         :: scratch_17
+    real(rt)         :: scratch_18
+    real(rt)         :: scratch_19
+    real(rt)         :: scratch_20
+    real(rt)         :: scratch_21
+    real(rt)         :: scratch_22
+    real(rt)         :: scratch_23
+    real(rt)         :: scratch_24
+    real(rt)         :: scratch_25
+    real(rt)         :: scratch_26
+    real(rt)         :: scratch_27
+    real(rt)         :: scratch_28
+    real(rt)         :: scratch_29
+    real(rt)         :: scratch_30
+    real(rt)         :: scratch_31
+    real(rt)         :: scratch_32
+    real(rt)         :: scratch_33
+    real(rt)         :: scratch_34
+    real(rt)         :: scratch_35
+    real(rt)         :: scratch_36
+    real(rt)         :: scratch_37
+    real(rt)         :: scratch_38
+    real(rt)         :: scratch_39
+    real(rt)         :: scratch_40
+    real(rt)         :: scratch_41
+    real(rt)         :: scratch_42
+    real(rt)         :: scratch_43
+    real(rt)         :: scratch_44
+    real(rt)         :: scratch_45
+    real(rt)         :: scratch_46
 
     !$gpu
 
@@ -522,7 +530,7 @@ contains
     scratch_10 = Y(jsi28)*state % rho
     scratch_11 = screened_rates(k_he4_si28__p_p31)*scratch_10
     scratch_12 = screened_rates(k_o16_o16__p_p31)*Y(jo16)*state % rho
-    scratch_13 = 1.0d0*scratch_12
+    scratch_13 = 1.0e0_rt*scratch_12
     scratch_14 = Y(jhe4)*state % rho
     scratch_15 = screened_rates(k_he4_mg24__p_al27)*scratch_14
     scratch_16 = Y(jp)*state % rho
@@ -547,7 +555,7 @@ contains
     scratch_35 = screened_rates(k_he4_o16__ne20)*scratch_14
     scratch_36 = -scratch_35
     scratch_37 = screened_rates(k_o16_o16__he4_si28)*Y(jo16)*state % rho
-    scratch_38 = 1.0d0*scratch_37
+    scratch_38 = 1.0e0_rt*scratch_37
     scratch_39 = screened_rates(k_he4_ne20__mg24)*scratch_14
     scratch_40 = -scratch_39
     scratch_41 = screened_rates(k_he4_mg24__si28)*scratch_14
@@ -639,7 +647,7 @@ contains
     call set_jac_entry(state, jo16, jhe4, scratch)
 
     scratch = (&
-      -2.0d0*scratch_12 + scratch_36 - 2.0d0*scratch_37 &
+      -2.0e0_rt*scratch_12 + scratch_36 - 2.0e0_rt*scratch_37 &
        )
     call set_jac_entry(state, jo16, jo16, scratch)
 

@@ -7,6 +7,7 @@ module actual_rhs_module
   use table_rates
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: rate_eval_t
@@ -26,6 +27,7 @@ contains
 
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
+    use amrex_fort_module, only : rt => amrex_real
     type(burn_t)     :: state
 
     !$gpu
@@ -36,6 +38,7 @@ contains
 
   subroutine zero_rate_eval(rate_eval)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
@@ -59,6 +62,7 @@ contains
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t)     :: state
@@ -2456,6 +2460,7 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t) :: state
@@ -2501,6 +2506,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -2517,7 +2523,7 @@ contains
       screened_rates(k_ar37__n_ar36)*Y(jar37) + screened_rates(k_ar38__n_ar37)* &
       Y(jar38) + screened_rates(k_ar39__n_ar38)*Y(jar39) + &
       screened_rates(k_ar40__n_ar39)*Y(jar40) + screened_rates(k_b11__n_b10)*Y(jb11) &
-      + screened_rates(k_be9__n_he4_he4)*Y(jbe9) + 0.5d0* &
+      + screened_rates(k_be9__n_he4_he4)*Y(jbe9) + 0.5e0_rt* &
       screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho + &
       screened_rates(k_c13__n_c12)*Y(jc13) + screened_rates(k_c14__n_c13)*Y(jc14) + &
       screened_rates(k_ca41__n_ca40)*Y(jca41) + screened_rates(k_ca42__n_ca41)* &
@@ -2543,7 +2549,7 @@ contains
       screened_rates(k_cu64__n_cu63)*Y(jcu64) + screened_rates(k_cu65__n_cu64)* &
       Y(jcu65) + screened_rates(k_d__n_p)*Y(jd) + screened_rates(k_d_c13__n_n14)* &
       Y(jc13)*Y(jd)*state % rho + screened_rates(k_d_c14__n_n15)*Y(jc14)* &
-      Y(jd)*state % rho + 0.5d0*screened_rates(k_d_d__n_he3)*Y(jd)**2*state % rho &
+      Y(jd)*state % rho + 0.5e0_rt*screened_rates(k_d_d__n_he3)*Y(jd)**2*state % rho &
       + screened_rates(k_d_li6__n_be7)*Y(jd)*Y(jli6)*state % rho + &
       screened_rates(k_d_li7__n_he4_he4)*Y(jd)*Y(jli7)*state % rho + &
       screened_rates(k_f18__n_f17)*Y(jf18) + screened_rates(k_f19__n_f18)*Y(jf19) + &
@@ -2600,7 +2606,7 @@ contains
       screened_rates(k_he4_fe55__n_ni58)*Y(jfe55)*Y(jhe4)*state % rho + &
       screened_rates(k_he4_fe56__n_ni59)*Y(jfe56)*Y(jhe4)*state % rho + &
       screened_rates(k_he4_fe57__n_ni60)*Y(jfe57)*Y(jhe4)*state % rho + &
-      screened_rates(k_he4_fe58__n_ni61)*Y(jfe58)*Y(jhe4)*state % rho + 0.5d0* &
+      screened_rates(k_he4_fe58__n_ni61)*Y(jfe58)*Y(jhe4)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4__n_be7)*Y(jhe4)**2*state % rho + &
       screened_rates(k_he4_k40__n_sc43)*Y(jhe4)*Y(jk40)*state % rho + &
       screened_rates(k_he4_k41__n_sc44)*Y(jhe4)*Y(jk41)*state % rho + &
@@ -2821,8 +2827,8 @@ contains
       screened_rates(k_n_ge64__he4_zn61)*Y(jge64)*Y(jn)*state % rho - &
       screened_rates(k_n_ge64__p_ga64)*Y(jge64)*Y(jn)*state % rho - &
       screened_rates(k_n_he3__d_d)*Y(jhe3)*Y(jn)*state % rho - &
-      screened_rates(k_n_he3__he4)*Y(jhe3)*Y(jn)*state % rho - 0.5d0* &
-      screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*Y(jn)*state % rho**2 - 0.5d0* &
+      screened_rates(k_n_he3__he4)*Y(jhe3)*Y(jn)*state % rho - 0.5e0_rt* &
+      screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*Y(jn)*state % rho**2 - 0.5e0_rt* &
       screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2*Y(jn)*state % rho**2 - &
       screened_rates(k_n_k37__he4_cl34)*Y(jk37)*Y(jn)*state % rho - &
       screened_rates(k_n_k37__k38)*Y(jk37)*Y(jn)*state % rho - &
@@ -2923,10 +2929,10 @@ contains
       screened_rates(k_n_p32__p33)*Y(jn)*Y(jp32)*state % rho - &
       screened_rates(k_n_p32__p_si32)*Y(jn)*Y(jp32)*state % rho - &
       screened_rates(k_n_p__d)*Y(jn)*Y(jp)*state % rho - screened_rates(k_n_p_he4__li6)* &
-      Y(jhe4)*Y(jn)*Y(jp)*state % rho**2 - 0.5d0* &
+      Y(jhe4)*Y(jn)*Y(jp)*state % rho**2 - 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*Y(jp)* &
-      state % rho**3 - 0.5d0*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2* &
-      Y(jn)*Y(jp)*state % rho**3 - 0.5d0*screened_rates(k_n_p_p__p_d)*Y(jn)* &
+      state % rho**3 - 0.5e0_rt*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2* &
+      Y(jn)*Y(jp)*state % rho**3 - 0.5e0_rt*screened_rates(k_n_p_p__p_d)*Y(jn)* &
       Y(jp)**2*state % rho**2 - screened_rates(k_n_s32__he4_si29)*Y(jn)* &
       Y(js32)*state % rho - screened_rates(k_n_s32__p_p32)*Y(jn)*Y(js32)* &
       state % rho - screened_rates(k_n_s32__s33)*Y(jn)*Y(js32)*state % rho - &
@@ -3073,7 +3079,7 @@ contains
       screened_rates(k_p_fe57__n_co57)*Y(jfe57)*Y(jp)*state % rho + &
       screened_rates(k_p_fe58__n_co58)*Y(jfe58)*Y(jp)*state % rho + &
       screened_rates(k_p_ga63__n_ge63)*Y(jga63)*Y(jp)*state % rho + &
-      screened_rates(k_p_ga64__n_ge64)*Y(jga64)*Y(jp)*state % rho + 0.5d0* &
+      screened_rates(k_p_ga64__n_ge64)*Y(jga64)*Y(jp)*state % rho + 0.5e0_rt* &
       screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)**2*Y(jp)*state % rho**2 + &
       screened_rates(k_p_k40__n_ca40)*Y(jk40)*Y(jp)*state % rho + &
       screened_rates(k_p_k41__n_ca41)*Y(jk41)*Y(jp)*state % rho + &
@@ -3158,7 +3164,7 @@ contains
       Y(jar36) + screened_rates(k_ar37__p_cl36)*Y(jar37) + &
       screened_rates(k_ar38__p_cl37)*Y(jar38) + screened_rates(k_b10__p_be9)*Y(jb10) &
       + screened_rates(k_b8__p_be7)*Y(jb8) + screened_rates(k_be7__p_li6)*Y(jbe7) + &
-      screened_rates(k_c12__p_b11)*Y(jc12) + 0.5d0*screened_rates(k_c12_c12__p_na23)* &
+      screened_rates(k_c12__p_b11)*Y(jc12) + 0.5e0_rt*screened_rates(k_c12_c12__p_na23)* &
       Y(jc12)**2*state % rho + screened_rates(k_c12_ne20__p_p31)*Y(jc12)* &
       Y(jne20)*state % rho + screened_rates(k_c12_o16__p_al27)*Y(jc12)* &
       Y(jo16)*state % rho + screened_rates(k_ca40__p_k39)*Y(jca40) + &
@@ -3182,7 +3188,7 @@ contains
       screened_rates(k_cu64__p_ni63)*Y(jcu64) + screened_rates(k_cu65__p_ni64)* &
       Y(jcu65) + screened_rates(k_d__n_p)*Y(jd) + screened_rates(k_d_be7__p_he4_he4)* &
       Y(jbe7)*Y(jd)*state % rho + screened_rates(k_d_he3__p_he4)*Y(jd)* &
-      Y(jhe3)*state % rho + 0.5d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)* &
+      Y(jhe3)*state % rho + 0.5e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)* &
       Y(jhe4)**2*state % rho**2 + screened_rates(k_d_li6__p_li7)*Y(jd)* &
       Y(jli6)*state % rho + screened_rates(k_f17__p_o16)*Y(jf17) + &
       screened_rates(k_f18__p_o17)*Y(jf18) + screened_rates(k_f19__p_o18)*Y(jf19) + &
@@ -3193,7 +3199,7 @@ contains
       screened_rates(k_ga63__p_zn62)*Y(jga63) + screened_rates(k_ga64__p_zn63)* &
       Y(jga64) + screened_rates(k_ge63__p_ga62)*Y(jge63) + &
       screened_rates(k_ge64__p_ga63)*Y(jge64) + screened_rates(k_he3__p_d)*Y(jhe3) + &
-      2.0d0*screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*Y(jhe3)*state % rho &
+      2.0e0_rt*screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*Y(jhe3)*state % rho &
       + screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)**2*state % rho + &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jhe3)*Y(jli7)*state % rho + &
       screened_rates(k_he4_al25__p_si28)*Y(jal25)*Y(jhe4)*state % rho + &
@@ -3245,9 +3251,9 @@ contains
       screened_rates(k_he4_fe54__p_co57)*Y(jfe54)*Y(jhe4)*state % rho + &
       screened_rates(k_he4_fe55__p_co58)*Y(jfe55)*Y(jhe4)*state % rho + &
       screened_rates(k_he4_fe56__p_co59)*Y(jfe56)*Y(jhe4)*state % rho + &
-      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*Y(jhe4)*state % rho + 0.5d0* &
+      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*Y(jhe4)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4__p_li7)*Y(jhe4)**2*state % rho + &
-      0.16666666666666667d0*screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4)**3* &
+      0.16666666666666667e0_rt*screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4)**3* &
       state % rho**2 + screened_rates(k_he4_k37__p_ca40)*Y(jhe4)*Y(jk37)* &
       state % rho + screened_rates(k_he4_k38__p_ca41)*Y(jhe4)*Y(jk38)*state % rho &
       + screened_rates(k_he4_k39__p_ca42)*Y(jhe4)*Y(jk39)*state % rho + &
@@ -3392,9 +3398,9 @@ contains
       screened_rates(k_n_p31__p_si31)*Y(jn)*Y(jp31)*state % rho + &
       screened_rates(k_n_p32__p_si32)*Y(jn)*Y(jp32)*state % rho - &
       screened_rates(k_n_p__d)*Y(jn)*Y(jp)*state % rho - screened_rates(k_n_p_he4__li6)* &
-      Y(jhe4)*Y(jn)*Y(jp)*state % rho**2 - 0.5d0* &
+      Y(jhe4)*Y(jn)*Y(jp)*state % rho**2 - 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*Y(jp)* &
-      state % rho**3 - 1.0d0*screened_rates(k_n_p_p__p_d)*Y(jn)*Y(jp)**2* &
+      state % rho**3 - 1.0e0_rt*screened_rates(k_n_p_p__p_d)*Y(jn)*Y(jp)**2* &
       state % rho**2 + screened_rates(k_n_s32__p_p32)*Y(jn)*Y(js32)*state % rho + &
       screened_rates(k_n_s33__p_p33)*Y(jn)*Y(js33)*state % rho + &
       screened_rates(k_n_sc43__p_ca43)*Y(jn)*Y(jsc43)*state % rho + &
@@ -3430,7 +3436,7 @@ contains
       screened_rates(k_ni58__p_co57)*Y(jni58) + screened_rates(k_ni59__p_co58)* &
       Y(jni59) + screened_rates(k_ni60__p_co59)*Y(jni60) + &
       screened_rates(k_o14__p_n13)*Y(jo14) + screened_rates(k_o15__p_n14)*Y(jo15) + &
-      screened_rates(k_o16__p_n15)*Y(jo16) + 0.5d0*screened_rates(k_o16_o16__p_p31)* &
+      screened_rates(k_o16__p_n15)*Y(jo16) + 0.5e0_rt*screened_rates(k_o16_o16__p_p31)* &
       Y(jo16)**2*state % rho + screened_rates(k_p29__p_si28)*Y(jp29) + &
       screened_rates(k_p30__p_si29)*Y(jp30) + screened_rates(k_p31__p_si30)*Y(jp31) + &
       screened_rates(k_p32__p_si31)*Y(jp32) + screened_rates(k_p33__p_si32)*Y(jp33) - &
@@ -3582,9 +3588,9 @@ contains
       screened_rates(k_p_ga64__he4_zn61)*Y(jga64)*Y(jp)*state % rho - &
       screened_rates(k_p_ga64__n_ge64)*Y(jga64)*Y(jp)*state % rho - &
       screened_rates(k_p_he3__he4__weak__bet_pos_)*Y(jhe3)*Y(jp)*state % rho - &
-      screened_rates(k_p_he4__d_he3)*Y(jhe4)*Y(jp)*state % rho - 0.5d0* &
+      screened_rates(k_p_he4__d_he3)*Y(jhe4)*Y(jp)*state % rho - 0.5e0_rt* &
       screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2*Y(jp)*state % rho**2 - &
-      0.5d0*screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)**2*Y(jp)*state % rho**2 - &
+      0.5e0_rt*screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)**2*Y(jp)*state % rho**2 - &
       screened_rates(k_p_k39__ca40)*Y(jk39)*Y(jp)*state % rho - &
       screened_rates(k_p_k39__he4_ar36)*Y(jk39)*Y(jp)*state % rho - &
       screened_rates(k_p_k40__ca41)*Y(jk40)*Y(jp)*state % rho - &
@@ -3686,7 +3692,7 @@ contains
       screened_rates(k_p_p__d__weak__bet_pos_)*Y(jp)**2*state % rho - &
       screened_rates(k_p_p__d__weak__electron_capture)*Y(jp)**2*state % rho**2* &
       state % y_e - screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)**2*state % rho &
-      **2 - 0.5d0*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2 &
+      **2 - 0.5e0_rt*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2 &
       *state % rho**3 - screened_rates(k_p_s32__cl33)*Y(jp)*Y(js32)*state % rho - &
       screened_rates(k_p_s32__he4_p29)*Y(jp)*Y(js32)*state % rho - &
       screened_rates(k_p_s33__cl34)*Y(jp)*Y(js33)*state % rho - &
@@ -3812,31 +3818,31 @@ contains
       screened_rates(k_d_c14__n_n15)*Y(jc14)*Y(jd)*state % rho - &
       screened_rates(k_d_d__he4)*Y(jd)**2*state % rho - screened_rates(k_d_d__n_he3)* &
       Y(jd)**2*state % rho - screened_rates(k_d_he3__p_he4)*Y(jd)*Y(jhe3)* &
-      state % rho - 0.5d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)**2* &
+      state % rho - 0.5e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)**2* &
       state % rho**2 - screened_rates(k_d_li6__n_be7)*Y(jd)*Y(jli6)*state % rho - &
       screened_rates(k_d_li6__p_li7)*Y(jd)*Y(jli6)*state % rho - &
       screened_rates(k_d_li7__n_he4_he4)*Y(jd)*Y(jli7)*state % rho + &
-      screened_rates(k_he3__p_d)*Y(jhe3) + 2.0d0*screened_rates(k_he4__d_d)*Y(jhe4) - &
+      screened_rates(k_he3__p_d)*Y(jhe3) + 2.0e0_rt*screened_rates(k_he4__d_d)*Y(jhe4) - &
       screened_rates(k_he4_d__li6)*Y(jd)*Y(jhe4)*state % rho + &
       screened_rates(k_li6__he4_d)*Y(jli6) + screened_rates(k_n_be7__d_li6)*Y(jbe7)* &
-      Y(jn)*state % rho + 2.0d0*screened_rates(k_n_he3__d_d)*Y(jhe3)*Y(jn)* &
-      state % rho + 0.5d0*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2*Y(jn)* &
+      Y(jn)*state % rho + 2.0e0_rt*screened_rates(k_n_he3__d_d)*Y(jhe3)*Y(jn)* &
+      state % rho + 0.5e0_rt*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2*Y(jn)* &
       state % rho**2 + screened_rates(k_n_n14__d_c13)*Y(jn14)*Y(jn)*state % rho + &
       screened_rates(k_n_n15__d_c14)*Y(jn15)*Y(jn)*state % rho + &
-      screened_rates(k_n_p__d)*Y(jn)*Y(jp)*state % rho + 0.5d0* &
+      screened_rates(k_n_p__d)*Y(jn)*Y(jp)*state % rho + 0.5e0_rt* &
       screened_rates(k_n_p_p__p_d)*Y(jn)*Y(jp)**2*state % rho**2 + &
       screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)*Y(jp)*state % rho - &
       screened_rates(k_p_d__he3)*Y(jd)*Y(jp)*state % rho - screened_rates(k_p_d__n_p_p)* &
       Y(jd)*Y(jp)*state % rho + screened_rates(k_p_he4__d_he3)*Y(jhe4)* &
-      Y(jp)*state % rho + 0.5d0*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2* &
+      Y(jp)*state % rho + 0.5e0_rt*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2* &
       Y(jp)*state % rho**2 + screened_rates(k_p_li7__d_li6)*Y(jli7)*Y(jp)* &
-      state % rho + 0.5d0*screened_rates(k_p_p__d__weak__bet_pos_)*Y(jp)**2* &
-      state % rho + 0.5d0*screened_rates(k_p_p__d__weak__electron_capture)*Y(jp) &
+      state % rho + 0.5e0_rt*screened_rates(k_p_p__d__weak__bet_pos_)*Y(jp)**2* &
+      state % rho + 0.5e0_rt*screened_rates(k_p_p__d__weak__electron_capture)*Y(jp) &
       **2*state % rho**2*state % y_e &
        )
 
     ydot_nuc(jhe3) = ( &
-      screened_rates(k_be7__he4_he3)*Y(jbe7) + 0.5d0*screened_rates(k_d_d__n_he3)*Y(jd)**2* &
+      screened_rates(k_be7__he4_he3)*Y(jbe7) + 0.5e0_rt*screened_rates(k_d_d__n_he3)*Y(jd)**2* &
       state % rho - screened_rates(k_d_he3__p_he4)*Y(jd)*Y(jhe3)*state % rho - &
       screened_rates(k_he3__p_d)*Y(jhe3) - screened_rates(k_he3_be7__p_p_he4_he4)* &
       Y(jbe7)*Y(jhe3)*state % rho - screened_rates(k_he3_he3__p_p_he4)* &
@@ -3845,14 +3851,14 @@ contains
       screened_rates(k_he4_he3__be7)*Y(jhe3)*Y(jhe4)*state % rho - &
       screened_rates(k_he4_he3__p_li6)*Y(jhe3)*Y(jhe4)*state % rho - &
       screened_rates(k_n_he3__d_d)*Y(jhe3)*Y(jn)*state % rho - &
-      screened_rates(k_n_he3__he4)*Y(jhe3)*Y(jn)*state % rho + 0.5d0* &
+      screened_rates(k_n_he3__he4)*Y(jhe3)*Y(jn)*state % rho + 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*Y(jp)* &
       state % rho**3 + screened_rates(k_p_d__he3)*Y(jd)*Y(jp)*state % rho - &
       screened_rates(k_p_he3__he4__weak__bet_pos_)*Y(jhe3)*Y(jp)*state % rho + &
       screened_rates(k_p_he4__d_he3)*Y(jhe4)*Y(jp)*state % rho + &
       screened_rates(k_p_li6__he4_he3)*Y(jli6)*Y(jp)*state % rho + &
       screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)**2*state % rho**2 + &
-      0.25d0*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2* &
+      0.25e0_rt*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2* &
       state % rho**3 &
        )
 
@@ -3863,9 +3869,9 @@ contains
       screened_rates(k_ar38__he4_s34)*Y(jar38) + screened_rates(k_ar39__he4_s35)* &
       Y(jar39) + screened_rates(k_ar40__he4_s36)*Y(jar40) + &
       screened_rates(k_b10__he4_li6)*Y(jb10) + screened_rates(k_b11__he4_li7)*Y(jb11) &
-      + 2.0d0*screened_rates(k_b8__he4_he4__weak__wc12)*Y(jb8) + &
-      screened_rates(k_be7__he4_he3)*Y(jbe7) + 2.0d0*screened_rates(k_be9__n_he4_he4)* &
-      Y(jbe9) + 3.0d0*screened_rates(k_c12__he4_he4_he4)*Y(jc12) + 0.5d0* &
+      + 2.0e0_rt*screened_rates(k_b8__he4_he4__weak__wc12)*Y(jb8) + &
+      screened_rates(k_be7__he4_he3)*Y(jbe7) + 2.0e0_rt*screened_rates(k_be9__n_he4_he4)* &
+      Y(jbe9) + 3.0e0_rt*screened_rates(k_c12__he4_he4_he4)*Y(jc12) + 0.5e0_rt* &
       screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho + &
       screened_rates(k_c12_ne20__he4_si28)*Y(jc12)*Y(jne20)*state % rho + &
       screened_rates(k_c12_o16__he4_mg24)*Y(jc12)*Y(jo16)*state % rho + &
@@ -3888,11 +3894,11 @@ contains
       screened_rates(k_cu58__he4_co54)*Y(jcu58) + screened_rates(k_cu59__he4_co55)* &
       Y(jcu59) + screened_rates(k_cu60__he4_co56)*Y(jcu60) + &
       screened_rates(k_cu61__he4_co57)*Y(jcu61) + screened_rates(k_cu62__he4_co58)* &
-      Y(jcu62) + screened_rates(k_cu63__he4_co59)*Y(jcu63) + 2.0d0* &
-      screened_rates(k_d_be7__p_he4_he4)*Y(jbe7)*Y(jd)*state % rho + 0.5d0* &
+      Y(jcu62) + screened_rates(k_cu63__he4_co59)*Y(jcu63) + 2.0e0_rt* &
+      screened_rates(k_d_be7__p_he4_he4)*Y(jbe7)*Y(jd)*state % rho + 0.5e0_rt* &
       screened_rates(k_d_d__he4)*Y(jd)**2*state % rho + screened_rates(k_d_he3__p_he4)* &
       Y(jd)*Y(jhe3)*state % rho - screened_rates(k_d_he4_he4__p_be9)*Y(jd)* &
-      Y(jhe4)**2*state % rho**2 + 2.0d0*screened_rates(k_d_li7__n_he4_he4)* &
+      Y(jhe4)**2*state % rho**2 + 2.0e0_rt*screened_rates(k_d_li7__n_he4_he4)* &
       Y(jd)*Y(jli7)*state % rho + screened_rates(k_f18__he4_n14)*Y(jf18) + &
       screened_rates(k_f19__he4_n15)*Y(jf19) + screened_rates(k_fe52__he4_cr48)* &
       Y(jfe52) + screened_rates(k_fe53__he4_cr49)*Y(jfe53) + &
@@ -3902,9 +3908,9 @@ contains
       Y(jfe58) + screened_rates(k_ga62__he4_cu58)*Y(jga62) + &
       screened_rates(k_ga63__he4_cu59)*Y(jga63) + screened_rates(k_ga64__he4_cu60)* &
       Y(jga64) + screened_rates(k_ge63__he4_zn59)*Y(jge63) + &
-      screened_rates(k_ge64__he4_zn60)*Y(jge64) + 2.0d0* &
+      screened_rates(k_ge64__he4_zn60)*Y(jge64) + 2.0e0_rt* &
       screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*Y(jhe3)*state % rho + &
-      0.5d0*screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)**2*state % rho + 2.0d0* &
+      0.5e0_rt*screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)**2*state % rho + 2.0e0_rt* &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jhe3)*Y(jli7)*state % rho - &
       screened_rates(k_he4__d_d)*Y(jhe4) - screened_rates(k_he4__n_he3)*Y(jhe4) - &
       screened_rates(k_he4_al25__p29)*Y(jal25)*Y(jhe4)*state % rho - &
@@ -4057,8 +4063,8 @@ contains
       screened_rates(k_he4_he3__be7)*Y(jhe3)*Y(jhe4)*state % rho - &
       screened_rates(k_he4_he3__p_li6)*Y(jhe3)*Y(jhe4)*state % rho - &
       screened_rates(k_he4_he4__n_be7)*Y(jhe4)**2*state % rho - &
-      screened_rates(k_he4_he4__p_li7)*Y(jhe4)**2*state % rho - 0.5d0* &
-      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*state % rho**2 - 0.5d0* &
+      screened_rates(k_he4_he4__p_li7)*Y(jhe4)**2*state % rho - 0.5e0_rt* &
+      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*state % rho**2 - 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4)**3*state % rho**2 - &
       screened_rates(k_he4_k37__p_ca40)*Y(jhe4)*Y(jk37)*state % rho - &
       screened_rates(k_he4_k38__p_ca41)*Y(jhe4)*Y(jk38)*state % rho - &
@@ -4281,8 +4287,8 @@ contains
       screened_rates(k_n_ar37__he4_s34)*Y(jar37)*Y(jn)*state % rho + &
       screened_rates(k_n_ar38__he4_s35)*Y(jar38)*Y(jn)*state % rho + &
       screened_rates(k_n_ar39__he4_s36)*Y(jar39)*Y(jn)*state % rho + &
-      screened_rates(k_n_b10__he4_li7)*Y(jb10)*Y(jn)*state % rho + 2.0d0* &
-      screened_rates(k_n_b8__p_he4_he4)*Y(jb8)*Y(jn)*state % rho + 2.0d0* &
+      screened_rates(k_n_b10__he4_li7)*Y(jb10)*Y(jn)*state % rho + 2.0e0_rt* &
+      screened_rates(k_n_b8__p_he4_he4)*Y(jb8)*Y(jn)*state % rho + 2.0e0_rt* &
       screened_rates(k_n_be7__he4_he4)*Y(jbe7)*Y(jn)*state % rho + &
       screened_rates(k_n_c12__he4_be9)*Y(jc12)*Y(jn)*state % rho + &
       screened_rates(k_n_ca40__he4_ar37)*Y(jca40)*Y(jn)*state % rho + &
@@ -4404,7 +4410,7 @@ contains
       Y(jni58) + screened_rates(k_ni59__he4_fe55)*Y(jni59) + &
       screened_rates(k_ni60__he4_fe56)*Y(jni60) + screened_rates(k_ni61__he4_fe57)* &
       Y(jni61) + screened_rates(k_ni62__he4_fe58)*Y(jni62) + &
-      screened_rates(k_o16__he4_c12)*Y(jo16) + 0.5d0* &
+      screened_rates(k_o16__he4_c12)*Y(jo16) + 0.5e0_rt* &
       screened_rates(k_o16_o16__he4_si28)*Y(jo16)**2*state % rho + &
       screened_rates(k_o18__he4_c14)*Y(jo18) + screened_rates(k_p29__he4_al25)* &
       Y(jp29) + screened_rates(k_p30__he4_al26)*Y(jp30) + &
@@ -4416,10 +4422,10 @@ contains
       Y(jar38)*Y(jp)*state % rho + screened_rates(k_p_ar39__he4_cl36)* &
       Y(jar39)*Y(jp)*state % rho + screened_rates(k_p_ar40__he4_cl37)* &
       Y(jar40)*Y(jp)*state % rho + screened_rates(k_p_b10__he4_be7)*Y(jb10)* &
-      Y(jp)*state % rho + 3.0d0*screened_rates(k_p_b11__he4_he4_he4)*Y(jb11)* &
-      Y(jp)*state % rho + 2.0d0*screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)* &
+      Y(jp)*state % rho + 3.0e0_rt*screened_rates(k_p_b11__he4_he4_he4)*Y(jb11)* &
+      Y(jp)*state % rho + 2.0e0_rt*screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)* &
       Y(jp)*state % rho + screened_rates(k_p_be9__he4_li6)*Y(jbe9)*Y(jp)* &
-      state % rho + 2.0d0*screened_rates(k_p_be9__n_p_he4_he4)*Y(jbe9)*Y(jp)* &
+      state % rho + 2.0e0_rt*screened_rates(k_p_be9__n_p_he4_he4)*Y(jbe9)*Y(jp)* &
       state % rho + screened_rates(k_p_c13__he4_b10)*Y(jc13)*Y(jp)*state % rho + &
       screened_rates(k_p_c14__he4_b11)*Y(jc14)*Y(jp)*state % rho + &
       screened_rates(k_p_ca40__he4_k37)*Y(jca40)*Y(jp)*state % rho + &
@@ -4467,7 +4473,7 @@ contains
       screened_rates(k_p_k39__he4_ar36)*Y(jk39)*Y(jp)*state % rho + &
       screened_rates(k_p_k40__he4_ar37)*Y(jk40)*Y(jp)*state % rho + &
       screened_rates(k_p_k41__he4_ar38)*Y(jk41)*Y(jp)*state % rho + &
-      screened_rates(k_p_li6__he4_he3)*Y(jli6)*Y(jp)*state % rho + 2.0d0* &
+      screened_rates(k_p_li6__he4_he3)*Y(jli6)*Y(jp)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_li7__he4_he4)*Y(jli7)*Y(jp)*state % rho + &
       screened_rates(k_p_mg24__he4_na21)*Y(jmg24)*Y(jp)*state % rho + &
       screened_rates(k_p_mg25__he4_na22)*Y(jmg25)*Y(jp)*state % rho + &
@@ -4496,9 +4502,9 @@ contains
       screened_rates(k_p_o18__he4_n15)*Y(jo18)*Y(jp)*state % rho + &
       screened_rates(k_p_p31__he4_si28)*Y(jp31)*Y(jp)*state % rho + &
       screened_rates(k_p_p32__he4_si29)*Y(jp32)*Y(jp)*state % rho + &
-      screened_rates(k_p_p33__he4_si30)*Y(jp33)*Y(jp)*state % rho - 0.5d0* &
+      screened_rates(k_p_p33__he4_si30)*Y(jp33)*Y(jp)*state % rho - 0.5e0_rt* &
       screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)**2*state % rho**2 - &
-      0.5d0*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2* &
+      0.5e0_rt*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2* &
       state % rho**3 + screened_rates(k_p_s32__he4_p29)*Y(jp)*Y(js32)*state % rho &
       + screened_rates(k_p_s33__he4_p30)*Y(jp)*Y(js33)*state % rho + &
       screened_rates(k_p_s34__he4_p31)*Y(jp)*Y(js34)*state % rho + &
@@ -4581,14 +4587,14 @@ contains
       state % y_e + screened_rates(k_d_li6__p_li7)*Y(jd)*Y(jli6)*state % rho - &
       screened_rates(k_d_li7__n_he4_he4)*Y(jd)*Y(jli7)*state % rho - &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jhe3)*Y(jli7)*state % rho + &
-      0.5d0*screened_rates(k_he4_he4__p_li7)*Y(jhe4)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_he4_he4__p_li7)*Y(jhe4)**2*state % rho - &
       screened_rates(k_he4_li7__b11)*Y(jhe4)*Y(jli7)*state % rho - &
       screened_rates(k_he4_li7__n_b10)*Y(jhe4)*Y(jli7)*state % rho - &
       screened_rates(k_li7__n_li6)*Y(jli7) + screened_rates(k_n_b10__he4_li7)*Y(jb10) &
       *Y(jn)*state % rho + screened_rates(k_n_be7__p_li7)*Y(jbe7)*Y(jn)* &
-      state % rho + 0.5d0*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2*Y(jn)* &
+      state % rho + 0.5e0_rt*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2*Y(jn)* &
       state % rho**2 + screened_rates(k_n_li6__li7)*Y(jli6)*Y(jn)*state % rho + &
-      0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*Y(jp)* &
+      0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*Y(jp)* &
       state % rho**3 - screened_rates(k_p_li7__d_li6)*Y(jli7)*Y(jp)*state % rho - &
       screened_rates(k_p_li7__he4_he4)*Y(jli7)*Y(jp)*state % rho - &
       screened_rates(k_p_li7__n_be7)*Y(jli7)*Y(jp)*state % rho &
@@ -4602,26 +4608,26 @@ contains
       screened_rates(k_d_li6__n_be7)*Y(jd)*Y(jli6)*state % rho - &
       screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*Y(jhe3)*state % rho - &
       screened_rates(k_he4_be7__p_b10)*Y(jbe7)*Y(jhe4)*state % rho + &
-      screened_rates(k_he4_he3__be7)*Y(jhe3)*Y(jhe4)*state % rho + 0.5d0* &
+      screened_rates(k_he4_he3__be7)*Y(jhe3)*Y(jhe4)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4__n_be7)*Y(jhe4)**2*state % rho - &
       screened_rates(k_n_be7__d_li6)*Y(jbe7)*Y(jn)*state % rho - &
       screened_rates(k_n_be7__he4_he4)*Y(jbe7)*Y(jn)*state % rho - &
       screened_rates(k_n_be7__p_li7)*Y(jbe7)*Y(jn)*state % rho + &
       screened_rates(k_p_b10__he4_be7)*Y(jb10)*Y(jp)*state % rho - &
-      screened_rates(k_p_be7__b8)*Y(jbe7)*Y(jp)*state % rho + 0.5d0* &
+      screened_rates(k_p_be7__b8)*Y(jbe7)*Y(jp)*state % rho + 0.5e0_rt* &
       screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2*Y(jp)*state % rho**2 + &
       screened_rates(k_p_li6__be7)*Y(jli6)*Y(jp)*state % rho + &
-      screened_rates(k_p_li7__n_be7)*Y(jli7)*Y(jp)*state % rho + 0.25d0* &
+      screened_rates(k_p_li7__n_be7)*Y(jli7)*Y(jp)*state % rho + 0.25e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)**2*state % rho**3 &
        )
 
     ydot_nuc(jbe9) = ( &
       screened_rates(k_b10__p_be9)*Y(jb10) - screened_rates(k_be9__n_he4_he4)*Y(jbe9) + &
-      0.5d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)**2*state % rho**2 &
+      0.5e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)**2*state % rho**2 &
       - screened_rates(k_he4_be9__n_c12)*Y(jbe9)*Y(jhe4)*state % rho + &
       screened_rates(k_he4_li6__p_be9)*Y(jhe4)*Y(jli6)*state % rho + &
-      screened_rates(k_n_c12__he4_be9)*Y(jc12)*Y(jn)*state % rho + 0.5d0* &
-      screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*Y(jn)*state % rho**2 + 0.5d0* &
+      screened_rates(k_n_c12__he4_be9)*Y(jc12)*Y(jn)*state % rho + 0.5e0_rt* &
+      screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*Y(jn)*state % rho**2 + 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2*Y(jn)*Y(jp)*state % rho &
       **3 - screened_rates(k_p_be9__b10)*Y(jbe9)*Y(jp)*state % rho - &
       screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)*Y(jp)*state % rho - &
@@ -4632,7 +4638,7 @@ contains
     ydot_nuc(jb8) = ( &
       -screened_rates(k_b8__he4_he4__weak__wc12)*Y(jb8) - screened_rates(k_b8__p_be7)*Y(jb8) &
       - screened_rates(k_n_b8__p_he4_he4)*Y(jb8)*Y(jn)*state % rho + &
-      screened_rates(k_p_be7__b8)*Y(jbe7)*Y(jp)*state % rho + 0.5d0* &
+      screened_rates(k_p_be7__b8)*Y(jbe7)*Y(jp)*state % rho + 0.5e0_rt* &
       screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)**2*Y(jp)*state % rho**2 &
        )
 
@@ -4655,7 +4661,7 @@ contains
       -screened_rates(k_b11__he4_li7)*Y(jb11) - screened_rates(k_b11__n_b10)*Y(jb11) + &
       screened_rates(k_c12__p_b11)*Y(jc12) - screened_rates(k_he4_b11__n_n14)*Y(jb11) &
       *Y(jhe4)*state % rho - screened_rates(k_he4_b11__p_c14)*Y(jb11)*Y(jhe4) &
-      *state % rho + 0.16666666666666667d0*screened_rates(k_he4_he4_he4__p_b11)* &
+      *state % rho + 0.16666666666666667e0_rt*screened_rates(k_he4_he4_he4__p_b11)* &
       Y(jhe4)**3*state % rho**2 + screened_rates(k_he4_li7__b11)*Y(jhe4)* &
       Y(jli7)*state % rho + screened_rates(k_n_b10__b11)*Y(jb10)*Y(jn)* &
       state % rho + screened_rates(k_n_n14__he4_b11)*Y(jn14)*Y(jn)*state % rho - &
@@ -4677,19 +4683,19 @@ contains
       *Y(jhe4)*state % rho - screened_rates(k_he4_c12__n_o15)*Y(jc12)*Y(jhe4) &
       *state % rho - screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho - &
       screened_rates(k_he4_c12__p_n15)*Y(jc12)*Y(jhe4)*state % rho + &
-      0.16666666666666667d0*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
+      0.16666666666666667e0_rt*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
       state % rho**2 + screened_rates(k_he4_mg24__c12_o16)*Y(jhe4)*Y(jmg24)* &
-      state % rho + 2.0d0*screened_rates(k_he4_ne20__c12_c12)*Y(jhe4)*Y(jne20)* &
+      state % rho + 2.0e0_rt*screened_rates(k_he4_ne20__c12_c12)*Y(jhe4)*Y(jne20)* &
       state % rho + screened_rates(k_he4_si28__c12_ne20)*Y(jhe4)*Y(jsi28)* &
       state % rho + screened_rates(k_n13__p_c12)*Y(jn13) - screened_rates(k_n_c12__c13)* &
       Y(jc12)*Y(jn)*state % rho - screened_rates(k_n_c12__he4_be9)*Y(jc12)* &
-      Y(jn)*state % rho + 2.0d0*screened_rates(k_n_mg23__c12_c12)*Y(jmg23)* &
+      Y(jn)*state % rho + 2.0e0_rt*screened_rates(k_n_mg23__c12_c12)*Y(jmg23)* &
       Y(jn)*state % rho + screened_rates(k_n_o15__he4_c12)*Y(jn)*Y(jo15)* &
       state % rho + screened_rates(k_o16__he4_c12)*Y(jo16) + &
       screened_rates(k_p_al27__c12_o16)*Y(jal27)*Y(jp)*state % rho + &
       screened_rates(k_p_b11__c12)*Y(jb11)*Y(jp)*state % rho - &
       screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*state % rho + &
-      screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*state % rho + 2.0d0* &
+      screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_na23__c12_c12)*Y(jna23)*Y(jp)*state % rho + &
       screened_rates(k_p_p31__c12_ne20)*Y(jp31)*Y(jp)*state % rho &
        )
@@ -4821,7 +4827,7 @@ contains
       state % rho + screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho - &
       screened_rates(k_he4_o16__n_ne19)*Y(jhe4)*Y(jo16)*state % rho - &
       screened_rates(k_he4_o16__ne20)*Y(jhe4)*Y(jo16)*state % rho - &
-      screened_rates(k_he4_o16__p_f19)*Y(jhe4)*Y(jo16)*state % rho + 2.0d0* &
+      screened_rates(k_he4_o16__p_f19)*Y(jhe4)*Y(jo16)*state % rho + 2.0e0_rt* &
       screened_rates(k_he4_si28__o16_o16)*Y(jhe4)*Y(jsi28)*state % rho + &
       screened_rates(k_n_ne19__he4_o16)*Y(jn)*Y(jne19)*state % rho + &
       screened_rates(k_n_o15__o16)*Y(jn)*Y(jo15)*state % rho - &
@@ -4835,7 +4841,7 @@ contains
       Y(jal27)*Y(jp)*state % rho + screened_rates(k_p_f19__he4_o16)*Y(jf19)* &
       Y(jp)*state % rho + screened_rates(k_p_n15__o16)*Y(jn15)*Y(jp)*state % rho &
       - screened_rates(k_p_o16__f17)*Y(jo16)*Y(jp)*state % rho - &
-      screened_rates(k_p_o16__he4_n13)*Y(jo16)*Y(jp)*state % rho + 2.0d0* &
+      screened_rates(k_p_o16__he4_n13)*Y(jo16)*Y(jp)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_p31__o16_o16)*Y(jp31)*Y(jp)*state % rho &
        )
 
@@ -4967,7 +4973,7 @@ contains
        )
 
     ydot_nuc(jne20) = ( &
-      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho - &
       screened_rates(k_c12_ne20__he4_si28)*Y(jc12)*Y(jne20)*state % rho - &
       screened_rates(k_c12_ne20__p_p31)*Y(jc12)*Y(jne20)*state % rho + &
       screened_rates(k_he4_f17__p_ne20)*Y(jf17)*Y(jhe4)*state % rho - &
@@ -5069,7 +5075,7 @@ contains
        )
 
     ydot_nuc(jna23) = ( &
-      screened_rates(k_al27__he4_na23)*Y(jal27) + 0.5d0*screened_rates(k_c12_c12__p_na23)* &
+      screened_rates(k_al27__he4_na23)*Y(jal27) + 0.5e0_rt*screened_rates(k_c12_c12__p_na23)* &
       Y(jc12)**2*state % rho + screened_rates(k_he4_f19__na23)*Y(jf19)* &
       Y(jhe4)*state % rho - screened_rates(k_he4_na23__al27)*Y(jhe4)*Y(jna23) &
       *state % rho - screened_rates(k_he4_na23__n_al26)*Y(jhe4)*Y(jna23)* &
@@ -5090,7 +5096,7 @@ contains
        )
 
     ydot_nuc(jmg23) = ( &
-      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
       screened_rates(k_he4_mg23__p_al26)*Y(jhe4)*Y(jmg23)*state % rho + &
       screened_rates(k_he4_ne19__mg23)*Y(jhe4)*Y(jne19)*state % rho + &
       screened_rates(k_he4_ne20__n_mg23)*Y(jhe4)*Y(jne20)*state % rho - &
@@ -5228,7 +5234,7 @@ contains
       screened_rates(k_he4_si28__p_p31)*Y(jhe4)*Y(jsi28)*state % rho - &
       screened_rates(k_he4_si28__s32)*Y(jhe4)*Y(jsi28)*state % rho - &
       screened_rates(k_n_si28__he4_mg25)*Y(jn)*Y(jsi28)*state % rho - &
-      screened_rates(k_n_si28__si29)*Y(jn)*Y(jsi28)*state % rho + 0.5d0* &
+      screened_rates(k_n_si28__si29)*Y(jn)*Y(jsi28)*state % rho + 0.5e0_rt* &
       screened_rates(k_o16_o16__he4_si28)*Y(jo16)**2*state % rho + &
       screened_rates(k_p29__p_si28)*Y(jp29) + screened_rates(k_p_al27__si28)*Y(jal27) &
       *Y(jp)*state % rho + screened_rates(k_p_p31__he4_si28)*Y(jp31)*Y(jp)* &
@@ -5352,7 +5358,7 @@ contains
       screened_rates(k_n_cl34__he4_p31)*Y(jcl34)*Y(jn)*state % rho + &
       screened_rates(k_n_p30__p31)*Y(jn)*Y(jp30)*state % rho - &
       screened_rates(k_n_p31__p32)*Y(jn)*Y(jp31)*state % rho - &
-      screened_rates(k_n_p31__p_si31)*Y(jn)*Y(jp31)*state % rho + 0.5d0* &
+      screened_rates(k_n_p31__p_si31)*Y(jn)*Y(jp31)*state % rho + 0.5e0_rt* &
       screened_rates(k_o16_o16__p_p31)*Y(jo16)**2*state % rho - &
       screened_rates(k_p31__he4_al27)*Y(jp31) - screened_rates(k_p31__n_p30)*Y(jp31) &
       - screened_rates(k_p31__p_si30)*Y(jp31) + screened_rates(k_p32__n_p31)*Y(jp32) &
@@ -7676,6 +7682,7 @@ contains
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t) :: state
@@ -7752,6 +7759,7 @@ contains
 
     use jacobian_sparsity_module, only: set_jac_entry
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(inout) :: state
@@ -7902,7 +7910,7 @@ contains
       screened_rates(k_n_ge64__he4_zn61)*Y(jge64)*state % rho - &
       screened_rates(k_n_ge64__p_ga64)*Y(jge64)*state % rho - screened_rates(k_n_he3__d_d) &
       *Y(jhe3)*state % rho - screened_rates(k_n_he3__he4)*Y(jhe3)*state % rho - &
-      0.5d0*screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*state % rho**2 - 0.5d0* &
+      0.5e0_rt*screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*state % rho**2 - 0.5e0_rt* &
       screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_n_k37__he4_cl34)*Y(jk37)*state % rho - screened_rates(k_n_k37__k38) &
       *Y(jk37)*state % rho - screened_rates(k_n_k37__p_ar37)*Y(jk37)*state % rho - &
@@ -7989,9 +7997,9 @@ contains
       Y(jp31)*state % rho - screened_rates(k_n_p32__p33)*Y(jp32)*state % rho - &
       screened_rates(k_n_p32__p_si32)*Y(jp32)*state % rho - screened_rates(k_n_p__d)* &
       Y(jp)*state % rho - screened_rates(k_n_p_he4__li6)*Y(jhe4)*Y(jp)* &
-      state % rho**2 - 0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2* &
-      Y(jp)*state % rho**3 - 0.5d0*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4) &
-      **2*Y(jp)*state % rho**3 - 0.5d0*screened_rates(k_n_p_p__p_d)*Y(jp)**2* &
+      state % rho**2 - 0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2* &
+      Y(jp)*state % rho**3 - 0.5e0_rt*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4) &
+      **2*Y(jp)*state % rho**3 - 0.5e0_rt*screened_rates(k_n_p_p__p_d)*Y(jp)**2* &
       state % rho**2 - screened_rates(k_n_s32__he4_si29)*Y(js32)*state % rho - &
       screened_rates(k_n_s32__p_p32)*Y(js32)*state % rho - screened_rates(k_n_s32__s33)* &
       Y(js32)*state % rho - screened_rates(k_n_s33__he4_si30)*Y(js33)*state % rho &
@@ -8079,10 +8087,10 @@ contains
 
     scratch = (&
       -screened_rates(k_n_p__d)*Y(jn)*state % rho - screened_rates(k_n_p_he4__li6)*Y(jhe4)* &
-      Y(jn)*state % rho**2 - 0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)* &
-      Y(jhe4)**2*Y(jn)*state % rho**3 - 0.5d0* &
+      Y(jn)*state % rho**2 - 0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)* &
+      Y(jhe4)**2*Y(jn)*state % rho**3 - 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2*Y(jn)*state % rho**3 - &
-      1.0d0*screened_rates(k_n_p_p__p_d)*Y(jn)*Y(jp)*state % rho**2 + &
+      1.0e0_rt*screened_rates(k_n_p_p__p_d)*Y(jn)*Y(jp)*state % rho**2 + &
       screened_rates(k_p_ar37__n_k37)*Y(jar37)*state % rho + &
       screened_rates(k_p_ar38__n_k38)*Y(jar38)*state % rho + &
       screened_rates(k_p_ar39__n_k39)*Y(jar39)*state % rho + &
@@ -8122,7 +8130,7 @@ contains
       screened_rates(k_p_fe57__n_co57)*Y(jfe57)*state % rho + &
       screened_rates(k_p_fe58__n_co58)*Y(jfe58)*state % rho + &
       screened_rates(k_p_ga63__n_ge63)*Y(jga63)*state % rho + &
-      screened_rates(k_p_ga64__n_ge64)*Y(jga64)*state % rho + 0.5d0* &
+      screened_rates(k_p_ga64__n_ge64)*Y(jga64)*state % rho + 0.5e0_rt* &
       screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)**2*state % rho**2 + &
       screened_rates(k_p_k40__n_ca40)*Y(jk40)*state % rho + &
       screened_rates(k_p_k41__n_ca41)*Y(jk41)*state % rho + screened_rates(k_p_li7__n_be7) &
@@ -8179,7 +8187,7 @@ contains
 
     scratch = (&
       screened_rates(k_d__n_p) + screened_rates(k_d_c13__n_n14)*Y(jc13)*state % rho + &
-      screened_rates(k_d_c14__n_n15)*Y(jc14)*state % rho + 1.0d0* &
+      screened_rates(k_d_c14__n_n15)*Y(jc14)*state % rho + 1.0e0_rt* &
       screened_rates(k_d_d__n_he3)*Y(jd)*state % rho + screened_rates(k_d_li6__n_be7)* &
       Y(jli6)*state % rho + screened_rates(k_d_li7__n_he4_he4)*Y(jli7)*state % rho &
       + screened_rates(k_p_d__n_p_p)*Y(jp)*state % rho &
@@ -8239,7 +8247,7 @@ contains
       screened_rates(k_he4_fe55__n_ni58)*Y(jfe55)*state % rho + &
       screened_rates(k_he4_fe56__n_ni59)*Y(jfe56)*state % rho + &
       screened_rates(k_he4_fe57__n_ni60)*Y(jfe57)*state % rho + &
-      screened_rates(k_he4_fe58__n_ni61)*Y(jfe58)*state % rho + 1.0d0* &
+      screened_rates(k_he4_fe58__n_ni61)*Y(jfe58)*state % rho + 1.0e0_rt* &
       screened_rates(k_he4_he4__n_be7)*Y(jhe4)*state % rho + &
       screened_rates(k_he4_k40__n_sc43)*Y(jk40)*state % rho + &
       screened_rates(k_he4_k41__n_sc44)*Y(jk41)*state % rho + &
@@ -8304,13 +8312,13 @@ contains
       screened_rates(k_he4_v51__n_mn54)*Y(jv51)*state % rho + &
       screened_rates(k_he4_v52__n_mn55)*Y(jv52)*state % rho + &
       screened_rates(k_he4_zn60__n_ge63)*Y(jzn60)*state % rho + &
-      screened_rates(k_he4_zn61__n_ge64)*Y(jzn61)*state % rho - 1.0d0* &
-      screened_rates(k_n_he4_he4__be9)*Y(jhe4)*Y(jn)*state % rho**2 - 1.0d0* &
+      screened_rates(k_he4_zn61__n_ge64)*Y(jzn61)*state % rho - 1.0e0_rt* &
+      screened_rates(k_n_he4_he4__be9)*Y(jhe4)*Y(jn)*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)*Y(jn)*state % rho**2 - &
-      screened_rates(k_n_p_he4__li6)*Y(jn)*Y(jp)*state % rho**2 - 1.0d0* &
+      screened_rates(k_n_p_he4__li6)*Y(jn)*Y(jp)*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)*Y(jn)*Y(jp)*state % rho &
-      **3 - 1.0d0*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)*Y(jn)*Y(jp) &
-      *state % rho**3 + 1.0d0*screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)* &
+      **3 - 1.0e0_rt*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)*Y(jn)*Y(jp) &
+      *state % rho**3 + 1.0e0_rt*screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)* &
       state % rho**2 &
        )
     call set_jac_entry(state, jn, jhe4, scratch)
@@ -8358,7 +8366,7 @@ contains
     call set_jac_entry(state, jn, jb11, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho + &
+      1.0e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho + &
       screened_rates(k_he4_c12__n_o15)*Y(jhe4)*state % rho - screened_rates(k_n_c12__c13)* &
       Y(jn)*state % rho - screened_rates(k_n_c12__he4_be9)*Y(jn)*state % rho &
        )
@@ -9470,8 +9478,8 @@ contains
       screened_rates(k_n_p31__p_si31)*Y(jp31)*state % rho + &
       screened_rates(k_n_p32__p_si32)*Y(jp32)*state % rho - screened_rates(k_n_p__d)* &
       Y(jp)*state % rho - screened_rates(k_n_p_he4__li6)*Y(jhe4)*Y(jp)* &
-      state % rho**2 - 0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2* &
-      Y(jp)*state % rho**3 - 1.0d0*screened_rates(k_n_p_p__p_d)*Y(jp)**2* &
+      state % rho**2 - 0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2* &
+      Y(jp)*state % rho**3 - 1.0e0_rt*screened_rates(k_n_p_p__p_d)*Y(jp)**2* &
       state % rho**2 + screened_rates(k_n_s32__p_p32)*Y(js32)*state % rho + &
       screened_rates(k_n_s33__p_p33)*Y(js33)*state % rho + &
       screened_rates(k_n_sc43__p_ca43)*Y(jsc43)*state % rho + &
@@ -9504,8 +9512,8 @@ contains
 
     scratch = (&
       -screened_rates(k_n_p__d)*Y(jn)*state % rho - screened_rates(k_n_p_he4__li6)*Y(jhe4)* &
-      Y(jn)*state % rho**2 - 0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)* &
-      Y(jhe4)**2*Y(jn)*state % rho**3 - 2.0d0*screened_rates(k_n_p_p__p_d)* &
+      Y(jn)*state % rho**2 - 0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)* &
+      Y(jhe4)**2*Y(jn)*state % rho**3 - 2.0e0_rt*screened_rates(k_n_p_p__p_d)* &
       Y(jn)*Y(jp)*state % rho**2 - screened_rates(k_p_al26__he4_mg23)* &
       Y(jal26)*state % rho - screened_rates(k_p_al27__c12_o16)*Y(jal27)* &
       state % rho - screened_rates(k_p_al27__he4_mg24)*Y(jal27)*state % rho - &
@@ -9643,8 +9651,8 @@ contains
       screened_rates(k_p_ga64__he4_zn61)*Y(jga64)*state % rho - &
       screened_rates(k_p_ga64__n_ge64)*Y(jga64)*state % rho - &
       screened_rates(k_p_he3__he4__weak__bet_pos_)*Y(jhe3)*state % rho - &
-      screened_rates(k_p_he4__d_he3)*Y(jhe4)*state % rho - 0.5d0* &
-      screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2*state % rho**2 - 0.5d0* &
+      screened_rates(k_p_he4__d_he3)*Y(jhe4)*state % rho - 0.5e0_rt* &
+      screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2*state % rho**2 - 0.5e0_rt* &
       screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_p_k39__ca40)*Y(jk39)*state % rho - &
       screened_rates(k_p_k39__he4_ar36)*Y(jk39)*state % rho - &
@@ -9733,10 +9741,10 @@ contains
       - screened_rates(k_p_p32__n_s32)*Y(jp32)*state % rho - screened_rates(k_p_p32__s33)* &
       Y(jp32)*state % rho - screened_rates(k_p_p33__he4_si30)*Y(jp33)*state % rho &
       - screened_rates(k_p_p33__n_s33)*Y(jp33)*state % rho - screened_rates(k_p_p33__s34)* &
-      Y(jp33)*state % rho - 2.0d0*screened_rates(k_p_p__d__weak__bet_pos_)* &
-      Y(jp)*state % rho - 2.0d0*screened_rates(k_p_p__d__weak__electron_capture)* &
-      Y(jp)*state % rho**2*state % y_e - 2.0d0*screened_rates(k_p_p_he4__he3_he3)* &
-      Y(jhe4)*Y(jp)*state % rho**2 - 1.0d0* &
+      Y(jp33)*state % rho - 2.0e0_rt*screened_rates(k_p_p__d__weak__bet_pos_)* &
+      Y(jp)*state % rho - 2.0e0_rt*screened_rates(k_p_p__d__weak__electron_capture)* &
+      Y(jp)*state % rho**2*state % y_e - 2.0e0_rt*screened_rates(k_p_p_he4__he3_he3)* &
+      Y(jhe4)*Y(jp)*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)*state % rho**3 - &
       screened_rates(k_p_s32__cl33)*Y(js32)*state % rho - screened_rates(k_p_s32__he4_p29) &
       *Y(js32)*state % rho - screened_rates(k_p_s33__cl34)*Y(js33)*state % rho - &
@@ -9825,7 +9833,7 @@ contains
 
     scratch = (&
       screened_rates(k_d__n_p) + screened_rates(k_d_be7__p_he4_he4)*Y(jbe7)*state % rho + &
-      screened_rates(k_d_he3__p_he4)*Y(jhe3)*state % rho + 0.5d0* &
+      screened_rates(k_d_he3__p_he4)*Y(jhe3)*state % rho + 0.5e0_rt* &
       screened_rates(k_d_he4_he4__p_be9)*Y(jhe4)**2*state % rho**2 + &
       screened_rates(k_d_li6__p_li7)*Y(jli6)*state % rho - screened_rates(k_p_d__he3)* &
       Y(jp)*state % rho + 2*screened_rates(k_p_d__n_p_p)*Y(jp)*state % rho &
@@ -9833,8 +9841,8 @@ contains
     call set_jac_entry(state, jp, jd, scratch)
 
     scratch = (&
-      screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho + screened_rates(k_he3__p_d) + 2.0d0* &
-      screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*state % rho + 2.0d0* &
+      screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho + screened_rates(k_he3__p_d) + 2.0e0_rt* &
+      screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*state % rho + 2.0e0_rt* &
       screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)*state % rho + &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jli7)*state % rho + &
       screened_rates(k_he4_he3__p_li6)*Y(jhe4)*state % rho - &
@@ -9843,7 +9851,7 @@ contains
     call set_jac_entry(state, jp, jhe3, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 + &
+      1.0e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 + &
       screened_rates(k_he4_al25__p_si28)*Y(jal25)*state % rho + &
       screened_rates(k_he4_al26__p_si29)*Y(jal26)*state % rho + &
       screened_rates(k_he4_al27__p_si30)*Y(jal27)*state % rho + &
@@ -9893,8 +9901,8 @@ contains
       screened_rates(k_he4_fe54__p_co57)*Y(jfe54)*state % rho + &
       screened_rates(k_he4_fe55__p_co58)*Y(jfe55)*state % rho + &
       screened_rates(k_he4_fe56__p_co59)*Y(jfe56)*state % rho + &
-      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*state % rho + 1.0d0* &
-      screened_rates(k_he4_he4__p_li7)*Y(jhe4)*state % rho + 0.5d0* &
+      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*state % rho + 1.0e0_rt* &
+      screened_rates(k_he4_he4__p_li7)*Y(jhe4)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4)**2*state % rho**2 + &
       screened_rates(k_he4_k37__p_ca40)*Y(jk37)*state % rho + &
       screened_rates(k_he4_k38__p_ca41)*Y(jk38)*state % rho + &
@@ -9961,12 +9969,12 @@ contains
       screened_rates(k_he4_zn59__p_ga62)*Y(jzn59)*state % rho + &
       screened_rates(k_he4_zn60__p_ga63)*Y(jzn60)*state % rho + &
       screened_rates(k_he4_zn61__p_ga64)*Y(jzn61)*state % rho - &
-      screened_rates(k_n_p_he4__li6)*Y(jn)*Y(jp)*state % rho**2 - 1.0d0* &
+      screened_rates(k_n_p_he4__li6)*Y(jn)*Y(jp)*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)*Y(jn)*Y(jp)*state % rho &
-      **3 - screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho - 1.0d0* &
-      screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)*state % rho**2 - 1.0d0* &
+      **3 - screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho - 1.0e0_rt* &
+      screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)*state % rho**2 - &
-      screened_rates(k_p_p_he4__he3_he3)*Y(jp)**2*state % rho**2 - 1.0d0* &
+      screened_rates(k_p_p_he4__he3_he3)*Y(jp)**2*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)*Y(jp)**2*state % rho**3 &
        )
     call set_jac_entry(state, jp, jhe4, scratch)
@@ -9986,7 +9994,7 @@ contains
     call set_jac_entry(state, jp, jli7, scratch)
 
     scratch = (&
-      screened_rates(k_be7__p_li6) + screened_rates(k_d_be7__p_he4_he4)*Y(jd)*state % rho + 2.0d0 &
+      screened_rates(k_be7__p_li6) + screened_rates(k_d_be7__p_he4_he4)*Y(jd)*state % rho + 2.0e0_rt &
       *screened_rates(k_he3_be7__p_p_he4_he4)*Y(jhe3)*state % rho + &
       screened_rates(k_he4_be7__p_b10)*Y(jhe4)*state % rho + &
       screened_rates(k_n_be7__p_li7)*Y(jn)*state % rho - screened_rates(k_p_be7__b8)* &
@@ -10018,7 +10026,7 @@ contains
     call set_jac_entry(state, jp, jb11, scratch)
 
     scratch = (&
-      screened_rates(k_c12__p_b11) + 1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
+      screened_rates(k_c12__p_b11) + 1.0e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
       + screened_rates(k_c12_ne20__p_p31)*Y(jne20)*state % rho + &
       screened_rates(k_c12_o16__p_al27)*Y(jo16)*state % rho + &
       screened_rates(k_he4_c12__p_n15)*Y(jhe4)*state % rho - screened_rates(k_p_c12__n13)* &
@@ -10073,7 +10081,7 @@ contains
 
     scratch = (&
       screened_rates(k_c12_o16__p_al27)*Y(jc12)*state % rho + screened_rates(k_he4_o16__p_f19)* &
-      Y(jhe4)*state % rho + screened_rates(k_o16__p_n15) + 1.0d0* &
+      Y(jhe4)*state % rho + screened_rates(k_o16__p_n15) + 1.0e0_rt* &
       screened_rates(k_o16_o16__p_p31)*Y(jo16)*state % rho - screened_rates(k_p_o16__f17)* &
       Y(jp)*state % rho - screened_rates(k_p_o16__he4_n13)*Y(jp)*state % rho &
        )
@@ -11072,23 +11080,23 @@ contains
     call set_jac_entry(state, jp, jge64, scratch)
 
     scratch = (&
-      screened_rates(k_n_be7__d_li6)*Y(jbe7)*state % rho + 2.0d0*screened_rates(k_n_he3__d_d)* &
-      Y(jhe3)*state % rho + 0.5d0*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2 &
+      screened_rates(k_n_be7__d_li6)*Y(jbe7)*state % rho + 2.0e0_rt*screened_rates(k_n_he3__d_d)* &
+      Y(jhe3)*state % rho + 0.5e0_rt*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2 &
       *state % rho**2 + screened_rates(k_n_n14__d_c13)*Y(jn14)*state % rho + &
       screened_rates(k_n_n15__d_c14)*Y(jn15)*state % rho + screened_rates(k_n_p__d)* &
-      Y(jp)*state % rho + 0.5d0*screened_rates(k_n_p_p__p_d)*Y(jp)**2*state % rho &
+      Y(jp)*state % rho + 0.5e0_rt*screened_rates(k_n_p_p__p_d)*Y(jp)**2*state % rho &
       **2 &
        )
     call set_jac_entry(state, jd, jn, scratch)
 
     scratch = (&
-      screened_rates(k_n_p__d)*Y(jn)*state % rho + 1.0d0*screened_rates(k_n_p_p__p_d)*Y(jn)* &
+      screened_rates(k_n_p__d)*Y(jn)*state % rho + 1.0e0_rt*screened_rates(k_n_p_p__p_d)*Y(jn)* &
       Y(jp)*state % rho**2 + screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)* &
       state % rho - screened_rates(k_p_d__he3)*Y(jd)*state % rho - &
       screened_rates(k_p_d__n_p_p)*Y(jd)*state % rho + screened_rates(k_p_he4__d_he3)* &
-      Y(jhe4)*state % rho + 0.5d0*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2 &
-      *state % rho**2 + screened_rates(k_p_li7__d_li6)*Y(jli7)*state % rho + 1.0d0* &
-      screened_rates(k_p_p__d__weak__bet_pos_)*Y(jp)*state % rho + 1.0d0* &
+      Y(jhe4)*state % rho + 0.5e0_rt*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2 &
+      *state % rho**2 + screened_rates(k_p_li7__d_li6)*Y(jli7)*state % rho + 1.0e0_rt* &
+      screened_rates(k_p_p__d__weak__bet_pos_)*Y(jp)*state % rho + 1.0e0_rt* &
       screened_rates(k_p_p__d__weak__electron_capture)*Y(jp)*state % rho**2* &
       state % y_e &
        )
@@ -11097,9 +11105,9 @@ contains
     scratch = (&
       -screened_rates(k_d__n_p) - screened_rates(k_d_be7__p_he4_he4)*Y(jbe7)*state % rho - &
       screened_rates(k_d_c13__n_n14)*Y(jc13)*state % rho - screened_rates(k_d_c14__n_n15)* &
-      Y(jc14)*state % rho - 2.0d0*screened_rates(k_d_d__he4)*Y(jd)*state % rho - &
-      2.0d0*screened_rates(k_d_d__n_he3)*Y(jd)*state % rho - &
-      screened_rates(k_d_he3__p_he4)*Y(jhe3)*state % rho - 0.5d0* &
+      Y(jc14)*state % rho - 2.0e0_rt*screened_rates(k_d_d__he4)*Y(jd)*state % rho - &
+      2.0e0_rt*screened_rates(k_d_d__n_he3)*Y(jd)*state % rho - &
+      screened_rates(k_d_he3__p_he4)*Y(jhe3)*state % rho - 0.5e0_rt* &
       screened_rates(k_d_he4_he4__p_be9)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_d_li6__n_be7)*Y(jli6)*state % rho - screened_rates(k_d_li6__p_li7)* &
       Y(jli6)*state % rho - screened_rates(k_d_li7__n_he4_he4)*Y(jli7)*state % rho &
@@ -11109,16 +11117,16 @@ contains
     call set_jac_entry(state, jd, jd, scratch)
 
     scratch = (&
-      -screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho + screened_rates(k_he3__p_d) + 2.0d0* &
+      -screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho + screened_rates(k_he3__p_d) + 2.0e0_rt* &
       screened_rates(k_n_he3__d_d)*Y(jn)*state % rho &
        )
     call set_jac_entry(state, jd, jhe3, scratch)
 
     scratch = (&
-      -1.0d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 + 2.0d0* &
-      screened_rates(k_he4__d_d) - screened_rates(k_he4_d__li6)*Y(jd)*state % rho + 1.0d0* &
+      -1.0e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 + 2.0e0_rt* &
+      screened_rates(k_he4__d_d) - screened_rates(k_he4_d__li6)*Y(jd)*state % rho + 1.0e0_rt* &
       screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)*Y(jn)*state % rho**2 + &
-      screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho + 1.0d0* &
+      screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho + 1.0e0_rt* &
       screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)*state % rho**2 &
        )
     call set_jac_entry(state, jd, jhe4, scratch)
@@ -11168,31 +11176,31 @@ contains
 
     scratch = (&
       -screened_rates(k_n_he3__d_d)*Y(jhe3)*state % rho - screened_rates(k_n_he3__he4)*Y(jhe3)* &
-      state % rho + 0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2* &
+      state % rho + 0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2* &
       Y(jp)*state % rho**3 &
        )
     call set_jac_entry(state, jhe3, jn, scratch)
 
     scratch = (&
-      0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*state % rho**3 + &
+      0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*state % rho**3 + &
       screened_rates(k_p_d__he3)*Y(jd)*state % rho - &
       screened_rates(k_p_he3__he4__weak__bet_pos_)*Y(jhe3)*state % rho + &
       screened_rates(k_p_he4__d_he3)*Y(jhe4)*state % rho + &
-      screened_rates(k_p_li6__he4_he3)*Y(jli6)*state % rho + 2.0d0* &
-      screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)*state % rho**2 + 0.5d0* &
+      screened_rates(k_p_li6__he4_he3)*Y(jli6)*state % rho + 2.0e0_rt* &
+      screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)*state % rho**2 + 0.5e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)*state % rho**3 &
        )
     call set_jac_entry(state, jhe3, jp, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_d_d__n_he3)*Y(jd)*state % rho - screened_rates(k_d_he3__p_he4)* &
+      1.0e0_rt*screened_rates(k_d_d__n_he3)*Y(jd)*state % rho - screened_rates(k_d_he3__p_he4)* &
       Y(jhe3)*state % rho + screened_rates(k_p_d__he3)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jhe3, jd, scratch)
 
     scratch = (&
       -screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho - screened_rates(k_he3__p_d) - &
-      screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*state % rho - 2.0d0* &
+      screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*state % rho - 2.0e0_rt* &
       screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)*state % rho - &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jli7)*state % rho - &
       screened_rates(k_he4_he3__be7)*Y(jhe4)*state % rho - &
@@ -11204,10 +11212,10 @@ contains
 
     scratch = (&
       screened_rates(k_he4__n_he3) - screened_rates(k_he4_he3__be7)*Y(jhe3)*state % rho - &
-      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*state % rho + 1.0d0* &
+      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*state % rho + 1.0e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)*Y(jn)*Y(jp)*state % rho &
       **3 + screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho + &
-      screened_rates(k_p_p_he4__he3_he3)*Y(jp)**2*state % rho**2 + 0.5d0* &
+      screened_rates(k_p_p_he4__he3_he3)*Y(jp)**2*state % rho**2 + 0.5e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)*Y(jp)**2*state % rho**3 &
        )
     call set_jac_entry(state, jhe3, jhe4, scratch)
@@ -11234,8 +11242,8 @@ contains
       screened_rates(k_n_ar37__he4_s34)*Y(jar37)*state % rho + &
       screened_rates(k_n_ar38__he4_s35)*Y(jar38)*state % rho + &
       screened_rates(k_n_ar39__he4_s36)*Y(jar39)*state % rho + &
-      screened_rates(k_n_b10__he4_li7)*Y(jb10)*state % rho + 2.0d0* &
-      screened_rates(k_n_b8__p_he4_he4)*Y(jb8)*state % rho + 2.0d0* &
+      screened_rates(k_n_b10__he4_li7)*Y(jb10)*state % rho + 2.0e0_rt* &
+      screened_rates(k_n_b8__p_he4_he4)*Y(jb8)*state % rho + 2.0e0_rt* &
       screened_rates(k_n_be7__he4_he4)*Y(jbe7)*state % rho + &
       screened_rates(k_n_c12__he4_be9)*Y(jc12)*state % rho + &
       screened_rates(k_n_ca40__he4_ar37)*Y(jca40)*state % rho + &
@@ -11360,10 +11368,10 @@ contains
       screened_rates(k_p_ar38__he4_cl35)*Y(jar38)*state % rho + &
       screened_rates(k_p_ar39__he4_cl36)*Y(jar39)*state % rho + &
       screened_rates(k_p_ar40__he4_cl37)*Y(jar40)*state % rho + &
-      screened_rates(k_p_b10__he4_be7)*Y(jb10)*state % rho + 3.0d0* &
-      screened_rates(k_p_b11__he4_he4_he4)*Y(jb11)*state % rho + 2.0d0* &
+      screened_rates(k_p_b10__he4_be7)*Y(jb10)*state % rho + 3.0e0_rt* &
+      screened_rates(k_p_b11__he4_he4_he4)*Y(jb11)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)*state % rho + &
-      screened_rates(k_p_be9__he4_li6)*Y(jbe9)*state % rho + 2.0d0* &
+      screened_rates(k_p_be9__he4_li6)*Y(jbe9)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_be9__n_p_he4_he4)*Y(jbe9)*state % rho + &
       screened_rates(k_p_c13__he4_b10)*Y(jc13)*state % rho + &
       screened_rates(k_p_c14__he4_b11)*Y(jc14)*state % rho + &
@@ -11412,7 +11420,7 @@ contains
       screened_rates(k_p_k39__he4_ar36)*Y(jk39)*state % rho + &
       screened_rates(k_p_k40__he4_ar37)*Y(jk40)*state % rho + &
       screened_rates(k_p_k41__he4_ar38)*Y(jk41)*state % rho + &
-      screened_rates(k_p_li6__he4_he3)*Y(jli6)*state % rho + 2.0d0* &
+      screened_rates(k_p_li6__he4_he3)*Y(jli6)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_li7__he4_he4)*Y(jli7)*state % rho + &
       screened_rates(k_p_mg24__he4_na21)*Y(jmg24)*state % rho + &
       screened_rates(k_p_mg25__he4_na22)*Y(jmg25)*state % rho + &
@@ -11441,8 +11449,8 @@ contains
       screened_rates(k_p_o18__he4_n15)*Y(jo18)*state % rho + &
       screened_rates(k_p_p31__he4_si28)*Y(jp31)*state % rho + &
       screened_rates(k_p_p32__he4_si29)*Y(jp32)*state % rho + &
-      screened_rates(k_p_p33__he4_si30)*Y(jp33)*state % rho - 1.0d0* &
-      screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)*state % rho**2 - 1.0d0* &
+      screened_rates(k_p_p33__he4_si30)*Y(jp33)*state % rho - 1.0e0_rt* &
+      screened_rates(k_p_p_he4__he3_he3)*Y(jhe4)*Y(jp)*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)*state % rho**3 + &
       screened_rates(k_p_s32__he4_p29)*Y(js32)*state % rho + &
       screened_rates(k_p_s33__he4_p30)*Y(js33)*state % rho + &
@@ -11482,18 +11490,18 @@ contains
     call set_jac_entry(state, jhe4, jp, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_d_be7__p_he4_he4)*Y(jbe7)*state % rho + 1.0d0* &
+      2.0e0_rt*screened_rates(k_d_be7__p_he4_he4)*Y(jbe7)*state % rho + 1.0e0_rt* &
       screened_rates(k_d_d__he4)*Y(jd)*state % rho + screened_rates(k_d_he3__p_he4)* &
       Y(jhe3)*state % rho - screened_rates(k_d_he4_he4__p_be9)*Y(jhe4)**2* &
-      state % rho**2 + 2.0d0*screened_rates(k_d_li7__n_he4_he4)*Y(jli7)*state % rho &
+      state % rho**2 + 2.0e0_rt*screened_rates(k_d_li7__n_he4_he4)*Y(jli7)*state % rho &
       - screened_rates(k_he4_d__li6)*Y(jhe4)*state % rho &
        )
     call set_jac_entry(state, jhe4, jd, scratch)
 
     scratch = (&
-      screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho + 2.0d0* &
-      screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*state % rho + 1.0d0* &
-      screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)*state % rho + 2.0d0* &
+      screened_rates(k_d_he3__p_he4)*Y(jd)*state % rho + 2.0e0_rt* &
+      screened_rates(k_he3_be7__p_p_he4_he4)*Y(jbe7)*state % rho + 1.0e0_rt* &
+      screened_rates(k_he3_he3__p_p_he4)*Y(jhe3)*state % rho + 2.0e0_rt* &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jli7)*state % rho - &
       screened_rates(k_he4_he3__be7)*Y(jhe4)*state % rho - &
       screened_rates(k_he4_he3__p_li6)*Y(jhe4)*state % rho + screened_rates(k_n_he3__he4)* &
@@ -11503,7 +11511,7 @@ contains
     call set_jac_entry(state, jhe4, jhe3, scratch)
 
     scratch = (&
-      -2.0d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 - &
+      -2.0e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 - &
       screened_rates(k_he4__d_d) - screened_rates(k_he4__n_he3) - screened_rates(k_he4_al25__p29)* &
       Y(jal25)*state % rho - screened_rates(k_he4_al25__p_si28)*Y(jal25)* &
       state % rho - screened_rates(k_he4_al26__n_p29)*Y(jal26)*state % rho - &
@@ -11651,10 +11659,10 @@ contains
       screened_rates(k_he4_fe58__n_ni61)*Y(jfe58)*state % rho - &
       screened_rates(k_he4_fe58__ni62)*Y(jfe58)*state % rho - &
       screened_rates(k_he4_he3__be7)*Y(jhe3)*state % rho - &
-      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*state % rho - 2.0d0* &
-      screened_rates(k_he4_he4__n_be7)*Y(jhe4)*state % rho - 2.0d0* &
-      screened_rates(k_he4_he4__p_li7)*Y(jhe4)*state % rho - 1.5d0* &
-      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 - 1.5d0* &
+      screened_rates(k_he4_he3__p_li6)*Y(jhe3)*state % rho - 2.0e0_rt* &
+      screened_rates(k_he4_he4__n_be7)*Y(jhe4)*state % rho - 2.0e0_rt* &
+      screened_rates(k_he4_he4__p_li7)*Y(jhe4)*state % rho - 1.5e0_rt* &
+      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 - 1.5e0_rt* &
       screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_he4_k37__p_ca40)*Y(jk37)*state % rho - &
       screened_rates(k_he4_k38__p_ca41)*Y(jk38)*state % rho - &
@@ -11858,16 +11866,16 @@ contains
       screened_rates(k_he4_zn60__n_ge63)*Y(jzn60)*state % rho - &
       screened_rates(k_he4_zn60__p_ga63)*Y(jzn60)*state % rho - &
       screened_rates(k_he4_zn61__n_ge64)*Y(jzn61)*state % rho - &
-      screened_rates(k_he4_zn61__p_ga64)*Y(jzn61)*state % rho - 2.0d0* &
-      screened_rates(k_n_he4_he4__be9)*Y(jhe4)*Y(jn)*state % rho**2 - 2.0d0* &
+      screened_rates(k_he4_zn61__p_ga64)*Y(jzn61)*state % rho - 2.0e0_rt* &
+      screened_rates(k_n_he4_he4__be9)*Y(jhe4)*Y(jn)*state % rho**2 - 2.0e0_rt* &
       screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)*Y(jn)*state % rho**2 - &
-      screened_rates(k_n_p_he4__li6)*Y(jn)*Y(jp)*state % rho**2 - 2.0d0* &
+      screened_rates(k_n_p_he4__li6)*Y(jn)*Y(jp)*state % rho**2 - 2.0e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)*Y(jn)*Y(jp)*state % rho &
-      **3 - 2.0d0*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)*Y(jn)*Y(jp) &
-      *state % rho**3 - screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho - 2.0d0* &
-      screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)*state % rho**2 - 2.0d0* &
-      screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)*state % rho**2 - 0.5d0* &
-      screened_rates(k_p_p_he4__he3_he3)*Y(jp)**2*state % rho**2 - 1.0d0* &
+      **3 - 2.0e0_rt*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)*Y(jn)*Y(jp) &
+      *state % rho**3 - screened_rates(k_p_he4__d_he3)*Y(jp)*state % rho - 2.0e0_rt* &
+      screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)*state % rho**2 - 2.0e0_rt* &
+      screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)*state % rho**2 - 0.5e0_rt* &
+      screened_rates(k_p_p_he4__he3_he3)*Y(jp)**2*state % rho**2 - 1.0e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)*Y(jp)**2*state % rho**3 &
        )
     call set_jac_entry(state, jhe4, jhe4, scratch)
@@ -11880,32 +11888,32 @@ contains
     call set_jac_entry(state, jhe4, jli6, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_d_li7__n_he4_he4)*Y(jd)*state % rho + 2.0d0* &
+      2.0e0_rt*screened_rates(k_d_li7__n_he4_he4)*Y(jd)*state % rho + 2.0e0_rt* &
       screened_rates(k_he3_li7__n_p_he4_he4)*Y(jhe3)*state % rho - &
       screened_rates(k_he4_li7__b11)*Y(jhe4)*state % rho - &
-      screened_rates(k_he4_li7__n_b10)*Y(jhe4)*state % rho + 2.0d0* &
+      screened_rates(k_he4_li7__n_b10)*Y(jhe4)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_li7__he4_he4)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jhe4, jli7, scratch)
 
     scratch = (&
-      screened_rates(k_be7__he4_he3) + 2.0d0*screened_rates(k_d_be7__p_he4_he4)*Y(jd)*state % rho &
-      + 2.0d0*screened_rates(k_he3_be7__p_p_he4_he4)*Y(jhe3)*state % rho - &
-      screened_rates(k_he4_be7__p_b10)*Y(jhe4)*state % rho + 2.0d0* &
+      screened_rates(k_be7__he4_he3) + 2.0e0_rt*screened_rates(k_d_be7__p_he4_he4)*Y(jd)*state % rho &
+      + 2.0e0_rt*screened_rates(k_he3_be7__p_p_he4_he4)*Y(jhe3)*state % rho - &
+      screened_rates(k_he4_be7__p_b10)*Y(jhe4)*state % rho + 2.0e0_rt* &
       screened_rates(k_n_be7__he4_he4)*Y(jn)*state % rho &
        )
     call set_jac_entry(state, jhe4, jbe7, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_be9__n_he4_he4) - screened_rates(k_he4_be9__n_c12)*Y(jhe4)* &
-      state % rho + 2.0d0*screened_rates(k_p_be9__d_he4_he4)*Y(jp)*state % rho + &
-      screened_rates(k_p_be9__he4_li6)*Y(jp)*state % rho + 2.0d0* &
+      2.0e0_rt*screened_rates(k_be9__n_he4_he4) - screened_rates(k_he4_be9__n_c12)*Y(jhe4)* &
+      state % rho + 2.0e0_rt*screened_rates(k_p_be9__d_he4_he4)*Y(jp)*state % rho + &
+      screened_rates(k_p_be9__he4_li6)*Y(jp)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_be9__n_p_he4_he4)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jhe4, jbe9, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_b8__he4_he4__weak__wc12) + 2.0d0*screened_rates(k_n_b8__p_he4_he4)* &
+      2.0e0_rt*screened_rates(k_b8__he4_he4__weak__wc12) + 2.0e0_rt*screened_rates(k_n_b8__p_he4_he4)* &
       Y(jn)*state % rho &
        )
     call set_jac_entry(state, jhe4, jb8, scratch)
@@ -11920,13 +11928,13 @@ contains
 
     scratch = (&
       screened_rates(k_b11__he4_li7) - screened_rates(k_he4_b11__n_n14)*Y(jhe4)*state % rho - &
-      screened_rates(k_he4_b11__p_c14)*Y(jhe4)*state % rho + 3.0d0* &
+      screened_rates(k_he4_b11__p_c14)*Y(jhe4)*state % rho + 3.0e0_rt* &
       screened_rates(k_p_b11__he4_he4_he4)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jhe4, jb11, scratch)
 
     scratch = (&
-      3.0d0*screened_rates(k_c12__he4_he4_he4) + 1.0d0*screened_rates(k_c12_c12__he4_ne20)* &
+      3.0e0_rt*screened_rates(k_c12__he4_he4_he4) + 1.0e0_rt*screened_rates(k_c12_c12__he4_ne20)* &
       Y(jc12)*state % rho + screened_rates(k_c12_ne20__he4_si28)*Y(jne20)* &
       state % rho + screened_rates(k_c12_o16__he4_mg24)*Y(jo16)*state % rho - &
       screened_rates(k_he4_c12__n_o15)*Y(jhe4)*state % rho - &
@@ -11986,7 +11994,7 @@ contains
       *Y(jhe4)*state % rho - screened_rates(k_he4_o16__ne20)*Y(jhe4)*state % rho - &
       screened_rates(k_he4_o16__p_f19)*Y(jhe4)*state % rho + &
       screened_rates(k_n_o16__he4_c13)*Y(jn)*state % rho + screened_rates(k_o16__he4_c12) &
-      + 1.0d0*screened_rates(k_o16_o16__he4_si28)*Y(jo16)*state % rho + &
+      + 1.0e0_rt*screened_rates(k_o16_o16__he4_si28)*Y(jo16)*state % rho + &
       screened_rates(k_p_o16__he4_n13)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jhe4, jo16, scratch)
@@ -13132,14 +13140,14 @@ contains
 
     scratch = (&
       screened_rates(k_n_b10__he4_li7)*Y(jb10)*state % rho + screened_rates(k_n_be7__p_li7)* &
-      Y(jbe7)*state % rho + 0.5d0*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2 &
-      *state % rho**2 + screened_rates(k_n_li6__li7)*Y(jli6)*state % rho + 0.5d0* &
+      Y(jbe7)*state % rho + 0.5e0_rt*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)**2 &
+      *state % rho**2 + screened_rates(k_n_li6__li7)*Y(jli6)*state % rho + 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jp)*state % rho**3 &
        )
     call set_jac_entry(state, jli7, jn, scratch)
 
     scratch = (&
-      0.5d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*state % rho**3 - &
+      0.5e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)**2*Y(jn)*state % rho**3 - &
       screened_rates(k_p_li7__d_li6)*Y(jli7)*state % rho - &
       screened_rates(k_p_li7__he4_he4)*Y(jli7)*state % rho - &
       screened_rates(k_p_li7__n_be7)*Y(jli7)*state % rho &
@@ -13158,10 +13166,10 @@ contains
     call set_jac_entry(state, jli7, jhe3, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_he4_he4__p_li7)*Y(jhe4)*state % rho - screened_rates(k_he4_li7__b11) &
+      1.0e0_rt*screened_rates(k_he4_he4__p_li7)*Y(jhe4)*state % rho - screened_rates(k_he4_li7__b11) &
       *Y(jli7)*state % rho - screened_rates(k_he4_li7__n_b10)*Y(jli7)*state % rho &
-      + 1.0d0*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)*Y(jn)*state % rho**2 + &
-      1.0d0*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)*Y(jn)*Y(jp)* &
+      + 1.0e0_rt*screened_rates(k_n_he4_he4__d_li7)*Y(jhe4)*Y(jn)*state % rho**2 + &
+      1.0e0_rt*screened_rates(k_n_p_he4_he4__he3_li7)*Y(jhe4)*Y(jn)*Y(jp)* &
       state % rho**3 &
        )
     call set_jac_entry(state, jli7, jhe4, scratch)
@@ -13207,9 +13215,9 @@ contains
 
     scratch = (&
       screened_rates(k_p_b10__he4_be7)*Y(jb10)*state % rho - screened_rates(k_p_be7__b8)* &
-      Y(jbe7)*state % rho + 0.5d0*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2 &
+      Y(jbe7)*state % rho + 0.5e0_rt*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)**2 &
       *state % rho**2 + screened_rates(k_p_li6__be7)*Y(jli6)*state % rho + &
-      screened_rates(k_p_li7__n_be7)*Y(jli7)*state % rho + 0.5d0* &
+      screened_rates(k_p_li7__n_be7)*Y(jli7)*state % rho + 0.5e0_rt* &
       screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)**2*Y(jp)*state % rho**3 &
        )
     call set_jac_entry(state, jbe7, jp, scratch)
@@ -13228,9 +13236,9 @@ contains
 
     scratch = (&
       -screened_rates(k_he4_be7__p_b10)*Y(jbe7)*state % rho + screened_rates(k_he4_he3__be7)* &
-      Y(jhe3)*state % rho + 1.0d0*screened_rates(k_he4_he4__n_be7)*Y(jhe4)* &
-      state % rho + 1.0d0*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)* &
-      state % rho**2 + 0.5d0*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)* &
+      Y(jhe3)*state % rho + 1.0e0_rt*screened_rates(k_he4_he4__n_be7)*Y(jhe4)* &
+      state % rho + 1.0e0_rt*screened_rates(k_p_he4_he4__d_be7)*Y(jhe4)*Y(jp)* &
+      state % rho**2 + 0.5e0_rt*screened_rates(k_p_p_he4_he4__he3_be7)*Y(jhe4)* &
       Y(jp)**2*state % rho**3 &
        )
     call set_jac_entry(state, jbe7, jhe4, scratch)
@@ -13269,14 +13277,14 @@ contains
     call set_jac_entry(state, jbe7, jb10, scratch)
 
     scratch = (&
-      screened_rates(k_n_c12__he4_be9)*Y(jc12)*state % rho + 0.5d0* &
-      screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*state % rho**2 + 0.5d0* &
+      screened_rates(k_n_c12__he4_be9)*Y(jc12)*state % rho + 0.5e0_rt* &
+      screened_rates(k_n_he4_he4__be9)*Y(jhe4)**2*state % rho**2 + 0.5e0_rt* &
       screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2*Y(jp)*state % rho**3 &
        )
     call set_jac_entry(state, jbe9, jn, scratch)
 
     scratch = (&
-      0.5d0*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2*Y(jn)*state % rho**3 - &
+      0.5e0_rt*screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)**2*Y(jn)*state % rho**3 - &
       screened_rates(k_p_be9__b10)*Y(jbe9)*state % rho - &
       screened_rates(k_p_be9__d_he4_he4)*Y(jbe9)*state % rho - &
       screened_rates(k_p_be9__he4_li6)*Y(jbe9)*state % rho - &
@@ -13285,15 +13293,15 @@ contains
     call set_jac_entry(state, jbe9, jp, scratch)
 
     scratch = (&
-      0.5d0*screened_rates(k_d_he4_he4__p_be9)*Y(jhe4)**2*state % rho**2 &
+      0.5e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jhe4)**2*state % rho**2 &
        )
     call set_jac_entry(state, jbe9, jd, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 - &
+      1.0e0_rt*screened_rates(k_d_he4_he4__p_be9)*Y(jd)*Y(jhe4)*state % rho**2 - &
       screened_rates(k_he4_be9__n_c12)*Y(jbe9)*state % rho + &
-      screened_rates(k_he4_li6__p_be9)*Y(jli6)*state % rho + 1.0d0* &
-      screened_rates(k_n_he4_he4__be9)*Y(jhe4)*Y(jn)*state % rho**2 + 1.0d0* &
+      screened_rates(k_he4_li6__p_be9)*Y(jli6)*state % rho + 1.0e0_rt* &
+      screened_rates(k_n_he4_he4__be9)*Y(jhe4)*Y(jn)*state % rho**2 + 1.0e0_rt* &
       screened_rates(k_n_p_he4_he4__p_be9)*Y(jhe4)*Y(jn)*Y(jp)*state % rho**3 &
        )
     call set_jac_entry(state, jbe9, jhe4, scratch)
@@ -13327,13 +13335,13 @@ contains
     call set_jac_entry(state, jb8, jn, scratch)
 
     scratch = (&
-      screened_rates(k_p_be7__b8)*Y(jbe7)*state % rho + 0.5d0*screened_rates(k_p_he4_he4__n_b8)* &
+      screened_rates(k_p_be7__b8)*Y(jbe7)*state % rho + 0.5e0_rt*screened_rates(k_p_he4_he4__n_b8)* &
       Y(jhe4)**2*state % rho**2 &
        )
     call set_jac_entry(state, jb8, jp, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)*state % rho**2 &
+      1.0e0_rt*screened_rates(k_p_he4_he4__n_b8)*Y(jhe4)*Y(jp)*state % rho**2 &
        )
     call set_jac_entry(state, jb8, jhe4, scratch)
 
@@ -13425,7 +13433,7 @@ contains
 
     scratch = (&
       -screened_rates(k_he4_b11__n_n14)*Y(jb11)*state % rho - screened_rates(k_he4_b11__p_c14)* &
-      Y(jb11)*state % rho + 0.5d0*screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4) &
+      Y(jb11)*state % rho + 0.5e0_rt*screened_rates(k_he4_he4_he4__p_b11)*Y(jhe4) &
       **2*state % rho**2 + screened_rates(k_he4_li7__b11)*Y(jli7)*state % rho &
        )
     call set_jac_entry(state, jb11, jhe4, scratch)
@@ -13465,7 +13473,7 @@ contains
 
     scratch = (&
       -screened_rates(k_n_c12__c13)*Y(jc12)*state % rho - screened_rates(k_n_c12__he4_be9)* &
-      Y(jc12)*state % rho + 2.0d0*screened_rates(k_n_mg23__c12_c12)*Y(jmg23)* &
+      Y(jc12)*state % rho + 2.0e0_rt*screened_rates(k_n_mg23__c12_c12)*Y(jmg23)* &
       state % rho + screened_rates(k_n_o15__he4_c12)*Y(jo15)*state % rho &
        )
     call set_jac_entry(state, jc12, jn, scratch)
@@ -13473,7 +13481,7 @@ contains
     scratch = (&
       screened_rates(k_p_al27__c12_o16)*Y(jal27)*state % rho + screened_rates(k_p_b11__c12)* &
       Y(jb11)*state % rho - screened_rates(k_p_c12__n13)*Y(jc12)*state % rho + &
-      screened_rates(k_p_n15__he4_c12)*Y(jn15)*state % rho + 2.0d0* &
+      screened_rates(k_p_n15__he4_c12)*Y(jn15)*state % rho + 2.0e0_rt* &
       screened_rates(k_p_na23__c12_c12)*Y(jna23)*state % rho + &
       screened_rates(k_p_p31__c12_ne20)*Y(jp31)*state % rho &
        )
@@ -13482,9 +13490,9 @@ contains
     scratch = (&
       screened_rates(k_he4_be9__n_c12)*Y(jbe9)*state % rho - screened_rates(k_he4_c12__n_o15)* &
       Y(jc12)*state % rho - screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - &
-      screened_rates(k_he4_c12__p_n15)*Y(jc12)*state % rho + 0.5d0* &
+      screened_rates(k_he4_c12__p_n15)*Y(jc12)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 + &
-      screened_rates(k_he4_mg24__c12_o16)*Y(jmg24)*state % rho + 2.0d0* &
+      screened_rates(k_he4_mg24__c12_o16)*Y(jmg24)*state % rho + 2.0e0_rt* &
       screened_rates(k_he4_ne20__c12_c12)*Y(jne20)*state % rho + &
       screened_rates(k_he4_si28__c12_ne20)*Y(jsi28)*state % rho &
        )
@@ -13501,9 +13509,9 @@ contains
     call set_jac_entry(state, jc12, jb11, scratch)
 
     scratch = (&
-      -screened_rates(k_c12__he4_he4_he4) - screened_rates(k_c12__p_b11) - 2.0d0* &
-      screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - 2.0d0* &
-      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho - 2.0d0* &
+      -screened_rates(k_c12__he4_he4_he4) - screened_rates(k_c12__p_b11) - 2.0e0_rt* &
+      screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - 2.0e0_rt* &
+      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho - 2.0e0_rt* &
       screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho - &
       screened_rates(k_c12_ne20__he4_si28)*Y(jne20)*state % rho - &
       screened_rates(k_c12_ne20__p_p31)*Y(jne20)*state % rho - &
@@ -13546,18 +13554,18 @@ contains
 
     scratch = (&
       -screened_rates(k_c12_ne20__he4_si28)*Y(jc12)*state % rho - &
-      screened_rates(k_c12_ne20__p_p31)*Y(jc12)*state % rho + 2.0d0* &
+      screened_rates(k_c12_ne20__p_p31)*Y(jc12)*state % rho + 2.0e0_rt* &
       screened_rates(k_he4_ne20__c12_c12)*Y(jhe4)*state % rho &
        )
     call set_jac_entry(state, jc12, jne20, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_p_na23__c12_c12)*Y(jp)*state % rho &
+      2.0e0_rt*screened_rates(k_p_na23__c12_c12)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jc12, jna23, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_n_mg23__c12_c12)*Y(jn)*state % rho &
+      2.0e0_rt*screened_rates(k_n_mg23__c12_c12)*Y(jn)*state % rho &
        )
     call set_jac_entry(state, jc12, jmg23, scratch)
 
@@ -14068,7 +14076,7 @@ contains
       screened_rates(k_p_al27__c12_o16)*Y(jal27)*state % rho + screened_rates(k_p_f19__he4_o16)* &
       Y(jf19)*state % rho + screened_rates(k_p_n15__o16)*Y(jn15)*state % rho - &
       screened_rates(k_p_o16__f17)*Y(jo16)*state % rho - screened_rates(k_p_o16__he4_n13)* &
-      Y(jo16)*state % rho + 2.0d0*screened_rates(k_p_p31__o16_o16)*Y(jp31)* &
+      Y(jo16)*state % rho + 2.0e0_rt*screened_rates(k_p_p31__o16_o16)*Y(jp31)* &
       state % rho &
        )
     call set_jac_entry(state, jo16, jp, scratch)
@@ -14079,7 +14087,7 @@ contains
       state % rho + screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho - &
       screened_rates(k_he4_o16__n_ne19)*Y(jo16)*state % rho - &
       screened_rates(k_he4_o16__ne20)*Y(jo16)*state % rho - &
-      screened_rates(k_he4_o16__p_f19)*Y(jo16)*state % rho + 2.0d0* &
+      screened_rates(k_he4_o16__p_f19)*Y(jo16)*state % rho + 2.0e0_rt* &
       screened_rates(k_he4_si28__o16_o16)*Y(jsi28)*state % rho &
        )
     call set_jac_entry(state, jo16, jhe4, scratch)
@@ -14119,8 +14127,8 @@ contains
       screened_rates(k_he4_o16__p_f19)*Y(jhe4)*state % rho - &
       screened_rates(k_n_o16__he4_c13)*Y(jn)*state % rho - screened_rates(k_n_o16__o17)* &
       Y(jn)*state % rho - screened_rates(k_o16__he4_c12) - screened_rates(k_o16__n_o15) - &
-      screened_rates(k_o16__p_n15) - 2.0d0*screened_rates(k_o16_o16__he4_si28)*Y(jo16)* &
-      state % rho - 2.0d0*screened_rates(k_o16_o16__p_p31)*Y(jo16)*state % rho - &
+      screened_rates(k_o16__p_n15) - 2.0e0_rt*screened_rates(k_o16_o16__he4_si28)*Y(jo16)* &
+      state % rho - 2.0e0_rt*screened_rates(k_o16_o16__p_p31)*Y(jo16)*state % rho - &
       screened_rates(k_p_o16__f17)*Y(jp)*state % rho - screened_rates(k_p_o16__he4_n13)* &
       Y(jp)*state % rho &
        )
@@ -14162,12 +14170,12 @@ contains
     call set_jac_entry(state, jo16, jal27, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_he4_si28__o16_o16)*Y(jhe4)*state % rho &
+      2.0e0_rt*screened_rates(k_he4_si28__o16_o16)*Y(jhe4)*state % rho &
        )
     call set_jac_entry(state, jo16, jsi28, scratch)
 
     scratch = (&
-      2.0d0*screened_rates(k_p_p31__o16_o16)*Y(jp)*state % rho &
+      2.0e0_rt*screened_rates(k_p_p31__o16_o16)*Y(jp)*state % rho &
        )
     call set_jac_entry(state, jo16, jp31, scratch)
 
@@ -14707,7 +14715,7 @@ contains
     call set_jac_entry(state, jne20, jhe4, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - &
+      1.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - &
       screened_rates(k_c12_ne20__he4_si28)*Y(jne20)*state % rho - &
       screened_rates(k_c12_ne20__p_p31)*Y(jne20)*state % rho &
        )
@@ -15119,7 +15127,7 @@ contains
     call set_jac_entry(state, jna23, jhe4, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jna23, jc12, scratch)
 
@@ -15202,7 +15210,7 @@ contains
     call set_jac_entry(state, jmg23, jhe4, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jmg23, jc12, scratch)
 
@@ -15745,7 +15753,7 @@ contains
     call set_jac_entry(state, jsi28, jc12, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_o16_o16__he4_si28)*Y(jo16)*state % rho &
+      1.0e0_rt*screened_rates(k_o16_o16__he4_si28)*Y(jo16)*state % rho &
        )
     call set_jac_entry(state, jsi28, jo16, scratch)
 
@@ -16250,7 +16258,7 @@ contains
     call set_jac_entry(state, jp31, jc12, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_o16_o16__p_p31)*Y(jo16)*state % rho &
+      1.0e0_rt*screened_rates(k_o16_o16__p_p31)*Y(jo16)*state % rho &
        )
     call set_jac_entry(state, jp31, jo16, scratch)
 

@@ -12,11 +12,12 @@ module stiff_ode
   use jac_module
 #endif
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  real(rt), parameter, private :: dt_min = 1.d-24
-  real(rt), parameter, private :: dt_ini = 1.d-16
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: dt_min = 1.e-24_rt
+  real(rt), parameter, private :: dt_ini = 1.e-16_rt
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
   ! error codes
@@ -82,6 +83,7 @@ contains
 
     use extern_probin_module, only: safety_factor
     
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: y_old(bs_neqs), y(bs_neqs)
     logical, intent(out) :: retry
 
@@ -119,6 +121,7 @@ contains
     use amrex_error_module, only: amrex_error
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     type (bs_t), intent(inout) :: bs
 
     real(rt), intent(inout) :: t
@@ -230,6 +233,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     type (bs_t), intent(inout) :: bs
 
     type (bs_t) :: bs_temp
@@ -242,8 +246,8 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
-    hU = 0.1d0 * abs(bs % tmax - bs % t)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
+    hU = 0.1e0_rt * abs(bs % tmax - bs % t)
 
     ! Initial guess for the iteration
 
@@ -314,6 +318,7 @@ contains
     !$acc routine(dgefa) seq
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t), intent(inout) :: bs
@@ -459,6 +464,7 @@ contains
     use amrex_error_module, only: amrex_error
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -482,8 +488,8 @@ contains
 
     ! reinitialize
     if (eps /= bs % eps_old) then
-       bs % dt_next = -1.d29
-       bs % t_new = -1.d29
+       bs % dt_next = -1.e29_rt
+       bs % t_new = -1.e29_rt
        eps1 = S1*eps
 
        bs % a(1) = nseq(1)+1
@@ -697,6 +703,7 @@ contains
     ! building a polynomial through the points, where the order
     ! is iest
 
+    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: iest
     real(rt), intent(in) :: test, yest(bs_neqs)
     real(rt), intent(inout) :: yz(bs_neqs), dy(bs_neqs)
@@ -761,6 +768,7 @@ contains
 #endif
     use amrex_fort_module, only : rt => amrex_real
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs

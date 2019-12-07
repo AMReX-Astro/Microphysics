@@ -7,6 +7,7 @@ module cuvode_dvhin_module
 
   use cuvode_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -80,6 +81,7 @@ contains
     use vode_rhs_module, only: f_rhs
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments
@@ -93,7 +95,7 @@ contains
     real(rt) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
 
-    real(rt), parameter :: PT1 = 0.1D0
+    real(rt), parameter :: PT1 = 0.1e0_rt
 
     !$gpu
 

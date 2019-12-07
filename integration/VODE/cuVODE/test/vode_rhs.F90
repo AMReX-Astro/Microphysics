@@ -9,6 +9,7 @@ contains
     use vode_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: time, y(VODE_NEQS)
@@ -17,8 +18,8 @@ contains
 
     !$gpu
 
-    YDOT(1) = -.04D0*Y(1) + 1.D4*Y(2)*Y(3)
-    YDOT(3) = 3.D7*Y(2)*Y(2)
+    YDOT(1) = -.04e0_rt*Y(1) + 1.e4_rt*Y(2)*Y(3)
+    YDOT(3) = 3.e7_rt*Y(2)*Y(2)
     YDOT(2) = -YDOT(1) - YDOT(3)
 
   end subroutine f_rhs
@@ -31,6 +32,7 @@ contains
     use vode_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer   , intent(IN   ) :: ml, mu, nrpd
@@ -39,12 +41,12 @@ contains
 
     !$gpu
 
-    PD(1,1) = -.04D0
-    PD(1,2) = 1.D4*Y(3)
-    PD(1,3) = 1.D4*Y(2)
-    PD(2,1) = .04D0
+    PD(1,1) = -.04e0_rt
+    PD(1,2) = 1.e4_rt*Y(3)
+    PD(1,3) = 1.e4_rt*Y(2)
+    PD(2,1) = .04e0_rt
     PD(2,3) = -PD(1,3)
-    PD(3,2) = 6.D7*Y(2)
+    PD(3,2) = 6.e7_rt*Y(2)
     PD(2,2) = -PD(1,2) - PD(3,2)
 
   end subroutine jac

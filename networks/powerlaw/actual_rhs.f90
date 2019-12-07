@@ -5,12 +5,14 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -21,12 +23,13 @@ contains
 
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state
 
-    double precision :: xfueltmp
-    double precision :: dens, temp, rate, y(nspec)
+    real(rt)         :: xfueltmp
+    real(rt)         :: dens, temp, rate, y(nspec)
 
     state % ydot = ZERO
 
@@ -61,6 +64,7 @@ contains
 
   subroutine actual_jac(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -77,9 +81,10 @@ contains
 
     use network
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec_evolve), enuc
 
     ! This is basically e = m c**2
 
@@ -91,6 +96,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

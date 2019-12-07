@@ -27,6 +27,7 @@ contains
     use actual_rhs_module, only : f_rhs, jac
     use burner_aux_module, only : sdc_rhoX_pass, sdc_rhoh_pass, p0_pass
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(in   ) :: rhoXin(nspec), rhohin, dt
@@ -126,11 +127,11 @@ contains
 
     ! set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.  
-    atol(1:nspec) = 1.d-12    ! density-weighted mass fractions
-    atol(nspec+1) = 1.d-8     ! enthalpy
+    atol(1:nspec) = 1.e-12_rt    ! density-weighted mass fractions
+    atol(nspec+1) = 1.e-8_rt     ! enthalpy
        
-    rtol(1:nspec) = 1.d-12    ! density-weighted mass fractions
-    rtol(nspec+1) = 1.d-8     ! enthalpy
+    rtol(1:nspec) = 1.e-12_rt    ! density-weighted mass fractions
+    rtol(nspec+1) = 1.e-8_rt     ! enthalpy
     
 
     ! we want VODE to re-initialize each time we call it

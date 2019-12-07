@@ -7,6 +7,7 @@ module jacobian_sparsity_module
   use burn_type_module
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -18,6 +19,7 @@ contains
 
     use actual_network, only: csr_jac_col_index, csr_jac_row_count
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(in) :: row, col
@@ -51,6 +53,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(inout) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -82,6 +85,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(inout) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -115,6 +119,7 @@ contains
 
     use amrex_constants_module, only: ZERO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(in) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -144,6 +149,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(inout) :: state
@@ -165,6 +171,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(inout) :: state
@@ -186,6 +193,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -209,6 +217,7 @@ contains
 
     use amrex_constants_module, only: ZERO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(inout) :: state

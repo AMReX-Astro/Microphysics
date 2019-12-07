@@ -5,12 +5,14 @@ module actual_rhs_module
   use network
   use amrex_error_module
   
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -19,6 +21,7 @@ contains
 
     use burner_aux_module, only : sdc_rhoX_pass, sdc_rhoh_pass, p0_pass
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! our convention is that y(1:nspec) are the density-weighted species
@@ -68,6 +71,7 @@ contains
     ! these to the values are the top of the timestep to avoid costly
     ! EOS calls
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer        , intent(IN   ) :: neq, ml, mu, nrpd, ipar
@@ -87,6 +91,7 @@ contains
     use probin_module, only: use_tfromp
     use screening_module, only: screenz
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! our convention is that y(1:nspec) are the density-weighted species
@@ -111,10 +116,10 @@ contains
     real(rt) :: xc12tmp
 
     real(rt), PARAMETER :: &
-         one_twelvth = 1.0d0/12.0d0, &
-         five_sixths = 5.0d0/ 6.0d0, &
-         one_third = 1.0d0/ 3.0d0, &
-         two_thirds = 2.0d0/ 3.0d0
+         one_twelvth = 1.0e0_rt/12.0e0_rt, &
+         five_sixths = 5.0e0_rt/ 6.0e0_rt, &
+         one_third = 1.0e0_rt/ 3.0e0_rt, &
+         two_thirds = 2.0e0_rt/ 3.0e0_rt
 
     real(rt) :: scratch
 
@@ -157,7 +162,7 @@ contains
        eos_state%h     = rhoh/dens
 
        ! need an initial T guess
-       eos_state%T = 1.d9
+       eos_state%T = 1.e9_rt
 
        call eos(eos_input_rh, eos_state)
 
@@ -172,18 +177,18 @@ contains
     ymass(io16) = X(2) * aion_inv(io16)
     ymass(img24) = X(3) * aion_inv(img24)
 
-    call screenz(temp,dens,6.0d0,6.0d0,12.0d0,12.0d0,ymass,sc1212,dsc1212dt)
+    call screenz(temp,dens,6.0e0_rt,6.0e0_rt,12.0e0_rt,12.0e0_rt,ymass,sc1212,dsc1212dt)
 
 
     ! compute some often used temperature constants
-    T9     = temp/1.d9
-    T9a    = T9/(1.0d0 + 0.0396d0*T9)
+    T9     = temp/1.e9_rt
+    T9a    = T9/(1.0e0_rt + 0.0396e0_rt*T9)
 
     ! compute the CF88 rate
     scratch    = T9a**one_third
 
-    a       = 4.27d26*T9a**five_sixths*T9**(-1.5d0)
-    b       = dexp(-84.165d0/scratch - 2.12d-3*T9*T9*T9)
+    a       = 4.27e26_rt*T9a**five_sixths*T9**(-1.5e0_rt)
+    b       = dexp(-84.165e0_rt/scratch - 2.12e-3_rt*T9*T9*T9)
     rate    = a *  b
 
     ! The change in number density of C12 is
@@ -217,14 +222,14 @@ contains
 
 
     ! changes in X due to reactions only
-    xc12tmp = max(X(ic12),0.d0)
+    xc12tmp = max(X(ic12),0.e0_rt)
     ydot(ic12)  = -one_twelvth*dens*sc1212*rate*xc12tmp**2
-    ydot(io16)  = 0.d0
+    ydot(io16)  = 0.e0_rt
     ydot(img24) =  one_twelvth*dens*sc1212*rate*xc12tmp**2
 
     ! compute the enthalpy source from reactions (note: eventually, we
     ! we will to add rho_Hext here too)
-    rho_Hnuc = 0.0d0
+    rho_Hnuc = 0.0e0_rt
     do k = 1, nspec
        rho_Hnuc = rho_Hnuc - ebin(k)*dens*ydot(k)
     enddo

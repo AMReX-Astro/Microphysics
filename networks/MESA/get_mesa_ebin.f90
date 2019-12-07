@@ -15,6 +15,7 @@ function get_mesa_ebin(i) result(ebin)
    use net_lib,   only: chem_isos, del_Mn, del_Mp
    use const_def, only: Qconv
 
+   use amrex_fort_module, only : rt => amrex_real
    implicit none
 
    ! INPUT
@@ -28,7 +29,7 @@ function get_mesa_ebin(i) result(ebin)
 
    cid = chem_id(i)
 
-   ! Qconv converts from MeV to erg and multiplies by N_A = 6.024d23
+   ! Qconv converts from MeV to erg and multiplies by N_A = 6.024e23_rt
    ! Dividing by atomic weight results in [ebin] = erg/g
    !ebin = chem_isos%binding_energy(cid) / chem_isos%W(cid)
    ebin = (chem_isos%binding_energy(cid) - chem_isos%Z(cid)*del_Mp - &

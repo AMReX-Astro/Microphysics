@@ -1,5 +1,6 @@
 module nonaka_plot_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -11,6 +12,7 @@ contains
     use extern_probin_module, only: nonaka_file
     use actual_network, only: nspec_evolve, short_spec_names
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: nonaka_file_unit, i
@@ -53,6 +55,7 @@ contains
     use burn_type_module, only: burn_t
     use actual_network, only: nspec_evolve, aion
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state

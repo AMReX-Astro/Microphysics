@@ -4,6 +4,7 @@ module eos_composition_module
   use network, only: nspec, aion, zion
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: eos_xderivs_t
@@ -22,6 +23,7 @@ contains
     use amrex_constants_module, only: ONE
     use network, only: aion_inv, zion
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -50,6 +52,7 @@ contains
     use amrex_constants_module, only: ZERO
     use network, only: aion, aion_inv, zion
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state

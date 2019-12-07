@@ -7,6 +7,7 @@ module actual_rhs_module
   use table_rates
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: rate_eval_t
@@ -25,6 +26,7 @@ contains
 
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
+    use amrex_fort_module, only : rt => amrex_real
     type(burn_t)     :: state
 
     !$gpu
@@ -35,6 +37,7 @@ contains
 
   subroutine zero_rate_eval(rate_eval)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
@@ -57,6 +60,7 @@ contains
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t)     :: state
@@ -130,6 +134,7 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t) :: state
@@ -177,6 +182,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -189,17 +195,17 @@ contains
 
 
     ydot_nuc(jn) = ( &
-      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
       screened_rates(k_n__p__weak__wc12)*Y(jn) &
        )
 
     ydot_nuc(jp) = ( &
-      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho + &
+      0.5e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho + &
       screened_rates(k_n__p__weak__wc12)*Y(jn) &
        )
 
     ydot_nuc(jhe4) = ( &
-      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho - &
       screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho &
        )
 
@@ -215,7 +221,7 @@ contains
        )
 
     ydot_nuc(jne20) = ( &
-      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho &
+      0.5e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho &
        )
 
     ydot_nuc(jne23) = ( &
@@ -223,12 +229,12 @@ contains
        )
 
     ydot_nuc(jna23) = ( &
-      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho - &
       screened_rates(k_na23__ne23)*Y(jna23) + screened_rates(k_ne23__na23)*Y(jne23) &
        )
 
     ydot_nuc(jmg23) = ( &
-      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho &
+      0.5e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho &
        )
 
 
@@ -245,6 +251,7 @@ contains
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t) :: state
@@ -324,6 +331,7 @@ contains
 
     use jacobian_sparsity_module, only: set_jac_entry
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(inout) :: state
@@ -341,7 +349,7 @@ contains
     call set_jac_entry(state, jn, jn, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jn, jc12, scratch)
 
@@ -351,7 +359,7 @@ contains
     call set_jac_entry(state, jp, jn, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jp, jc12, scratch)
 
@@ -361,7 +369,7 @@ contains
     call set_jac_entry(state, jhe4, jhe4, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - &
+      1.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - &
       screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
     call set_jac_entry(state, jhe4, jc12, scratch)
@@ -372,8 +380,8 @@ contains
     call set_jac_entry(state, jc12, jhe4, scratch)
 
     scratch = (&
-      -2.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - 2.0d0* &
-      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho - 2.0d0* &
+      -2.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - 2.0e0_rt* &
+      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho - 2.0e0_rt* &
       screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho - &
       screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
@@ -390,7 +398,7 @@ contains
     call set_jac_entry(state, jo16, jc12, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jne20, jc12, scratch)
 
@@ -405,7 +413,7 @@ contains
     call set_jac_entry(state, jne23, jna23, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jna23, jc12, scratch)
 
@@ -420,7 +428,7 @@ contains
     call set_jac_entry(state, jna23, jna23, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(state, jmg23, jc12, scratch)
 

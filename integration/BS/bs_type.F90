@@ -4,6 +4,7 @@ module bs_type_module
   use burn_type_module, only: neqs, burn_t
   use bs_rpar_indices, only: n_rpar_comps
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! BS parameters -- see the discussion in 16.4
@@ -47,11 +48,12 @@ contains
     use burn_type_module, only: net_itemp
     use eos_type_module, only : eos_get_small_temp
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t), intent(inout) :: state
 
-    real (rt) :: small_temp
+    real(rt)  :: small_temp
 
     ! Ensure that mass fractions always stay positive and sum to 1.
     state % y(1:nspec_evolve) = &
@@ -78,6 +80,7 @@ contains
     use actual_network, only: nspec, nspec_evolve
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: state
@@ -108,6 +111,7 @@ contains
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : nspec, nspec_evolve
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: state
@@ -192,6 +196,7 @@ contains
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state
@@ -222,6 +227,7 @@ contains
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state
@@ -261,6 +267,7 @@ contains
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ONE
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -293,6 +300,7 @@ contains
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ZERO, ONE
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -316,6 +324,7 @@ contains
 
   subroutine dump_bs_state(bs)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs

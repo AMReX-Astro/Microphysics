@@ -8,6 +8,7 @@ module actual_burner_module
   use network
   use extern_probin_module, only: A_burn
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! Set the number of independent variables -- just the number of species.
@@ -66,21 +67,22 @@ contains
 
   subroutine actual_burner(state_in, state_out, dt, time)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t),     intent(in   ) :: state_in
     type (eos_t),     intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time
+    real(rt)        , intent(in   ) :: dt, time
     
     integer :: j
 
-    double precision :: local_time
+    real(rt)         :: local_time
 
     ! Work arrays
     
-    double precision, pointer :: y(:)
-    double precision, pointer :: atol(:), rtol(:)
-    double precision, pointer :: rwork(:)
+    real(rt)        , pointer :: y(:)
+    real(rt)        , pointer :: atol(:), rtol(:)
+    real(rt)        , pointer :: rwork(:)
     integer,          pointer :: iwork(:)
 
     ! istate determines the state of the calculation.  A value of 1 meeans
@@ -88,10 +90,10 @@ contains
     
     integer :: istate
     
-    double precision :: rpar
+    real(rt)         :: rpar
     integer :: ipar
 
-    double precision :: sum
+    real(rt)         :: sum
 
     EXTERNAL jac, f_rhs
 
@@ -113,9 +115,9 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of 
     ! steps allowed.
     
-    atol(1:nspec) = 1.d-12 ! mass fractions
+    atol(1:nspec) = 1.e-12_rt ! mass fractions
     
-    rtol(1:nspec) = 1.d-12 ! mass fractions
+    rtol(1:nspec) = 1.e-12_rt ! mass fractions
 
     ! We want VODE to re-initialize each time we call it.
     

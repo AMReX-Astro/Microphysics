@@ -29,6 +29,7 @@ subroutine burn_solout(step, told, time, n, x, rwork_y, iwork_y, &
    use amrex_error_module, only: amrex_error
    use amrex_fort_module, only : rt => amrex_real
 
+   use amrex_fort_module, only : rt => amrex_real
    implicit none
 
    integer, intent(in) :: step, n, lrpar, lipar

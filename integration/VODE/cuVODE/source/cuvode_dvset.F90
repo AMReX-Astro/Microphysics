@@ -5,6 +5,7 @@ module cuvode_dvset_module
 
   use cuvode_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -63,6 +64,7 @@ contains
     ! -----------------------------------------------------------------------
     !
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments
@@ -76,7 +78,7 @@ contains
     integer    :: I, IBACK, J, JP1, NQM1, NQM2
 
     ! Parameter declaration
-    real(rt), parameter :: CORTES = 0.1D0
+    real(rt), parameter :: CORTES = 0.1e0_rt
 
     !$gpu
 

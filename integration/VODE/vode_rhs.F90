@@ -20,6 +20,7 @@ contains
     use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound, irp_t0
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: time, y(VODE_NEQS)
@@ -92,6 +93,7 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer   , intent(IN   ) :: ml, mu, nrpd

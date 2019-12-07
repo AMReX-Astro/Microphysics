@@ -13,6 +13,7 @@ contains
 
     use integrator_module, only: integrator_init
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()
@@ -27,6 +28,7 @@ contains
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state_in, state_out
