@@ -126,4 +126,3 @@ contains
   end subroutine finalize_variables
 
 end module variables
-end module variables
