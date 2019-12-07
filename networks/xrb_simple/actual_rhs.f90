@@ -1,6 +1,6 @@
 module actual_rhs_module
 
-  use burn_type_module, only: burn_t, net_ienuc, neqs
+  use burn_type_module, only: burn_t, net_ienuc, neqs, njrows, njcols
   use rate_type_module
 
   implicit none
