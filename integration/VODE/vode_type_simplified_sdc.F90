@@ -255,16 +255,28 @@ contains
 
     ! this is only used with an analytic Jacobian
 
-    use burn_type_module, only : burn_t, net_ienuc
+    use burn_type_module, only : burn_t, net_ienuc, net_itemp, copy_burn_t
+    use eos_type_module, only : eos_input_re, eos_t
+    use eos_module, only : eos
+    use eos_composition_module, only : eos_xderivs_t, composition_derivatives
+    use actual_rhs_module
 
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
-    type(burn_t), intent(in) :: burn_state
+    type(burn_t), intent(inout) :: burn_state
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
+    
+    integer :: m, n
+    integer, parameter :: iwrho = 1, iwfs=2, iwT = iwfs+nspec, iwvar = 2+nspec
 
-    integer :: n
-    integer, parameter :: iwrho = 1, iwfs=2, iwT = iwfs+nspec
+    real(rt) :: dRdw(SVAR_EVOLVE, iwvar)
+    real(rt) :: dwdU(iwvar,SVAR_EVOLVE)
+    type(burn_t) :: burn_state_pert
+    type(eos_t) :: eos_state
+    type(eos_xderivs_t) :: eos_xderivs
+    real(rt) :: K
+    real(rt), parameter :: eps = 1.e-8_rt
 
     !$gpu
 
@@ -283,6 +295,8 @@ contains
     ! not Y.  Let's now fix the rhs terms themselves to be in terms of
     ! dX/dt and not dY/dt.
     burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+
+#if defined(SDC_EVOLVE_ENERGY)
 
     ! Our jacobian, dR/dw has the form:
     !
@@ -313,16 +327,16 @@ contains
     do m = 1, nspec_evolve
        ! d( d(rho X_m)/dt)/drho
        dRdw(SFS-1+m, iwrho) = burn_state % ydot(m) + &
-            state(URHO) * (burn_state_pert % ydot(m) - burn_state % ydot(m))/(eps * burn_state % rho)
+            rpar(irp_SRHO) * (burn_state_pert % ydot(m) - burn_state % ydot(m))/(eps * burn_state % rho)
     enddo
 
     ! d( d(rho e)/dt)/drho
     dRdw(SEINT, iwrho) = burn_state % ydot(net_ienuc) + &
-         state(URHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
+         rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
 
     ! d( d(rho E)/dt)/drho
     dRdw(SEDEN, iwrho) = burn_state % ydot(net_ienuc) + &
-         state(URHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
+         rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
 
 
     ! fill the columns of dRdw corresponding to each derivative
@@ -330,14 +344,14 @@ contains
     do n = 1, nspec_evolve
        do m = 1, nspec_evolve
           ! d( d(rho X_m)/dt)/dX_n
-          dRdw(SFS-1+m, iwfs-1+n) = state(URHO) * burn_state % jac(m, n)
+          dRdw(SFS-1+m, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(m, n)
        enddo
 
        ! d( d(rho e)/dt)/dX_n
-       dRdw(SEINT, iwfs-1+n) = state(URHO) * burn_state % jac(net_ienuc, n)
+       dRdw(SEINT, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
 
        ! d( d(rho E)/dt)/dX_n
-       dRdw(SEDEN, iwfs-1+n) = state(URHO) * burn_state % jac(net_ienuc, n)
+       dRdw(SEDEN, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
 
     enddo
 
@@ -346,14 +360,14 @@ contains
 
     ! d( d(rho X_m)/dt)/dT
     do m = 1, nspec_evolve
-       dRdw(SFS-1+m, iwT) = state(URHO) * burn_state % jac(m, net_itemp)
+       dRdw(SFS-1+m, iwT) = rpar(irp_SRHO) * burn_state % jac(m, net_itemp)
     enddo
 
     ! d( d(rho e)/dt)/dT
-    dRdw(SEINT, iwT) = state(URHO) * burn_state % jac(net_ienuc, net_itemp)
+    dRdw(SEINT, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
 
     ! d( d(rho E)/dt)/dT
-    dRdw(SEDEN, iwT) = state(URHO) * burn_state % jac(net_ienuc, net_itemp)
+    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
 
     ! that completes dRdw
 
@@ -361,7 +375,7 @@ contains
     dwdU(:, :) = ZERO
 
     ! kinetic energy, K = 1/2 |U|^2
-    K = 0.5_rt * sum(state(UMX:UMZ)**2)/state(URHO)**2
+    K = 0.5_rt * sum(rpar(irp_SMX:irp_SMZ)**2)/rpar(irp_SRHO)**2
 
     ! density row (iwrho)
     dwdU(iwrho, SEINT) = -1.0_rt/K
@@ -369,17 +383,27 @@ contains
 
     ! species rows
     do m = 1, nspec
-       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/state(URHO)
+       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/rpar(irp_SRHO)
        dwdU(iwfs-1+m, SEINT) = burn_state % xn(m) / (burn_state % rho * K)
        dwdU(iwfs-1+m, SEDEN) = -burn_state % xn(m) / (burn_state % rho * K)
     end do
 
+
+    eos_state % rho = rpar(irp_SRHO)
+    eos_state % T = 1.e4   ! initial guess
+    eos_state % xn(:) = y(SFS:SFS-1+nspec)/rpar(irp_SRHO)
+    eos_state % e = y(SEINT)/rpar(irp_SRHO)
+
+    call eos(eos_input_re, eos_state)
+
+    call composition_derivatives(eos_state, eos_xderivs)
+
     ! temperature row
     dwdU(iwT, SFS:SFS-1+nspec) = -eos_xderivs % dedX(1:nspec)/ (eos_state % rho * eos_state % dedT)
     dwdU(iwT, SEINT) = - (sum(eos_state % xn * eos_xderivs % dedX) - &
-         eos_state % rho * eos_state % dedr - eos_state % e - K) / (eos_state % rho & eos_state % dedT * K)
+         eos_state % rho * eos_state % dedr - eos_state % e - K) / (eos_state % rho * eos_state % dedT * K)
     dwdU(iwT, SEDEN) = (sum(eos_state % xn * eos_xderivs % dedX) - &
-         eos_state % rho * eos_state % dedr - eos_state % e) / (eos_state % rho & eos_state % dedT * K)
+         eos_state % rho * eos_state % dedr - eos_state % e) / (eos_state % rho * eos_state % dedT * K)
 
 
     jac(:,:) = matmul(dRdw, dwdU)
