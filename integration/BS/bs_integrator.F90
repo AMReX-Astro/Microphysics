@@ -200,7 +200,7 @@ contains
 
     if (ierr /= IERR_NONE) then
 
-#ifndef ACC
+#ifndef CUDA
        print *, 'ERROR: integration failed in net'
        print *, 'ierr = ', ierr
        print *, 'dt = ', dt

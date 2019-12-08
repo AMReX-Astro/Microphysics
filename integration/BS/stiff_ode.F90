@@ -307,7 +307,7 @@ contains
 
     !$acc routine seq
 
-#ifdef VODE90
+#ifdef VODE
     use linpack_module, only: dgesl, dgefa
 #else
     !$acc routine(dgesl) seq
@@ -351,7 +351,7 @@ contains
     enddo
 
     ! get the LU decomposition from LINPACK
-#ifdef VODE90
+#ifdef VODE
     call dgefa(A, ipiv, ierr_linpack)
 #else
     call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
@@ -377,7 +377,7 @@ contains
 #endif
 
        ! solve the first step using the LU solver
-#ifdef VODE90
+#ifdef VODE
        call dgesl(A, ipiv, y_out)
 #else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
@@ -402,7 +402,7 @@ contains
 #endif
 
           ! LU solve
-#ifdef VODE90
+#ifdef VODE
           call dgesl(A, ipiv, y_out)
 #else
           call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
@@ -427,7 +427,7 @@ contains
 #endif
 
        ! last LU solve
-#ifdef VODE90
+#ifdef VODE
        call dgesl(A, ipiv, y_out)
 #else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
@@ -750,7 +750,7 @@ contains
 
     !$acc routine seq
 
-#ifdef VODE90
+#ifdef VODE
     use linpack_module, only: dgesl, dgefa
 #else
     !$acc routine(dgesl) seq
@@ -814,7 +814,7 @@ contains
        enddo
        
        ! LU decomposition
-#ifdef VODE90
+#ifdef VODE
        call dgefa(A, ipiv, ierr_linpack)
 #else
        call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
@@ -831,7 +831,7 @@ contains
        g1(:) = bs % burn_s % ydot(:)
 #endif
 
-#ifdef VODE90
+#ifdef VODE
        call dgesl(A, ipiv, g1)
 #else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g1, 0)
@@ -854,7 +854,7 @@ contains
 #else
        g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
 #endif
-#ifdef VODE90
+#ifdef VODE
        call dgesl(A, ipiv, g2)
 #else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g2, 0)
@@ -877,7 +877,7 @@ contains
 #else
        g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
 #endif
-#ifdef VODE90
+#ifdef VODE
        call dgesl(A, ipiv, g3)
 #else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g3, 0)
@@ -892,7 +892,7 @@ contains
 #else
        g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
 #endif
-#ifdef VODE90
+#ifdef VODE
        call dgesl(A, ipiv, g4)
 #else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g4, 0)

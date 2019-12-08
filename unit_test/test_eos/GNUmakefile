@@ -26,8 +26,8 @@ EOS_DIR     := helmholtz
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox19
 
-# This isn't actually used but we need VODE90 to compile with CUDA
-INTEGRATOR_DIR := VODE90
+# This isn't actually used but we need VODE to compile with CUDA
+INTEGRATOR_DIR := VODE
 
 CONDUCTIVITY_DIR := stellar
 

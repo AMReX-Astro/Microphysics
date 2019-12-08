@@ -1,4 +1,12 @@
-# changes since the last release
+# changes since last release
+
+   * The original VODE integrator was removed and the Fortran 90
+     version VODE90 was renamed to VODE. (#221)
+
+# 19.12
+
+   * Simplified SDC integration now uses the same retry strategy
+     as the default (non-SDC) integration. (#215)
 
    * VODE90 can now participate in the retry strategy that was
      previously available to the VODE integrator, where it can
