@@ -255,6 +255,9 @@ contains
 
     ! this is only used with an analytic Jacobian
 
+    ! we come in with burn_state % jac being the Jacobian of the reacting system
+    ! but we need to convert it to the SDC system
+
     use burn_type_module, only : burn_t, net_ienuc, net_itemp, copy_burn_t
     use eos_type_module, only : eos_input_re, eos_t
     use eos_module, only : eos
@@ -290,6 +293,9 @@ contains
        burn_state % jac(n,:) = burn_state % jac(n,:) * aion(n)
        burn_state % jac(:,n) = burn_state % jac(:,n) * aion_inv(n)
     enddo
+
+    ! also fill the ydot -- we can't assume that it is valid on input
+    call actual_rhs(burn_state)
 
     ! at this point, our Jacobian should be entirely in terms of X,
     ! not Y.  Let's now fix the rhs terms themselves to be in terms of
