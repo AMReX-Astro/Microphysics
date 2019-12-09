@@ -9,7 +9,9 @@
 
   tmax = 1.d-5
 
-  xin_file = "xin.iso7"
+  primary_species_1 = "helium-4"
+  primary_species_2 = "carbon-12"
+  primary_species_3 = "oxygen-16"
 
   do_constant_volume_burn = T
 
