@@ -303,10 +303,10 @@ contains
 
     ! triple alfa to c12
     ! this is a(a,g)be8
-    aa    = 7.40d+05 * tf%t9i32 * exp(-1.0663_rt*tf%t9i)
+    aa    = 7.40e05_rt * tf%t9i32 * exp(-1.0663_rt*tf%t9i)
     daa   = aa*(-1.5e0_rt*tf%t9i  + 1.0663_rt*tf%t9i2)
 
-    bb    = 4.164d+09 * tf%t9i23 * exp(-13.49_rt*tf%t9i13 - tf%t92*q1)
+    bb    = 4.164e09_rt * tf%t9i23 * exp(-13.49_rt*tf%t9i13 - tf%t92*q1)
     dbb   = bb*(-twoth*tf%t9i + oneth*13.49_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
 
     cc    = 1.0e0_rt + 0.031_rt*tf%t913 + 8.009_rt*tf%t923 + 1.732_rt*tf%t9 &
@@ -322,7 +322,7 @@ contains
     dd    = 130.0e0_rt * tf%t9i32 * exp(-3.3364_rt*tf%t9i)
     ddd   = dd*(-1.5e0_rt*tf%t9i + 3.3364_rt*tf%t9i2)
 
-    ee    = 2.510d+07 * tf%t9i23 * exp(-23.57_rt*tf%t9i13 - tf%t92*q2)
+    ee    = 2.510e07_rt * tf%t9i23 * exp(-23.57_rt*tf%t9i13 - tf%t92*q2)
     dee   = ee*(-twoth*tf%t9i + oneth*23.57_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q2)
 
     ff    = 1.0e0_rt + 0.018_rt*tf%t913 + 5.249_rt*tf%t923 + 0.650_rt*tf%t9 + &
@@ -376,7 +376,7 @@ contains
     dfrdt = dtermdt * den * den * 1.0e-9_rt
     !dfrdd = 2.0e0_rt * term * den
 
-    rev    = 2.00d+20*tf%t93*exp(-84.424_rt*tf%t9i)
+    rev    = 2.00e20_rt*tf%t93*exp(-84.424_rt*tf%t9i)
     drevdt = rev*(3.0e0_rt*tf%t9i + 84.424_rt*tf%t9i2)
 
     rr    = rev * term
@@ -413,7 +413,7 @@ contains
     t9a56   = t9a**fivsix
     dt9a56  = fivsix*t9a56*zz
 
-    term    = 4.27d+26 * t9a56 * tf%t9i32 * &
+    term    = 4.27e26_rt * t9a56 * tf%t9i32 * &
          exp(-84.165_rt/t9a13 - 2.12e-03_rt*tf%t93)
     dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf%t9i &
             + 84.165_rt/t9a13**2*dt9a13 - 6.36e-3_rt*tf%t92)
@@ -471,7 +471,7 @@ contains
        dcc     = daa + dbb
 
        zz      = 1.0e0_rt/cc
-       term    = 1.72d+31 * t9a56 * tf%t9i32 * exp(-106.594_rt/t9a13) * zz
+       term    = 1.72e31_rt * t9a56 * tf%t9i32 * exp(-106.594_rt/t9a13) * zz
        dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf%t9i &
                        + 106.594_rt/t9a23*dt9a13 - zz*dcc)
 
@@ -568,7 +568,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 5.65d+10*tf%t932*exp(-54.937_rt*tf%t9i)
+    rev      = 5.65e10_rt*tf%t932*exp(-54.937_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 54.937_rt*tf%t9i2)
 
     rr    = rev * term
@@ -595,7 +595,7 @@ contains
     !$gpu
 
     ! ne20(a,g)mg24
-    aa   = 4.11d+11 * tf%t9i23 * exp(-46.766_rt*tf%t9i13 - tf%t92*q1)
+    aa   = 4.11e11_rt * tf%t9i23 * exp(-46.766_rt*tf%t9i13 - tf%t92*q1)
     daa  = aa*(-twoth*tf%t9i + oneth*46.766_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
 
     bb   = 1.0e0_rt + 0.009_rt*tf%t913 + 0.882_rt*tf%t923 + 0.055_rt*tf%t9 &
@@ -607,10 +607,10 @@ contains
     dterm1 = daa * bb + aa * dbb
 
 
-    aa   = 5.27d+03 * tf%t9i32 * exp(-15.869_rt*tf%t9i)
+    aa   = 5.27e03_rt * tf%t9i32 * exp(-15.869_rt*tf%t9i)
     daa  = aa*(-1.5e0_rt*tf%t9i + 15.869_rt*tf%t9i2)
 
-    bb   = 6.51d+03 * tf%t912 * exp(-16.223_rt*tf%t9i)
+    bb   = 6.51e03_rt * tf%t912 * exp(-16.223_rt*tf%t9i)
     dbb  = bb*(0.5e0_rt*tf%t9i + 16.223_rt*tf%t9i2)
 
     term2  = aa + bb
@@ -643,7 +643,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.01d+10 * tf%t932 * exp(-108.059_rt*tf%t9i)
+    rev      = 6.01e10_rt * tf%t932 * exp(-108.059_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 108.059_rt*tf%t9i2)
 
     rr    = rev * term
@@ -669,13 +669,13 @@ contains
     !$gpu
 
     ! 24mg(a,g)28si
-    aa    = 4.78d+01 * tf%t9i32 * exp(-13.506_rt*tf%t9i)
+    aa    = 4.78e01_rt * tf%t9i32 * exp(-13.506_rt*tf%t9i)
     daa   = aa*(-1.5e0_rt*tf%t9i + 13.506_rt*tf%t9i2)
 
-    bb    =  2.38d+03 * tf%t9i32 * exp(-15.218_rt*tf%t9i)
+    bb    =  2.38e03_rt * tf%t9i32 * exp(-15.218_rt*tf%t9i)
     dbb   = bb*(-1.5e0_rt*tf%t9i + 15.218_rt*tf%t9i2)
 
-    cc    = 2.47d+02 * tf%t932 * exp(-15.147_rt*tf%t9i)
+    cc    = 2.47e02_rt * tf%t932 * exp(-15.147_rt*tf%t9i)
     dcc   = cc*(1.5e0_rt*tf%t9i + 15.147_rt*tf%t9i2)
 
     dd    = rc121 * 1.72e-09_rt * tf%t9i32 * exp(-5.028_rt*tf%t9i)
@@ -684,7 +684,7 @@ contains
     ee    = rc121* 1.25e-03_rt * tf%t9i32 * exp(-7.929_rt*tf%t9i)
     dee   = ee*(-1.5e0_rt*tf%t9i + 7.929_rt*tf%t9i2)
 
-    ff    = rc121 * 2.43d+01 * tf%t9i * exp(-11.523_rt*tf%t9i)
+    ff    = rc121 * 2.43e01_rt * tf%t9i * exp(-11.523_rt*tf%t9i)
     dff   = ff*(-tf%t9i + 11.523_rt*tf%t9i2)
 
     gg    = 5.0e0_rt*exp(-15.882_rt*tf%t9i)
@@ -702,7 +702,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.27d+10 * tf%t932 * exp(-115.862_rt*tf%t9i)
+    rev      = 6.27e10_rt * tf%t932 * exp(-115.862_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 115.862_rt*tf%t9i2)
 
     rr    = rev * term
@@ -730,7 +730,7 @@ contains
     !$gpu
 
     ! 24mg(a,p)al27
-    aa     = 1.10d+08 * tf%t9i23 * exp(-23.261_rt*tf%t9i13 - tf%t92*q1)
+    aa     = 1.10e08_rt * tf%t9i23 * exp(-23.261_rt*tf%t9i13 - tf%t92*q1)
     daa    = -twoth*aa*tf%t9i + aa*(23.261_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
 
     bb     =  1.0e0_rt + 0.018_rt*tf%t913 + 12.85_rt*tf%t923 + 1.61_rt*tf%t9 &
@@ -800,25 +800,25 @@ contains
     ! al27(p,g)si28
     ! champagne 1996
 
-    aa  = 1.32d+09 * tf%t9i23 * exp(-23.26_rt*tf%t9i13)
+    aa  = 1.32e09_rt * tf%t9i23 * exp(-23.26_rt*tf%t9i13)
     daa = aa*(-twoth*tf%t9i + oneth*23.26_rt*tf%t9i43)
 
     bb  = 3.22e-10_rt * tf%t9i32 * exp(-0.836_rt*tf%t9i)*0.17
     dbb = bb*(-1.5e0_rt*tf%t9i + 0.836_rt*tf%t9i2)
 
-    cc  = 1.74d+00 * tf%t9i32 * exp(-2.269_rt*tf%t9i)
+    cc  = 1.74e00_rt * tf%t9i32 * exp(-2.269_rt*tf%t9i)
     dcc = cc*(-1.5e0_rt*tf%t9i + 2.269_rt*tf%t9i2)
 
-    dd  = 9.92d+00 * tf%t9i32 * exp(-2.492_rt*tf%t9i)
+    dd  = 9.92e00_rt * tf%t9i32 * exp(-2.492_rt*tf%t9i)
     ddd = dd*(-1.5e0_rt*tf%t9i + 2.492_rt*tf%t9i2)
 
-    ee  = 4.29d+01 * tf%t9i32 * exp(-3.273_rt*tf%t9i)
+    ee  = 4.29e01_rt * tf%t9i32 * exp(-3.273_rt*tf%t9i)
     dee = ee*(-1.5e0_rt*tf%t9i + 3.273_rt*tf%t9i2)
 
-    ff  = 1.34d+02 * tf%t9i32 * exp(-3.654_rt*tf%t9i)
+    ff  = 1.34e02_rt * tf%t9i32 * exp(-3.654_rt*tf%t9i)
     dff = ff*(-1.5e0_rt*tf%t9i + 3.654_rt*tf%t9i2)
 
-    gg  = 1.77d+04 * (tf%t9**0.53_rt) * exp(-4.588_rt*tf%t9i)
+    gg  = 1.77e04_rt * (tf%t9**0.53_rt) * exp(-4.588_rt*tf%t9i)
     dgg = gg*(0.53_rt*tf%t9i + 4.588_rt*tf%t9i2)
 
     term    = aa + bb + cc + dd + ee + ff + gg
@@ -830,7 +830,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.13d+11 * tf%t932 * exp(-134.434_rt*tf%t9i)
+    rev      = 1.13e11_rt * tf%t932 * exp(-134.434_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 134.434_rt*tf%t9i2)
 
     rr    = rev * term
@@ -858,7 +858,7 @@ contains
     !$gpu
 
     ! 27al(p,g)si28  cf88
-    aa  = 1.67d+08 * tf%t9i23 * exp(-23.261_rt*tf%t9i13 - tf%t92*q1)
+    aa  = 1.67e08_rt * tf%t9i23 * exp(-23.261_rt*tf%t9i13 - tf%t92*q1)
     daa = aa*(-twoth*tf%t9i + oneth*23.261_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
 
     bb  = 1.0e0_rt + 0.018_rt*tf%t913 + 5.81_rt*tf%t923 + 0.728_rt*tf%t9 &
@@ -869,13 +869,13 @@ contains
     cc  = aa*bb
     dcc = daa*bb + aa*dbb
 
-    dd  = 2.20d+00 * tf%t9i32 * exp(-2.269_rt*tf%t9i)
+    dd  = 2.20e00_rt * tf%t9i32 * exp(-2.269_rt*tf%t9i)
     ddd = dd*(-1.5e0_rt*tf%t9i + 2.269_rt*tf%t9i2)
 
-    ee  = 1.22d+01 * tf%t9i32 * exp(-2.491_rt*tf%t9i)
+    ee  = 1.22e01_rt * tf%t9i32 * exp(-2.491_rt*tf%t9i)
     dee = ee*(-1.5e0_rt*tf%t9i + 2.491_rt*tf%t9i2)
 
-    ff  =  1.50d+04 * tf%t9 * exp(-4.112_rt*tf%t9i)
+    ff  =  1.50e04_rt * tf%t9 * exp(-4.112_rt*tf%t9i)
     dff = ff*(tf%t9i + 4.112_rt*tf%t9i2)
 
     gg  = rc147 * 6.50e-10_rt * tf%t9i32 * exp(-0.853_rt*tf%t9i)
@@ -903,7 +903,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.13d+11*tf%t932*exp(-134.434_rt*tf%t9i)
+    rev      = 1.13e11_rt*tf%t932*exp(-134.434_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 134.434_rt*tf%t9i2)
 
     rr    = rev * term
@@ -936,7 +936,7 @@ contains
        daa   = 6.340e-2_rt + 2.0e0_rt*2.541e-3_rt*tf%t9 - 3.0e0_rt*2.900e-4_rt*tf%t92
     end if
 
-    term    = 4.82d+22 * tf%t9i23 * exp(-61.015_rt * tf%t9i13 * aa)
+    term    = 4.82e22_rt * tf%t9i23 * exp(-61.015_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 61.015_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
   
     ! the rates
@@ -944,7 +944,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.461d+10 * tf%t932 * exp(-80.643_rt*tf%t9i)
+    rev      = 6.461e10_rt * tf%t932 * exp(-80.643_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 80.643_rt*tf%t9i2)
 
     rr    = rev * term
@@ -977,7 +977,7 @@ contains
        daa   = 2.798e-3_rt + 2.0e0_rt*2.763e-3_rt*tf%t9 - 3.0e0_rt*2.341e-4_rt*tf%t92
     end if
 
-    term    = 4.16d+13 * tf%t9i23 * exp(-25.631_rt * tf%t9i13 * aa)
+    term    = 4.16e13_rt * tf%t9i23 * exp(-25.631_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*25.631_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1019,7 +1019,7 @@ contains
        daa   = 1.928e-1_rt - 2.0e0_rt*1.540e-2_rt*tf%t9 + 3.0e0_rt*6.444e-4_rt*tf%t92
     end if
 
-    term    = 1.08d+16 * tf%t9i23 * exp(-27.042_rt * tf%t9i13 * aa)
+    term    = 1.08e16_rt * tf%t9i23 * exp(-27.042_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 27.042_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1028,7 +1028,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 3.764d+10 * tf%t932 * exp(-102.865_rt*tf%t9i)
+    rev      = 3.764e10_rt * tf%t932 * exp(-102.865_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 102.865_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1061,7 +1061,7 @@ contains
        daa   = 4.913e-2_rt + 2.0e0_rt*4.637e-3_rt*tf%t9 - 3.0e0_rt*4.067e-4_rt*tf%t92
     end if
 
-    term    = 1.16d+24 * tf%t9i23 * exp(-66.690_rt * tf%t9i13 * aa)
+    term    = 1.16e24_rt * tf%t9i23 * exp(-66.690_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 66.690_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1070,7 +1070,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.616d+10 * tf%t932 * exp(-77.080_rt*tf%t9i)
+    rev      = 6.616e10_rt * tf%t932 * exp(-77.080_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 77.080_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1103,7 +1103,7 @@ contains
        daa   = 1.041e-1_rt - 2.0e0_rt*1.368e-2_rt*tf%t9 + 3.0e0_rt*6.969e-4_rt*tf%t92
     end if
 
-    term    = 1.27d+16 * tf%t9i23 * exp(-31.044_rt * tf%t9i13 * aa)
+    term    = 1.27e16_rt * tf%t9i23 * exp(-31.044_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*31.044_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1139,7 +1139,7 @@ contains
     daa   = 1.761e-1_rt - 2.0e0_rt*1.322e-2_rt*tf%t9 + 3.0e0_rt*5.245e-4_rt*tf%t92
   
 
-    term    =  4.48d+16 * tf%t9i23 * exp(-29.483_rt * tf%t9i13 * aa)
+    term    =  4.48e16_rt * tf%t9i23 * exp(-29.483_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 29.483_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1148,7 +1148,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 7.568d+10*tf%t932*exp(-98.722_rt*tf%t9i)
+    rev      = 7.568e10_rt*tf%t932*exp(-98.722_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 98.722_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1180,7 +1180,7 @@ contains
        daa   = 1.458e-1_rt - 2.0e0_rt*1.069e-2_rt*tf%t9 + 3.0e0_rt*3.790e-4_rt*tf%t92
     end if
 
-    term    = 2.81d+30 * tf%t9i23 * exp(-78.271_rt * tf%t9i13 * aa)
+    term    = 2.81e30_rt * tf%t9i23 * exp(-78.271_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 78.271_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1189,7 +1189,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.740d+10 * tf%t932 * exp(-81.711_rt*tf%t9i)
+    rev      = 6.740e10_rt * tf%t932 * exp(-81.711_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 81.711_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1222,7 +1222,7 @@ contains
        daa   = 4.826e-3_rt - 2.0e0_rt*5.534e-3_rt*tf%t9 + 3.0e0_rt*4.021e-4_rt*tf%t92
     end if
 
-    term    = 2.76d+13 * tf%t9i23 * exp(-34.922_rt * tf%t9i13 * aa)
+    term    = 2.76e13_rt * tf%t9i23 * exp(-34.922_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*34.922_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1264,7 +1264,7 @@ contains
        daa   = 1.622e-1_rt - 2.0e0_rt*1.119e-2_rt*tf%t9 + 3.0e0_rt*3.910e-4_rt*tf%t92
     end if
 
-    term    = 4.09d+16 * tf%t9i23 * exp(-31.727_rt * tf%t9i13 * aa)
+    term    = 4.09e16_rt * tf%t9i23 * exp(-31.727_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 31.727_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1273,7 +1273,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 7.600d+10 * tf%t932 * exp(-96.657_rt*tf%t9i)
+    rev      = 7.600e10_rt * tf%t932 * exp(-96.657_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 96.657_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1306,7 +1306,7 @@ contains
        daa   = 1.650e-2_rt + 2.0e0_rt*5.973e-3_rt*tf%t9 - 3.0e0_rt*3.889e-4_rt*tf%t92
     end if
 
-    term    = 4.66d+24 * tf%t9i23 * exp(-76.435_rt * tf%t9i13 * aa)
+    term    = 4.66e24_rt * tf%t9i23 * exp(-76.435_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 76.435_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1315,7 +1315,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.843d+10 * tf%t932 * exp(-59.510_rt*tf%t9i)
+    rev      = 6.843e10_rt * tf%t932 * exp(-59.510_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 59.510_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1348,7 +1348,7 @@ contains
        daa   = -1.206e-2_rt + 2.0e0_rt*7.753e-3_rt*tf%t9 - 3.0e0_rt*5.071e-4_rt*tf%t92
     end if
 
-    term    = 4.54d+14 * tf%t9i23 * exp(-32.177_rt * tf%t9i13 * aa)
+    term    = 4.54e14_rt * tf%t9i23 * exp(-32.177_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*32.177_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1390,7 +1390,7 @@ contains
        daa   = 1.023e-1_rt - 2.0e0_rt*2.242e-3_rt*tf%t9 - 3.0e0_rt*5.463e-5_rt*tf%t92
     end if
 
-    term    = 3.85d+16 * tf%t9i23 * exp(-33.234_rt * tf%t9i13 * aa)
+    term    = 3.85e16_rt * tf%t9i23 * exp(-33.234_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 33.234_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1399,7 +1399,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.525d+11 * tf%t932 * exp(-100.475_rt*tf%t9i)
+    rev      = 1.525e11_rt * tf%t932 * exp(-100.475_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 100.475_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1432,7 +1432,7 @@ contains
        daa   = 1.066e-1_rt - 2.0e0_rt*1.102e-2_rt*tf%t9 + 3.0e0_rt*5.324e-4_rt*tf%t92
     end if
 
-    term    = 1.37d+26 * tf%t9i23 * exp(-81.227_rt * tf%t9i13 * aa)
+    term    = 1.37e26_rt * tf%t9i23 * exp(-81.227_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 81.227_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1441,7 +1441,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 6.928d+10*tf%t932*exp(-89.289_rt*tf%t9i)
+    rev      = 6.928e10_rt*tf%t932*exp(-89.289_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 89.289_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1474,7 +1474,7 @@ contains
        daa   = 2.655e-2_rt - 2.0e0_rt*3.947e-3_rt*tf%t9 + 3.0e0_rt*2.522e-4_rt*tf%t92
     end if
 
-    term    = 6.54d+20 * tf%t9i23 * exp(-66.678_rt * tf%t9i13 * aa)
+    term    = 6.54e20_rt * tf%t9i23 * exp(-66.678_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*66.678_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1516,7 +1516,7 @@ contains
        daa   = 9.979e-2_rt - 2.0e0_rt*2.269e-3_rt*tf%t9 - 3.0e0_rt*6.662e-5_rt*tf%t92
     end if
 
-    term    = 2.05d+17 * tf%t9i23 * exp(-35.568_rt * tf%t9i13 * aa)
+    term    = 2.05e17_rt * tf%t9i23 * exp(-35.568_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 35.568_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1525,7 +1525,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 7.649d+10*tf%t932*exp(-93.999_rt*tf%t9i)
+    rev      = 7.649e10_rt*tf%t932*exp(-93.999_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 93.999_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1558,7 +1558,7 @@ contains
        daa   = 6.325e-2_rt - 2.0e0_rt*5.671e-3_rt*tf%t9 + 3.0e0_rt*2.848e-4_rt*tf%t92
     end if
 
-    term    = 1.04d+23 * tf%t9i23 * exp(-81.420_rt * tf%t9i13 * aa)
+    term    = 1.04e23_rt * tf%t9i23 * exp(-81.420_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 81.420_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1567,7 +1567,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 7.001d+10 * tf%t932 * exp(-92.177_rt*tf%t9i)
+    rev      = 7.001e10_rt * tf%t932 * exp(-92.177_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 92.177_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1600,7 +1600,7 @@ contains
        daa   = 1.384e-2_rt + 2.0e0_rt*1.081e-3_rt*tf%t9 - 3.0e0_rt*5.933e-5_rt*tf%t92
     end if
 
-    term    = 1.83d+26 * tf%t9i23 * exp(-86.741_rt * tf%t9i13 * aa)
+    term    = 1.83e26_rt * tf%t9i23 * exp(-86.741_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*86.741_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1642,7 +1642,7 @@ contains
        daa   = 8.922e-2_rt - 2.0e0_rt*1.256e-3_rt*tf%t9 - 3.0e0_rt*9.453e-5_rt*tf%t92
     end if
 
-    term    = 3.77d+17 * tf%t9i23 * exp(-37.516_rt * tf%t9i13 * aa)
+    term    = 3.77e17_rt * tf%t9i23 * exp(-37.516_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 37.516_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1651,7 +1651,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.150d+11*tf%t932*exp(-85.667_rt*tf%t9i)
+    rev      = 1.150e11_rt*tf%t932*exp(-85.667_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 85.667_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1684,7 +1684,7 @@ contains
        daa   = 7.846e-2_rt - 2.0e0_rt*7.430e-3_rt*tf%t9 + 3.0e0_rt*3.723e-4_rt*tf%t92
     end if
 
-    term    = 1.05d+27 * tf%t9i23 * exp(-91.674_rt * tf%t9i13 * aa)
+    term    = 1.05e27_rt * tf%t9i23 * exp(-91.674_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 91.674_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1693,7 +1693,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 7.064d+10*tf%t932*exp(-92.850_rt*tf%t9i)
+    rev      = 7.064e10_rt*tf%t932*exp(-92.850_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 92.850_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1726,7 +1726,7 @@ contains
        daa   = 1.367e-2_rt + 2.0e0_rt*7.428e-4_rt*tf%t9 - 3.0e0_rt*3.050e-5_rt*tf%t92
     end if
 
-    term    = 1.30d+27 * tf%t9i23 * exp(-91.674_rt * tf%t9i13 * aa)
+    term    = 1.30e27_rt * tf%t9i23 * exp(-91.674_rt * tf%t9i13 * aa)
     dtermdt = -twoth*term*tf%t9i + term*91.674_rt*tf%t9i13*(oneth*tf%t9i*aa - daa)
 
 
@@ -1768,7 +1768,7 @@ contains
        daa   = 9.894e-2_rt - 2.0e0_rt*3.131e-3_rt*tf%t9 - 3.0e0_rt*2.160e-5_rt*tf%t92
     end if
 
-    term    = 1.21d+18 * tf%t9i23 * exp(-39.604_rt * tf%t9i13 * aa)
+    term    = 1.21e18_rt * tf%t9i23 * exp(-39.604_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 39.604_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -1777,7 +1777,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.537d+11*tf%t932*exp(-83.382_rt*tf%t9i)
+    rev      = 1.537e11_rt*tf%t932*exp(-83.382_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 83.382_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1868,7 +1868,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 4.71d+09 * tf%t932 * exp(-25.82_rt*tf%t9i)
+    rev      = 4.71e09_rt * tf%t932 * exp(-25.82_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 25.82_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1891,7 +1891,7 @@ contains
     !$gpu
 
     ! d(p,g)he3
-    aa      = 2.24d+03 * tf%t9i23 * exp(-3.720_rt*tf%t9i13)
+    aa      = 2.24e03_rt * tf%t9i23 * exp(-3.720_rt*tf%t9i13)
     daa     = aa*(-twoth*tf%t9i + oneth*3.720_rt*tf%t9i43)
 
     bb      = 1.0e0_rt + 0.112_rt*tf%t913 + 3.38_rt*tf%t923 + 2.65_rt*tf%t9
@@ -1906,7 +1906,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.63d+10 * tf%t932 * exp(-63.750_rt*tf%t9i)
+    rev      = 1.63e10_rt * tf%t932 * exp(-63.750_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 63.750_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1937,7 +1937,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 2.61d+10 * tf%t932 * exp(-238.81_rt*tf%t9i)
+    rev      = 2.61e10_rt * tf%t932 * exp(-238.81_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 238.81_rt*tf%t9i2)
 
     rr    = rev * term
@@ -1960,7 +1960,7 @@ contains
     !$gpu
 
     ! he3(he3,2p)he4
-    aa   = 6.04d+10 * tf%t9i23 * exp(-12.276_rt*tf%t9i13)
+    aa   = 6.04e10_rt * tf%t9i23 * exp(-12.276_rt*tf%t9i13)
     daa  = aa*(-twoth*tf%t9i + oneth*12.276_rt*tf%t9i43)
 
     bb   = 1.0e0_rt + 0.034_rt*tf%t913 - 0.522_rt*tf%t923 - 0.124_rt*tf%t9 &
@@ -2014,7 +2014,7 @@ contains
     t9a56   = t9a**fivsix
     dt9a56  = fivsix*t9a56*zz
 
-    term    = 5.61d+6 * t9a56 * tf%t9i32 * exp(-12.826_rt/t9a13)
+    term    = 5.61e6_rt * t9a56 * tf%t9i32 * exp(-12.826_rt/t9a13)
     dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf%t9i &
          + 12.826_rt/t9a13**2 * dt9a13)
 
@@ -2206,7 +2206,7 @@ contains
     !$gpu
 
     ! n15(p,a)c12
-    aa  = 1.08d+12*tf%t9i23*exp(-15.251_rt*tf%t9i13 - tf%t92*q1)
+    aa  = 1.08e12_rt*tf%t9i23*exp(-15.251_rt*tf%t9i13 - tf%t92*q1)
     daa = aa*(-twoth*tf%t9i + oneth*15.251_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
 
     bb   = 1.0e0_rt + 0.027_rt*tf%t913 + 2.62_rt*tf%t923 + 0.501_rt*tf%t9 &
@@ -2217,16 +2217,16 @@ contains
     cc   = aa * bb
     dcc  = daa*bb + aa*dbb
 
-    dd   = 1.19d+08 * tf%t9i32 * exp(-3.676_rt*tf%t9i)
+    dd   = 1.19e08_rt * tf%t9i32 * exp(-3.676_rt*tf%t9i)
     ddd  = dd*(-1.5e0_rt*tf%t9i + 3.676_rt*tf%t9i2)
 
-    ee   = 5.41d+08 * tf%t9i12 * exp(-8.926_rt*tf%t9i)
+    ee   = 5.41e08_rt * tf%t9i12 * exp(-8.926_rt*tf%t9i)
     dee  = ee*(-0.5e0_rt*tf%t9i + 8.926_rt*tf%t9i2)
 
-    ff   = theta * 4.72d+08 * tf%t9i32 * exp(-7.721_rt*tf%t9i)
+    ff   = theta * 4.72e08_rt * tf%t9i32 * exp(-7.721_rt*tf%t9i)
     dff  = ff*(-1.5e0_rt*tf%t9i + 7.721_rt*tf%t9i2)
 
-    gg   = theta * 2.20d+09 * tf%t9i32 * exp(-11.418_rt*tf%t9i)
+    gg   = theta * 2.20e09_rt * tf%t9i32 * exp(-11.418_rt*tf%t9i)
     dgg  = gg*(-1.5e0_rt*tf%t9i + 11.418_rt*tf%t9i2)
 
     term    = cc + dd + ee + ff + gg
@@ -2277,8 +2277,8 @@ contains
     ee   = dd*zz
     dee  = (ddd - ee*dcc)*zz
 
-    term    = 1.50d+08 * ee
-    dtermdt = 1.50d+08 * dee
+    term    = 1.50e08_rt * ee
+    dtermdt = 1.50e08_rt * dee
 
 
     ! rates
@@ -2312,7 +2312,7 @@ contains
     !$gpu
 
     ! n14(a,g)f18
-    aa  = 7.78d+09 * tf%t9i23 * exp(-36.031_rt*tf%t9i13- tf%t92*q1)
+    aa  = 7.78e09_rt * tf%t9i23 * exp(-36.031_rt*tf%t9i13- tf%t92*q1)
     daa = aa*(-twoth*tf%t9i + oneth*36.031_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
 
     bb   = 1.0e0_rt + 0.012_rt*tf%t913 + 1.45_rt*tf%t923 + 0.117_rt*tf%t9 &
@@ -2329,7 +2329,7 @@ contains
     ee   = 2.03_rt * tf%t9i32 * exp(-5.054_rt*tf%t9i)
     dee  = ee*(-1.5e0_rt*tf%t9i + 5.054_rt*tf%t9i2)
 
-    ff   = 1.15d+04 * tf%t9i23 * exp(-12.310_rt*tf%t9i)
+    ff   = 1.15e04_rt * tf%t9i23 * exp(-12.310_rt*tf%t9i)
     dff  = ff*(-twoth*tf%t9i + 12.310_rt*tf%t9i2)
 
     term    = cc + dd + ee + ff
@@ -2364,7 +2364,7 @@ contains
 
     ! fe52(n,g)fe53
     tq2     = tf%t9 - 0.348e0_rt
-    term    = 9.604d+05 * exp(-0.0626_rt*tq2)
+    term    = 9.604e05_rt * exp(-0.0626_rt*tq2)
     dtermdt = -term*0.0626
 
     ! the rates
@@ -2372,7 +2372,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 2.43d+09 * tf%t932 * exp(-123.951_rt*tf%t9i)
+    rev      = 2.43e09_rt * tf%t932 * exp(-123.951_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 123.951_rt*tf%t9i2)
 
     rr    = rev * term
@@ -2400,7 +2400,7 @@ contains
     dtq10 = 0.1e0_rt*tq10/(0.348_rt*tq1)
     tq2   = tf%t9 - 0.348e0_rt
 
-    term    = 1.817d+06 * tq10 * exp(-0.06319_rt*tq2)
+    term    = 1.817e06_rt * tq10 * exp(-0.06319_rt*tq2)
     dtermdt = term/tq10*dtq10 - term*0.06319
 
     ! the rates
@@ -2408,7 +2408,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 1.56d+11 * tf%t932 * exp(-155.284_rt*tf%t9i)
+    rev      = 1.56e11_rt * tf%t932 * exp(-155.284_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 155.284_rt*tf%t9i2)
 
     rr    = rev * term
@@ -2431,13 +2431,13 @@ contains
     !$gpu
 
     ! fe54(n,g)fe55
-    aa   =  2.307390d+01 - 7.931795e-02_rt * tf%t9i + 7.535681d+00 * tf%t9i13 &
-         - 1.595025d+01 * tf%t913 + 1.377715d+00 * tf%t9 - 1.291479e-01_rt * tf%t953 &
-         + 6.707473d+00 * log(tf%t9)
+    aa   =  2.307390e01_rt - 7.931795e-02_rt * tf%t9i + 7.535681e00_rt * tf%t9i13 &
+         - 1.595025e01_rt * tf%t913 + 1.377715e00_rt * tf%t9 - 1.291479e-01_rt * tf%t953 &
+         + 6.707473e00_rt * log(tf%t9)
 
-    daa  =  7.931795e-02_rt * tf%t9i2 - oneth * 7.535681d+00 * tf%t9i43 &
-         - oneth * 1.595025d+01 *tf%t9i23 + 1.377715d+00 - fiveth * 1.291479e-01_rt *tf%t923 &
-         + 6.707473d+00 * tf%t9i
+    daa  =  7.931795e-02_rt * tf%t9i2 - oneth * 7.535681e00_rt * tf%t9i43 &
+         - oneth * 1.595025e01_rt *tf%t9i23 + 1.377715e00_rt - fiveth * 1.291479e-01_rt *tf%t923 &
+         + 6.707473e00_rt * tf%t9i
 
     if (aa .lt. 200.0_rt) then
        term    = exp(aa)
@@ -2447,8 +2447,8 @@ contains
        dtermdt = 0.0e0_rt
     end if
 
-    bb  = 4.800293d+09 * tf%t932 * exp(-1.078986d+02 * tf%t9i)
-    dbb = bb*(1.5e0_rt*tf%t9i + 1.078986d+02 * tf%t9i2)
+    bb  = 4.800293e09_rt * tf%t932 * exp(-1.078986e02_rt * tf%t9i)
+    dbb = bb*(1.5e0_rt*tf%t9i + 1.078986e02_rt * tf%t9i2)
 
     ! reverse rate
     rr    = term*bb
@@ -2486,7 +2486,7 @@ contains
        daa   = 9.593e-2_rt - 2.0e0_rt*3.445e-3_rt*tf%t9 + 3.0e0_rt*8.594e-5_rt*tf%t92
     end if
 
-    term    = 4.51d+17 * tf%t9i23 * exp(-38.483_rt * tf%t9i13 * aa)
+    term    = 4.51e17_rt * tf%t9i23 * exp(-38.483_rt * tf%t9i13 * aa)
     dtermdt = term*(-twoth*tf%t9i + 38.483_rt*tf%t9i13*(oneth*tf%t9i*aa - daa))
 
 
@@ -2495,7 +2495,7 @@ contains
     dfrdt = den * dtermdt * 1.0e-9_rt
     !dfrdd = term
 
-    rev      = 2.400d+09 * tf%t932 * exp(-58.605_rt*tf%t9i)
+    rev      = 2.400e09_rt * tf%t932 * exp(-58.605_rt*tf%t9i)
     drevdt   = rev*(1.5e0_rt*tf%t9i + 58.605_rt*tf%t9i2)
 
     rr    = rev * term
@@ -2519,13 +2519,13 @@ contains
     !$gpu
 
     ! fe54(a,p)co57
-    aa   =  3.97474900d+01 - 6.06543100d+00 * tf%t9i + 1.63239600d+02 * tf%t9i13 &
-         - 2.20457700d+02 * tf%t913 + 8.63980400d+00 * tf%t9 - 3.45841300e-01_rt * tf%t953 &
-         + 1.31464200d+02 * log(tf%t9)
+    aa   =  3.97474900e01_rt - 6.06543100e00_rt * tf%t9i + 1.63239600e02_rt * tf%t9i13 &
+         - 2.20457700e02_rt * tf%t913 + 8.63980400e00_rt * tf%t9 - 3.45841300e-01_rt * tf%t953 &
+         + 1.31464200e02_rt * log(tf%t9)
 
-    daa  =  6.06543100d+00 * tf%t9i2 - oneth * 1.63239600d+02 * tf%t9i43 &
-         - oneth * 2.20457700d+02 * tf%t9i23 + 8.63980400d+00 - fiveth * 3.45841300e-01_rt * tf%t923 &
-         + 1.31464200d+02  * tf%t9i
+    daa  =  6.06543100e00_rt * tf%t9i2 - oneth * 1.63239600e02_rt * tf%t9i43 &
+         - oneth * 2.20457700e02_rt * tf%t9i23 + 8.63980400e00_rt - fiveth * 3.45841300e-01_rt * tf%t923 &
+         + 1.31464200e02_rt  * tf%t9i
 
     if (aa .lt. 200.0_rt) then
        term    = exp(aa)
@@ -2535,8 +2535,8 @@ contains
        dtermdt = 0.0e0_rt
     end if
 
-    bb  = 2.16896000d+00  * exp(-2.05631700d+01 * tf%t9i)
-    dbb = bb * 2.05631700d+01 * tf%t9i2
+    bb  = 2.16896000e00_rt  * exp(-2.05631700e01_rt * tf%t9i)
+    dbb = bb * 2.05631700e01_rt * tf%t9i2
 
     ! reverse rate
     !drrdd = term
@@ -2564,13 +2564,13 @@ contains
     !$gpu
 
     ! fe55(n,g)fe56
-    aa   =  1.954115d+01 - 6.834029e-02_rt * tf%t9i + 5.379859d+00 * tf%t9i13 &
-         - 8.758150d+00 * tf%t913 + 5.285107e-01_rt * tf%t9 - 4.973739e-02_rt  * tf%t953 &
-         + 4.065564d+00  * log(tf%t9)
+    aa   =  1.954115e01_rt - 6.834029e-02_rt * tf%t9i + 5.379859e00_rt * tf%t9i13 &
+         - 8.758150e00_rt * tf%t913 + 5.285107e-01_rt * tf%t9 - 4.973739e-02_rt  * tf%t953 &
+         + 4.065564e00_rt  * log(tf%t9)
 
-    daa  =  6.834029e-02_rt * tf%t9i2 - oneth * 5.379859d+00 * tf%t9i43 &
-         - oneth * 8.758150d+00 * tf%t9i23 + 5.285107e-01_rt - fiveth * 4.973739e-02_rt  *tf%t923 &
-         + 4.065564d+00  * tf%t9i
+    daa  =  6.834029e-02_rt * tf%t9i2 - oneth * 5.379859e00_rt * tf%t9i43 &
+         - oneth * 8.758150e00_rt * tf%t9i23 + 5.285107e-01_rt - fiveth * 4.973739e-02_rt  *tf%t923 &
+         + 4.065564e00_rt  * tf%t9i
 
     if (aa .lt. 200.0_rt) then
        term    = exp(aa)
@@ -2580,8 +2580,8 @@ contains
        dtermdt = 0.0e0_rt
     end if
 
-    bb  = 7.684279d+10  * tf%t932 * exp(-1.299472d+02  * tf%t9i)
-    dbb = bb*(1.5e0_rt*tf%t9i + 1.299472d+02 * tf%t9i2)
+    bb  = 7.684279e10_rt  * tf%t932 * exp(-1.299472e02_rt  * tf%t9i)
+    dbb = bb*(1.5e0_rt*tf%t9i + 1.299472e02_rt * tf%t9i2)
 
     ! reverse rate
     rr    = term*bb
@@ -2611,13 +2611,13 @@ contains
 
     ! fe56(p,g)co57
 
-    aa   =  1.755960d+02 - 7.018872d+00 * tf%t9i + 2.800131d+02 * tf%t9i13 &
-         - 4.749343d+02 * tf%t913 + 2.683860d+01 * tf%t9 - 1.542324d+00  * tf%t953 &
-         + 2.315911d+02  * log(tf%t9)
+    aa   =  1.755960e02_rt - 7.018872e00_rt * tf%t9i + 2.800131e02_rt * tf%t9i13 &
+         - 4.749343e02_rt * tf%t913 + 2.683860e01_rt * tf%t9 - 1.542324e00_rt  * tf%t953 &
+         + 2.315911e02_rt  * log(tf%t9)
 
-    daa  =  7.018872d+00 * tf%t9i2 - oneth * 2.800131d+02 * tf%t9i43 &
-         - oneth * 4.749343d+02 * tf%t9i23 + 2.683860d+01 - fiveth * 1.542324d+00  *tf%t923 &
-         + 2.315911d+02  * tf%t9i
+    daa  =  7.018872e00_rt * tf%t9i2 - oneth * 2.800131e02_rt * tf%t9i43 &
+         - oneth * 4.749343e02_rt * tf%t9i23 + 2.683860e01_rt - fiveth * 1.542324e00_rt  *tf%t923 &
+         + 2.315911e02_rt  * tf%t9i
 
     if (aa .lt. 200.0_rt) then
        term    = exp(aa)
@@ -2627,8 +2627,8 @@ contains
        dtermdt = 0.0e0_rt
     end if
 
-    bb  = 2.402486d+09 * tf%t932 * exp(-6.995192d+01 * tf%t9i)
-    dbb = bb*(1.5e0_rt*tf%t9i + 6.995192d+01 * tf%t9i2)
+    bb  = 2.402486e09_rt * tf%t932 * exp(-6.995192e01_rt * tf%t9i)
+    dbb = bb*(1.5e0_rt*tf%t9i + 6.995192e01_rt * tf%t9i2)
 
 
     ! reverse rate
@@ -2706,7 +2706,7 @@ contains
 
     ! set the output
     rn56ec = 10.0e0_rt**rnt(1)
-    sn56ec = 6.022548d+23 * 1.60218e-6_rt * y56 * 10.0e0_rt**rnt(2)
+    sn56ec = 6.022548e23_rt * 1.60218e-6_rt * y56 * 10.0e0_rt**rnt(2)
    
     !write(*,*) "btemp",btemp, "bden", bden, "t9",t9,"r",r, "rn56ec",rn56ec, "sn56ec", sn56ec
 
