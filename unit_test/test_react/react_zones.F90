@@ -42,7 +42,7 @@ contains
 
     allocate(xn_zone(nspec, 0:npts-1))   ! this assumes that lo(3) = 0
 
-    call get_xn(xn_zone)
+    call get_xn(npts, xn_zone)
 
     ! normalize -- just in case
     do kk = lo(3), hi(3)
@@ -50,9 +50,9 @@ contains
        xn_zone(:, kk) = xn_zone(:, kk)/sum_X
     enddo
 
-    do kk = lo(3), hi(3)
-       do jj = lo(2), hi(2)
-          do ii = lo(1), hi(1)
+    do kk = lo(3), hi(3)   ! xn loop
+       do jj = lo(2), hi(2)   ! T loop
+          do ii = lo(1), hi(1)   ! rho loop
 
              state(ii, jj, kk, p % itemp) = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
              state(ii, jj, kk, p % irho)  = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)

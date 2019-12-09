@@ -101,13 +101,15 @@ dimensions (as a :math:`16^3` domain), and then calls the EOS in each
 zone.
 
 The state in each zone of our data cube is determined by the runtime
-parameters ``dens_min``, ``dens_max``, ``temp_min``, and
-``temp_max`` for :math:`(\rho, T)`. Because each network carries different
-compositions, we explicitly specify the mass fraction of each species
-for every step in the composition dimension in a file ``xin.*`` for
-each network. Note: it is up to the user to ensure that they species
-are in the proper order in that file and sum to 1. The name of the
-file to use is specified by the runtime parameter ``xin_file``.
+parameters ``dens_min``, ``dens_max``, ``temp_min``, and ``temp_max``
+for :math:`(\rho, T)`. Because each network carries different
+compositions, we specify the composition through runtime parameters in
+the ``&extern`` namelist: ``primary_species_1``,
+``primary_species_2``, ``primary_species_3``. These primary species
+will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the number).
+Only one primary species varies at a time. The non-primary species
+will be set equally to share whatever fraction of 1 is not accounted
+for by the primary species mass fractions.
 
 This test calls the network on each zone, running for a time
 tmax. The full state, including new mass fractions and energy

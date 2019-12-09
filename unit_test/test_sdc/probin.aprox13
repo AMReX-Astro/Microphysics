@@ -9,7 +9,7 @@
 
   xin_file   = "xin.aprox13"
 
-  jacobian = 2
+  jacobian = 1
 
 /
 
