@@ -488,7 +488,7 @@ contains
     real(rt) :: rate(nrates), dratedt(nrates)
 
     integer          :: i
-    real(rt) :: rrate,drratedt,drratedd,drratede2_rt
+    real(rt) :: rrate,drratedt,drratedd,drratede2
     real(rt) :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
     type (tf_t)      :: tf
 
@@ -510,53 +510,53 @@ contains
     ! deboer + 2017 c12(a,g)o16 rate
        call rate_c12ag_deboer17(tf,bden, &
                     rate(ircag),dratedt(ircag),drratedd, &
-                    rate(iroga),dratedt(iroga),drratede2_rt)
+                    rate(iroga),dratedt(iroga),drratedd2)
     else
     ! 1.7 times cf88 c12(a,g)o16 rate
        call rate_c12ag(tf,bden, &
                     rate(ircag),dratedt(ircag),drratedd, &
-                    rate(iroga),dratedt(iroga),drratede2_rt)
+                    rate(iroga),dratedt(iroga),drratedd2)
     endif
 
     ! triple alpha to c12
     call rate_tripalf(tf,bden, &
                       rate(ir3a),dratedt(ir3a),drratedd, &
-                      rate(irg3a),dratedt(irg3a),drratede2_rt)
+                      rate(irg3a),dratedt(irg3a),drratedd2)
 
     ! c12 + c12
     call rate_c12c12(tf,bden, &
-                     rate(ir1212),dratedt(ir1212),drratede2_rt, &
+                     rate(ir1212),dratedt(ir1212),drratedd2, &
                      rrate,drratedt,drratedd)
 
     ! c12 + o16
     call rate_c12o16(tf,bden, &
-                     rate(ir1216),dratedt(ir1216),drratede2_rt, &
+                     rate(ir1216),dratedt(ir1216),drratedd2, &
                      rrate,drratedt,drratedd)
 
     ! 16o + 16o
     call rate_o16o16(tf,bden, &
-                     rate(ir1616),dratedt(ir1616),drratede2_rt, &
+                     rate(ir1616),dratedt(ir1616),drratedd2, &
                      rrate,drratedt,drratedd)
 
     ! o16(a,g)ne20
     call rate_o16ag(tf,bden, &
                     rate(iroag),dratedt(iroag),drratedd, &
-                    rate(irnega),dratedt(irnega),drratede2_rt)
+                    rate(irnega),dratedt(irnega),drratedd2)
 
     ! ne20(a,g)mg24
     call rate_ne20ag(tf,bden, &
                      rate(irneag),dratedt(irneag),drratedd, &
-                     rate(irmgga),dratedt(irmgga),drratede2_rt)
+                     rate(irmgga),dratedt(irmgga),drratedd2)
 
     ! mg24(a,g)si28
     call rate_mg24ag(tf,bden, &
                      rate(irmgag),dratedt(irmgag),drratedd, &
-                     rate(irsiga),dratedt(irsiga),drratede2_rt)
+                     rate(irsiga),dratedt(irsiga),drratedd2)
 
     ! ca40(a,g)ti44
     call rate_ca40ag(tf,bden, &
                      rate(ircaag),dratedt(ircaag),drratedd, &
-                     rate(irtiga),dratedt(irtiga),drratede2_rt)
+                     rate(irtiga),dratedt(irtiga),drratedd2)
 
   end subroutine iso7rat
 

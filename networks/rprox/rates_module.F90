@@ -6,7 +6,7 @@
 ! This module is created via the make_rate_module.py routine.
 module rates_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, THIRD, FIVE3RD
 
   implicit none
 
