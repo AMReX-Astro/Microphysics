@@ -3,6 +3,10 @@
    * The original VODE integrator was removed and the Fortran 90
      version VODE90 was renamed to VODE. (#221)
 
+   * The test_react unit tests no longer require a composition inputs
+     file (xin*).  They now create the composition profile at runtime.
+     (#211)
+
 # 19.12
 
    * Simplified SDC integration now uses the same retry strategy
