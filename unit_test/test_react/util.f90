@@ -41,7 +41,7 @@ contains
     end if
 
     if (nprim == 0) then
-       call amrex_error("ERROR: no primiary species set")
+       call amrex_error("ERROR: no primary species set")
     end if
 
     ! figure out how many zones to allocate to the each of the primary
@@ -108,8 +108,6 @@ contains
           xn_zone(n, k) = excess / (nspec - nprim)
 
        end do
-
-       print *, k, sum(xn_zone(:, k))
 
     end do
 
