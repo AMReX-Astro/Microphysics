@@ -1,7 +1,7 @@
 module rate_type_module
 
   use actual_network, only : nrates, num_rate_groups
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

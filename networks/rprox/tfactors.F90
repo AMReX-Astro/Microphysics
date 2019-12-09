@@ -1,6 +1,6 @@
 module tfactors_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, THIRD
 
   implicit none
 

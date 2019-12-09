@@ -1,6 +1,6 @@
 module cj_det_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module, only: rt
 
   use eos_type_module
   use eos_module

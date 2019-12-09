@@ -1,8 +1,7 @@
 module actual_network
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use physical_constants, only: ERG_PER_MeV
-  use microphysics_type_module
   
   implicit none
 

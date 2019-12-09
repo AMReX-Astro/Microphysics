@@ -6,7 +6,7 @@ module actual_rhs_module
   use rates_module
   use dydt_module
   use rate_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE, THREE, NINE
 
   implicit none
 

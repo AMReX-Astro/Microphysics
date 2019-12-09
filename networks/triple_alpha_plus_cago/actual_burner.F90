@@ -2,7 +2,7 @@ module actual_burner_module
 
   use burn_type_module
   use network
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
 contains
 
@@ -43,7 +43,6 @@ contains
     ! Calculate the energy generation rate's temperature sensitivity
     ! Used for diagnostic purposes only
 
-    use microphysics_type_module
     use rates_module
     use screen_module
     use dydt_module

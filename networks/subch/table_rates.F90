@@ -2,7 +2,7 @@ module table_rates
   ! Table is expected to be in terms of dens*ye and temp (non-logarithmic, cgs units)
   ! Table energy units are expected in terms of ergs
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   
   implicit none
 

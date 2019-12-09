@@ -2,7 +2,7 @@
 
 module fundamental_constants_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

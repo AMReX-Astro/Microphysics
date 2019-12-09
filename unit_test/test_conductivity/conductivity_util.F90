@@ -5,7 +5,7 @@ subroutine do_conductivity(lo, hi, &
   use network
   use eos_type_module
   use eos_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, HALF
   use extern_probin_module
   use actual_conductivity_module, only: actual_conductivity
 

@@ -1,7 +1,7 @@
 program testburn
 
   use amrex_error_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use network
   use eos_module
   use burner_module

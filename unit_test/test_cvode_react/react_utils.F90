@@ -1,6 +1,6 @@
 module react_utils_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
   use variables
   use network
   use eos_type_module

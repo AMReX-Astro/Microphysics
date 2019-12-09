@@ -3,7 +3,7 @@ module actual_rhs_module
   use network
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
 
   implicit none
 

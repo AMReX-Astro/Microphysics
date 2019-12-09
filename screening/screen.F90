@@ -1,6 +1,6 @@
 module screening_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, THIRD, ONE, FIVE3RD, FIVE12TH, HALF, FOURTH, FIVE32ND
 
   implicit none
 

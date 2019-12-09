@@ -3,7 +3,7 @@
 program burn_cell
 
   use amrex_error_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
 
   use fabio_module, only: fabio_mkdir
   use probin_module, only: run_prefix, small_temp, small_dens

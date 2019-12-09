@@ -17,7 +17,7 @@ contains
 
   subroutine actual_rhs(state)
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO
     use network, only: nspec, aion, aion_inv
     use temperature_integration_module, only: temperature_rhs
     
@@ -57,7 +57,7 @@ contains
   ! TODO - make this an analytic jacobian
   subroutine actual_jac(state)
 
-    use microphysics_type_module
+    use microphysics_type_module, only: ZERO
 
     implicit none
 
@@ -71,7 +71,7 @@ contains
 
   subroutine make_rates(t9, dens, y, state, rr)
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, THIRD, ONE, SIX
     use actual_network, only: nspec, wk14o, wk15o, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
@@ -142,7 +142,7 @@ contains
 
   subroutine make_ydots(ymol, t9, state, dydt, rr)
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt, ZERO, TWO, THREE, SIX
     use actual_network, only: nspec, io14, io15, ine18, isi25, ihe4, ih1, ife56, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
@@ -210,7 +210,7 @@ contains
   subroutine ener_gener_rate(dydt, enuc)
 
     use actual_network, only: nspec, aion, bion
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
 
     implicit none
 

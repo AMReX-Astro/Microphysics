@@ -1,6 +1,5 @@
 subroutine init_unit_test(name, namlen) bind(C, name="init_unit_test")
 
-  use microphysics_type_module
   use extern_probin_module
   use microphysics_module
 

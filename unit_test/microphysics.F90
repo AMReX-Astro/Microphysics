@@ -1,7 +1,7 @@
 module microphysics_module
 
   use network
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
   use eos_module, only : eos_init
 #ifdef REACTIONS
   use actual_rhs_module, only : actual_rhs_init

@@ -8,7 +8,7 @@ module actual_rhs_module
   use sneut_module, only: sneut5
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use burn_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

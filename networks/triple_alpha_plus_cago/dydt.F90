@@ -4,7 +4,7 @@
 module dydt_module
 
   use network
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE, THREE
 
   implicit none
 

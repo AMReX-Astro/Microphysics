@@ -39,7 +39,7 @@ contains
 
     !$acc routine seq
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
 

@@ -4,7 +4,7 @@ module actual_rhs_module
   use eos_type_module
   use burn_type_module
   use rate_type_module
-  use microphysics_type_module, only: rt, ZERO
+  use microphysics_type_module, only: rt, ZERO, SIXTH
 
   implicit none
 

@@ -1,6 +1,6 @@
 module sneut_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, M_PI
 
   implicit none
 

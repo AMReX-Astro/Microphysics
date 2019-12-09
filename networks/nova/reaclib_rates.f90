@@ -1,7 +1,7 @@
 module reaclib_rates
   use screening_module, only: screen5, add_screening_factor, screening_init, plasma_state, fill_plasma_state
   use network
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

@@ -8,7 +8,7 @@ subroutine do_eos(lo, hi, &
                              copy_eos_t
   use eos_module, only : eos
   use eos_composition_module, only : eos_xderivs_t, composition, composition_derivatives
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, HALF
   use extern_probin_module
   use actual_eos_module, only : eos_name
 

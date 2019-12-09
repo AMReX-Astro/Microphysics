@@ -5,7 +5,7 @@ module react_zones_module
   use eos_type_module
   use eos_module
   use burn_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
   use extern_probin_module
   use util_module
   use actual_burner_module

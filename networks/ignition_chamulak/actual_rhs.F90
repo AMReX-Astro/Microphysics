@@ -1,6 +1,6 @@
 module actual_rhs_module
 
-  use microphysics_type_module, only: rt, ZERO, TWELFTH, HALF, ONE, THIRD, TWO, FIVE
+  use microphysics_type_module, only: rt, ZERO, TWELFTH, HALF, ONE, THIRD, TWO, FIVE, SIX, THREE, TWO3RD
   use network
   use actual_network
   use burn_type_module

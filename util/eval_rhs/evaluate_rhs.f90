@@ -1,6 +1,6 @@
 program evaluate_rhs
 
-  use amrex_fort_module, only : rt => amrex_real
+  use microphysics_type_module, only: rt
 
   use actual_network
   use actual_rhs_module

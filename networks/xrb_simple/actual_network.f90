@@ -1,6 +1,6 @@
 module actual_network
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE, TWO, FOUR, EIGHT, TEN
 
   integer, parameter :: nspec = 7
   integer, parameter :: nspec_evolve = 7

@@ -4,7 +4,7 @@
 !
 module variables
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   use network, only: nspec, spec_names
 

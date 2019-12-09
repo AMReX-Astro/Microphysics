@@ -1,6 +1,6 @@
 program eval
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
 
   use network
   use eos_module

@@ -1,6 +1,6 @@
 module reaclib_rates
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO
   use screening_module, only: add_screening_factor, &
                               screening_init, screening_finalize, &
                               plasma_state, fill_plasma_state
@@ -124,13 +124,13 @@ contains
 
     !$gpu
 
-    ri = 0.0e0_rt
-    rate = 0.0e0_rt
-    drate_dt = 0.0e0_rt
-    irate = 0.0e0_rt
-    dirate_dt = 0.0e0_rt
+    ri = ZERO
+    rate = ZERO
+    drate_dt = ZERO
+    irate = ZERO
+    dirate_dt = ZERO
     T9 = temp/1.0e9_rt
-    T9_exp = 0.0e0_rt
+    T9_exp = ZERO
 
     ! Use reaction multiplicities to tell whether the rate is Reaclib
     m = rate_extra_mult(iwhich)
@@ -160,9 +160,9 @@ contains
     reactvec(i_rate)     = rate
     reactvec(i_drate_dt) = drate_dt
     reactvec(i_scor)     = 1.0e0_rt
-    reactvec(i_dscor_dt) = 0.0e0_rt
-    reactvec(i_dqweak)   = 0.0e0_rt
-    reactvec(i_epart)    = 0.0e0_rt
+    reactvec(i_dscor_dt) = ZERO
+    reactvec(i_dqweak)   = ZERO
+    reactvec(i_epart)    = ZERO
 
     ! write(*,*) '----------------------------------------'
     ! write(*,*) 'IWHICH: ', iwhich

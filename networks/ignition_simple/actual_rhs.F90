@@ -4,7 +4,7 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use rate_type_module
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE, TWO, THREE, THIRD, TWO3RD, FIVE, SIXTH, TWELFTH
 
   implicit none
 

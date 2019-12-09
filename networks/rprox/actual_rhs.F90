@@ -376,7 +376,7 @@ contains
 
   subroutine actual_jac(state)
 
-    use microphysics_type_module, only: rt, ZERO
+    use microphysics_type_module, only: rt, ZERO, HALF, THREE
     use network
     use temperature_integration_module, only: temperature_jac
 

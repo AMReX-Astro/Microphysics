@@ -1,7 +1,7 @@
 module conductivity_module
   ! the general interface to thermal conductivities
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt
 
   implicit none
 

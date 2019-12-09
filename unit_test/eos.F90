@@ -13,7 +13,7 @@ contains
 
   subroutine eos_init(small_temp, small_dens)
 
-    use microphysics_type_module
+    use microphysics_type_module, only: rt
     use amrex_error_module
     use amrex_paralleldescriptor_module, only : amrex_pd_ioprocessor
     use eos_type_module, only: mintemp, mindens, maxtemp, maxdens, &

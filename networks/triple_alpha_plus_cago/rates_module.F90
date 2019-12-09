@@ -12,7 +12,7 @@
 
 module rates_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, ZERO, ONE, HALF, THREE, FIVE, SIXTH, THIRD, TWO3RD, FOUR3RD, FOUR, TWO, TWELVE, SIX
 
   use network
 

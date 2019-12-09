@@ -3,7 +3,7 @@
 
 module actual_integrator_module
 
-  use microphysics_type_module, only: rt
+  use microphysics_type_module, only: rt, HALF, TWO
   use amrex_error_module
   use eos_type_module
   use eos_module

@@ -7,7 +7,7 @@
 ! to a single reaction.
 module screen_module
 
-  use microphysics_type_module
+  use microphysics_type_module, only: rt, FOUR, EIGHT
   use network
 
   implicit none
