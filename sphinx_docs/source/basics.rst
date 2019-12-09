@@ -13,7 +13,7 @@ the rest. To do so, define the ``MICROPHYSICS_HOME`` environment
 variable, either at a command line or (if you use the bash shell)
 through your ``~/.bashrc``, e.g.::
 
- \texttt{export MICROPHYSICS\_HOME=/path/to/Microphysics}
+ export MICROPHYSICS_HOME=/path/to/Microphysics
 
 For CASTRO  the name of the EOS and network are set via the make
 variables ``EOS_DIR`` and ``NETWORK_DIR``. The macros in CASTRO’s

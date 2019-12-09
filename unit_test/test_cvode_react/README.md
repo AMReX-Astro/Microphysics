@@ -56,13 +56,13 @@ make -j COMP=PGI USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=TRUE USE_CUDA_CVODE=TRUE U
 
 # Comparing with test_react
 
-For GPUs, this can be compared with the VODE90 integrator in the
+For GPUs, this can be compared with the VODE integrator in the
 test_react test located in ../test_react
 
 To build the test_react test, in ../test_react, compile as:
 
 ```
-make -j COMP=PGI DEBUG=FALSE USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE USE_CUDA=TRUE NETWORK_DIR=aprox13 INTEGRATOR_DIR=VODE90 EOS_DIR=helmholtz CUDA_VERSION=9.0
+make -j COMP=PGI DEBUG=FALSE USE_MPI=FALSE USE_OMP=FALSE USE_ACC=FALSE USE_CUDA=TRUE NETWORK_DIR=aprox13 INTEGRATOR_DIR=VODE EOS_DIR=helmholtz CUDA_VERSION=9.0
 ```
 
 To run in a different directory, for the test_react and

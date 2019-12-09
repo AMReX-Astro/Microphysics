@@ -1,4 +1,24 @@
-# changes since the last release
+# changes since last release
+
+   * The original VODE integrator was removed and the Fortran 90
+     version VODE90 was renamed to VODE. (#221)
+
+   * The test_react unit tests no longer require a composition inputs
+     file (xin*).  They now create the composition profile at runtime.
+     (#211)
+
+# 19.12
+
+   * Simplified SDC integration now uses the same retry strategy
+     as the default (non-SDC) integration. (#215)
+
+   * VODE90 can now participate in the retry strategy that was
+     previously available to the VODE integrator, where it can
+     switch to the BS integrator if loosening the tolerances
+     does not allow the burn to complete. (#201)
+
+   * The parameter ode_max_steps was made consistent in VODE and
+     VODE90; in some places it was being ignored. (#214)
 
    * The helmholtz EOS was restructured, splitting the different
      components into different functions and optimizing the memory

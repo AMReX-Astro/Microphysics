@@ -5,20 +5,27 @@ Spectral Deferred Corrections
 Introduction
 ============
 
-SDC provides a means to more strongly couple the reactions to the
-hydrodynamics by evolving the reactions together with an approximation
-of the advection over the timestep.
+The Simplified-SDC method provides a means to more strongly couple the
+reactions to the hydrodynamics by evolving the reactions together with
+an approximation of the advection over the timestep.
 
 We want to solve the coupled equations:
 
 .. math:: \Uc_t = \Advs{\Uc} + \Rb(\Uc)
 
-where :math:`\Uc` is the conserved state vector, :math:`\Uc = (\rho, (\rho X_k),
-(\rho \Ub), (\rho E))^\intercal`, :math:`X_k` are the mass fractions
-constrained via :math:`\sum_k X_k = 1`, :math:`\Ub` is the velocity vector, and
-:math:`E` is the specific total energy, related to the specific internal
-energy, :math:`e`, via :math:`E = e + |\Ub|^2/2`. Here :math:`\Advs{\Uc}` is the
-advective source term (including any hydrodynamical sources),
+where :math:`\Uc` is the conserved state vector, :math:`\Uc = (\rho,
+(\rho X_k), (\rho \Ub), (\rho E))^\intercal`.  Here, :math:`\rho` is
+the density, :math:`X_k` are the mass fractions constrained via
+:math:`\sum_k X_k = 1`, :math:`\Ub` is the velocity vector, and
+:math:`E` is the specific total energy, related to the specific
+internal energy, :math:`e`, via
+
+.. math::
+
+   E = e + |\Ub|^2/2 .
+
+The quantity :math:`\Advs{\Uc}` represents the advective source term (including any
+hydrodynamical sources),
 
 .. math:: \Advs{\Uc} = - \nabla \cdot \Fb(\Uc) + \Shydro
 
@@ -54,14 +61,19 @@ The reactions don’t modify the total density, :math:`\rho`, or momentum,
       \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \\ \rho \Sdot \end{array}
    \right )
 
-where we include :math:`e` in addition to :math:`E` to provide additional thermodynamic
-information to help find a consistent :math:`T`. Here the advective courses
-are piecewise-constant approximations to the change in the state due
-to the hydrodynamics, computed with the during the hydro step.
+where we include :math:`e` in addition to :math:`E` to provide
+additional thermodynamic information to help find a consistent
+:math:`T`. Here the advective terms are piecewise-constant (in time)
+approximations to the change in the state due to the hydrodynamics,
+computed with the during the hydro step.
 
 However, to define the temperature, we need the kinetic energy (and
 hence momentum and density) at any intermediate time, :math:`t`. We construct
-these as needed from
+these as needed from the time-advanced momenta:
+
+.. math::
+
+   (\rho \Ub)(t) = (\rho \Ub)^n + \Adv{\rho \Ub}^{n+1/2} (t - t^n)
 
 Interfaces
 ==========
@@ -69,8 +81,8 @@ Interfaces
 actual_integrator
 -----------------
 
-SDC integration provides its own implementation of the main entry
-point, actual_integrator.
+Simplified-SDC integration provides its own implementation of the main entry
+point, ``actual_integrator``.
 
 ::
 
@@ -106,14 +118,23 @@ Righthand side wrapper
 ----------------------
 
 The manipulation of the righthand side is considerably more complex
-now. Each network only provides the change in molar
-fractions and internal energy, but
-we need to convert these to the conservative system we are
-integrating, including the advective terms.
+now. Each network only provides the change in molar fractions and
+internal energy, but we need to convert these to the conservative
+system we are integrating, including the advective terms.
 
-#. Convert to a ``burn_t`` type, for instance via ``bs_to_burn``:
+.. note::
 
-   #. call ``fill_unevolved_variables`` to update the density
+   In the example here, we'll assume we are using the VODE
+   integrator, but the BS integrator also supports
+   simplified-SDC integration.
+
+
+#. Call ``clean_state``
+
+#. Convert the integrator-specific data structures (``y`` and ``rpar``
+   for VODE) to a ``burn_t`` type in ``vode_to_burn``.
+
+   a. call ``fill_unevolved_variables`` to update the density
       and momentum. Since these don’t depend on reactions, this is a
       simple algebraic update based on the piecewise-constant-in-time
       advective term:
@@ -122,35 +143,37 @@ integrating, including the advective terms.
 
          \begin{aligned}
                \rho(t) &= \rho^n + t \cdot \left [ \mathcal{A}(\rho) \right]^{n+1/2} \\
-               (\rho \Ub)(t) &= (\rho \Ub)^n + t \cdot \left [ \mathcal{A}(\rho\Ub) \right]^{n+1/2} 
+               (\rho \Ub)(t) &= (\rho \Ub)^n + t  \cdot \left [ \mathcal{A}(\rho\Ub) \right]^{n+1/2} 
              \end{aligned}
 
       where here we assume that we are integrating in the ODE system
       starting with :math:`t=0`.
 
-   #. compute the specific internal energy, :math:`e`, from either the
+   b. compute the specific internal energy, :math:`e`, from either the
       total minus kinetic energy or internal energy carried by the
       integrator (depending on the value of ``T_from_eden``).
 
-   #. get the temperature from the equation of state
+   c. get the temperature from the equation of state
 
-   #. convert to a ``burn_t`` type, for instance via ``eos_to_burn``:
+   d. convert to a ``burn_t`` type via ``eos_to_burn``.  This
+      ``burn_t`` variable has fields for ``rho``, ``T``, and
+      ``xn``—everything that is needed to evaluate the reaction rates.
 
-#. Call the network’s ``actual_rhs`` routine to get just the
-   reaction sources to the update. In particular, this returns
-   the change in molar fractions, :math:`\dot{Y}_k` and the nuclear energy
-   release, :math:`\dot{S}`.
+#. Call the ``network_rhs`` routine to get just the reaction sources
+   to the update (this simply calls the network's ``actual_rhs``). In
+   particular, this returns the change in molar fractions,
+   :math:`\dot{Y}_k` and the nuclear energy release, :math:`\dot{S}`.
 
 #. Convert back to the integrator’s internal representation (e.g.,
-   a ``bs_t``, via ``rhs_to_bs``)
+   a ``y``, ``ydot``, and ``rpar`` for VODE via ``rhs_to_vode``)
 
-    #. call ``fill_unevolved_variables``
+    a. call ``fill_unevolved_variables``
 
-    #. fill the ydot array in the integrator type (e.g.,
-       ``bs_t``) with the advective sources that originally came into the
+    b. fill the ydot array in the integrator type (e.g.,
+       ``rpar``) with the advective sources that originally came into the
        intergrator through the ``sdc_t``.
 
-    #. Add the reacting terms. This is done as:
+    c. Add the reacting terms. This is done as:
 
       .. math::
 
@@ -159,3 +182,20 @@ integrating, including the advective terms.
                \dot{y}_{\rho e} &= \Adv{\rho e}^{n+1/2} +\rho \dot{S} \\
                \dot{y}_{\rho E} &= \Adv{\rho E}^{n+1/2} + \rho \dot{S}
              \end{aligned}
+
+Jacobian
+--------
+
+The Jacobian of this system is :math:`{\bf J} = \partial \Rb /
+\partial \Uc`, since :math:`\Advs{\Uc}` is held constant during the
+integration.  We follow the approach of :cite:`castro_sdc` and factor
+the Jacobian as:
+
+.. math::
+
+   {\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
+             \frac{\partial {\bf w}}{\partial \Uc}
+
+where :math:`{\bf w} = (\rho, X_k, T)^\intercal` are the more natural variables
+for a reaction network.
+

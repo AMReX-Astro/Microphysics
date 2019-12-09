@@ -12,7 +12,9 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 else ifeq ($(INTEGRATOR_DIR),VBDF)
   INTEGRATOR_NUM := 2
 else ifeq ($(INTEGRATOR_DIR),VODE90)
-  INTEGRATOR_NUM := 3
+  $(warn VODE90 has been renamed VODE)
+  override INTEGRATOR_DIR := VODE
+  INTEGRATOR_NUM := 0
 endif
 
 DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
@@ -29,11 +31,15 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 
   include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
 
+  DEFINES += -DVODE
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else ifeq ($(INTEGRATOR_DIR),BS)
 
@@ -45,11 +51,15 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 
   include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
 
+  DEFINES += -DVODE
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else
 

@@ -1,0 +1,43 @@
+&extern
+
+  run_prefix = "react_aprox13_"
+
+  small_temp = 1d5
+  small_dens = 1d5
+
+  burner_verbose = .false.
+
+  ! Set which jacobian to use
+  ! 1 = analytic jacobian
+  ! 2 = numerical jacobian
+  jacobian   = 2
+
+  renormalize_abundances = F
+
+  rtol_spec = 1.0d-6
+  rtol_enuc = 1.0d-6
+  rtol_temp = 1.0d-6
+  atol_spec = 1.0d-6
+  atol_enuc = 1.0d-6
+  atol_temp = 1.0d-6
+
+  tmax     = 1.0d-6
+
+  density       = 1.d6
+  temperature   = 1.d9
+
+  X1  = 1.0d0
+  X2  = 0.0d0
+  X3  = 0.0d0
+  X4  = 0.0d0
+  X5  = 0.0d0
+  X6  = 0.0d0
+  X7  = 0.0d0
+  X8  = 0.0d0
+  X9  = 0.0d0
+  X10 = 0.0d0
+  X11 = 0.0d0
+  X12 = 0.0d0
+  X13 = 0.0d0
+
+/
