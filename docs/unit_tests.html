@@ -289,13 +289,15 @@ reaction networks in Microphysics. It sets up a cube of data, with
 dimensions (as a <span class="math notranslate nohighlight">\(16^3\)</span> domain), and then calls the EOS in each
 zone.</p>
 <p>The state in each zone of our data cube is determined by the runtime
-parameters <code class="docutils literal notranslate"><span class="pre">dens_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dens_max</span></code>, <code class="docutils literal notranslate"><span class="pre">temp_min</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">temp_max</span></code> for <span class="math notranslate nohighlight">\((\rho, T)\)</span>. Because each network carries different
-compositions, we explicitly specify the mass fraction of each species
-for every step in the composition dimension in a file <code class="docutils literal notranslate"><span class="pre">xin.*</span></code> for
-each network. Note: it is up to the user to ensure that they species
-are in the proper order in that file and sum to 1. The name of the
-file to use is specified by the runtime parameter <code class="docutils literal notranslate"><span class="pre">xin_file</span></code>.</p>
+parameters <code class="docutils literal notranslate"><span class="pre">dens_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dens_max</span></code>, <code class="docutils literal notranslate"><span class="pre">temp_min</span></code>, and <code class="docutils literal notranslate"><span class="pre">temp_max</span></code>
+for <span class="math notranslate nohighlight">\((\rho, T)\)</span>. Because each network carries different
+compositions, we specify the composition through runtime parameters in
+the <code class="docutils literal notranslate"><span class="pre">&amp;extern</span></code> namelist: <code class="docutils literal notranslate"><span class="pre">primary_species_1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">primary_species_2</span></code>, <code class="docutils literal notranslate"><span class="pre">primary_species_3</span></code>. These primary species
+will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the number).
+Only one primary species varies at a time. The non-primary species
+will be set equally to share whatever fraction of 1 is not accounted
+for by the primary species mass fractions.</p>
 <p>This test calls the network on each zone, running for a time
 tmax. The full state, including new mass fractions and energy
 release is output to a AMReX plotfile.</p>
