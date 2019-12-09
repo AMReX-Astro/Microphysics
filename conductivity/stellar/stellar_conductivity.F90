@@ -158,7 +158,7 @@ contains
     end if
 
     !..from christy apj 144 108 1966
-    if ((t6.lt.t6_switch2) .and. (xh .ge. 1._rt)) then
+    if ((t6.lt.t6_switch2) .and. (xh .ge. 1.e-5_rt)) then
        t4    = state % T * 1.0e-4_rt
        t4r   = sqrt(t4)
        t44   = t4**4
