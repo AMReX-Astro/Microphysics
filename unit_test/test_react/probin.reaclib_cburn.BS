@@ -7,8 +7,6 @@
 
   tmax = 1.0d-1
 
-  xin_file   = "xin.reaclib_cburn"
-
   burner_verbose = .false.
 
   ! Set which jacobian to use
