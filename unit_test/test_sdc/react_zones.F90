@@ -35,7 +35,7 @@ contains
 
     allocate(xn_zone(nspec, 0:npts-1))   ! this assumes that lo(3) = 0
 
-    call get_xn(xn_zone)
+    call get_xn(npts, xn_zone)
 
     ! normalize -- just in case
     do kk = lo(3), hi(3)
