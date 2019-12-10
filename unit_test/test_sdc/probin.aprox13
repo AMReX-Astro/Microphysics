@@ -7,9 +7,11 @@
 
   tmax = 1.d-6
 
-  xin_file   = "xin.aprox13"
+  primary_species_1 = "helium-4"
+  primary_species_2 = "carbon-12"
+  primary_species_3 = "oxygen-16"
 
-  jacobian = 1
+  jacobian = 2
 
 /
 
