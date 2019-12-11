@@ -302,8 +302,6 @@ contains
     ! dX/dt and not dY/dt.
     burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
-#if defined(SDC_EVOLVE_ENERGY)
-
     ! Our jacobian, dR/dw has the form:
     !
     !  SFS         / d(rho X1dot)/drho  d(rho X1dot)/dX1   d(rho X1dit)/dX2   ...  d(rho X1dot)/dT \
@@ -311,6 +309,8 @@ contains
     !  SFS-1+nspec |   ...                                                                         |
     !  SEINT       | d(rho Edot)/drho   d(rho Edot)/dX1    d(rho Edot)/dX2    ...  d(rho Edot)/dT  |
     !  SEDEN       \ d(rho Edot)/drho   d(rho Edot)/dX1    d(rho Edot)/dX2    ...  d(rho Edot)/dT  /
+    !
+    ! or if enthalpy is replacing it the two energy rows are replaced by a single enthalpy row
 
     dRdw(:,:) = ZERO
 
@@ -336,6 +336,8 @@ contains
             rpar(irp_SRHO) * (burn_state_pert % ydot(m) - burn_state % ydot(m))/(eps * burn_state % rho)
     enddo
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     ! d( d(rho e)/dt)/drho
     dRdw(SEINT, iwrho) = burn_state % ydot(net_ienuc) + &
          rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
@@ -344,6 +346,12 @@ contains
     dRdw(SEDEN, iwrho) = burn_state % ydot(net_ienuc) + &
          rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
 
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    ! d( d(rho h)/dt)/drho
+    dRdw(SENTH, iwrho) = burn_state % ydot(net_ienuc) + &
+         rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
+
+#endif
 
     ! fill the columns of dRdw corresponding to each derivative
     ! with respect to species mass fraction
@@ -353,11 +361,18 @@ contains
           dRdw(SFS-1+m, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(m, n)
        enddo
 
+#if defined(SDC_EVOLVE_ENERGY)
        ! d( d(rho e)/dt)/dX_n
        dRdw(SEINT, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
 
        ! d( d(rho E)/dt)/dX_n
        dRdw(SEDEN, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+       ! d( d(rho h)/dt)/dX_n
+       dRdw(SENTH, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
+
+#endif
 
     enddo
 
@@ -369,16 +384,28 @@ contains
        dRdw(SFS-1+m, iwT) = rpar(irp_SRHO) * burn_state % jac(m, net_itemp)
     enddo
 
+#if defined(SDC_EVOLVE_ENERGY)
     ! d( d(rho e)/dt)/dT
     dRdw(SEINT, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
 
     ! d( d(rho E)/dt)/dT
     dRdw(SEDEN, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
 
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    ! d( d(rho h)/dt)/dT
+    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
+
+#endif
+
+
     ! that completes dRdw
 
-    ! construct dwdU
+    ! construct dwdU -- this will differ a lot between the energy and enthalpy forms
+
     dwdU(:, :) = ZERO
+
+#if defined(SDC_EVOLVE_ENERGY)
+
 
     ! kinetic energy, K = 1/2 |U|^2
     K = 0.5_rt * sum(rpar(irp_SMX:irp_SMZ)**2)/rpar(irp_SRHO)**2
