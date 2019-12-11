@@ -9,6 +9,8 @@ class Network(object):
         self.RHSModule = SKM.actual_rhs_module
         self.eos = Eos()
 
+        self.name = self.NetworkModule.get_network_name().decode("ASCII").strip().lower()
+
         self.nspec = self.ActualNetworkModule.nspec
         self.nspec_evolve = self.ActualNetworkModule.nspec_evolve
 
@@ -59,3 +61,7 @@ class Network(object):
         # statistics of a preceding burn.
         burn_state.state.n_rhs = n_rhs
         burn_state.state.n_jac = n_jac
+
+    @staticmethod
+    def _initialize_safe():
+        return True

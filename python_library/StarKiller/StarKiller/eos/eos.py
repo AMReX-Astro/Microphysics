@@ -7,18 +7,13 @@ class Eos(object):
         self.EosModule = SKM.Eos_Module()
         self.name = self.EosModule.get_eos_name().decode("ASCII").strip().lower()
 
-    def __enter__(self):
-        self._initialize_safe()
-
-    def __exit__(self, exit_type, exit_value, traceback):
-        if traceback:
-            return False
-
     def evaluate(self, input_mode, input_state, use_raw_inputs=False):
         self.EosModule.eos(input_mode, input_state.state, use_raw_inputs)
 
-    def _initialize_safe(self):
-        if (self.name == "helmholtz"):
+    @staticmethod
+    def _initialize_safe():
+        eos = Eos()
+        if (eos.name == "helmholtz"):
             # check to see if the Helmholtz table is in the
             # current working directory
             try:
