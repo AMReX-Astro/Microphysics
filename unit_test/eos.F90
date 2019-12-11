@@ -2,7 +2,7 @@ module eos_module
 
   implicit none
 
-  public eos_init, eos
+  public eos_init, eos, get_eos_name
 
   logical, save :: initialized = .false.  
 
@@ -178,6 +178,16 @@ contains
 
   end subroutine eos
 
+
+  function get_eos_name() result(name)
+
+    use actual_eos_module, only: eos_name
+
+    character(len=128) :: name
+
+    name = eos_name
+
+  end function get_eos_name
 
 
   subroutine reset_inputs(input, state, has_been_reset)
