@@ -155,7 +155,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
 
   write(*,*) "------------------------------------"
   write(*,*) "EOS e(rho, T) initial = ", eos_state_in % e
-  write(*,*) "EOS e(rho, T) final = ", eos_state_out % e
+  write(*,*) "EOS e(rho, T) final =   ", eos_state_out % e
   eos_energy_generated = eos_state_out % e - eos_state_in % e
   write(*,*) "EOS e(rho, T) generated = ", eos_energy_generated
   eos_energy_rate = (eos_state_out % e - eos_state_in % e)/tmax
@@ -165,6 +165,21 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0d0 * (energy - eos_energy_generated)/eos_energy_generated
   write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0d0 * (energy/tmax - eos_energy_rate)/eos_energy_rate
 
+  do i = 1, nspec
+     write(*,*) 'omegadot(', short_spec_names(i), '): ', &
+          (burn_state_out%xn(i)-burn_state_in%xn(i))/dt
+  end do
+  
+  do i = 1, nspec
+     write(*,*) 'delta(', short_spec_names(i), '): ', &
+          (burn_state_out%xn(i)-burn_state_in%xn(i))
+  end do
+  
+  do i = 1, nspec
+     write(*,*) 'percent change(', short_spec_names(i), '): ', &
+          100.d0*(burn_state_out%xn(i)-burn_state_in%xn(i)) / burn_state_in%xn(i)
+  end do
+  
   call microphysics_finalize()
 
 end subroutine burn_cell
