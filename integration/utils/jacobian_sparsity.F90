@@ -140,13 +140,19 @@ contains
 #endif
 
 
-  subroutine set_jac_entry(state, row, col, val)
+  subroutine set_jac_entry(jac, row, col, val)
+
+    use burn_type_module, only : neqs
 
     !$acc routine seq
 
     implicit none
 
-    type (burn_t), intent(inout) :: state
+#ifdef REACT_SPARSE_JACOBIAN
+    real(rt), intent(inout) :: jac(NETWORK_SPARSE_JAC_NNZ)
+#else
+    real(rt), intent(inout) :: jac(neqs, neqs)
+#endif
     integer, intent(in) :: row, col
     real(rt), intent(in) :: val
 
@@ -155,19 +161,25 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
     call set_csr_jac_entry(state % sparse_jac, row, col, val)
 #else
-    state % jac(row, col) = val
+    jac(row, col) = val
 #endif
 
   end subroutine set_jac_entry
 
 
-  subroutine scale_jac_entry(state, row, col, val)
+  subroutine scale_jac_entry(jac, row, col, val)
 
     !$acc routine seq
 
+    use burn_type_module, only : neqs
+
     implicit none
 
-    type (burn_t), intent(inout) :: state
+#ifdef REACT_SPARSE_JACOBIAN
+    real(rt), intent(inout) :: jac(NETWORK_SPARSE_JAC_NNZ)
+#else
+    real(rt), intent(inout) :: jac(neqs, neqs)
+#endif
     integer, intent(in) :: row, col
     real(rt), intent(in) :: val
 
@@ -176,19 +188,24 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
     call scale_csr_jac_entry(state % sparse_jac, row, col, val)
 #else
-    state % jac(row, col) = state % jac(row, col) * val
+    jac(row, col) = jac(row, col) * val
 #endif
 
   end subroutine scale_jac_entry  
 
 
-  subroutine get_jac_entry(state, row, col, val)
+  subroutine get_jac_entry(jac, row, col, val)
 
     !$acc routine seq
 
+    use burn_type_module, only : neqs
     implicit none
 
-    type (burn_t), intent(in) :: state
+#ifdef REACT_SPARSE_JACOBIAN
+    real(rt), intent(in) :: jac(NETWORK_SPARSE_JAC_NNZ)
+#else
+    real(rt), intent(in) :: jac(neqs, neqs)
+#endif
     integer, intent(in) :: row, col
     real(rt), intent(out) :: val
 
@@ -197,28 +214,33 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
     call get_csr_jac_entry(state % sparse_jac, row, col, val)
 #else
-    val = state % jac(row, col)
+    val = jac(row, col)
 #endif
 
   end subroutine get_jac_entry
 
 
-  subroutine set_jac_zero(state)
+  subroutine set_jac_zero(jac)
 
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO
+    use burn_type_module, only : neqs
 
     implicit none
 
-    type (burn_t), intent(inout) :: state
+#ifdef REACT_SPARSE_JACOBIAN
+    real(rt), intent(in) :: jac(NETWORK_SPARSE_JAC_NNZ)
+#else
+    real(rt), intent(inout) :: jac(neqs, neqs)
+#endif
 
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
     state % sparse_jac(:) = ZERO
 #else
-    state % jac(:,:) = ZERO
+    jac(:,:) = ZERO
 #endif
 
   end subroutine set_jac_zero

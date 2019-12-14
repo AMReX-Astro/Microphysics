@@ -326,10 +326,6 @@ contains
     ts % upar(irp_dcvdt,1)                          = state % dcvdt
     ts % upar(irp_dcpdt,1)                          = state % dcpdt
 
-    ts % yd(:,1) = state % ydot
-
-    ts % J(:,:,1) = state % jac
-
     if (state % self_heat) then
        ts % upar(irp_self_heat,1) = ONE
     else
@@ -380,10 +376,6 @@ contains
     state % T_old    = ts % upar(irp_Told,1)
     state % dcvdt    = ts % upar(irp_dcvdt,1)
     state % dcpdt    = ts % upar(irp_dcpdt,1)
-
-    state % ydot = ts % yd(:,1)
-
-    state % jac = ts % J(:,:,1)
 
     if (ts % upar(irp_self_heat,1) > ZERO) then
        state % self_heat = .true.

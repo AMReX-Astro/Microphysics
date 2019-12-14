@@ -232,7 +232,7 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
@@ -245,7 +245,9 @@ contains
     !
     ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: ydot(neqs)
+
     type (rate_t)    :: rr
 
     logical          :: deriva
@@ -254,7 +256,7 @@ contains
     double precision :: enuc
 
     double precision :: rho, temp, abar, zbar
-    double precision :: y(nspec), ydot(nspec)
+    double precision :: y(nspec)
 
     !$gpu
 
@@ -272,11 +274,10 @@ contains
 
     deriva = .false.
     call rhs(y, rr, ydot, deriva, for_jacobian_tderiv = .false.)
-    state % ydot(1:nspec) = ydot(1:nspec)
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
-    call ener_gener_rate(state % ydot(1:nspec), enuc)
+    call ener_gener_rate(ydot(1:nspec), enuc)
 
     ! Get the neutrino losses
 
@@ -284,11 +285,11 @@ contains
 
     ! Append the energy equation (this is erg/g/s)
 
-    state % ydot(net_ienuc) = enuc - sneut
+    ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
 
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
@@ -296,7 +297,7 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use amrex_constants_module, only: ZERO
     use sneut_module, only: sneut5
@@ -304,7 +305,9 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: jac(njrows, njcols)
+
     type (rate_t)    :: rr
 
     logical          :: deriva
@@ -318,7 +321,7 @@ contains
 
     !$gpu
 
-    state % jac(:,:) = ZERO
+    jac(:,:) = ZERO
 
     call get_rates(state, rr)
 
@@ -332,12 +335,12 @@ contains
 
     ! Species Jacobian elements with respect to other species
 
-    call dfdy_isotopes_iso7(y, state, rr)
+    call dfdy_isotopes_iso7(y, state, rr, jac)
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
+       call ener_gener_rate(jac(1:nspec,j), jac(net_ienuc,j))
     enddo
 
     ! Account for the thermal neutrino losses
@@ -346,7 +349,7 @@ contains
 
     do j = 1, nspec
        b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz)
-       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
+       jac(net_ienuc,j) = jac(net_ienuc,j) - b1
     enddo
 
     ! Evaluate the Jacobian elements with respect to temperature by
@@ -355,14 +358,14 @@ contains
     deriva = .true.
     call rhs(y, rr, yderivs, deriva, for_jacobian_tderiv = .true.)
 
-    state % jac(1:nspec,net_itemp) = yderivs
+    jac(1:nspec,net_itemp) = yderivs
 
-    call ener_gener_rate(state % jac(1:nspec,net_itemp), state % jac(net_ienuc,net_itemp))
-    state % jac(net_ienuc,net_itemp) = state % jac(net_ienuc,net_itemp) - dsneutdt
+    call ener_gener_rate(jac(1:nspec,net_itemp), jac(net_ienuc,net_itemp))
+    jac(net_ienuc,net_itemp) = jac(net_ienuc,net_itemp) - dsneutdt
 
     ! Temperature Jacobian elements
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 
@@ -718,7 +721,7 @@ contains
 
 
 
-  subroutine dfdy_isotopes_iso7(y, state, rr)
+  subroutine dfdy_isotopes_iso7(y, state, rr, jac)
 
     use network
     use microphysics_math_module, only: esum3, esum4, esum8 ! function
@@ -727,9 +730,10 @@ contains
 
     ! this routine sets up the dense iso7 jacobian for the isotopes
 
-    type (burn_t) :: state
-    double precision :: y(nspec)
-    type (rate_t)    :: rr
+    type (burn_t), intent(in) :: state
+    double precision, intent(in) :: y(nspec)
+    type (rate_t), intent(in)    :: rr
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     double precision :: b(8)
 
@@ -747,7 +751,7 @@ contains
     b(7) = -7.0d0 * rr % rates(3,irsi2ni) * y(ihe4)
     b(8) =  7.0d0 * rr % rates(3,irni2si) * y(ini56)
 
-    state%jac(ihe4,ihe4) = esum8(b)
+    jac(ihe4,ihe4) = esum8(b)
 
     ! d(he4)/d(c12)
     b(1) =  3.0d0 * rr % rates(1,irg3a)
@@ -755,7 +759,7 @@ contains
     b(3) =  y(ic12) * rr % rates(1,ir1212)
     b(4) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
 
-    state%jac(ihe4,ic12) = esum4(b)
+    jac(ihe4,ic12) = esum4(b)
 
     ! d(he4)/d(o16)
     b(1) =  rr % rates(1,iroga)
@@ -763,30 +767,30 @@ contains
     b(3) =  y(io16) * rr % rates(1,ir1616)
     b(4) = -y(ihe4) * rr % rates(1,iroag)
 
-    state%jac(ihe4,io16) = esum4(b)
+    jac(ihe4,io16) = esum4(b)
 
     ! d(he4)/d(ne20)
     b(1) =  rr % rates(1,irnega)
     b(2) = -y(ihe4) * rr % rates(1,irneag)
 
-    state%jac(ihe4,ine20) = sum(b(1:2))
+    jac(ihe4,ine20) = sum(b(1:2))
 
     ! d(he4)/d(mg24)
     b(1) =  rr % rates(1,irmgga)
     b(2) = -y(ihe4) * rr % rates(1,irmgag)
 
-    state%jac(ihe4,img24) = sum(b(1:2))
+    jac(ihe4,img24) = sum(b(1:2))
 
     ! d(he4)/d(si28)
     b(1) =  rr % rates(1,irsiga)
     b(2) = -7.0d0 * rr % rates(4,irsi2ni) * y(ihe4)
 
-    state%jac(ihe4,isi28) = sum(b(1:2))
+    jac(ihe4,isi28) = sum(b(1:2))
 
     ! d(he4)/d(ni56)
     b(1) =  7.0d0 * rr % rates(1,irni2si)
 
-    state%jac(ihe4,ini56) = b(1)
+    jac(ihe4,ini56) = b(1)
 
 
 
@@ -795,7 +799,7 @@ contains
     b(1) =  0.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
     b(2) = -y(ic12) * rr % rates(1,ircag)
 
-    state%jac(ic12,ihe4) = sum(b(1:2))
+    jac(ic12,ihe4) = sum(b(1:2))
 
     ! d(c12)/d(c12)
     b(1) = -rr % rates(1,irg3a)
@@ -803,13 +807,13 @@ contains
     b(3) = -2.0d0 * y(ic12) * rr % rates(1,ir1212)
     b(4) = -y(io16) * rr % rates(1,ir1216)
 
-    state%jac(ic12,ic12) = esum4(b)
+    jac(ic12,ic12) = esum4(b)
 
     ! d(c12)/d(o16)
     b(1) =  rr % rates(1,iroga)
     b(2) = -y(ic12) * rr % rates(1,ir1216)
 
-    state%jac(ic12,io16) = sum(b(1:2))
+    jac(ic12,io16) = sum(b(1:2))
 
 
     ! 16o jacobian elements
@@ -817,13 +821,13 @@ contains
     b(1) =  y(ic12) * rr % rates(1,ircag)
     b(2) = -y(io16) * rr % rates(1,iroag)
 
-    state%jac(io16,ihe4) = sum(b(1:2))
+    jac(io16,ihe4) = sum(b(1:2))
 
     ! d(o16)/d(c12)
     b(1) =  y(ihe4) * rr % rates(1,ircag)
     b(2) = -y(io16) * rr % rates(1,ir1216)
 
-    state%jac(io16,ic12) = sum(b(1:2))
+    jac(io16,ic12) = sum(b(1:2))
 
     ! d(o16)/d(o16)
     b(1) = -rr % rates(1,iroga)
@@ -831,12 +835,12 @@ contains
     b(3) = -2.0d0 * y(io16) * rr % rates(1,ir1616)
     b(4) = -y(ihe4) * rr % rates(1,iroag)
 
-    state%jac(io16,io16) = esum4(b)
+    jac(io16,io16) = esum4(b)
 
     ! d(o16)/d(ne20)
     b(1) =  rr % rates(1,irnega)
 
-    state%jac(io16,ine20) = b(1)
+    jac(io16,ine20) = b(1)
 
 
 
@@ -844,27 +848,27 @@ contains
     ! d(ne20)/d(he4)
     b(1) =  y(io16) * rr % rates(1,iroag) - y(ine20) * rr % rates(1,irneag)
 
-    state%jac(ine20,ihe4) = b(1)
+    jac(ine20,ihe4) = b(1)
 
     ! d(ne20)/d(c12)
     b(1) =  y(ic12) * rr % rates(1,ir1212)
 
-    state%jac(ine20,ic12) = b(1)
+    jac(ine20,ic12) = b(1)
 
     ! d(ne20)/d(o16)
     b(1) =  y(ihe4) * rr % rates(1,iroag)
 
-    state%jac(ine20,io16) = b(1)
+    jac(ine20,io16) = b(1)
 
     ! d(ne20)/d(ne20)
     b(1) = -rr % rates(1,irnega) - y(ihe4) * rr % rates(1,irneag)
 
-    state%jac(ine20,ine20) = b(1)
+    jac(ine20,ine20) = b(1)
 
     ! d(ne20)/d(mg24)
     b(1) =  rr % rates(1,irmgga)
 
-    state%jac(ine20,img24) = b(1)
+    jac(ine20,img24) = b(1)
 
 
 
@@ -873,33 +877,33 @@ contains
     b(1) =  y(ine20) * rr % rates(1,irneag)
     b(2) = -y(img24) * rr % rates(1,irmgag)
 
-    state%jac(img24,ihe4) = sum(b(1:2))
+    jac(img24,ihe4) = sum(b(1:2))
 
     ! d(mg24)/d(c12)
     b(1) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
 
-    state%jac(img24,ic12) = b(1)
+    jac(img24,ic12) = b(1)
 
     ! d(mg24)/d(o16)
     b(1) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
 
-    state%jac(img24,io16) = b(1)
+    jac(img24,io16) = b(1)
 
     ! d(mg24)/d(ne20)
     b(1) =  y(ihe4) * rr % rates(1,irneag)
 
-    state%jac(img24,ine20) = b(1)
+    jac(img24,ine20) = b(1)
 
     ! d(mg24)/d(mg24)
     b(1) = -rr % rates(1,irmgga)
     b(2) = -y(ihe4) * rr % rates(1,irmgag)
 
-    state%jac(img24,img24) = sum(b(1:2))
+    jac(img24,img24) = sum(b(1:2))
 
     ! d(mg24)/d(si28)
     b(1) =  rr % rates(1,irsiga)
 
-    state%jac(img24,isi28) = b(1)
+    jac(img24,isi28) = b(1)
 
     ! 28si jacobian elements
     ! d(si28)/d(he4)
@@ -908,34 +912,34 @@ contains
     b(3) = -rr % rates(3,irsi2ni) * y(ihe4)
     b(4) =  rr % rates(3,irni2si) * y(ini56)
 
-    state%jac(isi28,ihe4) = esum4(b)
+    jac(isi28,ihe4) = esum4(b)
 
     ! d(si28)/d(c12)
     b(1) =  0.5d0 * y(io16) * rr % rates(1,ir1216)
 
-    state%jac(isi28,ic12) = b(1)
+    jac(isi28,ic12) = b(1)
 
     ! d(si28)/d(o16)
     b(1) =  y(io16) * rr % rates(1,ir1616)
     b(2) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
 
-    state%jac(isi28,io16) = sum(b(1:2))
+    jac(isi28,io16) = sum(b(1:2))
 
     ! d(si28)/d(mg24)
     b(1) =  y(ihe4) * rr % rates(1,irmgag)
 
-    state%jac(isi28,img24) = b(1)
+    jac(isi28,img24) = b(1)
 
     ! d(si28)/d(si28)
     b(1) = -rr % rates(1,irsiga)
     b(2) = -rr % rates(4,irsi2ni) * y(ihe4)
 
-    state%jac(isi28,isi28) = sum(b(1:2))
+    jac(isi28,isi28) = sum(b(1:2))
 
     ! d(si28)/d(ni56)
     b(1) =  rr % rates(1,irni2si)
 
-    state%jac(isi28,ini56) = b(1)
+    jac(isi28,ini56) = b(1)
 
     ! ni56 jacobian elements
     ! d(ni56)/d(he4)
@@ -943,17 +947,17 @@ contains
     b(2) =  rr % rates(3,irsi2ni) * y(ihe4)
     b(3) = -rr % rates(3,irni2si) * y(ini56)
 
-    state%jac(ini56,ihe4) = esum3(b)
+    jac(ini56,ihe4) = esum3(b)
 
     ! d(ni56)/d(si28)
     b(1) = rr % rates(4,irsi2ni) * y(ihe4)
 
-    state%jac(ini56,isi28) = b(1)
+    jac(ini56,isi28) = b(1)
 
     ! d(ni56)/d(ni56)
     b(1) = -rr % rates(1,irni2si)
 
-    state%jac(ini56,ini56) = b(1)
+    jac(ini56,ini56) = b(1)
 
   end subroutine dfdy_isotopes_iso7
 
