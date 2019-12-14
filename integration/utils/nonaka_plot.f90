@@ -36,7 +36,7 @@ contains
   end subroutine nonaka_init
 
 
-  subroutine nonaka_rhs(state, reference_time, trim_after_timestep)
+  subroutine nonaka_rhs(state, ydot, reference_time, trim_after_timestep)
 
     ! state: the burn_t corresponding to the current state
     !        with state % time relative to the start of the current burn call.
@@ -50,12 +50,13 @@ contains
 
     use extern_probin_module, only: nonaka_i, nonaka_j, nonaka_k, nonaka_file
     use amrex_fort_module, only: rt => amrex_real
-    use burn_type_module, only: burn_t
+    use burn_type_module, only: burn_t, neqs
     use actual_network, only: nspec_evolve, aion
 
     implicit none
 
     type (burn_t), intent(in) :: state
+    real(rt),      intent(in) :: ydot(neqs)
     real(rt),      intent(in) :: reference_time
     
     ! optional: trim entries past end of timestep
@@ -110,7 +111,8 @@ contains
         write(unit=nonaka_file_unit, fmt=vector_format, advance="no") (state % xn(j), j = 1, nspec_evolve)
 
         ! Convert molar fraction rhs to mass fraction rhs dX/dt
-        write(unit=nonaka_file_unit, fmt=vector_format) (state % ydot(j) * aion(j), j = 1, nspec_evolve)
+        write(unit=nonaka_file_unit, fmt=vector_format) (ydot(j) * aion(j), j = 1, nspec_evolve)
+
         close(unit=nonaka_file_unit)
 
     end if

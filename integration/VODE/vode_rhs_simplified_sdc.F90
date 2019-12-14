@@ -10,7 +10,7 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   use actual_network, only: aion, nspec_evolve
   use amrex_fort_module, only: rt => amrex_real
-  use burn_type_module, only: burn_t, net_ienuc, net_itemp
+  use burn_type_module, only: burn_t, net_ienuc, net_itemp, neqs
   use amrex_constants_module, only: ZERO, ONE
   use network_rhs_module, only: network_rhs
   use vode_type_module, only: clean_state, renormalize_species
@@ -25,6 +25,7 @@ subroutine f_rhs(time, y, ydot, rpar)
   real(rt), intent(  OUT) :: ydot(VODE_NEQS)
 
   type (burn_t) :: burn_state
+  real(rt) :: ydot_react(neqs)
 
   !$gpu
 
@@ -42,11 +43,11 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   ! call the specific network to get the RHS
 
-  call network_rhs(burn_state, rpar(irp_t0))
+  call network_rhs(burn_state, ydot_react, rpar(irp_t0))
 
   ! convert back to the vode type -- this will add the advective terms
 
-  call rhs_to_vode(time, burn_state, y, ydot, rpar)
+  call rhs_to_vode(time, burn_state, ydot_react, y, ydot, rpar)
 
 end subroutine f_rhs
 
@@ -63,7 +64,7 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   use network, only: aion, aion_inv, nspec_evolve
   use amrex_constants_module, only: ZERO
   use network_rhs_module, only: network_jac
-  use burn_type_module, only: burn_t, net_ienuc
+  use burn_type_module, only: burn_t, net_ienuc, neqs
   use amrex_fort_module, only: rt => amrex_real
   use vode_rpar_indices
   use vode_type_module, only: clean_state, renormalize_species
@@ -77,6 +78,7 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   real(rt), intent(  OUT) :: pd(VODE_NEQS, VODE_NEQS)
 
   type (burn_t) :: state
+  real(rt) :: jac_react(neqs, neqs)
   integer :: n
 
   !$gpu
@@ -88,10 +90,10 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   state % time = time
 
   ! call the analytic Jacobian
-  call network_jac(state, rpar(irp_t0))
+  call network_jac(state, jac_react, rpar(irp_t0))
 
   ! convert to the system we are using
-  call jac_to_vode(time, state, y, pd, rpar)
+  call jac_to_vode(time, jac_react, y, pd, rpar)
 
 end subroutine jac
 

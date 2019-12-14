@@ -227,7 +227,7 @@ contains
 
   ! Given a burn state, fill the rpar and integration state data.
 
-  subroutine burn_to_vode(state, y, rpar, ydot, jac)
+  subroutine burn_to_vode(state, y, rpar)
 
     !$acc routine seq
 
@@ -245,7 +245,6 @@ contains
     type (burn_t) :: state
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(neqs)
-    real(rt), optional :: ydot(neqs), jac(neqs, neqs)
 
     !$gpu
 
@@ -269,20 +268,6 @@ contains
     rpar(irp_Told)                           = state % T_old
     rpar(irp_dcvdt)                          = state % dcvdt
     rpar(irp_dcpdt)                          = state % dcpdt
-
-    if (present(ydot)) then
-       ydot = state % ydot
-       ydot(net_itemp) = ydot(net_itemp) * inv_temp_scale
-       ydot(net_ienuc) = ydot(net_ienuc) * inv_ener_scale
-    endif
-
-    if (present(jac)) then
-       jac = state % jac
-       jac(net_itemp,:) = jac(net_itemp,:) * inv_temp_scale
-       jac(net_ienuc,:) = jac(net_ienuc,:) * inv_ener_scale
-       jac(:,net_itemp) = jac(:,net_itemp) * temp_scale
-       jac(:,net_ienuc) = jac(:,net_ienuc) * ener_scale
-    endif
 
     if (state % self_heat) then
        rpar(irp_self_heat) = ONE

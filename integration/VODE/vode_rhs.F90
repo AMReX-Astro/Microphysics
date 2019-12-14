@@ -51,27 +51,26 @@ contains
     call vode_to_burn(y, rpar, burn_state)
 
     burn_state % time = time
-    call network_rhs(burn_state, rpar(irp_t0))
+    call network_rhs(burn_state, ydot, rpar(irp_t0))
 
     ! We integrate X, not Y
-    burn_state % ydot(1:nspec_evolve) = &
-         burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
-       burn_state % ydot(net_itemp) = ZERO
+       ydot(net_itemp) = ZERO
     endif
 
     if (.not. integrate_energy) then
-       burn_state % ydot(net_ienuc) = ZERO
+       ydot(net_ienuc) = ZERO
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       burn_state % ydot(:) = react_boost * burn_state % ydot(:)
+       ydot(:) = react_boost * ydot(:)
     endif
 
-    call burn_to_vode(burn_state, y, rpar, ydot = ydot)
+    call burn_to_vode(burn_state, y, rpar)
 
   end subroutine f_rhs
 
@@ -107,29 +106,29 @@ contains
 
     call vode_to_burn(y, rpar, state)
     state % time = time
-    call network_jac(state, rpar(irp_t0))
+    call network_jac(state, pd, rpar(irp_t0))
 
     ! We integrate X, not Y
     do n = 1, nspec_evolve
-       state % jac(n,:) = state % jac(n,:) * aion(n)
-       state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+       pd(n,:) = pd(n,:) * aion(n)
+       pd(:,n) = pd(:,n) * aion_inv(n)
     enddo
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       state % jac(:,:) = react_boost * state % jac(:,:)
+       pd(:,:) = react_boost * pd(:,:)
     endif
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
-       state % jac(net_itemp,:) = ZERO
+       pd(net_itemp,:) = ZERO
     endif
 
     if (.not. integrate_energy) then
-       state % jac(net_ienuc,:) = ZERO
+       pd(net_ienuc,:) = ZERO
     endif
 
-    call burn_to_vode(state, y, rpar, jac = pd)
+    call burn_to_vode(state, y, rpar)
 
   end subroutine jac
 end module vode_rhs_module
