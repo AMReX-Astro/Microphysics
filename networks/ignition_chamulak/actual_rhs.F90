@@ -117,13 +117,14 @@ contains
 
   end subroutine get_rates
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: ydot(neqs)
     type (rate_t)    :: rr
 
     double precision :: temp, xc12tmp, dens
@@ -135,7 +136,7 @@ contains
 
     !$gpu
 
-    state % ydot = ZERO
+    ydot = ZERO
 
     ! we enforce that O16 doesn't change and any C12 change goes to ash
     call update_unevolved_species(state)
@@ -172,23 +173,23 @@ contains
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
     xc12tmp = max(y(ic12) * aion(ic12),0.d0)
-    state % ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
+    ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
+    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
 
     call get_ebin(dens, ebin)
 
-    call ener_gener_rate(state % ydot(1:nspec_evolve), ebin, state % ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec_evolve), ebin, ydot(net_ienuc))
 
     if (state % self_heat) then
 
        if (do_constant_volume_burn) then
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
+          ydot(net_itemp) = ydot(net_ienuc) / state % cv
 
        else
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
+          ydot(net_itemp) = ydot(net_ienuc) / state % cp
 
        endif
     endif
@@ -197,13 +198,14 @@ contains
 
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use temperature_integration_module, only: temperature_jac
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: jac(njrows, njcols)
     type (rate_t)    :: rr
 
     double precision :: dens
@@ -215,7 +217,7 @@ contains
 
     !$gpu
 
-    state % jac(:,:)  = ZERO
+    jac(:,:)  = ZERO
 
     ! Get data from the state
     call get_rates(state, rr)
@@ -230,18 +232,18 @@ contains
 
     ! carbon jacobian elements
 
-    state % jac(ic12, ic12) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
+    jac(ic12, ic12) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
 
     ! add the temperature derivatives: df(y_i) / dT
 
-    state % jac(ic12,net_itemp) = -TWELFTH * M12_chamulak * HALF * &
+    jac(ic12,net_itemp) = -TWELFTH * M12_chamulak * HALF * &
                                    (dens*rate*xc12tmp**2*dscorrdt  &
                                   + dens*scorr*xc12tmp**2*dratedt)
 
     ! Convert back to molar form
 
     do j = 1, nspec_evolve
-       state % jac(j,:) = state % jac(j,:) * aion_inv(j)
+       jac(j,:) = jac(j,:) * aion_inv(j)
     enddo
 
     ! Energy generation rate Jacobian elements with respect to species
@@ -249,14 +251,14 @@ contains
     call get_ebin(dens, ebin)
 
     do j = 1, nspec_evolve
-       call ener_gener_rate(state % jac(1:nspec_evolve,j), ebin, state % jac(net_ienuc,j))
+       call ener_gener_rate(jac(1:nspec_evolve,j), ebin, jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), ebin, state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), ebin, jac(net_ienuc,net_itemp))
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 

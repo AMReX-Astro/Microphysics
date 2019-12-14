@@ -280,12 +280,12 @@ contains
 
 
 
-  subroutine rhs_to_bs(bs, burn)
+  subroutine rhs_to_bs(bs, burn, ydot_react)
 
     !$acc routine seq
 
     use actual_network, only: nspec_evolve, aion
-    use burn_type_module, only: burn_t, net_ienuc
+    use burn_type_module, only: burn_t, net_ienuc, neqs
 
 #if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: SVAR_EVOLVE, SEDEN, SEINT, SFS
@@ -299,6 +299,7 @@ contains
 
     type (bs_t) :: bs
     type (burn_t) :: burn
+    double precision :: ydot_react(neqs)
 
     integer :: n
 
@@ -311,16 +312,16 @@ contains
     ! Add in the reacting terms from the burn_t
 
     bs % ydot(SFS:SFS+nspec_evolve-1) = bs % ydot(SFS:SFS+nspec_evolve-1) + &
-                                        bs % u(irp_SRHO) * burn % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+                                        bs % u(irp_SRHO) * ydot_react(1:nspec_evolve) * aion(1:nspec_evolve)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    bs % ydot(SEINT) = bs % ydot(SEINT) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
-    bs % ydot(SEDEN) = bs % ydot(SEDEN) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
+    bs % ydot(SEINT) = bs % ydot(SEINT) + bs % u(irp_SRHO) * ydot_react(net_ienuc)
+    bs % ydot(SEDEN) = bs % ydot(SEDEN) + bs % u(irp_SRHO) * ydot_react(net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    bs % ydot(SENTH) = bs % ydot(SENTH) + bs % u(irp_SRHO) * burn % ydot(net_ienuc)
+    bs % ydot(SENTH) = bs % ydot(SENTH) + bs % u(irp_SRHO) * ydot_react(net_ienuc)
 
 #endif
 
@@ -328,12 +329,12 @@ contains
 
 
 
-  subroutine jac_to_bs(bs, burn)
+  subroutine jac_to_bs(bs, jac)
 
     !$acc routine seq
 
     use network, only: nspec_evolve, aion, aion_inv
-    use burn_type_module, only: burn_t, net_ienuc
+    use burn_type_module, only: net_ienuc, neqs
 
 #if defined(SDC_EVOLVE_ENERGY)
     use sdc_type_module, only: SEDEN, SEINT, SFS
@@ -344,8 +345,8 @@ contains
 
     implicit none
 
-    type (bs_t) :: bs
-    type (burn_t) :: burn
+    type (bs_t), intent(inout) :: bs
+    double precision, intent(in) :: jac(neqs, neqs)
 
     integer :: n
 
@@ -353,25 +354,25 @@ contains
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn % jac(1:nspec_evolve,1:nspec_evolve)
-    bs % jac(SFS:SFS+nspec_evolve-1,SEDEN) = burn % jac(1:nspec_evolve,net_ienuc)
-    bs % jac(SFS:SFS+nspec_evolve-1,SEINT) = burn % jac(1:nspec_evolve,net_ienuc)
+    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac(1:nspec_evolve,1:nspec_evolve)
+    bs % jac(SFS:SFS+nspec_evolve-1,SEDEN) = jac(1:nspec_evolve,net_ienuc)
+    bs % jac(SFS:SFS+nspec_evolve-1,SEINT) = jac(1:nspec_evolve,net_ienuc)
 
-    bs % jac(SEDEN,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
-    bs % jac(SEDEN,SEDEN) = burn % jac(net_ienuc,net_ienuc)
-    bs % jac(SEDEN,SEINT) = burn % jac(net_ienuc,net_ienuc)
+    bs % jac(SEDEN,SFS:SFS+nspec_evolve-1) = jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SEDEN,SEDEN) = jac(net_ienuc,net_ienuc)
+    bs % jac(SEDEN,SEINT) = jac(net_ienuc,net_ienuc)
 
-    bs % jac(SEINT,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
-    bs % jac(SEINT,SEDEN) = burn % jac(net_ienuc,net_ienuc)
-    bs % jac(SEINT,SEINT) = burn % jac(net_ienuc,net_ienuc)
+    bs % jac(SEINT,SFS:SFS+nspec_evolve-1) = jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SEINT,SEDEN) = jac(net_ienuc,net_ienuc)
+    bs % jac(SEINT,SEINT) = jac(net_ienuc,net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn % jac(1:nspec_evolve,1:nspec_evolve)
-    bs % jac(SFS:SFS+nspec_evolve-1,SENTH) = burn % jac(1:nspec_evolve,net_ienuc)
+    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac(1:nspec_evolve,1:nspec_evolve)
+    bs % jac(SFS:SFS+nspec_evolve-1,SENTH) = jac(1:nspec_evolve,net_ienuc)
 
-    bs % jac(SENTH,SFS:SFS+nspec_evolve-1) = burn % jac(net_ienuc,1:nspec_evolve)
-    bs % jac(SENTH,SENTH) = burn % jac(net_ienuc,net_ienuc)
+    bs % jac(SENTH,SFS:SFS+nspec_evolve-1) = jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SENTH,SENTH) = jac(net_ienuc,net_ienuc)
 
 #endif
 

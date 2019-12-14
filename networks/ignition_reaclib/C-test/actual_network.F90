@@ -2,7 +2,7 @@ module actual_network
 
   use physical_constants, only: ERG_PER_MeV
   use amrex_fort_module, only: rt => amrex_real
-  
+
   implicit none
 
   public
@@ -31,7 +31,8 @@ module actual_network
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 1
-  
+  integer, parameter :: number_reaclib_sets = 2
+
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 0
 
@@ -59,7 +60,7 @@ module actual_network
   integer, parameter :: i_dqweak      = 5
   integer, parameter :: i_epart       = 6
 
-  character (len=16), save :: spec_names(nspec) 
+  character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
@@ -72,12 +73,22 @@ module actual_network
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
+#ifdef REACT_SPARSE_JACOBIAN
+  ! Shape of Jacobian in Compressed Sparse Row format
+  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 19
+  integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: csr_jac_col_index, csr_jac_row_count
+#endif
+#endif
+
 contains
 
   subroutine actual_network_init()
-    
+
     implicit none
-    
+
     integer :: i
 
     ! Allocate ion info arrays
@@ -127,17 +138,82 @@ contains
     !wion(:) = aion(:)
 
     !$acc update device(aion, zion, bion, nion, mion, wion)
+
+#ifdef REACT_SPARSE_JACOBIAN
+    ! Set CSR format metadata for Jacobian
+    allocate(csr_jac_col_index(NETWORK_SPARSE_JAC_NNZ))
+    allocate(csr_jac_row_count(nspec_evolve + 3)) ! neq + 1
+
+    csr_jac_col_index = [ &
+      1, &
+      2, &
+      4, &
+      1, &
+      2, &
+      4, &
+      1, &
+      2, &
+      3, &
+      4, &
+      1, &
+      2, &
+      3, &
+      4, &
+      1, &
+      2, &
+      3, &
+      4, &
+      5  ]
+
+    csr_jac_row_count = [ &
+      1, &
+      4, &
+      7, &
+      11, &
+      15, &
+      20  ]
+#endif
+
   end subroutine actual_network_init
 
 
-  subroutine actual_network_finalize()    
+  subroutine actual_network_finalize()
     ! Deallocate storage arrays
-    deallocate(aion)
-    deallocate(zion)
-    deallocate(bion)
-    deallocate(nion)
-    deallocate(mion)
-    deallocate(wion)
+
+    if (allocated(aion)) then
+       deallocate(aion)
+    endif
+
+    if (allocated(zion)) then
+       deallocate(zion)
+    endif
+
+    if (allocated(bion)) then
+       deallocate(bion)
+    endif
+
+    if (allocated(nion)) then
+       deallocate(nion)
+    endif
+
+    if (allocated(mion)) then
+       deallocate(mion)
+    endif
+
+    if (allocated(wion)) then
+       deallocate(wion)
+    endif
+
+#ifdef REACT_SPARSE_JACOBIAN
+    if (allocated(csr_jac_col_index)) then
+       deallocate(csr_jac_col_index)
+    endif
+
+    if (allocated(csr_jac_row_count)) then
+       deallocate(csr_jac_row_count)
+    endif
+#endif
+
   end subroutine actual_network_finalize
 
 
@@ -145,12 +221,12 @@ contains
     ! Computes the instantaneous energy generation rate
 
     !$acc routine seq
-  
+
     implicit none
 
     real(rt) :: dydt(nspec), enuc
 
-    !$gpu    
+    !$gpu
 
     ! This is basically e = m c**2
 

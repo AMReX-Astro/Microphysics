@@ -214,20 +214,22 @@ contains
   end subroutine vode_to_sdc
 
 
-  subroutine rhs_to_vode(time, burn_state, y, ydot, rpar)
+  subroutine rhs_to_vode(time, burn_state, ydot_react, y, ydot, rpar)
 
-    use burn_type_module, only : burn_t, net_ienuc
+    use burn_type_module, only : burn_t, net_ienuc, neqs
 
     real(rt), intent(in) :: time
-    real(rt)    :: rpar(n_rpar_comps)
-    real(rt)    :: y(SVAR_EVOLVE), ydot(SVAR_EVOLVE)
+    real(rt), intent(in) :: rpar(n_rpar_comps)
+    real(rt), intent(in) :: y(SVAR_EVOLVE)
     type(burn_t), intent(in) :: burn_state
+    real(rt), intent(in) :: ydot_react(neqs)
+    real(rt), intent(out) :: ydot(SVAR_EVOLVE)
 
     !$gpu
 
     call fill_unevolved_variables(time, y, rpar)
 
-    ! burn_t % ydot has just the contribution to the RHS from the
+    ! ydot_react has just the contribution to the RHS from the
     ! reaction network.  Note that these are in terms of dY/dt
 
     ! start with the contribution from the non-reacting sources
@@ -235,30 +237,31 @@ contains
 
     ! add in the reacting terms -- here we convert from dY/dt to dX/dt
     ydot(SFS:SFS-1+nspec_evolve) = ydot(SFS:SFS-1+nspec_evolve) + &
-         rpar(irp_SRHO) * aion(1:nspec_evolve) * burn_state % ydot(1:nspec_evolve)
+         rpar(irp_SRHO) * aion(1:nspec_evolve) * ydot_react(1:nspec_evolve)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
-    ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+    ydot(SEINT) = ydot(SEINT) + rpar(irp_SRHO) * ydot_react(net_ienuc)
+    ydot(SEDEN) = ydot(SEDEN) + rpar(irp_SRHO) * ydot_react(net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH) = ydot(SENTH) + rpar(irp_SRHO) * burn_state % ydot(net_ienuc)
+    ydot(SENTH) = ydot(SENTH) + rpar(irp_SRHO) * ydot_react(net_ienuc)
 
 #endif
 
   end subroutine rhs_to_vode
 
 
-  subroutine jac_to_vode(time, burn_state, y, jac, rpar)
+  subroutine jac_to_vode(time, jac_react, y, jac, rpar)
 
     ! this is only used with an analytic Jacobian
+
 
     ! we come in with burn_state % jac being the Jacobian of the reacting system
     ! but we need to convert it to the SDC system
 
-    use burn_type_module, only : burn_t, net_ienuc, net_itemp, copy_burn_t
+    use burn_type_module, only : burn_t, net_ienuc, net_itemp, copy_burn_t, neqs
     use eos_type_module, only : eos_input_re, eos_t
     use eos_module, only : eos
     use eos_composition_module, only : eos_xderivs_t, composition_derivatives
@@ -267,7 +270,8 @@ contains
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
-    type(burn_t), intent(inout) :: burn_state
+
+    real(rt), intent(in) :: jac_react(neqs, neqs)
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
     
     integer :: m, n
@@ -443,11 +447,11 @@ contains
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = burn_state % jac(1:nspec_evolve,1:nspec_evolve)
-    jac(SFS:SFS+nspec_evolve-1,SENTH) = burn_state % jac(1:nspec_evolve,net_ienuc)
+    jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac_react(1:nspec_evolve,1:nspec_evolve)
+    jac(SFS:SFS+nspec_evolve-1,SENTH) = jac_react(1:nspec_evolve,net_ienuc)
 
-    jac(SENTH,SFS:SFS+nspec_evolve-1) = burn_state % jac(net_ienuc,1:nspec_evolve)
-    jac(SENTH,SENTH) = burn_state % jac(net_ienuc,net_ienuc)
+    jac(SENTH,SFS:SFS+nspec_evolve-1) = jac_react(net_ienuc,1:nspec_evolve)
+    jac(SENTH,SENTH) = jac_react(net_ienuc,net_ienuc)
 
     ! Scale it to match our variables. We don't need to worry about
     ! the rho dependence, since every one of the SDC variables is
