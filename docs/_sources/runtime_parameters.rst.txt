@@ -41,6 +41,36 @@ BS
 
 
 
+C-burn-simple
+=============
+
++----------------------------------+---------------------------------------------------------+--------------------+
+| parameter                        | description                                             | default value      |
++==================================+=========================================================+====================+
+| ``disable_fermi_heating``        | Turn off heating due to the relaxation of the electron  | .false.            |
+|                                  | fermi distribution at high densities caused by electron |                    |
+|                                  | capture reactions. Turning off heating in this way is   |                    |
+|                                  | unphysical but can be useful for measuring the size of  |                    |
+|                                  | this heating effect.                                    |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+
+
+
+C-test
+======
+
++----------------------------------+---------------------------------------------------------+--------------------+
+| parameter                        | description                                             | default value      |
++==================================+=========================================================+====================+
+| ``disable_fermi_heating``        | Turn off heating due to the relaxation of the electron  | .false.            |
+|                                  | fermi distribution at high densities caused by electron |                    |
+|                                  | capture reactions. Turning off heating in this way is   |                    |
+|                                  | unphysical but can be useful for measuring the size of  |                    |
+|                                  | this heating effect.                                    |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+
+
+
 CVODE
 =====
 
@@ -75,7 +105,11 @@ URCA-simple
 +----------------------------------+---------------------------------------------------------+--------------------+
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
-| ``disable_thermal_neutrinos``    | Turn off thermal neutrino losses                        | .false.            |
+| ``disable_fermi_heating``        | Turn off heating due to the relaxation of the electron  | .false.            |
+|                                  | fermi distribution at high densities caused by electron |                    |
+|                                  | capture reactions. Turning off heating in this way is   |                    |
+|                                  | unphysical but can be useful for measuring the size of  |                    |
+|                                  | this heating effect.                                    |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
@@ -727,6 +761,21 @@ stellarcollapse
 | ``eos_file``                     | name of the HDF5 file containing tabulated data         | ""                 |
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``use_energy_shift``             |                                                         | .false.            |
++----------------------------------+---------------------------------------------------------+--------------------+
+
+
+
+subch
+=====
+
++----------------------------------+---------------------------------------------------------+--------------------+
+| parameter                        | description                                             | default value      |
++==================================+=========================================================+====================+
+| ``disable_fermi_heating``        | Turn off heating due to the relaxation of the electron  | .false.            |
+|                                  | fermi distribution at high densities caused by electron |                    |
+|                                  | capture reactions. Turning off heating in this way is   |                    |
+|                                  | unphysical but can be useful for measuring the size of  |                    |
+|                                  | this heating effect.                                    |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
