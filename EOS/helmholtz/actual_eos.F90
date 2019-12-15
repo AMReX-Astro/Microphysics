@@ -527,12 +527,26 @@ contains
     double precision, parameter :: asol    = 4.0d0 * ssol / clight
     double precision, parameter :: asoli3  = asol/3.0d0
 
+    double precision, parameter :: rho_c = 1.0d2
+    double precision, parameter :: delta_rho = 2.5d1
+
     !$gpu
     
     deni = 1.0d0 / state % rho
     tempi = 1.0d0 / state % T
 
     prad    = asoli3 * state % T * state % T * state % T * state % T
+
+    ! In low density material, this radiation pressure becomes unphysically high.
+    ! For rho ~ 1 g/cc and T ~ 1e9, then this radiation pressure will lead to a
+    ! sound speed ~ 0.1c, and this is a problem because the codes using this EOS
+    ! are primarily non-relativistic. Thus we smooth out the radiation pressure
+    ! such that it disappears at this density. Since all terms below depend on prad,
+    ! this will result in the radiation term effectively vanishing below the cutoff
+    ! density. For simplicity we ignore the effect this has on the derivatives.
+
+    prad = prad * 0.5d0 * (1.0d0 + tanh((state % rho - rho_c) / delta_rho))
+
     dpraddd = 0.0d0
     dpraddt = 4.0d0 * prad*tempi
 #ifdef EXTRA_THERMO
