@@ -1038,6 +1038,8 @@ contains
 
   subroutine finalize_state(input, state, v_want, v1_want, v2_want)
 
+    use extern_probin_module, only: eos_sound_speed_limit
+
     implicit none
 
     integer,          intent(in   ) :: input
@@ -1063,6 +1065,7 @@ contains
     ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     ! This replaces the relativistic version that comes out of helmeos.
     state % cs = sqrt(state % gam1 * state % p / state % rho)
+    state % cs = min(state % cs, eos_sound_speed_limit)
 
     if (input_is_constant) then
 
