@@ -42,7 +42,7 @@ class AmrexAstroModel(object):
         self.reset()
 
         f = open(input_file, 'r')
-        
+
         num_points_line = f.readline()
         num_points = int(num_points_line.split('=')[-1].strip())
         self.number_points = num_points
@@ -62,14 +62,14 @@ class AmrexAstroModel(object):
                     num_varnames_read = 1
                 else:
                     num_varnames_read += 1
-                    
+
                 # Read variable name if we're in the variable names section
                 variable_name = ls[1:].strip()
 
                 # Shorten species names to their abbreviations
                 if variable_name in self.network.species_names:
                     variable_name = self.network.shorten_species(variable_name)
-                
+
                 self.variables.append(variable_name)
                 self.model_data[variable_name] = []
 
@@ -83,7 +83,7 @@ class AmrexAstroModel(object):
 
         # Close file
         f.close()
-        
+
         for ipt in range(num_points):
             for ivar in range(num_variables):
                 ientry = ivar + ipt * (num_variables)
@@ -93,4 +93,3 @@ class AmrexAstroModel(object):
         # Convert data to numpy arrays
         for vi in self.model_data.keys():
             self.model_data[vi] = np.array(self.model_data[vi])
-
