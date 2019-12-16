@@ -266,6 +266,7 @@ contains
     use eos_module, only : eos
     use eos_composition_module, only : eos_xderivs_t, composition_derivatives
     use actual_rhs_module
+    use linpack_module, only : dgemm
 
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
@@ -444,7 +445,12 @@ contains
          eos_state % rho * eos_state % dedr - eos_state % e) / (eos_state % rho * eos_state % dedT * K)
 
 
-    jac(:,:) = matmul(dRdw, dwdU)
+    !jac(:,:) = matmul(dRdw, dwdU)
+    call dgemm(1, 1, SVAR_EVOLVE, SVAR_EVOLVE, iwvar, ONE, &
+               dRdw, SVAR_EVOLVE, &
+               dwdU, iwvar, &
+               ZERO, &
+               jac, SVAR_EVOLVE)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
