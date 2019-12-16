@@ -93,7 +93,7 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   call network_jac(state, jac_react, rpar(irp_t0))
 
   ! convert to the system we are using
-  call jac_to_vode(time, jac_react, y, pd, rpar)
+  call jac_to_vode(time, state, jac_react, y, pd, rpar)
 
 end subroutine jac
 

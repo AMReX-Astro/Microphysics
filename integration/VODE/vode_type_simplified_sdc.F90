@@ -253,7 +253,7 @@ contains
   end subroutine rhs_to_vode
 
 
-  subroutine jac_to_vode(time, jac_react, y, jac, rpar)
+  subroutine jac_to_vode(time, burn_state, jac_react, y, jac, rpar)
 
     ! this is only used with an analytic Jacobian
 
@@ -270,8 +270,8 @@ contains
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
-
-    real(rt), intent(in) :: jac_react(neqs, neqs)
+    type(burn_t), intent(in) :: burn_state
+    real(rt), intent(inout) :: jac_react(neqs, neqs)
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
     
     integer :: m, n
@@ -284,6 +284,7 @@ contains
     type(eos_xderivs_t) :: eos_xderivs
     real(rt) :: K
     real(rt), parameter :: eps = 1.e-8_rt
+    real(rt) :: ydot(neqs), ydot_pert(neqs)
 
     !$gpu
 
@@ -294,17 +295,17 @@ contains
     ! The Jacobian from the nets is in terms of dYdot/dY, but we want
     ! it was dXdot/dX, so convert here.
     do n = 1, nspec_evolve
-       burn_state % jac(n,:) = burn_state % jac(n,:) * aion(n)
-       burn_state % jac(:,n) = burn_state % jac(:,n) * aion_inv(n)
+       jac_react(n,:) = jac_react(n,:) * aion(n)
+       jac_react(:,n) = jac_react(:,n) * aion_inv(n)
     enddo
 
     ! also fill the ydot -- we can't assume that it is valid on input
-    call actual_rhs(burn_state)
+    call actual_rhs(burn_state, ydot)
 
     ! at this point, our Jacobian should be entirely in terms of X,
     ! not Y.  Let's now fix the rhs terms themselves to be in terms of
     ! dX/dt and not dY/dt.
-    burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! Our jacobian, dR/dw has the form:
     !
@@ -327,33 +328,33 @@ contains
     burn_state_pert % j = burn_state % j
     burn_state_pert % k = burn_state % k
 
-    call actual_rhs(burn_state_pert)
+    call actual_rhs(burn_state_pert, ydot_pert)
 
     ! make the rates dX/dt and not dY/dt
-    burn_state_pert % ydot(1:nspec_evolve) = burn_state_pert % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ydot_pert(1:nspec_evolve) = ydot_pert(1:nspec_evolve) * aion(1:nspec_evolve)
 
     ! fill the column of dRdw corresponding to the derivative
     ! with respect to rho
     do m = 1, nspec_evolve
        ! d( d(rho X_m)/dt)/drho
-       dRdw(SFS-1+m, iwrho) = burn_state % ydot(m) + &
-            rpar(irp_SRHO) * (burn_state_pert % ydot(m) - burn_state % ydot(m))/(eps * burn_state % rho)
+       dRdw(SFS-1+m, iwrho) = ydot(m) + &
+            rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
     enddo
 
 #if defined(SDC_EVOLVE_ENERGY)
 
     ! d( d(rho e)/dt)/drho
-    dRdw(SEINT, iwrho) = burn_state % ydot(net_ienuc) + &
-         rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
+    dRdw(SEINT, iwrho) = ydot(net_ienuc) + &
+         rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
 
     ! d( d(rho E)/dt)/drho
-    dRdw(SEDEN, iwrho) = burn_state % ydot(net_ienuc) + &
-         rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
+    dRdw(SEDEN, iwrho) = ydot(net_ienuc) + &
+         rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     ! d( d(rho h)/dt)/drho
-    dRdw(SENTH, iwrho) = burn_state % ydot(net_ienuc) + &
-         rpar(irp_SRHO) * (burn_state_pert % ydot(net_ienuc) - burn_state % ydot(net_ienuc))/(eps * burn_state % rho)
+    dRdw(SENTH, iwrho) = ydot(net_ienuc) + &
+         rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
 
 #endif
 
@@ -362,19 +363,19 @@ contains
     do n = 1, nspec_evolve
        do m = 1, nspec_evolve
           ! d( d(rho X_m)/dt)/dX_n
-          dRdw(SFS-1+m, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(m, n)
+          dRdw(SFS-1+m, iwfs-1+n) = rpar(irp_SRHO) * jac_react(m, n)
        enddo
 
 #if defined(SDC_EVOLVE_ENERGY)
        ! d( d(rho e)/dt)/dX_n
-       dRdw(SEINT, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
+       dRdw(SEINT, iwfs-1+n) = rpar(irp_SRHO) * jac_react(net_ienuc, n)
 
        ! d( d(rho E)/dt)/dX_n
-       dRdw(SEDEN, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
+       dRdw(SEDEN, iwfs-1+n) = rpar(irp_SRHO) * jac_react(net_ienuc, n)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
        ! d( d(rho h)/dt)/dX_n
-       dRdw(SENTH, iwfs-1+n) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, n)
+       dRdw(SENTH, iwfs-1+n) = rpar(irp_SRHO) * jac_react(net_ienuc, n)
 
 #endif
 
@@ -385,19 +386,19 @@ contains
 
     ! d( d(rho X_m)/dt)/dT
     do m = 1, nspec_evolve
-       dRdw(SFS-1+m, iwT) = rpar(irp_SRHO) * burn_state % jac(m, net_itemp)
+       dRdw(SFS-1+m, iwT) = rpar(irp_SRHO) * jac_react(m, net_itemp)
     enddo
 
 #if defined(SDC_EVOLVE_ENERGY)
     ! d( d(rho e)/dt)/dT
-    dRdw(SEINT, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
+    dRdw(SEINT, iwT) = rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
 
     ! d( d(rho E)/dt)/dT
-    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
+    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     ! d( d(rho h)/dt)/dT
-    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * burn_state % jac(net_ienuc, net_itemp)
+    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
 
 #endif
 
