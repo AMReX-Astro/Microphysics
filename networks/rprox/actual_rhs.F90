@@ -14,7 +14,7 @@ contains
   end subroutine actual_rhs_init
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use amrex_constants_module
     use amrex_fort_module, only : rt => amrex_real
@@ -24,14 +24,15 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
-    type (rate_t)    :: rr
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: ydot(neqs)
 
-    double precision :: dens, t9, y(nspec), ydot(nspec)
+    type (rate_t)    :: rr
+    double precision :: dens, t9, y(nspec)
 
     !$gpu
 
-    state % ydot = ZERO
+    ydot = ZERO
 
     dens = state % rho
     T9   = state % T * 1.e-9_rt
@@ -43,13 +44,11 @@ contains
     ! set up the ODEs for the species
     call make_ydots(y(1:nspec), T9, state, rr, ydot, .false.)
 
-    state % ydot(1:nspec) = ydot
-
     ! Energy release
-    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
 
     ! Temperature ODE
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
@@ -255,7 +254,7 @@ contains
 
     double precision, intent(IN   ) :: ymol(nspec), T9
     logical ,         intent(IN   ) :: doing_dratesdt
-    type(burn_t),     intent(INOUT) :: state
+    type(burn_t),     intent(IN) :: state
     type(rate_t),     intent(inout) :: rr
     double precision, intent(  OUT) :: dydt(nspec)
 
@@ -392,7 +391,7 @@ contains
 
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use amrex_constants_module
     use amrex_fort_module, only : rt => amrex_real
@@ -401,7 +400,8 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     type (rate_t) :: rr
     double precision :: dens, ymol(nspec), T9, ydot(nspec)
@@ -411,7 +411,7 @@ contains
     !$gpu
 
     ! initialize
-    state % jac(:,:) = ZERO
+    jac(:,:) = ZERO
     ymol = state % xn * aion_inv
     T9 = state % T * 1.e-9_rt
 
@@ -422,85 +422,85 @@ contains
 
 
     ! carbon-12
-    state % jac(ic12,ic12) = -ymol(ih1)*rr % rates(1,irpg12c)
-    state % jac(ic12,io15) = rr % rates(1,irlambCNO)
-    state % jac(ic12,ihe4) = HALF*ymol(ihe4)*ymol(ihe4)*rr % rates(1,ir3a)
-    state % jac(ic12,ih1)  = -ymol(ic12)*rr % rates(1,irpg12c) &
+    jac(ic12,ic12) = -ymol(ih1)*rr % rates(1,irpg12c)
+    jac(ic12,io15) = rr % rates(1,irlambCNO)
+    jac(ic12,ihe4) = HALF*ymol(ihe4)*ymol(ihe4)*rr % rates(1,ir3a)
+    jac(ic12,ih1)  = -ymol(ic12)*rr % rates(1,irpg12c) &
          +ymol(io15)*rr % rates(3,dlambCNOdh1)
 
     ! oxygen-14
-    state % jac(io14,ic12) = ymol(ih1)*rr % rates(1,irpg12c)
-    state % jac(io14,io14) = -ymol(ihe4)*rr % rates(1,irap14o) &
+    jac(io14,ic12) = ymol(ih1)*rr % rates(1,irpg12c)
+    jac(io14,io14) = -ymol(ihe4)*rr % rates(1,irap14o) &
          -rr % rates(1,irwk14o)
-    state % jac(io14,ihe4) = -ymol(io14)*rr % rates(1,irap14o)
-    state % jac(io14,ih1)  = ymol(ic12)*rr % rates(1,irpg12c)
+    jac(io14,ihe4) = -ymol(io14)*rr % rates(1,irap14o)
+    jac(io14,ih1)  = ymol(ic12)*rr % rates(1,irpg12c)
 
     ! oxygen-15
-    state % jac(io15,io14) = rr % rates(1,irwk14o)
-    state % jac(io15,io15) = -ymol(ihe4)*rr % rates(1,irag15o) &
+    jac(io15,io14) = rr % rates(1,irwk14o)
+    jac(io15,io15) = -ymol(ihe4)*rr % rates(1,irag15o) &
          -rr % rates(1,irlambCNO)
-    state % jac(io15,if17) = ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
+    jac(io15,if17) = ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          +rr % rates(1,irwk17f)
-    state % jac(io15,ihe4) = -ymol(io15)*rr % rates(1,irag15o) &
+    jac(io15,ihe4) = -ymol(io15)*rr % rates(1,irag15o) &
          +ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4)
-    state % jac(io15,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
+    jac(io15,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          -ymol(io15)*rr % rates(3,dlambCNOdh1)
 
     ! oxygen-16
-    state % jac(io16,io15) = ymol(ihe4)*rr % rates(1,irr1)*rr % rates(1,irag15o)
-    state % jac(io16,io16) = -ymol(ih1)*rr % rates(1,irpg16o) &
+    jac(io16,io15) = ymol(ihe4)*rr % rates(1,irr1)*rr % rates(1,irag15o)
+    jac(io16,io16) = -ymol(ih1)*rr % rates(1,irpg16o) &
          -ymol(ihe4)*rr % rates(1,irag16o)
-    state % jac(io16,if17) = rr % rates(1,irgp17f)
-    state % jac(io16,ihe4) = ymol(io15)*rr % rates(1,irr1)*rr % rates(1,irag15o) &
+    jac(io16,if17) = rr % rates(1,irgp17f)
+    jac(io16,ihe4) = ymol(io15)*rr % rates(1,irr1)*rr % rates(1,irag15o) &
          -ymol(io16)*rr % rates(1,irag16o)
-    state % jac(io16,ih1)  = -ymol(io16)*rr % rates(1,irpg16o) &
+    jac(io16,ih1)  = -ymol(io16)*rr % rates(1,irpg16o) &
          +ymol(io15)*ymol(ihe4)*rr % rates(3,drr1dh1)*rr % rates(1,irag15o)
 
     ! flourine-17
-    state % jac(if17,io14) = ymol(ihe4)*rr % rates(1,irap14o)
-    state % jac(if17,io16) = ymol(ih1)*rr % rates(1,irpg16o)
-    state % jac(if17,if17) = -rr % rates(1,irgp17f) &
+    jac(if17,io14) = ymol(ihe4)*rr % rates(1,irap14o)
+    jac(if17,io16) = ymol(ih1)*rr % rates(1,irpg16o)
+    jac(if17,if17) = -rr % rates(1,irgp17f) &
          -ymol(ih1)*rr % rates(1,irpg17f) &
          -rr % rates(1,irwk17f)
-    state % jac(if17,ihe4) = ymol(io14)*rr % rates(1,irap14o)
-    state % jac(if17,ih1)  = ymol(io16)*rr % rates(1,irpg16o) &
+    jac(if17,ihe4) = ymol(io14)*rr % rates(1,irap14o)
+    jac(if17,ih1)  = ymol(io16)*rr % rates(1,irpg16o) &
          -ymol(if17)*rr % rates(1,irpg17f)
 
     ! magnesium-22
-    state % jac(img22,io15) = ymol(ihe4)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1))
-    state % jac(img22,io16) = ymol(ihe4)*rr % rates(1,irag16o)
-    state % jac(img22,if17) = ymol(ih1)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1))
-    state % jac(img22,img22) = -rr % rates(1,irlambda1)
-    state % jac(img22,ihe4) = ymol(io16)*rr % rates(1,irag16o) &
+    jac(img22,io15) = ymol(ihe4)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1))
+    jac(img22,io16) = ymol(ihe4)*rr % rates(1,irag16o)
+    jac(img22,if17) = ymol(ih1)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1))
+    jac(img22,img22) = -rr % rates(1,irlambda1)
+    jac(img22,ihe4) = ymol(io16)*rr % rates(1,irag16o) &
          +ymol(io15)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1)) &
          -ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4) &
          -ymol(img22)*rr % rates(3,dlambda1dhe4)
-    state % jac(img22,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
+    jac(img22,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          -ymol(io15)*ymol(ihe4)*rr % rates(1,irag15o)*rr % rates(3,drr1dh1)
 
     ! sulfur-30
-    state % jac(is30,img22) = rr % rates(1,irlambda1)
-    state % jac(is30,is30)  = -rr % rates(1,irlambda2)
-    state % jac(is30,ihe4)  = ymol(img22)*rr % rates(3,dlambda1dhe4) &
+    jac(is30,img22) = rr % rates(1,irlambda1)
+    jac(is30,is30)  = -rr % rates(1,irlambda2)
+    jac(is30,ihe4)  = ymol(img22)*rr % rates(3,dlambda1dhe4) &
          -ymol(is30)*rr % rates(3,dlambda2dhe4)
 
     ! nickel-56
-    state % jac(ini56,is30) = rr % rates(1,irlambda2)
-    state % jac(ini56,ini56) = ymol(ih1)*rr % rates(3,r56eff)
-    state % jac(ini56,ihe4) = ymol(is30)*rr % rates(3,dlambda2dhe4)
-    state % jac(ini56,ih1) = ymol(ini56)*rr % rates(3,r56eff)
+    jac(ini56,is30) = rr % rates(1,irlambda2)
+    jac(ini56,ini56) = ymol(ih1)*rr % rates(3,r56eff)
+    jac(ini56,ihe4) = ymol(is30)*rr % rates(3,dlambda2dhe4)
+    jac(ini56,ih1) = ymol(ini56)*rr % rates(3,r56eff)
 
     ! helium-4
-    state % jac(ihe4,io14) = -ymol(ihe4)*rr % rates(1,irap14o)
-    state % jac(ihe4,io15) = rr % rates(1,irlambCNO) &
+    jac(ihe4,io14) = -ymol(ihe4)*rr % rates(1,irap14o)
+    jac(ihe4,io15) = rr % rates(1,irlambCNO) &
          -ymol(ihe4)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1))
-    state % jac(ihe4,io16) = -ymol(ihe4)*rr % rates(1,irag16o)
-    state % jac(ihe4,if17) = ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
+    jac(ihe4,io16) = -ymol(ihe4)*rr % rates(1,irag16o)
+    jac(ihe4,if17) = ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          -ymol(ih1)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          +rr % rates(1,irwk17f)
-    state % jac(ihe4,img22) = -TWO*rr % rates(1,irlambda1)*rr % rates(3,delta1)
-    state % jac(ihe4,is30) = -6.5d0*rr % rates(1,irlambda2)*rr % rates(3,delta2)
-    state % jac(ihe4,ihe4) = -THREE*ymol(ihe4)*ymol(ihe4)*HALF*rr % rates(1,ir3a) &
+    jac(ihe4,img22) = -TWO*rr % rates(1,irlambda1)*rr % rates(3,delta1)
+    jac(ihe4,is30) = -6.5d0*rr % rates(1,irlambda2)*rr % rates(3,delta2)
+    jac(ihe4,ihe4) = -THREE*ymol(ihe4)*ymol(ihe4)*HALF*rr % rates(1,ir3a) &
          -ymol(io14)*rr % rates(1,irap14o) &
          -ymol(io16)*rr % rates(1,irag16o) &
          -ymol(io15)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1)) &
@@ -508,35 +508,35 @@ contains
          +ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4) &
          -TWO*ymol(img22)*rr % rates(3,dlambda1dhe4)*rr % rates(3,delta1) &
          -6.5d0*ymol(is30)*rr % rates(3,dlambda2dhe4)*rr % rates(3,delta2)
-    state % jac(ihe4,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
+    jac(ihe4,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          -ymol(if17)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          +ymol(io15)*rr % rates(3,dlambCNOdh1) &
          +ymol(io15)*ymol(ihe4)*rr % rates(1,irag15o)*rr % rates(3,drr1dh1)
 
     ! hydrogen-1
-    state % jac(ih1,ic12) = -TWO*ymol(ih1)*rr % rates(1,irpg12c)
-    state % jac(ih1,io14) = ymol(ihe4)*rr % rates(1,irap14o) &
+    jac(ih1,ic12) = -TWO*ymol(ih1)*rr % rates(1,irpg12c)
+    jac(ih1,io14) = ymol(ihe4)*rr % rates(1,irap14o) &
          -rr % rates(1,irwk14o)
-    state % jac(ih1,io15) = -rr % rates(1,irlambCNO) &
+    jac(ih1,io15) = -rr % rates(1,irlambCNO) &
          -ymol(ihe4)*rr % rates(1,irag15o)*rr % rates(1,irr1) &
          -THREE*ymol(ihe4)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1))
-    state % jac(ih1,io16) = -ymol(ih1)*rr % rates(1,irpg16o) &
+    jac(ih1,io16) = -ymol(ih1)*rr % rates(1,irpg16o) &
          -TWO*ymol(ihe4)*rr % rates(1,irag16o)
-    state % jac(ih1,if17) = -TWO*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
+    jac(ih1,if17) = -TWO*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          +rr % rates(1,irgp17f) &
          -ymol(ih1)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          -TWO*rr % rates(1,irwk17f)
-    state % jac(ih1,img22) = -EIGHT*rr % rates(1,irlambda1)*(ONE-rr % rates(3,delta1))
-    state % jac(ih1,is30)  = -26.d0*rr % rates(1,irlambda2)*(ONE-rr % rates(3,delta2))
-    state % jac(ih1,ini56) = -56.0d0*ymol(ih1)*rr % rates(3,r56eff)
-    state % jac(ih1,ihe4) = ymol(io14)*rr % rates(1,irap14o) &
+    jac(ih1,img22) = -EIGHT*rr % rates(1,irlambda1)*(ONE-rr % rates(3,delta1))
+    jac(ih1,is30)  = -26.d0*rr % rates(1,irlambda2)*(ONE-rr % rates(3,delta2))
+    jac(ih1,ini56) = -56.0d0*ymol(ih1)*rr % rates(3,r56eff)
+    jac(ih1,ihe4) = ymol(io14)*rr % rates(1,irap14o) &
          -ymol(io15)*rr % rates(1,irag15o)*rr % rates(1,irr1) &
          -TWO*ymol(io16)*rr % rates(1,irag16o) &
          -THREE*ymol(io15)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1)) &
          -ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4) &
          -EIGHT*ymol(img22)*rr % rates(3,dlambda1dhe4)*(ONE-rr % rates(3,delta1)) &
          -26.d0*ymol(is30)*rr % rates(3,dlambda2dhe4)*(ONE-rr % rates(3,delta2))
-    state % jac(ih1,ih1)  = -TWO*ymol(ic12)*rr % rates(1,irpg12c) &
+    jac(ih1,ih1)  = -TWO*ymol(ic12)*rr % rates(1,irpg12c) &
          -TWO*ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          -ymol(io16)*rr % rates(1,irpg16o) &
          -ymol(if17)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
@@ -547,21 +547,21 @@ contains
     ! temperature derivatives df(Y)/df(T)
     call make_ydots(ymol, T9, state, rr, ydot, .true.)
 
-    state % jac(1:nspec, net_itemp) = ydot
+    jac(1:nspec, net_itemp) = ydot
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec_evolve
-       call ener_gener_rate(state % jac(1:nspec_evolve,j), state % jac(net_ienuc,j))
+       call ener_gener_rate(jac(1:nspec_evolve,j), jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), jac(net_ienuc,net_itemp))
 
     ! Temperature Jacobian elements
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 

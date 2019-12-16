@@ -62,7 +62,7 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use amrex_constants_module, only: ZERO
     use sneut_module, only: sneut5
@@ -79,6 +79,7 @@ contains
 
     type (burn_t)    :: state
     type (rate_t)    :: rr
+    double precision, intent(inout) :: ydot(neqs)
 
     logical          :: deriva
 
@@ -87,7 +88,7 @@ contains
 
     double precision :: rho, temp, abar, zbar
 
-    double precision :: y(nspec), ydot(nspec)
+    double precision :: y(nspec)
 
     !$gpu
 
@@ -107,7 +108,6 @@ contains
 
     ydot = ZERO
     call rhs(y, rr, ydot, deriva, for_jacobian_tderiv = .false.)
-    state % ydot(1:nspec) = ydot
 
     ! Instantaneous energy generation rate -- this needs molar fractions
 
@@ -119,11 +119,11 @@ contains
 
     ! Append the energy equation (this is erg/g/s)
 
-    state % ydot(net_ienuc) = enuc - sneut
+    ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
 
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
@@ -131,7 +131,7 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use amrex_constants_module, only: ZERO
     use eos_module
@@ -141,7 +141,8 @@ contains
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    real(rt), intent(inout) :: jac(njrows, njcols)
     type (rate_t)    :: rr
 
     logical          :: deriva
@@ -155,7 +156,7 @@ contains
 
     !$gpu
 
-    call set_jac_zero(state)
+    call set_jac_zero(jac)
 
     call evaluate_rates(state, rr)
 
@@ -170,16 +171,16 @@ contains
     y    = state % xn * aion_inv
 
     ! Species Jacobian elements with respect to other species
-    call dfdy_isotopes_aprox13(y, state, rr)
+    call dfdy_isotopes_aprox13(y, state, rr, jac)
 
     ! Energy generation rate Jacobian elements with respect to species
 
     do j = 1, nspec
        do k = 1, nspec
-          call get_jac_entry(state, k, j, yderivs(k))
+          call get_jac_entry(jac, k, j, yderivs(k))
        enddo
        call ener_gener_rate(yderivs, scratch)
-       call set_jac_entry(state, net_ienuc, j, scratch)
+       call set_jac_entry(jac, net_ienuc, j, scratch)
     enddo
 
     ! Account for the thermal neutrino losses
@@ -188,9 +189,9 @@ contains
 
     do j = 1, nspec
        b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz)
-       call get_jac_entry(state, net_ienuc, j, scratch)
+       call get_jac_entry(jac, net_ienuc, j, scratch)
        scratch = scratch - b1
-       call set_jac_entry(state, net_ienuc, j, scratch)
+       call set_jac_entry(jac, net_ienuc, j, scratch)
     enddo
 
     ! Evaluate the Jacobian elements with respect to temperature by
@@ -201,16 +202,16 @@ contains
     call rhs(y, rr, yderivs, deriva, for_jacobian_tderiv = .true.)
 
     do k = 1, nspec
-       call set_jac_entry(state, k, net_itemp, yderivs(k))
+       call set_jac_entry(jac, k, net_itemp, yderivs(k))
     enddo
 
     call ener_gener_rate(yderivs, scratch)
     scratch = scratch - dsneutdt
-    call set_jac_entry(state, net_ienuc, net_itemp, scratch)
+    call set_jac_entry(jac, net_ienuc, net_itemp, scratch)
 
     ! Temperature Jacobian elements
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 
@@ -1728,7 +1729,7 @@ contains
 
 
 
-  subroutine dfdy_isotopes_aprox13(y,state,rr)
+  subroutine dfdy_isotopes_aprox13(y,state,rr, jac)
 
     use network
     use microphysics_math_module, only: esum3, esum4, esum5, esum20 ! function
@@ -1739,6 +1740,7 @@ contains
     ! this routine sets up the dense aprox13 jacobian for the isotopes
 
     type (burn_t) :: state
+    real(rt) :: jac(njrows, njcols)
     double precision :: y(nspec)
     type (rate_t)    :: rr
 
@@ -1769,7 +1771,7 @@ contains
     b(19) = -y(icr48) * rr % rates(1,ircrap) * (1.0d0-rr % rates(1,irx1))
     b(20) = -y(ife52) * rr % rates(1,irfeap) * (1.0d0-rr % rates(1,iry1))
     b(30) = esum20(b)
-    call set_jac_entry(state, ihe4, ihe4, b(30))
+    call set_jac_entry(jac, ihe4, ihe4, b(30))
 
 
     ! d(he4)/d(c12)
@@ -1778,7 +1780,7 @@ contains
     b(3) =  3.0d0 * rr % rates(1,irg3a)
     b(4) = -y(ihe4) * rr % rates(1,ircag)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, ic12, b(30))
+    call set_jac_entry(jac, ihe4, ic12, b(30))
 
     ! d(he4)/d(o16)
     b(1) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
@@ -1787,20 +1789,20 @@ contains
     b(4) =  rr % rates(1,iroga)
     b(5) = -y(ihe4) * rr % rates(1,iroag)
     b(30) = esum5(b)
-    call set_jac_entry(state, ihe4, io16, b(30))
+    call set_jac_entry(jac, ihe4, io16, b(30))
 
     ! d(he4)/d(ne20)
     b(1) =  rr % rates(1,irnega)
     b(2) = -y(ihe4) * rr % rates(1,irneag)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ihe4, ine20, b(30))
+    call set_jac_entry(jac, ihe4, ine20, b(30))
 
     ! d(he4)/d(mg24)
     b(1) =  rr % rates(1,irmgga)
     b(2) = -y(ihe4) * rr % rates(1,irmgag)
     b(3) = -y(ihe4) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
     b(30) = esum3(b)
-    call set_jac_entry(state, ihe4, img24, b(30))
+    call set_jac_entry(jac, ihe4, img24, b(30))
 
     ! d(he4)/d(si28)
     b(1) =  rr % rates(1,irsiga)
@@ -1808,7 +1810,7 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
     b(4) =  rr % rates(1,irr1) * rr % rates(1,irsigp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, isi28, b(30))
+    call set_jac_entry(jac, ihe4, isi28, b(30))
 
     ! d(he4)/d(s32)
     b(1) =  rr % rates(1,irsga)
@@ -1816,7 +1818,7 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
     b(4) =  rr % rates(1,irs1) * rr % rates(1,irsgp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, is32, b(30))
+    call set_jac_entry(jac, ihe4, is32, b(30))
 
     ! d(he4)/d(ar36)
     b(1)  =  rr % rates(1,irarga)
@@ -1824,7 +1826,7 @@ contains
     b(3)  = -y(ihe4) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
     b(4)  =  rr % rates(1,irt1) * rr % rates(1,irargp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, iar36, b(30))
+    call set_jac_entry(jac, ihe4, iar36, b(30))
 
     ! d(he4)/d(ca40)
     b(1) =  rr % rates(1,ircaga)
@@ -1832,7 +1834,7 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,ircaap) * (1.0d0-rr % rates(1,irv1))
     b(4) =  rr % rates(1,iru1) * rr % rates(1,ircagp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, ica40, b(30))
+    call set_jac_entry(jac, ihe4, ica40, b(30))
 
     ! d(he4)/d(ti44)
     b(1) =  rr % rates(1,irtiga)
@@ -1840,7 +1842,7 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,irtiap) * (1.0d0-rr % rates(1,irw1))
     b(4) =  rr % rates(1,irv1) * rr % rates(1,irtigp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, iti44, b(30))
+    call set_jac_entry(jac, ihe4, iti44, b(30))
 
     ! d(he4)/d(cr48)
     b(1) =  rr % rates(1,ircrga)
@@ -1848,7 +1850,7 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,ircrap) * (1.0d0-rr % rates(1,irx1))
     b(4) =  rr % rates(1,irw1) * rr % rates(1,ircrgp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, icr48, b(30))
+    call set_jac_entry(jac, ihe4, icr48, b(30))
 
     ! d(he4)/d(fe52)
     b(1) =  rr % rates(1,irfega)
@@ -1856,13 +1858,13 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,irfeap) * (1.0d0-rr % rates(1,iry1))
     b(4) =  rr % rates(1,irx1) * rr % rates(1,irfegp)
     b(30) = esum4(b)
-    call set_jac_entry(state, ihe4, ife52, b(30))
+    call set_jac_entry(jac, ihe4, ife52, b(30))
 
     ! d(he4)/d(ni56)
     b(1) = rr % rates(1,irniga)
     b(2) = rr % rates(1,iry1) * rr % rates(1,irnigp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ihe4, ini56, b(30))
+    call set_jac_entry(jac, ihe4, ini56, b(30))
 
 
     ! c12 jacobian elements
@@ -1870,7 +1872,7 @@ contains
     b(1) =  0.5d0 * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
     b(2) = -y(ic12) * rr % rates(1,ircag)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ic12, ihe4, b(30))
+    call set_jac_entry(jac, ic12, ihe4, b(30))
 
     ! d(c12)/d(c12)
     b(1) = -2.0d0 * y(ic12) * rr % rates(1,ir1212)
@@ -1878,13 +1880,13 @@ contains
     b(3) = -rr % rates(1,irg3a)
     b(4) = -y(ihe4) * rr % rates(1,ircag)
     b(30) = esum4(b)
-    call set_jac_entry(state, ic12, ic12, b(30))
+    call set_jac_entry(jac, ic12, ic12, b(30))
 
     ! d(c12)/d(o16)
     b(1) = -y(ic12) * rr % rates(1,ir1216)
     b(2) =  rr % rates(1,iroga)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ic12, io16, b(30))
+    call set_jac_entry(jac, ic12, io16, b(30))
 
 
 
@@ -1893,13 +1895,13 @@ contains
     b(1) =  y(ic12)*rr % rates(1,ircag)
     b(2) = -y(io16)*rr % rates(1,iroag)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, io16, ihe4, b(30))
+    call set_jac_entry(jac, io16, ihe4, b(30))
 
     ! d(o16)/d(c12)
     b(1) = -y(io16)*rr % rates(1,ir1216)
     b(2) =  y(ihe4)*rr % rates(1,ircag)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, io16, ic12, b(30))
+    call set_jac_entry(jac, io16, ic12, b(30))
 
     ! d(o16)/d(o16)
     b(1) = -y(ic12) * rr % rates(1,ir1216)
@@ -1907,10 +1909,10 @@ contains
     b(3) = -y(ihe4) * rr % rates(1,iroag)
     b(4) = -rr % rates(1,iroga)
     b(30) = esum4(b)
-    call set_jac_entry(state, io16, io16, b(30))
+    call set_jac_entry(jac, io16, io16, b(30))
 
     ! d(o16)/d(ne20)
-    call set_jac_entry(state, io16, ine20, rr % rates(1,irnega))
+    call set_jac_entry(jac, io16, ine20, rr % rates(1,irnega))
 
 
 
@@ -1919,24 +1921,24 @@ contains
     b(1) =  y(io16) * rr % rates(1,iroag)
     b(2) = -y(ine20) * rr % rates(1,irneag)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ine20, ihe4, b(30))
+    call set_jac_entry(jac, ine20, ihe4, b(30))
 
     ! d(ne20)/d(c12)
     b(30) = y(ic12) * rr % rates(1,ir1212)
-    call set_jac_entry(state, ine20, ic12, b(30))
+    call set_jac_entry(jac, ine20, ic12, b(30))
 
     ! d(ne20)/d(o16)
     b(30) = y(ihe4) * rr % rates(1,iroag)
-    call set_jac_entry(state, ine20, io16, b(30))
+    call set_jac_entry(jac, ine20, io16, b(30))
 
     ! d(ne20)/d(ne20)
     b(1) = -y(ihe4) * rr % rates(1,irneag)
     b(2) = -rr % rates(1,irnega)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ine20, ine20, b(30))
+    call set_jac_entry(jac, ine20, ine20, b(30))
 
     ! d(ne20)/d(mg24)
-    call set_jac_entry(state, ine20, img24, rr % rates(1,irmgga))
+    call set_jac_entry(jac, ine20, img24, rr % rates(1,irmgga))
 
 
     ! mg24 jacobian elements
@@ -1945,32 +1947,32 @@ contains
     b(2) = -y(img24) * rr % rates(1,irmgag)
     b(3) = -y(img24) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
     b(30) = esum3(b)
-    call set_jac_entry(state, img24, ihe4, b(30))
+    call set_jac_entry(jac, img24, ihe4, b(30))
 
     ! d(mg24)/d(c12)
     b(30) = 0.5d0 * y(io16) * rr % rates(1,ir1216)
-    call set_jac_entry(state, img24, ic12, b(30))
+    call set_jac_entry(jac, img24, ic12, b(30))
 
     ! d(mg24)/d(o16)
     b(30) =  0.5d0 * y(ic12) * rr % rates(1,ir1216)
-    call set_jac_entry(state, img24, io16, b(30))
+    call set_jac_entry(jac, img24, io16, b(30))
 
     ! d(mg24)/d(ne20)
     b(30) = y(ihe4) * rr % rates(1,irneag)
-    call set_jac_entry(state, img24, ine20, b(30))
+    call set_jac_entry(jac, img24, ine20, b(30))
 
     ! d(mg24)/d(mg24)
     b(1) = -y(ihe4) * rr % rates(1,irmgag)
     b(2) = -rr % rates(1,irmgga)
     b(3) = -y(ihe4) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
     b(30) = esum3(b)
-    call set_jac_entry(state, img24, img24, b(30))
+    call set_jac_entry(jac, img24, img24, b(30))
 
     ! d(mg24)/d(si28)
     b(1) = rr % rates(1,irsiga)
     b(2) = rr % rates(1,irr1) * rr % rates(1,irsigp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, img24, isi28, b(30))
+    call set_jac_entry(jac, img24, isi28, b(30))
 
 
     ! si28 jacobian elements
@@ -1980,24 +1982,24 @@ contains
     b(3) =  y(img24) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
     b(4) = -y(isi28) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
     b(30) = esum4(b)
-    call set_jac_entry(state, isi28, ihe4, b(30))
+    call set_jac_entry(jac, isi28, ihe4, b(30))
 
     ! d(si28)/d(c12)
     b(30) = 0.5d0 * y(io16) * rr % rates(1,ir1216)
-    call set_jac_entry(state, isi28, ic12, b(30))
+    call set_jac_entry(jac, isi28, ic12, b(30))
 
     ! d(si28)/d(o16)
     b(1) = 0.5d0 * y(ic12) * rr % rates(1,ir1216)
     b(2) = 1.12d0 * 0.5d0*y(io16) * rr % rates(1,ir1616)
     b(3) = 0.68d0 * 0.5d0*y(io16) * rr % rates(1,irs1) * rr % rates(1,ir1616)
     b(30) = esum3(b)
-    call set_jac_entry(state, isi28, io16, b(30))
+    call set_jac_entry(jac, isi28, io16, b(30))
 
     ! d(si28)/d(mg24)
     b(1) =  y(ihe4) * rr % rates(1,irmgag)
     b(2) =  y(ihe4) * rr % rates(1,irmgap) * (1.0d0-rr % rates(1,irr1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, isi28, img24, b(30))
+    call set_jac_entry(jac, isi28, img24, b(30))
 
     ! d(si28)/d(si28)
     b(1) =  -y(ihe4) * rr % rates(1,irsiag)
@@ -2005,13 +2007,13 @@ contains
     b(3) = -rr % rates(1,irr1) * rr % rates(1,irsigp)
     b(4) = -y(ihe4) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
     b(30) = esum4(b)
-    call set_jac_entry(state, isi28, isi28, b(30))
+    call set_jac_entry(jac, isi28, isi28, b(30))
 
     ! d(si28)/d(s32)
     b(1) = rr % rates(1,irsga)
     b(2) = rr % rates(1,irs1) * rr % rates(1,irsgp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, isi28, is32, b(30))
+    call set_jac_entry(jac, isi28, is32, b(30))
 
 
     ! s32 jacobian elements
@@ -2021,19 +2023,19 @@ contains
     b(3) =  y(isi28) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
     b(4) = -y(is32) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
     b(30) = esum4(b)
-    call set_jac_entry(state, is32, ihe4, b(30))
+    call set_jac_entry(jac, is32, ihe4, b(30))
 
     ! d(s32)/d(o16)
     b(1) = 0.68d0*0.5d0*y(io16)*rr % rates(1,ir1616)*(1.0d0-rr % rates(1,irs1))
     b(2) = 0.2d0 * 0.5d0*y(io16) * rr % rates(1,ir1616)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, is32, io16, b(30))
+    call set_jac_entry(jac, is32, io16, b(30))
 
     ! d(s32)/d(si28)
     b(1)  =y(ihe4) * rr % rates(1,irsiag)
     b(2) = y(ihe4) * rr % rates(1,irsiap) * (1.0d0-rr % rates(1,irs1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, is32, isi28, b(30))
+    call set_jac_entry(jac, is32, isi28, b(30))
 
     ! d(s32)/d(s32)
     b(1) = -y(ihe4) * rr % rates(1,irsag)
@@ -2041,13 +2043,13 @@ contains
     b(3) = -rr % rates(1,irs1) * rr % rates(1,irsgp)
     b(4) = -y(ihe4) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
     b(30) = esum4(b)
-    call set_jac_entry(state, is32, is32, b(30))
+    call set_jac_entry(jac, is32, is32, b(30))
 
     ! d(s32)/d(ar36)
     b(1) = rr % rates(1,irarga)
     b(2) = rr % rates(1,irt1) * rr % rates(1,irargp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, is32, iar36, b(30))
+    call set_jac_entry(jac, is32, iar36, b(30))
 
 
     ! ar36 jacobian elements
@@ -2057,13 +2059,13 @@ contains
     b(3) =  y(is32)  * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
     b(4) = -y(iar36) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
     b(30) = esum4(b)
-    call set_jac_entry(state, iar36, ihe4, b(30))
+    call set_jac_entry(jac, iar36, ihe4, b(30))
 
     ! d(ar36)/d(s32)
     b(1) = y(ihe4) * rr % rates(1,irsag)
     b(2) = y(ihe4) * rr % rates(1,irsap) * (1.0d0-rr % rates(1,irt1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, iar36, is32, b(30))
+    call set_jac_entry(jac, iar36, is32, b(30))
 
     ! d(ar36)/d(ar36)
     b(1) = -y(ihe4) * rr % rates(1,irarag)
@@ -2071,13 +2073,13 @@ contains
     b(3) = -rr % rates(1,irt1) * rr % rates(1,irargp)
     b(4) = -y(ihe4) * rr % rates(1,irarap) * (1.0d0-rr % rates(1,iru1))
     b(30) = esum4(b)
-    call set_jac_entry(state, iar36, iar36, b(30))
+    call set_jac_entry(jac, iar36, iar36, b(30))
 
     ! d(ar36)/d(ca40)
     b(1) = rr % rates(1,ircaga)
     b(2) = rr % rates(1,ircagp) * rr % rates(1,iru1)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, iar36, ica40, b(30))
+    call set_jac_entry(jac, iar36, ica40, b(30))
 
 
     ! ca40 jacobian elements
@@ -2087,13 +2089,13 @@ contains
     b(3)  =  y(iar36) * rr % rates(1,irarap)*(1.0d0-rr % rates(1,iru1))
     b(4)  = -y(ica40) * rr % rates(1,ircaap)*(1.0d0-rr % rates(1,irv1))
     b(30) = esum4(b)
-    call set_jac_entry(state, ica40, ihe4, b(30))
+    call set_jac_entry(jac, ica40, ihe4, b(30))
 
     ! d(ca40)/d(ar36)
     b(1) =  y(ihe4) * rr % rates(1,irarag)
     b(2) =  y(ihe4) * rr % rates(1,irarap)*(1.0d0-rr % rates(1,iru1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ica40, iar36, b(30))
+    call set_jac_entry(jac, ica40, iar36, b(30))
 
     ! d(ca40)/d(ca40)
     b(1) = -y(ihe4) * rr % rates(1, ircaag)
@@ -2101,13 +2103,13 @@ contains
     b(3) = -rr % rates(1, ircagp) * rr % rates(1, iru1)
     b(4) = -y(ihe4) * rr % rates(1, ircaap)*(1.0d0-rr % rates(1, irv1))
     b(30) = esum4(b)
-    call set_jac_entry(state, ica40, ica40, b(30))
+    call set_jac_entry(jac, ica40, ica40, b(30))
 
     ! d(ca40)/d(ti44)
     b(1) = rr % rates(1, irtiga)
     b(2) = rr % rates(1, irtigp) * rr % rates(1, irv1)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ica40, iti44, b(30))
+    call set_jac_entry(jac, ica40, iti44, b(30))
 
 
 
@@ -2118,13 +2120,13 @@ contains
     b(3) =  y(ica40) * rr % rates(1, ircaap)*(1.0d0-rr % rates(1, irv1))
     b(4) = -y(iti44) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
     b(30) = esum4(b)
-    call set_jac_entry(state, iti44, ihe4, b(30))
+    call set_jac_entry(jac, iti44, ihe4, b(30))
 
     ! d(ti44)/d(ca40)
     b(1) =  y(ihe4) * rr % rates(1, ircaag)
     b(2) =  y(ihe4) * rr % rates(1, ircaap)*(1.0d0-rr % rates(1, irv1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, iti44, ica40, b(30))
+    call set_jac_entry(jac, iti44, ica40, b(30))
 
     ! d(ti44)/d(ti44)
     b(1) = -y(ihe4) * rr % rates(1, irtiag)
@@ -2132,13 +2134,13 @@ contains
     b(3) = -rr % rates(1, irv1) * rr % rates(1, irtigp)
     b(4) = -y(ihe4) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
     b(30) = esum4(b)
-    call set_jac_entry(state, iti44, iti44, b(30))
+    call set_jac_entry(jac, iti44, iti44, b(30))
 
     ! d(ti44)/d(cr48)
     b(1) = rr % rates(1, ircrga)
     b(2) = rr % rates(1, irw1) * rr % rates(1, ircrgp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, iti44, icr48, b(30))
+    call set_jac_entry(jac, iti44, icr48, b(30))
 
 
 
@@ -2149,13 +2151,13 @@ contains
     b(3) =  y(iti44) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
     b(4) = -y(icr48) * rr % rates(1, ircrap)*(1.0d0-rr % rates(1, irx1))
     b(30) = esum4(b)
-    call set_jac_entry(state, icr48, ihe4, b(30))
+    call set_jac_entry(jac, icr48, ihe4, b(30))
 
     ! d(cr48)/d(ti44)
     b(1) =  y(ihe4) * rr % rates(1, irtiag)
     b(2) =  y(ihe4) * rr % rates(1, irtiap)*(1.0d0-rr % rates(1, irw1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, icr48, iti44, b(30))
+    call set_jac_entry(jac, icr48, iti44, b(30))
 
     ! d(cr48)/d(cr48)
     b(1) = -y(ihe4) * rr % rates(1, ircrag)
@@ -2163,13 +2165,13 @@ contains
     b(3) = -rr % rates(1, irw1) * rr % rates(1, ircrgp)
     b(4) = -y(ihe4) * rr % rates(1, ircrap)*(1.0d0-rr % rates(1, irx1))
     b(30) = esum4(b)
-    call set_jac_entry(state, icr48, icr48, b(30))
+    call set_jac_entry(jac, icr48, icr48, b(30))
 
     ! d(cr48)/d(fe52)
     b(1) = rr % rates(1, irfega)
     b(2) = rr % rates(1, irx1) * rr % rates(1, irfegp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, icr48, ife52, b(30))
+    call set_jac_entry(jac, icr48, ife52, b(30))
 
 
 
@@ -2180,13 +2182,13 @@ contains
     b(3) =  y(icr48) * rr % rates(1, ircrap) * (1.0d0-rr % rates(1, irx1))
     b(4) = -y(ife52) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
     b(30) = esum4(b)
-    call set_jac_entry(state, ife52, ihe4, b(30))
+    call set_jac_entry(jac, ife52, ihe4, b(30))
 
     ! d(fe52)/d(cr48)
     b(1) = y(ihe4) * rr % rates(1, ircrag)
     b(2) = y(ihe4) * rr % rates(1, ircrap) * (1.0d0-rr % rates(1, irx1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ife52, icr48, b(30))
+    call set_jac_entry(jac, ife52, icr48, b(30))
 
     ! d(fe52)/d(fe52)
     b(1) = -y(ihe4) * rr % rates(1, irfeag)
@@ -2194,13 +2196,13 @@ contains
     b(3) = -rr % rates(1, irx1) * rr % rates(1, irfegp)
     b(4) = -y(ihe4) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
     b(30) = esum4(b)
-    call set_jac_entry(state, ife52, ife52, b(30))
+    call set_jac_entry(jac, ife52, ife52, b(30))
 
     ! d(fe52)/d(ni56)
     b(1) = rr % rates(1, irniga)
     b(2) = rr % rates(1, iry1) * rr % rates(1, irnigp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ife52, ini56, b(30))
+    call set_jac_entry(jac, ife52, ini56, b(30))
 
 
     ! ni56 jacobian elements
@@ -2208,19 +2210,19 @@ contains
     b(1) =  y(ife52) * rr % rates(1, irfeag)
     b(2) =  y(ife52) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ini56, ihe4, b(30))
+    call set_jac_entry(jac, ini56, ihe4, b(30))
 
     ! d(ni56)/d(fe52)
     b(1) = y(ihe4) * rr % rates(1, irfeag)
     b(2) = y(ihe4) * rr % rates(1, irfeap) * (1.0d0-rr % rates(1, iry1))
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ini56, ife52, b(30))
+    call set_jac_entry(jac, ini56, ife52, b(30))
 
     ! d(ni56)/d(ni56)
     b(1) = -rr % rates(1, irniga)
     b(2) = -rr % rates(1, iry1) * rr % rates(1, irnigp)
     b(30) = sum(b(1:2))
-    call set_jac_entry(state, ini56, ini56, b(30))
+    call set_jac_entry(jac, ini56, ini56, b(30))
 
   end subroutine dfdy_isotopes_aprox13
 

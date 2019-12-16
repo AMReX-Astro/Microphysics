@@ -30,83 +30,31 @@ contains
 
   subroutine init_reaclib()
 
-    allocate( ctemp_rate(7, 6) )
-    ! c12_c12__he4_ne20
-    ctemp_rate(:, 1) = [  &
-        6.12863000000000d+01, &
-        0.00000000000000d+00, &
-        -8.41650000000000d+01, &
-        -1.56627000000000d+00, &
-        -7.36084000000000d-02, &
-        -7.27970000000000d-02, &
-        -6.66667000000000d-01 ]
+    implicit none
 
-    ! c12_c12__n_mg23
-    ctemp_rate(:, 2) = [  &
-        -1.28056000000000d+01, &
-        -3.01485000000000d+01, &
-        0.00000000000000d+00, &
-        1.14826000000000d+01, &
-        1.82849000000000d+00, &
-        -3.48440000000000d-01, &
-        0.00000000000000d+00 ]
+    integer :: unit, ireaclib, icoeff
 
-    ! c12_c12__p_na23
-    ctemp_rate(:, 3) = [  &
-        6.09649000000000d+01, &
-        0.00000000000000d+00, &
-        -8.41650000000000d+01, &
-        -1.41910000000000d+00, &
-        -1.14619000000000d-01, &
-        -7.03070000000000d-02, &
-        -6.66667000000000d-01 ]
-
-    ! he4_c12__o16
-    ctemp_rate(:, 4) = [  &
-        6.96526000000000d+01, &
-        -1.39254000000000d+00, &
-        5.89128000000000d+01, &
-        -1.48273000000000d+02, &
-        9.08324000000000d+00, &
-        -5.41041000000000d-01, &
-        7.03554000000000d+01 ]
-
-    ctemp_rate(:, 5) = [  &
-        2.54634000000000d+02, &
-        -1.84097000000000d+00, &
-        1.03411000000000d+02, &
-        -4.20567000000000d+02, &
-        6.40874000000000d+01, &
-        -1.24624000000000d+01, &
-        1.37303000000000d+02 ]
-
-    ! n__p__weak__wc12
-    ctemp_rate(:, 6) = [  &
-        -6.78161000000000d+00, &
-        0.00000000000000d+00, &
-        0.00000000000000d+00, &
-        0.00000000000000d+00, &
-        0.00000000000000d+00, &
-        0.00000000000000d+00, &
-        0.00000000000000d+00 ]
-
-
-
+    allocate( ctemp_rate(7, number_reaclib_sets) )
     allocate( rate_start_idx(nrat_reaclib) )
-    rate_start_idx(:) = [ &
-      1, &
-      2, &
-      3, &
-      4, &
-      6 ]
-
     allocate( rate_extra_mult(nrat_reaclib) )
-    rate_extra_mult(:) = [ &
-      0, &
-      0, &
-      0, &
-      1, &
-      0 ]
+
+    open(newunit=unit, file='reaclib_rate_metadata.dat')
+
+    do ireaclib = 1, number_reaclib_sets
+       do icoeff = 1, 7
+          read(unit, *) ctemp_rate(icoeff, ireaclib)
+       enddo
+    enddo
+
+    do ireaclib = 1, nrat_reaclib
+       read(unit, *) rate_start_idx(ireaclib)
+    enddo
+
+    do ireaclib = 1, nrat_reaclib
+       read(unit, *) rate_extra_mult(ireaclib)
+    enddo
+
+    close(unit)
 
     !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult)
 
