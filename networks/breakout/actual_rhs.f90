@@ -16,25 +16,27 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    double precision, intent(inout) :: ydot(neqs)
 
     ! Do nothing in this RHS.
 
-    state % ydot = ZERO
+    ydot = ZERO
 
   end subroutine actual_rhs
 
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    double precision, intent(inout) :: jac(njrows, njcols)
 
     ! Do nothing in this RHS.
 
