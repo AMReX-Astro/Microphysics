@@ -21,19 +21,19 @@ module actual_network
   real(rt), parameter :: mass_proton   = 1.67262163783d-24
   real(rt), parameter :: mass_electron = 9.10938215450d-28
 
-  integer, parameter :: nrates = 8
+  integer, parameter :: nrates = 19
   integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
-  integer, parameter :: nspec_evolve = 11
+  integer, parameter :: nspec_evolve = 13
   integer, parameter :: naux  = 0
 
   ! Number of nuclear species in the network
-  integer, parameter :: nspec = 11
+  integer, parameter :: nspec = 13
 
   ! Number of reaclib rates
-  integer, parameter :: nrat_reaclib = 8
-  integer, parameter :: number_reaclib_sets = 18
+  integer, parameter :: nrat_reaclib = 19
+  integer, parameter :: number_reaclib_sets = 48
 
   ! Number of tabular rates
   integer, parameter :: nrat_tabular = 0
@@ -50,24 +50,37 @@ module actual_network
   integer, parameter :: jp   = 1
   integer, parameter :: jhe4   = 2
   integer, parameter :: jc12   = 3
-  integer, parameter :: jc14   = 4
+  integer, parameter :: jc13   = 4
   integer, parameter :: jn13   = 5
   integer, parameter :: jn14   = 6
-  integer, parameter :: jo16   = 7
-  integer, parameter :: jo18   = 8
-  integer, parameter :: jf18   = 9
-  integer, parameter :: jne20   = 10
-  integer, parameter :: jne21   = 11
+  integer, parameter :: jn15   = 7
+  integer, parameter :: jo14   = 8
+  integer, parameter :: jo15   = 9
+  integer, parameter :: jo16   = 10
+  integer, parameter :: jo17   = 11
+  integer, parameter :: jf17   = 12
+  integer, parameter :: jf18   = 13
 
   ! Reactions
-  integer, parameter :: k_he4_he4_he4__c12   = 1
-  integer, parameter :: k_he4_c12__o16   = 2
-  integer, parameter :: k_he4_n14__f18   = 3
-  integer, parameter :: k_he4_f18__p_ne21   = 4
+  integer, parameter :: k_n13__c13__weak__wc12   = 1
+  integer, parameter :: k_o14__n14__weak__wc12   = 2
+  integer, parameter :: k_o15__n15__weak__wc12   = 3
+  integer, parameter :: k_f17__o17__weak__wc12   = 4
   integer, parameter :: k_p_c12__n13   = 5
-  integer, parameter :: k_he4_n13__p_o16   = 6
-  integer, parameter :: k_he4_o16__ne20   = 7
-  integer, parameter :: k_he4_c14__o18   = 8
+  integer, parameter :: k_he4_c12__o16   = 6
+  integer, parameter :: k_p_c13__n14   = 7
+  integer, parameter :: k_p_n13__o14   = 8
+  integer, parameter :: k_p_n14__o15   = 9
+  integer, parameter :: k_he4_n14__f18   = 10
+  integer, parameter :: k_p_n15__o16   = 11
+  integer, parameter :: k_p_o16__f17   = 12
+  integer, parameter :: k_p_o17__f18   = 13
+  integer, parameter :: k_he4_n13__p_o16   = 14
+  integer, parameter :: k_p_n15__he4_c12   = 15
+  integer, parameter :: k_he4_o14__p_f17   = 16
+  integer, parameter :: k_p_o17__he4_n14   = 17
+  integer, parameter :: k_p_f18__he4_o15   = 18
+  integer, parameter :: k_he4_he4_he4__c12   = 19
 
   ! reactvec indices
   integer, parameter :: i_rate        = 1
@@ -92,7 +105,7 @@ module actual_network
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
-  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 75
+  integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 109
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
 
 #ifdef AMREX_USE_CUDA
@@ -119,74 +132,86 @@ contains
     spec_names(jp)   = "hydrogen-1"
     spec_names(jhe4)   = "helium-4"
     spec_names(jc12)   = "carbon-12"
-    spec_names(jc14)   = "carbon-14"
+    spec_names(jc13)   = "carbon-13"
     spec_names(jn13)   = "nitrogen-13"
     spec_names(jn14)   = "nitrogen-14"
+    spec_names(jn15)   = "nitrogen-15"
+    spec_names(jo14)   = "oxygen-14"
+    spec_names(jo15)   = "oxygen-15"
     spec_names(jo16)   = "oxygen-16"
-    spec_names(jo18)   = "oxygen-18"
+    spec_names(jo17)   = "oxygen-17"
+    spec_names(jf17)   = "fluorine-17"
     spec_names(jf18)   = "fluorine-18"
-    spec_names(jne20)   = "neon-20"
-    spec_names(jne21)   = "neon-21"
 
     short_spec_names(jp)   = "h1"
     short_spec_names(jhe4)   = "he4"
     short_spec_names(jc12)   = "c12"
-    short_spec_names(jc14)   = "c14"
+    short_spec_names(jc13)   = "c13"
     short_spec_names(jn13)   = "n13"
     short_spec_names(jn14)   = "n14"
+    short_spec_names(jn15)   = "n15"
+    short_spec_names(jo14)   = "o14"
+    short_spec_names(jo15)   = "o15"
     short_spec_names(jo16)   = "o16"
-    short_spec_names(jo18)   = "o18"
+    short_spec_names(jo17)   = "o17"
+    short_spec_names(jf17)   = "f17"
     short_spec_names(jf18)   = "f18"
-    short_spec_names(jne20)   = "ne20"
-    short_spec_names(jne21)   = "ne21"
 
     ebind_per_nucleon(jp)   = 0.00000000000000d+00
     ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
     ebind_per_nucleon(jc12)   = 7.68014400000000d+00
-    ebind_per_nucleon(jc14)   = 7.52031900000000d+00
+    ebind_per_nucleon(jc13)   = 7.46984900000000d+00
     ebind_per_nucleon(jn13)   = 7.23886300000000d+00
     ebind_per_nucleon(jn14)   = 7.47561400000000d+00
+    ebind_per_nucleon(jn15)   = 7.69946000000000d+00
+    ebind_per_nucleon(jo14)   = 7.05227800000000d+00
+    ebind_per_nucleon(jo15)   = 7.46369200000000d+00
     ebind_per_nucleon(jo16)   = 7.97620600000000d+00
-    ebind_per_nucleon(jo18)   = 7.76709700000000d+00
+    ebind_per_nucleon(jo17)   = 7.75072800000000d+00
+    ebind_per_nucleon(jf17)   = 7.54232800000000d+00
     ebind_per_nucleon(jf18)   = 7.63163800000000d+00
-    ebind_per_nucleon(jne20)   = 8.03224000000000d+00
-    ebind_per_nucleon(jne21)   = 7.97171300000000d+00
 
     aion(jp)   = 1.00000000000000d+00
     aion(jhe4)   = 4.00000000000000d+00
     aion(jc12)   = 1.20000000000000d+01
-    aion(jc14)   = 1.40000000000000d+01
+    aion(jc13)   = 1.30000000000000d+01
     aion(jn13)   = 1.30000000000000d+01
     aion(jn14)   = 1.40000000000000d+01
+    aion(jn15)   = 1.50000000000000d+01
+    aion(jo14)   = 1.40000000000000d+01
+    aion(jo15)   = 1.50000000000000d+01
     aion(jo16)   = 1.60000000000000d+01
-    aion(jo18)   = 1.80000000000000d+01
+    aion(jo17)   = 1.70000000000000d+01
+    aion(jf17)   = 1.70000000000000d+01
     aion(jf18)   = 1.80000000000000d+01
-    aion(jne20)   = 2.00000000000000d+01
-    aion(jne21)   = 2.10000000000000d+01
 
     zion(jp)   = 1.00000000000000d+00
     zion(jhe4)   = 2.00000000000000d+00
     zion(jc12)   = 6.00000000000000d+00
-    zion(jc14)   = 6.00000000000000d+00
+    zion(jc13)   = 6.00000000000000d+00
     zion(jn13)   = 7.00000000000000d+00
     zion(jn14)   = 7.00000000000000d+00
+    zion(jn15)   = 7.00000000000000d+00
+    zion(jo14)   = 8.00000000000000d+00
+    zion(jo15)   = 8.00000000000000d+00
     zion(jo16)   = 8.00000000000000d+00
-    zion(jo18)   = 8.00000000000000d+00
+    zion(jo17)   = 8.00000000000000d+00
+    zion(jf17)   = 9.00000000000000d+00
     zion(jf18)   = 9.00000000000000d+00
-    zion(jne20)   = 1.00000000000000d+01
-    zion(jne21)   = 1.00000000000000d+01
 
     nion(jp)   = 0.00000000000000d+00
     nion(jhe4)   = 2.00000000000000d+00
     nion(jc12)   = 6.00000000000000d+00
-    nion(jc14)   = 8.00000000000000d+00
+    nion(jc13)   = 7.00000000000000d+00
     nion(jn13)   = 6.00000000000000d+00
     nion(jn14)   = 7.00000000000000d+00
+    nion(jn15)   = 8.00000000000000d+00
+    nion(jo14)   = 6.00000000000000d+00
+    nion(jo15)   = 7.00000000000000d+00
     nion(jo16)   = 8.00000000000000d+00
-    nion(jo18)   = 1.00000000000000d+01
+    nion(jo17)   = 9.00000000000000d+00
+    nion(jf17)   = 8.00000000000000d+00
     nion(jf18)   = 9.00000000000000d+00
-    nion(jne20)   = 1.00000000000000d+01
-    nion(jne21)   = 1.10000000000000d+01
 
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
@@ -213,65 +238,83 @@ contains
       1, &
       2, &
       3, &
-      5, &
-      9, &
-      12, &
-      2, &
-      3, &
-      4, &
-      5, &
-      6, &
-      7, &
-      9, &
-      12, &
-      1, &
-      2, &
-      3, &
-      12, &
-      2, &
-      4, &
-      12, &
-      1, &
-      2, &
-      3, &
-      5, &
-      12, &
-      2, &
-      6, &
-      12, &
-      2, &
-      3, &
-      5, &
-      7, &
-      12, &
-      2, &
-      4, &
-      8, &
-      12, &
-      2, &
-      6, &
-      9, &
-      12, &
-      2, &
-      7, &
-      10, &
-      12, &
-      2, &
-      9, &
-      11, &
-      12, &
-      1, &
-      2, &
-      3, &
       4, &
       5, &
       6, &
       7, &
       8, &
-      9, &
       10, &
       11, &
+      13, &
+      14, &
+      1, &
+      2, &
+      3, &
+      5, &
+      6, &
+      7, &
+      8, &
+      11, &
+      13, &
+      14, &
+      1, &
+      2, &
+      3, &
+      7, &
+      14, &
+      1, &
+      4, &
+      5, &
+      14, &
+      1, &
+      2, &
+      3, &
+      5, &
+      14, &
+      1, &
+      2, &
+      4, &
+      6, &
+      8, &
+      11, &
+      14, &
+      1, &
+      7, &
+      9, &
+      14, &
+      1, &
+      2, &
+      5, &
+      8, &
+      14, &
+      1, &
+      6, &
+      9, &
+      13, &
+      14, &
+      1, &
+      2, &
+      3, &
+      5, &
+      7, &
+      10, &
+      14, &
+      1, &
+      11, &
       12, &
+      14, &
+      1, &
+      2, &
+      8, &
+      10, &
+      12, &
+      14, &
+      1, &
+      2, &
+      6, &
+      11, &
+      13, &
+      14, &
       1, &
       2, &
       3, &
@@ -284,23 +327,41 @@ contains
       10, &
       11, &
       12, &
-      13  ]
+      13, &
+      14, &
+      1, &
+      2, &
+      3, &
+      4, &
+      5, &
+      6, &
+      7, &
+      8, &
+      9, &
+      10, &
+      11, &
+      12, &
+      13, &
+      14, &
+      15  ]
 
     csr_jac_row_count = [ &
       1, &
-      7, &
-      15, &
-      19, &
-      22, &
-      27, &
-      30, &
-      35, &
-      39, &
-      43, &
-      47, &
-      51, &
-      63, &
-      76  ]
+      13, &
+      23, &
+      28, &
+      32, &
+      37, &
+      44, &
+      48, &
+      53, &
+      58, &
+      65, &
+      69, &
+      75, &
+      81, &
+      95, &
+      110  ]
 #endif
 
   end subroutine actual_network_init

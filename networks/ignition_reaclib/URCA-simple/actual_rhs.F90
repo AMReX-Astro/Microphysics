@@ -249,7 +249,7 @@ contains
 
     !$acc routine seq
 
-    use burn_type_module, only: net_itemp, net_ienuc, neqs
+    use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
