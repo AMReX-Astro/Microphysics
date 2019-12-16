@@ -1,11 +1,13 @@
 module actual_rhs_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Do nothing in this RHS.
@@ -19,6 +21,7 @@ contains
     use burn_type_module, only: burn_t
     use amrex_constants_module, only: ZERO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -36,6 +39,7 @@ contains
     use burn_type_module, only: burn_t
     use amrex_constants_module, only: ZERO
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -52,6 +56,7 @@ contains
 
     use burn_type_module, only: burn_t
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

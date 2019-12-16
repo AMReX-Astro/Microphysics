@@ -6,6 +6,7 @@ module cuvode_types_module
 
   use cuvode_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! Type dvode_t contains the integration solution and control variables
@@ -54,6 +55,7 @@ contains
 
 #ifndef AMREX_USE_CUDA
   subroutine print_state(dvode_state)
+    use amrex_fort_module, only : rt => amrex_real
     type(dvode_t) :: dvode_state
 
     write(*,*) 'HU = ', dvode_state % HU

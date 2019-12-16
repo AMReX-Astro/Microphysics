@@ -13,14 +13,16 @@ module microphysics_module
   use actual_conductivity_module, only: actual_conductivity_init
 #endif
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine microphysics_init(small_temp, small_dens)
 
-    double precision, optional :: small_temp
-    double precision, optional :: small_dens
+    use amrex_fort_module, only : rt => amrex_real
+    real(rt)        , optional :: small_temp
+    real(rt)        , optional :: small_dens
 
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
@@ -59,3 +61,4 @@ contains
   end subroutine microphysics_finalize
 
 end module microphysics_module
+

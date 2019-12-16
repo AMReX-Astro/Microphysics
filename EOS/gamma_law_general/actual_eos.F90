@@ -14,11 +14,12 @@ module actual_eos_module
   use network, only: nspec, aion, aion_inv, zion
   use eos_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "gamma_law_general"  
 
-  double precision, allocatable, save :: gamma_const
+  real(rt)        , allocatable, save :: gamma_const
 
   logical, allocatable, save :: assume_neutral
 
@@ -34,13 +35,14 @@ contains
 
     use extern_probin_module, only: eos_gamma, eos_assume_neutral
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     allocate(gamma_const)
     allocate(assume_neutral)
  
     ! constant ratio of specific heats
-    if (eos_gamma .gt. 0.d0) then
+    if (eos_gamma .gt. 0.e0_rt) then
        gamma_const = eos_gamma
     else
        call amrex_error("gamma_const cannot be < 0")
@@ -60,16 +62,17 @@ contains
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
 
     ! Get the mass of a nucleon from Avogadro's number.
-    double precision, parameter :: m_nucleon = ONE / n_A
-    double precision, parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5d0
+    real(rt)        , parameter :: m_nucleon = ONE / n_A
+    real(rt)        , parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5e0_rt
 
-    double precision :: Tinv, rhoinv
+    real(rt)         :: Tinv, rhoinv
 
     !$gpu
 
@@ -240,6 +243,7 @@ contains
 
   subroutine actual_eos_finalize
     
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     deallocate(gamma_const)

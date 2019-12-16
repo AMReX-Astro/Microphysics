@@ -9,11 +9,12 @@ module actual_eos_module
   use amrex_constants_module
   use eos_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "gamma_law"  
   
-  double precision, allocatable, save :: gamma_const
+  real(rt)        , allocatable, save :: gamma_const
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const
@@ -25,12 +26,13 @@ contains
 
     use extern_probin_module, only: eos_gamma
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     allocate(gamma_const)
     
     ! constant ratio of specific heats
-    if (eos_gamma .gt. 0.d0) then
+    if (eos_gamma .gt. 0.e0_rt) then
        gamma_const = eos_gamma
     else
        gamma_const = FIVE3RD
@@ -44,14 +46,15 @@ contains
 
     use fundamental_constants_module, only: k_B, n_A
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
 
-    double precision, parameter :: R = k_B*n_A
+    real(rt)        , parameter :: R = k_B*n_A
 
-    double precision :: poverrho
+    real(rt)         :: poverrho
 
     !$gpu
 
@@ -142,6 +145,7 @@ contains
 
   subroutine actual_eos_finalize                                                                    
                                                                                                     
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(gamma_const)) then

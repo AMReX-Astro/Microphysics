@@ -4,6 +4,7 @@ module table_rates
 
   use amrex_fort_module, only: rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public tabular_evaluate
@@ -58,6 +59,7 @@ module table_rates
 contains
 
   subroutine init_tabular()
+    use amrex_fort_module, only : rt => amrex_real
     integer :: n
 
     allocate(num_temp_j_na23_ne23)
@@ -113,6 +115,7 @@ contains
   subroutine init_tab_info(rate_table, rhoy_table, temp_table, &
                            num_rhoy, num_temp, num_vars, &
                            rate_table_file, num_header, invert_chemical_potential)
+    use amrex_fort_module, only : rt => amrex_real
     integer  :: num_rhoy, num_temp, num_vars, num_header
     real(rt) :: rate_table(num_temp, num_rhoy, num_vars), rhoy_table(num_rhoy), temp_table(num_temp)
     character(len=50) :: rate_table_file
@@ -165,6 +168,7 @@ contains
     ! Return 1 if fvar < vector(1)
     ! Return size(vector)-1 if fvar > vector(size(vector))
     ! The interval [index, index+1] brackets fvar for fvar within the range of vector.
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: vector(:)
     real(rt), intent(in) :: fvar
     integer, intent(out) :: index
@@ -206,6 +210,7 @@ contains
     ! Returns f(x), the values flo and fhi interpolated at x
     ! f(x) = flo if x <= xlo
     ! f(x) = fhi if x >= xhi
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in)  :: xlo, xhi, flo, fhi, x
     real(rt), intent(out) :: f
 
@@ -230,6 +235,7 @@ contains
     ! fhi = f(xhi)
     ! Returns f(x), the values flo and fhi interpolated at x
     ! If x <= xlo or x >= xhi, f(x) is extrapolated at x
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in)  :: xlo, xhi, flo, fhi, x
     real(rt), intent(out) :: f
 
@@ -243,6 +249,7 @@ contains
                          num_rhoy, num_temp, num_vars, &
                          rhoy, temp, entries)
 
+    use amrex_fort_module, only : rt => amrex_real
     integer  :: num_rhoy, num_temp, num_vars
     real(rt) :: rate_table(num_temp, num_rhoy, num_vars), rhoy_table(num_rhoy), temp_table(num_temp)
     real(rt), intent(in) :: rhoy, temp
@@ -349,6 +356,7 @@ contains
 
     use actual_network, only: num_rate_groups
     use extern_probin_module, only: disable_fermi_heating
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer  :: num_rhoy, num_temp, num_vars, num_header
@@ -368,8 +376,8 @@ contains
     ! Recast entries into reactvec
     reactvec(1) = entries(jtab_rate)
     reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0
-    reactvec(4) = 0.0d0
+    reactvec(3) = 1.0e0_rt
+    reactvec(4) = 0.0e0_rt
     reactvec(5) = entries(jtab_dq)
     if (.not. disable_fermi_heating) then
        reactvec(5) = reactvec(5) + entries(jtab_mu) - entries(jtab_vs)

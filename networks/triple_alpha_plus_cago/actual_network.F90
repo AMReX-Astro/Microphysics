@@ -2,6 +2,7 @@ module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: nspec = 4
@@ -17,7 +18,7 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable :: aion(:), zion(:), ebin(:)
+  real(rt)        , allocatable :: aion(:), zion(:), ebin(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, ebin
@@ -86,6 +87,7 @@ contains
 
   function network_reaction_index(name)
 
+    use amrex_fort_module, only : rt => amrex_real
     character(len=*) :: name
     integer :: network_reaction_index, n
 
@@ -105,6 +107,7 @@ contains
 
   subroutine actual_network_finalize
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(aion)) then

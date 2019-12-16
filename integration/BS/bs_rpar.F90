@@ -11,6 +11,7 @@ module bs_rpar_indices
   use sdc_type_module, only: SVAR_EVOLVE
 #endif
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 #ifndef SIMPLIFIED_SDC

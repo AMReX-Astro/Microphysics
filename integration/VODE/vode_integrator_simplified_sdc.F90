@@ -11,6 +11,7 @@ module vode_integrator_module
 
   use cuvode_parameters_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -38,6 +39,7 @@ contains
 
     ! Input arguments
 
+    use amrex_fort_module, only : rt => amrex_real
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
     real(rt),    intent(in   ) :: dt, time
@@ -66,7 +68,7 @@ contains
     type (dvode_t) :: dvode_state
 
     logical :: integration_failed
-    real(rt), parameter :: failure_tolerance = 1.d-2
+    real(rt), parameter :: failure_tolerance = 1.e-2_rt
 
     !$gpu
 
@@ -183,7 +185,7 @@ contains
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) > 1.d0 + failure_tolerance)) then
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % y(SRHO) > 1.e0_rt + failure_tolerance)) then
        integration_failed = .true.
     end if
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -191,7 +193,7 @@ contains
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % rho > 1.d0 + failure_tolerance)) then
+    if (any(dvode_state % y(SFS:SFS+nspec-1) / state_out % rho > 1.e0_rt + failure_tolerance)) then
        integration_failed = .true.
     end if
 #endif

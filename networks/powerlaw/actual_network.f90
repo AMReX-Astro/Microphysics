@@ -1,5 +1,6 @@
 module actual_network
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: nspec = 3
@@ -14,7 +15,7 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, save :: aion(nspec), zion(nspec), ebin(nspec)
+  real(rt)        , save :: aion(nspec), zion(nspec), ebin(nspec)
 
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
@@ -59,6 +60,7 @@ contains
 
   subroutine actual_network_finalize
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Nothing to do here.

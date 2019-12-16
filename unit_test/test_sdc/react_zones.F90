@@ -11,6 +11,7 @@ module react_zones_module
   use util_module
   use integrator_module, only: integrator
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -18,6 +19,7 @@ contains
   subroutine init_state(lo, hi, &
                         state, s_lo, s_hi, npts) bind(C, name="init_state")
 
+    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: lo(3), hi(3)
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
@@ -61,6 +63,7 @@ contains
                       state, s_lo, s_hi, &
                       n_rhs_min, n_rhs_max, n_rhs_sum) bind(C, name="do_react")
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(in) :: lo(3), hi(3)

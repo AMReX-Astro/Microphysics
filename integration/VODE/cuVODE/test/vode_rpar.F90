@@ -5,6 +5,7 @@
 !
 module vode_rpar_indices
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: n_rpar_comps = 0

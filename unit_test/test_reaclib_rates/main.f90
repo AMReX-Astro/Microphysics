@@ -27,7 +27,7 @@ program test_rates
   character (len=256) :: params_file
   integer             :: params_file_unit
 
-  real (rt)    :: density_lo, density_hi, delta_density, &
+  real(rt)     :: density_lo, density_hi, delta_density, &
                   temperature_lo, temperature_hi, delta_temperature, &
                   massfractions(nspec)
 
@@ -42,7 +42,7 @@ program test_rates
   call microphysics_init(small_temp=small_temp, small_dens=small_dens)
 
   ! Set mass fractions to sanitize inputs for them
-  massfractions = -1.0d0
+  massfractions = -1.0e0_rt
 
   ! Get initial conditions for the burn
   call get_command_argument(1, value = params_file)
@@ -110,13 +110,14 @@ contains
   subroutine write_rate_grid
     use network, only: nrates, nrat_tabular, i_rate, i_drate_dt, i_scor, i_dscor_dt, nspec
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     character(len=256) :: fname
     integer :: file_unit, j, jstart, jend
     integer, parameter :: jentries = 2 + 5*nrates + 2*nrat_tabular
     character(len=50) :: VDPFMT = ''
-    real (rt) :: output_vector(jentries)
+    real(rt)  :: output_vector(jentries)
 
     fname = trim(run_prefix) // "_rates"
     open(newunit=file_unit, file=fname, action='WRITE')
@@ -188,6 +189,7 @@ subroutine write_rate_t(fname, rate_state)
   use network, only: nrates, nrat_tabular, i_rate, i_drate_dt, i_scor, i_dscor_dt
   use actual_rhs_module, only: rate_eval_t
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
   
   ! Writes contents of rate_eval_t type rate_state to file named fname

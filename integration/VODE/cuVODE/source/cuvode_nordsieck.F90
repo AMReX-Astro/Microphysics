@@ -6,6 +6,7 @@ module cuvode_nordsieck_module
 
   use cuvode_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -18,6 +19,7 @@ contains
     ! Effectively multiplies the Nordsieck history
     ! array by the Pascal triangle matrix.
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments
@@ -48,6 +50,7 @@ contains
     ! Undoes the Pascal triangle matrix multiplication
     ! implemented in subroutine advance_nordsieck.
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

@@ -6,6 +6,7 @@ module dydt_module
   use amrex_constants_module
   use network
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -14,8 +15,9 @@ contains
 
     !$acc routine seq
 
-    double precision, intent(IN   ) :: ymol(nspec), rates(nrates)
-    double precision, intent(  OUT) :: ydot(nspec_evolve)
+    use amrex_fort_module, only : rt => amrex_real
+    real(rt)        , intent(IN   ) :: ymol(nspec), rates(nrates)
+    real(rt)        , intent(  OUT) :: ydot(nspec_evolve)
 
     !$gpu
 

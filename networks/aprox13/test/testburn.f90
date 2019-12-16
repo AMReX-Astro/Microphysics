@@ -20,12 +20,12 @@ program testburn
 
   call microphysics_init()
 
-  dens =    10000.0d0
-  temp =    4999999999.9999990d0
-  Xin(:) = 1.e-10_dp_t
-  Xin(ihe4) = 1.0_dp_t - (nspec-1)*1.e-10_dp_t
+  dens =    10000.0e0_rt
+  temp =    4999999999.9999990e0_rt
+  Xin(:) = 1.e-10_rt
+  Xin(ihe4) = 1.0_rt - (nspec-1)*1.e-10_dp_t
 
-  dt = 0.001_dp_t
+  dt = 0.001_rt
 
   jacobian = 2
   centered_diff_jac = .true.

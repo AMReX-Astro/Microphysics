@@ -5,12 +5,14 @@ module cj_det_module
   use eos_type_module
   use eos_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine adiabat(eos_state_fuel, eos_state_ash, q, istatus)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(in) :: eos_state_fuel
@@ -67,6 +69,7 @@ contains
 
   subroutine cj_cond(eos_state_fuel, eos_state_ash, q)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(in) :: eos_state_fuel

@@ -3,6 +3,7 @@ module sdc_type_module
   use amrex_fort_module, only : rt => amrex_real
   use actual_network, only: nspec
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! A generic structure holding data necessary to do a nuclear burn

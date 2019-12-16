@@ -2,12 +2,14 @@ module actual_rhs_module
 
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Do nothing in this RHS.
@@ -18,10 +20,11 @@ contains
 
   subroutine actual_rhs(state, ydot)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision, intent(inout) :: ydot(neqs)
+    real(rt)        , intent(inout) :: ydot(neqs)
 
     ! Do nothing in this RHS.
 
@@ -33,10 +36,11 @@ contains
 
   subroutine actual_jac(state, jac)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision, intent(inout) :: jac(njrows, njcols)
+    real(rt)        , intent(inout) :: jac(njrows, njcols)
 
     ! Do nothing in this RHS.
 
@@ -46,6 +50,7 @@ contains
 
   subroutine update_unevolved_species(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

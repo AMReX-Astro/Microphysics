@@ -3,6 +3,7 @@ module util_module
   use amrex_constants_module
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -13,6 +14,7 @@ contains
     use extern_probin_module, only: primary_species_1, primary_species_2, primary_species_3
     use amrex_error_module
 
+    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: nz
     real(rt), intent(  out) :: xn_zone(:,:)
 

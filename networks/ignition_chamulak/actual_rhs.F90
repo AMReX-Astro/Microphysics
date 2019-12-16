@@ -7,12 +7,14 @@ module actual_rhs_module
   use burn_type_module
   use rate_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -22,12 +24,13 @@ contains
     use amrex_constants_module, only: ZERO
     use fundamental_constants_module
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision, intent(in   ) :: density
-    double precision, intent(inout) :: ebin(nspec)
+    real(rt)        , intent(in   ) :: density
+    real(rt)        , intent(inout) :: ebin(nspec)
 
-    double precision :: rho9, q_eff
+    real(rt)         :: rho9, q_eff
 
     !$gpu
 
@@ -44,16 +47,16 @@ contains
     ! MeV values are per nucleus, so we divide by aion to make it per
     ! nucleon and we multiple by Avogardo's # (6.0221415e23) to get the
     ! value in erg/g
-    rho9 = density/1.0d9
+    rho9 = density/1.0e9_rt
 
     ! q_eff is effective heat evolved per reaction (given in MeV)
-    q_eff = 0.06d0*rho9**2 + 0.02d0*rho9 + 8.83d0
+    q_eff = 0.06e0_rt*rho9**2 + 0.02e0_rt*rho9 + 8.83e0_rt
 
     ! convert from MeV to ergs / gram.  Here M12_chamulak is the
     ! number of C12 nuclei destroyed in a single reaction and 12.0 is
     ! the mass of a single C12 nuclei.  Also note that our convention
     ! is that binding energies are negative.
-    ebin(ic12) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0d0)
+    ebin(ic12) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0e0_rt)
 
   end subroutine get_ebin
 
@@ -61,21 +64,22 @@ contains
 
     use screening_module, only: screenz
 
+    use amrex_fort_module, only : rt => amrex_real
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
-    double precision :: temp, T9, T9a, dT9dt, dT9adt
+    real(rt)         :: temp, T9, T9a, dT9dt, dT9adt
 
-    double precision :: scratch, dscratchdt
-    double precision :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
+    real(rt)         :: scratch, dscratchdt
+    real(rt)         :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
 
-    double precision :: dens
+    real(rt)         :: dens
 
-    double precision :: a, b, dadt, dbdt
+    real(rt)         :: a, b, dadt, dbdt
 
-    double precision :: y(nspec)
+    real(rt)         :: y(nspec)
 
-    double precision, parameter :: FIVE6TH = FIVE / SIX
+    real(rt)        , parameter :: FIVE6TH = FIVE / SIX
 
     !$gpu
 
@@ -84,25 +88,25 @@ contains
     y(:) = state % xn(:) * aion_inv(:)
 
     ! call the screening routine
-    call screenz(temp, dens, 6.0d0, 6.0d0, 12.0d0, 12.0d0, &
+    call screenz(temp, dens, 6.0e0_rt, 6.0e0_rt, 12.0e0_rt, 12.0e0_rt, &
                  y, sc1212, dsc1212dt)
 
     ! compute some often used temperature constants
-    T9     = temp/1.d9
-    dT9dt  = ONE/1.d9
-    T9a    = T9/(ONE + 0.0396d0*T9)
-    dT9adt = (T9a / T9 - (T9a / (ONE + 0.0396d0*T9)) * 0.0396d0) * dT9dt
+    T9     = temp/1.e9_rt
+    dT9dt  = ONE/1.e9_rt
+    T9a    = T9/(ONE + 0.0396e0_rt*T9)
+    dT9adt = (T9a / T9 - (T9a / (ONE + 0.0396e0_rt*T9)) * 0.0396e0_rt) * dT9dt
 
     ! compute the CF88 rate
     scratch    = T9a**THIRD
     dscratchdt = THIRD * T9a**(-TWO3RD) * dT9adt
 
-    a       = 4.27d26*T9a**FIVE6TH*T9**(-1.5d0)
-    dadt    = FIVE6TH * (a/T9a) * dT9adt - 1.5d0 * (a/T9) * dT9dt
+    a       = 4.27e26_rt*T9a**FIVE6TH*T9**(-1.5e0_rt)
+    dadt    = FIVE6TH * (a/T9a) * dT9adt - 1.5e0_rt * (a/T9) * dT9dt
 
-    b       = dexp(-84.165d0/scratch - 2.12d-3*T9*T9*T9)
-    dbdt    = (84.165d0 * dscratchdt/ scratch**TWO       &
-         - THREE * 2.12d-3 * T9 * T9 * dT9dt) * b
+    b       = dexp(-84.165e0_rt/scratch - 2.12e-3_rt*T9*T9*T9)
+    dbdt    = (84.165e0_rt * dscratchdt/ scratch**TWO       &
+         - THREE * 2.12e-3_rt * T9 * T9 * dT9dt) * b
 
     rate    = a *  b
     dratedt = dadt * b + a * dbdt
@@ -121,18 +125,19 @@ contains
 
     use extern_probin_module, only: do_constant_volume_burn
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: ydot(neqs)
+    real(rt)        , intent(inout) :: ydot(neqs)
     type (rate_t)    :: rr
 
-    double precision :: temp, xc12tmp, dens
-    double precision :: rate, dratedt, sc1212, dsc1212dt
+    real(rt)         :: temp, xc12tmp, dens
+    real(rt)         :: rate, dratedt, sc1212, dsc1212dt
 
-    double precision :: y(nspec), ebin(nspec)
+    real(rt)         :: y(nspec), ebin(nspec)
 
-    double precision, parameter :: FIVE6TH = FIVE / SIX
+    real(rt)        , parameter :: FIVE6TH = FIVE / SIX
 
     !$gpu
 
@@ -172,7 +177,7 @@ contains
     !
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
-    xc12tmp = max(y(ic12) * aion(ic12),0.d0)
+    xc12tmp = max(y(ic12) * aion(ic12),0.e0_rt)
     ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
 
     ! Convert back to molar form
@@ -202,16 +207,17 @@ contains
 
     use temperature_integration_module, only: temperature_jac
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: jac(njrows, njcols)
+    real(rt)        , intent(inout) :: jac(njrows, njcols)
     type (rate_t)    :: rr
 
-    double precision :: dens
-    double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
+    real(rt)         :: dens
+    real(rt)         :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
-    double precision :: ebin(nspec)
+    real(rt)         :: ebin(nspec)
 
     integer          :: j
 
@@ -268,9 +274,10 @@ contains
 
     use network
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: dydt(nspec_evolve), ebin(nspec), enuc
+    real(rt)         :: dydt(nspec_evolve), ebin(nspec), enuc
 
     !$gpu
 
@@ -282,6 +289,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

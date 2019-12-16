@@ -1,5 +1,6 @@
 module bs_jac_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -16,6 +17,7 @@ contains
     use bs_type_module, only: bs_t, bs_to_burn, jac_to_bs
     use bs_rpar_indices, only: irp_t0
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -23,7 +25,7 @@ contains
 
     ! this is the Jacobian of the reaction network.  We will need to
     ! change this to be in terms of the SDC system
-    double precision :: jac(neqs, neqs)
+    real(rt)         :: jac(neqs, neqs)
 
     ! Initialize the Jacobian to zero.
 

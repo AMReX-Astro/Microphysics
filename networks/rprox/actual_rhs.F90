@@ -3,12 +3,14 @@ module actual_rhs_module
   use burn_type_module
   use rate_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -22,13 +24,14 @@ contains
     use rates_module
     use temperature_integration_module, only: temperature_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: ydot(neqs)
+    real(rt)        , intent(inout) :: ydot(neqs)
 
     type (rate_t)    :: rr
-    double precision :: dens, t9, y(nspec)
+    real(rt)         :: dens, t9, y(nspec)
 
     !$gpu
 
@@ -63,21 +66,22 @@ contains
     use rates_module
     use network
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: T9, dens, y(nspec)
+    real(rt)         :: T9, dens, y(nspec)
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
     ! locally used rates
-    double precision :: rate,dratedt,wk18ne,wk19ne
-    double precision :: r56pg,dr56pgdt,cutoni,dcutonidt,r57decay,dr56eff,ddr56effdt
-    double precision :: t9i32
+    real(rt)         :: rate,dratedt,wk18ne,wk19ne
+    real(rt)         :: r56pg,dr56pgdt,cutoni,dcutonidt,r57decay,dr56eff,ddr56effdt
+    real(rt)         :: t9i32
 
     ! some numbers from appendix C in WW81; these should probably be
     ! updated with current rates
-    double precision, parameter :: Lweak = 1.05d0, & ! this is for NS
-                                !  Lweak = 0.107d0, & ! this is for lower
+    real(rt)        , parameter :: Lweak = 1.05e0_rt, & ! this is for NS
+                                !  Lweak = 0.107e0_rt, & ! this is for lower
                                                       ! densities
                                    la2 = ONE/FIFTEEN ! mean rate from 30s to 56ni
                                                      ! from p-capture and beta
@@ -230,7 +234,7 @@ contains
          +20.33_rt*7.065e3_rt*exp(-20.33_rt*tfactors%t9i))
     !....  use generic proton separation energy of 400 kev
     !....  8.02 -> 4.64
-    !      cutoni=2.08d-10*dens*exp(8.02*t9m1)/t932
+    !      cutoni=2.08e-10_rt*dens*exp(8.02*t9m1)/t932
     cutoni=2.08e-10_rt*dens*exp(4.642_rt*tfactors%t9i)*t9i32
     dcutonidt = cutoni*tfactors%t9i*(-THREE*HALF - 4.642_rt*tfactors%t9i)
     r57decay=3.54_rt
@@ -250,17 +254,18 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     use network
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision, intent(IN   ) :: ymol(nspec), T9
+    real(rt)        , intent(IN   ) :: ymol(nspec), T9
     logical ,         intent(IN   ) :: doing_dratesdt
     type(burn_t),     intent(IN) :: state
     type(rate_t),     intent(inout) :: rr
-    double precision, intent(  OUT) :: dydt(nspec)
+    real(rt)        , intent(  OUT) :: dydt(nspec)
 
     integer          :: rate_idx
-    double precision :: ddelta1, ddelta2
-    double precision :: dens
+    real(rt)         :: ddelta1, ddelta2
+    real(rt)         :: dens
 
     !$gpu
 
@@ -358,7 +363,7 @@ contains
          -ymol(if17)*ymol(ih1)*rr % rates(rate_idx,irpg17f)*(ONE-rr % rates(rate_idx,irs1)) &
          +ymol(if17)*rr % rates(rate_idx,irwk17f) &
          -TWO*ymol(img22)*rr % rates(rate_idx,irlambda1)*rr % rates(3,delta1) &
-         -6.5d0*ymol(is30)*rr % rates(rate_idx,irlambda2)*rr % rates(3,delta2)
+         -6.5e0_rt*ymol(is30)*rr % rates(rate_idx,irlambda2)*rr % rates(3,delta2)
     !....
     !.... 1h (p) = 10
     !....
@@ -380,10 +385,10 @@ contains
 
     if (.not. doing_dratesdt) then
        dydt(ini56) = dydt(ini56)+ymol(ini56)*ymol(ih1)*rr % rates(3,r56eff)
-       dydt(ih1) = dydt(ih1)-56.0d0*ymol(ini56)*ymol(ih1)*rr % rates(3,r56eff)
+       dydt(ih1) = dydt(ih1)-56.0e0_rt*ymol(ini56)*ymol(ih1)*rr % rates(3,r56eff)
     else
        dydt(ini56) = dydt(ini56)+ymol(ini56)*ymol(ih1)*rr % rates(3,dr56effdt)
-       dydt(ih1) = dydt(ih1)-56.0d0*ymol(ini56)*ymol(ih1)*rr % rates(3,dr56effdt)
+       dydt(ih1) = dydt(ih1)-56.0e0_rt*ymol(ini56)*ymol(ih1)*rr % rates(3,dr56effdt)
     endif
 
   end subroutine make_ydots
@@ -398,14 +403,15 @@ contains
     use network
     use temperature_integration_module, only: temperature_jac
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: jac(njrows, njcols)
+    real(rt)        , intent(inout) :: jac(njrows, njcols)
 
     type (rate_t) :: rr
-    double precision :: dens, ymol(nspec), T9, ydot(nspec)
-    double precision :: psum
+    real(rt)         :: dens, ymol(nspec), T9, ydot(nspec)
+    real(rt)         :: psum
     integer          :: i, j
 
     !$gpu
@@ -499,7 +505,7 @@ contains
          -ymol(ih1)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          +rr % rates(1,irwk17f)
     jac(ihe4,img22) = -TWO*rr % rates(1,irlambda1)*rr % rates(3,delta1)
-    jac(ihe4,is30) = -6.5d0*rr % rates(1,irlambda2)*rr % rates(3,delta2)
+    jac(ihe4,is30) = -6.5e0_rt*rr % rates(1,irlambda2)*rr % rates(3,delta2)
     jac(ihe4,ihe4) = -THREE*ymol(ihe4)*ymol(ihe4)*HALF*rr % rates(1,ir3a) &
          -ymol(io14)*rr % rates(1,irap14o) &
          -ymol(io16)*rr % rates(1,irag16o) &
@@ -507,7 +513,7 @@ contains
          +ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4) &
          +ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4) &
          -TWO*ymol(img22)*rr % rates(3,dlambda1dhe4)*rr % rates(3,delta1) &
-         -6.5d0*ymol(is30)*rr % rates(3,dlambda2dhe4)*rr % rates(3,delta2)
+         -6.5e0_rt*ymol(is30)*rr % rates(3,dlambda2dhe4)*rr % rates(3,delta2)
     jac(ihe4,ih1)  = ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          -ymol(if17)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          +ymol(io15)*rr % rates(3,dlambCNOdh1) &
@@ -527,22 +533,22 @@ contains
          -ymol(ih1)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          -TWO*rr % rates(1,irwk17f)
     jac(ih1,img22) = -EIGHT*rr % rates(1,irlambda1)*(ONE-rr % rates(3,delta1))
-    jac(ih1,is30)  = -26.d0*rr % rates(1,irlambda2)*(ONE-rr % rates(3,delta2))
-    jac(ih1,ini56) = -56.0d0*ymol(ih1)*rr % rates(3,r56eff)
+    jac(ih1,is30)  = -26.e0_rt*rr % rates(1,irlambda2)*(ONE-rr % rates(3,delta2))
+    jac(ih1,ini56) = -56.0e0_rt*ymol(ih1)*rr % rates(3,r56eff)
     jac(ih1,ihe4) = ymol(io14)*rr % rates(1,irap14o) &
          -ymol(io15)*rr % rates(1,irag15o)*rr % rates(1,irr1) &
          -TWO*ymol(io16)*rr % rates(1,irag16o) &
          -THREE*ymol(io15)*rr % rates(1,irag15o)*(ONE-rr % rates(1,irr1)) &
          -ymol(if17)*ymol(ih1)*rr % rates(1,irpg17f)*rr % rates(3,drs1dhe4) &
          -EIGHT*ymol(img22)*rr % rates(3,dlambda1dhe4)*(ONE-rr % rates(3,delta1)) &
-         -26.d0*ymol(is30)*rr % rates(3,dlambda2dhe4)*(ONE-rr % rates(3,delta2))
+         -26.e0_rt*ymol(is30)*rr % rates(3,dlambda2dhe4)*(ONE-rr % rates(3,delta2))
     jac(ih1,ih1)  = -TWO*ymol(ic12)*rr % rates(1,irpg12c) &
          -TWO*ymol(if17)*rr % rates(1,irpg17f)*rr % rates(1,irs1) &
          -ymol(io16)*rr % rates(1,irpg16o) &
          -ymol(if17)*rr % rates(1,irpg17f)*(ONE-rr % rates(1,irs1)) &
          -ymol(io15)*rr % rates(3,dlambCNOdh1) &
          +TWO*ymol(io15)*ymol(ihe4)*rr % rates(1,irag15o)*rr % rates(3,drr1dh1) &
-         -56.0d0*ymol(ini56)*rr % rates(3,r56eff)
+         -56.0e0_rt*ymol(ini56)*rr % rates(3,r56eff)
 
     ! temperature derivatives df(Y)/df(T)
     call make_ydots(ymol, T9, state, rr, ydot, .true.)
@@ -571,9 +577,10 @@ contains
 
     use network
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec_evolve), enuc
 
     !$gpu
 
@@ -583,6 +590,7 @@ contains
 
   subroutine update_unevolved_species(state)
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !$gpu
