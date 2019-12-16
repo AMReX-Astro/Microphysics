@@ -2,6 +2,7 @@ module network_rhs_module
 
   use amrex_fort_module, only: rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -17,6 +18,7 @@ contains
     use nonaka_plot_module, only: nonaka_rhs
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(inout) :: state
@@ -39,6 +41,7 @@ contains
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, neqs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(inout) :: state

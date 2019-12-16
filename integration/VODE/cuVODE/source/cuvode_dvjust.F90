@@ -7,6 +7,7 @@ module cuvode_dvjust_module
 
   use cuvode_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -39,6 +40,7 @@ contains
     ! -----------------------------------------------------------------------
     !
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

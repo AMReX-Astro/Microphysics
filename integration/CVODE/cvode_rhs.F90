@@ -1,5 +1,6 @@
 module cvode_rhs_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
   
 contains
@@ -22,6 +23,7 @@ contains
     use cvode_type_module, only: sk_clean_state, sk_renormalize_species, sk_update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
     use cvode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: time, y(VODE_NEQS)
@@ -97,6 +99,7 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: integrate_temperature, integrate_energy
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
@@ -158,6 +161,7 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use amrex_constants_module, only: ZERO    
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -207,6 +211,7 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use amrex_constants_module, only: ZERO    
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(IN   ) :: jac_mat(VODE_NEQS,VODE_NEQS)
@@ -234,6 +239,7 @@ contains
     use amrex_fort_module, only: rt => amrex_real
     use amrex_constants_module, only: ZERO
     
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer  :: neq_total, ncells, neq_per_cell, nrpar_per_cell

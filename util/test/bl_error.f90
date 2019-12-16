@@ -4,11 +4,13 @@
 
 module bl_error_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine bl_error(str)
+    use amrex_fort_module, only : rt => amrex_real
     character(len=*), intent(in), optional :: str
     if ( present(str) ) then
        write(*,*) "BOXLIB ERROR: ", str

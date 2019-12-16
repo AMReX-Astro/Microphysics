@@ -2,28 +2,30 @@ module tfactors_module
 
   use amrex_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type temp_t
-     double precision :: t9
-     double precision :: t9i
-     double precision :: t9i13
-     double precision :: t913
-     double precision :: t953
-     double precision :: lnt9
+     real(rt)         :: t9
+     real(rt)         :: t9i
+     real(rt)         :: t9i13
+     real(rt)         :: t913
+     real(rt)         :: t953
+     real(rt)         :: lnt9
   end type temp_t
 
 contains
 
   subroutine calc_tfactors(t9, tfactors)
 
-    double precision, intent(in   ) :: t9
+    use amrex_fort_module, only : rt => amrex_real
+    real(rt)        , intent(in   ) :: t9
     type (temp_t), intent(out) :: tfactors
 
     !$gpu
 
     tfactors%t9 = t9
-    tfactors%t9i = 1.d0 / tfactors%t9
+    tfactors%t9i = 1.e0_rt / tfactors%t9
     tfactors%t9i13 = tfactors%t9i**THIRD
     tfactors%t913 = tfactors%t9**THIRD
     tfactors%t953 = tfactors%t9 * tfactors%t913 * tfactors%t913

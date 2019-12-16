@@ -1,5 +1,6 @@
 module integrator_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -21,6 +22,7 @@ contains
     use nonaka_plot_module, only: nonaka_init
 #endif
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
@@ -64,6 +66,7 @@ contains
                                     abort_on_failure, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (sdc_t),  intent(in   ) :: state_in

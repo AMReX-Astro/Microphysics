@@ -24,6 +24,7 @@ module network
   use amrex_fort_module, only : rt => amrex_real
   use actual_network
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   logical :: network_initialized = .false.
@@ -44,6 +45,7 @@ contains
     use amrex_error_module, only : amrex_error
     use amrex_constants_module, only : ONE
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     allocate(aion_inv(nspec))
@@ -79,6 +81,7 @@ contains
 
     use actual_network, only: network_name
 
+    use amrex_fort_module, only : rt => amrex_real
     character(len=128) :: name
 
     name = network_name
@@ -88,6 +91,7 @@ contains
 
   function network_species_index(name) result(r)
 
+    use amrex_fort_module, only : rt => amrex_real
     character(len=*) :: name
     integer :: r, n
 
@@ -105,6 +109,7 @@ contains
 
   function get_network_species_name(index) result(name)
 
+    use amrex_fort_module, only : rt => amrex_real
     character(len=128) :: name
     integer :: index
 
@@ -119,6 +124,7 @@ contains
 
   function get_network_short_species_name(index) result(name)
 
+    use amrex_fort_module, only : rt => amrex_real
     character(len=128) :: name
     integer :: index
 
@@ -132,6 +138,7 @@ contains
 
 
   subroutine network_finalize()
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call actual_network_finalize()

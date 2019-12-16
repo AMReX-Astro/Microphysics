@@ -13,11 +13,12 @@ module actual_eos_module
   use network, only: nspec, aion, zion
   use eos_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "multigamma"
 
-  double precision, allocatable, save :: gammas(:)
+  real(rt)        , allocatable, save :: gammas(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: gammas
@@ -33,6 +34,7 @@ contains
                                     species_c_name, species_c_gamma
     use network, only: network_species_index
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: idx
@@ -68,17 +70,18 @@ contains
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
 
     ! Local variables
-    double precision :: sumY_gm1, sumYg_gm1
-    double precision :: dens, temp
+    real(rt)         :: sumY_gm1, sumYg_gm1
+    real(rt)         :: dens, temp
 
     ! Get the mass of a nucleon from Avogadro's number.
-    double precision, parameter :: m_nucleon = ONE / n_A
+    real(rt)        , parameter :: m_nucleon = ONE / n_A
 
     !$gpu
 
@@ -230,6 +233,7 @@ contains
 
   subroutine actual_eos_finalize
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     deallocate(gammas)

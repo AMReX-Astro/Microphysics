@@ -1,10 +1,11 @@
 module actual_network
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! M12_chamulak is the effective number of C12 nuclei destroyed per
   ! reaction
-  double precision, parameter :: M12_chamulak = 2.93d0
+  real(rt)        , parameter :: M12_chamulak = 2.93e0_rt
 
   integer, parameter :: nspec = 3
 
@@ -20,8 +21,8 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable :: aion(:), zion(:), nion(:)
-  double precision, allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: aion(:), zion(:), nion(:)
+  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, nion, bion, mion, wion
@@ -34,6 +35,7 @@ contains
 
   subroutine actual_network_init
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     spec_names(ic12)  = "carbon-12"
@@ -56,13 +58,13 @@ contains
     ! while Na23 + p is the other 40%.   Fusing 6 C12 will result in
     ! 1.2 Na23, 1.2 O16 (from the alpha), 1.8 Ne20, and 1.8 C13.
     ! The ash state will have an A and Z corresponding to this mixture.
-    aion(ic12)  = 12.0d0
-    aion(io16)  = 16.0d0
-    aion(iash)  = 18.0d0
+    aion(ic12)  = 12.0e0_rt
+    aion(io16)  = 16.0e0_rt
+    aion(iash)  = 18.0e0_rt
 
-    zion(ic12)  = 6.0d0
-    zion(io16)  = 8.0d0
-    zion(iash)  = 8.8d0
+    zion(ic12)  = 6.0e0_rt
+    zion(io16)  = 8.0e0_rt
+    zion(iash)  = 8.8e0_rt
 
   end subroutine actual_network_init
 
@@ -70,6 +72,7 @@ contains
 
   subroutine actual_network_finalize
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(aion)) then

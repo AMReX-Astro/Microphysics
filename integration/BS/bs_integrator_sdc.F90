@@ -3,6 +3,7 @@
 
 module bs_integrator_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -11,6 +12,7 @@ contains
 
     use bs_type_module, only: nseq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     nseq = [2, 6, 10, 14, 22, 34, 50, 70]
@@ -41,6 +43,7 @@ contains
     use bs_rpar_indices, only : irp_t0
     use integration_data, only: integration_status_t
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -58,7 +61,7 @@ contains
     type (bs_t) :: bs
 
     ! BS does not allow for per-equation tolerances, so aggregate them here
-    bs % atol(:) = 0.d0
+    bs % atol(:) = 0.e0_rt
     bs % rtol(:) = max(status % rtol_spec, status % rtol_temp, status % rtol_enuc)
 
     ! Start out by assuming a successful burn.

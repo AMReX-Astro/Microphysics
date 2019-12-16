@@ -7,6 +7,7 @@ module actual_rhs_module
   use dydt_module
   use rate_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -15,6 +16,7 @@ contains
 
   subroutine actual_rhs_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !$gpu
@@ -26,13 +28,14 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
-    double precision :: temp, dens
-    double precision :: ymol(nspec)
+    real(rt)         :: temp, dens
+    real(rt)         :: ymol(nspec)
 
-    double precision :: rates(nrates), dratesdt(nrates)
+    real(rt)         :: rates(nrates), dratesdt(nrates)
 
     !$gpu
 
@@ -57,15 +60,16 @@ contains
 
     use temperature_integration_module, only: temperature_rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision :: ydot(neqs)
+    real(rt)         :: ydot(neqs)
 
     type (rate_t) :: rr
 
-    double precision :: ymol(nspec)
-    double precision :: rates(nrates)
+    real(rt)         :: ymol(nspec)
+    real(rt)         :: rates(nrates)
     integer :: k
 
     !$gpu
@@ -100,15 +104,16 @@ contains
     use burn_type_module, only : neqs, njrows, njcols
     use temperature_integration_module, only: temperature_jac
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision :: jac(njrows, njcols)
+    real(rt)         :: jac(njrows, njcols)
 
     type (rate_t) :: rr
 
-    double precision :: ymol(nspec)
-    double precision :: rates(nrates), dratesdt(nrates)
+    real(rt)         :: ymol(nspec)
+    real(rt)         :: rates(nrates), dratesdt(nrates)
 
     integer :: i, j
 
@@ -170,11 +175,12 @@ contains
 
     use network
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !$gpu
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec_evolve), enuc
 
     enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
 
@@ -184,6 +190,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

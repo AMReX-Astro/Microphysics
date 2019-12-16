@@ -6,12 +6,14 @@ module actual_integrator_module
   use burn_type_module
   use amrex_fort_module, only: rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
   
 contains
 
   subroutine actual_integrator_init()
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_integrator_init
@@ -22,6 +24,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments

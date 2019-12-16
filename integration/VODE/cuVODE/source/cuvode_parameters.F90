@@ -1,5 +1,6 @@
 module cuvode_parameters_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! User-definable number of equations

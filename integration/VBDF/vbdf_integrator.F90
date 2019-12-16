@@ -13,9 +13,10 @@ module actual_integrator_module
   use bdf_type_module
   use bdf
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
 contains
@@ -24,6 +25,7 @@ contains
 
     use bdf, only: init_pascal
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call init_pascal()
@@ -49,6 +51,7 @@ contains
     use actual_rhs_module, only : update_unevolved_species
     use temperature_integration_module, only: self_heat
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -72,7 +75,7 @@ contains
 
     real(rt) :: retry_change_factor
 
-    double precision :: ener_offset
+    real(rt)         :: ener_offset
     real(rt) :: edot, t_enuc, t_sound, limit_factor
 
     call bdf_ts_build(ts)
@@ -149,7 +152,7 @@ contains
 
     ts % upar(irp_Told,1) = eos_state_in % T
 
-    if (dT_crit < 1.0d19) then
+    if (dT_crit < 1.0e19_rt) then
 
        eos_state_temp = eos_state_in
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
@@ -197,7 +200,7 @@ contains
 
        ts % upar(irp_Told,1) = eos_state_in % T
 
-       if (dT_crit < 1.0d19) then
+       if (dT_crit < 1.0e19_rt) then
           ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
           ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
        endif
@@ -251,7 +254,7 @@ contains
 
              ts % upar(irp_Told,1) = eos_state_in % T
 
-             if (dT_crit < 1.0d19) then
+             if (dT_crit < 1.0e19_rt) then
                 ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
                 ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
              endif
@@ -292,10 +295,10 @@ contains
 
     if (burning_mode == 3) then
 
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
        t_sound = state_in % dx / eos_state_in % cs
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
 
        state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
@@ -333,11 +336,12 @@ contains
 
     use rhs_module
 
+    use amrex_fort_module, only : rt => amrex_real
     type (bdf_ts), intent(inout) :: ts
-    real (rt), intent(in) :: t0, t1
-    real (rt), intent(out) :: dt
+    real(rt) , intent(in) :: t0, t1
+    real(rt) , intent(out) :: dt
     type (bdf_ts) :: ts_temp
-    real (rt) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
+    real(rt)  :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
     integer :: n
 
     ts_temp = ts
@@ -346,8 +350,8 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(t0), abs(t1))
-    hU = 0.1d0 * abs(t1 - t0)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(t0), abs(t1))
+    hU = 0.1e0_rt * abs(t1 - t0)
 
     ! Initial guess for the iteration
 

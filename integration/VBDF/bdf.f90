@@ -23,6 +23,7 @@ module bdf
   use amrex_fort_module, only : rt => amrex_real
   use bdf_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   !TODO: Lowered iters for dev, change back
@@ -54,6 +55,7 @@ contains
   !
   subroutine bdf_advance(ts, y0, t0, y1, t1, dt0, reset, reuse, ierr, initial_call)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     real(rt),   intent(in   ) :: y0(neqs,bdf_npt), t0, t1, dt0
     real(rt),   intent(  out) :: y1(neqs,bdf_npt)
@@ -158,6 +160,7 @@ contains
   !
   subroutine bdf_update(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
 
     integer  :: j, o
@@ -227,6 +230,7 @@ contains
   !
   subroutine bdf_predict(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     integer :: i, j, m, p
     do i = 0, ts%k
@@ -261,6 +265,7 @@ contains
 
     use rhs_module, only: rhs, jac
 
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
 
     integer  :: k, m, n, p, info
@@ -279,7 +284,7 @@ contains
 
     dt_rat = dt_adj / ts%dt_nwt
     if (ts%p_age > ts%max_p_age) ts%refactor = .true.
-    if (dt_rat < 0.7d0 .or. dt_rat > 1.429d0) ts%refactor = .true.
+    if (dt_rat < 0.7e0_rt .or. dt_rat > 1.429e0_rt) ts%refactor = .true.
 
     iterating = .true.
 
@@ -289,7 +294,7 @@ contains
        if (ts%refactor) then
           rebuild = .true.
           if (ts%ncse == 0 .and. ts%j_age < ts%max_j_age) rebuild = .false.
-          if (ts%ncse > 0  .and. (dt_rat < 0.2d0 .or. dt_rat > 5.d0)) rebuild = .false.
+          if (ts%ncse > 0  .and. (dt_rat < 0.2e0_rt .or. dt_rat > 5.e0_rt)) rebuild = .false.
 
           if (rebuild) then
              call jac(ts)
@@ -355,6 +360,7 @@ contains
   !
   subroutine bdf_check(ts, retry, err)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     logical,      intent(out)   :: retry
     integer,      intent(out)   :: err
@@ -373,7 +379,7 @@ contains
     ! if solver failed to converge, shrink dt and try again
     if (ts%ncit >= ts%max_iters) then
        ts%refactor = .true.; ts%nse = ts%nse + 1; ts%ncse = ts%ncse + 1
-       call rescale_timestep(ts, 0.25d0, .false.)
+       call rescale_timestep(ts, 0.25e0_rt, .false.)
        retry = .true.
        return
     end if
@@ -383,7 +389,7 @@ contains
     do p = 1, ts%npt
        error = ts%tq(0) * norm(ts%e(:,p), ts%ewt(:,p))
        if (error > ONE) then
-          eta = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
+          eta = ONE / ( (6.e0_rt * error) ** (ONE / ts%k) + 1.e-6_rt )
           call rescale_timestep(ts, eta, .false.)
           retry = .true.
           !if (ts%dt < ts%dt_min + epsilon(ts%dt_min)) ts%ncdtmin = ts%ncdtmin + 1
@@ -401,6 +407,7 @@ contains
   !
   subroutine bdf_correct(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     integer :: i, m, p, o
 
@@ -429,6 +436,7 @@ contains
   ! Dump (for debugging)...
   !
   subroutine bdf_dump(ts)
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     integer :: i, m, p
 
@@ -441,6 +449,7 @@ contains
   !
   subroutine bdf_adjust(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
 
     real(rt) :: c, error, eta(-1:1), rescale, etamax(ts%npt), etaminmax
@@ -453,11 +462,11 @@ contains
        ! compute eta(k-1), eta(k), eta(k+1)
        eta = 0
        error  = ts%tq(0) * norm(ts%e(:,p), ts%ewt(:,p))
-       eta(0) = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
+       eta(0) = ONE / ( (6.e0_rt * error) ** (ONE / ts%k) + 1.e-6_rt )
        if (ts%k_age > ts%k) then
           if (ts%k > 1) then
              error     = ts%tq(-1) * norm(ts%z(:,p,ts%k), ts%ewt(:,p))
-             eta(-1) = ONE / ( (6.d0 * error) ** (ONE / ts%k) + 1.d-6 )
+             eta(-1) = ONE / ( (6.e0_rt * error) ** (ONE / ts%k) + 1.e-6_rt )
           end if
           if (ts%k < ts%max_order) then
              c = (ts%tq(2) / ts%tq2save) * (ts%h(0) / ts%h(2)) ** (ts%k+1)
@@ -470,7 +479,7 @@ contains
                 emcxe1(m,p) = ts%e(m,p) - cxe1(m,p)
              end do
              error  = ts%tq(1) * norm(emcxe1(:,p), ts%ewt(:,p))
-             eta(1) = ONE / ( (10.d0 * error) ** (ONE / (ts%k+2)) + 1.d-6 )
+             eta(1) = ONE / ( (10.e0_rt * error) ** (ONE / (ts%k+2)) + 1.e-6_rt )
           end if
           ts%k_age = 0
        end if
@@ -529,6 +538,7 @@ contains
 
     use rhs_module, only: rhs
 
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     real(rt),   intent(in   ) :: y0(ts%neq, ts%npt), dt
     logical,      intent(in   ) :: reuse
@@ -593,6 +603,7 @@ contains
   !
   subroutine rescale_timestep(ts, eta_in, force)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     real(rt),   intent(in   ) :: eta_in
     logical,      intent(in   ) :: force
@@ -624,6 +635,7 @@ contains
   !
   subroutine decrease_order(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     integer  :: j, o, p, m
     real(rt) :: c(0:6), c_shift(0:6)
@@ -665,6 +677,7 @@ contains
   !
   subroutine increase_order(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     integer  :: j, o
     real(rt) :: c(0:6), c_shift(0:6)
@@ -693,6 +706,7 @@ contains
   !
   function alpha0(k) result(a0)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     integer,  intent(in) :: k
     real(rt) :: a0
     integer  :: j
@@ -707,6 +721,7 @@ contains
   !
   function alphahat0(k, h) result(a0)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     integer,  intent(in) :: k
     real(rt), intent(in) :: h(0:k)
     real(rt) :: a0
@@ -725,6 +740,7 @@ contains
   !
   function xi_star_inv(k, h) result(xii)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     integer,  intent(in) :: k
     real(rt), intent(in) :: h(0:)
     real(rt) :: xii, hs
@@ -742,6 +758,7 @@ contains
   !
   function xi_j(h, j) result(xi)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     integer,  intent(in) :: j
     real(rt), intent(in) :: h(0:)
     real(rt) :: xi
@@ -753,6 +770,7 @@ contains
   !
   subroutine ewts(ts)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
     integer :: m, p
     do p = 1, ts%npt
@@ -763,6 +781,7 @@ contains
   end subroutine ewts
 
   subroutine print_y(ts)
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(in) :: ts
     integer :: p
     do p = 1, ts%npt
@@ -775,6 +794,7 @@ contains
   !
   function norm(y, ewt) result(r)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: y(1:), ewt(1:)
     real(rt) :: r
     integer :: m, n
@@ -800,6 +820,7 @@ contains
 
     use extern_probin_module, only : dt_min, jac_age, p_age
 
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts),   intent(inout) :: ts
 
     integer :: i, j, k, n
@@ -824,10 +845,10 @@ contains
 
     do n = 1, ts % npt
        do k = 1, neqs
-          ts % yd(k,n) = 0.0d0
+          ts % yd(k,n) = 0.0e0_rt
           do j = 1, neqs
-             ts % J(j,k,n) = 0.0d0
-             ts % P(j,k,n) = 0.0d0
+             ts % J(j,k,n) = 0.0e0_rt
+             ts % P(j,k,n) = 0.0e0_rt
           enddo
        enddo
     enddo
@@ -841,6 +862,7 @@ contains
   end subroutine bdf_ts_build
 
   subroutine bdf_ts_destroy(ts)
+    use amrex_fort_module, only : rt => amrex_real
     type(bdf_ts), intent(inout) :: ts
   end subroutine bdf_ts_destroy
 
@@ -849,6 +871,7 @@ contains
   !
   subroutine eye_r(A)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(inout) :: A(:,:,:)
     integer :: i
     A = 0
@@ -857,6 +880,7 @@ contains
     end do
   end subroutine eye_r
   subroutine eye_i(A)
+    use amrex_fort_module, only : rt => amrex_real
     integer, intent(inout) :: A(:,:)
     integer :: i
     A = 0
@@ -886,6 +910,7 @@ contains
   !
   subroutine eoshift_local(arr, sh, shifted_arr)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in   ) :: arr(0:)
     integer,         intent(in   ) :: sh
     real(rt), intent(  out) :: shifted_arr(0:)
@@ -924,6 +949,7 @@ contains
   !
   function minloc(arr) result(ret)
     !$acc routine seq
+    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in   ) :: arr(:)
     
     integer :: ret
@@ -946,6 +972,7 @@ contains
   !
   subroutine init_pascal()
      ! NOTE: bdf_max_order comes in from bdf_type_module
+     use amrex_fort_module, only : rt => amrex_real
      integer :: U(bdf_max_order+1, bdf_max_order+1), Uk(bdf_max_order+1, bdf_max_order+1)
      integer :: k, n, r, c, sum_element
 

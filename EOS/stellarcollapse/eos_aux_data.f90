@@ -2,13 +2,14 @@ module eos_aux_data_module
 
   use amrex_fort_module, only : rt => amrex_real
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! for reading HDF5 table
   integer, save :: nrho,ntemp,nye
-  double precision, allocatable :: eos_table(:,:,:,:)
-  double precision, allocatable :: eos_logrho(:),eos_logtemp(:),eos_ye(:)
-  double precision              :: energy_shift = 0.0d0
+  real(rt)        , allocatable :: eos_table(:,:,:,:)
+  real(rt)        , allocatable :: eos_logrho(:),eos_logtemp(:),eos_ye(:)
+  real(rt)                      :: energy_shift = 0.0e0_rt
   ! these are the indices in the eos_table
   ! we probably don't need all of these, but oh well
   integer, parameter :: eos_nvars = 19
@@ -32,10 +33,10 @@ module eos_aux_data_module
   integer, parameter :: izbar = 18
   integer, parameter :: igamma = 19
 
-  double precision, save :: mintemp_tbl, maxtemp_tbl
-  double precision, save :: mindens_tbl, maxdens_tbl
+  real(rt)        , save :: mintemp_tbl, maxtemp_tbl
+  real(rt)        , save :: mindens_tbl, maxdens_tbl
 
-  double precision, save :: temp_conv
+  real(rt)        , save :: temp_conv
 
 contains
 
@@ -47,6 +48,7 @@ contains
     use eos_type_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     character(len=256), intent(in) :: eos_input_file
@@ -311,6 +313,7 @@ contains
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
     use amrex_constants_module, only: ZERO, ONE
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,     intent(in   ) :: input
@@ -362,6 +365,7 @@ contains
     use eos_type_module
     use amrex_constants_module, only: TEN
     
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -386,12 +390,13 @@ contains
     use interpolate_module
     use eos_type_module
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: rho,temp,ye
-    double precision :: derivs(3),cs2
+    real(rt)         :: rho,temp,ye
+    real(rt)         :: derivs(3),cs2
     logical :: err
     character(len=128) :: errstring
 

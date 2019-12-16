@@ -8,7 +8,7 @@
 ! provided by Raymond Hettinger:
 ! https://code.activestate.com/recipes/393090/
 ! This routine calculates the sum of N numbers
-! exactly to within double precision arithmetic.
+! exactly to within real(rt)         arithmetic.
 !
 ! For perfomance reasons we implement a specialized
 ! version of esum for each possible value of N >= 3.
@@ -31,6 +31,7 @@ module esum_module
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module, only: ZERO
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public

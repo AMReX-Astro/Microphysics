@@ -6,14 +6,15 @@ module actual_eos_module
   use eos_type_module
   use eos_aux_data_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "stellarcollapse"
   
   integer          :: max_newton = 100
 
-  double precision :: ttol = 1.0d-8
-  double precision :: dtol = 1.0d-8
+  real(rt)         :: ttol = 1.0e-8_rt
+  real(rt)         :: dtol = 1.0e-8_rt
 
   character(len=15) :: errfmt = '(3(e12.5,x))'
 
@@ -27,6 +28,7 @@ contains
     use extern_probin_module, only: eos_file, use_energy_shift
     use network, only: network_species_index
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
  
     if (amrex_pd_ioprocessor()) print *, 'Reading HDF5 file', eos_file
@@ -46,6 +48,7 @@ contains
     !
     ! Make sure you use a network that uses ye as a species!
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -53,8 +56,8 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables and arrays
-    double precision :: e_want, p_want, s_want, h_want
-    double precision, parameter :: tol = 1.0d-8
+    real(rt)         :: e_want, p_want, s_want, h_want
+    real(rt)        , parameter :: tol = 1.0e-8_rt
 
     integer :: ierr
 
@@ -188,6 +191,7 @@ contains
 
   subroutine actual_eos_finalize
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Nothing to do here, yet.
@@ -200,16 +204,17 @@ contains
 
     use interpolate_module
 
+     use amrex_fort_module, only : rt => amrex_real
      implicit none
 
      type (eos_t),       intent(inout) :: state
      integer,            intent(in   ) :: var, dvar
-     double precision,   intent(in   ) :: f_want
+     real(rt)        ,   intent(in   ) :: f_want
      integer,            intent(inout) :: ierr
 
      integer          :: iter, ivar
-     double precision :: smallx, error, xnew, xtol
-     double precision :: f, x, dfdx, df(3)
+     real(rt)         :: smallx, error, xnew, xtol
+     real(rt)         :: f, x, dfdx, df(3)
 
      logical :: converged, err
      character(len=128) :: errstring
@@ -310,11 +315,12 @@ contains
   function get_munu(rho,T,ye) result(munu)
     use interpolate_module 
 
-    double precision, intent(in   ) :: rho, T, ye
-    double precision                :: munu
+    use amrex_fort_module, only : rt => amrex_real
+    real(rt)        , intent(in   ) :: rho, T, ye
+    real(rt)                        :: munu
 
     type(eos_t) :: state
-    double precision :: derivs(3)
+    real(rt)         :: derivs(3)
     logical :: err
     character(len=128) :: errstring
 

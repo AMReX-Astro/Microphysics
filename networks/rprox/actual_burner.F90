@@ -17,6 +17,7 @@ contains
 
     use integrator_module, only: integrator_init
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()
@@ -29,13 +30,14 @@ contains
 
     use integrator_module, only: integrator
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t),    intent(in   ) :: state_in
     type (burn_t),    intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time
+    real(rt)        , intent(in   ) :: dt, time
 
-    double precision :: T9
+    real(rt)         :: T9
 
     !$gpu
 
@@ -44,7 +46,7 @@ contains
     ! Only burn if 0.2 < T9 < 2.5 or X(H1) > 0.05.
     ! The last restriction is a kludge based on the last paragraph of WW81.
 
-    if ((T9 .gt. 0.2d0 .and. T9 .lt. 2.5d0) .or. state_in % xn(ih1) > 0.05d0) then
+    if ((T9 .gt. 0.2e0_rt .and. T9 .lt. 2.5e0_rt) .or. state_in % xn(ih1) > 0.05e0_rt) then
 
        ! Call the integration routine.
 
