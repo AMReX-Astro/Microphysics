@@ -1,5 +1,10 @@
 # changes since last release
 
+   * The radiation pressure contribution to the Helmholtz EOS has
+     had a dampener applied to it that makes it approximately zero
+     for low densities where the radiation pressure would lead to
+     unphysical situations like a superluminal sound speed. (#235)
+
    * The original VODE integrator was removed and the Fortran 90
      version VODE90 was renamed to VODE. (#221)
 
