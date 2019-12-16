@@ -527,8 +527,8 @@ contains
     double precision, parameter :: asol    = 4.0d0 * ssol / clight
     double precision, parameter :: asoli3  = asol/3.0d0
 
-    double precision, parameter :: rho_c = 1.0d2
-    double precision, parameter :: delta_rho = 2.5d1
+    double precision, parameter :: rho_c = 5.0d1
+    double precision, parameter :: delta_rho = 1.25d1
 
     !$gpu
     
