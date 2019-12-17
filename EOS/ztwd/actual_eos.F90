@@ -245,7 +245,7 @@ contains
 
 
 
-  double precision function pressure(x)
+  real(rt) function pressure(x)
 
     implicit none
 
@@ -257,7 +257,7 @@ contains
 
 
 
-  double precision function enthalpy(x)
+  real(rt) function enthalpy(x)
 
     implicit none
 
@@ -269,7 +269,7 @@ contains
 
 
 
-  double precision function dpdx(x)
+  real(rt) function dpdx(x)
 
     implicit none
 
@@ -284,7 +284,7 @@ contains
 
 
 
-  double precision function dhdx(x)
+  real(rt) function dhdx(x)
 
     implicit none
 
