@@ -5,6 +5,7 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -24,9 +25,9 @@ contains
     implicit none
 
     type (burn_t), intent(in)    :: state
-    double precision, intent(inout) :: ydot(neqs)
-    double precision :: xfueltmp
-    double precision :: dens, temp, rate, y(nspec)
+    real(rt)        , intent(inout) :: ydot(neqs)
+    real(rt)         :: xfueltmp
+    real(rt)         :: dens, temp, rate, y(nspec)
 
     ydot = ZERO
 
@@ -64,7 +65,7 @@ contains
     implicit none
 
     type (burn_t), intent(in) :: state
-    double precision, intent(inout) :: jac(njrows, njcols)
+    real(rt)        , intent(inout) :: jac(njrows, njcols)
 
     jac(:,:) = ZERO
 
@@ -80,7 +81,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec_evolve), enuc
 
     ! This is basically e = m c**2
 

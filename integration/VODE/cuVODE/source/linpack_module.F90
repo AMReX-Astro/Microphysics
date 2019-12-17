@@ -2,6 +2,7 @@ module linpack_module
 
   use cuvode_parameters_module, only: VODE_NEQS
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -18,17 +19,17 @@ contains
     integer, parameter :: job = 0
 
     integer, intent(in) :: ipvt(n)
-    double precision, intent(in) :: a(lda,n)
-    double precision, intent(inout) :: b(n)
+    real(rt)        , intent(in) :: a(lda,n)
+    real(rt)        , intent(inout) :: b(n)
 
     ! 
-    !      dgesl solves the double precision system
+    !      dgesl solves the real(rt)         system
     !      a * x = b  or  trans(a) * x = b
     !      using the factors computed by dgeco or dgefa.
     ! 
     !      on entry
     ! 
-    !         a       double precision(lda, n)
+    !         a       real(rt)        (lda, n)
     !                 the output from dgeco or dgefa.
     ! 
     !         lda     integer
@@ -40,7 +41,7 @@ contains
     !         ipvt    integer(n)
     !                 the pivot array from dgeco or dgefa.
     ! 
-    !         b       double precision(n)
+    !         b       real(rt)        (n)
     !                 the right hand side array.
     ! 
     !         job     integer
@@ -74,7 +75,7 @@ contains
     ! 
     !      internal variables
     ! 
-    double precision t
+    real(rt)         t
     integer k,kb,l,nm1
     !$gpu
     ! 
@@ -231,9 +232,9 @@ contains
   ! ***END PROLOGUE  DGBFA
     integer, parameter :: N = VODE_NEQS
     INTEGER LDA,ML,MU,IPVT(:),INFO
-    DOUBLE PRECISION ABD(LDA, N), dABD(LDA)
+    real(rt)         ABD(LDA, N), dABD(LDA)
     ! 
-    DOUBLE PRECISION T
+    real(rt)         T
     INTEGER I,I0,J,JU,JZ,J0,J1,K,KP1,L,LM,M,MM,NM1
     !$gpu
     ! 
@@ -249,7 +250,7 @@ contains
     DO JZ = J0, J1
        I0 = M + 1 - JZ
        DO I = I0, ML
-          ABD(I,JZ) = 0.0D0
+          ABD(I,JZ) = 0.0e0_rt
        end do
     end do
 30  CONTINUE
@@ -269,7 +270,7 @@ contains
        IF (JZ .GT. N) GO TO 50
        IF (ML .LT. 1) GO TO 50
        DO I = 1, ML
-          ABD(I,JZ) = 0.0D0
+          ABD(I,JZ) = 0.0e0_rt
        end do
 50     CONTINUE
        ! 
@@ -281,7 +282,7 @@ contains
        ! 
        !         ZERO PIVOT IMPLIES THIS COLUMN ALREADY TRIANGULARIZED
        ! 
-       IF (ABD(L,K) .EQ. 0.0D0) GO TO 100
+       IF (ABD(L,K) .EQ. 0.0e0_rt) GO TO 100
        ! 
        !            INTERCHANGE IF NECESSARY
        ! 
@@ -293,7 +294,7 @@ contains
        ! 
        !            COMPUTE MULTIPLIERS
        ! 
-       T = -1.0D0/ABD(M,K)
+       T = -1.0e0_rt/ABD(M,K)
        ABD(M+1:M+LM,K) = ABD(M+1:M+LM,K) * T
        ! 
        !            ROW ELIMINATION WITH COLUMN INDEXING
@@ -320,7 +321,7 @@ contains
     end do
 130 CONTINUE
     IPVT(N) = N
-    IF (ABD(M,N) .EQ. 0.0D0) INFO = N
+    IF (ABD(M,N) .EQ. 0.0e0_rt) INFO = N
     RETURN
   END SUBROUTINE DGBFA
 
@@ -405,9 +406,9 @@ contains
     ! ***END PROLOGUE  DGBSL
     integer, parameter :: N = VODE_NEQS
     INTEGER LDA,ML,MU,IPVT(:),JOB
-    DOUBLE PRECISION ABD(LDA,N),B(:)
+    real(rt)         ABD(LDA,N),B(:)
     ! 
-    DOUBLE PRECISION T
+    real(rt)         T
     INTEGER K,KB,L,LA,LB,LM,M,NM1
     !$gpu
     ! ***FIRST EXECUTABLE STATEMENT  DGBSL
@@ -485,9 +486,9 @@ contains
     integer, parameter :: lda = VODE_NEQS
     integer, parameter :: n = VODE_NEQS
     integer ipvt(n), info
-    double precision a(lda, n)
+    real(rt)         a(lda, n)
     ! 
-    !      dgefa factors a double precision matrix by gaussian elimination.
+    !      dgefa factors a real(rt)         matrix by gaussian elimination.
     ! 
     !      dgefa is usually called by dgeco, but it can be called
     !      directly with a saving in time if  rcond  is not needed.
@@ -495,7 +496,7 @@ contains
     ! 
     !      on entry
     ! 
-    !         a       double precision(lda, n)
+    !         a       real(rt)        (lda, n)
     !                 the matrix to be factored.
     ! 
     !         lda     integer
@@ -532,7 +533,7 @@ contains
     ! 
     !      internal variables
     ! 
-    double precision t
+    real(rt)         t
     integer j,k,kp1,l,nm1
     !$gpu
     ! 
@@ -554,7 +555,7 @@ contains
        ! 
        !         zero pivot implies this column already triangularized
        ! 
-       if (a(l,k) .eq. 0.0d0) goto 40
+       if (a(l,k) .eq. 0.0e0_rt) goto 40
        ! 
        !            interchange if necessary
        ! 
@@ -566,7 +567,7 @@ contains
        ! 
        !            compute multipliers
        ! 
-       t = -1.0d0/a(k,k)
+       t = -1.0e0_rt/a(k,k)
        a(k+1:n,k) = a(k+1:n,k) * t
        ! 
        !            row elimination with column indexing
@@ -586,7 +587,7 @@ contains
     enddo
 70  continue
     ipvt(n) = n
-    if (a(n,n) .eq. 0.0d0) info = n
+    if (a(n,n) .eq. 0.0e0_rt) info = n
   end subroutine dgefa
 
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
@@ -597,9 +598,9 @@ contains
     implicit none
 
     integer, intent(in) :: N
-    double precision, intent(in) :: x(N)
+    real(rt)        , intent(in) :: x(N)
 
-    double precision :: dmax
+    real(rt)         :: dmax
     integer :: i, index
 
     !$gpu

@@ -6,6 +6,7 @@ module cuvode_parameters_module
 #endif
   use network, only : nspec_evolve
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 #ifdef TRUE_SDC

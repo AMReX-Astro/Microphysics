@@ -30,8 +30,8 @@ module actual_network
   integer, parameter :: ineut = 20
   integer, parameter :: iprot = 21
 
-  double precision, allocatable :: aion(:), zion(:), nion(:)
-  double precision, allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: aion(:), zion(:), nion(:)
+  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, nion, bion, mion, wion
@@ -45,20 +45,20 @@ module actual_network
 
   ! Some fundamental physical constants
 
-  double precision, parameter :: avo = 6.0221417930d23
-  double precision, parameter :: c_light = 2.99792458d10
+  real(rt)        , parameter :: avo = 6.0221417930e23_rt
+  real(rt)        , parameter :: c_light = 2.99792458e10_rt
 
-  double precision, parameter :: ev2erg  = 1.60217648740d-12
-  double precision, parameter :: mev2erg = ev2erg*1.0d6
-  double precision, parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt)        , parameter :: ev2erg  = 1.60217648740e-12_rt
+  real(rt)        , parameter :: mev2erg = ev2erg*1.0e6_rt
+  real(rt)        , parameter :: mev2gr  = mev2erg/c_light**2
 
-  double precision, parameter :: mn = 1.67492721184d-24
-  double precision, parameter :: mp = 1.67262163783d-24
-  double precision, parameter :: me = 9.1093821545d-28
+  real(rt)        , parameter :: mn = 1.67492721184e-24_rt
+  real(rt)        , parameter :: mp = 1.67262163783e-24_rt
+  real(rt)        , parameter :: me = 9.1093821545e-28_rt
 
   ! Conversion factor for the nuclear energy generation rate.
 
-  double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
+  real(rt)        , parameter :: enuc_conv2 = -avo*c_light*c_light
 
   ! Rates data
 
@@ -241,73 +241,73 @@ contains
     allocate(wion(nspec))
     
     ! Set the number of nucleons in the element
-    aion(ih1)   = 1.0d0
-    aion(ihe3)  = 3.0d0
-    aion(ihe4)  = 4.0d0
-    aion(ic12)  = 12.0d0
-    aion(in14)  = 14.0d0
-    aion(io16)  = 16.0d0
-    aion(ine20) = 20.0d0
-    aion(img24) = 24.0d0
-    aion(isi28) = 28.0d0
-    aion(is32)  = 32.0d0
-    aion(iar36) = 36.0d0
-    aion(ica40) = 40.0d0
-    aion(iti44) = 44.0d0
-    aion(icr48) = 48.0d0
-    aion(icr56) = 56.0d0
-    aion(ife52) = 52.0d0
-    aion(ife54) = 54.0d0
-    aion(ife56) = 56.0d0
-    aion(ini56) = 56.0d0
-    aion(ineut) = 1.0d0
-    aion(iprot) = 1.0d0
+    aion(ih1)   = 1.0e0_rt
+    aion(ihe3)  = 3.0e0_rt
+    aion(ihe4)  = 4.0e0_rt
+    aion(ic12)  = 12.0e0_rt
+    aion(in14)  = 14.0e0_rt
+    aion(io16)  = 16.0e0_rt
+    aion(ine20) = 20.0e0_rt
+    aion(img24) = 24.0e0_rt
+    aion(isi28) = 28.0e0_rt
+    aion(is32)  = 32.0e0_rt
+    aion(iar36) = 36.0e0_rt
+    aion(ica40) = 40.0e0_rt
+    aion(iti44) = 44.0e0_rt
+    aion(icr48) = 48.0e0_rt
+    aion(icr56) = 56.0e0_rt
+    aion(ife52) = 52.0e0_rt
+    aion(ife54) = 54.0e0_rt
+    aion(ife56) = 56.0e0_rt
+    aion(ini56) = 56.0e0_rt
+    aion(ineut) = 1.0e0_rt
+    aion(iprot) = 1.0e0_rt
 
     ! Set the number of protons in the element
-    zion(ih1)   = 1.0d0
-    zion(ihe3)  = 2.0d0
-    zion(ihe4)  = 2.0d0
-    zion(ic12)  = 6.0d0
-    zion(in14)  = 7.0d0
-    zion(io16)  = 8.0d0
-    zion(ine20) = 10.0d0
-    zion(img24) = 12.0d0
-    zion(isi28) = 14.0d0
-    zion(is32)  = 16.0d0
-    zion(iar36) = 18.0d0
-    zion(ica40) = 20.0d0
-    zion(iti44) = 22.0d0
-    zion(icr48) = 24.0d0
-    zion(icr56) = 24.0d0
-    zion(ife52) = 26.0d0
-    zion(ife54) = 26.0d0
-    zion(ife56) = 26.0d0
-    zion(ini56) = 28.0d0
-    zion(ineut) = 0.0d0
-    zion(iprot) = 1.0d0
+    zion(ih1)   = 1.0e0_rt
+    zion(ihe3)  = 2.0e0_rt
+    zion(ihe4)  = 2.0e0_rt
+    zion(ic12)  = 6.0e0_rt
+    zion(in14)  = 7.0e0_rt
+    zion(io16)  = 8.0e0_rt
+    zion(ine20) = 10.0e0_rt
+    zion(img24) = 12.0e0_rt
+    zion(isi28) = 14.0e0_rt
+    zion(is32)  = 16.0e0_rt
+    zion(iar36) = 18.0e0_rt
+    zion(ica40) = 20.0e0_rt
+    zion(iti44) = 22.0e0_rt
+    zion(icr48) = 24.0e0_rt
+    zion(icr56) = 24.0e0_rt
+    zion(ife52) = 26.0e0_rt
+    zion(ife54) = 26.0e0_rt
+    zion(ife56) = 26.0e0_rt
+    zion(ini56) = 28.0e0_rt
+    zion(ineut) = 0.0e0_rt
+    zion(iprot) = 1.0e0_rt
 
     ! Set the binding energy of the element
-    bion(ih1)   = 0.0d0
-    bion(ihe3)  = 7.71819d0
-    bion(ihe4)  = 28.29603d0
-    bion(ic12)  = 92.16294d0
-    bion(in14)  = 104.65998d0
-    bion(io16)  = 127.62093d0
-    bion(ine20) = 160.64788d0
-    bion(img24) = 198.25790d0
-    bion(isi28) = 236.53790d0
-    bion(is32)  = 271.78250d0
-    bion(iar36) = 306.72020d0
-    bion(ica40) = 342.05680d0
-    bion(iti44) = 375.47720d0
-    bion(icr48) = 411.46900d0
-    bion(icr56) = 488.4970d0
-    bion(ife52) = 447.70800d0
-    bion(ife54) = 471.7696d0
-    bion(ife56) = 492.2450d0
-    bion(ini56) = 484.00300d0
-    bion(ineut) = 0.0d0
-    bion(iprot) = 0.0d0
+    bion(ih1)   = 0.0e0_rt
+    bion(ihe3)  = 7.71819e0_rt
+    bion(ihe4)  = 28.29603e0_rt
+    bion(ic12)  = 92.16294e0_rt
+    bion(in14)  = 104.65998e0_rt
+    bion(io16)  = 127.62093e0_rt
+    bion(ine20) = 160.64788e0_rt
+    bion(img24) = 198.25790e0_rt
+    bion(isi28) = 236.53790e0_rt
+    bion(is32)  = 271.78250e0_rt
+    bion(iar36) = 306.72020e0_rt
+    bion(ica40) = 342.05680e0_rt
+    bion(iti44) = 375.47720e0_rt
+    bion(icr48) = 411.46900e0_rt
+    bion(icr56) = 488.4970e0_rt
+    bion(ife52) = 447.70800e0_rt
+    bion(ife54) = 471.7696e0_rt
+    bion(ife56) = 492.2450e0_rt
+    bion(ini56) = 484.00300e0_rt
+    bion(ineut) = 0.0e0_rt
+    bion(iprot) = 0.0e0_rt
 
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)

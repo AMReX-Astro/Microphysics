@@ -6,17 +6,17 @@ module actual_network
 
   public num_rate_groups
 
-  double precision, parameter :: avo = 6.0221417930d23
-  double precision, parameter :: c_light = 2.99792458d10
-  double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
+  real(rt)        , parameter :: avo = 6.0221417930e23_rt
+  real(rt)        , parameter :: c_light = 2.99792458e10_rt
+  real(rt)        , parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  double precision, parameter :: ev2erg  = 1.60217648740d-12
-  double precision, parameter :: mev2erg = ev2erg*1.0d6
-  double precision, parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt)        , parameter :: ev2erg  = 1.60217648740e-12_rt
+  real(rt)        , parameter :: mev2erg = ev2erg*1.0e6_rt
+  real(rt)        , parameter :: mev2gr  = mev2erg/c_light**2
 
-  double precision, parameter :: mass_neutron  = 1.67492721184d-24
-  double precision, parameter :: mass_proton   = 1.67262163783d-24
-  double precision, parameter :: mass_electron = 9.10938215450d-28
+  real(rt)        , parameter :: mass_neutron  = 1.67492721184e-24_rt
+  real(rt)        , parameter :: mass_proton   = 1.67262163783e-24_rt
+  real(rt)        , parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 19
   integer, parameter :: num_rate_groups = 4
@@ -35,7 +35,7 @@ module actual_network
   integer, parameter :: nrat_tabular = 0
 
   ! Binding Energies Per Nucleon (MeV)
-  double precision :: ebind_per_nucleon(nspec)
+  real(rt)         :: ebind_per_nucleon(nspec)
 
   ! aion: Nucleon mass number A
   ! zion: Nucleon atomic number Z
@@ -90,8 +90,8 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: nion(nspec), mion(nspec), wion(nspec)
+  real(rt)         :: aion(nspec), zion(nspec), bion(nspec)
+  real(rt)         :: nion(nspec), mion(nspec), wion(nspec)
 
   !$acc declare create(aion, zion, bion, nion, mion, wion)
 
@@ -131,61 +131,61 @@ contains
     short_spec_names(jf17)   = "f17"
     short_spec_names(jf18)   = "f18"
 
-    ebind_per_nucleon(jp)   = 0.00000000000000d+00
-    ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
-    ebind_per_nucleon(jc12)   = 7.68014400000000d+00
-    ebind_per_nucleon(jc13)   = 7.46984900000000d+00
-    ebind_per_nucleon(jn13)   = 7.23886300000000d+00
-    ebind_per_nucleon(jn14)   = 7.47561400000000d+00
-    ebind_per_nucleon(jn15)   = 7.69946000000000d+00
-    ebind_per_nucleon(jo14)   = 7.05227800000000d+00
-    ebind_per_nucleon(jo15)   = 7.46369200000000d+00
-    ebind_per_nucleon(jo16)   = 7.97620600000000d+00
-    ebind_per_nucleon(jo17)   = 7.75072800000000d+00
-    ebind_per_nucleon(jf17)   = 7.54232800000000d+00
-    ebind_per_nucleon(jf18)   = 7.63163800000000d+00
+    ebind_per_nucleon(jp)   = 0.00000000000000e+00_rt
+    ebind_per_nucleon(jhe4)   = 7.07391500000000e+00_rt
+    ebind_per_nucleon(jc12)   = 7.68014400000000e+00_rt
+    ebind_per_nucleon(jc13)   = 7.46984900000000e+00_rt
+    ebind_per_nucleon(jn13)   = 7.23886300000000e+00_rt
+    ebind_per_nucleon(jn14)   = 7.47561400000000e+00_rt
+    ebind_per_nucleon(jn15)   = 7.69946000000000e+00_rt
+    ebind_per_nucleon(jo14)   = 7.05227800000000e+00_rt
+    ebind_per_nucleon(jo15)   = 7.46369200000000e+00_rt
+    ebind_per_nucleon(jo16)   = 7.97620600000000e+00_rt
+    ebind_per_nucleon(jo17)   = 7.75072800000000e+00_rt
+    ebind_per_nucleon(jf17)   = 7.54232800000000e+00_rt
+    ebind_per_nucleon(jf18)   = 7.63163800000000e+00_rt
 
-    aion(jp)   = 1.00000000000000d+00
-    aion(jhe4)   = 4.00000000000000d+00
-    aion(jc12)   = 1.20000000000000d+01
-    aion(jc13)   = 1.30000000000000d+01
-    aion(jn13)   = 1.30000000000000d+01
-    aion(jn14)   = 1.40000000000000d+01
-    aion(jn15)   = 1.50000000000000d+01
-    aion(jo14)   = 1.40000000000000d+01
-    aion(jo15)   = 1.50000000000000d+01
-    aion(jo16)   = 1.60000000000000d+01
-    aion(jo17)   = 1.70000000000000d+01
-    aion(jf17)   = 1.70000000000000d+01
-    aion(jf18)   = 1.80000000000000d+01
+    aion(jp)   = 1.00000000000000e+00_rt
+    aion(jhe4)   = 4.00000000000000e+00_rt
+    aion(jc12)   = 1.20000000000000e+01_rt
+    aion(jc13)   = 1.30000000000000e+01_rt
+    aion(jn13)   = 1.30000000000000e+01_rt
+    aion(jn14)   = 1.40000000000000e+01_rt
+    aion(jn15)   = 1.50000000000000e+01_rt
+    aion(jo14)   = 1.40000000000000e+01_rt
+    aion(jo15)   = 1.50000000000000e+01_rt
+    aion(jo16)   = 1.60000000000000e+01_rt
+    aion(jo17)   = 1.70000000000000e+01_rt
+    aion(jf17)   = 1.70000000000000e+01_rt
+    aion(jf18)   = 1.80000000000000e+01_rt
 
-    zion(jp)   = 1.00000000000000d+00
-    zion(jhe4)   = 2.00000000000000d+00
-    zion(jc12)   = 6.00000000000000d+00
-    zion(jc13)   = 6.00000000000000d+00
-    zion(jn13)   = 7.00000000000000d+00
-    zion(jn14)   = 7.00000000000000d+00
-    zion(jn15)   = 7.00000000000000d+00
-    zion(jo14)   = 8.00000000000000d+00
-    zion(jo15)   = 8.00000000000000d+00
-    zion(jo16)   = 8.00000000000000d+00
-    zion(jo17)   = 8.00000000000000d+00
-    zion(jf17)   = 9.00000000000000d+00
-    zion(jf18)   = 9.00000000000000d+00
+    zion(jp)   = 1.00000000000000e+00_rt
+    zion(jhe4)   = 2.00000000000000e+00_rt
+    zion(jc12)   = 6.00000000000000e+00_rt
+    zion(jc13)   = 6.00000000000000e+00_rt
+    zion(jn13)   = 7.00000000000000e+00_rt
+    zion(jn14)   = 7.00000000000000e+00_rt
+    zion(jn15)   = 7.00000000000000e+00_rt
+    zion(jo14)   = 8.00000000000000e+00_rt
+    zion(jo15)   = 8.00000000000000e+00_rt
+    zion(jo16)   = 8.00000000000000e+00_rt
+    zion(jo17)   = 8.00000000000000e+00_rt
+    zion(jf17)   = 9.00000000000000e+00_rt
+    zion(jf18)   = 9.00000000000000e+00_rt
 
-    nion(jp)   = 0.00000000000000d+00
-    nion(jhe4)   = 2.00000000000000d+00
-    nion(jc12)   = 6.00000000000000d+00
-    nion(jc13)   = 7.00000000000000d+00
-    nion(jn13)   = 6.00000000000000d+00
-    nion(jn14)   = 7.00000000000000d+00
-    nion(jn15)   = 8.00000000000000d+00
-    nion(jo14)   = 6.00000000000000d+00
-    nion(jo15)   = 7.00000000000000d+00
-    nion(jo16)   = 8.00000000000000d+00
-    nion(jo17)   = 9.00000000000000d+00
-    nion(jf17)   = 8.00000000000000d+00
-    nion(jf18)   = 9.00000000000000d+00
+    nion(jp)   = 0.00000000000000e+00_rt
+    nion(jhe4)   = 2.00000000000000e+00_rt
+    nion(jc12)   = 6.00000000000000e+00_rt
+    nion(jc13)   = 7.00000000000000e+00_rt
+    nion(jn13)   = 6.00000000000000e+00_rt
+    nion(jn14)   = 7.00000000000000e+00_rt
+    nion(jn15)   = 8.00000000000000e+00_rt
+    nion(jo14)   = 6.00000000000000e+00_rt
+    nion(jo15)   = 7.00000000000000e+00_rt
+    nion(jo16)   = 8.00000000000000e+00_rt
+    nion(jo17)   = 9.00000000000000e+00_rt
+    nion(jf17)   = 8.00000000000000e+00_rt
+    nion(jf18)   = 9.00000000000000e+00_rt
 
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV

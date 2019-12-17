@@ -23,9 +23,9 @@ program testjacobian
   dens = 1.0e6_rt
   temp = 2.e8_rt
 
-  Xin = 0.0d0
-  Xin(ihe4) = 0.5d0
-  Xin(ic12) = 0.5d0
+  Xin = 0.0e0_rt
+  Xin(ihe4) = 0.5e0_rt
+  Xin(ic12) = 0.5e0_rt
 
   state % rho = dens
   state % T = temp

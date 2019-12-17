@@ -1,5 +1,6 @@
 module temperature_integration_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   logical, save, allocatable :: self_heat
@@ -23,7 +24,6 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
@@ -53,7 +53,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -69,7 +69,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -100,7 +100,6 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
@@ -122,7 +121,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cspec = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -134,7 +133,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cspec = state % cp + (state % T - state % T_old) * state % dcpdt
 

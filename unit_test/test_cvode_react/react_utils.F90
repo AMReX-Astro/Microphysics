@@ -96,7 +96,6 @@ contains
 
   subroutine convert_to_molar(xspec) bind(C, name="sk_convert_to_molar")
     use network, only: aion_inv, nspec_evolve
-    use amrex_fort_module, only: rt => amrex_real
 
     implicit none
 
