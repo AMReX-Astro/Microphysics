@@ -5,10 +5,13 @@ module actual_network
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
+
   real(rt)        , parameter, private :: clight = 2.99792458e10_rt
   real(rt)        , parameter, private :: ev2erg  = 1.60217648740e-12_rt
   real(rt)        , parameter, private :: mev2erg = ev2erg*1.0e6_rt
   real(rt)        , parameter, private :: mev2gr  = mev2erg/clight**2
+
+  character (len=32), parameter :: network_name = "ignition_simple"
 
   real(rt)        , parameter, private :: mn = 1.67492721184e-24_rt
   real(rt)        , parameter, private :: mp = 1.67262163783e-24_rt

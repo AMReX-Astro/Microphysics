@@ -3,6 +3,8 @@ module actual_network
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
+  character (len=32), parameter :: network_name = "ignition_chamulak"
+
   ! M12_chamulak is the effective number of C12 nuclei destroyed per
   ! reaction
   real(rt)        , parameter :: M12_chamulak = 2.93e0_rt

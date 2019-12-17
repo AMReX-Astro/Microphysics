@@ -8,8 +8,15 @@ module actual_network
 
   public
 
+<<<<<<< HEAD
   real(rt), parameter :: avo = 6.0221417930e23_rt
   real(rt), parameter :: c_light = 2.99792458e10_rt
+=======
+  character (len=32), parameter :: network_name = "pynucastro"
+
+  real(rt), parameter :: avo = 6.0221417930d23
+  real(rt), parameter :: c_light = 2.99792458d10
+>>>>>>> development
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
   real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
