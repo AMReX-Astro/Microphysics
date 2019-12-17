@@ -17,7 +17,7 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "multigamma"
 
-  double precision, allocatable, save :: gammas(:)
+  real(rt)        , allocatable, save :: gammas(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: gammas
@@ -74,11 +74,11 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables
-    double precision :: sumY_gm1, sumYg_gm1
-    double precision :: dens, temp
+    real(rt)         :: sumY_gm1, sumYg_gm1
+    real(rt)         :: dens, temp
 
     ! Get the mass of a nucleon from Avogadro's number.
-    double precision, parameter :: m_nucleon = ONE / n_A
+    real(rt)        , parameter :: m_nucleon = ONE / n_A
 
     !$gpu
 

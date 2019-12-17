@@ -1,5 +1,6 @@
 module bs_jac_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -23,7 +24,7 @@ contains
 
     ! this is the Jacobian of the reaction network.  We will need to
     ! change this to be in terms of the SDC system
-    double precision :: jac(neqs, neqs)
+    real(rt)         :: jac(neqs, neqs)
 
     ! Initialize the Jacobian to zero.
 

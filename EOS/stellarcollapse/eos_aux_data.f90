@@ -6,9 +6,9 @@ module eos_aux_data_module
 
   ! for reading HDF5 table
   integer, save :: nrho,ntemp,nye
-  double precision, allocatable :: eos_table(:,:,:,:)
-  double precision, allocatable :: eos_logrho(:),eos_logtemp(:),eos_ye(:)
-  double precision              :: energy_shift = 0.0d0
+  real(rt)        , allocatable :: eos_table(:,:,:,:)
+  real(rt)        , allocatable :: eos_logrho(:),eos_logtemp(:),eos_ye(:)
+  real(rt)                      :: energy_shift = 0.0e0_rt
   ! these are the indices in the eos_table
   ! we probably don't need all of these, but oh well
   integer, parameter :: eos_nvars = 19
@@ -32,10 +32,10 @@ module eos_aux_data_module
   integer, parameter :: izbar = 18
   integer, parameter :: igamma = 19
 
-  double precision, save :: mintemp_tbl, maxtemp_tbl
-  double precision, save :: mindens_tbl, maxdens_tbl
+  real(rt)        , save :: mintemp_tbl, maxtemp_tbl
+  real(rt)        , save :: mindens_tbl, maxdens_tbl
 
-  double precision, save :: temp_conv
+  real(rt)        , save :: temp_conv
 
 contains
 
@@ -390,8 +390,8 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: rho,temp,ye
-    double precision :: derivs(3),cs2
+    real(rt)         :: rho,temp,ye
+    real(rt)         :: derivs(3),cs2
     logical :: err
     character(len=128) :: errstring
 

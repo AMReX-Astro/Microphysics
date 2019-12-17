@@ -430,9 +430,9 @@ contains
     ! Recast entries into reactvec
     reactvec(1) = entries(jtab_rate)
     reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0
-    reactvec(4) = 0.0d0
-    reactvec(5) = 0.0d0
+    reactvec(3) = 1.0e0_rt
+    reactvec(4) = 0.0e0_rt
+    reactvec(5) = 0.0e0_rt
     reactvec(6) = -entries(jtab_nuloss)
 
   end subroutine tabular_evaluate

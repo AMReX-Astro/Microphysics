@@ -173,6 +173,7 @@ contains
 
     use burn_type_module, only : neqs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -199,6 +200,7 @@ contains
     !$acc routine seq
 
     use burn_type_module, only : neqs
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -227,6 +229,7 @@ contains
     use amrex_constants_module, only: ZERO
     use burn_type_module, only : neqs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN

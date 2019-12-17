@@ -53,7 +53,7 @@ contains
 
     type (bs_t), intent(inout) :: state
 
-    real (rt) :: small_temp
+    real(rt)  :: small_temp
 
     ! Ensure that mass fractions always stay positive and sum to 1.
     state % y(1:nspec_evolve) = &
@@ -76,7 +76,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, nspec_evolve
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
 

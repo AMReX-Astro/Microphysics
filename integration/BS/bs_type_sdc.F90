@@ -61,13 +61,12 @@ contains
     use eos_module, only: eos
     use eos_type_module, only: eos_input_rt, eos_t, eos_get_small_dens, eos_get_max_dens
 
-
     implicit none
 
     ! this should be larger than any reasonable temperature we will encounter
-    real (rt), parameter :: MAX_TEMP = 1.0d11
+    real(rt) , parameter :: MAX_TEMP = 1.0e11_rt
 
-    real (rt) :: max_e, ke
+    real(rt)  :: max_e, ke
 
     type (bs_t) :: state
 
@@ -153,8 +152,6 @@ contains
   subroutine renormalize_species(state)
 
     !$acc routine seq
-
-    use amrex_fort_module, only : rt => amrex_real
 
     use sdc_type_module, only: SFS
     use actual_network, only: nspec
@@ -299,7 +296,7 @@ contains
 
     type (bs_t) :: bs
     type (burn_t) :: burn
-    double precision :: ydot_react(neqs)
+    real(rt)         :: ydot_react(neqs)
 
     integer :: n
 
@@ -342,11 +339,10 @@ contains
     use sdc_type_module, only: SENTH, SFS
 #endif
 
-
     implicit none
 
     type (bs_t), intent(inout) :: bs
-    double precision, intent(in) :: jac(neqs, neqs)
+    real(rt)        , intent(in) :: jac(neqs, neqs)
 
     integer :: n
 

@@ -38,7 +38,7 @@ contains
 
     use actual_rhs_module, only: actual_jac
     use burn_type_module, only: burn_t, neqs
-
+    
     implicit none
 
     type(burn_t), intent(inout) :: state

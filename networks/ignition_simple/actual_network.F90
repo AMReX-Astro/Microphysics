@@ -4,14 +4,17 @@ module actual_network
 
   implicit none
 
-  double precision, parameter, private :: clight = 2.99792458d10
-  double precision, parameter, private :: ev2erg  = 1.60217648740d-12
-  double precision, parameter, private :: mev2erg = ev2erg*1.0d6
-  double precision, parameter, private :: mev2gr  = mev2erg/clight**2
 
-  double precision, parameter, private :: mn = 1.67492721184d-24
-  double precision, parameter, private :: mp = 1.67262163783d-24
-  double precision, parameter, private :: me = 9.1093821545d-28
+  real(rt)        , parameter, private :: clight = 2.99792458e10_rt
+  real(rt)        , parameter, private :: ev2erg  = 1.60217648740e-12_rt
+  real(rt)        , parameter, private :: mev2erg = ev2erg*1.0e6_rt
+  real(rt)        , parameter, private :: mev2gr  = mev2erg/clight**2
+
+  character (len=32), parameter :: network_name = "ignition_simple"
+
+  real(rt)        , parameter, private :: mn = 1.67492721184e-24_rt
+  real(rt)        , parameter, private :: mp = 1.67262163783e-24_rt
+  real(rt)        , parameter, private :: me = 9.1093821545e-28_rt
 
   integer, parameter :: nspec = 3
   integer, parameter :: nspec_evolve = 1
@@ -25,8 +28,8 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable :: aion(:), zion(:), nion(:)
-  double precision, allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: aion(:), zion(:), nion(:)
+  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, nion, bion, mion, wion
@@ -39,8 +42,8 @@ module actual_network
 
   ! Conversion factor for the nuclear energy generation rate.
 
-  double precision, parameter :: avo = 6.0221417930d23
-  double precision, parameter :: enuc_conv2 = -avo*clight*clight
+  real(rt)        , parameter :: avo = 6.0221417930e23_rt
+  real(rt)        , parameter :: enuc_conv2 = -avo*clight*clight
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
@@ -73,18 +76,18 @@ contains
     allocate(mion(nspec))
     allocate(wion(nspec))
     
-    aion(ic12)  = 12.0d0
-    aion(io16)  = 16.0d0
-    aion(img24) = 24.0d0
+    aion(ic12)  = 12.0e0_rt
+    aion(io16)  = 16.0e0_rt
+    aion(img24) = 24.0e0_rt
 
-    zion(ic12)  = 6.0d0
-    zion(io16)  = 8.0d0
-    zion(img24) = 12.0d0
+    zion(ic12)  = 6.0e0_rt
+    zion(io16)  = 8.0e0_rt
+    zion(img24) = 12.0e0_rt
 
     ! Binding energies per nucleus in MeV
-    bion(ic12)  = 92.16294d0
-    bion(io16)  = 127.62093d0
-    bion(img24) = 198.2579d0
+    bion(ic12)  = 92.16294e0_rt
+    bion(io16)  = 127.62093e0_rt
+    bion(img24) = 198.2579e0_rt
 
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)
