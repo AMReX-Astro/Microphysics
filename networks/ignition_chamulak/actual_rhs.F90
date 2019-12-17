@@ -100,7 +100,7 @@ contains
     a       = 4.27e26_rt*T9a**FIVE6TH*T9**(-1.5e0_rt)
     dadt    = FIVE6TH * (a/T9a) * dT9adt - 1.5e0_rt * (a/T9) * dT9dt
 
-    b       = dexp(-84.165e0_rt/scratch - 2.12e-3_rt*T9*T9*T9)
+    b       = exp(-84.165e0_rt/scratch - 2.12e-3_rt*T9*T9*T9)
     dbdt    = (84.165e0_rt * dscratchdt/ scratch**TWO       &
          - THREE * 2.12e-3_rt * T9 * T9 * dT9dt) * b
 

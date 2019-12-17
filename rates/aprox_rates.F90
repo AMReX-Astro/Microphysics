@@ -2822,7 +2822,7 @@ module aprox_rates_module
       f4g = 0.0e0_rt
       f5g = 0.0e0_rt
       if (eta .gt. 0.0) then
-         exmeta = dexp(-eta)
+         exmeta = exp(-eta)
          eta2   = eta*eta
          eta3   = eta2*eta
          eta4   = eta3*eta

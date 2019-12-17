@@ -323,7 +323,7 @@ contains
     ! Only take logs of quantities we can assume are defined
     if (eos_input_has_var(input, idens)) then
        if (state % rho > ZERO) then
-          state % rho = dlog10(state % rho)
+          state % rho = log10(state % rho)
        else
           call amrex_error('convert_to_table_format: got negative or zero density')
        endif
@@ -331,19 +331,19 @@ contains
 
     if (eos_input_has_var(input, ipres)) then
        if (state % p > ZERO) then
-          state % p = dlog10(state % p)
+          state % p = log10(state % p)
        else
           call amrex_error('convert_to_table_format: got negative or zero pressure')
        endif
     endif
 
     if (eos_input_has_var(input, iener)) then
-       state % e = dlog10(max(state % e + energy_shift, ONE))
+       state % e = log10(max(state % e + energy_shift, ONE))
     endif
 
     if (eos_input_has_var(input, itemp)) then
        if (state % T > ZERO) then
-          state % T = dlog10(state % T * temp_conv)
+          state % T = log10(state % T * temp_conv)
        else
           call amrex_error('convert_to_table_format: got negative or zero temperature')
        endif

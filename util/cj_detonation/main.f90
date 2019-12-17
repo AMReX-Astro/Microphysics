@@ -85,7 +85,7 @@ program cj_det
 
   do n = 0, npts_ad-1
 
-     eos_state_ash % rho = 10.0_rt**(dlog10(rho_min) + n*dlogrho)
+     eos_state_ash % rho = 10.0_rt**(log10(rho_min) + n*dlogrho)
 
      call adiabat(eos_state_fuel, eos_state_ash, 0.0_rt, istatus)
      p2_shock = eos_state_ash % p
