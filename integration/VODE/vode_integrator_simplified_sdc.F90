@@ -11,7 +11,6 @@ module vode_integrator_module
 
   use cuvode_parameters_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -39,7 +38,6 @@ contains
 
     ! Input arguments
 
-    use amrex_fort_module, only : rt => amrex_real
     type (sdc_t), intent(in   ) :: state_in
     type (sdc_t), intent(inout) :: state_out
     real(rt),    intent(in   ) :: dt, time

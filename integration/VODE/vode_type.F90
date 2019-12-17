@@ -3,7 +3,6 @@ module vode_type_module
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
   use amrex_fort_module, only: rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -19,7 +18,6 @@ contains
     use eos_type_module, only : eos_get_small_temp
     use extern_probin_module, only: renormalize_abundances, SMALL_X_SAFE, MAX_TEMP
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
@@ -55,7 +53,6 @@ contains
     use burn_type_module, only: neqs
     use vode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
@@ -87,7 +84,6 @@ contains
     use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
     use burn_type_module, only: neqs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
@@ -162,7 +158,6 @@ contains
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state
@@ -203,7 +198,6 @@ contains
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state
@@ -246,7 +240,6 @@ contains
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -301,7 +294,6 @@ contains
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state

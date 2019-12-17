@@ -16,7 +16,6 @@ module cuvode_module
   use cuvode_dvindy_module
   use cuvode_dvstep_module
   
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public :: dvode
@@ -40,7 +39,6 @@ contains
 #endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

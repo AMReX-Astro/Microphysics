@@ -8,7 +8,6 @@ module burn_type_module
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! A generic structure holding data necessary to do a nuclear burn.
@@ -99,7 +98,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in   ) :: from_state
@@ -155,7 +153,6 @@ contains
 
     use eos_type_module, only: eos_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t)  :: eos_state
@@ -190,7 +187,6 @@ contains
 
     use eos_type_module, only: eos_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: burn_state
@@ -223,7 +219,6 @@ contains
     use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(inout) :: state

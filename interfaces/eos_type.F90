@@ -4,7 +4,6 @@ module eos_type_module
   use amrex_fort_module, only : rt => amrex_real
   use network, only: nspec, naux
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   private :: rt, nspec, naux
@@ -178,7 +177,6 @@ contains
   ! avoid derived type assignment (OpenACC and CUDA can't handle that)
   subroutine copy_eos_t(to_eos, from_eos)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t) :: to_eos, from_eos
@@ -243,7 +241,6 @@ contains
     use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -261,7 +258,6 @@ contains
 
   subroutine clean_state(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -279,7 +275,6 @@ contains
 
   subroutine print_state(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state
@@ -296,7 +291,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(out) :: small_temp_out
@@ -313,7 +307,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(out) :: small_dens_out
@@ -330,7 +323,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(out) :: max_temp_out
@@ -347,7 +339,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(out) :: max_dens_out
@@ -363,7 +354,6 @@ contains
   ! independent variable for the given input
   function eos_input_has_var(input, ivar) result(has)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(in) :: input, ivar

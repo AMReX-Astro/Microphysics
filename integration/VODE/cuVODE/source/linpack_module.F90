@@ -12,7 +12,6 @@ contains
 #endif  
   subroutine dgesl(a, ipvt, b)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, parameter :: lda = VODE_NEQS
@@ -231,7 +230,6 @@ contains
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
   ! ***END PROLOGUE  DGBFA
-    use amrex_fort_module, only : rt => amrex_real
     integer, parameter :: N = VODE_NEQS
     INTEGER LDA,ML,MU,IPVT(:),INFO
     real(rt)         ABD(LDA, N), dABD(LDA)
@@ -406,7 +404,6 @@ contains
     !            (WRB)
     !    920501  Reformatted the REFERENCES section.  (WRB)
     ! ***END PROLOGUE  DGBSL
-    use amrex_fort_module, only : rt => amrex_real
     integer, parameter :: N = VODE_NEQS
     INTEGER LDA,ML,MU,IPVT(:),JOB
     real(rt)         ABD(LDA,N),B(:)
@@ -486,7 +483,6 @@ contains
 #endif
   subroutine dgefa (a, ipvt, info)
 
-    use amrex_fort_module, only : rt => amrex_real
     integer, parameter :: lda = VODE_NEQS
     integer, parameter :: n = VODE_NEQS
     integer ipvt(n), info
@@ -599,7 +595,6 @@ contains
 #endif
   function idamax(N, x) result(index)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(in) :: N

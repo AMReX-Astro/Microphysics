@@ -13,7 +13,6 @@ module actual_eos_module
   use network, only: nspec, aion, zion
   use eos_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "multigamma"
@@ -34,7 +33,6 @@ contains
                                     species_c_name, species_c_gamma
     use network, only: network_species_index
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: idx
@@ -70,7 +68,6 @@ contains
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -233,7 +230,6 @@ contains
 
   subroutine actual_eos_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     deallocate(gammas)

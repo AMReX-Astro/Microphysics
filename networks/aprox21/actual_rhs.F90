@@ -17,7 +17,6 @@ contains
     use aprox_rates_module, only: rates_init
     use screening_module, only: screening_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call rates_init()
@@ -36,7 +35,6 @@ contains
     use temperature_integration_module, only: temperature_rhs
     use sneut_module, only: sneut5
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! This routine sets up the system of ODE's for the aprox21
@@ -108,7 +106,6 @@ contains
     use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry, get_jac_entry
     use sneut_module, only: sneut5
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -191,7 +188,6 @@ contains
 
   subroutine evaluate_rates(state, rr)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)  :: state
@@ -246,7 +242,6 @@ contains
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum7, esum8, esum10, esum12, esum15 ! function
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! deriva is used in forming the analytic Jacobian to get
@@ -827,7 +822,6 @@ contains
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)         :: btemp, bden
     real(rt)         :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
 
@@ -1138,7 +1132,6 @@ contains
 
     use aprox_rates_module, only: ecapnuc, langanke
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: y(nspec)
@@ -1185,7 +1178,6 @@ contains
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)         :: btemp, bden
     real(rt)         :: y(nspec)
     real(rt)         :: ratraw(nrates), dratrawdt(nrates), dratrawdd(nrates)
@@ -2155,7 +2147,6 @@ contains
     use jacobian_sparsity_module, only: set_jac_entry
     use amrex_constants_module, only: ZERO
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine sets up the dense aprox21 jacobian for the isotopes
@@ -3084,7 +3075,6 @@ contains
 
     use actual_network, only: nspec, mion, enuc_conv2
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
@@ -3106,7 +3096,6 @@ contains
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! note: it is critical that these are called in the exact order
@@ -3189,7 +3178,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

@@ -9,7 +9,6 @@ contains
     use vode_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: time, y(VODE_NEQS)
@@ -32,7 +31,6 @@ contains
     use vode_rpar_indices, only: n_rpar_comps
     use amrex_fort_module, only: rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer   , intent(IN   ) :: ml, mu, nrpd

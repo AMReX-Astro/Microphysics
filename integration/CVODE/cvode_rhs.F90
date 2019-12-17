@@ -14,7 +14,6 @@ contains
     !$acc routine seq
     
     use actual_network, only: aion, nspec_evolve
-    use amrex_fort_module, only: rt => amrex_real
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
@@ -23,7 +22,6 @@ contains
     use cvode_type_module, only: sk_clean_state, sk_renormalize_species, sk_update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
     use cvode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: time, y(VODE_NEQS)
@@ -96,10 +94,8 @@ contains
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, scale_jac_entry
     use cvode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
     use cvode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
-    use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: integrate_temperature, integrate_energy
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
@@ -158,10 +154,8 @@ contains
 
     use burn_type_module
     use cvode_type_module, only: VODE_NEQS
-    use amrex_fort_module, only: rt => amrex_real
     use amrex_constants_module, only: ZERO    
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -208,10 +202,8 @@ contains
     
     use cvode_type_module, only: VODE_NEQS
     use network, only: NETWORK_SPARSE_JAC_NNZ, csr_jac_col_index, csr_jac_row_count
-    use amrex_fort_module, only: rt => amrex_real
     use amrex_constants_module, only: ZERO    
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(IN   ) :: jac_mat(VODE_NEQS,VODE_NEQS)
@@ -236,10 +228,8 @@ contains
   
   subroutine sk_full_jac(y, jac_mat, rpar, neq_total, ncells, neq_per_cell, nrpar_per_cell) bind(C, name="sk_full_jac")
 
-    use amrex_fort_module, only: rt => amrex_real
     use amrex_constants_module, only: ZERO
     
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer  :: neq_total, ncells, neq_per_cell, nrpar_per_cell

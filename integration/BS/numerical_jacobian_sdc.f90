@@ -14,9 +14,7 @@ contains
     use sdc_type_module, only: sdc_t, SVAR_EVOLVE
     use bs_type_module, only: bs_t
     use amrex_constants_module, only: ZERO, HALF, ONE
-    use amrex_fort_module, only : rt => amrex_real
-
-    use amrex_fort_module, only : rt => amrex_real
+    
     implicit none
 
     type (bs_t)    :: state

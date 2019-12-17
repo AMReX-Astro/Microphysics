@@ -12,7 +12,6 @@ contains
     use extern_probin_module, only: nonaka_file
     use actual_network, only: nspec_evolve, short_spec_names
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: nonaka_file_unit, i
@@ -51,11 +50,9 @@ contains
     !               In that case, we trim entries in the nonaka file past the timestep end.
 
     use extern_probin_module, only: nonaka_i, nonaka_j, nonaka_k, nonaka_file
-    use amrex_fort_module, only: rt => amrex_real
     use burn_type_module, only: burn_t, neqs
     use actual_network, only: nspec_evolve, aion
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state

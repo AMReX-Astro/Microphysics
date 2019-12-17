@@ -13,7 +13,6 @@ module actual_integrator_module
   use bdf_type_module
   use bdf
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), parameter, private :: SMALL = 1.e-30_rt
@@ -25,7 +24,6 @@ contains
 
     use bdf, only: init_pascal
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call init_pascal()
@@ -51,7 +49,6 @@ contains
     use actual_rhs_module, only : update_unevolved_species
     use temperature_integration_module, only: self_heat
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -336,7 +333,6 @@ contains
 
     use rhs_module
 
-    use amrex_fort_module, only : rt => amrex_real
     type (bdf_ts), intent(inout) :: ts
     real(rt) , intent(in) :: t0, t1
     real(rt) , intent(out) :: dt

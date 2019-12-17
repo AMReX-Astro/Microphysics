@@ -20,7 +20,6 @@ contains
                               burn_to_bs, bs_to_burn
     use bs_rpar_indices, only: irp_y_init, irp_t0
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs

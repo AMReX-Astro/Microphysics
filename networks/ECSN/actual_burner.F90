@@ -13,7 +13,6 @@ contains
     use table_rates, only: init_tabular
     use integrator_module, only: integrator_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()
@@ -29,7 +28,6 @@ contains
     use reaclib_rates, only: term_reaclib, net_screening_finalize
     use table_rates, only: term_table_meta
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     call term_reaclib()
@@ -42,11 +40,9 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only: rt => amrex_real
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t),    intent(in   ) :: state_in

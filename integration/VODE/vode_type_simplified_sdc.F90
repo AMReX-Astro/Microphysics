@@ -11,7 +11,6 @@ module vode_type_module
 
   use extern_probin_module, only: renormalize_abundances
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! this should be larger than any reasonable temperature we will encounter   
@@ -26,7 +25,6 @@ contains
     use eos_type_module, only : eos_t, eos_input_re, eos_input_rt
     use eos_module, only : eos
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: time
     real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
@@ -75,7 +73,6 @@ contains
 
   subroutine fill_unevolved_variables(time, y, rpar)
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: time
     real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
@@ -104,7 +101,6 @@ contains
 
   subroutine renormalize_species(time, y, rpar)
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: time
     real(rt) :: y(SVAR_EVOLVE), rpar(n_rpar_comps)
 
@@ -133,7 +129,6 @@ contains
 
   subroutine sdc_to_vode(sdc, y, rpar)
 
-    use amrex_fort_module, only : rt => amrex_real
     type (sdc_t) :: sdc
     real(rt)   :: rpar(n_rpar_comps)
     real(rt)   :: y(SVAR_EVOLVE)
@@ -183,7 +178,6 @@ contains
 
   subroutine vode_to_sdc(time, y, rpar, sdc)
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: time
     type (sdc_t) :: sdc
     real(rt)    :: rpar(n_rpar_comps)
@@ -224,7 +218,6 @@ contains
 
     use burn_type_module, only : burn_t, net_ienuc, neqs
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: time
     real(rt), intent(in) :: rpar(n_rpar_comps)
     real(rt), intent(in) :: y(SVAR_EVOLVE)
@@ -266,7 +259,6 @@ contains
 
     use burn_type_module, only : net_ienuc, neqs
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)
     real(rt)    :: y(SVAR_EVOLVE)
@@ -324,7 +316,6 @@ contains
     use meth_params_module, only: use_tfromp
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     type (burn_t) :: burn_state
     real(rt), intent(in) :: time
     real(rt)    :: rpar(n_rpar_comps)

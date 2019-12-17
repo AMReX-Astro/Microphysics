@@ -13,4 +13,3 @@ contains
   end subroutine numerical_jac
 
 end module numerical_jac_module
-end module numerical_jac_module

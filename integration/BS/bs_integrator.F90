@@ -18,7 +18,6 @@ contains
 
   subroutine bs_integrator_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     nseq = [2, 6, 10, 14, 22, 34, 50, 70]
@@ -36,13 +35,11 @@ contains
     !$acc routine seq
 
     use bs_rpar_indices
-    use amrex_fort_module, only : rt => amrex_real
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments

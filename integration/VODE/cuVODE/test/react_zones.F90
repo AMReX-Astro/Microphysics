@@ -3,7 +3,6 @@ module react_zones_module
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -11,7 +10,6 @@ contains
   subroutine init_state(lo, hi, &
                         state, s_lo, s_hi, ncomp, npts) bind(C, name="init_state")
 
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: lo(3), hi(3)
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
@@ -42,7 +40,6 @@ contains
     use cuvode_types_module, only: dvode_t, rwork_t
     use cuvode_module, only: dvode
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(in) :: lo(3), hi(3)

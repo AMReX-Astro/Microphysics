@@ -12,7 +12,6 @@ subroutine f_rhs(neq, t, y, ydot)
 end subroutine f_rhs
  
 subroutine jac(neq, t, y, dfdy)
-  use amrex_fort_module, only : rt => amrex_real
   integer, intent(in) :: neq
   real(rt)         rpar, t, y(neq), dfdy(neq,neq)
   dfdy(:,:) = 0.0e0_rt

@@ -12,7 +12,6 @@ contains
 
   subroutine vode_integrator_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine vode_integrator_init
@@ -22,7 +21,6 @@ contains
 
     use integration_data, only: integration_status_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments

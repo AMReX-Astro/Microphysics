@@ -37,7 +37,6 @@ contains
 
   subroutine actual_network_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     spec_names(ic12)  = "carbon-12"
@@ -74,7 +73,6 @@ contains
 
   subroutine actual_network_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(aion)) then

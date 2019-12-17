@@ -26,7 +26,6 @@ contains
     use nonaka_plot_module, only: nonaka_init
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_scaling_init()
@@ -60,7 +59,6 @@ contains
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
     use integration_data, only: integration_status_t
@@ -69,7 +67,6 @@ contains
                                     abort_on_failure, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t),  intent(in   ) :: state_in

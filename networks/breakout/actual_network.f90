@@ -11,7 +11,6 @@ module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: nspec = 1
@@ -32,7 +31,6 @@ contains
 
   subroutine actual_network_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     spec_names(1) = "X"
@@ -54,7 +52,6 @@ contains
 
   subroutine actual_network_finalize()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_network_finalize

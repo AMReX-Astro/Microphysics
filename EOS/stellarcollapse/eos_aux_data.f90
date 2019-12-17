@@ -2,7 +2,6 @@ module eos_aux_data_module
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! for reading HDF5 table
@@ -48,7 +47,6 @@ contains
     use eos_type_module, only: mindens, mintemp, minye, maxdens, maxtemp, maxye
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     character(len=256), intent(in) :: eos_input_file
@@ -313,7 +311,6 @@ contains
     use fundamental_constants_module, only: k_B, ev2erg, MeV2eV, n_A
     use amrex_constants_module, only: ZERO, ONE
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,     intent(in   ) :: input
@@ -365,7 +362,6 @@ contains
     use eos_type_module
     use amrex_constants_module, only: TEN
     
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -390,7 +386,6 @@ contains
     use interpolate_module
     use eos_type_module
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state

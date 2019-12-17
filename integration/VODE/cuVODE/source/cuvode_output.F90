@@ -4,7 +4,6 @@ module cuvode_output_module
 
   use cuvode_constants_module
   
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -36,7 +35,6 @@ contains
     !   systems.  This may be machine-dependent.
     ! **End
     ! ***FIRST EXECUTABLE STATEMENT  IUMACH
-    use amrex_fort_module, only : rt => amrex_real
     integer, parameter :: ium = 6
     integer :: ium_return
     ium_return = ium
@@ -90,7 +88,6 @@ contains
     ! -----------------------------------------------------------------------
     ! **End
     
-    use amrex_fort_module, only : rt => amrex_real
     logical :: ISET
     integer :: IPAR, IVALUE
     integer :: ixs
@@ -137,7 +134,6 @@ contains
     !  Function routine called by XSETF.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    use amrex_fort_module, only : rt => amrex_real
     integer :: MFLAG, JUNK
 
     IF (MFLAG .EQ. 0 .OR. MFLAG .EQ. 1) JUNK = IXSAV(2,MFLAG,.TRUE.)
@@ -169,7 +165,6 @@ contains
     !  Function routine called by XSETUN.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    use amrex_fort_module, only : rt => amrex_real
     integer :: LUN, JUNK
 
     IF (LUN .GT. 0) JUNK = IXSAV (1,LUN,.TRUE.)
@@ -233,7 +228,6 @@ contains
     !  Function routine called by XERRWD.. IXSAV
     ! -----------------------------------------------------------------------
     ! **End
-    use amrex_fort_module, only : rt => amrex_real
     real(rt) :: R1, R2
     integer    :: NMES, NERR, LEVEL, NI, I1, I2, NR
     integer    :: LUNIT, MESFLG

@@ -3,7 +3,6 @@ module cvode_type_module
   use amrex_fort_module, only: rt => amrex_real
   use burn_type_module, only: neqs
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: VODE_NEQS = neqs
@@ -19,7 +18,6 @@ contains
     use burn_type_module, only: neqs
     use cvode_rpar_indices, only: n_rpar_comps
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
@@ -42,7 +40,6 @@ contains
     use cvode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
     use extern_probin_module, only: renormalize_abundances
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
@@ -73,7 +70,6 @@ contains
     use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
     use burn_type_module, only: neqs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: y(neqs), rpar(n_rpar_comps)
@@ -147,7 +143,6 @@ contains
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state
@@ -187,7 +182,6 @@ contains
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp, net_ienuc
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state
@@ -230,7 +224,6 @@ contains
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
     use jacobian_sparsity_module, only: scale_csr_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -317,7 +310,6 @@ contains
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -372,7 +364,6 @@ contains
     use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_t_sound, irp_dx, irp_dens, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_y_init, irp_energy_offset
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(inout) :: y(neqs), rpar(n_rpar_comps)
@@ -445,7 +436,6 @@ contains
     use burn_type_module, only: neqs, burn_t, net_ienuc, net_itemp, normalize_abundances_burn
     use cvode_rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(inout) :: y(neqs), rpar(n_rpar_comps)

@@ -7,14 +7,12 @@ module actual_rhs_module
   use burn_type_module
   use rate_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
 
   subroutine actual_rhs_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -24,7 +22,6 @@ contains
     use amrex_constants_module, only: ZERO
     use fundamental_constants_module
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in   ) :: density
@@ -64,7 +61,6 @@ contains
 
     use screening_module, only: screenz
 
-    use amrex_fort_module, only : rt => amrex_real
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -125,7 +121,6 @@ contains
 
     use extern_probin_module, only: do_constant_volume_burn
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -207,7 +202,6 @@ contains
 
     use temperature_integration_module, only: temperature_jac
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -274,7 +268,6 @@ contains
 
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec_evolve), ebin(nspec), enuc
@@ -289,7 +282,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

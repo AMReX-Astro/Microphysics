@@ -6,7 +6,6 @@ module cuvode_dvindy_module
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -59,7 +58,6 @@ contains
     use cuvode_output_module, only: xerrwd
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

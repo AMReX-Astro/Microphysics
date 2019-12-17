@@ -11,14 +11,12 @@ module vode_integrator_module
   use cuvode_parameters_module
   use amrex_fort_module, only: rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
   
 contains
 
   subroutine vode_integrator_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine vode_integrator_init
@@ -50,7 +48,6 @@ contains
     use amrex_error_module, only: amrex_error
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments

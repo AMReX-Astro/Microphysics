@@ -3,7 +3,6 @@ module actual_network
   use physical_constants, only: ERG_PER_MeV
   use amrex_fort_module, only: rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -100,7 +99,6 @@ contains
 
   subroutine actual_network_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: i
@@ -297,7 +295,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt) :: dydt(nspec), enuc

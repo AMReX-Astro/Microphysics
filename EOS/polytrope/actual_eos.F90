@@ -48,7 +48,6 @@ contains
 
     use extern_probin_module, only: polytrope_gamma, polytrope_K, polytrope_type, polytrope_mu_e
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Allocate module variables
@@ -101,7 +100,6 @@ contains
 
   subroutine eos_get_polytrope_parameters(polytrope_out,gamma_out,K_out,mu_e_out)
 
-    use amrex_fort_module, only : rt => amrex_real
     integer,          intent(out) :: polytrope_out
     real(rt)        , intent(out) :: gamma_out, K_out, mu_e_out
 
@@ -114,7 +112,6 @@ contains
 
   subroutine eos_set_polytrope_parameters(polytrope_in,gamma_in,K_in,mu_e_in)
 
-    use amrex_fort_module, only : rt => amrex_real
     integer,          intent(in) :: polytrope_in
     real(rt)        , intent(in) :: gamma_in, K_in, mu_e_in
 
@@ -132,7 +129,6 @@ contains
   !---------------------------------------------------------------------------
   subroutine actual_eos(input, state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -302,7 +298,6 @@ contains
 
   subroutine actual_eos_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Deallocate module variables

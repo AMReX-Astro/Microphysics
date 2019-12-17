@@ -5,7 +5,6 @@ module numerical_jac_module
   use network
   use burn_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -18,7 +17,6 @@ contains
     use extern_probin_module, only : centered_diff_jac
     use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state
@@ -165,7 +163,6 @@ contains
     use eos_type_module, only : eos_t, eos_input_rt, normalize_abundances
     use jacobian_sparsity_module, only: get_jac_entry, scale_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     type (burn_t) :: state
     type (burn_t) :: state_num
     type (eos_t) :: eos_state

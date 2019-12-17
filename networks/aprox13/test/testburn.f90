@@ -23,7 +23,7 @@ program testburn
   dens =    10000.0e0_rt
   temp =    4999999999.9999990e0_rt
   Xin(:) = 1.e-10_rt
-  Xin(ihe4) = 1.0_rt - (nspec-1)*1.e-10_dp_t
+  Xin(ihe4) = 1.0_rt - (nspec-1)*1.e-10_rt
 
   dt = 0.001_rt
 

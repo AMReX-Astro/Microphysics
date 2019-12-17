@@ -24,13 +24,11 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -102,13 +100,11 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
     use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -182,7 +178,6 @@ contains
     use extern_probin_module, only: burning_mode
     use amrex_error_module, only: amrex_error
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Provide a default value, then consult the burning_mode.

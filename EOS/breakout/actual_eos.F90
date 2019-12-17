@@ -26,7 +26,6 @@ contains
 
     use extern_probin_module, only: eos_gamma
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     allocate(gamma_const)
@@ -46,7 +45,6 @@ contains
 
     use fundamental_constants_module, only: k_B, n_A
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -143,9 +141,8 @@ contains
     
   end subroutine actual_eos
 
-  subroutine actual_eos_finalize                                                                    
-                                                                                                    
-    use amrex_fort_module, only : rt => amrex_real
+  subroutine actual_eos_finalize                    
+    
     implicit none
 
     if (allocated(gamma_const)) then

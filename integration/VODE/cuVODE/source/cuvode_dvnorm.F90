@@ -6,7 +6,6 @@ module cuvode_dvnorm_module
 
   use cuvode_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -40,7 +39,6 @@ contains
     ! ***END PROLOGUE  DVNORM
     ! **End
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

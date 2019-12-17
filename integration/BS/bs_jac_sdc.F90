@@ -17,7 +17,6 @@ contains
     use bs_type_module, only: bs_t, bs_to_burn, jac_to_bs
     use bs_rpar_indices, only: irp_t0
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs

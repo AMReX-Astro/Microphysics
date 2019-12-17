@@ -2,7 +2,6 @@ module physical_constants
 
   use amrex_fort_module, only: rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), parameter :: pi = 3.141592653589793238462643383279502884197e0_rt

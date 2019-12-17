@@ -12,7 +12,6 @@ module stiff_ode
   use jac_module
 #endif
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), parameter, private :: dt_min = 1.e-24_rt
@@ -83,7 +82,6 @@ contains
 
     use extern_probin_module, only: safety_factor
     
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(in) :: y_old(bs_neqs), y(bs_neqs)
     logical, intent(out) :: retry
 
@@ -121,7 +119,6 @@ contains
     use amrex_error_module, only: amrex_error
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     type (bs_t), intent(inout) :: bs
 
     real(rt), intent(inout) :: t
@@ -229,7 +226,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     type (bs_t), intent(inout) :: bs
 
     type (bs_t) :: bs_temp
@@ -306,7 +302,6 @@ contains
     !$acc routine(dgefa) seq
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t), intent(inout) :: bs
@@ -436,7 +431,6 @@ contains
     use amrex_error_module, only: amrex_error
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -675,7 +669,6 @@ contains
     ! building a polynomial through the points, where the order
     ! is iest
 
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: iest
     real(rt), intent(in) :: test, yest(bs_neqs)
     real(rt), intent(inout) :: yz(bs_neqs), dy(bs_neqs)
@@ -738,9 +731,7 @@ contains
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs

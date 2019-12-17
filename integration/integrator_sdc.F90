@@ -22,7 +22,6 @@ contains
     use nonaka_plot_module, only: nonaka_init
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
@@ -57,7 +56,6 @@ contains
 #ifndef AMREX_USE_CUDA
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
@@ -66,7 +64,6 @@ contains
                                     abort_on_failure, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (sdc_t),  intent(in   ) :: state_in

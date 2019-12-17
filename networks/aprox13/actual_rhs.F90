@@ -39,7 +39,6 @@ contains
     use extern_probin_module, only: use_tables
     use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call rates_init()
@@ -70,7 +69,6 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! This routine sets up the system of ode's for the aprox13
@@ -142,7 +140,6 @@ contains
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: set_jac_zero, set_jac_entry, get_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -226,7 +223,6 @@ contains
 
     use extern_probin_module, only: use_tables
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)  :: state
@@ -263,7 +259,6 @@ contains
 
   subroutine aprox13tab(btemp, bden, rr)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in   ) :: btemp, bden
@@ -405,7 +400,6 @@ contains
 
   subroutine create_rates_table()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef AMREX_USE_CUDA
@@ -439,7 +433,6 @@ contains
 #ifdef AMREX_USE_CUDA
     use cudafor
 #endif
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)         :: btemp, bden
     type (rate_t)    :: rr
 
@@ -492,7 +485,6 @@ contains
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum3, esum4, esum5, esum6, esum8, esum10, esum12, esum17 ! function
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! deriva is used in forming the analytic Jacobian to get
@@ -940,7 +932,6 @@ contains
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in   ) :: btemp, bden
@@ -1137,7 +1128,6 @@ contains
     use amrex_constants_module, only: ZERO, ONE
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine computes the screening factors
@@ -1746,7 +1736,6 @@ contains
     use microphysics_math_module, only: esum3, esum4, esum5, esum20 ! function
     use jacobian_sparsity_module, only: set_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine sets up the dense aprox13 jacobian for the isotopes
@@ -2246,7 +2235,6 @@ contains
 
     use actual_network, only: nspec, mion, enuc_conv2
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
@@ -2268,7 +2256,6 @@ contains
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! note: it is critical that these are called in the exact order
@@ -2327,7 +2314,6 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

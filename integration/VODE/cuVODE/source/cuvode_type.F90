@@ -6,7 +6,6 @@ module cuvode_types_module
 
   use cuvode_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! Type dvode_t contains the integration solution and control variables

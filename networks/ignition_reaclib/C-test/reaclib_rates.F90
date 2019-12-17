@@ -6,7 +6,6 @@ module reaclib_rates
                               plasma_state, fill_plasma_state
   use network
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   logical, parameter :: screen_reaclib = .true.
@@ -31,7 +30,6 @@ contains
 
   subroutine init_reaclib()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: unit, ireaclib, icoeff
@@ -91,7 +89,6 @@ contains
   subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(plasma_state), intent(in) :: pstate

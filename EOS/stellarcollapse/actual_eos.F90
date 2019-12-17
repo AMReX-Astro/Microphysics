@@ -6,7 +6,6 @@ module actual_eos_module
   use eos_type_module
   use eos_aux_data_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "stellarcollapse"
@@ -28,7 +27,6 @@ contains
     use extern_probin_module, only: eos_file, use_energy_shift
     use network, only: network_species_index
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
  
     if (amrex_pd_ioprocessor()) print *, 'Reading HDF5 file', eos_file
@@ -48,7 +46,6 @@ contains
     !
     ! Make sure you use a network that uses ye as a species!
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -191,7 +188,6 @@ contains
 
   subroutine actual_eos_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Nothing to do here, yet.
@@ -204,7 +200,6 @@ contains
 
     use interpolate_module
 
-     use amrex_fort_module, only : rt => amrex_real
      implicit none
 
      type (eos_t),       intent(inout) :: state
@@ -315,7 +310,6 @@ contains
   function get_munu(rho,T,ye) result(munu)
     use interpolate_module 
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , intent(in   ) :: rho, T, ye
     real(rt)                        :: munu
 

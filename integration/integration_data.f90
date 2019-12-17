@@ -2,7 +2,6 @@ module integration_data
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: integration_status_t

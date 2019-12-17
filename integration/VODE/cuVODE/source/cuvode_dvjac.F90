@@ -9,7 +9,6 @@ module cuvode_dvjac_module
 
   use cuvode_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -85,7 +84,6 @@ contains
 #endif
     use cuvode_dvnorm_module, only: dvnorm ! function
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

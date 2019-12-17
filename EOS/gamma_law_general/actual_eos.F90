@@ -14,7 +14,6 @@ module actual_eos_module
   use network, only: nspec, aion, aion_inv, zion
   use eos_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "gamma_law_general"  
@@ -35,7 +34,6 @@ contains
 
     use extern_probin_module, only: eos_gamma, eos_assume_neutral
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     allocate(gamma_const)
@@ -62,7 +60,6 @@ contains
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -243,7 +240,6 @@ contains
 
   subroutine actual_eos_finalize
     
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     deallocate(gamma_const)

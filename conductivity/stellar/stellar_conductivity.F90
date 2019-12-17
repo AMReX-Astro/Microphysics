@@ -2,7 +2,6 @@ module actual_conductivity_module
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: cond_name = "stellar"
@@ -12,7 +11,6 @@ contains
 
   subroutine actual_conductivity_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_conductivity_init
@@ -23,7 +21,6 @@ contains
     use eos_type_module, only: eos_t
     use network, only : zion, aion, nspec
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state

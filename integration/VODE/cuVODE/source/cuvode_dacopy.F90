@@ -3,7 +3,6 @@ module cuvode_dacopy_module
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -28,7 +27,6 @@ contains
     !  The data copied consists of NROW rows and NCOL columns.
     ! -----------------------------------------------------------------------
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments

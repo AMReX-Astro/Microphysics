@@ -20,7 +20,6 @@ contains
                                burn_to_vbdf, vbdf_to_burn
     use vbdf_rpar_indices, only: irp_y_init, irp_t_sound, irp_t0
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bdf_ts) :: ts
@@ -94,7 +93,6 @@ contains
 
     use network, only: aion, aion_inv, nspec_evolve
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
@@ -102,7 +100,6 @@ contains
     use bdf_type_module, only: bdf_ts, vbdf_to_burn, burn_to_vbdf
     use vbdf_rpar_indices, only: irp_y_init, irp_t_sound, irp_t0
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bdf_ts) :: ts

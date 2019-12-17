@@ -94,7 +94,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !..input arguments
@@ -161,7 +160,6 @@ contains
 
   subroutine apply_electrons(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -423,7 +421,6 @@ contains
 
   subroutine apply_ions(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -512,7 +509,6 @@ contains
   
   subroutine apply_radiation(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -593,7 +589,6 @@ contains
 
     use amrex_constants_module, only: ZERO
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -794,7 +789,6 @@ contains
 
   subroutine prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,          intent(in   ) :: input
@@ -865,7 +859,6 @@ contains
 
   subroutine single_iter_update(state, var, dvar, v_want, converged)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t),      intent(inout) :: state
@@ -951,7 +944,6 @@ contains
 
     use amrex_constants_module, only: HALF, TWO
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(eos_t),      intent(inout) :: state
@@ -1047,7 +1039,6 @@ contains
 
   subroutine finalize_state(input, state, v_want, v1_want, v2_want)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,          intent(in   ) :: input
@@ -1122,7 +1113,6 @@ contains
     use amrex_paralleldescriptor_module, only: parallel_bcast => amrex_pd_bcast, amrex_pd_ioprocessor
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dth, dt2, dti, dt2i
@@ -1441,7 +1431,6 @@ contains
 
   subroutine actual_eos_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Deallocate managed module variables

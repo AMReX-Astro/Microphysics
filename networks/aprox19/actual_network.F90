@@ -170,7 +170,6 @@ contains
   
   subroutine actual_network_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     ! The following comes directly from init_aprox19
@@ -419,7 +418,6 @@ contains
 
   subroutine actual_network_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(aion)) then

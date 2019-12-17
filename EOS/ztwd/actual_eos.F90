@@ -41,7 +41,6 @@ contains
 
     use fundamental_constants_module, only: m_e, m_p, c_light, hplanck
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
  
     A = M_PI * m_e**4 * c_light**5 / (THREE * hplanck**3)
@@ -53,7 +52,6 @@ contains
 
   subroutine actual_eos(input, state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -239,7 +237,6 @@ contains
 
   subroutine actual_eos_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Nothing to do here, yet.
@@ -250,7 +247,6 @@ contains
 
   double precision function pressure(x)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in)  :: x
@@ -263,7 +259,6 @@ contains
 
   double precision function enthalpy(x)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in)  :: x
@@ -276,7 +271,6 @@ contains
 
   double precision function dpdx(x)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in) :: x
@@ -292,7 +286,6 @@ contains
 
   double precision function dhdx(x)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(in) :: x
@@ -305,7 +298,6 @@ contains
 
   subroutine pres_iter(pres, dens)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(inout) :: pres, dens

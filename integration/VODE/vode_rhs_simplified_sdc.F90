@@ -18,7 +18,6 @@ subroutine f_rhs(time, y, ydot, rpar)
   use vode_rpar_indices
   use cuvode_parameters_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   real(rt), intent(INOUT) :: time, y(VODE_NEQS)
@@ -72,7 +71,6 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   use vode_type_module, only: jac_to_vode, vode_to_burn
   use cuvode_parameters_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer   , intent(IN   ) :: ml, mu, nrpd

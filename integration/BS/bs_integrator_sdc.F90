@@ -12,7 +12,6 @@ contains
 
     use bs_type_module, only: nseq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     nseq = [2, 6, 10, 14, 22, 34, 50, 70]
@@ -39,11 +38,9 @@ contains
     use stiff_ode, only: ode, IERR_NONE
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
     use amrex_constants_module, only: ZERO
-    use amrex_fort_module, only : rt => amrex_real
     use bs_rpar_indices, only : irp_t0
     use integration_data, only: integration_status_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments

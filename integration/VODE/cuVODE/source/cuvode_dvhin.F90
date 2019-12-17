@@ -7,7 +7,6 @@ module cuvode_dvhin_module
 
   use cuvode_constants_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -81,7 +80,6 @@ contains
     use vode_rhs_module, only: f_rhs
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Declare arguments
