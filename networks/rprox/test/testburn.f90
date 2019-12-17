@@ -37,7 +37,7 @@ program testburn
   dt = 1.e-4_rt
   !use_timestep_estimator = .true.
   !scaling_method = 2
-  !ode_scale_floor = 1.d-12
+  !ode_scale_floor = 1.e-12_rt
   burning_mode = 0
 
   print *, 'calling the burner...'

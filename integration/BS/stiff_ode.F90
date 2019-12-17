@@ -14,9 +14,9 @@ module stiff_ode
 
   implicit none
 
-  real(rt), parameter, private :: dt_min = 1.d-24
-  real(rt), parameter, private :: dt_ini = 1.d-16
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: dt_min = 1.e-24_rt
+  real(rt), parameter, private :: dt_ini = 1.e-16_rt
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
   ! error codes
@@ -238,8 +238,8 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
-    hU = 0.1d0 * abs(bs % tmax - bs % t)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
+    hU = 0.1e0_rt * abs(bs % tmax - bs % t)
 
     ! Initial guess for the iteration
 
@@ -454,8 +454,8 @@ contains
 
     ! reinitialize
     if (eps /= bs % eps_old) then
-       bs % dt_next = -1.d29
-       bs % t_new = -1.d29
+       bs % dt_next = -1.e29_rt
+       bs % t_new = -1.e29_rt
        eps1 = S1*eps
 
        bs % a(1) = nseq(1)+1
@@ -731,7 +731,6 @@ contains
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
