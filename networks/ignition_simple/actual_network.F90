@@ -4,6 +4,8 @@ module actual_network
 
   implicit none
 
+  character (len=32), parameter :: network_name = "ignition_simple"
+
   double precision, parameter, private :: clight = 2.99792458d10
   double precision, parameter, private :: ev2erg  = 1.60217648740d-12
   double precision, parameter, private :: mev2erg = ev2erg*1.0d6
