@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 # ignore files in these directories
-ignore_dirs = ['util', 'tmp_build_dir', 't', 'python_library']
+ignore_dirs = ['tmp_build_dir', 't', 'python_library']
 
 def find_fortran_files():
     # find Microphysics Fortran source files 
@@ -41,6 +41,40 @@ def test_double_precision(filename):
             for l in file_dat:
 
                 assert re.search(double_prec, l.split('!')[0]) is None
+
+        except UnicodeDecodeError:
+            return 
+
+def test_dexp(filename):
+    if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
+        return 
+
+    with open(filename, 'r') as file_dat:
+
+        dexp = re.compile(r'dexp\(')
+
+        try:
+            for l in file_dat:
+
+                assert re.search(dexp, l.split('!')[0]) is None
+
+        except UnicodeDecodeError:
+            return 
+
+def test_dlog(filename):
+    if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
+        return 
+
+    with open(filename, 'r') as file_dat:
+
+        dlog = re.compile(r'dlog\(')
+        dlog10 = re.compile(r'dlog10\(')
+
+        try:
+            for l in file_dat:
+
+                assert re.search(dlog, l.split('!')[0]) is None
+                assert re.search(dlog10, l.split('!')[0]) is None
 
         except UnicodeDecodeError:
             return 

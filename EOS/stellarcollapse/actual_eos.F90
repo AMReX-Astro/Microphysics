@@ -280,7 +280,7 @@ contains
         ! addition and not multiplication, which differs from how we do it in, say,
         ! the Helmholtz EOS
 
-        xnew = max(x - dlog10(TWO), min(xnew, x + dlog10(TWO)))
+        xnew = max(x - log10(TWO), min(xnew, x + log10(TWO)))
 
         ! Don't let us freeze/evacuate
 

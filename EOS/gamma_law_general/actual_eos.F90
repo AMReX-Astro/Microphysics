@@ -141,7 +141,7 @@ contains
 
        state % T  = state % p**(TWO/FIVE) * &
                     ( TWO*M_PI*hbar*hbar/(state % mu*m_nucleon) )**(THREE/FIVE) * &
-                    dexp(TWO*state % mu*m_nucleon*state % s/(FIVE*k_B) - ONE) / k_B
+                    exp(TWO*state % mu*m_nucleon*state % s/(FIVE*k_B) - ONE) / k_B
 
        ! Solve for the density
        ! rho = p mu m_nucleon / (k T)
