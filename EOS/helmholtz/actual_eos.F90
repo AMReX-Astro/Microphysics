@@ -2,6 +2,7 @@ module actual_eos_module
 
   use eos_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   character (len=64), public :: eos_name = "helmholtz"
 
   ! Runtime parameters
@@ -11,27 +12,27 @@ module actual_eos_module
   !..for the tables, in general
   integer, parameter, private :: imax = 541, jmax = 201
   integer, allocatable :: itmax, jtmax
-  double precision, allocatable :: d(:), t(:)
+  real(rt)        , allocatable :: d(:), t(:)
 
-  double precision, allocatable :: tlo, thi, tstp, tstpi
-  double precision, allocatable :: dlo, dhi, dstp, dstpi
+  real(rt)        , allocatable :: tlo, thi, tstp, tstpi
+  real(rt)        , allocatable :: dlo, dhi, dstp, dstpi
 
-  double precision, allocatable :: ttol, dtol
+  real(rt)        , allocatable :: ttol, dtol
 
   !..for the helmholtz free energy tables
-  double precision, allocatable :: f(:,:,:)
+  real(rt)        , allocatable :: f(:,:,:)
 
   !..for the pressure derivative with density tables
-  double precision, allocatable :: dpdf(:,:,:)
+  real(rt)        , allocatable :: dpdf(:,:,:)
 
   !..for chemical potential tables
-  double precision, allocatable :: ef(:,:,:)
+  real(rt)        , allocatable :: ef(:,:,:)
 
   !..for the number density tables
-  double precision, allocatable :: xf(:,:,:)
+  real(rt)        , allocatable :: xf(:,:,:)
 
   !..for storing the differences
-  double precision, allocatable :: dt_sav(:), dt2_sav(:),          &
+  real(rt)        , allocatable :: dt_sav(:), dt2_sav(:),          &
                                    dti_sav(:), dt2i_sav(:),        &
                                    dd_sav(:), dd2_sav(:),          &
                                    ddi_sav(:), dd2i_sav(:)
@@ -49,10 +50,10 @@ module actual_eos_module
 #endif
 
   ! 2006 CODATA physical constants
-  double precision, parameter :: h       = 6.6260689633d-27
-  double precision, parameter :: avo_eos = 6.0221417930d23
-  double precision, parameter :: kerg    = 1.380650424d-16
-  double precision, parameter :: amu     = 1.66053878283d-24
+  real(rt)        , parameter :: h       = 6.6260689633e-27_rt
+  real(rt)        , parameter :: avo_eos = 6.0221417930e23_rt
+  real(rt)        , parameter :: kerg    = 1.380650424e-16_rt
+  real(rt)        , parameter :: amu     = 1.66053878283e-24_rt
 
   !$acc declare &
   !$acc create(tlo, thi, dlo, dhi) &
@@ -103,7 +104,7 @@ contains
 
     logical :: single_iter, converged
     integer :: var, dvar, var1, var2, iter
-    double precision :: v_want, v1_want, v2_want
+    real(rt)         :: v_want, v1_want, v2_want
 
     !$gpu
 
@@ -163,27 +164,27 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: pele, dpepdt, dpepdd, dpepda, dpepdz
-    double precision :: sele, dsepdt, dsepdd, dsepda, dsepdz
-    double precision :: eele, deepdt, deepdd, deepda, deepdz
-    double precision :: xni, xnem, din, x, s, etaele, xnefer, ytot1
+    real(rt)         :: pele, dpepdt, dpepdd, dpepda, dpepdz
+    real(rt)         :: sele, dsepdt, dsepdd, dsepda, dsepdz
+    real(rt)         :: eele, deepdt, deepdd, deepda, deepdz
+    real(rt)         :: xni, xnem, din, x, s, etaele, xnefer, ytot1
 
     !..for the interpolations
     integer          :: iat, jat
-    double precision :: free, df_d, df_t, df_tt, df_dt
-    double precision :: xt, xd, mxt, mxd
-    double precision :: fi(36)
-    double precision :: wdt(16), sit(6), sid(6), dsit(6), dsid(6), fwtr(6), ddsit(6)
+    real(rt)         :: free, df_d, df_t, df_tt, df_dt
+    real(rt)         :: xt, xd, mxt, mxd
+    real(rt)         :: fi(36)
+    real(rt)         :: wdt(16), sit(6), sid(6), dsit(6), dsid(6), fwtr(6), ddsit(6)
 
     !$gpu
 
     !..assume complete ionization
-    ytot1 = 1.0d0 / state % abar
+    ytot1 = 1.0e0_rt / state % abar
     xni  = avo_eos * ytot1 * state % rho
     xnem = xni * state % zbar
 
     ! define mu -- the total mean molecular weight including both electrons and ions
-    state % mu = 1.0d0 / (1.0d0 / state % abar + 1.0d0 / state % mu_e)
+    state % mu = 1.0e0_rt / (1.0e0_rt / state % abar + 1.0e0_rt / state % mu_e)
 
     !..enter the table with ye*den
     din = state % y_e * state % rho
@@ -201,10 +202,10 @@ contains
     fi(28:36) = f(1:9, iat+1,jat+1)
 
     !..various differences
-    xt  = max( (state % T - t(jat)) * dti_sav(jat), 0.0d0)
-    xd  = max( (din - d(iat)) * ddi_sav(iat), 0.0d0)
-    mxt = 1.0d0 - xt
-    mxd = 1.0d0 - xd
+    xt  = max( (state % T - t(jat)) * dti_sav(jat), 0.0e0_rt)
+    xd  = max( (din - d(iat)) * ddi_sav(iat), 0.0e0_rt)
+    mxt = 1.0e0_rt - xt
+    mxd = 1.0e0_rt - xd
 
     !..the six density and six temperature basis functions
     sit(1) = psi0(xt)
@@ -326,7 +327,7 @@ contains
 
     !..pressure derivative with density
     dpepdd = sum(fi(1:16) * wdt)
-    dpepdd = max(state % y_e * dpepdd, 0.0d0)
+    dpepdd = max(state % y_e * dpepdd, 0.0e0_rt)
 
     ! Read in the tabular data for the electron chemical potential.
     fi([ 1,  2,  5,  6]) = ef(1:4,iat  ,jat  )
@@ -353,7 +354,7 @@ contains
 
     !..derivative with respect to density
     x = sum(fi(1:16) * wdt)
-    x = max(x, 0.0d0)
+    x = max(x, 0.0e0_rt)
 
     !..the desired electron-positron thermodynamic quantities
 
@@ -364,10 +365,10 @@ contains
     x       = din * din
     pele    = x * df_d
     dpepdt  = x * df_dt
-    s       = dpepdd/state % y_e - 2.0d0 * din * df_d
+    s       = dpepdd/state % y_e - 2.0e0_rt * din * df_d
 #ifdef EXTRA_THERMO
-    dpepda  = -ytot1 * (2.0d0 * pele + s * din)
-    dpepdz  = state % rho*ytot1*(2.0d0 * din * df_d  +  s)
+    dpepda  = -ytot1 * (2.0e0_rt * pele + s * din)
+    dpepdz  = state % rho*ytot1*(2.0e0_rt * din * df_d  +  s)
 #endif
 
     x       = state % y_e * state % y_e
@@ -409,10 +410,10 @@ contains
 
     state % eta = etaele
     state % xne = xnefer
-    state % xnp = 0.0d0
+    state % xnp = 0.0e0_rt
 
     state % pele = pele
-    state % ppos = 0.0d0
+    state % ppos = 0.0e0_rt
 
   end subroutine apply_electrons
 
@@ -424,24 +425,24 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: pion, dpiondd, dpiondt, dpionda, dpiondz
-    double precision :: eion, deiondd, deiondt, deionda, deiondz
-    double precision :: sion, dsiondd, dsiondt, dsionda, dsiondz
+    real(rt)         :: pion, dpiondd, dpiondt, dpionda, dpiondz
+    real(rt)         :: eion, deiondd, deiondt, deionda, deiondz
+    real(rt)         :: sion, dsiondd, dsiondt, dsionda, dsiondz
 
-    double precision :: xni, dxnidd, dxnida, kt, ytot1, deni, tempi
+    real(rt)         :: xni, dxnidd, dxnida, kt, ytot1, deni, tempi
 
-    double precision :: s, x, y, z
+    real(rt)         :: s, x, y, z
 
-    double precision, parameter :: pi      = 3.1415926535897932384d0
-    double precision, parameter :: sioncon = (2.0d0 * pi * amu * kerg)/(h*h)
-    double precision, parameter :: kergavo = kerg * avo_eos
+    real(rt)        , parameter :: pi      = 3.1415926535897932384e0_rt
+    real(rt)        , parameter :: sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h)
+    real(rt)        , parameter :: kergavo = kerg * avo_eos
 
     !$gpu
 
-    deni = 1.0d0 / state % rho
-    tempi = 1.0d0 / state % T
+    deni = 1.0e0_rt / state % rho
+    tempi = 1.0e0_rt / state % T
 
-    ytot1   = 1.0d0 / state % abar
+    ytot1   = 1.0e0_rt / state % abar
     xni     = avo_eos * ytot1 * state % rho
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
@@ -453,15 +454,15 @@ contains
     dpiondt = xni * kerg
 #ifdef EXTRA_THERMO
     dpionda = dxnida * kt
-    dpiondz = 0.0d0
+    dpiondz = 0.0e0_rt
 #endif
 
-    eion    = 1.5d0 * pion*deni
-    deiondd = (1.5d0 * dpiondd - eion)*deni
-    deiondt = 1.5d0 * dpiondt*deni
+    eion    = 1.5e0_rt * pion*deni
+    deiondd = (1.5e0_rt * dpiondd - eion)*deni
+    deiondt = 1.5e0_rt * dpiondt*deni
 #ifdef EXTRA_THERMO
-    deionda = 1.5d0 * dpionda*deni
-    deiondz = 0.0d0
+    deionda = 1.5e0_rt * dpionda*deni
+    deiondz = 0.0e0_rt
 #endif
 
     x       = state % abar*state % abar*sqrt(state % abar) * deni/avo_eos
@@ -473,12 +474,12 @@ contains
               - kergavo * deni * ytot1
     dsiondt = (dpiondt*deni + deiondt)*tempi -  &
               (pion*deni + eion) * tempi*tempi  &
-              + 1.5d0 * kergavo * tempi*ytot1
+              + 1.5e0_rt * kergavo * tempi*ytot1
     x       = avo_eos*kerg/state % abar
 #ifdef EXTRA_THERMO
     dsionda = (dpionda*deni + deionda)*tempi  &
-              + kergavo*ytot1*ytot1* (2.5d0 - y)
-    dsiondz = 0.0d0
+              + kergavo*ytot1*ytot1* (2.5e0_rt - y)
+    dsiondz = 0.0e0_rt
 #endif
 
     state % p    = state % p + pion
@@ -512,48 +513,48 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: prad, dpraddd, dpraddt, dpradda, dpraddz
-    double precision :: erad, deraddd, deraddt, deradda, deraddz
-    double precision :: srad, dsraddd, dsraddt, dsradda, dsraddz
+    real(rt)         :: prad, dpraddd, dpraddt, dpradda, dpraddz
+    real(rt)         :: erad, deraddd, deraddt, deradda, deraddz
+    real(rt)         :: srad, dsraddd, dsraddt, dsradda, dsraddz
 
-    double precision :: deni, tempi
+    real(rt)         :: deni, tempi
 
-    double precision, parameter :: clight  = 2.99792458d10
+    real(rt)        , parameter :: clight  = 2.99792458e10_rt
 #ifdef RADIATION
-    double precision, parameter :: ssol    = 0.0d0
+    real(rt)        , parameter :: ssol    = 0.0e0_rt
 #else
-    double precision, parameter :: ssol    = 5.67051d-5
+    real(rt)        , parameter :: ssol    = 5.67051e-5_rt
 #endif
-    double precision, parameter :: asol    = 4.0d0 * ssol / clight
-    double precision, parameter :: asoli3  = asol/3.0d0
+    real(rt)        , parameter :: asol    = 4.0e0_rt * ssol / clight
+    real(rt)        , parameter :: asoli3  = asol/3.0e0_rt
 
     !$gpu
     
-    deni = 1.0d0 / state % rho
-    tempi = 1.0d0 / state % T
+    deni = 1.0e0_rt / state % rho
+    tempi = 1.0e0_rt / state % T
 
     prad    = asoli3 * state % T * state % T * state % T * state % T
-    dpraddd = 0.0d0
-    dpraddt = 4.0d0 * prad*tempi
+    dpraddd = 0.0e0_rt
+    dpraddt = 4.0e0_rt * prad*tempi
 #ifdef EXTRA_THERMO
-    dpradda = 0.0d0
-    dpraddz = 0.0d0
+    dpradda = 0.0e0_rt
+    dpraddz = 0.0e0_rt
 #endif
 
-    erad    = 3.0d0 * prad*deni
+    erad    = 3.0e0_rt * prad*deni
     deraddd = -erad*deni
-    deraddt = 3.0d0 * dpraddt*deni
+    deraddt = 3.0e0_rt * dpraddt*deni
 #ifdef EXTRA_THERMO
-    deradda = 0.0d0
-    deraddz = 0.0d0
+    deradda = 0.0e0_rt
+    deraddz = 0.0e0_rt
 #endif
 
     srad    = (prad*deni + erad)*tempi
     dsraddd = (dpraddd*deni - prad*deni*deni + deraddd)*tempi
     dsraddt = (dpraddt*deni + deraddt - srad)*tempi
 #ifdef EXTRA_THERMO
-    dsradda = 0.0d0
-    dsraddz = 0.0d0
+    dsradda = 0.0e0_rt
+    dsraddz = 0.0e0_rt
 #endif
 
     ! Note that unlike the other terms, radiation
@@ -592,32 +593,32 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: ecoul, decouldd, decouldt, decoulda, decouldz
-    double precision :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
-    double precision :: scoul, dscouldd, dscouldt, dscoulda, dscouldz
+    real(rt)         :: ecoul, decouldd, decouldt, decoulda, decouldz
+    real(rt)         :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
+    real(rt)         :: scoul, dscouldd, dscouldt, dscoulda, dscouldz
 
-    double precision :: dsdd, dsda, lami, inv_lami, lamida, lamidd
-    double precision :: plasg, plasgdd, plasgdt, plasgda, plasgdz
-    double precision :: pion, dpiondt, dpiondd, dpionda, dpiondz, xni, dxnidd, dxnida
+    real(rt)         :: dsdd, dsda, lami, inv_lami, lamida, lamidd
+    real(rt)         :: plasg, plasgdd, plasgdt, plasgda, plasgdz
+    real(rt)         :: pion, dpiondt, dpiondd, dpionda, dpiondz, xni, dxnidd, dxnida
 
-    double precision :: kt, ktinv, ytot1
-    double precision :: s, x, y, z
-    double precision :: p_temp, e_temp
+    real(rt)         :: kt, ktinv, ytot1
+    real(rt)         :: s, x, y, z
+    real(rt)         :: p_temp, e_temp
 
     ! Constants used for the Coulomb corrections
-    double precision, parameter :: a1 = -0.898004d0
-    double precision, parameter :: b1 =  0.96786d0
-    double precision, parameter :: c1 =  0.220703d0
-    double precision, parameter :: d1 = -0.86097d0
-    double precision, parameter :: e1 =  2.5269d0
-    double precision, parameter :: a2 =  0.29561d0
-    double precision, parameter :: b2 =  1.9885d0
-    double precision, parameter :: c2 =  0.288675d0
-    double precision, parameter :: qe   = 4.8032042712d-10
-    double precision, parameter :: esqu = qe * qe
-    double precision, parameter :: onethird = 1.0d0/3.0d0
-    double precision, parameter :: forth = 4.0d0/3.0d0
-    double precision, parameter :: pi    = 3.1415926535897932384d0
+    real(rt)        , parameter :: a1 = -0.898004e0_rt
+    real(rt)        , parameter :: b1 =  0.96786e0_rt
+    real(rt)        , parameter :: c1 =  0.220703e0_rt
+    real(rt)        , parameter :: d1 = -0.86097e0_rt
+    real(rt)        , parameter :: e1 =  2.5269e0_rt
+    real(rt)        , parameter :: a2 =  0.29561e0_rt
+    real(rt)        , parameter :: b2 =  1.9885e0_rt
+    real(rt)        , parameter :: c2 =  0.288675e0_rt
+    real(rt)        , parameter :: qe   = 4.8032042712e-10_rt
+    real(rt)        , parameter :: esqu = qe * qe
+    real(rt)        , parameter :: onethird = 1.0e0_rt/3.0e0_rt
+    real(rt)        , parameter :: forth = 4.0e0_rt/3.0e0_rt
+    real(rt)        , parameter :: pi    = 3.1415926535897932384e0_rt
 
     !$gpu
 
@@ -642,21 +643,21 @@ contains
     !..lami is the average ion seperation
     !..plasg is the plasma coupling parameter
 
-    ytot1 = 1.0d0 / state % abar
+    ytot1 = 1.0e0_rt / state % abar
     xni     = avo_eos * ytot1 * state % rho
     dxnidd  = avo_eos * ytot1
     dxnida  = -xni * ytot1
 
     kt      = kerg * state % T
-    ktinv   = 1.0d0/kt
+    ktinv   = 1.0e0_rt/kt
 
     z        = forth * pi
     s        = z * xni
     dsdd     = z * dxnidd
     dsda     = z * dxnida
 
-    lami     = 1.0d0/s**onethird
-    inv_lami = 1.0d0/lami
+    lami     = 1.0e0_rt/s**onethird
+    inv_lami = 1.0e0_rt/lami
     z        = -onethird * lami
     lamidd   = z * dsdd/s
     lamida   = z * dsda/s
@@ -666,18 +667,18 @@ contains
     plasgdd  = z * lamidd
     plasgda  = z * lamida
     plasgdt  = -plasg*ktinv * kerg
-    plasgdz  = 2.0d0 * plasg/state % zbar
+    plasgdz  = 2.0e0_rt * plasg/state % zbar
 
     !...yakovlev & shalybkov 1989 equations 82, 85, 86, 87
-    if (plasg .ge. 1.0D0) then
-       x        = plasg**(0.25d0)
+    if (plasg .ge. 1.0e0_rt) then
+       x        = plasg**(0.25e0_rt)
        y        = avo_eos * ytot1 * kerg
        ecoul    = y * state % T * (a1*plasg + b1*x + c1/x + d1)
        pcoul    = onethird * state % rho * ecoul
-       scoul    = -y * (3.0d0*b1*x - 5.0d0*c1/x &
-                  + d1 * (log(plasg) - 1.0d0) - e1)
+       scoul    = -y * (3.0e0_rt*b1*x - 5.0e0_rt*c1/x &
+                  + d1 * (log(plasg) - 1.0e0_rt) - e1)
 
-       y        = avo_eos*ytot1*kt*(a1 + 0.25d0/plasg*(b1*x - c1/x))
+       y        = avo_eos*ytot1*kt*(a1 + 0.25e0_rt/plasg*(b1*x - c1/x))
        decouldd = y * plasgdd
        decouldt = y * plasgdt + ecoul/state % T
        decoulda = y * plasgda - ecoul/state % abar
@@ -690,31 +691,31 @@ contains
        dpcouldz = y * decouldz
 
        y        = -avo_eos*kerg/(state % abar*plasg)* &
-                  (0.75d0*b1*x+1.25d0*c1/x+d1)
+                  (0.75e0_rt*b1*x+1.25e0_rt*c1/x+d1)
        dscouldd = y * plasgdd
        dscouldt = y * plasgdt
        dscoulda = y * plasgda - scoul/state % abar
        dscouldz = y * plasgdz
 
        !...yakovlev & shalybkov 1989 equations 102, 103, 104
-    else if (plasg .lt. 1.0D0) then
+    else if (plasg .lt. 1.0e0_rt) then
 
        pion    = xni * kt
        dpiondd = dxnidd * kt
        dpiondt = xni * kerg
 #ifdef EXTRA_THERMO
        dpionda = dxnida * kt
-       dpiondz = 0.0d0
+       dpiondz = 0.0e0_rt
 #endif
 
        x        = plasg*sqrt(plasg)
        y        = plasg**b2
        z        = c2 * x - onethird * a2 * y
        pcoul    = -pion * z
-       ecoul    = 3.0d0 * pcoul/state % rho
-       scoul    = -avo_eos/state % abar*kerg*(c2*x -a2*(b2-1.0d0)/b2*y)
+       ecoul    = 3.0e0_rt * pcoul/state % rho
+       scoul    = -avo_eos/state % abar*kerg*(c2*x -a2*(b2-1.0e0_rt)/b2*y)
 
-       s        = 1.5d0*c2*x/plasg - onethird*a2*b2*y/plasg
+       s        = 1.5e0_rt*c2*x/plasg - onethird*a2*b2*y/plasg
        dpcouldd = -dpiondd*z - pion*s*plasgdd
        dpcouldt = -dpiondt*z - pion*s*plasgdt
 #ifdef EXTRA_THERMO
@@ -722,14 +723,14 @@ contains
        dpcouldz = -dpiondz*z - pion*s*plasgdz
 #endif
 
-       s        = 3.0d0/state % rho
+       s        = 3.0e0_rt/state % rho
        decouldd = s * dpcouldd - ecoul/state % rho
        decouldt = s * dpcouldt
        decoulda = s * dpcoulda
        decouldz = s * dpcouldz
 
        s        = -avo_eos*kerg/(state % abar*plasg)* &
-                  (1.5d0*c2*x-a2*(b2-1.0d0)*y)
+                  (1.5e0_rt*c2*x-a2*(b2-1.0e0_rt)*y)
        dscouldd = s * plasgdd
        dscouldt = s * plasgdt
        dscoulda = s * plasgda - scoul/state % abar
@@ -744,21 +745,21 @@ contains
 
     if (p_temp .le. ZERO .or. e_temp .le. ZERO) then
 
-       pcoul    = 0.0d0
-       dpcouldd = 0.0d0
-       dpcouldt = 0.0d0
-       dpcoulda = 0.0d0
-       dpcouldz = 0.0d0
-       ecoul    = 0.0d0
-       decouldd = 0.0d0
-       decouldt = 0.0d0
-       decoulda = 0.0d0
-       decouldz = 0.0d0
-       scoul    = 0.0d0
-       dscouldd = 0.0d0
-       dscouldt = 0.0d0
-       dscoulda = 0.0d0
-       dscouldz = 0.0d0
+       pcoul    = 0.0e0_rt
+       dpcouldd = 0.0e0_rt
+       dpcouldt = 0.0e0_rt
+       dpcoulda = 0.0e0_rt
+       dpcouldz = 0.0e0_rt
+       ecoul    = 0.0e0_rt
+       decouldd = 0.0e0_rt
+       decouldt = 0.0e0_rt
+       decoulda = 0.0e0_rt
+       decouldz = 0.0e0_rt
+       scoul    = 0.0e0_rt
+       dscouldd = 0.0e0_rt
+       dscouldt = 0.0e0_rt
+       dscoulda = 0.0e0_rt
+       dscouldz = 0.0e0_rt
 
     end if
 
@@ -793,7 +794,7 @@ contains
     integer,          intent(in   ) :: input
     type(eos_t),      intent(in   ) :: state
     logical,          intent(inout) :: single_iter
-    double precision, intent(inout) :: v_want, v1_want, v2_want
+    real(rt)        , intent(inout) :: v_want, v1_want, v2_want
     integer,          intent(inout) :: var, dvar, var1, var2
 
     !$gpu
@@ -862,10 +863,10 @@ contains
 
     type(eos_t),      intent(inout) :: state
     integer,          intent(in   ) :: var, dvar
-    double precision, intent(in   ) :: v_want
+    real(rt)        , intent(in   ) :: v_want
     logical,          intent(inout) :: converged
 
-    double precision :: x, xnew, v, dvdx, xtol, smallx, error
+    real(rt)         :: x, xnew, v, dvdx, xtol, smallx, error
 
     !$gpu
 
@@ -947,12 +948,12 @@ contains
 
     type(eos_t),      intent(inout) :: state
     integer,          intent(in   ) :: var1, var2
-    double precision, intent(in   ) :: v1_want, v2_want
+    real(rt)        , intent(in   ) :: v1_want, v2_want
     logical,          intent(inout) :: converged
 
-    double precision :: told, rold, delr, rnew, tnew
-    double precision :: v1, dv1dt, dv1dr, v2, dv2dt, dv2dr, v1i, v2i
-    double precision :: error1, error2
+    real(rt)         :: told, rold, delr, rnew, tnew
+    real(rt)         :: v1, dv1dt, dv1dr, v2, dv2dt, dv2dr, v1i, v2i
+    real(rt)         :: error1, error2
 
     !$gpu
 
@@ -1042,9 +1043,9 @@ contains
 
     integer,          intent(in   ) :: input
     type(eos_t),      intent(inout) :: state
-    double precision, intent(in   ) :: v_want, v1_want, v2_want
+    real(rt)        , intent(in   ) :: v_want, v1_want, v2_want
 
-    double precision :: chit, chid
+    real(rt)         :: chit, chid
 
     !$gpu
 
@@ -1114,9 +1115,9 @@ contains
 
     implicit none
 
-    double precision :: dth, dt2, dti, dt2i
-    double precision :: dd, dd2, ddi, dd2i
-    double precision :: tsav, dsav
+    real(rt)         :: dth, dt2, dti, dt2i
+    real(rt)         :: dd, dd2, ddi, dd2i
+    real(rt)         :: tsav, dsav
     integer :: i, j
     integer :: status
 
@@ -1175,21 +1176,21 @@ contains
     !..   read the helmholtz free energy table
     itmax = imax
     jtmax = jmax
-    tlo   = 3.0d0
-    thi   = 13.0d0
+    tlo   = 3.0e0_rt
+    thi   = 13.0e0_rt
     tstp  = (thi - tlo)/float(jmax-1)
-    tstpi = 1.0d0/tstp
-    dlo   = -12.0d0
-    dhi   = 15.0d0
+    tstpi = 1.0e0_rt/tstp
+    dlo   = -12.0e0_rt
+    dhi   = 15.0e0_rt
     dstp  = (dhi - dlo)/float(imax-1)
-    dstpi = 1.0d0/dstp
+    dstpi = 1.0e0_rt/dstp
 
     do j=1,jmax
        tsav = tlo + (j-1)*tstp
-       t(j) = 10.0d0**(tsav)
+       t(j) = 10.0e0_rt**(tsav)
        do i=1,imax
           dsav = dlo + (i-1)*dstp
-          d(i) = 10.0d0**(dsav)
+          d(i) = 10.0e0_rt**(dsav)
        end do
     end do
 
@@ -1248,8 +1249,8 @@ contains
     do j = 1, jmax-1
        dth         = t(j+1) - t(j)
        dt2         = dth * dth
-       dti         = 1.0d0/dth
-       dt2i        = 1.0d0/dt2
+       dti         = 1.0e0_rt/dth
+       dt2i        = 1.0e0_rt/dt2
        dt_sav(j)   = dth
        dt2_sav(j)  = dt2
        dti_sav(j)  = dti
@@ -1258,8 +1259,8 @@ contains
     do i = 1, imax-1
        dd          = d(i+1) - d(i)
        dd2         = dd * dd
-       ddi         = 1.0d0/dd
-       dd2i        = 1.0d0/dd2
+       ddi         = 1.0e0_rt/dd
+       dd2i        = 1.0e0_rt/dd2
        dd_sav(i)   = dd
        dd2_sav(i)  = dd2
        ddi_sav(i)  = ddi
@@ -1276,10 +1277,10 @@ contains
 
     ! Set up the minimum and maximum possible densities.
 
-    mintemp = 10.d0**tlo
-    maxtemp = 10.d0**thi
-    mindens = 10.d0**dlo
-    maxdens = 10.d0**dhi
+    mintemp = 10.e0_rt**tlo
+    maxtemp = 10.e0_rt**thi
+    mindens = 10.e0_rt**dlo
+    maxdens = 10.e0_rt**dhi
 
     !$acc update device(mintemp, maxtemp, mindens, maxdens)
 
@@ -1300,82 +1301,82 @@ contains
   ! psi0 and its derivatives
   pure function psi0(z) result(psi0r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: psi0r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: psi0r
     !$gpu
-    psi0r = z**3 * ( z * (-6.0d0*z + 15.0d0) -10.0d0) + 1.0d0
+    psi0r = z**3 * ( z * (-6.0e0_rt*z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt
   end function psi0
 
   pure function dpsi0(z) result(dpsi0r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: dpsi0r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: dpsi0r
     !$gpu
-    dpsi0r = z**2 * ( z * (-30.0d0*z + 60.0d0) - 30.0d0)
+    dpsi0r = z**2 * ( z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt)
   end function dpsi0
 
   pure function ddpsi0(z) result(ddpsi0r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: ddpsi0r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: ddpsi0r
     !$gpu
-    ddpsi0r = z* ( z*( -120.0d0*z + 180.0d0) -60.0d0)
+    ddpsi0r = z* ( z*( -120.0e0_rt*z + 180.0e0_rt) -60.0e0_rt)
   end function ddpsi0
 
   ! psi1 and its derivatives
   pure function psi1(z) result(psi1r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: psi1r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: psi1r
     !$gpu
-    psi1r = z* ( z**2 * ( z * (-3.0d0*z + 8.0d0) - 6.0d0) + 1.0d0)
+    psi1r = z* ( z**2 * ( z * (-3.0e0_rt*z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt)
   end function psi1
 
   pure function dpsi1(z) result(dpsi1r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: dpsi1r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: dpsi1r
     !$gpu
-    dpsi1r = z*z * ( z * (-15.0d0*z + 32.0d0) - 18.0d0) +1.0d0
+    dpsi1r = z*z * ( z * (-15.0e0_rt*z + 32.0e0_rt) - 18.0e0_rt) +1.0e0_rt
   end function dpsi1
 
   pure function ddpsi1(z) result(ddpsi1r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: ddpsi1r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: ddpsi1r
     !$gpu
-    ddpsi1r = z * (z * (-60.0d0*z + 96.0d0) -36.0d0)
+    ddpsi1r = z * (z * (-60.0e0_rt*z + 96.0e0_rt) -36.0e0_rt)
   end function ddpsi1
 
   ! psi2  and its derivatives
   pure function psi2(z) result(psi2r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: psi2r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: psi2r
     !$gpu
-    psi2r = 0.5d0*z*z*( z* ( z * (-z + 3.0d0) - 3.0d0) + 1.0d0)
+    psi2r = 0.5e0_rt*z*z*( z* ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt)
   end function psi2
 
   pure function dpsi2(z) result(dpsi2r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: dpsi2r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: dpsi2r
     !$gpu
-    dpsi2r = 0.5d0*z*( z*(z*(-5.0d0*z + 12.0d0) - 9.0d0) + 2.0d0)
+    dpsi2r = 0.5e0_rt*z*( z*(z*(-5.0e0_rt*z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt)
   end function dpsi2
 
   pure function ddpsi2(z) result(ddpsi2r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: ddpsi2r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: ddpsi2r
     !$gpu
-    ddpsi2r = 0.5d0*(z*( z * (-20.0d0*z + 36.0d0) - 18.0d0) + 2.0d0)
+    ddpsi2r = 0.5e0_rt*(z*( z * (-20.0e0_rt*z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt)
   end function ddpsi2
 
   pure function fwt(fi, wt) result(fwtr)
     !$acc routine seq
-    double precision, intent(in) :: fi(36), wt(6)
-    double precision :: fwtr(6)
+    real(rt)        , intent(in) :: fi(36), wt(6)
+    real(rt)         :: fwtr(6)
 
     !$gpu
 
@@ -1394,36 +1395,36 @@ contains
   ! psi0 & derivatives
   pure function xpsi0(z) result(xpsi0r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: xpsi0r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: xpsi0r
     !$gpu
-    xpsi0r = z * z * (2.0d0*z - 3.0d0) + 1.0
+    xpsi0r = z * z * (2.0e0_rt*z - 3.0e0_rt) + 1.0
   end function xpsi0
 
   pure function xdpsi0(z) result(xdpsi0r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: xdpsi0r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: xdpsi0r
     !$gpu
-    xdpsi0r = z * (6.0d0*z - 6.0d0)
+    xdpsi0r = z * (6.0e0_rt*z - 6.0e0_rt)
   end function xdpsi0
 
 
   ! psi1 & derivatives
   pure function xpsi1(z) result(xpsi1r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: xpsi1r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: xpsi1r
     !$gpu
-    xpsi1r = z * ( z * (z - 2.0d0) + 1.0d0)
+    xpsi1r = z * ( z * (z - 2.0e0_rt) + 1.0e0_rt)
   end function xpsi1
 
   pure function xdpsi1(z) result(xdpsi1r)
     !$acc routine seq
-    double precision, intent(in) :: z
-    double precision :: xdpsi1r
+    real(rt)        , intent(in) :: z
+    real(rt)         :: xdpsi1r
     !$gpu
-    xdpsi1r = z * (3.0d0*z - 4.0d0) + 1.0d0
+    xdpsi1r = z * (3.0e0_rt*z - 4.0e0_rt) + 1.0e0_rt
   end function xdpsi1
 
 

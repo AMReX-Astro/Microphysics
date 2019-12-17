@@ -61,7 +61,7 @@ contains
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
-    real(rt), parameter :: PT2 = 0.2D0
+    real(rt), parameter :: PT2 = 0.2e0_rt
 
     !$gpu
 

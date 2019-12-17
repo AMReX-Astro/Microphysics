@@ -16,6 +16,7 @@ contains
     use bs_type_module, only: bs_t, clean_state, rhs_to_bs, bs_to_burn
     use bs_rpar_indices, only: irp_t0
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (bs_t) :: bs
@@ -23,7 +24,7 @@ contains
 
     ! this is the ydot from the reaction network, and not necessarily
     ! in terms of the SDC system
-    double precision :: ydot_react(neqs)
+    real(rt)         :: ydot_react(neqs)
 
     ! Initialize the RHS to zero.
 

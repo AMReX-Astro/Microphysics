@@ -23,12 +23,13 @@ module actual_eos_module
   use network, only: nspec, aion, zion
   use eos_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   character (len=64), public :: eos_name = "ztwd"
   
-  double precision, private :: A, B, B2
-  double precision, parameter, private :: iter_tol = 1.d-10
+  real(rt)        , private :: A, B, B2
+  real(rt)        , parameter, private :: iter_tol = 1.e-10_rt
   integer,          parameter, private :: max_iter = 1000
   !$OMP THREADPRIVATE(B)
 
@@ -57,8 +58,8 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables
-    double precision :: dens, temp, enth, pres, eint, entr
-    double precision :: x, dxdr
+    real(rt)         :: dens, temp, enth, pres, eint, entr
+    real(rt)         :: x, dxdr
 
     dens = state % rho
     temp = state % T
@@ -248,7 +249,7 @@ contains
 
     implicit none
 
-    double precision, intent(in)  :: x
+    real(rt)        , intent(in)  :: x
 
     pressure = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
 
@@ -260,7 +261,7 @@ contains
 
     implicit none
 
-    double precision, intent(in)  :: x
+    real(rt)        , intent(in)  :: x
 
     enthalpy = (EIGHT * A / B) * (ONE + x**2)**HALF
 
@@ -272,7 +273,7 @@ contains
 
     implicit none
 
-    double precision, intent(in) :: x
+    real(rt)        , intent(in) :: x
 
     dpdx = A * ( (TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
                  x * (4*x) * (x**2 + ONE)**HALF + &
@@ -287,7 +288,7 @@ contains
 
     implicit none
 
-    double precision, intent(in) :: x
+    real(rt)        , intent(in) :: x
 
     dhdx = enthalpy(x) * (x / (x**2 + ONE))
 
@@ -299,9 +300,9 @@ contains
 
     implicit none
 
-    double precision, intent(inout) :: pres, dens
+    real(rt)        , intent(inout) :: pres, dens
 
-    double precision :: x, dx
+    real(rt)         :: x, dx
     integer          :: iter
 
     ! Starting guess for the iteration.

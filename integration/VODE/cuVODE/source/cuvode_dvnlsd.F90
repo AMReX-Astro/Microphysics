@@ -103,9 +103,9 @@ contains
     integer    :: I, IERPJ, IERSL, M
 
     ! Parameter declarations
-    real(rt), parameter :: CCMAX = 0.3D0
-    real(rt), parameter :: CRDOWN = 0.3D0
-    real(rt), parameter :: RDIV  = 2.0D0
+    real(rt), parameter :: CCMAX = 0.3e0_rt
+    real(rt), parameter :: CRDOWN = 0.3e0_rt
+    real(rt), parameter :: RDIV  = 2.0e0_rt
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
 

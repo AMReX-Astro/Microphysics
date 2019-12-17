@@ -17,7 +17,7 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable :: aion(:), zion(:), ebin(:)
+  real(rt)        , allocatable :: aion(:), zion(:), ebin(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, ebin

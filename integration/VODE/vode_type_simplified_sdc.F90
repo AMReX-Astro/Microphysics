@@ -14,7 +14,7 @@ module vode_type_module
   implicit none
 
   ! this should be larger than any reasonable temperature we will encounter   
-  real (kind=rt), parameter :: MAX_TEMP = 1.0d11          
+  real (kind=rt), parameter :: MAX_TEMP = 1.0e11_rt          
 
   public
 
@@ -40,7 +40,7 @@ contains
     ! Ensure that mass fractions always stay positive.
     y(SFS:SFS+nspec-1) = &
          max(min(y(SFS:SFS+nspec-1), rpar(irp_SRHO)), &
-             rpar(irp_SRHO) * 1.d-200)
+             rpar(irp_SRHO) * 1.e-200_rt)
 
     ! renormalize abundances as necessary
     if (renormalize_abundances) then

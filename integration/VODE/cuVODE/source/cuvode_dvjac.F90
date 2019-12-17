@@ -98,7 +98,7 @@ contains
     integer    :: MEB1, MEBAND, ML, ML3, MU, NP1
 
     ! Parameter declarations
-    real(rt), parameter :: PT1 = 0.1D0
+    real(rt), parameter :: PT1 = 0.1e0_rt
 
     !$gpu
 
