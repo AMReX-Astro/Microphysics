@@ -7,7 +7,6 @@ module actual_rhs_module
   use table_rates
   use burn_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: rate_eval_t
@@ -27,7 +26,6 @@ contains
 
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
-    use amrex_fort_module, only : rt => amrex_real
     type(burn_t)     :: state
 
     !$gpu
@@ -38,7 +36,6 @@ contains
 
   subroutine zero_rate_eval(rate_eval)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
@@ -62,7 +59,6 @@ contains
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t)     :: state
@@ -2460,7 +2456,6 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(in) :: state
@@ -2509,7 +2504,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -7685,7 +7679,6 @@ contains
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t), intent(in) :: state
@@ -7764,7 +7757,6 @@ contains
 
     use jacobian_sparsity_module, only: set_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t), intent(in) :: state

@@ -3,7 +3,6 @@ module conductivity_module
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   logical, save :: initialized = .false.
@@ -16,7 +15,6 @@ contains
 
     use actual_conductivity_module, only : actual_conductivity_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call actual_conductivity_init()
@@ -34,7 +32,6 @@ contains
     use eos_type_module, only : eos_t
     use eos_module
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer       , intent(in   ) :: input
@@ -53,7 +50,6 @@ contains
     use actual_conductivity_module
     use eos_type_module, only : eos_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t)  , intent(inout) :: state

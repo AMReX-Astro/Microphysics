@@ -2,6 +2,7 @@ module actual_burner_module
 
   use burn_type_module
   use network
+  use amrex_fort_module, only : rt => amrex_real
 
 contains
 
@@ -9,7 +10,6 @@ contains
 
     use integrator_module, only: integrator_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()
@@ -24,7 +24,6 @@ contains
 
     use integrator_module, only: integrator
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t),    intent(in   ) :: state_in
@@ -44,12 +43,10 @@ contains
     ! Calculate the energy generation rate's temperature sensitivity
     ! Used for diagnostic purposes only
 
-    use amrex_fort_module, only : rt => amrex_real
     use rates_module
     use screen_module
     use dydt_module
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(kind=rt), intent(IN   ) :: dens, temp, X(nspec)

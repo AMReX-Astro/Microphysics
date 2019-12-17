@@ -49,7 +49,6 @@ module table_rates
 contains
 
   subroutine init_tabular()
-    use amrex_fort_module, only : rt => amrex_real
     integer :: n
 
     
@@ -72,7 +71,6 @@ contains
   end subroutine init_tabular
 
   subroutine term_table_meta()
-    use amrex_fort_module, only : rt => amrex_real
     integer :: n
     do n = 1, num_tables
        call term_tab_info(table_meta(n))
@@ -80,7 +78,6 @@ contains
   end subroutine term_table_meta
 
   subroutine init_tab_info(self, self_read)
-    use amrex_fort_module, only : rt => amrex_real
     type(table_info) :: self
     type(table_read_info) :: self_read
     real(rt)        , target, dimension(:,:,:), allocatable :: rate_table_scratch
@@ -116,7 +113,6 @@ contains
   end subroutine init_tab_info
 
   subroutine term_tab_info(self)
-    use amrex_fort_module, only : rt => amrex_real
     type(table_info) :: self
 
     deallocate( self%rate_table )
@@ -131,7 +127,6 @@ contains
     ! Return 1 if fvar < vector(1)
     ! Return size(vector)-1 if fvar > vector(size(vector))
     ! The interval [index, index+1] brackets fvar for fvar within the range of vector.
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , intent(in) :: vector(:)
     real(rt)        , intent(in) :: fvar
     integer, intent(out) :: index
@@ -170,7 +165,6 @@ contains
     ! Returns f(x), the values flo and fhi interpolated at x
     ! f(x) = flo if x <= xlo
     ! f(x) = fhi if x >= xhi
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , intent(in)  :: xlo, xhi, flo, fhi, x
     real(rt)        , intent(out) :: f
     if ( x .le. xlo ) then
@@ -191,7 +185,6 @@ contains
     ! fhi = f(xhi)
     ! Returns f(x), the values flo and fhi interpolated at x
     ! If x <= xlo or x >= xhi, f(x) is extrapolated at x
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , intent(in)  :: xlo, xhi, flo, fhi, x
     real(rt)        , intent(out) :: f
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
@@ -200,7 +193,6 @@ contains
   subroutine get_entries(self, rhoy, temp, entries)
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
     type(table_info) :: self
     real(rt)        , intent(in) :: rhoy, temp
 
@@ -303,7 +295,6 @@ contains
     !$acc routine seq
     
     use actual_network, only: num_rate_groups
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(table_info) :: self

@@ -15,7 +15,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , intent(IN   ) :: ymol(nspec), rates(nrates)
     real(rt)        , intent(  OUT) :: ydot(nspec_evolve)
 

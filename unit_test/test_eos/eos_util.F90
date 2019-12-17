@@ -13,7 +13,6 @@ subroutine do_eos(lo, hi, &
   use extern_probin_module
   use actual_eos_module, only : eos_name
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, intent(in) :: lo(3), hi(3)

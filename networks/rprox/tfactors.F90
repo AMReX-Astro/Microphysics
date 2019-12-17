@@ -18,7 +18,6 @@ contains
 
   subroutine calc_tfactors(t9, tfactors)
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , intent(in   ) :: t9
     type (temp_t), intent(out) :: tfactors
 

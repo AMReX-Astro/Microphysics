@@ -24,7 +24,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -90,7 +89,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -139,7 +137,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -156,7 +153,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -228,7 +224,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -320,7 +315,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -408,7 +402,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -523,7 +516,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -540,7 +532,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -557,7 +548,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -623,7 +613,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -724,7 +713,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -741,7 +729,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -815,7 +802,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -832,7 +818,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -909,7 +894,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -955,7 +939,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
@@ -1001,7 +984,6 @@ contains
 
     use tfactors_module, only : temp_t
 
-    use amrex_fort_module, only : rt => amrex_real
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt

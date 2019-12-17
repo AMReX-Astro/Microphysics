@@ -2,7 +2,6 @@ module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: nspec = 4
@@ -87,7 +86,6 @@ contains
 
   function network_reaction_index(name)
 
-    use amrex_fort_module, only : rt => amrex_real
     character(len=*) :: name
     integer :: network_reaction_index, n
 
@@ -107,7 +105,6 @@ contains
 
   subroutine actual_network_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(aion)) then

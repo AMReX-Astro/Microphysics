@@ -2,7 +2,6 @@ module actual_network
   use physical_constants, only: ERG_PER_MeV
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public num_rate_groups
@@ -100,7 +99,6 @@ contains
 
   subroutine actual_network_init()
     
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     integer :: i
@@ -210,5 +208,4 @@ contains
     ! STUB FOR MAESTRO
   end subroutine actual_network_finalize
 
-end module actual_network
 end module actual_network

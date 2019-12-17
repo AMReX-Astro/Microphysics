@@ -2,6 +2,8 @@ program test
 
   ! the test example from the dnsqe source comments
 
+  use amrex_fort_module, only : rt => amrex_real
+
   integer :: j, n, iopt, nprint, info, lwa
   real(rt)         :: tol, fnorm
   real(rt)         :: x(9), fvec(9), wa(180)

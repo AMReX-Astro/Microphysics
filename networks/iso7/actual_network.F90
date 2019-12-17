@@ -2,7 +2,6 @@ module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: nspec = 7
@@ -76,7 +75,6 @@ contains
 
   subroutine actual_network_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     short_spec_names(ihe4)  = 'he4'
@@ -168,7 +166,6 @@ contains
 
   subroutine actual_network_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     if (allocated(aion)) then

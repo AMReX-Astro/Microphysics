@@ -16,7 +16,6 @@ contains
 
   subroutine actual_rhs_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !$gpu
@@ -28,7 +27,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -60,7 +58,6 @@ contains
 
     use temperature_integration_module, only: temperature_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -104,7 +101,6 @@ contains
     use burn_type_module, only : neqs, njrows, njcols
     use temperature_integration_module, only: temperature_jac
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -175,7 +171,6 @@ contains
 
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !$gpu
@@ -190,7 +185,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

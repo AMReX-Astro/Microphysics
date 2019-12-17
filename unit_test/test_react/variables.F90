@@ -8,7 +8,6 @@ module variables
 
   use network, only: nspec, spec_names
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: MAX_NAME_LEN=20
@@ -44,7 +43,6 @@ contains
     ! increment the counter of plotfile quantities, n_plot_comps, by
     ! num
 
-    use amrex_fort_module, only : rt => amrex_real
     class(plot_t), intent(inout) :: this
     integer, intent(in) :: num
     integer :: next
@@ -57,7 +55,6 @@ contains
 
   subroutine init_variables() bind(C, name="init_variables")
 
-    use amrex_fort_module, only : rt => amrex_real
     integer :: n
 
     ! variable information
@@ -85,7 +82,6 @@ contains
 
   subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(inout) :: ncomp_in
 
     ncomp_in = p % n_plot_comps
@@ -94,7 +90,6 @@ contains
 
   subroutine get_name_len(nlen_in) bind(C, name="get_name_len")
 
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(inout) :: nlen_in
 
     nlen_in = MAX_NAME_LEN
@@ -105,7 +100,6 @@ contains
 
     use iso_c_binding
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     type(c_ptr), intent(inout) :: cstring
     integer, intent(in) :: idx

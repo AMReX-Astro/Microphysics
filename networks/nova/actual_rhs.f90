@@ -11,7 +11,6 @@ module actual_rhs_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
   use burn_type_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type :: rate_eval_t
@@ -30,7 +29,6 @@ contains
   
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
-    use amrex_fort_module, only : rt => amrex_real
     type(burn_t)     :: state
     return
   end subroutine update_unevolved_species
@@ -39,7 +37,6 @@ contains
     ! Computes the instantaneous energy generation rate
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
@@ -53,7 +50,6 @@ contains
   subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t)     :: state
@@ -164,7 +160,6 @@ contains
     use extern_probin_module, only: do_constant_volume_burn
     use burn_type_module, only: net_itemp, net_ienuc
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type(burn_t) :: state
@@ -214,7 +209,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     type(burn_t),   intent(inout) :: state
     real(rt)        , intent(out) :: ydot_nuc(nspec)
     real(rt)        , intent(in)  :: Y(nspec)
@@ -328,7 +322,6 @@ contains
 
     use burn_type_module, only: net_itemp, net_ienuc
     
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(burn_t) :: state
@@ -394,7 +387,6 @@ contains
 
     !$acc routine seq
     
-    use amrex_fort_module, only : rt => amrex_real
     type(burn_t),   intent(inout) :: state
     real(rt)        , intent(in)  :: Y(nspec)
     real(rt)        , intent(in)  :: screened_rates(nrates)

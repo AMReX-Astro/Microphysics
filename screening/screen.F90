@@ -65,7 +65,6 @@ contains
 
   subroutine screening_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer :: i
@@ -97,7 +96,6 @@ contains
 
   subroutine screening_finalize()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Deallocate the screening buffers.
@@ -148,7 +146,6 @@ contains
 
     ! this is only called at initialization
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)         :: z1, a1, z2, a2
 
     real(rt)        , allocatable :: z1scr_temp(:), a1scr_temp(:)
@@ -229,7 +226,6 @@ contains
 
     ! Input variables
 
-    use amrex_fort_module, only : rt => amrex_real
     type (plasma_state) :: state
     real(rt)         :: temp, dens, y(nspec)
 
@@ -280,9 +276,7 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: M_PI
-    use amrex_fort_module, only : rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this subroutine calculates screening factors and their derivatives
@@ -505,7 +499,6 @@ contains
 
     use network, only: aion, zion, nspec
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: t, d, z1, z2, a1, a2

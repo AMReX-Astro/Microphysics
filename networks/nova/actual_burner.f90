@@ -13,7 +13,6 @@ contains
     use reaclib_rates, only: init_reaclib, net_screening_init
     use table_rates, only: init_tabular
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()
@@ -30,7 +29,6 @@ contains
     use reaclib_rates, only: term_reaclib
     use table_rates, only: term_table_meta
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     call term_reaclib()
@@ -43,9 +41,7 @@ contains
 
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
-    use amrex_fort_module, only : rt => amrex_real
-
-    use amrex_fort_module, only : rt => amrex_real
+    
     implicit none
 
     type (burn_t),    intent(in   ) :: state_in

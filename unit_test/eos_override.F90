@@ -15,7 +15,6 @@ contains
 
     use eos_type_module, only: eos_t
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t) :: state

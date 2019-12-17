@@ -13,7 +13,6 @@ contains
 
   subroutine actual_rhs_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -25,7 +24,6 @@ contains
 
     use extern_probin_module, only: do_constant_volume_burn
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -125,7 +123,6 @@ contains
     use extern_probin_module, only: do_constant_volume_burn
     use jacobian_sparsity_module, only: set_jac_zero, get_jac_entry, set_jac_entry, scale_jac_entry
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -215,7 +212,6 @@ contains
 
     use screening_module, only: screenz
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -281,7 +277,6 @@ contains
     
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt, enuc
@@ -305,7 +300,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

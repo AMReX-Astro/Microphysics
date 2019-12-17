@@ -36,7 +36,6 @@ contains
     use screening_module, only: screening_init
     use amrex_paralleldescriptor_module, only: parallel_IOProcessor => amrex_pd_ioprocessor
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call rates_init()
@@ -64,7 +63,6 @@ contains
 
     use extern_probin_module, only: use_tables
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -111,7 +109,6 @@ contains
 
   subroutine iso7tab(btemp, bden, rate, dratedt)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: btemp, bden, rate(nrates), dratedt(nrates)
@@ -192,7 +189,6 @@ contains
 
   subroutine create_rates_table()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Allocate memory for the tables
@@ -208,7 +204,6 @@ contains
 
   subroutine set_iso7rat()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: btemp, bden, rate(nrates), dratedt(nrates)
@@ -243,7 +238,6 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! This routine sets up the system of ODE's for the iso7
@@ -310,7 +304,6 @@ contains
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -386,7 +379,6 @@ contains
     use amrex_constants_module, only: ZERO, SIXTH
     use microphysics_math_module, only: esum5, esum6, esum15 ! function
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! deriva is used in forming the analytic Jacobian to get
@@ -498,7 +490,6 @@ contains
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: use_c12ag_deboer17
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)         :: btemp, bden
     real(rt)         :: rate(nrates), dratedt(nrates)
 
@@ -590,7 +581,6 @@ contains
     ! producing the final reaction rates used by the
     ! right hand sides and jacobian matrix elements
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)         :: btemp, bden
     real(rt)         :: y(nspec)
     real(rt)         :: rate(nrates), dratedt(nrates)
@@ -737,7 +727,6 @@ contains
     use network
     use microphysics_math_module, only: esum3, esum4, esum8 ! function
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine sets up the dense iso7 jacobian for the isotopes
@@ -981,7 +970,6 @@ contains
 
     use actual_network, only: nspec, mion, enuc_conv2
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
@@ -1002,7 +990,6 @@ contains
     use screening_module, only: add_screening_factor
     use network, only: aion, zion
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! note: we need to set these up in the same order that we evaluate the
@@ -1023,7 +1010,6 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state

@@ -7,7 +7,6 @@ module actual_burner_module
   use burn_type_module
   use extern_probin_module, only: specific_q_burn
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -16,7 +15,6 @@ contains
 
     use integrator_module, only: integrator_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()
@@ -27,7 +25,6 @@ contains
 
     use integrator_module, only: integrator
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t),    intent(in   ) :: state_in

@@ -10,7 +10,6 @@ contains
 
   subroutine actual_rhs_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -19,12 +18,10 @@ contains
   subroutine actual_rhs(state, ydot)
 
     use amrex_constants_module
-    use amrex_fort_module, only : rt => amrex_real
     use network
     use rates_module
     use temperature_integration_module, only: temperature_rhs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -60,13 +57,11 @@ contains
   subroutine make_rates(T9, dens, y, state, rr)
 
     use amrex_constants_module
-    use amrex_fort_module, only : rt => amrex_real
     use tfactors_module, only : temp_t
     use tfactors_module, only : calc_tfactors
     use rates_module
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: T9, dens, y(nspec)
@@ -251,10 +246,8 @@ contains
   subroutine make_ydots(ymol, T9, state, rr, dydt, doing_dratesdt)
 
     use amrex_constants_module
-    use amrex_fort_module, only : rt => amrex_real
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)        , intent(IN   ) :: ymol(nspec), T9
@@ -399,11 +392,9 @@ contains
   subroutine actual_jac(state, jac)
 
     use amrex_constants_module
-    use amrex_fort_module, only : rt => amrex_real
     use network
     use temperature_integration_module, only: temperature_jac
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -577,7 +568,6 @@ contains
 
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec_evolve), enuc
@@ -590,7 +580,6 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     !$gpu

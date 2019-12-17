@@ -11,7 +11,6 @@ module screen_module
   use amrex_fort_module, only : rt => amrex_real
   use network
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -22,7 +21,6 @@ contains
 
     use screening_module, only: screenz
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(IN   ) :: temp, dens, ymol(nspec)
     real(rt), intent(INOUT) :: rates(nrates)
     real(rt), intent(INOUT) :: dratesdt(nrates)

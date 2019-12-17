@@ -17,7 +17,6 @@ module rates_module
 
   use network
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -28,7 +27,6 @@ contains
 
     ! rates given in terms of molar fractions
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), intent(IN   ) :: temp, dens
     real(rt), intent(  OUT) :: rates(nrates),dratesdt(nrates)
 

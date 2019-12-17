@@ -10,7 +10,6 @@ subroutine do_conductivity(lo, hi, &
   use extern_probin_module
   use actual_conductivity_module, only: actual_conductivity
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, intent(in) :: lo(3), hi(3)

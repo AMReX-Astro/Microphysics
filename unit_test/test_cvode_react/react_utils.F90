@@ -10,7 +10,6 @@ module react_utils_module
   use extern_probin_module
   use util_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -18,7 +17,6 @@ contains
   subroutine init_state(lo, hi, &
                         state, s_lo, s_hi, npts) bind(C, name="init_state")
 
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: lo(3), hi(3)
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
@@ -65,7 +63,6 @@ contains
 
 
   subroutine get_state(state, s_lo, s_hi, ncomp, i, j, k, c, fval) bind(C, name="get_state")
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
     integer, intent(in), value :: ncomp
@@ -76,7 +73,6 @@ contains
 
 
   subroutine set_state(state, s_lo, s_hi, ncomp, i, j, k, c, fval) bind(C, name="set_state")
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), ncomp)
     integer, intent(in), value :: ncomp
@@ -89,7 +85,6 @@ contains
   subroutine get_number_equations(neqs, nspec_not_evolved) bind(C, name="get_number_equations")
     use network, only: nspec, nspec_evolve
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: neqs, nspec_not_evolved
@@ -101,9 +96,7 @@ contains
 
   subroutine convert_to_molar(xspec) bind(C, name="sk_convert_to_molar")
     use network, only: aion_inv, nspec_evolve
-    use amrex_fort_module, only: rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(inout) :: xspec(nspec_evolve)
@@ -118,7 +111,6 @@ contains
   subroutine get_num_rpar_comps(number_rpar_comps) bind(C, name="sk_get_num_rpar_comps")
     use rpar_indices, only: n_rpar_comps
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: number_rpar_comps
@@ -129,7 +121,6 @@ contains
   subroutine get_nspec_evolve(number_species_evolved) bind(C, name="sk_get_nspec_evolve")
     use network, only: nspec_evolve
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: number_species_evolved
@@ -142,7 +133,6 @@ contains
     use cvode_type_module, only: VODE_NEQS
     use network, only: NETWORK_SPARSE_JAC_NNZ, csr_jac_col_index, csr_jac_row_count
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: csr_row_count(VODE_NEQS+1)
@@ -157,7 +147,6 @@ contains
 
     use network, only: NETWORK_SPARSE_JAC_NNZ
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: number_nonzero
@@ -170,7 +159,6 @@ contains
 
     use extern_probin_module, only: store_jacobian
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: sjac
@@ -183,7 +171,6 @@ contains
 
     use extern_probin_module, only: num_steps_save_jacobian
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer, intent(inout) :: sjac

@@ -5,7 +5,6 @@ module fundamental_constants_module
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module, only: M_PI
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! newton's gravitational constant

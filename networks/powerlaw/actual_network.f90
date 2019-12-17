@@ -60,7 +60,6 @@ contains
 
   subroutine actual_network_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Nothing to do here.

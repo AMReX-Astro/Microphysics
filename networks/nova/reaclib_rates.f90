@@ -580,7 +580,6 @@ contains
   subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     type(plasma_state), intent(in) :: pstate

@@ -40,9 +40,7 @@ contains
   subroutine actual_network_init()
     
     use amrex_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
-    use amrex_fort_module, only : rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt), parameter :: MeV2erg = 1.60217646e-6, N_A = 6.0221415e23
 
     short_spec_names(ih1) = "h1"
@@ -97,7 +95,6 @@ contains
 
   subroutine actual_network_finalize()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_network_finalize

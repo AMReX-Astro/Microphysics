@@ -4,7 +4,6 @@ subroutine init_unit_test(name, namlen) bind(C, name="init_unit_test")
   use extern_probin_module
   use microphysics_module
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, intent(in) :: namlen

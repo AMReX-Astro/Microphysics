@@ -10,7 +10,6 @@ contains
 
   subroutine actual_rhs_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -20,11 +19,9 @@ contains
   subroutine actual_rhs(state, ydot)
 
     use amrex_constants_module, only: ZERO
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec, aion, aion_inv
     use temperature_integration_module, only: temperature_rhs
     
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -62,9 +59,7 @@ contains
   subroutine actual_jac(state, jac)
 
     use amrex_constants_module, only: ZERO
-    use amrex_fort_module, only : rt => amrex_real
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t) :: state
@@ -79,11 +74,9 @@ contains
   subroutine make_rates(t9, dens, y, state, rr)
 
     use amrex_constants_module, only: ZERO, THIRD, ONE, SIX
-    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, wk14o, wk15o, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(in   ) :: t9, dens, y(nspec)
@@ -152,11 +145,9 @@ contains
   subroutine make_ydots(ymol, t9, state, dydt, rr)
 
     use amrex_constants_module, only: ZERO, TWO, THREE, SIX
-    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, io14, io15, ine18, isi25, ihe4, ih1, ife56, &
                               ir3a, irag15, irap14, irap18, irwk14o, irwk15o
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), intent(in   ) :: ymol(nspec), t9
@@ -222,7 +213,6 @@ contains
 
     use actual_network, only: nspec, aion, bion
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
@@ -233,7 +223,6 @@ contains
 
   subroutine update_unevolved_species(state)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

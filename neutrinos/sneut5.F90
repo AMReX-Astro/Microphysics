@@ -10,7 +10,6 @@ contains
 
     use amrex_constants_module, only: M_PI
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine computes thermal neutrino losses from the analytic fits of
@@ -1067,7 +1066,6 @@ contains
 
   function ifermi12(f) result(ifermi12r)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine applies a rational function expansion to get the inverse
@@ -1146,7 +1144,6 @@ contains
 
   function zfermim12(x) result(zfermim12r)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! this routine applies a rational function expansion to get the fermi-dirac

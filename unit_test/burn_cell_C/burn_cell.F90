@@ -16,7 +16,6 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   use eos_module
   use network
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, intent(in) :: namlen

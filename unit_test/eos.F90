@@ -14,7 +14,6 @@ contains
 
   subroutine eos_init(small_temp, small_dens)
 
-    use amrex_fort_module, only: rt => amrex_real
     use amrex_error_module
     use amrex_paralleldescriptor_module, only : amrex_pd_ioprocessor
     use eos_type_module, only: mintemp, mindens, maxtemp, maxdens, &
@@ -22,7 +21,6 @@ contains
                                minp, maxp, mins, maxs, minh, maxh
     use actual_eos_module, only: actual_eos_init
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt), optional :: small_temp
@@ -112,7 +110,6 @@ contains
 
     use actual_eos_module, only: actual_eos_finalize
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call actual_eos_finalize()
@@ -132,7 +129,6 @@ contains
     use amrex_error_module, only: amrex_error
 #endif
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     ! Input arguments
@@ -187,7 +183,6 @@ contains
 
     use actual_eos_module, only: eos_name
 
-    use amrex_fort_module, only : rt => amrex_real
     character(len=128) :: name
 
     name = eos_name
@@ -203,7 +198,6 @@ contains
                                eos_input_rt, eos_input_re, eos_input_rh, eos_input_tp, &
                                eos_input_rp, eos_input_th, eos_input_ph, eos_input_ps
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -269,7 +263,6 @@ contains
 
     use eos_type_module, only: eos_t, mindens, maxdens
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -291,7 +284,6 @@ contains
 
     use eos_type_module, only: eos_t, mintemp, maxtemp
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -311,7 +303,6 @@ contains
 
     use eos_type_module, only: eos_t, mine, maxe
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -333,7 +324,6 @@ contains
 
     use eos_type_module, only: eos_t, minh, maxh
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -355,7 +345,6 @@ contains
 
     use eos_type_module, only: eos_t, mins, maxs
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -377,7 +366,6 @@ contains
 
     use eos_type_module, only: eos_t, minp, maxp
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -403,7 +391,6 @@ contains
     use eos_type_module, only: eos_t, eos_input_rt, mintemp, maxtemp, mindens, maxdens
     use actual_eos_module, only: actual_eos
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(inout) :: state
@@ -431,7 +418,6 @@ contains
                                eos_input_rt, eos_input_re, eos_input_rp, eos_input_rh, &
                                eos_input_th, eos_input_tp, eos_input_ph, eos_input_ps
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     integer,      intent(in   ) :: input
@@ -510,7 +496,6 @@ contains
     use amrex_error_module
     use eos_type_module, only: eos_t, mindens, maxdens, print_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state
@@ -532,7 +517,6 @@ contains
     use amrex_error_module
     use eos_type_module, only: eos_t, mintemp, maxtemp, print_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state
@@ -554,7 +538,6 @@ contains
     use amrex_error_module
     use eos_type_module, only: eos_t, mine, maxe, print_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state
@@ -576,7 +559,6 @@ contains
     use amrex_error_module
     use eos_type_module, only: eos_t, minh, maxh, print_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state
@@ -598,7 +580,6 @@ contains
     use amrex_error_module
     use eos_type_module, only: eos_t, mins, maxs, print_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state
@@ -620,7 +601,6 @@ contains
     use amrex_error_module
     use eos_type_module, only: eos_t, minp, maxp, print_state
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (eos_t), intent(in) :: state

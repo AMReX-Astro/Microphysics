@@ -9,11 +9,9 @@ contains
 
   subroutine starkiller_initialize(probin_file)
 
-    use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: small_temp, small_dens
     use microphysics_module
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     character(len=256) :: probin_file

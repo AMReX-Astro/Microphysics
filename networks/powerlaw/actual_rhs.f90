@@ -12,7 +12,6 @@ contains
 
   subroutine actual_rhs_init()
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
   end subroutine actual_rhs_init
@@ -23,7 +22,6 @@ contains
 
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in)    :: state
@@ -64,7 +62,6 @@ contains
 
   subroutine actual_jac(state, jac)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t), intent(in) :: state
@@ -82,7 +79,6 @@ contains
 
     use network
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     real(rt)         :: dydt(nspec_evolve), enuc
@@ -97,7 +93,6 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     type (burn_t)    :: state

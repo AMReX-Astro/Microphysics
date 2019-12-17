@@ -44,7 +44,6 @@ module bl_types
 contains
   
   subroutine bl_types_info(unit)
-    use amrex_fort_module, only : rt => amrex_real
     integer, intent(in) :: unit
     write(unit=unit,fmt="(A)") "BL_TYPES_INFO"
     write(unit=unit,fmt="(2X,A)") "Real Types"
@@ -84,13 +83,11 @@ contains
 !  end function bl_is_bigendian
 
   function quad_precision_supported()
-    use amrex_fort_module, only : rt => amrex_real
     logical :: quad_precision_supported
     quad_precision_supported = qp_t_0 .eq. qp_t
   end function quad_precision_supported
 
   function int8_supported()
-    use amrex_fort_module, only : rt => amrex_real
     logical :: int8_supported
     int8_supported = i8_t .eq. ll_t
   end function int8_supported

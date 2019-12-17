@@ -20,7 +20,6 @@ contains
 
   subroutine microphysics_init(small_temp, small_dens)
 
-    use amrex_fort_module, only : rt => amrex_real
     real(rt)        , optional :: small_temp
     real(rt)        , optional :: small_dens
 

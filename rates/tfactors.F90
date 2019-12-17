@@ -96,7 +96,6 @@ contains
 
   subroutine get_tfactors(temp, tf)
 
-    use amrex_fort_module, only : rt => amrex_real
     implicit none
     
     ! sets various popular temperature factors into common block this
