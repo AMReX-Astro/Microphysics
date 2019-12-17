@@ -81,27 +81,29 @@ def test_dlog(filename):
 
 
 
-# def test_check_rt(filename):
-#     """
-#     make sure that all of the numerical constants use _rt and are defined as real(rt)
-#     """
+def test_check_rt(filename):
+    """
+    make sure that all of the numerical constants use _rt and are defined as real(rt)
+    """
     
-#     if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
-#         return 
+    if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
+        return 
+    elif 'extern.F90' in str(filename):
+        return
 
-#     with open(filename, 'r') as file_dat:
+    with open(filename, 'r') as file_dat:
 
-#         r = re.compile(r'\W(\d*\.\d*[de]?-?\+?\d+(?:_rt)?)')
-#         rt = re.compile(r'(\d*\.\d*e?-?\+?\d+_rt)')
+        r = re.compile(r'\W(\d*\.\d*d-?\+?\d+(?:_rt)?)')
+        rt = re.compile(r'(\d*\.\d*e?-?\+?\d+_rt)')
 
-#         try:
-#             for l in file_dat:
-#                 for m in re.finditer(r, l.split('!')[0]):
-#                     assert re.fullmatch(rt, m.group(1)) is not None
+        try:
+            for l in file_dat:
+                for m in re.finditer(r, l.split('!')[0]):
+                    assert re.fullmatch(rt, m.group(1)) is not None
 
-#                 # assert 'use amrex_fort_module' not in l.split('!')[0]
+                # assert 'use amrex_fort_module' not in l.split('!')[0]
 
-#                 # assert 'use amrex_constants_module' not in l.split('!')[0]
+                # assert 'use amrex_constants_module' not in l.split('!')[0]
 
-#         except UnicodeDecodeError:
-#             return 
+        except UnicodeDecodeError:
+            return 
