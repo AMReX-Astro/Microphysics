@@ -2,6 +2,8 @@ module actual_network
 
   implicit none
 
+  character (len=32), parameter :: network_name = "ignition_chamulak"
+
   ! M12_chamulak is the effective number of C12 nuclei destroyed per
   ! reaction
   double precision, parameter :: M12_chamulak = 2.93d0
