@@ -352,7 +352,7 @@ contains
 
     ! limit alph12 to 1.6 to prevent unphysical behavior.
     ! this should really be replaced by a pycnonuclear reaction rate formula
-    if (alph12 .gt. 1.6) then
+    if (alph12 .gt. 1.6_rt) then
        alph12   = 1.6e0_rt
        alph12dt = ZERO
        !alph12dd = ZERO

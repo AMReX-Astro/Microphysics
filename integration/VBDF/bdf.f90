@@ -898,7 +898,7 @@ contains
 
     !shifted_arr = 0.0
     do i = 0, hi_shift
-       shifted_arr(i) = 0.0
+       shifted_arr(i) = 0.0_rt
     enddo
 
     if(sh > 0) then
