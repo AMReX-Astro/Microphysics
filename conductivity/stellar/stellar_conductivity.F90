@@ -129,9 +129,9 @@ contains
 
     !..radiative section:
     !..from iben apj 196 525 1975
-    if (xh .lt. 1.0e-5) then
+    if (xh .lt. 1.0e-5_rt) then
        xmu      = max(1.0e-99_rt, w(4)+w(5)+w(6)-1.0e0_rt)
-       xkc      = (2.019e-4*state % rho/t6**1.7e0_rt)**(2.425e0_rt)
+       xkc      = (2.019e-4_rt*state % rho/t6**1.7e0_rt)**(2.425e0_rt)
        xkap     = 1.0e0_rt + xkc * (1.0e0_rt + xkc/24.55e0_rt)
        xkb      = 3.86e0_rt + 0.252e0_rt*sqrt(xmu) + 0.018e0_rt*xmu
        xka      = 3.437e0_rt * (1.25e0_rt + 0.488e0_rt*sqrt(xmu) + 0.092e0_rt*xmu)
@@ -139,8 +139,8 @@ contains
        oiben1   = xkap * (state % rho/dbar)**(0.67e0_rt)
     end if
 
-    if ( .not.((xh.ge.1.0e-5) .and. (t6.lt.t6_switch1)) .and. &
-         .not.((xh.lt.1.0e-5) .and. (xz.gt.zbound)) ) then
+    if ( .not.((xh.ge.1.0e-5_rt) .and. (t6.lt.t6_switch1)) .and. &
+         .not.((xh.lt.1.0e-5_rt) .and. (xz.gt.zbound)) ) then
        if (t6 .gt. t6_switch1) then
           d0log = -(3.868e0_rt + 0.806e0_rt*xh) + 1.8e0_rt*log(t6)
        else
@@ -158,7 +158,7 @@ contains
     end if
 
     !..from christy apj 144 108 1966
-    if ((t6.lt.t6_switch2) .and. (xh .ge. 1.0e-5)) then
+    if ((t6.lt.t6_switch2) .and. (xh .ge. 1.0e-5_rt)) then
        t4    = state % T * 1.0e-4_rt
        t4r   = sqrt(t4)
        t44   = t4**4
@@ -177,7 +177,7 @@ contains
     end if
 
     !..opacity in presence of hydrogen
-    if (xh .ge. 1.0e-5) then
+    if (xh .ge. 1.0e-5_rt) then
        if (t6 .lt. t6_switch1) then
           orad   = ochrs
        else if (t6 .le. t6_switch2) then
@@ -199,7 +199,7 @@ contains
     th      = min(511.0e0_rt, state % T * 8.617e-8_rt)
     fact    = 1.0e0_rt + 2.75e-2_rt*th - 4.88e-5_rt*th*th
     facetax = 1.0e100_rt
-    if (state % eta .le. 500.0) facetax = exp(0.522e0_rt*state % eta - 1.563e0_rt)
+    if (state % eta .le. 500.0_rt) facetax = exp(0.522e0_rt*state % eta - 1.563e0_rt)
     faceta  = 1.0e0_rt + facetax
     ocompt  = 6.65205e-25_rt/(fact * faceta) * state % xne/state % rho
     orad    = orad   + ocompt
@@ -208,7 +208,7 @@ contains
     !..frequency
     tcut = con2 * sqrt(state % xne)
     if (state % T .lt. tcut) then
-       if (tcut .gt. 200.0*state % T) then
+       if (tcut .gt. 200.0_rt*state % T) then
           orad   = orad * 2.658e86_rt
        else
           cutfac   = exp(tcut/state % T - 1.0e0_rt)
@@ -244,12 +244,12 @@ contains
        eta02   = eta0*eta0
 
        !..thpl factor
-       if (zdell10 .lt. 0.645) then
+       if (zdell10 .lt. 0.645_rt) then
           thpl    = -7.5668e0_rt + log(zdel * (1.0e0_rt + 0.024417e0_rt*zdel))
        else
-          if (zdell10 .lt. 2.5) then
+          if (zdell10 .lt. 2.5_rt) then
              thpl   = -7.58110e0_rt + log(zdel*(1.0e0_rt + 0.02804e0_rt*zdel))
-             if (zdell10 .ge. 2.0) then
+             if (zdell10 .ge. 2.0_rt) then
                 thpla = thpl
                 thpl  = -11.0742e0_rt + log(zdel**2 * (1.0e0_rt + 9.376e0_rt/eta02))
                 thpl  = 2.0e0_rt*((2.5e0_rt-zdell10)*thpla + (zdell10-2.0e0_rt)*thpl)
@@ -260,9 +260,9 @@ contains
        end if
 
        !..pefac and walf factors
-       if (zdell10 .lt. 2.0) then
+       if (zdell10 .lt. 2.0_rt) then
           pefac   = 1.0e0_rt + 0.021876e0_rt*zdel
-          if (zdell10 .gt. 1.5) then
+          if (zdell10 .gt. 1.5_rt) then
              pefacal   = log(pefac)
              pefacl    = log(0.4e0_rt * eta0 + 1.64496e0_rt/eta0)
              cfac1     = 2.0e0_rt - zdell10
@@ -273,7 +273,7 @@ contains
           pefac   = 0.4e0_rt * eta0 + 1.64496e0_rt/eta0
        end if
 
-       if (zdel.lt.40.0) then
+       if (zdel.lt.40.0_rt) then
           dnefac = 1.0e0_rt + zdel * (3.4838e-4_rt * zdel - 2.8966e-2_rt)
        else
           dnefac = 1.5e0_rt/eta0 * (1.0e0_rt - 0.8225e0_rt/eta02)
@@ -284,25 +284,25 @@ contains
        walf10 = 0.5e0_rt * log10(wpar2)
 
        !..thx, thy and thc factors
-       if (walf10 .le. -3.0) then
+       if (walf10 .le. -3.0_rt) then
           thx   = exp(2.413e0_rt - 0.124e0_rt*walf)
-       else if (walf10 .le. -1.0) then
+       else if (walf10 .le. -1.0_rt) then
           thx   = exp(0.299e0_rt - walf*(0.745e0_rt + 0.0456e0_rt*walf))
        else
           thx   = exp(0.426e0_rt - 0.558e0_rt*walf)
        end if
 
-       if (walf10 .le. -3.0) then
+       if (walf10 .le. -3.0_rt) then
           thy   = exp(2.158e0_rt - 0.111e0_rt*walf)
-       else if (walf10 .le. 0.0) then
+       else if (walf10 .le. 0.0_rt) then
           thy   = exp(0.553e0_rt - walf*(0.55e0_rt + 0.0299e0_rt*walf))
        else
           thy   = exp(0.553e0_rt - 0.6e0_rt*walf)
        end if
 
-       if (walf10 .le. -2.5) then
+       if (walf10 .le. -2.5_rt) then
           thc   = exp(2.924e0_rt - 0.1e0_rt*walf)
-       else if (walf10 .le. 0.5) then
+       else if (walf10 .le. 0.5_rt) then
           thc   = exp(1.6740e0_rt - walf*(0.511e0_rt + 0.0338e0_rt*walf))
        else
           thc   = exp(1.941e0_rt - 0.785e0_rt*walf)
@@ -329,8 +329,8 @@ contains
        xrel = 1.009e0_rt * (zbar/abar * state % rho * 1.0e-6_rt)**third
        beta2 = xrel**2/(1.0e0_rt + xrel**2)
        jy   = (1.0e0_rt + 6.0e0_rt/(5.0e0_rt*xrel**2) + 2.0e0_rt/(5.0e0_rt*xrel**4)) &
-            * ( yg**3 / (3.0e0_rt * (1.0e0_rt + 0.07414 * yg)**3) &
-            * log((2.81e0_rt - 0.810*beta2 + yg)/yg)  &
+            * ( yg**3 / (3.0e0_rt * (1.0e0_rt + 0.07414_rt * yg)**3) &
+            * log((2.81e0_rt - 0.810_rt*beta2 + yg)/yg)  &
             + pi**5/6.0e0_rt * (yg/(13.91e0_rt + yg))**4 )
        vee = 0.511e0_rt * (state % T)**2 * xmas/ymas**2 * sqrt(xmas/ymas) * jy
        cee = wfac/vee

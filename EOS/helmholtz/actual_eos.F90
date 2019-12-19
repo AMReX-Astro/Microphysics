@@ -917,7 +917,7 @@ contains
     xnew = x - (v - v_want) / dvdx
 
     ! Don't let the temperature/density change by more than a factor of two
-    xnew = max(0.5 * x, min(xnew, 2.0 * x))
+    xnew = max(0.5_rt * x, min(xnew, 2.0_rt * x))
 
     ! Don't let us freeze/evacuate
     xnew = max(smallx, xnew)
@@ -1398,7 +1398,7 @@ contains
     real(rt)        , intent(in) :: z
     real(rt)         :: xpsi0r
     !$gpu
-    xpsi0r = z * z * (2.0e0_rt*z - 3.0e0_rt) + 1.0
+    xpsi0r = z * z * (2.0e0_rt*z - 3.0e0_rt) + 1.0_rt
   end function xpsi0
 
   pure function xdpsi0(z) result(xdpsi0r)

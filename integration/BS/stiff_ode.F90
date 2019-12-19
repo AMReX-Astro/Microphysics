@@ -244,7 +244,7 @@ contains
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
-    h_old = 10.0 * h
+    h_old = 10.0_rt * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
 
@@ -550,7 +550,7 @@ contains
                    err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
                    err_max = err_max / eps
                    km = k - 1
-                   err(km) = (err_max/S1)**(1.0/(2*km+1))
+                   err(km) = (err_max/S1)**(1.0_rt/(2*km+1))
                 endif
 
                 if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
@@ -633,7 +633,7 @@ contains
     bs % first = .false.
 
     ! optimal convergence properties
-    work_min = 1.e35
+    work_min = 1.e35_rt
     do kk = 1, km
        fac = max(err(kk), SCALMX)
        work = fac*bs % a(kk+1)

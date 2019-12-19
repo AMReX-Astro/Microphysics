@@ -153,7 +153,7 @@ contains
     dsnuda  = 0.0e0_rt
     dsnudz  = 0.0e0_rt
 
-    if (temp .lt. 1.0e7) return
+    if (temp .lt. 1.0e7_rt) return
 
     ! to avoid lots of divisions
     deni  = 1.0e0_rt/den
@@ -212,7 +212,7 @@ contains
     a1     = 6.002e19_rt + 2.084e20_rt*zeta + 1.872e21_rt*zeta2
     a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*zeta
 
-    if (t9 .lt. 10.0) then
+    if (t9 .lt. 10.0_rt) then
        b1     = exp(-5.5924e0_rt*zeta)
        b2     = -b1*5.5924e0_rt
     else
@@ -226,7 +226,7 @@ contains
     xnumda = c*zetada
     xnumdz = c*zetadz
 
-    if (t9 .lt. 10.0) then
+    if (t9 .lt. 10.0_rt) then
        a1   = 9.383e-1_rt*xlm1 - 4.141e-1_rt*xlm2 + 5.829e-2_rt*xlm3
        a2   = -9.383e-1_rt*xlm2 + 2.0e0_rt*4.141e-1_rt*xlm3 - 3.0e0_rt*5.829e-2_rt*xlm4
     else
@@ -375,7 +375,7 @@ contains
        b2  = -b1*2.0e0_rt*(4.5e0_rt*xnum + 0.9e0_rt)*4.5e0_rt
 
        c   = min(0.0e0_rt, xden - 1.6e0_rt + 1.25e0_rt*xnum)
-       if (c .eq. 0.0) then
+       if (c .eq. 0.0_rt) then
           dumdt = 0.0e0_rt
           dumda = 0.0e0_rt
           dumdz = 0.0e0_rt
@@ -678,7 +678,7 @@ contains
     sphotda = a1*sphotda + a2*qphotda*a3
     sphotdz = a1*sphotdz + a2*qphotdz*a3
 
-    if (sphot .le. 0.0) then
+    if (sphot .le. 0.0_rt) then
        sphot   = 0.0e0_rt
        sphotdt = 0.0e0_rt
        sphotdd = 0.0e0_rt
@@ -955,22 +955,22 @@ contains
     nu3  = nu2 * nu
 
     ! table 12
-    if (nu .ge. -20.0  .and. nu .lt. 0.0) then
+    if (nu .ge. -20.0_rt  .and. nu .lt. 0.0_rt) then
        a1 = 1.51e-2_rt
        a2 = 2.42e-1_rt
        a3 = 1.21e0_rt
        b  = 3.71e-2_rt
-       c  = 9.06e-1
+       c  = 9.06e-1_rt
        d  = 9.28e-1_rt
        f1 = 0.0e0_rt
        f2 = 0.0e0_rt
        f3 = 0.0e0_rt
-    else if (nu .ge. 0.0  .and. nu .le. 10.0) then
+    else if (nu .ge. 0.0_rt  .and. nu .le. 10.0_rt) then
        a1 = 1.23e-2_rt
        a2 = 2.66e-1_rt
        a3 = 1.30e0_rt
        b  = 1.17e-1_rt
-       c  = 8.97e-1
+       c  = 8.97e-1_rt
        d  = 1.77e-1_rt
        f1 = -1.20e-2_rt
        f2 = 2.29e-2_rt
@@ -978,7 +978,7 @@ contains
     end if
 
     ! equation 6.7, 6.13 and 6.14
-    if (nu .ge. -20.0  .and.  nu .le. 10.0) then
+    if (nu .ge. -20.0_rt  .and.  nu .le. 10.0_rt) then
 
        zeta   = 1.579e5_rt*zbar*zbar*tempi
        zetadt = -zeta*tempi
@@ -993,10 +993,10 @@ contains
        dumdz  = zetadz*c00 + zeta*c01*nudz
 
        z      = 1.0e0_rt/dum
-       dd00   = dum**(-2.25)
-       dd01   = dum**(-4.55)
+       dd00   = dum**(-2.25_rt)
+       dd01   = dum**(-4.55_rt)
        c00    = a1*z + a2*dd00 + a3*dd01
-       c01    = -(a1*z + 2.25*a2*dd00 + 4.55*a3*dd01)*z
+       c01    = -(a1*z + 2.25_rt*a2*dd00 + 4.55_rt*a3*dd01)*z
 
        z      = exp(c*nu)
        dd00   = b*z*(1.0e0_rt + d*dum)

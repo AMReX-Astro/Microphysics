@@ -352,7 +352,7 @@ contains
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
-    h_old = 10.0 * h
+    h_old = 10.0_rt * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
     call rhs(ts)

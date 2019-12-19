@@ -10,7 +10,7 @@ subroutine do_burn() bind (C)
 
   type (burn_t) :: state_in, state_out
 
-  real(rt)         :: time = 0.0, dt = 2.5e-4_rt
+  real(rt)         :: time = 0.0_rt, dt = 2.5e-4_rt
 
   type (eos_t) :: eos_state
 
