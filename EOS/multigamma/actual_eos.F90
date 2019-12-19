@@ -193,7 +193,7 @@ contains
     ! entropy (per gram) -- this is wrong. Not sure what the expression
     ! is for a multigamma gas
     state % s = (k_B/(state%abar*m_nucleon))*(2.5_rt + &
-         log( ( (state%abar*m_nucleon)**2.5/dens )*(k_B*temp)**1.5_rt / (TWO*M_PI*hbar*hbar)**1.5_rt ) )
+         log( ( (state%abar*m_nucleon)**2.5_rt/dens )*(k_B*temp)**1.5_rt / (TWO*M_PI*hbar*hbar)**1.5_rt ) )
 
     ! Compute the thermodynamic derivatives and specific heats
     state % dpdT = state % p / temp

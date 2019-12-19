@@ -1153,7 +1153,7 @@ contains
     dratrawdt(irn56ec) = 0.0e0_rt
     !dratrawdd(irn56ec) = 0.0e0_rt
 
-    if (state % T .lt. 1.0e6  .or. state % rho .lt. 1.0e-9) return
+    if (state % T .lt. 1.0e6_rt  .or. state % rho .lt. 1.0e-9_rt) return
 
     ! get the p <-> n electron capture rates
     call ecapnuc(state % eta, state % T, ratraw(irpen), ratraw(irnep), spen, snep)
@@ -1876,7 +1876,7 @@ contains
     denomdt = dratdumdt(ir53gn) + y(ineut)*dratdumdt(ir53ng)
     !denomdd = dratdumdd(ir53gn) + y(ineut)*dratdumdd(ir53ng)
 
-    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9) then
+    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9_rt) then
        zz      = 1.0e0_rt/denom
 
        ratdum(ir1f54)     = ratdum(ir54gn)*ratdum(ir53gn)*zz
@@ -1906,7 +1906,7 @@ contains
     denomdt = dratdumdt(ir55gn) + y(ineut)*dratdumdt(ir55ng)
     !denomdd = dratdumdd(ir55gn) + y(ineut)*dratdumdd(ir55ng)
 
-    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9) then
+    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9_rt) then
        zz      = 1.0e0_rt/denom
 
        ratdum(irfe56_aux1)     = ratdum(ir56gn)*ratdum(ir55gn)*zz
@@ -1940,7 +1940,7 @@ contains
     denomdt = dratdumdt(irco57gp) + y(iprot)*dratdumdt(irco57pa)
     !denomdd = dratdumdd(irco57gp) + y(iprot)*dratdumdd(irco57pa)
 
-    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9) then
+    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9_rt) then
        zz      = 1.0e0_rt/denom
 
        ratdum(irfe56_aux3)     = ratdum(irfe56pg) * ratdum(irco57pa) * zz
@@ -1990,7 +1990,7 @@ contains
 
     denom   = ratdum(ircogp) + y(iprot)*(ratdum(ircopg) + ratdum(ircopa))
 
-    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9) then
+    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9_rt) then
 
        denomdt = dratdumdt(ircogp) + y(iprot)*(dratdumdt(ircopg) + dratdumdt(ircopa))
        !denomdd = dratdumdd(ircogp) + y(iprot)*(dratdumdd(ircopg) + dratdumdd(ircopa))
@@ -2057,7 +2057,7 @@ contains
 
     denom  = ratdum(irhegp)*ratdum(irdgn) + y(ineut)*ratdum(irheng)*ratdum(irdgn) + y(ineut)*y(iprot)*ratdum(irheng)*ratdum(irdpg)
 
-    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9) then
+    if (denom .gt. 1.0e-50_rt .and. btemp .gt. 1.5e9_rt) then
 
        denomdt  = dratdumdt(irhegp)*ratdum(irdgn) + ratdum(irhegp)*dratdumdt(irdgn) &
             +  y(ineut) * (dratdumdt(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdt(irdgn)) &

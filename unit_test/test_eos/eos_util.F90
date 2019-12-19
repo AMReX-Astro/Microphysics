@@ -205,7 +205,7 @@ subroutine do_eos(lo, hi, &
 #ifndef EOS_GAMMA_LAW_GENERAL
            ! reset rho to give it some work to do -- for helmeos, h is not
            ! monotonic, so we only perturb rho slightly here
-           eos_state % rho = 0.9 * eos_state % rho
+           eos_state % rho = 0.9_rt * eos_state % rho
 
            call eos(eos_input_th, eos_state)
 

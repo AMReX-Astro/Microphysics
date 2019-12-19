@@ -41,7 +41,7 @@ contains
     
     use amrex_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
 
-    real(rt), parameter :: MeV2erg = 1.60217646e-6, N_A = 6.0221415e23
+    real(rt), parameter :: MeV2erg = 1.60217646e-6_rt, N_A = 6.0221415e23_rt
 
     short_spec_names(ih1) = "h1"
     short_spec_names(ihe4) = "he4"

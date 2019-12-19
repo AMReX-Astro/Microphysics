@@ -683,16 +683,16 @@ contains
     ! gets activated during silicon buring, after all the c + o from
     ! oxygen burning is gone.
 
-    if (tf%t9 .gt. 2.5 .and. y(ic12)+y(io16) .le. 4.0e-3_rt) then
+    if (tf%t9 .gt. 2.5_rt .and. y(ic12)+y(io16) .le. 4.0e-3_rt) then
 
        t992  = tf%t972 * tf%t9
        t9i92 = 1.0e0_rt/t992
 
-       yeff_ca40   = t9i92 * exp(239.42*tf%t9i - 74.741)
-       yeff_ca40dt = -yeff_ca40*(239.42*tf%t9i2 + 4.5e0_rt*tf%t9i)
+       yeff_ca40   = t9i92 * exp(239.42_rt*tf%t9i - 74.741_rt)
+       yeff_ca40dt = -yeff_ca40*(239.42_rt*tf%t9i2 + 4.5e0_rt*tf%t9i)
 
-       yeff_ti44   = t992  * exp(-274.12*tf%t9i + 74.914)
-       yeff_ti44dt = yeff_ti44*(274.12*tf%t9i2 + 4.5e0_rt*tf%t9i)
+       yeff_ti44   = t992  * exp(-274.12_rt*tf%t9i + 74.914_rt)
+       yeff_ti44dt = yeff_ti44*(274.12_rt*tf%t9i2 + 4.5e0_rt*tf%t9i)
 
        denom     = (bden * y(ihe4))**3
 
@@ -702,7 +702,7 @@ contains
        dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag) &
             + yeff_ca40*dratedt(ircaag))*denom*y(isi28)*1.0e-9_rt
 
-       if (denom .ne. 0.0) then
+       if (denom .ne. 0.0_rt) then
 
           zz     = 1.0e0_rt/denom
           rate(irni2si) = min(1.0e10_rt,yeff_ti44*rate(irtiga)*zz)

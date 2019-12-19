@@ -17,7 +17,7 @@ program test
 
   ! the following starting values provide a rough solution.
   do j = 1, 9
-     x(j) = -1.e0
+     x(j) = -1.e0_rt
   enddo
 
   lwa = 180
