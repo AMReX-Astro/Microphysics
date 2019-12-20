@@ -159,7 +159,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    call set_csr_jac_entry(state % sparse_jac, row, col, val)
+    call set_csr_jac_entry(jac, row, col, val)
 #else
     jac(row, col) = val
 #endif
@@ -187,7 +187,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    call scale_csr_jac_entry(state % sparse_jac, row, col, val)
+    call scale_csr_jac_entry(jac, row, col, val)
 #else
     jac(row, col) = jac(row, col) * val
 #endif
@@ -214,7 +214,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    call get_csr_jac_entry(state % sparse_jac, row, col, val)
+    call get_csr_jac_entry(jac, row, col, val)
 #else
     val = jac(row, col)
 #endif
@@ -241,7 +241,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    state % sparse_jac(:) = ZERO
+    jac(:) = ZERO
 #else
     jac(:,:) = ZERO
 #endif
