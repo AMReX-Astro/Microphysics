@@ -6,5 +6,5 @@ eos_input_is_constant               logical            .true.
 eos_ttol                            real               1.0d-8
 # Tolerance for iterations with respect to density
 eos_dtol                            real               1.0d-8
-# Maximum sound speed the EOS can generate
-eos_sound_speed_limit               real               2.99792458d10
+# Maximum sound speed the EOS can generate (only applied if positive)
+eos_sound_speed_limit               real               -1.0d0

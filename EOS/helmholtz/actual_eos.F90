@@ -1066,7 +1066,9 @@ contains
     ! Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     ! This replaces the relativistic version that comes out of helmeos.
     state % cs = sqrt(state % gam1 * state % p / state % rho)
-    state % cs = min(state % cs, eos_sound_speed_limit)
+    if (eos_sound_speed_limit > 0.0e0_rt) then
+       state % cs = min(state % cs, eos_sound_speed_limit)
+    end if
 
     if (input_is_constant) then
 
