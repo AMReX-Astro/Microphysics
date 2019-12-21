@@ -528,8 +528,8 @@ contains
     real(rt)        , parameter :: asol    = 4.0e0_rt * ssol / clight
     real(rt)        , parameter :: asoli3  = asol/3.0e0_rt
 
-    double precision, parameter :: rho_c = 5.0e1_rt
-    double precision, parameter :: delta_rho = 1.25e1_rt
+    real(rt), parameter :: rho_c = 5.0e1_rt
+    real(rt), parameter :: delta_rho = 1.25e1_rt
 
     !$gpu
     
