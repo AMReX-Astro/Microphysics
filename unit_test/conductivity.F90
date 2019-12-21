@@ -36,7 +36,7 @@ contains
 
     integer       , intent(in   ) :: input
     type (eos_t)  , intent(inout) :: state
-    real (rt), intent(inout) :: cond
+    real(rt) , intent(inout) :: cond
 
     ! call the EOS, passing through the arguments we called conducteos with
     call eos(input, state)
@@ -53,7 +53,7 @@ contains
     implicit none
 
     type (eos_t)  , intent(inout) :: state
-    real (rt), intent(inout) :: cond
+    real(rt) , intent(inout) :: cond
 
     call actual_conductivity(state, cond)
 

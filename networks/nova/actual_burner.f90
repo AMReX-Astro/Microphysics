@@ -2,6 +2,7 @@ module actual_burner_module
 
   use network
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -40,8 +41,7 @@ contains
 
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
-    use amrex_fort_module, only : rt => amrex_real
-
+    
     implicit none
 
     type (burn_t),    intent(in   ) :: state_in

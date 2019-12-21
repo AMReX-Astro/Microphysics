@@ -14,10 +14,10 @@ module actual_rhs_module
   implicit none
 
   type :: rate_eval_t
-     double precision :: unscreened_rates(4, nrates)
-     double precision :: screened_rates(nrates)
-     double precision :: dqweak(nrat_tabular)
-     double precision :: epart(nrat_tabular)
+     real(rt)         :: unscreened_rates(4, nrates)
+     real(rt)         :: screened_rates(nrates)
+     real(rt)         :: dqweak(nrat_tabular)
+     real(rt)         :: epart(nrat_tabular)
   end type rate_eval_t
   
 contains
@@ -39,7 +39,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    real(rt)         :: dydt(nspec), enuc
 
     ! This is basically e = m c**2
 
@@ -55,11 +55,11 @@ contains
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
-    double precision :: Y(nspec)
-    double precision :: raw_rates(4, nrates)
-    double precision :: reactvec(num_rate_groups+2)
+    real(rt)         :: Y(nspec)
+    real(rt)         :: raw_rates(4, nrates)
+    real(rt)         :: reactvec(num_rate_groups+2)
     integer :: i, j
-    double precision :: dens, temp, rhoy, scor, dscor_dt, dscor_dd
+    real(rt)         :: dens, temp, rhoy, scor, dscor_dt, dscor_dd
 
     Y(:) = state%xn(:) * aion_inv(:)
     dens = state%rho
@@ -165,11 +165,11 @@ contains
     type(burn_t) :: state
     type(rate_eval_t) :: rate_eval
     type(plasma_state) :: pstate
-    double precision :: Y(nspec)
-    double precision :: reactvec(num_rate_groups+2)
+    real(rt)         :: Y(nspec)
+    real(rt)         :: reactvec(num_rate_groups+2)
     integer :: i, j
-    double precision :: dens, temp, rhoy, ye, enuc
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt)         :: dens, temp, rhoy, ye, enuc
+    real(rt)         :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
     ! Set molar abundances
     Y(:) = state%xn(:) * aion_inv(:)
@@ -210,9 +210,9 @@ contains
     !$acc routine seq
 
     type(burn_t),   intent(inout) :: state
-    double precision, intent(out) :: ydot_nuc(nspec)
-    double precision, intent(in)  :: Y(nspec)
-    double precision, intent(in)  :: screened_rates(nrates)
+    real(rt)        , intent(out) :: ydot_nuc(nspec)
+    real(rt)        , intent(in)  :: Y(nspec)
+    real(rt)        , intent(in)  :: screened_rates(nrates)
 
 
 
@@ -232,7 +232,7 @@ contains
        )
 
     ydot_nuc(jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho - 0.5d0* &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho - 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*state % rho**2 - &
       screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho - &
       screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*state % rho - &
@@ -244,7 +244,7 @@ contains
 
     ydot_nuc(jc12) = ( &
       -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho + &
-      0.16666666666666667d0*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
+      0.16666666666666667e0_rt*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
       state % rho**2 - screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*state % rho + &
       screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*state % rho &
        )
@@ -327,11 +327,11 @@ contains
     type(burn_t) :: state
     type(rate_eval_t) :: rate_eval
     type(plasma_state) :: pstate
-    double precision :: reactvec(num_rate_groups+2)
-    double precision :: screened_rates_dt(nrates)
-    double precision :: Y(nspec)
-    double precision :: dens, temp, ye, rhoy, b1
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt)         :: reactvec(num_rate_groups+2)
+    real(rt)         :: screened_rates_dt(nrates)
+    real(rt)         :: Y(nspec)
+    real(rt)         :: dens, temp, ye, rhoy, b1
+    real(rt)         :: sneut, dsneutdt, dsneutdd, snuda, snudz
     integer :: i, j
 
     dens = state%rho
@@ -346,7 +346,7 @@ contains
     call jac_nuc(state, Y, rate_eval % screened_rates)
 
     ! Species Jacobian elements with respect to energy generation rate
-    state%jac(1:nspec, net_ienuc) = 0.0d0
+    state%jac(1:nspec, net_ienuc) = 0.0e0_rt
 
     ! Evaluate the species Jacobian elements with respect to temperature by
     ! calling the RHS using the temperature derivative of the screened rate
@@ -370,7 +370,7 @@ contains
     enddo
 
     ! Energy generation rate Jacobian element with respect to energy generation rate
-    state%jac(net_ienuc, net_ienuc) = 0.0d0
+    state%jac(net_ienuc, net_ienuc) = 0.0e0_rt
 
     ! Energy generation rate Jacobian element with respect to temperature
     call ener_gener_rate(state%jac(1:nspec, net_itemp), state%jac(net_ienuc, net_itemp))
@@ -388,8 +388,8 @@ contains
     !$acc routine seq
     
     type(burn_t),   intent(inout) :: state
-    double precision, intent(in)  :: Y(nspec)
-    double precision, intent(in)  :: screened_rates(nrates)
+    real(rt)        , intent(in)  :: Y(nspec)
+    real(rt)        , intent(in)  :: screened_rates(nrates)
 
 
 
@@ -435,7 +435,7 @@ contains
        )
 
     state % jac(jp,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jp,jo16) = ( &
@@ -448,7 +448,7 @@ contains
        )
 
     state % jac(jp,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jp,jf18) = ( &
@@ -461,7 +461,7 @@ contains
        )
 
     state % jac(jhe4,jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - 1.5d0* &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - 1.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho - &
       screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho - &
@@ -473,7 +473,7 @@ contains
        )
 
     state % jac(jhe4,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jhe4,jn13) = ( &
@@ -493,11 +493,11 @@ contains
        )
 
     state % jac(jhe4,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jhe4,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jhe4,jo17) = ( &
@@ -505,7 +505,7 @@ contains
        )
 
     state % jac(jhe4,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jhe4,jf18) = ( &
@@ -518,7 +518,7 @@ contains
        )
 
     state % jac(jc12,jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + 0.5d0* &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 &
        )
 
@@ -528,15 +528,15 @@ contains
        )
 
     state % jac(jc12,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jn15) = ( &
@@ -544,27 +544,27 @@ contains
        )
 
     state % jac(jc12,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc12,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jp) = ( &
@@ -572,11 +572,11 @@ contains
        )
 
     state % jac(jc13,jhe4) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jc13) = ( &
@@ -588,35 +588,35 @@ contains
        )
 
     state % jac(jc13,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jc13,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jp) = ( &
@@ -633,7 +633,7 @@ contains
        )
 
     state % jac(jn13,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jn13) = ( &
@@ -643,35 +643,35 @@ contains
        )
 
     state % jac(jn13,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn13,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jp) = ( &
@@ -684,7 +684,7 @@ contains
        )
 
     state % jac(jn14,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jc13) = ( &
@@ -692,7 +692,7 @@ contains
        )
 
     state % jac(jn14,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jn14) = ( &
@@ -701,7 +701,7 @@ contains
        )
 
     state % jac(jn14,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jo14) = ( &
@@ -709,11 +709,11 @@ contains
        )
 
     state % jac(jn14,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jo17) = ( &
@@ -721,11 +721,11 @@ contains
        )
 
     state % jac(jn14,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn14,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jp) = ( &
@@ -734,23 +734,23 @@ contains
        )
 
     state % jac(jn15,jhe4) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jn15) = ( &
@@ -759,7 +759,7 @@ contains
        )
 
     state % jac(jn15,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jo15) = ( &
@@ -767,19 +767,19 @@ contains
        )
 
     state % jac(jn15,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jn15,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jp) = ( &
@@ -791,11 +791,11 @@ contains
        )
 
     state % jac(jo14,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jn13) = ( &
@@ -803,11 +803,11 @@ contains
        )
 
     state % jac(jo14,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jo14) = ( &
@@ -816,23 +816,23 @@ contains
        )
 
     state % jac(jo14,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo14,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jp) = ( &
@@ -841,19 +841,19 @@ contains
        )
 
     state % jac(jo15,jhe4) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jn14) = ( &
@@ -861,11 +861,11 @@ contains
        )
 
     state % jac(jo15,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jo15) = ( &
@@ -873,15 +873,15 @@ contains
        )
 
     state % jac(jo15,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo15,jf18) = ( &
@@ -903,7 +903,7 @@ contains
        )
 
     state % jac(jo16,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo16,jn13) = ( &
@@ -911,7 +911,7 @@ contains
        )
 
     state % jac(jo16,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo16,jn15) = ( &
@@ -919,11 +919,11 @@ contains
        )
 
     state % jac(jo16,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo16,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo16,jo16) = ( &
@@ -931,15 +931,15 @@ contains
        )
 
     state % jac(jo16,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo16,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo16,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jp) = ( &
@@ -948,39 +948,39 @@ contains
        )
 
     state % jac(jo17,jhe4) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jo17,jo17) = ( &
@@ -993,7 +993,7 @@ contains
        )
 
     state % jac(jo17,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jp) = ( &
@@ -1005,23 +1005,23 @@ contains
        )
 
     state % jac(jf17,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jn14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jo14) = ( &
@@ -1029,7 +1029,7 @@ contains
        )
 
     state % jac(jf17,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jo16) = ( &
@@ -1037,7 +1037,7 @@ contains
        )
 
     state % jac(jf17,jo17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf17,jf17) = ( &
@@ -1045,7 +1045,7 @@ contains
        )
 
     state % jac(jf17,jf18) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jp) = ( &
@@ -1058,15 +1058,15 @@ contains
        )
 
     state % jac(jf18,jc12) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jc13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jn13) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jn14) = ( &
@@ -1074,19 +1074,19 @@ contains
        )
 
     state % jac(jf18,jn15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jo14) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jo15) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jo16) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jo17) = ( &
@@ -1094,7 +1094,7 @@ contains
        )
 
     state % jac(jf18,jf17) = ( &
-      0.0d0 &
+      0.0e0_rt &
        )
 
     state % jac(jf18,jf18) = ( &

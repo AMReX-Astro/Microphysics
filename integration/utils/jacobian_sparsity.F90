@@ -159,7 +159,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    call set_csr_jac_entry(state % sparse_jac, row, col, val)
+    call set_csr_jac_entry(jac, row, col, val)
 #else
     jac(row, col) = val
 #endif
@@ -173,6 +173,7 @@ contains
 
     use burn_type_module, only : neqs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -186,7 +187,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    call scale_csr_jac_entry(state % sparse_jac, row, col, val)
+    call scale_csr_jac_entry(jac, row, col, val)
 #else
     jac(row, col) = jac(row, col) * val
 #endif
@@ -199,6 +200,7 @@ contains
     !$acc routine seq
 
     use burn_type_module, only : neqs
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -212,7 +214,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    call get_csr_jac_entry(state % sparse_jac, row, col, val)
+    call get_csr_jac_entry(jac, row, col, val)
 #else
     val = jac(row, col)
 #endif
@@ -227,6 +229,7 @@ contains
     use amrex_constants_module, only: ZERO
     use burn_type_module, only : neqs
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -238,7 +241,7 @@ contains
     !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
-    state % sparse_jac(:) = ZERO
+    jac(:) = ZERO
 #else
     jac(:,:) = ZERO
 #endif

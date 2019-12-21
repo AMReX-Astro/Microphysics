@@ -76,7 +76,7 @@ contains
     integer    :: I, IBACK, J, JP1, NQM1, NQM2
 
     ! Parameter declaration
-    real(rt), parameter :: CORTES = 0.1D0
+    real(rt), parameter :: CORTES = 0.1e0_rt
 
     !$gpu
 
