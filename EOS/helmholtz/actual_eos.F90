@@ -509,6 +509,8 @@ contains
   
   subroutine apply_radiation(state)
 
+    use extern_probin_module, only: prad_limiter_rho_c, prad_limiter_delta_rho
+
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -528,9 +530,6 @@ contains
     real(rt)        , parameter :: asol    = 4.0e0_rt * ssol / clight
     real(rt)        , parameter :: asoli3  = asol/3.0e0_rt
 
-    real(rt), parameter :: rho_c = 5.0e1_rt
-    real(rt), parameter :: delta_rho = 1.25e1_rt
-
     !$gpu
     
     deni = 1.0e0_rt / state % rho
@@ -541,12 +540,14 @@ contains
     ! In low density material, this radiation pressure becomes unphysically high.
     ! For rho ~ 1 g/cc and T ~ 1e9, then this radiation pressure will lead to a
     ! sound speed ~ 0.1c, and this is a problem because the codes using this EOS
-    ! are primarily non-relativistic. Thus we smooth out the radiation pressure
-    ! such that it disappears at this density. Since all terms below depend on prad,
-    ! this will result in the radiation term effectively vanishing below the cutoff
-    ! density. For simplicity we ignore the effect this has on the derivatives.
+    ! are primarily non-relativistic. Thus we can optionally smooth out the radiation
+    ! pressure such that it disappears at low densities. Since all terms below depend
+    ! on prad, this will result in the radiation term effectively vanishing below the
+    ! cutoff density. For simplicity we ignore the effect this has on the derivatives.
 
-    prad = prad * 0.5e0_rt * (1.0e0_rt + tanh((state % rho - rho_c) / delta_rho))
+    if (prad_limiter_rho_c > 0.0e0_rt .and. prad_limiter_delta_rho > 0.0e0_rt) then
+       prad = prad * 0.5e0_rt * (1.0e0_rt + tanh((state % rho - prad_limiter_rho_c) / prad_limiter_delta_rho))
+    end if
 
     dpraddd = 0.0e0_rt
     dpraddt = 4.0e0_rt * prad*tempi
