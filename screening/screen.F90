@@ -2,20 +2,21 @@ module screening_module
 
   use amrex_constants_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer :: nscreen = 0
 
-  double precision, parameter :: fact       = 1.25992104989487d0
-  double precision, parameter :: co2        = THIRD * 4.248719d3
-  double precision, parameter :: gamefx     = 0.3d0
-  double precision, parameter :: gamefs     = 0.8d0
-  double precision, parameter :: h12_max    = 300.d0
+  real(rt)        , parameter :: fact       = 1.25992104989487e0_rt
+  real(rt)        , parameter :: co2        = THIRD * 4.248719e3_rt
+  real(rt)        , parameter :: gamefx     = 0.3e0_rt
+  real(rt)        , parameter :: gamefs     = 0.8e0_rt
+  real(rt)        , parameter :: h12_max    = 300.e0_rt
 
-  double precision, allocatable, save :: z1scr(:)
-  double precision, allocatable, save :: z2scr(:)
-  double precision, allocatable, save :: a1scr(:)
-  double precision, allocatable, save :: a2scr(:)
+  real(rt)        , allocatable, save :: z1scr(:)
+  real(rt)        , allocatable, save :: z2scr(:)
+  real(rt)        , allocatable, save :: a1scr(:)
+  real(rt)        , allocatable, save :: a2scr(:)
 
   ! zs13    = (z1+z2)**(1./3.)
   ! zhat    = combination of z1 and z2 raised to the 5/3 power
@@ -23,12 +24,12 @@ module screening_module
   ! lzav    = log of effective charge
   ! aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
 
-  double precision, allocatable, save :: zs13(:)
-  double precision, allocatable, save :: zs13inv(:)
-  double precision, allocatable, save :: zhat(:)
-  double precision, allocatable, save :: zhat2(:)
-  double precision, allocatable, save :: lzav(:)
-  double precision, allocatable, save :: aznut(:)
+  real(rt)        , allocatable, save :: zs13(:)
+  real(rt)        , allocatable, save :: zs13inv(:)
+  real(rt)        , allocatable, save :: zhat(:)
+  real(rt)        , allocatable, save :: zhat2(:)
+  real(rt)        , allocatable, save :: lzav(:)
+  real(rt)        , allocatable, save :: aznut(:)
 
   private :: fact, co2, gamefx, gamefs
   private :: z1scr, z2scr, a1scr, a2scr
@@ -36,16 +37,16 @@ module screening_module
 
   type :: plasma_state
 
-     double precision :: qlam0z
-     double precision :: qlam0zdt
-     double precision :: qlam0zdd
+     real(rt)         :: qlam0z
+     real(rt)         :: qlam0zdt
+     real(rt)         :: qlam0zdd
 
-     double precision :: taufac
-     double precision :: taufacdt
+     real(rt)         :: taufac
+     real(rt)         :: taufacdt
 
-     double precision :: aa
-     double precision :: daadt
-     double precision :: daadd
+     real(rt)         :: aa
+     real(rt)         :: daadt
+     real(rt)         :: daadd
 
   end type plasma_state
 
@@ -145,10 +146,10 @@ contains
 
     ! this is only called at initialization
 
-    double precision :: z1, a1, z2, a2
+    real(rt)         :: z1, a1, z2, a2
 
-    double precision, allocatable :: z1scr_temp(:), a1scr_temp(:)
-    double precision, allocatable :: z2scr_temp(:), a2scr_temp(:)
+    real(rt)        , allocatable :: z1scr_temp(:), a1scr_temp(:)
+    real(rt)        , allocatable :: z2scr_temp(:), a2scr_temp(:)
 
     ! Deallocate the buffers, then reallocate
     ! them with a size one larger. This is
@@ -226,14 +227,14 @@ contains
     ! Input variables
 
     type (plasma_state) :: state
-    double precision :: temp, dens, y(nspec)
+    real(rt)         :: temp, dens, y(nspec)
 
     ! Local variables
 
-    double precision :: abar, zbar, z2bar
-    double precision :: ytot, rr, tempi, dtempi, deni
-    double precision :: pp, qq, dppdt, xni
-!    double precision :: dppdd
+    real(rt)         :: abar, zbar, z2bar
+    real(rt)         :: ytot, rr, tempi, dtempi, deni
+    real(rt)         :: pp, qq, dppdt, xni
+!    real(rt)         :: dppdd
 
     !$gpu
 
@@ -252,9 +253,9 @@ contains
     dppdt            = qq*rr*dtempi
     !dppdd            = qq * ytot * tempi
 
-    state % qlam0z   = 1.88d8 * tempi * pp
-    state % qlam0zdt = 1.88d8 * (dtempi*pp + tempi*dppdt)
-    !state % qlam0zdd = 1.88d8 * tempi * dppdd
+    state % qlam0z   = 1.88e8_rt * tempi * pp
+    state % qlam0zdt = 1.88e8_rt * (dtempi*pp + tempi*dppdt)
+    !state % qlam0zdd = 1.88e8_rt * tempi * dppdd
 
     state % taufac   = co2 * tempi**THIRD
     state % taufacdt = -THIRD * state % taufac * tempi
@@ -263,9 +264,9 @@ contains
     xni              = qq**THIRD
     !dxnidd           = THIRD * xni * deni
 
-    state % aa       = 2.27493d5 * tempi * xni
-    state % daadt    = 2.27493d5 * dtempi * xni
-    !state % daadd    = 2.27493d5 * tempi * dxnidd
+    state % aa       = 2.27493e5_rt * tempi * xni
+    state % daadt    = 2.27493e5_rt * dtempi * xni
+    !state % daadd    = 2.27493e5_rt * tempi * dxnidd
 
   end subroutine fill_plasma_state
 
@@ -275,7 +276,6 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: M_PI
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -299,13 +299,13 @@ contains
     ! declare the pass
     integer             :: jscreen
     type (plasma_state) :: state
-    double precision    :: scor, scordt, scordd
+    real(rt)            :: scor, scordt, scordd
 
 
     ! local variables
-    double precision :: z1, a1, z2, a2
+    real(rt)         :: z1, a1, z2, a2
 
-    double precision :: bb,cc,dccdt, &
+    real(rt)         :: bb,cc,dccdt, &
                         qq,dqqdt,rr,drrdt, &
                         ss,dssdt,tt,dttdt,uu,duudt, &
                         vv,dvvdt,a3,da3, &
@@ -316,9 +316,9 @@ contains
                         xlgfac,dxlgfacdt, &
                         gamp14,gamp14dt,dgamma
 
-!    double precision :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
-!    double precision :: dh12dd,dh12wdd,dh12xdd,alph12dd
-!    double precision :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
+!    real(rt)         :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
+!    real(rt)         :: dh12dd,dh12wdd,dh12xdd,alph12dd
+!    real(rt)         :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
 
     !$gpu
 
@@ -352,13 +352,13 @@ contains
 
     ! limit alph12 to 1.6 to prevent unphysical behavior.
     ! this should really be replaced by a pycnonuclear reaction rate formula
-    if (alph12 .gt. 1.6) then
-       alph12   = 1.6d0
+    if (alph12 .gt. 1.6_rt) then
+       alph12   = 1.6e0_rt
        alph12dt = ZERO
        !alph12dd = ZERO
 
-       gamef    = 1.6d0 * tau12
-       gamefdt  = 1.6d0 * tau12dt
+       gamef    = 1.6e0_rt * tau12
+       gamefdt  = 1.6e0_rt * tau12dt
        !gamefdd  = ZERO
 
        qq       = zs13(jscreen)/(fact * bb)
@@ -385,29 +385,29 @@ contains
 
        gamp14   = gamp**FOURTH
        rr       = ONE/gamp
-       qq       = 0.25d0*gamp14*rr
+       qq       = 0.25e0_rt*gamp14*rr
        gamp14dt = qq * gampdt
        !gamp14dd = qq * gampdd
 
-       cc       =   0.896434d0 * gamp * zhat(jscreen) &
-            - 3.44740d0  * gamp14 * zhat2(jscreen) &
-            - 0.5551d0   * (log(gamp) + lzav(jscreen)) &
-            - 2.996d0
+       cc       =   0.896434e0_rt * gamp * zhat(jscreen) &
+            - 3.44740e0_rt  * gamp14 * zhat2(jscreen) &
+            - 0.5551e0_rt   * (log(gamp) + lzav(jscreen)) &
+            - 2.996e0_rt
 
-       dccdt    =   0.896434d0 * gampdt * zhat(jscreen) &
-            - 3.44740d0  * gamp14dt * zhat2(jscreen) &
-            - 0.5551d0*rr*gampdt
+       dccdt    =   0.896434e0_rt * gampdt * zhat(jscreen) &
+            - 3.44740e0_rt  * gamp14dt * zhat2(jscreen) &
+            - 0.5551e0_rt*rr*gampdt
 
-       !dccdd    =   0.896434d0 * gampdd * zhat(jscreen) &
-       !     - 3.44740d0  * gamp14dd * zhat2(jscreen) &
-       !     - 0.5551d0*rr*gampdd
+       !dccdd    =   0.896434e0_rt * gampdd * zhat(jscreen) &
+       !     - 3.44740e0_rt  * gamp14dd * zhat2(jscreen) &
+       !     - 0.5551e0_rt*rr*gampdd
 
        a3     = alph12 * alph12 * alph12
-       da3    = 3.0d0 * alph12 * alph12
+       da3    = 3.0e0_rt * alph12 * alph12
 
-       qq     = 0.014d0 + 0.0128d0*alph12
-       dqqdt  = 0.0128d0*alph12dt
-       !dqqdd  = 0.0128d0*alph12dd
+       qq     = 0.014e0_rt + 0.0128e0_rt*alph12
+       dqqdt  = 0.0128e0_rt*alph12dt
+       !dqqdd  = 0.0128e0_rt*alph12dd
 
        rr     = FIVE32ND - alph12*qq
        drrdt  = -(alph12dt*qq + alph12*dqqdt)
@@ -417,11 +417,11 @@ contains
        dssdt  = tau12dt*rr + tau12*drrdt
        !dssdd  = tau12*drrdd
 
-       tt     =  -0.0098d0 + 0.0048d0*alph12
-       dttdt  = 0.0048d0*alph12dt
-       !dttdd  = 0.0048d0*alph12dd
+       tt     =  -0.0098e0_rt + 0.0048e0_rt*alph12
+       dttdt  = 0.0048e0_rt*alph12dt
+       !dttdd  = 0.0048e0_rt*alph12dd
 
-       uu     =  0.0055d0 + alph12*tt
+       uu     =  0.0055e0_rt + alph12*tt
        duudt  = alph12dt*tt + alph12*dttdt
        !duudd  = alph12dd*tt + alph12*dttdd
 
@@ -434,17 +434,17 @@ contains
        dh12dt  = dccdt - rr*alph12dt - a3*(dssdt + dvvdt)
        !dh12dd  = dccdd - rr*alph12dd - a3*(dssdd + dvvdd)
 
-       rr     =  ONE - 0.0562d0*a3
-       ss     =  -0.0562d0*da3
+       rr     =  ONE - 0.0562e0_rt*a3
+       ss     =  -0.0562e0_rt*da3
        drrdt  = ss*alph12dt
        !drrdd  = ss*alph12dd
 
-       if (rr .ge. 0.77d0) then
+       if (rr .ge. 0.77e0_rt) then
           xlgfac    = rr
           dxlgfacdt = drrdt
           !dxlgfacdd = drrdd
        else
-          xlgfac    = 0.77d0
+          xlgfac    = 0.77e0_rt
           dxlgfacdt = ZERO
           !dxlgfacdd = ZERO
        end if
@@ -456,7 +456,7 @@ contains
        !dh12dd = rr*dxlgfacdd + dh12dd
 
        if (gamef .le. gamefs) then
-          dgamma  = 1.0d0/(gamefs - gamefx)
+          dgamma  = 1.0e0_rt/(gamefs - gamefx)
 
           rr     =  dgamma*(gamefs - gamef)
           drrdt  = -dgamma*gamefdt
@@ -501,10 +501,10 @@ contains
 
     implicit none
 
-    double precision :: t, d, z1, z2, a1, a2
-    double precision :: ymass(nspec)
-    double precision :: scfac
-    double precision :: dscfacdt
+    real(rt)         :: t, d, z1, z2, a1, a2
+    real(rt)         :: ymass(nspec)
+    real(rt)         :: scfac
+    real(rt)         :: dscfacdt
 
     ! this subroutine calculates screening factors for nuclear reaction
     ! rates in the weak, intermediate , and strong regimes given the
@@ -524,16 +524,16 @@ contains
 
     !.... last revision 15 nov 1982
 
-    double precision abar, zbar, ytot1, z2bar, theta
+    real(rt)         abar, zbar, ytot1, z2bar, theta
 
     integer iy
 
-    double precision qlam0, ztilda, qlam0z, gamp, taufac
-    double precision dqlam0dt, dqlam0zdt, dgampdt, dtaufacdt
-    double precision zhat, zhat2, gamef, tau12, alph12
-    double precision dgamefdt, dtau12dt, dalph12dt
-    double precision h12w, h12, c, h12fac
-    double precision dh12wdt, dh12dt, dcdt
+    real(rt)         qlam0, ztilda, qlam0z, gamp, taufac
+    real(rt)         dqlam0dt, dqlam0zdt, dgampdt, dtaufacdt
+    real(rt)         zhat, zhat2, gamef, tau12, alph12
+    real(rt)         dgamefdt, dtau12dt, dalph12dt
+    real(rt)         h12w, h12, c, h12fac
+    real(rt)         dh12wdt, dh12dt, dcdt
 
     !$gpu
 
@@ -544,10 +544,10 @@ contains
 
     ! this part came in through a common block in Kepler -- do it
     ! directly here
-    abar=0.d0
-    zbar=0.d0
-    ytot1=0.d0
-    z2bar=0.d0
+    abar=0.e0_rt
+    zbar=0.e0_rt
+    ytot1=0.e0_rt
+    z2bar=0.e0_rt
 
     do iy = 1, nspec
        ytot1 = ytot1 + ymass(iy)
@@ -561,25 +561,25 @@ contains
     zbar=zbar/ytot1
 
     ! resume original Kepler screen...
-    theta=1.d0
-    ytot1=1.d0/abar
+    theta=1.e0_rt
+    ytot1=1.e0_rt/abar
 
     !.... calculate average plasma parameters
     !....
-    if ((z1*z2) > 0.d0) then
+    if ((z1*z2) > 0.e0_rt) then
 
-       qlam0=1.88d+8*sqrt(d/(abar*t**3))
-       dqlam0dt=-1.5d+0*qlam0 / t
+       qlam0=1.88e+8_rt*sqrt(d/(abar*t**3))
+       dqlam0dt=-1.5e+0_rt*qlam0 / t
 
        ztilda=sqrt(z2bar+zbar*theta)
 
        qlam0z=qlam0*ztilda
        dqlam0zdt=ztilda*dqlam0dt
 
-       gamp=2.27493d+5*(d*zbar*ytot1)**THIRD/t
+       gamp=2.27493e+5_rt*(d*zbar*ytot1)**THIRD/t
        dgampdt=-gamp/t
 
-       taufac=4.248719d+3/t**THIRD
+       taufac=4.248719e+3_rt/t**THIRD
        dtaufacdt=-THIRD*taufac/t
 
        !.... calculate screening factor
@@ -588,13 +588,13 @@ contains
        zhat=(z1+z2)**FIVE3RD-z1**FIVE3RD-z2**FIVE3RD
        zhat2=(z1+z2)**FIVE12TH-z1**FIVE12TH-z2**FIVE12TH
 
-       gamef=2.d0**THIRD*gamp*z1*z2/(z1+z2)**THIRD
+       gamef=2.e0_rt**THIRD*gamp*z1*z2/(z1+z2)**THIRD
        dgamefdt=gamef*dgampdt/gamp
 
        tau12=taufac*(z1**2*z2**2*a1*a2/(a1+a2))**THIRD
        dtau12dt=tau12*dtaufacdt/taufac
 
-       alph12=3.d0*gamef/tau12
+       alph12=3.e0_rt*gamef/tau12
        dalph12dt=alph12*(dgamefdt/gamef - dtau12dt/tau12)
 
        !....
@@ -602,15 +602,15 @@ contains
        !.... (h dec. as rho inc.) at high rho.  this should really
        !.... be replaced by a pycnonuclear reaction rate formula.
        !....
-       if (alph12 > 1.6d0) then
+       if (alph12 > 1.6e0_rt) then
 
-          alph12=1.6d0
-          dalph12dt=0.0d0
+          alph12=1.6e0_rt
+          dalph12dt=0.0e0_rt
 
-          gamef=1.6d0*tau12/3.d0
+          gamef=1.6e0_rt*tau12/3.e0_rt
           dgamefdt=gamef*dtau12dt/tau12
 
-          gamp=gamef*(z1+z2)**THIRD/(2.d0**THIRD*z1*z2)
+          gamp=gamef*(z1+z2)**THIRD/(2.e0_rt**THIRD*z1*z2)
           dgampdt=gamp*dgamefdt/gamef
 
        endif
@@ -621,59 +621,59 @@ contains
        h12=h12w
        dh12dt=dh12wdt
 
-       if (gamef > 0.3d0) then
+       if (gamef > 0.3e0_rt) then
 
-          c=0.896434d0*gamp*zhat-3.44740d0*gamp**FOURTH*zhat2- &
-               0.5551d0*(log(gamp)+FIVE3RD*log(z1*z2/(z1+z2)))-2.996d0
+          c=0.896434e0_rt*gamp*zhat-3.44740e0_rt*gamp**FOURTH*zhat2- &
+               0.5551e0_rt*(log(gamp)+FIVE3RD*log(z1*z2/(z1+z2)))-2.996e0_rt
 
-          dcdt=0.896434d0*dgampdt*zhat- &
-               3.44740d0*FOURTH*gamp**(FOURTH-1.0d0)*zhat2*dgampdt- &
-               0.5551d0*dgampdt/gamp
+          dcdt=0.896434e0_rt*dgampdt*zhat- &
+               3.44740e0_rt*FOURTH*gamp**(FOURTH-1.0e0_rt)*zhat2*dgampdt- &
+               0.5551e0_rt*dgampdt/gamp
 
-          h12=c-(tau12/3.d0)*(5.d0*alph12**3/32.d0-0.014d0*alph12**4 &
-               -0.0128d0*alph12**5)-gamef*(0.0055d0*alph12**4 &
-               -0.0098d0*alph12**5+0.0048d0*alph12**6)
+          h12=c-(tau12/3.e0_rt)*(5.e0_rt*alph12**3/32.e0_rt-0.014e0_rt*alph12**4 &
+               -0.0128e0_rt*alph12**5)-gamef*(0.0055e0_rt*alph12**4 &
+               -0.0098e0_rt*alph12**5+0.0048e0_rt*alph12**6)
 
-          dh12dt=dcdt - ((dtau12dt*alph12**3 + 3.0d0*tau12*alph12**2* &
-               dalph12dt)*(5.d0/32.d0 - 0.014d0*alph12 - &
-               0.0128d0*alph12**2) + tau12*alph12**3*dalph12dt*(-0.014d0 &
-               - 2.d0*0.0128d0*alph12))/3.d0 -(dgamefdt*alph12**4 + 4.d0 &
-               *gamef*alph12**3*dalph12dt)*(0.0055d0 - 0.0098d0*alph12 - &
-               0.0048d0*alph12**2) - gamef*alph12**4*dalph12dt*(-0.0098d0 &
-               + 2.d0*0.0048d0*alph12)
+          dh12dt=dcdt - ((dtau12dt*alph12**3 + 3.0e0_rt*tau12*alph12**2* &
+               dalph12dt)*(5.e0_rt/32.e0_rt - 0.014e0_rt*alph12 - &
+               0.0128e0_rt*alph12**2) + tau12*alph12**3*dalph12dt*(-0.014e0_rt &
+               - 2.e0_rt*0.0128e0_rt*alph12))/3.e0_rt -(dgamefdt*alph12**4 + 4.e0_rt &
+               *gamef*alph12**3*dalph12dt)*(0.0055e0_rt - 0.0098e0_rt*alph12 - &
+               0.0048e0_rt*alph12**2) - gamef*alph12**4*dalph12dt*(-0.0098e0_rt &
+               + 2.e0_rt*0.0048e0_rt*alph12)
 
-          h12fac=0.77d0
+          h12fac=0.77e0_rt
 
-          h12=log(max(1.d+0-0.0562d+0*alph12**3,h12fac))+h12
-          if (1.d+0-0.0562d+0*alph12**3 .gt. h12fac) then
-             dh12dt=(-3.d0*0.0562d0*alph12**2*dalph12dt)/ &
-                  (1.d0-0.0562d0*alph12**3) + dh12dt
+          h12=log(max(1.e+0_rt-0.0562e+0_rt*alph12**3,h12fac))+h12
+          if (1.e+0_rt-0.0562e+0_rt*alph12**3 .gt. h12fac) then
+             dh12dt=(-3.e0_rt*0.0562e0_rt*alph12**2*dalph12dt)/ &
+                  (1.e0_rt-0.0562e0_rt*alph12**3) + dh12dt
           endif
 
-          if(gamef <= 0.8d0) then
+          if(gamef <= 0.8e0_rt) then
 
-             h12=h12w*((0.8d0-gamef)/0.5d0)+h12*((gamef-0.3d0)/0.5d0)
-             dh12dt=((dh12wdt*(0.8d0-gamef) - h12w*dgamefdt + dh12dt* &
-                  (gamef-0.3d0) + h12*dgamefdt)/0.5d0)
+             h12=h12w*((0.8e0_rt-gamef)/0.5e0_rt)+h12*((gamef-0.3e0_rt)/0.5e0_rt)
+             dh12dt=((dh12wdt*(0.8e0_rt-gamef) - h12w*dgamefdt + dh12dt* &
+                  (gamef-0.3e0_rt) + h12*dgamefdt)/0.5e0_rt)
           endif
        endif
 
        if (h12 .gt. h12_max) then
           h12 = h12_max
-          dh12dt=0.d0
+          dh12dt=0.e0_rt
        endif
 
-       if (h12.lt.0.d0) then
-          h12=0.d0
-          dh12dt=0.d0
+       if (h12.lt.0.e0_rt) then
+          h12=0.e0_rt
+          dh12dt=0.e0_rt
        endif
 
        scfac=exp(h12)
        dscfacdt=scfac*dh12dt
 
     else
-       scfac=1.d0
-       dscfacdt=0.d0
+       scfac=1.e0_rt
+       dscfacdt=0.e0_rt
     endif
 
     return

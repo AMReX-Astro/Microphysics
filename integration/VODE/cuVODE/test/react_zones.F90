@@ -72,12 +72,12 @@ contains
              MF_JAC = MF_ANALYTIC_JAC
 
              ! Set the absolute tolerances
-             dvode_state % atol(1) = 1.d-8
-             dvode_state % atol(2) = 1.d-14
-             dvode_state % atol(3) = 1.d-6
+             dvode_state % atol(1) = 1.e-8_rt
+             dvode_state % atol(2) = 1.e-14_rt
+             dvode_state % atol(3) = 1.e-6_rt
 
              ! Set the relative tolerances
-             dvode_state % rtol(1) = 1.d-4
+             dvode_state % rtol(1) = 1.e-4_rt
 
              ! We want VODE to re-initialize each time we call it.
              dvode_state % istate = 1

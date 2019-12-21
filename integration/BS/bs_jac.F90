@@ -1,5 +1,6 @@
 module jac_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -10,7 +11,6 @@ contains
 
     use network, only: aion, aion_inv, nspec_evolve
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost

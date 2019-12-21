@@ -16,6 +16,7 @@ module vode_rpar_indices
   use burn_type_module, only: neqs
 #endif
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 

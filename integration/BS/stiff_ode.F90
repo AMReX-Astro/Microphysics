@@ -14,9 +14,9 @@ module stiff_ode
 
   implicit none
 
-  real(rt), parameter, private :: dt_min = 1.d-24
-  real(rt), parameter, private :: dt_ini = 1.d-16
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: dt_min = 1.e-24_rt
+  real(rt), parameter, private :: dt_ini = 1.e-16_rt
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
   ! error codes
@@ -238,13 +238,13 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
-    hU = 0.1d0 * abs(bs % tmax - bs % t)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
+    hU = 0.1e0_rt * abs(bs % tmax - bs % t)
 
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
-    h_old = 10.0 * h
+    h_old = 10.0_rt * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
 
@@ -454,8 +454,8 @@ contains
 
     ! reinitialize
     if (eps /= bs % eps_old) then
-       bs % dt_next = -1.d29
-       bs % t_new = -1.d29
+       bs % dt_next = -1.e29_rt
+       bs % t_new = -1.e29_rt
        eps1 = S1*eps
 
        bs % a(1) = nseq(1)+1
@@ -550,7 +550,7 @@ contains
                    err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
                    err_max = err_max / eps
                    km = k - 1
-                   err(km) = (err_max/S1)**(1.0/(2*km+1))
+                   err(km) = (err_max/S1)**(1.0_rt/(2*km+1))
                 endif
 
                 if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
@@ -633,7 +633,7 @@ contains
     bs % first = .false.
 
     ! optimal convergence properties
-    work_min = 1.e35
+    work_min = 1.e35_rt
     do kk = 1, km
        fac = max(err(kk), SCALMX)
        work = fac*bs % a(kk+1)
@@ -731,7 +731,6 @@ contains
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 

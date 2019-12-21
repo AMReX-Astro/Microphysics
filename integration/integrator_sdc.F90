@@ -1,5 +1,6 @@
 module integrator_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -55,7 +56,6 @@ contains
 #ifndef AMREX_USE_CUDA
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use integration_data, only: integration_status_t
     use sdc_type_module, only: sdc_t
