@@ -199,17 +199,17 @@ contains
 
 
     ydot_nuc(jn) = ( &
-      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
       screened_rates(k_n__p__weak__wc12)*Y(jn) &
        )
 
     ydot_nuc(jp) = ( &
-      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho + &
+      0.5e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho + &
       screened_rates(k_n__p__weak__wc12)*Y(jn) &
        )
 
     ydot_nuc(jhe4) = ( &
-      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho - &
       screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho &
        )
 
@@ -225,7 +225,7 @@ contains
        )
 
     ydot_nuc(jne20) = ( &
-      0.5d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho &
+      0.5e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)**2*state % rho &
        )
 
     ydot_nuc(jne23) = ( &
@@ -233,12 +233,12 @@ contains
        )
 
     ydot_nuc(jna23) = ( &
-      0.5d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho - &
+      0.5e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)**2*state % rho - &
       screened_rates(k_na23__ne23)*Y(jna23) + screened_rates(k_ne23__na23)*Y(jne23) &
        )
 
     ydot_nuc(jmg23) = ( &
-      0.5d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho &
+      0.5e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho &
        )
 
 
@@ -249,7 +249,7 @@ contains
 
     !$acc routine seq
 
-    use burn_type_module, only: net_itemp, net_ienuc, neqs
+    use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
@@ -351,7 +351,7 @@ contains
     call set_jac_entry(jac, jn, jn, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(jac, jn, jc12, scratch)
 
@@ -361,7 +361,7 @@ contains
     call set_jac_entry(jac, jp, jn, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(jac, jp, jc12, scratch)
 
@@ -371,7 +371,7 @@ contains
     call set_jac_entry(jac, jhe4, jhe4, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - &
+      1.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - &
       screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
     call set_jac_entry(jac, jhe4, jc12, scratch)
@@ -382,8 +382,8 @@ contains
     call set_jac_entry(jac, jc12, jhe4, scratch)
 
     scratch = (&
-      -2.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - 2.0d0* &
-      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho - 2.0d0* &
+      -2.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho - 2.0e0_rt* &
+      screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho - 2.0e0_rt* &
       screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho - &
       screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
@@ -400,7 +400,7 @@ contains
     call set_jac_entry(jac, jo16, jc12, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__he4_ne20)*Y(jc12)*state % rho &
        )
     call set_jac_entry(jac, jne20, jc12, scratch)
 
@@ -415,7 +415,7 @@ contains
     call set_jac_entry(jac, jne23, jna23, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__p_na23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(jac, jna23, jc12, scratch)
 
@@ -430,7 +430,7 @@ contains
     call set_jac_entry(jac, jna23, jna23, scratch)
 
     scratch = (&
-      1.0d0*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
+      1.0e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)*state % rho &
        )
     call set_jac_entry(jac, jmg23, jc12, scratch)
 

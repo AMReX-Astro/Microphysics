@@ -93,13 +93,13 @@ contains
     implicit none
 
     ! this should be larger than any reasonable temperature we will encounter
-    real (kind=rt), parameter :: MAX_TEMP = 1.0d11
+    real (kind=rt), parameter :: MAX_TEMP = 1.0e11_rt
 
     ! this is the absolute cutoff for species -- note that this might
     ! be larger than small_x that the user set, but the issue is that
     ! we can have underflow issues if the integrator has to keep track
     ! of species mass fractions much smaller than this.
-    real (kind=rt), parameter :: SMALL_X_SAFE = 1.0d-200
+    real (kind=rt), parameter :: SMALL_X_SAFE = 1.0e-200_rt
     real (kind=rt) :: small_temp
 
     type (bdf_ts) :: state

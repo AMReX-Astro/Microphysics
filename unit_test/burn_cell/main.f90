@@ -24,7 +24,7 @@ program burn_cell
   type (burn_t)       :: burn_state_in, burn_state_out
   type (eos_t)        :: eos_state_in, eos_state_out
 
-  real (rt)    :: tmax, energy, time, dt
+  real(rt)     :: tmax, energy, time, dt
   integer             :: numsteps, i, istate
 
   character (len=256) :: params_file
@@ -35,10 +35,10 @@ program burn_cell
   character (len=6)   :: out_num
 
   ! Starting conditions for integration
-  real (rt)    :: density, temperature, massfractions(nspec)
+  real(rt)     :: density, temperature, massfractions(nspec)
 
   ! Useful for evaluating final values
-  real (rt)    :: eos_energy_generated, eos_energy_rate
+  real(rt)     :: eos_energy_generated, eos_energy_rate
 
   namelist /cellparams/ tmax, numsteps, density, temperature, massfractions
 
@@ -53,7 +53,7 @@ program burn_cell
   print *, "small_dens = ", small_dens
 
   ! Set mass fractions to sanitize inputs for them
-  massfractions = -1.0d0
+  massfractions = -1.0e0_rt
 
   ! Get initial conditions for the burn
   call get_command_argument(1, value = params_file)
@@ -128,7 +128,7 @@ program burn_cell
      write(*,*) " - Hnuc = ", burn_state_out % e / dt
      write(*,*) " - integrated e = ", eos_state_in % e + energy
      write(*,*) " - EOS e(rho, T) = ", eos_state_out % e
-     write(*,*) " - integrated/EOS percent diff. = ", 100.0d0 * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
+     write(*,*) " - integrated/EOS percent diff. = ", 100.0e0_rt * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
      
      ! output burn type data
      write(out_num,'(I6.6)') i
@@ -147,8 +147,8 @@ program burn_cell
   write(*,*) "EOS e(rho, T) generation rate = ", eos_energy_rate
   write(*,*) "Integrator total generated energy: ", energy
   write(*,*) "Integrator average energy generation rate: ", energy/tmax
-  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0d0 * (energy - eos_energy_generated)/eos_energy_generated
-  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0d0 * (energy/tmax - eos_energy_rate)/eos_energy_rate
+  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0e0_rt * (energy - eos_energy_generated)/eos_energy_generated
+  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0e0_rt * (energy/tmax - eos_energy_rate)/eos_energy_rate
 
   call microphysics_finalize()
 
@@ -158,6 +158,7 @@ subroutine write_burn_t(fname, burnt)
   use network
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
   
   ! Writes contents of burn_t type burnt to file named fname
