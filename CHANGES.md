@@ -1,4 +1,7 @@
-# changes since last release
+# 20.01
+
+   * The burn_t type no longer includes ydot or jac -- this allows
+     us to optimize the memory access on GPUs (#220)
 
    * The original VODE integrator was removed and the Fortran 90
      version VODE90 was renamed to VODE. (#221)

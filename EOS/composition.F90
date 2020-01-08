@@ -49,7 +49,7 @@ contains
 
     use amrex_constants_module, only: ZERO
     use network, only: aion, aion_inv, zion
-
+    
     implicit none
 
     type (eos_t), intent(in) :: state

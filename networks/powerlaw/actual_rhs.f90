@@ -5,6 +5,7 @@ module actual_rhs_module
   use burn_type_module
   use temperature_integration_module, only: temperature_rhs, temperature_jac
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -17,18 +18,18 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    real(rt)        , intent(inout) :: ydot(neqs)
+    real(rt)         :: xfueltmp
+    real(rt)         :: dens, temp, rate, y(nspec)
 
-    double precision :: xfueltmp
-    double precision :: dens, temp, rate, y(nspec)
-
-    state % ydot = ZERO
+    ydot = ZERO
 
     xfueltmp = max(state % xn(ifuel_), ZERO)
     dens     = state % rho
@@ -42,16 +43,16 @@ contains
        rate = rtilde * (dens/rho_burn_ref) * xfueltmp**2 * (temp/T_burn_ref)**nu
     endif
 
-    state % ydot(ifuel_)  = -rate
-    state % ydot(iash_)   =  rate
+    ydot(ifuel_)  = -rate
+    ydot(iash_)   =  rate
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
+    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
 
-    call ener_gener_rate(state % ydot(1:nspec_evolve), state % ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
 
-    call temperature_rhs(state)
+    call temperature_rhs(state, ydot)
 
   end subroutine actual_rhs
 
@@ -59,13 +60,14 @@ contains
 
   ! At present the analytical Jacobian is not implemented.
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     implicit none
 
-    type (burn_t) :: state
+    type (burn_t), intent(in) :: state
+    real(rt)        , intent(inout) :: jac(njrows, njcols)
 
-    state % jac(:,:) = ZERO
+    jac(:,:) = ZERO
 
   end subroutine actual_jac
 
@@ -79,7 +81,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec_evolve), enuc
 
     ! This is basically e = m c**2
 

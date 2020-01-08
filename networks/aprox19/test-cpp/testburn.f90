@@ -5,11 +5,12 @@ subroutine do_burn() bind (C)
   use burner_module
   use actual_burner_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 1.0d-6
+  real(rt)         :: time = 0.0_rt, dt = 1.0e-6_rt
 
   type (eos_t) :: eos_state
 
@@ -28,8 +29,8 @@ subroutine do_burn() bind (C)
   call burner_init()
   call eos_init()
 
-  state_in % rho    = 2.0d7
-  state_in % T      = 8.0d9
+  state_in % rho    = 2.0e7_rt
+  state_in % T      = 8.0e9_rt
 
   state_in % xn(:)  = ONE / nspec
 

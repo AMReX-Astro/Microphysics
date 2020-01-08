@@ -54,6 +54,7 @@ contains
 
 #ifndef AMREX_USE_CUDA
   subroutine print_state(dvode_state)
+    use amrex_fort_module, only : rt => amrex_real
     type(dvode_t) :: dvode_state
 
     write(*,*) 'HU = ', dvode_state % HU

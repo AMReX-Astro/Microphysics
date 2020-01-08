@@ -178,17 +178,16 @@ endif
 urcatables:
 	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
 	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
-	@if [ ! -f reaclib_rate_metadata.dat ]; then echo ${bold}Linking reaclib_rate_metadata.dat${normal}; ln -s $(NETWORK_PATH)/reaclib_rate_metadata.dat .; fi
 
 # Pynucastro networks read rate data from an external file
-ifeq ($(USE_READ_RATE_DATA), TRUE)
-  all: pynucastrorates
-endif
+PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
+all: pynucastrorates
+
 
 # do not check to see if the file already exists, just force-link it in
 # because different Reaclib networks will have different versions of the file
 pynucastrorates:
-	echo ${bold}Linking reaclib_rate_metadata.dat${normal}; ln -sf $(NETWORK_PATH)/reaclib_rate_metadata.dat .
+	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)

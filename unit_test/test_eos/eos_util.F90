@@ -107,7 +107,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using rho, h
 
            ! reset T to give it some work to do
-           eos_state % T = 100.d0
+           eos_state % T = 100.e0_rt
 
            call eos(eos_input_rh, eos_state)
 
@@ -120,7 +120,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using T, p
 
            ! reset rho to give it some work to do
-           eos_state % rho = 1.d0
+           eos_state % rho = 1.e0_rt
 
            call eos(eos_input_tp, eos_state)
 
@@ -133,7 +133,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using r, p
 
            ! reset T to give it some work to do
-           eos_state % T = 100.d0
+           eos_state % T = 100.e0_rt
 
            call eos(eos_input_rp, eos_state)
 
@@ -146,7 +146,7 @@ subroutine do_eos(lo, hi, &
            ! call EOS using r, e
 
            ! reset T to give it some work to do
-           eos_state % T = 100.d0
+           eos_state % T = 100.e0_rt
 
            call eos(eos_input_re, eos_state)
 
@@ -159,8 +159,8 @@ subroutine do_eos(lo, hi, &
            ! call EOS using p, s
 
            ! reset T and rho to give it some work to do
-           eos_state % T = 100.d0
-           eos_state % rho = 1.d0
+           eos_state % T = 100.e0_rt
+           eos_state % rho = 1.e0_rt
 
 
            ! some EOSes don't have physically valid treatments
@@ -187,8 +187,8 @@ subroutine do_eos(lo, hi, &
            ! call EOS using p, h
 
            ! reset T and rho to give it some work to do
-           eos_state % T = 100.d0
-           eos_state % rho = 1.d0
+           eos_state % T = 100.e0_rt
+           eos_state % rho = 1.e0_rt
 
            call eos(eos_input_ph, eos_state)
 
@@ -205,7 +205,7 @@ subroutine do_eos(lo, hi, &
 #ifndef EOS_GAMMA_LAW_GENERAL
            ! reset rho to give it some work to do -- for helmeos, h is not
            ! monotonic, so we only perturb rho slightly here
-           eos_state % rho = 0.9 * eos_state % rho
+           eos_state % rho = 0.9_rt * eos_state % rho
 
            call eos(eos_input_th, eos_state)
 

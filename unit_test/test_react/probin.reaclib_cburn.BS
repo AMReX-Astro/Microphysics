@@ -9,6 +9,10 @@
 
   burner_verbose = .false.
 
+  primary_species_1 = "carbon-12"
+  primary_species_2 = "helium-4"
+  primary_species_3 = "oxygen-16"
+
   ! Set which jacobian to use
   ! 1 = analytic jacobian
   ! 2 = numerical jacobian
