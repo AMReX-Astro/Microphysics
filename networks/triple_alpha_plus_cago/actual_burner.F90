@@ -2,6 +2,7 @@ module actual_burner_module
 
   use burn_type_module
   use network
+  use amrex_fort_module, only : rt => amrex_real
 
 contains
 
@@ -27,7 +28,7 @@ contains
 
     type (burn_t),    intent(in   ) :: state_in
     type (burn_t),    intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time
+    real(rt)        , intent(in   ) :: dt, time
 
     !$gpu
 
@@ -42,7 +43,6 @@ contains
     ! Calculate the energy generation rate's temperature sensitivity
     ! Used for diagnostic purposes only
 
-    use amrex_fort_module, only : rt => amrex_real
     use rates_module
     use screen_module
     use dydt_module

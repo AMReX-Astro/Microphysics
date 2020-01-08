@@ -53,7 +53,7 @@ contains
 
     !$gpu
 
-    SUM = 0.0D0
+    SUM = 0.0e0_rt
     do I = 1,VODE_NEQS
        SUM = SUM + (V(I)*W(I))**2
     end do

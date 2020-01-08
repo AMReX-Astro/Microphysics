@@ -1,23 +1,18 @@
 module actual_rhs_module
 
-  use amrex_fort_module, only : rt => amrex_real
+  use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module
   use physical_constants, only: N_AVO
   use network
-  use reaclib_rates, only: screen_reaclib, reaclib_evaluate
   use table_rates
-  use screening_module, only: screen5, plasma_state, fill_plasma_state
-  use sneut_module, only: sneut5
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
   use burn_type_module
 
   implicit none
 
   type :: rate_eval_t
-     double precision :: unscreened_rates(4, nrates)
-     double precision :: screened_rates(nrates)
-     double precision :: dqweak(nrat_tabular)
-     double precision :: epart(nrat_tabular)
+     real(rt) :: unscreened_rates(num_rate_groups, nrates)
+     real(rt) :: screened_rates(nrates)
+     real(rt) :: add_energy_rate(nrat_tabular)
   end type rate_eval_t
   
 contains
@@ -26,51 +21,65 @@ contains
     ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
     return
   end subroutine actual_rhs_init
-  
+
+
   subroutine update_unevolved_species(state)
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
+
+    !$gpu
+    
     return
   end subroutine update_unevolved_species
 
-  subroutine ener_gener_rate(dydt, enuc)
-    ! Computes the instantaneous energy generation rate
-    !$acc routine seq
+
+  subroutine zero_rate_eval(rate_eval)
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    type(rate_eval_t), intent(inout) :: rate_eval
 
-    ! This is basically e = m c**2
+    !$gpu
 
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
+    rate_eval % unscreened_rates(i_rate, :) = ZERO
+    rate_eval % unscreened_rates(i_drate_dt, :) = ZERO
+    rate_eval % unscreened_rates(i_scor, :) = ONE
+    rate_eval % unscreened_rates(i_dscor_dt, :) = ZERO
+    rate_eval % screened_rates = ZERO
+    rate_eval % add_energy_rate = ZERO
 
-  end subroutine ener_gener_rate
+  end subroutine zero_rate_eval
+
 
   subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
+
+    use reaclib_rates, only: screen_reaclib, reaclib_evaluate
+    use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     implicit none
     
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
-    double precision :: Y(nspec)
-    double precision :: raw_rates(4, nrates)
-    double precision :: reactvec(num_rate_groups+2)
+    real(rt) :: Y(nspec)
+    real(rt) :: reactvec(num_rate_groups)
     integer :: i, j
-    double precision :: dens, temp, rhoy, scor, dscor_dt, dscor_dd
+    real(rt) :: rhoy, scor, dscor_dt, dscor_dd
 
-    Y(:) = state%xn(:) * aion_inv(:)
-    dens = state%rho
-    temp = state%T
-    rhoy = dens * state%y_e
+    !$gpu
+
+    Y(:) = state % xn(:) * aion_inv(:)
+    rhoy = state % rho * state % y_e
+
+    ! Zero out the rates
+    call zero_rate_eval(rate_eval)
 
     ! Calculate Reaclib rates
-    call fill_plasma_state(pstate, temp, dens, Y)
+    call fill_plasma_state(pstate, state % T, state % rho, Y)
     do i = 1, nrat_reaclib
-       call reaclib_evaluate(pstate, temp, i, reactvec)
-       rate_eval % unscreened_rates(:,i) = reactvec(1:4)
+       call reaclib_evaluate(pstate, state % T, i, reactvec)
+       rate_eval % unscreened_rates(:,i) = reactvec(:)
     end do
 
     ! Evaluate screening factors
@@ -153,66 +162,71 @@ contains
 
   end subroutine evaluate_rates
 
-  subroutine actual_rhs(state)
+
+  subroutine actual_rhs(state, ydot)
     
     !$acc routine seq
 
-    use extern_probin_module, only: do_constant_volume_burn
-    use burn_type_module, only: net_itemp, net_ienuc
+    use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
+    use burn_type_module, only: net_itemp, net_ienuc, neqs
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_rhs
 
     implicit none
 
-    type(burn_t) :: state
+    type(burn_t), intent(in) :: state
+    real(rt), intent(inout) :: ydot(neqs)
+
     type(rate_eval_t) :: rate_eval
-    type(plasma_state) :: pstate
-    double precision :: Y(nspec)
-    double precision :: reactvec(num_rate_groups+2)
+    real(rt) :: Y(nspec), ydot_nuc(nspec)
+    real(rt) :: reactvec(num_rate_groups)
     integer :: i, j
-    double precision :: dens, temp, rhoy, ye, enuc
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt) :: rhoy, ye, enuc
+    real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
+
+    !$gpu
 
     ! Set molar abundances
-    Y(:) = state%xn(:) * aion_inv(:)
-
-    dens = state%rho
-    temp = state%T
+    Y(:) = state % xn(:) * aion_inv(:)
 
     call evaluate_rates(state, rate_eval)
 
-    call rhs_nuc(state, state % ydot(1:nspec), Y, rate_eval % screened_rates)
+    call rhs_nuc(state, ydot_nuc, Y, rate_eval % screened_rates)
+    ydot(1:nspec) = ydot_nuc
 
     ! ion binding energy contributions
-    call ener_gener_rate(state%ydot(1:nspec), enuc)
-    
-    ! weak Q-value modification dqweak (density and temperature dependent)
-    
-    ! weak particle energy generation rates from gamma heating and neutrino loss
-    ! (does not include plasma neutrino losses)
+    call ener_gener_rate(ydot_nuc, enuc)
 
+    ! include reaction neutrino losses (non-thermal)
 
-    ! Get the neutrino losses
-    call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    ! Get the thermal neutrino losses
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    else
+       sneut = ZERO
+    end if
 
     ! Append the energy equation (this is erg/g/s)
-    state%ydot(net_ienuc) = enuc - sneut
+    ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
-    call temperature_rhs(state)
-    
-    ! write(*,*) '______________________________'
-    ! do i = 1, nspec+2
-    !    write(*,*) 'state%ydot(',i,'): ',state%ydot(i)
-    ! end do
+    call temperature_rhs(state, ydot)
+
   end subroutine actual_rhs
+
 
   subroutine rhs_nuc(state, ydot_nuc, Y, screened_rates)
 
     !$acc routine seq
 
-    type(burn_t),   intent(inout) :: state
-    double precision, intent(out) :: ydot_nuc(nspec)
-    double precision, intent(in)  :: Y(nspec)
-    double precision, intent(in)  :: screened_rates(nrates)
+    implicit none
+
+    type (burn_t), intent(in) :: state
+    real(rt), intent(out) :: ydot_nuc(nspec)
+    real(rt), intent(in)  :: Y(nspec)
+    real(rt), intent(in)  :: screened_rates(nrates)
+
+    !$gpu
 
 
 
@@ -315,85 +329,112 @@ contains
 
   end subroutine rhs_nuc
 
-  
-  subroutine actual_jac(state)
+
+  subroutine actual_jac(state, jac)
 
     !$acc routine seq
 
-    use burn_type_module, only: net_itemp, net_ienuc
-    
+    use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
+    use extern_probin_module, only: disable_thermal_neutrinos
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_jac
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
+
     implicit none
     
-    type(burn_t) :: state
-    type(rate_eval_t) :: rate_eval
-    type(plasma_state) :: pstate
-    double precision :: reactvec(num_rate_groups+2)
-    double precision :: screened_rates_dt(nrates)
-    double precision :: Y(nspec)
-    double precision :: dens, temp, ye, rhoy, b1
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
-    integer :: i, j
+    type(burn_t), intent(in) :: state
+    real(rt), intent(inout) :: jac(njrows, njcols)
 
-    dens = state%rho
-    temp = state%T
+    type(rate_eval_t) :: rate_eval
+    real(rt) :: screened_rates_dt(nrates)
+    real(rt) :: Y(nspec), yderivs(nspec)
+    real(rt) :: ye, rhoy, b1, scratch
+    real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    integer  :: j, k
+
+    !$gpu
 
     ! Set molar abundances
-    Y(:) = state%xn(:) * aion_inv(:)
+    Y(:) = state % xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
-    
-    ! Species Jacobian elements with respect to other species
-    call jac_nuc(state, Y, rate_eval % screened_rates)
 
-    ! Species Jacobian elements with respect to energy generation rate
-    state%jac(1:nspec, net_ienuc) = 0.0d0
+    ! Zero out the Jacobian
+    call set_jac_zero(jac)
+
+    ! Species Jacobian elements with respect to other species
+    call jac_nuc(state, jac, Y, rate_eval % screened_rates)
 
     ! Evaluate the species Jacobian elements with respect to temperature by
     ! calling the RHS using the temperature derivative of the screened rate
     screened_rates_dt = rate_eval % unscreened_rates(i_rate, :) * &
-         rate_eval % unscreened_rates(i_dscor_dt, :) + &
-         rate_eval % unscreened_rates(i_drate_dt, :) * &
-         rate_eval % unscreened_rates(i_scor, :)
+                        rate_eval % unscreened_rates(i_dscor_dt, :) + &
+                        rate_eval % unscreened_rates(i_drate_dt, :) * &
+                        rate_eval % unscreened_rates(i_scor, :)
 
-    call rhs_nuc(state, state%jac(1:nspec, net_itemp), Y, screened_rates_dt)
-    
+    call rhs_nuc(state, yderivs, Y, screened_rates_dt)
+
+    do k = 1, nspec
+       call set_jac_entry(jac, k, net_itemp, yderivs(k))
+    enddo
+
     ! Energy generation rate Jacobian elements with respect to species
     do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
+       do k = 1, nspec
+          call get_jac_entry(jac, k, j, yderivs(k))
+       enddo
+       call ener_gener_rate(yderivs, scratch)
+       call set_jac_entry(jac, net_ienuc, j, scratch)
     enddo
 
     ! Account for the thermal neutrino losses
-    call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
-    do j = 1, nspec
-       b1 = (-state%abar * state%abar * snuda + (zion(j) - state%zbar) * state%abar * snudz)
-       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
-    enddo
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
-    ! Energy generation rate Jacobian element with respect to energy generation rate
-    state%jac(net_ienuc, net_ienuc) = 0.0d0
+       do j = 1, nspec
+          b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+          call get_jac_entry(jac, net_ienuc, j, scratch)
+          scratch = scratch - b1
+          call set_jac_entry(jac, net_ienuc, j, scratch)
+       enddo
+    endif
 
     ! Energy generation rate Jacobian element with respect to temperature
-    call ener_gener_rate(state%jac(1:nspec, net_itemp), state%jac(net_ienuc, net_itemp))
-    state%jac(net_ienuc, net_itemp) = state%jac(net_ienuc, net_itemp) - dsneutdt
-
-    ! Add dqweak and epart contributions!!!
+    do k = 1, nspec
+       call get_jac_entry(jac, k, net_itemp, yderivs(k))
+    enddo
+    call ener_gener_rate(yderivs, scratch)
+    if (.not. disable_thermal_neutrinos) then
+       scratch = scratch - dsneutdt
+    endif
+    call set_jac_entry(jac, net_ienuc, net_itemp, scratch)
 
     ! Temperature Jacobian elements
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 
-  subroutine jac_nuc(state, Y, screened_rates)
+
+  subroutine jac_nuc(state, jac, Y, screened_rates)
 
     !$acc routine seq
-    
-    type(burn_t),   intent(inout) :: state
-    double precision, intent(in)  :: Y(nspec)
-    double precision, intent(in)  :: screened_rates(nrates)
+
+    use jacobian_sparsity_module, only: set_jac_entry
+
+    implicit none
+
+    type(burn_t), intent(in) :: state
+    real(rt), intent(inout) :: jac(njrows, njcols)
+
+    real(rt), intent(in)  :: Y(nspec)
+    real(rt), intent(in)  :: screened_rates(nrates)
+    real(rt) :: scratch
 
 
+    !$gpu
 
-    state % jac(jp,jp) = ( &
+
+    scratch = (&
       -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho - screened_rates(k_p_c13__n14)*Y(jc13)* &
       state % rho - screened_rates(k_p_f18__he4_o15)*Y(jf18)*state % rho - &
       screened_rates(k_p_n13__o14)*Y(jn13)*state % rho - screened_rates(k_p_n14__o15)* &
@@ -402,706 +443,365 @@ contains
       Y(jo16)*state % rho - screened_rates(k_p_o17__f18)*Y(jo17)*state % rho - &
       screened_rates(k_p_o17__he4_n14)*Y(jo17)*state % rho &
        )
+    call set_jac_entry(jac, jp, jp, scratch)
 
-    state % jac(jp,jhe4) = ( &
+    scratch = (&
       screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho + screened_rates(k_he4_o14__p_f17)* &
       Y(jo14)*state % rho &
        )
+    call set_jac_entry(jac, jp, jhe4, scratch)
 
-    state % jac(jp,jc12) = ( &
+    scratch = (&
       -screened_rates(k_p_c12__n13)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jp, jc12, scratch)
 
-    state % jac(jp,jc13) = ( &
+    scratch = (&
       -screened_rates(k_p_c13__n14)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jp, jc13, scratch)
 
-    state % jac(jp,jn13) = ( &
+    scratch = (&
       screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho - screened_rates(k_p_n13__o14)*Y(jp) &
       *state % rho &
        )
+    call set_jac_entry(jac, jp, jn13, scratch)
 
-    state % jac(jp,jn14) = ( &
+    scratch = (&
       -screened_rates(k_p_n14__o15)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jp, jn14, scratch)
 
-    state % jac(jp,jn15) = ( &
+    scratch = (&
       -screened_rates(k_p_n15__he4_c12)*Y(jp)*state % rho - screened_rates(k_p_n15__o16)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jp, jn15, scratch)
 
-    state % jac(jp,jo14) = ( &
+    scratch = (&
       screened_rates(k_he4_o14__p_f17)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jp, jo14, scratch)
 
-    state % jac(jp,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jp,jo16) = ( &
+    scratch = (&
       -screened_rates(k_p_o16__f17)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jp, jo16, scratch)
 
-    state % jac(jp,jo17) = ( &
+    scratch = (&
       -screened_rates(k_p_o17__f18)*Y(jp)*state % rho - screened_rates(k_p_o17__he4_n14)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jp, jo17, scratch)
 
-    state % jac(jp,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jp,jf18) = ( &
+    scratch = (&
       -screened_rates(k_p_f18__he4_o15)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jp, jf18, scratch)
 
-    state % jac(jhe4,jp) = ( &
+    scratch = (&
       screened_rates(k_p_f18__he4_o15)*Y(jf18)*state % rho + screened_rates(k_p_n15__he4_c12)* &
       Y(jn15)*state % rho + screened_rates(k_p_o17__he4_n14)*Y(jo17)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jp, scratch)
 
-    state % jac(jhe4,jhe4) = ( &
+    scratch = (&
       -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - 1.5d0* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho - &
       screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho - &
       screened_rates(k_he4_o14__p_f17)*Y(jo14)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jhe4, scratch)
 
-    state % jac(jhe4,jc12) = ( &
+    scratch = (&
       -screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jc12, scratch)
 
-    state % jac(jhe4,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jhe4,jn13) = ( &
+    scratch = (&
       -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jn13, scratch)
 
-    state % jac(jhe4,jn14) = ( &
+    scratch = (&
       -screened_rates(k_he4_n14__f18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jn14, scratch)
 
-    state % jac(jhe4,jn15) = ( &
+    scratch = (&
       screened_rates(k_p_n15__he4_c12)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jn15, scratch)
 
-    state % jac(jhe4,jo14) = ( &
+    scratch = (&
       -screened_rates(k_he4_o14__p_f17)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jo14, scratch)
 
-    state % jac(jhe4,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jhe4,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jhe4,jo17) = ( &
+    scratch = (&
       screened_rates(k_p_o17__he4_n14)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jo17, scratch)
 
-    state % jac(jhe4,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jhe4,jf18) = ( &
+    scratch = (&
       screened_rates(k_p_f18__he4_o15)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jf18, scratch)
 
-    state % jac(jc12,jp) = ( &
+    scratch = (&
       -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho + screened_rates(k_p_n15__he4_c12)* &
       Y(jn15)*state % rho &
        )
+    call set_jac_entry(jac, jc12, jp, scratch)
 
-    state % jac(jc12,jhe4) = ( &
+    scratch = (&
       -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + 0.5d0* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 &
        )
+    call set_jac_entry(jac, jc12, jhe4, scratch)
 
-    state % jac(jc12,jc12) = ( &
+    scratch = (&
       -screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho - screened_rates(k_p_c12__n13)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jc12, jc12, scratch)
 
-    state % jac(jc12,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jn15) = ( &
+    scratch = (&
       screened_rates(k_p_n15__he4_c12)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jc12, jn15, scratch)
 
-    state % jac(jc12,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc12,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jp) = ( &
+    scratch = (&
       -screened_rates(k_p_c13__n14)*Y(jc13)*state % rho &
        )
+    call set_jac_entry(jac, jc13, jp, scratch)
 
-    state % jac(jc13,jhe4) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jc13) = ( &
+    scratch = (&
       -screened_rates(k_p_c13__n14)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jc13, jc13, scratch)
 
-    state % jac(jc13,jn13) = ( &
+    scratch = (&
       screened_rates(k_n13__c13__weak__wc12) &
        )
+    call set_jac_entry(jac, jc13, jn13, scratch)
 
-    state % jac(jc13,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jc13,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jp) = ( &
+    scratch = (&
       screened_rates(k_p_c12__n13)*Y(jc12)*state % rho - screened_rates(k_p_n13__o14)*Y(jn13)* &
       state % rho &
        )
+    call set_jac_entry(jac, jn13, jp, scratch)
 
-    state % jac(jn13,jhe4) = ( &
+    scratch = (&
       -screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho &
        )
+    call set_jac_entry(jac, jn13, jhe4, scratch)
 
-    state % jac(jn13,jc12) = ( &
+    scratch = (&
       screened_rates(k_p_c12__n13)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jn13, jc12, scratch)
 
-    state % jac(jn13,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jn13) = ( &
+    scratch = (&
       -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho - &
       screened_rates(k_n13__c13__weak__wc12) - screened_rates(k_p_n13__o14)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jn13, jn13, scratch)
 
-    state % jac(jn13,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn13,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jp) = ( &
+    scratch = (&
       screened_rates(k_p_c13__n14)*Y(jc13)*state % rho - screened_rates(k_p_n14__o15)*Y(jn14)* &
       state % rho + screened_rates(k_p_o17__he4_n14)*Y(jo17)*state % rho &
        )
+    call set_jac_entry(jac, jn14, jp, scratch)
 
-    state % jac(jn14,jhe4) = ( &
+    scratch = (&
       -screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho &
        )
+    call set_jac_entry(jac, jn14, jhe4, scratch)
 
-    state % jac(jn14,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jc13) = ( &
+    scratch = (&
       screened_rates(k_p_c13__n14)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jn14, jc13, scratch)
 
-    state % jac(jn14,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jn14) = ( &
+    scratch = (&
       -screened_rates(k_he4_n14__f18)*Y(jhe4)*state % rho - screened_rates(k_p_n14__o15)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jn14, jn14, scratch)
 
-    state % jac(jn14,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jo14) = ( &
+    scratch = (&
       screened_rates(k_o14__n14__weak__wc12) &
        )
+    call set_jac_entry(jac, jn14, jo14, scratch)
 
-    state % jac(jn14,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jo17) = ( &
+    scratch = (&
       screened_rates(k_p_o17__he4_n14)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jn14, jo17, scratch)
 
-    state % jac(jn14,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn14,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jp) = ( &
+    scratch = (&
       -screened_rates(k_p_n15__he4_c12)*Y(jn15)*state % rho - screened_rates(k_p_n15__o16)* &
       Y(jn15)*state % rho &
        )
+    call set_jac_entry(jac, jn15, jp, scratch)
 
-    state % jac(jn15,jhe4) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jn15) = ( &
+    scratch = (&
       -screened_rates(k_p_n15__he4_c12)*Y(jp)*state % rho - screened_rates(k_p_n15__o16)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jn15, jn15, scratch)
 
-    state % jac(jn15,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jo15) = ( &
+    scratch = (&
       screened_rates(k_o15__n15__weak__wc12) &
        )
+    call set_jac_entry(jac, jn15, jo15, scratch)
 
-    state % jac(jn15,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jn15,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jp) = ( &
+    scratch = (&
       screened_rates(k_p_n13__o14)*Y(jn13)*state % rho &
        )
+    call set_jac_entry(jac, jo14, jp, scratch)
 
-    state % jac(jo14,jhe4) = ( &
+    scratch = (&
       -screened_rates(k_he4_o14__p_f17)*Y(jo14)*state % rho &
        )
+    call set_jac_entry(jac, jo14, jhe4, scratch)
 
-    state % jac(jo14,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jn13) = ( &
+    scratch = (&
       screened_rates(k_p_n13__o14)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jo14, jn13, scratch)
 
-    state % jac(jo14,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jo14) = ( &
+    scratch = (&
       -screened_rates(k_he4_o14__p_f17)*Y(jhe4)*state % rho - &
       screened_rates(k_o14__n14__weak__wc12) &
        )
+    call set_jac_entry(jac, jo14, jo14, scratch)
 
-    state % jac(jo14,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo14,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jp) = ( &
+    scratch = (&
       screened_rates(k_p_f18__he4_o15)*Y(jf18)*state % rho + screened_rates(k_p_n14__o15)* &
       Y(jn14)*state % rho &
        )
+    call set_jac_entry(jac, jo15, jp, scratch)
 
-    state % jac(jo15,jhe4) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jn14) = ( &
+    scratch = (&
       screened_rates(k_p_n14__o15)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jo15, jn14, scratch)
 
-    state % jac(jo15,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jo15) = ( &
+    scratch = (&
       -screened_rates(k_o15__n15__weak__wc12) &
        )
+    call set_jac_entry(jac, jo15, jo15, scratch)
 
-    state % jac(jo15,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo15,jf18) = ( &
+    scratch = (&
       screened_rates(k_p_f18__he4_o15)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jo15, jf18, scratch)
 
-    state % jac(jo16,jp) = ( &
+    scratch = (&
       screened_rates(k_p_n15__o16)*Y(jn15)*state % rho - screened_rates(k_p_o16__f17)*Y(jo16)* &
       state % rho &
        )
+    call set_jac_entry(jac, jo16, jp, scratch)
 
-    state % jac(jo16,jhe4) = ( &
+    scratch = (&
       screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + screened_rates(k_he4_n13__p_o16)* &
       Y(jn13)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jhe4, scratch)
 
-    state % jac(jo16,jc12) = ( &
+    scratch = (&
       screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jc12, scratch)
 
-    state % jac(jo16,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo16,jn13) = ( &
+    scratch = (&
       screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jn13, scratch)
 
-    state % jac(jo16,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo16,jn15) = ( &
+    scratch = (&
       screened_rates(k_p_n15__o16)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jn15, scratch)
 
-    state % jac(jo16,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo16,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo16,jo16) = ( &
+    scratch = (&
       -screened_rates(k_p_o16__f17)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jo16, scratch)
 
-    state % jac(jo16,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo16,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo16,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jp) = ( &
+    scratch = (&
       -screened_rates(k_p_o17__f18)*Y(jo17)*state % rho - screened_rates(k_p_o17__he4_n14)* &
       Y(jo17)*state % rho &
        )
+    call set_jac_entry(jac, jo17, jp, scratch)
 
-    state % jac(jo17,jhe4) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jo17,jo17) = ( &
+    scratch = (&
       -screened_rates(k_p_o17__f18)*Y(jp)*state % rho - screened_rates(k_p_o17__he4_n14)*Y(jp)* &
       state % rho &
        )
+    call set_jac_entry(jac, jo17, jo17, scratch)
 
-    state % jac(jo17,jf17) = ( &
+    scratch = (&
       screened_rates(k_f17__o17__weak__wc12) &
        )
+    call set_jac_entry(jac, jo17, jf17, scratch)
 
-    state % jac(jo17,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jp) = ( &
+    scratch = (&
       screened_rates(k_p_o16__f17)*Y(jo16)*state % rho &
        )
+    call set_jac_entry(jac, jf17, jp, scratch)
 
-    state % jac(jf17,jhe4) = ( &
+    scratch = (&
       screened_rates(k_he4_o14__p_f17)*Y(jo14)*state % rho &
        )
+    call set_jac_entry(jac, jf17, jhe4, scratch)
 
-    state % jac(jf17,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jn14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jo14) = ( &
+    scratch = (&
       screened_rates(k_he4_o14__p_f17)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jf17, jo14, scratch)
 
-    state % jac(jf17,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jo16) = ( &
+    scratch = (&
       screened_rates(k_p_o16__f17)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jf17, jo16, scratch)
 
-    state % jac(jf17,jo17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf17,jf17) = ( &
+    scratch = (&
       -screened_rates(k_f17__o17__weak__wc12) &
        )
+    call set_jac_entry(jac, jf17, jf17, scratch)
 
-    state % jac(jf17,jf18) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jp) = ( &
+    scratch = (&
       -screened_rates(k_p_f18__he4_o15)*Y(jf18)*state % rho + screened_rates(k_p_o17__f18)* &
       Y(jo17)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jp, scratch)
 
-    state % jac(jf18,jhe4) = ( &
+    scratch = (&
       screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jhe4, scratch)
 
-    state % jac(jf18,jc12) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jc13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jn13) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jn14) = ( &
+    scratch = (&
       screened_rates(k_he4_n14__f18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jn14, scratch)
 
-    state % jac(jf18,jn15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jo14) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jo15) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jo16) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jo17) = ( &
+    scratch = (&
       screened_rates(k_p_o17__f18)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jo17, scratch)
 
-    state % jac(jf18,jf17) = ( &
-      0.0d0 &
-       )
-
-    state % jac(jf18,jf18) = ( &
+    scratch = (&
       -screened_rates(k_p_f18__he4_o15)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jf18, scratch)
 
-    
+
   end subroutine jac_nuc
 
 end module actual_rhs_module

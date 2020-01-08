@@ -93,7 +93,7 @@ contains
     real(rt) :: HUB, T1, TDIST, TROUND, YDDNRM
     integer    :: I, ITER
 
-    real(rt), parameter :: PT1 = 0.1D0
+    real(rt), parameter :: PT1 = 0.1e0_rt
 
     !$gpu
 

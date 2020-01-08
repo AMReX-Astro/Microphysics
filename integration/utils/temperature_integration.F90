@@ -1,5 +1,6 @@
 module temperature_integration_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   logical, save, allocatable :: self_heat
@@ -18,12 +19,11 @@ contains
   ! within the actual_rhs routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  subroutine temperature_rhs(state)
+  subroutine temperature_rhs(state, ydot)
 
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
@@ -32,6 +32,8 @@ contains
     implicit none
 
     type (burn_t) :: state
+    real(rt), intent(inout) :: ydot(neqs)
+
     real(rt) :: cv, cp, cvInv, cpInv
 
     !$gpu
@@ -51,7 +53,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cv = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -63,11 +65,11 @@ contains
 
           cvInv = ONE / cv
 
-          state % ydot(net_itemp) = state % ydot(net_ienuc) * cvInv
+          ydot(net_itemp) = ydot(net_ienuc) * cvInv
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cp = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -79,7 +81,7 @@ contains
 
           cpInv = ONE / cp
 
-          state % ydot(net_itemp) = state % ydot(net_ienuc) * cpInv
+          ydot(net_itemp) = ydot(net_ienuc) * cpInv
 
        endif
 
@@ -93,12 +95,11 @@ contains
   ! within the actual_jac routine but is provided here as a convenience
   ! since most networks will use the same temperature ODE.
 
-  subroutine temperature_jac(state)
+  subroutine temperature_jac(state, jac)
 
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
@@ -107,7 +108,7 @@ contains
     implicit none
 
     type (burn_t) :: state
-
+    real(rt) :: jac(neqs, neqs)
     real(rt) :: scratch, cspec, cspecInv
 
     integer :: k
@@ -120,7 +121,7 @@ contains
 
        if (do_constant_volume_burn) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cspec = state % cv + (state % T - state % T_old) * state % dcvdt
 
@@ -132,7 +133,7 @@ contains
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0d19) then
+          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
              cspec = state % cp + (state % T - state % T_old) * state % dcpdt
 
@@ -149,22 +150,22 @@ contains
        ! d(itemp)/d(yi)
 
        do k = 1, nspec_evolve
-          call get_jac_entry(state, net_ienuc, k, scratch)
+          call get_jac_entry(jac, net_ienuc, k, scratch)
           scratch = scratch * cspecInv
-          call set_jac_entry(state, net_itemp, k, scratch)
+          call set_jac_entry(jac, net_itemp, k, scratch)
        enddo
 
        ! d(itemp)/d(temp) -- we get this from the equation for d (denuc / dt) / dT
        ! since dT/dt = 1/c_x denuc/dt in our formalism
 
-       call get_jac_entry(state, net_ienuc, net_itemp, scratch)
+       call get_jac_entry(jac, net_ienuc, net_itemp, scratch)
        scratch = scratch * cspecInv
-       call set_jac_entry(state, net_itemp, net_itemp, scratch)
+       call set_jac_entry(jac, net_itemp, net_itemp, scratch)
 
        ! d(itemp)/d(enuc)
 
        scratch = ZERO
-       call set_jac_entry(state, net_itemp, net_ienuc, scratch)
+       call set_jac_entry(jac, net_itemp, net_ienuc, scratch)
 
     endif
 

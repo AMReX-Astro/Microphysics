@@ -5,6 +5,7 @@ module vode_integrator_module
 
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains

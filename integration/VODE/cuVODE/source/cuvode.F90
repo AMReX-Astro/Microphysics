@@ -61,7 +61,7 @@ contains
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
-    real(rt), parameter :: PT2 = 0.2D0
+    real(rt), parameter :: PT2 = 0.2e0_rt
 
     !$gpu
 
@@ -238,7 +238,7 @@ contains
 
     if (HMAX .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  HMAX (=R1) .lt. 0.0  '
+       MSG = 'DVODE--  HMAX (=R1) .lt. 0.0_rt  '
        CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
 #endif
        vstate % ISTATE = -3
@@ -251,7 +251,7 @@ contains
 
     if (vstate % HMIN .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  HMIN (=R1) .lt. 0.0  '
+       MSG = 'DVODE--  HMIN (=R1) .lt. 0.0_rt  '
        CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
 #endif
        vstate % ISTATE = -3
@@ -286,7 +286,7 @@ contains
 
        if (RTOLI .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0        '
+          MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0_rt        '
           CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, ZERO)
 #endif
           vstate % ISTATE = -3
@@ -295,7 +295,7 @@ contains
 
        if (ATOLI .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0        '
+          MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0_rt        '
           CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
 #endif
           vstate % ISTATE = -3
@@ -372,7 +372,7 @@ contains
        if (rwork % ewt(I) .LE. ZERO) then
 #ifndef AMREX_USE_CUDA
           EWTI = rwork % ewt(I)
-          MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0         '
+          MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0_rt         '
           CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
 #endif
           vstate % ISTATE = -3
