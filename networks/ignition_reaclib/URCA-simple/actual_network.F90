@@ -30,6 +30,9 @@ module actual_network
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 9
 
+  ! For each rate, we need: rate, drate/dT, screening, dscreening/dT
+  integer, parameter :: num_rate_groups = 4
+
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 5
   integer, parameter :: number_reaclib_sets = 6
