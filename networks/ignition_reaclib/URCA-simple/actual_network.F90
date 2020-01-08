@@ -7,23 +7,21 @@ module actual_network
 
   public
 
-  real(rt), parameter :: avo = 6.0221417930e23_rt
-  real(rt), parameter :: c_light = 2.99792458e10_rt
-
   character (len=32), parameter :: network_name = "pynucastro"
 
+  real(rt), parameter :: avo = 6.0221417930e23_rt
+  real(rt), parameter :: c_light = 2.99792458e10_rt
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
   real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
-  real(rt), parameter :: mev2erg = ev2erg*1.0e6_rt
-  real(rt), parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt), parameter :: mev2erg = ev2erg * 1.0e6_rt
+  real(rt), parameter :: mev2gr  = mev2erg / c_light**2
 
   real(rt), parameter :: mass_neutron  = 1.67492721184e-24_rt
   real(rt), parameter :: mass_proton   = 1.67262163783e-24_rt
   real(rt), parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 7
-  integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
   integer, parameter :: nspec_evolve = 9
@@ -31,6 +29,9 @@ module actual_network
 
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 9
+
+  ! For each rate, we need: rate, drate/dT, screening, dscreening/dT
+  integer, parameter :: num_rate_groups = 4
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 5
@@ -66,14 +67,6 @@ module actual_network
   integer, parameter :: k_n__p__weak__wc12   = 5
   integer, parameter :: k_na23__ne23   = 6
   integer, parameter :: k_ne23__na23   = 7
-
-  ! reactvec indices
-  integer, parameter :: i_rate        = 1
-  integer, parameter :: i_drate_dt    = 2
-  integer, parameter :: i_scor        = 3
-  integer, parameter :: i_dscor_dt    = 4
-  integer, parameter :: i_dqweak      = 5
-  integer, parameter :: i_epart       = 6
 
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
