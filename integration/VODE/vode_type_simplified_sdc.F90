@@ -292,6 +292,8 @@ contains
     integer :: SRHO_EXTRA
 #endif
 
+    real(rt), parameter :: smallK = 1.e-15_rt
+
     !$gpu
 
     ! burn_state % jac has the derivatives with respect to the native
@@ -394,6 +396,10 @@ contains
     ! kinetic energy, K = 1/2 |U|^2
     K = 0.5_rt * sum(rpar(irp_SMX:irp_SMZ)**2)/rpar(irp_SRHO)**2
 
+    if (K == ZERO) then
+       K = smallK
+    end if
+
     ! density row (iwrho)
     dwdU(iwrho, SEINT) = -1.0_rt/K
     dwdU(iwrho, SEDEN) = 1.0_rt/K
@@ -422,16 +428,18 @@ contains
     dwdU(iwT, SEDEN) = (sum(eos_state % xn * eos_xderivs % dedX) - &
          eos_state % rho * eos_state % dedr - eos_state % e) / (eos_state % rho * eos_state % dedT * K)
 
-
     ! compute J = dR/dw dw/dU
 
     ! CUDA Fortran doesn't support the matmul intrinsic :(
-    !jac(:,:) = matmul(dRdw, dwdU)
+#ifndef AMREX_USE_CUDA
+    jac(:,:) = matmul(dRdw, dwdU)
+#else
     call dgemm(1, 1, SVAR_EVOLVE, SVAR_EVOLVE, iwvar, ONE, &
                dRdw, SVAR_EVOLVE, &
                dwdU, iwvar, &
                ZERO, &
                jac, SVAR_EVOLVE)
+#endif
 
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
