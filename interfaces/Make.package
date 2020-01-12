@@ -1,4 +1,9 @@
+F90EXE_sources += microphysics.F90
+F90EXE_sources += network.F90
+F90EXE_sources += eos.F90
+F90EXE_sources += eos_override.F90
 F90EXE_sources += eos_type.F90
+
 ifeq ($(USE_REACT), TRUE)
   F90EXE_sources += burn_type.F90
 endif
