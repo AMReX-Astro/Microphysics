@@ -169,34 +169,38 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
      write(*,*) 'omegadot(', short_spec_names(i), '): ', &
           (burn_state_out%xn(i)-burn_state_in%xn(i))/dt
   end do
-  
+
   do i = 1, nspec
      write(*,*) 'delta(', short_spec_names(i), '): ', &
           (burn_state_out%xn(i)-burn_state_in%xn(i))
   end do
-  
+
   do i = 1, nspec
      write(*,*) 'percent change(', short_spec_names(i), '): ', &
           100.e0_rt*(burn_state_out%xn(i)-burn_state_in%xn(i)) / burn_state_in%xn(i)
   end do
-  
+
   call microphysics_finalize()
 
 end subroutine burn_cell
 
 subroutine write_burn_t(burnt)
   use network
+  use network_rhs_module
   use burn_type_module
 
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! Writes contents of burn_t type burnt to file named fname
-  type(burn_t), intent(in) :: burnt
+  type(burn_t), intent(inout) :: burnt
   character(len=20), parameter :: DPFMT = '(E30.16E5)'
   character(len=20) :: VDPFMT = ''
 
   integer :: i, j
+
+  real(rt) :: ydot(neqs)
+  real(rt) :: jac(njrows, njcols)
 
   write(*, fmt=*) '! Burn Type Data'
 
@@ -257,13 +261,19 @@ subroutine write_burn_t(burnt)
   write(*, fmt=*) 'dcpdT:'
   write(*, fmt=DPFMT) burnt % dcpdT
 
+  ! get ydot
+  call network_rhs(burnt, ydot, 0.0_rt)
+
   write(VDPFMT, '("(", I0, "E30.16E5", ")")') neqs
   write(*, fmt=*) 'ydot:'
-  write(*, fmt=VDPFMT) (burnt % ydot(i), i = 1, neqs)
+  write(*, fmt=VDPFMT) (ydot(i), i = 1, neqs)
+
+  ! get jac
+  call network_jac(burnt, jac, 0.0_rt)
 
   write(*, fmt=*) 'jac:'
-  do i = 1, neqs
-     write(*, fmt=VDPFMT) (burnt % jac(i,j), j = 1, neqs)
+  do i = 1, njrows
+     write(*, fmt=VDPFMT) (jac(i,j), j = 1, njcols)
   end do
 
   write(*, fmt=*) 'self_heat:'
