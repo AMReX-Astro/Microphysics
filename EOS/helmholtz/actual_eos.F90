@@ -160,6 +160,8 @@ contains
 
   subroutine apply_electrons(state)
 
+    !$acc routine seq
+
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -421,6 +423,8 @@ contains
 
   subroutine apply_ions(state)
 
+    !$acc routine seq
+
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -509,6 +513,8 @@ contains
   
   subroutine apply_radiation(state)
 
+    !$acc routine seq
+
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -586,6 +592,8 @@ contains
 
 
   subroutine apply_coulomb_corrections(state)
+
+    !$acc routine seq
 
     use amrex_constants_module, only: ZERO
 
@@ -789,6 +797,8 @@ contains
 
   subroutine prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2)
 
+    !$acc routine seq
+
     implicit none
 
     integer,          intent(in   ) :: input
@@ -858,6 +868,8 @@ contains
 
 
   subroutine single_iter_update(state, var, dvar, v_want, converged)
+
+    !$acc routine seq
 
     implicit none
 
@@ -941,6 +953,8 @@ contains
 
 
   subroutine double_iter_update(state, var1, var2, v1_want, v2_want, converged)
+
+    !$acc routine seq
 
     use amrex_constants_module, only: HALF, TWO
 
@@ -1038,6 +1052,8 @@ contains
 
 
   subroutine finalize_state(input, state, v_want, v1_want, v2_want)
+
+    !$acc routine seq
 
     implicit none
 
