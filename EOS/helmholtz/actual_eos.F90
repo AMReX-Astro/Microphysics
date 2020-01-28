@@ -718,21 +718,30 @@ contains
        y        = avo_eos*ytot1*kt*(a1 + 0.25e0_rt/plasg*(b1*x - c1/x))
        decouldd = y * plasgdd
        decouldt = y * plasgdt + ecoul/state % T
+
+#ifdef EXTRA_THERMO
        decoulda = y * plasgda - ecoul/state % abar
        decouldz = y * plasgdz
+#endif
 
        y        = onethird * state % rho
        dpcouldd = onethird * ecoul + y*decouldd
        dpcouldt = y * decouldt
+
+#ifdef EXTRA_THERMO
        dpcoulda = y * decoulda
        dpcouldz = y * decouldz
+#endif
 
        y        = -avo_eos*kerg/(state % abar*plasg)* &
                   (0.75e0_rt*b1*x+1.25e0_rt*c1/x+d1)
        dscouldd = y * plasgdd
        dscouldt = y * plasgdt
+
+#ifdef EXTRA_THERMO
        dscoulda = y * plasgda - scoul/state % abar
        dscouldz = y * plasgdz
+#endif
 
        !...yakovlev & shalybkov 1989 equations 102, 103, 104
     else if (plasg .lt. 1.0e0_rt) then
@@ -763,15 +772,19 @@ contains
        s        = 3.0e0_rt/state % rho
        decouldd = s * dpcouldd - ecoul/state % rho
        decouldt = s * dpcouldt
+#ifdef EXTRA_THERMO
        decoulda = s * dpcoulda
        decouldz = s * dpcouldz
+#endif
 
        s        = -avo_eos*kerg/(state % abar*plasg)* &
                   (1.5e0_rt*c2*x-a2*(b2-1.0e0_rt)*y)
        dscouldd = s * plasgdd
        dscouldt = s * plasgdt
+#ifdef EXTRA_THERMO
        dscoulda = s * plasgda - scoul/state % abar
        dscouldz = s * plasgdz
+#endif
     end if
 
     ! Disable Coulomb corrections if they cause
@@ -785,18 +798,21 @@ contains
        pcoul    = 0.0e0_rt
        dpcouldd = 0.0e0_rt
        dpcouldt = 0.0e0_rt
-       dpcoulda = 0.0e0_rt
-       dpcouldz = 0.0e0_rt
        ecoul    = 0.0e0_rt
        decouldd = 0.0e0_rt
        decouldt = 0.0e0_rt
-       decoulda = 0.0e0_rt
-       decouldz = 0.0e0_rt
        scoul    = 0.0e0_rt
        dscouldd = 0.0e0_rt
        dscouldt = 0.0e0_rt
+
+#ifdef EXTRA_THERMO
+       dpcoulda = 0.0e0_rt
+       dpcouldz = 0.0e0_rt
+       decoulda = 0.0e0_rt
+       decouldz = 0.0e0_rt
        dscoulda = 0.0e0_rt
        dscouldz = 0.0e0_rt
+#endif
 
     end if
 
