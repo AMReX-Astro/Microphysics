@@ -166,9 +166,16 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    real(rt)         :: pele, dpepdt, dpepdd, dpepda, dpepdz
-    real(rt)         :: sele, dsepdt, dsepdd, dsepda, dsepdz
-    real(rt)         :: eele, deepdt, deepdd, deepda, deepdz
+    real(rt)         :: pele, dpepdt, dpepdd
+    real(rt)         :: sele, dsepdt, dsepdd
+    real(rt)         :: eele, deepdt, deepdd
+
+#ifdef EXTRA_THERMO
+    real(rt)         :: dpepda, dpepdz
+    real(rt)         :: dsepda, dsepdz
+    real(rt)         :: deepda, deepdz
+#endif
+
     real(rt)         :: xni, xnem, din, x, s, etaele, xnefer, ytot1
 
     !..for the interpolations
@@ -429,9 +436,15 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    real(rt)         :: pion, dpiondd, dpiondt, dpionda, dpiondz
-    real(rt)         :: eion, deiondd, deiondt, deionda, deiondz
-    real(rt)         :: sion, dsiondd, dsiondt, dsionda, dsiondz
+    real(rt)         :: pion, dpiondd, dpiondt
+    real(rt)         :: eion, deiondd, deiondt
+    real(rt)         :: sion, dsiondd, dsiondt
+
+#ifdef EXTRA_THERMO
+    real(rt)         :: dpionda, dpiondz
+    real(rt)         :: deionda, deiondz
+    real(rt)         :: dsionda, dsiondz
+#endif
 
     real(rt)         :: xni, dxnidd, dxnida, kt, ytot1, deni, tempi
 
@@ -519,9 +532,15 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    real(rt)         :: prad, dpraddd, dpraddt, dpradda, dpraddz
-    real(rt)         :: erad, deraddd, deraddt, deradda, deraddz
-    real(rt)         :: srad, dsraddd, dsraddt, dsradda, dsraddz
+    real(rt)         :: prad, dpraddd, dpraddt
+    real(rt)         :: erad, deraddd, deraddt
+    real(rt)         :: srad, dsraddd, dsraddt
+
+#ifdef EXTRA_THERMO
+    real(rt)         :: dpradda, dpraddz
+    real(rt)         :: deradda, deraddz
+    real(rt)         :: dsradda, dsraddz
+#endif
 
     real(rt)         :: deni, tempi
 
@@ -601,13 +620,20 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    real(rt)         :: ecoul, decouldd, decouldt, decoulda, decouldz
-    real(rt)         :: pcoul, dpcouldd, dpcouldt, dpcoulda, dpcouldz
-    real(rt)         :: scoul, dscouldd, dscouldt, dscoulda, dscouldz
+    real(rt)         :: ecoul, decouldd, decouldt
+    real(rt)         :: pcoul, dpcouldd, dpcouldt
+    real(rt)         :: scoul, dscouldd, dscouldt
 
     real(rt)         :: dsdd, dsda, lami, inv_lami, lamida, lamidd
     real(rt)         :: plasg, plasgdd, plasgdt, plasgda, plasgdz
-    real(rt)         :: pion, dpiondt, dpiondd, dpionda, dpiondz, xni, dxnidd, dxnida
+    real(rt)         :: pion, dpiondt, dpiondd, xni, dxnidd, dxnida
+
+#ifdef EXTRA_THERMO
+    real(rt)         :: decoulda, decouldz
+    real(rt)         :: dpcoulda, dpcouldz
+    real(rt)         :: dscoulda, dscouldz
+    real(rt)         :: dpionda, dpiondz
+#endif
 
     real(rt)         :: kt, ktinv, ytot1
     real(rt)         :: s, x, y, z
@@ -633,18 +659,21 @@ contains
     pcoul    = ZERO
     dpcouldd = ZERO
     dpcouldt = ZERO
-    dpcoulda = ZERO
-    dpcouldz = ZERO
     ecoul    = ZERO
     decouldd = ZERO
     decouldt = ZERO
-    decoulda = ZERO
-    decouldz = ZERO
     scoul    = ZERO
     dscouldd = ZERO
     dscouldt = ZERO
+
+#ifdef EXTRA_THERMO
+    dpcoulda = ZERO
+    dpcouldz = ZERO
+    decoulda = ZERO
+    decouldz = ZERO
     dscoulda = ZERO
     dscouldz = ZERO
+#endif
 
     !..uniform background corrections only
     !..from yakovlev & shalybkov 1989
