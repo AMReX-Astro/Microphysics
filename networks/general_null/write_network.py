@@ -167,9 +167,10 @@ def write_network(network_template, header_template,
     #-------------------------------------------------------------------------
     # write out the Fortran and C++ files based on the templates
     #-------------------------------------------------------------------------
-    templates = [(network_template, network_file), (header_template, header_file)]
+    templates = [(network_template, network_file, "Fortran"),
+                 (header_template, header_file, "C++")]
 
-    for tmp, out_file in templates:
+    for tmp, out_file, lang in templates:
 
         print("writing {}".format(out_file))
 
@@ -210,12 +211,22 @@ def write_network(network_template, header_template,
                         fout.write("{}short_spec_names({}) = \"{}\"\n".format(indent, n+1, spec.short_name))
 
                 elif keyword == "AION":
-                    for n, spec in enumerate(species):
-                        fout.write("{}aion({}) = {}\n".format(indent, n+1, spec.A))
+                    if lang == "Fortran":
+                        for n, spec in enumerate(species):
+                            fout.write("{}aion({}) = {}\n".format(indent, n+1, spec.A))
+
+                    elif lang == "C++":
+                        for n, spec in enumerate(species):
+                            fout.write("{}{},   // {} \n".format(indent, spec.A, n))
 
                 elif keyword == "ZION":
-                    for n, spec in enumerate(species):
-                        fout.write("{}zion({}) = {}\n".format(indent, n+1, spec.Z))
+                    if lang == "Fortran":
+                        for n, spec in enumerate(species):
+                            fout.write("{}zion({}) = {}\n".format(indent, n+1, spec.Z))
+
+                    elif lang == "C++":
+                        for n, spec in enumerate(species):
+                            fout.write("{}{},   // {}\n".format(indent, spec.Z, n))
 
                 elif keyword == "AUX_NAMES":
                     for n, aux in enumerate(aux_vars):

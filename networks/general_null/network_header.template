@@ -7,4 +7,12 @@
 const int NumSpec = @@NSPEC@@;
 const int NumAux = @@NAUX@@;
 
+const amrex::GpuArray<Real, NumSpec> aion = {
+   @@AION@@
+  };
+
+const amrex::GpuArray<Real, NumSpec> zion = {
+   @@ZION@@
+  };
+
 #endif
