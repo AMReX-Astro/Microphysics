@@ -253,6 +253,30 @@ contains
   end subroutine rhs_to_vode
 
 
+  subroutine unevolved_rhs_to_vode(ydot_react, ydot, rpar)
+
+    use burn_type_module, only : burn_t, net_ienuc, neqs
+
+    real(rt), intent(in) :: rpar(n_rpar_comps)
+    real(rt), intent(in) :: ydot_react(nspec-nspec_evolve)
+    real(rt), intent(inout) :: ydot(SVAR_EVOLVE)
+
+    integer :: i
+
+    !$gpu
+
+    ! ydot_react has just the contribution to the RHS from the
+    ! unevolved species in the reaction network.  Note that these are in terms of dY/dt
+
+    ! add in the unevolved reacting terms -- here we convert from dY/dt to dX/dt
+    do i = 1, nspec-nspec_evolve
+        ydot(SFS+nspec_evolve-1+i) = ydot(SFS+nspec_evolve-1+i) + &
+             rpar(irp_SRHO) * aion(nspec_evolve+i) * ydot_react(i)
+    end do
+
+  end subroutine unevolved_rhs_to_vode
+
+
   subroutine jac_to_vode(time, jac_react, y, jac, rpar)
 
     ! this is only used with an analytic Jacobian

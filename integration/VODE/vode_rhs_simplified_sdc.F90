@@ -8,13 +8,14 @@ module vode_rhs_module
 
 subroutine f_rhs(time, y, ydot, rpar)
 
-  use actual_network, only: aion, nspec_evolve
+  use actual_network, only: aion, nspec_evolve, nspec
   use amrex_fort_module, only: rt => amrex_real
   use burn_type_module, only: burn_t, net_ienuc, net_itemp, neqs
   use amrex_constants_module, only: ZERO, ONE
   use network_rhs_module, only: network_rhs
+  use actual_rhs_module, only: unevolved_rhs
   use vode_type_module, only: clean_state, renormalize_species
-  use vode_type_module, only: rhs_to_vode, vode_to_burn
+  use vode_type_module, only: rhs_to_vode, vode_to_burn, unevolved_rhs_to_vode
   use vode_rpar_indices
   use cuvode_parameters_module
 
@@ -26,6 +27,7 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   type (burn_t) :: burn_state
   real(rt) :: ydot_react(neqs)
+  real(rt) :: ydot_unevolved_react(nspec-nspec_evolve)
 
   !$gpu
 
@@ -48,6 +50,11 @@ subroutine f_rhs(time, y, ydot, rpar)
   ! convert back to the vode type -- this will add the advective terms
 
   call rhs_to_vode(time, burn_state, ydot_react, y, ydot, rpar)
+
+  if (nspec_evolve < nspec) then
+      call unevolved_rhs(ydot_react, ydot_unevolved_react)
+      call unevolved_rhs_to_vode(ydot_unevolved_react, ydot, rpar)
+  end if
 
 end subroutine f_rhs
 
