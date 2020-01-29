@@ -116,6 +116,24 @@ contains
   end subroutine actual_rhs
 
 
+  subroutine unevolved_rhs(ydot, ydot_un)
+
+    !$acc routine seq
+
+    implicit none
+
+    real(rt)        , intent(inout) :: ydot(neqs)
+    real(rt)        , intent(out)   :: ydot_un(nspec-nspec_evolve)
+
+
+    !$gpu
+
+    ydot_un(io16-nspec_evolve) = 0.0_rt
+    ydot_un(img24-nspec_evolve) = -ydot(ic12) * aion(ic12) * aion_inv(img24)
+
+  end subroutine unevolved_rhs
+
+
   subroutine actual_jac(state, jac)
 
     !$acc routine seq
