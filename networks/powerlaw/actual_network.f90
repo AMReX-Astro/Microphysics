@@ -1,21 +1,17 @@
 module actual_network
 
+  use network_properties
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  integer, parameter :: nspec = 3
   integer, parameter :: nspec_evolve = 2
-  integer, parameter :: naux  = 0
 
   integer, parameter :: ifuel_  = 1
   integer, parameter :: iash_   = 2
   integer, parameter :: iinert_ = 3
 
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
 
-  real(rt)        , save :: aion(nspec), zion(nspec), ebin(nspec)
+  real(rt)        , save :: ebin(nspec)
 
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
@@ -28,26 +24,9 @@ contains
     use amrex_constants_module, only: ZERO
     use fundamental_constants_module, only: N_A
 
-    spec_names(ifuel_)  = "fuel"
-    spec_names(iash_)   = "ash"
-    spec_names(iinert_) = "inert"
+    call network_properties_init()
 
-    short_spec_names(ifuel_)  = "fuel"
-    short_spec_names(iash_)   = "ash"
-    short_spec_names(iinert_) = "inert"
-
-    ! we are modeling a reaction f + f -> a + gamma, so baryon and
-    ! charge conservation require that A_f = A_a / 2 and Z_f = Z_a / 2
-    ! inert is a third species that doesn't participate in any 
-    ! reactions
-    aion(ifuel_)  = 2.0e0_rt
-    aion(iash_)   = 4.0e0_rt
-    aion(iinert_) = 8.0e0_rt
-    
-    zion(ifuel_)  = 1.0e0_rt
-    zion(iash_)   = 2.0e0_rt
-    zion(iinert_) = 4.0e0_rt
-
+x
     ! Binding energies in erg / g
 
     ebin(ifuel_)  = ZERO
@@ -61,6 +40,8 @@ contains
   subroutine actual_network_finalize
 
     implicit none
+
+    call network_properties_finalize()
 
     ! Nothing to do here.
 

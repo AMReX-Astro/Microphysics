@@ -1,5 +1,11 @@
 # The ignition network is used for wdconvect with the ignition_chamulak burner.
 
+# the ash from C12 burning according to Chamulak et al. is a mixture
+# of C13, O16, Ne20, and Na23.   Ne20 + alpha results 60% of the time,
+# while Na23 + p is the other 40%.   Fusing 6 C12 will result in
+# 1.2 Na23, 1.2 O16 (from the alpha), 1.8 Ne20, and 1.8 C13.
+# The ash state will have an A and Z corresponding to this mixture.
+
 # name       short name    aion     zion
  carbon-12      C12         12.0     6.0
  oxygen-16      O16         16.0     8.0
