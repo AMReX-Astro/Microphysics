@@ -48,8 +48,8 @@ contains
     spec_names(6) = "magnesium-22"
     spec_names(7) = "sulfur-30"
     spec_names(8) = "nickel-56"
-    spec_names(9) = "hydrogen-1"
-    spec_names(10) = "helium-4"
+    spec_names(9) = "helium-4"
+    spec_names(10) = "hydrogen-1"
 
     short_spec_names(1) = "C12"
     short_spec_names(2) = "O14"
@@ -59,8 +59,8 @@ contains
     short_spec_names(6) = "Mg22"
     short_spec_names(7) = "S30"
     short_spec_names(8) = "Ni56"
-    short_spec_names(9) = "H1"
-    short_spec_names(10) = "He4"
+    short_spec_names(9) = "He4"
+    short_spec_names(10) = "H1"
 
     allocate(aion(nspec))
     allocate(zion(nspec))
@@ -74,8 +74,8 @@ contains
     aion(6) = 22.0
     aion(7) = 30.0
     aion(8) = 56.0
-    aion(9) = 1.0
-    aion(10) = 4.0
+    aion(9) = 4.0
+    aion(10) = 1.0
 
     zion(1) = 6.0
     zion(2) = 8.0
@@ -85,8 +85,8 @@ contains
     zion(6) = 12.0
     zion(7) = 16.0
     zion(8) = 28.0
-    zion(9) = 1.0
-    zion(10) = 2.0
+    zion(9) = 2.0
+    zion(10) = 1.0
 
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)

@@ -16,8 +16,8 @@ constexpr amrex::GpuArray<Real, NumSpec> aion = {
    22.0,   // 5 
    30.0,   // 6 
    56.0,   // 7 
-   1.0,   // 8 
-   4.0,   // 9 
+   4.0,   // 8 
+   1.0,   // 9 
   };
 
 constexpr amrex::GpuArray<Real, NumSpec> zion = {
@@ -29,8 +29,8 @@ constexpr amrex::GpuArray<Real, NumSpec> zion = {
    12.0,   // 5
    16.0,   // 6
    28.0,   // 7
-   1.0,   // 8
-   2.0,   // 9
+   2.0,   // 8
+   1.0,   // 9
   };
 
 #endif
