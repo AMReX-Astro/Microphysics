@@ -48,9 +48,9 @@ contains
     allocate(zion(nspec))
     allocate(nion(nspec))
 
-    aion(1) = 1.0
+    aion(1) = 1.0_rt
 
-    zion(1) = 1.0
+    zion(1) = 1.0_rt
 
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)

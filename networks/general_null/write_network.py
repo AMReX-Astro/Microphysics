@@ -125,8 +125,8 @@ def parse_network_object(fields):
 
         ret.name = fields[0]
         ret.short_name = fields[1]
-        ret.A = fields[2]
-        ret.Z = fields[3]
+        ret.A = float(fields[2])
+        ret.Z = float(fields[3])
 
     return ret, err
 
@@ -213,7 +213,7 @@ def write_network(network_template, header_template,
                 elif keyword == "AION":
                     if lang == "Fortran":
                         for n, spec in enumerate(species):
-                            fout.write("{}aion({}) = {}\n".format(indent, n+1, spec.A))
+                            fout.write("{}aion({}) = {}_rt\n".format(indent, n+1, spec.A))
 
                     elif lang == "C++":
                         for n, spec in enumerate(species):
@@ -222,7 +222,7 @@ def write_network(network_template, header_template,
                 elif keyword == "ZION":
                     if lang == "Fortran":
                         for n, spec in enumerate(species):
-                            fout.write("{}zion({}) = {}\n".format(indent, n+1, spec.Z))
+                            fout.write("{}zion({}) = {}_rt\n".format(indent, n+1, spec.Z))
 
                     elif lang == "C++":
                         for n, spec in enumerate(species):

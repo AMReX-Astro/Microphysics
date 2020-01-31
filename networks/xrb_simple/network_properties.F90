@@ -60,21 +60,21 @@ contains
     allocate(zion(nspec))
     allocate(nion(nspec))
 
-    aion(1) = 1.0
-    aion(2) = 4.0
-    aion(3) = 14.0
-    aion(4) = 15.0
-    aion(5) = 18.0
-    aion(6) = 25.0
-    aion(7) = 56.0
+    aion(1) = 1.0_rt
+    aion(2) = 4.0_rt
+    aion(3) = 14.0_rt
+    aion(4) = 15.0_rt
+    aion(5) = 18.0_rt
+    aion(6) = 25.0_rt
+    aion(7) = 56.0_rt
 
-    zion(1) = 1.0
-    zion(2) = 2.0
-    zion(3) = 8.0
-    zion(4) = 8.0
-    zion(5) = 10.0
-    zion(6) = 14.0
-    zion(7) = 26.0
+    zion(1) = 1.0_rt
+    zion(2) = 2.0_rt
+    zion(3) = 8.0_rt
+    zion(4) = 8.0_rt
+    zion(5) = 10.0_rt
+    zion(6) = 14.0_rt
+    zion(7) = 26.0_rt
 
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)

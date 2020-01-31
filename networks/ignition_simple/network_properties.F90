@@ -52,13 +52,13 @@ contains
     allocate(zion(nspec))
     allocate(nion(nspec))
 
-    aion(1) = 12.0
-    aion(2) = 16.0
-    aion(3) = 24.0
+    aion(1) = 12.0_rt
+    aion(2) = 16.0_rt
+    aion(3) = 24.0_rt
 
-    zion(1) = 6.0
-    zion(2) = 8.0
-    zion(3) = 12.0
+    zion(1) = 6.0_rt
+    zion(2) = 8.0_rt
+    zion(3) = 12.0_rt
 
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)
