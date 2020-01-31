@@ -4,14 +4,14 @@
 #ifndef _network_size_H_
 #define _network_size_H_
 
-const int NumSpec = @@NSPEC@@;
-const int NumAux = @@NAUX@@;
+constexpr int NumSpec = @@NSPEC@@;
+constexpr int NumAux = @@NAUX@@;
 
-const amrex::GpuArray<Real, NumSpec> aion = {
+constexpr amrex::GpuArray<Real, NumSpec> aion = {
    @@AION@@
   };
 
-const amrex::GpuArray<Real, NumSpec> zion = {
+constexpr amrex::GpuArray<Real, NumSpec> zion = {
    @@ZION@@
   };
 
