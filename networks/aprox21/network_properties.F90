@@ -21,7 +21,6 @@ module network_properties
   implicit none
 
   integer, parameter :: nspec = 21
-  integer, parameter :: nspec_evolve = 21
   integer, parameter :: naux =  0
 
   character (len=16), save :: spec_names(nspec)
@@ -29,12 +28,12 @@ module network_properties
   character (len=16), save :: aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable, save :: aion(:), zion(:)
+  double precision, allocatable, save :: aion(:), zion(:), nion(:)
 
-  !$acc declare create(aion, zion)
+  !$acc declare create(aion, zion, nion)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion
+  attributes(managed) :: aion, zion, nion
 #endif
 
 contains
@@ -87,6 +86,7 @@ contains
 
     allocate(aion(nspec))
     allocate(zion(nspec))
+    allocate(nion(nspec))
 
     aion(1) = 1.0
     aion(2) = 3.0
@@ -132,6 +132,10 @@ contains
     zion(20) = 0.0
     zion(21) = 1.0
 
+    ! Set the number of neutrons
+    nion(:) = aion(:) - zion(:)
+
+
 
     !$acc update device(aion, zion)
 
@@ -143,8 +147,17 @@ contains
 
     implicit none
 
-    deallocate(aion)
-    deallocate(zion)
+    if (allocated(aion)) then
+       deallocate(aion)
+    end if
+
+    if (allocated(zion)) then
+       deallocate(zion)
+    end if
+
+    if (allocated(nion)) then
+       deallocate(nion)
+    end if
 
   end subroutine network_properties_finalize
 

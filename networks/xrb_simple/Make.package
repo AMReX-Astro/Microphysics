@@ -1,4 +1,6 @@
 f90EXE_sources += actual_network.f90
+F90EXE_sources += network_properties.F90
+CEXE_headers += actual_network.H
 
 ifeq ($(USE_REACT), TRUE)
   ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
