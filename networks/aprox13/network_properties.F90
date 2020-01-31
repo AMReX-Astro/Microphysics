@@ -1,0 +1,119 @@
+! An automatically file of network properties.  This provides the properties
+! of a set of non-reacting species.
+!
+! nspec            -- the number of species
+! naux             -- the number of auxiliary variables
+!
+! aion             -- atomic number
+! zion             -- proton number
+!
+! spec_names       -- the name of the isotope
+! short_spec_names -- an abbreviated form of the species name
+!
+! aux_names        -- the name of the auxiliary variable
+! short_aux_names  -- an abbreviated form of the auxiliary variable
+
+
+module network_properties
+
+  use amrex_fort_module, only : rt => amrex_real
+
+  implicit none
+
+  integer, parameter :: nspec = 13
+  integer, parameter :: nspec_evolve = 13
+  integer, parameter :: naux =  0
+
+  character (len=16), save :: spec_names(nspec)
+  character (len= 5), save :: short_spec_names(nspec)
+  character (len=16), save :: aux_names(naux)
+  character (len= 5), save :: short_aux_names(naux)
+
+  double precision, allocatable, save :: aion(:), zion(:)
+
+  !$acc declare create(aion, zion)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: aion, zion
+#endif
+
+contains
+
+  subroutine network_properties_init
+
+    spec_names(1) = "helium-4"
+    spec_names(2) = "carbon-12"
+    spec_names(3) = "oxygen-16"
+    spec_names(4) = "neon-20"
+    spec_names(5) = "magnesium-24"
+    spec_names(6) = "silicon-28"
+    spec_names(7) = "sulfur-32"
+    spec_names(8) = "argon-36"
+    spec_names(9) = "calcium-40"
+    spec_names(10) = "titanium-44"
+    spec_names(11) = "chromium-48"
+    spec_names(12) = "iron-52"
+    spec_names(13) = "nickel-56"
+
+    short_spec_names(1) = "He4"
+    short_spec_names(2) = "C12"
+    short_spec_names(3) = "O16"
+    short_spec_names(4) = "Ne20"
+    short_spec_names(5) = "Mg24"
+    short_spec_names(6) = "Si28"
+    short_spec_names(7) = "S32"
+    short_spec_names(8) = "Ar36"
+    short_spec_names(9) = "Ca40"
+    short_spec_names(10) = "Ti44"
+    short_spec_names(11) = "Cr48"
+    short_spec_names(12) = "Fe52"
+    short_spec_names(13) = "Ni56"
+
+    allocate(aion(nspec))
+    allocate(zion(nspec))
+
+    aion(1) = 4.0
+    aion(2) = 12.0
+    aion(3) = 16.0
+    aion(4) = 20.0
+    aion(5) = 24.0
+    aion(6) = 28.0
+    aion(7) = 32.0
+    aion(8) = 36.0
+    aion(9) = 40.0
+    aion(10) = 44.0
+    aion(11) = 48.0
+    aion(12) = 52.0
+    aion(13) = 56.0
+
+    zion(1) = 2.0
+    zion(2) = 6.0
+    zion(3) = 8.0
+    zion(4) = 10.0
+    zion(5) = 12.0
+    zion(6) = 14.0
+    zion(7) = 16.0
+    zion(8) = 18.0
+    zion(9) = 20.0
+    zion(10) = 22.0
+    zion(11) = 24.0
+    zion(12) = 26.0
+    zion(13) = 28.0
+
+
+    !$acc update device(aion, zion)
+
+  end subroutine network_properties_init
+
+
+
+  subroutine network_properties_finalize
+
+    implicit none
+
+    deallocate(aion)
+    deallocate(zion)
+
+  end subroutine network_properties_finalize
+
+end module network_properties
