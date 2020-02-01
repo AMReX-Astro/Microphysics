@@ -1,4 +1,1 @@
-n_cell = 16
-max_grid_size = 32
-
 amr.probin = probin

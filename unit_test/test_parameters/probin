@@ -5,6 +5,4 @@
   temp_min   = 1.d6
   temp_max   = 1.d10
 
-  metalicity_max = 0.5d0
-
 /

@@ -46,4 +46,7 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+
+    do_f90_parameters();
+
 }
