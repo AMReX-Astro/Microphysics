@@ -3,6 +3,8 @@
 #ifndef _eos_H_
 #define _eos_H_
 
+using namespace amrex;
+
 struct eos_t {
     Real rho;
     Real T;

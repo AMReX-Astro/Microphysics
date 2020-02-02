@@ -1,3 +1,5 @@
+#include <eos_composition.H>
+
 eos_xderivs_t compsition_derivative(eos_t& state) {
 
   eos_xderivs_t state_xderivs;
@@ -12,7 +14,7 @@ eos_xderivs_t compsition_derivative(eos_t& state) {
       state.dedA * (state.abar / aion[n]) * (aion[n] - state.abar) +
       state.dedZ * (state.abar / aion[n]) * (zion[n] - state.zbar);
 
-    if (state % dPdr != 0.0) {
+    if (state.dpdr != 0.0) {
 
       state_xderivs.dhdX[n] = state_xderivs.dedX[n]
             + (state.p / (state.rho*state.rho) - state.dedr)
