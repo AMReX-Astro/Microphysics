@@ -21,7 +21,7 @@ MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
-EOS_DIR     := helmholtz
+EOS_DIR     := gamma_law_general
 
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox19

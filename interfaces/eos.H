@@ -87,6 +87,54 @@ namespace EOSData
   extern Real maxh;
 }
 
+void eos_cxx_init();
 
+void eos_cxx_finalize();
+
+void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs=false);
+
+void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset);
+
+inline void reset_rho(eos_t& state, bool& has_been_reset);
+
+inline void reset_T(eos_t& state, bool& has_been_reset);
+
+void reset_e(eos_t& state, bool& has_been_reset);
+
+void reset_h(eos_t& state, bool& has_been_reset);
+
+void reset_s(eos_t& state, bool& has_been_reset);
+
+void reset_p(eos_t& state, bool& has_been_reset);
+
+void eos_reset(eos_t& state, bool& has_been_reset);
+
+#ifndef AMREX_USE_GPU
+void check_inputs(const eos_input_t input, eos_t& state);
+
+void check_rho(eos_t& state);
+
+void check_T(eos_t& state);
+
+void check_e(eos_t& state);
+
+void check_h(eos_t& state);
+
+void check_s(eos_t& state);
+
+void check_p(eos_t& state);
+#endif
+
+inline void print_state(eos_t& state) {
+  std::cout << "DENS = " << state.rho << std::endl;
+  std::cout << "TEMP = " << state.T << std::endl;
+  std::cout << "X = ";
+  for (int n = 0; n < NumSpec; n ++) {
+    std::cout << state.xn[n] << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Y_E = " << state.y_e;
+}
 
 #endif

@@ -1,4 +1,6 @@
 #include <eos.H>
+#include <eos_composition.H>
+#include <actual_eos.H>
 
 namespace EOSData
 {
@@ -67,7 +69,7 @@ void eos_cxx_init() {
   eos_get_small_dens(&scratch);
   EOSData::mindens = scratch;
 
-  EOSData::initialized = true
+  EOSData::initialized = true;
 
 }
 
@@ -80,7 +82,7 @@ void eos_cxx_finalize() {
 
 
 void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs) {
-  
+
   // Input arguments
 
   bool has_been_reset = false;
@@ -116,7 +118,7 @@ void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs) {
   // Call the EOS.
 
   if (!has_been_reset) {
-    call actual_eos_cxx(input, state);
+    actual_eos_cxx(input, state);
   }
 }
 
@@ -178,7 +180,7 @@ void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
   case eos_input_th:
 
-    reset_t(state, has_been_reset);
+    reset_T(state, has_been_reset);
     reset_h(state, has_been_reset);
 
     break;
@@ -237,9 +239,9 @@ void eos_reset(eos_t& state, bool& has_been_reset) {
   state.T = std::min(EOSData::maxtemp, std::max(EOSData::mintemp, state.T));
   state.rho = std::min(EOSData::maxdens, std::max(EOSData::mindens, state.rho));
 
-  actual_eos(eos_input_rt, state);
+  actual_eos_cxx(eos_input_rt, state);
 
-  has_been_reset = true
+  has_been_reset = true;
 }
 
 
@@ -314,7 +316,7 @@ void check_inputs(const eos_input_t input, eos_t& state) {
 
   case eos_input_th:
 
-    check_t(state);
+    check_T(state);
     check_h(state);
 
   }
@@ -381,7 +383,6 @@ void check_s(eos_t& state) {
     amrex::Error("EOS: s greater than maxs.");
   }
 }
-
 
 void check_p(eos_t& state) {
 

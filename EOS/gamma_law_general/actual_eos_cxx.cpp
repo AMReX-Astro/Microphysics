@@ -11,7 +11,7 @@
 #include <eos.H>
 #include <fundamental_constants.H>
 
-void actual_eos_cxx_init()
+void actual_eos_cxx_init() {
 
   // constant ratio of specific heats
   if (eos_gamma <= 0.0) {
@@ -205,6 +205,6 @@ void actual_eos_cxx(const eos_input_t input, eos_t& state) {
 #endif
 }
 
-void actual_eos_finalize() {
+void actual_eos_cxx_finalize() {
 
 }

@@ -4,6 +4,9 @@ F90EXE_sources += eos.F90
 F90EXE_sources += eos_override.F90
 F90EXE_sources += eos_type.F90
 
+CEXE_sources += eos_cxx.cpp
+CEXE_headers += eos.H
+
 ifeq ($(USE_REACT), TRUE)
   F90EXE_sources += burn_type.F90
 endif
