@@ -13,6 +13,7 @@ using namespace amrex;
 #include "test_parameters_F.H"
 #include "AMReX_buildInfo.H"
 
+#include "extern_parameters.H"
 
 int main (int argc, char* argv[])
 {
@@ -44,9 +45,13 @@ void main_main ()
     for (int i = 0; i < probin_file_length; i++)
       probin_file_name[i] = probin_file[i];
 
+    // initialize the F90 parameters
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+    init_extern_parameters();
 
     do_f90_parameters();
+
+    std::cout << "dens_min = " << dens_min << std::endl;
 
 }

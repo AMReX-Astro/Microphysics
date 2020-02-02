@@ -1,6 +1,6 @@
 &extern
 
-  dens_min   = 10.d0
+  dens_min   = 1.d0
   dens_max   = 5.e9
   temp_min   = 1.d6
   temp_max   = 1.d10
