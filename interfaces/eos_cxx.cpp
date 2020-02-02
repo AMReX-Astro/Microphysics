@@ -120,430 +120,278 @@ void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs) {
   }
 }
 
-  subroutine reset_inputs(input, state, has_been_reset)
+void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
-    !$acc routine seq
+  // Reset the input quantities to valid values. For inputs other than rho and T,
+  // this will evolve an EOS call, which will negate the need to do the main EOS call.
 
-    use eos_type_module, only: eos_t, &
-                               eos_input_rt, eos_input_re, eos_input_rh, eos_input_tp, &
-                               eos_input_rp, eos_input_th, eos_input_ph, eos_input_ps
+  switch (input) {
 
-    implicit none
+  case eos_input_rt:
 
-    integer,      intent(in   ) :: input
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
+    reset_rho(state, has_been_reset);
+    reset_T(state, has_been_reset);
 
-    !$gpu
+    break;
 
-    // Reset the input quantities to valid values. For inputs other than rho and T,
-    // this will evolve an EOS call, which will negate the need to do the main EOS call.
+  case eos_input_rh:
 
-    if (input .eq. eos_input_rt) then
+    reset_rho(state, has_been_reset);
+    reset_h(state, has_been_reset);
 
-       call reset_rho(state, has_been_reset)
-       call reset_T(state, has_been_reset)
+    break;
 
-    elseif (input .eq. eos_input_rh) then
+  case eos_input_tp:
 
-       call reset_rho(state, has_been_reset)
-       call reset_h(state, has_been_reset)
+    reset_T(state, has_been_reset);
+    reset_p(state, has_been_reset);
 
-    elseif (input .eq. eos_input_tp) then
+    break;
 
-       call reset_T(state, has_been_reset)
-       call reset_p(state, has_been_reset)
+  case eos_input_rp:
 
-    elseif (input .eq. eos_input_rp) then
+    reset_rho(state, has_been_reset);
+    reset_p(state, has_been_reset);
 
-       call reset_rho(state, has_been_reset)
-       call reset_p(state, has_been_reset)
+    break;
 
-    elseif (input .eq. eos_input_re) then
+  case eos_input_re:
 
-       call reset_rho(state, has_been_reset)
-       call reset_e(state, has_been_reset)
+    reset_rho(state, has_been_reset);
+    reset_e(state, has_been_reset);
 
-    elseif (input .eq. eos_input_ps) then
+    break;
 
-       call reset_p(state, has_been_reset)
-       call reset_s(state, has_been_reset)
+  case eos_input_ps:
 
-    elseif (input .eq. eos_input_ph) then
+    reset_p(state, has_been_reset);
+    reset_s(state, has_been_reset);
 
-       call reset_p(state, has_been_reset)
-       call reset_h(state, has_been_reset)
+    break;
 
-    elseif (input .eq. eos_input_th) then
+  case eos_input_ph:
 
-       call reset_t(state, has_been_reset)
-       call reset_h(state, has_been_reset)
+    reset_p(state, has_been_reset);
+    reset_h(state, has_been_reset);
 
-    endif
+    break;
 
-  end subroutine reset_inputs
+  case eos_input_th:
 
+    reset_t(state, has_been_reset);
+    reset_h(state, has_been_reset);
 
+    break;
+  }
 
-  // For density, just ensure that it is within mindens and maxdens.
+}
 
-  subroutine reset_rho(state, has_been_reset)
 
-    !$acc routine seq
 
-    use eos_type_module, only: eos_t, mindens, maxdens
+// For density, just ensure that it is within mindens and maxdens.
+inline void reset_rho(eos_t& state, bool& has_been_reset) {
 
-    implicit none
+  state.rho = std::min(EOSData::maxdens, std::max(EOSData::mindens, state.rho));
+}
 
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
+// For temperature, just ensure that it is within mintemp and maxtemp.
+inline void reset_T(eos_t& state, bool& has_been_reset) {
 
-    !$gpu
+  state.T = std::min(EOSData::maxtemp, std::max(EOSData::mintemp, state.T));
+}
 
-    state % rho = min(maxdens, max(mindens, state % rho))
 
-  end subroutine reset_rho
+void reset_e(eos_t& state, bool& has_been_reset) {
 
+  if (state.e < EOSData::mine || state.e > EOSData::maxe) {
+    eos_reset(state, has_been_reset);
+  }
+}
 
+void reset_h(eos_t& state, bool& has_been_reset) {
 
-  // For temperature, just ensure that it is within mintemp and maxtemp.
+  if (state.h < EOSData::minh || state.h > EOSData::maxh) {
+    eos_reset(state, has_been_reset);
+  }
+}
 
-  subroutine reset_T(state, has_been_reset)
+void reset_s(eos_t& state, bool& has_been_reset) {
 
-    !$acc routine seq
+  if (state.s < EOSData::mins || state.s > EOSData::maxs) {
+    eos_reset(state, has_been_reset);
+  }
+}
 
-    use eos_type_module, only: eos_t, mintemp, maxtemp
+void reset_p(eos_t& state, bool& has_been_reset) {
 
-    implicit none
+  if (state.p < EOSData::minp || state.p > EOSData::maxp) {
+    eos_reset(state, has_been_reset);
+  }
+}
 
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
 
-    !$gpu
+// Given an EOS state, ensure that rho and T are
+// valid, then call with eos_input_rt.
+void eos_reset(eos_t& state, bool& has_been_reset) {
 
-    state % T = min(maxtemp, max(mintemp, state % T))
+  state.T = std::min(EOSData::maxtemp, std::max(EOSData::mintemp, state.T));
+  state.rho = std::min(EOSData::maxdens, std::max(EOSData::mindens, state.rho));
 
-  end subroutine reset_T
+  actual_eos(eos_input_rt, state);
 
-
-
-  subroutine reset_e(state, has_been_reset)
-
-    !$acc routine seq
-
-    use eos_type_module, only: eos_t, mine, maxe
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
-
-    !$gpu
-
-    if (state % e .lt. mine .or. state % e .gt. maxe) then
-       call eos_reset(state, has_been_reset)
-    endif
-
-  end subroutine reset_e
-
-
-
-  subroutine reset_h(state, has_been_reset)
-
-    !$acc routine seq
-
-    use eos_type_module, only: eos_t, minh, maxh
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
-
-    !$gpu
-
-    if (state % h .lt. minh .or. state % h .gt. maxh) then
-       call eos_reset(state, has_been_reset)
-    endif
-
-  end subroutine reset_h
-
-
-
-  subroutine reset_s(state, has_been_reset)
-
-    !$acc routine seq
-
-    use eos_type_module, only: eos_t, mins, maxs
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
-
-    !$gpu
-
-    if (state % s .lt. mins .or. state % s .gt. maxs) then
-       call eos_reset(state, has_been_reset)
-    endif
-
-  end subroutine reset_s
-
-
-
-  subroutine reset_p(state, has_been_reset)
-
-    !$acc routine seq
-
-    use eos_type_module, only: eos_t, minp, maxp
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
-
-    !$gpu
-
-    if (state % p .lt. minp .or. state % p .gt. maxp) then
-       call eos_reset(state, has_been_reset)
-    endif
-
-  end subroutine reset_p
-
-
-
-  // Given an EOS state, ensure that rho and T are
-  // valid, then call with eos_input_rt.
-
-  subroutine eos_reset(state, has_been_reset)
-
-    !$acc routine seq
-
-    use eos_type_module, only: eos_t, eos_input_rt, mintemp, maxtemp, mindens, maxdens
-    use actual_eos_module, only: actual_eos
-
-    implicit none
-
-    type (eos_t), intent(inout) :: state
-    logical,      intent(inout) :: has_been_reset
-
-    !$gpu
-
-    state % T = min(maxtemp, max(mintemp, state % T))
-    state % rho = min(maxdens, max(mindens, state % rho))
-
-    call actual_eos(eos_input_rt, state)
-
-    has_been_reset = .true.
-
-  end subroutine eos_reset
-
+  has_been_reset = true
+}
 
 
 #ifndef AMREX_USE_GPU
-  subroutine check_inputs(input, state)
+void check_inputs(const eos_input_t input, eos_t& state) {
 
-    use amrex_error_module
-    use network, only: nspec
-    use eos_type_module, only: eos_t, print_state, minx, maxx, minye, maxye, &
-                               eos_input_rt, eos_input_re, eos_input_rp, eos_input_rh, &
-                               eos_input_th, eos_input_tp, eos_input_ph, eos_input_ps
+  // Check the inputs for validity.
 
-    implicit none
+  for (int n = 0; n < NumSpec; n++) {
+    if (state.xn[n] < EOSData::minx) {
+      print_state(state);
+      amrex::Error("EOS: mass fraction less than minimum possible mass fraction.");
 
-    integer,      intent(in   ) :: input
-    type (eos_t), intent(inout) :: state
+    } else if (state.xn[n] > EOSData::maxx) {
+      print_state(state);
+      amrex::Error("EOS: mass fraction more than maximum possible mass fraction.");
+    }
+  }
 
-    integer :: n
+  if (state.y_e > EOSData::minye) {
+    print_state(state);
+    amrex::Error("EOS: y_e less than minimum possible electron fraction.");
 
-    // Check the inputs for validity.
+  } else if (state.y_e > EOSData::maxye) {
+    print_state(state);
+    amrex::Error("EOS: y_e greater than maximum possible electron fraction.");
+  }
 
-    do n = 1, nspec
-       if (state % xn(n) .lt. minx) then
-          call print_state(state)
-          call amrex_error('EOS: mass fraction less than minimum possible mass fraction.')
-       else if (state % xn(n) .gt. maxx) then
-          call print_state(state)
-          call amrex_error('EOS: mass fraction more than maximum possible mass fraction.')
-       endif
-    enddo
+  switch (input) {
 
-    if (state % y_e .lt. minye) then
-       call print_state(state)
-       call amrex_error('EOS: y_e less than minimum possible electron fraction.')
-    else if (state % y_e .gt. maxye) then
-       call print_state(state)
-       call amrex_error('EOS: y_e greater than maximum possible electron fraction.')
-    endif
+  case eos_input_rt:
 
-    if (input .eq. eos_input_rt) then
+    check_rho(state);
+    check_T(state);
+    break;
 
-       call check_rho(state)
-       call check_T(state)
+  case eos_input_rh:
 
-    elseif (input .eq. eos_input_rh) then
+    check_rho(state);
+    check_h(state);
+    break;
 
-       call check_rho(state)
-       call check_h(state)
+  case eos_input_tp:
 
-    elseif (input .eq. eos_input_tp) then
+    check_T(state);
+    check_p(state);
+    break;
 
-       call check_T(state)
-       call check_p(state)
+  case eos_input_rp:
 
-    elseif (input .eq. eos_input_rp) then
+    check_rho(state);
+    check_p(state);
+    break;
 
-       call check_rho(state)
-       call check_p(state)
+  case eos_input_re:
 
-    elseif (input .eq. eos_input_re) then
+    check_rho(state);
+    check_e(state);
+    break;
 
-       call check_rho(state)
-       call check_e(state)
+  case eos_input_ps:
 
-    elseif (input .eq. eos_input_ps) then
+    check_p(state);
+    check_s(state);
+    break;
 
-       call check_p(state)
-       call check_s(state)
+  case eos_input_ph:
 
-    elseif (input .eq. eos_input_ph) then
+    check_p(state);
+    check_h(state);
+    break;
 
-       call check_p(state)
-       call check_h(state)
+  case eos_input_th:
 
-    elseif (input .eq. eos_input_th) then
+    check_t(state);
+    check_h(state);
 
-       call check_t(state)
-       call check_h(state)
+  }
+}
 
-    endif
 
-  end subroutine check_inputs
+void check_rho(eos_t& state) {
 
+  if (state.rho < EOSData::mindens) {
+    print_state(state);
+    amrex::Error("EOS: rho smaller than mindens.");
 
+  } else if (state.rho > EOSData::maxdens) {
+    print_state(state);
+    amrex::Error("EOS: rho greater than maxdens.");
+  }
+}
 
-  subroutine check_rho(state)
+void check_T(eos_t& state) {
 
-    use amrex_error_module
-    use eos_type_module, only: eos_t, mindens, maxdens, print_state
+  if (state.T < EOSData::mintemp) {
+    print_state(state);
+    amrex::Error("EOS: T smaller than mintemp.");
 
-    implicit none
+  } else if (state.T > EOSData::maxtemp) {
+    print_state(state);
+    amrex::Error("EOS: T greater than maxtemp.");
+  }
+}
 
-    type (eos_t), intent(in) :: state
+void check_e(eos_t& state) {
 
-    if (state % rho .lt. mindens) then
-       call print_state(state)
-       call amrex_error('EOS: rho smaller than mindens.')
-    else if (state % rho .gt. maxdens) then
-       call print_state(state)
-       call amrex_error('EOS: rho greater than maxdens.')
-    endif
+  if (state.e < EOSData::mine) {
+    print_state(state);
+    amrex::Error("EOS: e smaller than mine.");
 
-  end subroutine check_rho
+  } else if (state.e > EOSData::maxe) {
+    print_state(state);
+    amrex::Error("EOS: e greater than maxe.");
+  }
+}
 
+void check_h(eos_t& state) {
 
+  if (state.h < EOSData::minh) {
+    print_state(state);
+    amrex::Error("EOS: h smaller than minh.");
 
-  subroutine check_T(state)
+  } else if (state.h > EOSData::maxh) {
+    print_state(state);
+    amrex::Error("EOS: h greater than maxh.");
 
-    use amrex_error_module
-    use eos_type_module, only: eos_t, mintemp, maxtemp, print_state
+  }
+}
 
-    implicit none
+void check_s(eos_t& state) {
 
-    type (eos_t), intent(in) :: state
+  if (state.s < EOSData::mins) {
+    print_state(state);
+    amrex::Error("EOS: s smaller than mins.");
 
-    if (state % T .lt. mintemp) then
-       call print_state(state)
-       call amrex_error('EOS: T smaller than mintemp.')
-    else if (state % T .gt. maxtemp) then
-       call print_state(state)
-       call amrex_error('EOS: T greater than maxtemp.')
-    endif
+  } else if (state.s > EOSData::maxs) {
+    print_state(state);
+    amrex::Error("EOS: s greater than maxs.");
+  }
+}
 
-  end subroutine check_T
 
+void check_p(eos_t& state) {
 
+  if (state.p < EOSData::minp) {
+    print_state(state);
+    amrex::Error("EOS: p smaller than minp.");
 
-  subroutine check_e(state)
-
-    use amrex_error_module
-    use eos_type_module, only: eos_t, mine, maxe, print_state
-
-    implicit none
-
-    type (eos_t), intent(in) :: state
-
-    if (state % e .lt. mine) then
-       call print_state(state)
-       call amrex_error('EOS: e smaller than mine.')
-    else if (state % e .gt. maxe) then
-       call print_state(state)
-       call amrex_error('EOS: e greater than maxe.')
-    endif
-
-  end subroutine check_e
-
-
-
-  subroutine check_h(state)
-
-    use amrex_error_module
-    use eos_type_module, only: eos_t, minh, maxh, print_state
-
-    implicit none
-
-    type (eos_t), intent(in) :: state
-
-    if (state % h .lt. minh) then
-       call print_state(state)
-       call amrex_error('EOS: h smaller than minh.')
-    else if (state % h .gt. maxh) then
-       call print_state(state)
-       call amrex_error('EOS: h greater than maxh.')
-    endif
-
-  end subroutine check_h
-
-
-
-  subroutine check_s(state)
-
-    use amrex_error_module
-    use eos_type_module, only: eos_t, mins, maxs, print_state
-
-    implicit none
-
-    type (eos_t), intent(in) :: state
-
-    if (state % s .lt. mins) then
-       call print_state(state)
-       call amrex_error('EOS: s smaller than mins.')
-    else if (state % s .gt. maxs) then
-       call print_state(state)
-       call amrex_error('EOS: s greater than maxs.')
-    endif
-
-  end subroutine check_s
-
-
-
-  subroutine check_p(state)
-
-    use amrex_error_module
-    use eos_type_module, only: eos_t, minp, maxp, print_state
-
-    implicit none
-
-    type (eos_t), intent(in) :: state
-
-    if (state % p .lt. minp) then
-       call print_state(state)
-       call amrex_error('EOS: p smaller than minp.')
-    else if (state % p .gt. maxp) then
-       call print_state(state)
-       call amrex_error('EOS: p greater than maxp.')
-    endif
-
-  end subroutine check_p
+  } else if (state.p > EOSData::maxp) {
+    print_state(state);
+    amrex::Error("EOS: p greater than maxp.");
+  }
+}
 #endif
-
-end module eos_module
