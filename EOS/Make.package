@@ -1,2 +1,4 @@
 F90EXE_sources += composition.F90
+CEXE_sources += eos_composition.cpp
+CEXE_headers += eos_composition.H
 
