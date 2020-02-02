@@ -64,4 +64,29 @@ enum eos_input_t {eos_input_rt = 0,
 
 
 
+// store some global limits set at initialization time
+
+namespace EOSData
+{
+  extern bool initialized;
+  extern Real mintemp;
+  extern Real maxtemp;
+  extern Real mindens;
+  extern Real maxdens;
+  extern Real minx;
+  extern Real maxx;
+  extern Real minye;
+  extern Real maxye;
+  extern Real mine;
+  extern Real maxe;
+  extern Real minp;
+  extern Real maxp;
+  extern Real mins;
+  extern Real maxs;
+  extern Real minh;
+  extern Real maxh;
+}
+
+
+
 #endif
