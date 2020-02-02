@@ -4,10 +4,12 @@
 #ifndef _network_size_H_
 #define _network_size_H_
 
+#include <AMReX_BLFort.H>
+
 constexpr int NumSpec = 10;
 constexpr int NumAux = 0;
 
-constexpr amrex::GpuArray<Real, NumSpec> aion = {
+constexpr amrex::GpuArray<amrex::Real, NumSpec> aion = {
    12.0,   // 0 
    14.0,   // 1 
    15.0,   // 2 
@@ -20,7 +22,7 @@ constexpr amrex::GpuArray<Real, NumSpec> aion = {
    1.0,   // 9 
   };
 
-constexpr amrex::GpuArray<Real, NumSpec> zion = {
+constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
    6.0,   // 0
    8.0,   // 1
    8.0,   // 2
