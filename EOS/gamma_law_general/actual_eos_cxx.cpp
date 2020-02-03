@@ -10,6 +10,7 @@
 #include <extern_parameters.H>
 #include <eos.H>
 #include <fundamental_constants.H>
+#include <cmath>
 
 void actual_eos_cxx_init() {
 
@@ -24,7 +25,7 @@ void actual_eos_cxx(const eos_input_t input, eos_t& state) {
 
   // Get the mass of a nucleon from Avogadro's number.
   constexpr Real m_nucleon = 1.0 / n_A;
-  constexpr Real fac = 1.0 / std::pow(TWO*M_PI*hbar*hbar, 1.5);
+  constexpr Real fac = 1.0 / std::pow(2.0*M_PI*hbar*hbar, 1.5);
 
   if (eos_assume_neutral) {
     state.mu = state.abar;

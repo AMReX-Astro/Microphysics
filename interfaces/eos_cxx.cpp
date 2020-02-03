@@ -1,4 +1,5 @@
 #include <eos.H>
+#include <eos_F.H>
 #include <eos_composition.H>
 #include <actual_eos.H>
 
