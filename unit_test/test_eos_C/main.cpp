@@ -14,6 +14,8 @@ using namespace amrex;
 #include "AMReX_buildInfo.H"
 
 #include <eos.H>
+#include <variables.H>
+#include <actual_eos.H>
 
 int main (int argc, char* argv[])
 {
@@ -103,23 +105,7 @@ void main_main ()
 
     eos_cxx_init();
 
-    // Ncomp = number of components for each array
-    int Ncomp = -1;
-    init_variables();
-    get_ncomp(&Ncomp);
-
-    int name_len = -1;
-    get_name_len(&name_len);
-
-    // get the variable names
-    Vector<std::string> varnames;
-
-    for (int i=0; i<Ncomp; i++) {
-      char* cstring[name_len+1];
-      get_var_name(cstring, &i);
-      std::string name(*cstring);
-      varnames.push_back(name);
-    }
+    auto vars = init_variables();
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -128,7 +114,7 @@ void main_main ()
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
-    MultiFab state(ba, dm, Ncomp, Nghost);
+    MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
 
     // Initialize the state to zero; we will fill
     // it in below in do_eos.
@@ -184,19 +170,10 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-
     std::string name = "test_eos.";
 
-    // get the name of the EOS
-    int eos_len = -1;
-    get_eos_len(&eos_len);
-
-    char* eos_string[eos_len+1];
-    get_eos_name(eos_string);
-    std::string eos(*eos_string);
-
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
