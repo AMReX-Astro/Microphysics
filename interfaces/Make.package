@@ -8,6 +8,9 @@ CEXE_sources += eos_cxx.cpp
 CEXE_headers += eos.H
 FEXE_headers += eos_F.H
 
+CEXE_sources += network_cxx.cpp
+CEXE_headers += network.H
+
 ifeq ($(USE_REACT), TRUE)
   F90EXE_sources += burn_type.F90
 endif
