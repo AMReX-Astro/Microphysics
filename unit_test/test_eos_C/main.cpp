@@ -17,6 +17,7 @@ using namespace amrex;
 #include <eos_composition.H>
 #include <variables.H>
 #include <actual_eos.H>
+#include <network.H>
 
 int main (int argc, char* argv[])
 {
@@ -124,6 +125,9 @@ void main_main ()
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
 
+    const int ih1 = network_spec_index("hydrogen-1");
+    const int ihe4 = network_spec_index("helium-4");
+
     Real dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
     Real dlogT = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
     Real dmetal = (metalicity_max  - 0.0)/(n_cell - 1);
@@ -147,8 +151,8 @@ void main_main ()
           for (int n = 0; n < NumSpec; n++) {
             eos_state.xn[n] = metalicity/(NumSpec - 2);
           }
-          eos_state.xn[0] = 0.75 - 0.5*metalicity;
-          eos_state.xn[1] = 0.25 - 0.5*metalicity;
+          eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
+          eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
 
           Real temp_zone = std::pow(10.0, log10(temp_min) + static_cast<Real>(j)*dlogT);
           eos_state.T = temp_zone;
