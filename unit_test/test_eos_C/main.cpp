@@ -13,6 +13,7 @@ using namespace amrex;
 #include "test_eos_F.H"
 #include "AMReX_buildInfo.H"
 
+#include <eos.H>
 
 int main (int argc, char* argv[])
 {
@@ -100,6 +101,8 @@ void main_main ()
 
     init_extern_parameters();
 
+    eos_cxx_init();
+
     // Ncomp = number of components for each array
     int Ncomp = -1;
     init_variables();
@@ -134,15 +137,43 @@ void main_main ()
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
 
+    Real dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
+    Real dlogT = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
+    Real dmetal = (metalicity_max  - 0.0)/(n_cell - 1);
+
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
 
-#pragma gpu
-        do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-               BL_TO_FORTRAN_ANYD(state[mfi]), n_cell);
+        Array4<Real> const state_arr = state.array(mfi);
+
+        amrex::Print() << "here!!!!" << std::endl;
+
+        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        {
+
+          // set the composition -- approximately solar
+          Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
+
+          eos_t eos_state;
+
+          for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = metalicity/(NumSpec - 2);
+          }
+          eos_state.xn[0] = 0.75 - 0.5*metalicity;
+          eos_state.xn[1] = 0.25 - 0.5*metalicity;
+
+          eos_state.T = std::pow(10.0, log10(temp_min) + static_cast<double>(j)*dlogT);
+          eos_state.rho = std::pow(10.0, log10(dens_min) + static_cast<double>(i)*dlogrho);
+
+          eos_cxx(eos_input_rt, eos_state);
+
+          amrex::Print() << eos_state.p << std::endl;
+        });
+
+
 
     }
 
