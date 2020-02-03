@@ -23,13 +23,13 @@ constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
    4.0,   // 2
   };
 
-std::vector<std::string> short_spec_names = {
+std::vector<std::string> short_spec_names_cxx = {
    "fuel",   // 0 
    "ash",   // 1 
    "inert",   // 2 
   };
 
-std::vector<std::string> spec_names = {
+std::vector<std::string> spec_names_cxx = {
    "fuel",   // 0 
    "ash",   // 1 
    "inert",   // 2 
