@@ -42,6 +42,6 @@ inline void composition(eos_t& state) {
 
 }
 
-eos_xderivs_t compsition_derivative(eos_t& state);
+eos_xderivs_t composition_derivatives(eos_t& state);
 
 #endif
