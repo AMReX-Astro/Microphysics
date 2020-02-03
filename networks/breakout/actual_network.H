@@ -19,11 +19,11 @@ constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
    1.0,   // 0
   };
 
-const std::vector<std::string> short_spec_names_cxx = {
+static const std::vector<std::string> short_spec_names_cxx = {
    "X",   // 0 
   };
 
-const std::vector<std::string> spec_names_cxx = {
+static const std::vector<std::string> spec_names_cxx = {
    "X",   // 0 
   };
 
