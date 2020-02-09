@@ -2,6 +2,7 @@
 #include <eos_F.H>
 #include <eos_composition.H>
 #include <actual_eos.H>
+#include <AMReX_Algorithm.H>
 
 namespace EOSData
 {
@@ -196,13 +197,13 @@ void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 // For density, just ensure that it is within mindens and maxdens.
 inline void reset_rho(eos_t& state, bool& has_been_reset) {
 
-  state.rho = std::min(EOSData::maxdens, std::max(EOSData::mindens, state.rho));
+  state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 }
 
 // For temperature, just ensure that it is within mintemp and maxtemp.
 inline void reset_T(eos_t& state, bool& has_been_reset) {
 
-  state.T = std::min(EOSData::maxtemp, std::max(EOSData::mintemp, state.T));
+  state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
 }
 
 
@@ -239,8 +240,8 @@ void reset_p(eos_t& state, bool& has_been_reset) {
 // valid, then call with eos_input_rt.
 void eos_reset(eos_t& state, bool& has_been_reset) {
 
-  state.T = std::min(EOSData::maxtemp, std::max(EOSData::mintemp, state.T));
-  state.rho = std::min(EOSData::maxdens, std::max(EOSData::mindens, state.rho));
+  state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
+  state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 
   actual_eos_cxx(eos_input_rt, state);
 
