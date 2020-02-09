@@ -16,7 +16,7 @@
 
 module network_properties
 
-  use amrex_fort_module, only : rt => amrex_real
+  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
 
@@ -28,7 +28,7 @@ module network_properties
   character (len=16), save :: aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable, save :: aion(:), zion(:), nion(:)
+  real(rt), allocatable, save :: aion(:), zion(:), nion(:)
 
   !$acc declare create(aion, zion, nion)
 
