@@ -30,7 +30,7 @@ def main():
 
         write_network.write_network(fortran_template, cxx_template,
                                     net_file,
-                                    "network_properties.F90", "actual_network.H")
+                                    "network_properties.F90", "network_properties.H")
 
         os.chdir(cwd)
 
