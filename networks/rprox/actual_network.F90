@@ -1,15 +1,14 @@
 module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
+  use network_properties
 
   implicit none
 
   real(rt)        , parameter :: MeV2erg = 1.60217646e-6_rt
   real(rt)        , parameter :: N_A = 6.0221415e23_rt
 
-  integer, parameter :: nspec = 10
   integer, parameter :: nspec_evolve = 10
-  integer, parameter :: naux  = 0
 
   integer, parameter :: ic12  = 1
   integer, parameter :: io14  = 2
@@ -22,11 +21,7 @@ module actual_network
   integer, parameter :: ihe4  = 9
   integer, parameter :: ih1   = 10
 
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  real(rt)        , allocatable :: aion(:), zion(:), ebin(:)
+  real(rt)        , allocatable :: ebin(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: aion, zion, ebin
@@ -76,55 +71,9 @@ contains
 
     use amrex_constants_module
 
-    ! set the names
-    spec_names(ic12)  = "carbon-12"
-    spec_names(io14)  = "oxygen-14"
-    spec_names(io15)  = "oxygen-15"
-    spec_names(io16)  = "oxygen-16"
-    spec_names(if17)  = "flourine-17"
-    spec_names(img22) = "magnesium-22"
-    spec_names(is30)  = "sulfur-30"
-    spec_names(ini56) = "nickel-56"
-    spec_names(ihe4)  = "helium-4"
-    spec_names(ih1)   = "hydrogen-1"
+    call network_properties_init()
 
-    short_spec_names(ic12)  = "C12"
-    short_spec_names(io14)  = "O14"
-    short_spec_names(io15)  = "O15"
-    short_spec_names(io16)  = "O16"
-    short_spec_names(if17)  = "F17"
-    short_spec_names(img22) = "Mg22"
-    short_spec_names(is30)  = "S30"
-    short_spec_names(ini56) = "Ni56"
-    short_spec_names(ihe4)  = "He4"
-    short_spec_names(ih1)   = "H1"    
-
-    allocate(aion(nspec))
-    allocate(zion(nspec))
     allocate(ebin(nspec))
-
-    ! set the species properties
-    aion(ic12)  = TWELVE
-    aion(io14)  = 14.0_rt
-    aion(io15)  = 15.0_rt
-    aion(io16)  = 16.0_rt
-    aion(if17)  = 17.0_rt
-    aion(img22) = 22.0_rt
-    aion(is30)  = 30.0_rt
-    aion(ini56) = 56.0_rt
-    aion(ihe4)  = FOUR
-    aion(ih1)   = ONE
-
-    zion(ic12)  = SIX
-    zion(io14)  = EIGHT
-    zion(io15)  = EIGHT
-    zion(io16)  = EIGHT
-    zion(if17)  = NINE
-    zion(img22) = TWELVE
-    zion(is30)  = 16.0_rt
-    zion(ini56) = 28.0_rt
-    zion(ihe4)  = TWO
-    zion(ih1)   = ONE
 
     ! Our convention is that binding energy is negative.  The
     ! following are the binding energies in MeV.
@@ -169,12 +118,8 @@ contains
 
     implicit none
 
-    if (allocated(aion)) then
-       deallocate(aion)
-    endif
-    if (allocated(zion)) then
-       deallocate(zion)
-    endif
+    call network_properties_finalize()
+
     if (allocated(ebin)) then
        deallocate(ebin)
     endif
