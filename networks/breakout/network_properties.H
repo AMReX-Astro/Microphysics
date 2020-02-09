@@ -12,11 +12,11 @@
 constexpr int NumSpec = 1;
 constexpr int NumAux = 2;
 
-constexpr amrex::GpuArray<amrex::Real, NumSpec> aion = {
+AMREX_GPU_MANAGED amrex::Real aion[NumSpec] = {
    1.0,   // 0 
   };
 
-constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
+AMREX_GPU_MANAGED amrex::Real zion[NumSpec] = {
    1.0,   // 0
   };
 
