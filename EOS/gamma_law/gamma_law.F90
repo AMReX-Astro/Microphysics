@@ -6,7 +6,7 @@
 module actual_eos_module
 
   use amrex_fort_module, only : rt => amrex_real
-  use castro_error_module
+  use amrex_error_module
   use amrex_constants_module
   use eos_type_module
 
@@ -39,7 +39,7 @@ contains
     if (eos_gamma .gt. 0.d0) then
        gamma_const = eos_gamma
     else
-       call castro_error("gamma_const cannot be < 0")
+       call amrex_error("gamma_const cannot be < 0")
     end if
 
     assume_neutral = eos_assume_neutral
@@ -95,7 +95,7 @@ contains
        ! dens, enthalpy, and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-       call castro_error('EOS: eos_input_rh is not supported in this EOS.')
+       call amrex_error('EOS: eos_input_rh is not supported in this EOS.')
 #endif
 
     case (eos_input_tp)
@@ -103,7 +103,7 @@ contains
        ! temp, pres, and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-       call castro_error('EOS: eos_input_tp is not supported in this EOS.')
+       call amrex_error('EOS: eos_input_tp is not supported in this EOS.')
 #endif
 
     case (eos_input_rp)
@@ -140,7 +140,7 @@ contains
        ! pressure entropy, and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-       call castro_error('EOS: eos_input_ps is not supported in this EOS.')
+       call amrex_error('EOS: eos_input_ps is not supported in this EOS.')
 #endif
 
     case (eos_input_ph)
@@ -148,7 +148,7 @@ contains
        ! pressure, enthalpy and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-       call castro_error('EOS: eos_input_ph is not supported in this EOS.')
+       call amrex_error('EOS: eos_input_ph is not supported in this EOS.')
 #endif
 
     case (eos_input_th)
@@ -158,13 +158,13 @@ contains
        ! This system is underconstrained.
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-       call castro_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
+       call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 #endif
 
     case default
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-       call castro_error('EOS: invalid input.')
+       call amrex_error('EOS: invalid input.')
 #endif
 
     end select

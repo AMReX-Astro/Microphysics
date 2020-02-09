@@ -29,7 +29,7 @@ contains
   subroutine get_opacities(kp, kr, rho, temp, rhoYe, nu, get_Planck_mean, get_Rosseland_mean)
 
 #ifndef AMREX_USE_GPU
-    use castro_error_module, only: castro_error
+    use amrex_error_module, only: amrex_error
 #endif
 
     implicit none
@@ -54,7 +54,7 @@ contains
     if (get_Planck_mean) then
 #ifndef AMREX_USE_GPU
        if (const_kappa_p < 0.0_rt) then
-          call castro_error("Must set Planck opacity constant")
+          call amrex_error("Must set Planck opacity constant")
        end if
 #endif
        kp = const_kappa_p * (rho**kappa_p_exp_m) * (teff**(-kappa_p_exp_n)) * nup_kpp
@@ -64,7 +64,7 @@ contains
     if (get_Rosseland_mean) then
 #ifndef AMREX_USE_GPU
        if (const_kappa_r < 0.0_rt) then
-          call castro_error("Must set Rosseland opacity constant")
+          call amrex_error("Must set Rosseland opacity constant")
        end if
 #endif
        kr = const_kappa_r * (rho**kappa_r_exp_m) * (teff**(-kappa_r_exp_n)) * nup_kpr

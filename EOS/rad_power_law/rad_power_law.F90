@@ -31,7 +31,7 @@ contains
   subroutine actual_eos_init
 
     use extern_probin_module, only: eos_const_c_v, eos_c_v_exp_m, eos_c_v_exp_n
-    use castro_error_module, only: castro_error
+    use amrex_error_module, only: amrex_error
 
     implicit none
 
@@ -44,11 +44,11 @@ contains
     c_v_exp_n = eos_c_v_exp_n
 
     if (const_c_v .le. 0.e0_rt) then
-       call castro_error("eos_const_c_v must be > 0")
+       call amrex_error("eos_const_c_v must be > 0")
     end if
 
     if (c_v_exp_n .eq. 1.0e0_rt) then
-       call castro_error("eos_c_v_exp_n == 1 is unsupported")
+       call amrex_error("eos_c_v_exp_n == 1 is unsupported")
     end if
 
   end subroutine actual_eos_init
@@ -70,7 +70,7 @@ contains
   subroutine actual_eos(input, state)
 
 #ifndef AMREX_USE_GPU
-    use castro_error_module, only: castro_error
+    use amrex_error_module, only: amrex_error
 #endif
 
     implicit none
@@ -95,7 +95,7 @@ contains
     case default
 
 #ifndef AMREX_USE_GPU
-       call castro_error('EOS: invalid input.')
+       call amrex_error('EOS: invalid input.')
 #endif
 
     end select
