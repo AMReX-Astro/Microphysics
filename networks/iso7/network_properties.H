@@ -3,12 +3,13 @@
 #include <string>
 #include <vector>
 
-#ifndef _network_size_H_
-#define _network_size_H_
-
 #include <AMReX_BLFort.H>
+#include <AMReX_Array.H>
 
-constexpr int NumSpec = 13;
+#ifndef _network_properties_H_
+#define _network_properties_H_
+
+constexpr int NumSpec = 7;
 constexpr int NumAux = 0;
 
 constexpr amrex::GpuArray<amrex::Real, NumSpec> aion = {
@@ -18,13 +19,7 @@ constexpr amrex::GpuArray<amrex::Real, NumSpec> aion = {
    20.0,   // 3 
    24.0,   // 4 
    28.0,   // 5 
-   32.0,   // 6 
-   36.0,   // 7 
-   40.0,   // 8 
-   44.0,   // 9 
-   48.0,   // 10 
-   52.0,   // 11 
-   56.0,   // 12 
+   56.0,   // 6 
   };
 
 constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
@@ -34,13 +29,7 @@ constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
    10.0,   // 3
    12.0,   // 4
    14.0,   // 5
-   16.0,   // 6
-   18.0,   // 7
-   20.0,   // 8
-   22.0,   // 9
-   24.0,   // 10
-   26.0,   // 11
-   28.0,   // 12
+   28.0,   // 6
   };
 
 static const std::vector<std::string> short_spec_names_cxx = {
@@ -50,13 +39,7 @@ static const std::vector<std::string> short_spec_names_cxx = {
    "Ne20",   // 3 
    "Mg24",   // 4 
    "Si28",   // 5 
-   "S32",   // 6 
-   "Ar36",   // 7 
-   "Ca40",   // 8 
-   "Ti44",   // 9 
-   "Cr48",   // 10 
-   "Fe52",   // 11 
-   "Ni56",   // 12 
+   "Ni56",   // 6 
   };
 
 static const std::vector<std::string> spec_names_cxx = {
@@ -66,13 +49,7 @@ static const std::vector<std::string> spec_names_cxx = {
    "neon-20",   // 3 
    "magnesium-24",   // 4 
    "silicon-28",   // 5 
-   "sulfur-32",   // 6 
-   "argon-36",   // 7 
-   "calcium-40",   // 8 
-   "titanium-44",   // 9 
-   "chromium-48",   // 10 
-   "iron-52",   // 11 
-   "nickel-56",   // 12 
+   "nickel-56",   // 6 
   };
 
 #endif

@@ -3,10 +3,11 @@
 #include <string>
 #include <vector>
 
-#ifndef _network_size_H_
-#define _network_size_H_
-
 #include <AMReX_BLFort.H>
+#include <AMReX_Array.H>
+
+#ifndef _network_properties_H_
+#define _network_properties_H_
 
 constexpr int NumSpec = @@NSPEC@@;
 constexpr int NumAux = @@NAUX@@;

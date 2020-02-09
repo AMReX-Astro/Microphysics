@@ -1,3 +1,16 @@
+# 20.03
+
+   * The GPackage.mak files that were a remnant of the old
+     BoxLib F90 build system have been removed.  They were
+     not maintained.  (#212).
+
+   * All of the interface files have been collected together
+     in the interfaces/ dir.  (#240)
+
+   * The network C++ headers have been renamed network_properties.H
+     and the nuclei information (aion and zion) have been
+     added. (#244)
+
 # 20.02
 
    * Added a C++ header file, actual_network.H, that defines the

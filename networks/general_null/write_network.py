@@ -203,6 +203,7 @@ def write_network(network_template, header_template,
                     fout.write(line.replace("@@NAUX@@", str(len(aux_vars))))
 
                 elif keyword == "SPEC_NAMES":
+
                     if lang == "Fortran":
                         for n, spec in enumerate(species):
                             fout.write("{}spec_names({}) = \"{}\"\n".format(

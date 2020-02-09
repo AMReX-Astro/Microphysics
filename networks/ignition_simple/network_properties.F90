@@ -1,4 +1,4 @@
-! An automatically file of network properties.  This provides the properties
+! An automatically generated file of network properties.  This provides the properties
 ! of a set of non-reacting species.
 !
 ! nspec            -- the number of species

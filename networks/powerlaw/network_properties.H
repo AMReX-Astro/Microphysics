@@ -3,28 +3,37 @@
 #include <string>
 #include <vector>
 
-#ifndef _network_size_H_
-#define _network_size_H_
-
 #include <AMReX_BLFort.H>
+#include <AMReX_Array.H>
 
-constexpr int NumSpec = 1;
-constexpr int NumAux = 2;
+#ifndef _network_properties_H_
+#define _network_properties_H_
+
+constexpr int NumSpec = 3;
+constexpr int NumAux = 0;
 
 constexpr amrex::GpuArray<amrex::Real, NumSpec> aion = {
-   1.0,   // 0 
+   2.0,   // 0 
+   4.0,   // 1 
+   8.0,   // 2 
   };
 
 constexpr amrex::GpuArray<amrex::Real, NumSpec> zion = {
    1.0,   // 0
+   2.0,   // 1
+   4.0,   // 2
   };
 
 static const std::vector<std::string> short_spec_names_cxx = {
-   "X",   // 0 
+   "fuel",   // 0 
+   "ash",   // 1 
+   "inert",   // 2 
   };
 
 static const std::vector<std::string> spec_names_cxx = {
-   "X",   // 0 
+   "fuel",   // 0 
+   "ash",   // 1 
+   "inert",   // 2 
   };
 
 #endif
