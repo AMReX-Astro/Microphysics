@@ -26,7 +26,6 @@ contains
 
     call network_properties_init()
 
-x
     ! Binding energies in erg / g
 
     ebin(ifuel_)  = ZERO
