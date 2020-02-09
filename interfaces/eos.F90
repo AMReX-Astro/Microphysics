@@ -179,6 +179,63 @@ contains
   end subroutine eos
 
 
+
+#ifdef AMREX_USE_GPU
+  attributes(global) subroutine launch_eos(input, state)
+
+    use eos_type_module, only: eos_t
+
+    implicit none
+
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
+
+    ! Wrapper kernel for calling the device EOS.
+
+#ifdef AMREX_GPU_PRAGMA_NO_HOST
+    call eos(input, state)
+#else
+    call eos_device(input, state)
+#endif
+
+  end subroutine launch_eos
+#endif
+
+
+
+  subroutine eos_on_host(input, state)
+
+    use eos_type_module, only: eos_t
+
+    implicit none
+
+    integer,      intent(in   ) :: input
+    type (eos_t), intent(inout) :: state
+
+#ifdef AMREX_USE_CUDA
+    integer,      device :: input_device
+    type (eos_t), device :: state_device
+#endif
+
+    ! Evaluate the EOS on a single thread on the GPU.
+    ! If we're in a CPU-only build, fall back to the
+    ! normal EOS call.
+
+#ifdef AMREX_USE_CUDA
+    input_device = input
+    state_device = state
+
+    call launch_eos<<<1,1>>>(input_device, state_device)
+
+    state = state_device
+#else
+    call eos(input, state)
+#endif
+
+  end subroutine eos_on_host
+
+
+
   function get_eos_name() result(name)
 
     use actual_eos_module, only: eos_name
