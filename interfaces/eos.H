@@ -1,4 +1,4 @@
-#include <actual_network.H>
+#include <network_properties.H>
 
 #ifndef _eos_H_
 #define _eos_H_

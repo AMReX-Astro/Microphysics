@@ -1,4 +1,4 @@
-#include <actual_network.H>
+#include <network_properties.H>
 
 #ifndef _network_H_
 #define _network_H_
