@@ -14,9 +14,9 @@ module stiff_ode
 
   implicit none
 
-  real(rt), parameter, private :: dt_min = 1.d-24
-  real(rt), parameter, private :: dt_ini = 1.d-16
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: dt_min = 1.e-24_rt
+  real(rt), parameter, private :: dt_ini = 1.e-16_rt
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
   ! error codes
@@ -162,11 +162,7 @@ contains
 #endif
 
        if (scaling_method == 1) then
-#ifdef SIMPLIFIED_SDC
           yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % ydot(:)) + SMALL
-#else
-          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
-#endif
 
        else if (scaling_method == 2) then
           yscal = max(abs(bs % y(:)), ode_scale_floor)
@@ -242,13 +238,13 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
-    hU = 0.1d0 * abs(bs % tmax - bs % t)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
+    hU = 0.1e0_rt * abs(bs % tmax - bs % t)
 
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
-    h_old = 10.0 * h
+    h_old = 10.0_rt * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
 
@@ -264,11 +260,7 @@ contains
        ! Construct the trial point.
 
        bs_temp % t = bs % t + h
-#ifdef SIMPLIFIED_SDC
        bs_temp % y = bs % y + h * bs % ydot
-#else
-       bs_temp % y = bs % y + h * bs % burn_s % ydot
-#endif
 
        ! Call the RHS, then estimate the finite difference.
 #ifdef SIMPLIFIED_SDC
@@ -277,11 +269,7 @@ contains
        call f_rhs(bs_temp)
 #endif
 
-#ifdef SIMPLIFIED_SDC
        ddydtt = (bs_temp % ydot - bs % ydot) / h
-#else
-       ddydtt = (bs_temp % burn_s % ydot - bs % burn_s % ydot) / h
-#endif
 
        yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / bs_neqs )
 
@@ -341,11 +329,7 @@ contains
     h = dt_tot/N_sub
 
     ! I - h J
-#ifdef SIMPLIFIED_SDC
     A(:,:) = -h * bs % jac(:,:)
-#else
-    A(:,:) = -h * bs % burn_s % jac(:,:)
-#endif
     do n = 1, bs_neqs
        A(n,n) = ONE + A(n,n)
     enddo
@@ -370,11 +354,7 @@ contains
 
        ! do an Euler step to get the RHS for the first substep
        t = bs % t
-#ifdef SIMPLIFIED_SDC
        y_out(:) = h * bs % ydot(:)
-#else
-       y_out(:) = h * bs % burn_s % ydot(:)
-#endif
 
        ! solve the first step using the LU solver
 #ifdef VODE
@@ -395,11 +375,7 @@ contains
 #endif
 
        do n = 2, N_sub
-#ifdef SIMPLIFIED_SDC
           y_out(:) = h * bs_temp % ydot(:) - del(:)
-#else
-          y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
-#endif
 
           ! LU solve
 #ifdef VODE
@@ -420,11 +396,7 @@ contains
 #endif
        enddo
 
-#ifdef SIMPLIFIED_SDC
        y_out(:) = h * bs_temp % ydot(:) - del(:)
-#else
-       y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
-#endif
 
        ! last LU solve
 #ifdef VODE
@@ -482,8 +454,8 @@ contains
 
     ! reinitialize
     if (eps /= bs % eps_old) then
-       bs % dt_next = -1.d29
-       bs % t_new = -1.d29
+       bs % dt_next = -1.e29_rt
+       bs % t_new = -1.e29_rt
        eps1 = S1*eps
 
        bs % a(1) = nseq(1)+1
@@ -578,7 +550,7 @@ contains
                    err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
                    err_max = err_max / eps
                    km = k - 1
-                   err(km) = (err_max/S1)**(1.0/(2*km+1))
+                   err(km) = (err_max/S1)**(1.0_rt/(2*km+1))
                 endif
 
                 if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
@@ -661,7 +633,7 @@ contains
     bs % first = .false.
 
     ! optimal convergence properties
-    work_min = 1.e35
+    work_min = 1.e35_rt
     do kk = 1, km
        fac = max(err(kk), SCALMX)
        work = fac*bs % a(kk+1)
@@ -759,7 +731,6 @@ contains
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -804,11 +775,7 @@ contains
 
        ! create I/(gamma h) - ydot -- this is the matrix used for all the
        ! linear systems that comprise a single step
-#ifdef SIMPLIFIED_SDC
        A(:,:) = -bs % jac(:,:)
-#else
-       A(:,:) = -bs % burn_s % jac(:,:)
-#endif
        do n = 1, bs_neqs
           A(n,n) = ONE/(gamma * h) + A(n,n)
        enddo
@@ -825,11 +792,7 @@ contains
        
        ! setup the first RHS and solve the linear system (note: the linear
        ! solve replaces the RHS with the solution in place)
-#ifdef SIMPLIFIED_SDC
        g1(:) = bs % ydot(:)
-#else
-       g1(:) = bs % burn_s % ydot(:)
-#endif
 
 #ifdef VODE
        call dgesl(A, ipiv, g1)
@@ -849,11 +812,8 @@ contains
        call f_rhs(bs_temp)
 #endif
 
-#ifdef SIMPLIFIED_SDC
        g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
-#else
-       g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
-#endif
+
 #ifdef VODE
        call dgesl(A, ipiv, g2)
 #else
@@ -872,11 +832,8 @@ contains
        call f_rhs(bs_temp)
 #endif
 
-#ifdef SIMPLIFIED_SDC
        g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
-#else
-       g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
-#endif
+
 #ifdef VODE
        call dgesl(A, ipiv, g3)
 #else
@@ -887,11 +844,8 @@ contains
        ! evaluation here
 
        ! final intermediate RHS
-#ifdef SIMPLIFIED_SDC
        g4(:) = bs_temp % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
-#else
-       g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
-#endif
+
 #ifdef VODE
        call dgesl(A, ipiv, g4)
 #else

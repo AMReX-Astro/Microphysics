@@ -2,11 +2,13 @@ program test
 
   ! the test example from the dnsqe source comments
 
+  use amrex_fort_module, only : rt => amrex_real
+
   integer :: j, n, iopt, nprint, info, lwa
-  double precision :: tol, fnorm
-  double precision :: x(9), fvec(9), wa(180)
-  double precision :: denorm, d1mach
-  double precision :: rpar(2)
+  real(rt)         :: tol, fnorm
+  real(rt)         :: x(9), fvec(9), wa(180)
+  real(rt)         :: denorm, d1mach
+  real(rt)         :: rpar(2)
 
   external fcn
 
@@ -15,7 +17,7 @@ program test
 
   ! the following starting values provide a rough solution.
   do j = 1, 9
-     x(j) = -1.e0
+     x(j) = -1.e0_rt
   enddo
 
   lwa = 180
@@ -36,16 +38,17 @@ end program test
 
 subroutine fcn(n, x, fvec, iflag, rpar)
 
+  use amrex_fort_module, only : rt => amrex_real
   integer :: n, iflag
-  double precision :: x(n), fvec(n)
-  double precision :: rpar(*)
+  real(rt)         :: x(n), fvec(n)
+  real(rt)         :: rpar(*)
 
   integer :: k
-  double precision :: temp, temp1, temp2
-  double precision, parameter :: zero = 0.0d0
-  double precision, parameter :: one = 1.0d0
-  double precision, parameter :: two = 2.0d0
-  double precision, parameter :: three = 3.0d0
+  real(rt)         :: temp, temp1, temp2
+  real(rt)        , parameter :: zero = 0.0e0_rt
+  real(rt)        , parameter :: one = 1.0e0_rt
+  real(rt)        , parameter :: two = 2.0e0_rt
+  real(rt)        , parameter :: three = 3.0e0_rt
 
   do k = 1, n
      temp = (three - two*x(k))*x(k)

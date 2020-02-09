@@ -101,18 +101,18 @@ contains
     integer, parameter :: KFC = -3
     integer, parameter :: KFH = -7
     integer, parameter :: MXNCF = 10
-    real(rt), parameter :: ADDON = 1.0D-6
-    real(rt), parameter :: BIAS1 = 6.0D0
-    real(rt), parameter :: BIAS2 = 6.0D0
-    real(rt), parameter :: BIAS3 = 10.0D0
-    real(rt), parameter :: ETACF = 0.25D0
-    real(rt), parameter :: ETAMIN = 0.1D0
-    real(rt), parameter :: ETAMXF = 0.2D0
-    real(rt), parameter :: ETAMX1 = 1.0D4
-    real(rt), parameter :: ETAMX2 = 10.0D0
-    real(rt), parameter :: ETAMX3 = 10.0D0
-    real(rt), parameter :: ONEPSM = 1.00001D0
-    real(rt), parameter :: THRESH = 1.5D0
+    real(rt), parameter :: ADDON = 1.0e-6_rt
+    real(rt), parameter :: BIAS1 = 6.0e0_rt
+    real(rt), parameter :: BIAS2 = 6.0e0_rt
+    real(rt), parameter :: BIAS3 = 10.0e0_rt
+    real(rt), parameter :: ETACF = 0.25e0_rt
+    real(rt), parameter :: ETAMIN = 0.1e0_rt
+    real(rt), parameter :: ETAMXF = 0.2e0_rt
+    real(rt), parameter :: ETAMX1 = 1.0e4_rt
+    real(rt), parameter :: ETAMX2 = 10.0e0_rt
+    real(rt), parameter :: ETAMX3 = 10.0e0_rt
+    real(rt), parameter :: ONEPSM = 1.00001e0_rt
+    real(rt), parameter :: THRESH = 1.5e0_rt
 
     !$gpu
 

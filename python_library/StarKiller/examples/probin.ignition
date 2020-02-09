@@ -1,6 +1,0 @@
-&extern
-
-  small_dens = 1.d5
-  small_temp = 1.d5
-
-/

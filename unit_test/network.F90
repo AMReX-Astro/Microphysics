@@ -75,6 +75,17 @@ contains
   end subroutine network_init
 
 
+  function get_network_name() result(name)
+
+    use actual_network, only: network_name
+
+    character(len=128) :: name
+
+    name = network_name
+
+  end function get_network_name
+
+
   function network_species_index(name) result(r)
 
     character(len=*) :: name

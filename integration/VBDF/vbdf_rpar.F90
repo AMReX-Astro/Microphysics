@@ -7,6 +7,7 @@ module vbdf_rpar_indices
   use actual_network, only: nspec, nspec_evolve
   use burn_type_module, only: neqs
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   integer, parameter :: n_not_evolved = nspec - nspec_evolve

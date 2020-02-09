@@ -50,10 +50,11 @@ contains
 
   subroutine init_tab_info(rate_table, rhoy_table, temp_table, &
                            num_rhoy, num_temp, num_vars, &
-                           rate_table_file, num_header)
+                           rate_table_file, num_header, invert_chemical_potential)
     integer  :: num_rhoy, num_temp, num_vars, num_header
     real(rt) :: rate_table(num_temp, num_rhoy, num_vars), rhoy_table(num_rhoy), temp_table(num_temp)
     character(len=50) :: rate_table_file
+    logical :: invert_chemical_potential
 
     real(rt), allocatable :: rate_table_scratch(:,:,:)
     integer :: i, j, k
@@ -75,6 +76,14 @@ contains
     close(11)
 
     rate_table(:,:,:) = rate_table_scratch(:,:,3:num_vars+2)
+
+    ! Set sign for chemical potential contribution to energy generation for
+    ! electron capture vs beta decays.
+    if (invert_chemical_potential) then
+       rate_table(:,:,jtab_mu) = -rate_table(:,:,jtab_mu)
+       rate_table(:,:,jtab_vs) = -rate_table(:,:,jtab_vs)
+    end if
+
     do i = 1, num_rhoy
        rhoy_table(i) = rate_table_scratch(1, i, 1)
     end do
@@ -277,6 +286,7 @@ contains
                               rhoy, temp, reactvec)
 
     use actual_network, only: num_rate_groups
+    use extern_probin_module, only: disable_fermi_heating
     implicit none
 
     integer  :: num_rhoy, num_temp, num_vars, num_header
@@ -296,9 +306,12 @@ contains
     ! Recast entries into reactvec
     reactvec(1) = entries(jtab_rate)
     reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0
-    reactvec(4) = 0.0d0
+    reactvec(3) = 1.0e0_rt
+    reactvec(4) = 0.0e0_rt
     reactvec(5) = entries(jtab_dq)
+    if (.not. disable_fermi_heating) then
+       reactvec(5) = reactvec(5) + entries(jtab_mu) - entries(jtab_vs)
+    end if
     reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
 
   end subroutine tabular_evaluate

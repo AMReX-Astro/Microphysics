@@ -42,9 +42,9 @@ contains
     aux_names(2) = "invmu"   ! 1/mu in P = rho*R*T/mu
     short_aux_names(2) = "invmu"
 
-    aion(:) = 1.d0
-    zion(:) = 1.d0
-    ebin(:) = 0.d0
+    aion(:) = 1.e0_rt
+    zion(:) = 1.e0_rt
+    ebin(:) = 0.e0_rt
 
   end subroutine actual_network_init
 
