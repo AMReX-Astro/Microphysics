@@ -6,22 +6,22 @@
 namespace EOSData
 {
   bool initialized;
-  Real mintemp;
-  Real maxtemp;
-  Real mindens;
-  Real maxdens;
-  Real minx;
-  Real maxx;
-  Real minye;
-  Real maxye;
-  Real mine;
-  Real maxe;
-  Real minp;
-  Real maxp;
-  Real mins;
-  Real maxs;
-  Real minh;
-  Real maxh;
+  AMREX_GPU_MANAGED Real mintemp;
+  AMREX_GPU_MANAGED Real maxtemp;
+  AMREX_GPU_MANAGED Real mindens;
+  AMREX_GPU_MANAGED Real maxdens;
+  AMREX_GPU_MANAGED Real minx;
+  AMREX_GPU_MANAGED Real maxx;
+  AMREX_GPU_MANAGED Real minye;
+  AMREX_GPU_MANAGED Real maxye;
+  AMREX_GPU_MANAGED Real mine;
+  AMREX_GPU_MANAGED Real maxe;
+  AMREX_GPU_MANAGED Real minp;
+  AMREX_GPU_MANAGED Real maxp;
+  AMREX_GPU_MANAGED Real mins;
+  AMREX_GPU_MANAGED Real maxs;
+  AMREX_GPU_MANAGED Real minh;
+  AMREX_GPU_MANAGED Real maxh;
 }
 
 
@@ -82,6 +82,7 @@ void eos_cxx_finalize() {
 }
 
 
+AMREX_GPU_HOST_DEVICE
 void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs) {
 
   // Input arguments
@@ -123,6 +124,7 @@ void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs) {
   }
 }
 
+AMREX_GPU_HOST_DEVICE
 void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
   // Reset the input quantities to valid values. For inputs other than rho and T,

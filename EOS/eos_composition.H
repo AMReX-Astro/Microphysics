@@ -15,6 +15,7 @@ struct eos_xderivs_t {
 };
 
 
+AMREX_GPU_HOST_DEVICE
 inline void composition(eos_t& state) {
 
   // Calculate abar, the mean nucleon number,
@@ -42,6 +43,7 @@ inline void composition(eos_t& state) {
 
 }
 
+AMREX_GPU_HOST_DEVICE
 eos_xderivs_t composition_derivatives(eos_t& state);
 
 #endif

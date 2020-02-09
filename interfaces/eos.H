@@ -69,44 +69,53 @@ enum eos_input_t {eos_input_rt = 0,
 namespace EOSData
 {
   extern bool initialized;
-  extern Real mintemp;
-  extern Real maxtemp;
-  extern Real mindens;
-  extern Real maxdens;
-  extern Real minx;
-  extern Real maxx;
-  extern Real minye;
-  extern Real maxye;
-  extern Real mine;
-  extern Real maxe;
-  extern Real minp;
-  extern Real maxp;
-  extern Real mins;
-  extern Real maxs;
-  extern Real minh;
-  extern Real maxh;
+  extern AMREX_GPU_MANAGED Real mintemp;
+  extern AMREX_GPU_MANAGED Real maxtemp;
+  extern AMREX_GPU_MANAGED Real mindens;
+  extern AMREX_GPU_MANAGED Real maxdens;
+  extern AMREX_GPU_MANAGED Real minx;
+  extern AMREX_GPU_MANAGED Real maxx;
+  extern AMREX_GPU_MANAGED Real minye;
+  extern AMREX_GPU_MANAGED Real maxye;
+  extern AMREX_GPU_MANAGED Real mine;
+  extern AMREX_GPU_MANAGED Real maxe;
+  extern AMREX_GPU_MANAGED Real minp;
+  extern AMREX_GPU_MANAGED Real maxp;
+  extern AMREX_GPU_MANAGED Real mins;
+  extern AMREX_GPU_MANAGED Real maxs;
+  extern AMREX_GPU_MANAGED Real minh;
+  extern AMREX_GPU_MANAGED Real maxh;
 }
 
 void eos_cxx_init();
 
 void eos_cxx_finalize();
 
+AMREX_GPU_HOST_DEVICE
 void eos_cxx(const eos_input_t input, eos_t& state, bool use_raw_inputs=false);
 
+AMREX_GPU_HOST_DEVICE
 void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 inline void reset_rho(eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 inline void reset_T(eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 void reset_e(eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 void reset_h(eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 void reset_s(eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 void reset_p(eos_t& state, bool& has_been_reset);
 
+AMREX_GPU_HOST_DEVICE
 void eos_reset(eos_t& state, bool& has_been_reset);
 
 #ifndef AMREX_USE_GPU

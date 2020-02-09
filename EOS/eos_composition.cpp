@@ -1,5 +1,6 @@
 #include <eos_composition.H>
 
+AMREX_GPU_HOST_DEVICE
 eos_xderivs_t composition_derivatives(eos_t& state) {
 
   eos_xderivs_t state_xderivs;
