@@ -109,6 +109,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#burn-cell">burn_cell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#burn-cell-c">burn_cell_C</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cj-detonation">cj_detonation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#constant">constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gamma-law">gamma_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gamma-law-general">gamma_law_general</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#helmholtz">helmholtz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#integration">integration</a></li>
@@ -119,6 +121,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#polytrope">polytrope</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#python-library">python_library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rad-power-law">rad_power_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#stellarcollapse">stellarcollapse</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subch">subch</a></li>
@@ -752,6 +755,54 @@ before rebuilding</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smallx</span></code></p></td>
 <td></td>
 <td><p>1.e-10</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="constant">
+<h1>constant<a class="headerlink" href="#constant" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 51%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_viscosity</span></code></p></td>
+<td></td>
+<td><p>1.0d-4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="gamma-law">
+<h1>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 51%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
+<td></td>
+<td><p>5.d0/3.d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
+<td></td>
+<td><p>.true.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1519,6 +1570,92 @@ priority</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e5</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="rad-power-law">
+<h1>rad_power_law<a class="headerlink" href="#rad-power-law" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 51%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_const_c_v</span></code></p></td>
+<td></td>
+<td><p>-1.d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_m</span></code></p></td>
+<td></td>
+<td><p>0.d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_n</span></code></p></td>
+<td></td>
+<td><p>0.d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_p</span></code></p></td>
+<td><p>Opacity constant (Planck)</p></td>
+<td><p>-1.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_m</span></code></p></td>
+<td><p>Density exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_n</span></code></p></td>
+<td><p>Temperature exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_p</span></code></p></td>
+<td><p>Frequency exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_r</span></code></p></td>
+<td><p>Opacity constant (Rosseland)</p></td>
+<td><p>-1.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_m</span></code></p></td>
+<td><p>Density exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_n</span></code></p></td>
+<td><p>Temperature exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_p</span></code></p></td>
+<td><p>Frequency exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_scatter</span></code></p></td>
+<td><p>Opacity constant (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_m</span></code></p></td>
+<td><p>Density exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_n</span></code></p></td>
+<td><p>Temperature exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_p</span></code></p></td>
+<td><p>Frequency exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_floor</span></code></p></td>
+<td><p>Opacity floor</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rad_temp_floor</span></code></p></td>
+<td><p>Temperature floor</p></td>
+<td><p>1.d-10</p></td>
 </tr>
 </tbody>
 </table>
