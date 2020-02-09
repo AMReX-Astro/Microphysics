@@ -206,7 +206,7 @@ contains
     p % names(p % izbar) = "Zbar"
     p % names(p % idpda) = "dp_dA"
     p % names(p % idpdz) = "dp_dZ"
-    p % names(p % ideda) = "dp_dA"
+    p % names(p % ideda) = "de_dA"
     p % names(p % idedz) = "de_dZ"
     p % names(p % idpde) = "dp_de_rho"
     p % names(p % idpdre) = "dp_drho_e"

@@ -15,35 +15,37 @@ contains
 
 
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
-    use burn_type_module, only: burn_t
+    use burn_type_module, only: burn_t, neqs
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     type (burn_t) :: state
+    real(rt), intent(inout) :: ydot(neqs)
 
     ! Do nothing in this RHS.
 
-    state % ydot = ZERO
+    ydot = ZERO
 
   end subroutine actual_rhs
 
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
-    use burn_type_module, only: burn_t
+    use burn_type_module, only: burn_t, njrows, njcols
     use amrex_constants_module, only: ZERO
 
     implicit none
 
     type (burn_t) :: state
+    real(rt), intent(inout) :: jac(njrows, njcols)
 
     ! Do nothing in this RHS.
 
-    state % jac(:,:) = ZERO
+    jac(:,:) = ZERO
 
   end subroutine actual_jac
 
