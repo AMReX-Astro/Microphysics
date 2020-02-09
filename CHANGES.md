@@ -4,6 +4,9 @@
      BoxLib F90 build system have been removed.  They were
      not maintained.  (#212).
 
+   * All of the interface files have been collected together
+     in the interfaces/ dir.  (#240)
+
 # 20.02
 
    * Added a C++ header file, actual_network.H, that defines the
