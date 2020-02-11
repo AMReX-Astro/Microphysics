@@ -20,6 +20,8 @@ module actual_network
 
   real(rt), save :: ebin(nspec)
 
+  character (len=32), parameter :: network_name = "breakout"
+
 contains
 
   subroutine actual_network_init()
