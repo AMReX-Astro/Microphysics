@@ -15,7 +15,7 @@ module actual_network
   real(rt)        , allocatable :: ebin(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, ebin
+  attributes(managed) :: ebin
 #endif
 
   character (len=32), parameter :: network_name = "triple_alpha_plus_cago"

@@ -24,7 +24,7 @@ module actual_network
   real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, nion, bion, mion, wion
+  attributes(managed) :: bion, mion, wion
 #endif
 
   character (len=32), parameter :: network_name = "aprox13"
