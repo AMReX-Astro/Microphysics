@@ -16,7 +16,7 @@
 
 module actual_network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
 
@@ -29,7 +29,7 @@ module actual_network
   character (len=16), save :: aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable, save :: aion(:), zion(:)
+  real(rt), allocatable, save :: aion(:), zion(:)
 
   !$acc declare create(aion, zion)
 
