@@ -343,6 +343,12 @@ helmholtz
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``eos_dtol``                     | Tolerance for iterations with respect to density        | 1.0d-8             |
 +----------------------------------+---------------------------------------------------------+--------------------+
+| ``prad_limiter_rho_c``           | Density target for radiation pressure smoothing         | -1.0d0             |
+|                                  | (negative means smoothing is disabled)                  |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``prad_limiter_delta_rho``       | Density gradient for radiation pressure smoothing       | -1.0d0             |
+|                                  | (negative means smoothing is disabled)                  |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
 | ``use_eos_coulomb``              | use the Coulomb corrections                             | .true.             |
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``eos_input_is_constant``        | Force the EOS output quantities to match input          | .true.             |
