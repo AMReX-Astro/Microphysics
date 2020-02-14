@@ -1,12 +1,11 @@
 module actual_network
 
+  use network_properties
   use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
-  integer, parameter :: nspec = 7
   integer, parameter :: nspec_evolve = 7
-  integer, parameter :: naux  = 0
   
   integer, parameter :: ihe4  = 1
   integer, parameter :: ic12  = 2
@@ -16,16 +15,11 @@ module actual_network
   integer, parameter :: isi28 = 6
   integer, parameter :: ini56 = 7
 
-  real(rt)        , allocatable :: aion(:), zion(:), nion(:)
   real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, nion, bion, mion, wion
+  attributes(managed) :: bion, mion, wion
 #endif
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
 
   character (len=32), parameter :: network_name = "iso7"
 
@@ -77,47 +71,12 @@ contains
 
     implicit none
 
-    short_spec_names(ihe4)  = 'he4'
-    short_spec_names(ic12)  = 'c12'
-    short_spec_names(io16)  = 'o16'
-    short_spec_names(ine20) = 'ne20'
-    short_spec_names(img24) = 'mg24'
-    short_spec_names(isi28) = 'si28'
-    short_spec_names(ini56) = 'ni56'
+    call network_properties_init()
 
-    spec_names(ihe4)  = "helium-4"
-    spec_names(ic12)  = "carbon-12"
-    spec_names(io16)  = "oxygen-16"
-    spec_names(ine20) = "neon-20"
-    spec_names(img24) = "magnesium-24"
-    spec_names(isi28) = "silicon-28"
-    spec_names(ini56) = "nickel-56"
-
-
-    allocate(aion(nspec))
-    allocate(zion(nspec))
-    allocate(nion(nspec))
     allocate(bion(nspec))
     allocate(mion(nspec))
     allocate(wion(nspec))
 
-    ! Set the number of nucleons in the element
-    aion(ihe4)  = 4.0e0_rt
-    aion(ic12)  = 12.0e0_rt
-    aion(io16)  = 16.0e0_rt
-    aion(ine20) = 20.0e0_rt
-    aion(img24) = 24.0e0_rt
-    aion(isi28) = 28.0e0_rt
-    aion(ini56) = 56.0e0_rt
-
-    ! Set the number of protons in the element
-    zion(ihe4)  = 2.0e0_rt
-    zion(ic12)  = 6.0e0_rt
-    zion(io16)  = 8.0e0_rt
-    zion(ine20) = 10.0e0_rt
-    zion(img24) = 12.0e0_rt
-    zion(isi28) = 14.0e0_rt
-    zion(ini56) = 28.0e0_rt
 
     ! Set the binding energy of the element
     bion(ihe4)  = 28.29603e0_rt
@@ -127,9 +86,6 @@ contains
     bion(img24) = 198.25790e0_rt
     bion(isi28) = 236.53790e0_rt
     bion(ini56) = 484.00300e0_rt
-
-    ! Set the number of neutrons
-    nion(:) = aion(:) - zion(:)
 
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
@@ -168,15 +124,8 @@ contains
 
     implicit none
 
-    if (allocated(aion)) then
-       deallocate(aion)
-    endif
-    if (allocated(zion)) then
-       deallocate(zion)
-    endif
-    if (allocated(nion)) then
-       deallocate(nion)
-    endif
+    call network_properties_init()
+
     if (allocated(bion)) then
        deallocate(bion)
     endif
