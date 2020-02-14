@@ -8,6 +8,7 @@ endif
 f90EXE_sources += actual_rhs.f90
 endif
 
+NETWORK_OUTPUT_PATH ?= $(CURDIR)
 
 network_properties.H: actual_network.F90
 
@@ -19,9 +20,9 @@ actual_network.F90:   $(GENERAL_NET_INPUTS) $(MICROPHYSICS_HOME)/networks/genera
 	$(MICROPHYSICS_HOME)/networks/general_null/write_network.py \
             -t $(MICROPHYSICS_HOME)/networks/general_null/network.template \
             -s $(GENERAL_NET_INPUTS) \
-            -o actual_network.F90 \
+            -o $(NETWORK_OUTPUT_PATH)/actual_network.F90 \
             --header_template $(MICROPHYSICS_HOME)/networks/general_null/network_header.template \
-            --header_output network_properties.H
+            --header_output $(NETWORK_OUTPUT_PATH)/network_properties.H
 	@echo "---------------------------------------------------------------------------"
 	@echo " "
 
