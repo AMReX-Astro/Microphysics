@@ -16,6 +16,8 @@ module actual_network
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
 
+  character (len=32), parameter :: network_name = "powerlaw"
+
 contains
   
   subroutine actual_network_init
@@ -26,7 +28,6 @@ contains
 
     call network_properties_init()
 
-x
     ! Binding energies in erg / g
 
     ebin(ifuel_)  = ZERO
