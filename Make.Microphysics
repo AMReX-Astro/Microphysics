@@ -250,6 +250,9 @@ VPATH_LOCATIONS   += $(Blocs)
 
 # runtime parameter support for extern/ routines
 F90EXE_sources += extern.F90
+CEXE_sources += extern_parameters.cpp
+FEXE_HEADERS += extern_parameters_F.H
+CEXE_HEADERS += extern_parameters.H
 
 EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/interfaces/extern_probin.template
 
@@ -260,6 +263,8 @@ ifdef MICROPHYSICS_HOME
 endif
 
 EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
+
+extern_parameters.cpp: extern.F90
 
 extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
 	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
