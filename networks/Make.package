@@ -88,3 +88,6 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
 endif
 
+network_properties.H: network_properties.F90
+
+network_properties.F90:
