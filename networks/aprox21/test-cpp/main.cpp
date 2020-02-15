@@ -55,7 +55,7 @@ main (int   argc,
     // save the inputs file name for later
     if (argc > 1) {
       if (!strchr(argv[1], '=')) {
-	inputs_name = argv[1];
+        inputs_name = argv[1];
       }
     }
 
