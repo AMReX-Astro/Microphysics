@@ -215,7 +215,6 @@ ifdef USE_CONDUCTIVITY
 endif
 
 # include the network
-EXTERN_CORE += $(NETWORK_HOME)
 EXTERN_CORE += $(NETWORK_PATH)
 
 # Note that this should be located after the include of the EOS and

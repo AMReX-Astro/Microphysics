@@ -88,6 +88,12 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
 endif
 
+NETWORK_HEADERS_DIR ?= .
+
 network_properties.H: network_properties.F90
 
 network_properties.F90:
+	$(MICROPHYSICS_HOME)/networks/update_headers.py \
+           --microphysics_path $(MICROPHYSICS_HOME) \
+           --net $(NETWORK_DIR) \
+           --odir $(NETWORK_HEADERS_DIR)
