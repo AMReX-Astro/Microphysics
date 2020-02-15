@@ -89,3 +89,16 @@ subroutine runtime_init(name,namlen)
 
 end subroutine runtime_init
 
+
+module extern_f90_to_cxx
+
+  use extern_probin_module
+  use amrex_fort_module, only: rt => amrex_real
+
+  implicit none
+
+contains
+
+  @@cxx_gets@@
+
+end module extern_f90_to_cxx
