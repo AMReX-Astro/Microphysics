@@ -117,8 +117,7 @@ module vode_rpar_indices
   integer, parameter :: irp_cs = irp_ye + 1
   integer, parameter :: irp_dx = irp_cs + 1
   integer, parameter :: irp_t_sound = irp_dx + 1
-  integer, parameter :: irp_y_init = irp_t_sound + 1
-  integer, parameter :: irp_self_heat = irp_y_init + neqs
+  integer, parameter :: irp_self_heat = irp_t_sound + 1
   integer, parameter :: irp_Told = irp_self_heat + 1
   integer, parameter :: irp_dcvdt = irp_Told + 1
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1
