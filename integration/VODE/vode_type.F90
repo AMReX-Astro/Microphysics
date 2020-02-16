@@ -7,7 +7,7 @@ module vode_type_module
 
 contains
   
-  subroutine clean_state(y, rpar)
+  subroutine clean_state(vode_state)
 
     !$acc routine seq
 
@@ -20,7 +20,7 @@ contains
 
     implicit none
 
-    real(rt) :: y(neqs), rpar(n_rpar_comps)
+    type(dvode_t), intent(inout) :: vode_state
 
     real(rt) :: small_temp
 
@@ -28,24 +28,26 @@ contains
 
     ! Ensure that mass fractions always stay positive and less than or equal to 1.
 
-    y(1:nspec_evolve) = max(min(y(1:nspec_evolve), ONE), SMALL_X_SAFE)
+    vode_state % y(1:nspec_evolve) = &
+         max(min(vode_state % y(1:nspec_evolve), ONE), SMALL_X_SAFE)
 
     ! Renormalize the abundances as necessary.
 
     if (renormalize_abundances) then
-       call renormalize_species(y, rpar)
+       call renormalize_species(vode_state)
     endif
 
     ! Ensure that the temperature always stays within reasonable limits.
 
     call eos_get_small_temp(small_temp)
 
-    y(net_itemp) = min(MAX_TEMP, max(y(net_itemp), small_temp))
+    vode_state % y(net_itemp) = &
+         min(MAX_TEMP, max(vode_state % y(net_itemp), small_temp))
 
   end subroutine clean_state
 
 
-  subroutine renormalize_species(y, rpar)
+  subroutine renormalize_species(vode_state)
 
     !$acc routine seq
     
@@ -55,24 +57,24 @@ contains
 
     implicit none
 
-    real(rt) :: y(neqs), rpar(n_rpar_comps)
+    real(rt), intent(inout) :: vode_state
 
     real(rt) :: nspec_sum
 
     !$gpu
 
     nspec_sum = &
-         sum(y(1:nspec_evolve)) + &
-         sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
+         sum(vode_state % y(1:nspec_evolve)) + &
+         sum(vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1))
 
-    y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
+    vode_state % y(1:nspec_evolve) = vode_state % y(1:nspec_evolve) / nspec_sum
+    vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+         vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
 
   end subroutine renormalize_species
 
 
-  subroutine update_thermodynamics(y, rpar)
+  subroutine update_thermodynamics(vode_state)
 
     !$acc routine seq
     
@@ -86,7 +88,7 @@ contains
 
     implicit none
 
-    real(rt) :: y(neqs), rpar(n_rpar_comps)
+    real(rt), intent(inout) :: vode_state
 
     type (eos_t) :: eos_state
 
@@ -97,7 +99,7 @@ contains
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
 
-    call vode_to_eos(eos_state, y, rpar)
+    call vode_to_eos(eos_state, vode_state)
 
     ! Evaluate the thermodynamics -- if desired. Note that
     ! even if this option is selected, we don't need to do it
@@ -115,14 +117,15 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-    else if (abs(eos_state % T - rpar(irp_Told)) > dT_crit * eos_state % T .and. rpar(irp_self_heat) > ZERO) then
+    else if (abs(eos_state % T - vode_state % rpar(irp_Told)) > dT_crit * eos_state % T .and. &
+             vode_state % rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
-       rpar(irp_dcvdt) = (eos_state % cv - rpar(irp_cv)) / &
-            (eos_state % T - rpar(irp_Told))
-       rpar(irp_dcpdt) = (eos_state % cp - rpar(irp_cp)) / &
-            (eos_state % T - rpar(irp_Told))
+       vode_state % rpar(irp_dcvdt) = (eos_state % cv - vode_state % rpar(irp_cv)) / &
+            (eos_state % T - vode_state % rpar(irp_Told))
+       rpar(irp_dcpdt) = (eos_state % cp - vode_state % rpar(irp_cp)) / &
+            (eos_state % T - vode_state % rpar(irp_Told))
        rpar(irp_Told)  = eos_state % T
 
        ! note: the update to rpar(irp_cv) and irp_cp is done
@@ -134,7 +137,7 @@ contains
 
     endif
 
-    call eos_to_vode(eos_state, y, rpar)
+    call eos_to_vode(eos_state, vode_state)
 
   end subroutine update_thermodynamics
 
@@ -147,7 +150,7 @@ contains
   ! off the nuclear energy from the zone's internal energy, which could lead to
   ! issues from roundoff error if the energy released from burning is small.
 
-  subroutine vode_to_eos(state, y, rpar)
+  subroutine vode_to_eos(state, vode_state)
 
     !$acc routine seq
 
@@ -161,25 +164,24 @@ contains
     implicit none
 
     type (eos_t) :: state
-    real(rt)   :: rpar(n_rpar_comps)
-    real(rt)   :: y(neqs)
+    type (dvode_t), intent(in) :: vode_state
 
     !$gpu
 
-    state % rho     = rpar(irp_dens) * dens_scale
-    state % T       = y(net_itemp) * temp_scale
+    state % rho     = vode_state % rpar(irp_dens) * dens_scale
+    state % T       = vode_state % y(net_itemp) * temp_scale
 
-    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    state % xn(1:nspec_evolve) = vode_state % y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
-         rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+         vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    state % cp      = rpar(irp_cp)
-    state % cv      = rpar(irp_cv)
-    state % abar    = rpar(irp_abar)
-    state % zbar    = rpar(irp_zbar)
-    state % eta     = rpar(irp_eta)
-    state % y_e     = rpar(irp_ye)
-    state % cs      = rpar(irp_cs)
+    state % cp      = vode_state % rpar(irp_cp)
+    state % cv      = vode_state % rpar(irp_cv)
+    state % abar    = vode_state % rpar(irp_abar)
+    state % zbar    = vode_state % rpar(irp_zbar)
+    state % eta     = vode_state % rpar(irp_eta)
+    state % y_e     = vode_state % rpar(irp_ye)
+    state % cs      = vode_state % rpar(irp_cs)
 
   end subroutine vode_to_eos
 
@@ -187,7 +189,7 @@ contains
 
   ! Given an EOS state, fill the rpar and integration state data.
 
-  subroutine eos_to_vode(state, y, rpar)
+  subroutine eos_to_vode(state, vode_state)
 
     !$acc routine seq
 
@@ -200,26 +202,25 @@ contains
 
     implicit none
 
-    type (eos_t) :: state
-    real(rt)   :: rpar(n_rpar_comps)
-    real(rt)   :: y(neqs)
+    type (eos_t), intent(in) :: state
+    type(dvode_t), intent(inout) :: vode_state
 
     !$gpu
 
-    rpar(irp_dens) = state % rho * inv_dens_scale
-    y(net_itemp) = state % T * inv_temp_scale
+    vode_state % rpar(irp_dens) = state % rho * inv_dens_scale
+    vode_state % y(net_itemp) = state % T * inv_temp_scale
 
-    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
+    vode_state % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
          state % xn(nspec_evolve+1:nspec)
 
-    rpar(irp_cp)                    = state % cp
-    rpar(irp_cv)                    = state % cv
-    rpar(irp_abar)                  = state % abar
-    rpar(irp_zbar)                  = state % zbar
-    rpar(irp_eta)                   = state % eta
-    rpar(irp_ye)                    = state % y_e
-    rpar(irp_cs)                    = state % cs
+    vode_state % rpar(irp_cp) = state % cp
+    vode_state % rpar(irp_cv) = state % cv
+    vode_state % rpar(irp_abar) = state % abar
+    vode_state % rpar(irp_zbar) = state % zbar
+    vode_state % rpar(irp_eta) = state % eta
+    vode_state % rpar(irp_ye) = state % y_e
+    vode_state % rpar(irp_cs) = state % cs
 
   end subroutine eos_to_vode
 
@@ -227,7 +228,7 @@ contains
 
   ! Given a burn state, fill the rpar and integration state data.
 
-  subroutine burn_to_vode(state, y, rpar)
+  subroutine burn_to_vode(state, vode_state)
 
     !$acc routine seq
 
@@ -242,37 +243,38 @@ contains
 
     implicit none
 
-    type (burn_t) :: state
-    real(rt)    :: rpar(n_rpar_comps)
-    real(rt)    :: y(neqs)
+    type (burn_t), intent(in) :: state
+    type (dvode_t), intent(inout) :: vode_state
 
     !$gpu
 
-    rpar(irp_dens) = state % rho * inv_dens_scale
-    y(net_itemp) = state % T * inv_temp_scale
+    ! none of this information is changed by the burn, I think
 
-    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
+    !rpar(irp_dens) = state % rho * inv_dens_scale
+    !y(net_itemp) = state % T * inv_temp_scale
 
-    y(net_ienuc)                             = state % e * inv_ener_scale
+    !y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    !rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
-    rpar(irp_cp)                             = state % cp
-    rpar(irp_cv)                             = state % cv
-    rpar(irp_abar)                           = state % abar
-    rpar(irp_zbar)                           = state % zbar
-    rpar(irp_ye)                             = state % y_e
-    rpar(irp_eta)                            = state % eta
-    rpar(irp_cs)                             = state % cs
-    rpar(irp_dx)                             = state % dx
+    !y(net_ienuc)                             = state % e * inv_ener_scale
 
-    rpar(irp_Told)                           = state % T_old
-    rpar(irp_dcvdt)                          = state % dcvdt
-    rpar(irp_dcpdt)                          = state % dcpdt
+    !rpar(irp_abar)                           = state % abar
+    !rpar(irp_zbar)                           = state % zbar
+    !rpar(irp_ye)                             = state % y_e
+    !rpar(irp_eta)                            = state % eta
+    !rpar(irp_cs)                             = state % cs
+    !rpar(irp_dx)                             = state % dx
+
+    !rpar(irp_Told)                           = state % T_old
+
+    ! we don't need to update the specific heats, since those are not
+    ! modified by the actual network, but controlled in the VODE
+    ! driver
 
     if (state % self_heat) then
-       rpar(irp_self_heat) = ONE
+       vode_state % rpar(irp_self_heat) = ONE
     else
-       rpar(irp_self_heat) = -ONE
+       vode_state % rpar(irp_self_heat) = -ONE
     endif
 
   end subroutine burn_to_vode
@@ -281,7 +283,7 @@ contains
 
   ! Given an rpar array and the integration state, set up a burn state.
 
-  subroutine vode_to_burn(y, rpar, state)
+  subroutine vode_to_burn(vode_state, state)
 
     !$acc routine seq
 
@@ -296,36 +298,35 @@ contains
 
     implicit none
 
-    type (burn_t) :: state
-    real(rt)    :: rpar(n_rpar_comps)
-    real(rt)    :: y(neqs)
+    type (burn_t), intent(inout) :: state
+    type (dvode_t), intent(in) :: vode_state
 
     integer :: n
 
     !$gpu
 
-    state % rho      = rpar(irp_dens) * dens_scale
-    state % T        = y(net_itemp) * temp_scale
-    state % e        = y(net_ienuc) * ener_scale
+    state % rho      = vode_state % rpar(irp_dens) * dens_scale
+    state % T        = vode_state % y(net_itemp) * temp_scale
+    state % e        = vode_state % y(net_ienuc) * ener_scale
 
-    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
+    state % xn(1:nspec_evolve) = vode_state % y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
-         rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+         vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    state % cp       = rpar(irp_cp)
-    state % cv       = rpar(irp_cv)
-    state % abar     = rpar(irp_abar)
-    state % zbar     = rpar(irp_zbar)
-    state % y_e      = rpar(irp_ye)
-    state % eta      = rpar(irp_eta)
-    state % cs       = rpar(irp_cs)
-    state % dx       = rpar(irp_dx)
+    state % cp       = vode_state % rpar(irp_cp)
+    state % cv       = vode_state % rpar(irp_cv)
+    state % abar     = vode_state % rpar(irp_abar)
+    state % zbar     = vode_state % rpar(irp_zbar)
+    state % y_e      = vode_state % rpar(irp_ye)
+    state % eta      = vode_state % rpar(irp_eta)
+    state % cs       = vode_state % rpar(irp_cs)
+    state % dx       = vode_state % rpar(irp_dx)
 
-    state % T_old    = rpar(irp_Told)
-    state % dcvdt    = rpar(irp_dcvdt)
-    state % dcpdt    = rpar(irp_dcpdt)
+    state % T_old    = vode_state % rpar(irp_Told)
+    state % dcvdt    = vode_state % rpar(irp_dcvdt)
+    state % dcpdt    = vode_state % rpar(irp_dcpdt)
 
-    if (rpar(irp_self_heat) > ZERO) then
+    if (vode_state % rpar(irp_self_heat) > ZERO) then
        state % self_heat = .true.
     else
        state % self_heat = .false.

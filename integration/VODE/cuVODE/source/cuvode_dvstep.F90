@@ -354,7 +354,7 @@ contains
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
     vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
+    CALL f_rhs (vstate % TN, vstate, rwork % savf)
     vstate % NFE = vstate % NFE + 1
     do I = 1, VODE_NEQS
        rwork % yh(I,2) = vstate % H * rwork % savf(I)

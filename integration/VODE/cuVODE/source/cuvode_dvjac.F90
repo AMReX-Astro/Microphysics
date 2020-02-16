@@ -146,7 +146,7 @@ contains
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
           vstate % Y(J) = vstate % Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
+          CALL f_rhs (vstate % TN, vstate, rwork % acor)
           do I = 1,VODE_NEQS
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
@@ -196,8 +196,8 @@ contains
        do I = 1,VODE_NEQS
           vstate % Y(I) = vstate % Y(I) + R*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
        end do
-       CALL f_rhs (vstate % TN, vstate % Y, &
-            rwork % WM(3:3 + VODE_NEQS - 1), vstate % RPAR)
+       CALL f_rhs (vstate % TN, vstate, &
+            rwork % WM(3:3 + VODE_NEQS - 1))
        vstate % NFE = vstate % NFE + 1
        do I = 1,VODE_NEQS
           R0 = vstate % H * rwork % SAVF(I) - rwork % YH(I,2)
@@ -255,7 +255,7 @@ contains
              R = MAX(SRUR*ABS(YI),R0/rwork % EWT(I))
              vstate % Y(I) = vstate % Y(I) + R
           end do
-          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
+          CALL f_rhs (vstate % TN, vstate, rwork % acor)
           do JJ = J,VODE_NEQS,MBAND
              vstate % Y(JJ) = rwork % YH(JJ,1)
              YJJ = vstate % Y(JJ)

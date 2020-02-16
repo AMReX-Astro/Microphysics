@@ -144,7 +144,7 @@ contains
     DELP = ZERO
 
     vstate % Y(1:VODE_NEQS) = rwork % yh(1:VODE_NEQS,1)
-    CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
+    CALL f_rhs (vstate % TN, vstate, rwork % savf)
     vstate % NFE = vstate % NFE + 1
     IF (vstate % IPUP .LE. 0) GO TO 250
     ! -----------------------------------------------------------------------
@@ -238,7 +238,7 @@ contains
     IF (M .EQ. MAXCOR) GO TO 410
     IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
     DELP = DEL
-    CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
+    CALL f_rhs (vstate % TN, vstate, rwork % SAVF)
     vstate % NFE = vstate % NFE + 1
     GO TO 270
     

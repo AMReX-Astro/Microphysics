@@ -6,7 +6,7 @@ contains
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
-  subroutine f_rhs(time, y, ydot, rpar)
+  subroutine f_rhs(time, vode_state, ydot)
 
     !$acc routine seq
     
@@ -23,7 +23,7 @@ contains
     implicit none
 
     real(rt), intent(INOUT) :: time, y(VODE_NEQS)
-    real(rt), intent(INOUT) :: rpar(n_rpar_comps)
+    type(dvode_t), intent(INOUT) :: vode_state
     real(rt), intent(INOUT) :: ydot(VODE_NEQS)
 
     type (burn_t) :: burn_state
@@ -36,22 +36,20 @@ contains
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
-    ydot = ZERO
-
     ! Fix the state as necessary.
 
-    call clean_state(y, rpar)
+    call clean_state(vode_state)
 
     ! Update the thermodynamics as necessary.
 
-    call update_thermodynamics(y, rpar)
+    call update_thermodynamics(vode_state)
 
     ! Call the specific network routine to get the RHS.
 
-    call vode_to_burn(y, rpar, burn_state)
+    call vode_to_burn(vode_state, burn_state)
 
     burn_state % time = time
-    call network_rhs(burn_state, ydot, rpar(irp_t0))
+    call network_rhs(burn_state, ydot, vode_state % rpar(irp_t0))
 
     ! We integrate X, not Y
     ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion(1:nspec_evolve)
@@ -70,7 +68,7 @@ contains
        ydot(:) = react_boost * ydot(:)
     endif
 
-    call burn_to_vode(burn_state, y, rpar)
+    call burn_to_vode(burn_state, vode_state)
 
   end subroutine f_rhs
 
