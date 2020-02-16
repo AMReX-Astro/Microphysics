@@ -17,6 +17,7 @@ actual_network.F90:   $(GENERAL_NET_INPUTS) $(MICROPHYSICS_HOME)/networks/genera
 	@echo " "
 	@echo "---------------------------------------------------------------------------"
 	@echo "WRITING actual_network.F90 and network_properties.H:"
+	@if [ ! -d $(NETWORK_OUTPUT_PATH) ]; then mkdir -p $(NETWORK_OUTPUT_PATH); fi
 	$(MICROPHYSICS_HOME)/networks/general_null/write_network.py \
             -t $(MICROPHYSICS_HOME)/networks/general_null/network.template \
             -s $(GENERAL_NET_INPUTS) \
