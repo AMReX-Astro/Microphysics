@@ -1,5 +1,6 @@
 module vode_type_module
 
+  use cuvode_types_module, only : dvode_t
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
   use amrex_fort_module, only: rt => amrex_real
 
@@ -57,7 +58,7 @@ contains
 
     implicit none
 
-    real(rt), intent(inout) :: vode_state
+    type(dvode_t), intent(inout) :: vode_state
 
     real(rt) :: nspec_sum
 
@@ -88,7 +89,7 @@ contains
 
     implicit none
 
-    real(rt), intent(inout) :: vode_state
+    type (dvode_t), intent(inout) :: vode_state
 
     type (eos_t) :: eos_state
 
@@ -113,7 +114,7 @@ contains
     ! that's needed to construct dY/dt. Then make sure
     ! the abundances are safe.
 
-    if (call_eos_in_rhs .and. rpar(irp_self_heat) > ZERO) then
+    if (call_eos_in_rhs .and. vode_state % rpar(irp_self_heat) > ZERO) then
 
        call eos(eos_input_rt, eos_state)
 
@@ -124,9 +125,9 @@ contains
 
        vode_state % rpar(irp_dcvdt) = (eos_state % cv - vode_state % rpar(irp_cv)) / &
             (eos_state % T - vode_state % rpar(irp_Told))
-       rpar(irp_dcpdt) = (eos_state % cp - vode_state % rpar(irp_cp)) / &
+       vode_state % rpar(irp_dcpdt) = (eos_state % cp - vode_state % rpar(irp_cp)) / &
             (eos_state % T - vode_state % rpar(irp_Told))
-       rpar(irp_Told)  = eos_state % T
+       vode_state % rpar(irp_Told)  = eos_state % T
 
        ! note: the update to rpar(irp_cv) and irp_cp is done
        ! in the call to eos_to_bs that follows this block.

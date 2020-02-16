@@ -122,8 +122,8 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % TN, vstate % Y, 0, 0, &
-            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
+       CALL JAC (vstate % TN, vstate, 0, 0, &
+            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS)
        if (vstate % JSV .EQ. 1) then
           do I = 0, LENP-1
              rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
@@ -230,8 +230,8 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % TN, vstate % Y, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), &
-            MEBAND, vstate % RPAR)
+       CALL JAC (vstate % TN, vstate, ML, MU, rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), &
+            MEBAND)
        if (vstate % JSV .EQ. 1) then
           CALL DACOPY(MBAND, VODE_NEQS, &
                rwork % WM(ML3:ML3 + MEBAND * VODE_NEQS - 1), MEBAND, &
