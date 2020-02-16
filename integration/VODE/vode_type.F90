@@ -256,8 +256,6 @@ contains
 
     y(net_ienuc)                             = state % e * inv_ener_scale
 
-    rpar(irp_cp)                             = state % cp
-    rpar(irp_cv)                             = state % cv
     rpar(irp_abar)                           = state % abar
     rpar(irp_zbar)                           = state % zbar
     rpar(irp_ye)                             = state % y_e
@@ -266,8 +264,10 @@ contains
     rpar(irp_dx)                             = state % dx
 
     rpar(irp_Told)                           = state % T_old
-    rpar(irp_dcvdt)                          = state % dcvdt
-    rpar(irp_dcpdt)                          = state % dcpdt
+
+    ! we don't need to update the specific heats, since these are not
+    ! modified by the actual network, but controlled in the VODE
+    ! driver
 
     if (state % self_heat) then
        rpar(irp_self_heat) = ONE

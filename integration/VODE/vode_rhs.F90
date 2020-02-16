@@ -36,8 +36,6 @@ contains
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
-    ydot = ZERO
-
     ! Fix the state as necessary.
 
     call clean_state(y, rpar)
