@@ -229,6 +229,15 @@ def write_network(network_template, header_template,
                         for n, spec in enumerate(species):
                             fout.write("{}{},   // {} \n".format(indent, spec.A, n))
 
+                elif keyword == "AION_INV":
+                    if lang == "Fortran":
+                        for n, spec in enumerate(species):
+                            fout.write("{}aion_inv({}) = 1.0_rt/{}_rt\n".format(indent, n+1, spec.A))
+
+                    elif lang == "C++":
+                        for n, spec in enumerate(species):
+                            fout.write("{}1.0/{},   // {} \n".format(indent, spec.A, n))
+
                 elif keyword == "ZION":
                     if lang == "Fortran":
                         for n, spec in enumerate(species):
@@ -239,9 +248,22 @@ def write_network(network_template, header_template,
                             fout.write("{}{},   // {}\n".format(indent, spec.Z, n))
 
                 elif keyword == "AUX_NAMES":
-                    for n, aux in enumerate(aux_vars):
-                        fout.write("{}aux_names({}) = \"{}\"\n".format(indent, n+1, aux.name))
-                        fout.write("{}short_aux_names({}) = \"{}\"\n".format(indent, n+1, aux.name))
+                    if lang == "Fortran":
+                        for n, aux in enumerate(aux_vars):
+                            fout.write("{}aux_names({}) = \"{}\"\n".format(indent, n+1, aux.name))
+
+                    elif lang == "C++":
+                        for n, aux in enumerate(aux_vars):
+                            fout.write("{}\"{}\",   // {} \n".format(indent, aux.name, n))
+
+                elif keyword == "SHORT_AUX_NAMES":
+                    if lang == "Fortran":
+                        for n, aux in enumerate(aux_vars):
+                            fout.write("{}short_aux_names({}) = \"{}\"\n".format(indent, n+1, aux.name))
+
+                    elif lang == "C++":
+                        for n, aux in enumerate(aux_vars):
+                            fout.write("{}\"{}\",   // {} \n".format(indent, aux.name, n))
 
             else:
                 fout.write(line)

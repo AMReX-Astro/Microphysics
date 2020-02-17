@@ -6,6 +6,7 @@
 !
 ! aion             -- atomic number
 ! zion             -- proton number
+! aion_inv         -- 1/atomic number
 !
 ! spec_names       -- the name of the isotope
 ! short_spec_names -- an abbreviated form of the species name
@@ -28,12 +29,12 @@ module network_properties
   character (len=16), save :: aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(rt), allocatable, save :: aion(:), zion(:), nion(:)
+  real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:), nion(:)
 
-  !$acc declare create(aion, zion, nion)
+  !$acc declare create(aion, aion_inv, zion, nion)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, nion
+  attributes(managed) :: aion, aion_inv, zion, nion
 #endif
 
 contains
@@ -45,6 +46,7 @@ contains
     @@SHORT_SPEC_NAMES@@
 
     allocate(aion(nspec))
+    allocate(aion_inv(nspec))
     allocate(zion(nspec))
     allocate(nion(nspec))
 
@@ -52,11 +54,15 @@ contains
 
     @@ZION@@
 
+    @@AION_INV@@
+
     ! Set the number of neutrons
     nion(:) = aion(:) - zion(:)
 
 
     @@AUX_NAMES@@
+
+    @@SHORT_AUX_NAMES@@
 
     !$acc update device(aion, zion)
 
@@ -70,6 +76,10 @@ contains
 
     if (allocated(aion)) then
        deallocate(aion)
+    end if
+
+    if (allocated(aion_inv)) then
+       deallocate(aion_inv)
     end if
 
     if (allocated(zion)) then
