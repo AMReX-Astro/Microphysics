@@ -56,7 +56,7 @@ module tfactors_module
      !real(rt)         :: t935
      !real(rt)         :: t945
      !real(rt)         :: t965
-     real(rt)         :: t917
+     !real(rt)         :: t917
      !real(rt)         :: t927
      !real(rt)         :: t947
      !real(rt)         :: t918
@@ -64,7 +64,7 @@ module tfactors_module
      !real(rt)         :: t958
      real(rt)         :: t9i
      real(rt)         :: t9i2
-     real(rt)         :: t9i3
+     !real(rt)         :: t9i3
      real(rt)         :: t9i12
      real(rt)         :: t9i32
      !real(rt)         :: t9i52
@@ -80,8 +80,8 @@ module tfactors_module
      !real(rt)         :: t9i35 
      !real(rt)         :: t9i45
      !real(rt)         :: t9i65
-     real(rt)         :: t9i17
-     real(rt)         :: t9i27
+     !real(rt)         :: t9i17
+     !real(rt)         :: t9i27
      !real(rt)         :: t9i47
      !real(rt)         :: t9i18
      !real(rt)         :: t9i38
@@ -145,7 +145,7 @@ contains
     !tf%t976  = tf%t9 * tf%t916
     !tf%t9i76 = 1.0e0_rt/tf%t976
     
-    tf%t917  = tf%t9**onesev
+    !tf%t917  = tf%t9**onesev
     !tf%t927  = tf%t917*tf%t917
     !tf%t947  = tf%t927*tf%t927
     
@@ -155,7 +155,7 @@ contains
     
     tf%t9i   = 1.0e0_rt/tf%t9
     tf%t9i2  = tf%t9i*tf%t9i
-    tf%t9i3  = tf%t9i2*tf%t9i
+    !tf%t9i3  = tf%t9i2*tf%t9i
     
     tf%t9i12 = 1.0e0_rt/tf%t912
     tf%t9i32 = tf%t9i*tf%t9i12
@@ -176,8 +176,8 @@ contains
     !tf%t9i45 = tf%t9i15 * tf%t9i35
     !tf%t9i65 = tf%t9i*tf%t9i15
     
-    tf%t9i17 = 1.0e0_rt/tf%t917
-    tf%t9i27 = tf%t9i17*tf%t9i17
+    !tf%t9i17 = 1.0e0_rt/tf%t917
+    !tf%t9i27 = tf%t9i17*tf%t9i17
     !tf%t9i47 = tf%t9i27*tf%t9i27
     
     !tf%t9i18 = 1.0e0_rt/tf%t918
