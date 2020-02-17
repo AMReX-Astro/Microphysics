@@ -107,9 +107,8 @@ module vode_rpar_indices
   integer, parameter :: n_not_evolved = nspec - nspec_evolve
 
   integer, parameter :: irp_dens = 1
-  integer, parameter :: irp_cv = irp_dens + 1
-  integer, parameter :: irp_cp = irp_cv + 1
-  integer, parameter :: irp_nspec = irp_cp + 1
+  integer, parameter :: irp_cx = irp_dens + 1
+  integer, parameter :: irp_nspec = irp_cx + 1
   integer, parameter :: irp_abar = irp_nspec + n_not_evolved
   integer, parameter :: irp_zbar = irp_abar + 1
   integer, parameter :: irp_eta = irp_zbar + 1
@@ -120,9 +119,8 @@ module vode_rpar_indices
   integer, parameter :: irp_y_init = irp_t_sound + 1
   integer, parameter :: irp_self_heat = irp_y_init + neqs
   integer, parameter :: irp_Told = irp_self_heat + 1
-  integer, parameter :: irp_dcvdt = irp_Told + 1
-  integer, parameter :: irp_dcpdt = irp_dcvdt + 1
-  integer, parameter :: irp_t0 = irp_dcpdt + 1
+  integer, parameter :: irp_dcxdt = irp_Told + 1
+  integer, parameter :: irp_t0 = irp_dcxdt + 1
 
   integer, parameter :: n_rpar_comps = irp_t0 + 1
 #endif

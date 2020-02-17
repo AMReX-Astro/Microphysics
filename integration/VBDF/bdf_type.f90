@@ -150,7 +150,7 @@ contains
     use eos_composition_module, only: composition
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
-    use vbdf_rpar_indices, only: irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt, irp_self_heat
+    use vbdf_rpar_indices, only: irp_cx, irp_Told, irp_dcxdt, irp_self_heat
 
     implicit none
 
@@ -186,10 +186,13 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-       state % upar(irp_dcvdt,1) = (eos_state % cv - state % upar(irp_cv,1)) / &
-            (eos_state % T - state % upar(irp_Told,1))
-       state % upar(irp_dcpdt,1) = (eos_state % cp - state % upar(irp_cp,1)) / &
-            (eos_state % T - state % upar(irp_Told,1))
+       if (do_constant_volume_burn) then
+          state % upar(irp_dcxdt,1) = (eos_state % cv - state % upar(irp_cx,1)) / &
+               (eos_state % T - state % upar(irp_Told,1))
+       else
+          state % upar(irp_dcxdt,1) = (eos_state % cp - state % upar(irp_cx,1)) / &
+               (eos_state % T - state % upar(irp_Told,1))
+       end if
        state % upar(irp_Told,1)  = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
@@ -220,7 +223,7 @@ contains
 
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
-    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_not_evolved
     use burn_type_module, only: net_itemp
 
@@ -236,8 +239,7 @@ contains
     state % xn(nspec_evolve+1:nspec) = &
          ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
 
-    state % cp      = ts % upar(irp_cp,1)
-    state % cv      = ts % upar(irp_cv,1)
+    state % cx      = ts % upar(irp_cx,1)
     state % abar    = ts % upar(irp_abar,1)
     state % zbar    = ts % upar(irp_zbar,1)
     state % eta     = ts % upar(irp_eta,1)
@@ -256,7 +258,7 @@ contains
 
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
-    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_not_evolved
     use burn_type_module, only: net_itemp
 
@@ -272,8 +274,7 @@ contains
     ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1) = &
          state % xn(nspec_evolve+1:nspec)
 
-    ts % upar(irp_cp,1)                    = state % cp
-    ts % upar(irp_cv,1)                    = state % cv
+    ts % upar(irp_cx,1)                    = state % cx
     ts % upar(irp_abar,1)                  = state % abar
     ts % upar(irp_zbar,1)                  = state % zbar
     ts % upar(irp_eta,1)                   = state % eta
@@ -291,9 +292,9 @@ contains
     !$acc routine seq
 
     use network, only: nspec, nspec_evolve, aion, aion_inv, nrates
-    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
+                            irp_Told, irp_dcvdt, irp_dcxdt, irp_self_heat, &
                             n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ONE
@@ -313,8 +314,7 @@ contains
          state % xn(nspec_evolve+1:nspec)
 
     ts % y(net_ienuc,1)                             = state % e
-    ts % upar(irp_cp,1)                             = state % cp
-    ts % upar(irp_cv,1)                             = state % cv
+    ts % upar(irp_cx,1)                             = state % cx
     ts % upar(irp_abar,1)                           = state % abar
     ts % upar(irp_zbar,1)                           = state % zbar
     ts % upar(irp_ye,1)                             = state % y_e
@@ -323,8 +323,7 @@ contains
     ts % upar(irp_dx,1)                             = state % dx
 
     ts % upar(irp_Told,1)                           = state % T_old
-    ts % upar(irp_dcvdt,1)                          = state % dcvdt
-    ts % upar(irp_dcpdt,1)                          = state % dcpdt
+    ts % upar(irp_dcxdt,1)                          = state % dcxdt
 
     if (state % self_heat) then
        ts % upar(irp_self_heat,1) = ONE
@@ -342,9 +341,9 @@ contains
     !$acc routine seq
 
     use network, only: nspec, nspec_evolve, aion, aion_inv, nrates
-    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vbdf_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
+                            irp_Told, irp_dcxdt, irp_self_heat, &
                             n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ZERO
@@ -364,8 +363,7 @@ contains
     state % xn(nspec_evolve+1:nspec) = &
          ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
 
-    state % cp       = ts % upar(irp_cp,1)
-    state % cv       = ts % upar(irp_cv,1)
+    state % cx       = ts % upar(irp_cx,1)
     state % abar     = ts % upar(irp_abar,1)
     state % zbar     = ts % upar(irp_zbar,1)
     state % y_e      = ts % upar(irp_ye,1)
@@ -374,8 +372,7 @@ contains
     state % dx       = ts % upar(irp_dx,1)
 
     state % T_old    = ts % upar(irp_Told,1)
-    state % dcvdt    = ts % upar(irp_dcvdt,1)
-    state % dcpdt    = ts % upar(irp_dcpdt,1)
+    state % dcxdt    = ts % upar(irp_dcxdt,1)
 
     if (ts % upar(irp_self_heat,1) > ZERO) then
        state % self_heat = .true.

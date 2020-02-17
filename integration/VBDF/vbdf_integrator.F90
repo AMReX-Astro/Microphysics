@@ -45,7 +45,7 @@ contains
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, burning_mode_factor, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change, &
-                                    call_eos_in_rhs, dT_crit
+                                    call_eos_in_rhs, dT_crit, do_constant_volume_burn
     use actual_rhs_module, only : update_unevolved_species
     use temperature_integration_module, only: self_heat
 
@@ -156,8 +156,11 @@ contains
 
        call eos(eos_input_rt, eos_state_temp)
 
-       ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-       ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       if (do_constant_volume_burn) then
+          ts % upar(irp_dcxdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+       else
+          ts % upar(irp_dcxdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+       end if
 
     endif
 
@@ -198,8 +201,11 @@ contains
        ts % upar(irp_Told,1) = eos_state_in % T
 
        if (dT_crit < 1.0e19_rt) then
-          ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-          ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+          if (do_constant_volume_burn) then
+             ts % upar(irp_dcxdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+          else
+             ts % upar(irp_dcxdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+          end if
        endif
 
        do n = 1, neqs
@@ -252,8 +258,11 @@ contains
              ts % upar(irp_Told,1) = eos_state_in % T
 
              if (dT_crit < 1.0e19_rt) then
-                ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-                ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+                if (do_constant_volume_burn) then
+                   ts % upar(irp_dcxdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
+                else
+                   ts % upar(irp_dcxdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
+                end if
              endif
 
              do n = 1, neqs

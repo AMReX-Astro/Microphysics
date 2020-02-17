@@ -34,7 +34,7 @@ contains
          atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
-         call_eos_in_rhs, dt_crit, ode_max_steps
+         call_eos_in_rhs, dt_crit, ode_max_steps, do_constant_volume_burn
     use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
     use eos_module, only: eos
@@ -199,11 +199,13 @@ contains
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
 
        call eos(eos_input_rt, eos_state_temp)
-
-       dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
-                                       (eos_state_temp % T - eos_state_in % T)
-       dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
-                                       (eos_state_temp % T - eos_state_in % T)
+       if (do_constant_volume_burn) then
+          dvode_state % rpar(irp_dcxdt) = (eos_state_temp % cv - eos_state_in % cv) / &
+               (eos_state_temp % T - eos_state_in % T)
+       else
+          dvode_state % rpar(irp_dcxdt) = (eos_state_temp % cp - eos_state_in % cp) / &
+               (eos_state_temp % T - eos_state_in % T)
+       end if
 
     endif
 
@@ -243,11 +245,13 @@ contains
        dvode_state % rpar(irp_Told) = eos_state_in % T
 
        if (dT_crit < 1.0e19_rt) then
-
-          dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
-                                          (eos_state_temp % T - eos_state_in % T)
-          dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
-                                          (eos_state_temp % T - eos_state_in % T)
+          if (do_constant_volume_burn) then
+             dvode_state % rpar(irp_dcxdt) = (eos_state_temp % cv - eos_state_in % cv) / &
+                  (eos_state_temp % T - eos_state_in % T)
+          else
+             dvode_state % rpar(irp_dcxdt) = (eos_state_temp % cp - eos_state_in % cp) / &
+                  (eos_state_temp % T - eos_state_in % T)
+          end if
 
        endif
 

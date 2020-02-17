@@ -81,7 +81,7 @@ contains
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
     use eos_module, only: eos
-    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
+    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cx, irp_Told, irp_dcxdt
     use burn_type_module, only: neqs
 
     implicit none
@@ -119,10 +119,13 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-       rpar(irp_dcvdt) = (eos_state % cv - rpar(irp_cv)) / &
-            (eos_state % T - rpar(irp_Told))
-       rpar(irp_dcpdt) = (eos_state % cp - rpar(irp_cp)) / &
-            (eos_state % T - rpar(irp_Told))
+       if (do_constant_volume_burn) then
+          rpar(irp_dcxdt) = (eos_state % cv - rpar(irp_cx)) / &
+               (eos_state % T - rpar(irp_Told))
+       else
+          rpar(irp_dcxdt) = (eos_state % cp - rpar(irp_cx)) / &
+               (eos_state % T - rpar(irp_Told))
+       end if
        rpar(irp_Told)  = eos_state % T
 
        ! note: the update to rpar(irp_cv) and irp_cp is done
@@ -154,7 +157,7 @@ contains
     use integrator_scaling_module, only: dens_scale, temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
@@ -173,8 +176,7 @@ contains
     state % xn(nspec_evolve+1:nspec) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    state % cp      = rpar(irp_cp)
-    state % cv      = rpar(irp_cv)
+    state % cx      = rpar(irp_cx)
     state % abar    = rpar(irp_abar)
     state % zbar    = rpar(irp_zbar)
     state % eta     = rpar(irp_eta)
@@ -194,7 +196,7 @@ contains
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
     use network, only: nspec, nspec_evolve, aion, aion_inv
     use eos_type_module, only: eos_t
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
 
@@ -213,8 +215,7 @@ contains
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
          state % xn(nspec_evolve+1:nspec)
 
-    rpar(irp_cp)                    = state % cp
-    rpar(irp_cv)                    = state % cv
+    rpar(irp_cx)                    = state % cx
     rpar(irp_abar)                  = state % abar
     rpar(irp_zbar)                  = state % zbar
     rpar(irp_eta)                   = state % eta
@@ -234,9 +235,9 @@ contains
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
     use network, only: nspec, nspec_evolve
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
+                            irp_Told, irp_dcxdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
@@ -256,8 +257,7 @@ contains
 
     y(net_ienuc)                             = state % e * inv_ener_scale
 
-    rpar(irp_cp)                             = state % cp
-    rpar(irp_cv)                             = state % cv
+    rpar(irp_cx)                             = state % cx
     rpar(irp_abar)                           = state % abar
     rpar(irp_zbar)                           = state % zbar
     rpar(irp_ye)                             = state % y_e
@@ -266,8 +266,7 @@ contains
     rpar(irp_dx)                             = state % dx
 
     rpar(irp_Told)                           = state % T_old
-    rpar(irp_dcvdt)                          = state % dcvdt
-    rpar(irp_dcpdt)                          = state % dcpdt
+    rpar(irp_dcxdt)                          = state % dcxdt
 
     if (state % self_heat) then
        rpar(irp_self_heat) = ONE
@@ -288,9 +287,9 @@ contains
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
     use network, only: nspec, nspec_evolve, aion, aion_inv
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
-                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
+                            irp_Told, irp_dcxdt, irp_self_heat, &
                             n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
@@ -312,8 +311,7 @@ contains
     state % xn(nspec_evolve+1:nspec) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    state % cp       = rpar(irp_cp)
-    state % cv       = rpar(irp_cv)
+    state % cx       = rpar(irp_cx)
     state % abar     = rpar(irp_abar)
     state % zbar     = rpar(irp_zbar)
     state % y_e      = rpar(irp_ye)
@@ -322,8 +320,7 @@ contains
     state % dx       = rpar(irp_dx)
 
     state % T_old    = rpar(irp_Told)
-    state % dcvdt    = rpar(irp_dcvdt)
-    state % dcpdt    = rpar(irp_dcpdt)
+    state % dcxdt    = rpar(irp_dcxdt)
 
     if (rpar(irp_self_heat) > ZERO) then
        state % self_heat = .true.

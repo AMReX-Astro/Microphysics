@@ -35,7 +35,8 @@ contains
     !$acc routine seq
 
     use bs_rpar_indices
-    use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
+    use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, &
+                                    dT_crit, do_constant_volume_burn
     use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
@@ -154,11 +155,13 @@ contains
 
        call eos(eos_input_rt, eos_state_temp)
 
-       bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
-            (eos_state_temp % T - eos_state_in % T)
-
-       bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
-            (eos_state_temp % T - eos_state_in % T)
+       if (do_constant_volume_burn) then
+          bs % burn_s % dcxdt = (eos_state_temp % cv - eos_state_in % cv) / &
+               (eos_state_temp % T - eos_state_in % T)
+       else
+          bs % burn_s % dcxdt = (eos_state_temp % cp - eos_state_in % cp) / &
+               (eos_state_temp % T - eos_state_in % T)
+       end if
     endif
 
     ! Save the initial state.
@@ -185,11 +188,13 @@ contains
        bs % burn_s % T_old = eos_state_in % T
 
        if (dT_crit < 1.0e19_rt) then
-          bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
-               (eos_state_temp % T - eos_state_in % T)
-
-          bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
-               (eos_state_temp % T - eos_state_in % T)
+          if (do_constant_volume_burn) then
+             bs % burn_s % dcxdt = (eos_state_temp % cv - eos_state_in % cv) / &
+                  (eos_state_temp % T - eos_state_in % T)
+          else
+             bs % burn_s % dcxdt = (eos_state_temp % cp - eos_state_in % cp) / &
+                  (eos_state_temp % T - eos_state_in % T)
+          end if
        endif
 
        call ode(bs, t0, t1, maxval(rtol), ierr)

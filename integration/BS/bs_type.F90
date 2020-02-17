@@ -104,7 +104,7 @@ contains
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
     use eos_module, only: eos
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, do_constant_volume_burn
     ! these shouldn't be needed
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : nspec, nspec_evolve
@@ -143,10 +143,13 @@ contains
 
        call eos(eos_input_rt, eos_state)
 
-       state % burn_s % dcvdt = (eos_state % cv - state % burn_s % cv) / &
-            (eos_state % T - state % burn_s % T_old)
-       state % burn_s % dcpdt = (eos_state % cp - state % burn_s % cp) / &
-            (eos_state % T - state % burn_s % T_old)
+       if (do_constant_volume_burn) then
+          state % burn_s % dcxdt = (eos_state % cv - state % burn_s % cv) / &
+               (eos_state % T - state % burn_s % T_old)
+       else
+          state % burn_s % dcxdt = (eos_state % cp - state % burn_s % cp) / &
+               (eos_state % T - state % burn_s % T_old)
+       end if
        state % burn_s % T_old  = eos_state % T
 
        ! note: the update to state % upar(irp_cv) and irp_cp is done
@@ -238,8 +241,11 @@ contains
     bs % upar(irp_nspec:irp_nspec+n_not_evolved-1) = &
          state % xn(nspec_evolve+1:nspec) 
 
-    bs % burn_s % cp = state % cp
-    bs % burn_s % cv = state % cv
+    if (do_constant_volume_burn) then
+       bs % burn_s % cx = state % cv
+    else
+       bs % burn_s % cx = state % cp
+    end if
     bs % burn_s % abar = state % abar
     bs % burn_s % zbar = state % zbar
     bs % burn_s % eta = state % eta

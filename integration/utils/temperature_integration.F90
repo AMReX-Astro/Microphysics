@@ -27,14 +27,14 @@ contains
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
-    use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
+    use extern_probin_module, only: dT_crit, call_eos_in_rhs
 
     implicit none
 
     type (burn_t) :: state
     real(rt), intent(inout) :: ydot(neqs)
 
-    real(rt) :: cv, cp, cvInv, cpInv
+    real(rt) :: cx, cx_inv
 
     !$gpu
 
@@ -50,40 +50,20 @@ contains
        ! See low Mach paper III, including Eq. A3 for details.
        ! Note that we no longer include the chemical potential (dE/dX or dH/dX)
        ! terms because we believe they analytically should vanish.
+       !
+       ! The burn_t "cx" field is the correct specific heat based on
+       ! do_constant_volume_burn.
 
-       if (do_constant_volume_burn) then
-
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
-
-             cv = state % cv + (state % T - state % T_old) * state % dcvdt
-
-          else
-
-             cv = state % cv
-
-          endif
-
-          cvInv = ONE / cv
-
-          ydot(net_itemp) = ydot(net_ienuc) * cvInv
+       if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
+          cx = state % cx + (state % T - state % T_old) * state % dcxdt
 
        else
-
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
-
-             cp = state % cp + (state % T - state % T_old) * state % dcpdt
-
-          else
-
-             cp = state % cp
-
-          endif
-
-          cpInv = ONE / cp
-
-          ydot(net_itemp) = ydot(net_ienuc) * cpInv
+          cx = state % cx
 
        endif
+
+       cx_inv = ONE / cx
+       ydot(net_itemp) = ydot(net_ienuc) * cx_inv
 
     endif
 
@@ -103,13 +83,13 @@ contains
     use network, only: nspec
     use burn_type_module
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry
-    use extern_probin_module, only: do_constant_volume_burn, dT_crit, call_eos_in_rhs
+    use extern_probin_module, only: dT_crit, call_eos_in_rhs
 
     implicit none
 
     type (burn_t) :: state
     real(rt) :: jac(neqs, neqs)
-    real(rt) :: scratch, cspec, cspecInv
+    real(rt) :: scratch, cspec, cspec_inv
 
     integer :: k
 
@@ -119,33 +99,17 @@ contains
 
     if (state % self_heat) then
 
-       if (do_constant_volume_burn) then
+       if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
-
-             cspec = state % cv + (state % T - state % T_old) * state % dcvdt
-
-          else
-
-             cspec = state % cv
-
-          endif
+          cspec = state % cx + (state % T - state % T_old) * state % dxvdt
 
        else
 
-          if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
-
-             cspec = state % cp + (state % T - state % T_old) * state % dcpdt
-
-          else
-
-             cspec = state % cp
-
-          endif
+          cspec = state % cx
 
        endif
 
-       cspecInv = ONE / cspec
+       cspec_inv = ONE / cspec
 
        ! d(itemp)/d(yi)
 
@@ -159,7 +123,7 @@ contains
        ! since dT/dt = 1/c_x denuc/dt in our formalism
 
        call get_jac_entry(jac, net_ienuc, net_itemp, scratch)
-       scratch = scratch * cspecInv
+       scratch = scratch * cspec_inv
        call set_jac_entry(jac, net_itemp, net_itemp, scratch)
 
        ! d(itemp)/d(enuc)
