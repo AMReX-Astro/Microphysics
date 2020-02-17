@@ -101,7 +101,7 @@ contains
 
        if (.not. call_eos_in_rhs .and. dT_crit < 1.0e19_rt) then
 
-          cspec = state % cx + (state % T - state % T_old) * state % dxvdt
+          cspec = state % cx + (state % T - state % T_old) * state % dcxdt
 
        else
 
@@ -115,7 +115,7 @@ contains
 
        do k = 1, nspec_evolve
           call get_jac_entry(jac, net_ienuc, k, scratch)
-          scratch = scratch * cspecInv
+          scratch = scratch * cspec_inv
           call set_jac_entry(jac, net_itemp, k, scratch)
        enddo
 

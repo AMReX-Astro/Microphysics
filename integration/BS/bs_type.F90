@@ -144,10 +144,10 @@ contains
        call eos(eos_input_rt, eos_state)
 
        if (do_constant_volume_burn) then
-          state % burn_s % dcxdt = (eos_state % cv - state % burn_s % cv) / &
+          state % burn_s % dcxdt = (eos_state % cv - state % burn_s % cx) / &
                (eos_state % T - state % burn_s % T_old)
        else
-          state % burn_s % dcxdt = (eos_state % cp - state % burn_s % cp) / &
+          state % burn_s % dcxdt = (eos_state % cp - state % burn_s % cx) / &
                (eos_state % T - state % burn_s % T_old)
        end if
        state % burn_s % T_old  = eos_state % T
@@ -225,6 +225,7 @@ contains
     use eos_type_module, only: eos_t
     use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
+    use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 

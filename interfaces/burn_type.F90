@@ -44,8 +44,7 @@ module burn_type_module
     real(rt) :: aux(naux)
 #endif
 
-    real(rt) :: cv
-    real(rt) :: cp
+    real(rt) :: cx
     real(rt) :: y_e
     real(rt) :: eta
     real(rt) :: cs
@@ -57,8 +56,7 @@ module burn_type_module
     real(rt) :: T_old
 
     ! Temperature derivatives of specific heat
-    real(rt) :: dcvdT
-    real(rt) :: dcpdT
+    real(rt) :: dcxdT
 
     ! The following are the actual integration data.
     ! To avoid potential incompatibilities we won't
@@ -114,8 +112,7 @@ contains
     to_state % aux(1:naux) = from_state % aux(1:naux)
 #endif
 
-    to_state % cv  = from_state % cv
-    to_state % cp  = from_state % cp
+    to_state % cx  = from_state % cx
     to_state % y_e = from_state % y_e
     to_state % eta = from_state % eta
     to_state % cs  = from_state % cs
@@ -126,8 +123,7 @@ contains
 
     to_state % T_old = from_state % T_old
 
-    to_state % dcvdT = from_state % dcvdT
-    to_state % dcpdT = from_state % dcpdT
+    to_state % dcxdT = from_state % dcxdT
 
     to_state % self_heat = from_state % self_heat
 
@@ -152,6 +148,7 @@ contains
     !$acc routine seq
 
     use eos_type_module, only: eos_t
+    use extern_probin_module, only : do_constant_volume_burn
 
     implicit none
 
@@ -167,8 +164,11 @@ contains
 #if naux > 0
     burn_state % aux  = eos_state % aux
 #endif
-    burn_state % cv   = eos_state % cv
-    burn_state % cp   = eos_state % cp
+    if (do_constant_volume_burn) then
+       burn_state % cx   = eos_state % cv
+    else
+       burn_state % cx   = eos_state % cp
+    endif
     burn_state % y_e  = eos_state % y_e
     burn_state % eta  = eos_state % eta
     burn_state % cs   = eos_state % cs
@@ -201,8 +201,6 @@ contains
 #if naux > 0
     eos_state % aux  = burn_state % aux
 #endif
-    eos_state % cv   = burn_state % cv
-    eos_state % cp   = burn_state % cp
     eos_state % y_e  = burn_state % y_e
     eos_state % eta  = burn_state % eta
     eos_state % cs   = burn_state % cs

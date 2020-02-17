@@ -77,7 +77,7 @@ contains
     !$acc routine seq
     
     use amrex_constants_module, only: ZERO
-    use extern_probin_module, only: call_eos_in_rhs, dT_crit
+    use extern_probin_module, only: call_eos_in_rhs, dT_crit, do_constant_volume_burn
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
     use eos_module, only: eos
@@ -176,7 +176,6 @@ contains
     state % xn(nspec_evolve+1:nspec) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1)
 
-    state % cx      = rpar(irp_cx)
     state % abar    = rpar(irp_abar)
     state % zbar    = rpar(irp_zbar)
     state % eta     = rpar(irp_eta)
@@ -199,6 +198,7 @@ contains
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
+    use extern_probin_module, only : do_constant_volume_burn
 
     implicit none
 
@@ -215,7 +215,11 @@ contains
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
          state % xn(nspec_evolve+1:nspec)
 
-    rpar(irp_cx)                    = state % cx
+    if (do_constant_volume_burn) then
+       rpar(irp_cx)                    = state % cv
+    else
+       rpar(irp_cx)                    = state % cp
+    end if
     rpar(irp_abar)                  = state % abar
     rpar(irp_zbar)                  = state % zbar
     rpar(irp_eta)                   = state % eta
