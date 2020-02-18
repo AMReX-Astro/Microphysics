@@ -90,6 +90,7 @@ endif
 
 NETWORK_HEADERS_DIR ?= .
 
+ifneq ($(NETWORK_DIR), general_null)
 $(NETWORK_HEADERS_DIR)/network_properties.H: $(NETWORK_HEADERS_DIR)/network_properties.F90
 
 $(NETWORK_HEADERS_DIR)/network_properties.F90:
@@ -97,3 +98,5 @@ $(NETWORK_HEADERS_DIR)/network_properties.F90:
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
            --odir $(NETWORK_HEADERS_DIR)
+
+endif
