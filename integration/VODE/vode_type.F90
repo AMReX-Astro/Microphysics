@@ -160,7 +160,7 @@ contains
     use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cx, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
     use burn_type_module, only: neqs, net_itemp
-
+    use extern_probin_module, only : do_constant_volume_burn
     implicit none
 
     type (eos_t) :: state
@@ -175,6 +175,13 @@ contains
     state % xn(1:nspec_evolve) = y(1:nspec_evolve)
     state % xn(nspec_evolve+1:nspec) = &
          rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+
+    ! is this needed?
+    if (do_constant_volume_burn) then
+       state % cv = rpar(irp_cx)
+    else
+       state % cp = rpar(irp_cx)
+    end if
 
     state % abar    = rpar(irp_abar)
     state % zbar    = rpar(irp_zbar)

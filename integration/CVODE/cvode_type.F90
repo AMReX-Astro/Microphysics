@@ -106,10 +106,10 @@ contains
        call eos(eos_input_rt, eos_state)
 
        if (do_constant_volume_burn) then
-          rpar(irp_dcxdt) = (eos_state % cv - rpar(irp_cv)) / &
+          rpar(irp_dcxdt) = (eos_state % cv - rpar(irp_cx)) / &
                (eos_state % T - rpar(irp_Told))
        else
-          rpar(irp_dcxdt) = (eos_state % cp - rpar(irp_cp)) / &
+          rpar(irp_dcxdt) = (eos_state % cp - rpar(irp_cx)) / &
                (eos_state % T - rpar(irp_Told))
        end if
        rpar(irp_Told)  = eos_state % T

@@ -186,6 +186,7 @@ contains
     !$acc routine seq
 
     use eos_type_module, only: eos_t
+    use extern_probin_module, only : do_constant_volume_burn
 
     implicit none
 
@@ -201,6 +202,11 @@ contains
 #if naux > 0
     eos_state % aux  = burn_state % aux
 #endif
+    if (do_constant_volume_burn) then
+       eos_state % cv = burn_state % cx
+    else
+       eos_state % cp = burn_state % cx
+    end if
     eos_state % y_e  = burn_state % y_e
     eos_state % eta  = burn_state % eta
     eos_state % cs   = burn_state % cs
