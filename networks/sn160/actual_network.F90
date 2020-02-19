@@ -7,23 +7,21 @@ module actual_network
 
   public
 
-  real(rt), parameter :: avo = 6.0221417930e23_rt
-  real(rt), parameter :: c_light = 2.99792458e10_rt
-
   character (len=32), parameter :: network_name = "pynucastro"
 
+  real(rt), parameter :: avo = 6.0221417930e23_rt
+  real(rt), parameter :: c_light = 2.99792458e10_rt
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
   real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
-  real(rt), parameter :: mev2erg = ev2erg*1.0e6_rt
-  real(rt), parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt), parameter :: mev2erg = ev2erg * 1.0e6_rt
+  real(rt), parameter :: mev2gr  = mev2erg / c_light**2
 
   real(rt), parameter :: mass_neutron  = 1.67492721184e-24_rt
   real(rt), parameter :: mass_proton   = 1.67262163783e-24_rt
   real(rt), parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 1538
-  integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
   integer, parameter :: nspec_evolve = 160
@@ -31,6 +29,9 @@ module actual_network
 
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 160
+
+  ! For each rate, we need: rate, drate/dT, screening, dscreening/dT
+  integer, parameter :: num_rate_groups = 4
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 1538
@@ -43,6 +44,7 @@ module actual_network
   real(rt) :: ebind_per_nucleon(nspec)
 
   ! aion: Nucleon mass number A
+  ! aion_inv: 1 / Nucleon mass number A
   ! zion: Nucleon atomic number Z
   ! nion: Nucleon neutron number N
   ! bion: Binding Energies (ergs)
@@ -1749,26 +1751,18 @@ module actual_network
   integer, parameter :: k_n_p_he4_he4__p_be9   = 1537
   integer, parameter :: k_p_p_he4_he4__he3_be7   = 1538
 
-  ! reactvec indices
-  integer, parameter :: i_rate        = 1
-  integer, parameter :: i_drate_dt    = 2
-  integer, parameter :: i_scor        = 3
-  integer, parameter :: i_dscor_dt    = 4
-  integer, parameter :: i_dqweak      = 5
-  integer, parameter :: i_epart       = 6
-
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(rt), allocatable, save :: aion(:), zion(:), bion(:)
+  real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:), bion(:)
   real(rt), allocatable, save :: nion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, bion, nion, mion, wion
+  attributes(managed) :: aion, aion_inv, zion, bion, nion, mion, wion
 #endif
 
-  !$acc declare create(aion, zion, bion, nion, mion, wion)
+  !$acc declare create(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
@@ -1790,6 +1784,7 @@ contains
 
     ! Allocate ion info arrays
     allocate(aion(nspec))
+    allocate(aion_inv(nspec))
     allocate(zion(nspec))
     allocate(bion(nspec))
     allocate(nion(nspec))
@@ -2440,6 +2435,167 @@ contains
     aion(jge63)   = 6.30000000000000e+01_rt
     aion(jge64)   = 6.40000000000000e+01_rt
 
+    aion_inv(jn)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jp)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jd)   = 1.0_rt/2.00000000000000e+00_rt
+    aion_inv(jhe3)   = 1.0_rt/3.00000000000000e+00_rt
+    aion_inv(jhe4)   = 1.0_rt/4.00000000000000e+00_rt
+    aion_inv(jli6)   = 1.0_rt/6.00000000000000e+00_rt
+    aion_inv(jli7)   = 1.0_rt/7.00000000000000e+00_rt
+    aion_inv(jbe7)   = 1.0_rt/7.00000000000000e+00_rt
+    aion_inv(jbe9)   = 1.0_rt/9.00000000000000e+00_rt
+    aion_inv(jb8)   = 1.0_rt/8.00000000000000e+00_rt
+    aion_inv(jb10)   = 1.0_rt/1.00000000000000e+01_rt
+    aion_inv(jb11)   = 1.0_rt/1.10000000000000e+01_rt
+    aion_inv(jc12)   = 1.0_rt/1.20000000000000e+01_rt
+    aion_inv(jc13)   = 1.0_rt/1.30000000000000e+01_rt
+    aion_inv(jc14)   = 1.0_rt/1.40000000000000e+01_rt
+    aion_inv(jn13)   = 1.0_rt/1.30000000000000e+01_rt
+    aion_inv(jn14)   = 1.0_rt/1.40000000000000e+01_rt
+    aion_inv(jn15)   = 1.0_rt/1.50000000000000e+01_rt
+    aion_inv(jo14)   = 1.0_rt/1.40000000000000e+01_rt
+    aion_inv(jo15)   = 1.0_rt/1.50000000000000e+01_rt
+    aion_inv(jo16)   = 1.0_rt/1.60000000000000e+01_rt
+    aion_inv(jo17)   = 1.0_rt/1.70000000000000e+01_rt
+    aion_inv(jo18)   = 1.0_rt/1.80000000000000e+01_rt
+    aion_inv(jf17)   = 1.0_rt/1.70000000000000e+01_rt
+    aion_inv(jf18)   = 1.0_rt/1.80000000000000e+01_rt
+    aion_inv(jf19)   = 1.0_rt/1.90000000000000e+01_rt
+    aion_inv(jne18)   = 1.0_rt/1.80000000000000e+01_rt
+    aion_inv(jne19)   = 1.0_rt/1.90000000000000e+01_rt
+    aion_inv(jne20)   = 1.0_rt/2.00000000000000e+01_rt
+    aion_inv(jne21)   = 1.0_rt/2.10000000000000e+01_rt
+    aion_inv(jne22)   = 1.0_rt/2.20000000000000e+01_rt
+    aion_inv(jna21)   = 1.0_rt/2.10000000000000e+01_rt
+    aion_inv(jna22)   = 1.0_rt/2.20000000000000e+01_rt
+    aion_inv(jna23)   = 1.0_rt/2.30000000000000e+01_rt
+    aion_inv(jmg23)   = 1.0_rt/2.30000000000000e+01_rt
+    aion_inv(jmg24)   = 1.0_rt/2.40000000000000e+01_rt
+    aion_inv(jmg25)   = 1.0_rt/2.50000000000000e+01_rt
+    aion_inv(jmg26)   = 1.0_rt/2.60000000000000e+01_rt
+    aion_inv(jal25)   = 1.0_rt/2.50000000000000e+01_rt
+    aion_inv(jal26)   = 1.0_rt/2.60000000000000e+01_rt
+    aion_inv(jal27)   = 1.0_rt/2.70000000000000e+01_rt
+    aion_inv(jsi28)   = 1.0_rt/2.80000000000000e+01_rt
+    aion_inv(jsi29)   = 1.0_rt/2.90000000000000e+01_rt
+    aion_inv(jsi30)   = 1.0_rt/3.00000000000000e+01_rt
+    aion_inv(jsi31)   = 1.0_rt/3.10000000000000e+01_rt
+    aion_inv(jsi32)   = 1.0_rt/3.20000000000000e+01_rt
+    aion_inv(jp29)   = 1.0_rt/2.90000000000000e+01_rt
+    aion_inv(jp30)   = 1.0_rt/3.00000000000000e+01_rt
+    aion_inv(jp31)   = 1.0_rt/3.10000000000000e+01_rt
+    aion_inv(jp32)   = 1.0_rt/3.20000000000000e+01_rt
+    aion_inv(jp33)   = 1.0_rt/3.30000000000000e+01_rt
+    aion_inv(js32)   = 1.0_rt/3.20000000000000e+01_rt
+    aion_inv(js33)   = 1.0_rt/3.30000000000000e+01_rt
+    aion_inv(js34)   = 1.0_rt/3.40000000000000e+01_rt
+    aion_inv(js35)   = 1.0_rt/3.50000000000000e+01_rt
+    aion_inv(js36)   = 1.0_rt/3.60000000000000e+01_rt
+    aion_inv(jcl33)   = 1.0_rt/3.30000000000000e+01_rt
+    aion_inv(jcl34)   = 1.0_rt/3.40000000000000e+01_rt
+    aion_inv(jcl35)   = 1.0_rt/3.50000000000000e+01_rt
+    aion_inv(jcl36)   = 1.0_rt/3.60000000000000e+01_rt
+    aion_inv(jcl37)   = 1.0_rt/3.70000000000000e+01_rt
+    aion_inv(jar36)   = 1.0_rt/3.60000000000000e+01_rt
+    aion_inv(jar37)   = 1.0_rt/3.70000000000000e+01_rt
+    aion_inv(jar38)   = 1.0_rt/3.80000000000000e+01_rt
+    aion_inv(jar39)   = 1.0_rt/3.90000000000000e+01_rt
+    aion_inv(jar40)   = 1.0_rt/4.00000000000000e+01_rt
+    aion_inv(jk37)   = 1.0_rt/3.70000000000000e+01_rt
+    aion_inv(jk38)   = 1.0_rt/3.80000000000000e+01_rt
+    aion_inv(jk39)   = 1.0_rt/3.90000000000000e+01_rt
+    aion_inv(jk40)   = 1.0_rt/4.00000000000000e+01_rt
+    aion_inv(jk41)   = 1.0_rt/4.10000000000000e+01_rt
+    aion_inv(jca40)   = 1.0_rt/4.00000000000000e+01_rt
+    aion_inv(jca41)   = 1.0_rt/4.10000000000000e+01_rt
+    aion_inv(jca42)   = 1.0_rt/4.20000000000000e+01_rt
+    aion_inv(jca43)   = 1.0_rt/4.30000000000000e+01_rt
+    aion_inv(jca44)   = 1.0_rt/4.40000000000000e+01_rt
+    aion_inv(jca45)   = 1.0_rt/4.50000000000000e+01_rt
+    aion_inv(jca46)   = 1.0_rt/4.60000000000000e+01_rt
+    aion_inv(jca47)   = 1.0_rt/4.70000000000000e+01_rt
+    aion_inv(jca48)   = 1.0_rt/4.80000000000000e+01_rt
+    aion_inv(jsc43)   = 1.0_rt/4.30000000000000e+01_rt
+    aion_inv(jsc44)   = 1.0_rt/4.40000000000000e+01_rt
+    aion_inv(jsc45)   = 1.0_rt/4.50000000000000e+01_rt
+    aion_inv(jsc46)   = 1.0_rt/4.60000000000000e+01_rt
+    aion_inv(jsc47)   = 1.0_rt/4.70000000000000e+01_rt
+    aion_inv(jsc48)   = 1.0_rt/4.80000000000000e+01_rt
+    aion_inv(jsc49)   = 1.0_rt/4.90000000000000e+01_rt
+    aion_inv(jti44)   = 1.0_rt/4.40000000000000e+01_rt
+    aion_inv(jti45)   = 1.0_rt/4.50000000000000e+01_rt
+    aion_inv(jti46)   = 1.0_rt/4.60000000000000e+01_rt
+    aion_inv(jti47)   = 1.0_rt/4.70000000000000e+01_rt
+    aion_inv(jti48)   = 1.0_rt/4.80000000000000e+01_rt
+    aion_inv(jti49)   = 1.0_rt/4.90000000000000e+01_rt
+    aion_inv(jti50)   = 1.0_rt/5.00000000000000e+01_rt
+    aion_inv(jti51)   = 1.0_rt/5.10000000000000e+01_rt
+    aion_inv(jv46)   = 1.0_rt/4.60000000000000e+01_rt
+    aion_inv(jv47)   = 1.0_rt/4.70000000000000e+01_rt
+    aion_inv(jv48)   = 1.0_rt/4.80000000000000e+01_rt
+    aion_inv(jv49)   = 1.0_rt/4.90000000000000e+01_rt
+    aion_inv(jv50)   = 1.0_rt/5.00000000000000e+01_rt
+    aion_inv(jv51)   = 1.0_rt/5.10000000000000e+01_rt
+    aion_inv(jv52)   = 1.0_rt/5.20000000000000e+01_rt
+    aion_inv(jcr48)   = 1.0_rt/4.80000000000000e+01_rt
+    aion_inv(jcr49)   = 1.0_rt/4.90000000000000e+01_rt
+    aion_inv(jcr50)   = 1.0_rt/5.00000000000000e+01_rt
+    aion_inv(jcr51)   = 1.0_rt/5.10000000000000e+01_rt
+    aion_inv(jcr52)   = 1.0_rt/5.20000000000000e+01_rt
+    aion_inv(jcr53)   = 1.0_rt/5.30000000000000e+01_rt
+    aion_inv(jcr54)   = 1.0_rt/5.40000000000000e+01_rt
+    aion_inv(jmn50)   = 1.0_rt/5.00000000000000e+01_rt
+    aion_inv(jmn51)   = 1.0_rt/5.10000000000000e+01_rt
+    aion_inv(jmn52)   = 1.0_rt/5.20000000000000e+01_rt
+    aion_inv(jmn53)   = 1.0_rt/5.30000000000000e+01_rt
+    aion_inv(jmn54)   = 1.0_rt/5.40000000000000e+01_rt
+    aion_inv(jmn55)   = 1.0_rt/5.50000000000000e+01_rt
+    aion_inv(jfe52)   = 1.0_rt/5.20000000000000e+01_rt
+    aion_inv(jfe53)   = 1.0_rt/5.30000000000000e+01_rt
+    aion_inv(jfe54)   = 1.0_rt/5.40000000000000e+01_rt
+    aion_inv(jfe55)   = 1.0_rt/5.50000000000000e+01_rt
+    aion_inv(jfe56)   = 1.0_rt/5.60000000000000e+01_rt
+    aion_inv(jfe57)   = 1.0_rt/5.70000000000000e+01_rt
+    aion_inv(jfe58)   = 1.0_rt/5.80000000000000e+01_rt
+    aion_inv(jco53)   = 1.0_rt/5.30000000000000e+01_rt
+    aion_inv(jco54)   = 1.0_rt/5.40000000000000e+01_rt
+    aion_inv(jco55)   = 1.0_rt/5.50000000000000e+01_rt
+    aion_inv(jco56)   = 1.0_rt/5.60000000000000e+01_rt
+    aion_inv(jco57)   = 1.0_rt/5.70000000000000e+01_rt
+    aion_inv(jco58)   = 1.0_rt/5.80000000000000e+01_rt
+    aion_inv(jco59)   = 1.0_rt/5.90000000000000e+01_rt
+    aion_inv(jni56)   = 1.0_rt/5.60000000000000e+01_rt
+    aion_inv(jni57)   = 1.0_rt/5.70000000000000e+01_rt
+    aion_inv(jni58)   = 1.0_rt/5.80000000000000e+01_rt
+    aion_inv(jni59)   = 1.0_rt/5.90000000000000e+01_rt
+    aion_inv(jni60)   = 1.0_rt/6.00000000000000e+01_rt
+    aion_inv(jni61)   = 1.0_rt/6.10000000000000e+01_rt
+    aion_inv(jni62)   = 1.0_rt/6.20000000000000e+01_rt
+    aion_inv(jni63)   = 1.0_rt/6.30000000000000e+01_rt
+    aion_inv(jni64)   = 1.0_rt/6.40000000000000e+01_rt
+    aion_inv(jcu57)   = 1.0_rt/5.70000000000000e+01_rt
+    aion_inv(jcu58)   = 1.0_rt/5.80000000000000e+01_rt
+    aion_inv(jcu59)   = 1.0_rt/5.90000000000000e+01_rt
+    aion_inv(jcu60)   = 1.0_rt/6.00000000000000e+01_rt
+    aion_inv(jcu61)   = 1.0_rt/6.10000000000000e+01_rt
+    aion_inv(jcu62)   = 1.0_rt/6.20000000000000e+01_rt
+    aion_inv(jcu63)   = 1.0_rt/6.30000000000000e+01_rt
+    aion_inv(jcu64)   = 1.0_rt/6.40000000000000e+01_rt
+    aion_inv(jcu65)   = 1.0_rt/6.50000000000000e+01_rt
+    aion_inv(jzn59)   = 1.0_rt/5.90000000000000e+01_rt
+    aion_inv(jzn60)   = 1.0_rt/6.00000000000000e+01_rt
+    aion_inv(jzn61)   = 1.0_rt/6.10000000000000e+01_rt
+    aion_inv(jzn62)   = 1.0_rt/6.20000000000000e+01_rt
+    aion_inv(jzn63)   = 1.0_rt/6.30000000000000e+01_rt
+    aion_inv(jzn64)   = 1.0_rt/6.40000000000000e+01_rt
+    aion_inv(jzn65)   = 1.0_rt/6.50000000000000e+01_rt
+    aion_inv(jzn66)   = 1.0_rt/6.60000000000000e+01_rt
+    aion_inv(jga62)   = 1.0_rt/6.20000000000000e+01_rt
+    aion_inv(jga63)   = 1.0_rt/6.30000000000000e+01_rt
+    aion_inv(jga64)   = 1.0_rt/6.40000000000000e+01_rt
+    aion_inv(jge63)   = 1.0_rt/6.30000000000000e+01_rt
+    aion_inv(jge64)   = 1.0_rt/6.40000000000000e+01_rt
+
     zion(jn)   = 0.00000000000000e+00_rt
     zion(jp)   = 1.00000000000000e+00_rt
     zion(jd)   = 1.00000000000000e+00_rt
@@ -2776,7 +2932,7 @@ contains
     ! Common approximation
     !wion(:) = aion(:)
 
-    !$acc update device(aion, zion, bion, nion, mion, wion)
+    !$acc update device(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
@@ -5967,6 +6123,10 @@ contains
 
     if (allocated(aion)) then
        deallocate(aion)
+    endif
+
+    if (allocated(aion_inv)) then
+       deallocate(aion_inv)
     endif
 
     if (allocated(zion)) then
