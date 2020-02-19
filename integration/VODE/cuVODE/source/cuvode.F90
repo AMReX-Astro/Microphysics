@@ -99,33 +99,34 @@ contains
        return
     end if
 
-    IF (vstate % ISTATE .EQ. 1) GO TO 10
+    IF (vstate % ISTATE .NE. 1) then
 
-    if (vstate % INIT .NE. 1) then
+       if (vstate % INIT .NE. 1) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  vstate % ISTATE (=I1) .gt. 1 but DVODE not initialized      '
-       CALL XERRWD (MSG, 60, 3, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
+          MSG='DVODE--  vstate % ISTATE (=I1) .gt. 1 but DVODE not initialized      '
+          CALL XERRWD (MSG, 60, 3, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    IF (vstate % ISTATE .EQ. 2) GO TO 200
-    GO TO 20
-10  continue
-    vstate % INIT = 0
-    IF (vstate % TOUT .EQ. vstate % T) RETURN
+       IF (vstate % ISTATE .EQ. 2) GO TO 200
 
-    ! -----------------------------------------------------------------------
-    !  Block B.
-    !  The next code block is executed for the initial call (vstate % ISTATE = 1),
-    !  or for a continuation call with parameter changes (vstate % ISTATE = 3).
-    !  It contains checking of all input and various initializations.
-    !
-    !  First check legality of the non-optional input ITOL, IOPT,
-    !  MF, ML, and MU.
-    ! -----------------------------------------------------------------------
-20  continue
+    else
+       vstate % INIT = 0
+       IF (vstate % TOUT .EQ. vstate % T) RETURN
+
+       ! -----------------------------------------------------------------------
+       !  Block B.
+       !  The next code block is executed for the initial call (vstate % ISTATE = 1),
+       !  or for a continuation call with parameter changes (vstate % ISTATE = 3).
+       !  It contains checking of all input and various initializations.
+       !
+       !  First check legality of the non-optional input ITOL, IOPT,
+       !  MF, ML, and MU.
+       ! -----------------------------------------------------------------------
+    end IF
+
     if (VODE_ITOL .LT. 1 .OR. VODE_ITOL .GT. 4) then
 #ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  ITOL (=I1) illegal   '
