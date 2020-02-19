@@ -124,6 +124,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#python-library">python_library</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rad-power-law">rad_power_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sn160">sn160</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#stellarcollapse">stellarcollapse</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subch">subch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subch2">subch2</a></li>
@@ -324,12 +325,8 @@ step and retrying with a smaller step?</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_fermi_heating</span></code></p></td>
-<td><p>Turn off heating due to the relaxation of the electron
-fermi distribution at high densities caused by electron
-capture reactions. Turning off heating in this way is
-unphysical but can be useful for measuring the size of
-this heating effect.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
+<td><p>Turn off thermal neutrino losses</p></td>
 <td><p>.false.</p></td>
 </tr>
 </tbody>
@@ -350,12 +347,8 @@ this heating effect.</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_fermi_heating</span></code></p></td>
-<td><p>Turn off heating due to the relaxation of the electron
-fermi distribution at high densities caused by electron
-capture reactions. Turning off heating in this way is
-unphysical but can be useful for measuring the size of
-this heating effect.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
+<td><p>Turn off thermal neutrino losses</p></td>
 <td><p>.false.</p></td>
 </tr>
 </tbody>
@@ -1797,6 +1790,28 @@ compatibility</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
 <td><p>we typically run this network for constant-pressure
 burns</p></td>
+<td><p>.false.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sn160">
+<h1>sn160<a class="headerlink" href="#sn160" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 51%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
+<td><p>Turn off thermal neutrino losses</p></td>
 <td><p>.false.</p></td>
 </tr>
 </tbody>

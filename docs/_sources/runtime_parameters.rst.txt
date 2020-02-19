@@ -47,11 +47,7 @@ C-burn-simple
 +----------------------------------+---------------------------------------------------------+--------------------+
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
-| ``disable_fermi_heating``        | Turn off heating due to the relaxation of the electron  | .false.            |
-|                                  | fermi distribution at high densities caused by electron |                    |
-|                                  | capture reactions. Turning off heating in this way is   |                    |
-|                                  | unphysical but can be useful for measuring the size of  |                    |
-|                                  | this heating effect.                                    |                    |
+| ``disable_thermal_neutrinos``    | Turn off thermal neutrino losses                        | .false.            |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
@@ -62,11 +58,7 @@ C-test
 +----------------------------------+---------------------------------------------------------+--------------------+
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
-| ``disable_fermi_heating``        | Turn off heating due to the relaxation of the electron  | .false.            |
-|                                  | fermi distribution at high densities caused by electron |                    |
-|                                  | capture reactions. Turning off heating in this way is   |                    |
-|                                  | unphysical but can be useful for measuring the size of  |                    |
-|                                  | this heating effect.                                    |                    |
+| ``disable_thermal_neutrinos``    | Turn off thermal neutrino losses                        | .false.            |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
@@ -845,6 +837,17 @@ rprox
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``do_constant_volume_burn``      | we typically run this network for constant-pressure     | .false.            |
 |                                  | burns                                                   |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+
+
+
+sn160
+=====
+
++----------------------------------+---------------------------------------------------------+--------------------+
+| parameter                        | description                                             | default value      |
++==================================+=========================================================+====================+
+| ``disable_thermal_neutrinos``    | Turn off thermal neutrino losses                        | .false.            |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
