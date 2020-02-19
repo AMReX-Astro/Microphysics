@@ -160,29 +160,29 @@ contains
        return
     end if
 
-    IF (vstate % MITER .LE. 3) GO TO 30
-    ML = IWORK(1)
-    MU = IWORK(2)
+    IF (vstate % MITER > 3) then
+       ML = IWORK(1)
+       MU = IWORK(2)
 
-    if (ML .LT. 0 .OR. ML .GE. VODE_NEQS) then
+       if (ML .LT. 0 .OR. ML .GE. VODE_NEQS) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-       CALL XERRWD (MSG, 50, 9, 1, 2, ML, VODE_NEQS, 0, ZERO, ZERO)
+          MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
+          CALL XERRWD (MSG, 50, 9, 1, 2, ML, VODE_NEQS, 0, ZERO, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    if (MU .LT. 0 .OR. MU .GE. VODE_NEQS) then
+       if (MU .LT. 0 .OR. MU .GE. VODE_NEQS) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-       CALL XERRWD (MSG, 50, 10, 1, 2, MU, VODE_NEQS, 0, ZERO, ZERO)
+          MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
+          CALL XERRWD (MSG, 50, 10, 1, 2, MU, VODE_NEQS, 0, ZERO, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-30  CONTINUE
+    end if
 
     ! Next process and check the optional input. ---------------------------
 
@@ -220,21 +220,21 @@ contains
     !      EDIT 07/16/2016 -- see comments above about MXHNIL
     !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
 
-    IF (vstate % ISTATE .NE. 1) GO TO 50
-    H0 = RWORK % CONDOPT(2)
+    IF (vstate % ISTATE == 1) then
+       H0 = RWORK % CONDOPT(2)
 
-    if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
+       if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-       CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
-       MSG = '      integration direction is given by H0 (=R1)  '
-       CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+          MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
+          CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+          MSG = '      integration direction is given by H0 (=R1)  '
+          CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-50  continue
+    end IF
     HMAX = RWORK % CONDOPT(3)
 
     if (HMAX .LT. ZERO) then
@@ -304,44 +304,46 @@ contains
        end if
 
     end do
-    IF (vstate % ISTATE .EQ. 1) GO TO 100
-    ! If vstate % ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
-    vstate % JSTART = -1
-    IF (vstate % NQ .LE. VODE_MAXORD) GO TO 90
-    ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    rwork % savf(1:VODE_NEQS) = rwork % wm(1:VODE_NEQS)
+    IF (vstate % ISTATE /= 1) then
+       ! If vstate % ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
+       vstate % JSTART = -1
+       IF (vstate % NQ > VODE_MAXORD) then
+          ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
+          rwork % savf(1:VODE_NEQS) = rwork % wm(1:VODE_NEQS)
 
-    ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
-90  continue
-    IF (vstate % MITER .GT. 0) rwork % wm(1) = SQRT(vstate % UROUND)
-    GO TO 200
+          ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
+       end IF
+       IF (vstate % MITER .GT. 0) rwork % wm(1) = SQRT(vstate % UROUND)
+       GO TO 200
 
-    ! -----------------------------------------------------------------------
-    !  Block C.
-    !  The next block is for the initial call only (vstate % ISTATE = 1).
-    !  It contains all remaining initializations, the initial call to F,
-    !  and the calculation of the initial step size.
-    !  The error weights in EWT are inverted after being loaded.
-    ! -----------------------------------------------------------------------
+       ! -----------------------------------------------------------------------
+       !  Block C.
+       !  The next block is for the initial call only (vstate % ISTATE = 1).
+       !  It contains all remaining initializations, the initial call to F,
+       !  and the calculation of the initial step size.
+       !  The error weights in EWT are inverted after being loaded.
+       ! -----------------------------------------------------------------------
 
-100 continue
+    end if
+
     vstate % UROUND = epsilon(1.0_rt)
     vstate % TN = vstate % T
-    IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
-    TCRIT = RWORK % condopt(1)
-    if ((TCRIT - vstate % TOUT)*(vstate % TOUT - vstate % T) .LT. ZERO) then
+    IF (ITASK == 4 .or. itask == 5) then
+       TCRIT = RWORK % condopt(1)
+       if ((TCRIT - vstate % TOUT)*(vstate % TOUT - vstate % T) .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
-       CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
+          MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
+          CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
 #endif
-       vstate % ISTATE = -3
-       return
+          vstate % ISTATE = -3
+          return
+       end if
+
+       if (H0 .NE. ZERO .AND. (vstate % T + H0 - TCRIT)*H0 .GT. ZERO) then
+          H0 = TCRIT - vstate % T
+       end if
     end if
 
-    if (H0 .NE. ZERO .AND. (vstate % T + H0 - TCRIT)*H0 .GT. ZERO) then
-       H0 = TCRIT - vstate % T
-    end if
-110 continue
     vstate % JSTART = 0
     IF (vstate % MITER .GT. 0) RWORK % wm(1) = SQRT(vstate % UROUND)
     vstate % CCMXJ = PT2
@@ -382,23 +384,23 @@ contains
 
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
-    IF (H0 .NE. ZERO) GO TO 180
+    IF (H0 == ZERO) then
 
-    ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (vstate, rwork, H0, NITER, IER)
-    vstate % NFE = vstate % NFE + NITER
+       ! Call DVHIN to set initial step size H0 to be attempted. --------------
+       CALL DVHIN (vstate, rwork, H0, NITER, IER)
+       vstate % NFE = vstate % NFE + NITER
 
-    if (IER .NE. 0) then
+       if (IER .NE. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
-       CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+          MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
+          CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
-180 continue
+       ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
+    end if
     RH = ABS(H0)*vstate % HMXI
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
