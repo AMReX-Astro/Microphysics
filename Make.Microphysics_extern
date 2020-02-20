@@ -1,0 +1,89 @@
+# This is the main include makefile for applications that want to use Microphysics
+# You should set NETWORK_OUTPUT_PATH before including this file
+
+EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
+NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+ifeq ($(USE_CONDUCTIVITY), TRUE)
+   CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
+endif
+
+# Problems can specify the input file for general_null by setting
+# GENERAL_NET_INPUTS directly (full path) or just specifying the name
+# of the inputs file as NETWORK_INPUTS and let us sort it out
+ifndef GENERAL_NET_INPUTS
+   ifneq "$(wildcard $(NETWORK_INPUTS))" ""
+      GENERAL_NET_INPUTS := $(NETWORK_INPUTS)
+   else
+      GENERAL_NET_INPUTS := $(MICROPHYSICS_HOME)/networks/general_null/$(NETWORK_INPUTS)
+   endif
+endif
+
+# URCA network has tables
+ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
+  all: urcatables
+endif
+
+urcatables:
+	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
+	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
+
+# Pynucastro networks read rate data from an external file
+PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
+all: pynucastrorates
+
+
+# do not check to see if the file already exists, just force-link it in
+# because different Reaclib networks will have different versions of the file
+pynucastrorates:
+	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
+
+EXTERN_CORE += $(EOS_HOME)
+EXTERN_CORE += $(EOS_PATH)
+
+# the helmholtz EOS has an include file -- also add a target to link
+# the table into the problem directory.
+ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
+   all: table
+endif
+
+table:
+	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
+
+ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
+   DEFINES += -DEOS_GAMMA_LAW_GENERAL
+endif
+
+# include the network
+EXTERN_CORE += $(NETWORK_PATH)
+
+
+# Note that this should be located after the include of the EOS and
+# Network includes since it has actions that depend on variables set
+# there.
+
+EXTERN_CORE += $(MICROPHYSICS_HOME)/EOS
+EXTERN_CORE += $(MICROPHYSICS_HOME)/networks
+EXTERN_CORE += $(MICROPHYSICS_HOME)/interfaces
+
+# include the conductivity
+ifeq ($(USE_CONDUCTIVITY),TRUE)
+  DEFINES += -DCONDUCTIVITY
+  EXTERN_CORE += $(CONDUCTIVITY_HOME)
+  EXTERN_CORE += $(CONDUCTIVITY_PATH)
+endif
+
+
+ifeq ($(USE_RAD), TRUE)
+   ifeq ($(Opacity_dir), null)
+     $(error The null opacity directory has been removed, please update to rad_power_law)
+   endif
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   EXTERN_CORE += $(OPAC_PATH)
+endif
+
+ifeq ($(USE_EXTRA_THERMO), TRUE)
+  DEFINES += -DEXTRA_THERMO
+endif
+
+
+

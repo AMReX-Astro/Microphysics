@@ -8,8 +8,6 @@ endif
 f90EXE_sources += actual_rhs.f90
 endif
 
-NETWORK_OUTPUT_PATH ?= $(CURDIR)
-
 $(NETWORK_OUTPUT_PATH)/network_properties.H: $(NETWORK_OUTPUT_PATH)/actual_network.F90
 
 # actual_network.F90 is created at build time for this network

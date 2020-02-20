@@ -7,38 +7,35 @@ include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 ifeq ($(USE_REACT), TRUE)
 
-ifeq ($(INTEGRATOR_DIR), VODE90)
-  override INTEGRATOR_DIR = VODE
-  $(warn VODE90 has been renamed VODE)
-endif
-
-ifneq ($(INTEGRATOR_DIR), VODE)
-
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/LINPACK
-  VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/LINPACK
-
-  include $(MICROPHYSICS_UTIL_PATH)/LINPACK/Make.package
-else
-  ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
-    DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
+  ifeq ($(INTEGRATOR_DIR), VODE90)
+    override INTEGRATOR_DIR = VODE
+    $(warn VODE90 has been renamed VODE)
   endif
-endif
 
-ifneq ($(USE_SYSTEM_BLAS), TRUE)
   ifneq ($(INTEGRATOR_DIR), VODE)
-    INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
-    VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
 
-    include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
+    INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/LINPACK
+    VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/LINPACK
+
+    include $(MICROPHYSICS_UTIL_PATH)/LINPACK/Make.package
+  else
+    ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
+      DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
+    endif
   endif
-endif
 
-VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
-f90EXE_sources += rate_type.f90
+  ifneq ($(USE_SYSTEM_BLAS), TRUE)
+    ifneq ($(INTEGRATOR_DIR), VODE)
+      INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
+      VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
 
-endif
+      include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
+    endif
+  endif
 
-ifeq ($(USE_REACT), TRUE)
+  VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
+  f90EXE_sources += rate_type.f90
+
 
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
@@ -88,15 +85,15 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
 endif
 
-NETWORK_HEADERS_DIR ?= .
+NETWORK_OUTPUT_PATH ?= .
 
 ifneq ($(NETWORK_DIR), general_null)
-$(NETWORK_HEADERS_DIR)/network_properties.H: $(NETWORK_HEADERS_DIR)/network_properties.F90
+$(NETWORK_OUTPUT_PATH)/network_properties.H: $(NETWORK_OUTPUT_PATH)/network_properties.F90
 
-$(NETWORK_HEADERS_DIR)/network_properties.F90:
+$(NETWORK_OUTPUT_PATH)/network_properties.F90:
 	$(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
-           --odir $(NETWORK_HEADERS_DIR)
+           --odir $(NETWORK_OUTPUT_PATH)
 
 endif
