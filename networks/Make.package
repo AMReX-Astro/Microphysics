@@ -85,6 +85,8 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
 endif
 
+NETWORK_OUTPUT_PATH ?= .
+
 ifneq ($(NETWORK_DIR), general_null)
 $(NETWORK_OUTPUT_PATH)/network_properties.H: $(NETWORK_OUTPUT_PATH)/network_properties.F90
 
