@@ -186,86 +186,85 @@ contains
 
     ! Next process and check the optional input. ---------------------------
 
-    IF (IOPT .EQ. 1) GO TO 40
-    vstate % MXSTEP = MXSTP0
-    vstate % MXHNIL = MXHNL0
-    IF (vstate % ISTATE .EQ. 1) H0 = ZERO
-    vstate % HMXI = ZERO
-    vstate % HMIN = ZERO
-    GO TO 60
-40  continue
-    vstate % MXSTEP = IWORK(6)
+    IF (IOPT /= 1) then
+       vstate % MXSTEP = MXSTP0
+       vstate % MXHNIL = MXHNL0
+       IF (vstate % ISTATE .EQ. 1) H0 = ZERO
+       vstate % HMXI = ZERO
+       vstate % HMIN = ZERO
 
-    if (vstate % MXSTEP .LT. 0) then
+    else
+       vstate % MXSTEP = IWORK(6)
+
+       if (vstate % MXSTEP .LT. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
-       CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
-    IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
-    vstate % MXHNIL = IWORK(7)
-
-    if (vstate % MXHNIL .LT. 0) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
-       CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
-    !      EDIT 07/16/2016 -- see comments above about MXHNIL
-    !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
-
-    IF (vstate % ISTATE == 1) then
-       H0 = RWORK % CONDOPT(2)
-
-       if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-          CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
-          MSG = '      integration direction is given by H0 (=R1)  '
-          CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+          MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
+          CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
 #endif
           vstate % ISTATE = -3
           return
        end if
 
+       IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
+       vstate % MXHNIL = IWORK(7)
+
+       if (vstate % MXHNIL .LT. 0) then
+#ifndef AMREX_USE_CUDA
+          MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
+          CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+#endif
+          vstate % ISTATE = -3
+          return
+       end if
+
+       !      EDIT 07/16/2016 -- see comments above about MXHNIL
+       !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
+
+       IF (vstate % ISTATE == 1) then
+          H0 = RWORK % CONDOPT(2)
+
+          if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
+#ifndef AMREX_USE_CUDA
+             MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
+             CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+             MSG = '      integration direction is given by H0 (=R1)  '
+             CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+#endif
+             vstate % ISTATE = -3
+             return
+          end if
+
+       end IF
+       HMAX = RWORK % CONDOPT(3)
+
+       if (HMAX .LT. ZERO) then
+#ifndef AMREX_USE_CUDA
+          MSG = 'DVODE--  HMAX (=R1) .lt. 0.0_rt  '
+          CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
+#endif
+          vstate % ISTATE = -3
+          return
+       end if
+
+       vstate % HMXI = ZERO
+       IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
+       vstate % HMIN = RWORK % CONDOPT(4)
+
+       if (vstate % HMIN .LT. ZERO) then
+#ifndef AMREX_USE_CUDA
+          MSG = 'DVODE--  HMIN (=R1) .lt. 0.0_rt  '
+          CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
+#endif
+          vstate % ISTATE = -3
+          return
+       end if
     end IF
-    HMAX = RWORK % CONDOPT(3)
-
-    if (HMAX .LT. ZERO) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  HMAX (=R1) .lt. 0.0_rt  '
-       CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
-    vstate % HMXI = ZERO
-    IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
-    vstate % HMIN = RWORK % CONDOPT(4)
-
-    if (vstate % HMIN .LT. ZERO) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  HMIN (=R1) .lt. 0.0_rt  '
-       CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
 
     ! -----------------------------------------------------------------------
     !  Arrays stored in RWORK are denoted  CONDOPT, YH, WM, EWT, SAVF, ACOR.
     !  Within WM, LOCJS is the location of the saved Jacobian (JSV .gt. 0).
     ! -----------------------------------------------------------------------
 
-60  continue
     JCO = MAX(0,vstate % JSV)
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        vstate % LOCJS = VODE_NEQS*VODE_NEQS + 3
