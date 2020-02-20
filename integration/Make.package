@@ -19,6 +19,13 @@ endif
 
 DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
 
+ifeq ($(USE_CUDA), TRUE)
+  ifneq ($(INTEGRATOR_DIR), VODE90)
+    $(error Only the VODE90 integrator supports GPUs currently, please change INTEGRATOR_DIR)
+  endif
+endif
+
+
 # Include all integrators in the build.
 
 ifeq ($(INTEGRATOR_DIR),VODE)

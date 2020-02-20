@@ -67,10 +67,6 @@ ifeq ($(USE_ACC), TRUE)
   DEFINES += -DACC
 endif
 
-ifeq ($(USE_EXTRA_THERMO), TRUE)
-  DEFINES += -DEXTRA_THERMO
-endif
-
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSIMPLIFIED_SDC
 endif
@@ -128,6 +124,8 @@ Bpack  += $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 #------------------------------------------------------------------------------
 # microphysics
 #------------------------------------------------------------------------------
+NETWORK_OUTPUT_PATH := $(CURDIR)
+
 include $(MICROPHYSICS_HOME)/Make.Microphysics_extern
 
 Bpack += $(foreach dir, $(EXTERN_CORE), $(dir)/Make.package)

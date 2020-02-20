@@ -1,8 +1,9 @@
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
 NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
-CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
-
+ifeq ($(USE_CONDUCTIVITY), TRUE)
+   CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
+endif
 
 # Problems can specify the input file for general_null by setting
 # GENERAL_NET_INPUTS directly (full path) or just specifying the name
@@ -50,17 +51,9 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
-# include the conductivity
-ifdef USE_CONDUCTIVITY
-  ifeq ($(USE_CONDUCTIVITY),TRUE)
-    DEFINES += -DCONDUCTIVITY
-    EXTERN_CORE += $(CONDUCTIVITY_HOME)
-    EXTERN_CORE += $(CONDUCTIVITY_PATH)
-  endif
-endif
-
 # include the network
 EXTERN_CORE += $(NETWORK_PATH)
+
 
 # Note that this should be located after the include of the EOS and
 # Network includes since it has actions that depend on variables set
@@ -69,3 +62,26 @@ EXTERN_CORE += $(NETWORK_PATH)
 EXTERN_CORE += $(MICROPHYSICS_HOME)/EOS
 EXTERN_CORE += $(MICROPHYSICS_HOME)/networks
 EXTERN_CORE += $(MICROPHYSICS_HOME)/interfaces
+
+# include the conductivity
+ifeq ($(USE_CONDUCTIVITY),TRUE)
+  DEFINES += -DCONDUCTIVITY
+  EXTERN_CORE += $(CONDUCTIVITY_HOME)
+  EXTERN_CORE += $(CONDUCTIVITY_PATH)
+endif
+
+
+ifeq ($(USE_RAD), TRUE)
+   ifeq ($(Opacity_dir), null)
+     $(error The null opacity directory has been removed, please update to rad_power_law)
+   endif
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   EXTERN_CORE += $(OPAC_PATH)
+endif
+
+ifeq ($(USE_EXTRA_THERMO), TRUE)
+  DEFINES += -DEXTRA_THERMO
+endif
+
+
+
