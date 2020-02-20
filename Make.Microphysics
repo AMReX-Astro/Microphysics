@@ -124,7 +124,7 @@ Bpack  += $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 #------------------------------------------------------------------------------
 # microphysics
 #------------------------------------------------------------------------------
-NETWORK_OUTPUT_PATH := $(CURDIR)
+NETWORK_OUTPUT_PATH := .
 
 include $(MICROPHYSICS_HOME)/Make.Microphysics_extern
 

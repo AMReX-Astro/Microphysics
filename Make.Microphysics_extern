@@ -1,3 +1,5 @@
+# This is the main include makefile for applications that want to use Microphysics
+# You should set NETWORK_OUTPUT_PATH before including this file
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
 NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
