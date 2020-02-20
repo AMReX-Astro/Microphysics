@@ -16,6 +16,10 @@ constexpr amrex::Real aion[NumSpec] = {
    @@AION@@
   };
 
+constexpr amrex::Real aion_inv[NumSpec] = {
+   @@AION_INV@@
+  };
+
 constexpr amrex::Real zion[NumSpec] = {
    @@ZION@@
   };
@@ -26,6 +30,14 @@ static const std::vector<std::string> short_spec_names_cxx = {
 
 static const std::vector<std::string> spec_names_cxx = {
    @@SPEC_NAMES@@
+  };
+
+static const std::vector<std::string> short_aux_names_cxx = {
+   @@SHORT_AUX_NAMES@@
+  };
+
+static const std::vector<std::string> aux_names_cxx = {
+   @@AUX_NAMES@@
   };
 
 #endif
