@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -9,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; StarKiller Microphysics 20.02
+  <title>C++ interfaces &mdash; StarKiller Microphysics 20.02
  documentation</title>
   
 
@@ -39,8 +38,10 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
-    <link rel="index" title="Index" href="#" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="GPUs" href="gpu.html" />
+    <link rel="prev" title="Transport Coefficients" href="transport.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -90,7 +91,7 @@
             
             
               <p class="caption"><span class="caption-text">StarKiller basics</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
@@ -98,7 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">C++ interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
@@ -148,12 +149,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Index</li>
+      <li>C++ interfaces</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
+            <a href="_sources/cxx.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -165,11 +168,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
 
-<h1 id="index">Index</h1>
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
 
-<div class="genindex-jumpbox">
- 
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="c-interfaces">
+<h1>C++ interfaces<a class="headerlink" href="#c-interfaces" title="Permalink to this headline">¶</a></h1>
+<p>There are C++ interfaces for the equation of state.  The following conventions are used:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>C++ support requires AMReX</p></li>
+<li><p>We assume that Fortran initialization is done first (runtime
+paramters, EOS, …) and we get what information we can on
+parameters from Fortran.</p></li>
+<li><p>The EOS logic is completely duplicated in C++ so we don’t need to
+call any Fortran.</p></li>
+<li><p>The nuclei information is provided in a .net file and used to
+generate both the Fortran <code class="docutils literal notranslate"><span class="pre">actual_network.F90</span></code> module and the C++
+<code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code> header file.</p></li>
+<li><p>We don’t attempt to pass the C++ struct directly into Fortran.</p></li>
+</ul>
+</div></blockquote>
 </div>
 
 
@@ -177,6 +216,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="gpu.html" class="btn btn-neutral float-right" title="GPUs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="transport.html" class="btn btn-neutral float-left" title="Transport Coefficients" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
