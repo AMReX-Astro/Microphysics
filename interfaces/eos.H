@@ -5,6 +5,7 @@
 #include <eos_type.H>
 #include <eos_F.H>
 #include <eos_composition.H>
+#include <eos_override.H>
 #include <actual_eos.H>
 #include <AMReX_Algorithm.H>
 
@@ -396,8 +397,7 @@ void eos(const eos_input_t input, eos_t& state, bool use_raw_inputs = false) {
   // Allow the user to override any details of the
   // EOS state. This should generally occur right
   // before the actual_eos call.
-
-  //call eos_override(state)
+  eos_override(state);
 
   // Call the EOS.
 

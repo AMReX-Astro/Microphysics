@@ -6,6 +6,7 @@ F90EXE_sources += eos_type.F90
 
 CEXE_headers += eos.H
 CEXE_headers += eos_type.H
+CEXE_headers += eos_override.H
 FEXE_headers += eos_F.H
 
 CEXE_headers += network.H

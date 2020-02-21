@@ -17,6 +17,4 @@ There are C++ interfaces for the equation of state.  The following conventions a
     generate both the Fortran ``actual_network.F90`` module and the C++
     ``actual_network.H`` header file.
 
-  * We don't implement the EOS override functionality.
-
   * We don't attempt to pass the C++ struct directly into Fortran.
