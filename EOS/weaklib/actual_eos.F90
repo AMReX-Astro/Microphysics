@@ -223,6 +223,7 @@ contains
 
   subroutine actual_eos_init
 
+    use eos_type_module, only: mintemp, maxtemp, mindens, maxdens
     use extern_probin_module, only: weaklib_eos_table_name
     use amrex_paralleldescriptor_module, only: amrex_pd_ioprocessor
 
@@ -255,9 +256,13 @@ contains
 
     allocate( Ds_T(eos_table % TS % nPoints(iD_T)) )
     Ds_T = eos_table % TS % States(iD_T) % Values
+    mindens = minval(Ds_T)
+    maxdens = maxval(Ds_T)
 
     allocate( Ts_T(eos_table % TS % nPoints(iT_T)) )
     Ts_T = eos_table % TS % States(iT_T) % Values
+    mintemp = minval(Ts_T)
+    maxtemp = maxval(Ts_T)
 
     allocate( Ys_T(eos_table % TS % nPoints(iY_T)) )
     Ys_T = eos_table % TS % States(iY_T) % Values
@@ -419,19 +424,29 @@ contains
     !$acc routine seq
 #endif
 
+    use amrex_error_module
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
+    integer :: error
     real(rt) :: t_guess
 
-    t_guess = state % temperature
+    t_guess = sqrt(mintemp * maxtemp)
+    error = 0
 
     call ComputeTemperatureWith_DEY_Single_Guess( &
          state % density, state % specific_internal_energy, state % electron_fraction, &
          Ds_T, Ts_T, Ys_T, Es_T, OS_E, &
-         state % temperature, t_guess )
+         state % temperature, t_guess, error )
+
+    if ( error .ne. 0 ) then
+       print *, "D = ", state % density
+       print *, "E = ", state % specific_internal_energy
+       print *, "Y = ", state % electron_fraction
+       call amrex_error("Failure in ComputeTemperatureWith_DEY!")
+    end if
 
   end subroutine ComputeTemperatureFromSpecificInternalEnergy
 
@@ -442,19 +457,26 @@ contains
     !$acc routine seq
 #endif
 
+    use amrex_error_module
     use weaklib_type_module, only: weaklib_eos_t
 
     implicit none
 
     type (weaklib_eos_t), intent(inout) :: state
+    integer :: error
     real(rt) :: t_guess
 
-    t_guess = state % temperature
+    t_guess = sqrt(mintemp * maxtemp)
+    error = 0
 
     call ComputeTemperatureWith_DPY_Single_Guess( &
          state % density, state % pressure, state % electron_fraction, &
          Ds_T, Ts_T, Ys_T, Ps_T, OS_P, &
-         state % temperature, t_guess )
+         state % temperature, t_guess, error )
+
+    if ( error .ne. 0 ) then
+       call amrex_error("Failure in ComputeTemperatureWith_DPY!")
+    end if
 
   end subroutine ComputeTemperatureFromPressure
 
