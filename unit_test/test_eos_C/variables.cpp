@@ -1,5 +1,5 @@
 #include <variables.H>
-#include <network_properties.H>
+#include <network.H>
 
 plot_t init_variables() {
 

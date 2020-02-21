@@ -3,7 +3,7 @@
 #define _eos_composition_H_
 
 #include <AMReX_BLFort.H>
-#include <network_properties.H>
+#include <network.H>
 #include <eos_type.H>
 
 using namespace amrex;
