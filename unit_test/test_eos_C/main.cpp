@@ -103,7 +103,7 @@ void main_main ()
 
     init_extern_parameters();
 
-    eos_cxx_init();
+    eos_init();
 
     auto vars = init_variables();
 
@@ -166,7 +166,7 @@ void main_main ()
           }
 
           // call the EOS using rho, T
-          eos_cxx(eos_input_rt, eos_state);
+          eos(eos_input_rt, eos_state);
 
           eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
@@ -217,7 +217,7 @@ void main_main ()
           // reset T to give it some work to do
           eos_state.T = 100.0;
 
-          eos_cxx(eos_input_rh, eos_state);
+          eos(eos_input_rh, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_rh) =
             abs(eos_state.T - temp_zone)/temp_zone;
@@ -230,7 +230,7 @@ void main_main ()
           // reset rho to give it some work to do
           eos_state.rho = 1.0;
 
-          eos_cxx(eos_input_tp, eos_state);
+          eos(eos_input_tp, eos_state);
 
           sp(i, j, k, vars.ierr_rho_eos_tp) =
             abs(eos_state.rho - dens_zone)/dens_zone;
@@ -243,7 +243,7 @@ void main_main ()
           // reset T to give it some work to do
           eos_state.T = 100.0;
 
-          eos_cxx(eos_input_rp, eos_state);
+          eos(eos_input_rp, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_rp) =
             abs(eos_state.T - temp_zone)/temp_zone;
@@ -256,7 +256,7 @@ void main_main ()
           // reset T to give it some work to do
           eos_state.T = 100.0;
 
-          eos_cxx(eos_input_re, eos_state);
+          eos(eos_input_re, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_re) =
             abs(eos_state.T - temp_zone)/temp_zone;
@@ -275,7 +275,7 @@ void main_main ()
           // of entropy throughout the entire rho-T plane
           if (eos_state.s > 0.0) {
 
-            eos_cxx(eos_input_ps, eos_state);
+            eos(eos_input_ps, eos_state);
 
             // store the thermodynamic state
             sp(i, j, k, vars.ierr_T_eos_ps) =
@@ -298,7 +298,7 @@ void main_main ()
           eos_state.T = 100.0;
           eos_state.rho = 1.0;
 
-          eos_cxx(eos_input_ph, eos_state);
+          eos(eos_input_ph, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_ph) =
             abs(eos_state.T - temp_zone)/temp_zone;
@@ -315,7 +315,7 @@ void main_main ()
           // monotonic, so we only perturb rho slightly here
           eos_state.rho = 0.9 * eos_state.rho;
 
-          eos_cxx(eos_input_th, eos_state);
+          eos(eos_input_th, eos_state);
 
           sp(i, j, k, vars.ierr_rho_eos_th) =
             abs(eos_state.rho - dens_zone)/dens_zone;

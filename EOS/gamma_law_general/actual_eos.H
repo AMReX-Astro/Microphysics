@@ -16,7 +16,8 @@
 
 const std::string eos_name = "gamma_law_general";
 
-static void actual_eos_cxx_init() {
+inline
+void actual_eos_init() {
 
   // constant ratio of specific heats
   if (eos_gamma <= 0.0) {
@@ -26,7 +27,7 @@ static void actual_eos_cxx_init() {
 }
 
 AMREX_GPU_HOST_DEVICE inline
-void actual_eos_cxx(const eos_input_t input, eos_t& state) {
+void actual_eos(const eos_input_t input, eos_t& state) {
 
   // Get the mass of a nucleon from Avogadro's number.
   const Real m_nucleon = 1.0 / n_A;
@@ -213,7 +214,8 @@ void actual_eos_cxx(const eos_input_t input, eos_t& state) {
 #endif
 }
 
-static void actual_eos_cxx_finalize() {
+inline
+void actual_eos_finalize() {
 
 }
 
