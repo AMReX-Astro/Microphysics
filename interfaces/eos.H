@@ -196,82 +196,17 @@ void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
 #ifndef AMREX_USE_GPU
 inline
-void check_inputs(const eos_input_t input, eos_t& state) {
-
-  // Check the inputs for validity.
-
-  for (int n = 0; n < NumSpec; n++) {
-    if (state.xn[n] < EOSData::minx) {
-      print_state(state);
-      amrex::Error("EOS: mass fraction less than minimum possible mass fraction.");
-
-    } else if (state.xn[n] > EOSData::maxx) {
-      print_state(state);
-      amrex::Error("EOS: mass fraction more than maximum possible mass fraction.");
-    }
+void print_state(eos_t& state) {
+  std::cout << "DENS = " << state.rho << std::endl;
+  std::cout << "TEMP = " << state.T << std::endl;
+  std::cout << "X = ";
+  for (int n = 0; n < NumSpec; n ++) {
+    std::cout << state.xn[n] << " ";
   }
+  std::cout << std::endl;
 
-  if (state.y_e > EOSData::minye) {
-    print_state(state);
-    amrex::Error("EOS: y_e less than minimum possible electron fraction.");
-
-  } else if (state.y_e > EOSData::maxye) {
-    print_state(state);
-    amrex::Error("EOS: y_e greater than maximum possible electron fraction.");
-  }
-
-  switch (input) {
-
-  case eos_input_rt:
-
-    check_rho(state);
-    check_T(state);
-    break;
-
-  case eos_input_rh:
-
-    check_rho(state);
-    check_h(state);
-    break;
-
-  case eos_input_tp:
-
-    check_T(state);
-    check_p(state);
-    break;
-
-  case eos_input_rp:
-
-    check_rho(state);
-    check_p(state);
-    break;
-
-  case eos_input_re:
-
-    check_rho(state);
-    check_e(state);
-    break;
-
-  case eos_input_ps:
-
-    check_p(state);
-    check_s(state);
-    break;
-
-  case eos_input_ph:
-
-    check_p(state);
-    check_h(state);
-    break;
-
-  case eos_input_th:
-
-    check_T(state);
-    check_h(state);
-
-  }
+  std::cout << "Y_E = " << state.y_e;
 }
-
 
 inline
 void check_rho(eos_t& state) {
@@ -353,16 +288,80 @@ void check_p(eos_t& state) {
 }
 
 inline
-void print_state(eos_t& state) {
-  std::cout << "DENS = " << state.rho << std::endl;
-  std::cout << "TEMP = " << state.T << std::endl;
-  std::cout << "X = ";
-  for (int n = 0; n < NumSpec; n ++) {
-    std::cout << state.xn[n] << " ";
-  }
-  std::cout << std::endl;
+void check_inputs(const eos_input_t input, eos_t& state) {
 
-  std::cout << "Y_E = " << state.y_e;
+  // Check the inputs for validity.
+
+  for (int n = 0; n < NumSpec; n++) {
+    if (state.xn[n] < EOSData::minx) {
+      print_state(state);
+      amrex::Error("EOS: mass fraction less than minimum possible mass fraction.");
+
+    } else if (state.xn[n] > EOSData::maxx) {
+      print_state(state);
+      amrex::Error("EOS: mass fraction more than maximum possible mass fraction.");
+    }
+  }
+
+  if (state.y_e > EOSData::minye) {
+    print_state(state);
+    amrex::Error("EOS: y_e less than minimum possible electron fraction.");
+
+  } else if (state.y_e > EOSData::maxye) {
+    print_state(state);
+    amrex::Error("EOS: y_e greater than maximum possible electron fraction.");
+  }
+
+  switch (input) {
+
+  case eos_input_rt:
+
+    check_rho(state);
+    check_T(state);
+    break;
+
+  case eos_input_rh:
+
+    check_rho(state);
+    check_h(state);
+    break;
+
+  case eos_input_tp:
+
+    check_T(state);
+    check_p(state);
+    break;
+
+  case eos_input_rp:
+
+    check_rho(state);
+    check_p(state);
+    break;
+
+  case eos_input_re:
+
+    check_rho(state);
+    check_e(state);
+    break;
+
+  case eos_input_ps:
+
+    check_p(state);
+    check_s(state);
+    break;
+
+  case eos_input_ph:
+
+    check_p(state);
+    check_h(state);
+    break;
+
+  case eos_input_th:
+
+    check_T(state);
+    check_h(state);
+
+  }
 }
 #endif
 
