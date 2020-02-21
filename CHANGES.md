@@ -1,5 +1,8 @@
 # 20.03
 
+   * A framework for pure C++ EOSes has been created and a pure C++
+     unit test, test_eos_C, is available to test these.  (#246)
+
    * The GPackage.mak files that were a remnant of the old
      BoxLib F90 build system have been removed.  They were
      not maintained.  (#212).
