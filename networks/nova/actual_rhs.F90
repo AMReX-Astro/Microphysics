@@ -9,6 +9,12 @@ module actual_rhs_module
 
   implicit none
 
+  ! Indices into rate groups in the rate_eval_t type
+  integer, parameter :: i_rate        = 1
+  integer, parameter :: i_drate_dt    = 2
+  integer, parameter :: i_scor        = 3
+  integer, parameter :: i_dscor_dt    = 4
+
   type :: rate_eval_t
      real(rt) :: unscreened_rates(num_rate_groups, nrates)
      real(rt) :: screened_rates(nrates)
@@ -63,9 +69,10 @@ contains
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
     real(rt) :: Y(nspec)
-    real(rt) :: reactvec(num_rate_groups)
     integer :: i, j
-    real(rt) :: rhoy, scor, dscor_dt, dscor_dd
+    real(rt) :: rhoy
+    real(rt) :: rate, drate_dt, edot_nu
+    real(rt) :: scor, dscor_dt, dscor_dd
 
     !$gpu
 
@@ -78,8 +85,9 @@ contains
     ! Calculate Reaclib rates
     call fill_plasma_state(pstate, state % T, state % rho, Y)
     do i = 1, nrat_reaclib
-       call reaclib_evaluate(pstate, state % T, i, reactvec)
-       rate_eval % unscreened_rates(:,i) = reactvec(:)
+       call reaclib_evaluate(pstate, state % T, i, rate, drate_dt)
+       rate_eval % unscreened_rates(i_rate, i) = rate
+       rate_eval % unscreened_rates(i_drate_dt, i) = drate_dt
     end do
 
     ! Evaluate screening factors
@@ -179,7 +187,6 @@ contains
 
     type(rate_eval_t) :: rate_eval
     real(rt) :: Y(nspec), ydot_nuc(nspec)
-    real(rt) :: reactvec(num_rate_groups)
     integer :: i, j
     real(rt) :: rhoy, ye, enuc
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
@@ -246,7 +253,7 @@ contains
        )
 
     ydot_nuc(jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho - 0.5d0* &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho - 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*state % rho**2 - &
       screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho - &
       screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*state % rho - &
@@ -258,7 +265,7 @@ contains
 
     ydot_nuc(jc12) = ( &
       -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho + &
-      0.16666666666666667d0*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
+      0.16666666666666667e0_rt*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
       state % rho**2 - screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*state % rho + &
       screened_rates(k_p_n15__he4_c12)*Y(jn15)*Y(jp)*state % rho &
        )
@@ -392,7 +399,7 @@ contains
        call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
        do j = 1, nspec
-          b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+          b1 = (-state % abar * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
           call get_jac_entry(jac, net_ienuc, j, scratch)
           scratch = scratch - b1
           call set_jac_entry(jac, net_ienuc, j, scratch)
@@ -506,7 +513,7 @@ contains
     call set_jac_entry(jac, jhe4, jp, scratch)
 
     scratch = (&
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - 1.5d0* &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - 1.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 - &
       screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho - &
       screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho - &
@@ -556,7 +563,7 @@ contains
     call set_jac_entry(jac, jc12, jp, scratch)
 
     scratch = (&
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + 0.5d0* &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + 0.5e0_rt* &
       screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 &
        )
     call set_jac_entry(jac, jc12, jhe4, scratch)
