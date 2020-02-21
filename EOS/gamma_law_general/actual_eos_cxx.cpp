@@ -143,6 +143,8 @@ void actual_eos_cxx(const eos_input_t input, eos_t& state) {
       amrex::Error("EOS: invalid input.");
 #endif
 
+      break;
+
     }
 
   // Now we have the density and temperature (and mass fractions /
