@@ -25,7 +25,7 @@ void composition(eos_t& state) {
 
   Real sum = 0;
   for (int n = 0; n < NumSpec; n++) {
-    sum += state.xn[n] * zion[n] / aion[n];
+    sum += state.xn[n] * zion[n] * aion_inv[n];
   }
 
   state.mu_e = 1.0 / sum;
@@ -34,7 +34,7 @@ void composition(eos_t& state) {
   sum = 0;
 
   for (int n = 0; n < NumSpec; n++) {
-    sum += state.xn[n] / aion[n];
+    sum += state.xn[n] * aion_inv[n];
   }
 
   state.abar = 1.0 / sum;
@@ -50,12 +50,12 @@ eos_xderivs_t composition_derivatives(eos_t& state) {
 #ifdef EXTRA_THERMO
   for (int n = 0; n < NumSpec; n++) {
     state_xderivs.dpdX[n] =
-      state.dpdA * (state.abar / aion[n]) * (aion[n] - state.abar) +
-      state.dpdZ * (state.abar / aion[n]) * (zion[n] - state.zbar);
+      state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
+      state.dpdZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
 
     state_xderivs.dedX[n] =
-      state.dedA * (state.abar / aion[n]) * (aion[n] - state.abar) +
-      state.dedZ * (state.abar / aion[n]) * (zion[n] - state.zbar);
+      state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
+      state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
 
     if (state.dpdr != 0.0) {
 

@@ -39,7 +39,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
   } else {
     Real sum = 0.0;
     for (int n = 0; n < NumSpec; n++) {
-      sum += (zion[n] + 1.0) * state.xn[n] / aion[n];
+      sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
     }
     state.mu = 1.0 / sum;
   }
