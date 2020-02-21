@@ -25,7 +25,7 @@ contains
 
     !$gpu
 
-    state % ydot(iye)  = ZERO
+    state % ydot(:)  = ZERO
 
   end subroutine actual_rhs
 
