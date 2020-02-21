@@ -13,11 +13,9 @@ using namespace amrex;
 #include "test_eos_F.H"
 #include "AMReX_buildInfo.H"
 
-#include <eos.H>
-#include <eos_composition.H>
-#include <variables.H>
-#include <actual_eos.H>
 #include <network.H>
+#include <eos.H>
+#include <variables.H>
 
 int main (int argc, char* argv[])
 {

@@ -4,11 +4,10 @@ F90EXE_sources += eos.F90
 F90EXE_sources += eos_override.F90
 F90EXE_sources += eos_type.F90
 
-CEXE_sources += eos_cxx.cpp
 CEXE_headers += eos.H
+CEXE_headers += eos_type.H
 FEXE_headers += eos_F.H
 
-CEXE_sources += network_cxx.cpp
 CEXE_headers += network.H
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)
