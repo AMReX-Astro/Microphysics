@@ -12,15 +12,15 @@
 constexpr int NumSpec = @@NSPEC@@;
 constexpr int NumAux = @@NAUX@@;
 
-constexpr amrex::Real aion[NumSpec] = {
+static AMREX_GPU_MANAGED amrex::Real aion[NumSpec] = {
    @@AION@@
   };
 
-constexpr amrex::Real aion_inv[NumSpec] = {
+static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpec] = {
    @@AION_INV@@
   };
 
-constexpr amrex::Real zion[NumSpec] = {
+static AMREX_GPU_MANAGED amrex::Real zion[NumSpec] = {
    @@ZION@@
   };
 
