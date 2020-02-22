@@ -5,50 +5,50 @@
 #include <network.H>
 
 struct eos_t {
-    Real rho;
-    Real T;
-    Real p;
-    Real e;
-    Real h;
-    Real s;
-    Real xn[NumSpec];
-    Real aux[NumAux];
+    amrex::Real rho;
+    amrex::Real T;
+    amrex::Real p;
+    amrex::Real e;
+    amrex::Real h;
+    amrex::Real s;
+    amrex::Real xn[NumSpec];
+    amrex::Real aux[NumAux];
 
-    Real dpdT;
-    Real dpdr;
-    Real dedT;
-    Real dedr;
-    Real dhdT;
-    Real dhdr;
-    Real dsdT;
-    Real dsdr;
-    Real dpde;
-    Real dpdr_e;
+    amrex::Real dpdT;
+    amrex::Real dpdr;
+    amrex::Real dedT;
+    amrex::Real dedr;
+    amrex::Real dhdT;
+    amrex::Real dhdr;
+    amrex::Real dsdT;
+    amrex::Real dsdr;
+    amrex::Real dpde;
+    amrex::Real dpdr_e;
 
-    Real cv;
-    Real cp;
-    Real xne;
-    Real xnp;
-    Real eta;
-    Real pele;
-    Real ppos;
-    Real mu;
-    Real mu_e;
-    Real y_e;
-    Real gam1;
-    Real cs;
+    amrex::Real cv;
+    amrex::Real cp;
+    amrex::Real xne;
+    amrex::Real xnp;
+    amrex::Real eta;
+    amrex::Real pele;
+    amrex::Real ppos;
+    amrex::Real mu;
+    amrex::Real mu_e;
+    amrex::Real y_e;
+    amrex::Real gam1;
+    amrex::Real cs;
 
-    Real abar;
-    Real zbar;
+    amrex::Real abar;
+    amrex::Real zbar;
 
 #ifdef EXTRA_THERMO
-    Real dpdA;
-    Real dpdZ;
-    Real dedA;
-    Real dedZ;
+    amrex::Real dpdA;
+    amrex::Real dpdZ;
+    amrex::Real dedA;
+    amrex::Real dedZ;
 #endif
 
-    Real conductivity;
+    amrex::Real conductivity;
 
 };
 
@@ -66,43 +66,43 @@ enum eos_input_t {eos_input_rt = 0,
 namespace EOSData
 {
   extern bool initialized;
-  extern AMREX_GPU_MANAGED Real mintemp;
-  extern AMREX_GPU_MANAGED Real maxtemp;
-  extern AMREX_GPU_MANAGED Real mindens;
-  extern AMREX_GPU_MANAGED Real maxdens;
-  extern AMREX_GPU_MANAGED Real minx;
-  extern AMREX_GPU_MANAGED Real maxx;
-  extern AMREX_GPU_MANAGED Real minye;
-  extern AMREX_GPU_MANAGED Real maxye;
-  extern AMREX_GPU_MANAGED Real mine;
-  extern AMREX_GPU_MANAGED Real maxe;
-  extern AMREX_GPU_MANAGED Real minp;
-  extern AMREX_GPU_MANAGED Real maxp;
-  extern AMREX_GPU_MANAGED Real mins;
-  extern AMREX_GPU_MANAGED Real maxs;
-  extern AMREX_GPU_MANAGED Real minh;
-  extern AMREX_GPU_MANAGED Real maxh;
+  extern AMREX_GPU_MANAGED amrex::Real mintemp;
+  extern AMREX_GPU_MANAGED amrex::Real maxtemp;
+  extern AMREX_GPU_MANAGED amrex::Real mindens;
+  extern AMREX_GPU_MANAGED amrex::Real maxdens;
+  extern AMREX_GPU_MANAGED amrex::Real minx;
+  extern AMREX_GPU_MANAGED amrex::Real maxx;
+  extern AMREX_GPU_MANAGED amrex::Real minye;
+  extern AMREX_GPU_MANAGED amrex::Real maxye;
+  extern AMREX_GPU_MANAGED amrex::Real mine;
+  extern AMREX_GPU_MANAGED amrex::Real maxe;
+  extern AMREX_GPU_MANAGED amrex::Real minp;
+  extern AMREX_GPU_MANAGED amrex::Real maxp;
+  extern AMREX_GPU_MANAGED amrex::Real mins;
+  extern AMREX_GPU_MANAGED amrex::Real maxs;
+  extern AMREX_GPU_MANAGED amrex::Real minh;
+  extern AMREX_GPU_MANAGED amrex::Real maxh;
 }
 
 namespace EOSData
 {
   bool initialized;
-  AMREX_GPU_MANAGED Real mintemp;
-  AMREX_GPU_MANAGED Real maxtemp;
-  AMREX_GPU_MANAGED Real mindens;
-  AMREX_GPU_MANAGED Real maxdens;
-  AMREX_GPU_MANAGED Real minx;
-  AMREX_GPU_MANAGED Real maxx;
-  AMREX_GPU_MANAGED Real minye;
-  AMREX_GPU_MANAGED Real maxye;
-  AMREX_GPU_MANAGED Real mine;
-  AMREX_GPU_MANAGED Real maxe;
-  AMREX_GPU_MANAGED Real minp;
-  AMREX_GPU_MANAGED Real maxp;
-  AMREX_GPU_MANAGED Real mins;
-  AMREX_GPU_MANAGED Real maxs;
-  AMREX_GPU_MANAGED Real minh;
-  AMREX_GPU_MANAGED Real maxh;
+  AMREX_GPU_MANAGED amrex::Real mintemp;
+  AMREX_GPU_MANAGED amrex::Real maxtemp;
+  AMREX_GPU_MANAGED amrex::Real mindens;
+  AMREX_GPU_MANAGED amrex::Real maxdens;
+  AMREX_GPU_MANAGED amrex::Real minx;
+  AMREX_GPU_MANAGED amrex::Real maxx;
+  AMREX_GPU_MANAGED amrex::Real minye;
+  AMREX_GPU_MANAGED amrex::Real maxye;
+  AMREX_GPU_MANAGED amrex::Real mine;
+  AMREX_GPU_MANAGED amrex::Real maxe;
+  AMREX_GPU_MANAGED amrex::Real minp;
+  AMREX_GPU_MANAGED amrex::Real maxp;
+  AMREX_GPU_MANAGED amrex::Real mins;
+  AMREX_GPU_MANAGED amrex::Real maxs;
+  AMREX_GPU_MANAGED amrex::Real minh;
+  AMREX_GPU_MANAGED amrex::Real maxh;
 }
 
 #endif
