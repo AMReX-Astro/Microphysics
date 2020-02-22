@@ -61,48 +61,4 @@ enum eos_input_t {eos_input_rt = 0,
                   eos_input_ph,
                   eos_input_th};
 
-// store some global limits set at initialization time
-
-namespace EOSData
-{
-  extern bool initialized;
-  extern AMREX_GPU_MANAGED amrex::Real mintemp;
-  extern AMREX_GPU_MANAGED amrex::Real maxtemp;
-  extern AMREX_GPU_MANAGED amrex::Real mindens;
-  extern AMREX_GPU_MANAGED amrex::Real maxdens;
-  extern AMREX_GPU_MANAGED amrex::Real minx;
-  extern AMREX_GPU_MANAGED amrex::Real maxx;
-  extern AMREX_GPU_MANAGED amrex::Real minye;
-  extern AMREX_GPU_MANAGED amrex::Real maxye;
-  extern AMREX_GPU_MANAGED amrex::Real mine;
-  extern AMREX_GPU_MANAGED amrex::Real maxe;
-  extern AMREX_GPU_MANAGED amrex::Real minp;
-  extern AMREX_GPU_MANAGED amrex::Real maxp;
-  extern AMREX_GPU_MANAGED amrex::Real mins;
-  extern AMREX_GPU_MANAGED amrex::Real maxs;
-  extern AMREX_GPU_MANAGED amrex::Real minh;
-  extern AMREX_GPU_MANAGED amrex::Real maxh;
-}
-
-namespace EOSData
-{
-  bool initialized;
-  AMREX_GPU_MANAGED amrex::Real mintemp;
-  AMREX_GPU_MANAGED amrex::Real maxtemp;
-  AMREX_GPU_MANAGED amrex::Real mindens;
-  AMREX_GPU_MANAGED amrex::Real maxdens;
-  AMREX_GPU_MANAGED amrex::Real minx;
-  AMREX_GPU_MANAGED amrex::Real maxx;
-  AMREX_GPU_MANAGED amrex::Real minye;
-  AMREX_GPU_MANAGED amrex::Real maxye;
-  AMREX_GPU_MANAGED amrex::Real mine;
-  AMREX_GPU_MANAGED amrex::Real maxe;
-  AMREX_GPU_MANAGED amrex::Real minp;
-  AMREX_GPU_MANAGED amrex::Real maxp;
-  AMREX_GPU_MANAGED amrex::Real mins;
-  AMREX_GPU_MANAGED amrex::Real maxs;
-  AMREX_GPU_MANAGED amrex::Real minh;
-  AMREX_GPU_MANAGED amrex::Real maxh;
-}
-
 #endif
