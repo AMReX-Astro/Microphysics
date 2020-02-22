@@ -337,7 +337,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_eos.";
+    std::string name = "test_eos_C.";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
