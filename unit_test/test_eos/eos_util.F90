@@ -124,17 +124,19 @@ subroutine do_eos(lo, hi, &
 
            
            ! call EOS using T, p
+           if (eos_name == "gamma_law") then
+              sp(ii, jj, kk, p % ierr_rho_eos_tp) = ZERO
+           else
+              ! reset rho to give it some work to do
+              eos_state % rho = 1.e0_rt
 
-           ! reset rho to give it some work to do
-           eos_state % rho = 1.e0_rt
+              call eos(eos_input_tp, eos_state)
 
-           call eos(eos_input_tp, eos_state)
+              sp(ii, jj, kk, p % ierr_rho_eos_tp) = &
+                   abs(eos_state % rho - dens_zone)/dens_zone
 
-           sp(ii, jj, kk, p % ierr_rho_eos_tp) = &
-                abs(eos_state % rho - dens_zone)/dens_zone
-
-           call copy_eos_t(eos_state, eos_state_reference)
-
+              call copy_eos_t(eos_state, eos_state_reference)
+           end if
            
            ! call EOS using r, p
 
@@ -208,21 +210,20 @@ subroutine do_eos(lo, hi, &
 
            ! call EOS using T, h
            ! this doesn't work for all EOSes (where h doesn't depend on T)
-#ifndef EOS_GAMMA_LAW_GENERAL
-           ! reset rho to give it some work to do -- for helmeos, h is not
-           ! monotonic, so we only perturb rho slightly here
-           eos_state % rho = 0.9_rt * eos_state % rho
+           if (eos_name == "gamma_law" .or. eos_name == "gamma_law_general") then
+              sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
+           else
+              ! reset rho to give it some work to do -- for helmeos, h is not
+              ! monotonic, so we only perturb rho slightly here
+              eos_state % rho = 0.9_rt * eos_state % rho
 
-           call eos(eos_input_th, eos_state)
+              call eos(eos_input_th, eos_state)
 
-           sp(ii, jj, kk, p % ierr_rho_eos_th) = &
-                abs(eos_state % rho - dens_zone)/dens_zone
+              sp(ii, jj, kk, p % ierr_rho_eos_th) = &
+                   abs(eos_state % rho - dens_zone)/dens_zone
 
-           call copy_eos_t(eos_state, eos_state_reference)
-
-#else
-           sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
-#endif
+              call copy_eos_t(eos_state, eos_state_reference)
+           end if
         enddo
      enddo
   enddo
