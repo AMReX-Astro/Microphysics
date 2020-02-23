@@ -54,4 +54,5 @@ void main_main ()
 
     std::cout << "dens_min = " << dens_min << std::endl;
 
+    std::cout << "test_string = " << test_string << std::endl;
 }
