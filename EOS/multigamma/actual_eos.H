@@ -65,8 +65,8 @@ void actual_eos (eos_input_t input, eos_t& state)
     Real sumY_gm1 = 0.0_rt;
     Real sumYg_gm1 = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
-        sumY_gm1 = sumY_gm1 + state.xn[n] / (aion[n] * (gammas[n] - 1.0_rt));
-        sumYg_gm1 = sumYg_gm1 + state.xn[n] * gammas[n] / (aion[n] * (gammas[n] - 1.0_rt));
+        sumY_gm1 = sumY_gm1 + state.xn[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
+        sumYg_gm1 = sumYg_gm1 + state.xn[n] * gammas[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
     }
 
     //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Solve for the temperature:
         // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
         dens = state.rho;
-        temp = (state.h * m_nucleon / k_B) / sumYg_gm1;
+        temp = state.h * (m_nucleon / k_B) / sumYg_gm1;
 
         break;
 
@@ -105,7 +105,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 
         // Solve for the density:
         // p = rho k T / (abar m_nucleon)
-        dens = state.p * state.abar * m_nucleon / (k_B * state.T);
+        dens = state.p * state.abar * (m_nucleon / k_B) / state.T;
         temp = state.T;
 
         break;
@@ -117,7 +117,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Solve for the temperature:
         // p = rho k T / (mu m_nucleon)
         dens = state.rho;
-        temp = state.p * state.abar * m_nucleon / (k_B * state.rho);
+        temp = state.p * state.abar * (m_nucleon / k_B) / state.rho;
 
         break;
 
@@ -128,7 +128,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Solve for the temperature
         // e = k T / [(mu m_nucleon)*(gamma-1)]
         dens = state.rho;
-        temp = state.e * m_nucleon / (k_B * sumY_gm1);
+        temp = state.e * (m_nucleon / k_B) / sumY_gm1;
 
         break;
 
@@ -147,7 +147,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 
         // Solve for temperature and density
         dens = state.p * state.abar / state.h * sumYg_gm1;
-        temp = state.p * state.abar * m_nucleon / (k_B * dens);
+        temp = state.p * state.abar * (m_nucleon / k_B) / dens;
 
         break;
 
@@ -189,8 +189,9 @@ void actual_eos (eos_input_t input, eos_t& state)
     // entropy (per gram) -- this is wrong. Not sure what the expression
     // is for a multigamma gas
     state.s = (k_B / (state.abar * m_nucleon)) *
-              (2.5_rt + std::log((std::pow(state.abar * m_nucleon), 2.5_rt) / dens) *
-               std::pow(k_B * temp, 1.5_rt) / std::pow(2.0_rt * M_PI * hbar * hbar, 1.5_rt));
+              (2.5_rt + std::log((std::pow(state.abar * m_nucleon, 2.5_rt) / dens) *
+                                 std::pow(k_B * temp, 1.5_rt) /
+                                 std::pow(2.0_rt * M_PI * hbar * hbar, 1.5_rt)));
 
     // Compute the thermodynamic derivatives and specific heats
     state.dpdT = state.p / temp;
