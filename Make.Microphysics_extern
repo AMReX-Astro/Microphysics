@@ -86,4 +86,7 @@ ifeq ($(USE_EXTRA_THERMO), TRUE)
 endif
 
 
+# fundamental constants
+EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
+
 

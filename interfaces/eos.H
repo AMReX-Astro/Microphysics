@@ -2,6 +2,7 @@
 #define _eos_H_
 
 #include <network_properties.H>
+#include <eos_data.H>
 #include <eos_type.H>
 #include <eos_F.H>
 #include <eos_composition.H>

@@ -126,9 +126,15 @@ void main_main ()
     const int ih1 = network_spec_index("hydrogen-1");
     const int ihe4 = network_spec_index("helium-4");
 
-    Real dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
-    Real dlogT = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
-    Real dmetal = (metalicity_max  - 0.0)/(n_cell - 1);
+    Real dlogrho = 0.0e0_rt;
+    Real dlogT   = 0.0e0_rt;
+    Real dmetal  = 0.0e0_rt;
+
+    if (n_cell > 1) {
+        dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
+        dlogT   = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
+        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
+    }
 
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
@@ -220,7 +226,7 @@ void main_main ()
           eos(eos_input_rh, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_rh) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
 
           eos_state = eos_state_reference;
 
@@ -233,7 +239,7 @@ void main_main ()
           eos(eos_input_tp, eos_state);
 
           sp(i, j, k, vars.ierr_rho_eos_tp) =
-            abs(eos_state.rho - dens_zone)/dens_zone;
+              std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           eos_state = eos_state_reference;
 
@@ -246,7 +252,7 @@ void main_main ()
           eos(eos_input_rp, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_rp) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
 
           eos_state = eos_state_reference;
 
@@ -259,7 +265,7 @@ void main_main ()
           eos(eos_input_re, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_re) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
 
           eos_state = eos_state_reference;
 
@@ -279,9 +285,9 @@ void main_main ()
 
             // store the thermodynamic state
             sp(i, j, k, vars.ierr_T_eos_ps) =
-              abs(eos_state.T - temp_zone)/temp_zone;
+                std::abs(eos_state.T - temp_zone)/temp_zone;
             sp(i, j, k, vars.ierr_rho_eos_ps) =
-              abs(eos_state.rho - dens_zone)/dens_zone;
+                std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           } else {
             sp(i, j, k, vars.ierr_T_eos_ps) = 0.0;
@@ -301,9 +307,9 @@ void main_main ()
           eos(eos_input_ph, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_ph) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
           sp(i, j, k, vars.ierr_rho_eos_ph) =
-            abs(eos_state.rho - dens_zone)/dens_zone;
+              std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           eos_state = eos_state_reference;
 
@@ -318,7 +324,7 @@ void main_main ()
           eos(eos_input_th, eos_state);
 
           sp(i, j, k, vars.ierr_rho_eos_th) =
-            abs(eos_state.rho - dens_zone)/dens_zone;
+              std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           eos_state = eos_state_reference;
 
@@ -337,7 +343,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_eos.";
+    std::string name = "test_eos_C.";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
