@@ -226,7 +226,7 @@ void main_main ()
           eos(eos_input_rh, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_rh) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
 
           eos_state = eos_state_reference;
 
@@ -239,7 +239,7 @@ void main_main ()
           eos(eos_input_tp, eos_state);
 
           sp(i, j, k, vars.ierr_rho_eos_tp) =
-            abs(eos_state.rho - dens_zone)/dens_zone;
+              std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           eos_state = eos_state_reference;
 
@@ -252,7 +252,7 @@ void main_main ()
           eos(eos_input_rp, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_rp) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
 
           eos_state = eos_state_reference;
 
@@ -265,7 +265,7 @@ void main_main ()
           eos(eos_input_re, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_re) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
 
           eos_state = eos_state_reference;
 
@@ -285,9 +285,9 @@ void main_main ()
 
             // store the thermodynamic state
             sp(i, j, k, vars.ierr_T_eos_ps) =
-              abs(eos_state.T - temp_zone)/temp_zone;
+                std::abs(eos_state.T - temp_zone)/temp_zone;
             sp(i, j, k, vars.ierr_rho_eos_ps) =
-              abs(eos_state.rho - dens_zone)/dens_zone;
+                std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           } else {
             sp(i, j, k, vars.ierr_T_eos_ps) = 0.0;
@@ -307,9 +307,9 @@ void main_main ()
           eos(eos_input_ph, eos_state);
 
           sp(i, j, k, vars.ierr_T_eos_ph) =
-            abs(eos_state.T - temp_zone)/temp_zone;
+              std::abs(eos_state.T - temp_zone)/temp_zone;
           sp(i, j, k, vars.ierr_rho_eos_ph) =
-            abs(eos_state.rho - dens_zone)/dens_zone;
+              std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           eos_state = eos_state_reference;
 
@@ -324,7 +324,7 @@ void main_main ()
           eos(eos_input_th, eos_state);
 
           sp(i, j, k, vars.ierr_rho_eos_th) =
-            abs(eos_state.rho - dens_zone)/dens_zone;
+              std::abs(eos_state.rho - dens_zone)/dens_zone;
 
           eos_state = eos_state_reference;
 
