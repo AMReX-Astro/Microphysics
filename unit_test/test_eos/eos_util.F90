@@ -31,10 +31,16 @@ subroutine do_eos(lo, hi, &
   integer :: ii, jj, kk, n
 
   !$gpu
-  
-  dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
-  dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
-  dmetal    = (metalicity_max  - ZERO)/(npts - 1)
+
+  if (npts > 1) then
+     dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
+     dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
+     dmetal  = (metalicity_max  - ZERO)/(npts - 1)
+  else
+     dlogrho = ZERO
+     dlogT   = ZERO
+     dmetal  = ZERO
+  end if
 
   do kk = lo(3), hi(3)
 
