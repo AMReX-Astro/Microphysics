@@ -77,7 +77,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // dens, enthalpy, and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-        amrex::Error('EOS: eos_input_rh is not supported in this EOS.');
+        amrex::Error("EOS: eos_input_rh is not supported in this EOS.");
 #endif
 
         break;
@@ -87,7 +87,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // temp, pres, and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-        amrex::Error('EOS: eos_input_tp is not supported in this EOS.');
+        amrex::Error("EOS: eos_input_tp is not supported in this EOS.");
 #endif
 
         break;
@@ -130,7 +130,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // pressure entropy, and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-        amrex::Error('EOS: eos_input_ps is not supported in this EOS.');
+        amrex::Error("EOS: eos_input_ps is not supported in this EOS.");
 #endif
 
         break;
@@ -140,7 +140,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // pressure, enthalpy and xmass are inputs
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-        amrex::Error('EOS: eos_input_ph is not supported in this EOS.');
+        amrex::Error("EOS: eos_input_ph is not supported in this EOS.");
 #endif
 
         break;
@@ -152,7 +152,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // This system is underconstrained.
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-        amrex::Error('EOS: eos_input_th is not a valid input for the gamma law EOS.');
+        amrex::Error("EOS: eos_input_th is not a valid input for the gamma law EOS.");
 #endif
 
         break;
@@ -160,7 +160,7 @@ void actual_eos (eos_input_t input, eos_t& state)
     default:
 
 #if (!(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA)))
-        amrex::Error('EOS: invalid input.');
+        amrex::Error("EOS: invalid input.");
 #endif
 
         break;

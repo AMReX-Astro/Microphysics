@@ -232,17 +232,19 @@ void main_main ()
 
 
           // call EOS using T, p
+          if (eos_name == "gamma_law") {
+            sp(i, j, k, vars.ierr_rho_eos_tp) = 0.0;
+          } else {
+            // reset rho to give it some work to do
+            eos_state.rho = 1.0;
 
-          // reset rho to give it some work to do
-          eos_state.rho = 1.0;
+            eos(eos_input_tp, eos_state);
 
-          eos(eos_input_tp, eos_state);
-
-          sp(i, j, k, vars.ierr_rho_eos_tp) =
+            sp(i, j, k, vars.ierr_rho_eos_tp) =
               std::abs(eos_state.rho - dens_zone)/dens_zone;
 
-          eos_state = eos_state_reference;
-
+            eos_state = eos_state_reference;
+          }
 
           // call EOS using r, p
 
