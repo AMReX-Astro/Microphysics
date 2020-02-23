@@ -126,9 +126,15 @@ void main_main ()
     const int ih1 = network_spec_index("hydrogen-1");
     const int ihe4 = network_spec_index("helium-4");
 
-    Real dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
-    Real dlogT = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
-    Real dmetal = (metalicity_max  - 0.0)/(n_cell - 1);
+    Real dlogrho = 0.0e0_rt;
+    Real dlogT   = 0.0e0_rt;
+    Real dmetal  = 0.0e0_rt;
+
+    if (n_cell > 1) {
+        dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
+        dlogT   = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
+        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
+    }
 
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
