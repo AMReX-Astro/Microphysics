@@ -47,8 +47,10 @@ void subroutine (eos_t& state)
 // Compute thermodynamic derivatives with respect to xn(:)
 
 AMREX_GPU_HOST_DEVICE inline
-void composition_derivatives (const eos_t& state, eos_derive_t& state_xderivs)
+eos_x_derivs_t composition_derivatives (const eos_t& state)
 {
+
+    eos_xderivs_t state_xderivs;
 
     // Get the mass of a nucleon from Avogadro's number.
     const Real m_nucleon = 1.0_rt / n_A;
@@ -63,6 +65,8 @@ void composition_derivatives (const eos_t& state, eos_derive_t& state_xderivs)
                                                         state_xderivs.dpdX[n] / state.dpdr;
     }
 #endif
+
+    return state_xderivs;
 
 }
 
