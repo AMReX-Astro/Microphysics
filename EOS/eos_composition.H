@@ -43,7 +43,7 @@ void composition(eos_t& state) {
 }
 
 AMREX_GPU_HOST_DEVICE inline
-eos_xderivs_t composition_derivatives(eos_t& state) {
+eos_xderivs_t composition_derivatives(const eos_t& state) {
 
   eos_xderivs_t state_xderivs;
 
