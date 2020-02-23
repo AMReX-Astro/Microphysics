@@ -70,6 +70,8 @@ void actual_eos (eos_input_t input, eos_t& state)
         state.p = (gamma_const - 1.0_rt) * state.rho * state.e;
         state.gam1 = gamma_const;
 
+        break;
+
     case eos_input_rh:
 
         // dens, enthalpy, and xmass are inputs
@@ -99,6 +101,8 @@ void actual_eos (eos_input_t input, eos_t& state)
         state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
         state.gam1 = gamma_const;
 
+        break;
+
     case eos_input_re:
 
         // dens, energy, and xmass are inputs
@@ -118,6 +122,8 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Try to avoid the expensive log function.  Since we don't need entropy
         // in hydro solver, set it to an invalid but "nice" value for the plotfile.
         state.s = 1.0_rt;
+
+        break;
 
     case eos_input_ps:
 
