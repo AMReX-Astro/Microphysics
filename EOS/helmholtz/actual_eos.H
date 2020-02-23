@@ -872,7 +872,7 @@ void single_iter_update(eos_t& state, int var, int dvar,
                         Real v_want, bool& converged)
 {
 
-    Real x, v, dvdx, xtol, small;
+    Real x, v, dvdx, xtol, smallx;
 
     if (dvar == itemp) {
 
@@ -1187,16 +1187,6 @@ void actual_eos_init ()
     do_coulomb = use_eos_coulomb;
     ttol = eos_ttol;
     dtol = eos_dtol;
-
-    amrex::Print() << std::endl;
-    if (do_coulomb) {
-        amrex::Print() << "Initializing Helmholtz EOS and using Coulomb corrections." << std::endl;
-    }
-    else
-    {
-        amrex::Print() << "Initializing Helmholtz EOS without using Coulomb corrections." << std::endl;
-    }
-    amrex::Print() << std::endl;
 
     //    read the helmholtz free energy table
     itmax = imax;
