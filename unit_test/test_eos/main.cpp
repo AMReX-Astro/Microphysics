@@ -26,8 +26,6 @@ int main (int argc, char* argv[])
 
 void main_main ()
 {
-    // What time is it now?  We'll use this to compute total run time.
-    Real strt_time = ParallelDescriptor::second();
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size;
@@ -127,6 +125,13 @@ void main_main ()
     // we allocate our main multifabs
     MultiFab state(ba, dm, Ncomp, Nghost);
 
+    // Initialize the state to zero; we will fill
+    // it in below in do_eos.
+    state.setVal(0.0);
+
+    // What time is it now?  We'll use this to compute total run time.
+    Real strt_time = ParallelDescriptor::second();
+
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
@@ -138,6 +143,13 @@ void main_main ()
                BL_TO_FORTRAN_ANYD(state[mfi]), n_cell);
 
     }
+
+    // Call the timer again and compute the maximum difference between
+    // the start time and stop time over all processors
+    Real stop_time = ParallelDescriptor::second() - strt_time;
+    const int IOProc = ParallelDescriptor::IOProcessorNumber();
+    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
+
 
 
     std::string name = "test_eos.";
@@ -153,13 +165,7 @@ void main_main ()
     // Write a plotfile
     WriteSingleLevelPlotfile(name + eos, state, varnames, geom, time, 0);
 
-
-    // Call the timer again and compute the maximum difference between
-    // the start time and stop time over all processors
-    Real stop_time = ParallelDescriptor::second() - strt_time;
-    const int IOProc = ParallelDescriptor::IOProcessorNumber();
-    ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
-
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
+
 }

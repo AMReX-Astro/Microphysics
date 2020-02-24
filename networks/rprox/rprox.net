@@ -1,0 +1,13 @@
+# This is a null network corresponding to the aprox13 burner.
+
+# name       short name    aion     zion
+ carbon-12      C12         12.0      6.0
+ oxygen-14      O14         14.0      8.0
+ oxygen-15      O15         15.0      8.0
+ oxygen-16      O16         16.0      8.0
+ flourine-17    F17         17.0      9.0
+ magnesium-22   Mg22        22.0     12.0
+ sulfur-30      S30         30.0     16.0
+ nickel-56      Ni56        56.0     28.0
+ helium-4       He4          4.0      2.0
+ hydrogen-1     H1           1.0      1.0

@@ -45,3 +45,7 @@ Blocs   := .
 
 include $(MICROPHYSICS_HOME)/Make.Microphysics
 
+
+realclean::
+	$(RM) _StarKillerMicrophysics.*.so
+

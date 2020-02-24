@@ -17,10 +17,11 @@ StarKiller Microphysics
    eos
    networks
    transport
+   cxx
    gpu
    unit_tests
    sdc
-   references
+   zreferences
 
 
 Indices and tables

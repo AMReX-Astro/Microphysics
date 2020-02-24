@@ -1,0 +1,9 @@
+# we are modeling a reaction f + f -> a + gamma, so baryon and
+# charge conservation require that A_f = A_a / 2 and Z_f = Z_a / 2
+# inert is a third species that doesn't participate in any 
+# reactions
+
+# name short-name aion zion
+ fuel  fuel  2.0 1.0
+ ash   ash   4.0 2.0
+ inert inert 8.0 4.0

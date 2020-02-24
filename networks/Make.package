@@ -7,41 +7,35 @@ include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 ifeq ($(USE_REACT), TRUE)
 
-ifneq ($(INTEGRATOR_DIR), VODE90)
-
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/LINPACK
-  VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/LINPACK
-
-  include $(MICROPHYSICS_UTIL_PATH)/LINPACK/Make.package
-else
-  ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
-    DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
+  ifeq ($(INTEGRATOR_DIR), VODE90)
+    override INTEGRATOR_DIR = VODE
+    $(warn VODE90 has been renamed VODE)
   endif
-endif
 
-ifneq ($(USE_SYSTEM_BLAS), TRUE)
-  ifneq ($(INTEGRATOR_DIR), VODE90)
-    INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
-    VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
+  ifneq ($(INTEGRATOR_DIR), VODE)
 
-    include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
+    INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/LINPACK
+    VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/LINPACK
+
+    include $(MICROPHYSICS_UTIL_PATH)/LINPACK/Make.package
+  else
+    ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
+      DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
+    endif
   endif
-endif
 
-ifeq ($(INTEGRATOR_DIR), VODE90)
-  CUVODE_PATH := $(MICROPHYSICS_HOME)/integration/VODE90/cuVODE
-  INCLUDE_LOCATIONS += $(CUVODE_PATH)/linear_algebra_modules
-  VPATH_LOCATIONS   += $(CUVODE_PATH)/linear_algebra_modules
+  ifneq ($(USE_SYSTEM_BLAS), TRUE)
+    ifneq ($(INTEGRATOR_DIR), VODE)
+      INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
+      VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
 
-  include $(CUVODE_PATH)/linear_algebra_modules/Make.package
-endif
+      include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
+    endif
+  endif
 
-VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
-f90EXE_sources += rate_type.f90
+  VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
+  f90EXE_sources += rate_type.f90
 
-endif
-
-ifeq ($(USE_REACT), TRUE)
 
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
@@ -91,3 +85,15 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
 endif
 
+NETWORK_OUTPUT_PATH ?= .
+
+ifneq ($(NETWORK_DIR), general_null)
+$(NETWORK_OUTPUT_PATH)/network_properties.H: $(NETWORK_OUTPUT_PATH)/network_properties.F90
+
+$(NETWORK_OUTPUT_PATH)/network_properties.F90:
+	$(MICROPHYSICS_HOME)/networks/update_headers.py \
+           --microphysics_path $(MICROPHYSICS_HOME) \
+           --net $(NETWORK_DIR) \
+           --odir $(NETWORK_OUTPUT_PATH)
+
+endif

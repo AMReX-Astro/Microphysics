@@ -6,7 +6,6 @@ f90EXE_sources += physical_constants.f90
 ifeq ($(USE_REACT),TRUE)
 F90EXE_sources += actual_burner.F90
 F90EXE_sources += actual_rhs.F90
-f90EXE_sources += physical_constants.f90
 
 USE_SCREENING = TRUE
 USE_NEUTRINOS = TRUE

@@ -24,10 +24,10 @@ contains
 
     implicit none
 
-    double precision, intent(in   ) :: density
-    double precision, intent(inout) :: ebin(nspec)
+    real(rt)        , intent(in   ) :: density
+    real(rt)        , intent(inout) :: ebin(nspec)
 
-    double precision :: rho9, q_eff
+    real(rt)         :: rho9, q_eff
 
     !$gpu
 
@@ -44,16 +44,16 @@ contains
     ! MeV values are per nucleus, so we divide by aion to make it per
     ! nucleon and we multiple by Avogardo's # (6.0221415e23) to get the
     ! value in erg/g
-    rho9 = density/1.0d9
+    rho9 = density/1.0e9_rt
 
     ! q_eff is effective heat evolved per reaction (given in MeV)
-    q_eff = 0.06d0*rho9**2 + 0.02d0*rho9 + 8.83d0
+    q_eff = 0.06e0_rt*rho9**2 + 0.02e0_rt*rho9 + 8.83e0_rt
 
     ! convert from MeV to ergs / gram.  Here M12_chamulak is the
     ! number of C12 nuclei destroyed in a single reaction and 12.0 is
     ! the mass of a single C12 nuclei.  Also note that our convention
     ! is that binding energies are negative.
-    ebin(ic12) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0d0)
+    ebin(ic12) = -q_eff*MeV2eV*eV2erg*n_A/(M12_chamulak*12.0e0_rt)
 
   end subroutine get_ebin
 
@@ -64,18 +64,18 @@ contains
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
-    double precision :: temp, T9, T9a, dT9dt, dT9adt
+    real(rt)         :: temp, T9, T9a, dT9dt, dT9adt
 
-    double precision :: scratch, dscratchdt
-    double precision :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
+    real(rt)         :: scratch, dscratchdt
+    real(rt)         :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
 
-    double precision :: dens
+    real(rt)         :: dens
 
-    double precision :: a, b, dadt, dbdt
+    real(rt)         :: a, b, dadt, dbdt
 
-    double precision :: y(nspec)
+    real(rt)         :: y(nspec)
 
-    double precision, parameter :: FIVE6TH = FIVE / SIX
+    real(rt)        , parameter :: FIVE6TH = FIVE / SIX
 
     !$gpu
 
@@ -84,25 +84,25 @@ contains
     y(:) = state % xn(:) * aion_inv(:)
 
     ! call the screening routine
-    call screenz(temp, dens, 6.0d0, 6.0d0, 12.0d0, 12.0d0, &
+    call screenz(temp, dens, 6.0e0_rt, 6.0e0_rt, 12.0e0_rt, 12.0e0_rt, &
                  y, sc1212, dsc1212dt)
 
     ! compute some often used temperature constants
-    T9     = temp/1.d9
-    dT9dt  = ONE/1.d9
-    T9a    = T9/(ONE + 0.0396d0*T9)
-    dT9adt = (T9a / T9 - (T9a / (ONE + 0.0396d0*T9)) * 0.0396d0) * dT9dt
+    T9     = temp/1.e9_rt
+    dT9dt  = ONE/1.e9_rt
+    T9a    = T9/(ONE + 0.0396e0_rt*T9)
+    dT9adt = (T9a / T9 - (T9a / (ONE + 0.0396e0_rt*T9)) * 0.0396e0_rt) * dT9dt
 
     ! compute the CF88 rate
     scratch    = T9a**THIRD
     dscratchdt = THIRD * T9a**(-TWO3RD) * dT9adt
 
-    a       = 4.27d26*T9a**FIVE6TH*T9**(-1.5d0)
-    dadt    = FIVE6TH * (a/T9a) * dT9adt - 1.5d0 * (a/T9) * dT9dt
+    a       = 4.27e26_rt*T9a**FIVE6TH*T9**(-1.5e0_rt)
+    dadt    = FIVE6TH * (a/T9a) * dT9adt - 1.5e0_rt * (a/T9) * dT9dt
 
-    b       = dexp(-84.165d0/scratch - 2.12d-3*T9*T9*T9)
-    dbdt    = (84.165d0 * dscratchdt/ scratch**TWO       &
-         - THREE * 2.12d-3 * T9 * T9 * dT9dt) * b
+    b       = exp(-84.165e0_rt/scratch - 2.12e-3_rt*T9*T9*T9)
+    dbdt    = (84.165e0_rt * dscratchdt/ scratch**TWO       &
+         - THREE * 2.12e-3_rt * T9 * T9 * dT9dt) * b
 
     rate    = a *  b
     dratedt = dadt * b + a * dbdt
@@ -117,25 +117,26 @@ contains
 
   end subroutine get_rates
 
-  subroutine actual_rhs(state)
+  subroutine actual_rhs(state, ydot)
 
     use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    real(rt)        , intent(inout) :: ydot(neqs)
     type (rate_t)    :: rr
 
-    double precision :: temp, xc12tmp, dens
-    double precision :: rate, dratedt, sc1212, dsc1212dt
+    real(rt)         :: temp, xc12tmp, dens
+    real(rt)         :: rate, dratedt, sc1212, dsc1212dt
 
-    double precision :: y(nspec), ebin(nspec)
+    real(rt)         :: y(nspec), ebin(nspec)
 
-    double precision, parameter :: FIVE6TH = FIVE / SIX
+    real(rt)        , parameter :: FIVE6TH = FIVE / SIX
 
     !$gpu
 
-    state % ydot = ZERO
+    ydot = ZERO
 
     ! we enforce that O16 doesn't change and any C12 change goes to ash
     call update_unevolved_species(state)
@@ -171,24 +172,24 @@ contains
     !
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
-    xc12tmp = max(y(ic12) * aion(ic12),0.d0)
-    state % ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
+    xc12tmp = max(y(ic12) * aion(ic12),0.e0_rt)
+    ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
 
     ! Convert back to molar form
 
-    state % ydot(1:nspec_evolve) = state % ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
+    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
 
     call get_ebin(dens, ebin)
 
-    call ener_gener_rate(state % ydot(1:nspec_evolve), ebin, state % ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec_evolve), ebin, ydot(net_ienuc))
 
     if (state % self_heat) then
 
        if (do_constant_volume_burn) then
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cv
+          ydot(net_itemp) = ydot(net_ienuc) / state % cv
 
        else
-          state % ydot(net_itemp) = state % ydot(net_ienuc) / state % cp
+          ydot(net_itemp) = ydot(net_ienuc) / state % cp
 
        endif
     endif
@@ -197,25 +198,26 @@ contains
 
 
 
-  subroutine actual_jac(state)
+  subroutine actual_jac(state, jac)
 
     use temperature_integration_module, only: temperature_jac
 
     implicit none
 
-    type (burn_t)    :: state
+    type (burn_t), intent(in)    :: state
+    real(rt)        , intent(inout) :: jac(njrows, njcols)
     type (rate_t)    :: rr
 
-    double precision :: dens
-    double precision :: rate, dratedt, scorr, dscorrdt, xc12tmp
+    real(rt)         :: dens
+    real(rt)         :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
-    double precision :: ebin(nspec)
+    real(rt)         :: ebin(nspec)
 
     integer          :: j
 
     !$gpu
 
-    state % jac(:,:)  = ZERO
+    jac(:,:)  = ZERO
 
     ! Get data from the state
     call get_rates(state, rr)
@@ -230,18 +232,18 @@ contains
 
     ! carbon jacobian elements
 
-    state % jac(ic12, ic12) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
+    jac(ic12, ic12) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
 
     ! add the temperature derivatives: df(y_i) / dT
 
-    state % jac(ic12,net_itemp) = -TWELFTH * M12_chamulak * HALF * &
+    jac(ic12,net_itemp) = -TWELFTH * M12_chamulak * HALF * &
                                    (dens*rate*xc12tmp**2*dscorrdt  &
                                   + dens*scorr*xc12tmp**2*dratedt)
 
     ! Convert back to molar form
 
     do j = 1, nspec_evolve
-       state % jac(j,:) = state % jac(j,:) * aion_inv(j)
+       jac(j,:) = jac(j,:) * aion_inv(j)
     enddo
 
     ! Energy generation rate Jacobian elements with respect to species
@@ -249,14 +251,14 @@ contains
     call get_ebin(dens, ebin)
 
     do j = 1, nspec_evolve
-       call ener_gener_rate(state % jac(1:nspec_evolve,j), ebin, state % jac(net_ienuc,j))
+       call ener_gener_rate(jac(1:nspec_evolve,j), ebin, jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(state % jac(1:nspec_evolve,net_itemp), ebin, state % jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), ebin, jac(net_ienuc,net_itemp))
 
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 
@@ -268,7 +270,7 @@ contains
 
     implicit none
 
-    double precision :: dydt(nspec_evolve), ebin(nspec), enuc
+    real(rt)         :: dydt(nspec_evolve), ebin(nspec), enuc
 
     !$gpu
 

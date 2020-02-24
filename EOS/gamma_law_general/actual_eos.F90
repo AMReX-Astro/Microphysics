@@ -18,7 +18,7 @@ module actual_eos_module
 
   character (len=64), public :: eos_name = "gamma_law_general"  
 
-  double precision, allocatable, save :: gamma_const
+  real(rt)        , allocatable, save :: gamma_const
 
   logical, allocatable, save :: assume_neutral
 
@@ -40,7 +40,7 @@ contains
     allocate(assume_neutral)
  
     ! constant ratio of specific heats
-    if (eos_gamma .gt. 0.d0) then
+    if (eos_gamma .gt. 0.e0_rt) then
        gamma_const = eos_gamma
     else
        call amrex_error("gamma_const cannot be < 0")
@@ -66,10 +66,10 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Get the mass of a nucleon from Avogadro's number.
-    double precision, parameter :: m_nucleon = ONE / n_A
-    double precision, parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5d0
+    real(rt)        , parameter :: m_nucleon = ONE / n_A
+    real(rt)        , parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5e0_rt
 
-    double precision :: Tinv, rhoinv
+    real(rt)         :: Tinv, rhoinv
 
     !$gpu
 
@@ -141,7 +141,7 @@ contains
 
        state % T  = state % p**(TWO/FIVE) * &
                     ( TWO*M_PI*hbar*hbar/(state % mu*m_nucleon) )**(THREE/FIVE) * &
-                    dexp(TWO*state % mu*m_nucleon*state % s/(FIVE*k_B) - ONE) / k_B
+                    exp(TWO*state % mu*m_nucleon*state % s/(FIVE*k_B) - ONE) / k_B
 
        ! Solve for the density
        ! rho = p mu m_nucleon / (k T)
@@ -205,6 +205,12 @@ contains
     state % dsdr = - (k_B / (state % mu * m_nucleon)) * rhoinv
     state % dhdT = state % dedT + state % dpdT * rhoinv
     state % dhdr = ZERO
+
+    state % xne = ZERO
+    state % xnp = ZERO
+    state % eta = ZERO
+    state % pele = ZERO
+    state % ppos = ZERO
 
     state % cv = state % dedT
     state % cp = gamma_const * state % cv

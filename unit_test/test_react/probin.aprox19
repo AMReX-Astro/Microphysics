@@ -8,9 +8,11 @@
 
   tmax = 1.d-9
 
-  xin_file   = "xin.aprox19"
+  primary_species_1 = "hydrogen-1"
+  primary_species_2 = "helium-4"
+  primary_species_3 = "carbon-12"
 
-  jacobian = 2 
+  jacobian = 2
   centered_diff_jac = T
 
   rtol_spec = 1.d-8

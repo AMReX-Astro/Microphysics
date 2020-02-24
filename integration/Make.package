@@ -12,10 +12,19 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 else ifeq ($(INTEGRATOR_DIR),VBDF)
   INTEGRATOR_NUM := 2
 else ifeq ($(INTEGRATOR_DIR),VODE90)
-  INTEGRATOR_NUM := 3
+  $(warn VODE90 has been renamed VODE)
+  override INTEGRATOR_DIR := VODE
+  INTEGRATOR_NUM := 0
 endif
 
 DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
+
+ifeq ($(USE_CUDA), TRUE)
+  ifneq ($(INTEGRATOR_DIR), VODE)
+    $(error Only the VODE integrator supports GPUs currently, please change INTEGRATOR_DIR)
+  endif
+endif
+
 
 # Include all integrators in the build.
 
@@ -29,11 +38,15 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 
   include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
 
+  DEFINES += -DVODE
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else ifeq ($(INTEGRATOR_DIR),BS)
 
@@ -45,11 +58,15 @@ else ifeq ($(INTEGRATOR_DIR),BS)
 
   include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
 
+  DEFINES += -DVODE
+
   INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
   VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
   EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
   include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+
+  DEFINES += -DBS
 
 else
 
@@ -61,17 +78,22 @@ else
 
 endif
 
+# Check if we should make a Nonaka plot and add to cpp definitions
+ifeq ($(USE_NONAKA_PLOT), TRUE)
+  DEFINES += -DNONAKA_PLOT
+endif
 
-
-ifeq ($(USE_SDC), TRUE)
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   F90EXE_sources += integrator_sdc.F90
-  f90EXE_sources += numerical_jacobian_sdc.f90
 else
   F90EXE_sources += integrator.F90
-  F90EXE_sources += numerical_jacobian.F90
 endif
-F90EXE_sources += jacobian_sparsity.F90
 F90EXE_sources += integrator_scaling.F90
 f90EXE_sources += integration_data.f90
-F90EXE_sources += temperature_integration.F90
-F90EXE_sources += rpar.F90
+
+
+INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
+VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils
+EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/utils
+
+include $(MICROPHYSICS_HOME)/integration/utils/Make.package

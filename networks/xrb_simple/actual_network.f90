@@ -1,17 +1,16 @@
 module actual_network
 
-  integer, parameter :: nspec = 7
+  use network_properties
+  use amrex_fort_module, only : rt => amrex_real
+
+  implicit none
+
   integer, parameter :: nspec_evolve = 7
-  integer, parameter :: naux = 0
   integer, parameter :: nrates = 6  ! including constant weak rates
   integer, parameter :: num_rate_groups = 1
 
-  double precision, save :: aion(nspec), zion(nspec), bion(nspec)
-  double precision :: rates(nrates)
-
-  character (len=16), save :: spec_names(nspec)
-  character (len=5), save :: short_spec_names(nspec)
-  character (len=5), save :: short_aux_names(naux)
+  real(rt)        , save :: bion(nspec)
+  real(rt)         :: rates(nrates)
 
   character (len=32), parameter :: network_name = "xrb_simple"
 
@@ -31,49 +30,18 @@ module actual_network
   integer, parameter :: irwk15o = 6
 
   ! hard-coded weak rates from Stan; should double check with newer estimates
-  double precision, parameter :: wk14o = 9.832d-3
-  double precision, parameter :: wk15o = 5.682d-3
+  real(rt)        , parameter :: wk14o = 9.832e-3_rt
+  real(rt)        , parameter :: wk15o = 5.682e-3_rt
 
 contains
 
   subroutine actual_network_init()
     
     use amrex_constants_module, only: ZERO, ONE, TWO, FOUR, EIGHT, TEN
-    use amrex_fort_module, only : rt => amrex_real
 
-    real(rt), parameter :: MeV2erg = 1.60217646e-6, N_A = 6.0221415e23
+    real(rt), parameter :: MeV2erg = 1.60217646e-6_rt, N_A = 6.0221415e23_rt
 
-    short_spec_names(ih1) = "h1"
-    short_spec_names(ihe4) = "he4"
-    short_spec_names(io14) = "o14"
-    short_spec_names(io15) = "o15"
-    short_spec_names(ine18) = "ne18"
-    short_spec_names(isi25) = "si25"
-    short_spec_names(ife56) = "fe56"
-
-    spec_names(ih1) = "hydrogen-1"
-    spec_names(ihe4) = "helium-4"
-    spec_names(io14) = "oxygen-14"
-    spec_names(io15) = "oxygen-15"
-    spec_names(ine18) = "neon-18"
-    spec_names(isi25) = "silicon-25"
-    spec_names(ife56) = "iron-56"
-
-    aion(ih1) = ONE
-    aion(ihe4) = FOUR
-    aion(io14) = 14.0_rt
-    aion(io15) = 15.0_rt
-    aion(ine18) = 18.0_rt
-    aion(isi25) = 25.0_rt
-    aion(ife56) = 56.0_rt
-
-    zion(ih1) = ONE
-    zion(ihe4) = TWO
-    zion(io14) = EIGHT
-    zion(io15) = EIGHT
-    zion(ine18) = TEN
-    zion(isi25) = 14.0_rt
-    zion(ife56) = 26.0_rt
+    call network_properties_init()
 
     ! Binding Energy in MeV
     ! from Stan:
@@ -96,6 +64,8 @@ contains
   subroutine actual_network_finalize()
 
     implicit none
+
+    call network_properties_finalize()
 
   end subroutine actual_network_finalize
   

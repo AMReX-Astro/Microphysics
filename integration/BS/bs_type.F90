@@ -2,7 +2,7 @@ module bs_type_module
 
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module, only: neqs, burn_t
-  use rpar_indices, only: n_rpar_comps
+  use bs_rpar_indices, only: n_rpar_comps
 
   implicit none
 
@@ -24,6 +24,8 @@ module bs_type_module
      integer :: kopt
 
      real(rt) :: y(neqs)
+     real(rt) :: ydot(neqs)
+     real(rt) :: jac(neqs, neqs)
      real(rt) :: atol(neqs), rtol(neqs)
      real(rt) :: upar(n_rpar_comps)
      real(rt) :: t, dt, tmax
@@ -51,7 +53,7 @@ contains
 
     type (bs_t), intent(inout) :: state
 
-    real (rt) :: small_temp
+    real(rt)  :: small_temp
 
     ! Ensure that mass fractions always stay positive and sum to 1.
     state % y(1:nspec_evolve) = &
@@ -74,9 +76,8 @@ contains
 
     !$acc routine seq
 
-    use amrex_fort_module, only : rt => amrex_real
     use actual_network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
 
     implicit none
 
@@ -100,11 +101,12 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ZERO
-    use eos_type_module, only: eos_t, eos_input_rt, composition
+    use eos_type_module, only: eos_t, eos_input_rt
+    use eos_composition_module, only : composition
     use eos_module, only: eos
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     ! these shouldn't be needed
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use actual_network, only : nspec, nspec_evolve
 
     implicit none
@@ -188,7 +190,7 @@ contains
 
     use actual_network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
     implicit none
@@ -218,7 +220,7 @@ contains
 
     use network, only: nspec, nspec_evolve
     use eos_type_module, only: eos_t
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: net_itemp
 
     implicit none
@@ -256,7 +258,7 @@ contains
     !$acc routine seq
 
     use network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ONE
 
@@ -288,7 +290,7 @@ contains
     !$acc routine seq
 
     use actual_network, only: nspec, nspec_evolve
-    use rpar_indices, only: irp_nspec, n_not_evolved
+    use bs_rpar_indices, only: irp_nspec, n_not_evolved
     use burn_type_module, only: burn_t, net_itemp, net_ienuc
     use amrex_constants_module, only: ZERO, ONE
 

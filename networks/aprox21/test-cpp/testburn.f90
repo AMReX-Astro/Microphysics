@@ -6,11 +6,12 @@ subroutine do_burn() bind (C)
   use burn_type_module
   use actual_burner_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 1.0d-6
+  real(rt)         :: time = 0.0_rt, dt = 1.0e-6_rt
 
   type (eos_t) :: eos_state
 
@@ -29,22 +30,22 @@ subroutine do_burn() bind (C)
   call burner_init()
   call eos_init()
 
-  state_in % rho       = 1.4311401611205835d7
-  state_in % T         = 4.6993994016410122d9
+  state_in % rho       = 1.4311401611205835e7_rt
+  state_in % T         = 4.6993994016410122e9_rt
   
-  state_in % xn(ihe4)  = 4.2717633762309063d-3
-  state_in % xn(ic12)  = 2.4502021307478711d-5
-  state_in % xn(io16)  = 1.2059146851610723d-4
-  state_in % xn(ine20) = 5.4419551339421394d-7
-  state_in % xn(img24) = 2.5178594678377961d-4
-  state_in % xn(isi28) = 3.5998829467937532d-1
-  state_in % xn(is32)  = 2.7075529188304326d-1
-  state_in % xn(iar36) = 9.1747472911892503d-2
-  state_in % xn(ica40) = 8.0560189657331735d-2
-  state_in % xn(iti44) = 6.1369127564250370d-4
-  state_in % xn(icr48) = 2.5528582259065832d-3
-  state_in % xn(ife52) = 1.9491916518179594d-2
-  state_in % xn(ini56) = 1.6962109761781674d-1
+  state_in % xn(ihe4)  = 4.2717633762309063e-3_rt
+  state_in % xn(ic12)  = 2.4502021307478711e-5_rt
+  state_in % xn(io16)  = 1.2059146851610723e-4_rt
+  state_in % xn(ine20) = 5.4419551339421394e-7_rt
+  state_in % xn(img24) = 2.5178594678377961e-4_rt
+  state_in % xn(isi28) = 3.5998829467937532e-1_rt
+  state_in % xn(is32)  = 2.7075529188304326e-1_rt
+  state_in % xn(iar36) = 9.1747472911892503e-2_rt
+  state_in % xn(ica40) = 8.0560189657331735e-2_rt
+  state_in % xn(iti44) = 6.1369127564250370e-4_rt
+  state_in % xn(icr48) = 2.5528582259065832e-3_rt
+  state_in % xn(ife52) = 1.9491916518179594e-2_rt
+  state_in % xn(ini56) = 1.6962109761781674e-1_rt
 
   call burn_to_eos(state_in, eos_state)
   call normalize_abundances(eos_state)

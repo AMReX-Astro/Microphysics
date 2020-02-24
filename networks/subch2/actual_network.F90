@@ -7,20 +7,21 @@ module actual_network
 
   public
 
-  real(rt), parameter :: avo = 6.0221417930d23
-  real(rt), parameter :: c_light = 2.99792458d10
+  character (len=32), parameter :: network_name = "pynucastro"
+
+  real(rt), parameter :: avo = 6.0221417930e23_rt
+  real(rt), parameter :: c_light = 2.99792458e10_rt
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  real(rt), parameter :: ev2erg  = 1.60217648740d-12
-  real(rt), parameter :: mev2erg = ev2erg*1.0d6
-  real(rt), parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
+  real(rt), parameter :: mev2erg = ev2erg * 1.0e6_rt
+  real(rt), parameter :: mev2gr  = mev2erg / c_light**2
 
-  real(rt), parameter :: mass_neutron  = 1.67492721184d-24
-  real(rt), parameter :: mass_proton   = 1.67262163783d-24
-  real(rt), parameter :: mass_electron = 9.10938215450d-28
+  real(rt), parameter :: mass_neutron  = 1.67492721184e-24_rt
+  real(rt), parameter :: mass_proton   = 1.67262163783e-24_rt
+  real(rt), parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 96
-  integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
   integer, parameter :: nspec_evolve = 28
@@ -28,6 +29,9 @@ module actual_network
 
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 28
+
+  ! For each rate, we need: rate, drate/dT, screening, dscreening/dT
+  integer, parameter :: num_rate_groups = 4
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 96
@@ -40,6 +44,7 @@ module actual_network
   real(rt) :: ebind_per_nucleon(nspec)
 
   ! aion: Nucleon mass number A
+  ! aion_inv: 1 / Nucleon mass number A
   ! zion: Nucleon atomic number Z
   ! nion: Nucleon neutron number N
   ! bion: Binding Energies (ergs)
@@ -172,26 +177,18 @@ module actual_network
   integer, parameter :: k_p_co55__he4_fe52   = 95
   integer, parameter :: k_he4_he4_he4__c12   = 96
 
-  ! reactvec indices
-  integer, parameter :: i_rate        = 1
-  integer, parameter :: i_drate_dt    = 2
-  integer, parameter :: i_scor        = 3
-  integer, parameter :: i_dscor_dt    = 4
-  integer, parameter :: i_dqweak      = 5
-  integer, parameter :: i_epart       = 6
-
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(rt), allocatable, save :: aion(:), zion(:), bion(:)
+  real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:), bion(:)
   real(rt), allocatable, save :: nion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, bion, nion, mion, wion
+  attributes(managed) :: aion, aion_inv, zion, bion, nion, mion, wion
 #endif
 
-  !$acc declare create(aion, zion, bion, nion, mion, wion)
+  !$acc declare create(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
@@ -213,6 +210,7 @@ contains
 
     ! Allocate ion info arrays
     allocate(aion(nspec))
+    allocate(aion_inv(nspec))
     allocate(zion(nspec))
     allocate(bion(nspec))
     allocate(nion(nspec))
@@ -277,121 +275,150 @@ contains
     short_spec_names(jco55)   = "co55"
     short_spec_names(jni56)   = "ni56"
 
-    ebind_per_nucleon(jp)   = 0.00000000000000d+00
-    ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
-    ebind_per_nucleon(jc12)   = 7.68014400000000d+00
-    ebind_per_nucleon(jc14)   = 7.52031900000000d+00
-    ebind_per_nucleon(jn13)   = 7.23886300000000d+00
-    ebind_per_nucleon(jn14)   = 7.47561400000000d+00
-    ebind_per_nucleon(jo16)   = 7.97620600000000d+00
-    ebind_per_nucleon(jo18)   = 7.76709700000000d+00
-    ebind_per_nucleon(jf18)   = 7.63163800000000d+00
-    ebind_per_nucleon(jne20)   = 8.03224000000000d+00
-    ebind_per_nucleon(jne21)   = 7.97171300000000d+00
-    ebind_per_nucleon(jmg24)   = 8.26070900000000d+00
-    ebind_per_nucleon(jal27)   = 8.33155300000000d+00
-    ebind_per_nucleon(jsi28)   = 8.44774400000000d+00
-    ebind_per_nucleon(jp31)   = 8.48116700000000d+00
-    ebind_per_nucleon(js32)   = 8.49312900000000d+00
-    ebind_per_nucleon(jcl35)   = 8.52027800000000d+00
-    ebind_per_nucleon(jar36)   = 8.51990900000000d+00
-    ebind_per_nucleon(jk39)   = 8.55702500000000d+00
-    ebind_per_nucleon(jca40)   = 8.55130300000000d+00
-    ebind_per_nucleon(jsc43)   = 8.53082500000000d+00
-    ebind_per_nucleon(jti44)   = 8.53352000000000d+00
-    ebind_per_nucleon(jv47)   = 8.58222500000000d+00
-    ebind_per_nucleon(jcr48)   = 8.57226900000000d+00
-    ebind_per_nucleon(jmn51)   = 8.63377200000000d+00
-    ebind_per_nucleon(jfe52)   = 8.60957400000000d+00
-    ebind_per_nucleon(jco55)   = 8.66961800000000d+00
-    ebind_per_nucleon(jni56)   = 8.64277900000000d+00
+    ebind_per_nucleon(jp)   = 0.00000000000000e+00_rt
+    ebind_per_nucleon(jhe4)   = 7.07391500000000e+00_rt
+    ebind_per_nucleon(jc12)   = 7.68014400000000e+00_rt
+    ebind_per_nucleon(jc14)   = 7.52031900000000e+00_rt
+    ebind_per_nucleon(jn13)   = 7.23886300000000e+00_rt
+    ebind_per_nucleon(jn14)   = 7.47561400000000e+00_rt
+    ebind_per_nucleon(jo16)   = 7.97620600000000e+00_rt
+    ebind_per_nucleon(jo18)   = 7.76709700000000e+00_rt
+    ebind_per_nucleon(jf18)   = 7.63163800000000e+00_rt
+    ebind_per_nucleon(jne20)   = 8.03224000000000e+00_rt
+    ebind_per_nucleon(jne21)   = 7.97171300000000e+00_rt
+    ebind_per_nucleon(jmg24)   = 8.26070900000000e+00_rt
+    ebind_per_nucleon(jal27)   = 8.33155300000000e+00_rt
+    ebind_per_nucleon(jsi28)   = 8.44774400000000e+00_rt
+    ebind_per_nucleon(jp31)   = 8.48116700000000e+00_rt
+    ebind_per_nucleon(js32)   = 8.49312900000000e+00_rt
+    ebind_per_nucleon(jcl35)   = 8.52027800000000e+00_rt
+    ebind_per_nucleon(jar36)   = 8.51990900000000e+00_rt
+    ebind_per_nucleon(jk39)   = 8.55702500000000e+00_rt
+    ebind_per_nucleon(jca40)   = 8.55130300000000e+00_rt
+    ebind_per_nucleon(jsc43)   = 8.53082500000000e+00_rt
+    ebind_per_nucleon(jti44)   = 8.53352000000000e+00_rt
+    ebind_per_nucleon(jv47)   = 8.58222500000000e+00_rt
+    ebind_per_nucleon(jcr48)   = 8.57226900000000e+00_rt
+    ebind_per_nucleon(jmn51)   = 8.63377200000000e+00_rt
+    ebind_per_nucleon(jfe52)   = 8.60957400000000e+00_rt
+    ebind_per_nucleon(jco55)   = 8.66961800000000e+00_rt
+    ebind_per_nucleon(jni56)   = 8.64277900000000e+00_rt
 
-    aion(jp)   = 1.00000000000000d+00
-    aion(jhe4)   = 4.00000000000000d+00
-    aion(jc12)   = 1.20000000000000d+01
-    aion(jc14)   = 1.40000000000000d+01
-    aion(jn13)   = 1.30000000000000d+01
-    aion(jn14)   = 1.40000000000000d+01
-    aion(jo16)   = 1.60000000000000d+01
-    aion(jo18)   = 1.80000000000000d+01
-    aion(jf18)   = 1.80000000000000d+01
-    aion(jne20)   = 2.00000000000000d+01
-    aion(jne21)   = 2.10000000000000d+01
-    aion(jmg24)   = 2.40000000000000d+01
-    aion(jal27)   = 2.70000000000000d+01
-    aion(jsi28)   = 2.80000000000000d+01
-    aion(jp31)   = 3.10000000000000d+01
-    aion(js32)   = 3.20000000000000d+01
-    aion(jcl35)   = 3.50000000000000d+01
-    aion(jar36)   = 3.60000000000000d+01
-    aion(jk39)   = 3.90000000000000d+01
-    aion(jca40)   = 4.00000000000000d+01
-    aion(jsc43)   = 4.30000000000000d+01
-    aion(jti44)   = 4.40000000000000d+01
-    aion(jv47)   = 4.70000000000000d+01
-    aion(jcr48)   = 4.80000000000000d+01
-    aion(jmn51)   = 5.10000000000000d+01
-    aion(jfe52)   = 5.20000000000000d+01
-    aion(jco55)   = 5.50000000000000d+01
-    aion(jni56)   = 5.60000000000000d+01
+    aion(jp)   = 1.00000000000000e+00_rt
+    aion(jhe4)   = 4.00000000000000e+00_rt
+    aion(jc12)   = 1.20000000000000e+01_rt
+    aion(jc14)   = 1.40000000000000e+01_rt
+    aion(jn13)   = 1.30000000000000e+01_rt
+    aion(jn14)   = 1.40000000000000e+01_rt
+    aion(jo16)   = 1.60000000000000e+01_rt
+    aion(jo18)   = 1.80000000000000e+01_rt
+    aion(jf18)   = 1.80000000000000e+01_rt
+    aion(jne20)   = 2.00000000000000e+01_rt
+    aion(jne21)   = 2.10000000000000e+01_rt
+    aion(jmg24)   = 2.40000000000000e+01_rt
+    aion(jal27)   = 2.70000000000000e+01_rt
+    aion(jsi28)   = 2.80000000000000e+01_rt
+    aion(jp31)   = 3.10000000000000e+01_rt
+    aion(js32)   = 3.20000000000000e+01_rt
+    aion(jcl35)   = 3.50000000000000e+01_rt
+    aion(jar36)   = 3.60000000000000e+01_rt
+    aion(jk39)   = 3.90000000000000e+01_rt
+    aion(jca40)   = 4.00000000000000e+01_rt
+    aion(jsc43)   = 4.30000000000000e+01_rt
+    aion(jti44)   = 4.40000000000000e+01_rt
+    aion(jv47)   = 4.70000000000000e+01_rt
+    aion(jcr48)   = 4.80000000000000e+01_rt
+    aion(jmn51)   = 5.10000000000000e+01_rt
+    aion(jfe52)   = 5.20000000000000e+01_rt
+    aion(jco55)   = 5.50000000000000e+01_rt
+    aion(jni56)   = 5.60000000000000e+01_rt
 
-    zion(jp)   = 1.00000000000000d+00
-    zion(jhe4)   = 2.00000000000000d+00
-    zion(jc12)   = 6.00000000000000d+00
-    zion(jc14)   = 6.00000000000000d+00
-    zion(jn13)   = 7.00000000000000d+00
-    zion(jn14)   = 7.00000000000000d+00
-    zion(jo16)   = 8.00000000000000d+00
-    zion(jo18)   = 8.00000000000000d+00
-    zion(jf18)   = 9.00000000000000d+00
-    zion(jne20)   = 1.00000000000000d+01
-    zion(jne21)   = 1.00000000000000d+01
-    zion(jmg24)   = 1.20000000000000d+01
-    zion(jal27)   = 1.30000000000000d+01
-    zion(jsi28)   = 1.40000000000000d+01
-    zion(jp31)   = 1.50000000000000d+01
-    zion(js32)   = 1.60000000000000d+01
-    zion(jcl35)   = 1.70000000000000d+01
-    zion(jar36)   = 1.80000000000000d+01
-    zion(jk39)   = 1.90000000000000d+01
-    zion(jca40)   = 2.00000000000000d+01
-    zion(jsc43)   = 2.10000000000000d+01
-    zion(jti44)   = 2.20000000000000d+01
-    zion(jv47)   = 2.30000000000000d+01
-    zion(jcr48)   = 2.40000000000000d+01
-    zion(jmn51)   = 2.50000000000000d+01
-    zion(jfe52)   = 2.60000000000000d+01
-    zion(jco55)   = 2.70000000000000d+01
-    zion(jni56)   = 2.80000000000000d+01
+    aion_inv(jp)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jhe4)   = 1.0_rt/4.00000000000000e+00_rt
+    aion_inv(jc12)   = 1.0_rt/1.20000000000000e+01_rt
+    aion_inv(jc14)   = 1.0_rt/1.40000000000000e+01_rt
+    aion_inv(jn13)   = 1.0_rt/1.30000000000000e+01_rt
+    aion_inv(jn14)   = 1.0_rt/1.40000000000000e+01_rt
+    aion_inv(jo16)   = 1.0_rt/1.60000000000000e+01_rt
+    aion_inv(jo18)   = 1.0_rt/1.80000000000000e+01_rt
+    aion_inv(jf18)   = 1.0_rt/1.80000000000000e+01_rt
+    aion_inv(jne20)   = 1.0_rt/2.00000000000000e+01_rt
+    aion_inv(jne21)   = 1.0_rt/2.10000000000000e+01_rt
+    aion_inv(jmg24)   = 1.0_rt/2.40000000000000e+01_rt
+    aion_inv(jal27)   = 1.0_rt/2.70000000000000e+01_rt
+    aion_inv(jsi28)   = 1.0_rt/2.80000000000000e+01_rt
+    aion_inv(jp31)   = 1.0_rt/3.10000000000000e+01_rt
+    aion_inv(js32)   = 1.0_rt/3.20000000000000e+01_rt
+    aion_inv(jcl35)   = 1.0_rt/3.50000000000000e+01_rt
+    aion_inv(jar36)   = 1.0_rt/3.60000000000000e+01_rt
+    aion_inv(jk39)   = 1.0_rt/3.90000000000000e+01_rt
+    aion_inv(jca40)   = 1.0_rt/4.00000000000000e+01_rt
+    aion_inv(jsc43)   = 1.0_rt/4.30000000000000e+01_rt
+    aion_inv(jti44)   = 1.0_rt/4.40000000000000e+01_rt
+    aion_inv(jv47)   = 1.0_rt/4.70000000000000e+01_rt
+    aion_inv(jcr48)   = 1.0_rt/4.80000000000000e+01_rt
+    aion_inv(jmn51)   = 1.0_rt/5.10000000000000e+01_rt
+    aion_inv(jfe52)   = 1.0_rt/5.20000000000000e+01_rt
+    aion_inv(jco55)   = 1.0_rt/5.50000000000000e+01_rt
+    aion_inv(jni56)   = 1.0_rt/5.60000000000000e+01_rt
 
-    nion(jp)   = 0.00000000000000d+00
-    nion(jhe4)   = 2.00000000000000d+00
-    nion(jc12)   = 6.00000000000000d+00
-    nion(jc14)   = 8.00000000000000d+00
-    nion(jn13)   = 6.00000000000000d+00
-    nion(jn14)   = 7.00000000000000d+00
-    nion(jo16)   = 8.00000000000000d+00
-    nion(jo18)   = 1.00000000000000d+01
-    nion(jf18)   = 9.00000000000000d+00
-    nion(jne20)   = 1.00000000000000d+01
-    nion(jne21)   = 1.10000000000000d+01
-    nion(jmg24)   = 1.20000000000000d+01
-    nion(jal27)   = 1.40000000000000d+01
-    nion(jsi28)   = 1.40000000000000d+01
-    nion(jp31)   = 1.60000000000000d+01
-    nion(js32)   = 1.60000000000000d+01
-    nion(jcl35)   = 1.80000000000000d+01
-    nion(jar36)   = 1.80000000000000d+01
-    nion(jk39)   = 2.00000000000000d+01
-    nion(jca40)   = 2.00000000000000d+01
-    nion(jsc43)   = 2.20000000000000d+01
-    nion(jti44)   = 2.20000000000000d+01
-    nion(jv47)   = 2.40000000000000d+01
-    nion(jcr48)   = 2.40000000000000d+01
-    nion(jmn51)   = 2.60000000000000d+01
-    nion(jfe52)   = 2.60000000000000d+01
-    nion(jco55)   = 2.80000000000000d+01
-    nion(jni56)   = 2.80000000000000d+01
+    zion(jp)   = 1.00000000000000e+00_rt
+    zion(jhe4)   = 2.00000000000000e+00_rt
+    zion(jc12)   = 6.00000000000000e+00_rt
+    zion(jc14)   = 6.00000000000000e+00_rt
+    zion(jn13)   = 7.00000000000000e+00_rt
+    zion(jn14)   = 7.00000000000000e+00_rt
+    zion(jo16)   = 8.00000000000000e+00_rt
+    zion(jo18)   = 8.00000000000000e+00_rt
+    zion(jf18)   = 9.00000000000000e+00_rt
+    zion(jne20)   = 1.00000000000000e+01_rt
+    zion(jne21)   = 1.00000000000000e+01_rt
+    zion(jmg24)   = 1.20000000000000e+01_rt
+    zion(jal27)   = 1.30000000000000e+01_rt
+    zion(jsi28)   = 1.40000000000000e+01_rt
+    zion(jp31)   = 1.50000000000000e+01_rt
+    zion(js32)   = 1.60000000000000e+01_rt
+    zion(jcl35)   = 1.70000000000000e+01_rt
+    zion(jar36)   = 1.80000000000000e+01_rt
+    zion(jk39)   = 1.90000000000000e+01_rt
+    zion(jca40)   = 2.00000000000000e+01_rt
+    zion(jsc43)   = 2.10000000000000e+01_rt
+    zion(jti44)   = 2.20000000000000e+01_rt
+    zion(jv47)   = 2.30000000000000e+01_rt
+    zion(jcr48)   = 2.40000000000000e+01_rt
+    zion(jmn51)   = 2.50000000000000e+01_rt
+    zion(jfe52)   = 2.60000000000000e+01_rt
+    zion(jco55)   = 2.70000000000000e+01_rt
+    zion(jni56)   = 2.80000000000000e+01_rt
+
+    nion(jp)   = 0.00000000000000e+00_rt
+    nion(jhe4)   = 2.00000000000000e+00_rt
+    nion(jc12)   = 6.00000000000000e+00_rt
+    nion(jc14)   = 8.00000000000000e+00_rt
+    nion(jn13)   = 6.00000000000000e+00_rt
+    nion(jn14)   = 7.00000000000000e+00_rt
+    nion(jo16)   = 8.00000000000000e+00_rt
+    nion(jo18)   = 1.00000000000000e+01_rt
+    nion(jf18)   = 9.00000000000000e+00_rt
+    nion(jne20)   = 1.00000000000000e+01_rt
+    nion(jne21)   = 1.10000000000000e+01_rt
+    nion(jmg24)   = 1.20000000000000e+01_rt
+    nion(jal27)   = 1.40000000000000e+01_rt
+    nion(jsi28)   = 1.40000000000000e+01_rt
+    nion(jp31)   = 1.60000000000000e+01_rt
+    nion(js32)   = 1.60000000000000e+01_rt
+    nion(jcl35)   = 1.80000000000000e+01_rt
+    nion(jar36)   = 1.80000000000000e+01_rt
+    nion(jk39)   = 2.00000000000000e+01_rt
+    nion(jca40)   = 2.00000000000000e+01_rt
+    nion(jsc43)   = 2.20000000000000e+01_rt
+    nion(jti44)   = 2.20000000000000e+01_rt
+    nion(jv47)   = 2.40000000000000e+01_rt
+    nion(jcr48)   = 2.40000000000000e+01_rt
+    nion(jmn51)   = 2.60000000000000e+01_rt
+    nion(jfe52)   = 2.60000000000000e+01_rt
+    nion(jco55)   = 2.80000000000000e+01_rt
+    nion(jni56)   = 2.80000000000000e+01_rt
 
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
@@ -407,7 +434,7 @@ contains
     ! Common approximation
     !wion(:) = aion(:)
 
-    !$acc update device(aion, zion, bion, nion, mion, wion)
+    !$acc update device(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
@@ -775,6 +802,10 @@ contains
 
     if (allocated(aion)) then
        deallocate(aion)
+    endif
+
+    if (allocated(aion_inv)) then
+       deallocate(aion_inv)
     endif
 
     if (allocated(zion)) then

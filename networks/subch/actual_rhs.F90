@@ -1,22 +1,24 @@
 module actual_rhs_module
 
+  use amrex_fort_module, only: rt => amrex_real
   use amrex_constants_module
   use physical_constants, only: N_AVO
   use network
-  use reaclib_rates, only: screen_reaclib, reaclib_evaluate
   use table_rates
-  use screening_module, only: plasma_state, fill_plasma_state
-  use sneut_module, only: sneut5
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
   use burn_type_module
 
   implicit none
 
+  ! Indices into rate groups in the rate_eval_t type
+  integer, parameter :: i_rate        = 1
+  integer, parameter :: i_drate_dt    = 2
+  integer, parameter :: i_scor        = 3
+  integer, parameter :: i_dscor_dt    = 4
+
   type :: rate_eval_t
-     double precision :: unscreened_rates(4, nrates)
-     double precision :: screened_rates(nrates)
-     double precision :: dqweak(nrat_tabular)
-     double precision :: epart(nrat_tabular)
+     real(rt) :: unscreened_rates(num_rate_groups, nrates)
+     real(rt) :: screened_rates(nrates)
+     real(rt) :: add_energy_rate(nrat_tabular)
   end type rate_eval_t
   
 contains
@@ -25,763 +27,544 @@ contains
     ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
     return
   end subroutine actual_rhs_init
-  
+
+
   subroutine update_unevolved_species(state)
-    !$gpu
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
+
+    !$gpu
+    
     return
   end subroutine update_unevolved_species
 
-  subroutine ener_gener_rate(dydt, enuc)
-    ! Computes the instantaneous energy generation rate
-    !$acc routine seq
-    !$gpu
+
+  subroutine zero_rate_eval(rate_eval)
 
     implicit none
 
-    double precision :: dydt(nspec), enuc
+    type(rate_eval_t), intent(inout) :: rate_eval
 
-    ! This is basically e = m c**2
+    !$gpu
 
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
+    rate_eval % unscreened_rates(i_rate, :) = ZERO
+    rate_eval % unscreened_rates(i_drate_dt, :) = ZERO
+    rate_eval % unscreened_rates(i_scor, :) = ONE
+    rate_eval % unscreened_rates(i_dscor_dt, :) = ZERO
+    rate_eval % screened_rates = ZERO
+    rate_eval % add_energy_rate = ZERO
 
-  end subroutine ener_gener_rate
+  end subroutine zero_rate_eval
+
 
   subroutine evaluate_rates(state, rate_eval)
     !$acc routine seq
-    !$gpu
+
+    use reaclib_rates, only: screen_reaclib, reaclib_evaluate
+    use screening_module, only: screen5, plasma_state, fill_plasma_state
+
+    implicit none
+    
     type(burn_t)     :: state
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
-    double precision :: Y(nspec)
-    double precision :: raw_rates(4, nrates)
-    double precision :: reactvec(num_rate_groups+2)
+    real(rt) :: Y(nspec)
     integer :: i, j
-    double precision :: dens, temp, rhoy
+    real(rt) :: rhoy
+    real(rt) :: rate, drate_dt, edot_nu
+    real(rt) :: scor, dscor_dt, dscor_dd
 
-    Y(:) = state%xn(:) * aion_inv(:)
-    dens = state%rho
-    temp = state%T
-    rhoy = dens*state%y_e
-    
+    !$gpu
+
+    Y(:) = state % xn(:) * aion_inv(:)
+    rhoy = state % rho * state % y_e
+
+    ! Zero out the rates
+    call zero_rate_eval(rate_eval)
+
     ! Calculate Reaclib rates
-    call fill_plasma_state(pstate, temp, dens, Y)
+    call fill_plasma_state(pstate, state % T, state % rho, Y)
     do i = 1, nrat_reaclib
-       call reaclib_evaluate(pstate, temp, i, reactvec)
-       rate_eval % unscreened_rates(:,i) = reactvec(1:4)
+       call reaclib_evaluate(pstate, state % T, i, rate, drate_dt)
+       rate_eval % unscreened_rates(i_rate, i) = rate
+       rate_eval % unscreened_rates(i_drate_dt, i) = drate_dt
     end do
+
+    ! Evaluate screening factors
+    if (screen_reaclib) then
+
+      call screen5(pstate, 1, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,1) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,1) = dscor_dt
+
+
+      call screen5(pstate, 2, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,2) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,2) = dscor_dt
+
+
+      call screen5(pstate, 3, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,3) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,3) = dscor_dt
+
+
+      call screen5(pstate, 4, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,4) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,4) = dscor_dt
+
+
+      call screen5(pstate, 5, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,5) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,5) = dscor_dt
+
+
+      call screen5(pstate, 6, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,6) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,6) = dscor_dt
+
+
+      call screen5(pstate, 7, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,7) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,7) = dscor_dt
+
+
+      call screen5(pstate, 8, scor, dscor_dt, dscor_dd)
+      rate_eval % unscreened_rates(i_scor,8) = scor
+      rate_eval % unscreened_rates(i_dscor_dt,8) = dscor_dt
+
+    end if
 
 
     ! Compute screened rates
     rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &
-         rate_eval % unscreened_rates(i_scor, :)
+                                 rate_eval % unscreened_rates(i_scor, :)
 
   end subroutine evaluate_rates
 
-  subroutine actual_rhs(state)
+
+  subroutine actual_rhs(state, ydot)
     
     !$acc routine seq
 
-    use extern_probin_module, only: do_constant_volume_burn
-    use burn_type_module, only: net_itemp, net_ienuc
+    use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
+    use burn_type_module, only: net_itemp, net_ienuc, neqs
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_rhs
 
     implicit none
 
-    type(burn_t) :: state
+    type(burn_t), intent(in) :: state
+    real(rt), intent(inout) :: ydot(neqs)
+
     type(rate_eval_t) :: rate_eval
-    type(plasma_state) :: pstate
-    double precision :: Y(nspec)
-    double precision :: ydot_nuc(nspec)
-    double precision :: reactvec(num_rate_groups+2)
+    real(rt) :: Y(nspec), ydot_nuc(nspec)
     integer :: i, j
-    double precision :: dens, temp, rhoy, ye, enuc
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    real(rt) :: rhoy, ye, enuc
+    real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
+
+    !$gpu
 
     ! Set molar abundances
-    Y(:) = state%xn(:) * aion_inv(:)
-
-    dens = state%rho
-    temp = state%T
+    Y(:) = state % xn(:) * aion_inv(:)
 
     call evaluate_rates(state, rate_eval)
 
-    call rhs_nuc(ydot_nuc, Y, rate_eval % screened_rates, dens)
-    state%ydot(1:nspec) = ydot_nuc
+    call rhs_nuc(state, ydot_nuc, Y, rate_eval % screened_rates)
+    ydot(1:nspec) = ydot_nuc
 
     ! ion binding energy contributions
     call ener_gener_rate(ydot_nuc, enuc)
-    
-    ! weak Q-value modification dqweak (density and temperature dependent)
-    
-    ! weak particle energy generation rates from gamma heating and neutrino loss
-    ! (does not include plasma neutrino losses)
 
+    ! include reaction neutrino losses (non-thermal)
 
-    ! Get the neutrino losses
-    call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    ! Get the thermal neutrino losses
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    else
+       sneut = ZERO
+    end if
 
     ! Append the energy equation (this is erg/g/s)
-    state%ydot(net_ienuc) = enuc - sneut
+    ydot(net_ienuc) = enuc - sneut
 
     ! Append the temperature equation
-    call temperature_rhs(state)
-    
-    ! write(*,*) '______________________________'
-    ! do i = 1, nspec+2
-    !    write(*,*) 'state%ydot(',i,'): ',state%ydot(i)
-    ! end do
+    call temperature_rhs(state, ydot)
+
   end subroutine actual_rhs
 
-  subroutine rhs_nuc(ydot_nuc, Y, screened_rates, dens)
+
+  subroutine rhs_nuc(state, ydot_nuc, Y, screened_rates)
 
     !$acc routine seq
-    !$gpu
 
-    
-    double precision, intent(out) :: ydot_nuc(nspec)
-    double precision, intent(in)  :: Y(nspec)
-    double precision, intent(in)  :: screened_rates(nrates)
-    double precision, intent(in)  :: dens
+    implicit none
+
+    type (burn_t), intent(in) :: state
+    real(rt), intent(out) :: ydot_nuc(nspec)
+    real(rt), intent(in)  :: Y(nspec)
+    real(rt), intent(in)  :: screened_rates(nrates)
+
+    !$gpu
 
 
 
     ydot_nuc(jp) = ( &
-      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*dens + &
-      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*dens - &
-      screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*dens &
+      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*state % rho + &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho - &
+      screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*state % rho &
        )
 
     ydot_nuc(jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens - screened_rates(k_he4_c14__o18)* &
-      Y(jc14)*Y(jhe4)*dens - screened_rates(k_he4_f18__p_ne21)*Y(jf18)* &
-      Y(jhe4)*dens - 0.5d0*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
-      dens**2 - screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*dens - &
-      screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*dens - &
-      screened_rates(k_he4_o16__ne20)*Y(jhe4)*Y(jo16)*dens &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho - &
+      screened_rates(k_he4_c14__o18)*Y(jc14)*Y(jhe4)*state % rho - &
+      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*state % rho - 0.5e0_rt* &
+      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*state % rho**2 - &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho - &
+      screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*state % rho - &
+      screened_rates(k_he4_o16__ne20)*Y(jhe4)*Y(jo16)*state % rho &
        )
 
     ydot_nuc(jc12) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens + 0.16666666666666667d0* &
-      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3*dens**2 - &
-      screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*dens &
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho + &
+      0.16666666666666667e0_rt*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**3* &
+      state % rho**2 - screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*state % rho &
        )
 
     ydot_nuc(jc14) = ( &
-      -screened_rates(k_he4_c14__o18)*Y(jc14)*Y(jhe4)*dens &
+      -screened_rates(k_he4_c14__o18)*Y(jc14)*Y(jhe4)*state % rho &
        )
 
     ydot_nuc(jn13) = ( &
-      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*dens + screened_rates(k_p_c12__n13)* &
-      Y(jc12)*Y(jp)*dens &
+      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho + &
+      screened_rates(k_p_c12__n13)*Y(jc12)*Y(jp)*state % rho &
        )
 
     ydot_nuc(jn14) = ( &
-      -screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*dens &
+      -screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*state % rho &
        )
 
     ydot_nuc(jo16) = ( &
-      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*dens + screened_rates(k_he4_n13__p_o16) &
-      *Y(jhe4)*Y(jn13)*dens - screened_rates(k_he4_o16__ne20)*Y(jhe4)* &
-      Y(jo16)*dens &
+      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho + &
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho - &
+      screened_rates(k_he4_o16__ne20)*Y(jhe4)*Y(jo16)*state % rho &
        )
 
     ydot_nuc(jo18) = ( &
-      screened_rates(k_he4_c14__o18)*Y(jc14)*Y(jhe4)*dens &
+      screened_rates(k_he4_c14__o18)*Y(jc14)*Y(jhe4)*state % rho &
        )
 
     ydot_nuc(jf18) = ( &
-      -screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*dens + &
-      screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*dens &
+      -screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*state % rho + &
+      screened_rates(k_he4_n14__f18)*Y(jhe4)*Y(jn14)*state % rho &
        )
 
     ydot_nuc(jne20) = ( &
-      screened_rates(k_he4_o16__ne20)*Y(jhe4)*Y(jo16)*dens &
+      screened_rates(k_he4_o16__ne20)*Y(jhe4)*Y(jo16)*state % rho &
        )
 
     ydot_nuc(jne21) = ( &
-      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*dens &
+      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*state % rho &
        )
 
 
   end subroutine rhs_nuc
 
-  
-  subroutine actual_jac(state)
+
+  subroutine actual_jac(state, jac)
 
     !$acc routine seq
-    !$gpu
 
-    use burn_type_module, only: net_itemp, net_ienuc
-    
+    use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
+    use extern_probin_module, only: disable_thermal_neutrinos
+    use sneut_module, only: sneut5
+    use temperature_integration_module, only: temperature_jac
+    use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
+
     implicit none
     
-    type(burn_t) :: state
-    type(rate_eval_t) :: rate_eval
-    type(plasma_state) :: pstate
-    double precision :: reactvec(num_rate_groups+2)
-    double precision :: screened_rates_dt(nrates)
-    double precision :: dfdy_nuc(nspec, nspec)
-    double precision :: Y(nspec)
-    double precision :: dens, temp, ye, rhoy, b1
-    double precision :: sneut, dsneutdt, dsneutdd, snuda, snudz
-    integer :: i, j
+    type(burn_t), intent(in) :: state
+    real(rt), intent(inout) :: jac(njrows, njcols)
 
-    dens = state%rho
-    temp = state%T
+    type(rate_eval_t) :: rate_eval
+    real(rt) :: screened_rates_dt(nrates)
+    real(rt) :: Y(nspec), yderivs(nspec)
+    real(rt) :: ye, rhoy, b1, scratch
+    real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
+    integer  :: j, k
+
+    !$gpu
 
     ! Set molar abundances
-    Y(:) = state%xn(:) * aion_inv(:)
+    Y(:) = state % xn(:) * aion_inv(:)
     
     call evaluate_rates(state, rate_eval)
-    
-    ! Species Jacobian elements with respect to other species
-    call jac_nuc(dfdy_nuc, Y, rate_eval % screened_rates, dens)
-    state%jac(1:nspec, 1:nspec) = dfdy_nuc
 
-    ! Species Jacobian elements with respect to energy generation rate
-    state%jac(1:nspec, net_ienuc) = 0.0d0
+    ! Zero out the Jacobian
+    call set_jac_zero(jac)
+
+    ! Species Jacobian elements with respect to other species
+    call jac_nuc(state, jac, Y, rate_eval % screened_rates)
 
     ! Evaluate the species Jacobian elements with respect to temperature by
     ! calling the RHS using the temperature derivative of the screened rate
     screened_rates_dt = rate_eval % unscreened_rates(i_rate, :) * &
-         rate_eval % unscreened_rates(i_dscor_dt, :) + &
-         rate_eval % unscreened_rates(i_drate_dt, :) * &
-         rate_eval % unscreened_rates(i_scor, :)
+                        rate_eval % unscreened_rates(i_dscor_dt, :) + &
+                        rate_eval % unscreened_rates(i_drate_dt, :) * &
+                        rate_eval % unscreened_rates(i_scor, :)
 
-    call rhs_nuc(state%jac(1:nspec, net_itemp), Y, screened_rates_dt, dens)
-    
+    call rhs_nuc(state, yderivs, Y, screened_rates_dt)
+
+    do k = 1, nspec
+       call set_jac_entry(jac, k, net_itemp, yderivs(k))
+    enddo
+
     ! Energy generation rate Jacobian elements with respect to species
     do j = 1, nspec
-       call ener_gener_rate(state % jac(1:nspec,j), state % jac(net_ienuc,j))
+       do k = 1, nspec
+          call get_jac_entry(jac, k, j, yderivs(k))
+       enddo
+       call ener_gener_rate(yderivs, scratch)
+       call set_jac_entry(jac, net_ienuc, j, scratch)
     enddo
 
     ! Account for the thermal neutrino losses
-    call sneut5(temp, dens, state%abar, state%zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
-    do j = 1, nspec
-       b1 = ((aion(j) - state%abar) * state%abar * snuda + (zion(j) - state%zbar) * state%abar * snudz)
-       state % jac(net_ienuc,j) = state % jac(net_ienuc,j) - b1
-    enddo
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
-    ! Energy generation rate Jacobian element with respect to energy generation rate
-    state%jac(net_ienuc, net_ienuc) = 0.0d0
+       do j = 1, nspec
+          b1 = (-state % abar * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+          call get_jac_entry(jac, net_ienuc, j, scratch)
+          scratch = scratch - b1
+          call set_jac_entry(jac, net_ienuc, j, scratch)
+       enddo
+    endif
 
     ! Energy generation rate Jacobian element with respect to temperature
-    call ener_gener_rate(state%jac(1:nspec, net_itemp), state%jac(net_ienuc, net_itemp))
-    state%jac(net_ienuc, net_itemp) = state%jac(net_ienuc, net_itemp) - dsneutdt
-
-    ! Add dqweak and epart contributions!!!
+    do k = 1, nspec
+       call get_jac_entry(jac, k, net_itemp, yderivs(k))
+    enddo
+    call ener_gener_rate(yderivs, scratch)
+    if (.not. disable_thermal_neutrinos) then
+       scratch = scratch - dsneutdt
+    endif
+    call set_jac_entry(jac, net_ienuc, net_itemp, scratch)
 
     ! Temperature Jacobian elements
-    call temperature_jac(state)
+    call temperature_jac(state, jac)
 
   end subroutine actual_jac
 
-  subroutine jac_nuc(dfdy_nuc, Y, screened_rates, dens)
+
+  subroutine jac_nuc(state, jac, Y, screened_rates)
 
     !$acc routine seq
+
+    use jacobian_sparsity_module, only: set_jac_entry
+
+    implicit none
+
+    type(burn_t), intent(in) :: state
+    real(rt), intent(inout) :: jac(njrows, njcols)
+
+    real(rt), intent(in)  :: Y(nspec)
+    real(rt), intent(in)  :: screened_rates(nrates)
+    real(rt) :: scratch
+
+
     !$gpu
 
-    double precision, intent(out) :: dfdy_nuc(nspec, nspec)
-    double precision, intent(in)  :: Y(nspec)
-    double precision, intent(in)  :: screened_rates(nrates)
-    double precision, intent(in)  :: dens
 
-
-
-    dfdy_nuc(jp,jp) = ( &
-      -screened_rates(k_p_c12__n13)*Y(jc12)*dens &
-       )
-
-    dfdy_nuc(jp,jhe4) = ( &
-      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*dens + screened_rates(k_he4_n13__p_o16)* &
-      Y(jn13)*dens &
-       )
-
-    dfdy_nuc(jp,jc12) = ( &
-      -screened_rates(k_p_c12__n13)*Y(jp)*dens &
-       )
-
-    dfdy_nuc(jp,jc14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jp,jn13) = ( &
-      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jp,jn14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jp,jo16) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jp,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jp,jf18) = ( &
-      screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jp,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jp,jne21) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jhe4,jp) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jhe4,jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens - screened_rates(k_he4_c14__o18)*Y(jc14)* &
-      dens - screened_rates(k_he4_f18__p_ne21)*Y(jf18)*dens - 1.5d0* &
-      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*dens**2 - &
-      screened_rates(k_he4_n13__p_o16)*Y(jn13)*dens - screened_rates(k_he4_n14__f18)* &
-      Y(jn14)*dens - screened_rates(k_he4_o16__ne20)*Y(jo16)*dens &
-       )
-
-    dfdy_nuc(jhe4,jc12) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jhe4,jc14) = ( &
-      -screened_rates(k_he4_c14__o18)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jhe4,jn13) = ( &
-      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jhe4,jn14) = ( &
-      -screened_rates(k_he4_n14__f18)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jhe4,jo16) = ( &
-      -screened_rates(k_he4_o16__ne20)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jhe4,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jhe4,jf18) = ( &
-      -screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jhe4,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jhe4,jne21) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jp) = ( &
-      -screened_rates(k_p_c12__n13)*Y(jc12)*dens &
-       )
-
-    dfdy_nuc(jc12,jhe4) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jc12)*dens + 0.5d0*screened_rates(k_he4_he4_he4__c12)* &
-      Y(jhe4)**2*dens**2 &
-       )
-
-    dfdy_nuc(jc12,jc12) = ( &
-      -screened_rates(k_he4_c12__o16)*Y(jhe4)*dens - screened_rates(k_p_c12__n13)*Y(jp)*dens &
-       )
-
-    dfdy_nuc(jc12,jc14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jn13) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jn14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jo16) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jf18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc12,jne21) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jp) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jhe4) = ( &
-      -screened_rates(k_he4_c14__o18)*Y(jc14)*dens &
-       )
-
-    dfdy_nuc(jc14,jc12) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jc14) = ( &
-      -screened_rates(k_he4_c14__o18)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jc14,jn13) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jn14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jo16) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jf18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jc14,jne21) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jp) = ( &
-      screened_rates(k_p_c12__n13)*Y(jc12)*dens &
-       )
-
-    dfdy_nuc(jn13,jhe4) = ( &
-      -screened_rates(k_he4_n13__p_o16)*Y(jn13)*dens &
-       )
-
-    dfdy_nuc(jn13,jc12) = ( &
-      screened_rates(k_p_c12__n13)*Y(jp)*dens &
-       )
-
-    dfdy_nuc(jn13,jc14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jn13) = ( &
-      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jn13,jn14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jo16) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jf18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn13,jne21) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jp) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jhe4) = ( &
-      -screened_rates(k_he4_n14__f18)*Y(jn14)*dens &
-       )
-
-    dfdy_nuc(jn14,jc12) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jc14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jn13) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jn14) = ( &
-      -screened_rates(k_he4_n14__f18)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jn14,jo16) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jn14,jf18) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho &
        )
+    call set_jac_entry(jac, jp, jp, scratch)
 
-    dfdy_nuc(jn14,jne20) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*state % rho + screened_rates(k_he4_n13__p_o16)* &
+      Y(jn13)*state % rho &
        )
+    call set_jac_entry(jac, jp, jhe4, scratch)
 
-    dfdy_nuc(jn14,jne21) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_p_c12__n13)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jp, jc12, scratch)
 
-    dfdy_nuc(jo16,jp) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jp, jn13, scratch)
 
-    dfdy_nuc(jo16,jhe4) = ( &
-      screened_rates(k_he4_c12__o16)*Y(jc12)*dens + screened_rates(k_he4_n13__p_o16)*Y(jn13) &
-      *dens - screened_rates(k_he4_o16__ne20)*Y(jo16)*dens &
+    scratch = (&
+      screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jp, jf18, scratch)
 
-    dfdy_nuc(jo16,jc12) = ( &
-      screened_rates(k_he4_c12__o16)*Y(jhe4)*dens &
+    scratch = (&
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho - screened_rates(k_he4_c14__o18)* &
+      Y(jc14)*state % rho - screened_rates(k_he4_f18__p_ne21)*Y(jf18)*state % rho &
+      - 1.5e0_rt*screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 - &
+      screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho - &
+      screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho - screened_rates(k_he4_o16__ne20) &
+      *Y(jo16)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jhe4, scratch)
 
-    dfdy_nuc(jo16,jc14) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jc12, scratch)
 
-    dfdy_nuc(jo16,jn13) = ( &
-      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*dens &
+    scratch = (&
+      -screened_rates(k_he4_c14__o18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jc14, scratch)
 
-    dfdy_nuc(jo16,jn14) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jn13, scratch)
 
-    dfdy_nuc(jo16,jo16) = ( &
-      -screened_rates(k_he4_o16__ne20)*Y(jhe4)*dens &
+    scratch = (&
+      -screened_rates(k_he4_n14__f18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jn14, scratch)
 
-    dfdy_nuc(jo16,jo18) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_o16__ne20)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jo16, scratch)
 
-    dfdy_nuc(jo16,jf18) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jhe4, jf18, scratch)
 
-    dfdy_nuc(jo16,jne20) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho &
        )
+    call set_jac_entry(jac, jc12, jp, scratch)
 
-    dfdy_nuc(jo16,jne21) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + 0.5e0_rt* &
+      screened_rates(k_he4_he4_he4__c12)*Y(jhe4)**2*state % rho**2 &
        )
+    call set_jac_entry(jac, jc12, jhe4, scratch)
 
-    dfdy_nuc(jo18,jp) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho - screened_rates(k_p_c12__n13)*Y(jp)* &
+      state % rho &
        )
+    call set_jac_entry(jac, jc12, jc12, scratch)
 
-    dfdy_nuc(jo18,jhe4) = ( &
-      screened_rates(k_he4_c14__o18)*Y(jc14)*dens &
+    scratch = (&
+      -screened_rates(k_he4_c14__o18)*Y(jc14)*state % rho &
        )
+    call set_jac_entry(jac, jc14, jhe4, scratch)
 
-    dfdy_nuc(jo18,jc12) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_c14__o18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jc14, jc14, scratch)
 
-    dfdy_nuc(jo18,jc14) = ( &
-      screened_rates(k_he4_c14__o18)*Y(jhe4)*dens &
+    scratch = (&
+      screened_rates(k_p_c12__n13)*Y(jc12)*state % rho &
        )
+    call set_jac_entry(jac, jn13, jp, scratch)
 
-    dfdy_nuc(jo18,jn13) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_n13__p_o16)*Y(jn13)*state % rho &
        )
+    call set_jac_entry(jac, jn13, jhe4, scratch)
 
-    dfdy_nuc(jo18,jn14) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_p_c12__n13)*Y(jp)*state % rho &
        )
+    call set_jac_entry(jac, jn13, jc12, scratch)
 
-    dfdy_nuc(jo18,jo16) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jn13, jn13, scratch)
 
-    dfdy_nuc(jo18,jo18) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_n14__f18)*Y(jn14)*state % rho &
        )
+    call set_jac_entry(jac, jn14, jhe4, scratch)
 
-    dfdy_nuc(jo18,jf18) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_n14__f18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jn14, jn14, scratch)
 
-    dfdy_nuc(jo18,jne20) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_c12__o16)*Y(jc12)*state % rho + screened_rates(k_he4_n13__p_o16)* &
+      Y(jn13)*state % rho - screened_rates(k_he4_o16__ne20)*Y(jo16)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jhe4, scratch)
 
-    dfdy_nuc(jo18,jne21) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_c12__o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jc12, scratch)
 
-    dfdy_nuc(jf18,jp) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_n13__p_o16)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jn13, scratch)
 
-    dfdy_nuc(jf18,jhe4) = ( &
-      -screened_rates(k_he4_f18__p_ne21)*Y(jf18)*dens + screened_rates(k_he4_n14__f18)* &
-      Y(jn14)*dens &
+    scratch = (&
+      -screened_rates(k_he4_o16__ne20)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jo16, jo16, scratch)
 
-    dfdy_nuc(jf18,jc12) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_c14__o18)*Y(jc14)*state % rho &
        )
+    call set_jac_entry(jac, jo18, jhe4, scratch)
 
-    dfdy_nuc(jf18,jc14) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_c14__o18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jo18, jc14, scratch)
 
-    dfdy_nuc(jf18,jn13) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_f18__p_ne21)*Y(jf18)*state % rho + screened_rates(k_he4_n14__f18)* &
+      Y(jn14)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jhe4, scratch)
 
-    dfdy_nuc(jf18,jn14) = ( &
-      screened_rates(k_he4_n14__f18)*Y(jhe4)*dens &
+    scratch = (&
+      screened_rates(k_he4_n14__f18)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jn14, scratch)
 
-    dfdy_nuc(jf18,jo16) = ( &
-      0.0d0 &
+    scratch = (&
+      -screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jf18, jf18, scratch)
 
-    dfdy_nuc(jf18,jo18) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_o16__ne20)*Y(jo16)*state % rho &
        )
+    call set_jac_entry(jac, jne20, jhe4, scratch)
 
-    dfdy_nuc(jf18,jf18) = ( &
-      -screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*dens &
+    scratch = (&
+      screened_rates(k_he4_o16__ne20)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jne20, jo16, scratch)
 
-    dfdy_nuc(jf18,jne20) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*state % rho &
        )
+    call set_jac_entry(jac, jne21, jhe4, scratch)
 
-    dfdy_nuc(jf18,jne21) = ( &
-      0.0d0 &
+    scratch = (&
+      screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*state % rho &
        )
+    call set_jac_entry(jac, jne21, jf18, scratch)
 
-    dfdy_nuc(jne20,jp) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jhe4) = ( &
-      screened_rates(k_he4_o16__ne20)*Y(jo16)*dens &
-       )
-
-    dfdy_nuc(jne20,jc12) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jc14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jn13) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jn14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jo16) = ( &
-      screened_rates(k_he4_o16__ne20)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jne20,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jf18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne20,jne21) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jp) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jhe4) = ( &
-      screened_rates(k_he4_f18__p_ne21)*Y(jf18)*dens &
-       )
-
-    dfdy_nuc(jne21,jc12) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jc14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jn13) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jn14) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jo16) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jo18) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jf18) = ( &
-      screened_rates(k_he4_f18__p_ne21)*Y(jhe4)*dens &
-       )
-
-    dfdy_nuc(jne21,jne20) = ( &
-      0.0d0 &
-       )
-
-    dfdy_nuc(jne21,jne21) = ( &
-      0.0d0 &
-       )
 
-    
   end subroutine jac_nuc
 
 end module actual_rhs_module

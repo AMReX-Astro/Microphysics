@@ -239,7 +239,7 @@ main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.
 
 The main evaluation routine is called ``actual_eos``. It should
-accept an eos_input and an eos_t state; see Section
-`[sec:data_structures] <#sec:data_structures>`__.
+accept an eos_input and an eos_t state; see Section :ref:`data_structures`.
+
 
 

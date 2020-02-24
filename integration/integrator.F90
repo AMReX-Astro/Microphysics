@@ -2,6 +2,7 @@ module integrator_module
 
   use amrex_error_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -11,24 +12,36 @@ contains
   subroutine integrator_init()
 
     use integrator_scaling_module, only: integrator_scaling_init
-#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
+#ifndef CUDA
     use bs_integrator_module, only: bs_integrator_init
+#endif
 #else
     use actual_integrator_module, only: actual_integrator_init
 #endif
     use temperature_integration_module, only: temperature_rhs_init
 
+#ifdef NONAKA_PLOT
+    use nonaka_plot_module, only: nonaka_init
+#endif
+
     implicit none
 
     call integrator_scaling_init()
-#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     call vode_integrator_init()
+#ifndef CUDA
     call bs_integrator_init()
+#endif
 #else
     call actual_integrator_init()
 #endif
     call temperature_rhs_init()
+
+#ifdef NONAKA_PLOT
+    call nonaka_init()
+#endif
 
   end subroutine integrator_init
 
@@ -38,13 +51,14 @@ contains
 
     !$acc routine seq
 
-#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
+#ifndef CUDA
     use bs_integrator_module, only: bs_integrator
+#endif
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
     use integration_data, only: integration_status_t
@@ -61,7 +75,7 @@ contains
 
     !$gpu
 
-#if ((INTEGRATOR == 0 || INTEGRATOR == 1) && !defined(CUDA))
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     type (integration_status_t) :: status
     real(rt) :: retry_change_factor
     integer :: current_integrator
@@ -92,17 +106,25 @@ contains
        do
 
 #if (INTEGRATOR == 0)
+#ifndef CUDA
           if (current_integrator == 0) then
+#endif
              call vode_integrator(state_in, state_out, dt, time, status)
+#ifndef CUDA
           else if (current_integrator == 1) then
              call bs_integrator(state_in, state_out, dt, time, status)
           endif
+#endif
 #elif (INTEGRATOR == 1)
+#ifndef CUDA
           if (current_integrator == 0) then
              call bs_integrator(state_in, state_out, dt, time, status)
           else if (current_integrator == 1) then
+#endif
              call vode_integrator(state_in, state_out, dt, time, status)
+#ifndef CUDA
           endif
+#endif
 #endif
 
           if (state_out % success) exit
@@ -132,10 +154,12 @@ contains
 
              if (current_integrator < 1) then
 
+#ifndef CUDA
 #if (INTEGRATOR == 0)
                 print *, "Retrying burn with BS integrator"
 #elif (INTEGRATOR == 1)
                 print *, "Retrying burn with VODE integrator"
+#endif
 #endif
 
              end if
@@ -164,7 +188,7 @@ contains
     if (.not. state_out % success) then
 
        if (abort_on_failure) then
-#if !defined(CUDA)
+#ifndef CUDA
           call amrex_error("ERROR in burner: integration failed")
 #else
           stop

@@ -35,7 +35,7 @@ contains
 
     allocate(xn_zone(nspec, 0:npts-1))   ! this assumes that lo(3) = 0
 
-    call get_xn(xn_zone)
+    call get_xn(npts, xn_zone)
 
     ! normalize -- just in case
     do kk = lo(3), hi(3)
@@ -91,7 +91,7 @@ contains
              sdc_state_in % y(SRHO) = state(ii, jj, kk, p % irho)
 
              ! we will pick velocities to be 10% of the sound speed
-             sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1 * eos_state % cs
+             sdc_state_in % y(SMX:SMZ) = sdc_state_in % y(SRHO) * 0.1_rt * eos_state % cs
 
              sdc_state_in % y(SEINT) = sdc_state_in % y(SRHO) * eos_state % e
              sdc_state_in % y(SEDEN) = sdc_state_in % y(SEINT) + &
@@ -116,11 +116,11 @@ contains
                 state(ii, jj, kk, p % ispec+j-1) = sdc_state_out % y(SFS+j-1)/sdc_state_out % y(SRHO)
              enddo
 
-             ! do j=1, nspec
-             !    ! an explicit loop is needed here to keep the GPU happy
-             !    state(ii, jj, kk, irodot + j - 1) = &
-             !         (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
-             ! enddo
+             do j=1, nspec
+                ! an explicit loop is needed here to keep the GPU happy
+                state(ii, jj, kk, p % irodot + j - 1) = &
+                     (sdc_state_out % y(SFS+j-1) - sdc_state_in % y(SFS+j-1)) / tmax
+             enddo
 
              state(ii, jj, kk, p % irho_hnuc) = &
                   (sdc_state_out % y(SEINT) - sdc_state_in % y(SEINT)) / tmax

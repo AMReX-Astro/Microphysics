@@ -1,12 +1,11 @@
 module actual_network
 
   use amrex_fort_module, only : rt => amrex_real
+  use network_properties
 
   implicit none
 
-  integer, parameter :: nspec = 13
   integer, parameter :: nspec_evolve = 13
-  integer, parameter :: naux  = 0
 
   integer, parameter :: ihe4  = 1
   integer, parameter :: ic12  = 2
@@ -22,35 +21,30 @@ module actual_network
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  double precision, allocatable :: aion(:), zion(:), nion(:)
-  double precision, allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, nion, bion, mion, wion
+  attributes(managed) :: bion, mion, wion
 #endif
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
 
   character (len=32), parameter :: network_name = "aprox13"
 
   ! Some fundamental physical constants
 
-  double precision, parameter :: avo = 6.0221417930d23
-  double precision, parameter :: c_light = 2.99792458d10
+  real(rt)        , parameter :: avo = 6.0221417930e23_rt
+  real(rt)        , parameter :: c_light = 2.99792458e10_rt
 
-  double precision, parameter :: ev2erg  = 1.60217648740d-12
-  double precision, parameter :: mev2erg = ev2erg*1.0d6
-  double precision, parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt)        , parameter :: ev2erg  = 1.60217648740e-12_rt
+  real(rt)        , parameter :: mev2erg = ev2erg*1.0e6_rt
+  real(rt)        , parameter :: mev2gr  = mev2erg/c_light**2
 
-  double precision, parameter :: mn = 1.67492721184d-24
-  double precision, parameter :: mp = 1.67262163783d-24
-  double precision, parameter :: me = 9.1093821545d-28
+  real(rt)        , parameter :: mn = 1.67492721184e-24_rt
+  real(rt)        , parameter :: mp = 1.67262163783e-24_rt
+  real(rt)        , parameter :: me = 9.1093821545e-28_rt
 
   ! Conversion factor for the nuclear energy generation rate.
 
-  double precision, parameter :: enuc_conv2 = -avo*c_light*c_light
+  real(rt)        , parameter :: enuc_conv2 = -avo*c_light*c_light
 
   !$acc declare create(aion, zion, nion, bion, mion, wion)
 
@@ -145,88 +139,25 @@ contains
 
     implicit none
 
-    short_spec_names(ihe4)  = 'he4'
-    short_spec_names(ic12)  = 'c12'
-    short_spec_names(io16)  = 'o16'
-    short_spec_names(ine20) = 'ne20'
-    short_spec_names(img24) = 'mg24'
-    short_spec_names(isi28) = 'si28'
-    short_spec_names(is32)  = 's32'
-    short_spec_names(iar36) = 'ar36'
-    short_spec_names(ica40) = 'ca40'
-    short_spec_names(iti44) = 'ti44'
-    short_spec_names(icr48) = 'cr48'
-    short_spec_names(ife52) = 'fe52'
-    short_spec_names(ini56) = 'ni56'
-
-    spec_names(ihe4)  = "helium-4"
-    spec_names(ic12)  = "carbon-12"
-    spec_names(io16)  = "oxygen-16"
-    spec_names(ine20) = "neon-20"
-    spec_names(img24) = "magnesium-24"
-    spec_names(isi28) = "silicon-28"
-    spec_names(is32)  = "sulfur-32"
-    spec_names(iar36) = "argon-36"
-    spec_names(ica40) = "calcium-40"
-    spec_names(iti44) = "titanium-44"
-    spec_names(icr48) = "chromium-48"
-    spec_names(ife52) = "iron-52"
-    spec_names(ini56) = "nickel-56"
-
-    allocate(aion(nspec))
-    allocate(zion(nspec))
-    allocate(nion(nspec))
+    call network_properties_init()
     allocate(bion(nspec))
     allocate(mion(nspec))
     allocate(wion(nspec))
 
-    ! Set the number of nucleons in the element
-    aion(ihe4)  = 4.0d0
-    aion(ic12)  = 12.0d0
-    aion(io16)  = 16.0d0
-    aion(ine20) = 20.0d0
-    aion(img24) = 24.0d0
-    aion(isi28) = 28.0d0
-    aion(is32)  = 32.0d0
-    aion(iar36) = 36.0d0
-    aion(ica40) = 40.0d0
-    aion(iti44) = 44.0d0
-    aion(icr48) = 48.0d0
-    aion(ife52) = 52.0d0
-    aion(ini56) = 56.0d0
-
-    ! Set the number of protons in the element
-    zion(ihe4)  = 2.0d0
-    zion(ic12)  = 6.0d0
-    zion(io16)  = 8.0d0
-    zion(ine20) = 10.0d0
-    zion(img24) = 12.0d0
-    zion(isi28) = 14.0d0
-    zion(is32)  = 16.0d0
-    zion(iar36) = 18.0d0
-    zion(ica40) = 20.0d0
-    zion(iti44) = 22.0d0
-    zion(icr48) = 24.0d0
-    zion(ife52) = 26.0d0
-    zion(ini56) = 28.0d0
-
     ! Set the binding energy of the element (MeV)
-    bion(ihe4)  =  28.29603d0
-    bion(ic12)  =  92.16294d0
-    bion(io16)  = 127.62093d0
-    bion(ine20) = 160.64788d0
-    bion(img24) = 198.25790d0
-    bion(isi28) = 236.53790d0
-    bion(is32)  = 271.78250d0
-    bion(iar36) = 306.72020d0
-    bion(ica40) = 342.05680d0
-    bion(iti44) = 375.47720d0
-    bion(icr48) = 411.46900d0
-    bion(ife52) = 447.70800d0
-    bion(ini56) = 484.00300d0
-
-    ! Set the number of neutrons
-    nion(:) = aion(:) - zion(:)
+    bion(ihe4)  =  28.29603e0_rt
+    bion(ic12)  =  92.16294e0_rt
+    bion(io16)  = 127.62093e0_rt
+    bion(ine20) = 160.64788e0_rt
+    bion(img24) = 198.25790e0_rt
+    bion(isi28) = 236.53790e0_rt
+    bion(is32)  = 271.78250e0_rt
+    bion(iar36) = 306.72020e0_rt
+    bion(ica40) = 342.05680e0_rt
+    bion(iti44) = 375.47720e0_rt
+    bion(icr48) = 411.46900e0_rt
+    bion(ife52) = 447.70800e0_rt
+    bion(ini56) = 484.00300e0_rt
 
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
@@ -341,15 +272,8 @@ contains
 
     implicit none
 
-    if (allocated(aion)) then
-       deallocate(aion)
-    endif
-    if (allocated(zion)) then
-       deallocate(zion)
-    endif
-    if (allocated(nion)) then
-       deallocate(nion)
-    endif
+    call network_properties_finalize
+
     if (allocated(bion)) then
        deallocate(bion)
     endif
