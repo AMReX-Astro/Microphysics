@@ -281,8 +281,11 @@ void main_main ()
 
           // some EOSes don't have physically valid treatments
           // of entropy throughout the entire rho-T plane
-          if (eos_state.s > 0.0) {
+          if (eos_name == "multigamma" || eos_state.s <= 0.0) {
+            sp(i, j, k, vars.ierr_T_eos_ps) = 0.0;
+            sp(i, j, k, vars.ierr_rho_eos_ps) = 0.0;
 
+          } else {
             eos(eos_input_ps, eos_state);
 
             // store the thermodynamic state
@@ -290,10 +293,6 @@ void main_main ()
                 std::abs(eos_state.T - temp_zone)/temp_zone;
             sp(i, j, k, vars.ierr_rho_eos_ps) =
                 std::abs(eos_state.rho - dens_zone)/dens_zone;
-
-          } else {
-            sp(i, j, k, vars.ierr_T_eos_ps) = 0.0;
-            sp(i, j, k, vars.ierr_rho_eos_ps) = 0.0;
 
           }
 
@@ -318,21 +317,21 @@ void main_main ()
 
           // call EOS using T, h
           // this doesn't work for all EOSes (where h doesn't depend on T)
-#ifndef EOS_GAMMA_LAW_GENERAL
-          // reset rho to give it some work to do -- for helmeos, h is not
-          // monotonic, so we only perturb rho slightly here
-          eos_state.rho = 0.9 * eos_state.rho;
+          if (eos_name == "gamma_law_general" || eos_name == "multigamma") {
+            sp(i, j, k, vars.ierr_rho_eos_th) = 0.0;
 
-          eos(eos_input_th, eos_state);
+          } else {
+            // reset rho to give it some work to do -- for helmeos, h is not
+            // monotonic, so we only perturb rho slightly here
+            eos_state.rho = 0.9 * eos_state.rho;
 
-          sp(i, j, k, vars.ierr_rho_eos_th) =
+            eos(eos_input_th, eos_state);
+
+            sp(i, j, k, vars.ierr_rho_eos_th) =
               std::abs(eos_state.rho - dens_zone)/dens_zone;
 
-          eos_state = eos_state_reference;
-
-#else
-          sp(i, j, k, vars.ierr_rho_eos_th) = 0.0;
-#endif
+            eos_state = eos_state_reference;
+          }
 
         });
 
