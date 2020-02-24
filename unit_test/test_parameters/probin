@@ -4,5 +4,5 @@
   dens_max   = 5.e9
   temp_min   = 1.d6
   temp_max   = 1.d10
-
+  test_string = "this is a test of the new string passing"
 /
