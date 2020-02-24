@@ -5,18 +5,19 @@ subroutine do_burn() bind (C)
   use burner_module
   use actual_burner_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type (burn_t) :: state_in, state_out
 
-  double precision :: time = 0.0, dt = 2.5d-4
+  real(rt)         :: time = 0.0_rt, dt = 2.5e-4_rt
 
   type (eos_t) :: eos_state
 
   character (len=32) :: probin_file
   integer :: probin_pass(32)
   integer :: i
-  double precision :: start, finish
+  real(rt)         :: start, finish
 
   probin_file = "probin"
   do i = 1, len(trim(probin_file))
@@ -29,12 +30,12 @@ subroutine do_burn() bind (C)
   call burner_init()
   call eos_init()
 
-  state_in % rho       = 1.0d7
-  state_in % T         = 1.0d9
+  state_in % rho       = 1.0e7_rt
+  state_in % T         = 1.0e9_rt
 
-  state_in % xn(1)     = 0.8d0
-  state_in % xn(2)     = 0.1d0
-  state_in % xn(3)     = 0.1d0
+  state_in % xn(1)     = 0.8e0_rt
+  state_in % xn(2)     = 0.1e0_rt
+  state_in % xn(3)     = 0.1e0_rt
 
   print *, "rho_in: ", state_in % rho
   print *, "T_in: ", state_in % T

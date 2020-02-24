@@ -29,7 +29,7 @@ contains
 
     type (burn_t),    intent(in   ) :: state_in
     type (burn_t),    intent(inout) :: state_out
-    double precision, intent(in   ) :: dt, time
+    real(rt)        , intent(in   ) :: dt, time
 
     call integrator(state_in, state_out, dt, time)
 

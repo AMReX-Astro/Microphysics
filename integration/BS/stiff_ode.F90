@@ -4,7 +4,7 @@ module stiff_ode
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module
   use bs_type_module
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
   use bs_rhs_module
   use bs_jac_module
 #else
@@ -14,9 +14,9 @@ module stiff_ode
 
   implicit none
 
-  real(rt), parameter, private :: dt_min = 1.d-24
-  real(rt), parameter, private :: dt_ini = 1.d-16
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: dt_min = 1.e-24_rt
+  real(rt), parameter, private :: dt_ini = 1.e-16_rt
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
   ! error codes
@@ -142,7 +142,11 @@ contains
     bs % eps_old = ZERO
 
     if (use_timestep_estimator) then
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs)
+#else
        call f_rhs(bs)
+#endif
        call initial_timestep(bs)
     else
        bs % dt = dt_ini
@@ -151,14 +155,14 @@ contains
     do n = 1, ode_max_steps
 
        ! Get the scaling.
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs)
+#else
        call f_rhs(bs)
+#endif
 
        if (scaling_method == 1) then
-#ifdef SDC
           yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % ydot(:)) + SMALL
-#else
-          yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % burn_s % ydot(:)) + SMALL
-#endif
 
        else if (scaling_method == 2) then
           yscal = max(abs(bs % y(:)), ode_scale_floor)
@@ -234,13 +238,13 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
-    hU = 0.1d0 * abs(bs % tmax - bs % t)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(bs % t), abs(bs % tmax))
+    hU = 0.1e0_rt * abs(bs % tmax - bs % t)
 
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
-    h_old = 10.0 * h
+    h_old = 10.0_rt * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
 
@@ -256,19 +260,16 @@ contains
        ! Construct the trial point.
 
        bs_temp % t = bs % t + h
-#ifdef SDC
        bs_temp % y = bs % y + h * bs % ydot
-#else
-       bs_temp % y = bs % y + h * bs % burn_s % ydot
-#endif
 
        ! Call the RHS, then estimate the finite difference.
-       call f_rhs(bs_temp)
-#ifdef SDC
-       ddydtt = (bs_temp % ydot - bs % ydot) / h
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
 #else
-       ddydtt = (bs_temp % burn_s % ydot - bs % burn_s % ydot) / h
+       call f_rhs(bs_temp)
 #endif
+
+       ddydtt = (bs_temp % ydot - bs % ydot) / h
 
        yddnorm = sqrt( sum( (ddydtt*ewt)**2 ) / bs_neqs )
 
@@ -293,8 +294,15 @@ contains
   subroutine semi_implicit_extrap(bs, y, dt_tot, N_sub, y_out, ierr)
 
     !$acc routine seq
+
+#ifdef VODE
+    use linpack_module, only: dgesl, dgefa
+#else
     !$acc routine(dgesl) seq
     !$acc routine(dgefa) seq
+#endif
+
+    implicit none
 
     type (bs_t), intent(inout) :: bs
     real(rt), intent(in) :: y(bs_neqs)
@@ -321,24 +329,24 @@ contains
     h = dt_tot/N_sub
 
     ! I - h J
-#ifdef SDC
     A(:,:) = -h * bs % jac(:,:)
-#else
-    A(:,:) = -h * bs % burn_s % jac(:,:)
-#endif
     do n = 1, bs_neqs
        A(n,n) = ONE + A(n,n)
     enddo
 
     ! get the LU decomposition from LINPACK
+#ifdef VODE
+    call dgefa(A, ipiv, ierr_linpack)
+#else
     call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+#endif
     if (ierr_linpack /= 0) then
        ierr = IERR_LU_DECOMPOSITION_ERROR
     endif
 
     if (ierr == IERR_NONE) then
        bs_temp = bs
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        bs_temp % n_rhs = 0
 #else
        bs_temp % burn_s % n_rhs = 0
@@ -346,55 +354,63 @@ contains
 
        ! do an Euler step to get the RHS for the first substep
        t = bs % t
-#ifdef SDC
        y_out(:) = h * bs % ydot(:)
-#else
-       y_out(:) = h * bs % burn_s % ydot(:)
-#endif
 
        ! solve the first step using the LU solver
+#ifdef VODE
+       call dgesl(A, ipiv, y_out)
+#else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+#endif
 
        del(:) = y_out(:)
        bs_temp % y(:) = y(:) + del(:)
 
        t = t + h
        bs_temp % t = t
-       call f_rhs(bs_temp)
-
-       do n = 2, N_sub
-#ifdef SDC
-          y_out(:) = h * bs_temp % ydot(:) - del(:)
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
 #else
-          y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
+       call f_rhs(bs_temp)
 #endif
 
+       do n = 2, N_sub
+          y_out(:) = h * bs_temp % ydot(:) - del(:)
+
           ! LU solve
+#ifdef VODE
+          call dgesl(A, ipiv, y_out)
+#else
           call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+#endif
 
           del(:) = del(:) + TWO * y_out(:)
           bs_temp % y = bs_temp % y + del(:)
 
           t = t + h
           bs_temp % t = t
+#ifdef SIMPLIFIED_SDC
+          call f_bs_rhs(bs_temp)
+#else
           call f_rhs(bs_temp)
+#endif
        enddo
 
-#ifdef SDC
        y_out(:) = h * bs_temp % ydot(:) - del(:)
-#else
-       y_out(:) = h * bs_temp % burn_s % ydot(:) - del(:)
-#endif
 
        ! last LU solve
+#ifdef VODE
+       call dgesl(A, ipiv, y_out)
+#else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, y_out, 0)
+#endif
 
        ! last step
        y_out(:) = bs_temp % y(:) + y_out(:)
     
        ! Store the number of function evaluations.
 
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
        bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
 #else
        bs % burn_s % n_rhs = bs % burn_s % n_rhs + bs_temp % burn_s % n_rhs
@@ -438,8 +454,8 @@ contains
 
     ! reinitialize
     if (eps /= bs % eps_old) then
-       bs % dt_next = -1.d29
-       bs % t_new = -1.d29
+       bs % dt_next = -1.e29_rt
+       bs % t_new = -1.e29_rt
        eps1 = S1*eps
 
        bs % a(1) = nseq(1)+1
@@ -477,7 +493,11 @@ contains
     y_save(:) = bs % y(:)
 
     ! get the jacobian
+#ifdef SIMPLIFIED_SDC
+    call bs_jac(bs)
+#else
     call jac(bs)
+#endif
 
     if (dt /= bs % dt_next .or. bs % t /= bs % t_new) then
        bs % first = .true.
@@ -530,7 +550,7 @@ contains
                    err_max = max(SMALL, maxval(abs(yerr(:)/yscal(:))))
                    err_max = err_max / eps
                    km = k - 1
-                   err(km) = (err_max/S1)**(1.0/(2*km+1))
+                   err(km) = (err_max/S1)**(1.0_rt/(2*km+1))
                 endif
 
                 if (k /= 1 .and. (k >=  bs % kopt-1 .or. bs % first)) then
@@ -613,7 +633,7 @@ contains
     bs % first = .false.
 
     ! optimal convergence properties
-    work_min = 1.e35
+    work_min = 1.e35_rt
     do kk = 1, km
        fac = max(err(kk), SCALMX)
        work = fac*bs % a(kk+1)
@@ -701,13 +721,16 @@ contains
     ! only of our integration variable, y
 
     !$acc routine seq
+
+#ifdef VODE
+    use linpack_module, only: dgesl, dgefa
+#else
     !$acc routine(dgesl) seq
     !$acc routine(dgefa) seq
-
+#endif
 #ifndef ACC
     use amrex_error_module, only: amrex_error
 #endif
-    use amrex_fort_module, only : rt => amrex_real
 
     implicit none
 
@@ -735,7 +758,11 @@ contains
     ! note: we come in already with a RHS evalulation from the driver
 
     ! get the jacobian
+#ifdef SIMPLIFIED_SDC
+    call bs_jac(bs)
+#else
     call jac(bs)
+#endif
 
     ierr = IERR_NONE
 
@@ -748,30 +775,30 @@ contains
 
        ! create I/(gamma h) - ydot -- this is the matrix used for all the
        ! linear systems that comprise a single step
-#ifdef SDC
        A(:,:) = -bs % jac(:,:)
-#else
-       A(:,:) = -bs % burn_s % jac(:,:)
-#endif
        do n = 1, bs_neqs
           A(n,n) = ONE/(gamma * h) + A(n,n)
        enddo
        
        ! LU decomposition
+#ifdef VODE
+       call dgefa(A, ipiv, ierr_linpack)
+#else
        call dgefa(A, bs_neqs, bs_neqs, ipiv, ierr_linpack)
+#endif
        if (ierr_linpack /= 0) then
           ierr = IERR_LU_DECOMPOSITION_ERROR
        endif
        
        ! setup the first RHS and solve the linear system (note: the linear
        ! solve replaces the RHS with the solution in place)
-#ifdef SDC
        g1(:) = bs % ydot(:)
-#else
-       g1(:) = bs % burn_s % ydot(:)
-#endif
 
+#ifdef VODE
+       call dgesl(A, ipiv, g1)
+#else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g1, 0)
+#endif
 
        ! new value of y
        bs_temp % y(:) = bs % y(:) + A21*g1(:)
@@ -779,14 +806,19 @@ contains
        
        ! get derivatives at this intermediate position and setup the next
        ! RHS
-       call f_rhs(bs_temp)
-
-#ifdef SDC
-       g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
 #else
-       g2(:) = bs_temp % burn_s % ydot(:) + C21*g1(:)/h
-#endif       
+       call f_rhs(bs_temp)
+#endif
+
+       g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
+
+#ifdef VODE
+       call dgesl(A, ipiv, g2)
+#else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g2, 0)
+#endif
 
        ! new value of y
        bs_temp % y(:) = bs % y(:) + A31*g1(:) + A32*g2(:)
@@ -794,27 +826,31 @@ contains
 
        ! get derivatives at this intermediate position and setup the next
        ! RHS
-       call f_rhs(bs_temp)
-
-#ifdef SDC
-       g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
+#ifdef SIMPLIFIED_SDC
+       call f_bs_rhs(bs_temp)
 #else
-       g3(:) = bs_temp % burn_s % ydot(:) + (C31*g1(:) + C32*g2(:))/h
+       call f_rhs(bs_temp)
 #endif
-       
+
+       g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
+
+#ifdef VODE
+       call dgesl(A, ipiv, g3)
+#else
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g3, 0)
+#endif
 
        ! our choice of parameters prevents us from needing another RHS 
        ! evaluation here
 
        ! final intermediate RHS
-#ifdef SDC
        g4(:) = bs_temp % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
+
+#ifdef VODE
+       call dgesl(A, ipiv, g4)
 #else
-       g4(:) = bs_temp % burn_s % ydot(:) + (C41*g1(:) + C42*g2(:) + C43*g3(:))/h
-#endif
-       
        call dgesl(A, bs_neqs, bs_neqs, ipiv, g4, 0)
+#endif
 
        ! now construct our 4th order estimate of y
        bs_temp % y(:) = bs % y(:) + B1*g1(:) + B2*g2(:) + B3*g3(:) + B4*g4(:)
@@ -833,7 +869,7 @@ contains
           ! we were successful -- store the solution
           bs % y(:) = bs_temp % y(:)
           bs % t = bs_temp % t
-#ifdef SDC
+#ifdef SIMPLIFIED_SDC
           bs % n_rhs = bs_temp % n_rhs
 #else
           bs % burn_s % n_rhs = bs_temp % burn_s % n_rhs

@@ -26,8 +26,6 @@ int main (int argc, char* argv[])
 
 void main_main ()
 {
-    // What time is it now?  We'll use this to compute total run time.
-    Real strt_time = ParallelDescriptor::second();
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size;
@@ -127,6 +125,9 @@ void main_main ()
     // we allocate our main multifabs
     MultiFab state(ba, dm, Ncomp, Nghost);
 
+    // What time is it now?  We'll use this to compute total run time.
+    Real strt_time = ParallelDescriptor::second();
+
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
@@ -139,26 +140,24 @@ void main_main ()
 
     }
 
-
-    std::string name = "test_conductivity.";
-
-    // get the name of the EOS
-    int eos_len = -1;
-    get_eos_len(&eos_len);
-
-    char* eos_string[eos_len+1];
-    get_eos_name(eos_string);
-    std::string eos(*eos_string);
-
-    // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos, state, varnames, geom, time, 0);
-
-
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
     Real stop_time = ParallelDescriptor::second() - strt_time;
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
+
+    std::string name = "test_conductivity.";
+
+    // get the name of the conductivity routine
+    int cond_len = -1;
+    get_cond_len(&cond_len);
+
+    char* cond_string[cond_len+1];
+    get_cond_name(cond_string);
+    std::string cond(*cond_string);
+
+    // Write a plotfile
+    WriteSingleLevelPlotfile(name + cond, state, varnames, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

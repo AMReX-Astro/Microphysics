@@ -1,0 +1,5 @@
+F90EXE_sources += gamma_law.F90
+
+CEXE_headers += actual_eos_data.H
+CEXE_sources += actual_eos_data.cpp
+CEXE_headers += actual_eos.H

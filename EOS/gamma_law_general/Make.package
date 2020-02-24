@@ -1,1 +1,3 @@
 F90EXE_sources += actual_eos.F90
+
+CEXE_headers += actual_eos.H

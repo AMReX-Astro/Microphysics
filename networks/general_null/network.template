@@ -16,7 +16,7 @@
 
 module actual_network
 
-  use amrex_fort_module, only : rt => amrex_real
+  use amrex_fort_module, only: rt => amrex_real
 
   implicit none
 
@@ -29,16 +29,18 @@ module actual_network
   character (len=16), save :: aux_names(naux)
   character (len= 5), save :: short_aux_names(naux)
 
-  double precision, allocatable, save :: aion(:), zion(:)
+  real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:)
 
-  !$acc declare create(aion, zion)
+  !$acc declare create(aion, aion_inv, zion)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion
+  attributes(managed) :: aion, aion_inv, zion
 #endif
 
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
+
+  character (len=32), parameter :: network_name = "aprox13"
 
 contains
   
@@ -49,15 +51,20 @@ contains
     @@SHORT_SPEC_NAMES@@
 
     allocate(aion(nspec))
+    allocate(aion_inv(nspec))
     allocate(zion(nspec))
 
     @@AION@@
+
+    @@AION_INV@@
 
     @@ZION@@
 
     @@AUX_NAMES@@
 
-    !$acc update device(aion, zion)
+    @@SHORT_AUX_NAMES@@
+
+    !$acc update device(aion, aion_inv, zion)
 
   end subroutine actual_network_init
 
@@ -68,6 +75,7 @@ contains
     implicit none
 
     deallocate(aion)
+    deallocate(aion_inv)
     deallocate(zion)
 
   end subroutine actual_network_finalize

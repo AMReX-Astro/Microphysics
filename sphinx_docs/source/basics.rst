@@ -13,7 +13,7 @@ the rest. To do so, define the ``MICROPHYSICS_HOME`` environment
 variable, either at a command line or (if you use the bash shell)
 through your ``~/.bashrc``, e.g.::
 
- \texttt{export MICROPHYSICS\_HOME=/path/to/Microphysics}
+ export MICROPHYSICS_HOME=/path/to/Microphysics
 
 For CASTRO  the name of the EOS and network are set via the make
 variables ``EOS_DIR`` and ``NETWORK_DIR``. The macros in CASTRO’s
@@ -42,27 +42,27 @@ and the generic solvers:
 * ``EOS/``: the various equations of state
 
 * ``integration/``: the ODE integration routines used for the
-   reaction networks
+  reaction networks
 
 * ``interfaces/``: copies of the main derived types that are used to
-   interface with the EOS and reaction networks. Note that most application
-   codes will have their own local copies. These are provided for unit testing
-   in Microphysics.
+  interface with the EOS and reaction networks. Note that most application
+  codes will have their own local copies. These are provided for unit testing
+  in Microphysics.
 
 * ``networks/``: the nuclear reaction networks. This is mostly just the
-   righthand side of the network, as the actual integrators are decoupled from
-   the network.
+  righthand side of the network, as the actual integrators are decoupled from
+  the network.
 
 * ``neutrinos/``: neutino loss source terms for the network energy equation.
 
 * ``rates/``: common nuclear reaction rate modules used by some of the
-   networks.
+  networks.
 
 * ``screening/``: common electron screening factors used by some of the
-   reaction networks.
+  reaction networks.
 
 * ``unit_test/``: self-contained unit tests for Microphysics. These don’t
-   need any application code to build, but will require AMReX.
+  need any application code to build, but will require AMReX.
 
 * ``util/``: linear algebra solvers and other routines.
 

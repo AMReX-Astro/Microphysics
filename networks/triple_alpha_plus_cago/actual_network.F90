@@ -1,26 +1,21 @@
 module actual_network
 
+  use network_properties
   use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
-  integer, parameter :: nspec = 4
   integer, parameter :: nspec_evolve = 3
-  integer, parameter :: naux  = 0
 
   integer, parameter :: ihe4  = 1
   integer, parameter :: ic12  = 2
   integer, parameter :: io16  = 3
   integer, parameter :: ife56 = 4
 
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  double precision, allocatable :: aion(:), zion(:), ebin(:)
+  real(rt)        , allocatable :: ebin(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, ebin
+  attributes(managed) :: ebin
 #endif
 
   character (len=32), parameter :: network_name = "triple_alpha_plus_cago"
@@ -39,31 +34,9 @@ contains
 
   subroutine actual_network_init()
 
-    ! set the names
-    spec_names(ihe4)  = "helium-4"
-    spec_names(ic12)  = "carbon-12"
-    spec_names(io16)  = "oxygen-16"
-    spec_names(ife56) = "iron-56"
-
-    short_spec_names(ihe4)  = "He4"
-    short_spec_names(ic12)  = "C12"
-    short_spec_names(io16)  = "O16"
-    short_spec_names(ife56) = "Fe56"
-
-    allocate(aion(nspec))
-    allocate(zion(nspec))
+    call network_properties_init()
     allocate(ebin(nspec))
 
-    ! set the species properties
-    aion(ihe4)  =  4.0_rt
-    aion(ic12)  = 12.0_rt
-    aion(io16)  = 16.0_rt
-    aion(ife56) = 56.0_rt
-
-    zion(ihe4)  =  2.0_rt
-    zion(ic12)  =  6.0_rt
-    zion(io16)  =  8.0_rt
-    zion(ife56) = 26.0_rt
 
     ! our convention is that binding energy is negative.  The following are
     ! the binding energies per unit mass (erg / g) obtained by converting
@@ -107,12 +80,7 @@ contains
 
     implicit none
 
-    if (allocated(aion)) then
-       deallocate(aion)
-    endif
-    if (allocated(zion)) then
-       deallocate(zion)
-    endif
+    call network_properties_finalize()
     if (allocated(ebin)) then
        deallocate(ebin)
     endif

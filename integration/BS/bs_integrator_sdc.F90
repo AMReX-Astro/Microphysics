@@ -3,6 +3,7 @@
 
 module bs_integrator_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -28,12 +29,16 @@ contains
     !$acc routine seq
 
     use extern_probin_module, only: burner_verbose
-    use sdc_type_module, only: sdc_t
-    use stiff_ode, only: ode
+#if defined(SDC_EVOLVE_ENERGY)
+    use sdc_type_module, only: sdc_t, SRHO, SEINT, SEDEN, SFS
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    use sdc_type_module, only: sdc_t, SFS, SENTH
+#endif
+    use network, only: nspec
+    use stiff_ode, only: ode, IERR_NONE
     use bs_type_module, only: bs_t, sdc_to_bs, bs_to_sdc
     use amrex_constants_module, only: ZERO
-    use amrex_fort_module, only : rt => amrex_real
-    use rpar_indices, only : irp_t0
+    use bs_rpar_indices, only : irp_t0
     use integration_data, only: integration_status_t
 
     implicit none
@@ -52,11 +57,13 @@ contains
 
     type (bs_t) :: bs
 
-    real(rt) :: retry_change_factor
-
     ! BS does not allow for per-equation tolerances, so aggregate them here
-    bs % atol(:) = 0.d0
+    bs % atol(:) = 0.e0_rt
     bs % rtol(:) = max(status % rtol_spec, status % rtol_temp, status % rtol_enuc)
+
+    ! Start out by assuming a successful burn.
+
+    state_out % success = .true.
 
     ! Initialize the integration time.
     t0 = ZERO
@@ -81,6 +88,31 @@ contains
     ! Store the final data
 
     call bs_to_sdc(state_out, bs)
+
+    ! If we failed, print out the current state of the integration.
+
+    if (ierr /= IERR_NONE) then
+
+#ifndef CUDA
+#if defined(SDC_EVOLVE_ENERGY)
+       print *, 'ERROR: integration failed in net'
+       print *, 'ierr = ', ierr
+       print *, 'time = ', bs % t
+       print *, 'dens start = ', state_in % y(SRHO)
+       print *, 'eint start = ', state_in % y(SEINT) / state_in % y(SRHO)
+       print *, 'xn start = ', state_in % y(SFS:SFS+nspec-1) / state_in % y(SRHO)
+       print *, 'dens current = ', state_out % y(SRHO)
+       print *, 'eint current = ', state_out % y(SEINT) / state_out % y(SRHO)
+       print *, 'xn current = ', state_out % y(SFS:SFS+nspec-1) / state_out % y(SRHO)
+       print *, 'energy generated = ', state_out % y(SEDEN) / state_out % y(SRHO) - &
+            state_in % y(SEDEN) / state_in % y(SRHO)
+#endif
+#endif
+
+       state_out % success = .false.
+       return
+
+    endif
 
   end subroutine bs_integrator
 

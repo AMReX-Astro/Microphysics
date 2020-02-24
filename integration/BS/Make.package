@@ -1,4 +1,4 @@
-ifeq ($(USE_SDC), TRUE)
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   F90EXE_sources += bs_integrator_sdc.F90
   F90EXE_sources += bs_type_sdc.F90
   F90EXE_sources += bs_rhs_sdc.F90
@@ -10,3 +10,4 @@ else
   F90EXE_sources += bs_jac.F90
 endif
 F90EXE_sources += stiff_ode.F90
+F90EXE_sources += bs_rpar.F90

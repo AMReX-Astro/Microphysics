@@ -1,0 +1,9 @@
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+  f90EXE_sources += numerical_jacobian_sdc.f90
+else
+  F90EXE_sources += numerical_jacobian.F90
+endif
+F90EXE_sources += network_rhs.F90
+F90EXE_sources += jacobian_sparsity.F90
+F90EXE_sources += temperature_integration.F90
+f90EXE_sources += nonaka_plot.f90
