@@ -146,9 +146,9 @@ void apply_electrons(eos_t& state)
     Real din = state.y_e * state.rho;
 
     // hash locate this temperature and density
-    int jat = int((log10(state.T) - tlo) * tstpi) + 1;
+    int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
     jat = amrex::max(1, amrex::min(jat, jtmax-1)) - 1;
-    int iat = int((log10(din) - dlo) * dstpi) + 1;
+    int iat = int((std::log10(din) - dlo) * dstpi) + 1;
     iat = amrex::max(1, amrex::min(iat, itmax-1)) - 1;
 
     Real fi[36];
@@ -487,7 +487,7 @@ void apply_ions(eos_t& state)
     Real deiondz = 0.0e0_rt;
 #endif
 
-    Real x       = state.abar * state.abar * sqrt(state.abar) * deni / avo_eos;
+    Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
     Real s       = sioncon * state.T;
     Real z       = x * s * std::sqrt(s);
     Real y       = std::log(z);
@@ -1065,7 +1065,7 @@ void finalize_state (eos_input_t input, eos_t& state,
 
     // Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     // This replaces the relativistic version that comes out of helmeos.
-    state.cs = sqrt(state.gam1 * state.p / state.rho);
+    state.cs = std::sqrt(state.gam1 * state.p / state.rho);
 
     if (input_is_constant) {
 
