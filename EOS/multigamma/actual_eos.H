@@ -37,17 +37,17 @@ void actual_eos_init ()
     int idx;
 
     idx = network_spec_index(species_a_name);
-    if (idx > 0) {
+    if (idx >= 0) {
         gammas[idx] = species_a_gamma;
     }
 
     idx = network_spec_index(species_b_name);
-    if (idx > 0) {
+    if (idx >= 0) {
         gammas[idx] = species_b_gamma;
     }
 
     idx = network_spec_index(species_c_name);
-    if (idx > 0) {
+    if (idx >= 0) {
         gammas[idx] = species_c_gamma;
     }
 
@@ -180,15 +180,15 @@ void actual_eos (eos_input_t input, eos_t& state)
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
-    state.p = dens * k_B * temp / (state.abar * m_nucleon);
-    state.e = k_B * temp * sumY_gm1 / m_nucleon;
+    state.p = dens * (k_B / m_nucleon) * temp / state.abar;
+    state.e = (k_B / m_nucleon) * temp * sumY_gm1;
 
     // Enthalpy is h = e + p/rho
     state.h = state.e + state.p / dens;
 
     // entropy (per gram) -- this is wrong. Not sure what the expression
     // is for a multigamma gas
-    state.s = (k_B / (state.abar * m_nucleon)) *
+    state.s = ((k_B / m_nucleon) / state.abar) *
               (2.5_rt + std::log((std::pow(state.abar * m_nucleon, 2.5_rt) / dens) *
                                  std::pow(k_B * temp, 1.5_rt) /
                                  std::pow(2.0_rt * M_PI * hbar * hbar, 1.5_rt)));
@@ -221,7 +221,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 #endif
 
     // Sound speed
-    state.cs = sqrt(state.gam1 * state.p / dens);
+    state.cs = std::sqrt(state.gam1 * state.p / dens);
 
 }
 
