@@ -23,6 +23,8 @@ contains
     real(rt)        , optional :: small_temp
     real(rt)        , optional :: small_dens
 
+    call network_init()
+
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
     else if (present(small_temp)) then
@@ -33,7 +35,6 @@ contains
        call eos_init()
     endif
 
-    call network_init()
 #ifdef REACTIONS
     call actual_rhs_init()
 #ifndef SIMPLIFIED_SDC
