@@ -27,13 +27,6 @@ void actual_eos_init ()
         gammas[n] = eos_gamma_default;
     }
 
-    amrex::Print() << std::endl;
-    amrex::Print() << "In actual_eos_init, species, gamma: " << std::endl;
-    amrex::Print() << "species a: " << species_a_name << " " << species_a_gamma << std::endl;
-    amrex::Print() << "species b: " << species_b_name << " " << species_b_gamma << std::endl;
-    amrex::Print() << "species c: " << species_c_name << " " << species_c_gamma << std::endl;
-    amrex::Print() << std::endl;
-
     int idx;
 
     idx = network_spec_index(species_a_name);
