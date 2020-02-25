@@ -173,8 +173,12 @@ subroutine do_eos(lo, hi, &
 
            ! some EOSes don't have physically valid treatments
            ! of entropy throughout the entire rho-T plane
-           if (eos_state%s > ZERO) then
+           if (eos_name == "multigamma" .or. eos_state%s < ZERO) then
 
+              sp(ii, jj, kk, p % ierr_T_eos_ps) = ZERO
+              sp(ii, jj, kk, p % ierr_rho_eos_ps) = ZERO
+
+           else
               call eos(eos_input_ps, eos_state)
 
               ! store the thermodynamic state
@@ -183,11 +187,7 @@ subroutine do_eos(lo, hi, &
               sp(ii, jj, kk, p % ierr_rho_eos_ps) = &
                    abs(eos_state % rho - dens_zone)/dens_zone
 
-           else
-              sp(ii, jj, kk, p % ierr_T_eos_ps) = ZERO
-              sp(ii, jj, kk, p % ierr_rho_eos_ps) = ZERO
-
-           endif
+           end if
 
            call copy_eos_t(eos_state, eos_state_reference)
 
@@ -210,7 +210,9 @@ subroutine do_eos(lo, hi, &
 
            ! call EOS using T, h
            ! this doesn't work for all EOSes (where h doesn't depend on T)
-           if (eos_name == "gamma_law" .or. eos_name == "gamma_law_general") then
+           if (eos_name == "gamma_law" .or.&
+               eos_name == "gamma_law_general" .or. &
+               eos_name == "multigamma") then
               sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
            else
               ! reset rho to give it some work to do -- for helmeos, h is not
