@@ -65,6 +65,8 @@ contains
     real(rt) :: x, dxdr
     real(rt) :: B
 
+    !$gpu
+
     dens = state % rho
     temp = state % T
     pres = state % p
@@ -251,52 +253,68 @@ contains
 
 
 
-  real(rt) function pressure(x)
+  function pressure(x) result(p)
 
     implicit none
 
     real(rt), intent(in)  :: x
 
-    pressure = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
+    real(rt) :: p
+
+    !$gpu
+
+    p = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
 
   end function pressure
 
 
 
-  real(rt) function enthalpy(x, B)
+  function enthalpy(x, B) result(h)
 
     implicit none
 
     real(rt), intent(in) :: x, B
 
-    enthalpy = (EIGHT * A / B) * (ONE + x**2)**HALF
+    real(rt) :: h
+
+    !$gpu
+
+    h = (EIGHT * A / B) * (ONE + x**2)**HALF
 
   end function enthalpy
 
 
 
-  real(rt) function dpdx(x)
+  function dpdx(x) result(dp)
 
     implicit none
 
     real(rt), intent(in) :: x
 
-    dpdx = A * ((TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
-                x * (4*x) * (x**2 + ONE)**HALF + &
-                x**2 * (TWO * x**2 - THREE) * (x**2 + ONE)**(-HALF) + &
-                THREE * (x**2 + ONE)**(-HALF))
+    real(rt) :: dp
+
+    !$gpu
+
+    dp = A * ((TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
+              x * (4*x) * (x**2 + ONE)**HALF + &
+              x**2 * (TWO * x**2 - THREE) * (x**2 + ONE)**(-HALF) + &
+              THREE * (x**2 + ONE)**(-HALF))
 
   end function dpdx
 
 
 
-  real(rt) function dhdx(x, B)
+  function dhdx(x, B) result(dh)
 
     implicit none
 
     real(rt), intent(in) :: x, B
 
-    dhdx = enthalpy(x, B) * (x / (x**2 + ONE))
+    real(rt) :: dh
+
+    !$gpu
+
+    dh = enthalpy(x, B) * (x / (x**2 + ONE))
 
   end function dhdx
 
@@ -314,6 +332,8 @@ contains
 
     real(rt) :: x, dx
     integer  :: iter
+
+    !$gpu
 
     ! Starting guess for the iteration.
 
