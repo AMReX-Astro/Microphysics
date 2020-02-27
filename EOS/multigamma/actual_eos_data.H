@@ -3,7 +3,7 @@
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
-#include <network.H>
+#include <../../interfaces/network.H>
 
 extern AMREX_GPU_MANAGED amrex::Real gammas[NumSpec];
 
