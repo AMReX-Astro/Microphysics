@@ -8,7 +8,7 @@
 // a multi-gamma entropy should be, so do not rely on the entropy.
 
 #include <AMReX.H>
-#include <../../interfaces/network.H>
+#include <network.H>
 #include <actual_eos_data.H>
 #include <fundamental_constants.H>
 #include <extern_parameters.H>
