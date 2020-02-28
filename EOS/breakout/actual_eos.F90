@@ -1,7 +1,3 @@
-! This is a constant gamma equation of state, using an ideal gas.
-!
-! This a simplified version of the more general eos_gamma_general.
-!
 
 module actual_eos_module
 
@@ -10,11 +6,12 @@ module actual_eos_module
   use eos_type_module
 
   use amrex_fort_module, only : rt => amrex_real
+
   implicit none
 
-  character (len=64), public :: eos_name = "gamma_law"  
+  character (len=64), public :: eos_name = "breakout"
   
-  real(rt)        , allocatable, save :: gamma_const
+  real(rt), allocatable, save :: gamma_const
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: gamma_const
@@ -75,15 +72,17 @@ contains
     case (eos_input_rh)
 
        ! dens, enthalpy, and xmass are inputs
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: eos_input_rh is not supported in this EOS.')
 #endif
+
     case (eos_input_tp)
 
        ! temp, pres, and xmass are inputs
 #if !(defined(ACC) || defined(CUDA))
        call amrex_error('EOS: eos_input_tp is not supported in this EOS.')
 #endif
+
     case (eos_input_rp)
 
        ! dens, pres, and xmass are inputs
@@ -117,26 +116,32 @@ contains
 
        ! pressure entropy, and xmass are inputs
 
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: eos_input_ps is not supported in this EOS.')
+#endif
        
     case (eos_input_ph)
 
        ! pressure, enthalpy and xmass are inputs
-#if !(defined(ACC) || defined(CUDA))
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: eos_input_ph is not supported in this EOS.')
 #endif
+
     case (eos_input_th)
 
        ! temperature, enthalpy and xmass are inputs
 
        ! This system is underconstrained.
-#if !(defined(ACC) || defined(CUDA))       
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: eos_input_th is not a valid input for the gamma law EOS.')
 #endif
+
     case default
-#if !(defined(ACC) || defined(CUDA))       
+
+#ifndef AMREX_USE_GPU
        call amrex_error('EOS: invalid input.')
 #endif       
+
     end select
     
   end subroutine actual_eos
@@ -148,6 +153,7 @@ contains
     if (allocated(gamma_const)) then
        deallocate(gamma_const)
     endif
+
   end subroutine actual_eos_finalize
 
 end module actual_eos_module
