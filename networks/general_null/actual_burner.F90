@@ -28,6 +28,8 @@ contains
     type (burn_t),    intent(inout) :: state_out
     real(rt)        , intent(in)    :: dt, time
 
+    !$gpu
+
     ! Do nothing in this burner.
     
   end subroutine actual_burner
