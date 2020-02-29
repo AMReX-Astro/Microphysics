@@ -1,0 +1,2 @@
+LINPACK is licensed under the modified BSD-3 license.  See this discussion:
+https://bugzilla.redhat.com/show_bug.cgi?id=1000829#c13
