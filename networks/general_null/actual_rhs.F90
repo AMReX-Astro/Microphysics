@@ -25,6 +25,8 @@ contains
     type (burn_t) :: state
     real(rt), intent(inout) :: ydot(neqs)
 
+    !$gpu
+
     ! Do nothing in this RHS.
 
     ydot = ZERO
@@ -43,6 +45,8 @@ contains
     type (burn_t) :: state
     real(rt), intent(inout) :: jac(njrows, njcols)
 
+    !$gpu
+
     ! Do nothing in this RHS.
 
     jac(:,:) = ZERO
@@ -56,6 +60,8 @@ contains
     use burn_type_module, only: burn_t
 
     implicit none
+
+    !$gpu
 
     type (burn_t)    :: state
 
