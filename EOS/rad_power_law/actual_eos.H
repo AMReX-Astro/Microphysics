@@ -58,7 +58,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 
     case eos_input_re:
 
-        state.T  = std::pow((1 - eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_c_v_exp_m) / eos_const_c_v, 1 / (1 - eos_c_v_exp_n));
+        state.T  = std::pow((1 - eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_c_v_exp_m) / eos_const_c_v, 1.0_rt / (1.0_rt - eos_c_v_exp_n));
         state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
 
         break;
