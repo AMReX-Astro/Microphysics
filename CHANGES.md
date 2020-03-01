@@ -12,7 +12,7 @@
      unit test, test_eos_C, is available to test these.  (#246) The
      following EOSes have been ported to C++: ztwd (#268), multigamma
      (#265), polytrope (#264), gamma_law (#263), helmholtz (#262),
-     gamma_law_general (#246)
+     gamma_law_general (#246), rad_power_law (#269), breakout (#270)
 
    * The GPackage.mak files that were a remnant of the old
      BoxLib F90 build system have been removed.  They were
