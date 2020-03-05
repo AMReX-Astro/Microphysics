@@ -15,8 +15,8 @@ const int jmax = 201;
 extern AMREX_GPU_MANAGED int itmax;
 extern AMREX_GPU_MANAGED int jtmax;
 
-extern AMREX_GPU_MANAGED amrex::Real d[imax];
-extern AMREX_GPU_MANAGED amrex::Real t[jmax];
+extern AMREX_GPU_MANAGED amrex::Real _d[imax];
+extern AMREX_GPU_MANAGED amrex::Real _t[jmax];
 
 extern AMREX_GPU_MANAGED amrex::Real tlo;
 extern AMREX_GPU_MANAGED amrex::Real thi;
@@ -32,16 +32,16 @@ extern AMREX_GPU_MANAGED amrex::Real ttol;
 extern AMREX_GPU_MANAGED amrex::Real dtol;
 
 // for the helmholtz free energy tables
-extern AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
+extern AMREX_GPU_MANAGED amrex::Real _f[jmax][imax][9];
 
 // for the pressure derivative with density tables
-extern AMREX_GPU_MANAGED amrex::Real dpdf[jmax][imax][4];
+extern AMREX_GPU_MANAGED amrex::Real _dpdf[jmax][imax][4];
 
 // for chemical potential tables
-extern AMREX_GPU_MANAGED amrex::Real ef[jmax][imax][4];
+extern AMREX_GPU_MANAGED amrex::Real _ef[jmax][imax][4];
 
 // for the number density tables
-extern AMREX_GPU_MANAGED amrex::Real xf[jmax][imax][4];
+extern AMREX_GPU_MANAGED amrex::Real _xf[jmax][imax][4];
 
 // for storing the differences
 extern AMREX_GPU_MANAGED amrex::Real dt_sav[jmax];
