@@ -6,6 +6,13 @@
 #include "network.H"
 #include "fundamental_constants.H"
 
+AMREX_FORCE_INLINE
+void
+actual_conductivity_init()
+{
+  const_cond = const_conductivity;
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
 actual_conductivity(eos_t state) {
