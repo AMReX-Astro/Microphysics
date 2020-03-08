@@ -1,5 +1,19 @@
 # 20.03
 
+   * The nuclei information for both Fortran and C++ is now
+     automatically generated from a network inputs file at compile
+     time.  As part of this change, 1/A is precomputed and stored as a
+     constant (#253, 258).
+
+   * The license for StarKiller Microphyscs was made explicit and
+     a license.txt file was added (#267)
+
+   * A framework for pure C++ EOSes has been created and a pure C++
+     unit test, test_eos_C, is available to test these.  (#246) The
+     following EOSes have been ported to C++: ztwd (#268), multigamma
+     (#265), polytrope (#264), gamma_law (#263), helmholtz (#262),
+     gamma_law_general (#246), rad_power_law (#269), breakout (#270)
+
    * The GPackage.mak files that were a remnant of the old
      BoxLib F90 build system have been removed.  They were
      not maintained.  (#212).
