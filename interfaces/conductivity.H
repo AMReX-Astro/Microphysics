@@ -13,7 +13,7 @@ void conductivity_init() {
 
 
 AMREX_FORCE_INLINE
-void conductivity(eos_t state) {
+void conductivity(eos_t& state) {
   actual_conductivity(state);
 }
 #endif

@@ -18,6 +18,6 @@ actual_conductivity_init()
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-actual_conductivity(eos_t state) {
+actual_conductivity(eos_t& state) {
   state.conductivity = lcond_coeff * std::pow(state.T, lcond_exponent);
 }
