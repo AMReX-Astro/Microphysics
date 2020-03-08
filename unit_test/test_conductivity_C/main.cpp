@@ -9,12 +9,13 @@
 
 using namespace amrex;
 
-#include "test_eos.H"
-#include "test_eos_F.H"
+#include "test_cond.H"
+#include "test_cond_F.H"
 #include "AMReX_buildInfo.H"
 
 #include <network.H>
 #include <eos.H>
+#include <conductivity.H>
 #include <variables.H>
 
 int main (int argc, char* argv[])
@@ -104,6 +105,7 @@ void main_main ()
     init_extern_parameters();
 
     eos_init();
+    conductivity_init();
 
     auto vars = init_variables();
 

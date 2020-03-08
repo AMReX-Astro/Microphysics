@@ -1,7 +1,7 @@
 CEXE_sources += main.cpp
 
-FEXE_headers += test_eos_F.H
-CEXE_headers += test_eos.H
+FEXE_headers += test_cond_F.H
+CEXE_headers += test_cond.H
 
 CEXE_sources += variables.cpp
 CEXE_headers += variables.H

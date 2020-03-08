@@ -11,6 +11,7 @@ USE_MPI    = FALSE
 USE_OMP    = FALSE
 
 USE_REACT = FALSE
+USE_CONDUCTIVITY = TRUE
 
 EBASE = main
 
@@ -23,7 +24,7 @@ MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
-EOS_DIR     := gamma_law_general
+EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox19

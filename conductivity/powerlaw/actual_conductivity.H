@@ -6,6 +6,7 @@
 #include "network.H"
 #include "actual_conductivity_data.H"
 
+const std::string cond_name = "powerlaw";
 
 AMREX_FORCE_INLINE
 void

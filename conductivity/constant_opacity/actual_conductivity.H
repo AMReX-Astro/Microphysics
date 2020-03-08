@@ -6,6 +6,7 @@
 #include "network.H"
 #include "actual_conductivity_data.H"
 
+const std::string cond_name = "constant_opacity";
 
 AMREX_FORCE_INLINE
 void

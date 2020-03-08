@@ -6,6 +6,8 @@
 #include "network.H"
 #include "fundamental_constants.H"
 
+const std::string cond_name = "stellar";
+
 AMREX_FORCE_INLINE
 void
 actual_conductivity_init()
@@ -90,7 +92,7 @@ actual_conductivity(eos_t state) {
     ytot1 += ymass;
   }
   Real abar = 1.0e0_rt/ytot1;
-  Real zbar = zbar * abar;
+  zbar = zbar * abar;
   Real t6 = state.T * 1.0e-6_rt;
 
   Real xh = w[0];
@@ -133,7 +135,7 @@ actual_conductivity(eos_t state) {
 
   // from christy apj 144 108 1966
   if ((t6 < t6_switch2) && (xh >= 1.0e-5_rt)) {
-    Real t4 = state % T * 1.0e-4_rt;
+    Real t4 = state.T * 1.0e-4_rt;
     Real t4r = std::sqrt(t4);
     Real t44 = t4*t4*t4*t4;
     Real t45 = t44 * t4;
@@ -176,8 +178,8 @@ actual_conductivity(eos_t state) {
   if (state.eta <= 500.0_rt) {
     facetax = std::exp(0.522e0_rt*state.eta - 1.563_rt);
   }
-  faceta  = 1.0_rt + facetax;
-  ocompt = 6.65205e-25_rt/(fact * faceta) * state.xne/state.rho;
+  Real faceta  = 1.0_rt + facetax;
+  Real ocompt = 6.65205e-25_rt/(fact * faceta) * state.xne/state.rho;
   orad += ocompt;
 
   // cutoff radiative opacity when 4kt/hbar is less than the plasma
@@ -187,7 +189,7 @@ actual_conductivity(eos_t state) {
     if (tcut > 200.0_rt*state.T) {
       orad = orad * 2.658e86_rt;
     } else {
-      cutfac = std::exp(tcut/state.T - 1.0_rt);
+      Real cutfac = std::exp(tcut/state.T - 1.0_rt);
       orad = orad * cutfac;
     }
   }
@@ -215,10 +217,10 @@ actual_conductivity(eos_t state) {
 
   // from iben apj 196 525 1975 for non-degenerate regimes
   if (dlog10 < drelim) {
-    Real zdel = state.xne/(avo*t6*std::sqrt(t6));
+    Real zdel = state.xne/(n_A*t6*std::sqrt(t6));
     Real zdell10 = std::log10(zdel);
     Real eta0 = std::exp(-1.20322_rt + twoth * std::log(zdel));
-    eta02 = eta0*eta0;
+    Real eta02 = eta0*eta0;
 
     // thpl factor
     Real thpl;
@@ -258,10 +260,10 @@ actual_conductivity(eos_t state) {
     } else {
       dnefac = 1.5_rt/eta0 * (1.0_rt - 0.8225_rt/eta02);
     }
-    wpar2 = 9.24735e-3_rt * zdel *
-      (state.rho*avo*(w[3]+w[4]+w[5])/state.xne + dnefac)/(std::sqrt(t6)*pefac);
-    walf = 0.5_rt * std::log(wpar2);
-    walf10 = 0.5_rt * std::log10(wpar2);
+    Real wpar2 = 9.24735e-3_rt * zdel *
+      (state.rho*n_A*(w[3]+w[4]+w[5])/state.xne + dnefac)/(std::sqrt(t6)*pefac);
+    Real walf = 0.5_rt * std::log(wpar2);
+    Real walf10 = 0.5_rt * std::log10(wpar2);
 
     // thx, thy and thc factors
     Real thx;
@@ -315,16 +317,15 @@ actual_conductivity(eos_t state) {
       * ( yg*yg*yg / (3.0_rt * std::pow(1.0_rt + 0.07414_rt * yg, 3))
           * std::log((2.81_rt - 0.810_rt*beta2 + yg)/yg)
           + std::pow(M_PI, 5/6.0_rt) * std::pow(yg/(13.91_rt + yg), 4));
-    Real vee = 0.511_rt * state.T*state.T * xmas/(ymas*ymass) * std::sqrt(xmas/ymas) * jy;
+    Real vee = 0.511_rt * state.T*state.T * xmas/(ymas*ymas) * std::sqrt(xmas/ymas) * jy;
     Real cee = wfac/vee;
 
     // total electron thermal conductivity and conversion to an opacity
     Real ov1 = cie * cee/(cee + cie);
-    ov = k2c/(ov1*state % rho) * state.T*state.T*state.T;
+    ov = k2c/(ov1*state.rho) * state.T*state.T*state.T;
   }
 
   // blend the opacities in the intermediate region
-  Real ocond;
   if (dlog10 <= drel10) {
     ocond = oh;
   } else if (dlog10 > drel10 && dlog10 < drelim) {
@@ -341,6 +342,6 @@ actual_conductivity(eos_t state) {
   // total opacity
   opac = orad * ocond / (ocond + orad);
 
-  state % conductivity = k2c * state.T*state.T*state.T / (opac * state.rho);
+  state.conductivity = k2c * state.T*state.T*state.T / (opac * state.rho);
 }
 #endif
