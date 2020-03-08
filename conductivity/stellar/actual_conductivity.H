@@ -1,5 +1,5 @@
-#ifndef _conductivity_H_
-#define _conductivity_H_
+#ifndef _actual_conductivity_H_
+#define _actual_conductivity_H_
 
 #include <cmath>
 #include "eos_type.H"
@@ -10,7 +10,7 @@ AMREX_FORCE_INLINE
 void
 actual_conductivity_init()
 {
-  const_cond = const_conductivity;
+
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

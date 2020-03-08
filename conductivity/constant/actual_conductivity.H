@@ -1,10 +1,10 @@
-#ifndef _conductivity_H_
-#define _conductivity_H_
+#ifndef _actual_conductivity_H_
+#define _actual_conductivity_H_
 
 #include <cmath>
 #include "eos_type.H"
 #include "network.H"
-#include "conductivity_data.H"
+#include "actual_conductivity_data.H"
 
 
 AMREX_FORCE_INLINE
