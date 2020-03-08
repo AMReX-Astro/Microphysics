@@ -68,7 +68,7 @@ contains
        ydot(:) = react_boost * ydot(:)
     endif
 
-    call burn_to_vode(burn_state, y, rpar)
+    !call burn_to_vode(burn_state, y, rpar)
 
   end subroutine f_rhs
 
@@ -126,7 +126,7 @@ contains
        pd(net_ienuc,:) = ZERO
     endif
 
-    call burn_to_vode(state, y, rpar)
+    !call burn_to_vode(state, y, rpar)
 
   end subroutine jac
 end module vode_rhs_module
