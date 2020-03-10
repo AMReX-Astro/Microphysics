@@ -9,7 +9,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64), public :: eos_name = "breakout"
+  character (len=64), parameter :: eos_name = "breakout"
   
   real(rt), allocatable, save :: gamma_const
 

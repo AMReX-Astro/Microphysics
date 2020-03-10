@@ -24,7 +24,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64), public :: eos_name = "ztwd"
+  character (len=64), parameter :: eos_name = "ztwd"
 
   real(rt), parameter, private :: A = M_PI * m_e**4 * c_light**5 / (THREE * hplanck**3)
   real(rt), parameter, private :: B2 = EIGHT * M_PI * m_e**3 * c_light**3 * m_p  / (THREE * hplanck**3)

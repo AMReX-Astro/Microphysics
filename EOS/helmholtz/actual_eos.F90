@@ -3,7 +3,7 @@ module actual_eos_module
   use eos_type_module
 
   use amrex_fort_module, only : rt => amrex_real
-  character (len=64), public :: eos_name = "helmholtz"
+  character (len=64), parameter :: eos_name = "helmholtz"
 
   ! Runtime parameters
   logical, allocatable :: do_coulomb
