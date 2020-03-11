@@ -86,35 +86,35 @@ contains
 
     S = (vstate % TOUT - vstate % TN)/vstate % H
     IC = 1
-    IF (K .EQ. 0) GO TO 15
-    JJ1 = vstate % L - K
-    do JJ = JJ1, vstate % NQ
-       IC = IC*JJ
-    end do
-15  continue
+    IF (K /= 0) then
+       JJ1 = vstate % L - K
+       do JJ = JJ1, vstate % NQ
+          IC = IC*JJ
+       end do
+    end IF
     C = REAL(IC)
     do I = 1, VODE_NEQS
        vstate % Y(I) = C * rwork % YH(I,vstate % L)
     end do
-    IF (K .EQ. vstate % NQ) GO TO 55
-    JB2 = vstate % NQ - K
-    do JB = 1, JB2
-       J = vstate % NQ - JB
-       JP1 = J + 1
-       IC = 1
-       IF (K .EQ. 0) GO TO 35
-       JJ1 = JP1 - K
-       do JJ = JJ1, J
-          IC = IC*JJ
+    IF (K /= vstate % NQ) then
+       JB2 = vstate % NQ - K
+       do JB = 1, JB2
+          J = vstate % NQ - JB
+          JP1 = J + 1
+          IC = 1
+          IF (K /= 0) then
+             JJ1 = JP1 - K
+             do JJ = JJ1, J
+                IC = IC*JJ
+             end do
+          end IF
+          C = REAL(IC)
+          do I = 1, VODE_NEQS
+             vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
+          end do
        end do
-35     continue
-       C = REAL(IC)
-       do I = 1, VODE_NEQS
-          vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
-       end do
-    end do
-    IF (K .EQ. 0) RETURN
-55  continue
+       IF (K .EQ. 0) RETURN
+    end IF
     R = vstate % H**(-K)
 
     vstate % Y(:) = vstate % Y(:) * R
