@@ -1,0 +1,16 @@
+&extern
+
+  dens_min   = 10.d0
+  dens_max   = 5.e9
+  temp_min   = 1.d6
+  temp_max   = 1.d10
+
+  metalicity_max = 0.5d0
+
+  species_a_name = "helium-4"
+  species_a_gamma = 1.6666
+
+  species_b_name = "carbon-12"
+  species_b_gamma = 1.333333
+
+/

@@ -18,7 +18,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64) :: eos_name = "rad_power_law"
+  character (len=64), parameter :: eos_name = "rad_power_law"
 
   real(rt), allocatable, save :: const_c_v, c_v_exp_m, c_v_exp_n
 
@@ -89,7 +89,7 @@ contains
 
     case (eos_input_re)
 
-       state % T = ((1 - c_v_exp_n) * state % e * state % rho**(-c_v_exp_m) / const_c_v)**(1 / (1 - c_v_exp_n))
+       state % T = ((1 - c_v_exp_n) * state % e * state % rho**(-c_v_exp_m) / const_c_v)**(1.0_rt / (1.0_rt - c_v_exp_n))
        state % cv = const_c_v * state % rho**c_v_exp_m * state % T**(-c_v_exp_n)
 
     case default

@@ -31,8 +31,10 @@ def main():
     f90_name = os.path.join(args.odir, "network_properties.F90")
     cxx_name = os.path.join(args.odir, "network_properties.H")
 
-    if not os.path.isdir(args.odir):
+    try:
         os.makedirs(args.odir)
+    except FileExistsError:
+        pass
 
     write_network.write_network(fortran_template, cxx_template,
                                 net_file,
