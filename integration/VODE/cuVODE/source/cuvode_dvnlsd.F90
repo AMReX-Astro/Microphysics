@@ -123,22 +123,25 @@ contains
     ! If this is functional iteration, set CRATE .eq. 1 and drop to 220
     IF (vstate % MITER .EQ. 0) THEN
        vstate % CRATE = ONE
-       GO TO 220
-    ENDIF
-    ! -----------------------------------------------------------------------
-    !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
-    !  When RC differs from 1 by more than CCMAX, IPUP is set to MITER
-    !  to force DVJAC to be called, if a Jacobian is involved.
-    !  In any case, DVJAC is called at least every MSBP steps.
-    ! -----------------------------------------------------------------------
-    vstate % DRC = ABS(vstate % RC-ONE)
-    IF (vstate % DRC .GT. CCMAX .OR. vstate % NST .GE. vstate % NSLP+MSBP) vstate % IPUP = vstate % MITER
+    else
+
+       ! -----------------------------------------------------------------------
+       !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
+       !  When RC differs from 1 by more than CCMAX, IPUP is set to MITER
+       !  to force DVJAC to be called, if a Jacobian is involved.
+       !  In any case, DVJAC is called at least every MSBP steps.
+       ! -----------------------------------------------------------------------
+       vstate % DRC = ABS(vstate % RC-ONE)
+       IF (vstate % DRC .GT. CCMAX .OR. vstate % NST .GE. vstate % NSLP+MSBP) vstate % IPUP = vstate % MITER
+    end IF
+
     ! -----------------------------------------------------------------------
     !  Up to MAXCOR corrector iterations are taken.  A convergence test is
     !  made on the r.m.s. norm of each correction, weighted by the error
     !  weight array EWT.  The sum of the corrections is accumulated in the
     !  array ACOR(i).  The YH array is not altered in the corrector loop.
     ! -----------------------------------------------------------------------
+
 220 continue
     M = 0
     DELP = ZERO
@@ -146,21 +149,23 @@ contains
     vstate % Y(1:VODE_NEQS) = rwork % yh(1:VODE_NEQS,1)
     CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
     vstate % NFE = vstate % NFE + 1
-    IF (vstate % IPUP .LE. 0) GO TO 250
-    ! -----------------------------------------------------------------------
-    !  If indicated, the matrix P = I - h*rl1*J is reevaluated and
-    !  preprocessed before starting the corrector iteration.  IPUP is set
-    !  to 0 as an indicator that this has been done.
-    ! -----------------------------------------------------------------------
-    CALL DVJAC (IWM, IERPJ, rwork, vstate)
-    vstate % IPUP = 0
-    vstate % RC = ONE
-    vstate % DRC = ZERO
-    vstate % CRATE = ONE
-    vstate % NSLP = vstate % NST
-    ! If matrix is singular, take error return to force cut in step size. --
-    IF (IERPJ .NE. 0) GO TO 430
-250 continue
+
+    IF (vstate % IPUP > 0) then
+       ! -----------------------------------------------------------------------
+       !  If indicated, the matrix P = I - h*rl1*J is reevaluated and
+       !  preprocessed before starting the corrector iteration.  IPUP is set
+       !  to 0 as an indicator that this has been done.
+       ! -----------------------------------------------------------------------
+       CALL DVJAC (IWM, IERPJ, rwork, vstate)
+       vstate % IPUP = 0
+       vstate % RC = ONE
+       vstate % DRC = ZERO
+       vstate % CRATE = ONE
+       vstate % NSLP = vstate % NST
+       ! If matrix is singular, take error return to force cut in step size. --
+       IF (IERPJ .NE. 0) GO TO 430
+    end IF
+
     do I = 1,VODE_NEQS
        rwork % acor(I) = ZERO
     end do
