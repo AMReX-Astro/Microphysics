@@ -65,39 +65,11 @@ contains
 
     !$gpu
 
+    ! we only care about miter = 1 or 2
+
     IERSL = 0
-    GO TO (100, 100, 300, 400, 400), vstate % MITER
-100 continue
     CALL DGESL (WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), vstate % Y(:))
-    RETURN
 
-300 continue
-    PHRL1 = WM(2)
-    HRL1 = vstate % H*vstate % RL1
-    WM(2) = HRL1
-    IF (HRL1 .EQ. PHRL1) GO TO 330
-    R = HRL1/PHRL1
-    do I = 1,VODE_NEQS
-       DI = ONE - R*(ONE - ONE/WM(I+2))
-       IF (ABS(DI) .EQ. ZERO) GO TO 390
-       WM(I+2) = ONE/DI
-    end do
-
-330 continue
-    do I = 1,VODE_NEQS
-       vstate % Y(I) = WM(I+2)*vstate % Y(I)
-    end do
-    RETURN
-390 continue
-    IERSL = 1
-    RETURN
-
-400 continue
-    ML = IWM(1)
-    MU = IWM(2)
-    MEBAND = 2*ML + MU + 1
-    CALL DGBSL (WM(3:3 + MEBAND * VODE_NEQS - 1), MEBAND, &
-         ML, MU, IWM(31:31 + VODE_NEQS - 1), vstate % Y(:), 0)
     RETURN
   end subroutine dvsol
 

@@ -57,127 +57,81 @@ contains
     NQM2 = vstate % NQ - 2
 
 
-    if (vstate % METH == 1) then
+    ! hacked out the METH = 1 code
 
-       ! -----------------------------------------------------------------------
-       !  Nonstiff option...
-       !  Check to see if the order is being increased or decreased.
-       ! -----------------------------------------------------------------------
 
-       IF (IORD /= 1) then
+    ! -----------------------------------------------------------------------
+    !  Stiff option...
+    !  Check to see if the order is being increased or decreased.
+    ! -----------------------------------------------------------------------
 
-          ! Order decrease. ------------------------------------------------------
-          do J = 1, VODE_LMAX
-             vstate % EL(J) = ZERO
-          end do
-          vstate % EL(2) = ONE
-          HSUM = ZERO
-          do J = 1, NQM2
-             ! Construct coefficients of x*(x+xi(1))*...*(x+xi(j)). -----------------
-             HSUM = HSUM + vstate % TAU(J)
-             XI = HSUM/vstate % HSCAL
-             JP1 = J + 1
-             do IBACK = 1, JP1
-                I = (J + 3) - IBACK
-                vstate % EL(I) = vstate % EL(I)*XI + vstate % EL(I-1)
-             end do
-          end do
-          ! Construct coefficients of integrated polynomial. ---------------------
-          do J = 2, NQM1
-             vstate % EL(J+1) = REAL(vstate % NQ) * vstate % EL(J)/REAL(J)
-          end do
-          ! Subtract correction terms from YH array. -----------------------------
-          do J = 3, vstate % NQ
-             do I = 1, VODE_NEQS
-                rwork % YH(I,J) = rwork % YH(I,J) - &
-                     rwork % YH(I,vstate % L) * vstate % EL(J)
-             end do
-          end do
+    IF (IORD /= 1) then
 
-       else
-          ! Order increase. ------------------------------------------------------
-          ! Zero out next column in YH array. ------------------------------------
-          LP1 = vstate % L + 1
+       ! Order decrease. ------------------------------------------------------
+       do J = 1, VODE_LMAX
+          vstate % EL(J) = ZERO
+       end do
+       vstate % EL(3) = ONE
+       HSUM = ZERO
+       do J = 1,NQM2
+          ! Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)). ---------------
+          HSUM = HSUM + vstate % TAU(J)
+          XI = HSUM/vstate % HSCAL
+          JP1 = J + 1
+          do IBACK = 1, JP1
+             I = (J + 4) - IBACK
+             vstate % EL(I) = vstate % EL(I) * XI + vstate % EL(I-1)
+          end do
+       end do
+       ! Subtract correction terms from YH array. -----------------------------
+       do J = 3,vstate % NQ
           do I = 1, VODE_NEQS
-             rwork % YH(I,LP1) = ZERO
+             rwork % YH(I,J) = rwork % YH(I,J) - &
+                  rwork % YH(I,vstate % L) * vstate % EL(J)
           end do
-       end IF
+       end do
 
     else
 
-       ! -----------------------------------------------------------------------
-       !  Stiff option...
-       !  Check to see if the order is being increased or decreased.
-       ! -----------------------------------------------------------------------
-
-       IF (IORD /= 1) then
-
-          ! Order decrease. ------------------------------------------------------
-          do J = 1, VODE_LMAX
-             vstate % EL(J) = ZERO
-          end do
-          vstate % EL(3) = ONE
-          HSUM = ZERO
-          do J = 1,NQM2
+       ! Order increase. ------------------------------------------------------
+       do J = 1, VODE_LMAX
+          vstate % EL(J) = ZERO
+       end do
+       vstate % EL(3) = ONE
+       ALPH0 = -ONE
+       ALPH1 = ONE
+       PROD = ONE
+       XIOLD = ONE
+       HSUM = vstate % HSCAL
+       IF (vstate % NQ /= 1) then
+          do J = 1, NQM1
              ! Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)). ---------------
-             HSUM = HSUM + vstate % TAU(J)
-             XI = HSUM/vstate % HSCAL
              JP1 = J + 1
+             HSUM = HSUM + vstate % TAU(JP1)
+             XI = HSUM/vstate % HSCAL
+             PROD = PROD*XI
+             ALPH0 = ALPH0 - ONE/REAL(JP1)
+             ALPH1 = ALPH1 + ONE/XI
              do IBACK = 1, JP1
                 I = (J + 4) - IBACK
-                vstate % EL(I) = vstate % EL(I) * XI + vstate % EL(I-1)
+                vstate % EL(I) = vstate % EL(I) * XIOLD + vstate % EL(I-1)
              end do
+             XIOLD = XI
           end do
-          ! Subtract correction terms from YH array. -----------------------------
-          do J = 3,vstate % NQ
-             do I = 1, VODE_NEQS
-                rwork % YH(I,J) = rwork % YH(I,J) - &
-                     rwork % YH(I,vstate % L) * vstate % EL(J)
-             end do
-          end do
+       end IF
 
-       else
+       T1 = (-ALPH0 - ALPH1)/PROD
+       ! Load column L + 1 in YH array. ---------------------------------------
+       LP1 = vstate % L + 1
+       do I = 1, VODE_NEQS
+          rwork % YH(I,LP1) = T1 * rwork % YH(I,VODE_LMAX)
+       end do
+       ! Add correction terms to YH array. ------------------------------------
+       NQP1 = vstate % NQ + 1
+       do J = 3, NQP1
+          rwork % YH(:,J) = rwork % YH(:,J) + vstate % EL(J) * rwork % YH(:,LP1)
+       end do
 
-          ! Order increase. ------------------------------------------------------
-          do J = 1, VODE_LMAX
-             vstate % EL(J) = ZERO
-          end do
-          vstate % EL(3) = ONE
-          ALPH0 = -ONE
-          ALPH1 = ONE
-          PROD = ONE
-          XIOLD = ONE
-          HSUM = vstate % HSCAL
-          IF (vstate % NQ /= 1) then
-             do J = 1, NQM1
-                ! Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)). ---------------
-                JP1 = J + 1
-                HSUM = HSUM + vstate % TAU(JP1)
-                XI = HSUM/vstate % HSCAL
-                PROD = PROD*XI
-                ALPH0 = ALPH0 - ONE/REAL(JP1)
-                ALPH1 = ALPH1 + ONE/XI
-                do IBACK = 1, JP1
-                   I = (J + 4) - IBACK
-                   vstate % EL(I) = vstate % EL(I) * XIOLD + vstate % EL(I-1)
-                end do
-                XIOLD = XI
-             end do
-          end IF
-
-          T1 = (-ALPH0 - ALPH1)/PROD
-          ! Load column L + 1 in YH array. ---------------------------------------
-          LP1 = vstate % L + 1
-          do I = 1, VODE_NEQS
-             rwork % YH(I,LP1) = T1 * rwork % YH(I,VODE_LMAX)
-          end do
-          ! Add correction terms to YH array. ------------------------------------
-          NQP1 = vstate % NQ + 1
-          do J = 3, NQP1
-             rwork % YH(:,J) = rwork % YH(:,J) + vstate % EL(J) * rwork % YH(:,LP1)
-          end do
-
-       end if
     end if
 
     return

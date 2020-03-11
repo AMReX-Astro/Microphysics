@@ -160,29 +160,6 @@ contains
        return
     end if
 
-    IF (vstate % MITER > 3) then
-       ML = IWORK(1)
-       MU = IWORK(2)
-
-       if (ML .LT. 0 .OR. ML .GE. VODE_NEQS) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-          CALL XERRWD (MSG, 50, 9, 1, 2, ML, VODE_NEQS, 0, ZERO, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       if (MU .LT. 0 .OR. MU .GE. VODE_NEQS) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-          CALL XERRWD (MSG, 50, 10, 1, 2, MU, VODE_NEQS, 0, ZERO, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-    end if
 
     ! Next process and check the optional input. ---------------------------
 
@@ -268,12 +245,6 @@ contains
     JCO = MAX(0,vstate % JSV)
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        vstate % LOCJS = VODE_NEQS*VODE_NEQS + 3
-    ENDIF
-    IF (vstate % MITER .EQ. 4 .OR. vstate % MITER .EQ. 5) THEN
-       MBAND = ML + MU + 1
-       LENP = (MBAND + ML)*VODE_NEQS
-       LENJ = MBAND*VODE_NEQS
-       vstate % LOCJS = LENP + 3
     ENDIF
 
     ! Check RTOL and ATOL for legality. ------------------------------------

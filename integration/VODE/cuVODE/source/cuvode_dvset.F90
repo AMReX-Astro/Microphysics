@@ -84,84 +84,10 @@ contains
     NQM1 = vstate % NQ - 1
     NQM2 = vstate % NQ - 2
 
-    select case (vstate % METH)
-    case (1)
-       go to 100
-    case (2)
-       go to 200
-    end select
+    ! hacked out the METH = 1 code
 
-    !  Set coefficients for Adams methods. ----------------------------------
-100 IF (vstate % NQ .NE. 1) GO TO 110
-    vstate % EL(1) = ONE
-    vstate % EL(2) = ONE
-    vstate % TQ(1) = ONE
-    vstate % TQ(2) = TWO
-    vstate % TQ(3) = SIX*vstate % TQ(2)
-    vstate % TQ(5) = ONE
-    GO TO 300
-110 continue
-    HSUM = vstate % H
-    EM(1) = ONE
-    FLOTNQ = FLOTL - ONE
-    do I = 2, vstate % L
-       EM(I) = ZERO
-    end do
-    do J = 1, NQM1
-       IF ((J .NE. NQM1) .OR. (vstate % NQWAIT .NE. 1)) GO TO 130
-       S = ONE
-       CSUM = ZERO
-       do I = 1, NQM1
-          CSUM = CSUM + S*EM(I)/REAL(I+1)
-          S = -S
-       end do
-       vstate % TQ(1) = EM(NQM1)/(FLOTNQ*CSUM)
-130    continue
-       RXI = vstate % H/HSUM
-       do IBACK = 1, J
-          I = (J + 2) - IBACK
-          EM(I) = EM(I) + EM(I-1)*RXI
-       end do
-       HSUM = HSUM + vstate % TAU(J)
-    end do
-    ! Compute integral from -1 to 0 of polynomial and of x times it. -------
-    S = ONE
-    EM0 = ZERO
-    CSUM = ZERO
-    do I = 1, vstate % NQ
-       FLOTI = REAL(I)
-       EM0 = EM0 + S*EM(I)/FLOTI
-       CSUM = CSUM + S*EM(I)/(FLOTI+ONE)
-       S = -S
-    end do
-    ! In EL, form coefficients of normalized integrated polynomial. --------
-    S = ONE/EM0
-    vstate % EL(1) = ONE
-    do I = 1, vstate % NQ
-       vstate % EL(I+1) = S*EM(I)/REAL(I)
-    end do
-    XI = HSUM/vstate % H
-    vstate % TQ(2) = XI*EM0/CSUM
-    vstate % TQ(5) = XI/vstate % EL(vstate % L)
-    IF (vstate % NQWAIT .NE. 1) GO TO 300
-    ! For higher order control constant, multiply polynomial by 1+x/xi(q). -
-    RXI = ONE/XI
-    do IBACK = 1, vstate % NQ
-       I = (vstate % L + 1) - IBACK
-       EM(I) = EM(I) + EM(I-1)*RXI
-    end do
-    ! Compute integral of polynomial. --------------------------------------
-    S = ONE
-    CSUM = ZERO
-    do I = 1, vstate % L
-       CSUM = CSUM + S*EM(I)/REAL(I+1)
-       S = -S
-    end do
-    vstate % TQ(3) = FLOTL*EM0/CSUM
-    GO TO 300
 
     ! Set coefficients for BDF methods. ------------------------------------
-200 continue
     do I = 3, vstate % L
        vstate % EL(I) = ZERO
     end do
@@ -172,45 +98,47 @@ contains
     HSUM = vstate % H
     RXI = ONE
     RXIS = ONE
-    IF (vstate % NQ .EQ. 1) GO TO 240
-    do J = 1, NQM2
-       ! In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)). ------
-       HSUM = HSUM + vstate % TAU(J)
-       RXI = vstate % H/HSUM
-       JP1 = J + 1
-       ALPH0 = ALPH0 - ONE/REAL(JP1)
-       do IBACK = 1, JP1
-          I = (J + 3) - IBACK
-          vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXI
+    IF (vstate % NQ /= 1) then
+       do J = 1, NQM2
+          ! In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)). ------
+          HSUM = HSUM + vstate % TAU(J)
+          RXI = vstate % H/HSUM
+          JP1 = J + 1
+          ALPH0 = ALPH0 - ONE/REAL(JP1)
+          do IBACK = 1, JP1
+             I = (J + 3) - IBACK
+             vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXI
+          end do
        end do
-    end do
-    ALPH0 = ALPH0 - ONE/REAL(vstate % NQ)
-    RXIS = -vstate % EL(2) - ALPH0
-    HSUM = HSUM + vstate % TAU(NQM1)
-    RXI = vstate % H/HSUM
-    AHATN0 = -vstate % EL(2) - RXI
-    do IBACK = 1, vstate % NQ
-       I = (vstate % NQ + 2) - IBACK
-       vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXIS
-    end do
-240 continue
+       ALPH0 = ALPH0 - ONE/REAL(vstate % NQ)
+       RXIS = -vstate % EL(2) - ALPH0
+       HSUM = HSUM + vstate % TAU(NQM1)
+       RXI = vstate % H/HSUM
+       AHATN0 = -vstate % EL(2) - RXI
+       do IBACK = 1, vstate % NQ
+          I = (vstate % NQ + 2) - IBACK
+          vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXIS
+       end do
+    end IF
+
     T1 = ONE - AHATN0 + ALPH0
     T2 = ONE + REAL(vstate % NQ)*T1
     vstate % TQ(2) = ABS(ALPH0*T2/T1)
     vstate % TQ(5) = ABS(T2/(vstate % EL(vstate % L)*RXI/RXIS))
-    IF (vstate % NQWAIT .NE. 1) GO TO 300
-    CNQM1 = RXIS/vstate % EL(vstate % L)
-    T3 = ALPH0 + ONE/REAL(vstate % NQ)
-    T4 = AHATN0 + RXI
-    ELP = T3/(ONE - T4 + T3)
-    vstate % TQ(1) = ABS(ELP/CNQM1)
-    HSUM = HSUM + vstate % TAU(vstate % NQ)
-    RXI = vstate % H/HSUM
-    T5 = ALPH0 - ONE/REAL(vstate % NQ+1)
-    T6 = AHATN0 - RXI
-    ELP = T2/(ONE - T6 + T5)
-    vstate % TQ(3) = ABS(ELP*RXI*(FLOTL + ONE)*T5)
-300 continue
+
+    IF (vstate % NQWAIT == 1) then
+       CNQM1 = RXIS/vstate % EL(vstate % L)
+       T3 = ALPH0 + ONE/REAL(vstate % NQ)
+       T4 = AHATN0 + RXI
+       ELP = T3/(ONE - T4 + T3)
+       vstate % TQ(1) = ABS(ELP/CNQM1)
+       HSUM = HSUM + vstate % TAU(vstate % NQ)
+       RXI = vstate % H/HSUM
+       T5 = ALPH0 - ONE/REAL(vstate % NQ+1)
+       T6 = AHATN0 - RXI
+       ELP = T2/(ONE - T6 + T5)
+       vstate % TQ(3) = ABS(ELP*RXI*(FLOTL + ONE)*T5)
+    end IF
     vstate % TQ(4) = CORTES*vstate % TQ(2)
     RETURN
   end subroutine dvset
