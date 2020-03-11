@@ -51,27 +51,24 @@ contains
 
     !$gpu
 
-    GO TO (10, 20, 30, 40), VODE_ITOL
-10  CONTINUE
-    do I = 1,VODE_NEQS
-       rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
-    end do
-    RETURN
-20  CONTINUE
-    do I = 1,VODE_NEQS
-       rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
-    end do
-    RETURN
-30  CONTINUE
-    do I = 1,VODE_NEQS
-       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
-    end do
-    RETURN
-40  CONTINUE
+    if (VODE_ITOL == 1) then
+       do I = 1,VODE_NEQS
+          rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
+       end do
+    else if (VODE_ITOL == 2) then
+       do I = 1,VODE_NEQS
+          rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
+       end do
+    else if (VODE_ITOL == 3) then
+       do I = 1,VODE_NEQS
+          rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
+       end do
+    else if (VODE_ITOL == 4) then
+       do I = 1,VODE_NEQS
+          rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
+       end do
+    end if
 
-    do I = 1,VODE_NEQS
-       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
-    end do
     RETURN
   end subroutine dewset
 

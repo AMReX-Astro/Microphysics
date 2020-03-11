@@ -187,32 +187,27 @@ contains
     !  Finally, the history array YH is rescaled.
     ! -----------------------------------------------------------------------
 100 CONTINUE
-    !don - remove the following logic we don't use?
-    IF (VODE_NEQS .EQ. VODE_NEQS) GO TO 120
-    I1 = 1 + (vstate % NEWQ + 1)*VODE_NEQS
-    I2 = (VODE_MAXORD + 1)*VODE_NEQS
-    IF (I1 .GT. I2) GO TO 120
-    rwork % YH(:, vstate % NEWQ + 1:) = ZERO
-120 IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 140
-    FLOTL = REAL(VODE_LMAX)
-    IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
-       DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
-       vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-    ENDIF
-    IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
-    IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
-       vstate % ETA = ETAQM1
-       CALL DVJUST (-1, rwork, vstate)
-    ENDIF
-    IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-       DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
-       vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-       CALL DVJUST (-1, rwork, vstate)
-    ENDIF
-    vstate % ETA = MIN(vstate % ETA,ONE)
-    vstate % NQ = VODE_MAXORD
-    vstate % L = VODE_LMAX
-140 continue
+
+    IF (vstate % NEWQ > VODE_MAXORD) then
+       FLOTL = REAL(VODE_LMAX)
+       IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
+          DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+          vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+       ENDIF
+       IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
+       IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
+          vstate % ETA = ETAQM1
+          CALL DVJUST (-1, rwork, vstate)
+       ENDIF
+       IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
+          DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+          vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+          CALL DVJUST (-1, rwork, vstate)
+       ENDIF
+       vstate % ETA = MIN(vstate % ETA,ONE)
+       vstate % NQ = VODE_MAXORD
+       vstate % L = VODE_LMAX
+    end IF
     IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
     IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
     vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
@@ -251,32 +246,33 @@ contains
     !
     CALL dvnlsd (IWM, NFLAG, rwork, vstate)
 
-    IF (NFLAG .EQ. 0) GO TO 450
-    ! -----------------------------------------------------------------------
-    !  The VNLS routine failed to achieve convergence (NFLAG .NE. 0).
-    !  The YH array is retracted to its values before prediction.
-    !  The step size H is reduced and the step is retried, if possible.
-    !  Otherwise, an error exit is taken.
-    ! -----------------------------------------------------------------------
-    NCF = NCF + 1
-    vstate % NCFN = vstate % NCFN + 1
-    vstate % ETAMAX = ONE
-    vstate % TN = TOLD
+    IF (NFLAG /= 0) then
+       ! -----------------------------------------------------------------------
+       !  The VNLS routine failed to achieve convergence (NFLAG .NE. 0).
+       !  The YH array is retracted to its values before prediction.
+       !  The step size H is reduced and the step is retried, if possible.
+       !  Otherwise, an error exit is taken.
+       ! -----------------------------------------------------------------------
+       NCF = NCF + 1
+       vstate % NCFN = vstate % NCFN + 1
+       vstate % ETAMAX = ONE
+       vstate % TN = TOLD
 
-    call retract_nordsieck(rwork, vstate)
+       call retract_nordsieck(rwork, vstate)
 
-    IF (NFLAG .LT. -1) GO TO 680
-    IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
-    IF (NCF .EQ. MXNCF) GO TO 670
-    vstate % ETA = ETACF
-    vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H))
-    NFLAG = -1
-    GO TO 150
-    ! -----------------------------------------------------------------------
-    !  The corrector has converged (NFLAG = 0).  The local error test is
-    !  made and control passes to statement 500 if it fails.
-    ! -----------------------------------------------------------------------
-450 CONTINUE
+       IF (NFLAG .LT. -1) GO TO 680
+       IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
+       IF (NCF .EQ. MXNCF) GO TO 670
+       vstate % ETA = ETACF
+       vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H))
+       NFLAG = -1
+       GO TO 150
+       ! -----------------------------------------------------------------------
+       !  The corrector has converged (NFLAG = 0).  The local error test is
+       !  made and control passes to statement 500 if it fails.
+       ! -----------------------------------------------------------------------
+    end IF
+
     DSM = vstate % ACNRM/vstate % TQ(2)
     IF (DSM .GT. ONE) GO TO 500
     ! -----------------------------------------------------------------------
