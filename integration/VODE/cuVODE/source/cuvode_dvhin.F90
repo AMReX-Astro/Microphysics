@@ -136,7 +136,7 @@ contains
     if (do_iterations) then
 
        ! Looping point for iteration. -----------------------------------------
-       do while (ITER < 4)
+       do while (.true.)
 
           ! Estimate the second derivative as a difference quotient in f. --------
           H = SIGN (HG, vstate % TOUT - vstate % T)
@@ -163,6 +163,8 @@ contains
           !  if HNEW/HG .gt. 2 after first iteration, as this probably means that
           !  the second derivative value is bad because of cancellation error.
           ! -----------------------------------------------------------------------
+          if (iter >= 4) exit
+
           HRAT = HNEW/HG
           IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) exit
           IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
