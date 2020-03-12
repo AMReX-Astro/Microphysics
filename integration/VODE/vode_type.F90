@@ -224,6 +224,36 @@ contains
   end subroutine eos_to_vode
 
 
+  ! Given a burn state, fill the rpar and integration state data.
+
+  subroutine burn_to_vode(state, y, rpar)
+
+    !$acc routine seq
+
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
+    use amrex_constants_module, only: ONE
+    use network, only: nspec, nspec_evolve
+    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
+                            n_rpar_comps, n_not_evolved
+    use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
+
+    implicit none
+
+    type (burn_t) :: state
+    real(rt)    :: rpar(n_rpar_comps)
+    real(rt)    :: y(neqs)
+
+    !$gpu
+
+    rpar(irp_dens) = state % rho * inv_dens_scale
+    y(net_itemp) = state % T * inv_temp_scale
+    y(net_ienuc) = state % e * inv_ener_scale
+
+  end subroutine burn_to_vode
+
+
   ! Given an rpar array and the integration state, set up a burn state.
 
   subroutine vode_to_burn(y, rpar, state)

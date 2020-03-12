@@ -17,7 +17,7 @@ contains
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, &
          integrate_temperature, integrate_energy, react_boost
-    use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, vode_to_burn, VODE_NEQS
+    use vode_type_module, only: clean_state, renormalize_species, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps, irp_t_sound, irp_t0
 
     implicit none
@@ -70,6 +70,8 @@ contains
        ydot(:) = react_boost * ydot(:)
     endif
 
+    call burn_to_vode(burn_state, y, rpar)
+
   end subroutine f_rhs
 
 
@@ -84,7 +86,7 @@ contains
     use amrex_constants_module, only: ZERO
     use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
-    use vode_type_module, only: vode_to_burn, VODE_NEQS
+    use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps, irp_t_sound, irp_t0
     use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
@@ -125,6 +127,8 @@ contains
     if (.not. integrate_energy) then
        pd(net_ienuc,:) = ZERO
     endif
+
+    call burn_to_vode(state, y, rpar)
 
   end subroutine jac
 end module vode_rhs_module
