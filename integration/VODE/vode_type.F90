@@ -251,6 +251,11 @@ contains
     y(net_itemp) = state % T * inv_temp_scale
     y(net_ienuc) = state % e * inv_ener_scale
 
+    ! some networks, in particular those with nspec_evolve < nspec
+    ! can alter state % xn(:) directly
+    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
+
   end subroutine burn_to_vode
 
 
