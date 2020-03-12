@@ -136,6 +136,8 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_electrons(eos_t& state)
 {
 
+    using namespace helmholtz;
+
 #ifdef EXTRA_THERMO
     // assume complete ionization
     Real ytot1 = 1.0e0_rt / state.abar;
@@ -459,6 +461,8 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_ions(eos_t& state)
 {
 
+    using namespace helmholtz;
+
     const Real pi      = 3.1415926535897932384e0_rt;
     const Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
     const Real kergavo = kerg * avo_eos;
@@ -529,6 +533,8 @@ void apply_ions(eos_t& state)
 AMREX_GPU_HOST_DEVICE inline
 void apply_radiation(eos_t& state)
 {
+
+    using namespace helmholtz;
 
     const Real clight  = 2.99792458e10_rt;
 #ifdef RADIATION
@@ -606,6 +612,8 @@ void apply_radiation(eos_t& state)
 AMREX_GPU_HOST_DEVICE inline
 void apply_coulomb_corrections(eos_t& state)
 {
+
+    using namespace helmholtz;
 
     // Constants used for the Coulomb corrections
     const Real a1 = -0.898004e0_rt;
@@ -809,6 +817,8 @@ void prepare_for_iterations(eos_input_t input, eos_t& state,
                             int& var, int& dvar, int& var1, int& var2)
 {
 
+    using namespace helmholtz;
+
     single_iter = true;
 
     if (input == eos_input_rt) {
@@ -879,6 +889,8 @@ AMREX_GPU_HOST_DEVICE inline
 void single_iter_update(eos_t& state, int var, int dvar,
                         Real v_want, bool& converged)
 {
+
+    using namespace helmholtz;
 
     Real x, v, dvdx, xtol, smallx;
 
@@ -965,6 +977,8 @@ AMREX_GPU_HOST_DEVICE inline
 void double_iter_update(eos_t& state, int var1, int var2,
                         Real v1_want, Real v2_want, bool& converged)
 {
+
+    using namespace helmholtz;
 
     Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
 
@@ -1059,6 +1073,8 @@ void finalize_state (eos_input_t input, eos_t& state,
                      Real v_want, Real v1_want, Real v2_want)
 {
 
+    using namespace helmholtz;
+
     // Calculate some remaining derivatives
     state.dpde = state.dpdT / state.dedT;
     state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
@@ -1125,6 +1141,8 @@ AMREX_GPU_HOST_DEVICE inline
 void actual_eos(eos_input_t input, eos_t& state)
 {
 
+    using namespace helmholtz;
+
     const int max_newton = 100;
 
     bool single_iter, converged;
@@ -1184,6 +1202,8 @@ void actual_eos(eos_input_t input, eos_t& state)
 inline
 void actual_eos_init ()
 {
+
+    using namespace helmholtz;
 
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
