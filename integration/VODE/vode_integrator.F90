@@ -207,10 +207,6 @@ contains
 
     endif
 
-    ! Save the initial state.
-
-    dvode_state % rpar(irp_y_init:irp_y_init + neqs - 1) = dvode_state % y
-
     ! Call the integration routine.
     call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 

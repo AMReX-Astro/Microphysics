@@ -224,7 +224,6 @@ contains
   end subroutine eos_to_vode
 
 
-
   ! Given a burn state, fill the rpar and integration state data.
 
   subroutine burn_to_vode(state, y, rpar)
@@ -250,33 +249,14 @@ contains
 
     rpar(irp_dens) = state % rho * inv_dens_scale
     y(net_itemp) = state % T * inv_temp_scale
+    y(net_ienuc) = state % e * inv_ener_scale
 
+    ! some networks, in particular those with nspec_evolve < nspec
+    ! can alter state % xn(:) directly
     y(1:nspec_evolve) = state % xn(1:nspec_evolve)
     rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
-    y(net_ienuc)                             = state % e * inv_ener_scale
-
-    rpar(irp_cp)                             = state % cp
-    rpar(irp_cv)                             = state % cv
-    rpar(irp_abar)                           = state % abar
-    rpar(irp_zbar)                           = state % zbar
-    rpar(irp_ye)                             = state % y_e
-    rpar(irp_eta)                            = state % eta
-    rpar(irp_cs)                             = state % cs
-    rpar(irp_dx)                             = state % dx
-
-    rpar(irp_Told)                           = state % T_old
-    rpar(irp_dcvdt)                          = state % dcvdt
-    rpar(irp_dcpdt)                          = state % dcpdt
-
-    if (state % self_heat) then
-       rpar(irp_self_heat) = ONE
-    else
-       rpar(irp_self_heat) = -ONE
-    endif
-
   end subroutine burn_to_vode
-
 
 
   ! Given an rpar array and the integration state, set up a burn state.

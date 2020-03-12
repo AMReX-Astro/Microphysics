@@ -18,7 +18,7 @@ module actual_eos_module
 
   implicit none
 
-  character (len=64) :: eos_name = "rad_power_law"
+  character (len=64), parameter :: eos_name = "rad_power_law"
 
   real(rt), allocatable, save :: const_c_v, c_v_exp_m, c_v_exp_n
 
