@@ -5,8 +5,6 @@ module actual_network
 
   implicit none
 
-  integer, parameter :: nspec_evolve = 21
-  
   integer, parameter :: ih1   = 1
   integer, parameter :: ihe3  = 2
   integer, parameter :: ihe4  = 3
