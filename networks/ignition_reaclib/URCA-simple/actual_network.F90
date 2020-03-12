@@ -44,6 +44,7 @@ module actual_network
   real(rt) :: ebind_per_nucleon(nspec)
 
   ! aion: Nucleon mass number A
+  ! aion_inv: 1 / Nucleon mass number A
   ! zion: Nucleon atomic number Z
   ! nion: Nucleon neutron number N
   ! bion: Binding Energies (ergs)
@@ -72,14 +73,14 @@ module actual_network
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(rt), allocatable, save :: aion(:), zion(:), bion(:)
+  real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:), bion(:)
   real(rt), allocatable, save :: nion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, bion, nion, mion, wion
+  attributes(managed) :: aion, aion_inv, zion, bion, nion, mion, wion
 #endif
 
-  !$acc declare create(aion, zion, bion, nion, mion, wion)
+  !$acc declare create(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
@@ -101,6 +102,7 @@ contains
 
     ! Allocate ion info arrays
     allocate(aion(nspec))
+    allocate(aion_inv(nspec))
     allocate(zion(nspec))
     allocate(bion(nspec))
     allocate(nion(nspec))
@@ -147,6 +149,16 @@ contains
     aion(jna23)   = 2.30000000000000e+01_rt
     aion(jmg23)   = 2.30000000000000e+01_rt
 
+    aion_inv(jn)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jp)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jhe4)   = 1.0_rt/4.00000000000000e+00_rt
+    aion_inv(jc12)   = 1.0_rt/1.20000000000000e+01_rt
+    aion_inv(jo16)   = 1.0_rt/1.60000000000000e+01_rt
+    aion_inv(jne20)   = 1.0_rt/2.00000000000000e+01_rt
+    aion_inv(jne23)   = 1.0_rt/2.30000000000000e+01_rt
+    aion_inv(jna23)   = 1.0_rt/2.30000000000000e+01_rt
+    aion_inv(jmg23)   = 1.0_rt/2.30000000000000e+01_rt
+
     zion(jn)   = 0.00000000000000e+00_rt
     zion(jp)   = 1.00000000000000e+00_rt
     zion(jhe4)   = 2.00000000000000e+00_rt
@@ -181,7 +193,7 @@ contains
     ! Common approximation
     !wion(:) = aion(:)
 
-    !$acc update device(aion, zion, bion, nion, mion, wion)
+    !$acc update device(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
@@ -264,6 +276,10 @@ contains
 
     if (allocated(aion)) then
        deallocate(aion)
+    endif
+
+    if (allocated(aion_inv)) then
+       deallocate(aion_inv)
     endif
 
     if (allocated(zion)) then

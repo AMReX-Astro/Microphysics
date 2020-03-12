@@ -7,23 +7,21 @@ module actual_network
 
   public
 
-  real(rt), parameter :: avo = 6.0221417930e23_rt
-  real(rt), parameter :: c_light = 2.99792458e10_rt
-
   character (len=32), parameter :: network_name = "pynucastro"
 
+  real(rt), parameter :: avo = 6.0221417930e23_rt
+  real(rt), parameter :: c_light = 2.99792458e10_rt
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
   real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
-  real(rt), parameter :: mev2erg = ev2erg*1.0e6_rt
-  real(rt), parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt), parameter :: mev2erg = ev2erg * 1.0e6_rt
+  real(rt), parameter :: mev2gr  = mev2erg / c_light**2
 
   real(rt), parameter :: mass_neutron  = 1.67492721184e-24_rt
   real(rt), parameter :: mass_proton   = 1.67262163783e-24_rt
   real(rt), parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 5
-  integer, parameter :: num_rate_groups = 4
 
   ! Evolution and auxiliary
   integer, parameter :: nspec_evolve = 8
@@ -31,6 +29,9 @@ module actual_network
 
   ! Number of nuclear species in the network
   integer, parameter :: nspec = 8
+
+  ! For each rate, we need: rate, drate/dT, screening, dscreening/dT
+  integer, parameter :: num_rate_groups = 4
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 5
@@ -43,6 +44,7 @@ module actual_network
   real(rt) :: ebind_per_nucleon(nspec)
 
   ! aion: Nucleon mass number A
+  ! aion_inv: 1 / Nucleon mass number A
   ! zion: Nucleon atomic number Z
   ! nion: Nucleon neutron number N
   ! bion: Binding Energies (ergs)
@@ -64,26 +66,18 @@ module actual_network
   integer, parameter :: k_he4_c12__o16   = 4
   integer, parameter :: k_n__p__weak__wc12   = 5
 
-  ! reactvec indices
-  integer, parameter :: i_rate        = 1
-  integer, parameter :: i_drate_dt    = 2
-  integer, parameter :: i_scor        = 3
-  integer, parameter :: i_dscor_dt    = 4
-  integer, parameter :: i_dqweak      = 5
-  integer, parameter :: i_epart       = 6
-
   character (len=16), save :: spec_names(nspec)
   character (len= 5), save :: short_spec_names(nspec)
   character (len= 5), save :: short_aux_names(naux)
 
-  real(rt), allocatable, save :: aion(:), zion(:), bion(:)
+  real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:), bion(:)
   real(rt), allocatable, save :: nion(:), mion(:), wion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, bion, nion, mion, wion
+  attributes(managed) :: aion, aion_inv, zion, bion, nion, mion, wion
 #endif
 
-  !$acc declare create(aion, zion, bion, nion, mion, wion)
+  !$acc declare create(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
@@ -105,6 +99,7 @@ contains
 
     ! Allocate ion info arrays
     allocate(aion(nspec))
+    allocate(aion_inv(nspec))
     allocate(zion(nspec))
     allocate(bion(nspec))
     allocate(nion(nspec))
@@ -147,6 +142,15 @@ contains
     aion(jna23)   = 2.30000000000000e+01_rt
     aion(jmg23)   = 2.30000000000000e+01_rt
 
+    aion_inv(jn)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jp)   = 1.0_rt/1.00000000000000e+00_rt
+    aion_inv(jhe4)   = 1.0_rt/4.00000000000000e+00_rt
+    aion_inv(jc12)   = 1.0_rt/1.20000000000000e+01_rt
+    aion_inv(jo16)   = 1.0_rt/1.60000000000000e+01_rt
+    aion_inv(jne20)   = 1.0_rt/2.00000000000000e+01_rt
+    aion_inv(jna23)   = 1.0_rt/2.30000000000000e+01_rt
+    aion_inv(jmg23)   = 1.0_rt/2.30000000000000e+01_rt
+
     zion(jn)   = 0.00000000000000e+00_rt
     zion(jp)   = 1.00000000000000e+00_rt
     zion(jhe4)   = 2.00000000000000e+00_rt
@@ -179,7 +183,7 @@ contains
     ! Common approximation
     !wion(:) = aion(:)
 
-    !$acc update device(aion, zion, bion, nion, mion, wion)
+    !$acc update device(aion, aion_inv, zion, bion, nion, mion, wion)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
@@ -255,6 +259,10 @@ contains
 
     if (allocated(aion)) then
        deallocate(aion)
+    endif
+
+    if (allocated(aion_inv)) then
+       deallocate(aion_inv)
     endif
 
     if (allocated(zion)) then

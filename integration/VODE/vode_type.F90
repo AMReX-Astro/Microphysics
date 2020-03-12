@@ -226,7 +226,6 @@ contains
   end subroutine eos_to_vode
 
 
-
   ! Given a burn state, fill the rpar and integration state data.
 
   subroutine burn_to_vode(state, vode_state)
@@ -249,37 +248,16 @@ contains
 
     !$gpu
 
-    ! none of this information is changed by the burn, I think
+    vode_state % rpar(irp_dens) = state % rho * inv_dens_scale
+    y(net_itemp) = state % T * inv_temp_scale
+    y(net_ienuc) = state % e * inv_ener_scale
 
-    !rpar(irp_dens) = state % rho * inv_dens_scale
-    !y(net_itemp) = state % T * inv_temp_scale
-
-    !y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    !rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
-
-    !y(net_ienuc)                             = state % e * inv_ener_scale
-
-    !rpar(irp_abar)                           = state % abar
-    !rpar(irp_zbar)                           = state % zbar
-    !rpar(irp_ye)                             = state % y_e
-    !rpar(irp_eta)                            = state % eta
-    !rpar(irp_cs)                             = state % cs
-    !rpar(irp_dx)                             = state % dx
-
-    !rpar(irp_Told)                           = state % T_old
-
-    ! we don't need to update the specific heats, since those are not
-    ! modified by the actual network, but controlled in the VODE
-    ! driver
-
-    if (state % self_heat) then
-       vode_state % rpar(irp_self_heat) = ONE
-    else
-       vode_state % rpar(irp_self_heat) = -ONE
-    endif
+    ! some networks, in particular those with nspec_evolve < nspec
+    ! can alter state % xn(:) directly
+    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
+    vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
 
   end subroutine burn_to_vode
-
 
 
   ! Given an rpar array and the integration state, set up a burn state.

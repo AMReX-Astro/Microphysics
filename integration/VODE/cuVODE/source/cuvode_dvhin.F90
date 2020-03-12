@@ -95,19 +95,26 @@ contains
 
     real(rt), parameter :: PT1 = 0.1e0_rt
 
+    logical :: do_iterations
+
     !$gpu
 
     NITER = 0
     TDIST = ABS(vstate % TOUT - vstate % T)
     TROUND = vstate % UROUND*MAX(ABS(vstate % T),ABS(vstate % TOUT))
-    IF (TDIST .LT. TWO*TROUND) GO TO 100
+
+    IF (TDIST .LT. TWO*TROUND) then
+       ! Error return for vstate % TOUT - vstate % T too small. --------------------------------
+       IER = -1
+       RETURN
+    end IF
 
     ! Set a lower bound on h based on the roundoff level in vstate % T and vstate % TOUT. ---
     HLB = HUN*TROUND
     ! Set an upper bound on h based on vstate % TOUT-vstate % T and the initial Y and YDOT. -
     HUB = PT1*TDIST
     ATOLI = vstate % ATOL(1)
-    
+
     do I = 1, VODE_NEQS
        IF (VODE_ITOL .EQ. 2 .OR. VODE_ITOL .EQ. 4) ATOLI = vstate % ATOL(I)
        DELYI = PT1*ABS(rwork % YH(I,1)) + ATOLI
@@ -118,63 +125,68 @@ contains
     ! Set initial guess for h as geometric mean of upper and lower bounds. -
     ITER = 0
     HG = SQRT(HLB*HUB)
+
     ! If the bounds have crossed, exit with the mean value. ----------------
+    do_iterations = .true.
     IF (HUB .LT. HLB) THEN
        H0 = HG
-       GO TO 90
+       do_iterations = .false.
     ENDIF
 
-    ! Looping point for iteration. -----------------------------------------
-50  CONTINUE
-    ! Estimate the second derivative as a difference quotient in f. --------
-    H = SIGN (HG, vstate % TOUT - vstate % T)
-    T1 = vstate % T + H
-    do I = 1, VODE_NEQS
-       vstate % Y(I) = rwork % YH(I,1) + H*rwork % YH(I,2)
-    end do
-    CALL f_rhs(T1, vstate, rwork % ACOR)
-    do I = 1, VODE_NEQS
-       rwork % ACOR(I) = (rwork % ACOR(I) - rwork % YH(I,2))/H
-    end do
-    YDDNRM = DVNORM(rwork % ACOR, rwork % EWT)
-    ! Get the corresponding new value of h. --------------------------------
-    IF (YDDNRM*HUB*HUB .GT. TWO) THEN
-       HNEW = SQRT(TWO/YDDNRM)
-    ELSE
-       HNEW = SQRT(HG*HUB)
-    ENDIF
-    ITER = ITER + 1
-    ! -----------------------------------------------------------------------
-    !  Test the stopping conditions.
-    !  Stop if the new and previous h values differ by a factor of .lt. 2.
-    !  Stop if four iterations have been done.  Also, stop with previous h
-    !  if HNEW/HG .gt. 2 after first iteration, as this probably means that
-    !  the second derivative value is bad because of cancellation error.
-    ! -----------------------------------------------------------------------
-    IF (ITER .GE. 4) GO TO 80
-    HRAT = HNEW/HG
-    IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) GO TO 80
-    IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
-       HNEW = HG
-       GO TO 80
-    ENDIF
-    HG = HNEW
-    GO TO 50
+    if (do_iterations) then
 
-    ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
-80  continue
-    H0 = HNEW*HALF
-    IF (H0 .LT. HLB) H0 = HLB
-    IF (H0 .GT. HUB) H0 = HUB
-90  continue
+       ! Looping point for iteration. -----------------------------------------
+       do while (.true.)
+
+          ! Estimate the second derivative as a difference quotient in f. --------
+          H = SIGN (HG, vstate % TOUT - vstate % T)
+          T1 = vstate % T + H
+          do I = 1, VODE_NEQS
+             vstate % Y(I) = rwork % YH(I,1) + H*rwork % YH(I,2)
+          end do
+          CALL f_rhs(T1, vstate % Y, rwork % ACOR, vstate % RPAR)
+          do I = 1, VODE_NEQS
+             rwork % ACOR(I) = (rwork % ACOR(I) - rwork % YH(I,2))/H
+          end do
+          YDDNRM = DVNORM(rwork % ACOR, rwork % EWT)
+          ! Get the corresponding new value of h. --------------------------------
+          IF (YDDNRM*HUB*HUB .GT. TWO) THEN
+             HNEW = SQRT(TWO/YDDNRM)
+          ELSE
+             HNEW = SQRT(HG*HUB)
+          ENDIF
+          ITER = ITER + 1
+          ! -----------------------------------------------------------------------
+          !  Test the stopping conditions.
+          !  Stop if the new and previous h values differ by a factor of .lt. 2.
+          !  Stop if four iterations have been done.  Also, stop with previous h
+          !  if HNEW/HG .gt. 2 after first iteration, as this probably means that
+          !  the second derivative value is bad because of cancellation error.
+          ! -----------------------------------------------------------------------
+          if (iter >= 4) exit
+
+          HRAT = HNEW/HG
+          IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) exit
+          IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
+             HNEW = HG
+             exit
+          ENDIF
+          HG = HNEW
+       end do
+
+       ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
+       H0 = HNEW*HALF
+       IF (H0 .LT. HLB) H0 = HLB
+       IF (H0 .GT. HUB) H0 = HUB
+
+    end if
+
     H0 = SIGN(H0, vstate % TOUT - vstate % T)
     NITER = ITER
     IER = 0
+
     RETURN
-    ! Error return for vstate % TOUT - vstate % T too small. --------------------------------
-100 continue
-    IER = -1
-    RETURN
+
   end subroutine dvhin
 
 end module cuvode_dvhin_module

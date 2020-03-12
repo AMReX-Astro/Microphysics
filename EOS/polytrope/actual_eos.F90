@@ -30,7 +30,7 @@ module actual_eos_module
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  character (len=64), public :: eos_name = "polytrope"
+  character (len=64), parameter :: eos_name = "polytrope"
   
   real(rt)        , allocatable, save :: gamma_const, K_const
   real(rt)        , allocatable, save :: mu_e

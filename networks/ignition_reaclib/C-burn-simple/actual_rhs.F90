@@ -9,10 +9,15 @@ module actual_rhs_module
 
   implicit none
 
+  ! Indices into rate groups in the rate_eval_t type
+  integer, parameter :: i_rate        = 1
+  integer, parameter :: i_drate_dt    = 2
+  integer, parameter :: i_scor        = 3
+  integer, parameter :: i_dscor_dt    = 4
+
   type :: rate_eval_t
-     real(rt) :: unscreened_rates(4, nrates)
+     real(rt) :: unscreened_rates(num_rate_groups, nrates)
      real(rt) :: screened_rates(nrates)
-     real(rt) :: add_energy(nrat_tabular)
      real(rt) :: add_energy_rate(nrat_tabular)
   end type rate_eval_t
   
@@ -47,7 +52,6 @@ contains
     rate_eval % unscreened_rates(i_scor, :) = ONE
     rate_eval % unscreened_rates(i_dscor_dt, :) = ZERO
     rate_eval % screened_rates = ZERO
-    rate_eval % add_energy = ZERO
     rate_eval % add_energy_rate = ZERO
 
   end subroutine zero_rate_eval
@@ -65,10 +69,10 @@ contains
     type(rate_eval_t), intent(out) :: rate_eval
     type(plasma_state) :: pstate
     real(rt) :: Y(nspec)
-    real(rt) :: raw_rates(4, nrates)
-    real(rt) :: reactvec(num_rate_groups+2)
     integer :: i, j
-    real(rt) :: rhoy, scor, dscor_dt, dscor_dd
+    real(rt) :: rhoy
+    real(rt) :: rate, drate_dt, edot_nu
+    real(rt) :: scor, dscor_dt, dscor_dd
 
     !$gpu
 
@@ -81,8 +85,9 @@ contains
     ! Calculate Reaclib rates
     call fill_plasma_state(pstate, state % T, state % rho, Y)
     do i = 1, nrat_reaclib
-       call reaclib_evaluate(pstate, state % T, i, reactvec)
-       rate_eval % unscreened_rates(:,i) = reactvec(1:4)
+       call reaclib_evaluate(pstate, state % T, i, rate, drate_dt)
+       rate_eval % unscreened_rates(i_rate, i) = rate
+       rate_eval % unscreened_rates(i_drate_dt, i) = drate_dt
     end do
 
     ! Evaluate screening factors
@@ -115,7 +120,7 @@ contains
     
     !$acc routine seq
 
-    use extern_probin_module, only: do_constant_volume_burn
+    use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
     use burn_type_module, only: net_itemp, net_ienuc, neqs
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_rhs
@@ -127,7 +132,6 @@ contains
 
     type(rate_eval_t) :: rate_eval
     real(rt) :: Y(nspec), ydot_nuc(nspec)
-    real(rt) :: reactvec(num_rate_groups+2)
     integer :: i, j
     real(rt) :: rhoy, ye, enuc
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
@@ -145,15 +149,14 @@ contains
     ! ion binding energy contributions
     call ener_gener_rate(ydot_nuc, enuc)
 
-    ! additional per-reaction energies
-    ! including Q-value modification and electron chemical potential
-
-    ! additional energy generation rates
-    ! including gamma heating and reaction neutrino losses (non-thermal)
-
+    ! include reaction neutrino losses (non-thermal)
 
     ! Get the thermal neutrino losses
-    call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    else
+       sneut = ZERO
+    end if
 
     ! Append the energy equation (this is erg/g/s)
     ydot(net_ienuc) = enuc - sneut
@@ -226,6 +229,7 @@ contains
     !$acc routine seq
 
     use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
+    use extern_probin_module, only: disable_thermal_neutrinos
     use sneut_module, only: sneut5
     use temperature_integration_module, only: temperature_jac
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, set_jac_zero
@@ -233,10 +237,9 @@ contains
     implicit none
     
     type(burn_t), intent(in) :: state
-    real(rt) :: jac(njrows, njcols)
+    real(rt), intent(inout) :: jac(njrows, njcols)
 
     type(rate_eval_t) :: rate_eval
-    real(rt) :: reactvec(num_rate_groups+2)
     real(rt) :: screened_rates_dt(nrates)
     real(rt) :: Y(nspec), yderivs(nspec)
     real(rt) :: ye, rhoy, b1, scratch
@@ -279,21 +282,25 @@ contains
     enddo
 
     ! Account for the thermal neutrino losses
-    call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    if (.not. disable_thermal_neutrinos) then
+       call sneut5(state % T, state % rho, state % abar, state % zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
 
-    do j = 1, nspec
-       b1 = ((aion(j) - state % abar) * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
-       call get_jac_entry(jac, net_ienuc, j, scratch)
-       scratch = scratch - b1
-       call set_jac_entry(jac, net_ienuc, j, scratch)
-    enddo
+       do j = 1, nspec
+          b1 = (-state % abar * state % abar * snuda + (zion(j) - state % zbar) * state % abar * snudz)
+          call get_jac_entry(jac, net_ienuc, j, scratch)
+          scratch = scratch - b1
+          call set_jac_entry(jac, net_ienuc, j, scratch)
+       enddo
+    endif
 
     ! Energy generation rate Jacobian element with respect to temperature
     do k = 1, nspec
        call get_jac_entry(jac, k, net_itemp, yderivs(k))
     enddo
     call ener_gener_rate(yderivs, scratch)
-    scratch = scratch - dsneutdt    
+    if (.not. disable_thermal_neutrinos) then
+       scratch = scratch - dsneutdt
+    endif
     call set_jac_entry(jac, net_ienuc, net_itemp, scratch)
 
     ! Temperature Jacobian elements
