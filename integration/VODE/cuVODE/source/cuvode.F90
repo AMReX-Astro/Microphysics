@@ -500,48 +500,80 @@ contains
     ! -----------------------------------------------------------------------
 
 250 CONTINUE
-    IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
+    IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) then
+    ! The maximum number of steps was taken before reaching TOUT. ----------
+#ifndef AMREX_USE_CUDA
+       MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
+       CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      taken on this call before reaching TOUT     '
+       CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
+#endif
+       vstate % ISTATE = -1
+       GO TO 580
+    end IF
     CALL DEWSET (vstate, rwork)
     do I = 1,VODE_NEQS
-       IF (rwork % ewt(I) .LE. ZERO) GO TO 510
+       IF (rwork % ewt(I) .LE. ZERO) then
+          ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
+#ifndef AMREX_USE_CUDA
+          EWTI = rwork % ewt(I)
+          MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
+          CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
+#endif
+          vstate % ISTATE = -6
+          GO TO 580
+       end IF
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
 270 continue
     TOLSF = vstate % UROUND * DVNORM (rwork % YH(:,1), rwork % EWT)
-    IF (TOLSF .LE. ONE) GO TO 280
-    TOLSF = TOLSF*TWO
+    IF (TOLSF > ONE) then
+       TOLSF = TOLSF*TWO
 
-    if (vstate % NST .EQ. 0) then
+       if (vstate % NST .EQ. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  At start of problem, too much accuracy   '
-       CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
-       MSG='      requested for precision of machine:   see TOLSF (=R1) '
-       CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
+          MSG = 'DVODE--  At start of problem, too much accuracy   '
+          CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
+          MSG='      requested for precision of machine:   see TOLSF (=R1) '
+          CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    GO TO 520
-280 IF ((vstate % TN + vstate % H) .NE. vstate % TN) GO TO 290
-    vstate % NHNIL = vstate % NHNIL + 1
-    IF (vstate % NHNIL .GT. vstate % MXHNIL) GO TO 290
+       ! Too much accuracy requested for machine precision. -------------------
 #ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
-    CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG='      such that in the machine, T + H = T on the next step  '
-    CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      (H = step size). solver will continue anyway'
-    CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+       MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
+       CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      for precision of machine:   see TOLSF (=R2) '
+       CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
 #endif
-    IF (vstate % NHNIL .LT. vstate % MXHNIL) GO TO 290
+       vstate % ISTATE = -2
+       GO TO 580
+    end IF
+
+    IF ((vstate % TN + vstate % H) == vstate % TN) then
+       vstate % NHNIL = vstate % NHNIL + 1
+       IF (vstate % NHNIL <= vstate % MXHNIL) then
 #ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  Above warning has been issued I1 times.  '
-    CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      it will not be issued again for this problem'
-    CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+          MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
+          CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
+          MSG='      such that in the machine, T + H = T on the next step  '
+          CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
+          MSG = '      (H = step size). solver will continue anyway'
+          CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif
-290 CONTINUE
+          IF (vstate % NHNIL == vstate % MXHNIL) then
+#ifndef AMREX_USE_CUDA
+             MSG = 'DVODE--  Above warning has been issued I1 times.  '
+             CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
+             MSG = '      it will not be issued again for this problem'
+             CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+#endif
+          end IF
+       end IF
+    end IF
+
 
     ! -----------------------------------------------------------------------
     !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
@@ -648,35 +680,7 @@ contains
     !  The optional output is loaded into the work arrays before returning.
     ! -----------------------------------------------------------------------
 
-    ! The maximum number of steps was taken before reaching TOUT. ----------
-500 continue
-#ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
-    CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      taken on this call before reaching TOUT     '
-    CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
-#endif
-    vstate % ISTATE = -1
-    GO TO 580
-    ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
-510 continue
-#ifndef AMREX_USE_CUDA
-    EWTI = rwork % ewt(I)
-    MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
-    CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
-#endif
-    vstate % ISTATE = -6
-    GO TO 580
-    ! Too much accuracy requested for machine precision. -------------------
-520 continue
-#ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
-    CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      for precision of machine:   see TOLSF (=R2) '
-    CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
-#endif
-    vstate % ISTATE = -2
-    GO TO 580
+
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
 530 continue
 #ifndef AMREX_USE_CUDA

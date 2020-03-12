@@ -14,16 +14,16 @@ contains
   attributes(device) &
 #endif
   subroutine dvindy(vstate, rwork, IFLAG)
-  
+
     !$acc routine seq
-    
+
     ! -----------------------------------------------------------------------
     !  Call sequence input -- T, K, YH, LDYH
     !  Call sequence output -- DKY, IFLAG
     !  COMMON block variables accessed:
     !      /DVOD01/ --  H, TN, UROUND, L, N, NQ
     !      /DVOD02/ --  HU
-    ! 
+    !
     !  Subroutines called by DVINDY: DSCAL, XERRWD
     !  Function routines called by DVINDY: None
     ! -----------------------------------------------------------------------
@@ -45,7 +45,7 @@ contains
     !  The quantities  NQ = NQCUR, L = NQ+1, N, TN, and H are
     !  communicated by COMMON.  The above sum is done in reverse order.
     !  IFLAG is returned negative if either K or T is out of bounds.
-    ! 
+    !
     !  Discussion above and comments in driver explain all variables.
     ! -----------------------------------------------------------------------
     !
@@ -76,66 +76,68 @@ contains
     !don -- remove logic for K != 0 (we only use K = 0).
 
     !$gpu
-    
+
     IFLAG = 0
-    IF (K .LT. 0 .OR. K .GT. vstate % NQ) GO TO 80
+    IF (K .LT. 0 .OR. K .GT. vstate % NQ) then
+
+#ifndef AMREX_USE_CUDA
+       MSG = 'DVINDY-- K (=I1) illegal      '
+       CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, ZERO, ZERO)
+#endif
+       IFLAG = -1
+       RETURN
+    endif
+
     TFUZZ = HUN * vstate % UROUND * (vstate % TN + vstate % HU)
     TP = vstate % TN - vstate % HU - TFUZZ
     TN1 = vstate % TN + TFUZZ
-    IF ((vstate % TOUT-TP)*(vstate % TOUT-TN1) .GT. ZERO) GO TO 90
+    IF ((vstate % TOUT-TP)*(vstate % TOUT-TN1) .GT. ZERO) then
+#ifndef AMREX_USE_CUDA
+       MSG = 'DVINDY-- vstate % TOUT (=R1) illegal      '
+       CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, ZERO)
+       MSG='      vstate % TOUT not in interval TCUR - HU (= R1) to TCUR (=R2)      '
+       CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
+#endif
+       IFLAG = -2
+       RETURN
+    end IF
 
     S = (vstate % TOUT - vstate % TN)/vstate % H
     IC = 1
-    IF (K .EQ. 0) GO TO 15
-    JJ1 = vstate % L - K
-    do JJ = JJ1, vstate % NQ
-       IC = IC*JJ
-    end do
-15  continue
+    IF (K /= 0) then
+       JJ1 = vstate % L - K
+       do JJ = JJ1, vstate % NQ
+          IC = IC*JJ
+       end do
+    end IF
     C = REAL(IC)
     do I = 1, VODE_NEQS
        vstate % Y(I) = C * rwork % YH(I,vstate % L)
     end do
-    IF (K .EQ. vstate % NQ) GO TO 55
-    JB2 = vstate % NQ - K
-    do JB = 1, JB2
-       J = vstate % NQ - JB
-       JP1 = J + 1
-       IC = 1
-       IF (K .EQ. 0) GO TO 35
-       JJ1 = JP1 - K
-       do JJ = JJ1, J
-          IC = IC*JJ
+    IF (K /= vstate % NQ) then
+       JB2 = vstate % NQ - K
+       do JB = 1, JB2
+          J = vstate % NQ - JB
+          JP1 = J + 1
+          IC = 1
+          IF (K /= 0) then
+             JJ1 = JP1 - K
+             do JJ = JJ1, J
+                IC = IC*JJ
+             end do
+          end IF
+          C = REAL(IC)
+          do I = 1, VODE_NEQS
+             vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
+          end do
        end do
-35     continue
-       C = REAL(IC)
-       do I = 1, VODE_NEQS
-          vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
-       end do
-    end do
-    IF (K .EQ. 0) RETURN
-55  continue
+       IF (K .EQ. 0) RETURN
+    end IF
     R = vstate % H**(-K)
 
     vstate % Y(:) = vstate % Y(:) * R
     RETURN
 
-80  continue
-#ifndef AMREX_USE_CUDA    
-    MSG = 'DVINDY-- K (=I1) illegal      '
-    CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, ZERO, ZERO)
-#endif    
-    IFLAG = -1
-    RETURN
-90  continue
-#ifndef AMREX_USE_CUDA    
-    MSG = 'DVINDY-- vstate % TOUT (=R1) illegal      '
-    CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, ZERO)
-    MSG='      vstate % TOUT not in interval TCUR - HU (= R1) to TCUR (=R2)      '
-    CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
-#endif    
-     IFLAG = -2
-    RETURN
   end subroutine dvindy
 
 end module cuvode_dvindy_module
