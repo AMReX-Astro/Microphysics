@@ -136,6 +136,8 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_electrons(eos_t& state)
 {
 
+    using namespace helmholtz;
+
     // assume complete ionization
     Real ytot1 = 1.0e0_rt / state.abar;
 
@@ -155,15 +157,15 @@ void apply_electrons(eos_t& state)
 
     // access the table locations only once
     for (int i = 0; i < 9; ++i) {
-        fi[i     ] = _f[jat  ][iat  ][i]; // f, ft, ftt, fd, fdd, fdt, fddt, fdtt, fddtt
-        fi[i +  9] = _f[jat  ][iat+1][i];
-        fi[i + 18] = _f[jat+1][iat  ][i];
-        fi[i + 27] = _f[jat+1][iat+1][i];
+        fi[i     ] = f[jat  ][iat  ][i]; // f, ft, ftt, fd, fdd, fdt, fddt, fdtt, fddtt
+        fi[i +  9] = f[jat  ][iat+1][i];
+        fi[i + 18] = f[jat+1][iat  ][i];
+        fi[i + 27] = f[jat+1][iat+1][i];
     }
 
     // various differences
-    Real xt  = amrex::max((state.T - _t[jat]) * dti_sav[jat], 0.0e0_rt);
-    Real xd  = amrex::max((din - _d[iat]) * ddi_sav[iat], 0.0e0_rt);
+    Real xt  = amrex::max((state.T - t[jat]) * dti_sav[jat], 0.0e0_rt);
+    Real xd  = amrex::max((din - d[iat]) * ddi_sav[iat], 0.0e0_rt);
     Real mxt = 1.0e0_rt - xt;
     Real mxd = 1.0e0_rt - xd;
 
@@ -309,25 +311,25 @@ void apply_electrons(eos_t& state)
     // of grid points and derivatives at grid points to evaluate
     // the interpolation correctly. Alternate indexing schemes are
     // possible if we were to reorder wdt.
-    fi[ 0] = _dpdf[jat  ][iat  ][0];
-    fi[ 1] = _dpdf[jat  ][iat  ][1];
-    fi[ 4] = _dpdf[jat  ][iat  ][2];
-    fi[ 5] = _dpdf[jat  ][iat  ][3];
+    fi[ 0] = dpdf[jat  ][iat  ][0];
+    fi[ 1] = dpdf[jat  ][iat  ][1];
+    fi[ 4] = dpdf[jat  ][iat  ][2];
+    fi[ 5] = dpdf[jat  ][iat  ][3];
 
-    fi[ 8] = _dpdf[jat  ][iat+1][0];
-    fi[ 9] = _dpdf[jat  ][iat+1][1];
-    fi[12] = _dpdf[jat  ][iat+1][2];
-    fi[13] = _dpdf[jat  ][iat+1][3];
+    fi[ 8] = dpdf[jat  ][iat+1][0];
+    fi[ 9] = dpdf[jat  ][iat+1][1];
+    fi[12] = dpdf[jat  ][iat+1][2];
+    fi[13] = dpdf[jat  ][iat+1][3];
 
-    fi[ 2] = _dpdf[jat+1][iat  ][0];
-    fi[ 3] = _dpdf[jat+1][iat  ][1];
-    fi[ 6] = _dpdf[jat+1][iat  ][2];
-    fi[ 7] = _dpdf[jat+1][iat  ][3];
+    fi[ 2] = dpdf[jat+1][iat  ][0];
+    fi[ 3] = dpdf[jat+1][iat  ][1];
+    fi[ 6] = dpdf[jat+1][iat  ][2];
+    fi[ 7] = dpdf[jat+1][iat  ][3];
 
-    fi[10] = _dpdf[jat+1][iat+1][0];
-    fi[11] = _dpdf[jat+1][iat+1][1];
-    fi[14] = _dpdf[jat+1][iat+1][2];
-    fi[15] = _dpdf[jat+1][iat+1][3];
+    fi[10] = dpdf[jat+1][iat+1][0];
+    fi[11] = dpdf[jat+1][iat+1][1];
+    fi[14] = dpdf[jat+1][iat+1][2];
+    fi[15] = dpdf[jat+1][iat+1][3];
 
     // pressure derivative with density
     Real dpepdd = 0.0e0_rt;
@@ -337,25 +339,25 @@ void apply_electrons(eos_t& state)
     dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
 
     // Read in the tabular data for the electron chemical potential.
-    fi[ 0] = _ef[jat  ][iat  ][0];
-    fi[ 1] = _ef[jat  ][iat  ][1];
-    fi[ 4] = _ef[jat  ][iat  ][2];
-    fi[ 5] = _ef[jat  ][iat  ][3];
+    fi[ 0] = ef[jat  ][iat  ][0];
+    fi[ 1] = ef[jat  ][iat  ][1];
+    fi[ 4] = ef[jat  ][iat  ][2];
+    fi[ 5] = ef[jat  ][iat  ][3];
 
-    fi[ 8] = _ef[jat  ][iat+1][0];
-    fi[ 9] = _ef[jat  ][iat+1][1];
-    fi[12] = _ef[jat  ][iat+1][2];
-    fi[13] = _ef[jat  ][iat+1][3];
+    fi[ 8] = ef[jat  ][iat+1][0];
+    fi[ 9] = ef[jat  ][iat+1][1];
+    fi[12] = ef[jat  ][iat+1][2];
+    fi[13] = ef[jat  ][iat+1][3];
 
-    fi[ 2] = _ef[jat+1][iat  ][0];
-    fi[ 3] = _ef[jat+1][iat  ][1];
-    fi[ 6] = _ef[jat+1][iat  ][2];
-    fi[ 7] = _ef[jat+1][iat  ][3];
+    fi[ 2] = ef[jat+1][iat  ][0];
+    fi[ 3] = ef[jat+1][iat  ][1];
+    fi[ 6] = ef[jat+1][iat  ][2];
+    fi[ 7] = ef[jat+1][iat  ][3];
 
-    fi[10] = _ef[jat+1][iat+1][0];
-    fi[11] = _ef[jat+1][iat+1][1];
-    fi[14] = _ef[jat+1][iat+1][2];
-    fi[15] = _ef[jat+1][iat+1][3];
+    fi[10] = ef[jat+1][iat+1][0];
+    fi[11] = ef[jat+1][iat+1][1];
+    fi[14] = ef[jat+1][iat+1][2];
+    fi[15] = ef[jat+1][iat+1][3];
 
     // electron chemical potential etaele
     Real etaele = 0.0e0_rt;
@@ -364,25 +366,25 @@ void apply_electrons(eos_t& state)
     }
 
     // Read in the tabular data for the number density.
-    fi[ 0] = _xf[jat  ][iat  ][0];
-    fi[ 1] = _xf[jat  ][iat  ][1];
-    fi[ 4] = _xf[jat  ][iat  ][2];
-    fi[ 5] = _xf[jat  ][iat  ][3];
+    fi[ 0] = xf[jat  ][iat  ][0];
+    fi[ 1] = xf[jat  ][iat  ][1];
+    fi[ 4] = xf[jat  ][iat  ][2];
+    fi[ 5] = xf[jat  ][iat  ][3];
 
-    fi[ 8] = _xf[jat  ][iat+1][0];
-    fi[ 9] = _xf[jat  ][iat+1][1];
-    fi[12] = _xf[jat  ][iat+1][2];
-    fi[13] = _xf[jat  ][iat+1][3];
+    fi[ 8] = xf[jat  ][iat+1][0];
+    fi[ 9] = xf[jat  ][iat+1][1];
+    fi[12] = xf[jat  ][iat+1][2];
+    fi[13] = xf[jat  ][iat+1][3];
 
-    fi[ 2] = _xf[jat+1][iat  ][0];
-    fi[ 3] = _xf[jat+1][iat  ][1];
-    fi[ 6] = _xf[jat+1][iat  ][2];
-    fi[ 7] = _xf[jat+1][iat  ][3];
+    fi[ 2] = xf[jat+1][iat  ][0];
+    fi[ 3] = xf[jat+1][iat  ][1];
+    fi[ 6] = xf[jat+1][iat  ][2];
+    fi[ 7] = xf[jat+1][iat  ][3];
 
-    fi[10] = _xf[jat+1][iat+1][0];
-    fi[11] = _xf[jat+1][iat+1][1];
-    fi[14] = _xf[jat+1][iat+1][2];
-    fi[15] = _xf[jat+1][iat+1][3];
+    fi[10] = xf[jat+1][iat+1][0];
+    fi[11] = xf[jat+1][iat+1][1];
+    fi[14] = xf[jat+1][iat+1][2];
+    fi[15] = xf[jat+1][iat+1][3];
 
     // electron + positron number densities
     Real xnefer = 0.0e0_rt;
@@ -457,6 +459,8 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_ions(eos_t& state)
 {
 
+    using namespace helmholtz;
+
     const Real pi      = 3.1415926535897932384e0_rt;
     const Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
     const Real kergavo = kerg * avo_eos;
@@ -525,6 +529,8 @@ void apply_ions(eos_t& state)
 AMREX_GPU_HOST_DEVICE inline
 void apply_radiation(eos_t& state)
 {
+
+    using namespace helmholtz;
 
     const Real clight  = 2.99792458e10_rt;
 #ifdef RADIATION
@@ -602,6 +608,8 @@ void apply_radiation(eos_t& state)
 AMREX_GPU_HOST_DEVICE inline
 void apply_coulomb_corrections(eos_t& state)
 {
+
+    using namespace helmholtz;
 
     // Constants used for the Coulomb corrections
     const Real a1 = -0.898004e0_rt;
@@ -801,6 +809,8 @@ void prepare_for_iterations(eos_input_t input, eos_t& state,
                             int& var, int& dvar, int& var1, int& var2)
 {
 
+    using namespace helmholtz;
+
     single_iter = true;
 
     if (input == eos_input_rt) {
@@ -871,6 +881,8 @@ AMREX_GPU_HOST_DEVICE inline
 void single_iter_update(eos_t& state, int var, int dvar,
                         Real v_want, bool& converged)
 {
+
+    using namespace helmholtz;
 
     Real x, v, dvdx, xtol, smallx;
 
@@ -957,6 +969,8 @@ AMREX_GPU_HOST_DEVICE inline
 void double_iter_update(eos_t& state, int var1, int var2,
                         Real v1_want, Real v2_want, bool& converged)
 {
+
+    using namespace helmholtz;
 
     Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
 
@@ -1051,6 +1065,8 @@ void finalize_state (eos_input_t input, eos_t& state,
                      Real v_want, Real v1_want, Real v2_want)
 {
 
+    using namespace helmholtz;
+
     // Calculate some remaining derivatives
     state.dpde = state.dpdT / state.dedT;
     state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
@@ -1117,6 +1133,8 @@ AMREX_GPU_HOST_DEVICE inline
 void actual_eos(eos_input_t input, eos_t& state)
 {
 
+    using namespace helmholtz;
+
     const int max_newton = 100;
 
     bool single_iter, converged;
@@ -1177,6 +1195,8 @@ inline
 void actual_eos_init ()
 {
 
+    using namespace helmholtz;
+
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
     Real tsav, dsav;
@@ -1202,10 +1222,10 @@ void actual_eos_init ()
 
     for (int j = 0; j < jmax; ++j) {
         tsav = tlo + j * tstp;
-        _t[j] = std::pow(10.0e0_rt, tsav);
+        t[j] = std::pow(10.0e0_rt, tsav);
         for (int i = 0; i < imax; ++i) {
             dsav = dlo + i * dstp;
-            _d[i] = std::pow(10.0e0_rt, dsav);
+            d[i] = std::pow(10.0e0_rt, dsav);
         }
     }
 
@@ -1222,8 +1242,8 @@ void actual_eos_init ()
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> _f[j][i][0] >> _f[j][i][3] >> _f[j][i][1] >> _f[j][i][4] >> _f[j][i][2]
-                     >> _f[j][i][5] >> _f[j][i][6] >> _f[j][i][7] >> _f[j][i][8];
+                data >> f[j][i][0] >> f[j][i][3] >> f[j][i][1] >> f[j][i][4] >> f[j][i][2]
+                     >> f[j][i][5] >> f[j][i][6] >> f[j][i][7] >> f[j][i][8];
             }
         }
 
@@ -1232,7 +1252,7 @@ void actual_eos_init ()
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> _dpdf[j][i][0] >> _dpdf[j][i][2] >> _dpdf[j][i][1] >> _dpdf[j][i][3];
+                data >> dpdf[j][i][0] >> dpdf[j][i][2] >> dpdf[j][i][1] >> dpdf[j][i][3];
             }
         }
 
@@ -1241,7 +1261,7 @@ void actual_eos_init ()
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> _ef[j][i][0] >> _ef[j][i][2] >> _ef[j][i][1] >> _ef[j][i][3];
+                data >> ef[j][i][0] >> ef[j][i][2] >> ef[j][i][1] >> ef[j][i][3];
             }
         }
 
@@ -1250,7 +1270,7 @@ void actual_eos_init ()
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> _xf[j][i][0] >> _xf[j][i][2] >> _xf[j][i][1] >> _xf[j][i][3];
+                data >> xf[j][i][0] >> xf[j][i][2] >> xf[j][i][1] >> xf[j][i][3];
             }
         }
 
@@ -1258,15 +1278,15 @@ void actual_eos_init ()
 
     }
 
-    amrex::ParallelDescriptor::Bcast(&_f[0][0][0],    9 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&_dpdf[0][0][0], 4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&_ef[0][0][0],   4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&_xf[0][0][0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&f[0][0][0],    9 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&dpdf[0][0][0], 4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&ef[0][0][0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&xf[0][0][0],   4 * imax * jmax);
 
     // construct the temperature and density deltas and their inverses
     for (int j = 0; j < jmax-1; ++j)
     {
-        dth         = _t[j+1] - _t[j];
+        dth         = t[j+1] - t[j];
         dt2         = dth * dth;
         dti         = 1.0e0_rt / dth;
         dt2i        = 1.0e0_rt / dt2;
@@ -1278,7 +1298,7 @@ void actual_eos_init ()
 
     for (int i = 0; i < imax-1; ++i)
     {
-        dd          = _d[i+1] - _d[i];
+        dd          = d[i+1] - d[i];
         dd2         = dd * dd;
         ddi         = 1.0e0_rt / dd;
         dd2i        = 1.0e0_rt / dd2;
