@@ -420,7 +420,6 @@ contains
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use extern_probin_module, only: burning_mode
     use network, only: nspec
-    use actual_rhs_module, only : update_unevolved_species
     use burn_type_module, only: neqs, burn_t, net_ienuc, net_itemp, normalize_abundances_burn
     use cvode_rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens
 

@@ -36,7 +36,6 @@ contains
 
     use bs_rpar_indices
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
-    use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 

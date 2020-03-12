@@ -46,7 +46,6 @@ contains
                                     burning_mode, burning_mode_factor, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
-    use actual_rhs_module, only : update_unevolved_species
     use temperature_integration_module, only: self_heat
 
     implicit none

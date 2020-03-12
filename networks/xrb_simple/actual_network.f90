@@ -5,7 +5,6 @@ module actual_network
 
   implicit none
 
-  integer, parameter :: nspec_evolve = 7
   integer, parameter :: nrates = 6  ! including constant weak rates
   integer, parameter :: num_rate_groups = 1
 
