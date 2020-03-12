@@ -181,6 +181,7 @@ contains
           rwork % acor(I) = ZERO
        end do
        ! This is a looping point for the corrector iteration. -----------------
+
        do while (.true.)
 
           IF (vstate % MITER == 0) then
@@ -293,7 +294,6 @@ contains
        vstate % IPUP = vstate % MITER
 
     end do
-
 
     ! Return for successful step. ------------------------------------------
     NFLAG = 0

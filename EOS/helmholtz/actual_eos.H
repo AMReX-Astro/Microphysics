@@ -136,8 +136,12 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_electrons(eos_t& state)
 {
 
+    using namespace helmholtz;
+
+#ifdef EXTRA_THERMO
     // assume complete ionization
     Real ytot1 = 1.0e0_rt / state.abar;
+#endif
 
     // define mu -- the total mean molecular weight including both electrons and ions
     state.mu = 1.0e0_rt / (1.0e0_rt / state.abar + 1.0e0_rt / state.mu_e);
@@ -399,8 +403,8 @@ void apply_electrons(eos_t& state)
     Real x       = din * din;
     Real pele    = x * df_d;
     Real dpepdt  = x * df_dt;
-    Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
 #ifdef EXTRA_THERMO
+    Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
     Real dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
     Real dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
 #endif
@@ -457,6 +461,8 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_ions(eos_t& state)
 {
 
+    using namespace helmholtz;
+
     const Real pi      = 3.1415926535897932384e0_rt;
     const Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
     const Real kergavo = kerg * avo_eos;
@@ -467,7 +473,9 @@ void apply_ions(eos_t& state)
     Real ytot1   = 1.0e0_rt / state.abar;
     Real xni     = avo_eos * ytot1 * state.rho;
     Real dxnidd  = avo_eos * ytot1;
+#ifdef EXTRA_THERMO
     Real dxnida  = -xni * ytot1;
+#endif
 
     Real kt = kerg * state.T;
 
@@ -525,6 +533,8 @@ void apply_ions(eos_t& state)
 AMREX_GPU_HOST_DEVICE inline
 void apply_radiation(eos_t& state)
 {
+
+    using namespace helmholtz;
 
     const Real clight  = 2.99792458e10_rt;
 #ifdef RADIATION
@@ -603,6 +613,8 @@ AMREX_GPU_HOST_DEVICE inline
 void apply_coulomb_corrections(eos_t& state)
 {
 
+    using namespace helmholtz;
+
     // Constants used for the Coulomb corrections
     const Real a1 = -0.898004e0_rt;
     const Real b1 =  0.96786e0_rt;
@@ -659,14 +671,18 @@ void apply_coulomb_corrections(eos_t& state)
     Real inv_lami = 1.0e0_rt / lami;
     z             = -onethird * lami;
     Real lamidd   = z * dsdd / s;
+#ifdef EXTRA_THERMO
     Real lamida   = z * dsda / s;
+#endif
 
     Real plasg    = state.zbar * state.zbar * esqu * ktinv * inv_lami;
     z             = -plasg * inv_lami;
     Real plasgdd  = z * lamidd;
-    Real plasgda  = z * lamida;
     Real plasgdt  = -plasg*ktinv * kerg;
+#ifdef EXTRA_THERMO
+    Real plasgda  = z * lamida;
     Real plasgdz  = 2.0e0_rt * plasg/state.zbar;
+#endif
 
     // .yakovlev & shalybkov 1989 equations 82, 85, 86, 87
     if (plasg >= 1.0e0_rt)
@@ -801,6 +817,8 @@ void prepare_for_iterations(eos_input_t input, eos_t& state,
                             int& var, int& dvar, int& var1, int& var2)
 {
 
+    using namespace helmholtz;
+
     single_iter = true;
 
     if (input == eos_input_rt) {
@@ -871,6 +889,8 @@ AMREX_GPU_HOST_DEVICE inline
 void single_iter_update(eos_t& state, int var, int dvar,
                         Real v_want, bool& converged)
 {
+
+    using namespace helmholtz;
 
     Real x, v, dvdx, xtol, smallx;
 
@@ -957,6 +977,8 @@ AMREX_GPU_HOST_DEVICE inline
 void double_iter_update(eos_t& state, int var1, int var2,
                         Real v1_want, Real v2_want, bool& converged)
 {
+
+    using namespace helmholtz;
 
     Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
 
@@ -1051,6 +1073,8 @@ void finalize_state (eos_input_t input, eos_t& state,
                      Real v_want, Real v1_want, Real v2_want)
 {
 
+    using namespace helmholtz;
+
     // Calculate some remaining derivatives
     state.dpde = state.dpdT / state.dedT;
     state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
@@ -1117,6 +1141,8 @@ AMREX_GPU_HOST_DEVICE inline
 void actual_eos(eos_input_t input, eos_t& state)
 {
 
+    using namespace helmholtz;
+
     const int max_newton = 100;
 
     bool single_iter, converged;
@@ -1176,6 +1202,8 @@ void actual_eos(eos_input_t input, eos_t& state)
 inline
 void actual_eos_init ()
 {
+
+    using namespace helmholtz;
 
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
