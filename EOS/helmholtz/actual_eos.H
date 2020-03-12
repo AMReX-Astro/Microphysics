@@ -138,8 +138,10 @@ void apply_electrons(eos_t& state)
 
     using namespace helmholtz;
 
+#ifdef EXTRA_THERMO
     // assume complete ionization
     Real ytot1 = 1.0e0_rt / state.abar;
+#endif
 
     // define mu -- the total mean molecular weight including both electrons and ions
     state.mu = 1.0e0_rt / (1.0e0_rt / state.abar + 1.0e0_rt / state.mu_e);
@@ -401,8 +403,8 @@ void apply_electrons(eos_t& state)
     Real x       = din * din;
     Real pele    = x * df_d;
     Real dpepdt  = x * df_dt;
-    Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
 #ifdef EXTRA_THERMO
+    Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
     Real dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
     Real dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
 #endif
@@ -471,7 +473,9 @@ void apply_ions(eos_t& state)
     Real ytot1   = 1.0e0_rt / state.abar;
     Real xni     = avo_eos * ytot1 * state.rho;
     Real dxnidd  = avo_eos * ytot1;
+#ifdef EXTRA_THERMO
     Real dxnida  = -xni * ytot1;
+#endif
 
     Real kt = kerg * state.T;
 
@@ -667,14 +671,18 @@ void apply_coulomb_corrections(eos_t& state)
     Real inv_lami = 1.0e0_rt / lami;
     z             = -onethird * lami;
     Real lamidd   = z * dsdd / s;
+#ifdef EXTRA_THERMO
     Real lamida   = z * dsda / s;
+#endif
 
     Real plasg    = state.zbar * state.zbar * esqu * ktinv * inv_lami;
     z             = -plasg * inv_lami;
     Real plasgdd  = z * lamidd;
-    Real plasgda  = z * lamida;
     Real plasgdt  = -plasg*ktinv * kerg;
+#ifdef EXTRA_THERMO
+    Real plasgda  = z * lamida;
     Real plasgdz  = 2.0e0_rt * plasg/state.zbar;
+#endif
 
     // .yakovlev & shalybkov 1989 equations 82, 85, 86, 87
     if (plasg >= 1.0e0_rt)
