@@ -109,6 +109,8 @@ contains
     integer, parameter :: MAXCOR = 3
     integer, parameter :: MSBP = 20
 
+    logical :: converged
+
     !$gpu
 
     ! -----------------------------------------------------------------------
@@ -141,6 +143,8 @@ contains
     !  weight array EWT.  The sum of the corrections is accumulated in the
     !  array ACOR(i).  The YH array is not altered in the corrector loop.
     ! -----------------------------------------------------------------------
+
+    converged = .false.
 
     do while (.true.)
 
@@ -177,100 +181,121 @@ contains
           rwork % acor(I) = ZERO
        end do
        ! This is a looping point for the corrector iteration. -----------------
-270    IF (vstate % MITER == 0) then
-          ! -----------------------------------------------------------------------
-          !  In the case of functional iteration, update Y directly from
-          !  the result of the last function evaluation.
-          ! -----------------------------------------------------------------------
-          do I = 1,VODE_NEQS
-             rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
-          end do
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
-          end do
-          DEL = DVNORM (vstate % Y, rwork % EWT)
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
-          end do
-          rwork % ACOR(1:VODE_NEQS) = rwork % SAVF(1:VODE_NEQS)
+       do while (.true.)
 
-       else
+          IF (vstate % MITER == 0) then
+             ! -----------------------------------------------------------------------
+             !  In the case of functional iteration, update Y directly from
+             !  the result of the last function evaluation.
+             ! -----------------------------------------------------------------------
+             do I = 1,VODE_NEQS
+                rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
+             end do
+             do I = 1,VODE_NEQS
+                vstate % Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
+             end do
+             DEL = DVNORM (vstate % Y, rwork % EWT)
+             do I = 1,VODE_NEQS
+                vstate % Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
+             end do
+             rwork % ACOR(1:VODE_NEQS) = rwork % SAVF(1:VODE_NEQS)
 
-          ! -----------------------------------------------------------------------
-          !  In the case of the chord method, compute the corrector error,
-          !  and solve the linear system with that as right-hand side and
-          !  P as coefficient matrix.  The correction is scaled by the factor
-          !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
-          ! -----------------------------------------------------------------------
+          else
 
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
-                  (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
-          end do
-          CALL DVSOL (rwork % wm, IWM, IERSL, vstate)
-          vstate % NNI = vstate % NNI + 1
-          IF (IERSL .GT. 0) GO TO 410
-          IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
-             CSCALE = TWO/(ONE + vstate % RC)
-             vstate % Y(:) = vstate % Y(:) * CSCALE
-          ENDIF
+             ! -----------------------------------------------------------------------
+             !  In the case of the chord method, compute the corrector error,
+             !  and solve the linear system with that as right-hand side and
+             !  P as coefficient matrix.  The correction is scaled by the factor
+             !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
+             ! -----------------------------------------------------------------------
+
+             do I = 1,VODE_NEQS
+                vstate % Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
+                     (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
+             end do
+             CALL DVSOL (rwork % wm, IWM, IERSL, vstate)
+             vstate % NNI = vstate % NNI + 1
+             IF (IERSL .GT. 0) then
+                ! exit the inner correction iteration
+                exit
+             end IF
+
+             IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
+                CSCALE = TWO/(ONE + vstate % RC)
+                vstate % Y(:) = vstate % Y(:) * CSCALE
+             ENDIF
 
 #ifdef CLEAN_INTEGRATOR_CORRECTION
-          ! Clean the correction to Y. Use vstate % Y as scratch space.
+             ! Clean the correction to Y. Use vstate % Y as scratch space.
 
-          ! Find the corrected Y: Yc = Y_previous + Y_delta
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = vstate % Y(I) + (rwork % YH(I,1) + rwork % ACOR(I))
-          end do
+             ! Find the corrected Y: Yc = Y_previous + Y_delta
+             do I = 1,VODE_NEQS
+                vstate % Y(I) = vstate % Y(I) + (rwork % YH(I,1) + rwork % ACOR(I))
+             end do
 
-          ! Clean the corrected Y: Yc' = clean(Yc)
-          call clean_state(vstate % Y, vstate % RPAR)
+             ! Clean the corrected Y: Yc' = clean(Yc)
+             call clean_state(vstate % Y, vstate % RPAR)
 
-          ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = vstate % Y(I) - (rwork % YH(I,1) + rwork % ACOR(I))
-          end do
+             ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
+             do I = 1,VODE_NEQS
+                vstate % Y(I) = vstate % Y(I) - (rwork % YH(I,1) + rwork % ACOR(I))
+             end do
 #endif
 
-          DEL = DVNORM (vstate % Y, rwork % EWT)
-          rwork % acor(:) = rwork % acor(:) + vstate % Y(:)
+             DEL = DVNORM (vstate % Y, rwork % EWT)
+             rwork % acor(:) = rwork % acor(:) + vstate % Y(:)
 
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
-          end do
+             do I = 1,VODE_NEQS
+                vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
+             end do
 
+          end IF
+
+          ! -----------------------------------------------------------------------
+          !  Test for convergence.  If M .gt. 0, an estimate of the convergence
+          !  rate constant is stored in CRATE, and this is used in the test.
+          ! -----------------------------------------------------------------------
+
+          IF (M .NE. 0) vstate % CRATE = MAX(CRDOWN*vstate % CRATE,DEL/DELP)
+          DCON = DEL*MIN(ONE,vstate % CRATE)/vstate % TQ(4)
+          IF (DCON .LE. ONE) then
+             ! we converted, exit the outer loop
+             converged = .true.
+             exit
+          end IF
+
+          M = M + 1
+          IF (M .EQ. MAXCOR) then
+             ! exit the inner correction iteration
+             exit
+          end IF
+          IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) then
+             ! exit the inner correction iteration
+             exit
+          end if
+          DELP = DEL
+          CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
+          vstate % NFE = vstate % NFE + 1
+       end do
+
+       if (converged) then
+          exit
+       end if
+
+       IF (vstate % MITER .EQ. 0 .OR. vstate % JCUR .EQ. 1) then
+          NFLAG = -1
+          vstate % ICF = 2
+          vstate % IPUP = vstate % MITER
+          RETURN
        end IF
 
-       ! -----------------------------------------------------------------------
-       !  Test for convergence.  If M .gt. 0, an estimate of the convergence
-       !  rate constant is stored in CRATE, and this is used in the test.
-       ! -----------------------------------------------------------------------
-
-       IF (M .NE. 0) vstate % CRATE = MAX(CRDOWN*vstate % CRATE,DEL/DELP)
-       DCON = DEL*MIN(ONE,vstate % CRATE)/vstate % TQ(4)
-       IF (DCON .LE. ONE) GO TO 450
-       M = M + 1
-       IF (M .EQ. MAXCOR) GO TO 410
-       IF (M .GE. 2 .AND. DEL .GT. RDIV*DELP) GO TO 410
-       DELP = DEL
-       CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
-       vstate % NFE = vstate % NFE + 1
-       GO TO 270
-
-410    IF (vstate % MITER .EQ. 0 .OR. vstate % JCUR .EQ. 1) GO TO 430
        vstate % ICF = 1
        vstate % IPUP = vstate % MITER
 
     end do
 
-430 CONTINUE
-    NFLAG = -1
-    vstate % ICF = 2
-    vstate % IPUP = vstate % MITER
-    RETURN
 
     ! Return for successful step. ------------------------------------------
-450 continue
     NFLAG = 0
     vstate % JCUR = 0
     vstate % ICF = 0
