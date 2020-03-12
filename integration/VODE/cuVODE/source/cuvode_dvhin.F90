@@ -144,7 +144,7 @@ contains
           do I = 1, VODE_NEQS
              vstate % Y(I) = rwork % YH(I,1) + H*rwork % YH(I,2)
           end do
-          CALL f_rhs(T1, vstate % Y, rwork % ACOR, vstate % RPAR)
+          CALL f_rhs(T1, vstate, rwork % ACOR)
           do I = 1, VODE_NEQS
              rwork % ACOR(I) = (rwork % ACOR(I) - rwork % YH(I,2))/H
           end do
