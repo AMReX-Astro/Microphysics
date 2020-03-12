@@ -99,33 +99,34 @@ contains
        return
     end if
 
-    IF (vstate % ISTATE .EQ. 1) GO TO 10
+    IF (vstate % ISTATE .NE. 1) then
 
-    if (vstate % INIT .NE. 1) then
+       if (vstate % INIT .NE. 1) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  vstate % ISTATE (=I1) .gt. 1 but DVODE not initialized      '
-       CALL XERRWD (MSG, 60, 3, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
+          MSG='DVODE--  vstate % ISTATE (=I1) .gt. 1 but DVODE not initialized      '
+          CALL XERRWD (MSG, 60, 3, 1, 1, vstate % ISTATE, 0, 0, ZERO, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    IF (vstate % ISTATE .EQ. 2) GO TO 200
-    GO TO 20
-10  continue
-    vstate % INIT = 0
-    IF (vstate % TOUT .EQ. vstate % T) RETURN
+       IF (vstate % ISTATE .EQ. 2) GO TO 200
 
-    ! -----------------------------------------------------------------------
-    !  Block B.
-    !  The next code block is executed for the initial call (vstate % ISTATE = 1),
-    !  or for a continuation call with parameter changes (vstate % ISTATE = 3).
-    !  It contains checking of all input and various initializations.
-    !
-    !  First check legality of the non-optional input ITOL, IOPT,
-    !  MF, ML, and MU.
-    ! -----------------------------------------------------------------------
-20  continue
+    else
+       vstate % INIT = 0
+       IF (vstate % TOUT .EQ. vstate % T) RETURN
+
+       ! -----------------------------------------------------------------------
+       !  Block B.
+       !  The next code block is executed for the initial call (vstate % ISTATE = 1),
+       !  or for a continuation call with parameter changes (vstate % ISTATE = 3).
+       !  It contains checking of all input and various initializations.
+       !
+       !  First check legality of the non-optional input ITOL, IOPT,
+       !  MF, ML, and MU.
+       ! -----------------------------------------------------------------------
+    end IF
+
     if (VODE_ITOL .LT. 1 .OR. VODE_ITOL .GT. 4) then
 #ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  ITOL (=I1) illegal   '
@@ -159,121 +160,91 @@ contains
        return
     end if
 
-    IF (vstate % MITER .LE. 3) GO TO 30
-    ML = IWORK(1)
-    MU = IWORK(2)
-
-    if (ML .LT. 0 .OR. ML .GE. VODE_NEQS) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  ML (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-       CALL XERRWD (MSG, 50, 9, 1, 2, ML, VODE_NEQS, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
-    if (MU .LT. 0 .OR. MU .GE. VODE_NEQS) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MU (=I1) illegal:  .lt.0 or .ge.NEQ (=I2)'
-       CALL XERRWD (MSG, 50, 10, 1, 2, MU, VODE_NEQS, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
-30  CONTINUE
 
     ! Next process and check the optional input. ---------------------------
 
-    IF (IOPT .EQ. 1) GO TO 40
-    vstate % MXSTEP = MXSTP0
-    vstate % MXHNIL = MXHNL0
-    IF (vstate % ISTATE .EQ. 1) H0 = ZERO
-    vstate % HMXI = ZERO
-    vstate % HMIN = ZERO
-    GO TO 60
-40  continue
-    vstate % MXSTEP = IWORK(6)
+    IF (IOPT /= 1) then
+       vstate % MXSTEP = MXSTP0
+       vstate % MXHNIL = MXHNL0
+       IF (vstate % ISTATE .EQ. 1) H0 = ZERO
+       vstate % HMXI = ZERO
+       vstate % HMIN = ZERO
 
-    if (vstate % MXSTEP .LT. 0) then
+    else
+       vstate % MXSTEP = IWORK(6)
+
+       if (vstate % MXSTEP .LT. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
-       CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
+          MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
+          CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
-    vstate % MXHNIL = IWORK(7)
+       IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
+       vstate % MXHNIL = IWORK(7)
 
-    if (vstate % MXHNIL .LT. 0) then
+       if (vstate % MXHNIL .LT. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
-       CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+          MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
+          CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    !      EDIT 07/16/2016 -- see comments above about MXHNIL
-    !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
+       !      EDIT 07/16/2016 -- see comments above about MXHNIL
+       !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
 
-    IF (vstate % ISTATE .NE. 1) GO TO 50
-    H0 = RWORK % CONDOPT(2)
+       IF (vstate % ISTATE == 1) then
+          H0 = RWORK % CONDOPT(2)
 
-    if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
+          if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-       CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
-       MSG = '      integration direction is given by H0 (=R1)  '
-       CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
+             MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
+             CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+             MSG = '      integration direction is given by H0 (=R1)  '
+             CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+             vstate % ISTATE = -3
+             return
+          end if
 
-50  continue
-    HMAX = RWORK % CONDOPT(3)
+       end IF
+       HMAX = RWORK % CONDOPT(3)
 
-    if (HMAX .LT. ZERO) then
+       if (HMAX .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  HMAX (=R1) .lt. 0.0_rt  '
-       CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
+          MSG = 'DVODE--  HMAX (=R1) .lt. 0.0_rt  '
+          CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    vstate % HMXI = ZERO
-    IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
-    vstate % HMIN = RWORK % CONDOPT(4)
+       vstate % HMXI = ZERO
+       IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
+       vstate % HMIN = RWORK % CONDOPT(4)
 
-    if (vstate % HMIN .LT. ZERO) then
+       if (vstate % HMIN .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  HMIN (=R1) .lt. 0.0_rt  '
-       CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
+          MSG = 'DVODE--  HMIN (=R1) .lt. 0.0_rt  '
+          CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
-
+          vstate % ISTATE = -3
+          return
+       end if
+    end IF
 
     ! -----------------------------------------------------------------------
     !  Arrays stored in RWORK are denoted  CONDOPT, YH, WM, EWT, SAVF, ACOR.
     !  Within WM, LOCJS is the location of the saved Jacobian (JSV .gt. 0).
     ! -----------------------------------------------------------------------
 
-60  continue
     JCO = MAX(0,vstate % JSV)
     IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
        vstate % LOCJS = VODE_NEQS*VODE_NEQS + 3
-    ENDIF
-    IF (vstate % MITER .EQ. 4 .OR. vstate % MITER .EQ. 5) THEN
-       MBAND = ML + MU + 1
-       LENP = (MBAND + ML)*VODE_NEQS
-       LENJ = MBAND*VODE_NEQS
-       vstate % LOCJS = LENP + 3
     ENDIF
 
     ! Check RTOL and ATOL for legality. ------------------------------------
@@ -303,44 +274,46 @@ contains
        end if
 
     end do
-    IF (vstate % ISTATE .EQ. 1) GO TO 100
-    ! If vstate % ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
-    vstate % JSTART = -1
-    IF (vstate % NQ .LE. VODE_MAXORD) GO TO 90
-    ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
-    rwork % savf(1:VODE_NEQS) = rwork % wm(1:VODE_NEQS)
+    IF (vstate % ISTATE /= 1) then
+       ! If vstate % ISTATE = 3, set flag to signal parameter changes to DVSTEP. -------
+       vstate % JSTART = -1
+       IF (vstate % NQ > VODE_MAXORD) then
+          ! MAXORD was reduced below NQ.  Copy YH(*,MAXORD+2) into SAVF. ---------
+          rwork % savf(1:VODE_NEQS) = rwork % wm(1:VODE_NEQS)
 
-    ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
-90  continue
-    IF (vstate % MITER .GT. 0) rwork % wm(1) = SQRT(vstate % UROUND)
-    GO TO 200
+          ! Reload WM(1) = RWORK % wm(1), since LWM may have changed. ---------------
+       end IF
+       IF (vstate % MITER .GT. 0) rwork % wm(1) = SQRT(vstate % UROUND)
+       GO TO 200
 
-    ! -----------------------------------------------------------------------
-    !  Block C.
-    !  The next block is for the initial call only (vstate % ISTATE = 1).
-    !  It contains all remaining initializations, the initial call to F,
-    !  and the calculation of the initial step size.
-    !  The error weights in EWT are inverted after being loaded.
-    ! -----------------------------------------------------------------------
+       ! -----------------------------------------------------------------------
+       !  Block C.
+       !  The next block is for the initial call only (vstate % ISTATE = 1).
+       !  It contains all remaining initializations, the initial call to F,
+       !  and the calculation of the initial step size.
+       !  The error weights in EWT are inverted after being loaded.
+       ! -----------------------------------------------------------------------
 
-100 continue
+    end if
+
     vstate % UROUND = epsilon(1.0_rt)
     vstate % TN = vstate % T
-    IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 110
-    TCRIT = RWORK % condopt(1)
-    if ((TCRIT - vstate % TOUT)*(vstate % TOUT - vstate % T) .LT. ZERO) then
+    IF (ITASK == 4 .or. itask == 5) then
+       TCRIT = RWORK % condopt(1)
+       if ((TCRIT - vstate % TOUT)*(vstate % TOUT - vstate % T) .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
-       CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
+          MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
+          CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
 #endif
-       vstate % ISTATE = -3
-       return
+          vstate % ISTATE = -3
+          return
+       end if
+
+       if (H0 .NE. ZERO .AND. (vstate % T + H0 - TCRIT)*H0 .GT. ZERO) then
+          H0 = TCRIT - vstate % T
+       end if
     end if
 
-    if (H0 .NE. ZERO .AND. (vstate % T + H0 - TCRIT)*H0 .GT. ZERO) then
-       H0 = TCRIT - vstate % T
-    end if
-110 continue
     vstate % JSTART = 0
     IF (vstate % MITER .GT. 0) RWORK % wm(1) = SQRT(vstate % UROUND)
     vstate % CCMXJ = PT2
@@ -381,23 +354,23 @@ contains
 
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
-    IF (H0 .NE. ZERO) GO TO 180
+    IF (H0 == ZERO) then
 
-    ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (vstate, rwork, H0, NITER, IER)
-    vstate % NFE = vstate % NFE + NITER
+       ! Call DVHIN to set initial step size H0 to be attempted. --------------
+       CALL DVHIN (vstate, rwork, H0, NITER, IER)
+       vstate % NFE = vstate % NFE + NITER
 
-    if (IER .NE. 0) then
+       if (IER .NE. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
-       CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+          MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
+          CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
-180 continue
+       ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
+    end if
     RH = ABS(H0)*vstate % HMXI
     IF (RH .GT. ONE) H0 = H0/RH
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
@@ -527,48 +500,80 @@ contains
     ! -----------------------------------------------------------------------
 
 250 CONTINUE
-    IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) GO TO 500
+    IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) then
+    ! The maximum number of steps was taken before reaching TOUT. ----------
+#ifndef AMREX_USE_CUDA
+       MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
+       CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      taken on this call before reaching TOUT     '
+       CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
+#endif
+       vstate % ISTATE = -1
+       GO TO 580
+    end IF
     CALL DEWSET (vstate, rwork)
     do I = 1,VODE_NEQS
-       IF (rwork % ewt(I) .LE. ZERO) GO TO 510
+       IF (rwork % ewt(I) .LE. ZERO) then
+          ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
+#ifndef AMREX_USE_CUDA
+          EWTI = rwork % ewt(I)
+          MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
+          CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
+#endif
+          vstate % ISTATE = -6
+          GO TO 580
+       end IF
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
 270 continue
     TOLSF = vstate % UROUND * DVNORM (rwork % YH(:,1), rwork % EWT)
-    IF (TOLSF .LE. ONE) GO TO 280
-    TOLSF = TOLSF*TWO
+    IF (TOLSF > ONE) then
+       TOLSF = TOLSF*TWO
 
-    if (vstate % NST .EQ. 0) then
+       if (vstate % NST .EQ. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  At start of problem, too much accuracy   '
-       CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
-       MSG='      requested for precision of machine:   see TOLSF (=R1) '
-       CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
+          MSG = 'DVODE--  At start of problem, too much accuracy   '
+          CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
+          MSG='      requested for precision of machine:   see TOLSF (=R1) '
+          CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    GO TO 520
-280 IF ((vstate % TN + vstate % H) .NE. vstate % TN) GO TO 290
-    vstate % NHNIL = vstate % NHNIL + 1
-    IF (vstate % NHNIL .GT. vstate % MXHNIL) GO TO 290
+       ! Too much accuracy requested for machine precision. -------------------
 #ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
-    CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG='      such that in the machine, T + H = T on the next step  '
-    CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      (H = step size). solver will continue anyway'
-    CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+       MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
+       CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      for precision of machine:   see TOLSF (=R2) '
+       CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
 #endif
-    IF (vstate % NHNIL .LT. vstate % MXHNIL) GO TO 290
+       vstate % ISTATE = -2
+       GO TO 580
+    end IF
+
+    IF ((vstate % TN + vstate % H) == vstate % TN) then
+       vstate % NHNIL = vstate % NHNIL + 1
+       IF (vstate % NHNIL <= vstate % MXHNIL) then
 #ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  Above warning has been issued I1 times.  '
-    CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      it will not be issued again for this problem'
-    CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+          MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
+          CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
+          MSG='      such that in the machine, T + H = T on the next step  '
+          CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
+          MSG = '      (H = step size). solver will continue anyway'
+          CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif
-290 CONTINUE
+          IF (vstate % NHNIL == vstate % MXHNIL) then
+#ifndef AMREX_USE_CUDA
+             MSG = 'DVODE--  Above warning has been issued I1 times.  '
+             CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
+             MSG = '      it will not be issued again for this problem'
+             CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
+#endif
+          end IF
+       end IF
+    end IF
+
 
     ! -----------------------------------------------------------------------
     !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
@@ -675,35 +680,7 @@ contains
     !  The optional output is loaded into the work arrays before returning.
     ! -----------------------------------------------------------------------
 
-    ! The maximum number of steps was taken before reaching TOUT. ----------
-500 continue
-#ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
-    CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      taken on this call before reaching TOUT     '
-    CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
-#endif
-    vstate % ISTATE = -1
-    GO TO 580
-    ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
-510 continue
-#ifndef AMREX_USE_CUDA
-    EWTI = rwork % ewt(I)
-    MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
-    CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
-#endif
-    vstate % ISTATE = -6
-    GO TO 580
-    ! Too much accuracy requested for machine precision. -------------------
-520 continue
-#ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
-    CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      for precision of machine:   see TOLSF (=R2) '
-    CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
-#endif
-    vstate % ISTATE = -2
-    GO TO 580
+
     ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
 530 continue
 #ifndef AMREX_USE_CUDA

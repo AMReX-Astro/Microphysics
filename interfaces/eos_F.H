@@ -1,5 +1,5 @@
 #ifndef _eos_F_H_
-#define _eos_F_H
+#define _eos_F_H_
 #include <AMReX_BLFort.H>
 
 #ifdef __cplusplus
