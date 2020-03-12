@@ -246,7 +246,7 @@ contains
 
     ! Convert back to molar form
 
-    do j = 1, nspec_evolve
+    do j = 1, nspec
        jac(j,:) = jac(j,:) * aion_inv(j)
     enddo
 
