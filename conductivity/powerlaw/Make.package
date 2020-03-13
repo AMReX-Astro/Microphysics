@@ -1,3 +1,3 @@
 F90EXE_sources += powerlaw_conductivity.F90
-CEXE_headers += conductivity.H
+CEXE_headers += actual_conductivity.H
 

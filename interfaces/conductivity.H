@@ -12,7 +12,7 @@ void conductivity_init() {
 }
 
 
-AMREX_FORCE_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void conductivity(eos_t& state) {
   actual_conductivity(state);
 }

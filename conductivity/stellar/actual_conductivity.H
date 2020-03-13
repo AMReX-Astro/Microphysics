@@ -172,7 +172,7 @@ actual_conductivity(eos_t& state) {
   }
 
   // add in the compton scattering opacity, weaver et al. apj 1978 225 1021
-  Real th = std::min(511.0_rt, state.T * 8.617e-8_rt);
+  Real th = amrex::min(511.0_rt, state.T * 8.617e-8_rt);
   Real fact = 1.0_rt + 2.75e-2_rt*th - 4.88e-5_rt*th*th;
   Real facetax = 1.0e100_rt;
   if (state.eta <= 500.0_rt) {
