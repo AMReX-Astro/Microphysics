@@ -20,6 +20,7 @@ contains
 
     use eos_type_module, only: eos_t
     use network, only : zion, aion, nspec
+    use fundamental_constants_module
 
     implicit none
 
@@ -72,13 +73,9 @@ contains
     real(rt), parameter :: third  = 1.0e0_rt/3.0e0_rt
     real(rt), parameter :: twoth  = 2.0e0_rt * third
     real(rt), parameter :: pi     = 3.1415926535897932384e0_rt
-    real(rt), parameter :: avo    = 6.0221367e23_rt
-    real(rt), parameter :: c      = 2.99792458e10_rt
-    real(rt), parameter :: ssol   = 5.67050407222e-5_rt
-    real(rt), parameter :: asol   = 4.0e0_rt*ssol/c
     real(rt), parameter :: zbound = 0.1e0_rt
     real(rt), parameter :: t7peek = 1.0e20_rt
-    real(rt), parameter :: k2c    = 4.0e0_rt/3.0e0_rt*asol*c
+    real(rt), parameter :: k2c    = 4.0e0_rt/3.0e0_rt*a_rad*c_light
     real(rt), parameter :: meff   = 1.194648642401440e-10_rt
     real(rt), parameter :: weid   = 6.884326138694269e-5_rt
     real(rt), parameter :: iec    = 1.754582332329132e16_rt
@@ -238,7 +235,7 @@ contains
 
     !..from iben apj 196 525 1975 for non-degenerate regimes
     if (dlog10 .lt. drelim) then
-       zdel    = state % xne/(avo*t6*sqrt(t6))
+       zdel    = state % xne/(n_A*t6*sqrt(t6))
        zdell10 = log10(zdel)
        eta0    = exp(-1.20322e0_rt + twoth * log(zdel))
        eta02   = eta0*eta0
@@ -279,7 +276,7 @@ contains
           dnefac = 1.5e0_rt/eta0 * (1.0e0_rt - 0.8225e0_rt/eta02)
        endif
        wpar2  = 9.24735e-3_rt * zdel * &
-            (state % rho*avo*(w(4)+w(5)+w(6))/state % xne + dnefac)/(sqrt(t6)*pefac)
+            (state % rho*n_A*(w(4)+w(5)+w(6))/state % xne + dnefac)/(sqrt(t6)*pefac)
        walf   = 0.5e0_rt * log(wpar2)
        walf10 = 0.5e0_rt * log10(wpar2)
 
