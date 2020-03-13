@@ -78,6 +78,11 @@ contains
     !           whose real name is dependent on the method used.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
     ! -----------------------------------------------------------------------
+
+    ! -----------------------------------------------------------------------
+    !  On a successful return, ETAMAX is reset and ACOR is scaled.
+    ! -----------------------------------------------------------------------
+
 #ifdef TRUE_SDC
     use sdc_vode_rhs_module, only: f_rhs, jac
 #else
@@ -260,51 +265,73 @@ contains
 
        call retract_nordsieck(rwork, vstate)
 
-       IF (NFLAG .LT. -1) GO TO 680
-       IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 670
-       IF (NCF .EQ. MXNCF) GO TO 670
+       IF (NFLAG .LT. -1) then
+          IF (NFLAG .EQ. -2) vstate % KFLAG = -3
+          IF (NFLAG .EQ. -3) vstate % KFLAG = -4
+          vstate % JSTART = 1
+          RETURN
+       end IF
+       IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) then
+          vstate % KFLAG = -2
+          vstate % JSTART = 1
+          RETURN
+       end IF
+       IF (NCF .EQ. MXNCF) then
+          vstate % KFLAG = -2
+          vstate % JSTART = 1
+          RETURN
+       end IF
        vstate % ETA = ETACF
        vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H))
        NFLAG = -1
        GO TO 150
-       ! -----------------------------------------------------------------------
-       !  The corrector has converged (NFLAG = 0).  The local error test is
-       !  made and control passes to statement 500 if it fails.
-       ! -----------------------------------------------------------------------
     end IF
 
+    ! -----------------------------------------------------------------------
+    !  The corrector has converged (NFLAG = 0).  The local error test is
+    !  made and control passes to statement 500 if it fails.
+    ! -----------------------------------------------------------------------
+
     DSM = vstate % ACNRM/vstate % TQ(2)
-    IF (DSM .GT. ONE) GO TO 500
-    ! -----------------------------------------------------------------------
-    !  After a successful step, update the YH and TAU arrays and decrement
-    !  NQWAIT.  If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
-    !  for use in a possible order increase on the next step.
+    IF (DSM <= ONE) then
+       ! -----------------------------------------------------------------------
+       !  After a successful step, update the YH and TAU arrays and decrement
+       !  NQWAIT.  If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
+       !  for use in a possible order increase on the next step.
     !  If ETAMAX = 1 (a failure occurred this step), keep NQWAIT .ge. 2.
-    ! -----------------------------------------------------------------------
-    vstate % KFLAG = 0
-    vstate % NST = vstate % NST + 1
-    vstate % HU = vstate % H
-    vstate % NQU = vstate % NQ
-    do IBACK = 1, vstate % NQ
-       I = vstate % L - IBACK
-       vstate % TAU(I+1) = vstate % TAU(I)
-    end do
-    vstate % TAU(1) = vstate % H
-    do J = 1, vstate % L
-       rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
-    end do
-    vstate % NQWAIT = vstate % NQWAIT - 1
-    IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-    rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
-    
-    vstate % CONP = vstate % TQ(5)
-490 IF (vstate % ETAMAX .NE. ONE) GO TO 560
-    IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
-    vstate % NEWQ = vstate % NQ
-    vstate % NEWH = 0
-    vstate % ETA = ONE
-    vstate % HNEW = vstate % H
-    GO TO 690
+       ! -----------------------------------------------------------------------
+       vstate % KFLAG = 0
+       vstate % NST = vstate % NST + 1
+       vstate % HU = vstate % H
+       vstate % NQU = vstate % NQ
+       do IBACK = 1, vstate % NQ
+          I = vstate % L - IBACK
+          vstate % TAU(I+1) = vstate % TAU(I)
+       end do
+       vstate % TAU(1) = vstate % H
+       do J = 1, vstate % L
+          rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
+       end do
+       vstate % NQWAIT = vstate % NQWAIT - 1
+       IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
+       rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+       
+       vstate % CONP = vstate % TQ(5)
+490    IF (vstate % ETAMAX .NE. ONE) GO TO 560
+       IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
+       vstate % NEWQ = vstate % NQ
+       vstate % NEWH = 0
+       vstate % ETA = ONE
+       vstate % HNEW = vstate % H
+       vstate % ETAMAX = ETAMX3
+       IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
+       R = ONE/vstate % TQ(2)
+       rwork % acor(:) = rwork % acor(:) * R
+       vstate % JSTART = 1
+       RETURN
+
+    endif
+
     ! -----------------------------------------------------------------------
     !  The error test failed.  KFLAG keeps track of multiple failures.
     !  Restore TN and the YH array to their previous values, and prepare
@@ -312,7 +339,7 @@ contains
     !  same order.  After repeated failures, H is forced to decrease
     !  more rapidly.
     ! -----------------------------------------------------------------------
-500 continue
+
     vstate % KFLAG = vstate % KFLAG - 1
     vstate % NETF = vstate % NETF + 1
     NFLAG = -2
@@ -320,7 +347,11 @@ contains
 
     call retract_nordsieck(rwork, vstate)
 
-    IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) GO TO 660
+    IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) then
+       vstate % KFLAG = -1
+       vstate % JSTART = 1
+       RETURN
+    end IF
     vstate % ETAMAX = ONE
     IF (vstate % KFLAG .LE. KFC) GO TO 530
     ! Compute ratio of new H to current H at the current order. ------------
@@ -337,7 +368,11 @@ contains
     !  the step is retried.  After a total of 7 consecutive failures,
     !  an exit is taken with KFLAG = -1.
     ! -----------------------------------------------------------------------
-530 IF (vstate % KFLAG .EQ. KFH) GO TO 660
+530 IF (vstate % KFLAG .EQ. KFH) then
+       vstate % KFLAG = -1
+       vstate % JSTART = 1
+       RETURN
+    end IF
     IF (vstate % NQ .EQ. 1) GO TO 540
     vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
     CALL DVJUST (-1, rwork, vstate)
@@ -374,21 +409,22 @@ contains
     IF (vstate % NQWAIT .NE. 0) GO TO 600
     vstate % NQWAIT = 2
     ETAQM1 = ZERO
-    IF (vstate % NQ .EQ. 1) GO TO 570
-    ! Compute ratio of new H to current H at the current order less one. ---
-    DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
-    ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
-570 continue
+    IF (vstate % NQ /= 1) then
+       ! Compute ratio of new H to current H at the current order less one. ---
+       DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
+       ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
+    end IF
     ETAQP1 = ZERO
-    IF (vstate % L .EQ. VODE_LMAX) GO TO 580
-    ! Compute ratio of new H to current H at current order plus one. -------
-    CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
-    do I = 1, VODE_NEQS
-       rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
-    end do
-    DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
-    ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
-580 IF (ETAQ .GE. ETAQP1) GO TO 590
+    IF (vstate % L /= VODE_LMAX) then
+       ! Compute ratio of new H to current H at current order plus one. -------
+       CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
+       do I = 1, VODE_NEQS
+          rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
+       end do
+       DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
+       ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
+    end IF
+    IF (ETAQ .GE. ETAQP1) GO TO 590
     IF (ETAQP1 .GT. ETAQM1) GO TO 620
     GO TO 610
 590 IF (ETAQ .LT. ETAQM1) GO TO 610
@@ -404,42 +440,32 @@ contains
     vstate % ETA = ETAQP1
     vstate % NEWQ = vstate % NQ + 1
     rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
-630 IF (vstate % ETA .LT. THRESH .OR. vstate % ETAMAX .EQ. ONE) GO TO 640
-    vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
-    vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % H)*vstate % HMXI * vstate % ETA)
-    vstate % NEWH = 1
-    vstate % HNEW = vstate % H * vstate % ETA
-    GO TO 690
-640 continue
+630 IF (vstate % ETA >= THRESH .and. vstate % ETAMAX /= ONE) then
+       vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
+       vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % H)*vstate % HMXI * vstate % ETA)
+       vstate % NEWH = 1
+       vstate % HNEW = vstate % H * vstate % ETA
+       vstate % ETAMAX = ETAMX3
+       IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
+       R = ONE/vstate % TQ(2)
+       rwork % acor(:) = rwork % acor(:) * R
+       vstate % JSTART = 1
+       RETURN
+    end IF
+
     vstate % NEWQ = vstate % NQ
     vstate % NEWH = 0
     vstate % ETA = ONE
     vstate % HNEW = vstate % H
-    GO TO 690
-    ! -----------------------------------------------------------------------
-    !  All returns are made through this section.
-    !  On a successful return, ETAMAX is reset and ACOR is scaled.
-    ! -----------------------------------------------------------------------
-660 continue
-    vstate % KFLAG = -1
-    GO TO 720
-670 continue
-    vstate % KFLAG = -2
-    GO TO 720
-680 continue
-    IF (NFLAG .EQ. -2) vstate % KFLAG = -3
-    IF (NFLAG .EQ. -3) vstate % KFLAG = -4
-    GO TO 720
-690 continue
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
     rwork % acor(:) = rwork % acor(:) * R
-
-720 continue
     vstate % JSTART = 1
     RETURN
+    
   end subroutine dvstep
 
 end module cuvode_dvstep_module

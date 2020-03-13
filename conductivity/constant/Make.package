@@ -1,1 +1,2 @@
 F90EXE_sources += constant_conductivity.F90
+CEXE_headers += actual_conductivity.H
