@@ -275,7 +275,7 @@ contains
              exit
           end if
           DELP = DEL
-          CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
+          CALL f_rhs (vstate % TN, vstate, rwork % SAVF)
           vstate % NFE = vstate % NFE + 1
        end do
 
