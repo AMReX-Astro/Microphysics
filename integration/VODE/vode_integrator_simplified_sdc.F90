@@ -148,7 +148,7 @@ contains
 
     ! Convert our input sdc state into the form VODE expects
 
-    call sdc_to_vode(state_in, dvode_state % y, dvode_state % rpar)
+    call sdc_to_vode(state_in, dvode_state)
 
 
     ! this is not used but we set it to prevent accessing uninitialzed
@@ -164,7 +164,7 @@ contains
     call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
 
     ! Store the final data
-    call vode_to_sdc(dvode_state % T, dvode_state % y, dvode_state % rpar, state_out)
+    call vode_to_sdc(dvode_state % T, dvode_state, state_out)
 
     ! VODE does not always fail even though it can lead to unphysical states,
     ! so add some sanity checks that trigger a retry even if VODE thinks
