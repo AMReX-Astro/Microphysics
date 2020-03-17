@@ -1,7 +1,7 @@
 module cuvode_module
 
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+                                      VODE_LENWM, VODE_MAXORD
   use cuvode_types_module, only: dvode_t, rwork_t
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
@@ -127,15 +127,6 @@ contains
        ! -----------------------------------------------------------------------
     end IF
 
-    if (VODE_ITOL .LT. 1 .OR. VODE_ITOL .GT. 4) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  ITOL (=I1) illegal   '
-       CALL XERRWD (MSG, 30, 6, 1, 1, VODE_ITOL, 0, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
-
     if (IOPT .LT. 0 .OR. IOPT .GT. 1) then
 #ifndef AMREX_USE_CUDA
        MSG = 'DVODE--  IOPT (=I1) illegal   '
@@ -252,8 +243,8 @@ contains
     ATOLI = vstate % ATOL(1)
     do I = 1,VODE_NEQS
 
-       IF (VODE_ITOL .GE. 3) RTOLI = vstate % RTOL(I)
-       IF (VODE_ITOL .EQ. 2 .OR. VODE_ITOL .EQ. 4) ATOLI = vstate % ATOL(I)
+       RTOLI = vstate % RTOL(I)
+       ATOLI = vstate % ATOL(I)
 
        if (RTOLI .LT. ZERO) then
 #ifndef AMREX_USE_CUDA

@@ -1,7 +1,7 @@
 module cuvode_dvhin_module
 
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+                                      VODE_LENWM, VODE_MAXORD
   use cuvode_types_module, only: dvode_t, rwork_t
   use amrex_fort_module, only: rt => amrex_real
 
@@ -67,7 +67,6 @@ contains
     !    tout = vstate % tout
     !    uround = vstate % uround
     !    ewt = rwork % ewt
-    !    itol = VODE_ITOL
     !    atol = vstate % atol
     !    y = vstate % y
     !    temp = rwork % acor
@@ -116,7 +115,7 @@ contains
     ATOLI = vstate % ATOL(1)
 
     do I = 1, VODE_NEQS
-       IF (VODE_ITOL .EQ. 2 .OR. VODE_ITOL .EQ. 4) ATOLI = vstate % ATOL(I)
+       ATOLI = vstate % ATOL(I)
        DELYI = PT1*ABS(rwork % YH(I,1)) + ATOLI
        AFI = ABS(rwork % YH(I,2))
        IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
