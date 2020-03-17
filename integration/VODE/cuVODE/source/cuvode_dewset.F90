@@ -1,7 +1,7 @@
 module cuvode_dewset_module
   
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD, VODE_ITOL
+                                      VODE_LENWM, VODE_MAXORD
   use cuvode_types_module, only: dvode_t, rwork_t
 
   use cuvode_constants_module
@@ -51,25 +51,10 @@ contains
 
     !$gpu
 
-    if (VODE_ITOL == 1) then
-       do I = 1,VODE_NEQS
-          rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
-       end do
-    else if (VODE_ITOL == 2) then
-       do I = 1,VODE_NEQS
-          rwork % EWT(I) = vstate % RTOL(1)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
-       end do
-    else if (VODE_ITOL == 3) then
-       do I = 1,VODE_NEQS
-          rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(1)
-       end do
-    else if (VODE_ITOL == 4) then
-       do I = 1,VODE_NEQS
-          rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
-       end do
-    end if
+    do I = 1, VODE_NEQS
+       rwork % EWT(I) = vstate % RTOL(I)*ABS(rwork % YH(I,1)) + vstate % ATOL(I)
+    end do
 
-    RETURN
   end subroutine dewset
 
 end module cuvode_dewset_module
