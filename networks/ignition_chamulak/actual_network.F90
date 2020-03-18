@@ -10,9 +10,6 @@ module actual_network
   ! reaction
   real(rt)        , parameter :: M12_chamulak = 2.93e0_rt
 
-  ! we are only explicitly evolving C12
-  integer, parameter :: nspec_evolve = 1
-
   integer, parameter :: ic12  = 1
   integer, parameter :: io16  = 2
   integer, parameter :: iash  = 3

@@ -14,7 +14,7 @@ contains
 
     !$acc routine seq
     
-    use actual_network, only: aion, nspec_evolve
+    use actual_network, only: aion, nspec
     use amrex_fort_module, only: rt => amrex_real
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
@@ -36,7 +36,7 @@ contains
 
     ! We are integrating a system of
     !
-    ! y(1:nspec_evolve) = dX/dt
+    ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -56,7 +56,7 @@ contains
     call network_rhs(burn_state, ydot, vode_state % rpar(irp_t0))
 
     ! We integrate X, not Y
-    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ydot(1:nspec) = ydot(1:nspec) * aion(1:nspec)
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
@@ -84,7 +84,7 @@ contains
 
     !$acc routine seq
     
-    use network, only: aion, aion_inv, nspec_evolve
+    use network, only: aion, aion_inv, nspec
     use amrex_constants_module, only: ZERO
     use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
@@ -112,7 +112,7 @@ contains
     call network_jac(state, pd, vode_state % rpar(irp_t0))
 
     ! We integrate X, not Y
-    do n = 1, nspec_evolve
+    do n = 1, nspec
        pd(n,:) = pd(n,:) * aion(n)
        pd(:,n) = pd(:,n) * aion_inv(n)
     enddo

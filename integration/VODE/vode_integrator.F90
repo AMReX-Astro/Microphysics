@@ -35,7 +35,6 @@ contains
          burning_mode, burning_mode_factor, &
          retry_burn, retry_burn_factor, retry_burn_max_change, &
          call_eos_in_rhs, dt_crit, ode_max_steps
-    use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
@@ -108,13 +107,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    dvode_state % atol(1:nspec_evolve) = status % atol_spec ! mass fractions
-    dvode_state % atol(net_itemp)      = status % atol_temp ! temperature
-    dvode_state % atol(net_ienuc)      = status % atol_enuc ! energy generated
+    dvode_state % atol(1:nspec)   = status % atol_spec ! mass fractions
+    dvode_state % atol(net_itemp) = status % atol_temp ! temperature
+    dvode_state % atol(net_ienuc) = status % atol_enuc ! energy generated
 
-    dvode_state % rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
-    dvode_state % rtol(net_itemp)      = status % rtol_temp ! temperature
-    dvode_state % rtol(net_ienuc)      = status % rtol_enuc ! energy generated
+    dvode_state % rtol(1:nspec)   = status % rtol_spec ! mass fractions
+    dvode_state % rtol(net_itemp) = status % rtol_temp ! temperature
+    dvode_state % rtol(net_ienuc) = status % rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -266,11 +265,11 @@ contains
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(1:nspec_evolve) < -failure_tolerance)) then
+    if (any(dvode_state % y(1:nspec) < -failure_tolerance)) then
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(1:nspec_evolve) > 1.e0_rt + failure_tolerance)) then
+    if (any(dvode_state % y(1:nspec) > 1.e0_rt + failure_tolerance)) then
        integration_failed = .true.
     end if
 
@@ -285,8 +284,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', dvode_state % y(net_itemp) * temp_scale
-       print *, 'xn current = ', dvode_state % y(1:nspec_evolve) * aion(1:nspec_evolve), &
-            dvode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
+       print *, 'xn current = ', dvode_state % y(1:nspec) * aion(1:nspec)
        print *, 'energy generated = ', (dvode_state % y(net_ienuc) - ener_offset) * ener_scale
 #endif
 
@@ -306,10 +304,6 @@ contains
     state_out % n_jac = iwork(13)
 
     state_out % time = dvode_state % t
-
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
 
     ! For burning_mode == 3, limit the burning.
 

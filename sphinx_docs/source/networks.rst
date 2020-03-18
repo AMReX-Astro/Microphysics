@@ -16,16 +16,6 @@ At a minimum, a network needs to provide:
 
 * ``nspec`` : the number of species in the network
 
-* ``nspec_evolve`` : the number of species that are actually integrated
-  in the network.
-
-  Usually this is ``nspec``, but in general any ``nspec_evolve``
-  :math:`\le` ``nspec`` is allowed. Those species not evolved are held
-  constant in the integration.
-
-  Note that the convention is that the first ``nspec_evolve`` out
-  of the ``nspec`` species are the ones evolved.
-
 * ``nrates`` : the number of reaction rates. This is used to
   allocate space in the ``rate_t`` type
 
@@ -68,9 +58,7 @@ There are three primary files within each network directory.
    variables, as well as other initializing data, such as their mass
    numbers, proton numbers, and binding energies. It needs to define
    the ``nspec`` and ``naux`` quantities as integer
-   parameters. Additionally it must define ``nspec_evolve``, the
-   number of species that are actually evolved during a burn; in most
-   cases, this should have the same value as ``nspec``. Finally, it
+   parameters. Finally, it
    must also define nrates, the number of reaction rates linking
    the isotopes in the network.
 
@@ -191,9 +179,6 @@ carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in :cite:`chamulak:2008`.
 
-This network has ``nspec`` = 3, but ``nspec_evolve`` = 1. Only a
-single reaction is modeled, converting :math:`^{12}\mathrm{C}` into
-“ash”.
 
 .. _energy-generation.-1:
 
@@ -310,7 +295,6 @@ This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`
 reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
-This network has ``nspec`` = 4, but ``nspec_evolve`` = 3.
 
 xrb_simple
 ----------
@@ -443,9 +427,7 @@ The righthand side of the network is implemented by
 
 All of the necessary integration data comes in through state, as:
 
-* ``state % xn(:)`` : the ``nspec`` mass fractions (note: for
-  the case that ``nspec_evolve`` < ``nspec``, an algebraic constraint
-  may need to be enforced. See § \ `3.3 <#ch:networks:nspec_evolve>`__).
+* ``state % xn(:)`` : the ``nspec`` mass fractions.
 
 * ``state % e`` : the current value of the ODE system’s energy
   release, :math:`\enuc`—note: as discussed above, this is not
@@ -470,8 +452,8 @@ The actual_rhs() routine’s job is to fill the righthand side vector
 for the ODE system, state % ydot(:). Here, the important
 fields to fill are:
 
-* ``state % ydot(1:nspec_evolve)`` : the change in *molar
-  fractions* for the ``nspec_evolve`` species that we are evolving,
+* ``state % ydot(1:nspec)`` : the change in *molar
+  fractions* for the ``nspec`` species that we are evolving,
   :math:`d({Y}_k)/dt`
 
 * ``state % ydot(net_ienuc)`` : the change in the energy release
@@ -703,34 +685,6 @@ Upon exit, we subtract off this initial offset, so ``% e`` in
 the returned ``burn_t`` type from the ``actual_integrator``
 call represents the energy *release* during the burn.
 
-.. _ch:networks:nspec_evolve:
-
-nspec_evolve Implementation
----------------------------
-
-For networks where ``nspec_evolve`` < ``nspec``, it may be
-necessary to reset the species mass fractions each time you enter the
-RHS routine. As an example, the network ignition_chamulak has
-3 species, :math:`^{12}\mathrm{C}`, :math:`^{16}\mathrm{O}`, and :math:`^{24}\mathrm{Mg}`. In this
-network, :math:`^{16}\mathrm{O}` is not evolved at all and any change in
-:math:`^{12}\mathrm{C}` is reflected in :math:`^{24}\mathrm{Mg}`. So we can evolve only the
-equation for :math:`^{12}\mathrm{C}`. The algebraic relation between the
-unevolved mass fractions that must be enforced then is:
-
-.. math:: X(\isotm{Mg}{24}) = 1 - X(\isotm{C}{12}) - X(\isotm{O}{16})
-
-This is implemented in the routine ``update_unevolved_species``:
-
-::
-
-      subroutine update_unevolved_species(state)
-        type (burn_t) :: state
-
-This needs to be explicitly called in ``actual_rhs`` before
-the mass fractions from the input state are accessed. It is
-also called directly by the integrator at the end of integration,
-to make sure the final state is consistent.
-
 
 
 Renormalization
@@ -860,9 +814,6 @@ integrator-specific type implied in these operations):
 
 #. Convert back to a ``burn_t`` type (by ``calling XX_to_burn``).
 
-#. update any unevolved species, for ``nspec_evolve`` <
-   ``nspec``
-
 #. normalize the abundances so they sum to 1
 
 Righthand side wrapper
@@ -927,15 +878,6 @@ in the ``rpar_indices`` module. Note that because the ``bs_t``
 contains its own ``burn_t`` type, the BS integrator does not need
 as much meta-data as some other integrators. The fields of upar
 are:
-
-* ``bs_t % upar(irp_nspec : irp_nspec-1+n_not_evolved)``
-
-  These are the mass fractions of the ``nspec`` - ``nspec_evolve``
-  species that are not evolved in the ODE system.
-
-* ``bs_t % upar(irp_y_init : irp_y_init-1+neqs)``
-
-  This is the initial values of the ODE integration vector.
 
 * ``bs_t % upar(irp_t_sound)``
 

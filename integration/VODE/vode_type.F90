@@ -13,7 +13,7 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ONE
-    use actual_network, only: aion, nspec, nspec_evolve
+    use actual_network, only: aion, nspec
     use burn_type_module, only: neqs, net_itemp
     use vode_rpar_indices, only: n_rpar_comps
     use eos_type_module, only : eos_get_small_temp
@@ -29,8 +29,7 @@ contains
 
     ! Ensure that mass fractions always stay positive and less than or equal to 1.
 
-    vode_state % y(1:nspec_evolve) = &
-         max(min(vode_state % y(1:nspec_evolve), ONE), SMALL_X_SAFE)
+    vode_state % y(1:nspec) = max(min(vode_state % y(1:nspec), ONE), SMALL_X_SAFE)
 
     ! Renormalize the abundances as necessary.
 
@@ -52,9 +51,9 @@ contains
 
     !$acc routine seq
     
-    use network, only: aion, aion_inv, nspec, nspec_evolve
+    use network, only: aion, aion_inv, nspec
     use burn_type_module, only: neqs
-    use vode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
+    use vode_rpar_indices, only: n_rpar_comps
 
     implicit none
 
@@ -64,13 +63,8 @@ contains
 
     !$gpu
 
-    nspec_sum = &
-         sum(vode_state % y(1:nspec_evolve)) + &
-         sum(vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1))
-
-    vode_state % y(1:nspec_evolve) = vode_state % y(1:nspec_evolve) / nspec_sum
-    vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
+    nspec_sum = sum(vode_state % y(1:nspec))
+    vode_state % y(1:nspec) = vode_state % y(1:nspec) / nspec_sum
 
   end subroutine renormalize_species
 
@@ -156,10 +150,10 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, aion, aion_inv
     use eos_type_module, only: eos_t
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
+    use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -172,9 +166,7 @@ contains
     state % rho     = vode_state % rpar(irp_dens) * dens_scale
     state % T       = vode_state % y(net_itemp) * temp_scale
 
-    state % xn(1:nspec_evolve) = vode_state % y(1:nspec_evolve)
-    state % xn(nspec_evolve+1:nspec) = &
-         vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+    state % xn(1:nspec) = vode_state % y(1:nspec)
 
     state % cp      = vode_state % rpar(irp_cp)
     state % cv      = vode_state % rpar(irp_cv)
@@ -195,10 +187,10 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, aion, aion_inv
     use eos_type_module, only: eos_t
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
+    use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -211,9 +203,7 @@ contains
     vode_state % rpar(irp_dens) = state % rho * inv_dens_scale
     vode_state % y(net_itemp) = state % T * inv_temp_scale
 
-    vode_state % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         state % xn(nspec_evolve+1:nspec)
+    vode_state % y(1:nspec) = state % xn(1:nspec)
 
     vode_state % rpar(irp_cp) = state % cp
     vode_state % rpar(irp_cv) = state % cv
@@ -234,11 +224,11 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
-    use network, only: nspec, nspec_evolve
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use network, only: nspec
+    use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -252,11 +242,6 @@ contains
     vode_state % y(net_itemp) = state % T * inv_temp_scale
     vode_state % y(net_ienuc) = state % e * inv_ener_scale
 
-    ! some networks, in particular those with nspec_evolve < nspec
-    ! can alter state % xn(:) directly
-    vode_state % y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
-
   end subroutine burn_to_vode
 
 
@@ -268,11 +253,11 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
-    use network, only: nspec, nspec_evolve, aion, aion_inv
-    use vode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use network, only: nspec, aion, aion_inv
+    use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -288,9 +273,7 @@ contains
     state % T        = vode_state % y(net_itemp) * temp_scale
     state % e        = vode_state % y(net_ienuc) * ener_scale
 
-    state % xn(1:nspec_evolve) = vode_state % y(1:nspec_evolve)
-    state % xn(nspec_evolve+1:nspec) = &
-         vode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+    state % xn(1:nspec) = vode_state % y(1:nspec)
 
     state % cp       = vode_state % rpar(irp_cp)
     state % cv       = vode_state % rpar(irp_cv)
