@@ -332,8 +332,9 @@ contains
        ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
        vstate % NQ = 1
        vstate % H = ONE
-       CALL DEWSET (vstate, rwork)
+
        do I = 1,VODE_NEQS
+          rwork % EWT(I) = vstate % RTOL(I) * abs(rwork % YH(I,1)) + vstate % ATOL(I)
           if (rwork % ewt(I) .LE. ZERO) then
 #ifndef AMREX_USE_CUDA
              EWTI = rwork % ewt(I)
