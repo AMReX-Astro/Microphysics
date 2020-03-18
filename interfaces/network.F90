@@ -18,6 +18,9 @@ module network
 
   logical :: network_initialized = .false.
 
+  ! temporary hack until we eliminate nspec_evolve from application codes
+  integer, parameter :: nspec_evolve = nspec
+
 contains
 
   subroutine network_init()
