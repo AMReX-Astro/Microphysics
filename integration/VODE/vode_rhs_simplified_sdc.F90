@@ -8,7 +8,7 @@ module vode_rhs_module
 
 subroutine f_rhs(time, y, ydot, rpar)
 
-  use actual_network, only: aion, nspec_evolve
+  use actual_network, only: aion, nspec
   use amrex_fort_module, only: rt => amrex_real
   use burn_type_module, only: burn_t, net_ienuc, net_itemp, neqs
   use amrex_constants_module, only: ZERO, ONE
@@ -61,7 +61,7 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   ! use an analytic Jacobian.  Otherwise, VODE will use its internal
   ! Jacobian routines.
 
-  use network, only: aion, aion_inv, nspec_evolve
+  use network, only: aion, aion_inv, nspec
   use amrex_constants_module, only: ZERO
   use network_rhs_module, only: network_jac
   use burn_type_module, only: burn_t, net_ienuc, neqs

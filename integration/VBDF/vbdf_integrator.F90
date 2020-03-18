@@ -46,7 +46,6 @@ contains
                                     burning_mode, burning_mode_factor, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
-    use actual_rhs_module, only : update_unevolved_species
     use temperature_integration_module, only: self_heat
 
     implicit none
@@ -84,13 +83,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = atol_spec ! mass fractions
-    atol(net_itemp)      = atol_temp ! temperature
-    atol(net_ienuc)      = atol_enuc ! energy generated
+    atol(1:nspec)   = atol_spec ! mass fractions
+    atol(net_itemp) = atol_temp ! temperature
+    atol(net_ienuc) = atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    rtol(net_itemp)      = rtol_temp ! temperature
-    rtol(net_ienuc)      = rtol_enuc ! energy generated
+    rtol(1:nspec)   = rtol_spec ! mass fractions
+    rtol(net_itemp) = rtol_temp ! temperature
+    rtol(net_ienuc) = rtol_enuc ! energy generated
 
     ts % atol = atol
     ts % rtol = rtol
@@ -224,8 +223,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', ts % y(net_itemp,1)
-       print *, 'xn current = ', ts % y(1:nspec_evolve,1), &
-            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
+       print *, 'xn current = ', ts % y(1:nspec,1)
        print *, 'energy generated = ', ts % y(net_ienuc,1) - ener_offset
 #endif
        if (.not. retry_burn) then
@@ -283,10 +281,6 @@ contains
 
     ! Store the final data, and then normalize abundances.
     call vbdf_to_burn(ts, state_out)
-
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
 
     ! For burning_mode == 3, limit the burning.
 
