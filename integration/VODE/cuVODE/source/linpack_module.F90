@@ -74,63 +74,61 @@ contains
     !      cleve moler, university of new mexico, argonne national lab.
     ! 
     !      internal variables
-    ! 
+
     real(rt)         t
     integer k,kb,l,nm1
+
     !$gpu
-    ! 
+
     nm1 = n - 1
-    if (job .ne. 0) goto 50
-    ! 
-    !         job = 0 , solve  a * x = b
-    !         first solve  l*y = b
-    ! 
-    if (nm1 .lt. 1) goto 30
-    do k = 1, nm1
-       l = ipvt(k)
-       t = b(l)
-       if (l .eq. k) goto 10
-       b(l) = b(k)
-       b(k) = t
-10     continue
-       b(k+1:n) = b(k+1:n) + t * a(k+1:n,k)
-    enddo
-30  continue
-    ! 
-    !         now solve  u*x = y
-    ! 
-    do kb = 1, n
-       k = n + 1 - kb
-       b(k) = b(k)/a(k,k)
-       t = -b(k)
-       b(1:k-1) = b(1:k-1) + t * a(1:k-1,k)
-    enddo
-    go to 100
-50  continue
-    ! 
-    !         job = nonzero, solve  trans(a) * x = b
-    !         first solve  trans(u)*y = b
-    ! 
-    do k = 1, n
-       t = sum(a(1:k-1,k) * b(1:k-1))
-       b(k) = (b(k) - t)/a(k,k)
-    enddo
-    ! 
-    !         now solve trans(l)*x = y
-    ! 
-    if (nm1 .lt. 1) goto 90
-    do kb = 1, nm1
-       k = n - kb
-       b(k) = b(k) + sum(a(k+1:n,k) * b(k+1:n))
-       l = ipvt(k)
-       if (l .eq. k) go to 70
-       t = b(l)
-       b(l) = b(k)
-       b(k) = t
-70     continue
-    enddo
-90  continue
-100 continue
+    if (job == 0) then
+       ! job = 0, solve a * x = b
+       ! first solve l * y = b
+       if (nm1 >= 1) then
+          do k = 1, nm1
+             l = ipvt(k)
+             t = b(l)
+             if (l /= k) then
+                b(l) = b(k)
+                b(k) = t
+             end if
+             b(k+1:n) = b(k+1:n) + t * a(k+1:n,k)
+          end do
+       end if
+
+       ! now solve u * x = y
+       do kb = 1, n
+          k = n + 1 - kb
+          b(k) = b(k)/a(k,k)
+          t = -b(k)
+          b(1:k-1) = b(1:k-1) + t * a(1:k-1,k)
+       enddo
+
+    else
+
+       ! job = nonzero, solve  trans(a) * x = b
+       ! first solve trans(u) * y = b
+       do k = 1, n
+          t = sum(a(1:k-1,k) * b(1:k-1))
+          b(k) = (b(k) - t)/a(k,k)
+       end do
+
+       ! now solve trans(l) * x = y
+       if (nm1 >= 1) then
+          do kb = 1, nm1
+             k = n - kb
+             b(k) = b(k) + sum(a(k+1:n,k) * b(k+1:n))
+             l = ipvt(k)
+             if (l /= k) then
+                t = b(l)
+                b(l) = b(k)
+                b(k) = t
+             end if
+          end do
+       end if
+
+    end if
+
   end subroutine dgesl
 
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
@@ -190,59 +188,61 @@ contains
     ! 
     real(rt)         t
     integer j,k,kp1,l,nm1
+
     !$gpu
-    ! 
-    ! 
-    !      gaussian elimination with partial pivoting
-    ! 
+
+    ! gaussian elimination with partial pivoting
 
     info = 0
     nm1 = n - 1
 
-    if (nm1 .lt. 1) goto 70
-    do k = 1, nm1
-       kp1 = k + 1
-       ! 
-       !         find l = pivot index
-       ! 
-       l = idamax(n-k+1,a(k:n,k)) + k - 1
-       ipvt(k) = l
-       ! 
-       !         zero pivot implies this column already triangularized
-       ! 
-       if (a(l,k) .eq. 0.0e0_rt) goto 40
-       ! 
-       !            interchange if necessary
-       ! 
-       if (l .eq. k) goto 10
-       t = a(l,k)
-       a(l,k) = a(k,k)
-       a(k,k) = t
-10     continue
-       ! 
-       !            compute multipliers
-       ! 
-       t = -1.0e0_rt/a(k,k)
-       a(k+1:n,k) = a(k+1:n,k) * t
-       ! 
-       !            row elimination with column indexing
-       ! 
-       do j = kp1, n
-          t = a(l,j)
-          if (l .eq. k) goto 20
-          a(l,j) = a(k,j)
-          a(k,j) = t
-20        continue
-          a(k+1:n,j) = a(k+1:n,j) + t * a(k+1:n,k)
-       enddo
-       goto 50
-40     continue
-       info = k
-50     continue
-    enddo
-70  continue
+    if (nm1 >= 1) then
+
+       do k = 1, nm1
+
+          kp1 = k + 1
+
+          ! find l = pivot index
+          l = idamax(n-k+1,a(k:n,k)) + k - 1
+          ipvt(k) = l
+
+          ! zero pivot implies this column already triangularized
+          if (a(l,k) /= 0.0e0_rt) then
+
+             ! interchange if necessary
+             if (l /= k) then
+                t = a(l,k)
+                a(l,k) = a(k,k)
+                a(k,k) = t
+             end if
+
+             ! compute multipliers
+             t = -1.0e0_rt / a(k,k)
+             a(k+1:n,k) = a(k+1:n,k) * t
+
+             ! row elimination with column indexing
+             do j = kp1, n
+                t = a(l,j)
+                if (l /= k) then
+                   a(l,j) = a(k,j)
+                   a(k,j) = t
+                end if
+                a(k+1:n,j) = a(k+1:n,j) + t * a(k+1:n,k)
+             end do
+
+          else
+
+             info = k
+
+          end if
+
+       end do
+
+    end if
+
     ipvt(n) = n
     if (a(n,n) .eq. 0.0e0_rt) info = n
+
   end subroutine dgefa
 
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
@@ -268,6 +268,7 @@ contains
        index = i
        dmax = abs(x(i))
     end do
+
   end function idamax
 
 end module linpack_module
