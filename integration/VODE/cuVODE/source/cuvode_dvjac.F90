@@ -122,8 +122,8 @@ contains
        do I = 1,LENP
           rwork % WM(I+2) = ZERO
        end do
-       CALL JAC (vstate % TN, vstate % Y, 0, 0, &
-            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS, vstate % RPAR)
+       CALL JAC (vstate % TN, vstate, 0, 0, &
+            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS)
        if (vstate % JSV .EQ. 1) then
           do I = 0, LENP-1
              rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
@@ -146,7 +146,7 @@ contains
           R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
           vstate % Y(J) = vstate % Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % TN, vstate % Y, rwork % acor, vstate % RPAR)
+          CALL f_rhs (vstate % TN, vstate, rwork % acor)
           do I = 1,VODE_NEQS
              rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
           end do
