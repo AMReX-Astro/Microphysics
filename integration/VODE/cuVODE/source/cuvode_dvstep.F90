@@ -129,96 +129,121 @@ contains
     NCF = 0
     vstate % JCUR = 0
     NFLAG = 0
-    IF (vstate % JSTART .GT. 0) GO TO 20
-    IF (vstate % JSTART .EQ. -1) GO TO 100
-    ! -----------------------------------------------------------------------
-    !  On the first call, the order is set to 1, and other variables are
-    !  initialized.  ETAMAX is the maximum ratio by which H can be increased
-    !  in a single step.  It is normally 10, but is larger during the
-    !  first step to compensate for the small initial H.  If a failure
-    !  occurs (in corrector convergence or error test), ETAMAX is set to 1
-    !  for the next increase.
-    ! -----------------------------------------------------------------------
-    vstate % NQ = 1
-    vstate % L = 2
-    vstate % NQNYH = vstate % NQ * VODE_NEQS
-    vstate % TAU(1) = vstate % H
-    vstate % PRL1 = ONE
-    vstate % RC = ZERO
-    vstate % ETAMAX = ETAMX1
-    vstate % NQWAIT = 2
-    vstate % HSCAL = vstate % H
-    GO TO 200
-    ! -----------------------------------------------------------------------
-    !  Take preliminary actions on a normal continuation step (JSTART.GT.0).
-    !  If the driver changed H, then ETA must be reset and NEWH set to 1.
-    !  If a change of order was dictated on the previous step, then
-    !  it is done here and appropriate adjustments in the history are made.
-    !  On an order decrease, the history array is adjusted by DVJUST.
-    !  On an order increase, the history array is augmented by a column.
-    !  On a change of step size H, the history array YH is rescaled.
-    ! -----------------------------------------------------------------------
-20  CONTINUE
-    IF (vstate % KUTH .EQ. 1) THEN
-       vstate % ETA = MIN(vstate % ETA,vstate % H/vstate % HSCAL)
-       vstate % NEWH = 1
-    ENDIF
-50  IF (vstate % NEWH .EQ. 0) GO TO 200
-    IF (vstate % NEWQ .EQ. vstate % NQ) GO TO 150
-    IF (vstate % NEWQ .LT. vstate % NQ) THEN
-       CALL DVJUST (-1, rwork, vstate)
-       vstate % NQ = vstate % NEWQ
-       vstate % L = vstate % NQ + 1
-       vstate % NQWAIT = vstate % L
-       GO TO 150
-    ENDIF
-    IF (vstate % NEWQ .GT. vstate % NQ) THEN
-       CALL DVJUST (1, rwork, vstate)
-       vstate % NQ = vstate % NEWQ
-       vstate % L = vstate % NQ + 1
-       vstate % NQWAIT = vstate % L
-       GO TO 150
-    ENDIF
-    ! -----------------------------------------------------------------------
-    !  The following block handles preliminaries needed when JSTART = -1.
-    !  If N was reduced, zero out part of YH to avoid undefined references.
-    !  If MAXORD was reduced to a value less than the tentative order NEWQ,
-    !  then NQ is set to MAXORD, and a new H ratio ETA is chosen.
-    !  Otherwise, we take the same preliminary actions as for JSTART .gt. 0.
-    !  In any case, NQWAIT is reset to L = NQ + 1 to prevent further
-    !  changes in order for that many steps.
-    !  The new H ratio ETA is limited by the input H if KUTH = 1,
-    !  by HMIN if KUTH = 0, and by HMXI in any case.
-    !  Finally, the history array YH is rescaled.
-    ! -----------------------------------------------------------------------
-100 CONTINUE
 
-    IF (vstate % NEWQ > VODE_MAXORD) then
-       FLOTL = REAL(VODE_LMAX)
-       IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
-          DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
-          vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-       ENDIF
-       IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
-       IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
-          vstate % ETA = ETAQM1
-          CALL DVJUST (-1, rwork, vstate)
-       ENDIF
-       IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-          DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
-          vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-          CALL DVJUST (-1, rwork, vstate)
-       ENDIF
-       vstate % ETA = MIN(vstate % ETA,ONE)
-       vstate % NQ = VODE_MAXORD
-       vstate % L = VODE_LMAX
-    end IF
-    IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
-    IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
-    vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
-    vstate % NEWH = 1
-    vstate % NQWAIT = vstate % L
-    IF (vstate % NEWQ .LE. VODE_MAXORD) GO TO 50
+    if (vstate % jstart >= 0) then
+
+       IF (vstate % JSTART == 0) then
+
+          ! -----------------------------------------------------------------------
+          !  On the first call, the order is set to 1, and other variables are
+          !  initialized.  ETAMAX is the maximum ratio by which H can be increased
+          !  in a single step.  It is normally 10, but is larger during the
+          !  first step to compensate for the small initial H.  If a failure
+          !  occurs (in corrector convergence or error test), ETAMAX is set to 1
+          !  for the next increase.
+          ! -----------------------------------------------------------------------
+          vstate % NQ = 1
+          vstate % L = 2
+          vstate % NQNYH = vstate % NQ * VODE_NEQS
+          vstate % TAU(1) = vstate % H
+          vstate % PRL1 = ONE
+          vstate % RC = ZERO
+          vstate % ETAMAX = ETAMX1
+          vstate % NQWAIT = 2
+          vstate % HSCAL = vstate % H
+
+          GO TO 200
+
+       else
+          ! -----------------------------------------------------------------------
+          !  Take preliminary actions on a normal continuation step (JSTART.GT.0).
+          !  If the driver changed H, then ETA must be reset and NEWH set to 1.
+          !  If a change of order was dictated on the previous step, then
+          !  it is done here and appropriate adjustments in the history are made.
+          !  On an order decrease, the history array is adjusted by DVJUST.
+          !  On an order increase, the history array is augmented by a column.
+          !  On a change of step size H, the history array YH is rescaled.
+          ! -----------------------------------------------------------------------
+
+          IF (vstate % KUTH .EQ. 1) THEN
+             vstate % ETA = MIN(vstate % ETA,vstate % H/vstate % HSCAL)
+             vstate % NEWH = 1
+          ENDIF
+          IF (vstate % NEWH .EQ. 0) GO TO 200
+
+          IF (vstate % NEWQ .LT. vstate % NQ) THEN
+             CALL DVJUST (-1, rwork, vstate)
+             vstate % NQ = vstate % NEWQ
+             vstate % L = vstate % NQ + 1
+             vstate % NQWAIT = vstate % L
+          else IF (vstate % NEWQ .GT. vstate % NQ) THEN
+             CALL DVJUST (1, rwork, vstate)
+             vstate % NQ = vstate % NEWQ
+             vstate % L = vstate % NQ + 1
+             vstate % NQWAIT = vstate % L
+          ENDIF
+
+          GO TO 150
+
+       end IF
+
+    else
+
+       ! -----------------------------------------------------------------------
+       !  The following block handles preliminaries needed when JSTART = -1.
+       !  If N was reduced, zero out part of YH to avoid undefined references.
+       !  If MAXORD was reduced to a value less than the tentative order NEWQ,
+       !  then NQ is set to MAXORD, and a new H ratio ETA is chosen.
+       !  Otherwise, we take the same preliminary actions as for JSTART .gt. 0.
+       !  In any case, NQWAIT is reset to L = NQ + 1 to prevent further
+       !  changes in order for that many steps.
+       !  The new H ratio ETA is limited by the input H if KUTH = 1,
+       !  by HMIN if KUTH = 0, and by HMXI in any case.
+       !  Finally, the history array YH is rescaled.
+       ! -----------------------------------------------------------------------
+
+       IF (vstate % NEWQ > VODE_MAXORD) then
+          FLOTL = REAL(VODE_LMAX)
+          IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
+             DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+             vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+          ENDIF
+          IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
+          IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
+             vstate % ETA = ETAQM1
+             CALL DVJUST (-1, rwork, vstate)
+          ENDIF
+          IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
+             DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+             vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+             CALL DVJUST (-1, rwork, vstate)
+          ENDIF
+          vstate % ETA = MIN(vstate % ETA,ONE)
+          vstate % NQ = VODE_MAXORD
+          vstate % L = VODE_LMAX
+       end IF
+       IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
+       IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
+       vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
+       vstate % NEWH = 1
+       vstate % NQWAIT = vstate % L
+       IF (vstate % NEWQ .LE. VODE_MAXORD) then
+          IF (vstate % NEWH .EQ. 0) GO TO 200
+          IF (vstate % NEWQ .LT. vstate % NQ) THEN
+             CALL DVJUST (-1, rwork, vstate)
+             vstate % NQ = vstate % NEWQ
+             vstate % L = vstate % NQ + 1
+             vstate % NQWAIT = vstate % L
+          else if (vstate % NEWQ .GT. vstate % NQ) THEN
+             CALL DVJUST (1, rwork, vstate)
+             vstate % NQ = vstate % NEWQ
+             vstate % L = vstate % NQ + 1
+             vstate % NQWAIT = vstate % L
+          ENDIF
+       end IF
+    end if
+
+
     ! Rescale the history array for a change in H by a factor of ETA. ------
 150 continue
     R = ONE
@@ -313,11 +338,12 @@ contains
           rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
        end do
        vstate % NQWAIT = vstate % NQWAIT - 1
-       IF ((vstate % L .EQ. VODE_LMAX) .OR. (vstate % NQWAIT .NE. 1)) GO TO 490
-       rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+       IF ((vstate % L /= VODE_LMAX) .and. (vstate % NQWAIT == 1)) then
+          rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
        
-       vstate % CONP = vstate % TQ(5)
-490    IF (vstate % ETAMAX .NE. ONE) GO TO 560
+          vstate % CONP = vstate % TQ(5)
+       end IF
+       IF (vstate % ETAMAX .NE. ONE) GO TO 560
        IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
        vstate % NEWQ = vstate % NQ
        vstate % NEWH = 0
@@ -353,13 +379,15 @@ contains
        RETURN
     end IF
     vstate % ETAMAX = ONE
-    IF (vstate % KFLAG .LE. KFC) GO TO 530
-    ! Compute ratio of new H to current H at the current order. ------------
-    FLOTL = REAL(vstate % L)
-    vstate % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
-    vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H),ETAMIN)
-    IF ((vstate % KFLAG .LE. -2) .AND. (vstate % ETA .GT. ETAMXF)) vstate % ETA = ETAMXF
-    GO TO 150
+    IF (vstate % KFLAG > KFC) then
+       ! Compute ratio of new H to current H at the current order. ------------
+       FLOTL = REAL(vstate % L)
+       vstate % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
+       vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H),ETAMIN)
+       IF ((vstate % KFLAG .LE. -2) .AND. (vstate % ETA .GT. ETAMXF)) vstate % ETA = ETAMXF
+       GO TO 150
+    end IF
+
     ! -----------------------------------------------------------------------
     !  Control reaches this section if 3 or more consecutive failures
     !  have occurred.  It is assumed that the elements of the YH array
@@ -368,19 +396,20 @@ contains
     !  the step is retried.  After a total of 7 consecutive failures,
     !  an exit is taken with KFLAG = -1.
     ! -----------------------------------------------------------------------
-530 IF (vstate % KFLAG .EQ. KFH) then
+    IF (vstate % KFLAG .EQ. KFH) then
        vstate % KFLAG = -1
        vstate % JSTART = 1
        RETURN
     end IF
-    IF (vstate % NQ .EQ. 1) GO TO 540
-    vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
-    CALL DVJUST (-1, rwork, vstate)
-    vstate % L = vstate % NQ
-    vstate % NQ = vstate % NQ - 1
-    vstate % NQWAIT = vstate % L
-    GO TO 150
-540 continue
+    IF (vstate % NQ /= 1) then
+       vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
+       CALL DVJUST (-1, rwork, vstate)
+       vstate % L = vstate % NQ
+       vstate % NQ = vstate % NQ - 1
+       vstate % NQWAIT = vstate % L
+       GO TO 150
+    end IF
+
     vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
     vstate % H = vstate % H * vstate % ETA
     vstate % HSCAL = vstate % H
@@ -392,6 +421,8 @@ contains
     end do
     vstate % NQWAIT = 10
     GO TO 200
+
+
     ! -----------------------------------------------------------------------
     !  If NQWAIT = 0, an increase or decrease in order by one is considered.
     !  Factors ETAQ, ETAQM1, ETAQP1 are computed by which H could
@@ -406,40 +437,45 @@ contains
 560 continue
     FLOTL = REAL(vstate % L)
     ETAQ = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
-    IF (vstate % NQWAIT .NE. 0) GO TO 600
-    vstate % NQWAIT = 2
-    ETAQM1 = ZERO
-    IF (vstate % NQ /= 1) then
-       ! Compute ratio of new H to current H at the current order less one. ---
-       DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
-       ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
+    IF (vstate % NQWAIT == 0) then
+       vstate % NQWAIT = 2
+       ETAQM1 = ZERO
+       IF (vstate % NQ /= 1) then
+          ! Compute ratio of new H to current H at the current order less one. ---
+          DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
+          ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
+       end IF
+       ETAQP1 = ZERO
+       IF (vstate % L /= VODE_LMAX) then
+          ! Compute ratio of new H to current H at current order plus one. -------
+          CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
+          do I = 1, VODE_NEQS
+             rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
+          end do
+          DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
+          ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
+       end IF
+       IF (ETAQ < ETAQP1) then
+          IF (ETAQP1 .GT. ETAQM1) then
+             vstate % ETA = ETAQP1
+             vstate % NEWQ = vstate % NQ + 1
+             rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+          else
+             vstate % ETA = ETAQM1
+             vstate % NEWQ = vstate % NQ - 1
+          end if
+          GO TO 630
+
+       end IF
+       IF (ETAQ .LT. ETAQM1) then
+          vstate % ETA = ETAQM1
+          vstate % NEWQ = vstate % NQ - 1
+          GO TO 630
+       end IF
     end IF
-    ETAQP1 = ZERO
-    IF (vstate % L /= VODE_LMAX) then
-       ! Compute ratio of new H to current H at current order plus one. -------
-       CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
-       do I = 1, VODE_NEQS
-          rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
-       end do
-       DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
-       ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
-    end IF
-    IF (ETAQ .GE. ETAQP1) GO TO 590
-    IF (ETAQP1 .GT. ETAQM1) GO TO 620
-    GO TO 610
-590 IF (ETAQ .LT. ETAQM1) GO TO 610
-600 continue
+
     vstate % ETA = ETAQ
     vstate % NEWQ = vstate % NQ
-    GO TO 630
-610 continue
-    vstate % ETA = ETAQM1
-    vstate % NEWQ = vstate % NQ - 1
-    GO TO 630
-620 continue
-    vstate % ETA = ETAQP1
-    vstate % NEWQ = vstate % NQ + 1
-    rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
 
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
 630 IF (vstate % ETA >= THRESH .and. vstate % ETAMAX /= ONE) then
