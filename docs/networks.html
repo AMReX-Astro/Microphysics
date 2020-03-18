@@ -131,7 +131,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#energy-integration">Energy Integration</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#nspec-evolve-implementation">nspec_evolve Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#renormalization">Renormalization</a></li>
 </ul>
 </li>
@@ -261,16 +260,8 @@ of Microphysics decouples the integrator from the network, allowing
 for the ability to swap integrators as desired. We discuss the
 integrators in a later section.</p>
 <p>At a minimum, a network needs to provide:</p>
-<ul>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">nspec</span></code> : the number of species in the network</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> : the number of species that are actually integrated
-in the network.</p>
-<p>Usually this is <code class="docutils literal notranslate"><span class="pre">nspec</span></code>, but in general any <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code>
-<span class="math notranslate nohighlight">\(\le\)</span> <code class="docutils literal notranslate"><span class="pre">nspec</span></code> is allowed. Those species not evolved are held
-constant in the integration.</p>
-<p>Note that the convention is that the first <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> out
-of the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> species are the ones evolved.</p>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nrates</span></code> : the number of reaction rates. This is used to
 allocate space in the <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> type</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_rate_groups</span></code> : the number of components for each reaction
@@ -302,9 +293,7 @@ the reaction rates.</p>
 variables, as well as other initializing data, such as their mass
 numbers, proton numbers, and binding energies. It needs to define
 the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> and <code class="docutils literal notranslate"><span class="pre">naux</span></code> quantities as integer
-parameters. Additionally it must define <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code>, the
-number of species that are actually evolved during a burn; in most
-cases, this should have the same value as <code class="docutils literal notranslate"><span class="pre">nspec</span></code>. Finally, it
+parameters. Finally, it
 must also define nrates, the number of reaction rates linking
 the isotopes in the network.</p>
 </div></blockquote>
@@ -411,9 +400,6 @@ as a model of Type Ia supernovae <a class="bibtex reference internal" href="zref
 carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in <a class="bibtex reference internal" href="zreferences.html#chamulak-2008" id="id2">[ChamulakBrownTimmesDupczak08]</a>.</p>
-<p>This network has <code class="docutils literal notranslate"><span class="pre">nspec</span></code> = 3, but <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> = 1. Only a
-single reaction is modeled, converting <span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span> into
-“ash”.</p>
 <div class="section" id="energy-generation-1">
 <span id="id3"></span><h4>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this headline">¶</a></h4>
 <p>The binding energy, <span class="math notranslate nohighlight">\(q\)</span>, in this
@@ -508,7 +494,6 @@ This network was used for the X-ray burst studies in
 <p>This is a 2 reaction network for helium burning, capturing the <span class="math notranslate nohighlight">\(3\)</span>-<span class="math notranslate nohighlight">\(\alpha\)</span>
 reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
 <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
-<p>This network has <code class="docutils literal notranslate"><span class="pre">nspec</span></code> = 4, but <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> = 3.</p>
 </div>
 <div class="section" id="xrb-simple">
 <h3>xrb_simple<a class="headerlink" href="#xrb-simple" title="Permalink to this headline">¶</a></h3>
@@ -612,9 +597,7 @@ integrators.</p>
 </div>
 <p>All of the necessary integration data comes in through state, as:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">xn(:)</span></code> : the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> mass fractions (note: for
-the case that <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">nspec</span></code>, an algebraic constraint
-may need to be enforced. See § <a class="reference external" href="#ch:networks:nspec_evolve">3.3</a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">xn(:)</span></code> : the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> mass fractions.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">e</span></code> : the current value of the ODE system’s energy
 release, <span class="math notranslate nohighlight">\(\enuc\)</span>—note: as discussed above, this is not
 necessarily the energy you would get by calling the EOS on the
@@ -634,8 +617,8 @@ be computed as:</p>
 for the ODE system, state % ydot(:). Here, the important
 fields to fill are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">ydot(1:nspec_evolve)</span></code> : the change in <em>molar
-fractions</em> for the <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> species that we are evolving,
+<li><p><code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">ydot(1:nspec)</span></code> : the change in <em>molar
+fractions</em> for the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> species that we are evolving,
 <span class="math notranslate nohighlight">\(d({Y}_k)/dt\)</span></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">ydot(net_ienuc)</span></code> : the change in the energy release
 from the net, <span class="math notranslate nohighlight">\(d\enuc/dt\)</span></p></li>
@@ -830,28 +813,6 @@ the returned <code class="docutils literal notranslate"><span class="pre">burn_t
 call represents the energy <em>release</em> during the burn.</p>
 </div>
 </div>
-<div class="section" id="nspec-evolve-implementation">
-<span id="ch-networks-nspec-evolve"></span><h3>nspec_evolve Implementation<a class="headerlink" href="#nspec-evolve-implementation" title="Permalink to this headline">¶</a></h3>
-<p>For networks where <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">nspec</span></code>, it may be
-necessary to reset the species mass fractions each time you enter the
-RHS routine. As an example, the network ignition_chamulak has
-3 species, <span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span>, <span class="math notranslate nohighlight">\(^{16}\mathrm{O}\)</span>, and <span class="math notranslate nohighlight">\(^{24}\mathrm{Mg}\)</span>. In this
-network, <span class="math notranslate nohighlight">\(^{16}\mathrm{O}\)</span> is not evolved at all and any change in
-<span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span> is reflected in <span class="math notranslate nohighlight">\(^{24}\mathrm{Mg}\)</span>. So we can evolve only the
-equation for <span class="math notranslate nohighlight">\(^{12}\mathrm{C}\)</span>. The algebraic relation between the
-unevolved mass fractions that must be enforced then is:</p>
-<div class="math notranslate nohighlight">
-\[X(\isotm{Mg}{24}) = 1 - X(\isotm{C}{12}) - X(\isotm{O}{16})\]</div>
-<p>This is implemented in the routine <code class="docutils literal notranslate"><span class="pre">update_unevolved_species</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">update_unevolved_species</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
-  <span class="nb">type</span> <span class="p">(</span><span class="n">burn_t</span><span class="p">)</span> <span class="p">::</span> <span class="n">state</span>
-</pre></div>
-</div>
-<p>This needs to be explicitly called in <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> before
-the mass fractions from the input state are accessed. It is
-also called directly by the integrator at the end of integration,
-to make sure the final state is consistent.</p>
-</div>
 <div class="section" id="renormalization">
 <h3>Renormalization<a class="headerlink" href="#renormalization" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code> parameter controls whether we
@@ -956,8 +917,6 @@ do any retries of the integration</p></li>
 <li><p>Subtract off the energy offset—we now store just the
 energy release as <code class="docutils literal notranslate"><span class="pre">state_out</span> <span class="pre">%</span> <span class="pre">e</span></code></p></li>
 <li><p>Convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type (by <code class="docutils literal notranslate"><span class="pre">calling</span> <span class="pre">XX_to_burn</span></code>).</p></li>
-<li><p>update any unevolved species, for <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> &lt;
-<code class="docutils literal notranslate"><span class="pre">nspec</span></code></p></li>
 <li><p>normalize the abundances so they sum to 1</p></li>
 </ol>
 </div>
@@ -1012,13 +971,6 @@ contains its own <code class="docutils literal notranslate"><span class="pre">bu
 as much meta-data as some other integrators. The fields of upar
 are:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">upar(irp_nspec : irp_nspec-1+n_not_evolved)</span></code></p>
-<p>These are the mass fractions of the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> - <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code>
-species that are not evolved in the ODE system.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">upar(irp_y_init : irp_y_init-1+neqs)</span></code></p>
-<p>This is the initial values of the ODE integration vector.</p>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">upar(irp_t_sound)</span></code></p>
 <p>This is the sound-crossing time for a zone.</p>
 </li>
