@@ -4,13 +4,13 @@ module cuvode_parameters_module
 #ifdef SIMPLIFIED_SDC
   use sdc_type_module, only : SVAR_EVOLVE
 #endif
-  use network, only : nspec_evolve
+  use network, only : nspec
 
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 #ifdef TRUE_SDC
-  integer, parameter :: VODE_NEQS = nspec_evolve + 2
+  integer, parameter :: VODE_NEQS = nspec + 2
 #elif SIMPLIFIED_SDC
   integer, parameter :: VODE_NEQS = SVAR_EVOLVE
 #else

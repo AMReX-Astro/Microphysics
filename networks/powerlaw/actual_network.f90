@@ -4,8 +4,6 @@ module actual_network
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  integer, parameter :: nspec_evolve = 2
-
   integer, parameter :: ifuel_  = 1
   integer, parameter :: iash_   = 2
   integer, parameter :: iinert_ = 3

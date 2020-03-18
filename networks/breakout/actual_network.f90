@@ -14,7 +14,6 @@ module actual_network
 
   implicit none
 
-  integer, parameter :: nspec_evolve = 1
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
 

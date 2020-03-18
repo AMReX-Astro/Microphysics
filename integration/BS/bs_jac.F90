@@ -9,14 +9,14 @@ contains
 
     !$acc routine seq
 
-    use network, only: aion, aion_inv, nspec_evolve
+    use network, only: aion, aion_inv, nspec
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
     use burn_type_module, only: burn_t, net_ienuc, net_itemp, neqs
     use bs_type_module, only: bs_t, bs_to_burn, burn_to_bs
-    use bs_rpar_indices, only: irp_y_init, irp_t0
+    use bs_rpar_indices, only: irp_t0
 
     implicit none
 
@@ -37,7 +37,7 @@ contains
        call network_jac(bs % burn_s, bs % jac, bs % upar(irp_t0))
 
        ! We integrate X, not Y
-       do n = 1, nspec_evolve
+       do n = 1, nspec
           bs % jac(n,:) = bs % jac(n,:) * aion(n)
           bs % jac(:,n) = bs % jac(:,n) * aion_inv(n)
        enddo

@@ -24,16 +24,6 @@ contains
   end subroutine actual_rhs_init
 
 
-  subroutine update_unevolved_species(state)
-    ! STUB FOR INTEGRATOR
-    type(burn_t)     :: state
-
-    !$gpu
-    
-    return
-  end subroutine update_unevolved_species
-
-
   subroutine zero_rate_eval(rate_eval)
 
     implicit none
