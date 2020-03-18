@@ -1,12 +1,16 @@
 module vode_rhs_module
 
+  use cuvode_types_module, only : dvode_t
+
+  implicit none
+
 contains
   
   ! The f_rhs routine provides the right-hand-side for the DVODE solver.
   ! This is a generic interface that calls the specific RHS routine in the
   ! network you're actually using.
 
-  subroutine f_rhs(time, y, ydot, rpar)
+  subroutine f_rhs(time, vode_state, ydot)
 
     !$acc routine seq
     
@@ -22,8 +26,8 @@ contains
 
     implicit none
 
-    real(rt), intent(INOUT) :: time, y(VODE_NEQS)
-    real(rt), intent(INOUT) :: rpar(n_rpar_comps)
+    real(rt), intent(INOUT) :: time
+    type(dvode_t), intent(INOUT) :: vode_state
     real(rt), intent(INOUT) :: ydot(VODE_NEQS)
 
     type (burn_t) :: burn_state
@@ -36,22 +40,20 @@ contains
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
-    ydot = ZERO
-
     ! Fix the state as necessary.
 
-    call clean_state(y, rpar)
+    call clean_state(vode_state)
 
     ! Update the thermodynamics as necessary.
 
-    call update_thermodynamics(y, rpar)
+    call update_thermodynamics(vode_state)
 
     ! Call the specific network routine to get the RHS.
 
-    call vode_to_burn(y, rpar, burn_state)
+    call vode_to_burn(vode_state, burn_state)
 
     burn_state % time = time
-    call network_rhs(burn_state, ydot, rpar(irp_t0))
+    call network_rhs(burn_state, ydot, vode_state % rpar(irp_t0))
 
     ! We integrate X, not Y
     ydot(1:nspec) = ydot(1:nspec) * aion(1:nspec)
@@ -70,7 +72,7 @@ contains
        ydot(:) = react_boost * ydot(:)
     endif
 
-    call burn_to_vode(burn_state, y, rpar)
+    call burn_to_vode(burn_state, vode_state)
 
   end subroutine f_rhs
 
@@ -78,7 +80,7 @@ contains
 
   ! Analytical Jacobian
 
-  subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
+  subroutine jac(time, vode_state, ml, mu, pd, nrpd)
 
     !$acc routine seq
     
@@ -94,8 +96,9 @@ contains
     implicit none
 
     integer   , intent(IN   ) :: ml, mu, nrpd
-    real(rt), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
+    real(rt), intent(IN) :: time
     real(rt), intent(  OUT) :: pd(VODE_NEQS,VODE_NEQS)
+    type (dvode_t), intent(inout) :: vode_state
 
     type (burn_t) :: state
     integer :: n
@@ -104,9 +107,9 @@ contains
 
     ! Call the specific network routine to get the Jacobian.
 
-    call vode_to_burn(y, rpar, state)
+    call vode_to_burn(vode_state, state)
     state % time = time
-    call network_jac(state, pd, rpar(irp_t0))
+    call network_jac(state, pd, vode_state % rpar(irp_t0))
 
     ! We integrate X, not Y
     do n = 1, nspec
@@ -128,7 +131,7 @@ contains
        pd(net_ienuc,:) = ZERO
     endif
 
-    call burn_to_vode(state, y, rpar)
+    call burn_to_vode(state, vode_state)
 
   end subroutine jac
 end module vode_rhs_module
