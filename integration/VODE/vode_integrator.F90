@@ -159,7 +159,7 @@ contains
 
     ! Convert the EOS state data into the form VODE expects.
 
-    call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
+    call eos_to_vode(eos_state_in, dvode_state)
 
     ener_offset = eos_state_in % e * inv_ener_scale
 
@@ -233,7 +233,7 @@ contains
        dvode_state % T = ZERO
        dvode_state % TOUT = dt
 
-       call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
+       call eos_to_vode(eos_state_in, dvode_state)
 
        dvode_state % rpar(irp_Told) = eos_state_in % T
 
@@ -296,7 +296,7 @@ contains
     dvode_state % y(net_ienuc) = dvode_state % y(net_ienuc) - ener_offset
 
     ! Store the final data, and then normalize abundances.
-    call vode_to_burn(dvode_state % y, dvode_state % rpar, state_out)
+    call vode_to_burn(dvode_state, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
