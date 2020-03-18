@@ -381,130 +381,201 @@ contains
     NSLAST = vstate % NST
     vstate % KUTH = 0
 
-    select case (ITASK)
-    case (1)
-       go to 210
-    case (2)
-       go to 250
-    case (3)
-       go to 220
-    case (4)
-       go to 230
-    case (5)
-       go to 240
-    end select
+    if (itask == 1) then
 
-210 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
-    CALL DVINDY (vstate, rwork, IFLAG)
+       IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
+       CALL DVINDY (vstate, rwork, IFLAG)
 
-    if (IFLAG .NE. 0) then
+       if (IFLAG .NE. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
-       CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
+          MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
+          CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
 #endif
-       vstate % ISTATE = -3
+          vstate % ISTATE = -3
+          return
+       end if
+
+       vstate % T = vstate % TOUT
+
+       vstate % ISTATE = 2
+       IWORK(11) = vstate % NST
+       IWORK(12) = vstate % NFE
+       IWORK(13) = vstate % NJE
+       IWORK(14) = vstate % NQU
+       IWORK(15) = vstate % NEWQ
+       IWORK(19) = vstate % NLU
+       IWORK(20) = vstate % NNI
+       IWORK(21) = vstate % NCFN
+       IWORK(22) = vstate % NETF
+       
        return
-    end if
 
-    vstate % T = vstate % TOUT
+    else if (itask == 2) then
 
-    vstate % ISTATE = 2
-    IWORK(11) = vstate % NST
-    IWORK(12) = vstate % NFE
-    IWORK(13) = vstate % NJE
-    IWORK(14) = vstate % NQU
-    IWORK(15) = vstate % NEWQ
-    IWORK(19) = vstate % NLU
-    IWORK(20) = vstate % NNI
-    IWORK(21) = vstate % NCFN
-    IWORK(22) = vstate % NETF
+       continue
 
-    return
+    else if (itask == 3) then
 
+       TP = vstate % TN - vstate % HU * (ONE + HUN * vstate % UROUND)
 
-220 continue
-    TP = vstate % TN - vstate % HU * (ONE + HUN * vstate % UROUND)
-
-    if ((TP - vstate % TOUT) * vstate % H .GT. ZERO) then
+       if ((TP - vstate % TOUT) * vstate % H .GT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
-       CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, vstate % TOUT, TP)
+          MSG='DVODE--  ITASK = I1 and TOUT (=R1) behind TCUR - HU (= R2)  '
+          CALL XERRWD (MSG, 60, 23, 1, 1, ITASK, 0, 2, vstate % TOUT, TP)
 #endif
-       vstate % ISTATE = -3
+          vstate % ISTATE = -3
+          return
+       end if
+
+       IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
+
+       vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+       vstate % T = vstate % TN
+       IF (ITASK == 4 .or. ITASK == 5) then
+          IF (IHIT) vstate % T = TCRIT
+       end IF
+
+       vstate % ISTATE = 2
+       IWORK(11) = vstate % NST
+       IWORK(12) = vstate % NFE
+       IWORK(13) = vstate % NJE
+       IWORK(14) = vstate % NQU
+       IWORK(15) = vstate % NEWQ
+       IWORK(19) = vstate % NLU
+       IWORK(20) = vstate % NNI
+       IWORK(21) = vstate % NCFN
+       IWORK(22) = vstate % NETF
+
        return
-    end if
 
-    IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
-    GO TO 400
-230 continue
-    TCRIT = RWORK % condopt(1)
+    else if (itask == 4) then
 
-    if ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) then
+       TCRIT = RWORK % condopt(1)
+
+       if ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
-       CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
+          MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
+          CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
 
-    if ((TCRIT - vstate % TOUT) * vstate % H .LT. ZERO) then
+       if ((TCRIT - vstate % TOUT) * vstate % H .LT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
-       CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
+          MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TOUT (=R2)   '
+          CALL XERRWD (MSG, 60, 25, 1, 0, 0, 0, 2, TCRIT, vstate % TOUT)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-    IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 245
-    CALL DVINDY (vstate, rwork, IFLAG)
+       IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) then
 
-    if (IFLAG .NE. 0) then
+          HMX = ABS(vstate % TN) + ABS(vstate % H)
+          IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
+          IF (IHIT) then
+             vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+             vstate % T = vstate % TN
+             IF (ITASK == 4 .or. ITASK == 5) then
+                IF (IHIT) vstate % T = TCRIT
+             end IF
+
+             vstate % ISTATE = 2
+             IWORK(11) = vstate % NST
+             IWORK(12) = vstate % NFE
+             IWORK(13) = vstate % NJE
+             IWORK(14) = vstate % NQU
+             IWORK(15) = vstate % NEWQ
+             IWORK(19) = vstate % NLU
+             IWORK(20) = vstate % NNI
+             IWORK(21) = vstate % NCFN
+             IWORK(22) = vstate % NETF
+
+             return
+          end IF
+
+          TNEXT = vstate % TN + vstate % HNEW*(ONE + FOUR * vstate % UROUND)
+          IF ((TNEXT - TCRIT) * vstate % H > ZERO) then
+             vstate % H = (TCRIT - vstate % TN)*(ONE - FOUR * vstate % UROUND)
+             vstate % KUTH = 1
+          end IF
+
+       else
+          CALL DVINDY (vstate, rwork, IFLAG)
+
+          if (IFLAG .NE. 0) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
-       CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
+             MSG='DVODE--  Trouble from DVINDY.  ITASK = I1, TOUT = R1.       '
+             CALL XERRWD (MSG, 60, 27, 1, 1, ITASK, 0, 1, vstate % TOUT, ZERO)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+             vstate % ISTATE = -3
+             return
+          end if
 
-    vstate % T = vstate % TOUT
+          vstate % T = vstate % TOUT
 
-    vstate % ISTATE = 2
-    IWORK(11) = vstate % NST
-    IWORK(12) = vstate % NFE
-    IWORK(13) = vstate % NJE
-    IWORK(14) = vstate % NQU
-    IWORK(15) = vstate % NEWQ
-    IWORK(19) = vstate % NLU
-    IWORK(20) = vstate % NNI
-    IWORK(21) = vstate % NCFN
-    IWORK(22) = vstate % NETF
+          vstate % ISTATE = 2
+          IWORK(11) = vstate % NST
+          IWORK(12) = vstate % NFE
+          IWORK(13) = vstate % NJE
+          IWORK(14) = vstate % NQU
+          IWORK(15) = vstate % NEWQ
+          IWORK(19) = vstate % NLU
+          IWORK(20) = vstate % NNI
+          IWORK(21) = vstate % NCFN
+          IWORK(22) = vstate % NETF
 
-    return
+          return
+       end IF
 
-240 continue
-    TCRIT = RWORK % condopt(1)
+    else if (itask == 5) then
 
-    if ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) then
+       TCRIT = RWORK % condopt(1)
+
+       if ((vstate % TN - TCRIT) * vstate % H .GT. ZERO) then
 #ifndef AMREX_USE_CUDA
-       MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
-       CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
+          MSG='DVODE--  ITASK = 4 or 5 and TCRIT (=R1) behind TCUR (=R2)   '
+          CALL XERRWD (MSG, 60, 24, 1, 0, 0, 0, 2, TCRIT, vstate % TN)
 #endif
-       vstate % ISTATE = -3
-       return
-    end if
+          vstate % ISTATE = -3
+          return
+       end if
 
-245 continue
-    HMX = ABS(vstate % TN) + ABS(vstate % H)
-    IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
-    IF (IHIT) GO TO 400
-    TNEXT = vstate % TN + vstate % HNEW*(ONE + FOUR * vstate % UROUND)
-    IF ((TNEXT - TCRIT) * vstate % H .LE. ZERO) GO TO 250
-    vstate % H = (TCRIT - vstate % TN)*(ONE - FOUR * vstate % UROUND)
-    vstate % KUTH = 1
+       HMX = ABS(vstate % TN) + ABS(vstate % H)
+       IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
+       IF (IHIT) then
+          vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+          vstate % T = vstate % TN
+          IF (ITASK == 4 .or. ITASK == 5) then
+             IF (IHIT) vstate % T = TCRIT
+          end IF
+
+          vstate % ISTATE = 2
+          IWORK(11) = vstate % NST
+          IWORK(12) = vstate % NFE
+          IWORK(13) = vstate % NJE
+          IWORK(14) = vstate % NQU
+          IWORK(15) = vstate % NEWQ
+          IWORK(19) = vstate % NLU
+          IWORK(20) = vstate % NNI
+          IWORK(21) = vstate % NCFN
+          IWORK(22) = vstate % NETF
+
+          return
+       end IF
+
+       TNEXT = vstate % TN + vstate % HNEW*(ONE + FOUR * vstate % UROUND)
+       IF ((TNEXT - TCRIT) * vstate % H > ZERO) then
+          vstate % H = (TCRIT - vstate % TN)*(ONE - FOUR * vstate % UROUND)
+          vstate % KUTH = 1
+       end IF
+
+    end if
 
     ! -----------------------------------------------------------------------
     !  Block E.
