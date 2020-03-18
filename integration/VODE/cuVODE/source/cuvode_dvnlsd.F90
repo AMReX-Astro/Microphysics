@@ -152,7 +152,7 @@ contains
        DELP = ZERO
 
        vstate % Y(1:VODE_NEQS) = rwork % yh(1:VODE_NEQS,1)
-       CALL f_rhs (vstate % TN, vstate % Y, rwork % savf, vstate % RPAR)
+       CALL f_rhs (vstate % TN, vstate, rwork % savf)
        vstate % NFE = vstate % NFE + 1
 
        IF (vstate % IPUP > 0) then
@@ -275,7 +275,7 @@ contains
              exit
           end if
           DELP = DEL
-          CALL f_rhs (vstate % TN, vstate % Y, rwork % SAVF, vstate % RPAR)
+          CALL f_rhs (vstate % TN, vstate, rwork % SAVF)
           vstate % NFE = vstate % NFE + 1
        end do
 

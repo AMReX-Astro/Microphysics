@@ -1,12 +1,13 @@
 module vode_rhs_module
 
+  use cuvode_types_module, only : dvode_t
   contains
 
 ! The f_rhs routine provides the right-hand-side for the DVODE solver.
 ! This is a generic interface that calls the specific RHS routine in the
 ! network you're actually using.
 
-subroutine f_rhs(time, y, ydot, rpar)
+subroutine f_rhs(time, vode_state, ydot)
 
   use actual_network, only: aion, nspec
   use amrex_fort_module, only: rt => amrex_real
@@ -20,8 +21,8 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   implicit none
 
-  real(rt), intent(INOUT) :: time, y(VODE_NEQS)
-  real(rt), intent(INOUT) :: rpar(n_rpar_comps)
+  real(rt), intent(INOUT) :: time
+  type(dvode_t), intent(INOUT) :: vode_state
   real(rt), intent(  OUT) :: ydot(VODE_NEQS)
 
   type (burn_t) :: burn_state
@@ -33,21 +34,21 @@ subroutine f_rhs(time, y, ydot, rpar)
 
   ! Fix the state as necessary.
 
-  call clean_state(time, y, rpar)
+  call clean_state(time, vode_state)
 
   ! convert to the burn_t
 
-  call vode_to_burn(time, y, rpar, burn_state)
+  call vode_to_burn(time, vode_state, burn_state)
 
   burn_state % time = time
 
   ! call the specific network to get the RHS
 
-  call network_rhs(burn_state, ydot_react, rpar(irp_t0))
+  call network_rhs(burn_state, ydot_react, vode_state % rpar(irp_t0))
 
   ! convert back to the vode type -- this will add the advective terms
 
-  call rhs_to_vode(time, burn_state, ydot_react, y, ydot, rpar)
+  call rhs_to_vode(time, burn_state, ydot_react, vode_state, ydot)
 
 end subroutine f_rhs
 
@@ -55,7 +56,7 @@ end subroutine f_rhs
 
 ! Analytical Jacobian
 
-subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
+subroutine jac(time, vode_state, ml, mu, pd, nrpd)
 
   ! with VODE, we will only ever enter this routine if we choose to
   ! use an analytic Jacobian.  Otherwise, VODE will use its internal
@@ -74,8 +75,9 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   implicit none
 
   integer   , intent(IN   ) :: ml, mu, nrpd
-  real(rt), intent(INOUT) :: y(VODE_NEQS), rpar(n_rpar_comps), time
+  real(rt), intent(IN) :: time
   real(rt), intent(  OUT) :: pd(VODE_NEQS, VODE_NEQS)
+  type (dvode_t), intent(inout) :: vode_state
 
   type (burn_t) :: state
   real(rt) :: jac_react(neqs, neqs)
@@ -86,14 +88,14 @@ subroutine jac(time, y, ml, mu, pd, nrpd, rpar)
   pd(:,:) = ZERO
 
   ! Call the specific network routine to get the Jacobian.
-  call vode_to_burn(time, y, rpar, state)
+  call vode_to_burn(time, vode_state, state)
   state % time = time
 
   ! call the analytic Jacobian
-  call network_jac(state, jac_react, rpar(irp_t0))
+  call network_jac(state, jac_react, vode_state % rpar(irp_t0))
 
   ! convert to the system we are using
-  call jac_to_vode(time, jac_react, y, pd, rpar)
+  call jac_to_vode(time, jac_react, vode_state, pd)
 
 end subroutine jac
 
