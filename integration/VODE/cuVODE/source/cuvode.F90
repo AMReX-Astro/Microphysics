@@ -407,7 +407,21 @@ contains
     end if
 
     vstate % T = vstate % TOUT
-    GO TO 420
+
+    vstate % ISTATE = 2
+    IWORK(11) = vstate % NST
+    IWORK(12) = vstate % NFE
+    IWORK(13) = vstate % NJE
+    IWORK(14) = vstate % NQU
+    IWORK(15) = vstate % NEWQ
+    IWORK(19) = vstate % NLU
+    IWORK(20) = vstate % NNI
+    IWORK(21) = vstate % NCFN
+    IWORK(22) = vstate % NETF
+
+    return
+
+
 220 continue
     TP = vstate % TN - vstate % HU * (ONE + HUN * vstate % UROUND)
 
@@ -457,7 +471,20 @@ contains
     end if
 
     vstate % T = vstate % TOUT
-    GO TO 420
+
+    vstate % ISTATE = 2
+    IWORK(11) = vstate % NST
+    IWORK(12) = vstate % NFE
+    IWORK(13) = vstate % NJE
+    IWORK(14) = vstate % NQU
+    IWORK(15) = vstate % NEWQ
+    IWORK(19) = vstate % NLU
+    IWORK(20) = vstate % NNI
+    IWORK(21) = vstate % NCFN
+    IWORK(22) = vstate % NETF
+
+    return
+
 240 continue
     TCRIT = RWORK % condopt(1)
 
@@ -501,7 +528,21 @@ contains
        CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
 #endif
        vstate % ISTATE = -1
-       GO TO 580
+
+       vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+       vstate % T = vstate % TN
+       IWORK(11) = vstate % NST
+       IWORK(12) = vstate % NFE
+       IWORK(13) = vstate % NJE
+       IWORK(14) = vstate % NQU
+       IWORK(15) = vstate % NQ
+       IWORK(19) = vstate % NLU
+       IWORK(20) = vstate % NNI
+       IWORK(21) = vstate % NCFN
+       IWORK(22) = vstate % NETF
+    
+       return
     end IF
 
     do I = 1,VODE_NEQS
@@ -515,7 +556,22 @@ contains
           CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
 #endif
           vstate % ISTATE = -6
-          GO TO 580
+
+          vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+          vstate % T = vstate % TN
+          IWORK(11) = vstate % NST
+          IWORK(12) = vstate % NFE
+          IWORK(13) = vstate % NJE
+          IWORK(14) = vstate % NQU
+          IWORK(15) = vstate % NQ
+          IWORK(19) = vstate % NLU
+          IWORK(20) = vstate % NNI
+          IWORK(21) = vstate % NCFN
+          IWORK(22) = vstate % NETF
+
+          return
+
        end IF
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
@@ -543,7 +599,21 @@ contains
        CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
 #endif
        vstate % ISTATE = -2
-       GO TO 580
+
+       vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+       vstate % T = vstate % TN
+       IWORK(11) = vstate % NST
+       IWORK(12) = vstate % NFE
+       IWORK(13) = vstate % NJE
+       IWORK(14) = vstate % NQU
+       IWORK(15) = vstate % NQ
+       IWORK(19) = vstate % NLU
+       IWORK(20) = vstate % NNI
+       IWORK(21) = vstate % NCFN
+       IWORK(22) = vstate % NETF
+
+       return
     end IF
 
     IF ((vstate % TN + vstate % H) == vstate % TN) then
@@ -574,18 +644,86 @@ contains
     !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
     ! -----------------------------------------------------------------------
     CALL DVSTEP(IWORK, rwork, vstate)
-    KGO = 1 - vstate % KFLAG
+
     ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
     !  KFLAG .eq. 0,   -1,  -2
 
-    select case (KGO)
-    case (1)
-       go to 300
-    case (2)
-       go to 530
-    case (3)
-       go to 540
-    end select
+    if (vstate % kflag == -1) then
+       ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
+#ifndef AMREX_USE_CUDA
+       MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
+       CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      test failed repeatedly or with abs(H) = HMIN'
+       CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#endif
+       vstate % ISTATE = -4
+
+    ! Compute IMXER if relevant. -------------------------------------------
+       BIG = ZERO
+       IMXER = 1
+       do I = 1,VODE_NEQS
+          SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
+          IF (BIG .GE. SIZE) exit
+          BIG = SIZE
+          IMXER = I
+       end do
+       IWORK(16) = IMXER
+
+       ! Set Y array, T, and optional output. --------------------------------
+       vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+       vstate % T = vstate % TN
+       IWORK(11) = vstate % NST
+       IWORK(12) = vstate % NFE
+       IWORK(13) = vstate % NJE
+       IWORK(14) = vstate % NQU
+       IWORK(15) = vstate % NQ
+       IWORK(19) = vstate % NLU
+       IWORK(20) = vstate % NNI
+       IWORK(21) = vstate % NCFN
+       IWORK(22) = vstate % NETF
+
+       return
+
+    else if (vstate % kflag == -2) then
+       ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
+#ifndef AMREX_USE_CUDA
+       MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
+       CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      corrector convergence failed repeatedly     '
+       CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
+       MSG = '      or with abs(H) = HMIN   '
+       CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#endif
+       vstate % ISTATE = -5
+       ! Compute IMXER if relevant. -------------------------------------------
+       BIG = ZERO
+       IMXER = 1
+       do I = 1,VODE_NEQS
+          SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
+          IF (BIG .GE. SIZE) exit
+          BIG = SIZE
+          IMXER = I
+       end do
+       IWORK(16) = IMXER
+
+       ! Set Y array, T, and optional output. --------------------------------
+       vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+
+       vstate % T = vstate % TN
+       IWORK(11) = vstate % NST
+       IWORK(12) = vstate % NFE
+       IWORK(13) = vstate % NJE
+       IWORK(14) = vstate % NQU
+       IWORK(15) = vstate % NQ
+       IWORK(19) = vstate % NLU
+       IWORK(20) = vstate % NNI
+       IWORK(21) = vstate % NCFN
+       IWORK(22) = vstate % NETF
+
+       return
+    end if
+
 
     ! -----------------------------------------------------------------------
     !  Block F.
@@ -593,7 +731,6 @@ contains
     !  core integrator (KFLAG = 0).  Test for stop conditions.
     ! -----------------------------------------------------------------------
 
-300 continue
     vstate % INIT = 1
     vstate % KUTH = 0
 
@@ -614,7 +751,20 @@ contains
 310 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 250
     CALL DVINDY (vstate, rwork, IFLAG)
     vstate % T = vstate % TOUT
-    GO TO 420
+
+    vstate % ISTATE = 2
+    IWORK(11) = vstate % NST
+    IWORK(12) = vstate % NFE
+    IWORK(13) = vstate % NJE
+    IWORK(14) = vstate % NQU
+    IWORK(15) = vstate % NEWQ
+    IWORK(19) = vstate % NLU
+    IWORK(20) = vstate % NNI
+    IWORK(21) = vstate % NCFN
+    IWORK(22) = vstate % NETF
+
+    return
+
     ! ITASK = 3.  Jump to exit if TOUT was reached. ------------------------
 330 IF ((vstate % TN - vstate % TOUT) * vstate % H .GE. ZERO) GO TO 400
     GO TO 250
@@ -622,7 +772,20 @@ contains
 340 IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) GO TO 345
     CALL DVINDY (vstate, rwork, IFLAG)
     vstate % T = vstate % TOUT
-    GO TO 420
+
+    vstate % ISTATE = 2
+    IWORK(11) = vstate % NST
+    IWORK(12) = vstate % NFE
+    IWORK(13) = vstate % NJE
+    IWORK(14) = vstate % NQU
+    IWORK(15) = vstate % NEWQ
+    IWORK(19) = vstate % NLU
+    IWORK(20) = vstate % NNI
+    IWORK(21) = vstate % NCFN
+    IWORK(22) = vstate % NETF
+
+    return
+
 345 continue
     HMX = ABS(vstate % TN) + ABS(vstate % H)
     IHIT = ABS(vstate % TN - TCRIT) .LE. HUN * vstate % UROUND * HMX
@@ -649,74 +812,16 @@ contains
     vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
 
     vstate % T = vstate % TN
-    IF (ITASK .NE. 4 .AND. ITASK .NE. 5) GO TO 420
-    IF (IHIT) vstate % T = TCRIT
-420 continue
+    IF (ITASK == 4 .or. ITASK == 5) then
+       IF (IHIT) vstate % T = TCRIT
+    end IF
+
     vstate % ISTATE = 2
     IWORK(11) = vstate % NST
     IWORK(12) = vstate % NFE
     IWORK(13) = vstate % NJE
     IWORK(14) = vstate % NQU
     IWORK(15) = vstate % NEWQ
-    IWORK(19) = vstate % NLU
-    IWORK(20) = vstate % NNI
-    IWORK(21) = vstate % NCFN
-    IWORK(22) = vstate % NETF
-
-    return
-
-    ! -----------------------------------------------------------------------
-    !  Block H.
-    !  The following block handles all unsuccessful returns other than
-    !  those for illegal input.  First the error message routine is called.
-    !  if there was an error test or convergence test failure, IMXER is set.
-    !  Then Y is loaded from YH, and T is set to TN.
-    !  The optional output is loaded into the work arrays before returning.
-    ! -----------------------------------------------------------------------
-
-
-    ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
-530 continue
-#ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
-    CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      test failed repeatedly or with abs(H) = HMIN'
-    CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
-#endif
-    vstate % ISTATE = -4
-    GO TO 560
-    ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
-540 continue
-#ifndef AMREX_USE_CUDA
-    MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
-    CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      corrector convergence failed repeatedly     '
-    CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
-    MSG = '      or with abs(H) = HMIN   '
-    CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
-#endif
-    vstate % ISTATE = -5
-    ! Compute IMXER if relevant. -------------------------------------------
-560 continue
-    BIG = ZERO
-    IMXER = 1
-    do I = 1,VODE_NEQS
-       SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
-       IF (BIG .GE. SIZE) exit
-       BIG = SIZE
-       IMXER = I
-    end do
-    IWORK(16) = IMXER
-    ! Set Y array, T, and optional output. --------------------------------
-580 CONTINUE
-    vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
-
-    vstate % T = vstate % TN
-    IWORK(11) = vstate % NST
-    IWORK(12) = vstate % NFE
-    IWORK(13) = vstate % NJE
-    IWORK(14) = vstate % NQU
-    IWORK(15) = vstate % NQ
     IWORK(19) = vstate % NLU
     IWORK(20) = vstate % NNI
     IWORK(21) = vstate % NCFN
