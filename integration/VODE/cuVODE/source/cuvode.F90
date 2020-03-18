@@ -642,6 +642,8 @@ contains
           IWORK(21) = vstate % NCFN
           IWORK(22) = vstate % NETF
 
+          return
+
        end IF
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
@@ -683,6 +685,7 @@ contains
        IWORK(21) = vstate % NCFN
        IWORK(22) = vstate % NETF
 
+       return
     end IF
 
     IF ((vstate % TN + vstate % H) == vstate % TN) then
