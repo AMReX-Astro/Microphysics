@@ -119,6 +119,8 @@ contains
     real(rt), parameter :: ONEPSM = 1.00001e0_rt
     real(rt), parameter :: THRESH = 1.5e0_rt
 
+    logical :: do_initialization
+    logical :: already_set_eta
     !$gpu
 
     ETAQ   = ONE
@@ -129,6 +131,8 @@ contains
     NCF = 0
     vstate % JCUR = 0
     NFLAG = 0
+
+    do_initialization = .false.
 
     if (vstate % jstart >= 0) then
 
@@ -152,8 +156,6 @@ contains
           vstate % NQWAIT = 2
           vstate % HSCAL = vstate % H
 
-          GO TO 200
-
        else
           ! -----------------------------------------------------------------------
           !  Take preliminary actions on a normal continuation step (JSTART.GT.0).
@@ -169,21 +171,24 @@ contains
              vstate % ETA = MIN(vstate % ETA,vstate % H/vstate % HSCAL)
              vstate % NEWH = 1
           ENDIF
-          IF (vstate % NEWH .EQ. 0) GO TO 200
+          IF (vstate % NEWH .EQ. 0) then
+             do_initialization = .false.
+          else
 
-          IF (vstate % NEWQ .LT. vstate % NQ) THEN
-             CALL DVJUST (-1, rwork, vstate)
-             vstate % NQ = vstate % NEWQ
-             vstate % L = vstate % NQ + 1
-             vstate % NQWAIT = vstate % L
-          else IF (vstate % NEWQ .GT. vstate % NQ) THEN
-             CALL DVJUST (1, rwork, vstate)
-             vstate % NQ = vstate % NEWQ
-             vstate % L = vstate % NQ + 1
-             vstate % NQWAIT = vstate % L
-          ENDIF
+             IF (vstate % NEWQ .LT. vstate % NQ) THEN
+                CALL DVJUST (-1, rwork, vstate)
+                vstate % NQ = vstate % NEWQ
+                vstate % L = vstate % NQ + 1
+                vstate % NQWAIT = vstate % L
+             else IF (vstate % NEWQ .GT. vstate % NQ) THEN
+                CALL DVJUST (1, rwork, vstate)
+                vstate % NQ = vstate % NEWQ
+                vstate % L = vstate % NQ + 1
+                vstate % NQWAIT = vstate % L
+             ENDIF
 
-          GO TO 150
+             do_initialization = .true.
+          end IF
 
        end IF
 
@@ -228,35 +233,40 @@ contains
        vstate % NEWH = 1
        vstate % NQWAIT = vstate % L
        IF (vstate % NEWQ .LE. VODE_MAXORD) then
-          IF (vstate % NEWH .EQ. 0) GO TO 200
-          IF (vstate % NEWQ .LT. vstate % NQ) THEN
-             CALL DVJUST (-1, rwork, vstate)
-             vstate % NQ = vstate % NEWQ
-             vstate % L = vstate % NQ + 1
-             vstate % NQWAIT = vstate % L
-          else if (vstate % NEWQ .GT. vstate % NQ) THEN
-             CALL DVJUST (1, rwork, vstate)
-             vstate % NQ = vstate % NEWQ
-             vstate % L = vstate % NQ + 1
-             vstate % NQWAIT = vstate % L
-          ENDIF
+          IF (vstate % NEWH .EQ. 0) then
+             do_initialization = .false.
+          else
+             IF (vstate % NEWQ .LT. vstate % NQ) THEN
+                CALL DVJUST (-1, rwork, vstate)
+                vstate % NQ = vstate % NEWQ
+                vstate % L = vstate % NQ + 1
+                vstate % NQWAIT = vstate % L
+             else if (vstate % NEWQ .GT. vstate % NQ) THEN
+                CALL DVJUST (1, rwork, vstate)
+                vstate % NQ = vstate % NEWQ
+                vstate % L = vstate % NQ + 1
+                vstate % NQWAIT = vstate % L
+             ENDIF
+
+             do_initialization = .true.
+          end IF
        end IF
     end if
 
+    if (do_initialization) then
+       ! Rescale the history array for a change in H by a factor of ETA. ------
 
-    ! Rescale the history array for a change in H by a factor of ETA. ------
-150 continue
-    R = ONE
+       R = ONE
 
-    do J = 2, vstate % L
-       R = R * vstate % ETA
-       rwork % YH(:,J) = rwork % YH(:,J) * R
-    end do
-    vstate % H = vstate % HSCAL * vstate % ETA
-    vstate % HSCAL = vstate % H
-    vstate % RC = vstate % RC * vstate % ETA
-    vstate % NQNYH = vstate % NQ*VODE_NEQS
-
+       do J = 2, vstate % L
+          R = R * vstate % ETA
+          rwork % YH(:,J) = rwork % YH(:,J) * R
+       end do
+       vstate % H = vstate % HSCAL * vstate % ETA
+       vstate % HSCAL = vstate % H
+       vstate % RC = vstate % RC * vstate % ETA
+       vstate % NQNYH = vstate % NQ*VODE_NEQS
+    end if
 
     ! -----------------------------------------------------------------------
     !  This section computes the predicted values by effectively
@@ -264,8 +274,6 @@ contains
     !  DVSET is called to calculate all integration coefficients.
     !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
     ! -----------------------------------------------------------------------
-
-200 continue
 
     do while (.true.)
 
@@ -362,7 +370,7 @@ contains
 
              vstate % CONP = vstate % TQ(5)
           end IF
-          IF (vstate % ETAMAX .NE. ONE) GO TO 560
+          IF (vstate % ETAMAX .NE. ONE) exit
           IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
           vstate % NEWQ = vstate % NQ
           vstate % NEWH = 0
@@ -480,8 +488,10 @@ contains
     !  factor of THRESH.  If an order change is considered and rejected,
     !  then NQWAIT is set to 2 (reconsider it after 2 steps).
     ! -----------------------------------------------------------------------
+
+    already_set_eta = .false.
+
     !  Compute ratio of new H to current H at the current order. ------------
-560 continue
     FLOTL = REAL(vstate % L)
     ETAQ = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
     IF (vstate % NQWAIT == 0) then
@@ -511,21 +521,23 @@ contains
              vstate % ETA = ETAQM1
              vstate % NEWQ = vstate % NQ - 1
           end if
-          GO TO 630
-
+          already_set_eta = .true.
        end IF
-       IF (ETAQ .LT. ETAQM1) then
+
+       IF (ETAQ .LT. ETAQM1 .and. .not. already_set_eta) then
           vstate % ETA = ETAQM1
           vstate % NEWQ = vstate % NQ - 1
-          GO TO 630
+          already_set_eta = .true.
        end IF
     end IF
 
-    vstate % ETA = ETAQ
-    vstate % NEWQ = vstate % NQ
+    if (.not. already_set_eta) then
+       vstate % ETA = ETAQ
+       vstate % NEWQ = vstate % NQ
+    end if
 
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
-630 IF (vstate % ETA >= THRESH .and. vstate % ETAMAX /= ONE) then
+    IF (vstate % ETA >= THRESH .and. vstate % ETAMAX /= ONE) then
        vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
        vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % H)*vstate % HMXI * vstate % ETA)
        vstate % NEWH = 1
