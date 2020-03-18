@@ -10,9 +10,9 @@ module vode_rpar_indices
 #ifdef SIMPLIFIED_SDC
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
 #elif TRUE_SDC
-  use actual_network, only: nspec, nspec_evolve
+  use actual_network, only: nspec
 #else
-  use actual_network, only: nspec, nspec_evolve
+  use actual_network, only: nspec
   use burn_type_module, only: neqs
 #endif
 
@@ -81,13 +81,13 @@ module vode_rpar_indices
 #endif
 
 #elif TRUE_SDC
-  ! f_source is function we are zeroing.  There are nspec_evolve + 2
+  ! f_source is function we are zeroing.  There are nspec + 2
   ! components (density and energy), since those are the unknowns for
   ! the nonlinear system
   integer, parameter :: irp_f_source = 1
 
   ! dt is the timestep (1 component)
-  integer, parameter :: irp_dt = irp_f_source + nspec_evolve + 2
+  integer, parameter :: irp_dt = irp_f_source + nspec + 2
 
   ! mom is the momentum (3 components)
   integer, parameter :: irp_mom = irp_dt + 1
@@ -98,19 +98,13 @@ module vode_rpar_indices
   ! the temperature -- used as a guess in the EOS
   integer, parameter :: irp_temp = irp_evar + 1
 
-  ! the unevolved species -- note: unevolved here means not reacting
-  integer, parameter :: irp_spec = irp_temp + 1  ! nspec - nspec_evolve components
-
-  integer, parameter :: n_rpar_comps = nspec_evolve + 8 + (nspec - nspec_evolve)
+  integer, parameter :: n_rpar_comps = irp_temp
 
 #else
-  integer, parameter :: n_not_evolved = nspec - nspec_evolve
-
   integer, parameter :: irp_dens = 1
   integer, parameter :: irp_cv = irp_dens + 1
   integer, parameter :: irp_cp = irp_cv + 1
-  integer, parameter :: irp_nspec = irp_cp + 1
-  integer, parameter :: irp_abar = irp_nspec + n_not_evolved
+  integer, parameter :: irp_abar = irp_cp + 1
   integer, parameter :: irp_zbar = irp_abar + 1
   integer, parameter :: irp_eta = irp_zbar + 1
   integer, parameter :: irp_ye = irp_eta + 1
@@ -123,7 +117,7 @@ module vode_rpar_indices
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1
   integer, parameter :: irp_t0 = irp_dcpdt + 1
 
-  integer, parameter :: n_rpar_comps = irp_t0 + 1
+  integer, parameter :: n_rpar_comps = irp_t0
 #endif
 
 

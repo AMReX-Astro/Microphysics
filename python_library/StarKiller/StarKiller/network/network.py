@@ -12,14 +12,13 @@ class Network(object):
         self.name = self.NetworkModule.get_network_name().decode("ASCII").strip().lower()
 
         self.nspec = self.ActualNetworkModule.nspec
-        self.nspec_evolve = self.ActualNetworkModule.nspec_evolve
 
         self.aion = self.ActualNetworkModule.aion
         self.aion_inv = self.NetworkModule.aion_inv
 
         # These are python zero based indexes
-        self.net_itemp = self.nspec_evolve
-        self.net_ienuc = self.nspec_evolve + 1
+        self.net_itemp = self.nspec
+        self.net_ienuc = self.nspec + 1
 
         self.short_species_names = [self.NetworkModule.get_network_short_species_name(i+1).decode("ASCII").strip().lower() for i in range(self.nspec)]
         self.species_names = [self.NetworkModule.get_network_species_name(i+1).decode("ASCII").strip().lower() for i in range(self.nspec)]

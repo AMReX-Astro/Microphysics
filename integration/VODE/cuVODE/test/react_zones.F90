@@ -78,6 +78,8 @@ contains
 
              ! Set the relative tolerances
              dvode_state % rtol(1) = 1.e-4_rt
+             dvode_state % rtol(2) = 1.e-4_rt
+             dvode_state % rtol(3) = 1.e-4_rt
 
              ! We want VODE to re-initialize each time we call it.
              dvode_state % istate = 1

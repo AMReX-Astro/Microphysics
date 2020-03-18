@@ -24,7 +24,6 @@ module actual_network
   integer, parameter :: nrates = 5
 
   ! Evolution and auxiliary
-  integer, parameter :: nspec_evolve = 8
   integer, parameter :: naux  = 0
 
   ! Number of nuclear species in the network
@@ -188,7 +187,7 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
     allocate(csr_jac_col_index(NETWORK_SPARSE_JAC_NNZ))
-    allocate(csr_jac_row_count(nspec_evolve + 3)) ! neq + 1
+    allocate(csr_jac_row_count(nspec + 3)) ! neq + 1
 
     csr_jac_col_index = [ &
       1, &

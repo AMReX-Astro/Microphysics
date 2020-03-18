@@ -11,7 +11,6 @@ module cuvode_module
 #endif
 
   use cuvode_constants_module
-  use cuvode_dewset_module
   use cuvode_dvhin_module
   use cuvode_dvindy_module
   use cuvode_dvstep_module
@@ -278,6 +277,7 @@ contains
        end if
 
     end if
+
 
     ! -----------------------------------------------------------------------
     !  Block C.
@@ -618,8 +618,10 @@ contains
     
        return
     end IF
-    CALL DEWSET (vstate, rwork)
+
     do I = 1,VODE_NEQS
+       rwork % EWT(I) = vstate % RTOL(I) * abs(rwork % YH(I,1)) + vstate % ATOL(I)
+
        IF (rwork % ewt(I) .LE. ZERO) then
           ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 #ifndef AMREX_USE_CUDA
