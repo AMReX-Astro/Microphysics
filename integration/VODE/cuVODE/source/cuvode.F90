@@ -322,7 +322,7 @@ contains
 
     ! Initial call to F.  -------------------------
 
-    CALL f_rhs (vstate % T, vstate % Y, rwork % yh(:,2), vstate % RPAR)
+    CALL f_rhs (vstate % T, vstate, rwork % yh(:,2))
     vstate % NFE = 1
     ! Load the initial value array in YH. ---------------------------------
     rwork % YH(1:VODE_NEQS,1) = vstate % Y(1:VODE_NEQS)
