@@ -1,9 +1,9 @@
 module burn_type_module
 
 #ifdef REACT_SPARSE_JACOBIAN
-  use actual_network, only: nspec, nspec_evolve, naux, NETWORK_SPARSE_JAC_NNZ
+  use actual_network, only: nspec, naux, NETWORK_SPARSE_JAC_NNZ
 #else
-  use actual_network, only: nspec, nspec_evolve, naux
+  use actual_network, only: nspec, naux
 #endif
 
   use amrex_fort_module, only : rt => amrex_real
@@ -16,7 +16,7 @@ module burn_type_module
   ! temperature, enuc + the number of species which participate
   ! in the evolution equations.
 
-  integer, parameter :: neqs = 2 + nspec_evolve
+  integer, parameter :: neqs = 2 + nspec
 
   ! for dimensioning the Jacobian
 
@@ -31,8 +31,8 @@ module burn_type_module
 
   ! Indices of the temperature and energy variables in the work arrays.
 
-  integer, parameter :: net_itemp = nspec_evolve + 1
-  integer, parameter :: net_ienuc = nspec_evolve + 2
+  integer, parameter :: net_itemp = nspec + 1
+  integer, parameter :: net_ienuc = nspec + 2
 
   type :: burn_t
 

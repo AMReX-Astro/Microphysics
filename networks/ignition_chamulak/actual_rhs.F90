@@ -81,7 +81,9 @@ contains
 
     temp = state % T
     dens = state % rho
-    y(:) = state % xn(:) * aion_inv(:)
+
+    ! convert mass fractions to molar fractions
+    y(1:nspec) = state % xn(1:nspec) * aion_inv(1:nspec)
 
     ! call the screening routine
     call screenz(temp, dens, 6.0e0_rt, 6.0e0_rt, 12.0e0_rt, 12.0e0_rt, &
@@ -138,9 +140,6 @@ contains
 
     ydot = ZERO
 
-    ! we enforce that O16 doesn't change and any C12 change goes to ash
-    call update_unevolved_species(state)
-
     call get_rates(state, rr)
 
     rate = rr % rates(1,1)
@@ -150,7 +149,9 @@ contains
 
     temp = state % T
     dens = state % rho
-    y(:) = state % xn(:) * aion_inv(:)
+
+    ! we come in with mass fractions -- convert to molar fractions
+    y(1:nspec) = state % xn(1:nspec) * aion_inv(1:nspec)
 
 
     ! The change in number density of C12 is
@@ -172,16 +173,18 @@ contains
     !
     ! The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
-    xc12tmp = max(y(ic12) * aion(ic12),0.e0_rt)
+    xc12tmp = max(y(ic12) * aion(ic12), 0.e0_rt)
     ydot(ic12) = -TWELFTH*HALF*M12_chamulak*dens*sc1212* rate * xc12tmp**2
+    ydot(io16) = 0.0_rt
+    ydot(iash) = -ydot(ic12)
 
     ! Convert back to molar form
 
-    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
+    ydot(1:nspec) = ydot(1:nspec) * aion_inv(1:nspec)
 
     call get_ebin(dens, ebin)
 
-    call ener_gener_rate(ydot(1:nspec_evolve), ebin, ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec), ebin, ydot(net_ienuc))
 
     if (state % self_heat) then
 
@@ -233,6 +236,7 @@ contains
     ! carbon jacobian elements
 
     jac(ic12, ic12) = -TWO*TWELFTH*M12_chamulak*HALF*dens*scorr*rate*xc12tmp
+    jac(iash, ic12) = -jac(ic12, ic12)
 
     ! add the temperature derivatives: df(y_i) / dT
 
@@ -242,7 +246,7 @@ contains
 
     ! Convert back to molar form
 
-    do j = 1, nspec_evolve
+    do j = 1, nspec
        jac(j,:) = jac(j,:) * aion_inv(j)
     enddo
 
@@ -250,13 +254,13 @@ contains
 
     call get_ebin(dens, ebin)
 
-    do j = 1, nspec_evolve
-       call ener_gener_rate(jac(1:nspec_evolve,j), ebin, jac(net_ienuc,j))
+    do j = 1, nspec
+       call ener_gener_rate(jac(1:nspec,j), ebin, jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), ebin, jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec,net_itemp), ebin, jac(net_ienuc,net_itemp))
 
     call temperature_jac(state, jac)
 
@@ -270,26 +274,12 @@ contains
 
     implicit none
 
-    real(rt)         :: dydt(nspec_evolve), ebin(nspec), enuc
+    real(rt)         :: dydt(nspec), ebin(nspec), enuc
 
     !$gpu
 
     enuc = dydt(ic12) * aion(ic12) * ebin(ic12)
 
   end subroutine ener_gener_rate
-
-  subroutine update_unevolved_species(state)
-
-    !$acc routine seq
-
-    implicit none
-
-    type (burn_t)    :: state
-
-    !$gpu
-
-    state % xn(iash) = ONE - state % xn(ic12) - state % xn(io16)
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module

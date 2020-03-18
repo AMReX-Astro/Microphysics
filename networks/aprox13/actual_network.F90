@@ -5,8 +5,6 @@ module actual_network
 
   implicit none
 
-  integer, parameter :: nspec_evolve = 13
-
   integer, parameter :: ihe4  = 1
   integer, parameter :: ic12  = 2
   integer, parameter :: io16  = 3
@@ -241,7 +239,7 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
     allocate(csr_jac_col_index(NETWORK_SPARSE_JAC_NNZ))
-    allocate(csr_jac_row_count(nspec_evolve + 3)) ! neq + 1
+    allocate(csr_jac_row_count(nspec + 3)) ! neq + 1
 
     csr_jac_col_index = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, &
                          1, 2, 3, 14, &

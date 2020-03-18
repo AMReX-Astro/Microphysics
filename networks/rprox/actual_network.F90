@@ -8,8 +8,6 @@ module actual_network
   real(rt)        , parameter :: MeV2erg = 1.60217646e-6_rt
   real(rt)        , parameter :: N_A = 6.0221415e23_rt
 
-  integer, parameter :: nspec_evolve = 10
-
   integer, parameter :: ic12  = 1
   integer, parameter :: io14  = 2
   integer, parameter :: io15  = 3
