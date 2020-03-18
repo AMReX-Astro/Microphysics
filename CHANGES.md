@@ -1,3 +1,10 @@
+# 20.04
+
+   * We removed the ability to have nspec_evolve < nspec.  This
+     feature was not widely used and greatly complicated the code
+     paths.(#279)
+
+
 # 20.03
 
    * The nuclei information for both Fortran and C++ is now

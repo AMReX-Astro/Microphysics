@@ -82,11 +82,11 @@ contains
 
     rates(:)    = rr % rates(1,:)
 
-    call dydt(ymol, rates, ydot(1:nspec_evolve))
+    call dydt(ymol, rates, ydot(1:nspec))
 
     ! Energy generation rate
 
-    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     call temperature_rhs(state, ydot)
 
@@ -148,17 +148,17 @@ contains
 
     ! Add the temperature derivatives: df(y_i) / dT
 
-    call dydt(ymol, dratesdt, jac(1:nspec_evolve,net_itemp))
+    call dydt(ymol, dratesdt, jac(1:nspec, net_itemp))
 
     ! Energy generation rate Jacobian elements with respect to species
 
-    do j = 1, nspec_evolve
-       call ener_gener_rate(jac(1:nspec_evolve,j), jac(net_ienuc,j))
+    do j = 1, nspec
+       call ener_gener_rate(jac(1:nspec,j), jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec,net_itemp), jac(net_ienuc,net_itemp))
 
     call temperature_jac(state, jac)
 
@@ -175,26 +175,10 @@ contains
 
     !$gpu
 
-    real(rt)         :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec), enuc
 
-    enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
+    enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
-
-  subroutine update_unevolved_species(state)
-
-    !$acc routine seq
-
-    implicit none
-
-    type (burn_t)    :: state
-
-    !$gpu
-
-    ! although we nspec_evolve < nspec, we never change the Fe56
-    ! abundance, so there is no algebraic relation we need to
-    ! enforce here.
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module

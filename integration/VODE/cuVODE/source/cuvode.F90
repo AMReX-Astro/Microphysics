@@ -11,7 +11,6 @@ module cuvode_module
 #endif
 
   use cuvode_constants_module
-  use cuvode_dewset_module
   use cuvode_dvhin_module
   use cuvode_dvindy_module
   use cuvode_dvstep_module

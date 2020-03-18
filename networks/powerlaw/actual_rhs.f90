@@ -45,12 +45,13 @@ contains
 
     ydot(ifuel_)  = -rate
     ydot(iash_)   =  rate
+    ydot(iinert_) = 0.0_rt
 
     ! Convert back to molar form
 
-    ydot(1:nspec_evolve) = ydot(1:nspec_evolve) * aion_inv(1:nspec_evolve)
+    ydot(1:nspec) = ydot(1:nspec) * aion_inv(1:nspec)
 
-    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     call temperature_rhs(state, ydot)
 
@@ -81,22 +82,12 @@ contains
 
     implicit none
 
-    real(rt)         :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec), enuc
 
     ! This is basically e = m c**2
 
-    enuc = sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
+    enuc = sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
-
-  subroutine update_unevolved_species(state)
-
-    !$acc routine seq
-
-    implicit none
-
-    type (burn_t)    :: state
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module

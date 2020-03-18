@@ -44,9 +44,6 @@ contains
 
     !$gpu
 
-    ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
-    call update_unevolved_species(state)
-
     call evaluate_rates(state, rr)
 
 
@@ -91,16 +88,17 @@ contains
     ! species ordering
 
     xc12tmp = max(state % xn(ic12), ZERO)
-    ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
+    ydot(ic12) = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
+    ydot(io16) = 0.0_rt
+    ydot(img24) = TWELFTH * dens * sc1212 * rate * xc12tmp**2
 
     ! Convert back to molar form
 
-    ydot(ic12) = ydot(ic12) * aion_inv(ic12)
+    ydot(1:nspec) = ydot(1:nspec) * aion_inv(1:nspec)
 
     call ener_gener_rate(ydot(ic12), ydot(net_ienuc))
 
-    ! Do the temperature equation explicitly here since
-    ! the generic form doesn't work when nspec_evolve < nspec.
+    ! Do the temperature equation explicitly here
 
     if (state % self_heat) then
 
@@ -155,6 +153,7 @@ contains
     ! carbon jacobian elements
     scratch  = -SIXTH * dens * scorr * rate * xc12tmp
     call set_jac_entry(jac, ic12, ic12, scratch)
+    call set_jac_entry(jac, img24, ic12, -scratch)
 
     ! add the temperature derivatives: df(y_i) / dT
     scratch  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
@@ -232,6 +231,8 @@ contains
 
     temp = state % T
     dens = state % rho
+
+    ! screening wants molar fractions
     y    = state % xn * aion_inv
 
     ! call the screening routine
@@ -295,19 +296,5 @@ contains
     enuc = dydt * (mion(ic12) - mion(img24) / 2) * enuc_conv2
 
   end subroutine ener_gener_rate
-
-  subroutine update_unevolved_species(state)
-
-    !$acc routine seq
-
-    implicit none
-
-    type (burn_t)    :: state
-
-    !$gpu
-
-    state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module

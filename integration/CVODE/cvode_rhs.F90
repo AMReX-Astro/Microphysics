@@ -13,7 +13,7 @@ contains
 
     !$acc routine seq
     
-    use actual_network, only: aion, nspec_evolve
+    use actual_network, only: aion, nspec
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
@@ -36,7 +36,7 @@ contains
 
     ! We are integrating a system of
     !
-    ! y(1:nspec_evolve) = dX/dt
+    ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -64,8 +64,7 @@ contains
     call network_rhs(burn_state)
 
     ! We integrate X, not Y
-    burn_state % ydot(1:nspec_evolve) = &
-         burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    burn_state % ydot(1:nspec) = burn_state % ydot(1:nspec) * aion(1:nspec)
 
     ! Allow temperature and energy integration to be disabled.
     if (.not. integrate_temperature) then
@@ -87,7 +86,7 @@ contains
 
     !$acc routine seq
     
-    use network, only: aion, aion_inv, nspec_evolve, NETWORK_SPARSE_JAC_NNZ
+    use network, only: aion, aion_inv, nspec, NETWORK_SPARSE_JAC_NNZ
     use amrex_constants_module, only: ZERO
     use network_rhs_module, only: network_jac
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
@@ -119,7 +118,7 @@ contains
     call network_jac(state)
 
     ! We integrate X, not Y
-    do n = 1, nspec_evolve
+    do n = 1, nspec
        do i = 1, VODE_NEQS
           call scale_jac_entry(state, n, i, aion(n))
           call scale_jac_entry(state, i, n, aion_inv(n))
