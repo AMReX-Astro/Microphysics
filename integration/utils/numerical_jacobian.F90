@@ -42,7 +42,7 @@ contains
        call copy_burn_t(state_delm, state)
 
        ! species derivatives
-       do n = 1, nspec_evolve
+       do n = 1, nspec
           ! perturb species
           state_delp % xn = state % xn
           state_delp % xn(n) = state % xn(n) * (ONE + eps)
@@ -51,14 +51,14 @@ contains
 
           ! We integrate X, so convert from the Y we got back from the RHS
 
-          ydotp(1:nspec_evolve) = ydotp(1:nspec_evolve) * aion(1:nspec_evolve)
+          ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
           state_delm % xn = state % xn
           state_delm % xn(n) = state % xn(n) * (ONE - eps)
 
           call actual_rhs(state_delm, ydotm)
 
-          ydotm(1:nspec_evolve) = ydotm(1:nspec_evolve) * aion(1:nspec_evolve)
+          ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
 
           do m = 1, neqs
              scratch = HALF*(ydotp(m) - ydotm(m)) / (eps * state % xn(n))
@@ -72,14 +72,14 @@ contains
 
        call actual_rhs(state_delp, ydotp)
 
-       ydotp(1:nspec_evolve) = ydotp(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
        state_delm % xn = state % xn
        state_delm % T  = state % T * (ONE - eps)
 
        call actual_rhs(state_delm, ydotm)
 
-       ydotm(1:nspec_evolve) = ydotm(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
 
        do m = 1, neqs
           scratch = HALF*(ydotp(m) - ydotm(m)) / (eps * state % T)
@@ -99,10 +99,10 @@ contains
        ! default
        call actual_rhs(state_delm, ydotm)
 
-       ydotm(1:nspec_evolve) = ydotm(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
 
        ! species derivatives
-       do n = 1, nspec_evolve
+       do n = 1, nspec
           ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
           state_delp % xn = state % xn
 
@@ -117,7 +117,7 @@ contains
 
           ! We integrate X, so convert from the Y we got back from the RHS
 
-          ydotp(1:nspec_evolve) = ydotp(1:nspec_evolve) * aion(1:nspec_evolve)
+          ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
           do m = 1, neqs
              scratch = (ydotp(m) - ydotm(m)) / h
@@ -137,7 +137,7 @@ contains
 
        call actual_rhs(state_delp, ydotp)
 
-       ydotp(1:nspec_evolve) = ydotp(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
        do m = 1, neqs
           scratch = (ydotp(m) - ydotm(m)) / h
@@ -191,7 +191,7 @@ contains
     ! the analytic Jacobian is in terms of Y, since that's what the
     ! nets work with, so we convert it to derivatives with respect to
     ! X and of mass fraction creation rates
-    do n = 1, nspec_evolve
+    do n = 1, nspec
        do j = 1, neqs
           call scale_jac_entry(jac_analytic, n, j, aion(n))
           call scale_jac_entry(jac_analytic, j, n, aion_inv(n))
@@ -208,7 +208,7 @@ contains
     ! how'd we do?
     do j = 1, neqs
 
-       if (j <= nspec_evolve) then
+       if (j <= nspec) then
           namej = short_spec_names(j)
        else if (j == net_ienuc) then
           namej = "e"
@@ -220,7 +220,7 @@ contains
 
        do i = 1, neqs
 
-          if (i <= nspec_evolve) then
+          if (i <= nspec) then
              namei = short_spec_names(i)
           else if (i == net_ienuc) then
              namei = "e"

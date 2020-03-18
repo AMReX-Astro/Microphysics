@@ -8,7 +8,7 @@
 module cvode_rpar_indices
 
 #ifndef SIMPLIFIED_SDC
-  use actual_network, only: nspec, nspec_evolve
+  use actual_network, only: nspec
   use burn_type_module, only: neqs
 #else
   use sdc_type_module, only: SVAR, SVAR_EVOLVE
@@ -19,13 +19,10 @@ module cvode_rpar_indices
 
 
 #ifndef SIMPLIFIED_SDC
-  integer, parameter :: n_not_evolved = nspec - nspec_evolve
-
   integer, parameter :: irp_dens = 1
   integer, parameter :: irp_cv = irp_dens + 1
   integer, parameter :: irp_cp = irp_cv + 1
-  integer, parameter :: irp_nspec = irp_cp + 1
-  integer, parameter :: irp_abar = irp_nspec + n_not_evolved
+  integer, parameter :: irp_abar = irp_cp+1
   integer, parameter :: irp_zbar = irp_abar + 1
   integer, parameter :: irp_eta = irp_zbar + 1
   integer, parameter :: irp_ye = irp_eta + 1
