@@ -42,11 +42,6 @@ module cuvode_parameters_module
 
   integer, parameter :: VODE_ITOL = 4
 
-  ! We want to do a normal computation, and get the output values of y(t)
-  ! after stepping though dt.
-
-  integer, PARAMETER :: ITASK = 1
-
   ! We will override the maximum number of steps, so turn on the
   ! optional arguments flag.
 
