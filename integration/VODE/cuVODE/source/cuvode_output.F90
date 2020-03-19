@@ -2,8 +2,6 @@ module cuvode_output_module
 
   use amrex_fort_module, only: rt => amrex_real
 
-  use cuvode_constants_module
-  
   implicit none
 
   integer, parameter :: LUNIT = 6

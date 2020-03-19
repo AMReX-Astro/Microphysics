@@ -3,8 +3,6 @@ module cuvode_dvset_module
   use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
 
-  use cuvode_constants_module
-
   implicit none
 
 contains
@@ -89,28 +87,28 @@ contains
 
     ! Set coefficients for BDF methods. ------------------------------------
     do I = 3, vstate % L
-       vstate % EL(I) = ZERO
+       vstate % EL(I) = 0.0_rt
     end do
-    vstate % EL(1) = ONE
-    vstate % EL(2) = ONE
-    ALPH0 = -ONE
-    AHATN0 = -ONE
+    vstate % EL(1) = 1.0_rt
+    vstate % EL(2) = 1.0_rt
+    ALPH0 = -1.0_rt
+    AHATN0 = -1.0_rt
     HSUM = vstate % H
-    RXI = ONE
-    RXIS = ONE
+    RXI = 1.0_rt
+    RXIS = 1.0_rt
     IF (vstate % NQ /= 1) then
        do J = 1, NQM2
           ! In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)). ------
           HSUM = HSUM + vstate % TAU(J)
           RXI = vstate % H/HSUM
           JP1 = J + 1
-          ALPH0 = ALPH0 - ONE/REAL(JP1)
+          ALPH0 = ALPH0 - 1.0_rt/REAL(JP1)
           do IBACK = 1, JP1
              I = (J + 3) - IBACK
              vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXI
           end do
        end do
-       ALPH0 = ALPH0 - ONE/REAL(vstate % NQ)
+       ALPH0 = ALPH0 - 1.0_rt/REAL(vstate % NQ)
        RXIS = -vstate % EL(2) - ALPH0
        HSUM = HSUM + vstate % TAU(NQM1)
        RXI = vstate % H/HSUM
@@ -121,23 +119,23 @@ contains
        end do
     end IF
 
-    T1 = ONE - AHATN0 + ALPH0
-    T2 = ONE + REAL(vstate % NQ)*T1
+    T1 = 1.0_rt - AHATN0 + ALPH0
+    T2 = 1.0_rt + REAL(vstate % NQ)*T1
     vstate % TQ(2) = ABS(ALPH0*T2/T1)
     vstate % TQ(5) = ABS(T2/(vstate % EL(vstate % L)*RXI/RXIS))
 
     IF (vstate % NQWAIT == 1) then
        CNQM1 = RXIS/vstate % EL(vstate % L)
-       T3 = ALPH0 + ONE/REAL(vstate % NQ)
+       T3 = ALPH0 + 1.0_rt/REAL(vstate % NQ)
        T4 = AHATN0 + RXI
-       ELP = T3/(ONE - T4 + T3)
+       ELP = T3/(1.0_rt - T4 + T3)
        vstate % TQ(1) = ABS(ELP/CNQM1)
        HSUM = HSUM + vstate % TAU(vstate % NQ)
        RXI = vstate % H/HSUM
-       T5 = ALPH0 - ONE/REAL(vstate % NQ+1)
+       T5 = ALPH0 - 1.0_rt/REAL(vstate % NQ+1)
        T6 = AHATN0 - RXI
-       ELP = T2/(ONE - T6 + T5)
-       vstate % TQ(3) = ABS(ELP*RXI*(FLOTL + ONE)*T5)
+       ELP = T2/(1.0_rt - T6 + T5)
+       vstate % TQ(3) = ABS(ELP*RXI*(FLOTL + 1.0_rt)*T5)
     end IF
     vstate % TQ(4) = CORTES*vstate % TQ(2)
     RETURN

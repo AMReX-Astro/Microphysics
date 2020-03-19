@@ -5,7 +5,6 @@ module cuvode_dvnlsd_module
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
   use cuvode_dvjac_module
-  use cuvode_constants_module
 
   implicit none
 
@@ -107,7 +106,7 @@ contains
     IF ( (vstate % JSTART .EQ. 0) .OR. (vstate % JSTART .EQ. -1) ) vstate % IPUP = vstate % MITER
     ! If this is functional iteration, set CRATE .eq. 1 and drop to 220
     IF (vstate % MITER .EQ. 0) THEN
-       vstate % CRATE = ONE
+       vstate % CRATE = 1.0_rt
     else
 
        ! -----------------------------------------------------------------------
@@ -116,7 +115,7 @@ contains
        !  to force DVJAC to be called, if a Jacobian is involved.
        !  In any case, DVJAC is called at least every MSBP steps.
        ! -----------------------------------------------------------------------
-       vstate % DRC = ABS(vstate % RC-ONE)
+       vstate % DRC = ABS(vstate % RC-1.0_rt)
        IF (vstate % DRC .GT. CCMAX .OR. vstate % NST .GE. vstate % NSLP+MSBP) vstate % IPUP = vstate % MITER
     end IF
 
@@ -132,7 +131,7 @@ contains
     do while (.true.)
 
        M = 0
-       DELP = ZERO
+       DELP = 0.0_rt
 
        vstate % Y(1:VODE_NEQS) = vstate % yh(1:VODE_NEQS,1)
        CALL f_rhs (vstate % TN, vstate, vstate % savf)
@@ -146,9 +145,9 @@ contains
           ! -----------------------------------------------------------------------
           CALL DVJAC (pivot, IERPJ, vstate)
           vstate % IPUP = 0
-          vstate % RC = ONE
-          vstate % DRC = ZERO
-          vstate % CRATE = ONE
+          vstate % RC = 1.0_rt
+          vstate % DRC = 0.0_rt
+          vstate % CRATE = 1.0_rt
           vstate % NSLP = vstate % NST
           ! If matrix is singular, take error return to force cut in step size. --
           IF (IERPJ .NE. 0) then
@@ -161,7 +160,7 @@ contains
        end IF
 
        do I = 1,VODE_NEQS
-          vstate % acor(I) = ZERO
+          vstate % acor(I) = 0.0_rt
        end do
        ! This is a looping point for the corrector iteration. -----------------
 
@@ -183,8 +182,8 @@ contains
 
           vstate % NNI = vstate % NNI + 1
 
-          IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
-             CSCALE = TWO/(ONE + vstate % RC)
+          IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. 1.0_rt) THEN
+             CSCALE = 2.0_rt/(1.0_rt + vstate % RC)
              vstate % Y(:) = vstate % Y(:) * CSCALE
           ENDIF
 
@@ -218,8 +217,8 @@ contains
           ! -----------------------------------------------------------------------
 
           IF (M .NE. 0) vstate % CRATE = MAX(CRDOWN*vstate % CRATE,DEL/DELP)
-          DCON = DEL*MIN(ONE,vstate % CRATE)/vstate % TQ(4)
-          IF (DCON .LE. ONE) then
+          DCON = DEL*MIN(1.0_rt,vstate % CRATE)/vstate % TQ(4)
+          IF (DCON .LE. 1.0_rt) then
              ! we converted, exit the outer loop
              converged = .true.
              exit

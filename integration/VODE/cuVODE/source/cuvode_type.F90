@@ -4,8 +4,6 @@ module cuvode_types_module
   use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX
   use vode_rpar_indices, only: n_rpar_comps
 
-  use cuvode_constants_module
-
   implicit none
 
   ! Type dvode_t contains the integration solution and control variables

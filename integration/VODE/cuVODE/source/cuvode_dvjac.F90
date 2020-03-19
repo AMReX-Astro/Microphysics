@@ -6,8 +6,6 @@ module cuvode_dvjac_module
   use linpack_module
   use cuvode_dacopy_module
 
-  use cuvode_constants_module
-
   implicit none
 
 contains
@@ -93,7 +91,7 @@ contains
        vstate % JCUR = 1
        LENP = VODE_NEQS * VODE_NEQS
        do I = 1,LENP
-          vstate % JAC(I) = ZERO
+          vstate % JAC(I) = 0.0_rt
        end do
        CALL JAC (vstate % TN, vstate, 0, 0, vstate % jac, VODE_NEQS)
        if (vstate % JSV .EQ. 1) then
@@ -109,14 +107,14 @@ contains
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
        FAC = DVNORM (vstate % SAVF, vstate % EWT)
-       R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
-       IF (R0 .EQ. ZERO) R0 = ONE
+       R0 = 1000.0_rt*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
+       IF (R0 .EQ. 0.0_rt) R0 = 1.0_rt
        J1 = 0
        do J = 1,VODE_NEQS
           YJ = vstate % Y(J)
           R = MAX(vstate % SRUR * ABS(YJ), R0 / vstate % EWT(J))
           vstate % Y(J) = vstate % Y(J) + R
-          FAC = ONE/R
+          FAC = 1.0_rt/R
           CALL f_rhs (vstate % TN, vstate, vstate % acor)
           do I = 1,VODE_NEQS
              vstate % jac(I+J1) = (vstate % acor(I) - vstate % SAVF(I))*FAC
@@ -147,7 +145,7 @@ contains
     J = 1
     NP1 = VODE_NEQS + 1
     do I = 1,VODE_NEQS
-       vstate % jac(J) = vstate % jac(J) + ONE
+       vstate % jac(J) = vstate % jac(J) + 1.0_rt
        J = J + NP1
     end do
     vstate % NLU = vstate % NLU + 1

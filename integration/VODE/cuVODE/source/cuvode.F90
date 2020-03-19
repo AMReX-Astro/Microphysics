@@ -8,8 +8,6 @@ module cuvode_module
 #ifdef AMREX_USE_CUDA
   use cudafor
 #endif
-
-  use cuvode_constants_module
   use cuvode_dvhin_module
   use cuvode_dvindy_module
   use cuvode_dvstep_module
@@ -73,10 +71,10 @@ contains
     vstate % METH = MFA/10
     vstate % MITER = MFA - 10*vstate % METH
 
-    H0 = ZERO
+    H0 = 0.0_rt
 
-    vstate % HMIN = ZERO
-    vstate % HMXI = ZERO
+    vstate % HMIN = 0.0_rt
+    vstate % HMXI = 0.0_rt
 
     ! Check RTOL and ATOL for legality. ------------------------------------
     RTOLI = vstate % RTOL(1)
@@ -86,19 +84,19 @@ contains
        RTOLI = vstate % RTOL(I)
        ATOLI = vstate % ATOL(I)
 
-       if (RTOLI .LT. ZERO) then
+       if (RTOLI .LT. 0.0_rt) then
 #ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0_rt        '
-          CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, ZERO)
+          CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, 0.0_rt)
 #endif
           vstate % ISTATE = -3
           return
        end if
 
-       if (ATOLI .LT. ZERO) then
+       if (ATOLI .LT. 0.0_rt) then
 #ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0_rt        '
-          CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, ZERO)
+          CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, 0.0_rt)
 #endif
           vstate % ISTATE = -3
           return
@@ -127,7 +125,7 @@ contains
     vstate % NLU = 0
     vstate % NSLJ = 0
     NSLAST = 0
-    vstate % HU = ZERO
+    vstate % HU = 0.0_rt
     vstate % NQU = 0
 
     ! Initial call to F.  -------------------------
@@ -139,21 +137,21 @@ contains
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
-    vstate % H = ONE
+    vstate % H = 1.0_rt
 
     do I = 1,VODE_NEQS
        vstate % EWT(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
-       if (vstate % ewt(I) .LE. ZERO) then
+       if (vstate % ewt(I) .LE. 0.0_rt) then
 #ifndef AMREX_USE_CUDA
           EWTI = vstate % ewt(I)
           MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0_rt         '
-          CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
+          CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, 0.0_rt)
 #endif
           vstate % ISTATE = -3
           return
        end if
 
-       vstate % ewt(I) = ONE/vstate % ewt(I)
+       vstate % ewt(I) = 1.0_rt/vstate % ewt(I)
     end do
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
@@ -195,9 +193,9 @@ contains
              ! The maximum number of steps was taken before reaching TOUT. ----------
 #ifndef AMREX_USE_CUDA
              MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
-             CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, ZERO, ZERO)
+             CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
              MSG = '      taken on this call before reaching TOUT     '
-             CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, ZERO)
+             CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, 0.0_rt)
 #endif
              vstate % ISTATE = -1
 
@@ -213,7 +211,7 @@ contains
 
              vstate % EWT(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
 
-             IF (vstate % ewt(I) .LE. ZERO) then
+             IF (vstate % ewt(I) .LE. 0.0_rt) then
                 ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 #ifndef AMREX_USE_CUDA
                 EWTI = vstate % ewt(I)
@@ -228,7 +226,7 @@ contains
 
                 return
              end IF
-             vstate % ewt(I) = ONE/vstate % ewt(I)
+             vstate % ewt(I) = 1.0_rt/vstate % ewt(I)
           end do
 
        else
@@ -236,15 +234,15 @@ contains
        end if
 
        TOLSF = vstate % UROUND * DVNORM (vstate % YH(:,1), vstate % EWT)
-       IF (TOLSF > ONE) then
-          TOLSF = TOLSF*TWO
+       IF (TOLSF > 1.0_rt) then
+          TOLSF = TOLSF*2.0_rt
 
           if (vstate % NST .EQ. 0) then
 #ifndef AMREX_USE_CUDA
              MSG = 'DVODE--  At start of problem, too much accuracy   '
-             CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, ZERO, ZERO)
+             CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
              MSG='      requested for precision of machine:   see TOLSF (=R1) '
-             CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, ZERO)
+             CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, 0.0_rt)
 #endif
              vstate % ISTATE = -3
              return
@@ -253,7 +251,7 @@ contains
           ! Too much accuracy requested for machine precision. -------------------
 #ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
-          CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, ZERO, ZERO)
+          CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
           MSG = '      for precision of machine:   see TOLSF (=R2) '
           CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
 #endif
@@ -276,7 +274,7 @@ contains
           ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
 #ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
-          CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, ZERO, ZERO)
+          CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
           MSG = '      test failed repeatedly or with abs(H) = HMIN'
           CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif
@@ -293,9 +291,9 @@ contains
           ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
 #ifndef AMREX_USE_CUDA
           MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
-          CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
+          CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
           MSG = '      corrector convergence failed repeatedly     '
-          CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, ZERO, ZERO)
+          CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
           MSG = '      or with abs(H) = HMIN   '
           CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif
@@ -319,7 +317,7 @@ contains
        vstate % KUTH = 0
 
        ! If TOUT has been reached, interpolate. -------------------
-       IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) cycle
+       IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. 0.0_rt) cycle
        CALL DVINDY (vstate, IFLAG)
        vstate % T = vstate % TOUT
 
