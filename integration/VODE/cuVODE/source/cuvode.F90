@@ -53,6 +53,7 @@ contains
     integer    :: I, IER, IFLAG, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
+    integer    :: pivot(VODE_NEQS)
 #ifndef AMREX_USE_CUDA
     character (len=80) :: MSG
 #endif
@@ -342,12 +343,7 @@ contains
           end IF
        end IF
 
-
-       ! -----------------------------------------------------------------------
-       !  CALL DVSTEP (Y, YH, NYH, YH, EWT, SAVF, VSAV, ACOR,
-       !               WM, IWM, F, JAC, F, DVNLSD, RPAR, IPAR)
-       ! -----------------------------------------------------------------------
-       CALL DVSTEP(IWORK, rwork, vstate)
+       CALL DVSTEP(pivot, rwork, vstate)
 
        ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
        !  KFLAG .eq. 0,   -1,  -2

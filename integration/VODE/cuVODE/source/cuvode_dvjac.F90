@@ -16,22 +16,10 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvjac(IWM, IERPJ, rwork, vstate)
+  subroutine dvjac(pivot, IERPJ, rwork, vstate)
 
     !$acc routine seq
     
-    ! -----------------------------------------------------------------------
-    !  Call sequence input -- Y, YH, LDYH, EWT, FTEM, SAVF, WM, IWM,
-    !                         F, JAC, RPAR, IPAR
-    !  Call sequence output -- WM, IWM, IERPJ
-    !  COMMON block variables accessed:
-    !      /DVOD01/  CCMXJ, DRC, H, RL1, TN, UROUND, ICF, JCUR, LOCJS,
-    !                MITER, MSBJ, N, NSLJ
-    !      /DVOD02/  NFE, NST, NJE, NLU
-    ! 
-    !  Subroutines called by DVJAC: F, JAC, DACOPY, DCOPY, DGBFA, DGEFA,
-    !                               DSCAL
-    !  Function routines called by DVJAC: DVNORM
     ! -----------------------------------------------------------------------
     !  DVJAC is called by DVNLSD to compute and process the matrix
     !  P = I - h*rl1*J , where J is an approximation to the Jacobian.
@@ -61,10 +49,6 @@ contains
     !               WM also contains the following matrix-related data:
     !               WM(1) = SQRT(UROUND), used in numerical Jacobian step.
     !               WM(2) = H*RL1, saved for later use if MITER = 3.
-    !  IWM        = Integer work space containing pivot information,
-    !               starting at IWM(31), if MITER is 1, 2, 4, or 5.
-    !               IWM also contains band parameters ML = IWM(1) and
-    !               MU = IWM(2) if MITER is 4 or 5.
     !  F          = Dummy name for the user supplied subroutine for f.
     !  JAC        = Dummy name for the user supplied Jacobian subroutine.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
@@ -89,7 +73,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWM(VODE_LIW)
+    integer,       intent(inout) :: pivot(VODE_NEQS)
     integer,       intent(  out) :: IERPJ
 
     ! Declare local variables
@@ -170,22 +154,18 @@ contains
        end do
     ENDIF
 
-    IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
-       ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
-       CON = -HRL1
-       rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
-       J = 3
-       NP1 = VODE_NEQS + 1
-       do I = 1,VODE_NEQS
-          rwork % WM(J) = rwork % WM(J) + ONE
-          J = J + NP1
-       end do
-       vstate % NLU = vstate % NLU + 1
-       CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), IER)
-       IF (IER .NE. 0) IERPJ = 1
-       RETURN
-    ENDIF
-    ! End of code block for MITER = 1 or 2. --------------------------------
+    ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
+    CON = -HRL1
+    rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
+    J = 3
+    NP1 = VODE_NEQS + 1
+    do I = 1,VODE_NEQS
+       rwork % WM(J) = rwork % WM(J) + ONE
+       J = J + NP1
+    end do
+    vstate % NLU = vstate % NLU + 1
+    CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), pivot, IER)
+    IF (IER .NE. 0) IERPJ = 1
 
   end subroutine dvjac
 
