@@ -48,9 +48,9 @@ contains
 
     ! Declare local variables
     logical    :: IHIT
-    real(rt) :: ATOLI, BIG, EWTI, H0, HMAX, HMX
+    real(rt) :: ATOLI, EWTI, H0, HMAX, HMX
     real(rt) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
-    integer    :: I, IER, IFLAG, IMXER, KGO, LENJ, LENP
+    integer    :: I, IER, IFLAG, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
 #ifndef AMREX_USE_CUDA
@@ -362,17 +362,6 @@ contains
 #endif
           vstate % ISTATE = -4
 
-          ! Compute IMXER if relevant. -------------------------------------------
-          BIG = ZERO
-          IMXER = 1
-          do I = 1,VODE_NEQS
-             SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
-             IF (BIG .GE. SIZE) exit
-             BIG = SIZE
-             IMXER = I
-          end do
-          IWORK(16) = IMXER
-
           ! Set Y array, T, and optional output. --------------------------------
           vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
 
@@ -400,16 +389,6 @@ contains
           CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
 #endif
           vstate % ISTATE = -5
-          ! Compute IMXER if relevant. -------------------------------------------
-          BIG = ZERO
-          IMXER = 1
-          do I = 1,VODE_NEQS
-             SIZE = ABS(rwork % acor(I) * rwork % ewt(I))
-             IF (BIG .GE. SIZE) exit
-             BIG = SIZE
-             IMXER = I
-          end do
-          IWORK(16) = IMXER
 
           ! Set Y array, T, and optional output. --------------------------------
           vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
