@@ -26,29 +26,6 @@ module cuvode_parameters_module
   integer, parameter :: MF_ANALYTIC_JAC_NOCACHE = -21, MF_NUMERICAL_JAC_NOCACHE = -22
   integer, parameter :: MF_ANALYTIC_JAC_CACHED = 21, MF_NUMERICAL_JAC_CACHED = 22
 
-  ! Tolerance parameters:
-  !
-  !  itol specifies whether to use an single absolute tolerance for
-  !  all variables (1), or to pass an array of absolute tolerances, one
-  !  for each variable with a scalar relative tol (2), a scalar absolute
-  !  and array of relative tolerances (3), or arrays for both (4).
-  !
-  !  The error is determined as e(i) = rtol*abs(y(i)) + atol, and must
-  !  be > 0.  Since we have some compositions that may be 0 initially,
-  !  we will specify both an absolute and a relative tolerance.
-  !
-  ! We will use arrays for both the absolute and relative tolerances,
-  ! since we want to be easier on the temperature than the species.
-
-  integer, parameter :: VODE_ITOL = 4
-
-  ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
-  ! integer work array of size 30 + NEQ. These are VODE constants
-  ! that depend on the integration mode we're using -- see dvode.f.
-
-  integer, parameter :: VODE_LRW = 22 + 9*VODE_NEQS + 2*VODE_NEQS**2
-  integer, parameter :: VODE_LIW = 30 + VODE_NEQS
-
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
 

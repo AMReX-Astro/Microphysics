@@ -49,8 +49,6 @@ contains
 
     ! Work arrays
 
-    integer    :: iwork(VODE_LIW)
-
     integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
@@ -114,19 +112,9 @@ contains
 
     dvode_state % istate = 1
 
-    iwork(:) = 0
+    ! Set the maximum number of steps allowed.
 
-    ! Set the maximum number of steps allowed (the VODE default is 500).
-
-    iwork(6) = ode_max_steps
-
-    ! Disable printing of messages about T + H == T unless we are in verbose mode.
-
-    if (burner_verbose) then
-       iwork(7) = 1
-    else
-       iwork(7) = 0
-    endif
+    dvode_state % MXSTEP = ode_max_steps
 
     ! Start off by assuming a successful burn.
 
@@ -153,7 +141,7 @@ contains
 
 
     ! Call the integration routine.
-    call dvode(dvode_state, iwork, MF_JAC)
+    call dvode(dvode_state, MF_JAC)
 
     ! Store the final data
     call vode_to_sdc(dvode_state % T, dvode_state, state_out)
@@ -213,8 +201,8 @@ contains
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
-    state_out % n_rhs = iwork(12)
-    state_out % n_jac = iwork(13)
+    state_out % n_rhs = dvode_state % NFE
+    state_out % n_jac = dvode_state % NJE
 
   end subroutine vode_integrator
 

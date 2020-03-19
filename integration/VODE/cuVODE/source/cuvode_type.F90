@@ -19,7 +19,7 @@ module cuvode_types_module
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
      integer    :: L
      integer    :: MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
-     integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
+     integer    :: NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP
 
      ! Tolerances
@@ -29,7 +29,7 @@ module cuvode_types_module
      real(rt) :: RPAR(n_rpar_comps)
 
      ! State flag
-     integer    :: ISTATE
+     integer :: ISTATE
 
      ! Local time and integration end time
      real(rt) :: T, TOUT
@@ -133,7 +133,6 @@ contains
     write(*,*) 'MXSTEP = ', dvode_state % MXSTEP
     write(*,*) 'NEWH = ', dvode_state % NEWH
     write(*,*) 'NEWQ = ', dvode_state % NEWQ
-    write(*,*) 'NHNIL = ', dvode_state % NHNIL
     write(*,*) 'NQ = ', dvode_state % NQ
     write(*,*) 'NQNYH = ', dvode_state % NQNYH
     write(*,*) 'NQWAIT = ', dvode_state % NQWAIT

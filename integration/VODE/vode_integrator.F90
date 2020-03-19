@@ -61,10 +61,6 @@ contains
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
     type (dvode_t) :: dvode_state
 
-    ! Work variables
-
-    integer    :: iwork(VODE_LIW)
-
     integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
@@ -118,19 +114,9 @@ contains
 
     dvode_state % istate = 1
 
-    iwork(:) = 0
+    ! Set the maximum number of steps allowed.
 
-    ! Set the maximum number of steps allowed (the VODE default is 500).
-
-    iwork(6) = ode_max_steps
-
-    ! Disable printing of messages about T + H == T unless we are in verbose mode.
-
-    if (burner_verbose) then
-       iwork(7) = 1
-    else
-       iwork(7) = 0
-    endif
+    dvode_state % MXSTEP = ode_max_steps
 
     ! Start off by assuming a successful burn.
 
@@ -199,7 +185,7 @@ contains
     endif
 
     ! Call the integration routine.
-    call dvode(dvode_state, iwork, MF_JAC)
+    call dvode(dvode_state, MF_JAC)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -211,10 +197,6 @@ contains
        dvode_state % rpar(irp_self_heat) = ONE
 
        dvode_state % istate = 1
-
-       iwork(:) = 0
-
-       iwork(6) = ode_max_steps
 
        dvode_state % T = ZERO
        dvode_state % TOUT = dt
@@ -235,7 +217,7 @@ contains
        dvode_state % y(net_ienuc) = ener_offset
 
        ! Call the integration routine.
-       call dvode(dvode_state, iwork, MF_JAC)
+       call dvode(dvode_state, MF_JAC)
 
     endif
 
@@ -286,8 +268,8 @@ contains
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
-    state_out % n_rhs = iwork(12)
-    state_out % n_jac = iwork(13)
+    state_out % n_rhs = dvode_state % NFE
+    state_out % n_jac = dvode_state % NJE
 
     state_out % time = dvode_state % t
 
@@ -317,8 +299,8 @@ contains
        print *, 'integration summary: '
        print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
                 ' energy released: ', state_out % e - state_in % e
-       print *, 'number of steps taken: ', iwork(11)
-       print *, 'number of f evaluations: ', iwork(12)
+       print *, 'number of steps taken: ', dvode_state % NST
+       print *, 'number of f evaluations: ', dvode_state % NFE
     endif
 #endif
     
