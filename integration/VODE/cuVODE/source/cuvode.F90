@@ -24,7 +24,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvode(vstate, rwork, IWORK, IOPT, MF)
+  subroutine dvode(vstate, rwork, IWORK, MF)
 
     !$acc routine seq
 
@@ -44,7 +44,7 @@ contains
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
     integer,       intent(inout) :: IWORK(VODE_LIW)
-    integer,       intent(in   ) :: IOPT, MF
+    integer,       intent(in   ) :: MF
 
     ! Declare local variables
     logical    :: IHIT
@@ -69,110 +69,31 @@ contains
     vstate % INIT = 0
     IF (vstate % TOUT .EQ. vstate % T) RETURN
 
-    ! -----------------------------------------------------------------------
-    !  Check all input and various initializations.
-    !
-    !  First check legality of the non-optional input ITOL, IOPT,
-    !  MF, ML, and MU.
-    ! -----------------------------------------------------------------------
-
-    if (IOPT .LT. 0 .OR. IOPT .GT. 1) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  IOPT (=I1) illegal   '
-       CALL XERRWD (MSG, 30, 7, 1, 1, IOPT, 0, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
+    ! Compute Jacobian choices based on MF.
 
     vstate % JSV = SIGN(1,MF)
     MFA = ABS(MF)
     vstate % METH = MFA/10
     vstate % MITER = MFA - 10*vstate % METH
 
-    if (vstate % METH .LT. 1 .OR. vstate % METH .GT. 2 .or. &
-         vstate % MITER .LT. 0 .OR. vstate % MITER .GT. 5) then
-#ifndef AMREX_USE_CUDA
-       MSG = 'DVODE--  MF (=I1) illegal     '
-       CALL XERRWD (MSG, 30, 8, 1, 1, MF, 0, 0, ZERO, ZERO)
-#endif
-       vstate % ISTATE = -3
-       return
-    end if
+    ! Set some defaults that the user can override.
 
-
-    ! Next process and check the optional input. ---------------------------
-
-    IF (IOPT /= 1) then
+    if (IWORK(6) <= 0) then
        vstate % MXSTEP = MXSTP0
-       vstate % MXHNIL = MXHNL0
-       H0 = ZERO
-       vstate % HMXI = ZERO
-       vstate % HMIN = ZERO
     else
        vstate % MXSTEP = IWORK(6)
+    end if
 
-       if (vstate % MXSTEP .LT. 0) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  MXSTEP (=I1) .lt. 0  '
-          CALL XERRWD (MSG, 30, 12, 1, 1, vstate % MXSTEP, 0, 0, ZERO, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       IF (vstate % MXSTEP .EQ. 0) vstate % MXSTEP = MXSTP0
+    if (IWORK(7) <= 0) then
+       vstate % MXHNIL = MXHNL0
+    else
        vstate % MXHNIL = IWORK(7)
+    end if
 
-       if (vstate % MXHNIL .LT. 0) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  MXHNIL (=I1) .lt. 0  '
-          CALL XERRWD (MSG, 30, 13, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
+    H0 = ZERO
 
-       !      EDIT 07/16/2016 -- see comments above about MXHNIL
-       !      IF (MXHNIL .EQ. 0) MXHNIL = MXHNL0
-
-       H0 = RWORK % CONDOPT(2)
-
-       if ((vstate % TOUT - vstate % T)*H0 .LT. ZERO) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  TOUT (=R1) behind T (=R2)      '
-          CALL XERRWD (MSG, 40, 14, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
-          MSG = '      integration direction is given by H0 (=R1)  '
-          CALL XERRWD (MSG, 50, 14, 1, 0, 0, 0, 1, H0, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       HMAX = RWORK % CONDOPT(3)
-
-       if (HMAX .LT. ZERO) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  HMAX (=R1) .lt. 0.0_rt  '
-          CALL XERRWD (MSG, 30, 15, 1, 0, 0, 0, 1, HMAX, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       vstate % HMXI = ZERO
-       IF (HMAX .GT. ZERO) vstate % HMXI = ONE/HMAX
-       vstate % HMIN = RWORK % CONDOPT(4)
-
-       if (vstate % HMIN .LT. ZERO) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  HMIN (=R1) .lt. 0.0_rt  '
-          CALL XERRWD (MSG, 30, 16, 1, 0, 0, 0, 1, vstate % HMIN, ZERO)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-    end IF
+    vstate % HMIN = ZERO
+    vstate % HMXI = ZERO
 
     ! -----------------------------------------------------------------------
     !  Arrays stored in RWORK are denoted  CONDOPT, YH, WM, EWT, SAVF, ACOR.
@@ -261,25 +182,20 @@ contains
 
        rwork % ewt(I) = ONE/rwork % ewt(I)
     end do
-    IF (H0 == ZERO) then
 
-       ! Call DVHIN to set initial step size H0 to be attempted. --------------
-       CALL DVHIN (vstate, rwork, H0, NITER, IER)
-       vstate % NFE = vstate % NFE + NITER
+    ! Call DVHIN to set initial step size H0 to be attempted. --------------
+    CALL DVHIN (vstate, rwork, H0, NITER, IER)
+    vstate % NFE = vstate % NFE + NITER
 
-       if (IER .NE. 0) then
+    if (IER .NE. 0) then
 #ifndef AMREX_USE_CUDA
-          MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
-          CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+       MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
+       CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
 #endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       ! Adjust H0 if necessary to meet HMAX bound. ---------------------------
+       vstate % ISTATE = -3
+       return
     end if
-    RH = ABS(H0)*vstate % HMXI
-    IF (RH .GT. ONE) H0 = H0/RH
+
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
     rwork % YH(:,2) = rwork % YH(:,2) * H0

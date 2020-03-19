@@ -36,7 +36,7 @@ contains
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
-    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC, VODE_LIW, IOPT
+    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC, VODE_LIW
     use cuvode_types_module, only: dvode_t, rwork_t
     use cuvode_module, only: dvode
 
@@ -103,7 +103,7 @@ contains
              enddo
 
              ! Call the integration routine.
-             call dvode(dvode_state, rwork, iwork, IOPT, MF_JAC)
+             call dvode(dvode_state, rwork, iwork, MF_JAC)
 
              ! Check if the integration failed
              if (dvode_state % istate < 0) then
