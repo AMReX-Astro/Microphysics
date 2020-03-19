@@ -1,6 +1,6 @@
 module cuvode_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
   use cuvode_types_module, only: dvode_t
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
@@ -23,7 +23,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvode(vstate, IWORK, MF)
+  subroutine dvode(vstate, MF)
 
     !$acc routine seq
 
@@ -41,7 +41,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    integer,       intent(inout) :: IWORK(VODE_LIW)
     integer,       intent(in   ) :: MF
 
     ! Declare local variables
@@ -74,20 +73,6 @@ contains
     MFA = ABS(MF)
     vstate % METH = MFA/10
     vstate % MITER = MFA - 10*vstate % METH
-
-    ! Set some defaults that the user can override.
-
-    if (IWORK(6) <= 0) then
-       vstate % MXSTEP = MXSTP0
-    else
-       vstate % MXSTEP = IWORK(6)
-    end if
-
-    if (IWORK(7) <= 0) then
-       vstate % MXHNIL = MXHNL0
-    else
-       vstate % MXHNIL = IWORK(7)
-    end if
 
     H0 = ZERO
 
@@ -135,7 +120,6 @@ contains
     vstate % JSTART = 0
     vstate % CCMXJ = PT2
     vstate % MSBJ = 50
-    vstate % NHNIL = 0
     vstate % NST = 0
     vstate % NJE = 0
     vstate % NNI = 0
@@ -221,15 +205,7 @@ contains
              vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
              vstate % T = vstate % TN
-             IWORK(11) = vstate % NST
-             IWORK(12) = vstate % NFE
-             IWORK(13) = vstate % NJE
-             IWORK(14) = vstate % NQU
-             IWORK(15) = vstate % NQ
-             IWORK(19) = vstate % NLU
-             IWORK(20) = vstate % NNI
-             IWORK(21) = vstate % NCFN
-             IWORK(22) = vstate % NETF
+
              return
 
           end IF
@@ -250,15 +226,6 @@ contains
                 vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
                 vstate % T = vstate % TN
-                IWORK(11) = vstate % NST
-                IWORK(12) = vstate % NFE
-                IWORK(13) = vstate % NJE
-                IWORK(14) = vstate % NQU
-                IWORK(15) = vstate % NQ
-                IWORK(19) = vstate % NLU
-                IWORK(20) = vstate % NNI
-                IWORK(21) = vstate % NCFN
-                IWORK(22) = vstate % NETF
 
                 return
              end IF
@@ -296,40 +263,9 @@ contains
           vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
           vstate % T = vstate % TN
-          IWORK(11) = vstate % NST
-          IWORK(12) = vstate % NFE
-          IWORK(13) = vstate % NJE
-          IWORK(14) = vstate % NQU
-          IWORK(15) = vstate % NQ
-          IWORK(19) = vstate % NLU
-          IWORK(20) = vstate % NNI
-          IWORK(21) = vstate % NCFN
-          IWORK(22) = vstate % NETF
 
           return
 
-       end IF
-
-       IF ((vstate % TN + vstate % H) == vstate % TN) then
-          vstate % NHNIL = vstate % NHNIL + 1
-          IF (vstate % NHNIL <= vstate % MXHNIL) then
-#ifndef AMREX_USE_CUDA
-             MSG = 'DVODE--  Warning: internal T (=R1) and H (=R2) are'
-             CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
-             MSG='      such that in the machine, T + H = T on the next step  '
-             CALL XERRWD (MSG, 60, 101, 1, 0, 0, 0, 0, ZERO, ZERO)
-             MSG = '      (H = step size). solver will continue anyway'
-             CALL XERRWD (MSG, 50, 101, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
-#endif
-             IF (vstate % NHNIL == vstate % MXHNIL) then
-#ifndef AMREX_USE_CUDA
-                MSG = 'DVODE--  Above warning has been issued I1 times.  '
-                CALL XERRWD (MSG, 50, 102, 1, 0, 0, 0, 0, ZERO, ZERO)
-                MSG = '      it will not be issued again for this problem'
-                CALL XERRWD (MSG, 50, 102, 1, 1, vstate % MXHNIL, 0, 0, ZERO, ZERO)
-#endif
-             end IF
-          end IF
        end IF
 
        CALL DVSTEP(pivot, vstate)
@@ -351,15 +287,6 @@ contains
           vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
           vstate % T = vstate % TN
-          IWORK(11) = vstate % NST
-          IWORK(12) = vstate % NFE
-          IWORK(13) = vstate % NJE
-          IWORK(14) = vstate % NQU
-          IWORK(15) = vstate % NQ
-          IWORK(19) = vstate % NLU
-          IWORK(20) = vstate % NNI
-          IWORK(21) = vstate % NCFN
-          IWORK(22) = vstate % NETF
 
           return
 
@@ -379,15 +306,6 @@ contains
           vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
           vstate % T = vstate % TN
-          IWORK(11) = vstate % NST
-          IWORK(12) = vstate % NFE
-          IWORK(13) = vstate % NJE
-          IWORK(14) = vstate % NQU
-          IWORK(15) = vstate % NQ
-          IWORK(19) = vstate % NLU
-          IWORK(20) = vstate % NNI
-          IWORK(21) = vstate % NCFN
-          IWORK(22) = vstate % NETF
 
           return
        end if
@@ -407,15 +325,6 @@ contains
        vstate % T = vstate % TOUT
 
        vstate % ISTATE = 2
-       IWORK(11) = vstate % NST
-       IWORK(12) = vstate % NFE
-       IWORK(13) = vstate % NJE
-       IWORK(14) = vstate % NQU
-       IWORK(15) = vstate % NEWQ
-       IWORK(19) = vstate % NLU
-       IWORK(20) = vstate % NNI
-       IWORK(21) = vstate % NCFN
-       IWORK(22) = vstate % NETF
 
        return
 
@@ -433,15 +342,6 @@ contains
     vstate % T = vstate % TN
 
     vstate % ISTATE = 2
-    IWORK(11) = vstate % NST
-    IWORK(12) = vstate % NFE
-    IWORK(13) = vstate % NJE
-    IWORK(14) = vstate % NQU
-    IWORK(15) = vstate % NEWQ
-    IWORK(19) = vstate % NLU
-    IWORK(20) = vstate % NNI
-    IWORK(21) = vstate % NCFN
-    IWORK(22) = vstate % NETF
 
     return
 

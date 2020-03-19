@@ -36,7 +36,7 @@ contains
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
-    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC, VODE_LIW
+    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC
     use cuvode_types_module, only: dvode_t
     use cuvode_module, only: dvode
 
@@ -52,7 +52,6 @@ contains
 
     ! VODE variables
     type (dvode_t) :: dvode_state
-    integer :: iwork(VODE_LIW)
     integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
@@ -83,7 +82,7 @@ contains
              ! We want VODE to re-initialize each time we call it.
              dvode_state % istate = 1
 
-             iwork(:) = 0
+             dvode_state % MXSTEP = 500
 
              ! Initialize the integration time and set the final time to dt
              dvode_state % T = ZERO
@@ -95,7 +94,7 @@ contains
              enddo
 
              ! Call the integration routine.
-             call dvode(dvode_state, iwork, MF_JAC)
+             call dvode(dvode_state, MF_JAC)
 
              ! Check if the integration failed
              if (dvode_state % istate < 0) then

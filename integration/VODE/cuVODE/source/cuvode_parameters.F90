@@ -18,13 +18,6 @@ module cuvode_parameters_module
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
 #endif
 
-  ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
-  ! integer work array of size 30 + NEQ. These are VODE constants
-  ! that depend on the integration mode we're using -- see dvode.f.
-
-  integer, parameter :: VODE_LRW = 22 + 9*neqs + 2*neqs**2
-  integer, parameter :: VODE_LIW = 30 + neqs
-
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
 

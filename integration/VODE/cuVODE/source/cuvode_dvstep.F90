@@ -1,6 +1,6 @@
 module cuvode_dvstep_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
   use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_dvset_module
