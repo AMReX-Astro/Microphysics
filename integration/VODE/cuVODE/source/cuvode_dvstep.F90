@@ -22,7 +22,7 @@ contains
   subroutine dvstep(IWM, rwork, vstate)
 
     !$acc routine seq
-    
+
     ! -----------------------------------------------------------------------
     !  Call sequence input -- Y, IWM, RPAR, IPAR, rwork, vstate
     !  Call sequence output -- YH, ACOR, WM, IWM
@@ -31,7 +31,7 @@ contains
     !                TQ(5), TN, JCUR, JSTART, KFLAG, KUTH,
     !                L, LMAX, MAXORD, N, NEWQ, NQ, NQWAIT
     !      /DVOD02/  HU, NCFN, NETF, NFE, NQU, NST
-    ! 
+    !
     !  Subroutines called by DVSTEP: F, DAXPY, DCOPY, DSCAL,
     !                                DVJUST, VNLS, DVSET
     !  Function routines called by DVSTEP: DVNORM
@@ -46,9 +46,9 @@ contains
     !  consecutive failures occurred.  On a return with KFLAG negative,
     !  the values of TN and the YH array are as of the beginning of the last
     !  step, and H is the last step size attempted.
-    ! 
+    !
     !  Communication with DVSTEP is done with the following variables:
-    ! 
+    !
     !  Y      = An array of length N used for the dependent variable array.
     !  YH     = An LDYH by LMAX array containing the dependent variables
     !           and their approximate scaled derivatives, where
@@ -256,171 +256,218 @@ contains
     vstate % HSCAL = vstate % H
     vstate % RC = vstate % RC * vstate % ETA
     vstate % NQNYH = vstate % NQ*VODE_NEQS
+
+
     ! -----------------------------------------------------------------------
     !  This section computes the predicted values by effectively
     !  multiplying the YH array by the Pascal triangle matrix.
     !  DVSET is called to calculate all integration coefficients.
     !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
     ! -----------------------------------------------------------------------
+
 200 continue
-    vstate % TN = vstate % TN + vstate % H
 
-    call advance_nordsieck(rwork, vstate)
+    do while (.true.)
 
-    CALL DVSET(vstate)
-    vstate % RL1 = ONE/vstate % EL(2)
-    vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
-    vstate % PRL1 = vstate % RL1
-    ! 
-    !  Call the nonlinear system solver. ------------------------------------
-    !
-    CALL dvnlsd (IWM, NFLAG, rwork, vstate)
+       vstate % TN = vstate % TN + vstate % H
 
-    IF (NFLAG /= 0) then
+       call advance_nordsieck(rwork, vstate)
+
+       CALL DVSET(vstate)
+       vstate % RL1 = ONE/vstate % EL(2)
+       vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
+       vstate % PRL1 = vstate % RL1
+       !
+       !  Call the nonlinear system solver. ------------------------------------
+       !
+       CALL dvnlsd (IWM, NFLAG, rwork, vstate)
+
+       IF (NFLAG /= 0) then
+          ! -----------------------------------------------------------------------
+          !  The VNLS routine failed to achieve convergence (NFLAG .NE. 0).
+          !  The YH array is retracted to its values before prediction.
+          !  The step size H is reduced and the step is retried, if possible.
+          !  Otherwise, an error exit is taken.
+          ! -----------------------------------------------------------------------
+          NCF = NCF + 1
+          vstate % NCFN = vstate % NCFN + 1
+          vstate % ETAMAX = ONE
+          vstate % TN = TOLD
+
+          call retract_nordsieck(rwork, vstate)
+
+          IF (NFLAG .LT. -1) then
+             IF (NFLAG .EQ. -2) vstate % KFLAG = -3
+             IF (NFLAG .EQ. -3) vstate % KFLAG = -4
+             vstate % JSTART = 1
+             RETURN
+          end IF
+          IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) then
+             vstate % KFLAG = -2
+             vstate % JSTART = 1
+             RETURN
+          end IF
+          IF (NCF .EQ. MXNCF) then
+             vstate % KFLAG = -2
+             vstate % JSTART = 1
+             RETURN
+          end IF
+          vstate % ETA = ETACF
+          vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H))
+          NFLAG = -1
+
+          ! Rescale the history array for a change in H by a factor of ETA. ------
+          R = ONE
+
+          do J = 2, vstate % L
+             R = R * vstate % ETA
+             rwork % YH(:,J) = rwork % YH(:,J) * R
+          end do
+          vstate % H = vstate % HSCAL * vstate % ETA
+          vstate % HSCAL = vstate % H
+          vstate % RC = vstate % RC * vstate % ETA
+          vstate % NQNYH = vstate % NQ*VODE_NEQS
+
+          cycle
+       end IF
+
        ! -----------------------------------------------------------------------
-       !  The VNLS routine failed to achieve convergence (NFLAG .NE. 0).
-       !  The YH array is retracted to its values before prediction.
-       !  The step size H is reduced and the step is retried, if possible.
-       !  Otherwise, an error exit is taken.
+       !  The corrector has converged (NFLAG = 0).  The local error test is
+       !  made and control passes to statement 500 if it fails.
        ! -----------------------------------------------------------------------
-       NCF = NCF + 1
-       vstate % NCFN = vstate % NCFN + 1
-       vstate % ETAMAX = ONE
+
+       DSM = vstate % ACNRM/vstate % TQ(2)
+       IF (DSM <= ONE) then
+          ! -----------------------------------------------------------------------
+          !  After a successful step, update the YH and TAU arrays and decrement
+          !  NQWAIT.  If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
+          !  for use in a possible order increase on the next step.
+          !  If ETAMAX = 1 (a failure occurred this step), keep NQWAIT .ge. 2.
+          ! -----------------------------------------------------------------------
+          vstate % KFLAG = 0
+          vstate % NST = vstate % NST + 1
+          vstate % HU = vstate % H
+          vstate % NQU = vstate % NQ
+          do IBACK = 1, vstate % NQ
+             I = vstate % L - IBACK
+             vstate % TAU(I+1) = vstate % TAU(I)
+          end do
+          vstate % TAU(1) = vstate % H
+          do J = 1, vstate % L
+             rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
+          end do
+          vstate % NQWAIT = vstate % NQWAIT - 1
+          IF ((vstate % L /= VODE_LMAX) .and. (vstate % NQWAIT == 1)) then
+             rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+
+             vstate % CONP = vstate % TQ(5)
+          end IF
+          IF (vstate % ETAMAX .NE. ONE) GO TO 560
+          IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
+          vstate % NEWQ = vstate % NQ
+          vstate % NEWH = 0
+          vstate % ETA = ONE
+          vstate % HNEW = vstate % H
+          vstate % ETAMAX = ETAMX3
+          IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
+          R = ONE/vstate % TQ(2)
+          rwork % acor(:) = rwork % acor(:) * R
+          vstate % JSTART = 1
+          RETURN
+
+       endif
+
+       ! -----------------------------------------------------------------------
+       !  The error test failed.  KFLAG keeps track of multiple failures.
+       !  Restore TN and the YH array to their previous values, and prepare
+       !  to try the step again.  Compute the optimum step size for the
+       !  same order.  After repeated failures, H is forced to decrease
+       !  more rapidly.
+       ! -----------------------------------------------------------------------
+
+       vstate % KFLAG = vstate % KFLAG - 1
+       vstate % NETF = vstate % NETF + 1
+       NFLAG = -2
        vstate % TN = TOLD
 
        call retract_nordsieck(rwork, vstate)
 
-       IF (NFLAG .LT. -1) then
-          IF (NFLAG .EQ. -2) vstate % KFLAG = -3
-          IF (NFLAG .EQ. -3) vstate % KFLAG = -4
-          vstate % JSTART = 1
-          RETURN
-       end IF
        IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) then
-          vstate % KFLAG = -2
+          vstate % KFLAG = -1
           vstate % JSTART = 1
           RETURN
        end IF
-       IF (NCF .EQ. MXNCF) then
-          vstate % KFLAG = -2
+       vstate % ETAMAX = ONE
+       IF (vstate % KFLAG > KFC) then
+          ! Compute ratio of new H to current H at the current order. ------------
+          FLOTL = REAL(vstate % L)
+          vstate % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
+          vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H),ETAMIN)
+          IF ((vstate % KFLAG .LE. -2) .AND. (vstate % ETA .GT. ETAMXF)) vstate % ETA = ETAMXF
+
+          ! Rescale the history array for a change in H by a factor of ETA. ------
+          R = ONE
+
+          do J = 2, vstate % L
+             R = R * vstate % ETA
+             rwork % YH(:,J) = rwork % YH(:,J) * R
+          end do
+          vstate % H = vstate % HSCAL * vstate % ETA
+          vstate % HSCAL = vstate % H
+          vstate % RC = vstate % RC * vstate % ETA
+          vstate % NQNYH = vstate % NQ*VODE_NEQS
+
+          cycle
+       end IF
+
+       ! -----------------------------------------------------------------------
+       !  Control reaches this section if 3 or more consecutive failures
+       !  have occurred.  It is assumed that the elements of the YH array
+       !  have accumulated errors of the wrong order.  The order is reduced
+       !  by one, if possible.  Then H is reduced by a factor of 0.1 and
+       !  the step is retried.  After a total of 7 consecutive failures,
+       !  an exit is taken with KFLAG = -1.
+       ! -----------------------------------------------------------------------
+       IF (vstate % KFLAG .EQ. KFH) then
+          vstate % KFLAG = -1
           vstate % JSTART = 1
           RETURN
        end IF
-       vstate % ETA = ETACF
-       vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H))
-       NFLAG = -1
-       GO TO 150
-    end IF
+       IF (vstate % NQ /= 1) then
+          vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
+          CALL DVJUST (-1, rwork, vstate)
+          vstate % L = vstate % NQ
+          vstate % NQ = vstate % NQ - 1
+          vstate % NQWAIT = vstate % L
 
-    ! -----------------------------------------------------------------------
-    !  The corrector has converged (NFLAG = 0).  The local error test is
-    !  made and control passes to statement 500 if it fails.
-    ! -----------------------------------------------------------------------
+          ! Rescale the history array for a change in H by a factor of ETA. ------
+          R = ONE
 
-    DSM = vstate % ACNRM/vstate % TQ(2)
-    IF (DSM <= ONE) then
-       ! -----------------------------------------------------------------------
-       !  After a successful step, update the YH and TAU arrays and decrement
-       !  NQWAIT.  If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
-       !  for use in a possible order increase on the next step.
-    !  If ETAMAX = 1 (a failure occurred this step), keep NQWAIT .ge. 2.
-       ! -----------------------------------------------------------------------
-       vstate % KFLAG = 0
-       vstate % NST = vstate % NST + 1
-       vstate % HU = vstate % H
-       vstate % NQU = vstate % NQ
-       do IBACK = 1, vstate % NQ
-          I = vstate % L - IBACK
-          vstate % TAU(I+1) = vstate % TAU(I)
-       end do
-       vstate % TAU(1) = vstate % H
-       do J = 1, vstate % L
-          rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
-       end do
-       vstate % NQWAIT = vstate % NQWAIT - 1
-       IF ((vstate % L /= VODE_LMAX) .and. (vstate % NQWAIT == 1)) then
-          rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
-       
-          vstate % CONP = vstate % TQ(5)
+          do J = 2, vstate % L
+             R = R * vstate % ETA
+             rwork % YH(:,J) = rwork % YH(:,J) * R
+          end do
+          vstate % H = vstate % HSCAL * vstate % ETA
+          vstate % HSCAL = vstate % H
+          vstate % RC = vstate % RC * vstate % ETA
+          vstate % NQNYH = vstate % NQ*VODE_NEQS
+
+          cycle
+
        end IF
-       IF (vstate % ETAMAX .NE. ONE) GO TO 560
-       IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
-       vstate % NEWQ = vstate % NQ
-       vstate % NEWH = 0
-       vstate % ETA = ONE
-       vstate % HNEW = vstate % H
-       vstate % ETAMAX = ETAMX3
-       IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
-       R = ONE/vstate % TQ(2)
-       rwork % acor(:) = rwork % acor(:) * R
-       vstate % JSTART = 1
-       RETURN
 
-    endif
-
-    ! -----------------------------------------------------------------------
-    !  The error test failed.  KFLAG keeps track of multiple failures.
-    !  Restore TN and the YH array to their previous values, and prepare
-    !  to try the step again.  Compute the optimum step size for the
-    !  same order.  After repeated failures, H is forced to decrease
-    !  more rapidly.
-    ! -----------------------------------------------------------------------
-
-    vstate % KFLAG = vstate % KFLAG - 1
-    vstate % NETF = vstate % NETF + 1
-    NFLAG = -2
-    vstate % TN = TOLD
-
-    call retract_nordsieck(rwork, vstate)
-
-    IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) then
-       vstate % KFLAG = -1
-       vstate % JSTART = 1
-       RETURN
-    end IF
-    vstate % ETAMAX = ONE
-    IF (vstate % KFLAG > KFC) then
-       ! Compute ratio of new H to current H at the current order. ------------
-       FLOTL = REAL(vstate % L)
-       vstate % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
-       vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H),ETAMIN)
-       IF ((vstate % KFLAG .LE. -2) .AND. (vstate % ETA .GT. ETAMXF)) vstate % ETA = ETAMXF
-       GO TO 150
-    end IF
-
-    ! -----------------------------------------------------------------------
-    !  Control reaches this section if 3 or more consecutive failures
-    !  have occurred.  It is assumed that the elements of the YH array
-    !  have accumulated errors of the wrong order.  The order is reduced
-    !  by one, if possible.  Then H is reduced by a factor of 0.1 and
-    !  the step is retried.  After a total of 7 consecutive failures,
-    !  an exit is taken with KFLAG = -1.
-    ! -----------------------------------------------------------------------
-    IF (vstate % KFLAG .EQ. KFH) then
-       vstate % KFLAG = -1
-       vstate % JSTART = 1
-       RETURN
-    end IF
-    IF (vstate % NQ /= 1) then
        vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
-       CALL DVJUST (-1, rwork, vstate)
-       vstate % L = vstate % NQ
-       vstate % NQ = vstate % NQ - 1
-       vstate % NQWAIT = vstate % L
-       GO TO 150
-    end IF
+       vstate % H = vstate % H * vstate % ETA
+       vstate % HSCAL = vstate % H
+       vstate % TAU(1) = vstate % H
+       CALL f_rhs (vstate % TN, vstate, rwork % savf)
+       vstate % NFE = vstate % NFE + 1
+       do I = 1, VODE_NEQS
+          rwork % yh(I,2) = vstate % H * rwork % savf(I)
+       end do
+       vstate % NQWAIT = 10
 
-    vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
-    vstate % H = vstate % H * vstate % ETA
-    vstate % HSCAL = vstate % H
-    vstate % TAU(1) = vstate % H
-    CALL f_rhs (vstate % TN, vstate, rwork % savf)
-    vstate % NFE = vstate % NFE + 1
-    do I = 1, VODE_NEQS
-       rwork % yh(I,2) = vstate % H * rwork % savf(I)
     end do
-    vstate % NQWAIT = 10
-    GO TO 200
 
 
     ! -----------------------------------------------------------------------
@@ -501,7 +548,7 @@ contains
     rwork % acor(:) = rwork % acor(:) * R
     vstate % JSTART = 1
     RETURN
-    
+
   end subroutine dvstep
 
 end module cuvode_dvstep_module
