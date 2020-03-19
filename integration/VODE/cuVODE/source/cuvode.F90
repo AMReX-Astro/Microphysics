@@ -38,9 +38,9 @@ contains
 
     ! Declare local variables
     logical    :: IHIT
-    real(rt) :: EWTI, H0, HMAX, HMX
+    real(rt) :: EWTI, H0, HMAX, HMX, S
     real(rt) :: RH, SIZE, TCRIT, TNEXT, TOLSF, TP
-    integer    :: I, IER, IFLAG, KGO, LENJ, LENP
+    integer    :: i, j, jb, IER, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
     integer    :: pivot(VODE_NEQS)
@@ -239,9 +239,23 @@ contains
        vstate % INIT = 1
        vstate % KUTH = 0
 
-       ! If TOUT has been reached, interpolate. -------------------
        IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. 0.0_rt) cycle
-       CALL DVINDY (vstate, IFLAG)
+
+       ! If TOUT has been reached, interpolate. -------------------
+
+       do i = 1, VODE_NEQS
+          vstate % Y(i) = vstate % YH(i,vstate % L)
+       end do
+
+       S = (vstate % TOUT - vstate % TN) / vstate % H
+
+       do jb = 1, vstate % NQ
+          j = vstate % NQ - jb
+          do i = 1, VODE_NEQS
+             vstate % Y(i) = vstate % YH(i,j+1) + S * vstate % Y(i)
+          end do
+       end do
+
        vstate % T = vstate % TOUT
 
        vstate % ISTATE = 2
