@@ -1,7 +1,6 @@
 F90EXE_sources += cuvode.F90
 F90EXE_sources += cuvode_output.F90
 F90EXE_sources += cuvode_type.F90
-F90EXE_sources += cuvode_dacopy.F90
 F90EXE_sources += cuvode_dvhin.F90
 F90EXE_sources += cuvode_dvindy.F90
 F90EXE_sources += cuvode_dvjac.F90
