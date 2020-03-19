@@ -70,7 +70,6 @@ contains
 #else
     use vode_rhs_module, only: f_rhs, jac
 #endif
-    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -191,7 +190,7 @@ contains
        IF (vstate % NEWQ > VODE_MAXORD) then
           FLOTL = REAL(VODE_LMAX)
           IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
-             DDN = DVNORM (vstate % SAVF, vstate % EWT)/vstate % TQ(1)
+             DDN = sqrt(sum((vstate % SAVF * vstate % EWT)**2) / VODE_NEQS) / vstate % TQ(1)
              vstate % ETA = 1.0_rt/((BIAS1*DDN)**(1.0_rt/FLOTL) + ADDON)
           ENDIF
           IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
@@ -200,7 +199,7 @@ contains
              CALL DVJUST (-1, vstate)
           ENDIF
           IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-             DDN = DVNORM (vstate % SAVF, vstate % EWT)/vstate % TQ(1)
+             DDN = sqrt(sum((vstate % SAVF * vstate % EWT)**2) / VODE_NEQS) / vstate % TQ(1)
              vstate % ETA = 1.0_rt/((BIAS1*DDN)**(1.0_rt/FLOTL) + ADDON)
              CALL DVJUST (-1, vstate)
           ENDIF
@@ -480,7 +479,7 @@ contains
        ETAQM1 = 0.0_rt
        IF (vstate % NQ /= 1) then
           ! Compute ratio of new H to current H at the current order less one. ---
-          DDN = DVNORM (vstate % yh(:,vstate % L), vstate % ewt)/vstate % TQ(1)
+          DDN = sqrt(sum((vstate % yh(:,vstate % L) * vstate % ewt)**2) / VODE_NEQS) / vstate % TQ(1)
           ETAQM1 = 1.0_rt/((BIAS1*DDN)**(1.0_rt/(FLOTL - 1.0_rt)) + ADDON)
        end IF
        ETAQP1 = 0.0_rt
@@ -490,7 +489,7 @@ contains
           do I = 1, VODE_NEQS
              vstate % savf(I) = vstate % acor(I) - CNQUOT * vstate % yh(I,VODE_LMAX)
           end do
-          DUP = DVNORM (vstate % savf, vstate % ewt)/vstate % TQ(3)
+          DUP = sqrt(sum((vstate % savf * vstate % ewt)**2) / VODE_NEQS) / vstate % TQ(3)
           ETAQP1 = 1.0_rt/((BIAS3*DUP)**(1.0_rt/(FLOTL + 1.0_rt)) + ADDON)
        end IF
        IF (ETAQ < ETAQP1) then

@@ -71,7 +71,6 @@ contains
 #ifdef CLEAN_INTEGRATOR_CORRECTION
     use vode_type_module, only: clean_state
 #endif
-    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -204,7 +203,7 @@ contains
           end do
 #endif
 
-          DEL = DVNORM (vstate % Y, vstate % EWT)
+          DEL = sqrt(sum((vstate % Y * vstate % EWT)**2) / VODE_NEQS)
           vstate % acor(:) = vstate % acor(:) + vstate % Y(:)
 
           do I = 1,VODE_NEQS
@@ -259,8 +258,8 @@ contains
     vstate % JCUR = 0
     vstate % ICF = 0
     IF (M .EQ. 0) vstate % ACNRM = DEL
-    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % ACOR, vstate % EWT)
-    RETURN
+    IF (M .GT. 0) vstate % ACNRM = sqrt(sum((vstate % ACOR * vstate % EWT)**2) / VODE_NEQS)
+
   end subroutine dvnlsd
 
 end module cuvode_dvnlsd_module

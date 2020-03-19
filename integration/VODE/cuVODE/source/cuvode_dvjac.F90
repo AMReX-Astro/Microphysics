@@ -53,7 +53,6 @@ contains
 #else
     use vode_rhs_module, only: f_rhs, jac
 #endif
-    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -105,7 +104,7 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       FAC = DVNORM (vstate % SAVF, vstate % EWT)
+       FAC = sqrt(sum((vstate % SAVF * vstate % EWT)**2) / VODE_NEQS)
        R0 = 1000.0_rt*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
        IF (R0 .EQ. 0.0_rt) R0 = 1.0_rt
        J1 = 0
