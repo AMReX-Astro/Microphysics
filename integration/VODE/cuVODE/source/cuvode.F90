@@ -25,9 +25,6 @@ contains
 
     !$acc routine seq
 
-#ifndef AMREX_USE_CUDA
-    use cuvode_output_module, only: xerrwd
-#endif
 #ifdef TRUE_SDC
     use sdc_vode_rhs_module, only: f_rhs, jac
 #else
@@ -120,9 +117,8 @@ contains
     vstate % NFE = vstate % NFE + NITER
 
     if (IER .NE. 0) then
-#ifndef AMREX_USE_CUDA
-       MSG='DVODE--  TOUT (=R1) too close to T(=R2) to start integration'
-       CALL XERRWD (MSG, 60, 22, 1, 0, 0, 0, 2, vstate % TOUT, vstate % T)
+#ifndef AMREX_USE_GPU
+       print *, "DVODE: TOUT too close to T to start integration"
 #endif
        vstate % ISTATE = -3
        return
@@ -152,11 +148,8 @@ contains
 
           IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) then
              ! The maximum number of steps was taken before reaching TOUT. ----------
-#ifndef AMREX_USE_CUDA
-             MSG = 'DVODE--  At current T (=R1), MXSTEP (=I1) steps   '
-             CALL XERRWD (MSG, 50, 201, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
-             MSG = '      taken on this call before reaching TOUT     '
-             CALL XERRWD (MSG, 50, 201, 1, 1, vstate % MXSTEP, 0, 1, vstate % TN, 0.0_rt)
+#ifndef AMREX_USE_GPU
+             print *, "DVODE: maximum number of steps taken before reaching TOUT"
 #endif
              vstate % ISTATE = -1
 
@@ -183,22 +176,16 @@ contains
           TOLSF = TOLSF*2.0_rt
 
           if (vstate % NST .EQ. 0) then
-#ifndef AMREX_USE_CUDA
-             MSG = 'DVODE--  At start of problem, too much accuracy   '
-             CALL XERRWD (MSG, 50, 26, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
-             MSG='      requested for precision of machine:   see TOLSF (=R1) '
-             CALL XERRWD (MSG, 60, 26, 1, 0, 0, 0, 1, TOLSF, 0.0_rt)
+#ifndef AMREX_USE_GPU
+             print *, "DVODE: too much accuracy requested at start of integration"
 #endif
              vstate % ISTATE = -3
              return
           end if
 
           ! Too much accuracy requested for machine precision. -------------------
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  At T (=R1), too much accuracy requested  '
-          CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
-          MSG = '      for precision of machine:   see TOLSF (=R2) '
-          CALL XERRWD (MSG, 50, 203, 1, 0, 0, 0, 2, vstate % TN, TOLSF)
+#ifndef AMREX_USE_GPU
+          print *, "DVODE: too much accuracy requested"
 #endif
           vstate % ISTATE = -2
 
@@ -217,11 +204,8 @@ contains
 
        if (vstate % kflag == -1) then
           ! KFLAG = -1.  Error test failed repeatedly or with ABS(H) = HMIN. -----
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  At T(=R1) and step size H(=R2), the error'
-          CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
-          MSG = '      test failed repeatedly or with abs(H) = HMIN'
-          CALL XERRWD (MSG, 50, 204, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#ifndef AMREX_USE_GPU
+          print *, "DVODE: error test failed repeatedly or with abs(H) = HMIN"
 #endif
           vstate % ISTATE = -4
 
@@ -234,13 +218,8 @@ contains
 
        else if (vstate % kflag == -2) then
           ! KFLAG = -2.  Convergence failed repeatedly or with ABS(H) = HMIN. ----
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  At T (=R1) and step size H (=R2), the    '
-          CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
-          MSG = '      corrector convergence failed repeatedly     '
-          CALL XERRWD (MSG, 50, 205, 1, 0, 0, 0, 0, 0.0_rt, 0.0_rt)
-          MSG = '      or with abs(H) = HMIN   '
-          CALL XERRWD (MSG, 30, 205, 1, 0, 0, 0, 2, vstate % TN, vstate % H)
+#ifndef AMREX_USE_GPU
+          print *, "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN"
 #endif
           vstate % ISTATE = -5
 
