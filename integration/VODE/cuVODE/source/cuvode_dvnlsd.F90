@@ -181,7 +181,7 @@ contains
 
           vstate % NNI = vstate % NNI + 1
 
-          IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. 1.0_rt) THEN
+          IF (vstate % RC .NE. 1.0_rt) THEN
              CSCALE = 2.0_rt/(1.0_rt + vstate % RC)
              vstate % Y(:) = vstate % Y(:) * CSCALE
           ENDIF

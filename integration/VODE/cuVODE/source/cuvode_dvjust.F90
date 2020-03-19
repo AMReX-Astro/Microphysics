@@ -16,25 +16,15 @@ contains
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
-    !  Call sequence input -- YH, LDYH, IORD
-    !  Call sequence output -- YH
-    !  COMMON block input -- NQ, METH, LMAX, HSCAL, TAU(13), N
-    !  COMMON block variables accessed:
-    !      /DVOD01/ -- HSCAL, TAU(13), LMAX, METH, N, NQ,
-    ! 
-    !  Subroutines called by DVJUST: DAXPY
-    !  Function routines called by DVJUST: None
-    ! -----------------------------------------------------------------------
     !  This subroutine adjusts the YH array on reduction of order,
-    !  and also when the order is increased for the stiff option (METH = 2).
+    !  and also when the order is increased.
     !  Communication with DVJUST uses the following:
-    !  IORD  = An integer flag used when METH = 2 to indicate an order
+    !  IORD  = An integer flag used to indicate an order
     !          increase (IORD = +1) or an order decrease (IORD = -1).
     !  HSCAL = Step size H used in scaling of Nordsieck array YH.
     !          (If IORD = +1, DVJUST assumes that HSCAL = TAU(1).)
     !  See References 1 and 2 for details.
     ! -----------------------------------------------------------------------
-    !
 
     implicit none
 
@@ -49,12 +39,9 @@ contains
     !$gpu
 
     IF ((vstate % NQ .EQ. 2) .AND. (IORD .NE. 1)) RETURN
+
     NQM1 = vstate % NQ - 1
     NQM2 = vstate % NQ - 2
-
-
-    ! hacked out the METH = 1 code
-
 
     ! -----------------------------------------------------------------------
     !  Stiff option...

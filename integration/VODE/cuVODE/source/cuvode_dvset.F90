@@ -15,14 +15,6 @@ contains
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
-    !  Call sequence communication: None
-    !  COMMON block variables accessed:
-    !      /DVOD01/ -- EL(13), H, TAU(13), TQ(5), L(= NQ + 1),
-    !                  METH, NQ, NQWAIT
-    ! 
-    !  Subroutines called by DVSET: None
-    !  Function routines called by DVSET: None
-    ! -----------------------------------------------------------------------
     !  DVSET is called by DVSTEP and sets coefficients for use there.
     ! 
     !  For each order NQ, the coefficients in EL are calculated by use of
@@ -52,14 +44,12 @@ contains
     !    TQ     = A array of length 5 in which vset stores constants
     !             used for the convergence test, the error test, and the
     !             selection of H at a new order.
-    !    METH   = The basic method indicator.
     !    NQ     = The current order.
     !    L      = NQ + 1, the length of the array stored in EL, and
     !             the number of columns of the YH array being used.
     !    NQWAIT = A counter controlling the frequency of order changes.
     !             An order change is about to be considered if NQWAIT = 1.
     ! -----------------------------------------------------------------------
-    !
 
     implicit none
 
@@ -81,9 +71,6 @@ contains
     FLOTL = REAL(vstate % L)
     NQM1 = vstate % NQ - 1
     NQM2 = vstate % NQ - 2
-
-    ! hacked out the METH = 1 code
-
 
     ! Set coefficients for BDF methods. ------------------------------------
     do I = 3, vstate % L
