@@ -167,71 +167,50 @@ contains
 
        do while (.true.)
 
-          IF (vstate % MITER == 0) then
-             ! -----------------------------------------------------------------------
-             !  In the case of functional iteration, update Y directly from
-             !  the result of the last function evaluation.
-             ! -----------------------------------------------------------------------
-             do I = 1,VODE_NEQS
-                vstate % SAVF(I) = vstate % RL1*(vstate % H * vstate % SAVF(I) - vstate % YH(I,2))
-             end do
-             do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % SAVF(I) - vstate % ACOR(I)
-             end do
-             DEL = DVNORM (vstate % Y, vstate % EWT)
-             do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % YH(I,1) + vstate % SAVF(I)
-             end do
-             vstate % ACOR(1:VODE_NEQS) = vstate % SAVF(1:VODE_NEQS)
+          ! -----------------------------------------------------------------------
+          !  In the case of the chord method, compute the corrector error,
+          !  and solve the linear system with that as right-hand side and
+          !  P as coefficient matrix.  The correction is scaled by the factor
+          !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
+          ! -----------------------------------------------------------------------
 
-          else
+          do I = 1,VODE_NEQS
+             vstate % Y(I) = (vstate % RL1*vstate % H) * vstate % SAVF(I) - &
+                  (vstate % RL1 * vstate % YH(I,2) + vstate % ACOR(I))
+          end do
 
-             ! -----------------------------------------------------------------------
-             !  In the case of the chord method, compute the corrector error,
-             !  and solve the linear system with that as right-hand side and
-             !  P as coefficient matrix.  The correction is scaled by the factor
-             !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
-             ! -----------------------------------------------------------------------
+          call dgesl(vstate % jac, pivot, vstate % Y(:))
 
-             do I = 1,VODE_NEQS
-                vstate % Y(I) = (vstate % RL1*vstate % H) * vstate % SAVF(I) - &
-                     (vstate % RL1 * vstate % YH(I,2) + vstate % ACOR(I))
-             end do
+          vstate % NNI = vstate % NNI + 1
 
-             call dgesl(vstate % jac, pivot, vstate % Y(:))
-
-             vstate % NNI = vstate % NNI + 1
-
-             IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
-                CSCALE = TWO/(ONE + vstate % RC)
-                vstate % Y(:) = vstate % Y(:) * CSCALE
-             ENDIF
+          IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
+             CSCALE = TWO/(ONE + vstate % RC)
+             vstate % Y(:) = vstate % Y(:) * CSCALE
+          ENDIF
 
 #ifdef CLEAN_INTEGRATOR_CORRECTION
-             ! Clean the correction to Y. Use vstate % Y as scratch space.
+          ! Clean the correction to Y. Use vstate % Y as scratch space.
 
-             ! Find the corrected Y: Yc = Y_previous + Y_delta
-             do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % Y(I) + (vstate % YH(I,1) + vstate % ACOR(I))
-             end do
+          ! Find the corrected Y: Yc = Y_previous + Y_delta
+          do I = 1,VODE_NEQS
+             vstate % Y(I) = vstate % Y(I) + (vstate % YH(I,1) + vstate % ACOR(I))
+          end do
 
-             ! Clean the corrected Y: Yc' = clean(Yc)
-             call clean_state(vstate % Y, vstate % RPAR)
+          ! Clean the corrected Y: Yc' = clean(Yc)
+          call clean_state(vstate % Y, vstate % RPAR)
 
-             ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
-             do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % Y(I) - (vstate % YH(I,1) + vstate % ACOR(I))
-             end do
+          ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
+          do I = 1,VODE_NEQS
+             vstate % Y(I) = vstate % Y(I) - (vstate % YH(I,1) + vstate % ACOR(I))
+          end do
 #endif
 
-             DEL = DVNORM (vstate % Y, vstate % EWT)
-             vstate % acor(:) = vstate % acor(:) + vstate % Y(:)
+          DEL = DVNORM (vstate % Y, vstate % EWT)
+          vstate % acor(:) = vstate % acor(:) + vstate % Y(:)
 
-             do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % YH(I,1) + vstate % ACOR(I)
-             end do
-
-          end IF
+          do I = 1,VODE_NEQS
+             vstate % Y(I) = vstate % YH(I,1) + vstate % ACOR(I)
+          end do
 
           ! -----------------------------------------------------------------------
           !  Test for convergence.  If M .gt. 0, an estimate of the convergence
@@ -264,7 +243,7 @@ contains
           exit
        end if
 
-       IF (vstate % MITER .EQ. 0 .OR. vstate % JCUR .EQ. 1) then
+       IF (vstate % JCUR .EQ. 1) then
           NFLAG = -1
           vstate % ICF = 2
           vstate % IPUP = vstate % MITER
