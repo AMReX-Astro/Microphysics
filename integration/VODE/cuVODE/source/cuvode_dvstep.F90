@@ -19,22 +19,10 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvstep(IWM, rwork, vstate)
+  subroutine dvstep(pivot, rwork, vstate)
 
     !$acc routine seq
 
-    ! -----------------------------------------------------------------------
-    !  Call sequence input -- Y, IWM, RPAR, IPAR, rwork, vstate
-    !  Call sequence output -- YH, ACOR, WM, IWM
-    !  COMMON block variables accessed:
-    !      /DVOD01/  ACNRM, EL(13), H, HMIN, HMXI, HNEW, HSCAL, RC, TAU(13),
-    !                TQ(5), TN, JCUR, JSTART, KFLAG, KUTH,
-    !                L, LMAX, MAXORD, N, NEWQ, NQ, NQWAIT
-    !      /DVOD02/  HU, NCFN, NETF, NFE, NQU, NST
-    !
-    !  Subroutines called by DVSTEP: F, DAXPY, DCOPY, DSCAL,
-    !                                DVJUST, VNLS, DVSET
-    !  Function routines called by DVSTEP: DVNORM
     ! -----------------------------------------------------------------------
     !  DVSTEP performs one step of the integration of an initial value
     !  problem for a system of ordinary differential equations.
@@ -68,8 +56,6 @@ contains
     !  ACOR   = A work array of length N, used for the accumulated
     !           corrections.  On a successful return, ACOR(i) contains
     !           the estimated one-step local error in y(i).
-    !  WM,IWM = Real and integer work arrays associated with matrix
-    !           operations in VNLS.
     !  F      = Dummy name for the user supplied subroutine for f.
     !  JAC    = Dummy name for the user supplied Jacobian subroutine.
     !  PSOL   = Dummy name for the subroutine passed to VNLS, for
@@ -95,7 +81,7 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWM(VODE_LIW)
+    integer,       intent(inout) :: pivot(VODE_NEQS)
 
     ! Declare local variables
     real(rt) :: CNQUOT, DDN, DSM, DUP, TOLD
@@ -288,7 +274,7 @@ contains
        !
        !  Call the nonlinear system solver. ------------------------------------
        !
-       CALL dvnlsd (IWM, NFLAG, rwork, vstate)
+       call dvnlsd(pivot, NFLAG, rwork, vstate)
 
        IF (NFLAG /= 0) then
           ! -----------------------------------------------------------------------

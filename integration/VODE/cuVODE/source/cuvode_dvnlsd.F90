@@ -17,21 +17,10 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvnlsd(IWM, NFLAG, rwork, vstate)
+  subroutine dvnlsd(pivot, NFLAG, rwork, vstate)
 
     !$acc routine seq
 
-    ! -----------------------------------------------------------------------
-    !  Call sequence input -- Y, YH, LDYH, SAVF, EWT, ACOR, IWM, WM,
-    !                         F, JAC, NFLAG, RPAR, IPAR
-    !  Call sequence output -- YH, ACOR, WM, IWM, NFLAG
-    !  COMMON block variables accessed:
-    !      /DVOD01/ ACNRM, CRATE, DRC, H, RC, RL1, TQ(5), TN, ICF,
-    !                 JCUR, METH, MITER, N, NSLP
-    !      /DVOD02/ HU, NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
-    !
-    !  Subroutines called by DVNLSD: F, DAXPY, DCOPY, DSCAL, DVJAC, DVSOL
-    !  Function routines called by DVNLSD: DVNORM
     ! -----------------------------------------------------------------------
     !  Subroutine DVNLSD is a nonlinear system solver, which uses functional
     !  iteration or a chord (modified Newton) method.  For the chord method
@@ -50,8 +39,6 @@ contains
     !  EWT        = An error weight array of length N, input.
     !  ACOR       = A work array of length N, used for the accumulated
     !               corrections to the predicted y array.
-    !  WM,IWM     = Real and integer work arrays associated with matrix
-    !               operations in chord iteration (MITER .ne. 0).
     !  F          = Dummy name for user supplied routine for f.
     !  JAC        = Dummy name for user supplied Jacobian routine.
     !  PDUM       = Unused dummy subroutine name.  Included for uniformity
@@ -95,7 +82,8 @@ contains
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
     type(rwork_t), intent(inout) :: rwork
-    integer,       intent(inout) :: IWM(VODE_LIW), NFLAG
+    integer,       intent(inout) :: NFLAG
+    integer,       intent(inout) :: pivot(VODE_NEQS)
 
     ! Declare local variables
     real(rt) :: CSCALE, DCON, DEL, DELP
@@ -160,7 +148,7 @@ contains
           !  preprocessed before starting the corrector iteration.  IPUP is set
           !  to 0 as an indicator that this has been done.
           ! -----------------------------------------------------------------------
-          CALL DVJAC (IWM, IERPJ, rwork, vstate)
+          CALL DVJAC (pivot, IERPJ, rwork, vstate)
           vstate % IPUP = 0
           vstate % RC = ONE
           vstate % DRC = ZERO
@@ -214,7 +202,7 @@ contains
                      (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
              end do
 
-             call dgesl(rwork % WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), vstate % Y(:))
+             call dgesl(rwork % WM(3:3 + VODE_NEQS**2 - 1), pivot, vstate % Y(:))
 
              vstate % NNI = vstate % NNI + 1
 
