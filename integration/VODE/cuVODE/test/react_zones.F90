@@ -52,7 +52,6 @@ contains
 
     ! VODE variables
     type (dvode_t) :: dvode_state
-    integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
@@ -67,7 +66,7 @@ contains
           do kk = lo(3), hi(3)
 
              ! Use an analytic Jacobian
-             MF_JAC = MF_ANALYTIC_JAC
+             dvode_state % MF_JAC = MF_ANALYTIC_JAC
 
              ! Set the absolute tolerances
              dvode_state % atol(1) = 1.e-8_rt
@@ -94,7 +93,7 @@ contains
              enddo
 
              ! Call the integration routine.
-             call dvode(dvode_state, MF_JAC)
+             call dvode(dvode_state)
 
              ! Check if the integration failed
              if (dvode_state % istate < 0) then

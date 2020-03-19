@@ -48,6 +48,9 @@ module cuvode_types_module
      real(rt) :: savf(VODE_NEQS)
      real(rt) :: acor(VODE_NEQS)
 
+     ! Jacobian method
+     integer  :: MF_JAC
+
      ! condopt - Conditional or optional input/output arguments to dvode
      real(rt) :: condopt(4)
 

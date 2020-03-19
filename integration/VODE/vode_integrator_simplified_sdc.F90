@@ -47,10 +47,6 @@ contains
 
     real(rt) :: local_time
 
-    ! Work arrays
-
-    integer :: MF_JAC
-
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
 
@@ -68,9 +64,9 @@ contains
     !$gpu
 
     if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC_CACHED
+       dvode_state % MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC_CACHED
+       dvode_state % MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
 #ifndef AMREX_USE_CUDA
        call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
@@ -78,7 +74,7 @@ contains
     endif
 
     if (.not. use_jacobian_caching) then
-       MF_JAC = -MF_JAC
+       dvode_state % MF_JAC = -dvode_state % MF_JAC
     endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
@@ -141,7 +137,7 @@ contains
 
 
     ! Call the integration routine.
-    call dvode(dvode_state, MF_JAC)
+    call dvode(dvode_state)
 
     ! Store the final data
     call vode_to_sdc(dvode_state % T, dvode_state, state_out)
