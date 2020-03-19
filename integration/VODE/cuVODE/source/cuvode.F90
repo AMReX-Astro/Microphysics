@@ -64,8 +64,7 @@ contains
 
     vstate % JSV = SIGN(1, vstate % MF_JAC)
     MFA = ABS(vstate % MF_JAC)
-    vstate % METH = MFA/10
-    vstate % MITER = MFA - 10*vstate % METH
+    vstate % MITER = MFA - 20
 
     H0 = 0.0_rt
 
