@@ -37,7 +37,7 @@ contains
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
     use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC, VODE_LIW
-    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_types_module, only: dvode_t
     use cuvode_module, only: dvode
 
     implicit none
@@ -52,7 +52,6 @@ contains
 
     ! VODE variables
     type (dvode_t) :: dvode_state
-    type (rwork_t) :: rwork
     integer :: iwork(VODE_LIW)
     integer :: MF_JAC
 
@@ -84,13 +83,6 @@ contains
              ! We want VODE to re-initialize each time we call it.
              dvode_state % istate = 1
 
-             ! Initialize work arrays to zero.
-             rwork % CONDOPT = ZERO
-             rwork % YH   = ZERO
-             rwork % WM   = ZERO
-             rwork % EWT  = ZERO
-             rwork % SAVF = ZERO
-             rwork % ACOR = ZERO    
              iwork(:) = 0
 
              ! Initialize the integration time and set the final time to dt
@@ -103,7 +95,7 @@ contains
              enddo
 
              ! Call the integration routine.
-             call dvode(dvode_state, rwork, iwork, MF_JAC)
+             call dvode(dvode_state, iwork, MF_JAC)
 
              ! Check if the integration failed
              if (dvode_state % istate < 0) then

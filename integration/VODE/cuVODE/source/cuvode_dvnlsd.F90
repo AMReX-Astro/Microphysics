@@ -1,13 +1,10 @@
 module cuvode_dvnlsd_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
-
   use cuvode_dvjac_module
-
   use cuvode_constants_module
 
   implicit none
@@ -17,7 +14,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvnlsd(pivot, NFLAG, rwork, vstate)
+  subroutine dvnlsd(pivot, NFLAG, vstate)
 
     !$acc routine seq
 
@@ -81,7 +78,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(inout) :: rwork
     integer,       intent(inout) :: NFLAG
     integer,       intent(inout) :: pivot(VODE_NEQS)
 
@@ -138,8 +134,8 @@ contains
        M = 0
        DELP = ZERO
 
-       vstate % Y(1:VODE_NEQS) = rwork % yh(1:VODE_NEQS,1)
-       CALL f_rhs (vstate % TN, vstate, rwork % savf)
+       vstate % Y(1:VODE_NEQS) = vstate % yh(1:VODE_NEQS,1)
+       CALL f_rhs (vstate % TN, vstate, vstate % savf)
        vstate % NFE = vstate % NFE + 1
 
        IF (vstate % IPUP > 0) then
@@ -148,7 +144,7 @@ contains
           !  preprocessed before starting the corrector iteration.  IPUP is set
           !  to 0 as an indicator that this has been done.
           ! -----------------------------------------------------------------------
-          CALL DVJAC (pivot, IERPJ, rwork, vstate)
+          CALL DVJAC (pivot, IERPJ, vstate)
           vstate % IPUP = 0
           vstate % RC = ONE
           vstate % DRC = ZERO
@@ -165,7 +161,7 @@ contains
        end IF
 
        do I = 1,VODE_NEQS
-          rwork % acor(I) = ZERO
+          vstate % acor(I) = ZERO
        end do
        ! This is a looping point for the corrector iteration. -----------------
 
@@ -177,16 +173,16 @@ contains
              !  the result of the last function evaluation.
              ! -----------------------------------------------------------------------
              do I = 1,VODE_NEQS
-                rwork % SAVF(I) = vstate % RL1*(vstate % H * rwork % SAVF(I) - rwork % YH(I,2))
+                vstate % SAVF(I) = vstate % RL1*(vstate % H * vstate % SAVF(I) - vstate % YH(I,2))
              end do
              do I = 1,VODE_NEQS
-                vstate % Y(I) = rwork % SAVF(I) - rwork % ACOR(I)
+                vstate % Y(I) = vstate % SAVF(I) - vstate % ACOR(I)
              end do
-             DEL = DVNORM (vstate % Y, rwork % EWT)
+             DEL = DVNORM (vstate % Y, vstate % EWT)
              do I = 1,VODE_NEQS
-                vstate % Y(I) = rwork % YH(I,1) + rwork % SAVF(I)
+                vstate % Y(I) = vstate % YH(I,1) + vstate % SAVF(I)
              end do
-             rwork % ACOR(1:VODE_NEQS) = rwork % SAVF(1:VODE_NEQS)
+             vstate % ACOR(1:VODE_NEQS) = vstate % SAVF(1:VODE_NEQS)
 
           else
 
@@ -198,11 +194,11 @@ contains
              ! -----------------------------------------------------------------------
 
              do I = 1,VODE_NEQS
-                vstate % Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
-                     (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
+                vstate % Y(I) = (vstate % RL1*vstate % H) * vstate % SAVF(I) - &
+                     (vstate % RL1 * vstate % YH(I,2) + vstate % ACOR(I))
              end do
 
-             call dgesl(rwork % WM(3:3 + VODE_NEQS**2 - 1), pivot, vstate % Y(:))
+             call dgesl(vstate % jac, pivot, vstate % Y(:))
 
              vstate % NNI = vstate % NNI + 1
 
@@ -216,7 +212,7 @@ contains
 
              ! Find the corrected Y: Yc = Y_previous + Y_delta
              do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % Y(I) + (rwork % YH(I,1) + rwork % ACOR(I))
+                vstate % Y(I) = vstate % Y(I) + (vstate % YH(I,1) + vstate % ACOR(I))
              end do
 
              ! Clean the corrected Y: Yc' = clean(Yc)
@@ -224,15 +220,15 @@ contains
 
              ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
              do I = 1,VODE_NEQS
-                vstate % Y(I) = vstate % Y(I) - (rwork % YH(I,1) + rwork % ACOR(I))
+                vstate % Y(I) = vstate % Y(I) - (vstate % YH(I,1) + vstate % ACOR(I))
              end do
 #endif
 
-             DEL = DVNORM (vstate % Y, rwork % EWT)
-             rwork % acor(:) = rwork % acor(:) + vstate % Y(:)
+             DEL = DVNORM (vstate % Y, vstate % EWT)
+             vstate % acor(:) = vstate % acor(:) + vstate % Y(:)
 
              do I = 1,VODE_NEQS
-                vstate % Y(I) = rwork % YH(I,1) + rwork % ACOR(I)
+                vstate % Y(I) = vstate % YH(I,1) + vstate % ACOR(I)
              end do
 
           end IF
@@ -260,7 +256,7 @@ contains
              exit
           end if
           DELP = DEL
-          CALL f_rhs (vstate % TN, vstate, rwork % SAVF)
+          CALL f_rhs (vstate % TN, vstate, vstate % SAVF)
           vstate % NFE = vstate % NFE + 1
        end do
 
@@ -285,7 +281,7 @@ contains
     vstate % JCUR = 0
     vstate % ICF = 0
     IF (M .EQ. 0) vstate % ACNRM = DEL
-    IF (M .GT. 0) vstate % ACNRM = DVNORM (rwork % ACOR, rwork % EWT)
+    IF (M .GT. 0) vstate % ACNRM = DVNORM (vstate % ACOR, vstate % EWT)
     RETURN
   end subroutine dvnlsd
 

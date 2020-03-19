@@ -1,8 +1,7 @@
 module cuvode_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
@@ -24,7 +23,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvode(vstate, rwork, IWORK, MF)
+  subroutine dvode(vstate, IWORK, MF)
 
     !$acc routine seq
 
@@ -42,7 +41,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(inout) :: rwork
     integer,       intent(inout) :: IWORK(VODE_LIW)
     integer,       intent(in   ) :: MF
 
@@ -96,15 +94,6 @@ contains
     vstate % HMIN = ZERO
     vstate % HMXI = ZERO
 
-    ! -----------------------------------------------------------------------
-    !  Arrays stored in RWORK are denoted  CONDOPT, YH, WM, EWT, SAVF, ACOR.
-    !  Within WM, LOCJS is the location of the saved Jacobian (JSV .gt. 0).
-    ! -----------------------------------------------------------------------
-
-    IF (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2) THEN
-       vstate % LOCJS = VODE_NEQS*VODE_NEQS + 3
-    ENDIF
-
     ! Check RTOL and ATOL for legality. ------------------------------------
     RTOLI = vstate % RTOL(1)
     ATOLI = vstate % ATOL(1)
@@ -140,10 +129,10 @@ contains
     ! -----------------------------------------------------------------------
 
     vstate % UROUND = epsilon(1.0_rt)
+    vstate % SRUR = sqrt(vstate % UROUND)
     vstate % TN = vstate % T
 
     vstate % JSTART = 0
-    IF (vstate % MITER .GT. 0) RWORK % wm(1) = SQRT(vstate % UROUND)
     vstate % CCMXJ = PT2
     vstate % MSBJ = 50
     vstate % NHNIL = 0
@@ -160,20 +149,20 @@ contains
 
     ! Initial call to F.  -------------------------
 
-    CALL f_rhs (vstate % T, vstate, rwork % yh(:,2))
+    CALL f_rhs (vstate % T, vstate, vstate % yh(:,2))
     vstate % NFE = 1
     ! Load the initial value array in YH. ---------------------------------
-    rwork % YH(1:VODE_NEQS,1) = vstate % Y(1:VODE_NEQS)
+    vstate % YH(1:VODE_NEQS,1) = vstate % Y(1:VODE_NEQS)
 
     ! Load and invert the EWT array.  (H is temporarily set to 1.0.) -------
     vstate % NQ = 1
     vstate % H = ONE
 
     do I = 1,VODE_NEQS
-       rwork % EWT(I) = vstate % RTOL(I) * abs(rwork % YH(I,1)) + vstate % ATOL(I)
-       if (rwork % ewt(I) .LE. ZERO) then
+       vstate % EWT(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
+       if (vstate % ewt(I) .LE. ZERO) then
 #ifndef AMREX_USE_CUDA
-          EWTI = rwork % ewt(I)
+          EWTI = vstate % ewt(I)
           MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0_rt         '
           CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, ZERO)
 #endif
@@ -181,11 +170,11 @@ contains
           return
        end if
 
-       rwork % ewt(I) = ONE/rwork % ewt(I)
+       vstate % ewt(I) = ONE/vstate % ewt(I)
     end do
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (vstate, rwork, H0, NITER, IER)
+    CALL DVHIN (vstate, H0, NITER, IER)
     vstate % NFE = vstate % NFE + NITER
 
     if (IER .NE. 0) then
@@ -199,7 +188,7 @@ contains
 
     ! Load H with H0 and scale YH(*,2) by H0. ------------------------------
     vstate % H = H0
-    rwork % YH(:,2) = rwork % YH(:,2) * H0
+    vstate % YH(:,2) = vstate % YH(:,2) * H0
 
     skip_loop_start = .true.
 
@@ -229,7 +218,7 @@ contains
 #endif
              vstate % ISTATE = -1
 
-             vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+             vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
              vstate % T = vstate % TN
              IWORK(11) = vstate % NST
@@ -247,18 +236,18 @@ contains
 
           do I = 1,VODE_NEQS
 
-             rwork % EWT(I) = vstate % RTOL(I) * abs(rwork % YH(I,1)) + vstate % ATOL(I)
+             vstate % EWT(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
 
-             IF (rwork % ewt(I) .LE. ZERO) then
+             IF (vstate % ewt(I) .LE. ZERO) then
                 ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 #ifndef AMREX_USE_CUDA
-                EWTI = rwork % ewt(I)
+                EWTI = vstate % ewt(I)
                 MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
                 CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
 #endif
                 vstate % ISTATE = -6
 
-                vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+                vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
                 vstate % T = vstate % TN
                 IWORK(11) = vstate % NST
@@ -273,14 +262,14 @@ contains
 
                 return
              end IF
-             rwork % ewt(I) = ONE/rwork % ewt(I)
+             vstate % ewt(I) = ONE/vstate % ewt(I)
           end do
 
        else
           skip_loop_start = .false.
        end if
 
-       TOLSF = vstate % UROUND * DVNORM (rwork % YH(:,1), rwork % EWT)
+       TOLSF = vstate % UROUND * DVNORM (vstate % YH(:,1), vstate % EWT)
        IF (TOLSF > ONE) then
           TOLSF = TOLSF*TWO
 
@@ -304,7 +293,7 @@ contains
 #endif
           vstate % ISTATE = -2
 
-          vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+          vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
           vstate % T = vstate % TN
           IWORK(11) = vstate % NST
@@ -343,7 +332,7 @@ contains
           end IF
        end IF
 
-       CALL DVSTEP(pivot, rwork, vstate)
+       CALL DVSTEP(pivot, vstate)
 
        ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
        !  KFLAG .eq. 0,   -1,  -2
@@ -359,7 +348,7 @@ contains
           vstate % ISTATE = -4
 
           ! Set Y array, T, and optional output. --------------------------------
-          vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+          vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
           vstate % T = vstate % TN
           IWORK(11) = vstate % NST
@@ -387,7 +376,7 @@ contains
           vstate % ISTATE = -5
 
           ! Set Y array, T, and optional output. --------------------------------
-          vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+          vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
           vstate % T = vstate % TN
           IWORK(11) = vstate % NST
@@ -414,7 +403,7 @@ contains
 
        ! If TOUT has been reached, interpolate. -------------------
        IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. ZERO) cycle
-       CALL DVINDY (vstate, rwork, IFLAG)
+       CALL DVINDY (vstate, IFLAG)
        vstate % T = vstate % TOUT
 
        vstate % ISTATE = 2
@@ -439,7 +428,7 @@ contains
     !  arrays before returning.
     ! -----------------------------------------------------------------------
 
-    vstate % Y(1:VODE_NEQS) = rwork % YH(1:VODE_NEQS,1)
+    vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
 
     vstate % T = vstate % TN
 

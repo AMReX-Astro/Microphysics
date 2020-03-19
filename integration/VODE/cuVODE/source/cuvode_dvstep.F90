@@ -1,15 +1,12 @@
 module cuvode_dvstep_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-
   use cuvode_dvset_module
   use cuvode_dvjust_module
   use cuvode_dvnlsd_module
   use cuvode_nordsieck_module
-
   use cuvode_constants_module
 
   implicit none
@@ -19,7 +16,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvstep(pivot, rwork, vstate)
+  subroutine dvstep(pivot, vstate)
 
     !$acc routine seq
 
@@ -80,7 +77,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(inout) :: rwork
     integer,       intent(inout) :: pivot(VODE_NEQS)
 
     ! Declare local variables
@@ -162,12 +158,12 @@ contains
           else
 
              IF (vstate % NEWQ .LT. vstate % NQ) THEN
-                CALL DVJUST (-1, rwork, vstate)
+                CALL DVJUST (-1, vstate)
                 vstate % NQ = vstate % NEWQ
                 vstate % L = vstate % NQ + 1
                 vstate % NQWAIT = vstate % L
              else IF (vstate % NEWQ .GT. vstate % NQ) THEN
-                CALL DVJUST (1, rwork, vstate)
+                CALL DVJUST (1, vstate)
                 vstate % NQ = vstate % NEWQ
                 vstate % L = vstate % NQ + 1
                 vstate % NQWAIT = vstate % L
@@ -196,18 +192,18 @@ contains
        IF (vstate % NEWQ > VODE_MAXORD) then
           FLOTL = REAL(VODE_LMAX)
           IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
-             DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+             DDN = DVNORM (vstate % SAVF, vstate % EWT)/vstate % TQ(1)
              vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
           ENDIF
           IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
           IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
              vstate % ETA = ETAQM1
-             CALL DVJUST (-1, rwork, vstate)
+             CALL DVJUST (-1, vstate)
           ENDIF
           IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-             DDN = DVNORM (rwork % SAVF, rwork % EWT)/vstate % TQ(1)
+             DDN = DVNORM (vstate % SAVF, vstate % EWT)/vstate % TQ(1)
              vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
-             CALL DVJUST (-1, rwork, vstate)
+             CALL DVJUST (-1, vstate)
           ENDIF
           vstate % ETA = MIN(vstate % ETA,ONE)
           vstate % NQ = VODE_MAXORD
@@ -223,12 +219,12 @@ contains
              do_initialization = .false.
           else
              IF (vstate % NEWQ .LT. vstate % NQ) THEN
-                CALL DVJUST (-1, rwork, vstate)
+                CALL DVJUST (-1, vstate)
                 vstate % NQ = vstate % NEWQ
                 vstate % L = vstate % NQ + 1
                 vstate % NQWAIT = vstate % L
              else if (vstate % NEWQ .GT. vstate % NQ) THEN
-                CALL DVJUST (1, rwork, vstate)
+                CALL DVJUST (1, vstate)
                 vstate % NQ = vstate % NEWQ
                 vstate % L = vstate % NQ + 1
                 vstate % NQWAIT = vstate % L
@@ -246,7 +242,7 @@ contains
 
        do J = 2, vstate % L
           R = R * vstate % ETA
-          rwork % YH(:,J) = rwork % YH(:,J) * R
+          vstate % YH(:,J) = vstate % YH(:,J) * R
        end do
        vstate % H = vstate % HSCAL * vstate % ETA
        vstate % HSCAL = vstate % H
@@ -265,7 +261,7 @@ contains
 
        vstate % TN = vstate % TN + vstate % H
 
-       call advance_nordsieck(rwork, vstate)
+       call advance_nordsieck(vstate)
 
        CALL DVSET(vstate)
        vstate % RL1 = ONE/vstate % EL(2)
@@ -274,7 +270,7 @@ contains
        !
        !  Call the nonlinear system solver. ------------------------------------
        !
-       call dvnlsd(pivot, NFLAG, rwork, vstate)
+       call dvnlsd(pivot, NFLAG, vstate)
 
        IF (NFLAG /= 0) then
           ! -----------------------------------------------------------------------
@@ -288,7 +284,7 @@ contains
           vstate % ETAMAX = ONE
           vstate % TN = TOLD
 
-          call retract_nordsieck(rwork, vstate)
+          call retract_nordsieck(vstate)
 
           IF (NFLAG .LT. -1) then
              IF (NFLAG .EQ. -2) vstate % KFLAG = -3
@@ -315,7 +311,7 @@ contains
 
           do J = 2, vstate % L
              R = R * vstate % ETA
-             rwork % YH(:,J) = rwork % YH(:,J) * R
+             vstate % YH(:,J) = vstate % YH(:,J) * R
           end do
           vstate % H = vstate % HSCAL * vstate % ETA
           vstate % HSCAL = vstate % H
@@ -348,11 +344,11 @@ contains
           end do
           vstate % TAU(1) = vstate % H
           do J = 1, vstate % L
-             rwork % yh(:,J) = rwork % yh(:,J) + vstate % EL(J) * rwork % acor(:)
+             vstate % yh(:,J) = vstate % yh(:,J) + vstate % EL(J) * vstate % acor(:)
           end do
           vstate % NQWAIT = vstate % NQWAIT - 1
           IF ((vstate % L /= VODE_LMAX) .and. (vstate % NQWAIT == 1)) then
-             rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+             vstate % yh(1:VODE_NEQS,VODE_LMAX) = vstate % acor(1:VODE_NEQS)
 
              vstate % CONP = vstate % TQ(5)
           end IF
@@ -365,7 +361,7 @@ contains
           vstate % ETAMAX = ETAMX3
           IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
           R = ONE/vstate % TQ(2)
-          rwork % acor(:) = rwork % acor(:) * R
+          vstate % acor(:) = vstate % acor(:) * R
           vstate % JSTART = 1
           RETURN
 
@@ -384,7 +380,7 @@ contains
        NFLAG = -2
        vstate % TN = TOLD
 
-       call retract_nordsieck(rwork, vstate)
+       call retract_nordsieck(vstate)
 
        IF (ABS(vstate % H) .LE. vstate % HMIN*ONEPSM) then
           vstate % KFLAG = -1
@@ -404,7 +400,7 @@ contains
 
           do J = 2, vstate % L
              R = R * vstate % ETA
-             rwork % YH(:,J) = rwork % YH(:,J) * R
+             vstate % YH(:,J) = vstate % YH(:,J) * R
           end do
           vstate % H = vstate % HSCAL * vstate % ETA
           vstate % HSCAL = vstate % H
@@ -429,7 +425,7 @@ contains
        end IF
        IF (vstate % NQ /= 1) then
           vstate % ETA = MAX(ETAMIN,vstate % HMIN/ABS(vstate % H))
-          CALL DVJUST (-1, rwork, vstate)
+          CALL DVJUST (-1, vstate)
           vstate % L = vstate % NQ
           vstate % NQ = vstate % NQ - 1
           vstate % NQWAIT = vstate % L
@@ -439,7 +435,7 @@ contains
 
           do J = 2, vstate % L
              R = R * vstate % ETA
-             rwork % YH(:,J) = rwork % YH(:,J) * R
+             vstate % YH(:,J) = vstate % YH(:,J) * R
           end do
           vstate % H = vstate % HSCAL * vstate % ETA
           vstate % HSCAL = vstate % H
@@ -454,10 +450,10 @@ contains
        vstate % H = vstate % H * vstate % ETA
        vstate % HSCAL = vstate % H
        vstate % TAU(1) = vstate % H
-       CALL f_rhs (vstate % TN, vstate, rwork % savf)
+       CALL f_rhs (vstate % TN, vstate, vstate % savf)
        vstate % NFE = vstate % NFE + 1
        do I = 1, VODE_NEQS
-          rwork % yh(I,2) = vstate % H * rwork % savf(I)
+          vstate % yh(I,2) = vstate % H * vstate % savf(I)
        end do
        vstate % NQWAIT = 10
 
@@ -485,7 +481,7 @@ contains
        ETAQM1 = ZERO
        IF (vstate % NQ /= 1) then
           ! Compute ratio of new H to current H at the current order less one. ---
-          DDN = DVNORM (rwork % yh(:,vstate % L), rwork % ewt)/vstate % TQ(1)
+          DDN = DVNORM (vstate % yh(:,vstate % L), vstate % ewt)/vstate % TQ(1)
           ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
        end IF
        ETAQP1 = ZERO
@@ -493,16 +489,16 @@ contains
           ! Compute ratio of new H to current H at current order plus one. -------
           CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
           do I = 1, VODE_NEQS
-             rwork % savf(I) = rwork % acor(I) - CNQUOT * rwork % yh(I,VODE_LMAX)
+             vstate % savf(I) = vstate % acor(I) - CNQUOT * vstate % yh(I,VODE_LMAX)
           end do
-          DUP = DVNORM (rwork % savf, rwork % ewt)/vstate % TQ(3)
+          DUP = DVNORM (vstate % savf, vstate % ewt)/vstate % TQ(3)
           ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
        end IF
        IF (ETAQ < ETAQP1) then
           IF (ETAQP1 .GT. ETAQM1) then
              vstate % ETA = ETAQP1
              vstate % NEWQ = vstate % NQ + 1
-             rwork % yh(1:VODE_NEQS,VODE_LMAX) = rwork % acor(1:VODE_NEQS)
+             vstate % yh(1:VODE_NEQS,VODE_LMAX) = vstate % acor(1:VODE_NEQS)
           else
              vstate % ETA = ETAQM1
              vstate % NEWQ = vstate % NQ - 1
@@ -531,7 +527,7 @@ contains
        vstate % ETAMAX = ETAMX3
        IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
        R = ONE/vstate % TQ(2)
-       rwork % acor(:) = rwork % acor(:) * R
+       vstate % acor(:) = vstate % acor(:) * R
        vstate % JSTART = 1
        RETURN
     end IF
@@ -543,7 +539,7 @@ contains
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
     R = ONE/vstate % TQ(2)
-    rwork % acor(:) = rwork % acor(:) * R
+    vstate % acor(:) = vstate % acor(:) * R
     vstate % JSTART = 1
     RETURN
 

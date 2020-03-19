@@ -1,10 +1,8 @@
 module cuvode_dvhin_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-
   use cuvode_constants_module
 
   implicit none
@@ -14,7 +12,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvhin(vstate, rwork, H0, NITER, IER)
+  subroutine dvhin(vstate, H0, NITER, IER)
   
     !$acc routine seq
     
@@ -62,14 +60,14 @@ contains
     !
     ! Note: the following variable replacements have been made ---
     !    t0 = vstate % t
-    !    yh = rwork % yh
+    !    yh = vstate % yh
     !    rpar = vstate % rpar
     !    tout = vstate % tout
     !    uround = vstate % uround
-    !    ewt = rwork % ewt
+    !    ewt = vstate % ewt
     !    atol = vstate % atol
     !    y = vstate % y
-    !    temp = rwork % acor
+    !    temp = vstate % acor
   
     use cuvode_dvnorm_module, only: dvnorm ! function
 
@@ -83,7 +81,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(inout) :: rwork
     real(rt), intent(inout) :: H0
     integer,    intent(  out) :: NITER, IER
 
@@ -116,8 +113,8 @@ contains
 
     do I = 1, VODE_NEQS
        ATOLI = vstate % ATOL(I)
-       DELYI = PT1*ABS(rwork % YH(I,1)) + ATOLI
-       AFI = ABS(rwork % YH(I,2))
+       DELYI = PT1*ABS(vstate % YH(I,1)) + ATOLI
+       AFI = ABS(vstate % YH(I,2))
        IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
     end do
 
@@ -141,13 +138,13 @@ contains
           H = SIGN (HG, vstate % TOUT - vstate % T)
           T1 = vstate % T + H
           do I = 1, VODE_NEQS
-             vstate % Y(I) = rwork % YH(I,1) + H*rwork % YH(I,2)
+             vstate % Y(I) = vstate % YH(I,1) + H*vstate % YH(I,2)
           end do
-          CALL f_rhs(T1, vstate, rwork % ACOR)
+          CALL f_rhs(T1, vstate, vstate % ACOR)
           do I = 1, VODE_NEQS
-             rwork % ACOR(I) = (rwork % ACOR(I) - rwork % YH(I,2))/H
+             vstate % ACOR(I) = (vstate % ACOR(I) - vstate % YH(I,2))/H
           end do
-          YDDNRM = DVNORM(rwork % ACOR, rwork % EWT)
+          YDDNRM = DVNORM(vstate % ACOR, vstate % EWT)
           ! Get the corresponding new value of h. --------------------------------
           IF (YDDNRM*HUB*HUB .GT. TWO) THEN
              HNEW = SQRT(TWO/YDDNRM)

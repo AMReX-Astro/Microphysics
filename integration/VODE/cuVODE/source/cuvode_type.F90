@@ -1,7 +1,7 @@
 module cuvode_types_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
+  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX
   use vode_rpar_indices, only: n_rpar_comps
 
   use cuvode_constants_module
@@ -14,11 +14,11 @@ module cuvode_types_module
      real(rt) :: HU
      real(rt) :: ACNRM, CCMXJ, CONP, CRATE, DRC, EL(13)
      real(rt) :: ETA, ETAMAX, H, HMIN, HMXI, HNEW, HSCAL, PRL1
-     real(rt) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
+     real(rt) :: RC, RL1, TAU(13), TQ(5), TN, UROUND, SRUR
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
-     integer    :: L, LENWM
-     integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
+     integer    :: L
+     integer    :: MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
      integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP
 
@@ -36,19 +36,22 @@ module cuvode_types_module
 
      ! Integration array
      real(rt) :: Y(VODE_NEQS)
-  end type dvode_t
 
+     ! Jacobian
+     real(rt) :: jac(VODE_NEQS*VODE_NEQS)
 
-  ! The rwork_t type contains the real work data
-  type rwork_t
-     ! condopt - Conditional or optional input/output arguments to dvode
-     real(rt) :: condopt(4)
+     ! Saved Jacobian
+     real(rt) :: jac_save(VODE_NEQS*VODE_NEQS)
+
      real(rt) :: yh(VODE_NEQS, VODE_LMAX)
-     real(rt) :: wm(VODE_LENWM)
      real(rt) :: ewt(VODE_NEQS)
      real(rt) :: savf(VODE_NEQS)
      real(rt) :: acor(VODE_NEQS)
-  end type rwork_t
+
+     ! condopt - Conditional or optional input/output arguments to dvode
+     real(rt) :: condopt(4)
+
+  end type dvode_t
 
 contains
 
@@ -123,8 +126,6 @@ contains
     write(*,*) 'KFLAG = ', dvode_state % KFLAG
     write(*,*) 'KUTH = ', dvode_state % KUTH
     write(*,*) 'L = ', dvode_state % L
-    write(*,*) 'LENWM = ', dvode_state % LENWM
-    write(*,*) 'LOCJS = ', dvode_state % LOCJS
     write(*,*) 'METH = ', dvode_state % METH
     write(*,*) 'MITER = ', dvode_state % MITER
     write(*,*) 'MSBJ = ', dvode_state % MSBJ
