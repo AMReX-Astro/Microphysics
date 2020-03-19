@@ -18,11 +18,6 @@ module cuvode_parameters_module
   integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
 #endif
 
-  ! We will override the maximum number of steps, so turn on the
-  ! optional arguments flag.
-
-  integer, parameter :: IOPT = 1
-
   ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
   ! integer work array of size 30 + NEQ. These are VODE constants
   ! that depend on the integration mode we're using -- see dvode.f.

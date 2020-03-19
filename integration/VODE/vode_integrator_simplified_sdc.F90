@@ -161,7 +161,7 @@ contains
 
 
     ! Call the integration routine.
-    call dvode(dvode_state, rwork, iwork, IOPT, MF_JAC)
+    call dvode(dvode_state, rwork, iwork, MF_JAC)
 
     ! Store the final data
     call vode_to_sdc(dvode_state % T, dvode_state, state_out)

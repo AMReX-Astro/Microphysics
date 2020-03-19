@@ -42,11 +42,6 @@ module cuvode_parameters_module
 
   integer, parameter :: VODE_ITOL = 4
 
-  ! We will override the maximum number of steps, so turn on the
-  ! optional arguments flag.
-
-  integer, parameter :: IOPT = 1
-
   ! Declare a real work array of size 22 + 9*NEQ + 2*NEQ**2 and an
   ! integer work array of size 30 + NEQ. These are VODE constants
   ! that depend on the integration mode we're using -- see dvode.f.
