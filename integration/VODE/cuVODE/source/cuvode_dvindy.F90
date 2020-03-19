@@ -1,8 +1,7 @@
 module cuvode_dvindy_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_constants_module
 
@@ -13,7 +12,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvindy(vstate, rwork, IFLAG)
+  subroutine dvindy(vstate, IFLAG)
 
     !$acc routine seq
 
@@ -50,7 +49,7 @@ contains
     ! -----------------------------------------------------------------------
     !
     ! Note: the following variable replacements have been made ---
-    !  yh => rwork % yh
+    !  yh => vstate % yh
     !  t => vstate % tout
     !  dky => vstate % y
 
@@ -62,7 +61,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(in   ) :: rwork
     integer,       intent(  out) :: IFLAG
 
     ! Declare local variables
@@ -112,7 +110,7 @@ contains
     end IF
     C = REAL(IC)
     do I = 1, VODE_NEQS
-       vstate % Y(I) = C * rwork % YH(I,vstate % L)
+       vstate % Y(I) = C * vstate % YH(I,vstate % L)
     end do
     IF (K /= vstate % NQ) then
        JB2 = vstate % NQ - K
@@ -128,7 +126,7 @@ contains
           end IF
           C = REAL(IC)
           do I = 1, VODE_NEQS
-             vstate % Y(I) = C * rwork % YH(I,JP1) + S*vstate % Y(I)
+             vstate % Y(I) = C * vstate % YH(I,JP1) + S*vstate % Y(I)
           end do
        end do
        IF (K .EQ. 0) RETURN

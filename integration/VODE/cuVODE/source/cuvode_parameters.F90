@@ -40,6 +40,5 @@ module cuvode_parameters_module
   integer, parameter :: VODE_MAXORD = 5
 
   integer, parameter :: VODE_LMAX = VODE_MAXORD + 1
-  integer, parameter :: VODE_LENWM = 2 + 2 * neqs**2
 
 end module cuvode_parameters_module

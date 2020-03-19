@@ -38,7 +38,7 @@ contains
     use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
-    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_types_module, only: dvode_t
     use amrex_constants_module, only: ZERO, ONE
     use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale
     use integration_data, only: integration_status_t
@@ -63,7 +63,6 @@ contains
 
     ! Work variables
 
-    type(rwork_t) :: rwork
     integer    :: iwork(VODE_LIW)
 
     integer :: MF_JAC
@@ -119,13 +118,6 @@ contains
 
     dvode_state % istate = 1
 
-    ! Initialize work arrays to zero.
-    rwork % CONDOPT = ZERO
-    rwork % YH   = ZERO
-    rwork % WM   = ZERO
-    rwork % EWT  = ZERO
-    rwork % SAVF = ZERO
-    rwork % ACOR = ZERO    
     iwork(:) = 0
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
@@ -207,7 +199,7 @@ contains
     endif
 
     ! Call the integration routine.
-    call dvode(dvode_state, rwork, iwork, MF_JAC)
+    call dvode(dvode_state, iwork, MF_JAC)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -220,12 +212,6 @@ contains
 
        dvode_state % istate = 1
 
-       rwork % CONDOPT = ZERO
-       rwork % YH   = ZERO
-       rwork % WM   = ZERO
-       rwork % EWT  = ZERO
-       rwork % SAVF = ZERO
-       rwork % ACOR = ZERO    
        iwork(:) = 0
 
        iwork(6) = ode_max_steps
@@ -249,7 +235,7 @@ contains
        dvode_state % y(net_ienuc) = ener_offset
 
        ! Call the integration routine.
-       call dvode(dvode_state, rwork, iwork, MF_JAC)
+       call dvode(dvode_state, iwork, MF_JAC)
 
     endif
 

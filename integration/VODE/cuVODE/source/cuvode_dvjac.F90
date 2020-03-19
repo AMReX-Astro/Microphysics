@@ -1,8 +1,7 @@
 module cuvode_dvjac_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
   use cuvode_dacopy_module
@@ -16,7 +15,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvjac(pivot, IERPJ, rwork, vstate)
+  subroutine dvjac(pivot, IERPJ, vstate)
 
     !$acc routine seq
     
@@ -29,10 +28,9 @@ contains
     !  If JSV = -1, J is computed from scratch in all cases.
     !  If JSV = 1 and MITER = 1, 2, 4, or 5, and if the saved value of J is
     !  considered acceptable, then P is constructed from the saved J.
-    !  J is stored in wm and replaced by P.  If MITER .ne. 3, P is then
-    !  subjected to LU decomposition in preparation for later solution
-    !  of linear systems with P as coefficient matrix. This is done
-    !  by DGEFA if MITER = 1 or 2, and by DGBFA if MITER = 4 or 5.
+    !  J is replaced by P.  P is then subjected to LU decomposition
+    ! in preparation for later solution of linear systems with P as
+    ! coefficient matrix. This is done by DGEFA.
     ! 
     !  Communication with DVJAC is done with the following variables.  (For
     !  more details, please see the comments in the driver subroutine.)
@@ -41,14 +39,6 @@ contains
     !  LDYH       = A constant .ge. N, the first dimension of YH, input.
     !  EWT        = An error weight array of length N.
     !  SAVF       = Array containing f evaluated at predicted y, input.
-    !  WM         = Real work space for matrices.  In the output, it containS
-    !               the inverse diagonal matrix if MITER = 3 and the LU
-    !               decomposition of P if MITER is 1, 2 , 4, or 5.
-    !               Storage of matrix elements starts at WM(3).
-    !               Storage of the saved Jacobian starts at WM(LOCJS).
-    !               WM also contains the following matrix-related data:
-    !               WM(1) = SQRT(UROUND), used in numerical Jacobian step.
-    !               WM(2) = H*RL1, saved for later use if MITER = 3.
     !  F          = Dummy name for the user supplied subroutine for f.
     !  JAC        = Dummy name for the user supplied Jacobian subroutine.
     !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
@@ -72,7 +62,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(inout) :: rwork
     integer,       intent(inout) :: pivot(VODE_NEQS)
     integer,       intent(  out) :: IERPJ
 
@@ -104,13 +93,12 @@ contains
        vstate % JCUR = 1
        LENP = VODE_NEQS * VODE_NEQS
        do I = 1,LENP
-          rwork % WM(I+2) = ZERO
+          vstate % JAC(I) = ZERO
        end do
-       CALL JAC (vstate % TN, vstate, 0, 0, &
-            rwork % WM(3:3 + VODE_NEQS**2 - 1), VODE_NEQS)
+       CALL JAC (vstate % TN, vstate, 0, 0, vstate % jac, VODE_NEQS)
        if (vstate % JSV .EQ. 1) then
-          do I = 0, LENP-1
-             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+          do i = 1, LENP
+             vstate % jac_save(i) = vstate % jac(i)
           end do
        endif
     ENDIF
@@ -120,19 +108,18 @@ contains
        vstate % NJE = vstate % NJE + 1
        vstate % NSLJ = vstate % NST
        vstate % JCUR = 1
-       FAC = DVNORM (rwork % SAVF, rwork % EWT)
+       FAC = DVNORM (vstate % SAVF, vstate % EWT)
        R0 = THOU*ABS(vstate % H) * vstate % UROUND * REAL(VODE_NEQS)*FAC
        IF (R0 .EQ. ZERO) R0 = ONE
-       SRUR = rwork % WM(1)
-       J1 = 2
+       J1 = 0
        do J = 1,VODE_NEQS
           YJ = vstate % Y(J)
-          R = MAX(SRUR*ABS(YJ),R0/rwork % EWT(J))
+          R = MAX(vstate % SRUR * ABS(YJ), R0 / vstate % EWT(J))
           vstate % Y(J) = vstate % Y(J) + R
           FAC = ONE/R
-          CALL f_rhs (vstate % TN, vstate, rwork % acor)
+          CALL f_rhs (vstate % TN, vstate, vstate % acor)
           do I = 1,VODE_NEQS
-             rwork % WM(I+J1) = (rwork % acor(I) - rwork % SAVF(I))*FAC
+             vstate % jac(I+J1) = (vstate % acor(I) - vstate % SAVF(I))*FAC
           end do
           vstate % Y(J) = YJ
           J1 = J1 + VODE_NEQS
@@ -140,31 +127,31 @@ contains
        vstate % NFE = vstate % NFE + VODE_NEQS
        LENP = VODE_NEQS * VODE_NEQS
        if (vstate % JSV .EQ. 1) then
-          do I = 0, LENP-1
-             rwork % WM(vstate % LOCJS + I) = rwork % WM(3 + I)
+          do i = 1, LENP
+             vstate % jac_save(i) = vstate % jac(i)
           end do
        end if
     ENDIF
 
-    IF (JOK .EQ. 1 .AND. (vstate % MITER .EQ. 1 .OR. vstate % MITER .EQ. 2)) THEN
+    IF (JOK .EQ. 1) THEN
        vstate % JCUR = 0
        LENP = VODE_NEQS * VODE_NEQS
-       do I = 0, LENP - 1
-           rwork % WM(3 + I) = rwork % WM(vstate % LOCJS + I)
+       do i = 1, LENP
+           vstate % jac(i) = vstate % jac_save(i)
        end do
     ENDIF
 
     ! Multiply Jacobian by scalar, add identity, and do LU decomposition. --
     CON = -HRL1
-    rwork % WM(3:3+LENP-1) = rwork % WM(3:3+LENP-1) * CON
-    J = 3
+    vstate % jac(:) = vstate % jac(:) * CON
+    J = 1
     NP1 = VODE_NEQS + 1
     do I = 1,VODE_NEQS
-       rwork % WM(J) = rwork % WM(J) + ONE
+       vstate % jac(J) = vstate % jac(J) + ONE
        J = J + NP1
     end do
     vstate % NLU = vstate % NLU + 1
-    CALL DGEFA (rwork % WM(3:3 + VODE_NEQS**2 - 1), pivot, IER)
+    CALL DGEFA (vstate % jac, pivot, IER)
     IF (IER .NE. 0) IERPJ = 1
 
   end subroutine dvjac

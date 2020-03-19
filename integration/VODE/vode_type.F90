@@ -1,7 +1,7 @@
 module vode_type_module
 
   use cuvode_types_module, only : dvode_t
-  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
+  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX
   use amrex_fort_module, only: rt => amrex_real
 
   implicit none

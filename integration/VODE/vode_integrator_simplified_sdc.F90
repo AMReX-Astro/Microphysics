@@ -25,7 +25,7 @@ contains
     use vode_rpar_indices
     use vode_rhs_module
     use cuvode_module, only: dvode
-    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_types_module, only: dvode_t
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
@@ -49,7 +49,6 @@ contains
 
     ! Work arrays
 
-    type(rwork_t) :: rwork
     integer    :: iwork(VODE_LIW)
 
     integer :: MF_JAC
@@ -115,13 +114,6 @@ contains
 
     dvode_state % istate = 1
 
-    ! Initialize work arrays to zero.
-    rwork % CONDOPT = ZERO
-    rwork % YH   = ZERO
-    rwork % WM   = ZERO
-    rwork % EWT  = ZERO
-    rwork % SAVF = ZERO
-    rwork % ACOR = ZERO    
     iwork(:) = 0
 
     ! Set the maximum number of steps allowed (the VODE default is 500).
@@ -161,7 +153,7 @@ contains
 
 
     ! Call the integration routine.
-    call dvode(dvode_state, rwork, iwork, MF_JAC)
+    call dvode(dvode_state, iwork, MF_JAC)
 
     ! Store the final data
     call vode_to_sdc(dvode_state % T, dvode_state, state_out)

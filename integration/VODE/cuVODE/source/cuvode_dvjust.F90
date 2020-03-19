@@ -1,10 +1,8 @@
 module cuvode_dvjust_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW,   &
-                                      VODE_LENWM, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, rwork_t
+  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_LIW, VODE_MAXORD
+  use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-
   use cuvode_constants_module
 
   implicit none
@@ -14,7 +12,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvjust(IORD, rwork, vstate)
+  subroutine dvjust(IORD, vstate)
 
     !$acc routine seq
     
@@ -43,7 +41,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    type(rwork_t), intent(inout) :: rwork
     integer,       intent(in   ) :: IORD
 
     ! Declare local variables
@@ -86,8 +83,8 @@ contains
        ! Subtract correction terms from YH array. -----------------------------
        do J = 3,vstate % NQ
           do I = 1, VODE_NEQS
-             rwork % YH(I,J) = rwork % YH(I,J) - &
-                  rwork % YH(I,vstate % L) * vstate % EL(J)
+             vstate % YH(I,J) = vstate % YH(I,J) - &
+                  vstate % YH(I,vstate % L) * vstate % EL(J)
           end do
        end do
 
@@ -124,12 +121,12 @@ contains
        ! Load column L + 1 in YH array. ---------------------------------------
        LP1 = vstate % L + 1
        do I = 1, VODE_NEQS
-          rwork % YH(I,LP1) = T1 * rwork % YH(I,VODE_LMAX)
+          vstate % YH(I,LP1) = T1 * vstate % YH(I,VODE_LMAX)
        end do
        ! Add correction terms to YH array. ------------------------------------
        NQP1 = vstate % NQ + 1
        do J = 3, NQP1
-          rwork % YH(:,J) = rwork % YH(:,J) + vstate % EL(J) * rwork % YH(:,LP1)
+          vstate % YH(:,J) = vstate % YH(:,J) + vstate % EL(J) * vstate % YH(:,LP1)
        end do
 
     end if
