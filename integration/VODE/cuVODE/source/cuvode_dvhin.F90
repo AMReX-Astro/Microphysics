@@ -16,14 +16,6 @@ contains
     !$acc routine seq
     
     ! -----------------------------------------------------------------------
-    !  Call sequence input -- N, T0, Y0, YDOT, F, RPAR, TOUT, UROUND,
-    !                         EWT, ITOL, ATOL, Y, TEMP
-    !  Call sequence output -- H0, NITER, IER
-    !  COMMON block variables accessed -- None
-    ! 
-    !  Subroutines called by DVHIN:  F
-    !  Function routines called by DVHI: DVNORM
-    ! -----------------------------------------------------------------------
     !  This routine computes the step size, H0, to be attempted on the
     !  first step, when the user has not supplied a value for this.
     ! 
@@ -68,8 +60,6 @@ contains
     !    y = vstate % y
     !    temp = vstate % acor
   
-    use cuvode_dvnorm_module, only: dvnorm ! function
-
 #ifdef TRUE_SDC
     use sdc_vode_rhs_module, only : f_rhs
 #else
@@ -143,7 +133,7 @@ contains
           do I = 1, VODE_NEQS
              vstate % ACOR(I) = (vstate % ACOR(I) - vstate % YH(I,2))/H
           end do
-          YDDNRM = DVNORM(vstate % ACOR, vstate % EWT)
+          YDDNRM = sqrt(sum((vstate % ACOR * vstate % EWT)**2) / VODE_NEQS)
           ! Get the corresponding new value of h. --------------------------------
           IF (YDDNRM*HUB*HUB .GT. 2.0_rt) THEN
              HNEW = SQRT(2.0_rt/YDDNRM)

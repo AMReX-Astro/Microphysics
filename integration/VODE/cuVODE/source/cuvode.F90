@@ -33,7 +33,6 @@ contains
 #else
     use vode_rhs_module, only: f_rhs, jac
 #endif
-    use cuvode_dvnorm_module, only: dvnorm ! function
 
     implicit none
 
@@ -233,7 +232,8 @@ contains
           skip_loop_start = .false.
        end if
 
-       TOLSF = vstate % UROUND * DVNORM (vstate % YH(:,1), vstate % EWT)
+       TOLSF = vstate % UROUND * sqrt(sum((vstate % YH(:,1) * vstate % EWT(:))**2) / VODE_NEQS)
+
        IF (TOLSF > 1.0_rt) then
           TOLSF = TOLSF*2.0_rt
 
