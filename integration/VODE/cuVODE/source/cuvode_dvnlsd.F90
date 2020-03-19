@@ -7,7 +7,6 @@ module cuvode_dvnlsd_module
   use linpack_module
 
   use cuvode_dvjac_module
-  use cuvode_dvsol_module
 
   use cuvode_constants_module
 
@@ -100,7 +99,7 @@ contains
 
     ! Declare local variables
     real(rt) :: CSCALE, DCON, DEL, DELP
-    integer    :: I, IERPJ, IERSL, M
+    integer    :: I, IERPJ, M
 
     ! Parameter declarations
     real(rt), parameter :: CCMAX = 0.3e0_rt
@@ -214,12 +213,10 @@ contains
                 vstate % Y(I) = (vstate % RL1*vstate % H) * rwork % SAVF(I) - &
                      (vstate % RL1 * rwork % YH(I,2) + rwork % ACOR(I))
              end do
-             CALL DVSOL (rwork % wm, IWM, IERSL, vstate)
+
+             call dgesl(rwork % WM(3:3 + VODE_NEQS**2 - 1), IWM(31:31 + VODE_NEQS - 1), vstate % Y(:))
+
              vstate % NNI = vstate % NNI + 1
-             IF (IERSL .GT. 0) then
-                ! exit the inner correction iteration
-                exit
-             end IF
 
              IF (vstate % METH .EQ. 2 .AND. vstate % RC .NE. ONE) THEN
                 CSCALE = TWO/(ONE + vstate % RC)
