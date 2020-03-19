@@ -23,7 +23,7 @@ contains
 #if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
   attributes(device) &
 #endif
-  subroutine dvode(vstate, MF)
+  subroutine dvode(vstate)
 
     !$acc routine seq
 
@@ -41,7 +41,6 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    integer,       intent(in   ) :: MF
 
     ! Declare local variables
     logical    :: IHIT
@@ -67,10 +66,10 @@ contains
     vstate % INIT = 0
     IF (vstate % TOUT .EQ. vstate % T) RETURN
 
-    ! Compute Jacobian choices based on MF.
+    ! Compute Jacobian choices based on MF_JAC.
 
-    vstate % JSV = SIGN(1,MF)
-    MFA = ABS(MF)
+    vstate % JSV = SIGN(1, vstate % MF_JAC)
+    MFA = ABS(vstate % MF_JAC)
     vstate % METH = MFA/10
     vstate % MITER = MFA - 10*vstate % METH
 

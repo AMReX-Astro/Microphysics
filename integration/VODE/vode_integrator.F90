@@ -61,8 +61,6 @@ contains
     type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
     type (dvode_t) :: dvode_state
 
-    integer :: MF_JAC
-
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
 
@@ -80,9 +78,9 @@ contains
     !$gpu
 
     if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC_CACHED
+       dvode_state % MF_JAC = MF_ANALYTIC_JAC_CACHED
     else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC_CACHED
+       dvode_state % MF_JAC = MF_NUMERICAL_JAC_CACHED
     else
 #ifndef CUDA
        call amrex_error("Error: unknown Jacobian mode in vode_integrator.f90.")
@@ -90,7 +88,7 @@ contains
     endif
 
     if (.not. use_jacobian_caching) then
-       MF_JAC = -MF_JAC
+       dvode_state % MF_JAC = -dvode_state % MF_JAC
     endif
 
     integration_failed = .false.
@@ -185,7 +183,7 @@ contains
     endif
 
     ! Call the integration routine.
-    call dvode(dvode_state, MF_JAC)
+    call dvode(dvode_state)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -217,7 +215,7 @@ contains
        dvode_state % y(net_ienuc) = ener_offset
 
        ! Call the integration routine.
-       call dvode(dvode_state, MF_JAC)
+       call dvode(dvode_state)
 
     endif
 
