@@ -9,7 +9,6 @@ F90EXE_sources += cuvode_dvjust.F90
 F90EXE_sources += cuvode_dvnlsd.F90
 F90EXE_sources += cuvode_dvnorm.F90
 F90EXE_sources += cuvode_dvset.F90
-F90EXE_sources += cuvode_dvsol.F90
 F90EXE_sources += cuvode_dvstep.F90
 F90EXE_sources += cuvode_nordsieck.F90
 F90EXE_sources += cuvode_constants.F90
