@@ -207,7 +207,7 @@ contains
     endif
 
     ! Call the integration routine.
-    call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+    call dvode(dvode_state, rwork, iwork, IOPT, MF_JAC)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -249,7 +249,7 @@ contains
        dvode_state % y(net_ienuc) = ener_offset
 
        ! Call the integration routine.
-       call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+       call dvode(dvode_state, rwork, iwork, IOPT, MF_JAC)
 
     endif
 
