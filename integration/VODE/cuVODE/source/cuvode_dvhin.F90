@@ -24,41 +24,7 @@ contains
     !  and this is used to define h from w.r.m.s.norm(h**2 * yddot / 2) = 1.
     !  A bias factor of 1/2 is applied to the resulting h.
     !  The sign of H0 is inferred from the initial values of TOUT and T0.
-    ! 
-    !  Communication with DVHIN is done with the following variables:
-    ! 
-    !  N      = Size of ODE system, input.
-    !  T0     = Initial value of independent variable, input.
-    !
-    !  Y0     = Array of initial conditions, input.
-    !  YDOT   = Array of initial first derivatives, input.
-    !  [NOTE: Y0 = YH(:,1) and YDOT = YH(:,2) in this subroutine now]
-    !
-    !  F      = Name of subroutine for right-hand side f(t,y), input.
-    !  RPAR = Dummy names for user's real and integer work arrays.
-    !  TOUT   = First output value of independent variable
-    !  UROUND = Machine unit roundoff
-    !  EWT, ITOL, ATOL = Error weights and tolerance parameters
-    !                    as described in the driver routine, input.
-    !  Y, TEMP = Work arrays of length N.
-    !  H0     = Step size to be attempted, output.
-    !  NITER  = Number of iterations (and of f evaluations) to compute H0,
-    !           output.
-    !  IER    = The error flag, returned with the value
-    !           IER = 0  if no trouble occurred, or
-    !           IER = -1 if TOUT and T0 are considered too close to proceed.
     ! -----------------------------------------------------------------------
-    !
-    ! Note: the following variable replacements have been made ---
-    !    t0 = vstate % t
-    !    yh = vstate % yh
-    !    rpar = vstate % rpar
-    !    tout = vstate % tout
-    !    uround = vstate % uround
-    !    ewt = vstate % ewt
-    !    atol = vstate % atol
-    !    y = vstate % y
-    !    temp = vstate % acor
   
 #ifdef TRUE_SDC
     use sdc_vode_rhs_module, only : f_rhs
@@ -70,13 +36,13 @@ contains
 
     ! Declare arguments
     type(dvode_t), intent(inout) :: vstate
-    real(rt), intent(inout) :: H0
-    integer,    intent(  out) :: NITER, IER
+    real(rt),      intent(inout) :: H0
+    integer,       intent(  out) :: NITER, IER
 
     ! Declare local variables
     real(rt) :: AFI, ATOLI, DELYI, H, HG, HLB, HNEW, HRAT
     real(rt) :: HUB, T1, TDIST, TROUND, YDDNRM
-    integer    :: I, ITER
+    integer  :: I, ITER
 
     real(rt), parameter :: PT1 = 0.1e0_rt
 
@@ -85,14 +51,14 @@ contains
     !$gpu
 
     NITER = 0
-    TDIST = ABS(vstate % TOUT - vstate % T)
-    TROUND = vstate % UROUND*MAX(ABS(vstate % T),ABS(vstate % TOUT))
+    TDIST = abs(vstate % TOUT - vstate % T)
+    TROUND = vstate % UROUND * max(abs(vstate % T), abs(vstate % TOUT))
 
-    IF (TDIST .LT. 2.0_rt*TROUND) then
+    if (TDIST < 2.0_rt*TROUND) then
        ! Error return for vstate % TOUT - vstate % T too small. --------------------------------
        IER = -1
-       RETURN
-    end IF
+       return
+    end if
 
     ! Set a lower bound on h based on the roundoff level in vstate % T and vstate % TOUT. ---
     HLB = 100.0_rt * TROUND
@@ -102,21 +68,21 @@ contains
 
     do I = 1, VODE_NEQS
        ATOLI = vstate % ATOL(I)
-       DELYI = PT1*ABS(vstate % YH(I,1)) + ATOLI
-       AFI = ABS(vstate % YH(I,2))
-       IF (AFI*HUB .GT. DELYI) HUB = DELYI/AFI
+       DELYI = PT1 * abs(vstate % YH(I,1)) + ATOLI
+       AFI = abs(vstate % YH(I,2))
+       if (AFI*HUB > DELYI) HUB = DELYI/AFI
     end do
 
     ! Set initial guess for h as geometric mean of upper and lower bounds. -
     ITER = 0
-    HG = SQRT(HLB*HUB)
+    HG = sqrt(HLB*HUB)
 
     ! If the bounds have crossed, exit with the mean value. ----------------
     do_iterations = .true.
-    IF (HUB .LT. HLB) THEN
+    if (HUB < HLB) then
        H0 = HG
        do_iterations = .false.
-    ENDIF
+    end if
 
     if (do_iterations) then
 
@@ -124,23 +90,27 @@ contains
        do while (.true.)
 
           ! Estimate the second derivative as a difference quotient in f. --------
-          H = SIGN (HG, vstate % TOUT - vstate % T)
+          H = sign(HG, vstate % TOUT - vstate % T)
           T1 = vstate % T + H
           do I = 1, VODE_NEQS
              vstate % Y(I) = vstate % YH(I,1) + H*vstate % YH(I,2)
           end do
-          CALL f_rhs(T1, vstate, vstate % ACOR)
+
+          call f_rhs(T1, vstate, vstate % ACOR)
+
           do I = 1, VODE_NEQS
              vstate % ACOR(I) = (vstate % ACOR(I) - vstate % YH(I,2))/H
           end do
           YDDNRM = sqrt(sum((vstate % ACOR * vstate % EWT)**2) / VODE_NEQS)
+
           ! Get the corresponding new value of h. --------------------------------
-          IF (YDDNRM*HUB*HUB .GT. 2.0_rt) THEN
-             HNEW = SQRT(2.0_rt/YDDNRM)
-          ELSE
-             HNEW = SQRT(HG*HUB)
-          ENDIF
+          if (YDDNRM*HUB*HUB > 2.0_rt) then
+             HNEW = sqrt(2.0_rt/YDDNRM)
+          else
+             HNEW = sqrt(HG*HUB)
+          end if
           ITER = ITER + 1
+
           ! -----------------------------------------------------------------------
           !  Test the stopping conditions.
           !  Stop if the new and previous h values differ by a factor of .lt. 2.
@@ -151,26 +121,24 @@ contains
           if (iter >= 4) exit
 
           HRAT = HNEW/HG
-          IF ( (HRAT .GT. 0.5_rt) .AND. (HRAT .LT. 2.0_rt) ) exit
-          IF ( (ITER .GE. 2) .AND. (HNEW .GT. 2.0_rt*HG) ) THEN
+          if ( (HRAT > 0.5_rt) .and. (HRAT < 2.0_rt) ) exit
+          if ( (ITER >= 2) .and. (HNEW > 2.0_rt*HG) ) then
              HNEW = HG
              exit
-          ENDIF
+          end if
           HG = HNEW
        end do
 
        ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
        H0 = HNEW*0.5_rt
-       IF (H0 .LT. HLB) H0 = HLB
-       IF (H0 .GT. HUB) H0 = HUB
+       if (H0 < HLB) H0 = HLB
+       if (H0 > HUB) H0 = HUB
 
     end if
 
-    H0 = SIGN(H0, vstate % TOUT - vstate % T)
+    H0 = sign(H0, vstate % TOUT - vstate % T)
     NITER = ITER
     IER = 0
-
-    RETURN
 
   end subroutine dvhin
 

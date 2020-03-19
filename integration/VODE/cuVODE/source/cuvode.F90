@@ -57,7 +57,7 @@ contains
     !$gpu
 
     vstate % INIT = 0
-    IF (vstate % TOUT .EQ. vstate % T) RETURN
+    if (vstate % TOUT .EQ. vstate % T) RETURN
 
     ! Compute Jacobian choices based on MF_JAC.
 
@@ -96,7 +96,7 @@ contains
 
     ! Initial call to F.  -------------------------
 
-    CALL f_rhs (vstate % T, vstate, vstate % yh(:,2))
+    call f_rhs (vstate % T, vstate, vstate % yh(:,2))
     vstate % NFE = 1
     ! Load the initial value array in YH. ---------------------------------
     vstate % YH(1:VODE_NEQS,1) = vstate % Y(1:VODE_NEQS)
@@ -111,10 +111,10 @@ contains
     end do
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
-    CALL DVHIN (vstate, H0, NITER, IER)
+    call DVHIN (vstate, H0, NITER, IER)
     vstate % NFE = vstate % NFE + NITER
 
-    if (IER .NE. 0) then
+    if (IER /= 0) then
 #ifndef AMREX_USE_GPU
        print *, "DVODE: TOUT too close to T to start integration"
 #endif
@@ -144,7 +144,7 @@ contains
 
        if (.not. skip_loop_start) then
 
-          IF ((vstate % NST-NSLAST) .GE. vstate % MXSTEP) then
+          if ((vstate % NST-NSLAST) >= vstate % MXSTEP) then
              ! The maximum number of steps was taken before reaching TOUT. ----------
 #ifndef AMREX_USE_GPU
              print *, "DVODE: maximum number of steps taken before reaching TOUT"
@@ -157,7 +157,7 @@ contains
 
              return
 
-          end IF
+          end if
 
           do I = 1,VODE_NEQS
              vstate % ewt(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
@@ -170,7 +170,7 @@ contains
 
        TOLSF = vstate % UROUND * sqrt(sum((vstate % YH(:,1) * vstate % EWT(:))**2) / VODE_NEQS)
 
-       IF (TOLSF > 1.0_rt) then
+       if (TOLSF > 1.0_rt) then
           TOLSF = TOLSF*2.0_rt
 
           if (vstate % NST .EQ. 0) then
@@ -193,9 +193,9 @@ contains
 
           return
 
-       end IF
+       end if
 
-       CALL DVSTEP(pivot, vstate)
+       call dvstep(pivot, vstate)
 
        ! Branch on KFLAG.  Note: In this version, KFLAG can not be set to -3.
        !  KFLAG .eq. 0,   -1,  -2
@@ -238,7 +238,7 @@ contains
        vstate % INIT = 1
        vstate % KUTH = 0
 
-       IF ((vstate % TN - vstate % TOUT) * vstate % H .LT. 0.0_rt) cycle
+       if ((vstate % TN - vstate % TOUT) * vstate % H .LT. 0.0_rt) cycle
 
        ! If TOUT has been reached, interpolate. -------------------
 
