@@ -41,8 +41,8 @@ contains
 
     ! Declare local variables
     logical    :: IHIT
-    real(rt) :: ATOLI, EWTI, H0, HMAX, HMX
-    real(rt) :: RH, RTOLI, SIZE, TCRIT, TNEXT, TOLSF, TP
+    real(rt) :: EWTI, H0, HMAX, HMX
+    real(rt) :: RH, SIZE, TCRIT, TNEXT, TOLSF, TP
     integer    :: I, IER, IFLAG, KGO, LENJ, LENP
     integer    :: MBAND, MFA, ML, MU, NITER
     integer    :: NSLAST
@@ -74,34 +74,6 @@ contains
 
     vstate % HMIN = 0.0_rt
     vstate % HMXI = 0.0_rt
-
-    ! Check RTOL and ATOL for legality. ------------------------------------
-    RTOLI = vstate % RTOL(1)
-    ATOLI = vstate % ATOL(1)
-    do I = 1,VODE_NEQS
-
-       RTOLI = vstate % RTOL(I)
-       ATOLI = vstate % ATOL(I)
-
-       if (RTOLI .LT. 0.0_rt) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  RTOL(I1) is R1 .lt. 0.0_rt        '
-          CALL XERRWD (MSG, 40, 19, 1, 1, I, 0, 1, RTOLI, 0.0_rt)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       if (ATOLI .LT. 0.0_rt) then
-#ifndef AMREX_USE_CUDA
-          MSG = 'DVODE--  ATOL(I1) is R1 .lt. 0.0_rt        '
-          CALL XERRWD (MSG, 40, 20, 1, 1, I, 0, 1, ATOLI, 0.0_rt)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-    end do
 
     ! -----------------------------------------------------------------------
     !  All remaining initializations, the initial call to F,
@@ -139,18 +111,8 @@ contains
     vstate % H = 1.0_rt
 
     do I = 1,VODE_NEQS
-       vstate % EWT(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
-       if (vstate % ewt(I) .LE. 0.0_rt) then
-#ifndef AMREX_USE_CUDA
-          EWTI = vstate % ewt(I)
-          MSG = 'DVODE--  EWT(I1) is R1 .le. 0.0_rt         '
-          CALL XERRWD (MSG, 40, 21, 1, 1, I, 0, 1, EWTI, 0.0_rt)
-#endif
-          vstate % ISTATE = -3
-          return
-       end if
-
-       vstate % ewt(I) = 1.0_rt/vstate % ewt(I)
+       vstate % ewt(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
+       vstate % ewt(I) = 1.0_rt / vstate % ewt(I)
     end do
 
     ! Call DVHIN to set initial step size H0 to be attempted. --------------
@@ -207,24 +169,7 @@ contains
           end IF
 
           do I = 1,VODE_NEQS
-
-             vstate % EWT(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
-
-             IF (vstate % ewt(I) .LE. 0.0_rt) then
-                ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
-#ifndef AMREX_USE_CUDA
-                EWTI = vstate % ewt(I)
-                MSG = 'DVODE--  At T (=R1), EWT(I1) has become R2 .le. 0.'
-                CALL XERRWD (MSG, 50, 202, 1, 1, I, 0, 2, vstate % TN, EWTI)
-#endif
-                vstate % ISTATE = -6
-
-                vstate % Y(1:VODE_NEQS) = vstate % YH(1:VODE_NEQS,1)
-
-                vstate % T = vstate % TN
-
-                return
-             end IF
+             vstate % ewt(I) = vstate % RTOL(I) * abs(vstate % YH(I,1)) + vstate % ATOL(I)
              vstate % ewt(I) = 1.0_rt/vstate % ewt(I)
           end do
 
