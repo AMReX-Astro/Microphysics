@@ -1,5 +1,8 @@
 # 20.04
 
+   * We've rewritten the VODE integrator to remove all "go to"
+     statements (#275, 276, 278, 280, 281, 282, 283, 284, 285, 286, 287)
+
    * We removed the ability to have nspec_evolve < nspec.  This
      feature was not widely used and greatly complicated the code
      paths.(#279)
