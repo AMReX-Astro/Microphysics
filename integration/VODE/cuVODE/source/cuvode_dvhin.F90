@@ -3,7 +3,6 @@ module cuvode_dvhin_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
   use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-  use cuvode_constants_module
 
   implicit none
 
@@ -99,14 +98,14 @@ contains
     TDIST = ABS(vstate % TOUT - vstate % T)
     TROUND = vstate % UROUND*MAX(ABS(vstate % T),ABS(vstate % TOUT))
 
-    IF (TDIST .LT. TWO*TROUND) then
+    IF (TDIST .LT. 2.0_rt*TROUND) then
        ! Error return for vstate % TOUT - vstate % T too small. --------------------------------
        IER = -1
        RETURN
     end IF
 
     ! Set a lower bound on h based on the roundoff level in vstate % T and vstate % TOUT. ---
-    HLB = HUN*TROUND
+    HLB = 100.0_rt * TROUND
     ! Set an upper bound on h based on vstate % TOUT-vstate % T and the initial Y and YDOT. -
     HUB = PT1*TDIST
     ATOLI = vstate % ATOL(1)
@@ -146,8 +145,8 @@ contains
           end do
           YDDNRM = DVNORM(vstate % ACOR, vstate % EWT)
           ! Get the corresponding new value of h. --------------------------------
-          IF (YDDNRM*HUB*HUB .GT. TWO) THEN
-             HNEW = SQRT(TWO/YDDNRM)
+          IF (YDDNRM*HUB*HUB .GT. 2.0_rt) THEN
+             HNEW = SQRT(2.0_rt/YDDNRM)
           ELSE
              HNEW = SQRT(HG*HUB)
           ENDIF
@@ -162,8 +161,8 @@ contains
           if (iter >= 4) exit
 
           HRAT = HNEW/HG
-          IF ( (HRAT .GT. HALF) .AND. (HRAT .LT. TWO) ) exit
-          IF ( (ITER .GE. 2) .AND. (HNEW .GT. TWO*HG) ) THEN
+          IF ( (HRAT .GT. 0.5_rt) .AND. (HRAT .LT. 2.0_rt) ) exit
+          IF ( (ITER .GE. 2) .AND. (HNEW .GT. 2.0_rt*HG) ) THEN
              HNEW = HG
              exit
           ENDIF
@@ -171,7 +170,7 @@ contains
        end do
 
        ! Iteration done.  Apply bounds, bias factor, and sign.  Then exit. ----
-       H0 = HNEW*HALF
+       H0 = HNEW*0.5_rt
        IF (H0 .LT. HLB) H0 = HLB
        IF (H0 .GT. HUB) H0 = HUB
 

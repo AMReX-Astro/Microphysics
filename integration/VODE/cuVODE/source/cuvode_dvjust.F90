@@ -3,7 +3,6 @@ module cuvode_dvjust_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
   use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-  use cuvode_constants_module
 
   implicit none
 
@@ -66,10 +65,10 @@ contains
 
        ! Order decrease. ------------------------------------------------------
        do J = 1, VODE_LMAX
-          vstate % EL(J) = ZERO
+          vstate % EL(J) = 0.0_rt
        end do
-       vstate % EL(3) = ONE
-       HSUM = ZERO
+       vstate % EL(3) = 1.0_rt
+       HSUM = 0.0_rt
        do J = 1,NQM2
           ! Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)). ---------------
           HSUM = HSUM + vstate % TAU(J)
@@ -92,13 +91,13 @@ contains
 
        ! Order increase. ------------------------------------------------------
        do J = 1, VODE_LMAX
-          vstate % EL(J) = ZERO
+          vstate % EL(J) = 0.0_rt
        end do
-       vstate % EL(3) = ONE
-       ALPH0 = -ONE
-       ALPH1 = ONE
-       PROD = ONE
-       XIOLD = ONE
+       vstate % EL(3) = 1.0_rt
+       ALPH0 = -1.0_rt
+       ALPH1 = 1.0_rt
+       PROD = 1.0_rt
+       XIOLD = 1.0_rt
        HSUM = vstate % HSCAL
        IF (vstate % NQ /= 1) then
           do J = 1, NQM1
@@ -107,8 +106,8 @@ contains
              HSUM = HSUM + vstate % TAU(JP1)
              XI = HSUM/vstate % HSCAL
              PROD = PROD*XI
-             ALPH0 = ALPH0 - ONE/REAL(JP1)
-             ALPH1 = ALPH1 + ONE/XI
+             ALPH0 = ALPH0 - 1.0_rt/REAL(JP1)
+             ALPH1 = ALPH1 + 1.0_rt/XI
              do IBACK = 1, JP1
                 I = (J + 4) - IBACK
                 vstate % EL(I) = vstate % EL(I) * XIOLD + vstate % EL(I-1)

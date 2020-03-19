@@ -3,8 +3,6 @@ module cuvode_dvnorm_module
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
 
-  use cuvode_constants_module
-
   implicit none
 
 contains

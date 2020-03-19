@@ -3,7 +3,6 @@ module cuvode_dvindy_module
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
   use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
-  use cuvode_constants_module
 
   implicit none
 
@@ -70,7 +69,7 @@ contains
     character (len=80) :: MSG
 #endif
 
-    integer, parameter :: K = ZERO
+    integer, parameter :: K = 0.0_rt
     !don -- remove logic for K != 0 (we only use K = 0).
 
     !$gpu
@@ -80,19 +79,19 @@ contains
 
 #ifndef AMREX_USE_CUDA
        MSG = 'DVINDY-- K (=I1) illegal      '
-       CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, ZERO, ZERO)
+       CALL XERRWD (MSG, 30, 51, 1, 1, K, 0, 0, 0.0_rt, 0.0_rt)
 #endif
        IFLAG = -1
        RETURN
     endif
 
-    TFUZZ = HUN * vstate % UROUND * (vstate % TN + vstate % HU)
+    TFUZZ = 100.0_rt * vstate % UROUND * (vstate % TN + vstate % HU)
     TP = vstate % TN - vstate % HU - TFUZZ
     TN1 = vstate % TN + TFUZZ
-    IF ((vstate % TOUT-TP)*(vstate % TOUT-TN1) .GT. ZERO) then
+    IF ((vstate % TOUT-TP)*(vstate % TOUT-TN1) .GT. 0.0_rt) then
 #ifndef AMREX_USE_CUDA
        MSG = 'DVINDY-- vstate % TOUT (=R1) illegal      '
-       CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, ZERO)
+       CALL XERRWD (MSG, 30, 52, 1, 0, 0, 0, 1, vstate % TOUT, 0.0_rt)
        MSG='      vstate % TOUT not in interval TCUR - HU (= R1) to TCUR (=R2)      '
        CALL XERRWD (MSG, 60, 52, 1, 0, 0, 0, 2, TP, vstate % TN)
 #endif

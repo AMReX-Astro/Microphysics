@@ -7,7 +7,6 @@ module cuvode_dvstep_module
   use cuvode_dvjust_module
   use cuvode_dvnlsd_module
   use cuvode_nordsieck_module
-  use cuvode_constants_module
 
   implicit none
 
@@ -105,8 +104,8 @@ contains
     logical :: already_set_eta
     !$gpu
 
-    ETAQ   = ONE
-    ETAQM1 = ONE
+    ETAQ   = 1.0_rt
+    ETAQM1 = 1.0_rt
 
     vstate % KFLAG = 0
     TOLD = vstate % TN
@@ -132,8 +131,8 @@ contains
           vstate % L = 2
           vstate % NQNYH = vstate % NQ * VODE_NEQS
           vstate % TAU(1) = vstate % H
-          vstate % PRL1 = ONE
-          vstate % RC = ZERO
+          vstate % PRL1 = 1.0_rt
+          vstate % RC = 0.0_rt
           vstate % ETAMAX = ETAMX1
           vstate % NQWAIT = 2
           vstate % HSCAL = vstate % H
@@ -193,7 +192,7 @@ contains
           FLOTL = REAL(VODE_LMAX)
           IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
              DDN = DVNORM (vstate % SAVF, vstate % EWT)/vstate % TQ(1)
-             vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+             vstate % ETA = 1.0_rt/((BIAS1*DDN)**(1.0_rt/FLOTL) + ADDON)
           ENDIF
           IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
           IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
@@ -202,16 +201,16 @@ contains
           ENDIF
           IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
              DDN = DVNORM (vstate % SAVF, vstate % EWT)/vstate % TQ(1)
-             vstate % ETA = ONE/((BIAS1*DDN)**(ONE/FLOTL) + ADDON)
+             vstate % ETA = 1.0_rt/((BIAS1*DDN)**(1.0_rt/FLOTL) + ADDON)
              CALL DVJUST (-1, vstate)
           ENDIF
-          vstate % ETA = MIN(vstate % ETA,ONE)
+          vstate % ETA = MIN(vstate % ETA,1.0_rt)
           vstate % NQ = VODE_MAXORD
           vstate % L = VODE_LMAX
        end IF
        IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
        IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
-       vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
+       vstate % ETA = vstate % ETA/MAX(1.0_rt,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
        vstate % NEWH = 1
        vstate % NQWAIT = vstate % L
        IF (vstate % NEWQ .LE. VODE_MAXORD) then
@@ -238,7 +237,7 @@ contains
     if (do_initialization) then
        ! Rescale the history array for a change in H by a factor of ETA. ------
 
-       R = ONE
+       R = 1.0_rt
 
        do J = 2, vstate % L
           R = R * vstate % ETA
@@ -264,7 +263,7 @@ contains
        call advance_nordsieck(vstate)
 
        CALL DVSET(vstate)
-       vstate % RL1 = ONE/vstate % EL(2)
+       vstate % RL1 = 1.0_rt/vstate % EL(2)
        vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
        vstate % PRL1 = vstate % RL1
        !
@@ -281,7 +280,7 @@ contains
           ! -----------------------------------------------------------------------
           NCF = NCF + 1
           vstate % NCFN = vstate % NCFN + 1
-          vstate % ETAMAX = ONE
+          vstate % ETAMAX = 1.0_rt
           vstate % TN = TOLD
 
           call retract_nordsieck(vstate)
@@ -307,7 +306,7 @@ contains
           NFLAG = -1
 
           ! Rescale the history array for a change in H by a factor of ETA. ------
-          R = ONE
+          R = 1.0_rt
 
           do J = 2, vstate % L
              R = R * vstate % ETA
@@ -327,7 +326,7 @@ contains
        ! -----------------------------------------------------------------------
 
        DSM = vstate % ACNRM/vstate % TQ(2)
-       IF (DSM <= ONE) then
+       IF (DSM <= 1.0_rt) then
           ! -----------------------------------------------------------------------
           !  After a successful step, update the YH and TAU arrays and decrement
           !  NQWAIT.  If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
@@ -352,15 +351,15 @@ contains
 
              vstate % CONP = vstate % TQ(5)
           end IF
-          IF (vstate % ETAMAX .NE. ONE) exit
+          IF (vstate % ETAMAX .NE. 1.0_rt) exit
           IF (vstate % NQWAIT .LT. 2) vstate % NQWAIT = 2
           vstate % NEWQ = vstate % NQ
           vstate % NEWH = 0
-          vstate % ETA = ONE
+          vstate % ETA = 1.0_rt
           vstate % HNEW = vstate % H
           vstate % ETAMAX = ETAMX3
           IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
-          R = ONE/vstate % TQ(2)
+          R = 1.0_rt/vstate % TQ(2)
           vstate % acor(:) = vstate % acor(:) * R
           vstate % JSTART = 1
           RETURN
@@ -387,16 +386,16 @@ contains
           vstate % JSTART = 1
           RETURN
        end IF
-       vstate % ETAMAX = ONE
+       vstate % ETAMAX = 1.0_rt
        IF (vstate % KFLAG > KFC) then
           ! Compute ratio of new H to current H at the current order. ------------
           FLOTL = REAL(vstate % L)
-          vstate % ETA = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
+          vstate % ETA = 1.0_rt/((BIAS2*DSM)**(1.0_rt/FLOTL) + ADDON)
           vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % H),ETAMIN)
           IF ((vstate % KFLAG .LE. -2) .AND. (vstate % ETA .GT. ETAMXF)) vstate % ETA = ETAMXF
 
           ! Rescale the history array for a change in H by a factor of ETA. ------
-          R = ONE
+          R = 1.0_rt
 
           do J = 2, vstate % L
              R = R * vstate % ETA
@@ -431,7 +430,7 @@ contains
           vstate % NQWAIT = vstate % L
 
           ! Rescale the history array for a change in H by a factor of ETA. ------
-          R = ONE
+          R = 1.0_rt
 
           do J = 2, vstate % L
              R = R * vstate % ETA
@@ -475,16 +474,16 @@ contains
 
     !  Compute ratio of new H to current H at the current order. ------------
     FLOTL = REAL(vstate % L)
-    ETAQ = ONE/((BIAS2*DSM)**(ONE/FLOTL) + ADDON)
+    ETAQ = 1.0_rt/((BIAS2*DSM)**(1.0_rt/FLOTL) + ADDON)
     IF (vstate % NQWAIT == 0) then
        vstate % NQWAIT = 2
-       ETAQM1 = ZERO
+       ETAQM1 = 0.0_rt
        IF (vstate % NQ /= 1) then
           ! Compute ratio of new H to current H at the current order less one. ---
           DDN = DVNORM (vstate % yh(:,vstate % L), vstate % ewt)/vstate % TQ(1)
-          ETAQM1 = ONE/((BIAS1*DDN)**(ONE/(FLOTL - ONE)) + ADDON)
+          ETAQM1 = 1.0_rt/((BIAS1*DDN)**(1.0_rt/(FLOTL - 1.0_rt)) + ADDON)
        end IF
-       ETAQP1 = ZERO
+       ETAQP1 = 0.0_rt
        IF (vstate % L /= VODE_LMAX) then
           ! Compute ratio of new H to current H at current order plus one. -------
           CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
@@ -492,7 +491,7 @@ contains
              vstate % savf(I) = vstate % acor(I) - CNQUOT * vstate % yh(I,VODE_LMAX)
           end do
           DUP = DVNORM (vstate % savf, vstate % ewt)/vstate % TQ(3)
-          ETAQP1 = ONE/((BIAS3*DUP)**(ONE/(FLOTL + ONE)) + ADDON)
+          ETAQP1 = 1.0_rt/((BIAS3*DUP)**(1.0_rt/(FLOTL + 1.0_rt)) + ADDON)
        end IF
        IF (ETAQ < ETAQP1) then
           IF (ETAQP1 .GT. ETAQM1) then
@@ -519,14 +518,14 @@ contains
     end if
 
     ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
-    IF (vstate % ETA >= THRESH .and. vstate % ETAMAX /= ONE) then
+    IF (vstate % ETA >= THRESH .and. vstate % ETAMAX /= 1.0_rt) then
        vstate % ETA = MIN(vstate % ETA,vstate % ETAMAX)
-       vstate % ETA = vstate % ETA/MAX(ONE,ABS(vstate % H)*vstate % HMXI * vstate % ETA)
+       vstate % ETA = vstate % ETA/MAX(1.0_rt,ABS(vstate % H)*vstate % HMXI * vstate % ETA)
        vstate % NEWH = 1
        vstate % HNEW = vstate % H * vstate % ETA
        vstate % ETAMAX = ETAMX3
        IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
-       R = ONE/vstate % TQ(2)
+       R = 1.0_rt/vstate % TQ(2)
        vstate % acor(:) = vstate % acor(:) * R
        vstate % JSTART = 1
        RETURN
@@ -534,11 +533,11 @@ contains
 
     vstate % NEWQ = vstate % NQ
     vstate % NEWH = 0
-    vstate % ETA = ONE
+    vstate % ETA = 1.0_rt
     vstate % HNEW = vstate % H
     vstate % ETAMAX = ETAMX3
     IF (vstate % NST .LE. 10) vstate % ETAMAX = ETAMX2
-    R = ONE/vstate % TQ(2)
+    R = 1.0_rt/vstate % TQ(2)
     vstate % acor(:) = vstate % acor(:) * R
     vstate % JSTART = 1
     RETURN
