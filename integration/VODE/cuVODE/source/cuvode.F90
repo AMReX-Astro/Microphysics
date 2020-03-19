@@ -631,8 +631,11 @@ contains
              return
 
           end IF
-          CALL DEWSET (vstate, rwork)
+
           do I = 1,VODE_NEQS
+
+             rwork % EWT(I) = vstate % RTOL(I) * abs(rwork % YH(I,1)) + vstate % ATOL(I)
+
              IF (rwork % ewt(I) .LE. ZERO) then
                 ! EWT(i) .le. 0.0 for some i (not at start of problem). ----------------
 #ifndef AMREX_USE_CUDA
@@ -878,6 +881,8 @@ contains
           IF ((TNEXT - TCRIT) * vstate % H .LE. ZERO) cycle
           vstate % H = (TCRIT - vstate % TN)*(ONE - FOUR * vstate % UROUND)
           vstate % KUTH = 1
+
+          cycle
 
        case (5)
           ! ITASK = 5.  See if TCRIT was reached and jump to exit. ---------------
