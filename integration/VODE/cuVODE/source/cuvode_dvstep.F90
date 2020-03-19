@@ -103,8 +103,6 @@ contains
     !           for local error measurements.  Local errors in y(i) are
     !           compared to 1.0/EWT(i) in various error tests.
     !  SAVF   = An array of working storage, of length N.
-    !           also used for input of YH(*,MAXORD+2) when JSTART = -1
-    !           and MAXORD .lt. the current order NQ.
     !  VSAV   = A work array of length N passed to subroutine VNLS.
     !  ACOR   = A work array of length N, used for the accumulated
     !           corrections.  On a successful return, ACOR(i) contains
@@ -171,124 +169,61 @@ contains
 
     do_initialization = .false.
 
-    if (vstate % jstart >= 0) then
+    IF (vstate % JSTART == 0) then
 
-       IF (vstate % JSTART == 0) then
-
-          ! -----------------------------------------------------------------------
-          !  On the first call, the order is set to 1, and other variables are
-          !  initialized.  ETAMAX is the maximum ratio by which H can be increased
-          !  in a single step.  It is normally 10, but is larger during the
-          !  first step to compensate for the small initial H.  If a failure
-          !  occurs (in corrector convergence or error test), ETAMAX is set to 1
-          !  for the next increase.
-          ! -----------------------------------------------------------------------
-          vstate % NQ = 1
-          vstate % L = 2
-          vstate % NQNYH = vstate % NQ * VODE_NEQS
-          vstate % TAU(1) = vstate % H
-          vstate % PRL1 = 1.0_rt
-          vstate % RC = 0.0_rt
-          vstate % ETAMAX = ETAMX1
-          vstate % NQWAIT = 2
-          vstate % HSCAL = vstate % H
-
-       else
-          ! -----------------------------------------------------------------------
-          !  Take preliminary actions on a normal continuation step (JSTART.GT.0).
-          !  If the driver changed H, then ETA must be reset and NEWH set to 1.
-          !  If a change of order was dictated on the previous step, then
-          !  it is done here and appropriate adjustments in the history are made.
-          !  On an order decrease, the history array is adjusted by DVJUST.
-          !  On an order increase, the history array is augmented by a column.
-          !  On a change of step size H, the history array YH is rescaled.
-          ! -----------------------------------------------------------------------
-
-          IF (vstate % KUTH .EQ. 1) THEN
-             vstate % ETA = MIN(vstate % ETA,vstate % H/vstate % HSCAL)
-             vstate % NEWH = 1
-          ENDIF
-          IF (vstate % NEWH .EQ. 0) then
-             do_initialization = .false.
-          else
-
-             IF (vstate % NEWQ .LT. vstate % NQ) THEN
-                CALL DVJUST (-1, vstate)
-                vstate % NQ = vstate % NEWQ
-                vstate % L = vstate % NQ + 1
-                vstate % NQWAIT = vstate % L
-             else IF (vstate % NEWQ .GT. vstate % NQ) THEN
-                CALL DVJUST (1, vstate)
-                vstate % NQ = vstate % NEWQ
-                vstate % L = vstate % NQ + 1
-                vstate % NQWAIT = vstate % L
-             ENDIF
-
-             do_initialization = .true.
-          end IF
-
-       end IF
+       ! -----------------------------------------------------------------------
+       !  On the first call, the order is set to 1, and other variables are
+       !  initialized.  ETAMAX is the maximum ratio by which H can be increased
+       !  in a single step.  It is normally 10, but is larger during the
+       !  first step to compensate for the small initial H.  If a failure
+       !  occurs (in corrector convergence or error test), ETAMAX is set to 1
+       !  for the next increase.
+       ! -----------------------------------------------------------------------
+       vstate % NQ = 1
+       vstate % L = 2
+       vstate % NQNYH = vstate % NQ * VODE_NEQS
+       vstate % TAU(1) = vstate % H
+       vstate % PRL1 = 1.0_rt
+       vstate % RC = 0.0_rt
+       vstate % ETAMAX = ETAMX1
+       vstate % NQWAIT = 2
+       vstate % HSCAL = vstate % H
 
     else
-
        ! -----------------------------------------------------------------------
-       !  The following block handles preliminaries needed when JSTART = -1.
-       !  If N was reduced, zero out part of YH to avoid undefined references.
-       !  If MAXORD was reduced to a value less than the tentative order NEWQ,
-       !  then NQ is set to MAXORD, and a new H ratio ETA is chosen.
-       !  Otherwise, we take the same preliminary actions as for JSTART .gt. 0.
-       !  In any case, NQWAIT is reset to L = NQ + 1 to prevent further
-       !  changes in order for that many steps.
-       !  The new H ratio ETA is limited by the input H if KUTH = 1,
-       !  by HMIN if KUTH = 0, and by HMXI in any case.
-       !  Finally, the history array YH is rescaled.
+       !  Take preliminary actions on a normal continuation step (JSTART.GT.0).
+       !  If the driver changed H, then ETA must be reset and NEWH set to 1.
+       !  If a change of order was dictated on the previous step, then
+       !  it is done here and appropriate adjustments in the history are made.
+       !  On an order decrease, the history array is adjusted by DVJUST.
+       !  On an order increase, the history array is augmented by a column.
+       !  On a change of step size H, the history array YH is rescaled.
        ! -----------------------------------------------------------------------
 
-       IF (vstate % NEWQ > VODE_MAXORD) then
-          FLOTL = REAL(VODE_LMAX)
-          IF (VODE_MAXORD .LT. vstate % NQ-1) THEN
-             DDN = sqrt(sum((vstate % SAVF * vstate % EWT)**2) / VODE_NEQS) / vstate % TQ(1)
-             vstate % ETA = 1.0_rt/((BIAS1*DDN)**(1.0_rt/FLOTL) + ADDON)
-          ENDIF
-          IF (VODE_MAXORD .EQ. vstate % NQ .AND. vstate % NEWQ .EQ. vstate % NQ+1) vstate % ETA = ETAQ
-          IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ+1) THEN
-             vstate % ETA = ETAQM1
-             CALL DVJUST (-1, vstate)
-          ENDIF
-          IF (VODE_MAXORD .EQ. vstate % NQ-1 .AND. vstate % NEWQ .EQ. vstate % NQ) THEN
-             DDN = sqrt(sum((vstate % SAVF * vstate % EWT)**2) / VODE_NEQS) / vstate % TQ(1)
-             vstate % ETA = 1.0_rt/((BIAS1*DDN)**(1.0_rt/FLOTL) + ADDON)
-             CALL DVJUST (-1, vstate)
-          ENDIF
-          vstate % ETA = MIN(vstate % ETA,1.0_rt)
-          vstate % NQ = VODE_MAXORD
-          vstate % L = VODE_LMAX
-       end IF
-       IF (vstate % KUTH .EQ. 1) vstate % ETA = MIN(vstate % ETA,ABS(vstate % H/vstate % HSCAL))
-       IF (vstate % KUTH .EQ. 0) vstate % ETA = MAX(vstate % ETA,vstate % HMIN/ABS(vstate % HSCAL))
-       vstate % ETA = vstate % ETA/MAX(1.0_rt,ABS(vstate % HSCAL)*vstate % HMXI*vstate % ETA)
-       vstate % NEWH = 1
-       vstate % NQWAIT = vstate % L
-       IF (vstate % NEWQ .LE. VODE_MAXORD) then
-          IF (vstate % NEWH .EQ. 0) then
-             do_initialization = .false.
-          else
-             IF (vstate % NEWQ .LT. vstate % NQ) THEN
-                CALL DVJUST (-1, vstate)
-                vstate % NQ = vstate % NEWQ
-                vstate % L = vstate % NQ + 1
-                vstate % NQWAIT = vstate % L
-             else if (vstate % NEWQ .GT. vstate % NQ) THEN
-                CALL DVJUST (1, vstate)
-                vstate % NQ = vstate % NEWQ
-                vstate % L = vstate % NQ + 1
-                vstate % NQWAIT = vstate % L
-             ENDIF
+       IF (vstate % KUTH .EQ. 1) THEN
+          vstate % ETA = MIN(vstate % ETA,vstate % H/vstate % HSCAL)
+          vstate % NEWH = 1
+       ENDIF
+       IF (vstate % NEWH .EQ. 0) then
+          do_initialization = .false.
+       else
 
-             do_initialization = .true.
-          end IF
+          IF (vstate % NEWQ .LT. vstate % NQ) THEN
+             CALL DVJUST (-1, vstate)
+             vstate % NQ = vstate % NEWQ
+             vstate % L = vstate % NQ + 1
+             vstate % NQWAIT = vstate % L
+          else IF (vstate % NEWQ .GT. vstate % NQ) THEN
+             CALL DVJUST (1, vstate)
+             vstate % NQ = vstate % NEWQ
+             vstate % L = vstate % NQ + 1
+             vstate % NQWAIT = vstate % L
+          ENDIF
+
+          do_initialization = .true.
        end IF
-    end if
+
+    end IF
 
     if (do_initialization) then
        ! Rescale the history array for a change in H by a factor of ETA. ------

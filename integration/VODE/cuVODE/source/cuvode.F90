@@ -9,7 +9,6 @@ module cuvode_module
   use cudafor
 #endif
   use cuvode_dvhin_module
-  use cuvode_dvindy_module
   use cuvode_dvstep_module
   
   implicit none
