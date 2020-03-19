@@ -49,9 +49,6 @@ module cuvode_types_module
      ! Jacobian method
      integer  :: MF_JAC
 
-     ! condopt - Conditional or optional input/output arguments to dvode
-     real(rt) :: condopt(4)
-
   end type dvode_t
 
 contains
