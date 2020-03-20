@@ -1,7 +1,7 @@
 module cuvode_module
 
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t
+  use cuvode_types_module, only: dvode_t, UROUND
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
@@ -70,8 +70,6 @@ contains
     !  The error weights in EWT are inverted after being loaded.
     ! -----------------------------------------------------------------------
 
-    vstate % UROUND = epsilon(1.0_rt)
-    vstate % SRUR = sqrt(vstate % UROUND)
     vstate % TN = vstate % T
 
     vstate % JSTART = 0
@@ -162,7 +160,7 @@ contains
           skip_loop_start = .false.
        end if
 
-       TOLSF = vstate % UROUND * sqrt(sum((vstate % YH(:,1) * vstate % EWT(:))**2) / VODE_NEQS)
+       TOLSF = UROUND * sqrt(sum((vstate % YH(:,1) * vstate % EWT(:))**2) / VODE_NEQS)
 
        if (TOLSF > 1.0_rt) then
           TOLSF = TOLSF*2.0_rt

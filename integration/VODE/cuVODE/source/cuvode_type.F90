@@ -6,13 +6,16 @@ module cuvode_types_module
 
   implicit none
 
+  real(rt), parameter :: UROUND = epsilon(1.0_rt)
+  real(rt), parameter :: SRUR = sqrt(UROUND)
+
   ! Type dvode_t contains the integration solution and control variables
   type :: dvode_t
      ! Variables previously in common blocks
      real(rt) :: HU
      real(rt) :: ACNRM, CCMXJ, CONP, CRATE, DRC, EL(13)
      real(rt) :: ETA, ETAMAX, H, HMIN, HMXI, HNEW, HSCAL, PRL1
-     real(rt) :: RC, RL1, TAU(13), TQ(5), TN, UROUND, SRUR
+     real(rt) :: RC, RL1, TAU(13), TQ(5), TN
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
      integer    :: L
@@ -106,7 +109,6 @@ contains
     write(*,*) 'TQ(4) = ', dvode_state % TQ(4)
     write(*,*) 'TQ(5) = ', dvode_state % TQ(5)
     write(*,*) 'TN = ', dvode_state % TN
-    write(*,*) 'UROUND = ', dvode_state % UROUND
     write(*,*) 'NCFN = ', dvode_state % NCFN
     write(*,*) 'NETF = ', dvode_state % NETF
     write(*,*) 'NFE = ', dvode_state % NFE

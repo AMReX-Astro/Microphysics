@@ -1,7 +1,7 @@
 module cuvode_dvhin_module
 
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t
+  use cuvode_types_module, only: dvode_t, UROUND
   use amrex_fort_module, only: rt => amrex_real
 
   implicit none
@@ -52,7 +52,7 @@ contains
 
     NITER = 0
     TDIST = abs(vstate % TOUT - vstate % T)
-    TROUND = vstate % UROUND * max(abs(vstate % T), abs(vstate % TOUT))
+    TROUND = UROUND * max(abs(vstate % T), abs(vstate % TOUT))
 
     if (TDIST < 2.0_rt*TROUND) then
        ! Error return for vstate % TOUT - vstate % T too small. --------------------------------
