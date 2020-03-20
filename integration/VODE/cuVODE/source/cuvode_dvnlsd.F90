@@ -1,6 +1,6 @@
 module cuvode_dvnlsd_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
+  use cuvode_parameters_module, only: VODE_NEQS
   use cuvode_types_module, only: dvode_t
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
@@ -146,8 +146,6 @@ contains
           end do
 
           call dgesl(vstate % jac, pivot, vstate % Y(:))
-
-          vstate % NNI = vstate % NNI + 1
 
           if (vstate % RC /= 1.0_rt) then
              CSCALE = 2.0_rt / (1.0_rt + vstate % RC)

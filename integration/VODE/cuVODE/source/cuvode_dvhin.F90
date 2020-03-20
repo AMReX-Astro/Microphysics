@@ -1,6 +1,6 @@
 module cuvode_dvhin_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
+  use cuvode_parameters_module, only: VODE_NEQS
   use cuvode_types_module, only: dvode_t, UROUND
   use amrex_fort_module, only: rt => amrex_real
 

@@ -1,7 +1,8 @@
 module cuvode_dvjac_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t, UROUND, SRUR
+  use cuvode_parameters_module, only: VODE_NEQS
+  use cuvode_types_module, only: dvode_t, UROUND, SRUR, max_steps_between_jacobian_evals, &
+                                 CCMXJ
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
 
@@ -57,13 +58,13 @@ contains
        ! On the first step we don't have a cached Jacobian. Also, after enough
        ! steps, we consider the cached Jacobian too old and will want to re-evaluate
        ! it, so we look at whether the step of the last Jacobian evaluation (NSLJ)
-       ! is more than MSBJ steps in the past.
-       if (vstate % NST == 0 .or. vstate % NST > vstate % NSLJ + vstate % MSBJ) then
+       ! is more than max_steps_between_jacobian_evals steps in the past.
+       if (vstate % NST == 0 .or. vstate % NST > vstate % NSLJ + max_steps_between_jacobian_evals) then
           evaluate_jacobian = 1
        end if
 
        ! See the non-linear solver for details on these conditions.
-       if (vstate % ICF == 1 .and. vstate % DRC .LT. vstate % CCMXJ) then
+       if (vstate % ICF == 1 .and. vstate % DRC .LT. CCMXJ) then
           evaluate_jacobian = 1
        end if
 
@@ -180,7 +181,6 @@ contains
        vstate % jac(j) = vstate % jac(j) + 1.0_rt
        j = j + VODE_NEQS + 1
     end do
-    vstate % NLU = vstate % NLU + 1
 
     call dgefa(vstate % jac, pivot, IER)
 
