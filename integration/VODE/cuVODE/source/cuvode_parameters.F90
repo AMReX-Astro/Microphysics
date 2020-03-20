@@ -6,18 +6,6 @@ module cuvode_parameters_module
   ! User-definable number of equations
   integer, parameter :: VODE_NEQS = 0
 
-  ! Our problem is stiff, so tell ODEPACK that. 21 means stiff, jacobian
-  ! function is supplied; 22 means stiff, figure out my jacobian through
-  ! differencing.
-
-#ifdef AMREX_USE_CUDA
-  ! Negative method flags mean on the GPU we turn off Jacobian caching
-  ! to reduce our memory requirements.
-  integer, parameter :: MF_ANALYTIC_JAC = -21, MF_NUMERICAL_JAC = -22
-#else
-  integer, parameter :: MF_ANALYTIC_JAC = 21, MF_NUMERICAL_JAC = 22
-#endif
-
   ! For VODE, LMAX = MAXORD + 1, so the following are specific
   ! to our choice of method (see the dvode README for details)
 

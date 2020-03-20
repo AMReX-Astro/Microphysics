@@ -22,47 +22,8 @@ contains
     !  iteration or a chord (modified Newton) method.  For the chord method
     !  direct linear algebraic system solvers are used.  Subroutine DVNLSD
     !  then handles the corrector phase of this integration package.
-    !
-    !  Communication with DVNLSD is done with the following variables. (For
-    !  more details, please see the comments in the driver subroutine.)
-    !
-    !  Y          = The dependent variable, a array of length N, input.
-    !  YH         = The Nordsieck (Taylor) array, LDYH by LMAX, input
-    !               and output.  On input, it contains predicted values.
-    !  LDYH       = A constant .ge. N, the first dimension of YH, input.
-    !  VSAV       = Unused work array.
-    !  SAVF       = A work array of length N.
-    !  EWT        = An error weight array of length N, input.
-    !  ACOR       = A work array of length N, used for the accumulated
-    !               corrections to the predicted y array.
-    !  F          = Dummy name for user supplied routine for f.
-    !  JAC        = Dummy name for user supplied Jacobian routine.
-    !  PDUM       = Unused dummy subroutine name.  Included for uniformity
-    !               over collection of integrators.
-    !  NFLAG      = Input/output flag, with values and meanings as follows:
-    !               INPUT
-    !                   0 first call for this time step.
-    !                  -1 convergence failure in previous call to DVNLSD.
-    !                  -2 error test failure in DVSTEP.
-    !               OUTPUT
-    !                   0 successful completion of nonlinear solver.
-    !                  -1 convergence failure or singular matrix.
-    !                  -2 unrecoverable error in matrix preprocessing
-    !                     (cannot occur here).
-    !                  -3 unrecoverable error in solution (cannot occur
-    !                     here).
-    !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
-    !
-    !  IPUP       = Own variable flag with values and meanings as follows:
-    !               0,            do not update the Newton matrix.
-    !               MITER .ne. 0, update Newton matrix, because it is the
-    !                             initial step, order was changed, the error
-    !                             test failed, or an update is indicated by
-    !                             the scalar RC or step counter NST.
-    !
-    !  For more details, see comments in driver subroutine.
     ! -----------------------------------------------------------------------
-    !
+
 #ifdef TRUE_SDC
     use sdc_vode_rhs_module, only: f_rhs, jac
 #else
@@ -96,22 +57,22 @@ contains
 
     ! -----------------------------------------------------------------------
     !  On the first step, on a change of method order, or after a
-    !  nonlinear convergence failure with NFLAG = -2, set IPUP = MITER
+    !  nonlinear convergence failure with NFLAG = -2, set IPUP = jacobian
     !  to force a Jacobian update.
     ! -----------------------------------------------------------------------
     IF (vstate % JSTART .EQ. 0) vstate % NSLP = 0
     IF (NFLAG .EQ. 0) vstate % ICF = 0
-    IF (NFLAG .EQ. -2) vstate % IPUP = vstate % MITER
-    IF (vstate % JSTART .EQ. 0) vstate % IPUP = vstate % MITER
+    IF (NFLAG .EQ. -2) vstate % IPUP = vstate % jacobian
+    IF (vstate % JSTART .EQ. 0) vstate % IPUP = vstate % jacobian
 
     ! -----------------------------------------------------------------------
     !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
-    !  When RC differs from 1 by more than CCMAX, IPUP is set to MITER
+    !  When RC differs from 1 by more than CCMAX, IPUP is set to jacobian
     !  to force DVJAC to be called, if a Jacobian is involved.
     !  In any case, DVJAC is called at least every MSBP steps.
     ! -----------------------------------------------------------------------
     vstate % DRC = ABS(vstate % RC-1.0_rt)
-    IF (vstate % DRC .GT. CCMAX .OR. vstate % NST .GE. vstate % NSLP+MSBP) vstate % IPUP = vstate % MITER
+    IF (vstate % DRC .GT. CCMAX .OR. vstate % NST .GE. vstate % NSLP+MSBP) vstate % IPUP = vstate % jacobian
 
     ! -----------------------------------------------------------------------
     !  Up to MAXCOR corrector iterations are taken.  A convergence test is
@@ -147,7 +108,7 @@ contains
           IF (IERPJ .NE. 0) then
              NFLAG = -1
              vstate % ICF = 2
-             vstate % IPUP = vstate % MITER
+             vstate % IPUP = vstate % jacobian
              RETURN
           end IF
 
@@ -239,12 +200,12 @@ contains
        IF (vstate % JCUR .EQ. 1) then
           NFLAG = -1
           vstate % ICF = 2
-          vstate % IPUP = vstate % MITER
+          vstate % IPUP = vstate % jacobian
           RETURN
        end IF
 
        vstate % ICF = 1
-       vstate % IPUP = vstate % MITER
+       vstate % IPUP = vstate % jacobian
 
     end do
 
