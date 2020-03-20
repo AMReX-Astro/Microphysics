@@ -1,7 +1,7 @@
 module cuvode_dvjac_module
 
   use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t
+  use cuvode_types_module, only: dvode_t, UROUND, SRUR
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
 
@@ -117,7 +117,7 @@ contains
           vstate % JCUR = 1
 
           fac = sqrt(sum((vstate % savf * vstate % ewt)**2) / VODE_NEQS)
-          R0 = 1000.0_rt * abs(vstate % H) * vstate % UROUND * real(VODE_NEQS) * fac
+          R0 = 1000.0_rt * abs(vstate % H) * UROUND * real(VODE_NEQS) * fac
           if (R0 == 0.0_rt) then
              R0 = 1.0_rt
           end if
@@ -126,7 +126,7 @@ contains
           do j = 1, VODE_NEQS
              yj = vstate % y(j)
 
-             R = max(vstate % SRUR * abs(yj), R0 / vstate % EWT(j))
+             R = max(SRUR * abs(yj), R0 / vstate % EWT(j))
              vstate % y(j) = vstate % y(j) + R
              fac = 1.0_rt/R
 
