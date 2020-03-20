@@ -184,7 +184,7 @@ contains
           ! -----------------------------------------------------------------------
 
           if (M /= 0) vstate % CRATE = max(CRDOWN * vstate % CRATE, DEL / DELP)
-          DCON = DEL * minn(1.0_rt, vstate % CRATE) / vstate % TQ(4)
+          DCON = DEL * min(1.0_rt, vstate % CRATE) / vstate % TQ(4)
           if (DCON <= 1.0_rt) then
              ! we converged, exit the outer loop
              converged = .true.
