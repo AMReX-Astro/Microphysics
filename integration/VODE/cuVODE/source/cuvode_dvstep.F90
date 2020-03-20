@@ -1,7 +1,7 @@
 module cuvode_dvstep_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
-  use cuvode_types_module, only: dvode_t
+  use cuvode_parameters_module, only: VODE_NEQS
+  use cuvode_types_module, only: dvode_t, VODE_LMAX, HMIN, HMXI
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_dvset_module
   use cuvode_dvjust_module
@@ -200,10 +200,6 @@ contains
        !  On a change of step size H, the history array YH is rescaled.
        ! -----------------------------------------------------------------------
 
-       if (vstate % KUTH == 1) then
-          vstate % ETA = min(vstate % ETA,vstate % H/vstate % HSCAL)
-          vstate % NEWH = 1
-       end if
        if (vstate % NEWH == 0) then
           do_initialization = .false.
        else
@@ -269,7 +265,6 @@ contains
           !  Otherwise, an error exit is taken.
           ! -----------------------------------------------------------------------
           NCF = NCF + 1
-          vstate % NCFN = vstate % NCFN + 1
           vstate % ETAMAX = 1.0_rt
           vstate % TN = TOLD
 
@@ -281,7 +276,7 @@ contains
              vstate % JSTART = 1
              return
           end if
-          if (abs(vstate % H) <= vstate % HMIN*ONEPSM) then
+          if (abs(vstate % H) <= HMIN * ONEPSM) then
              vstate % KFLAG = -2
              vstate % JSTART = 1
              return
@@ -292,7 +287,7 @@ contains
              return
           end if
           vstate % ETA = ETACF
-          vstate % ETA = max(vstate % ETA, vstate % HMIN / abs(vstate % H))
+          vstate % ETA = max(vstate % ETA, HMIN / abs(vstate % H))
           NFLAG = -1
 
           ! Rescale the history array for a change in H by a factor of ETA. ------
@@ -326,7 +321,6 @@ contains
           vstate % KFLAG = 0
           vstate % NST = vstate % NST + 1
           vstate % HU = vstate % H
-          vstate % NQU = vstate % NQ
           do IBACK = 1, vstate % NQ
              I = vstate % L - IBACK
              vstate % TAU(I+1) = vstate % TAU(I)
@@ -365,13 +359,12 @@ contains
        ! -----------------------------------------------------------------------
 
        vstate % KFLAG = vstate % KFLAG - 1
-       vstate % NETF = vstate % NETF + 1
        NFLAG = -2
        vstate % TN = TOLD
 
        call retract_nordsieck(vstate)
 
-       if (abs(vstate % H) <= vstate % HMIN*ONEPSM) then
+       if (abs(vstate % H) <= HMIN * ONEPSM) then
           vstate % KFLAG = -1
           vstate % JSTART = 1
           return
@@ -381,7 +374,7 @@ contains
           ! Compute ratio of new H to current H at the current order. ------------
           FLOTL = REAL(vstate % L)
           vstate % ETA = 1.0_rt/((BIAS2*DSM)**(1.0_rt/FLOTL) + ADDON)
-          vstate % ETA = max(vstate % ETA, vstate % HMIN / abs(vstate % H), ETAMIN)
+          vstate % ETA = max(vstate % ETA, HMIN / abs(vstate % H), ETAMIN)
           if ((vstate % KFLAG <= -2) .and. (vstate % ETA > ETAMXF)) vstate % ETA = ETAMXF
 
           ! Rescale the history array for a change in H by a factor of ETA. ------
@@ -413,7 +406,7 @@ contains
           return
        end if
        if (vstate % NQ /= 1) then
-          vstate % ETA = max(ETAMIN,vstate % HMIN/abs(vstate % H))
+          vstate % ETA = max(ETAMIN, HMIN / abs(vstate % H))
           call DVJUST (-1, vstate)
           vstate % L = vstate % NQ
           vstate % NQ = vstate % NQ - 1
@@ -435,7 +428,7 @@ contains
 
        end if
 
-       vstate % ETA = max(ETAMIN, vstate % HMIN / abs(vstate % H))
+       vstate % ETA = max(ETAMIN, HMIN / abs(vstate % H))
        vstate % H = vstate % H * vstate % ETA
        vstate % HSCAL = vstate % H
        vstate % TAU(1) = vstate % H
@@ -507,10 +500,10 @@ contains
        vstate % NEWQ = vstate % NQ
     end if
 
-    ! Test tentative new H against THRESH, ETAMAX, and HMXI, then exit. ----
+    ! Test tentative new H against THRESH and ETAMAX, and HMXI, then exit. ----
     if (vstate % ETA >= THRESH .and. vstate % ETAMAX /= 1.0_rt) then
        vstate % ETA = min(vstate % ETA,vstate % ETAMAX)
-       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * vstate % HMXI * vstate % ETA)
+       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * HMXI * vstate % ETA)
        vstate % NEWH = 1
        vstate % HNEW = vstate % H * vstate % ETA
        vstate % ETAMAX = ETAMX3

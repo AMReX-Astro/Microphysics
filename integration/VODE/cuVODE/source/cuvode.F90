@@ -1,6 +1,6 @@
 module cuvode_module
 
-  use cuvode_parameters_module, only: VODE_LMAX, VODE_NEQS, VODE_MAXORD
+  use cuvode_parameters_module, only: VODE_NEQS
   use cuvode_types_module, only: dvode_t, UROUND
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
@@ -50,19 +50,14 @@ contains
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
     integer, parameter :: MXHNL0 = 10
-    real(rt), parameter :: PT2 = 0.2e0_rt
 
     logical :: skip_loop_start
 
     !$gpu
 
-    vstate % INIT = 0
     if (vstate % TOUT .EQ. vstate % T) RETURN
 
     H0 = 0.0_rt
-
-    vstate % HMIN = 0.0_rt
-    vstate % HMXI = 0.0_rt
 
     ! -----------------------------------------------------------------------
     !  All remaining initializations, the initial call to F,
@@ -73,18 +68,11 @@ contains
     vstate % TN = vstate % T
 
     vstate % JSTART = 0
-    vstate % CCMXJ = PT2
-    vstate % MSBJ = 50
     vstate % NST = 0
     vstate % NJE = 0
-    vstate % NNI = 0
-    vstate % NCFN = 0
-    vstate % NETF = 0
-    vstate % NLU = 0
     vstate % NSLJ = 0
     NSLAST = 0
     vstate % HU = 0.0_rt
-    vstate % NQU = 0
 
     ! Initial call to F.  -------------------------
 
@@ -226,9 +214,6 @@ contains
        !  The following block handles the case of a successful return from the
        !  core integrator (KFLAG = 0).  Test for stop conditions.
        ! -----------------------------------------------------------------------
-
-       vstate % INIT = 1
-       vstate % KUTH = 0
 
        if ((vstate % TN - vstate % TOUT) * vstate % H .LT. 0.0_rt) cycle
 
