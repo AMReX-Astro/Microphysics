@@ -16,7 +16,7 @@ module cuvode_types_module
      integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
      integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
      integer    :: L
-     integer    :: MAXORD, MITER, MSBJ, MXHNIL, MXSTEP
+     integer    :: MAXORD, MSBJ, MXHNIL, MXSTEP
      integer    :: NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ
      integer    :: NSLP
 
@@ -47,7 +47,7 @@ module cuvode_types_module
      real(rt) :: acor(VODE_NEQS)
 
      ! Jacobian method
-     integer  :: MF_JAC
+     integer  :: jacobian
 
   end type dvode_t
 
@@ -124,7 +124,6 @@ contains
     write(*,*) 'KFLAG = ', dvode_state % KFLAG
     write(*,*) 'KUTH = ', dvode_state % KUTH
     write(*,*) 'L = ', dvode_state % L
-    write(*,*) 'MITER = ', dvode_state % MITER
     write(*,*) 'MSBJ = ', dvode_state % MSBJ
     write(*,*) 'MXHNIL = ', dvode_state % MXHNIL
     write(*,*) 'MXSTEP = ', dvode_state % MXSTEP

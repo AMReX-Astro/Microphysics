@@ -59,12 +59,6 @@ contains
     vstate % INIT = 0
     if (vstate % TOUT .EQ. vstate % T) RETURN
 
-    ! Compute Jacobian choices based on MF_JAC.
-
-    vstate % JSV = SIGN(1, vstate % MF_JAC)
-    MFA = ABS(vstate % MF_JAC)
-    vstate % MITER = MFA - 20
-
     H0 = 0.0_rt
 
     vstate % HMIN = 0.0_rt

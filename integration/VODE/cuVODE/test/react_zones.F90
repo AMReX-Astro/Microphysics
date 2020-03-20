@@ -66,7 +66,7 @@ contains
           do kk = lo(3), hi(3)
 
              ! Use an analytic Jacobian
-             dvode_state % MF_JAC = MF_ANALYTIC_JAC
+             dvode_state % jacobian = 1
 
              ! Set the absolute tolerances
              dvode_state % atol(1) = 1.e-8_rt
@@ -81,6 +81,7 @@ contains
              ! We want VODE to re-initialize each time we call it.
              dvode_state % istate = 1
 
+             ! Take no more than 500 steps.
              dvode_state % MXSTEP = 500
 
              ! Initialize the integration time and set the final time to dt

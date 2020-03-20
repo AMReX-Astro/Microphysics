@@ -63,19 +63,18 @@ contains
 
     !$gpu
 
-    if (jacobian == 1) then ! Analytical
-       dvode_state % MF_JAC = MF_ANALYTIC_JAC_CACHED
-    else if (jacobian == 2) then ! Numerical
-       dvode_state % MF_JAC = MF_NUMERICAL_JAC_CACHED
-    else
-#ifndef AMREX_USE_CUDA
-       call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
-#endif
-    endif
+    dvode_state % jacobian = jacobian
 
-    if (.not. use_jacobian_caching) then
-       dvode_state % MF_JAC = -dvode_state % MF_JAC
+#ifdef AMREX_USE_CUDA
+    ! For CUDA, skip Jacobian caching to lessen memory requirements.
+    dvode_state % JSV = -1
+#else
+    if (use_jacobian_caching) then
+       dvode_state % JSV = 1
+    else
+       dvode_state % JSV = -1
     endif
+#endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
