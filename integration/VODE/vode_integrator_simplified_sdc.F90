@@ -65,16 +65,11 @@ contains
 
     dvode_state % jacobian = jacobian
 
-#ifdef AMREX_USE_CUDA
-    ! For CUDA, skip Jacobian caching to lessen memory requirements.
-    dvode_state % JSV = -1
-#else
     if (use_jacobian_caching) then
        dvode_state % JSV = 1
     else
        dvode_state % JSV = -1
     endif
-#endif
 
     ! Set the tolerances.  We will be more relaxed on the temperature
     ! since it is only used in evaluating the rates.
