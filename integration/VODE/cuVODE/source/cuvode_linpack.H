@@ -1,150 +1,138 @@
-module linpack_module
+#ifndef _cuvode_linpack_H_
+#define _cuvode_linpack_H_
 
-  use cuvode_parameters_module, only: VODE_NEQS
-  use amrex_fort_module, only : rt => amrex_real
+#include <AMReX_REAL.H>
+#include <cuvode_parameters.H>
 
-  implicit none
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void dgesl (Real* a[][VODE_NEQS], int* ipvt, Real* b)
+{
 
-contains
+    int nm1 = VODE_NEQS - 1;
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif  
-  subroutine dgesl(a, ipvt, b)
+    // solve a * x = b
+    // first solve l * y = b
+    if (nm1 >= 1) {
+        for (int k = 1; k <= nm1; ++k) {
+            int l = ipvt[k-1];
+            Real t = b[l-1];
+            if (l != k) {
+                b[l-1] = b[k-1];
+                b[k-1] = t;
+            }
 
-    implicit none
+            for (int j = k+1; j <= VODE_NEQS; ++j) {
+                b[j-1] += t * a[k-1][j-1];
+            }
+        }
+    }
 
-    integer,  intent(in   ) :: ipvt(VODE_NEQS)
-    real(rt), intent(in   ) :: a(VODE_NEQS,VODE_NEQS)
-    real(rt), intent(inout) :: b(VODE_NEQS)
+    // now solve u * x = y
+    for (int kb = 1; kb <= VODE_NEQS; ++kb) {
 
-    real(rt) :: t
-    integer  :: k, kb, l, nm1
+        int k = VODE_NEQS + 1 - kb;
+        b[k-1] = b[k-1] / a[k-1][k-1];
+        Real t = -b[k-1];
+        for (int j = 1; j <= k-1; ++j) {
+            b[j-1] += t * a[k-1][j-1];
+        }
+    }
 
-    !$gpu
+}
 
-    nm1 = VODE_NEQS - 1
 
-    ! solve a * x = b
-    ! first solve l * y = b
-    if (nm1 >= 1) then
-       do k = 1, nm1
-          l = ipvt(k)
-          t = b(l)
-          if (l /= k) then
-             b(l) = b(k)
-             b(k) = t
-          end if
-          b(k+1:VODE_NEQS) = b(k+1:VODE_NEQS) + t * a(k+1:VODE_NEQS,k)
-       end do
-    end if
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void dgefa (Real* a[][VODE_NEQS], int* ipvt, int& info)
+{
 
-    ! now solve u * x = y
-    do kb = 1, VODE_NEQS
-       k = VODE_NEQS + 1 - kb
-       b(k) = b(k) / a(k,k)
-       t = -b(k)
-       b(1:k-1) = b(1:k-1) + t * a(1:k-1,k)
-    end do
-
-  end subroutine dgesl
-
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  subroutine dgefa (a, ipvt, info)
-
-    real(rt), intent(inout) :: a(VODE_NEQS, VODE_NEQS)
-    integer,  intent(inout) :: ipvt(VODE_NEQS), info
-
-    ! dgefa factors a matrix by gaussian elimination.
-    ! a is returned in the form a = l * u where
-    ! l is a product of permutation and unit lower
-    ! triangular matrices and u is upper triangular.
+    // dgefa factors a matrix by gaussian elimination.
+    // a is returned in the form a = l * u where
+    // l is a product of permutation and unit lower
+    // triangular matrices and u is upper triangular.
 
     real(rt) :: t
     integer  :: j, k, kp1, l, nm1
 
-    !$gpu
+    // gaussian elimination with partial pivoting
 
-    ! gaussian elimination with partial pivoting
+    info = 0;
+    nm1 = VODE_NEQS - 1;
 
-    info = 0
-    nm1 = VODE_NEQS - 1
+    if (nm1 >= 1) {
 
-    if (nm1 >= 1) then
+        for (int k = 1; k <= nm1; ++k) {
 
-       do k = 1, nm1
+            // find l = pivot index
+            int l = idamax(VODE_NEQS-k+1, &a[k-1][k-1]) + k - 1;
+            ipvt[k-1] = l;
 
-          kp1 = k + 1
+            // zero pivot implies this column already triangularized
+            if (a[k-1][l-1] != 0.0e0_rt) {
 
-          ! find l = pivot index
-          l = idamax(VODE_NEQS-k+1, a(k:VODE_NEQS,k)) + k - 1
-          ipvt(k) = l
+                // interchange if necessary
+                if (l /= k) {
+                    Real t = a[k-1][l-1];
+                    a[k-1][l-1] = a[k-1][k-1];
+                    a[k-1][k-1] = t;
+                }
 
-          ! zero pivot implies this column already triangularized
-          if (a(l,k) /= 0.0e0_rt) then
+                // compute multipliers
+                Real t = -1.0e0_rt / a[k-1][k-1];
+                for (int j = k+1; j <= VODE_NEQS; ++j) {
+                    a[k-1][j-1] *= t;
+                }
 
-             ! interchange if necessary
-             if (l /= k) then
-                t = a(l,k)
-                a(l,k) = a(k,k)
-                a(k,k) = t
-             end if
+                // row elimination with column indexing
+                for (int j = k+1; j <= VODE_NEQS; ++j) {
+                    Real t = a[j-1][l-1];
+                    if (l != k) {
+                        a[j-1][l-1] = a[j-1][k-1];
+                        a[j-1][k-1] = t;
+                    }
+                    for (int i = k+1; i <= VODE_NEQS; ++i) {
+                        a[j-1][i-1] += t * a[k-1][i-1];
+                    }
+                }
+            }
+            else {
 
-             ! compute multipliers
-             t = -1.0e0_rt / a(k,k)
-             a(k+1:VODE_NEQS,k) = a(k+1:VODE_NEQS,k) * t
+                info = k;
 
-             ! row elimination with column indexing
-             do j = kp1, VODE_NEQS
-                t = a(l,j)
-                if (l /= k) then
-                   a(l,j) = a(k,j)
-                   a(k,j) = t
-                end if
-                a(k+1:VODE_NEQS,j) = a(k+1:VODE_NEQS,j) + t * a(k+1:VODE_NEQS,k)
-             end do
+            }
 
-          else
+        }
 
-             info = k
+    }
 
-          end if
+    ipvt[VODE_NEQS-1] = VODE_NEQS;
 
-       end do
+    if (a[VODE_NEQS-1][VODE_NEQS-1] == 0.0e0_rt) {
+        info = VODE_NEQS;
+    }
 
-    end if
+}
 
-    ipvt(VODE_NEQS) = VODE_NEQS
-    if (a(VODE_NEQS,VODE_NEQS) .eq. 0.0e0_rt) info = VODE_NEQS
 
-  end subroutine dgefa
-
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  function idamax(N, x) result(index)
-
-    implicit none
-
-    integer,  intent(in) :: N
-    real(rt), intent(in) :: x(N)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int idamax (int N, Real* x)
+{
 
     real(rt) :: dmax
     integer  :: i, index
 
-    !$gpu
+    int index = 1;
 
-    index = 1
+    Real dmax = std::abs(x[0]);
+    for (int i = 2; i <= N; ++i) {
+        if (std::abs(x[i-1]) <= dmax) {
+            continue;
+        }
+        index = i;
+        dmax = std::abs(x[i-1]);
+    }
 
-    dmax = abs(x(1))
-    do i = 2, N
-       if (abs(x(i)) .le. dmax) cycle
-       index = i
-       dmax = abs(x(i))
-    end do
+    return index;
 
-  end function idamax
+}
 
-end module linpack_module
+#endif
