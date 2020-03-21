@@ -1,8 +1,7 @@
-module cuvode_parameters_module
+#ifndef _cuvode_parameters_H_
+#define _cuvode_parameters_H_
 
-  implicit none
+// User-definable number of equations
+const int VODE_NEQS = 0;
 
-  ! User-definable number of equations
-  integer, parameter :: VODE_NEQS = 0
-
-end module cuvode_parameters_module
+#endif

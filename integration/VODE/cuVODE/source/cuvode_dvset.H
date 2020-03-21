@@ -1,60 +1,24 @@
-module cuvode_dvset_module
+#ifndef _cuvode_dvset_H_
+#define _cuvode_dvset_H_
 
-  use cuvode_types_module, only: dvode_t
-  use amrex_fort_module, only: rt => amrex_real
+#include <cuvode_type.H>
 
-  implicit none
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void dvset (dvode_t& vstate)
+{
 
-contains
-
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  subroutine dvset(vstate)
-
-    !$acc routine seq
-    
-    ! -----------------------------------------------------------------------
-    !  DVSET is called by DVSTEP and sets coefficients for use there.
-    ! 
-    !  For each order NQ, the coefficients in EL are calculated by use of
-    !   the generating polynomial lambda(x), with coefficients EL(i).
-    !       lambda(x) = EL(1) + EL(2)*x + ... + EL(NQ+1)*(x**NQ).
-    !  For the backward differentiation formulas,
-    !                                      NQ-1
-    !       lambda(x) = (1 + x/xi*(NQ)) * product (1 + x/xi(i) ) .
-    !                                      i = 1
-    !  For the Adams formulas,
-    !                               NQ-1
-    !       (d/dx) lambda(x) = c * product (1 + x/xi(i) ) ,
-    !                               i = 1
-    !       lambda(-1) = 0,    lambda(0) = 1,
-    !  where c is a normalization constant.
-    !  In both cases, xi(i) is defined by
-    !       H*xi(i) = t sub n  -  t sub (n-i)
-    !               = H + TAU(1) + TAU(2) + ... TAU(i-1).
-    ! 
-    ! 
-    !  In addition to variables described previously, communication
-    !  with DVSET uses the following:
-    !    TAU    = A array of length 13 containing the past NQ values
-    !             of H.
-    !    EL     = A array of length 13 in which vset stores the
-    !             coefficients for the corrector formula.
-    !    TQ     = A array of length 5 in which vset stores constants
-    !             used for the convergence test, the error test, and the
-    !             selection of H at a new order.
-    !    NQ     = The current order.
-    !    L      = NQ + 1, the length of the array stored in EL, and
-    !             the number of columns of the YH array being used.
-    !    NQWAIT = A counter controlling the frequency of order changes.
-    !             An order change is about to be considered if NQWAIT = 1.
-    ! -----------------------------------------------------------------------
-
-    implicit none
-
-    ! Declare arguments
-    type(dvode_t), intent(inout) :: vstate
+    // dvset is called by dvstep and sets coefficients for use there.
+    //
+    // For each order NQ, the coefficients in EL are calculated by use of
+    // the generating polynomial lambda(x), with coefficients EL(i).
+    //      lambda(x) = EL(1) + EL(2)*x + ... + EL(NQ+1)*(x**NQ).
+    // Since we are using the BDF method, this is
+    //                                     NQ-1
+    //     lambda(x) = (1 + x/xi*(NQ)) * product (1 + x/xi(i) ) .
+    //                                     i = 1
+    // xi(i) is defined by
+    // H*xi(i) = t sub n  -  t sub (n-i)
+    //         = H + TAU(1) + TAU(2) + ... TAU(i-1).
 
     ! Declare local variables
     real(rt) :: EM(13)
@@ -63,69 +27,68 @@ contains
     real(rt) :: T1, T2, T3, T4, T5, T6, XI
     integer    :: I, IBACK, J, JP1, NQM1, NQM2
 
-    ! Parameter declaration
-    real(rt), parameter :: CORTES = 0.1e0_rt
+    const Real CORTES = 0.1e0_rt;
 
-    !$gpu
+    Real FLOTL = vstate % L;
+    int NQM1 = vstate % NQ - 1;
+    int NQM2 = vstate % NQ - 2;
 
-    FLOTL = REAL(vstate % L)
-    NQM1 = vstate % NQ - 1
-    NQM2 = vstate % NQ - 2
+    for (int i = 3; i <= vstate.L; ++i) {
+        vstate.EL[i-1] = 0.0_rt;
+    }
 
-    ! Set coefficients for BDF methods. ------------------------------------
-    do I = 3, vstate % L
-       vstate % EL(I) = 0.0_rt
-    end do
-    vstate % EL(1) = 1.0_rt
-    vstate % EL(2) = 1.0_rt
-    ALPH0 = -1.0_rt
-    AHATN0 = -1.0_rt
-    HSUM = vstate % H
-    RXI = 1.0_rt
-    RXIS = 1.0_rt
-    IF (vstate % NQ /= 1) then
-       do J = 1, NQM2
-          ! In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)). ------
-          HSUM = HSUM + vstate % TAU(J)
-          RXI = vstate % H/HSUM
-          JP1 = J + 1
-          ALPH0 = ALPH0 - 1.0_rt/REAL(JP1)
-          do IBACK = 1, JP1
-             I = (J + 3) - IBACK
-             vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXI
-          end do
-       end do
-       ALPH0 = ALPH0 - 1.0_rt/REAL(vstate % NQ)
-       RXIS = -vstate % EL(2) - ALPH0
-       HSUM = HSUM + vstate % TAU(NQM1)
-       RXI = vstate % H/HSUM
-       AHATN0 = -vstate % EL(2) - RXI
-       do IBACK = 1, vstate % NQ
-          I = (vstate % NQ + 2) - IBACK
-          vstate % EL(I) = vstate % EL(I) + vstate % EL(I-1)*RXIS
-       end do
-    end IF
+    vstate.EL[0] = 1.0_rt;
+    vstate.EL[1] = 1.0_rt;
+    Real ALPH0 = -1.0_rt;
+    Real AHATN0 = -1.0_rt;
+    Real HSUM = vstate.H;
+    Real RXI = 1.0_rt;
+    Real RXIS = 1.0_rt;
 
-    T1 = 1.0_rt - AHATN0 + ALPH0
-    T2 = 1.0_rt + REAL(vstate % NQ)*T1
-    vstate % TQ(2) = ABS(ALPH0*T2/T1)
-    vstate % TQ(5) = ABS(T2/(vstate % EL(vstate % L)*RXI/RXIS))
+    if (vstate.NQ != 1) {
+        for (int j = 1; j <= NQM2; ++j) {
+            // In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)).
+            HSUM += vstate.TAU[j-1];
+            RXI = vstate.H / HSUM;
+            ALPH0 -= 1.0_rt / (j+1);
+            for (int iback = 1; iback <= j+1; ++iback) {
+                int i = (j + 3) - iback - 1;
+                vstate.EL[i] += vstate.EL[I-1] * RXI;
+            }
+        }
 
-    IF (vstate % NQWAIT == 1) then
-       CNQM1 = RXIS/vstate % EL(vstate % L)
-       T3 = ALPH0 + 1.0_rt/REAL(vstate % NQ)
-       T4 = AHATN0 + RXI
-       ELP = T3/(1.0_rt - T4 + T3)
-       vstate % TQ(1) = ABS(ELP/CNQM1)
-       HSUM = HSUM + vstate % TAU(vstate % NQ)
-       RXI = vstate % H/HSUM
-       T5 = ALPH0 - 1.0_rt/REAL(vstate % NQ+1)
-       T6 = AHATN0 - RXI
-       ELP = T2/(1.0_rt - T6 + T5)
-       vstate % TQ(3) = ABS(ELP*RXI*(FLOTL + 1.0_rt)*T5)
-    end IF
-    vstate % TQ(4) = CORTES*vstate % TQ(2)
-    RETURN
-  end subroutine dvset
+        ALPH0 -= 1.0_rt / vstate.NQ;
+        RXIS = -vstate.EL[1] - ALPH0;
+        HSUM += vstate.TAU[NQM1-1];
+        RXI = vstate.H / HSUM;
+        AHATN0 = -vstate.EL[1] - RXI;
+        for (int iback = 1; iback <= vstate.NQ; ++iback) {
+            int i = (vstate.NQ + 2) - iback - 1;
+            vstate.EL[i] += vstate.EL[i-1] * RXIS;
+        }
+    }
 
-end module cuvode_dvset_module
+    Real T1 = 1.0_rt - AHATN0 + ALPH0;
+    Real T2 = 1.0_rt + vstate.NQ * T1;
+    vstate.TQ[1] = std::abs(ALPH0 * T2 / T1);
+    vstate.TQ[4] = std::abs(T2 / (vstate.EL[vstate.L-1] * RXI / RXIS));
+
+    if (vstate.NQWAIT == 1) {
+        Real CNQM1 = RXIS / vstate.EL[vstate.L-1];
+        Real T3 = ALPH0 + 1.0_rt / vstate.NQ;
+        Real T4 = AHATN0 + RXI;
+        Real ELP = T3 / (1.0_rt - T4 + T3);
+        vstate.TQ[0] = std::abs(ELP / CNQM1);
+        HSUM += vstate.TAU[vstate.NQ-1];
+        RXI = vstate.H / HSUM;
+        Real T5 = ALPH0 - 1.0_rt / (vstate.NQ+1);
+        Real T6 = AHATN0 - RXI;
+        ELP = T2 / (1.0_rt - T6 + T5);
+        vstate.TQ[2] = std::abs(ELP * RXI * (FLOTL + 1.0_rt) * T5);
+    }
+
+    vstate.TQ[3] = CORTES * vstate.TQ[1];
+
+}
+
+#endif

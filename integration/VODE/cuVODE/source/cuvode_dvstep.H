@@ -1,529 +1,517 @@
-module cuvode_dvstep_module
+#ifndef _cuvode_dvstep_H_
+#define _cuvode_dvstep_H_
 
-  use cuvode_parameters_module, only: VODE_NEQS
-  use cuvode_types_module, only: dvode_t, VODE_LMAX, HMIN, HMXI
-  use amrex_fort_module, only: rt => amrex_real
-  use cuvode_dvset_module
-  use cuvode_dvjust_module
-  use cuvode_dvnlsd_module
+#include <cuvode_parameters.H>
+#include <cuvode_type.H>
+#include <cuvode_dvset.H>
+#include <cuvode_dvjust.H>
+#include <cuvode_dvnlsd.H>
 
-  implicit none
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void advance_nordsieck (dvode_t& vstate)
+{
 
-contains
+    // Effectively multiplies the Nordsieck history
+    // array by the Pascal triangle matrix.
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  subroutine advance_nordsieck(vstate)
+    for (int k = vstate.NQ; k >= 1; --k) {
+        for (int j = k; j <= vstate.NQ; ++j) {
+            for (int i = 0; i < VODE_NEQS; ++i) {
+                vstate.YH[j-1][i] += vstate.YH[j][i];
+            }
+        }
+    }
 
-    ! Effectively multiplies the Nordsieck history
-    ! array by the Pascal triangle matrix.
-
-    implicit none
-
-    ! Declare arguments
-    type(dvode_t), intent(inout) :: vstate
-
-    ! Declare local variables
-    integer :: k, j, i
-
-    !$gpu
-
-    do k = vstate % NQ, 1, -1
-       do j = k, vstate % NQ
-          do i = 1, VODE_NEQS
-             vstate % YH(i, j) = vstate % YH(i, j) + vstate % YH(i, j+1)
-          end do
-       end do
-    end do
-
-  end subroutine advance_nordsieck
+}
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  subroutine retract_nordsieck(vstate)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void retract_nordsieck (dvode_t& vstate)
+{
 
-    ! Undoes the Pascal triangle matrix multiplication
-    ! implemented in subroutine advance_nordsieck.
+    // Undoes the Pascal triangle matrix multiplication
+    // implemented in subroutine advance_nordsieck.
 
-    implicit none
+    for (int k = vstate.NQ; k >= 1; --k) {
+        for (int j = k; j <= vstate.NQ; ++j) {
+            for (int i = 0; i < VODE_NEQS; ++i) {
+                vstate.YH[j-1][i] -= vstate.YH[j][i];
+            }
+        }
+    }
 
-    ! Declare arguments
-    type(dvode_t), intent(inout) :: vstate
-
-    ! Declare local variables
-    integer :: k, j, i
-
-    !$gpu
-
-    do k = vstate % NQ, 1, -1
-       do j = k, vstate % NQ
-          do i = 1, VODE_NEQS
-             vstate % YH(i, j) = vstate % YH(i, j) - vstate % YH(i, j+1)
-          end do
-       end do
-    end do
-
-  end subroutine retract_nordsieck
+}
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  subroutine dvstep(pivot, vstate)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void dvstep (Real* pivot, dvode_t& vstate)
+{
 
-    !$acc routine seq
+    // dvstep performs one step of the integration of an initial value
+    // problem for a system of ordinary differential equations.
+    // dvstep calls subroutine dvnlsd for the solution of the nonlinear system
+    // arising in the time step.  Thus it is independent of the problem
+    // Jacobian structure and the type of nonlinear system solution method.
+    // dvstep returns a completion flag KFLAG.
 
-    ! -----------------------------------------------------------------------
-    !  DVSTEP performs one step of the integration of an initial value
-    !  problem for a system of ordinary differential equations.
-    !  DVSTEP calls subroutine VNLS for the solution of the nonlinear system
-    !  arising in the time step.  Thus it is independent of the problem
-    !  Jacobian structure and the type of nonlinear system solution method.
-    !  DVSTEP returns a completion flag KFLAG (in COMMON).
-    !  A return with KFLAG = -1 or -2 means either abs(H) = HMIN or 10
-    !  consecutive failures occurred.  On a return with KFLAG negative,
-    !  the values of TN and the YH array are as of the beginning of the last
-    !  step, and H is the last step size attempted.
-    !
-    !  Communication with DVSTEP is done with the following variables:
-    !
-    !  Y      = An array of length N used for the dependent variable array.
-    !  YH     = An LDYH by LMAX array containing the dependent variables
-    !           and their approximate scaled derivatives, where
-    !           LMAX = MAXORD + 1.  YH(i,j+1) contains the approximate
-    !           j-th derivative of y(i), scaled by H**j/factorial(j)
-    !           (j = 0,1,...,NQ).  On entry for the first step, the first
-    !           two columns of YH must be set from the initial values.
-    !  LDYH   = A constant integer .ge. N, the first dimension of YH.
-    !           N is the number of ODEs in the system.
-    !  EWT    = An array of length N containing multiplicative weights
-    !           for local error measurements.  Local errors in y(i) are
-    !           compared to 1.0/EWT(i) in various error tests.
-    !  SAVF   = An array of working storage, of length N.
-    !  VSAV   = A work array of length N passed to subroutine VNLS.
-    !  ACOR   = A work array of length N, used for the accumulated
-    !           corrections.  On a successful return, ACOR(i) contains
-    !           the estimated one-step local error in y(i).
-    !  F      = Dummy name for the user supplied subroutine for f.
-    !  JAC    = Dummy name for the user supplied Jacobian subroutine.
-    !  PSOL   = Dummy name for the subroutine passed to VNLS, for
-    !           possible use there.
-    !  VNLS   = Dummy name for the nonlinear system solving subroutine,
-    !           whose real name is dependent on the method used.
-    !  RPAR, IPAR = Dummy names for user's real and integer work arrays.
-    ! -----------------------------------------------------------------------
+    // A return with KFLAG = -1 or -2 means either abs(H) = HMIN or 10
+    // consecutive failures occurred. On a return with KFLAG negative,
+    // the values of TN and the YH array are as of the beginning of the last
+    // step, and H is the last step size attempted.
 
-    ! -----------------------------------------------------------------------
-    !  On a successful return, ETAMAX is reset and ACOR is scaled.
-    ! -----------------------------------------------------------------------
-
-#ifdef TRUE_SDC
-    use sdc_vode_rhs_module, only: f_rhs, jac
-#else
-    use vode_rhs_module, only: f_rhs, jac
-#endif
-
-    implicit none
-
-    ! Declare arguments
-    type(dvode_t), intent(inout) :: vstate
-    integer,       intent(inout) :: pivot(VODE_NEQS)
+    // On a successful return, ETAMAX is reset and ACOR is scaled.
 
     ! Declare local variables
     real(rt) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(rt) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
     integer  :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
 
-    ! Parameter declarations
-    integer, parameter :: KFC = -3
-    integer, parameter :: KFH = -7
-    integer, parameter :: MXNCF = 10
-    real(rt), parameter :: ADDON = 1.0e-6_rt
-    real(rt), parameter :: BIAS1 = 6.0e0_rt
-    real(rt), parameter :: BIAS2 = 6.0e0_rt
-    real(rt), parameter :: BIAS3 = 10.0e0_rt
-    real(rt), parameter :: ETACF = 0.25e0_rt
-    real(rt), parameter :: ETAMIN = 0.1e0_rt
-    real(rt), parameter :: ETAMXF = 0.2e0_rt
-    real(rt), parameter :: ETAMX1 = 1.0e4_rt
-    real(rt), parameter :: ETAMX2 = 10.0e0_rt
-    real(rt), parameter :: ETAMX3 = 10.0e0_rt
-    real(rt), parameter :: ONEPSM = 1.00001e0_rt
-    real(rt), parameter :: THRESH = 1.5e0_rt
+    // Parameter declarations
+    const int KFC = -3;
+    const int KFH = -7
+    const int MXNCF = 10;
+    const Real ADDON = 1.0e-6_rt;
+    const Real BIAS1 = 6.0e0_rt;
+    const Real BIAS2 = 6.0e0_rt;
+    const Real BIAS3 = 10.0e0_rt;
+    const Real ETACF = 0.25e0_rt;
+    const Real ETAMIN = 0.1e0_rt;
+    const Real ETAMXF = 0.2e0_rt;
+    const Real ETAMX1 = 1.0e4_rt;
+    const Real ETAMX2 = 10.0e0_rt;
+    const Real ETAMX3 = 10.0e0_rt;
+    const Real ONEPSM = 1.00001e0_rt;
+    const Real THRESH = 1.5e0_rt;
 
-    logical :: do_initialization
-    logical :: already_set_eta
-    !$gpu
+    Real ETAQ = 1.0_rt;
+    Real ETAQM1 = 1.0_rt;
 
-    ETAQ   = 1.0_rt
-    ETAQM1 = 1.0_rt
+    vstate.KFLAG = 0;
+    Real TOLD = vstate.TN;
+    int NCF = 0;
+    vstate.JCUR = 0;
+    int NFLAG = 0;
 
-    vstate % KFLAG = 0
-    TOLD = vstate % TN
-    NCF = 0
-    vstate % JCUR = 0
-    NFLAG = 0
+    bool do_initialization = false;
 
-    do_initialization = .false.
+    if (vstate.JSTART == 0) {
 
-    if (vstate % JSTART == 0) then
+        // On the first call, the order is set to 1, and other variables are
+        // initialized.  ETAMAX is the maximum ratio by which H can be increased
+        // in a single step.  It is normally 10, but is larger during the
+        // first step to compensate for the small initial H.  If a failure
+        // occurs (in corrector convergence or error test), ETAMAX is set to 1
+        // for the next increase.
 
-       ! -----------------------------------------------------------------------
-       !  On the first call, the order is set to 1, and other variables are
-       !  initialized.  ETAMAX is the maximum ratio by which H can be increased
-       !  in a single step.  It is normally 10, but is larger during the
-       !  first step to compensate for the small initial H.  If a failure
-       !  occurs (in corrector convergence or error test), ETAMAX is set to 1
-       !  for the next increase.
-       ! -----------------------------------------------------------------------
-       vstate % NQ = 1
-       vstate % L = 2
-       vstate % NQNYH = vstate % NQ * VODE_NEQS
-       vstate % TAU(1) = vstate % H
-       vstate % PRL1 = 1.0_rt
-       vstate % RC = 0.0_rt
-       vstate % ETAMAX = ETAMX1
-       vstate % NQWAIT = 2
-       vstate % HSCAL = vstate % H
+        vstate.NQ = 1;
+        vstate.L = 2;
+        vstate.NQNYH = vstate.NQ * VODE_NEQS;
+        vstate.TAU[0] = vstate.H;
+        vstate.PRL1 = 1.0_rt;
+        vstate.RC = 0.0_rt;
+        vstate.ETAMAX = ETAMX1;
+        vstate.NQWAIT = 2;
+        vstate.HSCAL = vstate.H;
 
-    else
-       ! -----------------------------------------------------------------------
-       !  Take preliminary actions on a normal continuation step (JSTART>0).
-       !  If the driver changed H, then ETA must be reset and NEWH set to 1.
-       !  If a change of order was dictated on the previous step, then
-       !  it is done here and appropriate adjustments in the history are made.
-       !  On an order decrease, the history array is adjusted by DVJUST.
-       !  On an order increase, the history array is augmented by a column.
-       !  On a change of step size H, the history array YH is rescaled.
-       ! -----------------------------------------------------------------------
+    }
+    else {
 
-       if (vstate % NEWH == 0) then
-          do_initialization = .false.
-       else
+        // Take preliminary actions on a normal continuation step (JSTART > 0).
+        // If the driver changed H, then ETA must be reset and NEWH set to 1.
+        // If a change of order was dictated on the previous step, then
+        // it is done here and appropriate adjustments in the history are made.
+        // On an order decrease, the history array is adjusted by DVJUST.
+        // On an order increase, the history array is augmented by a column.
+        //  On a change of step size H, the history array YH is rescaled.
 
-          if (vstate % NEWQ < vstate % NQ) then
-             call dvjust(-1, vstate)
-             vstate % NQ = vstate % NEWQ
-             vstate % L = vstate % NQ + 1
-             vstate % NQWAIT = vstate % L
-          else if (vstate % NEWQ > vstate % NQ) then
-             call dvjust(1, vstate)
-             vstate % NQ = vstate % NEWQ
-             vstate % L = vstate % NQ + 1
-             vstate % NQWAIT = vstate % L
-          end if
+        if (vstate.NEWH == 0) {
+            do_initialization = false;
+        }
+        else {
 
-          do_initialization = .true.
-       end if
+            if (vstate.NEWQ < vstate.NQ) {
+                dvjust(-1, vstate);
+                vstate.NQ = vstate.NEWQ;
+                vstate.L = vstate.NQ + 1;
+                vstate.NQWAIT = vstate.L;
+            }
+            else if (vstate.NEWQ > vstate.NQ) {
+                dvjust(1, vstate);
+                vstate.NQ = vstate.NEWQ;
+                vstate.L = vstate.NQ + 1;
+                vstate.NQWAIT = vstate.L;
+            }
 
-    end if
+            do_initialization = true;
+        }
 
-    if (do_initialization) then
-       ! Rescale the history array for a change in H by a factor of ETA. ------
+    }
 
-       R = 1.0_rt
+    if (do_initialization) {
 
-       do J = 2, vstate % L
-          R = R * vstate % ETA
-          vstate % YH(:,J) = vstate % YH(:,J) * R
-       end do
-       vstate % H = vstate % HSCAL * vstate % ETA
-       vstate % HSCAL = vstate % H
-       vstate % RC = vstate % RC * vstate % ETA
-       vstate % NQNYH = vstate % NQ*VODE_NEQS
-    end if
+        // Rescale the history array for a change in H by a factor of ETA.
 
-    ! -----------------------------------------------------------------------
-    !  This section computes the predicted values by effectively
-    !  multiplying the YH array by the Pascal triangle matrix.
-    !  DVSET is called to calculate all integration coefficients.
-    !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
-    ! -----------------------------------------------------------------------
+        R = 1.0_rt;
 
-    do while (.true.)
+        for (int j = 2; j <= vstate.L; ++j) {
+            R *= vstate.ETA;
+            for (int i = 0; i < VODE_NEQS; ++i) {
+                vstate.YH[j-1][i] *= R;
+            }
+        }
 
-       vstate % TN = vstate % TN + vstate % H
+        vstate.H = vstate.HSCAL * vstate.ETA;
+        vstate.HSCAL = vstate.H;
+        vstate.RC = vstate.RC * vstate.ETA;
+        vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
-       call advance_nordsieck(vstate)
+    }
 
-       call dvset(vstate)
-       vstate % RL1 = 1.0_rt/vstate % EL(2)
-       vstate % RC = vstate % RC * (vstate % RL1/vstate % PRL1)
-       vstate % PRL1 = vstate % RL1
+    // Compute the predicted values by effectively
+    // multiplying the YH array by the Pascal triangle matrix.
+    // dvset is called to calculate all integration coefficients.
+    // RC is the ratio of new to old values of the coefficient H / EL(2) = h / l1.
 
-       !  Call the nonlinear system solver. ------------------------------------
-       call dvnlsd(pivot, NFLAG, vstate)
+    while (true) {
 
-       if (NFLAG /= 0) then
-          ! -----------------------------------------------------------------------
-          !  The VNLS routine failed to achieve convergence (NFLAG .NE. 0).
-          !  The YH array is retracted to its values before prediction.
-          !  The step size H is reduced and the step is retried, if possible.
-          !  Otherwise, an error exit is taken.
-          ! -----------------------------------------------------------------------
-          NCF = NCF + 1
-          vstate % ETAMAX = 1.0_rt
-          vstate % TN = TOLD
+        vstate.TN += vstate.H;
 
-          call retract_nordsieck(vstate)
+        advance_nordsieck(vstate);
 
-          if (NFLAG < -1) then
-             if (NFLAG == -2) vstate % KFLAG = -3
-             if (NFLAG == -3) vstate % KFLAG = -4
-             vstate % JSTART = 1
-             return
-          end if
-          if (abs(vstate % H) <= HMIN * ONEPSM) then
-             vstate % KFLAG = -2
-             vstate % JSTART = 1
-             return
-          end if
-          if (NCF == MXNCF) then
-             vstate % KFLAG = -2
-             vstate % JSTART = 1
-             return
-          end if
-          vstate % ETA = ETACF
-          vstate % ETA = max(vstate % ETA, HMIN / abs(vstate % H))
-          NFLAG = -1
+        dvset(vstate);
 
-          ! Rescale the history array for a change in H by a factor of ETA. ------
-          R = 1.0_rt
+        vstate.RL1 = 1.0_rt / vstate.EL[1];
+        vstate.RC *= (vstate.RL1 / vstate.PRL1);
+        vstate.PRL1 = vstate.RL1;
 
-          do J = 2, vstate % L
-             R = R * vstate % ETA
-             vstate % YH(:,J) = vstate % YH(:,J) * R
-          end do
-          vstate % H = vstate % HSCAL * vstate % ETA
-          vstate % HSCAL = vstate % H
-          vstate % RC = vstate % RC * vstate % ETA
-          vstate % NQNYH = vstate % NQ*VODE_NEQS
+        // Call the nonlinear system solver.
 
-          cycle
-       end if
+        dvnlsd(pivot, NFLAG, vstate);
 
-       ! -----------------------------------------------------------------------
-       !  The corrector has converged (NFLAG = 0).  The local error test is
-       !  made and control passes to statement 500 if it fails.
-       ! -----------------------------------------------------------------------
+        if (NFLAG != 0) {
 
-       DSM = vstate % ACNRM/vstate % TQ(2)
-       if (DSM <= 1.0_rt) then
-          ! -----------------------------------------------------------------------
-          !  After a successful step, update the YH and TAU arrays and decrement
-          !  NQWAIT.  If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
-          !  for use in a possible order increase on the next step.
-          !  If ETAMAX = 1 (a failure occurred this step), keep NQWAIT .ge. 2.
-          ! -----------------------------------------------------------------------
-          vstate % KFLAG = 0
-          vstate % NST = vstate % NST + 1
-          vstate % HU = vstate % H
-          do IBACK = 1, vstate % NQ
-             I = vstate % L - IBACK
-             vstate % TAU(I+1) = vstate % TAU(I)
-          end do
-          vstate % TAU(1) = vstate % H
-          do J = 1, vstate % L
-             vstate % yh(:,J) = vstate % yh(:,J) + vstate % EL(J) * vstate % acor(:)
-          end do
-          vstate % NQWAIT = vstate % NQWAIT - 1
-          if ((vstate % L /= VODE_LMAX) .and. (vstate % NQWAIT == 1)) then
-             vstate % yh(1:VODE_NEQS,VODE_LMAX) = vstate % acor(1:VODE_NEQS)
+            // The VNLS routine failed to achieve convergence (NFLAG /= 0).
+            // The YH array is retracted to its values before prediction.
+            // The step size H is reduced and the step is retried, if possible.
+            // Otherwise, an error exit is taken.
 
-             vstate % CONP = vstate % TQ(5)
-          end if
-          if (vstate % ETAMAX .NE. 1.0_rt) exit
-          if (vstate % NQWAIT < 2) vstate % NQWAIT = 2
-          vstate % NEWQ = vstate % NQ
-          vstate % NEWH = 0
-          vstate % ETA = 1.0_rt
-          vstate % HNEW = vstate % H
-          vstate % ETAMAX = ETAMX3
-          if (vstate % NST <= 10) vstate % ETAMAX = ETAMX2
-          R = 1.0_rt/vstate % TQ(2)
-          vstate % acor(:) = vstate % acor(:) * R
-          vstate % JSTART = 1
-          return
+            NCF += 1;
+            vstate.ETAMAX = 1.0_rt;
+            vstate.TN = TOLD;
 
-       endif
+            retract_nordsieck(vstate);
 
-       ! -----------------------------------------------------------------------
-       !  The error test failed.  KFLAG keeps track of multiple failures.
-       !  Restore TN and the YH array to their previous values, and prepare
-       !  to try the step again.  Compute the optimum step size for the
-       !  same order.  After repeated failures, H is forced to decrease
-       !  more rapidly.
-       ! -----------------------------------------------------------------------
+            if (NFLAG < -1) {
+                if (NFLAG == -2) {
+                    vstate.KFLAG = -3;
+                }
+                else if (NFLAG == -3) {
+                    vstate.KFLAG = -4;
+                }
+                vstate.JSTART = 1;
+                return;
+            }
 
-       vstate % KFLAG = vstate % KFLAG - 1
-       NFLAG = -2
-       vstate % TN = TOLD
+            if (std::abs(vstate.H) <= HMIN * ONEPSM) {
+                vstate.KFLAG = -2;
+                vstate.JSTART = 1;
+                return;
+            }
 
-       call retract_nordsieck(vstate)
+            if (NCF == MXNCF) {
+                vstate.KFLAG = -2;
+                vstate.JSTART = 1;
+                return;
+            }
 
-       if (abs(vstate % H) <= HMIN * ONEPSM) then
-          vstate % KFLAG = -1
-          vstate % JSTART = 1
-          return
-       end if
-       vstate % ETAMAX = 1.0_rt
-       if (vstate % KFLAG > KFC) then
-          ! Compute ratio of new H to current H at the current order. ------------
-          FLOTL = REAL(vstate % L)
-          vstate % ETA = 1.0_rt/((BIAS2*DSM)**(1.0_rt/FLOTL) + ADDON)
-          vstate % ETA = max(vstate % ETA, HMIN / abs(vstate % H), ETAMIN)
-          if ((vstate % KFLAG <= -2) .and. (vstate % ETA > ETAMXF)) vstate % ETA = ETAMXF
+            vstate.ETA = ETACF;
+            vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H));
+            NFLAG = -1;
 
-          ! Rescale the history array for a change in H by a factor of ETA. ------
-          R = 1.0_rt
+            // Rescale the history array for a change in H by a factor of ETA.
+            Real R = 1.0_rt;
 
-          do J = 2, vstate % L
-             R = R * vstate % ETA
-             vstate % YH(:,J) = vstate % YH(:,J) * R
-          end do
-          vstate % H = vstate % HSCAL * vstate % ETA
-          vstate % HSCAL = vstate % H
-          vstate % RC = vstate % RC * vstate % ETA
-          vstate % NQNYH = vstate % NQ*VODE_NEQS
+            for (int j = 2; j <= vstate.L; ++j) {
+                R *= vstate.ETA;
+                for (int i = 0; i < VODE_NEQS; ++i) {
+                    vstate.YH[j-1][i] *= R;
+                }
+            }
 
-          cycle
-       end if
+            vstate.H = vstate.HSCAL * vstate.ETA;
+            vstate.HSCAL = vstate.H;
+            vstate.RC *= vstate.ETA;
+            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
-       ! -----------------------------------------------------------------------
-       !  Control reaches this section if 3 or more consecutive failures
-       !  have occurred.  It is assumed that the elements of the YH array
-       !  have accumulated errors of the wrong order.  The order is reduced
-       !  by one, if possible.  Then H is reduced by a factor of 0.1 and
-       !  the step is retried.  After a total of 7 consecutive failures,
-       !  an exit is taken with KFLAG = -1.
-       ! -----------------------------------------------------------------------
-       if (vstate % KFLAG == KFH) then
-          vstate % KFLAG = -1
-          vstate % JSTART = 1
-          return
-       end if
-       if (vstate % NQ /= 1) then
-          vstate % ETA = max(ETAMIN, HMIN / abs(vstate % H))
-          call DVJUST (-1, vstate)
-          vstate % L = vstate % NQ
-          vstate % NQ = vstate % NQ - 1
-          vstate % NQWAIT = vstate % L
+            continue;
+        }
 
-          ! Rescale the history array for a change in H by a factor of ETA. ------
-          R = 1.0_rt
+        // The corrector has converged (NFLAG = 0). The local error test is
+        // made and control passes to statement 500 if it fails.
 
-          do J = 2, vstate % L
-             R = R * vstate % ETA
-             vstate % YH(:,J) = vstate % YH(:,J) * R
-          end do
-          vstate % H = vstate % HSCAL * vstate % ETA
-          vstate % HSCAL = vstate % H
-          vstate % RC = vstate % RC * vstate % ETA
-          vstate % NQNYH = vstate % NQ*VODE_NEQS
+        Real DSM = vstate.ACNRM / vstate.TQ[1];
+        if (DSM <= 1.0_rt) {
 
-          cycle
+            // After a successful step, update the YH and TAU arrays and decrement
+            // NQWAIT. If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
+            // for use in a possible order increase on the next step.
+            // If ETAMAX = 1 (a failure occurred this step), keep NQWAIT >= 2.
 
-       end if
+            vstate.KFLAG = 0;
+            vstate.NST += 1;
+            vstate.HU = vstate.H;
+            for (int iback = 1; iback <= vstate.NQ; ++iback) {
+                int i = vstate.L - IBACK - 1;
+                vstate.TAU[i+1] = vstate.TAU[i];
+            }
 
-       vstate % ETA = max(ETAMIN, HMIN / abs(vstate % H))
-       vstate % H = vstate % H * vstate % ETA
-       vstate % HSCAL = vstate % H
-       vstate % TAU(1) = vstate % H
-       call f_rhs (vstate % TN, vstate, vstate % savf)
-       vstate % NFE = vstate % NFE + 1
-       do I = 1, VODE_NEQS
-          vstate % yh(I,2) = vstate % H * vstate % savf(I)
-       end do
-       vstate % NQWAIT = 10
+            vstate.TAU[0] = vstate.H;
+            for (int j = 1; j <= vstate.L; ++j) {
+                for (int i = 0; i < VODE_NEQS; ++i) {
+                    vstate.yh[j-1][i] += vstate.EL[j-1] * vstate.acor[i];
+                }
+            }
 
-    end do
+            vstate.NQWAIT -= 1;
+            if ((vstate.L != VODE_LMAX) && (vstate.NQWAIT == 1)) {
+                for (int n = 0; n < VODE_NEQS; ++n) {
+                    vstate.yh[VODE_LMAX-1][n] = vstate.acor[n];
+                }
+                vstate.CONP = vstate.TQ[4];
+            }
 
+            if (vstate.ETAMAX != 1.0_rt) {
+                break;
+            }
 
-    ! -----------------------------------------------------------------------
-    !  If NQWAIT = 0, an increase or decrease in order by one is considered.
-    !  Factors ETAQ, ETAQM1, ETAQP1 are computed by which H could
-    !  be multiplied at order q, q-1, or q+1, respectively.
-    !  The largest of these is determined, and the new order and
-    !  step size set accordingly.
-    !  A change of H or NQ is made only if H increases by at least a
-    !  factor of THRESH.  If an order change is considered and rejected,
-    !  then NQWAIT is set to 2 (reconsider it after 2 steps).
-    ! -----------------------------------------------------------------------
+            if (vstate.NQWAIT < 2) {
+                vstate.NQWAIT = 2;
+            }
 
-    already_set_eta = .false.
+            vstate.NEWQ = vstate.NQ;
+            vstate.NEWH = 0;
+            vstate.ETA = 1.0_rt;
+            vstate.HNEW = vstate.H;
+            vstate.ETAMAX = ETAMX3;
+            if (vstate.NST <= 10) {
+                vstate.ETAMAX = ETAMX2;
+            }
 
-    !  Compute ratio of new H to current H at the current order. ------------
-    FLOTL = REAL(vstate % L)
-    ETAQ = 1.0_rt/((BIAS2*DSM)**(1.0_rt/FLOTL) + ADDON)
-    if (vstate % NQWAIT == 0) then
-       vstate % NQWAIT = 2
-       ETAQM1 = 0.0_rt
-       if (vstate % NQ /= 1) then
-          ! Compute ratio of new H to current H at the current order less one. ---
-          DDN = sqrt(sum((vstate % yh(:,vstate % L) * vstate % ewt)**2) / VODE_NEQS) / vstate % TQ(1)
-          ETAQM1 = 1.0_rt/((BIAS1*DDN)**(1.0_rt/(FLOTL - 1.0_rt)) + ADDON)
-       end if
-       ETAQP1 = 0.0_rt
-       if (vstate % L /= VODE_LMAX) then
-          ! Compute ratio of new H to current H at current order plus one. -------
-          CNQUOT = (vstate % TQ(5)/vstate % CONP)*(vstate % H/vstate % TAU(2))**vstate % L
-          do I = 1, VODE_NEQS
-             vstate % savf(I) = vstate % acor(I) - CNQUOT * vstate % yh(I,VODE_LMAX)
-          end do
-          DUP = sqrt(sum((vstate % savf * vstate % ewt)**2) / VODE_NEQS) / vstate % TQ(3)
-          ETAQP1 = 1.0_rt/((BIAS3*DUP)**(1.0_rt/(FLOTL + 1.0_rt)) + ADDON)
-       end if
-       if (ETAQ < ETAQP1) then
-          if (ETAQP1 > ETAQM1) then
-             vstate % ETA = ETAQP1
-             vstate % NEWQ = vstate % NQ + 1
-             vstate % yh(1:VODE_NEQS,VODE_LMAX) = vstate % acor(1:VODE_NEQS)
-          else
-             vstate % ETA = ETAQM1
-             vstate % NEWQ = vstate % NQ - 1
-          end if
-          already_set_eta = .true.
-       end if
+            Real R = 1.0_rt / vstate.TQ[1];
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.acor[n] *= R;
+            }
 
-       if (ETAQ < ETAQM1 .and. .not. already_set_eta) then
-          vstate % ETA = ETAQM1
-          vstate % NEWQ = vstate % NQ - 1
-          already_set_eta = .true.
-       end if
-    end if
+            vstate.JSTART = 1;
 
-    if (.not. already_set_eta) then
-       vstate % ETA = ETAQ
-       vstate % NEWQ = vstate % NQ
-    end if
+            return;
 
-    ! Test tentative new H against THRESH and ETAMAX, and HMXI, then exit. ----
-    if (vstate % ETA >= THRESH .and. vstate % ETAMAX /= 1.0_rt) then
-       vstate % ETA = min(vstate % ETA,vstate % ETAMAX)
-       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * HMXI * vstate % ETA)
-       vstate % NEWH = 1
-       vstate % HNEW = vstate % H * vstate % ETA
-       vstate % ETAMAX = ETAMX3
-       if (vstate % NST <= 10) vstate % ETAMAX = ETAMX2
-       R = 1.0_rt/vstate % TQ(2)
-       vstate % acor(:) = vstate % acor(:) * R
-       vstate % JSTART = 1
-       return
-    end if
+        }
 
-    vstate % NEWQ = vstate % NQ
-    vstate % NEWH = 0
-    vstate % ETA = 1.0_rt
-    vstate % HNEW = vstate % H
-    vstate % ETAMAX = ETAMX3
-    if (vstate % NST <= 10) vstate % ETAMAX = ETAMX2
-    R = 1.0_rt/vstate % TQ(2)
-    vstate % acor(:) = vstate % acor(:) * R
-    vstate % JSTART = 1
+        // The error test failed. KFLAG keeps track of multiple failures.
+        // Restore TN and the YH array to their previous values, and prepare
+        // to try the step again. Compute the optimum step size for the
+        // same order. After repeated failures, H is forced to decrease
+        // more rapidly.
 
-  end subroutine dvstep
+        vstate.KFLAG -= 1;
+        NFLAG = -2;
+        vstate.TN = TOLD;
 
-end module cuvode_dvstep_module
+        retract_nordsieck(vstate);
+
+        if (std::abs(vstate.H) <= HMIN * ONEPSM) {
+            vstate.KFLAG = -1;
+            vstate.JSTART = 1;
+            return;
+        }
+
+        vstate.ETAMAX = 1.0_rt;
+
+        if (vstate.KFLAG > KFC) {
+
+            // Compute ratio of new H to current H at the current order.
+            Real FLOTL = vstate.L;
+            vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+            vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
+            if ((vstate.KFLAG <= -2) && (vstate.ETA > ETAMXF)) {
+                vstate.ETA = ETAMXF;
+            }
+
+            // Rescale the history array for a change in H by a factor of ETA.
+            Real R = 1.0_rt;
+
+            for (int j = 2; j <= vstate.L; ++j) {
+                R *= vstate.ETA;
+                for (int n = 0; n < VODE_NEQS; ++n) {
+                    vstate.YH[j-1][n] *= R;
+                }
+            }
+
+            vstate.H = vstate.HSCAL * vstate.ETA;
+            vstate.HSCAL = vstate.H;
+            vstate.RC = vstate.RC * vstate.ETA;
+            vstate.NQNYH = vstate.NQ * VODE_NEQS;
+
+            continue;
+
+        }
+
+        // Control reaches this section if 3 or more consecutive failures
+        // have occurred. It is assumed that the elements of the YH array
+        // have accumulated errors of the wrong order. The order is reduced
+        // by one, if possible. Then H is reduced by a factor of 0.1 and
+        // the step is retried.  After a total of 7 consecutive failures,
+        // an exit is taken with KFLAG = -1.
+
+        if (vstate.KFLAG == KFH) {
+            vstate.KFLAG = -1;
+            vstate.JSTART = 1;
+            return;
+        }
+
+        if (vstate.NQ /= 1) {
+            vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
+            dvjust(-1, vstate);
+            vstate.L = vstate.NQ;
+            vstate.NQ = vstate.NQ - 1;
+            vstate.NQWAIT = vstate.L;
+
+            // Rescale the history array for a change in H by a factor of ETA.
+            Real R = 1.0_rt;
+
+            for (int j = 2; j <= vstate.L; ++j) {
+                R *= vstate.ETA;
+                for (int n = 0; n < VODE_NEQS; ++n) {
+                    vstate.YH[j-1][n] *= R;
+                }
+            }
+
+            vstate.H *= vstate.ETA;
+            vstate.HSCAL = vstate.H;
+            vstate.RC = vstate.RC * vstate.ETA;
+            vstate.NQNYH = vstate.NQ * VODE_NEQS;
+
+            continue;
+
+        }
+
+        vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
+        vstate.H *= vstate.ETA;
+        vstate.HSCAL = vstate.H;
+        vstate.TAU[0] = vstate.H;
+        f_rhs(vstate.TN, vstate, vstate.savf);
+        vstate.NFE += 1;
+        for (int n = 0; n < VODE_NEQS; ++n) {
+            vstate.YH[1][n] = vstate.H * vstate.savf[n];
+        }
+
+        vstate.NQWAIT = 10;
+
+    }
+
+    // If NQWAIT = 0, an increase or decrease in order by one is considered.
+    // Factors ETAQ, ETAQM1, ETAQP1 are computed by which H could
+    // be multiplied at order q, q-1, or q+1, respectively.
+    // The largest of these is determined, and the new order and
+    // step size set accordingly.
+    // A change of H or NQ is made only if H increases by at least a
+    // factor of THRESH.  If an order change is considered and rejected,
+    // then NQWAIT is set to 2 (reconsider it after 2 steps).
+
+    bool already_set_eta = false;
+
+    // Compute ratio of new H to current H at the current order.
+    Real FLOTL = vstate.L;
+    ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+    if (vstate.NQWAIT == 0) {
+        vstate.NQWAIT = 2;
+        ETAQM1 = 0.0_rt;
+        if (vstate.NQ != 1) {
+            // Compute ratio of new H to current H at the current order less one.
+            Real DDN = 0.0_rt;
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                DDN += (vstate.YH[vstate.L-1][n] * vstate.YH[vstate.L-1][n]) * (vstate.EWT[n] * vstate.EWT[n]);
+            }
+            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.TQ[0];
+            ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
+        }
+
+        ETAQP1 = 0.0_rt;
+        if (vstate.L != VODE_LMAX) {
+            // Compute ratio of new H to current H at current order plus one.
+            Real CNQUOT = (vstate.TQ[4] / vstate.CONP) * std::pow(vstate.H / vstate.TAU[1], vstate.L);
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.savf[n] = vstate.acor[n] - CNQUOT * vstate.YH[VODE_LMAX-1][n];
+            }
+            Real DUP = 0.0_rt;
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                DUP += (vstate.SAVF[n] * vstate.SAVF[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+            }
+            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.TQ[2];
+            ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
+        }
+
+        if (ETAQ < ETAQP1) {
+            if (ETAQP1 > ETAQM1) {
+                vstate.ETA = ETAQP1;
+                vstate.NEWQ = vstate.NQ + 1;
+                for (int n = 0; n < VODE_NEQS; ++n) {
+                    vstate.YH[VODE_LMAX-1][n] = vstate.acor[n];
+                }
+            }
+            else {
+                vstate.ETA = ETAQM1;
+                vstate.NEWQ = vstate.NQ - 1;
+            }
+            already_set_eta = true;
+        }
+
+        if (ETAQ < ETAQM1 && !already_set_eta) {
+            vstate.ETA = ETAQM1;
+            vstate.NEWQ = vstate.NQ - 1;
+            already_set_eta = true;
+        }
+
+    }
+
+    if (!already_set_eta) {
+        vstate.ETA = ETAQ;
+        vstate.NEWQ = vstate.NQ;
+    }
+
+    // Test tentative new H against THRESH and ETAMAX, and HMXI, then exit.
+    if (vstate.ETA >= THRESH && vstate.ETAMAX /= 1.0_rt) {
+        vstate.ETA = amrex::min(vstate.ETA, vstate.ETAMAX);
+        vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * HMXI * vstate.ETA);
+        vstate.NEWH = 1;
+        vstate.HNEW = vstate.H * vstate.ETA;
+        vstate.ETAMAX = ETAMX3;
+        if (vstate.NST <= 10) {
+            vstate.ETAMAX = ETAMX2;
+        }
+        Real R = 1.0_rt / vstate.TQ[1];
+        for (int n = 0; n < VODE_NEQS; ++n) {
+            vstate.acor[n] *= R;
+        }
+        vstate.JSTART = 1;
+        return;
+    }
+
+    vstate.NEWQ = vstate.NQ;
+    vstate.NEWH = 0;
+    vstate.ETA = 1.0_rt;
+    vstate.HNEW = vstate.H;
+    vstate.ETAMAX = ETAMX3;
+    if (vstate.NST <= 10) {
+        vstate.ETAMAX = ETAMX2;
+    }
+    Real R = 1.0_rt / vstate.TQ[1];
+    for (int n = 0; n < VODE_NEQS; ++n) {
+        vstate.acor[n] *= R;
+    }
+    vstate.JSTART = 1;
+
+}
+
+#endif

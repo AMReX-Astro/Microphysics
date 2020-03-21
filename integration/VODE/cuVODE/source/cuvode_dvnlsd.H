@@ -1,235 +1,220 @@
-module cuvode_dvnlsd_module
+#ifndef _cuvode_dvnlsd_H_
+#define _cuvode_dvnlsd_H_
 
-  use cuvode_parameters_module, only: VODE_NEQS
-  use cuvode_types_module, only: dvode_t
-  use amrex_fort_module, only: rt => amrex_real
-  use linpack_module
-  use cuvode_dvjac_module
+#include <cuvode_parameters.H>
+#include <cuvode_type.H>
+#include <cuvode_linpack.H>
+#include <cuvode_dvjac.H>
 
-  implicit none
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
+{
 
-contains
-
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
-  subroutine dvnlsd(pivot, NFLAG, vstate)
-
-    !$acc routine seq
-
-    ! -----------------------------------------------------------------------
-    !  Subroutine DVNLSD is a nonlinear system solver, which uses functional
-    !  iteration or a chord (modified Newton) method.  For the chord method
-    !  direct linear algebraic system solvers are used.  Subroutine DVNLSD
-    !  then handles the corrector phase of this integration package.
-    ! -----------------------------------------------------------------------
-
-#ifdef TRUE_SDC
-    use sdc_vode_rhs_module, only: f_rhs, jac
-#else
-    use vode_rhs_module, only: f_rhs, jac
-#endif
-#ifdef CLEAN_INTEGRATOR_CORRECTION
-    use vode_type_module, only: clean_state
-#endif
-
-    implicit none
-
-    ! Declare arguments
-    type(dvode_t), intent(inout) :: vstate
-    integer,       intent(inout) :: NFLAG
-    integer,       intent(inout) :: pivot(VODE_NEQS)
+    // dvnlsd is a nonlinear system solver that uses a chord (modified
+    // Newton) method with direct linear algebraic system solvers.
+    // It then handles the corrector phase of this integration package.
 
     ! Declare local variables
     real(rt) :: CSCALE, DCON, DEL, DELP
     integer  :: I, IERPJ, M
 
-    ! Parameter declarations
-    real(rt), parameter :: CCMAX = 0.3e0_rt
-    real(rt), parameter :: CRDOWN = 0.3e0_rt
-    real(rt), parameter :: RDIV  = 2.0e0_rt
-    integer, parameter :: MAXCOR = 3
-    integer, parameter :: MSBP = 20
+    // Parameter declarations
+    const Real CCMAX = 0.3e0_rt;
+    const Real CRDOWN = 0.3e0_rt;
+    const Real RDIV  = 2.0e0_rt;
+    const int MAXCOR = 3;
+    const int MSBP = 20;
 
-    logical :: converged
+    // On the first step, on a change of method order, or after a
+    // nonlinear convergence failure with NFLAG = -2, set IPUP = 1
+    // to force a Jacobian update.
 
-    !$gpu
+    if (vstate.JSTART == 0) {
+        vstate.NSLP = 0;
+    }
+    if (NFLAG == 0) {
+        vstate.ICF = 0;
+    }
+    if (NFLAG == -2) {
+        vstate.IPUP = 1;
+    }
+    if (vstate.JSTART == 0) {
+        vstate.IPUP = 1;
+    }
 
-    ! -----------------------------------------------------------------------
-    !  On the first step, on a change of method order, or after a
-    !  nonlinear convergence failure with NFLAG = -2, set IPUP = 1
-    !  to force a Jacobian update.
-    ! -----------------------------------------------------------------------
-    if (vstate % JSTART == 0) then
-       vstate % NSLP = 0
-    end if
-    if (NFLAG == 0) then
-       vstate % ICF = 0
-    end if
-    if (NFLAG == -2) then
-       vstate % IPUP = 1
-    end if
-    if (vstate % JSTART == 0) then
-       vstate % IPUP = 1
-    end if
+    // RC is the ratio of new to old values of the coefficient H / EL(2) = h / l1.
+    // When RC differs from 1 by more than CCMAX, IPUP is set to 1
+    // to force DVJAC to be called, if a Jacobian is involved.
+    // In any case, DVJAC is called at least every MSBP steps.
 
-    ! -----------------------------------------------------------------------
-    !  RC is the ratio of new to old values of the coefficient H/EL(2)=h/l1.
-    !  When RC differs from 1 by more than CCMAX, IPUP is set to 1
-    !  to force DVJAC to be called, if a Jacobian is involved.
-    !  In any case, DVJAC is called at least every MSBP steps.
-    ! -----------------------------------------------------------------------
-    vstate % DRC = abs(vstate % RC - 1.0_rt)
-    if (vstate % DRC > CCMAX .or. vstate % NST >= vstate % NSLP+MSBP) then
-       vstate % IPUP = 1
-    end if
+    vstate.DRC = std::abs(vstate.RC - 1.0_rt);
+    if (vstate.DRC > CCMAX || vstate.NST >= vstate.NSLP + MSBP) {
+        vstate.IPUP = 1;
+    }
 
-    ! -----------------------------------------------------------------------
-    !  Up to MAXCOR corrector iterations are taken.  A convergence test is
-    !  made on the r.m.s. norm of each correction, weighted by the error
-    !  weight array EWT.  The sum of the corrections is accumulated in the
-    !  array ACOR(i).  The YH array is not altered in the corrector loop.
-    ! -----------------------------------------------------------------------
+    // Up to MAXCOR corrector iterations are taken.  A convergence test is
+    // made on the r.m.s. norm of each correction, weighted by the error
+    // weight array EWT.  The sum of the corrections is accumulated in the
+    // array ACOR.  The YH array is not altered in the corrector loop.
 
-    converged = .false.
+    bool converged = false;
 
-    do while (.true.)
+    while (true) {
 
-       M = 0
-       DELP = 0.0_rt
+        int M = 0;
+        Real DELP = 0.0_rt;
 
-       vstate % Y(1:VODE_NEQS) = vstate % yh(1:VODE_NEQS,1)
-       call f_rhs(vstate % TN, vstate, vstate % savf)
-       vstate % NFE = vstate % NFE + 1
+        for (int n = 0; n < VODE_NEQS; ++n) {
+            vstate.Y[n] = vstate.YH[0][n];
+        }
 
-       if (vstate % IPUP == 1) then
-          ! -----------------------------------------------------------------------
-          !  If indicated, the matrix P = I - h*rl1*J is reevaluated and
-          !  preprocessed before starting the corrector iteration.  IPUP is set
-          !  to 0 as an indicator that this has been done.
-          ! -----------------------------------------------------------------------
-          call dvjac(pivot, IERPJ, vstate)
-          vstate % IPUP = 0
-          vstate % RC = 1.0_rt
-          vstate % DRC = 0.0_rt
-          vstate % CRATE = 1.0_rt
-          vstate % NSLP = vstate % NST
+        f_rhs(vstate.TN, vstate, vstate.savf);
+        vstate.NFE += 1;
 
-          ! If matrix is singular, take error return to force cut in step size. --
-          if (IERPJ /= 0) then
-             NFLAG = -1
-             vstate % ICF = 2
-             vstate % IPUP = 1
-             return
-          end if
+        if (vstate.IPUP == 1) {
 
-       end if
+            // If indicated, the matrix P = I - h*rl1*J is reevaluated and
+            // preprocessed before starting the corrector iteration.  IPUP is set
+            // to 0 as an indicator that this has been done.
 
-       do I = 1, VODE_NEQS
-          vstate % acor(I) = 0.0_rt
-       end do
+            dvjac(pivot, IERPJ, vstate);
+            vstate.IPUP = 0;
+            vstate.RC = 1.0_rt;
+            vstate.DRC = 0.0_rt;
+            vstate.CRATE = 1.0_rt;
+            vstate.NSLP = vstate.NST;
 
-       ! This is a looping point for the corrector iteration.
+            // If matrix is singular, take error return to force cut in step size.
+            if (IERPJ /= 0) {
+                NFLAG = -1;
+                vstate.ICF = 2;
+                vstate.IPUP = 1;
+                return;
+            }
 
-       do while (.true.)
+        }
 
-          ! -----------------------------------------------------------------------
-          !  In the case of the chord method, compute the corrector error,
-          !  and solve the linear system with that as right-hand side and
-          !  P as coefficient matrix.  The correction is scaled by the factor
-          !  2/(1+RC) to account for changes in h*rl1 since the last DVJAC call.
-          ! -----------------------------------------------------------------------
+        for (int n = 0; n < VODE_NEQS; ++n) {
+            vstate.acor[n] = 0.0_rt;
+        }
 
-          do I = 1, VODE_NEQS
-             vstate % Y(I) = (vstate % RL1 * vstate % H) * vstate % SAVF(I) - &
-                             (vstate % RL1 * vstate % YH(I,2) + vstate % ACOR(I))
-          end do
+        // Corrector iteration loop.
 
-          call dgesl(vstate % jac, pivot, vstate % Y(:))
+        while (true) {
 
-          if (vstate % RC /= 1.0_rt) then
-             CSCALE = 2.0_rt / (1.0_rt + vstate % RC)
-             vstate % Y(:) = vstate % Y(:) * CSCALE
-          end if
+            // Compute the corrector error, and solve the linear system with
+            // that as right-hand side and  P as coefficient matrix. The
+            // correction is scaled by the factor 2/(1+RC) to account for
+            // changes in h*rl1 since the last dvjac call.
+
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.Y[n] = (vstate.RL1 * vstate.H) * vstate.SAVF[n] -
+                              (vstate.RL1 * vstate.YH[1][n] + vstate.ACOR[n]);
+            }
+
+            dgesl(vstate.jac, pivot, vstate.Y);
+
+            if (vstate.RC /= 1.0_rt) {
+                Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
+                for (int n = 0; n < VODE_NEQS; ++n) {
+                    vstate.Y[n] *= CSCALE;
+                }
+            }
 
 #ifdef CLEAN_INTEGRATOR_CORRECTION
-          ! Clean the correction to Y. Use vstate % Y as scratch space.
+            // Clean the correction to Y. Use vstate.Y as scratch space.
 
-          ! Find the corrected Y: Yc = Y_previous + Y_delta
-          do I = 1, VODE_NEQS
-             vstate % Y(I) = vstate % Y(I) + (vstate % YH(I,1) + vstate % ACOR(I))
-          end do
+            // Find the corrected Y: Yc = Y_previous + Y_delta
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.Y[n] = vstate.Y[n] + (vstate.YH[0][n] + vstate.ACOR[n]);
+            }
 
-          ! Clean the corrected Y: Yc' = clean(Yc)
-          call clean_state(vstate % Y, vstate % RPAR)
+            // Clean the corrected Y: Yc' = clean(Yc)
+            clean_state(vstate.Y, vstate.RPAR);
 
-          ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
-          do I = 1,VODE_NEQS
-             vstate % Y(I) = vstate % Y(I) - (vstate % YH(I,1) + vstate % ACOR(I))
-          end do
+            // Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.Y[n] = vstate.Y[n] - (vstate.YH[0][n] + vstate.ACOR[n]);
+            }
 #endif
 
-          DEL = sqrt(sum((vstate % Y * vstate % EWT)**2) / VODE_NEQS)
-          vstate % acor(:) = vstate % acor(:) + vstate % Y(:)
+            Real DEL = 0.0_rt;
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                DEL += (vstate.Y[n] * vstate.Y[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+            }
+            DEL = std::sqrt(DEL / VODE_NEQS);
 
-          do I = 1, VODE_NEQS
-             vstate % Y(I) = vstate % YH(I,1) + vstate % ACOR(I)
-          end do
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.acor[n] += vstate.Y[n];
+            }
 
-          ! -----------------------------------------------------------------------
-          !  Test for convergence.  If M .gt. 0, an estimate of the convergence
-          !  rate constant is stored in CRATE, and this is used in the test.
-          ! -----------------------------------------------------------------------
+            for (int n = 0; n < VODE_NEQS; ++n) {
+                vstate.Y[n] = vstate.YH[0][n] + vstate.ACOR[n];
+            }
 
-          if (M /= 0) vstate % CRATE = max(CRDOWN * vstate % CRATE, DEL / DELP)
-          DCON = DEL * min(1.0_rt, vstate % CRATE) / vstate % TQ(4)
-          if (DCON <= 1.0_rt) then
-             ! we converged, exit the outer loop
-             converged = .true.
-             exit
-          end if
+            // Test for convergence. If M > 0, an estimate of the convergence
+            // rate constant is stored in CRATE, and this is used in the test.
 
-          M = M + 1
-          if (M == MAXCOR) then
-             ! exit the inner correction iteration
-             exit
-          end if
-          if (M >= 2 .and. DEL > RDIV*DELP) then
-             ! exit the inner correction iteration
-             exit
-          end if
-          DELP = DEL
-          call f_rhs(vstate % TN, vstate, vstate % SAVF)
-          vstate % NFE = vstate % NFE + 1
-       end do
+            if (M != 0) {
+                vstate.CRATE = amrex::max(CRDOWN * vstate.CRATE, DEL / DELP);
+            }
 
-       if (converged) then
-          exit
-       end if
+            Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.TQ[3];
+            if (DCON <= 1.0_rt) {
+                // we converged, exit the outer loop
+                converged = true;
+                break;
+            }
 
-       if (vstate % JCUR == 1) then
-          NFLAG = -1
-          vstate % ICF = 2
-          vstate % IPUP = 1
-          return
-       end if
+            M += 1;
+            if (M == MAXCOR) {
+                //! exit the inner correction iteration
+                break;
+            }
 
-       vstate % ICF = 1
-       vstate % IPUP = 1
+            if (M >= 2 && DEL > RDIV * DELP) {
+                // exit the inner correction iteration
+                break;
+            }
 
-    end do
+            DELP = DEL;
+            f_rhs(vstate.TN, vstate, vstate.SAVF);
+            vstate.NFE += 1;
 
-    ! Return for successful step.
-    NFLAG = 0
-    vstate % JCUR = 0
-    vstate % ICF = 0
-    if (M == 0) then
-       vstate % ACNRM = DEL
-    end if
-    if (M > 0) then
-       vstate % ACNRM = sqrt(sum((vstate % ACOR * vstate % EWT)**2) / VODE_NEQS)
-    end if
+        }
 
-  end subroutine dvnlsd
+        if (converged) {
+            break;
+        }
 
-end module cuvode_dvnlsd_module
+        if (vstate.JCUR == 1) {
+            NFLAG = -1;
+            vstate.ICF = 2;
+            vstate.IPUP = 1;
+            return;
+        }
+
+        vstate.ICF = 1;
+        vstate.IPUP = 1;
+
+    }
+
+    // Return for successful step.
+    NFLAG = 0;
+    vstate.JCUR = 0;
+    vstate.ICF = 0;
+    if (M == 0) {
+        vstate.ACNRM = DEL;
+    }
+
+    if (M > 0) {
+        vstate.ACNRM = 0.0_rt;
+        for (int n = 0; n < VODE_NEQS; ++n) {
+            vstate.ACNRM += (vstate.ACOR[n] * vstate.ACOR[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+        }
+        vstate.ACNRM = std::sqrt(vstate.ACNRM / VODE_NEQS);
+    }
+
+}
+
+#endif
