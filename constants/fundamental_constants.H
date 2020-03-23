@@ -64,7 +64,7 @@ namespace C
     constexpr amrex::Real parsec = 3.085677587679311e18;  // cm
 
     // Hubble constant (in s^{-1}, converted from 100 (km/s)/Mpc by dividing by 3.08568025e19km/Mpc)
-    constexpr amrex::Real Hubble_const = 32.407764868e-19; 
+    constexpr amrex::Real Hubble_const = 32.407764868e-19;
 
     // solar mass (from http://asa.usno.navy.mil/SecK/Constants.html)
     constexpr amrex::Real M_solar = 1.9884e33;
