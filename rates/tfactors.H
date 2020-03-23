@@ -67,6 +67,8 @@ struct tf_t {
 AMREX_GPU_HOST_DEVICE inline 
 tf_t get_tfactors(amrex::Real temp)
 {
+    tf_t tf; 
+
     tf.temp = temp;
 
     tf.t9    = temp * 1.0e-9_rt;
@@ -142,6 +144,8 @@ tf_t get_tfactors(amrex::Real temp)
     // tf.t9i18 = 1.0e0_rt/tf.t918;
     // tf.t9i38 = tf.t9i18*tf.t9i18*tf.t9i18;
     // tf.t9i58 = tf.t9i38*tf.t9i18*tf.t9i18;
+
+    return tf;
 }
 
 #endif
