@@ -1,6 +1,7 @@
 #ifndef _actual_network_data_H_
 #define _actual_network_data_H_
 
+#include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace Species;
@@ -50,10 +51,10 @@ void actual_network_data_init()
 
     // Set the mass
     for (int i = 0; i < NSpec; ++i) {
-        mion(i) = nion(i) * C::mn + zion(i) * (C::mp + C::me) - bion(i) * C::mev2gr;
+        mion(i) = nion(i) * C::m_n + zion(i) * (C::m_p + C::m_e) - bion(i) * C::MeV2gr;
 
         // Molar mass
-        wion(i) = C::avo * mion(i);
+        wion(i) = C::n_A * mion(i);
 
         // Common approximation to molar mass
         wion(i) = aion(i);
