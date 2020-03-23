@@ -1,5 +1,5 @@
-#ifndef TEST_EOS_H
-#define TEST_EOS_H
+#ifndef TEST_APROX_RATES_H
+#define TEST_APROX_RATES_H
 
 #include "extern_parameters.H"
 

@@ -9,14 +9,14 @@
 
 using namespace amrex;
 
-#include "test_cond.H"
-#include "test_cond_F.H"
+#include "test_aprox_rates.H"
+#include "test_aprox_rates_F.H"
 #include "AMReX_buildInfo.H"
 
 #include <network.H>
 #include <eos.H>
-#include <conductivity.H>
 #include <variables.H>
+#include <aprox_rates.H>
 
 int main (int argc, char* argv[])
 {
@@ -48,12 +48,11 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
-
     }
 
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
-      is_periodic[idim] = 1;
+        is_periodic[idim] = 1;
     }
 
     // make BoxArray and Geometry
@@ -85,7 +84,7 @@ void main_main ()
 
     // do the runtime parameter initializations and microphysics inits
     if (ParallelDescriptor::IOProcessor()) {
-      std::cout << "reading extern runtime parameters ..." << std::endl;
+        std::cout << "reading extern runtime parameters ..." << std::endl;
     }
 
     ParmParse ppa("amr");
@@ -98,21 +97,22 @@ void main_main ()
     Vector<int> probin_file_name(probin_file_length);
 
     for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
+        probin_file_name[i] = probin_file[i];
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
     init_extern_parameters();
 
     eos_init();
-    conductivity_init();
+
+    rates_init();
 
     auto vars = init_variables();
 
     // time = starting time in the simulation
     Real time = 0.0;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
@@ -129,64 +129,151 @@ void main_main ()
     const int ihe4 = network_spec_index("helium-4");
 
     Real dlogrho = 0.0e0_rt;
-    Real dlogT   = 0.0e0_rt;
-    Real dmetal  = 0.0e0_rt;
+    Real dlogT = 0.0e0_rt;
 
     if (n_cell > 1) {
         dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
         dlogT   = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
-        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
-      const Box& bx = mfi.validbox();
+        const Box& bx = mfi.validbox();
 
-      Array4<Real> const sp = state.array(mfi);
+        Array4<Real> const sp = state.array(mfi);
 
-      AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-      {
+        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        {
+            Real temp_zone = std::pow(10.0_rt, log10(temp_min) + static_cast<Real>(j)*dlogT);
+            // eos_state.T = temp_zone;
 
-        // set the composition -- approximately solar
-        Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
+            Real dens_zone = std::pow(10.0, log10(dens_min) + static_cast<Real>(i)*dlogrho);
+            // eos_state.rho = dens_zone;
 
-        eos_t eos_state;
+            auto tf = get_tfactors(temp_zone);
 
-        for (int n = 0; n < NumSpec; n++) {
-          eos_state.xn[n] = metalicity/(NumSpec - 2);
-        }
-        eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
-        eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
+            // store state
+            sp(i, j, k, vars.irho) = dens_zone;
+            sp(i, j, k, vars.itemp) = temp_zone;
 
-        Real temp_zone = std::pow(10.0, log10(temp_min) + static_cast<Real>(j)*dlogT);
-        eos_state.T = temp_zone;
+            Real fr;
+            Real dfrdt;
+            Real rr;
+            Real drrdt;
 
-        Real dens_zone = std::pow(10.0, log10(dens_min) + static_cast<Real>(i)*dlogrho);
-        eos_state.rho = dens_zone;
+            rate_c12ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
-        // store default state
-        sp(i, j, k, vars.irho) = eos_state.rho;
-        sp(i, j, k, vars.itemp) = eos_state.T;
-        for (int n = 0; n < NumSpec; n++) {
-          sp(i, j, k, vars.ispec+n) = eos_state.xn[n];
-        }
+            sp(i, j, k, vars.ifr) = fr;
+            sp(i, j, k, vars.idfrdt) = dfrdt;
+            sp(i, j, k, vars.irr) = rr;
+            sp(i, j, k, vars.idrrdt) = drrdt;
 
-        // call the EOS using rho, T
-        eos(eos_input_rt, eos_state);
+            rate_c12ag_deboer17(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
-        conductivity(eos_state);
+            rate_triplealf(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
-        sp(i, j, k, vars.ih) = eos_state.h;
-        sp(i, j, k, vars.ie) = eos_state.e;
-        sp(i, j, k, vars.ip) = eos_state.p;
-        sp(i, j, k, vars.is) = eos_state.s;
+            rate_c12c12(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
-        sp(i, j, k, vars.iconductivity) = eos_state.conductivity;
+            rate_c12o16(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
-      });
+            rate_o16o16(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
+            rate_o16ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ne20ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_mg24ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_mg24ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_al27pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_al27pg_old(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_si28ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+            
+            rate_si28ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_p31pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_s32ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_s32ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_cl35pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ar36ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ar36ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_k39pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ca40ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ca40ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_sc43pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ti44ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_ti44ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_v47pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_cr48ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_cr48ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_mn51pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe52ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe52ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_co55pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_pp(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_png(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_dpg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_he3ng(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_he3he3(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_he3he4(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_c12pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_n14pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_n15pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_n15pa(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_o16pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_n14ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe52ng(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe53ng(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe54ng(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe54pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe54ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe55ng(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            rate_fe56pg(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+            // TODO: langanke and ecapnuc have different inputs/outputs
+        });
     }
 
     // Call the timer again and compute the maximum difference between
@@ -195,11 +282,10 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
-
-    std::string name = "test_conductivity_C.";
+    std::string name = "test_aprox_rates.";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + cond_name, state, vars.names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

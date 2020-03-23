@@ -8,7 +8,7 @@
 
 extern amrex::GpuArray<amrex::Real,6> rv;
 extern amrex::GpuArray<amrex::Real,14> tv;
-extern amrex::Vector<amrex::Vector<amrex::GpuArray<amrex::Real,6> > > datn;
+extern amrex::Vector<amrex::Vector<amrex::GpuArray<amrex::Real,14> > > datn;
 extern amrex::GpuArray<amrex::Real,4> rfdm;
 extern amrex::GpuArray<amrex::Real,4> rfd0;
 extern amrex::GpuArray<amrex::Real,4> rfd1;
