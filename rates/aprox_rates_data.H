@@ -2,6 +2,8 @@
 #define _aaprox_rates_data_H_
 
 #include <AMReX.H>
+#include <AMReX_Array.H>
+#include <AMReX_Vector.H>
 #include <AMReX_REAL.H>
 
 extern amrex::GpuArray<amrex::Real,6> rv;
