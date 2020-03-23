@@ -5,6 +5,9 @@
 
 namespace C
 {
+    // speed of light in vacuum
+    constexpr amrex::Real c_light = 2.99792458e10;  // cm/s
+
     // newton's gravitational constant
     constexpr amrex::Real Gconst = 6.67428e-8;  // cm^3/g/s^2
 
@@ -29,6 +32,12 @@ namespace C
     // convert MeV to eV
     constexpr amrex::Real MeV2eV = 1.0e6;
 
+    // convert MeV to grams
+    constexpr amrex::Real MeV2gr  = (MeV2eV * ev2erg) / (c_light * c_light);
+
+    // conversion factor for nuclear energy generation rate
+    constexpr amrex::Real enuc_conv2 = -n_A * c_light * c_light;
+
     // mass of proton
     constexpr amrex::Real m_p = 1.672621777e-24;  // g
 
@@ -37,9 +46,6 @@ namespace C
 
     // mass of electron
     constexpr amrex::Real m_e = 9.10938291e-28;  // g
-
-    // speed of light in vacuum
-    constexpr amrex::Real c_light = 2.99792458e10;  // cm/s
 
     // electron charge
     // NIST: q_e = 1.602176565e-19 C
