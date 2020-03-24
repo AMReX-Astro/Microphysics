@@ -33,7 +33,7 @@ subroutine do_rates(lo, hi, &
 
     dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
     dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
-    dNi    = (metalicity_max  - ZERO)/(npts - 1)
+    dNi    = ONE/(npts - 1)
 
     do k = lo(3), hi(3)
 
