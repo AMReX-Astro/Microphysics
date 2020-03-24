@@ -11,9 +11,9 @@ using namespace Species;
 
 namespace iso7
 {
-    extern amrex::GpuArray<amrex::Real,NSpec> bion;
-    extern amrex::GpuArray<amrex::Real,NSpec> mion;
-    extern amrex::GpuArray<amrex::Real,NSpec> wion;
+    extern AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,NSpec> bion;
+    extern AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,NSpec> mion;
+    extern AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,NSpec> wion;
 }
 
 namespace Rates {
