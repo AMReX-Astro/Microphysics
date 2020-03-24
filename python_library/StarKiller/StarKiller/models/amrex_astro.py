@@ -33,6 +33,18 @@ class AmrexAstroModel(object):
                 pass
         return self.model_data[field]
 
+    def set(self, field, index, value):
+        try:
+            assert(field in self.model_data.keys())
+        except:
+            try:
+                field = self.network.shorten_species(field)
+            except:
+                raise
+            else:
+                pass
+       self.model_data[field][index] = value
+
     def reset(self):
         self.variables = ['radius']
         self.model_data = {}
