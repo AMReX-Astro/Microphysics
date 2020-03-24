@@ -244,10 +244,10 @@ contains
                 p % names(first_rate_index + 4*n + i) = trim(p % names(first_rate_index + 4*n))
             enddo
 
-            p % names(first_rate_index + 4*n) = p % names(first_rate_index + 4*n) // trim("_fr")
-            p % names(first_rate_index + 4*n + 1) = p % names(first_rate_index + 4*n) // trim("_dfrdt")
-            p % names(first_rate_index + 4*n + 2) = p % names(first_rate_index + 4*n) // trim("_rr")
-            p % names(first_rate_index + 4*n + 3) = p % names(first_rate_index + 4*n) // trim("_drrdt")
+            p % names(first_rate_index + 4*n) = trim(p % names(first_rate_index + 4*n)) // trim("_fr")
+            p % names(first_rate_index + 4*n + 1) = trim(p % names(first_rate_index + 4*n + 1)) // trim("_dfrdt")
+            p % names(first_rate_index + 4*n + 2) = trim(p % names(first_rate_index + 4*n + 2)) // trim("_rr")
+            p % names(first_rate_index + 4*n + 3) = trim(p % names(first_rate_index + 4*n + 3)) // trim("_drrdt")
         enddo
 
         p % names(p % ilanganke) = "langanke_rn56ec"
