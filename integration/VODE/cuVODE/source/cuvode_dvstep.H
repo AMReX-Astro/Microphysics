@@ -17,7 +17,7 @@ void advance_nordsieck (dvode_t& vstate)
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
             for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.YH[j-1][i] += vstate.YH[j][i];
+                vstate.yh[j-1][i] += vstate.yh[j][i];
             }
         }
     }
@@ -35,7 +35,7 @@ void retract_nordsieck (dvode_t& vstate)
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
             for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.YH[j-1][i] -= vstate.YH[j][i];
+                vstate.yh[j-1][i] -= vstate.yh[j][i];
             }
         }
     }
@@ -44,7 +44,7 @@ void retract_nordsieck (dvode_t& vstate)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvstep (Real* pivot, dvode_t& vstate)
+void dvstep (int* pivot, dvode_t& vstate)
 {
 
     // dvstep performs one step of the integration of an initial value
@@ -52,23 +52,18 @@ void dvstep (Real* pivot, dvode_t& vstate)
     // dvstep calls subroutine dvnlsd for the solution of the nonlinear system
     // arising in the time step.  Thus it is independent of the problem
     // Jacobian structure and the type of nonlinear system solution method.
-    // dvstep returns a completion flag KFLAG.
+    // dvstep returns a completion flag kflag.
 
-    // A return with KFLAG = -1 or -2 means either abs(H) = HMIN or 10
-    // consecutive failures occurred. On a return with KFLAG negative,
-    // the values of TN and the YH array are as of the beginning of the last
+    // A return with kflag = -1 or -2 means either abs(H) = HMIN or 10
+    // consecutive failures occurred. On a return with kflag negative,
+    // the values of TN and the yh array are as of the beginning of the last
     // step, and H is the last step size attempted.
 
     // On a successful return, ETAMAX is reset and ACOR is scaled.
 
-    ! Declare local variables
-    real(rt) :: CNQUOT, DDN, DSM, DUP, TOLD
-    real(rt) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
-    integer  :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
-
     // Parameter declarations
     const int KFC = -3;
-    const int KFH = -7
+    const int KFH = -7;
     const int MXNCF = 10;
     const Real ADDON = 1.0e-6_rt;
     const Real BIAS1 = 6.0e0_rt;
@@ -86,11 +81,13 @@ void dvstep (Real* pivot, dvode_t& vstate)
     Real ETAQ = 1.0_rt;
     Real ETAQM1 = 1.0_rt;
 
-    vstate.KFLAG = 0;
-    Real TOLD = vstate.TN;
+    vstate.kflag = 0;
+    Real TOLD = vstate.tn;
     int NCF = 0;
     vstate.JCUR = 0;
     int NFLAG = 0;
+
+    Real DSM;
 
     bool do_initialization = false;
 
@@ -122,7 +119,7 @@ void dvstep (Real* pivot, dvode_t& vstate)
         // it is done here and appropriate adjustments in the history are made.
         // On an order decrease, the history array is adjusted by DVJUST.
         // On an order increase, the history array is augmented by a column.
-        //  On a change of step size H, the history array YH is rescaled.
+        //  On a change of step size H, the history array yh is rescaled.
 
         if (vstate.NEWH == 0) {
             do_initialization = false;
@@ -151,12 +148,12 @@ void dvstep (Real* pivot, dvode_t& vstate)
 
         // Rescale the history array for a change in H by a factor of ETA.
 
-        R = 1.0_rt;
+        Real R = 1.0_rt;
 
         for (int j = 2; j <= vstate.L; ++j) {
             R *= vstate.ETA;
             for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.YH[j-1][i] *= R;
+                vstate.yh[j-1][i] *= R;
             }
         }
 
@@ -168,13 +165,13 @@ void dvstep (Real* pivot, dvode_t& vstate)
     }
 
     // Compute the predicted values by effectively
-    // multiplying the YH array by the Pascal triangle matrix.
+    // multiplying the yh array by the Pascal triangle matrix.
     // dvset is called to calculate all integration coefficients.
     // RC is the ratio of new to old values of the coefficient H / EL(2) = h / l1.
 
     while (true) {
 
-        vstate.TN += vstate.H;
+        vstate.tn += vstate.H;
 
         advance_nordsieck(vstate);
 
@@ -190,36 +187,36 @@ void dvstep (Real* pivot, dvode_t& vstate)
 
         if (NFLAG != 0) {
 
-            // The VNLS routine failed to achieve convergence (NFLAG /= 0).
-            // The YH array is retracted to its values before prediction.
+            // The VNLS routine failed to achieve convergence (NFLAG != 0).
+            // The yh array is retracted to its values before prediction.
             // The step size H is reduced and the step is retried, if possible.
             // Otherwise, an error exit is taken.
 
             NCF += 1;
             vstate.ETAMAX = 1.0_rt;
-            vstate.TN = TOLD;
+            vstate.tn = TOLD;
 
             retract_nordsieck(vstate);
 
             if (NFLAG < -1) {
                 if (NFLAG == -2) {
-                    vstate.KFLAG = -3;
+                    vstate.kflag = -3;
                 }
                 else if (NFLAG == -3) {
-                    vstate.KFLAG = -4;
+                    vstate.kflag = -4;
                 }
                 vstate.JSTART = 1;
                 return;
             }
 
             if (std::abs(vstate.H) <= HMIN * ONEPSM) {
-                vstate.KFLAG = -2;
+                vstate.kflag = -2;
                 vstate.JSTART = 1;
                 return;
             }
 
             if (NCF == MXNCF) {
-                vstate.KFLAG = -2;
+                vstate.kflag = -2;
                 vstate.JSTART = 1;
                 return;
             }
@@ -234,7 +231,7 @@ void dvstep (Real* pivot, dvode_t& vstate)
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
                 for (int i = 0; i < VODE_NEQS; ++i) {
-                    vstate.YH[j-1][i] *= R;
+                    vstate.yh[j-1][i] *= R;
                 }
             }
 
@@ -249,19 +246,19 @@ void dvstep (Real* pivot, dvode_t& vstate)
         // The corrector has converged (NFLAG = 0). The local error test is
         // made and control passes to statement 500 if it fails.
 
-        Real DSM = vstate.ACNRM / vstate.TQ[1];
+        DSM = vstate.ACNRM / vstate.TQ[1];
         if (DSM <= 1.0_rt) {
 
-            // After a successful step, update the YH and TAU arrays and decrement
+            // After a successful step, update the yh and TAU arrays and decrement
             // NQWAIT. If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
             // for use in a possible order increase on the next step.
             // If ETAMAX = 1 (a failure occurred this step), keep NQWAIT >= 2.
 
-            vstate.KFLAG = 0;
+            vstate.kflag = 0;
             vstate.NST += 1;
             vstate.HU = vstate.H;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
-                int i = vstate.L - IBACK - 1;
+                int i = vstate.L - iback - 1;
                 vstate.TAU[i+1] = vstate.TAU[i];
             }
 
@@ -308,33 +305,33 @@ void dvstep (Real* pivot, dvode_t& vstate)
 
         }
 
-        // The error test failed. KFLAG keeps track of multiple failures.
-        // Restore TN and the YH array to their previous values, and prepare
+        // The error test failed. kflag keeps track of multiple failures.
+        // Restore tn and the yh array to their previous values, and prepare
         // to try the step again. Compute the optimum step size for the
         // same order. After repeated failures, H is forced to decrease
         // more rapidly.
 
-        vstate.KFLAG -= 1;
+        vstate.kflag -= 1;
         NFLAG = -2;
-        vstate.TN = TOLD;
+        vstate.tn = TOLD;
 
         retract_nordsieck(vstate);
 
         if (std::abs(vstate.H) <= HMIN * ONEPSM) {
-            vstate.KFLAG = -1;
+            vstate.kflag = -1;
             vstate.JSTART = 1;
             return;
         }
 
         vstate.ETAMAX = 1.0_rt;
 
-        if (vstate.KFLAG > KFC) {
+        if (vstate.kflag > KFC) {
 
             // Compute ratio of new H to current H at the current order.
             Real FLOTL = vstate.L;
             vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
-            if ((vstate.KFLAG <= -2) && (vstate.ETA > ETAMXF)) {
+            if ((vstate.kflag <= -2) && (vstate.ETA > ETAMXF)) {
                 vstate.ETA = ETAMXF;
             }
 
@@ -344,7 +341,7 @@ void dvstep (Real* pivot, dvode_t& vstate)
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
                 for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.YH[j-1][n] *= R;
+                    vstate.yh[j-1][n] *= R;
                 }
             }
 
@@ -358,19 +355,19 @@ void dvstep (Real* pivot, dvode_t& vstate)
         }
 
         // Control reaches this section if 3 or more consecutive failures
-        // have occurred. It is assumed that the elements of the YH array
+        // have occurred. It is assumed that the elements of the yh array
         // have accumulated errors of the wrong order. The order is reduced
         // by one, if possible. Then H is reduced by a factor of 0.1 and
         // the step is retried.  After a total of 7 consecutive failures,
-        // an exit is taken with KFLAG = -1.
+        // an exit is taken with kflag = -1.
 
-        if (vstate.KFLAG == KFH) {
-            vstate.KFLAG = -1;
+        if (vstate.kflag == KFH) {
+            vstate.kflag = -1;
             vstate.JSTART = 1;
             return;
         }
 
-        if (vstate.NQ /= 1) {
+        if (vstate.NQ != 1) {
             vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
             dvjust(-1, vstate);
             vstate.L = vstate.NQ;
@@ -383,7 +380,7 @@ void dvstep (Real* pivot, dvode_t& vstate)
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
                 for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.YH[j-1][n] *= R;
+                    vstate.yh[j-1][n] *= R;
                 }
             }
 
@@ -400,10 +397,10 @@ void dvstep (Real* pivot, dvode_t& vstate)
         vstate.H *= vstate.ETA;
         vstate.HSCAL = vstate.H;
         vstate.TAU[0] = vstate.H;
-        f_rhs(vstate.TN, vstate, vstate.savf);
+        f_rhs(vstate.tn, vstate, vstate.savf);
         vstate.NFE += 1;
         for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.YH[1][n] = vstate.H * vstate.savf[n];
+            vstate.yh[1][n] = vstate.H * vstate.savf[n];
         }
 
         vstate.NQWAIT = 10;
@@ -431,22 +428,22 @@ void dvstep (Real* pivot, dvode_t& vstate)
             // Compute ratio of new H to current H at the current order less one.
             Real DDN = 0.0_rt;
             for (int n = 0; n < VODE_NEQS; ++n) {
-                DDN += (vstate.YH[vstate.L-1][n] * vstate.YH[vstate.L-1][n]) * (vstate.EWT[n] * vstate.EWT[n]);
+                DDN += (vstate.yh[vstate.L-1][n] * vstate.yh[vstate.L-1][n]) * (vstate.ewt[n] * vstate.ewt[n]);
             }
             DDN = std::sqrt(DDN / VODE_NEQS) / vstate.TQ[0];
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
-        ETAQP1 = 0.0_rt;
+        Real ETAQP1 = 0.0_rt;
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
             Real CNQUOT = (vstate.TQ[4] / vstate.CONP) * std::pow(vstate.H / vstate.TAU[1], vstate.L);
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.savf[n] = vstate.acor[n] - CNQUOT * vstate.YH[VODE_LMAX-1][n];
+                vstate.savf[n] = vstate.acor[n] - CNQUOT * vstate.yh[VODE_LMAX-1][n];
             }
             Real DUP = 0.0_rt;
             for (int n = 0; n < VODE_NEQS; ++n) {
-                DUP += (vstate.SAVF[n] * vstate.SAVF[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+                DUP += (vstate.savf[n] * vstate.savf[n]) * (vstate.ewt[n] * vstate.ewt[n]);
             }
             DUP = std::sqrt(DUP / VODE_NEQS) / vstate.TQ[2];
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
@@ -457,7 +454,7 @@ void dvstep (Real* pivot, dvode_t& vstate)
                 vstate.ETA = ETAQP1;
                 vstate.NEWQ = vstate.NQ + 1;
                 for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.YH[VODE_LMAX-1][n] = vstate.acor[n];
+                    vstate.yh[VODE_LMAX-1][n] = vstate.acor[n];
                 }
             }
             else {
@@ -481,7 +478,7 @@ void dvstep (Real* pivot, dvode_t& vstate)
     }
 
     // Test tentative new H against THRESH and ETAMAX, and HMXI, then exit.
-    if (vstate.ETA >= THRESH && vstate.ETAMAX /= 1.0_rt) {
+    if (vstate.ETA >= THRESH && vstate.ETAMAX != 1.0_rt) {
         vstate.ETA = amrex::min(vstate.ETA, vstate.ETAMAX);
         vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * HMXI * vstate.ETA);
         vstate.NEWH = 1;

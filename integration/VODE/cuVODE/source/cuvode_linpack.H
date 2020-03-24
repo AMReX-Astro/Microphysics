@@ -5,7 +5,7 @@
 #include <cuvode_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgesl (Real* a[][VODE_NEQS], int* ipvt, Real* b)
+void dgesl (Real a[][VODE_NEQS], int* ipvt, Real* b)
 {
 
     int nm1 = VODE_NEQS - 1;
@@ -42,7 +42,27 @@ void dgesl (Real* a[][VODE_NEQS], int* ipvt, Real* b)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgefa (Real* a[][VODE_NEQS], int* ipvt, int& info)
+int idamax (int N, Real* x)
+{
+
+    int index = 1;
+
+    Real dmax = std::abs(x[0]);
+    for (int i = 2; i <= N; ++i) {
+        if (std::abs(x[i-1]) <= dmax) {
+            continue;
+        }
+        index = i;
+        dmax = std::abs(x[i-1]);
+    }
+
+    return index;
+
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void dgefa (Real a[][VODE_NEQS], int* ipvt, int& info)
 {
 
     // dgefa factors a matrix by gaussian elimination.
@@ -50,13 +70,10 @@ void dgefa (Real* a[][VODE_NEQS], int* ipvt, int& info)
     // l is a product of permutation and unit lower
     // triangular matrices and u is upper triangular.
 
-    real(rt) :: t
-    integer  :: j, k, kp1, l, nm1
-
     // gaussian elimination with partial pivoting
 
     info = 0;
-    nm1 = VODE_NEQS - 1;
+    int nm1 = VODE_NEQS - 1;
 
     if (nm1 >= 1) {
 
@@ -70,7 +87,7 @@ void dgefa (Real* a[][VODE_NEQS], int* ipvt, int& info)
             if (a[k-1][l-1] != 0.0e0_rt) {
 
                 // interchange if necessary
-                if (l /= k) {
+                if (l != k) {
                     Real t = a[k-1][l-1];
                     a[k-1][l-1] = a[k-1][k-1];
                     a[k-1][k-1] = t;
@@ -109,29 +126,6 @@ void dgefa (Real* a[][VODE_NEQS], int* ipvt, int& info)
     if (a[VODE_NEQS-1][VODE_NEQS-1] == 0.0e0_rt) {
         info = VODE_NEQS;
     }
-
-}
-
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int idamax (int N, Real* x)
-{
-
-    real(rt) :: dmax
-    integer  :: i, index
-
-    int index = 1;
-
-    Real dmax = std::abs(x[0]);
-    for (int i = 2; i <= N; ++i) {
-        if (std::abs(x[i-1]) <= dmax) {
-            continue;
-        }
-        index = i;
-        dmax = std::abs(x[i-1]);
-    }
-
-    return index;
 
 }
 

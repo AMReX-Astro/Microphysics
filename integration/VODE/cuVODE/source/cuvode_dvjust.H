@@ -41,7 +41,7 @@ void dvjust (int IORD, dvode_t& vstate)
         // Subtract correction terms from YH array.
         for (int j = 3; j <= vstate.NQ; ++j) {
             for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.YH[j-1][i] = vstate.YH[j-1][i] - vstate.YH[vstate.L-1][i] * vstate.EL[j-1];
+                vstate.yh[j-1][i] = vstate.yh[j-1][i] - vstate.yh[vstate.L-1][i] * vstate.EL[j-1];
             }
         }
 
@@ -79,13 +79,13 @@ void dvjust (int IORD, dvode_t& vstate)
         Real T1 = (-ALPH0 - ALPH1) / PROD;
         // Load column L + 1 in YH array.
         for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.YH[vstate.L][n] = T1 * vstate.YH[VODE_LMAX-1][n];
+            vstate.yh[vstate.L][n] = T1 * vstate.yh[VODE_LMAX-1][n];
         }
 
         // Add correction terms to YH array.
         for (int j = 3; j <= vstate.NQ + 1; ++j) {
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.YH[j-1][n] = vstate.YH[j-1][n] + vstate.EL[j-1] * vstate.YH[vstate.L][n];
+                vstate.yh[j-1][n] = vstate.yh[j-1][n] + vstate.EL[j-1] * vstate.yh[vstate.L][n];
             }
         }
 

@@ -20,18 +20,11 @@ void dvset (dvode_t& vstate)
     // H*xi(i) = t sub n  -  t sub (n-i)
     //         = H + TAU(1) + TAU(2) + ... TAU(i-1).
 
-    ! Declare local variables
-    real(rt) :: EM(13)
-    real(rt) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
-    real(rt) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S
-    real(rt) :: T1, T2, T3, T4, T5, T6, XI
-    integer    :: I, IBACK, J, JP1, NQM1, NQM2
-
     const Real CORTES = 0.1e0_rt;
 
-    Real FLOTL = vstate % L;
-    int NQM1 = vstate % NQ - 1;
-    int NQM2 = vstate % NQ - 2;
+    Real FLOTL = vstate.L;
+    int NQM1 = vstate.NQ - 1;
+    int NQM2 = vstate.NQ - 2;
 
     for (int i = 3; i <= vstate.L; ++i) {
         vstate.EL[i-1] = 0.0_rt;
@@ -53,7 +46,7 @@ void dvset (dvode_t& vstate)
             ALPH0 -= 1.0_rt / (j+1);
             for (int iback = 1; iback <= j+1; ++iback) {
                 int i = (j + 3) - iback - 1;
-                vstate.EL[i] += vstate.EL[I-1] * RXI;
+                vstate.EL[i] += vstate.EL[i-1] * RXI;
             }
         }
 

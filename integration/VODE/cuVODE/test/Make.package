@@ -2,6 +2,10 @@ CEXE_sources += main.cpp
 
 FEXE_headers = test_react_F.H
 CEXE_headers = test_react.H
+CEXE_headers += react_zones.H
+CEXE_headers += vode_rhs.H
+CEXE_headers += vode_rpar.H
+CEXE_headers += cuvode_parameters.H
 
 F90EXE_sources += react_zones.F90
 F90EXE_sources += cuvode_parameters.F90

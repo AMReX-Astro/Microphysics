@@ -2,8 +2,10 @@
 #define _cuvode_type_H_
 
 #include <AMReX_REAL.H>
+#include <cuvode_parameters.H>
+#include <vode_rpar.H>
 
-const amrex::Real UROUND = std::numeric_limits<amrex::Real>::min(1.0_rt);
+const amrex::Real UROUND = std::numeric_limits<amrex::Real>::min();
 const amrex::Real SRUR = std::sqrt(UROUND);
 const amrex::Real CCMXJ = 0.2e0_rt;
 const amrex::Real HMIN = 0.0_rt;
@@ -23,29 +25,29 @@ struct dvode_t
     amrex::Real HU;
     amrex::Real ACNRM, CONP, CRATE, DRC, EL[13];
     amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
-    amrex::Real RC, RL1, TAU[13], TQ[5], TN;
+    amrex::Real RC, RL1, TAU[13], TQ[5], tn;
     int NFE, NJE, NST;
-    int ICF, IPUP, JCUR, JSTART, JSV, KFLAG;
+    int ICF, IPUP, JCUR, JSTART, JSV, kflag;
     int L;
     int MXSTEP;
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
 
     // Tolerances
-    amrex::Real RTOL[VODE_NEQS];
-    amrex::Real ATOL[VODE_NEQS];
+    amrex::Real rtol[VODE_NEQS];
+    amrex::Real atol[VODE_NEQS];
 
     // Real parameters
-    amrex::Real RPAR[n_rpar_comps];
+    amrex::Real rpar[n_rpar_comps];
 
     // State flag
-    int ISTATE;
+    int istate;
 
     // Local time and integration end time
-    amrex::Real T, TOUT;
+    amrex::Real t, tout;
 
     // Integration array
-    amrex::Real Y[VODE_NEQS];
+    amrex::Real y[VODE_NEQS];
 
     // Jacobian
     amrex::Real jac[VODE_NEQS*VODE_NEQS];

@@ -7,16 +7,12 @@
 #include <cuvode_dvjac.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
+void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
 {
 
     // dvnlsd is a nonlinear system solver that uses a chord (modified
     // Newton) method with direct linear algebraic system solvers.
     // It then handles the corrector phase of this integration package.
-
-    ! Declare local variables
-    real(rt) :: CSCALE, DCON, DEL, DELP
-    integer  :: I, IERPJ, M
 
     // Parameter declarations
     const Real CCMAX = 0.3e0_rt;
@@ -24,6 +20,9 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
     const Real RDIV  = 2.0e0_rt;
     const int MAXCOR = 3;
     const int MSBP = 20;
+
+    Real DEL;
+    int M;
 
     // On the first step, on a change of method order, or after a
     // nonlinear convergence failure with NFLAG = -2, set IPUP = 1
@@ -54,21 +53,21 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
 
     // Up to MAXCOR corrector iterations are taken.  A convergence test is
     // made on the r.m.s. norm of each correction, weighted by the error
-    // weight array EWT.  The sum of the corrections is accumulated in the
-    // array ACOR.  The YH array is not altered in the corrector loop.
+    // weight array ewt.  The sum of the corrections is accumulated in the
+    // array acor.  The YH array is not altered in the corrector loop.
 
     bool converged = false;
 
     while (true) {
 
-        int M = 0;
+        M = 0;
         Real DELP = 0.0_rt;
 
         for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.Y[n] = vstate.YH[0][n];
+            vstate.y[n] = vstate.yh[0][n];
         }
 
-        f_rhs(vstate.TN, vstate, vstate.savf);
+        f_rhs(vstate.tn, vstate, vstate.savf);
         vstate.NFE += 1;
 
         if (vstate.IPUP == 1) {
@@ -77,6 +76,7 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
             // preprocessed before starting the corrector iteration.  IPUP is set
             // to 0 as an indicator that this has been done.
 
+            int IERPJ;
             dvjac(pivot, IERPJ, vstate);
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
@@ -85,7 +85,7 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
             vstate.NSLP = vstate.NST;
 
             // If matrix is singular, take error return to force cut in step size.
-            if (IERPJ /= 0) {
+            if (IERPJ != 0) {
                 NFLAG = -1;
                 vstate.ICF = 2;
                 vstate.IPUP = 1;
@@ -108,48 +108,48 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
             // changes in h*rl1 since the last dvjac call.
 
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.Y[n] = (vstate.RL1 * vstate.H) * vstate.SAVF[n] -
-                              (vstate.RL1 * vstate.YH[1][n] + vstate.ACOR[n]);
+                vstate.y[n] = (vstate.RL1 * vstate.H) * vstate.savf[n] -
+                              (vstate.RL1 * vstate.yh[1][n] + vstate.acor[n]);
             }
 
-            dgesl(vstate.jac, pivot, vstate.Y);
+            dgesl(vstate.jac, pivot, vstate.y);
 
-            if (vstate.RC /= 1.0_rt) {
+            if (vstate.RC != 1.0_rt) {
                 Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
                 for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.Y[n] *= CSCALE;
+                    vstate.y[n] *= CSCALE;
                 }
             }
 
 #ifdef CLEAN_INTEGRATOR_CORRECTION
-            // Clean the correction to Y. Use vstate.Y as scratch space.
+            // Clean the correction to Y. Use vstate.y as scratch space.
 
             // Find the corrected Y: Yc = Y_previous + Y_delta
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.Y[n] = vstate.Y[n] + (vstate.YH[0][n] + vstate.ACOR[n]);
+                vstate.y[n] = vstate.y[n] + (vstate.yh[0][n] + vstate.acor[n]);
             }
 
             // Clean the corrected Y: Yc' = clean(Yc)
-            clean_state(vstate.Y, vstate.RPAR);
+            clean_state(vstate.y, vstate.RPAR);
 
             // Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.Y[n] = vstate.Y[n] - (vstate.YH[0][n] + vstate.ACOR[n]);
+                vstate.y[n] = vstate.y[n] - (vstate.yh[0][n] + vstate.acor[n]);
             }
 #endif
 
-            Real DEL = 0.0_rt;
+            DEL = 0.0_rt;
             for (int n = 0; n < VODE_NEQS; ++n) {
-                DEL += (vstate.Y[n] * vstate.Y[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+                DEL += (vstate.y[n] * vstate.y[n]) * (vstate.ewt[n] * vstate.ewt[n]);
             }
             DEL = std::sqrt(DEL / VODE_NEQS);
 
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.acor[n] += vstate.Y[n];
+                vstate.acor[n] += vstate.y[n];
             }
 
             for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.Y[n] = vstate.YH[0][n] + vstate.ACOR[n];
+                vstate.y[n] = vstate.yh[0][n] + vstate.acor[n];
             }
 
             // Test for convergence. If M > 0, an estimate of the convergence
@@ -178,7 +178,7 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
             }
 
             DELP = DEL;
-            f_rhs(vstate.TN, vstate, vstate.SAVF);
+            f_rhs(vstate.tn, vstate, vstate.savf);
             vstate.NFE += 1;
 
         }
@@ -210,7 +210,7 @@ void dvnlsd (Real* pivot, int& NFLAG, dvode_t& vstate)
     if (M > 0) {
         vstate.ACNRM = 0.0_rt;
         for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.ACNRM += (vstate.ACOR[n] * vstate.ACOR[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+            vstate.ACNRM += (vstate.acor[n] * vstate.acor[n]) * (vstate.ewt[n] * vstate.ewt[n]);
         }
         vstate.ACNRM = std::sqrt(vstate.ACNRM / VODE_NEQS);
     }

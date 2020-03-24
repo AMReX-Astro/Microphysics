@@ -11,6 +11,7 @@ using namespace amrex;
 
 #include "test_react.H"
 #include "test_react_F.H"
+#include "react_zones.H"
 #include "AMReX_buildInfo.H"
 
 
@@ -38,6 +39,8 @@ void main_main ()
 
     Real dt;
 
+    int do_cxx = 0;
+
     // inputs parameters
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -55,6 +58,9 @@ void main_main ()
 
         // Get the integration time
         pp.get("dt", dt);
+
+        // Should we do the C++ version?
+        pp.query("do_cxx", do_cxx);
 
     }
 
@@ -130,9 +136,23 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
+        auto const s = state.array(mfi);
+
+        if (do_cxx) {
+
+            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+            {
+                do_react(i, j, k, Ncomp, s, dt);
+            });
+
+        }
+        else {
+
 #pragma gpu
         do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                  BL_TO_FORTRAN_ANYD(state[mfi]), Ncomp, dt);
+
+        }
 
     }
 

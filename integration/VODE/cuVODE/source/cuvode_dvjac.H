@@ -7,7 +7,7 @@
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
+void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
 {
 
     // dvjac is called by dvnlsd to compute and process the matrix
@@ -16,10 +16,6 @@ void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
     // a previous evaluation. P is then subjected to LU decomposition
     // in preparation for later solution of linear systems with P as
     // coefficient matrix. This is done by DGEFA.
-
-    ! Declare local variables
-    real(rt) :: con, fac, hrl1, R, R0, yj
-    integer  :: i, j, j1, IER, II, evaluate_jacobian
 
     IERPJ = 0;
 
@@ -35,12 +31,12 @@ void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
         // steps, we consider the cached Jacobian too old and will want to re-evaluate
         // it, so we look at whether the step of the last Jacobian evaluation (NSLJ)
         // is more than max_steps_between_jacobian_evals steps in the past.
-        if (vstate.NST == 0 .or. vstate.NST > vstate.NSLJ + max_steps_between_jacobian_evals) {
+        if (vstate.NST == 0 || vstate.NST > vstate.NSLJ + max_steps_between_jacobian_evals) {
             evaluate_jacobian = 1;
         }
 
         // See the non-linear solver for details on these conditions.
-        if (vstate.ICF == 1 .and. vstate.DRC .LT. CCMXJ) {
+        if (vstate.ICF == 1 && vstate.DRC < CCMXJ) {
             evaluate_jacobian = 1;
         }
 
@@ -69,10 +65,10 @@ void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
             vstate.JCUR = 1;
 
             for (int n = 0; n < VODE_NEQS * VODE_NEQS; ++n) {
-                vstate.JAC[n] = 0.0_rt;
+                vstate.jac[n] = 0.0_rt;
             }
 
-            jac(vstate.TN, vstate, 0, 0, vstate.JAC, VODE_NEQS);
+            jac(vstate.tn, vstate, vstate.jac);
 
             // Store the Jacobian if we're caching.
             if (vstate.JSV == 1) {
@@ -97,7 +93,7 @@ void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
 
             Real fac = 0.0_rt;
             for (int n = 0; n < VODE_NEQS; ++n) {
-                fac += (vstate.SAVF[n] * vstate.SAVF[n]) * (vstate.EWT[n] * vstate.EWT[n]);
+                fac += (vstate.savf[n] * vstate.savf[n]) * (vstate.ewt[n] * vstate.ewt[n]);
             }
             fac = std::sqrt(fac / VODE_NEQS);
 
@@ -110,13 +106,13 @@ void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
             for (int j = 0; j < VODE_NEQS; ++j) {
                 Real yj = vstate.y[j];
 
-                Real R = amrex::max(SRUR * std::abs(yj), R0 / vstate.EWT[j]);
+                Real R = amrex::max(SRUR * std::abs(yj), R0 / vstate.ewt[j]);
                 vstate.y[j] += R;
                 Real fac = 1.0_rt / R;
 
                 f_rhs(vstate.tn, vstate, vstate.acor);
                 for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.jac[n+j1] = (vstate.acor[n] - vstate.SAVF[n]) * fac;
+                    vstate.jac[n+j1] = (vstate.acor[n] - vstate.savf[n]) * fac;
                 }
 
                 vstate.y[j] = yj;
@@ -168,6 +164,7 @@ void dvjac (Real* pivot, int& IERPJ, dvode_t& vstate)
         j += VODE_NEQS + 1;
     }
 
+    int IER;
     dgefa(vstate.jac, pivot, IER);
 
     if (IER != 0) {
