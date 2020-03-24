@@ -2143,11 +2143,11 @@ void ecapnuc(const Real etakep, const Real temp,
             const Real eta4   = eta3*eta;
             f1g = 0.5e0_rt*eta2 + 2.0e0_rt - exmeta;
             f2g = eta3*1.0_rt/3.0_rt + 4.0e0_rt*eta + 2.0e0_rt*exmeta;
-            f3g = 0.25e0_rt*eta4 + 0.5e0_rt*M_PI*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta;
-            f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*M_PI*1.0_rt/3.0_rt*eta3 + 48.0e0_rt*eta \
+            f3g = 0.25e0_rt*eta4 + 0.5e0_rt*M_PI*M_PI*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta;
+            f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*M_PI*M_PI*1.0_rt/3.0_rt*eta3 + 48.0e0_rt*eta \
                     + 24.0e0_rt*exmeta;
-            f5g = eta4*eta2*1.0_rt/6.0_rt + 5.0e0_rt*1.0_rt/6.0_rt*M_PI*eta4 \
-                    + 7.0e0_rt*1.0_rt/6.0_rt*M_PI*eta2  + 240.0e0_rt -120.e0_rt*exmeta;
+            f5g = eta4*eta2*1.0_rt/6.0_rt + 5.0e0_rt*1.0_rt/6.0_rt*M_PI*M_PI*eta4 \
+                    + 7.0e0_rt*1.0_rt/6.0_rt*M_PI*M_PI*eta2  + 240.0e0_rt -120.e0_rt*exmeta;
         }
 
         // factors which are multiplied by the fermi integrals
