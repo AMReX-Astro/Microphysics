@@ -2,9 +2,9 @@
 
 namespace iso7
 {
-    AMREX_GPU_MANAGED amrex::Real bion[NSpec];
-    AMREX_GPU_MANAGED amrex::Real mion[NSpec];
-    AMREX_GPU_MANAGED amrex::Real wion[NSpec];
+    amrex::GpuArray<amrex::Real,NSpec> bion;
+    amrex::GpuArray<amrex::Real,NSpec> mion;
+    amrex::GpuArray<amrex::Real,NSpec> wion;
 }
 
 namespace Rates

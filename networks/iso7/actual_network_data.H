@@ -1,16 +1,19 @@
 #ifndef _actual_network_data_H_
 #define _actual_network_data_H_
 
+#include <AMReX_REAL.H>
+#include <AMREX_GpuArray.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
+using namespace amrex;
 using namespace Species;
 
 namespace iso7
 {
-    extern AMREX_GPU_MANAGED amrex::Real bion[NSpec];
-    extern AMREX_GPU_MANAGED amrex::Real mion[NSpec];
-    extern AMREX_GPU_MANAGED amrex::Real wion[NSpec];
+    extern amrex::GpuArray<amrex::Real,NSpec> bion;
+    extern amrex::GpuArray<amrex::Real,NSpec> mion;
+    extern amrex::GpuArray<amrex::Real,NSpec> wion;
 }
 
 namespace Rates {
