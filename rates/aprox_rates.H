@@ -1974,13 +1974,13 @@ void rate_fe56pg(tf_t tf, const Real den, Real& fr,
          + 2.315911e2_rt  * tf.t9i;
 
     Real term, dtermdt;
-    // if (aa < 200.0_rt) {
-    //    term    = std::exp(aa)
-    //    dtermdt = term*daa*1.0e-9_rt
-    // } else {
-    //    term    = std::exp(200.0e0_rt)
-    //    dtermdt = 0.0e0_rt
-    // }
+    if (aa < 200.0_rt) {
+       term    = std::exp(aa);
+       dtermdt = term*daa*1.0e-9_rt;
+    } else {
+       term    = std::exp(200.0e0_rt);
+       dtermdt = 0.0e0_rt;
+    }
 
     const Real bb  = 2.402486e9_rt * tf.t932 * std::exp(-6.995192e1_rt * tf.t9i);
     const Real dbb = bb*(1.5e0_rt*tf.t9i + 6.995192e1_rt * tf.t9i2);
@@ -2094,7 +2094,6 @@ void ecapnuc(const Real etakep, const Real temp,
     Real snep   = 0.0e0_rt;
     Real t9     = temp * 1.0e-9_rt;
     Real bktinv = 1.0e0_rt/(bk *temp);
-    int iflag  = 0;
     Real qn     = qn1;
 
     // chemical potential including the electron rest mass
@@ -2104,8 +2103,6 @@ void ecapnuc(const Real etakep, const Real temp,
     // iflag=1 is for electrons,  iflag=2 is for positrons
     for (auto iflag = 1; iflag <= 2; ++iflag) {
         Real etael;
-// 502 iflag = iflag + 1
-        // iflag++;
         if (iflag == 1) {
             etael = qn2*bktinv;
         } else if (iflag == 2) {
@@ -2119,31 +2116,21 @@ void ecapnuc(const Real etakep, const Real temp,
 
         // protect from overflowing with large eta values
         const Real exeta = (eta <= 6.8e2_rt) ? std::exp(eta) : 0.0_rt;
-        // if (eta <= 6.8e2_rt) {
-        //     exeta = std::exp(eta)
-        // } else {
-        //     exeta = 0.0e0_rt
-        // }
         const Real etael2 = etael*etael;
         const Real etael3 = etael2*etael;
         const Real etael4 = etael3*etael;
         const Real etael5 = etael4*etael;
         const Real zetan2 = zetan*zetan;
         const Real f0 = (eta <= 6.8e2_rt) ? std::log(1.0e0_rt + exeta) : eta;
-        // if (eta <= 6.8e2_rt) {
-        //     f0 = std::log(1.0e0_rt + exeta)
-        // } else {
-        //     f0 = eta
-        // }
 
-        // if eta le. 0., the following fermi integrals apply
+        // if eta <= 0., the following fermi integrals apply
         const Real f1l = exeta;
         const Real f2l = 2.0e0_rt   * f1l;
         const Real f3l = 6.0e0_rt   * f1l;
         const Real f4l = 24.0e0_rt  * f1l;
         const Real f5l = 120.0e0_rt * f1l;
 
-        // if eta gt. 0., the following fermi integrals apply:
+        // if eta > 0., the following fermi integrals apply:
         Real f1g = 0.0e0_rt;
         Real f2g = 0.0e0_rt;
         Real f3g = 0.0e0_rt;
@@ -2188,41 +2175,30 @@ void ecapnuc(const Real etakep, const Real temp,
             + facv2*f2g + facv1*f1g + facv0*f0;
 
         // for electrons capture onto protons
-        // if (iflag==2) go to 503
         if (iflag < 2) {
-            // if (eta > 0.) go to 505
             if (eta <= 0.0_rt) {
                 rpen  = twoln*cmk5*t5*rie1*ftinv;
                 spen  = twoln*cmk6*t5*temp*rjv1*ftinv;
                 spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me;
-            // // go to 504
             } else {
-                // 505 rpen = twoln*cmk5*t5*rie2*ftinv
                 rpen = twoln*cmk5*t5*rie2*ftinv;
                 spen = twoln*cmk6*t5*temp*rjv2*ftinv;
                 spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me;
             }
-            // 504 continue
             qn = qn2;
-            // go to 502
         }
     }
 
     // for positrons capture onto neutrons
-// 503 if (eta > 0.) go to 507
     if (eta <= 0.0_rt) {
         rnep  = twoln*cmk5*t5*rie1*ftinv;
         snep  = twoln*cmk6*t5*temp*rjv1*ftinv;
         snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me;
-    // go to 506
     } else {
-// 507 rnep  = twoln*cmk5*t5*rie2*ftinv
         rnep  = twoln*cmk5*t5*rie2*ftinv;
         snep  = twoln*cmk6*t5*temp*rjv2*ftinv;
         snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me;
     }
-// 506 continue
-    // return
 }
 
 #endif
