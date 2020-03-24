@@ -9,16 +9,71 @@ plot_t init_variables() {
 
     p.irho = p.next_index(1);
     p.itemp = p.next_index(1);
+    p.ini56 = p.next_index(1);
 
     p.ic12ag = p.next_index(4);
     p.ic12ag_deboer17 = p.next_index(4);
     p.itriplealf = p.next_index(4);
     p.ic12c12 = p.next_index(4);
+    p.ic12o16 = p.next_index(4);
+    p.io16o16 = p.next_index(4);
+    p.io16ag = p.next_index(4);
+    p.ine20ag = p.next_index(4);
+    p.img24ag = p.next_index(4);
+    p.img24ap = p.next_index(4);
+    p.ial27pg = p.next_index(4);
+    p.ial27pg_old = p.next_index(4);
+    p.isi28ag = p.next_index(4);
+    p.isi28ap = p.next_index(4);
+    p.ip31pg = p.next_index(4);
+    p.is32ag = p.next_index(4);
+    p.is32ap = p.next_index(4);
+    p.icl35pg = p.next_index(4);
+    p.iar36ag = p.next_index(4);
+    p.iar36ap = p.next_index(4);
+    p.ik39pg = p.next_index(4);
+    p.ica40ag = p.next_index(4);
+    p.ica40ap = p.next_index(4);
+    p.isc43pg = p.next_index(4);
+    p.iti44ag = p.next_index(4);
+    p.iti44ap = p.next_index(4);
+    p.iv47pg = p.next_index(4);
+    p.icr48ag = p.next_index(4);
+    p.icr48ap = p.next_index(4);
+    p.imn51pg = p.next_index(4);
+    p.ife52ag = p.next_index(4);
+    p.ife52ap = p.next_index(4);
+    p.ico55pg = p.next_index(4);
+    p.ipp = p.next_index(4);
+    p.ipng = p.next_index(4);
+    p.idpg = p.next_index(4);
+    p.ihe3ng = p.next_index(4);
+    p.ihe3he3= p.next_index(4);
+    p.ihe3he4 = p.next_index(4);
+    p.ic12pg = p.next_index(4);
+    p.in14pg = p.next_index(4);
+    p.in15pg = p.next_index(4);
+    p.in15pa = p.next_index(4);
+    p.io16pg = p.next_index(4);
+    p.in14ag = p.next_index(4);
+    p.ife52ng = p.next_index(4);
+    p.ife53ng = p.next_index(4);
+    p.ife54ng = p.next_index(4);
+    p.ife54pg = p.next_index(4);
+    p.ife54ap = p.next_index(4);
+    p.ife55ng = p.next_index(4);
+    p.ife56pg = p.next_index(4);
+
+    // langanke and ecapnuc are different so not included in n_tests 
+    p.ilanganke = p.next_index(2);
+    p.iecapnuc = p.next_index(4);
+
 
     p.names.resize(p.n_plot_comps);
 
     p.names[p.irho] = "density";
     p.names[p.itemp] = "temperature";
+    p.names[p.ini56] = "X(ni56)";
 
     p.names[p.ic12ag] = "c12ag";
     p.names[p.ic12ag_deboer17] = "c12ag_deboer17";
@@ -77,13 +132,21 @@ plot_t init_variables() {
 
     for (auto i = 0; i < n_tests; ++i) {
         for (auto j = 1; j < 4; ++j) {
-            p.names[2 + i*4 + j] = p.names[2 + i*4];
+            p.names[3 + i*4 + j] = p.names[3 + i*4];
         }
-        p.names[2 + i*4] += "_fr";
-        p.names[2 + i*4 + 1] += "_dfrdt";
-        p.names[2 + i*4 + 2] += "_rr";
-        p.names[2 + i*4 + 3] += "_drrdt";
+        p.names[3 + i*4] += "_fr";
+        p.names[3 + i*4 + 1] += "_dfrdt";
+        p.names[3 + i*4 + 2] += "_rr";
+        p.names[3 + i*4 + 3] += "_drrdt";
     }
+
+    p.names[p.ilanganke] = "langanke_rn56ec";
+    p.names[p.ilanganke+1] = "langanke_sn56ec";
+
+    p.names[p.iecapnuc] = "ecapnuc_rpen";
+    p.names[p.iecapnuc+1] = "ecapnuc_rnep";
+    p.names[p.iecapnuc+2] = "ecapnuc_spenc";
+    p.names[p.iecapnuc+3] = "ecapnuc_snepc";
 
   return p;
 }

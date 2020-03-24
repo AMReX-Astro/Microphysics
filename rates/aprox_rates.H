@@ -220,7 +220,7 @@ void rate_c12ag_deboer17(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_tripalf(tf_t tf, const Real den, Real& fr, 
+void rate_triplealf(tf_t tf, const Real den, Real& fr, 
                   Real& dfrdt, Real& rr, Real& drrdt) 
 {
     const Real rc28 = 0.1_rt;
