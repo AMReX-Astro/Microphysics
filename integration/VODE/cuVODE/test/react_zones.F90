@@ -36,7 +36,6 @@ contains
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
-    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC
     use cuvode_types_module, only: dvode_t
     use cuvode_module, only: dvode
 
