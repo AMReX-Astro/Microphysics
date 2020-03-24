@@ -75,6 +75,8 @@ void dgefa (Real* a, int* ipvt, int& info)
     info = 0;
     int nm1 = VODE_NEQS - 1;
 
+    Real t;
+
     if (nm1 >= 1) {
 
         for (int k = 1; k <= nm1; ++k) {
@@ -88,20 +90,20 @@ void dgefa (Real* a, int* ipvt, int& info)
 
                 // interchange if necessary
                 if (l != k) {
-                    Real t = a[(k-1) * VODE_NEQS + l-1];
+                    t = a[(k-1) * VODE_NEQS + l-1];
                     a[(k-1) * VODE_NEQS + l-1] = a[(k-1) * VODE_NEQS + k-1];
                     a[(k-1) * VODE_NEQS + k-1] = t;
                 }
 
                 // compute multipliers
-                Real t = -1.0e0_rt / a[(k-1) * VODE_NEQS + k-1];
+                t = -1.0e0_rt / a[(k-1) * VODE_NEQS + k-1];
                 for (int j = k+1; j <= VODE_NEQS; ++j) {
                     a[(k-1) * VODE_NEQS + j-1] *= t;
                 }
 
                 // row elimination with column indexing
                 for (int j = k+1; j <= VODE_NEQS; ++j) {
-                    Real t = a[(j-1) * VODE_NEQS + l-1];
+                    t = a[(j-1) * VODE_NEQS + l-1];
                     if (l != k) {
                         a[(j-1) * VODE_NEQS + l-1] = a[(j-1) * VODE_NEQS + k-1];
                         a[(j-1) * VODE_NEQS + k-1] = t;

@@ -108,7 +108,7 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
 
                 Real R = amrex::max(SRUR * std::abs(yj), R0 / vstate.ewt[j]);
                 vstate.y[j] += R;
-                Real fac = 1.0_rt / R;
+                fac = 1.0_rt / R;
 
                 f_rhs(vstate.tn, vstate, vstate.acor);
                 for (int n = 0; n < VODE_NEQS; ++n) {
