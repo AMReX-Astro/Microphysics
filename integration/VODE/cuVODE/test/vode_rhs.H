@@ -18,16 +18,16 @@ void f_rhs (Real time, dvode_t& dvode_state, Real* ydot)
 
 // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac(Real time, dvode_t& dvode_state, Real pd[][VODE_NEQS])
+void jac(Real time, dvode_t& dvode_state, Real* pd)
 {
 
-    pd[0][0] = -.04e0_rt;
-    pd[1][0] = 1.e4_rt * dvode_state.y[2];
-    pd[2][0] = 1.e4_rt * dvode_state.y[1];
-    pd[0][1] = .04e0_rt;
-    pd[2][1] = -pd[2][0];
-    pd[1][2] = 6.e7_rt * dvode_state.y[1];
-    pd[1][1] = -pd[1][0] - pd[1][2];
+    pd[0] = -.04e0_rt;
+    pd[3] = 1.e4_rt * dvode_state.y[2];
+    pd[6] = 1.e4_rt * dvode_state.y[1];
+    pd[1] = .04e0_rt;
+    pd[7] = -pd[6];
+    pd[5] = 6.e7_rt * dvode_state.y[1];
+    pd[4] = -pd[3] - pd[5];
 
 }
 

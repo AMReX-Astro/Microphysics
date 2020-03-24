@@ -5,7 +5,7 @@
 #include <cuvode_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgesl (Real a[][VODE_NEQS], int* ipvt, Real* b)
+void dgesl (Real* a, int* ipvt, Real* b)
 {
 
     int nm1 = VODE_NEQS - 1;
@@ -22,7 +22,7 @@ void dgesl (Real a[][VODE_NEQS], int* ipvt, Real* b)
             }
 
             for (int j = k+1; j <= VODE_NEQS; ++j) {
-                b[j-1] += t * a[k-1][j-1];
+                b[j-1] += t * a[(k-1) * VODE_NEQS + j-1];
             }
         }
     }
@@ -31,10 +31,10 @@ void dgesl (Real a[][VODE_NEQS], int* ipvt, Real* b)
     for (int kb = 1; kb <= VODE_NEQS; ++kb) {
 
         int k = VODE_NEQS + 1 - kb;
-        b[k-1] = b[k-1] / a[k-1][k-1];
+        b[k-1] = b[k-1] / a[(k-1) * VODE_NEQS + k-1];
         Real t = -b[k-1];
         for (int j = 1; j <= k-1; ++j) {
-            b[j-1] += t * a[k-1][j-1];
+            b[j-1] += t * a[(k-1) * VODE_NEQS + j-1];
         }
     }
 
@@ -62,7 +62,7 @@ int idamax (int N, Real* x)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgefa (Real a[][VODE_NEQS], int* ipvt, int& info)
+void dgefa (Real* a, int* ipvt, int& info)
 {
 
     // dgefa factors a matrix by gaussian elimination.
@@ -80,34 +80,34 @@ void dgefa (Real a[][VODE_NEQS], int* ipvt, int& info)
         for (int k = 1; k <= nm1; ++k) {
 
             // find l = pivot index
-            int l = idamax(VODE_NEQS-k+1, &a[k-1][k-1]) + k - 1;
+            int l = idamax(VODE_NEQS-k+1, &a[(k-1) * VODE_NEQS + k-1]) + k - 1;
             ipvt[k-1] = l;
 
             // zero pivot implies this column already triangularized
-            if (a[k-1][l-1] != 0.0e0_rt) {
+            if (a[(k-1) * VODE_NEQS + l-1] != 0.0e0_rt) {
 
                 // interchange if necessary
                 if (l != k) {
-                    Real t = a[k-1][l-1];
-                    a[k-1][l-1] = a[k-1][k-1];
-                    a[k-1][k-1] = t;
+                    Real t = a[(k-1) * VODE_NEQS + l-1];
+                    a[(k-1) * VODE_NEQS + l-1] = a[(k-1) * VODE_NEQS + k-1];
+                    a[(k-1) * VODE_NEQS + k-1] = t;
                 }
 
                 // compute multipliers
-                Real t = -1.0e0_rt / a[k-1][k-1];
+                Real t = -1.0e0_rt / a[(k-1) * VODE_NEQS + k-1];
                 for (int j = k+1; j <= VODE_NEQS; ++j) {
-                    a[k-1][j-1] *= t;
+                    a[(k-1) * VODE_NEQS + j-1] *= t;
                 }
 
                 // row elimination with column indexing
                 for (int j = k+1; j <= VODE_NEQS; ++j) {
-                    Real t = a[j-1][l-1];
+                    Real t = a[(j-1) * VODE_NEQS + l-1];
                     if (l != k) {
-                        a[j-1][l-1] = a[j-1][k-1];
-                        a[j-1][k-1] = t;
+                        a[(j-1) * VODE_NEQS + l-1] = a[(j-1) * VODE_NEQS + k-1];
+                        a[(j-1) * VODE_NEQS + k-1] = t;
                     }
                     for (int i = k+1; i <= VODE_NEQS; ++i) {
-                        a[j-1][i-1] += t * a[k-1][i-1];
+                        a[(j-1) * VODE_NEQS + i-1] += t * a[(k-1) * VODE_NEQS + i-1];
                     }
                 }
             }
@@ -123,7 +123,7 @@ void dgefa (Real a[][VODE_NEQS], int* ipvt, int& info)
 
     ipvt[VODE_NEQS-1] = VODE_NEQS;
 
-    if (a[VODE_NEQS-1][VODE_NEQS-1] == 0.0e0_rt) {
+    if (a[(VODE_NEQS-1) * VODE_NEQS + VODE_NEQS-1] == 0.0e0_rt) {
         info = VODE_NEQS;
     }
 
