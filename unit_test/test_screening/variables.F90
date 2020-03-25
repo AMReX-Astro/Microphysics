@@ -54,6 +54,42 @@ module variables
      integer :: iscn_o16_p = -1
      integer :: iscn_n14_he4 = -1
 
+     integer :: iscn_he4_he4_dt = -1
+     integer :: iscn_he4_be8_dt = -1
+     integer :: iscn_c12_he4_dt = -1
+     integer :: iscn_c12_c12_dt = -1
+     integer :: iscn_c12_o16_dt = -1
+     integer :: iscn_o16_o16_dt = -1
+     integer :: iscn_o16_he4_dt = -1
+     integer :: iscn_ne20_he4_dt = -1
+     integer :: iscn_mg24_he4_dt = -1
+     integer :: iscn_al27_p_dt = -1
+     integer :: iscn_si28_he4_dt = -1
+     integer :: iscn_p31_p_dt = -1
+     integer :: iscn_s32_he4_dt = -1
+     integer :: iscn_cl35_p_dt = -1
+     integer :: iscn_ar36_he4_dt = -1
+     integer :: iscn_k39_p_dt = -1
+     integer :: iscn_ca40_he4_dt = -1
+     integer :: iscn_sc43_p_dt = -1
+     integer :: iscn_ti44_he4_dt = -1
+     integer :: iscn_v47_p_dt = -1
+     integer :: iscn_cr48_he4_dt = -1
+     integer :: iscn_mn51_p_dt = -1
+     integer :: iscn_fe52_he4_dt = -1
+     integer :: iscn_co55_p_dt = -1
+     integer :: iscn_fe54_p_dt = -1
+     integer :: iscn_fe54_he4_dt = -1
+     integer :: iscn_fe56_p_dt = -1
+     integer :: iscn_d_p_dt = -1
+     integer :: iscn_p_p_dt = -1
+     integer :: iscn_he3_he3_dt = -1
+     integer :: iscn_he3_he4_dt = -1
+     integer :: iscn_c12_p_dt = -1
+     integer :: iscn_n14_p_dt = -1
+     integer :: iscn_o16_p_dt = -1
+     integer :: iscn_n14_he4_dt = -1
+
      integer :: n_plot_comps = 0
 
      character(len=MAX_NAME_LEN), allocatable :: names(:)
@@ -97,6 +133,7 @@ contains
     p % irho      = p % next_index(1)
     p % itemp     = p % next_index(1)
     p % ispec     = p % next_index(nspec)
+
     p % iscn_he4_he4 = p % next_index(1)
     p % iscn_he4_be8 = p % next_index(1)
     p % iscn_c12_he4 = p % next_index(1)
@@ -132,6 +169,42 @@ contains
     p % iscn_n14_p = p % next_index(1)
     p % iscn_o16_p = p % next_index(1)
     p % iscn_n14_he4 = p % next_index(1)
+
+    p % iscn_he4_he4_dt = p % next_index(1)
+    p % iscn_he4_be8_dt = p % next_index(1)
+    p % iscn_c12_he4_dt = p % next_index(1)
+    p % iscn_c12_c12_dt = p % next_index(1)
+    p % iscn_c12_o16_dt = p % next_index(1)
+    p % iscn_o16_o16_dt = p % next_index(1)
+    p % iscn_o16_he4_dt = p % next_index(1)
+    p % iscn_ne20_he4_dt = p % next_index(1)
+    p % iscn_mg24_he4_dt = p % next_index(1)
+    p % iscn_al27_p_dt = p % next_index(1)
+    p % iscn_si28_he4_dt = p % next_index(1)
+    p % iscn_p31_p_dt = p % next_index(1)
+    p % iscn_s32_he4_dt = p % next_index(1)
+    p % iscn_cl35_p_dt = p % next_index(1)
+    p % iscn_ar36_he4_dt = p % next_index(1)
+    p % iscn_k39_p_dt = p % next_index(1)
+    p % iscn_ca40_he4_dt = p % next_index(1)
+    p % iscn_sc43_p_dt = p % next_index(1)
+    p % iscn_ti44_he4_dt = p % next_index(1)
+    p % iscn_v47_p_dt = p % next_index(1)
+    p % iscn_cr48_he4_dt = p % next_index(1)
+    p % iscn_mn51_p_dt = p % next_index(1)
+    p % iscn_fe52_he4_dt = p % next_index(1)
+    p % iscn_co55_p_dt = p % next_index(1)
+    p % iscn_fe54_p_dt = p % next_index(1)
+    p % iscn_fe54_he4_dt = p % next_index(1)
+    p % iscn_fe56_p_dt = p % next_index(1)
+    p % iscn_d_p_dt = p % next_index(1)
+    p % iscn_p_p_dt = p % next_index(1)
+    p % iscn_he3_he3_dt = p % next_index(1)
+    p % iscn_he3_he4_dt = p % next_index(1)
+    p % iscn_c12_p_dt = p % next_index(1)
+    p % iscn_n14_p_dt = p % next_index(1)
+    p % iscn_o16_p_dt = p % next_index(1)
+    p % iscn_n14_he4_dt = p % next_index(1)
 
 
     allocate(p%names(p%n_plot_comps))
@@ -176,6 +249,42 @@ contains
     p % names(p % iscn_n14_p) = "scn_n14_p"
     p % names(p % iscn_o16_p) = "scn_o16_p"
     p % names(p % iscn_n14_he4) = "scn_n14_he4"
+
+    p % names(p % iscn_he4_he4_dt) = "scn_he4_he4_dt"
+    p % names(p % iscn_he4_be8_dt) = "scn_he4_be8_dt"
+    p % names(p % iscn_c12_he4_dt) = "scn_c12_he4_dt"
+    p % names(p % iscn_c12_c12_dt) = "scn_c12_c12_dt"
+    p % names(p % iscn_c12_o16_dt) = "scn_c12_o16_dt"
+    p % names(p % iscn_o16_o16_dt) = "scn_o16_o16_dt"
+    p % names(p % iscn_o16_he4_dt) = "scn_o16_he4_dt"
+    p % names(p % iscn_ne20_he4_dt) = "scn_ne20_he4_dt"
+    p % names(p % iscn_mg24_he4_dt) = "scn_mg24_he4_dt"
+    p % names(p % iscn_al27_p_dt) = "scn_al27_p_dt"
+    p % names(p % iscn_si28_he4_dt) = "scn_si28_he4_dt"
+    p % names(p % iscn_p31_p_dt) = "scn_p31_p_dt"
+    p % names(p % iscn_s32_he4_dt) = "scn_s32_he4_dt"
+    p % names(p % iscn_cl35_p_dt) = "scn_cl35_p_dt"
+    p % names(p % iscn_ar36_he4_dt) = "scn_ar36_he4_dt"
+    p % names(p % iscn_k39_p_dt) = "scn_k39_p_dt"
+    p % names(p % iscn_ca40_he4_dt) = "scn_ca40_he4_dt"
+    p % names(p % iscn_sc43_p_dt) = "scn_sc43_p_dt"
+    p % names(p % iscn_ti44_he4_dt) = "scn_ti44_he4_dt"
+    p % names(p % iscn_v47_p_dt) = "scn_v47_p_dt"
+    p % names(p % iscn_cr48_he4_dt) = "scn_cr48_he4_dt"
+    p % names(p % iscn_mn51_p_dt) = "scn_mn51_p_dt"
+    p % names(p % iscn_fe52_he4_dt) = "scn_fe52_he4_dt"
+    p % names(p % iscn_co55_p_dt) = "scn_co55_p_dt"
+    p % names(p % iscn_fe54_p_dt) = "scn_fe54_p_dt"
+    p % names(p % iscn_fe54_he4_dt) = "scn_fe54_he4_dt"
+    p % names(p % iscn_fe56_p_dt) = "scn_fe56_p_dt"
+    p % names(p % iscn_d_p_dt) = "scn_d_p_dt"
+    p % names(p % iscn_p_p_dt) = "scn_p_p_dt"
+    p % names(p % iscn_he3_he3_dt) = "scn_he3_he3_dt"
+    p % names(p % iscn_he3_he4_dt) = "scn_he3_he4_dt"
+    p % names(p % iscn_c12_p_dt) = "scn_c12_p_dt"
+    p % names(p % iscn_n14_p_dt) = "scn_n14_p_dt"
+    p % names(p % iscn_o16_p_dt) = "scn_o16_p_dt"
+    p % names(p % iscn_n14_he4_dt) = "scn_n14_he4_dt"
 
   end subroutine init_variables
 
