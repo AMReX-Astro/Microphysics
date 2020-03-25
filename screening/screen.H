@@ -7,28 +7,31 @@
 #include <AMReX_REAL.H>
 #include <network_properties.H>
 
+#include <cmath>
+
+using namespace amrex;
 
 struct plasma_state_t {
 
-  amrex::Real qlam0z;
-  amrex::Real qlam0zdt;
-  //amrex::Real qlam0zdd;
+  Real qlam0z;
+  Real qlam0zdt;
+  //Real qlam0zdd;
 
-  amrex::Real taufac;
-  amrex::Real taufacdt;
+  Real taufac;
+  Real taufacdt;
 
-  amrex::Real aa;
-  amrex::Real daadt;
-  //amrex::Real daadd;
+  Real aa;
+  Real daadt;
+  //Real daadd;
 };
 
 
 namespace scrn {
-  const amrex::Real fact = 1.25992104989487e0_rt;
-  const amrex::Real co2        = (1.0_rt/3.0_rt) * 4.248719e3_rt;
-  const amrex::Real gamefx     = 0.3e0_rt;
-  const amrex::Real gamefs     = 0.8e0_rt;
-  const amrex::Real h12_max    = 300.e0_rt;
+  const Real fact = 1.25992104989487e0_rt;
+  const Real co2        = (1.0_rt/3.0_rt) * 4.248719e3_rt;
+  const Real gamefx     = 0.3e0_rt;
+  const Real gamefs     = 0.8e0_rt;
+  const Real h12_max    = 300.e0_rt;
 };
 
 
@@ -67,11 +70,11 @@ fill_plasma_state(plasma_state_t state, const Real temp, const Real dens, Real* 
   state.qlam0zdt = 1.88e8_rt * (dtempi*pp + tempi*dppdt);
   //state.qlam0zdd = 1.88e8_rt * tempi * dppdd;
 
-  state.taufac = co2 * std::pow(tempi, 1.0_rt/3.0_rt);
-  state.taufacdt = -(1.0_rt/3.0_rt) * state % taufac * tempi;
+  state.taufac = scrn::co2 * std::pow(tempi, 1.0_rt/3.0_rt);
+  state.taufacdt = -(1.0_rt/3.0_rt) * state.taufac * tempi;
 
   qq = rr * zbar;
-  xni = std::pow(qq, 1.0_rt/3.0_rt);
+  Real xni = std::pow(qq, 1.0_rt/3.0_rt);
   //dxnidd = (1.0_rt/3.0_rt) * xni * deni;
 
   state.aa = 2.27493e5_rt * tempi * xni;
