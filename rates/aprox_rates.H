@@ -11,10 +11,10 @@ inline
 void rates_init()
 {
     // allocate multi-dimensional array(s)
-    datn.resize(2);
-    for (auto i = 0; i < 2; ++i) {
-        datn[i].resize(6);
-    }
+    // datn.resize(2);
+    // for (auto i = 0; i < 2; ++i) {
+    //     datn[i].resize(6);
+    // }
 
     // // store rates 
     const Vector<Real> datn0 {-4.363_rt, -3.091_rt, -1.275_rt, 1.073_rt, 3.035_rt, 4.825_rt,
@@ -48,8 +48,8 @@ void rates_init()
 
     for (auto i = 0; i < 6; ++i) {
         for (auto j = 0; j < 14; ++j) {
-            datn[0][i][j] = datn0[i+6*j];
-            datn[1][i][j] = datn1[i+6*j];
+            datn(0,i,j) = datn0[i+6*j];
+            datn(1,i,j) = datn1[i+6*j];
         }
     }
 
@@ -118,7 +118,7 @@ void rate_c12ag(tf_t tf, const Real den, Real& fr,
     dtermdt  *= 1.7e0_rt;
 
     fr    = term * den;
-    dfrdt = dtermdt * den * 1.0e-9_rt;;
+    dfrdt = dtermdt * den * 1.0e-9_rt;
 
     const Real rev    = 5.13e10_rt * tf.t932 * std::exp(-83.111_rt*tf.t9i);
     const Real drevdt = rev*(1.5e0_rt*tf.t9i + 83.111_rt*tf.t9i2);
@@ -2043,8 +2043,8 @@ void langanke(const Real btemp, const Real bden,
     // evaluate the spline fits
     for (auto jr = 0; jr < 2; ++jr) {
         for (auto jd = jp-1; jd <= jp+2; ++jd) {
-            rne[jr][jd] = dfacm*datn[jr][kp-1][jd] + dfac0*datn[jr][kp][jd] \
-                + dfac1*datn[jr][kp+1][jd] + dfac2*datn[jr][kp+2][jd];
+            rne[jr][jd] = dfacm*datn(jr,kp-1,jd) + dfac0*datn(jr,kp,jd) \
+                + dfac1*datn(jr,kp+1,jd) + dfac2*datn(jr,kp+2,jd);
         }
         rnt[jr] =  tfacm*rne[jr][jp-1] + tfac0*rne[jr][jp] \
                 + tfac1*rne[jr][jp+1] + tfac2*rne[jr][jp+2];
