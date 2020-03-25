@@ -1,8 +1,8 @@
 CEXE_sources += main.cpp
 
-FEXE_headers += test_conductivity_F.H
-CEXE_headers += test_conductivity.H
+FEXE_headers += test_screening_F.H
+CEXE_headers += test_screening.H
 
 F90EXE_sources += variables.F90
-F90EXE_sources += conductivity_util.F90
+F90EXE_sources += screening_util.F90
 f90EXE_sources += unit_test.f90

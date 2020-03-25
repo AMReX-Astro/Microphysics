@@ -1,5 +1,5 @@
-#ifndef TEST_EOS_H
-#define TEST_EOS_H
+#ifndef TEST_SCREENING_H
+#define TEST_SCREENING_H
 
 void main_main();
 

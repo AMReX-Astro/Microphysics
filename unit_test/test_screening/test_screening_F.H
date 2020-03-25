@@ -1,5 +1,5 @@
-#ifndef TEST_EOS_F_H_
-#define TEST_EOS_F_H_
+#ifndef TEST_SCREENING_F_H_
+#define TEST_SCREENING_F_H_
 
 #include <AMReX_BLFort.H>
 
@@ -22,9 +22,9 @@ extern "C"
 
   void init_unit_test(const int* name, const int* namlen); 
 
-  void do_conductivity(const int* lo, const int* hi,
-                       amrex::Real* state, const int* s_lo, const int* s_hi,
-                       const int npts);
+  void do_screening(const int* lo, const int* hi,
+                    amrex::Real* state, const int* s_lo, const int* s_hi,
+                    const int npts);
 
 #ifdef __cplusplus
 }
