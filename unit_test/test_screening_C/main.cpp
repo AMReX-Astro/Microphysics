@@ -16,7 +16,11 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <screen.H>
+#include <screening.H>
+
 #include <variables.H>
+
+#include <cmath>
 
 int main (int argc, char* argv[])
 {
@@ -242,8 +246,8 @@ void main_main ()
     Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
-        dlogT   = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
         dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
     }
 
@@ -261,38 +265,246 @@ void main_main ()
         // set the composition -- approximately solar
         Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
 
-        eos_t eos_state;
+        Real xn[NumSpec];
+        Real ymass[NumSpec];
 
         for (int n = 0; n < NumSpec; n++) {
-          eos_state.xn[n] = metalicity/(NumSpec - 2);
+          xn[n] = metalicity/(NumSpec - 2);
         }
-        eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
-        eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
+        xn[ih1] = 0.75 - 0.5*metalicity;
+        xn[ihe4] = 0.25 - 0.5*metalicity;
 
-        Real temp_zone = std::pow(10.0, log10(temp_min) + static_cast<Real>(j)*dlogT);
-        eos_state.T = temp_zone;
+        for (int n = 0; n < NumSpec; n++) {
+          ymass[n] = xn[n] / aion[n];
+        }
 
-        Real dens_zone = std::pow(10.0, log10(dens_min) + static_cast<Real>(i)*dlogrho);
-        eos_state.rho = dens_zone;
+        Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+
+        Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
 
         // store default state
-        sp(i, j, k, vars.irho) = eos_state.rho;
-        sp(i, j, k, vars.itemp) = eos_state.T;
+        sp(i, j, k, vars.irho) = dens_zone;
+        sp(i, j, k, vars.itemp) = temp_zone;
         for (int n = 0; n < NumSpec; n++) {
-          sp(i, j, k, vars.ispec+n) = eos_state.xn[n];
+          sp(i, j, k, vars.ispec+n) = xn[n];
         }
 
-        // call the EOS using rho, T
-        eos(eos_input_rt, eos_state);
+        plasma_state_t state;
+        fill_plasma_state(state, temp_zone, dens_zone, ymass);
 
-        conductivity(eos_state);
+        Real sc1a;
+        Real sc1adt;
+        Real sc1add;
 
-        sp(i, j, k, vars.ih) = eos_state.h;
-        sp(i, j, k, vars.ie) = eos_state.e;
-        sp(i, j, k, vars.ip) = eos_state.p;
-        sp(i, j, k, vars.is) = eos_state.s;
+        // 3-alpha
+        int jscr = 0;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_he4_he4) = sc1a;
+        sp(i, j, k, vars.iscn_he4_he4_dt) = sc1adt;
 
-        sp(i, j, k, vars.iconductivity) = eos_state.conductivity;
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_he4_be8) = sc1a;
+        sp(i, j, k, vars.iscn_he4_be8_dt) = sc1adt;
+
+        // c12(a,g)o16
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_c12_he4) = sc1a;
+        sp(i, j, k, vars.iscn_c12_he4_dt) = sc1adt;
+
+        // c12 + c12
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_c12_c12) = sc1a;
+        sp(i, j, k, vars.iscn_c12_c12_dt) = sc1adt;
+
+        // c12 + o16
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_c12_o16) = sc1a;
+        sp(i, j, k, vars.iscn_c12_o16_dt) = sc1adt;
+
+        // o16 + o16
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_o16_o16) = sc1a;
+        sp(i, j, k, vars.iscn_o16_o16_dt) = sc1adt;
+
+        // o16 + ne20
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_o16_he4) = sc1a;
+        sp(i, j, k, vars.iscn_o16_he4_dt) = sc1adt;
+
+        // ne20(a,g)mg24
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_ne20_he4) = sc1a;
+        sp(i, j, k, vars.iscn_ne20_he4_dt) = sc1adt;
+
+        // mg24(a,g)si28
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_mg24_he4) = sc1a;
+        sp(i, j, k, vars.iscn_mg24_he4_dt) = sc1adt;
+
+        // al27(p,g)si28
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_al27_p) = sc1a;
+        sp(i, j, k, vars.iscn_al27_p_dt) = sc1adt;
+
+        // si28 tp s32
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_si28_he4) = sc1a;
+        sp(i, j, k, vars.iscn_si28_he4_dt) = sc1adt;
+
+        // p31(p,g)s32
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_p31_p) = sc1a;
+        sp(i, j, k, vars.iscn_p31_p_dt) = sc1adt;
+
+        // s32 to ar36
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_s32_he4) = sc1a;
+        sp(i, j, k, vars.iscn_s32_he4_dt) = sc1adt;
+
+        // cl35(p,g)ar36
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_cl35_p) = sc1a;
+        sp(i, j, k, vars.iscn_cl35_p_dt) = sc1adt;
+
+        // ar36 to ca40
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_ar36_he4) = sc1a;
+        sp(i, j, k, vars.iscn_ar36_he4_dt) = sc1adt;
+
+        // k39(p,g)ca40
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_k39_p) = sc1a;
+        sp(i, j, k, vars.iscn_k39_p_dt) = sc1adt;
+
+        // ca40 to ti44
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_ca40_he4) = sc1a;
+        sp(i, j, k, vars.iscn_ca40_he4_dt) = sc1adt;
+
+        // sc43(p,g)ti44
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_sc43_p) = sc1a;
+        sp(i, j, k, vars.iscn_sc43_p_dt) = sc1adt;
+
+        // ti44 to cr48
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_ti44_he4) = sc1a;
+        sp(i, j, k, vars.iscn_ti44_he4_dt) = sc1adt;
+
+        // v47(p,g)cr48
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_v47_p) = sc1a;
+        sp(i, j, k, vars.iscn_v47_p_dt) = sc1adt;
+
+        // cr48 to fe52
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_cr48_he4) = sc1a;
+        sp(i, j, k, vars.iscn_cr48_he4_dt) = sc1adt;
+
+        // mn51(p,g)fe52
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_mn51_p) = sc1a;
+        sp(i, j, k, vars.iscn_mn51_p_dt) = sc1adt;
+
+        // fe to ni
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_fe52_he4) = sc1a;
+        sp(i, j, k, vars.iscn_fe52_he4_dt) = sc1adt;
+
+        // co55(p,g)ni56
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_co55_p) = sc1a;
+        sp(i, j, k, vars.iscn_co55_p_dt) = sc1adt;
+
+        // fe54(p,g)co55
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_fe54_p) = sc1a;
+        sp(i, j, k, vars.iscn_fe54_p_dt) = sc1adt;
+
+        // fe54(a,p)co57
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_fe54_he4) = sc1a;
+        sp(i, j, k, vars.iscn_fe54_he4_dt) = sc1adt;
+
+        // fe56(p,g)co57
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_fe56_p) = sc1a;
+        sp(i, j, k, vars.iscn_fe56_p_dt) = sc1adt;
+
+        // d + p
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_d_p) = sc1a;
+        sp(i, j, k, vars.iscn_d_p_dt) = sc1adt;
+
+        // pp
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_p_p) = sc1a;
+        sp(i, j, k, vars.iscn_p_p_dt) = sc1adt;
+
+        // he3 + he3
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_he3_he3) = sc1a;
+        sp(i, j, k, vars.iscn_he3_he3_dt) = sc1adt;
+
+        // he3 + he4
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_he3_he4) = sc1a;
+        sp(i, j, k, vars.iscn_he3_he4_dt) = sc1adt;
+
+        // c12(p,g)n13
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_c12_p) = sc1a;
+        sp(i, j, k, vars.iscn_c12_p_dt) = sc1adt;
+
+        // n14(p,g)o15
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_n14_p) = sc1a;
+        sp(i, j, k, vars.iscn_n14_p_dt) = sc1adt;
+
+        // o16(p,g)f17
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_o16_p) = sc1a;
+        sp(i, j, k, vars.iscn_o16_p_dt) = sc1adt;
+
+        // n14(a,g)f18
+        jscr++;
+        screen5(state, jscr, sc1a, sc1adt, sc1add);
+        sp(i, j, k, vars.iscn_n14_he4) = sc1a;
+        sp(i, j, k, vars.iscn_n14_he4_dt) = sc1adt;
+
 
       });
 
@@ -305,10 +517,10 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_conductivity_C.";
+    std::string name = "test_screening_C.";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + cond_name, state, vars.names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + network_name, state, vars.names, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
