@@ -129,6 +129,114 @@ void main_main ()
     const int ih1 = network_spec_index("hydrogen-1");
     const int ihe4 = network_spec_index("helium-4");
 
+
+    // initialize the screening factors
+    int jscr = 0;
+    add_screening_factor(jscr, zion[ihe4],aion[ihe4],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ihe4],aion[ihe4],4.0e0_rt,8.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ic12],aion[ic12],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ic12],aion[ic12],zion[ic12],aion[ic12]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ic12],aion[ic12],zion[io16],aion[io16]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[io16],aion[io16],zion[io16],aion[io16]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[io16],aion[io16],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ine20],aion[ine20],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[img24],aion[img24],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 13.0e0_rt,27.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[isi28],aion[isi28],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 15.0e0_rt,31.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[is32],aion[is32],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 17.0e0_rt,35.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[iar36],aion[iar36],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 19.0e0_rt,39.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ica40],aion[ica40],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 21.0e0_rt,43.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[iti44],aion[iti44],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 23.0e0_rt,47.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[icr48],aion[icr48],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 25.0e0_rt,51.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ife52],aion[ife52],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, 27.0e0_rt,55.0e0_rt,1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ife54],aion[ife54),1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ife54],aion[ife54],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ife56],aion[ife56),1.0e0_rt,1.0e0_rt);
+
+    jscr++;
+    add_screening_factor(jscr, 1.0e0_rt,2.0e0_rt,zion[ih1],aion[ih1]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ih1],aion[ih1],zion[ih1],aion[ih1]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ihe3],aion[ihe3],zion[ihe3],aion[ihe3]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ihe3],aion[ihe3],zion[ihe4],aion[ihe4]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[ic12],aion[ic12],zion[ih1],aion[ih1]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[in14],aion[in14],zion[ih1],aion[ih1]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[io16],aion[io16],zion[ih1],aion[ih1]);
+
+    jscr++;
+    add_screening_factor(jscr, zion[in14],aion[in14],zion[ihe4],aion[ihe4]);
+
+
     Real dlogrho = 0.0e0_rt;
     Real dlogT   = 0.0e0_rt;
     Real dmetal  = 0.0e0_rt;
