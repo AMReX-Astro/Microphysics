@@ -12,6 +12,9 @@ void do_react(int i, int j, int k, int ncomp, const Array4<Real>& state, Real dt
     // Use an analytic Jacobian
     dvode_state.jacobian = 1;
 
+    // Use Jacobian caching
+    dvode_state.JSV = 1;
+
     // Set the absolute tolerances
     dvode_state.atol[0] = 1.e-8_rt;
     dvode_state.atol[1] = 1.e-14_rt;

@@ -67,6 +67,9 @@ contains
              ! Use an analytic Jacobian
              dvode_state % jacobian = 1
 
+             ! Use Jacobian caching
+             dvode_state % JSV = 1
+
              ! Set the absolute tolerances
              dvode_state % atol(1) = 1.e-8_rt
              dvode_state % atol(2) = 1.e-14_rt
