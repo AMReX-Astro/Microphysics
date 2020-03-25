@@ -136,175 +136,210 @@ subroutine do_screening(lo, hi, &
            jscr = 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_he4_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_he4_he4_dt) = sc1adt
 
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_he4_be8) = sc1a
+           sp(ii, jj, kk, p % iscn_he4_be8_dt) = sc1adt
 
            ! c12(a,g)o16
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_c12_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_c12_he4_dt) = sc1adt
 
            ! c12 + c12
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_c12_c12) = sc1a
+           sp(ii, jj, kk, p % iscn_c12_c12_dt) = sc1adt
 
            ! c12 + o16
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_c12_o16) = sc1a
+           sp(ii, jj, kk, p % iscn_c12_o16_dt) = sc1adt
 
            ! o16 + o16
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_o16_o16) = sc1a
+           sp(ii, jj, kk, p % iscn_o16_o16_dt) = sc1adt
 
            ! o16 + ne20
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_o16_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_o16_he4_dt) = sc1adt
 
            ! ne20(a,g)mg24
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ne20_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_ne20_he4_dt) = sc1adt
 
            ! mg24(a,g)si28
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_mg24_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_mg24_he4_dt) = sc1adt
 
            ! al27(p,g)si28
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_al27_p) = sc1a
+           sp(ii, jj, kk, p % iscn_al27_p_dt) = sc1adt
 
            ! si28 tp s32
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_si28_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_si28_he4_dt) = sc1adt
 
            ! p31(p,g)s32
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_p31_p) = sc1a
+           sp(ii, jj, kk, p % iscn_p31_p_dt) = sc1adt
 
            ! s32 to ar36
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_s32_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_s32_he4_dt) = sc1adt
 
            ! cl35(p,g)ar36
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_cl35_p) = sc1a
+           sp(ii, jj, kk, p % iscn_cl35_p_dt) = sc1adt
 
            ! ar36 to ca40
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ar36_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_ar36_he4_dt) = sc1adt
 
            ! k39(p,g)ca40
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_k39_p) = sc1a
+           sp(ii, jj, kk, p % iscn_k39_p_dt) = sc1adt
 
            ! ca40 to ti44
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ca40_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_ca40_he4_dt) = sc1adt
 
            ! sc43(p,g)ti44
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_sc43_p) = sc1a
+           sp(ii, jj, kk, p % iscn_sc43_p_dt) = sc1adt
 
            ! ti44 to cr48
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ti44_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_ti44_he4_dt) = sc1adt
 
            ! v47(p,g)cr48
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_v47_p) = sc1a
+           sp(ii, jj, kk, p % iscn_v47_p_dt) = sc1adt
 
            ! cr48 to fe52
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_cr48_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_cr48_he4_dt) = sc1adt
 
            ! mn51(p,g)fe52
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_mn51_p) = sc1a
+           sp(ii, jj, kk, p % iscn_mn51_p_dt) = sc1adt
 
            ! fe to ni
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_fe52_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_fe52_he4_dt) = sc1adt
 
            ! co55(p,g)ni56
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_co55_p) = sc1a
+           sp(ii, jj, kk, p % iscn_co55_p_dt) = sc1adt
 
            ! fe54(p,g)co55
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_fe54_p) = sc1a
+           sp(ii, jj, kk, p % iscn_fe54_p_dt) = sc1adt
 
            ! fe54(a,p)co57
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_fe54_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_fe54_he4_dt) = sc1adt
 
            ! fe56(p,g)co57
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_fe56_p) = sc1a
+           sp(ii, jj, kk, p % iscn_fe56_p_dt) = sc1adt
 
            ! d + p
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_d_p) = sc1a
+           sp(ii, jj, kk, p % iscn_d_p_dt) = sc1adt
 
            ! pp
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_p_p) = sc1a
+           sp(ii, jj, kk, p % iscn_p_p_dt) = sc1adt
 
            ! he3 + he3
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_he3_he3) = sc1a
+           sp(ii, jj, kk, p % iscn_he3_he3_dt) = sc1adt
 
            ! he3 + he4
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_he3_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_he3_he4_dt) = sc1adt
 
            ! c12(p,g)n13
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_c12_p) = sc1a
+           sp(ii, jj, kk, p % iscn_c12_p_dt) = sc1adt
 
            ! n14(p,g)o15
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_n14_p) = sc1a
+           sp(ii, jj, kk, p % iscn_n14_p_dt) = sc1adt
 
            ! o16(p,g)f17
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_o16_p) = sc1a
+           sp(ii, jj, kk, p % iscn_o16_p_dt) = sc1adt
 
            ! n14(a,g)f18
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_n14_he4) = sc1a
+           sp(ii, jj, kk, p % iscn_n14_he4_dt) = sc1adt
 
         enddo
      enddo
