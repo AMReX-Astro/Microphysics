@@ -24,7 +24,7 @@ MICROPHYSICS_HOME  := ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
-NETWORK_DIR := aprox19
+NETWORK_DIR := aprox21
 
 # This isn't actually used but we need VODE to compile with CUDA
 INTEGRATOR_DIR := VODE
