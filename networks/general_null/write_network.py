@@ -145,7 +145,7 @@ def abort(outfile):
 
 
 def write_network(network_template, header_template,
-                  net_file,
+                  net_file, properties_file,
                   network_file, header_file):
     """read through the list of species and output the new out_file
 
@@ -162,6 +162,17 @@ def write_network(network_template, header_template,
 
     if err:
         abort(out_file)
+
+
+    properties = {}
+    try:
+        with open(properties_file) as f:
+            for line in f:
+                key, value = line.split()
+                properties[key] = value
+    except FileNotFoundError:
+        print("no NETWORK_PROPERTIES found, skipping...")
+
 
 
     #-------------------------------------------------------------------------
@@ -265,6 +276,12 @@ def write_network(network_template, header_template,
                         for n, aux in enumerate(aux_vars):
                             fout.write("{}\"{}\",   // {} \n".format(indent, aux.name, n))
 
+                elif keyword == "PROPERTIES":
+                    if lang == "C++":
+                        for p in properties:
+                            print(p)
+                            fout.write("{}constexpr int {} = {};\n".format(indent, p, properties[p]))
+
             else:
                 fout.write(line)
 
@@ -285,6 +302,8 @@ def main():
                         help="C++ header output file name")
     parser.add_argument("-s", type=str, default="",
                         help="network file name")
+    parser.add_argument("--other_properties", type=str, default="",
+                        help="a NETWORK_PROPERTIES file with other network properties")
 
     args = parser.parse_args()
 
@@ -292,7 +311,7 @@ def main():
         sys.exit("write_probin.py: ERROR: invalid calling sequence")
 
     write_network(args.t, args.header_template,
-                  args.s,
+                  args.s, args.other_properties,
                   args.o, args.header_output)
 
 if __name__ == "__main__":
