@@ -18,6 +18,8 @@ using namespace amrex;
 #include <variables.H>
 #include <aprox_rates.H>
 
+#include <cmath>
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -132,8 +134,8 @@ void main_main ()
     Real dNi = 0.0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (log10(dens_max) - log10(dens_min))/Real(n_cell - 1);
-        dlogT   = (log10(temp_max) - log10(temp_min))/Real(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/Real(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/Real(n_cell - 1);
         dNi = 1.0_rt / Real(n_cell - 1);
     }
 
@@ -149,10 +151,10 @@ void main_main ()
         {
             eos_t eos_state;
 
-            Real temp_zone = std::pow(10.0_rt, log10(temp_min) + static_cast<Real>(j)*dlogT);
+            Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
             eos_state.T = temp_zone;
 
-            Real dens_zone = std::pow(10.0, log10(dens_min) + static_cast<Real>(i)*dlogrho);
+            Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
             eos_state.rho = dens_zone;
 
             Real ni56 = Real(k) * dNi;
