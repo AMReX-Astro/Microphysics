@@ -2771,7 +2771,6 @@ contains
     snep   = 0.0e0_rt
     t9     = temp * 1.0e-9_rt
     bktinv = 1.0e0_rt/(bk *temp)
-    iflag  = 0
     qn     = qn1
 
 
@@ -2780,110 +2779,122 @@ contains
 
 
     ! iflag=1 is for electrons,  iflag=2 is for positrons
-502 iflag = iflag + 1
-    if (iflag.eq.1) etael = qn2*bktinv
-    if (iflag.eq.2) then
-       etael = c2me*bktinv
-       etaef = -etaef
-    endif
+    do iflag = 1,2
+! 502 iflag = iflag + 1
+        if (iflag.eq.1) etael = qn2*bktinv
+        if (iflag.eq.2) then
+        etael = c2me*bktinv
+        etaef = -etaef
+        endif
 
-    t5    = temp*temp*temp*temp*temp
-    zetan = qn*bktinv
-    eta   = etaef - etael
+        t5    = temp*temp*temp*temp*temp
+        zetan = qn*bktinv
+        eta   = etaef - etael
 
-    ! protect from overflowing with large eta values
-    if (eta .le. 6.8e+02_rt) then
-       exeta = exp(eta)
-    else
-       exeta = 0.0e0_rt
-    end if
-    etael2 = etael*etael
-    etael3 = etael2*etael
-    etael4 = etael3*etael
-    etael5 = etael4*etael
-    zetan2 = zetan*zetan
-    if (eta .le. 6.8e+02_rt) then
-       f0 = log(1.0e0_rt + exeta)
-    else
-       f0 = eta
-    end if
+        ! protect from overflowing with large eta values
+        if (eta .le. 6.8e+02_rt) then
+            exeta = exp(eta)
+        else
+            exeta = 0.0e0_rt
+        end if
+        etael2 = etael*etael
+        etael3 = etael2*etael
+        etael4 = etael3*etael
+        etael5 = etael4*etael
+        zetan2 = zetan*zetan
+        if (eta .le. 6.8e+02_rt) then
+            f0 = log(1.0e0_rt + exeta)
+        else
+            f0 = eta
+        end if
 
-    ! if eta le. 0., the following fermi integrals apply
-    f1l = exeta
-    f2l = 2.0e0_rt   * f1l
-    f3l = 6.0e0_rt   * f1l
-    f4l = 24.0e0_rt  * f1l
-    f5l = 120.0e0_rt * f1l
+        ! if eta le. 0., the following fermi integrals apply
+        f1l = exeta
+        f2l = 2.0e0_rt   * f1l
+        f3l = 6.0e0_rt   * f1l
+        f4l = 24.0e0_rt  * f1l
+        f5l = 120.0e0_rt * f1l
 
-    ! if eta gt. 0., the following fermi integrals apply:
-    f1g = 0.0e0_rt
-    f2g = 0.0e0_rt
-    f3g = 0.0e0_rt
-    f4g = 0.0e0_rt
-    f5g = 0.0e0_rt
-    if (eta .gt. 0.0_rt) then
-       exmeta = exp(-eta)
-       eta2   = eta*eta
-       eta3   = eta2*eta
-       eta4   = eta3*eta
-       f1g = 0.5e0_rt*eta2 + 2.0e0_rt - exmeta
-       f2g = eta3*third + 4.0e0_rt*eta + 2.0e0_rt*exmeta
-       f3g = 0.25e0_rt*eta4 + 0.5e0_rt*pi2*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta
-       f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*pi2*third*eta3 + 48.0e0_rt*eta &
-            + 24.0e0_rt*exmeta
-       f5g = eta4*eta2*sixth + 5.0e0_rt*sixth*pi2*eta4 &
-            + 7.0e0_rt*sixth*pi2*eta2  + 240.0e0_rt -120.e0_rt*exmeta
-    end if
+        ! if eta gt. 0., the following fermi integrals apply:
+        f1g = 0.0e0_rt
+        f2g = 0.0e0_rt
+        f3g = 0.0e0_rt
+        f4g = 0.0e0_rt
+        f5g = 0.0e0_rt
+        if (eta .gt. 0.0_rt) then
+            exmeta = exp(-eta)
+            eta2   = eta*eta
+            eta3   = eta2*eta
+            eta4   = eta3*eta
+            f1g = 0.5e0_rt*eta2 + 2.0e0_rt - exmeta
+            f2g = eta3*third + 4.0e0_rt*eta + 2.0e0_rt*exmeta
+            f3g = 0.25e0_rt*eta4 + 0.5e0_rt*pi2*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta
+            f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*pi2*third*eta3 + 48.0e0_rt*eta &
+                    + 24.0e0_rt*exmeta
+            f5g = eta4*eta2*sixth + 5.0e0_rt*sixth*pi2*eta4 &
+                    + 7.0e0_rt*sixth*pi2*eta2  + 240.0e0_rt -120.e0_rt*exmeta
+        end if
 
-    ! factors which are multiplied by the fermi integrals
-    fac3 = 2.0e0_rt*zetan + 4.0e0_rt*etael
-    fac2 = 6.0e0_rt*etael2 + 6.0e0_rt*etael*zetan + zetan2
-    fac1 = 4.0e0_rt*etael3 + 6.0e0_rt*etael2*zetan + 2.0e0_rt*etael*zetan2
-    fac0 = etael4 + 2.0e0_rt*zetan*etael3 + etael2*zetan2
+        ! factors which are multiplied by the fermi integrals
+        fac3 = 2.0e0_rt*zetan + 4.0e0_rt*etael
+        fac2 = 6.0e0_rt*etael2 + 6.0e0_rt*etael*zetan + zetan2
+        fac1 = 4.0e0_rt*etael3 + 6.0e0_rt*etael2*zetan + 2.0e0_rt*etael*zetan2
+        fac0 = etael4 + 2.0e0_rt*zetan*etael3 + etael2*zetan2
 
-    ! electron capture rates onto protons with no blocking
-    rie1 = f4l + fac3*f3l + fac2*f2l + fac1*f1l + fac0*f0
-    rie2 = f4g + fac3*f3g + fac2*f2g + fac1*f1g + fac0*f0
+        ! electron capture rates onto protons with no blocking
+        rie1 = f4l + fac3*f3l + fac2*f2l + fac1*f1l + fac0*f0
+        rie2 = f4g + fac3*f3g + fac2*f2g + fac1*f1g + fac0*f0
 
-    ! neutrino emission rate for electron capture:
-    facv4 = 5.0e0_rt*etael + 3.0e0_rt*zetan
-    facv3 = 10.0e0_rt*etael2 + 12.0e0_rt*etael*zetan + 3.0e0_rt*zetan2
-    facv2 = 10.0e0_rt*etael3 + 18.0e0_rt*etael2*zetan &
-         + 9.0e0_rt*etael*zetan2 + zetan2*zetan
-    facv1 = 5.0e0_rt*etael4 + 12.0e0_rt*etael3*zetan &
-         + 9.0e0_rt*etael2*zetan2 + 2.0e0_rt*etael*zetan2*zetan
-    facv0 = etael5 + 3.0e0_rt*etael4*zetan &
-         + 3.0e0_rt*etael3*zetan2 + etael2*zetan2*zetan
-    rjv1  = f5l + facv4*f4l + facv3*f3l &
-         + facv2*f2l + facv1*f1l + facv0*f0
-    rjv2  = f5g + facv4*f4g + facv3*f3g &
-         + facv2*f2g + facv1*f1g + facv0*f0
+        ! neutrino emission rate for electron capture:
+        facv4 = 5.0e0_rt*etael + 3.0e0_rt*zetan
+        facv3 = 10.0e0_rt*etael2 + 12.0e0_rt*etael*zetan + 3.0e0_rt*zetan2
+        facv2 = 10.0e0_rt*etael3 + 18.0e0_rt*etael2*zetan &
+            + 9.0e0_rt*etael*zetan2 + zetan2*zetan
+        facv1 = 5.0e0_rt*etael4 + 12.0e0_rt*etael3*zetan &
+            + 9.0e0_rt*etael2*zetan2 + 2.0e0_rt*etael*zetan2*zetan
+        facv0 = etael5 + 3.0e0_rt*etael4*zetan &
+            + 3.0e0_rt*etael3*zetan2 + etael2*zetan2*zetan
+        rjv1  = f5l + facv4*f4l + facv3*f3l &
+            + facv2*f2l + facv1*f1l + facv0*f0
+        rjv2  = f5g + facv4*f4g + facv3*f3g &
+            + facv2*f2g + facv1*f1g + facv0*f0
 
-    ! for electrons capture onto protons
-    if (iflag.eq.2) go to 503
-    if (eta.gt.0.) go to 505
-    rpen  = twoln*cmk5*t5*rie1*ftinv
-    spen  = twoln*cmk6*t5*temp*rjv1*ftinv
-    spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
-    go to 504
-505 rpen = twoln*cmk5*t5*rie2*ftinv
-    spen = twoln*cmk6*t5*temp*rjv2*ftinv
-    spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
-504 continue
-    qn = qn2
-    go to 502
+        ! for electrons capture onto protons
+        ! if (iflag.eq.2) go to 503
+        if (iflag < 2) then
+            ! if (eta.gt.0.) go to 505
+            if (eta .le. 0.e0_rt) then 
+                rpen  = twoln*cmk5*t5*rie1*ftinv
+                spen  = twoln*cmk6*t5*temp*rjv1*ftinv
+                spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
+                ! go to 504
+            else 
+        ! 505 rpen = twoln*cmk5*t5*rie2*ftinv
+                rpen = twoln*cmk5*t5*rie2*ftinv
+                spen = twoln*cmk6*t5*temp*rjv2*ftinv
+                spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
+            end if
+        ! 504 continue
+            qn = qn2
+        end if
+        ! go to 502
+    end do
 
     ! for positrons capture onto neutrons
-503 if (eta.gt.0.) go to 507
-    rnep  = twoln*cmk5*t5*rie1*ftinv
-    snep  = twoln*cmk6*t5*temp*rjv1*ftinv
-    snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
-    go to 506
-507 rnep  = twoln*cmk5*t5*rie2*ftinv
-    snep  = twoln*cmk6*t5*temp*rjv2*ftinv
-    snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
-506 continue
-    return
+! 503 if (eta.gt.0.) go to 507
+    if (eta .le. 0.e0_rt) then 
+        rnep  = twoln*cmk5*t5*rie1*ftinv
+        snep  = twoln*cmk6*t5*temp*rjv1*ftinv
+        snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
+    ! go to 506
+    else 
+    ! 507 rnep  = twoln*cmk5*t5*rie2*ftinv
+        rnep  = twoln*cmk5*t5*rie2*ftinv
+        snep  = twoln*cmk6*t5*temp*rjv2*ftinv
+        snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
+    end if
+! 506 continue
+    ! return
   end subroutine ecapnuc
 
 end module aprox_rates_module
