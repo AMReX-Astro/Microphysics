@@ -33,6 +33,18 @@ class AmrexAstroModel(object):
                 pass
         return self.model_data[field]
 
+    def set(self, field, index, value):
+        try:
+            assert(field in self.model_data.keys())
+        except:
+            try:
+                field = self.network.shorten_species(field)
+            except:
+                raise
+            else:
+                pass
+       self.model_data[field][index] = value
+
     def reset(self):
         self.variables = ['radius']
         self.model_data = {}
@@ -93,3 +105,27 @@ class AmrexAstroModel(object):
         # Convert data to numpy arrays
         for vi in self.model_data.keys():
             self.model_data[vi] = np.array(self.model_data[vi])
+
+    def write(self, model_file):
+        self.reset()
+
+        f = open(model_file, 'w')
+
+        # write number of points
+        f.write("# npts = {}\n".format(self.number_points))
+
+        # write number of variables (not counting radius)
+        f.write("# num of variables = {}\n".format(len(self.variables)-1))
+
+        # write the variable names
+        for variable in self.variables:
+            if variable != 'radius':
+                f.write('# {}\n'.format(variable))
+
+        # write the model points
+        for i in range(self.size()):
+            entries = " ".join([self.model_data[var][i] for var in self.variables])
+            f.write("{}\n".format(entries))
+
+        # close the file
+        f.close()
