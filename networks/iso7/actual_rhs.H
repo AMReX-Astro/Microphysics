@@ -81,6 +81,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     rr.T_eval = temp;
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
              Array1D<Real, 0, Rates::NRates-1>& rate,
              Array1D<Real, 0, Rates::NRates-1>& dratedt)
@@ -157,6 +158,7 @@ void iso7tab(const Real btemp, const Real bden,
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_iso7rat()
 {
 
@@ -184,6 +186,7 @@ void set_iso7rat()
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_rhs(burn_t const& state, Array1D<Real, 0, Burn::neqs-1>& ydot)
 {
     // need to port sneut5
@@ -245,7 +248,7 @@ void actual_rhs(burn_t const& state, Array1D<Real, 0, Burn::neqs-1>& ydot)
 
 
   // Analytical Jacobian
-
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_jac(burn_t const& state, Array2D<Real, 0, Burn::njrows-1, 0, Burn::njcols-1>& jac)
 {
 
@@ -328,7 +331,7 @@ void actual_jac(burn_t const& state, Array2D<Real, 0, Burn::njrows-1, 0, Burn::n
 
 
 // Evaluates the right hand side of the iso7 ODEs
-
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
          Array1D<Real, 0, Species::NSpec-1>& dydt,
          bool deriva, bool for_jacobian_tderiv)
@@ -425,6 +428,7 @@ void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7rat(const Real btemp, const Real bden,
              Array1D<Real, 0, Rates::NRates-1>& rate,
              Array1D<Real, 0, Rates::NRates-1>& dratedt)
@@ -503,6 +507,7 @@ void iso7rat(const Real btemp, const Real bden,
 
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
                  Array1D<Real, 0, Species::NSpec-1> const& y,
                  Array1D<Real, 0, Species::NRates-1>& rate,
@@ -657,6 +662,7 @@ void screen_iso7(const Real btemp, const Real bden,
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dfdy_isotopes_iso7(Array1D<Real, 0, Species::NSpec-1> const& y,
                         burn_t const& state, rate_t const& rr,
                         Array2D<Real,0, njrows-1, 0, njcols-1>& jac)
@@ -889,6 +895,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 0, Species::NSpec-1> const& y,
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate(Array1D<Real, 0, Burn::neqs-1> const& dydt, Real& enuc)
 {
 
@@ -907,6 +914,7 @@ void ener_gener_rate(Array1D<Real, 0, Burn::neqs-1> const& dydt, Real& enuc)
 }
 
 
+AMREX_INLINE
 void set_up_screening_factors()
 {
     // Compute and store the more expensive screening factors
