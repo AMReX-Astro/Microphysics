@@ -12,12 +12,6 @@
 
 using namespace amrex;
 
-namespace
-{
-    // does anything actually use this?
-    constexpr Real c54 = 56.0e0_rt/54.0e0_rt;
-}
-
 namespace RateTable
 {
     constexpr Real tab_tlo = 6.0e0_rt;
