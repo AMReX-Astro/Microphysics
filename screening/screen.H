@@ -25,6 +25,20 @@ struct plasma_state_t {
   //Real daadd;
 };
 
+inline
+std::ostream& operator<< (std::ostream& o, plasma_state_t const& pstate)
+{
+  o << "qlam0z   = " << pstate.qlam0z << std::endl;
+  o << "qlam0zdt = " << pstate.qlam0zdt << std::endl;
+  o << "taufac   = " << pstate.taufac << std::endl;
+  o << "taufacdt = " << pstate.taufacdt << std::endl;
+  o << "aa       = " << pstate.aa << std::endl;
+  o << "daadt    = " << pstate.daadt << std::endl;
+
+  return o;
+}
+
+
 
 namespace scrn {
   const Real fact = 1.25992104989487e0_rt;
