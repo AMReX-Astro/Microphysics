@@ -167,7 +167,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_o16_o16) = sc1a
            sp(ii, jj, kk, p % iscn_o16_o16_dt) = sc1adt
 
-           ! o16 + ne20
+           ! o16 + he4
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_o16_he4) = sc1a
@@ -191,7 +191,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_al27_p) = sc1a
            sp(ii, jj, kk, p % iscn_al27_p_dt) = sc1adt
 
-           ! si28 tp s32
+           ! si28(a,g)s32
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_si28_he4) = sc1a
@@ -203,7 +203,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_p31_p) = sc1a
            sp(ii, jj, kk, p % iscn_p31_p_dt) = sc1adt
 
-           ! s32 to ar36
+           ! s32(a,g)ar36
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_s32_he4) = sc1a
@@ -215,7 +215,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_cl35_p) = sc1a
            sp(ii, jj, kk, p % iscn_cl35_p_dt) = sc1adt
 
-           ! ar36 to ca40
+           ! ar36(a,g)ca40
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ar36_he4) = sc1a
@@ -227,7 +227,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_k39_p) = sc1a
            sp(ii, jj, kk, p % iscn_k39_p_dt) = sc1adt
 
-           ! ca40 to ti44
+           ! ca40(a,g)ti44
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ca40_he4) = sc1a
@@ -239,7 +239,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_sc43_p) = sc1a
            sp(ii, jj, kk, p % iscn_sc43_p_dt) = sc1adt
 
-           ! ti44 to cr48
+           ! ti44(a,g)cr48
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_ti44_he4) = sc1a
@@ -251,7 +251,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_v47_p) = sc1a
            sp(ii, jj, kk, p % iscn_v47_p_dt) = sc1adt
 
-           ! cr48 to fe52
+           ! cr48(a,g)fe52
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_cr48_he4) = sc1a
@@ -263,7 +263,7 @@ subroutine do_screening(lo, hi, &
            sp(ii, jj, kk, p % iscn_mn51_p) = sc1a
            sp(ii, jj, kk, p % iscn_mn51_p_dt) = sc1adt
 
-           ! fe to ni
+           ! fe(a,g)ni
            jscr = jscr + 1
            call screen5(state,jscr,sc1a,sc1adt,sc1add)
            sp(ii, jj, kk, p % iscn_fe52_he4) = sc1a
