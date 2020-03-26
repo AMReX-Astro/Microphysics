@@ -3,3 +3,4 @@ CEXE_headers += screen.H
 CEXE_headers += screen_data.H
 CEXE_sources += screening.cpp
 CEXE_sources += screen_data.cpp
+CEXE_headers += screening.H
