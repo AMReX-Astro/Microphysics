@@ -33,7 +33,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size;
+    int n_cell, max_grid_size, test_lang;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -49,6 +49,10 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
+
+        // test_lang = 0 for C++ EOS, 1 for Fortran EOS
+        test_lang = 0;
+        pp.query("test_lang", test_lang);
 
     }
 
@@ -107,7 +111,39 @@ void main_main ()
 
     eos_init();
 
-    auto vars = init_variables();
+    int Ncomp = -1;
+
+    // for C++
+    plot_t vars;
+
+    // for F90
+    Vector<std::string> varnames;
+
+    if (test_lang == 0) {
+      // C++ test
+      vars = init_variables();
+      Ncomp = vars.n_plot_comps;
+
+    } else {
+      // Fortran test
+
+      // Ncomp = number of components for each array
+      init_variables_F();
+      get_ncomp(&Ncomp);
+
+      int name_len = -1;
+      get_name_len(&name_len);
+
+      // get the variable names
+      for (int i=0; i<Ncomp; i++) {
+        char* cstring[name_len+1];
+        get_var_name(cstring, &i);
+        std::string name(*cstring);
+        varnames.push_back(name);
+      }
+    }
+
+    std::cout << "Ncomp = " << Ncomp << std::endl;
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -116,7 +152,7 @@ void main_main ()
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
-    MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
+    MultiFab state(ba, dm, Ncomp, Nghost);
 
     // Initialize the state to zero; we will fill
     // it in below in do_eos.
@@ -143,7 +179,15 @@ void main_main ()
 
         Array4<Real> const sp = state.array(mfi);
 
-        eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+        if (test_lang == 0) {
+          eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+
+        } else {
+#pragma gpu
+        do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+               dlogrho, dlogT, dmetal,
+               BL_TO_FORTRAN_ANYD(state[mfi]));
+        }
 
     }
 
@@ -157,7 +201,11 @@ void main_main ()
     std::string name = "test_eos_C.";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
+    if (test_lang == 0) {
+      WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
+    } else {
+      WriteSingleLevelPlotfile(name + eos_name, state, varnames, geom, time, 0);
+    }
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
