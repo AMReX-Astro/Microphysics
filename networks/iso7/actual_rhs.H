@@ -4,6 +4,7 @@
 #include <AMReX_CONSTANTS.H>
 #include <AMReX_REAL.H>
 
+#include <ArrayUtilities.H>
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <screening.H>
@@ -11,6 +12,7 @@
 #include <aprox_rates.H>
 
 using namespace amrex;
+using namespace ArrayUtil;
 
 namespace RateTable
 {
@@ -21,9 +23,9 @@ namespace RateTable
     constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
     constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
 
-    extern AMREX_GPU_MANAGED Array2D<Real, 0, Rates::NRates-1, 0, nrattab-1> rattab;
-    extern AMREX_GPU_MANAGED Array2D<Real, 0, Rates::NRates-1, 0, nrattab-1> drattabdt;
-    extern AMREX_GPU_MANAGED Array1D<Real, 0, nrattab-1> ttab;
+    extern AMREX_GPU_MANAGED RealArray2D<Rates::NRates, nrattab> rattab;
+    extern AMREX_GPU_MANAGED RealArray2D<Rates::NRates, nrattab> drattabdt;
+    extern AMREX_GPU_MANAGED RealArray1D<nrattab> ttab;
 }
 
 AMREX_INLINE
@@ -46,8 +48,8 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, rate_t& rr)
 {
     amrex::Real rho, temp;
-    amrex::Array1D<amrex::Real, 0, Species::NSpec-1> y;
-    amrex::Array1D<amrex::Real, 0, Rates::NRates-1> rate, dratedt;
+    RealArray1D<Species::NSpec> y;
+    RealArray1D<Rates::NRates> rate, dratedt;
     amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy1;
     amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy2;
 
@@ -83,8 +85,8 @@ void get_rates(burn_t const& state, rate_t& rr)
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
-             Array1D<Real, 0, Rates::NRates-1>& rate,
-             Array1D<Real, 0, Rates::NRates-1>& dratedt)
+             RealArray1D<Rates::NRates>& rate,
+             RealArray1D<Rates::NRates>& dratedt)
 {
     constexpr int mp = 4;
 
@@ -92,7 +94,7 @@ void iso7tab(const Real btemp, const Real bden,
     Real x, x1, x2, x3, x4;
     Real a, b, c, d, e, f, g, h, p, q;
     Real alfa, beta, gama, delt;
-    Array1D<Real, 0, Rates::NRates-1> dtab;
+    RealArray1D<Rates::NRates> dtab;
 
     // Set the density dependence array
     {
@@ -164,8 +166,8 @@ void set_iso7rat()
 
     Real btemp;
     Real bden = 1.0e0_rt;
-    Array1D<Real, 0, Rates::NRates-1> rate;
-    Array1D<Real, 0, Rates::NRates-1> dratedt;
+    RealArray1D<Rates::NRates> rate;
+    RealArray1D<Rates::NRates> dratedt;
 
     for (int i = 0; i < tab_imax; ++i) {
 
@@ -187,7 +189,7 @@ void set_iso7rat()
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs(burn_t const& state, Array1D<Real, 0, Burn::neqs-1>& ydot)
+void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
 {
     // need to port sneut5
     /* use sneut_module, only: sneut5 */
@@ -208,7 +210,7 @@ void actual_rhs(burn_t const& state, Array1D<Real, 0, Burn::neqs-1>& ydot)
     Real enuc;
 
     Real rho, temp, abar, zbar;
-    Array1D<Real, 0, Species::NSpec-1> y;
+    RealArray1D<Species::NSpec> y;
 
     // Get the data from the state
 
@@ -249,7 +251,7 @@ void actual_rhs(burn_t const& state, Array1D<Real, 0, Burn::neqs-1>& ydot)
 
   // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac(burn_t const& state, Array2D<Real, 0, Burn::njrows-1, 0, Burn::njcols-1>& jac)
+void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& jac)
 {
 
     // use sneut_module, only: sneut5
@@ -264,8 +266,8 @@ void actual_jac(burn_t const& state, Array2D<Real, 0, Burn::njrows-1, 0, Burn::n
     int j;
 
     Real rho, temp, abar, zbar;
-    Array1D<Real, 0, Species::NSpec-1> y;
-    Array1D<Real, 0, Species::NSpec-1> yderivs;
+    RealArray1D<Species::NSpec> y;
+    RealArray1D<Species::NSpec> yderivs;
 
     for (int j = 0; j < Burn::njcols; ++j) {
         for (int i = 0; i < Burn::njrows; ++i) {
@@ -332,8 +334,8 @@ void actual_jac(burn_t const& state, Array2D<Real, 0, Burn::njrows-1, 0, Burn::n
 
 // Evaluates the right hand side of the iso7 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
-         Array1D<Real, 0, Species::NSpec-1>& dydt,
+void rhs(RealArray1D<Species::NSpec> const& y, rate_t const& rr,
+         RealArray1D<Species::NSpec>& dydt,
          bool deriva, bool for_jacobian_tderiv)
 {
     using namespace Species;
@@ -430,8 +432,8 @@ void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7rat(const Real btemp, const Real bden,
-             Array1D<Real, 0, Rates::NRates-1>& rate,
-             Array1D<Real, 0, Rates::NRates-1>& dratedt)
+             RealArray1D<Rates::NRates>& rate,
+             RealArray1D<Rates::NRates>& dratedt)
 {
 
     // this routine generates unscreened
@@ -509,9 +511,9 @@ void iso7rat(const Real btemp, const Real bden,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
-                 Array1D<Real, 0, Species::NSpec-1> const& y,
-                 Array1D<Real, 0, Species::NRates-1>& rate,
-                 Array1D<Real, 0, Species::NRates-1>& dratedt,
+                 RealArray1D<Species::NSpec> const& y,
+                 RealArray1D<Species::NRates>& rate,
+                 RealArray1D<Species::NRates>& dratedt,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy1,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy2)
 {
@@ -663,9 +665,9 @@ void screen_iso7(const Real btemp, const Real bden,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dfdy_isotopes_iso7(Array1D<Real, 0, Species::NSpec-1> const& y,
+void dfdy_isotopes_iso7(RealArray1D<Species::NSpec> const& y,
                         burn_t const& state, rate_t const& rr,
-                        Array2D<Real,0, njrows-1, 0, njcols-1>& jac)
+                        RealArray2D<Burn::njrows, Burn::njcols>& jac)
 {
 
     // this routine sets up the dense iso7 jacobian for the isotopes
@@ -896,7 +898,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 0, Species::NSpec-1> const& y,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void ener_gener_rate(Array1D<Real, 0, Burn::neqs-1> const& dydt, Real& enuc)
+void ener_gener_rate(RealArray1D<Burn::neqs> const& dydt, Real& enuc)
 {
 
     // Computes the instantaneous energy generation rate
