@@ -73,6 +73,14 @@ void actual_eos_init ()
 }
 
 
+AMREX_GPU_HOST_DEVICE inline
+bool is_input_valid(eos_input_t input) {
+
+  bool valid = true;
+
+  return valid;
+}
+
 
 //---------------------------------------------------------------------------
 // Public interfaces 
