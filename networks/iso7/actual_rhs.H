@@ -1,8 +1,11 @@
 #ifndef _actual_rhs_H_
 #define _actual_rhs_H_
 
+#include <AMReX_CONSTANTS.H>
 #include <AMReX_REAL.H>
+
 #include <extern_parameters.H>
+#include <tfactors.H>
 #include <actual_network.H>
 #include <aprox_rates.H>
 
@@ -380,297 +383,288 @@ void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
     a(5) = -y(C12) * y(C12) * rr.rates(index_rate,ir1212);
     a(6) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
 
-    dydt(C12) = esum6(a)
+    dydt(C12) = esum6(a);
 
     // 16o reactions
-    a(1) = -y(O16) * rr.rates(index_rate,iroga)
-    a(2) =  y(C12) * y(He4) * rr.rates(index_rate,ircag)
-    a(3) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216)
-    a(4) = -y(io16) * y(io16) * rr.rates(index_rate,ir1616)
-    a(5) = -y(io16) * y(He4) * rr.rates(index_rate,iroag)
-    a(6) =  y(ine20) * rr.rates(index_rate,irnega)
+    a(1) = -y(O16) * rr.rates(index_rate,iroga);
+    a(2) =  y(C12) * y(He4) * rr.rates(index_rate,ircag);
+    a(3) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+    a(4) = -y(O16) * y(O16) * rr.rates(index_rate,ir1616);
+    a(5) = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
+    a(6) =  y(Ne20) * rr.rates(index_rate,irnega);
 
-    dydt(io16) = esum6(a)
+    dydt(O16) = esum6(a);
 
-    ! 20ne reactions
-    a(1) =  0.5e0_rt * y(ic12) * y(ic12) * rr.rates(index_rate,ir1212)
-    a(2) =  y(io16) * y(He4) * rr.rates(index_rate,iroag)
-    a(3) = -y(ine20) * rr.rates(index_rate,irnega)
-    a(4) =  y(img24) * rr.rates(index_rate,irmgga)
-    a(5) = -y(ine20) * y(He4) * rr.rates(index_rate,irneag)
+    // 20ne reactions
+    a(1) =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
+    a(2) =  y(O16) * y(He4) * rr.rates(index_rate,iroag);
+    a(3) = -y(Ne20) * rr.rates(index_rate,irnega);
+    a(4) =  y(Mg24) * rr.rates(index_rate,irmgga);
+    a(5) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
 
-    dydt(ine20) = esum5(a)
+    dydt(Ne20) = esum5(a);
 
-    ! 24mg reactions
-    a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
-    a(2) = -y(img24) * rr.rates(index_rate,irmgga)
-    a(3) =  y(ine20) * y(He4) * rr.rates(index_rate,irneag)
-    a(4) =  y(isi28) * rr.rates(index_rate,irsiga)
-    a(5) = -y(img24) * y(He4) * rr.rates(index_rate,irmgag)
+    // 24mg reactions
+    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+    a(2) = -y(Mg24) * rr.rates(index_rate,irmgga);
+    a(3) =  y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
+    a(4) =  y(Si28) * rr.rates(index_rate,irsiga);
+    a(5) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
 
-    dydt(img24) = esum5(a)
+    dydt(Mg24) = esum5(a);
 
-    ! 28si reactions
-    a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
-    a(2) =  0.5e0_rt * y(io16) * y(io16) * rr.rates(index_rate,ir1616)
-    a(3) = -y(isi28) * rr.rates(index_rate,irsiga)
-    a(4) =  y(img24) * y(He4) * rr.rates(index_rate,irmgag)
-    a(5) = -rr.rates(index_rate,irsi2ni) * y(He4)
-    a(6) =  rr.rates(index_rate,irni2si) * y(ini56)
+    // 28si reactions
+    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+    a(2) =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
+    a(3) = -y(Si28) * rr.rates(index_rate,irsiga);
+    a(4) =  y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
+    a(5) = -rr.rates(index_rate,irsi2ni) * y(He4);
+    a(6) =  rr.rates(index_rate,irni2si) * y(Ni56);
 
-    dydt(isi28) = esum6(a)
+    dydt(Si28) = esum6(a);
 
-    ! ni56 reactions
-    a(1) =  rr.rates(index_rate,irsi2ni) * y(He4)
-    a(2) = -rr.rates(index_rate,irni2si) * y(ini56)
+    // ni56 reactions
+    a(1) =  rr.rates(index_rate,irsi2ni) * y(He4);
+    a(2) = -rr.rates(index_rate,irni2si) * y(Ni56);
 
-    dydt(ini56) = sum(a(1:2))
+    dydt(Ni56) = a(1) + a(2);
 
 }
 
 
-  subroutine iso7rat(btemp, bden, rate, dratedt)
-
-    ! this routine generates unscreened
-    ! nuclear reaction rates for the iso7 network.
-
-    use tfactors_module
-    use aprox_rates_module
-    use amrex_constants_module, only: ZERO
-    use extern_probin_module, only: use_c12ag_deboer17
-
-    real(rt)         :: btemp, bden
-    real(rt)         :: rate(nrates), dratedt(nrates)
-
-    integer          :: i
-    real(rt)         :: rrate,drratedt,drratedd,drratedd2
-    real(rt)         :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
-    type (tf_t)      :: tf
-
-    !$gpu
-    
-    do i=1,nrates
-       rate(i)    = ZERO
-       dratedt(i) = ZERO
-    enddo
-
-    if (btemp .lt. 1.0e6_rt) return
-
-
-    ! get the temperature factors
-    call get_tfactors(btemp, tf)
-
-    ! Determine which c12(a,g)o16 rate to use
-    if (use_c12ag_deboer17) then
-    ! deboer + 2017 c12(a,g)o16 rate
-       call rate_c12ag_deboer17(tf,bden, &
-                    rate(ircag),dratedt(ircag),drratedd, &
-                    rate(iroga),dratedt(iroga),drratedd2)
-    else
-    ! 1.7 times cf88 c12(a,g)o16 rate
-       call rate_c12ag(tf,bden, &
-                    rate(ircag),dratedt(ircag),drratedd, &
-                    rate(iroga),dratedt(iroga),drratedd2)
-    endif
-
-    ! triple alpha to c12
-    call rate_tripalf(tf,bden, &
-                      rate(ir3a),dratedt(ir3a),drratedd, &
-                      rate(irg3a),dratedt(irg3a),drratedd2)
+void iso7rat(const Real btemp, const Real bden,
+             Array1D<Real, 0, Rates::NRates-1>& rate,
+             Array1D<Real, 0, Rates::NRates-1>& dratedt)
+{
+
+    // this routine generates unscreened
+    // nuclear reaction rates for the iso7 network.
+
+    Real rrate,drratedt,drratedd,drratedd2;
+    Real ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot;
+    tf_t tf;
+
+    for (int i = 0; i < Rates::NRates; ++i) {
+       rate(i)    = zero;
+       dratedt(i) = zero;
+    }
+
+    if (btemp < 1.0e6_rt) return;
+
+
+    // get the temperature factors
+    get_tfactors(btemp, tf);
+
+    // Determine which c12(a,g)o16 rate to use
+    if (use_c12ag_deboer17) {
+        // deboer + 2017 c12(a,g)o16 rate
+        rate_c12ag_deboer17(tf,bden,
+                            rate(ircag),dratedt(ircag),drratedd,
+                            rate(iroga),dratedt(iroga),drratedd2);
+    } else {
+        // 1.7 times cf88 c12(a,g)o16 rate
+        rate_c12ag(tf,bden,
+                   rate(ircag),dratedt(ircag),drratedd,
+                   rate(iroga),dratedt(iroga),drratedd2);
+    }
+
+    // triple alpha to c12
+    rate_tripalf(tf,bden,
+                 rate(ir3a),dratedt(ir3a),drratedd,
+                 rate(irg3a),dratedt(irg3a),drratedd2);
+
+    // c12 + c12
+    rate_c12c12(tf,bden,
+                rate(ir1212),dratedt(ir1212),drratedd2,
+                rrate,drratedt,drratedd);
+
+    // c12 + o16
+    rate_c12o16(tf,bden,
+                rate(ir1216),dratedt(ir1216),drratedd2,
+                rrate,drratedt,drratedd);
+
+    // 16o + 16o
+    rate_o16o16(tf,bden,
+                rate(ir1616),dratedt(ir1616),drratedd2,
+                rrate,drratedt,drratedd);
+
+    // o16(a,g)ne20
+    rate_o16ag(tf,bden,
+               rate(iroag),dratedt(iroag),drratedd,
+               rate(irnega),dratedt(irnega),drratedd2);
+
+    // ne20(a,g)mg24
+    rate_ne20ag(tf,bden,
+                rate(irneag),dratedt(irneag),drratedd,
+                rate(irmgga),dratedt(irmgga),drratedd2);
+
+    // mg24(a,g)si28
+    rate_mg24ag(tf,bden,
+                rate(irmgag),dratedt(irmgag),drratedd,
+                rate(irsiga),dratedt(irsiga),drratedd2);
+
+    // ca40(a,g)ti44
+    rate_ca40ag(tf,bden,
+                rate(ircaag),dratedt(ircaag),drratedd,
+                rate(irtiga),dratedt(irtiga),drratedd2);
+
+}
+
+void screen_iso7(const Real btemp, const Real bden,
+                 Array1D<Real, 0, Species::NSpec-1> const& y,
+                 Array1D<Real, 0, Species::NRates-1>& rate,
+                 Array1D<Real, 0, Species::NRates-1>& dratedt,
+                 Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy1,
+                 Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy2)
+{
+    using namespace Rates;
+
+    /*
+    this routine computes the screening factors
+    and applies them to the raw reaction rates,
+    producing the final reaction rates used by the
+    right hand sides and jacobian matrix elements
+    */
+
+    int jscr;
+    Real sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add;
+    Real sc3a,sc3adt,sc3add,abar,zbar,ye,z2bar;
+    Real t992,t9i92,yeff_ca40,yeff_ca40dt,yeff_ti44,yeff_ti44dt;
+    Real denom,denomdt,denomdd,xx,zz;
+
+    plasma_state pstate;
+    tf_t tf;
 
-    ! c12 + c12
-    call rate_c12c12(tf,bden, &
-                     rate(ir1212),dratedt(ir1212),drratedd2, &
-                     rrate,drratedt,drratedd)
-
-    ! c12 + o16
-    call rate_c12o16(tf,bden, &
-                     rate(ir1216),dratedt(ir1216),drratedd2, &
-                     rrate,drratedt,drratedd)
-
-    ! 16o + 16o
-    call rate_o16o16(tf,bden, &
-                     rate(ir1616),dratedt(ir1616),drratedd2, &
-                     rrate,drratedt,drratedd)
+    // initialize
+    for (int i = Rates::irsi2ni; i <= Rates::irni2si; ++i) {
+        dratedy1(i) = zero;
+        dratedy2(i) = zero;
+    }
 
-    ! o16(a,g)ne20
-    call rate_o16ag(tf,bden, &
-                    rate(iroag),dratedt(iroag),drratedd, &
-                    rate(irnega),dratedt(irnega),drratedd2)
+    // get the temperature factors
+    get_tfactors(btemp, tf);
 
-    ! ne20(a,g)mg24
-    call rate_ne20ag(tf,bden, &
-                     rate(irneag),dratedt(irneag),drratedd, &
-                     rate(irmgga),dratedt(irmgga),drratedd2)
+    // Set up the state data, which is the same for all screening factors.
 
-    ! mg24(a,g)si28
-    call rate_mg24ag(tf,bden, &
-                     rate(irmgag),dratedt(irmgag),drratedd, &
-                     rate(irsiga),dratedt(irsiga),drratedd2)
+    fill_plasma_state(pstate, btemp, bden, y);
 
-    ! ca40(a,g)ti44
-    call rate_ca40ag(tf,bden, &
-                     rate(ircaag),dratedt(ircaag),drratedd, &
-                     rate(irtiga),dratedt(irtiga),drratedd2)
+    // first the always fun triple alpha and its inverse
+    jscr = 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-  end subroutine iso7rat
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc2a,sc2adt,sc2add);
 
+    sc3a   = sc1a * sc2a;
+    sc3adt = sc1adt*sc2a + sc1a*sc2adt;
 
+    dratedt(ir3a) = dratedt(ir3a) * sc3a + rate(ir3a) * sc3adt;
+    rate(ir3a)    = rate(ir3a) * sc3a;
 
-  subroutine screen_iso7(btemp, bden, y, &
-                         rate, dratedt, &
-                         dratedy1, dratedy2)
+    // c12 to o16
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    use amrex_constants_module, only: ZERO, ONE
-    use screening_module, only: screen5, plasma_state, fill_plasma_state
-    use tfactors_module
+    dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt;
+    rate(ircag)     = rate(ircag) * sc1a;
 
-    ! this routine computes the screening factors
-    ! and applies them to the raw reaction rates,
-    ! producing the final reaction rates used by the
-    ! right hand sides and jacobian matrix elements
+    // c12 + c12
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    real(rt)         :: btemp, bden
-    real(rt)         :: y(nspec)
-    real(rt)         :: rate(nrates), dratedt(nrates)
-    real(rt)         :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
+    dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt;
+    rate(ir1212)    = rate(ir1212) * sc1a;
 
-    integer          :: i, jscr
-    real(rt)         :: sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add, &
-                        sc3a,sc3adt,sc3add,abar,zbar,ye,z2bar, &
-                        t992,t9i92,yeff_ca40,yeff_ca40dt,yeff_ti44,yeff_ti44dt, &
-                        denom,denomdt,denomdd,xx,zz
+    // c12 + o16
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    type (plasma_state) :: pstate
-    type (tf_t)         :: tf
+    dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt;
+    rate(ir1216)    = rate(ir1216) * sc1a;
 
-    !$gpu
-    
-    ! initialize
-    dratedy1(:) = ZERO
-    dratedy2(:) = ZERO
+    // o16 + o16
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    ! get the temperature factors
-    call get_tfactors(btemp, tf)
+    dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt;
+    rate(ir1616)    = rate(ir1616) * sc1a;
 
-    ! Set up the state data, which is the same for all screening factors.
+    // o16 to ne20
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    call fill_plasma_state(pstate, btemp, bden, y(1:nspec))
+    dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt;
+    rate(iroag)    = rate(iroag) * sc1a;
 
-    ! first the always fun triple alpha and its inverse
-    jscr = 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+    // o16 to mg24
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc2a,sc2adt,sc2add)
+    dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt;
+    rate(irneag)    = rate(irneag) * sc1a;
 
-    sc3a   = sc1a * sc2a
-    sc3adt = sc1adt*sc2a + sc1a*sc2adt
+    // mg24 to si28
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    dratedt(ir3a) = dratedt(ir3a) * sc3a + rate(ir3a) * sc3adt
-    rate(ir3a)    = rate(ir3a) * sc3a
+    dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt;
+    rate(irmgag)    = rate(irmgag) * sc1a;
 
-    ! c12 to o16
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+    // ca40 to ti44
+    jscr = jscr + 1;
+    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt
-    rate(ircag)     = rate(ircag) * sc1a
+    dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt;
+    rate(ircaag)    = rate(ircaag) * sc1a;
 
-    ! c12 + c12
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+    /*
+    the publication, timmes, woosley & hoffman apjs, 129, 377
+    has a typo on page 393, where its says "y(C12)+y(O16) .gt. 0.004"
+    it should be less than or equal to, since the idea is this piece
+    gets activated during silicon buring, after all the c + o from
+    oxygen burning is gone.
+    */
 
-    dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt
-    rate(ir1212)    = rate(ir1212) * sc1a
+    if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
 
-    ! c12 + o16
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+       t992  = tf.t972 * tf.t9;
+       t9i92 = 1.0e0_rt/t992;
 
-    dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt
-    rate(ir1216)    = rate(ir1216) * sc1a
+       yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
+       yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
 
-    ! o16 + o16
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+       yeff_ti44   = t992  * std::exp(-274.12_rt*tf.t9i + 74.914_rt);
+       yeff_ti44dt = yeff_ti44*(274.12_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
 
-    dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt
-    rate(ir1616)    = rate(ir1616) * sc1a
+       denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
-    ! o16 to ne20
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+       rate(irsi2ni)     = yeff_ca40*denom*rate(ircaag)*y(Si28);
+       dratedy1(irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(He4);
+       dratedy2(irsi2ni) = yeff_ca40*denom*rate(ircaag);
+       dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag)
+                          + yeff_ca40*dratedt(ircaag))*denom*y(Si28)*1.0e-9_rt;
 
-    dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt
-    rate(iroag)    = rate(iroag) * sc1a
+       if (denom != 0.0_rt) {
 
-    ! o16 to mg24
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+          zz     = 1.0e0_rt/denom;
+          rate(irni2si) = amrex::min(1.0e10_rt,yeff_ti44*rate(irtiga)*zz);
 
-    dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt
-    rate(irneag)    = rate(irneag) * sc1a
+          if (rate(irni2si) == 1.0e10_rt) {
+             dratedy1(irni2si) = 0.0e0_rt;
+             dratedt(irni2si)  = 0.0e0_rt;
+          } else {
+             dratedy1(irni2si) = -3.0e0_rt * rate(irni2si)/y(He4);
+             dratedt(irni2si)  = (yeff_ti44dt*rate(irtiga)
+                                + yeff_ti44*dratedt(irtiga))*zz*1.0e-9_rt;
+          }
 
-    ! mg24 to si28
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
+       }
 
-    dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt
-    rate(irmgag)    = rate(irmgag) * sc1a
+    }
+}
 
-    ! ca40 to ti44
-    jscr = jscr + 1
-    call screen5(pstate,jscr,sc1a,sc1adt,sc1add)
 
-    dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt
-    rate(ircaag)    = rate(ircaag) * sc1a
-
-    ! the publication, timmes, woosley & hoffman apjs, 129, 377
-    ! has a typo on page 393, where its says "y(ic12)+y(io16) .gt. 0.004"
-    ! it should be less than or equal to, since the idea is this piece
-    ! gets activated during silicon buring, after all the c + o from
-    ! oxygen burning is gone.
-
-    if (tf%t9 .gt. 2.5_rt .and. y(ic12)+y(io16) .le. 4.0e-3_rt) then
-
-       t992  = tf%t972 * tf%t9
-       t9i92 = 1.0e0_rt/t992
-
-       yeff_ca40   = t9i92 * exp(239.42_rt*tf%t9i - 74.741_rt)
-       yeff_ca40dt = -yeff_ca40*(239.42_rt*tf%t9i2 + 4.5e0_rt*tf%t9i)
-
-       yeff_ti44   = t992  * exp(-274.12_rt*tf%t9i + 74.914_rt)
-       yeff_ti44dt = yeff_ti44*(274.12_rt*tf%t9i2 + 4.5e0_rt*tf%t9i)
-
-       denom     = (bden * y(He4))**3
-
-       rate(irsi2ni)     = yeff_ca40*denom*rate(ircaag)*y(isi28)
-       dratedy1(irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(He4)
-       dratedy2(irsi2ni) = yeff_ca40*denom*rate(ircaag)
-       dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag) &
-            + yeff_ca40*dratedt(ircaag))*denom*y(isi28)*1.0e-9_rt
-
-       if (denom .ne. 0.0_rt) then
-
-          zz     = 1.0e0_rt/denom
-          rate(irni2si) = min(1.0e10_rt,yeff_ti44*rate(irtiga)*zz)
-
-          if (rate(irni2si) .eq. 1.0e10_rt) then
-             dratedy1(irni2si) = 0.0e0_rt
-             dratedt(irni2si)  = 0.0e0_rt
-          else
-             dratedy1(irni2si) = -3.0e0_rt * rate(irni2si)/y(He4)
-             dratedt(irni2si)  = (yeff_ti44dt*rate(irtiga) &
-                  + yeff_ti44*dratedt(irtiga))*zz*1.0e-9_rt
-          end if
-       endif
-    end if
-
-  end subroutine screen_iso7
-
-
-
+// don
   subroutine dfdy_isotopes_iso7(y, state, rr, jac)
 
     use network
@@ -693,221 +687,221 @@ void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
     ! 4he jacobian elements
     ! d(he4)/d(he4)
     b(1) = -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a)
-    b(2) = -y(ic12) * rr.rates(1,ircag)
-    b(3) = -y(io16) * rr.rates(1,iroag)
-    b(4) = -y(ine20) * rr.rates(1,irneag)
-    b(5) = -y(img24) * rr.rates(1,irmgag)
+    b(2) = -y(C12) * rr.rates(1,ircag)
+    b(3) = -y(O16) * rr.rates(1,iroag)
+    b(4) = -y(Ne20) * rr.rates(1,irneag)
+    b(5) = -y(Mg24) * rr.rates(1,irmgag)
     b(6) = -7.0e0_rt * rr.rates(1,irsi2ni)
     b(7) = -7.0e0_rt * rr.rates(3,irsi2ni) * y(He4)
-    b(8) =  7.0e0_rt * rr.rates(3,irni2si) * y(ini56)
+    b(8) =  7.0e0_rt * rr.rates(3,irni2si) * y(Ni56)
 
     jac(He4,He4) = esum8(b)
 
     ! d(he4)/d(c12)
     b(1) =  3.0e0_rt * rr.rates(1,irg3a)
     b(2) = -y(He4) * rr.rates(1,ircag)
-    b(3) =  y(ic12) * rr.rates(1,ir1212)
-    b(4) =  0.5e0_rt * y(io16) * rr.rates(1,ir1216)
+    b(3) =  y(C12) * rr.rates(1,ir1212)
+    b(4) =  0.5e0_rt * y(O16) * rr.rates(1,ir1216)
 
-    jac(He4,ic12) = esum4(b)
+    jac(He4,C12) = esum4(b)
 
     ! d(he4)/d(o16)
     b(1) =  rr.rates(1,iroga)
-    b(2) =  0.5e0_rt * y(ic12) * rr.rates(1,ir1216)
-    b(3) =  y(io16) * rr.rates(1,ir1616)
+    b(2) =  0.5e0_rt * y(C12) * rr.rates(1,ir1216)
+    b(3) =  y(O16) * rr.rates(1,ir1616)
     b(4) = -y(He4) * rr.rates(1,iroag)
 
-    jac(He4,io16) = esum4(b)
+    jac(He4,O16) = esum4(b)
 
     ! d(he4)/d(ne20)
     b(1) =  rr.rates(1,irnega)
     b(2) = -y(He4) * rr.rates(1,irneag)
 
-    jac(He4,ine20) = sum(b(1:2))
+    jac(He4,Ne20) = sum(b(1:2))
 
     ! d(he4)/d(mg24)
     b(1) =  rr.rates(1,irmgga)
     b(2) = -y(He4) * rr.rates(1,irmgag)
 
-    jac(He4,img24) = sum(b(1:2))
+    jac(He4,Mg24) = sum(b(1:2))
 
     ! d(he4)/d(si28)
     b(1) =  rr.rates(1,irsiga)
     b(2) = -7.0e0_rt * rr.rates(4,irsi2ni) * y(He4)
 
-    jac(He4,isi28) = sum(b(1:2))
+    jac(He4,Si28) = sum(b(1:2))
 
     ! d(he4)/d(ni56)
     b(1) =  7.0e0_rt * rr.rates(1,irni2si)
 
-    jac(He4,ini56) = b(1)
+    jac(He4,Ni56) = b(1)
 
 
 
     ! 12c jacobian elements
     ! d(c12)/d(he4)
     b(1) =  0.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a)
-    b(2) = -y(ic12) * rr.rates(1,ircag)
+    b(2) = -y(C12) * rr.rates(1,ircag)
 
-    jac(ic12,He4) = sum(b(1:2))
+    jac(C12,He4) = sum(b(1:2))
 
     ! d(c12)/d(c12)
     b(1) = -rr.rates(1,irg3a)
     b(2) = -y(He4) * rr.rates(1,ircag)
-    b(3) = -2.0e0_rt * y(ic12) * rr.rates(1,ir1212)
-    b(4) = -y(io16) * rr.rates(1,ir1216)
+    b(3) = -2.0e0_rt * y(C12) * rr.rates(1,ir1212)
+    b(4) = -y(O16) * rr.rates(1,ir1216)
 
-    jac(ic12,ic12) = esum4(b)
+    jac(C12,C12) = esum4(b)
 
     ! d(c12)/d(o16)
     b(1) =  rr.rates(1,iroga)
-    b(2) = -y(ic12) * rr.rates(1,ir1216)
+    b(2) = -y(C12) * rr.rates(1,ir1216)
 
-    jac(ic12,io16) = sum(b(1:2))
+    jac(C12,O16) = sum(b(1:2))
 
 
     ! 16o jacobian elements
     ! d(o16)/d(he4)
-    b(1) =  y(ic12) * rr.rates(1,ircag)
-    b(2) = -y(io16) * rr.rates(1,iroag)
+    b(1) =  y(C12) * rr.rates(1,ircag)
+    b(2) = -y(O16) * rr.rates(1,iroag)
 
-    jac(io16,He4) = sum(b(1:2))
+    jac(O16,He4) = sum(b(1:2))
 
     ! d(o16)/d(c12)
     b(1) =  y(He4) * rr.rates(1,ircag)
-    b(2) = -y(io16) * rr.rates(1,ir1216)
+    b(2) = -y(O16) * rr.rates(1,ir1216)
 
-    jac(io16,ic12) = sum(b(1:2))
+    jac(O16,C12) = sum(b(1:2))
 
     ! d(o16)/d(o16)
     b(1) = -rr.rates(1,iroga)
-    b(2) = -y(ic12) * rr.rates(1,ir1216)
-    b(3) = -2.0e0_rt * y(io16) * rr.rates(1,ir1616)
+    b(2) = -y(C12) * rr.rates(1,ir1216)
+    b(3) = -2.0e0_rt * y(O16) * rr.rates(1,ir1616)
     b(4) = -y(He4) * rr.rates(1,iroag)
 
-    jac(io16,io16) = esum4(b)
+    jac(O16,O16) = esum4(b)
 
     ! d(o16)/d(ne20)
     b(1) =  rr.rates(1,irnega)
 
-    jac(io16,ine20) = b(1)
+    jac(O16,Ne20) = b(1)
 
 
 
     ! 20ne jacobian elements
     ! d(ne20)/d(he4)
-    b(1) =  y(io16) * rr.rates(1,iroag) - y(ine20) * rr.rates(1,irneag)
+    b(1) =  y(O16) * rr.rates(1,iroag) - y(Ne20) * rr.rates(1,irneag)
 
-    jac(ine20,He4) = b(1)
+    jac(Ne20,He4) = b(1)
 
     ! d(ne20)/d(c12)
-    b(1) =  y(ic12) * rr.rates(1,ir1212)
+    b(1) =  y(C12) * rr.rates(1,ir1212)
 
-    jac(ine20,ic12) = b(1)
+    jac(Ne20,C12) = b(1)
 
     ! d(ne20)/d(o16)
     b(1) =  y(He4) * rr.rates(1,iroag)
 
-    jac(ine20,io16) = b(1)
+    jac(Ne20,O16) = b(1)
 
     ! d(ne20)/d(ne20)
     b(1) = -rr.rates(1,irnega) - y(He4) * rr.rates(1,irneag)
 
-    jac(ine20,ine20) = b(1)
+    jac(Ne20,Ne20) = b(1)
 
     ! d(ne20)/d(mg24)
     b(1) =  rr.rates(1,irmgga)
 
-    jac(ine20,img24) = b(1)
+    jac(Ne20,Mg24) = b(1)
 
 
 
     ! 24mg jacobian elements
     ! d(mg24)/d(he4)
-    b(1) =  y(ine20) * rr.rates(1,irneag)
-    b(2) = -y(img24) * rr.rates(1,irmgag)
+    b(1) =  y(Ne20) * rr.rates(1,irneag)
+    b(2) = -y(Mg24) * rr.rates(1,irmgag)
 
-    jac(img24,He4) = sum(b(1:2))
+    jac(Mg24,He4) = sum(b(1:2))
 
     ! d(mg24)/d(c12)
-    b(1) =  0.5e0_rt * y(io16) * rr.rates(1,ir1216)
+    b(1) =  0.5e0_rt * y(O16) * rr.rates(1,ir1216)
 
-    jac(img24,ic12) = b(1)
+    jac(Mg24,C12) = b(1)
 
     ! d(mg24)/d(o16)
-    b(1) =  0.5e0_rt * y(ic12) * rr.rates(1,ir1216)
+    b(1) =  0.5e0_rt * y(C12) * rr.rates(1,ir1216)
 
-    jac(img24,io16) = b(1)
+    jac(Mg24,O16) = b(1)
 
     ! d(mg24)/d(ne20)
     b(1) =  y(He4) * rr.rates(1,irneag)
 
-    jac(img24,ine20) = b(1)
+    jac(Mg24,Ne20) = b(1)
 
     ! d(mg24)/d(mg24)
     b(1) = -rr.rates(1,irmgga)
     b(2) = -y(He4) * rr.rates(1,irmgag)
 
-    jac(img24,img24) = sum(b(1:2))
+    jac(Mg24,Mg24) = sum(b(1:2))
 
     ! d(mg24)/d(si28)
     b(1) =  rr.rates(1,irsiga)
 
-    jac(img24,isi28) = b(1)
+    jac(Mg24,Si28) = b(1)
 
     ! 28si jacobian elements
     ! d(si28)/d(he4)
-    b(1) =  y(img24) * rr.rates(1,irmgag)
+    b(1) =  y(Mg24) * rr.rates(1,irmgag)
     b(2) = -rr.rates(1,irsi2ni)
     b(3) = -rr.rates(3,irsi2ni) * y(He4)
-    b(4) =  rr.rates(3,irni2si) * y(ini56)
+    b(4) =  rr.rates(3,irni2si) * y(Ni56)
 
-    jac(isi28,He4) = esum4(b)
+    jac(Si28,He4) = esum4(b)
 
     ! d(si28)/d(c12)
-    b(1) =  0.5e0_rt * y(io16) * rr.rates(1,ir1216)
+    b(1) =  0.5e0_rt * y(O16) * rr.rates(1,ir1216)
 
-    jac(isi28,ic12) = b(1)
+    jac(Si28,C12) = b(1)
 
     ! d(si28)/d(o16)
-    b(1) =  y(io16) * rr.rates(1,ir1616)
-    b(2) =  0.5e0_rt * y(ic12) * rr.rates(1,ir1216)
+    b(1) =  y(O16) * rr.rates(1,ir1616)
+    b(2) =  0.5e0_rt * y(C12) * rr.rates(1,ir1216)
 
-    jac(isi28,io16) = sum(b(1:2))
+    jac(Si28,O16) = sum(b(1:2))
 
     ! d(si28)/d(mg24)
     b(1) =  y(He4) * rr.rates(1,irmgag)
 
-    jac(isi28,img24) = b(1)
+    jac(Si28,Mg24) = b(1)
 
     ! d(si28)/d(si28)
     b(1) = -rr.rates(1,irsiga)
     b(2) = -rr.rates(4,irsi2ni) * y(He4)
 
-    jac(isi28,isi28) = sum(b(1:2))
+    jac(Si28,Si28) = sum(b(1:2))
 
     ! d(si28)/d(ni56)
     b(1) =  rr.rates(1,irni2si)
 
-    jac(isi28,ini56) = b(1)
+    jac(Si28,Ni56) = b(1)
 
     ! ni56 jacobian elements
     ! d(ni56)/d(he4)
     b(1) =  rr.rates(1,irsi2ni)
     b(2) =  rr.rates(3,irsi2ni) * y(He4)
-    b(3) = -rr.rates(3,irni2si) * y(ini56)
+    b(3) = -rr.rates(3,irni2si) * y(Ni56)
 
-    jac(ini56,He4) = esum3(b)
+    jac(Ni56,He4) = esum3(b)
 
     ! d(ni56)/d(si28)
     b(1) = rr.rates(4,irsi2ni) * y(He4)
 
-    jac(ini56,isi28) = b(1)
+    jac(Ni56,Si28) = b(1)
 
     ! d(ni56)/d(ni56)
     b(1) = -rr.rates(1,irni2si)
 
-    jac(ini56,ini56) = b(1)
+    jac(Ni56,Ni56) = b(1)
 
   end subroutine dfdy_isotopes_iso7
 
@@ -945,13 +939,13 @@ void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
     ! rates in actual_rhs.f90 (yes, it's ugly)
     call add_screening_factor(zion(He4),aion(He4),zion(He4),aion(He4))
     call add_screening_factor(zion(He4),aion(He4),4.0e0_rt,8.0e0_rt)
-    call add_screening_factor(zion(ic12),aion(ic12),zion(He4),aion(He4))
-    call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
-    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
-    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
-    call add_screening_factor(zion(io16),aion(io16),zion(He4),aion(He4))
-    call add_screening_factor(zion(ine20),aion(ine20),zion(He4),aion(He4))
-    call add_screening_factor(zion(img24),aion(img24),zion(He4),aion(He4))
+    call add_screening_factor(zion(C12),aion(C12),zion(He4),aion(He4))
+    call add_screening_factor(zion(C12),aion(C12),zion(C12),aion(C12))
+    call add_screening_factor(zion(C12),aion(C12),zion(O16),aion(O16))
+    call add_screening_factor(zion(C12),aion(C12),zion(O16),aion(O16))
+    call add_screening_factor(zion(O16),aion(O16),zion(He4),aion(He4))
+    call add_screening_factor(zion(Ne20),aion(Ne20),zion(He4),aion(He4))
+    call add_screening_factor(zion(Mg24),aion(Mg24),zion(He4),aion(He4))
     call add_screening_factor(20.0e0_rt,40.0e0_rt,zion(He4),aion(He4))
 
   end subroutine set_up_screening_factors
