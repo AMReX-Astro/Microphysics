@@ -20,7 +20,7 @@ extern "C"
 
   void get_cond_name(char* cond_string[]);
 
-  void init_unit_test(const int* name, const int* namlen); 
+  void init_unit_test(const int* name, const int* namlen);
 
   void do_screening(const int* lo, const int* hi,
                     amrex::Real* state, const int* s_lo, const int* s_hi,
