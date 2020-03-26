@@ -131,22 +131,56 @@ void main_main ()
     Real strt_time = ParallelDescriptor::second();
 
     const int ih1 = network_spec_index("hydrogen-1");
+    if (ih1 < 0) amrex::Error("Error: ih1 not found");
+
     const int ihe3 = network_spec_index("helium-3");
+    if (ihe3 < 0) amrex::Error("Error: ihe3 not found");
+
     const int ihe4 = network_spec_index("helium-4");
+    if (ihe4 < 0) amrex::Error("Error: ihe4 not found");
+
     const int ic12 = network_spec_index("carbon-12");
+    if (ic12 < 0) amrex::Error("Error: ic12 not found");
+
     const int in14 = network_spec_index("nitrogen-14");
+    if (in14 < 0) amrex::Error("Error: in14 not found");
+
     const int io16 = network_spec_index("oxygen-16");
+    if (io16 < 0) amrex::Error("Error: io16 not found");
+
     const int ine20 = network_spec_index("neon-20");
+    if (ine20 < 0) amrex::Error("Error: ine20 not found");
+
     const int img24 = network_spec_index("magnesium-24");
+    if (img24 < 0) amrex::Error("Error: img24 not found");
+
     const int isi28 = network_spec_index("silicon-28");
-    const int is32 = network_spec_index("sulphur-32");
+    if (isi28 < 0) amrex::Error("Error: isi28 not found");
+
+    const int is32 = network_spec_index("sulfur-32");
+    if (is32 < 0) amrex::Error("Error: is32 not found");
+
     const int iar36 = network_spec_index("argon-36");    
-    const int ica40 = network_spec_index("calcium-40");    
+    if (iar36 < 0) amrex::Error("Error: iar36 not found");
+
+    const int ica40 = network_spec_index("calcium-40");
+    if (ica40 < 0) amrex::Error("Error: ica40 not found");
+
     const int iti44 = network_spec_index("titanium-44");
+    if (iti44 < 0) amrex::Error("Error: iti44 not found");
+
     const int icr48 = network_spec_index("chromium-48");
+    if (icr48 < 0) amrex::Error("Error: icr48 not found");
+
     const int ife52 = network_spec_index("iron-52");
+    if (ife52 < 0) amrex::Error("Error: ife52 not found");
+
     const int ife54 = network_spec_index("iron-54");
+    if (ife54 < 0) amrex::Error("Error: ife54 not found");
+
     const int ife56 = network_spec_index("iron-56");
+    if (ife56 < 0) amrex::Error("Error: ife56 not found");
+
 
     // initialize the screening factors
     int jscr_init = 0;
