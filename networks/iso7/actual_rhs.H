@@ -85,355 +85,328 @@ void get_rates(burn_t const& state, rate_t& rr)
     rr.T_eval = temp;
 }
 
-  subroutine iso7tab(btemp, bden, rate, dratedt)
+void iso7tab(const Real btemp, const Real bden,
+             Array1D<Real, 0, Rates::NRates-1>& rate,
+             Array1D<Real, 0, Rates::NRates-1>& dratedt)
+{
+    constexpr int mp = 4;
+
+    int j, iat;
+    Real x, x1, x2, x3, x4;
+    Real a, b, c, d, e, f, g, h, p, q;
+    Real alfa, beta, gama, delt;
+    Array1D<Real, 0, Rates::NRates-1> dtab;
+
+    // Set the density dependence array
+    {
+        using namespace Rates;
+        dtab(ircag)  = bden;
+        dtab(iroga)  = 1.0e0_rt;
+        dtab(ir3a)   = bden*bden;
+        dtab(irg3a)  = 1.0e0_rt;
+        dtab(ir1212) = bden;
+        dtab(ir1216) = bden;
+        dtab(ir1616) = bden;
+        dtab(iroag)  = bden;
+        dtab(irnega) = 1.0e0_rt;
+        dtab(irneag) = bden;
+        dtab(irmgga) = 1.0e0_rt;
+        dtab(irmgag) = bden;
+        dtab(irsiga) = 1.0e0_rt;
+        dtab(ircaag) = bden;
+        dtab(irtiga) = 1.0e0_rt;
+        dtab(irsi2ni) = 0.0e0_rt;
+        dtab(irni2si) = 0.0e0_rt;
+    }
+
+    // hash locate
+    iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
+    iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1)) - 1;
+
+    // setup the lagrange interpolation coefficients for a cubic
+    x  = btemp;
+    x1 = ttab(iat);
+    x2 = ttab(iat+1);
+    x3 = ttab(iat+2);
+    x4 = ttab(iat+3);
+    a  = x - x1;
+    b  = x - x2;
+    c  = x - x3;
+    d  = x - x4;
+    e  = x1 - x2;
+    f  = x1 - x3;
+    g  = x1 - x4;
+    h  = x2 - x3;
+    p  = x2 - x4;
+    q  = x3 - x4;
+    alfa =  b*c*d/(e*f*g);
+    beta = -a*c*d/(e*h*p);
+    gama =  a*b*d/(f*h*q);
+    delt = -a*b*c/(g*p*q);
+
+    // crank off the raw reaction rates
+    for (int j = 0; j < Rates::NRates; ++j) {
+
+       rate(j) = (  alfa * rattab(j,iat  )
+                  + beta * rattab(j,iat+1)
+                  + gama * rattab(j,iat+2)
+                  + delt * rattab(j,iat+3) ) * dtab(j);
 
-    implicit none
+       dratedt(j) = (  alfa * drattabdt(j,iat  )
+                     + beta * drattabdt(j,iat+1)
+                     + gama * drattabdt(j,iat+2)
+                     + delt * drattabdt(j,iat+3) ) * dtab(j);
 
-    real(rt)         :: btemp, bden, rate(nrates), dratedt(nrates)
+    }
+}
 
-    integer, parameter :: mp = 4
 
-    integer          :: j, iat
-    real(rt)         :: x, x1, x2, x3, x4
-    real(rt)         :: a, b, c, d, e, f, g, h, p, q
-    real(rt)         :: alfa, beta, gama, delt
+void set_iso7rat()
+{
 
-    real(rt)         :: dtab(nrates)
+    Real btemp;
+    Real bden = 1.0e0_rt;
+    Array1D<Real, 0, Rates::NRates-1> rate;
+    Array1D<Real, 0, Rates::NRates-1> dratedt;
 
-    !$gpu
+    for (int i = 0; i < tab_imax; ++i) {
 
-    ! Set the density dependence array
-    dtab(ircag)  = bden
-    dtab(iroga)  = 1.0e0_rt
-    dtab(ir3a)   = bden*bden
-    dtab(irg3a)  = 1.0e0_rt
-    dtab(ir1212) = bden
-    dtab(ir1216) = bden
-    dtab(ir1616) = bden
-    dtab(iroag)  = bden
-    dtab(irnega) = 1.0e0_rt
-    dtab(irneag) = bden
-    dtab(irmgga) = 1.0e0_rt
-    dtab(irmgag) = bden
-    dtab(irsiga) = 1.0e0_rt
-    dtab(ircaag) = bden
-    dtab(irtiga) = 1.0e0_rt
-    dtab(irsi2ni) = 0.0e0_rt
-    dtab(irni2si) = 0.0e0_rt
+       btemp = tab_tlo + static_cast<Real>(i) * tab_tstp;
+       btemp = std::pow(10.0e0_rt, btemp);
 
-    ! hash locate
-    iat = int((log10(btemp) - tab_tlo)/tab_tstp) + 1
-    iat = max(1, min(iat - mp / 2 + 1, tab_imax - mp + 1))
+       iso7rat(btemp, bden, rate, dratedt);
 
-    ! setup the lagrange interpolation coefficients for a cubic
-    x  = btemp
-    x1 = ttab(iat)
-    x2 = ttab(iat+1)
-    x3 = ttab(iat+2)
-    x4 = ttab(iat+3)
-    a  = x - x1
-    b  = x - x2
-    c  = x - x3
-    d  = x - x4
-    e  = x1 - x2
-    f  = x1 - x3
-    g  = x1 - x4
-    h  = x2 - x3
-    p  = x2 - x4
-    q  = x3 - x4
-    alfa =  b*c*d/(e*f*g)
-    beta = -a*c*d/(e*h*p)
-    gama =  a*b*d/(f*h*q)
-    delt = -a*b*c/(g*p*q)
+       ttab(i) = btemp;
 
-    ! crank off the raw reaction rates
-    do j = 1, nrates
+       for (int j = 0; j < Rates::NRates; ++j) {
 
-       rate(j) = (alfa * rattab(j,iat) &
-                  + beta * rattab(j,iat+1) &
-                  + gama * rattab(j,iat+2) &
-                  + delt * rattab(j,iat+3) ) * dtab(j)
+          rattab(j,i)    = rate(j);
+          drattabdt(j,i) = dratedt(j);
 
-       dratedt(j) = (alfa * drattabdt(j,iat) &
-                     + beta * drattabdt(j,iat+1) &
-                     + gama * drattabdt(j,iat+2) &
-                     + delt * drattabdt(j,iat+3) ) * dtab(j)
+       }
+    }
+}
 
-    enddo
 
-  end subroutine iso7tab
+void actual_rhs(burn_t const& state, Array1D<Real, 0, Burn::neqs-1>& ydot)
+{
+    // need to port sneut5
+    /* use sneut_module, only: sneut5 */
+    // need to port temperature_rhs
+    /* use temperature_integration_module, only: temperature_rhs */
 
+    /*
+     This routine sets up the system of ODE's for the iso7
+     nuclear reactions.  This is an alpha chain + heavy ion network
+     with (a,p)(p,g) links up to silicon, as well as a Si <-> Ni link.
 
+     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
+    */
 
-  subroutine create_rates_table()
+    rate_t rr;
 
-    implicit none
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real enuc;
 
-    ! Allocate memory for the tables
-    allocate(rattab(nrates, nrattab))
-    allocate(drattabdt(nrates, nrattab))
-    allocate(ttab(nrattab))
+    Real rho, temp, abar, zbar;
+    Array1D<Real, 0, Species::NSpec-1> y;
 
+    // Get the data from the state
 
-  end subroutine create_rates_table
+    rho  = state.rho;
+    temp = state.T;
+    abar = state.abar;
+    zbar = state.zbar;
 
+    for (int i = 0; i < Species::NSpec; ++i) {
+        y(i) = state.xn(i) * aion_inv(i);
+    }
 
+    get_rates(state, rr);
 
-  subroutine set_iso7rat()
+    // Call the RHS to actually get dydt.
 
-    implicit none
+    bool deriva = false;
+    bool for_jacobian_tderiv = false;
+    rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
 
-    real(rt)         :: btemp, bden, rate(nrates), dratedt(nrates)
-    integer :: i, j
+    // Instantaneous energy generation rate -- this needs molar fractions
 
-    bden = 1.0e0_rt
+    ener_gener_rate(ydot, enuc);
 
-    do i = 1, tab_imax
+    // Get the neutrino losses
 
-       btemp = tab_tlo + dble(i-1) * tab_tstp
-       btemp = 10.0e0_rt**(btemp)
+    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-       call iso7rat(btemp, bden, rate, dratedt)
+    // Append the energy equation (this is erg/g/s)
 
-       ttab(i) = btemp
+    ydot(Burn::ienuc) = enuc - sneut;
 
-       do j = 1, nrates
+    // Append the temperature equation
 
-          rattab(j,i)    = rate(j)
-          drattabdt(j,i) = dratedt(j)
+    temperature_rhs(state, ydot);
+}
 
-       enddo
 
-    enddo
+  // Analytical Jacobian
 
-  end subroutine set_iso7rat
+void actual_jac(burn_t const& state, Array2D<Real, 0, Burn::njrows-1, 0, Burn::njcols-1>& jac)
+{
 
+    // use sneut_module, only: sneut5
+    // use temperature_integration_module, only: temperature_jac
 
+    rate_t rr;
 
-  subroutine actual_rhs(state, ydot)
+    bool deriva;
 
-    use sneut_module, only: sneut5
-    use temperature_integration_module, only: temperature_rhs
+    Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
 
-    implicit none
+    int j;
 
-    ! This routine sets up the system of ODE's for the iso7
-    ! nuclear reactions.  This is an alpha chain + heavy ion network
-    ! with (a,p)(p,g) links up to silicon, as well as a Si <-> Ni link.
-    !
-    ! Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
+    Real rho, temp, abar, zbar;
+    Array1D<Real, 0, Species::NSpec-1> y;
+    Array1D<Real, 0, Species::NSpec-1> yderivs;
 
-    type (burn_t), intent(in)    :: state
-    real(rt)        , intent(inout) :: ydot(neqs)
+    for (int j = 0; j < Burn::njcols; ++j) {
+        for (int i = 0; i < Burn::njrows; ++i) {
+            jac(i,j) = 0.0e0_rt;
+        }
+    }
 
-    type (rate_t)    :: rr
+    get_rates(state, rr);
 
-    logical          :: deriva
+    // Get the data from the state
 
-    real(rt)         :: sneut, dsneutdt, dsneutdd, snuda, snudz
-    real(rt)         :: enuc
+    rho  = state.rho;
+    temp = state.T;
+    abar = state.abar;
+    zbar = state.zbar;
 
-    real(rt)         :: rho, temp, abar, zbar
-    real(rt)         :: y(nspec)
+    for (int i = 0; i < Species::NSpec; ++i)
+        y(i) = state.xn(i) * aion_inv(i);
 
-    !$gpu
+    // Species Jacobian elements with respect to other species
 
-    ! Get the data from the state
+    dfdy_isotopes_iso7(y, state, rr, jac);
 
-    rho  = state.rho
-    temp = state.T
-    abar = state.abar
-    zbar = state.zbar
-    y(:) = state.xn(:) * aion_inv(:)
+    // Energy generation rate Jacobian elements with respect to species
 
-    call get_rates(state, rr)
+    for (int j = 0; j < Species::NSpec; ++j) {
+        for (int i = 0; i < Species::NSpec; ++i) {
+            ener_gener_rate(jac(i,j), jac(Burn::ienuc,j));
+        }
+    }
 
-    ! Call the RHS to actually get dydt.
+    // Account for the thermal neutrino losses
 
-    deriva = .false.
-    call rhs(y, rr, ydot, deriva, for_jacobian_tderiv = .false.)
+    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    ! Instantaneous energy generation rate -- this needs molar fractions
+    for (int j = 0; j < Species::NSpec; ++j) {
+       b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz);
+       jac(Burn::ienuc,j) = jac(Burn::ienuc,j) - b1;
+    }
 
-    call ener_gener_rate(ydot(1:nspec), enuc)
+    // Evaluate the Jacobian elements with respect to temperature by
+    // calling the RHS using d(rate) / dT
 
-    ! Get the neutrino losses
+    deriva = true;
+    bool for_jacobian_tderiv = true;
+    rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
 
-    call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
+    for (int i = 0; i < Species::NSpec; ++i) {
+        jac(i,Burn::itemp) = yderivs(i);
+    }
 
-    ! Append the energy equation (this is erg/g/s)
+    for (int i = 0; i < Species::NSpec; ++i) {
+        ener_gener_rate(jac(i,Burn::itemp), jac(Burn::ienuc,Burn::itemp));
+    }
 
-    ydot(net_ienuc) = enuc - sneut
+    jac(Burn::ienuc,Burn::itemp) = jac(Burn::ienuc,Burn::itemp) - dsneutdt;
 
-    ! Append the temperature equation
+    // Temperature Jacobian elements
 
-    call temperature_rhs(state, ydot)
+    temperature_jac(state, jac);
 
-  end subroutine actual_rhs
+}
 
 
+// Evaluates the right hand side of the iso7 ODEs
 
-  ! Analytical Jacobian
+void rhs(Array1D<Real, 0, Species::NSpec-1> const& y, rate_t const& rr,
+         Array1D<Real, 0, Species::NSpec-1>& dydt,
+         bool deriva, bool for_jacobian_tderiv)
+{
+    using namespace Species;
+    using namespace Rates;
 
-  subroutine actual_jac(state, jac)
+    // need to port esum functions ...
+    /* use microphysics_math_module, only: esum5, esum6, esum15 ! function */
 
-    use amrex_constants_module, only: ZERO
-    use sneut_module, only: sneut5
-    use temperature_integration_module, only: temperature_jac
+    // deriva is used in forming the analytic Jacobian to get
+    // the derivative wrt A
 
-    implicit none
+    const int index_rate = for_jacobian_tderiv ? 2 : 1;
+    Array1D<Real, 1, 15> a;
 
-    type (burn_t), intent(in)    :: state
-    real(rt)        , intent(inout) :: jac(njrows, njcols)
+    for (int i = 0; i < Species::NSpec; ++i)
+        dydt(i) = zero;
 
-    type (rate_t)    :: rr
+    // set up the system of ode's :
+    // 4he reactions
+    a(1)  =  3.0e0_rt * y(C12) * rr.rates(index_rate,irg3a);
+    a(2)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
+    a(3)  =  y(O16) * rr.rates(index_rate,iroga);
+    a(4)  = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
+    a(5)  =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
+    a(6)  =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+    a(7)  =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
+    a(8)  = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
+    a(9)  =  y(Ne20) * rr.rates(index_rate,irnega);
+    a(10) =  y(Mg24) * rr.rates(index_rate,irmgga);
+    a(11) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
+    a(12) =  y(Si28) * rr.rates(index_rate,irsiga);
+    a(13) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
+    a(14) = -7.0e0_rt * rr.rates(index_rate,irsi2ni) * y(He4);
+    a(15) =  7.0e0_rt * rr.rates(index_rate,irni2si) * y(Ni56);
 
-    logical          :: deriva
+    dydt(He4) = esum15(a);
 
-    real(rt)         :: b1, sneut, dsneutdt, dsneutdd, snuda, snudz
+    // 12c reactions
+    a(1) =  sixth * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
+    a(2) = -y(C12) * rr.rates(index_rate,irg3a);
+    a(3) =  y(O16) * rr.rates(index_rate,iroga);
+    a(4) = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
+    a(5) = -y(C12) * y(C12) * rr.rates(index_rate,ir1212);
+    a(6) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
 
-    integer          :: j
+    dydt(C12) = esum6(a)
 
-    real(rt)         :: rho, temp, abar, zbar
-    real(rt)         :: y(nspec), yderivs(nspec)
-
-    !$gpu
-
-    jac(:,:) = ZERO
-
-    call get_rates(state, rr)
-
-    ! Get the data from the state
-
-    rho  = state.rho
-    temp = state.T
-    abar = state.abar
-    zbar = state.zbar
-    y    = state.xn * aion_inv
-
-    ! Species Jacobian elements with respect to other species
-
-    call dfdy_isotopes_iso7(y, state, rr, jac)
-
-    ! Energy generation rate Jacobian elements with respect to species
-
-    do j = 1, nspec
-       call ener_gener_rate(jac(1:nspec,j), jac(net_ienuc,j))
-    enddo
-
-    ! Account for the thermal neutrino losses
-
-    call sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz)
-
-    do j = 1, nspec
-       b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz)
-       jac(net_ienuc,j) = jac(net_ienuc,j) - b1
-    enddo
-
-    ! Evaluate the Jacobian elements with respect to temperature by
-    ! calling the RHS using d(rate) / dT
-
-    deriva = .true.
-    call rhs(y, rr, yderivs, deriva, for_jacobian_tderiv = .true.)
-
-    jac(1:nspec,net_itemp) = yderivs
-
-    call ener_gener_rate(jac(1:nspec,net_itemp), jac(net_ienuc,net_itemp))
-    jac(net_ienuc,net_itemp) = jac(net_ienuc,net_itemp) - dsneutdt
-
-    ! Temperature Jacobian elements
-
-    call temperature_jac(state, jac)
-
-  end subroutine actual_jac
-
-
-
-  ! Evaluates the right hand side of the iso7 ODEs
-
-  subroutine rhs(y, rr, dydt, deriva, for_jacobian_tderiv)
-
-    use amrex_constants_module, only: ZERO, SIXTH
-    use microphysics_math_module, only: esum5, esum6, esum15 ! function
-
-    implicit none
-
-    ! deriva is used in forming the analytic Jacobian to get
-    ! the derivative wrt A
-
-    logical          :: deriva, for_jacobian_tderiv
-    real(rt)         :: y(nspec), dydt(nspec)
-    type (rate_t)    :: rr
-
-    ! local variables
-    integer          :: i, index_rate
-    real(rt)         :: a(15)
-
-    if (for_jacobian_tderiv) then
-       index_rate = 2
-    else
-       index_rate = 1
-    endif
-
-    !$gpu
-
-    dydt(1:nspec) = ZERO
-
-    ! set up the system of ode's :
-    ! 4he reactions
-    a(1)  =  3.0e0_rt * y(ic12) * rr.rates(index_rate,irg3a)
-    a(2)  = -0.5e0_rt * y(ihe4) * y(ihe4) * y(ihe4) * rr.rates(index_rate,ir3a)
-    a(3)  =  y(io16) * rr.rates(index_rate,iroga)
-    a(4)  = -y(ic12) * y(ihe4) * rr.rates(index_rate,ircag)
-    a(5)  =  0.5e0_rt * y(ic12) * y(ic12) * rr.rates(index_rate,ir1212)
-    a(6)  =  0.5e0_rt * y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
-    a(7)  =  0.5e0_rt * y(io16) * y(io16) * rr.rates(index_rate,ir1616)
-    a(8)  = -y(io16) * y(ihe4) * rr.rates(index_rate,iroag)
-    a(9)  =  y(ine20) * rr.rates(index_rate,irnega)
-    a(10) =  y(img24) * rr.rates(index_rate,irmgga)
-    a(11) = -y(ine20) * y(ihe4) * rr.rates(index_rate,irneag)
-    a(12) =  y(isi28) * rr.rates(index_rate,irsiga)
-    a(13) = -y(img24) * y(ihe4) * rr.rates(index_rate,irmgag)
-    a(14) = -7.0e0_rt * rr.rates(index_rate,irsi2ni) * y(ihe4)
-    a(15) =  7.0e0_rt * rr.rates(index_rate,irni2si) * y(ini56)
-
-    dydt(ihe4) = esum15(a)
-
-    ! 12c reactions
-    a(1) =  SIXTH * y(ihe4) * y(ihe4) * y(ihe4) * rr.rates(index_rate,ir3a)
-    a(2) = -y(ic12) * rr.rates(index_rate,irg3a)
-    a(3) =  y(io16) * rr.rates(index_rate,iroga)
-    a(4) = -y(ic12) * y(ihe4) * rr.rates(index_rate,ircag)
-    a(5) = -y(ic12) * y(ic12) * rr.rates(index_rate,ir1212)
-    a(6) = -y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
-
-    dydt(ic12) = esum6(a)
-
-    ! 16o reactions
-    a(1) = -y(io16) * rr.rates(index_rate,iroga)
-    a(2) =  y(ic12) * y(ihe4) * rr.rates(index_rate,ircag)
-    a(3) = -y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
+    // 16o reactions
+    a(1) = -y(O16) * rr.rates(index_rate,iroga)
+    a(2) =  y(C12) * y(He4) * rr.rates(index_rate,ircag)
+    a(3) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216)
     a(4) = -y(io16) * y(io16) * rr.rates(index_rate,ir1616)
-    a(5) = -y(io16) * y(ihe4) * rr.rates(index_rate,iroag)
+    a(5) = -y(io16) * y(He4) * rr.rates(index_rate,iroag)
     a(6) =  y(ine20) * rr.rates(index_rate,irnega)
 
     dydt(io16) = esum6(a)
 
     ! 20ne reactions
     a(1) =  0.5e0_rt * y(ic12) * y(ic12) * rr.rates(index_rate,ir1212)
-    a(2) =  y(io16) * y(ihe4) * rr.rates(index_rate,iroag)
+    a(2) =  y(io16) * y(He4) * rr.rates(index_rate,iroag)
     a(3) = -y(ine20) * rr.rates(index_rate,irnega)
     a(4) =  y(img24) * rr.rates(index_rate,irmgga)
-    a(5) = -y(ine20) * y(ihe4) * rr.rates(index_rate,irneag)
+    a(5) = -y(ine20) * y(He4) * rr.rates(index_rate,irneag)
 
     dydt(ine20) = esum5(a)
 
     ! 24mg reactions
     a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
     a(2) = -y(img24) * rr.rates(index_rate,irmgga)
-    a(3) =  y(ine20) * y(ihe4) * rr.rates(index_rate,irneag)
+    a(3) =  y(ine20) * y(He4) * rr.rates(index_rate,irneag)
     a(4) =  y(isi28) * rr.rates(index_rate,irsiga)
-    a(5) = -y(img24) * y(ihe4) * rr.rates(index_rate,irmgag)
+    a(5) = -y(img24) * y(He4) * rr.rates(index_rate,irmgag)
 
     dydt(img24) = esum5(a)
 
@@ -441,20 +414,19 @@ void get_rates(burn_t const& state, rate_t& rr)
     a(1) =  0.5e0_rt * y(ic12) * y(io16) * rr.rates(index_rate,ir1216)
     a(2) =  0.5e0_rt * y(io16) * y(io16) * rr.rates(index_rate,ir1616)
     a(3) = -y(isi28) * rr.rates(index_rate,irsiga)
-    a(4) =  y(img24) * y(ihe4) * rr.rates(index_rate,irmgag)
-    a(5) = -rr.rates(index_rate,irsi2ni) * y(ihe4)
+    a(4) =  y(img24) * y(He4) * rr.rates(index_rate,irmgag)
+    a(5) = -rr.rates(index_rate,irsi2ni) * y(He4)
     a(6) =  rr.rates(index_rate,irni2si) * y(ini56)
 
     dydt(isi28) = esum6(a)
 
     ! ni56 reactions
-    a(1) =  rr.rates(index_rate,irsi2ni) * y(ihe4)
+    a(1) =  rr.rates(index_rate,irsi2ni) * y(He4)
     a(2) = -rr.rates(index_rate,irni2si) * y(ini56)
 
     dydt(ini56) = sum(a(1:2))
 
-  end subroutine rhs
-
+}
 
 
   subroutine iso7rat(btemp, bden, rate, dratedt)
@@ -671,10 +643,10 @@ void get_rates(burn_t const& state, rate_t& rr)
        yeff_ti44   = t992  * exp(-274.12_rt*tf%t9i + 74.914_rt)
        yeff_ti44dt = yeff_ti44*(274.12_rt*tf%t9i2 + 4.5e0_rt*tf%t9i)
 
-       denom     = (bden * y(ihe4))**3
+       denom     = (bden * y(He4))**3
 
        rate(irsi2ni)     = yeff_ca40*denom*rate(ircaag)*y(isi28)
-       dratedy1(irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(ihe4)
+       dratedy1(irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(He4)
        dratedy2(irsi2ni) = yeff_ca40*denom*rate(ircaag)
        dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag) &
             + yeff_ca40*dratedt(ircaag))*denom*y(isi28)*1.0e-9_rt
@@ -688,7 +660,7 @@ void get_rates(burn_t const& state, rate_t& rr)
              dratedy1(irni2si) = 0.0e0_rt
              dratedt(irni2si)  = 0.0e0_rt
           else
-             dratedy1(irni2si) = -3.0e0_rt * rate(irni2si)/y(ihe4)
+             dratedy1(irni2si) = -3.0e0_rt * rate(irni2si)/y(He4)
              dratedt(irni2si)  = (yeff_ti44dt*rate(irtiga) &
                   + yeff_ti44*dratedt(irtiga))*zz*1.0e-9_rt
           end if
@@ -720,68 +692,68 @@ void get_rates(burn_t const& state, rate_t& rr)
     ! set up the jacobian
     ! 4he jacobian elements
     ! d(he4)/d(he4)
-    b(1) = -1.5e0_rt * y(ihe4) * y(ihe4) * rr.rates(1,ir3a)
+    b(1) = -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a)
     b(2) = -y(ic12) * rr.rates(1,ircag)
     b(3) = -y(io16) * rr.rates(1,iroag)
     b(4) = -y(ine20) * rr.rates(1,irneag)
     b(5) = -y(img24) * rr.rates(1,irmgag)
     b(6) = -7.0e0_rt * rr.rates(1,irsi2ni)
-    b(7) = -7.0e0_rt * rr.rates(3,irsi2ni) * y(ihe4)
+    b(7) = -7.0e0_rt * rr.rates(3,irsi2ni) * y(He4)
     b(8) =  7.0e0_rt * rr.rates(3,irni2si) * y(ini56)
 
-    jac(ihe4,ihe4) = esum8(b)
+    jac(He4,He4) = esum8(b)
 
     ! d(he4)/d(c12)
     b(1) =  3.0e0_rt * rr.rates(1,irg3a)
-    b(2) = -y(ihe4) * rr.rates(1,ircag)
+    b(2) = -y(He4) * rr.rates(1,ircag)
     b(3) =  y(ic12) * rr.rates(1,ir1212)
     b(4) =  0.5e0_rt * y(io16) * rr.rates(1,ir1216)
 
-    jac(ihe4,ic12) = esum4(b)
+    jac(He4,ic12) = esum4(b)
 
     ! d(he4)/d(o16)
     b(1) =  rr.rates(1,iroga)
     b(2) =  0.5e0_rt * y(ic12) * rr.rates(1,ir1216)
     b(3) =  y(io16) * rr.rates(1,ir1616)
-    b(4) = -y(ihe4) * rr.rates(1,iroag)
+    b(4) = -y(He4) * rr.rates(1,iroag)
 
-    jac(ihe4,io16) = esum4(b)
+    jac(He4,io16) = esum4(b)
 
     ! d(he4)/d(ne20)
     b(1) =  rr.rates(1,irnega)
-    b(2) = -y(ihe4) * rr.rates(1,irneag)
+    b(2) = -y(He4) * rr.rates(1,irneag)
 
-    jac(ihe4,ine20) = sum(b(1:2))
+    jac(He4,ine20) = sum(b(1:2))
 
     ! d(he4)/d(mg24)
     b(1) =  rr.rates(1,irmgga)
-    b(2) = -y(ihe4) * rr.rates(1,irmgag)
+    b(2) = -y(He4) * rr.rates(1,irmgag)
 
-    jac(ihe4,img24) = sum(b(1:2))
+    jac(He4,img24) = sum(b(1:2))
 
     ! d(he4)/d(si28)
     b(1) =  rr.rates(1,irsiga)
-    b(2) = -7.0e0_rt * rr.rates(4,irsi2ni) * y(ihe4)
+    b(2) = -7.0e0_rt * rr.rates(4,irsi2ni) * y(He4)
 
-    jac(ihe4,isi28) = sum(b(1:2))
+    jac(He4,isi28) = sum(b(1:2))
 
     ! d(he4)/d(ni56)
     b(1) =  7.0e0_rt * rr.rates(1,irni2si)
 
-    jac(ihe4,ini56) = b(1)
+    jac(He4,ini56) = b(1)
 
 
 
     ! 12c jacobian elements
     ! d(c12)/d(he4)
-    b(1) =  0.5e0_rt * y(ihe4) * y(ihe4) * rr.rates(1,ir3a)
+    b(1) =  0.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a)
     b(2) = -y(ic12) * rr.rates(1,ircag)
 
-    jac(ic12,ihe4) = sum(b(1:2))
+    jac(ic12,He4) = sum(b(1:2))
 
     ! d(c12)/d(c12)
     b(1) = -rr.rates(1,irg3a)
-    b(2) = -y(ihe4) * rr.rates(1,ircag)
+    b(2) = -y(He4) * rr.rates(1,ircag)
     b(3) = -2.0e0_rt * y(ic12) * rr.rates(1,ir1212)
     b(4) = -y(io16) * rr.rates(1,ir1216)
 
@@ -799,10 +771,10 @@ void get_rates(burn_t const& state, rate_t& rr)
     b(1) =  y(ic12) * rr.rates(1,ircag)
     b(2) = -y(io16) * rr.rates(1,iroag)
 
-    jac(io16,ihe4) = sum(b(1:2))
+    jac(io16,He4) = sum(b(1:2))
 
     ! d(o16)/d(c12)
-    b(1) =  y(ihe4) * rr.rates(1,ircag)
+    b(1) =  y(He4) * rr.rates(1,ircag)
     b(2) = -y(io16) * rr.rates(1,ir1216)
 
     jac(io16,ic12) = sum(b(1:2))
@@ -811,7 +783,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     b(1) = -rr.rates(1,iroga)
     b(2) = -y(ic12) * rr.rates(1,ir1216)
     b(3) = -2.0e0_rt * y(io16) * rr.rates(1,ir1616)
-    b(4) = -y(ihe4) * rr.rates(1,iroag)
+    b(4) = -y(He4) * rr.rates(1,iroag)
 
     jac(io16,io16) = esum4(b)
 
@@ -826,7 +798,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     ! d(ne20)/d(he4)
     b(1) =  y(io16) * rr.rates(1,iroag) - y(ine20) * rr.rates(1,irneag)
 
-    jac(ine20,ihe4) = b(1)
+    jac(ine20,He4) = b(1)
 
     ! d(ne20)/d(c12)
     b(1) =  y(ic12) * rr.rates(1,ir1212)
@@ -834,12 +806,12 @@ void get_rates(burn_t const& state, rate_t& rr)
     jac(ine20,ic12) = b(1)
 
     ! d(ne20)/d(o16)
-    b(1) =  y(ihe4) * rr.rates(1,iroag)
+    b(1) =  y(He4) * rr.rates(1,iroag)
 
     jac(ine20,io16) = b(1)
 
     ! d(ne20)/d(ne20)
-    b(1) = -rr.rates(1,irnega) - y(ihe4) * rr.rates(1,irneag)
+    b(1) = -rr.rates(1,irnega) - y(He4) * rr.rates(1,irneag)
 
     jac(ine20,ine20) = b(1)
 
@@ -855,7 +827,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     b(1) =  y(ine20) * rr.rates(1,irneag)
     b(2) = -y(img24) * rr.rates(1,irmgag)
 
-    jac(img24,ihe4) = sum(b(1:2))
+    jac(img24,He4) = sum(b(1:2))
 
     ! d(mg24)/d(c12)
     b(1) =  0.5e0_rt * y(io16) * rr.rates(1,ir1216)
@@ -868,13 +840,13 @@ void get_rates(burn_t const& state, rate_t& rr)
     jac(img24,io16) = b(1)
 
     ! d(mg24)/d(ne20)
-    b(1) =  y(ihe4) * rr.rates(1,irneag)
+    b(1) =  y(He4) * rr.rates(1,irneag)
 
     jac(img24,ine20) = b(1)
 
     ! d(mg24)/d(mg24)
     b(1) = -rr.rates(1,irmgga)
-    b(2) = -y(ihe4) * rr.rates(1,irmgag)
+    b(2) = -y(He4) * rr.rates(1,irmgag)
 
     jac(img24,img24) = sum(b(1:2))
 
@@ -887,10 +859,10 @@ void get_rates(burn_t const& state, rate_t& rr)
     ! d(si28)/d(he4)
     b(1) =  y(img24) * rr.rates(1,irmgag)
     b(2) = -rr.rates(1,irsi2ni)
-    b(3) = -rr.rates(3,irsi2ni) * y(ihe4)
+    b(3) = -rr.rates(3,irsi2ni) * y(He4)
     b(4) =  rr.rates(3,irni2si) * y(ini56)
 
-    jac(isi28,ihe4) = esum4(b)
+    jac(isi28,He4) = esum4(b)
 
     ! d(si28)/d(c12)
     b(1) =  0.5e0_rt * y(io16) * rr.rates(1,ir1216)
@@ -904,13 +876,13 @@ void get_rates(burn_t const& state, rate_t& rr)
     jac(isi28,io16) = sum(b(1:2))
 
     ! d(si28)/d(mg24)
-    b(1) =  y(ihe4) * rr.rates(1,irmgag)
+    b(1) =  y(He4) * rr.rates(1,irmgag)
 
     jac(isi28,img24) = b(1)
 
     ! d(si28)/d(si28)
     b(1) = -rr.rates(1,irsiga)
-    b(2) = -rr.rates(4,irsi2ni) * y(ihe4)
+    b(2) = -rr.rates(4,irsi2ni) * y(He4)
 
     jac(isi28,isi28) = sum(b(1:2))
 
@@ -922,13 +894,13 @@ void get_rates(burn_t const& state, rate_t& rr)
     ! ni56 jacobian elements
     ! d(ni56)/d(he4)
     b(1) =  rr.rates(1,irsi2ni)
-    b(2) =  rr.rates(3,irsi2ni) * y(ihe4)
+    b(2) =  rr.rates(3,irsi2ni) * y(He4)
     b(3) = -rr.rates(3,irni2si) * y(ini56)
 
-    jac(ini56,ihe4) = esum3(b)
+    jac(ini56,He4) = esum3(b)
 
     ! d(ni56)/d(si28)
-    b(1) = rr.rates(4,irsi2ni) * y(ihe4)
+    b(1) = rr.rates(4,irsi2ni) * y(He4)
 
     jac(ini56,isi28) = b(1)
 
@@ -971,16 +943,16 @@ void get_rates(burn_t const& state, rate_t& rr)
 
     ! note: we need to set these up in the same order that we evaluate the
     ! rates in actual_rhs.f90 (yes, it's ugly)
-    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
-    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
-    call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(He4),aion(He4),zion(He4),aion(He4))
+    call add_screening_factor(zion(He4),aion(He4),4.0e0_rt,8.0e0_rt)
+    call add_screening_factor(zion(ic12),aion(ic12),zion(He4),aion(He4))
     call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
     call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
     call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
-    call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
-    call add_screening_factor(zion(ine20),aion(ine20),zion(ihe4),aion(ihe4))
-    call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))
-    call add_screening_factor(20.0e0_rt,40.0e0_rt,zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(io16),aion(io16),zion(He4),aion(He4))
+    call add_screening_factor(zion(ine20),aion(ine20),zion(He4),aion(He4))
+    call add_screening_factor(zion(img24),aion(img24),zion(He4),aion(He4))
+    call add_screening_factor(20.0e0_rt,40.0e0_rt,zion(He4),aion(He4))
 
   end subroutine set_up_screening_factors
 
