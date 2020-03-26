@@ -13,7 +13,7 @@ contains
     !$acc routine seq
 
     use amrex_constants_module, only: ONE
-    use actual_network, only: aion, nspec
+    use actual_network, only: nspec
     use burn_type_module, only: neqs, net_itemp
     use vode_rpar_indices, only: n_rpar_comps
     use eos_type_module, only : eos_get_small_temp
@@ -51,7 +51,7 @@ contains
 
     !$acc routine seq
     
-    use network, only: aion, aion_inv, nspec
+    use network, only: nspec
     use burn_type_module, only: neqs
     use vode_rpar_indices, only: n_rpar_comps
 
@@ -150,7 +150,7 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale
-    use network, only: nspec, aion, aion_inv
+    use network, only: nspec
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps
@@ -187,7 +187,7 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
-    use network, only: nspec, aion, aion_inv
+    use network, only: nspec
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps
@@ -222,7 +222,7 @@ contains
 
     !$acc routine seq
 
-    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
+    use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
     use amrex_constants_module, only: ONE
     use network, only: nspec
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
@@ -253,7 +253,7 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
-    use network, only: nspec, aion, aion_inv
+    use network, only: nspec
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -264,8 +264,6 @@ contains
 
     type (burn_t), intent(inout) :: state
     type (dvode_t), intent(in) :: vode_state
-
-    integer :: n
 
     !$gpu
 
