@@ -549,10 +549,14 @@ void screen_iso7(const Real btemp, const Real bden,
 
     // first the always fun triple alpha and its inverse
     jscr = 0;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[ihe4], aion[ihe4], zion[ihe4], aion[ihe4],
+            sc1a,sc1adt,sc1add);
 
     jscr++;
-    screen5(pstate,jscr,sc2a,sc2adt,sc2add);
+    screen5(pstate,jscr,
+            zion[ihe4], aion[ihe4], 4.0_rt, 8.0_rt,
+            sc2a,sc2adt,sc2add);
 
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
@@ -562,56 +566,72 @@ void screen_iso7(const Real btemp, const Real bden,
 
     // c12 to o16
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[ic12], aion[ic12], zion[ihe4], aion[ihe4],
+            sc1a,sc1adt,sc1add);
 
     dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt;
     rate(ircag)     = rate(ircag) * sc1a;
 
     // c12 + c12
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[ic12], aion[ic12], zion[ic12], aion[ic12],
+            sc1a,sc1adt,sc1add);
 
     dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt;
     rate(ir1212)    = rate(ir1212) * sc1a;
 
     // c12 + o16
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[ic12], aion[ic12], zion[io16], aion[io16],
+            sc1a,sc1adt,sc1add);
 
     dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt;
     rate(ir1216)    = rate(ir1216) * sc1a;
 
     // o16 + o16
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[io16], aion[io16], zion[io16], aion[io16],
+            sc1a,sc1adt,sc1add);
 
     dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt;
     rate(ir1616)    = rate(ir1616) * sc1a;
 
     // o16 to ne20
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[io16], aion[io16], zion[ihe4], aion[ihe4],
+            sc1a,sc1adt,sc1add);
 
     dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt;
     rate(iroag)    = rate(iroag) * sc1a;
 
-    // o16 to mg24
+    // ne20 to mg24
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[ine20], aion[ine20], zion[ihe4], aion[ihe4],
+            sc1a,sc1adt,sc1add);
 
     dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt;
     rate(irneag)    = rate(irneag) * sc1a;
 
     // mg24 to si28
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[img24], aion[img24], zion[ihe4], aion[ihe4],
+            sc1a,sc1adt,sc1add);
 
     dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt;
     rate(irmgag)    = rate(irmgag) * sc1a;
 
     // ca40 to ti44
     jscr++;
-    screen5(pstate,jscr,sc1a,sc1adt,sc1add);
+    screen5(pstate,jscr,
+            zion[ica40], aion[ica40], zion[ihe4], aion[ihe4],
+            sc1a,sc1adt,sc1add);
 
     dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt;
     rate(ircaag)    = rate(ircaag) * sc1a;
