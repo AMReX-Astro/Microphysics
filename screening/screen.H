@@ -133,7 +133,6 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Real*
   //state.daadd = 2.27493e5_rt * tempi * dxnidd;
 }
 
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
 screen5(const plasma_state_t state,
@@ -306,11 +305,7 @@ screen5(const plasma_state_t state,
 
   // machine limit the output
   // further limit to avoid the pycnonuclear regime
-  if (h12 > h12_max) {
-    h12 = h12_max;
-  }
-
-  h12 = amrex::max(h12, 0.0_rt);
+  h12 = amrex::max(amrex::min(h12, h12_max), 0.0_rt);
   scor = std::exp(h12);
 
   if (h12 == h12_max) {
