@@ -896,24 +896,22 @@ void dfdy_isotopes_iso7(Array1D<Real, 0, Species::NSpec-1> const& y,
 }
 
 
-  // Computes the instantaneous energy generation rate
+void ener_gener_rate(Array1D<Real, 0, Burn::neqs-1> const& dydt, Real& enuc)
+{
 
-  subroutine ener_gener_rate(dydt, enuc)
+    // Computes the instantaneous energy generation rate
 
-    use actual_network, only: nspec, mion, enuc_conv2
+    Real Xdot = zero;
 
-    implicit none
-
-    real(rt)         :: dydt(nspec), enuc
-
-    !$gpu
+    // Sum the mass fraction time derivatives
+    for (int i = 0; i < Species::NSpec; ++i) {
+        Xdot += dydt(i) * mion(i);
+    }
 
     // This is basically e = m c**2
+    enuc = Xdot * C::enuc_conv2;
 
-    enuc = sum(dydt(:) * mion(:)) * enuc_conv2
-
-  end subroutine ener_gener_rate
-
+}
 
 
   subroutine set_up_screening_factors()
