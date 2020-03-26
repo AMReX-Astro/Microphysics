@@ -131,8 +131,22 @@ void main_main ()
     Real strt_time = ParallelDescriptor::second();
 
     const int ih1 = network_spec_index("hydrogen-1");
+    const int ihe3 = network_spec_index("helium-3");
     const int ihe4 = network_spec_index("helium-4");
-
+    const int ic12 = network_spec_index("carbon-12");
+    const int in14 = network_spec_index("nitrogen-14");
+    const int io16 = network_spec_index("oxygen-16");
+    const int ine20 = network_spec_index("neon-20");
+    const int img24 = network_spec_index("magnesium-24");
+    const int isi28 = network_spec_index("silicon-28");
+    const int is32 = network_spec_index("sulphur-32");
+    const int iar36 = network_spec_index("argon-36");    
+    const int ica40 = network_spec_index("calcium-40");    
+    const int iti44 = network_spec_index("titanium-44");
+    const int icr48 = network_spec_index("chromium-48");
+    const int ife52 = network_spec_index("iron-52");
+    const int ife54 = network_spec_index("iron-54");
+    const int ife56 = network_spec_index("iron-56");
 
     // initialize the screening factors
     int jscr = 0;
@@ -208,13 +222,13 @@ void main_main ()
     add_screening_factor(jscr, 27.0e0_rt,55.0e0_rt,1.0e0_rt,1.0e0_rt);
 
     jscr++;
-    add_screening_factor(jscr, zion[ife54],aion[ife54),1.0e0_rt,1.0e0_rt);
+    add_screening_factor(jscr, zion[ife54],aion[ife54],1.0e0_rt,1.0e0_rt);
 
     jscr++;
     add_screening_factor(jscr, zion[ife54],aion[ife54],zion[ihe4],aion[ihe4]);
 
     jscr++;
-    add_screening_factor(jscr, zion[ife56],aion[ife56),1.0e0_rt,1.0e0_rt);
+    add_screening_factor(jscr, zion[ife56],aion[ife56],1.0e0_rt,1.0e0_rt);
 
     jscr++;
     add_screening_factor(jscr, 1.0e0_rt,2.0e0_rt,zion[ih1],aion[ih1]);
@@ -517,10 +531,10 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_screening_C.";
+    std::string name = "test_screening_C";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + network_name, state, vars.names, geom, time, 0);
+    WriteSingleLevelPlotfile(name, state, vars.names, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
