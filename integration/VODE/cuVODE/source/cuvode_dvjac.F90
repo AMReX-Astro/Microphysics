@@ -41,7 +41,7 @@ contains
 
     ! Declare local variables
     real(rt) :: con, fac, hrl1, R, R0, yj
-    integer  :: i, j, j1, IER, II, evaluate_jacobian
+    integer  :: i, j, j1, IER, evaluate_jacobian
 
     !$gpu
 

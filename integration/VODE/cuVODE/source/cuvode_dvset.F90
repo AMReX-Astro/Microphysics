@@ -57,10 +57,9 @@ contains
     type(dvode_t), intent(inout) :: vstate
 
     ! Declare local variables
-    real(rt) :: EM(13)
-    real(rt) :: AHATN0, ALPH0, CNQM1, CSUM, ELP
-    real(rt) :: EM0, FLOTI, FLOTL, FLOTNQ, HSUM, RXI, RXIS, S
-    real(rt) :: T1, T2, T3, T4, T5, T6, XI
+    real(rt) :: AHATN0, ALPH0, CNQM1, ELP
+    real(rt) :: FLOTL, HSUM, RXI, RXIS
+    real(rt) :: T1, T2, T3, T4, T5, T6
     integer    :: I, IBACK, J, JP1, NQM1, NQM2
 
     ! Parameter declaration

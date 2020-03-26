@@ -135,7 +135,7 @@ contains
     ! Declare local variables
     real(rt) :: CNQUOT, DDN, DSM, DUP, TOLD
     real(rt) :: ETAQ, ETAQM1, ETAQP1, FLOTL, R
-    integer  :: I, I1, I2, IBACK, J, JB, NCF, NFLAG
+    integer  :: I, IBACK, J, NCF, NFLAG
 
     ! Parameter declarations
     integer, parameter :: KFC = -3
