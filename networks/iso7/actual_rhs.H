@@ -439,8 +439,7 @@ void iso7rat(const Real btemp, const Real bden,
     // this routine generates unscreened
     // nuclear reaction rates for the iso7 network.
 
-    Real rrate,drratedt,drratedd,drratedd2;
-    Real ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot;
+    Real rrate,drratedt;
     tf_t tf;
 
     for (int i = 0; i < Rates::NRates; ++i) {
@@ -458,54 +457,54 @@ void iso7rat(const Real btemp, const Real bden,
     if (use_c12ag_deboer17) {
         // deboer + 2017 c12(a,g)o16 rate
         rate_c12ag_deboer17(tf,bden,
-                            rate(ircag),dratedt(ircag),drratedd,
-                            rate(iroga),dratedt(iroga),drratedd2);
+                            rate(ircag),dratedt(ircag),
+                            rate(iroga),dratedt(iroga));
     } else {
         // 1.7 times cf88 c12(a,g)o16 rate
         rate_c12ag(tf,bden,
-                   rate(ircag),dratedt(ircag),drratedd,
-                   rate(iroga),dratedt(iroga),drratedd2);
+                   rate(ircag),dratedt(ircag),
+                   rate(iroga),dratedt(iroga));
     }
 
     // triple alpha to c12
     rate_tripalf(tf,bden,
-                 rate(ir3a),dratedt(ir3a),drratedd,
-                 rate(irg3a),dratedt(irg3a),drratedd2);
+                 rate(ir3a),dratedt(ir3a),
+                 rate(irg3a),dratedt(irg3a));
 
     // c12 + c12
     rate_c12c12(tf,bden,
-                rate(ir1212),dratedt(ir1212),drratedd2,
-                rrate,drratedt,drratedd);
+                rate(ir1212),dratedt(ir1212),
+                rrate,drratedt);
 
     // c12 + o16
     rate_c12o16(tf,bden,
-                rate(ir1216),dratedt(ir1216),drratedd2,
-                rrate,drratedt,drratedd);
+                rate(ir1216),dratedt(ir1216),
+                rrate,drratedt);
 
     // 16o + 16o
     rate_o16o16(tf,bden,
-                rate(ir1616),dratedt(ir1616),drratedd2,
-                rrate,drratedt,drratedd);
+                rate(ir1616),dratedt(ir1616),
+                rrate,drratedt);
 
     // o16(a,g)ne20
     rate_o16ag(tf,bden,
-               rate(iroag),dratedt(iroag),drratedd,
-               rate(irnega),dratedt(irnega),drratedd2);
+               rate(iroag),dratedt(iroag),
+               rate(irnega),dratedt(irnega));
 
     // ne20(a,g)mg24
     rate_ne20ag(tf,bden,
-                rate(irneag),dratedt(irneag),drratedd,
-                rate(irmgga),dratedt(irmgga),drratedd2);
+                rate(irneag),dratedt(irneag),
+                rate(irmgga),dratedt(irmgga));
 
     // mg24(a,g)si28
     rate_mg24ag(tf,bden,
-                rate(irmgag),dratedt(irmgag),drratedd,
-                rate(irsiga),dratedt(irsiga),drratedd2);
+                rate(irmgag),dratedt(irmgag),
+                rate(irsiga),dratedt(irsiga));
 
     // ca40(a,g)ti44
     rate_ca40ag(tf,bden,
-                rate(ircaag),dratedt(ircaag),drratedd,
-                rate(irtiga),dratedt(irtiga),drratedd2);
+                rate(ircaag),dratedt(ircaag),
+                rate(irtiga),dratedt(irtiga));
 
 }
 
