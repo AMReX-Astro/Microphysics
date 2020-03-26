@@ -144,6 +144,7 @@ void main_main ()
         Array4<Real> const sp = state.array(mfi);
 
         eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+
     }
 
     // Call the timer again and compute the maximum difference between
