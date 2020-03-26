@@ -67,6 +67,26 @@ contains
 
 
 
+  subroutine is_input_valid(input, valid)
+    implicit none
+    integer, intent(in) :: input
+    logical, intent(out) :: valid
+
+    !$gpu
+
+    valid = .true.
+
+    if (input == eos_input_rh .or. &
+        input == eos_input_tp .or. &
+        input == eos_input_rp .or. &
+        input == eos_input_ps .or. &
+        input == eos_input_ph .or. &
+        input == eos_input_th) then
+       valid = .false.
+    end if
+  end subroutine is_input_valid
+
+
   subroutine actual_eos(input, state)
 
 #ifndef AMREX_USE_GPU
