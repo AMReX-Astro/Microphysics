@@ -1,7 +1,17 @@
 # 20.04
 
+   * The screening routines were ported to C++ (#290)
+
+   * a new method, is_input_valid, was added to all EOSes (both C++
+     and Fortran interfaces) that can be used to query whether an EOS
+     supports a particular input mode (e.g. eos_input_rp).  (#291)
+
+   * The aprox rates used with iso7, aprox13, aprox19, and aprox21
+     have been converted to C++ (#288)
+
    * We've rewritten the VODE integrator to remove all "go to"
-     statements (#275, 276, 278, 280, 281, 282, 283, 284, 285, 286, 287)
+     statements (#275, 276, 278, 280, 281, 282, 283, 284, 285, 286,
+     287)
 
    * We removed the ability to have nspec_evolve < nspec.  This
      feature was not widely used and greatly complicated the code
