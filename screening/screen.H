@@ -62,7 +62,8 @@ screening_finalize() {
 
 AMREX_FORCE_INLINE
 void add_screening_factor(const int i,
-                          const Real z1, const Real a1, const Real z2, const Real a2) {
+                          const Real z1, const Real a1, const Real z2, const Real a2)
+{
 
   BL_ASSERT(i < NSCREEN);
 
@@ -82,8 +83,8 @@ void add_screening_factor(const int i,
                               scn_facs[i].z2 * scn_facs[i].z2 *
                               scn_facs[i].a1 * scn_facs[i].a2 /
                               (scn_facs[i].a1 + scn_facs[i].a2), 1.0_rt/3.0_rt);
-}
 
+}
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
