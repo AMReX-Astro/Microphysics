@@ -23,8 +23,8 @@ namespace RateTable
     constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
     constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
 
-    extern AMREX_GPU_MANAGED RealArray2D<Rates::NRates, nrattab> rattab;
-    extern AMREX_GPU_MANAGED RealArray2D<Rates::NRates, nrattab> drattabdt;
+    extern AMREX_GPU_MANAGED RealArray2D<Rates::NumRates, nrattab> rattab;
+    extern AMREX_GPU_MANAGED RealArray2D<Rates::NumRates, nrattab> drattabdt;
     extern AMREX_GPU_MANAGED RealArray1D<nrattab> ttab;
 }
 
@@ -49,7 +49,7 @@ void get_rates(burn_t const& state, rate_t& rr)
 {
     amrex::Real rho, temp;
     RealArray1D<Species::NumSpec> y;
-    RealArray1D<Rates::NRates> rate, dratedt;
+    RealArray1D<Rates::NumRates> rate, dratedt;
     amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy1;
     amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy2;
 
@@ -70,7 +70,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     screen_iso7(temp, rho, y, rate, dratedt, dratedy1, dratedy2);
 
     // Save the rate data, for the Jacobian later if we need it.
-    for (int i = 0; i < Rates::NRates; ++i) {
+    for (int i = 0; i < Rates::NumRates; ++i) {
         rr.rates(1,i) = rate(i);
         rr.rates(2,i) = dratedt(i);
     }
@@ -85,8 +85,8 @@ void get_rates(burn_t const& state, rate_t& rr)
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
-             RealArray1D<Rates::NRates>& rate,
-             RealArray1D<Rates::NRates>& dratedt)
+             RealArray1D<Rates::NumRates>& rate,
+             RealArray1D<Rates::NumRates>& dratedt)
 {
     constexpr int mp = 4;
 
@@ -94,7 +94,7 @@ void iso7tab(const Real btemp, const Real bden,
     Real x, x1, x2, x3, x4;
     Real a, b, c, d, e, f, g, h, p, q;
     Real alfa, beta, gama, delt;
-    RealArray1D<Rates::NRates> dtab;
+    RealArray1D<Rates::NumRates> dtab;
 
     // Set the density dependence array
     {
@@ -144,7 +144,7 @@ void iso7tab(const Real btemp, const Real bden,
     delt = -a*b*c/(g*p*q);
 
     // crank off the raw reaction rates
-    for (int j = 0; j < Rates::NRates; ++j) {
+    for (int j = 0; j < Rates::NumRates; ++j) {
 
        rate(j) = (  alfa * rattab(j,iat  )
                   + beta * rattab(j,iat+1)
@@ -166,8 +166,8 @@ void set_iso7rat()
 
     Real btemp;
     Real bden = 1.0e0_rt;
-    RealArray1D<Rates::NRates> rate;
-    RealArray1D<Rates::NRates> dratedt;
+    RealArray1D<Rates::NumRates> rate;
+    RealArray1D<Rates::NumRates> dratedt;
 
     for (int i = 0; i < tab_imax; ++i) {
 
@@ -178,7 +178,7 @@ void set_iso7rat()
 
        ttab(i) = btemp;
 
-       for (int j = 0; j < Rates::NRates; ++j) {
+       for (int j = 0; j < Rates::NumRates; ++j) {
 
           rattab(j,i)    = rate(j);
           drattabdt(j,i) = dratedt(j);
@@ -432,8 +432,8 @@ void rhs(RealArray1D<Species::NumSpec> const& y, rate_t const& rr,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7rat(const Real btemp, const Real bden,
-             RealArray1D<Rates::NRates>& rate,
-             RealArray1D<Rates::NRates>& dratedt)
+             RealArray1D<Rates::NumRates>& rate,
+             RealArray1D<Rates::NumRates>& dratedt)
 {
 
     // this routine generates unscreened
@@ -442,7 +442,7 @@ void iso7rat(const Real btemp, const Real bden,
     Real rrate,drratedt;
     tf_t tf;
 
-    for (int i = 0; i < Rates::NRates; ++i) {
+    for (int i = 0; i < Rates::NumRates; ++i) {
        rate(i)    = zero;
        dratedt(i) = zero;
     }
@@ -511,8 +511,8 @@ void iso7rat(const Real btemp, const Real bden,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
                  RealArray1D<Species::NumSpec> const& y,
-                 RealArray1D<Species::NRates>& rate,
-                 RealArray1D<Species::NRates>& dratedt,
+                 RealArray1D<Species::NumRates>& rate,
+                 RealArray1D<Species::NumRates>& dratedt,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy1,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy2)
 {

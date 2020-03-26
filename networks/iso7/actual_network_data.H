@@ -34,7 +34,7 @@ namespace Rates {
                        irtiga,
                        irsi2ni,
                        irni2si,
-                       NRates};
+                       NumRates};
 
     const int NGroups = 4;
 
@@ -66,7 +66,7 @@ void actual_network_data_init()
     // set the names of the reaction rates
     {
         using namespace Rates;
-        names.resize(NRates);
+        names.resize(NumRates);
         names(ircag)   = "rcag";
         names(iroga)   = "roga";
         names(ir3a)    = "r3a";
