@@ -38,7 +38,7 @@ void actual_rhs_init()
 
     rates_init()
 
-    // set_up_screening_factors()
+    set_up_screening_factors();
 
     // screening_init()
 
