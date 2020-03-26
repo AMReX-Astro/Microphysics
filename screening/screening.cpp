@@ -65,9 +65,7 @@ void screen5(const plasma_state_t state,
 
   // Get the ion data based on the input index
   Real z1 = scn_facs[jscreen].z1;
-  Real a1 = scn_facs[jscreen].a1;
   Real z2 = scn_facs[jscreen].z2;
-  Real a2 = scn_facs[jscreen].a2;
 
   // calculate individual screening factors
   Real bb = z1 * z2;

@@ -232,7 +232,7 @@ contains
     ! Local variables
 
     real(rt)         :: abar, zbar, z2bar
-    real(rt)         :: ytot, rr, tempi, dtempi, deni
+    real(rt)         :: ytot, rr, tempi, dtempi
     real(rt)         :: pp, qq, dppdt, xni
 !    real(rt)         :: dppdd
 
@@ -303,7 +303,7 @@ contains
 
 
     ! local variables
-    real(rt)         :: z1, a1, z2, a2
+    real(rt)         :: z1, z2
 
     real(rt)         :: bb,cc,dccdt, &
                         qq,dqqdt,rr,drrdt, &
