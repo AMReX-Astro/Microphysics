@@ -29,8 +29,8 @@ public:
   amrex::Real lzav = 0.0;
   amrex::Real aznut = 0.0;
 
-  bool validate_nuclei(const amrex::Real z1_pass, const amrex::Real z2_pass,
-                       const amrex::Real a1_pass, const amrex::Real a2_pass) {
+  bool validate_nuclei(const amrex::Real z1_pass, const amrex::Real a1_pass,
+                       const amrex::Real z2_pass, const amrex::Real a2_pass) {
     // a simple function for unit testing / debug runs to
     // ensure that we are accessing the proper screening info
 
