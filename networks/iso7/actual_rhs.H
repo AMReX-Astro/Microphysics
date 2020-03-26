@@ -6,6 +6,7 @@
 
 #include <extern_parameters.H>
 #include <tfactors.H>
+#include <screening.H>
 #include <actual_network.H>
 #include <aprox_rates.H>
 
@@ -34,13 +35,11 @@ namespace RateTable
 AMREX_INLINE
 void actual_rhs_init()
 {
-    //use screening_module, only: screening_init
+    rates_init();
 
-    rates_init()
+    screening_init();
 
     set_up_screening_factors();
-
-    // screening_init()
 
     if (use_tables)
     {
