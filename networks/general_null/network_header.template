@@ -12,6 +12,8 @@
 constexpr int NumSpec = @@NSPEC@@;
 constexpr int NumAux = @@NAUX@@;
 
+@@PROPERTIES@@
+
 static AMREX_GPU_MANAGED amrex::Real aion[NumSpec] = {
    @@AION@@
   };

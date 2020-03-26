@@ -232,7 +232,7 @@ contains
     ! Local variables
 
     real(rt)         :: abar, zbar, z2bar
-    real(rt)         :: ytot, rr, tempi, dtempi, deni
+    real(rt)         :: ytot, rr, tempi, dtempi
     real(rt)         :: pp, qq, dppdt, xni
 !    real(rt)         :: dppdd
 
@@ -246,7 +246,7 @@ contains
     rr               = dens * ytot
     tempi            = ONE / temp
     dtempi           = -tempi * tempi
-    deni             = ONE / dens
+    !deni             = ONE / dens
 
     pp               = sqrt(rr*tempi*(z2bar + zbar))
     qq               = HALF/pp *(z2bar + zbar)
@@ -303,7 +303,7 @@ contains
 
 
     ! local variables
-    real(rt)         :: z1, a1, z2, a2
+    real(rt)         :: z1, z2
 
     real(rt)         :: bb,cc,dccdt, &
                         qq,dqqdt,rr,drrdt, &
@@ -325,9 +325,7 @@ contains
     ! Get the ion data based on the input index
 
     z1 = z1scr(jscreen)
-    a1 = a1scr(jscreen)
     z2 = z2scr(jscreen)
-    a2 = a2scr(jscreen)
 
     ! calculate individual screening factors
     bb       = z1 * z2

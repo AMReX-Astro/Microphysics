@@ -13,3 +13,4 @@ AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,12> tfdm;
 AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,12> tfd0;
 AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,12> tfd1;
 AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,12> tfd2;
+
