@@ -38,9 +38,9 @@ void actual_rhs_init()
 
     rates_init()
 
-    // call set_up_screening_factors()
+    // set_up_screening_factors()
 
-    // call screening_init()
+    // screening_init()
 
     if (use_tables)
     {
@@ -914,29 +914,23 @@ void ener_gener_rate(Array1D<Real, 0, Burn::neqs-1> const& dydt, Real& enuc)
 }
 
 
-  subroutine set_up_screening_factors()
+void set_up_screening_factors()
+{
     // Compute and store the more expensive screening factors
 
-    use screening_module, only: add_screening_factor
-    use network, only: aion, zion
-
-    implicit none
-
     // note: we need to set these up in the same order that we evaluate the
-    // rates in actual_rhs.f90 (yes, it's ugly)
-    call add_screening_factor(zion(He4),aion(He4),zion(He4),aion(He4))
-    call add_screening_factor(zion(He4),aion(He4),4.0e0_rt,8.0e0_rt)
-    call add_screening_factor(zion(C12),aion(C12),zion(He4),aion(He4))
-    call add_screening_factor(zion(C12),aion(C12),zion(C12),aion(C12))
-    call add_screening_factor(zion(C12),aion(C12),zion(O16),aion(O16))
-    call add_screening_factor(zion(C12),aion(C12),zion(O16),aion(O16))
-    call add_screening_factor(zion(O16),aion(O16),zion(He4),aion(He4))
-    call add_screening_factor(zion(Ne20),aion(Ne20),zion(He4),aion(He4))
-    call add_screening_factor(zion(Mg24),aion(Mg24),zion(He4),aion(He4))
-    call add_screening_factor(20.0e0_rt,40.0e0_rt,zion(He4),aion(He4))
+    // rates in actual_rhs.H (yes, it's ugly)
+    add_screening_factor(0, zion( He4), aion( He4), zion(He4), aion(He4));
+    add_screening_factor(1, zion( He4), aion( He4),  4.0e0_rt,  8.0e0_rt);
+    add_screening_factor(2, zion( C12), aion( C12), zion(He4), aion(He4));
+    add_screening_factor(3, zion( C12), aion( C12), zion(C12), aion(C12));
+    add_screening_factor(4, zion( C12), aion( C12), zion(O16), aion(O16));
+    add_screening_factor(5, zion( C12), aion( C12), zion(O16), aion(O16));
+    add_screening_factor(6, zion( O16), aion( O16), zion(He4), aion(He4));
+    add_screening_factor(7, zion(Ne20), aion(Ne20), zion(He4), aion(He4));
+    add_screening_factor(8, zion(Mg24), aion(Mg24), zion(He4), aion(He4));
+    add_screening_factor(9,  20.0e0_rt,  40.0e0_rt, zion(He4), aion(He4));
 
-  end subroutine set_up_screening_factors
-
-end module actual_rhs_module
+}
 
 #endif
