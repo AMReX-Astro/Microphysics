@@ -93,6 +93,18 @@ contains
   end subroutine actual_eos_init
 
 
+  subroutine is_input_valid(input, valid)
+    implicit none
+    integer, intent(in) :: input
+    logical, intent(out) :: valid
+
+    !$gpu
+
+    valid = .true.
+
+  end subroutine is_input_valid
+
+
 
   !---------------------------------------------------------------------------
   ! Public interfaces 

@@ -234,7 +234,7 @@ void main_main ()
 
 
           // call EOS using T, p
-          if (eos_name == "gamma_law") {
+          if (! is_input_valid(eos_input_tp)) {
             sp(i, j, k, vars.ierr_rho_eos_tp) = 0.0;
           } else {
             // reset rho to give it some work to do
@@ -283,7 +283,7 @@ void main_main ()
 
           // some EOSes don't have physically valid treatments
           // of entropy throughout the entire rho-T plane
-          if (eos_name == "multigamma" || eos_state.s <= 0.0) {
+          if ( ! is_input_valid(eos_input_ps) || eos_state.s <= 0.0) {
             sp(i, j, k, vars.ierr_T_eos_ps) = 0.0;
             sp(i, j, k, vars.ierr_rho_eos_ps) = 0.0;
 
@@ -319,7 +319,7 @@ void main_main ()
 
           // call EOS using T, h
           // this doesn't work for all EOSes (where h doesn't depend on T)
-          if (eos_name == "gamma_law_general" || eos_name == "multigamma") {
+          if ( ! is_input_valid(eos_input_th)) {
             sp(i, j, k, vars.ierr_rho_eos_th) = 0.0;
 
           } else {
