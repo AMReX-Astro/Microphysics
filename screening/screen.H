@@ -37,7 +37,7 @@ namespace scrn {
 
 AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t state, const Real temp, const Real dens, Real* y) {
+fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Real* y) {
 
   Real sum = 0.0_rt;
   for (int n = 0; n < NumSpec; n++) {
@@ -59,7 +59,7 @@ fill_plasma_state(plasma_state_t state, const Real temp, const Real dens, Real* 
   Real rr = dens * ytot;
   Real tempi = 1.0_rt / temp;
   Real dtempi = -tempi * tempi;
-  Real deni = 1.0_rt / dens;
+  //Real deni = 1.0_rt / dens;
 
   Real pp = std::sqrt(rr*tempi*(z2bar + zbar));
   Real qq = 0.5_rt/pp *(z2bar + zbar);
