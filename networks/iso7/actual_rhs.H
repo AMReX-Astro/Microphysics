@@ -942,16 +942,17 @@ void set_up_screening_factors()
 
     // note: we need to set these up in the same order that we evaluate the
     // rates in actual_rhs.H (yes, it's ugly)
-    add_screening_factor(0, zion( He4), aion( He4), zion(He4), aion(He4));
-    add_screening_factor(1, zion( He4), aion( He4),  4.0e0_rt,  8.0e0_rt);
-    add_screening_factor(2, zion( C12), aion( C12), zion(He4), aion(He4));
-    add_screening_factor(3, zion( C12), aion( C12), zion(C12), aion(C12));
-    add_screening_factor(4, zion( C12), aion( C12), zion(O16), aion(O16));
-    add_screening_factor(5, zion( C12), aion( C12), zion(O16), aion(O16));
-    add_screening_factor(6, zion( O16), aion( O16), zion(He4), aion(He4));
-    add_screening_factor(7, zion(Ne20), aion(Ne20), zion(He4), aion(He4));
-    add_screening_factor(8, zion(Mg24), aion(Mg24), zion(He4), aion(He4));
-    add_screening_factor(9,  20.0e0_rt,  40.0e0_rt, zion(He4), aion(He4));
+    int jscr = 0;
+    add_screening_factor(jscr++, zion( He4), aion( He4), zion(He4), aion(He4));
+    add_screening_factor(jscr++, zion( He4), aion( He4),  4.0e0_rt,  8.0e0_rt);
+    add_screening_factor(jscr++, zion( C12), aion( C12), zion(He4), aion(He4));
+    add_screening_factor(jscr++, zion( C12), aion( C12), zion(C12), aion(C12));
+    add_screening_factor(jscr++, zion( C12), aion( C12), zion(O16), aion(O16));
+    add_screening_factor(jscr++, zion( C12), aion( C12), zion(O16), aion(O16));
+    add_screening_factor(jscr++, zion( O16), aion( O16), zion(He4), aion(He4));
+    add_screening_factor(jscr++, zion(Ne20), aion(Ne20), zion(He4), aion(He4));
+    add_screening_factor(jscr++, zion(Mg24), aion(Mg24), zion(He4), aion(He4));
+    add_screening_factor(jscr++,  20.0e0_rt,  40.0e0_rt, zion(He4), aion(He4));
 
 }
 
