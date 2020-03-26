@@ -135,10 +135,15 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Real*
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void
-screen5(const plasma_state_t state,
-        const int jscreen,
-        Real& scor, Real& scordt, Real& scordd) {
+void screen5(const plasma_state_t state,
+             const int jscreen,
+             const Real z1_screen, const Real a1_screen,
+             const Real z2_screen, const Real a2_screen,
+             Real& scor, Real& scordt, Real& scordd)
+{
+    using namespace scrn;
+
+    AMREX_ASSERT(scn_facs[jscr].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
 
   // this subroutine calculates screening factors and their derivatives
   // for nuclear reaction rates in the weak, intermediate and strong regimes.
