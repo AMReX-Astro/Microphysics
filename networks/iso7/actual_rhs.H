@@ -48,7 +48,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, rate_t& rr)
 {
     amrex::Real rho, temp;
-    RealArray1D<Species::NSpec> y;
+    RealArray1D<Species::NumSpec> y;
     RealArray1D<Rates::NRates> rate, dratedt;
     amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy1;
     amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy2;
@@ -57,7 +57,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     rho  = state.rho;
     temp = state.T;
 
-    for (int i = 0; i < Species::NSpec;; ++i)
+    for (int i = 0; i < Species::NumSpec;; ++i)
         y(i) = state.xn(i) * aion_inv[i];
 
     // Get the raw reaction rates
@@ -210,7 +210,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
     Real enuc;
 
     Real rho, temp, abar, zbar;
-    RealArray1D<Species::NSpec> y;
+    RealArray1D<Species::NumSpec> y;
 
     // Get the data from the state
 
@@ -219,7 +219,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
     abar = state.abar;
     zbar = state.zbar;
 
-    for (int i = 0; i < Species::NSpec; ++i) {
+    for (int i = 0; i < Species::NumSpec; ++i) {
         y(i) = state.xn(i) * aion_inv(i);
     }
 
@@ -266,8 +266,8 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
     int j;
 
     Real rho, temp, abar, zbar;
-    RealArray1D<Species::NSpec> y;
-    RealArray1D<Species::NSpec> yderivs;
+    RealArray1D<Species::NumSpec> y;
+    RealArray1D<Species::NumSpec> yderivs;
 
     for (int j = 0; j < Burn::njcols; ++j) {
         for (int i = 0; i < Burn::njrows; ++i) {
@@ -284,7 +284,7 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
     abar = state.abar;
     zbar = state.zbar;
 
-    for (int i = 0; i < Species::NSpec; ++i)
+    for (int i = 0; i < Species::NumSpec; ++i)
         y(i) = state.xn(i) * aion_inv(i);
 
     // Species Jacobian elements with respect to other species
@@ -293,8 +293,8 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
 
     // Energy generation rate Jacobian elements with respect to species
 
-    for (int j = 0; j < Species::NSpec; ++j) {
-        for (int i = 0; i < Species::NSpec; ++i) {
+    for (int j = 0; j < Species::NumSpec; ++j) {
+        for (int i = 0; i < Species::NumSpec; ++i) {
             ener_gener_rate(jac(i,j), jac(Burn::ienuc,j));
         }
     }
@@ -303,7 +303,7 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
 
     sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    for (int j = 0; j < Species::NSpec; ++j) {
+    for (int j = 0; j < Species::NumSpec; ++j) {
        b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz);
        jac(Burn::ienuc,j) = jac(Burn::ienuc,j) - b1;
     }
@@ -315,11 +315,11 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
     bool for_jacobian_tderiv = true;
     rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
 
-    for (int i = 0; i < Species::NSpec; ++i) {
+    for (int i = 0; i < Species::NumSpec; ++i) {
         jac(i,Burn::itemp) = yderivs(i);
     }
 
-    for (int i = 0; i < Species::NSpec; ++i) {
+    for (int i = 0; i < Species::NumSpec; ++i) {
         ener_gener_rate(jac(i,Burn::itemp), jac(Burn::ienuc,Burn::itemp));
     }
 
@@ -334,8 +334,8 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
 
 // Evaluates the right hand side of the iso7 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(RealArray1D<Species::NSpec> const& y, rate_t const& rr,
-         RealArray1D<Species::NSpec>& dydt,
+void rhs(RealArray1D<Species::NumSpec> const& y, rate_t const& rr,
+         RealArray1D<Species::NumSpec>& dydt,
          bool deriva, bool for_jacobian_tderiv)
 {
     using namespace Species;
@@ -350,7 +350,7 @@ void rhs(RealArray1D<Species::NSpec> const& y, rate_t const& rr,
     const int index_rate = for_jacobian_tderiv ? 2 : 1;
     Array1D<Real, 1, 15> a;
 
-    for (int i = 0; i < Species::NSpec; ++i)
+    for (int i = 0; i < Species::NumSpec; ++i)
         dydt(i) = zero;
 
     // set up the system of ode's :
@@ -510,7 +510,7 @@ void iso7rat(const Real btemp, const Real bden,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
-                 RealArray1D<Species::NSpec> const& y,
+                 RealArray1D<Species::NumSpec> const& y,
                  RealArray1D<Species::NRates>& rate,
                  RealArray1D<Species::NRates>& dratedt,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy1,
@@ -684,7 +684,7 @@ void screen_iso7(const Real btemp, const Real bden,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dfdy_isotopes_iso7(RealArray1D<Species::NSpec> const& y,
+void dfdy_isotopes_iso7(RealArray1D<Species::NumSpec> const& y,
                         burn_t const& state, rate_t const& rr,
                         RealArray2D<Burn::njrows, Burn::njcols>& jac)
 {
@@ -925,7 +925,7 @@ void ener_gener_rate(RealArray1D<Burn::neqs> const& dydt, Real& enuc)
     Real Xdot = zero;
 
     // Sum the mass fraction time derivatives
-    for (int i = 0; i < Species::NSpec; ++i) {
+    for (int i = 0; i < Species::NumSpec; ++i) {
         Xdot += dydt(i) * mion(i);
     }
 

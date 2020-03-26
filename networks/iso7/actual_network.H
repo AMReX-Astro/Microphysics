@@ -5,7 +5,7 @@
 #include <actual_network_data.H>
 
 namespace Species {
-    enum NetworkSpecies {He4 = 0, C12, O16, Ne20, Mg24, Si28, Ni56, NSpec};
+    enum NetworkSpecies {He4 = 0, C12, O16, Ne20, Mg24, Si28, Ni56, NumSpec};
 };
 
 const std::string network_name = "iso7";
