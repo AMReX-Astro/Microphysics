@@ -36,16 +36,12 @@ contains
     type(dvode_t), intent(inout) :: vstate
 
     ! Declare local variables
-    logical    :: IHIT
-    real(rt) :: EWTI, H0, HMAX, HMX, S
-    real(rt) :: RH, SIZE, TCRIT, TNEXT, TOLSF, TP
-    integer    :: i, j, jb, IER, KGO, LENJ, LENP
-    integer    :: MBAND, MFA, ML, MU, NITER
+    real(rt) :: H0, S
+    real(rt) :: TOLSF
+    integer    :: i, j, jb, IER
+    integer    :: NITER
     integer    :: NSLAST
     integer    :: pivot(VODE_NEQS)
-#ifndef AMREX_USE_CUDA
-    character (len=80) :: MSG
-#endif
 
     ! Parameter declarations
     integer, parameter :: MXSTP0 = 500
