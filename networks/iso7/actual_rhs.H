@@ -548,10 +548,10 @@ void screen_iso7(const Real btemp, const Real bden,
     fill_plasma_state(pstate, btemp, bden, y);
 
     // first the always fun triple alpha and its inverse
-    jscr = 1;
+    jscr = 0;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc2a,sc2adt,sc2add);
 
     sc3a   = sc1a * sc2a;
@@ -561,56 +561,56 @@ void screen_iso7(const Real btemp, const Real bden,
     rate(ir3a)    = rate(ir3a) * sc3a;
 
     // c12 to o16
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt;
     rate(ircag)     = rate(ircag) * sc1a;
 
     // c12 + c12
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt;
     rate(ir1212)    = rate(ir1212) * sc1a;
 
     // c12 + o16
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt;
     rate(ir1216)    = rate(ir1216) * sc1a;
 
     // o16 + o16
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt;
     rate(ir1616)    = rate(ir1616) * sc1a;
 
     // o16 to ne20
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt;
     rate(iroag)    = rate(iroag) * sc1a;
 
     // o16 to mg24
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt;
     rate(irneag)    = rate(irneag) * sc1a;
 
     // mg24 to si28
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt;
     rate(irmgag)    = rate(irmgag) * sc1a;
 
     // ca40 to ti44
-    jscr = jscr + 1;
+    jscr++;
     screen5(pstate,jscr,sc1a,sc1adt,sc1add);
 
     dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt;
