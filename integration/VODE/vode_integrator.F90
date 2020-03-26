@@ -30,10 +30,7 @@ contains
     use vode_rpar_indices
     use extern_probin_module, only: jacobian, use_jacobian_caching, &
          burner_verbose, &
-         rtol_spec, rtol_temp, rtol_enuc, &
-         atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
-         retry_burn, retry_burn_factor, retry_burn_max_change, &
          call_eos_in_rhs, dt_crit, ode_max_steps
     use cuvode_module, only: dvode
     use eos_module, only: eos
@@ -58,19 +55,14 @@ contains
 
     ! Local variables
 
-    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
+    type (eos_t) :: eos_state_in, eos_state_temp
     type (dvode_t) :: dvode_state
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
 
-    integer :: istate
-
-    real(rt) :: sum
-    real(rt) :: retry_change_factor
-
     real(rt) :: ener_offset
-    real(rt) :: edot, t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, t_sound, limit_factor
 
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
