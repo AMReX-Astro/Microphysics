@@ -18,6 +18,7 @@ module variables
      integer :: irho = -1
      integer :: itemp = -1
      integer :: ispec = -1
+
      integer :: iscn_he4_he4 = -1
      integer :: iscn_he4_be8 = -1
      integer :: iscn_c12_he4 = -1
