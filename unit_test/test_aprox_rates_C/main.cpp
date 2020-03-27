@@ -570,7 +570,7 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
-    std::string name = "test_aprox_rates.";
+    std::string name = "test_aprox_rates_C.";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name + eos_name, state, vars.names, geom, time, 0);
