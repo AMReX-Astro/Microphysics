@@ -1,1 +1,2 @@
 F90EXE_sources += sneut5.F90
+CEXE_headers += sneut5.H
