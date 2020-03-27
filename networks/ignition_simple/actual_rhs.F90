@@ -13,7 +13,13 @@ contains
 
   subroutine actual_rhs_init()
 
+    use screening_module, only: screening_init, add_screening_factor
+
     implicit none
+
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
+
+    call screening_init()
 
   end subroutine actual_rhs_init
 
@@ -209,7 +215,7 @@ contains
 
     !$acc routine seq
 
-    use screening_module, only: screenz
+    use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     implicit none
 
@@ -219,13 +225,15 @@ contains
     real(rt)         :: temp, T9, T9a, dT9dt, dT9adt
 
     real(rt)         :: scratch, dscratchdt
-    real(rt)         :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
+    real(rt)         :: rate, dratedt, sc1212, dsc1212dt, dsc1212dd, xc12tmp
 
     real(rt)         :: dens
 
     real(rt)         :: a, b, dadt, dbdt
 
     real(rt)         :: y(nspec)
+    integer :: jscr
+    type(plasma_state) :: pstate
 
     !$gpu
 
@@ -236,7 +244,10 @@ contains
     y    = state % xn * aion_inv
 
     ! call the screening routine
-    call screenz(temp,dens,6.0e0_rt,6.0e0_rt,12.0e0_rt,12.0e0_rt,y,sc1212,dsc1212dt)
+    call fill_plasma_state(pstate, temp, dens, y)
+
+    jscr = 1
+    call screen5(pstate,jscr,sc1212,dsc1212dt,dsc1212dd)
 
     ! compute some often used temperature constants
     T9     = temp/1.e9_rt

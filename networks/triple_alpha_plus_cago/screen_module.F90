@@ -3,7 +3,7 @@
 ! fractions.  The triple-alpha reaction goes through a compound nucleus
 ! channel and therefore screening must be applied to both reactions.
 !
-! A call is made to screenz which lives in screen.f to apply the screening
+! A call is made to screen5 which lives in screen.f to apply the screening
 ! to a single reaction.
 module screen_module
 
