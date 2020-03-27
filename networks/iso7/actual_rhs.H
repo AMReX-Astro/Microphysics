@@ -6,6 +6,7 @@
 
 #include <ArrayUtilities.H>
 #include <extern_parameters.H>
+#include <microphysics_math.H>
 #include <tfactors.H>
 #include <screening.H>
 #include <actual_network.H>
@@ -341,91 +342,108 @@ void rhs(RealArray1D<Species::NumSpec> const& y, rate_t const& rr,
     using namespace Species;
     using namespace Rates;
 
-    // need to port esum functions ...
-    /* use microphysics_math_module, only: esum5, esum6, esum15 ! function */
-
     // deriva is used in forming the analytic Jacobian to get
     // the derivative wrt A
 
     const int index_rate = for_jacobian_tderiv ? 2 : 1;
-    Array1D<Real, 1, 15> a;
 
     for (int i = 0; i < Species::NumSpec; ++i)
         dydt(i) = zero;
 
     // set up the system of ode's :
     // 4he reactions
-    a(1)  =  3.0e0_rt * y(C12) * rr.rates(index_rate,irg3a);
-    a(2)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
-    a(3)  =  y(O16) * rr.rates(index_rate,iroga);
-    a(4)  = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
-    a(5)  =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
-    a(6)  =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-    a(7)  =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
-    a(8)  = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
-    a(9)  =  y(Ne20) * rr.rates(index_rate,irnega);
-    a(10) =  y(Mg24) * rr.rates(index_rate,irmgga);
-    a(11) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
-    a(12) =  y(Si28) * rr.rates(index_rate,irsiga);
-    a(13) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
-    a(14) = -7.0e0_rt * rr.rates(index_rate,irsi2ni) * y(He4);
-    a(15) =  7.0e0_rt * rr.rates(index_rate,irni2si) * y(Ni56);
+    {
+        Array1D<Real, 1, 15> a;
+        a(1)  =  3.0e0_rt * y(C12) * rr.rates(index_rate,irg3a);
+        a(2)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
+        a(3)  =  y(O16) * rr.rates(index_rate,iroga);
+        a(4)  = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
+        a(5)  =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
+        a(6)  =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+        a(7)  =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
+        a(8)  = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
+        a(9)  =  y(Ne20) * rr.rates(index_rate,irnega);
+        a(10) =  y(Mg24) * rr.rates(index_rate,irmgga);
+        a(11) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
+        a(12) =  y(Si28) * rr.rates(index_rate,irsiga);
+        a(13) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
+        a(14) = -7.0e0_rt * rr.rates(index_rate,irsi2ni) * y(He4);
+        a(15) =  7.0e0_rt * rr.rates(index_rate,irni2si) * y(Ni56);
 
-    dydt(He4) = esum15(a);
+        dydt(He4) = esum15(a);
+    }
 
     // 12c reactions
-    a(1) =  sixth * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
-    a(2) = -y(C12) * rr.rates(index_rate,irg3a);
-    a(3) =  y(O16) * rr.rates(index_rate,iroga);
-    a(4) = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
-    a(5) = -y(C12) * y(C12) * rr.rates(index_rate,ir1212);
-    a(6) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+    {
+        Array1D<Real, 1, 6> a;
+        a(1) =  sixth * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
+        a(2) = -y(C12) * rr.rates(index_rate,irg3a);
+        a(3) =  y(O16) * rr.rates(index_rate,iroga);
+        a(4) = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
+        a(5) = -y(C12) * y(C12) * rr.rates(index_rate,ir1212);
+        a(6) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
 
-    dydt(C12) = esum6(a);
+        dydt(C12) = esum6(a);
+    }
 
     // 16o reactions
-    a(1) = -y(O16) * rr.rates(index_rate,iroga);
-    a(2) =  y(C12) * y(He4) * rr.rates(index_rate,ircag);
-    a(3) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-    a(4) = -y(O16) * y(O16) * rr.rates(index_rate,ir1616);
-    a(5) = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
-    a(6) =  y(Ne20) * rr.rates(index_rate,irnega);
+    {
+        Array1D<Real, 1, 6> a;
+        a(1) = -y(O16) * rr.rates(index_rate,iroga);
+        a(2) =  y(C12) * y(He4) * rr.rates(index_rate,ircag);
+        a(3) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+        a(4) = -y(O16) * y(O16) * rr.rates(index_rate,ir1616);
+        a(5) = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
+        a(6) =  y(Ne20) * rr.rates(index_rate,irnega);
 
-    dydt(O16) = esum6(a);
+        dydt(O16) = esum6(a);
+    }
 
     // 20ne reactions
-    a(1) =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
-    a(2) =  y(O16) * y(He4) * rr.rates(index_rate,iroag);
-    a(3) = -y(Ne20) * rr.rates(index_rate,irnega);
-    a(4) =  y(Mg24) * rr.rates(index_rate,irmgga);
-    a(5) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
+    {
+        Array1D<Real, 1, 5> a;
+        a(1) =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
+        a(2) =  y(O16) * y(He4) * rr.rates(index_rate,iroag);
+        a(3) = -y(Ne20) * rr.rates(index_rate,irnega);
+        a(4) =  y(Mg24) * rr.rates(index_rate,irmgga);
+        a(5) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
 
-    dydt(Ne20) = esum5(a);
+        dydt(Ne20) = esum5(a);
+    }
 
     // 24mg reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-    a(2) = -y(Mg24) * rr.rates(index_rate,irmgga);
-    a(3) =  y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
-    a(4) =  y(Si28) * rr.rates(index_rate,irsiga);
-    a(5) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
+    {
+        Array1D<Real, 1, 5> a;
+        a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+        a(2) = -y(Mg24) * rr.rates(index_rate,irmgga);
+        a(3) =  y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
+        a(4) =  y(Si28) * rr.rates(index_rate,irsiga);
+        a(5) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
 
-    dydt(Mg24) = esum5(a);
+        dydt(Mg24) = esum5(a);
+    }
 
     // 28si reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-    a(2) =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
-    a(3) = -y(Si28) * rr.rates(index_rate,irsiga);
-    a(4) =  y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
-    a(5) = -rr.rates(index_rate,irsi2ni) * y(He4);
-    a(6) =  rr.rates(index_rate,irni2si) * y(Ni56);
+    {
+        Array1D<Real, 1, 6> a;
+        a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
+        a(2) =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
+        a(3) = -y(Si28) * rr.rates(index_rate,irsiga);
+        a(4) =  y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
+        a(5) = -rr.rates(index_rate,irsi2ni) * y(He4);
+        a(6) =  rr.rates(index_rate,irni2si) * y(Ni56);
 
-    dydt(Si28) = esum6(a);
+        dydt(Si28) = esum6(a);
+    }
 
     // ni56 reactions
-    a(1) =  rr.rates(index_rate,irsi2ni) * y(He4);
-    a(2) = -rr.rates(index_rate,irni2si) * y(Ni56);
+    {
+        Array1D<Real, 1, 2> a;
+        a(1) =  rr.rates(index_rate,irsi2ni) * y(He4);
+        a(2) = -rr.rates(index_rate,irni2si) * y(Ni56);
 
-    dydt(Ni56) = a(1) + a(2);
+        dydt(Ni56) = a(1) + a(2);
+    }
 
 }
 
