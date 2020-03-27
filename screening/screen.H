@@ -306,7 +306,11 @@ screen5(const plasma_state_t state,
 
   // machine limit the output
   // further limit to avoid the pycnonuclear regime
-  h12 = amrex::max(amrex::min(h12, h12_max), 0.0_rt);
+  if (h12 < h12_max) {
+    h12 = h12_max;
+  }
+
+  h12 = amrex::max(h12, 0.0_rt);
   scor = std::exp(h12);
 
   if (h12 == h12_max) {
