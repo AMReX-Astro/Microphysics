@@ -1,3 +1,5 @@
 F90EXE_sources += microphysics_math.F90
 F90EXE_sources += esum_module.F90
+
+CEXE_headers += microphysics_math.H
 CEXE_headers += esum.H
