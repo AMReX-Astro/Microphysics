@@ -27,11 +27,11 @@ void dvset (dvode_t& vstate)
     int NQM2 = vstate.NQ - 2;
 
     for (int i = 3; i <= vstate.L; ++i) {
-        vstate.EL[i-1] = 0.0_rt;
+        vstate.el(i) = 0.0_rt;
     }
 
-    vstate.EL[0] = 1.0_rt;
-    vstate.EL[1] = 1.0_rt;
+    vstate.el(1) = 1.0_rt;
+    vstate.el(2) = 1.0_rt;
     Real ALPH0 = -1.0_rt;
     Real AHATN0 = -1.0_rt;
     Real HSUM = vstate.H;
@@ -41,38 +41,38 @@ void dvset (dvode_t& vstate)
     if (vstate.NQ != 1) {
         for (int j = 1; j <= NQM2; ++j) {
             // In EL, construct coefficients of (1+x/xi(1))*...*(1+x/xi(j+1)).
-            HSUM += vstate.TAU[j-1];
+            HSUM += vstate.tau(j);
             RXI = vstate.H / HSUM;
             ALPH0 -= 1.0_rt / (j+1);
             for (int iback = 1; iback <= j+1; ++iback) {
-                int i = (j + 3) - iback - 1;
-                vstate.EL[i] += vstate.EL[i-1] * RXI;
+                int i = (j + 3) - iback;
+                vstate.el(i) += vstate.el(i-1) * RXI;
             }
         }
 
         ALPH0 -= 1.0_rt / vstate.NQ;
-        RXIS = -vstate.EL[1] - ALPH0;
-        HSUM += vstate.TAU[NQM1-1];
+        RXIS = -vstate.el(2) - ALPH0;
+        HSUM += vstate.tau(NQM1);
         RXI = vstate.H / HSUM;
-        AHATN0 = -vstate.EL[1] - RXI;
+        AHATN0 = -vstate.el(2) - RXI;
         for (int iback = 1; iback <= vstate.NQ; ++iback) {
-            int i = (vstate.NQ + 2) - iback - 1;
-            vstate.EL[i] += vstate.EL[i-1] * RXIS;
+            int i = (vstate.NQ + 2) - iback;
+            vstate.el(i) += vstate.el(i-1) * RXIS;
         }
     }
 
     Real T1 = 1.0_rt - AHATN0 + ALPH0;
     Real T2 = 1.0_rt + vstate.NQ * T1;
     vstate.tq(2) = std::abs(ALPH0 * T2 / T1);
-    vstate.tq(5) = std::abs(T2 / (vstate.EL[vstate.L-1] * RXI / RXIS));
+    vstate.tq(5) = std::abs(T2 / (vstate.el(vstate.L) * RXI / RXIS));
 
     if (vstate.NQWAIT == 1) {
-        Real CNQM1 = RXIS / vstate.EL[vstate.L-1];
+        Real CNQM1 = RXIS / vstate.el(vstate.L);
         Real T3 = ALPH0 + 1.0_rt / vstate.NQ;
         Real T4 = AHATN0 + RXI;
         Real ELP = T3 / (1.0_rt - T4 + T3);
         vstate.tq(1) = std::abs(ELP / CNQM1);
-        HSUM += vstate.TAU[vstate.NQ-1];
+        HSUM += vstate.tau(vstate.NQ);
         RXI = vstate.H / HSUM;
         Real T5 = ALPH0 - 1.0_rt / (vstate.NQ+1);
         Real T6 = AHATN0 - RXI;

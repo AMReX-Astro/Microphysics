@@ -44,7 +44,7 @@ void retract_nordsieck (dvode_t& vstate)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvstep (int* pivot, dvode_t& vstate)
+void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, dvode_t& vstate)
 {
 
     // dvstep performs one step of the integration of an initial value
@@ -179,7 +179,7 @@ void dvstep (int* pivot, dvode_t& vstate)
 
         dvset(vstate);
 
-        vstate.RL1 = 1.0_rt / vstate.EL(2);
+        vstate.RL1 = 1.0_rt / vstate.el(2);
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
@@ -338,7 +338,7 @@ void dvstep (int* pivot, dvode_t& vstate)
             }
 
             // Rescale the history array for a change in H by a factor of ETA.
-            Real R = 1.0_rt;
+            R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -436,14 +436,14 @@ void dvstep (int* pivot, dvode_t& vstate)
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
-        Real ETAQP1 = 0.0_rt;
+        ETAQP1 = 0.0_rt;
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
             CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 vstate.savf(i) = vstate.acor(i) - CNQUOT * vstate.yh(i,VODE_LMAX);
             }
-            Real DUP = 0.0_rt;
+            DUP = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 DUP += (vstate.savf(i) * vstate.savf(i)) * (vstate.ewt(i) * vstate.ewt(i));
             }

@@ -7,7 +7,7 @@
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
+void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
 {
 
     // dvjac is called by dvnlsd to compute and process the matrix
@@ -64,16 +64,20 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
 
-            for (int n = 0; n < VODE_NEQS * VODE_NEQS; ++n) {
-                vstate.jac[n] = 0.0_rt;
+            for (int j = 1; j <= VODE_NEQS; ++j) {
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.jac(i,j) = 0.0_rt;
+                }
             }
 
             jac(vstate.tn, vstate, vstate.jac);
 
             // Store the Jacobian if we're caching.
             if (vstate.JSV == 1) {
-                for (int n = 0; n < VODE_NEQS * VODE_NEQS; ++n) {
-                    vstate.jac_save[n] = vstate.jac[n];
+                for (int j = 1; j <= VODE_NEQS; ++j) {
+                    for (int i = 1; i <= VODE_NEQS; ++i) {
+                        vstate.jac_save(i,j) = vstate.jac(i,j);
+                    }
                 }
             }
 
@@ -92,8 +96,8 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
             vstate.JCUR = 1;
 
             Real fac = 0.0_rt;
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                fac += (vstate.savf[n] * vstate.savf[n]) * (vstate.ewt[n] * vstate.ewt[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                fac += (vstate.savf(i) * vstate.savf(i)) * (vstate.ewt(i) * vstate.ewt(i));
             }
             fac = std::sqrt(fac / VODE_NEQS);
 
@@ -102,22 +106,19 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
                 R0 = 1.0_rt;
             }
 
-            int j1 = 0;
-            for (int j = 0; j < VODE_NEQS; ++j) {
-                Real yj = vstate.y[j];
+            for (int j = 1; j <= VODE_NEQS; ++j) {
+                Real yj = vstate.y(j);
 
-                Real R = amrex::max(SRUR * std::abs(yj), R0 / vstate.ewt[j]);
-                vstate.y[j] += R;
+                Real R = amrex::max(SRUR * std::abs(yj), R0 / vstate.ewt(j));
+                vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
                 f_rhs(vstate.tn, vstate, vstate.acor);
-                for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.jac[n+j1] = (vstate.acor[n] - vstate.savf[n]) * fac;
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.jac(i,j) = (vstate.acor(i) - vstate.savf(i)) * fac;
                 }
 
-                vstate.y[j] = yj;
-
-                j1 += VODE_NEQS;
+                vstate.y(j) = yj;
             }
 
             // Increment the RHS evaluation counter by N.
@@ -125,8 +126,10 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
 
             // Store the Jacobian if we're caching.
             if (vstate.JSV == 1) {
-                for (int n = 0; n < VODE_NEQS * VODE_NEQS; ++n) {
-                    vstate.jac_save[n] = vstate.jac[n];
+                for (int j = 1; j <= VODE_NEQS; ++j) {
+                    for (int i = 1; j <= VODE_NEQS; ++i) {
+                        vstate.jac_save(i,j) = vstate.jac(i,j);
+                    }
                 }
             }
 
@@ -139,8 +142,10 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
 
         // Indicate the Jacobian is not current for this step.
         vstate.JCUR = 0;
-        for (int n = 0; n < VODE_NEQS * VODE_NEQS; ++n) {
-            vstate.jac[n] = vstate.jac_save[n];
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.jac(i,j) = vstate.jac_save(i,j);
+            }
         }
 
     }
@@ -150,18 +155,15 @@ void dvjac (int* pivot, int& IERPJ, dvode_t& vstate)
 
     Real hrl1 = vstate.H * vstate.RL1;
     Real con = -hrl1;
-    for (int n = 0; n < VODE_NEQS * VODE_NEQS; ++n) {
-        vstate.jac[n] *= con;
+    for (int j = 1; j <= VODE_NEQS; ++j) {
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            vstate.jac(i,j) *= con;
+        }
     }
 
-    int j = 0;
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        // Add 1 from the identity matrix; then,
-        // advance to the next location on the diagonal,
-        // which is in the next row (advance by VODE_NEQS)
-        // and over by one column (advance by 1).
-        vstate.jac[j] += 1.0_rt;
-        j += VODE_NEQS + 1;
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        // Add 1 from the identity matrix.
+        vstate.jac(i,i) += 1.0_rt;
     }
 
     int IER;

@@ -7,7 +7,7 @@
 #include <cuvode_dvjac.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
+void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, dvode_t& vstate)
 {
 
     // dvnlsd is a nonlinear system solver that uses a chord (modified
@@ -63,8 +63,8 @@ void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
         M = 0;
         Real DELP = 0.0_rt;
 
-        for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.y[n] = vstate.yh[0][n];
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            vstate.y(i) = vstate.yh(i,1);
         }
 
         f_rhs(vstate.tn, vstate, vstate.savf);
@@ -94,8 +94,8 @@ void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
 
         }
 
-        for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.acor[n] = 0.0_rt;
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            vstate.acor(i) = 0.0_rt;
         }
 
         // Corrector iteration loop.
@@ -107,17 +107,17 @@ void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
             // correction is scaled by the factor 2/(1+RC) to account for
             // changes in h*rl1 since the last dvjac call.
 
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.y[n] = (vstate.RL1 * vstate.H) * vstate.savf[n] -
-                              (vstate.RL1 * vstate.yh[1][n] + vstate.acor[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.y(i) = (vstate.RL1 * vstate.H) * vstate.savf(i) -
+                              (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
 
             dgesl(vstate.jac, pivot, vstate.y);
 
             if (vstate.RC != 1.0_rt) {
                 Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
-                for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.y[n] *= CSCALE;
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.y(i) *= CSCALE;
                 }
             }
 
@@ -125,31 +125,31 @@ void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
             // Clean the correction to Y. Use vstate.y as scratch space.
 
             // Find the corrected Y: Yc = Y_previous + Y_delta
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.y[n] = vstate.y[n] + (vstate.yh[0][n] + vstate.acor[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.y(i) += (vstate.yh(i,1) + vstate.acor(i));
             }
 
             // Clean the corrected Y: Yc' = clean(Yc)
             clean_state(vstate.y, vstate.RPAR);
 
             // Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.y[n] = vstate.y[n] - (vstate.yh[0][n] + vstate.acor[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.y(i) -= (vstate.yh(i,1) + vstate.acor(i));
             }
 #endif
 
             DEL = 0.0_rt;
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                DEL += (vstate.y[n] * vstate.y[n]) * (vstate.ewt[n] * vstate.ewt[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                DEL += (vstate.y(i) * vstate.y(i)) * (vstate.ewt(i) * vstate.ewt(i));
             }
             DEL = std::sqrt(DEL / VODE_NEQS);
 
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.acor[n] += vstate.y[n];
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.acor(i) += vstate.y(i);
             }
 
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.y[n] = vstate.yh[0][n] + vstate.acor[n];
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.y(i) = vstate.yh(i,1) + vstate.acor(i);
             }
 
             // Test for convergence. If M > 0, an estimate of the convergence
@@ -209,8 +209,8 @@ void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
 
     if (M > 0) {
         vstate.ACNRM = 0.0_rt;
-        for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.ACNRM += (vstate.acor[n] * vstate.acor[n]) * (vstate.ewt[n] * vstate.ewt[n]);
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            vstate.ACNRM += (vstate.acor(i) * vstate.acor(i)) * (vstate.ewt(i) * vstate.ewt(i));
         }
         vstate.ACNRM = std::sqrt(vstate.ACNRM / VODE_NEQS);
     }

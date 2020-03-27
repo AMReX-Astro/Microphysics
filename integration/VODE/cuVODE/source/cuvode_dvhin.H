@@ -33,9 +33,9 @@ void dvhin (dvode_t& vstate, Real& H0, int& NITER, int& IER)
     // Set an upper bound on h based on vstate.tout-vstate.t and the initial Y and YDOT.
     Real HUB = PT1 * TDIST;
 
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        Real DELYI = PT1 * std::abs(vstate.yh[0][n]) + vstate.atol[n];
-        Real AFI = std::abs(vstate.yh[1][n]);
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+        Real AFI = std::abs(vstate.yh(i,2));
         if (AFI * HUB > DELYI) {
             HUB = DELYI / AFI;
         }
@@ -61,19 +61,19 @@ void dvhin (dvode_t& vstate, Real& H0, int& NITER, int& IER)
             // Estimate the second derivative as a difference quotient in f.
             Real H = std::copysign(HG, vstate.tout - vstate.t);
             Real T1 = vstate.t + H;
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.y[n] = vstate.yh[0][n] + H * vstate.yh[1][n];
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
 
             f_rhs(T1, vstate, vstate.acor);
 
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.acor[n] = (vstate.acor[n] - vstate.yh[1][n]) / H;
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.acor(i) = (vstate.acor(i) - vstate.yh(i,2)) / H;
             }
 
             Real YDDNRM = 0.0_rt;
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                YDDNRM += (vstate.acor[n] * vstate.acor[n]) * (vstate.ewt[n] * vstate.ewt[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                YDDNRM += (vstate.acor(i) * vstate.acor(i)) * (vstate.ewt(i) * vstate.ewt(i));
             }
             YDDNRM = std::sqrt(YDDNRM / VODE_NEQS);
 

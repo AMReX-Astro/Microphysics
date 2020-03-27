@@ -12,12 +12,8 @@ void dvode (dvode_t& vstate)
 {
 
     // Local variables
-    bool IHIT;
-    Real EWTI, H0, HMAX, HMX, S;
-    Real RH, SIZE, TCRIT, TNEXT, TOLSF, TP;
-    int IER, KGO, LENJ, LENP;
-    int MBAND, MFA, ML, MU, NITER;
-    int NSLAST;
+    Real H0, S;
+    int IER, NITER;
 
     Array1D<int, 1, VODE_NEQS> pivot;
 
@@ -41,7 +37,13 @@ void dvode (dvode_t& vstate)
 
     // Initial call to F.
 
-    f_rhs(vstate.t, vstate, vstate.yh[1]);
+    Array1D<Real, 1, VODE_NEQS> f_init;
+
+    f_rhs(vstate.t, vstate, f_init);
+
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.yh(i,2) = f_init(i);
+    }
 
     // We start off with one RHS evaluation.
 
@@ -49,22 +51,21 @@ void dvode (dvode_t& vstate)
 
     // Load the initial value array in yh.
 
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        vstate.yh[0][n] = vstate.y[n];
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.yh(i,1) = vstate.y(i);
     }
 
     // Load and invert the ewt array. (H is temporarily set to 1.0.)
     vstate.NQ = 1;
     vstate.H = 1.0_rt;
 
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        vstate.ewt[n] = vstate.rtol[n] * std::abs(vstate.yh[0][n]) + vstate.atol[n];
-        vstate.ewt[n] = 1.0_rt / vstate.ewt[n];
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.ewt(i) = vstate.rtol(i) * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+        vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
     }
 
     // Call DVHIN to set initial step size H0 to be attempted.
-    int NITER, IER;
-    Real H0 = 0.0_rt;
+    H0 = 0.0_rt;
     dvhin(vstate, H0, NITER, IER);
     vstate.NFE += NITER;
 
@@ -76,14 +77,13 @@ void dvode (dvode_t& vstate)
         return;
     }
 
-    // Load H with H0 and scale yh[1] by H0.
+    // Load H with H0 and scale yh(:,2) by H0.
     vstate.H = H0;
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        vstate.yh[1][n] *= H0;
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.yh(i,2) *= H0;
     }
 
     bool skip_loop_start = true;
-    int pivot[VODE_NEQS];
 
     // Now do the actual integration as a loop over dvstep.
 
@@ -102,8 +102,8 @@ void dvode (dvode_t& vstate)
 #endif
                vstate.istate = -1;
 
-               for (int n = 0; n < VODE_NEQS; ++n) {
-                   vstate.y[n] = vstate.yh[0][n];
+               for (int i = 1; i <= VODE_NEQS; ++i) {
+                   vstate.y(i) = vstate.yh(i,1);
                }
 
                vstate.t = vstate.tn;
@@ -112,9 +112,9 @@ void dvode (dvode_t& vstate)
 
            }
 
-           for (int n = 0; n < VODE_NEQS; ++n) {
-               vstate.ewt[n] = vstate.rtol[n] * std::abs(vstate.yh[0][n]) + vstate.atol[n];
-               vstate.ewt[n] = 1.0_rt / vstate.ewt[n];
+           for (int i = 1; i <= VODE_NEQS; ++i) {
+               vstate.ewt(i) = vstate.rtol(i) * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+               vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
            }
 
        }
@@ -123,8 +123,8 @@ void dvode (dvode_t& vstate)
        }
 
        Real TOLSF = 0.0_rt;
-       for (int n = 0; n < VODE_NEQS; ++n) {
-           TOLSF += (vstate.yh[0][n] * vstate.yh[0][n]) * (vstate.ewt[n] * vstate.ewt[n]);
+       for (int i = 1; i <= VODE_NEQS; ++i) {
+           TOLSF += (vstate.yh(i,1) * vstate.yh(i,1)) * (vstate.ewt(i) * vstate.ewt(i));
        }
        TOLSF = UROUND * std::sqrt(TOLSF / VODE_NEQS);
 
@@ -146,8 +146,8 @@ void dvode (dvode_t& vstate)
 #endif
            vstate.istate = -2;
 
-           for (int n = 0; n < VODE_NEQS; ++n) {
-               vstate.y[n] = vstate.yh[0][n];
+           for (int i = 1; i <= VODE_NEQS; ++i) {
+               vstate.y(i) = vstate.yh(i,1);
            }
 
            vstate.t = vstate.tn;
@@ -168,8 +168,8 @@ void dvode (dvode_t& vstate)
            vstate.istate = -4;
 
            // Set Y array, T, and optional output.
-           for (int n = 0; n < VODE_NEQS; ++n) {
-               vstate.y[n] = vstate.yh[0][n];
+           for (int i = 1; i <= VODE_NEQS; ++i) {
+               vstate.y(i) = vstate.yh(i,1);
            }
 
            vstate.t = vstate.tn;
@@ -185,8 +185,8 @@ void dvode (dvode_t& vstate)
            vstate.istate = -5;
 
            // Set Y array, T, and optional output.
-           for (int n = 0; n < VODE_NEQS; ++n) {
-               vstate.y[n] = vstate.yh[0][n];
+           for (int i = 1; i <= VODE_NEQS; ++i) {
+               vstate.y(i) = vstate.yh(i,1);
            }
 
            vstate.t = vstate.tn;
@@ -202,16 +202,16 @@ void dvode (dvode_t& vstate)
 
        // If TOUT has been reached, interpolate.
 
-       for (int n = 0; n < VODE_NEQS; ++n) {
-           vstate.y[n] = vstate.yh[vstate.L-1][n];
+       for (int i = 1; i <= VODE_NEQS; ++i) {
+           vstate.y(i) = vstate.yh(i,vstate.L);
        }
 
-       Real S = (vstate.tout - vstate.tn) / vstate.H;
+       S = (vstate.tout - vstate.tn) / vstate.H;
 
        for (int jb = 1; jb <= vstate.NQ; ++jb) {
-           int j = vstate.NQ - jb - 1;
-           for (int n = 0; n < VODE_NEQS; ++n) {
-               vstate.y[n] = vstate.yh[j+1][n] + S * vstate.y[n];
+           int j = vstate.NQ - jb;
+           for (int i = 1; i <= VODE_NEQS; ++i) {
+               vstate.y(i) = vstate.yh(i,j+1) + S * vstate.y(i);
            }
        }
 
@@ -225,8 +225,8 @@ void dvode (dvode_t& vstate)
 
     // We've successfully completed the integration.
 
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        vstate.y[n] = vstate.yh[0][n];
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.y(i) = vstate.yh(i,1);
     }
 
     vstate.t = vstate.tn;

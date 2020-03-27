@@ -7,27 +7,31 @@
 
 // The f_rhs routine provides the right-hand-side for the DVODE solver.
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void f_rhs (Real time, dvode_t& dvode_state, Real* ydot)
+void f_rhs (Real time, dvode_t& dvode_state,
+            Array1D<Real, 1, VODE_NEQS>& ydot)
 {
 
-    ydot[0] = -.04e0_rt * dvode_state.y[0] + 1.e4_rt * dvode_state.y[1] * dvode_state.y[2];
-    ydot[2] = 3.e7_rt * dvode_state.y[1] * dvode_state.y[1];
-    ydot[1] = -ydot[0] - ydot[2];
+    ydot(1) = -.04e0_rt * dvode_state.y(1) + 1.e4_rt * dvode_state.y(2) * dvode_state.y(3);
+    ydot(3) = 3.e7_rt * dvode_state.y(2) * dvode_state.y(2);
+    ydot(2) = -ydot(1) - ydot(3);
 
 }
 
 // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac(Real time, dvode_t& dvode_state, Real* pd)
+void jac(Real time, dvode_t& dvode_state,
+         Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& pd)
 {
 
-    pd[0] = -.04e0_rt;
-    pd[3] = 1.e4_rt * dvode_state.y[2];
-    pd[6] = 1.e4_rt * dvode_state.y[1];
-    pd[1] = .04e0_rt;
-    pd[7] = -pd[6];
-    pd[5] = 6.e7_rt * dvode_state.y[1];
-    pd[4] = -pd[3] - pd[5];
+    pd(1,1) = -.04e0_rt;
+    pd(1,2) = 1.e4_rt * dvode_state.y(3);
+    pd(1,3) = 1.e4_rt * dvode_state.y(2);
+    pd(2,1) = .04e0_rt;
+    pd(2,3) = -pd(1,3);
+    pd(3,1) = 0.0_rt;
+    pd(3,2) = 6.e7_rt * dvode_state.y(2);
+    pd(2,2) = -pd(1,2) - pd(3,2);
+    pd(3,3) = 0.0_rt;
 
 }
 

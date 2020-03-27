@@ -16,14 +16,14 @@ void do_react(int i, int j, int k, int ncomp, const Array4<Real>& state, Real dt
     dvode_state.JSV = 1;
 
     // Set the absolute tolerances
-    dvode_state.atol[0] = 1.e-8_rt;
-    dvode_state.atol[1] = 1.e-14_rt;
-    dvode_state.atol[2] = 1.e-6_rt;
+    dvode_state.atol(1) = 1.e-8_rt;
+    dvode_state.atol(2) = 1.e-14_rt;
+    dvode_state.atol(3) = 1.e-6_rt;
 
     // Set the relative tolerances
-    dvode_state.rtol[0] = 1.e-4_rt;
-    dvode_state.rtol[1] = 1.e-4_rt;
-    dvode_state.rtol[2] = 1.e-4_rt;
+    dvode_state.rtol(1) = 1.e-4_rt;
+    dvode_state.rtol(2) = 1.e-4_rt;
+    dvode_state.rtol(3) = 1.e-4_rt;
 
     // We want VODE to re-initialize each time we call it.
     dvode_state.istate = 1;
@@ -36,8 +36,8 @@ void do_react(int i, int j, int k, int ncomp, const Array4<Real>& state, Real dt
     dvode_state.tout = dt;
 
     // Initialize the initial conditions
-    for (int n = 0; n < ncomp; ++n) {
-        dvode_state.y[n] = state(i, j, k, n);
+    for (int n = 1; n <= ncomp; ++n) {
+        dvode_state.y(n) = state(i, j, k, n-1);
     }
 
     // Call the integration routine.
@@ -45,17 +45,16 @@ void do_react(int i, int j, int k, int ncomp, const Array4<Real>& state, Real dt
 
     // Check if the integration failed
     if (dvode_state.istate < 0) {
-#ifndef AMREX_USE_CUDA       
+#ifndef AMREX_USE_CUDA
         std::cout << "ERROR: integration failed" << std::endl;
         std::cout << "istate = " << dvode_state.istate << std::endl;
         std::cout << "time = " << dvode_state.t << std::endl;
         amrex::Abort("integration failed");
 #endif
     }
-             
     // Store the final result
-    for (int n = 0; n < ncomp; ++n) {
-        state(i, j, k, n) = dvode_state.y[n];
+    for (int n = 1; n <= ncomp; ++n) {
+        state(i, j, k, n-1) = dvode_state.y(n);
     }
 
 }

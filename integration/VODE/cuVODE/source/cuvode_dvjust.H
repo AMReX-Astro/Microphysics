@@ -63,10 +63,10 @@ void dvjust (int IORD, dvode_t& vstate)
         HSUM = vstate.HSCAL;
 
         if (vstate.NQ != 1) {
-            for (int j = 1; j <= NQM1; ++j) { 
+            for (int j = 1; j <= NQM1; ++j) {
                 // Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)).
                 HSUM += vstate.tau(j+1);
-                Real XI = HSUM / vstate.HSCAL;
+                XI = HSUM / vstate.HSCAL;
                 PROD *= XI;
                 ALPH0 -= 1.0_rt / (j + 1);
                 ALPH1 += 1.0_rt / XI;
@@ -76,7 +76,7 @@ void dvjust (int IORD, dvode_t& vstate)
                 }
                 XIOLD = XI;
             }
-        }       
+        }
 
         T1 = (-ALPH0 - ALPH1) / PROD;
         // Load column L + 1 in YH array.
