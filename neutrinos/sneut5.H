@@ -377,7 +377,7 @@ void sneut5(const Real temp, const Real den,
     rmi    = 1.0e0_rt/rm;
 ;
     a0     = rm * 1.0e-9_rt;
-    a1     = a0**oneth;
+    a1     = std::pow(a0, oneth);
     zeta   = a1 * xlm1;
     zetadt = -a1 * xlm2 * xldt;
     a2     = oneth * a1*rmi * xlm1;
