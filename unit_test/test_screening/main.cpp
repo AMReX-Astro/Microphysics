@@ -146,7 +146,7 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
-    std::string name = "test_screening.";
+    std::string name = "test_screening";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name, state, varnames, geom, time, 0);
