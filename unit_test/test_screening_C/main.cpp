@@ -16,7 +16,6 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <screen.H>
-#include <screening.H>
 #include <screen_data.H>
 
 #include <variables.H>

@@ -6,7 +6,7 @@
 #include <AMReX_Vector.H>
 #include <AMReX_REAL.H>
 #include <network_properties.H>
-
+#include <screen_data.H>
 #include <cmath>
 
 using namespace amrex;
