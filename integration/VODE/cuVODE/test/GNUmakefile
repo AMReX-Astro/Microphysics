@@ -14,6 +14,8 @@ EBASE = main
 
 EXTERN_SEARCH += .
 
+USE_GPU_PRAGMA = TRUE
+
 CUVODE_HOME = ../.
 
 Bpack   := ./Make.package

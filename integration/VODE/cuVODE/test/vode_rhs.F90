@@ -3,6 +3,9 @@ module vode_rhs_module
 contains
   
   ! The f_rhs routine provides the right-hand-side for the DVODE solver.
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine f_rhs(time, dvode_state, ydot)
 
     use cuvode_parameters_module, only: VODE_NEQS
@@ -25,6 +28,9 @@ contains
 
 
   ! Analytical Jacobian
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine jac(time, dvode_state, ml, mu, pd, nrpd)
 
     use cuvode_parameters_module, only: VODE_NEQS

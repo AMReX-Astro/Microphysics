@@ -7,7 +7,6 @@
 #include <vode_rpar.H>
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
-const amrex::Real SRUR = std::sqrt(UROUND);
 const amrex::Real CCMXJ = 0.2e0_rt;
 const amrex::Real HMIN = 0.0_rt;
 const amrex::Real HMXI = 0.0_rt;

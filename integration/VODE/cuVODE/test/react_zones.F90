@@ -33,6 +33,9 @@ contains
   end subroutine init_state
 
 
+#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
+  attributes(device) &
+#endif
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
@@ -56,7 +59,6 @@ contains
     ! this is the first call to the problem -- this is what we will want.
     
     integer :: istate
-    
 
     !$gpu
 
