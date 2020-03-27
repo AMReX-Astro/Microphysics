@@ -159,7 +159,7 @@ void dvnlsd (int* pivot, int& NFLAG, dvode_t& vstate)
                 vstate.CRATE = amrex::max(CRDOWN * vstate.CRATE, DEL / DELP);
             }
 
-            Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.TQ(4);
+            Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
             if (DCON <= 1.0_rt) {
                 // we converged, exit the outer loop
                 converged = true;

@@ -16,8 +16,8 @@ void advance_nordsieck (dvode_t& vstate)
 
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
-            for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.yh[j-1][i] += vstate.yh[j][i];
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.yh(i,j) += vstate.yh(i,j+1);
             }
         }
     }
@@ -34,8 +34,8 @@ void retract_nordsieck (dvode_t& vstate)
 
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
-            for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.yh[j-1][i] -= vstate.yh[j][i];
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.yh(i,j) -= vstate.yh(i,j+1);
             }
         }
     }
@@ -78,16 +78,18 @@ void dvstep (int* pivot, dvode_t& vstate)
     const Real ONEPSM = 1.00001e0_rt;
     const Real THRESH = 1.5e0_rt;
 
-    Real ETAQ = 1.0_rt;
-    Real ETAQM1 = 1.0_rt;
+    Real CNQUOT, DDN, DSM, DUP, TOLD;
+    Real ETAQ, ETAQM1, ETAQP1, FLOTL, R;
+    int NCF, NFLAG;
+
+    ETAQ = 1.0_rt;
+    ETAQM1 = 1.0_rt;
 
     vstate.kflag = 0;
-    Real TOLD = vstate.tn;
-    int NCF = 0;
+    TOLD = vstate.tn;
+    NCF = 0;
     vstate.JCUR = 0;
-    int NFLAG = 0;
-
-    Real DSM;
+    NFLAG = 0;
 
     bool do_initialization = false;
 
@@ -103,7 +105,7 @@ void dvstep (int* pivot, dvode_t& vstate)
         vstate.NQ = 1;
         vstate.L = 2;
         vstate.NQNYH = vstate.NQ * VODE_NEQS;
-        vstate.TAU[0] = vstate.H;
+        vstate.tau(1) = vstate.H;
         vstate.PRL1 = 1.0_rt;
         vstate.RC = 0.0_rt;
         vstate.ETAMAX = ETAMX1;
@@ -148,12 +150,12 @@ void dvstep (int* pivot, dvode_t& vstate)
 
         // Rescale the history array for a change in H by a factor of ETA.
 
-        Real R = 1.0_rt;
+        R = 1.0_rt;
 
         for (int j = 2; j <= vstate.L; ++j) {
             R *= vstate.ETA;
-            for (int i = 0; i < VODE_NEQS; ++i) {
-                vstate.yh[j-1][i] *= R;
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.yh(i,j) *= R;
             }
         }
 
@@ -177,7 +179,7 @@ void dvstep (int* pivot, dvode_t& vstate)
 
         dvset(vstate);
 
-        vstate.RL1 = 1.0_rt / vstate.EL[1];
+        vstate.RL1 = 1.0_rt / vstate.EL(2);
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
@@ -226,12 +228,12 @@ void dvstep (int* pivot, dvode_t& vstate)
             NFLAG = -1;
 
             // Rescale the history array for a change in H by a factor of ETA.
-            Real R = 1.0_rt;
+            R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 0; i < VODE_NEQS; ++i) {
-                    vstate.yh[j-1][i] *= R;
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.yh(i,j) *= R;
                 }
             }
 
@@ -246,7 +248,7 @@ void dvstep (int* pivot, dvode_t& vstate)
         // The corrector has converged (NFLAG = 0). The local error test is
         // made and control passes to statement 500 if it fails.
 
-        DSM = vstate.ACNRM / vstate.TQ(2);
+        DSM = vstate.ACNRM / vstate.tq(2);
         if (DSM <= 1.0_rt) {
 
             // After a successful step, update the yh and TAU arrays and decrement
@@ -258,23 +260,23 @@ void dvstep (int* pivot, dvode_t& vstate)
             vstate.NST += 1;
             vstate.HU = vstate.H;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
-                int i = vstate.L - iback - 1;
-                vstate.TAU[i+1] = vstate.TAU[i];
+                int i = vstate.L - iback;
+                vstate.tau(i+1) = vstate.tau(i);
             }
 
-            vstate.TAU[0] = vstate.H;
+            vstate.tau(1) = vstate.H;
             for (int j = 1; j <= vstate.L; ++j) {
-                for (int i = 0; i < VODE_NEQS; ++i) {
-                    vstate.yh[j-1][i] += vstate.EL[j-1] * vstate.acor[i];
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.yh(i,j) += vstate.el(j) * vstate.acor(i);
                 }
             }
 
             vstate.NQWAIT -= 1;
             if ((vstate.L != VODE_LMAX) && (vstate.NQWAIT == 1)) {
-                for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.yh[VODE_LMAX-1][n] = vstate.acor[n];
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
-                vstate.CONP = vstate.TQ(5);
+                vstate.CONP = vstate.tq(5);
             }
 
             if (vstate.ETAMAX != 1.0_rt) {
@@ -294,9 +296,9 @@ void dvstep (int* pivot, dvode_t& vstate)
                 vstate.ETAMAX = ETAMX2;
             }
 
-            Real R = 1.0_rt / vstate.TQ(2);
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.acor[n] *= R;
+            R = 1.0_rt / vstate.tq(2);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.acor(i) *= R;
             }
 
             vstate.JSTART = 1;
@@ -328,7 +330,7 @@ void dvstep (int* pivot, dvode_t& vstate)
         if (vstate.kflag > KFC) {
 
             // Compute ratio of new H to current H at the current order.
-            Real FLOTL = vstate.L;
+            FLOTL = vstate.L;
             vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
             if ((vstate.kflag <= -2) && (vstate.ETA > ETAMXF)) {
@@ -340,8 +342,8 @@ void dvstep (int* pivot, dvode_t& vstate)
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.yh[j-1][n] *= R;
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.yh(i,j) *= R;
                 }
             }
 
@@ -371,16 +373,16 @@ void dvstep (int* pivot, dvode_t& vstate)
             vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
             dvjust(-1, vstate);
             vstate.L = vstate.NQ;
-            vstate.NQ = vstate.NQ - 1;
+            vstate.NQ -= 1;
             vstate.NQWAIT = vstate.L;
 
             // Rescale the history array for a change in H by a factor of ETA.
-            Real R = 1.0_rt;
+            R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.yh[j-1][n] *= R;
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.yh(i,j) *= R;
                 }
             }
 
@@ -396,11 +398,11 @@ void dvstep (int* pivot, dvode_t& vstate)
         vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
         vstate.H *= vstate.ETA;
         vstate.HSCAL = vstate.H;
-        vstate.TAU[0] = vstate.H;
+        vstate.tau(1) = vstate.H;
         f_rhs(vstate.tn, vstate, vstate.savf);
         vstate.NFE += 1;
-        for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.yh[1][n] = vstate.H * vstate.savf[n];
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            vstate.yh(i,2) = vstate.H * vstate.savf(i);
         }
 
         vstate.NQWAIT = 10;
@@ -419,33 +421,33 @@ void dvstep (int* pivot, dvode_t& vstate)
     bool already_set_eta = false;
 
     // Compute ratio of new H to current H at the current order.
-    Real FLOTL = vstate.L;
+    FLOTL = vstate.L;
     ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
         ETAQM1 = 0.0_rt;
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
-            Real DDN = 0.0_rt;
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                DDN += (vstate.yh[vstate.L-1][n] * vstate.yh[vstate.L-1][n]) * (vstate.ewt[n] * vstate.ewt[n]);
+            DDN = 0.0_rt;
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                DDN += (vstate.yh(i,vstate.L) * vstate.yh(i,vstate.L)) * (vstate.ewt(i) * vstate.ewt(i));
             }
-            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.TQ(1);
+            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.tq(1);
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
         Real ETAQP1 = 0.0_rt;
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
-            Real CNQUOT = (vstate.TQ(5) / vstate.CONP) * std::pow(vstate.H / vstate.TAU[1], vstate.L);
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                vstate.savf[n] = vstate.acor[n] - CNQUOT * vstate.yh[VODE_LMAX-1][n];
+            CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.savf(i) = vstate.acor(i) - CNQUOT * vstate.yh(i,VODE_LMAX);
             }
             Real DUP = 0.0_rt;
-            for (int n = 0; n < VODE_NEQS; ++n) {
-                DUP += (vstate.savf[n] * vstate.savf[n]) * (vstate.ewt[n] * vstate.ewt[n]);
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                DUP += (vstate.savf(i) * vstate.savf(i)) * (vstate.ewt(i) * vstate.ewt(i));
             }
-            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.TQ(3);
+            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.tq(3);
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
         }
 
@@ -453,8 +455,8 @@ void dvstep (int* pivot, dvode_t& vstate)
             if (ETAQP1 > ETAQM1) {
                 vstate.ETA = ETAQP1;
                 vstate.NEWQ = vstate.NQ + 1;
-                for (int n = 0; n < VODE_NEQS; ++n) {
-                    vstate.yh[VODE_LMAX-1][n] = vstate.acor[n];
+                for (int i = 1; i <= VODE_NEQS; ++i) {
+                    vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
             }
             else {
@@ -487,9 +489,9 @@ void dvstep (int* pivot, dvode_t& vstate)
         if (vstate.NST <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
-        Real R = 1.0_rt / vstate.TQ(2);
-        for (int n = 0; n < VODE_NEQS; ++n) {
-            vstate.acor[n] *= R;
+        R = 1.0_rt / vstate.tq(2);
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            vstate.acor(i) *= R;
         }
         vstate.JSTART = 1;
         return;
@@ -503,9 +505,9 @@ void dvstep (int* pivot, dvode_t& vstate)
     if (vstate.NST <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
-    Real R = 1.0_rt / vstate.TQ(2);
-    for (int n = 0; n < VODE_NEQS; ++n) {
-        vstate.acor[n] *= R;
+    R = 1.0_rt / vstate.tq(2);
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.acor(i) *= R;
     }
     vstate.JSTART = 1;
 

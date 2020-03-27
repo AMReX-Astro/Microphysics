@@ -24,9 +24,9 @@ const int max_steps_between_jacobian_evals = 50;
 struct dvode_t
 {
     amrex::Real HU;
-    amrex::Real ACNRM, CONP, CRATE, DRC, EL[13];
+    amrex::Real ACNRM, CONP, CRATE, DRC;
     amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
-    amrex::Real RC, RL1, TAU[13], tn;
+    amrex::Real RC, RL1, tn;
     int NFE, NJE, NST;
     int ICF, IPUP, JCUR, JSTART, JSV, kflag;
     int L;
@@ -34,14 +34,16 @@ struct dvode_t
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
 
-    amrex::Array1D<Real, 1, 5> TQ;
+    amrex::Array1D<Real, 1, 13> el;
+    amrex::Array1D<Real, 1, 13> tau;
+    amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    amrex::Real rtol[VODE_NEQS];
-    amrex::Real atol[VODE_NEQS];
+    amrex::Array1D<Real, 1, VODE_NEQS> rtol;
+    amrex::Array1D<Real, 1, VODE_NEQS> atol;
 
     // Real parameters
-    amrex::Real rpar[n_rpar_comps];
+    amrex::Array1D<Real, 1, n_rpar_comps> rpar;
 
     // State flag
     int istate;
@@ -50,18 +52,18 @@ struct dvode_t
     amrex::Real t, tout;
 
     // Integration array
-    amrex::Real y[VODE_NEQS];
+    amrex::Array1D<Real, 1, VODE_NEQS> y;
 
     // Jacobian
-    amrex::Real jac[VODE_NEQS*VODE_NEQS];
+    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS> jac;
 
     // Saved Jacobian
-    amrex::Real jac_save[VODE_NEQS*VODE_NEQS];
+    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS> jac_save;
 
-    amrex::Real yh[VODE_LMAX][VODE_NEQS];
-    amrex::Real ewt[VODE_NEQS];
-    amrex::Real savf[VODE_NEQS];
-    amrex::Real acor[VODE_NEQS];
+    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
+    amrex::Array1D<Real, 1, VODE_NEQS> ewt;
+    amrex::Array1D<Real, 1, VODE_NEQS> savf;
+    amrex::Array1D<Real, 1, VODE_NEQS> acor;
 
     // Jacobian method
     int jacobian;

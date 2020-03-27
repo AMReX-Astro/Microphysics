@@ -11,6 +11,16 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvode (dvode_t& vstate)
 {
 
+    // Local variables
+    bool IHIT;
+    Real EWTI, H0, HMAX, HMX, S;
+    Real RH, SIZE, TCRIT, TNEXT, TOLSF, TP;
+    int IER, KGO, LENJ, LENP;
+    int MBAND, MFA, ML, MU, NITER;
+    int NSLAST;
+
+    Array1D<int, 1, VODE_NEQS> pivot;
+
     // Return if the final time matches the starting time.
 
     if (vstate.tout == vstate.t) {
