@@ -246,7 +246,7 @@ void dvstep (int* pivot, dvode_t& vstate)
         // The corrector has converged (NFLAG = 0). The local error test is
         // made and control passes to statement 500 if it fails.
 
-        DSM = vstate.ACNRM / vstate.TQ[1];
+        DSM = vstate.ACNRM / vstate.TQ(2);
         if (DSM <= 1.0_rt) {
 
             // After a successful step, update the yh and TAU arrays and decrement
@@ -274,7 +274,7 @@ void dvstep (int* pivot, dvode_t& vstate)
                 for (int n = 0; n < VODE_NEQS; ++n) {
                     vstate.yh[VODE_LMAX-1][n] = vstate.acor[n];
                 }
-                vstate.CONP = vstate.TQ[4];
+                vstate.CONP = vstate.TQ(5);
             }
 
             if (vstate.ETAMAX != 1.0_rt) {
@@ -294,7 +294,7 @@ void dvstep (int* pivot, dvode_t& vstate)
                 vstate.ETAMAX = ETAMX2;
             }
 
-            Real R = 1.0_rt / vstate.TQ[1];
+            Real R = 1.0_rt / vstate.TQ(2);
             for (int n = 0; n < VODE_NEQS; ++n) {
                 vstate.acor[n] *= R;
             }
@@ -430,14 +430,14 @@ void dvstep (int* pivot, dvode_t& vstate)
             for (int n = 0; n < VODE_NEQS; ++n) {
                 DDN += (vstate.yh[vstate.L-1][n] * vstate.yh[vstate.L-1][n]) * (vstate.ewt[n] * vstate.ewt[n]);
             }
-            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.TQ[0];
+            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.TQ(1);
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
         Real ETAQP1 = 0.0_rt;
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
-            Real CNQUOT = (vstate.TQ[4] / vstate.CONP) * std::pow(vstate.H / vstate.TAU[1], vstate.L);
+            Real CNQUOT = (vstate.TQ(5) / vstate.CONP) * std::pow(vstate.H / vstate.TAU[1], vstate.L);
             for (int n = 0; n < VODE_NEQS; ++n) {
                 vstate.savf[n] = vstate.acor[n] - CNQUOT * vstate.yh[VODE_LMAX-1][n];
             }
@@ -445,7 +445,7 @@ void dvstep (int* pivot, dvode_t& vstate)
             for (int n = 0; n < VODE_NEQS; ++n) {
                 DUP += (vstate.savf[n] * vstate.savf[n]) * (vstate.ewt[n] * vstate.ewt[n]);
             }
-            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.TQ[2];
+            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.TQ(3);
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
         }
 
@@ -487,7 +487,7 @@ void dvstep (int* pivot, dvode_t& vstate)
         if (vstate.NST <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
-        Real R = 1.0_rt / vstate.TQ[1];
+        Real R = 1.0_rt / vstate.TQ(2);
         for (int n = 0; n < VODE_NEQS; ++n) {
             vstate.acor[n] *= R;
         }
@@ -503,7 +503,7 @@ void dvstep (int* pivot, dvode_t& vstate)
     if (vstate.NST <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
-    Real R = 1.0_rt / vstate.TQ[1];
+    Real R = 1.0_rt / vstate.TQ(2);
     for (int n = 0; n < VODE_NEQS; ++n) {
         vstate.acor[n] *= R;
     }

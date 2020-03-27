@@ -2,6 +2,7 @@
 #define _cuvode_type_H_
 
 #include <AMReX_REAL.H>
+#include <AMReX_Array.H>
 #include <cuvode_parameters.H>
 #include <vode_rpar.H>
 
@@ -25,13 +26,15 @@ struct dvode_t
     amrex::Real HU;
     amrex::Real ACNRM, CONP, CRATE, DRC, EL[13];
     amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
-    amrex::Real RC, RL1, TAU[13], TQ[5], tn;
+    amrex::Real RC, RL1, TAU[13], tn;
     int NFE, NJE, NST;
     int ICF, IPUP, JCUR, JSTART, JSV, kflag;
     int L;
     int MXSTEP;
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
+
+    amrex::Array1D<Real, 1, 5> TQ;
 
     // Tolerances
     amrex::Real rtol[VODE_NEQS];

@@ -63,24 +63,24 @@ void dvset (dvode_t& vstate)
 
     Real T1 = 1.0_rt - AHATN0 + ALPH0;
     Real T2 = 1.0_rt + vstate.NQ * T1;
-    vstate.TQ[1] = std::abs(ALPH0 * T2 / T1);
-    vstate.TQ[4] = std::abs(T2 / (vstate.EL[vstate.L-1] * RXI / RXIS));
+    vstate.TQ(2) = std::abs(ALPH0 * T2 / T1);
+    vstate.TQ(5) = std::abs(T2 / (vstate.EL[vstate.L-1] * RXI / RXIS));
 
     if (vstate.NQWAIT == 1) {
         Real CNQM1 = RXIS / vstate.EL[vstate.L-1];
         Real T3 = ALPH0 + 1.0_rt / vstate.NQ;
         Real T4 = AHATN0 + RXI;
         Real ELP = T3 / (1.0_rt - T4 + T3);
-        vstate.TQ[0] = std::abs(ELP / CNQM1);
+        vstate.TQ(1) = std::abs(ELP / CNQM1);
         HSUM += vstate.TAU[vstate.NQ-1];
         RXI = vstate.H / HSUM;
         Real T5 = ALPH0 - 1.0_rt / (vstate.NQ+1);
         Real T6 = AHATN0 - RXI;
         ELP = T2 / (1.0_rt - T6 + T5);
-        vstate.TQ[2] = std::abs(ELP * RXI * (FLOTL + 1.0_rt) * T5);
+        vstate.TQ(3) = std::abs(ELP * RXI * (FLOTL + 1.0_rt) * T5);
     }
 
-    vstate.TQ[3] = CORTES * vstate.TQ[1];
+    vstate.TQ(4) = CORTES * vstate.TQ(2);
 
 }
 
