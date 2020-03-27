@@ -16,10 +16,6 @@ extern "C"
 
   void get_var_name(char* cstring[], int* idx);
 
-  void get_cond_len(int* cond_len);
-
-  void get_cond_name(char* cond_string[]);
-
   void init_unit_test(const int* name, const int* namlen);
 
   void do_screening(const int* lo, const int* hi,
