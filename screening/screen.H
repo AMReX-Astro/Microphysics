@@ -306,7 +306,7 @@ screen5(const plasma_state_t state,
 
   // machine limit the output
   // further limit to avoid the pycnonuclear regime
-  if (h12 < h12_max) {
+  if (h12 > h12_max) {
     h12 = h12_max;
   }
 
