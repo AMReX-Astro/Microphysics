@@ -1,5 +1,8 @@
 # 20.04
 
+   * There are new unit tests for the screening and aprox rates
+     modules (both C++ and Fortran interfaces).
+
    * The screening routines were ported to C++ (#290)
 
    * a new method, is_input_valid, was added to all EOSes (both C++
