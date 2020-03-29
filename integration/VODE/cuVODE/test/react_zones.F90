@@ -33,12 +33,10 @@ contains
   end subroutine init_state
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
+    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC
     use cuvode_types_module, only: dvode_t
     use cuvode_module, only: dvode
 
@@ -59,6 +57,7 @@ contains
     ! this is the first call to the problem -- this is what we will want.
     
     integer :: istate
+    
 
     !$gpu
 
@@ -68,9 +67,6 @@ contains
 
              ! Use an analytic Jacobian
              dvode_state % jacobian = 1
-
-             ! Use Jacobian caching
-             dvode_state % JSV = 1
 
              ! Set the absolute tolerances
              dvode_state % atol(1) = 1.e-8_rt

@@ -71,8 +71,6 @@ contains
     use amrex_fort_module, only : rt => amrex_real
     type(dvode_t) :: dvode_state
 
-    integer :: i, j
-
     write(*,*) 'HU = ', dvode_state % HU
     write(*,*) 'ACNRM = ', dvode_state % ACNRM
     write(*,*) 'CONP = ', dvode_state % CONP
@@ -136,29 +134,6 @@ contains
     write(*,*) 'NQWAIT = ', dvode_state % NQWAIT
     write(*,*) 'NSLJ = ', dvode_state % NSLJ
     write(*,*) 'NSLP = ', dvode_state % NSLP
-
-    do i = 1, VODE_NEQS
-       write(*,*) 'y(', i, ") = ", dvode_state % y(i)
-    end do
-
-    do j = 1, VODE_LMAX
-       do i = 1, VODE_NEQS
-          write(*,*), "yh(", i, ",", j, ") = ", dvode_state % yh(i,j)
-       end do
-    end do
-
-    do i = 1, VODE_NEQS
-       write(*,*), "ewt(", i, ") = ", dvode_state % ewt(i)
-    end do
-
-    do i = 1, VODE_NEQS
-       write(*,*), "savf(", i, ") = ", dvode_state % savf(i)
-    end do
-
-    do i = 1, VODE_NEQS
-       write(*,*), "acor(", i, ") = ", dvode_state % acor(i)
-    end do
-
   end subroutine print_state
 #endif
 
