@@ -19,9 +19,9 @@ using namespace amrex;
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
-
-    main_main();
-
+    {
+        main_main();
+    }
     amrex::Finalize();
     return 0;
 }
@@ -112,6 +112,7 @@ void main_main ()
       probin_file_name[i] = probin_file[i];
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    eos_init();
 
     // Ncomp = number of components for each array
     int Ncomp = -1;
