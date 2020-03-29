@@ -12,6 +12,7 @@ using namespace amrex;
 
 #include "test_react.H"
 #include "test_react_F.H"
+#include "react_zones.H"
 #include "AMReX_buildInfo.H"
 
 
@@ -37,6 +38,8 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
+    int do_cxx = 0;
+
     // inputs parameters
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -54,6 +57,8 @@ void main_main ()
         pp.query("max_grid_size", max_grid_size);
 
         pp.query("prefix", prefix);
+
+        pp.query("do_cxx", do_cxx);
 
     }
 
@@ -160,10 +165,25 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
+        if (do_cxx) {
+
+            auto s = state.array(mfi);
+            auto n_rhs = integrator_n_rhs.array(mfi);
+
+            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+            {
+                do_react(i, j, k, s, n_rhs);
+            });
+
+        }
+        else {
+
 #pragma gpu
-        do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                 BL_TO_FORTRAN_ANYD(state[mfi]),
-		 BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+            do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                     BL_TO_FORTRAN_ANYD(state[mfi]),
+                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+
+        }
 
 	if (print_every_nrhs != 0)
 	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),

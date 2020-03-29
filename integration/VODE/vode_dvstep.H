@@ -1,11 +1,10 @@
 #ifndef _cuvode_dvstep_H_
 #define _cuvode_dvstep_H_
 
-#include <cuvode_parameters.H>
-#include <cuvode_type.H>
-#include <cuvode_dvset.H>
-#include <cuvode_dvjust.H>
-#include <cuvode_dvnlsd.H>
+#include <vode_type.H>
+#include <vode_dvset.H>
+#include <vode_dvjust.H>
+#include <vode_dvnlsd.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void advance_nordsieck (dvode_t& vstate)
@@ -44,7 +43,7 @@ void retract_nordsieck (dvode_t& vstate)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, dvode_t& vstate)
+void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
 {
 
     // dvstep performs one step of the integration of an initial value
@@ -185,7 +184,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, dvode_t& vstate)
 
         // Call the nonlinear system solver.
 
-        dvnlsd(pivot, NFLAG, vstate);
+        dvnlsd(pivot, NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 
@@ -399,7 +398,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, dvode_t& vstate)
         vstate.H *= vstate.ETA;
         vstate.HSCAL = vstate.H;
         vstate.tau(1) = vstate.H;
-        f_rhs(vstate.tn, vstate, vstate.savf);
+        rhs(state, vstate, vstate.savf);
         vstate.NFE += 1;
         for (int i = 1; i <= VODE_NEQS; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);

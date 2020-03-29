@@ -1,13 +1,12 @@
 #ifndef _cuvode_dvnlsd_H_
 #define _cuvode_dvnlsd_H_
 
-#include <cuvode_parameters.H>
-#include <cuvode_type.H>
-#include <cuvode_linpack.H>
-#include <cuvode_dvjac.H>
+#include <vode_type.H>
+#include <vode_linpack.H>
+#include <vode_dvjac.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, dvode_t& vstate)
+void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
 {
 
     // dvnlsd is a nonlinear system solver that uses a chord (modified
@@ -67,7 +66,7 @@ void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, dvode_t& vstate)
             vstate.y(i) = vstate.yh(i,1);
         }
 
-        f_rhs(vstate.tn, vstate, vstate.savf);
+        rhs(state, vstate, vstate.savf);
         vstate.NFE += 1;
 
         if (vstate.IPUP == 1) {
@@ -77,7 +76,7 @@ void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, dvode_t& vstate)
             // to 0 as an indicator that this has been done.
 
             int IERPJ;
-            dvjac(pivot, IERPJ, vstate);
+            dvjac(pivot, IERPJ, state, vstate);
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
@@ -178,7 +177,7 @@ void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, dvode_t& vstate)
             }
 
             DELP = DEL;
-            f_rhs(vstate.tn, vstate, vstate.savf);
+            rhs(state, vstate, vstate.savf);
             vstate.NFE += 1;
 
         }

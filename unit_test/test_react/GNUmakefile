@@ -14,6 +14,8 @@ USE_REACT = TRUE
 
 EBASE = main
 
+USE_CXX_EOS = TRUE
+
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 

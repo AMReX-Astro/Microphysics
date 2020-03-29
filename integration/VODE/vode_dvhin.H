@@ -4,7 +4,7 @@
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE
-void dvhin (dvode_t& vstate, Real& H0, int& NITER, int& IER)
+void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 {
     // This routine computes the step size, H0, to be attempted on the
     // first step, when the user has not supplied a value for this.
@@ -65,7 +65,7 @@ void dvhin (dvode_t& vstate, Real& H0, int& NITER, int& IER)
                 vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
 
-            f_rhs(T1, vstate, vstate.acor);
+            rhs(state, vstate, vstate.acor);
 
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 vstate.acor(i) = (vstate.acor(i) - vstate.yh(i,2)) / H;

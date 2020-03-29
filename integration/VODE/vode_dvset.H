@@ -1,7 +1,7 @@
 #ifndef _cuvode_dvset_H_
 #define _cuvode_dvset_H_
 
-#include <cuvode_type.H>
+#include <vode_type.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvset (dvode_t& vstate)

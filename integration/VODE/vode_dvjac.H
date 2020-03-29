@@ -1,13 +1,12 @@
 #ifndef _cuvode_dvjac_H_
 #define _cuvode_dvjac_H_
 
-#include <cuvode_parameters.H>
-#include <cuvode_type.H>
-#include <cuvode_linpack.H>
+#include <vode_type.H>
+#include <vode_linpack.H>
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
+void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 {
 
     // dvjac is called by dvnlsd to compute and process the matrix
@@ -21,9 +20,14 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
 
     // See whether the Jacobian should be evaluated. Start by basing
     // the decision on whether we're caching the Jacobian.
-    int evaluate_jacobian = -vstate.JSV;
 
-    if (vstate.JSV == 1) {
+    int evaluate_jacobian = 1;
+
+    if (use_jacobian_caching) {
+        evaluate_jacobian = 0;
+    }
+
+    if (use_jacobian_caching) {
         // Now evaluate the cases where we're caching the Jacobian but aren't
         // going to be using the cached Jacobian.
 
@@ -51,7 +55,7 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
         // We want to evaluate the Jacobian -- now the path depends on
         // whether we're using the numerical or analytic Jacobian.
 
-        if (vstate.jacobian == 1) {
+        if (jacobian == 1) {
 
             // For the analytic Jacobian, call the user-supplied function.
 
@@ -70,10 +74,10 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
                 }
             }
 
-            jac(vstate.tn, vstate, vstate.jac);
+            jac(state, vstate, vstate.jac);
 
             // Store the Jacobian if we're caching.
-            if (vstate.JSV == 1) {
+            if (use_jacobian_caching == 1) {
                 for (int j = 1; j <= VODE_NEQS; ++j) {
                     for (int i = 1; i <= VODE_NEQS; ++i) {
                         vstate.jac_save(i,j) = vstate.jac(i,j);
@@ -113,7 +117,7 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
-                f_rhs(vstate.tn, vstate, vstate.acor);
+                rhs(state, vstate, vstate.acor);
                 for (int i = 1; i <= VODE_NEQS; ++i) {
                     vstate.jac(i,j) = (vstate.acor(i) - vstate.savf(i)) * fac;
                 }
@@ -125,7 +129,7 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, dvode_t& vstate)
             vstate.NFE += VODE_NEQS;
 
             // Store the Jacobian if we're caching.
-            if (vstate.JSV == 1) {
+            if (use_jacobian_caching == 1) {
                 for (int j = 1; j <= VODE_NEQS; ++j) {
                     for (int i = 1; j <= VODE_NEQS; ++i) {
                         vstate.jac_save(i,j) = vstate.jac(i,j);

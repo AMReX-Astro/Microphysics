@@ -1,14 +1,13 @@
 #ifndef _cuvode_H_
 #define _cuvode_H_
 
-#include <cuvode_parameters.H>
-#include <cuvode_type.H>
-#include <cuvode_dvhin.H>
-#include <cuvode_dvstep.H>  
+#include <vode_type.H>
+#include <vode_dvhin.H>
+#include <vode_dvstep.H>  
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvode (dvode_t& vstate)
+void dvode (burn_t& state, dvode_t& vstate)
 {
 
     // Local variables
@@ -35,17 +34,15 @@ void dvode (dvode_t& vstate)
     vstate.NSLJ = 0;
     vstate.HU = 0.0_rt;
 
-    // Initial call to F.
+    // Initial call to the RHS.
 
     Array1D<Real, 1, VODE_NEQS> f_init;
 
-    f_rhs(vstate.t, vstate, f_init);
+    rhs(state, vstate, f_init);
 
     for (int i = 1; i <= VODE_NEQS; ++i) {
         vstate.yh(i,2) = f_init(i);
     }
-
-    // We start off with one RHS evaluation.
 
     vstate.NFE = 1;
 
@@ -66,7 +63,7 @@ void dvode (dvode_t& vstate)
 
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
-    dvhin(vstate, H0, NITER, IER);
+    dvhin(state, vstate, H0, NITER, IER);
     vstate.NFE += NITER;
 
     if (IER != 0) {
@@ -156,7 +153,7 @@ void dvode (dvode_t& vstate)
 
        }
 
-       dvstep(pivot, vstate);
+       dvstep(pivot, state, vstate);
 
        // Branch on KFLAG. KFLAG can be 0, -1, or -2.
 

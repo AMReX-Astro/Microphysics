@@ -1,8 +1,7 @@
 #ifndef _cuvode_dvjust_H_
 #define _cuvode_dvjust_H_
 
-#include <cuvode_parameters.H>
-#include <cuvode_type.H>
+#include <vode_type.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvjust (int IORD, dvode_t& vstate)

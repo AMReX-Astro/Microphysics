@@ -7,13 +7,3 @@ F90EXE_sources += cuvode_dvnlsd.F90
 F90EXE_sources += cuvode_dvset.F90
 F90EXE_sources += cuvode_dvstep.F90
 F90EXE_sources += linpack_module.F90
-
-CEXE_headers += cuvode.H
-CEXE_headers += cuvode_type.H
-CEXE_headers += cuvode_dvhin.H
-CEXE_headers += cuvode_dvjac.H
-CEXE_headers += cuvode_dvjust.H
-CEXE_headers += cuvode_dvnlsd.H
-CEXE_headers += cuvode_dvset.H
-CEXE_headers += cuvode_dvstep.H
-CEXE_headers += cuvode_linpack.H

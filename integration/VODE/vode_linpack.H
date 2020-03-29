@@ -1,8 +1,7 @@
 #ifndef _cuvode_linpack_H_
 #define _cuvode_linpack_H_
 
-#include <AMReX_REAL.H>
-#include <cuvode_parameters.H>
+#include <vode_type.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dgesl (Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& a,
