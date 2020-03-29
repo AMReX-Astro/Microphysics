@@ -1,5 +1,5 @@
-#ifndef _cuvode_linpack_H_
-#define _cuvode_linpack_H_
+#ifndef _vode_linpack_H_
+#define _vode_linpack_H_
 
 #include <vode_type.H>
 

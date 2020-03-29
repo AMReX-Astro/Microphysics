@@ -1,5 +1,5 @@
-#ifndef _cuvode_H_
-#define _cuvode_H_
+#ifndef _vode_dvode_H_
+#define _vode_dvode_H_
 
 #include <vode_type.H>
 #include <vode_dvhin.H>

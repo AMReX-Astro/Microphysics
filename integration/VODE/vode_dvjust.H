@@ -1,5 +1,5 @@
-#ifndef _cuvode_dvjust_H_
-#define _cuvode_dvjust_H_
+#ifndef _vode_dvjust_H_
+#define _vode_dvjust_H_
 
 #include <vode_type.H>
 

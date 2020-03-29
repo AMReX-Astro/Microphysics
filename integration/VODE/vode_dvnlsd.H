@@ -1,5 +1,5 @@
-#ifndef _cuvode_dvnlsd_H_
-#define _cuvode_dvnlsd_H_
+#ifndef _vode_dvnlsd_H_
+#define _vode_dvnlsd_H_
 
 #include <vode_type.H>
 #include <vode_linpack.H>
