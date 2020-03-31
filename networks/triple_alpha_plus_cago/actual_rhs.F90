@@ -16,9 +16,13 @@ contains
 
   subroutine actual_rhs_init()
 
+    use screening_module, only: screening_init
+
     implicit none
 
-    !$gpu
+    call set_up_screening_factors()
+
+    call screening_init()
 
   end subroutine actual_rhs_init
 
@@ -180,5 +184,28 @@ contains
     enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
+
+  ! Compute and store the more expensive screening factors
+
+  subroutine set_up_screening_factors()
+
+    use screening_module, only: add_screening_factor
+    use network, only: aion, zion
+
+    implicit none
+
+    ! note: it is critical that these are called in the exact order
+    ! that the screening calls are done in the RHS routine, since we
+    ! use that order in the screening
+
+    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
+
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
+
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
+
+
+  end subroutine set_up_screening_factors
+
 
 end module actual_rhs_module
