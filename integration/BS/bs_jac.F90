@@ -21,7 +21,6 @@ contains
     implicit none
 
     type (bs_t) :: bs
-    real(rt) :: J(neqs, neqs)
 
     integer :: n
 

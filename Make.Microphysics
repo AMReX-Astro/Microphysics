@@ -42,6 +42,8 @@ endif
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
+MICROPHYSICS_AUTO_SOURCE_DIR := $(TmpBuildDir)/microphysics_sources/$(optionsSuffix).EXE
+
 all: build_status $(executable) starkiller_library
 	@echo SUCCESS
 
@@ -116,7 +118,7 @@ Bpack  += $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 #------------------------------------------------------------------------------
 # microphysics
 #------------------------------------------------------------------------------
-NETWORK_OUTPUT_PATH := .
+NETWORK_OUTPUT_PATH := $(MICROPHYSICS_AUTO_SOURCE_DIR)
 
 include $(MICROPHYSICS_HOME)/Make.Microphysics_extern
 
@@ -139,6 +141,13 @@ VPATH_LOCATIONS   += $(Blocs)
 
 
 #------------------------------------------------------------------------------
+# make generated source files location
+#------------------------------------------------------------------------------
+VPATH_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
+INCLUDE_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
+
+
+#------------------------------------------------------------------------------
 # runtime parameters
 #------------------------------------------------------------------------------
 
@@ -158,11 +167,13 @@ endif
 
 EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
 
-extern_parameters.cpp: extern.F90
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
 
-extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
 	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
-           -t $(EXTERN_TEMPLATE) -o extern.F90 -n extern \
+           -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern \
+           --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
            --pa "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
 
 #------------------------------------------------------------------------------
@@ -215,6 +226,7 @@ include $(AMREX_HOME)/Tools/GNUMake/Make.rules
 clean::
 	$(SILENT) $(RM) extern.F90
 	$(SILENT) $(RM) network_properties.F90 network_properties.H
+	$(SILENT) $(RM) $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.H $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.[fF]90
 	$(SILENT) $(RM) extern_parameters.cpp extern_parameters_F.H extern_parameters.H
 
 # Older versions of CASTRO generated a "network.f90" file when using

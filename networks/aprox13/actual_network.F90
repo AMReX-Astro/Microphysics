@@ -19,10 +19,10 @@ module actual_network
   integer, parameter :: ife52 = 12
   integer, parameter :: ini56 = 13
 
-  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: bion, mion, wion
+  attributes(managed) :: bion, mion
 #endif
 
   character (len=32), parameter :: network_name = "aprox13"
@@ -44,7 +44,7 @@ module actual_network
 
   real(rt)        , parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  !$acc declare create(aion, zion, nion, bion, mion, wion)
+  !$acc declare create(aion, zion, nion, bion, mion)
 
   ! Rates data
 
@@ -140,7 +140,6 @@ contains
     call network_properties_init()
     allocate(bion(nspec))
     allocate(mion(nspec))
-    allocate(wion(nspec))
 
     ! Set the binding energy of the element (MeV)
     bion(ihe4)  =  28.29603e0_rt
@@ -160,13 +159,7 @@ contains
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
 
-    ! Molar mass
-    wion(:) = avo * mion(:)
-
-    ! Common approximation
-    wion(:) = aion(:)
-
-    !$acc update device(aion, zion, nion, bion, mion, wion)
+    !$acc update device(aion, zion, nion, bion, mion)
 
     ratenames(ir3a)   = 'r3a  '
     ratenames(irg3a)  = 'rg3a '
@@ -277,9 +270,6 @@ contains
     endif
     if (allocated(mion)) then
        deallocate(mion)
-    endif
-    if (allocated(wion)) then
-       deallocate(wion)
     endif
 
   end subroutine actual_network_finalize

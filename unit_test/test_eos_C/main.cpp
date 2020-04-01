@@ -17,6 +17,8 @@ using namespace amrex;
 #include <eos.H>
 #include <variables.H>
 
+#include <cmath>
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -131,8 +133,8 @@ void main_main ()
     Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (log10(dens_max) - log10(dens_min))/(n_cell - 1);
-        dlogT   = (log10(temp_max) - log10(temp_min))/(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
         dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
     }
 
@@ -158,10 +160,10 @@ void main_main ()
           eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
           eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
 
-          Real temp_zone = std::pow(10.0, log10(temp_min) + static_cast<Real>(j)*dlogT);
+          Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
           eos_state.T = temp_zone;
 
-          Real dens_zone = std::pow(10.0, log10(dens_min) + static_cast<Real>(i)*dlogrho);
+          Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
           eos_state.rho = dens_zone;
 
           // store default state
@@ -232,7 +234,7 @@ void main_main ()
 
 
           // call EOS using T, p
-          if (eos_name == "gamma_law") {
+          if (! is_input_valid(eos_input_tp)) {
             sp(i, j, k, vars.ierr_rho_eos_tp) = 0.0;
           } else {
             // reset rho to give it some work to do
@@ -281,7 +283,7 @@ void main_main ()
 
           // some EOSes don't have physically valid treatments
           // of entropy throughout the entire rho-T plane
-          if (eos_name == "multigamma" || eos_state.s <= 0.0) {
+          if ( ! is_input_valid(eos_input_ps) || eos_state.s <= 0.0) {
             sp(i, j, k, vars.ierr_T_eos_ps) = 0.0;
             sp(i, j, k, vars.ierr_rho_eos_ps) = 0.0;
 
@@ -317,7 +319,7 @@ void main_main ()
 
           // call EOS using T, h
           // this doesn't work for all EOSes (where h doesn't depend on T)
-          if (eos_name == "gamma_law_general" || eos_name == "multigamma") {
+          if ( ! is_input_valid(eos_input_th)) {
             sp(i, j, k, vars.ierr_rho_eos_th) = 0.0;
 
           } else {

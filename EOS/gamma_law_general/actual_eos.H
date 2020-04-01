@@ -26,6 +26,21 @@ void actual_eos_init() {
 
 }
 
+
+
+AMREX_GPU_HOST_DEVICE inline
+bool is_input_valid(eos_input_t input) {
+
+  bool valid = true;
+
+  if (input == eos_input_th) {
+    valid = false;
+  }
+
+  return valid;
+}
+
+
 AMREX_GPU_HOST_DEVICE inline
 void actual_eos(const eos_input_t input, eos_t& state) {
 

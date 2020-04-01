@@ -21,13 +21,13 @@ module actual_network
   integer, parameter :: io16  = 2
   integer, parameter :: img24 = 3
 
-  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: bion, mion, wion
+  attributes(managed) :: bion, mion
 #endif
 
-  !$acc declare create(bion, mion, wion)
+  !$acc declare create(bion, mion)
 
   integer, parameter :: nrates = 1
   integer, parameter :: num_rate_groups = 4
@@ -57,7 +57,6 @@ contains
 
     allocate(bion(nspec))
     allocate(mion(nspec))
-    allocate(wion(nspec))
 
     ! Binding energies per nucleus in MeV
     bion(ic12)  = 92.16294e0_rt
@@ -66,12 +65,6 @@ contains
 
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
-
-    ! Molar mass
-    wion(:) = avo * mion(:)
-
-    ! Common approximation
-    wion(:) = aion(:)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
@@ -82,7 +75,7 @@ contains
     csr_jac_row_count = [1, 3, 5, 8]
 #endif
 
-    !$acc update device(nion, mion, wion)
+    !$acc update device(nion, mion)
 
   end subroutine actual_network_init
 
@@ -98,9 +91,6 @@ contains
     endif
     if (allocated(mion)) then
        deallocate(mion)
-    endif
-    if (allocated(wion)) then
-       deallocate(wion)
     endif
 
   end subroutine actual_network_finalize

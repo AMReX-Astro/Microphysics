@@ -14,7 +14,8 @@
 module actual_eos_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use eos_type_module, only: eos_t, eos_input_rt, eos_input_re
+  use eos_type_module, only: eos_t, eos_input_rt, eos_input_re, eos_input_rh, &
+       eos_input_ph, eos_input_ps, eos_input_th, eos_input_tp, eos_input_rp
 
   implicit none
 
@@ -65,6 +66,26 @@ contains
 
   end subroutine actual_eos_finalize
 
+
+
+  subroutine is_input_valid(input, valid)
+    implicit none
+    integer, intent(in) :: input
+    logical, intent(out) :: valid
+
+    !$gpu
+
+    valid = .true.
+
+    if (input == eos_input_rh .or. &
+        input == eos_input_tp .or. &
+        input == eos_input_rp .or. &
+        input == eos_input_ps .or. &
+        input == eos_input_ph .or. &
+        input == eos_input_th) then
+       valid = .false.
+    end if
+  end subroutine is_input_valid
 
 
   subroutine actual_eos(input, state)
