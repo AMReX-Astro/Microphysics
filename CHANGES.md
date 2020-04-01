@@ -1,9 +1,12 @@
 # 20.04
 
+   * The wion network property was removed (#294)
+
    * There are new unit tests for the screening and aprox rates
      modules (both C++ and Fortran interfaces).
 
-   * The screening routines were ported to C++ (#290)
+   * The screening routines were ported to C++ (#290) and the screenz
+     routine was removed in favor of screen5 (#293)
 
    * a new method, is_input_valid, was added to all EOSes (both C++
      and Fortran interfaces) that can be used to query whether an EOS
