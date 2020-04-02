@@ -143,6 +143,10 @@ void vode_integrator (burn_t& state, Real dt)
         return;
     }
 
+    // Subtract the energy offset
+
+    vode_state.y(net_ienuc) -= e_in;
+
     // Copy the integration data back to the burn state.
 
     vode_to_burn(vode_state, state);
@@ -159,7 +163,7 @@ void vode_integrator (burn_t& state, Real dt)
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout << " energy released: " << state.e - e_in << std::endl;
+        std::cout << " energy released: " << state.e << std::endl;
         std::cout <<  "number of steps taken: " << vode_state.NST << std::endl;
         std::cout <<  "number of f evaluations: " << vode_state.NFE << std::endl;
     }
