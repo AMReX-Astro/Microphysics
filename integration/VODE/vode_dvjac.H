@@ -131,7 +131,7 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, burn_t& state, dvode_
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
                 for (int j = 1; j <= VODE_NEQS; ++j) {
-                    for (int i = 1; j <= VODE_NEQS; ++i) {
+                    for (int i = 1; i <= VODE_NEQS; ++i) {
                         vstate.jac_save(i,j) = vstate.jac(i,j);
                     }
                 }
