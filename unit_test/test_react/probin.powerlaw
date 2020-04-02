@@ -6,8 +6,6 @@
   temp_max   = 7.d8
 
   primary_species_1 = "fuel"
-  primary_species_2 = "ash"
-  primary_species_3 = "inert"
 
   tmax = 1.0d-1
 
