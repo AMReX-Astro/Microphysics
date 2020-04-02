@@ -79,21 +79,21 @@ contains
           if (nprim >= 2) xn_zone(is2, k) = Xp_min/2
           if (nprim >= 3) xn_zone(is3, k) = Xp_min/2
 
-          dX = (Xp_max - Xp_min)/(n1 - 1)
+          dX = (Xp_max - Xp_min) / max((n1 - 1), 1)
           xn_zone(is1, k) = Xp_min + (k - 1)*dX
 
        else if (nprim >= 2 .and. k <= n1 + n2) then
           xn_zone(is1, k) = Xp_min/2
           if (nprim >= 3) xn_zone(is3, k) = Xp_min/2
 
-          dX = (Xp_max - Xp_min)/(n2 - 1)
+          dX = (Xp_max - Xp_min) / max((n2 - 1), 1)
           xn_zone(is2, k) = Xp_min + (k - (n1 + 1))*dX
 
        else
           xn_zone(is1, k) = Xp_min/2
           xn_zone(is2, k) = Xp_min/2
 
-          dX = (Xp_max - Xp_min)/(n3 - 1)
+          dX = (Xp_max - Xp_min) / max((n3 - 1), 1)
           xn_zone(is3, k) = Xp_min + (k - (n1 + n2 + 1))*dX
 
        end if
