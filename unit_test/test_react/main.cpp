@@ -113,11 +113,11 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // C++ EOS initialization (must be done after Fortran eos_init)
-    eos_init();
-
     // Copy extern parameters from Fortran to C++
     init_extern_parameters();
+
+    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    eos_init();
 
     // Ncomp = number of components for each array
     int Ncomp = -1;
