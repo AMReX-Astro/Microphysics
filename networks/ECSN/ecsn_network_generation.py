@@ -31,7 +31,7 @@ comp.normalize()
 # Do not select weak rates from "20180319default2"
 new_rate_list = []
 ydots = rc.evaluate_rates(rho=7.e9, T=1.e9, composition=comp)
-for rate in rcirates:
+for rate in rc.rates:
     if ydots[rate] >= 1.e-20 and rate.weak == False:
         new_rate_list.append(rate)
 
