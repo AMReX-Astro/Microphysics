@@ -1,5 +1,6 @@
 module actual_network
 
+  use network_properties
   use physical_constants, only: ERG_PER_MeV
   use amrex_fort_module, only: rt => amrex_real
 
@@ -9,26 +10,23 @@ module actual_network
 
   character (len=32), parameter :: network_name = "pynucastro"
 
-  real(rt), parameter :: avo = 6.0221417930d23
-  real(rt), parameter :: c_light = 2.99792458d10
+  real(rt), parameter :: avo = 6.0221417930e23_rt
+  real(rt), parameter :: c_light = 2.99792458e10_rt
   real(rt), parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  real(rt), parameter :: ev2erg  = 1.60217648740d-12
-  real(rt), parameter :: mev2erg = ev2erg*1.0d6
-  real(rt), parameter :: mev2gr  = mev2erg/c_light**2
+  real(rt), parameter :: ev2erg  = 1.60217648740e-12_rt
+  real(rt), parameter :: mev2erg = ev2erg * 1.0e6_rt
+  real(rt), parameter :: mev2gr  = mev2erg / c_light**2
 
-  real(rt), parameter :: mass_neutron  = 1.67492721184d-24
-  real(rt), parameter :: mass_proton   = 1.67262163783d-24
-  real(rt), parameter :: mass_electron = 9.10938215450d-28
+  real(rt), parameter :: mass_neutron  = 1.67492721184e-24_rt
+  real(rt), parameter :: mass_proton   = 1.67262163783e-24_rt
+  real(rt), parameter :: mass_electron = 9.10938215450e-28_rt
 
   integer, parameter :: nrates = 18
+
+
+  ! For each rate, we need: rate, drate/dT, screening, dscreening/dT
   integer, parameter :: num_rate_groups = 4
-
-  ! Evolution and auxiliary
-  integer, parameter :: naux  = 0
-
-  ! Number of nuclear species in the network
-  integer, parameter :: nspec = 11
 
   ! Number of reaclib rates
   integer, parameter :: nrat_reaclib = 14
@@ -40,9 +38,6 @@ module actual_network
   ! Binding Energies Per Nucleon (MeV)
   real(rt) :: ebind_per_nucleon(nspec)
 
-  ! aion: Nucleon mass number A
-  ! zion: Nucleon atomic number Z
-  ! nion: Nucleon neutron number N
   ! bion: Binding Energies (ergs)
 
   ! Nuclides
@@ -78,26 +73,13 @@ module actual_network
   integer, parameter :: k_o20__f20   = 17
   integer, parameter :: k_f20__ne20   = 18
 
-  ! reactvec indices
-  integer, parameter :: i_rate        = 1
-  integer, parameter :: i_drate_dt    = 2
-  integer, parameter :: i_scor        = 3
-  integer, parameter :: i_dscor_dt    = 4
-  integer, parameter :: i_dqweak      = 5
-  integer, parameter :: i_epart       = 6
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
-
-  real(rt), allocatable, save :: aion(:), zion(:), bion(:)
-  real(rt), allocatable, save :: nion(:), mion(:), wion(:)
+  real(rt), allocatable, save :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, bion, nion, mion, wion
+  attributes(managed) :: bion, mion
 #endif
 
-  !$acc declare create(aion, zion, bion, nion, mion, wion)
+  !$acc declare create(bion, mion)
 
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
@@ -118,50 +100,23 @@ contains
     integer :: i
 
     ! Allocate ion info arrays
-    allocate(aion(nspec))
-    allocate(zion(nspec))
     allocate(bion(nspec))
-    allocate(nion(nspec))
     allocate(mion(nspec))
-    allocate(wion(nspec))
 
-    spec_names(jp)   = "hydrogen-1"
-    spec_names(jhe4)   = "helium-4"
-    spec_names(jo16)   = "oxygen-16"
-    spec_names(jo20)   = "oxygen-20"
-    spec_names(jf20)   = "fluorine-20"
-    spec_names(jne20)   = "neon-20"
-    spec_names(jmg24)   = "magnesium-24"
-    spec_names(jal27)   = "aluminum-27"
-    spec_names(jsi28)   = "silicon-28"
-    spec_names(jp31)   = "phosphorus-31"
-    spec_names(js32)   = "sulfur-32"
-
-    short_spec_names(jp)   = "h1"
-    short_spec_names(jhe4)   = "he4"
-    short_spec_names(jo16)   = "o16"
-    short_spec_names(jo20)   = "o20"
-    short_spec_names(jf20)   = "f20"
-    short_spec_names(jne20)   = "ne20"
-    short_spec_names(jmg24)   = "mg24"
-    short_spec_names(jal27)   = "al27"
-    short_spec_names(jsi28)   = "si28"
-    short_spec_names(jp31)   = "p31"
-    short_spec_names(js32)   = "s32"
-
-    ebind_per_nucleon(jp)   = 0.00000000000000d+00
-    ebind_per_nucleon(jhe4)   = 7.07391500000000d+00
-    ebind_per_nucleon(jo16)   = 7.97620600000000d+00
-    ebind_per_nucleon(jo20)   = 7.56857000000000d+00
-    ebind_per_nucleon(jf20)   = 7.72013400000000d+00
-    ebind_per_nucleon(jne20)   = 8.03224000000000d+00
-    ebind_per_nucleon(jmg24)   = 8.26070900000000d+00
-    ebind_per_nucleon(jal27)   = 8.33155300000000d+00
-    ebind_per_nucleon(jsi28)   = 8.44774400000000d+00
-    ebind_per_nucleon(jp31)   = 8.48116700000000d+00
-    ebind_per_nucleon(js32)   = 8.49312900000000d+00
+    ebind_per_nucleon(jp)   = 0.00000000000000e+00_rt
+    ebind_per_nucleon(jhe4)   = 7.07391500000000e+00_rt
+    ebind_per_nucleon(jo16)   = 7.97620600000000e+00_rt
+    ebind_per_nucleon(jo20)   = 7.56857000000000e+00_rt
+    ebind_per_nucleon(jf20)   = 7.72013400000000e+00_rt
+    ebind_per_nucleon(jne20)   = 8.03224000000000e+00_rt
+    ebind_per_nucleon(jmg24)   = 8.26070900000000e+00_rt
+    ebind_per_nucleon(jal27)   = 8.33155300000000e+00_rt
+    ebind_per_nucleon(jsi28)   = 8.44774400000000e+00_rt
+    ebind_per_nucleon(jp31)   = 8.48116700000000e+00_rt
+    ebind_per_nucleon(js32)   = 8.49312900000000e+00_rt
 
     aion(jp)   = 1.00000000000000d+00
+    print*,"xinlong"
     aion(jhe4)   = 4.00000000000000d+00
     aion(jo16)   = 1.60000000000000d+01
     aion(jo20)   = 2.00000000000000d+01
@@ -173,30 +128,6 @@ contains
     aion(jp31)   = 3.10000000000000d+01
     aion(js32)   = 3.20000000000000d+01
 
-    zion(jp)   = 1.00000000000000d+00
-    zion(jhe4)   = 2.00000000000000d+00
-    zion(jo16)   = 8.00000000000000d+00
-    zion(jo20)   = 8.00000000000000d+00
-    zion(jf20)   = 9.00000000000000d+00
-    zion(jne20)   = 1.00000000000000d+01
-    zion(jmg24)   = 1.20000000000000d+01
-    zion(jal27)   = 1.30000000000000d+01
-    zion(jsi28)   = 1.40000000000000d+01
-    zion(jp31)   = 1.50000000000000d+01
-    zion(js32)   = 1.60000000000000d+01
-
-    nion(jp)   = 0.00000000000000d+00
-    nion(jhe4)   = 2.00000000000000d+00
-    nion(jo16)   = 8.00000000000000d+00
-    nion(jo20)   = 1.20000000000000d+01
-    nion(jf20)   = 1.10000000000000d+01
-    nion(jne20)   = 1.00000000000000d+01
-    nion(jmg24)   = 1.20000000000000d+01
-    nion(jal27)   = 1.40000000000000d+01
-    nion(jsi28)   = 1.40000000000000d+01
-    nion(jp31)   = 1.60000000000000d+01
-    nion(js32)   = 1.60000000000000d+01
-
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
     end do
@@ -205,18 +136,13 @@ contains
     mion(:) = nion(:) * mass_neutron + zion(:) * (mass_proton + mass_electron) &
          - bion(:)/(c_light**2)
 
-    ! Molar mass
-    wion(:) = avo * mion(:)
 
-    ! Common approximation
-    !wion(:) = aion(:)
-
-    !$acc update device(aion, zion, bion, nion, mion, wion)
+    !$acc update device(bion, mion)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
     allocate(csr_jac_col_index(NETWORK_SPARSE_JAC_NNZ))
-    allocate(csr_jac_row_count(nspec + 3)) ! neq + 1
+    allocate(csr_jac_row_count(nspec_evolve + 3)) ! neq + 1
 
     csr_jac_col_index = [ &
       1, &
@@ -333,28 +259,12 @@ contains
   subroutine actual_network_finalize()
     ! Deallocate storage arrays
 
-    if (allocated(aion)) then
-       deallocate(aion)
-    endif
-
-    if (allocated(zion)) then
-       deallocate(zion)
-    endif
-
     if (allocated(bion)) then
        deallocate(bion)
     endif
 
-    if (allocated(nion)) then
-       deallocate(nion)
-    endif
-
     if (allocated(mion)) then
        deallocate(mion)
-    endif
-
-    if (allocated(wion)) then
-       deallocate(wion)
     endif
 
 #ifdef REACT_SPARSE_JACOBIAN
