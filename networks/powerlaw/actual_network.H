@@ -36,7 +36,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, VODE_NEQS>& ydot)
         rate = 0.0_rt;
     }
     else {
-        rate = rtilde * (dens / rho_burn_ref) * xfueltmp * xfueltmp * std::pow(temp / T_burn_ref, nu);
+        rate = rtilde * (dens / rho_burn_ref) * std::pow(xfueltmp, 2) * std::pow(temp / T_burn_ref, nu);
     }
 
     ydot(1)  = -rate; // fuel
