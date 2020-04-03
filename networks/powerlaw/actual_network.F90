@@ -9,12 +9,16 @@ module actual_network
   integer, parameter :: iinert_ = 3
 
 
-  real(rt)        , save :: ebin(nspec)
+  real(rt), allocatable, save :: ebin(:)
 
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
 
   character (len=32), parameter :: network_name = "powerlaw"
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: ebin
+#endif
 
 contains
   
@@ -27,6 +31,8 @@ contains
     call network_properties_init()
 
     ! Binding energies in erg / g
+
+    allocate(ebin(3))
 
     ebin(ifuel_)  = ZERO
     ebin(iash_)   = specific_q_burn
@@ -42,7 +48,7 @@ contains
 
     call network_properties_finalize()
 
-    ! Nothing to do here.
+    deallocate(ebin)
 
   end subroutine actual_network_finalize
 
