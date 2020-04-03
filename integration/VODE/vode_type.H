@@ -74,6 +74,9 @@ void print_state(dvode_t& dvode_state)
     std::cout << "CONP = " << dvode_state.CONP << std::endl;
     std::cout << "CRATE = " << dvode_state.CRATE << std::endl;
     std::cout << "DRC = " << dvode_state.DRC << std::endl;
+    for (int n = 1; n <= VODE_LMAX; ++n) {
+        std::cout << "el(" << n << ") = " << dvode_state.el(n) << std::endl;
+    }
     std::cout << "el(1) = " << dvode_state.el(1) << std::endl;
     std::cout << "el(2) = " << dvode_state.el(2) << std::endl;
     std::cout << "el(3) = " << dvode_state.el(3) << std::endl;
@@ -95,19 +98,9 @@ void print_state(dvode_t& dvode_state)
     std::cout << "PRL1 = " << dvode_state.PRL1 << std::endl;
     std::cout << "RC = " << dvode_state.RC << std::endl;
     std::cout << "RL1 = " << dvode_state.RL1 << std::endl;
-    std::cout << "tau(1) = " << dvode_state.tau(1) << std::endl;
-    std::cout << "tau(2) = " << dvode_state.tau(2) << std::endl;
-    std::cout << "tau(3) = " << dvode_state.tau(3) << std::endl;
-    std::cout << "tau(4) = " << dvode_state.tau(4) << std::endl;
-    std::cout << "tau(5) = " << dvode_state.tau(5) << std::endl;
-    std::cout << "tau(6) = " << dvode_state.tau(6) << std::endl;
-    std::cout << "tau(7) = " << dvode_state.tau(7) << std::endl;
-    std::cout << "tau(8) = " << dvode_state.tau(8) << std::endl;
-    std::cout << "tau(9) = " << dvode_state.tau(9) << std::endl;
-    std::cout << "tau(10) = " << dvode_state.tau(10) << std::endl;
-    std::cout << "tau(11) = " << dvode_state.tau(11) << std::endl;
-    std::cout << "tau(12) = " << dvode_state.tau(12) << std::endl;
-    std::cout << "tau(13) = " << dvode_state.tau(13) << std::endl;
+    for (int n = 1; n <= VODE_LMAX; ++n) {
+        std::cout << "tau(" << n << ") = " << dvode_state.tau(n) << std::endl;
+    }
     std::cout << "tq(1) = " << dvode_state.tq(1) << std::endl;
     std::cout << "tq(2) = " << dvode_state.tq(2) << std::endl;
     std::cout << "tq(3) = " << dvode_state.tq(3) << std::endl;
