@@ -40,10 +40,6 @@ void vode_integrator (burn_t& state, Real dt)
     vode_state.rtol(net_itemp) = rtol_temp; // temperature
     vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
 
-    // Indicate that we're starting a new call.
-    
-    vode_state.istate = 1;
-
     // Start off by assuming a successful burn.
 
     state.success = true;
@@ -105,13 +101,13 @@ void vode_integrator (burn_t& state, Real dt)
 
     // Call the integration routine.
 
-    dvode(state, vode_state);
+    int istate = dvode(state, vode_state);
 
     // VODE does not always fail even though it can lead to unphysical states,
     // so add some sanity checks that trigger a retry even if VODE thinks
     // the integration was successful.
 
-    if (vode_state.istate < 0) {
+    if (istate < 0) {
         state.success = false;
     }
 
@@ -135,7 +131,7 @@ void vode_integrator (burn_t& state, Real dt)
     if (!state.success) {
 #ifndef AMREX_USE_CUDA
         std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "istate = " << vode_state.istate << std::endl;
+        std::cout << "istate = " << istate << std::endl;
         std::cout << "time = " << vode_state.t << std::endl;
 #endif
 

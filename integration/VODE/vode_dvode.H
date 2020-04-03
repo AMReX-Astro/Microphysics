@@ -7,17 +7,21 @@
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvode (burn_t& state, dvode_t& vstate)
+int dvode (burn_t& state, dvode_t& vstate)
 {
 
     // Local variables
     Real H0, S;
     int IER, NITER;
 
+    // Flag determining if we were successful.
+
+    int istate = 1;
+
     // Return if the final time matches the starting time.
 
     if (vstate.tout == vstate.t) {
-        return;
+        return istate;
     }
 
     // All remaining initializations, the initial call to F,
@@ -66,8 +70,8 @@ void dvode (burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
         std::cout << "DVODE: TOUT too close to T to start integration" << std::endl;
 #endif
-        vstate.istate = -3;
-        return;
+        istate = -3;
+        return istate;
     }
 
     // Load H with H0 and scale yh(:,2) by H0.
@@ -113,15 +117,14 @@ void dvode (burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
                std::cout << "DVODE: maximum number of steps taken before reaching TOUT" << std::endl;
 #endif
-               vstate.istate = -1;
-
                for (int i = 1; i <= VODE_NEQS; ++i) {
                    vstate.y(i) = vstate.yh(i,1);
                }
 
                vstate.t = vstate.tn;
 
-               return;
+               istate = -1;
+               return istate;
 
            }
 
@@ -149,23 +152,22 @@ void dvode (burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
                std::cout << "DVODE: too much accuracy requested at start of integration" << std::endl;
 #endif
-               vstate.istate = -3;
-               return;
+               istate = -3;
+               return istate;
            }
 
            // Too much accuracy requested for machine precision.
 #ifndef AMREX_USE_GPU
            std::cout << "DVODE: too much accuracy requested" << std::endl;
 #endif
-           vstate.istate = -2;
-
            for (int i = 1; i <= VODE_NEQS; ++i) {
                vstate.y(i) = vstate.yh(i,1);
            }
 
            vstate.t = vstate.tn;
 
-           return;
+           istate = -2;
+           return istate;
 
        }
 
@@ -178,8 +180,6 @@ void dvode (burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
            std::cout << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << std::endl;
 #endif
-           vstate.istate = -4;
-
            // Set Y array, T, and optional output.
            for (int i = 1; i <= VODE_NEQS; ++i) {
                vstate.y(i) = vstate.yh(i,1);
@@ -187,7 +187,8 @@ void dvode (burn_t& state, dvode_t& vstate)
 
            vstate.t = vstate.tn;
 
-           return;
+           istate = -4;
+           return istate;
 
        }
        else if (kflag == -2) {
@@ -195,8 +196,6 @@ void dvode (burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
            std::cout << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << std::endl;
 #endif
-           vstate.istate = -5;
-
            // Set Y array, T, and optional output.
            for (int i = 1; i <= VODE_NEQS; ++i) {
                vstate.y(i) = vstate.yh(i,1);
@@ -204,7 +203,8 @@ void dvode (burn_t& state, dvode_t& vstate)
 
            vstate.t = vstate.tn;
 
-           return;
+           istate = -5;
+           return istate;
 
        }
 
@@ -230,9 +230,8 @@ void dvode (burn_t& state, dvode_t& vstate)
 
        vstate.t = vstate.tout;
 
-       vstate.istate = 2;
-
-       return;
+       istate = 2;
+       return istate;
 
     }
 

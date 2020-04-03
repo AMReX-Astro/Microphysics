@@ -43,9 +43,6 @@ struct dvode_t
     // Tolerances
     RArray1D rtol, atol;
 
-    // State flag
-    int istate;
-
     // Local time and integration end time
     amrex::Real t, tout;
 
