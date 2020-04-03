@@ -14,8 +14,6 @@ void dvode (burn_t& state, dvode_t& vstate)
     Real H0, S;
     int IER, NITER;
 
-    Array1D<int, 1, VODE_NEQS> pivot;
-
     // Return if the final time matches the starting time.
 
     if (vstate.tout == vstate.t) {
@@ -153,7 +151,7 @@ void dvode (burn_t& state, dvode_t& vstate)
 
        }
 
-       int kflag = dvstep(pivot, state, vstate);
+       int kflag = dvstep(state, vstate);
 
        // Branch on KFLAG. KFLAG can be 0, -1, or -2.
 
