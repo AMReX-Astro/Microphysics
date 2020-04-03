@@ -33,8 +33,8 @@ struct dvode_t
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
 
-    amrex::Array1D<Real, 1, 13> el;
-    amrex::Array1D<Real, 1, 13> tau;
+    amrex::Array1D<Real, 1, VODE_LMAX> el;
+    amrex::Array1D<Real, 1, VODE_LMAX> tau;
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
