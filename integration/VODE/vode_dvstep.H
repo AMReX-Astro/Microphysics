@@ -149,7 +149,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         // Call the nonlinear system solver.
 
-        dvnlsd(pivot, NFLAG, state, vstate);
+        Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 
@@ -198,7 +198,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
         // The corrector has converged (NFLAG = 0). The local error test is
         // made and control passes to statement 500 if it fails.
 
-        DSM = vstate.ACNRM / vstate.tq(2);
+        DSM = ACNRM / vstate.tq(2);
         if (DSM <= 1.0_rt) {
 
             // After a successful step, update the yh and TAU arrays and decrement

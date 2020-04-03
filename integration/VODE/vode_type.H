@@ -28,7 +28,7 @@ const int max_steps_between_jacobian_evals = 50;
 struct dvode_t
 {
     amrex::Real HU;
-    amrex::Real ACNRM, CONP, CRATE, DRC;
+    amrex::Real CONP, CRATE, DRC;
     amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
     amrex::Real RC, RL1, tn;
     int NFE, NJE, NST;
@@ -70,7 +70,6 @@ void print_state(dvode_t& dvode_state)
 {
 
     std::cout << "HU = " << dvode_state.HU << std::endl;
-    std::cout << "ACNRM = " << dvode_state.ACNRM << std::endl;
     std::cout << "CONP = " << dvode_state.CONP << std::endl;
     std::cout << "CRATE = " << dvode_state.CRATE << std::endl;
     std::cout << "DRC = " << dvode_state.DRC << std::endl;

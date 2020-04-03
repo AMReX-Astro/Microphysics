@@ -6,8 +6,10 @@
 #include <vode_dvjac.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
+Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
 {
+
+    Real ACNRM = 1.e10_rt;
 
     // dvnlsd is a nonlinear system solver that uses a chord (modified
     // Newton) method with direct linear algebraic system solvers.
@@ -82,7 +84,7 @@ void dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
                 NFLAG = -1;
                 vstate.ICF = 2;
                 vstate.IPUP = 1;
-                return;
+                return ACNRM;
             }
 
         }
@@ -184,7 +186,7 @@ void dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             NFLAG = -1;
             vstate.ICF = 2;
             vstate.IPUP = 1;
-            return;
+            return ACNRM;
         }
 
         vstate.ICF = 1;
@@ -197,16 +199,18 @@ void dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
     vstate.JCUR = 0;
     vstate.ICF = 0;
     if (M == 0) {
-        vstate.ACNRM = DEL;
+        ACNRM = DEL;
     }
 
     if (M > 0) {
-        vstate.ACNRM = 0.0_rt;
+        ACNRM = 0.0_rt;
         for (int i = 1; i <= VODE_NEQS; ++i) {
-            vstate.ACNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
+            ACNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
         }
-        vstate.ACNRM = std::sqrt(vstate.ACNRM / VODE_NEQS);
+        ACNRM = std::sqrt(ACNRM / VODE_NEQS);
     }
+
+    return ACNRM;
 
 }
 
