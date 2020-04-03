@@ -3,7 +3,7 @@
 
 #include <vode_rhs.H>
 
-AMREX_GPU_HOST_DEVICE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 {
     // This routine computes the step size, H0, to be attempted on the

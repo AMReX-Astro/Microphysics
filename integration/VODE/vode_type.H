@@ -64,6 +64,7 @@ struct dvode_t
 };
 
 #ifndef AMREX_USE_CUDA
+AMREX_FORCE_INLINE
 void print_state(dvode_t& dvode_state)
 {
 
