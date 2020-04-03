@@ -23,44 +23,48 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Note that we no longer include the chemical potential (dE/dX or dH/dX)
     // terms because we believe they analytically should vanish.
 
-    if (do_constant_volume_burn) {
+    if (state.self_heat) {
 
-        Real cv;
+        if (do_constant_volume_burn) {
 
-        if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
+            Real cv;
 
-            cv = state.cv + (state.T - state.T_old) * state.dcvdT;
+            if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
 
-        }
-        else {
+                cv = state.cv + (state.T - state.T_old) * state.dcvdT;
 
-            cv = state.cv;
+            }
+            else {
 
-        }
+                cv = state.cv;
 
-        Real cvInv = 1.0_rt / cv;
+            }
 
-        ydot(net_itemp) = ydot(net_ienuc) * cvInv;
+            Real cvInv = 1.0_rt / cv;
 
-    }
-    else {
-
-        Real cp;
-
-        if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
-
-            cp = state.cp + (state.T - state.T_old) * state.dcpdT;
+            ydot(net_itemp) = ydot(net_ienuc) * cvInv;
 
         }
         else {
 
-            cp = state.cp;
+            Real cp;
+
+            if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
+
+                cp = state.cp + (state.T - state.T_old) * state.dcpdT;
+
+            }
+            else {
+
+                cp = state.cp;
+
+            }
+
+            Real cpInv = 1.0_rt / cp;
+
+            ydot(net_itemp) = ydot(net_ienuc) * cpInv;
 
         }
-
-        Real cpInv = 1.0_rt / cp;
-
-        ydot(net_itemp) = ydot(net_ienuc) * cpInv;
 
     }
 
@@ -75,55 +79,59 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void temperature_jac (burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
 {
 
-    Real cspec, cspecInv;
+    if (state.self_heat) {
 
-    // Temperature Jacobian elements
+        Real cspec, cspecInv;
 
-    if (do_constant_volume_burn) {
+        // Temperature Jacobian elements
 
-        if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
+        if (do_constant_volume_burn) {
 
-            cspec = state.cv + (state.T - state.T_old) * state.dcvdT;
+            if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
 
-        }
-        else {
+                cspec = state.cv + (state.T - state.T_old) * state.dcvdT;
 
-            cspec = state.cv;
+            }
+            else {
 
-        }
+                cspec = state.cv;
 
-    }
-    else {
-
-        if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
-
-            cspec = state.cp + (state.T - state.T_old) * state.dcpdT;
+            }
 
         }
         else {
 
-            cspec = state.cp;
+            if (!call_eos_in_rhs && dT_crit < 1.0e19_rt) {
+
+                cspec = state.cp + (state.T - state.T_old) * state.dcpdT;
+
+            }
+            else {
+
+                cspec = state.cp;
+
+            }
 
         }
 
+        cspecInv = 1.0_rt / cspec;
+
+        // d(itemp) / d(yi)
+
+        for (int k = 1; k <= NumSpec; ++k) {
+            jac(net_itemp, k) = jac(net_ienuc, k) * cspecInv;
+        }
+
+        // d(itemp) / d(temp) -- we get this from the equation for d (denuc / dt) / dT
+        // since dT / dt = 1 / c_x denuc / dt in our formalism
+
+        jac(net_itemp, net_itemp) = jac(net_ienuc, net_itemp) * cspecInv;
+
+        // d(itemp) / d(enuc)
+
+        jac(net_itemp, net_ienuc) = 0.0_rt;
+
     }
-
-    cspecInv = 1.0_rt / cspec;
-
-    // d(itemp) / d(yi)
-
-    for (int k = 1; k <= NumSpec; ++k) {
-        jac(net_itemp, k) = jac(net_ienuc, k) * cspecInv;
-    }
-
-    // d(itemp) / d(temp) -- we get this from the equation for d (denuc / dt) / dT
-    // since dT / dt = 1 / c_x denuc / dt in our formalism
-
-    jac(net_itemp, net_itemp) = jac(net_ienuc, net_itemp) * cspecInv;
-
-    // d(itemp) / d(enuc)
-
-    jac(net_itemp, net_ienuc) = 0.0_rt;
 
 }
 

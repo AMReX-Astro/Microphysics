@@ -44,8 +44,8 @@ struct burn_t
     Real dcvdT;
     Real dcpdT;
 
-    // Zone index information.
-    int i, j, k;
+    // Are we doing a self-heating burn?
+    bool self_heat;
 
     // diagnostics
     int n_rhs, n_jac;

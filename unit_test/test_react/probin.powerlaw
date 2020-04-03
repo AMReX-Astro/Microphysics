@@ -10,8 +10,6 @@
 
   primary_species_1 = "fuel"
 
-  burning_mode = 1
-
-  tmax = 1.0d-1
+  tmax = 1.0d-4
 
 /

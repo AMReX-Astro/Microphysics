@@ -95,6 +95,18 @@ void vode_integrator (burn_t& state, Real dt)
 
     }
 
+    if (burning_mode == 0) {
+        state.self_heat = false;
+    }
+    else if (burning_mode == 1) {
+        state.self_heat = true;
+    }
+#ifndef AMREX_USE_GPU
+    else {
+        amrex::Error("Unsupported burning_mode");
+    }
+#endif
+
     // Call the integration routine.
 
     dvode(state, vode_state);
