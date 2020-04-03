@@ -26,7 +26,6 @@ void dvode (burn_t& state, dvode_t& vstate)
 
     vstate.tn = vstate.t;
 
-    vstate.JSTART = 0;
     vstate.NST = 0;
     vstate.NJE = 0;
     vstate.NSLJ = 0;
@@ -77,6 +76,26 @@ void dvode (burn_t& state, dvode_t& vstate)
     for (int i = 1; i <= VODE_NEQS; ++i) {
         vstate.yh(i,2) *= H0;
     }
+
+    // Start with the order set to 1, and initialize other variables.
+    // ETAMAX is the maximum ratio by which H can be increased
+    // in a single step. It is normally 10, but is larger during the
+    // first step to compensate for the small initial H. If a failure
+    // occurs (in corrector convergence or error test), ETAMAX is set to 1
+    // for the next increase.
+
+    vstate.NQ = 1;
+    vstate.L = 2;
+    vstate.NQNYH = vstate.NQ * VODE_NEQS;
+    vstate.tau(1) = vstate.H;
+    vstate.PRL1 = 1.0_rt;
+    vstate.RC = 0.0_rt;
+    vstate.ETAMAX = 1.0e4_rt;
+    vstate.NQWAIT = 2;
+    vstate.HSCAL = vstate.H;
+    vstate.NEWH = 0;
+    vstate.NSLP = 0;
+    vstate.IPUP = 1;
 
     bool skip_loop_start = true;
 

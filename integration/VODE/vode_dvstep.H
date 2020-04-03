@@ -71,7 +71,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
     const Real ETACF = 0.25e0_rt;
     const Real ETAMIN = 0.1e0_rt;
     const Real ETAMXF = 0.2e0_rt;
-    const Real ETAMX1 = 1.0e4_rt;
     const Real ETAMX2 = 10.0e0_rt;
     const Real ETAMX3 = 10.0e0_rt;
     const Real ONEPSM = 1.00001e0_rt;
@@ -90,62 +89,26 @@ int dvstep (burn_t& state, dvode_t& vstate)
     vstate.JCUR = 0;
     NFLAG = 0;
 
-    bool do_initialization = false;
+    // Take preliminary actions if the driver changed H. ETA must be
+    // reset and the history array yh is rescaled.
 
-    if (vstate.JSTART == 0) {
+    // If a change of order was dictated on the previous step, then
+    // it is done here and appropriate adjustments in the history are made.
 
-        // On the first call, the order is set to 1, and other variables are
-        // initialized.  ETAMAX is the maximum ratio by which H can be increased
-        // in a single step.  It is normally 10, but is larger during the
-        // first step to compensate for the small initial H.  If a failure
-        // occurs (in corrector convergence or error test), ETAMAX is set to 1
-        // for the next increase.
+    if (vstate.NEWH != 0) {
 
-        vstate.NQ = 1;
-        vstate.L = 2;
-        vstate.NQNYH = vstate.NQ * VODE_NEQS;
-        vstate.tau(1) = vstate.H;
-        vstate.PRL1 = 1.0_rt;
-        vstate.RC = 0.0_rt;
-        vstate.ETAMAX = ETAMX1;
-        vstate.NQWAIT = 2;
-        vstate.HSCAL = vstate.H;
-
-    }
-    else {
-
-        // Take preliminary actions on a normal continuation step (JSTART > 0).
-        // If the driver changed H, then ETA must be reset and NEWH set to 1.
-        // If a change of order was dictated on the previous step, then
-        // it is done here and appropriate adjustments in the history are made.
-        // On an order decrease, the history array is adjusted by DVJUST.
-        // On an order increase, the history array is augmented by a column.
-        //  On a change of step size H, the history array yh is rescaled.
-
-        if (vstate.NEWH == 0) {
-            do_initialization = false;
+        if (vstate.NEWQ < vstate.NQ) {
+            dvjust(-1, vstate);
+            vstate.NQ = vstate.NEWQ;
+            vstate.L = vstate.NQ + 1;
+            vstate.NQWAIT = vstate.L;
         }
-        else {
-
-            if (vstate.NEWQ < vstate.NQ) {
-                dvjust(-1, vstate);
-                vstate.NQ = vstate.NEWQ;
-                vstate.L = vstate.NQ + 1;
-                vstate.NQWAIT = vstate.L;
-            }
-            else if (vstate.NEWQ > vstate.NQ) {
-                dvjust(1, vstate);
-                vstate.NQ = vstate.NEWQ;
-                vstate.L = vstate.NQ + 1;
-                vstate.NQWAIT = vstate.L;
-            }
-
-            do_initialization = true;
+        else if (vstate.NEWQ > vstate.NQ) {
+            dvjust(1, vstate);
+            vstate.NQ = vstate.NEWQ;
+            vstate.L = vstate.NQ + 1;
+            vstate.NQWAIT = vstate.L;
         }
-
-    }
-
-    if (do_initialization) {
 
         // Rescale the history array for a change in H by a factor of ETA.
 
@@ -208,19 +171,16 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 else if (NFLAG == -3) {
                     kflag = -4;
                 }
-                vstate.JSTART = 1;
                 return kflag;
             }
 
             if (std::abs(vstate.H) <= HMIN * ONEPSM) {
                 kflag = -2;
-                vstate.JSTART = 1;
                 return kflag;
             }
 
             if (NCF == MXNCF) {
                 kflag = -2;
-                vstate.JSTART = 1;
                 return kflag;
             }
 
@@ -302,8 +262,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 vstate.acor(i) *= R;
             }
 
-            vstate.JSTART = 1;
-
             return kflag;
 
         }
@@ -322,7 +280,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         if (std::abs(vstate.H) <= HMIN * ONEPSM) {
             kflag = -1;
-            vstate.JSTART = 1;
             return kflag;
         }
 
@@ -366,7 +323,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         if (kflag == KFH) {
             kflag = -1;
-            vstate.JSTART = 1;
             return kflag;
         }
 
@@ -494,7 +450,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         for (int i = 1; i <= VODE_NEQS; ++i) {
             vstate.acor(i) *= R;
         }
-        vstate.JSTART = 1;
         return kflag;
     }
 
@@ -510,7 +465,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
     for (int i = 1; i <= VODE_NEQS; ++i) {
         vstate.acor(i) *= R;
     }
-    vstate.JSTART = 1;
 
     return kflag;
 

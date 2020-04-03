@@ -27,16 +27,10 @@ void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, burn_t& state, dvode
     // nonlinear convergence failure with NFLAG = -2, set IPUP = 1
     // to force a Jacobian update.
 
-    if (vstate.JSTART == 0) {
-        vstate.NSLP = 0;
-    }
     if (NFLAG == 0) {
         vstate.ICF = 0;
     }
     if (NFLAG == -2) {
-        vstate.IPUP = 1;
-    }
-    if (vstate.JSTART == 0) {
         vstate.IPUP = 1;
     }
 
