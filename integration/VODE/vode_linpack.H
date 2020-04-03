@@ -4,9 +4,7 @@
 #include <vode_type.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgesl (Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& a,
-            Array1D<int, 1, VODE_NEQS>& pivot,
-            Array1D<Real, 1, VODE_NEQS>& b)
+void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
 {
 
     int nm1 = VODE_NEQS - 1;
@@ -43,8 +41,7 @@ void dgesl (Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& a,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgefa (Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& a,
-            Array1D<int, 1, VODE_NEQS>& pivot, int& info)
+void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 {
 
     // dgefa factors a matrix by gaussian elimination.

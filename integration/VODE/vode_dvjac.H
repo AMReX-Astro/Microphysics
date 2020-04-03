@@ -6,7 +6,7 @@
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
+void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 {
 
     // dvjac is called by dvnlsd to compute and process the matrix

@@ -12,7 +12,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (burn_t& state, dvode_t& vode_state, Array1D<Real, 1, VODE_NEQS>& ydot)
+void rhs (burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 {
 
     // We are integrating a system of
@@ -65,7 +65,7 @@ void rhs (burn_t& state, dvode_t& vode_state, Array1D<Real, 1, VODE_NEQS>& ydot)
 // Analytical Jacobian
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, dvode_t& vode_state, Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& pd)
+void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 {
 
     // Call the specific network routine to get the Jacobian.

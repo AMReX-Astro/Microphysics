@@ -128,7 +128,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
     }
 
-    Array1D<int, 1, VODE_NEQS> pivot;
+    IArray1D pivot;
 
     // Compute the predicted values by effectively
     // multiplying the yh array by the Pascal triangle matrix.

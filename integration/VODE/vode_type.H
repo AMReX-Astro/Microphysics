@@ -7,6 +7,10 @@
 
 const int VODE_NEQS = NumSpec + 2;
 
+typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
+typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
+typedef amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
+
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 const amrex::Real CCMXJ = 0.2e0_rt;
 const amrex::Real HMIN = 0.0_rt;
@@ -38,8 +42,7 @@ struct dvode_t
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    amrex::Array1D<Real, 1, VODE_NEQS> rtol;
-    amrex::Array1D<Real, 1, VODE_NEQS> atol;
+    RArray1D rtol, atol;
 
     // State flag
     int istate;
@@ -48,18 +51,17 @@ struct dvode_t
     amrex::Real t, tout;
 
     // Integration array
-    amrex::Array1D<Real, 1, VODE_NEQS> y;
+    RArray1D y;
 
     // Jacobian
-    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS> jac;
+    RArray2D jac;
 
     // Saved Jacobian
-    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS> jac_save;
+    RArray2D jac_save;
 
     amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
-    amrex::Array1D<Real, 1, VODE_NEQS> ewt;
-    amrex::Array1D<Real, 1, VODE_NEQS> savf;
-    amrex::Array1D<Real, 1, VODE_NEQS> acor;
+
+    RArray1D ewt, savf, acor;
 };
 
 #ifndef AMREX_USE_CUDA

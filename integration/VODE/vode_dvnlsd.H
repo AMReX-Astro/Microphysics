@@ -6,7 +6,7 @@
 #include <vode_dvjac.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
+void dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
 {
 
     // dvnlsd is a nonlinear system solver that uses a chord (modified
