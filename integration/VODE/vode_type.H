@@ -27,7 +27,6 @@ const int max_steps_between_jacobian_evals = 50;
 // Type dvode_t contains the integration solution and control variables
 struct dvode_t
 {
-    amrex::Real HU;
     amrex::Real CONP, CRATE, DRC;
     amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
     amrex::Real RC, RL1, tn;
@@ -69,7 +68,6 @@ AMREX_FORCE_INLINE
 void print_state(dvode_t& dvode_state)
 {
 
-    std::cout << "HU = " << dvode_state.HU << std::endl;
     std::cout << "CONP = " << dvode_state.CONP << std::endl;
     std::cout << "CRATE = " << dvode_state.CRATE << std::endl;
     std::cout << "DRC = " << dvode_state.DRC << std::endl;

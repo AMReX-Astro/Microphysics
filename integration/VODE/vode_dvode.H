@@ -29,7 +29,6 @@ void dvode (burn_t& state, dvode_t& vstate)
     vstate.NST = 0;
     vstate.NJE = 0;
     vstate.NSLJ = 0;
-    vstate.HU = 0.0_rt;
 
     // Initial call to the RHS.
 

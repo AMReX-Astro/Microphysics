@@ -208,7 +208,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             kflag = 0;
             vstate.NST += 1;
-            vstate.HU = vstate.H;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
                 int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
