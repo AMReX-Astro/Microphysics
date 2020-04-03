@@ -220,16 +220,6 @@ void dvode (burn_t& state, dvode_t& vstate)
 
     }
 
-    // We've successfully completed the integration.
-
-    for (int i = 1; i <= VODE_NEQS; ++i) {
-        vstate.y(i) = vstate.yh(i,1);
-    }
-
-    vstate.t = vstate.tn;
-
-    vstate.istate = 2;
-
 }
 
 #endif
