@@ -43,7 +43,7 @@ void retract_nordsieck (dvode_t& vstate)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
+int dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
 {
 
     // dvstep performs one step of the integration of an initial value
@@ -84,7 +84,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
     ETAQ = 1.0_rt;
     ETAQM1 = 1.0_rt;
 
-    vstate.kflag = 0;
+    int kflag = 0;
     TOLD = vstate.tn;
     NCF = 0;
     vstate.JCUR = 0;
@@ -201,25 +201,25 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
 
             if (NFLAG < -1) {
                 if (NFLAG == -2) {
-                    vstate.kflag = -3;
+                    kflag = -3;
                 }
                 else if (NFLAG == -3) {
-                    vstate.kflag = -4;
+                    kflag = -4;
                 }
                 vstate.JSTART = 1;
-                return;
+                return kflag;
             }
 
             if (std::abs(vstate.H) <= HMIN * ONEPSM) {
-                vstate.kflag = -2;
+                kflag = -2;
                 vstate.JSTART = 1;
-                return;
+                return kflag;
             }
 
             if (NCF == MXNCF) {
-                vstate.kflag = -2;
+                kflag = -2;
                 vstate.JSTART = 1;
-                return;
+                return kflag;
             }
 
             vstate.ETA = ETACF;
@@ -255,7 +255,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
             // for use in a possible order increase on the next step.
             // If ETAMAX = 1 (a failure occurred this step), keep NQWAIT >= 2.
 
-            vstate.kflag = 0;
+            kflag = 0;
             vstate.NST += 1;
             vstate.HU = vstate.H;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
@@ -302,7 +302,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
 
             vstate.JSTART = 1;
 
-            return;
+            return kflag;
 
         }
 
@@ -312,27 +312,27 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
         // same order. After repeated failures, H is forced to decrease
         // more rapidly.
 
-        vstate.kflag -= 1;
+        kflag -= 1;
         NFLAG = -2;
         vstate.tn = TOLD;
 
         retract_nordsieck(vstate);
 
         if (std::abs(vstate.H) <= HMIN * ONEPSM) {
-            vstate.kflag = -1;
+            kflag = -1;
             vstate.JSTART = 1;
-            return;
+            return kflag;
         }
 
         vstate.ETAMAX = 1.0_rt;
 
-        if (vstate.kflag > KFC) {
+        if (kflag > KFC) {
 
             // Compute ratio of new H to current H at the current order.
             FLOTL = vstate.L;
             vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
-            if ((vstate.kflag <= -2) && (vstate.ETA > ETAMXF)) {
+            if ((kflag <= -2) && (vstate.ETA > ETAMXF)) {
                 vstate.ETA = ETAMXF;
             }
 
@@ -362,10 +362,10 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
         // the step is retried.  After a total of 7 consecutive failures,
         // an exit is taken with kflag = -1.
 
-        if (vstate.kflag == KFH) {
-            vstate.kflag = -1;
+        if (kflag == KFH) {
+            kflag = -1;
             vstate.JSTART = 1;
-            return;
+            return kflag;
         }
 
         if (vstate.NQ != 1) {
@@ -493,7 +493,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
             vstate.acor(i) *= R;
         }
         vstate.JSTART = 1;
-        return;
+        return kflag;
     }
 
     vstate.NEWQ = vstate.NQ;
@@ -509,6 +509,8 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
         vstate.acor(i) *= R;
     }
     vstate.JSTART = 1;
+
+    return kflag;
 
 }
 

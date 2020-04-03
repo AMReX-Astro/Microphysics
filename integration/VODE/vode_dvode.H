@@ -153,11 +153,11 @@ void dvode (burn_t& state, dvode_t& vstate)
 
        }
 
-       dvstep(pivot, state, vstate);
+       int kflag = dvstep(pivot, state, vstate);
 
        // Branch on KFLAG. KFLAG can be 0, -1, or -2.
 
-       if (vstate.kflag == -1) {
+       if (kflag == -1) {
            // Error test failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
            std::cout << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << std::endl;
@@ -174,7 +174,7 @@ void dvode (burn_t& state, dvode_t& vstate)
            return;
 
        }
-       else if (vstate.kflag == -2) {
+       else if (kflag == -2) {
            // Convergence failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
            std::cout << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << std::endl;
@@ -192,7 +192,7 @@ void dvode (burn_t& state, dvode_t& vstate)
 
        }
 
-       // Otherwise, we've had a successful return from the integrator (KFLAG = 0).
+       // Otherwise, we've had a successful return from the integrator (kflag = 0).
        // Test for our stopping condition.
 
        if ((vstate.tn - vstate.tout) * vstate.H < 0.0_rt) continue;

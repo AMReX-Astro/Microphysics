@@ -28,7 +28,7 @@ struct dvode_t
     amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
     amrex::Real RC, RL1, tn;
     int NFE, NJE, NST;
-    int ICF, IPUP, JCUR, JSTART, kflag;
+    int ICF, IPUP, JCUR, JSTART;
     int L;
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
@@ -119,7 +119,6 @@ void print_state(dvode_t& dvode_state)
     std::cout << "IPUP = " << dvode_state.IPUP << std::endl;
     std::cout << "JCUR = " << dvode_state.JCUR << std::endl;
     std::cout << "JSTART = " << dvode_state.JSTART << std::endl;
-    std::cout << "kflag = " << dvode_state.kflag << std::endl;
     std::cout << "L = " << dvode_state.L << std::endl;
     std::cout << "NEWH = " << dvode_state.NEWH << std::endl;
     std::cout << "NEWQ = " << dvode_state.NEWQ << std::endl;
