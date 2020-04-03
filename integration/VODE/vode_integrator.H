@@ -44,10 +44,6 @@ void vode_integrator (burn_t& state, Real dt)
     
     vode_state.istate = 1;
 
-    // Set the maximum number of steps allowed.
-
-    vode_state.MXSTEP = ode_max_steps;
-
     // Start off by assuming a successful burn.
 
     state.success = true;

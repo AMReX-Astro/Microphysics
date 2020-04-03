@@ -30,7 +30,6 @@ struct dvode_t
     int NFE, NJE, NST;
     int ICF, IPUP, JCUR, JSTART, kflag;
     int L;
-    int MXSTEP;
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
 
@@ -122,7 +121,6 @@ void print_state(dvode_t& dvode_state)
     std::cout << "JSTART = " << dvode_state.JSTART << std::endl;
     std::cout << "kflag = " << dvode_state.kflag << std::endl;
     std::cout << "L = " << dvode_state.L << std::endl;
-    std::cout << "MXSTEP = " << dvode_state.MXSTEP << std::endl;
     std::cout << "NEWH = " << dvode_state.NEWH << std::endl;
     std::cout << "NEWQ = " << dvode_state.NEWQ << std::endl;
     std::cout << "NQ = " << dvode_state.NQ << std::endl;

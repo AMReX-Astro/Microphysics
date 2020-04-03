@@ -92,7 +92,7 @@ void dvode (burn_t& state, dvode_t& vstate)
            // start of problem), check for too much accuracy being requested, and
            // check for H below the roundoff level in T.
 
-           if (vstate.NST >= vstate.MXSTEP) {
+           if (vstate.NST >= ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
                std::cout << "DVODE: maximum number of steps taken before reaching TOUT" << std::endl;
