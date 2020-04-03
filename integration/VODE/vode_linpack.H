@@ -16,7 +16,7 @@ void dgesl (Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& a,
     if (nm1 >= 1) {
         for (int k = 1; k <= nm1; ++k) {
             int l = pivot(k);
-            Real t = b(k);
+            Real t = b(l);
             if (l != k) {
                 b(l) = b(k);
                 b(k) = t;
