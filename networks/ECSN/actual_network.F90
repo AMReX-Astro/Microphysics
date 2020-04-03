@@ -117,19 +117,6 @@ contains
     ebind_per_nucleon(jp31)   = 8.48116700000000e+00_rt
     ebind_per_nucleon(js32)   = 8.49312900000000e+00_rt
 
-    aion(jp)   = 1.00000000000000d+00
-    print*,"xinlong"
-    aion(jhe4)   = 4.00000000000000d+00
-    aion(jo16)   = 1.60000000000000d+01
-    aion(jo20)   = 2.00000000000000d+01
-    aion(jf20)   = 2.00000000000000d+01
-    aion(jne20)   = 2.00000000000000d+01
-    aion(jmg24)   = 2.40000000000000d+01
-    aion(jal27)   = 2.70000000000000d+01
-    aion(jsi28)   = 2.80000000000000d+01
-    aion(jp31)   = 3.10000000000000d+01
-    aion(js32)   = 3.20000000000000d+01
-
     do i = 1, nspec
        bion(i) = ebind_per_nucleon(i) * aion(i) * ERG_PER_MeV
     end do
