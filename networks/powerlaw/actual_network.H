@@ -4,18 +4,6 @@
 #include <network_properties.H>
 #include <extern_parameters.H>
 
-AMREX_FORCE_INLINE
-void actual_network_init ()
-{
-}
-
-
-AMREX_FORCE_INLINE
-void actual_network_finalize ()
-{
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs (burn_t& state, Array1D<Real, 1, VODE_NEQS>& ydot)
 {
