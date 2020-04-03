@@ -164,16 +164,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             retract_nordsieck(vstate);
 
-            if (NFLAG < -1) {
-                if (NFLAG == -2) {
-                    kflag = -3;
-                }
-                else if (NFLAG == -3) {
-                    kflag = -4;
-                }
-                return kflag;
-            }
-
             if (std::abs(vstate.H) <= HMIN * ONEPSM) {
                 kflag = -2;
                 return kflag;
@@ -186,7 +176,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             vstate.ETA = ETACF;
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H));
-            NFLAG = -1;
 
             // Rescale the history array for a change in H by a factor of ETA.
             R = 1.0_rt;
