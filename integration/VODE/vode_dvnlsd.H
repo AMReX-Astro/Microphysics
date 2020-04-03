@@ -139,7 +139,7 @@ void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, burn_t& state, dvode
 
             DEL = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
-                DEL += (vstate.y(i) * vstate.y(i)) * (vstate.ewt(i) * vstate.ewt(i));
+                DEL += (vstate.y(i) * vstate.ewt(i)) * (vstate.y(i) * vstate.ewt(i));
             }
             DEL = std::sqrt(DEL / VODE_NEQS);
 
@@ -209,7 +209,7 @@ void dvnlsd (Array1D<int, 1, VODE_NEQS>& pivot, int& NFLAG, burn_t& state, dvode
     if (M > 0) {
         vstate.ACNRM = 0.0_rt;
         for (int i = 1; i <= VODE_NEQS; ++i) {
-            vstate.ACNRM += (vstate.acor(i) * vstate.acor(i)) * (vstate.ewt(i) * vstate.ewt(i));
+            vstate.ACNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
         }
         vstate.ACNRM = std::sqrt(vstate.ACNRM / VODE_NEQS);
     }

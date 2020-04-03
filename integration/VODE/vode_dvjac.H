@@ -101,7 +101,7 @@ void dvjac (Array1D<int, 1, VODE_NEQS>& pivot, int& IERPJ, burn_t& state, dvode_
 
             Real fac = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
-                fac += (vstate.savf(i) * vstate.savf(i)) * (vstate.ewt(i) * vstate.ewt(i));
+                fac += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
             fac = std::sqrt(fac / VODE_NEQS);
 

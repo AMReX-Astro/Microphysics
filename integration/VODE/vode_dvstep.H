@@ -429,7 +429,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
             // Compute ratio of new H to current H at the current order less one.
             DDN = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
-                DDN += (vstate.yh(i,vstate.L) * vstate.yh(i,vstate.L)) * (vstate.ewt(i) * vstate.ewt(i));
+                DDN += (vstate.yh(i,vstate.L) * vstate.ewt(i)) * (vstate.yh(i,vstate.L) * vstate.ewt(i));
             }
             DDN = std::sqrt(DDN / VODE_NEQS) / vstate.tq(1);
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
@@ -444,7 +444,7 @@ void dvstep (Array1D<int, 1, VODE_NEQS>& pivot, burn_t& state, dvode_t& vstate)
             }
             DUP = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
-                DUP += (vstate.savf(i) * vstate.savf(i)) * (vstate.ewt(i) * vstate.ewt(i));
+                DUP += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
             DUP = std::sqrt(DUP / VODE_NEQS) / vstate.tq(3);
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);

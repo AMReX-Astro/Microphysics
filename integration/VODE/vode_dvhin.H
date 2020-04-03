@@ -73,7 +73,7 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 
             Real YDDNRM = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
-                YDDNRM += (vstate.acor(i) * vstate.acor(i)) * (vstate.ewt(i) * vstate.ewt(i));
+                YDDNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
             }
             YDDNRM = std::sqrt(YDDNRM / VODE_NEQS);
 

@@ -121,7 +121,7 @@ void dvode (burn_t& state, dvode_t& vstate)
 
        Real TOLSF = 0.0_rt;
        for (int i = 1; i <= VODE_NEQS; ++i) {
-           TOLSF += (vstate.yh(i,1) * vstate.yh(i,1)) * (vstate.ewt(i) * vstate.ewt(i));
+           TOLSF += (vstate.yh(i,1) * vstate.ewt(i)) * (vstate.yh(i,1) * vstate.ewt(i));
        }
        TOLSF = UROUND * std::sqrt(TOLSF / VODE_NEQS);
 
