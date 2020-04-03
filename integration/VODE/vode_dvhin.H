@@ -60,7 +60,6 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 
             // Estimate the second derivative as a difference quotient in f.
             Real H = std::copysign(HG, vstate.tout - vstate.t);
-            Real T1 = vstate.t + H;
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
