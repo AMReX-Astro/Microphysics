@@ -4,12 +4,6 @@
 #include <burn_type.H>
 #include <integrator.H>
 
-AMREX_FORCE_INLINE
-void burner_init ()
-{
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void burner (burn_t& state, Real dt)
 {

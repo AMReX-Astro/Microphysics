@@ -3,12 +3,6 @@
 
 #include <vode_integrator.H>
 
-AMREX_FORCE_INLINE
-void integrator_init ()
-{
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void integrator (burn_t& state, Real dt)
 {

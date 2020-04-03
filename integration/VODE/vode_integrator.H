@@ -13,14 +13,6 @@
 #include <vode_type.H>
 #include <vode_dvode.H>
 
-AMREX_FORCE_INLINE
-void vode_integrator_init ()
-{
-
-}
-
-
-// Main interface
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void vode_integrator (burn_t& state, Real dt)
 {
