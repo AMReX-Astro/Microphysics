@@ -52,8 +52,10 @@ struct dvode_t
     // Jacobian
     RArray2D jac;
 
+#ifndef AMREX_USE_GPU
     // Saved Jacobian
     RArray2D jac_save;
+#endif
 
     amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
 

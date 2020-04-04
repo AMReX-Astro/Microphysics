@@ -18,6 +18,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
     IERPJ = 0;
 
+#ifndef AMREX_USE_GPU
     // See whether the Jacobian should be evaluated. Start by basing
     // the decision on whether we're caching the Jacobian.
 
@@ -51,6 +52,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     }
 
     if (evaluate_jacobian == 1) {
+#endif
 
         // We want to evaluate the Jacobian -- now the path depends on
         // whether we're using the numerical or analytic Jacobian.
@@ -76,6 +78,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
             jac(state, vstate, vstate.jac);
 
+#ifndef AMREX_USE_GPU
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
                 for (int j = 1; j <= VODE_NEQS; ++j) {
@@ -84,6 +87,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                     }
                 }
             }
+#endif
 
         }
         else {
@@ -128,6 +132,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
             // Increment the RHS evaluation counter by N.
             vstate.NFE += VODE_NEQS;
 
+#ifndef AMREX_USE_GPU
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
                 for (int j = 1; j <= VODE_NEQS; ++j) {
@@ -136,9 +141,11 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                     }
                 }
             }
+#endif
 
         }
 
+#ifndef AMREX_USE_GPU
     }
     else {
 
@@ -153,6 +160,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
         }
 
     }
+#endif
 
     // Multiply Jacobian by a scalar, add the identity matrix
     // (along the diagonal), and do LU decomposition.
