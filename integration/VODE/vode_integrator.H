@@ -103,9 +103,26 @@ void vode_integrator (burn_t& state, Real dt)
 
     int istate = dvode(state, vode_state);
 
-    // VODE does not always fail even though it can lead to unphysical states,
-    // so add some sanity checks that trigger a retry even if VODE thinks
-    // the integration was successful.
+    // Subtract the energy offset.
+
+    vode_state.y(net_ienuc) -= e_in;
+
+    // Copy the integration data back to the burn state.
+
+    vode_to_burn(vode_state, state);
+
+    // Normalize the final abundances.
+
+    normalize_abundances_burn(state);
+
+    // Get the number of RHS and Jacobian evaluations.
+
+    state.n_rhs = vode_state.NFE;
+    state.n_jac = vode_state.NJE;
+
+    // VODE does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if VODE thinks the
+    // integration was successful.
 
     if (istate < 0) {
         state.success = false;
@@ -125,35 +142,6 @@ void vode_integrator (burn_t& state, Real dt)
         }
     }
 
-
-    // If we failed, print out the current state of the integration.
-
-    if (!state.success) {
-#ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "istate = " << istate << std::endl;
-        std::cout << "time = " << vode_state.t << std::endl;
-#endif
-
-        state.success = false;
-        return;
-    }
-
-    // Subtract the energy offset
-
-    vode_state.y(net_ienuc) -= e_in;
-
-    // Copy the integration data back to the burn state.
-
-    vode_to_burn(vode_state, state);
-
-    // Get the number of RHS and Jacobian evaluations
-
-    state.n_rhs = vode_state.NFE;
-    state.n_jac = vode_state.NJE;
-
-    normalize_abundances_burn(state);
-
 #ifndef AMREX_USE_CUDA
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
@@ -164,6 +152,16 @@ void vode_integrator (burn_t& state, Real dt)
         std::cout <<  "number of f evaluations: " << vode_state.NFE << std::endl;
     }
 #endif
+
+    // If we failed, print out the current state of the integration.
+
+    if (!state.success) {
+#ifndef AMREX_USE_CUDA
+        std::cout << "ERROR: integration failed in net" << std::endl;
+        std::cout << "istate = " << istate << std::endl;
+        std::cout << "time = " << vode_state.t << std::endl;
+#endif
+    }
 
 }
 
