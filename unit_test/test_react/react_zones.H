@@ -10,7 +10,7 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const& n_rhs)
+bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const& n_rhs)
 {
 
     burn_t burn_state;
@@ -39,6 +39,8 @@ void do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
     state(i, j, k, p_irho_hnuc) = state(i, j, k, p_irho) * burn_state.e / dt;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+
+    return burn_state.success;
 
 }
 

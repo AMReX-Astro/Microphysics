@@ -163,6 +163,8 @@ void main_main ()
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
+    int num_failed = 0;
+
     // Do the reactions
 #ifdef _OPENMP
 #pragma omp parallel
@@ -176,9 +178,15 @@ void main_main ()
             auto s = state.array(mfi);
             auto n_rhs = integrator_n_rhs.array(mfi);
 
+            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
+
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                do_react(i, j, k, s, n_rhs);
+                bool success = do_react(i, j, k, s, n_rhs);
+
+                if (!success) {
+                    Gpu::Atomic::Add(num_failed_d, 1);
+                }
             });
 
         }
@@ -194,6 +202,10 @@ void main_main ()
 	if (print_every_nrhs != 0)
 	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
 		     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+    }
+
+    if (num_failed > 0) {
+        amrex::Abort("Integration failed");
     }
 
     // Call the timer again and compute the maximum difference between
