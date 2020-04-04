@@ -67,6 +67,11 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         }
 
     }
+    else {
+
+        ydot(net_itemp) = 0.0_rt;
+
+    }
 
 }
 
@@ -130,6 +135,13 @@ void temperature_jac (burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
         // d(itemp) / d(enuc)
 
         jac(net_itemp, net_ienuc) = 0.0_rt;
+
+    }
+    else {
+
+        for (int k = 1; k <= neqs; ++k) {
+            jac(net_itemp, k) = 0.0_rt;
+        }
 
     }
 
