@@ -116,23 +116,6 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
                 }
             }
 
-#ifdef CLEAN_INTEGRATOR_CORRECTION
-            // Clean the correction to Y. Use vstate.y as scratch space.
-
-            // Find the corrected Y: Yc = Y_previous + Y_delta
-            for (int i = 1; i <= VODE_NEQS; ++i) {
-                vstate.y(i) += (vstate.yh(i,1) + vstate.acor(i));
-            }
-
-            // Clean the corrected Y: Yc' = clean(Yc)
-            clean_state(vstate.y, vstate.RPAR);
-
-            // Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
-            for (int i = 1; i <= VODE_NEQS; ++i) {
-                vstate.y(i) -= (vstate.yh(i,1) + vstate.acor(i));
-            }
-#endif
-
             DEL = 0.0_rt;
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 DEL += (vstate.y(i) * vstate.ewt(i)) * (vstate.y(i) * vstate.ewt(i));
