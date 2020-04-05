@@ -39,7 +39,7 @@ contains
 
     ! Ensure that mass fractions always stay positive.
     vode_state % y(SFS:SFS+nspec-1) = &
-         max(min(vode_state % y(SFS:SFS+nspec-1), vode_State % rpar(irp_SRHO)), &
+         max(min(vode_state % y(SFS:SFS+nspec-1), vode_state % rpar(irp_SRHO)), &
              vode_state % rpar(irp_SRHO) * 1.e-200_rt)
 
     ! renormalize abundances as necessary
@@ -267,11 +267,10 @@ contains
     use eos_module, only : eos
     use eos_composition_module, only : eos_xderivs_t, composition_derivatives
     use actual_rhs_module
-    use linpack_module, only : dgemm
 
     real(rt), intent(in) :: time
     type(dvode_t), intent(inout) :: vode_state
-    real(rt), intent(in) :: jac_react(neqs, neqs)
+    real(rt), intent(inout) :: jac_react(neqs, neqs)
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
     integer :: m, n
@@ -279,6 +278,7 @@ contains
 
     real(rt) :: dRdw(SVAR_EVOLVE, iwvar)
     real(rt) :: dwdU(iwvar, SVAR_EVOLVE)
+    type(burn_t) :: burn_state
     type(burn_t) :: burn_state_pert
     type(eos_t) :: eos_state
     type(eos_xderivs_t) :: eos_xderivs
@@ -307,6 +307,7 @@ contains
     enddo
 
     ! also fill the ydot -- we can't assume that it is valid on input
+    call vode_to_burn(time, vode_state, burn_state)
     call actual_rhs(burn_state, ydot)
 
     ! at this point, our Jacobian should be entirely in terms of X,
@@ -345,30 +346,30 @@ contains
     do m = 1, nspec
        ! d( d(rho X_m)/dt)/drho
        dRdw(SFS-1+m, iwrho) = ydot(m) + &
-            rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
+            vode_state % rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
     enddo
 
     ! d( d(rho e)/dt)/drho
     dRdw(SEINT, iwrho) = ydot(net_ienuc) + &
-         rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
+         vode_state % rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
 
     ! d( d(rho E)/dt)/drho
     dRdw(SEDEN, iwrho) = ydot(net_ienuc) + &
-         rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
+         vode_state % rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
 
     ! fill the columns of dRdw corresponding to each derivative
     ! with respect to species mass fraction
     do n = 1, nspec
        do m = 1, nspec
           ! d( d(rho X_m)/dt)/dX_n
-          dRdw(SFS-1+m, iwfs-1+n) = rpar(irp_SRHO) * jac_react(m, n)
+          dRdw(SFS-1+m, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(m, n)
        enddo
 
        ! d( d(rho e)/dt)/dX_n
-       dRdw(SEINT, iwfs-1+n) = rpar(irp_SRHO) * jac_react(net_ienuc, n)
+       dRdw(SEINT, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, n)
 
        ! d( d(rho E)/dt)/dX_n
-       dRdw(SEDEN, iwfs-1+n) = rpar(irp_SRHO) * jac_react(net_ienuc, n)
+       dRdw(SEDEN, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, n)
 
     enddo
 
@@ -377,14 +378,14 @@ contains
 
     ! d( d(rho X_m)/dt)/dT
     do m = 1, nspec
-       dRdw(SFS-1+m, iwT) = rpar(irp_SRHO) * jac_react(m, net_itemp)
+       dRdw(SFS-1+m, iwT) = vode_state % rpar(irp_SRHO) * jac_react(m, net_itemp)
     enddo
 
     ! d( d(rho e)/dt)/dT
-    dRdw(SEINT, iwT) = rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
+    dRdw(SEINT, iwT) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
 
     ! d( d(rho E)/dt)/dT
-    dRdw(SEDEN, iwT) = rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
+    dRdw(SEDEN, iwT) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
 
     ! that completes dRdw
 
@@ -393,7 +394,7 @@ contains
     dwdU(:, :) = ZERO
 
     ! kinetic energy, K = 1/2 |U|^2
-    K = 0.5_rt * sum(rpar(irp_SMX:irp_SMZ)**2)/rpar(irp_SRHO)**2
+    K = 0.5_rt * sum(vode_state % rpar(irp_SMX:irp_SMZ)**2)/vode_state % rpar(irp_SRHO)**2
 
     if (K == ZERO) then
        K = smallK
@@ -405,16 +406,16 @@ contains
 
     ! species rows
     do m = 1, nspec
-       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/rpar(irp_SRHO)
+       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/vode_state % rpar(irp_SRHO)
        dwdU(iwfs-1+m, SEINT) = burn_state % xn(m) / (burn_state % rho * K)
        dwdU(iwfs-1+m, SEDEN) = -burn_state % xn(m) / (burn_state % rho * K)
     end do
 
 
-    eos_state % rho = rpar(irp_SRHO)
+    eos_state % rho = vode_state % rpar(irp_SRHO)
     eos_state % T = 1.e4   ! initial guess
-    eos_state % xn(:) = y(SFS:SFS-1+nspec)/rpar(irp_SRHO)
-    eos_state % e = y(SEINT)/rpar(irp_SRHO)
+    eos_state % xn(:) = vode_state % y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
+    eos_state % e = vode_state % y(SEINT) / vode_state % rpar(irp_SRHO)
 
     call eos(eos_input_re, eos_state)
 
@@ -430,15 +431,13 @@ contains
     ! compute J = dR/dw dw/dU
 
     ! CUDA Fortran doesn't support the matmul intrinsic :(
-#ifndef AMREX_USE_CUDA
     jac(:,:) = matmul(dRdw, dwdU)
-#else
-    call dgemm(1, 1, SVAR_EVOLVE, SVAR_EVOLVE, iwvar, ONE, &
-               dRdw, SVAR_EVOLVE, &
-               dwdU, iwvar, &
-               ZERO, &
-               jac, SVAR_EVOLVE)
-#endif
+
+    ! call dgemm(1, 1, SVAR_EVOLVE, SVAR_EVOLVE, iwvar, ONE, &
+    !            dRdw, SVAR_EVOLVE, &
+    !            dwdU, iwvar, &
+    !            ZERO, &
+    !            jac, SVAR_EVOLVE)
 
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -480,12 +479,12 @@ contains
     do m = 1, nspec
        ! d( d(rho X_m)/dt)/drho
        dRdw(SFS-1+m, iwrho) = ydot(m) + &
-            rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
+            vode_state % rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
     enddo
 
     ! d( d(rho h)/dt)/drho
     dRdw(SENTH, iwrho) = ydot(net_ienuc) + &
-         rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
+         vode_state % rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
 
     ! d( d(rho)/dt)/drho
     dRdw(SRHO_EXTRA, iwrho) = ZERO
@@ -495,11 +494,11 @@ contains
     do n = 1, nspec
        do m = 1, nspec
           ! d( d(rho X_m)/dt)/dX_n
-          dRdw(SFS-1+m, iwfs-1+n) = rpar(irp_SRHO) * jac_react(m, n)
+          dRdw(SFS-1+m, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(m, n)
        enddo
 
        ! d( d(rho h)/dt)/dX_n
-       dRdw(SENTH, iwfs-1+n) = rpar(irp_SRHO) * jac_react(net_ienuc, n)
+       dRdw(SENTH, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, n)
 
        ! d( d(rho)/dt)/dX_n
        dRdw(SRHO_EXTRA, iwfs-1+n) = ZERO
@@ -511,11 +510,11 @@ contains
 
     ! d( d(rho X_m)/dt)/dT
     do m = 1, nspec
-       dRdw(SFS-1+m, iwT) = rpar(irp_SRHO) * jac_react(m, net_itemp)
+       dRdw(SFS-1+m, iwT) = vode_state % rpar(irp_SRHO) * jac_react(m, net_itemp)
     enddo
 
     ! d( d(rho h)/dt)/dT
-    dRdw(SENTH, iwT) = rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
+    dRdw(SENTH, iwT) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
 
     ! d( d(rho)/dt)/dT
     dRdw(SRHO_EXTRA, iwT) = ZERO
@@ -531,15 +530,15 @@ contains
 
     ! species rows
     do m = 1, nspec
-       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/rpar(irp_SRHO)
+       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/vode_state % rpar(irp_SRHO)
        dwdU(iwfs-1+m, SRHO_EXTRA) = -burn_state % xn(m) / burn_state % rho
     end do
 
 
-    eos_state % rho = rpar(irp_SRHO)
+    eos_state % rho = vode_state % rpar(irp_SRHO)
     eos_state % T = 1.e4   ! initial guess
-    eos_state % xn(:) = y(SFS:SFS-1+nspec)/rpar(irp_SRHO)
-    eos_state % h = y(SENTH)/rpar(irp_SRHO)
+    eos_state % xn(:) = y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
+    eos_state % h = y(SENTH)/vode_state % rpar(irp_SRHO)
 
     call eos(eos_input_rh, eos_state)
 
@@ -554,12 +553,12 @@ contains
     ! compute J_temp = dR/dw dw/dU
 
     ! CUDA Fortran doesn't support the matmul intrinsic :(
-    !jac_temp(:,:) = matmul(dRdw, dwdU)
-    call dgemm(1, 1, SVAR_EVOLVE+1, SVAR_EVOLVE+1, iwvar, ONE, &
-               dRdw, SVAR_EVOLVE+1, &
-               dwdU, iwvar, &
-               ZERO, &
-               jac_temp, SVAR_EVOLVE+1)
+    jac_temp(:,:) = matmul(dRdw, dwdU)
+    ! call dgemm(1, 1, SVAR_EVOLVE+1, SVAR_EVOLVE+1, iwvar, ONE, &
+    !            dRdw, SVAR_EVOLVE+1, &
+    !            dwdU, iwvar, &
+    !            ZERO, &
+    !            jac_temp, SVAR_EVOLVE+1)
 
     ! now discard the SRHO_EXTRA row / column
     do n = 1, SVAR_EVOLVE
