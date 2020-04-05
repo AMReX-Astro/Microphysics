@@ -1,7 +1,74 @@
+# 20.04
+
+   * The wion network property was removed (#294)
+
+   * There are new unit tests for the screening and aprox rates
+     modules (both C++ and Fortran interfaces).
+
+   * The screening routines were ported to C++ (#290) and the screenz
+     routine was removed in favor of screen5 (#293)
+
+   * a new method, is_input_valid, was added to all EOSes (both C++
+     and Fortran interfaces) that can be used to query whether an EOS
+     supports a particular input mode (e.g. eos_input_rp).  (#291)
+
+   * The aprox rates used with iso7, aprox13, aprox19, and aprox21
+     have been converted to C++ (#288)
+
+   * We've rewritten the VODE integrator to remove all "go to"
+     statements (#275, 276, 278, 280, 281, 282, 283, 284, 285, 286,
+     287)
+
+   * We removed the ability to have nspec_evolve < nspec.  This
+     feature was not widely used and greatly complicated the code
+     paths.(#279)
+
+
+# 20.03
+
+   * The nuclei information for both Fortran and C++ is now
+     automatically generated from a network inputs file at compile
+     time.  As part of this change, 1/A is precomputed and stored as a
+     constant (#253, 258).
+
+   * The license for StarKiller Microphyscs was made explicit and
+     a license.txt file was added (#267)
+
+   * A framework for pure C++ EOSes has been created and a pure C++
+     unit test, test_eos_C, is available to test these.  (#246) The
+     following EOSes have been ported to C++: ztwd (#268), multigamma
+     (#265), polytrope (#264), gamma_law (#263), helmholtz (#262),
+     gamma_law_general (#246), rad_power_law (#269), breakout (#270)
+
+   * The GPackage.mak files that were a remnant of the old
+     BoxLib F90 build system have been removed.  They were
+     not maintained.  (#212).
+
+   * All of the interface files have been collected together
+     in the interfaces/ dir.  (#240)
+
+   * The network C++ headers have been renamed network_properties.H
+     and the nuclei information (aion and zion) have been
+     added. (#244)
+
+# 20.02
+
+   * Added a C++ header file, actual_network.H, that defines the
+     network size.  This is the start of making making the
+     microphysics routines available in C++.
+
+   * regenerated the pynucastro networks with the latest weak rate
+     formulations from pynucastro.
+
 # 20.01
 
    * The burn_t type no longer includes ydot or jac -- this allows
      us to optimize the memory access on GPUs (#220)
+
+   * The radiation pressure contribution to the Helmholtz EOS has
+     had a dampener applied to it that makes it approximately zero
+     for low densities where the radiation pressure would lead to
+     unphysical situations like a superluminal sound speed. (#235)
 
    * The original VODE integrator was removed and the Fortran 90
      version VODE90 was renamed to VODE. (#221)

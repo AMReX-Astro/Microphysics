@@ -9,23 +9,17 @@
 
 module actual_network
 
+  use network_properties
   use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
-  integer, parameter :: nspec = 1
-  integer, parameter :: naux  = 2
-  integer, parameter :: nspec_evolve = 1
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
 
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
+  real(rt), save :: ebin(nspec)
 
-  character (len=16), save ::  aux_names(naux)
-  character (len= 5), save :: short_aux_names(naux)
-
-  real(rt), save :: aion(nspec), zion(nspec), ebin(nspec)
+  character (len=32), parameter :: network_name = "breakout"
 
 contains
 
@@ -33,17 +27,8 @@ contains
 
     implicit none
 
-    spec_names(1) = "X"
-    short_spec_names(1) = "X"
+    call network_properties_init()
 
-    aux_names(1) = "Ye"
-    short_aux_names(1) = "Ye"
-
-    aux_names(2) = "invmu"   ! 1/mu in P = rho*R*T/mu
-    short_aux_names(2) = "invmu"
-
-    aion(:) = 1.e0_rt
-    zion(:) = 1.e0_rt
     ebin(:) = 0.e0_rt
 
   end subroutine actual_network_init
@@ -53,6 +38,8 @@ contains
   subroutine actual_network_finalize()
 
     implicit none
+
+    call network_properties_finalize()
 
   end subroutine actual_network_finalize
 

@@ -42,6 +42,8 @@ endif
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
+MICROPHYSICS_AUTO_SOURCE_DIR := $(TmpBuildDir)/microphysics_sources/$(optionsSuffix).EXE
+
 all: build_status $(executable) starkiller_library
 	@echo SUCCESS
 
@@ -65,10 +67,6 @@ DEFINES += -DCRSEGRNDOMP
 # OpenACC support
 ifeq ($(USE_ACC), TRUE)
   DEFINES += -DACC
-endif
-
-ifeq ($(USE_EXTRA_THERMO), TRUE)
-  DEFINES += -DEXTRA_THERMO
 endif
 
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
@@ -97,40 +95,7 @@ endif
 #------------------------------------------------------------------------------
 # CVODE directories
 #------------------------------------------------------------------------------
-ifeq ($(INTEGRATOR_DIR), CVODE)
-
-  INCLUDE_LOCATIONS += $(CVODE_HOME)/include
-
-  LIBRARY_LOCATIONS += $(CVODE_HOME)/lib
-  LIBRARIES += -lsundials_cvode -lsundials_sunlinsolband -lsundials_sunlinsolspbcgs -lsundials_sunlinsolsptfqmr -lsundials_sunmatrixsparse -lsundials_nveccuda -lsundials_sunlinsoldense -lsundials_sunlinsolspfgmr -lsundials_sunmatrixband -lsundials_sunnonlinsolfixedpoint -lsundials_nvecserial -lsundials_sunlinsolpcg -lsundials_sunlinsolspgmr -lsundials_sunmatrixdense -lsundials_sunnonlinsolnewton
-
-ifeq ($(USE_CUDA_CVODE),TRUE)
-  LIBRARIES += -rpath=$(CVODE_HOME)/lib
-else
-  LIBRARIES += -Wl,-rpath,$(CVODE_HOME)/lib
-endif
-
-  ifeq ($(USE_CUDA_CVODE), TRUE)
-    DEFINES += -DCUDA_CVODE
-  endif
-
-  ifeq ($(USE_CVODE_CUSOLVER), TRUE)
-    DEFINES += -DCVODE_CUSOLVER
-
-    LIBRARIES += -lsundials_cusolver_sparse -lcusolver -lcusparse -lcublas
-    LIBRARIES += -rpath=$(COMPILE_CUDA_PATH)/lib64
-  endif
-
-endif
-
-#------------------------------------------------------------------------------
-# Microphysics directories
-#------------------------------------------------------------------------------
-
-Bdirs := unit_test interfaces
-
-Bpack += $(foreach dir, $(Bdirs), $(TOP)/$(dir)/Make.package)
-Blocs += $(foreach dir, $(Bdirs), $(TOP)/$(dir))
+include $(MICROPHYSICS_HOME)/Make.CVODE
 
 
 #------------------------------------------------------------------------------
@@ -147,87 +112,18 @@ else
   Pdirs := Base
 endif
 
-Bpack	+= $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
+Bpack  += $(foreach dir, $(Pdirs), $(AMREX_HOME)/Src/$(dir)/Make.package)
 
 
 #------------------------------------------------------------------------------
-# microphysics 
+# microphysics
 #------------------------------------------------------------------------------
+NETWORK_OUTPUT_PATH := $(MICROPHYSICS_AUTO_SOURCE_DIR)
 
-EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
-NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
-CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
-
-
-# Problems can specify the input file for general_null by setting
-# GENERAL_NET_INPUTS directly (full path) or just specifying the name
-# of the inputs file as NETWORK_INPUTS and let us sort it out
-ifndef GENERAL_NET_INPUTS
-   ifneq "$(wildcard $(NETWORK_INPUTS))" ""
-      GENERAL_NET_INPUTS := $(NETWORK_INPUTS)
-   else
-      GENERAL_NET_INPUTS := $(MICROPHYSICS_HOME)/networks/general_null/$(NETWORK_INPUTS)
-   endif
-endif
-
-# URCA network has tables
-ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
-  all: urcatables
-endif
-
-urcatables:
-	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
-	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
-
-# Pynucastro networks read rate data from an external file
-PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
-all: pynucastrorates
-
-
-# do not check to see if the file already exists, just force-link it in
-# because different Reaclib networks will have different versions of the file
-pynucastrorates:
-	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
-
-EXTERN_CORE += $(EOS_HOME)
-EXTERN_CORE += $(EOS_PATH)
-
-# the helmholtz EOS has an include file -- also add a target to link
-# the table into the problem directory.
-ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
-   all: table
-endif
-
-table:
-	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
-
-ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
-   DEFINES += -DEOS_GAMMA_LAW_GENERAL
-endif
-
-# include the conductivity
-ifdef USE_CONDUCTIVITY
-  ifeq ($(USE_CONDUCTIVITY),TRUE)
-    DEFINES += -DCONDUCTIVITY
-    EXTERN_CORE += $(CONDUCTIVITY_HOME)
-    EXTERN_CORE += $(CONDUCTIVITY_PATH)
-  endif
-endif
-
-# include the network
-EXTERN_CORE += $(NETWORK_HOME)
-EXTERN_CORE += $(NETWORK_PATH)
-
-# Note that this should be located after the include of the EOS and
-# Network includes since it has actions that depend on variables set
-# there.
-
-EXTERN_CORE += $(MICROPHYSICS_HOME)/EOS
-EXTERN_CORE += $(MICROPHYSICS_HOME)/networks
+include $(MICROPHYSICS_HOME)/Make.Microphysics_extern
 
 Bpack += $(foreach dir, $(EXTERN_CORE), $(dir)/Make.package)
 Blocs += $(foreach dir, $(EXTERN_CORE), $(dir))
-
 
 
 #------------------------------------------------------------------------------
@@ -245,13 +141,23 @@ VPATH_LOCATIONS   += $(Blocs)
 
 
 #------------------------------------------------------------------------------
+# make generated source files location
+#------------------------------------------------------------------------------
+VPATH_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
+INCLUDE_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
+
+
+#------------------------------------------------------------------------------
 # runtime parameters
 #------------------------------------------------------------------------------
 
 # runtime parameter support for extern/ routines
 F90EXE_sources += extern.F90
+CEXE_sources += extern_parameters.cpp
+FEXE_headers += extern_parameters_F.H
+CEXE_headers += extern_parameters.H
 
-EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/unit_test/extern_probin.template
+EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/interfaces/extern_probin.template
 
 # these are for finding runtime parameters
 EXTERN_SEARCH += $(EXTERN_CORE) $(MICROPHYSICS_HOME)/unit_test
@@ -261,9 +167,13 @@ endif
 
 EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
 
-extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
+
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
 	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
-           -t $(EXTERN_TEMPLATE) -o extern.F90 -n extern \
+           -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern \
+           --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
            --pa "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
 
 #------------------------------------------------------------------------------
@@ -315,6 +225,9 @@ include $(AMREX_HOME)/Tools/GNUMake/Make.rules
 
 clean::
 	$(SILENT) $(RM) extern.F90
+	$(SILENT) $(RM) network_properties.F90 network_properties.H
+	$(SILENT) $(RM) $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.H $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.[fF]90
+	$(SILENT) $(RM) extern_parameters.cpp extern_parameters_F.H extern_parameters.H
 
 # Older versions of CASTRO generated a "network.f90" file when using
 # the general_null network, which conflicts with our generalized

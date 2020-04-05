@@ -61,7 +61,6 @@ params = rprox_params
 
 params_file = r"""
 &PROBIN
-  test_set = "gr0_3d.small"
 
   xin_file   = "xin.rprox"
   run_prefix = "react_rprox_"

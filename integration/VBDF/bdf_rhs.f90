@@ -12,7 +12,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: aion, nspec_evolve
+    use actual_network, only: aion, nspec
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
@@ -31,7 +31,7 @@ contains
 
     ! We are integrating a system of
     !
-    ! y(1:nspec_evolve) = dX/dt
+    ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -59,7 +59,7 @@ contains
     call network_rhs(burn_state, ts % yd(:,1), ts % upar(irp_t0,1))
 
     ! We integrate X not Y, so convert here
-    ts % yd(1:nspec_evolve,1) = ts % yd(1:nspec_evolve,1) * aion(1:nspec_evolve)
+    ts % yd(1:nspec,1) = ts % yd(1:nspec,1) * aion(1:nspec)
 
     ! Allow temperature and energy integration to be disabled.
 
@@ -92,7 +92,7 @@ contains
 
     !$acc routine seq
 
-    use network, only: aion, aion_inv, nspec_evolve
+    use network, only: aion, aion_inv, nspec
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
@@ -124,7 +124,7 @@ contains
        call network_jac(state, ts % J(:,:,1), ts % upar(irp_t0,1))
 
        ! We integrate X, not Y
-       do n = 1, nspec_evolve
+       do n = 1, nspec
           ts % J(n,:,1) = ts % J(n,:,1) * aion(n)
           ts % J(:,n,1) = ts % J(:,n,1) * aion_inv(n)
        enddo

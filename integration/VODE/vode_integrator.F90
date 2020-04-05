@@ -30,16 +30,12 @@ contains
     use vode_rpar_indices
     use extern_probin_module, only: jacobian, use_jacobian_caching, &
          burner_verbose, &
-         rtol_spec, rtol_temp, rtol_enuc, &
-         atol_spec, atol_temp, atol_enuc, &
          burning_mode, burning_mode_factor, &
-         retry_burn, retry_burn_factor, retry_burn_max_change, &
          call_eos_in_rhs, dt_crit, ode_max_steps
-    use actual_rhs_module, only : update_unevolved_species
     use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
-    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_types_module, only: dvode_t
     use amrex_constants_module, only: ZERO, ONE
     use integrator_scaling_module, only: temp_scale, ener_scale, inv_ener_scale
     use integration_data, only: integration_status_t
@@ -59,44 +55,26 @@ contains
 
     ! Local variables
 
-    type (eos_t) :: eos_state_in, eos_state_out, eos_state_temp
+    type (eos_t) :: eos_state_in, eos_state_temp
     type (dvode_t) :: dvode_state
-
-    ! Work variables
-
-    type(rwork_t) :: rwork
-    integer    :: iwork(VODE_LIW)
-
-    integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
 
-    integer :: istate
-
-    real(rt) :: sum
-    real(rt) :: retry_change_factor
-
     real(rt) :: ener_offset
-    real(rt) :: edot, t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, t_sound, limit_factor
 
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
 
     !$gpu
 
-    if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC_CACHED
-    else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC_CACHED
-    else
-#ifndef CUDA
-       call amrex_error("Error: unknown Jacobian mode in vode_integrator.f90.")
-#endif
-    endif
+    dvode_state % jacobian = jacobian
 
-    if (.not. use_jacobian_caching) then
-       MF_JAC = -MF_JAC
+    if (use_jacobian_caching) then
+       dvode_state % JSV = 1
+    else
+       dvode_state % JSV = -1
     endif
 
     integration_failed = .false.
@@ -108,38 +86,21 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    dvode_state % atol(1:nspec_evolve) = status % atol_spec ! mass fractions
-    dvode_state % atol(net_itemp)      = status % atol_temp ! temperature
-    dvode_state % atol(net_ienuc)      = status % atol_enuc ! energy generated
+    dvode_state % atol(1:nspec)   = status % atol_spec ! mass fractions
+    dvode_state % atol(net_itemp) = status % atol_temp ! temperature
+    dvode_state % atol(net_ienuc) = status % atol_enuc ! energy generated
 
-    dvode_state % rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
-    dvode_state % rtol(net_itemp)      = status % rtol_temp ! temperature
-    dvode_state % rtol(net_ienuc)      = status % rtol_enuc ! energy generated
+    dvode_state % rtol(1:nspec)   = status % rtol_spec ! mass fractions
+    dvode_state % rtol(net_itemp) = status % rtol_temp ! temperature
+    dvode_state % rtol(net_ienuc) = status % rtol_enuc ! energy generated
 
     ! We want VODE to re-initialize each time we call it.
 
     dvode_state % istate = 1
 
-    ! Initialize work arrays to zero.
-    rwork % CONDOPT = ZERO
-    rwork % YH   = ZERO
-    rwork % WM   = ZERO
-    rwork % EWT  = ZERO
-    rwork % SAVF = ZERO
-    rwork % ACOR = ZERO    
-    iwork(:) = 0
+    ! Set the maximum number of steps allowed.
 
-    ! Set the maximum number of steps allowed (the VODE default is 500).
-
-    iwork(6) = ode_max_steps
-
-    ! Disable printing of messages about T + H == T unless we are in verbose mode.
-
-    if (burner_verbose) then
-       iwork(7) = 1
-    else
-       iwork(7) = 0
-    endif
+    dvode_state % MXSTEP = ode_max_steps
 
     ! Start off by assuming a successful burn.
 
@@ -160,7 +121,7 @@ contains
 
     ! Convert the EOS state data into the form VODE expects.
 
-    call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
+    call eos_to_vode(eos_state_in, dvode_state)
 
     ener_offset = eos_state_in % e * inv_ener_scale
 
@@ -207,12 +168,8 @@ contains
 
     endif
 
-    ! Save the initial state.
-
-    dvode_state % rpar(irp_y_init:irp_y_init + neqs - 1) = dvode_state % y
-
     ! Call the integration routine.
-    call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+    call dvode(dvode_state)
 
     ! If we are using hybrid burning and the energy release was negative (or we failed),
     ! re-run this in self-heating mode.
@@ -225,20 +182,10 @@ contains
 
        dvode_state % istate = 1
 
-       rwork % CONDOPT = ZERO
-       rwork % YH   = ZERO
-       rwork % WM   = ZERO
-       rwork % EWT  = ZERO
-       rwork % SAVF = ZERO
-       rwork % ACOR = ZERO    
-       iwork(:) = 0
-
-       iwork(6) = ode_max_steps
-
        dvode_state % T = ZERO
        dvode_state % TOUT = dt
 
-       call eos_to_vode(eos_state_in, dvode_state % y, dvode_state % rpar)
+       call eos_to_vode(eos_state_in, dvode_state)
 
        dvode_state % rpar(irp_Told) = eos_state_in % T
 
@@ -254,7 +201,7 @@ contains
        dvode_state % y(net_ienuc) = ener_offset
 
        ! Call the integration routine.
-       call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+       call dvode(dvode_state)
 
     endif
 
@@ -270,11 +217,11 @@ contains
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(1:nspec_evolve) < -failure_tolerance)) then
+    if (any(dvode_state % y(1:nspec) < -failure_tolerance)) then
        integration_failed = .true.
     end if
 
-    if (any(dvode_state % y(1:nspec_evolve) > 1.e0_rt + failure_tolerance)) then
+    if (any(dvode_state % y(1:nspec) > 1.e0_rt + failure_tolerance)) then
        integration_failed = .true.
     end if
 
@@ -289,8 +236,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', dvode_state % y(net_itemp) * temp_scale
-       print *, 'xn current = ', dvode_state % y(1:nspec_evolve) * aion(1:nspec_evolve), &
-            dvode_state % rpar(irp_nspec:irp_nspec+n_not_evolved-1) * aion(nspec_evolve+1:)
+       print *, 'xn current = ', dvode_state % y(1:nspec) * aion(1:nspec)
        print *, 'energy generated = ', (dvode_state % y(net_ienuc) - ener_offset) * ener_scale
 #endif
 
@@ -302,18 +248,14 @@ contains
     dvode_state % y(net_ienuc) = dvode_state % y(net_ienuc) - ener_offset
 
     ! Store the final data, and then normalize abundances.
-    call vode_to_burn(dvode_state % y, dvode_state % rpar, state_out)
+    call vode_to_burn(dvode_state, state_out)
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
-    state_out % n_rhs = iwork(12)
-    state_out % n_jac = iwork(13)
+    state_out % n_rhs = dvode_state % NFE
+    state_out % n_jac = dvode_state % NJE
 
     state_out % time = dvode_state % t
-
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
 
     ! For burning_mode == 3, limit the burning.
 
@@ -341,8 +283,8 @@ contains
        print *, 'integration summary: '
        print *, 'dens: ', state_out % rho, ' temp: ', state_out % T, &
                 ' energy released: ', state_out % e - state_in % e
-       print *, 'number of steps taken: ', iwork(11)
-       print *, 'number of f evaluations: ', iwork(12)
+       print *, 'number of steps taken: ', dvode_state % NST
+       print *, 'number of f evaluations: ', dvode_state % NFE
     endif
 #endif
     

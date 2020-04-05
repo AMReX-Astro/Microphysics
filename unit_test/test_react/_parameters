@@ -9,8 +9,6 @@ primary_species_1  character   ""
 primary_species_2  character   ""
 primary_species_3  character   ""
 
-test_set      character  "gr0_3d"
-
 tmax          real       0.1d0
 
 small_temp    real       1.e5

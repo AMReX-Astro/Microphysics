@@ -36,7 +36,6 @@ contains
 
     use bs_rpar_indices
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
-    use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 
@@ -70,13 +69,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = status % atol_spec ! mass fractions
-    atol(net_itemp)      = status % atol_temp ! temperature
-    atol(net_ienuc)      = status % atol_enuc ! energy generated
+    atol(1:nspec)   = status % atol_spec ! mass fractions
+    atol(net_itemp) = status % atol_temp ! temperature
+    atol(net_ienuc) = status % atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
-    rtol(net_itemp)      = status % rtol_temp ! temperature
-    rtol(net_ienuc)      = status % rtol_enuc ! energy generated
+    rtol(1:nspec)   = status % rtol_spec ! mass fractions
+    rtol(net_itemp) = status % rtol_temp ! temperature
+    rtol(net_ienuc) = status % rtol_enuc ! energy generated
 
     ! Note that at present, we use a uniform error tolerance chosen
     ! to be the largest of the relative error tolerances for any
@@ -161,10 +160,6 @@ contains
             (eos_state_temp % T - eos_state_in % T)
     endif
 
-    ! Save the initial state.
-
-    bs % upar(irp_y_init:irp_y_init + neqs - 1) = bs % y
-
     ! Call the integration routine.
     call ode(bs, t0, t1, maxval(rtol), ierr)
 
@@ -210,8 +205,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', bs % y(net_itemp)
-       print *, 'xn current = ', bs % y(1:nspec_evolve), &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
+       print *, 'xn current = ', bs % y(1:nspec)
        print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 
@@ -233,10 +227,6 @@ contains
     state_out = bs % burn_s
 
     state_out % success = success
-
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
 
     ! For burning_mode == 3, limit the burning.
 

@@ -36,8 +36,8 @@ contains
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, ncomp, dt) bind(C, name="do_react")
 
-    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC, VODE_LIW, IOPT, ITASK
-    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_parameters_module, only: MF_ANALYTIC_JAC, MF_NUMERICAL_JAC
+    use cuvode_types_module, only: dvode_t
     use cuvode_module, only: dvode
 
     implicit none
@@ -52,9 +52,6 @@ contains
 
     ! VODE variables
     type (dvode_t) :: dvode_state
-    type (rwork_t) :: rwork
-    integer :: iwork(VODE_LIW)
-    integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
@@ -69,7 +66,7 @@ contains
           do kk = lo(3), hi(3)
 
              ! Use an analytic Jacobian
-             MF_JAC = MF_ANALYTIC_JAC
+             dvode_state % jacobian = 1
 
              ! Set the absolute tolerances
              dvode_state % atol(1) = 1.e-8_rt
@@ -78,18 +75,14 @@ contains
 
              ! Set the relative tolerances
              dvode_state % rtol(1) = 1.e-4_rt
+             dvode_state % rtol(2) = 1.e-4_rt
+             dvode_state % rtol(3) = 1.e-4_rt
 
              ! We want VODE to re-initialize each time we call it.
              dvode_state % istate = 1
 
-             ! Initialize work arrays to zero.
-             rwork % CONDOPT = ZERO
-             rwork % YH   = ZERO
-             rwork % WM   = ZERO
-             rwork % EWT  = ZERO
-             rwork % SAVF = ZERO
-             rwork % ACOR = ZERO    
-             iwork(:) = 0
+             ! Take no more than 500 steps.
+             dvode_state % MXSTEP = 500
 
              ! Initialize the integration time and set the final time to dt
              dvode_state % T = ZERO
@@ -101,7 +94,7 @@ contains
              enddo
 
              ! Call the integration routine.
-             call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+             call dvode(dvode_state)
 
              ! Check if the integration failed
              if (dvode_state % istate < 0) then

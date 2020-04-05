@@ -26,7 +26,7 @@ program testburn
   dt = 0.06_rt
 
 
-  print *, 'calling the burner...', nspec, nspec_evolve, neqs
+  print *, 'calling the burner...', nspec, neqs
 
   state_in % rho = dens
   state_in % T = temp
