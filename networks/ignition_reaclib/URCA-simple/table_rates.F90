@@ -64,7 +64,7 @@ contains
     num_temp_j_na23_ne23 = 39
     num_rhoy_j_na23_ne23 = 152
     num_vars_j_na23_ne23 = 6
-    num_header_j_na23_ne23 = 7
+    num_header_j_na23_ne23 = 6
     rate_table_file_j_na23_ne23 = trim("23Na-23Ne_electroncapture.dat")
     allocate(rate_table_j_na23_ne23(num_temp_j_na23_ne23, num_rhoy_j_na23_ne23, num_vars_j_na23_ne23))
     allocate(rhoy_table_j_na23_ne23(num_rhoy_j_na23_ne23))
@@ -77,7 +77,7 @@ contains
     num_temp_j_ne23_na23 = 39
     num_rhoy_j_ne23_na23 = 152
     num_vars_j_ne23_na23 = 6
-    num_header_j_ne23_na23 = 6
+    num_header_j_ne23_na23 = 5
     rate_table_file_j_ne23_na23 = trim("23Ne-23Na_betadecay.dat")
     allocate(rate_table_j_ne23_na23(num_temp_j_ne23_na23, num_rhoy_j_ne23_na23, num_vars_j_ne23_na23))
     allocate(rhoy_table_j_ne23_na23(num_rhoy_j_ne23_na23))
