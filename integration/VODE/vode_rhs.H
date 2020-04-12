@@ -87,8 +87,8 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 
     // apply fudge factor:
     if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= NumSpec; ++j) {
-            for (int i = 1; i <= NumSpec; ++i) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
                 pd(i,j) *= react_boost;
             }
         }
@@ -96,13 +96,13 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 
     // Allow temperature and energy integration to be disabled.
     if (!integrate_temperature) {
-        for (int j = 1; j <= NumSpec; ++j) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
             pd(net_itemp,j) = 0.0_rt;
         }
     }
 
     if (!integrate_energy) {
-        for (int j = 1; j <= NumSpec; ++j) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
             pd(net_ienuc,j) = 0.0_rt;
         }
     }
