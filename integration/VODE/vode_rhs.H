@@ -67,6 +67,9 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 {
+    // NOTE: the time at which to evaluate the Jacobian is not
+    // explicitly passed. VODE always evaluates the analytic
+    // Jacobian at vode_state.tn, and we pass vode_state.
 
     // Call the specific network routine to get the Jacobian.
 
