@@ -51,7 +51,7 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 
     // apply fudge factor:
     if (react_boost > 0.0_rt) {
-        for (int n = 1; n <= NumSpec; ++n) {
+        for (int n = 1; n <= VODE_NEQS; ++n) {
             ydot(n) *= react_boost;
         }
     }
