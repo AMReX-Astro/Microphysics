@@ -12,7 +12,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 {
 
     // We are integrating a system of
