@@ -79,13 +79,6 @@ void print_state(dvode_t& dvode_state)
     std::cout << "el(4) = " << dvode_state.el(4) << std::endl;
     std::cout << "el(5) = " << dvode_state.el(5) << std::endl;
     std::cout << "el(6) = " << dvode_state.el(6) << std::endl;
-    std::cout << "el(7) = " << dvode_state.el(7) << std::endl;
-    std::cout << "el(8) = " << dvode_state.el(8) << std::endl;
-    std::cout << "el(9) = " << dvode_state.el(9) << std::endl;
-    std::cout << "el(10) = " << dvode_state.el(10) << std::endl;
-    std::cout << "el(11) = " << dvode_state.el(11) << std::endl;
-    std::cout << "el(12) = " << dvode_state.el(12) << std::endl;
-    std::cout << "el(13) = " << dvode_state.el(13) << std::endl;
     std::cout << "ETA = " << dvode_state.ETA << std::endl;
     std::cout << "ETAMAX = " << dvode_state.ETAMAX << std::endl;
     std::cout << "H = " << dvode_state.H << std::endl;
