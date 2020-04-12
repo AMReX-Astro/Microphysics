@@ -79,7 +79,7 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 
     // We integrate X, not Y
     for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= NumSpec; ++i) {
+        for (int i = 1; i <= VODE_NEQS; ++i) {
             pd(j,i) *= aion[j-1];
             pd(i,j) *= aion_inv[j-1];
         }
