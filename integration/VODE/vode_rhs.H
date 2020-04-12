@@ -12,7 +12,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 {
 
     // We are integrating a system of
@@ -51,7 +51,7 @@ void rhs (burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 
     // apply fudge factor:
     if (react_boost > 0.0_rt) {
-        for (int n = 1; n <= NumSpec; ++n) {
+        for (int n = 1; n <= VODE_NEQS; ++n) {
             ydot(n) *= react_boost;
         }
     }
@@ -67,6 +67,9 @@ void rhs (burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 {
+    // NOTE: the time at which to evaluate the Jacobian is not
+    // explicitly passed. VODE always evaluates the analytic
+    // Jacobian at vode_state.tn, and we pass vode_state.
 
     // Call the specific network routine to get the Jacobian.
 
@@ -76,7 +79,7 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 
     // We integrate X, not Y
     for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= NumSpec; ++i) {
+        for (int i = 1; i <= VODE_NEQS; ++i) {
             pd(j,i) *= aion[j-1];
             pd(i,j) *= aion_inv[j-1];
         }
@@ -84,8 +87,8 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 
     // apply fudge factor:
     if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= NumSpec; ++j) {
-            for (int i = 1; i <= NumSpec; ++i) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
                 pd(i,j) *= react_boost;
             }
         }
@@ -93,13 +96,13 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
 
     // Allow temperature and energy integration to be disabled.
     if (!integrate_temperature) {
-        for (int j = 1; j <= NumSpec; ++j) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
             pd(net_itemp,j) = 0.0_rt;
         }
     }
 
     if (!integrate_energy) {
-        for (int j = 1; j <= NumSpec; ++j) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
             pd(net_ienuc,j) = 0.0_rt;
         }
     }

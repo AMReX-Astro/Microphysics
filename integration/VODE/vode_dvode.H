@@ -38,7 +38,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 
     Array1D<Real, 1, VODE_NEQS> f_init;
 
-    rhs(state, vstate, f_init);
+    rhs(vstate.t, state, vstate, f_init);
 
     for (int i = 1; i <= VODE_NEQS; ++i) {
         vstate.yh(i,2) = f_init(i);

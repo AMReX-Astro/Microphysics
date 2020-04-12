@@ -121,7 +121,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
-                rhs(state, vstate, vstate.acor);
+                rhs(vstate.tn, state, vstate, vstate.acor);
                 for (int i = 1; i <= VODE_NEQS; ++i) {
                     vstate.jac(i,j) = (vstate.acor(i) - vstate.savf(i)) * fac;
                 }

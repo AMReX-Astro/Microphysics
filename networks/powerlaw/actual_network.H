@@ -5,7 +5,7 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_rhs (burn_t& state, Array1D<Real, 1, VODE_NEQS>& ydot)
+void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
 
     for (int n = 1; n <= NumSpec; ++n) {
@@ -47,7 +47,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, VODE_NEQS>& ydot)
 // At present the analytical Jacobian is not implemented.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_jac (burn_t& state, Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS>& jac)
+void actual_jac (burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
 {
 
     for (int j = 1; j <= NumSpec; ++j) {

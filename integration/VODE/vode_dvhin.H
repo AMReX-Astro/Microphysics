@@ -64,7 +64,9 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
                 vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
 
-            rhs(state, vstate, vstate.acor);
+            const Real t1 = vstate.t + H;
+
+            rhs(t1, state, vstate, vstate.acor);
 
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 vstate.acor(i) = (vstate.acor(i) - vstate.yh(i,2)) / H;
