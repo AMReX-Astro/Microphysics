@@ -344,7 +344,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.H *= vstate.ETA;
         vstate.HSCAL = vstate.H;
         vstate.tau(1) = vstate.H;
-        rhs(state, vstate, vstate.savf);
+        rhs(vstate.tn, state, vstate, vstate.savf);
         vstate.NFE += 1;
         for (int i = 1; i <= VODE_NEQS; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);
