@@ -331,7 +331,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 }
             }
 
-            vstate.H *= vstate.ETA;
+            vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC = vstate.RC * vstate.ETA;
             vstate.NQNYH = vstate.NQ * VODE_NEQS;
