@@ -62,7 +62,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             vstate.y(i) = vstate.yh(i,1);
         }
 
-        rhs(state, vstate, vstate.savf);
+        rhs(vstate.tn, state, vstate, vstate.savf);
         vstate.NFE += 1;
 
         if (vstate.IPUP == 1) {
@@ -156,7 +156,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             }
 
             DELP = DEL;
-            rhs(state, vstate, vstate.savf);
+            rhs(vstate.tn, state, vstate, vstate.savf);
             vstate.NFE += 1;
 
         }
