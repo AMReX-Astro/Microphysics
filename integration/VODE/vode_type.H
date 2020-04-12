@@ -230,12 +230,12 @@ void update_thermodynamics (burn_t& state, dvode_t& vode_state)
     // just do the composition calculations since that's needed to
     // construct dX/dt.
 
-    if (call_eos_in_rhs) {
+    if (call_eos_in_rhs && state.self_heat) {
 
         eos(eos_input_rt, eos_state);
 
     }
-    else if (std::abs(eos_state.T - state.T_old) > dT_crit * eos_state.T)
+    else if (std::abs(eos_state.T - state.T_old) > dT_crit * eos_state.T && state.self_heat)
     {
 
         eos(eos_input_rt, eos_state);
