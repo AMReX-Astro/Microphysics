@@ -64,6 +64,7 @@ AMREX_FORCE_INLINE
 void add_screening_factor(const int i,
                           const Real z1, const Real a1, const Real z2, const Real a2)
 {
+  using namespace scrn;
 
   BL_ASSERT(i < NSCREEN);
 
@@ -89,20 +90,20 @@ void add_screening_factor(const int i,
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Real* y) {
+fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
 
   Real sum = 0.0_rt;
-  for (int n = 0; n < NumSpec; n++) {
-    sum += y[n];
+  for (int n = 1; n <= NumSpec; n++) {
+    sum += y(n);
   }
   Real abar = 1.0_rt / sum;
   Real ytot = sum;
 
   sum = 0.0_rt;
   Real sum2 = 0.0_rt;
-  for (int n = 0; n < NumSpec; n++) {
-    sum += zion[n]*y[n];
-    sum2 += zion[n]*zion[n]*y[n];
+  for (int n = 1; n <= NumSpec; n++) {
+    sum += zion[n-1]*y(n);
+    sum2 += zion[n-1]*zion[n-1]*y(n);
   }
 
   Real zbar = sum * abar;
