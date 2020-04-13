@@ -3,6 +3,7 @@
 
 #include <network.H>
 #include <actual_network.H>
+#include <actual_rhs.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
 #include <vode_type.H>
