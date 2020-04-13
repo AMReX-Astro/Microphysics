@@ -11,13 +11,13 @@ using namespace Species;
 
 namespace iso7
 {
-    extern AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,NumSpec> mion;
-    extern AMREX_GPU_MANAGED amrex::GpuArray<amrex::Real,NumSpec> wion;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> wion;
 }
 
 namespace Rates {
-    enum NetworkRates {ircag = 0,
+    enum NetworkRates {ircag = 1,
                        iroga,
                        ir3a,
                        irg3a,
@@ -34,7 +34,7 @@ namespace Rates {
                        irtiga,
                        irsi2ni,
                        irni2si,
-                       NumRates};
+                       NumRates = irni2si};
 
     const int NGroups = 4;
 
@@ -53,7 +53,7 @@ void actual_network_data_init()
     bion(Ni56) = 484.00300e0_rt;
 
     // Set the mass
-    for (int i = 0; i < NumSpec; ++i) {
+    for (int i = 1; i <= NumSpec; ++i) {
         mion(i) = nion(i) * C::m_n + zion(i) * (C::m_p + C::m_e) - bion(i) * C::MeV2gr;
 
         // Molar mass

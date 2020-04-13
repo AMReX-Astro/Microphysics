@@ -1,10 +1,9 @@
 #ifndef _actual_rhs_H_
 #define _actual_rhs_H_
 
-#include <AMReX_CONSTANTS.H>
+#include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
-#include <ArrayUtilities.H>
 #include <extern_parameters.H>
 #include <microphysics_math.H>
 #include <tfactors.H>
@@ -24,9 +23,9 @@ namespace RateTable
     constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
     constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
 
-    extern AMREX_GPU_MANAGED RealArray2D<Rates::NumRates, nrattab> rattab;
-    extern AMREX_GPU_MANAGED RealArray2D<Rates::NumRates, nrattab> drattabdt;
-    extern AMREX_GPU_MANAGED RealArray1D<nrattab> ttab;
+    extern AMREX_GPU_MANAGED Array2D<1, Rates::NumRates, 1, nrattab> rattab;
+    extern AMREX_GPU_MANAGED Array2D<1, Rates::NumRates, 1, nrattab> drattabdt;
+    extern AMREX_GPU_MANAGED Array1D<1, nrattab> ttab;
 }
 
 AMREX_INLINE
@@ -48,18 +47,18 @@ void actual_rhs_init()
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, rate_t& rr)
 {
-    amrex::Real rho, temp;
-    RealArray1D<Species::NumSpec> y;
-    RealArray1D<Rates::NumRates> rate, dratedt;
-    amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy1;
-    amrex::Array1D<amrex::Real, Rates::irsi2ni, Rates::irni2si> dratedy2;
+    Real rho, temp;
+    Array1D<1, NumSpec> y;
+    Array1D<1, Rates::NumRates> rate, dratedt;
+    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy1;
+    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy2;
 
     // Get the data from the state
     rho  = state.rho;
     temp = state.T;
 
-    for (int i = 0; i < Species::NumSpec;; ++i)
-        y(i) = state.xn(i) * aion_inv[i];
+    for (int i = 1; i <= NumSpec;; ++i)
+        y(i) = state.xn(i) * aion_inv(i);
 
     // Get the raw reaction rates
     if (use_tables)
@@ -71,7 +70,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     screen_iso7(temp, rho, y, rate, dratedt, dratedy1, dratedy2);
 
     // Save the rate data, for the Jacobian later if we need it.
-    for (int i = 0; i < Rates::NumRates; ++i) {
+    for (int i = 1; i <= Rates::NumRates; ++i) {
         rr.rates(1,i) = rate(i);
         rr.rates(2,i) = dratedt(i);
     }
@@ -86,8 +85,8 @@ void get_rates(burn_t const& state, rate_t& rr)
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
-             RealArray1D<Rates::NumRates>& rate,
-             RealArray1D<Rates::NumRates>& dratedt)
+             Array1D<Real, 1, Rates::NumRates>& rate,
+             Array1D<Real, 1, Rates::NumRates>& dratedt)
 {
     constexpr int mp = 4;
 
@@ -95,7 +94,7 @@ void iso7tab(const Real btemp, const Real bden,
     Real x, x1, x2, x3, x4;
     Real a, b, c, d, e, f, g, h, p, q;
     Real alfa, beta, gama, delt;
-    RealArray1D<Rates::NumRates> dtab;
+    Array1D<Real, 1, Rates::NumRates> dtab;
 
     // Set the density dependence array
     {
@@ -121,7 +120,7 @@ void iso7tab(const Real btemp, const Real bden,
 
     // hash locate
     iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
-    iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1)) - 1;
+    iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
 
     // setup the lagrange interpolation coefficients for a cubic
     x  = btemp;
@@ -145,7 +144,7 @@ void iso7tab(const Real btemp, const Real bden,
     delt = -a*b*c/(g*p*q);
 
     // crank off the raw reaction rates
-    for (int j = 0; j < Rates::NumRates; ++j) {
+    for (int j = 1; j <= Rates::NumRates; ++j) {
 
        rate(j) = (  alfa * rattab(j,iat  )
                   + beta * rattab(j,iat+1)
@@ -167,19 +166,19 @@ void set_iso7rat()
 
     Real btemp;
     Real bden = 1.0e0_rt;
-    RealArray1D<Rates::NumRates> rate;
-    RealArray1D<Rates::NumRates> dratedt;
+    Array1D<Real, 1, Rates::NumRates> rate;
+    Array1D<Real, 1, Rates::NumRates> dratedt;
 
-    for (int i = 0; i < tab_imax; ++i) {
+    for (int i = 1; i <= tab_imax; ++i) {
 
-       btemp = tab_tlo + static_cast<Real>(i) * tab_tstp;
+       btemp = tab_tlo + static_cast<Real>(i-1) * tab_tstp;
        btemp = std::pow(10.0e0_rt, btemp);
 
        iso7rat(btemp, bden, rate, dratedt);
 
        ttab(i) = btemp;
 
-       for (int j = 0; j < Rates::NumRates; ++j) {
+       for (int j = 1; j <= Rates::NumRates; ++j) {
 
           rattab(j,i)    = rate(j);
           drattabdt(j,i) = dratedt(j);
@@ -211,7 +210,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
     Real enuc;
 
     Real rho, temp, abar, zbar;
-    RealArray1D<Species::NumSpec> y;
+    Array1D<Real, 1, NumSpec> y;
 
     // Get the data from the state
 
@@ -220,7 +219,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
     abar = state.abar;
     zbar = state.zbar;
 
-    for (int i = 0; i < Species::NumSpec; ++i) {
+    for (int i = 1; i <= NumSpec; ++i) {
         y(i) = state.xn(i) * aion_inv(i);
     }
 
@@ -242,7 +241,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
 
     // Append the energy equation (this is erg/g/s)
 
-    ydot(Burn::ienuc) = enuc - sneut;
+    ydot(net_ienuc) = enuc - sneut;
 
     // Append the temperature equation
 
@@ -252,7 +251,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
 
   // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& jac)
+void actual_jac(burn_t const& state, Array2D<Real, 1, Burn::njrows, 1, Burn::njcols>& jac)
 {
 
     // use sneut_module, only: sneut5
@@ -267,11 +266,11 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
     int j;
 
     Real rho, temp, abar, zbar;
-    RealArray1D<Species::NumSpec> y;
-    RealArray1D<Species::NumSpec> yderivs;
+    Array1D<Real, 1, NumSpec> y;
+    Array1D<Real, 1, NumSpec> yderivs;
 
-    for (int j = 0; j < Burn::njcols; ++j) {
-        for (int i = 0; i < Burn::njrows; ++i) {
+    for (int j = 1; j <= neqs; ++j) {
+        for (int i = 1; i <= neqs; ++i) {
             jac(i,j) = 0.0e0_rt;
         }
     }
@@ -285,7 +284,7 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
     abar = state.abar;
     zbar = state.zbar;
 
-    for (int i = 0; i < Species::NumSpec; ++i)
+    for (int i = 1; i <= NumSpec; ++i)
         y(i) = state.xn(i) * aion_inv(i);
 
     // Species Jacobian elements with respect to other species
@@ -294,9 +293,9 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
 
     // Energy generation rate Jacobian elements with respect to species
 
-    for (int j = 0; j < Species::NumSpec; ++j) {
-        for (int i = 0; i < Species::NumSpec; ++i) {
-            ener_gener_rate(jac(i,j), jac(Burn::ienuc,j));
+    for (int j = 1; j <= NumSpec; ++j) {
+        for (int i = 1; i <= NumSpec; ++i) {
+            ener_gener_rate(jac(i,j), jac(net_ienuc,j));
         }
     }
 
@@ -304,9 +303,9 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
 
     sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    for (int j = 0; j < Species::NumSpec; ++j) {
+    for (int j = 1; j <= NumSpec; ++j) {
        b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz);
-       jac(Burn::ienuc,j) = jac(Burn::ienuc,j) - b1;
+       jac(net_ienuc,j) = jac(net_ienuc,j) - b1;
     }
 
     // Evaluate the Jacobian elements with respect to temperature by
@@ -316,15 +315,15 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
     bool for_jacobian_tderiv = true;
     rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
 
-    for (int i = 0; i < Species::NumSpec; ++i) {
-        jac(i,Burn::itemp) = yderivs(i);
+    for (int i = 1; i <= NumSpec; ++i) {
+        jac(i,net_itemp) = yderivs(i);
     }
 
-    for (int i = 0; i < Species::NumSpec; ++i) {
-        ener_gener_rate(jac(i,Burn::itemp), jac(Burn::ienuc,Burn::itemp));
+    for (int i = 1; i <= NumSpec; ++i) {
+        ener_gener_rate(jac(i,net_itemp), jac(net_ienuc,net_itemp));
     }
 
-    jac(Burn::ienuc,Burn::itemp) = jac(Burn::ienuc,Burn::itemp) - dsneutdt;
+    jac(net_ienuc,net_itemp) = jac(net_ienuc,net_itemp) - dsneutdt;
 
     // Temperature Jacobian elements
 
@@ -335,8 +334,8 @@ void actual_jac(burn_t const& state, RealArray2D<Burn::njrows, Burn::njcols>& ja
 
 // Evaluates the right hand side of the iso7 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(RealArray1D<Species::NumSpec> const& y, rate_t const& rr,
-         RealArray1D<Species::NumSpec>& dydt,
+void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
+         Array1D<Real, 1, NumSpec>& dydt,
          bool deriva, bool for_jacobian_tderiv)
 {
     using namespace Species;
@@ -347,8 +346,9 @@ void rhs(RealArray1D<Species::NumSpec> const& y, rate_t const& rr,
 
     const int index_rate = for_jacobian_tderiv ? 2 : 1;
 
-    for (int i = 0; i < Species::NumSpec; ++i)
-        dydt(i) = zero;
+    for (int i = 1; i <= NumSpec; ++i) {
+        dydt(i) = 0.0_rt;
+    }
 
     // set up the system of ode's :
     // 4he reactions
@@ -450,8 +450,8 @@ void rhs(RealArray1D<Species::NumSpec> const& y, rate_t const& rr,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7rat(const Real btemp, const Real bden,
-             RealArray1D<Rates::NumRates>& rate,
-             RealArray1D<Rates::NumRates>& dratedt)
+             Array1D<Real, 1, Rates::NumRates>& rate,
+             Array1D<Real, 1, Rates::NumRates>& dratedt)
 {
 
     // this routine generates unscreened
@@ -460,9 +460,9 @@ void iso7rat(const Real btemp, const Real bden,
     Real rrate,drratedt;
     tf_t tf;
 
-    for (int i = 0; i < Rates::NumRates; ++i) {
-       rate(i)    = zero;
-       dratedt(i) = zero;
+    for (int i = 1; i <= Rates::NumRates; ++i) {
+       rate(i)    = 0.0_rt;
+       dratedt(i) = 0.0_rt;
     }
 
     if (btemp < 1.0e6_rt) return;
@@ -528,9 +528,9 @@ void iso7rat(const Real btemp, const Real bden,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
-                 RealArray1D<Species::NumSpec> const& y,
-                 RealArray1D<Species::NumRates>& rate,
-                 RealArray1D<Species::NumRates>& dratedt,
+                 Array1D<Real, 1, NumSpec> const& y,
+                 Array1D<Real, 1, Species::NumRates>& rate,
+                 Array1D<Real, 1, Species::NumRates>& dratedt,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy1,
                  Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy2)
 {
@@ -554,8 +554,8 @@ void screen_iso7(const Real btemp, const Real bden,
 
     // initialize
     for (int i = Rates::irsi2ni; i <= Rates::irni2si; ++i) {
-        dratedy1(i) = zero;
-        dratedy2(i) = zero;
+        dratedy1(i) = 0.0_rt;
+        dratedy2(i) = 0.0_rt;
     }
 
     // get the temperature factors
@@ -568,12 +568,12 @@ void screen_iso7(const Real btemp, const Real bden,
     // first the always fun triple alpha and its inverse
     jscr = 0;
     screen5(pstate,jscr,
-            zion[ihe4], aion[ihe4], zion[ihe4], aion[ihe4],
+            zion(He4), aion(He4), zion(He4), aion(He4),
             sc1a,sc1adt,sc1add);
 
     jscr++;
     screen5(pstate,jscr,
-            zion[ihe4], aion[ihe4], 4.0_rt, 8.0_rt,
+            zion(He4), aion(He4), 4.0_rt, 8.0_rt,
             sc2a,sc2adt,sc2add);
 
     sc3a   = sc1a * sc2a;
@@ -585,7 +585,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // c12 to o16
     jscr++;
     screen5(pstate,jscr,
-            zion[ic12], aion[ic12], zion[ihe4], aion[ihe4],
+            zion(C12), aion(C12), zion(He4), aion(He4),
             sc1a,sc1adt,sc1add);
 
     dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt;
@@ -594,7 +594,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // c12 + c12
     jscr++;
     screen5(pstate,jscr,
-            zion[ic12], aion[ic12], zion[ic12], aion[ic12],
+            zion(C12), aion(C12), zion(C12), aion(C12),
             sc1a,sc1adt,sc1add);
 
     dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt;
@@ -603,7 +603,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // c12 + o16
     jscr++;
     screen5(pstate,jscr,
-            zion[ic12], aion[ic12], zion[io16], aion[io16],
+            zion(C12), aion(C12), zion(O16), aion(O16),
             sc1a,sc1adt,sc1add);
 
     dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt;
@@ -612,7 +612,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // o16 + o16
     jscr++;
     screen5(pstate,jscr,
-            zion[io16], aion[io16], zion[io16], aion[io16],
+            zion(O16), aion(O16), zion(O16), aion(O16),
             sc1a,sc1adt,sc1add);
 
     dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt;
@@ -621,7 +621,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // o16 to ne20
     jscr++;
     screen5(pstate,jscr,
-            zion[io16], aion[io16], zion[ihe4], aion[ihe4],
+            zion(O16), aion(O16), zion(He4), aion(He4),
             sc1a,sc1adt,sc1add);
 
     dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt;
@@ -630,7 +630,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // ne20 to mg24
     jscr++;
     screen5(pstate,jscr,
-            zion[ine20], aion[ine20], zion[ihe4], aion[ihe4],
+            zion(Ne20), aion(Ne20), zion(He4), aion(He4),
             sc1a,sc1adt,sc1add);
 
     dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt;
@@ -639,7 +639,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // mg24 to si28
     jscr++;
     screen5(pstate,jscr,
-            zion[img24], aion[img24], zion[ihe4], aion[ihe4],
+            zion(Mg24), aion(Mg24), zion(He4), aion(He4),
             sc1a,sc1adt,sc1add);
 
     dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt;
@@ -648,7 +648,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // ca40 to ti44
     jscr++;
     screen5(pstate,jscr,
-            zion[ica40], aion[ica40], zion[ihe4], aion[ihe4],
+            zion(Ca40), aion(Ca40), zion(He4), aion(He4),
             sc1a,sc1adt,sc1add);
 
     dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt;
@@ -702,9 +702,9 @@ void screen_iso7(const Real btemp, const Real bden,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dfdy_isotopes_iso7(RealArray1D<Species::NumSpec> const& y,
+void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
                         burn_t const& state, rate_t const& rr,
-                        RealArray2D<Burn::njrows, Burn::njcols>& jac)
+                        Array2D<Real, 1, Burn::njrows, 1, Burn::njcols>& jac)
 {
 
     // this routine sets up the dense iso7 jacobian for the isotopes
@@ -935,7 +935,7 @@ void dfdy_isotopes_iso7(RealArray1D<Species::NumSpec> const& y,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void ener_gener_rate(RealArray1D<Burn::neqs> const& dydt, Real& enuc)
+void ener_gener_rate(Array1D<Real, 1, Burn::neqs> const& dydt, Real& enuc)
 {
 
     // Computes the instantaneous energy generation rate
@@ -943,7 +943,7 @@ void ener_gener_rate(RealArray1D<Burn::neqs> const& dydt, Real& enuc)
     Real Xdot = zero;
 
     // Sum the mass fraction time derivatives
-    for (int i = 0; i < Species::NumSpec; ++i) {
+    for (int i = 1; i <= NumSpec; ++i) {
         Xdot += dydt(i) * mion(i);
     }
 
