@@ -6,21 +6,6 @@
 
 namespace ArrayUtil
 {
-    template <int XLEN>
-    struct RealArray1D : amrex::Array1D<amrex::Real, 0, XLEN-1>
-    {};
-
-    template <int XLEN, int YLEN>
-    struct RealArray2D : amrex::Array2D<amrex::Real, 0, XLEN-1,
-                                                     0, YLEN-1>
-    {};
-
-    template <int XLEN, int YLEN, int ZLEN>
-    struct RealArray3D : amrex::Array3D<amrex::Real, 0, XLEN-1,
-                                                     0, YLEN-1,
-                                                     0, ZLEN-1>
-    {};
-
     namespace Math
     {
         template <int XLO, int XHI>
