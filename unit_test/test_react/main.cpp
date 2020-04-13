@@ -14,6 +14,7 @@ using namespace amrex;
 #include "test_react_F.H"
 #include "extern_parameters.H"
 #include "eos.H"
+#include "network.H"
 #ifdef CXX_REACTIONS
 #include "react_zones.H"
 #endif
@@ -126,6 +127,11 @@ void main_main ()
 
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init();
+
+#ifdef CXX_REACTIONS
+    // C++ Network, RHS, screening, rates initialization
+    network_init();
+#endif
 
     // Ncomp = number of components for each array
     int Ncomp = -1;
