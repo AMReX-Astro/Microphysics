@@ -2,16 +2,20 @@ F90EXE_sources += actual_network.F90
 F90EXE_sources += network_properties.F90
 CEXE_headers += network_properties.H
 
+CEXE_sources += actual_network.cpp
+CEXE_headers += actual_network_data.H
+CEXE_headers += actual_network.H
+
 ifeq ($(USE_REACT),TRUE)
 ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
 F90EXE_sources += actual_burner.F90
 endif
 F90EXE_sources += actual_rhs.F90
 
+CEXE_sources += actual_rhs.cpp
+CEXE_headers += actual_rhs.H
+
 USE_RATES       = TRUE
 USE_SCREENING   = TRUE
 USE_NEUTRINOS   = TRUE
 endif
-
-CEXE_sources += actual_network_data.cpp actual_rhs.cpp
-CEXE_headers += actual_network_data.H actual_network.H actual_rhs.H
