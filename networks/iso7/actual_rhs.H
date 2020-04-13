@@ -21,6 +21,8 @@
 using namespace amrex;
 using namespace ArrayUtil;
 
+void actual_rhs_init();
+
 namespace RateTable
 {
     constexpr Real tab_tlo = 6.0e0_rt;
@@ -942,22 +944,6 @@ void set_up_screening_factors()
     add_screening_factor(jscr++, zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1]);
     add_screening_factor(jscr++,  20.0e0_rt,  40.0e0_rt, zion[He4-1], aion[He4-1]);
 
-}
-
-AMREX_INLINE
-void actual_rhs_init()
-{
-    rates_init();
-
-    screening_init();
-
-    set_up_screening_factors();
-
-    if (use_tables)
-    {
-        amrex::Print() << "\nInitializing iso7 rate table\n";
-        set_iso7rat();
-    }
 }
 
 #endif
