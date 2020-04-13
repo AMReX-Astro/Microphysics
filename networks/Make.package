@@ -35,7 +35,7 @@ ifeq ($(USE_REACT), TRUE)
 
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
   f90EXE_sources += rate_type.f90
-
+  CEXE_headers += rate_type.H
 
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
