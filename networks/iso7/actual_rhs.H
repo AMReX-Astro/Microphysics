@@ -2,17 +2,21 @@
 #define _actual_rhs_H_
 
 #include <AMReX.H>
+#include <AMReX_Print.H>
+#include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
 #include <extern_parameters.H>
 #include <microphysics_math.H>
 #include <actual_network.H>
+#include <burn_type.H>
 #include <tfactors.H>
 #include <rate_type.H>
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
+#include <temperature_integration.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -951,7 +955,7 @@ void actual_rhs_init()
 
     if (use_tables)
     {
-        Print() << "\nInitializing iso7 rate table\n";
+        amrex::Print() << "\nInitializing iso7 rate table\n";
         set_iso7rat();
     }
 }
