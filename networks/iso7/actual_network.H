@@ -12,7 +12,5 @@ const std::string network_name = "iso7";
 
 void actual_network_init()
 {
-    network_properties_init();
-
     actual_network_data_init();
 }
