@@ -54,13 +54,13 @@ void actual_network_data_init()
 
     // Set the mass
     for (int i = 1; i <= NumSpec; ++i) {
-        mion(i) = nion(i) * C::m_n + zion(i) * (C::m_p + C::m_e) - bion(i) * C::MeV2gr;
+        mion(i) = nion(i) * C::m_n + zion[i-1] * (C::m_p + C::m_e) - bion(i) * C::MeV2gr;
 
         // Molar mass
         wion(i) = C::n_A * mion(i);
 
         // Common approximation to molar mass
-        wion(i) = aion(i);
+        wion(i) = aion[i-1];
     }
 
     // set the names of the reaction rates

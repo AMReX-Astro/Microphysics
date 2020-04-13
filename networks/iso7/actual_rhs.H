@@ -58,7 +58,7 @@ void get_rates(burn_t const& state, rate_t& rr)
     temp = state.T;
 
     for (int i = 1; i <= NumSpec;; ++i)
-        y(i) = state.xn(i) * aion_inv(i);
+        y(i) = state.xn[i-1] * aion_inv[i-1];
 
     // Get the raw reaction rates
     if (use_tables)
@@ -220,7 +220,7 @@ void actual_rhs(burn_t const& state, RealArray1D<Burn::neqs>& ydot)
     zbar = state.zbar;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn(i) * aion_inv(i);
+        y(i) = state.xn[i-1] * aion_inv[i-1];
     }
 
     get_rates(state, rr);
@@ -285,7 +285,7 @@ void actual_jac(burn_t const& state, Array2D<Real, 1, Burn::njrows, 1, Burn::njc
     zbar = state.zbar;
 
     for (int i = 1; i <= NumSpec; ++i)
-        y(i) = state.xn(i) * aion_inv(i);
+        y(i) = state.xn[i-1] * aion_inv[i-1];
 
     // Species Jacobian elements with respect to other species
 
@@ -304,7 +304,7 @@ void actual_jac(burn_t const& state, Array2D<Real, 1, Burn::njrows, 1, Burn::njc
     sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
     for (int j = 1; j <= NumSpec; ++j) {
-       b1 = (-abar * abar * snuda + (zion(j) - zbar) * abar * snudz);
+       b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
        jac(net_ienuc,j) = jac(net_ienuc,j) - b1;
     }
 
@@ -568,12 +568,12 @@ void screen_iso7(const Real btemp, const Real bden,
     // first the always fun triple alpha and its inverse
     jscr = 0;
     screen5(pstate,jscr,
-            zion(He4), aion(He4), zion(He4), aion(He4),
+            zion[ihe4], aion[ihe4], zion[ihe4], aion[ihe4],
             sc1a,sc1adt,sc1add);
 
     jscr++;
     screen5(pstate,jscr,
-            zion(He4), aion(He4), 4.0_rt, 8.0_rt,
+            zion[ihe4], aion[ihe4], 4.0_rt, 8.0_rt,
             sc2a,sc2adt,sc2add);
 
     sc3a   = sc1a * sc2a;
@@ -585,7 +585,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // c12 to o16
     jscr++;
     screen5(pstate,jscr,
-            zion(C12), aion(C12), zion(He4), aion(He4),
+            zion[ic12], aion[ic12], zion[ihe4], aion[ihe4],
             sc1a,sc1adt,sc1add);
 
     dratedt(ircag)  = dratedt(ircag) * sc1a + rate(ircag) * sc1adt;
@@ -594,7 +594,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // c12 + c12
     jscr++;
     screen5(pstate,jscr,
-            zion(C12), aion(C12), zion(C12), aion(C12),
+            zion[ic12], aion[ic12], zion[ic12], aion[ic12],
             sc1a,sc1adt,sc1add);
 
     dratedt(ir1212) = dratedt(ir1212) * sc1a + rate(ir1212) * sc1adt;
@@ -603,7 +603,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // c12 + o16
     jscr++;
     screen5(pstate,jscr,
-            zion(C12), aion(C12), zion(O16), aion(O16),
+            zion[ic12], aion[ic12], zion[io16], aion[io16],
             sc1a,sc1adt,sc1add);
 
     dratedt(ir1216) = dratedt(ir1216) * sc1a + rate(ir1216) * sc1adt;
@@ -612,7 +612,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // o16 + o16
     jscr++;
     screen5(pstate,jscr,
-            zion(O16), aion(O16), zion(O16), aion(O16),
+            zion[io16], aion[io16], zion[io16], aion[io16],
             sc1a,sc1adt,sc1add);
 
     dratedt(ir1616) = dratedt(ir1616) * sc1a + rate(ir1616) * sc1adt;
@@ -621,7 +621,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // o16 to ne20
     jscr++;
     screen5(pstate,jscr,
-            zion(O16), aion(O16), zion(He4), aion(He4),
+            zion[io16], aion[io16], zion[ihe4], aion[ihe4],
             sc1a,sc1adt,sc1add);
 
     dratedt(iroag) = dratedt(iroag) * sc1a + rate(iroag) * sc1adt;
@@ -630,7 +630,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // ne20 to mg24
     jscr++;
     screen5(pstate,jscr,
-            zion(Ne20), aion(Ne20), zion(He4), aion(He4),
+            zion[ine20], aion[ine20], zion[ihe4], aion[ihe4],
             sc1a,sc1adt,sc1add);
 
     dratedt(irneag) = dratedt(irneag) * sc1a + rate(irneag) * sc1adt;
@@ -639,7 +639,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // mg24 to si28
     jscr++;
     screen5(pstate,jscr,
-            zion(Mg24), aion(Mg24), zion(He4), aion(He4),
+            zion[img24], aion[img24], zion[ihe4], aion[ihe4],
             sc1a,sc1adt,sc1add);
 
     dratedt(irmgag) = dratedt(irmgag) * sc1a + rate(irmgag) * sc1adt;
@@ -648,7 +648,7 @@ void screen_iso7(const Real btemp, const Real bden,
     // ca40 to ti44
     jscr++;
     screen5(pstate,jscr,
-            zion(Ca40), aion(Ca40), zion(He4), aion(He4),
+            zion[ica40], aion[ica40], zion[ihe4], aion[ihe4],
             sc1a,sc1adt,sc1add);
 
     dratedt(ircaag) = dratedt(ircaag) * sc1a + rate(ircaag) * sc1adt;
@@ -961,16 +961,16 @@ void set_up_screening_factors()
     // note: we need to set these up in the same order that we evaluate the
     // rates in actual_rhs.H (yes, it's ugly)
     int jscr = 0;
-    add_screening_factor(jscr++, zion( He4), aion( He4), zion(He4), aion(He4));
-    add_screening_factor(jscr++, zion( He4), aion( He4),  4.0e0_rt,  8.0e0_rt);
-    add_screening_factor(jscr++, zion( C12), aion( C12), zion(He4), aion(He4));
-    add_screening_factor(jscr++, zion( C12), aion( C12), zion(C12), aion(C12));
-    add_screening_factor(jscr++, zion( C12), aion( C12), zion(O16), aion(O16));
-    add_screening_factor(jscr++, zion( C12), aion( C12), zion(O16), aion(O16));
-    add_screening_factor(jscr++, zion( O16), aion( O16), zion(He4), aion(He4));
-    add_screening_factor(jscr++, zion(Ne20), aion(Ne20), zion(He4), aion(He4));
-    add_screening_factor(jscr++, zion(Mg24), aion(Mg24), zion(He4), aion(He4));
-    add_screening_factor(jscr++,  20.0e0_rt,  40.0e0_rt, zion(He4), aion(He4));
+    add_screening_factor(jscr++, zion[ihe4], aion[ihe4], zion[ihe4], aion[ihe4]);
+    add_screening_factor(jscr++, zion[ihe4], aion[ihe4],  4.0e0_rt,  8.0e0_rt);
+    add_screening_factor(jscr++, zion[ic12], aion[ic12], zion[ihe4], aion[ihe4]);
+    add_screening_factor(jscr++, zion[ic12], aion[ic12], zion[ic12], aion[ic12]);
+    add_screening_factor(jscr++, zion[ic12], aion[ic12], zion[io16], aion[io16]);
+    add_screening_factor(jscr++, zion[ic12], aion[ic12], zion[io16], aion[io16]);
+    add_screening_factor(jscr++, zion[io16], aion[io16], zion[ihe4], aion[ihe4]);
+    add_screening_factor(jscr++, zion[ine20], aion[ine20], zion[ihe4], aion[ihe4]);
+    add_screening_factor(jscr++, zion[img24], aion[img24], zion[ihe4], aion[ihe4]);
+    add_screening_factor(jscr++,  20.0e0_rt,  40.0e0_rt, zion[ihe4], aion[ihe4]);
 
 }
 
