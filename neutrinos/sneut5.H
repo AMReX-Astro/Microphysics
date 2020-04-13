@@ -16,7 +16,7 @@ Real ifermi12(const Real f)
 
     // declare work variables
     int m1,k1,m2,k2;
-    Real f,an,rn,den,ff;
+    Real an,rn,den,ff;
     Array1D<Real, 1, 12> a1,b1,a2,b2;
 
     // the return value
@@ -103,7 +103,7 @@ Real zfermim12(const Real x)
 
     // declare work variables
     int m1,k1,m2,k2;
-    Real x,an,rn,den,xx;
+    Real an,rn,den,xx;
     Array1D<Real, 1, 12> a1,b1,a2,b2;
 
     // return value
@@ -338,7 +338,7 @@ void sneut5(const Real temp, const Real den,
     dsnudt  = 0.0e0_rt;
     dsnudd  = 0.0e0_rt;
     dsnuda  = 0.0e0_rt;
-    dsnudz  = 0.0e0_rt
+    dsnudz  = 0.0e0_rt;
 
     if (temp < 1.0e7_rt) return;
 
@@ -547,12 +547,12 @@ void sneut5(const Real temp, const Real den,
     xdendz = a2*rmdz;
 
     // equation 4.11
-    if (abs(xnum) .gt. 0.7e0_rt  .or.  xden .lt. 0.0e0_rt) {
+    if (abs(xnum) > 0.7e0_rt || xden < 0.0e0_rt) {
 
-       fxy   = 1.0e0_rt
-       fxydt = 0.0e0_rt
-       fxydz = 0.0e0_rt
-       fxyda = 0.0e0_rt
+       fxy   = 1.0e0_rt;
+       fxydt = 0.0e0_rt;
+       fxydz = 0.0e0_rt;
+       fxyda = 0.0e0_rt;
 
     } else {
 
