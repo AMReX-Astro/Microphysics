@@ -6,14 +6,16 @@
 
 namespace ArrayUtil
 {
+    using namespace amrex;
+
     namespace Math
     {
         template <int XLO, int XHI>
         AMREX_GPU_HOST_DEVICE AMREX_INLINE
-        Real sum(amrex::Array1D<Real, XLO, XHI> const& xarray,
+        amrex::Real sum(amrex::Array1D<amrex::Real, XLO, XHI> const& xarray,
                  const int xlo_s = XLO, const int xhi_s = XHI)
         {
-            Real xsum = 0.0_rt;
+            amrex::Real xsum = 0.0_rt;
 
             for (int i = xlo_s; i <= xhi_s; ++i) {
                 xsum += xarray(i);
