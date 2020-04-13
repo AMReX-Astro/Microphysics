@@ -1,0 +1,15 @@
+&extern
+
+  dens_min   = 1.d-1
+  dens_max   = 2.d0
+  temp_min   = 5.d4
+  temp_max   = 7.d5
+
+  small_dens = 1.d-4
+  small_temp = 1.d3
+
+  primary_species_1 = "fuel"
+
+  tmax = 1.0d-4
+
+/
