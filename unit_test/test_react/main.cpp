@@ -12,7 +12,11 @@ using namespace amrex;
 
 #include "test_react.H"
 #include "test_react_F.H"
+#include "extern_parameters.H"
+#include "eos.H"
+#ifdef CXX_REACTIONS
 #include "react_zones.H"
+#endif
 #include "AMReX_buildInfo.H"
 
 
@@ -38,7 +42,9 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
+#ifdef CXX_REACTIONS
     int do_cxx = 0;
+#endif
 
     // inputs parameters
     {
@@ -58,7 +64,9 @@ void main_main ()
 
         pp.query("prefix", prefix);
 
+#ifdef CXX_REACTIONS
         pp.query("do_cxx", do_cxx);
+#endif
 
     }
 
@@ -173,6 +181,7 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
+#ifdef CXX_REACTIONS
         if (do_cxx) {
 
             auto s = state.array(mfi);
@@ -191,13 +200,16 @@ void main_main ()
 
         }
         else {
+#endif
 
 #pragma gpu
             do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      BL_TO_FORTRAN_ANYD(state[mfi]),
                      BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
 
+#ifdef CXX_REACTIONS
         }
+#endif
 
 	if (print_every_nrhs != 0)
 	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
