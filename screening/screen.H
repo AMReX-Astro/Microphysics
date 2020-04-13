@@ -2,6 +2,7 @@
 #define _screen_H_
 
 #include <AMReX.H>
+#include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>
 #include <AMReX_Vector.H>
 #include <AMReX_REAL.H>
