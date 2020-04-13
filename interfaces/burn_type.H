@@ -2,6 +2,7 @@
 #define _burn_type_H_
 
 #include <network.H>
+#include <eos_type.H>
 
 // A generic structure holding data necessary to do a nuclear burn.
 
