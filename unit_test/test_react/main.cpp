@@ -12,15 +12,16 @@ using namespace amrex;
 
 #include "test_react.H"
 #include "test_react_F.H"
+#include "react_zones.H"
 #include "AMReX_buildInfo.H"
 
 
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
-
-    main_main();
-
+    {
+        main_main();
+    }
     amrex::Finalize();
     return 0;
 }
@@ -36,6 +37,8 @@ void main_main ()
     std::string prefix = "plt";
 
     IntVect tile_size(1024, 8, 8);
+
+    int do_cxx = 0;
 
     // inputs parameters
     {
@@ -54,6 +57,8 @@ void main_main ()
         pp.query("max_grid_size", max_grid_size);
 
         pp.query("prefix", prefix);
+
+        pp.query("do_cxx", do_cxx);
 
     }
 
@@ -108,6 +113,12 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+    // Copy extern parameters from Fortran to C++
+    init_extern_parameters();
+
+    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    eos_init();
+
     // Ncomp = number of components for each array
     int Ncomp = -1;
     init_variables();
@@ -152,6 +163,8 @@ void main_main ()
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
+    int num_failed = 0;
+
     // Do the reactions
 #ifdef _OPENMP
 #pragma omp parallel
@@ -160,14 +173,39 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
+        if (do_cxx) {
+
+            auto s = state.array(mfi);
+            auto n_rhs = integrator_n_rhs.array(mfi);
+
+            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
+
+            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+            {
+                bool success = do_react(i, j, k, s, n_rhs);
+
+                if (!success) {
+                    Gpu::Atomic::Add(num_failed_d, 1);
+                }
+            });
+
+        }
+        else {
+
 #pragma gpu
-        do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                 BL_TO_FORTRAN_ANYD(state[mfi]),
-		 BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+            do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                     BL_TO_FORTRAN_ANYD(state[mfi]),
+                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+
+        }
 
 	if (print_every_nrhs != 0)
 	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
 		     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+    }
+
+    if (num_failed > 0) {
+        amrex::Abort("Integration failed");
     }
 
     // Call the timer again and compute the maximum difference between
