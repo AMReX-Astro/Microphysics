@@ -252,10 +252,16 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
+#ifdef CXX_REACTIONS
+    std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
+#else
+    std::string language = ".fortran";
+#endif
+
     // Write a plotfile
     int n = 0;
 
-    WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
