@@ -141,7 +141,7 @@ msum_template = """
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;

@@ -93,7 +93,7 @@ Real esum3(Array1D<Real, 1, 3> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -179,7 +179,7 @@ Real esum4(Array1D<Real, 1, 4> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -265,7 +265,7 @@ Real esum5(Array1D<Real, 1, 5> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -305,7 +305,7 @@ Real esum5(Array1D<Real, 1, 5> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -391,7 +391,7 @@ Real esum6(Array1D<Real, 1, 6> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -431,7 +431,7 @@ Real esum6(Array1D<Real, 1, 6> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -517,7 +517,7 @@ Real esum7(Array1D<Real, 1, 7> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -557,7 +557,7 @@ Real esum7(Array1D<Real, 1, 7> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -597,7 +597,7 @@ Real esum7(Array1D<Real, 1, 7> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -683,7 +683,7 @@ Real esum8(Array1D<Real, 1, 8> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -723,7 +723,7 @@ Real esum8(Array1D<Real, 1, 8> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -763,7 +763,7 @@ Real esum8(Array1D<Real, 1, 8> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -849,7 +849,7 @@ Real esum9(Array1D<Real, 1, 9> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -889,7 +889,7 @@ Real esum9(Array1D<Real, 1, 9> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -929,7 +929,7 @@ Real esum9(Array1D<Real, 1, 9> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -969,7 +969,7 @@ Real esum9(Array1D<Real, 1, 9> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1055,7 +1055,7 @@ Real esum10(Array1D<Real, 1, 10> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1095,7 +1095,7 @@ Real esum10(Array1D<Real, 1, 10> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1135,7 +1135,7 @@ Real esum10(Array1D<Real, 1, 10> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1175,7 +1175,7 @@ Real esum10(Array1D<Real, 1, 10> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1261,7 +1261,7 @@ Real esum11(Array1D<Real, 1, 11> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1301,7 +1301,7 @@ Real esum11(Array1D<Real, 1, 11> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1341,7 +1341,7 @@ Real esum11(Array1D<Real, 1, 11> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1381,7 +1381,7 @@ Real esum11(Array1D<Real, 1, 11> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1421,7 +1421,7 @@ Real esum11(Array1D<Real, 1, 11> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1507,7 +1507,7 @@ Real esum12(Array1D<Real, 1, 12> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1547,7 +1547,7 @@ Real esum12(Array1D<Real, 1, 12> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1587,7 +1587,7 @@ Real esum12(Array1D<Real, 1, 12> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1627,7 +1627,7 @@ Real esum12(Array1D<Real, 1, 12> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1667,7 +1667,7 @@ Real esum12(Array1D<Real, 1, 12> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1753,7 +1753,7 @@ Real esum13(Array1D<Real, 1, 13> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1793,7 +1793,7 @@ Real esum13(Array1D<Real, 1, 13> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1833,7 +1833,7 @@ Real esum13(Array1D<Real, 1, 13> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1873,7 +1873,7 @@ Real esum13(Array1D<Real, 1, 13> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1913,7 +1913,7 @@ Real esum13(Array1D<Real, 1, 13> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -1953,7 +1953,7 @@ Real esum13(Array1D<Real, 1, 13> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2039,7 +2039,7 @@ Real esum14(Array1D<Real, 1, 14> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2079,7 +2079,7 @@ Real esum14(Array1D<Real, 1, 14> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2119,7 +2119,7 @@ Real esum14(Array1D<Real, 1, 14> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2159,7 +2159,7 @@ Real esum14(Array1D<Real, 1, 14> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2199,7 +2199,7 @@ Real esum14(Array1D<Real, 1, 14> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2239,7 +2239,7 @@ Real esum14(Array1D<Real, 1, 14> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2325,7 +2325,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2365,7 +2365,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2405,7 +2405,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2445,7 +2445,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2485,7 +2485,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2525,7 +2525,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2565,7 +2565,7 @@ Real esum15(Array1D<Real, 1, 15> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2651,7 +2651,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2691,7 +2691,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2731,7 +2731,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2771,7 +2771,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2811,7 +2811,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2851,7 +2851,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2891,7 +2891,7 @@ Real esum16(Array1D<Real, 1, 16> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -2977,7 +2977,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3017,7 +3017,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3057,7 +3057,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3097,7 +3097,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3137,7 +3137,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3177,7 +3177,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3217,7 +3217,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3257,7 +3257,7 @@ Real esum17(Array1D<Real, 1, 17> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3343,7 +3343,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3383,7 +3383,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3423,7 +3423,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3463,7 +3463,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3503,7 +3503,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3543,7 +3543,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3583,7 +3583,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3623,7 +3623,7 @@ Real esum18(Array1D<Real, 1, 18> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3709,7 +3709,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3749,7 +3749,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3789,7 +3789,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3829,7 +3829,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3869,7 +3869,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3909,7 +3909,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3949,7 +3949,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -3989,7 +3989,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4029,7 +4029,7 @@ Real esum19(Array1D<Real, 1, 19> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4115,7 +4115,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4155,7 +4155,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4195,7 +4195,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4235,7 +4235,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4275,7 +4275,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4315,7 +4315,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4355,7 +4355,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4395,7 +4395,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4435,7 +4435,7 @@ Real esum20(Array1D<Real, 1, 20> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4521,7 +4521,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4561,7 +4561,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4601,7 +4601,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4641,7 +4641,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4681,7 +4681,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4721,7 +4721,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4761,7 +4761,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4801,7 +4801,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4841,7 +4841,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4881,7 +4881,7 @@ Real esum21(Array1D<Real, 1, 21> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -4967,7 +4967,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5007,7 +5007,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5047,7 +5047,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5087,7 +5087,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5127,7 +5127,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5167,7 +5167,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5207,7 +5207,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5247,7 +5247,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5287,7 +5287,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5327,7 +5327,7 @@ Real esum22(Array1D<Real, 1, 22> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5413,7 +5413,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5453,7 +5453,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5493,7 +5493,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5533,7 +5533,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5573,7 +5573,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5613,7 +5613,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5653,7 +5653,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5693,7 +5693,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5733,7 +5733,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5773,7 +5773,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5813,7 +5813,7 @@ Real esum23(Array1D<Real, 1, 23> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5899,7 +5899,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5939,7 +5939,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -5979,7 +5979,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6019,7 +6019,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6059,7 +6059,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6099,7 +6099,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6139,7 +6139,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6179,7 +6179,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6219,7 +6219,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6259,7 +6259,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6299,7 +6299,7 @@ Real esum24(Array1D<Real, 1, 24> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6385,7 +6385,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6425,7 +6425,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6465,7 +6465,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6505,7 +6505,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6545,7 +6545,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6585,7 +6585,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6625,7 +6625,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6665,7 +6665,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6705,7 +6705,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6745,7 +6745,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6785,7 +6785,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6825,7 +6825,7 @@ Real esum25(Array1D<Real, 1, 25> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6911,7 +6911,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6951,7 +6951,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -6991,7 +6991,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7031,7 +7031,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7071,7 +7071,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7111,7 +7111,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7151,7 +7151,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7191,7 +7191,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7231,7 +7231,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7271,7 +7271,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7311,7 +7311,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7351,7 +7351,7 @@ Real esum26(Array1D<Real, 1, 26> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7437,7 +7437,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7477,7 +7477,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7517,7 +7517,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7557,7 +7557,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7597,7 +7597,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7637,7 +7637,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7677,7 +7677,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7717,7 +7717,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7757,7 +7757,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7797,7 +7797,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7837,7 +7837,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7877,7 +7877,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -7917,7 +7917,7 @@ Real esum27(Array1D<Real, 1, 27> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8003,7 +8003,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8043,7 +8043,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8083,7 +8083,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8123,7 +8123,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8163,7 +8163,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8203,7 +8203,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8243,7 +8243,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8283,7 +8283,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8323,7 +8323,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8363,7 +8363,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8403,7 +8403,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8443,7 +8443,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8483,7 +8483,7 @@ Real esum28(Array1D<Real, 1, 28> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8569,7 +8569,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8609,7 +8609,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8649,7 +8649,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8689,7 +8689,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8729,7 +8729,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8769,7 +8769,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8809,7 +8809,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8849,7 +8849,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8889,7 +8889,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8929,7 +8929,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -8969,7 +8969,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9009,7 +9009,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9049,7 +9049,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9089,7 +9089,7 @@ Real esum29(Array1D<Real, 1, 29> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9175,7 +9175,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9215,7 +9215,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9255,7 +9255,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9295,7 +9295,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9335,7 +9335,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9375,7 +9375,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9415,7 +9415,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9455,7 +9455,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9495,7 +9495,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9535,7 +9535,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9575,7 +9575,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9615,7 +9615,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9655,7 +9655,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
@@ -9695,7 +9695,7 @@ Real esum30(Array1D<Real, 1, 30> const& array)
        for (k = 0; k <= km; ++k) {
           y = partials(k);
 
-          if (abs(x) < abs(y)) {
+          if (std::abs(x) < std::abs(y)) {
              // Swap x, y
              z = y;
              y = x;
