@@ -227,7 +227,11 @@ void main_main ()
     std::string name = "test_rhs.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
+#ifdef CXX_REACTIONS
     std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
+#else
+    std::string language = ".fortran";
+#endif
 
     // Write a plotfile
     int n = 0;
