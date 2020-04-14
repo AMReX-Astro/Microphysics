@@ -14,6 +14,7 @@ enum plot_t
     p_ispec_old = p_ispec + NumSpec,
     p_itemp_dot = p_ispec_old + NumSpec,
     p_ienuc_dot = p_itemp_dot + 1,
+    p_ijac = p_ienuc_dot + 1,
     n_plot_comps
 };
 

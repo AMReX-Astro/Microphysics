@@ -74,8 +74,8 @@ contains
 
     type (burn_t)   :: burn_state
     type (eos_t)    :: eos_state
-    integer         :: ii, jj, kk, j
-    real(rt)        :: ydot(neqs)
+    integer         :: ii, jj, kk, j, i, n
+    real(rt)        :: ydot(neqs), jac(neqs, neqs)
 
     !$gpu
 
@@ -106,6 +106,7 @@ contains
              burn_state % self_heat = .true.
 
              call actual_rhs(burn_state, ydot)
+             call actual_jac(burn_state, jac)
 
              do j = 1, nspec
                 state(ii, jj, kk, p % ispec + j - 1) = ydot(j)
@@ -113,6 +114,14 @@ contains
 
              state(ii, jj, kk, p % itemp_dot) = ydot(net_itemp)
              state(ii, jj, kk, p % ienuc_dot) = ydot(net_ienuc)
+
+             n = 0
+             do j = 1, neqs
+             do i = 1, neqs
+                state(ii, jj, kk, p % ijac + n) = jac(i, j)
+                n = n + 1
+             end do
+             end do
 
           enddo
        enddo

@@ -7,10 +7,11 @@ module variables
   use amrex_fort_module, only : rt => amrex_real
 
   use network, only: nspec, spec_names
+  use burn_type_module, only: neqs
 
   implicit none
 
-  integer, parameter :: MAX_NAME_LEN=20
+  integer, parameter :: MAX_NAME_LEN=50
 
   type plot_t
      integer :: irho = -1
@@ -19,6 +20,7 @@ module variables
      integer :: ispec_old = -1
      integer :: itemp_dot = -1
      integer :: ienuc_dot = -1
+     integer :: ijac = -1
 
      integer :: n_plot_comps = 0
 
@@ -55,7 +57,7 @@ contains
 
   subroutine init_variables() bind(C, name="init_variables")
 
-    integer :: n
+    integer :: n, i, j
 
     ! variable information
     allocate(p)
@@ -66,6 +68,7 @@ contains
     p % ispec_old = p % next_index(nspec)
     p % itemp_dot = p % next_index(1)
     p % ienuc_dot = p % next_index(1)
+    p % ijac      = p % next_index(neqs * neqs)
 
     allocate(p%names(p%n_plot_comps))
 
@@ -77,6 +80,28 @@ contains
     enddo
     p % names(p % itemp_dot) = "Tdot"
     p % names(p % ienuc_dot) = "Edot"
+
+    n = 0
+    do j = 1, neqs
+    do i = 1, neqs
+       p % names(p % ijac + n) = "J_"
+       if (i <= nspec) then
+          p % names(p % ijac + n) = adjustl(trim(p % names(p % ijac + n))) // adjustl(trim(spec_names(i))) // "_"
+       else if (i == nspec + 1) then
+          p % names(p % ijac + n) = adjustl(trim(p % names(p % ijac + n))) // "T_"
+       else
+          p % names(p % ijac + n) = adjustl(trim(p % names(p % ijac + n))) // "E_"
+       end if
+       if (j <= nspec) then
+          p % names(p % ijac + n) = adjustl(trim(p % names(p % ijac + n))) // adjustl(trim(spec_names(j)))
+       else if (j == nspec + 1) then
+          p % names(p % ijac + n) = adjustl(trim(p % names(p % ijac + n))) // "T"
+       else
+          p % names(p % ijac + n) = adjustl(trim(p % names(p % ijac + n))) // "E"
+       end if
+       n = n + 1
+    end do
+    end do
 
   end subroutine init_variables
 
