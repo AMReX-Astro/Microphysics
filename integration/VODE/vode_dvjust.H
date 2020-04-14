@@ -10,6 +10,9 @@ void dvjust (int IORD, dvode_t& vstate)
     // This subroutine adjusts the YH array on reduction of order,
     // and also when the order is increased.
 
+    //  IORD  = An integer flag used to indicate an order
+    //          increase (IORD = +1) or an order decrease (IORD = -1).
+
     if ((vstate.NQ == 2) && (IORD != 1)) {
         return;
     }
