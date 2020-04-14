@@ -29,10 +29,10 @@ void actual_network_init()
 
     // Set the mass
     for (int i = 1; i <= NumSpec; ++i) {
-        mion(i) = (aion[i-1] - zion[i-1]) * C::m_n + zion[i-1] * (C::m_p + C::m_e) - bion(i) * C::MeV2gr;
+        mion(i) = (aion[i-1] - zion[i-1]) * C::Legacy::m_n + zion[i-1] * (C::Legacy::m_p + C::Legacy::m_e) - bion(i) * C::Legacy::MeV2gr;
 
         // Molar mass
-        wion(i) = C::n_A * mion(i);
+        wion(i) = C::Legacy::n_A * mion(i);
 
         // Common approximation to molar mass
         wion(i) = aion[i-1];

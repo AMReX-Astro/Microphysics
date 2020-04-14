@@ -667,7 +667,7 @@ void ener_gener_rate(T const& dydt, Real& enuc)
     }
 
     // This is basically e = m c**2
-    enuc = Xdot * C::enuc_conv2;
+    enuc = Xdot * C::Legacy::enuc_conv2;
 
 }
 
