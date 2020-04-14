@@ -47,7 +47,7 @@ void iso7tab(const Real btemp, const Real bden,
 
     constexpr int mp = 4;
 
-    int j, iat;
+    int iat;
     Real x, x1, x2, x3, x4;
     Real a, b, c, d, e, f, g, h, p, q;
     Real alfa, beta, gama, delt;
@@ -855,8 +855,6 @@ void actual_jac(burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
     bool deriva;
 
     Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
-
-    int j;
 
     Real rho, temp, abar, zbar;
     Array1D<Real, 1, NumSpec> y;
