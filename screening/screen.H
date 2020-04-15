@@ -2,6 +2,7 @@
 #define _screen_H_
 
 #include <AMReX.H>
+#include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>
 #include <AMReX_Vector.H>
 #include <AMReX_REAL.H>
@@ -54,7 +55,9 @@ screening_finalize() {
 
 AMREX_FORCE_INLINE
 void add_screening_factor(const int i,
-                          const Real z1, const Real a1, const Real z2, const Real a2) {
+                          const Real z1, const Real a1, const Real z2, const Real a2)
+{
+  using namespace scrn;
 
   BL_ASSERT(i < NSCREEN);
 
@@ -74,26 +77,26 @@ void add_screening_factor(const int i,
                               scn_facs[i].z2 * scn_facs[i].z2 *
                               scn_facs[i].a1 * scn_facs[i].a2 /
                               (scn_facs[i].a1 + scn_facs[i].a2), 1.0_rt/3.0_rt);
-}
 
+}
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Real* y) {
+fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
 
   Real sum = 0.0_rt;
-  for (int n = 0; n < NumSpec; n++) {
-    sum += y[n];
+  for (int n = 1; n <= NumSpec; n++) {
+    sum += y(n);
   }
   Real abar = 1.0_rt / sum;
   Real ytot = sum;
 
   sum = 0.0_rt;
   Real sum2 = 0.0_rt;
-  for (int n = 0; n < NumSpec; n++) {
-    sum += zion[n]*y[n];
-    sum2 += zion[n]*zion[n]*y[n];
+  for (int n = 1; n <= NumSpec; n++) {
+    sum += zion[n-1]*y(n);
+    sum2 += zion[n-1]*zion[n-1]*y(n);
   }
 
   const Real co2 = (1.0_rt/3.0_rt) * 4.248719e3_rt;
@@ -127,12 +130,16 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Real*
   //state.daadd = 2.27493e5_rt * tempi * dxnidd;
 }
 
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void
-screen5(const plasma_state_t state,
-        const int jscreen,
-        Real& scor, Real& scordt, Real& scordd) {
+void screen5(const plasma_state_t state,
+             const int jscreen,
+             const Real z1_screen, const Real a1_screen,
+             const Real z2_screen, const Real a2_screen,
+             Real& scor, Real& scordt, Real& scordd)
+{
+    using namespace scrn;
+
+    AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
 
   // this subroutine calculates screening factors and their derivatives
   // for nuclear reaction rates in the weak, intermediate and strong regimes.
@@ -305,11 +312,7 @@ screen5(const plasma_state_t state,
 
   // machine limit the output
   // further limit to avoid the pycnonuclear regime
-  if (h12 > h12_max) {
-    h12 = h12_max;
-  }
-
-  h12 = amrex::max(h12, 0.0_rt);
+  h12 = amrex::max(amrex::min(h12, h12_max), 0.0_rt);
   scor = std::exp(h12);
 
   if (h12 == h12_max) {
