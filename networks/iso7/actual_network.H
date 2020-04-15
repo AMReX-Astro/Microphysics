@@ -32,10 +32,6 @@ namespace C
     }
 }
 
-namespace Species {
-    enum NetworkSpecies {He4 = 1, C12, O16, Ne20, Mg24, Si28, Ni56, NumberSpecies = Ni56};
-};
-
 const std::string network_name = "iso7";
 
 namespace iso7
