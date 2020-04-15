@@ -40,14 +40,6 @@ std::ostream& operator<< (std::ostream& o, plasma_state_t const& pstate)
 }
 
 
-
-const Real fact = 1.25992104989487e0_rt;
-const Real co2        = (1.0_rt/3.0_rt) * 4.248719e3_rt;
-const Real gamefx     = 0.3e0_rt;
-const Real gamefs     = 0.8e0_rt;
-const Real h12_max    = 300.e0_rt;
-
-
 AMREX_FORCE_INLINE
 void
 screening_init() {
@@ -107,6 +99,8 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
     sum2 += zion[n-1]*zion[n-1]*y(n);
   }
 
+  const Real co2 = (1.0_rt/3.0_rt) * 4.248719e3_rt;
+
   Real zbar = sum * abar;
   Real z2bar = sum2 * abar;
 
@@ -162,6 +156,11 @@ void screen5(const plasma_state_t state,
   // scor    = screening correction
   // scordt  = derivative of screening correction with temperature
   // scordd  = derivative of screening correction with density
+
+  const Real fact    = 1.25992104989487e0_rt;
+  const Real gamefx  = 0.3e0_rt;
+  const Real gamefs  = 0.8e0_rt;
+  const Real h12_max = 300.e0_rt;
 
   // Get the ion data based on the input index
   Real z1 = scn_facs[jscreen].z1;

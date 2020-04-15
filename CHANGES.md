@@ -1,3 +1,7 @@
+# 20.05
+
+   * The screening on O16+O16 in iso7 was fixed (#302)
+
 # 20.04
 
    * The wion network property was removed (#294)
