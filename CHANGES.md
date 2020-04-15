@@ -1,5 +1,7 @@
 # 20.05
 
+   * A C++ version of the iso7 network was created (#303)
+
    * The screening on O16+O16 in iso7 was fixed (#302)
 
 # 20.04
