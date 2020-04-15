@@ -15,7 +15,9 @@ FEXE_headers += eos_F.H
 CEXE_sources += eos_data.cpp
 
 CEXE_headers += network.H
+ifeq ($(USE_CXX_REACTIONS),TRUE)
 CEXE_sources += network_initialization.cpp
+endif
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)
   F90EXE_sources += conductivity.F90
