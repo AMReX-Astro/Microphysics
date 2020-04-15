@@ -282,6 +282,15 @@ def write_network(network_template, header_template,
                             print(p)
                             fout.write("{}constexpr int {} = {};\n".format(indent, p, properties[p]))
 
+                elif keyword == "SPECIES_ENUM":
+                    if lang == "C++":
+                        for n, spec in enumerate(species):
+                            if n == 0:
+                                fout.write("{}{}=1,\n".format(indent, spec.short_name.capitalize()))
+                            else:
+                                fout.write("{}{},\n".format(indent, spec.short_name.capitalize()))
+                        fout.write("{}NumberSpecies={}\n".format(indent, species[-1].short_name.capitalize()))
+
             else:
                 fout.write(line)
 
