@@ -5,6 +5,7 @@
 // for accessing the different variables by name.
 
 #include <network.H>
+#include <burn_type.H>
 
 enum plot_t
 {
@@ -15,7 +16,7 @@ enum plot_t
     p_itemp_dot = p_ispec_old + NumSpec,
     p_ienuc_dot = p_itemp_dot + 1,
     p_ijac = p_ienuc_dot + 1,
-    n_plot_comps
+    n_plot_comps = p_ijac + 1 + neqs * neqs
 };
 
 #endif
