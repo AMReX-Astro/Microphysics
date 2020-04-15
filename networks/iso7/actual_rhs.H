@@ -452,19 +452,19 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     using namespace Rates;
 
     {
-        Array1D<Real, 1, 8> b;
-
         // set up the jacobian
         // 4he jacobian elements
         // d(he4)/d(he4)
-        b(1) = -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a);
-        b(2) = -y(C12) * rr.rates(1,ircag);
-        b(3) = -y(O16) * rr.rates(1,iroag);
-        b(4) = -y(Ne20) * rr.rates(1,irneag);
-        b(5) = -y(Mg24) * rr.rates(1,irmgag);
-        b(6) = -7.0e0_rt * rr.rates(1,irsi2ni);
-        b(7) = -7.0e0_rt * rr.rates(3,irsi2ni) * y(He4);
-        b(8) =  7.0e0_rt * rr.rates(3,irni2si) * y(Ni56);
+        Array1D<Real, 1, 8> b {
+               -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a),
+               -y(C12) * rr.rates(1,ircag),
+               -y(O16) * rr.rates(1,iroag),
+               -y(Ne20) * rr.rates(1,irneag),
+               -y(Mg24) * rr.rates(1,irmgag),
+               -7.0e0_rt * rr.rates(1,irsi2ni),
+               -7.0e0_rt * rr.rates(3,irsi2ni) * y(He4),
+                7.0e0_rt * rr.rates(3,irni2si) * y(Ni56)
+        };
 
         jac(He4,He4) = esum8(b);
     }
@@ -515,13 +515,13 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     }
 
     {
-        Array1D<Real, 1, 3> b;
-
         // ni56 jacobian elements
         // d(ni56)/d(he4)
-        b(1) =  rr.rates(1,irsi2ni);
-        b(2) =  rr.rates(3,irsi2ni) * y(He4);
-        b(3) = -rr.rates(3,irni2si) * y(Ni56);
+        Array1D<Real, 1, 3> b {
+                rr.rates(1,irsi2ni),
+                rr.rates(3,irsi2ni) * y(He4),
+               -rr.rates(3,irni2si) * y(Ni56)
+        };
 
         jac(Ni56,He4) = esum3(b);
     }
