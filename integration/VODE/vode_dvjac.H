@@ -178,12 +178,14 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
         vstate.jac(i,i) += 1.0_rt;
     }
 
+#ifndef NETWORK_SOLVER
     int IER;
     dgefa(vstate.jac, pivot, IER);
 
     if (IER != 0) {
         IERPJ = 1;
     }
+#endif
 
 }
 

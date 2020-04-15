@@ -5,6 +5,10 @@
 #include <vode_linpack.H>
 #include <vode_dvjac.H>
 
+#ifdef NETWORK_SOLVER
+#include <actual_linear_solver.H>
+#endif
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
 {
@@ -107,7 +111,11 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
                               (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
 
+#ifdef NETWORK_SOLVER
+            actual_solve(vstate.jac, vstate.y);
+#else
             dgesl(vstate.jac, pivot, vstate.y);
+#endif
 
             if (vstate.RC != 1.0_rt) {
                 Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
