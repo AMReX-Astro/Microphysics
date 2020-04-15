@@ -2,6 +2,7 @@
 #define _tfactors_H_
 
 #include <AMReX.H>
+#include <cmath>
 
 struct tf_t {
     amrex::Real temp;

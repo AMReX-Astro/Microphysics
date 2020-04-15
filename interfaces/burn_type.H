@@ -1,7 +1,12 @@
 #ifndef _burn_type_H_
 #define _burn_type_H_
 
+#include <AMReX_REAL.H>
+
 #include <network.H>
+#include <eos_type.H>
+
+using namespace amrex;
 
 // A generic structure holding data necessary to do a nuclear burn.
 

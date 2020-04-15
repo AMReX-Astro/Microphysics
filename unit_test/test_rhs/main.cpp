@@ -16,7 +16,7 @@ using namespace amrex;
 #include "eos.H"
 #include "network.H"
 #ifdef CXX_REACTIONS
-#include "react_zones.H"
+#include "rhs_zones.H"
 #endif
 #include "AMReX_buildInfo.H"
 
@@ -170,16 +170,10 @@ void main_main ()
 
     }
 
-    // allocate a multifab for the number of RHS calls
-    // so we can manually do the reductions (for GPU)
-    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
-
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
-    int num_failed = 0;
-
-    // Do the reactions
+    // Call the rhs
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
@@ -191,17 +185,10 @@ void main_main ()
         if (do_cxx) {
 
             auto s = state.array(mfi);
-            auto n_rhs = integrator_n_rhs.array(mfi);
-
-            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                bool success = do_react(i, j, k, s, n_rhs);
-
-                if (!success) {
-                    Gpu::Atomic::Add(num_failed_d, 1);
-                }
+                do_rhs(i, j, k, s);
             });
 
         }
@@ -209,21 +196,13 @@ void main_main ()
 #endif
 
 #pragma gpu
-            do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                     BL_TO_FORTRAN_ANYD(state[mfi]),
-                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+            do_rhs(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                   BL_TO_FORTRAN_ANYD(state[mfi]));
 
 #ifdef CXX_REACTIONS
         }
 #endif
 
-	if (print_every_nrhs != 0)
-	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
-		     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
-    }
-
-    if (num_failed > 0) {
-        amrex::Abort("Integration failed");
     }
 
     // Call the timer again and compute the maximum difference between
@@ -231,10 +210,6 @@ void main_main ()
     Real stop_time = ParallelDescriptor::second() - strt_time;
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
-
-    int n_rhs_min = integrator_n_rhs.min(0);
-    int n_rhs_max = integrator_n_rhs.max(0);
-    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -249,7 +224,7 @@ void main_main ()
       }
     }
 
-    std::string name = "test_react.";
+    std::string name = "test_rhs.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
 #ifdef CXX_REACTIONS
@@ -265,10 +240,5 @@ void main_main ()
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
-
-    // print statistics
-    std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
-    std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
 
 }
