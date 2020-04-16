@@ -253,9 +253,9 @@ void main_main ()
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
 #ifdef CXX_REACTIONS
-    std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
+    std::string language = do_cxx == 1 ? ".cxx" : "";
 #else
-    std::string language = ".fortran";
+    std::string language = "";
 #endif
 
     // Write a plotfile
