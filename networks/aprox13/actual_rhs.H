@@ -1934,7 +1934,8 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
      nuclear reactions.  This is an alpha chain + heavy ion network
      with (a,p)(p,g) links up to silicon, as well as a Si <-> Ni link.
 
-     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
+     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
+               ar36, ca40, ti44, cr48, fe52, ni56
     */
 
     rate_t rr;
