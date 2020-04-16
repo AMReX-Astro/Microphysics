@@ -1256,192 +1256,192 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         b(1) =  rr.rates(1,irnega);
         b(2) = -y(He4) * rr.rates(1,irneag);
 
-        jac(He4, Ne20) = b(1) + b(2);
+        jac(He4,Ne20) = b(1) + b(2);
 
         // d(he4)/d(ni56)
         b(1) = rr.rates(1,irniga);
         b(2) = rr.rates(1,iry1) * rr.rates(1,irnigp);
 
-        jac(He4, Ni56) = b(1) + b(2);
+        jac(He4,Ni56) = b(1) + b(2);
 
         // c12 jacobian elements
         // d(c12)/d(he4)
         b(1) =  0.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a);
         b(2) = -y(C12) * rr.rates(1,ircag);
 
-        jac(C12, He4) = b(1) + b(2);
+        jac(C12,He4) = b(1) + b(2);
 
         // d(c12)/d(o16)
         b(1) = -y(C12) * rr.rates(1,ir1216);
         b(2) =  rr.rates(1,iroga);
 
-        jac(C12, O16) = b(1) + b(2);
+        jac(C12,O16) = b(1) + b(2);
 
         // o16 jacobian elements
         // d(o16)/d(he4)
         b(1) =  y(C12)*rr.rates(1,ircag);
         b(2) = -y(O16)*rr.rates(1,iroag);
 
-        jac(O16, He4) = b(1) + b(2);
+        jac(O16,He4) = b(1) + b(2);
 
         // d(o16)/d(c12)
         b(1) = -y(O16)*rr.rates(1,ir1216);
         b(2) =  y(He4)*rr.rates(1,ircag);
 
-        jac(O16, C12) = b(1) + b(2);
+        jac(O16,C12) = b(1) + b(2);
 
         // ne20 jacobian elements
         // d(ne20)/d(he4)
         b(1) =  y(O16) * rr.rates(1,iroag);
         b(2) = -y(Ne20) * rr.rates(1,irneag);
 
-        jac(Ne20, He4) = b(1) + b(2);
+        jac(Ne20,He4) = b(1) + b(2);
 
         // d(ne20)/d(ne20)
         b(1) = -y(He4) * rr.rates(1,irneag);
         b(2) = -rr.rates(1,irnega);
 
-        jac(Ne20, Ne20) = b(1) + b(2);
+        jac(Ne20,Ne20) = b(1) + b(2);
 
         // d(mg24)/d(si28)
         b(1) = rr.rates(1,irsiga);
         b(2) = rr.rates(1,irr1) * rr.rates(1,irsigp);
 
-        jac(Mg24, Si28) = b(1) + b(2);
+        jac(Mg24,Si28) = b(1) + b(2);
 
         // d(si28)/d(mg24)
         b(1) =  y(He4) * rr.rates(1,irmgag);
         b(2) =  y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
 
-        jac(Si28, Mg24) = b(1) + b(2);
+        jac(Si28,Mg24) = b(1) + b(2);
 
         // d(si28)/d(s32)
         b(1) = rr.rates(1,irsga);
         b(2) = rr.rates(1,irs1) * rr.rates(1,irsgp);
 
-        jac(Si28, S32) = b(1) + b(2);
+        jac(Si28,S32) = b(1) + b(2);
 
         // d(s32)/d(o16)
         b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr.rates(1,ir1616)*(1.0e0_rt-rr.rates(1,irs1));
         b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
 
-        jac(S32, O16) = b(1) + b(2);
+        jac(S32,O16) = b(1) + b(2);
 
         // d(s32)/d(si28)
         b(1)  =y(He4) * rr.rates(1,irsiag);
         b(2) = y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
 
-        jac(S32, Si28) = b(1) + b(2);
+        jac(S32,Si28) = b(1) + b(2);
 
         // d(s32)/d(ar36)
         b(1) = rr.rates(1,irarga);
         b(2) = rr.rates(1,irt1) * rr.rates(1,irargp);
 
-        jac(S32, Ar36) = b(1) + b(2);
+        jac(S32,Ar36) = b(1) + b(2);
 
         // d(ar36)/d(s32)
         b(1) = y(He4) * rr.rates(1,irsag);
         b(2) = y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
 
-        jac(Ar36, S32) = b(1) + b(2);
+        jac(Ar36,S32) = b(1) + b(2);
 
         // d(ar36)/d(ca40)
         b(1) = rr.rates(1,ircaga);
         b(2) = rr.rates(1,ircagp) * rr.rates(1,iru1);
 
-        jac(Ar36, Ca40) = b(1) + b(2);
+        jac(Ar36,Ca40) = b(1) + b(2);
 
         // d(ca40)/d(ar36)
         b(1) =  y(He4) * rr.rates(1,irarag);
         b(2) =  y(He4) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
 
-        jac(Ca40, Ar36) = b(1) + b(2);
+        jac(Ca40,Ar36) = b(1) + b(2);
 
         // d(ca40)/d(ti44)
         b(1) = rr.rates(1, irtiga);
         b(2) = rr.rates(1, irtigp) * rr.rates(1, irv1);
 
-        jac(Ca40, Ti44) = b(1) + b(2);
+        jac(Ca40,Ti44) = b(1) + b(2);
 
         // d(ti44)/d(ca40)
         b(1) =  y(He4) * rr.rates(1, ircaag);
         b(2) =  y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
 
-        jac(Ti44, Ca40) = b(1) + b(2);
+        jac(Ti44,Ca40) = b(1) + b(2);
 
         // d(ti44)/d(cr48)
         b(1) = rr.rates(1, ircrga);
         b(2) = rr.rates(1, irw1) * rr.rates(1, ircrgp);
 
-        jac(Ti44, Cr48) = b(1) + b(2);
+        jac(Ti44,Cr48) = b(1) + b(2);
 
         // d(cr48)/d(ti44)
         b(1) =  y(He4) * rr.rates(1, irtiag);
         b(2) =  y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
 
-        jac(Cr48, Ti44) = b(1) + b(2);
+        jac(Cr48,Ti44) = b(1) + b(2);
 
         // d(cr48)/d(fe52)
         b(1) = rr.rates(1, irfega);
         b(2) = rr.rates(1, irx1) * rr.rates(1, irfegp);
 
-        jac(Cr48, Fe52) = b(1) + b(2);
+        jac(Cr48,Fe52) = b(1) + b(2);
 
         // d(fe52)/d(cr48)
         b(1) = y(He4) * rr.rates(1, ircrag);
         b(2) = y(He4) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
 
-        jac(Fe52, Cr48) = b(1) + b(2);
+        jac(Fe52,Cr48) = b(1) + b(2);
 
         // d(fe52)/d(ni56)
         b(1) = rr.rates(1, irniga);
         b(2) = rr.rates(1, iry1) * rr.rates(1, irnigp);
 
-        jac(Fe52, Ni56) = b(1) + b(2);
+        jac(Fe52,Ni56) = b(1) + b(2);
 
         // ni56 jacobian elements
         // d(ni56)/d(he4)
         b(1) =  y(Fe52) * rr.rates(1, irfeag);
         b(2) =  y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
 
-        jac(Ni56, He4) = b(1) + b(2);
+        jac(Ni56,He4) = b(1) + b(2);
 
         // d(ni56)/d(fe52)
         b(1) = y(He4) * rr.rates(1, irfeag);
         b(2) = y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
 
-        jac(Ni56, Fe52) = b(1) + b(2);
+        jac(Ni56,Fe52) = b(1) + b(2);
 
         // d(ni56)/d(ni56)
         b(1) = -rr.rates(1, irniga);
         b(2) = -rr.rates(1, iry1) * rr.rates(1, irnigp);
 
-        jac(Ni56, Ni56) = b(1) + b(2);
+        jac(Ni56,Ni56) = b(1) + b(2);
     }
 
     // d(o16)/d(ne20)
-    jac(O16, Ne20) = rr.rates(1,irnega);
+    jac(O16,Ne20) = rr.rates(1,irnega);
 
     // d(ne20)/d(c12)
-    jac(Ne20, C12) = y(C12) * rr.rates(1,ir1212);
+    jac(Ne20,C12) = y(C12) * rr.rates(1,ir1212);
 
     // d(ne20)/d(o16)
-    jac(Ne20, O16) = y(He4) * rr.rates(1,iroag);
+    jac(Ne20,O16) = y(He4) * rr.rates(1,iroag);
 
     // d(ne20)/d(mg24)
-    jac(Ne20, Mg24) = rr.rates(1,irmgga);
+    jac(Ne20,Mg24) = rr.rates(1,irmgga);
 
     // d(mg24)/d(c12)
-    jac(Mg24, C12) = 0.5e0_rt * y(O16) * rr.rates(1,ir1216);
+    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rr.rates(1,ir1216);
 
     // d(mg24)/d(o16)
-    jac(Mg24, O16) = 0.5e0_rt * y(C12) * rr.rates(1,ir1216);
+    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rr.rates(1,ir1216);
 
     // d(mg24)/d(ne20)
-    jac(Mg24, Ne20) = y(He4) * rr.rates(1,irneag);
+    jac(Mg24,Ne20) = y(He4) * rr.rates(1,irneag);
 
     // d(si28)/d(c12)
-    jac(Si28, C12) = 0.5e0_rt * y(O16) * rr.rates(1,ir1216);
+    jac(Si28,C12) = 0.5e0_rt * y(O16) * rr.rates(1,ir1216);
 
 }
 
