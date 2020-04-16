@@ -65,7 +65,7 @@ AMREX_GPU_HOST_DEVICE inline
 void actual_eos (eos_input_t input, eos_t& state)
 {
     // Get the mass of a nucleon from Avogadro's number.
-    const Real m_nucleon = 1.0_rt / n_A;
+    const Real m_nucleon = 1.0_rt / C::n_A;
 
     // Special gamma factors
     Real sumY_gm1 = 0.0_rt;
@@ -101,7 +101,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Solve for the temperature:
         // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
         dens = state.rho;
-        temp = state.h * (m_nucleon / k_B) / sumYg_gm1;
+        temp = state.h * (m_nucleon / C::k_B) / sumYg_gm1;
 
         break;
 
@@ -111,7 +111,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 
         // Solve for the density:
         // p = rho k T / (abar m_nucleon)
-        dens = state.p * state.abar * (m_nucleon / k_B) / state.T;
+        dens = state.p * state.abar * (m_nucleon / C::k_B) / state.T;
         temp = state.T;
 
         break;
@@ -123,7 +123,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Solve for the temperature:
         // p = rho k T / (mu m_nucleon)
         dens = state.rho;
-        temp = state.p * state.abar * (m_nucleon / k_B) / state.rho;
+        temp = state.p * state.abar * (m_nucleon / C::k_B) / state.rho;
 
         break;
 
@@ -134,7 +134,7 @@ void actual_eos (eos_input_t input, eos_t& state)
         // Solve for the temperature
         // e = k T / [(mu m_nucleon)*(gamma-1)]
         dens = state.rho;
-        temp = state.e * (m_nucleon / k_B) / sumY_gm1;
+        temp = state.e * (m_nucleon / C::k_B) / sumY_gm1;
 
         break;
 
@@ -153,7 +153,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 
         // Solve for temperature and density
         dens = state.p * state.abar / state.h * sumYg_gm1;
-        temp = state.p * state.abar * (m_nucleon / k_B) / dens;
+        temp = state.p * state.abar * (m_nucleon / C::k_B) / dens;
 
         break;
 
@@ -186,18 +186,18 @@ void actual_eos (eos_input_t input, eos_t& state)
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
-    state.p = dens * (k_B / m_nucleon) * temp / state.abar;
-    state.e = (k_B / m_nucleon) * temp * sumY_gm1;
+    state.p = dens * (C::k_B / m_nucleon) * temp / state.abar;
+    state.e = (C::k_B / m_nucleon) * temp * sumY_gm1;
 
     // Enthalpy is h = e + p/rho
     state.h = state.e + state.p / dens;
 
     // entropy (per gram) -- this is wrong. Not sure what the expression
     // is for a multigamma gas
-    state.s = ((k_B / m_nucleon) / state.abar) *
+    state.s = ((C::k_B / m_nucleon) / state.abar) *
               (2.5_rt + std::log((std::pow(state.abar * m_nucleon, 2.5_rt) / dens) *
-                                 std::pow(k_B * temp, 1.5_rt) /
-                                 std::pow(2.0_rt * M_PI * hbar * hbar, 1.5_rt)));
+                                 std::pow(C::k_B * temp, 1.5_rt) /
+                                 std::pow(2.0_rt * M_PI * C::hbar * C::hbar, 1.5_rt)));
 
     // Compute the thermodynamic derivatives and specific heats
     state.dpdT = state.p / temp;

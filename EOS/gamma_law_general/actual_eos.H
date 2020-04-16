@@ -45,8 +45,8 @@ AMREX_GPU_HOST_DEVICE inline
 void actual_eos(const eos_input_t input, eos_t& state) {
 
   // Get the mass of a nucleon from Avogadro's number.
-  const Real m_nucleon = 1.0 / n_A;
-  const Real fac = 1.0 / std::pow(2.0 * M_PI * hbar * hbar, 1.5);
+  const Real m_nucleon = 1.0 / C::n_A;
+  const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
   if (eos_assume_neutral) {
     state.mu = state.abar;
@@ -79,7 +79,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
       // Solve for the temperature:
       // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
 
-      state.T = (state.h * state.mu * m_nucleon / k_B)*(eos_gamma - 1.0)/eos_gamma;
+      state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_gamma - 1.0)/eos_gamma;
 
       break;
 
@@ -90,7 +90,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
       // Solve for the density:
       // p = rho k T / (mu m_nucleon)
 
-      state.rho =  state.p * state.mu * m_nucleon / (k_B * state.T);
+      state.rho =  state.p * state.mu * m_nucleon / (C::k_B * state.T);
 
       break;
 
@@ -101,7 +101,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
       // Solve for the temperature:
       // p = rho k T / (mu m_nucleon)
 
-      state.T = state.p * state.mu * m_nucleon / (k_B * state.rho);
+      state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
 
       break;
 
@@ -112,7 +112,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
       // Solve for the temperature
       // e = k T / [(mu m_nucleon)*(gamma-1)]
 
-      state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / k_B;
+      state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
 
       break;
 
@@ -125,13 +125,13 @@ void actual_eos(const eos_input_t input, eos_t& state) {
       // rho = p mu m_nucleon / (k T)
 
       state.T = std::pow(state.p, 2.0/5.0) *
-        std::pow(2.0*M_PI*hbar*hbar/(state.mu*m_nucleon), 3.0/5.0) *
-        exp(2.0*state.mu*m_nucleon*state.s/(5.0*k_B) - 1.0) / k_B;
+        std::pow(2.0*M_PI*C::hbar*C::hbar/(state.mu*m_nucleon), 3.0/5.0) *
+        exp(2.0*state.mu*m_nucleon*state.s/(5.0*C::k_B) - 1.0) / C::k_B;
 
       // Solve for the density
       // rho = p mu m_nucleon / (k T)
 
-      state.rho = state.p * state.mu * m_nucleon / (k_B * state.T);
+      state.rho = state.p * state.mu * m_nucleon / (C::k_B * state.T);
 
       break;
 
@@ -142,7 +142,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
       // Solve for temperature and density
 
       state.rho = state.p / state.h * eos_gamma / (eos_gamma - 1.0);
-      state.T = state.p * state.mu * m_nucleon / (k_B * state.rho);
+      state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
 
       break;
 
@@ -176,7 +176,7 @@ void actual_eos(const eos_input_t input, eos_t& state) {
 
   // Compute the pressure simply from the ideal gas law, and the
   // specific internal energy using the gamma-law EOS relation.
-  state.p = state.rho * state.T * (k_B / (state.mu*m_nucleon));
+  state.p = state.rho * state.T * (C::k_B / (state.mu*m_nucleon));
   state.e = state.p/(eos_gamma - 1.0) * rhoinv;
 
   // enthalpy is h = e + p/rho
@@ -184,17 +184,17 @@ void actual_eos(const eos_input_t input, eos_t& state) {
 
   // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
   // NOTE: this expression is only valid for gamma = 5/3.
-  state.s = (k_B/(state.mu*m_nucleon))*
+  state.s = (C::k_B/(state.mu*m_nucleon))*
     (2.5 + log((std::pow(state.mu*m_nucleon, 2.5) * rhoinv ) *
-               std::pow(k_B * state.T, 1.5) * fac ) );
+               std::pow(C::k_B * state.T, 1.5) * fac ) );
 
   // Compute the thermodynamic derivatives and specific heats
   state.dpdT = state.p * Tinv;
   state.dpdr = state.p * rhoinv;
   state.dedT = state.e * Tinv;
   state.dedr = 0.0;
-  state.dsdT = 1.5 * (k_B / (state.mu * m_nucleon)) * Tinv;
-  state.dsdr = - (k_B / (state.mu * m_nucleon)) * rhoinv;
+  state.dsdT = 1.5 * (C::k_B / (state.mu * m_nucleon)) * Tinv;
+  state.dsdr = - (C::k_B / (state.mu * m_nucleon)) * rhoinv;
   state.dhdT = state.dedT + state.dpdT * rhoinv;
   state.dhdr = 0.0;
 
