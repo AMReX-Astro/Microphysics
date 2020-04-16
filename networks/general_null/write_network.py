@@ -168,8 +168,8 @@ def write_network(network_template, header_template,
     try:
         with open(properties_file) as f:
             for line in f:
-                key, value = line.split()
-                properties[key] = value
+                key, value = line.strip().split(":=")
+                properties[key.strip()] = value.strip()
     except FileNotFoundError:
         print("no NETWORK_PROPERTIES found, skipping...")
 
