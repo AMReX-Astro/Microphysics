@@ -5,6 +5,8 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
+include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
+
 ifeq ($(USE_REACT), TRUE)
 
   ifeq ($(INTEGRATOR_DIR), VODE90)
@@ -70,6 +72,8 @@ ifeq ($(USE_SCREENING), TRUE)
   EXTERN_CORE       += $(SCREEN_PATH)
 
   include $(SCREEN_PATH)/Make.package
+
+  DEFINES += -DNUMSCREEN=$(NSCREEN)
 
 endif
 
