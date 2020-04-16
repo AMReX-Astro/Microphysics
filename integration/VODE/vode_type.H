@@ -3,13 +3,16 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+
+#include <ArrayUtilities.H>
 #include <network.H>
+#include <actual_matrix.H>
 
 const int VODE_NEQS = NumSpec + 2;
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
-typedef amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
+typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 const amrex::Real CCMXJ = 0.2e0_rt;
@@ -49,12 +52,26 @@ struct dvode_t
     // Integration array
     RArray1D y;
 
+#ifdef NETWORK_SOLVER
+
+    // Jacobian
+    SparseMatrix jac;
+
+#ifndef AMREX_USE_GPU
+    // Saved Jacobian
+    SparseMatrix jac_save;
+#endif
+
+#else
+
     // Jacobian
     RArray2D jac;
 
 #ifndef AMREX_USE_GPU
     // Saved Jacobian
     RArray2D jac_save;
+#endif
+
 #endif
 
     amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
