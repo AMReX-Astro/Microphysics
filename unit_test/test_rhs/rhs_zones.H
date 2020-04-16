@@ -8,6 +8,11 @@
 #include <burn_type.H>
 #include <burner.H>
 #include <extern_parameters.H>
+#include <ArrayUtilities.H>
+
+#ifdef NETWORK_SOLVER
+#include <actual_matrix.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_rhs (int i, int j, int k, Array4<Real> const& state)
@@ -38,7 +43,12 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state)
     burn_state.self_heat = true;
 
     Array1D<Real, 1, neqs> ydot;
-    Array2D<Real, 1, neqs, 1, neqs> jac;
+
+#ifdef NETWORK_SOLVER
+    SparseMatrix jac;
+#else
+    ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac;
+#endif
 
     actual_rhs(burn_state, ydot);
     actual_jac(burn_state, jac);
@@ -52,7 +62,7 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state)
     int n = 0;
     for (int jj = 1; jj <= neqs; ++jj) {
         for (int ii = 1; ii <= neqs; ++ii) {
-            state(i, j, k, p_ijac + n) = jac(ii, jj);
+            state(i, j, k, p_ijac + n) = jac.get(ii, jj);
             n++;
         }
     }
