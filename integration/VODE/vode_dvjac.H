@@ -70,22 +70,15 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
 
-            for (int j = 1; j <= VODE_NEQS; ++j) {
-                for (int i = 1; i <= VODE_NEQS; ++i) {
-                    vstate.jac(i,j) = 0.0_rt;
-                }
-            }
+            // Initialize the Jacobian to zero
+            vstate.jac.zero();
 
             jac(state, vstate, vstate.jac);
 
 #ifndef AMREX_USE_GPU
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
-                for (int j = 1; j <= VODE_NEQS; ++j) {
-                    for (int i = 1; i <= VODE_NEQS; ++i) {
-                        vstate.jac_save(i,j) = vstate.jac(i,j);
-                    }
-                }
+                vstate.jac_save = vstate.jac;
             }
 #endif
 
@@ -123,7 +116,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
                 rhs(vstate.tn, state, vstate, vstate.acor);
                 for (int i = 1; i <= VODE_NEQS; ++i) {
-                    vstate.jac(i,j) = (vstate.acor(i) - vstate.savf(i)) * fac;
+                    vstate.jac.set(i, j, (vstate.acor(i) - vstate.savf(i)) * fac);
                 }
 
                 vstate.y(j) = yj;
@@ -135,11 +128,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
-                for (int j = 1; j <= VODE_NEQS; ++j) {
-                    for (int i = 1; i <= VODE_NEQS; ++i) {
-                        vstate.jac_save(i,j) = vstate.jac(i,j);
-                    }
-                }
+                vstate.jac_save = vstate.jac;
             }
 #endif
 
@@ -153,11 +142,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
         // Indicate the Jacobian is not current for this step.
         vstate.JCUR = 0;
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
-                vstate.jac(i,j) = vstate.jac_save(i,j);
-            }
-        }
+        vstate.jac = vstate.jac_save;
 
     }
 #endif
@@ -167,16 +152,9 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
     Real hrl1 = vstate.H * vstate.RL1;
     Real con = -hrl1;
-    for (int j = 1; j <= VODE_NEQS; ++j) {
-        for (int i = 1; i <= VODE_NEQS; ++i) {
-            vstate.jac(i,j) *= con;
-        }
-    }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
-        // Add 1 from the identity matrix.
-        vstate.jac(i,i) += 1.0_rt;
-    }
+    vstate.jac.mul(con);
+    vstate.jac.add_identity();
 
 #ifndef NETWORK_SOLVER
     int IER;
