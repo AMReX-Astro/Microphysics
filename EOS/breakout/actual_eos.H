@@ -41,7 +41,7 @@ AMREX_GPU_HOST_DEVICE inline
 void actual_eos (eos_input_t input, eos_t& state)
 {
 
-    const Real R = k_B * n_A;
+    const Real R = C::k_B * C::n_A;
 
     Real poverrho;
 
