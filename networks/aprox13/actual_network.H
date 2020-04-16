@@ -16,7 +16,7 @@ namespace C
 {
     namespace Legacy
     {
-        // These are the values of the constants used in the original iso7
+        // These are the values of the constants used in the original aprox13
         constexpr amrex::Real m_n = 1.67492721184e-24_rt;
         constexpr amrex::Real m_p = 1.67262163783e-24_rt;
         constexpr amrex::Real m_e = 9.1093821545e-28_rt;
