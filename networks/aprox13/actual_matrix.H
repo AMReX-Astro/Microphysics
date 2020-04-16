@@ -1,14 +1,341 @@
-#ifndef _actual_linear_solver_H_
-#define _actual_linear_solver_H_
+#ifndef _actual_matrix_H_
+#define _actual_matrix_H_
 
 #include <cmath>
+
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
+#include <network_properties.H>
+
 using namespace amrex;
 
+struct SparseMatrix
+{
+    static constexpr int flatten(const int i, const int j) {
+        using namespace Species;
+
+        if (i==He4) {
+            if (j==He4)
+                return 0;
+            else if (j==C12)
+                return 1;
+            else if (j==O16)
+                return 2;
+            else if (j==Ne20)
+                return 3;
+            else if (j==Mg24)
+                return 4;
+            else if (j==Si28)
+                return 5;
+            else if (j==S32)
+                return 6;
+            else if (j==Ar36)
+                return 7;
+            else if (j==Ca40)
+                return 8;
+            else if (j==Ti44)
+                return 9;
+            else if (j==Cr48)
+                return 10;
+            else if (j==Fe52)
+                return 11;
+            else if (j==Ni56)
+                return 12;
+            else if (j==net_itemp)
+                return 13;
+        } else if (i==C12) {
+            if (j==He4)
+                return 14;
+            else if (j==C12)
+                return 15;
+            else if (j==O16)
+                return 16;
+            else if (j==net_itemp)
+                return 17;
+        } else if (i==O16) {
+            if (j==He4)
+                return 18;
+            else if (j==C12)
+                return 19;
+            else if (j==O16)
+                return 20;
+            else if (j==Ne20)
+                return 21;
+            else if (j==net_itemp)
+                return 22;
+        } else if (i==Ne20) {
+            if (j==He4)
+                return 23;
+            else if (j==C12)
+                return 24;
+            else if (j==O16)
+                return 25;
+            else if (j==Ne20)
+                return 26;
+            else if (j==Mg24)
+                return 27;
+            else if (j==net_itemp)
+                return 28;
+        } else if (i==Mg24) {
+            if (j==He4)
+                return 29;
+            else if (j==C12)
+                return 30;
+            else if (j==O16)
+                return 31;
+            else if (j==Ne20)
+                return 32;
+            else if (j==Mg24)
+                return 33;
+            else if (j==Si28)
+                return 34;
+            else if (j==net_itemp)
+                return 35;
+        } else if (i==Si28) {
+            if (j==He4)
+                return 36;
+            else if (j==C12)
+                return 37;
+            else if (j==O16)
+                return 38;
+            else if (j==Mg24)
+                return 39;
+            else if (j==Si28)
+                return 40;
+            else if (j==S32)
+                return 41;
+            else if (j==net_itemp)
+                return 42;
+        } else if (i==S32) {
+            if (j==He4)
+                return 43;
+            else if (j==O16)
+                return 44;
+            else if (j==Si28)
+                return 45;
+            else if (j==S32)
+                return 46;
+            else if (j==Ar36)
+                return 47;
+            else if (j==net_itemp)
+                return 48;
+        } else if (i==Ar36) {
+            if (j==He4)
+                return 49;
+            else if (j==S32)
+                return 50;
+            else if (j==Ar36)
+                return 51;
+            else if (j==Ca40)
+                return 52;
+            else if (j==net_itemp)
+                return 53;
+        } else if (i==Ca40) {
+            if (j==He4)
+                return 54;
+            else if (j==Ar36)
+                return 55;
+            else if (j==Ca40)
+                return 56;
+            else if (j==Ti44)
+                return 57;
+            else if (j==net_itemp)
+                return 58;
+        } else if (i==Ti44) {
+            if (j==He4)
+                return 59;
+            else if (j==Ca40)
+                return 60;
+            else if (j==Ti44)
+                return 61;
+            else if (j==Cr48)
+                return 62;
+            else if (j==net_itemp)
+                return 63;
+        } else if (i==Cr48) {
+            if (j==He4)
+                return 64;
+            else if (j==Ti44)
+                return 65;
+            else if (j==Cr48)
+                return 66;
+            else if (j==Fe52)
+                return 67;
+            else if (j==net_itemp)
+                return 68;
+        } else if (i==Fe52) {
+            if (j==He4)
+                return 69;
+            else if (j==Cr48)
+                return 70;
+            else if (j==Fe52)
+                return 71;
+            else if (j==Ni56)
+                return 72;
+            else if (j==net_itemp)
+                return 73;
+        } else if (i==Ni56) {
+            if (j==He4)
+                return 74;
+            else if (j==Fe52)
+                return 75;
+            else if (j==Ni56)
+                return 76;
+            else if (j==net_itemp)
+                return 77;
+        } else if (i==net_itemp) {
+            if (j==He4)
+                return 78;
+            else if (j==C12)
+                return 79;
+            else if (j==O16)
+                return 80;
+            else if (j==Ne20)
+                return 81;
+            else if (j==Mg24)
+                return 82;
+            else if (j==Si28)
+                return 83;
+            else if (j==S32)
+                return 84;
+            else if (j==Ar36)
+                return 85;
+            else if (j==Ca40)
+                return 86;
+            else if (j==Ti44)
+                return 87;
+            else if (j==Cr48)
+                return 88;
+            else if (j==Fe52)
+                return 89;
+            else if (j==Ni56)
+                return 90;
+            else if (j==net_itemp)
+                return 91;
+        } else if (i==net_ienuc) {
+            if (j==He4)
+                return 92;
+            else if (j==C12)
+                return 93;
+            else if (j==O16)
+                return 94;
+            else if (j==Ne20)
+                return 95;
+            else if (j==Mg24)
+                return 96;
+            else if (j==Si28)
+                return 97;
+            else if (j==S32)
+                return 98;
+            else if (j==Ar36)
+                return 99;
+            else if (j==Ca40)
+                return 100;
+            else if (j==Ti44)
+                return 101;
+            else if (j==Cr48)
+                return 102;
+            else if (j==Fe52)
+                return 103;
+            else if (j==Ni56)
+                return 104;
+            else if (j==net_itemp)
+                return 105;
+            else if (j==net_ienuc)
+                return 106;
+        }
+
+        // If we got here, then out-of-bounds
+        // indices i,j were passed so return an invalid index.
+        return -1;
+    }
+
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void zero () noexcept {
+        for (int i = 0; i < 107; ++i)
+            arr[i] = 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void mul (const Real x) noexcept {
+        for (int i = 0; i < 107; ++i)
+            arr[i] *= x;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void mul (const int i, const int j, const Real x) noexcept {
+        const int k = SparseMatrix::flatten(i,j);
+        // Don't do asserts here because we just skip invalid indices
+        if (k >= 0 && k < 107) {
+            arr[k] *= x;
+        }
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void set (const int i, const int j, const Real x) noexcept {
+        const int k = SparseMatrix::flatten(i,j);
+        // Don't do asserts here because we just skip invalid indices
+        if (k >= 0 && k < 107) {
+            arr[k] = x;
+        }
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    Real get (const int i, const int j) noexcept {
+        const int k = SparseMatrix::flatten(i,j);
+        // Don't do asserts here because we return 0 for invalid indices
+        if (k >= 0 && k < 107) {
+            return arr[k];
+        } else {
+            return 0.0_rt;
+        }
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void add (const int i, const int j, const Real x) noexcept {
+        const int k = SparseMatrix::flatten(i,j);
+        // Don't do asserts here because we just skip invalid indices
+        if (k >= 0 && k < 107) {
+            arr[k] += x;
+        }
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void add_identity () noexcept {
+        for (int i = 1; i <= 15; ++i) {
+            const int k = SparseMatrix::flatten(i,i);
+            arr[k] += 1.0_rt;
+        }
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    const Real& operator() (const int i, const int j) const noexcept {
+        const int k = SparseMatrix::flatten(i,j);
+        AMREX_ASSERT(k >= 0 && k < 107);
+        return arr[k];
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    Real& operator() (const int i, const int j) noexcept {
+        const int k = SparseMatrix::flatten(i,j);
+        AMREX_ASSERT(k >= 0 && k < 107);
+        return arr[k];
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void operator= (const SparseMatrix& other) noexcept {
+        for (int i = 0; i < 107; ++i)
+            arr[i] = other.arr[i];
+    }
+
+    Real arr[107];
+};
+
+template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_solve(Array2D<Real, 1, 15, 1, 15> const& A,
+void actual_solve(MatrixType const& A,
                   Array1D<Real, 1, 15>& b)
 {
     const Real scratch_0 = 1.0/A(1,1);

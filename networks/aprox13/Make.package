@@ -13,8 +13,7 @@ F90EXE_sources += actual_rhs.F90
 
 CEXE_sources += actual_rhs_data.cpp
 CEXE_headers += actual_rhs.H
-CEXE_headers += actual_linear_solver.H
-CEXE_headers += sparse_jacobian_type.H
+CEXE_headers += actual_matrix.H
 
 USE_RATES       = TRUE
 USE_SCREENING   = TRUE
