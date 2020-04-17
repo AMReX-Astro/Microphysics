@@ -189,8 +189,8 @@ namespace Rates
 
         // hash locate
         constexpr int mp = 4;
-        const int iat1 = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
-        const int iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+        int iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
+        iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
 
         // setup the lagrange interpolation coefficients for a cubic
         const Real x  = btemp;
@@ -421,7 +421,7 @@ namespace Rates
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void screen_rates(Real& scf, Real& scfdt,
-                        const int group, const int id) const
+                          const int group, const int id) const
         {
 
             if (id == ir3a || id == irg3a) {
@@ -804,7 +804,7 @@ void set_aprox13rat()
     dydt(C12) += esum6([&](int i) -> Real { \
         if (i == 1) return -y(C12) * y(C12) * GETRATE(ir1212); \
         else if (i == 2) return -y(C12) * y(O16) * GETRATE(ir1216); \
-        else if (i == 3) return  y(He4) * y(He4) * y(He4) * GETRATE(ir3a) / 6.0_rt;; \
+        else if (i == 3) return  y(He4) * y(He4) * y(He4) * GETRATE(ir3a) / 6.0_rt; \
         else if (i == 4) return -y(C12) * GETRATE(irg3a); \
         else if (i == 5) return -y(C12) * y(He4) * GETRATE(ircag); \
         else if (i == 6) return  y(O16) * GETRATE(iroga); \
@@ -1753,7 +1753,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     for (int j = 1; j <= NumSpec; ++j) {
         auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
-        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
+        jac(net_ienuc,j) = ener_gener_rate(jac_slice_2);
     }
 
     // Temperature Jacobian elements
