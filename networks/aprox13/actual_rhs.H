@@ -12,7 +12,6 @@
 #include <actual_network.H>
 #include <burn_type.H>
 #include <tfactors.H>
-#include <rate_type.H>
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
@@ -35,338 +34,568 @@ namespace RateTable
     extern AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> rattab;
     extern AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> drattabdt;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    static constexpr int density_power(const int id)
+    {
+
+        using namespace Rates;
+
+        if (id == ir3a) return 2;
+        else if (id == irg3a) return 0;
+        else if (id == ircag) return 1;
+        else if (id == iroga) return 0;
+        else if (id == ir1212) return 1;
+        else if (id == ir1216) return 1;
+        else if (id == ir1616) return 1;
+        else if (id == iroag) return 1;
+        else if (id == irnega) return 0;
+        else if (id == irneag) return 1;
+        else if (id == irmgga) return 0;
+        else if (id == irmgag) return 1;
+        else if (id == irsiga) return 0;
+        else if (id == irmgap) return 1;
+        else if (id == iralpa) return 1;
+        else if (id == iralpg) return 1;
+        else if (id == irsigp) return 0;
+        else if (id == irsiag) return 1;
+        else if (id == irsga) return 0;
+        else if (id == irppa) return 1;
+        else if (id == irsiap) return 1;
+        else if (id == irppg) return 1;
+        else if (id == irsgp) return 0;
+        else if (id == irsag) return 1;
+        else if (id == irarga) return 0;
+        else if (id == irsap) return 1;
+        else if (id == irclpa) return 1;
+        else if (id == irclpg) return 1;
+        else if (id == irargp) return 0;
+        else if (id == irarag) return 1;
+        else if (id == ircaga) return 0;
+        else if (id == irarap) return 1;
+        else if (id == irkpa) return 1;
+        else if (id == irkpg) return 1;
+        else if (id == ircagp) return 0;
+        else if (id == ircaag) return 1;
+        else if (id == irtiga) return 0;
+        else if (id == ircaap) return 1;
+        else if (id == irscpa) return 1;
+        else if (id == irscpg) return 1;
+        else if (id == irtigp) return 0;
+        else if (id == irtiag) return 1;
+        else if (id == ircrga) return 0;
+        else if (id == irtiap) return 1;
+        else if (id == irvpa) return 1;
+        else if (id == irvpg) return 1;
+        else if (id == ircrgp) return 0;
+        else if (id == ircrag) return 1;
+        else if (id == irfega) return 0;
+        else if (id == ircrap) return 1;
+        else if (id == irmnpa) return 1;
+        else if (id == irmnpg) return 1;
+        else if (id == irfegp) return 0;
+        else if (id == irfeag) return 1;
+        else if (id == irniga) return 0;
+        else if (id == irfeap) return 1;
+        else if (id == ircopa) return 1;
+        else if (id == ircopg) return 1;
+        else if (id == irnigp) return 0;
+        else if (id == irr1) return -1;
+        else if (id == irs1) return -1;
+        else if (id == irt1) return -1;
+        else if (id == iru1) return -1;
+        else if (id == irv1) return -1;
+        else if (id == irw1) return -1;
+        else if (id == irx1) return -1;
+        else if (id == iry1) return -1;
+        else {
+            // An invalid rate id was passed
+            AMREX_ASSERT(false);
+            return -99;
+        }
+
+    }
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void aprox13tab(const Real btemp, const Real bden, rate_t& rr)
+namespace Rates
 {
-    using namespace RateTable;
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    static constexpr int lookup_screen_args(const int id)
+    {
+        // Returns the screening factor index for this rate id
+        if (id == ir3a || id == irg3a) {
+            return 0;
+        } else if (id == ir3a_stage2 || id == irg3a_stage2) {
+            return 1;
+        } else if (id == ircag || id == iroga) {
+            return 2;
+        } else if (id == ir1212) {
+            return 3;
+        } else if (id == ir1216) {
+            return 4;
+        } else if (id == ir1616) {
+            return 5;
+        } else if (id == iroag || id == irnega) {
+            return 6;
+        } else if (id == irneag || id == irmgga) {
+            return 7;
+        } else if (id == irmgag || id == irsiga || id == irmgap || id == iralpa) {
+            return 8;
+        } else if (id == iralpg || id == irsigp) {
+            return 9;
+        } else if (id == irsiag || id == irsga || id == irsiap || id == irppa) {
+            return 10;
+        } else if (id == irppg || id == irsgp) {
+            return 11;
+        } else if (id == irsag || id == irarga || id == irsap || id == irclpa) {
+            return 12;
+        } else if (id == irclpg || id == irargp) {
+            return 13;
+        } else if (id == irarag || id == ircaga || id == irarap || id == irkpa) {
+            return 14;
+        } else if (id == irkpg || id == ircagp) {
+            return 15;
+        } else if (id == ircaag || id == irtiga || id == ircaap || id == irscpa) {
+            return 16;
+        } else if (id == irscpg || id == irtigp) {
+            return 17;
+        } else if (id == irtiag || id == ircrga || id == irtiap || id == irvpa) {
+            return 18;
+        } else if (id == irvpg || id == ircrgp) {
+            return 19;
+        } else if (id == ircrag || id == irfega || id == ircrap || id == irmnpa) {
+            return 20;
+        } else if (id == irmnpg || id == irfegp) {
+            return 21;
+        } else if (id == irfeag || id == irniga || id == irfeap || id == ircopa) {
+            return 22;
+        } else if (id == ircopg || id == irnigp) {
+            return 23;
+        } else {
+            // if we are trying to look up an invalid screening index
+            // then that is a code bug
+            AMREX_ASSERT(false);
+            return -1;
+        }
+    }
 
-    constexpr int mp = 4;
 
-    int iat;
-    Real x, x1, x2, x3, x4;
-    Real a, b, c, d, e, f, g, h, p, q;
-    Real alfa, beta, gama, delt;
-    Array1D<Real, 1, Rates::NumRates> dtab;
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real aprox13tab(const Real& btemp, const Real& bden,
+                    const int group, const int id)
+    {    
+        using namespace RateTable;
 
-    // Set the density dependence array
+        // hash locate
+        constexpr int mp = 4;
+        const int iat1 = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
+        const int iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+
+        // setup the lagrange interpolation coefficients for a cubic
+        const Real x  = btemp;
+        const Real x1 = ttab(iat);
+        const Real x2 = ttab(iat+1);
+        const Real x3 = ttab(iat+2);
+        const Real x4 = ttab(iat+3);
+        const Real a  = x - x1;
+        const Real b  = x - x2;
+        const Real c  = x - x3;
+        const Real d  = x - x4;
+        const Real e  = x1 - x2;
+        const Real f  = x1 - x3;
+        const Real g  = x1 - x4;
+        const Real h  = x2 - x3;
+        const Real p  = x2 - x4;
+        const Real q  = x3 - x4;
+        const Real alfa =  b*c*d/(e*f*g);
+        const Real beta = -a*c*d/(e*h*p);
+        const Real gama =  a*b*d/(f*h*q);
+        const Real delt = -a*b*c/(g*p*q);
+
+        const int dpow = density_power(id);
+
+        auto dfac = [](const int p, const Real x) -> Real {
+            if (p == 0)
+                return 1.0_rt;
+            else if (p == 1)
+                return x;
+            else if (p == 2)
+                return x * x;
+            else return 0.0_rt;
+        };
+
+        const Real density_factor = dfac(dpow, bden);
+
+        if (group == 1) {
+        
+            return  (  alfa * rattab(id,iat  )
+                     + beta * rattab(id,iat+1)
+                     + gama * rattab(id,iat+2)
+                     + delt * rattab(id,iat+3) ) * density_factor;
+
+        } else if (group == 2) {
+
+            return  (  alfa * drattabdt(id,iat  )
+                     + beta * drattabdt(id,iat+1)
+                     + gama * drattabdt(id,iat+2)
+                     + delt * drattabdt(id,iat+3) ) * density_factor;
+
+        } else {
+
+            return 0.0_rt;
+
+        }
+    }
+
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real aprox13rat(const tf_t& tf, const Real& bden,
+                    const int group, const int id)
     {
         using namespace Rates;
-        dtab(ir3a)   = bden*bden;
-        dtab(irg3a)  = 1.0e0_rt;
-        dtab(ircag)  = bden;
-        dtab(iroga)  = 1.0e0_rt;
-        dtab(ir1212) = bden;
-        dtab(ir1216) = bden;
-        dtab(ir1616) = bden;
-        dtab(iroag)  = bden;
-        dtab(irnega) = 1.0e0_rt;
-        dtab(irneag) = bden;
-        dtab(irmgga) = 1.0e0_rt;
-        dtab(irmgag) = bden;
-        dtab(irsiga) = 1.0e0_rt;
-        dtab(irmgap) = bden;
-        dtab(iralpa) = bden;
-        dtab(iralpg) = bden;
-        dtab(irsigp) = 1.0e0_rt;
-        dtab(irsiag) = bden;
-        dtab(irsga)  = 1.0e0_rt;
-        dtab(irppa)  = bden;
-        dtab(irsiap) = bden;
-        dtab(irppg)  = bden;
-        dtab(irsgp)  = 1.0e0_rt;
-        dtab(irsag)  = bden;
-        dtab(irarga) = 1.0e0_rt;
-        dtab(irsap)  = bden;
-        dtab(irclpa) = bden;
-        dtab(irclpg) = bden;
-        dtab(irargp) = 1.0e0_rt;
-        dtab(irarag) = bden;
-        dtab(ircaga) = 1.0e0_rt;
-        dtab(irarap) = bden;
-        dtab(irkpa)  = bden;
-        dtab(irkpg)  = bden;
-        dtab(ircagp) = 1.0e0_rt;
-        dtab(ircaag) = bden;
-        dtab(irtiga) = 1.0e0_rt;
-        dtab(ircaap) = bden;
-        dtab(irscpa) = bden;
-        dtab(irscpg) = bden;
-        dtab(irtigp) = 1.0e0_rt;
-        dtab(irtiag) = bden;
-        dtab(ircrga) = 1.0e0_rt;
-        dtab(irtiap) = bden;
-        dtab(irvpa)  = bden;
-        dtab(irvpg)  = bden;
-        dtab(ircrgp) = 1.0e0_rt;
-        dtab(ircrag) = bden;
-        dtab(irfega) = 1.0e0_rt;
-        dtab(ircrap) = bden;
-        dtab(irmnpa) = bden;
-        dtab(irmnpg) = bden;
-        dtab(irfegp) = 1.0e0_rt;
-        dtab(irfeag) = bden;
-        dtab(irniga) = 1.0e0_rt;
-        dtab(irfeap) = bden;
-        dtab(ircopa) = bden;
-        dtab(ircopg) = bden;
-        dtab(irnigp) = 1.0e0_rt;
-        dtab(irr1)   = 0.0e0_rt;
-        dtab(irs1)   = 0.0e0_rt;
-        dtab(irt1)   = 0.0e0_rt;
-        dtab(iru1)   = 0.0e0_rt;
-        dtab(irv1)   = 0.0e0_rt;
-        dtab(irw1)   = 0.0e0_rt;
-        dtab(irx1)   = 0.0e0_rt;
-        dtab(iry1)   = 0.0e0_rt;
+
+        // this routine generates unscreened
+        // nuclear reaction rates for the aprox13 network.
+
+        if (tf.temp < 1.0e6_rt) return 0.0_rt;
+
+#define FR_RATE(fid, rid, rfun) ({                   \
+    if (id == fid || id == rid) {                    \
+        Real frate, dfratedt, rrate, drratedt;       \
+                                                     \
+        rfun(tf,bden,frate,dfratedt,rrate,drratedt); \
+                                                     \
+        if (id == fid) {                             \
+            if (group == 1) return frate;            \
+            else if (group == 2) return dfratedt;    \
+            else return frate;                       \
+        } else if (id == rid) {                      \
+            if (group == 1) return rrate;            \
+            else if (group == 2) return drratedt;    \
+            else return rrate;                       \
+        } else return frate;                         \
+    }                                                \
+})
+
+#define F_RATE(fid, rfun) ({                         \
+    if (id == fid) {                                 \
+        Real frate, dfratedt, rrate, drratedt;       \
+                                                     \
+        rfun(tf,bden,frate,dfratedt,rrate,drratedt); \
+                                                     \
+        if (group == 1) return frate;                \
+        else return dfratedt;                        \
+    }                                                \
+})
+
+        // Determine which c12(a,g)o16 rate to use
+        if (use_c12ag_deboer17) {
+            // deboer + 2017 c12(a,g)o16 rate
+            FR_RATE(ircag, iroga, rate_c12ag_deboer17);
+        } else {
+            // 1.7 times cf88 c12(a,g)o16 rate
+            FR_RATE(ircag, iroga, rate_c12ag);
+        }
+
+        // triple alpha to c12
+        FR_RATE(ir3a, irg3a, rate_triplealf);
+
+        // c12 + c12
+        F_RATE(ir1212, rate_c12c12);
+
+        // c12 + o16
+        F_RATE(ir1216, rate_c12o16);
+
+        // o16 + o16
+        F_RATE(ir1616, rate_o16o16);
+
+        // o16(a,g)ne20
+        FR_RATE(iroag, irnega, rate_o16ag);
+
+        // ne20(a,g)mg24
+        FR_RATE(irneag, irmgga, rate_ne20ag);
+
+        // mg24(a,g)si28
+        FR_RATE(irmgag, irsiga, rate_mg24ag);
+
+        // mg24(a,p)al27
+        FR_RATE(irmgap, iralpa, rate_mg24ap);
+
+        // al27(p,g)si28
+        FR_RATE(iralpg, irsigp, rate_al27pg);
+
+        // si28(a,g)s32
+        FR_RATE(irsiag, irsga, rate_si28ag);
+
+        // si28(a,p)p31
+        FR_RATE(irsiap, irppa, rate_si28ap);
+
+        // p31(p,g)s32
+        FR_RATE(irppg, irsgp, rate_p31pg);
+
+        // s32(a,g)ar36
+        FR_RATE(irsag, irarga, rate_s32ag);
+
+        // s32(a,p)cl35
+        FR_RATE(irsap, irclpa, rate_s32ap);
+
+        // cl35(p,g)ar36
+        FR_RATE(irclpg, irargp, rate_cl35pg);
+
+        // ar36(a,g)ca40
+        FR_RATE(irarag, ircaga, rate_ar36ag);
+
+        // ar36(a,p)k39
+        FR_RATE(irarap, irkpa, rate_ar36ap);
+
+        // k39(p,g)ca40
+        FR_RATE(irkpg, ircagp, rate_k39pg);
+
+        // ca40(a,g)ti44
+        FR_RATE(ircaag, irtiga, rate_ca40ag);
+
+        // ca40(a,p)sc43
+        FR_RATE(ircaap, irscpa, rate_ca40ap);
+
+        // sc43(p,g)ti44
+        FR_RATE(irscpg, irtigp, rate_sc43pg);
+
+        // ti44(a,g)cr48
+        FR_RATE(irtiag, ircrga, rate_ti44ag);
+
+        // ti44(a,p)v47
+        FR_RATE(irtiap, irvpa, rate_ti44ap);
+
+        // v47(p,g)cr48
+        FR_RATE(irvpg, ircrgp, rate_v47pg);
+
+        // cr48(a,g)fe52
+        FR_RATE(ircrag, irfega, rate_cr48ag);
+
+        // cr48(a,p)mn51
+        FR_RATE(ircrap, irmnpa, rate_cr48ap);
+
+        // mn51(p,g)fe52
+        FR_RATE(irmnpg, irfegp, rate_mn51pg);
+
+        // fe52(a,g)ni56
+        FR_RATE(irfeag, irniga, rate_fe52ag);
+
+        // fe52(a,p)co55
+        FR_RATE(irfeap, ircopa, rate_fe52ap);
+
+        // co55(p,g)ni56
+        FR_RATE(ircopg, irnigp, rate_co55pg);
+
+        // We should have returned by now if the rate index passed
+        // was a valid rate in the network
+        AMREX_ASSERT(false);
+        return 0.0_rt;
     }
 
-    // hash locate
-    iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
-    iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+    template<bool use_rate_table, bool use_screening>
+    struct RateEvaluatorType
+    {
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        RateEvaluatorType(const Real rho, const Real T,
+                          const Array1D<Real, 1, NumSpec>& y) :
+                          dens(rho), temp(T), tf(get_tfactors(temp)),
+                          state(construct_plasma_state(temp, dens, y))
+                          {}
 
-    // setup the lagrange interpolation coefficients for a cubic
-    x  = btemp;
-    x1 = ttab(iat);
-    x2 = ttab(iat+1);
-    x3 = ttab(iat+2);
-    x4 = ttab(iat+3);
-    a  = x - x1;
-    b  = x - x2;
-    c  = x - x3;
-    d  = x - x4;
-    e  = x1 - x2;
-    f  = x1 - x3;
-    g  = x1 - x4;
-    h  = x2 - x3;
-    p  = x2 - x4;
-    q  = x3 - x4;
-    alfa =  b*c*d/(e*f*g);
-    beta = -a*c*d/(e*h*p);
-    gama =  a*b*d/(f*h*q);
-    delt = -a*b*c/(g*p*q);
 
-    // crank off the raw reaction rates
-    for (int j = 1; j <= Rates::NumRates; ++j) {
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        Real raw_rates(const int group, const int id) const
+        {
 
-       rr.rates(1,j) = (  alfa * rattab(j,iat  )
-                        + beta * rattab(j,iat+1)
-                        + gama * rattab(j,iat+2)
-                        + delt * rattab(j,iat+3) ) * dtab(j);
+            // return the rate value given this group and rate id
+            if (use_rate_table) {
+                return aprox13tab(temp, dens, group, id);
+            } else {
+                return aprox13rat(tf, dens, group, id);
+            }
 
-       rr.rates(2,j) = (  alfa * drattabdt(j,iat  )
-                        + beta * drattabdt(j,iat+1)
-                        + gama * drattabdt(j,iat+2)
-                        + delt * drattabdt(j,iat+3) ) * dtab(j);
+        }
 
-    }
+
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        void screen_rates(Real& scf, Real& scfdt,
+                        const int group, const int id) const
+        {
+
+            if (id == ir3a || id == irg3a) {
+
+                // this is a special case for the 3-body triple alpha reaction
+                const int scn_stage1 = lookup_screen_args(id);
+                const int scn_stage2 = lookup_screen_args(ir3a_stage2);
+
+                Real sc1a,sc1adt,sc2a,sc2adt,sc1add,sc2add;
+
+                screen(state, scn_stage1, sc1a, sc1adt, sc1add);
+                screen(state, scn_stage2, sc2a, sc2adt, sc2add);
+
+                scf   = sc1a * sc2a;
+                scfdt = sc1adt*sc2a + sc1a*sc2adt;
+
+            } else {
+
+                Real scfdd;
+
+                const int scn = lookup_screen_args(id);
+
+                screen(state, scn, scf, scfdt, scfdd);
+
+            }
+
+        }
+
+
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        Real primary_rate(const int group, const int id) const
+        {
+
+            // primary rates are the non-proton-link rates in the network
+            // i.e. the rates that are not approximated
+
+            // first we need the screening factors for this rate id
+            Real scf = 1.0_rt;
+            Real scfdt = 0.0_rt;
+
+            if (use_screening) {
+                screen_rates(scf, scfdt, group, id);
+            }
+
+            // return either the screened rate or its temperature derivative
+            if (group == 1) {
+                // this is the raw rate times the screening factor 
+                return raw_rates(group, id) * scf;
+            } else {
+                // this is d/dT (raw rate * screening factor)
+                return raw_rates(group, id) * scf + raw_rates(1, id) * scfdt;  
+            }
+
+        }
+
+
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        Real proton_link_rate(const int group, const int id) const
+        {
+
+#define PROTON_LINK_RATE(id_link, id_pa, id_pg) ({                        \
+    if (id == id_link) {                                                  \
+        const Real denom = primary_rate(1,id_pa) + primary_rate(1,id_pg);               \
+                                                                          \
+        if (denom > 1.0e-30_rt) {                                         \
+            const Real zz = 1.0e0_rt/denom;                               \
+            const Real prate = primary_rate(1,id_pa)*zz;                         \
+            if (group == 1) {                                             \
+                return prate;                                             \
+            } else {                                                      \
+                const Real denomdt = primary_rate(2,id_pa) + primary_rate(2,id_pg);     \
+                const Real pratedt = (primary_rate(2,id_pa) - prate*denomdt)*zz; \
+                return pratedt;                                           \
+            }                                                             \
+        } else {                                                          \
+            return 0.0_rt;                                                \
+        }                                                                 \
+    }                                                                     \
+})
+
+            // mg24(a,p)27al(p,g)28si
+            PROTON_LINK_RATE(irr1, iralpa, iralpg);
+
+            // si28(a,p)p31(p,g)s32
+            PROTON_LINK_RATE(irs1, irppa, irppg);
+
+            // s32(a,p)cl35(p,g)ar36
+            PROTON_LINK_RATE(irt1, irclpa, irclpg);
+
+            // ar36(a,p)k39(p,g)ca40
+            PROTON_LINK_RATE(iru1, irkpa, irkpg);
+
+            // ca40(a,p)sc43(p,g)ti44
+            PROTON_LINK_RATE(irv1, irscpa, irscpg);
+
+            // ti44(a,p)v47(p,g)cr48
+            PROTON_LINK_RATE(irw1, irvpa, irvpg);
+
+            // cr48(a,p)mn51(p,g)fe52
+            PROTON_LINK_RATE(irx1, irmnpa, irmnpg);
+
+            // fe52(a,p)co55(p,g)ni56
+            PROTON_LINK_RATE(iry1, ircopa, ircopg);
+
+            // We should have returned by now if the rate
+            // index passed was a proton link rate in the network
+            AMREX_ASSERT(false);
+            return 0.0_rt;
+        }
+
+
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        Real rates(const int group, const int id) const
+        {
+
+            // check if we're looking for one of the proton link rates
+            if (id >= irr1 && id <= iry1) {
+                return proton_link_rate(group, id);
+            } else {
+                // otherwise, evaluate a non-proton link rate
+                return primary_rate(group, id);
+            }
+
+        }
+
+
+        private:
+            // thermodynamic conditions at which to evaluate rates
+            const Real dens;
+            const Real temp;
+
+            // temperature factors for evaluating rates
+            const tf_t tf;
+
+            // plasma state for screening rates
+            const plasma_state_t state;
+    };
 }
 
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void aprox13rat(const Real btemp, const Real bden, rate_t& rr)
-{
-    using namespace Rates;
-
-    // this routine generates unscreened
-    // nuclear reaction rates for the aprox13 network.
-
-    Real rrate,drratedt;
-
-    for (int i = 1; i <= Rates::NumRates; ++i) {
-       rr.rates(1,i) = 0.0_rt;
-       rr.rates(2,i) = 0.0_rt;
-    }
-
-    if (btemp < 1.0e6_rt) return;
-
-
-    // get the temperature factors
-    tf_t tf = get_tfactors(btemp);
-
-
-    // Determine which c12(a,g)o16 rate to use
-    if (use_c12ag_deboer17) {
-        // deboer + 2017 c12(a,g)o16 rate
-        rate_c12ag_deboer17(tf,bden,
-                            rr.rates(1,ircag),rr.rates(2,ircag),
-                            rr.rates(1,iroga),rr.rates(2,iroga));
-    } else {
-        // 1.7 times cf88 c12(a,g)o16 rate
-        rate_c12ag(tf,bden,
-                   rr.rates(1,ircag),rr.rates(2,ircag),
-                   rr.rates(1,iroga),rr.rates(2,iroga));
-    }
-
-    // triple alpha to c12
-    rate_triplealf(tf,bden,
-                   rr.rates(1,ir3a),rr.rates(2,ir3a),
-                   rr.rates(1,irg3a),rr.rates(2,irg3a));
-
-    // c12 + c12
-    rate_c12c12(tf,bden,
-                rr.rates(1,ir1212),rr.rates(2,ir1212),
-                rrate,drratedt);
-
-    // c12 + o16
-    rate_c12o16(tf,bden,
-                rr.rates(1,ir1216),rr.rates(2,ir1216),
-                rrate,drratedt);
-
-    // o16 + o16
-    rate_o16o16(tf,bden,
-                rr.rates(1,ir1616),rr.rates(2,ir1616),
-                rrate,drratedt);
-
-    // o16(a,g)ne20
-    rate_o16ag(tf,bden,
-               rr.rates(1,iroag),rr.rates(2,iroag),
-               rr.rates(1,irnega),rr.rates(2,irnega));
-
-    // ne20(a,g)mg24
-    rate_ne20ag(tf,bden,
-                rr.rates(1,irneag),rr.rates(2,irneag),
-                rr.rates(1,irmgga),rr.rates(2,irmgga));
-
-    // mg24(a,g)si28
-    rate_mg24ag(tf,bden,
-                rr.rates(1,irmgag),rr.rates(2,irmgag),
-                rr.rates(1,irsiga),rr.rates(2,irsiga));
-
-    // mg24(a,p)al27
-    rate_mg24ap(tf,bden,
-                rr.rates(1,irmgap),rr.rates(2,irmgap),
-                rr.rates(1,iralpa),rr.rates(2,iralpa));
-
-    // al27(p,g)si28
-    rate_al27pg(tf,bden,
-                rr.rates(1,iralpg),rr.rates(2,iralpg),
-                rr.rates(1,irsigp),rr.rates(2,irsigp));
-
-    // si28(a,g)s32
-    rate_si28ag(tf,bden,
-                rr.rates(1,irsiag),rr.rates(2,irsiag),
-                rr.rates(1,irsga),rr.rates(2,irsga));
-
-    // si28(a,p)p31
-    rate_si28ap(tf,bden,
-                rr.rates(1,irsiap),rr.rates(2,irsiap),
-                rr.rates(1,irppa),rr.rates(2,irppa));
-
-    // p31(p,g)s32
-    rate_p31pg(tf,bden,
-               rr.rates(1,irppg),rr.rates(2,irppg),
-               rr.rates(1,irsgp),rr.rates(2,irsgp));
-
-    // s32(a,g)ar36
-    rate_s32ag(tf,bden,
-               rr.rates(1,irsag),rr.rates(2,irsag),
-               rr.rates(1,irarga),rr.rates(2,irarga));
-
-    // s32(a,p)cl35
-    rate_s32ap(tf,bden,
-               rr.rates(1,irsap),rr.rates(2,irsap),
-               rr.rates(1,irclpa),rr.rates(2,irclpa));
-
-    // cl35(p,g)ar36
-    rate_cl35pg(tf,bden,
-                rr.rates(1,irclpg),rr.rates(2,irclpg),
-                rr.rates(1,irargp),rr.rates(2,irargp));
-
-    // ar36(a,g)ca40
-    rate_ar36ag(tf,bden,
-                rr.rates(1,irarag),rr.rates(2,irarag),
-                rr.rates(1,ircaga),rr.rates(2,ircaga));
-
-    // ar36(a,p)k39
-    rate_ar36ap(tf,bden,
-                rr.rates(1,irarap),rr.rates(2,irarap),
-                rr.rates(1,irkpa),rr.rates(2,irkpa));
-
-    // k39(p,g)ca40
-    rate_k39pg(tf,bden,
-               rr.rates(1,irkpg),rr.rates(2,irkpg),
-               rr.rates(1,ircagp),rr.rates(2,ircagp));
-
-    // ca40(a,g)ti44
-    rate_ca40ag(tf,bden,
-                rr.rates(1,ircaag),rr.rates(2,ircaag),
-                rr.rates(1,irtiga),rr.rates(2,irtiga));
-
-    // ca40(a,p)sc43
-    rate_ca40ap(tf,bden,
-                rr.rates(1,ircaap),rr.rates(2,ircaap),
-                rr.rates(1,irscpa),rr.rates(2,irscpa));
-
-    // sc43(p,g)ti44
-    rate_sc43pg(tf,bden,
-                rr.rates(1,irscpg),rr.rates(2,irscpg),
-                rr.rates(1,irtigp),rr.rates(2,irtigp));
-
-    // ti44(a,g)cr48
-    rate_ti44ag(tf,bden,
-                rr.rates(1,irtiag),rr.rates(2,irtiag),
-                rr.rates(1,ircrga),rr.rates(2,ircrga));
-
-    // ti44(a,p)v47
-    rate_ti44ap(tf,bden,
-                rr.rates(1,irtiap),rr.rates(2,irtiap), 
-                rr.rates(1,irvpa),rr.rates(2,irvpa));
-
-    // v47(p,g)cr48
-    rate_v47pg(tf,bden,
-               rr.rates(1,irvpg),rr.rates(2,irvpg), 
-               rr.rates(1,ircrgp),rr.rates(2,ircrgp));
-
-    // cr48(a,g)fe52
-    rate_cr48ag(tf,bden,
-                rr.rates(1,ircrag),rr.rates(2,ircrag),
-                rr.rates(1,irfega),rr.rates(2,irfega));
-
-    // cr48(a,p)mn51
-    rate_cr48ap(tf,bden,
-                rr.rates(1,ircrap),rr.rates(2,ircrap),
-                rr.rates(1,irmnpa),rr.rates(2,irmnpa));
-
-    // mn51(p,g)fe52
-    rate_mn51pg(tf,bden,
-                rr.rates(1,irmnpg),rr.rates(2,irmnpg),
-                rr.rates(1,irfegp),rr.rates(2,irfegp));
-
-    // fe52(a,g)ni56
-    rate_fe52ag(tf,bden,
-                rr.rates(1,irfeag),rr.rates(2,irfeag),
-                rr.rates(1,irniga),rr.rates(2,irniga));
-
-    // fe52(a,p)co55
-    rate_fe52ap(tf,bden,
-                rr.rates(1,irfeap),rr.rates(2,irfeap),
-                rr.rates(1,ircopa),rr.rates(2,ircopa));
-
-    // co55(p,g)ni56
-    rate_co55pg(tf,bden,
-                rr.rates(1,ircopg),rr.rates(2,ircopg),
-                rr.rates(1,irnigp),rr.rates(2,irnigp));
-}
-
+// typedef depending on whether we are using tables
+// (we always have screening turned on)
+#ifdef RATE_TABLES
+typedef Rates::RateEvaluatorType<true, true> RateEvaluator;
+#else
+typedef Rates::RateEvaluatorType<false, true> RateEvaluator;
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_aprox13rat()
 {
     using namespace RateTable;
+    using namespace Rates;
 
     Real btemp;
     Real bden = 1.0e0_rt;
-    rate_t rr;
+
+    // The tables do not depend on composition
+    // because they are unscreened rates.
+    // However, we need to initialize y here
+    // because a plasma state is constructed
+    // when the RateEvaluator is initialized.
+    Array1D<Real, 1, NumSpec> y;
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        y(i) = 1.0_rt/NumSpec;
+    }
 
     for (int i = 1; i <= tab_imax; ++i) {
 
        btemp = tab_tlo + static_cast<Real>(i-1) * tab_tstp;
        btemp = std::pow(10.0e0_rt, btemp);
 
-       aprox13rat(btemp, bden, rr);
+       // Create a RateEvaluatorType with tables and screening disabled
+       RateEvaluatorType<false, false> rr(bden, btemp, y);
 
        ttab(i) = btemp;
 
@@ -380,590 +609,10 @@ void set_aprox13rat()
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void screen_aprox13(const Real btemp, const Real bden,
-                    Array1D<Real, 1, NumSpec> const& y,
-                    rate_t& rr)
-{
-    using namespace Species;
-    using namespace Rates;
-
-    /*
-    this routine computes the screening factors
-    and applies them to the raw reaction rates,
-    producing the final reaction rates used by the
-    right hand sides and jacobian matrix elements
-    */
-
-    int jscr;
-    Real sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt;
-    Real sc1add,sc2add;
-    Real denom,denomdt,zz;
-    Real ratraw;
-    plasma_state_t state;
-
-    // Set up the state data, which is the same for all screening factors.
-
-    fill_plasma_state(state, btemp, bden, y);
-
-    // first the always fun triple alpha and its inverse
-    jscr = 0;
-    screen5(state,jscr,
-            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
-
-    jscr++;
-    screen5(state,jscr,
-            zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
-            sc2a,sc2adt,sc2add);
-
-    sc3a   = sc1a * sc2a;
-    sc3adt = sc1adt*sc2a + sc1a*sc2adt;
-
-    ratraw = rr.rates(1,ir3a);
-    rr.rates(1,ir3a) = ratraw * sc3a;
-    rr.rates(2,ir3a) = rr.rates(2,ir3a)*sc3a + ratraw*sc3adt;
-
-    ratraw = rr.rates(1,irg3a);
-    rr.rates(1,irg3a) = ratraw * sc3a;
-    rr.rates(2,irg3a) = rr.rates(2,irg3a)*sc3a + ratraw*sc3adt;
-
-    // c12 to o16
-    // c12(a,g)o16
-    jscr++;
-    screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
-
-    ratraw = rr.rates(1,ircag);
-    rr.rates(1,ircag)  = ratraw * sc1a;
-    rr.rates(2,ircag)  = rr.rates(2,ircag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,iroga);
-    rr.rates(1,iroga)  = ratraw * sc1a;
-    rr.rates(2,iroga)  = rr.rates(2,iroga)*sc1a + ratraw*sc1adt;
-
-    // c12 + c12
-    jscr++;
-    screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
-            sc1a,sc1adt,sc1add);
-
-    ratraw = rr.rates(1,ir1212);
-    rr.rates(1,ir1212) = ratraw * sc1a;
-    rr.rates(2,ir1212) = rr.rates(2,ir1212)*sc1a + ratraw*sc1adt;
-
-    // c12 + o16
-    jscr++;
-    screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1], 
-            sc1a,sc1adt,sc1add);
-
-    ratraw = rr.rates(1,ir1216);
-    rr.rates(1,ir1216) = ratraw * sc1a;
-    rr.rates(2,ir1216) = rr.rates(2,ir1216)*sc1a + ratraw*sc1adt;
-
-    // o16 + o16
-    jscr++;
-    screen5(state,jscr,
-            zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
-            sc1a,sc1adt,sc1add);
-
-    ratraw = rr.rates(1,ir1616);
-    rr.rates(1,ir1616) = ratraw * sc1a;
-    rr.rates(2,ir1616) = rr.rates(2,ir1616)*sc1a + ratraw*sc1adt;
-
-    // o16 to ne20
-    jscr++;
-    screen5(state,jscr,
-            zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
-
-
-    // o16(a,g)ne20
-    ratraw = rr.rates(1,iroag);
-    rr.rates(1,iroag) = ratraw * sc1a;
-    rr.rates(2,iroag) = rr.rates(2,iroag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irnega);
-    rr.rates(1,irnega) = ratraw * sc1a;
-    rr.rates(2,irnega) = rr.rates(2,irnega)*sc1a + ratraw*sc1adt;
-
-    // ne20 to mg24
-    jscr++;
-    screen5(state,jscr,
-            zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
-
-
-    // ne20(a,g)mg24
-    ratraw = rr.rates(1,irneag);
-    rr.rates(1,irneag) = ratraw * sc1a;
-    rr.rates(2,irneag) = rr.rates(2,irneag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irmgga);
-    rr.rates(1,irmgga) = ratraw * sc1a;
-    rr.rates(2,irmgga) = rr.rates(2,irmgga)*sc1a + ratraw*sc1adt;
-
-    // mg24 to si28
-    jscr++;
-    screen5(state,jscr,
-            zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
-
-
-    // mg24(a,g)si28
-    ratraw = rr.rates(1,irmgag);
-    rr.rates(1,irmgag) = ratraw * sc1a;
-    rr.rates(2,irmgag) = rr.rates(2,irmgag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irsiga);
-    rr.rates(1,irsiga) = ratraw * sc1a;
-    rr.rates(2,irsiga) = rr.rates(2,irsiga)*sc1a + ratraw*sc1adt;
-
-
-    // mg24(a,p)al27
-    ratraw = rr.rates(1,irmgap);
-    rr.rates(1,irmgap) = ratraw * sc1a;
-    rr.rates(2,irmgap) = rr.rates(2,irmgap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,iralpa);
-    rr.rates(1,iralpa) = ratraw * sc1a;
-    rr.rates(2,iralpa) = rr.rates(2,iralpa)*sc1a + ratraw*sc1adt;
-
-    jscr++;
-    screen5(state,jscr,
-            13.0_rt, 27.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // al27(p,g)si28
-    ratraw = rr.rates(1,iralpg);
-    rr.rates(1,iralpg) = ratraw * sc1a;
-    rr.rates(2,iralpg) = rr.rates(2,iralpg)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irsigp);
-    rr.rates(1,irsigp) = ratraw * sc1a;
-    rr.rates(2,irsigp) = rr.rates(2,irsigp)*sc1a + ratraw*sc1adt;
-
-
-    // si28 to s32
-    jscr++;
-    screen5(state,jscr,
-            zion[Si28-1], aion[Si28-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
-
-
-    // si28(a,g)s32
-    ratraw = rr.rates(1,irsiag);
-    rr.rates(1,irsiag) = ratraw * sc1a;
-    rr.rates(2,irsiag) = rr.rates(2,irsiag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irsga);
-    rr.rates(1,irsga) = ratraw * sc1a;
-    rr.rates(2,irsga) = rr.rates(2,irsga)*sc1a + ratraw*sc1adt;
-
-
-    // si28(a,p)p31
-    ratraw = rr.rates(1,irsiap);
-    rr.rates(1,irsiap) = ratraw * sc1a;
-    rr.rates(2,irsiap) = rr.rates(2,irsiap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irppa);
-    rr.rates(1,irppa)  = ratraw * sc1a;
-    rr.rates(2,irppa)  = rr.rates(2,irppa)*sc1a  + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            15.0_rt, 31.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // p31(p,g)s32
-    ratraw = rr.rates(1,irppg);
-    rr.rates(1,irppg)  = ratraw * sc1a;
-    rr.rates(2,irppg)  = rr.rates(2,irppg)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irsgp);
-    rr.rates(1,irsgp)  = ratraw * sc1a;
-    rr.rates(2,irsgp)  = rr.rates(2,irsgp)*sc1a + ratraw*sc1adt;
-
-
-    // s32 to ar36
-    jscr++;
-    screen5(state,jscr,
-            zion[S32-1], aion[S32-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
-
-
-    // s32(a,g)ar36
-    ratraw = rr.rates(1,irsag);
-    rr.rates(1,irsag)  = ratraw * sc1a;
-    rr.rates(2,irsag)  = rr.rates(2,irsag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irarga);
-    rr.rates(1,irarga)  = ratraw * sc1a;
-    rr.rates(2,irarga)  = rr.rates(2,irarga)*sc1a + ratraw*sc1adt;
-
-    // s32(a,p)cl35
-    ratraw = rr.rates(1,irsap);
-    rr.rates(1,irsap)  = ratraw * sc1a;
-    rr.rates(2,irsap)  = rr.rates(2,irsap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irclpa);
-    rr.rates(1,irclpa) = ratraw * sc1a;
-    rr.rates(2,irclpa) = rr.rates(2,irclpa)*sc1a + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            17.0_rt, 35.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // cl35(p,g)ar36
-    ratraw = rr.rates(1,irclpg);
-    rr.rates(1,irclpg) = ratraw * sc1a;
-    rr.rates(2,irclpg) = rr.rates(2,irclpg)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irargp);
-    rr.rates(1,irargp) = ratraw * sc1a;
-    rr.rates(2,irargp) = rr.rates(2,irargp)*sc1a + ratraw*sc1adt;
-
-
-    // ar36 to ca40
-    jscr++;
-    screen5(state,jscr,
-            zion[Ar36-1], aion[Ar36-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
-
-
-    // ar36(a,g)ca40
-    ratraw = rr.rates(1,irarag);
-    rr.rates(1,irarag) = ratraw * sc1a;
-    rr.rates(2,irarag) = rr.rates(2,irarag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,ircaga);
-    rr.rates(1,ircaga) = ratraw * sc1a;
-    rr.rates(2,ircaga) = rr.rates(2,ircaga)*sc1a + ratraw*sc1adt;
-
-
-    // ar36(a,p)k39
-    ratraw = rr.rates(1,irarap);
-    rr.rates(1,irarap) = ratraw * sc1a;
-    rr.rates(2,irarap) = rr.rates(2,irarap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irkpa);
-    rr.rates(1,irkpa) = ratraw * sc1a;
-    rr.rates(2,irkpa) = rr.rates(2,irkpa)*sc1a  + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            19.0_rt, 39.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // k39(p,g)ca40
-    ratraw = rr.rates(1,irkpg);
-    rr.rates(1,irkpg) = ratraw * sc1a;
-    rr.rates(2,irkpg) = rr.rates(2,irkpg)*sc1a  + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,ircagp);
-    rr.rates(1,ircagp) = ratraw * sc1a;
-    rr.rates(2,ircagp) = rr.rates(2,ircagp)*sc1a  + ratraw*sc1adt;
-
-
-    // ca40 to ti44
-    jscr++;
-    screen5(state,jscr,
-            zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
-
-
-    // ca40(a,g)ti44
-    ratraw = rr.rates(1,ircaag);
-    rr.rates(1,ircaag) = ratraw * sc1a;
-    rr.rates(2,ircaag) = rr.rates(2,ircaag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irtiga);
-    rr.rates(1,irtiga) = ratraw * sc1a;
-    rr.rates(2,irtiga) = rr.rates(2,irtiga)*sc1a + ratraw*sc1adt;
-
-
-    // ca40(a,p)sc43
-    ratraw = rr.rates(1,ircaap);
-    rr.rates(1,ircaap) = ratraw * sc1a;
-    rr.rates(2,ircaap) = rr.rates(2,ircaap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irscpa);
-    rr.rates(1,irscpa) = ratraw * sc1a;
-    rr.rates(2,irscpa) = rr.rates(2,irscpa)*sc1a + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            21.0_rt, 43.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // sc43(p,g)ti44
-    ratraw = rr.rates(1,irscpg);
-    rr.rates(1,irscpg) = ratraw * sc1a;
-    rr.rates(2,irscpg) = rr.rates(2,irscpg)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irtigp);
-    rr.rates(1,irtigp) = ratraw * sc1a;
-    rr.rates(2,irtigp) = rr.rates(2,irtigp)*sc1a + ratraw*sc1adt;
-
-
-    // ti44 to cr48
-    jscr++;
-    screen5(state,jscr,
-            zion[Ti44-1], aion[Ti44-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
-
-
-    // ti44(a,g)cr48
-    ratraw = rr.rates(1,irtiag);
-    rr.rates(1,irtiag) = ratraw * sc1a;
-    rr.rates(2,irtiag) = rr.rates(2,irtiag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,ircrga);
-    rr.rates(1,ircrga) = ratraw * sc1a;
-    rr.rates(2,ircrga) = rr.rates(2,ircrga)*sc1a + ratraw*sc1adt;
-
-    // ti44(a,p)v47
-    ratraw = rr.rates(1,irtiap);
-    rr.rates(1,irtiap) = ratraw * sc1a;
-    rr.rates(2,irtiap) = rr.rates(2,irtiap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irvpa);
-    rr.rates(1,irvpa) = ratraw * sc1a;
-    rr.rates(2,irvpa) = rr.rates(2,irvpa)*sc1a  + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            23.0_rt, 47.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // v47(p,g)cr48
-    ratraw = rr.rates(1,irvpg);
-    rr.rates(1,irvpg) = ratraw * sc1a;
-    rr.rates(2,irvpg) = rr.rates(2,irvpg)*sc1a  + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,ircrgp);
-    rr.rates(1,ircrgp)  = ratraw * sc1a;
-    rr.rates(2,ircrgp)  = rr.rates(2,ircrgp)*sc1a  + ratraw*sc1adt;
-
-
-    // cr48 to fe52
-    jscr++;
-    screen5(state,jscr,
-            zion[Cr48-1], aion[Cr48-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
-
-
-    // cr48(a,g)fe52
-    ratraw = rr.rates(1,ircrag);
-    rr.rates(1,ircrag) = ratraw * sc1a;
-    rr.rates(2,ircrag) = rr.rates(2,ircrag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irfega);
-    rr.rates(1,irfega) = ratraw * sc1a;
-    rr.rates(2,irfega) = rr.rates(2,irfega)*sc1a + ratraw*sc1adt;
-
-
-    // cr48(a,p)mn51
-    ratraw = rr.rates(1,ircrap);
-    rr.rates(1,ircrap) = ratraw * sc1a;
-    rr.rates(2,ircrap) = rr.rates(2,ircrap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irmnpa);
-    rr.rates(1,irmnpa) = ratraw * sc1a;
-    rr.rates(2,irmnpa) = rr.rates(2,irmnpa)*sc1a + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            25.0_rt, 51.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-    // mn51(p,g)fe52
-    ratraw = rr.rates(1,irmnpg);
-    rr.rates(1,irmnpg) = ratraw * sc1a;
-    rr.rates(2,irmnpg) = rr.rates(2,irmnpg)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irfegp);
-    rr.rates(1,irfegp) = ratraw * sc1a;
-    rr.rates(2,irfegp) = rr.rates(2,irfegp)*sc1a + ratraw*sc1adt;
-
-
-    // fe52 to ni56
-    jscr++;
-    screen5(state,jscr,
-            zion[Fe52-1], aion[Fe52-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
-
-
-    // fe52(a,g)ni56
-    ratraw = rr.rates(1,irfeag);
-    rr.rates(1,irfeag) = ratraw * sc1a;
-    rr.rates(2,irfeag) = rr.rates(2,irfeag)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irniga);
-    rr.rates(1,irniga) = ratraw * sc1a;
-    rr.rates(2,irniga) = rr.rates(2,irniga)*sc1a + ratraw*sc1adt;
-
-
-    // fe52(a,p)co55
-    ratraw = rr.rates(1,irfeap);
-    rr.rates(1,irfeap) = ratraw * sc1a;
-    rr.rates(2,irfeap) = rr.rates(2,irfeap)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,ircopa);
-    rr.rates(1,ircopa) = ratraw * sc1a;
-    rr.rates(2,ircopa) = rr.rates(2,ircopa)*sc1a + ratraw*sc1adt;
-
-
-    jscr++;
-    screen5(state,jscr,
-            27.0_rt, 55.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
-
-
-    // co55(p,g)ni56
-    ratraw = rr.rates(1,ircopg);
-    rr.rates(1,ircopg) = ratraw * sc1a;
-    rr.rates(2,ircopg) = rr.rates(2,ircopg)*sc1a + ratraw*sc1adt;
-
-    ratraw = rr.rates(1,irnigp);
-    rr.rates(1,irnigp) = ratraw * sc1a;
-    rr.rates(2,irnigp) = rr.rates(2,irnigp)*sc1a + ratraw*sc1adt;
-
-
-    // now form those lovely dummy proton link rates
-
-    // mg24(a,p)27al(p,g)28si
-    rr.rates(1,irr1)  = 0.0e0_rt;
-    rr.rates(2,irr1)  = 0.0e0_rt;
-    denom    = rr.rates(1,iralpa) + rr.rates(1,iralpg);
-    denomdt  = rr.rates(2,iralpa) + rr.rates(2,iralpg);
-
-    if (denom > 1.0e-30_rt) {
-       zz = 1.0e0_rt/denom;
-       rr.rates(1,irr1) = rr.rates(1,iralpa)*zz;
-       rr.rates(2,irr1) = (rr.rates(2,iralpa) - rr.rates(1,irr1)*denomdt)*zz;
-    }
-
-    // si28(a,p)p31(p,g)s32
-    rr.rates(1,irs1)  = 0.0e0_rt;
-    rr.rates(2,irs1)  = 0.0e0_rt;
-    denom    = rr.rates(1,irppa) + rr.rates(1,irppg);
-    denomdt  = rr.rates(2,irppa) + rr.rates(2,irppg);
-    if (denom > 1.0e-30_rt) {
-       zz = 1.0e0_rt/denom;
-       rr.rates(1,irs1) = rr.rates(1,irppa)*zz;
-       rr.rates(2,irs1) = (rr.rates(2,irppa) - rr.rates(1,irs1)*denomdt)*zz;
-    }
-
-    // s32(a,p)cl35(p,g)ar36
-    rr.rates(1,irt1)  = 0.0e0_rt;
-    rr.rates(2,irt1)  = 0.0e0_rt;
-    denom    = rr.rates(1,irclpa) + rr.rates(1,irclpg);
-    denomdt  = rr.rates(2,irclpa) + rr.rates(2,irclpg);
-    if (denom > 1.0e-30_rt) {
-       zz = 1.0e0_rt/denom;
-       rr.rates(1,irt1) = rr.rates(1,irclpa)*zz;
-       rr.rates(2,irt1) = (rr.rates(2,irclpa) - rr.rates(1,irt1)*denomdt)*zz;
-    }
-
-    // ar36(a,p)k39(p,g)ca40
-    rr.rates(1,iru1)  = 0.0e0_rt;
-    rr.rates(2,iru1)  = 0.0e0_rt;
-    denom    = rr.rates(1,irkpa) + rr.rates(1,irkpg);
-    denomdt  = rr.rates(2,irkpa) + rr.rates(2,irkpg);
-    if (denom > 1.0e-30_rt) {
-       zz   = 1.0e0_rt/denom;
-       rr.rates(1,iru1)   = rr.rates(1,irkpa)*zz;
-       rr.rates(2,iru1) = (rr.rates(2,irkpa) - rr.rates(1,iru1)*denomdt)*zz;
-    }
-
-    // ca40(a,p)sc43(p,g)ti44
-    rr.rates(1,irv1)  = 0.0e0_rt;
-    rr.rates(2,irv1)  = 0.0e0_rt;
-    denom    = rr.rates(1,irscpa) + rr.rates(1,irscpg);
-    denomdt  = rr.rates(2,irscpa) + rr.rates(2,irscpg);
-    if (denom > 1.0e-30_rt) {
-       zz  = 1.0e0_rt/denom;
-       rr.rates(1,irv1) = rr.rates(1,irscpa)*zz;
-       rr.rates(2,irv1) = (rr.rates(2,irscpa) - rr.rates(1,irv1)*denomdt)*zz;
-    }
-
-    // ti44(a,p)v47(p,g)cr48
-    rr.rates(1,irw1) = 0.0e0_rt;
-    rr.rates(2,irw1) = 0.0e0_rt;
-    denom    = rr.rates(1,irvpa) + rr.rates(1,irvpg);
-    denomdt  = rr.rates(2,irvpa) + rr.rates(2,irvpg);
-    if (denom > 1.0e-30_rt) {
-       zz = 1.0e0_rt/denom;
-       rr.rates(1,irw1) = rr.rates(1,irvpa)*zz;
-       rr.rates(2,irw1) = (rr.rates(2,irvpa) - rr.rates(1,irw1)*denomdt)*zz;
-    }
-
-    // cr48(a,p)mn51(p,g)fe52
-    rr.rates(1,irx1) = 0.0e0_rt;
-    rr.rates(2,irx1) = 0.0e0_rt;
-    denom    = rr.rates(1,irmnpa) + rr.rates(1,irmnpg);
-    denomdt  = rr.rates(2,irmnpa) + rr.rates(2,irmnpg);
-    if (denom > 1.0e-30_rt) {
-       zz = 1.0e0_rt/denom;
-       rr.rates(1,irx1) = rr.rates(1,irmnpa)*zz;
-       rr.rates(2,irx1) = (rr.rates(2,irmnpa) - rr.rates(1,irx1)*denomdt)*zz;
-    }
-
-    // fe52(a,p)co55(p,g)ni56
-    rr.rates(1,iry1) = 0.0e0_rt;
-    rr.rates(2,iry1) = 0.0e0_rt;
-    denom    = rr.rates(1,ircopa) + rr.rates(1,ircopg);
-    denomdt  = rr.rates(2,ircopa) + rr.rates(2,ircopg);
-    if (denom > 1.0e-30_rt) {
-       zz = 1.0e0_rt/denom;
-       rr.rates(1,iry1) = rr.rates(1,ircopa)*zz;
-       rr.rates(2,iry1) = (rr.rates(2,ircopa) - rr.rates(1,iry1)*denomdt)*zz;
-    }
-}
-
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(burn_t const& state, rate_t& rr)
-{
-    Real rho, temp;
-    Array1D<Real, 1, NumSpec> y;
-
-    // Get the data from the state
-    rho  = state.rho;
-    temp = state.T;
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
-
-    // Get the raw reaction rates
-    if (use_tables) {
-        aprox13tab(temp, rho, rr);
-    } else {
-        aprox13rat(temp, rho, rr);
-    }
-
-    // Do the screening here because the corrections depend on the composition
-    screen_aprox13(temp, rho, y, rr);
-
-    rr.T_eval = temp;
-}
-
-
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
-                           burn_t const& state, rate_t const& rr,
+                           burn_t const& state, RateEvaluator& rr,
                            MatrixType& jac)
 {
 
@@ -972,453 +621,437 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
     using namespace Species;
     using namespace Rates;
 
-    {
-        // he4 jacobian elements
-        // d(he4)/d(he4)
-        Array1D<Real, 1, 20> b {
-            -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a),
-            -y(C12)  * rr.rates(1,ircag),
-            -y(O16)  * rr.rates(1,iroag),
-            -y(Ne20) * rr.rates(1,irneag),
-            -y(Mg24) * rr.rates(1,irmgag),
-            -y(Si28) * rr.rates(1,irsiag),
-            -y(S32)  * rr.rates(1,irsag),
-            -y(Ar36) * rr.rates(1,irarag),
-            -y(Ca40) * rr.rates(1,ircaag),
-            -y(Ti44) * rr.rates(1,irtiag),
-            -y(Cr48) * rr.rates(1,ircrag),
-            -y(Fe52) * rr.rates(1,irfeag),
-            -y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1)),
-            -y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1)),
-            -y(S32)  * rr.rates(1,irsap)  * (1.0e0_rt-rr.rates(1,irt1)),
-            -y(Ar36) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1)),
-            -y(Ca40) * rr.rates(1,ircaap) * (1.0e0_rt-rr.rates(1,irv1)),
-            -y(Ti44) * rr.rates(1,irtiap) * (1.0e0_rt-rr.rates(1,irw1)),
-            -y(Cr48) * rr.rates(1,ircrap) * (1.0e0_rt-rr.rates(1,irx1)),
-            -y(Fe52) * rr.rates(1,irfeap) * (1.0e0_rt-rr.rates(1,iry1))
-        };
-
-        jac(He4,He4) = esum20(b);
-    }
-
-    {
-        // (he4)/d(o16)
-        Array1D<Real, 1, 5> b {
-            0.5e0_rt * y(C12) * rr.rates(1,ir1216),
-            1.12e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616),
-            0.68e0_rt * rr.rates(1,irs1) * 0.5e0_rt*y(O16) * rr.rates(1,ir1616),
-            rr.rates(1,iroga),
-            -y(He4) * rr.rates(1,iroag),
-        };
-
-        jac(He4,O16) = esum5(b);
-    }
-
-    {
-        Array1D<Real, 1, 4> b;
-
-        // d(he4)/d(c12)
-        b(1) =  y(C12) * rr.rates(1,ir1212);
-        b(2) =  0.5e0_rt * y(O16) * rr.rates(1,ir1216);
-        b(3) =  3.0e0_rt * rr.rates(1,irg3a);
-        b(4) = -y(He4) * rr.rates(1,ircag);
-
-        jac(He4,C12) = esum4(b);
-
-        // d(he4)/d(si28)
-        b(1) =  rr.rates(1,irsiga);
-        b(2) = -y(He4) * rr.rates(1,irsiag);
-        b(3) = -y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
-        b(4) =  rr.rates(1,irr1) * rr.rates(1,irsigp);
-
-        jac(He4,Si28) = esum4(b);
-
-        // d(he4)/d(s32)
-        b(1) =  rr.rates(1,irsga);
-        b(2) = -y(He4) * rr.rates(1,irsag);
-        b(3) = -y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
-        b(4) =  rr.rates(1,irs1) * rr.rates(1,irsgp);
-
-        jac(He4,S32) = esum4(b);
-
-        // d(he4)/d(ar36)
-        b(1)  =  rr.rates(1,irarga);
-        b(2)  = -y(He4) * rr.rates(1,irarag);
-        b(3)  = -y(He4) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
-        b(4)  =  rr.rates(1,irt1) * rr.rates(1,irargp);
-
-        jac(He4,Ar36) = esum4(b);
-
-        // d(he4)/d(ca40)
-        b(1) =  rr.rates(1,ircaga);
-        b(2) = -y(He4) * rr.rates(1,ircaag);
-        b(3) = -y(He4) * rr.rates(1,ircaap) * (1.0e0_rt-rr.rates(1,irv1));
-        b(4) =  rr.rates(1,iru1) * rr.rates(1,ircagp);
-
-        jac(He4,Ca40) = esum4(b);
-
-        // d(he4)/d(ti44)
-        b(1) =  rr.rates(1,irtiga);
-        b(2) = -y(He4) * rr.rates(1,irtiag);
-        b(3) = -y(He4) * rr.rates(1,irtiap) * (1.0e0_rt-rr.rates(1,irw1));
-        b(4) =  rr.rates(1,irv1) * rr.rates(1,irtigp);
-
-        jac(He4,Ti44) = esum4(b);
-
-        // d(he4)/d(cr48)
-        b(1) =  rr.rates(1,ircrga);
-        b(2) = -y(He4) * rr.rates(1,ircrag);
-        b(3) = -y(He4) * rr.rates(1,ircrap) * (1.0e0_rt-rr.rates(1,irx1));
-        b(4) =  rr.rates(1,irw1) * rr.rates(1,ircrgp);
-
-        jac(He4,Cr48) = esum4(b);
-
-        // d(he4)/d(fe52)
-        b(1) =  rr.rates(1,irfega);
-        b(2) = -y(He4) * rr.rates(1,irfeag);
-        b(3) = -y(He4) * rr.rates(1,irfeap) * (1.0e0_rt-rr.rates(1,iry1));
-        b(4) =  rr.rates(1,irx1) * rr.rates(1,irfegp);
-
-        jac(He4,Fe52) = esum4(b);
-
-        // d(c12)/d(c12)
-        b(1) = -2.0e0_rt * y(C12) * rr.rates(1,ir1212);
-        b(2) = -y(O16) * rr.rates(1,ir1216);
-        b(3) = -rr.rates(1,irg3a);
-        b(4) = -y(He4) * rr.rates(1,ircag);
-
-        jac(C12,C12) = esum4(b);
-
-        // d(o16)/d(o16)
-        b(1) = -y(C12) * rr.rates(1,ir1216);
-        b(2) = -2.0e0_rt * y(O16) * rr.rates(1,ir1616);
-        b(3) = -y(He4) * rr.rates(1,iroag);
-        b(4) = -rr.rates(1,iroga);
-
-        jac(O16,O16) = esum4(b);
-
-        // si28 jacobian elements
-        // d(si28)/d(he4)
-        b(1) =  y(Mg24) * rr.rates(1,irmgag);
-        b(2) = -y(Si28) * rr.rates(1,irsiag);
-        b(3) =  y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
-        b(4) = -y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
-
-        jac(Si28,He4) = esum4(b);
-
-        // d(si28)/d(si28)
-        b(1) =  -y(He4) * rr.rates(1,irsiag);
-        b(2) = -rr.rates(1,irsiga);
-        b(3) = -rr.rates(1,irr1) * rr.rates(1,irsigp);
-        b(4) = -y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
-
-        jac(Si28,Si28) = esum4(b);
-
-        // s32 jacobian elements
-        // d(s32)/d(he4)
-        b(1) =  y(Si28) * rr.rates(1,irsiag);
-        b(2) = -y(S32) * rr.rates(1,irsag);
-        b(3) =  y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
-        b(4) = -y(S32) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
-
-        jac(S32,He4) = esum4(b);
-
-        // d(s32)/d(s32)
-        b(1) = -y(He4) * rr.rates(1,irsag);
-        b(2) = -rr.rates(1,irsga);
-        b(3) = -rr.rates(1,irs1) * rr.rates(1,irsgp);
-        b(4) = -y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
-
-        jac(S32,S32) = esum4(b);
-
-        // ar36 jacobian elements
-        // d(ar36)/d(he4)
-        b(1) =  y(S32)  * rr.rates(1,irsag);
-        b(2) = -y(Ar36) * rr.rates(1,irarag);
-        b(3) =  y(S32)  * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
-        b(4) = -y(Ar36) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
-
-        jac(Ar36,He4) = esum4(b);
-
-        // d(ar36)/d(ar36)
-        b(1) = -y(He4) * rr.rates(1,irarag);
-        b(2) = -rr.rates(1,irarga);
-        b(3) = -rr.rates(1,irt1) * rr.rates(1,irargp);
-        b(4) = -y(He4) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
-
-        jac(Ar36,Ar36) = esum4(b);
-
-        // ca40 jacobian elements
-        // d(ca40)/d(he4)
-        b(1)  =  y(Ar36) * rr.rates(1,irarag);
-        b(2)  = -y(Ca40) * rr.rates(1,ircaag);
-        b(3)  =  y(Ar36) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
-        b(4)  = -y(Ca40) * rr.rates(1,ircaap)*(1.0e0_rt-rr.rates(1,irv1));
-
-        jac(Ca40,He4) = esum4(b);
-
-        // d(ca40)/d(ca40)
-        b(1) = -y(He4) * rr.rates(1, ircaag);
-        b(2) = -rr.rates(1, ircaga);
-        b(3) = -rr.rates(1, ircagp) * rr.rates(1, iru1);
-        b(4) = -y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
-
-        jac(Ca40,Ca40) = esum4(b);
+    // he4 jacobian elements
+    // d(he4)/d(he4)
+    Array1D<Real, 1, 20> b20 {
+        -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a),
+        -y(C12)  * rr.rates(1,ircag),
+        -y(O16)  * rr.rates(1,iroag),
+        -y(Ne20) * rr.rates(1,irneag),
+        -y(Mg24) * rr.rates(1,irmgag),
+        -y(Si28) * rr.rates(1,irsiag),
+        -y(S32)  * rr.rates(1,irsag),
+        -y(Ar36) * rr.rates(1,irarag),
+        -y(Ca40) * rr.rates(1,ircaag),
+        -y(Ti44) * rr.rates(1,irtiag),
+        -y(Cr48) * rr.rates(1,ircrag),
+        -y(Fe52) * rr.rates(1,irfeag),
+        -y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1)),
+        -y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1)),
+        -y(S32)  * rr.rates(1,irsap)  * (1.0e0_rt-rr.rates(1,irt1)),
+        -y(Ar36) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1)),
+        -y(Ca40) * rr.rates(1,ircaap) * (1.0e0_rt-rr.rates(1,irv1)),
+        -y(Ti44) * rr.rates(1,irtiap) * (1.0e0_rt-rr.rates(1,irw1)),
+        -y(Cr48) * rr.rates(1,ircrap) * (1.0e0_rt-rr.rates(1,irx1)),
+        -y(Fe52) * rr.rates(1,irfeap) * (1.0e0_rt-rr.rates(1,iry1))
+    };
+
+    jac(He4,He4) = esum20(b20);
+
+    Array1D<Real, 1, 5> b;
+
+    // (he4)/d(o16)
+    b(1) =  0.5e0_rt * y(C12) * rr.rates(1,ir1216),
+    b(2) =  1.12e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616),
+    b(3) =  0.68e0_rt * rr.rates(1,irs1) * 0.5e0_rt*y(O16) * rr.rates(1,ir1616),
+    b(4) =  rr.rates(1,iroga),
+    b(5) = -y(He4) * rr.rates(1,iroag),
+
+    jac(He4,O16) = esum5(b);
+
+    // d(he4)/d(c12)
+    b(1) =  y(C12) * rr.rates(1,ir1212);
+    b(2) =  0.5e0_rt * y(O16) * rr.rates(1,ir1216);
+    b(3) =  3.0e0_rt * rr.rates(1,irg3a);
+    b(4) = -y(He4) * rr.rates(1,ircag);
+
+    jac(He4,C12) = esum4(b);
+
+    // d(he4)/d(si28)
+    b(1) =  rr.rates(1,irsiga);
+    b(2) = -y(He4) * rr.rates(1,irsiag);
+    b(3) = -y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+    b(4) =  rr.rates(1,irr1) * rr.rates(1,irsigp);
+
+    jac(He4,Si28) = esum4(b);
+
+    // d(he4)/d(s32)
+    b(1) =  rr.rates(1,irsga);
+    b(2) = -y(He4) * rr.rates(1,irsag);
+    b(3) = -y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+    b(4) =  rr.rates(1,irs1) * rr.rates(1,irsgp);
+
+    jac(He4,S32) = esum4(b);
+
+    // d(he4)/d(ar36)
+    b(1)  =  rr.rates(1,irarga);
+    b(2)  = -y(He4) * rr.rates(1,irarag);
+    b(3)  = -y(He4) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
+    b(4)  =  rr.rates(1,irt1) * rr.rates(1,irargp);
+
+    jac(He4,Ar36) = esum4(b);
+
+    // d(he4)/d(ca40)
+    b(1) =  rr.rates(1,ircaga);
+    b(2) = -y(He4) * rr.rates(1,ircaag);
+    b(3) = -y(He4) * rr.rates(1,ircaap) * (1.0e0_rt-rr.rates(1,irv1));
+    b(4) =  rr.rates(1,iru1) * rr.rates(1,ircagp);
+
+    jac(He4,Ca40) = esum4(b);
+
+    // d(he4)/d(ti44)
+    b(1) =  rr.rates(1,irtiga);
+    b(2) = -y(He4) * rr.rates(1,irtiag);
+    b(3) = -y(He4) * rr.rates(1,irtiap) * (1.0e0_rt-rr.rates(1,irw1));
+    b(4) =  rr.rates(1,irv1) * rr.rates(1,irtigp);
+
+    jac(He4,Ti44) = esum4(b);
+
+    // d(he4)/d(cr48)
+    b(1) =  rr.rates(1,ircrga);
+    b(2) = -y(He4) * rr.rates(1,ircrag);
+    b(3) = -y(He4) * rr.rates(1,ircrap) * (1.0e0_rt-rr.rates(1,irx1));
+    b(4) =  rr.rates(1,irw1) * rr.rates(1,ircrgp);
+
+    jac(He4,Cr48) = esum4(b);
+
+    // d(he4)/d(fe52)
+    b(1) =  rr.rates(1,irfega);
+    b(2) = -y(He4) * rr.rates(1,irfeag);
+    b(3) = -y(He4) * rr.rates(1,irfeap) * (1.0e0_rt-rr.rates(1,iry1));
+    b(4) =  rr.rates(1,irx1) * rr.rates(1,irfegp);
+
+    jac(He4,Fe52) = esum4(b);
+
+    // d(c12)/d(c12)
+    b(1) = -2.0e0_rt * y(C12) * rr.rates(1,ir1212);
+    b(2) = -y(O16) * rr.rates(1,ir1216);
+    b(3) = -rr.rates(1,irg3a);
+    b(4) = -y(He4) * rr.rates(1,ircag);
+
+    jac(C12,C12) = esum4(b);
+
+    // d(o16)/d(o16)
+    b(1) = -y(C12) * rr.rates(1,ir1216);
+    b(2) = -2.0e0_rt * y(O16) * rr.rates(1,ir1616);
+    b(3) = -y(He4) * rr.rates(1,iroag);
+    b(4) = -rr.rates(1,iroga);
+
+    jac(O16,O16) = esum4(b);
+
+    // si28 jacobian elements
+    // d(si28)/d(he4)
+    b(1) =  y(Mg24) * rr.rates(1,irmgag);
+    b(2) = -y(Si28) * rr.rates(1,irsiag);
+    b(3) =  y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    b(4) = -y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+
+    jac(Si28,He4) = esum4(b);
+
+    // d(si28)/d(si28)
+    b(1) =  -y(He4) * rr.rates(1,irsiag);
+    b(2) = -rr.rates(1,irsiga);
+    b(3) = -rr.rates(1,irr1) * rr.rates(1,irsigp);
+    b(4) = -y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+
+    jac(Si28,Si28) = esum4(b);
+
+    // s32 jacobian elements
+    // d(s32)/d(he4)
+    b(1) =  y(Si28) * rr.rates(1,irsiag);
+    b(2) = -y(S32) * rr.rates(1,irsag);
+    b(3) =  y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+    b(4) = -y(S32) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+
+    jac(S32,He4) = esum4(b);
+
+    // d(s32)/d(s32)
+    b(1) = -y(He4) * rr.rates(1,irsag);
+    b(2) = -rr.rates(1,irsga);
+    b(3) = -rr.rates(1,irs1) * rr.rates(1,irsgp);
+    b(4) = -y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+
+    jac(S32,S32) = esum4(b);
+
+    // ar36 jacobian elements
+    // d(ar36)/d(he4)
+    b(1) =  y(S32)  * rr.rates(1,irsag);
+    b(2) = -y(Ar36) * rr.rates(1,irarag);
+    b(3) =  y(S32)  * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+    b(4) = -y(Ar36) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
+
+    jac(Ar36,He4) = esum4(b);
+
+    // d(ar36)/d(ar36)
+    b(1) = -y(He4) * rr.rates(1,irarag);
+    b(2) = -rr.rates(1,irarga);
+    b(3) = -rr.rates(1,irt1) * rr.rates(1,irargp);
+    b(4) = -y(He4) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
+
+    jac(Ar36,Ar36) = esum4(b);
+
+    // ca40 jacobian elements
+    // d(ca40)/d(he4)
+    b(1)  =  y(Ar36) * rr.rates(1,irarag);
+    b(2)  = -y(Ca40) * rr.rates(1,ircaag);
+    b(3)  =  y(Ar36) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
+    b(4)  = -y(Ca40) * rr.rates(1,ircaap)*(1.0e0_rt-rr.rates(1,irv1));
+
+    jac(Ca40,He4) = esum4(b);
+
+    // d(ca40)/d(ca40)
+    b(1) = -y(He4) * rr.rates(1, ircaag);
+    b(2) = -rr.rates(1, ircaga);
+    b(3) = -rr.rates(1, ircagp) * rr.rates(1, iru1);
+    b(4) = -y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
 
-        // ti44 jacobian elements
-        // d(ti44)/d(he4)
-        b(1) =  y(Ca40) * rr.rates(1, ircaag);
-        b(2) = -y(Ti44) * rr.rates(1, irtiag);
-        b(3) =  y(Ca40) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
-        b(4) = -y(Ti44) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    jac(Ca40,Ca40) = esum4(b);
 
-        jac(Ti44,He4) = esum4(b);
+    // ti44 jacobian elements
+    // d(ti44)/d(he4)
+    b(1) =  y(Ca40) * rr.rates(1, ircaag);
+    b(2) = -y(Ti44) * rr.rates(1, irtiag);
+    b(3) =  y(Ca40) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
+    b(4) = -y(Ti44) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
 
-        // d(ti44)/d(ti44)
-        b(1) = -y(He4) * rr.rates(1, irtiag);
-        b(2) = -rr.rates(1, irtiga);
-        b(3) = -rr.rates(1, irv1) * rr.rates(1, irtigp);
-        b(4) = -y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    jac(Ti44,He4) = esum4(b);
 
-        jac(Ti44,Ti44) = esum4(b);
+    // d(ti44)/d(ti44)
+    b(1) = -y(He4) * rr.rates(1, irtiag);
+    b(2) = -rr.rates(1, irtiga);
+    b(3) = -rr.rates(1, irv1) * rr.rates(1, irtigp);
+    b(4) = -y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
 
-        // cr48 jacobian elements
-        // d(cr48)/d(he4)
-        b(1) =  y(Ti44) * rr.rates(1, irtiag);
-        b(2) = -y(Cr48) * rr.rates(1, ircrag);
-        b(3) =  y(Ti44) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
-        b(4) = -y(Cr48) * rr.rates(1, ircrap)*(1.0e0_rt-rr.rates(1, irx1));
+    jac(Ti44,Ti44) = esum4(b);
 
-        jac(Cr48,He4) = esum4(b);
+    // cr48 jacobian elements
+    // d(cr48)/d(he4)
+    b(1) =  y(Ti44) * rr.rates(1, irtiag);
+    b(2) = -y(Cr48) * rr.rates(1, ircrag);
+    b(3) =  y(Ti44) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    b(4) = -y(Cr48) * rr.rates(1, ircrap)*(1.0e0_rt-rr.rates(1, irx1));
 
-        // d(cr48)/d(cr48)
-        b(1) = -y(He4) * rr.rates(1, ircrag);
-        b(2) = -rr.rates(1, ircrga);
-        b(3) = -rr.rates(1, irw1) * rr.rates(1, ircrgp);
-        b(4) = -y(He4) * rr.rates(1, ircrap)*(1.0e0_rt-rr.rates(1, irx1));
+    jac(Cr48,He4) = esum4(b);
 
-        jac(Cr48,Cr48) = esum4(b);
+    // d(cr48)/d(cr48)
+    b(1) = -y(He4) * rr.rates(1, ircrag);
+    b(2) = -rr.rates(1, ircrga);
+    b(3) = -rr.rates(1, irw1) * rr.rates(1, ircrgp);
+    b(4) = -y(He4) * rr.rates(1, ircrap)*(1.0e0_rt-rr.rates(1, irx1));
 
-        // fe52 jacobian elements
-        // d(fe52)/d(he4)
-        b(1) =  y(Cr48) * rr.rates(1, ircrag);
-        b(2) = -y(Fe52) * rr.rates(1, irfeag);
-        b(3) =  y(Cr48) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
-        b(4) = -y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    jac(Cr48,Cr48) = esum4(b);
 
-        jac(Fe52,He4) = esum4(b);
+    // fe52 jacobian elements
+    // d(fe52)/d(he4)
+    b(1) =  y(Cr48) * rr.rates(1, ircrag);
+    b(2) = -y(Fe52) * rr.rates(1, irfeag);
+    b(3) =  y(Cr48) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
+    b(4) = -y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
 
-        // d(fe52)/d(fe52)
-        b(1) = -y(He4) * rr.rates(1, irfeag);
-        b(2) = -rr.rates(1, irfega);
-        b(3) = -rr.rates(1, irx1) * rr.rates(1, irfegp);
-        b(4) = -y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    jac(Fe52,He4) = esum4(b);
 
-        jac(Fe52,Fe52) = esum4(b);
-    }
+    // d(fe52)/d(fe52)
+    b(1) = -y(He4) * rr.rates(1, irfeag);
+    b(2) = -rr.rates(1, irfega);
+    b(3) = -rr.rates(1, irx1) * rr.rates(1, irfegp);
+    b(4) = -y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
 
-    {
-        Array1D<Real, 1, 3> b;
+    jac(Fe52,Fe52) = esum4(b);
 
-        // d(he4)/d(mg24)
-        b(1) =  rr.rates(1,irmgga);
-        b(2) = -y(He4) * rr.rates(1,irmgag);
-        b(3) = -y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    // d(he4)/d(mg24)
+    b(1) =  rr.rates(1,irmgga);
+    b(2) = -y(He4) * rr.rates(1,irmgag);
+    b(3) = -y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
 
-        jac(He4,Mg24) = esum3(b);
+    jac(He4,Mg24) = esum3(b);
 
-        // mg24 jacobian elements
-        // d(mg24)/d(he4)
-        b(1) =  y(Ne20) * rr.rates(1,irneag);
-        b(2) = -y(Mg24) * rr.rates(1,irmgag);
-        b(3) = -y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    // mg24 jacobian elements
+    // d(mg24)/d(he4)
+    b(1) =  y(Ne20) * rr.rates(1,irneag);
+    b(2) = -y(Mg24) * rr.rates(1,irmgag);
+    b(3) = -y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
 
-        jac(Mg24,He4) = esum3(b);
+    jac(Mg24,He4) = esum3(b);
 
-        // d(mg24)/d(mg24)
-        b(1) = -y(He4) * rr.rates(1,irmgag);
-        b(2) = -rr.rates(1,irmgga);
-        b(3) = -y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    // d(mg24)/d(mg24)
+    b(1) = -y(He4) * rr.rates(1,irmgag);
+    b(2) = -rr.rates(1,irmgga);
+    b(3) = -y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
 
-        jac(Mg24,Mg24) = esum3(b);
+    jac(Mg24,Mg24) = esum3(b);
 
-        // d(si28)/d(o16)
-        b(1) = 0.5e0_rt * y(C12) * rr.rates(1,ir1216);
-        b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
-        b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,irs1) * rr.rates(1,ir1616);
+    // d(si28)/d(o16)
+    b(1) = 0.5e0_rt * y(C12) * rr.rates(1,ir1216);
+    b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
+    b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,irs1) * rr.rates(1,ir1616);
 
-        jac(Si28,O16) = esum3(b);
-    }
+    jac(Si28,O16) = esum3(b);
 
-    {
-        Array1D<Real, 1, 2> b;
+    // d(he4)/d(ne20)
+    b(1) =  rr.rates(1,irnega);
+    b(2) = -y(He4) * rr.rates(1,irneag);
 
-        // d(he4)/d(ne20)
-        b(1) =  rr.rates(1,irnega);
-        b(2) = -y(He4) * rr.rates(1,irneag);
+    jac(He4,Ne20) = b(1) + b(2);
 
-        jac(He4,Ne20) = b(1) + b(2);
+    // d(he4)/d(ni56)
+    b(1) = rr.rates(1,irniga);
+    b(2) = rr.rates(1,iry1) * rr.rates(1,irnigp);
 
-        // d(he4)/d(ni56)
-        b(1) = rr.rates(1,irniga);
-        b(2) = rr.rates(1,iry1) * rr.rates(1,irnigp);
+    jac(He4,Ni56) = b(1) + b(2);
 
-        jac(He4,Ni56) = b(1) + b(2);
+    // c12 jacobian elements
+    // d(c12)/d(he4)
+    b(1) =  0.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a);
+    b(2) = -y(C12) * rr.rates(1,ircag);
 
-        // c12 jacobian elements
-        // d(c12)/d(he4)
-        b(1) =  0.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a);
-        b(2) = -y(C12) * rr.rates(1,ircag);
+    jac(C12,He4) = b(1) + b(2);
 
-        jac(C12,He4) = b(1) + b(2);
+    // d(c12)/d(o16)
+    b(1) = -y(C12) * rr.rates(1,ir1216);
+    b(2) =  rr.rates(1,iroga);
 
-        // d(c12)/d(o16)
-        b(1) = -y(C12) * rr.rates(1,ir1216);
-        b(2) =  rr.rates(1,iroga);
+    jac(C12,O16) = b(1) + b(2);
 
-        jac(C12,O16) = b(1) + b(2);
+    // o16 jacobian elements
+    // d(o16)/d(he4)
+    b(1) =  y(C12)*rr.rates(1,ircag);
+    b(2) = -y(O16)*rr.rates(1,iroag);
 
-        // o16 jacobian elements
-        // d(o16)/d(he4)
-        b(1) =  y(C12)*rr.rates(1,ircag);
-        b(2) = -y(O16)*rr.rates(1,iroag);
+    jac(O16,He4) = b(1) + b(2);
 
-        jac(O16,He4) = b(1) + b(2);
+    // d(o16)/d(c12)
+    b(1) = -y(O16)*rr.rates(1,ir1216);
+    b(2) =  y(He4)*rr.rates(1,ircag);
 
-        // d(o16)/d(c12)
-        b(1) = -y(O16)*rr.rates(1,ir1216);
-        b(2) =  y(He4)*rr.rates(1,ircag);
+    jac(O16,C12) = b(1) + b(2);
 
-        jac(O16,C12) = b(1) + b(2);
+    // ne20 jacobian elements
+    // d(ne20)/d(he4)
+    b(1) =  y(O16) * rr.rates(1,iroag);
+    b(2) = -y(Ne20) * rr.rates(1,irneag);
 
-        // ne20 jacobian elements
-        // d(ne20)/d(he4)
-        b(1) =  y(O16) * rr.rates(1,iroag);
-        b(2) = -y(Ne20) * rr.rates(1,irneag);
+    jac(Ne20,He4) = b(1) + b(2);
 
-        jac(Ne20,He4) = b(1) + b(2);
+    // d(ne20)/d(ne20)
+    b(1) = -y(He4) * rr.rates(1,irneag);
+    b(2) = -rr.rates(1,irnega);
 
-        // d(ne20)/d(ne20)
-        b(1) = -y(He4) * rr.rates(1,irneag);
-        b(2) = -rr.rates(1,irnega);
+    jac(Ne20,Ne20) = b(1) + b(2);
 
-        jac(Ne20,Ne20) = b(1) + b(2);
+    // d(mg24)/d(si28)
+    b(1) = rr.rates(1,irsiga);
+    b(2) = rr.rates(1,irr1) * rr.rates(1,irsigp);
 
-        // d(mg24)/d(si28)
-        b(1) = rr.rates(1,irsiga);
-        b(2) = rr.rates(1,irr1) * rr.rates(1,irsigp);
+    jac(Mg24,Si28) = b(1) + b(2);
 
-        jac(Mg24,Si28) = b(1) + b(2);
+    // d(si28)/d(mg24)
+    b(1) =  y(He4) * rr.rates(1,irmgag);
+    b(2) =  y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
 
-        // d(si28)/d(mg24)
-        b(1) =  y(He4) * rr.rates(1,irmgag);
-        b(2) =  y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    jac(Si28,Mg24) = b(1) + b(2);
 
-        jac(Si28,Mg24) = b(1) + b(2);
+    // d(si28)/d(s32)
+    b(1) = rr.rates(1,irsga);
+    b(2) = rr.rates(1,irs1) * rr.rates(1,irsgp);
 
-        // d(si28)/d(s32)
-        b(1) = rr.rates(1,irsga);
-        b(2) = rr.rates(1,irs1) * rr.rates(1,irsgp);
+    jac(Si28,S32) = b(1) + b(2);
 
-        jac(Si28,S32) = b(1) + b(2);
+    // d(s32)/d(o16)
+    b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr.rates(1,ir1616)*(1.0e0_rt-rr.rates(1,irs1));
+    b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
 
-        // d(s32)/d(o16)
-        b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr.rates(1,ir1616)*(1.0e0_rt-rr.rates(1,irs1));
-        b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
+    jac(S32,O16) = b(1) + b(2);
 
-        jac(S32,O16) = b(1) + b(2);
+    // d(s32)/d(si28)
+    b(1)  =y(He4) * rr.rates(1,irsiag);
+    b(2) = y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
 
-        // d(s32)/d(si28)
-        b(1)  =y(He4) * rr.rates(1,irsiag);
-        b(2) = y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+    jac(S32,Si28) = b(1) + b(2);
 
-        jac(S32,Si28) = b(1) + b(2);
+    // d(s32)/d(ar36)
+    b(1) = rr.rates(1,irarga);
+    b(2) = rr.rates(1,irt1) * rr.rates(1,irargp);
 
-        // d(s32)/d(ar36)
-        b(1) = rr.rates(1,irarga);
-        b(2) = rr.rates(1,irt1) * rr.rates(1,irargp);
+    jac(S32,Ar36) = b(1) + b(2);
 
-        jac(S32,Ar36) = b(1) + b(2);
+    // d(ar36)/d(s32)
+    b(1) = y(He4) * rr.rates(1,irsag);
+    b(2) = y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
 
-        // d(ar36)/d(s32)
-        b(1) = y(He4) * rr.rates(1,irsag);
-        b(2) = y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+    jac(Ar36,S32) = b(1) + b(2);
 
-        jac(Ar36,S32) = b(1) + b(2);
+    // d(ar36)/d(ca40)
+    b(1) = rr.rates(1,ircaga);
+    b(2) = rr.rates(1,ircagp) * rr.rates(1,iru1);
 
-        // d(ar36)/d(ca40)
-        b(1) = rr.rates(1,ircaga);
-        b(2) = rr.rates(1,ircagp) * rr.rates(1,iru1);
+    jac(Ar36,Ca40) = b(1) + b(2);
 
-        jac(Ar36,Ca40) = b(1) + b(2);
+    // d(ca40)/d(ar36)
+    b(1) =  y(He4) * rr.rates(1,irarag);
+    b(2) =  y(He4) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
 
-        // d(ca40)/d(ar36)
-        b(1) =  y(He4) * rr.rates(1,irarag);
-        b(2) =  y(He4) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
+    jac(Ca40,Ar36) = b(1) + b(2);
 
-        jac(Ca40,Ar36) = b(1) + b(2);
+    // d(ca40)/d(ti44)
+    b(1) = rr.rates(1, irtiga);
+    b(2) = rr.rates(1, irtigp) * rr.rates(1, irv1);
 
-        // d(ca40)/d(ti44)
-        b(1) = rr.rates(1, irtiga);
-        b(2) = rr.rates(1, irtigp) * rr.rates(1, irv1);
+    jac(Ca40,Ti44) = b(1) + b(2);
 
-        jac(Ca40,Ti44) = b(1) + b(2);
+    // d(ti44)/d(ca40)
+    b(1) =  y(He4) * rr.rates(1, ircaag);
+    b(2) =  y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
 
-        // d(ti44)/d(ca40)
-        b(1) =  y(He4) * rr.rates(1, ircaag);
-        b(2) =  y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
+    jac(Ti44,Ca40) = b(1) + b(2);
 
-        jac(Ti44,Ca40) = b(1) + b(2);
+    // d(ti44)/d(cr48)
+    b(1) = rr.rates(1, ircrga);
+    b(2) = rr.rates(1, irw1) * rr.rates(1, ircrgp);
 
-        // d(ti44)/d(cr48)
-        b(1) = rr.rates(1, ircrga);
-        b(2) = rr.rates(1, irw1) * rr.rates(1, ircrgp);
+    jac(Ti44,Cr48) = b(1) + b(2);
 
-        jac(Ti44,Cr48) = b(1) + b(2);
+    // d(cr48)/d(ti44)
+    b(1) =  y(He4) * rr.rates(1, irtiag);
+    b(2) =  y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
 
-        // d(cr48)/d(ti44)
-        b(1) =  y(He4) * rr.rates(1, irtiag);
-        b(2) =  y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    jac(Cr48,Ti44) = b(1) + b(2);
 
-        jac(Cr48,Ti44) = b(1) + b(2);
+    // d(cr48)/d(fe52)
+    b(1) = rr.rates(1, irfega);
+    b(2) = rr.rates(1, irx1) * rr.rates(1, irfegp);
 
-        // d(cr48)/d(fe52)
-        b(1) = rr.rates(1, irfega);
-        b(2) = rr.rates(1, irx1) * rr.rates(1, irfegp);
+    jac(Cr48,Fe52) = b(1) + b(2);
 
-        jac(Cr48,Fe52) = b(1) + b(2);
+    // d(fe52)/d(cr48)
+    b(1) = y(He4) * rr.rates(1, ircrag);
+    b(2) = y(He4) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
 
-        // d(fe52)/d(cr48)
-        b(1) = y(He4) * rr.rates(1, ircrag);
-        b(2) = y(He4) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
+    jac(Fe52,Cr48) = b(1) + b(2);
 
-        jac(Fe52,Cr48) = b(1) + b(2);
+    // d(fe52)/d(ni56)
+    b(1) = rr.rates(1, irniga);
+    b(2) = rr.rates(1, iry1) * rr.rates(1, irnigp);
 
-        // d(fe52)/d(ni56)
-        b(1) = rr.rates(1, irniga);
-        b(2) = rr.rates(1, iry1) * rr.rates(1, irnigp);
+    jac(Fe52,Ni56) = b(1) + b(2);
 
-        jac(Fe52,Ni56) = b(1) + b(2);
+    // ni56 jacobian elements
+    // d(ni56)/d(he4)
+    b(1) =  y(Fe52) * rr.rates(1, irfeag);
+    b(2) =  y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
 
-        // ni56 jacobian elements
-        // d(ni56)/d(he4)
-        b(1) =  y(Fe52) * rr.rates(1, irfeag);
-        b(2) =  y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    jac(Ni56,He4) = b(1) + b(2);
 
-        jac(Ni56,He4) = b(1) + b(2);
+    // d(ni56)/d(fe52)
+    b(1) = y(He4) * rr.rates(1, irfeag);
+    b(2) = y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
 
-        // d(ni56)/d(fe52)
-        b(1) = y(He4) * rr.rates(1, irfeag);
-        b(2) = y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    jac(Ni56,Fe52) = b(1) + b(2);
 
-        jac(Ni56,Fe52) = b(1) + b(2);
-
-        // d(ni56)/d(ni56)
-        b(1) = -rr.rates(1, irniga);
-        b(2) = -rr.rates(1, iry1) * rr.rates(1, irnigp);
+    // d(ni56)/d(ni56)
+    b(1) = -rr.rates(1, irniga);
+    b(2) = -rr.rates(1, iry1) * rr.rates(1, irnigp);
 
         jac(Ni56,Ni56) = b(1) + b(2);
-    }
 
     // d(o16)/d(ne20)
     jac(O16,Ne20) = rr.rates(1,irnega);
@@ -1470,9 +1103,9 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 // Evaluates the right hand side of the aprox13 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
+void rhs(Array1D<Real, 1, NumSpec> const& y, RateEvaluator const& rr,
          Array1D<Real, 1, neqs>& dydt,
-         bool deriva, bool for_jacobian_tderiv)
+         const bool deriva, const bool for_jacobian_tderiv)
 {
     using namespace Species;
     using namespace Rates;
@@ -1939,47 +1572,40 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
                ar36, ca40, ti44, cr48, fe52, ni56
     */
 
-    rate_t rr;
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    Real enuc;
-
-    Real rho, temp, abar, zbar;
-    Array1D<Real, 1, NumSpec> y;
-
     // Initialize ydot to 0
 
     for (int i = 1; i <= neqs; ++i) {
         ydot(i) = 0.0_rt;
     }
 
-    // Evaluate the rates
-
-    evaluate_rates(state, rr);
-
     // Get the data from the state
 
-    rho  = state.rho;
-    temp = state.T;
-    abar = state.abar;
-    zbar = state.zbar;
+    const Real rho  = state.rho;
+    const Real temp = state.T;
+    const Real abar = state.abar;
+    const Real zbar = state.zbar;
 
+    Array1D<Real, 1, NumSpec> y;
     for (int i = 1; i <= NumSpec; ++i) {
         y(i) = state.xn[i-1] * aion_inv[i-1];
     }
 
+    RateEvaluator rr(rho, temp, y);
+
     // Call the RHS to actually get dydt.
 
-    bool deriva = false;
-    bool for_jacobian_tderiv = false;
+    constexpr bool deriva = false;
+    constexpr bool for_jacobian_tderiv = false;
     rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
 
     // Instantaneous energy generation rate -- this needs molar fractions
 
+    Real enuc;
     ener_gener_rate(ydot, enuc);
 
     // Get the neutrino losses
 
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
     // Append the energy equation (this is erg/g/s)
@@ -1989,6 +1615,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Append the temperature equation
 
     temperature_rhs(state, ydot);
+
 }
 
 
@@ -1998,34 +1625,23 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_jac(burn_t& state, MatrixType& jac)
 {
 
-    rate_t rr;
-
-    bool deriva;
-
-    Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
-
-    Real rho, temp, abar, zbar;
-    Array1D<Real, 1, NumSpec> y;
-    Array1D<Real, 1, neqs> yderivs;
-
     // Initialize jac to 0
 
     jac.zero();
 
-    // Evaluate the rates
-
-    evaluate_rates(state, rr);
-
     // Get the data from the state
 
-    rho  = state.rho;
-    temp = state.T;
-    abar = state.abar;
-    zbar = state.zbar;
+    const Real rho  = state.rho;
+    const Real temp = state.T;
+    const Real abar = state.abar;
+    const Real zbar = state.zbar;
 
+    Array1D<Real, 1, NumSpec> y;
     for (int i = 1; i <= NumSpec; ++i) {
         y(i) = state.xn[i-1] * aion_inv[i-1];
     }
+
+    RateEvaluator rr(rho, temp, y);
 
     // Species Jacobian elements with respect to other species
 
@@ -2040,6 +1656,8 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // Account for the thermal neutrino losses
 
+    Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
+
     sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
     for (int j = 1; j <= NumSpec; ++j) {
@@ -2050,8 +1668,9 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(rate) / dT
 
-    deriva = true;
-    bool for_jacobian_tderiv = true;
+    constexpr bool deriva = true;
+    constexpr bool for_jacobian_tderiv = true;
+    Array1D<Real, 1, neqs> yderivs;
     rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
 
     for (int i = 1; i <= NumSpec; ++i) {
@@ -2076,8 +1695,6 @@ void set_up_screening_factors()
 
     using namespace Species;
 
-    // note: we need to set these up in the same order that we evaluate the
-    // rates in actual_rhs.H (yes, it's ugly)
     int jscr = 0;
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
