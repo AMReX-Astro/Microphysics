@@ -5,7 +5,13 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
+
 ifeq ($(USE_REACT), TRUE)
+
+  USE_RATE_TABLES ?= FALSE
+  ifeq ($(USE_RATE_TABLES), TRUE)
+    DEFINES += -DRATE_TABLES
+  endif
 
   ifeq ($(INTEGRATOR_DIR), VODE90)
     override INTEGRATOR_DIR = VODE
