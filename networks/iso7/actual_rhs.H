@@ -17,6 +17,7 @@
 #include <sneut5.H>
 #include <aprox_rates.H>
 #include <temperature_integration.H>
+#include <ArrayUtilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -440,10 +441,11 @@ void get_rates(burn_t const& state, rate_t& rr)
 }
 
 
+template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
                         burn_t const& state, rate_t const& rr,
-                        Array2D<Real, 1, neqs, 1, neqs>& jac)
+                        MatrixType& jac)
 {
 
     // this routine sets up the dense iso7 jacobian for the isotopes
@@ -845,9 +847,10 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 }
 
 
-  // Analytical Jacobian
+// Analytical Jacobian
+template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_jac(burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
+void actual_jac(burn_t& state, MatrixType& jac)
 {
 
     rate_t rr;
@@ -860,11 +863,7 @@ void actual_jac(burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
     Array1D<Real, 1, NumSpec> y;
     Array1D<Real, 1, neqs> yderivs;
 
-    for (int j = 1; j <= neqs; ++j) {
-        for (int i = 1; i <= neqs; ++i) {
-            jac(i,j) = 0.0e0_rt;
-        }
-    }
+    jac.zero();
 
     get_rates(state, rr);
 
@@ -885,7 +884,7 @@ void actual_jac(burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
     // Energy generation rate Jacobian elements with respect to species
 
     for (int j = 1; j <= NumSpec; ++j) {
-        auto jac_slice_2 = [&](int i) -> Real& { return jac(i, j); };
+        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
         ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
     }
 
@@ -895,7 +894,7 @@ void actual_jac(burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
 
     for (int j = 1; j <= NumSpec; ++j) {
        b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
-       jac(net_ienuc,j) = jac(net_ienuc,j) - b1;
+       jac.add(net_ienuc, j, -b1);
     }
 
     // Evaluate the Jacobian elements with respect to temperature by
@@ -909,10 +908,9 @@ void actual_jac(burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
         jac(i,net_itemp) = yderivs(i);
     }
 
-    auto jac_spec_slice_temp = [&](int i) -> Real& { return jac(i, net_itemp); };
-    ener_gener_rate(jac_spec_slice_temp, jac(net_ienuc,net_itemp));
+    ener_gener_rate(yderivs, jac(net_ienuc,net_itemp));
 
-    jac(net_ienuc,net_itemp) = jac(net_ienuc,net_itemp) - dsneutdt;
+    jac.add(net_ienuc, net_itemp, -dsneutdt);
 
     // Temperature Jacobian elements
 
