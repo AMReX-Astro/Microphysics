@@ -621,461 +621,605 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
     using namespace Species;
     using namespace Rates;
 
+    const Real rate_ir3a = rr.rates(1, ir3a);
+    const Real rate_irg3a = rr.rates(1, irg3a);
+    const Real rate_ircag = rr.rates(1, ircag);
+    const Real rate_iroga = rr.rates(1, iroga);
+    const Real rate_ir1212 = rr.rates(1, ir1212);
+    const Real rate_ir1216 = rr.rates(1, ir1216);
+    const Real rate_ir1616 = rr.rates(1, ir1616);
+    const Real rate_iroag = rr.rates(1, iroag);
+    const Real rate_irnega = rr.rates(1, irnega);
+    const Real rate_irneag = rr.rates(1, irneag);
+    const Real rate_irmgga = rr.rates(1, irmgga);
+    const Real rate_irmgag = rr.rates(1, irmgag);
+    const Real rate_irsiga = rr.rates(1, irsiga);
+    const Real rate_irmgap = rr.rates(1, irmgap);
+    const Real rate_iralpa = rr.rates(1, iralpa);
+    const Real rate_iralpg = rr.rates(1, iralpg);
+    const Real rate_irsigp = rr.rates(1, irsigp);
+    const Real rate_irsiag = rr.rates(1, irsiag);
+    const Real rate_irsga = rr.rates(1, irsga);
+    const Real rate_irsiap = rr.rates(1, irsiap);
+    const Real rate_irppa = rr.rates(1, irppa);
+    const Real rate_irppg = rr.rates(1, irppg);
+    const Real rate_irsgp = rr.rates(1, irsgp);
+    const Real rate_irsag = rr.rates(1, irsag);
+    const Real rate_irarga = rr.rates(1, irarga);
+    const Real rate_irsap = rr.rates(1, irsap);
+    const Real rate_irclpa = rr.rates(1, irclpa);
+    const Real rate_irclpg = rr.rates(1, irclpg);
+    const Real rate_irargp = rr.rates(1, irargp);
+    const Real rate_irarag = rr.rates(1, irarag);
+    const Real rate_ircaga = rr.rates(1, ircaga);
+    const Real rate_irarap = rr.rates(1, irarap);
+    const Real rate_irkpa = rr.rates(1, irkpa);
+    const Real rate_irkpg = rr.rates(1, irkpg);
+    const Real rate_ircagp = rr.rates(1, ircagp);
+    const Real rate_ircaag = rr.rates(1, ircaag);
+    const Real rate_irtiga = rr.rates(1, irtiga);
+    const Real rate_ircaap = rr.rates(1, ircaap);
+    const Real rate_irscpa = rr.rates(1, irscpa);
+    const Real rate_irscpg = rr.rates(1, irscpg);
+    const Real rate_irtigp = rr.rates(1, irtigp);
+    const Real rate_irtiag = rr.rates(1, irtiag);
+    const Real rate_ircrga = rr.rates(1, ircrga);
+    const Real rate_irtiap = rr.rates(1, irtiap);
+    const Real rate_irvpa = rr.rates(1, irvpa);
+    const Real rate_irvpg = rr.rates(1, irvpg);
+    const Real rate_ircrgp = rr.rates(1, ircrgp);
+    const Real rate_ircrag = rr.rates(1, ircrag);
+    const Real rate_irfega = rr.rates(1, irfega);
+    const Real rate_ircrap = rr.rates(1, ircrap);
+    const Real rate_irmnpa = rr.rates(1, irmnpa);
+    const Real rate_irmnpg = rr.rates(1, irmnpg);
+    const Real rate_irfegp = rr.rates(1, irfegp);
+    const Real rate_irfeag = rr.rates(1, irfeag);
+    const Real rate_irniga = rr.rates(1, irniga);
+    const Real rate_irfeap = rr.rates(1, irfeap);
+    const Real rate_ircopa = rr.rates(1, ircopa);
+    const Real rate_ircopg = rr.rates(1, ircopg);
+    const Real rate_irnigp = rr.rates(1, irnigp);
+    const Real rate_irr1 = rr.rates(1, irr1);
+    const Real rate_irs1 = rr.rates(1, irs1);
+    const Real rate_irt1 = rr.rates(1, irt1);
+    const Real rate_iru1 = rr.rates(1, iru1);
+    const Real rate_irv1 = rr.rates(1, irv1);
+    const Real rate_irw1 = rr.rates(1, irw1);
+    const Real rate_irx1 = rr.rates(1, irx1);
+    const Real rate_iry1 = rr.rates(1, iry1);
+
     // he4 jacobian elements
     // d(he4)/d(he4)
-    Array1D<Real, 1, 20> b20 {
-        -1.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a),
-        -y(C12)  * rr.rates(1,ircag),
-        -y(O16)  * rr.rates(1,iroag),
-        -y(Ne20) * rr.rates(1,irneag),
-        -y(Mg24) * rr.rates(1,irmgag),
-        -y(Si28) * rr.rates(1,irsiag),
-        -y(S32)  * rr.rates(1,irsag),
-        -y(Ar36) * rr.rates(1,irarag),
-        -y(Ca40) * rr.rates(1,ircaag),
-        -y(Ti44) * rr.rates(1,irtiag),
-        -y(Cr48) * rr.rates(1,ircrag),
-        -y(Fe52) * rr.rates(1,irfeag),
-        -y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1)),
-        -y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1)),
-        -y(S32)  * rr.rates(1,irsap)  * (1.0e0_rt-rr.rates(1,irt1)),
-        -y(Ar36) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1)),
-        -y(Ca40) * rr.rates(1,ircaap) * (1.0e0_rt-rr.rates(1,irv1)),
-        -y(Ti44) * rr.rates(1,irtiap) * (1.0e0_rt-rr.rates(1,irw1)),
-        -y(Cr48) * rr.rates(1,ircrap) * (1.0e0_rt-rr.rates(1,irx1)),
-        -y(Fe52) * rr.rates(1,irfeap) * (1.0e0_rt-rr.rates(1,iry1))
+    const auto b_he4_he4 = [&](int i) -> Real {
+        if (i == 1) return -1.5e0_rt * y(He4) * y(He4) * rate_ir3a;
+        else if (i == 2) return -y(C12)  * rate_ircag;
+        else if (i == 3) return -y(O16)  * rate_iroag;
+        else if (i == 4) return -y(Ne20) * rate_irneag;
+        else if (i == 5) return -y(Mg24) * rate_irmgag;
+        else if (i == 6) return -y(Si28) * rate_irsiag;
+        else if (i == 7) return -y(S32)  * rate_irsag;
+        else if (i == 8) return -y(Ar36) * rate_irarag;
+        else if (i == 9) return -y(Ca40) * rate_ircaag;
+        else if (i == 10) return -y(Ti44) * rate_irtiag;
+        else if (i == 11) return -y(Cr48) * rate_ircrag;
+        else if (i == 12) return -y(Fe52) * rate_irfeag;
+        else if (i == 13) return -y(Mg24) * rate_irmgap * (1.0e0_rt-rate_irr1);
+        else if (i == 14) return -y(Si28) * rate_irsiap * (1.0e0_rt-rate_irs1);
+        else if (i == 15) return -y(S32)  * rate_irsap  * (1.0e0_rt-rate_irt1);
+        else if (i == 16) return -y(Ar36) * rate_irarap * (1.0e0_rt-rate_iru1);
+        else if (i == 17) return -y(Ca40) * rate_ircaap * (1.0e0_rt-rate_irv1);
+        else if (i == 18) return -y(Ti44) * rate_irtiap * (1.0e0_rt-rate_irw1);
+        else if (i == 19) return -y(Cr48) * rate_ircrap * (1.0e0_rt-rate_irx1);
+        else if (i == 20) return -y(Fe52) * rate_irfeap * (1.0e0_rt-rate_iry1);
+        else return 0.0_rt;
     };
 
-    jac(He4,He4) = esum20(b20);
-
-    Array1D<Real, 1, 5> b;
+    jac(He4,He4) = esum20(b_he4_he4);
 
     // (he4)/d(o16)
-    b(1) =  0.5e0_rt * y(C12) * rr.rates(1,ir1216),
-    b(2) =  1.12e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616),
-    b(3) =  0.68e0_rt * rr.rates(1,irs1) * 0.5e0_rt*y(O16) * rr.rates(1,ir1616),
-    b(4) =  rr.rates(1,iroga),
-    b(5) = -y(He4) * rr.rates(1,iroag),
+    const auto b_he4_o16 = [&](int i) -> Real {
+        if (i == 1) return  0.5e0_rt * y(C12) * rate_ir1216;
+        else if (i == 2) return  1.12e0_rt * 0.5e0_rt*y(O16) * rate_ir1616;
+        else if (i == 3) return  0.68e0_rt * rate_irs1 * 0.5e0_rt*y(O16) * rate_ir1616;
+        else if (i == 4) return  rate_iroga;
+        else if (i == 5) return -y(He4) * rate_iroag;
+        else return 0.0_rt;
+    };
 
-    jac(He4,O16) = esum5(b);
+    jac(He4,O16) = esum5(b_he4_o16);
 
     // d(he4)/d(c12)
-    b(1) =  y(C12) * rr.rates(1,ir1212);
-    b(2) =  0.5e0_rt * y(O16) * rr.rates(1,ir1216);
-    b(3) =  3.0e0_rt * rr.rates(1,irg3a);
-    b(4) = -y(He4) * rr.rates(1,ircag);
+    const auto b_he4_c12 = [&](int i) -> Real {
+        else if (i == 1) return  y(C12) * rate_ir1212;
+        else if (i == 2) return  0.5e0_rt * y(O16) * rate_ir1216;
+        else if (i == 3) return  3.0e0_rt * rate_irg3a;
+        else if (i == 4) return -y(He4) * rate_ircag;
+        else return 0.0_rt;
+    };
 
-    jac(He4,C12) = esum4(b);
+    jac(He4,C12) = esum4(b_he4_c12);
 
     // d(he4)/d(si28)
-    b(1) =  rr.rates(1,irsiga);
-    b(2) = -y(He4) * rr.rates(1,irsiag);
-    b(3) = -y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
-    b(4) =  rr.rates(1,irr1) * rr.rates(1,irsigp);
+    const auto b_he4_si28 = [&](int i) -> Real {
+        else if (i == 1) return  rate_irsiga;
+        else if (i == 2) return -y(He4) * rate_irsiag;
+        else if (i == 3) return -y(He4) * rate_irsiap * (1.0e0_rt-rate_irs1);
+        else if (i == 4) return  rate_irr1 * rate_irsigp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,Si28) = esum4(b);
+    jac(He4,Si28) = esum4(b_he4_si28);
 
     // d(he4)/d(s32)
-    b(1) =  rr.rates(1,irsga);
-    b(2) = -y(He4) * rr.rates(1,irsag);
-    b(3) = -y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
-    b(4) =  rr.rates(1,irs1) * rr.rates(1,irsgp);
+    const auto b_he4_s32 = [&](int i) -> Real {
+        else if (i == 1) return  rate_irsga;
+        else if (i == 2) return -y(He4) * rate_irsag;
+        else if (i == 3) return -y(He4) * rate_irsap * (1.0e0_rt-rate_irt1);
+        else if (i == 4) return  rate_irs1 * rate_irsgp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,S32) = esum4(b);
+    jac(He4,S32) = esum4(b_he4_s32);
 
     // d(he4)/d(ar36)
-    b(1)  =  rr.rates(1,irarga);
-    b(2)  = -y(He4) * rr.rates(1,irarag);
-    b(3)  = -y(He4) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
-    b(4)  =  rr.rates(1,irt1) * rr.rates(1,irargp);
+    const auto b_he4_ar36 = [&](int i) -> Real {
+        else if (i == 1) return  rate_irarga;
+        else if (i == 2) return -y(He4) * rate_irarag;
+        else if (i == 3) return -y(He4) * rate_irarap * (1.0e0_rt-rate_iru1);
+        else if (i == 4) return  rate_irt1 * rate_irargp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,Ar36) = esum4(b);
+    jac(He4,Ar36) = esum4(b_he4_ar36);
 
     // d(he4)/d(ca40)
-    b(1) =  rr.rates(1,ircaga);
-    b(2) = -y(He4) * rr.rates(1,ircaag);
-    b(3) = -y(He4) * rr.rates(1,ircaap) * (1.0e0_rt-rr.rates(1,irv1));
-    b(4) =  rr.rates(1,iru1) * rr.rates(1,ircagp);
+    const auto b_he4_ca40 = [&](int i) -> Real {
+        else if (i == 1) return  rate_ircaga;
+        else if (i == 2) return -y(He4) * rate_ircaag;
+        else if (i == 3) return -y(He4) * rate_ircaap * (1.0e0_rt-rate_irv1);
+        else if (i == 4) return  rate_iru1 * rate_ircagp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,Ca40) = esum4(b);
+    jac(He4,Ca40) = esum4(b_he4_ca40);
 
     // d(he4)/d(ti44)
-    b(1) =  rr.rates(1,irtiga);
-    b(2) = -y(He4) * rr.rates(1,irtiag);
-    b(3) = -y(He4) * rr.rates(1,irtiap) * (1.0e0_rt-rr.rates(1,irw1));
-    b(4) =  rr.rates(1,irv1) * rr.rates(1,irtigp);
+    const auto b_he4_ti44 = [&](int i) -> Real {
+        else if (i == 1) return  rate_irtiga;
+        else if (i == 2) return -y(He4) * rate_irtiag;
+        else if (i == 3) return -y(He4) * rate_irtiap * (1.0e0_rt-rate_irw1);
+        else if (i == 4) return  rate_irv1 * rate_irtigp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,Ti44) = esum4(b);
+    jac(He4,Ti44) = esum4(b_he4_ti44);
 
     // d(he4)/d(cr48)
-    b(1) =  rr.rates(1,ircrga);
-    b(2) = -y(He4) * rr.rates(1,ircrag);
-    b(3) = -y(He4) * rr.rates(1,ircrap) * (1.0e0_rt-rr.rates(1,irx1));
-    b(4) =  rr.rates(1,irw1) * rr.rates(1,ircrgp);
+    const auto b_he4_cr48 = [&](int i) -> Real {
+        else if (i == 1) return  rate_ircrga;
+        else if (i == 2) return -y(He4) * rate_ircrag;
+        else if (i == 3) return -y(He4) * rate_ircrap * (1.0e0_rt-rate_irx1);
+        else if (i == 4) return  rate_irw1 * rate_ircrgp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,Cr48) = esum4(b);
+    jac(He4,Cr48) = esum4(b_he4_cr48);
 
     // d(he4)/d(fe52)
-    b(1) =  rr.rates(1,irfega);
-    b(2) = -y(He4) * rr.rates(1,irfeag);
-    b(3) = -y(He4) * rr.rates(1,irfeap) * (1.0e0_rt-rr.rates(1,iry1));
-    b(4) =  rr.rates(1,irx1) * rr.rates(1,irfegp);
+    const auto b_he4_fe52 = [&](int i) -> Real {
+        else if (i == 1) return  rate_irfega;
+        else if (i == 2) return -y(He4) * rate_irfeag;
+        else if (i == 3) return -y(He4) * rate_irfeap * (1.0e0_rt-rate_iry1);
+        else if (i == 4) return  rate_irx1 * rate_irfegp;
+        else return 0.0_rt;
+    };
 
-    jac(He4,Fe52) = esum4(b);
+    jac(He4,Fe52) = esum4(b_he4_fe52);
 
     // d(c12)/d(c12)
-    b(1) = -2.0e0_rt * y(C12) * rr.rates(1,ir1212);
-    b(2) = -y(O16) * rr.rates(1,ir1216);
-    b(3) = -rr.rates(1,irg3a);
-    b(4) = -y(He4) * rr.rates(1,ircag);
+    const auto b_c12_c12 = [&](int i) -> Real {
+        else if (i == 1) return -2.0e0_rt * y(C12) * rate_ir1212;
+        else if (i == 2) return -y(O16) * rate_ir1216;
+        else if (i == 3) return -rate_irg3a;
+        else if (i == 4) return -y(He4) * rate_ircag;
+        else return 0.0_rt;
+    };
 
-    jac(C12,C12) = esum4(b);
+    jac(C12,C12) = esum4(b_c12_c12);
 
     // d(o16)/d(o16)
-    b(1) = -y(C12) * rr.rates(1,ir1216);
-    b(2) = -2.0e0_rt * y(O16) * rr.rates(1,ir1616);
-    b(3) = -y(He4) * rr.rates(1,iroag);
-    b(4) = -rr.rates(1,iroga);
+    const auto b_o16_o16 = [&](int i) -> Real {
+        else if (i == 1) return -y(C12) * rate_ir1216;
+        else if (i == 2) return -2.0e0_rt * y(O16) * rate_ir1616;
+        else if (i == 3) return -y(He4) * rate_iroag;
+        else if (i == 4) return -rate_iroga;
+        else return 0.0_rt;
+    };
 
-    jac(O16,O16) = esum4(b);
+    jac(O16,O16) = esum4(b_o16_o16);
 
-    // si28 jacobian elements
     // d(si28)/d(he4)
-    b(1) =  y(Mg24) * rr.rates(1,irmgag);
-    b(2) = -y(Si28) * rr.rates(1,irsiag);
-    b(3) =  y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
-    b(4) = -y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+    const auto b_si28_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Mg24) * rate_irmgag;
+        else if (i == 2) return -y(Si28) * rate_irsiag;
+        else if (i == 3) return  y(Mg24) * rate_irmgap * (1.0e0_rt-rate_irr1);
+        else if (i == 4) return -y(Si28) * rate_irsiap * (1.0e0_rt-rate_irs1);
+        else return 0.0_rt;
+    };
 
-    jac(Si28,He4) = esum4(b);
+    jac(Si28,He4) = esum4(b_si28_he4);
 
     // d(si28)/d(si28)
-    b(1) =  -y(He4) * rr.rates(1,irsiag);
-    b(2) = -rr.rates(1,irsiga);
-    b(3) = -rr.rates(1,irr1) * rr.rates(1,irsigp);
-    b(4) = -y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+    const auto b_si28_si28 = [&](int i) -> Real {
+        else if (i == 1) return  -y(He4) * rate_irsiag;
+        else if (i == 2) return -rate_irsiga;
+        else if (i == 3) return -rate_irr1 * rate_irsigp;
+        else if (i == 4) return -y(He4) * rate_irsiap * (1.0e0_rt-rate_irs1);
+        else return 0.0_rt;
+    };
 
-    jac(Si28,Si28) = esum4(b);
+    jac(Si28,Si28) = esum4(b_si28_si28);
 
-    // s32 jacobian elements
     // d(s32)/d(he4)
-    b(1) =  y(Si28) * rr.rates(1,irsiag);
-    b(2) = -y(S32) * rr.rates(1,irsag);
-    b(3) =  y(Si28) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
-    b(4) = -y(S32) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+    const auto b_s32_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Si28) * rate_irsiag;
+        else if (i == 2) return -y(S32) * rate_irsag;
+        else if (i == 3) return  y(Si28) * rate_irsiap * (1.0e0_rt-rate_irs1);
+        else if (i == 4) return -y(S32) * rate_irsap * (1.0e0_rt-rate_irt1);
+        else return 0.0_rt;
+    };
 
-    jac(S32,He4) = esum4(b);
+    jac(S32,He4) = esum4(b_s32_he4);
 
     // d(s32)/d(s32)
-    b(1) = -y(He4) * rr.rates(1,irsag);
-    b(2) = -rr.rates(1,irsga);
-    b(3) = -rr.rates(1,irs1) * rr.rates(1,irsgp);
-    b(4) = -y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+    const auto b_s32_s32 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_irsag;
+        else if (i == 2) return -rate_irsga;
+        else if (i == 3) return -rate_irs1 * rate_irsgp;
+        else if (i == 4) return -y(He4) * rate_irsap * (1.0e0_rt-rate_irt1);
+        else return 0.0_rt;
+    };
 
-    jac(S32,S32) = esum4(b);
+    jac(S32,S32) = esum4(b_s32_s32);
 
-    // ar36 jacobian elements
     // d(ar36)/d(he4)
-    b(1) =  y(S32)  * rr.rates(1,irsag);
-    b(2) = -y(Ar36) * rr.rates(1,irarag);
-    b(3) =  y(S32)  * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
-    b(4) = -y(Ar36) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
+    const auto b_ar36_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(S32)  * rate_irsag;
+        else if (i == 2) return -y(Ar36) * rate_irarag;
+        else if (i == 3) return  y(S32)  * rate_irsap * (1.0e0_rt-rate_irt1);
+        else if (i == 4) return -y(Ar36) * rate_irarap * (1.0e0_rt-rate_iru1);
+        else return 0.0_rt;
+    };
 
-    jac(Ar36,He4) = esum4(b);
+    jac(Ar36,He4) = esum4(b_ar36_he4);
 
     // d(ar36)/d(ar36)
-    b(1) = -y(He4) * rr.rates(1,irarag);
-    b(2) = -rr.rates(1,irarga);
-    b(3) = -rr.rates(1,irt1) * rr.rates(1,irargp);
-    b(4) = -y(He4) * rr.rates(1,irarap) * (1.0e0_rt-rr.rates(1,iru1));
+    const auto b_ar36_ar36 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_irarag;
+        else if (i == 2) return -rate_irarga;
+        else if (i == 3) return -rate_irt1 * rate_irargp;
+        else if (i == 4) return -y(He4) * rate_irarap * (1.0e0_rt-rate_iru1);
+        else return 0.0_rt;
+    };
 
-    jac(Ar36,Ar36) = esum4(b);
+    jac(Ar36,Ar36) = esum4(b_ar36_ar36);
 
-    // ca40 jacobian elements
     // d(ca40)/d(he4)
-    b(1)  =  y(Ar36) * rr.rates(1,irarag);
-    b(2)  = -y(Ca40) * rr.rates(1,ircaag);
-    b(3)  =  y(Ar36) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
-    b(4)  = -y(Ca40) * rr.rates(1,ircaap)*(1.0e0_rt-rr.rates(1,irv1));
+    const auto b_ca40_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Ar36) * rate_irarag;
+        else if (i == 2) return -y(Ca40) * rate_ircaag;
+        else if (i == 3) return  y(Ar36) * rate_irarap*(1.0e0_rt-rate_iru1);
+        else if (i == 4) return -y(Ca40) * rate_ircaap*(1.0e0_rt-rate_irv1);
+        else return 0.0_rt;
+    };
 
-    jac(Ca40,He4) = esum4(b);
+    jac(Ca40,He4) = esum4(b_ca40_he4);
 
     // d(ca40)/d(ca40)
-    b(1) = -y(He4) * rr.rates(1, ircaag);
-    b(2) = -rr.rates(1, ircaga);
-    b(3) = -rr.rates(1, ircagp) * rr.rates(1, iru1);
-    b(4) = -y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
+    const auto b_ca40_ca40 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_ircaag;
+        else if (i == 2) return -rate_ircaga;
+        else if (i == 3) return -rate_ircagp * rate_iru1;
+        else if (i == 4) return -y(He4) * rate_ircaap*(1.0e0_rt-rate_irv1);
+        else return 0.0_rt;
+    };
 
-    jac(Ca40,Ca40) = esum4(b);
+    jac(Ca40,Ca40) = esum4(b_ca40_ca40);
 
-    // ti44 jacobian elements
     // d(ti44)/d(he4)
-    b(1) =  y(Ca40) * rr.rates(1, ircaag);
-    b(2) = -y(Ti44) * rr.rates(1, irtiag);
-    b(3) =  y(Ca40) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
-    b(4) = -y(Ti44) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    const auto b_ti44_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Ca40) * rate_ircaag;
+        else if (i == 2) return -y(Ti44) * rate_irtiag;
+        else if (i == 3) return  y(Ca40) * rate_ircaap*(1.0e0_rt-rate_irv1);
+        else if (i == 4) return -y(Ti44) * rate_irtiap*(1.0e0_rt-rate_irw1);
+        else return 0.0_rt;
+    };
 
-    jac(Ti44,He4) = esum4(b);
+    jac(Ti44,He4) = esum4(b_ti44_he4);
 
     // d(ti44)/d(ti44)
-    b(1) = -y(He4) * rr.rates(1, irtiag);
-    b(2) = -rr.rates(1, irtiga);
-    b(3) = -rr.rates(1, irv1) * rr.rates(1, irtigp);
-    b(4) = -y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    const auto b_ti44_ti44 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_irtiag;
+        else if (i == 2) return -rate_irtiga;
+        else if (i == 3) return -rate_irv1 * rate_irtigp;
+        else if (i == 4) return -y(He4) * rate_irtiap*(1.0e0_rt-rate_irw1);
+        else return 0.0_rt;
+    };
 
-    jac(Ti44,Ti44) = esum4(b);
+    jac(Ti44,Ti44) = esum4(b_ti44_ti44);
 
-    // cr48 jacobian elements
     // d(cr48)/d(he4)
-    b(1) =  y(Ti44) * rr.rates(1, irtiag);
-    b(2) = -y(Cr48) * rr.rates(1, ircrag);
-    b(3) =  y(Ti44) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
-    b(4) = -y(Cr48) * rr.rates(1, ircrap)*(1.0e0_rt-rr.rates(1, irx1));
+    const auto b_cr48_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Ti44) * rate_irtiag;
+        else if (i == 2) return -y(Cr48) * rate_ircrag;
+        else if (i == 3) return  y(Ti44) * rate_irtiap*(1.0e0_rt-rate_irw1);
+        else if (i == 4) return -y(Cr48) * rate_ircrap*(1.0e0_rt-rate_irx1);
+        else return 0.0_rt;
+    };
 
-    jac(Cr48,He4) = esum4(b);
+    jac(Cr48,He4) = esum4(b_cr48_he4);
 
     // d(cr48)/d(cr48)
-    b(1) = -y(He4) * rr.rates(1, ircrag);
-    b(2) = -rr.rates(1, ircrga);
-    b(3) = -rr.rates(1, irw1) * rr.rates(1, ircrgp);
-    b(4) = -y(He4) * rr.rates(1, ircrap)*(1.0e0_rt-rr.rates(1, irx1));
+    const auto b_cr48_cr48 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_ircrag;
+        else if (i == 2) return -rate_ircrga;
+        else if (i == 3) return -rate_irw1 * rate_ircrgp;
+        else if (i == 4) return -y(He4) * rate_ircrap*(1.0e0_rt-rate_irx1);
+        else return 0.0_rt;
+    };
 
-    jac(Cr48,Cr48) = esum4(b);
+    jac(Cr48,Cr48) = esum4(b_cr48_cr48);
 
-    // fe52 jacobian elements
     // d(fe52)/d(he4)
-    b(1) =  y(Cr48) * rr.rates(1, ircrag);
-    b(2) = -y(Fe52) * rr.rates(1, irfeag);
-    b(3) =  y(Cr48) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
-    b(4) = -y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    const auto b_fe52_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Cr48) * rate_ircrag;
+        else if (i == 2) return -y(Fe52) * rate_irfeag;
+        else if (i == 3) return  y(Cr48) * rate_ircrap * (1.0e0_rt-rate_irx1);
+        else if (i == 4) return -y(Fe52) * rate_irfeap * (1.0e0_rt-rate_iry1);
+        else return 0.0_rt;
+    };
 
-    jac(Fe52,He4) = esum4(b);
+    jac(Fe52,He4) = esum4(b_fe52_he4);
 
     // d(fe52)/d(fe52)
-    b(1) = -y(He4) * rr.rates(1, irfeag);
-    b(2) = -rr.rates(1, irfega);
-    b(3) = -rr.rates(1, irx1) * rr.rates(1, irfegp);
-    b(4) = -y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    const auto b_fe52_fe52 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_irfeag;
+        else if (i == 2) return -rate_irfega;
+        else if (i == 3) return -rate_irx1 * rate_irfegp;
+        else if (i == 4) return -y(He4) * rate_irfeap * (1.0e0_rt-rate_iry1);
+        else return 0.0_rt;
+    };
 
-    jac(Fe52,Fe52) = esum4(b);
+    jac(Fe52,Fe52) = esum4(b_fe52_fe52);
 
     // d(he4)/d(mg24)
-    b(1) =  rr.rates(1,irmgga);
-    b(2) = -y(He4) * rr.rates(1,irmgag);
-    b(3) = -y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    const auto b_he4_mg24 = [&](int i) -> Real {
+        else if (i == 1) return  rate_irmgga;
+        else if (i == 2) return -y(He4) * rate_irmgag;
+        else if (i == 3) return -y(He4) * rate_irmgap * (1.0e0_rt-rate_irr1);
+        else return 0.0_rt;
+    };
 
-    jac(He4,Mg24) = esum3(b);
+    jac(He4,Mg24) = esum3(b_he4_mg24);
 
-    // mg24 jacobian elements
     // d(mg24)/d(he4)
-    b(1) =  y(Ne20) * rr.rates(1,irneag);
-    b(2) = -y(Mg24) * rr.rates(1,irmgag);
-    b(3) = -y(Mg24) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    const auto b_mg24_he4 = [&](int i) -> Real {
+        else if (i == 1) return  y(Ne20) * rate_irneag;
+        else if (i == 2) return -y(Mg24) * rate_irmgag;
+        else if (i == 3) return -y(Mg24) * rate_irmgap * (1.0e0_rt-rate_irr1);
+        else return 0.0_rt;
+    };
 
-    jac(Mg24,He4) = esum3(b);
+    jac(Mg24,He4) = esum3(b_mg24_he4);
 
     // d(mg24)/d(mg24)
-    b(1) = -y(He4) * rr.rates(1,irmgag);
-    b(2) = -rr.rates(1,irmgga);
-    b(3) = -y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    const auto b_mg24_mg24 = [&](int i) -> Real {
+        else if (i == 1) return -y(He4) * rate_irmgag;
+        else if (i == 2) return -rate_irmgga;
+        else if (i == 3) return -y(He4) * rate_irmgap * (1.0e0_rt-rate_irr1);
+        else return 0.0_rt;
+    };
 
-    jac(Mg24,Mg24) = esum3(b);
+    jac(Mg24,Mg24) = esum3(b_mg24_mg24);
 
+// don: leaving off here ...
     // d(si28)/d(o16)
-    b(1) = 0.5e0_rt * y(C12) * rr.rates(1,ir1216);
-    b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
-    b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,irs1) * rr.rates(1,ir1616);
+    b(1) = 0.5e0_rt * y(C12) * rate_ir1216;
+    b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rate_ir1616;
+    b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rate_irs1 * rate_ir1616;
 
     jac(Si28,O16) = esum3(b);
 
     // d(he4)/d(ne20)
-    b(1) =  rr.rates(1,irnega);
-    b(2) = -y(He4) * rr.rates(1,irneag);
+    b(1) =  rate_irnega;
+    b(2) = -y(He4) * rate_irneag;
 
     jac(He4,Ne20) = b(1) + b(2);
 
     // d(he4)/d(ni56)
-    b(1) = rr.rates(1,irniga);
-    b(2) = rr.rates(1,iry1) * rr.rates(1,irnigp);
+    b(1) = rate_irniga;
+    b(2) = rate_iry1 * rate_irnigp;
 
     jac(He4,Ni56) = b(1) + b(2);
 
     // c12 jacobian elements
     // d(c12)/d(he4)
-    b(1) =  0.5e0_rt * y(He4) * y(He4) * rr.rates(1,ir3a);
-    b(2) = -y(C12) * rr.rates(1,ircag);
+    b(1) =  0.5e0_rt * y(He4) * y(He4) * rate_ir3a;
+    b(2) = -y(C12) * rate_ircag;
 
     jac(C12,He4) = b(1) + b(2);
 
     // d(c12)/d(o16)
-    b(1) = -y(C12) * rr.rates(1,ir1216);
-    b(2) =  rr.rates(1,iroga);
+    b(1) = -y(C12) * rate_ir1216;
+    b(2) =  rate_iroga;
 
     jac(C12,O16) = b(1) + b(2);
 
     // o16 jacobian elements
     // d(o16)/d(he4)
-    b(1) =  y(C12)*rr.rates(1,ircag);
-    b(2) = -y(O16)*rr.rates(1,iroag);
+    b(1) =  y(C12)*rate_ircag;
+    b(2) = -y(O16)*rate_iroag;
 
     jac(O16,He4) = b(1) + b(2);
 
     // d(o16)/d(c12)
-    b(1) = -y(O16)*rr.rates(1,ir1216);
-    b(2) =  y(He4)*rr.rates(1,ircag);
+    b(1) = -y(O16)*rate_ir1216;
+    b(2) =  y(He4)*rate_ircag;
 
     jac(O16,C12) = b(1) + b(2);
 
     // ne20 jacobian elements
     // d(ne20)/d(he4)
-    b(1) =  y(O16) * rr.rates(1,iroag);
-    b(2) = -y(Ne20) * rr.rates(1,irneag);
+    b(1) =  y(O16) * rate_iroag;
+    b(2) = -y(Ne20) * rate_irneag;
 
     jac(Ne20,He4) = b(1) + b(2);
 
     // d(ne20)/d(ne20)
-    b(1) = -y(He4) * rr.rates(1,irneag);
-    b(2) = -rr.rates(1,irnega);
+    b(1) = -y(He4) * rate_irneag;
+    b(2) = -rate_irnega;
 
     jac(Ne20,Ne20) = b(1) + b(2);
 
     // d(mg24)/d(si28)
-    b(1) = rr.rates(1,irsiga);
-    b(2) = rr.rates(1,irr1) * rr.rates(1,irsigp);
+    b(1) = rate_irsiga;
+    b(2) = rate_irr1 * rate_irsigp;
 
     jac(Mg24,Si28) = b(1) + b(2);
 
     // d(si28)/d(mg24)
-    b(1) =  y(He4) * rr.rates(1,irmgag);
-    b(2) =  y(He4) * rr.rates(1,irmgap) * (1.0e0_rt-rr.rates(1,irr1));
+    b(1) =  y(He4) * rate_irmgag;
+    b(2) =  y(He4) * rate_irmgap * (1.0e0_rt-rate_irr1);
 
     jac(Si28,Mg24) = b(1) + b(2);
 
     // d(si28)/d(s32)
-    b(1) = rr.rates(1,irsga);
-    b(2) = rr.rates(1,irs1) * rr.rates(1,irsgp);
+    b(1) = rate_irsga;
+    b(2) = rate_irs1 * rate_irsgp;
 
     jac(Si28,S32) = b(1) + b(2);
 
     // d(s32)/d(o16)
-    b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr.rates(1,ir1616)*(1.0e0_rt-rr.rates(1,irs1));
-    b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr.rates(1,ir1616);
+    b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rate_ir1616*(1.0e0_rt-rate_irs1);
+    b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rate_ir1616;
 
     jac(S32,O16) = b(1) + b(2);
 
     // d(s32)/d(si28)
-    b(1)  =y(He4) * rr.rates(1,irsiag);
-    b(2) = y(He4) * rr.rates(1,irsiap) * (1.0e0_rt-rr.rates(1,irs1));
+    b(1)  =y(He4) * rate_irsiag;
+    b(2) = y(He4) * rate_irsiap * (1.0e0_rt-rate_irs1);
 
     jac(S32,Si28) = b(1) + b(2);
 
     // d(s32)/d(ar36)
-    b(1) = rr.rates(1,irarga);
-    b(2) = rr.rates(1,irt1) * rr.rates(1,irargp);
+    b(1) = rate_irarga;
+    b(2) = rate_irt1 * rate_irargp;
 
     jac(S32,Ar36) = b(1) + b(2);
 
     // d(ar36)/d(s32)
-    b(1) = y(He4) * rr.rates(1,irsag);
-    b(2) = y(He4) * rr.rates(1,irsap) * (1.0e0_rt-rr.rates(1,irt1));
+    b(1) = y(He4) * rate_irsag;
+    b(2) = y(He4) * rate_irsap * (1.0e0_rt-rate_irt1);
 
     jac(Ar36,S32) = b(1) + b(2);
 
     // d(ar36)/d(ca40)
-    b(1) = rr.rates(1,ircaga);
-    b(2) = rr.rates(1,ircagp) * rr.rates(1,iru1);
+    b(1) = rate_ircaga;
+    b(2) = rate_ircagp * rate_iru1;
 
     jac(Ar36,Ca40) = b(1) + b(2);
 
     // d(ca40)/d(ar36)
-    b(1) =  y(He4) * rr.rates(1,irarag);
-    b(2) =  y(He4) * rr.rates(1,irarap)*(1.0e0_rt-rr.rates(1,iru1));
+    b(1) =  y(He4) * rate_irarag;
+    b(2) =  y(He4) * rate_irarap*(1.0e0_rt-rate_iru1);
 
     jac(Ca40,Ar36) = b(1) + b(2);
 
     // d(ca40)/d(ti44)
-    b(1) = rr.rates(1, irtiga);
-    b(2) = rr.rates(1, irtigp) * rr.rates(1, irv1);
+    b(1) = rate_irtiga;
+    b(2) = rate_irtigp * rate_irv1;
 
     jac(Ca40,Ti44) = b(1) + b(2);
 
     // d(ti44)/d(ca40)
-    b(1) =  y(He4) * rr.rates(1, ircaag);
-    b(2) =  y(He4) * rr.rates(1, ircaap)*(1.0e0_rt-rr.rates(1, irv1));
+    b(1) =  y(He4) * rate_ircaag;
+    b(2) =  y(He4) * rate_ircaap*(1.0e0_rt-rate_irv1);
 
     jac(Ti44,Ca40) = b(1) + b(2);
 
     // d(ti44)/d(cr48)
-    b(1) = rr.rates(1, ircrga);
-    b(2) = rr.rates(1, irw1) * rr.rates(1, ircrgp);
+    b(1) = rate_ircrga;
+    b(2) = rate_irw1 * rate_ircrgp;
 
     jac(Ti44,Cr48) = b(1) + b(2);
 
     // d(cr48)/d(ti44)
-    b(1) =  y(He4) * rr.rates(1, irtiag);
-    b(2) =  y(He4) * rr.rates(1, irtiap)*(1.0e0_rt-rr.rates(1, irw1));
+    b(1) =  y(He4) * rate_irtiag;
+    b(2) =  y(He4) * rate_irtiap*(1.0e0_rt-rate_irw1);
 
     jac(Cr48,Ti44) = b(1) + b(2);
 
     // d(cr48)/d(fe52)
-    b(1) = rr.rates(1, irfega);
-    b(2) = rr.rates(1, irx1) * rr.rates(1, irfegp);
+    b(1) = rate_irfega;
+    b(2) = rate_irx1 * rate_irfegp;
 
     jac(Cr48,Fe52) = b(1) + b(2);
 
     // d(fe52)/d(cr48)
-    b(1) = y(He4) * rr.rates(1, ircrag);
-    b(2) = y(He4) * rr.rates(1, ircrap) * (1.0e0_rt-rr.rates(1, irx1));
+    b(1) = y(He4) * rate_ircrag;
+    b(2) = y(He4) * rate_ircrap * (1.0e0_rt-rate_irx1);
 
     jac(Fe52,Cr48) = b(1) + b(2);
 
     // d(fe52)/d(ni56)
-    b(1) = rr.rates(1, irniga);
-    b(2) = rr.rates(1, iry1) * rr.rates(1, irnigp);
+    b(1) = rate_irniga;
+    b(2) = rate_iry1 * rate_irnigp;
 
     jac(Fe52,Ni56) = b(1) + b(2);
 
     // ni56 jacobian elements
     // d(ni56)/d(he4)
-    b(1) =  y(Fe52) * rr.rates(1, irfeag);
-    b(2) =  y(Fe52) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    b(1) =  y(Fe52) * rate_irfeag;
+    b(2) =  y(Fe52) * rate_irfeap * (1.0e0_rt-rate_iry1);
 
     jac(Ni56,He4) = b(1) + b(2);
 
     // d(ni56)/d(fe52)
-    b(1) = y(He4) * rr.rates(1, irfeag);
-    b(2) = y(He4) * rr.rates(1, irfeap) * (1.0e0_rt-rr.rates(1, iry1));
+    b(1) = y(He4) * rate_irfeag;
+    b(2) = y(He4) * rate_irfeap * (1.0e0_rt-rate_iry1);
 
     jac(Ni56,Fe52) = b(1) + b(2);
 
     // d(ni56)/d(ni56)
-    b(1) = -rr.rates(1, irniga);
-    b(2) = -rr.rates(1, iry1) * rr.rates(1, irnigp);
+    b(1) = -rate_irniga;
+    b(2) = -rate_iry1 * rate_irnigp;
 
         jac(Ni56,Ni56) = b(1) + b(2);
 
     // d(o16)/d(ne20)
-    jac(O16,Ne20) = rr.rates(1,irnega);
+    jac(O16,Ne20) = rate_irnega;
 
     // d(ne20)/d(c12)
-    jac(Ne20,C12) = y(C12) * rr.rates(1,ir1212);
+    jac(Ne20,C12) = y(C12) * rate_ir1212;
 
     // d(ne20)/d(o16)
-    jac(Ne20,O16) = y(He4) * rr.rates(1,iroag);
+    jac(Ne20,O16) = y(He4) * rate_iroag;
 
     // d(ne20)/d(mg24)
-    jac(Ne20,Mg24) = rr.rates(1,irmgga);
+    jac(Ne20,Mg24) = rate_irmgga;
 
     // d(mg24)/d(c12)
-    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rr.rates(1,ir1216);
+    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rate_ir1216;
 
     // d(mg24)/d(o16)
-    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rr.rates(1,ir1216);
+    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rate_ir1216;
 
     // d(mg24)/d(ne20)
-    jac(Mg24,Ne20) = y(He4) * rr.rates(1,irneag);
+    jac(Mg24,Ne20) = y(He4) * rate_irneag;
 
     // d(si28)/d(c12)
-    jac(Si28,C12) = 0.5e0_rt * y(O16) * rr.rates(1,ir1216);
+    jac(Si28,C12) = 0.5e0_rt * y(O16) * rate_ir1216;
 
 }
 
