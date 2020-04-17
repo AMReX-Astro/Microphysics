@@ -53,8 +53,9 @@ module_end = """
 
 
 esum_template_start = """
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum@NUM@(Array1D<Real, 1, @NUM@> const& array)
+Real esum@NUM@(T const& array)
 {
     // return value
     Real esum;
@@ -70,7 +71,7 @@ esum_template_end = """
 
 
 sum_template = """
-    esum = ArrayUtil::Math::sum(array);
+    esum = ArrayUtil::Math::sum(array, 1, @NUM@);
 """
 
 
@@ -204,7 +205,7 @@ if __name__ == "__main__":
 
                 # ArrayUtil::Math::sum is just a sequential loop
 
-                ef.write(sum_template)
+                ef.write(sum_template.replace("@NUM@", str(num)))
 
             elif sum_method == 0:
 
