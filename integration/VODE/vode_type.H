@@ -6,7 +6,10 @@
 
 #include <ArrayUtilities.H>
 #include <network.H>
+
+#ifdef NETWORK_SOLVER
 #include <actual_matrix.H>
+#endif
 
 const int VODE_NEQS = NumSpec + 2;
 
