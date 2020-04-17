@@ -109,7 +109,12 @@ namespace Rates {
                         irw1,
                         irx1,
                         iry1,
-                        NumRates=iry1
+                        NumRates=iry1,
+                        // ir3a_stage2 and irg3a_stage2 are helpers
+                        // for indexing the second screening stage
+                        // of the triple-alpha reaction.
+                        ir3a_stage2,
+                        irg3a_stage2
                       };
 
     const int NumGroups = 2;
