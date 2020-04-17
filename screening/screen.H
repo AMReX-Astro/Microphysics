@@ -26,6 +26,7 @@ struct plasma_state_t {
   //Real daadd;
 };
 
+
 inline
 std::ostream& operator<< (std::ostream& o, plasma_state_t const& pstate)
 {
@@ -131,15 +132,20 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen5(const plasma_state_t state,
-             const int jscreen,
-             const Real z1_screen, const Real a1_screen,
-             const Real z2_screen, const Real a2_screen,
-             Real& scor, Real& scordt, Real& scordd)
-{
-    using namespace scrn;
+plasma_state_t
+construct_plasma_state(const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
+  plasma_state_t pstate;
+  fill_plasma_state(pstate, temp, dens, y);
+  return pstate;
+}
 
-    AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void screen(const plasma_state_t& state, const int jscreen,
+            Real& scor, Real& scordt, Real& scordd)
+{
+  
+  using namespace scrn;
 
   // this subroutine calculates screening factors and their derivatives
   // for nuclear reaction rates in the weak, intermediate and strong regimes.
@@ -322,6 +328,22 @@ void screen5(const plasma_state_t state,
     scordt = scor * dh12dt;
     //scordd = scor * dh12dd
   }
+
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void screen5(const plasma_state_t& state,
+             const int jscreen,
+             const Real z1_screen, const Real a1_screen,
+             const Real z2_screen, const Real a2_screen,
+             Real& scor, Real& scordt, Real& scordd)
+{
+    using namespace scrn;
+
+    AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
+
+    screen(state, jscreen, scor, scordt, scordd);
 }
 
 #endif
