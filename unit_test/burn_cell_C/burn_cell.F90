@@ -24,7 +24,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   type (burn_t)       :: burn_state_in, burn_state_out
   type (eos_t)        :: eos_state_in, eos_state_out
 
-  real (rt)    :: energy, time, dt
+  real(rt)     :: energy, time, dt
   integer             :: i, istate
 
   character (len=256) :: params_file
@@ -35,10 +35,10 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   character (len=6)   :: out_num
 
   ! Starting conditions for integration
-  real (rt)    :: massfractions(nspec)
+  real(rt)     :: massfractions(nspec)
 
   ! Useful for evaluating final values
-  real (rt)    :: eos_energy_generated, eos_energy_rate
+  real(rt)     :: eos_energy_generated, eos_energy_rate
 
   ! runtime
   call runtime_init(name, namlen)
@@ -52,7 +52,7 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   print *, "small_dens = ", small_dens
 
   ! Set mass fractions to sanitize inputs for them
-  massfractions = -1.0d0
+  massfractions = -1.0e0_rt
 
   ! Make sure user set all the mass fractions to values in the interval [0, 1]
   do i = 1, nspec
@@ -148,22 +148,37 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   write(*,*) " - Hnuc = ", burn_state_out % e / dt
   write(*,*) " - integrated e = ", eos_state_in % e + energy
   write(*,*) " - EOS e(rho, T) = ", eos_state_out % e
-  write(*,*) " - integrated/EOS percent diff. = ", 100.0d0 * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
+  write(*,*) " - integrated/EOS percent diff. = ", 100.0e0_rt * (eos_state_in % e + energy - eos_state_out % e)/eos_state_out % e
 
   ! output burn type data
   !call write_burn_t(burn_state_out)
 
   write(*,*) "------------------------------------"
   write(*,*) "EOS e(rho, T) initial = ", eos_state_in % e
-  write(*,*) "EOS e(rho, T) final = ", eos_state_out % e
+  write(*,*) "EOS e(rho, T) final =   ", eos_state_out % e
   eos_energy_generated = eos_state_out % e - eos_state_in % e
   write(*,*) "EOS e(rho, T) generated = ", eos_energy_generated
   eos_energy_rate = (eos_state_out % e - eos_state_in % e)/tmax
   write(*,*) "EOS e(rho, T) generation rate = ", eos_energy_rate
   write(*,*) "Integrator total generated energy: ", energy
   write(*,*) "Integrator average energy generation rate: ", energy/tmax
-  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0d0 * (energy - eos_energy_generated)/eos_energy_generated
-  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0d0 * (energy/tmax - eos_energy_rate)/eos_energy_rate
+  write(*,*) "(integrator - EOS)/EOS percent diff for generated energy: ", 100.0e0_rt * (energy - eos_energy_generated)/eos_energy_generated
+  write(*,*) "(integrator - EOS)/EOS percent diff for energy gen. rate: ", 100.0e0_rt * (energy/tmax - eos_energy_rate)/eos_energy_rate
+
+  do i = 1, nspec
+     write(*,*) 'omegadot(', short_spec_names(i), '): ', &
+          (burn_state_out%xn(i)-burn_state_in%xn(i))/dt
+  end do
+
+  do i = 1, nspec
+     write(*,*) 'delta(', short_spec_names(i), '): ', &
+          (burn_state_out%xn(i)-burn_state_in%xn(i))
+  end do
+
+  do i = 1, nspec
+     write(*,*) 'percent change(', short_spec_names(i), '): ', &
+          100.e0_rt*(burn_state_out%xn(i)-burn_state_in%xn(i)) / burn_state_in%xn(i)
+  end do
 
   call microphysics_finalize()
 
@@ -171,16 +186,21 @@ end subroutine burn_cell
 
 subroutine write_burn_t(burnt)
   use network
+  use network_rhs_module
   use burn_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   ! Writes contents of burn_t type burnt to file named fname
-  type(burn_t), intent(in) :: burnt
+  type(burn_t), intent(inout) :: burnt
   character(len=20), parameter :: DPFMT = '(E30.16E5)'
   character(len=20) :: VDPFMT = ''
 
   integer :: i, j
+
+  real(rt) :: ydot(neqs)
+  real(rt) :: jac(njrows, njcols)
 
   write(*, fmt=*) '! Burn Type Data'
 
@@ -241,13 +261,19 @@ subroutine write_burn_t(burnt)
   write(*, fmt=*) 'dcpdT:'
   write(*, fmt=DPFMT) burnt % dcpdT
 
+  ! get ydot
+  call network_rhs(burnt, ydot, 0.0_rt)
+
   write(VDPFMT, '("(", I0, "E30.16E5", ")")') neqs
   write(*, fmt=*) 'ydot:'
-  write(*, fmt=VDPFMT) (burnt % ydot(i), i = 1, neqs)
+  write(*, fmt=VDPFMT) (ydot(i), i = 1, neqs)
+
+  ! get jac
+  call network_jac(burnt, jac, 0.0_rt)
 
   write(*, fmt=*) 'jac:'
-  do i = 1, neqs
-     write(*, fmt=VDPFMT) (burnt % jac(i,j), j = 1, neqs)
+  do i = 1, njrows
+     write(*, fmt=VDPFMT) (jac(i,j), j = 1, njcols)
   end do
 
   write(*, fmt=*) 'self_heat:'

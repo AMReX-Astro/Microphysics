@@ -5,8 +5,9 @@
   temp_min   = 5.d7
   temp_max   = 7.d8
 
-  tmax = 1.0d-1
+  primary_species_1 = "carbon-12"
+  primary_species_2 = "oxygen-16"
 
-  xin_file   = "xin.ignition"
+  tmax = 1.0d-1
 
 /

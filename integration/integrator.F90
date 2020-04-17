@@ -2,6 +2,7 @@ module integrator_module
 
   use amrex_error_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   public
@@ -11,7 +12,7 @@ contains
   subroutine integrator_init()
 
     use integrator_scaling_module, only: integrator_scaling_init
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
 #ifndef CUDA
     use bs_integrator_module, only: bs_integrator_init
@@ -28,7 +29,7 @@ contains
     implicit none
 
     call integrator_scaling_init()
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     call vode_integrator_init()
 #ifndef CUDA
     call bs_integrator_init()
@@ -50,7 +51,7 @@ contains
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
 #ifndef CUDA
     use bs_integrator_module, only: bs_integrator
@@ -58,7 +59,6 @@ contains
 #else
     use actual_integrator_module, only: actual_integrator
 #endif
-    use amrex_fort_module, only : rt => amrex_real
     use amrex_constants_module, only: ZERO, ONE
     use burn_type_module, only: burn_t
     use integration_data, only: integration_status_t
@@ -75,7 +75,7 @@ contains
 
     !$gpu
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     type (integration_status_t) :: status
     real(rt) :: retry_change_factor
     integer :: current_integrator
@@ -105,7 +105,7 @@ contains
 
        do
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0)
 #ifndef CUDA
           if (current_integrator == 0) then
 #endif
@@ -155,7 +155,7 @@ contains
              if (current_integrator < 1) then
 
 #ifndef CUDA
-#if (INTEGRATOR == 0 || INTEGRATOR == 3)
+#if (INTEGRATOR == 0)
                 print *, "Retrying burn with BS integrator"
 #elif (INTEGRATOR == 1)
                 print *, "Retrying burn with VODE integrator"

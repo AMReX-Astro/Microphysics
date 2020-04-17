@@ -1,0 +1,2 @@
+f90EXE_sources += constants_cgs.f90
+CEXE_headers += fundamental_constants.H

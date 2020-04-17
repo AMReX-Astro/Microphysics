@@ -124,15 +124,15 @@ system we are integrating, including the advective terms.
 
 .. note::
 
-   In the example here, we'll assume we are using the VODE90
-   integrator, but the VODE and BS integrators also support
+   In the example here, we'll assume we are using the VODE
+   integrator, but the BS integrator also supports
    simplified-SDC integration.
 
 
 #. Call ``clean_state``
 
 #. Convert the integrator-specific data structures (``y`` and ``rpar``
-   for VODE90) to a ``burn_t`` type in ``vode_to_burn``.
+   for VODE) to a ``burn_t`` type in ``vode_to_burn``.
 
    a. call ``fill_unevolved_variables`` to update the density
       and momentum. Since these don’t depend on reactions, this is a

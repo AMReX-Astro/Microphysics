@@ -15,7 +15,7 @@ module actual_integrator_module
 
   implicit none
 
-  real(rt), parameter, private :: SMALL = 1.d-30
+  real(rt), parameter, private :: SMALL = 1.e-30_rt
 
 
 contains
@@ -46,7 +46,6 @@ contains
                                     burning_mode, burning_mode_factor, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
-    use actual_rhs_module, only : update_unevolved_species
     use temperature_integration_module, only: self_heat
 
     implicit none
@@ -72,7 +71,7 @@ contains
 
     real(rt) :: retry_change_factor
 
-    double precision :: ener_offset
+    real(rt)         :: ener_offset
     real(rt) :: edot, t_enuc, t_sound, limit_factor
 
     call bdf_ts_build(ts)
@@ -84,13 +83,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = atol_spec ! mass fractions
-    atol(net_itemp)      = atol_temp ! temperature
-    atol(net_ienuc)      = atol_enuc ! energy generated
+    atol(1:nspec)   = atol_spec ! mass fractions
+    atol(net_itemp) = atol_temp ! temperature
+    atol(net_ienuc) = atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = rtol_spec ! mass fractions
-    rtol(net_itemp)      = rtol_temp ! temperature
-    rtol(net_ienuc)      = rtol_enuc ! energy generated
+    rtol(1:nspec)   = rtol_spec ! mass fractions
+    rtol(net_itemp) = rtol_temp ! temperature
+    rtol(net_ienuc) = rtol_enuc ! energy generated
 
     ts % atol = atol
     ts % rtol = rtol
@@ -149,7 +148,7 @@ contains
 
     ts % upar(irp_Told,1) = eos_state_in % T
 
-    if (dT_crit < 1.0d19) then
+    if (dT_crit < 1.0e19_rt) then
 
        eos_state_temp = eos_state_in
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
@@ -197,7 +196,7 @@ contains
 
        ts % upar(irp_Told,1) = eos_state_in % T
 
-       if (dT_crit < 1.0d19) then
+       if (dT_crit < 1.0e19_rt) then
           ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
           ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
        endif
@@ -224,8 +223,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', ts % y(net_itemp,1)
-       print *, 'xn current = ', ts % y(1:nspec_evolve,1), &
-            ts % upar(irp_nspec:irp_nspec+n_not_evolved-1,1)
+       print *, 'xn current = ', ts % y(1:nspec,1)
        print *, 'energy generated = ', ts % y(net_ienuc,1) - ener_offset
 #endif
        if (.not. retry_burn) then
@@ -251,7 +249,7 @@ contains
 
              ts % upar(irp_Told,1) = eos_state_in % T
 
-             if (dT_crit < 1.0d19) then
+             if (dT_crit < 1.0e19_rt) then
                 ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
                 ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
              endif
@@ -284,18 +282,14 @@ contains
     ! Store the final data, and then normalize abundances.
     call vbdf_to_burn(ts, state_out)
 
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
-
     ! For burning_mode == 3, limit the burning.
 
     if (burning_mode == 3) then
 
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
        t_sound = state_in % dx / eos_state_in % cs
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
 
        state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
@@ -334,10 +328,10 @@ contains
     use rhs_module
 
     type (bdf_ts), intent(inout) :: ts
-    real (rt), intent(in) :: t0, t1
-    real (rt), intent(out) :: dt
+    real(rt) , intent(in) :: t0, t1
+    real(rt) , intent(out) :: dt
     type (bdf_ts) :: ts_temp
-    real (rt) :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
+    real(rt)  :: h, h_old, hL, hU, ddydtt(neqs), eps, ewt(neqs), yddnorm
     integer :: n
 
     ts_temp = ts
@@ -346,13 +340,13 @@ contains
 
     ! Initial lower and upper bounds on the timestep
 
-    hL = 100.0d0 * epsilon(ONE) * max(abs(t0), abs(t1))
-    hU = 0.1d0 * abs(t1 - t0)
+    hL = 100.0e0_rt * epsilon(ONE) * max(abs(t0), abs(t1))
+    hU = 0.1e0_rt * abs(t1 - t0)
 
     ! Initial guess for the iteration
 
     h = sqrt(hL * hU)
-    h_old = 10.0 * h
+    h_old = 10.0_rt * h
 
     ! Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
     call rhs(ts)

@@ -13,6 +13,7 @@ contains
 
     use integrator_module, only: integrator_init
 
+    use amrex_fort_module, only : rt => amrex_real
     implicit none
 
     call integrator_init()

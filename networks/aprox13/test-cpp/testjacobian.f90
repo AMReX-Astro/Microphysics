@@ -11,6 +11,7 @@ subroutine test_jacobian() bind(C)
   use burn_type_module
   use numerical_jac_module
   
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
   type (burn_t) :: state_ana, state_num
@@ -33,8 +34,8 @@ subroutine test_jacobian() bind(C)
   call burner_init()
   call eos_init()
 
-  state_ana % rho   = 2.0d7
-  state_ana % T     = 8.0d9
+  state_ana % rho   = 2.0e7_rt
+  state_ana % T     = 8.0e9_rt
   
   state_ana % xn(:) = ONE / nspec
 

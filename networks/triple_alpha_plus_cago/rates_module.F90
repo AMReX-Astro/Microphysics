@@ -76,10 +76,10 @@ contains
     ! from cf88
 
     ! q = -0.092;     2 He4 --> Be8
-    a    = (7.4e5_rt * t9i32) * dexp(-1.0663_rt * t9i)
+    a    = (7.4e5_rt * t9i32) * exp(-1.0663_rt * t9i)
     dadt = -a * THREE_HALVES * t9i + a * t9i2 * 1.0663_rt
 
-    b    =  4.164e9_rt * t9i23 * dexp(-13.49_rt * t9i13 -                 &
+    b    =  4.164e9_rt * t9i23 * exp(-13.49_rt * t9i13 -                 &
                                          t92 / 9.604e-3_rt)
     dbdt = -b * TWO3RD * t9i + b * (13.49_rt * THIRD * t9i43 -              &
                                     TWO * t9 / 9.604e-3_rt)
@@ -95,10 +95,10 @@ contains
 
 
     ! q = 7.367;      He4 + Be8 --> C12
-    a    = (130_rt * t9i32) * dexp(-3.3364_rt * t9i)
+    a    = (130_rt * t9i32) * exp(-3.3364_rt * t9i)
     dadt = -a * THREE_HALVES * t9i + a * 3.3364_rt * t9i2
 
-    b    = 2.51e7_rt * t9i23 * dexp(-23.57_rt * t9i13 -                   &
+    b    = 2.51e7_rt * t9i23 * exp(-23.57_rt * t9i13 -                   &
                                       t92 / 0.055225_rt)
     dbdt = b * TWO3RD * t9i + b * (23.57_rt * THIRD * t9i43 -               &
                                    TWO * t9 / 0.055225_rt)
@@ -118,24 +118,24 @@ contains
     dadt = 2.9e-16_rt * (dr2abedt * rbeac + r2abe * drbeacdt)
 
     if (t9 .gt. 8e-2_rt) then
-       b    = 0.1_rt * 1.35e-7_rt * t9i32 * dexp(-24.811_rt * t9i)
+       b    = 0.1_rt * 1.35e-7_rt * t9i32 * exp(-24.811_rt * t9i)
        dbdt = -b * TWO3RD * t9i + 24.811_rt * b * t9i2
 
        term    = a + b
        dtermdt = dadt + dbdt
     else
-       b1    = ONE + FOUR * dexp(-(2.5e-2_rt * t9i)**3.263_rt)
+       b1    = ONE + FOUR * exp(-(2.5e-2_rt * t9i)**3.263_rt)
        db1dt = FOUR * 3.263_rt * (2.5e-2_rt * t9i)**3.263_rt *          &
-               t9i * dexp(-(2.5e-2_rt * t9i)**3.263_rt)
+               t9i * exp(-(2.5e-2_rt * t9i)**3.263_rt)
 
-       b2    = ONE + FOUR * dexp(-(t9 / 2.5e-2_rt)**9.227_rt)
+       b2    = ONE + FOUR * exp(-(t9 / 2.5e-2_rt)**9.227_rt)
        db2dt = -FOUR * 9.227_rt * (t9 / 2.5e-2_rt)**9.227_rt *          &
-               t9i * dexp(-(t9 / 2.5e-2_rt)**9.227_rt)
+               t9i * exp(-(t9 / 2.5e-2_rt)**9.227_rt)
 
        b    = 1.e-2_rt + 0.2_rt * b1 / b2
        dbdt = 0.2_rt * (db1dt / b2 - b1 * db2dt / (b2 * b2))
 
-       c    = 0.1_rt * 1.35e-7_rt * t9i32 * dexp(-24.811_rt * t9i)
+       c    = 0.1_rt * 1.35e-7_rt * t9i32 * exp(-24.811_rt * t9i)
        dcdt = -c * THREE_HALVES * t9i + 24.811_rt * c * t9i2
 
        term    = a * b + c
@@ -156,7 +156,7 @@ contains
     b2    = -32.120_rt * t9i13 - t92/(3.496_rt**2)
     db2dt = 32.120_rt * THIRD * t9i43 - TWO * t9 / (3.496_rt**2)
 
-    a    = t9i2 * b1**2 * dexp(b2)
+    a    = t9i2 * b1**2 * exp(b2)
     dadt = a * (-TWO * t9i + TWO * db1dt / b1 + db2dt)
 
     !------------------------
@@ -167,7 +167,7 @@ contains
     c    = -32.120_rt * t9i13
     dcdt = -THIRD * c * t9i
 
-    b1    = t9i2 * b2**2 * dexp(c)
+    b1    = t9i2 * b2**2 * exp(c)
     db1dt = b1 * (-TWO * t9i + TWO * db2dt / b2 + dcdt)
 
     !------------------------
@@ -175,12 +175,12 @@ contains
     c    = -27.499_rt * t9i
     dcdt = - c * t9i
 
-    b2    = t9i32 * dexp(c)
+    b2    = t9i32 * exp(c)
     db2dt = b2 * (-THREE_HALVES * t9i + dcdt)
 
     !------------------------
 
-    c    = t92 * t92 * t9 * dexp(-15.541_rt * t9i)
+    c    = t92 * t92 * t9 * exp(-15.541_rt * t9i)
     dcdt = c * (FIVE * t9i + 15.541_rt * t9i2)
 
     !------------------------

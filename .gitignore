@@ -69,7 +69,6 @@ helm_table.dat
 !networks/ignition_reaclib/URCA-simple/23Ne-23Na_betadecay.dat
 
 # unit testing
-test_eos.*
 react_3alpha*
 *.ex
 extern.f90
@@ -79,3 +78,9 @@ extern.f90
 build/
 doxy_files
 sphinx_docs/source/runtime_parameters.rst
+
+
+# C++ parameters
+extern_parameters.H
+extern_parameters.cpp
+extern_parameters_F.H

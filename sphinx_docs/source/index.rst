@@ -17,6 +17,7 @@ StarKiller Microphysics
    eos
    networks
    transport
+   cxx
    gpu
    unit_tests
    sdc

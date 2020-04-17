@@ -1,5 +1,7 @@
 module rhs_module
 
+    use amrex_fort_module, only : rt => amrex_real
+
 contains
 
   ! The rhs routine provides the right-hand-side for the VBDF solver.
@@ -10,10 +12,9 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: aion, nspec_evolve
+    use actual_network, only: aion, nspec
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: renormalize_abundances, integrate_temperature, integrate_energy, react_boost
     use bdf_type_module, only: bdf_ts, clean_state, renormalize_species, update_thermodynamics, &
@@ -30,7 +31,7 @@ contains
 
     ! We are integrating a system of
     !
-    ! y(1:nspec_evolve) = dX/dt
+    ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
 
@@ -55,28 +56,28 @@ contains
     ! Call the specific network routine to get the RHS.
 
     call vbdf_to_burn(ts, burn_state)
-    call network_rhs(burn_state, ts % upar(irp_t0,1))
+    call network_rhs(burn_state, ts % yd(:,1), ts % upar(irp_t0,1))
 
     ! We integrate X not Y, so convert here
-    burn_state % ydot(1:nspec_evolve) = burn_state % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+    ts % yd(1:nspec,1) = ts % yd(1:nspec,1) * aion(1:nspec)
 
     ! Allow temperature and energy integration to be disabled.
 
     if (.not. integrate_temperature) then
 
-       burn_state % ydot(net_itemp) = ZERO
+       ts % yd(net_itemp,1) = ZERO
 
     endif
 
     if (.not. integrate_energy) then
 
-       burn_state % ydot(net_ienuc) = ZERO
+       ts % yd(net_ienuc,1) = ZERO
 
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       burn_state % ydot(:) = react_boost * burn_state % ydot(:)
+       ts % yd(:,1) = react_boost * ts % yd(:,1)
     endif
 
     call burn_to_vbdf(burn_state, ts)
@@ -91,9 +92,8 @@ contains
 
     !$acc routine seq
 
-    use network, only: aion, aion_inv, nspec_evolve
+    use network, only: aion, aion_inv, nspec
     use amrex_constants_module, only: ZERO, ONE
-    use amrex_fort_module, only : rt => amrex_real
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian, integrate_temperature, integrate_energy, react_boost
@@ -121,32 +121,32 @@ contains
 
     if (jacobian == 1) then
 
-       call network_jac(state, ts % upar(irp_t0,1))
+       call network_jac(state, ts % J(:,:,1), ts % upar(irp_t0,1))
 
        ! We integrate X, not Y
-       do n = 1, nspec_evolve
-          state % jac(n,:) = state % jac(n,:) * aion(n)
-          state % jac(:,n) = state % jac(:,n) * aion_inv(n)
+       do n = 1, nspec
+          ts % J(n,:,1) = ts % J(n,:,1) * aion(n)
+          ts % J(:,n,1) = ts % J(:,n,1) * aion_inv(n)
        enddo
 
        ! Allow temperature and energy integration to be disabled.
        if (.not. integrate_temperature) then
-          state % jac(net_itemp,:) = ZERO
+          ts % J(net_itemp,:,1) = ZERO
        endif
 
        if (.not. integrate_energy) then
-          state % jac(net_ienuc,:) = ZERO
+          ts % J(net_ienuc,:,1) = ZERO
        endif
 
     else
 
-       call numerical_jac(state)
+       call numerical_jac(state, ts % J(:,:,1))
 
     endif
 
     ! apply fudge factor:
     if (react_boost > ZERO) then
-       state % jac(:,:) = react_boost * state % jac(:,:)
+       ts % J(:,:,1) = react_boost * ts % J(:,:,1)
     endif
 
     call burn_to_vbdf(state, ts)

@@ -27,7 +27,7 @@ program testjacobian
   integer :: ic12, io16, img24
   integer :: i, j, n
 
-  real(rt), parameter :: delta = 0.001d0
+  real(rt), parameter :: delta = 0.001e0_rt
   real(rt) :: num_jac
 
   call network_init()
@@ -89,10 +89,10 @@ program testjacobian
      yp(:) = y(:)
      ym(:) = y(:)
 
-     yp(j) = (1.d0 + delta)*y(j)
+     yp(j) = (1.e0_rt + delta)*y(j)
      call f_rhs(nspec_advance+1, ZERO, yp, ydotp, rpar, ipar)
      
-     ym(j) = (1.d0 - delta)*y(j)
+     ym(j) = (1.e0_rt - delta)*y(j)
      call f_rhs(nspec_advance+1, ZERO, ym, ydotm, rpar, ipar)        
 
      do i = 1, nspec_advance+1

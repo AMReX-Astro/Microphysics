@@ -1,5 +1,6 @@
 module bs_jac_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -12,7 +13,7 @@ contains
     use network_rhs_module, only: network_jac
     use numerical_jac_module, only: numerical_jac
     use extern_probin_module, only: jacobian
-    use burn_type_module, only: burn_t
+    use burn_type_module, only: burn_t, neqs
     use bs_type_module, only: bs_t, bs_to_burn, jac_to_bs
     use bs_rpar_indices, only: irp_t0
 
@@ -20,6 +21,10 @@ contains
 
     type (bs_t) :: bs
     type (burn_t) :: burn
+
+    ! this is the Jacobian of the reaction network.  We will need to
+    ! change this to be in terms of the SDC system
+    real(rt)         :: jac(neqs, neqs)
 
     ! Initialize the Jacobian to zero.
 
@@ -29,13 +34,13 @@ contains
 
     if (jacobian == 1) then
 
-       burn % jac = ZERO
+       jac = ZERO
 
        call bs_to_burn(bs, burn)
 
-       call network_jac(burn, bs % u(irp_t0))
+       call network_jac(burn, jac, bs % u(irp_t0))
 
-       call jac_to_bs(bs, burn)
+       call jac_to_bs(bs, jac)
 
     else
 

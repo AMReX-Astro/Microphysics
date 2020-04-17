@@ -26,13 +26,17 @@ GPUs: CUDA Fortran VODE and CVODE.
 We recommend using CUDA Fortran VODE for the networks in Microphysics
 for production simulations at this time.
 
-VODE90 - CUDA Fortran VODE
---------------------------
+VODE - CUDA Fortran VODE
+------------------------
 
-This integrator is located in ``Microphysics/integration/VODE90`` and
+This integrator is located in ``Microphysics/integration/VODE`` and
 follows the paradigm described above where it is designed to be called
 from a single GPU thread and uses only local thread memory. It is a
 port of the legacy Fortran 77 ``dvode`` code to CUDA Fortran.
+
+.. note::
+
+   This integrator was formerly called ``VODE90``
 
 By necessity, this port reorganized the local data layout in VODE to
 eliminate ``common`` blocks in favor of derived types and eliminate
@@ -54,7 +58,7 @@ integrator that integrates a grid of cells, with the original VODE
 test problem in each cell.
 
 To run this problem, see the test setup in
-``Microphysics/integration/VODE90/cuVODE/test`` and the Readme file
+``Microphysics/integration/VODE/cuVODE/test`` and the Readme file
 located there.
 
 Reaction Network Test

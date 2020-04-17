@@ -17,9 +17,9 @@ This table summarizes tests run with gfortran.
 | ignition_chamulak      | works<br>(6:6:28)       | works<br>(6:6:28)       | works<br>(4:5:30)                    | works<br>(144:144:153)  | works (252:252:252) |
 
 
-## Running on GPUs with VODE90
+## Running on GPUs with VODE
 
-To run a GPU test with the VODE90 integrator and aprox13, do:
+To run a GPU test with the VODE integrator and aprox13, do:
 
 ```
 make -j COMP=PGI USE_CUDA=TRUE AMREX_USE_CUDA=TRUE USE_GPU_PRAGMA=TRUE NETWORK_DIR=aprox13 EOS_DIR=helmholtz

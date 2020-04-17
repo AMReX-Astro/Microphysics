@@ -31,10 +31,10 @@ program cj_det
   call microphysics_init()
 
   ! set the unburned (fuel) state
-  eos_state_fuel % rho = 1.e7
-  eos_state_fuel % T = 1.e8
+  eos_state_fuel % rho = 1.e7_rt
+  eos_state_fuel % T = 1.e8_rt
   eos_state_fuel % xn(:) = smallx
-  eos_state_fuel % xn(1) = 1.0 - (nspec - 1)*smallx
+  eos_state_fuel % xn(1) = 1.0_rt - (nspec - 1)*smallx
 
   call eos(eos_input_rt, eos_state_fuel)
 
@@ -42,7 +42,7 @@ program cj_det
   ! set the ash composition
   eos_state_ash = eos_state_fuel
   eos_state_ash % xn(:) = smallx
-  eos_state_ash % xn(nspec) = 1.0 - (nspec - 1)*smallx
+  eos_state_ash % xn(nspec) = 1.0_rt - (nspec - 1)*smallx
 
   ! get the q value -- we need the change in molar fractions
   call ener_gener_rate(eos_state_ash % xn(:)/aion(:) - eos_state_fuel % xn(:)/aion(:), q_burn)
@@ -85,7 +85,7 @@ program cj_det
 
   do n = 0, npts_ad-1
 
-     eos_state_ash % rho = 10.0_rt**(dlog10(rho_min) + n*dlogrho)
+     eos_state_ash % rho = 10.0_rt**(log10(rho_min) + n*dlogrho)
 
      call adiabat(eos_state_fuel, eos_state_ash, 0.0_rt, istatus)
      p2_shock = eos_state_ash % p

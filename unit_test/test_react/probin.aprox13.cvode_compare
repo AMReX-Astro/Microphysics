@@ -21,7 +21,9 @@
   reactions_temperature_scale = 1.d9
   reactions_energy_scale = 1.d24
 
-  xin_file   = "xin.aprox13"
+  primary_species_1 = "helium-4"
+  primary_species_2 = "carbon-12"
+  primary_species_3 = "oxygen-16"
 
 /
 

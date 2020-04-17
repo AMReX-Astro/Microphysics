@@ -12,7 +12,7 @@ program main
   
   external f_rhs
 
-  t = 0.0
+  t = 0.0_rt
   
   y(:) = [1.0_rt, 0.0_rt, 0.0_rt]
 

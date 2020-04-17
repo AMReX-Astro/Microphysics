@@ -114,7 +114,7 @@ to access the different components of the state:
 
 * ``neqs`` : the total number of variables we are integrating.
 
-   It is assumed that the first ``nspec_evolve`` are the species.
+   It is assumed that the first ``nspec`` are the species.
 
 * ``net_itemp`` : the index of the temperature in the solution vector
 

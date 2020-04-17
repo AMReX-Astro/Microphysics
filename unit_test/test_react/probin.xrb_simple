@@ -7,7 +7,8 @@
 
   tmax = 0.002d0
 
-  xin_file   = "xin.xrb_simple"
+  primary_species_1 = "hydrogen-1"
+  primary_species_2 = "helium-4"
 
   !centered_diff_jac = T
 

@@ -75,6 +75,7 @@ contains
     close(11)
 
     rate_table(:,:,:) = rate_table_scratch(:,:,3:num_vars+2)
+
     do i = 1, num_rhoy
        rhoy_table(i) = rate_table_scratch(1, i, 1)
     end do
@@ -274,16 +275,17 @@ contains
 
   subroutine tabular_evaluate(rate_table, rhoy_table, temp_table, &
                               num_rhoy, num_temp, num_vars, &
-                              rhoy, temp, reactvec)
+                              rhoy, temp, &
+                              rate, drate_dt, edot_nu)
 
-    use actual_network, only: num_rate_groups
     implicit none
 
     integer  :: num_rhoy, num_temp, num_vars, num_header
     real(rt) :: rate_table(num_temp, num_rhoy, num_vars), rhoy_table(num_rhoy), temp_table(num_temp)
 
     real(rt), intent(in)    :: rhoy, temp
-    real(rt), intent(inout) :: reactvec(num_rate_groups+2)
+    real(rt), intent(out)   :: rate, drate_dt, edot_nu
+
     real(rt) :: entries(num_vars+add_vars)
 
     !$gpu
@@ -293,13 +295,11 @@ contains
                      num_rhoy, num_temp, num_vars, &
                      rhoy, temp, entries)
 
-    ! Recast entries into reactvec
-    reactvec(1) = entries(jtab_rate)
-    reactvec(2) = entries(k_drate_dt)
-    reactvec(3) = 1.0d0
-    reactvec(4) = 0.0d0
-    reactvec(5) = entries(jtab_dq)
-    reactvec(6) = entries(jtab_gamma) - entries(jtab_nuloss)
+    ! Fill outputs: rate, d(rate)/d(temperature), and
+    ! (negative) neutrino loss contribution to energy generation
+    rate     = entries(jtab_rate)
+    drate_dt = entries(k_drate_dt)
+    edot_nu  = -entries(jtab_nuloss)
 
   end subroutine tabular_evaluate
 

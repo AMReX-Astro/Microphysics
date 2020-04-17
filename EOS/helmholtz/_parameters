@@ -6,3 +6,7 @@ eos_input_is_constant               logical            .true.
 eos_ttol                            real               1.0d-8
 # Tolerance for iterations with respect to density
 eos_dtol                            real               1.0d-8
+# Density target for radiation pressure smoothing (negative means smoothing is disabled)
+prad_limiter_rho_c                  real               -1.0d0
+# Density gradient for radiation pressure smoothing (negative means smoothing is disabled)
+prad_limiter_delta_rho              real               -1.0d0

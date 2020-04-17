@@ -9,7 +9,7 @@ module numerical_jac_module
 
 contains
 
-  subroutine numerical_jac(state)
+  subroutine numerical_jac(state, jac)
 
     !$acc routine seq
 
@@ -20,10 +20,12 @@ contains
     implicit none
 
     type (burn_t)    :: state
-
+    real(rt) :: jac(neqs, neqs)
     integer          :: m, n
 
-    type (burn_t)    :: state_delp, state_delm, state_0
+    real(rt) :: ydotp(neqs), ydotm(neqs)
+
+    type (burn_t)    :: state_delp, state_delm
 
     ! the choice of eps should be ~ sqrt(eps), where eps is machine epsilon.
     ! this balances truncation vs. roundoff error in the differencing
@@ -32,10 +34,7 @@ contains
 
     !$gpu
 
-    call set_jac_zero(state)
-
-    ! default
-    call actual_rhs(state)
+    call set_jac_zero(jac)
 
 
     if (centered_diff_jac) then
@@ -43,28 +42,27 @@ contains
        call copy_burn_t(state_delm, state)
 
        ! species derivatives
-       do n = 1, nspec_evolve
+       do n = 1, nspec
           ! perturb species
           state_delp % xn = state % xn
           state_delp % xn(n) = state % xn(n) * (ONE + eps)
 
-          call actual_rhs(state_delp)
+          call actual_rhs(state_delp, ydotp)
 
           ! We integrate X, so convert from the Y we got back from the RHS
 
-          state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+          ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
           state_delm % xn = state % xn
           state_delm % xn(n) = state % xn(n) * (ONE - eps)
 
-          call actual_rhs(state_delm)
+          call actual_rhs(state_delm, ydotm)
 
-          state_delm % ydot(1:nspec_evolve) = state_delm % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+          ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
 
           do m = 1, neqs
-             scratch = HALF*(state_delp % ydot(m) - state_delm % ydot(m)) / &
-                            (eps * state % xn(n))
-             call set_jac_entry(state, m, n, scratch)
+             scratch = HALF*(ydotp(m) - ydotm(m)) / (eps * state % xn(n))
+             call set_jac_entry(jac, m, n, scratch)
           enddo
        enddo
 
@@ -72,37 +70,39 @@ contains
        state_delp % xn = state % xn
        state_delp % T  = state % T * (ONE + eps)
 
-       call actual_rhs(state_delp)
+       call actual_rhs(state_delp, ydotp)
 
-       state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
        state_delm % xn = state % xn
        state_delm % T  = state % T * (ONE - eps)
 
-       call actual_rhs(state_delm)
+       call actual_rhs(state_delm, ydotm)
 
-       state_delm % ydot(1:nspec_evolve) = state_delm % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
 
        do m = 1, neqs
-          scratch = HALF*(state_delp % ydot(m) - state_delm % ydot(m)) / &
-                         (eps * state % T)
-          call set_jac_entry(state, m, net_itemp, scratch)
+          scratch = HALF*(ydotp(m) - ydotm(m)) / (eps * state % T)
+          call set_jac_entry(jac, m, net_itemp, scratch)
        enddo
 
        ! energy derivatives -- these are all 0! (yay!)
        scratch = ZERO
        do m = 1, neqs
-          call set_jac_entry(state, m, net_ienuc, scratch)
+          call set_jac_entry(jac, m, net_ienuc, scratch)
        enddo
 
     else
        call copy_burn_t(state_delp, state)
-       call copy_burn_t(state_0, state)
+       call copy_burn_t(state_delm, state)   ! note: delm here is actually just the input
 
-       state_0 % ydot(1:nspec_evolve) = state_0 % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+       ! default
+       call actual_rhs(state_delm, ydotm)
+
+       ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
 
        ! species derivatives
-       do n = 1, nspec_evolve
+       do n = 1, nspec
           ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
           state_delp % xn = state % xn
 
@@ -113,15 +113,15 @@ contains
 
           state_delp % xn(n) = state % xn(n) + h
 
-          call actual_rhs(state_delp)
+          call actual_rhs(state_delp, ydotp)
 
           ! We integrate X, so convert from the Y we got back from the RHS
 
-          state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+          ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
           do m = 1, neqs
-             scratch = (state_delp % ydot(m) - state_0 % ydot(m)) / h
-             call set_jac_entry(state, m, n, scratch)
+             scratch = (ydotp(m) - ydotm(m)) / h
+             call set_jac_entry(jac, m, n, scratch)
           enddo
        enddo
 
@@ -135,19 +135,19 @@ contains
 
        state_delp % T = state % T + h
 
-       call actual_rhs(state_delp)
+       call actual_rhs(state_delp, ydotp)
 
-       state_delp % ydot(1:nspec_evolve) = state_delp % ydot(1:nspec_evolve) * aion(1:nspec_evolve)
+       ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
 
        do m = 1, neqs
-          scratch = (state_delp % ydot(m) - state_0 % ydot(m)) / h
-          call set_jac_entry(state, m, net_itemp, scratch)
+          scratch = (ydotp(m) - ydotm(m)) / h
+          call set_jac_entry(jac, m, net_itemp, scratch)
        enddo
 
        ! energy derivatives -- these are all 0! (yay!)
        scratch = ZERO
        do m = 1, neqs
-          call set_jac_entry(state, m, net_ienuc, scratch)
+          call set_jac_entry(jac, m, net_ienuc, scratch)
        enddo
 
     endif
@@ -168,6 +168,8 @@ contains
     type (eos_t) :: eos_state
 
     real(rt) :: scratch, scratch_num
+    real(rt) :: ydot(neqs)
+    real(rt) :: jac_analytic(neqs, neqs), jac_numerical(neqs, neqs)
 
     integer :: i, j, n
     character(len=16) :: namei, namej
@@ -183,25 +185,22 @@ contains
 
     state_num = state
 
-    ! Evaluate the analytical Jacobian. Note that we need to call
-    ! f_rhs first because that will fill the state with the rates that
-    ! the Jacobian needs.
-    call actual_rhs(state)
-    call actual_jac(state)
+    ! Evaluate the analytical Jacobian.
+    call actual_jac(state, jac_analytic)
 
     ! the analytic Jacobian is in terms of Y, since that's what the
     ! nets work with, so we convert it to derivatives with respect to
     ! X and of mass fraction creation rates
-    do n = 1, nspec_evolve
+    do n = 1, nspec
        do j = 1, neqs
-          call scale_jac_entry(state, n, j, aion(n))
-          call scale_jac_entry(state, j, n, aion_inv(n))
+          call scale_jac_entry(jac_analytic, n, j, aion(n))
+          call scale_jac_entry(jac_analytic, j, n, aion_inv(n))
        enddo
     enddo
 
     ! Now compute the numerical Jacobian.
-    call actual_rhs(state_num)
-    call numerical_jac(state_num)
+    call actual_rhs(state_num, ydot)
+    call numerical_jac(state_num, jac_numerical)
 
 888 format(a,"-derivatives that don't match:")
 999 format(5x, "df(",a,")/dy(",a,")", g18.10, g18.10, g18.10)
@@ -209,7 +208,7 @@ contains
     ! how'd we do?
     do j = 1, neqs
 
-       if (j <= nspec_evolve) then
+       if (j <= nspec) then
           namej = short_spec_names(j)
        else if (j == net_ienuc) then
           namej = "e"
@@ -221,7 +220,7 @@ contains
 
        do i = 1, neqs
 
-          if (i <= nspec_evolve) then
+          if (i <= nspec) then
              namei = short_spec_names(i)
           else if (i == net_ienuc) then
              namei = "e"
@@ -230,8 +229,8 @@ contains
           endif
 
           ! only dump the ones that don't match
-          call get_jac_entry(state_num, i, j, scratch_num)
-          call get_jac_entry(state, i, j, scratch)
+          call get_jac_entry(jac_numerical, i, j, scratch_num)
+          call get_jac_entry(jac_analytic, i, j, scratch)
           if (scratch_num /= scratch) then
              if (scratch_num /= ZERO) then
                 write (*,999) trim(namei), &

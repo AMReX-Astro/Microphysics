@@ -46,13 +46,12 @@ program evaluate_rhs
   ! Evaluate Jacobian
   call actual_jac(state)
 
-  write(*,'(A25I25)') 'nspec_evolve: ', nspec_evolve
   write(*,'(A25E30.16E5)') 'Density (g/cm^3): ', state%rho
   write(*,'(A25E30.16E5)') 'Temperature (K): ', state%T
   write(*,'(A25E30.16E5)') 'Ye: ', state%y_e
   write(*,*) 'RHS Evaluation'
   ! Print RHS
-  do i = 1, nspec_evolve
+  do i = 1, nspec
      write(*,'(A5A5A3E30.16E5)') 'ydot(', short_spec_names(i), '): ', state%ydot(i)
      write(*,'(A5A5A3E30.16E5)') 'xdot(', short_spec_names(i), '): ', state%ydot(i)*aion(i)
   end do
@@ -66,23 +65,23 @@ program evaluate_rhs
      write(*,FMT) ( state%jac(i, j), j = 1, net_ienuc )
   end do
   write(*,*) '--------------------'
-  write(*,*) 'd(dY(1:nspec_evolve)/dt)/dY(1:nspec_evolve)'
-  write(FMT, '("(", I0, "E30.16E5)")') nspec_evolve
-  do i = 1, nspec_evolve
-     write(*,FMT) ( state%jac(i, j), j = 1, nspec_evolve )
+  write(*,*) 'd(dY(1:nspec)/dt)/dY(1:nspec)'
+  write(FMT, '("(", I0, "E30.16E5)")') nspec
+  do i = 1, nspec
+     write(*,FMT) ( state%jac(i, j), j = 1, nspec )
   end do
   
-  write(*,*) 'd(dY(net_ienuc)/dt)/dY(1:nspec_evolve)'
-  write(*,FMT) ( state%jac(net_ienuc, j), j = 1, nspec_evolve )
+  write(*,*) 'd(dY(net_ienuc)/dt)/dY(1:nspec)'
+  write(*,FMT) ( state%jac(net_ienuc, j), j = 1, nspec)
   
-  write(*,*) 'd(dY(1:nspec_evolve)/dt)/dY(net_ienuc)'
-  write(*,FMT) ( state%jac(j, net_ienuc), j = 1, nspec_evolve )
+  write(*,*) 'd(dY(1:nspec)/dt)/dY(net_ienuc)'
+  write(*,FMT) ( state%jac(j, net_ienuc), j = 1, nspec)
   
-  write(*,*) 'd(dY(net_itemp)/dt)/dY(1:nspec_evolve)'
-  write(*,FMT) ( state%jac(net_itemp, j), j = 1, nspec_evolve )
+  write(*,*) 'd(dY(net_itemp)/dt)/dY(1:nspec)'
+  write(*,FMT) ( state%jac(net_itemp, j), j = 1, nspec)
   
-  write(*,*) 'd(dY(1:nspec_evolve)/dt)/dY(net_itemp)'
-  write(*,FMT) ( state%jac(j, net_itemp), j = 1, nspec_evolve )
+  write(*,*) 'd(dY(1:nspec)/dt)/dY(net_itemp)'
+  write(*,FMT) ( state%jac(j, net_itemp), j = 1, nspec)
   
   write(FMT, '("(", I0, "E30.16E5)")') 1
   

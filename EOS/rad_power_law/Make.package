@@ -1,0 +1,5 @@
+F90EXE_sources += rad_power_law.F90
+
+ifeq ($(USE_CXX_EOS),TRUE)
+CEXE_headers += actual_eos.H
+endif

@@ -6,9 +6,9 @@ module eos_aux_data_module
 
   ! for reading HDF5 table
   integer, save :: nrho,ntemp,nye
-  double precision, allocatable :: eos_table(:,:,:,:)
-  double precision, allocatable :: eos_logrho(:),eos_logtemp(:),eos_ye(:)
-  double precision              :: energy_shift = 0.0d0
+  real(rt)        , allocatable :: eos_table(:,:,:,:)
+  real(rt)        , allocatable :: eos_logrho(:),eos_logtemp(:),eos_ye(:)
+  real(rt)                      :: energy_shift = 0.0e0_rt
   ! these are the indices in the eos_table
   ! we probably don't need all of these, but oh well
   integer, parameter :: eos_nvars = 19
@@ -32,10 +32,10 @@ module eos_aux_data_module
   integer, parameter :: izbar = 18
   integer, parameter :: igamma = 19
 
-  double precision, save :: mintemp_tbl, maxtemp_tbl
-  double precision, save :: mindens_tbl, maxdens_tbl
+  real(rt)        , save :: mintemp_tbl, maxtemp_tbl
+  real(rt)        , save :: mindens_tbl, maxdens_tbl
 
-  double precision, save :: temp_conv
+  real(rt)        , save :: temp_conv
 
 contains
 
@@ -288,14 +288,14 @@ contains
     mindens_tbl = eos_logrho(1)
     maxdens_tbl = eos_logrho(nrho)
 
-    mindens = 10.0**mindens_tbl
-    maxdens = 10.0**maxdens_tbl
+    mindens = 10.0_rt**mindens_tbl
+    maxdens = 10.0_rt**maxdens_tbl
 
     mintemp_tbl = eos_logtemp(1)
     maxtemp_tbl = eos_logtemp(ntemp)
     
-    mintemp = 10.0**mintemp_tbl / temp_conv
-    maxtemp = 10.0**maxtemp_tbl / temp_conv
+    mintemp = 10.0_rt**mintemp_tbl / temp_conv
+    maxtemp = 10.0_rt**maxtemp_tbl / temp_conv
 
     minye = eos_ye(1)
     maxye = eos_ye(nye)
@@ -323,7 +323,7 @@ contains
     ! Only take logs of quantities we can assume are defined
     if (eos_input_has_var(input, idens)) then
        if (state % rho > ZERO) then
-          state % rho = dlog10(state % rho)
+          state % rho = log10(state % rho)
        else
           call amrex_error('convert_to_table_format: got negative or zero density')
        endif
@@ -331,19 +331,19 @@ contains
 
     if (eos_input_has_var(input, ipres)) then
        if (state % p > ZERO) then
-          state % p = dlog10(state % p)
+          state % p = log10(state % p)
        else
           call amrex_error('convert_to_table_format: got negative or zero pressure')
        endif
     endif
 
     if (eos_input_has_var(input, iener)) then
-       state % e = dlog10(max(state % e + energy_shift, ONE))
+       state % e = log10(max(state % e + energy_shift, ONE))
     endif
 
     if (eos_input_has_var(input, itemp)) then
        if (state % T > ZERO) then
-          state % T = dlog10(state % T * temp_conv)
+          state % T = log10(state % T * temp_conv)
        else
           call amrex_error('convert_to_table_format: got negative or zero temperature')
        endif
@@ -390,8 +390,8 @@ contains
 
     type(eos_t), intent(inout) :: state
 
-    double precision :: rho,temp,ye
-    double precision :: derivs(3),cs2
+    real(rt)         :: rho,temp,ye
+    real(rt)         :: derivs(3),cs2
     logical :: err
     character(len=128) :: errstring
 

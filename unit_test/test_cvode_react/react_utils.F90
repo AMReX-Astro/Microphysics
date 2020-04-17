@@ -82,21 +82,20 @@ contains
   end subroutine set_state
 
 
-  subroutine get_number_equations(neqs, nspec_not_evolved) bind(C, name="get_number_equations")
+  subroutine get_number_equations(neqs) bind(C, name="get_number_equations")
     use network, only: nspec, nspec_evolve
 
     implicit none
 
-    integer, intent(inout) :: neqs, nspec_not_evolved
+    integer, intent(inout) :: neqs
 
-    neqs = nspec_evolve + 2
-    nspec_not_evolved = nspec - nspec_evolve
+    neqs = nspec + 2
+
   end subroutine get_number_equations
 
 
   subroutine convert_to_molar(xspec) bind(C, name="sk_convert_to_molar")
     use network, only: aion_inv, nspec_evolve
-    use amrex_fort_module, only: rt => amrex_real
 
     implicit none
 

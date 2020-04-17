@@ -7,7 +7,7 @@
 
   tmax = 1.d-3
 
-  xin_file   = "xin.3alpha_plus_o"
+  primary_species_1 = "helium-4"
 
   retry_burn = T
 

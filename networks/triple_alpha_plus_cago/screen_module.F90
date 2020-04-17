@@ -3,7 +3,7 @@
 ! fractions.  The triple-alpha reaction goes through a compound nucleus
 ! channel and therefore screening must be applied to both reactions.
 !
-! A call is made to screenz which lives in screen.f to apply the screening
+! A call is made to screen5 which lives in screen.f to apply the screening
 ! to a single reaction.
 module screen_module
 
@@ -19,33 +19,33 @@ contains
 
     !$acc routine seq
 
-    use screening_module, only: screenz
+    use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     real(rt), intent(IN   ) :: temp, dens, ymol(nspec)
     real(rt), intent(INOUT) :: rates(nrates)
     real(rt), intent(INOUT) :: dratesdt(nrates)
 
-    real(rt) :: scorr1, dscorr1dt
-    real(rt) :: scorr2, dscorr2dt
-    real(rt) ::  scorr,  dscorrdt
+    real(rt) :: scorr1, dscorr1dt, dscorr1dd
+    real(rt) :: scorr2, dscorr2dt, dscorr2dd
+    real(rt) ::  scorr,  dscorrdt, dscorrdd
 
     real(rt) :: rates_in(nrates), dratesdt_in(nrates)
+    integer :: jscr
+
+    type (plasma_state) :: state
 
     !$gpu
     
     rates_in    = rates
     dratesdt_in = dratesdt
 
-    ! triple alpha going through compound nucleus channel
-    call screenz(temp, dens,              &
-         zion(ihe4), zion(ihe4),          &
-         aion(ihe4), aion(ihe4),          &
-         ymol, scorr1, dscorr1dt)
+    call fill_plasma_state(state, temp, dens, ymol)
 
-    call screenz(temp, dens,              &
-         zion(ihe4), FOUR,                &
-         aion(ihe4), EIGHT,               &
-         ymol, scorr2, dscorr2dt)
+    jscr = 1
+    call screen5(state,jscr,scorr1,dscorr1dt,dscorr1dd)
+
+    jscr = jscr + 1
+    call screen5(state,jscr,scorr2,dscorr2dt,dscorr2dd)
 
     scorr    = scorr1 * scorr2
     dscorrdt = dscorr1dt * scorr2 + scorr1 * dscorr2dt
@@ -55,10 +55,8 @@ contains
                      rates_in(ir3a) * dscorrdt
 
     ! C12 + alpha --> O16
-    call screenz(temp, dens,     &
-         zion(ic12), zion(ihe4), &
-         aion(ic12), aion(ihe4), &
-         ymol, scorr, dscorrdt)
+    jscr = jscr + 1
+    call screen5(state,jscr,scorr,dscorrdt,dscorrdd)
 
     rates(ircago)    = rates_in(ircago) * scorr
     dratesdt(ircago) = dratesdt_in(ircago) * scorr + &

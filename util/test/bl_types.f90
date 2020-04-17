@@ -2,17 +2,18 @@
 !!
 !! Most data in _BoxLib_ applications can be represented
 !! with default types.  The exception is that for almost all
-!! cases we need to use double precision floats.
+!! cases we need to use real(rt)         floats.
 
 module bl_types
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  !! Double precision floating point data are declared as
-  !! REAL(KIND=dp_t), this is akin to the old non-standard 
-  !! REAL*8, or DOUBLE PRECISION
+  !! real(rt)         floating point data are declared as
+  !! real(rt)       , this is akin to the old non-standard 
+  !! real(rt), or real(rt)        
 
-  ! integer, parameter :: dp_t = kind(0.0d0)
+  ! integer, parameter :: dp_t = kind(0.0e0_rt)
   integer, parameter, public :: dp_t = selected_real_kind(15,307)
 
   !! Single precision floating point data are declared as
@@ -49,7 +50,7 @@ contains
 
     write(unit=unit,fmt="(2x,A)") "  NAME   KIND RANGE PRECISION  DIGITS"
     write(unit=unit,fmt=100) &
-         "  DP_T = ", dp_t, range(0.0_dp_t), precision(0.0_dp_t), digits(0.0_dp_t)
+         "  DP_T = ", dp_t, range(0.0_rt), precision(0.0_rt), digits(0.0_rt)
     write(unit=unit,fmt=100) &
          "  SP_T = ", sp_t, range(0.0_sp_t), precision(0.0_sp_t), digits(0.0_sp_t)
     if ( qp_t_0 > 0 ) then

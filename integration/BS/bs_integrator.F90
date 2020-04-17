@@ -11,6 +11,7 @@ module bs_integrator_module
   use stiff_ode
   use bs_type_module
 
+  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -34,9 +35,7 @@ contains
     !$acc routine seq
 
     use bs_rpar_indices
-    use amrex_fort_module, only : rt => amrex_real
     use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
-    use actual_rhs_module, only : update_unevolved_species
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 
@@ -70,13 +69,13 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    atol(1:nspec_evolve) = status % atol_spec ! mass fractions
-    atol(net_itemp)      = status % atol_temp ! temperature
-    atol(net_ienuc)      = status % atol_enuc ! energy generated
+    atol(1:nspec)   = status % atol_spec ! mass fractions
+    atol(net_itemp) = status % atol_temp ! temperature
+    atol(net_ienuc) = status % atol_enuc ! energy generated
 
-    rtol(1:nspec_evolve) = status % rtol_spec ! mass fractions
-    rtol(net_itemp)      = status % rtol_temp ! temperature
-    rtol(net_ienuc)      = status % rtol_enuc ! energy generated
+    rtol(1:nspec)   = status % rtol_spec ! mass fractions
+    rtol(net_itemp) = status % rtol_temp ! temperature
+    rtol(net_ienuc) = status % rtol_enuc ! energy generated
 
     ! Note that at present, we use a uniform error tolerance chosen
     ! to be the largest of the relative error tolerances for any
@@ -147,7 +146,7 @@ contains
 
     bs % burn_s % T_old = eos_state_in % T
 
-    if (dT_crit < 1.0d19) then
+    if (dT_crit < 1.0e19_rt) then
 
        eos_state_temp = eos_state_in
        eos_state_temp % T = eos_state_in % T * (ONE + sqrt(epsilon(ONE)))
@@ -160,10 +159,6 @@ contains
        bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
             (eos_state_temp % T - eos_state_in % T)
     endif
-
-    ! Save the initial state.
-
-    bs % upar(irp_y_init:irp_y_init + neqs - 1) = bs % y
 
     ! Call the integration routine.
     call ode(bs, t0, t1, maxval(rtol), ierr)
@@ -184,7 +179,7 @@ contains
        ! redo the T_old, cv / cp extrapolation
        bs % burn_s % T_old = eos_state_in % T
 
-       if (dT_crit < 1.0d19) then
+       if (dT_crit < 1.0e19_rt) then
           bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
                (eos_state_temp % T - eos_state_in % T)
 
@@ -200,7 +195,7 @@ contains
 
     if (ierr /= IERR_NONE) then
 
-#ifndef ACC
+#ifndef CUDA
        print *, 'ERROR: integration failed in net'
        print *, 'ierr = ', ierr
        print *, 'dt = ', dt
@@ -210,8 +205,7 @@ contains
        print *, 'temp start = ', state_in % T
        print *, 'xn start = ', state_in % xn
        print *, 'temp current = ', bs % y(net_itemp)
-       print *, 'xn current = ', bs % y(1:nspec_evolve), &
-            bs % upar(irp_nspec:irp_nspec+n_not_evolved-1)
+       print *, 'xn current = ', bs % y(1:nspec)
        print *, 'energy generated = ', bs % y(net_ienuc) - ener_offset
 #endif
 
@@ -234,18 +228,14 @@ contains
 
     state_out % success = success
 
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(state_out)
-    endif
-
     ! For burning_mode == 3, limit the burning.
 
     if (burning_mode == 3) then
 
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.d-50), 1.d-50)
+       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
        t_sound = state_in % dx / eos_state_in % cs
 
-       limit_factor = min(1.0d0, burning_mode_factor * t_enuc / t_sound)
+       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
 
        state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
        state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
