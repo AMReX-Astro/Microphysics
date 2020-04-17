@@ -79,9 +79,9 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 // Sets up the temperature entries in the Jacobian. This should be called from
 // within the actual_jac routine but is provided here as a convenience
 // since most networks will use the same temperature ODE.
-
+template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void temperature_jac (burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
+void temperature_jac (burn_t& state, MatrixType& jac)
 {
 
     if (state.self_heat) {
@@ -134,13 +134,13 @@ void temperature_jac (burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
 
         // d(itemp) / d(enuc)
 
-        jac(net_itemp, net_ienuc) = 0.0_rt;
+        jac.set(net_itemp, net_ienuc, 0.0_rt);
 
     }
     else {
 
         for (int k = 1; k <= neqs; ++k) {
-            jac(net_itemp, k) = 0.0_rt;
+            jac.set(net_itemp, k, 0.0_rt);
         }
 
     }

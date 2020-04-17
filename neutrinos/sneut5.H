@@ -547,7 +547,7 @@ void sneut5(const Real temp, const Real den,
     xdendz = a2*rmdz;
 
     // equation 4.11
-    if (abs(xnum) > 0.7e0_rt || xden < 0.0e0_rt) {
+    if (std::abs(xnum) > 0.7e0_rt || xden < 0.0e0_rt) {
 
        fxy   = 1.0e0_rt;
        fxydt = 0.0e0_rt;

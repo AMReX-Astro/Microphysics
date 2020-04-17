@@ -6,7 +6,7 @@
 #include <vode_dvjac.H>
 
 #ifdef NETWORK_SOLVER
-#include <actual_linear_solver.H>
+#include <actual_matrix.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

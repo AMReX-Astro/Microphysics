@@ -64,9 +64,9 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 
 
 // Analytical Jacobian
-
+template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
+void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 {
     // NOTE: the time at which to evaluate the Jacobian is not
     // explicitly passed. VODE always evaluates the analytic
@@ -81,8 +81,8 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
     // We integrate X, not Y
     for (int j = 1; j <= NumSpec; ++j) {
         for (int i = 1; i <= VODE_NEQS; ++i) {
-            pd(j,i) *= aion[j-1];
-            pd(i,j) *= aion_inv[j-1];
+            pd.mul(j, i, aion[j-1]);
+            pd.mul(i, j, aion_inv[j-1]);
         }
     }
 
@@ -90,7 +90,7 @@ void jac (burn_t& state, dvode_t& vode_state, RArray2D& pd)
     if (react_boost > 0.0_rt) {
         for (int j = 1; j <= VODE_NEQS; ++j) {
             for (int i = 1; i <= VODE_NEQS; ++i) {
-                pd(i,j) *= react_boost;
+                pd.mul(i, j, react_boost);
             }
         }
     }
