@@ -37,8 +37,9 @@
 using namespace amrex;
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum3(Array1D<Real, 1, 3> const& array)
+Real esum3(T const& array)
 {
     // return value
     Real esum;
@@ -123,8 +124,9 @@ Real esum3(Array1D<Real, 1, 3> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum4(Array1D<Real, 1, 4> const& array)
+Real esum4(T const& array)
 {
     // return value
     Real esum;
@@ -209,8 +211,9 @@ Real esum4(Array1D<Real, 1, 4> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum5(Array1D<Real, 1, 5> const& array)
+Real esum5(T const& array)
 {
     // return value
     Real esum;
@@ -335,8 +338,9 @@ Real esum5(Array1D<Real, 1, 5> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum6(Array1D<Real, 1, 6> const& array)
+Real esum6(T const& array)
 {
     // return value
     Real esum;
@@ -461,8 +465,9 @@ Real esum6(Array1D<Real, 1, 6> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum7(Array1D<Real, 1, 7> const& array)
+Real esum7(T const& array)
 {
     // return value
     Real esum;
@@ -627,8 +632,9 @@ Real esum7(Array1D<Real, 1, 7> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum8(Array1D<Real, 1, 8> const& array)
+Real esum8(T const& array)
 {
     // return value
     Real esum;
@@ -793,8 +799,9 @@ Real esum8(Array1D<Real, 1, 8> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum9(Array1D<Real, 1, 9> const& array)
+Real esum9(T const& array)
 {
     // return value
     Real esum;
@@ -999,8 +1006,9 @@ Real esum9(Array1D<Real, 1, 9> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum10(Array1D<Real, 1, 10> const& array)
+Real esum10(T const& array)
 {
     // return value
     Real esum;
@@ -1205,8 +1213,9 @@ Real esum10(Array1D<Real, 1, 10> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum11(Array1D<Real, 1, 11> const& array)
+Real esum11(T const& array)
 {
     // return value
     Real esum;
@@ -1451,8 +1460,9 @@ Real esum11(Array1D<Real, 1, 11> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum12(Array1D<Real, 1, 12> const& array)
+Real esum12(T const& array)
 {
     // return value
     Real esum;
@@ -1697,8 +1707,9 @@ Real esum12(Array1D<Real, 1, 12> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum13(Array1D<Real, 1, 13> const& array)
+Real esum13(T const& array)
 {
     // return value
     Real esum;
@@ -1983,8 +1994,9 @@ Real esum13(Array1D<Real, 1, 13> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum14(Array1D<Real, 1, 14> const& array)
+Real esum14(T const& array)
 {
     // return value
     Real esum;
@@ -2269,8 +2281,9 @@ Real esum14(Array1D<Real, 1, 14> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum15(Array1D<Real, 1, 15> const& array)
+Real esum15(T const& array)
 {
     // return value
     Real esum;
@@ -2595,8 +2608,9 @@ Real esum15(Array1D<Real, 1, 15> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum16(Array1D<Real, 1, 16> const& array)
+Real esum16(T const& array)
 {
     // return value
     Real esum;
@@ -2921,8 +2935,9 @@ Real esum16(Array1D<Real, 1, 16> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum17(Array1D<Real, 1, 17> const& array)
+Real esum17(T const& array)
 {
     // return value
     Real esum;
@@ -3287,8 +3302,9 @@ Real esum17(Array1D<Real, 1, 17> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum18(Array1D<Real, 1, 18> const& array)
+Real esum18(T const& array)
 {
     // return value
     Real esum;
@@ -3653,8 +3669,9 @@ Real esum18(Array1D<Real, 1, 18> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum19(Array1D<Real, 1, 19> const& array)
+Real esum19(T const& array)
 {
     // return value
     Real esum;
@@ -4059,8 +4076,9 @@ Real esum19(Array1D<Real, 1, 19> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum20(Array1D<Real, 1, 20> const& array)
+Real esum20(T const& array)
 {
     // return value
     Real esum;
@@ -4465,8 +4483,9 @@ Real esum20(Array1D<Real, 1, 20> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum21(Array1D<Real, 1, 21> const& array)
+Real esum21(T const& array)
 {
     // return value
     Real esum;
@@ -4911,8 +4930,9 @@ Real esum21(Array1D<Real, 1, 21> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum22(Array1D<Real, 1, 22> const& array)
+Real esum22(T const& array)
 {
     // return value
     Real esum;
@@ -5357,8 +5377,9 @@ Real esum22(Array1D<Real, 1, 22> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum23(Array1D<Real, 1, 23> const& array)
+Real esum23(T const& array)
 {
     // return value
     Real esum;
@@ -5843,8 +5864,9 @@ Real esum23(Array1D<Real, 1, 23> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum24(Array1D<Real, 1, 24> const& array)
+Real esum24(T const& array)
 {
     // return value
     Real esum;
@@ -6329,8 +6351,9 @@ Real esum24(Array1D<Real, 1, 24> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum25(Array1D<Real, 1, 25> const& array)
+Real esum25(T const& array)
 {
     // return value
     Real esum;
@@ -6855,8 +6878,9 @@ Real esum25(Array1D<Real, 1, 25> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum26(Array1D<Real, 1, 26> const& array)
+Real esum26(T const& array)
 {
     // return value
     Real esum;
@@ -7381,8 +7405,9 @@ Real esum26(Array1D<Real, 1, 26> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum27(Array1D<Real, 1, 27> const& array)
+Real esum27(T const& array)
 {
     // return value
     Real esum;
@@ -7947,8 +7972,9 @@ Real esum27(Array1D<Real, 1, 27> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum28(Array1D<Real, 1, 28> const& array)
+Real esum28(T const& array)
 {
     // return value
     Real esum;
@@ -8513,8 +8539,9 @@ Real esum28(Array1D<Real, 1, 28> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum29(Array1D<Real, 1, 29> const& array)
+Real esum29(T const& array)
 {
     // return value
     Real esum;
@@ -9119,8 +9146,9 @@ Real esum29(Array1D<Real, 1, 29> const& array)
 }
 
 
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum30(Array1D<Real, 1, 30> const& array)
+Real esum30(T const& array)
 {
     // return value
     Real esum;
