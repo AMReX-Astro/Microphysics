@@ -166,8 +166,8 @@ void vode_to_burn (const dvode_t& vode_state, burn_t& state)
         state.xn[n-1] = vode_state.y(n);
     }
 
-    state.T = vode_state.y(net_itemp);
-    state.e = vode_state.y(net_ienuc);
+    state.T = vode_state.y(net_itemp) * reactions_temperature_scale;
+    state.e = vode_state.y(net_ienuc) * reactions_energy_scale;
 }
 
 
@@ -180,8 +180,8 @@ void burn_to_vode (const burn_t& state, dvode_t& vode_state)
         vode_state.y(n) = state.xn[n-1];
     }
 
-    vode_state.y(net_itemp) = state.T;
-    vode_state.y(net_ienuc) = state.e;
+    vode_state.y(net_itemp) = state.T / reactions_temperature_scale;
+    vode_state.y(net_ienuc) = state.e / reactions_energy_scale;
 }
 
 
@@ -219,7 +219,9 @@ void clean_state (dvode_t& vode_state)
 
     // Ensure that the temperature always stays within reasonable limits.
 
-    vode_state.y(net_itemp) = amrex::min(MAX_TEMP, amrex::max(vode_state.y(net_itemp), EOSData::mintemp));
+    vode_state.y(net_itemp) = amrex::min(MAX_TEMP / reactions_temperature_scale,
+                                         amrex::max(vode_state.y(net_itemp),
+                                                    EOSData::mintemp / reactions_temperature_scale));
 
 }
 
@@ -239,8 +241,8 @@ void update_thermodynamics (burn_t& state, dvode_t& vode_state)
     for (int n = 1; n <= NumSpec; ++n) {
         eos_state.xn[n-1] = vode_state.y(n);
     }
-    eos_state.T = vode_state.y(net_itemp);
-    eos_state.e = vode_state.y(net_ienuc);
+    eos_state.T = vode_state.y(net_itemp) * reactions_temperature_scale;
+    eos_state.e = vode_state.y(net_ienuc) * reactions_energy_scale;
 
     // Evaluate the thermodynamics -- if desired. Note that we can
     // either do this as an unconditional update (call_eos_in_rhs)

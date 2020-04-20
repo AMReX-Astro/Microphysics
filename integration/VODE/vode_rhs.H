@@ -57,6 +57,10 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
         }
     }
 
+    // Apply integrator scaling
+    ydot(net_itemp) /= reactions_temperature_scale;
+    ydot(net_ienuc) /= reactions_energy_scale;
+
     burn_to_vode(state, vode_state);
 
 }
@@ -106,6 +110,14 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         for (int j = 1; j <= VODE_NEQS; ++j) {
             pd(net_ienuc,j) = 0.0_rt;
         }
+    }
+
+    // Apply integrator scaling
+    for (int j = 1; j <= VODE_NEQS; ++j) {
+        pd(net_itemp,j) /= reactions_temperature_scale;
+        pd(net_ienuc,j) /= reactions_energy_scale;
+        pd(j,net_itemp) *= reactions_temperature_scale;
+        pd(j,net_ienuc) *= reactions_energy_scale;
     }
 
     burn_to_vode(state, vode_state);
