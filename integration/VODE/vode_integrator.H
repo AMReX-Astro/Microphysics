@@ -105,7 +105,7 @@ void vode_integrator (burn_t& state, Real dt)
 
     // Subtract the energy offset.
 
-    vode_state.y(net_ienuc) -= e_in;
+    vode_state.y(net_ienuc) -= e_in / reactions_energy_scale;
 
     // Copy the integration data back to the burn state.
 
