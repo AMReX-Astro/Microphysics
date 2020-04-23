@@ -9754,9 +9754,9 @@ Real esum30(T const& array)
 
 
 template<typename... Targs>
-Real esum(const Targs&... Args) {
+Real esum(Targs&&... Args) {
     constexpr int NArgs = sizeof...(Args);
-    const auto varr = ArrayUtil::Virtual::array<1>(Args...);
+    const auto varr = ArrayUtil::Virtual::array<1>(std::forward<Targs>(Args)...);
 
     if (NArgs == 3) return esum3(varr);
     else if (NArgs == 4) return esum4(varr);

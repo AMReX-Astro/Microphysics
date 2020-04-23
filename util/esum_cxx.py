@@ -47,9 +47,9 @@ using namespace amrex;
 
 esum_wrapper_start = """
 template<typename... Targs>
-Real esum(const Targs&... Args) {
+Real esum(Targs&&... Args) {
     constexpr int NArgs = sizeof...(Args);
-    const auto varr = ArrayUtil::Virtual::array<1>(Args...);
+    const auto varr = ArrayUtil::Virtual::array<1>(std::forward<Targs>(Args)...);
 
 """
 
