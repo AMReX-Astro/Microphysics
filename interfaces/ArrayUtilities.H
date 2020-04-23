@@ -8,10 +8,45 @@ namespace ArrayUtil
 {
     using namespace amrex;
 
+    namespace Virtual
+    {
+
+        /*
+            The Virtual array can be constructed by passing an
+            arbitrary number of arguments to Virtual::array()
+            to get a lambda function returning the "array" elements.
+
+            The value of the first index in the virtual array
+            is set using the XLO template parameter for Virtual::array().
+        */
+
+        template<int XLO>
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        Real v_array_lookup(int i) {
+            return 0.0;
+        }
+
+        template <int XLO, typename... Targs>
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        Real v_array_lookup(int i, Real&& valN, Targs&&... Args) {
+            constexpr int N = sizeof...(Args) + XLO;
+            if (i > N) return 0.0;
+            else if (i == N) return valN;
+            else return v_array_lookup<XLO>(i, std::forward<Targs>(Args)...);
+        }
+
+        template <int XLO, typename... Targs>
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        auto array(Targs&&... Args) {
+            return [&](int i) -> Real { return v_array_lookup<XLO>(i, std::forward<Targs>(Args)...); };
+        }
+
+    }
+
     template <int XLO, int XHI>
     struct MathArray1D
     {
-        AMREX_GPU_HOST_DEVICE AMREX_INLINE
+        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void zero()
         {
             for (int i = 0; i < (XHI-XLO+1); ++i) {
