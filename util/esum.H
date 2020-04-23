@@ -9753,4 +9753,41 @@ Real esum30(T const& array)
 }
 
 
+template<typename... Targs>
+Real esum(const Targs&... Args) {
+    constexpr int NArgs = sizeof...(Args);
+    const auto varr = ArrayUtil::Virtual::array<1>(Args...);
+
+    if (NArgs == 3) return esum3(varr);
+    else if (NArgs == 4) return esum4(varr);
+    else if (NArgs == 5) return esum5(varr);
+    else if (NArgs == 6) return esum6(varr);
+    else if (NArgs == 7) return esum7(varr);
+    else if (NArgs == 8) return esum8(varr);
+    else if (NArgs == 9) return esum9(varr);
+    else if (NArgs == 10) return esum10(varr);
+    else if (NArgs == 11) return esum11(varr);
+    else if (NArgs == 12) return esum12(varr);
+    else if (NArgs == 13) return esum13(varr);
+    else if (NArgs == 14) return esum14(varr);
+    else if (NArgs == 15) return esum15(varr);
+    else if (NArgs == 16) return esum16(varr);
+    else if (NArgs == 17) return esum17(varr);
+    else if (NArgs == 18) return esum18(varr);
+    else if (NArgs == 19) return esum19(varr);
+    else if (NArgs == 20) return esum20(varr);
+    else if (NArgs == 21) return esum21(varr);
+    else if (NArgs == 22) return esum22(varr);
+    else if (NArgs == 23) return esum23(varr);
+    else if (NArgs == 24) return esum24(varr);
+    else if (NArgs == 25) return esum25(varr);
+    else if (NArgs == 26) return esum26(varr);
+    else if (NArgs == 27) return esum27(varr);
+    else if (NArgs == 28) return esum28(varr);
+    else if (NArgs == 29) return esum29(varr);
+    else if (NArgs == 30) return esum30(varr);
+    else return 0.0;
+
+}
+
 #endif

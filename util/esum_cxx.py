@@ -45,6 +45,19 @@ using namespace amrex;
 """
 
 
+esum_wrapper_start = """
+template<typename... Targs>
+Real esum(const Targs&... Args) {
+    constexpr int NArgs = sizeof...(Args);
+    const auto varr = ArrayUtil::Virtual::array<1>(Args...);
+
+"""
+
+
+esum_wrapper_end = """
+}
+"""
+
 
 module_end = """
 #endif
@@ -197,6 +210,7 @@ if __name__ == "__main__":
 
         ef.write(module_start)
 
+        # write the esumN functions
         for num in range(3, 31):
 
             ef.write(esum_template_start.replace("@NUM@", str(num)))
@@ -250,5 +264,18 @@ if __name__ == "__main__":
 
             ef.write(esum_template_end.replace("@NUM@", str(num)))
             ef.write("\n")
+
+        # write wrapper function for all the esums
+        # this wrapper takes a series of arguments to be esummed.
+        ef.write(esum_wrapper_start)
+
+        for num in range(3, 31):
+            else_string = "else "
+            if (num == 3):
+                else_string = ""
+            ef.write("    {}if (NArgs == {}) return esum{}(varr);\n".format(else_string, num, num))
+
+        ef.write("    else return 0.0;\n")
+        ef.write(esum_wrapper_end)
 
         ef.write(module_end)
