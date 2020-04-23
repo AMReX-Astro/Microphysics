@@ -192,6 +192,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', help='summation method: -1 == sum(); 0 == msum; 1 == Kahan')
     parser.add_argument('--unroll', help='For msum, should we explicitly unroll the loop?')
+    parser.add_argument('-n', '--max_esum_size', help='Maximum size of esum arguments to generate', default=30)
 
     args = parser.parse_args()
 
@@ -211,7 +212,7 @@ if __name__ == "__main__":
         ef.write(module_start)
 
         # write the esumN functions
-        for num in range(3, 31):
+        for num in range(3, args.max_esum_size+1):
 
             ef.write(esum_template_start.replace("@NUM@", str(num)))
 
@@ -269,13 +270,13 @@ if __name__ == "__main__":
         # this wrapper takes a series of arguments to be esummed.
         ef.write(esum_wrapper_start)
 
-        for num in range(3, 31):
+        for num in range(3, args.max_esum_size+1):
             else_string = "else "
             if (num == 3):
                 else_string = ""
-            ef.write("    {}if (NArgs == {}) return esum{}(varr);\n".format(else_string, num, num))
+            ef.write("    {}if constexpr(NArgs == {}) return esum{}(varr);\n".format(else_string, num, num))
 
-        ef.write("    else return 0.0;\n")
+        ef.write("    else { static_assert(false, \"Currently a maximum of {} arguments are supported for esum.\"); return 0.0; }\n".format(args.max_esum_size))
         ef.write(esum_wrapper_end)
 
         ef.write(module_end)
