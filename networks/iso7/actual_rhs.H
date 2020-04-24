@@ -614,9 +614,10 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
 }
 
+
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void ener_gener_rate(T const& dydt, Real& enuc)
+Real ener_gener_rate(T const& dydt)
 {
 
     using namespace iso7;
@@ -631,15 +632,16 @@ void ener_gener_rate(T const& dydt, Real& enuc)
     }
 
     // This is basically e = m c**2
-    enuc = Xdot * C::Legacy::enuc_conv2;
+    return Xdot * C::Legacy::enuc_conv2;
 
 }
 
 
 // Evaluates the right hand side of the iso7 ODEs
+template<class dydt_T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
-         Array1D<Real, 1, neqs>& dydt,
+         dydt_T& dydt,
          bool deriva, bool for_jacobian_tderiv)
 {
     using namespace Species;
@@ -763,7 +765,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Instantaneous energy generation rate -- this needs molar fractions
 
-    ener_gener_rate(ydot, enuc);
+    enuc = ener_gener_rate(ydot);
 
     // Get the neutrino losses
 
@@ -817,7 +819,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     for (int j = 1; j <= NumSpec; ++j) {
         auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
-        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
+        jac(net_ienuc,j) = ener_gener_rate(jac_slice_2);
     }
 
     // Account for the thermal neutrino losses
@@ -840,9 +842,99 @@ void actual_jac(burn_t& state, MatrixType& jac)
         jac(i,net_itemp) = yderivs(i);
     }
 
-    ener_gener_rate(yderivs, jac(net_ienuc,net_itemp));
+    jac(net_ienuc,net_itemp) = ener_gener_rate(yderivs);
 
     jac.add(net_ienuc, net_itemp, -dsneutdt);
+
+    // Temperature Jacobian elements
+
+    temperature_jac(state, jac);
+
+}
+
+
+// RHS & Analytical Jacobian
+template<class MatrixType>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_rhs_jac(burn_t& state, Array1D<Real, 1, neqs>& ydot, MatrixType& jac)
+{
+
+    // Initialize jac to 0
+
+    jac.zero();
+
+    // Initialize ydot to 0
+
+    for (int i = 1; i <= neqs; ++i) {
+       ydot(i) = 0.0_rt;
+    }
+
+    // Get the data from the state
+
+    const Real rho  = state.rho;
+    const Real temp = state.T;
+    const Real abar = state.abar;
+    const Real zbar = state.zbar;
+
+    Array1D<Real, 1, NumSpec> y;
+    for (int i = 1; i <= NumSpec; ++i) {
+        y(i) = state.xn[i-1] * aion_inv[i-1];
+    }
+
+    rate_t rr;
+    evaluate_rates(state, rr);
+
+    // Get the species part of the RHS
+    {
+        const bool deriva = false;
+        const bool for_jacobian_tderiv = false;
+        rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
+    }
+
+    // Species Jacobian elements with respect to other species
+
+    dfdy_isotopes_iso7(y, state, rr, jac);
+
+    // Energy generate rate Jacobian element with respect to temperature
+
+    auto jac_species_temp = [&](int i) -> Real& {
+        return jac(i, net_itemp);
+    };
+
+    {
+        const bool deriva = true;
+        const bool for_jacobian_tderiv = true;
+        rhs(y, rr, jac_species_temp, deriva, for_jacobian_tderiv);
+    }
+
+    // Account for the thermal neutrino losses
+
+    Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
+
+    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    // Energy-temperature element of the Jacobian
+
+    jac(net_ienuc,net_itemp) = ener_gener_rate(jac_species_temp) - dsneutdt;
+
+    // Instantaneous energy generation rate (erg/g/s) -- this needs molar fractions
+
+    ydot(net_ienuc) = ener_gener_rate(ydot) - sneut;
+
+    // Energy generation rate Jacobian elements with respect to species
+
+    for (int j = 1; j <= NumSpec; ++j) {
+        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
+
+        // thermal neutrino contribution is b1
+        b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
+
+        jac(net_ienuc,j) = ener_gener_rate(jac_slice_2) - b1;
+    }
+
+    // Set the temperature RHS
+
+    temperature_rhs(state, ydot);
 
     // Temperature Jacobian elements
 
