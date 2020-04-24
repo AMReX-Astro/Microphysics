@@ -6,8 +6,10 @@
 #include <vode_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
+void dv_rhs_jac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 {
+    // in addition to setting the jacobian, this function also
+    // evaluates the RHS and puts it in vstate.savf
 
     // dvjac is called by dvnlsd to compute and process the matrix
     // P = I - h*rl1*J , where J is an approximation to the Jacobian
@@ -73,7 +75,9 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
             // Initialize the Jacobian to zero
             vstate.jac.zero();
 
-            jac(state, vstate, vstate.jac);
+            // Get the RHS and Jacobian together
+            rhs_jac(vstate.tn, state, vstate, vstate.savf, vstate.jac);
+            vstate.NFE += 1;
 
 #ifndef AMREX_USE_GPU
             // Store the Jacobian if we're caching.
@@ -86,6 +90,10 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
         else {
 
             // For the numerical Jacobian, make N calls to the RHS to approximate it.
+
+            // First, get the current RHS
+            rhs(vstate.tn, state, vstate, vstate.savf);
+            vstate.NFE += 1;
 
             // Increment the Jacobian evaluation counter.
             vstate.NJE += 1;
@@ -137,6 +145,10 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 #ifndef AMREX_USE_GPU
     }
     else {
+
+        // Call the RHS
+        rhs(vstate.tn, state, vstate, vstate.savf);
+        vstate.NFE += 1;
 
         // Load the cached Jacobian.
 
