@@ -1929,8 +1929,8 @@ void actual_rhs_jac(burn_t& state, Array1D<Real, 1, neqs>& ydot, MatrixType& jac
     };
 
     {
-        const deriva = true;
-        bool for_jacobian_tderiv = true;
+        const bool deriva = true;
+        const bool for_jacobian_tderiv = true;
         rhs(y, rr, jac_species_temp, deriva, for_jacobian_tderiv);
     }
 
@@ -1951,7 +1951,7 @@ void actual_rhs_jac(burn_t& state, Array1D<Real, 1, neqs>& ydot, MatrixType& jac
     // Energy generation rate Jacobian elements with respect to species
 
     for (int j = 1; j <= NumSpec; ++j) {
-        auto jac_slice_2 = [&](int i) -> Real& { return jac.get(i, j); };
+        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
 
         // thermal neutrino contribution is b1
         b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
