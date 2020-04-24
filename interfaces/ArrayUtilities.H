@@ -23,22 +23,23 @@ namespace ArrayUtil
         template<int XLO>
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         Real v_array_lookup(int i) {
+            AMREX_ERROR("out of bounds access to virtual array");
             return 0.0;
         }
 
         template <int XLO, typename... Targs>
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        Real v_array_lookup(int i, Real&& valN, Targs&&... Args) {
-            constexpr int N = sizeof...(Args) + XLO;
-            if (i > N) return 0.0;
+        Real v_array_lookup(int i, const Real& valN, const Targs&... Args) {
+            constexpr int N = sizeof...(Targs) + XLO;
+            if (i > N) { AMREX_ERROR("out of bounds access to virtual array"); return 0.0; }
             else if (i == N) return valN;
-            else return v_array_lookup<XLO>(i, std::forward<Targs>(Args)...);
+            else return v_array_lookup<XLO>(i, Args...);
         }
 
         template <int XLO, typename... Targs>
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         auto array(Targs&&... Args) {
-            return [&](int i) -> Real { return v_array_lookup<XLO>(i, std::forward<Targs>(Args)...); };
+            return [&](int i) -> Real { return v_array_lookup<XLO>(i, Args...); };
         }
 
     }
