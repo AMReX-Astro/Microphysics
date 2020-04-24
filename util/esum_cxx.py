@@ -48,7 +48,7 @@ using namespace amrex;
 esum_wrapper_start = """
 template<typename... Targs>
 Real esum(Targs&&... Args) {
-    constexpr int NArgs = sizeof...(Args);
+    constexpr int NArgs = sizeof...(Targs);
     const auto varr = ArrayUtil::Virtual::array<1>(std::forward<Targs>(Args)...);
 
 """
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', help='summation method: -1 == sum(); 0 == msum; 1 == Kahan')
     parser.add_argument('--unroll', help='For msum, should we explicitly unroll the loop?')
-    parser.add_argument('-n', '--max_esum_size', help='Maximum size of esum arguments to generate', default=30)
+    parser.add_argument('-n', '--max_esum_size', help='Maximum size of esum arguments to generate (default is 30).', default=30)
 
     args = parser.parse_args()
 
@@ -276,7 +276,7 @@ if __name__ == "__main__":
                 else_string = ""
             ef.write("    {}if constexpr(NArgs == {}) return esum{}(varr);\n".format(else_string, num, num))
 
-        ef.write("    else { static_assert(false, \"Currently a maximum of {} arguments are supported for esum.\"); return 0.0; }\n".format(args.max_esum_size))
+        ef.write("    else {" + " static_assert(NArgs >= 3 && NArgs <= {}, \"Currently a maximum of {} arguments are supported for esum.\");".format(args.max_esum_size, args.max_esum_size) + " return 0.0; }\n")
         ef.write(esum_wrapper_end)
 
         ef.write(module_end)
