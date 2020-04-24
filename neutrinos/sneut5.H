@@ -103,14 +103,13 @@ Real zfermim12(const Real x)
 
     // declare work variables
     int m1,k1,m2,k2;
-    Real an,rn,den,xx;
+    Real rn,den,xx;
     Array1D<Real, 1, 12> a1,b1,a2,b2;
 
     // return value
     Real zfermim12r;
 
     // load the coefficients of the expansion
-    an = -0.5e0_rt;
     m1 = 7;
     k1 = 7;
     m2 = 11;
@@ -223,11 +222,11 @@ void sneut5(const Real temp, const Real den,
     dsnudz = derivative of snu with zbar
     */
 
-    Real spair,spairdt,spairdd,spairda,spairdz,
-         splas,splasdt,splasdd,splasda,splasdz,
-         sphot,sphotdt,sphotdd,sphotda,sphotdz,
-         sbrem,sbremdt,sbremdd,sbremda,sbremdz,
-         sreco,srecodt,srecodd,srecoda,srecodz;
+    Real spair,spairdt,spairda,spairdz,
+         splas,splasdt,splasda,splasdz,
+         sphot,sphotdt,sphotda,sphotdz,
+         sbrem,sbremdt,sbremda,sbremdz,
+         sreco,srecodt,srecoda,srecodz;
 
     Real t9,xl,xldt,xlp5,xl2,xl3,xl4,xl5,xl6,xl7,xl8,xl9,
          xlmp5,xlm1,xlm2,xlm3,xlm4,xlnt,cc,den6,tfermi,
@@ -235,8 +234,8 @@ void sneut5(const Real temp, const Real den,
          c10,c11,c12,c13,c14,c15,c16,c20,c21,c22,c23,c24,
          c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12,
          dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0,
-         f1,deni,tempi,abari,zbari,f2,f3,z,xmue,ye,
-         dum,dumdt,gum,gumdt,dumda,dumdz,gumdd,gumda,gumdz;
+         f1,deni,tempi,abari,zbari,f2,f3,z,ye,
+         dum,dumdt,gum,gumdt,dumda,dumdz,gumda,gumdz;
 
     // pair production
     Real rm,rmi,gl,gldt,
@@ -267,7 +266,7 @@ void sneut5(const Real temp, const Real den,
          gbrem,gbremdt,
          u,gm1,gm2,gm13,gm23,gm43,gm53,v,w,fb,gt,gb,
          fliq,fliqdt,gliq,gliqdt,
-         etadd,etada,etadz,
+         etada,etadz,
          fbremda,fbremdz,gbremda,gbremdz,
          fliqda,fliqdz,gliqda,gliqdz;
 
@@ -306,34 +305,29 @@ void sneut5(const Real temp, const Real den,
     // initialize
     spair   = 0.0e0_rt;
     spairdt = 0.0e0_rt;
-    spairdd = 0.0e0_rt;
     spairda = 0.0e0_rt;
     spairdz = 0.0e0_rt;
 
     splas   = 0.0e0_rt;
     splasdt = 0.0e0_rt;
-    splasdd = 0.0e0_rt;
     splasda = 0.0e0_rt;
     splasdz = 0.0e0_rt;
-;
+
     sphot   = 0.0e0_rt;
     sphotdt = 0.0e0_rt;
-    sphotdd = 0.0e0_rt;
     sphotda = 0.0e0_rt;
     sphotdz = 0.0e0_rt;
-;
+
     sbrem   = 0.0e0_rt;
     sbremdt = 0.0e0_rt;
-    sbremdd = 0.0e0_rt;
     sbremda = 0.0e0_rt;
     sbremdz = 0.0e0_rt;
 
     sreco   = 0.0e0_rt;
     srecodt = 0.0e0_rt;
-    srecodd = 0.0e0_rt;
     srecoda = 0.0e0_rt;
     srecodz = 0.0e0_rt;
-;
+
     snu     = 0.0e0_rt;
     dsnudt  = 0.0e0_rt;
     dsnudd  = 0.0e0_rt;
@@ -350,7 +344,6 @@ void sneut5(const Real temp, const Real den,
 
     // some composition variables
     ye    = zbar*abari;
-    xmue  = abar*zbari;
 
     // some frequent factors
     t9     = temp * 1.0e-9_rt;
@@ -873,7 +866,6 @@ void sneut5(const Real temp, const Real den,
     if (sphot <= 0.0_rt) {
        sphot   = 0.0e0_rt;
        sphotdt = 0.0e0_rt;
-       sphotdd = 0.0e0_rt;
        sphotda = 0.0e0_rt;
        sphotdz = 0.0e0_rt;
     }
