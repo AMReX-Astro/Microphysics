@@ -156,8 +156,6 @@ void rate_c12ag_deboer17(tf_t tf, const Real den, Real& fr,
               term_a3_nr * term_a4_nr * term_a5_nr * \
               term_a6_nr;
 
-    const Real dterm_a0_nr = 0e0_rt;
-    const Real dterm_a1_nr = 0e0_rt;
     const Real dterm_a2_nr = -a2_nr*tf.t9i43*term_a2_nr/3e0_rt;
     const Real dterm_a3_nr = a3_nr*tf.t9i23*term_a3_nr/3e0_rt;
     const Real dterm_a4_nr = a4_nr*term_a4_nr;
@@ -191,12 +189,7 @@ void rate_c12ag_deboer17(tf_t tf, const Real den, Real& fr,
               term_a3_r * term_a4_r * term_a5_r * \
               term_a6_r;
 
-    const Real dterm_a0_r = 0e0_rt;
     const Real dterm_a1_r = -a1_r*tf.t9i2*term_a1_r;
-    const Real dterm_a2_r = 0e0_rt;
-    const Real dterm_a3_r = 0e0_rt;
-    const Real dterm_a4_r = 0e0_rt;
-    const Real dterm_a5_r = 0e0_rt;
     const Real dterm_a6_r = tf.t9i*a6_r*std::pow(tf.t9,a6_r);
     
     const Real dterm_r = (term_a0_r * dterm_a1_r * term_a6_r) + \
@@ -2077,21 +2070,13 @@ void ecapnuc(const Real etakep, const Real temp,
     const Real bk     = 1.38062e-16_rt;
     const Real qn2    = 2.0716446e-06_rt;
     const Real c2me   = 8.1872665e-07_rt;
-    const Real xmp    = 1.6726485e-24_rt;
-    const Real xmn    = 1.6749543e-24_rt;
-    const Real qndeca = 1.2533036e-06_rt;
-    const Real tmean  = 886.7e0_rt;
 
-    // tmean and qndeca are the mean lifetime and decay energy of the neutron
-    // xmp,xnp are masses of the p and n in grams.
     // c2me is the constant used to convert the neutrino energy
     // loss rate from mec2/s (as in the paper) to ergs/particle/sec.
 
     // initialize
     rpen   = 0.0e0_rt;
     rnep   = 0.0e0_rt;
-    Real spen   = 0.0e0_rt;
-    Real snep   = 0.0e0_rt;
     Real t9     = temp * 1.0e-9_rt;
     Real bktinv = 1.0e0_rt/(bk *temp);
     Real qn     = qn1;
@@ -2178,11 +2163,9 @@ void ecapnuc(const Real etakep, const Real temp,
         if (iflag < 2) {
             if (eta <= 0.0_rt) {
                 rpen  = twoln*cmk5*t5*rie1*ftinv;
-                spen  = twoln*cmk6*t5*temp*rjv1*ftinv;
                 spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me;
             } else {
                 rpen = twoln*cmk5*t5*rie2*ftinv;
-                spen = twoln*cmk6*t5*temp*rjv2*ftinv;
                 spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me;
             }
             qn = qn2;
@@ -2192,11 +2175,9 @@ void ecapnuc(const Real etakep, const Real temp,
     // for positrons capture onto neutrons
     if (eta <= 0.0_rt) {
         rnep  = twoln*cmk5*t5*rie1*ftinv;
-        snep  = twoln*cmk6*t5*temp*rjv1*ftinv;
         snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me;
     } else {
         rnep  = twoln*cmk5*t5*rie2*ftinv;
-        snep  = twoln*cmk6*t5*temp*rjv2*ftinv;
         snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me;
     }
 }
