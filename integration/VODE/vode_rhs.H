@@ -8,34 +8,11 @@
 #include <extern_parameters.H>
 #include <vode_type.H>
 
-// The rhs routine provides the right-hand-side for the DVODE solver.
-// This is a generic interface that calls the specific RHS routine in the
-// network you're actually using.
 
+// RHS options for integrator
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void apply_rhs_options (RArray1D& ydot)
 {
-
-    // We are integrating a system of
-    //
-    // y(1:NumSpec) = dX/dt
-    // y(net_itemp) = dT/dt
-    // y(net_ienuc) = denuc/dt
-
-    // Fix the state as necessary.
-
-    clean_state(vode_state);
-
-    // Update the thermodynamics as necessary.
-
-    update_thermodynamics(state, vode_state);
-
-    // Call the specific network routine to get the RHS.
-
-    vode_to_burn(vode_state, state);
-
-    actual_rhs(state, ydot);
-
     // We integrate X, not Y
     for (int n = 1; n <= NumSpec; ++n) {
         ydot(n) *= aion[n-1];
@@ -56,28 +33,14 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
             ydot(n) *= react_boost;
         }
     }
-
-    burn_to_vode(state, vode_state);
-
 }
 
 
-
-// Analytical Jacobian
+// Analytical Jacobian options for integrator
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
+void apply_jac_options (MatrixType& pd)
 {
-    // NOTE: the time at which to evaluate the Jacobian is not
-    // explicitly passed. VODE always evaluates the analytic
-    // Jacobian at vode_state.tn, and we pass vode_state.
-
-    // Call the specific network routine to get the Jacobian.
-
-    vode_to_burn(vode_state, state);
-
-    actual_jac(state, pd);
-
     // We integrate X, not Y
     for (int j = 1; j <= NumSpec; ++j) {
         for (int i = 1; i <= VODE_NEQS; ++i) {
@@ -107,6 +70,95 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
             pd(net_ienuc,j) = 0.0_rt;
         }
     }
+}
+
+
+// The rhs routine provides the right-hand-side for the DVODE solver.
+// This is a generic interface that calls the specific RHS routine in the
+// network you're actually using.
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+{
+
+    // We are integrating a system of
+    //
+    // y(1:NumSpec) = dX/dt
+    // y(net_itemp) = dT/dt
+    // y(net_ienuc) = denuc/dt
+
+    // Fix the state as necessary.
+
+    clean_state(vode_state);
+
+    // Update the thermodynamics as necessary.
+
+    update_thermodynamics(state, vode_state);
+
+    // Call the specific network routine to get the RHS.
+
+    vode_to_burn(vode_state, state);
+
+    actual_rhs(state, ydot);
+
+    apply_rhs_options(ydot);
+
+    burn_to_vode(state, vode_state);
+
+}
+
+
+// Analytical Jacobian
+template<class MatrixType>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
+{
+    // NOTE: the time at which to evaluate the Jacobian is not
+    // explicitly passed. VODE always evaluates the analytic
+    // Jacobian at vode_state.tn, and we pass vode_state.
+
+    // Call the specific network routine to get the Jacobian.
+
+    vode_to_burn(vode_state, state);
+
+    actual_jac(state, pd);
+
+    apply_jac_options(pd);
+
+    burn_to_vode(state, vode_state);
+
+}
+
+
+// Gets the RHS and Jacobian simultaneously from the network
+template<class MatrixType>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void rhs_jac (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, MatrixType& pd)
+{
+
+    // We are integrating a system of
+    //
+    // y(1:NumSpec) = dX/dt
+    // y(net_itemp) = dT/dt
+    // y(net_ienuc) = denuc/dt
+
+    // Fix the state as necessary.
+
+    clean_state(vode_state);
+
+    // Update the thermodynamics as necessary.
+
+    update_thermodynamics(state, vode_state);
+
+    // Call the specific network routine to get the RHS and Jacobian
+
+    vode_to_burn(vode_state, state);
+
+    actual_rhs_jac(state, ydot, pd);
+
+    apply_rhs_options(ydot);
+
+    apply_jac_options(pd);
 
     burn_to_vode(state, vode_state);
 
