@@ -1,6 +1,7 @@
 #ifndef _array_utilities_H_
 #define _array_utilities_H_
 
+#include <AMReX.H>
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
@@ -20,20 +21,14 @@ namespace ArrayUtil
             is set using the XLO template parameter for Virtual::array().
         */
 
-        template<int XLO>
-        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        Real v_array_lookup(int i) {
-            AMREX_ERROR("out of bounds access to virtual array");
-            return 0.0;
-        }
-
         template <int XLO, typename... Targs>
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         Real v_array_lookup(int i, const Real& valN, const Targs&... Args) {
             constexpr int N = sizeof...(Targs) + XLO;
-            if (i > N) { AMREX_ERROR("out of bounds access to virtual array"); return 0.0; }
-            else if (i == N) return valN;
-            else return v_array_lookup<XLO>(i, Args...);
+            if (i == N) return valN;
+            else if constexpr(sizeof...(Targs) > 0) return v_array_lookup<XLO>(i, Args...);
+            // otherwise an out-of-bounds error has occurred
+            else { AMREX_ASSERT(false); return 0.0; }
         }
 
         template <int XLO, typename... Targs>
