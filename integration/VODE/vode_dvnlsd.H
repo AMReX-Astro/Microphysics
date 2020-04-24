@@ -66,9 +66,6 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             vstate.y(i) = vstate.yh(i,1);
         }
 
-        rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
-
         if (vstate.IPUP == 1) {
 
             // If indicated, the matrix P = I - h*rl1*J is reevaluated and
@@ -92,6 +89,9 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             }
 
         }
+
+        rhs(vstate.tn, state, vstate, vstate.savf);
+        vstate.NFE += 1;
 
         for (int i = 1; i <= VODE_NEQS; ++i) {
             vstate.acor(i) = 0.0_rt;
