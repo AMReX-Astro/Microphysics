@@ -73,7 +73,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             // to 0 as an indicator that this has been done.
 
             int IERPJ;
-            dvjac(pivot, IERPJ, state, vstate);
+            dv_rhs_jac(pivot, IERPJ, state, vstate);
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
@@ -88,10 +88,12 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
                 return ACNRM;
             }
 
-        }
+        } else {
 
-        rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
+            rhs(vstate.tn, state, vstate, vstate.savf);
+            vstate.NFE += 1;
+
+        }
 
         for (int i = 1; i <= VODE_NEQS; ++i) {
             vstate.acor(i) = 0.0_rt;
