@@ -1,1 +1,1 @@
-NSCREEN 8
+NSCREEN := 8

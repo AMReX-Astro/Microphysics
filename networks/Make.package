@@ -5,6 +5,8 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
+include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
+
 ifeq ($(USE_REACT), TRUE)
 
   ifeq ($(INTEGRATOR_DIR), VODE90)
@@ -35,7 +37,7 @@ ifeq ($(USE_REACT), TRUE)
 
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
   f90EXE_sources += rate_type.f90
-
+  CEXE_headers += rate_type.H
 
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
@@ -70,6 +72,8 @@ ifeq ($(USE_SCREENING), TRUE)
   EXTERN_CORE       += $(SCREEN_PATH)
 
   include $(SCREEN_PATH)/Make.package
+
+  DEFINES += -DNUMSCREEN=$(NSCREEN)
 
 endif
 

@@ -168,8 +168,8 @@ def write_network(network_template, header_template,
     try:
         with open(properties_file) as f:
             for line in f:
-                key, value = line.split()
-                properties[key] = value
+                key, value = line.strip().split(":=")
+                properties[key.strip()] = value.strip()
     except FileNotFoundError:
         print("no NETWORK_PROPERTIES found, skipping...")
 
@@ -281,6 +281,15 @@ def write_network(network_template, header_template,
                         for p in properties:
                             print(p)
                             fout.write("{}constexpr int {} = {};\n".format(indent, p, properties[p]))
+
+                elif keyword == "SPECIES_ENUM":
+                    if lang == "C++":
+                        for n, spec in enumerate(species):
+                            if n == 0:
+                                fout.write("{}{}=1,\n".format(indent, spec.short_name.capitalize()))
+                            else:
+                                fout.write("{}{},\n".format(indent, spec.short_name.capitalize()))
+                        fout.write("{}NumberSpecies={}\n".format(indent, species[-1].short_name.capitalize()))
 
             else:
                 fout.write(line)
