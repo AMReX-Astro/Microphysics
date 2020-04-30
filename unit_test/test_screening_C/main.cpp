@@ -307,14 +307,17 @@ void main_main ()
 
       Array4<Real> const sp = state.array(mfi);
 
-      AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+      amrex::ParallelFor(bx,
+      [=] AMREX_GPU_DEVICE (int i, int j, int k)
       {
 
         // set the composition -- approximately solar
         Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
 
         Real xn[NumSpec];
-        Real ymass[NumSpec];
+
+        // for now... the screening using 1-based indexing
+        Array1D<Real, 1, NumSpec> ymass;
 
         for (int n = 0; n < NumSpec; n++) {
           xn[n] = metalicity/(NumSpec - 2);
@@ -323,7 +326,7 @@ void main_main ()
         xn[ihe4] = 0.25 - 0.5*metalicity;
 
         for (int n = 0; n < NumSpec; n++) {
-          ymass[n] = xn[n] / aion[n];
+          ymass(n+1) = xn[n] / aion[n];
         }
 
         Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
