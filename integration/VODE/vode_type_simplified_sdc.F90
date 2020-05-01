@@ -294,7 +294,6 @@ contains
     real(rt), parameter :: eps = 1.e-8_rt
     real(rt) :: ydot(neqs), ydot_pert(neqs)
 
-    real(rt) :: jac_temp(SVAR_EVOLVE+1, SVAR_EVOLVE+1)
     integer :: SRHO_EXTRA
 
     real(rt), parameter :: smallK = 1.e-15_rt
@@ -453,25 +452,6 @@ contains
          (sum(eos_state % xn * eos_xderivs % dedX) - eos_state % rho * eos_state % dedr - eos_state % e) / &
          (eos_state % rho * eos_state % dedT)
 
-    ! compute J = dR/dw dw/dU
-
-    ! CUDA Fortran doesn't support the matmul intrinsic :(
-    jac_temp(:,:) = matmul(dRdw, dwdU)
-
-    ! call dgemm(1, 1, SVAR_EVOLVE, SVAR_EVOLVE, iwvar, ONE, &
-    !            dRdw, SVAR_EVOLVE, &
-    !            dwdU, iwvar, &
-    !            ZERO, &
-    !            jac, SVAR_EVOLVE)
-
-    ! we need to cut out the density (SRHO_EXTRA) row and column of
-    ! the Jacobian, since that is not in our full SVAR_EVOLVE state
-    do n = 1, SVAR_EVOLVE
-       do m = 1, SVAR_EVOLVE
-          jac(m, n) = jac_temp(m, n)
-       end do
-    end do
-
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
     ! Our R source has components for species and enthalpy only.  But
@@ -577,24 +557,32 @@ contains
     dwdU(iwT, SRHO_EXTRA) = (sum(eos_state % xn * eos_xderivs % dhdX) - &
          eos_state % rho * eos_state % dhdr - eos_state % h) / (eos_state % rho * eos_state % dhdT)
 
-    ! compute J_temp = dR/dw dw/dU
+#endif
 
-    ! CUDA Fortran doesn't support the matmul intrinsic :(
-    jac_temp(:,:) = matmul(dRdw, dwdU)
-    ! call dgemm(1, 1, SVAR_EVOLVE+1, SVAR_EVOLVE+1, iwvar, ONE, &
-    !            dRdw, SVAR_EVOLVE+1, &
-    !            dwdU, iwvar, &
-    !            ZERO, &
-    !            jac_temp, SVAR_EVOLVE+1)
 
-    ! now discard the SRHO_EXTRA row / column
+    ! compute J = dR/dw dw/dU
+
+    ! J is SVAR_EVOLVE x SVAR_EVOLVE, which will call m x n
+    !
+    ! J = dR/dw dw/dU
+    !
+    !   dR/dw is SVAR_EVOLVE+1 x iwvar, which we call m x k
+    !   dw/dU is iwvar x SVAR_EVOLVE+1, which we call k x n
+    !
+
+    ! we need to cut out the density (SRHO_EXTRA) row and column of
+    ! the Jacobian, since that is not in our full SVAR_EVOLVE state
     do n = 1, SVAR_EVOLVE
+       if (n == SRHO_EXTRA) cycle
        do m = 1, SVAR_EVOLVE
-          jac(m, n) = jac_temp(m, n)
+          if (m == SRHO_EXTRA) cycle
+
+          jac(m, n) = 0.0_rt
+          do k = 1, iwvar
+             jac(m, n) = jac(m,n) + dRdw(m, k) * dwdU(k, n)
+          end do
        end do
     end do
-
-#endif
 
   end subroutine jac_to_vode
 
