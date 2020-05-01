@@ -89,6 +89,8 @@ contains
 
     integer :: i
 
+    call network_properties_init()
+
     ! Allocate ion info arrays
     allocate(bion(nspec))
     allocate(mion(nspec))

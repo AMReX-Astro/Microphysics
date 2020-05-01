@@ -3,9 +3,8 @@ module actual_rhs_module
   use amrex_constants_module
   use network
   use burn_type_module
-  use temperature_integration_module, only: temperature_rhs, temperature_jac
-
   use amrex_fort_module, only : rt => amrex_real
+
   implicit none
 
 contains
@@ -21,6 +20,7 @@ contains
   subroutine actual_rhs(state, ydot)
 
     use extern_probin_module, only: f_act, T_burn_ref, rho_burn_ref, rtilde, nu
+    use temperature_integration_module, only: temperature_rhs, temperature_jac
 
     implicit none
 
@@ -28,6 +28,8 @@ contains
     real(rt)        , intent(inout) :: ydot(neqs)
     real(rt)         :: xfueltmp
     real(rt)         :: dens, temp, rate, y(nspec)
+
+    !$gpu
 
     ydot = ZERO
 
@@ -68,6 +70,8 @@ contains
     type (burn_t), intent(in) :: state
     real(rt)        , intent(inout) :: jac(njrows, njcols)
 
+    !$gpu
+
     jac(:,:) = ZERO
 
   end subroutine actual_jac
@@ -83,6 +87,8 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
+
+    !$gpu
 
     ! This is basically e = m c**2
 

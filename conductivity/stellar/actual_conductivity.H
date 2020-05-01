@@ -52,7 +52,7 @@ actual_conductivity(eos_t& state) {
 
   const Real zbound = 0.1e0_rt;
   const Real t7peek = 1.0e20_rt;
-  const Real k2c    = 4.0_rt/3.0_rt*a_rad*c_light;
+  const Real k2c    = 4.0_rt/3.0_rt*C::a_rad*C::c_light;
   const Real meff   = 1.194648642401440e-10_rt;
   const Real weid   = 6.884326138694269e-5_rt;
   const Real iec    = 1.754582332329132e16_rt;
@@ -217,7 +217,7 @@ actual_conductivity(eos_t& state) {
 
   // from iben apj 196 525 1975 for non-degenerate regimes
   if (dlog10 < drelim) {
-    Real zdel = state.xne/(n_A*t6*std::sqrt(t6));
+    Real zdel = state.xne/(C::n_A*t6*std::sqrt(t6));
     Real zdell10 = std::log10(zdel);
     Real eta0 = std::exp(-1.20322_rt + twoth * std::log(zdel));
     Real eta02 = eta0*eta0;
@@ -261,7 +261,7 @@ actual_conductivity(eos_t& state) {
       dnefac = 1.5_rt/eta0 * (1.0_rt - 0.8225_rt/eta02);
     }
     Real wpar2 = 9.24735e-3_rt * zdel *
-      (state.rho*n_A*(w[3]+w[4]+w[5])/state.xne + dnefac)/(std::sqrt(t6)*pefac);
+      (state.rho*C::n_A*(w[3]+w[4]+w[5])/state.xne + dnefac)/(std::sqrt(t6)*pefac);
     Real walf = 0.5_rt * std::log(wpar2);
     Real walf10 = 0.5_rt * std::log10(wpar2);
 
