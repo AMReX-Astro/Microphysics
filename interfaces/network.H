@@ -4,6 +4,8 @@
 #include <string>
 #include <network_properties.H>
 
+void network_init();
+
 static int network_spec_index(const std::string name) {
   int idx = -1;
   for (int n = 0; n < NumSpec; n++) {

@@ -42,4 +42,9 @@ static const std::vector<std::string> aux_names_cxx = {
    @@AUX_NAMES@@
   };
 
+namespace Species {
+   enum NetworkSpecies {
+     @@SPECIES_ENUM@@
+   };
+};
 #endif

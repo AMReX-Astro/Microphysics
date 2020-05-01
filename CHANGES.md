@@ -7,6 +7,9 @@
 
    * species names are available as an enum in network_properties.H (#304)
 
+   * The screening on O16+O16 in iso7 was fixed (#302)
+
+   * The VODE integrator is now available in C++ (#299)
 
 # 20.04
 
