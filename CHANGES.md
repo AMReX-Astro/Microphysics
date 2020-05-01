@@ -1,3 +1,13 @@
+# 20.05
+
+   * We now have an option for using sparse storage for aprox13 in C++
+     (#307)
+
+   * iso7 and aprox13 are now available as a C++ network (#303, 305)
+
+   * species names are available as an enum in network_properties.H (#304)
+
+
 # 20.04
 
    * The wion network property was removed (#294)
