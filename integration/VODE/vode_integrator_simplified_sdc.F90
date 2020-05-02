@@ -61,6 +61,8 @@ contains
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
 
+    real(rt) :: sdc_tol_fac
+
     !$gpu
 
     dvode_state % jacobian = jacobian
