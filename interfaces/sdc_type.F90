@@ -63,7 +63,7 @@ module sdc_type_module
      integer :: n_jac
 
      integer :: sdc_iter
-     integer :: max_sdc_iter
+     integer :: num_sdc_iter
 
      logical :: success
   end type sdc_t

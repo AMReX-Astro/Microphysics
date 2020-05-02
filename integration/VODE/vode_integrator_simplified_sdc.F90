@@ -78,7 +78,7 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
-    sdc_tol_fac = sdc_burn_tol_factor**(state_in % max_sdc_iter - state_in % sdc_iter - 1)
+    sdc_tol_fac = sdc_burn_tol_factor**(state_in % num_sdc_iter - state_in % sdc_iter - 1)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
