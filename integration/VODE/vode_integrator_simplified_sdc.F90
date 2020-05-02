@@ -32,7 +32,7 @@ contains
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit, use_jacobian_caching, &
-                                    ode_max_steps
+                                    ode_max_steps, sdc_burn_tol_factor
     use cuvode_parameters_module
     use integration_data, only: integration_status_t
 
@@ -78,23 +78,25 @@ contains
     ! to (a) decrease dT_crit, (b) increase the maximum number of
     ! steps allowed.
 
+    sdc_tol_fac = sdc_burn_tol_factor**(state_in % max_sdc_iter - state_in % sdc_iter - 1)
+
 #if defined(SDC_EVOLVE_ENERGY)
 
-    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec
-    dvode_state % atol(SEDEN)           = status % atol_enuc
-    dvode_state % atol(SEINT)           = status % atol_enuc
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec * sdc_tol_fac
+    dvode_state % atol(SEDEN)           = status % atol_enuc * sdc_tol_fac
+    dvode_state % atol(SEINT)           = status % atol_enuc * sdc_tol_fac
 
-    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec
-    dvode_state % rtol(SEDEN)           = status % rtol_enuc
-    dvode_state % rtol(SEINT)           = status % rtol_enuc
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec * sdc_tol_fac
+    dvode_state % rtol(SEDEN)           = status % rtol_enuc * sdc_tol_fac
+    dvode_state % rtol(SEINT)           = status % rtol_enuc * sdc_tol_fac
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
-    dvode_state % atol(SENTH)           = status % atol_enuc ! enthalpy
+    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec * sdc_tol_fac ! mass fractions
+    dvode_state % atol(SENTH)           = status % atol_enuc * sdc_tol_fac ! enthalpy
 
-    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
-    dvode_state % rtol(SENTH)           = status % rtol_enuc ! enthalpy
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec * sdc_tol_fac ! mass fractions
+    dvode_state % rtol(SENTH)           = status % rtol_enuc * sdc_tol_fac ! enthalpy
 
 #endif
 
