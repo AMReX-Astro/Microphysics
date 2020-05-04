@@ -1,8 +1,15 @@
 # 20.05
 
-   * A C++ version of the iso7 network was created (#303)
+   * We now have an option for using sparse storage for aprox13 in C++
+     (#307)
+
+   * iso7 and aprox13 are now available as a C++ network (#303, 305)
+
+   * species names are available as an enum in network_properties.H (#304)
 
    * The screening on O16+O16 in iso7 was fixed (#302)
+
+   * The VODE integrator is now available in C++ (#299)
 
 # 20.04
 
