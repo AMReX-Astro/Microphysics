@@ -39,7 +39,7 @@ contains
 
     ! Ensure that mass fractions always stay positive.
     vode_state % y(SFS:SFS+nspec-1) = &
-         max(min(vode_state % y(SFS:SFS+nspec-1), vode_State % rpar(irp_SRHO)), &
+         max(min(vode_state % y(SFS:SFS+nspec-1), vode_state % rpar(irp_SRHO)), &
              vode_state % rpar(irp_SRHO) * 1.e-200_rt)
 
     ! renormalize abundances as necessary
@@ -258,49 +258,331 @@ contains
 
     ! this is only used with an analytic Jacobian
 
-    use burn_type_module, only : net_ienuc, neqs
+
+    ! we come in with burn_state % jac being the Jacobian of the reacting system
+    ! but we need to convert it to the SDC system
+
+    use burn_type_module, only : burn_t, net_ienuc, net_itemp, copy_burn_t, neqs
+    use eos_type_module, only : eos_input_re, eos_input_rh, eos_t
+    use eos_module, only : eos
+    use eos_composition_module, only : eos_xderivs_t, composition_derivatives
+    use actual_rhs_module
 
     real(rt), intent(in) :: time
     type(dvode_t), intent(inout) :: vode_state
-    real(rt), intent(in) :: jac_react(neqs, neqs)
+    real(rt), intent(inout) :: jac_react(neqs, neqs)
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
-    integer :: n
+    integer :: m, n
+#if defined(SDC_EVOLVE_ENERGY)
+    integer, parameter :: iwrho = 1, iwfs=2, iwK = iwfs+nspec, iwT = iwK+1, iwvar = 3+nspec
+#else
+    integer, parameter :: iwrho = 1, iwfs=2, iwT = iwfs+nspec, iwvar = 2+nspec
+#endif
+
+    ! SVAR_EVOLVE doesn't include rho, but we will include it here in
+    ! the intermediate this affects both the Castro
+    ! (SDC_EVOLVE_ENERGY) and MAESTROeX (SDC_EVOLVE_ENTHALPY) systems.
+    real(rt) :: dRdw(SVAR_EVOLVE+1, iwvar)
+    real(rt) :: dwdU(iwvar, SVAR_EVOLVE+1)
+
+    type(burn_t) :: burn_state
+    type(burn_t) :: burn_state_pert
+    type(eos_t) :: eos_state
+    type(eos_xderivs_t) :: eos_xderivs
+    real(rt) :: K
+    real(rt), parameter :: eps = 1.e-8_rt
+    real(rt) :: ydot(neqs), ydot_pert(neqs)
+
+    integer :: SRHO_EXTRA
+
+    real(rt), parameter :: smallK = 1.e-15_rt
 
     !$gpu
 
+    ! burn_state % jac has the derivatives with respect to the native
+    ! network variables, X, T. e.  It does not have derivatives with
+    ! respect to density, so we'll have to compute those ourselves.
+
+    ! The Jacobian from the nets is in terms of dYdot/dY, but we want
+    ! it was dXdot/dX, so convert here.
+    do n = 1, nspec
+       jac_react(n,:) = jac_react(n,:) * aion(n)
+       jac_react(:,n) = jac_react(:,n) * aion_inv(n)
+    enddo
+
+    ! also fill the ydot -- we can't assume that it is valid on input
+    call vode_to_burn(time, vode_state, burn_state)
+    call actual_rhs(burn_state, ydot)
+
+    ! at this point, our Jacobian should be entirely in terms of X,
+    ! not Y.  Let's now fix the rhs terms themselves to be in terms of
+    ! dX/dt and not dY/dt.
+    ydot(1:nspec) = ydot(1:nspec) * aion(1:nspec)
+
+    SRHO_EXTRA = SVAR_EVOLVE + 1
+
+    dRdw(:,:) = ZERO
+    dwdU(:, :) = ZERO
+
 #if defined(SDC_EVOLVE_ENERGY)
 
-    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac_react(1:nspec,1:nspec)
-    jac(SFS:SFS+nspec-1,SEDEN) = jac_react(1:nspec,net_ienuc)
-    jac(SFS:SFS+nspec-1,SEINT) = jac_react(1:nspec,net_ienuc)
+    ! The system we integrate has the form (rho X_k, rho E, rho e), but we will temporarily augment
+    ! This with rho, giving U = (rho, rho X_k, rho E, rho e).
+    !
+    ! The intermediate state, w, has the form w = (rho, X_k, K, T), where K is 1/2 |U|^2
 
-    jac(SEDEN,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
-    jac(SEDEN,SEDEN) = jac_react(net_ienuc,net_ienuc)
-    jac(SEDEN,SEINT) = jac_react(net_ienuc,net_ienuc)
+    ! First compute dR/dw using the Jacobian that comes from the
+    ! network.  Note: this doesn't include density derivatives, so we
+    ! compute those via differencing.
 
-    jac(SEINT,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
-    jac(SEINT,SEDEN) = jac_react(net_ienuc,net_ienuc)
-    jac(SEINT,SEINT) = jac_react(net_ienuc,net_ienuc)
+    ! dR/dw has the form:
+    !
+    !  SFS         / d(rho X1dot)/drho  d(rho X1dot)/dX1   d(rho X1dit)/dX2   ...  0   d(rho X1dot)/dT \
+    !              | d(rho X2dot)/drho  d(rho X2dot)/dX1   d(rho X2dot)/dX2   ...  0   d(rho X2dot)/dT |
+    !  SFS-1+nspec |   ...                                                         0                   |
+    !  SEINT       | d(rho Edot)/drho   d(rho Edot)/dX1    d(rho Edot)/dX2    ...  0   d(rho Edot)/dT  |
+    !  SEDEN       | d(rho Edot)/drho   d(rho Edot)/dX1    d(rho Edot)/dX2    ...  0   d(rho Edot)/dT  |
+    !  SRHO_EXTRA  \        0                  0                  0                0          0       /
+    !
+    !                                                                              ^
+    !                                                                              K derivatives
+
+    ! now perturb density and call the RHS to compute the derivative wrt rho
+    ! species rates come back in terms of molar fractions
+    call copy_burn_t(burn_state_pert, burn_state)
+    burn_state_pert % rho = burn_state % rho * (ONE + eps)
+
+    burn_state_pert % i = burn_state % i
+    burn_state_pert % j = burn_state % j
+    burn_state_pert % k = burn_state % k
+
+    call actual_rhs(burn_state_pert, ydot_pert)
+
+    ! make the rates dX/dt and not dY/dt
+    ydot_pert(1:nspec) = ydot_pert(1:nspec) * aion(1:nspec)
+
+    ! fill the column of dRdw corresponding to the derivative
+    ! with respect to rho
+    do m = 1, nspec
+       ! d( d(rho X_m)/dt)/drho
+       dRdw(SFS-1+m, iwrho) = ydot(m) + &
+            vode_state % rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
+    enddo
+
+    ! d( d(rho e)/dt)/drho
+    dRdw(SEINT, iwrho) = ydot(net_ienuc) + &
+         vode_state % rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
+
+    ! d( d(rho E)/dt)/drho
+    dRdw(SEDEN, iwrho) = ydot(net_ienuc) + &
+         vode_state % rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
+
+    ! fill the columns of dRdw corresponding to each derivative
+    ! with respect to species mass fraction
+    do n = 1, nspec
+       do m = 1, nspec
+          ! d( d(rho X_m)/dt)/dX_n
+          dRdw(SFS-1+m, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(m, n)
+       enddo
+
+       ! d( d(rho e)/dt)/dX_n
+       dRdw(SEINT, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, n)
+
+       ! d( d(rho E)/dt)/dX_n
+       dRdw(SEDEN, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, n)
+
+    enddo
+
+    ! now fill the column corresponding to derivatives with respect to
+    ! temperature -- this column is iwT
+
+    ! d( d(rho X_m)/dt)/dT
+    do m = 1, nspec
+       dRdw(SFS-1+m, iwT) = vode_state % rpar(irp_SRHO) * jac_react(m, net_itemp)
+    enddo
+
+    ! d( d(rho e)/dt)/dT
+    dRdw(SEINT, iwT) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
+
+    ! d( d(rho E)/dt)/dT
+    dRdw(SEDEN, iwT) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
+
+    ! for the K derivatives, dRdw(:, iwK), and the rho sources,
+    ! dRdw(SRHO_EXTRA, :), we don't need to do anything, because these
+    ! are already zeroed out
+
+    ! that completes dRdw
+
+
+    ! construct dwdU
+
+    ! kinetic energy, K = 1/2 |U|^2
+    K = 0.5_rt * sum(vode_state % rpar(irp_SMX:irp_SMZ)**2)/vode_state % rpar(irp_SRHO)**2
+
+    ! density row (iwrho)
+    dwdU(iwrho, SRHO_EXTRA) = 1.0_rt
+
+    ! species rows
+    do m = 1, nspec
+       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/vode_state % rpar(irp_SRHO)
+       dwdU(iwfs-1+m, SRHO_EXTRA) = -burn_state % xn(m) / burn_state % rho
+    end do
+
+    ! K row
+    dwdU(iwK, SRHO_EXTRA) = -K / burn_state % rho
+    dwdU(iwK, SEINT) = -1.0_rt / burn_state % rho
+    dwdU(iwK, SEDEN) = 1.0_rt / burn_state % rho
+
+    ! T row
+    eos_state % rho = vode_state % rpar(irp_SRHO)
+    eos_state % T = 1.e4   ! initial guess
+    eos_state % xn(:) = vode_state % y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
+    eos_state % e = vode_state % y(SEINT) / vode_state % rpar(irp_SRHO)
+
+    call eos(eos_input_re, eos_state)
+
+    call composition_derivatives(eos_state, eos_xderivs)
+
+    ! temperature row
+    dwdU(iwT, SFS:SFS-1+nspec) = -eos_xderivs % dedX(1:nspec)/ (eos_state % rho * eos_state % dedT)
+    dwdU(iwT, SEINT) = 1.0_rt / (eos_state % rho * eos_state % dedT)
+    dwdU(iwT, SEDEN) = 0.0_rt
+    dwdU(iwT, SRHO_EXTRA) = &
+         (sum(eos_state % xn * eos_xderivs % dedX) - eos_state % rho * eos_state % dedr - eos_state % e) / &
+         (eos_state % rho * eos_state % dedT)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac_react(1:nspec,1:nspec)
-    jac(SFS:SFS+nspec-1,SENTH) = jac_react(1:nspec,net_ienuc)
+    ! Our R source has components for species and enthalpy only.  But
+    ! we will extend it here to include the mass density too to ensure
+    ! that we have a square matrix in dU/dw that we can take the
+    ! inverse of to use below.  When we compute the final Jacobian, we will
+    ! discard the density row.
 
-    jac(SENTH,SFS:SFS+nspec-1) = jac_react(net_ienuc,1:nspec)
-    jac(SENTH,SENTH) = jac_react(net_ienuc,net_ienuc)
+    ! Our jacobian, dR/dw has the form:
+    !
+    !  SFS         / d(rho X1dot)/drho  d(rho X1dot)/dX1   d(rho X1dit)/dX2   ...  d(rho X1dot)/dT \
+    !              | d(rho X2dot)/drho  d(rho X2dot)/dX1   d(rho X2dot)/dX2   ...  d(rho X2dot)/dT |
+    !  SFS-1+nspec |   ...                                                                         |
+    !  SENTH       | d(rho h)/drho      d(rho h)/dX1       d(rho h)/dX2       ...  d(rho h)/dT     |
+    !  SRHO_EXTRA  \ 0                  0                  0                       0               /
+
+
+    ! now perturb density and call the RHS to compute the derivative wrt rho
+    ! species rates come back in terms of molar fractions
+    call copy_burn_t(burn_state_pert, burn_state)
+    burn_state_pert % rho = burn_state % rho * (ONE + eps)
+
+    burn_state_pert % i = burn_state % i
+    burn_state_pert % j = burn_state % j
+    burn_state_pert % k = burn_state % k
+
+    call actual_rhs(burn_state_pert, ydot_pert)
+
+    ! make the rates dX/dt and not dY/dt
+    ydot_pert(1:nspec) = ydot_pert(1:nspec) * aion(1:nspec)
+
+    ! fill the column of dRdw corresponding to the derivative
+    ! with respect to rho
+    do m = 1, nspec
+       ! d( d(rho X_m)/dt)/drho
+       dRdw(SFS-1+m, iwrho) = ydot(m) + &
+            vode_state % rpar(irp_SRHO) * (ydot_pert(m) - ydot(m))/(eps * burn_state % rho)
+    enddo
+
+    ! d( d(rho h)/dt)/drho
+    dRdw(SENTH, iwrho) = ydot(net_ienuc) + &
+         vode_state % rpar(irp_SRHO) * (ydot_pert(net_ienuc) - ydot(net_ienuc))/(eps * burn_state % rho)
+
+    ! d( d(rho)/dt)/drho
+    dRdw(SRHO_EXTRA, iwrho) = ZERO
+
+    ! fill the columns of dRdw corresponding to each derivative
+    ! with respect to species mass fraction
+    do n = 1, nspec
+       do m = 1, nspec
+          ! d( d(rho X_m)/dt)/dX_n
+          dRdw(SFS-1+m, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(m, n)
+       enddo
+
+       ! d( d(rho h)/dt)/dX_n
+       dRdw(SENTH, iwfs-1+n) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, n)
+
+       ! d( d(rho)/dt)/dX_n
+       dRdw(SRHO_EXTRA, iwfs-1+n) = ZERO
+
+    enddo
+
+    ! now fill the column corresponding to derivatives with respect to
+    ! temperature -- this column is iwT
+
+    ! d( d(rho X_m)/dt)/dT
+    do m = 1, nspec
+       dRdw(SFS-1+m, iwT) = vode_state % rpar(irp_SRHO) * jac_react(m, net_itemp)
+    enddo
+
+    ! d( d(rho h)/dt)/dT
+    dRdw(SENTH, iwT) = vode_state % rpar(irp_SRHO) * jac_react(net_ienuc, net_itemp)
+
+    ! d( d(rho)/dt)/dT
+    dRdw(SRHO_EXTRA, iwT) = ZERO
+
+    ! that completes dRdw
+
+    ! construct dwdU.  Here we take U = (rho X, rho h, rho)^T
+
+    ! density row (iwrho)
+    dwdU(iwrho, SRHO_EXTRA) = 1.0_rt
+
+    ! species rows
+    do m = 1, nspec
+       dwdU(iwfs-1+m, SFS-1+m) = 1.0_rt/vode_state % rpar(irp_SRHO)
+       dwdU(iwfs-1+m, SRHO_EXTRA) = -burn_state % xn(m) / burn_state % rho
+    end do
+
+
+    eos_state % rho = vode_state % rpar(irp_SRHO)
+    eos_state % T = 1.e4   ! initial guess
+    eos_state % xn(:) = y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
+    eos_state % h = y(SENTH)/vode_state % rpar(irp_SRHO)
+
+    call eos(eos_input_rh, eos_state)
+
+    call composition_derivatives(eos_state, eos_xderivs)
+
+    ! temperature row
+    dwdU(iwT, SFS:SFS-1+nspec) = -eos_xderivs % dhdX(1:nspec)/ (eos_state % rho * eos_state % dedT)
+    dwdU(iwT, SENTH) = ONE/(eos_state % rho * eos_state % dhdT)
+    dwdU(iwT, SRHO_EXTRA) = (sum(eos_state % xn * eos_xderivs % dhdX) - &
+         eos_state % rho * eos_state % dhdr - eos_state % h) / (eos_state % rho * eos_state % dhdT)
 
 #endif
 
-    ! Scale it to match our variables. We don't need to worry about
-    ! the rho dependence, since every one of the SDC variables is
-    ! linear in rho, so we just need to focus on the Y --> X
-    ! conversion.
-    do n = 1, nspec
-       jac(SFS+n-1,:) = jac(SFS+n-1,:) * aion(n)
-       jac(:,SFS+n-1) = jac(:,SFS+n-1) * aion_inv(n)
-    enddo
+
+    ! compute J = dR/dw dw/dU
+
+    ! J is SVAR_EVOLVE x SVAR_EVOLVE, which will call m x n
+    !
+    ! J = dR/dw dw/dU
+    !
+    !   dR/dw is SVAR_EVOLVE+1 x iwvar, which we call m x k
+    !   dw/dU is iwvar x SVAR_EVOLVE+1, which we call k x n
+    !
+
+    ! we need to cut out the density (SRHO_EXTRA) row and column of
+    ! the Jacobian, since that is not in our full SVAR_EVOLVE state
+    do n = 1, SVAR_EVOLVE
+       if (n == SRHO_EXTRA) cycle
+       do m = 1, SVAR_EVOLVE
+          if (m == SRHO_EXTRA) cycle
+
+          jac(m, n) = 0.0_rt
+          do k = 1, iwvar
+             jac(m, n) = jac(m,n) + dRdw(m, k) * dwdU(k, n)
+          end do
+       end do
+    end do
 
   end subroutine jac_to_vode
 
