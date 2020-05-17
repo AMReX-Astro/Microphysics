@@ -22,7 +22,20 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
     // y(net_itemp) = dT/dt
     // y(net_ienuc) = denuc/dt
 
-    // Fix the state as necessary.
+    // Only do the burn if the incoming temperature is within the temperature
+    // bounds. Otherwise set the RHS to zero and return.
+
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+
+        for (int n = 1; n <= VODE_NEQS; ++n) {
+            ydot(n) = 0.0_rt;
+        }
+
+        return;
+
+    }
+
+    // Fix the state as necessary.    
 
     clean_state(vode_state);
 
@@ -71,6 +84,21 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // NOTE: the time at which to evaluate the Jacobian is not
     // explicitly passed. VODE always evaluates the analytic
     // Jacobian at vode_state.tn, and we pass vode_state.
+
+    // Only do the burn if the incoming temperature is within the temperature
+    // bounds. Otherwise set the Jacobian to zero and return.
+
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                pd(i,j) = 0.0_rt;
+            }
+        }
+
+        return;
+
+    }
 
     // Call the specific network routine to get the Jacobian.
 
