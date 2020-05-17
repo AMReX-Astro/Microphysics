@@ -14,6 +14,14 @@ USE_REACT = TRUE
 
 EBASE = main
 
+USE_CXX_EOS = TRUE
+
+USE_CXX_REACTIONS ?= FALSE
+
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+  DEFINES += -DCXX_REACTIONS
+endif
+
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 

@@ -1,6 +1,6 @@
 ! Burn a single cell and output time-series integration data.
 
-subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
+subroutine burn_cell() bind(C, name="burn_cell")
 
   use amrex_error_module
   use amrex_constants_module
@@ -17,9 +17,6 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   use network
 
   implicit none
-
-  integer, intent(in) :: namlen
-  integer, intent(in) :: name(namlen)
 
   type (burn_t)       :: burn_state_in, burn_state_out
   type (eos_t)        :: eos_state_in, eos_state_out
@@ -40,11 +37,6 @@ subroutine burn_cell(name, namlen) bind(C, name="burn_cell")
   ! Useful for evaluating final values
   real(rt)     :: eos_energy_generated, eos_energy_rate
 
-  ! runtime
-  call runtime_init(name, namlen)
-
-  ! microphysics
-  call microphysics_init(small_temp=small_temp, small_dens=small_dens)
   call eos_get_small_temp(small_temp)
   call eos_get_small_dens(small_dens)
 
