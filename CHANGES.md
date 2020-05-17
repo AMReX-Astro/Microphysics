@@ -1,3 +1,8 @@
+# 20.06
+
+   * burn_cell_C can now use the C++ burner if compiled with USE_CXX_REACTIONS=TRUE
+     and run with do_cxx = 1. (#313)
+
 # 20.05
 
    * We now have an option for using sparse storage for aprox13 in C++
