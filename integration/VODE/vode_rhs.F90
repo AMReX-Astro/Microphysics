@@ -41,7 +41,7 @@ contains
 
     ! Fix the state as necessary.
 
-    call clean_state(vode_state)
+    call clean_state(time, vode_state)
 
     ! Update the thermodynamics as necessary.
 

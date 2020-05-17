@@ -8,7 +8,7 @@ module vode_type_module
 
 contains
   
-  subroutine clean_state(vode_state)
+  subroutine clean_state(time, vode_state)
 
     !$acc routine seq
 
@@ -21,6 +21,7 @@ contains
 
     implicit none
 
+    real(rt),      intent(in   ) :: time
     type(dvode_t), intent(inout) :: vode_state
 
     real(rt) :: small_temp

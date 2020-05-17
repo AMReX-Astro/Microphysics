@@ -161,7 +161,7 @@ contains
           end do
 
           ! Clean the corrected Y: Yc' = clean(Yc)
-          call clean_state(vstate % Y, vstate % RPAR)
+          call clean_state(vstate % TN, vstate)
 
           ! Find the cleaned correction: clean(Y_delta) = Yc' - Y_previous
           do I = 1,VODE_NEQS
