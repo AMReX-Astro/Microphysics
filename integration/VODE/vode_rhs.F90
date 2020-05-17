@@ -16,10 +16,11 @@ contains
     
     use actual_network, only: aion, nspec
     use amrex_fort_module, only: rt => amrex_real
+    use eos_type_module, only : eos_get_small_temp
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use amrex_constants_module, only: ZERO, ONE
     use network_rhs_module, only: network_rhs
-    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
+    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost, MAX_TEMP
     use vode_type_module, only: clean_state, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps, irp_t_sound, irp_t0
 
@@ -31,6 +32,8 @@ contains
 
     type (burn_t) :: burn_state
 
+    real(rt) :: small_temp
+
     !$gpu
 
     ! We are integrating a system of
@@ -38,6 +41,19 @@ contains
     ! y(1:nspec)   = dX/dt
     ! y(net_itemp) = dT/dt
     ! y(net_ienuc) = denuc/dt
+
+    ! Only do the burn if the incoming temperature is within the temperature
+    ! bounds. Otherwise set the RHS to zero and return.
+
+    call eos_get_small_temp(small_temp)
+
+    if (vode_state % y(net_itemp) <= small_temp .or. vode_state % y(net_itemp) >= MAX_TEMP) then
+
+       ydot(:) = 0.0_rt
+
+       return
+
+    end if
 
     ! Fix the state as necessary.
 
@@ -86,11 +102,12 @@ contains
     use network, only: aion, aion_inv, nspec
     use amrex_constants_module, only: ZERO
     use network_rhs_module, only: network_jac
+    use eos_type_module, only : eos_get_small_temp
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
     use vode_rpar_indices, only: n_rpar_comps, irp_t_sound, irp_t0
     use amrex_fort_module, only: rt => amrex_real
-    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost
+    use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost, MAX_TEMP
 
     implicit none
 
@@ -102,7 +119,22 @@ contains
     type (burn_t) :: state
     integer :: n
 
+    real(rt) :: small_temp
+
     !$gpu
+
+    ! Only do the burn if the incoming temperature is within the temperature
+    ! bounds. Otherwise set the Jacobian to zero and return.
+
+    call eos_get_small_temp(small_temp)
+
+    if (vode_state % y(net_itemp) <= small_temp .or. vode_state % y(net_itemp) >= MAX_TEMP) then
+
+       pd(:,:) = 0.0_rt
+
+       return
+
+    end if
 
     ! Call the specific network routine to get the Jacobian.
 
