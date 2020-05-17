@@ -29,7 +29,7 @@ contains
 #else
     use vode_rhs_module, only: f_rhs, jac
 #endif
-#ifdef CLEAN_INTEGRATOR_CORRECTION
+#ifndef TRUE_SDC
     use vode_type_module, only: clean_state
 #endif
 
@@ -152,7 +152,7 @@ contains
              vstate % Y(:) = vstate % Y(:) * CSCALE
           end if
 
-#ifdef CLEAN_INTEGRATOR_CORRECTION
+#ifndef TRUE_SDC
           ! Clean the correction to Y. Use vstate % Y as scratch space.
 
           ! Find the corrected Y: Yc = Y_previous + Y_delta
