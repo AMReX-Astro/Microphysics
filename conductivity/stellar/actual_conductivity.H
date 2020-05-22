@@ -8,6 +8,8 @@
 
 const std::string cond_name = "stellar";
 
+using namespace amrex;
+
 AMREX_FORCE_INLINE
 void
 actual_conductivity_init()
