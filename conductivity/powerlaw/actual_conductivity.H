@@ -4,6 +4,7 @@
 #include <cmath>
 #include "eos_type.H"
 #include "network.H"
+#include <extern_parameters.H>
 
 const std::string cond_name = "powerlaw";
 
