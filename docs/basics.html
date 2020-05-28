@@ -94,7 +94,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">StarKiller Basics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started-standalone">Getting Started (Standalone)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started-running-with-maestroex-or-castro">Getting Started (Running with MAESTROeX or CASTRO)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design Philosophy</a></li>
 </ul>
@@ -199,9 +200,40 @@
 </style>
 <div class="section" id="starkiller-basics">
 <h1>StarKiller Basics<a class="headerlink" href="#starkiller-basics" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="getting-started">
-<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<p>Getting started with Microphysics using either CASTRO or MAESTRO is
+<div class="section" id="getting-started-standalone">
+<h2>Getting Started (Standalone)<a class="headerlink" href="#getting-started-standalone" title="Permalink to this headline">¶</a></h2>
+<p>Microphysics can be used in a “standalone” fashion to run the unit
+tests and explore the behavior of the reaction networks.  The main
+requirement is a copy of AMReX:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">AMReX</span><span class="o">-</span><span class="n">Codes</span><span class="o">/</span><span class="n">amrex</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>We use this for some data structures and the build system.  You need
+to set the <code class="docutils literal notranslate"><span class="pre">AMREX_HOME</span></code> environment variable to point to the
+<code class="docutils literal notranslate"><span class="pre">amrex/</span></code> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">AMREX_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">amrex</span>
+</pre></div>
+</div>
+<p>(where you change <code class="docutils literal notranslate"><span class="pre">/path/to/amrex</span></code> to your actual path).</p>
+<p>A good unit test to start with is <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> – this is simply a
+one-zone burn.  In <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> do:</p>
+<blockquote>
+<div><p>cd unit_test/burn_cell
+make</p>
+</div></blockquote>
+<p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.  Then you can run it as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs_aprox21</span>
+</pre></div>
+</div>
+<p>By default, the test is built with the 21-isotope <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> network.
+Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox21</span></code> is the inputs file that sets options.  It also
+points to a second inputs file, <code class="docutils literal notranslate"><span class="pre">probin_aprox13</span></code> which is
+interpreted by the Fortran portions of the code.  In this second file, you’ll
+see the density, temperature, and mass fractions of the nuclei set.</p>
+</div>
+<div class="section" id="getting-started-running-with-maestroex-or-castro">
+<h2>Getting Started (Running with MAESTROeX or CASTRO)<a class="headerlink" href="#getting-started-running-with-maestroex-or-castro" title="Permalink to this headline">¶</a></h2>
+<p>Getting started with Microphysics using either CASTRO or MAESTROeX is
 straightforward. Because the modules here are already in a format that
 the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
@@ -211,13 +243,13 @@ through your <code class="docutils literal notranslate"><span class="pre">~/.bas
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MICROPHYSICS_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">Microphysics</span>
 </pre></div>
 </div>
-<p>For CASTRO  the name of the EOS and network are set via the make
+<p>For CASTRO the name of the EOS and network are set via the make
 variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>. The macros in CASTRO’s
 <code class="docutils literal notranslate"><span class="pre">Make.Castro</span></code> will know to look in Microphysics using the
 <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable to find the codes.</p>
-<p>For MAESTRO, the name of the EOS and network are set via the make
+<p>For MAESTROeX, the name of the EOS and network are set via the make
 variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>, and the macros in MAESTRO’s
-<code class="docutils literal notranslate"><span class="pre">GMaestro.mak</span></code> file will find the code, again using the
+<code class="docutils literal notranslate"><span class="pre">Make.Maestro</span></code> file will find the code, again using the
 <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable.</p>
 <p>For other codes, one can use the interfaces in
 <code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code> and sample routines in

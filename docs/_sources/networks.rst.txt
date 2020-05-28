@@ -163,8 +163,7 @@ well as oxygen and iron.
 At compile time, the network module ``actual_network.f90``
 is written using the python script ``write_network.py``
 and the template ``network.template``. The make rule
-for this is contained in ``Make.package`` (for C++ AMReX) and
-``GPackage.mak`` (for F90 AMReX). The name of the inputs file
+for this is contained in ``Make.package``. The name of the inputs file
 is specified by the variable ``GENERAL_NET_INPUTS``.
 
 A version of this network comes with MAESTRO and CASTRO, so you do
