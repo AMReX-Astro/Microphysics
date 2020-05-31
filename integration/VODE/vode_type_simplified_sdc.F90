@@ -544,8 +544,8 @@ contains
 
     eos_state % rho = vode_state % rpar(irp_SRHO)
     eos_state % T = 1.e4   ! initial guess
-    eos_state % xn(:) = y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
-    eos_state % h = y(SENTH)/vode_state % rpar(irp_SRHO)
+    eos_state % xn(:) = vode_state % y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
+    eos_state % h = vode_state % y(SENTH)/vode_state % rpar(irp_SRHO)
 
     call eos(eos_input_rh, eos_state)
 
