@@ -44,6 +44,11 @@ module burn_type_module
     real(rt) :: aux(naux)
 #endif
 
+#if SDC_EVOLVE_ENTHALPY
+    ! make pressure available to RHS
+    real(rt) :: p0
+#endif
+    
     real(rt) :: cv
     real(rt) :: cp
     real(rt) :: y_e
