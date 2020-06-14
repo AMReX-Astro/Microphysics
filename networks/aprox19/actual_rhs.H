@@ -1115,7 +1115,7 @@ void screen_aprox19 (Real btemp, Real bden,
     if (denom > 1.0e-50_rt && btemp > 1.5e9_rt) {
 
        denomdt  = dratdumdt(irhegp)*ratdum(irdgn) + ratdum(irhegp)*dratdumdt(irdgn)
-            +  y(N) * (dratdumdt(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdt(irdgn));
+            +  y(N) * (dratdumdt(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdt(irdgn))
             +  y(N)*y(P) * (dratdumdt(irheng)*ratdum(irdpg) + ratdum(irheng)*dratdumdt(irdpg));
 
        //denomdd  = dratdumdd(irhegp)*ratdum(irdgn) + ratdum(irhegp)*dratdumdd(irdgn)
