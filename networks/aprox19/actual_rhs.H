@@ -2699,7 +2699,7 @@ void actual_jac (burn_t& state, MatrixType& jac) {
 
     // Species Jacobian elements with respect to other species
 
-    for (int i = 1; i <= NumSpec; ++i) {
+    for (int i = 1; i <= NumRates; ++i) {
         r1(i) = rr.rates(1, i);
         r2(i) = rr.rates(3, i);
         r3(i) = rr.rates(4, i);
