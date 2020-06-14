@@ -2667,8 +2667,8 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac (burn_t& state, MatrixType& jac) {
-
+void actual_jac (burn_t& state, MatrixType& jac)
+{
     rate_t rr;
 
     bool deriva;
@@ -2726,21 +2726,20 @@ void actual_jac (burn_t& state, MatrixType& jac) {
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(ratdum) / dT
 
-    for (int i = 1; i <= NumSpec; ++i) {
+    for (int i = 1; i <= NumRates; ++i) {
         r1(i) = rr.rates(1, i);
         r2(i) = rr.rates(2, i);
     }
 
     rhs(y, r2, r1, yderivs, deriva);
 
-    ener_gener_rate(yderivs, jac(net_ienuc,net_itemp));
+    ener_gener_rate(yderivs, jac(net_ienuc, net_itemp));
 
     jac(net_ienuc, net_itemp) -= dsneutdt;
 
     // Temperature Jacobian elements
 
     temperature_jac(state, jac);
-
 }
 
 #endif
