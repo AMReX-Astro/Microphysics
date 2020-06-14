@@ -1228,6 +1228,15 @@ void evaluate_rates (burn_t const& state, rate_t& rr)
                    ratdum, dratdumdt, dratdumdd,
                    dratdumdy1, dratdumdy2);
 
+    // Save the rate data
+
+    for (int i = 1; i <= NumRates; ++i) {
+        rr.rates(1, i) = ratdum(i);
+        rr.rates(2, i) = dratdumdt(i);
+        rr.rates(3, i) = dratdumdy1(i);
+        rr.rates(4, i) = dratdumdy2(i);
+    }
+
     rr.T_eval = temp;
 
 }
