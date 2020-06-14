@@ -2733,6 +2733,10 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     rhs(y, r2, r1, yderivs, deriva);
 
+    for (int i = 1; i <= NumSpec; ++i) {
+        jac(i, net_itemp) = yderivs(i);
+    }
+
     ener_gener_rate(yderivs, jac(net_ienuc, net_itemp));
 
     jac(net_ienuc, net_itemp) -= dsneutdt;
