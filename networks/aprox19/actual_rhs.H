@@ -35,8 +35,8 @@ void aprox19rat (Real btemp, Real bden,
     // this routine generates unscreened
     // nuclear reaction rates for the aprox19 network.
 
-    Real rrate, drratedt, drratedd;
-    Real ff1, dff1dt, dff1dd, ff2, dff2dt, dff2dd, tot, dtotdt, invtot;
+    Real rrate, drratedt;
+    Real ff1, dff1dt, ff2, dff2dt, tot, dtotdt, invtot;
 
     for (int i = 1; i <= NumRates; ++i) {
         ratraw(i) = 0.0_rt;
