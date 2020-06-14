@@ -1,8 +1,10 @@
-#include <actual_network.H>
+#include <actual_rhs.H>
 
-namespace RateTable
+void actual_rhs_init()
 {
-    AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> rattab;
-    AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> drattabdt;
-    AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
+    rates_init();
+
+    screening_init();
+
+    set_up_screening_factors();
 }

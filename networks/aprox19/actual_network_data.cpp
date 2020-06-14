@@ -35,8 +35,8 @@ void actual_network_init()
     bion(Fe52) = 447.70800e0_rt;
     bion(Fe54) = 471.7696e0_rt;
     bion(Ni56) = 484.00300e0_rt;
-    bion(n)    = 0.0e0_rt;
-    bion(p)    = 0.0e0_rt;
+    bion(N)    = 0.0e0_rt;
+    bion(P)    = 0.0e0_rt;
 
     // Set the mass
     for (int i = 1; i <= NumSpec; ++i) {
@@ -48,121 +48,121 @@ void actual_network_init()
         using namespace Rates;
         names.resize(NumRates);
 
-        ratenames[ir3a]   = "r3a  ";
-        ratenames[irg3a]  = "rg3a ";
-        ratenames[ircag]  = "rcag ";
-        ratenames[ir1212] = "r1212";
-        ratenames[ir1216] = "r1216";
-        ratenames[ir1616] = "r1616";
-        ratenames[iroga]  = "roga ";
-        ratenames[iroag]  = "roag ";
-        ratenames[irnega] = "rnega";
-        ratenames[irneag] = "rneag";
-        ratenames[irmgga] = "rmgga";
-        ratenames[irmgag] = "rmgag";
-        ratenames[irsiga] = "rsiga";
-        ratenames[irmgap] = "rmgap";
-        ratenames[iralpa] = "ralpa";
-        ratenames[iralpg] = "ralpg";
-        ratenames[irsigp] = "rsigp";
-        ratenames[irsiag] = "rsiag";
-        ratenames[irsga]  = "rsga ";
-        ratenames[irsiap] = "rsiap";
-        ratenames[irppa]  = "rppa ";
-        ratenames[irppg]  = "rppg ";
-        ratenames[irsgp]  = "rsgp ";
-        ratenames[irsag]  = "rsag ";
-        ratenames[irarga] = "rarga";
-        ratenames[irsap]  = "rsap ";
-        ratenames[irclpa] = "rclpa";
-        ratenames[irclpg] = "rclpg";
-        ratenames[irargp] = "rargp";
-        ratenames[irarag] = "rarag";
-        ratenames[ircaga] = "rcaga";
-        ratenames[irarap] = "rarap";
-        ratenames[irkpa]  = "rkpa ";
-        ratenames[irkpg]  = "rkpg ";
-        ratenames[ircagp] = "rcagp";
-        ratenames[ircaag] = "rcaag";
-        ratenames[irtiga] = "rtiga";
-        ratenames[ircaap] = "rcaap";
-        ratenames[irscpa] = "rscpa";
-        ratenames[irscpg] = "rscpg";
-        ratenames[irtigp] = "rtigp";
-        ratenames[irtiag] = "rtiag";
-        ratenames[ircrga] = "rcrga";
-        ratenames[irtiap] = "rtiap";
-        ratenames[irvpa]  = "rvpa ";
-        ratenames[irvpg]  = "rvpg ";
-        ratenames[ircrgp] = "rcrgp";
-        ratenames[ircrag] = "rcrag";
-        ratenames[irfega] = "rfega";
-        ratenames[ircrap] = "rcrap";
-        ratenames[irmnpa] = "rmnpa";
-        ratenames[irmnpg] = "rmnpg";
-        ratenames[irfegp] = "rfegp";
-        ratenames[irfeag] = "rfeag";
-        ratenames[irniga] = "rniga";
-        ratenames[irfeap] = "rfeap";
-        ratenames[ircopa] = "rcopa";
-        ratenames[ircopg] = "rcopg";
-        ratenames[irnigp] = "rnigp";
+        names[ir3a-1]   = "r3a  ";
+        names[irg3a-1]  = "rg3a ";
+        names[ircag-1]  = "rcag ";
+        names[ir1212-1] = "r1212";
+        names[ir1216-1] = "r1216";
+        names[ir1616-1] = "r1616";
+        names[iroga-1]  = "roga ";
+        names[iroag-1]  = "roag ";
+        names[irnega-1] = "rnega";
+        names[irneag-1] = "rneag";
+        names[irmgga-1] = "rmgga";
+        names[irmgag-1] = "rmgag";
+        names[irsiga-1] = "rsiga";
+        names[irmgap-1] = "rmgap";
+        names[iralpa-1] = "ralpa";
+        names[iralpg-1] = "ralpg";
+        names[irsigp-1] = "rsigp";
+        names[irsiag-1] = "rsiag";
+        names[irsga-1]  = "rsga ";
+        names[irsiap-1] = "rsiap";
+        names[irppa-1]  = "rppa ";
+        names[irppg-1]  = "rppg ";
+        names[irsgp-1]  = "rsgp ";
+        names[irsag-1]  = "rsag ";
+        names[irarga-1] = "rarga";
+        names[irsap-1]  = "rsap ";
+        names[irclpa-1] = "rclpa";
+        names[irclpg-1] = "rclpg";
+        names[irargp-1] = "rargp";
+        names[irarag-1] = "rarag";
+        names[ircaga-1] = "rcaga";
+        names[irarap-1] = "rarap";
+        names[irkpa-1]  = "rkpa ";
+        names[irkpg-1]  = "rkpg ";
+        names[ircagp-1] = "rcagp";
+        names[ircaag-1] = "rcaag";
+        names[irtiga-1] = "rtiga";
+        names[ircaap-1] = "rcaap";
+        names[irscpa-1] = "rscpa";
+        names[irscpg-1] = "rscpg";
+        names[irtigp-1] = "rtigp";
+        names[irtiag-1] = "rtiag";
+        names[ircrga-1] = "rcrga";
+        names[irtiap-1] = "rtiap";
+        names[irvpa-1]  = "rvpa ";
+        names[irvpg-1]  = "rvpg ";
+        names[ircrgp-1] = "rcrgp";
+        names[ircrag-1] = "rcrag";
+        names[irfega-1] = "rfega";
+        names[ircrap-1] = "rcrap";
+        names[irmnpa-1] = "rmnpa";
+        names[irmnpg-1] = "rmnpg";
+        names[irfegp-1] = "rfegp";
+        names[irfeag-1] = "rfeag";
+        names[irniga-1] = "rniga";
+        names[irfeap-1] = "rfeap";
+        names[ircopa-1] = "rcopa";
+        names[ircopg-1] = "rcopg";
+        names[irnigp-1] = "rnigp";
 
         // for fe54 photodisintegration
-        ratenames[ir52ng] = "r52ng";
-        ratenames[ir53gn] = "r53gn";
-        ratenames[ir53ng] = "r53ng";
-        ratenames[ir54gn] = "r54gn";
-        ratenames[irfepg] = "rfepg";
-        ratenames[ircogp] = "rcogp";
+        names[ir52ng-1] = "r52ng";
+        names[ir53gn-1] = "r53gn";
+        names[ir53ng-1] = "r53ng";
+        names[ir54gn-1] = "r54gn";
+        names[irfepg-1] = "rfepg";
+        names[ircogp-1] = "rcogp";
 
         // for he4 photodisintegration
-        ratenames[irheng]  = "rheng";
-        ratenames[irhegn]  = "rhegn";
-        ratenames[irhng]   = "rhng ";
-        ratenames[irdgn]   = "rdgn ";
-        ratenames[irdpg]   = "rdpg ";
-        ratenames[irhegp]  = "rhegp";
+        names[irheng-1]  = "rheng";
+        names[irhegn-1]  = "rhegn";
+        names[irhng-1]   = "rhng ";
+        names[irdgn-1]   = "rdgn ";
+        names[irdpg-1]   = "rdpg ";
+        names[irhegp-1]  = "rhegp";
 
         // for weak reactions
-        ratenames[irpen]   = "rpen ";
-        ratenames[irnep]   = "rnep ";
-        ratenames[irn56ec] = "r56ec";
+        names[irpen-1]   = "rpen ";
+        names[irnep-1]   = "rnep ";
+        names[irn56ec-1] = "r56ec";
 
         // ppchain
-        ratenames[irpp]    = "rpp  ";
-        ratenames[ir33]    = "r33  ";
-        ratenames[irhe3ag] = "rhe3ag";
+        names[irpp-1]    = "rpp  ";
+        names[ir33-1]    = "r33  ";
+        names[irhe3ag-1] = "rhe3ag";
 
         // cno cycles
-        ratenames[ircpg]   = "rcpg ";
-        ratenames[irnpg]   = "rnpg ";
-        ratenames[iropg]   = "ropg ";
-        ratenames[ifa]     = "rfa  ";
-        ratenames[ifg]     = "rfg  ";
-        ratenames[irnag]   = "rnag ";
+        names[ircpg-1]   = "rcpg ";
+        names[irnpg-1]   = "rnpg ";
+        names[iropg-1]   = "ropg ";
+        names[ifa-1]     = "rfa  ";
+        names[ifg-1]     = "rfg  ";
+        names[irnag-1]   = "rnag ";
 
 
         // the dummy links
-        ratenames[irr1]   = "r1   ";
-        ratenames[irs1]   = "s1   ";
-        ratenames[irt1]   = "t1   ";
-        ratenames[iru1]   = "u1   ";
-        ratenames[irv1]   = "v1   ";
-        ratenames[irw1]   = "w1   ";
-        ratenames[irx1]   = "x1   ";
+        names[irr1-1]   = "r1   ";
+        names[irs1-1]   = "s1   ";
+        names[irt1-1]   = "t1   ";
+        names[iru1-1]   = "u1   ";
+        names[irv1-1]   = "v1   ";
+        names[irw1-1]   = "w1   ";
+        names[irx1-1]   = "x1   ";
 
-        ratenames[ir1f54] = "r1f54";
-        ratenames[ir2f54] = "r2f54";
-        ratenames[ir3f54] = "r3f54";
-        ratenames[ir4f54] = "r4f54";
-        ratenames[ir5f54] = "r5f54";
-        ratenames[ir6f54] = "r6f54";
-        ratenames[ir7f54] = "r7f54";
-        ratenames[ir8f54] = "r8f54";
+        names[ir1f54-1] = "r1f54";
+        names[ir2f54-1] = "r2f54";
+        names[ir3f54-1] = "r3f54";
+        names[ir4f54-1] = "r4f54";
+        names[ir5f54-1] = "r5f54";
+        names[ir6f54-1] = "r6f54";
+        names[ir7f54-1] = "r7f54";
+        names[ir8f54-1] = "r8f54";
 
-        ratenames[iralf1] = "ralf1";
-        ratenames[iralf2] = "ralf2";
+        names[iralf1-1] = "ralf1";
+        names[iralf2-1] = "ralf2";
     }
     
 }

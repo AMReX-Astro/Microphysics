@@ -1,5 +1,5 @@
-#ifndef _actual_network_H_
-#define _actual_network_H_
+#ifndef actual_network_H
+#define actual_network_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
@@ -34,7 +34,7 @@ namespace C
 
 const std::string network_name = "aprox19";
 
-namespace aprox13
+namespace aprox19
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
@@ -141,7 +141,8 @@ namespace Rates {
                         ir7f54 = 97,
                         ir8f54 = 98,
                         iralf1 = 99,
-                        iralf2 = 100
+                        iralf2 = 100,
+                        NumRates = iralf2
                       };
 
     const int NumGroups = 4;
