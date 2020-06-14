@@ -216,11 +216,11 @@ void aprox19rat (Real btemp, Real bden,
 // note they are composition dependent
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void weak_aprox19(Array1D<Real, 1, NumSpec> const& y,
-                  const burn_t& state,
-                  Array1D<Real, 1, NumRates>& ratraw,
-                  Array1D<Real, 1, NumRates>& dratrawdt,
-                  Array1D<Real, 1, NumRates>& dratrawdd)
+void weak_aprox19 (Array1D<Real, 1, NumSpec> const& y,
+                   const burn_t& state,
+                   Array1D<Real, 1, NumRates>& ratraw,
+                   Array1D<Real, 1, NumRates>& dratrawdt,
+                   Array1D<Real, 1, NumRates>& dratrawdd)
 {
     using namespace Species;
 
@@ -2509,7 +2509,7 @@ void ener_gener_rate (T const& dydt, Real& enuc)
 
 // Compute and store the more expensive screening factors
 AMREX_INLINE
-void set_up_screening_factors()
+void set_up_screening_factors ()
 {
     // note: it is critical that these are called in the exact order
     // that the screening calls are done in the RHS routine, since we
