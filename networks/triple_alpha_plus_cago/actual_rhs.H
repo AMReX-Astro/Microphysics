@@ -253,7 +253,7 @@ void get_rates (burn_t& state, rate_t& rr)
 
     screen(temp, dens, ymol, rates, dratesdt);
 
-    for (int i = i; i <= NumRates; ++i) {
+    for (int i = 1; i <= NumRates; ++i) {
         rr.rates(1, i) = rates(i);
         rr.rates(2, i) = dratesdt(i);
     }
