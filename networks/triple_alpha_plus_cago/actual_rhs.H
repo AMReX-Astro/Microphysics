@@ -386,6 +386,10 @@ void actual_jac (burn_t& state, MatrixType& jac)
     Array1D<Real, 1, NumSpec> ydot;
     dydt(ymol, dratesdt, ydot);
 
+    for (int j = 1; j <= NumSpec; ++j) {
+        jac(j, net_itemp) = ydot(j);
+    }
+
     // Energy generation rate Jacobian elements with respect to species
 
     for (int j = 1; j <= NumSpec; ++j) {
