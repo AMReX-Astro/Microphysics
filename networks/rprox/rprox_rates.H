@@ -35,7 +35,7 @@ void rate_p_c12_to_n13 (const tf_t& tfactors, Real& rate, Real& dratedt)
                        clnt9);
 
     Real dr0dt = r0 * tfactors.T9i * (-ct9i -
-                                      -(1.0_rt / 3.0_rt) * ct9i13 +
+                                      (1.0_rt / 3.0_rt) * ct9i13 +
                                       (1.0_rt / 3.0_rt) * ct913 +
                                       ct9 +
                                       (-1.5e0_rt));
