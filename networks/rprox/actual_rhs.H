@@ -39,7 +39,7 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
 
     for (int j = 1; j <= NumGroups; ++j) {
         for (int i = 1; i <= NumRates; ++i) {
-            rr.rates(i, j) = 0.0_rt; // Zero out rates
+            rr.rates(j, i) = 0.0_rt; // Zero out rates
         }
     }
 
