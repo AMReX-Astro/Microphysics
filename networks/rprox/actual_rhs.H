@@ -25,11 +25,6 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     using namespace Species;
     using namespace Rates;
 
-    // locally used rates
-    Real rate, dratedt, wk18ne, wk19ne;
-    Real r56pg, dr56pgdt, cutoni, dcutonidt, r57decay, dr56eff, ddr56effdt;
-    Real T9i32;
-
     // some numbers from appendix C in WW81; these should probably be
     // updated with current rates
     constexpr Real Lweak = 1.05e0_rt; // this is for NS
@@ -46,6 +41,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rr.T_eval = T9 * 1.e9_rt;
 
     tf_t tfactors = calc_tfactors(T9);
+
+    // locally used rates
+    Real rate, dratedt;
 
     // some common parameters
     rr.rates(1, irLweak) = Lweak;
@@ -67,8 +65,10 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
 
     // these weak rates aren't needed outside of this routine
     // 18ne(beta nu)18f
+    Real wk18ne;
     rate_ne18_to_f18(tfactors, wk18ne, dratedt);
     // 19ne(beta nu)19f
+    Real wk19ne;
     rate_ne19_to_f19(tfactors, wk19ne, dratedt);
 
     // 12c(p,g)13n
@@ -175,20 +175,20 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     //....   of 56ni(pg) and 57cu decay rate
     //....
     //....  use 56ni rate from wallace and woosley 1981
-    T9i32 = tfactors.T9i * std::sqrt(tfactors.T9i);
-    r56pg = dens * (1.29e-02_rt * std::exp(-4.897_rt * tfactors.T9i)
-            + 7.065e+03_rt * std::exp(-20.33_rt * tfactors.T9i)) * T9i32;
-    dr56pgdt = -(3.0_rt / 2.0_rt) * r56pg * tfactors.T9i +
-               dens * T9i32 * tfactors.T9i*tfactors.T9i *
-               (4.897_rt * 1.29e-2_rt * std::exp(-4.897_rt * tfactors.T9i)
-                + 20.33_rt * 7.065e3_rt * std::exp(-20.33_rt * tfactors.T9i));
+    Real T9i32 = tfactors.T9i * std::sqrt(tfactors.T9i);
+    Real r56pg = dens * (1.29e-02_rt * std::exp(-4.897_rt * tfactors.T9i)
+                 + 7.065e+03_rt * std::exp(-20.33_rt * tfactors.T9i)) * T9i32;
+    Real dr56pgdt = -(3.0_rt / 2.0_rt) * r56pg * tfactors.T9i +
+                    dens * T9i32 * tfactors.T9i*tfactors.T9i *
+                    (4.897_rt * 1.29e-2_rt * std::exp(-4.897_rt * tfactors.T9i)
+                     + 20.33_rt * 7.065e3_rt * std::exp(-20.33_rt * tfactors.T9i));
     //....  use generic proton separation energy of 400 kev
     //....  8.02 -> 4.64
     //      cutoni=2.08e-10_rt*dens*exp(8.02*T9m1)/T932
-    cutoni = 2.08e-10_rt * dens * std::exp(4.642_rt * tfactors.T9i) * T9i32;
-    dcutonidt = cutoni * tfactors.T9i * (-(3.0_rt / 2.0_rt) - 4.642_rt * tfactors.T9i);
-    r57decay = 3.54_rt;
-    dr56eff = amrex::min(r56pg, cutoni * r57decay);
+    Real cutoni = 2.08e-10_rt * dens * std::exp(4.642_rt * tfactors.T9i) * T9i32;
+    Real dcutonidt = cutoni * tfactors.T9i * (-(3.0_rt / 2.0_rt) - 4.642_rt * tfactors.T9i);
+    Real r57decay = 3.54_rt;
+    Real dr56eff = amrex::min(r56pg, cutoni * r57decay);
     //   rr.rates(3, r56eff) = d56eff;
     //   if (d56eff < r56pg) rr.rates(3, dr56effdt) = r57decay * dcutonidt;
     rr.rates(3, r56eff) = 0.0_rt;
@@ -208,8 +208,6 @@ void make_ydots (const Array1D<Real, 1, NumSpec>& ymol, const Real& T9,
     for (int i = 1; i <= NumSpec; ++i) {
         dydt(i) = 0.0_rt;
     }
-
-    Real dens = state.rho;
 
     // check to see if we are doing this with the t-derivatives
     // if so, offset our starting index in the rate groups
