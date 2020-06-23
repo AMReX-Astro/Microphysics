@@ -126,7 +126,8 @@ void burn_cell_c()
     std::ofstream state_over_time("state_over_time.txt");
 
     //was dt = tmax
-    Real dt = nsteps;
+    //Real dt = nsteps;
+    Real dt = tmax/nsteps;
     burn_t state_in = state;
     state_over_time << std::setw(10) << "# Time";
     for(int x=0; x < NumSpec; ++x){
@@ -135,8 +136,8 @@ void burn_cell_c()
     }
     state_over_time << std::endl << std::endl;
     for(int n = 1; n <= nsteps; n++){
-	//was state, dt
-    	burner(state, 1);
+	//was state, 1
+    	burner(state, dt);
 	state_over_time << std::setw(10) << n;
 	for (int x = 0; x < NumSpec; ++x){
 	     state_over_time << std::setw(12) << state.xn[x]; 
