@@ -21,8 +21,8 @@ subroutine burn_cell() bind(C, name="burn_cell")
   type (burn_t)       :: burn_state_in, burn_state_out
   type (eos_t)        :: eos_state_in, eos_state_out
 
-  real(rt)     :: energy, time, dt
-  integer             :: i, istate
+  real(rt)     :: energy, time, dt, n
+  integer             :: i, istate, y, x
 
   character (len=256) :: params_file
   integer             :: params_file_unit
@@ -126,8 +126,21 @@ subroutine burn_cell() bind(C, name="burn_cell")
   call eos(eos_input_rt, eos_state_in)
   call eos_to_burn(eos_state_in, burn_state_in)
 
-  dt = tmax
-  call actual_burner(burn_state_in, burn_state_out, dt, time)
+  open(unit=1, file="state_over_time_F90.txt")
+  10 format(1x, f10.9)
+  20 format(1x, f4.0/)
+
+  dt = nsteps
+  xloop: do x = 1, int(nsteps)
+     n = 1.0
+     call actual_burner(burn_state_in, burn_state_out, n, time)
+     call copy_burn_t(burn_state_in, burn_state_out)
+     yloop: do y = 1, nspec
+        write(1, 10, advance="no") burn_state_out % xn(y)
+     end do yloop
+     write(1, 20)
+  end do xloop
+  close(1)
   energy = energy + burn_state_out % e
 
   ! call the EOS to check consistency of integrated e
