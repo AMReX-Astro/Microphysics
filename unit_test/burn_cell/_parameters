@@ -5,7 +5,9 @@ small_dens    real       1.e5
 
 tmax          real       1.0d0
 
-density       real       1.d4
+nsteps        real       1000
+
+density       real       1.d6
 
 temperature   real       1.d8
 
