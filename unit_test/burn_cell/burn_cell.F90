@@ -130,10 +130,10 @@ subroutine burn_cell() bind(C, name="burn_cell")
   10 format(1x, f10.9)
   20 format(1x, f4.0/)
 
-  dt = nsteps
+  dt = tmax/nsteps
   xloop: do x = 1, int(nsteps)
-     n = 1.0
-     call actual_burner(burn_state_in, burn_state_out, n, time)
+     ! n = 1.0
+     call actual_burner(burn_state_in, burn_state_out, dt, time)
      call copy_burn_t(burn_state_in, burn_state_out)
      yloop: do y = 1, nspec
         write(1, 10, advance="no") burn_state_out % xn(y)
