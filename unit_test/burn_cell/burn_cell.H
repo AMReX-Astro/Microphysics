@@ -3,6 +3,8 @@
 #include <eos.H>
 #include <network.H>
 #include <burner.H>
+#include <fstream>
+#include <iostream>
 
 void burn_cell_c()
 {
@@ -120,10 +122,28 @@ void burn_cell_c()
     burn_to_eos(state, eos_state_in);
     eos(eos_input_rt, eos_state_in);
     eos_to_burn(eos_state_in, state);
+    
+    std::ofstream state_over_time("state_over_time.txt");
 
-    Real dt = tmax;
+    //was dt = tmax
+    Real dt = nsteps;
     burn_t state_in = state;
-    burner(state, dt);
+    state_over_time << std::setw(10) << "# Time";
+    for(int x=0; x < NumSpec; ++x){
+	std::string element = short_spec_names_cxx[x];
+	state_over_time << std::setw(12) << element; 
+    }
+    state_over_time << std::endl << std::endl;
+    for(int n = 1; n <= nsteps; n++){
+	//was state, dt
+    	burner(state, 1);
+	state_over_time << std::setw(10) << n;
+	for (int x = 0; x < NumSpec; ++x){
+	     state_over_time << std::setw(12) << state.xn[x]; 
+	}
+	state_over_time << std::endl << std::endl;
+    }
+    state_over_time.close();
     energy += state.e;
 
     // call the EOS to check consistency of integrated e
