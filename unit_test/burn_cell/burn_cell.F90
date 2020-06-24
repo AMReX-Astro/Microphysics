@@ -127,7 +127,7 @@ subroutine burn_cell() bind(C, name="burn_cell")
   call eos_to_burn(eos_state_in, burn_state_in)
 
   open(unit=1, file="state_over_time_F90.txt")
-  10 format(1x, f10.9)
+  10 format(1x, g20.10)
   20 format(1x, f4.0/)
 
   dt = tmax/nsteps
