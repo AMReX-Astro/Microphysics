@@ -129,20 +129,22 @@ void burn_cell_c()
     //Real dt = nsteps;
     Real dt = tmax/nsteps;
     burn_t state_in = state;
-    state_over_time << std::setw(10) << "# Time";
+    state_over_time << std::setw(10) << "# Step";
+    state_over_time << std::setw(12) << "Temperature";
     for(int x=0; x < NumSpec; ++x){
 	std::string element = short_spec_names_cxx[x];
 	state_over_time << std::setw(12) << element; 
     }
-    state_over_time << std::endl << std::endl;
+    state_over_time << std::endl;
     for(int n = 1; n <= nsteps; n++){
 	//was state, 1
     	burner(state, dt);
 	state_over_time << std::setw(10) << n;
+	state_over_time << std::setw(12) << state.T; 
 	for (int x = 0; x < NumSpec; ++x){
 	     state_over_time << std::setw(12) << state.xn[x]; 
 	}
-	state_over_time << std::endl << std::endl;
+	state_over_time << std::endl;
     }
     state_over_time.close();
     energy += state.e;
