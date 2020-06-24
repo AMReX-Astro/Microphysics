@@ -3,20 +3,22 @@ program usetable
   implicit none
 
   integer :: irho, it9, iye
-  integer :: j
+  integer :: j, k
 
   integer, parameter :: ntemp = 71
   integer, parameter :: nden = 31
   integer, parameter :: nye = 21
 
   integer, parameter :: npts = 46221
+  integer, parameter :: nspec = 19
 
   double precision :: ttlog(npts), ddlog(npts), yetab(npts)
   double precision :: helium(npts), sica(npts), fegroup(npts)
   double precision :: abartab(npts), ebtab(npts), wratetab(npts)
+  double precision :: massfractab(nspec, npts)
 
   integer :: ichoice
-  double precision :: t9, rho, ye
+  double precision :: t9, rho, ye, X(nspec)
   double precision ::xlogt9, xlogrho
   double precision :: abar, dq, dyedt
 
@@ -26,22 +28,22 @@ program usetable
 
   common /table/ ttlog, ddlog, yetab, &
                  helium, sica, fegroup, &
-                 abartab, ebtab, wratetab
+                 abartab, ebtab, wratetab, massfractab
 
   ! set table parameters
-
 
   ! read in table
   open(newunit=un, file="nse19.tbl")
 
-5 format(2f12.5, 1pe12.5, 6e12.5)
+5 format(2f12.5, 1pe12.5, 6e12.5, 19e12.5)
 
   do irho = 1, nden
      do it9 = 1, ntemp
         do iye = 1, nye
            j = (irho-1)*ntemp*nye + (it9-1)*nye + iye
            read (un, 5) ttlog(j), ddlog(j), yetab(j), helium(j), sica(j), &
-                        fegroup(j), abartab(j), ebtab(j), wratetab(j)
+                        fegroup(j), abartab(j), ebtab(j), wratetab(j), &
+                        (massfractab(k,j), k=1, nspec)
 
         end do
      end do
@@ -58,7 +60,7 @@ program usetable
 
      if (ichoice == 1) then
 
-        print *, "Enter log 10 t9, log 10 rho, ye"
+        print *, "Enter log 10 t, log 10 rho, ye"
         read (*,*) xlogt9, xlogrho, ye
 
         t9 = 10.0d0**(xlogt9-9.0d0)
@@ -75,31 +77,36 @@ program usetable
 
      end if
 
-     call interp (t9, rho, ye, abar, dq, dyedt)
+     call interp (t9, rho, ye, abar, dq, dyedt, X)
 
      print *, "      t9    ", "        rho    ", "       ye     ", &
               "     abar     ", "      be/a    ", "      dyedt  "
 
-     write (*,41) t9, rho, ye, abar, dq, dyedt
-41   format (1pe12.3, 5e14.5)
+     write (*,41) t9, rho, ye, abar, dq, dyedt, X(:)
+41   format (1pe12.3, 5e14.5, 19e14.5)
 
   end do
 
 end program usetable
 
 
-subroutine interp(t9, rho, ye, abar, dq, dyedt)
+subroutine interp(t9, rho, ye, abar, dq, dyedt, X)
 
   implicit none
 
+  integer, parameter :: npts = 46221
+  integer, parameter :: nspec = 19
+
   double precision, intent(in) :: t9, rho, ye
   double precision, intent(inout) :: abar, dq, dyedt
-
-  integer, parameter :: npts = 46221
+  double precision, intent(inout) :: X(nspec)
 
   double precision :: ttlog(npts), ddlog(npts), yetab(npts)
   double precision :: helium(npts), sica(npts), fegroup(npts)
   double precision :: abartab(npts), ebtab(npts), wratetab(npts)
+  double precision :: massfractab(nspec, npts)
+
+  integer :: n
 
   double precision :: tlog, rholog, yet
   integer :: it1, it2
@@ -121,7 +128,7 @@ subroutine interp(t9, rho, ye, abar, dq, dyedt)
 
   common /table/ ttlog, ddlog, yetab, &
                  helium, sica, fegroup, &
-                 abartab, ebtab, wratetab
+                 abartab, ebtab, wratetab, massfractab
 
   tlog = log10(1.0d9*t9)
   rholog = log10(rho)
@@ -197,6 +204,17 @@ subroutine interp(t9, rho, ye, abar, dq, dyedt)
         + wratetab(it2r1c2)*td*omrd*xd &
         + wratetab(it2r2c1)*td*rd*omxd &
         + wratetab(it2r2c2)*td*rd*xd
+
+  do n = 1, nspec
+     X(n) = massfractab(n, it1r1c1)*omtd*omrd*omxd &
+          + massfractab(n, it1r1c2)*omtd*omrd*xd &
+          + massfractab(n, it1r2c1)*omtd*rd*omxd &
+          + massfractab(n, it1r2c2)*omtd*rd*xd &
+          + massfractab(n, it2r1c1)*td*omrd*omxd &
+          + massfractab(n, it2r1c2)*td*omrd*xd &
+          + massfractab(n, it2r2c1)*td*rd*omxd &
+          + massfractab(n, it2r2c2)*td*rd*xd
+  end do
 
   return
 end subroutine interp
