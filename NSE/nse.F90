@@ -1,9 +1,6 @@
-program usetable
+module nse_module
 
   implicit none
-
-  integer :: irho, it9, iye
-  integer :: j, k
 
   integer, parameter :: ntemp = 71
   integer, parameter :: nden = 31
@@ -17,204 +14,153 @@ program usetable
   double precision :: abartab(npts), ebtab(npts), wratetab(npts)
   double precision :: massfractab(nspec, npts)
 
-  integer :: ichoice
-  double precision :: t9, rho, ye, X(nspec)
-  double precision ::xlogt9, xlogrho
-  double precision :: abar, dq, dyedt
+contains
 
-  integer :: un
+  subroutine init_nse()
 
-  ! begin initialization
+    integer :: irho, it9, iye
+    integer :: j, k
 
-  common /table/ ttlog, ddlog, yetab, &
-                 helium, sica, fegroup, &
-                 abartab, ebtab, wratetab, massfractab
+    integer :: un
 
-  ! set table parameters
+    ! begin initialization
 
-  ! read in table
-  open(newunit=un, file="nse19.tbl")
+    ! set table parameters
 
-5 format(2f12.5, 1pe12.5, 6e12.5, 19e12.5)
+    ! read in table
+    open(newunit=un, file="nse19.tbl")
 
-  do irho = 1, nden
-     do it9 = 1, ntemp
-        do iye = 1, nye
-           j = (irho-1)*ntemp*nye + (it9-1)*nye + iye
-           read (un, 5) ttlog(j), ddlog(j), yetab(j), helium(j), sica(j), &
-                        fegroup(j), abartab(j), ebtab(j), wratetab(j), &
-                        (massfractab(k,j), k=1, nspec)
+5   format(2f12.5, 1pe12.5, 6e12.5, 19e12.5)
 
-        end do
-     end do
-  end do
+    do irho = 1, nden
+       do it9 = 1, ntemp
+          do iye = 1, nye
+             j = (irho-1)*ntemp*nye + (it9-1)*nye + iye
+             read (un, 5) ttlog(j), ddlog(j), yetab(j), helium(j), sica(j), &
+                          fegroup(j), abartab(j), ebtab(j), wratetab(j), &
+                          (massfractab(k,j), k=1, nspec)
 
+          end do
+       end do
+    end do
 
-  ! enter test points
+  end subroutine init_nse
 
-  do while (.true.)
+  subroutine interp(t9, rho, ye, abar, dq, dyedt, X)
 
-     print *, "enter 1 for log10 entry; 2 for actual values; anything else to exit"
+    implicit none
 
-     read (*,*) ichoice
+    double precision, intent(in) :: t9, rho, ye
+    double precision, intent(inout) :: abar, dq, dyedt
+    double precision, intent(inout) :: X(nspec)
 
-     if (ichoice == 1) then
+    integer :: n
 
-        print *, "Enter log 10 t, log 10 rho, ye"
-        read (*,*) xlogt9, xlogrho, ye
+    double precision :: tlog, rholog, yet
+    integer :: it1, it2
+    integer :: ir1, ir2
+    integer :: ic1, ic2
 
-        t9 = 10.0d0**(xlogt9-9.0d0)
-        rho = 10.0d0**xlogrho
+    integer :: it1r1c1
+    integer :: it1r1c2
+    integer :: it1r2c1
+    integer :: it1r2c2
+    integer :: it2r1c1
+    integer :: it2r1c2
+    integer :: it2r2c1
+    integer :: it2r2c2
 
-     else if (ichoice == 2) then
+    double precision :: t0, r0, x0
+    double precision :: td, rd, xd
+    double precision :: omtd, omrd, omxd
 
-        print *, "Enter t9, rho, ye"
-        read (*,*) t9, rho, ye
+    tlog = log10(1.0d9*t9)
+    rholog = log10(rho)
+    yet = ye
 
-     else
+    if (tlog < 9.0d0) tlog = 9.0d0
+    if (tlog > 10.4d0) tlog = 10.4d0
 
-        call exit(1)
+    it1 = int((tlog -9.0d0)*50.0d0 - 1.d-6)
+    it1 = it1 + 1
+    it2 = it1 + 1
 
-     end if
+    if (rholog < 7.0d0) rholog = 7.0d0
+    if (rholog > 10.0d0) rholog = 10.0d0
 
-     call interp (t9, rho, ye, abar, dq, dyedt, X)
+    ir1 = int((rholog -7.0d0)*10.0d0 - 1.d-6)
+    ir1 = ir1 + 1
+    ir2 = ir1+1
 
-     print *, "      t9    ", "        rho    ", "       ye     ", &
-              "     abar     ", "      be/a    ", "      dyedt  "
+    if (yet < 0.40d0) yet = 0.40d0
+    if (yet > 0.50d0) yet = 0.50d0
 
-     write (*,41) t9, rho, ye, abar, dq, dyedt, X(:)
-41   format (1pe12.3, 5e14.5, 19e14.5)
+    ic1 = int((0.50d0-yet)/0.005d0 - 1.0d-6)
+    ic1 = ic1 + 1
+    ic2 = ic1 + 1
 
-  end do
+    ! find the eight interpolation points in the 1D arrays
 
-end program usetable
+    it1r1c1 = (ir1-1)*71*21 + (it1-1)*21 + ic1
+    it1r1c2 = (ir1-1)*71*21 + (it1-1)*21 + ic2
+    it1r2c1 = (ir2-1)*71*21 + (it1-1)*21 + ic1
+    it1r2c2 = (ir2-1)*71*21 + (it1-1)*21 + ic2
+    it2r1c1 = (ir1-1)*71*21 + (it2-1)*21 + ic1
+    it2r1c2 = (ir1-1)*71*21 + (it2-1)*21 + ic2
+    it2r2c1 = (ir2-1)*71*21 + (it2-1)*21 + ic1
+    it2r2c2 = (ir2-1)*71*21 + (it2-1)*21 + ic2
 
+    t0 = 9.0d0 + real(it1-1)*0.02d0
+    r0 = 7.0d0 + real(ir1-1)*0.10d0
+    x0 = 0.50d0 - real(ic1-1)*0.005d0
 
-subroutine interp(t9, rho, ye, abar, dq, dyedt, X)
+    td = (tlog - t0)/0.02d0
+    rd = (rholog - r0)/0.10d0
+    xd = (x0-yet)/0.005d0
+    xd = max(0.0d0,xd)
+    omtd = 1.0d0 - td
+    omrd = 1.0d0 - rd
+    omxd = 1.0d0 - xd
 
-  implicit none
+    abar = abartab(it1r1c1)*omtd*omrd*omxd &
+         + abartab(it1r1c2)*omtd*omrd*xd &
+         + abartab(it1r2c1)*omtd*rd*omxd &
+         + abartab(it1r2c2)*omtd*rd*xd &
+         + abartab(it2r1c1)*td*omrd*omxd &
+         + abartab(it2r1c2)*td*omrd*xd &
+         + abartab(it2r2c1)*td*rd*omxd &
+         + abartab(it2r2c2)*td*rd*xd
 
-  integer, parameter :: npts = 46221
-  integer, parameter :: nspec = 19
+    dq   = ebtab(it1r1c1)*omtd*omrd*omxd &
+         + ebtab(it1r1c2)*omtd*omrd*xd &
+         + ebtab(it1r2c1)*omtd*rd*omxd &
+         + ebtab(it1r2c2)*omtd*rd*xd &
+         + ebtab(it2r1c1)*td*omrd*omxd &
+         + ebtab(it2r1c2)*td*omrd*xd &
+         + ebtab(it2r2c1)*td*rd*omxd &
+         + ebtab(it2r2c2)*td*rd*xd
 
-  double precision, intent(in) :: t9, rho, ye
-  double precision, intent(inout) :: abar, dq, dyedt
-  double precision, intent(inout) :: X(nspec)
+    dyedt = wratetab(it1r1c1)*omtd*omrd*omxd &
+          + wratetab(it1r1c2)*omtd*omrd*xd &
+          + wratetab(it1r2c1)*omtd*rd*omxd &
+          + wratetab(it1r2c2)*omtd*rd*xd &
+          + wratetab(it2r1c1)*td*omrd*omxd &
+          + wratetab(it2r1c2)*td*omrd*xd &
+          + wratetab(it2r2c1)*td*rd*omxd &
+          + wratetab(it2r2c2)*td*rd*xd
 
-  double precision :: ttlog(npts), ddlog(npts), yetab(npts)
-  double precision :: helium(npts), sica(npts), fegroup(npts)
-  double precision :: abartab(npts), ebtab(npts), wratetab(npts)
-  double precision :: massfractab(nspec, npts)
+    do n = 1, nspec
+       X(n) = massfractab(n, it1r1c1)*omtd*omrd*omxd &
+            + massfractab(n, it1r1c2)*omtd*omrd*xd &
+            + massfractab(n, it1r2c1)*omtd*rd*omxd &
+            + massfractab(n, it1r2c2)*omtd*rd*xd &
+            + massfractab(n, it2r1c1)*td*omrd*omxd &
+            + massfractab(n, it2r1c2)*td*omrd*xd &
+            + massfractab(n, it2r2c1)*td*rd*omxd &
+            + massfractab(n, it2r2c2)*td*rd*xd
+    end do
 
-  integer :: n
+  end subroutine interp
 
-  double precision :: tlog, rholog, yet
-  integer :: it1, it2
-  integer :: ir1, ir2
-  integer :: ic1, ic2
+end module nse_module
 
-  integer :: it1r1c1
-  integer :: it1r1c2
-  integer :: it1r2c1
-  integer :: it1r2c2
-  integer :: it2r1c1
-  integer :: it2r1c2
-  integer :: it2r2c1
-  integer :: it2r2c2
-
-  double precision ::t0, r0, x0
-  double precision :: td, rd, xd
-  double precision :: omtd, omrd, omxd
-
-  common /table/ ttlog, ddlog, yetab, &
-                 helium, sica, fegroup, &
-                 abartab, ebtab, wratetab, massfractab
-
-  tlog = log10(1.0d9*t9)
-  rholog = log10(rho)
-  yet = ye
-
-  if (tlog < 9.0d0) tlog = 9.0d0
-  if (tlog > 10.4d0) tlog = 10.4d0
-
-  it1 = int((tlog -9.0d0)*50.0d0 - 1.d-6)
-  it1 = it1 + 1
-  it2 = it1 + 1
-
-  if (rholog < 7.0d0) rholog = 7.0d0
-  if (rholog > 10.0d0) rholog = 10.0d0
-
-  ir1 = int((rholog -7.0d0)*10.0d0 - 1.d-6)
-  ir1 = ir1 + 1
-  ir2 = ir1+1
-
-  if (yet < 0.40d0) yet = 0.40d0
-  if (yet > 0.50d0) yet = 0.50d0
-
-  ic1 = int((0.50d0-yet)/0.005d0 - 1.0d-6)
-  ic1 = ic1 + 1
-  ic2 = ic1 + 1
-
-  ! find the eight interpolation points in the 1D arrays
-
-  it1r1c1 = (ir1-1)*71*21 + (it1-1)*21 + ic1
-  it1r1c2 = (ir1-1)*71*21 + (it1-1)*21 + ic2
-  it1r2c1 = (ir2-1)*71*21 + (it1-1)*21 + ic1
-  it1r2c2 = (ir2-1)*71*21 + (it1-1)*21 + ic2
-  it2r1c1 = (ir1-1)*71*21 + (it2-1)*21 + ic1
-  it2r1c2 = (ir1-1)*71*21 + (it2-1)*21 + ic2
-  it2r2c1 = (ir2-1)*71*21 + (it2-1)*21 + ic1
-  it2r2c2 = (ir2-1)*71*21 + (it2-1)*21 + ic2
-
-  t0 = 9.0d0 + real(it1-1)*0.02d0
-  r0 = 7.0d0 + real(ir1-1)*0.10d0
-  x0 = 0.50d0 - real(ic1-1)*0.005d0
-
-  td = (tlog - t0)/0.02d0
-  rd = (rholog - r0)/0.10d0
-  xd = (x0-yet)/0.005d0
-  xd = max(0.0d0,xd)
-  omtd = 1.0d0 - td
-  omrd = 1.0d0 - rd
-  omxd = 1.0d0 - xd
-
-  abar = abartab(it1r1c1)*omtd*omrd*omxd &
-       + abartab(it1r1c2)*omtd*omrd*xd &
-       + abartab(it1r2c1)*omtd*rd*omxd &
-       + abartab(it1r2c2)*omtd*rd*xd &
-       + abartab(it2r1c1)*td*omrd*omxd &
-       + abartab(it2r1c2)*td*omrd*xd &
-       + abartab(it2r2c1)*td*rd*omxd &
-       + abartab(it2r2c2)*td*rd*xd
-
-  dq   = ebtab(it1r1c1)*omtd*omrd*omxd &
-       + ebtab(it1r1c2)*omtd*omrd*xd &
-       + ebtab(it1r2c1)*omtd*rd*omxd &
-       + ebtab(it1r2c2)*omtd*rd*xd &
-       + ebtab(it2r1c1)*td*omrd*omxd &
-       + ebtab(it2r1c2)*td*omrd*xd &
-       + ebtab(it2r2c1)*td*rd*omxd &
-       + ebtab(it2r2c2)*td*rd*xd
-
-  dyedt = wratetab(it1r1c1)*omtd*omrd*omxd &
-        + wratetab(it1r1c2)*omtd*omrd*xd &
-        + wratetab(it1r2c1)*omtd*rd*omxd &
-        + wratetab(it1r2c2)*omtd*rd*xd &
-        + wratetab(it2r1c1)*td*omrd*omxd &
-        + wratetab(it2r1c2)*td*omrd*xd &
-        + wratetab(it2r2c1)*td*rd*omxd &
-        + wratetab(it2r2c2)*td*rd*xd
-
-  do n = 1, nspec
-     X(n) = massfractab(n, it1r1c1)*omtd*omrd*omxd &
-          + massfractab(n, it1r1c2)*omtd*omrd*xd &
-          + massfractab(n, it1r2c1)*omtd*rd*omxd &
-          + massfractab(n, it1r2c2)*omtd*rd*xd &
-          + massfractab(n, it2r1c1)*td*omrd*omxd &
-          + massfractab(n, it2r1c2)*td*omrd*xd &
-          + massfractab(n, it2r2c1)*td*rd*omxd &
-          + massfractab(n, it2r2c2)*td*rd*xd
-  end do
-
-  return
-end subroutine interp
