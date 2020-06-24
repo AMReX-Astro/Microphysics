@@ -9,7 +9,7 @@ nsteps        real       1000
 
 density       real       1.d6
 
-temperature   real       1.d8
+temperature   real       4.d9
 
 X1            real       1.0d0
 X2            real       0.0d0
