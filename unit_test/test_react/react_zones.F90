@@ -60,6 +60,15 @@ contains
        enddo
     enddo
 
+    ! initialize the auxillary state (in particular, for NSE)
+    if (naux > 0) then
+       iye = network_aux_index("Ye")
+       iabar = network_aux_index("abar")
+       ibea = network_aux_index("bea")
+
+
+    end if
+
   end subroutine init_state
 
 
@@ -107,9 +116,14 @@ contains
 
              burn_state_in % rho = state(ii, jj, kk, p % irho)
              burn_state_in % T = state(ii, jj, kk, p % itemp)
+
              do j = 1, nspec
                 burn_state_in % xn(j) = state(ii, jj, kk, p % ispec_old + j - 1)
              enddo
+
+             do j = 1, naux
+                burn_state_in % aux(j) = state(ii, jj, kk, p % iaux_old + j - 1)
+             end do
 
              call normalize_abundances_burn(burn_state_in)
 
@@ -132,6 +146,10 @@ contains
                 state(ii, jj, kk, p % irodot + j - 1) = &
                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
              enddo
+
+             do j = 1, naux
+                state(ii, jj, kk, p % iaux + j - 1) = burn_state_out % aux(j)
+             end do
 
              state(ii, jj, kk, p % irho_hnuc) = &
                   state(ii, jj, kk, p % irho) * (burn_state_out % e - burn_state_in % e) / tmax

@@ -161,7 +161,7 @@ def write_network(network_template, header_template,
     err = parse_net_file(species, aux_vars, net_file)
 
     if err:
-        abort(out_file)
+        abort(network_file)
 
 
     properties = {}
