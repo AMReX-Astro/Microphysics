@@ -6,7 +6,7 @@ module variables
 
   use amrex_fort_module, only : rt => amrex_real
 
-  use network, only: nspec, spec_names
+  use network, only: nspec, spec_names, naux, aux_names
 
   implicit none
 
@@ -17,6 +17,8 @@ module variables
      integer :: itemp = -1
      integer :: ispec = -1
      integer :: ispec_old = -1
+     integer :: iaux = -1
+     integer :: iaux_old = -1
      integer :: irodot = -1
      integer :: irho_Hnuc = -1
 
@@ -65,8 +67,8 @@ contains
     p % ispec     = p % next_index(nspec)
     p % ispec_old = p % next_index(nspec)
     if (naux > 0) then
-       p % iaux = p % net_index(naux)
-       p % iaux_old = p % net_index(naux)
+       p % iaux = p % next_index(naux)
+       p % iaux_old = p % next_index(naux)
     else
        p % iaux = -1
        p % iaux_old = -1

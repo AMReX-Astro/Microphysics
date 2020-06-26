@@ -26,9 +26,11 @@ contains
     real(rt) :: dlogrho, dlogT, dmetal
     real(rt) :: temp_zone, dens_zone
     real(rt), allocatable :: xn_zone(:,:)
+    real(rt) :: xn(nspec)
 
     integer :: ii, jj, kk
     real(rt) :: sum_X
+    integer :: iye, iabar, ibea
 
     if (npts > 1) then
        dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
@@ -66,7 +68,26 @@ contains
        iabar = network_aux_index("abar")
        ibea = network_aux_index("bea")
 
+       do kk = lo(3), hi(3)   ! xn loop
+          do jj = lo(2), hi(2)   ! T loop
+             do ii = lo(1), hi(1)   ! rho loop
 
+                xn(:) = state(ii,jj,kk, p % ispec_old:p % ispec_old+nspec-1)
+
+                if (iye > 0) then
+                   state(ii,jj,kk, p %  iaux_old+iye-1) = sum(xn(:) * zion(:) * aion_inv(:))
+                end if
+
+                if (iabar > 0) then
+                   state(ii,jj,kk, p %  iaux_old+iabar-1) = ONE / (sum(xn(:) * aion_inv(:)))
+                end if
+
+                if (ibea > 0) then
+                   state(ii,jj,kk, p %  iaux_old+ibea-1) = (sum(xn(:) * bion(:) * aion_inv(:)))
+                end if
+             end do
+          end do
+       end do
     end if
 
   end subroutine init_state
