@@ -27,7 +27,7 @@ struct burn_t
     Real T;
     Real e;
     Real xn[NumSpec];
-#if NumAux > 0
+#if NAUX_NET > 0
     Real aux[NumAux];
 #endif
 
@@ -100,7 +100,7 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     for (int n = 0; n < NumSpec; ++n) {
         eos_state.xn[n] = burn_state.xn[n];
     }
-#if NumAux > 0
+#if NAUX_NET > 0
     for (int n = 0; n < NumAux; ++n) {
         eos_state.aux[n] = burn_state.aux[n];
     }
