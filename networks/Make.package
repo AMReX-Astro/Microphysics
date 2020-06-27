@@ -7,6 +7,8 @@ include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
 
+DEFINES += -DNAUX_NET=$(NAUX)
+
 ifeq ($(USE_REACT), TRUE)
 
   ifeq ($(INTEGRATOR_DIR), VODE90)
