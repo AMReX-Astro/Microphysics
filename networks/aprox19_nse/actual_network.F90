@@ -162,11 +162,15 @@ contains
   
   subroutine actual_network_init
 
+    use nse_module
+
     implicit none
-    
+
     ! The following comes directly from init_aprox19
 
     call network_properties_init()
+
+    call init_nse()
 
     allocate(bion(nspec))
     allocate(mion(nspec))
