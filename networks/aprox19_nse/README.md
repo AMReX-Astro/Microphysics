@@ -1,14 +1,12 @@
+# aprox19_nse
 
+This is a hybrid reaction network + NSE table.
 
-nse19.tbl : a table with the standard aprox19 isotopes
+The network is based on Frank Timmes' aprox19 network. It follows the
+same reasoning as the aprox13 network in this repository, so see the
+README in that directory for information on our integration strategy.
 
-usetable.f : a driver for nse19.tbl
-
-castro-nse-table : a version without all of the isotopes
-
-usetable_small.f : a driver for castro-nse-table
-
-
+The NSE table was provided by Stan Woosley:
 
 from Stan:
 
