@@ -42,6 +42,14 @@ static const std::vector<std::string> aux_names_cxx = {
    @@AUX_NAMES@@
   };
 
+#if NAUX_NET > 0
+namespace AuxZero {
+   enum AuxIndices {
+     @@AUXZERO_ENUM@@
+   };
+};
+#endif
+
 namespace Species {
    enum NetworkSpecies {
      @@SPECIES_ENUM@@

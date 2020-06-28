@@ -24,6 +24,10 @@ module actual_network
   integer, parameter :: ineut = 18
   integer, parameter :: iprot = 19
 
+  integer, parameter :: iye = 1
+  integer, parameter :: iabar = 2
+  integer, parameter :: ibea = 3
+
   real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA

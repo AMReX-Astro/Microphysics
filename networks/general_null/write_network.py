@@ -291,6 +291,15 @@ def write_network(network_template, header_template,
                                 fout.write("{}{},\n".format(indent, spec.short_name.capitalize()))
                         fout.write("{}NumberSpecies={}\n".format(indent, species[-1].short_name.capitalize()))
 
+                elif keyword == "AUXZERO_ENUM":
+                    if lang == "C++":
+                        for n, aux in enumerate(aux_vars):
+                            if n == 0:
+                                fout.write("{}i{}=0,\n".format(indent, aux.name.lower()))
+                            else:
+                                fout.write("{}i{},\n".format(indent, aux.name.lower()))
+                        fout.write("{}NumberAux=i{}\n".format(indent, aux_vars[-1].name.lower()))
+
             else:
                 fout.write(line)
 

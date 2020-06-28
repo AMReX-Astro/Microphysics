@@ -42,7 +42,7 @@ contains
     state % mu_e = ONE / state % aux(iye)
     state % y_e = state % aux(iye)
     state % abar = state% aux(iabar)
-    state % zbar = state % abar * state % ye
+    state % zbar = state % abar * state % y_e
 
 #else
     state % mu_e = ONE / (sum(state % xn(:) * zion(:) * aion_inv(:)))

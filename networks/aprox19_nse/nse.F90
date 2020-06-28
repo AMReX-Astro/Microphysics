@@ -46,11 +46,11 @@ contains
 
   end subroutine init_nse
 
-  subroutine interp(t9, rho, ye, abar, dq, dyedt, X)
+  subroutine nse_interp(T, rho, ye, abar, dq, dyedt, X)
 
     implicit none
 
-    double precision, intent(in) :: t9, rho, ye
+    double precision, intent(in) :: T, rho, ye
     double precision, intent(inout) :: abar, dq, dyedt
     double precision, intent(inout) :: X(nspec)
 
@@ -74,7 +74,7 @@ contains
     double precision :: td, rd, xd
     double precision :: omtd, omrd, omxd
 
-    tlog = log10(1.0d9*t9)
+    tlog = log10(T)
     rholog = log10(rho)
     yet = ye
 
@@ -160,7 +160,7 @@ contains
             + massfractab(n, it2r2c2)*td*rd*xd
     end do
 
-  end subroutine interp
+  end subroutine nse_interp
 
 end module nse_module
 
