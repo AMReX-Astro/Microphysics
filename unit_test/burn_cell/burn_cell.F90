@@ -18,7 +18,7 @@ subroutine burn_cell() bind(C, name="burn_cell")
 
   implicit none
 
-  type (burn_t)       :: burn_state_in, burn_state_out
+  type (burn_t)       :: burn_state_in, burn_state_out, burn_state_original
   type (eos_t)        :: eos_state_in, eos_state_out
 
   real(rt)     :: energy, time, dt, n
@@ -126,6 +126,8 @@ subroutine burn_cell() bind(C, name="burn_cell")
   call eos(eos_input_rt, eos_state_in)
   call eos_to_burn(eos_state_in, burn_state_in)
 
+  call copy_burn_t(burn_state_original, burn_state_in)
+
   open(unit=1, file="state_over_time_F90.txt")
   10 format(1x, g20.10)
   20 format(1x, f4.0/)
@@ -172,17 +174,17 @@ subroutine burn_cell() bind(C, name="burn_cell")
 
   do i = 1, nspec
      write(*,*) 'omegadot(', short_spec_names(i), '): ', &
-          (burn_state_out%xn(i)-burn_state_in%xn(i))/dt
+          (burn_state_out%xn(i)-burn_state_original%xn(i))/dt
   end do
 
   do i = 1, nspec
      write(*,*) 'delta(', short_spec_names(i), '): ', &
-          (burn_state_out%xn(i)-burn_state_in%xn(i))
+          (burn_state_out%xn(i)-burn_state_original%xn(i))
   end do
 
   do i = 1, nspec
      write(*,*) 'percent change(', short_spec_names(i), '): ', &
-          100.e0_rt*(burn_state_out%xn(i)-burn_state_in%xn(i)) / burn_state_in%xn(i)
+          100.e0_rt*(burn_state_out%xn(i)-burn_state_original%xn(i)) / burn_state_original%xn(i)
   end do
 
   call microphysics_finalize()
