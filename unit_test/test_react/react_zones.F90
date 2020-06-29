@@ -30,7 +30,6 @@ contains
 
     integer :: ii, jj, kk
     real(rt) :: sum_X
-    integer :: iye, iabar, ibea
 
     if (npts > 1) then
        dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
@@ -63,32 +62,23 @@ contains
     enddo
 
     ! initialize the auxillary state (in particular, for NSE)
+#ifdef NSE_THERMO
     if (naux > 0) then
-       iye = network_aux_index("Ye")
-       iabar = network_aux_index("abar")
-       ibea = network_aux_index("bea")
-
        do kk = lo(3), hi(3)   ! xn loop
           do jj = lo(2), hi(2)   ! T loop
              do ii = lo(1), hi(1)   ! rho loop
 
                 xn(:) = state(ii,jj,kk, p % ispec_old:p % ispec_old+nspec-1)
 
-                if (iye > 0) then
-                   state(ii,jj,kk, p %  iaux_old+iye-1) = sum(xn(:) * zion(:) * aion_inv(:))
-                end if
+                state(ii,jj,kk, p %  iaux_old+iye-1) = sum(xn(:) * zion(:) * aion_inv(:))
+                state(ii,jj,kk, p %  iaux_old+iabar-1) = ONE / (sum(xn(:) * aion_inv(:)))
+                state(ii,jj,kk, p %  iaux_old+ibea-1) = (sum(xn(:) * bion(:) * aion_inv(:)))
 
-                if (iabar > 0) then
-                   state(ii,jj,kk, p %  iaux_old+iabar-1) = ONE / (sum(xn(:) * aion_inv(:)))
-                end if
-
-                if (ibea > 0) then
-                   state(ii,jj,kk, p %  iaux_old+ibea-1) = (sum(xn(:) * bion(:) * aion_inv(:)))
-                end if
              end do
           end do
        end do
     end if
+#endif
 
   end subroutine init_state
 
@@ -171,6 +161,7 @@ contains
              do j = 1, naux
                 state(ii, jj, kk, p % iaux + j - 1) = burn_state_out % aux(j)
              end do
+
 
              state(ii, jj, kk, p % irho_hnuc) = &
                   state(ii, jj, kk, p % irho) * (burn_state_out % e - burn_state_in % e) / tmax
