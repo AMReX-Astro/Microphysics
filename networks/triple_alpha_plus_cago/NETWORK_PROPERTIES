@@ -1,1 +1,2 @@
 NSCREEN := 3
+NAUX := 0
