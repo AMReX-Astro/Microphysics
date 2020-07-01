@@ -1,10 +1,18 @@
 # 20.06
 
-   * burn_cell can now use the C++ burner if compiled with USE_CXX_REACTIONS=TRUE
-     and run with do_cxx = 1. (#313)
+   * For integration with simplified SDC, we now interpret atol_spec
+     as an absolute tolerance on X alone instead of (rho X) (#311)
 
-   * The original burn_cell (which used the F90 BoxLib build system) is removed and
-     replaced with burn_cell_C (which uses the newer build system). (#316)
+   * burn_cell can now use the C++ burner if compiled with
+     USE_CXX_REACTIONS=TRUE and run with do_cxx = 1. (#313)
+
+   * The original burn_cell (which used the F90 BoxLib build system)
+     is removed and replaced with burn_cell_C (which uses the newer
+     build system). (#316)
+
+   * The analytic Jacobian with simplified SDC now is written in terms
+     of the conserved fluid state and works for a wide range of
+     problems (#228)
 
 # 20.05
 

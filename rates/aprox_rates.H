@@ -10,13 +10,7 @@ using namespace amrex;
 inline 
 void rates_init()
 {
-    // allocate multi-dimensional array(s)
-    // datn.resize(2);
-    // for (auto i = 0; i < 2; ++i) {
-    //     datn[i].resize(6);
-    // }
-
-    // // store rates 
+    // store rates
     const Vector<Real> datn0 {-4.363_rt, -3.091_rt, -1.275_rt, 1.073_rt, 3.035_rt, 4.825_rt,
         -4.17_rt, -2.964_rt, -1.177_rt, 1.085_rt, 3.037_rt, 4.826_rt,
         -3.834_rt, -2.727_rt, -1.039_rt, 1.104_rt, 3.04_rt, 4.826_rt,
@@ -46,27 +40,27 @@ void rates_init()
         0.9009_rt, 0.9175_rt, 1.2525_rt, 2.3619_rt, 4.0882_rt, 6.1099_rt,
         1.1032_rt, 1.113_rt, 1.3947_rt, 2.4345_rt, 4.1161_rt, 6.1171_rt};
 
-    for (auto i = 0; i < 6; ++i) {
-        for (auto j = 0; j < 14; ++j) {
-            datn(0,i,j) = datn0[i+6*j];
-            datn(1,i,j) = datn1[i+6*j];
+    for (int i = 1; i <= 6; ++i) {
+        for (int j = 1; j <= 14; ++j) {
+            datn(1,i,j) = datn0[(i-1)+6*(j-1)];
+            datn(2,i,j) = datn1[(i-1)+6*(j-1)];
         }
     }
 
     // Evaluate the cubic interp parameters for ni56 electron capture
     // which is used in the langanke subroutine.
-    for (auto k = 1; k < 4; ++k) {
-        rfdm[k] = 1.0_rt / ((rv[k-1]-rv[k])*(rv[k-1]-rv[k+1])*(rv[k-1]-rv[k+2]));
-        rfd0[k] = 1.0_rt / ((rv[k]-rv[k-1])*(rv[k]-rv[k+1])*(rv[k]-rv[k+2]));
-        rfd1[k] = 1.0_rt / ((rv[k+1]-rv[k-1])*(rv[k+1]-rv[k])*(rv[k+1]-rv[k+2]));
-        rfd2[k] = 1.0_rt / ((rv[k+2]-rv[k-1])*(rv[k+2]-rv[k])*(rv[k+2]-rv[k+1]));
+    for (auto k = 2; k <= 4; ++k) {
+        rfdm(k) = 1.0_rt / ((rv(k-1)-rv(k))*(rv(k-1)-rv(k+1))*(rv(k-1)-rv(k+2)));
+        rfd0(k) = 1.0_rt / ((rv(k)-rv(k-1))*(rv(k)-rv(k+1))*(rv(k)-rv(k+2)));
+        rfd1(k) = 1.0_rt / ((rv(k+1)-rv(k-1))*(rv(k+1)-rv(k))*(rv(k+1)-rv(k+2)));
+        rfd2(k) = 1.0_rt / ((rv(k+2)-rv(k-1))*(rv(k+2)-rv(k))*(rv(k+2)-rv(k+1)));
     }
 
-    for (auto j = 1; j < 12; ++j) {
-        tfdm[j] = 1.0_rt / ((tv[j-1]-tv[j])*(tv[j-1]-tv[j+1])*(tv[j-1]-tv[j+2]));
-        tfd0[j] = 1.0_rt / ((tv[j]-tv[j-1])*(tv[j]-tv[j+1])*(tv[j]-tv[j+2]));
-        tfd1[j] = 1.0_rt / ((tv[j+1]-tv[j-1])*(tv[j+1]-tv[j])*(tv[j+1]-tv[j+2]));
-        tfd2[j] = 1.0_rt / ((tv[j+2]-tv[j-1])*(tv[j+2]-tv[j])*(tv[j+2]-tv[j+1]));
+    for (auto j = 2; j <= 12; ++j) {
+        tfdm(j) = 1.0_rt / ((tv(j-1)-tv(j))*(tv(j-1)-tv(j+1))*(tv(j-1)-tv(j+2)));
+        tfd0(j) = 1.0_rt / ((tv(j)-tv(j-1))*(tv(j)-tv(j+1))*(tv(j)-tv(j+2)));
+        tfd1(j) = 1.0_rt / ((tv(j+1)-tv(j-1))*(tv(j+1)-tv(j))*(tv(j+1)-tv(j+2)));
+        tfd2(j) = 1.0_rt / ((tv(j+2)-tv(j-1))*(tv(j+2)-tv(j))*(tv(j+2)-tv(j+1)));
     }
 }
 
@@ -2011,43 +2005,41 @@ void langanke(const Real btemp, const Real bden,
 
     const Real t9    = amrex::min(btemp, 1.4e10_rt) * 1.0e-9_rt;
     const Real r     = amrex::max(6.0e0_rt, amrex::min(11.0e0_rt, std::log10(bden*ye)));
-    const int jp    = amrex::min(amrex::max(2, int(t9)), 12) - 1;
-    const int kp    = amrex::min(amrex::max(2, int(r)-5), 4) - 1;
-    const Real rfm   = r - rv[kp-1];
-    const Real rf0   = r - rv[kp];
-    const Real rf1   = r - rv[kp+1];
-    const Real rf2   = r - rv[kp+2];
-    const Real dfacm = rf0*rf1*rf2*rfdm[kp];
-    const Real dfac0 = rfm*rf1*rf2*rfd0[kp];
-    const Real dfac1 = rfm*rf0*rf2*rfd1[kp];
-    const Real dfac2 = rfm*rf0*rf1*rfd2[kp];
-    const Real tfm   = t9 - tv[jp-1];
-    const Real tf0   = t9 - tv[jp];
-    const Real tf1   = t9 - tv[jp+1];
-    const Real tf2   = t9 - tv[jp+2];
-    const Real tfacm = tf0*tf1*tf2*tfdm[jp];
-    const Real tfac0 = tfm*tf1*tf2*tfd0[jp];
-    const Real tfac1 = tfm*tf0*tf2*tfd1[jp];
-    const Real tfac2 = tfm*tf0*tf1*tfd2[jp];
+    const int jp    = amrex::min(amrex::max(2, int(t9)), 12);
+    const int kp    = amrex::min(amrex::max(2, int(r)-5), 4);
+    const Real rfm   = r - rv(kp-1);
+    const Real rf0   = r - rv(kp);
+    const Real rf1   = r - rv(kp+1);
+    const Real rf2   = r - rv(kp+2);
+    const Real dfacm = rf0*rf1*rf2*rfdm(kp);
+    const Real dfac0 = rfm*rf1*rf2*rfd0(kp);
+    const Real dfac1 = rfm*rf0*rf2*rfd1(kp);
+    const Real dfac2 = rfm*rf0*rf1*rfd2(kp);
+    const Real tfm   = t9 - tv(jp-1);
+    const Real tf0   = t9 - tv(jp);
+    const Real tf1   = t9 - tv(jp+1);
+    const Real tf2   = t9 - tv(jp+2);
+    const Real tfacm = tf0*tf1*tf2*tfdm(jp);
+    const Real tfac0 = tfm*tf1*tf2*tfd0(jp);
+    const Real tfac1 = tfm*tf0*tf2*tfd1(jp);
+    const Real tfac2 = tfm*tf0*tf1*tfd2(jp);
 
-    Real rnt[2];
-    Real rne[2][14];
+    Array1D<Real, 1, 2> rnt;
+    Array2D<Real, 1, 2, 1, 14> rne;
 
     // evaluate the spline fits
-    for (auto jr = 0; jr < 2; ++jr) {
+    for (auto jr = 1; jr <= 2; ++jr) {
         for (auto jd = jp-1; jd <= jp+2; ++jd) {
-            rne[jr][jd] = dfacm*datn(jr,kp-1,jd) + dfac0*datn(jr,kp,jd) \
+            rne(jr,jd) = dfacm*datn(jr,kp-1,jd) + dfac0*datn(jr,kp,jd)
                 + dfac1*datn(jr,kp+1,jd) + dfac2*datn(jr,kp+2,jd);
         }
-        rnt[jr] =  tfacm*rne[jr][jp-1] + tfac0*rne[jr][jp] \
-                + tfac1*rne[jr][jp+1] + tfac2*rne[jr][jp+2];
+        rnt(jr) =  tfacm*rne(jr,jp-1) + tfac0*rne(jr,jp)
+                 + tfac1*rne(jr,jp+1) + tfac2*rne(jr,jp+2);
     }
 
     // set the output
-    rn56ec = std::pow(10.0e0_rt, rnt[0]);
-    sn56ec = 6.022548e23_rt * 1.60218e-6_rt * y56 * std::pow(10.0e0_rt, rnt[1]);
-   
-    //write(*,*) "btemp",btemp, "bden", bden, "t9",t9,"r",r, "rn56ec",rn56ec, "sn56ec", sn56ec
+    rn56ec = std::pow(10.0e0_rt, rnt(1));
+    sn56ec = 6.022548e23_rt * 1.60218e-6_rt * y56 * std::pow(10.0e0_rt, rnt(2));
 }
 
 // given the electron degeneracy parameter etakep (chemical potential
