@@ -16,7 +16,7 @@ EBASE = main
 
 USE_CXX_EOS = TRUE
 
-USE_CXX_REACTIONS ?= FALSE
+USE_CXX_REACTIONS ?= TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
@@ -30,7 +30,7 @@ MICROPHYSICS_HOME  := ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
-NETWORK_DIR := aprox21
+NETWORK_DIR := aprox13
 
 CONDUCTIVITY_DIR := stellar
 
