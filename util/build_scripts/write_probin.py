@@ -105,7 +105,7 @@ def get_next_line(fin):
     """return the next, non-blank line, with comments stripped"""
     line = fin.readline()
 
-    pos = line.find(line, "#")
+    pos = line.find("#")
 
     while (pos == 0 or line.strip() == "") and line:
         line = fin.readline()
