@@ -232,12 +232,12 @@ def write_probin(probin_template, param_files,
                 for p in params:
                     if p.dtype == "character":
                         fout.write("{}{}, public :: {}\n".format(
-                            indent, p.get_f90_decl(), p.var, p.value))
+                            indent, p.get_f90_decl(), p.var))
                         fout.write("{}!$acc declare create({})\n".format(indent, p.var))
 
                     else:
                         fout.write("{}{}, allocatable, public :: {}\n".format(
-                            indent, p.get_f90_decl(), p.var, p.value))
+                            indent, p.get_f90_decl(), p.var))
                         fout.write("{}!$acc declare create({})\n".format(indent, p.var))
 
                 if not params:
@@ -254,10 +254,6 @@ def write_probin(probin_template, param_files,
                     if p.dtype != "character":
                         fout.write("{}allocate({})\n".format(indent, p.var))
 
-            elif keyword == "initialize":
-                for p in params:
-                    fout.write("{}{} = {}\n".format(indent, p.var, p.value))
-
             elif keyword == "deallocations":
                 for p in params:
                     if p.dtype != "character":
@@ -273,10 +269,8 @@ def write_probin(probin_template, param_files,
                         indent, namelist_name))
 
             elif keyword == "defaults":
-
                 for p in params:
-                    fout.write("{}{} = {}\n".format(
-                        indent, p.var, p.value))
+                    fout.write("{}{} = {}\n".format(indent, p.var, p.value))
 
             elif keyword == "printing":
 
