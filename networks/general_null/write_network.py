@@ -293,12 +293,13 @@ def write_network(network_template, header_template,
 
                 elif keyword == "AUXZERO_ENUM":
                     if lang == "C++":
-                        for n, aux in enumerate(aux_vars):
-                            if n == 0:
-                                fout.write("{}i{}=0,\n".format(indent, aux.name.lower()))
-                            else:
-                                fout.write("{}i{},\n".format(indent, aux.name.lower()))
-                        fout.write("{}NumberAux=i{}\n".format(indent, aux_vars[-1].name.lower()))
+                        if aux_vars:
+                            for n, aux in enumerate(aux_vars):
+                                if n == 0:
+                                    fout.write("{}i{}=0,\n".format(indent, aux.name.lower()))
+                                else:
+                                    fout.write("{}i{},\n".format(indent, aux.name.lower()))
+                            fout.write("{}NumberAux=i{}\n".format(indent, aux_vars[-1].name.lower()))
 
             else:
                 fout.write(line)

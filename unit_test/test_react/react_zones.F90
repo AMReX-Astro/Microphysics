@@ -132,9 +132,11 @@ contains
                 burn_state_in % xn(j) = state(ii, jj, kk, p % ispec_old + j - 1)
              enddo
 
+#if NAUX_NET > 0
              do j = 1, naux
                 burn_state_in % aux(j) = state(ii, jj, kk, p % iaux_old + j - 1)
              end do
+#endif
 
              call normalize_abundances_burn(burn_state_in)
 
@@ -158,9 +160,11 @@ contains
                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
              enddo
 
+#if NAUX_NET > 0
              do j = 1, naux
                 state(ii, jj, kk, p % iaux + j - 1) = burn_state_out % aux(j)
              end do
+#endif
 
 
              state(ii, jj, kk, p % irho_hnuc) = &
