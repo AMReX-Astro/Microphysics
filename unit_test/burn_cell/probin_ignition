@@ -23,7 +23,7 @@
 
   tmax    = 1.0d-6
 
-  density      = 1.d6
+  density      = 1.d9
   temperature  = 1.d9
 
   X1  = 1.0d0
