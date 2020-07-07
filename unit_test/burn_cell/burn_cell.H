@@ -139,7 +139,8 @@ void burn_cell_c()
     for(int n = 1; n <= nsteps; n++){
 	//was state, 1
     	burner(state, dt);
-	state_over_time << std::setw(10) << dt*nsteps;
+        Real t = n*dt; 
+	state_over_time << std::setw(10) << t;
 	state_over_time << std::setw(12) << state.T; 
 	for (int x = 0; x < NumSpec; ++x){
 	     state_over_time << std::setw(12) << state.xn[x]; 
