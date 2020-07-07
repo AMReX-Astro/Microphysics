@@ -45,7 +45,7 @@ contains
     call make_ydots(y(1:nspec), T9, state, rr, ydot, .false.)
 
     ! Energy release
-    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     ! Temperature ODE
     call temperature_rhs(state, ydot)
@@ -548,13 +548,13 @@ contains
 
     ! Energy generation rate Jacobian elements with respect to species
 
-    do j = 1, nspec_evolve
-       call ener_gener_rate(jac(1:nspec_evolve,j), jac(net_ienuc,j))
+    do j = 1, nspec
+       call ener_gener_rate(jac(1:nspec,j), jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec,net_itemp), jac(net_ienuc,net_itemp))
 
     ! Temperature Jacobian elements
 
@@ -570,22 +570,12 @@ contains
 
     implicit none
 
-    real(rt)         :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec), enuc
 
     !$gpu
 
-    enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
+    enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
-
-  subroutine update_unevolved_species(state)
-
-    implicit none
-
-    !$gpu
-
-    type (burn_t)    :: state
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module

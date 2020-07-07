@@ -2811,16 +2811,4 @@ contains
 
   end subroutine set_up_screening_factors
 
-  subroutine update_unevolved_species(state)
-
-    !$acc routine seq
-
-    implicit none
-
-    type (burn_t)    :: state
-
-    !$gpu
-
-  end subroutine update_unevolved_species
-
 end module actual_rhs_module

@@ -13,7 +13,13 @@ contains
 
   subroutine actual_rhs_init()
 
+    use screening_module, only: screening_init, add_screening_factor
+
     implicit none
+
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
+
+    call screening_init()
 
   end subroutine actual_rhs_init
 
@@ -43,9 +49,6 @@ contains
     real(rt)         :: y(nspec)
 
     !$gpu
-
-    ! We enforce that X(O16) remains constant, and that X(Mg24) always mirrors changes in X(C12).
-    call update_unevolved_species(state)
 
     call evaluate_rates(state, rr)
 
@@ -91,16 +94,17 @@ contains
     ! species ordering
 
     xc12tmp = max(state % xn(ic12), ZERO)
-    ydot(ic12)  = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
+    ydot(ic12) = -TWELFTH * dens * sc1212 * rate * xc12tmp**2
+    ydot(io16) = 0.0_rt
+    ydot(img24) = TWELFTH * dens * sc1212 * rate * xc12tmp**2
 
     ! Convert back to molar form
 
-    ydot(ic12) = ydot(ic12) * aion_inv(ic12)
+    ydot(1:nspec) = ydot(1:nspec) * aion_inv(1:nspec)
 
     call ener_gener_rate(ydot(ic12), ydot(net_ienuc))
 
-    ! Do the temperature equation explicitly here since
-    ! the generic form doesn't work when nspec_evolve < nspec.
+    ! Do the temperature equation explicitly here
 
     if (state % self_heat) then
 
@@ -155,6 +159,7 @@ contains
     ! carbon jacobian elements
     scratch  = -SIXTH * dens * scorr * rate * xc12tmp
     call set_jac_entry(jac, ic12, ic12, scratch)
+    call set_jac_entry(jac, img24, ic12, -scratch)
 
     ! add the temperature derivatives: df(y_i) / dT
     scratch  = -TWELFTH * ( dens * rate * xc12tmp**2 * dscorrdt + &
@@ -210,7 +215,7 @@ contains
 
     !$acc routine seq
 
-    use screening_module, only: screenz
+    use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     implicit none
 
@@ -220,22 +225,29 @@ contains
     real(rt)         :: temp, T9, T9a, dT9dt, dT9adt
 
     real(rt)         :: scratch, dscratchdt
-    real(rt)         :: rate, dratedt, sc1212, dsc1212dt, xc12tmp
+    real(rt)         :: rate, dratedt, sc1212, dsc1212dt, dsc1212dd, xc12tmp
 
     real(rt)         :: dens
 
     real(rt)         :: a, b, dadt, dbdt
 
     real(rt)         :: y(nspec)
+    integer :: jscr
+    type(plasma_state) :: pstate
 
     !$gpu
 
     temp = state % T
     dens = state % rho
+
+    ! screening wants molar fractions
     y    = state % xn * aion_inv
 
     ! call the screening routine
-    call screenz(temp,dens,6.0e0_rt,6.0e0_rt,12.0e0_rt,12.0e0_rt,y,sc1212,dsc1212dt)
+    call fill_plasma_state(pstate, temp, dens, y)
+
+    jscr = 1
+    call screen5(pstate,jscr,sc1212,dsc1212dt,dsc1212dd)
 
     ! compute some often used temperature constants
     T9     = temp/1.e9_rt
@@ -295,19 +307,5 @@ contains
     enuc = dydt * (mion(ic12) - mion(img24) / 2) * enuc_conv2
 
   end subroutine ener_gener_rate
-
-  subroutine update_unevolved_species(state)
-
-    !$acc routine seq
-
-    implicit none
-
-    type (burn_t)    :: state
-
-    !$gpu
-
-    state % xn(iMg24) = ONE - state % xn(iC12) - state % xn(iO16)
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module

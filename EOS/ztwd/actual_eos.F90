@@ -18,39 +18,53 @@
 
 module actual_eos_module
 
-  use amrex_error_module
   use amrex_constants_module
-  use network, only: nspec, aion, zion
-  use eos_type_module
+  use amrex_fort_module, only: rt => amrex_real
+  use fundamental_constants_module, only: m_e, m_p, c_light, hplanck
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
-  character (len=64), public :: eos_name = "ztwd"
-  
-  real(rt)        , private :: A, B, B2
-  real(rt)        , parameter, private :: iter_tol = 1.e-10_rt
-  integer,          parameter, private :: max_iter = 1000
-  !$OMP THREADPRIVATE(B)
+  character (len=64), parameter :: eos_name = "ztwd"
 
-  private :: enthalpy, pressure
+  real(rt), parameter, private :: A = M_PI * m_e**4 * c_light**5 / (THREE * hplanck**3)
+  real(rt), parameter, private :: B2 = EIGHT * M_PI * m_e**3 * c_light**3 * m_p  / (THREE * hplanck**3)
+  real(rt), parameter, private :: iter_tol = 1.e-10_rt
+  integer,  parameter, private :: max_iter = 1000
+
+  private :: enthalpy, pressure, dhdx, dpdx, pres_iter
 
 contains
 
   subroutine actual_eos_init
 
-    use fundamental_constants_module, only: m_e, m_p, c_light, hplanck
-
     implicit none
- 
-    A = M_PI * m_e**4 * c_light**5 / (THREE * hplanck**3)
-    B2 = EIGHT * M_PI * m_e**3 * c_light**3 * m_p  / (THREE * hplanck**3)
 
+    ! Nothing to do here.
+ 
   end subroutine actual_eos_init
 
 
+  subroutine is_input_valid(input, valid)
+    implicit none
+    integer, intent(in) :: input
+    logical, intent(out) :: valid
+
+    !$gpu
+
+    valid = .true.
+
+  end subroutine is_input_valid
+
 
   subroutine actual_eos(input, state)
+
+#ifndef AMREX_USE_CUDA
+    use amrex_error_module, only: amrex_error
+#endif
+    use network, only: nspec, aion, zion
+    use eos_type_module, only: eos_t, eos_input_rh, eos_input_rt, eos_input_tp, &
+                               eos_input_rp, eos_input_re, eos_input_ps, &
+                               eos_input_ph, eos_input_th
 
     implicit none
 
@@ -58,8 +72,11 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Local variables
-    real(rt)         :: dens, temp, enth, pres, eint, entr
-    real(rt)         :: x, dxdr
+    real(rt) :: dens, temp, enth, pres, eint, entr
+    real(rt) :: x, dxdr
+    real(rt) :: B
+
+    !$gpu
 
     dens = state % rho
     temp = state % T
@@ -101,7 +118,7 @@ contains
 
        x = (dens / B)**THIRD
        pres = pressure(x)
-       enth = enthalpy(x)
+       enth = enthalpy(x, B)
        eint = enth - pres / dens
 
 
@@ -111,10 +128,10 @@ contains
 
        ! Solve for the density, energy and enthalpy:
 
-       call pres_iter(pres, dens)
+       call pres_iter(pres, dens, B)
 
        x = (dens / B)**THIRD
-       enth = enthalpy(x)
+       enth = enthalpy(x, B)
        eint = enth - pres / dens
 
 
@@ -125,7 +142,7 @@ contains
        ! Solve for the enthalpy and energy:
 
        x = (dens / B)**THIRD
-       enth = enthalpy(x)
+       enth = enthalpy(x, B)
        eint = enth - pres / dens
 
 
@@ -137,7 +154,7 @@ contains
 
        x = (dens / B)**THIRD
        pres = pressure(x)
-       enth = enthalpy(x)
+       enth = enthalpy(x, B)
 
 
     case (eos_input_ps)
@@ -146,10 +163,10 @@ contains
 
        ! Solve for the density, energy and enthalpy:
 
-       call pres_iter(pres, dens)
+       call pres_iter(pres, dens, B)
 
        x = (dens / B)**THIRD
-       enth = enthalpy(x)
+       enth = enthalpy(x, B)
        eint = enth - pres / dens
 
 
@@ -178,7 +195,9 @@ contains
 
     case default
 
-       call amrex_error('EOS: invalid input.')
+#ifndef AMREX_USE_CUDA
+       call amrex_error("EOS: invalid input.")
+#endif
 
     end select
 
@@ -206,7 +225,7 @@ contains
     dxdr = THIRD * x / dens
 
     state % dPdr = dxdr * dpdx(x)
-    state % dhdr = dxdr * dhdx(x)
+    state % dhdr = dxdr * dhdx(x, B)
     state % dedr = state % dhdr - state % dpdr / state % rho + state % p / (state % rho)**2
     state % dsdr = ZERO
 
@@ -239,71 +258,93 @@ contains
 
     implicit none
 
-    ! Nothing to do here, yet.
+    ! Nothing to do here.
 
   end subroutine actual_eos_finalize
 
 
 
-  real(rt) function pressure(x)
+  function pressure(x) result(p)
 
     implicit none
 
-    real(rt)        , intent(in)  :: x
+    real(rt), intent(in)  :: x
 
-    pressure = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
+    real(rt) :: p
+
+    !$gpu
+
+    p = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
 
   end function pressure
 
 
 
-  real(rt) function enthalpy(x)
+  function enthalpy(x, B) result(h)
 
     implicit none
 
-    real(rt)        , intent(in)  :: x
+    real(rt), intent(in) :: x, B
 
-    enthalpy = (EIGHT * A / B) * (ONE + x**2)**HALF
+    real(rt) :: h
+
+    !$gpu
+
+    h = (EIGHT * A / B) * (ONE + x**2)**HALF
 
   end function enthalpy
 
 
 
-  real(rt) function dpdx(x)
+  function dpdx(x) result(dp)
 
     implicit none
 
-    real(rt)        , intent(in) :: x
+    real(rt), intent(in) :: x
 
-    dpdx = A * ( (TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
-                 x * (4*x) * (x**2 + ONE)**HALF + &
-                 x**2 * (TWO * x**2 - THREE) * (x**2 + ONE)**(-HALF) + &
-                 THREE * (x**2 + ONE)**(-HALF) )
+    real(rt) :: dp
+
+    !$gpu
+
+    dp = A * ((TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
+              x * (4*x) * (x**2 + ONE)**HALF + &
+              x**2 * (TWO * x**2 - THREE) * (x**2 + ONE)**(-HALF) + &
+              THREE * (x**2 + ONE)**(-HALF))
 
   end function dpdx
 
 
 
-  real(rt) function dhdx(x)
+  function dhdx(x, B) result(dh)
 
     implicit none
 
-    real(rt)        , intent(in) :: x
+    real(rt), intent(in) :: x, B
 
-    dhdx = enthalpy(x) * (x / (x**2 + ONE))
+    real(rt) :: dh
+
+    !$gpu
+
+    dh = enthalpy(x, B) * (x / (x**2 + ONE))
 
   end function dhdx
 
 
 
-  subroutine pres_iter(pres, dens)
+  subroutine pres_iter(pres, dens, B)
+
+#ifndef AMREX_USE_CUDA
+    use amrex_error_module, only: amrex_error
+#endif
 
     implicit none
 
-    real(rt)        , intent(inout) :: pres, dens
+    real(rt), intent(inout) :: pres, dens, B
 
-    real(rt)         :: x, dx
-    integer          :: iter
+    real(rt) :: x, dx
+    integer  :: iter
+
+    !$gpu
 
     ! Starting guess for the iteration.
 
@@ -326,14 +367,14 @@ contains
 
     enddo
 
+#ifndef AMREX_USE_CUDA
     if (iter .eq. max_iter) then
        call amrex_error("EOS: pres_iter failed to converge.")
     endif
+#endif
 
     dens = B * x**3
 
   end subroutine pres_iter
-
-
 
 end module actual_eos_module

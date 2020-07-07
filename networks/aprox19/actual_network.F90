@@ -1,11 +1,8 @@
 module actual_network
 
+  use network_properties
   use amrex_fort_module, only : rt => amrex_real
   implicit none
-
-  integer, parameter :: nspec = 19
-  integer, parameter :: nspec_evolve = 19
-  integer, parameter :: naux  = 0
 
   integer, parameter :: ih1   = 1
   integer, parameter :: ihe3  = 2
@@ -27,16 +24,11 @@ module actual_network
   integer, parameter :: ineut = 18
   integer, parameter :: iprot = 19
 
-  real(rt)        , allocatable :: aion(:), zion(:), nion(:)
-  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: aion, zion, nion, bion, mion, wion
+  attributes(managed) :: bion, mion
 #endif
-
-  character (len=16), save :: spec_names(nspec)
-  character (len= 5), save :: short_spec_names(nspec)
-  character (len= 5), save :: short_aux_names(naux)
 
   character (len=32), parameter :: network_name = "aprox19"
 
@@ -174,94 +166,11 @@ contains
     
     ! The following comes directly from init_aprox19
 
-    short_spec_names(ih1)   = 'h1'
-    short_spec_names(ihe3)  = 'he3'  
-    short_spec_names(ihe4)  = 'he4'
-    short_spec_names(ic12)  = 'c12'
-    short_spec_names(in14)  = 'n14'
-    short_spec_names(io16)  = 'o16'
-    short_spec_names(ine20) = 'ne20'
-    short_spec_names(img24) = 'mg24'
-    short_spec_names(isi28) = 'si28'
-    short_spec_names(is32)  = 's32'
-    short_spec_names(iar36) = 'ar36'
-    short_spec_names(ica40) = 'ca40'
-    short_spec_names(iti44) = 'ti44'
-    short_spec_names(icr48) = 'cr48'
-    short_spec_names(ife52) = 'fe52'
-    short_spec_names(ife54) = 'fe54'
-    short_spec_names(ini56) = 'ni56'
-    short_spec_names(ineut) = 'neut'
-    short_spec_names(iprot) = 'prot'
+    call network_properties_init()
 
-    spec_names(ih1)   = "hydrogen-1"
-    spec_names(ihe3)  = "helium-3"
-    spec_names(ihe4)  = "helium-4"
-    spec_names(ic12)  = "carbon-12"
-    spec_names(in14)  = "nitrogen-14"
-    spec_names(io16)  = "oxygen-16"
-    spec_names(ine20) = "neon-20"
-    spec_names(img24) = "magnesium-24"
-    spec_names(isi28) = "silicon-28"
-    spec_names(is32)  = "sulfur-32"
-    spec_names(iar36) = "argon-36"
-    spec_names(ica40) = "calcium-40"
-    spec_names(iti44) = "titanium-44"
-    spec_names(icr48) = "chromium-48"
-    spec_names(ife52) = "iron-52"
-    spec_names(ife54) = "iron-54"
-    spec_names(ini56) = "nickel-56"
-    spec_names(ineut) = "neutron"
-    spec_names(iprot) = "proton"
-    
-    allocate(aion(nspec))
-    allocate(zion(nspec))
-    allocate(nion(nspec))
     allocate(bion(nspec))
     allocate(mion(nspec))
-    allocate(wion(nspec))
 
-    ! Set the number of nucleons in the element
-    aion(ih1)   = 1.0e0_rt
-    aion(ihe3)  = 3.0e0_rt
-    aion(ihe4)  = 4.0e0_rt
-    aion(ic12)  = 12.0e0_rt
-    aion(in14)  = 14.0e0_rt
-    aion(io16)  = 16.0e0_rt
-    aion(ine20) = 20.0e0_rt
-    aion(img24) = 24.0e0_rt
-    aion(isi28) = 28.0e0_rt
-    aion(is32)  = 32.0e0_rt
-    aion(iar36) = 36.0e0_rt
-    aion(ica40) = 40.0e0_rt
-    aion(iti44) = 44.0e0_rt
-    aion(icr48) = 48.0e0_rt
-    aion(ife52) = 52.0e0_rt
-    aion(ife54) = 54.0e0_rt
-    aion(ini56) = 56.0e0_rt
-    aion(ineut) = 1.0e0_rt
-    aion(iprot) = 1.0e0_rt
-
-    ! Set the number of protons in the element
-    zion(ih1)   = 1.0e0_rt
-    zion(ihe3)  = 2.0e0_rt
-    zion(ihe4)  = 2.0e0_rt
-    zion(ic12)  = 6.0e0_rt
-    zion(in14)  = 7.0e0_rt
-    zion(io16)  = 8.0e0_rt
-    zion(ine20) = 10.0e0_rt
-    zion(img24) = 12.0e0_rt
-    zion(isi28) = 14.0e0_rt
-    zion(is32)  = 16.0e0_rt
-    zion(iar36) = 18.0e0_rt
-    zion(ica40) = 20.0e0_rt
-    zion(iti44) = 22.0e0_rt
-    zion(icr48) = 24.0e0_rt
-    zion(ife52) = 26.0e0_rt
-    zion(ife54) = 26.0e0_rt
-    zion(ini56) = 28.0e0_rt
-    zion(ineut) = 0.0e0_rt
-    zion(iprot) = 1.0e0_rt    
 
     ! Set the binding energy of the element
     bion(ih1)   = 0.0e0_rt
@@ -284,17 +193,8 @@ contains
     bion(ineut) = 0.0e0_rt
     bion(iprot) = 0.0e0_rt
 
-    ! Set the number of neutrons
-    nion(:) = aion(:) - zion(:)
-
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
-
-    ! Molar mass
-    wion(:) = avo * mion(:)
-
-    ! Common approximation
-    wion(:) = aion(:)
 
     ! set the names of the reaction rates
     ratenames(ir3a)   = 'r3a  '
@@ -420,23 +320,13 @@ contains
 
     implicit none
 
-    if (allocated(aion)) then
-       deallocate(aion)
-    endif
-    if (allocated(zion)) then
-       deallocate(zion)
-    endif
-    if (allocated(nion)) then
-       deallocate(nion)
-    endif
+    call network_properties_finalize()
+
     if (allocated(bion)) then
        deallocate(bion)
     endif
     if (allocated(mion)) then
        deallocate(mion)
-    endif
-    if (allocated(wion)) then
-       deallocate(wion)
     endif
 
   end subroutine actual_network_finalize

@@ -31,10 +31,16 @@ subroutine do_eos(lo, hi, &
   integer :: ii, jj, kk, n
 
   !$gpu
-  
-  dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
-  dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
-  dmetal    = (metalicity_max  - ZERO)/(npts - 1)
+
+  if (npts > 1) then
+     dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
+     dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
+     dmetal  = (metalicity_max  - ZERO)/(npts - 1)
+  else
+     dlogrho = ZERO
+     dlogT   = ZERO
+     dmetal  = ZERO
+  end if
 
   do kk = lo(3), hi(3)
 
@@ -118,17 +124,19 @@ subroutine do_eos(lo, hi, &
 
            
            ! call EOS using T, p
+           if (eos_name == "gamma_law") then
+              sp(ii, jj, kk, p % ierr_rho_eos_tp) = ZERO
+           else
+              ! reset rho to give it some work to do
+              eos_state % rho = 1.e0_rt
 
-           ! reset rho to give it some work to do
-           eos_state % rho = 1.e0_rt
+              call eos(eos_input_tp, eos_state)
 
-           call eos(eos_input_tp, eos_state)
+              sp(ii, jj, kk, p % ierr_rho_eos_tp) = &
+                   abs(eos_state % rho - dens_zone)/dens_zone
 
-           sp(ii, jj, kk, p % ierr_rho_eos_tp) = &
-                abs(eos_state % rho - dens_zone)/dens_zone
-
-           call copy_eos_t(eos_state, eos_state_reference)
-
+              call copy_eos_t(eos_state, eos_state_reference)
+           end if
            
            ! call EOS using r, p
 
@@ -165,8 +173,12 @@ subroutine do_eos(lo, hi, &
 
            ! some EOSes don't have physically valid treatments
            ! of entropy throughout the entire rho-T plane
-           if (eos_state%s > ZERO) then
+           if (eos_name == "multigamma" .or. eos_state%s < ZERO) then
 
+              sp(ii, jj, kk, p % ierr_T_eos_ps) = ZERO
+              sp(ii, jj, kk, p % ierr_rho_eos_ps) = ZERO
+
+           else
               call eos(eos_input_ps, eos_state)
 
               ! store the thermodynamic state
@@ -175,11 +187,7 @@ subroutine do_eos(lo, hi, &
               sp(ii, jj, kk, p % ierr_rho_eos_ps) = &
                    abs(eos_state % rho - dens_zone)/dens_zone
 
-           else
-              sp(ii, jj, kk, p % ierr_T_eos_ps) = ZERO
-              sp(ii, jj, kk, p % ierr_rho_eos_ps) = ZERO
-
-           endif
+           end if
 
            call copy_eos_t(eos_state, eos_state_reference)
 
@@ -202,21 +210,22 @@ subroutine do_eos(lo, hi, &
 
            ! call EOS using T, h
            ! this doesn't work for all EOSes (where h doesn't depend on T)
-#ifndef EOS_GAMMA_LAW_GENERAL
-           ! reset rho to give it some work to do -- for helmeos, h is not
-           ! monotonic, so we only perturb rho slightly here
-           eos_state % rho = 0.9_rt * eos_state % rho
+           if (eos_name == "gamma_law" .or.&
+               eos_name == "gamma_law_general" .or. &
+               eos_name == "multigamma") then
+              sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
+           else
+              ! reset rho to give it some work to do -- for helmeos, h is not
+              ! monotonic, so we only perturb rho slightly here
+              eos_state % rho = 0.9_rt * eos_state % rho
 
-           call eos(eos_input_th, eos_state)
+              call eos(eos_input_th, eos_state)
 
-           sp(ii, jj, kk, p % ierr_rho_eos_th) = &
-                abs(eos_state % rho - dens_zone)/dens_zone
+              sp(ii, jj, kk, p % ierr_rho_eos_th) = &
+                   abs(eos_state % rho - dens_zone)/dens_zone
 
-           call copy_eos_t(eos_state, eos_state_reference)
-
-#else
-           sp(ii, jj, kk, p % ierr_rho_eos_th) = ZERO
-#endif
+              call copy_eos_t(eos_state, eos_state_reference)
+           end if
         enddo
      enddo
   enddo

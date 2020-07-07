@@ -12,7 +12,7 @@ extern "C"
 
   void get_ncomp(int* ncomp);
 
-  void get_number_equations(int* neqs, int* nspec_not_evolved);
+  void get_number_equations(int* neqs);
 
   void get_species_index(int* index);
 
@@ -58,7 +58,6 @@ extern "C"
 
   void sk_get_num_rpar_comps(int* number_rpar_comps);
 
-  void sk_get_nspec_evolve(int* number_species_evolved);
 
 #ifdef AMREX_USE_CUDA
 __device__  void sk_initialize_cell_device(amrex::Real* y, amrex::Real* rpar);

@@ -2,7 +2,6 @@ module actual_burner_module
 
   use network
 
-  use amrex_fort_module, only : rt => amrex_real
   implicit none
 
 contains
@@ -40,6 +39,7 @@ contains
 
     !$acc routine seq
 
+    use amrex_fort_module, only: rt => amrex_real
     use integrator_module, only: integrator
     use burn_type_module, only: burn_t
 

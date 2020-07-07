@@ -15,7 +15,7 @@ module physical_constants
   real(rt), parameter :: gram_per_amu = 1660539.040e-30_rt
 
   real(rt), parameter :: erg_per_eV  = 1.6021766208e-12_rt
-  real(rt), parameter :: erg_per_MeV = erg_per_eV*1.0e6_rt
-  real(rt), parameter :: gram_per_MeV = erg_per_MeV/CLIGHT**2
+  real(rt), parameter :: erg_per_MeV = erg_per_eV * 1.0e6_rt
+  real(rt), parameter :: gram_per_MeV = erg_per_MeV / clight**2
 
 end module physical_constants

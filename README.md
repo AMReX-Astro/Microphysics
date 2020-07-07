@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/starkiller-astro/Microphysics.svg?branch=master)](https://travis-ci.org/starkiller-astro/Microphysics) [![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
+[![Build Status](https://travis-ci.org/starkiller-astro/Microphysics.svg?branch=main)](https://travis-ci.org/starkiller-astro/Microphysics) [![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
 
 # Microphysics
 
@@ -90,13 +90,13 @@ Development generally follows the following ideas:
     change (or if they do, that the changes were expected).
 
     If a change is critical, we can cherry-pick the commit from
-    `development` to `master`.
+    `development` to `main`.
 
   * Contributions are welcomed from anyone. *Any contributions that
     have the potential to change answers should be done via pull
     requests.*   A pull request should be generated from your fork of
     `Microphysics` and target the `development` branch. (If you mistakenly
-    target `master`, we can change it for you.)
+    target `main`, we can change it for you.)
 
     Please add a line to `CHANGES` summarizing your change if it
     is a bug fix or new feature. Reference the PR or issue as
@@ -114,14 +114,14 @@ Development generally follows the following ideas:
     since these will be used for a squashed commit message.*
 
   * On the first workday of each month, we perform a merge of
-    `development` into `master`, in coordination with `AMReX`,
+    `development` into `main`, in coordination with `AMReX`,
     `Maestro`, and `Microphysics`. For this merge to take place, we
     need to be passing the regression tests.
 
     To accommodate this need, we close the merge window into
     `development` a few days before the merge day. While the merge
     window is closed, only bug fixes should be pushed into
-    `development`. Once the merge from `development` -> `master` is
+    `development`. Once the merge from `development` -> `main` is
     done, the merge window reopens.
 
 

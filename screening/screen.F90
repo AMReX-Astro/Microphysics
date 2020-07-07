@@ -232,7 +232,7 @@ contains
     ! Local variables
 
     real(rt)         :: abar, zbar, z2bar
-    real(rt)         :: ytot, rr, tempi, dtempi, deni
+    real(rt)         :: ytot, rr, tempi, dtempi
     real(rt)         :: pp, qq, dppdt, xni
 !    real(rt)         :: dppdd
 
@@ -246,7 +246,7 @@ contains
     rr               = dens * ytot
     tempi            = ONE / temp
     dtempi           = -tempi * tempi
-    deni             = ONE / dens
+    !deni             = ONE / dens
 
     pp               = sqrt(rr*tempi*(z2bar + zbar))
     qq               = HALF/pp *(z2bar + zbar)
@@ -303,7 +303,7 @@ contains
 
 
     ! local variables
-    real(rt)         :: z1, a1, z2, a2
+    real(rt)         :: z1, z2
 
     real(rt)         :: bb,cc,dccdt, &
                         qq,dqqdt,rr,drrdt, &
@@ -325,9 +325,7 @@ contains
     ! Get the ion data based on the input index
 
     z1 = z1scr(jscreen)
-    a1 = a1scr(jscreen)
     z2 = z2scr(jscreen)
-    a2 = a2scr(jscreen)
 
     ! calculate individual screening factors
     bb       = z1 * z2
@@ -491,194 +489,5 @@ contains
     end if
 
   end subroutine screen5
-
-
-  subroutine screenz (t,d,z1,z2,a1,a2,ymass,scfac,dscfacdt)
-
-    !$acc routine seq
-
-    use network, only: aion, zion, nspec
-
-    implicit none
-
-    real(rt)         :: t, d, z1, z2, a1, a2
-    real(rt)         :: ymass(nspec)
-    real(rt)         :: scfac
-    real(rt)         :: dscfacdt
-
-    ! this subroutine calculates screening factors for nuclear reaction
-    ! rates in the weak, intermediate , and strong regimes given the
-    ! temperature (t--degk), the density (d--g/cc), the atomic numbers
-    ! and weights of the elements in the reaction channel with the
-    ! largest coulomb barrier (z1,z2,a1,a2), and the mean plasma
-    ! parameters calculated in main and passed over in common aver:
-    ! (mean atomic number--zbar, mean square of the atomic
-    ! number--z2bar, mean atomic weight--abar, and total number of moles
-    ! of nuclei per gram--ytot1).  the unscreened rate is to be
-    ! multiplied by the dimensionless the treatment is based on
-    ! graboske, dewit, grossman, and cooper ap j. 181,457 (1973) for
-    ! weak screening and on alastuey and jancovici, ap.j. 226, 1034,
-    ! 1978, with plasma parameters from itoh, totsuji, setsuo, and
-    ! dewitt, ap.j. 234, 1079,1979, for strong screening (rkw
-    ! modification).
-
-    !.... last revision 15 nov 1982
-
-    real(rt)         abar, zbar, ytot1, z2bar, theta
-
-    integer iy
-
-    real(rt)         qlam0, ztilda, qlam0z, gamp, taufac
-    real(rt)         dqlam0dt, dqlam0zdt, dgampdt, dtaufacdt
-    real(rt)         zhat, zhat2, gamef, tau12, alph12
-    real(rt)         dgamefdt, dtau12dt, dalph12dt
-    real(rt)         h12w, h12, c, h12fac
-    real(rt)         dh12wdt, dh12dt, dcdt
-
-    !$gpu
-
-    ! calculate averages for screening routine
-    ! nb  y = x/a with x the mass fraction
-    ! zi and ai are the nuclear chage and atomic mass number
-    ! respectively
-
-    ! this part came in through a common block in Kepler -- do it
-    ! directly here
-    abar=0.e0_rt
-    zbar=0.e0_rt
-    ytot1=0.e0_rt
-    z2bar=0.e0_rt
-
-    do iy = 1, nspec
-       ytot1 = ytot1 + ymass(iy)
-       z2bar = z2bar + zion(iy)**2*ymass(iy)
-       abar = abar + aion(iy)*ymass(iy)
-       zbar = zbar + zion(iy)*ymass(iy)
-    enddo
-
-    z2bar=z2bar/ytot1
-    abar=abar/ytot1
-    zbar=zbar/ytot1
-
-    ! resume original Kepler screen...
-    theta=1.e0_rt
-    ytot1=1.e0_rt/abar
-
-    !.... calculate average plasma parameters
-    !....
-    if ((z1*z2) > 0.e0_rt) then
-
-       qlam0=1.88e+8_rt*sqrt(d/(abar*t**3))
-       dqlam0dt=-1.5e+0_rt*qlam0 / t
-
-       ztilda=sqrt(z2bar+zbar*theta)
-
-       qlam0z=qlam0*ztilda
-       dqlam0zdt=ztilda*dqlam0dt
-
-       gamp=2.27493e+5_rt*(d*zbar*ytot1)**THIRD/t
-       dgampdt=-gamp/t
-
-       taufac=4.248719e+3_rt/t**THIRD
-       dtaufacdt=-THIRD*taufac/t
-
-       !.... calculate screening factor
-       !.... approx. for strong screening only good for alpha .lt. 1.6
-
-       zhat=(z1+z2)**FIVE3RD-z1**FIVE3RD-z2**FIVE3RD
-       zhat2=(z1+z2)**FIVE12TH-z1**FIVE12TH-z2**FIVE12TH
-
-       gamef=2.e0_rt**THIRD*gamp*z1*z2/(z1+z2)**THIRD
-       dgamefdt=gamef*dgampdt/gamp
-
-       tau12=taufac*(z1**2*z2**2*a1*a2/(a1+a2))**THIRD
-       dtau12dt=tau12*dtaufacdt/taufac
-
-       alph12=3.e0_rt*gamef/tau12
-       dalph12dt=alph12*(dgamefdt/gamef - dtau12dt/tau12)
-
-       !....
-       !.... limit alph12 to 1.6 to prevent unphysical behavior
-       !.... (h dec. as rho inc.) at high rho.  this should really
-       !.... be replaced by a pycnonuclear reaction rate formula.
-       !....
-       if (alph12 > 1.6e0_rt) then
-
-          alph12=1.6e0_rt
-          dalph12dt=0.0e0_rt
-
-          gamef=1.6e0_rt*tau12/3.e0_rt
-          dgamefdt=gamef*dtau12dt/tau12
-
-          gamp=gamef*(z1+z2)**THIRD/(2.e0_rt**THIRD*z1*z2)
-          dgampdt=gamp*dgamefdt/gamef
-
-       endif
-
-       h12w=z1*z2*qlam0z
-       dh12wdt=h12w*dqlam0zdt/qlam0z
-
-       h12=h12w
-       dh12dt=dh12wdt
-
-       if (gamef > 0.3e0_rt) then
-
-          c=0.896434e0_rt*gamp*zhat-3.44740e0_rt*gamp**FOURTH*zhat2- &
-               0.5551e0_rt*(log(gamp)+FIVE3RD*log(z1*z2/(z1+z2)))-2.996e0_rt
-
-          dcdt=0.896434e0_rt*dgampdt*zhat- &
-               3.44740e0_rt*FOURTH*gamp**(FOURTH-1.0e0_rt)*zhat2*dgampdt- &
-               0.5551e0_rt*dgampdt/gamp
-
-          h12=c-(tau12/3.e0_rt)*(5.e0_rt*alph12**3/32.e0_rt-0.014e0_rt*alph12**4 &
-               -0.0128e0_rt*alph12**5)-gamef*(0.0055e0_rt*alph12**4 &
-               -0.0098e0_rt*alph12**5+0.0048e0_rt*alph12**6)
-
-          dh12dt=dcdt - ((dtau12dt*alph12**3 + 3.0e0_rt*tau12*alph12**2* &
-               dalph12dt)*(5.e0_rt/32.e0_rt - 0.014e0_rt*alph12 - &
-               0.0128e0_rt*alph12**2) + tau12*alph12**3*dalph12dt*(-0.014e0_rt &
-               - 2.e0_rt*0.0128e0_rt*alph12))/3.e0_rt -(dgamefdt*alph12**4 + 4.e0_rt &
-               *gamef*alph12**3*dalph12dt)*(0.0055e0_rt - 0.0098e0_rt*alph12 - &
-               0.0048e0_rt*alph12**2) - gamef*alph12**4*dalph12dt*(-0.0098e0_rt &
-               + 2.e0_rt*0.0048e0_rt*alph12)
-
-          h12fac=0.77e0_rt
-
-          h12=log(max(1.e+0_rt-0.0562e+0_rt*alph12**3,h12fac))+h12
-          if (1.e+0_rt-0.0562e+0_rt*alph12**3 .gt. h12fac) then
-             dh12dt=(-3.e0_rt*0.0562e0_rt*alph12**2*dalph12dt)/ &
-                  (1.e0_rt-0.0562e0_rt*alph12**3) + dh12dt
-          endif
-
-          if(gamef <= 0.8e0_rt) then
-
-             h12=h12w*((0.8e0_rt-gamef)/0.5e0_rt)+h12*((gamef-0.3e0_rt)/0.5e0_rt)
-             dh12dt=((dh12wdt*(0.8e0_rt-gamef) - h12w*dgamefdt + dh12dt* &
-                  (gamef-0.3e0_rt) + h12*dgamefdt)/0.5e0_rt)
-          endif
-       endif
-
-       if (h12 .gt. h12_max) then
-          h12 = h12_max
-          dh12dt=0.e0_rt
-       endif
-
-       if (h12.lt.0.e0_rt) then
-          h12=0.e0_rt
-          dh12dt=0.e0_rt
-       endif
-
-       scfac=exp(h12)
-       dscfacdt=scfac*dh12dt
-
-    else
-       scfac=1.e0_rt
-       dscfacdt=0.e0_rt
-    endif
-
-    return
-
-  end subroutine screenz
-
 
 end module screening_module

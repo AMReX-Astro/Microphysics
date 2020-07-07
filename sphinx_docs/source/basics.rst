@@ -2,10 +2,45 @@
 StarKiller Basics
 *****************
 
-Getting Started
-===============
+Getting Started (Standalone)
+============================
 
-Getting started with Microphysics using either CASTRO or MAESTRO is
+Microphysics can be used in a "standalone" fashion to run the unit
+tests and explore the behavior of the reaction networks.  The main
+requirement is a copy of AMReX::
+
+   git clone https://github.com/AMReX-Codes/amrex.git
+
+We use this for some data structures and the build system.  You need
+to set the ``AMREX_HOME`` environment variable to point to the
+``amrex/`` directory::
+
+   export AMREX_HOME=/path/to/amrex
+
+(where you change ``/path/to/amrex`` to your actual path).
+
+A good unit test to start with is ``burn_cell`` -- this is simply a
+one-zone burn.  In ``Microphysics/`` do:
+
+   cd unit_test/burn_cell
+   make
+
+This will create an executable called ``main3d.gnu.ex``.  Then you can run it as::
+
+   ./main3d.gnu.ex inputs_aprox21
+
+By default, the test is built with the 21-isotope ``aprox21`` network.
+Here ``inputs_aprox21`` is the inputs file that sets options.  It also
+points to a second inputs file, ``probin_aprox13`` which is
+interpreted by the Fortran portions of the code.  In this second file, you'll
+see the density, temperature, and mass fractions of the nuclei set.
+
+
+
+Getting Started (Running with MAESTROeX or CASTRO)
+==================================================
+
+Getting started with Microphysics using either CASTRO or MAESTROeX is
 straightforward. Because the modules here are already in a format that
 the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
@@ -15,14 +50,14 @@ through your ``~/.bashrc``, e.g.::
 
  export MICROPHYSICS_HOME=/path/to/Microphysics
 
-For CASTRO  the name of the EOS and network are set via the make
+For CASTRO the name of the EOS and network are set via the make
 variables ``EOS_DIR`` and ``NETWORK_DIR``. The macros in CASTRO’s
 ``Make.Castro`` will know to look in Microphysics using the
 ``MICROPHYSICS_HOME`` variable to find the codes.
 
-For MAESTRO, the name of the EOS and network are set via the make
+For MAESTROeX, the name of the EOS and network are set via the make
 variables ``EOS_DIR`` and ``NETWORK_DIR``, and the macros in MAESTRO’s
-``GMaestro.mak`` file will find the code, again using the
+``Make.Maestro`` file will find the code, again using the
 ``MICROPHYSICS_HOME`` variable.
 
 For other codes, one can use the interfaces in

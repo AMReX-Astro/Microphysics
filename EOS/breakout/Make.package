@@ -1,3 +1,7 @@
 F90EXE_sources += actual_eos.F90
 
-
+ifeq ($(USE_CXX_EOS),TRUE)
+CEXE_headers += actual_eos_data.H
+CEXE_sources += actual_eos_data.cpp
+CEXE_headers += actual_eos.H
+endif

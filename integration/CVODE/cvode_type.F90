@@ -14,7 +14,7 @@ contains
 
     !$acc routine seq
     
-    use actual_network, only: aion, nspec, nspec_evolve
+    use actual_network, only: aion, nspec
     use burn_type_module, only: neqs
     use cvode_rpar_indices, only: n_rpar_comps
 
@@ -26,7 +26,7 @@ contains
 
     ! Ensure that mass fractions always stay positive.
 
-    y(1:nspec_evolve) = max(y(1:nspec_evolve), 1.e-200_rt)
+    y(1:nspec) = max(y(1:nspec), 1.e-200_rt)
 
   end subroutine sk_clean_state
 
@@ -35,9 +35,9 @@ contains
 
     !$acc routine seq
     
-    use network, only: aion, aion_inv, nspec, nspec_evolve
+    use network, only: aion, aion_inv, nspec
     use burn_type_module, only: neqs
-    use cvode_rpar_indices, only: n_rpar_comps, irp_nspec, n_not_evolved
+    use cvode_rpar_indices, only: n_rpar_comps
     use extern_probin_module, only: renormalize_abundances
 
     implicit none
@@ -48,13 +48,8 @@ contains
 
     !$gpu
 
-    nspec_sum = &
-         sum(y(1:nspec_evolve)) + &
-         sum(rpar(irp_nspec:irp_nspec+n_not_evolved-1))
-
-    y(1:nspec_evolve) = y(1:nspec_evolve) / nspec_sum
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         rpar(irp_nspec:irp_nspec+n_not_evolved-1) / nspec_sum
+    nspec_sum = sum(y(1:nspec))
+    y(1:nspec) = y(1:nspec) / nspec_sum
 
   end subroutine sk_renormalize_species
 
@@ -137,10 +132,10 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: dens_scale, temp_scale
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, aion, aion_inv
     use eos_type_module, only: eos_t
-    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
+    use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -154,9 +149,7 @@ contains
     state % rho     = rpar(irp_dens) * dens_scale
     state % T       = y(net_itemp) * temp_scale
 
-    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
-    state % xn(nspec_evolve+1:nspec) = &
-         rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+    state % xn(1:nspec) = y(1:nspec)
 
     state % cp      = rpar(irp_cp)
     state % cv      = rpar(irp_cv)
@@ -176,10 +169,10 @@ contains
     !$acc routine seq
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
-    use network, only: nspec, nspec_evolve, aion, aion_inv
+    use network, only: nspec, aion, aion_inv
     use eos_type_module, only: eos_t
-    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps, n_not_evolved
+    use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
+                            irp_eta, irp_ye, irp_cs, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp, net_ienuc
 
     implicit none
@@ -193,9 +186,7 @@ contains
     rpar(irp_dens) = state % rho * inv_dens_scale
     y(net_itemp) = state % T * inv_temp_scale
 
-    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = &
-         state % xn(nspec_evolve+1:nspec)
+    y(1:nspec) = state % xn(1:nspec)
 
     rpar(irp_cp)                    = state % cp
     rpar(irp_cv)                    = state % cv
@@ -216,11 +207,11 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ONE
-    use network, only: nspec, nspec_evolve, aion, aion_inv, NETWORK_SPARSE_JAC_NNZ
-    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use network, only: nspec, aion, aion_inv, NETWORK_SPARSE_JAC_NNZ
+    use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
     use jacobian_sparsity_module, only: scale_csr_jac_entry
 
@@ -244,8 +235,7 @@ contains
     rpar(irp_dens) = state % rho * inv_dens_scale
     y(net_itemp) = state % T * inv_temp_scale
 
-    y(1:nspec_evolve) = state % xn(1:nspec_evolve)
-    rpar(irp_nspec:irp_nspec+n_not_evolved-1) = state % xn(nspec_evolve+1:nspec)
+    y(1:nspec) = state % xn(1:nspec)
 
     y(net_ienuc)                             = state % e * inv_ener_scale
 
@@ -303,11 +293,11 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
-    use network, only: nspec, nspec_evolve, aion, aion_inv
-    use cvode_rpar_indices, only: irp_dens, irp_nspec, irp_cp, irp_cv, irp_abar, irp_zbar, &
+    use network, only: nspec, aion, aion_inv
+    use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
-                            n_rpar_comps, n_not_evolved
+                            n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
 
     implicit none
@@ -324,9 +314,7 @@ contains
     state % T        = y(net_itemp) * temp_scale
     state % e        = y(net_ienuc) * ener_scale
 
-    state % xn(1:nspec_evolve) = y(1:nspec_evolve)
-    state % xn(nspec_evolve+1:nspec) = &
-         rpar(irp_nspec:irp_nspec+n_not_evolved-1)
+    state % xn(1:nspec) = y(1:nspec)
 
     state % cp       = rpar(irp_cp)
     state % cv       = rpar(irp_cv)
@@ -360,7 +348,7 @@ contains
     use temperature_integration_module, only: self_heat
     use eos_type_module, only: eos_t, eos_input_rt, copy_eos_t
     use eos_module, only: eos
-    use network, only: nspec_evolve, aion_inv
+    use network, only: nspec, aion_inv
     use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_t_sound, irp_dx, irp_dens, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_y_init, irp_energy_offset
 
@@ -431,8 +419,7 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use extern_probin_module, only: burning_mode
-    use network, only: nspec, nspec_evolve
-    use actual_rhs_module, only : update_unevolved_species
+    use network, only: nspec
     use burn_type_module, only: neqs, burn_t, net_ienuc, net_itemp, normalize_abundances_burn
     use cvode_rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens
 
@@ -451,11 +438,6 @@ contains
     ! Convert to burn state out
     call vode_to_burn(y, rpar, burn_state)
     
-    ! Update unevolved species
-    if (nspec_evolve < nspec) then
-       call update_unevolved_species(burn_state)
-    endif
-
     ! TODO: support burning mode 3 limiting
     
     ! Normalize abundances

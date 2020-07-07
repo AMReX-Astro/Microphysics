@@ -16,9 +16,13 @@ contains
 
   subroutine actual_rhs_init()
 
+    use screening_module, only: screening_init
+
     implicit none
 
-    !$gpu
+    call set_up_screening_factors()
+
+    call screening_init()
 
   end subroutine actual_rhs_init
 
@@ -82,11 +86,11 @@ contains
 
     rates(:)    = rr % rates(1,:)
 
-    call dydt(ymol, rates, ydot(1:nspec_evolve))
+    call dydt(ymol, rates, ydot(1:nspec))
 
     ! Energy generation rate
 
-    call ener_gener_rate(ydot(1:nspec_evolve), ydot(net_ienuc))
+    call ener_gener_rate(ydot(1:nspec), ydot(net_ienuc))
 
     call temperature_rhs(state, ydot)
 
@@ -148,17 +152,17 @@ contains
 
     ! Add the temperature derivatives: df(y_i) / dT
 
-    call dydt(ymol, dratesdt, jac(1:nspec_evolve,net_itemp))
+    call dydt(ymol, dratesdt, jac(1:nspec, net_itemp))
 
     ! Energy generation rate Jacobian elements with respect to species
 
-    do j = 1, nspec_evolve
-       call ener_gener_rate(jac(1:nspec_evolve,j), jac(net_ienuc,j))
+    do j = 1, nspec
+       call ener_gener_rate(jac(1:nspec,j), jac(net_ienuc,j))
     enddo
 
     ! Jacobian elements with respect to temperature
 
-    call ener_gener_rate(jac(1:nspec_evolve,net_itemp), jac(net_ienuc,net_itemp))
+    call ener_gener_rate(jac(1:nspec,net_itemp), jac(net_ienuc,net_itemp))
 
     call temperature_jac(state, jac)
 
@@ -175,26 +179,33 @@ contains
 
     !$gpu
 
-    real(rt)         :: dydt(nspec_evolve), enuc
+    real(rt)         :: dydt(nspec), enuc
 
-    enuc = -sum(dydt(:) * aion(1:nspec_evolve) * ebin(1:nspec_evolve))
+    enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
 
-  subroutine update_unevolved_species(state)
+  ! Compute and store the more expensive screening factors
 
-    !$acc routine seq
+  subroutine set_up_screening_factors()
+
+    use screening_module, only: add_screening_factor
+    use network, only: aion, zion
 
     implicit none
 
-    type (burn_t)    :: state
+    ! note: it is critical that these are called in the exact order
+    ! that the screening calls are done in the RHS routine, since we
+    ! use that order in the screening
 
-    !$gpu
+    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
 
-    ! although we nspec_evolve < nspec, we never change the Fe56
-    ! abundance, so there is no algebraic relation we need to
-    ! enforce here.
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
 
-  end subroutine update_unevolved_species
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
+
+
+  end subroutine set_up_screening_factors
+
 
 end module actual_rhs_module

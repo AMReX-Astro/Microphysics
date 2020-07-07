@@ -46,15 +46,15 @@ contains
     tv = (/ 1.0_rt,2.0_rt,3.0_rt,4.0_rt,5.0_rt,6.0_rt,7.0_rt,8.0_rt,9.0_rt,10.0_rt,11.0_rt,12.0_rt,13.0_rt,14.0_rt /)
 
     datn(1,:,:) = reshape( (/ -4.363_rt, -3.091_rt, -1.275_rt, 1.073_rt, 3.035_rt, 4.825_rt, &
-			      -4.17_rt, -2.964_rt, -1.177_rt, 1.085_rt, 3.037_rt, 4.826_rt, &
-			      -3.834_rt, -2.727_rt, -1.039_rt, 1.104_rt, 3.04_rt, 4.826_rt, &
-			      -3.284_rt, -2.418_rt, -0.882_rt, 1.129_rt, 3.043_rt, 4.827_rt, &
-			      -2.691_rt, -2.093_rt, -0.719_rt, 1.159_rt, 3.048_rt, 4.827_rt, &
-			      -2.1675_rt, -1.7668_rt, -0.5573_rt, 1.1947_rt, 3.0527_rt, 4.8272_rt, &
-			      -1.7095_rt, -1.4462_rt, -0.3991_rt, 1.2358_rt, 3.0577_rt, 4.8276_rt, &
-        		      -1.3119_rt, -1.1451_rt, -0.2495_rt, 1.2818_rt, 3.0648_rt, 4.8284_rt, &
-        		      -0.9812_rt, -0.8612_rt, -0.1084_rt, 1.3336_rt, 3.0738_rt, 4.8295_rt, &
-        		      -0.682_rt, -0.595_rt, 0.028_rt, 1.386_rt, 3.084_rt, 4.831_rt, &
+                              -4.17_rt, -2.964_rt, -1.177_rt, 1.085_rt, 3.037_rt, 4.826_rt, &
+                              -3.834_rt, -2.727_rt, -1.039_rt, 1.104_rt, 3.04_rt, 4.826_rt, &
+                              -3.284_rt, -2.418_rt, -0.882_rt, 1.129_rt, 3.043_rt, 4.827_rt, &
+                              -2.691_rt, -2.093_rt, -0.719_rt, 1.159_rt, 3.048_rt, 4.827_rt, &
+                              -2.1675_rt, -1.7668_rt, -0.5573_rt, 1.1947_rt, 3.0527_rt, 4.8272_rt, &
+                              -1.7095_rt, -1.4462_rt, -0.3991_rt, 1.2358_rt, 3.0577_rt, 4.8276_rt, &
+                              -1.3119_rt, -1.1451_rt, -0.2495_rt, 1.2818_rt, 3.0648_rt, 4.8284_rt, &
+                              -0.9812_rt, -0.8612_rt, -0.1084_rt, 1.3336_rt, 3.0738_rt, 4.8295_rt, &
+                              -0.682_rt, -0.595_rt, 0.028_rt, 1.386_rt, 3.084_rt, 4.831_rt, &
                               -0.4046_rt, -0.3523_rt, 0.1605_rt, 1.4364_rt, 3.0957_rt, 4.8333_rt, &
                               -0.1636_rt, -0.1352_rt, 0.2879_rt, 1.4861_rt, 3.1092_rt, 4.8365_rt, &
                               0.0461_rt, 0.0595_rt, 0.4105_rt, 1.5354_rt, 3.1242_rt, 4.8405_rt, &
@@ -62,19 +62,19 @@ contains
                            (/ 6, 14 /) )
 
     datn(2,:,:) = reshape( (/ -4.539_rt, -3.097_rt, -1.134_rt, 1.525_rt, 3.907_rt, 6.078_rt, &
-        		      -4.199_rt, -2.905_rt, -1.024_rt, 1.545_rt, 3.91_rt, 6.079_rt, &
-        		      -3.736_rt, -2.602_rt, -0.851_rt, 1.578_rt, 3.916_rt, 6.08_rt, &
-        		      -3.052_rt, -2.206_rt, -0.636_rt, 1.623_rt, 3.923_rt, 6.081_rt, &
-        		      -2.31_rt, -1.766_rt, -0.396_rt, 1.678_rt, 3.931_rt, 6.082_rt, &
-        		      -1.6631_rt, -1.319_rt, -0.1438_rt, 1.7471_rt, 3.9409_rt, 6.0829_rt, &
-        		      -1.1064_rt, -0.8828_rt, 0.1094_rt, 1.8279_rt, 3.9534_rt, 6.0841_rt, &
-       			      -0.6344_rt, -0.496_rt, 0.3395_rt, 1.9168_rt, 3.9699_rt, 6.0862_rt, &
-        		      -0.2568_rt, -0.1555_rt, 0.5489_rt, 2.0163_rt, 3.9906_rt, 6.0893_rt, &
-        		      0.081_rt, 0.158_rt, 0.746_rt, 2.114_rt, 4.013_rt, 6.093_rt, &
-        		      0.3961_rt, 0.4448_rt, 0.9304_rt, 2.2026_rt, 4.0363_rt, 6.0976_rt, &
-        		      0.6673_rt, 0.6964_rt, 1.0985_rt, 2.2849_rt, 4.0614_rt, 6.1033_rt, &
-        		      0.9009_rt, 0.9175_rt, 1.2525_rt, 2.3619_rt, 4.0882_rt, 6.1099_rt, &
-        		      1.1032_rt, 1.113_rt, 1.3947_rt, 2.4345_rt, 4.1161_rt, 6.1171_rt /), &
+                              -4.199_rt, -2.905_rt, -1.024_rt, 1.545_rt, 3.91_rt, 6.079_rt, &
+                              -3.736_rt, -2.602_rt, -0.851_rt, 1.578_rt, 3.916_rt, 6.08_rt, &
+                              -3.052_rt, -2.206_rt, -0.636_rt, 1.623_rt, 3.923_rt, 6.081_rt, &
+                              -2.31_rt, -1.766_rt, -0.396_rt, 1.678_rt, 3.931_rt, 6.082_rt, &
+                              -1.6631_rt, -1.319_rt, -0.1438_rt, 1.7471_rt, 3.9409_rt, 6.0829_rt, &
+                              -1.1064_rt, -0.8828_rt, 0.1094_rt, 1.8279_rt, 3.9534_rt, 6.0841_rt, &
+                              -0.6344_rt, -0.496_rt, 0.3395_rt, 1.9168_rt, 3.9699_rt, 6.0862_rt, &
+                              -0.2568_rt, -0.1555_rt, 0.5489_rt, 2.0163_rt, 3.9906_rt, 6.0893_rt, &
+                              0.081_rt, 0.158_rt, 0.746_rt, 2.114_rt, 4.013_rt, 6.093_rt, &
+                              0.3961_rt, 0.4448_rt, 0.9304_rt, 2.2026_rt, 4.0363_rt, 6.0976_rt, &
+                              0.6673_rt, 0.6964_rt, 1.0985_rt, 2.2849_rt, 4.0614_rt, 6.1033_rt, &
+                              0.9009_rt, 0.9175_rt, 1.2525_rt, 2.3619_rt, 4.0882_rt, 6.1099_rt, &
+                              1.1032_rt, 1.113_rt, 1.3947_rt, 2.4345_rt, 4.1161_rt, 6.1171_rt /), &
                            (/ 6, 14 /) )
 
 
@@ -180,8 +180,8 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: den,fr,dfrdt,dfrdd,rr,drrdt,drrdd, &
-			a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
-    			a0_r,a1_r,a2_r,a3_r,a4_r,a5_r,a6_r, &
+                        a0_nr,a1_nr,a2_nr,a3_nr,a4_nr,a5_nr,a6_nr, &
+                        a0_r,a1_r,a2_r,a3_r,a4_r,a5_r,a6_r, &
                         term_a0_nr,term_a1_nr,term_a2_nr,term_a3_nr, &
                         term_a4_nr,term_a5_nr,term_a6_nr, &
                         term_a0_r,term_a1_r,term_a2_r,term_a3_r, &
@@ -191,7 +191,7 @@ contains
                         dterm_a0_r,dterm_a1_r,dterm_a2_r,dterm_a3_r,&
                         dterm_a4_r,dterm_a5_r,dterm_a6_r, &
                         term_nr,term_r,dterm_nr,dterm_r,  &
-			term,dtermdt,rev,drevdt
+                        term,dtermdt,rev,drevdt
 
     !$gpu
     
@@ -261,7 +261,7 @@ contains
     dterm_a6_r = tf%t9i*a6_r*tf%t9**a6_r
     
     dterm_r = (term_a0_r * dterm_a1_r * term_a6_r) + &
-	      (term_a0_r * term_a1_r * dterm_a6_r)
+              (term_a0_r * term_a1_r * dterm_a6_r)
     
 
     ! full rate is the sum of resonant and non-resonant contributions
@@ -2771,7 +2771,6 @@ contains
     snep   = 0.0e0_rt
     t9     = temp * 1.0e-9_rt
     bktinv = 1.0e0_rt/(bk *temp)
-    iflag  = 0
     qn     = qn1
 
 
@@ -2780,110 +2779,122 @@ contains
 
 
     ! iflag=1 is for electrons,  iflag=2 is for positrons
-502 iflag = iflag + 1
-    if (iflag.eq.1) etael = qn2*bktinv
-    if (iflag.eq.2) then
-       etael = c2me*bktinv
-       etaef = -etaef
-    endif
+    do iflag = 1,2
+! 502 iflag = iflag + 1
+        if (iflag.eq.1) etael = qn2*bktinv
+        if (iflag.eq.2) then
+        etael = c2me*bktinv
+        etaef = -etaef
+        endif
 
-    t5    = temp*temp*temp*temp*temp
-    zetan = qn*bktinv
-    eta   = etaef - etael
+        t5    = temp*temp*temp*temp*temp
+        zetan = qn*bktinv
+        eta   = etaef - etael
 
-    ! protect from overflowing with large eta values
-    if (eta .le. 6.8e+02_rt) then
-       exeta = exp(eta)
-    else
-       exeta = 0.0e0_rt
-    end if
-    etael2 = etael*etael
-    etael3 = etael2*etael
-    etael4 = etael3*etael
-    etael5 = etael4*etael
-    zetan2 = zetan*zetan
-    if (eta .le. 6.8e+02_rt) then
-       f0 = log(1.0e0_rt + exeta)
-    else
-       f0 = eta
-    end if
+        ! protect from overflowing with large eta values
+        if (eta .le. 6.8e+02_rt) then
+            exeta = exp(eta)
+        else
+            exeta = 0.0e0_rt
+        end if
+        etael2 = etael*etael
+        etael3 = etael2*etael
+        etael4 = etael3*etael
+        etael5 = etael4*etael
+        zetan2 = zetan*zetan
+        if (eta .le. 6.8e+02_rt) then
+            f0 = log(1.0e0_rt + exeta)
+        else
+            f0 = eta
+        end if
 
-    ! if eta le. 0., the following fermi integrals apply
-    f1l = exeta
-    f2l = 2.0e0_rt   * f1l
-    f3l = 6.0e0_rt   * f1l
-    f4l = 24.0e0_rt  * f1l
-    f5l = 120.0e0_rt * f1l
+        ! if eta le. 0., the following fermi integrals apply
+        f1l = exeta
+        f2l = 2.0e0_rt   * f1l
+        f3l = 6.0e0_rt   * f1l
+        f4l = 24.0e0_rt  * f1l
+        f5l = 120.0e0_rt * f1l
 
-    ! if eta gt. 0., the following fermi integrals apply:
-    f1g = 0.0e0_rt
-    f2g = 0.0e0_rt
-    f3g = 0.0e0_rt
-    f4g = 0.0e0_rt
-    f5g = 0.0e0_rt
-    if (eta .gt. 0.0_rt) then
-       exmeta = exp(-eta)
-       eta2   = eta*eta
-       eta3   = eta2*eta
-       eta4   = eta3*eta
-       f1g = 0.5e0_rt*eta2 + 2.0e0_rt - exmeta
-       f2g = eta3*third + 4.0e0_rt*eta + 2.0e0_rt*exmeta
-       f3g = 0.25e0_rt*eta4 + 0.5e0_rt*pi2*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta
-       f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*pi2*third*eta3 + 48.0e0_rt*eta &
-            + 24.0e0_rt*exmeta
-       f5g = eta4*eta2*sixth + 5.0e0_rt*sixth*pi2*eta4 &
-            + 7.0e0_rt*sixth*pi2*eta2  + 240.0e0_rt -120.e0_rt*exmeta
-    end if
+        ! if eta gt. 0., the following fermi integrals apply:
+        f1g = 0.0e0_rt
+        f2g = 0.0e0_rt
+        f3g = 0.0e0_rt
+        f4g = 0.0e0_rt
+        f5g = 0.0e0_rt
+        if (eta .gt. 0.0_rt) then
+            exmeta = exp(-eta)
+            eta2   = eta*eta
+            eta3   = eta2*eta
+            eta4   = eta3*eta
+            f1g = 0.5e0_rt*eta2 + 2.0e0_rt - exmeta
+            f2g = eta3*third + 4.0e0_rt*eta + 2.0e0_rt*exmeta
+            f3g = 0.25e0_rt*eta4 + 0.5e0_rt*pi2*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta
+            f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*pi2*third*eta3 + 48.0e0_rt*eta &
+                    + 24.0e0_rt*exmeta
+            f5g = eta4*eta2*sixth + 5.0e0_rt*sixth*pi2*eta4 &
+                    + 7.0e0_rt*sixth*pi2*eta2  + 240.0e0_rt -120.e0_rt*exmeta
+        end if
 
-    ! factors which are multiplied by the fermi integrals
-    fac3 = 2.0e0_rt*zetan + 4.0e0_rt*etael
-    fac2 = 6.0e0_rt*etael2 + 6.0e0_rt*etael*zetan + zetan2
-    fac1 = 4.0e0_rt*etael3 + 6.0e0_rt*etael2*zetan + 2.0e0_rt*etael*zetan2
-    fac0 = etael4 + 2.0e0_rt*zetan*etael3 + etael2*zetan2
+        ! factors which are multiplied by the fermi integrals
+        fac3 = 2.0e0_rt*zetan + 4.0e0_rt*etael
+        fac2 = 6.0e0_rt*etael2 + 6.0e0_rt*etael*zetan + zetan2
+        fac1 = 4.0e0_rt*etael3 + 6.0e0_rt*etael2*zetan + 2.0e0_rt*etael*zetan2
+        fac0 = etael4 + 2.0e0_rt*zetan*etael3 + etael2*zetan2
 
-    ! electron capture rates onto protons with no blocking
-    rie1 = f4l + fac3*f3l + fac2*f2l + fac1*f1l + fac0*f0
-    rie2 = f4g + fac3*f3g + fac2*f2g + fac1*f1g + fac0*f0
+        ! electron capture rates onto protons with no blocking
+        rie1 = f4l + fac3*f3l + fac2*f2l + fac1*f1l + fac0*f0
+        rie2 = f4g + fac3*f3g + fac2*f2g + fac1*f1g + fac0*f0
 
-    ! neutrino emission rate for electron capture:
-    facv4 = 5.0e0_rt*etael + 3.0e0_rt*zetan
-    facv3 = 10.0e0_rt*etael2 + 12.0e0_rt*etael*zetan + 3.0e0_rt*zetan2
-    facv2 = 10.0e0_rt*etael3 + 18.0e0_rt*etael2*zetan &
-         + 9.0e0_rt*etael*zetan2 + zetan2*zetan
-    facv1 = 5.0e0_rt*etael4 + 12.0e0_rt*etael3*zetan &
-         + 9.0e0_rt*etael2*zetan2 + 2.0e0_rt*etael*zetan2*zetan
-    facv0 = etael5 + 3.0e0_rt*etael4*zetan &
-         + 3.0e0_rt*etael3*zetan2 + etael2*zetan2*zetan
-    rjv1  = f5l + facv4*f4l + facv3*f3l &
-         + facv2*f2l + facv1*f1l + facv0*f0
-    rjv2  = f5g + facv4*f4g + facv3*f3g &
-         + facv2*f2g + facv1*f1g + facv0*f0
+        ! neutrino emission rate for electron capture:
+        facv4 = 5.0e0_rt*etael + 3.0e0_rt*zetan
+        facv3 = 10.0e0_rt*etael2 + 12.0e0_rt*etael*zetan + 3.0e0_rt*zetan2
+        facv2 = 10.0e0_rt*etael3 + 18.0e0_rt*etael2*zetan &
+            + 9.0e0_rt*etael*zetan2 + zetan2*zetan
+        facv1 = 5.0e0_rt*etael4 + 12.0e0_rt*etael3*zetan &
+            + 9.0e0_rt*etael2*zetan2 + 2.0e0_rt*etael*zetan2*zetan
+        facv0 = etael5 + 3.0e0_rt*etael4*zetan &
+            + 3.0e0_rt*etael3*zetan2 + etael2*zetan2*zetan
+        rjv1  = f5l + facv4*f4l + facv3*f3l &
+            + facv2*f2l + facv1*f1l + facv0*f0
+        rjv2  = f5g + facv4*f4g + facv3*f3g &
+            + facv2*f2g + facv1*f1g + facv0*f0
 
-    ! for electrons capture onto protons
-    if (iflag.eq.2) go to 503
-    if (eta.gt.0.) go to 505
-    rpen  = twoln*cmk5*t5*rie1*ftinv
-    spen  = twoln*cmk6*t5*temp*rjv1*ftinv
-    spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
-    go to 504
-505 rpen = twoln*cmk5*t5*rie2*ftinv
-    spen = twoln*cmk6*t5*temp*rjv2*ftinv
-    spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
-504 continue
-    qn = qn2
-    go to 502
+        ! for electrons capture onto protons
+        ! if (iflag.eq.2) go to 503
+        if (iflag < 2) then
+            ! if (eta.gt.0.) go to 505
+            if (eta .le. 0.e0_rt) then 
+                rpen  = twoln*cmk5*t5*rie1*ftinv
+                spen  = twoln*cmk6*t5*temp*rjv1*ftinv
+                spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
+                ! go to 504
+            else 
+        ! 505 rpen = twoln*cmk5*t5*rie2*ftinv
+                rpen = twoln*cmk5*t5*rie2*ftinv
+                spen = twoln*cmk6*t5*temp*rjv2*ftinv
+                spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
+            end if
+        ! 504 continue
+            qn = qn2
+        end if
+        ! go to 502
+    end do
 
     ! for positrons capture onto neutrons
-503 if (eta.gt.0.) go to 507
-    rnep  = twoln*cmk5*t5*rie1*ftinv
-    snep  = twoln*cmk6*t5*temp*rjv1*ftinv
-    snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
-    go to 506
-507 rnep  = twoln*cmk5*t5*rie2*ftinv
-    snep  = twoln*cmk6*t5*temp*rjv2*ftinv
-    snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
-506 continue
-    return
+! 503 if (eta.gt.0.) go to 507
+    if (eta .le. 0.e0_rt) then 
+        rnep  = twoln*cmk5*t5*rie1*ftinv
+        snep  = twoln*cmk6*t5*temp*rjv1*ftinv
+        snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me
+    ! go to 506
+    else 
+    ! 507 rnep  = twoln*cmk5*t5*rie2*ftinv
+        rnep  = twoln*cmk5*t5*rie2*ftinv
+        snep  = twoln*cmk6*t5*temp*rjv2*ftinv
+        snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me
+    end if
+! 506 continue
+    ! return
   end subroutine ecapnuc
 
 end module aprox_rates_module

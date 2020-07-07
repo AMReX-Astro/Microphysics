@@ -86,7 +86,8 @@ contains
   end subroutine net_screening_finalize
 
 
-  subroutine reaclib_evaluate(pstate, temp, iwhich, reactvec)
+  subroutine reaclib_evaluate(pstate, temp, iwhich, rate, drate_dt)
+
     !$acc routine seq
 
     implicit none
@@ -95,26 +96,9 @@ contains
     real(rt), intent(in) :: temp
     integer, intent(in) :: iwhich
 
-    real(rt), intent(inout) :: reactvec(num_rate_groups+2)
-    ! reactvec(1) = rate     , the reaction rate
-    ! reactvec(2) = drate_dt , the Temperature derivative of rate
-    ! reactvec(3) = scor     , the screening factor
-    ! reactvec(4) = dscor_dt , the Temperature derivative of scor
-    ! reactvec(5) = dqweak   , the weak reaction dq-value (ergs)
-    !                          (This accounts for modification of the reaction Q
-    !                           due to the local density and temperature of the plasma.
-    !                           For Reaclib rates, this is 0.0e0_rt.)
-    ! reactvec(6) = epart    , the particle energy generation rate (ergs/s)
-    ! NOTE: The particle energy generation rate (returned in ergs/s)
-    !       is the contribution to enuc from non-ion particles associated
-    !       with the reaction.
-    !       For example, this accounts for neutrino energy losses
-    !       in weak reactions and/or gamma heating of the plasma
-    !       from nuclear transitions in daughter nuclei.
+    real(rt), intent(out) :: rate     ! Reaction rate
+    real(rt), intent(out) :: drate_dt ! Reaction rate temperature derivative
 
-    real(rt) :: rate, scor ! Rate and Screening Factor
-    real(rt) :: drate_dt, dscor_dt ! Temperature derivatives
-    real(rt) :: dscor_dd
     real(rt) :: ri, T9, T9_exp, lnirate, irate, dirate_dt, dlnirate_dt
     integer :: i, j, m, istart
 
@@ -128,7 +112,8 @@ contains
     T9 = temp/1.0e9_rt
     T9_exp = 0.0e0_rt
 
-    ! Use reaction multiplicities to tell whether the rate is Reaclib
+    ! Get the number of additional Reaclib sets for this rate
+    ! Total number of Reaclib sets for this rate is m + 1
     m = rate_extra_mult(iwhich)
 
     istart = rate_start_idx(iwhich)
@@ -152,23 +137,6 @@ contains
        dirate_dt = irate * dlnirate_dt/1.0e9_rt
        drate_dt = drate_dt + dirate_dt
     end do
-
-    reactvec(i_rate)     = rate
-    reactvec(i_drate_dt) = drate_dt
-    reactvec(i_scor)     = 1.0e0_rt
-    reactvec(i_dscor_dt) = 0.0e0_rt
-    reactvec(i_dqweak)   = 0.0e0_rt
-    reactvec(i_epart)    = 0.0e0_rt
-
-    ! write(*,*) '----------------------------------------'
-    ! write(*,*) 'IWHICH: ', iwhich
-    ! write(*,*) 'reactvec(i_rate)', reactvec(i_rate)
-    ! write(*,*) 'reactvec(i_drate_dt)', reactvec(i_drate_dt)
-    ! write(*,*) 'reactvec(i_scor)', reactvec(i_scor)
-    ! write(*,*) 'reactvec(i_dscor_dt)', reactvec(i_dscor_dt)
-    ! write(*,*) 'reactvec(i_dqweak)', reactvec(i_dqweak)
-    ! write(*,*) 'reactvec(i_epart)', reactvec(i_epart)
-    ! write(*,*) '----------------------------------------'
 
   end subroutine reaclib_evaluate
 

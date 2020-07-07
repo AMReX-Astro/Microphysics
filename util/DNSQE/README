@@ -1,8 +1,0 @@
-This is an implementation of the Powell hybrid method for solving a
-nonlinear system.  The following changes were made to the original
-source:
-
--- an array rpar is now passed into the main driver and rpar itself is
-   then passed onto the fcn and jac routines.
-
-

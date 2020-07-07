@@ -1,26 +1,37 @@
 module cuvode_types_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use cuvode_parameters_module, only: VODE_NEQS, VODE_LMAX, VODE_LENWM
+  use cuvode_parameters_module, only: VODE_NEQS
   use vode_rpar_indices, only: n_rpar_comps
-
-  use cuvode_constants_module
 
   implicit none
 
+  real(rt), parameter :: UROUND = epsilon(1.0_rt)
+  real(rt), parameter :: SRUR = sqrt(UROUND)
+  real(rt), parameter :: CCMXJ = 0.2e0_rt
+  real(rt), parameter :: HMIN = 0.0_rt
+  real(rt), parameter :: HMXI = 0.0_rt
+
+  ! For the backward differentiation formula (BDF) integration
+  ! the maximum order should be no greater than 5.
+  integer, parameter :: VODE_MAXORD = 5
+  integer, parameter :: VODE_LMAX = VODE_MAXORD + 1
+
+  ! How many timesteps should pass before refreshing the Jacobian
+  integer, parameter :: max_steps_between_jacobian_evals = 50
+
   ! Type dvode_t contains the integration solution and control variables
   type :: dvode_t
-     ! Variables previously in common blocks
      real(rt) :: HU
-     real(rt) :: ACNRM, CCMXJ, CONP, CRATE, DRC, EL(13)
-     real(rt) :: ETA, ETAMAX, H, HMIN, HMXI, HNEW, HSCAL, PRL1
-     real(rt) :: RC, RL1, TAU(13), TQ(5), TN, UROUND
-     integer    :: NCFN, NETF, NFE, NJE, NLU, NNI, NQU, NST
-     integer    :: ICF, INIT, IPUP, JCUR, JSTART, JSV, KFLAG, KUTH
-     integer    :: L, LENWM
-     integer    :: LOCJS, MAXORD, METH, MITER, MSBJ, MXHNIL, MXSTEP
-     integer    :: NEWH, NEWQ, NHNIL, NQ, NQNYH, NQWAIT, NSLJ
-     integer    :: NSLP
+     real(rt) :: ACNRM, CONP, CRATE, DRC, EL(13)
+     real(rt) :: ETA, ETAMAX, H, HNEW, HSCAL, PRL1
+     real(rt) :: RC, RL1, TAU(13), TQ(5), TN
+     integer  :: NFE, NJE, NST
+     integer  :: ICF, IPUP, JCUR, JSTART, JSV, KFLAG
+     integer  :: L
+     integer  :: MXSTEP
+     integer  :: NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ
+     integer  :: NSLP
 
      ! Tolerances
      real(rt) :: RTOL(VODE_NEQS), ATOL(VODE_NEQS)
@@ -29,26 +40,29 @@ module cuvode_types_module
      real(rt) :: RPAR(n_rpar_comps)
 
      ! State flag
-     integer    :: ISTATE
+     integer :: ISTATE
 
      ! Local time and integration end time
      real(rt) :: T, TOUT
 
      ! Integration array
      real(rt) :: Y(VODE_NEQS)
-  end type dvode_t
 
+     ! Jacobian
+     real(rt) :: jac(VODE_NEQS*VODE_NEQS)
 
-  ! The rwork_t type contains the real work data
-  type rwork_t
-     ! condopt - Conditional or optional input/output arguments to dvode
-     real(rt) :: condopt(4)
+     ! Saved Jacobian
+     real(rt) :: jac_save(VODE_NEQS*VODE_NEQS)
+
      real(rt) :: yh(VODE_NEQS, VODE_LMAX)
-     real(rt) :: wm(VODE_LENWM)
      real(rt) :: ewt(VODE_NEQS)
      real(rt) :: savf(VODE_NEQS)
      real(rt) :: acor(VODE_NEQS)
-  end type rwork_t
+
+     ! Jacobian method
+     integer  :: jacobian
+
+  end type dvode_t
 
 contains
 
@@ -59,7 +73,6 @@ contains
 
     write(*,*) 'HU = ', dvode_state % HU
     write(*,*) 'ACNRM = ', dvode_state % ACNRM
-    write(*,*) 'CCMXJ = ', dvode_state % CCMXJ
     write(*,*) 'CONP = ', dvode_state % CONP
     write(*,*) 'CRATE = ', dvode_state % CRATE
     write(*,*) 'DRC = ', dvode_state % DRC
@@ -79,8 +92,6 @@ contains
     write(*,*) 'ETA = ', dvode_state % ETA
     write(*,*) 'ETAMAX = ', dvode_state % ETAMAX
     write(*,*) 'H = ', dvode_state % H
-    write(*,*) 'HMIN = ', dvode_state % HMIN
-    write(*,*) 'HMXI = ', dvode_state % HMXI
     write(*,*) 'HNEW = ', dvode_state % HNEW
     write(*,*) 'HSCAL = ', dvode_state % HSCAL
     write(*,*) 'PRL1 = ', dvode_state % PRL1
@@ -105,34 +116,19 @@ contains
     write(*,*) 'TQ(4) = ', dvode_state % TQ(4)
     write(*,*) 'TQ(5) = ', dvode_state % TQ(5)
     write(*,*) 'TN = ', dvode_state % TN
-    write(*,*) 'UROUND = ', dvode_state % UROUND
-    write(*,*) 'NCFN = ', dvode_state % NCFN
-    write(*,*) 'NETF = ', dvode_state % NETF
     write(*,*) 'NFE = ', dvode_state % NFE
     write(*,*) 'NJE = ', dvode_state % NJE
-    write(*,*) 'NLU = ', dvode_state % NLU
-    write(*,*) 'NNI = ', dvode_state % NNI
-    write(*,*) 'NQU = ', dvode_state % NQU
     write(*,*) 'NST = ', dvode_state % NST
     write(*,*) 'ICF = ', dvode_state % ICF
-    write(*,*) 'INIT = ', dvode_state % INIT
     write(*,*) 'IPUP = ', dvode_state % IPUP
     write(*,*) 'JCUR = ', dvode_state % JCUR
     write(*,*) 'JSTART = ', dvode_state % JSTART
     write(*,*) 'JSV = ', dvode_state % JSV
     write(*,*) 'KFLAG = ', dvode_state % KFLAG
-    write(*,*) 'KUTH = ', dvode_state % KUTH
     write(*,*) 'L = ', dvode_state % L
-    write(*,*) 'LENWM = ', dvode_state % LENWM
-    write(*,*) 'LOCJS = ', dvode_state % LOCJS
-    write(*,*) 'METH = ', dvode_state % METH
-    write(*,*) 'MITER = ', dvode_state % MITER
-    write(*,*) 'MSBJ = ', dvode_state % MSBJ
-    write(*,*) 'MXHNIL = ', dvode_state % MXHNIL
     write(*,*) 'MXSTEP = ', dvode_state % MXSTEP
     write(*,*) 'NEWH = ', dvode_state % NEWH
     write(*,*) 'NEWQ = ', dvode_state % NEWQ
-    write(*,*) 'NHNIL = ', dvode_state % NHNIL
     write(*,*) 'NQ = ', dvode_state % NQ
     write(*,*) 'NQNYH = ', dvode_state % NQNYH
     write(*,*) 'NQWAIT = ', dvode_state % NQWAIT

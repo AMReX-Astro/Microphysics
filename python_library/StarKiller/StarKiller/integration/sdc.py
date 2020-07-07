@@ -11,14 +11,14 @@ class SDCOde(object):
     @staticmethod
     def burn_to_sdc(burn_state):
         y = np.zeros(BurnType.neqs)
-        y[:Network.nspec_evolve] = burn_state.state.xn[:Network.nspec_evolve]
+        y[:Network.nspec] = burn_state.state.xn[:Network.nspec]
         y[Network.net_ienuc] = burn_state.state.e
         y[Network.net_itemp] = burn_state.state.t
         return y
 
     @staticmethod
     def sdc_to_burn(y, burn_state):
-        burn_state.state.xn[:Network.nspec_evolve] = y[:Network.nspec_evolve]
+        burn_state.state.xn[:Network.nspec] = y[:Network.nspec]
         burn_state.state.e = y[Network.net_ienuc]
         burn_state.state.t = y[Network.net_itemp]
         return burn_state

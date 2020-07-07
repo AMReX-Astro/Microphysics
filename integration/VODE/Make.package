@@ -17,6 +17,17 @@ endif
 F90EXE_sources += cuvode_parameters.F90
 F90EXE_sources += vode_rpar.F90
 
+CEXE_headers += vode_dvode.H
+CEXE_headers += vode_type.H
+CEXE_headers += vode_dvhin.H
+CEXE_headers += vode_dvjac.H
+CEXE_headers += vode_dvjust.H
+CEXE_headers += vode_dvnlsd.H
+CEXE_headers += vode_dvset.H
+CEXE_headers += vode_dvstep.H
+CEXE_headers += vode_linpack.H
+CEXE_headers += vode_parameters.H
+
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source/
 include $(VODE_SOURCE_DIR)/Make.package
 

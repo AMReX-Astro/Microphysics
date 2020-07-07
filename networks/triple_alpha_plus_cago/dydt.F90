@@ -16,7 +16,7 @@ contains
     !$acc routine seq
 
     real(rt)        , intent(IN   ) :: ymol(nspec), rates(nrates)
-    real(rt)        , intent(  OUT) :: ydot(nspec_evolve)
+    real(rt)        , intent(  OUT) :: ydot(nspec)
 
     !$gpu
 

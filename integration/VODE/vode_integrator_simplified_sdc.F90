@@ -25,14 +25,14 @@ contains
     use vode_rpar_indices
     use vode_rhs_module
     use cuvode_module, only: dvode
-    use cuvode_types_module, only: dvode_t, rwork_t
+    use cuvode_types_module, only: dvode_t
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     burning_mode, retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit, use_jacobian_caching, &
-                                    ode_max_steps
+                                    ode_max_steps, sdc_burn_tol_factor
     use cuvode_parameters_module
     use integration_data, only: integration_status_t
 
@@ -46,13 +46,6 @@ contains
     ! Local variables
 
     real(rt) :: local_time
-
-    ! Work arrays
-
-    type(rwork_t) :: rwork
-    integer    :: iwork(VODE_LIW)
-
-    integer :: MF_JAC
 
     ! istate determines the state of the calculation.  A value of 1 meeans
     ! this is the first call to the problem -- this is what we will want.
@@ -68,73 +61,25 @@ contains
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
 
+    real(rt) :: sdc_tol_fac, sdc_min_density
+
     !$gpu
 
-    if (jacobian == 1) then ! Analytical
-       MF_JAC = MF_ANALYTIC_JAC_CACHED
-    else if (jacobian == 2) then ! Numerical
-       MF_JAC = MF_NUMERICAL_JAC_CACHED
+    dvode_state % jacobian = jacobian
+
+    if (use_jacobian_caching) then
+       dvode_state % JSV = 1
     else
-#ifndef AMREX_USE_CUDA
-       call amrex_error("Error: unknown Jacobian mode in actual_integrator.f90.")
-#endif
+       dvode_state % JSV = -1
     endif
-
-    if (.not. use_jacobian_caching) then
-       MF_JAC = -MF_JAC
-    endif
-
-    ! Set the tolerances.  We will be more relaxed on the temperature
-    ! since it is only used in evaluating the rates.
-    !
-    ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of
-    ! steps allowed.
-
-#if defined(SDC_EVOLVE_ENERGY)
-
-    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec
-    dvode_state % atol(SEDEN)           = status % atol_enuc
-    dvode_state % atol(SEINT)           = status % atol_enuc
-
-    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec
-    dvode_state % rtol(SEDEN)           = status % rtol_enuc
-    dvode_state % rtol(SEINT)           = status % rtol_enuc
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
-    dvode_state % atol(SENTH)           = status % atol_enuc ! enthalpy
-
-    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
-    dvode_state % rtol(SENTH)           = status % rtol_enuc ! enthalpy
-
-#endif
 
     ! We want VODE to re-initialize each time we call it.
 
     dvode_state % istate = 1
 
-    ! Initialize work arrays to zero.
-    rwork % CONDOPT = ZERO
-    rwork % YH   = ZERO
-    rwork % WM   = ZERO
-    rwork % EWT  = ZERO
-    rwork % SAVF = ZERO
-    rwork % ACOR = ZERO    
-    iwork(:) = 0
+    ! Set the maximum number of steps allowed.
 
-    ! Set the maximum number of steps allowed (the VODE default is 500).
-
-    iwork(6) = ode_max_steps
-
-    ! Disable printing of messages about T + H == T unless we are in verbose mode.
-
-    if (burner_verbose) then
-       iwork(7) = 1
-    else
-       iwork(7) = 0
-    endif
+    dvode_state % MXSTEP = ode_max_steps
 
     ! Start off by assuming a successful burn.
 
@@ -148,8 +93,40 @@ contains
 
     ! Convert our input sdc state into the form VODE expects
 
-    call sdc_to_vode(state_in, dvode_state % y, dvode_state % rpar)
+    call sdc_to_vode(state_in, dvode_state)
 
+    ! Set the tolerances.  We will be more relaxed on the temperature
+    ! since it is only used in evaluating the rates.
+    !
+    ! **NOTE** if you reduce these tolerances, you probably will need
+    ! to (a) decrease dT_crit, (b) increase the maximum number of
+    ! steps allowed.
+
+    sdc_tol_fac = sdc_burn_tol_factor**(state_in % num_sdc_iters - state_in % sdc_iter - 1)
+
+#if defined(SDC_EVOLVE_ENERGY)
+
+    sdc_min_density = min(dvode_state % rpar(irp_SRHO), dvode_state % rpar(irp_SRHO) + dvode_state % rpar(irp_ydot_a-1+SRHO) * dt)
+
+    dvode_state % atol(SFS:SFS-1+nspec) = sdc_min_density * status % atol_spec * sdc_tol_fac
+    dvode_state % atol(SEDEN)           = sdc_min_density * status % atol_enuc * sdc_tol_fac
+    dvode_state % atol(SEINT)           = sdc_min_density * status % atol_enuc * sdc_tol_fac
+
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec * sdc_tol_fac
+    dvode_state % rtol(SEDEN)           = status % rtol_enuc * sdc_tol_fac
+    dvode_state % rtol(SEINT)           = status % rtol_enuc * sdc_tol_fac
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    sdc_min_density = min(dvode_state % rpar(irp_SRHO), dvode_state % rpar(irp_SRHO) + sum(dvode_state % rpar(irp_ydot_a-1+SFS:irp_ydot_a-1+SFS+nspec-1)) * dt)
+
+    dvode_state % atol(SFS:SFS-1+nspec) = sdc_min_density * status % atol_spec * sdc_tol_fac ! mass fractions
+    dvode_state % atol(SENTH)           = sdc_min_density * status % atol_enuc * sdc_tol_fac ! enthalpy
+
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec * sdc_tol_fac ! mass fractions
+    dvode_state % rtol(SENTH)           = status % rtol_enuc * sdc_tol_fac ! enthalpy
+
+#endif
 
     ! this is not used but we set it to prevent accessing uninitialzed
     ! data in common routines with the non-SDC integrator
@@ -161,10 +138,10 @@ contains
 
 
     ! Call the integration routine.
-    call dvode(dvode_state, rwork, iwork, ITASK, IOPT, MF_JAC)
+    call dvode(dvode_state)
 
     ! Store the final data
-    call vode_to_sdc(dvode_state % T, dvode_state % y, dvode_state % rpar, state_out)
+    call vode_to_sdc(dvode_state % T, dvode_state, state_out)
 
     ! VODE does not always fail even though it can lead to unphysical states,
     ! so add some sanity checks that trigger a retry even if VODE thinks
@@ -221,8 +198,8 @@ contains
 
     ! get the number of RHS calls and jac evaluations from the VODE
     ! work arrays
-    state_out % n_rhs = iwork(12)
-    state_out % n_jac = iwork(13)
+    state_out % n_rhs = dvode_state % NFE
+    state_out % n_jac = dvode_state % NJE
 
   end subroutine vode_integrator
 

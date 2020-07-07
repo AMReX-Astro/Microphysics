@@ -281,7 +281,7 @@ contains
 
     !$acc routine seq
 
-    use actual_network, only: nspec_evolve, aion
+    use actual_network, only: nspec, aion
     use burn_type_module, only: burn_t, net_ienuc, neqs
 
 #if defined(SDC_EVOLVE_ENERGY)
@@ -308,8 +308,8 @@ contains
 
     ! Add in the reacting terms from the burn_t
 
-    bs % ydot(SFS:SFS+nspec_evolve-1) = bs % ydot(SFS:SFS+nspec_evolve-1) + &
-                                        bs % u(irp_SRHO) * ydot_react(1:nspec_evolve) * aion(1:nspec_evolve)
+    bs % ydot(SFS:SFS+nspec-1) = bs % ydot(SFS:SFS+nspec-1) + &
+                                 bs % u(irp_SRHO) * ydot_react(1:nspec) * aion(1:nspec)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
@@ -330,7 +330,7 @@ contains
 
     !$acc routine seq
 
-    use network, only: nspec_evolve, aion, aion_inv
+    use network, only: nspec, aion, aion_inv
     use burn_type_module, only: net_ienuc, neqs
 
 #if defined(SDC_EVOLVE_ENERGY)
@@ -350,24 +350,24 @@ contains
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac(1:nspec_evolve,1:nspec_evolve)
-    bs % jac(SFS:SFS+nspec_evolve-1,SEDEN) = jac(1:nspec_evolve,net_ienuc)
-    bs % jac(SFS:SFS+nspec_evolve-1,SEINT) = jac(1:nspec_evolve,net_ienuc)
+    bs % jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac(1:nspec,1:nspec)
+    bs % jac(SFS:SFS+nspec-1,SEDEN) = jac(1:nspec,net_ienuc)
+    bs % jac(SFS:SFS+nspec-1,SEINT) = jac(1:nspec,net_ienuc)
 
-    bs % jac(SEDEN,SFS:SFS+nspec_evolve-1) = jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SEDEN,SFS:SFS+nspec-1) = jac(net_ienuc,1:nspec)
     bs % jac(SEDEN,SEDEN) = jac(net_ienuc,net_ienuc)
     bs % jac(SEDEN,SEINT) = jac(net_ienuc,net_ienuc)
 
-    bs % jac(SEINT,SFS:SFS+nspec_evolve-1) = jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SEINT,SFS:SFS+nspec-1) = jac(net_ienuc,1:nspec)
     bs % jac(SEINT,SEDEN) = jac(net_ienuc,net_ienuc)
     bs % jac(SEINT,SEINT) = jac(net_ienuc,net_ienuc)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    bs % jac(SFS:SFS+nspec_evolve-1,SFS:SFS+nspec_evolve-1) = jac(1:nspec_evolve,1:nspec_evolve)
-    bs % jac(SFS:SFS+nspec_evolve-1,SENTH) = jac(1:nspec_evolve,net_ienuc)
+    bs % jac(SFS:SFS+nspec-1,SFS:SFS+nspec-1) = jac(1:nspec,1:nspec)
+    bs % jac(SFS:SFS+nspec-1,SENTH) = jac(1:nspec,net_ienuc)
 
-    bs % jac(SENTH,SFS:SFS+nspec_evolve-1) = jac(net_ienuc,1:nspec_evolve)
+    bs % jac(SENTH,SFS:SFS+nspec-1) = jac(net_ienuc,1:nspec)
     bs % jac(SENTH,SENTH) = jac(net_ienuc,net_ienuc)
 
 #endif
@@ -376,7 +376,7 @@ contains
     ! dependence, since every one of the SDC variables is linear in rho, so
     ! we just need to focus on the Y --> X conversion.
 
-    do n = 1, nspec_evolve
+    do n = 1, nspec
        bs % jac(SFS+n-1,:) = bs % jac(SFS+n-1,:) * aion(n)
        bs % jac(:,SFS+n-1) = bs % jac(:,SFS+n-1) * aion_inv(n)
     enddo

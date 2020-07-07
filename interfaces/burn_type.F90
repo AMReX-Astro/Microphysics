@@ -1,9 +1,9 @@
 module burn_type_module
 
 #ifdef REACT_SPARSE_JACOBIAN
-  use actual_network, only: nspec, nspec_evolve, naux, NETWORK_SPARSE_JAC_NNZ
+  use actual_network, only: nspec, naux, NETWORK_SPARSE_JAC_NNZ
 #else
-  use actual_network, only: nspec, nspec_evolve, naux
+  use actual_network, only: nspec, naux
 #endif
 
   use amrex_fort_module, only : rt => amrex_real
@@ -16,7 +16,7 @@ module burn_type_module
   ! temperature, enuc + the number of species which participate
   ! in the evolution equations.
 
-  integer, parameter :: neqs = 2 + nspec_evolve
+  integer, parameter :: neqs = 2 + nspec
 
   ! for dimensioning the Jacobian
 
@@ -31,8 +31,8 @@ module burn_type_module
 
   ! Indices of the temperature and energy variables in the work arrays.
 
-  integer, parameter :: net_itemp = nspec_evolve + 1
-  integer, parameter :: net_ienuc = nspec_evolve + 2
+  integer, parameter :: net_itemp = nspec + 1
+  integer, parameter :: net_ienuc = nspec + 2
 
   type :: burn_t
 
@@ -40,10 +40,15 @@ module burn_type_module
     real(rt) :: T
     real(rt) :: e
     real(rt) :: xn(nspec)
-#if naux > 0
+#if NAUX_NET > 0
     real(rt) :: aux(naux)
 #endif
 
+#if SDC_EVOLVE_ENTHALPY
+    ! make pressure available to RHS
+    real(rt) :: p0
+#endif
+    
     real(rt) :: cv
     real(rt) :: cp
     real(rt) :: y_e
@@ -110,7 +115,7 @@ contains
     to_state % e   = from_state % e
     to_state % xn(1:nspec) = from_state % xn(1:nspec)
 
-#if naux > 0
+#if NAUX_NET > 0
     to_state % aux(1:naux) = from_state % aux(1:naux)
 #endif
 
@@ -164,7 +169,7 @@ contains
     burn_state % T    = eos_state % T
     burn_state % e    = eos_state % e
     burn_state % xn   = eos_state % xn
-#if naux > 0
+#if NAUX_NET > 0
     burn_state % aux  = eos_state % aux
 #endif
     burn_state % cv   = eos_state % cv
@@ -198,7 +203,7 @@ contains
     eos_state % T    = burn_state % T
     eos_state % e    = burn_state % e
     eos_state % xn   = burn_state % xn
-#if naux > 0
+#if NAUX_NET > 0
     eos_state % aux  = burn_state % aux
 #endif
     eos_state % cv   = burn_state % cv

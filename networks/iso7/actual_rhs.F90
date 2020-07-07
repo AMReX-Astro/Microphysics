@@ -999,23 +999,12 @@ contains
     call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
     call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
-    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
+    call add_screening_factor(zion(io16),aion(io16),zion(io16),aion(io16))
     call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ine20),aion(ine20),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))
     call add_screening_factor(20.0e0_rt,40.0e0_rt,zion(ihe4),aion(ihe4))
 
   end subroutine set_up_screening_factors
-
-
-  subroutine update_unevolved_species(state)
-
-    implicit none
-
-    type (burn_t) :: state
-
-    !$gpu
-
-  end subroutine update_unevolved_species
 
 end module actual_rhs_module
