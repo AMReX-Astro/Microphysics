@@ -1090,6 +1090,9 @@ void finalize_state (eos_input_t input, eos_t& state,
     // Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     // This replaces the relativistic version that comes out of helmeos.
     state.cs = std::sqrt(state.gam1 * state.p / state.rho);
+    if (eos_sound_speed_limit > 0.0_rt) {
+        state.cs = amrex::min(state.cs, eos_sound_speed_limit);
+    }
 
     if (input_is_constant) {
 
