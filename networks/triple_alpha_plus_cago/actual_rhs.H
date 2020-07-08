@@ -126,7 +126,7 @@ void make_rates (const Real& temp, const Real& dens,
     a    = (7.4e5_rt * t9i32) * std::exp(-1.0663_rt * t9i);
     dadt = -a * THREE_HALVES * t9i + a * t9i2 * 1.0663_rt;
 
-    b    =  4.164e9_rt * t9i23 * exp(-13.49_rt * t9i13 - t92 / 9.604e-3_rt);
+    b    =  4.164e9_rt * t9i23 * std::exp(-13.49_rt * t9i13 - t92 / 9.604e-3_rt);
     dbdt = -b * (2.0_rt / 3.0_rt) * t9i + b * (13.49_rt * (1.0_rt / 3.0_rt) * t9i43 - 2.0_rt * t9 / 9.604e-3_rt);
 
     c    = 1.0_rt + 3.1e-2_rt * t913 + 8.009_rt * t923 + 1.732_rt * t9 + 49.883_rt * t943 + 27.426_rt * t953;
@@ -138,10 +138,10 @@ void make_rates (const Real& temp, const Real& dens,
 
 
     // q = 7.367;      He4 + Be8 --> C12
-    a    = (130_rt * t9i32) * exp(-3.3364_rt * t9i);
+    a    = (130_rt * t9i32) * std::exp(-3.3364_rt * t9i);
     dadt = -a * THREE_HALVES * t9i + a * 3.3364_rt * t9i2;
 
-    b    = 2.51e7_rt * t9i23 * exp(-23.57_rt * t9i13 - t92 / 0.055225_rt);
+    b    = 2.51e7_rt * t9i23 * std::exp(-23.57_rt * t9i13 - t92 / 0.055225_rt);
     dbdt = b * (2.0_rt / 3.0_rt) * t9i + b * (23.57_rt * (1.0_rt / 3.0_rt) * t9i43 - 2.0_rt * t9 / 0.055225_rt);
 
     c    = 1.0_rt + 0.018_rt * t913 + 5.249_rt * t923 + 0.65_rt * t9 + 19.176_rt * t943 + 6.034_rt * t953;
@@ -157,7 +157,7 @@ void make_rates (const Real& temp, const Real& dens,
     dadt = 2.9e-16_rt * (dr2abedt * rbeac + r2abe * drbeacdt);
 
     if (t9 > 8e-2_rt) {
-       b    = 0.1_rt * 1.35e-7_rt * t9i32 * exp(-24.811_rt * t9i);
+       b    = 0.1_rt * 1.35e-7_rt * t9i32 * std::exp(-24.811_rt * t9i);
        dbdt = -b * (2.0_rt / 3.0_rt) * t9i + 24.811_rt * b * t9i2;
 
        term    = a + b;
@@ -219,7 +219,7 @@ void make_rates (const Real& temp, const Real& dens,
 
     //------------------------
 
-    c    = t92 * t92 * t9 * exp(-15.541_rt * t9i);
+    c    = t92 * t92 * t9 * std::exp(-15.541_rt * t9i);
     dcdt = c * (5.0_rt * t9i + 15.541_rt * t9i2);
 
     //------------------------
