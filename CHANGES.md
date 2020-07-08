@@ -1,3 +1,9 @@
+# 20.07
+
+   * The "master" branch has been renamed "main" (#333)
+
+   * NETWORK_PROPERTIES now includes the number of Aux quantities (#330)
+
 # 20.06
 
    * For integration with simplified SDC, we now interpret atol_spec
