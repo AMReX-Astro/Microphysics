@@ -40,7 +40,7 @@ module burn_type_module
     real(rt) :: T
     real(rt) :: e
     real(rt) :: xn(nspec)
-#if naux > 0
+#if NAUX_NET > 0
     real(rt) :: aux(naux)
 #endif
 
@@ -115,7 +115,7 @@ contains
     to_state % e   = from_state % e
     to_state % xn(1:nspec) = from_state % xn(1:nspec)
 
-#if naux > 0
+#if NAUX_NET > 0
     to_state % aux(1:naux) = from_state % aux(1:naux)
 #endif
 
@@ -169,7 +169,7 @@ contains
     burn_state % T    = eos_state % T
     burn_state % e    = eos_state % e
     burn_state % xn   = eos_state % xn
-#if naux > 0
+#if NAUX_NET > 0
     burn_state % aux  = eos_state % aux
 #endif
     burn_state % cv   = eos_state % cv
@@ -203,7 +203,7 @@ contains
     eos_state % T    = burn_state % T
     eos_state % e    = burn_state % e
     eos_state % xn   = burn_state % xn
-#if naux > 0
+#if NAUX_NET > 0
     eos_state % aux  = burn_state % aux
 #endif
     eos_state % cv   = burn_state % cv
