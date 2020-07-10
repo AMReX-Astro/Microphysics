@@ -101,11 +101,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Real temp = state.T;
     Real dens = state.rho;
 
-    Array1D<Real, 1, NumSpec> y;
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
-
     Real rate      = rr.rates(1, 1);
     Real dratedt   = rr.rates(2, 1);
     Real sc1212    = rr.rates(3, 1);
