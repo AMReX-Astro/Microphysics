@@ -49,7 +49,7 @@ void evaluate_rates(burn_t& state, rate_t& rr)
     Real a       = 4.27e26_rt * std::pow(T9a, (5.0_rt / 6.0_rt)) * std::pow(T9, -1.5e0_rt);
     Real dadt    = (5.0_rt / 6.0_rt) * (a / T9a) * dT9adt - 1.5e0_rt * (a / T9) * dT9dt;
 
-    Real b       = exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
+    Real b       = std::exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
     Real dbdt    = (84.165e0_rt * dscratchdt / (scratch * scratch) - 3.0_rt * 2.12e-3_rt * T9 * T9 * dT9dt) * b;
 
     Real rate    = a * b;
