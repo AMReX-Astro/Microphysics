@@ -999,7 +999,7 @@ contains
     call add_screening_factor(zion(ic12),aion(ic12),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ic12),aion(ic12),zion(ic12),aion(ic12))
     call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
-    call add_screening_factor(zion(ic12),aion(ic12),zion(io16),aion(io16))
+    call add_screening_factor(zion(io16),aion(io16),zion(io16),aion(io16))
     call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(ine20),aion(ine20),zion(ihe4),aion(ihe4))
     call add_screening_factor(zion(img24),aion(img24),zion(ihe4),aion(ihe4))

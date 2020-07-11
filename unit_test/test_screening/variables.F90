@@ -8,8 +8,6 @@ module variables
 
   use network, only: nspec, spec_names
 
-  use actual_conductivity_module, only : cond_name
-
   implicit none
 
   integer, parameter :: MAX_NAME_LEN=20
@@ -327,34 +325,5 @@ contains
     cstring = c_loc(fstring)
 
   end subroutine get_var_name
-
-  subroutine get_cond_len(nlen_in) bind(C, name="get_cond_len")
-
-    integer, intent(inout) :: nlen_in
-
-    nlen_in = len(cond_name)
-
-  end subroutine get_cond_len
-
-  subroutine get_cond_name(cond_string) bind(C, name="get_cond_name")
-
-    use iso_c_binding
-
-    implicit none
-    type(c_ptr), intent(inout) :: cond_string
-
-    ! include space for the NULL termination
-    character(len(cond_name)+1), pointer :: fstring
-    integer :: slen
-
-    allocate(fstring)
-
-    fstring = cond_name
-    slen = len_trim(fstring)
-    fstring(slen+1:slen+1) = c_null_char
-
-    cond_string = c_loc(fstring)
-
-  end subroutine get_cond_name
 
 end module variables

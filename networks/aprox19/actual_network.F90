@@ -24,10 +24,10 @@ module actual_network
   integer, parameter :: ineut = 18
   integer, parameter :: iprot = 19
 
-  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: bion, mion, wion
+  attributes(managed) :: bion, mion
 #endif
 
   character (len=32), parameter :: network_name = "aprox19"
@@ -170,7 +170,6 @@ contains
 
     allocate(bion(nspec))
     allocate(mion(nspec))
-    allocate(wion(nspec))
 
 
     ! Set the binding energy of the element
@@ -196,12 +195,6 @@ contains
 
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
-
-    ! Molar mass
-    wion(:) = avo * mion(:)
-
-    ! Common approximation
-    wion(:) = aion(:)
 
     ! set the names of the reaction rates
     ratenames(ir3a)   = 'r3a  '
@@ -334,9 +327,6 @@ contains
     endif
     if (allocated(mion)) then
        deallocate(mion)
-    endif
-    if (allocated(wion)) then
-       deallocate(wion)
     endif
 
   end subroutine actual_network_finalize

@@ -14,7 +14,8 @@
 module actual_eos_module
 
   use amrex_fort_module, only: rt => amrex_real
-  use eos_type_module, only: eos_t, eos_input_rt, eos_input_re
+  use eos_type_module, only: eos_t, eos_input_rt, eos_input_re, eos_input_rh, &
+       eos_input_ph, eos_input_ps, eos_input_th, eos_input_tp, eos_input_rp
 
   implicit none
 

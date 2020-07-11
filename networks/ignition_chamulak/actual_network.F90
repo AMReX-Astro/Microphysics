@@ -14,10 +14,10 @@ module actual_network
   integer, parameter :: io16  = 2
   integer, parameter :: iash  = 3
 
-  real(rt)        , allocatable :: bion(:), mion(:), wion(:)
+  real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: bion, mion, wion
+  attributes(managed) :: bion, mion
 #endif
 
   integer, parameter :: nrates = 1
@@ -32,7 +32,6 @@ contains
     call network_properties_init()
     allocate(bion(nspec))
     allocate(mion(nspec))
-    allocate(wion(nspec))
 
     ! the ash from C12 burning according to Chamulak et al. is a mixture
     ! of C13, O16, Ne20, and Na23.   Ne20 + alpha results 60% of the time,
@@ -55,9 +54,6 @@ contains
     endif
     if (allocated(mion)) then
        deallocate(mion)
-    endif
-    if (allocated(wion)) then
-       deallocate(wion)
     endif
 
   end subroutine actual_network_finalize

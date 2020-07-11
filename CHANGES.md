@@ -1,6 +1,47 @@
+# 20.07
+
+   * The "master" branch has been renamed "main" (#333)
+
+   * NETWORK_PROPERTIES now includes the number of Aux quantities (#330)
+
+# 20.06
+
+   * For integration with simplified SDC, we now interpret atol_spec
+     as an absolute tolerance on X alone instead of (rho X) (#311)
+
+   * burn_cell can now use the C++ burner if compiled with
+     USE_CXX_REACTIONS=TRUE and run with do_cxx = 1. (#313)
+
+   * The original burn_cell (which used the F90 BoxLib build system)
+     is removed and replaced with burn_cell_C (which uses the newer
+     build system). (#316)
+
+   * The analytic Jacobian with simplified SDC now is written in terms
+     of the conserved fluid state and works for a wide range of
+     problems (#228)
+
+# 20.05
+
+   * We now have an option for using sparse storage for aprox13 in C++
+     (#307)
+
+   * iso7 and aprox13 are now available as a C++ network (#303, 305)
+
+   * species names are available as an enum in network_properties.H (#304)
+
+   * The screening on O16+O16 in iso7 was fixed (#302)
+
+   * The VODE integrator is now available in C++ (#299)
+
 # 20.04
 
-   * The screening routines were ported to C++ (#290)
+   * The wion network property was removed (#294)
+
+   * There are new unit tests for the screening and aprox rates
+     modules (both C++ and Fortran interfaces).
+
+   * The screening routines were ported to C++ (#290) and the screenz
+     routine was removed in favor of screen5 (#293)
 
    * a new method, is_input_valid, was added to all EOSes (both C++
      and Fortran interfaces) that can be used to query whether an EOS

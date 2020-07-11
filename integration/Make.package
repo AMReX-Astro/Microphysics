@@ -87,10 +87,10 @@ ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   F90EXE_sources += integrator_sdc.F90
 else
   F90EXE_sources += integrator.F90
+  CEXE_HEADERS += integrator.H
 endif
 F90EXE_sources += integrator_scaling.F90
 f90EXE_sources += integration_data.f90
-
 
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
 VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils
