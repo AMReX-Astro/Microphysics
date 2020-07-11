@@ -16,12 +16,14 @@ EBASE = main
 
 USE_EXTRA_THERMO = TRUE
 
+USE_CXX_EOS = TRUE
+
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
-EOS_DIR     := helmholtz
+EOS_DIR     := gamma_law_general
 
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox19
