@@ -418,7 +418,6 @@ contains
   subroutine sk_finalize_cell(y, rpar) bind(C, name="sk_finalize_cell")
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
-    use extern_probin_module, only: burning_mode
     use network, only: nspec
     use burn_type_module, only: neqs, burn_t, net_ienuc, net_itemp, normalize_abundances_burn
     use cvode_rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens

@@ -43,7 +43,6 @@ contains
                                     reuse_jac, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode, burning_mode_factor, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit
     use temperature_integration_module, only: self_heat
@@ -181,37 +180,6 @@ contains
        ts % y(n,1) = y1(n,1)
     end do
 
-    ! If we are using hybrid burning and the energy release was
-    ! negative (or we failed), re-run this in self-heating mode.
-
-    if ( burning_mode == 2 .and. &
-         (ts % y(net_ienuc,1) - ener_offset < ZERO .or. &
-          ierr /= BDF_ERR_SUCCESS) ) then
-
-       ts % upar(irp_self_heat,1) = ONE
-
-       call eos_to_vbdf(eos_state_in, ts)
-
-       ts % y(net_ienuc,1) = ener_offset
-
-       ts % upar(irp_Told,1) = eos_state_in % T
-
-       if (dT_crit < 1.0e19_rt) then
-          ts % upar(irp_dcvdt,1) = (eos_state_temp % cv - eos_state_in % cv) / (eos_state_temp % T - eos_state_in % T)
-          ts % upar(irp_dcpdt,1) = (eos_state_temp % cp - eos_state_in % cp) / (eos_state_temp % T - eos_state_in % T)
-       endif
-
-       do n = 1, neqs
-          y0(n,1) = ts % y(n,1)
-       end do
-       call bdf_advance(ts, y0, t0, y1, t1, dt_init, RESET, &
-                        reuse_jac, ierr, .true.)
-       do n = 1, neqs
-          ts % y(n,1) = y1(n,1)
-       end do
-
-    endif
-
     ! If we still failed, print out the current state of the integration.
 
     if (ierr /= BDF_ERR_SUCCESS) then
@@ -281,20 +249,6 @@ contains
 
     ! Store the final data, and then normalize abundances.
     call vbdf_to_burn(ts, state_out)
-
-    ! For burning_mode == 3, limit the burning.
-
-    if (burning_mode == 3) then
-
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
-       t_sound = state_in % dx / eos_state_in % cs
-
-       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
-
-       state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
-       state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
-
-    endif
 
     call normalize_abundances_burn(state_out)
 
