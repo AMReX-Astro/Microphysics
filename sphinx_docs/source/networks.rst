@@ -831,26 +831,63 @@ The basic outline of this routine is:
 
    This function operates on the ODE integrator vector directly
    (accessing it from the integrator’s internal data structure). It
-   makes sure that the mass fractions lie between :math:`[10^{-30}, 1]` and
-   that the temperature lies between :math:`[{\tt small\_temp}, 10^{11}]`. The
+   makes sure that the mass fractions lie between ``SMALL_X_SAFE`` and 1  and
+   that the temperature lies between :math:`[{\tt small\_temp}, {\tt MAX_TEMP}]`. The
    latter upper limit is arbitrary, but is safe for the types of problems
    we support with these networks.
 
-#. renormalize the species, if ``renormalize_abundances`` = T
+   It also renormalizes the species, if ``renormalize_abundances = T``
 
-#. update the thermodynamic quantities if we are doing
-   ``call_eos_in_rhs`` or the ``dT_crit`` requires
+#. update the thermodynamic quantities by calling
+   ``update_thermodynamics()``
 
-#. convert to a ``burn_t`` type and call the actual RHS
+   among other things, this will handle the ``call_eos_in_rhs`` option
+   or if the ``dT_crit`` requires the EOS call.
+   
+#. call ``XX_to_burn`` to convert to a ``burn_t``
 
-#. convert derives to mass-fraction-based (if
-   ``integrate_molar_fraction`` = F and zero out the temperature or
-   energy derivatives (if ``integrate_temperature`` = F or
-   ``integrate_energy`` = F, respectively).
+#. call the actual RHS
 
-#. limit the rates if ``burning_mode`` = 3
+#. convert derivatives to mass-fraction-based (since we integrate :math:`X`),
+   and zero out the temperature or
+   energy derivatives (if ``integrate_temperature = F`` or
+   ``integrate_energy = F``, respectively).
 
-#. convert back to the integrator’s internal representation
+#. apply any boosting to the rates if ``react_boost`` > 0.
+
+#. convert back to the integrator’s internal representation by calling ``burn_to_XX``
+
+
+
+Jacobian wrapper
+----------------
+
+Similar to the RHS, the Jacobian wrapper is handled in the same 
+``XX_rhs.f90`` file, where XX is the integrator name.
+The basic outline of this routine is:
+
+.. note::
+
+   It is assumed that the thermodynamics are already correct when
+   calling the Jacobian wrapper, likely because we just called the RHS
+   wrapper above which did the ``clean_state`` and
+   ``update_thermodynamics`` calls.
+
+#. call ``XX_to_burn`` to convert to a ``burn_t`` type.
+
+#. call the actual Jacobian routine
+
+#. convert derivatives to mass-fraction-based (since we integrate :math:`X`),
+   and zero out the temperature or
+   energy derivatives (if ``integrate_temperature = F`` or
+   ``integrate_energy = F``, respectively).
+
+#. apply any boosting to the rates if ``react_boost`` > 0.
+
+#. convert back to the integrator’s internal representation by calling ``burn_to_XX``
+
+
+
 
 .. _sec:BS:
 
