@@ -254,7 +254,10 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
     use amrex_constants_module, only: ONE
-    use network, only: nspec, iabar, iye
+    use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iabar, iye
+#endif
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -289,7 +292,10 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
-    use network, only: nspec, iye, iabar
+    use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iye, iabar
+#endif
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &

@@ -34,7 +34,7 @@ module actual_network
   attributes(managed) :: bion, mion
 #endif
 
-  character (len=32), parameter :: network_name = "aprox19"
+  character (len=32), parameter :: network_name = "aprox19_nse"
 
   ! Some fundamental physical constants
 
