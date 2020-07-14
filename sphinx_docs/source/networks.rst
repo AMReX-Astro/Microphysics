@@ -428,6 +428,8 @@ All of the necessary integration data comes in through state, as:
 
 * ``state % xn(:)`` : the ``nspec`` mass fractions.
 
+* ``state % aux(:)`` : the ``naux`` auxillary data (only available if ``NAUX_NET`` > 0)
+
 * ``state % e`` : the current value of the ODE system’s energy
   release, :math:`\enuc`—note: as discussed above, this is not
   necessarily the energy you would get by calling the EOS on the
@@ -447,8 +449,8 @@ be computed as:
       ...
       y(:) = state % xn(:) / aion(:)
 
-The actual_rhs() routine’s job is to fill the righthand side vector
-for the ODE system, state % ydot(:). Here, the important
+The ``actual_rhs()`` routine’s job is to fill the righthand side vector
+for the ODE system, ``state % ydot(:)``. Here, the important
 fields to fill are:
 
 * ``state % ydot(1:nspec)`` : the change in *molar
@@ -571,7 +573,7 @@ update the thermodynamics of our state (by calling
 update_thermodynamics) [2]_ The thermodynamic quantity update depends on two runtime
 parameters, call_eos_in_rhs and dT_crit:
 
-* ``call_eos_in_rhs`` = T:
+* ``call_eos_in_rhs = T``:
 
   We call the EOS just before every RHS evaluation, using :math:`\rho,
   T` as inputs. Therefore, the thermodynamic quantities will always be
@@ -625,20 +627,20 @@ want—usually either the specific heat at constant pressure, :math:`c_p`,
 or the specific heat at constant volume, :math:`c_v`. The EOS generally
 will provide both of these specific heats; which one to use is a
 choice the user needs to make based on the physics of their problem.
-This is controlled by the parameter do_constant_volume_burn,
-which will use :math:`c_v` if .true. and :math:`c_p` is .false.. See
+This is controlled by the parameter ``do_constant_volume_burn``,
+which will use :math:`c_v` if ``.true.`` and :math:`c_p` is ``.false.``. See
 :cite:`maestro:III` for a discussion of the temperature evolution
 equation.
 
 A fully accurate integration of Equation :eq:`eq:temp_integrate`
 requires an evaluation of the specific heat at each integration step,
 which involves an EOS call given the current temperature. This is done
-if ``call_eos_in_rhs`` = T, as discussed above.
+if ``call_eos_in_rhs = T``, as discussed above.
 This may add significantly to the expense of the calculation,
 especially for smaller networks where construction of the RHS is
 inexpensive
 
-For ``call_eos_in_rhs`` = F, we can still capture some evolution
+For ``call_eos_in_rhs = F``, we can still capture some evolution
 of the specific heat by periodically calling the EOS (using
 ``dT_crit`` as described above) and extrapolating to the current
 temperature as:
@@ -649,7 +651,7 @@ where the ‘:math:`_0`’ quantities are the values from when the EOS was last
 called. This represents a middle ground between fully on and fully
 off.
 
-Note: if ``state % self_heat`` = F, then we do not evolve
+Note: if ``state % self_heat = F``, then we do not evolve
 temperature.
 
 The runtime parameter integrate_temperature can be used to disable
