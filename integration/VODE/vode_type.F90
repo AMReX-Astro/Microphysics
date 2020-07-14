@@ -72,7 +72,7 @@ contains
   subroutine update_thermodynamics(vode_state)
 
     !$acc routine seq
-    
+
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt
@@ -93,6 +93,17 @@ contains
     ! are evaluated at the start of the integration, so if things change
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
+
+#if NSE_THERMO
+    ! we are handling the thermodynamics via the aux quantities, which
+    ! are stored in the rpar here, so we need to update those based on
+    ! the current state.
+
+    vode_state % rpar(irp_abar) = ONE / (sum(vode_state % y(1:nspec) * aion_inv(:)))
+    vode_state % rpar(irp_ye) = sum(state % y(1:nspec) * zion(:) * aion_inv(:))
+    vode_state % rpar(irp_zbar) = vode_state % rpar(irp_abar) * vode_state % rpar(irp_ye)
+
+#endif
 
     call vode_to_eos(eos_state, vode_state)
 
@@ -168,6 +179,12 @@ contains
 
     state % xn(1:nspec) = vode_state % y(1:nspec)
 
+#ifdef NSE_THERMO
+    state % aux(iye) = vode_state % rpar(irp_ye)
+    state % aux(iabar) = vode_state % rpar(irp_abar)
+    state % aux(ibea) = 0.0_rt
+#endif
+
     state % cp      = vode_state % rpar(irp_cp)
     state % cv      = vode_state % rpar(irp_cv)
     state % abar    = vode_state % rpar(irp_abar)
@@ -204,6 +221,11 @@ contains
     vode_state % y(net_itemp) = state % T * inv_temp_scale
 
     vode_state % y(1:nspec) = state % xn(1:nspec)
+
+#ifdef NSE_THERMO
+    vode_state % rpar(irp_ye) = state % aux(iye)
+    vode_state % rpar(irp_abar) = state % aux(iabar)
+#endif
 
     vode_state % rpar(irp_cp) = state % cp
     vode_state % rpar(irp_cv) = state % cv
@@ -242,6 +264,12 @@ contains
     vode_state % y(net_itemp) = state % T * inv_temp_scale
     vode_state % y(net_ienuc) = state % e * inv_ener_scale
 
+#ifdef NSE_THERMO
+    vode_state % rpar(irp_ye) = state % aux(iye)
+    vode_state % rpar(irp_abar) = state % aux(iabar)
+#endif
+
+
   end subroutine burn_to_vode
 
 
@@ -272,6 +300,11 @@ contains
     state % e        = vode_state % y(net_ienuc) * ener_scale
 
     state % xn(1:nspec) = vode_state % y(1:nspec)
+
+#ifdef NSE_THERMO
+    state % aux(iye) = vode_state % rpar(irp_ye)
+    state % aux(iabar) = vode_state % rpar(irp_abar)
+#endif
 
     state % cp       = vode_state % rpar(irp_cp)
     state % cv       = vode_state % rpar(irp_cv)
