@@ -78,8 +78,10 @@ contains
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
     use eos_module, only: eos
-    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
+    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, &
+                                 irp_dcpdt, irp_dcvdt, irp_abar, irp_ye, irp_zbar
     use burn_type_module, only: neqs
+    use network, only : nspec, aion_inv, zion
 
     implicit none
 
@@ -99,8 +101,8 @@ contains
     ! are stored in the rpar here, so we need to update those based on
     ! the current state.
 
-    vode_state % rpar(irp_abar) = ONE / (sum(vode_state % y(1:nspec) * aion_inv(:)))
-    vode_state % rpar(irp_ye) = sum(state % y(1:nspec) * zion(:) * aion_inv(:))
+    vode_state % rpar(irp_abar) = 1.0_rt / (sum(vode_state % y(1:nspec) * aion_inv(:)))
+    vode_state % rpar(irp_ye) = sum(vode_state % y(1:nspec) * zion(:) * aion_inv(:))
     vode_state % rpar(irp_zbar) = vode_state % rpar(irp_abar) * vode_state % rpar(irp_ye)
 
 #endif
@@ -162,6 +164,9 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale
     use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iye, iabar, ibea
+#endif
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps
@@ -205,6 +210,9 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
     use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iabar, iye
+#endif
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_eta, irp_ye, irp_cs, n_rpar_comps
@@ -246,7 +254,7 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
     use amrex_constants_module, only: ONE
-    use network, only: nspec
+    use network, only: nspec, iabar, iye
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
@@ -281,7 +289,7 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
-    use network, only: nspec
+    use network, only: nspec, iye, iabar
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
                             irp_ye, irp_eta, irp_cs, irp_dx, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
