@@ -1,4 +1,0 @@
-f90EXE_sources += network.f90
-f90EXE_sources += nse.f90
-f90EXE_sources += burning.f90
-f90EXE_sources += castro_burner.f90
