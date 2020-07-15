@@ -29,7 +29,7 @@ contains
     real(rt) :: xn(nspec)
 
     integer :: ii, jj, kk
-    real(rt) :: sum_X
+    real(rt) :: sum_X, mu_e
 
     if (npts > 1) then
        dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
@@ -70,7 +70,8 @@ contains
 
                 xn(:) = state(ii,jj,kk, p % ispec_old:p % ispec_old+nspec-1)
 
-                state(ii,jj,kk, p %  iaux_old+iye-1) = sum(xn(:) * zion(:) * aion_inv(:))
+                mu_e = 1.0_rt / sum(xn(:) * zion(:) * aion_inv(:))
+                state(ii,jj,kk, p %  iaux_old+iye-1) = 1.0_rt / mu_e
                 state(ii,jj,kk, p %  iaux_old+iabar-1) = ONE / (sum(xn(:) * aion_inv(:)))
                 state(ii,jj,kk, p %  iaux_old+ibea-1) = (sum(xn(:) * bion(:) * aion_inv(:)))
 

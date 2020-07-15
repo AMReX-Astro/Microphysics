@@ -88,21 +88,23 @@ contains
     type (dvode_t), intent(inout) :: vode_state
 
     type (eos_t) :: eos_state
+    real ::mu_e
 
     !$gpu
-
+    
     ! Several thermodynamic quantities come in via rpar -- note: these
     ! are evaluated at the start of the integration, so if things change
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
-
+    
 #if NSE_THERMO
     ! we are handling the thermodynamics via the aux quantities, which
     ! are stored in the rpar here, so we need to update those based on
     ! the current state.
 
     vode_state % rpar(irp_abar) = 1.0_rt / (sum(vode_state % y(1:nspec) * aion_inv(:)))
-    vode_state % rpar(irp_ye) = sum(vode_state % y(1:nspec) * zion(:) * aion_inv(:))
+    mu_e = 1.0_rt / sum(vode_state % y(1:nspec) * zion(:) * aion_inv(:))
+    vode_state % rpar(irp_ye) = 1.0_rt / mu_e
     vode_state % rpar(irp_zbar) = vode_state % rpar(irp_abar) * vode_state % rpar(irp_ye)
 
 #endif
