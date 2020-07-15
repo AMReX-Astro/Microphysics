@@ -81,6 +81,23 @@ contains
   end function network_species_index
 
 
+  function network_aux_index(name) result(r)
+
+    character(len=*) :: name
+    integer :: r, n
+
+    r = -1
+
+    do n = 1, naux
+       if (name == aux_names(n) .or. name == short_aux_names(n)) then
+          r = n
+          return
+       endif
+    enddo
+
+  end function network_aux_index
+
+
   function get_network_species_name(index) result(name)
 
     character(len=128) :: name
