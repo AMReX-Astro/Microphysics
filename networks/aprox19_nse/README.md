@@ -130,3 +130,16 @@ composition NSE for T9, rho, Ye = 3.16, 1.e8, .5 Its mostly 56Ni 28.0
 which is summarized in the table as
 
      9.50000     8.00000 5.00000E-01 3.19627E-05 8.77542E-05 9.99880E-01 5.58734E+01 8.64229E+00 4.96722E-04 0.00000E+00 1.58959E-19 5.48846E-07 3.21588E-15 0.00000E+00 5.31077E-14 1.00820E-16 3.48367E-12 1.27462E-06 6.49684E-06 1.03892E-05 6.91567E-05 4.38678E-07 3.88804E-05 6.19209E-03 1.66798E-03 9.91981E-01 6.14888E-18 3.14138E-05
+
+
+regarding the term dYedt:
+
+What is tabulated is wrate which is the sum of all electron capture
+and positron decay rates times the appropriate abundances minus a
+similar rate for beta decay and positron capture
+
+ wrate=rectot+rpdtot-redtot-rpctot
+
+So if electron capure domiantes wrate is positive
+
+The inference is that it is a positive term that is subtracted from Ye
