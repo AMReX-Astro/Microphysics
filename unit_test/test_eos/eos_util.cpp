@@ -19,8 +19,6 @@ void eos_test_C(const Box& bx,
                 const plot_t vars,
                 Array4<Real> const sp) {
 
-  std::cout << "in the C++ EOS test loop" << std::endl;
-
   const int ih1 = network_spec_index("hydrogen-1");
   const int ihe4 = network_spec_index("helium-4");
 
