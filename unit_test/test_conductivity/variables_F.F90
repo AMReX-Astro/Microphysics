@@ -57,7 +57,7 @@ contains
     return
   end function get_next_plot_index
 
-  subroutine init_variables() bind(C, name="init_variables")
+  subroutine init_variables_F() bind(C, name="init_variables_F")
 
     integer :: n
 
@@ -86,7 +86,7 @@ contains
        p % names(p % ispec + n) = "X_" // adjustl(trim(spec_names(n+1)))
     enddo
 
-  end subroutine init_variables
+  end subroutine init_variables_F
 
   subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
