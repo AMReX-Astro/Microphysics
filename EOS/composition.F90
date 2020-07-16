@@ -45,11 +45,11 @@ contains
     state % zbar = state % abar * state % y_e
 
 #else
-    state % mu_e = ONE / (sum(state % xn(:) * zion(:) * aion_inv(:)))
-    state % y_e = ONE / state % mu_e
+    state % y_e = sum(state % xn(:) * zion(:) * aion_inv(:))
+    state % mu_e = ONE / state % y_e
 
     state % abar = ONE / (sum(state % xn(:) * aion_inv(:)))
-    state % zbar = state % abar / state % mu_e
+    state % zbar = state % abar * state % y_e
 #endif
 
   end subroutine composition
