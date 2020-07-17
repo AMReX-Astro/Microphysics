@@ -253,6 +253,11 @@ contains
         p % names(p % ilanganke) = "langanke_rn56ec"
         p % names(p % ilanganke+1) = "langanke_sn56ec"
 
+        p % names(p % iecapnuc) = "ecapnuc_rpen"
+        p % names(p % iecapnuc+1) = "ecapnuc_rnep"
+        p % names(p % iecapnuc+2) = "ecapnuc_spenc"
+        p % names(p % iecapnuc+3) = "ecapnuc_snepc"
+
     end subroutine init_variables_F
 
     subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
