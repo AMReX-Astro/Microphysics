@@ -1,5 +1,7 @@
 module nse_module
 
+  use amrex_fort_module, only : rt => amrex_real
+
   implicit none
 
   integer, parameter :: ntemp = 71
@@ -9,10 +11,19 @@ module nse_module
   integer, parameter :: npts = 46221
   integer, parameter :: nspec = 19
 
-  double precision :: ttlog(npts), ddlog(npts), yetab(npts)
-  double precision :: helium(npts), sica(npts), fegroup(npts)
-  double precision :: abartab(npts), ebtab(npts), wratetab(npts)
-  double precision :: massfractab(nspec, npts)
+  real(rt), allocatable :: ttlog(:), ddlog(:), yetab(:)
+  real(rt), allocatable :: helium(:), sica(:), fegroup(:)
+  real(rt), allocatable :: abartab(:), ebtab(:), wratetab(:)
+  real(rt), allocatable :: massfractab(:, :)
+
+#ifdef AMREX_USE_CUDA
+  attributes(managed) :: ttlog, ddlog, yetab
+  attributes(managed) :: helium, sica, fegroup
+  attributes(managed) :: abartab, ebtab, wratetab
+  attributes(managed) :: massfractab
+#endif
+
+  !$acc declare create(ttlog, ddlog, yetab, helium, sica, fegroup, abartab, ebtab, wratetab, massfractab)
 
 contains
 
@@ -24,6 +35,17 @@ contains
     integer :: un
 
     ! begin initialization
+
+    allocate(ttlog(npts))
+    allocate(ddlog(npts))
+    allocate(yetab(npts))
+    allocate(helium(npts))
+    allocate(sica(npts))
+    allocate(fegroup(npts))
+    allocate(abartab(npts))
+    allocate(ebtab(npts))
+    allocate(wratetab(npts))
+    allocate(massfractab(nspec, npts))
 
     ! set table parameters
 
@@ -44,19 +66,23 @@ contains
        end do
     end do
 
+    !$acc update device(ttlog, ddlog, yetab)
+    !$acc update device(helium, sica, fegroup)
+    !$acc update device(abartab, ebtab, wratetab, massfractab)
+
   end subroutine init_nse
 
   subroutine nse_interp(T, rho, ye, abar, dq, dyedt, X)
 
     implicit none
 
-    double precision, intent(in) :: T, rho, ye
-    double precision, intent(inout) :: abar, dq, dyedt
-    double precision, intent(inout) :: X(nspec)
+    real(rt), intent(in) :: T, rho, ye
+    real(rt), intent(inout) :: abar, dq, dyedt
+    real(rt), intent(inout) :: X(nspec)
 
     integer :: n
 
-    double precision :: tlog, rholog, yet
+    real(rt) :: tlog, rholog, yet
     integer :: it1, it2
     integer :: ir1, ir2
     integer :: ic1, ic2
@@ -70,9 +96,11 @@ contains
     integer :: it2r2c1
     integer :: it2r2c2
 
-    double precision :: t0, r0, x0
-    double precision :: td, rd, xd
-    double precision :: omtd, omrd, omxd
+    real(rt) :: t0, r0, x0
+    real(rt) :: td, rd, xd
+    real(rt) :: omtd, omrd, omxd
+
+    !$gpu
 
     tlog = log10(T)
     rholog = log10(rho)
