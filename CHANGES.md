@@ -1,3 +1,7 @@
+# 20.08
+
+   * The VBDF integrator was removed (#348)
+
 # 20.07
 
    * The "master" branch has been renamed "main" (#333)
