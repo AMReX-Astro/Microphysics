@@ -8,5 +8,13 @@ F90EXE_sources += actual_burner.F90
 endif
 F90EXE_sources += actual_rhs.F90
 
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+CEXE_sources += actual_network_data.cpp
+CEXE_headers += actual_network.H
+
+CEXE_sources += actual_rhs_data.cpp
+CEXE_headers += actual_rhs.H
+endif
+
 USE_SCREENING = TRUE
 endif
