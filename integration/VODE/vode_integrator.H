@@ -160,6 +160,20 @@ void vode_integrator (burn_t& state, Real dt)
         std::cout << "ERROR: integration failed in net" << std::endl;
         std::cout << "istate = " << istate << std::endl;
         std::cout << "time = " << vode_state.t << std::endl;
+        std::cout << "dens = " << state.rho << std::endl;
+        std::cout << "temp start = " << eos_state.T << std::endl;
+        std::cout << "xn start = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << eos_state.xn[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "temp current = " << state.T << std::endl;
+        std::cout << "xn current = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << state.xn[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "energy generated = " << state.e - e_in << std::endl;
 #endif
     }
 

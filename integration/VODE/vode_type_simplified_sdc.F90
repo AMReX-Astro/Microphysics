@@ -273,7 +273,7 @@ contains
     real(rt), intent(inout) :: jac_react(neqs, neqs)
     real(rt)    :: jac(SVAR_EVOLVE,SVAR_EVOLVE)
 
-    integer :: m, n
+    integer :: m, n, k
 #if defined(SDC_EVOLVE_ENERGY)
     integer, parameter :: iwrho = 1, iwfs=2, iwK = iwfs+nspec, iwT = iwK+1, iwvar = 3+nspec
 #else
@@ -290,7 +290,7 @@ contains
     type(burn_t) :: burn_state_pert
     type(eos_t) :: eos_state
     type(eos_xderivs_t) :: eos_xderivs
-    real(rt) :: K
+    real(rt) :: kineng
     real(rt), parameter :: eps = 1.e-8_rt
     real(rt) :: ydot(neqs), ydot_pert(neqs)
 
@@ -418,7 +418,7 @@ contains
     ! construct dwdU
 
     ! kinetic energy, K = 1/2 |U|^2
-    K = 0.5_rt * sum(vode_state % rpar(irp_SMX:irp_SMZ)**2)/vode_state % rpar(irp_SRHO)**2
+    kineng = 0.5_rt * sum(vode_state % rpar(irp_SMX:irp_SMZ)**2)/vode_state % rpar(irp_SRHO)**2
 
     ! density row (iwrho)
     dwdU(iwrho, SRHO_EXTRA) = 1.0_rt
@@ -430,7 +430,7 @@ contains
     end do
 
     ! K row
-    dwdU(iwK, SRHO_EXTRA) = -K / burn_state % rho
+    dwdU(iwK, SRHO_EXTRA) = -kineng / burn_state % rho
     dwdU(iwK, SEINT) = -1.0_rt / burn_state % rho
     dwdU(iwK, SEDEN) = 1.0_rt / burn_state % rho
 
@@ -544,8 +544,8 @@ contains
 
     eos_state % rho = vode_state % rpar(irp_SRHO)
     eos_state % T = 1.e4   ! initial guess
-    eos_state % xn(:) = y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
-    eos_state % h = y(SENTH)/vode_state % rpar(irp_SRHO)
+    eos_state % xn(:) = vode_state % y(SFS:SFS-1+nspec)/vode_state % rpar(irp_SRHO)
+    eos_state % h = vode_state % y(SENTH)/vode_state % rpar(irp_SRHO)
 
     call eos(eos_input_rh, eos_state)
 
