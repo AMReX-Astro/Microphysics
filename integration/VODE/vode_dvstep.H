@@ -218,7 +218,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) >= vode_change_factor_X_threshold &&
+            if (std::abs(y_save(i)) >= atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
                 valid_update = false;
