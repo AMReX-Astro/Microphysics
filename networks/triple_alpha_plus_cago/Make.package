@@ -11,5 +11,13 @@ F90EXE_sources += dydt.F90
 F90EXE_sources += screen_module.F90
 F90EXE_sources += rates_module.F90
 
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+CEXE_sources += actual_network_data.cpp
+CEXE_headers += actual_network.H
+
+CEXE_sources += actual_rhs_data.cpp
+CEXE_headers += actual_rhs.H
+endif
+
 USE_SCREENING = TRUE
 endif

@@ -32,8 +32,6 @@ subroutine do_eos(lo, hi, &
 
   !$gpu
 
-  print *, "in the F90 EOS loop"
-
   do kk = lo(3), hi(3)
 
      ! set the composition -- approximately solar
