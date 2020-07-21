@@ -10,7 +10,9 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 else ifeq ($(INTEGRATOR_DIR),BS)
   INTEGRATOR_NUM := 1
 else ifeq ($(INTEGRATOR_DIR),VBDF)
-  INTEGRATOR_NUM := 2
+  $(warn VBDF has been removed)
+  override INTEGRATOR_DIR := VODE
+  INTEGRATOR_NUM := 0
 else ifeq ($(INTEGRATOR_DIR),VODE90)
   $(warn VODE90 has been renamed VODE)
   override INTEGRATOR_DIR := VODE
