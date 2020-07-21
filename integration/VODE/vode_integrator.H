@@ -19,8 +19,6 @@ void vode_integrator (burn_t& state, Real dt)
 
     dvode_t vode_state;
 
-    const Real failure_tolerance = 1.e-2_rt;
-
     // Set the tolerances.  We will be more relaxed on the temperature
     // since it is only used in evaluating the rates.
     //
@@ -133,11 +131,11 @@ void vode_integrator (burn_t& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(n) < -failure_tolerance) {
+        if (vode_state.y(n) < -vode_failure_tolerance) {
             state.success = false;
         }
 
-        if (vode_state.y(n) > 1.e0_rt + failure_tolerance) {
+        if (vode_state.y(n) > 1.0_rt + vode_failure_tolerance) {
             state.success = false;
         }
     }
