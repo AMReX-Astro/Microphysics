@@ -762,7 +762,7 @@ type required by the ``actual_rhs`` and ``actual_jac`` routine.
 
 The name of the integrator can be selected at compile time using
 the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
-the allowed options are BS, VBDF, and VODE.
+the allowed options are BS and VODE.
 
 actual_integrator
 -----------------
@@ -952,28 +952,6 @@ threadprivate directive on Fortran common blocks. However, due to
 the use of computed go tos, we have not ported it to GPUs using
 OpenACC.
 
-.. _sec:VBDF:
-
-VBDF
-----
-
-VBDF is a modern implementation of the methods in VODE, written by
-Matt Emmett. It supports integrating a vector of states, but we do
-not use that capability.
-
-The error criteria is the same as VODE—separate relative, ``rtol``,
-and absolute, ``atol``, error tolerances are specified for each
-variable that is being integrated. A weight is constructed as:
-
-.. math:: W_m = \frac{1}{{\tt rtol}_m |y_m| + {\tt atol}_m}
-
-where needed, the error, :math:`\epsilon`, is constructed by computing an :math:`L_2`
-norm:
-
-.. math:: \epsilon = \left [ \frac{1}{N} \sum_m (y_m W_m)^2 \right ]^{1/2}
-
-where :math:`m = 1, \ldots, N` indexes the ODE solution vector. With this
-weighting, :math:`\epsilon < 1` means we’ve achieved our desired accuracy.
 
 Retries
 -------
