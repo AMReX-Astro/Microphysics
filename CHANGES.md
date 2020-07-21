@@ -1,5 +1,7 @@
 # 20.08
 
+   * The VBDF integrator was removed (#348)
+
    * VODE can now reject an internal timestep that has any abundance
      change by more than a factor of 2, or an abundance < 0 or > 1,
      as well as timesteps where the temperature ends up negative. (#350)
