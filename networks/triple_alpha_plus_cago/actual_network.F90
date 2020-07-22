@@ -43,7 +43,7 @@ contains
     ! the binding energies per unit mass (erg / g) obtained by converting
     ! the energies in MeV to erg then multiplying by (N_A / aion) where
     ! N_A = 6.0221415e23 is Avogadro's number
-    bion(ihe4)  = 28.39603_rt ! MeV / nucleus
+    bion(ihe4)  = 28.29603_rt ! MeV / nucleus
     bion(ic12)  = 92.16294_rt ! MeV / nucleus
     bion(io16)  = 127.62093_rt ! MeV / nucleus
     bion(ife56) = 492.25389_rt ! MeV / nucleus
