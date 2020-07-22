@@ -122,7 +122,7 @@ contains
     return
   end function get_next_plot_index
 
-  subroutine init_variables() bind(C, name="init_variables")
+  subroutine init_variables_F() bind(C, name="init_variables_F")
 
     integer :: n
 
@@ -285,7 +285,7 @@ contains
     p % names(p % iscn_o16_p_dt) = "scn_o16_p_dt"
     p % names(p % iscn_n14_he4_dt) = "scn_n14_he4_dt"
 
-  end subroutine init_variables
+  end subroutine init_variables_F
 
   subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
