@@ -148,8 +148,6 @@ void main_main ()
       }
     }
 
-    std::cout << "Ncomp = " << Ncomp << std::endl;
-
     // time = starting time in the simulation
     Real time = 0.0;
 
