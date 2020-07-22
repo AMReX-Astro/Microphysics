@@ -72,8 +72,9 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << std::endl;
 #if NAUX_NET > 0
   for (int n = 0; n < NumAux; ++n) {
-    burn_state.aux[n] << " " << std::endl;
+    o << burn_state.aux[n] << " ";
   }
+  o << std::endl;
 #endif
   return o;
 }
