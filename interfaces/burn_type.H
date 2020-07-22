@@ -59,6 +59,26 @@ struct burn_t
     bool success;
 };
 
+
+inline
+std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
+{
+  o << "rho = " << burn_state.rho << std::endl;
+  o << "T =   " << burn_state.T << std::endl;
+  o << "xn = ";
+  for (int n = 0; n < NumSpec; ++n) {
+    o << burn_state.xn[n] << " ";
+  }
+  o << std::endl;
+#if NAUX_NET > 0
+  for (int n = 0; n < NumAux; ++n) {
+    burn_state.aux[n] << " " << std::endl;
+  }
+#endif
+  return o;
+}
+
+
 // Given an eos type, copy the data relevant to the burn type.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

@@ -106,7 +106,7 @@ contains
         return
     end function get_next_plot_index
 
-    subroutine init_variables() bind(C, name="init_variables")
+    subroutine init_variables_F() bind(C, name="init_variables_F")
 
         integer :: i, n
 
@@ -258,7 +258,7 @@ contains
         p % names(p % iecapnuc+2) = "ecapnuc_spenc"
         p % names(p % iecapnuc+3) = "ecapnuc_snepc"
 
-    end subroutine init_variables
+    end subroutine init_variables_F
 
     subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
