@@ -1,5 +1,6 @@
 subroutine do_rates(lo, hi, &
-                    sp, s_lo, s_hi, npts) bind(C, name="do_rates")
+                    dlogrho, dlogT, dNi, &
+                    sp, s_lo, s_hi) bind(C, name="do_rates")
 
     use variables
     use network
@@ -15,9 +16,8 @@ subroutine do_rates(lo, hi, &
     integer, intent(in) :: lo(3), hi(3)
     integer, intent(in) :: s_lo(3), s_hi(3)
     real(rt), intent(inout) :: sp(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
-    integer, intent(in), value :: npts
+    real(rt), intent(in), value :: dlogrho, dlogT, dNi
 
-    real(rt) :: dlogrho, dlogT, dNi
     real(rt) :: ni56, temp_zone, dens_zone
     real(rt) :: xn_zone(nspec)
     real(rt) :: fr, dfrdt, rr, drrdt, dfrdd, drrdd
@@ -30,10 +30,6 @@ subroutine do_rates(lo, hi, &
     integer :: i, j, k
 
     !$gpu
-
-    dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
-    dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
-    dNi    = ONE/(npts - 1)
 
     do k = lo(3), hi(3)
 
