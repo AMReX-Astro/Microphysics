@@ -2,6 +2,7 @@ module actual_network
 
   use network_properties
   use amrex_fort_module, only : rt => amrex_real
+  use fundamental_constants_module
 
   implicit none
 
@@ -27,6 +28,8 @@ module actual_network
   integer, parameter :: ircago = 2
 
   character (len=10), save :: reac_names(nrates)
+
+  real, parameter :: conv_factor = MeV2eV * ev2erg * n_A
 
 contains
 

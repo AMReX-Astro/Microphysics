@@ -68,7 +68,7 @@ contains
     call dydt(ymol, dratesdt, dYdotdT)
 
     ! calculate temperature sensitivity -- note dydt is in terms of molar fractions
-    denucdT = - sum(dYdotdT*bion)
+    denucdT = sum(dYdotdT*bion) * conv_factor
 
   end subroutine get_enuc_T_sensitivity
 
