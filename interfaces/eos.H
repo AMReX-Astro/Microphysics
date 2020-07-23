@@ -83,14 +83,14 @@ void eos_reset(eos_t& state, bool& has_been_reset) {
 
 // For density, just ensure that it is within mindens and maxdens.
 AMREX_GPU_HOST_DEVICE inline
-void reset_rho(eos_t& state, bool& has_been_reset) {
+void reset_rho(eos_t& state) {
 
   state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 }
 
 // For temperature, just ensure that it is within mintemp and maxtemp.
 AMREX_GPU_HOST_DEVICE inline
-void reset_T(eos_t& state, bool& has_been_reset) {
+void reset_T(eos_t& state) {
 
   state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
 }
@@ -138,35 +138,35 @@ void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
   case eos_input_rt:
 
-    reset_rho(state, has_been_reset);
-    reset_T(state, has_been_reset);
+    reset_rho(state);
+    reset_T(state);
 
     break;
 
   case eos_input_rh:
 
-    reset_rho(state, has_been_reset);
+    reset_rho(state);
     reset_h(state, has_been_reset);
 
     break;
 
   case eos_input_tp:
 
-    reset_T(state, has_been_reset);
+    reset_T(state);
     reset_p(state, has_been_reset);
 
     break;
 
   case eos_input_rp:
 
-    reset_rho(state, has_been_reset);
+    reset_rho(state);
     reset_p(state, has_been_reset);
 
     break;
 
   case eos_input_re:
 
-    reset_rho(state, has_been_reset);
+    reset_rho(state);
     reset_e(state, has_been_reset);
 
     break;
@@ -187,7 +187,7 @@ void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
   case eos_input_th:
 
-    reset_T(state, has_been_reset);
+    reset_T(state);
     reset_h(state, has_been_reset);
 
     break;
