@@ -665,7 +665,9 @@ void apply_coulomb_corrections(eos_t& state)
     z             = forth * pi;
     s             = z * xni;
     Real dsdd     = z * dxnidd;
+#ifdef EXTRA_THERMO
     Real dsda     = z * dxnida;
+#endif
 
     Real lami     = 1.0e0_rt / std::pow(s, onethird);
     Real inv_lami = 1.0e0_rt / lami;
