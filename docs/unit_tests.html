@@ -107,9 +107,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#comprehensive-unit-tests">Comprehensive Unit Tests</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#eos-test">EOS test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#network-test">Network test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aprox-rates-test">Aprox Rates Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#screening-test">Screening Test</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#individual-network-tests">Individual Network Tests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#burn-cell"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#input-file">Input File</a></li>
@@ -214,16 +215,24 @@
 <h1>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="comprehensive-unit-tests">
 <h2>Comprehensive Unit Tests<a class="headerlink" href="#comprehensive-unit-tests" title="Permalink to this headline">¶</a></h2>
-<p>There are a few unit tests in Microphysics that operate on a generic EOS
-or reaction network. To allow these to compile independent of any
-application code (e.g., Maestro or Castro), copies of the EOS
-driver <code class="docutils literal notranslate"><span class="pre">eos.f90</span></code> and network interface <code class="docutils literal notranslate"><span class="pre">network.f90</span></code> are
-provided in <code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/</span></code>.</p>
+<p>There are a few unit tests in Microphysics that operate on a generic
+EOS, reaction network, conductivity, or some smaller component to
+Microphysics.  Many of these tests exercise the main interfaces in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code> and the code that those call.</p>
 <p>These tests compile using the AMReX build system, which assumes that
-main is in C++, so each have a <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code> driver.  The file
-<code class="docutils literal notranslate"><span class="pre">Microphysics/Make.Microphysics</span></code> provides the macros necessary to build
-the executable. Runtime parameters are parsed in the same fashion as
-in the application codes, using the <code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code> script.</p>
+main is in C++, so each have a <code class="docutils literal notranslate"><span class="pre">main.cpp</span></code> driver.  The files
+<code class="docutils literal notranslate"><span class="pre">Microphysics/Make.Microphysics</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Microphysics/Make.Microphysics_extern</span></code> provide the macros necessary
+to build the executable. Runtime parameters are parsed in the same
+fashion as in the application codes, using the <code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code>
+script.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Most of these tests are written such that the exercise both the C++
+and Fortran implementations of the Microphysics, via the <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>
+runtime parameter.</p>
+<p>Most of these tests work with MPI+OpenMP and CUDA</p>
+</div>
 <div class="section" id="eos-test">
 <h3>EOS test<a class="headerlink" href="#eos-test" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_eos/</span></code> is a unit test for the equations
@@ -282,8 +291,13 @@ tests whether the EOS is threadsafe.</p>
 </pre></div>
 </div>
 <p>Examining the output (an AMReX plotfile) will show you how big the
-errors are. You can use the <code class="docutils literal notranslate"><span class="pre">AMReX/Tools/Postprocessing/</span></code> tool
+errors are. You can use the <code class="docutils literal notranslate"><span class="pre">amrex/Tools/Plotfile/</span></code> tool
 <code class="docutils literal notranslate"><span class="pre">fextrema</span></code> to display the maximum error for each variable.</p>
+<p>To switch between testing the Fortran and C++ implementations of the EOS,
+use <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>, e.g., to use the C++ implementation, you would run as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs_eos</span> <span class="n">do_cxx</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="network-test">
 <h3>Network test<a class="headerlink" href="#network-test" title="Permalink to this headline">¶</a></h3>
@@ -291,7 +305,8 @@ errors are. You can use the <code class="docutils literal notranslate"><span cla
 reaction networks in Microphysics. It sets up a cube of data, with
 <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three
 dimensions (as a <span class="math notranslate nohighlight">\(16^3\)</span> domain), and then calls the EOS in each
-zone.</p>
+zone.  This test does the entire ODE integration of the network for
+each zone.</p>
 <p>The state in each zone of our data cube is determined by the runtime
 parameters <code class="docutils literal notranslate"><span class="pre">dens_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dens_max</span></code>, <code class="docutils literal notranslate"><span class="pre">temp_min</span></code>, and <code class="docutils literal notranslate"><span class="pre">temp_max</span></code>
 for <span class="math notranslate nohighlight">\((\rho, T)\)</span>. Because each network carries different
@@ -303,34 +318,37 @@ Only one primary species varies at a time. The non-primary species
 will be set equally to share whatever fraction of 1 is not accounted
 for by the primary species mass fractions.</p>
 <p>This test calls the network on each zone, running for a time
-tmax. The full state, including new mass fractions and energy
+<code class="docutils literal notranslate"><span class="pre">tmax</span></code>. The full state, including new mass fractions and energy
 release is output to a AMReX plotfile.</p>
 <p>You can compile for a specific integrator (e.g., <code class="docutils literal notranslate"><span class="pre">BS</span></code>) or
 network (e.g., <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>) as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">BS</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
 </pre></div>
 </div>
-<p>The loop over the burner is marked up for both OpenMP and OpenACC and
+<p>The loop over the burner is marked up for OpenMP and CUDA and
 therefore this test can be used to assess threadsafety of the burners
 as well as to optimize the GPU performance of the burners.</p>
+<p>This works for both the Fortran and C++ implementations (via <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>).</p>
 </div>
+<div class="section" id="aprox-rates-test">
+<h3>Aprox Rates Test<a class="headerlink" href="#aprox-rates-test" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_aprox_rates</span></code> just evaluates the
+instantaneous reaction rates in <code class="docutils literal notranslate"><span class="pre">Microphysics/rates/</span></code> used by the
+<code class="docutils literal notranslate"><span class="pre">iso7</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> reaction networks.
+This uses the same basic ideas as the tests above—a cube of data is
+setup and the rates are evaluated using each zone’s thermodynamic
+conditions.  This test is not really network specific—it tests all
+of the available rates.</p>
+<p>This works for both the Fortran and C++ implementations (via <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>).</p>
 </div>
-<div class="section" id="individual-network-tests">
-<h2>Individual Network Tests<a class="headerlink" href="#individual-network-tests" title="Permalink to this headline">¶</a></h2>
-<p>Many of the networks have a subdirectory test/ (e.g.
-<code class="docutils literal notranslate"><span class="pre">Microphysics/networks/triple_alpha_plus_cago/test/</span></code>). There are
-usually 3 different drivers there that can be used to evaluate the
-network or Jacobian on a single state:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">eval.f90</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">testburn.f90</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">testjacobian.f90</span></code></p></li>
-</ul>
-<p>These all use the F90 AMReX build system and the macros in
-<code class="docutils literal notranslate"><span class="pre">GMicrophysics.mak</span></code> to build the executable. To make
-individual tests you can use the programs variable, e.g.,:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">programs</span><span class="o">=</span><span class="nb">eval</span>
-</pre></div>
+<div class="section" id="screening-test">
+<h3>Screening Test<a class="headerlink" href="#screening-test" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_screening</span></code> just evaluates the screening
+routine, using the <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> reaction network.
+This uses the same basic ideas as the tests above—a cube of data is
+setup and the rates are evaluated using each zone’s thermodynamic
+conditions.</p>
+<p>This works for both the Fortran and C++ implementations (via <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>).</p>
 </div>
 </div>
 <div class="section" id="burn-cell">
