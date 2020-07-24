@@ -1,5 +1,6 @@
 subroutine do_conductivity(lo, hi, &
-                           sp, s_lo, s_hi, npts) bind(C, name="do_conductivity")
+                           dlogrho, dlogT, dmetal, &
+                           sp, s_lo, s_hi) bind(C, name="do_conductivity")
 
   use variables
   use network
@@ -15,9 +16,8 @@ subroutine do_conductivity(lo, hi, &
   integer, intent(in) :: lo(3), hi(3)
   integer, intent(in) :: s_lo(3), s_hi(3)
   real(rt), intent(inout) :: sp(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
-  integer, intent(in), value :: npts
+  real(rt), intent(in), value :: dlogrho, dlogT, dmetal
 
-  real(rt) :: dlogrho, dlogT, dmetal
   real(rt) :: metalicity, temp_zone, dens_zone
   real(rt) :: xn_zone(nspec)
 
@@ -27,10 +27,6 @@ subroutine do_conductivity(lo, hi, &
   integer :: ii, jj, kk
 
   !$gpu
-  
-  dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
-  dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
-  dmetal    = (metalicity_max  - ZERO)/(npts - 1)
 
   do kk = lo(3), hi(3)
 
