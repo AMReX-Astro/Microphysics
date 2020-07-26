@@ -36,8 +36,8 @@ contains
     allocate(bion(nspec))
 
 
-    ! our convention is that binding energy is negative.  The following are
-    ! the binding energies per unit mass (erg / g) obtained by converting
+    ! The following are the binding energies of the nuclei in MeV.
+    ! The binding energy per unit mass (erg / g) is obtained by converting
     ! the energies in MeV to erg then multiplying by (N_A / aion) where
     ! N_A = 6.0221415e23 is Avogadro's number
     bion(ihe4)  = 28.39603_rt ! MeV / nucleus
