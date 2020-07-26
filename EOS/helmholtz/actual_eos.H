@@ -657,7 +657,9 @@ void apply_coulomb_corrections(eos_t& state)
     Real ytot1 = 1.0e0_rt / state.abar;
     Real xni     = avo_eos * ytot1 * state.rho;
     Real dxnidd  = avo_eos * ytot1;
+#ifdef EXTRA_THERMO
     Real dxnida  = -xni * ytot1;
+#endif
 
     Real kt      = kerg * state.T;
     Real ktinv   = 1.0e0_rt / kt;
@@ -1337,7 +1339,7 @@ void actual_eos_finalize ()
 
 
 AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+bool is_input_valid(eos_input_t /*input*/) {
 
   bool valid = true;
 
