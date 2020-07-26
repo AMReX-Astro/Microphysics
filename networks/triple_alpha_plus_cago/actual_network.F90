@@ -2,6 +2,7 @@ module actual_network
 
   use network_properties
   use amrex_fort_module, only : rt => amrex_real
+  use fundamental_constants_module
 
   implicit none
 
@@ -28,6 +29,8 @@ module actual_network
 
   character (len=10), save :: reac_names(nrates)
 
+  real, parameter :: conv_factor = MeV2eV * ev2erg * n_A
+
 contains
 
   subroutine actual_network_init()
@@ -40,7 +43,7 @@ contains
     ! The binding energy per unit mass (erg / g) is obtained by converting
     ! the energies in MeV to erg then multiplying by (N_A / aion) where
     ! N_A = 6.0221415e23 is Avogadro's number
-    bion(ihe4)  = 28.39603_rt ! MeV / nucleus
+    bion(ihe4)  = 28.29603_rt ! MeV / nucleus
     bion(ic12)  = 92.16294_rt ! MeV / nucleus
     bion(io16)  = 127.62093_rt ! MeV / nucleus
     bion(ife56) = 492.25389_rt ! MeV / nucleus
