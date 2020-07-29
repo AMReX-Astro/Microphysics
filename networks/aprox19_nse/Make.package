@@ -5,6 +5,8 @@ CEXE_headers += network_properties.H
 F90EXE_sources += nse_check.F90
 F90EXE_sources += nse_F.F90
 
+CEXE_sources += nse.cpp
+
 ifeq ($(USE_REACT),TRUE)
 ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
 F90EXE_sources += actual_burner.F90
@@ -14,6 +16,9 @@ F90EXE_sources += actual_rhs.F90
 ifeq ($(USE_CXX_REACTIONS),TRUE)
 CEXE_sources += actual_network_data.cpp
 CEXE_headers += actual_network.H
+
+CEXE_sources += actual_rhs_data.cpp
+CEXE_headers += actual_rhs.H
 endif
 
 USE_RATES       = TRUE
