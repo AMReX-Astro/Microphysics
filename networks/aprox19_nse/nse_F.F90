@@ -12,18 +12,19 @@ module nse_module
   integer, parameter :: nspec = 19
 
   real(rt), allocatable :: ttlog(:), ddlog(:), yetab(:)
-  real(rt), allocatable :: helium(:), sica(:), fegroup(:)
+  !real(rt), allocatable :: helium(:), sica(:), fegroup(:)
   real(rt), allocatable :: abartab(:), ebtab(:), wratetab(:)
   real(rt), allocatable :: massfractab(:, :)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: ttlog, ddlog, yetab
-  attributes(managed) :: helium, sica, fegroup
+  !attributes(managed) :: helium, sica, fegroup
   attributes(managed) :: abartab, ebtab, wratetab
   attributes(managed) :: massfractab
 #endif
 
-  !$acc declare create(ttlog, ddlog, yetab, helium, sica, fegroup, abartab, ebtab, wratetab, massfractab)
+  !$acc declare create(ttlog, ddlog, yetab, abartab, ebtab, wratetab, massfractab)
+  !! !$acc declare create(helium, sica, fegroup)
 
 contains
 
@@ -34,14 +35,16 @@ contains
 
     integer :: un
 
+    real(rt) :: the, tsi, tfe
+
     ! begin initialization
 
     allocate(ttlog(npts))
     allocate(ddlog(npts))
     allocate(yetab(npts))
-    allocate(helium(npts))
-    allocate(sica(npts))
-    allocate(fegroup(npts))
+    !allocate(helium(npts))
+    !allocate(sica(npts))
+    !allocate(fegroup(npts))
     allocate(abartab(npts))
     allocate(ebtab(npts))
     allocate(wratetab(npts))
@@ -58,16 +61,16 @@ contains
        do it9 = 1, ntemp
           do iye = 1, nye
              j = (irho-1)*ntemp*nye + (it9-1)*nye + iye
-             read (un, 5) ttlog(j), ddlog(j), yetab(j), helium(j), sica(j), &
-                          fegroup(j), abartab(j), ebtab(j), wratetab(j), &
-                          (massfractab(k,j), k=1, nspec)
+             read (un, 5) ttlog(j), ddlog(j), yetab(j), the, tsi, tfe, &
+                  abartab(j), ebtab(j), wratetab(j), &
+                  (massfractab(k,j), k=1, nspec)
 
           end do
        end do
     end do
 
     !$acc update device(ttlog, ddlog, yetab)
-    !$acc update device(helium, sica, fegroup)
+    !! !$acc update device(helium, sica, fegroup)
     !$acc update device(abartab, ebtab, wratetab, massfractab)
 
   end subroutine init_nse
