@@ -34,6 +34,7 @@ static const std::vector<std::string> spec_names_cxx = {
    @@SPEC_NAMES@@
   };
 
+#if NAUX_NET > 0
 static const std::vector<std::string> short_aux_names_cxx = {
    @@SHORT_AUX_NAMES@@
   };
@@ -41,6 +42,7 @@ static const std::vector<std::string> short_aux_names_cxx = {
 static const std::vector<std::string> aux_names_cxx = {
    @@AUX_NAMES@@
   };
+#endif
 
 #if NAUX_NET > 0
 namespace AuxZero {
@@ -54,5 +56,5 @@ namespace Species {
    enum NetworkSpecies {
      @@SPECIES_ENUM@@
    };
-};
+}
 #endif

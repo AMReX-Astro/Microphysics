@@ -56,12 +56,12 @@ void composition(eos_t& state) {
 
 }
 
+#ifdef EXTRA_THERMO
 AMREX_GPU_HOST_DEVICE inline
 eos_xderivs_t composition_derivatives(const eos_t& state) {
 
   eos_xderivs_t state_xderivs;
 
-#ifdef EXTRA_THERMO
   for (int n = 0; n < NumSpec; n++) {
     state_xderivs.dpdX[n] =
       state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
@@ -79,9 +79,9 @@ eos_xderivs_t composition_derivatives(const eos_t& state) {
     }
   }
 
-#endif
-
   return state_xderivs;
 }
+#endif
+
 
 #endif

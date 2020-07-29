@@ -12,8 +12,9 @@ struct eos_t {
     amrex::Real h;
     amrex::Real s;
     amrex::Real xn[NumSpec];
+#if NAUX_NET > 0
     amrex::Real aux[NumAux];
-
+#endif
     amrex::Real dpdT;
     amrex::Real dpdr;
     amrex::Real dedT;
