@@ -12,13 +12,13 @@ namespace table
 
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
-  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yelog;
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
 
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
 
-  AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, nspec, 1, npts> massfractab;
+  AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
 
 }
 

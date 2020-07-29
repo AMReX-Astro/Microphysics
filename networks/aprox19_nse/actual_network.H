@@ -51,13 +51,13 @@ namespace table
 
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yelog;
+  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
 
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
 
-  extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, nspec, 1, npts> massfractab;
+  extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
 
 }
 
