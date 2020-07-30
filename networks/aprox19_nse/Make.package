@@ -5,7 +5,7 @@ CEXE_headers += network_properties.H
 F90EXE_sources += nse_check.F90
 F90EXE_sources += nse_F.F90
 
-CEXE_sources += nse.cpp
+CEXE_headers += nse.H
 
 ifeq ($(USE_REACT),TRUE)
 ifneq ($(USE_SIMPLIFIED_SDC), TRUE)

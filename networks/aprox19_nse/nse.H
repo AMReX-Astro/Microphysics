@@ -8,9 +8,10 @@
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
-using namespace amrex;
+#ifndef NSE_H
+#define NSE_H
 
-using namespace table;
+using namespace amrex;
 
 void init_nse() {
 
@@ -25,16 +26,16 @@ void init_nse() {
 
   Real the, tsi, tfe;
 
-  for (int irho = 1; irho <= nden; irho++) {
-    for (int it9 = 1; it9 <= ntemp; it9++) {
-      for (int iye = 1; iye <= nye; iye++) {
-        int j = (irho-1)*ntemp*nye + (it9-1)*nye + iye;
+  for (int irho = 1; irho <= table::nden; irho++) {
+    for (int it9 = 1; it9 <= table::ntemp; it9++) {
+      for (int iye = 1; iye <= table::nye; iye++) {
+        int j = (irho-1)*table::ntemp*table::nye + (it9-1)*table::nye + iye;
 
-        nse_table >> ttlog(j) >> ddlog(j) >> yetab(j);
+        nse_table >> table::ttlog(j) >> table::ddlog(j) >> table::yetab(j);
         nse_table >> the >> tsi >> tfe;
-        nse_table >> abartab(j) >> ebtab(j) >> wratetab(j);
+        nse_table >> table::abartab(j) >> table::ebtab(j) >> table::wratetab(j);
         for (int n = 1; n <= NumSpec; n++) {
-          nse_table >> massfractab(n, j);
+          nse_table >> table::massfractab(n, j);
         }
       }
     }
@@ -42,9 +43,63 @@ void init_nse() {
 
 }
 
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool in_nse(const burn_t& state) {
+
+  using namespace Species;
+
+  bool nse_check = false;
+
+  if (state.rho > rho_nse && state.T > T_nse) {
+
+    // Ma checks on Fe-group (for our composition, this means Cr48, Fe52, Fe54, Ni56)
+    // and C-group (for us, that is C12, N14)
+    // and He-group (for us, that is H1, He3, He4)
+
+    Real Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
+                    state.xn[Fe54-1] + state.xn[Ni56-1];
+    Real C_group = state.xn[C12-1] + state.xn[N14-1];
+    Real He_group = state.xn[H1-1] + state.xn[He3] + state.xn[He4];
+
+    if (Fe_group + He_group > 0.88 && C_group < 0.01) {
+      nse_check = true;
+    }
+  }
+
+  return nse_check;
+
+}
+
+///
+/// After doing a burn via integrating the network, update the composition
+/// aux variables to be consistent with the new X's resulting from the burn.
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void set_nse_aux_from_X(burn_t& state) {
+
+  using namespace AuxZero;
+
+  state.aux[iye] = 0.0;
+  state.aux[iabar] = 0.0;
+  state.aux[ibea] = 0.0;
+
+  for (int n = 0; n < NumSpec; n++) {
+    state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
+    state.aux[iabar] += state.xn[n] * aion_inv[n];
+    state.aux[ibea] += state.xn[n] * aprox19::bion(n) * aion_inv[n];
+  }
+  state.aux[iabar] = 1.0_rt/state.aux[iabar];
+
+}
+
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
                 Real& abar, Real& dq, Real& dyedt, Real* X) {
 
+  using namespace table;
 
   Real tlog = std::log10(T);
   Real rholog = std::log10(rho);
@@ -153,3 +208,48 @@ void nse_interp(const Real T, const Real rho, const Real ye,
   }
 
 }
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nse_burn(burn_t& state, const Real dt) {
+
+  // use the NSE table
+  Real abar_out;
+  Real dq_out;
+  Real dyedt;
+  Real X[NumSpec];
+
+  nse_interp(state.T, state.rho, state.aux[iye],
+             abar_out, dq_out, dyedt, X);
+
+  state.success = true;
+  state.n_rhs = 0;
+  state.n_jac = 0;
+
+  // this is MeV / nucleon -- here aux has not yet been updated, so we
+  // access the old binding energy
+  Real deltaq = dq_out - state.aux[ibea];
+
+  // under-relaxation / inertia (see Ma et el. 2013)
+  deltaq = 0.3_rt * deltaq;
+
+  state.aux[ibea] += deltaq;
+
+  // convert the energy to erg / g
+  Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
+
+  state.e = enuc - state.e;
+
+  state.aux[iye] -= dt * dyedt;
+  state.aux[iabar] = abar_out;
+
+  // store the new composition
+  for (int n = 0; n < NumSpec; n++) {
+    state.xn[n] = X[n];
+  }
+
+}
+
+
+#endif
+
