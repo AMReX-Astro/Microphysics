@@ -55,7 +55,7 @@ contains
     return
   end function get_next_plot_index
 
-  subroutine init_variables() bind(C, name="init_variables")
+  subroutine init_variables_F() bind(C, name="init_variables_F")
 
     integer :: n
 
@@ -93,7 +93,7 @@ contains
     end if
     p % names(p % irho_Hnuc) = "rho_Hnuc"
 
-  end subroutine init_variables
+  end subroutine init_variables_F
 
   subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
