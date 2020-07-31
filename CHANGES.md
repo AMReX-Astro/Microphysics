@@ -1,4 +1,8 @@
+
 # 20.08
+
+   * Several of the unit tests had separate C++ and Fortran
+     implementions.  These have been unified (#343, #344, #345)
 
    * The VBDF integrator was removed (#348)
 
