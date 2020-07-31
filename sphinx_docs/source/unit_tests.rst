@@ -6,17 +6,27 @@ Unit Tests
 Comprehensive Unit Tests
 ========================
 
-There are a few unit tests in Microphysics that operate on a generic EOS
-or reaction network. To allow these to compile independent of any
-application code (e.g., Maestro or Castro), copies of the EOS
-driver ``eos.f90`` and network interface ``network.f90`` are
-provided in ``Microphysics/unit_test/``. 
+There are a few unit tests in Microphysics that operate on a generic
+EOS, reaction network, conductivity, or some smaller component to
+Microphysics.  Many of these tests exercise the main interfaces in
+``Microphysics/interfaces/`` and the code that those call.
 
 These tests compile using the AMReX build system, which assumes that
-main is in C++, so each have a ``main.cpp`` driver.  The file
-``Microphysics/Make.Microphysics`` provides the macros necessary to build
-the executable. Runtime parameters are parsed in the same fashion as
-in the application codes, using the ``write_probin.py`` script.
+main is in C++, so each have a ``main.cpp`` driver.  The files
+``Microphysics/Make.Microphysics`` and
+``Microphysics/Make.Microphysics_extern`` provide the macros necessary
+to build the executable. Runtime parameters are parsed in the same
+fashion as in the application codes, using the ``write_probin.py``
+script.
+
+.. note::
+
+   Most of these tests are written such that the exercise both the C++
+   and Fortran implementations of the Microphysics, via the ``do_cxx``
+   runtime parameter.
+
+   Most of these tests work with MPI+OpenMP and CUDA
+
 
 EOS test
 --------
@@ -87,8 +97,13 @@ To compile for a specific EOS, e.g., helmholtz, do::
     make EOS_DIR=helmholtz -j 4
 
 Examining the output (an AMReX plotfile) will show you how big the
-errors are. You can use the ``AMReX/Tools/Postprocessing/`` tool
+errors are. You can use the ``amrex/Tools/Plotfile/`` tool
 ``fextrema`` to display the maximum error for each variable.
+
+To switch between testing the Fortran and C++ implementations of the EOS,
+use ``do_cxx``, e.g., to use the C++ implementation, you would run as::
+
+    ./main3d.gnu.ex inputs_eos do_cxx=1
 
 
 Network test
@@ -98,7 +113,8 @@ Network test
 reaction networks in Microphysics. It sets up a cube of data, with
 :math:`\rho`, :math:`T`, and :math:`X_k` varying along the three
 dimensions (as a :math:`16^3` domain), and then calls the EOS in each
-zone.
+zone.  This test does the entire ODE integration of the network for
+each zone.
 
 The state in each zone of our data cube is determined by the runtime
 parameters ``dens_min``, ``dens_max``, ``temp_min``, and ``temp_max``
@@ -112,7 +128,7 @@ will be set equally to share whatever fraction of 1 is not accounted
 for by the primary species mass fractions.
 
 This test calls the network on each zone, running for a time
-tmax. The full state, including new mass fractions and energy
+``tmax``. The full state, including new mass fractions and energy
 release is output to a AMReX plotfile.
 
 You can compile for a specific integrator (e.g., ``BS``) or
@@ -120,30 +136,37 @@ network (e.g., ``aprox13``) as::
 
     make NETWORK_DIR=aprox13 INTEGRATOR_DIR=BS -j 4
 
-The loop over the burner is marked up for both OpenMP and OpenACC and
+The loop over the burner is marked up for OpenMP and CUDA and
 therefore this test can be used to assess threadsafety of the burners
 as well as to optimize the GPU performance of the burners.
 
-Individual Network Tests
-========================
+This works for both the Fortran and C++ implementations (via ``do_cxx``).
 
-Many of the networks have a subdirectory test/ (e.g.
-``Microphysics/networks/triple_alpha_plus_cago/test/``). There are
-usually 3 different drivers there that can be used to evaluate the
-network or Jacobian on a single state:
 
-- ``eval.f90``
+Aprox Rates Test
+----------------
 
-- ``testburn.f90``
+``Microphysics/unit_test/test_aprox_rates`` just evaluates the
+instantaneous reaction rates in ``Microphysics/rates/`` used by the
+``iso7``, ``aprox13``, ``aprox19``, and ``aprox21`` reaction networks.
+This uses the same basic ideas as the tests above---a cube of data is
+setup and the rates are evaluated using each zone's thermodynamic
+conditions.  This test is not really network specific---it tests all
+of the available rates.
 
-- ``testjacobian.f90``
+This works for both the Fortran and C++ implementations (via ``do_cxx``).
 
-These all use the F90 AMReX build system and the macros in
-``GMicrophysics.mak`` to build the executable. To make
-individual tests you can use the programs variable, e.g.,::
 
-    make programs=eval
+Screening Test
+--------------
 
+``Microphysics/unit_test/test_screening`` just evaluates the screening
+routine, using the ``aprox21`` reaction network.
+This uses the same basic ideas as the tests above---a cube of data is
+setup and the rates are evaluated using each zone's thermodynamic
+conditions. 
+
+This works for both the Fortran and C++ implementations (via ``do_cxx``).
 
 
 ``burn_cell``
