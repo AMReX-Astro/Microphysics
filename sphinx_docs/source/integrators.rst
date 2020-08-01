@@ -5,16 +5,10 @@ Integrating a Network
 Reaction ODE System
 ===================
 
-Note: the integration works on the state :math:`\rho`, :math:`T`, and :math:`X_k`, e.g., the
-mass fractions, but the individual networks construct the rates in terms
-of the molar fractions, :math:`Y_k`. The wrappers between the integrators and
-network righthand side routines do the conversion of the state to mass
-fractions for the integrator.
-
 The equations we integrate to do a nuclear burn are:
 
 .. math::
-   \frac{dX_k}{dt} = \omegadot_k(\rho,X_k,T)
+   \frac{dX_k}{dt} = \omegadot_k(\rho,X_k,T) 
    :label: eq:spec_integrate
 
 .. math::
@@ -22,8 +16,9 @@ The equations we integrate to do a nuclear burn are:
    :label: eq:enuc_integrate
 
 .. math::
-   \frac{dT}{dt} =\frac{\edot}{c_x}.
+   \frac{dT}{dt} =\frac{\edot}{c_x} .
    :label: eq:temp_integrate
+
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`\enuc` is the specifc
 nuclear energy created through reactions, :math:`T` is the
@@ -33,12 +28,19 @@ instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
 In this system, :math:`\enuc` is not necessarily the total specific internal
-energy, but rather just captures the energy release during the burn. In
-this system, it acts as a diagnostic,
+energy, but rather captures the energy release during the burn:
 
 .. math:: \enuc = \int \edot dt
 
 so we know how much energy was released (or required) over the burn.
+
+.. note::
+
+   This is the energy release that is used in computing the final
+   energy generation rate for the burning.  By integrating a separate
+   equation for :math:`\enuc`, we can account for neutrino losses as
+   well as the energy release from the changing binding energy of the
+   fusion products.
 
 While this is the most common way to construct the set of
 burn equations, and is used in most of our production networks,
@@ -52,7 +54,11 @@ being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.
 
 Interfaces
-----------
+==========
+
+There are both C++ and Fortran interfaces to all of the networks and
+integrators.  For the most part, they implement similar data
+structures to describe the evolution.
 
 .. note::
 
@@ -63,10 +69,15 @@ Interfaces
    routines will internally convert to mass fractions as needed for the
    integrators.
 
-The righthand side of the network is implemented by
-``actual_rhs()`` in ``actual_rhs.f90``, and appears as:
 
-::
+Fortran
+-------
+
+
+The righthand side of the network is implemented by
+``actual_rhs()`` in ``actual_rhs.f90``, and appears as
+
+.. code-block:: fortran
 
       subroutine actual_rhs(state)
         type (burn_t) :: state
@@ -90,11 +101,11 @@ All of the necessary integration data comes in through state, as:
 Note that we come in with the mass fractions, but the molar fractions can
 be computed as:
 
-::
+.. code-block:: fortran
 
       double precision :: y(nspec)
       ...
-      y(:) = state % xn(:) / aion(:)
+      y(:) = state % xn(:) * aion_inv(:)
 
 The ``actual_rhs()`` routine’s job is to fill the righthand side vector
 for the ODE system, ``state % ydot(:)``. Here, the important
@@ -119,7 +130,7 @@ these will need to be converted to molar fraction rates for storage, e.g.,
 The Jacobian is provided by actual_jac(state), and takes the
 form:
 
-::
+.. code-block:: fortran
 
       subroutine actual_jac(state)
         type (burn_t) :: state
@@ -169,11 +180,47 @@ Jacobian is used. This is set with the runtime parameter
 ``jacobian`` = 2, and implemented in
 ``integration/numerical_jacobian.f90`` using finite-differences.
 
+C++
+---
+
+.. note::
+
+   Currently, only the VODE solver supports C++, so the interfaces
+   here are specific to that integrator.
+
+The righthand side implementation of the network has the interface:
+
+.. code-block:: c++
+
+   AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot) 
+
+.. note::
+
+   In the C++ implementation of the integrator, we use 1-based
+   indexing for ``ydot`` to allow for easier conversion between
+   Fortran and C++ networks.
+
+The Jacobian has the form:
+
+.. code-block:: c++
+
+   template<class MatrixType>
+   AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+   void actual_jac(burn_t& state, MatrixType& jac)
+
+Here, ``MatrixType`` is either a ``SparseMatrix`` type or a
+``RArray2D`` type (set in the ``dvode_t`` type in ``vode_type.H``.
+This allows a network to use either sparse or dense linear algebra.
+In the case of dense linear algebra, ``RArray2D`` is essentially a 2-d
+array indexed from ``1`` to ``VODE_NEQS`` in each dimension.
+
+
 Thermodynamics and :math:`T` Evolution
---------------------------------------
+======================================
 
 Burning Mode
-^^^^^^^^^^^^
+------------
 
 There are several different modes under which the burning can be done, set
 via the burning_mode runtime parameter:
@@ -210,14 +257,14 @@ set the self_heat field in the burn_t type passed
 into the RHS and Jacobian functions.
 
 EOS Calls
-^^^^^^^^^
+---------
 
 The evolution of the thermodynamic quantities (like specific heats and
 other partial derivatives) can be frozen during the integration to
 their initial values, updated for every RHS call, or something
 in-between. Just before we call the network-specific RHS routine, we
 update the thermodynamics of our state (by calling
-update_thermodynamics) [2]_ The thermodynamic quantity update depends on two runtime
+``update_thermodynamics``) [2]_ The thermodynamic quantity update depends on two runtime
 parameters, call_eos_in_rhs and dT_crit:
 
 * ``call_eos_in_rhs = T``:
@@ -248,7 +295,7 @@ parameters, call_eos_in_rhs and dT_crit:
   ``call_eos_in_rhs``.
 
 :math:`T` Evolution
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 A network is free to write their own righthand side for the
 temperature evolution equation in its ``actual_rhs()`` routine.
@@ -305,7 +352,7 @@ The runtime parameter integrate_temperature can be used to disable
 temperature evolution (by zeroing out ``ydot(net_itemp)``).
 
 Energy Integration
-^^^^^^^^^^^^^^^^^^
+==================
 
 The last equation in our system is the nuclear energy release,
 :math:`\edot`. Because of the operator-split approach to this ODE system,
@@ -336,7 +383,7 @@ call represents the energy *release* during the burn.
 
 
 Renormalization
----------------
+===============
 
 The ``renormalize_abundances`` parameter controls whether we
 renormalize the abundances so that the mass fractions sum to one
