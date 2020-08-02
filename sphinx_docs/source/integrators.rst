@@ -512,7 +512,7 @@ integrator-specific type implied in these operations):
 
    #. calling the EOS
 
-   #. calling ``eos_to_vode`` to provude a ``dvode_t`` type
+   #. calling ``eos_to_vode`` to produce a ``dvode_t`` type
       containing all of the relevant
       data into the internal representation used by the integrator.
       Data that is not part of the integration state is stored in an ``rpar``
@@ -645,6 +645,10 @@ The basic flow of the ``integrator()`` routine mirrors the Fortran one.
 
 #. Fill the integrator type by calling ``burn_to_vode`` to create a
    ``dvode_t`` from the ``burn_t``
+
+   .. note::
+
+      unlike the Fortran interface, there is no ``vode_to_eos`` routine in C++
 
 #. Compute the initial :math:`d(c_x)/dt` derivatives
 
