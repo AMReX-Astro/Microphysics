@@ -8,7 +8,7 @@ Reaction ODE System
 The equations we integrate to do a nuclear burn are:
 
 .. math::
-   \frac{dX_k}{dt} = \omegadot_k(\rho,X_k,T) 
+   \frac{dX_k}{dt} = \omegadot_k(\rho,X_k,T)
    :label: eq:spec_integrate
 
 .. math::
@@ -193,7 +193,7 @@ The righthand side implementation of the network has the interface:
 .. code-block:: c++
 
    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot) 
+   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
 .. note::
 
@@ -301,10 +301,10 @@ A network is free to write their own righthand side for the
 temperature evolution equation in its ``actual_rhs()`` routine.
 But since this equation only really needs to know the instantaneous
 energy generation rate, :math:`\dot{e}`, most networks use the helper
-function, ``temperature_rhs`` (in
-``integration/temperature_integration.f90``):
+function, ``temperature_rhs``.  The Fortran implementation is in
+``integration/utils/temperature_integration.f90``:
 
-::
+.. code-block:: fortran
 
       subroutine temperature_rhs(state)
         type (burn_t) :: state
@@ -312,6 +312,14 @@ function, ``temperature_rhs`` (in
 This function assumes that ``state % ydot(net_ienuc)`` is already
 filled and simply fills ``state % ydot(net_itemp)`` according to
 the prescription below.
+
+The C++ implementation is in ``integration/utils/temperature_integration.H``:
+
+.. code-block:: c++
+
+     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+     void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+
 
 We need the specific heat, :math:`c_x`. Note that because we are evaluating
 the temperature evolution independent of any hydrodynamics, we do not
@@ -345,10 +353,10 @@ where the ‘:math:`_0`’ quantities are the values from when the EOS was last
 called. This represents a middle ground between fully on and fully
 off.
 
-Note: if ``state % self_heat = F``, then we do not evolve
-temperature.
+Note: if ``state % self_heat = F`` (Fortran) or ``state.self_heat =
+false`` (C++), then we do not evolve temperature.
 
-The runtime parameter integrate_temperature can be used to disable
+The runtime parameter ``integrate_temperature`` can be used to disable
 temperature evolution (by zeroing out ``ydot(net_itemp)``).
 
 Energy Integration
@@ -395,15 +403,42 @@ scheme. Regardless of whether you enable this, we will always ensure
 that the mass fractions stay positive and larger than some floor
 ``small_x``.
 
+
+.. _ch:networks:integrators:
+
+Stiff ODE Solvers
+=================
+
+We use high-order implicit ODE solvers for integrating the reaction
+system.  There are several options for integrators. Each should be capable of
+evolving any of the networks, but varying in their approach. Internally,
+the integrators uses different data structures to store the integration
+progress (from the old-style rpar array in VODE to derived
+types), and each integrator needs to provide a routine to convert
+from the integrator’s internal representation to the ``burn_t``
+type required by the ``actual_rhs`` and ``actual_jac`` routine.
+
+The name of the integrator can be selected at compile time using
+the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
+the allowed options are BS and VODE.
+
+We recommend that you use the VODE solver (:cite:`vode`), as it is the most
+robust and has both Fortran and C++ implementations.
+
+.. note::
+
+   In the implementation details shown below, we write the flow in
+   terms of the VODE solver routine names.
+
 Tolerances
-==========
+----------
 
 Tolerances dictate how accurate the ODE solver must be while solving
 equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
 is too small, the code may run for too long or the ODE solver will
-never converge.  In these simulations, rtol values will set the
-relative tolerances and atol values will set the absolute tolerances
+never converge.  In these simulations, ``rtol`` values will set the
+relative tolerances and ``atol`` values will set the absolute tolerances
 for the ODE solver.  Often, one can find and set these values in an
 input file for a simulation.
 
@@ -428,10 +463,6 @@ so :math:`10^{-9}` should be used as the default tolerance in future simulations
    Relative error of runs with varying tolerances as compared
    to a run with an ODE tolerance of :math:`10^{-12}`.
 
-.. _ch:networks:integrators:
-
-Stiff ODE Solvers
-=================
 
 The integration tolerances for the burn are controlled by
 ``rtol_spec``, ``rtol_enuc``, and ``rtol_temp``,
@@ -442,30 +473,20 @@ which are the relative error tolerances for
 not all integrators handle error tolerances the same way—see the
 sections below for integrator-specific information.
 
-We integrate our system using a stiff ordinary differential equation
-integration solver. The absolute error tolerances are set by default
+The absolute error tolerances are set by default
 to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
-is used for the temperature and energy. The integration yields the
-new values of the mass fractions, :math:`Y_k^\outp`.
+is used for the temperature and energy. 
 
-There are several options for integrators. Each should be capable of
-evolving any of the networks, but varying in their approach. Internally,
-the integrators uses different data structures to store the integration
-progress (from the old-style rpar array in VODE to derived
-types), and each integrator needs to provide a routine to convert
-from the integrator’s internal representation to the ``burn_t``
-type required by the ``actual_rhs`` and ``actual_jac`` routine.
 
-The name of the integrator can be selected at compile time using
-the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
-the allowed options are BS and VODE.
+Fortran interfaces
+------------------
 
 actual_integrator
------------------
+^^^^^^^^^^^^^^^^^
 
 The entry point to the integrator is actual_integrator:
 
-::
+.. code-block:: fortran
 
       subroutine actual_integrator(state_in, state_out, dt, time)
 
@@ -512,7 +533,7 @@ integrator-specific type implied in these operations):
 #. normalize the abundances so they sum to 1
 
 Righthand side wrapper
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 Each integrator does their own thing to construct the solution,
 but they will all need to assess the RHS in ``actual_rhs``,
@@ -537,7 +558,7 @@ The basic outline of this routine is:
 
    among other things, this will handle the ``call_eos_in_rhs`` option
    or if the ``dT_crit`` requires the EOS call.
-   
+
 #. call ``XX_to_burn`` to convert to a ``burn_t``
 
 #. call the actual RHS
@@ -554,9 +575,9 @@ The basic outline of this routine is:
 
 
 Jacobian wrapper
-----------------
+^^^^^^^^^^^^^^^^
 
-Similar to the RHS, the Jacobian wrapper is handled in the same 
+Similar to the RHS, the Jacobian wrapper is handled in the same
 ``XX_rhs.f90`` file, where XX is the integrator name.
 The basic outline of this routine is:
 
@@ -582,6 +603,8 @@ The basic outline of this routine is:
 
 
 
+C++ interfaces
+--------------
 
 .. _sec:BS:
 
@@ -663,28 +686,6 @@ timestep for integration.
 
 .. _sec:VODE:
 
-VODE
-----
-
-VODE is a classic integration package described in :cite:`vode`. We
-use the implicit integration method in the package.
-
-data structures.
-^^^^^^^^^^^^^^^^
-
-VODE does not allow for derived types for its internal representation
-and instead simply uses a solution vector, ``y(neqs)``, and an array of
-parameters, ``rpar(:)``. The indices into ``rpar`` are defined in the
-``rpar_indices`` module.
-
-tolerances.
-^^^^^^^^^^^
-
-Our copy of VODE is made threadsafe by use of the OpenMP
-threadprivate directive on Fortran common blocks. However, due to
-the use of computed go tos, we have not ported it to GPUs using
-OpenACC.
-
 
 Retries
 -------
@@ -726,5 +727,3 @@ ensure that it takes precedence.
    same.
 
 .. |image| image:: doxygen_network.png
-
-
