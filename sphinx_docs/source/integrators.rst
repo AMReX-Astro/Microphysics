@@ -545,7 +545,7 @@ Each integrator does their own thing to construct the solution,
 but they will all need to assess the RHS in ``actual_rhs``,
 which means converting from their internal representation
 to the ``burn_t`` type. This is handled in a file
-called ``XX_rhs.f90``, where XX is the integrator name.
+called ``vode_rhs.F90``.
 The basic outline of this routine is:
 
 #. call ``clean_state``
@@ -565,7 +565,7 @@ The basic outline of this routine is:
    among other things, this will handle the ``call_eos_in_rhs`` option
    or if the ``dT_crit`` requires the EOS call.
 
-#. call ``XX_to_burn`` to convert to a ``burn_t``
+#. call ``vode_to_burn`` to convert to a ``burn_t``
 
 #. call the actual RHS
 
@@ -576,7 +576,7 @@ The basic outline of this routine is:
 
 #. apply any boosting to the rates if ``react_boost`` > 0.
 
-#. convert back to the integrator’s internal representation by calling ``burn_to_XX``
+#. convert back to the integrator’s internal representation by calling ``burn_to_vode``
 
 
 
@@ -584,7 +584,7 @@ Jacobian wrapper
 ^^^^^^^^^^^^^^^^
 
 Similar to the RHS, the Jacobian wrapper is handled in the same
-``XX_rhs.f90`` file, where XX is the integrator name.
+``vode_rhs.f90``.
 The basic outline of this routine is:
 
 .. note::
@@ -594,7 +594,7 @@ The basic outline of this routine is:
    wrapper above which did the ``clean_state`` and
    ``update_thermodynamics`` calls.
 
-#. call ``XX_to_burn`` to convert to a ``burn_t`` type.
+#. call ``vode_to_burn`` to convert to a ``burn_t`` type.
 
 #. call the actual Jacobian routine
 
@@ -605,7 +605,7 @@ The basic outline of this routine is:
 
 #. apply any boosting to the rates if ``react_boost`` > 0.
 
-#. convert back to the integrator’s internal representation by calling ``burn_to_XX``
+#. convert back to the integrator’s internal representation by calling ``burn_to_vode``
 
 
 
@@ -661,6 +661,47 @@ The basic flow of the ``integrator()`` routine mirrors the Fortran one.
 #. normalize the abundances so they sum to 1.
 
 .. _sec:BS:
+
+Righthand side wrapper
+^^^^^^^^^^^^^^^^^^^^^^
+
+#. call ``clean_state`` on the ``dvode_t``
+
+#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
+   the ``dvode_t`` and the ``burn_t``.
+
+#. call ``vode_to_burn`` to update the ``burn_t``
+
+#. call ``actual_rhs``
+
+#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
+   and zero out the temperature and energy derivatives if we are not integrating
+   those quantities.
+
+#. apply any boosting if ``react_boost`` > 0
+
+#. convert back to the ``dvode_t`` by calling ``burn_to_vode``
+
+
+Jacobian wrapper
+^^^^^^^^^^^^^^^^
+
+.. note::
+
+   It is assumed that the thermodynamics are already correct when
+   calling the Jacobian wrapper, likely because we just called the RHS
+   wrapper above which did the ``clean_state`` and
+   ``update_thermodynamics`` calls.
+
+#. call ``vode_to_burn`` to update the ``burn_t``
+
+#. call ``actual_jac()`` to have the network fill the Jacobian array
+
+#. convert the derivative to be mass-fraction-based
+
+#. apply any boosting to the rates if ``react_boost`` > 0
+
+#. call ``burn_to_vode`` to update the ``dvode_t`` 
 
 BS
 --
