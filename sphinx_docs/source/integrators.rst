@@ -475,24 +475,28 @@ sections below for integrator-specific information.
 
 The absolute error tolerances are set by default
 to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
-is used for the temperature and energy. 
+is used for the temperature and energy.
 
 
 Fortran interfaces
 ------------------
 
-actual_integrator
-^^^^^^^^^^^^^^^^^
+``integrator``
+^^^^^^^^^^^^^^
 
-The entry point to the integrator is actual_integrator:
+The entry point to the integrator is ``integrator()`` in
+``integration/integrator.F90``.  This does some setup and then calls
+the specific integration routine, e.g., ``vode_integrator()`` in
+``integration/VODE/vode_integrator.F90``.
 
 .. code-block:: fortran
 
-      subroutine actual_integrator(state_in, state_out, dt, time)
+      subroutine vode_integrator(state_in, state_out, dt, time, status)
 
         type (burn_t), intent(in   ) :: state_in
         type (burn_t), intent(inout) :: state_out
-        real(dp_t),    intent(in   ) :: dt, time
+        real(rt),    intent(in   ) :: dt, time
+        type (integration_status_t), intent(inout) :: status
 
 A basic flow chart of this interface is as follows (note: there are
 many conversions between ``eos_t``, ``burn_t``, and any
@@ -508,9 +512,11 @@ integrator-specific type implied in these operations):
 
    #. calling the EOS
 
-   #. calling ``eos_to_XX``, where XX is, e.g.
-      bs, the integrator type. This copies all of the relevant
+   #. calling ``eos_to_vode`` to provude a ``dvode_t`` type
+      containing all of the relevant
       data into the internal representation used by the integrator.
+      Data that is not part of the integration state is stored in an ``rpar``
+      array that is indexed using the integer keys in ``vode_rpar_indices``.
 
    We use the EOS result to define the energy offset for :math:`e`
    integration.
@@ -518,9 +524,9 @@ integrator-specific type implied in these operations):
 #. Compute the initial :math:`d(c_x)/dT` derivatives, if necessary, by
    finite differencing on the temperature.
 
-#. Call the main integration routine to advance the inputs state
-   through the desired time interval, producing the new, output
-   state.
+#. Call the main integration routine, ``dvode()``, passing in the
+   ``dvode_t`` state to advance the inputs state through the desired
+   time interval, producing the new, output state.
 
 #. If necessary (integration failure, burn_mode demands)
    do any retries of the integration
@@ -528,7 +534,7 @@ integrator-specific type implied in these operations):
 #. Subtract off the energy offset—we now store just the
    energy release as ``state_out % e``
 
-#. Convert back to a ``burn_t`` type (by ``calling XX_to_burn``).
+#. Convert back to a ``burn_t`` type (by ``calling vode_to_burn``).
 
 #. normalize the abundances so they sum to 1
 
@@ -605,6 +611,54 @@ The basic outline of this routine is:
 
 C++ interfaces
 --------------
+
+``burner``
+^^^^^^^^^^
+
+The main entry point for C++ is ``burner()`` in
+``interfaces/burner.H``.  This simply calls the ``integrator()``
+routine, which at the moment is only provided by VODE.
+
+.. code-block:: c++
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void burner (burn_t& state, Real dt)
+
+
+The basic flow of the ``integrator()`` routine mirrors the Fortran one.
+
+.. note::
+
+   The C++ VODE integrator does not use a separate ``rpar`` array as
+   part of the ``dvode_t`` type.  Instead, any auxillary information
+   is kept in the original ``burn_t`` that was passed into the
+   integration routines.  For this reason, we often need to pass both
+   the ``dvode_t`` and ``burn_t`` objects into the network routines.
+
+#. Call the EOS on the input ``burn_t`` state.  This involves:
+
+   #. calling ``burn_to_eos`` to convert the ``burn_t`` to an ``eos_t``
+
+   #. calling the EOS with :math:`\rho` and :math:`T` as input
+
+   #. calling ``eos_to_burn`` to convert the ``eos_t`` back to a ``burn_t``
+
+#. Fill the integrator type by calling ``burn_to_vode`` to create a
+   ``dvode_t`` from the ``burn_t``
+
+#. Compute the initial :math:`d(c_x)/dt` derivatives
+
+#. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
+   ``burn_t`` --- as noted above, the auxillary information that is
+   not part of the integration state will be obtained from the
+   ``burn_t``.
+
+#. subtract off the energy offset---we now store just the energy released
+   in the ``dvode_t`` integration state.
+
+#. convert back to a ``burn_t`` by calling ``vode_to_burn``
+
+#. normalize the abundances so they sum to 1.
 
 .. _sec:BS:
 
