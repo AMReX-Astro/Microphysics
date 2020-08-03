@@ -13,6 +13,13 @@ USE_OMP = FALSE
 
 USE_REACT = TRUE
 
+USE_CXX_EOS = TRUE
+USE_CXX_REACTIONS := TRUE
+
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+  DEFINES += -DCXX_REACTIONS
+endif
+
 # programs to be compiled
 ALL: testburn.ex table
 
@@ -29,8 +36,5 @@ include $(MICROPHYSICS_HOME)/Make.Microphysics
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
 
 testburn.ex: $(objForExecs)
-	@echo Linking $@ ...                                                    
+	@echo Linking $@ ...
 	$(SILENT) $(PRELINK) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(libraries)
-
-
-

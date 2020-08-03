@@ -1,4 +1,4 @@
-subroutine do_nse() bind (C)
+subroutine do_nse_F() bind (C, name="do_nse_F")
 
   ! this routine simply calls the table interpolation with a fixed
   ! input, so we can compare the results with those we get from the
@@ -24,4 +24,4 @@ subroutine do_nse() bind (C)
   write (*, 41) t9, rho, ye, abar, dq, dyedt, X(:)
 41 format (1pe12.3, 5e14.5, 19e14.5)
 
-end subroutine do_nse
+end subroutine do_nse_F
