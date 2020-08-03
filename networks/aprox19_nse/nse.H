@@ -25,7 +25,7 @@ void init_nse() {
   // read in table
   std::ifstream nse_table;
 
-  std::cout << "reading the NSE table..." << std::endl;
+  std::cout << "reading the NSE table (C++) ..." << std::endl;
 
   nse_table.open("nse19.tbl", std::ios::in);
 
@@ -92,7 +92,7 @@ void set_nse_aux_from_X(burn_t& state) {
   for (int n = 0; n < NumSpec; n++) {
     state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
     state.aux[iabar] += state.xn[n] * aion_inv[n];
-    state.aux[ibea] += state.xn[n] * aprox19::bion(n) * aion_inv[n];
+    state.aux[ibea] += state.xn[n] * aprox19::bion(n+1) * aion_inv[n];
   }
   state.aux[iabar] = 1.0_rt/state.aux[iabar];
 
