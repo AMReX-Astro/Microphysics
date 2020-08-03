@@ -21,6 +21,12 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
         burn_state.xn[n] = state(i, j, k, p.ispec_old + n);
     }
 
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; ++n) {
+      burn_state.aux[n] = state(i, j, k, p.iaux_old + n);
+    }
+#endif
+
     normalize_abundances_burn(burn_state);
 
     // the integrator doesn't actually care about the initial internal

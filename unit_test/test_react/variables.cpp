@@ -9,7 +9,7 @@ plot_t init_variables() {
   p.itemp = p.next_index(1);
 
   p.ispec = p.next_index(NumSpec);
-  p.ispec = p.next_index(NumSpec);
+  p.ispec_old = p.next_index(NumSpec);
 
 #if NAUX_NET > 0
   p.iaux = p.next_index(NumAux);
