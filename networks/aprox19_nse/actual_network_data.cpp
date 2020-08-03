@@ -1,5 +1,6 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
+#include "nse.H"
 
 namespace aprox19
 {
@@ -31,6 +32,8 @@ void actual_network_init()
 {
     using namespace Species;
     using namespace aprox19;
+
+    init_nse();
 
     // Set the binding energy of the element
     bion(H1)   = 0.0e0_rt;
