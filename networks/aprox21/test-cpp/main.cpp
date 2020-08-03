@@ -13,10 +13,8 @@
 #include <AMReX_Utility.H>
 #include <AMReX_IntVect.H>
 #include <AMReX_Box.H>
-#include <AMReX_Amr.H>
 #include <AMReX_ParmParse.H>
 #include <AMReX_ParallelDescriptor.H>
-#include <AMReX_AmrLevel.H>
 
 #include <time.h>
 

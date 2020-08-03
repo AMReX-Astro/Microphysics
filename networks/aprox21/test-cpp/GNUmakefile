@@ -20,13 +20,10 @@ EOS_DIR := helmholtz
 
 NETWORK_DIR := aprox21
 
-f90EXE_sources += testburn.f90
-f90EXE_sources += testjacobian.f90
-f90EXE_sources += do_initialization.f90
+Bpack := ./Make.package
+Blocs := .
 
-BLOCS += .
-
-include $(CASTRO_HOME)/Exec/Make.Castro
+include $(MICROPHYSICS_HOME)/Make.Microphysics
 
 
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
