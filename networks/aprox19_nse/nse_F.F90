@@ -28,7 +28,7 @@ module nse_module
 
 contains
 
-  subroutine init_nse()
+  subroutine init_nse_F()
 
     integer :: irho, it9, iye
     integer :: j, k
@@ -73,7 +73,7 @@ contains
     !! !$acc update device(helium, sica, fegroup)
     !$acc update device(abartab, ebtab, wratetab, massfractab)
 
-  end subroutine init_nse
+  end subroutine init_nse_F
 
   subroutine nse_interp(T, rho, ye, abar, dq, dyedt, X)
 

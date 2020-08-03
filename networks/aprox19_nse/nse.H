@@ -8,11 +8,16 @@
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
+#include "extern_parameters.H"
+
+#include "burn_type.H"
+
 #ifndef NSE_H
 #define NSE_H
 
 using namespace amrex;
 
+AMREX_INLINE
 void init_nse() {
 
   // set table parameters
@@ -100,6 +105,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
                 Real& abar, Real& dq, Real& dyedt, Real* X) {
 
   using namespace table;
+  using namespace AuxZero;
 
   Real tlog = std::log10(T);
   Real rholog = std::log10(rho);
@@ -212,6 +218,8 @@ void nse_interp(const Real T, const Real rho, const Real ye,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
+
+  using namespace AuxZero;
 
   // use the NSE table
   Real abar_out;

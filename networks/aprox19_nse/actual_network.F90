@@ -174,7 +174,7 @@ contains
 
     call network_properties_init()
 
-    call init_nse()
+    call init_nse_F()
 
     allocate(bion(nspec))
     allocate(mion(nspec))

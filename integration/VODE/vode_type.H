@@ -256,7 +256,7 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 
     state.abar = 0.0;
     state.y_e = 0.0;
-    for (int n = 1, n <= NumSpec; ++n) {
+    for (int n = 1; n <= NumSpec; ++n) {
       state.abar += vode_state.y(n) * aion_inv[n-1];
       state.y_e += vode_state.y(n) * zion[n-1] * aion_inv[n-1];
     }
