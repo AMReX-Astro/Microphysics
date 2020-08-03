@@ -10,18 +10,18 @@ subroutine do_nse_F() bind (C, name="do_nse_F")
 
   implicit none
 
-  real(rt), parameter :: t9 = 1.0_rt
+  real(rt), parameter :: temp = 1.e9_rt
   real(rt), parameter :: rho = 1.e9_rt
   real(rt), parameter :: ye = 0.46
 
   real(rt) :: abar, dq, dyedt, X(nspec)
 
-  call nse_interp(t9, rho, ye, abar, dq, dyedt, X)
+  call nse_interp(temp, rho, ye, abar, dq, dyedt, X)
 
-  print *, "      t9    ", "        rho    ", "       ye     ", &
+  print *, "      temp    ", "        rho    ", "       ye     ", &
        "     abar     ", "      be/a    ", "      dyedt  "
 
-  write (*, 41) t9, rho, ye, abar, dq, dyedt, X(:)
+  write (*, 41) temp, rho, ye, abar, dq, dyedt, X(:)
 41 format (1pe12.3, 5e14.5, 19e14.5)
 
 end subroutine do_nse_F

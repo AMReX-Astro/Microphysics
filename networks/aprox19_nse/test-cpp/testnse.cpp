@@ -20,18 +20,18 @@ void do_nse_cxx() {
   // entire Microphysics machinery.
 
 
-  constexpr Real t9 = 1.0_rt;
+  constexpr Real temp = 1.e9_rt;
   constexpr Real rho = 1.e9_rt;
   constexpr Real ye = 0.46;
 
   Real abar, dq, dyedt, X[NumSpec];
 
-  nse_interp(t9, rho, ye, abar, dq, dyedt, X);
+  nse_interp(temp, rho, ye, abar, dq, dyedt, X);
 
-  std::cout << "      t9    " << "        rho    " << "       ye     " <<
+  std::cout << "      temp    " << "        rho    " << "       ye     " <<
     "     abar     " << "      be/a    " << "      dyedt  " << std::endl;
 
-  std::cout << t9 << " " << rho << " " << ye << " " <<  abar << " " << dq << " " << dyedt;
+  std::cout << temp << " " << rho << " " << ye << " " <<  abar << " " << dq << " " << dyedt;
   for (int n = 0; n < NumSpec; ++n) {
     std::cout << " " << X[n];
   }
