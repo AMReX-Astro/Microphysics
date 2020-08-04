@@ -12,7 +12,7 @@ subroutine do_nse_F() bind (C, name="do_nse_F")
 
   real(rt), parameter :: temp = 1.e9_rt
   real(rt), parameter :: rho = 1.e9_rt
-  real(rt), parameter :: ye = 0.46
+  real(rt), parameter :: ye = 0.46_rt
 
   real(rt) :: abar, dq, dyedt, X(nspec)
 

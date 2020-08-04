@@ -22,7 +22,7 @@ void do_nse_cxx() {
 
   constexpr Real temp = 1.e9_rt;
   constexpr Real rho = 1.e9_rt;
-  constexpr Real ye = 0.46;
+  constexpr Real ye = 0.46_rt;
 
   Real abar, dq, dyedt, X[NumSpec];
 
