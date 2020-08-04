@@ -5,6 +5,7 @@
 
 #include <network.H>
 #include <eos_type.H>
+#include <extern_parameters.H>
 
 using namespace amrex;
 

@@ -177,6 +177,11 @@ contains
           + wratetab(it2r2c1)*td*rd*omxd &
           + wratetab(it2r2c2)*td*rd*xd
 
+    ! this is actually the sum of all e- capture and e+ decay, so if
+    ! e- capture dominates, this quantity is positive, but Ye should
+    ! decrease, so we swap the sign here.
+    dyedt = -dyedt
+
     do n = 1, nspec
        X(n) = massfractab(n, it1r1c1)*omtd*omrd*omxd &
             + massfractab(n, it1r1c2)*omtd*omrd*xd &
