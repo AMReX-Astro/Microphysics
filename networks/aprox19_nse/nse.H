@@ -67,7 +67,7 @@ bool in_nse(const burn_t& state) {
     Real C_group = state.xn[C12-1] + state.xn[N14-1];
     Real He_group = state.xn[H1-1] + state.xn[He3] + state.xn[He4];
 
-    if (Fe_group + He_group > 0.88 && C_group < 0.01) {
+    if (Fe_group + He_group > He_Fe_nse && C_group < C_nse) {
       nse_check = true;
     }
   }
