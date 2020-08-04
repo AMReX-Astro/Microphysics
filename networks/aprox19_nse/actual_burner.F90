@@ -36,7 +36,7 @@ contains
 
        call integrator(state_in, state_out, dt, time)
 
-       ! update the auxillary state
+       ! update the auxiliary state
        state_out % aux(iye) = sum(state_out % xn(:) * zion(:) * aion_inv(:))
        state_out % aux(iabar) = ONE / (sum(state_out % xn(:) * aion_inv(:)))
        state_out % aux(ibea) = (sum(state_out % xn(:) * bion(:) * aion_inv(:)))
@@ -64,9 +64,9 @@ contains
        ! convert the energy to erg / g
        enuc = deltaq * mev2erg * avo
 
-       state_out % e = enuc - state_in % e
+       state_out % e = enuc + state_in % e
 
-       state_out % aux(iye) = state_in % aux(iye) - dt * dyedt
+       state_out % aux(iye) = state_in % aux(iye) + dt * dyedt
        state_out % aux(iabar) = abar_out
 
     end if
