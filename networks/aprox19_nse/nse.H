@@ -201,7 +201,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     wratetab(it2r2c1)*td*rd*omxd +
     wratetab(it2r2c2)*td*rd*xd;
 
-  for (int n = 1; n < NumSpec; n++) {
+  for (int n = 1; n <= NumSpec; n++) {
     X[n-1] =
       massfractab(n, it1r1c1)*omtd*omrd*omxd +
       massfractab(n, it1r1c2)*omtd*omrd*xd +

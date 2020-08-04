@@ -18,10 +18,12 @@ subroutine do_nse_F() bind (C, name="do_nse_F")
 
   call nse_interp(temp, rho, ye, abar, dq, dyedt, X)
 
-  print *, "      temp    ", "        rho    ", "       ye     ", &
-       "     abar     ", "      be/a    ", "      dyedt  "
-
-  write (*, 41) temp, rho, ye, abar, dq, dyedt, X(:)
-41 format (1pe12.3, 5e14.5, 19e14.5)
+  print *, "temp:    ", temp
+  print *, "rho:     ", rho
+  print *, "ye:      ", ye
+  print *, "abar:    ", abar
+  print *, "be/a:    ", dq
+  print *, "dyedt:   ", dyedt
+  print *, "X:       ", X(:)
 
 end subroutine do_nse_F

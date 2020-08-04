@@ -28,12 +28,15 @@ void do_nse_cxx() {
 
   nse_interp(temp, rho, ye, abar, dq, dyedt, X);
 
-  std::cout << "      temp    " << "        rho    " << "       ye     " <<
-    "     abar     " << "      be/a    " << "      dyedt  " << std::endl;
-
-  std::cout << temp << " " << rho << " " << ye << " " <<  abar << " " << dq << " " << dyedt;
+  std::cout << "temp:    " << temp << std::endl;
+  std::cout << "rho:     " << rho << std::endl;
+  std::cout << "ye:      " << ye << std::endl;
+  std::cout << "abar:    " << abar << std::endl;
+  std::cout << "be/a:    " << dq << std::endl;
+  std::cout << "dyedt:   " << dyedt << std::endl;
+  std::cout << "X:       ";
   for (int n = 0; n < NumSpec; ++n) {
-    std::cout << " " << X[n];
+    std::cout << X[n] << " ";
   }
   std::cout << std::endl;
 }
