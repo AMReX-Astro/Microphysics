@@ -246,7 +246,7 @@ void nse_burn(burn_t& state, const Real dt) {
   // convert the energy to erg / g
   Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
 
-  state.e = enuc - state.e;
+  state.e = enuc + state.e;
 
   state.aux[iye] -= dt * dyedt;
   state.aux[iabar] = abar_out;
