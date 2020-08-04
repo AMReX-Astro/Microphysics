@@ -201,6 +201,11 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     wratetab(it2r2c1)*td*rd*omxd +
     wratetab(it2r2c2)*td*rd*xd;
 
+  // this is actually the sum of all e- capture and e+ decay, so if
+  // e- capture dominates, this quantity is positive, but Ye should
+  // decrease, so we swap the sign here.
+  dyedt = -dyedt;
+
   for (int n = 1; n <= NumSpec; n++) {
     X[n-1] =
       massfractab(n, it1r1c1)*omtd*omrd*omxd +
@@ -248,7 +253,7 @@ void nse_burn(burn_t& state, const Real dt) {
 
   state.e = enuc + state.e;
 
-  state.aux[iye] -= dt * dyedt;
+  state.aux[iye] += dt * dyedt;
   state.aux[iabar] = abar_out;
 
   // store the new composition
