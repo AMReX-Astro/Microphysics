@@ -1,3 +1,9 @@
+# 20.09
+
+   * The NETWORK_PROPERTIES file was split to put the number of
+     auxiliary species into its own file, NAUX_NETWORK.  This allows
+     us to put if-logic into the file to choose the number of
+     auxiliary quantities based on make setting (like USE_NSE).
 
 # 20.08
 

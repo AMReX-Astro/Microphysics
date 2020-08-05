@@ -168,6 +168,8 @@ def write_network(network_template, header_template,
     try:
         with open(properties_file) as f:
             for line in f:
+                if line.strip() == "":
+                    continue
                 key, value = line.strip().split(":=")
                 properties[key.strip()] = value.strip()
     except FileNotFoundError:
