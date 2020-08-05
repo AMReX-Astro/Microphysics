@@ -18,6 +18,7 @@ class AuxVar:
     """convenience class for an auxilliary variable"""
     def __init__(self):
         self.name = ""
+        self.preprocessor = None
 
     def __str__(self):
         return "auxillary variable {}".format(self.name)
@@ -113,6 +114,12 @@ def parse_network_object(fields):
     if fields[0].startswith("__aux_"):
         ret = AuxVar()
         ret.name = fields[0][6:]
+        # we can put a preprocessor variable after the aux name to require that it be
+        # set in order to define the auxillary variable
+        try:
+            ret.preprocessor = fields[1]
+        except IndexError:
+            ret.preprocessor = None
 
     # check for missing fields in species definition
     elif not len(fields) == 4:
