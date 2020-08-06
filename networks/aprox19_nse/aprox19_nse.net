@@ -22,6 +22,6 @@
  proton         p            1.0      1.0
 
 # auxillary variables
-__aux_Ye
-__aux_abar
-__aux_bea
+__aux_Ye       NSE
+__aux_abar     NSE
+__aux_bea      NSE

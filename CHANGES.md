@@ -1,3 +1,7 @@
+# 20.09
+
+   * An option to use NSE instead of integrating the reaction
+     network has been added to the aprox19 network.
 
 # 20.08
 
