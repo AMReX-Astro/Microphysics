@@ -16,6 +16,8 @@ StarKiller Microphysics
    rp_intro
    eos
    networks
+   integrators
+   nse
    transport
    cxx
    gpu

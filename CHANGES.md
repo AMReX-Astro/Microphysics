@@ -5,6 +5,9 @@
      us to put if-logic into the file to choose the number of
      auxiliary quantities based on make setting (like USE_NSE).
 
+   * An option to use NSE instead of integrating the reaction
+     network has been added to the aprox19 network.
+
 # 20.08
 
    * Several of the unit tests had separate C++ and Fortran
