@@ -18,17 +18,10 @@ ifndef GENERAL_NET_INPUTS
    endif
 endif
 
-# URCA network has tables
-ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
-  all: urcatables
-endif
-
-urcatables:
-	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
-	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
-
 # Pynucastro networks read rate data from an external file
 PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
+EC_FILES := $(wildcard $(NETWORK_PATH)/*capture.dat)
+ED_FILES := $(wildcard $(NETWORK_PATH)/*decay.dat)
 all: pynucastrorates
 
 
@@ -36,7 +29,8 @@ all: pynucastrorates
 # because different Reaclib networks will have different versions of the file
 pynucastrorates:
 	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
-
+	$(foreach file,$(EC_FILES), $(if $([ -f $(file) ]), then echo Linking pynucastro rate file; ln -s $(file) .))
+	$(foreach file,$(ED_FILES), $(if $([ -f $(file) ]), then echo Linking pynucastro rate file; ln -s $(file) .))
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
 
