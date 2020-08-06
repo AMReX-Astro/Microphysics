@@ -31,6 +31,7 @@ pynucastrorates:
 	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
 	$(foreach file,$(EC_FILES), $(if $([ -f $(file) ]), then echo Linking pynucastro rate file; ln -s $(file) .))
 	$(foreach file,$(ED_FILES), $(if $([ -f $(file) ]), then echo Linking pynucastro rate file; ln -s $(file) .))
+
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
 
