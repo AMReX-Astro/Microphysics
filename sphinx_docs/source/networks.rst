@@ -42,7 +42,7 @@ Most of these quantities are Fortran parameters.
 
    A convention adopted in Microphysics is that each network is
    responsible for determining the energy release from a change in
-   composition**. Most networks will provide an array of the species
+   composition. Most networks will provide an array of the species
    binding energies and a routine to compute the energy yield from the
    reaction rates.
 
