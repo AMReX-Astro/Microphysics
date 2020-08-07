@@ -2,7 +2,7 @@ module nse_check_module
 
   use network
   use burn_type_module, only : burn_t
-  use extern_probin_module, only : rho_nse, T_nse
+  use extern_probin_module, only : rho_nse, T_nse, C_nse, He_Fe_nse
 
   implicit none
 
@@ -30,7 +30,7 @@ contains
        C_group = burn_state % xn(ic12) + burn_state % xn(in14)
        He_group = burn_state % xn(ih1) + burn_state % xn(ihe3) + burn_state % xn(ihe4)
 
-       if (Fe_group + He_group > 0.88 .and. C_group < 0.01) then
+       if (Fe_group + He_group > He_Fe_nse .and. C_group < C_nse) then
           nse_check = 1
        end if
     end if
