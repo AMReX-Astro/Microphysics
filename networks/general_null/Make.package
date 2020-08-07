@@ -21,9 +21,11 @@ $(NETWORK_OUTPUT_PATH)/actual_network.F90:   $(GENERAL_NET_INPUTS) $(MICROPHYSIC
             -s $(GENERAL_NET_INPUTS) \
             -o $(NETWORK_OUTPUT_PATH)/actual_network.F90 \
             --header_template $(MICROPHYSICS_HOME)/networks/general_null/network_header.template \
-            --header_output $(NETWORK_OUTPUT_PATH)/network_properties.H
+            --header_output $(NETWORK_OUTPUT_PATH)/network_properties.H \
+            --defines "$(DEFINES)"
 	@echo "---------------------------------------------------------------------------"
 	@echo " "
+
 
 # remove actual_network.F90 for 'make clean' and therefore 'make realclean'
 clean::
