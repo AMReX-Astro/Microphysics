@@ -109,6 +109,10 @@ $(NETWORK_OUTPUT_PATH)/network_properties.F90:
 	$(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
-           --odir $(NETWORK_OUTPUT_PATH)
+           --odir $(NETWORK_OUTPUT_PATH) \
+           --defines "$(DEFINES)"
 
 endif
+
+test_network_header: $(NETWORK_OUTPUT_PATH)/network_properties.H
+
