@@ -54,8 +54,10 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
 endif
 
 # NSE networks need the table
-ifeq ($(findstring aprox19_nse, $(NETWORK_DIR)), aprox19_nse)
-   all: nsetable
+ifeq ($(USE_NSE),TRUE)
+  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
+     all: nsetable
+  endif
 endif
 
 nsetable:
