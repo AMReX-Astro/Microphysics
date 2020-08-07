@@ -144,6 +144,20 @@ def parse_network_object(fields, defines):
             if f"-D{ret.preprocessor }" not in defines:
                 ret = UnusedVar()
 
+        # we can put a preprocessor variable after the aux name to
+        # require that it be set in order to define the auxillary
+        # variable
+        try:
+            ret.preprocessor = fields[1]
+        except IndexError:
+            ret.preprocessor = None
+
+        # if there is a preprocessor attached to this variable, then
+        # we will check if we have defined that
+        if ret.preprocessor is not None:
+            if f"-D{ret.preprocessor }" not in defines:
+                ret = UnusedVar()
+
     # check for missing fields in species definition
     elif not len(fields) == 4:
         print(" ".join(fields))

@@ -4,9 +4,10 @@
      auxiliary species into its own file, NAUX_NETWORK.  This allows
      us to put if-logic into the file to choose the number of
      auxiliary quantities based on make setting (like USE_NSE).
+     (#370)
 
    * An option to use NSE instead of integrating the reaction
-     network has been added to the aprox19 network.
+     network has been added to the aprox19 network. (#332)
 
 # 20.08
 
