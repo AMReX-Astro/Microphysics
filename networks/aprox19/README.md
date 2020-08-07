@@ -1,67 +1,82 @@
-# aprox19_nse
+# aprox19
 
-This is a hybrid reaction network + NSE table.
+This is a rewrite of Frank Timmes' aprox19 network, based on aprox19.tbz
+as downloaded from his website on 2015-12-31. It follows the same reasoning
+as the aprox13 network in this repository, so see the README in that directory
+for information on our integration strategy. This directory is a copy of the
+files in the aprox13/ directory, with appropriate changes for the number of
+species and reaction rates.
 
-The network is based on Frank Timmes' aprox19 network. It follows the
-same reasoning as the aprox13 network in this repository, so see the
-README in that directory for information on our integration strategy.
+We thank Frank for allowing us to redistribute these routines.
+
+## NSE option
+
+``aprox19`` can model nuclear statistical equilibrium at high
+densities.  This is accomplished by switching from integrating the ODE
+system of 19 nuclei to doing a table look-up on the results from a
+network with 125 nuclei.
 
 The NSE table was provided by Stan Woosley:
 
 from Stan:
 
-Probably all the code needs for hydrodynamics and energy generation is
-abar and Ye (given rho and T) so to follow explosions you can use the
-smaller table. It also gives crude measures of nucleosyntheis in
-n+p+helium, si-ca, fe group. Probaly good enough for NSE
+> Probably all the code needs for hydrodynamics and energy generation
+> is abar and Ye (given rho and T) so to follow explosions you can use
+> the smaller table. It also gives crude measures of nucleosyntheis in
+> n+p+helium, si-ca, fe group. Probaly good enough for NSE
+>
+> If you are following bufk nucleosynthesis you can use the larger table
+> which gives 125 isotopes packaged into 19 (CASTRO used to use the 19
+> iso network of KEPLER, maybe it no longer does?). These abundances can
+> be interpolated by a simple extension of the usetable.f routine to
+> more variables
 
-If you are following bufk nucleosynthesis you can use the larger table
-which gives 125 isotopes packaged into 19 (CASTRO used to use the 19
-iso network of KEPLER, maybe it no longer does?). These abundances can
-be interpolated by a simple extension of the usetable.f routine to
-more variables
+The mapping of the nuclei from the large network to the 19 we carry is:
 
-abund(18) is neutrons
-abund(19) is protons
-1 is H1  is 0
-2 is mostly 3He
-3                4He
-4               12C
-5                14N
-6                16O
-7                20Ne
-8                24Mg
-9                28Si
-10              32S
-11              36Ar
-12              40Ca
-13              44Ti
-14              48Cr
-15              52Fe
-16              all oher iron group except 56Ni
-17              56Ni
+* 1: is H1  is 0
+* 2: is mostly 3He
+* 3: 4He
+* 4: 12C
+* 5: 14N
+* 6: 16O
+* 7: 20Ne
+* 8: 24Mg
+* 9: 28Si
+* 10: 32S
+* 11: 36Ar
+* 12: 40Ca
+* 13: 44Ti
+* 14: 48Cr
+* 15: 52Fe
+* 16: all oher iron group except 56Ni
+* 17: 56Ni
+* 18: neutrons
+* 19: protons
 
-The Ye of those 19 isotopes may not agree exactly with the Ye of the
-table and the latter should be used in the hydro and EOS. In fact
-since the A of abund 16 is not given, Ye is indeterminate.
+More from Stan:
 
-Carrying all these isotopes merely adds to the memory so long as you
-are in nse But if you are following a continuum of burning from He (or
-H) to NSE you may need them.  In fact, I think all burning stages can
-be handled with tables e.g. for carbon burning makes tables of
-compsition for carbon burned at constant T and rho and interpolate in
-X12, T and rho, though some thought must e given to the initial carbon
-abundance.
-
-Anyway the above packing is for a calculation with 125 isotopes. I can
-send you a larger table with all 125 species and you can pack it as
-you wish. The file is 158 MB Actually I just sent it by dropbox
+> The Ye of those 19 isotopes may not agree exactly with the Ye of the
+> table and the latter should be used in the hydro and EOS. In fact
+> since the A of abund 16 is not given, Ye is indeterminate.
+>
+> Carrying all these isotopes merely adds to the memory so long as you
+> are in nse, but if you are following a continuum of burning from He
+> (or H) to NSE you may need them.  In fact, I think all burning
+> stages can be handled with tables e.g. for carbon burning makes
+> tables of compsition for carbon burned at constant T and rho and
+> interpolate in X12, T and rho, though some thought must e given to
+> the initial carbon abundance.
+>
+> Anyway the above packing is for a calculation with 125 isotopes. I can
+> send you a larger table with all 125 species and you can pack it as
+> you wish. The file is 158 MB Actually I just sent it by dropbox
 
 
 Here is a sample dYe/dt is calculated using Fuller rates for this
 composition NSE for T9, rho, Ye = 3.16, 1.e8, .5 Its mostly 56Ni 28.0
 56.0 9.920E-01
 
+```
   3.16E+00  1.00E+08  5.00E-01
    0.0   1.0   6.149E-18   1.0   1.0   3.141E-05
    1.0   2.0   5.188E-21   1.0   3.0   4.965E-31
@@ -126,11 +141,12 @@ composition NSE for T9, rho, Ye = 3.16, 1.e8, .5 Its mostly 56Ni 28.0
   28.0  63.0   8.278E-33  27.0  64.0   1.316E-60
   28.0  64.0   1.132E-38  28.0  65.0   3.709E-48
   28.0  66.0   4.697E-55
-
+``
 which is summarized in the table as
 
+``
      9.50000     8.00000 5.00000E-01 3.19627E-05 8.77542E-05 9.99880E-01 5.58734E+01 8.64229E+00 4.96722E-04 0.00000E+00 1.58959E-19 5.48846E-07 3.21588E-15 0.00000E+00 5.31077E-14 1.00820E-16 3.48367E-12 1.27462E-06 6.49684E-06 1.03892E-05 6.91567E-05 4.38678E-07 3.88804E-05 6.19209E-03 1.66798E-03 9.91981E-01 6.14888E-18 3.14138E-05
-
+``
 
 regarding the term dYedt:
 

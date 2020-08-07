@@ -10,7 +10,9 @@
 #define _network_properties_H_
 
 constexpr int NumSpec = @@NSPEC@@;
-constexpr int NumAux = @@NAUX@@;
+
+// filled via the preprocessor by including NAUX_NETWORK
+constexpr int NumAux = NAUX_NET;
 
 @@PROPERTIES@@
 

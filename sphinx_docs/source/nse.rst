@@ -2,9 +2,10 @@
 NSE
 ***
 
-The ``aprox19_nse`` network blends the ``aprox19`` network with a
-table for nuclear statistic equilibrium at high density and
-temperatures.  This is based on the table described in :ref:`ma:2013`.
+The ``aprox19`` can be run in a manner where we blends the ``aprox19``
+network with a table for nuclear statistic equilibrium at high density
+and temperatures.  This is based on the table described in
+:ref:`ma:2013`.  This option is enabled by building with ``USE_NSE=TRUE``.
 
 The NSE table provides:
 
@@ -119,6 +120,6 @@ We determine is a zone is in NSE according to:
 
 * :math:`T` > ``T_nse``
 
-* :math:`X(\isotm{C}{12}) < 0.01`
+* :math:`X(\isotm{C}{12})` < ``C_nse``
 
-* :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56}) > 0.88`
+* :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``

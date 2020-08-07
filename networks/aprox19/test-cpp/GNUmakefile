@@ -15,6 +15,7 @@ USE_REACT = TRUE
 
 USE_CXX_EOS = TRUE
 USE_CXX_REACTIONS := TRUE
+USE_NSE := TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
@@ -25,13 +26,12 @@ ALL: testburn.ex table
 
 EOS_DIR := helmholtz
 
-NETWORK_DIR := aprox19_nse
+NETWORK_DIR := aprox19
 
 Bpack := ./Make.package
 Blocs := .
 
 include $(MICROPHYSICS_HOME)/Make.Microphysics
-
 
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
 
