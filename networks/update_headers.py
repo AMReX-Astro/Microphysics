@@ -15,6 +15,8 @@ def main():
                         help="name of the network")
     parser.add_argument("--odir", type=str, default="",
                         help="output directory")
+    parser.add_argument("--defines", type=str, default="",
+                        help="any preprocessor defines")
 
 
     args = parser.parse_args()
@@ -42,7 +44,7 @@ def main():
 
     write_network.write_network(fortran_template, cxx_template,
                                 net_file, properties_file,
-                                f90_name, cxx_name)
+                                f90_name, cxx_name, args.defines)
 
 if __name__ == "__main__":
     main()
