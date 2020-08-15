@@ -31,7 +31,7 @@ contains
     use extern_probin_module, only: jacobian, use_jacobian_caching, &
          burner_verbose, &
          burning_mode, burning_mode_factor, &
-         call_eos_in_rhs, dt_crit, ode_max_steps
+         dt_crit, ode_max_steps
     use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t

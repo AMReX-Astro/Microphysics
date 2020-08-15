@@ -23,8 +23,7 @@ contains
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
     integer, intent(in) :: npts
 
-    real(rt) :: dlogrho, dlogT, dmetal
-    real(rt) :: temp_zone, dens_zone
+    real(rt) :: dlogrho, dlogT
     real(rt), allocatable :: xn_zone(:,:)
 
     integer :: ii, jj, kk

@@ -1,4 +1,4 @@
-#ifndef _actual_network_H_
+ifndef _actual_network_H_
 #define _actual_network_H_
 
 #include <AMReX_REAL.H>
@@ -115,6 +115,6 @@ namespace Rates {
     const int NumGroups = 2;
 
     extern amrex::Vector<std::string> names;
-};
+}
 
 #endif
