@@ -1,11 +1,18 @@
 import StarKillerMicrophysics as SKM
 from StarKiller.interfaces import EosType
+import numpy as np
 
 class BurnType(object):
     def __init__(self):
         self.BurnTypeModule = SKM.Burn_Type_Module()
         self.neqs = self.BurnTypeModule.neqs
         self.state = self.BurnTypeModule.burn_t()
+
+        self.ydot = np.zeros(self.neqs)
+        self.jac = np.zeros((self.neqs, self.neqs))
+
+        self.ydot = np.asfortranarray(self.ydot)
+        self.jac = np.asfortranarray(self.jac)
 
     def to_eos_type(self):
         # Return an EosType object from this BurnType
