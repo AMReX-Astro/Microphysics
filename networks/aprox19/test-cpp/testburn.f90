@@ -2,6 +2,7 @@ subroutine do_burn() bind (C)
 
   use network
   use eos_module
+  use eos_type_module
   use burner_module
   use actual_burner_module
 
@@ -13,21 +14,6 @@ subroutine do_burn() bind (C)
   real(rt)         :: time = 0.0_rt, dt = 1.0e-6_rt
 
   type (eos_t) :: eos_state
-
-  character (len=32) :: probin_file
-  integer :: probin_pass(32)
-  integer :: i
-
-  probin_file = "probin"
-  do i = 1, len(trim(probin_file))
-     probin_pass(i) = ichar(probin_file(i:i))
-  enddo
-
-  call runtime_init(probin_pass(1:len(trim(probin_file))), len(trim(probin_file)))
-
-  call network_init()
-  call burner_init()
-  call eos_init()
 
   state_in % rho    = 2.0e7_rt
   state_in % T      = 8.0e9_rt
