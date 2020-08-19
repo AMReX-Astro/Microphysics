@@ -49,8 +49,8 @@ all: build_status $(executable) starkiller_library
 
 build_status:
 	$(AMREX_HOME)/Tools/C_scripts/describe_sources.py \
-          --git_names "Castro AMReX Microphysics" \
-          --git_dirs "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+          --git_names "Microphysics AMReX" \
+          --git_dirs "$(TOP) $(AMREX_HOME)"
 
 starkiller_library: $(executable)
 ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
