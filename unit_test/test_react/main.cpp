@@ -259,8 +259,6 @@ void main_main ()
 #endif
 
     // Write a plotfile
-    int n = 0;
-
     WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
 
     // Tell the I/O Processor to write out the "run time"

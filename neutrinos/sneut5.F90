@@ -47,7 +47,7 @@ contains
                         c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12, &
                         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0, &
                         f1,deni,tempi,abari,zbari,f2,f3,z,xmue,ye, &
-                        dum,dumdt,gum,gumdt,dumda,dumdz,gumdd,gumda,gumdz
+                        dum,dumdt,gum,gumdt,dumda,dumdz,gumda,gumdz
 
     ! pair production
     real(rt)         :: rm,rmi,gl,gldt, &
@@ -78,7 +78,7 @@ contains
                         gbrem,gbremdt, &
                         u,gm1,gm2,gm13,gm23,gm43,gm53,v,w,fb,gt,gb, &
                         fliq,fliqdt,gliq,gliqdt, &
-                        etadd,etada,etadz, &
+                        etada,etadz, &
                         fbremda,fbremdz,gbremda,gbremdz, &
                         fliqda,fliqdz,gliqda,gliqdz
 
