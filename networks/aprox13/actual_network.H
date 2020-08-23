@@ -1,4 +1,4 @@
-ifndef _actual_network_H_
+#ifndef _actual_network_H_
 #define _actual_network_H_
 
 #include <AMReX_REAL.H>
