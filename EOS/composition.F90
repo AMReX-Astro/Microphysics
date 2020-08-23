@@ -48,8 +48,10 @@ contains
   subroutine composition_derivatives(state, state_xderivs)
 
     use amrex_constants_module, only: ZERO
+#ifdef EXTRA_THERMO
     use network, only: aion, aion_inv, zion
-    
+#endif
+
     implicit none
 
     type (eos_t), intent(in) :: state
