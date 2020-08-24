@@ -9,6 +9,12 @@
 #ifndef _network_properties_H_
 #define _network_properties_H_
 
+#if defined(__GNUC__)
+#define MICROPHYSICS_UNUSED [[gnu::unused]]
+#else
+#define MICROPHYSICS_UNUSED
+#endif
+
 constexpr int NumSpec = @@NSPEC@@;
 
 // filled via the preprocessor by including NAUX_NETWORK
@@ -16,38 +22,35 @@ constexpr int NumAux = NAUX_NET;
 
 @@PROPERTIES@@
 
-namespace NucProperties {
+static AMREX_GPU_MANAGED amrex::Real aion[NumSpec] MICROPHYSICS_UNUSED = {
+   @@AION@@
+  };
 
-   const AMREX_GPU_MANAGED amrex::Real aion[NumSpec] = {
-      @@AION@@
-     };
+static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpec] MICROPHYSICS_UNUSED = {
+   @@AION_INV@@
+  };
 
-   static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpec] = {
-      @@AION_INV@@
-     };
+static AMREX_GPU_MANAGED amrex::Real zion[NumSpec] MICROPHYSICS_UNUSED = {
+   @@ZION@@
+  };
 
-   static AMREX_GPU_MANAGED amrex::Real zion[NumSpec] = {
-      @@ZION@@
-     };
+static const std::vector<std::string> short_spec_names_cxx MICROPHYSICS_UNUSED = {
+   @@SHORT_SPEC_NAMES@@
+  };
 
-   static const std::vector<std::string> short_spec_names_cxx = {
-      @@SHORT_SPEC_NAMES@@
-     };
-
-   static const std::vector<std::string> spec_names_cxx = {
-      @@SPEC_NAMES@@
-     };
+static const std::vector<std::string> spec_names_cxx MICROPHYSICS_UNUSED = {
+   @@SPEC_NAMES@@
+  };
 
 #if NAUX_NET > 0
-   static const std::vector<std::string> short_aux_names_cxx = {
-      @@SHORT_AUX_NAMES@@
-     };
+static const std::vector<std::string> short_aux_names_cxx MICROPHYSICS_UNUSED = {
+   @@SHORT_AUX_NAMES@@
+  };
 
-   static const std::vector<std::string> aux_names_cxx = {
-      @@AUX_NAMES@@
-     };
+static const std::vector<std::string> aux_names_cxx MICROPHYSICS_UNUSED = {
+   @@AUX_NAMES@@
+  };
 #endif
-}
 
 namespace Species {
    enum NetworkSpecies {

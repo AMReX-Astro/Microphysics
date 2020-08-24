@@ -6,8 +6,6 @@
 
 void network_init();
 
-using namespace NucProperties;
-
 AMREX_INLINE int network_spec_index(const std::string name) {
   int idx = -1;
   for (int n = 0; n < NumSpec; n++) {
