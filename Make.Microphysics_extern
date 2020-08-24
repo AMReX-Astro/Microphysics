@@ -23,7 +23,6 @@ PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
 EC_FILES := $(wildcard $(NETWORK_PATH)/*capture.dat)
 ED_FILES := $(wildcard $(NETWORK_PATH)/*decay.dat)
 PARTITION_FILE := "$(NETWORK_PATH)/partition_function_table.dat"
-
 all: pynucastrorates
 
 
@@ -34,7 +33,6 @@ pynucastrorates:
 	@if [ -f $(PARTITION_FILE) ] && [ ! -f ./partition_function_table.dat ]; then echo Linking pynucastro Partition Function Table; ln -s $(PARTITION_FILE) .; fi
 	$(foreach file,$(EC_FILES), @if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then  ln -s $(file) . ; fi)
 	$(foreach file,$(ED_FILES), @if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then  ln -s $(file) . ; fi)
-
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
@@ -87,6 +85,7 @@ endif
 
 # fundamental constants
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
+
 
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
