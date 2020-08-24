@@ -45,6 +45,3 @@ Blocs   := .
 
 include $(MICROPHYSICS_HOME)/Make.Microphysics
 
-clean::
-	$(RM) *.dat
-
