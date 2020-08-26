@@ -10,7 +10,13 @@ contains
 
   subroutine actual_rhs_init()
 
+    use screening_module, only: screening_init
+
     implicit none
+
+    call set_up_screening_factors()
+
+    call screening_init()
 
   end subroutine actual_rhs_init
 
@@ -577,5 +583,60 @@ contains
     enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
+
+  ! Compute and store the more expensive screening factors
+
+  subroutine set_up_screening_factors()
+
+    use screening_module, only: add_screening_factor
+    use network
+
+    implicit none
+
+    ! note: it is critical that these are called in the exact order
+    ! that the screening calls are done in the RHS routine, since we
+    ! use that order in the screening
+
+    ! 1: C12(p,g)N13
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ih1),aion(ih1))
+
+    ! 2, 3: 3-alpha
+    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
+
+    ! 4: F17(p,g)Ne18
+    call add_screening_factor(zion(if17),aion(if17),zion(ih1),aion(ih1))
+
+    ! F17(g,p)O16 is unscreened
+
+    ! 5: O15(a,g)Ne19
+    call add_screening_factor(zion(io15),aion(io15),zion(ihe4),aion(ihe4))
+
+    ! 6: O16(a,g)Ne20
+    call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
+
+    ! 7: O16(p,g)F17
+    call add_screening_factor(zion(io16),aion(io16),zion(ih1),aion(ih1))
+
+    ! 8: O14(a,p)F17
+    call add_screening_factor(zion(io14),aion(io14),zion(ihe4),aion(ihe4))
+
+    ! 9: N14(p,g)O15
+    call add_screening_factor(7.0_rt,14.0_rt,zion(ih1),aion(ih1))
+
+    ! 10: Si26(a,p)P29
+    call add_screening_factor(14.0_rt,28.0_rt,zion(ihe4),aion(ihe4))
+
+    ! 11: Ti44(a,p)V47
+    call add_screening_factor(22.0_rt,44.0_rt,zion(ihe4),aion(ihe4))
+
+    ! 12: Ne18(a,p)Na21
+    call add_screening_factor(10.0e0_rt,18.0e0_rt,zion(ihe4),aion(ihe4))
+
+    ! 13: Ne19(p,g)Na20
+    call add_screening_factor(10.0e0_rt,19.0e0_rt,zion(ih1),aion(ih1))
+
+  end subroutine set_up_screening_factors
+
 
 end module actual_rhs_module
