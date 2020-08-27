@@ -19,9 +19,9 @@ ifndef GENERAL_NET_INPUTS
 endif
 
 # Pynucastro networks read rate data from an external file
+# Extra tabular rate files take the form *.network.dat
 PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
-EC_FILES := $(wildcard $(NETWORK_PATH)/*capture.dat)
-ED_FILES := $(wildcard $(NETWORK_PATH)/*decay.dat)
+TAB_FILES := $(wildcard $(NETWORK_PATH)/*network.dat)
 PARTITION_FILE := "$(NETWORK_PATH)/partition_function_table.dat"
 all: pynucastrorates
 
@@ -31,8 +31,7 @@ all: pynucastrorates
 pynucastrorates:
 	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
 	@if [ -f $(PARTITION_FILE) ] && [ ! -f ./partition_function_table.dat ]; then echo Linking pynucastro Partition Function Table; ln -s $(PARTITION_FILE) .; fi
-	$(foreach file,$(EC_FILES), @if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then  ln -s $(file) . ; fi)
-	$(foreach file,$(ED_FILES), @if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then  ln -s $(file) . ; fi)
+	$(foreach file,$(TAB_FILES), @if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then  ln -s $(file) . ; fi;)
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
@@ -88,8 +87,7 @@ EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
 
 clean::
-	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
-	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
-	@if [ -L partition_function_table.dat ]; then rm -f partition_function_table.dat; fi
-	$(foreach file,$(EC_FILES), @if [ -L $(notdir $(file)) ]; then rm -f $(notdir $(file)); fi)
-	$(foreach file,$(ED_FILES), @if [ -L $(notdir $(file)) ]; then rm -f $(notdir $(file)); fi)
+	if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
+	if [ -L partition_function_table.dat ]; then rm -f partition_function_table.dat; fi
+	$(foreach file,$(TAB_FILES), if [ -L $(notdir $(file)) ]; then rm -f $(notdir $(file)); fi;)
