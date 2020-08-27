@@ -31,7 +31,7 @@ all: pynucastrorates
 pynucastrorates:
 	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
 	@if [ -f $(PARTITION_FILE) ] && [ ! -f ./partition_function_table.dat ]; then echo Linking pynucastro Partition Function Table; ln -s $(PARTITION_FILE) .; fi
-	$(foreach file,$(TAB_FILES), @if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then  ln -s $(file) . ; fi;)
+	$(@foreach file,$(TAB_FILES), if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then ln -s $(file) . ; fi ;)
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
