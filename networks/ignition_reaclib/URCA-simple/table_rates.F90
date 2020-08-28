@@ -65,7 +65,7 @@ contains
     num_rhoy_j_na23_ne23 = 152
     num_vars_j_na23_ne23 = 6
     num_header_j_na23_ne23 = 6
-    rate_table_file_j_na23_ne23 = trim("23Na-23Ne_electroncapture.dat")
+    rate_table_file_j_na23_ne23 = trim("23Na-23Ne_electroncapture.network.network.dat")
     allocate(rate_table_j_na23_ne23(num_temp_j_na23_ne23, num_rhoy_j_na23_ne23, num_vars_j_na23_ne23))
     allocate(rhoy_table_j_na23_ne23(num_rhoy_j_na23_ne23))
     allocate(temp_table_j_na23_ne23(num_temp_j_na23_ne23))
