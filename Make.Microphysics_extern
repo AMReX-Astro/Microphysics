@@ -1,4 +1,3 @@
-
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
@@ -19,8 +18,7 @@ ifndef GENERAL_NET_INPUTS
    endif
 endif
 
-# Pynucastro networks read rate data from an external file
-# Extra tabular rate files take the form *.network.dat
+# Pynucastro networks read rate data from external files
 PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
 EC_FILES := $(wildcard $(NETWORK_PATH)/*electroncapture.dat)
 BD_FILES := $(wildcard $(NETWORK_PATH)/*betadecay.dat)
