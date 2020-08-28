@@ -678,7 +678,7 @@ contains
     call add_screening_factor(7.0_rt,14.0_rt,zion(ih1),aion(ih1))
 
     ! 10: Si26(a,p)P29
-    call add_screening_factor(14.0_rt,28.0_rt,zion(ihe4),aion(ihe4))
+    call add_screening_factor(14.0_rt,26.0_rt,zion(ihe4),aion(ihe4))
 
     ! 11: Ti44(a,p)V47
     call add_screening_factor(22.0_rt,44.0_rt,zion(ihe4),aion(ihe4))
