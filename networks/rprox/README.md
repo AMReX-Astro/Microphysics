@@ -16,4 +16,3 @@ This network was used in:
  * Zingale et al. 2015
    https://ui.adsabs.harvard.edu/abs/2015ApJ...807...60Z/abstract
 
-Note: presently this network does not have screening.
