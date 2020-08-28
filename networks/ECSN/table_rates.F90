@@ -85,7 +85,7 @@ contains
     num_rhoy_j_f20_o20 = 152
     num_vars_j_f20_o20 = 6
     num_header_j_f20_o20 = 5
-    rate_table_file_j_f20_o20 = trim("20f-20o_electroncapture.network.dat")
+    rate_table_file_j_f20_o20 = trim("20f-20o_electroncapture.dat")
     allocate(rate_table_j_f20_o20(num_temp_j_f20_o20, num_rhoy_j_f20_o20, num_vars_j_f20_o20))
     allocate(rhoy_table_j_f20_o20(num_rhoy_j_f20_o20))
     allocate(temp_table_j_f20_o20(num_temp_j_f20_o20))
@@ -98,7 +98,7 @@ contains
     num_rhoy_j_ne20_f20 = 152
     num_vars_j_ne20_f20 = 6
     num_header_j_ne20_f20 = 7
-    rate_table_file_j_ne20_f20 = trim("20ne-20f_electroncapture.network.dat")
+    rate_table_file_j_ne20_f20 = trim("20ne-20f_electroncapture.dat")
     allocate(rate_table_j_ne20_f20(num_temp_j_ne20_f20, num_rhoy_j_ne20_f20, num_vars_j_ne20_f20))
     allocate(rhoy_table_j_ne20_f20(num_rhoy_j_ne20_f20))
     allocate(temp_table_j_ne20_f20(num_temp_j_ne20_f20))
@@ -111,7 +111,7 @@ contains
     num_rhoy_j_o20_f20 = 152
     num_vars_j_o20_f20 = 6
     num_header_j_o20_f20 = 6
-    rate_table_file_j_o20_f20 = trim("20o-20f_betadecay.network.dat")
+    rate_table_file_j_o20_f20 = trim("20o-20f_betadecay.dat")
     allocate(rate_table_j_o20_f20(num_temp_j_o20_f20, num_rhoy_j_o20_f20, num_vars_j_o20_f20))
     allocate(rhoy_table_j_o20_f20(num_rhoy_j_o20_f20))
     allocate(temp_table_j_o20_f20(num_temp_j_o20_f20))
@@ -124,7 +124,7 @@ contains
     num_rhoy_j_f20_ne20 = 152
     num_vars_j_f20_ne20 = 6
     num_header_j_f20_ne20 = 7
-    rate_table_file_j_f20_ne20 = trim("20f-20ne_betadecay.network.dat")
+    rate_table_file_j_f20_ne20 = trim("20f-20ne_betadecay.dat")
     allocate(rate_table_j_f20_ne20(num_temp_j_f20_ne20, num_rhoy_j_f20_ne20, num_vars_j_f20_ne20))
     allocate(rhoy_table_j_f20_ne20(num_rhoy_j_f20_ne20))
     allocate(temp_table_j_f20_ne20(num_temp_j_f20_ne20))

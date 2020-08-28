@@ -1,3 +1,4 @@
+
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
@@ -21,7 +22,8 @@ endif
 # Pynucastro networks read rate data from an external file
 # Extra tabular rate files take the form *.network.dat
 PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
-TAB_FILES := $(wildcard $(NETWORK_PATH)/*network.dat)
+EC_FILES := $(wildcard $(NETWORK_PATH)/*electroncapture.dat)
+BD_FILES := $(wildcard $(NETWORK_PATH)/*betadecay.dat)
 PARTITION_FILE := "$(NETWORK_PATH)/partition_function_table.dat"
 all: pynucastrorates
 
@@ -31,7 +33,8 @@ all: pynucastrorates
 pynucastrorates:
 	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
 	@if [ -f $(PARTITION_FILE) ] && [ ! -f ./partition_function_table.dat ]; then echo Linking pynucastro Partition Function Table; ln -s $(PARTITION_FILE) .; fi
-	@$(foreach file,$(TAB_FILES), if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then ln -s $(file) . ; fi ;)
+	@$(foreach file,$(EC_FILES), if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then ln -s $(file) . ; fi ;)
+	@$(foreach file,$(BD_FILES), if [ -f "$(file)" ] && [ ! -f ./$(notdir $(file)) ]; then ln -s $(file) . ; fi ;) 
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
@@ -90,4 +93,5 @@ clean::
 	if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
 	if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
 	if [ -L partition_function_table.dat ]; then rm -f partition_function_table.dat; fi
-	$(RM) *network.dat
+	$(RM) *electroncapture.dat
+	$(RM) *betadecay.dat
