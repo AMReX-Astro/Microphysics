@@ -22,6 +22,11 @@ class AuxVar:
     def __str__(self):
         return "auxillary variable {}".format(self.name)
 
+class UnusedVar:
+    """this is what we return if an Aux var doesn't meet the preprocessor requirements"""
+    def __init__(self):
+        pass
+
 
 def get_next_line(fin):
     """get_next_line returns the next, non-blank line, with comments
@@ -55,7 +60,7 @@ def get_object_index(objs, name):
     return index
 
 
-def parse_net_file(species, aux_vars, net_file):
+def parse_net_file(species, aux_vars, net_file, defines):
     """parse_net_file read all the species listed in a given network
     inputs file and adds the valid species to the species list
 
@@ -78,9 +83,13 @@ def parse_net_file(species, aux_vars, net_file):
         fields = line.split()
 
         # read the species or auxiliary variable from the line
-        net_obj, err = parse_network_object(fields)
+        net_obj, err = parse_network_object(fields, defines)
         if net_obj is None:
             return err
+
+        if isinstance(net_obj, UnusedVar):
+            line = get_next_line(f)
+            continue
 
         objs = species
         if isinstance(net_obj, AuxVar):
@@ -100,7 +109,7 @@ def parse_net_file(species, aux_vars, net_file):
     return err
 
 
-def parse_network_object(fields):
+def parse_network_object(fields, defines):
     """parse the fields in a line of the network file for either species
     or auxiliary variables.  Aux variables are prefixed by '__aux_' in
     the network file
@@ -113,6 +122,20 @@ def parse_network_object(fields):
     if fields[0].startswith("__aux_"):
         ret = AuxVar()
         ret.name = fields[0][6:]
+
+        # we can put a preprocessor variable after the aux name to
+        # require that it be set in order to define the auxillary
+        # variable
+        try:
+            ret.preprocessor = fields[1]
+        except IndexError:
+            ret.preprocessor = None
+
+        # if there is a preprocessor attached to this variable, then
+        # we will check if we have defined that
+        if ret.preprocessor is not None:
+            if f"-D{ret.preprocessor }" not in defines:
+                ret = UnusedVar()
 
     # check for missing fields in species definition
     elif not len(fields) == 4:
@@ -146,7 +169,7 @@ def abort(outfile):
 
 def write_network(network_template, header_template,
                   net_file, properties_file,
-                  network_file, header_file):
+                  network_file, header_file, defines):
     """read through the list of species and output the new out_file
 
     """
@@ -158,7 +181,7 @@ def write_network(network_template, header_template,
     #-------------------------------------------------------------------------
     # read the species defined in the net_file
     #-------------------------------------------------------------------------
-    err = parse_net_file(species, aux_vars, net_file)
+    err = parse_net_file(species, aux_vars, net_file, defines)
 
     if err:
         abort(out_file)
@@ -168,6 +191,8 @@ def write_network(network_template, header_template,
     try:
         with open(properties_file) as f:
             for line in f:
+                if line.strip() == "":
+                    continue
                 key, value = line.strip().split(":=")
                 properties[key.strip()] = value.strip()
     except FileNotFoundError:
@@ -313,6 +338,8 @@ def main():
                         help="network file name")
     parser.add_argument("--other_properties", type=str, default="",
                         help="a NETWORK_PROPERTIES file with other network properties")
+    parser.add_argument("--defines", type=str, default="",
+                        help="and preprocessor defines that are used in building the code")
 
     args = parser.parse_args()
 
@@ -321,7 +348,7 @@ def main():
 
     write_network(args.t, args.header_template,
                   args.s, args.other_properties,
-                  args.o, args.header_output)
+                  args.o, args.header_output, args.defines)
 
 if __name__ == "__main__":
     main()
