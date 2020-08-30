@@ -1,2 +1,4 @@
 F90EXE_sources += composition.F90
+ifeq ($(USE_CXX_EOS),TRUE)
 CEXE_headers += eos_composition.H
+endif

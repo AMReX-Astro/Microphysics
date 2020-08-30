@@ -9,7 +9,7 @@ contains
 
   subroutine get_xn(nz, xn_zone)
 
-    use network, only: nspec, spec_names, network_species_index
+    use network, only: nspec, network_species_index
     use extern_probin_module, only: primary_species_1, primary_species_2, primary_species_3
     use amrex_error_module
 

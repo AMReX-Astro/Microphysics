@@ -963,7 +963,7 @@ void evaluate_rates(burn_t const& state, rate_t& rr)
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
-                           burn_t const& state, rate_t const& rr,
+                           burn_t const& /*state*/, rate_t const& rr,
                            MatrixType& jac)
 {
 

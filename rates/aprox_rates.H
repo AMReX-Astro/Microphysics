@@ -2071,7 +2071,6 @@ void ecapnuc(const Real etakep, const Real temp,
     // initialize
     rpen   = 0.0e0_rt;
     rnep   = 0.0e0_rt;
-    Real t9     = temp * 1.0e-9_rt;
     Real bktinv = 1.0e0_rt/(bk *temp);
     Real qn     = qn1;
 
