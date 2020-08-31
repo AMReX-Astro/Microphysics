@@ -1,0 +1,5 @@
+# test_screening
+
+This is a unit test for the screening routines.  It works for both the
+C++ and Fortran implementations (use do_cxx to select).
+

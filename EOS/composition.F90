@@ -34,11 +34,11 @@ contains
     ! mu_e, the mean number of nucleons per electron, and
     ! y_e, the electron fraction.
 
-    state % mu_e = ONE / (sum(state % xn(:) * zion(:) * aion_inv(:)))
-    state % y_e = ONE / state % mu_e
+    state % y_e = sum(state % xn(:) * zion(:) * aion_inv(:))
+    state % mu_e = ONE / state % y_e
 
     state % abar = ONE / (sum(state % xn(:) * aion_inv(:)))
-    state % zbar = state % abar / state % mu_e
+    state % zbar = state % abar * state % y_e
 
   end subroutine composition
 
@@ -48,8 +48,10 @@ contains
   subroutine composition_derivatives(state, state_xderivs)
 
     use amrex_constants_module, only: ZERO
+#ifdef EXTRA_THERMO
     use network, only: aion, aion_inv, zion
-    
+#endif
+
     implicit none
 
     type (eos_t), intent(in) :: state

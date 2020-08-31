@@ -1,3 +1,26 @@
+# 20.09
+
+   * The gamma_law eos (not gamma_law_general) now fills the sound speed,
+     entropy, and derivatives for more inputs (#374)
+
+   * The rprox network now has screening (#377)
+
+   * The NETWORK_PROPERTIES file was split to put the number of
+     auxiliary species into its own file, NAUX_NETWORK.  This allows
+     us to put if-logic into the file to choose the number of
+     auxiliary quantities based on make setting (like USE_NSE). (#370)
+
+# 20.08
+
+   * Several of the unit tests had separate C++ and Fortran
+     implementions.  These have been unified (#343, #344, #345)
+
+   * The VBDF integrator was removed (#348)
+
+   * VODE can now reject an internal timestep that has any abundance
+     change by more than a factor of 2, or an abundance < 0 or > 1,
+     as well as timesteps where the temperature ends up negative. (#350)
+
 # 20.07
 
    * The "master" branch has been renamed "main" (#333)

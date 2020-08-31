@@ -9,10 +9,16 @@
 
 using namespace amrex;
 
-#include "test_conductivity.H"
-#include "test_conductivity_F.H"
+#include "test_cond.H"
+#include "test_cond_F.H"
 #include "AMReX_buildInfo.H"
 
+#include <network.H>
+#include <eos.H>
+#include <conductivity.H>
+#include <variables.H>
+
+#include <cmath>
 
 int main (int argc, char* argv[])
 {
@@ -28,7 +34,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size;
+    int n_cell, max_grid_size, do_cxx;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -44,6 +50,10 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
+
+        // do_cxx = 1 for C++ EOS, 0 for Fortran EOS
+        do_cxx = 0;
+        pp.query("do_cxx", do_cxx);
 
     }
 
@@ -98,23 +108,44 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // Ncomp = number of components for each array
+    init_extern_parameters();
+
+    eos_init();
+    conductivity_init();
+
     int Ncomp = -1;
-    init_variables();
-    get_ncomp(&Ncomp);
 
-    int name_len = -1;
-    get_name_len(&name_len);
+    // for C++
+    plot_t vars;
 
-    // get the variable names
+    // for F90
     Vector<std::string> varnames;
 
-    for (int i=0; i<Ncomp; i++) {
-      char* cstring[name_len+1];
-      get_var_name(cstring, &i);
-      std::string name(*cstring);
-      varnames.push_back(name);
+    if (do_cxx == 1) {
+      // C++ test
+      vars = init_variables();
+      Ncomp = vars.n_plot_comps;
+
+    } else {
+      // Fortran test
+
+      // Ncomp = number of components for each array
+      init_variables_F();
+      get_ncomp(&Ncomp);
+
+      int name_len = -1;
+      get_name_len(&name_len);
+
+      // get the variable names
+      for (int i=0; i<Ncomp; i++) {
+        char* cstring[name_len+1];
+        get_var_name(cstring, &i);
+        std::string name(*cstring);
+        varnames.push_back(name);
+      }
     }
+
+    std::cout << "Ncomp = " << Ncomp << std::endl;
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -125,19 +156,42 @@ void main_main ()
     // we allocate our main multifabs
     MultiFab state(ba, dm, Ncomp, Nghost);
 
+    // Initialize the state to zero; we will fill
+    // it in below in do_eos.
+    state.setVal(0.0);
+
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
+
+
+    Real dlogrho = 0.0e0_rt;
+    Real dlogT   = 0.0e0_rt;
+    Real dmetal  = 0.0e0_rt;
+
+    if (n_cell > 1) {
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
+        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
+    }
 
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
-        const Box& bx = mfi.validbox();
+      const Box& bx = mfi.validbox();
 
+      Array4<Real> const sp = state.array(mfi);
+
+      if (do_cxx == 1) {
+        cond_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+
+      } else {
 #pragma gpu
         do_conductivity(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                        BL_TO_FORTRAN_ANYD(state[mfi]), n_cell);
+                        dlogrho, dlogT, dmetal,
+                        BL_TO_FORTRAN_ANYD(state[mfi]));
 
+      }
     }
 
     // Call the timer again and compute the maximum difference between
@@ -146,19 +200,18 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
+
     std::string name = "test_conductivity.";
-
-    // get the name of the conductivity routine
-    int cond_len = -1;
-    get_cond_len(&cond_len);
-
-    char* cond_string[cond_len+1];
-    get_cond_name(cond_string);
-    std::string cond(*cond_string);
+    std::string language = do_cxx == 1 ? ".cxx" : "";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + cond, state, varnames, geom, time, 0);
+    if (do_cxx == 1) {
+      WriteSingleLevelPlotfile(name + cond_name + language, state, vars.names, geom, time, 0);
+    } else {
+      WriteSingleLevelPlotfile(name + cond_name + language, state, varnames, geom, time, 0);
+    }
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
+
 }
