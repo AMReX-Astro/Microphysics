@@ -20,6 +20,8 @@ using namespace amrex;
 
 #include <cmath>
 
+#include "unit_test.H"
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -210,6 +212,8 @@ void main_main ()
     } else {
       WriteSingleLevelPlotfile(name + cond_name + language, state, varnames, geom, time, 0);
     }
+
+    write_job_info(name + cond_name + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
