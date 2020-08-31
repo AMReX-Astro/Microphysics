@@ -92,25 +92,14 @@ void eos_cell_c()
 
     }
 
-    std::cout << "State Density (g/cm^3): " << density << std::endl;
-    std::cout << "State Temperature (K): " << temperature << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
-    }
-
     state.T   = temperature;
     state.rho = density;
     for (int n = 0; n < NumSpec; ++n) {
         state.xn[n] = massfractions[n];
     }
 
-    // Initialize initial energy to zero
-    state.e = 0.0_rt;
-    Real energy = 0.0_rt;
-
-    Real time = 0.0_rt;
-
-    // call the EOS to set initial e
     eos(eos_input_rt, state);
+
+    std::cout << state;
 
 }
