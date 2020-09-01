@@ -39,6 +39,4 @@ EXTERN_SEARCH += .
 Bpack   := ./Make.package
 Blocs   := .
 
-include $(MICROPHYSICS_HOME)/Make.Microphysics
-
-
+include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
