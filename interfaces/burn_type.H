@@ -41,8 +41,6 @@ struct burn_t
     Real cp;
     Real y_e;
     Real eta;
-    Real cs;
-    Real dx;
     Real abar;
     Real zbar;
 
@@ -108,7 +106,6 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
     burn_state.cp   = eos_state.cp;
     burn_state.y_e  = eos_state.y_e;
     burn_state.eta  = eos_state.eta;
-    burn_state.cs   = eos_state.cs;
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
 
@@ -137,7 +134,6 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     eos_state.cp   = burn_state.cp;
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;
-    eos_state.cs   = burn_state.cs;
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
 
