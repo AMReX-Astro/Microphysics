@@ -117,6 +117,10 @@ contains
     to_state % aux(1:naux) = from_state % aux(1:naux)
 #endif
 
+#if SDC_EVOLVE_ENTHALPY
+    to_state % p0 = from_state % p0
+#endif
+
     to_state % cv  = from_state % cv
     to_state % cp  = from_state % cp
     to_state % y_e = from_state % y_e
