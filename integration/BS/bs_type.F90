@@ -228,7 +228,6 @@ contains
     bs % burn_s % zbar = state % zbar
     bs % burn_s % eta = state % eta
     bs % burn_s % y_e = state % y_e
-    bs % burn_s % cs = state % cs
 
   end subroutine eos_to_bs
 

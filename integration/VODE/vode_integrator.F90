@@ -61,7 +61,7 @@ contains
     ! this is the first call to the problem -- this is what we will want.
 
     real(rt) :: ener_offset
-    real(rt) :: t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, limit_factor
 
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
@@ -134,13 +134,6 @@ contains
        dvode_state % rpar(irp_self_heat) = -ONE
     endif
 
-    ! Copy in the zone size.
-
-    dvode_state % rpar(irp_dx) = state_in % dx
-
-    ! Set the sound crossing time.
-
-    dvode_state % rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
     ! Set the time offset -- this converts between the local integration 
     ! time and the simulation time

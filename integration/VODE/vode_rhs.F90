@@ -22,7 +22,7 @@ contains
     use network_rhs_module, only: network_rhs
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost, MAX_TEMP
     use vode_type_module, only: clean_state, update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
-    use vode_rpar_indices, only: n_rpar_comps, irp_t_sound, irp_t0
+    use vode_rpar_indices, only: n_rpar_comps, irp_t0
 
     implicit none
 
@@ -105,7 +105,7 @@ contains
     use eos_type_module, only : eos_get_small_temp
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use vode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
-    use vode_rpar_indices, only: n_rpar_comps, irp_t_sound, irp_t0
+    use vode_rpar_indices, only: n_rpar_comps, irp_t0
     use amrex_fort_module, only: rt => amrex_real
     use extern_probin_module, only: integrate_temperature, integrate_energy, react_boost, MAX_TEMP
 
