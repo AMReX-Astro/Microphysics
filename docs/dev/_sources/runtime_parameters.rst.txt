@@ -338,24 +338,6 @@ integration
 |                                  | between EOS calls. This will work regardless of         |                    |
 |                                  | call_eos_in_rhs.                                        |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
-| ``burning_mode``                 | Integration mode: if 0, a hydrostatic burn (temperature | 1                  |
-|                                  | and density remain constant), and if 1, a self-heating  |                    |
-|                                  | burn (temperature/energy evolve with the burning). If   |                    |
-|                                  | 2, a hybrid approach presented by Raskin et al. (2010): |                    |
-|                                  | do hydrostatic everywhere, but if the hydrostatic burn  |                    |
-|                                  | gives us a negative energy change, redo the burn in     |                    |
-|                                  | self-heating mode.  If 3, do normal self-heating, but   |                    |
-|                                  | limit all values of the RHS by the same factor          |                    |
-|                                  | :math:`L` such that :math:`\dot{e} = f_s e / t_s`,      |                    |
-|                                  | where :math:`\dot{e}` is the energy injection rate,     |                    |
-|                                  | :math:`e` is the internal energy of the zone,           |                    |
-|                                  | :math:`t_s` is the sound crossing time, and :math:`f_s` |                    |
-|                                  | is a safety factor. :math:`L` is computed as            |                    |
-|                                  | :math:`\min(1, f_s (e / \dot{e}) / t_s)`.               |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
-| ``burning_mode_factor``          | If we're using ``burning_mode == 3``, this is the       | 1.d-1              |
-|                                  | safety factor :math:`f_s` to use.                       |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
 | ``integrate_temperature``        | Allow the temperature integration to be disabled by     | .true.             |
 |                                  | setting the RHS to zero.                                |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
@@ -517,9 +499,6 @@ powerlaw
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``f_act``                        |                                                         | 1.0d0              |
 +----------------------------------+---------------------------------------------------------+--------------------+
-| ``burning_mode``                 | override the default burning mode with a higher         | 0                  |
-|                                  | priority                                                |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
 | ``jacobian``                     | override the default Jacobian mode with a higher        | 2                  |
 |                                  | priority                                                |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
@@ -592,9 +571,6 @@ rprox
 +----------------------------------+---------------------------------------------------------+--------------------+
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
-| ``burning_mode``                 | override the default burning mode with a higher         | 1                  |
-|                                  | priority                                                |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
 | ``atol_spec``                    | override the default tolerances for backwards           | 1.0e-11            |
 |                                  | compatibility                                           |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
@@ -924,9 +900,6 @@ triple_alpha_plus_cago
 +----------------------------------+---------------------------------------------------------+--------------------+
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
-| ``burning_mode``                 | override the default burning mode with a higher         | 1                  |
-|                                  | priority                                                |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
 | ``atol_spec``                    | override the default tolerances for backwards           | 1.0e-12            |
 |                                  | compatibility                                           |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
@@ -954,9 +927,6 @@ xrb_simple
 +----------------------------------+---------------------------------------------------------+--------------------+
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
-| ``burning_mode``                 | override the default burning mode with a higher         | 1                  |
-|                                  | priority                                                |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
 | ``atol_spec``                    | override the default tolerances for backwards           | 1.0e-11            |
 |                                  | compatibility                                           |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+

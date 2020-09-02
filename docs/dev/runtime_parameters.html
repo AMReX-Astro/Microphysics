@@ -899,28 +899,6 @@ between EOS calls. This will work regardless of
 call_eos_in_rhs.</p></td>
 <td><p>1.0d20</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
-<td><p>Integration mode: if 0, a hydrostatic burn (temperature
-and density remain constant), and if 1, a self-heating
-burn (temperature/energy evolve with the burning). If
-2, a hybrid approach presented by Raskin et al. (2010):
-do hydrostatic everywhere, but if the hydrostatic burn
-gives us a negative energy change, redo the burn in
-self-heating mode.  If 3, do normal self-heating, but
-limit all values of the RHS by the same factor
-<span class="math notranslate nohighlight">\(L\)</span> such that <span class="math notranslate nohighlight">\(\dot{e} = f_s e / t_s\)</span>,
-where <span class="math notranslate nohighlight">\(\dot{e}\)</span> is the energy injection rate,
-<span class="math notranslate nohighlight">\(e\)</span> is the internal energy of the zone,
-<span class="math notranslate nohighlight">\(t_s\)</span> is the sound crossing time, and <span class="math notranslate nohighlight">\(f_s\)</span>
-is a safety factor. <span class="math notranslate nohighlight">\(L\)</span> is computed as
-<span class="math notranslate nohighlight">\(\min(1, f_s (e / \dot{e}) / t_s)\)</span>.</p></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode_factor</span></code></p></td>
-<td><p>If we’re using <code class="docutils literal notranslate"><span class="pre">burning_mode</span> <span class="pre">==</span> <span class="pre">3</span></code>, this is the
-safety factor <span class="math notranslate nohighlight">\(f_s\)</span> to use.</p></td>
-<td><p>1.d-1</p></td>
-</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_temperature</span></code></p></td>
 <td><p>Allow the temperature integration to be disabled by
 setting the RHS to zero.</p></td>
@@ -1225,21 +1203,16 @@ network?</p></td>
 <td></td>
 <td><p>1.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
-<td><p>override the default burning mode with a higher
-priority</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>override the default Jacobian mode with a higher
 priority</p></td>
 <td><p>2</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
 <td></td>
 <td><p>1.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
 <td></td>
 <td><p>1.0</p></td>
 </tr>
@@ -1373,41 +1346,36 @@ priority</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
-<td><p>override the default burning mode with a higher
-priority</p></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
 <td><p>override the default tolerances for backwards
 compatibility</p></td>
 <td><p>1.0e-11</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
 <td></td>
 <td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>override so that the default is an analytical Jacobian</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
 <td><p>we typically run this network for constant-pressure
 burns</p></td>
 <td><p>.false.</p></td>
@@ -2034,41 +2002,36 @@ burns</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
-<td><p>override the default burning mode with a higher
-priority</p></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
 <td><p>override the default tolerances for backwards
 compatibility</p></td>
 <td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
 <td></td>
 <td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
 <td></td>
 <td><p>1.0e-6</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.0e-6</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>override so that the default is an analytical Jacobian</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
 <td><p>we typically run this network for constant-pressure
 burns</p></td>
 <td><p>.false.</p></td>
@@ -2091,42 +2054,37 @@ burns</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code></p></td>
-<td><p>override the default burning mode with a higher
-priority</p></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
 <td><p>override the default tolerances for backwards
 compatibility</p></td>
 <td><p>1.0e-11</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
 <td></td>
 <td><p>1.0e-12</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_temp</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.0e-8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>override so that the default is a numerical Jacobian;
 we don’t yet have an analytical Jacobian</p></td>
 <td><p>2</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
 <td><p>we typically run this network for constant-pressure
 burns</p></td>
 <td><p>.false.</p></td>
