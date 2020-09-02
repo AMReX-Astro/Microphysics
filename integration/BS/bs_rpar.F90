@@ -15,8 +15,7 @@ module bs_rpar_indices
   implicit none
 
 #ifndef SIMPLIFIED_SDC
-  integer, parameter :: irp_t_sound = 1
-  integer, parameter :: irp_t0 = irp_t_sound + 1
+  integer, parameter :: irp_t0 = 1
 
   integer, parameter :: n_rpar_comps = irp_t0
 #else

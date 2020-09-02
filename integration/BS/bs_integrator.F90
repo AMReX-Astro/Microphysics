@@ -58,7 +58,7 @@ contains
     type (bs_t) :: bs
 
     real(rt) :: ener_offset
-    real(rt) :: t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, limit_factor
 
     logical :: success
 
@@ -125,14 +125,6 @@ contains
     ! Pass through whether we are doing self-heating.
 
     bs % burn_s % self_heat = self_heat
-
-    ! Copy in the zone size.
-
-    bs % burn_s % dx = state_in % dx
-
-    ! Set the sound crossing time.
-
-    bs % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
     ! set the time offset -- we integrate from 0 to dt, so this
     ! is the offset to simulation time
