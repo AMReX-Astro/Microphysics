@@ -32,6 +32,11 @@ struct burn_t
     Real aux[NumAux];
 #endif
 
+#if SDC_EVOLVE_ENTHALPY
+    // make pressure available to RHS
+    Real p0;
+#endif
+
     Real cv;
     Real cp;
     Real y_e;
