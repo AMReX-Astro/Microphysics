@@ -18,7 +18,7 @@ module microphysics_module
 
 contains
 
-  subroutine microphysics_init_C(small_temp, small_dens) bind(C, name="microphysics_init_C")
+  subroutine microphysics_initialize(small_temp, small_dens) bind(C, name="microphysics_initialize")
     ! this version has no optional arguments so was can bind to C
 
     real(rt), intent(in), value :: small_temp, small_dens
