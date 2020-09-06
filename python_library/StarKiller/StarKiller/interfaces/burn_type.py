@@ -1,7 +1,6 @@
 import StarKillerMicrophysics as SKM
 from StarKiller.interfaces import EosType
 import numpy as np
-import copy
 
 class BurnType(object):
     def __init__(self):
@@ -27,4 +26,7 @@ class BurnType(object):
 
     def copy(self):
         # Return a deep copy of this object
-        return copy.deepcopy(self)
+        state_copy = BurnType()
+        self.BurnTypeModule.copy_burn_t(state_copy.state, self.state)
+        return state_copy
+
