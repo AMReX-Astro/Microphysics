@@ -25,7 +25,7 @@ contains
 
     call microphysics_init(small_temp, small_dens)
 
-  end subroutine microphysics_init_C
+  end subroutine microphysics_initialize
 
   subroutine microphysics_init(small_temp, small_dens)
 
