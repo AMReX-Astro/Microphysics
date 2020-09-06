@@ -27,6 +27,13 @@ class BurnType(object):
     def copy(self):
         # Return a deep copy of this object
         state_copy = BurnType()
+
+        # Copy the Fortran derived type data
         self.BurnTypeModule.copy_burn_t(state_copy.state, self.state)
+
+        # Copy the python object data to fill ydot, jac
+        state_copy.ydot[:] = self.ydot[:]
+        state_copy.jac[:,:] = self.jac[:,:]
+
         return state_copy
 
