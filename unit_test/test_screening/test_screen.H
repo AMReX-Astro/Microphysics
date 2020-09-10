@@ -1,8 +1,8 @@
 #ifndef TEST_SCREEN_H
 #define TEST_SCREEN_H
 
-#include "extern_parameters.H"
-#include "variables.H"
+#include <extern_parameters.H>
+#include <variables.H>
 
 void main_main();
 

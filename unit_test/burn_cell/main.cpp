@@ -10,10 +10,10 @@ using namespace amrex;
 #ifdef CXX_REACTIONS
 #include <eos.H>
 #include <network.H>
-#include "burn_cell.H"
+#include <burn_cell.H>
 #endif
 
-#include "burn_cell_F.H"
+#include <burn_cell_F.H>
 
 int main(int argc, char *argv[]) {
 

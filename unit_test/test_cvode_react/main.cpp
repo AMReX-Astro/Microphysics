@@ -10,9 +10,9 @@
 
 using namespace amrex;
 
-#include "test_react.H"
-#include "test_react_F.H"
-#include "AMReX_buildInfo.H"
+#include <test_react.H>
+#include <test_react_F.H>
+#include <AMReX_buildInfo.H>
 
 
 int main (int argc, char* argv[])

@@ -9,16 +9,16 @@
 
 using namespace amrex;
 
-#include "test_eos.H"
-#include "test_eos_F.H"
-#include "AMReX_buildInfo.H"
+#include <test_eos.H>
+#include <test_eos_F.H>
+#include <AMReX_buildInfo.H>
 
 #include <network.H>
 #include <eos.H>
 #include <variables.H>
 
 #include <cmath>
-#include "unit_test.H"
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {

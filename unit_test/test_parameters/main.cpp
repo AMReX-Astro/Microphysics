@@ -9,11 +9,11 @@
 
 using namespace amrex;
 
-#include "test_parameters.H"
-#include "test_parameters_F.H"
-#include "AMReX_buildInfo.H"
+#include <test_parameters.H>
+#include <test_parameters_F.H>
+#include <AMReX_buildInfo.H>
 
-#include "extern_parameters.H"
+#include <extern_parameters.H>
 
 int main (int argc, char* argv[])
 {
