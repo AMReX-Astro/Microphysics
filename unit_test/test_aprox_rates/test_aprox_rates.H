@@ -1,8 +1,8 @@
 #ifndef TEST_APROX_RATES_H
 #define TEST_APROX_RATES_H
 
-#include "extern_parameters.H"
-#include "variables.H"
+#include <extern_parameters.H>
+#include <variables.H>
 
 void main_main();
 

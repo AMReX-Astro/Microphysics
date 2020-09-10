@@ -1,8 +1,8 @@
 #ifndef TEST_EOS_H
 #define TEST_EOS_H
 
-#include "extern_parameters.H"
-#include "variables.H"
+#include <extern_parameters.H>
+#include <variables.H>
 
 void main_main();
 

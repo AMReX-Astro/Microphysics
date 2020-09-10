@@ -30,7 +30,7 @@
 #include <XGraph1d.H>
 #endif
 
-#include "Castro_io.H"
+#include <Castro_io.H>
 
 
 extern "C"
