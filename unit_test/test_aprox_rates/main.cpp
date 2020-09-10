@@ -9,9 +9,9 @@
 
 using namespace amrex;
 
-#include "test_aprox_rates.H"
-#include "test_aprox_rates_F.H"
-#include "AMReX_buildInfo.H"
+#include <test_aprox_rates.H>
+#include <test_aprox_rates_F.H>
+#include <AMReX_buildInfo.H>
 
 #include <network.H>
 #include <eos.H>
@@ -20,7 +20,7 @@ using namespace amrex;
 
 #include <cmath>
 
-#include "unit_test.H"
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {
