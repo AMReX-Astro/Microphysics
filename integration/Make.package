@@ -27,6 +27,11 @@ ifeq ($(USE_CUDA), TRUE)
   endif
 endif
 
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+  ifeq ($(INTEGRATOR_DIR), BS)
+    $(error BS integrator does not support simplified SDC evolution)
+  endif
+endif
 
 # Include all integrators in the build.
 
@@ -42,13 +47,15 @@ ifeq ($(INTEGRATOR_DIR),VODE)
 
   DEFINES += -DVODE
 
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
-  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
-  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
+  ifneq ($(USE_SIMPLIFIED_SDC),TRUE)
+    INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/BS
+    VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/BS
+    EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/BS
 
-  include $(MICROPHYSICS_HOME)/integration/BS/Make.package
+    include $(MICROPHYSICS_HOME)/integration/BS/Make.package
 
-  DEFINES += -DBS
+    DEFINES += -DBS
+  endif
 
 else ifeq ($(INTEGRATOR_DIR),BS)
 

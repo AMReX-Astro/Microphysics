@@ -4,13 +4,8 @@ module stiff_ode
   use amrex_fort_module, only : rt => amrex_real
   use burn_type_module
   use bs_type_module
-#ifdef SIMPLIFIED_SDC
-  use bs_rhs_module
-  use bs_jac_module
-#else
   use rhs_module
   use jac_module
-#endif
 
   implicit none
 
@@ -142,11 +137,7 @@ contains
     bs % eps_old = ZERO
 
     if (use_timestep_estimator) then
-#ifdef SIMPLIFIED_SDC
-       call f_bs_rhs(bs)
-#else
        call f_rhs(bs)
-#endif
        call initial_timestep(bs)
     else
        bs % dt = dt_ini
@@ -155,11 +146,7 @@ contains
     do n = 1, ode_max_steps
 
        ! Get the scaling.
-#ifdef SIMPLIFIED_SDC
-       call f_bs_rhs(bs)
-#else
        call f_rhs(bs)
-#endif
 
        if (scaling_method == 1) then
           yscal(:) = abs(bs % y(:)) + abs(bs % dt * bs % ydot(:)) + SMALL
@@ -263,11 +250,7 @@ contains
        bs_temp % y = bs % y + h * bs % ydot
 
        ! Call the RHS, then estimate the finite difference.
-#ifdef SIMPLIFIED_SDC
-       call f_bs_rhs(bs_temp)
-#else
        call f_rhs(bs_temp)
-#endif
 
        ddydtt = (bs_temp % ydot - bs % ydot) / h
 
@@ -346,11 +329,7 @@ contains
 
     if (ierr == IERR_NONE) then
        bs_temp = bs
-#ifdef SIMPLIFIED_SDC
-       bs_temp % n_rhs = 0
-#else
        bs_temp % burn_s % n_rhs = 0
-#endif
 
        ! do an Euler step to get the RHS for the first substep
        t = bs % t
@@ -368,11 +347,7 @@ contains
 
        t = t + h
        bs_temp % t = t
-#ifdef SIMPLIFIED_SDC
-       call f_bs_rhs(bs_temp)
-#else
        call f_rhs(bs_temp)
-#endif
 
        do n = 2, N_sub
           y_out(:) = h * bs_temp % ydot(:) - del(:)
@@ -389,11 +364,7 @@ contains
 
           t = t + h
           bs_temp % t = t
-#ifdef SIMPLIFIED_SDC
-          call f_bs_rhs(bs_temp)
-#else
           call f_rhs(bs_temp)
-#endif
        enddo
 
        y_out(:) = h * bs_temp % ydot(:) - del(:)
@@ -410,11 +381,7 @@ contains
     
        ! Store the number of function evaluations.
 
-#ifdef SIMPLIFIED_SDC
-       bs % n_rhs = bs % n_rhs + bs_temp % n_rhs
-#else
        bs % burn_s % n_rhs = bs % burn_s % n_rhs + bs_temp % burn_s % n_rhs
-#endif
     else
        y_out(:) = y(:)
     endif
@@ -493,11 +460,7 @@ contains
     y_save(:) = bs % y(:)
 
     ! get the jacobian
-#ifdef SIMPLIFIED_SDC
-    call bs_jac(bs)
-#else
     call jac(bs)
-#endif
 
     if (dt /= bs % dt_next .or. bs % t /= bs % t_new) then
        bs % first = .true.
@@ -758,11 +721,7 @@ contains
     ! note: we come in already with a RHS evalulation from the driver
 
     ! get the jacobian
-#ifdef SIMPLIFIED_SDC
-    call bs_jac(bs)
-#else
     call jac(bs)
-#endif
 
     ierr = IERR_NONE
 
@@ -806,11 +765,7 @@ contains
        
        ! get derivatives at this intermediate position and setup the next
        ! RHS
-#ifdef SIMPLIFIED_SDC
-       call f_bs_rhs(bs_temp)
-#else
        call f_rhs(bs_temp)
-#endif
 
        g2(:) = bs_temp % ydot(:) + C21*g1(:)/h
 
@@ -826,11 +781,7 @@ contains
 
        ! get derivatives at this intermediate position and setup the next
        ! RHS
-#ifdef SIMPLIFIED_SDC
-       call f_bs_rhs(bs_temp)
-#else
        call f_rhs(bs_temp)
-#endif
 
        g3(:) = bs_temp % ydot(:) + (C31*g1(:) + C32*g2(:))/h
 
@@ -869,11 +820,7 @@ contains
           ! we were successful -- store the solution
           bs % y(:) = bs_temp % y(:)
           bs % t = bs_temp % t
-#ifdef SIMPLIFIED_SDC
-          bs % n_rhs = bs_temp % n_rhs
-#else
           bs % burn_s % n_rhs = bs_temp % burn_s % n_rhs
-#endif
 
           bs % dt_did = h
           if (errmax > ERRCON) then
