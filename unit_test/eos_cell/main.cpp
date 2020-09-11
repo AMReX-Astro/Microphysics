@@ -9,8 +9,8 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include "eos_cell.H"
-#include "eos_cell_F.H"
+#include <eos_cell.H>
+#include <eos_cell_F.H>
 
 int main(int argc, char *argv[]) {
 

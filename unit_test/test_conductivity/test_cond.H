@@ -1,8 +1,8 @@
 #ifndef TEST_COND_H
 #define TEST_COND_H
 
-#include "extern_parameters.H"
-#include "variables.H"
+#include <extern_parameters.H>
+#include <variables.H>
 
 void main_main();
 
