@@ -329,7 +329,7 @@ contains
 
     if (ierr == IERR_NONE) then
        bs_temp = bs
-       bs_temp % n_rhs = 0
+       bs_temp % burn_s % n_rhs = 0
 
        ! do an Euler step to get the RHS for the first substep
        t = bs % t
