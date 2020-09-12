@@ -15,6 +15,7 @@ using namespace amrex;
 // temperature, enuc + the number of species which participate
 // in the evolution equations.
 
+#ifndef SIMPLIFIED_SDC
 const int neqs = 2 + NumSpec;
 
 // Indices of the temperature and energy variables in the work arrays.
@@ -22,45 +23,106 @@ const int neqs = 2 + NumSpec;
 const int net_itemp = NumSpec + 1;
 const int net_ienuc = NumSpec + 2;
 
+#else
+
+#if defined(SDC_EVOLVE_ENERGY)
+
+// these indicies represent the order that the conserved state comes
+// into the ODE integration from the hydro code.
+//
+// they also represent the order of the advective sources
+//
+// integrate rho*X, internal energy, total energy
+// carry momentum as an unevolved variable
+
+const int SEDEN = 0;
+const int SEINT = 1;
+const int SFS   = 2;
+const int SRHO  = SFS + nspec;
+const int SMX   = SRHO + 1;
+const int SMY   = SRHO + 2;
+const int SMZ   = SRHO + 3;
+
+const int SVAR  = SMZ+1;
+const int SVAR_EVOLVE = SRHO;
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+// integrate rho*X (species masses) and rho*h (enthalpy)
+// carry pressure for EOS calls in RHS
+
+const int SFS = 0;
+const int SENTH = SFS + nspec;
+const int SVAR  = SENTH+1;
+const int SVAR_EVOLVE = SVAR;
+
+#endif
+
+#endif
+
 struct burn_t
 {
-    Real rho;
-    Real T;
-    Real e;
-    Real xn[NumSpec];
+
+  // this first group are the quantities the network RHS uses
+
+  Real rho;
+  Real T;
+  Real e;
+  Real xn[NumSpec];
 #if NAUX_NET > 0
-    Real aux[NumAux];
+  Real aux[NumAux];
 #endif
 
-#if SDC_EVOLVE_ENTHALPY
-    // make pressure available to RHS
-    Real p0;
+  // now come the bits that we need for SDC or Strang evolution
+
+#ifdef SIMPLIFIED_SDC
+  Real y[SVAR];
+  Real ydot_a[SVAR];
+
+#if defined(SDC_EVOLVE_ENERGY)
+  bool T_from_eden;
+#elif defined(SDC_EVOLVE_ENTHALPY)
+  // Pressure in case we wish to use it for EOS calls
+  Real p0;
 #endif
 
-    Real cv;
-    Real cp;
-    Real y_e;
-    Real eta;
-    Real abar;
-    Real zbar;
+  int i;
+  int j;
+  int k;
 
-    // Last temperature we evaluated the EOS at
-    Real T_old;
-    Real cv_old;
-    Real cp_old;
+  int sdc_iter;
+  int num_sdc_iters;
 
-    // Temperature derivatives of specific heat
-    Real dcvdT;
-    Real dcpdT;
+#else
+  // Strang stuff
 
-    // Are we doing a self-heating burn?
-    bool self_heat;
+  Real cv;
+  Real cp;
 
-    // diagnostics
-    int n_rhs, n_jac;
+  // Last temperature we evaluated the EOS at
+  Real T_old;
+  Real cv_old;
+  Real cp_old;
 
-    // Was the burn successful?
-    bool success;
+  // Temperature derivatives of specific heat
+  Real dcvdT;
+  Real dcpdT;
+
+  // Are we doing a self-heating burn?
+  bool self_heat;
+
+#endif
+
+  Real y_e;
+  Real eta;
+  Real abar;
+  Real zbar;
+
+  // diagnostics
+  int n_rhs, n_jac;
+
+  // Was the burn successful?
+  bool success;
 };
 
 
@@ -102,8 +164,12 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
         burn_state.aux[n] = eos_state.aux[n];
     }
 #endif
+
+#ifndef SIMPLIFIED_SDC
     burn_state.cv   = eos_state.cv;
     burn_state.cp   = eos_state.cp;
+#endif
+
     burn_state.y_e  = eos_state.y_e;
     burn_state.eta  = eos_state.eta;
     burn_state.abar = eos_state.abar;
@@ -130,8 +196,12 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
         eos_state.aux[n] = burn_state.aux[n];
     }
 #endif
+
+#ifdef SIMPLIFIED_SDC
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
+#endif
+
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;
     eos_state.abar = burn_state.abar;

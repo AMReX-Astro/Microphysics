@@ -37,5 +37,4 @@ ifeq ($(USE_REACT), TRUE)
 endif
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   F90EXE_sources += sdc_type.F90
-  CEXE_headers += sdc_type.H
 endif
