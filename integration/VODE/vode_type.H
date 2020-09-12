@@ -11,7 +11,11 @@
 #include <actual_matrix.H>
 #endif
 
+#ifdef SIMPLIFIED_SDC
+const int VODE_NEQS = SVAR_EVOLVE
+#else
 const int VODE_NEQS = NumSpec + 2;
+#endif
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
