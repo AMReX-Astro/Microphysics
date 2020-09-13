@@ -2,52 +2,59 @@
 #define VODE_TYPE_SIMPLIFIED_SDC
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state(time, vode_state)
+void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
 {
-    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt
-    use eos_module, only : eos
-
-    real(rt), intent(in) :: time
-    type(dvode_t), intent(inout) :: vode_state
-
-    real(rt) :: max_e, ke
-
-    type (eos_t) :: eos_state
-
-    //$gpu
 
     // update rho, rho*u, etc.
-    call fill_unevolved_variables(time, vode_state)
+
+    fill_unevolved_variables(time, state, vode_state);
 
     // Ensure that mass fractions always stay positive.
-    vode_state % y(SFS:SFS+nspec-1) = &
-         max(min(vode_state % y(SFS:SFS+nspec-1), vode_state % rpar(irp_SRHO)), &
-             vode_state % rpar(irp_SRHO) * 1.e-200_rt)
+
+   for (int n = 1; n <= NumSpec; ++n) {
+     // we use 1-based indexing, so we need to offset SFS
+     vode_state.y[SFS+n] = amrex::max(amrex::min(vode_state.y[SFS+n], state.y[SRHO]),
+                                      state.y[SRHO] * 1.e-200_rt);
+    }
+
 
     // renormalize abundances as necessary
-    if (renormalize_abundances) then
-       call renormalize_species(time, vode_state)
-    endif
+
+    if (renormalize_abundances) {then
+        renormalize_species(time, vode_state);
+    }
 
 #ifdef SDC_EVOLVE_ENERGY
 
     // Ensure that internal energy never goes above the maximum limit
     // provided by the EOS. Same for the internal energy implied by the
     // total energy (which we get by subtracting kinetic energy).
-    eos_state % rho = vode_state % rpar(irp_SRHO)
-    eos_state % T = MAX_TEMP
-    eos_state % xn = vode_state % y(SFS:SFS+nspec-1) / vode_state % rpar(irp_SRHO)
 
-    call eos(eos_input_rt, eos_state)
+    eos_t eos_state;
+    eos_state.rho = state.y[SRHO];
+    eos_state.T = MAX_TEMP;
+    for (int n = 0; n < NumSpec; n++) {
+      // vode_state.y uses 1-based indexing
+      eos_state.xn[n] = vode_state.y[SFS+n] / state.y[SRHO];
+    }
+#if NAUX > 0
+    for (int n = 0; n < NumAux; n++) {
+      eos_state.aux[n] = state.y[SFX+n] / state.y[SRHO];
+    }
+#endif
 
-    max_e = eos_state % e
+    eos(eos_input_rt, eos_state);
 
-    vode_state % y(SEINT) = min(vode_state % rpar(irp_SRHO) * max_e, vode_state % y(SEINT))
+    Real max_e = eos_state.e;
 
-    ke = vode_state % y(SEDEN) - &
-         HALF * sum(vode_state % rpar(irp_SMX:irp_SMZ)**2) / vode_state % rpar(irp_SRHO)
+    vode_state.y[SEINT+1] = amrex::min(state.y[SRHO] * max_e, vode_state.y[SEINT+1]);
 
-    vode_state % y(SEDEN) = min(vode_state % rpar(irp_SRHO) * max_e + ke, vode_state % y(SEDEN))
+    Real ke = vode_state.y[SEDEN+1] -
+      0.5_rt * (state.y[SMX] * state.y[SMX] +
+                state.y[SMY] * state.y[SMY] +
+                state.y[SMZ] * state.y[SMZ]) / state.y[SRHO];
+
+    vode_state.y[SEDEN+1] = amrex::min(state.y[SRHO] * max_e + ke, vode_state.y[SEDEN+1]);
 
 #endif
 
@@ -55,150 +62,187 @@ void clean_state(time, vode_state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void fill_unevolved_variables(time, vode_state)
+void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
 {
-    real(rt), intent(in) :: time
-    type(dvode_t), intent(inout) :: vode_state
 
-    //$gpu
+  // some quantities are only advected.  Here we update those state
+  // variables in burn_t's y[] array due only to advection.
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    // we are always integrating from t = 0, so there is no offset
-    // time needed here.  The indexing of irp_ydot_a is based on
-    // the indices in sdc_type_module
-    vode_state % rpar(irp_SRHO) = vode_state % rpar(irp_u_init-1+irp_SRHO) + &
-         vode_state % rpar(irp_ydot_a-1+SRHO) * time
+  // we are always integrating from t = 0, so there is no offset
+  // time needed here.  The indexing of ydot_a is based on
+  // the indices in burn_t and is 0-based
+  state.y[SRHO] = state.rho_orig + state.ydot_a[SRHO] * time;
 
-    vode_state % rpar(irp_SMX) = vode_state % rpar(irp_u_init-1+irp_SMX) + &
-         vode_state % rpar(irp_ydot_a-1+SMX) * time
-    vode_state % rpar(irp_SMY) = vode_state % rpar(irp_u_init-1+irp_SMY) + &
-         vode_state % rpar(irp_ydot_a-1+SMY) * time
-    vode_state % rpar(irp_SMZ) = vode_state % rpar(irp_u_init-1+irp_SMZ) + &
-         vode_state % rpar(irp_ydot_a-1+SMZ) * time
+  state.y[SMX] = state.umx_orig + state.ydot_a[SMX] * time;
+  state.y[SMY] = state.umy_orig + state.ydot_a[SMY] * time;
+  state.y[SMZ] = state.umz_orig + state.ydot_a[SMZ] * time;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    // Keep density consistent with the partial densities.
-    vode_state % rpar(irp_SRHO) = sum(vode_state % y(SFS:SFS - 1 + nspec))
+  // Keep density consistent with the partial densities.
+  state.y[SRHO] = 0.0_rt;
+  for (int n = 1; n <= NumSpec; n++) {
+    // use 1-based indexing into vode_state.y
+    state.y[SRHO] += vode_state.y[SFS+n];
+  }
+#endif
 
+  // for consistency
+  state.rho = state.y[SRHO];
+
+#if NAUX > 0
+      amrex::Error("Error: fill_unevolved_variables does not handle aux yet");
 #endif
 
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void renormalize_species(time, vode_state)
+void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 {
-
-    real(rt), intent(in) :: time
-    type(dvode_t), intent(inout) :: vode_state
-
-    real(rt) :: nspec_sum
-
-    //$gpu
 
     // We only renormalize species when evolving energy because
     // when we evolve enthalpy, we define the density as
     // the sum of the partial densities rho*X for each species.
+
 #ifdef SDC_EVOLVE_ENERGY
 
     // update rho, rho*u, etc.
-    call fill_unevolved_variables(time, vode_state)
 
-    nspec_sum = sum(vode_state % y(SFS:SFS-1+nspec)) / vode_state % rpar(irp_SRHO)
+    fill_unevolved_variables(time, state, vode_state);
 
-    vode_state % y(SFS:SFS-1+nspec) = vode_state % y(SFS:SFS-1+nspec) / nspec_sum
+    Real nspec_sum = 0.0_rt;
+    for (int n = 1; n <= NumSpec; n++) {
+      // use 1-based indexing
+      nspec_sum += vode_state.y[SFS+n];
+    }
+    nspec_sum /= state.y[SRHO];
+
+    for (int n = 1; n <= NumSpec; n++) {
+      vode_state.y[SFS+n] /= nspec_sum;
+    }
 
 #endif
 
 }
 
 
-//  Given a burn state, fill the rpar and integration state data.
+// Given a burn state, fill the rpar and integration state data.
+// this is indended only to be called once -- at the very start of the integration
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_vode(sdc, vode_state)
+void burn_to_vode(burn_t& state, dvode_t& vode_state)
 {
-    type (sdc_t) :: sdc
-    type(dvode_t), intent(inout) :: vode_state
 
-    //$gpu
+  for (int n = 0; n < SVAR_EVOLVE; n++) {
+    // vode_state uses 1-based indexing
+    vode_state.y[n+1] = state.y[n];
+  }
 
-    vode_state % y(:) = sdc % y(1:SVAR_EVOLVE)
-
-    // advective sources
-    vode_state % rpar(irp_ydot_a:irp_ydot_a-1+SVAR) = sdc % ydot_a(:)
+    // store the original rho and rho U
+    state.rho_orig = state.y[SRHO];
 
 #if defined(SDC_EVOLVE_ENERGY)
-
-    // unevolved state variables
-    vode_state % rpar(irp_SRHO) = sdc % y(SRHO)
-    vode_state % rpar(irp_SMX:irp_SMZ) = sdc % y(SMX:SMZ)
-
-    // initial state for unevolved variables
-    vode_state % rpar(irp_u_init-1+irp_SRHO) = sdc % y(SRHO)
-    vode_state % rpar(irp_u_init-1+irp_SMX:irp_u_init-1+irp_SMZ) = sdc % y(SMX:SMZ)
-
-    // other parameters
-    if (sdc % T_from_eden) then
-       vode_state % rpar(irp_T_from_eden) = ONE
-    else
-       vode_state % rpar(irp_T_from_eden) = -ONE
-    endif
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-    vode_state % rpar(irp_p0)   = sdc % p0
-    vode_state % rpar(irp_SRHO) = sdc % rho
-
+    state.umx_orig = state.y[SMX];
+    state.umy_orig = state.y[SMY];
+    state.umz_orig = state.y[SMZ];
 #endif
 
-#ifdef NONAKA_PLOT
+}
 
-    // bookkeeping information
-    vode_state % rpar(irp_i) = sdc % i
-    vode_state % rpar(irp_j) = sdc % j
-    vode_state % rpar(irp_k) = sdc % k
-    vode_state % rpar(irp_iter) = sdc % sdc_iter
 
-#endif
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void vode_to_burn_final(const Real time, dvode_t& vode_state, burn_t& state)
+{
 
-  end subroutine sdc_to_vode
+  // sync up the burn_t at the very end of integration with the updated state
 
-  subroutine vode_to_sdc(time, vode_state, sdc)
-
-    real(rt), intent(in) :: time
-    type (sdc_t) :: sdc
-    type(dvode_t), intent(inout) :: vode_state
-
-    //$gpu
-
-    sdc % y(1:SVAR_EVOLVE) = vode_state % y(:)
+  sdc % y(1:SVAR_EVOLVE) = vode_state % y(:)
 
     // unevolved state variables
     call fill_unevolved_variables(time, vode_state)
 
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void vode_to_burn(time, vode_state, burn_state)
+{
+
+    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_input_rp, eos_input_rh
+    use eos_type_module, only : eos_get_small_temp, eos_get_max_temp
+    use eos_module, only : eos
+    use burn_type_module, only : eos_to_burn, burn_t
+
+#ifdef SDC_EVOLVE_ENTHALPY
+    use meth_params_module, only: use_tfromp
+#endif
+
+    type (burn_t) :: burn_state
+    real(rt), intent(in) :: time
+    type(dvode_t), intent(inout) :: vode_state
+
+    type(eos_t) :: eos_state
+
+    real(rt) :: rhoInv, min_temp, max_temp
+
+    //$gpu
+
+    // update rho, rho*u, etc.
+    call fill_unevolved_variables(time, vode_state)
+
+    rhoInv = ONE / vode_state % rpar(irp_SRHO)
+
+    eos_state % rho = vode_state % rpar(irp_SRHO)
+    eos_state % xn  = vode_state % y(SFS:SFS+nspec-1) * rhoInv
+
 #if defined(SDC_EVOLVE_ENERGY)
 
-    sdc % y(SRHO) = vode_state % rpar(irp_SRHO)
-    sdc % y(SMX:SMZ) = vode_state % rpar(irp_SMX:irp_SMZ)
+    if (vode_state % rpar(irp_T_from_eden) > ZERO) then
+       eos_state % e = (vode_state % y(SEDEN) - &
+            HALF*rhoInv*sum(vode_state % rpar(irp_SMX:irp_SMZ)**2)) * rhoInv
+    else
+       eos_state % e = vode_state % y(SEINT) * rhoInv
+    endif
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    sdc % p0  = vode_state % rpar(irp_p0)
-    sdc % rho = vode_state % rpar(irp_SRHO)
+    if (use_tfromp) then
+       // NOT SURE IF THIS IS VALID
+       eos_state % p = vode_state % rpar(irp_p0)
+    else
+       eos_state % h = vode_state % y(SENTH) * rhoInv
+    endif
 
 #endif
 
-#ifdef NONAKA_PLOT
+    // Give the temperature an initial guess -- use the geometric mean
+    // of the minimum and maximum temperatures.
 
-    sdc % i = vode_state % rpar(irp_i)
-    sdc % j = vode_state % rpar(irp_j)
-    sdc % k = vode_state % rpar(irp_k)
-    sdc % sdc_iter = vode_state % rpar(irp_iter)
+    call eos_get_small_temp(min_temp)
+    call eos_get_max_temp(max_temp)
+
+    eos_state % T = sqrt(min_temp * max_temp)
+
+#if defined(SDC_EVOLVE_ENERGY)
+
+    call eos(eos_input_re, eos_state)
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    if (use_tfromp) then
+       // NOT SURE IF THIS IS VALID
+       // used to be an Abort statement
+       call eos(eos_input_rp, eos_state)
+    else
+       call eos(eos_input_rh, eos_state)
+    endif
 
 #endif
+
+    call eos_to_burn(eos_state, burn_state)
+
 
 }
 
@@ -577,106 +621,7 @@ void jac_to_vode(time, jac_react, vode_state, jac)
 
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void vode_to_burn(time, vode_state, burn_state)
-{
 
-    use eos_type_module, only : eos_t, eos_input_re, eos_input_rt, eos_input_rp, eos_input_rh
-    use eos_type_module, only : eos_get_small_temp, eos_get_max_temp
-    use eos_module, only : eos
-    use burn_type_module, only : eos_to_burn, burn_t
-
-#ifdef SDC_EVOLVE_ENTHALPY
-    use meth_params_module, only: use_tfromp
-#endif
-
-    type (burn_t) :: burn_state
-    real(rt), intent(in) :: time
-    type(dvode_t), intent(inout) :: vode_state
-
-    type(eos_t) :: eos_state
-
-    real(rt) :: rhoInv, min_temp, max_temp
-
-    //$gpu
-
-    // update rho, rho*u, etc.
-    call fill_unevolved_variables(time, vode_state)
-
-    rhoInv = ONE / vode_state % rpar(irp_SRHO)
-
-    eos_state % rho = vode_state % rpar(irp_SRHO)
-    eos_state % xn  = vode_state % y(SFS:SFS+nspec-1) * rhoInv
-
-#if defined(SDC_EVOLVE_ENERGY)
-
-    if (vode_state % rpar(irp_T_from_eden) > ZERO) then
-       eos_state % e = (vode_state % y(SEDEN) - &
-            HALF*rhoInv*sum(vode_state % rpar(irp_SMX:irp_SMZ)**2)) * rhoInv
-    else
-       eos_state % e = vode_state % y(SEINT) * rhoInv
-    endif
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-    if (use_tfromp) then
-       // NOT SURE IF THIS IS VALID
-       eos_state % p = vode_state % rpar(irp_p0)
-    else
-       eos_state % h = vode_state % y(SENTH) * rhoInv
-    endif
-
-#endif
-
-    // Give the temperature an initial guess -- use the geometric mean
-    // of the minimum and maximum temperatures.
-
-    call eos_get_small_temp(min_temp)
-    call eos_get_max_temp(max_temp)
-
-    eos_state % T = sqrt(min_temp * max_temp)
-
-#if defined(SDC_EVOLVE_ENERGY)
-
-    call eos(eos_input_re, eos_state)
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-    if (use_tfromp) then
-       // NOT SURE IF THIS IS VALID
-       // used to be an Abort statement
-       call eos(eos_input_rp, eos_state)
-    else
-       call eos(eos_input_rh, eos_state)
-    endif
-
-#endif
-
-    call eos_to_burn(eos_state, burn_state)
-
-    burn_state % time = time
-
-    if (vode_state % rpar(irp_self_heat) > ZERO) then
-       burn_state % self_heat = .true.
-    else
-       burn_state % self_heat = .false.
-    endif
-
-#ifdef SDC_EVOLVE_ENTHALPY
-
-    burn_state % p0 = vode_state % rpar(irp_p0)
-
-#endif
-
-#ifdef NONAKA_PLOT
-
-    burn_state % i = vode_state % rpar(irp_i)
-    burn_state % j = vode_state % rpar(irp_j)
-    burn_state % k = vode_state % rpar(irp_k)
-
-#endif
-
-}
 
 #endif
 

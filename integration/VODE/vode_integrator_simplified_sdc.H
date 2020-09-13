@@ -44,6 +44,14 @@ void vode_integrator (burn_t& state, Real dt)
     burn_to_vode(state, vode_state);
 
 
+    // store the original rho and rho U
+    state.rho_orig = state.y[SRHO];
+#if defined(SDC_EVOLVE_ENERGY)
+    state.umx_orig = state.y[SMX];
+    state.umy_orig = state.y[SMY];
+    state.umz_orig = state.y[SMZ];
+#endif
+
     // Set the tolerances.
 
     Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
