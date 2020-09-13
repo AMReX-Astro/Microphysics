@@ -89,7 +89,7 @@ void ener_gener_rate (const Real& dydt, Real& enuc)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void actual_rhs (burn_t& state, YdotNetArray1D& ydot)
 {
     using namespace Species;
 

@@ -1471,7 +1471,7 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 // Evaluates the right hand side of the aprox13 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
-         Array1D<Real, 1, neqs>& dydt,
+         YdotNetArray1D& dydt,
          bool deriva, bool for_jacobian_tderiv)
 {
     using namespace Species;
@@ -1927,7 +1927,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void actual_rhs(burn_t& state, YdotNetArray1D& ydot)
 {
 
     /*
@@ -2006,7 +2006,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     Real rho, temp, abar, zbar;
     Array1D<Real, 1, NumSpec> y;
-    Array1D<Real, 1, neqs> yderivs;
+    YdotNetArray1D yderivs;
 
     // Initialize jac to 0
 

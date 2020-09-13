@@ -193,7 +193,9 @@ The righthand side implementation of the network has the interface:
 .. code-block:: c++
 
    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
+   void actual_rhs(burn_t& state, YdotArray1D& ydot)
+
+Here ``YdotArray1D`` is a 1-d array indexed from ``1`` to ``neqs``.
 
 .. note::
 
@@ -282,7 +284,7 @@ The C++ implementation is in ``integration/utils/temperature_integration.H``:
 .. code-block:: c++
 
      AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-     void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+     void temperature_rhs (burn_t& state, YdotNetArray1D& ydot)
 
 
 We need the specific heat, :math:`c_x`. Note that because we are evaluating

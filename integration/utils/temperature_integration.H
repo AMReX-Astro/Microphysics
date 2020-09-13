@@ -10,7 +10,7 @@
 // since most networks will use the same temperature ODE.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void temperature_rhs (burn_t& state, YdotNetArray1D& ydot)
 {
     // Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
     // evolve :

@@ -17,7 +17,7 @@ using namespace amrex;
 void actual_rhs_init();
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void actual_rhs (burn_t& state, YdotNetArray1D& ydot)
 {
 
     for (int n = 1; n <= NumSpec; ++n) {

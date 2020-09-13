@@ -22,6 +22,10 @@ const int neqs = 2 + NumSpec;
 const int net_itemp = NumSpec + 1;
 const int net_ienuc = NumSpec + 2;
 
+// this is the data type that is used to get the ydots from the actual
+// RHS of the network, regardless of Strang or SDC
+typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
+
 struct burn_t
 {
     Real rho;

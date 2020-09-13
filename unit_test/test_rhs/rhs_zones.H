@@ -42,7 +42,7 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state)
 
     burn_state.self_heat = true;
 
-    Array1D<Real, 1, neqs> ydot;
+    YdotNetArray1D ydot;
 
 #ifdef NETWORK_SOLVER
     SparseMatrix jac;
