@@ -15,7 +15,9 @@ using namespace amrex;
 // temperature, enuc + the number of species which participate
 // in the evolution equations.
 
-#ifndef SIMPLIFIED_SDC
+// For Strang evolution, this will be the number of equations we are
+// evolving.  For simplified-SDC, we will need neqs when getting the
+// reaction sources from the network's RHS.
 const int neqs = 2 + NumSpec;
 
 // Indices of the temperature and energy variables in the work arrays.
@@ -23,7 +25,11 @@ const int neqs = 2 + NumSpec;
 const int net_itemp = NumSpec + 1;
 const int net_ienuc = NumSpec + 2;
 
-#else
+// this is the data type that is used to get the ydots from the actual
+// RHS of the network, regardless of Strang or SDC
+typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
+
+#ifdef SIMPLIFIED_SDC
 
 #if defined(SDC_EVOLVE_ENERGY)
 
@@ -76,7 +82,24 @@ struct burn_t
   // now come the bits that we need for SDC or Strang evolution
 
 #ifdef SIMPLIFIED_SDC
+
+  // y is the input conserved state.  We will keep this state updated
+  // in time as we integrate, such that upon output it will be the
+  // final conserved state.
   Real y[SVAR];
+
+  // we need to store a copy of the original state as well so we can
+  // handle the non-evolved state evolution
+  Real rho_orig;
+
+#if defined(SDC_EVOLVE_ENERGY)
+  Real umx_orig;
+  Real umy_orig;
+  Real umz_orig;
+#endif
+
+  // ydot_a are the advective terms that will modify the state y due
+  // to hydrodynamics over the timestep.
   Real ydot_a[SVAR];
 
 #if defined(SDC_EVOLVE_ENERGY)

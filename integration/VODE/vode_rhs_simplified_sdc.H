@@ -27,7 +27,7 @@ void f_rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
   state.time = time;
 
   // call the specific network to get the RHS
-  RArray1D ydot_react = {0};
+  YdotNetArray1D ydot_react = {0};
 
   actual_rhs(state, ydot_react);
 
