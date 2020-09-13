@@ -245,7 +245,8 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs_to_vode(const Real time, burn_t& state, YdotNetArray1D& ydot_react, dvode_t& vode_state,
+void rhs_to_vode(const Real time,
+                 burn_t& state, YdotNetArray1D& ydot_react, dvode_t& vode_state,
                  RArray1D& ydot)
 {
 
@@ -263,19 +264,21 @@ void rhs_to_vode(const Real time, burn_t& state, YdotNetArray1D& ydot_react, dvo
   }
 
   // add in the reacting terms -- here we convert from dY/dt to dX/dt
+  // The species derivatives are the first NumSpec components of
+  // ydot_react
 
-  for (int n = 1; n <= SVAR_EVOLVE; n++) {
+  for (int n = 1; n <= NumSpec; n++) {
     ydot(SFS+n) += state.rho * aion[n-1] * ydot_react(n);
   }
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-  ydot(SEINT+1) += state.rho * ydot_react(net_ienuc)
-    ydot(SEDEN) = ydot(SEDEN) + vode_state % rpar(irp_SRHO) * ydot_react(net_ienuc)
+  ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
+  ydot(SEDEN+1) += state.rho * ydot_react(net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH) = ydot(SENTH) + vode_state % rpar(irp_SRHO) * ydot_react(net_ienuc)
+  ydot(SENTH+1) += state.rho * ydot_react(net_ienuc);
 
 #endif
 
