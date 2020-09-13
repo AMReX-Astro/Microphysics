@@ -14,6 +14,7 @@ else
     F90EXE_sources += vode_integrator.F90
     F90EXE_sources += vode_rhs.F90
     F90EXE_sources += vode_type.F90
+    CEXE_headers += vode_type_strang.H
   endif
 endif
 
