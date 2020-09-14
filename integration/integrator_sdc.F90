@@ -9,14 +9,7 @@ contains
 
   subroutine integrator_init()
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
-#ifndef CUDA
-    use bs_integrator_module, only: bs_integrator_init
-#endif
-#else
-    use actual_integrator_module, only: actual_integrator_init
-#endif
 
 #ifdef NONAKA_PLOT
     use nonaka_plot_module, only: nonaka_init
@@ -24,14 +17,7 @@ contains
 
     implicit none
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     call vode_integrator_init()
-#ifndef CUDA
-    call bs_integrator_init()
-#endif
-#else
-    call actual_integrator_init()
-#endif
 
 #ifdef NONAKA_PLOT
     call nonaka_init()
@@ -45,14 +31,7 @@ contains
 
     !$acc routine seq
 
-#if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
-#ifndef CUDA
-    use bs_integrator_module, only: bs_integrator
-#endif
-#else
-    use actual_integrator_module, only : actual_integrator
-#endif
 #ifndef AMREX_USE_CUDA
     use amrex_error_module, only: amrex_error
 #endif
@@ -76,97 +55,48 @@ contains
 
     !$gpu
 
-    ! Loop through all available integrators. Our strategy will be to
-    ! try the default integrator first. If the burn fails, we loosen
-    ! the tolerance and try again, and keep doing so until we succed.
-    ! If we keep failing and hit the threshold for how much tolerance
-    ! loosening we will accept, then we restart with the original tolerance
-    ! and switch to another integrator.
+    retry_change_factor = ONE
 
-    do current_integrator = 0, 1
+    status % atol_spec = atol_spec
+    status % rtol_spec = rtol_spec
 
-       retry_change_factor = ONE
+    status % atol_temp = atol_temp
+    status % rtol_temp = rtol_temp
 
-       status % atol_spec = atol_spec
-       status % rtol_spec = rtol_spec
+    status % atol_enuc = atol_enuc
+    status % rtol_enuc = rtol_enuc
 
-       status % atol_temp = atol_temp
-       status % rtol_temp = rtol_temp
+    ! Loop until we either succeed at the integration, or run
+    ! out of tolerance loosening to try.
 
-       status % atol_enuc = atol_enuc
-       status % rtol_enuc = rtol_enuc
+    do
 
-       ! Loop until we either succeed at the integration, or run
-       ! out of tolerance loosening to try.
+       call vode_integrator(state_in, state_out, dt, time, status)
 
-       do
+       if (state_out % success) exit
 
-#if (INTEGRATOR == 0)
-#ifndef CUDA
-          if (current_integrator == 0) then
-#endif
-             call vode_integrator(state_in, state_out, dt, time, status)
-#ifndef CUDA
-          else if (current_integrator == 1) then
-             call bs_integrator(state_in, state_out, dt, time, status)
-          endif
-#endif
-#elif (INTEGRATOR == 1)
-#ifndef CUDA
-          if (current_integrator == 0) then
-             call bs_integrator(state_in, state_out, dt, time, status)
-          else if (current_integrator == 1) then
-#endif
-             call vode_integrator(state_in, state_out, dt, time, status)
-#ifndef CUDA
-          endif
-#endif
-#endif
+       if (.not. retry_burn) exit
 
-          if (state_out % success) exit
+       ! If we got here, the integration failed; loosen the tolerances.
 
-          if (.not. retry_burn) exit
+       if (retry_change_factor < retry_burn_max_change) then
 
-          ! If we got here, the integration failed; loosen the tolerances.
+          print *, "Retrying burn with looser tolerances in zone ", state_in % i, state_in % j, state_in % k
 
-          if (retry_change_factor < retry_burn_max_change) then
+          retry_change_factor = retry_change_factor * retry_burn_factor
 
-             print *, "Retrying burn with looser tolerances in zone ", state_in % i, state_in % j, state_in % k
+          status % atol_spec = status % atol_spec * retry_burn_factor
+          status % rtol_spec = status % rtol_spec * retry_burn_factor
 
-             retry_change_factor = retry_change_factor * retry_burn_factor
+          status % atol_temp = status % atol_temp * retry_burn_factor
+          status % rtol_temp = status % rtol_temp * retry_burn_factor
 
-             status % atol_spec = status % atol_spec * retry_burn_factor
-             status % rtol_spec = status % rtol_spec * retry_burn_factor
+          status % atol_enuc = status % atol_enuc * retry_burn_factor
+          status % rtol_enuc = status % rtol_enuc * retry_burn_factor
 
-             status % atol_temp = status % atol_temp * retry_burn_factor
-             status % rtol_temp = status % rtol_temp * retry_burn_factor
+          print *, "New tolerance loosening factor = ", retry_change_factor
 
-             status % atol_enuc = status % atol_enuc * retry_burn_factor
-             status % rtol_enuc = status % rtol_enuc * retry_burn_factor
-
-             print *, "New tolerance loosening factor = ", retry_change_factor
-
-          else
-
-             if (current_integrator < 1) then
-
-#ifndef CUDA
-#if (INTEGRATOR == 0)
-                print *, "Retrying burn with BS integrator"
-#elif (INTEGRATOR == 1)
-                print *, "Retrying burn with VODE integrator"
-#endif
-#endif
-
-             end if
-
-             ! Switch to the next integrator (if there is one).
-
-             exit
-
-          end if
-
-       end do
+       end if
 
        ! No need to do the next integrator if we have already succeeded.
 
