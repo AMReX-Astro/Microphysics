@@ -52,7 +52,9 @@ contains
 
     else
 
+#ifndef SIMPLIFIED_SDC
        call numerical_jac(bs % burn_s, bs % jac)
+#endif
 
     endif
 
