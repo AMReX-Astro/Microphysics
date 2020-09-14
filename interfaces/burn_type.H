@@ -7,6 +7,8 @@
 #include <eos_type.H>
 #include <extern_parameters.H>
 
+#include <ArrayUtilities.H>
+
 using namespace amrex;
 
 // A generic structure holding data necessary to do a nuclear burn.
@@ -64,6 +66,10 @@ const int SVAR_EVOLVE = SVAR;
 
 #endif
 
+// this is the data type of the dense Jacobian that the network wants.
+// it is not the same size as the Jacobian that VODE cares about when
+// we are doing simplified-SDC
+typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
 #endif
 
 struct burn_t
