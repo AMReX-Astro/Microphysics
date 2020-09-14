@@ -46,7 +46,7 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 const int SEDEN = 0;
 const int SEINT = 1;
 const int SFS   = 2;
-const int SRHO  = SFS + nspec;
+const int SRHO  = SFS + NumSpec;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
@@ -60,7 +60,7 @@ const int SVAR_EVOLVE = SRHO;
 // carry pressure for EOS calls in RHS
 
 const int SFS = 0;
-const int SENTH = SFS + nspec;
+const int SENTH = SFS + NumSpec;
 const int SVAR  = SENTH+1;
 const int SVAR_EVOLVE = SVAR;
 
@@ -226,7 +226,7 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     }
 #endif
 
-#ifdef SIMPLIFIED_SDC
+#ifndef SIMPLIFIED_SDC
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
 #endif
