@@ -286,10 +286,11 @@ void rhs_to_vode(const Real time,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac_to_vode(time, jac_react, vode_state, jac)
+void jac_to_vode(const Real time, JacNetArray2D& jac_react, dvode_t& vode_state, RArray2D& jac)
 {
 
-  // this is only used with an analytic Jacobian
+  // this is only used with an analytic Jacobian.  At the moment, we
+  // only support a dense Jacobian.
 
 
     // we come in with burn_state % jac being the Jacobian of the reacting system

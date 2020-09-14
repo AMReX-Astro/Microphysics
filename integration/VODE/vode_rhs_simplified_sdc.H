@@ -60,7 +60,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     vode_to_burn(vode_state.tn, vode_state, state);
 
-    MatrixType jac_react;
+    JacNetArray2D jac_react;
 
     actual_jac(state, jac_react);
 
