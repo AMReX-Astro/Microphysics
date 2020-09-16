@@ -171,7 +171,7 @@ contains
 #endif
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -198,7 +198,6 @@ contains
     state % zbar    = vode_state % rpar(irp_zbar)
     state % eta     = vode_state % rpar(irp_eta)
     state % y_e     = vode_state % rpar(irp_ye)
-    state % cs      = vode_state % rpar(irp_cs)
 
   end subroutine vode_to_eos
 
@@ -217,7 +216,7 @@ contains
 #endif
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -243,7 +242,6 @@ contains
     vode_state % rpar(irp_zbar) = state % zbar
     vode_state % rpar(irp_eta) = state % eta
     vode_state % rpar(irp_ye) = state % y_e
-    vode_state % rpar(irp_cs) = state % cs
 
   end subroutine eos_to_vode
 
@@ -261,7 +259,7 @@ contains
     use network, only: iabar, iye
 #endif
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_ye, irp_eta, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
@@ -299,7 +297,7 @@ contains
     use network, only: iye, iabar
 #endif
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_ye, irp_eta, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
@@ -328,8 +326,6 @@ contains
     state % zbar     = vode_state % rpar(irp_zbar)
     state % y_e      = vode_state % rpar(irp_ye)
     state % eta      = vode_state % rpar(irp_eta)
-    state % cs       = vode_state % rpar(irp_cs)
-    state % dx       = vode_state % rpar(irp_dx)
 
     state % T_old    = vode_state % rpar(irp_Told)
     state % dcvdt    = vode_state % rpar(irp_dcvdt)

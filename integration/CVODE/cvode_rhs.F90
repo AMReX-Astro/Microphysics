@@ -20,7 +20,7 @@ contains
     use extern_probin_module, only: renormalize_abundances, &
          integrate_temperature, integrate_energy
     use cvode_type_module, only: sk_clean_state, sk_renormalize_species, sk_update_thermodynamics, burn_to_vode, vode_to_burn, VODE_NEQS
-    use cvode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use cvode_rpar_indices, only: n_rpar_comps, irp_y_init
 
     implicit none
 
@@ -30,7 +30,7 @@ contains
 
     type (burn_t) :: burn_state
 
-    real(rt) :: limit_factor, t_sound, t_enuc
+    real(rt) :: limit_factor, t_enuc
 
     !$gpu
 
@@ -92,7 +92,7 @@ contains
     use burn_type_module, only: burn_t, net_ienuc, net_itemp
     use jacobian_sparsity_module, only: get_jac_entry, set_jac_entry, scale_jac_entry
     use cvode_type_module, only: vode_to_burn, burn_to_vode, VODE_NEQS
-    use cvode_rpar_indices, only: n_rpar_comps, irp_y_init, irp_t_sound
+    use cvode_rpar_indices, only: n_rpar_comps, irp_y_init
     use extern_probin_module, only: integrate_temperature, integrate_energy
 
     implicit none
@@ -106,7 +106,7 @@ contains
 #endif
 
     type (burn_t) :: state
-    real(rt) :: limit_factor, t_sound, t_enuc, scratch
+    real(rt) :: limit_factor, t_enuc, scratch
     integer :: n, i
 
     !$gpu

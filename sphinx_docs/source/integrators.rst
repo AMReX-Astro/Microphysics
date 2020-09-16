@@ -218,42 +218,6 @@ array indexed from ``1`` to ``VODE_NEQS`` in each dimension.
 Thermodynamics and :math:`T` Evolution
 ======================================
 
-Burning Mode
-------------
-
-There are several different modes under which the burning can be done, set
-via the burning_mode runtime parameter:
-
-* ``burning_mode`` = 0 : hydrostatic burning
-
-  :math:`\rho`, :math:`T` remain constant
-
-* ``burning_mode = 1`` : self-heating burn
-
-  :math:`T` evolves with the burning according to the temperature
-  evolution equation. This is the “usual” way of thinking of the
-  burning—all three equations (:eq:`eq:spec_integrate`,
-  :eq:`eq:enuc_integrate`, and :eq:`eq:temp_integrate`) are solved
-  simultaneously.
-
-* ``burning_mode = 2`` : hybrid approach
-
-  This implements an approach from :cite:`raskin:2010` in which we do
-  a hydrostatic burn everywhere, but if we get a negative energy
-  change, the burning is redone in self-heating mode (the logic being
-  that a negative energy release corresponds to NSE conditions)
-
-* ``burning_mode = 3`` : suppressed burning
-
-  This does a self-heating burn, but limits all values of the RHS by a
-  factor :math:`L = \text{min}(1, f_s (e / \dot{e}) / t_s)`, such that
-  :math:`\dot{e} = f_s\, e / t_s`, where :math:`f_s` is a safety
-  factor, set via burning_mode_factor.
-
-When the integration is started, the burning mode is used to identify
-whether temperature evolution should take place. This is used to
-set the self_heat field in the burn_t type passed
-into the RHS and Jacobian functions.
 
 EOS Calls
 ---------

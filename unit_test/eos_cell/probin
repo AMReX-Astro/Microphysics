@@ -1,0 +1,13 @@
+&extern
+  small_temp = 1d5
+  small_dens = 1d5
+
+  density      = 1.d6
+  temperature  = 1.d9
+
+  X1 = 1.0d0
+  X2 = 0.0d0
+  X3 = 0.0d0
+  x4 = 0.0d0
+
+/

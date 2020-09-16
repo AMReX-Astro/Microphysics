@@ -2,9 +2,9 @@
 #define _actual_conductivity_H_
 
 #include <cmath>
-#include "eos_type.H"
-#include "network.H"
-#include "fundamental_constants.H"
+#include <eos_type.H>
+#include <network.H>
+#include <fundamental_constants.H>
 
 const std::string cond_name = "stellar";
 
