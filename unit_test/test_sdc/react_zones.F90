@@ -59,14 +59,15 @@ contains
 
   subroutine do_react(lo, hi, &
                       state, s_lo, s_hi, &
-                      n_rhs_min, n_rhs_max, n_rhs_sum) bind(C, name="do_react")
+                      n_rhs, n_rhs_lo, n_rhs_hi) bind(C, name="do_react")
 
     implicit none
 
     integer, intent(in) :: lo(3), hi(3)
     integer, intent(in) :: s_lo(3), s_hi(3)
+    integer, intent(in) :: n_rhs_lo(3), n_rhs_hi(3)
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
-    integer, intent(inout) :: n_rhs_min, n_rhs_max, n_rhs_sum
+    integer,  intent(inout) :: n_rhs(n_rhs_lo(1):n_rhs_hi(1), n_rhs_lo(2):n_rhs_hi(2), n_rhs_lo(3):n_rhs_hi(3), 1)
 
     type (eos_t) :: eos_state
     type (sdc_t)   :: sdc_state_in, sdc_state_out
@@ -146,9 +147,7 @@ contains
                   (sdc_state_out % y(SENTH) - sdc_state_in % y(SENTH)) / tmax
 #endif
 
-             n_rhs_sum = n_rhs_sum + sdc_state_out % n_rhs
-             n_rhs_min = min(n_rhs_min, sdc_state_out % n_rhs)
-             n_rhs_max = max(n_rhs_max, sdc_state_out % n_rhs)
+             n_rhs(ii, jj, kk, 1) = sdc_state_out % n_rhs
 
           enddo
        enddo

@@ -4,6 +4,7 @@
 
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
+#include <AMReX_iMultiFab.H>
 #include <AMReX_BCRec.H>
 
 
@@ -169,24 +170,52 @@ void main_main ()
 
     }
 
-    int n_rhs_min = 1000000000;
-    int n_rhs_max = -1000000000;
-    int n_rhs_sum = 0;
+    // allocate a multifab for the number of RHS calls
+    // so we can manually do the reductions (for GPU)
+    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
 
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
+    int num_failed = 0;
+
     // Do the reactions
 #ifdef _OPENMP
-#pragma omp parallel reduction(min:n_rhs_min), reduction(max:n_rhs_max), reduction(+:n_rhs_sum)
+#pragma omp parallel
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.tilebox();
 
-        do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
-                 BL_TO_FORTRAN_ANYD(state[mfi]),
-                 &n_rhs_min, &n_rhs_max, &n_rhs_sum);
+#ifdef CXX_REACTIONS
+        if (do_cxx) {
+
+            auto s = state.array(mfi);
+            auto n_rhs = integrator_n_rhs.array(mfi);
+
+            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
+
+            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+            {
+                bool success = do_react(i, j, k, s, n_rhs);
+
+                if (!success) {
+                    Gpu::Atomic::Add(num_failed_d, 1);
+                }
+            });
+
+        }
+        else {
+#endif
+
+#pragma gpu
+          do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+                   BL_TO_FORTRAN_ANYD(state[mfi]),
+                   BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+
+#ifdef CXX_REACTIONS
+        }
+#endif
 
     }
 
@@ -196,6 +225,9 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
+    int n_rhs_min = integrator_n_rhs.min(0);
+    int n_rhs_max = integrator_n_rhs.max(0);
+    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
