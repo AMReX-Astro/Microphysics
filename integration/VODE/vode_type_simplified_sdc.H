@@ -37,7 +37,7 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
       // vode_state.y uses 1-based indexing
       eos_state.xn[n] = vode_state.y[SFS+n] / state.y[SRHO];
     }
-#if NAUX > 0
+#if NAUX_NET > 0
     for (int n = 0; n < NumAux; n++) {
       eos_state.aux[n] = state.y[SFX+n] / state.y[SRHO];
     }
@@ -93,7 +93,7 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
 #endif
 
 
-#if NAUX > 0
+#if NAUX_NET > 0
       amrex::Error("Error: fill_unevolved_variables does not handle aux yet");
 #endif
 
@@ -475,7 +475,7 @@ void jac_to_vode(const Real time, burn_t& state,
   for (int n = 0; n < NumSpec; n++) {
     eos_state.xn[n] = vode_state.y[SFS+n] / state.rho;
   }
-#if NAUX > 0
+#if NAUX_NET > 0
   amrex::Error("error: aux support not implemented");
 #endif
 
@@ -579,7 +579,7 @@ void jac_to_vode(const Real time, burn_t& state,
   for (int n = 0; n < NumSpec; n++) {
     eos_state.xn[n] = vode_state.y[SFS+n] / state.rho;
   }
-#if NAUX > 0
+#if NAUX_NET > 0
   amrex::Error("error: aux support not implemented");
 #endif
   eos_state.h = vode_state.y[SENTH+1] / state.rho;
