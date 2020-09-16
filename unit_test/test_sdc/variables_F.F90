@@ -106,7 +106,7 @@ contains
 
     ! C++ is 0-based, so add 1 to the idx
     fstring = p % names(idx+1)
-    len = len_trim(fstring)
+    slen = len_trim(fstring)
     fstring(slen+1:slen+1) = c_null_char
 
     cstring = c_loc(fstring)

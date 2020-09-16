@@ -38,6 +38,10 @@ void main_main ()
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
+    std::string prefix = "plt";
+
+    IntVect tile_size(1024, 8, 8);
+
     // inputs parameters
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -50,6 +54,8 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
+
+        pp.query("prefix", prefix);
 
         // do_cxx = 1 for C++, 0 for Fortran
         do_cxx = 0;
