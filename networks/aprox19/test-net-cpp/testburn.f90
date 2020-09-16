@@ -4,7 +4,6 @@ subroutine do_burn() bind (C)
   use eos_module
   use eos_type_module
   use burner_module
-  use burn_type_module
   use actual_burner_module
 
   use amrex_fort_module, only : rt => amrex_real
@@ -16,24 +15,12 @@ subroutine do_burn() bind (C)
 
   type (eos_t) :: eos_state
 
-  integer :: i
+  state_in % rho    = 2.0e7_rt
+  state_in % T      = 8.0e9_rt
 
-  state_in % rho       = 1.4311401611205835e7_rt
-  state_in % T         = 4.6993994016410122e9_rt
-
-  state_in % xn(ihe4)  = 4.2717633762309063e-3_rt
-  state_in % xn(ic12)  = 2.4502021307478711e-5_rt
-  state_in % xn(io16)  = 1.2059146851610723e-4_rt
-  state_in % xn(ine20) = 5.4419551339421394e-7_rt
-  state_in % xn(img24) = 2.5178594678377961e-4_rt
-  state_in % xn(isi28) = 3.5998829467937532e-1_rt
-  state_in % xn(ini56) = 1.6962109761781674e-1_rt
-
-  ! Add the remainder to iron
-  state_in % xn(ini56) = state_in % xn(ini56) + ONE - sum(state_in % xn)
+  state_in % xn(:)  = ONE / nspec
 
   call burn_to_eos(state_in, eos_state)
-  call normalize_abundances(eos_state)
   call eos(eos_input_rt, eos_state)
   call eos_to_burn(eos_state, state_in)
 
@@ -44,7 +31,7 @@ subroutine do_burn() bind (C)
   state_out = state_in
   
   call actual_burner(state_in, state_out, dt, time)
-  
+
   print *, 'done!'
 
   print *, "rho_out: ", state_out % rho
@@ -54,4 +41,3 @@ subroutine do_burn() bind (C)
   print *, "Energy change: ", state_out % e - state_in % e
 
 end subroutine do_burn
-

@@ -1,13 +1,20 @@
+# 20.10
+
+   * An option to use NSE instead of integrating the reaction
+     network has been added to the aprox19 network. (#332)
+
 # 20.09
+
+   * The gamma_law eos (not gamma_law_general) now fills the sound speed,
+     entropy, and derivatives for more inputs (#374)
+
+   * The rprox network now has screening (#377)
 
    * The NETWORK_PROPERTIES file was split to put the number of
      auxiliary species into its own file, NAUX_NETWORK.  This allows
      us to put if-logic into the file to choose the number of
      auxiliary quantities based on make setting (like USE_NSE).
      (#370)
-
-   * An option to use NSE instead of integrating the reaction
-     network has been added to the aprox19 network. (#332)
 
 # 20.08
 
