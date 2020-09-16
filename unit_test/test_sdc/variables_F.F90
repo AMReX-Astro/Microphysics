@@ -12,7 +12,7 @@ module variables
 
   integer, parameter :: MAX_NAME_LEN=20
 
-  type plot_t
+  type plot_t_f
      integer :: irho = -1
      integer :: itemp = -1
      integer :: ispec = -1
@@ -27,9 +27,9 @@ module variables
    contains
      procedure :: next_index => get_next_plot_index
 
-  end type plot_t
+  end type plot_t_f
 
-  type(plot_t) :: p
+  type(plot_t_f) :: p
 
 contains
 
@@ -39,7 +39,7 @@ contains
     ! increment the counter of plotfile quantities, n_plot_comps, by
     ! num
 
-    class(plot_t), intent(inout) :: this
+    class(plot_t_f), intent(inout) :: this
     integer, intent(in) :: num
     integer :: next
 
@@ -49,7 +49,7 @@ contains
     return
   end function get_next_plot_index
 
-  subroutine init_variables() bind(C, name="init_variables")
+  subroutine init_variables_F() bind(C, name="init_variables_F")
 
     integer :: n
 
@@ -72,7 +72,7 @@ contains
     enddo
     p % names(p % irho_Hnuc) = "rho_Hnuc"
 
-  end subroutine init_variables
+  end subroutine init_variables_F
 
   subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
 
@@ -100,14 +100,14 @@ contains
 
     ! include space for the NULL termination
     character(MAX_NAME_LEN+1), pointer :: fstring
-    integer :: len
+    integer :: slen
 
     allocate(fstring)
 
     ! C++ is 0-based, so add 1 to the idx
     fstring = p % names(idx+1)
     len = len_trim(fstring)
-    fstring(len+1:len+1) = c_null_char
+    fstring(slen+1:slen+1) = c_null_char
 
     cstring = c_loc(fstring)
 

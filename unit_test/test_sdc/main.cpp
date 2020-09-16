@@ -13,6 +13,11 @@ using namespace amrex;
 #include <test_react_F.H>
 #include <AMReX_buildInfo.H>
 
+#include <network.H>
+#include <eos.H>
+#include <variables.H>
+
+#include <cmath>
 #include <unit_test.H>
 
 int main (int argc, char* argv[])
@@ -29,13 +34,9 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size;
+    int n_cell, max_grid_size, do_cxx;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
-
-    std::string prefix = "plt";
-
-    IntVect tile_size(1024, 8, 8);
 
     // inputs parameters
     {
@@ -50,7 +51,9 @@ void main_main ()
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
 
-        pp.query("prefix", prefix);
+        // do_cxx = 1 for C++, 0 for Fortran
+        do_cxx = 0;
+        pp.query("do_cxx", do_cxx);
 
     }
 
@@ -105,22 +108,40 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // Ncomp = number of components for each array
+    init_extern_parameters();
+
+    eos_init();
+
     int Ncomp = -1;
-    init_variables();
-    get_ncomp(&Ncomp);
 
-    int name_len = -1;
-    get_name_len(&name_len);
+    // for C++
+    plot_t vars;
 
-    // get the variable names
+    // for F90
     Vector<std::string> varnames;
 
-    for (int i=0; i<Ncomp; i++) {
-      char* cstring[name_len+1];
-      get_var_name(cstring, &i);
-      std::string name(*cstring);
-      varnames.push_back(name);
+    if (do_cxx == 1) {
+      // C++ test
+      vars = init_variables();
+      Ncomp = vars.n_plot_comps;
+
+    } else {
+      // Fortran test
+
+      // Ncomp = number of components for each array
+      init_variables_F();
+      get_ncomp(&Ncomp);
+
+      int name_len = -1;
+      get_name_len(&name_len);
+
+      // get the variable names
+      for (int i=0; i<Ncomp; i++) {
+        char* cstring[name_len+1];
+        get_var_name(cstring, &i);
+        std::string name(*cstring);
+        varnames.push_back(name);
+      }
     }
 
     // time = starting time in the simulation
