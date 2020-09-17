@@ -1,65 +1,8 @@
 #ifndef VODE_TYPE_SIMPLIFIED_SDC_H
 #define VODE_TYPE_SIMPLIFIED_SDC
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
-{
-
-    // update rho, rho*u, etc.
-
-    fill_unevolved_variables(time, state, vode_state);
-
-    // Ensure that mass fractions always stay positive.
-
-   for (int n = 1; n <= NumSpec; ++n) {
-     // we use 1-based indexing, so we need to offset SFS
-     vode_state.y[SFS+n] = amrex::max(amrex::min(vode_state.y[SFS+n], state.rho),
-                                      state.rho * 1.e-200_rt);
-    }
-
-
-    // renormalize abundances as necessary
-
-    if (renormalize_abundances) {then
-        renormalize_species(time, vode_state);
-    }
-
-#ifdef SDC_EVOLVE_ENERGY
-
-    // Ensure that internal energy never goes above the maximum limit
-    // provided by the EOS. Same for the internal energy implied by the
-    // total energy (which we get by subtracting kinetic energy).
-
-    eos_t eos_state;
-    eos_state.rho = state.y[SRHO];
-    eos_state.T = MAX_TEMP;
-    for (int n = 0; n < NumSpec; n++) {
-      // vode_state.y uses 1-based indexing
-      eos_state.xn[n] = vode_state.y[SFS+n] / state.y[SRHO];
-    }
-#if NAUX_NET > 0
-    for (int n = 0; n < NumAux; n++) {
-      eos_state.aux[n] = state.y[SFX+n] / state.y[SRHO];
-    }
-#endif
-
-    eos(eos_input_rt, eos_state);
-
-    Real max_e = eos_state.e;
-
-    vode_state.y[SEINT+1] = amrex::min(state.y[SRHO] * max_e, vode_state.y[SEINT+1]);
-
-    Real ke = vode_state.y[SEDEN+1] -
-      0.5_rt * (state.y[SMX] * state.y[SMX] +
-                state.y[SMY] * state.y[SMY] +
-                state.y[SMZ] * state.y[SMZ]) / state.y[SRHO];
-
-    vode_state.y[SEDEN+1] = amrex::min(state.y[SRHO] * max_e + ke, vode_state.y[SEDEN+1]);
-
-#endif
-
-}
-
+#include <eos.H>
+#include <burn_type.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
@@ -117,13 +60,73 @@ void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
     Real nspec_sum = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
       // use 1-based indexing
-      nspec_sum += vode_state.y[SFS+n];
+      nspec_sum += vode_state.y(SFS+n);
     }
     nspec_sum /= state.y[SRHO];
 
     for (int n = 1; n <= NumSpec; n++) {
-      vode_state.y[SFS+n] /= nspec_sum;
+      vode_state.y(SFS+n) /= nspec_sum;
     }
+
+#endif
+
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
+{
+
+    // update rho, rho*u, etc.
+
+    fill_unevolved_variables(time, state, vode_state);
+
+    // Ensure that mass fractions always stay positive.
+
+   for (int n = 1; n <= NumSpec; ++n) {
+     // we use 1-based indexing, so we need to offset SFS
+     vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
+                                      state.rho * 1.e-200_rt);
+    }
+
+
+    // renormalize abundances as necessary
+
+    if (renormalize_abundances) {
+        renormalize_species(time, state, vode_state);
+    }
+
+#ifdef SDC_EVOLVE_ENERGY
+
+    // Ensure that internal energy never goes above the maximum limit
+    // provided by the EOS. Same for the internal energy implied by the
+    // total energy (which we get by subtracting kinetic energy).
+
+    eos_t eos_state;
+    eos_state.rho = state.y[SRHO];
+    eos_state.T = MAX_TEMP;
+    for (int n = 0; n < NumSpec; n++) {
+      // vode_state.y uses 1-based indexing
+      eos_state.xn[n] = vode_state.y(SFS+n) / state.y[SRHO];
+    }
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; n++) {
+      eos_state.aux[n] = state.y[SFX+n] / state.y[SRHO];
+    }
+#endif
+
+    eos(eos_input_rt, eos_state);
+
+    Real max_e = eos_state.e;
+
+    vode_state.y(SEINT+1) = amrex::min(state.y[SRHO] * max_e, vode_state.y(SEINT+1));
+
+    Real ke = vode_state.y(SEDEN+1) -
+      0.5_rt * (state.y[SMX] * state.y[SMX] +
+                state.y[SMY] * state.y[SMY] +
+                state.y[SMZ] * state.y[SMZ]) / state.y[SRHO];
+
+    vode_state.y(SEDEN+1) = amrex::min(state.y[SRHO] * max_e + ke, vode_state.y(SEDEN+1));
 
 #endif
 
@@ -139,7 +142,7 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
 
   for (int n = 0; n < SVAR_EVOLVE; n++) {
     // vode_state uses 1-based indexing
-    vode_state.y[n+1] = state.y[n];
+    vode_state.y(n+1) = state.y[n];
   }
 
     // store the original rho and rho U
@@ -172,7 +175,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
   for (int n = 0; n < SVAR_EVOLVE; n++) {
     // note vode_state uses 1-based indexing
-    state.y[n] = vode_state.y[n+1];
+    state.y[n] = vode_state.y(n+1);
   }
 
   // update rho, rho*u, etc.
@@ -183,20 +186,20 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
   eos_t eos_state;
   eos_state.rho = state.rho;
-  for (int n = 0; n < NumState; n++) {
+  for (int n = 0; n < NumSpec; n++) {
     // vode_state uses 1-based indexing
-    eos_state.xn[n] = vode_state.y[SFS+1+n] * rhoInv;
+    eos_state.xn[n] = vode_state.y(SFS+1+n) * rhoInv;
   }
 
 #if defined(SDC_EVOLVE_ENERGY)
 
   if (state.T_from_eden) {
-    eos_state.e = (vode_state.y[SEDEN+1] -
+    eos_state.e = (vode_state.y(SEDEN+1) -
                    0.5_rt * rhoInv * (state.y[SMX] * state.y[SMX] +
                                       state.y[SMY] * state.y[SMY] +
                                       state.y[SMZ] * state.y[SMZ])) * rhoInv;
   } else {
-    eos_state.e = vode_state.y[SEINT+1] * rhoInv;
+    eos_state.e = vode_state.y(SEINT+1) * rhoInv;
   }
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -205,7 +208,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     // under this assumption, we are assuming that there is no base state evolution
     eos_state.p = state.p0;
   } else {
-    eos_state.h = vode_state.y[SENTH+1] * rhoInv;
+    eos_state.h = vode_state.y(SENTH+1) * rhoInv;
   }
 
 #endif
@@ -215,11 +218,8 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
   // TODO: we should just change this to use state.T
 
-  Real min_temp;
-  eos_get_small_temp(&min_temp);
-
-  Real max_temp;
-  eos_get_max_temp(&max_temp);
+  Real min_temp = EOSData::mintemp;
+  Real max_temp = EOSData::maxtemp;
 
   eos_state.T = std::sqrt(min_temp * max_temp);
 
@@ -316,8 +316,8 @@ void jac_to_vode(const Real time, burn_t& state,
   constexpr int iwvar = 2+NumSpec;
 #endif
 
-  amrex::Array2D<1, SVAR_EVOLVE+1, 1, iwvar> dRdw = {0.0_rt];
-  amrex::Array2D<1, iwvar, 1, SVAR_EVOLVE+1> dwdU = {0.0_rt};
+  amrex::Array2D<Real, 1, SVAR_EVOLVE+1, 1, iwvar> dRdw = {0.0_rt};
+  amrex::Array2D<Real, 1, iwvar, 1, SVAR_EVOLVE+1> dwdU = {0.0_rt};
 
   constexpr Real eps = 1.e-8_rt;
   constexpr Real smallK = 1.e-15_rt;
@@ -473,13 +473,13 @@ void jac_to_vode(const Real time, burn_t& state,
   eos_state.rho = state.rho;
   eos_state.T = 1.e4_rt;   // initial guess
   for (int n = 0; n < NumSpec; n++) {
-    eos_state.xn[n] = vode_state.y[SFS+n] / state.rho;
+    eos_state.xn[n] = vode_state.y(SFS+n) / state.rho;
   }
 #if NAUX_NET > 0
   amrex::Error("error: aux support not implemented");
 #endif
 
-  eos_state.e = vode_state.y[SEINT+1] / state.rho;
+  eos_state.e = vode_state.y(SEINT+1) / state.rho;
 
   eos(eos_input_re, eos_state);
 
@@ -577,12 +577,12 @@ void jac_to_vode(const Real time, burn_t& state,
   eos_state.rho = state.rho;
   eos_state.T = 1.e4;   // initial guess
   for (int n = 0; n < NumSpec; n++) {
-    eos_state.xn[n] = vode_state.y[SFS+n] / state.rho;
+    eos_state.xn[n] = vode_state.y(SFS+n) / state.rho;
   }
 #if NAUX_NET > 0
   amrex::Error("error: aux support not implemented");
 #endif
-  eos_state.h = vode_state.y[SENTH+1] / state.rho;
+  eos_state.h = vode_state.y(SENTH+1) / state.rho;
 
   eos(eos_input_rh, eos_state);
 

@@ -18,7 +18,7 @@ extern "C"
 
   void init_unit_test(const int* name, const int* namlen);
 
-  void do_react(const int* lo, const int* hi,
+  void do_react_F(const int* lo, const int* hi,
                 amrex::Real* state, const int* s_lo, const int* s_hi,
                 int* n_rhs, const int* n_rhs_lo, const int* n_rhs_hi);
 

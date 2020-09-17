@@ -21,6 +21,8 @@ using namespace amrex;
 #include <cmath>
 #include <unit_test.H>
 
+#include <react_zones.H>
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -209,9 +211,9 @@ void main_main ()
 #endif
 
 #pragma gpu
-          do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
-                   BL_TO_FORTRAN_ANYD(state[mfi]),
-                   BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+          do_react_F(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+                     BL_TO_FORTRAN_ANYD(state[mfi]),
+                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
 
 #ifdef CXX_REACTIONS
         }

@@ -12,7 +12,7 @@
 #endif
 
 #ifdef SIMPLIFIED_SDC
-const int VODE_NEQS = SVAR_EVOLVE
+const int VODE_NEQS = SVAR_EVOLVE;
 #else
 const int VODE_NEQS = NumSpec + 2;
 #endif
