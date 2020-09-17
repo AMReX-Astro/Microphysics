@@ -67,6 +67,8 @@ void main_main ()
 
     }
 
+    std::cout << "do_cxx = " << do_cxx << std::endl;
+
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
       is_periodic[idim] = 1;
@@ -122,6 +124,11 @@ void main_main ()
 
     eos_init();
 
+#ifdef CXX_REACTIONS
+    // C++ Network, RHS, screening, rates initialization
+    network_init();
+#endif
+
     int Ncomp = -1;
 
     // for C++
@@ -129,6 +136,11 @@ void main_main ()
 
     // for F90
     Vector<std::string> varnames;
+
+    // we always need to initilize the Fortran variable indices, since
+    // we do the initialization in Fortran
+
+    init_variables_F();
 
     if (do_cxx == 1) {
       // C++ test
@@ -139,7 +151,6 @@ void main_main ()
       // Fortran test
 
       // Ncomp = number of components for each array
-      init_variables_F();
       get_ncomp(&Ncomp);
 
       int name_len = -1;
@@ -192,6 +203,8 @@ void main_main ()
 
 #ifdef CXX_REACTIONS
         if (do_cxx) {
+
+          std::cout << "here!!!!!!!!!!!!!!!" << std::endl;
 
             auto s = state.array(mfi);
             auto n_rhs = integrator_n_rhs.array(mfi);
