@@ -1,8 +1,10 @@
 #ifndef VODE_TYPE_SIMPLIFIED_SDC_H
-#define VODE_TYPE_SIMPLIFIED_SDC
+#define VODE_TYPE_SIMPLIFIED_SDC_H
 
 #include <eos.H>
+#include <eos_composition.H>
 #include <burn_type.H>
+#include <actual_rhs.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
@@ -345,7 +347,7 @@ void jac_to_vode(const Real time, burn_t& state,
   }
 
   // also fill the ydot
-  YdotNucArray1D ydot;
+  YdotNetArray1D ydot;
   vode_to_burn(time, vode_state, state);
   actual_rhs(state, ydot);
 
@@ -358,11 +360,11 @@ void jac_to_vode(const Real time, burn_t& state,
 
   // now perturb density and call the RHS to compute the derivative wrt rho
   // species rates come back in terms of molar fractions
-  burn_t burn_state_pert = burn_state;
-  burn_state_pert.rho = burn_state.rho * (1.0_rt + eps);
+  burn_t state_pert = state;
+  state_pert.rho = state.rho * (1.0_rt + eps);
 
-  YdotNucArray1D ydot_pert;
-  actual_rhs(burn_state_pert, ydot_pert);
+  YdotNetArray1D ydot_pert;
+  actual_rhs(state_pert, ydot_pert);
 
   // make the rates dX/dt and not dY/dt
   for (int n = 1; n <= NumSpec; n++) {
@@ -487,7 +489,7 @@ void jac_to_vode(const Real time, burn_t& state,
 
   // temperature row
   for (int n = 1; n <= NumSpec; n++) {
-    dwdU(iwT, SFS+n) = -eos_xderivs % dedX[n-1]/  (state.rho * eos_state.dedT);
+    dwdU(iwT, SFS+n) = -eos_xderivs.dedX[n-1]/  (state.rho * eos_state.dedT);
   }
   dwdU(iwT, SEINT+1) = 1.0_rt / (state.rho * eos_state.dedT);
   dwdU(iwT, SEDEN+1) = 0.0_rt;
@@ -590,9 +592,9 @@ void jac_to_vode(const Real time, burn_t& state,
 
   // temperature row
   for (int n = 1; n <= NumSpec; n++) {  
-    dwdU(iwT, SFS+n) = -eos_xderivs % dhdX[n-1] / (state.rho * eos_state.dedT);
+    dwdU(iwT, SFS+n) = -eos_xderivs.dhdX[n-1] / (state.rho * eos_state.dedT);
   }
-  dwdU(iwT, SENTH+1) = 1.0_rt / (state.rho * eos_state % dhdT);
+  dwdU(iwT, SENTH+1) = 1.0_rt / (state.rho * eos_state.dhdT);
   Real X_dedX_sum = 0.0;
   for (int n = 0; n < NumSpec; n++) {
     X_dedX_sum += eos_state.xn[n] * eos_xderivs.dedX[n];

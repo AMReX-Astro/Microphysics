@@ -57,9 +57,9 @@ contains
 
    end subroutine init_state
 
-  subroutine do_react(lo, hi, &
-                      state, s_lo, s_hi, &
-                      n_rhs, n_rhs_lo, n_rhs_hi) bind(C, name="do_react")
+  subroutine do_react_F(lo, hi, &
+                        state, s_lo, s_hi, &
+                        n_rhs, n_rhs_lo, n_rhs_hi) bind(C, name="do_react_F")
 
     implicit none
 
@@ -153,6 +153,6 @@ contains
        enddo
     enddo
 
-  end subroutine do_react
+  end subroutine do_react_F
 
 end module react_zones_module

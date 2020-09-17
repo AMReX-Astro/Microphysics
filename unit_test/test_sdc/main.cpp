@@ -22,6 +22,7 @@ using namespace amrex;
 #include <unit_test.H>
 
 #include <react_zones.H>
+#include <integrator_sdc.H>
 
 int main (int argc, char* argv[])
 {
@@ -199,7 +200,7 @@ void main_main ()
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                bool success = do_react(i, j, k, s, n_rhs);
+                bool success = do_react(vars, i, j, k, s, n_rhs);
 
                 if (!success) {
                     Gpu::Atomic::Add(num_failed_d, 1);

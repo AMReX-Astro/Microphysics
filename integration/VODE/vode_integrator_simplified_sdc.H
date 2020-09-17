@@ -54,11 +54,11 @@ void vode_integrator (burn_t& state, Real dt)
 #if defined(SDC_EVOLVE_ENERGY)
     Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
 
-    vode_state.atol[SEDEN+1] = sdc_min_density * atol_enuc * sdc_tol_frac; 
-    vode_state.atol[SEINT+1] = sdc_min_density * atol_enuc * sdc_tol_frac;
+    vode_state.atol(SEDEN+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
+    vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
 
-    vode_state.rtol[SEDEN+1] = sdc_min_density * rtol_enuc * sdc_tol_frac; 
-    vode_state.rtol[SEINT+1] = sdc_min_density * rtol_enuc * sdc_tol_frac;
+    vode_state.rtol(SEDEN+1) = sdc_min_density * rtol_enuc * sdc_tol_fac; 
+    vode_state.rtol(SEINT+1) = sdc_min_density * rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     Real sdc_min_density = state.rho;
@@ -67,8 +67,8 @@ void vode_integrator (burn_t& state, Real dt)
     }
     sdc_min_density = amrex::min(state.rho, sdc_min_density);
 
-    vode_state.atol[SENTH+1] = sdc_min_density * atol_enuc * sdc_tol_frac; 
-    vode_state.rtol[SENTH+1] = sdc_min_density * rtol_enuc * sdc_tol_frac; 
+    vode_state.atol(SENTH+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
+    vode_state.rtol(SENTH+1) = sdc_min_density * rtol_enuc * sdc_tol_fac; 
 
 #endif
 
@@ -77,15 +77,12 @@ void vode_integrator (burn_t& state, Real dt)
     // so that atol becomes an absolutely tolerance on (rho X)
 
     for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.atol[SFS+n] = sdc_min_density * atol_spec * sdc_tol_frac;
+        vode_state.atol(SFS+n) = sdc_min_density * atol_spec * sdc_tol_fac;
     }
     for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol[SFS+n] = sdc_min_density * rtol_spec * sdc_tol_frac;
+        vode_state.rtol(SFS+n) = sdc_min_density * rtol_spec * sdc_tol_fac;
     }
 
-    // this is not used, but we set it just to make sure everything is initialized
-
-    state.self_heat = true;
 
     // Call the integration routine.
 
@@ -93,7 +90,7 @@ void vode_integrator (burn_t& state, Real dt)
 
     // Copy the integration data back to the burn state.
 
-    vode_to_burn(vode_state, state);
+    vode_to_burn(0.0_rt, vode_state, state);
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the
@@ -104,27 +101,27 @@ void vode_integrator (burn_t& state, Real dt)
     }
 
 #if defined(SDC_EVOLVE_ENERGY)
-    if (vode_state.y[SEINT+1] < 0.0_rt || vode_state.y[SEDEN+1] < 0.0_rt) {
+    if (vode_state.y(SEINT+1) < 0.0_rt || vode_state.y(SEDEN+1) < 0.0_rt) {
       state.success = false;
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y[SFS+n] / state[SRHO] < -vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.y[SRHO] < -vode_failure_tolerance) {
             state.success = false;
         }
 
-        if (vode_state.y[SFS+n] / state[SRHO] > 1.0_rt + vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + vode_failure_tolerance) {
             state.success = false;
         }
     }
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y[SFS+n] / state.rho < -vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.rho < -vode_failure_tolerance) {
             state.success = false;
         }
 
-        if (vode_state.y[SFS+n] / state.rho > 1.0_rt + vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.rho > 1.0_rt + vode_failure_tolerance) {
             state.success = false;
         }
     }
