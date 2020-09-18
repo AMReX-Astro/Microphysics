@@ -92,7 +92,7 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = eos_state.xn[n];
     }
-#if NumAux > 0
+#if NAUX_NET > 0
     for (int n = 0; n < NumAux; ++n) {
         burn_state.aux[n] = eos_state.aux[n];
     }

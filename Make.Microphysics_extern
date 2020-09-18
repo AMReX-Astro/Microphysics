@@ -53,6 +53,17 @@ ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 
+# NSE networks need the table
+ifeq ($(USE_NSE),TRUE)
+  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
+     all: nsetable
+  endif
+endif
+
+nsetable:
+	@if [ ! -f nse19.tbl ]; then echo Linking nse19.tbl; ln -s $(NETWORK_PATH)/nse19.tbl .; fi
+
+
 # include the network
 EXTERN_CORE += $(NETWORK_PATH)
 

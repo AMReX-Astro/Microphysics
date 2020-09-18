@@ -18,6 +18,7 @@ class AuxVar:
     """convenience class for an auxilliary variable"""
     def __init__(self):
         self.name = ""
+        self.preprocessor = None
 
     def __str__(self):
         return "auxillary variable {}".format(self.name)
@@ -122,6 +123,26 @@ def parse_network_object(fields, defines):
     if fields[0].startswith("__aux_"):
         ret = AuxVar()
         ret.name = fields[0][6:]
+        # we can put a preprocessor variable after the aux name to require that it be
+        # set in order to define the auxillary variable
+        try:
+            ret.preprocessor = fields[1]
+        except IndexError:
+            ret.preprocessor = None
+
+        # we can put a preprocessor variable after the aux name to
+        # require that it be set in order to define the auxillary
+        # variable
+        try:
+            ret.preprocessor = fields[1]
+        except IndexError:
+            ret.preprocessor = None
+
+        # if there is a preprocessor attached to this variable, then
+        # we will check if we have defined that
+        if ret.preprocessor is not None:
+            if f"-D{ret.preprocessor }" not in defines:
+                ret = UnusedVar()
 
         # we can put a preprocessor variable after the aux name to
         # require that it be set in order to define the auxillary
@@ -184,7 +205,7 @@ def write_network(network_template, header_template,
     err = parse_net_file(species, aux_vars, net_file, defines)
 
     if err:
-        abort(out_file)
+        abort(network_file)
 
 
     properties = {}
@@ -315,6 +336,16 @@ def write_network(network_template, header_template,
                             else:
                                 fout.write("{}{},\n".format(indent, spec.short_name.capitalize()))
                         fout.write("{}NumberSpecies={}\n".format(indent, species[-1].short_name.capitalize()))
+
+                elif keyword == "AUXZERO_ENUM":
+                    if lang == "C++":
+                        if aux_vars:
+                            for n, aux in enumerate(aux_vars):
+                                if n == 0:
+                                    fout.write("{}i{}=0,\n".format(indent, aux.name.lower()))
+                                else:
+                                    fout.write("{}i{},\n".format(indent, aux.name.lower()))
+                            fout.write("{}NumberAux=i{}\n".format(indent, aux_vars[-1].name.lower()))
 
             else:
                 fout.write(line)
