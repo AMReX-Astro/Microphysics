@@ -156,6 +156,6 @@ similar rate for beta decay and positron capture
 
  wrate=rectot+rpdtot-redtot-rpctot
 
-So if electron capure domiantes wrate is positive
+So if electron capture dominates wrate is positive
 
 The inference is that it is a positive term that is subtracted from Ye
