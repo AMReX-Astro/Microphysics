@@ -1,0 +1,4 @@
+CEXE_sources += main.cpp
+CEXE_headers += eos_cell.H
+F90EXE_sources += unit_test.F90
+F90EXE_headers += eos_cell_F.H

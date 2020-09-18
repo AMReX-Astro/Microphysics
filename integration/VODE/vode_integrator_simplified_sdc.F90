@@ -29,7 +29,7 @@ contains
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode, retry_burn, &
+                                    retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit, use_jacobian_caching, &
                                     ode_max_steps, sdc_burn_tol_factor

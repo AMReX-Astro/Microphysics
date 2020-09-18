@@ -30,8 +30,7 @@ contains
     use vode_rpar_indices
     use extern_probin_module, only: jacobian, use_jacobian_caching, &
          burner_verbose, &
-         burning_mode, burning_mode_factor, &
-         dt_crit, ode_max_steps
+         call_eos_in_rhs, dt_crit, ode_max_steps
     use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
@@ -62,7 +61,7 @@ contains
     ! this is the first call to the problem -- this is what we will want.
 
     real(rt) :: ener_offset
-    real(rt) :: t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, limit_factor
 
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
@@ -135,13 +134,6 @@ contains
        dvode_state % rpar(irp_self_heat) = -ONE
     endif
 
-    ! Copy in the zone size.
-
-    dvode_state % rpar(irp_dx) = state_in % dx
-
-    ! Set the sound crossing time.
-
-    dvode_state % rpar(irp_t_sound) = state_in % dx / eos_state_in % cs
 
     ! Set the time offset -- this converts between the local integration 
     ! time and the simulation time
@@ -171,39 +163,6 @@ contains
     ! Call the integration routine.
     call dvode(dvode_state)
 
-    ! If we are using hybrid burning and the energy release was negative (or we failed),
-    ! re-run this in self-heating mode.
-
-    if ( burning_mode == 2 .and. &
-         (dvode_state % y(net_ienuc) - ener_offset < ZERO .or. &
-          dvode_state % istate < 0) ) then
-
-       dvode_state % rpar(irp_self_heat) = ONE
-
-       dvode_state % istate = 1
-
-       dvode_state % T = ZERO
-       dvode_state % TOUT = dt
-
-       call eos_to_vode(eos_state_in, dvode_state)
-
-       dvode_state % rpar(irp_Told) = eos_state_in % T
-
-       if (dT_crit < 1.0e19_rt) then
-
-          dvode_state % rpar(irp_dcvdt) = (eos_state_temp % cv - eos_state_in % cv) / &
-                                          (eos_state_temp % T - eos_state_in % T)
-          dvode_state % rpar(irp_dcpdt) = (eos_state_temp % cp - eos_state_in % cp) / &
-                                          (eos_state_temp % T - eos_state_in % T)
-
-       endif
-
-       dvode_state % y(net_ienuc) = ener_offset
-
-       ! Call the integration routine.
-       call dvode(dvode_state)
-
-    endif
 
     ! VODE does not always fail even though it can lead to unphysical states,
     ! so add some sanity checks that trigger a retry even if VODE thinks
@@ -256,20 +215,6 @@ contains
     state_out % n_jac = dvode_state % NJE
 
     state_out % time = dvode_state % t
-
-    ! For burning_mode == 3, limit the burning.
-
-    if (burning_mode == 3) then
-
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
-       t_sound = state_in % dx / eos_state_in % cs
-
-       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
-
-       state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
-       state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
-
-    endif
 
     call normalize_abundances_burn(state_out)
 

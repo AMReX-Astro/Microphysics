@@ -136,8 +136,6 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         }
     }
 
-    burn_to_vode(state, vode_state);
-
 }
 
 #endif

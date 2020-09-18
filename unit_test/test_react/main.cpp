@@ -10,16 +10,17 @@
 
 using namespace amrex;
 
-#include "test_react.H"
-#include "test_react_F.H"
-#include "extern_parameters.H"
-#include "eos.H"
-#include "network.H"
+#include <test_react.H>
+#include <test_react_F.H>
+#include <extern_parameters.H>
+#include <eos.H>
+#include <network.H>
 #ifdef CXX_REACTIONS
-#include "react_zones.H"
+#include <react_zones.H>
 #endif
-#include "AMReX_buildInfo.H"
-#include "variables.H"
+#include <AMReX_buildInfo.H>
+#include <variables.H>
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {
@@ -265,6 +266,8 @@ void main_main ()
 
     // Write a plotfile
     WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
+
+    write_job_info(prefix + name + integrator + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

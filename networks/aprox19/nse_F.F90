@@ -2,6 +2,7 @@ module nse_module
 
   use amrex_fort_module, only : rt => amrex_real
 
+  use network_properties, only : nspec
   implicit none
 
   integer, parameter :: ntemp = 71
@@ -9,7 +10,7 @@ module nse_module
   integer, parameter :: nye = 21
 
   integer, parameter :: npts = 46221
-  integer, parameter :: nspec = 19
+
 
   real(rt), allocatable :: ttlog(:), ddlog(:), yetab(:)
   !real(rt), allocatable :: helium(:), sica(:), fegroup(:)
@@ -25,6 +26,8 @@ module nse_module
 
   !$acc declare create(ttlog, ddlog, yetab, abartab, ebtab, wratetab, massfractab)
   !! !$acc declare create(helium, sica, fegroup)
+
+  private ntemp, nden, nye, npts
 
 contains
 

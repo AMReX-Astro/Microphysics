@@ -5,6 +5,11 @@
 
 # 20.09
 
+   * Unit tests now write a job_info file (#383)
+
+   * A new single-zone EOS test routine was created as unit_test/eos_cell
+     (#382)
+
    * The gamma_law eos (not gamma_law_general) now fills the sound speed,
      entropy, and derivatives for more inputs (#374)
 

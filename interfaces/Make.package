@@ -1,6 +1,8 @@
 CEXE_headers += ArrayUtilities.H
 
 F90EXE_sources += microphysics.F90
+CEXE_headers += microphysics_F.H
+
 F90EXE_sources += network.F90
 F90EXE_sources += eos.F90
 F90EXE_sources += eos_override.F90

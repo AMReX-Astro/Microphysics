@@ -78,11 +78,11 @@ The basic flow of a simulation using the NSE network is as follows:
     * use :math:`\rho`, :math:`T`, and :math:`Y_e` to call the table.
       This returns: :math:`dY_e/dt`, :math:`(B/A)_{\rm out}`, and :math:`\bar{A}_{\rm out}`.
 
-    * update :math:`Y_e`:
+    * update :math:`Y_e` [#fY]_ :
 
       .. math::
 
-         (Y_e)_{\rm out} = (Y_e)_{\rm in} - \Delta t \frac{dY_e}{dt}
+         (Y_e)_{\rm out} = (Y_e)_{\rm in} + \Delta t \frac{dY_e}{dt}
 
     * :math:`\bar{A}_{\rm out}` is simply the value returned from the table
 
@@ -123,3 +123,15 @@ We determine is a zone is in NSE according to:
 * :math:`X(\isotm{C}{12})` < ``C_nse``
 
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
+
+
+.. rubric:: Footnotes
+
+.. [#fY] The table actually provides the weak rate, which is the sum
+   of all electron capture and positron decay rates times the
+   appropriate abundances minus a similar rate for the beta decay and
+   positron capture, [wrate] = [rectot] + [rpdtot] - [redtot] - [rpctot]
+
+   So if electron capture dominates, then [wrate] is positive and this should
+   be subtracted from :math:`Y_e`.
+
