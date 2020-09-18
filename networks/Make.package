@@ -80,6 +80,12 @@ ifeq ($(USE_SCREENING), TRUE)
 
 endif
 
+ifeq ($(USE_NSE), TRUE)
+
+  DEFINES += -DNSE_THERMO -DNSE
+
+endif
+
 ifeq ($(USE_NEUTRINOS), TRUE)
 
   NEUTRINO_PATH := $(MICROPHYSICS_HOME)/neutrinos

@@ -19,7 +19,6 @@ The equations we integrate to do a nuclear burn are:
    \frac{dT}{dt} =\frac{\edot}{c_x} .
    :label: eq:temp_integrate
 
-
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`\enuc` is the specifc
 nuclear energy created through reactions, :math:`T` is the
 temperature [1]_ , and :math:`c_x` is the specific heat for the
@@ -284,7 +283,6 @@ The C++ implementation is in ``integration/utils/temperature_integration.H``:
      AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
      void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
-
 We need the specific heat, :math:`c_x`. Note that because we are evaluating
 the temperature evolution independent of any hydrodynamics, we do not
 incorporate any advective or :math:`pdV` terms in the evolution. Therefore,
@@ -427,7 +425,6 @@ so :math:`10^{-9}` should be used as the default tolerance in future simulations
    Relative error of runs with varying tolerances as compared
    to a run with an ODE tolerance of :math:`10^{-12}`.
 
-
 The integration tolerances for the burn are controlled by
 ``rtol_spec``, ``rtol_enuc``, and ``rtol_temp``,
 which are the relative error tolerances for
@@ -541,7 +538,6 @@ The basic outline of this routine is:
 #. apply any boosting to the rates if ``react_boost`` > 0.
 
 #. convert back to the integrator’s internal representation by calling ``burn_to_vode``
-
 
 
 Jacobian wrapper
@@ -670,6 +666,7 @@ Jacobian wrapper
 #. apply any boosting to the rates if ``react_boost`` > 0
 
 #. call ``burn_to_vode`` to update the ``dvode_t`` 
+
 
 BS
 --
