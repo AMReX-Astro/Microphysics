@@ -2,6 +2,7 @@ module actual_network
 
   use network_properties
   use amrex_fort_module, only : rt => amrex_real
+  use fundamental_constants_module
 
   implicit none
 
@@ -10,10 +11,10 @@ module actual_network
   integer, parameter :: io16  = 3
   integer, parameter :: ife56 = 4
 
-  real(rt)        , allocatable :: ebin(:)
+  real(rt)        , allocatable :: bion(:)
 
 #ifdef AMREX_USE_CUDA
-  attributes(managed) :: ebin
+  attributes(managed) :: bion
 #endif
 
   character (len=32), parameter :: network_name = "triple_alpha_plus_cago"
@@ -28,28 +29,30 @@ module actual_network
 
   character (len=10), save :: reac_names(nrates)
 
+  real, parameter :: conv_factor = MeV2eV * ev2erg * n_A
+
 contains
 
   subroutine actual_network_init()
 
     call network_properties_init()
-    allocate(ebin(nspec))
+    allocate(bion(nspec))
 
 
-    ! our convention is that binding energy is negative.  The following are
-    ! the binding energies per unit mass (erg / g) obtained by converting
+    ! The following are the binding energies of the nuclei in MeV.
+    ! The binding energy per unit mass (erg / g) is obtained by converting
     ! the energies in MeV to erg then multiplying by (N_A / aion) where
     ! N_A = 6.0221415e23 is Avogadro's number
-    ebin(ihe4)  = -6.8253797e18_rt    !  28.39603 MeV / nucleon
-    ebin(ic12)  = -7.4103097e18_rt    !  92.16294 MeV / nucleon
-    ebin(io16)  = -7.6959581e18_rt    ! 127.62093 MeV / nucleon
-    ebin(ife56) = -8.4813001e18_rt    ! 492.25389 MeV / nucleon
+    bion(ihe4)  = 28.29603_rt ! MeV / nucleus
+    bion(ic12)  = 92.16294_rt ! MeV / nucleus
+    bion(io16)  = 127.62093_rt ! MeV / nucleus
+    bion(ife56) = 492.25389_rt ! MeV / nucleus
 
     ! Reaction rate names
     reac_names(ir3a)   = "3agc"   !     3 He4 --> C12
     reac_names(ircago) = "cago"   ! C12 + He4 --> O16
 
-    !$acc update device(aion, zion, ebin)
+    !$acc update device(bion)
 
   end subroutine actual_network_init
 
@@ -79,8 +82,8 @@ contains
     implicit none
 
     call network_properties_finalize()
-    if (allocated(ebin)) then
-       deallocate(ebin)
+    if (allocated(bion)) then
+       deallocate(bion)
     endif
 
   end subroutine actual_network_finalize

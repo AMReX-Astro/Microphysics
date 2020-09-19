@@ -12,7 +12,7 @@ module vode_rpar_indices
 #elif TRUE_SDC
   use actual_network, only: nspec
 #else
-  use actual_network, only: nspec
+  use actual_network, only: nspec, naux
   use burn_type_module, only: neqs
 #endif
 

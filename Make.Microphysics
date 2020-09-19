@@ -245,6 +245,7 @@ clean::
 	$(RM) network.f90
 	$(RM) extern.f90
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	@if [ -L nse19.tbl ]; then rm -f nse19.tbl; fi
 
 
 # for debugging.  To see the value of a Makefile variable,

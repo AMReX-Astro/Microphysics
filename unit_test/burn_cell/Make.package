@@ -7,4 +7,4 @@ ifeq ($(USE_CXX_REACTIONS), TRUE)
   CEXE_headers += burn_cell.H
 endif
 
-FEXE_headers = burn_cell_F.H
+FEXE_headers += burn_cell_F.H

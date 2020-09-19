@@ -1,1 +1,5 @@
-NAUX := 0
+ifeq ($(USE_NSE),TRUE)
+  NAUX := 3
+else
+  NAUX := 0
+endif
