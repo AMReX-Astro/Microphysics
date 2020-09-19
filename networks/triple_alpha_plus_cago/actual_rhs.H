@@ -14,6 +14,7 @@
 #include <rate_type.H>
 #include <screen.H>
 #include <temperature_integration.H>
+#include <fundamental_constants.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -271,8 +272,9 @@ void ener_gener_rate (T& dydt, Real& enuc)
     enuc = 0.0_rt;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        enuc -= dydt(i) * aion[i-1] * ebin(i);
+        enuc += dydt(i) * bion(i);
     }
+    enuc *= C::MeV2eV * C::ev2erg * C::n_A;
 }
 
 
