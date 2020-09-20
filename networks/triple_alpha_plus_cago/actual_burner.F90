@@ -54,7 +54,7 @@ contains
 
     real(kind=rt) :: ymol(nspec)
     real(kind=rt) :: rates(nrates), dratesdt(nrates)
-    real(kind=rt) :: dXdotdT(nspec)
+    real(kind=rt) :: dYdotdT(nspec)
     integer :: k
 
     !$gpu
@@ -65,10 +65,10 @@ contains
     ! get the d/dT(dX/dt) info, dydt(dratesdT) gives us this
     call make_rates(temp, dens, rates, dratesdt)
     call screen(temp, dens, ymol, rates, dratesdt)
-    call dydt(ymol, dratesdt, dXdotdT)
+    call dydt(ymol, dratesdt, dYdotdT)
 
-    ! calculate temperature sensitivity
-    denucdT = - sum(dXdotdT*ebin)
+    ! calculate temperature sensitivity -- note dydt is in terms of molar fractions
+    denucdT = sum(dYdotdT*bion) * conv_factor
 
   end subroutine get_enuc_T_sensitivity
 
