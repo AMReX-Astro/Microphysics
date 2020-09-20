@@ -44,9 +44,7 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
-#ifdef CXX_REACTIONS
     int do_cxx = 0;
-#endif
 
     // inputs parameters
     {
