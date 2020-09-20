@@ -249,12 +249,6 @@ subroutine write_burn_t(burnt)
   write(*, fmt=*) 'eta:'
   write(*, fmt=DPFMT) burnt % eta
 
-  write(*, fmt=*) 'cs:'
-  write(*, fmt=DPFMT) burnt % cs
-
-  write(*, fmt=*) 'dx:'
-  write(*, fmt=DPFMT) burnt % dx
-
   write(*, fmt=*) 'abar:'
   write(*, fmt=DPFMT) burnt % abar
 
