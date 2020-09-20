@@ -135,7 +135,7 @@ contains
     use network, only: nspec, aion, aion_inv
     use eos_type_module, only: eos_t
     use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -157,7 +157,6 @@ contains
     state % zbar    = rpar(irp_zbar)
     state % eta     = rpar(irp_eta)
     state % y_e     = rpar(irp_ye)
-    state % cs      = rpar(irp_cs)
 
   end subroutine vode_to_eos
 
@@ -172,7 +171,7 @@ contains
     use network, only: nspec, aion, aion_inv
     use eos_type_module, only: eos_t
     use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp, net_ienuc
 
     implicit none
@@ -194,7 +193,6 @@ contains
     rpar(irp_zbar)                  = state % zbar
     rpar(irp_eta)                   = state % eta
     rpar(irp_ye)                    = state % y_e
-    rpar(irp_cs)                    = state % cs
 
   end subroutine eos_to_vode
 
@@ -209,7 +207,7 @@ contains
     use amrex_constants_module, only: ONE
     use network, only: nspec, aion, aion_inv, NETWORK_SPARSE_JAC_NNZ
     use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_ye, irp_eta, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
@@ -245,8 +243,6 @@ contains
     rpar(irp_zbar)                           = state % zbar
     rpar(irp_ye)                             = state % y_e
     rpar(irp_eta)                            = state % eta
-    rpar(irp_cs)                             = state % cs
-    rpar(irp_dx)                             = state % dx
 
     rpar(irp_Told)                           = state % T_old
     rpar(irp_dcvdt)                          = state % dcvdt
@@ -295,7 +291,7 @@ contains
     use amrex_constants_module, only: ZERO
     use network, only: nspec, aion, aion_inv
     use cvode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_ye, irp_eta, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
@@ -322,8 +318,6 @@ contains
     state % zbar     = rpar(irp_zbar)
     state % y_e      = rpar(irp_ye)
     state % eta      = rpar(irp_eta)
-    state % cs       = rpar(irp_cs)
-    state % dx       = rpar(irp_dx)
 
     state % T_old    = rpar(irp_Told)
     state % dcvdt    = rpar(irp_dcvdt)
@@ -349,7 +343,7 @@ contains
     use eos_type_module, only: eos_t, eos_input_rt, copy_eos_t
     use eos_module, only: eos
     use network, only: nspec, aion_inv
-    use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_t_sound, irp_dx, irp_dens, &
+    use cvode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_dens, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_y_init, irp_energy_offset
 
     implicit none
@@ -388,9 +382,6 @@ contains
        rpar(irp_self_heat) = -ONE
     endif
 
-    ! Set sound crossing time
-    rpar(irp_t_sound) = rpar(irp_dx)/eos_state % cs
-
     ! Set up for dT_crit functionality so we can use a linear
     ! interpolation of the specific heat in between EOS calls
     rpar(irp_Told) = eos_state % T
@@ -418,7 +409,6 @@ contains
   subroutine sk_finalize_cell(y, rpar) bind(C, name="sk_finalize_cell")
 
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
-    use extern_probin_module, only: burning_mode
     use network, only: nspec
     use burn_type_module, only: neqs, burn_t, net_ienuc, net_itemp, normalize_abundances_burn
     use cvode_rpar_indices, only: n_rpar_comps, irp_energy_offset, irp_dens

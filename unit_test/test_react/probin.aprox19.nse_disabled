@@ -1,0 +1,24 @@
+&extern
+
+  dens_min   = 1.d5
+  dens_max   = 5.d8
+  temp_min   = 5.d7
+  temp_max   = 5.d8
+
+  rho_nse = 1.e10
+
+  tmax = 1.d-9
+
+  primary_species_1 = "hydrogen-1"
+  primary_species_2 = "helium-4"
+  primary_species_3 = "carbon-12"
+
+  jacobian = 2
+  centered_diff_jac = T
+
+  rtol_spec = 1.d-8
+  atol_spec = 1.d-8
+
+  call_eos_in_rhs = T
+
+/

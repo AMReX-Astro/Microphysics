@@ -46,6 +46,7 @@ void subroutine (eos_t& state)
 
 // Compute thermodynamic derivatives with respect to xn(:)
 
+#ifdef EXTRA_THERMO
 AMREX_GPU_HOST_DEVICE inline
 eos_x_derivs_t composition_derivatives (const eos_t& state)
 {
@@ -57,17 +58,16 @@ eos_x_derivs_t composition_derivatives (const eos_t& state)
 
     // Composition derivatives
 
-#ifdef EXTRA_THERMO
     for (int n = 0; n < NumSpec; ++n) {
         state_xderivs.dpdX[n] = state.rho * (k_B / m_nucleon) * state.T * aion_inv[n];
         state_xderivs.dedX[n] = (k_B / m_nucleon) * state.T * aion_inv[n] / (gammas[n] - 1.0_rt);
         state_xderivs.dhdX[n] = state_xderivs.dedX[n] + (state.p / (state.rho * state.rho) - state.dedr) *
                                                         state_xderivs.dpdX[n] / state.dpdr;
     }
-#endif
 
     return state_xderivs;
 
 }
+#endif
 
 #endif

@@ -35,7 +35,7 @@ contains
     !$acc routine seq
 
     use bs_rpar_indices
-    use extern_probin_module, only: burner_verbose, burning_mode, burning_mode_factor, dT_crit
+    use extern_probin_module, only: burner_verbose, dT_crit
     use integration_data, only: integration_status_t
     use temperature_integration_module, only: self_heat
 
@@ -58,7 +58,7 @@ contains
     type (bs_t) :: bs
 
     real(rt) :: ener_offset
-    real(rt) :: t_enuc, t_sound, limit_factor
+    real(rt) :: t_enuc, limit_factor
 
     logical :: success
 
@@ -126,14 +126,6 @@ contains
 
     bs % burn_s % self_heat = self_heat
 
-    ! Copy in the zone size.
-
-    bs % burn_s % dx = state_in % dx
-
-    ! Set the sound crossing time.
-
-    bs % upar(irp_t_sound) = state_in % dx / eos_state_in % cs
-
     ! set the time offset -- we integrate from 0 to dt, so this
     ! is the offset to simulation time
     
@@ -162,34 +154,6 @@ contains
 
     ! Call the integration routine.
     call ode(bs, t0, t1, maxval(rtol), ierr)
-
-    ! If we are using hybrid burning and the energy release was
-    ! negative (or we failed), re-run this in self-heating mode.
-
-    if ( burning_mode == 2 .and. &
-         (bs % y(net_ienuc) - ener_offset < ZERO .or. &
-         ierr /= IERR_NONE) ) then
-
-       bs % burn_s % self_heat = .true.
-
-       call eos_to_bs(eos_state_in, bs)
-
-       bs % y(net_ienuc) = ener_offset
-
-       ! redo the T_old, cv / cp extrapolation
-       bs % burn_s % T_old = eos_state_in % T
-
-       if (dT_crit < 1.0e19_rt) then
-          bs % burn_s % dcvdt = (eos_state_temp % cv - eos_state_in % cv) / &
-               (eos_state_temp % T - eos_state_in % T)
-
-          bs % burn_s % dcpdt = (eos_state_temp % cp - eos_state_in % cp) / &
-               (eos_state_temp % T - eos_state_in % T)
-       endif
-
-       call ode(bs, t0, t1, maxval(rtol), ierr)
-
-    endif
 
     ! If we still failed, print out the current state of the integration.
 
@@ -227,20 +191,6 @@ contains
     state_out = bs % burn_s
 
     state_out % success = success
-
-    ! For burning_mode == 3, limit the burning.
-
-    if (burning_mode == 3) then
-
-       t_enuc = eos_state_in % e / max(abs(state_out % e - state_in % e) / max(dt, 1.e-50_rt), 1.e-50_rt)
-       t_sound = state_in % dx / eos_state_in % cs
-
-       limit_factor = min(1.0e0_rt, burning_mode_factor * t_enuc / t_sound)
-
-       state_out % e = state_in % e + limit_factor * (state_out % e - state_in % e)
-       state_out % xn(:) = state_in % xn(:) + limit_factor * (state_out % xn(:) - state_in % xn(:))
-
-    endif
 
     call normalize_abundances_burn(state_out)
 

@@ -22,6 +22,17 @@ const amrex::Real CCMXJ = 0.2e0_rt;
 const amrex::Real HMIN = 0.0_rt;
 const amrex::Real HMXI = 0.0_rt;
 
+// We will use this parameter to determine if a given species abundance
+// is unreasonably small or large (each X must satisfy
+// -failure_tolerance <= X <= 1.0 + failure_tolerance).
+const Real vode_failure_tolerance = 1.e-2_rt;
+
+// For each species whose abundance is above a certain threshold, we do
+// not allow its mass fraction to change by more than a certain amount
+// in any integration step.
+const Real vode_increase_change_factor = 2.0_rt;
+const Real vode_decrease_change_factor = 0.5_rt;
+
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
 const int VODE_MAXORD = 5;

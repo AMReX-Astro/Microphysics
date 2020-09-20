@@ -24,13 +24,23 @@ module actual_network
   integer, parameter :: ineut = 18
   integer, parameter :: iprot = 19
 
+#ifdef NSE
+  integer, parameter :: iye = 1
+  integer, parameter :: iabar = 2
+  integer, parameter :: ibea = 3
+#endif
+
   real(rt)        , allocatable :: bion(:), mion(:)
 
 #ifdef AMREX_USE_CUDA
   attributes(managed) :: bion, mion
 #endif
 
+#ifndef NSE
   character (len=32), parameter :: network_name = "aprox19"
+#else
+  character (len=32), parameter :: network_name = "aprox19_nse"
+#endif
 
   ! Some fundamental physical constants
 
@@ -162,11 +172,19 @@ contains
   
   subroutine actual_network_init
 
+#ifdef NSE
+    use nse_module
+#endif
+
     implicit none
     
     ! The following comes directly from init_aprox19
 
     call network_properties_init()
+
+#ifdef NSE
+    call init_nse()
+#endif
 
     allocate(bion(nspec))
     allocate(mion(nspec))

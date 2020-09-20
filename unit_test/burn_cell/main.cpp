@@ -7,13 +7,13 @@
 using namespace amrex;
 
 #include <extern_parameters.H>
-#include <eos.H>
 #ifdef CXX_REACTIONS
+#include <eos.H>
 #include <network.H>
-#include "burn_cell.H"
+#include <burn_cell.H>
 #endif
 
-#include "burn_cell_F.H"
+#include <burn_cell_F.H>
 
 int main(int argc, char *argv[]) {
 
@@ -51,10 +51,11 @@ int main(int argc, char *argv[]) {
   // Copy extern parameters from Fortran to C++
   init_extern_parameters();
 
+#ifdef CXX_REACTIONS
+
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
   eos_init();
 
-#ifdef CXX_REACTIONS
   // C++ Network, RHS, screening, rates initialization
   network_init();
 #endif

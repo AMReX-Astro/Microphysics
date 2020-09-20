@@ -41,7 +41,7 @@ t/
 d/
 f/
 o/
-
+tmp_build_dir/
 
 # runtime files
 maestro-overview.out
@@ -85,3 +85,11 @@ sphinx_docs/source/runtime_parameters.rst
 extern_parameters.H
 extern_parameters.cpp
 extern_parameters_F.H
+
+
+# old plotfiles
+*.old.*[0-9]
+
+
+# Jupyter stuff
+.ipynb_checkpoints/
