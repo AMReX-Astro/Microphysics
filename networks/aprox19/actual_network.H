@@ -33,9 +33,9 @@ namespace C
 }
 
 #ifndef NSE
-const std::string network_name = "aprox19_nse";
-#else
 const std::string network_name = "aprox19";
+#else
+const std::string network_name = "aprox19_nse";
 #endif
 
 namespace aprox19
