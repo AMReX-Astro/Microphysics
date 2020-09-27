@@ -65,7 +65,7 @@ bool in_nse(const burn_t& state) {
     Real Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
                     state.xn[Fe54-1] + state.xn[Ni56-1];
     Real C_group = state.xn[C12-1] + state.xn[N14-1];
-    Real He_group = state.xn[H1-1] + state.xn[He3] + state.xn[He4];
+    Real He_group = state.xn[H1-1] + state.xn[He3-1] + state.xn[He4-1];
 
     if (Fe_group + He_group > He_Fe_nse && C_group < C_nse) {
       nse_check = true;
