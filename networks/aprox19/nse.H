@@ -1,3 +1,6 @@
+#ifndef NSE_H
+#define NSE_H
+
 #include <iostream>
 #include <fstream>
 #include <actual_network.H>
@@ -11,9 +14,6 @@
 #include "extern_parameters.H"
 
 #include "burn_type.H"
-
-#ifndef NSE_H
-#define NSE_H
 
 using namespace amrex;
 
