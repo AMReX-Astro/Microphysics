@@ -249,7 +249,7 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 
     eos_t eos_state;
 
-#if NSE_THERMO
+#ifdef NSE_THERMO
     // we are handling the thermodynamics via the aux quantities, which
     // are stored in the burn_t here, so we need to update those based on
     // the current state.
