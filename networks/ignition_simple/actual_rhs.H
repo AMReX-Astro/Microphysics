@@ -57,10 +57,8 @@ void evaluate_rates(burn_t& state, rate_t& rr)
 
     // Save the rates
 
-    rr.rates(1, 1)  = rate;
-    rr.rates(2, 1)  = dratedt;
-    rr.rates(3, 1)  = sc1212;
-    rr.rates(4, 1)  = dsc1212dt;
+    rr.rates(1, 1)  = sc1212 * rate;
+    rr.rates(2, 1)  = dsc1212dt * rate + sc1212 * dratedt;
 
     rr.T_eval = temp;
 }
@@ -101,10 +99,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Real temp = state.T;
     Real dens = state.rho;
 
-    Real rate      = rr.rates(1, 1);
-    Real dratedt   = rr.rates(2, 1);
-    Real sc1212    = rr.rates(3, 1);
-    Real dsc1212dt = rr.rates(4, 1);
+    Real rate = rr.rates(1, 1);
 
     // The change in number density of C12 is
     // d(n12)/dt = - 2 * 1/2 (n12)**2 <sigma v>
@@ -132,9 +127,9 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // The quantity [N_A <sigma v>] is what is tabulated in Caughlin and Fowler.
 
     Real xc12tmp = amrex::max(state.xn[C12-1], 0.0_rt);
-    ydot(C12)  = -(1.0_rt / 12.0_rt) * dens * sc1212 * rate * xc12tmp * xc12tmp;
+    ydot(C12)  = -(1.0_rt / 12.0_rt) * dens * rate * xc12tmp * xc12tmp;
     ydot(O16)  = 0.0_rt;
-    ydot(Mg24) = (1.0_rt / 12.0_rt) * dens * sc1212 * rate * xc12tmp * xc12tmp;
+    ydot(Mg24) = (1.0_rt / 12.0_rt) * dens * rate * xc12tmp * xc12tmp;
 
     // Convert back to molar form
 
@@ -165,20 +160,17 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     Real rate     = rr.rates(1, 1);
     Real dratedt  = rr.rates(2, 1);
-    Real scorr    = rr.rates(3, 1);
-    Real dscorrdt = rr.rates(4, 1);
     Real xc12tmp  = amrex::max(state.xn[C12-1], 0.0_rt);
 
     // initialize
     jac.zero();
 
     // carbon jacobian elements
-    jac(C12, C12) = -(1.0_rt / 6.0_rt) * dens * scorr * rate * xc12tmp;
+    jac(C12, C12) = -(1.0_rt / 6.0_rt) * dens * rate * xc12tmp;
     jac(Mg24, C12) = -jac(C12, C12);
 
     // add the temperature derivatives: df(y_i) / dT
-    jac(C12, net_itemp)  = -(1.0_rt / 12.0_rt) * (dens * rate * xc12tmp * xc12tmp * dscorrdt +
-                                                  dens * scorr * xc12tmp * xc12tmp * dratedt);
+    jac(C12, net_itemp)  = -(1.0_rt / 12.0_rt) * (dens * dratedt * xc12tmp * xc12tmp);
 
     // Convert back to molar form
     // Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
