@@ -8,7 +8,7 @@
 extern "C"
 {
 #endif
-  void init_variables();
+  void init_variables_F();
 
   void get_ncomp(int* ncomp);
 
