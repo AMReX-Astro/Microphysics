@@ -40,7 +40,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Transport Coefficients" href="transport.html" />
+    <link rel="next" title="NSE" href="nse.html" />
     <link rel="prev" title="Reaction Networks" href="networks.html" /> 
 </head>
 
@@ -107,7 +107,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#thermodynamics-and-t-evolution">Thermodynamics and <span class="math notranslate nohighlight">\(T\)</span> Evolution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#burning-mode">Burning Mode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#eos-calls">EOS Calls</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#t-evolution"><span class="math notranslate nohighlight">\(T\)</span> Evolution</a></li>
 </ul>
@@ -125,7 +124,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#c-interfaces">C++ interfaces</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#burner"><code class="docutils literal notranslate"><span class="pre">burner</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sec-bs">Righthand side wrapper</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id7">Jacobian wrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Jacobian wrapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#bs">BS</a><ul>
@@ -139,6 +138,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#overriding-parameter-defaults-on-a-network-by-network-basis">Overriding Parameter Defaults on a Network-by-Network Basis</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
@@ -247,7 +247,7 @@
 <span class="eqno">(3)<a class="headerlink" href="#equation-eq-temp-integrate" title="Permalink to this equation">¶</a></span>\[\frac{dT}{dt} =\frac{\edot}{c_x} .\]</div>
 <p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(\enuc\)</span> is the specifc
 nuclear energy created through reactions, <span class="math notranslate nohighlight">\(T\)</span> is the
-temperature <a class="footnote-reference brackets" href="#id10" id="id1">1</a> , and <span class="math notranslate nohighlight">\(c_x\)</span> is the specific heat for the
+temperature <a class="footnote-reference brackets" href="#id9" id="id1">1</a> , and <span class="math notranslate nohighlight">\(c_x\)</span> is the specific heat for the
 fluid. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release based on the
 instantaneous reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous
 section, this is implemented in a network-specific manner.</p>
@@ -408,39 +408,6 @@ array indexed from <code class="docutils literal notranslate"><span class="pre">
 </div>
 <div class="section" id="thermodynamics-and-t-evolution">
 <h2>Thermodynamics and <span class="math notranslate nohighlight">\(T\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-t-evolution" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="burning-mode">
-<h3>Burning Mode<a class="headerlink" href="#burning-mode" title="Permalink to this headline">¶</a></h3>
-<p>There are several different modes under which the burning can be done, set
-via the burning_mode runtime parameter:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span></code> = 0 : hydrostatic burning</p>
-<p><span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span> remain constant</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span> <span class="pre">=</span> <span class="pre">1</span></code> : self-heating burn</p>
-<p><span class="math notranslate nohighlight">\(T\)</span> evolves with the burning according to the temperature
-evolution equation. This is the “usual” way of thinking of the
-burning—all three equations (<a class="reference internal" href="#equation-eq-spec-integrate">(1)</a>,
-<a class="reference internal" href="#equation-eq-enuc-integrate">(2)</a>, and <a class="reference internal" href="#equation-eq-temp-integrate">(3)</a>) are solved
-simultaneously.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span> <span class="pre">=</span> <span class="pre">2</span></code> : hybrid approach</p>
-<p>This implements an approach from <a class="bibtex reference internal" href="zreferences.html#raskin-2010" id="id2">[RaskinScannapiecoRockefeller+10]</a> in which we do
-a hydrostatic burn everywhere, but if we get a negative energy
-change, the burning is redone in self-heating mode (the logic being
-that a negative energy release corresponds to NSE conditions)</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">burning_mode</span> <span class="pre">=</span> <span class="pre">3</span></code> : suppressed burning</p>
-<p>This does a self-heating burn, but limits all values of the RHS by a
-factor <span class="math notranslate nohighlight">\(L = \text{min}(1, f_s (e / \dot{e}) / t_s)\)</span>, such that
-<span class="math notranslate nohighlight">\(\dot{e} = f_s\, e / t_s\)</span>, where <span class="math notranslate nohighlight">\(f_s\)</span> is a safety
-factor, set via burning_mode_factor.</p>
-</li>
-</ul>
-<p>When the integration is started, the burning mode is used to identify
-whether temperature evolution should take place. This is used to
-set the self_heat field in the burn_t type passed
-into the RHS and Jacobian functions.</p>
-</div>
 <div class="section" id="eos-calls">
 <h3>EOS Calls<a class="headerlink" href="#eos-calls" title="Permalink to this headline">¶</a></h3>
 <p>The evolution of the thermodynamic quantities (like specific heats and
@@ -448,7 +415,7 @@ other partial derivatives) can be frozen during the integration to
 their initial values, updated for every RHS call, or something
 in-between. Just before we call the network-specific RHS routine, we
 update the thermodynamics of our state (by calling
-<code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>) <a class="footnote-reference brackets" href="#id11" id="id3">2</a> The thermodynamic quantity update depends on two runtime
+<code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>) <a class="footnote-reference brackets" href="#id10" id="id2">2</a> The thermodynamic quantity update depends on two runtime
 parameters, call_eos_in_rhs and dT_crit:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">T</span></code>:</p>
@@ -505,7 +472,7 @@ will provide both of these specific heats; which one to use is a
 choice the user needs to make based on the physics of their problem.
 This is controlled by the parameter <code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code>,
 which will use <span class="math notranslate nohighlight">\(c_v\)</span> if <code class="docutils literal notranslate"><span class="pre">.true.</span></code> and <span class="math notranslate nohighlight">\(c_p\)</span> is <code class="docutils literal notranslate"><span class="pre">.false.</span></code>. See
-<a class="bibtex reference internal" href="zreferences.html#maestro-iii" id="id4">[AlmgrenBellNonakaZingale08]</a> for a discussion of the temperature evolution
+<a class="bibtex reference internal" href="zreferences.html#maestro-iii" id="id3">[AlmgrenBellNonakaZingale08]</a> for a discussion of the temperature evolution
 equation.</p>
 <p>A fully accurate integration of Equation <a class="reference internal" href="#equation-eq-temp-integrate">(3)</a>
 requires an evaluation of the specific heat at each integration step,
@@ -577,7 +544,7 @@ type required by the <code class="docutils literal notranslate"><span class="pre
 <p>The name of the integrator can be selected at compile time using
 the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
 the allowed options are BS and VODE.</p>
-<p>We recommend that you use the VODE solver (<a class="bibtex reference internal" href="zreferences.html#vode" id="id5">[BBH89]</a>), as it is the most
+<p>We recommend that you use the VODE solver (<a class="bibtex reference internal" href="zreferences.html#vode" id="id4">[BBH89]</a>), as it is the most
 robust and has both Fortran and C++ implementations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -606,10 +573,10 @@ because their relative error values are fairly large.
 However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
 so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
-<div class="figure align-default" id="id12">
+<div class="figure align-default" id="id11">
 <span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
-to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </div>
 <p>The integration tolerances for the burn are controlled by
 <code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>, <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>, and <code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code>,
@@ -776,7 +743,7 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 </ol>
 </div>
 <div class="section" id="sec-bs">
-<span id="id6"></span><h4>Righthand side wrapper<a class="headerlink" href="#sec-bs" title="Permalink to this headline">¶</a></h4>
+<span id="id5"></span><h4>Righthand side wrapper<a class="headerlink" href="#sec-bs" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
 <li><p>update the thermodynamics by calling <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>.  This takes both
@@ -790,8 +757,8 @@ those quantities.</p></li>
 <li><p>convert back to the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
 </div>
-<div class="section" id="id7">
-<h4>Jacobian wrapper<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id6">
+<h4>Jacobian wrapper<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It is assumed that the thermodynamics are already correct when
@@ -810,7 +777,7 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 </div>
 <div class="section" id="bs">
 <h3>BS<a class="headerlink" href="#bs" title="Permalink to this headline">¶</a></h3>
-<p>This integrator is based on the stiff-ODE methods from <a class="bibtex reference internal" href="zreferences.html#nr" id="id8">[PressTeukolskyVetterlingFlannery92]</a>, but
+<p>This integrator is based on the stiff-ODE methods from <a class="bibtex reference internal" href="zreferences.html#nr" id="id7">[PressTeukolskyVetterlingFlannery92]</a>, but
 written with reaction network integration in mind (so it knows about
 species), and in a modular / threadsafe fashion to work with our data
 structures. This integrator appears quite robust.</p>
@@ -870,7 +837,7 @@ species with an abundance <span class="math notranslate nohighlight">\(\ll\)</sp
 used as strongly in assessing the accuracy of a step.</p>
 </li>
 </ul>
-<p>These correspond to the options presented in <a class="bibtex reference internal" href="zreferences.html#nr" id="id9">[PressTeukolskyVetterlingFlannery92]</a>.</p>
+<p>These correspond to the options presented in <a class="bibtex reference internal" href="zreferences.html#nr" id="id8">[PressTeukolskyVetterlingFlannery92]</a>.</p>
 <p>A final option, use_timestep_estimator enables the
 timestep estimator from VODE to determine a good starting
 timestep for integration.</p>
@@ -893,7 +860,7 @@ integer value for the priority in a network’s <code class="docutils literal no
 ensure that it takes precedence.</p>
 <p><img alt="image" src="_images/doxygen_network.png" /></p>
 <dl class="footnote brackets">
-<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Note that in previous versions of our networks in
 CASTRO and MAESTRO, there was another term in the temperature
 equation relating to the chemical potential of the gas as it came
@@ -904,7 +871,7 @@ approximation of it in the integration scheme. So the current
 results given by our networks will in general be a little different
 than in the past.</p>
 </dd>
-<dt class="label" id="id11"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
 <dd><p>Note: each integrator provides its
 own implementation of this, since it operates on the internal
 data-structure of the integrator, but the basic procedure is the
@@ -922,7 +889,7 @@ same.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="transport.html" class="btn btn-neutral float-right" title="Transport Coefficients" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="networks.html" class="btn btn-neutral float-left" title="Reaction Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
