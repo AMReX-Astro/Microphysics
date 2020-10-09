@@ -46,6 +46,39 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void sdc_burn_to_eos(const burn_t& state, eos_t& eos_state) {
+
+#if defined(SDC_EVOLVE_ENERGY)
+    eos_state.rho = state.y[SRHO];
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    eos_state.rho = 0.0;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.rho += state.y[SFS+n];
+    }
+#endif
+
+    eos_state.T = state.T;
+
+    // species
+
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
+    }
+
+#if NAUX_NET > 0
+    // aux
+    for (int n = 0l n < NumAux; n++) {
+        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
+    }
+#endif
+
+    // we don't bother filling the other fields, since the EOS call
+    // will do that for us
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 {
 
@@ -117,11 +150,15 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     }
 #endif
 
+    std::cout << "here first!" << std::endl;
+
     eos(eos_input_rt, eos_state);
 
     Real max_e = eos_state.e;
 
     vode_state.y(SEINT+1) = amrex::min(state.y[SRHO] * max_e, vode_state.y(SEINT+1));
+
+    std::cout << "here!" << std::endl;
 
     Real ke = vode_state.y(SEDEN+1) -
       0.5_rt * (state.y[SMX] * state.y[SMX] +

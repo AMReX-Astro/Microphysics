@@ -33,7 +33,10 @@ void vode_integrator (burn_t& state, Real dt)
 
     eos_t eos_state;
 
-    burn_to_eos(state, eos_state);
+    // initialize the EOS state using the conserved state that was
+    // passed in
+
+    sdc_burn_to_eos(state, eos_state);
 
     eos(eos_input_rt, eos_state);
 
