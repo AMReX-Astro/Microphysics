@@ -1,3 +1,7 @@
+# 20.11
+
+   * The aprox19 + NSE network was ported to C++ (#362)
+
 # 20.10
 
    * An option to use NSE instead of integrating the reaction
