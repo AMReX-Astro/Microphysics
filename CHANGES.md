@@ -3,6 +3,11 @@
    * An option to use NSE instead of integrating the reaction
      network has been added to the aprox19 network. (#332)
 
+   * The BS integrator no longer supports simplified-SDC (#393)
+
+   * The triple_alpha_plus_cago network switch to using binding
+     energies in MeV, consistent with the aprox nets (#354)
+
 # 20.09
 
    * Unit tests now write a job_info file (#383)

@@ -1,20 +1,38 @@
+#include <vector>
+#include <string>
+
 #ifndef _variables_H_
 #define _variables_H_
 
-// A module to provide integer indices into the various storage arrays
-// for accessing the different variables by name.
+#include <AMReX_Vector.H>
 
 #include <network.H>
 
-enum plot_t
-{
-    p_irho = 0,
-    p_itemp = 1,
-    p_ispec = 2,
-    p_ispec_old = p_ispec + NumSpec,
-    p_irodot = p_ispec_old + NumSpec,
-    p_irho_hnuc = p_irodot + NumSpec,
-    n_plot_comps
+class plot_t {
+
+public:
+
+  int irho = -1;
+  int itemp = -1;
+  int ispec = -1;
+  int ispec_old = -1;
+#if NAUX_NET > 0
+  int iaux = -1;
+  int iaux_old = -1;
+#endif
+  int irodot = -1;
+  int irho_hnuc = -1;
+
+  int n_plot_comps = 0;
+
+  int next_index(const int num) {
+    int next = n_plot_comps;
+    n_plot_comps += num;
+    return next;
+  }
+
 };
+
+plot_t init_variables();
 
 #endif
