@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>NSE &mdash; StarKiller Microphysics  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Transport Coefficients" href="transport.html" />
+    <link rel="prev" title="Integrating a Network" href="integrators.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> StarKiller Microphysics
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+    <div class="branch">
+        Branch: <a href="../nse.html">main</a> | <a href="./nse.html">development</a>
+    </div>
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">StarKiller basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">NSE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#composition-and-eos">Composition and EOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nse-flow">NSE Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nse-check">NSE check</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">StarKiller Microphysics</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>NSE</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/nse.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="nse">
+<h1>NSE<a class="headerlink" href="#nse" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> can be run in a manner where we blends the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>
+network with a table for nuclear statistic equilibrium at high density
+and temperatures.  This is based on the table described in
+<span class="xref std std-ref">ma:2013</span>.  This option is enabled by building with <code class="docutils literal notranslate"><span class="pre">USE_NSE=TRUE</span></code>.</p>
+<p>The NSE table provides:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+Y_e &amp;= \sum_k \frac{Z_k X_k}{A_k} \\
+\bar{A} &amp;= \left [ \sum_k \frac{X_k}{A_k} \right ]^{-1} \\
+\frac{B}{A} &amp;= \sum_k \frac{B_k X_k}{A_k}
+\end{align*}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(B_k\)</span> is the binding energy of nucleus <span class="math notranslate nohighlight">\(k\)</span>.</p>
+<p>These three quantities are stored as <code class="docutils literal notranslate"><span class="pre">aux</span></code> data in the network and
+are indexed as <code class="docutils literal notranslate"><span class="pre">iye</span></code>, <code class="docutils literal notranslate"><span class="pre">iabar</span></code>, and <code class="docutils literal notranslate"><span class="pre">ibea</span></code>.  Additionally, when
+coupling to hydrodynamics, we need to advect these auxillary
+quantities.</p>
+<p>For Strang split coupling of hydro and reactions, <span class="math notranslate nohighlight">\(DX_k/Dt = 0\)</span>,
+and our evolution equations are:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\frac{DY_e}{Dt} &amp;= \sum_k \frac{Z_k}{A_k} \frac{DX_k}{Dt} = 0 \\
+\frac{D}{Dt} \frac{1}{\bar{A}} &amp;= - \frac{1}{\bar{A}^2} \frac{D\bar{A}}{Dt} = \sum_k \frac{1}{A_k} \frac{DX_k}{Dt} = 0 \rightarrow \frac{D\bar{A}}{Dt} = 0 \\
+\frac{D}{Dt} \left (\frac{B}{A} \right ) &amp;= \sum_k \frac{B_k}{A_k} \frac{DX_k}{Dt} = 0
+\end{align*}\end{split}\]</div>
+<p>Therefore each of these auxillar equations obeys an advection equation
+in the hydro part of the advancement.</p>
+<div class="section" id="composition-and-eos">
+<h2>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this headline">¶</a></h2>
+<p>The NSE table was generated using a 125 nuclei reaction network, so
+the compositional quantities it carries, <span class="math notranslate nohighlight">\(\bar{A}\)</span> and
+<span class="math notranslate nohighlight">\(Y_e\)</span> and not representable from the 19 isotopes we carry in the
+network.  For this reason, when we are using the NSE network, we
+always take the composition quantities in the EOS directly from
+<code class="docutils literal notranslate"><span class="pre">eos_state.aux[]</span></code> instead of from <code class="docutils literal notranslate"><span class="pre">eos_state.xn[]</span></code>.  The
+<code class="docutils literal notranslate"><span class="pre">NSE_THERMO</span></code> preprocessor directive is enabled in this case, and the
+equations of state interpret this to use the auxillary data for the
+composition.</p>
+<p>The equation of state also needs <span class="math notranslate nohighlight">\(\bar{Z}\)</span> which is easily computed as</p>
+<div class="math notranslate nohighlight">
+\[\bar{Z} = \bar{A} Y_e\]</div>
+</div>
+<div class="section" id="nse-flow">
+<h2>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this headline">¶</a></h2>
+<p>The basic flow of a simulation using the NSE network is as follows:</p>
+<ul>
+<li><p>initialize the problem, including <span class="math notranslate nohighlight">\(X_k\)</span></p></li>
+<li><p>fill the initial aux data with <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\((B/A)\)</span></p></li>
+<li><p>in hydro, we will update these quantities simply via advection (for
+Strang-split evolution)</p></li>
+<li><p>for the reactive update:</p>
+<ul>
+<li><p>check if NSE applies (see below)</p></li>
+<li><p>if we are in an NSE region:</p>
+<ul>
+<li><p>use <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span> to call the table.
+This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <span class="math notranslate nohighlight">\((B/A)_{\rm out}\)</span>, and <span class="math notranslate nohighlight">\(\bar{A}_{\rm out}\)</span>.</p></li>
+<li><p>update <span class="math notranslate nohighlight">\(Y_e\)</span> <a class="footnote-reference brackets" href="#fy" id="id1">1</a> :</p>
+<div class="math notranslate nohighlight">
+\[(Y_e)_{\rm out} = (Y_e)_{\rm in} + \Delta t \frac{dY_e}{dt}\]</div>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\bar{A}_{\rm out}\)</span> is simply the value returned from the table</p></li>
+<li><p>the energy generation rate, <span class="math notranslate nohighlight">\(e_{\rm nuc}\)</span> is:</p>
+<div class="math notranslate nohighlight">
+\[e_{\rm nuc} = \eta \left [ \left ( \frac{B}{A} \right )_{\rm out} -
+                           \left ( \frac{B}{A} \right )_{\rm in} \right ] * \frac{1.602 \times 10^{-6}  {\rm erg}}{{\rm MeV}} N_A \frac{1}{\Delta t}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\eta\)</span> is an inertia term &lt; 1 to prevent the energy changing too much in one set.</p>
+</li>
+<li><p>the new binding energy for the zone is then:</p>
+<div class="math notranslate nohighlight">
+\[\left ( \frac{B}{A} \right )_{\rm out}  = \left ( \frac{B}{A} \right )_{\rm in} + \eta \left [ \left ( \frac{B}{A} \right )_{\rm out} - \left ( \frac{B}{A} \right )_{\rm in} \right ]\]</div>
+</li>
+<li><p>update the mass fractions, <span class="math notranslate nohighlight">\(X_k\)</span>, using the values from the table</p></li>
+</ul>
+</li>
+<li><p>if we are not in NSE:</p>
+<ul class="simple">
+<li><p>integrate the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network as usual</p></li>
+<li><p>update the aux quantities at the end of the burn</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="nse-check">
+<h2>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this headline">¶</a></h2>
+<p>We determine is a zone is in NSE according to:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(\isotm{C}{12})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></li>
+</ul>
+<p class="rubric">Footnotes</p>
+<dl class="footnote brackets">
+<dt class="label" id="fy"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>The table actually provides the weak rate, which is the sum
+of all electron capture and positron decay rates times the
+appropriate abundances minus a similar rate for the beta decay and
+positron capture, [wrate] = [rectot] + [rpdtot] - [redtot] - [rpctot]</p>
+<p>So if electron capture dominates, then [wrate] is positive and this should
+be subtracted from <span class="math notranslate nohighlight">\(Y_e\)</span>.</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="transport.html" class="btn btn-neutral float-right" title="Transport Coefficients" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="integrators.html" class="btn btn-neutral float-left" title="Integrating a Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2018, StarKiller Development Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+
+</body>
+</html>

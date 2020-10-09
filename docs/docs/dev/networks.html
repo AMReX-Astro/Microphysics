@@ -1,0 +1,571 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Reaction Networks &mdash; StarKiller Microphysics  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Integrating a Network" href="integrators.html" />
+    <link rel="prev" title="Equations of State" href="eos.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> StarKiller Microphysics
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+    <div class="branch">
+        Branch: <a href="../networks.html">main</a> | <a href="./networks.html">development</a>
+    </div>
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">StarKiller basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reaction Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#network-requirements-and-structure">Network Requirements and Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-networks">Available Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#iso7-aprox13-aprox19-and-aprox21">iso7, aprox13, aprox19, and aprox21</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#energy-generation">Energy generation.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#breakout">breakout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#general-null">general_null</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ignition-chamulak">ignition_chamulak</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#energy-generation-1">Energy generation.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ignition-reaclib">ignition_reaclib</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ignition-simple">ignition_simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kpp">kpp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rprox">rprox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xrb-simple">xrb_simple</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subch">subch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">StarKiller Microphysics</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Reaction Networks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/networks.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="reaction-networks">
+<h1>Reaction Networks<a class="headerlink" href="#reaction-networks" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="network-requirements-and-structure">
+<h2>Network Requirements and Structure<a class="headerlink" href="#network-requirements-and-structure" title="Permalink to this headline">¶</a></h2>
+<p>A network both defines the composition advected by the hydro code as
+well as describes the burning processes between those isotopes.
+Evolving the species in a network requires an integrator. The design
+of Microphysics decouples the integrator from the network, allowing
+for the ability to swap integrators as desired. We discuss the
+integrators in a later section.</p>
+<p>At a minimum, a network needs to provide:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nspec</span></code> : the number of species in the network</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nrates</span></code> : the number of reaction rates. This is used to
+allocate space in the <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> type</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_rate_groups</span></code> : the number of components for each reaction
+rate we want to store in the <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> type</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">naux</span></code> : the number of auxiliary quantities needed by the network (these are not evolved).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aion(:)</span></code> : the atomic weight (in atomic mass units) of the species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zion(:)</span></code> : the atomic number of the species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spec_names(:)</span></code> : a descriptive name of the species (e.g. “hydrogen-1”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">short_spec_names(:)</span></code> : a shorten version of the species name (e.g. “H1”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">short_aux_names(:)</span></code> : the names of the auxiliary quantities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">network_name</span></code> : a descriptive name for the network</p></li>
+</ul>
+<p>Most of these quantities are Fortran parameters.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A convention adopted in Microphysics is that each network is
+responsible for determining the energy release from a change in
+composition. Most networks will provide an array of the species
+binding energies and a routine to compute the energy yield from the
+reaction rates.</p>
+</div>
+<p>There are three primary files within each network directory.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_network.f90</span></code>:</p>
+<blockquote>
+<div><p>This is the Fortran module actual_network with routines:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_network_init()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_network_finalize()</span></code></p></li>
+</ul>
+<p>This supplies the number and names of species and auxiliary
+variables, as well as other initializing data, such as their mass
+numbers, proton numbers, and binding energies. It needs to define
+the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> and <code class="docutils literal notranslate"><span class="pre">naux</span></code> quantities as integer
+parameters. Finally, it
+must also define nrates, the number of reaction rates linking
+the isotopes in the network.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs.f90</span></code>:</p>
+<blockquote>
+<div><p>This is the Fortran module <code class="docutils literal notranslate"><span class="pre">actual_rhs_module</span></code>, with routines:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs_init()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs(state)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_jac(state)</span></code></p></li>
+</ul>
+<p>This supplies an interface for computing the right-hand-side of the
+network, the time-derivative of each species (and the temperature
+and nuclear energy release), as well as the analytic Jacobian.
+Both <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> take a single argument,
+a burn_t state. They set the time-derivatives and Jacobian
+elements in this derived type directly.</p>
+<p>Note: some networks do not provide an analytic Jacobian and instead
+rely on the numerical difference-approximation to the Jacobian. In
+this case, the interface <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> is still needed to compile.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner</span></code>:</p>
+<blockquote>
+<div><p>This is the Fortran module <code class="docutils literal notranslate"><span class="pre">actual_burner_module</span></code>, with routines:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner_init()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner(state_in,</span> <span class="pre">state_out,</span> <span class="pre">dt,</span> <span class="pre">time)</span></code></p></li>
+</ul>
+<p>This contains the interface for doing an actual burn. Here,
+<code class="docutils literal notranslate"><span class="pre">state_in</span></code> and <code class="docutils literal notranslate"><span class="pre">state_out</span></code> are <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> objects. In
+general, you will want to call integrator to use one of the
+pre-defined ODE integrators, but you could also write a custom
+integration here. This is covered in more detail in § <a class="reference external" href="#ch:networks:integrators">5</a>.</p>
+</div></blockquote>
+</li>
+</ul>
+<p>Notice that all three of these modules have initialization routines:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_network_init()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs_init()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner_init()</span></code></p></li>
+</ul>
+<p>These must be called upon initialization. These should be not called
+within OpenMP parallel regions, because in general they will modify
+shared module data.</p>
+<p>Note, depending on the network, some of these may do nothing, but
+these interfaces are all required for maximum flexibility.</p>
+</div>
+<div class="section" id="available-networks">
+<h2>Available Networks<a class="headerlink" href="#available-networks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="iso7-aprox13-aprox19-and-aprox21">
+<h3>iso7, aprox13, aprox19, and aprox21<a class="headerlink" href="#iso7-aprox13-aprox19-and-aprox21" title="Permalink to this headline">¶</a></h3>
+<p>These are alpha-chains (with some other nuclei) from Frank Timmes.
+These networks share common rates (from <code class="docutils literal notranslate"><span class="pre">Microphysics/rates</span></code>),
+plasma neutrino loses (from <code class="docutils literal notranslate"><span class="pre">Microphysics/neutrinos</span></code>), and
+electron screening (from <code class="docutils literal notranslate"><span class="pre">Microphysics/screening</span></code>).</p>
+<div class="section" id="energy-generation">
+<h4>Energy generation.<a class="headerlink" href="#energy-generation" title="Permalink to this headline">¶</a></h4>
+<p>These networks store the total binding energy of the nucleus in MeV as
+<code class="docutils literal notranslate"><span class="pre">bion(:)</span></code>. They then compute the mass of each nucleus in grams as:</p>
+<div class="math notranslate nohighlight">
+\[M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k\]</div>
+<p>where <span class="math notranslate nohighlight">\(m_n\)</span>, <span class="math notranslate nohighlight">\(m_p\)</span>, and <span class="math notranslate nohighlight">\(m_e\)</span> are the neutron, proton, and electron
+masses, <span class="math notranslate nohighlight">\(A_k\)</span> and <span class="math notranslate nohighlight">\(Z_k\)</span> are the atomic weight and number, and <span class="math notranslate nohighlight">\(B_k\)</span>
+is the binding energy of the nucleus (converted to grams). <span class="math notranslate nohighlight">\(M_k\)</span>
+is stored as <code class="docutils literal notranslate"><span class="pre">mion(:)</span></code> in the network.</p>
+<p>The energy release per gram is converted from the rates as:</p>
+<div class="math notranslate nohighlight">
+\[\edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edotnu\]</div>
+<p>where <span class="math notranslate nohighlight">\(N_A\)</span> is Avogadro’s number (to convert this to “per gram”)
+and <span class="math notranslate nohighlight">\(\edotnu\)</span> is the neutrino loss term.</p>
+</div>
+</div>
+<div class="section" id="breakout">
+<h3>breakout<a class="headerlink" href="#breakout" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="general-null">
+<h3>general_null<a class="headerlink" href="#general-null" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">general_null</span></code> is a bare interface for a nuclear reaction network;
+no reactions are enabled, and no auxiliary variables are accepted. The
+data in the Fortran module is defined at compile type by specifying an
+inputs file. For example,
+<code class="docutils literal notranslate"><span class="pre">Networks/general_null/triple_alpha_plus_o.net</span></code> would describe the
+triple-<span class="math notranslate nohighlight">\(\alpha\)</span> reaction converting helium into carbon, as
+well as oxygen and iron.</p>
+<p>At compile time, the network module <code class="docutils literal notranslate"><span class="pre">actual_network.f90</span></code>
+is written using the python script <code class="docutils literal notranslate"><span class="pre">write_network.py</span></code>
+and the template <code class="docutils literal notranslate"><span class="pre">network.template</span></code>. The make rule
+for this is contained in <code class="docutils literal notranslate"><span class="pre">Make.package</span></code>. The name of the inputs file
+is specified by the variable <code class="docutils literal notranslate"><span class="pre">GENERAL_NET_INPUTS</span></code>.</p>
+<p>A version of this network comes with MAESTRO and CASTRO, so you do
+not usually need to worry about the version in Microphysics.</p>
+</div>
+<div class="section" id="ignition-chamulak">
+<h3>ignition_chamulak<a class="headerlink" href="#ignition-chamulak" title="Permalink to this headline">¶</a></h3>
+<p>This network was introduced in our paper on convection in white dwarfs
+as a model of Type Ia supernovae <a class="bibtex reference internal" href="zreferences.html#wdconvect" id="id1">[ZingaleNonakaAlmgren+11]</a>. It models
+carbon burning in a regime appropriate for a simmering white dwarf,
+and captures the effects of a much larger network by setting the ash
+state and energetics to the values suggested in <a class="bibtex reference internal" href="zreferences.html#chamulak-2008" id="id2">[ChamulakBrownTimmesDupczak08]</a>.</p>
+<div class="section" id="energy-generation-1">
+<span id="id3"></span><h4>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this headline">¶</a></h4>
+<p>The binding energy, <span class="math notranslate nohighlight">\(q\)</span>, in this
+network is interpolated based on the density. It is stored as the
+binding energy (ergs/g) <em>per nucleon</em>, with a sign convention that
+binding energies are negative. The energy generation rate is then:</p>
+<div class="math notranslate nohighlight">
+\[\edot = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}\]</div>
+<p>(this is positive since both <span class="math notranslate nohighlight">\(q\)</span> and <span class="math notranslate nohighlight">\(dY/dt\)</span> are negative)</p>
+</div>
+</div>
+<div class="section" id="ignition-reaclib">
+<h3>ignition_reaclib<a class="headerlink" href="#ignition-reaclib" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="ignition-simple">
+<h3>ignition_simple<a class="headerlink" href="#ignition-simple" title="Permalink to this headline">¶</a></h3>
+<p>This is the original network used in our white dwarf convection
+studies <a class="bibtex reference internal" href="zreferences.html#lowmach4" id="id4">[ZingaleAlmgrenBell+09]</a>. It includes a single-step
+<span class="math notranslate nohighlight">\(^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}\)</span> reaction.
+The carbon mass fraction equation appears as</p>
+<div class="math notranslate nohighlight">
+\[\frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
+    f_\mathrm{Coul} \left [N_A \left &lt;\sigma v \right &gt; \right]\]</div>
+<p>where <span class="math notranslate nohighlight">\(N_A \left &lt;\sigma v\right&gt;\)</span> is evaluated using the reaction
+rate from (Caughlan and Fowler 1988). The Coulomb screening factor,
+<span class="math notranslate nohighlight">\(f_\mathrm{Coul}\)</span>, is evaluated using the general routine from the
+Kepler stellar evolution code (Weaver 1978), which implements the work
+of (Graboske 1973) for weak screening and the work of (Alastuey 1978
+and Itoh 1979) for strong screening.</p>
+</div>
+<div class="section" id="kpp">
+<h3>kpp<a class="headerlink" href="#kpp" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="powerlaw">
+<h3>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h3>
+<p>This is a simple single-step reaction rate.
+We will consider only two species, fuel, <span class="math notranslate nohighlight">\(f\)</span>, and ash, <span class="math notranslate nohighlight">\(a\)</span>, through
+the reaction: <span class="math notranslate nohighlight">\(f + f \rightarrow a + \gamma\)</span>. Baryon conservation
+requres that <span class="math notranslate nohighlight">\(A_f = A_a/2\)</span>, and charge conservation requires that <span class="math notranslate nohighlight">\(Z_f
+= Z_a/2\)</span>. We take
+our reaction rate to be a powerlaw in temperature. The standard way
+to write this is in terms of the number densities, in which case we
+have</p>
+<div class="math notranslate nohighlight">
+\[\frac{d n_f}{d t} = -2\frac{d n_a}{d t} = -r\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[r = r_0 n_X^2 \left( \frac{T}{T_0} \right )^\nu\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(r_0\)</span> sets the overall rate, with units of
+<span class="math notranslate nohighlight">\([\mathrm{cm^3~s^{-1}}]\)</span>, <span class="math notranslate nohighlight">\(T_0\)</span> is a reference temperature scale, and
+<span class="math notranslate nohighlight">\(\nu\)</span> is the temperature exponent, which will play a role in setting
+the reaction zone thickness. In terms of mass fractions, <span class="math notranslate nohighlight">\(n_f = \rho
+X_a / (A_a m_u)\)</span>, our rate equation is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ \frac{dX_f}{dt} &amp;= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
+ \frac{dX_a}{dt} &amp;= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
+\end{align}\end{split}\]</div>
+<p>We define a new rate constant, <span class="math notranslate nohighlight">\(\rt\)</span> with units of <span class="math notranslate nohighlight">\([\mathrm{s^{-1}}]\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rt =  \begin{cases}
+  \dfrac{r_0}{m_u A_f} \rho_0 &amp; \text{if $T \ge T_a$} \\[1em]
+  0                          &amp; \text{if $T &lt; T_a$}
+ \end{cases}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho_0\)</span> is a reference density and <span class="math notranslate nohighlight">\(T_a\)</span> is an activation
+temperature, and then our mass fraction equation is:</p>
+<div class="math notranslate nohighlight">
+\[\frac{dX_f}{dt} = -\rt X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu\]</div>
+<p>Finally, for the
+energy generation, we take our reaction to release a specific energy,
+<span class="math notranslate nohighlight">\([\mathrm{erg~g^{-1}}]\)</span>, of <span class="math notranslate nohighlight">\(\qburn\)</span>, and our energy source is</p>
+<div class="math notranslate nohighlight">
+\[\edot = -\qburn \frac{dX_f}{dt}\]</div>
+<p>There are a number of parameters we use to control the constants in
+this network. This is one of the few networks that was designed
+to work with gamma_law_general as the EOS.</p>
+</div>
+<div class="section" id="rprox">
+<h3>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h3>
+<p>This network contains 10 species, approximating hot CNO,
+triple-<span class="math notranslate nohighlight">\(\alpha\)</span>, and rp-breakout burning up through <span class="math notranslate nohighlight">\(^{56}\mathrm{Ni}\)</span>,
+using the ideas from <a class="bibtex reference internal" href="zreferences.html#wallacewoosley-1981" id="id5">[WallaceWoosley81]</a>, but with modern
+reaction rates from ReacLib <a class="bibtex reference internal" href="zreferences.html#reaclib" id="id6">[CAF+10]</a> where available.
+This network was used for the X-ray burst studies in
+<a class="bibtex reference internal" href="zreferences.html#xrb-ii" id="id7">[MaloneZingaleNonaka+14]</a>, <a class="bibtex reference internal" href="zreferences.html#xrb-iii" id="id8">[ZingaleMaloneNonaka+15]</a>, and more details are contained in those papers.</p>
+</div>
+<div class="section" id="triple-alpha-plus-cago">
+<h3>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h3>
+<p>This is a 2 reaction network for helium burning, capturing the <span class="math notranslate nohighlight">\(3\)</span>-<span class="math notranslate nohighlight">\(\alpha\)</span>
+reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
+<span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
+</div>
+<div class="section" id="xrb-simple">
+<h3>xrb_simple<a class="headerlink" href="#xrb-simple" title="Permalink to this headline">¶</a></h3>
+<p>This is a simple 7 isotope network approximating the burning that
+takes place in X-ray bursts (6 isotopes participate in reactions, one
+additional, <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span>, serves as an inert
+composition). The 6 reactions modeled are:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(3\alpha + 2p \rightarrow \isotm{O}{14}\)</span> (limited by the 3-<span class="math notranslate nohighlight">\(\alpha\)</span> rate)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{O}{14}(\alpha,p)\isotm{F}{17}\)</span> rate)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}\)</span> rate)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}\)</span> rate)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{O}{14} + p \rightarrow \isotm{O}{15}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{O}{14}(e+\nu)\isotm{N}{14}\)</span> rate)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha\)</span>  (limited by <span class="math notranslate nohighlight">\(\isotm{O}{15}(e+\nu)\isotm{N}{15}\)</span> rate)</p></li>
+</ul>
+<p>All reactions conserve mass. Where charge is not conserved, fast weak
+interactions are assumed. Weak rates are trivial, fits to the 4
+strong rates to a power law in <span class="math notranslate nohighlight">\(T_9 \in [0.3, 1]\)</span>, linear in density.</p>
+</div>
+<div class="section" id="subch">
+<h3>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h3>
+<p>This is a 10 isotope network including rates from reactions suggested
+by Shen and Bildsten in their 2009 paper on helium burning on a white
+dwarf <a class="bibtex reference internal" href="zreferences.html#shenbildsten" id="id9">[ShenBildsten09]</a>.  The reactions included in
+this networks are as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    \isotm{He}{4} &amp;\rightarrow  \isotm{C}{12} + 2\gamma \\
+    \isotm{C}{12} + \isotm{He}{4} &amp;\rightarrow \isotm{O}{16} + \gamma \\
+    \isotm{N}{14} + \isotm{He}{4} &amp;\rightarrow \isotm{F}{18} + \gamma \label{chemeq:1.1} \\
+    \isotm{F}{18} + \isotm{He}{4} &amp;\rightarrow \isotm{Ne}{21} +  \text{p} \label{chemeq:1.2} \\
+    \isotm{C}{12} + p+ &amp;\rightarrow \isotm{N}{13} + \gamma  \label{chemeq:2.1} \\
+    \isotm{N}{13} + \isotm{He}{4} &amp;\rightarrow \isotm{O}{16} + \text{p} \label{chemeq:2.2} \\
+    \isotm{O}{16} + \isotm{He}{4} &amp;\rightarrow \isotm{Ne}{20} + \gamma \\
+    \isotm{C}{14} + \isotm{He}{4} &amp;\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}
+\end{aligned}\end{split}\]</div>
+<p>The main reactions suggested by Shen and Bildsten were the <span class="math notranslate nohighlight">\(\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}\)</span>,
+leading into <span class="math notranslate nohighlight">\(\isotm{F}{18}(\alpha,p)\isotm{Ne}{21}\)</span>,
+<span class="math notranslate nohighlight">\(\isotm{C}{12}(p,\gamma)\isotm{N}{13}\)</span> leading into <span class="math notranslate nohighlight">\(\isotm{N}{13}(\alpha,p)\isotm{O}{16}\)</span>,
+and <span class="math notranslate nohighlight">\(\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}\)</span> <a class="bibtex reference internal" href="zreferences.html#shenbildsten" id="id10">[ShenBildsten09]</a>.
+The rates of these reactions are shown in the figure below.
+Notably, the reaction <span class="math notranslate nohighlight">\(\isotm{N}{13}(\alpha,p)\isotm{O}{16}\)</span>, is high and may produce <span class="math notranslate nohighlight">\(\isotm{O}{16}\)</span> more quickly than reactions involving only <span class="math notranslate nohighlight">\(\isotm{He}{4}\)</span> and <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span>,</p>
+<div class="figure align-center" id="id11">
+<a class="reference internal image-reference" href="_images/subch.png"><img alt="pynucastro plot of the reaction rates of the subch network." src="_images/subch.png" style="width: 640.0px; height: 480.0px;" /></a>
+<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">pynucastro plot of the reaction rates of the subch network.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="integrators.html" class="btn btn-neutral float-right" title="Integrating a Network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="eos.html" class="btn btn-neutral float-left" title="Equations of State" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2018, StarKiller Development Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+
+</body>
+</html>
