@@ -82,9 +82,15 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
 #endif
 
     // zero out the advective terms
+
     for (int n = 0; n < SVAR; n++) {
         burn_state.ydot_a[n] = 0.0;
     }
+
+    // these need to be initialized 
+
+    burn_state.sdc_iter = 1;
+    burn_state.num_sdc_iters = 1;
 
     integrator(burn_state, tmax);
 
