@@ -140,7 +140,7 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     eos_t eos_state;
     eos_state.rho = state.y[SRHO];
     eos_state.T = MAX_TEMP;
-    for (int n = 0; n < NumSpec; n++) {
+    for (int n = 1; n <= NumSpec; n++) {
       // vode_state.y uses 1-based indexing
       eos_state.xn[n] = vode_state.y(SFS+n) / state.y[SRHO];
     }
