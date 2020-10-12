@@ -173,6 +173,20 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   }
   o << std::endl;
 #endif
+
+#ifdef SIMPLIFIED_SDC
+  o << "y = ";
+  for (int n = 0; n < SVAR; n++) {
+      o << burn_state.y[n] << " ";
+  }
+  o << std::endl;
+
+  o << "ydot_a = ";
+  for (int n = 0; n < SVAR; n++) {
+      o << burn_state.ydot_a[n] << " ";
+  }
+  o << std::endl;
+#endif
   return o;
 }
 
