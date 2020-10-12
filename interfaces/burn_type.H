@@ -47,7 +47,7 @@ const int SEDEN = 0;
 const int SEINT = 1;
 const int SFS   = 2;
 const int SFX   = SFS + NumSpec;
-const int SRHO  = SFS + NumSpec + NumAux;
+const int SRHO  = SFS + NumSpec + NumAux; // this will be = SFX for NumAux = 0
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
