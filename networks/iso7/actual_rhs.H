@@ -765,26 +765,37 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
         dydt(Mg24) = esum5(a);
     }
 
-    // 28si reactions
-    {
-        Array1D<Real, 1, 6> a;
-        a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-        a(2) =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
-        a(3) = -y(Si28) * rr.rates(index_rate,irsiga);
-        a(4) =  y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
-        a(5) = -rr.rates(index_rate,irsi2ni) * y(He4);
-        a(6) =  rr.rates(index_rate,irni2si) * y(Ni56);
+#pragma unroll
+    for (int spec = Si28; spec <= Ni56; ++spec) {
 
-        dydt(Si28) = esum6(a);
-    }
+        Array1D<Real, 1, RHS::num_rhs(spec)> a;
 
-    // ni56 reactions
-    {
-        Array1D<Real, 1, 2> a;
-        a(1) =  rr.rates(index_rate,irsi2ni) * y(He4);
-        a(2) = -rr.rates(index_rate,irni2si) * y(Ni56);
+#pragma unroll
+        for (int n = 1; n <= RHS::num_rhs(spec); ++n) {
+            a(n) = RHS::prefactor(spec, n);
 
-        dydt(Ni56) = a(1) + a(2);
+            const int specindex1 = RHS::specindex1(spec, n);
+            if (specindex1 >= 0) {
+                a(n) *= y(specindex1);
+            }
+
+            const int specindex2 = RHS::specindex2(spec, n);
+            if (specindex2 >= 0) {
+                a(n) *= y(specindex2);
+            }
+
+            const int specindex3 = RHS::specindex3(spec, n);
+            if (specindex3 >= 0) {
+                a(n) *= y(specindex3);
+            }
+
+            const int rateindex = RHS::rateindex(spec, n);
+            if (rateindex >= 0) {
+                a(n) *= rr.rates(index_rate, rateindex);
+            }
+        }
+
+        dydt(spec) = esum<n>(a);
     }
 
 }
