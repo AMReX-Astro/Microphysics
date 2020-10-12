@@ -32,9 +32,11 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 
   // apply fudge factor:
   if (react_boost > 0.0_rt) {
-    for (int n = 1; n <= VODE_NEQS; ++n) {
-      ydot_react(n) *= react_boost;
-    }
+      // the correct size here is the size of the reactive state RHS,
+      // not the SDC state RHS (neqs, not VODE_NEQS)
+      for (int n = 1; n <= neqs; ++n) {
+          ydot_react(n) *= react_boost;
+      }
   }
 
   // convert back to the vode type -- this will add the advective terms
@@ -66,8 +68,8 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // apply fudge factor:
 
     if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int j = 1; j <= neqs; ++j) {
+            for (int i = 1; i <= neqs; ++i) {
                 jac_react.mul(i, j, react_boost);
             }
         }
