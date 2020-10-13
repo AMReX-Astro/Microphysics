@@ -140,9 +140,9 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     eos_t eos_state;
     eos_state.rho = state.y[SRHO];
     eos_state.T = MAX_TEMP;
-    for (int n = 1; n <= NumSpec; n++) {
+    for (int n = 0; n < NumSpec; n++) {
       // vode_state.y uses 1-based indexing
-      eos_state.xn[n] = vode_state.y(SFS+n) / state.y[SRHO];
+      eos_state.xn[n] = vode_state.y(SFS+1+n) / state.y[SRHO];
     }
 #if NAUX_NET > 0
     for (int n = 0; n < NumAux; n++) {
@@ -150,15 +150,11 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     }
 #endif
 
-    std::cout << "here first!" << std::endl;
-
     eos(eos_input_rt, eos_state);
 
     Real max_e = eos_state.e;
 
     vode_state.y(SEINT+1) = amrex::min(state.y[SRHO] * max_e, vode_state.y(SEINT+1));
-
-    std::cout << "here!" << std::endl;
 
     Real ke = vode_state.y(SEDEN+1) -
       0.5_rt * (state.y[SMX] * state.y[SMX] +
