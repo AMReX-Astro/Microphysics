@@ -355,7 +355,6 @@ void jac_to_vode(const Real time, burn_t& state,
   amrex::Array2D<Real, 1, iwvar, 1, SVAR_EVOLVE+1> dwdU = {0.0_rt};
 
   constexpr Real eps = 1.e-8_rt;
-  constexpr Real smallK = 1.e-15_rt;
 
   // this is 0-based to be consistent with SFS, SEDEN, ...
   constexpr int SRHO_EXTRA = SVAR_EVOLVE;
