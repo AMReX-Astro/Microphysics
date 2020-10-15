@@ -204,8 +204,6 @@ void main_main ()
 #ifdef CXX_REACTIONS
         if (do_cxx) {
 
-          std::cout << "here!!!!!!!!!!!!!!!" << std::endl;
-
             auto s = state.array(mfi);
             auto n_rhs = integrator_n_rhs.array(mfi);
 
