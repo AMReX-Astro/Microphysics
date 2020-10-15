@@ -209,20 +209,24 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         bool valid_update = true;
 
+#ifndef SIMPLIFIED_SDC
         if (vstate.y(net_itemp) < 0.0_rt) {
             valid_update = false;
         }
+#endif
 
         for (int i = 1; i <= NumSpec; ++i) {
             // Constrain abundances such that they don't change by more than a certain
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
+#ifndef SIMPLIFIED_SDC
             if (std::abs(y_save(i)) >= atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
                 valid_update = false;
             }
+#endif
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
