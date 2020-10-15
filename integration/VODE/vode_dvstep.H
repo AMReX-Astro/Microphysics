@@ -231,9 +231,12 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 valid_update = false;
             }
 
+#ifndef SIMPLIFIED_SDC
+            // this only makes sense if we are evolving X, not (rho X)
             if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
                 valid_update = false;
             }
+#endif
         }
 
         // The corrector has converged (NFLAG = 0). The local error test is

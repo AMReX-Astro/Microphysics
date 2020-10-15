@@ -91,6 +91,11 @@ void vode_integrator (burn_t& state, Real dt)
 
     int istate = dvode(state, vode_state);
 
+    // Get the number of RHS and Jacobian evaluations.
+
+    state.n_rhs = vode_state.NFE;
+    state.n_jac = vode_state.NJE;
+
     // Copy the integration data back to the burn state.
 
     vode_to_burn(0.0_rt, vode_state, state);
