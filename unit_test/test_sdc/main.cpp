@@ -120,8 +120,10 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+    // Copy extern parameters from Fortran to C++
     init_extern_parameters();
 
+    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init();
 
 #ifdef CXX_REACTIONS
@@ -129,40 +131,27 @@ void main_main ()
     network_init();
 #endif
 
+    // Ncomp = number of components for each array
     int Ncomp = -1;
+    init_variables_F();
+    get_ncomp(&Ncomp);
 
-    // for C++
-    plot_t vars;
+    int name_len = -1;
+    get_name_len(&name_len);
 
-    // for F90
+    // get the variable names
     Vector<std::string> varnames;
 
-    // we always need to initilize the Fortran variable indices, since
-    // we do the initialization in Fortran
+    for (int i=0; i<Ncomp; i++) {
+      char* cstring[name_len+1];
+      get_var_name(cstring, &i);
+      std::string name(*cstring);
+      varnames.push_back(name);
+    }
 
-    init_variables_F();
-
+    plot_t vars;
     if (do_cxx == 1) {
-      // C++ test
       vars = init_variables();
-      Ncomp = vars.n_plot_comps;
-
-    } else {
-      // Fortran test
-
-      // Ncomp = number of components for each array
-      get_ncomp(&Ncomp);
-
-      int name_len = -1;
-      get_name_len(&name_len);
-
-      // get the variable names
-      for (int i=0; i<Ncomp; i++) {
-        char* cstring[name_len+1];
-        get_var_name(cstring, &i);
-        std::string name(*cstring);
-        varnames.push_back(name);
-      }
     }
 
     // time = starting time in the simulation
@@ -179,7 +168,7 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        init_state(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+        init_state(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
                    BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }
@@ -211,6 +200,7 @@ void main_main ()
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
+
                 bool success = do_react(vars, i, j, k, s, n_rhs);
 
                 if (!success) {
@@ -223,7 +213,7 @@ void main_main ()
 #endif
 
 #pragma gpu
-          do_react_F(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+          do_react_F(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      BL_TO_FORTRAN_ANYD(state[mfi]),
                      BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
 
@@ -259,12 +249,16 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
+#ifdef CXX_REACTIONS
+    std::string language = do_cxx == 1 ? ".cxx" : "";
+#else
+    std::string language = "";
+#endif
+
     // Write a plotfile
-    int n = 0;
+    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
 
-    WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
-
-    write_job_info(prefix + name + integrator);
+    write_job_info(prefix + name + integrator + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
