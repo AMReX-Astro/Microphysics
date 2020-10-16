@@ -367,12 +367,12 @@ void jac_to_vode(const Real time, burn_t& state,
   // The Jacobian from the nets is in terms of dYdot/dY, but we want
   // it was dXdot/dX, so convert here.
   for (int n = 1; n <= NumSpec; n++) {
-    for (int m = 1; m <= NumSpec; m++) {
+    for (int m = 1; m <= neqs; m++) {
        jac_react(n,m) = jac_react(n,m) * aion[n-1];
     }
   }
 
-  for (int m = 1; m <= NumSpec; m++) {
+  for (int m = 1; m <= neqs; m++) {
     for (int n = 1; n <= NumSpec; n++) {
        jac_react(m,n) = jac_react(m,n) * aion_inv[n-1];
     }
