@@ -40,7 +40,7 @@ namespace ignition_simple
 namespace Rates
 {
     const int NumRates = 1;
-    const int NumGroups = 4;
+    const int NumGroups = 2;
 }
 
 #endif
