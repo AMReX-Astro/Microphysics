@@ -95,8 +95,9 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     integrator(burn_state, tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
-        state(i, j, k, p.ispec + n) = burn_state.xn[n];
-        state(i, j, k, p.irodot + n) = (burn_state.xn[n] - state(i, j, k, p.ispec_old + n)) / tmax;
+        state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;
+        state(i, j, k, p.irodot + n) = (burn_state.y[SFS+n] -
+                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / tmax;
     }
 
 #if defined(SDC_EVOLVE_ENERGY)
