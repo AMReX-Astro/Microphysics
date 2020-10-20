@@ -52,7 +52,7 @@ void sdc_burn_to_eos(const burn_t& state, eos_t& eos_state) {
     eos_state.rho = state.y[SRHO];
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
-    eos_state.rho = 0.0;
+    eos_state.rho = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
         eos_state.rho += state.y[SFS+n];
     }
@@ -665,4 +665,3 @@ void jac_to_vode(const Real time, burn_t& state,
 }
 
 #endif
-
