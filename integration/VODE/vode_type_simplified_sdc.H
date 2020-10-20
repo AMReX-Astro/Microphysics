@@ -609,7 +609,7 @@ void jac_to_vode(const Real time, burn_t& state,
   // T row
   eos_t eos_state;
   eos_state.rho = state.rho;
-  eos_state.T = 1.e4;   // initial guess
+  eos_state.T = 1.e4_rt;   // initial guess
   for (int n = 0; n < NumSpec; n++) {
     eos_state.xn[n] = vode_state.y(SFS+n) / state.rho;
   }
