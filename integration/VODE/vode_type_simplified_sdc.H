@@ -627,12 +627,12 @@ void jac_to_vode(const Real time, burn_t& state,
     dwdU(iwT, SFS+n) = -eos_xderivs.dhdX[n-1] / (state.rho * eos_state.dedT);
   }
   dwdU(iwT, SENTH+1) = 1.0_rt / (state.rho * eos_state.dhdT);
-  Real X_dedX_sum = 0.0;
+  Real X_dhdX_sum = 0.0;
   for (int n = 0; n < NumSpec; n++) {
-    X_dedX_sum += eos_state.xn[n] * eos_xderivs.dedX[n];
+    X_dhdX_sum += eos_state.xn[n] * eos_xderivs.dhdX[n];
   }
   dwdU(iwT, SRHO_EXTRA+1) =
-    (X_dedX_sum - state.rho * eos_state.dhdr - eos_state.h) /
+    (X_dhdX_sum - state.rho * eos_state.dhdr - eos_state.h) /
     (state.rho * eos_state.dhdT);
 
 #endif
