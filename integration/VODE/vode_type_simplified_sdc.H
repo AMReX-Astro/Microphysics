@@ -169,7 +169,7 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
 
 
 // Given a burn state, fill the rpar and integration state data.
-// this is indended only to be called once -- at the very start of the integration
+// this is intended only to be called once -- at the very start of the integration
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void burn_to_vode(burn_t& state, dvode_t& vode_state)
