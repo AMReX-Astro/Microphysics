@@ -4,6 +4,7 @@
 
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
+#include <AMReX_iMultiFab.H>
 #include <AMReX_BCRec.H>
 
 
@@ -13,7 +14,15 @@ using namespace amrex;
 #include <test_react_F.H>
 #include <AMReX_buildInfo.H>
 
+#include <network.H>
+#include <eos.H>
+#include <variables.H>
+
+#include <cmath>
 #include <unit_test.H>
+
+#include <react_zones.H>
+#include <integrator_sdc.H>
 
 int main (int argc, char* argv[])
 {
@@ -29,7 +38,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size;
+    int n_cell, max_grid_size, do_cxx;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -52,7 +61,13 @@ void main_main ()
 
         pp.query("prefix", prefix);
 
+        // do_cxx = 1 for C++, 0 for Fortran
+        do_cxx = 0;
+        pp.query("do_cxx", do_cxx);
+
     }
+
+    std::cout << "do_cxx = " << do_cxx << std::endl;
 
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
@@ -105,9 +120,20 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+    // Copy extern parameters from Fortran to C++
+    init_extern_parameters();
+
+    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    eos_init();
+
+#ifdef CXX_REACTIONS
+    // C++ Network, RHS, screening, rates initialization
+    network_init();
+#endif
+
     // Ncomp = number of components for each array
     int Ncomp = -1;
-    init_variables();
+    init_variables_F();
     get_ncomp(&Ncomp);
 
     int name_len = -1;
@@ -121,6 +147,11 @@ void main_main ()
       get_var_name(cstring, &i);
       std::string name(*cstring);
       varnames.push_back(name);
+    }
+
+    plot_t vars;
+    if (do_cxx == 1) {
+      vars = init_variables();
     }
 
     // time = starting time in the simulation
@@ -137,29 +168,58 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        init_state(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
+        init_state(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
                    BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
 
     }
 
-    int n_rhs_min = 1000000000;
-    int n_rhs_max = -1000000000;
-    int n_rhs_sum = 0;
+    // allocate a multifab for the number of RHS calls
+    // so we can manually do the reductions (for GPU)
+    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
 
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
 
+    int num_failed = 0;
+
     // Do the reactions
 #ifdef _OPENMP
-#pragma omp parallel reduction(min:n_rhs_min), reduction(max:n_rhs_max), reduction(+:n_rhs_sum)
+#pragma omp parallel
 #endif
     for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.tilebox();
 
-        do_react(AMREX_ARLIM_ARG(bx.loVect()), AMREX_ARLIM_ARG(bx.hiVect()),
-                 BL_TO_FORTRAN_ANYD(state[mfi]),
-                 &n_rhs_min, &n_rhs_max, &n_rhs_sum);
+#ifdef CXX_REACTIONS
+        if (do_cxx) {
+
+            auto s = state.array(mfi);
+            auto n_rhs = integrator_n_rhs.array(mfi);
+
+            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
+
+            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+            {
+
+                bool success = do_react(vars, i, j, k, s, n_rhs);
+
+                if (!success) {
+                    Gpu::Atomic::Add(num_failed_d, 1);
+                }
+            });
+
+        }
+        else {
+#endif
+
+#pragma gpu
+          do_react_F(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                     BL_TO_FORTRAN_ANYD(state[mfi]),
+                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
+
+#ifdef CXX_REACTIONS
+        }
+#endif
 
     }
 
@@ -169,6 +229,9 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
+    int n_rhs_min = integrator_n_rhs.min(0);
+    int n_rhs_max = integrator_n_rhs.max(0);
+    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -186,12 +249,16 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
+#ifdef CXX_REACTIONS
+    std::string language = do_cxx == 1 ? ".cxx" : "";
+#else
+    std::string language = "";
+#endif
+
     // Write a plotfile
-    int n = 0;
+    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
 
-    WriteSingleLevelPlotfile(prefix + name + integrator, state, varnames, geom, time, 0);
-
-    write_job_info(prefix + name + integrator);
+    write_job_info(prefix + name + integrator + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
