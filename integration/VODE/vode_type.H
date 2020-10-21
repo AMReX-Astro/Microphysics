@@ -11,7 +11,11 @@
 #include <actual_matrix.H>
 #endif
 
+#ifdef SIMPLIFIED_SDC
+const int VODE_NEQS = SVAR_EVOLVE;
+#else
 const int VODE_NEQS = NumSpec + 2;
+#endif
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
@@ -167,6 +171,7 @@ void print_state(dvode_t& dvode_state)
 }
 #endif
 
+<<<<<<< HEAD
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void vode_to_burn (const dvode_t& vode_state, burn_t& state)
@@ -312,5 +317,12 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
     eos_to_burn(eos_state, state);
 
 }
+=======
+#ifdef SIMPLIFIED_SDC
+#include <vode_type_simplified_sdc.H>
+#else
+#include <vode_type_strang.H>
+#endif
+>>>>>>> development
 
 #endif

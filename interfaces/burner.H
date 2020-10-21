@@ -2,7 +2,11 @@
 #define _burner_H_
 
 #include <burn_type.H>
+#ifdef SIMPLIFIED_SDC
+#include <integrator_sdc.H>
+#else
 #include <integrator.H>
+#endif
 
 #ifdef NSE_TABLE
 #include <nse.H>
