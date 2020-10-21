@@ -95,12 +95,10 @@ contains
 
     call sdc_to_vode(state_in, dvode_state)
 
-    ! Set the tolerances.  We will be more relaxed on the temperature
-    ! since it is only used in evaluating the rates.
-    !
-    ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of
-    ! steps allowed.
+    ! Set the tolerances.  Note: we define the input atol for species
+    ! to refer only to the mass fraction part, and we multiply by a
+    ! representative density so that atol becomes an absolutely
+    ! tolerance on (rho X)
 
     sdc_tol_fac = sdc_burn_tol_factor**(state_in % num_sdc_iters - state_in % sdc_iter - 1)
 

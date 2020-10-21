@@ -1,3 +1,7 @@
+# 20.11
+
+   * The simplified-SDC code path was ported to C++ (#389)
+
 # 20.10
 
    * An option to use NSE instead of integrating the reaction

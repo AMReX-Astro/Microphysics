@@ -4,7 +4,11 @@
 #include <vode_type.H>
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>  
+#ifndef SIMPLIFIED_SDC
 #include <vode_rhs.H>
+#else
+#include <vode_rhs_simplified_sdc.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int dvode (burn_t& state, dvode_t& vstate)
