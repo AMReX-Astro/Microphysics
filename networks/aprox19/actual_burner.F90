@@ -3,6 +3,7 @@ module actual_burner_module
   use amrex_constants_module
   use amrex_error_module
   use eos_module
+  use eos_type_module
   use network
   use burn_type_module
 #ifdef NSE
@@ -28,6 +29,7 @@ contains
     integer :: nse_check
     real(rt) :: deltaq, enuc
     real(rt) :: dq_out, abar_out, dyedt
+    type(eos_t) :: eos_state
 #endif
 
     !$gpu
@@ -63,26 +65,43 @@ contains
        call nse_interp(state_in % T, state_in % rho, state_out % aux(iye), &
                        abar_out, dq_out, dyedt, state_out % xn(:))
 
-       state_out % success = .true.
-       state_out % n_rhs = 0
-       state_out % n_jac = 0
-
-       state_out % time = time + dt
-
        ! this is MeV / nucleon
        deltaq = dq_out - state_in % aux(ibea)
 
        ! under-relaxation / inertia (see Ma et el. 2013)
        deltaq = eta * deltaq
 
-       state_out % aux(ibea) = state_in % aux(ibea) + deltaq
-
        ! convert the energy to erg / g
        enuc = deltaq * mev2erg * avo
 
+       ! now update the temperature based on the energy deposition
+       eos_state % rho = state_in % rho
+       eos_state % T = state_in % T
+       eos_state % e = state_in % e + enuc
+       eos_state % xn(:) = state_out % xn(:)
+       eos_state % aux(iye) = state_out % aux(iye)
+       eos_state % aux(iabar) = abar_out
+       eos_state % aux(ibea) = state_in % aux(ibea) + deltaq
+
+       call eos(eos_input_re, eos_state)
+
+       ! now call the table one last time, with the updated T
+       call nse_interp(eos_state % T, state_in % rho, eos_state % aux(iye), &
+                       abar_out, dq_out, dyedt, state_out % xn(:))
+
+       deltaq = eta * deltaq
+       enuc = deltaq * mev2erg * avo
+
+       state_out % aux(ibea) = state_in % aux(ibea) + deltaq
+       state_out % aux(iabar) = abar_out
+
        state_out % e = enuc + state_in % e
 
-       state_out % aux(iabar) = abar_out
+       state_out % success = .true.
+       state_out % n_rhs = 0
+       state_out % n_jac = 0
+
+       state_out % time = time + dt
 
     end if
 
