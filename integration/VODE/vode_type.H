@@ -259,7 +259,7 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
     // are stored in the burn_t here, so we need to update those based on
     // the current state.
 
-    state.abar = 0.0;
+    state.abar = 0.0_rt;
     state.y_e = 0.0;
     for (int n = 1; n <= NumSpec; ++n) {
       state.abar += vode_state.y(n) * aion_inv[n-1];
