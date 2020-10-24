@@ -85,9 +85,9 @@ void set_nse_aux_from_X(burn_t& state) {
 
   using namespace AuxZero;
 
-  state.aux[iye] = 0.0;
-  state.aux[iabar] = 0.0;
-  state.aux[ibea] = 0.0;
+  state.aux[iye] = 0.0_rt;
+  state.aux[iabar] = 0.0_rt;
+  state.aux[ibea] = 0.0_rt;
 
   for (int n = 0; n < NumSpec; n++) {
     state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
@@ -265,4 +265,3 @@ void nse_burn(burn_t& state, const Real dt) {
 
 
 #endif
-
