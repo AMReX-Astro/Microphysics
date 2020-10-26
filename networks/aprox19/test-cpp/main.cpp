@@ -18,14 +18,17 @@
 
 #include <time.h>
 
-
+#include "extern_parameters.H"
+#include "eos.H"
+#include "network.H"
 
 extern "C"
 {
-   void test_jacobian();
-   void do_burn();
-   void do_initialization();
+  void do_nse_F();
+  void do_initialization();
 }
+
+void do_nse_cxx();
 
 
 std::string inputs_name = "";
@@ -47,11 +50,27 @@ main (int   argc,
       }
     }
 
+    // initialize the runtime parameters in Fortran and the Fortran microphysics
     do_initialization();
 
-    test_jacobian();
+    // Copy extern parameters from Fortran to C++
+    init_extern_parameters();
 
-    do_burn();
+    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    eos_init();
+
+#ifdef CXX_REACTIONS
+    // C++ Network, RHS, screening, rates initialization
+    network_init();
+#endif
+
+    std::cout << "Fortran: " << std::endl;
+    do_nse_F();
+
+#ifdef CXX_REACTIONS
+    std::cout << "C++: " << std::endl;
+    do_nse_cxx();
+#endif
 
     amrex::Finalize();
 

@@ -1,5 +1,7 @@
 # 20.11
 
+   * The aprox19 + NSE network was ported to C++ (#362)
+
    * The simplified-SDC code path was ported to C++ (#389)
 
 # 20.10
