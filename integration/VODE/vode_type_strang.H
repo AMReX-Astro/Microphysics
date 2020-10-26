@@ -68,9 +68,13 @@ void clean_state (dvode_t& vode_state)
 
 }
 
-
+///
+/// update the thermodynamics in the burn_t state -- this may involve an EOS call.
+/// we also pass in the vode_state so we get the latest values of the mass fractions,
+/// temperature, and internal energy
+///
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_thermodynamics (burn_t& state, dvode_t& vode_state)
+void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 {
 
     // Fill an EOS state using a combination of the burn data
@@ -78,6 +82,26 @@ void update_thermodynamics (burn_t& state, dvode_t& vode_state)
     // VODE state (which has the current xn, T, and e).
 
     eos_t eos_state;
+
+#ifdef NSE_THERMO
+    // we are handling the thermodynamics via the aux quantities, which
+    // are stored in the burn_t here, so we need to update those based on
+    // the current state.
+
+    state.abar = 0.0_rt;
+    state.y_e = 0.0_rt;
+    for (int n = 1; n <= NumSpec; ++n) {
+      state.abar += vode_state.y(n) * aion_inv[n-1];
+      state.y_e += vode_state.y(n) * zion[n-1] * aion_inv[n-1];
+    }
+    state.abar = 1.0_rt / state.abar;
+    state.zbar = state.abar * state.y_e;
+
+    state.aux[AuxZero::iabar] = state.abar;
+    state.aux[AuxZero::iye] = state.y_e;
+    state.aux[AuxZero::ibea] = 0.0_rt; // this is not needed when we integrate
+
+#endif
 
     burn_to_eos(state, eos_state);
 

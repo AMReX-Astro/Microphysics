@@ -22,8 +22,11 @@ ifeq ($(USE_REACT),TRUE)
   USE_NEUTRINOS   = TRUE
 
   ifeq ($(USE_NSE),TRUE)
+    ifeq ($(USE_CXX_REACTIONS),TRUE)
+      CEXE_headers += nse.H
+    endif
     F90EXE_sources += nse_check.F90
-    F90EXE_sources += nse.F90
+    F90EXE_sources += nse_F.F90
   endif
 
 endif

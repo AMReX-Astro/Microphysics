@@ -82,7 +82,7 @@ endif
 
 ifeq ($(USE_NSE), TRUE)
 
-  DEFINES += -DNSE_THERMO -DNSE
+  DEFINES += -DNSE_THERMO -DNSE_TABLE -DNSE
 
 endif
 

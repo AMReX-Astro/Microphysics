@@ -1,0 +1,4 @@
+f90EXE_sources += testburn.f90
+f90EXE_sources += testjacobian.f90
+f90EXE_sources += do_initialization.f90
+CEXE_sources += main.cpp
