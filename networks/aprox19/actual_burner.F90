@@ -28,7 +28,7 @@ contains
 #ifdef NSE
     integer :: nse_check
     real(rt) :: deltaq, enuc
-    real(rt) :: dq_out, abar_out, dyedt
+    real(rt) :: dq_out, abar_out, dyedt, dyedt_in
     type(eos_t) :: eos_state
 #endif
 
@@ -56,14 +56,14 @@ contains
 
        ! use the NSE table
        call nse_interp(state_in % T, state_in % rho, state_in % aux(iye), &
-                       abar_out, dq_out, dyedt, state_out % xn(:))
+                       abar_out, dq_out, dyedt_in, state_out % xn(:))
 
        ! update Ye
-       state_out % aux(iye) = state_in % aux(iye) + dt * dyedt
+       state_out % aux(iye) = state_in % aux(iye) + dt * dyedt_in
 
-       ! now get the composition from the table using the updated Ye
        call nse_interp(state_in % T, state_in % rho, state_out % aux(iye), &
                        abar_out, dq_out, dyedt, state_out % xn(:))
+
 
        ! this is MeV / nucleon
        deltaq = dq_out - state_in % aux(ibea)
@@ -91,6 +91,9 @@ contains
 
        deltaq = eta * deltaq
        enuc = deltaq * mev2erg * avo
+
+       ! now time-center the Ye update
+       state_out % aux(iye) = state_in % aux(iye) + 0.5_rt * dt * (dyedt_in + dyedt)
 
        state_out % aux(ibea) = state_in % aux(ibea) + deltaq
        state_out % aux(iabar) = abar_out
