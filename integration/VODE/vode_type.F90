@@ -97,7 +97,7 @@ contains
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
     
-#if NSE_THERMO
+#ifdef NSE_THERMO
     ! we are handling the thermodynamics via the aux quantities, which
     ! are stored in the rpar here, so we need to update those based on
     ! the current state.
