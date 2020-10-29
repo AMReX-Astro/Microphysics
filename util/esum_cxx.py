@@ -60,6 +60,12 @@ Real esum(T const& array)
     Real sum = 0.0_rt;
 
     switch (n) {
+    case 1:
+        sum = array(1);
+        break;
+    case 2:
+        sum = array(1) + array(2);
+        break;
 """
 
 
@@ -279,7 +285,6 @@ if __name__ == "__main__":
         # Now write out the base template that can call all the others
 
         ef.write(esum_base_template_start)
-        ef.write("\n")
 
         for num in range(first_esum, last_esum + 1):
             ef.write("    case {}:\n".format(num))

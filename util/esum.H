@@ -9761,7 +9761,12 @@ Real esum(T const& array)
     Real sum = 0.0_rt;
 
     switch (n) {
-
+    case 1:
+        sum = array(1);
+        break;
+    case 2:
+        sum = array(1) + array(2);
+        break;
     case 3:
         sum = esum3(array);
         break;
