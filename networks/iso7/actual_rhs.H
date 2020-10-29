@@ -673,7 +673,51 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 }
 
+template<int spec, int j>
+Real rhs_term(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
+    Real term = RHS::prefactor(spec, j);
 
+    constexpr int specindex1 = RHS::specindex1(spec, j);
+    if (specindex1 >= 0) {
+        term *= y(specindex1);
+    }
+
+    constexpr int specindex2 = RHS::specindex2(spec, j);
+    if (specindex2 >= 0) {
+        term *= y(specindex2);
+    }
+
+    constexpr int specindex3 = RHS::specindex3(spec, j);
+    if (specindex3 >= 0) {
+        term *= y(specindex3);
+    }
+
+    constexpr int rateindex = RHS::rateindex(spec, j);
+    if (rateindex >= 0) {
+        term *= rr.rates(index_rate, rateindex);
+    }
+
+    return term;
+}
+
+template<int spec, int... j>
+Array1D<Real, 1, sizeof...(j)>
+make_RHS_Array1D_impl(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr, std::integer_sequence<int, j...>) {
+    return {{rhs_term<spec, j+1>(y, index_rate, rr)...}};
+}
+
+template<int spec, int N>
+Array1D<Real, 1, N> make_RHS_Array1D(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
+    return make_RHS_Array1D_impl<spec>(y, index_rate, rr, std::make_integer_sequence<int, N>{});
+}
+
+template<int spec>
+Real spec_rhs(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
+    constexpr int nrhs = RHS::num_rhs(spec);
+    Array1D<Real, 1, nrhs> a = make_RHS_Array1D<spec, nrhs>(y, index_rate, rr);
+    return esum<nrhs>(a);
+}
+ 
 // Evaluates the right hand side of the iso7 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
@@ -692,112 +736,13 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr,
         dydt(i) = 0.0_rt;
     }
 
-    // set up the system of ode's :
-    // 4he reactions
-    {
-        Array1D<Real, 1, 15> a;
-        a(1)  =  3.0e0_rt * y(C12) * rr.rates(index_rate,irg3a);
-        a(2)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a);
-        a(3)  =  y(O16) * rr.rates(index_rate,iroga);
-        a(4)  = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
-        a(5)  =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
-        a(6)  =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-        a(7)  =  0.5e0_rt * y(O16) * y(O16) * rr.rates(index_rate,ir1616);
-        a(8)  = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
-        a(9)  =  y(Ne20) * rr.rates(index_rate,irnega);
-        a(10) =  y(Mg24) * rr.rates(index_rate,irmgga);
-        a(11) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
-        a(12) =  y(Si28) * rr.rates(index_rate,irsiga);
-        a(13) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
-        a(14) = -7.0e0_rt * rr.rates(index_rate,irsi2ni) * y(He4);
-        a(15) =  7.0e0_rt * rr.rates(index_rate,irni2si) * y(Ni56);
-
-        dydt(He4) = esum15(a);
-    }
-
-    // 12c reactions
-    {
-        Array1D<Real, 1, 6> a;
-        a(1) =  y(He4) * y(He4) * y(He4) * rr.rates(index_rate,ir3a) / 6.0_rt;
-        a(2) = -y(C12) * rr.rates(index_rate,irg3a);
-        a(3) =  y(O16) * rr.rates(index_rate,iroga);
-        a(4) = -y(C12) * y(He4) * rr.rates(index_rate,ircag);
-        a(5) = -y(C12) * y(C12) * rr.rates(index_rate,ir1212);
-        a(6) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-
-        dydt(C12) = esum6(a);
-    }
-
-    // 16o reactions
-    {
-        Array1D<Real, 1, 6> a;
-        a(1) = -y(O16) * rr.rates(index_rate,iroga);
-        a(2) =  y(C12) * y(He4) * rr.rates(index_rate,ircag);
-        a(3) = -y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-        a(4) = -y(O16) * y(O16) * rr.rates(index_rate,ir1616);
-        a(5) = -y(O16) * y(He4) * rr.rates(index_rate,iroag);
-        a(6) =  y(Ne20) * rr.rates(index_rate,irnega);
-
-        dydt(O16) = esum6(a);
-    }
-
-    // 20ne reactions
-    {
-        Array1D<Real, 1, 5> a;
-        a(1) =  0.5e0_rt * y(C12) * y(C12) * rr.rates(index_rate,ir1212);
-        a(2) =  y(O16) * y(He4) * rr.rates(index_rate,iroag);
-        a(3) = -y(Ne20) * rr.rates(index_rate,irnega);
-        a(4) =  y(Mg24) * rr.rates(index_rate,irmgga);
-        a(5) = -y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
-
-        dydt(Ne20) = esum5(a);
-    }
-
-    // 24mg reactions
-    {
-        Array1D<Real, 1, 5> a;
-        a(1) =  0.5e0_rt * y(C12) * y(O16) * rr.rates(index_rate,ir1216);
-        a(2) = -y(Mg24) * rr.rates(index_rate,irmgga);
-        a(3) =  y(Ne20) * y(He4) * rr.rates(index_rate,irneag);
-        a(4) =  y(Si28) * rr.rates(index_rate,irsiga);
-        a(5) = -y(Mg24) * y(He4) * rr.rates(index_rate,irmgag);
-
-        dydt(Mg24) = esum5(a);
-    }
-
-#pragma unroll
-    for (int spec = Si28; spec <= Ni56; ++spec) {
-
-        Array1D<Real, 1, RHS::num_rhs(spec)> a;
-
-#pragma unroll
-        for (int n = 1; n <= RHS::num_rhs(spec); ++n) {
-            a(n) = RHS::prefactor(spec, n);
-
-            const int specindex1 = RHS::specindex1(spec, n);
-            if (specindex1 >= 0) {
-                a(n) *= y(specindex1);
-            }
-
-            const int specindex2 = RHS::specindex2(spec, n);
-            if (specindex2 >= 0) {
-                a(n) *= y(specindex2);
-            }
-
-            const int specindex3 = RHS::specindex3(spec, n);
-            if (specindex3 >= 0) {
-                a(n) *= y(specindex3);
-            }
-
-            const int rateindex = RHS::rateindex(spec, n);
-            if (rateindex >= 0) {
-                a(n) *= rr.rates(index_rate, rateindex);
-            }
-        }
-
-        dydt(spec) = esum<n>(a);
-    }
-
+    dydt(He4) = spec_rhs<He4>(y, index_rate, rr);
+    dydt(C12) = spec_rhs<C12>(y, index_rate, rr);
+    dydt(O16) = spec_rhs<O16>(y, index_rate, rr);
+    dydt(Ne20) = spec_rhs<Ne20>(y, index_rate, rr);
+    dydt(Mg24) = spec_rhs<Mg24>(y, index_rate, rr);
+    dydt(Si28) = spec_rhs<Si28>(y, index_rate, rr);
+    dydt(Ni56) = spec_rhs<Ni56>(y, index_rate, rr);
 }
 
 
