@@ -22,8 +22,6 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
 endif
 
-DEFINES += -DAMREX_GPU_MANAGED=""
-
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 
