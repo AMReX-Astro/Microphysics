@@ -17,7 +17,7 @@ module nse_module
   real(rt), allocatable :: abartab(:), ebtab(:), wratetab(:)
   real(rt), allocatable :: massfractab(:, :)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: ttlog, ddlog, yetab
   !attributes(managed) :: helium, sica, fegroup
   attributes(managed) :: abartab, ebtab, wratetab

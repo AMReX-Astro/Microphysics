@@ -22,7 +22,7 @@ module actual_rhs_module
 !  real(rt)        , allocatable :: drattabdd(:,:)
   real(rt)        , allocatable :: ttab(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: rattab, drattabdt, ttab !, drattabdd
 #endif
 
