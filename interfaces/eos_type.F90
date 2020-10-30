@@ -425,7 +425,7 @@ contains
 
     case default
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
        stop
 #else
        call amrex_error("EOS: invalid independent variable")
