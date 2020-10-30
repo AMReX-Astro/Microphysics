@@ -5,9 +5,6 @@ module cuvode_module
   use vode_rpar_indices
   use amrex_fort_module, only: rt => amrex_real
   use linpack_module
-#ifdef AMREX_USE_CUDA
-  use cudafor
-#endif
   use cuvode_dvhin_module
   use cuvode_dvstep_module
   
@@ -17,9 +14,6 @@ module cuvode_module
   
 contains
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine dvode(vstate)
 
     !$acc routine seq
