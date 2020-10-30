@@ -68,6 +68,7 @@ namespace Rates {
 
 namespace RHS {
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr int num_rhs (int species)
     {
         using namespace Species;
@@ -104,6 +105,7 @@ namespace RHS {
         return num_rhs;
     }
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real prefactor (int species, int index)
     {
         using namespace Species;
@@ -303,6 +305,7 @@ namespace RHS {
         return prefactor;
     }
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr int specindex1 (int species, int index)
     {
         using namespace Species;
@@ -502,6 +505,7 @@ namespace RHS {
         return specindex1;
     }
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr int specindex2 (int species, int index)
     {
         using namespace Species;
@@ -701,6 +705,7 @@ namespace RHS {
         return specindex2;
     }
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr int specindex3 (int species, int index)
     {
         using namespace Species;
@@ -900,6 +905,7 @@ namespace RHS {
         return specindex3;
     }
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr int rateindex (int species, int index)
     {
         using namespace Species;

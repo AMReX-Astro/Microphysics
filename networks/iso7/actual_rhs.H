@@ -674,6 +674,7 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 }
 
 template<int spec, int j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real rhs_term(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
     Real term = RHS::prefactor(spec, j);
 
@@ -701,17 +702,20 @@ Real rhs_term(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& 
 }
 
 template<int spec, int... j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, sizeof...(j)>
 make_RHS_Array1D_impl(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr, std::integer_sequence<int, j...>) {
     return {{rhs_term<spec, j+1>(y, index_rate, rr)...}};
 }
 
 template<int spec, int N>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, N> make_RHS_Array1D(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
     return make_RHS_Array1D_impl<spec>(y, index_rate, rr, std::make_integer_sequence<int, N>{});
 }
 
 template<int spec>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real spec_rhs(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
     constexpr int nrhs = RHS::num_rhs(spec);
     Array1D<Real, 1, nrhs> a = make_RHS_Array1D<spec, nrhs>(y, index_rate, rr);
