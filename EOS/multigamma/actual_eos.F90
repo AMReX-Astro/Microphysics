@@ -19,7 +19,7 @@ module actual_eos_module
 
   real(rt)        , allocatable, save :: gammas(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: gammas
 #endif
 
