@@ -402,7 +402,7 @@ contains
 
     implicit none
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
     integer, parameter :: numThreads=256
     integer :: numBlocks
 #endif
@@ -413,7 +413,7 @@ contains
 !    allocate(drattabdd(nrates, nrattab))
     allocate(ttab(nrattab))
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
     numBlocks = ceiling(real(tab_imax)/numThreads)
     call set_aprox13rat<<<numBlocks, numThreads>>>()
 #else
@@ -426,11 +426,11 @@ contains
   end subroutine create_rates_table
 
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(global) &
 #endif
   subroutine set_aprox13rat()
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
     use cudafor
 #endif
     real(rt)         :: btemp, bden
@@ -440,7 +440,7 @@ contains
 
     bden = 1.0e0_rt
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
     i = blockDim%x * (blockIdx%x - 1) + threadIdx%x
     if (i .le. tab_imax) then
 #else
@@ -450,7 +450,7 @@ contains
           btemp = tab_tlo + dble(i-1) * tab_tstp
           btemp = 10.0e0_rt**(btemp)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
 #ifdef AMREX_GPU_PRAGMA_NO_HOST
           call aprox13rat(btemp, bden, rr)
 #else
@@ -470,7 +470,7 @@ contains
 
           enddo
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
     endif
 #else
        enddo
