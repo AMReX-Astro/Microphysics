@@ -180,7 +180,7 @@ contains
 
 
 
-#ifdef AMREX_USE_GPU
+#if defined(AMREX_USE_GPU) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(global) subroutine launch_eos(input, state)
 
     use eos_type_module, only: eos_t
@@ -221,7 +221,7 @@ contains
     ! If we're in a CPU-only build, fall back to the
     ! normal EOS call.
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
     input_device = input
     state_device = state
 
