@@ -10,9 +10,6 @@ module cuvode_dvnlsd_module
 
 contains
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine dvnlsd(pivot, NFLAG, vstate)
 
     !$acc routine seq
