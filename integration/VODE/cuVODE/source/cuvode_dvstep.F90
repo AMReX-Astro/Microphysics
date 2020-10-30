@@ -11,9 +11,6 @@ module cuvode_dvstep_module
 
 contains
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine advance_nordsieck(vstate)
 
     ! Effectively multiplies the Nordsieck history
@@ -40,9 +37,6 @@ contains
   end subroutine advance_nordsieck
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine retract_nordsieck(vstate)
 
     ! Undoes the Pascal triangle matrix multiplication
@@ -69,9 +63,6 @@ contains
   end subroutine retract_nordsieck
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine dvstep(pivot, vstate)
 
     !$acc routine seq
