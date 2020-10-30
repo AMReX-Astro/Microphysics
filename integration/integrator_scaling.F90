@@ -9,7 +9,7 @@ module integrator_scaling_module
   real(rt), allocatable :: dens_scale, ener_scale, temp_scale
   real(rt), allocatable :: inv_dens_scale, inv_ener_scale, inv_temp_scale
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: dens_scale, ener_scale, temp_scale
   attributes(managed) :: inv_dens_scale, inv_ener_scale, inv_temp_scale
 #endif
