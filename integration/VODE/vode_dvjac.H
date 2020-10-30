@@ -3,7 +3,11 @@
 
 #include <vode_type.H>
 #include <vode_linpack.H>
+#ifndef SIMPLIFIED_SDC
 #include <vode_rhs.H>
+#else
+#include <vode_rhs_simplified_sdc.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)

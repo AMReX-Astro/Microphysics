@@ -1,11 +1,31 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
+#ifdef NSE_TABLE
+#include "nse.H"
+#endif
 
 namespace aprox19
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
 }
+
+#ifdef NSE_TABLE
+namespace table
+{
+
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
+
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
+  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
+
+  AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
+
+}
+#endif
 
 namespace Rates
 {
@@ -16,6 +36,10 @@ void actual_network_init()
 {
     using namespace Species;
     using namespace aprox19;
+
+#ifdef NSE_TABLE
+    init_nse();
+#endif
 
     // Set the binding energy of the element
     bion(H1)   = 0.0e0_rt;

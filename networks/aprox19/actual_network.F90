@@ -183,7 +183,7 @@ contains
     call network_properties_init()
 
 #ifdef NSE
-    call init_nse()
+    call init_nse_F()
 #endif
 
     allocate(bion(nspec))

@@ -13,8 +13,13 @@ USE_OMP = FALSE
 
 USE_REACT = TRUE
 
-# programs to be compiled
-ALL: testburn.ex table
+USE_CXX_EOS = TRUE
+USE_CXX_REACTIONS := TRUE
+USE_NSE := TRUE
+
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+  DEFINES += -DCXX_REACTIONS
+endif
 
 EOS_DIR := helmholtz
 
@@ -23,14 +28,9 @@ NETWORK_DIR := aprox19
 Bpack := ./Make.package
 Blocs := .
 
+EBASE = testburn
+
 include $(MICROPHYSICS_HOME)/Make.Microphysics
 
-
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
-
-testburn.ex: $(objForExecs)
-	@echo Linking $@ ...                                                    
-	$(SILENT) $(PRELINK) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(libraries)
-
-
 
