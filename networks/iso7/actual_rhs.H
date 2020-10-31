@@ -675,27 +675,26 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 template<int spec, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real rhs_term(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr) {
-    Real term = RHS::prefactor(spec, j);
+Real rhs_term(Array1D<Real, 1, NumSpec> const& y, int index_rate, rate_t const& rr)
+{
+    constexpr RHS::rhs_t rhs_data = RHS::rhs_data(spec, j);
 
-    constexpr int specindex1 = RHS::specindex1(spec, j);
-    if (specindex1 >= 0) {
-        term *= y(specindex1);
+    Real term = rhs_data.prefactor;
+
+    if (rhs_data.specindex1 >= 0) {
+        term *= y(rhs_data.specindex1);
     }
 
-    constexpr int specindex2 = RHS::specindex2(spec, j);
-    if (specindex2 >= 0) {
-        term *= y(specindex2);
+    if (rhs_data.specindex2 >= 0) {
+        term *= y(rhs_data.specindex2);
     }
 
-    constexpr int specindex3 = RHS::specindex3(spec, j);
-    if (specindex3 >= 0) {
-        term *= y(specindex3);
+    if (rhs_data.specindex3 >= 0) {
+        term *= y(rhs_data.specindex3);
     }
 
-    constexpr int rateindex = RHS::rateindex(spec, j);
-    if (rateindex >= 0) {
-        term *= rr.rates(index_rate, rateindex);
+    if (rhs_data.rateindex >= 0) {
+        term *= rr.rates(index_rate, rhs_data.rateindex);
     }
 
     return term;

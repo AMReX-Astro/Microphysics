@@ -105,1005 +105,380 @@ namespace RHS {
         return num_rhs;
     }
 
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr amrex::Real prefactor (int species, int index)
-    {
-        using namespace Species;
-
-        Real prefactor = 1.0_rt;
-
-        switch (species) {
-        case He4:
-            switch (index) {
-            case 1:
-                prefactor = 3.0_rt;
-                break;
-            case 2:
-                prefactor = -0.5_rt;
-                break;
-            case 3:
-                prefactor = 1.0_rt;
-                break;
-            case 4:
-                prefactor = -1.0_rt;
-                break;
-            case 5:
-                prefactor = 0.5_rt;
-                break;
-            case 6:
-                prefactor = 0.5_rt;
-                break;
-            case 7:
-                prefactor = 0.5_rt;
-                break;
-            case 8:
-                prefactor = -1.0_rt;
-                break;
-            case 9:
-                prefactor = 1.0_rt;
-                break;
-            case 10:
-                prefactor = 1.0_rt;
-                break;
-            case 11:
-                prefactor = -1.0_rt;
-                break;
-            case 12:
-                prefactor = 1.0_rt;
-                break;
-            case 13:
-                prefactor = -1.0_rt;
-                break;
-            case 14:
-                prefactor = -7.0_rt;
-                break;
-            case 15:
-                prefactor = 7.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        case C12:
-            switch (index) {
-            case 1:
-                prefactor = 1.0_rt / 6.0_rt;
-                break;
-            case 2:
-                prefactor = -1.0_rt;
-                break;
-            case 3:
-                prefactor = 1.0_rt;
-                break;
-            case 4:
-                prefactor = -1.0_rt;
-                break;
-            case 5:
-                prefactor = -1.0_rt;
-                break;
-            case 6:
-                prefactor = -1.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        case O16:
-            switch (index) {
-            case 1:
-                prefactor = -1.0_rt;
-                break;
-            case 2:
-                prefactor = 1.0_rt;
-                break;
-            case 3:
-                prefactor = -1.0_rt;
-                break;
-            case 4:
-                prefactor = -1.0_rt;
-                break;
-            case 5:
-                prefactor = -1.0_rt;
-                break;
-            case 6:
-                prefactor = 1.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        case Ne20:
-            switch (index) {
-            case 1:
-                prefactor = 0.5_rt;
-                break;
-            case 2:
-                prefactor = 1.0_rt;
-                break;
-            case 3:
-                prefactor = -1.0_rt;
-                break;
-            case 4:
-                prefactor = 1.0_rt;
-                break;
-            case 5:
-                prefactor = -1.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        case Mg24:
-            switch (index) {
-            case 1:
-                prefactor = 0.5_rt;
-                break;
-            case 2:
-                prefactor = -1.0_rt;
-                break;
-            case 3:
-                prefactor = 1.0_rt;
-                break;
-            case 4:
-                prefactor = 1.0_rt;
-                break;
-            case 5:
-                prefactor = -1.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        case Si28:
-            switch (index) {
-            case 1:
-                prefactor = 0.5_rt;
-                break;
-            case 2:
-                prefactor = 0.5_rt;
-                break;
-            case 3:
-                prefactor = -1.0_rt;
-                break;
-            case 4:
-                prefactor = 1.0_rt;
-                break;
-            case 5:
-                prefactor = -1.0_rt;
-                break;
-            case 6:
-                prefactor = 1.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        case Ni56:
-            switch (index) {
-            case 1:
-                prefactor = 1.0_rt;
-                break;
-            case 2:
-                prefactor = -1.0_rt;
-                break;
-            default:
-                prefactor = 1.0_rt;
-                break;
-            }
-            break;
-        default:
-            prefactor = 1.0_rt;
-            break;
-        }
-
-        return prefactor;
-    }
+    struct rhs_t {
+        Real prefactor;
+        int rateindex;
+        int specindex1;
+        int specindex2;
+        int specindex3;
+    };
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr int specindex1 (int species, int index)
-    {
-        using namespace Species;
-
-        int specindex1 = -1;
-
-        switch (species) {
-        case He4:
-            switch (index) {
-            case 1:
-                specindex1 = C12;
-                break;
-            case 2:
-                specindex1 = He4;
-                break;
-            case 3:
-                specindex1 = O16;
-                break;
-            case 4:
-                specindex1 = C12;
-                break;
-            case 5:
-                specindex1 = C12;
-                break;
-            case 6:
-                specindex1 = C12;
-                break;
-            case 7:
-                specindex1 = O16;
-                break;
-            case 8:
-                specindex1 = O16;
-                break;
-            case 9:
-                specindex1 = Ne20;
-                break;
-            case 10:
-                specindex1 = Mg24;
-                break;
-            case 11:
-                specindex1 = Ne20;
-                break;
-            case 12:
-                specindex1 = Si28;
-                break;
-            case 13:
-                specindex1 = Mg24;
-                break;
-            case 14:
-                specindex1 = He4;
-                break;
-            case 15:
-                specindex1 = Ni56;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        case C12:
-            switch (index) {
-            case 1:
-                specindex1 = He4;
-                break;
-            case 2:
-                specindex1 = C12;
-                break;
-            case 3:
-                specindex1 = O16;
-                break;
-            case 4:
-                specindex1 = C12;
-                break;
-            case 5:
-                specindex1 = C12;
-                break;
-            case 6:
-                specindex1 = C12;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        case O16:
-            switch (index) {
-            case 1:
-                specindex1 = O16;
-                break;
-            case 2:
-                specindex1 = C12;
-                break;
-            case 3:
-                specindex1 = C12;
-                break;
-            case 4:
-                specindex1 = O16;
-                break;
-            case 5:
-                specindex1 = O16;
-                break;
-            case 6:
-                specindex1 = Ne20;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        case Ne20:
-            switch (index) {
-            case 1:
-                specindex1 = C12;
-                break;
-            case 2:
-                specindex1 = O16;
-                break;
-            case 3:
-                specindex1 = Ne20;
-                break;
-            case 4:
-                specindex1 = Mg24;
-                break;
-            case 5:
-                specindex1 = Ne20;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        case Mg24:
-            switch (index) {
-            case 1:
-                specindex1 = C12;
-                break;
-            case 2:
-                specindex1 = Mg24;
-                break;
-            case 3:
-                specindex1 = Ne20;
-                break;
-            case 4:
-                specindex1 = Si28;
-                break;
-            case 5:
-                specindex1 = Mg24;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        case Si28:
-            switch (index) {
-            case 1:
-                specindex1 = C12;
-                break;
-            case 2:
-                specindex1 = O16;
-                break;
-            case 3:
-                specindex1 = Si28;
-                break;
-            case 4:
-                specindex1 = Mg24;
-                break;
-            case 5:
-                specindex1 = He4;
-                break;
-            case 6:
-                specindex1 = Ni56;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        case Ni56:
-            switch (index) {
-            case 1:
-                specindex1 = He4;
-                break;
-            case 2:
-                specindex1 = Ni56;
-                break;
-            default:
-                specindex1 = -1;
-                break;
-            }
-            break;
-        default:
-            specindex1 = -1;
-            break;
-        }
-
-        return specindex1;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr int specindex2 (int species, int index)
-    {
-        using namespace Species;
-
-        int specindex2 = -1;
-
-        switch (species) {
-        case He4:
-            switch (index) {
-            case 1:
-                specindex2 = -1;
-                break;
-            case 2:
-                specindex2 = He4;
-                break;
-            case 3:
-                specindex2 = -1;
-                break;
-            case 4:
-                specindex2 = He4;
-                break;
-            case 5:
-                specindex2 = C12;
-                break;
-            case 6:
-                specindex2 = O16;
-                break;
-            case 7:
-                specindex2 = O16;
-                break;
-            case 8:
-                specindex2 = He4;
-                break;
-            case 9:
-                specindex2 = -1;
-                break;
-            case 10:
-                specindex2 = -1;
-                break;
-            case 11:
-                specindex2 = He4;
-                break;
-            case 12:
-                specindex2 = -1;
-                break;
-            case 13:
-                specindex2 = He4;
-                break;
-            case 14:
-                specindex2 = -1;
-                break;
-            case 15:
-                specindex2 = -1;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        case C12:
-            switch (index) {
-            case 1:
-                specindex2 = He4;
-                break;
-            case 2:
-                specindex2 = -1;
-                break;
-            case 3:
-                specindex2 = -1;
-                break;
-            case 4:
-                specindex2 = He4;
-                break;
-            case 5:
-                specindex2 = C12;
-                break;
-            case 6:
-                specindex2 = O16;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        case O16:
-            switch (index) {
-            case 1:
-                specindex2 = -1;
-                break;
-            case 2:
-                specindex2 = He4;
-                break;
-            case 3:
-                specindex2 = O16;
-                break;
-            case 4:
-                specindex2 = O16;
-                break;
-            case 5:
-                specindex2 = He4;
-                break;
-            case 6:
-                specindex2 = -1;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        case Ne20:
-            switch (index) {
-            case 1:
-                specindex2 = C12;
-                break;
-            case 2:
-                specindex2 = He4;
-                break;
-            case 3:
-                specindex2 = -1;
-                break;
-            case 4:
-                specindex2 = -1;
-                break;
-            case 5:
-                specindex2 = He4;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        case Mg24:
-            switch (index) {
-            case 1:
-                specindex2 = O16;
-                break;
-            case 2:
-                specindex2 = -1;
-                break;
-            case 3:
-                specindex2 = He4;
-                break;
-            case 4:
-                specindex2 = -1;
-                break;
-            case 5:
-                specindex2 = He4;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        case Si28:
-            switch (index) {
-            case 1:
-                specindex2 = O16;
-                break;
-            case 2:
-                specindex2 = O16;
-                break;
-            case 3:
-                specindex2 = -1;
-                break;
-            case 4:
-                specindex2 = He4;
-                break;
-            case 5:
-                specindex2 = -1;
-                break;
-            case 6:
-                specindex2 = -1;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        case Ni56:
-            switch (index) {
-            case 1:
-                specindex2 = -1;
-                break;
-            case 2:
-                specindex2 = -1;
-                break;
-            default:
-                specindex2 = -1;
-                break;
-            }
-            break;
-        default:
-            specindex2 = -1;
-            break;
-        }
-
-        return specindex2;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr int specindex3 (int species, int index)
-    {
-        using namespace Species;
-
-        int specindex3 = -1;
-
-        switch (species) {
-        case He4:
-            switch (index) {
-            case 1:
-                specindex3 = -1;
-                break;
-            case 2:
-                specindex3 = He4;
-                break;
-            case 3:
-                specindex3 = -1;
-                break;
-            case 4:
-                specindex3 = -1;
-                break;
-            case 5:
-                specindex3 = -1;
-                break;
-            case 6:
-                specindex3 = -1;
-                break;
-            case 7:
-                specindex3 = -1;
-                break;
-            case 8:
-                specindex3 = -1;
-                break;
-            case 9:
-                specindex3 = -1;
-                break;
-            case 10:
-                specindex3 = -1;
-                break;
-            case 11:
-                specindex3 = -1;
-                break;
-            case 12:
-                specindex3 = -1;
-                break;
-            case 13:
-                specindex3 = -1;
-                break;
-            case 14:
-                specindex3 = -1;
-                break;
-            case 15:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        case C12:
-            switch (index) {
-            case 1:
-                specindex3 = He4;
-                break;
-            case 2:
-                specindex3 = -1;
-                break;
-            case 3:
-                specindex3 = -1;
-                break;
-            case 4:
-                specindex3 = -1;
-                break;
-            case 5:
-                specindex3 = -1;
-                break;
-            case 6:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        case O16:
-            switch (index) {
-            case 1:
-                specindex3 = -1;
-                break;
-            case 2:
-                specindex3 = -1;
-                break;
-            case 3:
-                specindex3 = -1;
-                break;
-            case 4:
-                specindex3 = -1;
-                break;
-            case 5:
-                specindex3 = -1;
-                break;
-            case 6:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        case Ne20:
-            switch (index) {
-            case 1:
-                specindex3 = -1;
-                break;
-            case 2:
-                specindex3 = -1;
-                break;
-            case 3:
-                specindex3 = -1;
-                break;
-            case 4:
-                specindex3 = -1;
-                break;
-            case 5:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        case Mg24:
-            switch (index) {
-            case 1:
-                specindex3 = -1;
-                break;
-            case 2:
-                specindex3 = -1;
-                break;
-            case 3:
-                specindex3 = -1;
-                break;
-            case 4:
-                specindex3 = -1;
-                break;
-            case 5:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        case Si28:
-            switch (index) {
-            case 1:
-                specindex3 = -1;
-                break;
-            case 2:
-                specindex3 = -1;
-                break;
-            case 3:
-                specindex3 = -1;
-                break;
-            case 4:
-                specindex3 = -1;
-                break;
-            case 5:
-                specindex3 = -1;
-                break;
-            case 6:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        case Ni56:
-            switch (index) {
-            case 1:
-                specindex3 = -1;
-                break;
-            case 2:
-                specindex3 = -1;
-                break;
-            default:
-                specindex3 = -1;
-                break;
-            }
-            break;
-        default:
-            specindex3 = -1;
-            break;
-        }
-
-        return specindex3;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr int rateindex (int species, int index)
+    constexpr rhs_t rhs_data (int species, int index)
     {
         using namespace Species;
         using namespace Rates;
 
-        int rateindex = -1;
+        rhs_t data{};
+
+        data.prefactor  = 0.0_rt;
+        data.rateindex  = -1;
+        data.specindex1 = -1;
+        data.specindex2 = -1;
+        data.specindex3 = -1;
 
         switch (species) {
+
         case He4:
+
             switch (index) {
+
             case 1:
-                rateindex = irg3a;
+                data.prefactor  = 3.0_rt;
+                data.rateindex  = irg3a;
+                data.specindex1 = C12;
                 break;
+
             case 2:
-                rateindex = ir3a;
+                data.prefactor  = -0.5_rt;
+                data.rateindex  = ir3a;
+                data.specindex1 = He4;
+                data.specindex2 = He4;
+                data.specindex3 = He4;
                 break;
+
             case 3:
-                rateindex = iroga;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = iroga;
+                data.specindex1 = O16;
                 break;
+
             case 4:
-                rateindex = ircag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = ircag;
+                data.specindex1 = C12;
+                data.specindex2 = He4;
                 break;
+
             case 5:
-                rateindex = ir1212;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1212;
+                data.specindex1 = C12;
+                data.specindex2 = C12;
                 break;
+
             case 6:
-                rateindex = ir1216;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1216;
+                data.specindex1 = C12;
+                data.specindex2 = O16;
                 break;
+
             case 7:
-                rateindex = ir1616;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1616;
+                data.specindex1 = O16;
+                data.specindex2 = O16;
                 break;
+
             case 8:
-                rateindex = iroag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = iroag;
+                data.specindex1 = O16;
+                data.specindex2 = He4;
                 break;
+
             case 9:
-                rateindex = irnega;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irnega;
+                data.specindex1 = Ne20;
                 break;
+
             case 10:
-                rateindex = irmgga;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irmgga;
+                data.specindex1 = Mg24;
                 break;
+
             case 11:
-                rateindex = irneag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irneag;
+                data.specindex1 = Ne20;
+                data.specindex2 = He4;
                 break;
+
             case 12:
-                rateindex = irsiga;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irsiga;
+                data.specindex1 = Si28;
                 break;
+
             case 13:
-                rateindex = irmgag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irmgag;
+                data.specindex1 = Mg24;
+                data.specindex2 = He4;
                 break;
+
             case 14:
-                rateindex = irsi2ni;
+                data.prefactor  = -7.0_rt;
+                data.rateindex  = irsi2ni;
+                data.specindex1 = He4;
                 break;
+
             case 15:
-                rateindex = irni2si;
+                data.prefactor  = 7.0_rt;
+                data.rateindex  = irni2si;
+                data.specindex1 = Ni56;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
+
         case C12:
+
             switch (index) {
+
             case 1:
-                rateindex = ir3a;
+                data.prefactor  = 1.0_rt / 6.0_rt;
+                data.rateindex  = ir3a;
+                data.specindex1 = He4;
+                data.specindex2 = He4;
+                data.specindex3 = He4;
                 break;
+
             case 2:
-                rateindex = irg3a;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irg3a;
+                data.specindex1 = C12;
                 break;
+
+
             case 3:
-                rateindex = iroga;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = iroga;
+                data.specindex1 = O16;
                 break;
+
             case 4:
-                rateindex = ircag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = ircag;
+                data.specindex1 = C12;
+                data.specindex2 = He4;
                 break;
+
             case 5:
-                rateindex = ir1212;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = ir1212;
+                data.specindex1 = C12;
+                data.specindex2 = C12;
                 break;
+
             case 6:
-                rateindex = ir1216;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = ir1216;
+                data.specindex1 = C12;
+                data.specindex2 = O16;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
+
         case O16:
+
             switch (index) {
+
             case 1:
-                rateindex = iroga;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = iroga;
+                data.specindex1 = O16;
                 break;
+
             case 2:
-                rateindex = ircag;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = ircag;
+                data.specindex1 = C12;
+                data.specindex2 = He4;
                 break;
+
             case 3:
-                rateindex = ir1216;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = ir1216;
+                data.specindex1 = C12;
+                data.specindex2 = O16;
                 break;
+
             case 4:
-                rateindex = ir1616;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = ir1616;
+                data.specindex1 = O16;
+                data.specindex2 = O16;
                 break;
+
             case 5:
-                rateindex = iroag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = iroag;
+                data.specindex1 = O16;
+                data.specindex2 = He4;
                 break;
+
             case 6:
-                rateindex = irnega;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irnega;
+                data.specindex1 = Ne20;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
+
         case Ne20:
+
             switch (index) {
+
             case 1:
-                rateindex = ir1212;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1212;
+                data.specindex1 = C12;
+                data.specindex2 = C12;
                 break;
+
             case 2:
-                rateindex = iroag;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = iroag;
+                data.specindex1 = O16;
+                data.specindex2 = He4;
                 break;
+
             case 3:
-                rateindex = irnega;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irnega;
+                data.specindex1 = Ne20;
                 break;
+
             case 4:
-                rateindex = irmgga;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irmgga;
+                data.specindex1 = Mg24;
                 break;
+
             case 5:
-                rateindex = irneag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irneag;
+                data.specindex1 = Ne20;
+                data.specindex2 = He4;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
+
         case Mg24:
+
             switch (index) {
+
             case 1:
-                rateindex = ir1216;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1216;
+                data.specindex1 = C12;
+                data.specindex2 = O16;
                 break;
+
             case 2:
-                rateindex = irmgga;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irmgga;
+                data.specindex1 = Mg24;
                 break;
+
             case 3:
-                rateindex = irneag;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irneag;
+                data.specindex1 = Ne20;
+                data.specindex2 = He4;
                 break;
+
             case 4:
-                rateindex = irsiga;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irsiga;
+                data.specindex1 = Si28;
                 break;
+
             case 5:
-                rateindex = irmgag;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irmgag;
+                data.specindex1 = Mg24;
+                data.specindex2 = He4;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
+
         case Si28:
+
             switch (index) {
+
             case 1:
-                rateindex = ir1216;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1216;
+                data.specindex1 = C12;
+                data.specindex2 = O16;
                 break;
+
             case 2:
-                rateindex = ir1616;
+                data.prefactor  = 0.5_rt;
+                data.rateindex  = ir1616;
+                data.specindex1 = O16;
+                data.specindex2 = O16;
                 break;
+
             case 3:
-                rateindex = irsiga;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irsiga;
+                data.specindex1 = Si28;
                 break;
+
             case 4:
-                rateindex = irmgag;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irmgag;
+                data.specindex1 = Mg24;
+                data.specindex2 = He4;
                 break;
+
             case 5:
-                rateindex = irsi2ni;
+                data.prefactor  = -1.0_rt;
+                data.rateindex  = irsi2ni;
+                data.specindex1 = He4;
                 break;
+
             case 6:
-                rateindex = irni2si;
+                data.prefactor  = 1.0_rt;
+                data.rateindex  = irni2si;
+                data.specindex1 = Ni56;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
+
         case Ni56:
+
             switch (index) {
+
             case 1:
-                rateindex = irsi2ni;
+                data.prefactor = 1.0_rt;
+                data.rateindex = irsi2ni;
+                data.specindex1 = He4;
                 break;
+
             case 2:
-                rateindex = irni2si;
+                data.prefactor = -1.0_rt;
+                data.rateindex = irni2si;
+                data.specindex1 = Ni56;
                 break;
-            default:
-                rateindex = -1;
-                break;
+
             }
             break;
-        default:
-            rateindex = -1;
-            break;
+
         }
 
-        return rateindex;
+        return data;
     }
 
 }
