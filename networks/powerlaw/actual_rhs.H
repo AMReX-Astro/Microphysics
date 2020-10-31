@@ -58,8 +58,9 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
 // At present the analytical Jacobian is not implemented.
 
+template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_jac (burn_t& state, Array2D<Real, 1, neqs, 1, neqs>& jac)
+void actual_jac (burn_t& state, MatrixType& jac)
 {
 
     for (int j = 1; j <= NumSpec; ++j) {
