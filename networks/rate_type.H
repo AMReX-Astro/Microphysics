@@ -9,7 +9,7 @@
 struct rate_t
 {
     // the rate data
-    amrex::Array2D<amrex::Real, 1, Rates::NumGroups, 1, Rates::NumRates> rates;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates> rates;
 };
 
 #endif

@@ -12,7 +12,7 @@ using namespace amrex;
 void actual_rhs_init ();
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(burn_t& state, rate_t& rr)
+void evaluate_rates(burn_t& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
     using namespace Species;
 
@@ -57,8 +57,8 @@ void evaluate_rates(burn_t& state, rate_t& rr)
 
     // Save the rates
 
-    rr.rates(1, 1)  = sc1212 * rate;
-    rr.rates(2, 1)  = dsc1212dt * rate + sc1212 * dratedt;
+    rr(1).rates(1)  = sc1212 * rate;
+    rr(2).rates(1)  = dsc1212dt * rate + sc1212 * dratedt;
 }
 
 
@@ -89,7 +89,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     using namespace Species;
 
-    rate_t rr;
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
     evaluate_rates(state, rr);
 
     // Now get the data from the state.
@@ -97,7 +97,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Real temp = state.T;
     Real dens = state.rho;
 
-    Real rate = rr.rates(1, 1);
+    Real rate = rr(1).rates(1);
 
     // The change in number density of C12 is
     // d(n12)/dt = - 2 * 1/2 (n12)**2 <sigma v>
@@ -149,15 +149,15 @@ void actual_jac (burn_t& state, MatrixType& jac)
 {
     using namespace Species;
 
-    rate_t rr;
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
     evaluate_rates(state, rr);
 
     // Get data from the state
 
     Real dens     = state.rho;
 
-    Real rate     = rr.rates(1, 1);
-    Real dratedt  = rr.rates(2, 1);
+    Real rate     = rr(1).rates(1);
+    Real dratedt  = rr(2).rates(1);
     Real xc12tmp  = amrex::max(state.xn[C12-1], 0.0_rt);
 
     // initialize
