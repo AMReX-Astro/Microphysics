@@ -275,8 +275,6 @@ contains
     rr % rates(3,:)  = sc1212
     rr % rates(4,:)  = dsc1212dt
 
-    rr % T_eval = temp
-
   end subroutine evaluate_rates
 
 

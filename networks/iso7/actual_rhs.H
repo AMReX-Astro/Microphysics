@@ -436,8 +436,6 @@ void get_rates(burn_t const& state, rate_t& rr)
         rr.rates(3,i) = dratedy1(i);
         rr.rates(4,i) = dratedy2(i);
     }
-
-    rr.T_eval = temp;
 }
 
 
