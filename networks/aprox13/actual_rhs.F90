@@ -250,9 +250,6 @@ contains
     ! Do the screening here because the corrections depend on the composition
     call screen_aprox13(temp, rho, y, rr)
 
-    ! Save the rate data in the state.
-    rr % T_eval = temp
-
   end subroutine evaluate_rates
 
 

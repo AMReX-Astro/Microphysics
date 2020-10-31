@@ -1237,8 +1237,6 @@ void evaluate_rates (burn_t const& state, rate_t& rr)
         rr.rates(4, i) = dratdumdy2(i);
     }
 
-    rr.T_eval = temp;
-
 }
 
 
