@@ -258,8 +258,6 @@ void get_rates (burn_t& state, rate_t& rr)
         rr.rates(1, i) = rates(i);
         rr.rates(2, i) = dratesdt(i);
     }
-
-    rr.T_eval = temp;
 }
 
 

@@ -955,8 +955,6 @@ void evaluate_rates(burn_t const& state, rate_t& rr)
 
     // Do the screening here because the corrections depend on the composition
     screen_aprox13(temp, rho, y, rr);
-
-    rr.T_eval = temp;
 }
 
 

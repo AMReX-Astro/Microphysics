@@ -101,8 +101,6 @@ contains
     rr % rates(3,irsi2ni:irni2si) = dratedy1
     rr % rates(4,irsi2ni:irni2si) = dratedy2
 
-    rr % T_eval = temp
-
   end subroutine get_rates
 
 

@@ -59,8 +59,6 @@ void evaluate_rates(burn_t& state, rate_t& rr)
 
     rr.rates(1, 1)  = sc1212 * rate;
     rr.rates(2, 1)  = dsc1212dt * rate + sc1212 * dratedt;
-
-    rr.T_eval = temp;
 }
 
 

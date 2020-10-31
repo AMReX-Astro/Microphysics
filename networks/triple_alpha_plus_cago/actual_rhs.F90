@@ -51,8 +51,6 @@ contains
     rr % rates(1,:) = rates(:)
     rr % rates(2,:) = dratesdt(:)
 
-    rr % T_eval = temp
-
   end subroutine get_rates
 
 
