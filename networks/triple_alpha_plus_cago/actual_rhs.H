@@ -237,7 +237,7 @@ void make_rates (const Real& temp, const Real& dens,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rates (burn_t& state, rate_t& rr)
+void get_rates (burn_t& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
     using namespace Rates;
 
@@ -255,8 +255,8 @@ void get_rates (burn_t& state, rate_t& rr)
     screen(temp, dens, ymol, rates, dratesdt);
 
     for (int i = 1; i <= NumRates; ++i) {
-        rr.rates(1, i) = rates(i);
-        rr.rates(2, i) = dratesdt(i);
+        rr(1).rates(i) = rates(i);
+        rr(2).rates(i) = dratesdt(i);
     }
 }
 
@@ -317,12 +317,12 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // set up the species ODEs for the reaction network
     // species inputs are in molar fractions but come out in mass fractions
 
-    rate_t rr;
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
     get_rates(state, rr);
 
     Array1D<Real, 1, NumRates> rates;
     for (int i = 1; i <= NumRates; ++i) {
-        rates(i) = rr.rates(1, i);
+        rates(i) = rr(1).rates(i);
     }
 
     Array1D<Real, 1, NumSpec> yderivs;
@@ -347,13 +347,13 @@ void actual_jac (burn_t& state, MatrixType& jac)
     using namespace Species;
     using namespace Rates;
 
-    rate_t rr;
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
     get_rates(state, rr);
 
     Array1D<Real, 1, NumRates> rates, dratesdt;
     for (int i = 1; i <= NumRates; ++i) {
-        rates(i)    = rr.rates(1, i);
-        dratesdt(i) = rr.rates(2, i);
+        rates(i)    = rr(1).rates(i);
+        dratesdt(i) = rr(2).rates(i);
     }
 
     // initialize
