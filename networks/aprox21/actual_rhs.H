@@ -2877,7 +2877,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Real rho, temp, abar, zbar;
 
     Array1D<Real, 1, NumSpec> y;
-    Array1D<Real, 1, NumRates> r1, r2;
 
     deriva = false;
 
@@ -2895,11 +2894,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     }
 
     // Call the RHS to actually get dydt.
-
-    for (int i = 1; i <= NumRates; ++i) {
-        r1(i) = rr.rates(1, i);
-        r2(i) = rr.rates(1, i);
-    }
 
     bool for_jacobian_tderiv = false;
     rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
@@ -2936,7 +2930,6 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     Real rho, temp, abar, zbar;
     Array1D<Real, 1, NumSpec> y;
-    Array1D<Real, 1, NumRates> r1, r2, r3;
     Array1D<Real, 1, neqs> yderivs;
 
     deriva = true;
@@ -2958,12 +2951,6 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // Species Jacobian elements with respect to other species
 
-    for (int i = 1; i <= NumRates; ++i) {
-        r1(i) = rr.rates(1, i);
-        r2(i) = rr.rates(3, i);
-        r3(i) = rr.rates(4, i);
-    }
-
     dfdy_isotopes_aprox21(y, rr, jac);
 
     // Energy generation rate Jacobian elements with respect to species
@@ -2984,11 +2971,6 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(ratdum) / dT
-
-    for (int i = 1; i <= NumRates; ++i) {
-        r1(i) = rr.rates(1, i);
-        r2(i) = rr.rates(2, i);
-    }
 
     bool for_jacobian_tderiv = true;
     rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
