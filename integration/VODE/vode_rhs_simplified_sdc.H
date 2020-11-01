@@ -2,12 +2,17 @@
 #define VODE_RHS_SIMPLIFIED_SDC_H
 
 #include <network.H>
-#include <actual_network.H>
-#include <actual_rhs.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
 
 #include <vode_type_simplified_sdc.H>
+
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
+#include <actual_network.H>
+#include <actual_rhs.H>
+#else
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
 
 // The f_rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
