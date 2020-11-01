@@ -8,6 +8,8 @@ F90EXE_sources += actual_burner.F90
 endif
 F90EXE_sources += actual_rhs.F90
 
+DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
 ifeq ($(USE_CXX_REACTIONS),TRUE)
 CEXE_sources += actual_network_data.cpp
 CEXE_headers += actual_network.H

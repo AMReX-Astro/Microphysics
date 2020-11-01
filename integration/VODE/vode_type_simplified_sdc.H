@@ -4,7 +4,11 @@
 #include <eos.H>
 #include <eos_composition.H>
 #include <burn_type.H>
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_rhs.H>
+#else
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
