@@ -7,9 +7,6 @@ module linpack_module
 
 contains
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif  
   subroutine dgesl(a, ipvt, b)
 
     implicit none
@@ -49,9 +46,6 @@ contains
 
   end subroutine dgesl
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine dgefa (a, ipvt, info)
 
     real(rt), intent(inout) :: a(VODE_NEQS, VODE_NEQS)
@@ -121,9 +115,6 @@ contains
 
   end subroutine dgefa
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   function idamax(N, x) result(index)
 
     implicit none

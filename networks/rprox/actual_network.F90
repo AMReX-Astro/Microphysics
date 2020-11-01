@@ -21,7 +21,7 @@ module actual_network
 
   real(rt)        , allocatable :: ebin(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: ebin
 #endif
 
@@ -30,6 +30,12 @@ module actual_network
   ! Rates data
 
   integer, parameter :: nrates    = 18
+
+  ! in general,
+  ! rates(1, :) are the actual rate temperature dependence, N_A <sigma v>
+  ! rates(2, :) are the temperature derivative of the rate d [N_A <sigma v>]/dT
+  ! rates(3, :) are special factors that are used in the RHS when we have
+  !             switches between different potential rates
   integer, parameter :: num_rate_groups = 3
 
   integer, parameter :: irlambCNO = 1

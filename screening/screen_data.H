@@ -46,6 +46,6 @@ namespace scrn {
     extern AMREX_GPU_MANAGED amrex::GpuArray<screen_factors_t, NSCREEN> scn_facs;
 #endif
 
-};
+}
 
 #endif

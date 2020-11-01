@@ -37,7 +37,7 @@ module actual_eos_module
                                    dd_sav(:), dd2_sav(:),          &
                                    ddi_sav(:), dd2i_sav(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: do_coulomb, input_is_constant
   attributes(managed) :: itmax, jtmax
   attributes(managed) :: d, t

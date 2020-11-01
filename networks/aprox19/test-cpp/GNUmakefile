@@ -13,26 +13,24 @@ USE_OMP = FALSE
 
 USE_REACT = TRUE
 
-# programs to be compiled
-ALL: testburn.ex table
+USE_CXX_EOS = TRUE
+USE_CXX_REACTIONS := TRUE
+USE_NSE := TRUE
 
-EOS_dir := helmholtz
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+  DEFINES += -DCXX_REACTIONS
+endif
 
-Network_dir := aprox19
+EOS_DIR := helmholtz
 
-f90EXE_sources += testburn.f90
-f90EXE_sources += testjacobian.f90
+NETWORK_DIR := aprox19
 
-BLOCS += .
+Bpack := ./Make.package
+Blocs := .
 
-include $(CASTRO_DIR)/Exec/Make.Castro
+EBASE = testburn
 
+include $(MICROPHYSICS_HOME)/Make.Microphysics
 
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))
-
-testburn.ex: $(objForExecs)
-	@echo Linking $@ ...                                                    
-	$(SILENT) $(PRELINK) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(libraries)
-
-
 

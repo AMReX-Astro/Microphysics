@@ -5,7 +5,7 @@ module temperature_integration_module
 
   logical, save, allocatable :: self_heat
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: self_heat
 #endif
 
@@ -175,23 +175,12 @@ contains
 
   subroutine temperature_rhs_init()
 
-    use extern_probin_module, only: burning_mode
     use amrex_error_module, only: amrex_error
 
     implicit none
 
-    ! Provide a default value, then consult the burning_mode.
-
     allocate(self_heat)
     self_heat = .true.
-
-    if (burning_mode == 0 .or. burning_mode == 2) then
-       self_heat = .false.
-    else if (burning_mode == 1 .or. burning_mode == 3) then
-       self_heat = .true.
-    else
-       call amrex_error("Error: unknown burning_mode in temperature_rhs_init()")
-    end if
 
     !$acc update device(self_heat)
 

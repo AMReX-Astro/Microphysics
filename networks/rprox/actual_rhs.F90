@@ -10,7 +10,13 @@ contains
 
   subroutine actual_rhs_init()
 
+    use screening_module, only: screening_init
+
     implicit none
+
+    call set_up_screening_factors()
+
+    call screening_init()
 
   end subroutine actual_rhs_init
 
@@ -61,9 +67,11 @@ contains
     use tfactors_module, only : calc_tfactors
     use rates_module
     use network
+    use screening_module
 
     implicit none
 
+    ! note: y(:) are the molar fractions here
     real(rt)         :: T9, dens, y(nspec)
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
@@ -82,13 +90,16 @@ contains
                                                      ! from p-capture and beta
                                                      ! decays
 
+    real(rt) :: sc1a, sc1adt, sc1add
+    real(rt) :: sc2a, sc2adt, sc2add
+    real(rt) :: sc3a, sc3adt
+    integer :: jscr 
+    type (plasma_state) :: pstate
     type (temp_t) :: tfactors
 
     !$gpu
 
     rr % rates(:,:) = ZERO ! Zero out rates
-
-    rr % T_eval = T9 * 1.e9_rt
 
     call calc_tfactors(T9, tfactors)
 
@@ -116,53 +127,87 @@ contains
     ! 19ne(beta nu)19f
     call rate_ne19_to_f19(tfactors,wk19ne,dratedt)
 
+
+    ! now the remaining rates -- we'll do screening inline here
+
+    call fill_plasma_state(pstate, T9 * 1.e9_rt, dens, y)
+
     ! 12c(p,g)13n
     call rate_p_c12_to_n13(tfactors,rate,dratedt)
-    rr % rates(1,irpg12c) = dens*rate
-    rr % rates(2,irpg12c) = dens*dratedt
+    jscr = 1
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irpg12c) = dens*rate * sc1a
+    rr % rates(2,irpg12c) = dens*(dratedt * sc1a + rate * sc1adt)
 
     ! triple alpha
     call rate_he4_he4_he4_to_c12(tfactors,rate,dratedt)
-    rr % rates(1,ir3a) = dens*dens*rate
-    rr % rates(2,ir3a) = dens*dens*dratedt
+    jscr = 2
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+    jscr = 3
+    call screen5(pstate, jscr, sc2a, sc2adt, sc2add)
+    sc3a = sc1a * sc2a
+    sc3adt = sc1adt*sc2a + sc1a*sc2adt
+
+    rr % rates(1,ir3a) = dens*dens*rate * sc3a
+    rr % rates(2,ir3a) = dens*dens*(dratedt * sc3a + rate * sc3adt)
 
     ! 17f(p,g)18ne
     call rate_p_f17_to_ne18(tfactors,rate,dratedt)
-    rr % rates(1,irpg17f) = dens*rate
-    rr % rates(2,irpg17f) = dens*dratedt
+    jscr = 4
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irpg17f) = dens*rate * sc1a
+    rr % rates(2,irpg17f) = dens*(dratedt * sc1a + rate * sc1adt)
 
     ! 17f(g,p)16o
     call rate_f17_to_p_o16(tfactors,rate,dratedt)
+    ! no screening for gamma-capture
     rr % rates(1,irgp17f) = rate
     rr % rates(2,irgp17f) = dratedt
 
     ! 15o(a,g)19ne
     call rate_he4_o15_to_ne19(tfactors,rate,dratedt)
-    rr % rates(1,irag15o) = dens*rate
-    rr % rates(2,irag15o) = dens*dratedt
+    jscr = 5
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irag15o) = dens*rate * sc1a
+    rr % rates(2,irag15o) = dens*(dratedt * sc1a + rate * sc1adt)
 
     ! 16o(a,g)20ne
     call rate_he4_o16_to_ne20(tfactors,rate,dratedt)
-    rr % rates(1,irag16o) = dens*rate
-    rr % rates(2,irag16o) = dens*dratedt
+    jscr = 6
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irag16o) = dens*rate * sc1a
+    rr % rates(2,irag16o) = dens*(dratedt * sc1a + rate * sc1adt)
 
     ! 16o(p,g)17f
     call rate_p_o16_to_f17(tfactors,rate,dratedt)
-    rr % rates(1,irpg16o) = dens*rate
-    rr % rates(2,irpg16o) = dens*dratedt
+    jscr = 7
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irpg16o) = dens*rate * sc1a
+    rr % rates(2,irpg16o) = dens*(dratedt * sc1a + rate * sc1adt)
 
     ! 14o(a,p)17f
     call rate_he4_o14_to_p_f17(tfactors,rate,dratedt)
-    rr % rates(1,irap14o) = dens*rate
-    rr % rates(2,irap14o) = dens*dratedt
+    jscr = 8
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irap14o) = dens*rate * sc1a
+    rr % rates(2,irap14o) = dens*(dratedt * sc1a + rate * sc1adt)
 
     ! limit CNO as minimum between 14n(p,g)15o and 15o(beta nu)15n
     ! we store the limited rate in irlambCNO; this is lambda_CNO in WW81
     call rate_p_n14_to_o15(tfactors,rate,dratedt)
-    rr % rates(1,irlambCNO) = min(rr % rates(1,irwk15o),rate*dens*y(ih1))
+    jscr = 9
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irlambCNO) = min(rr % rates(1,irwk15o),rate*dens*sc1a*y(ih1))
     if (rr % rates(1,irlambCNO) < rr % rates(1,irwk15o)) then
-       rr % rates(2,irlambCNO) = dens*y(ih1)*dratedt
-       rr % rates(3,dlambCNOdh1) = rate*dens
+       rr % rates(2,irlambCNO) = dens*y(ih1)*(dratedt * sc1a + rate * sc1adt)
+       rr % rates(3,dlambCNOdh1) = rate*dens * sc1a
     endif
 
     ! 22mg(...)30s
@@ -170,10 +215,13 @@ contains
     ! the Lweak is from WW81, eqn C15
     ! we store the rate in irlambda1; this is the lambda1 in WW81
     call rate_he4_si26_to_p_p29(tfactors,rate,dratedt)
-    rr % rates(1,irlambda1) = max(rr % rates(1,irLweak),dens*y(ihe4)*rate)
+    jscr = 10
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irlambda1) = max(rr % rates(1,irLweak),dens*y(ihe4)*rate * sc1a)
     if (rr % rates(1,irlambda1) > rr % rates(1,irLweak)) then
-       rr  % rates(2,irlambda1) = dens*y(ihe4)*dratedt
-       rr % rates(3,dlambda1dhe4) = dens*rate
+       rr  % rates(2,irlambda1) = dens*y(ihe4)*(dratedt * sc1a + rate * sc1adt)
+       rr % rates(3,dlambda1dhe4) = dens*rate * sc1a
        ! use the sign of state % rates(1,irlambda1) to indicate the value of delta1 in WW81
        ! if delta1 = 1, then we multiply the rate by -1
        rr % rates(1,irlambda1) = -ONE * rr % rates(1,irlambda1)
@@ -184,10 +232,13 @@ contains
     ! use 44ti(a,p)v47 as a typical limiting rate for the (a,p) process
     ! store this in irlambda2; this is lambda2 in WW81
     call rate_he4_ti44_to_p_v47(tfactors,rate,dratedt)
-    rr % rates(1,irlambda2) = max(rr % rates(1,irla2),dens*y(ihe4)*rate)
+    jscr = 11
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irlambda2) = max(rr % rates(1,irla2),dens*y(ihe4)*rate * sc1a)
     if (rr % rates(1,irlambda2) > rr % rates(1,irla2)) then
-       rr % rates(2,irlambda2) = dens*y(ihe4)*dratedt
-       rr % rates(3,dlambda2dhe4) = dens*rate
+       rr % rates(2,irlambda2) = dens*y(ihe4)*(dratedt * sc1a + rate * sc1adt)
+       rr % rates(3,dlambda2dhe4) = dens*rate * sc1a
        ! use the sign of rr % rates(1,irlambda2) to indicate th value of delta2
        ! if delta2 = 1, then we multiply the rate by -1
        rr % rates(1,irlambda2) = -ONE*rr % rates(1,irlambda2)
@@ -197,21 +248,27 @@ contains
     ! store result in irs1
     ! 18ne(a,p)21na
     call rate_he4_ne18_to_p_na21(tfactors,rate,dratedt)
-    rr % rates(1,irs1) = wk18ne / (wk18ne + dens*y(ihe4)*rate)
-    rr % rates(2,irs1) = -rr % rates(1,irs1)*dens*y(ihe4)*dratedt &
-         / (wk18ne + dens*y(ihe4)*rate)
-    rr % rates(3,drs1dhe4) = -rr % rates(1,irs1)*dens*rate &
-         / (wk18ne + dens*y(ihe4)*rate)
+    jscr = 12
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irs1) = wk18ne / (wk18ne + dens*y(ihe4)*rate * sc1a)
+    rr % rates(2,irs1) = -rr % rates(1,irs1)*dens*y(ihe4)*(dratedt * sc1a + rate * sc1adt) & 
+         / (wk18ne + dens*y(ihe4)*rate * sc1a)
+    rr % rates(3,drs1dhe4) = -rr % rates(1,irs1)*dens*rate * sc1a &
+         / (wk18ne + dens*y(ihe4)*rate * sc1a)
 
     ! form r1 from WW81; ranching ratio for 19ne beta decay (wk19ne) vs (p,g)
     ! store result in irr1
     ! 19ne(p,g)20na
     call rate_p_ne19_to_na20(tfactors,rate,dratedt)
-    rr % rates(1,irr1) = wk19ne / (wk19ne + dens*y(ih1)*rate)
-    rr % rates(2,irr1) = -rr % rates(1,irr1)*dens*y(ih1)*dratedt &
-         / (wk19ne + dens*y(ih1)*rate)
-    rr % rates(3,drr1dh1) = -rr % rates(1,irr1)*dens*rate &
-         / (wk19ne + dens*y(ih1)*rate)
+    jscr = 13
+    call screen5(pstate, jscr, sc1a, sc1adt, sc1add)
+
+    rr % rates(1,irr1) = wk19ne / (wk19ne + dens*y(ih1)*rate * sc1a)
+    rr % rates(2,irr1) = -rr % rates(1,irr1)*dens*y(ih1)*(dratedt * sc1a + rate * sc1adt) &
+         / (wk19ne + dens*y(ih1)*rate * sc1a)
+    rr % rates(3,drr1dh1) = -rr % rates(1,irr1)*dens*rate * sc1a &
+         / (wk19ne + dens*y(ih1)*rate * sc1a)
 
 
     !....
@@ -577,5 +634,60 @@ contains
     enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 
   end subroutine ener_gener_rate
+
+  ! Compute and store the more expensive screening factors
+
+  subroutine set_up_screening_factors()
+
+    use screening_module, only: add_screening_factor
+    use network
+
+    implicit none
+
+    ! note: it is critical that these are called in the exact order
+    ! that the screening calls are done in the RHS routine, since we
+    ! use that order in the screening
+
+    ! 1: C12(p,g)N13
+    call add_screening_factor(zion(ic12),aion(ic12),zion(ih1),aion(ih1))
+
+    ! 2, 3: 3-alpha
+    call add_screening_factor(zion(ihe4),aion(ihe4),zion(ihe4),aion(ihe4))
+    call add_screening_factor(zion(ihe4),aion(ihe4),4.0e0_rt,8.0e0_rt)
+
+    ! 4: F17(p,g)Ne18
+    call add_screening_factor(zion(if17),aion(if17),zion(ih1),aion(ih1))
+
+    ! F17(g,p)O16 is unscreened
+
+    ! 5: O15(a,g)Ne19
+    call add_screening_factor(zion(io15),aion(io15),zion(ihe4),aion(ihe4))
+
+    ! 6: O16(a,g)Ne20
+    call add_screening_factor(zion(io16),aion(io16),zion(ihe4),aion(ihe4))
+
+    ! 7: O16(p,g)F17
+    call add_screening_factor(zion(io16),aion(io16),zion(ih1),aion(ih1))
+
+    ! 8: O14(a,p)F17
+    call add_screening_factor(zion(io14),aion(io14),zion(ihe4),aion(ihe4))
+
+    ! 9: N14(p,g)O15
+    call add_screening_factor(7.0_rt,14.0_rt,zion(ih1),aion(ih1))
+
+    ! 10: Si26(a,p)P29
+    call add_screening_factor(14.0_rt,26.0_rt,zion(ihe4),aion(ihe4))
+
+    ! 11: Ti44(a,p)V47
+    call add_screening_factor(22.0_rt,44.0_rt,zion(ihe4),aion(ihe4))
+
+    ! 12: Ne18(a,p)Na21
+    call add_screening_factor(10.0e0_rt,18.0e0_rt,zion(ihe4),aion(ihe4))
+
+    ! 13: Ne19(p,g)Na20
+    call add_screening_factor(10.0e0_rt,19.0e0_rt,zion(ih1),aion(ih1))
+
+  end subroutine set_up_screening_factors
+
 
 end module actual_rhs_module

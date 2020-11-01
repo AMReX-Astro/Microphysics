@@ -32,7 +32,7 @@ module actual_network
 
   !$acc declare create(aion, aion_inv, zion)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: aion, aion_inv, zion
 #endif
 

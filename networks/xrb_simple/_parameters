@@ -1,6 +1,3 @@
-# override the default burning mode with a higher priority
-burning_mode             integer   1       100
-
 # override the default tolerances for backwards compatibility
 atol_spec                real      1.0e-11 100
 rtol_spec                real      1.0e-12 100

@@ -8,11 +8,8 @@
 
 struct rate_t
 {
-    // the temperature at which the rates were evaluated
-    amrex::Real T_eval;
-
     // the rate data
-    amrex::Array2D<amrex::Real, 1, Rates::NumGroups, 1, Rates::NumRates> rates;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates> rates;
 };
 
 #endif

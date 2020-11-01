@@ -8,6 +8,10 @@
 
 using namespace amrex;
 
+#ifdef NSE_THERMO
+using namespace AuxZero;
+#endif
+
 struct eos_xderivs_t {
   Real dedX[NumSpec];
   Real dpdX[NumSpec];
@@ -22,6 +26,15 @@ void composition(eos_t& state) {
   // mu, the mean molecular weight,
   // mu_e, the mean number of nucleons per electron, and
   // y_e, the electron fraction.
+
+#ifdef NSE_THERMO
+
+  state.mu_e = 1.0 / state.aux[iye];
+  state.y_e = state.aux[iye];
+  state.abar = state.aux[iabar];
+  state.zbar = state.abar * state.y_e;
+
+#else
 
   Real sum = 0;
   for (int n = 0; n < NumSpec; n++) {
@@ -39,15 +52,16 @@ void composition(eos_t& state) {
 
   state.abar = 1.0 / sum;
   state.zbar = state.abar / state.mu_e;
+#endif
 
 }
 
+#ifdef EXTRA_THERMO
 AMREX_GPU_HOST_DEVICE inline
 eos_xderivs_t composition_derivatives(const eos_t& state) {
 
   eos_xderivs_t state_xderivs;
 
-#ifdef EXTRA_THERMO
   for (int n = 0; n < NumSpec; n++) {
     state_xderivs.dpdX[n] =
       state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
@@ -65,9 +79,9 @@ eos_xderivs_t composition_derivatives(const eos_t& state) {
     }
   }
 
-#endif
-
   return state_xderivs;
 }
+#endif
+
 
 #endif

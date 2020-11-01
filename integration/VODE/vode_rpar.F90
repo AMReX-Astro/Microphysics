@@ -12,7 +12,7 @@ module vode_rpar_indices
 #elif TRUE_SDC
   use actual_network, only: nspec
 #else
-  use actual_network, only: nspec
+  use actual_network, only: nspec, naux
   use burn_type_module, only: neqs
 #endif
 
@@ -108,10 +108,7 @@ module vode_rpar_indices
   integer, parameter :: irp_zbar = irp_abar + 1
   integer, parameter :: irp_eta = irp_zbar + 1
   integer, parameter :: irp_ye = irp_eta + 1
-  integer, parameter :: irp_cs = irp_ye + 1
-  integer, parameter :: irp_dx = irp_cs + 1
-  integer, parameter :: irp_t_sound = irp_dx + 1
-  integer, parameter :: irp_self_heat = irp_t_sound + 1
+  integer, parameter :: irp_self_heat = irp_ye + 1
   integer, parameter :: irp_Told = irp_self_heat + 1
   integer, parameter :: irp_dcvdt = irp_Told + 1
   integer, parameter :: irp_dcpdt = irp_dcvdt + 1

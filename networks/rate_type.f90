@@ -6,8 +6,6 @@ module rate_type_module
   implicit none
 
   type :: rate_t
-     ! the temperature at which the rates were evaluated
-     real(rt)         :: T_eval
      real(rt)         :: rates(num_rate_groups, nrates)
   end type rate_t
 

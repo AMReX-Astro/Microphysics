@@ -5,8 +5,8 @@
 #include <sundials/sundials_types.h>      /* definition of realtype                   */
 #include <sundials/sundials_math.h>       /* contains the macros ABS, SUNSQR, and EXP */
 #include <AMReX_MultiFab.H>
-#include "test_react.H"
-#include "test_react_F.H"
+#include <test_react.H>
+#include <test_react_F.H>
 #include <iostream>
 
 using namespace amrex;

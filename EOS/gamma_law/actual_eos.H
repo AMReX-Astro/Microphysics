@@ -88,6 +88,14 @@ void actual_eos (eos_input_t input, eos_t& state)
         state.p = (gamma_const - 1.0_rt) * state.rho * state.e;
         state.gam1 = gamma_const;
 
+        state.cs = std::sqrt(gamma_const * state.p / state.rho);
+        state.dpdr_e = (gamma_const - 1.0_rt) * state.e;
+        state.dpde = (gamma_const - 1.0_rt) * state.rho;
+
+        // Try to avoid the expensive log function.  Since we don't need entropy
+        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
+        state.s = 1.0_rt;
+
         break;
 
     case eos_input_rh:
@@ -118,6 +126,16 @@ void actual_eos (eos_input_t input, eos_t& state)
         state.T = poverrho * state.mu * (1.0_rt / R);
         state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
         state.gam1 = gamma_const;
+
+        state.cs = std::sqrt(gamma_const * poverrho);
+
+        state.dpdr_e = poverrho;
+        state.dpde = (gamma_const - 1.0_rt) * state.rho;
+
+        // Try to avoid the expensive log function.  Since we don't need entropy
+        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
+        state.s = 1.0_rt;
+
 
         break;
 
