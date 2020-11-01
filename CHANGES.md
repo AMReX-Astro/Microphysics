@@ -2,8 +2,8 @@
 
    * An interface has been added for C++ integrators to call the RHS
      from a network that only has a Fortran implementation. This allows
-     the use USE_CXX_REACTIONS = TRUE for any network (however, CUDA is
-     not currently supported for this case). (#419)
+     the use of USE_CXX_REACTIONS = TRUE for any network (however, CUDA
+     is not currently supported for this case). (#419)
 
 # 20.11
 
