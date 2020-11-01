@@ -137,6 +137,8 @@ subroutine burn_cell() bind(C, name="burn_cell")
      ! n = 1.0
      call actual_burner(burn_state_in, burn_state_out, dt, time)
      call copy_burn_t(burn_state_in, burn_state_out)
+     write(1, 10, advance="no") dt*x
+     write(1, 10, advance="no") burn_state_out % T
      yloop: do y = 1, nspec
         write(1, 10, advance="no") burn_state_out % xn(y)
      end do yloop
@@ -246,12 +248,6 @@ subroutine write_burn_t(burnt)
 
   write(*, fmt=*) 'eta:'
   write(*, fmt=DPFMT) burnt % eta
-
-  write(*, fmt=*) 'cs:'
-  write(*, fmt=DPFMT) burnt % cs
-
-  write(*, fmt=*) 'dx:'
-  write(*, fmt=DPFMT) burnt % dx
 
   write(*, fmt=*) 'abar:'
   write(*, fmt=DPFMT) burnt % abar

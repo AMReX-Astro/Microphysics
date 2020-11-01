@@ -5,6 +5,9 @@
 
 #include <network.H>
 #include <eos_type.H>
+#include <extern_parameters.H>
+
+#include <ArrayUtilities.H>
 
 using namespace amrex;
 
@@ -14,6 +17,9 @@ using namespace amrex;
 // temperature, enuc + the number of species which participate
 // in the evolution equations.
 
+// For Strang evolution, this will be the number of equations we are
+// evolving.  For simplified-SDC, we will need neqs when getting the
+// reaction sources from the network's RHS.
 const int neqs = 2 + NumSpec;
 
 // Indices of the temperature and energy variables in the work arrays.
@@ -21,43 +27,169 @@ const int neqs = 2 + NumSpec;
 const int net_itemp = NumSpec + 1;
 const int net_ienuc = NumSpec + 2;
 
-struct burn_t
-{
-    Real rho;
-    Real T;
-    Real e;
-    Real xn[NumSpec];
-#if NAUX_NET > 0
-    Real aux[NumAux];
+// this is the data type that is used to get the ydots from the actual
+// RHS of the network, regardless of Strang or SDC
+typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
+
+#ifdef SIMPLIFIED_SDC
+
+#if defined(SDC_EVOLVE_ENERGY)
+
+// these indicies represent the order that the conserved state comes
+// into the ODE integration from the hydro code.
+//
+// they also represent the order of the advective sources
+//
+// integrate rho*X, internal energy, total energy
+// carry momentum as an unevolved variable
+
+const int SEDEN = 0;
+const int SEINT = 1;
+const int SFS   = 2;
+const int SFX   = SFS + NumSpec;
+const int SRHO  = SFS + NumSpec + NumAux; // this will be = SFX for NumAux = 0
+const int SMX   = SRHO + 1;
+const int SMY   = SRHO + 2;
+const int SMZ   = SRHO + 3;
+
+const int SVAR  = SMZ+1;
+const int SVAR_EVOLVE = SRHO;
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+// integrate rho*X (species masses) and rho*h (enthalpy)
+// carry pressure for EOS calls in RHS
+
+const int SFS = 0;
+const int SENTH = SFS + NumSpec;
+const int SVAR  = SENTH+1;
+const int SVAR_EVOLVE = SVAR;
+
 #endif
 
-    Real cv;
-    Real cp;
-    Real y_e;
-    Real eta;
-    Real cs;
-    Real dx;
-    Real abar;
-    Real zbar;
+// this is the data type of the dense Jacobian that the network wants.
+// it is not the same size as the Jacobian that VODE cares about when
+// we are doing simplified-SDC
+typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
+#endif
 
-    // Last temperature we evaluated the EOS at
-    Real T_old;
-    Real cv_old;
-    Real cp_old;
+struct burn_t
+{
 
-    // Temperature derivatives of specific heat
-    Real dcvdT;
-    Real dcpdT;
+  // this first group are the quantities the network RHS uses
 
-    // Are we doing a self-heating burn?
-    bool self_heat;
+  Real rho;
+  Real T;
+  Real e;
+  Real xn[NumSpec];
+#if NAUX_NET > 0
+  Real aux[NumAux];
+#endif
 
-    // diagnostics
-    int n_rhs, n_jac;
+  // now come the bits that we need for SDC or Strang evolution
 
-    // Was the burn successful?
-    bool success;
+#ifdef SIMPLIFIED_SDC
+
+  // y is the input conserved state.  We will keep this state updated
+  // in time as we integrate, such that upon output it will be the
+  // final conserved state.
+  Real y[SVAR];
+
+  // we need to store a copy of the original state as well so we can
+  // handle the non-evolved state evolution
+  Real rho_orig;
+
+#if defined(SDC_EVOLVE_ENERGY)
+  Real umx_orig;
+  Real umy_orig;
+  Real umz_orig;
+#endif
+
+  // ydot_a are the advective terms that will modify the state y due
+  // to hydrodynamics over the timestep.
+  Real ydot_a[SVAR];
+
+#if defined(SDC_EVOLVE_ENERGY)
+  bool T_from_eden;
+#elif defined(SDC_EVOLVE_ENTHALPY)
+  // Pressure in case we wish to use it for EOS calls
+  Real p0;
+#endif
+
+  int i;
+  int j;
+  int k;
+
+  int sdc_iter;
+  int num_sdc_iters;
+
+#else
+  // Strang stuff
+
+  Real cv;
+  Real cp;
+
+  // Last temperature we evaluated the EOS at
+  Real T_old;
+  Real cv_old;
+  Real cp_old;
+
+  // Temperature derivatives of specific heat
+  Real dcvdT;
+  Real dcpdT;
+
+  // Are we doing a self-heating burn?
+  bool self_heat;
+
+#endif
+
+  Real y_e;
+  Real eta;
+  Real abar;
+  Real zbar;
+
+  // diagnostics
+  int n_rhs, n_jac;
+
+  // Was the burn successful?
+  bool success;
 };
+
+
+inline
+std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
+{
+  o << "rho = " << burn_state.rho << std::endl;
+  o << "T =   " << burn_state.T << std::endl;
+  o << "xn = ";
+  for (int n = 0; n < NumSpec; ++n) {
+    o << burn_state.xn[n] << " ";
+  }
+  o << std::endl;
+#if NAUX_NET > 0
+  o << "aux = ";
+  for (int n = 0; n < NumAux; ++n) {
+    o << burn_state.aux[n] << " ";
+  }
+  o << std::endl;
+#endif
+
+#ifdef SIMPLIFIED_SDC
+  o << "y = ";
+  for (int n = 0; n < SVAR; n++) {
+      o << burn_state.y[n] << " ";
+  }
+  o << std::endl;
+
+  o << "ydot_a = ";
+  for (int n = 0; n < SVAR; n++) {
+      o << burn_state.ydot_a[n] << " ";
+  }
+  o << std::endl;
+#endif
+  return o;
+}
+
 
 // Given an eos type, copy the data relevant to the burn type.
 
@@ -71,16 +203,19 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = eos_state.xn[n];
     }
-#if NumAux > 0
+#if NAUX_NET > 0
     for (int n = 0; n < NumAux; ++n) {
         burn_state.aux[n] = eos_state.aux[n];
     }
 #endif
+
+#ifndef SIMPLIFIED_SDC
     burn_state.cv   = eos_state.cv;
     burn_state.cp   = eos_state.cp;
+#endif
+
     burn_state.y_e  = eos_state.y_e;
     burn_state.eta  = eos_state.eta;
-    burn_state.cs   = eos_state.cs;
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
 
@@ -88,8 +223,9 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
 
 
 
-// Given a burn type, copy the data relevant to the eos type.
+#ifndef SIMPLIFIED_SDC
 
+// Given a burn type, copy the data relevant to the eos type. 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
 {
@@ -105,16 +241,17 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
         eos_state.aux[n] = burn_state.aux[n];
     }
 #endif
+
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
+
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;
-    eos_state.cs   = burn_state.cs;
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
 
 }
-
+#endif
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

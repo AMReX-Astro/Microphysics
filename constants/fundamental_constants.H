@@ -77,6 +77,6 @@ namespace C
 
     // solar radius
     constexpr amrex::Real R_solar = 6.957e10;
-};
+}
 
 #endif

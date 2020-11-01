@@ -23,12 +23,12 @@ contains
     real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
     integer, intent(in) :: npts
 
-    real(rt) :: dlogrho, dlogT, dmetal
-    real(rt) :: temp_zone, dens_zone
+    real(rt) :: dlogrho, dlogT
     real(rt), allocatable :: xn_zone(:,:)
+    real(rt) :: xn(nspec)
 
     integer :: ii, jj, kk
-    real(rt) :: sum_X
+    real(rt) :: sum_X, mu_e
 
     if (npts > 1) then
        dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
@@ -59,6 +59,26 @@ contains
           enddo
        enddo
     enddo
+
+    ! initialize the auxillary state (in particular, for NSE)
+#ifdef NSE_THERMO
+    if (naux > 0) then
+       do kk = lo(3), hi(3)   ! xn loop
+          do jj = lo(2), hi(2)   ! T loop
+             do ii = lo(1), hi(1)   ! rho loop
+
+                xn(:) = state(ii,jj,kk, p % ispec_old:p % ispec_old+nspec-1)
+
+                mu_e = 1.0_rt / sum(xn(:) * zion(:) * aion_inv(:))
+                state(ii,jj,kk, p %  iaux_old+iye-1) = 1.0_rt / mu_e
+                state(ii,jj,kk, p %  iaux_old+iabar-1) = ONE / (sum(xn(:) * aion_inv(:)))
+                state(ii,jj,kk, p %  iaux_old+ibea-1) = (sum(xn(:) * bion(:) * aion_inv(:)))
+
+             end do
+          end do
+       end do
+    end if
+#endif
 
   end subroutine init_state
 
@@ -107,9 +127,16 @@ contains
 
              burn_state_in % rho = state(ii, jj, kk, p % irho)
              burn_state_in % T = state(ii, jj, kk, p % itemp)
+
              do j = 1, nspec
                 burn_state_in % xn(j) = state(ii, jj, kk, p % ispec_old + j - 1)
              enddo
+
+#if NAUX_NET > 0
+             do j = 1, naux
+                burn_state_in % aux(j) = state(ii, jj, kk, p % iaux_old + j - 1)
+             end do
+#endif
 
              call normalize_abundances_burn(burn_state_in)
 
@@ -132,6 +159,13 @@ contains
                 state(ii, jj, kk, p % irodot + j - 1) = &
                      (burn_state_out % xn(j) - burn_state_in % xn(j)) / tmax
              enddo
+
+#if NAUX_NET > 0
+             do j = 1, naux
+                state(ii, jj, kk, p % iaux + j - 1) = burn_state_out % aux(j)
+             end do
+#endif
+
 
              state(ii, jj, kk, p % irho_hnuc) = &
                   state(ii, jj, kk, p % irho) * (burn_state_out % e - burn_state_in % e) / tmax

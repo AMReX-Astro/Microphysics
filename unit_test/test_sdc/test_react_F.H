@@ -8,7 +8,7 @@
 extern "C"
 {
 #endif
-  void init_variables();
+  void init_variables_F();
 
   void get_ncomp(int* ncomp);
 
@@ -18,9 +18,9 @@ extern "C"
 
   void init_unit_test(const int* name, const int* namlen);
 
-  void do_react(const int* lo, const int* hi,
+  void do_react_F(const int* lo, const int* hi,
                 amrex::Real* state, const int* s_lo, const int* s_hi,
-                int* n_rhs_min, int* n_rhs_max, int* n_rhs_sum);
+                int* n_rhs, const int* n_rhs_lo, const int* n_rhs_hi);
 
   void init_state(const int* lo, const int* hi,
                   amrex::Real* state, const int* s_lo, const int* s_hi,

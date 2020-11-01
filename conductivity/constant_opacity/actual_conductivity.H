@@ -2,8 +2,8 @@
 #define _actual_conductivity_H_
 
 #include <cmath>
-#include "eos_type.H"
-#include "network.H"
+#include <eos_type.H>
+#include <network.H>
 #include <extern_parameters.H>
 
 const std::string cond_name = "constant_opacity";

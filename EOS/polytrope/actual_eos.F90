@@ -38,7 +38,7 @@ module actual_eos_module
 
   real(rt)        , allocatable, save :: gm1, polytrope_index
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
 #endif
 

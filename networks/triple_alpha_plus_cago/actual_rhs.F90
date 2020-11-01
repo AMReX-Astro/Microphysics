@@ -51,8 +51,6 @@ contains
     rr % rates(1,:) = rates(:)
     rr % rates(2,:) = dratesdt(:)
 
-    rr % T_eval = temp
-
   end subroutine get_rates
 
 
@@ -181,7 +179,7 @@ contains
 
     real(rt)         :: dydt(nspec), enuc
 
-    enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
+    enuc = sum(dydt(:) * bion(1:nspec)) * conv_factor
 
   end subroutine ener_gener_rate
 

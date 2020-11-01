@@ -23,7 +23,7 @@ module actual_rhs_module
   real(rt)        , allocatable :: drattabdt(:,:)
   real(rt)        , allocatable :: ttab(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: rattab, drattabdt, ttab
 #endif
 
@@ -100,8 +100,6 @@ contains
     rr % rates(2,:) = dratedt
     rr % rates(3,irsi2ni:irni2si) = dratedy1
     rr % rates(4,irsi2ni:irni2si) = dratedy2
-
-    rr % T_eval = temp
 
   end subroutine get_rates
 

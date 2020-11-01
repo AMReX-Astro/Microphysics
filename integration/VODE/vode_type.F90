@@ -72,27 +72,42 @@ contains
   subroutine update_thermodynamics(vode_state)
 
     !$acc routine seq
-    
+
     use amrex_constants_module, only: ZERO
     use extern_probin_module, only: call_eos_in_rhs, dT_crit
     use eos_type_module, only: eos_t, eos_input_rt
     use eos_composition_module, only : composition
     use eos_module, only: eos
-    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, irp_dcpdt, irp_dcvdt
+    use vode_rpar_indices, only: n_rpar_comps, irp_self_heat, irp_cp, irp_cv, irp_Told, &
+                                 irp_dcpdt, irp_dcvdt, irp_abar, irp_ye, irp_zbar
     use burn_type_module, only: neqs
+    use network, only : nspec, aion_inv, zion
 
     implicit none
 
     type (dvode_t), intent(inout) :: vode_state
 
     type (eos_t) :: eos_state
+    real ::mu_e
 
     !$gpu
-
+    
     ! Several thermodynamic quantities come in via rpar -- note: these
     ! are evaluated at the start of the integration, so if things change
     ! dramatically, they will fall out of sync with the current
     ! thermodynamics.
+    
+#ifdef NSE_THERMO
+    ! we are handling the thermodynamics via the aux quantities, which
+    ! are stored in the rpar here, so we need to update those based on
+    ! the current state.
+
+    vode_state % rpar(irp_abar) = 1.0_rt / (sum(vode_state % y(1:nspec) * aion_inv(:)))
+    mu_e = 1.0_rt / sum(vode_state % y(1:nspec) * zion(:) * aion_inv(:))
+    vode_state % rpar(irp_ye) = 1.0_rt / mu_e
+    vode_state % rpar(irp_zbar) = vode_state % rpar(irp_abar) * vode_state % rpar(irp_ye)
+
+#endif
 
     call vode_to_eos(eos_state, vode_state)
 
@@ -151,9 +166,12 @@ contains
 
     use integrator_scaling_module, only: dens_scale, temp_scale
     use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iye, iabar, ibea
+#endif
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -168,13 +186,18 @@ contains
 
     state % xn(1:nspec) = vode_state % y(1:nspec)
 
+#ifdef NSE_THERMO
+    state % aux(iye) = vode_state % rpar(irp_ye)
+    state % aux(iabar) = vode_state % rpar(irp_abar)
+    state % aux(ibea) = 0.0_rt
+#endif
+
     state % cp      = vode_state % rpar(irp_cp)
     state % cv      = vode_state % rpar(irp_cv)
     state % abar    = vode_state % rpar(irp_abar)
     state % zbar    = vode_state % rpar(irp_zbar)
     state % eta     = vode_state % rpar(irp_eta)
     state % y_e     = vode_state % rpar(irp_ye)
-    state % cs      = vode_state % rpar(irp_cs)
 
   end subroutine vode_to_eos
 
@@ -188,9 +211,12 @@ contains
 
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale
     use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iabar, iye
+#endif
     use eos_type_module, only: eos_t
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_eta, irp_ye, irp_cs, n_rpar_comps
+                            irp_eta, irp_ye, n_rpar_comps
     use burn_type_module, only: neqs, net_itemp
 
     implicit none
@@ -205,13 +231,17 @@ contains
 
     vode_state % y(1:nspec) = state % xn(1:nspec)
 
+#ifdef NSE_THERMO
+    vode_state % rpar(irp_ye) = state % aux(iye)
+    vode_state % rpar(irp_abar) = state % aux(iabar)
+#endif
+
     vode_state % rpar(irp_cp) = state % cp
     vode_state % rpar(irp_cv) = state % cv
     vode_state % rpar(irp_abar) = state % abar
     vode_state % rpar(irp_zbar) = state % zbar
     vode_state % rpar(irp_eta) = state % eta
     vode_state % rpar(irp_ye) = state % y_e
-    vode_state % rpar(irp_cs) = state % cs
 
   end subroutine eos_to_vode
 
@@ -225,8 +255,11 @@ contains
     use integrator_scaling_module, only: inv_dens_scale, inv_temp_scale, inv_ener_scale
     use amrex_constants_module, only: ONE
     use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iabar, iye
+#endif
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_ye, irp_eta, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
@@ -242,6 +275,12 @@ contains
     vode_state % y(net_itemp) = state % T * inv_temp_scale
     vode_state % y(net_ienuc) = state % e * inv_ener_scale
 
+#ifdef NSE_THERMO
+    vode_state % rpar(irp_ye) = state % aux(iye)
+    vode_state % rpar(irp_abar) = state % aux(iabar)
+#endif
+
+
   end subroutine burn_to_vode
 
 
@@ -254,8 +293,11 @@ contains
     use integrator_scaling_module, only: dens_scale, temp_scale, ener_scale
     use amrex_constants_module, only: ZERO
     use network, only: nspec
+#ifdef NSE_THERMO
+    use network, only: iye, iabar
+#endif
     use vode_rpar_indices, only: irp_dens, irp_cp, irp_cv, irp_abar, irp_zbar, &
-                            irp_ye, irp_eta, irp_cs, irp_dx, &
+                            irp_ye, irp_eta, &
                             irp_Told, irp_dcvdt, irp_dcpdt, irp_self_heat, &
                             n_rpar_comps
     use burn_type_module, only: neqs, burn_t, net_itemp, net_ienuc
@@ -273,14 +315,17 @@ contains
 
     state % xn(1:nspec) = vode_state % y(1:nspec)
 
+#ifdef NSE_THERMO
+    state % aux(iye) = vode_state % rpar(irp_ye)
+    state % aux(iabar) = vode_state % rpar(irp_abar)
+#endif
+
     state % cp       = vode_state % rpar(irp_cp)
     state % cv       = vode_state % rpar(irp_cv)
     state % abar     = vode_state % rpar(irp_abar)
     state % zbar     = vode_state % rpar(irp_zbar)
     state % y_e      = vode_state % rpar(irp_ye)
     state % eta      = vode_state % rpar(irp_eta)
-    state % cs       = vode_state % rpar(irp_cs)
-    state % dx       = vode_state % rpar(irp_dx)
 
     state % T_old    = vode_state % rpar(irp_Told)
     state % dcvdt    = vode_state % rpar(irp_dcvdt)

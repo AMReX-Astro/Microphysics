@@ -15,7 +15,7 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: bion, mion, wion
 #endif
 

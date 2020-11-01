@@ -20,3 +20,8 @@
  nickel-56      Ni56        56.0     28.0
  neutron        n            1.0      0.0
  proton         p            1.0      1.0
+
+# auxillary variables
+__aux_Ye       NSE
+__aux_abar     NSE
+__aux_bea      NSE

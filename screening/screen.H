@@ -135,7 +135,7 @@ void screen5(const plasma_state_t state,
              const int jscreen,
              const Real z1_screen, const Real a1_screen,
              const Real z2_screen, const Real a2_screen,
-             Real& scor, Real& scordt, Real& scordd)
+             Real& scor, Real& scordt, Real& /*scordd*/)
 {
     using namespace scrn;
 

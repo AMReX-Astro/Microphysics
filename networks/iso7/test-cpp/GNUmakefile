@@ -16,16 +16,14 @@ USE_REACT = TRUE
 # programs to be compiled
 ALL: testburn.ex table
 
-EOS_dir := helmholtz
+EOS_DIR := helmholtz
 
-Network_dir := iso7
+NETWORK_DIR := iso7
 
-f90EXE_sources += testburn.f90
-f90EXE_sources += testjacobian.f90
+Bpack := ./Make.package
+Blocs := .
 
-BLOCS += .
-
-include $(CASTRO_DIR)/Exec/Make.Castro
+include $(MICROPHYSICS_HOME)/Make.Microphysics
 
 
 #my_objs = $(filter-out $(objEXETempDir)/main.o, $(objForExecs))

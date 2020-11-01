@@ -23,6 +23,8 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Note that we no longer include the chemical potential (dE/dX or dH/dX)
     // terms because we believe they analytically should vanish.
 
+#ifndef SIMPLIFIED_SDC
+
     if (state.self_heat) {
 
         if (do_constant_volume_burn) {
@@ -73,6 +75,12 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     }
 
+#else
+
+    // we never access dT/dt for SDC
+    ydot(net_itemp) = 0.0_rt;
+#endif
+
 }
 
 
@@ -83,6 +91,8 @@ template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void temperature_jac (burn_t& state, MatrixType& jac)
 {
+
+#ifndef SIMPLIFIED_SDC
 
     if (state.self_heat) {
 
@@ -144,6 +154,13 @@ void temperature_jac (burn_t& state, MatrixType& jac)
         }
 
     }
+
+#else
+
+    for (int k = 1; k <= neqs; ++k) {
+      jac.set(net_itemp, k, 0.0_rt);
+    }
+#endif
 
 }
 

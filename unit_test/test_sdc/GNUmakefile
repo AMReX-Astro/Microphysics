@@ -15,9 +15,11 @@ USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
-USE_CXX_EOS = FALSE
+USE_CXX_EOS = TRUE
 
-USE_CXX_REACTIONS = FALSE
+USE_CXX_REACTIONS = TRUE
+
+USE_EXTRA_THERMO = TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
@@ -42,6 +44,6 @@ EXTERN_SEARCH += .
 Bpack   := ./Make.package
 Blocs   := .
 
-include $(MICROPHYSICS_HOME)/Make.Microphysics
+include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
 

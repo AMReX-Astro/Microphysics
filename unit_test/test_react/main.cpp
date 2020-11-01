@@ -10,16 +10,17 @@
 
 using namespace amrex;
 
-#include "test_react.H"
-#include "test_react_F.H"
-#include "extern_parameters.H"
-#include "eos.H"
-#include "network.H"
+#include <test_react.H>
+#include <test_react_F.H>
+#include <extern_parameters.H>
+#include <eos.H>
+#include <network.H>
 #ifdef CXX_REACTIONS
-#include "react_zones.H"
+#include <react_zones.H>
 #endif
-#include "AMReX_buildInfo.H"
-
+#include <AMReX_buildInfo.H>
+#include <variables.H>
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {
@@ -43,9 +44,7 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
-#ifdef CXX_REACTIONS
     int do_cxx = 0;
-#endif
 
     // inputs parameters
     {
@@ -135,7 +134,7 @@ void main_main ()
 
     // Ncomp = number of components for each array
     int Ncomp = -1;
-    init_variables();
+    init_variables_F();
     get_ncomp(&Ncomp);
 
     int name_len = -1;
@@ -149,6 +148,11 @@ void main_main ()
       get_var_name(cstring, &i);
       std::string name(*cstring);
       varnames.push_back(name);
+    }
+
+    plot_t vars;
+    if (do_cxx == 1) {
+      vars = init_variables();
     }
 
     // time = starting time in the simulation
@@ -197,7 +201,7 @@ void main_main ()
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                bool success = do_react(i, j, k, s, n_rhs);
+                bool success = do_react(i, j, k, s, n_rhs, vars);
 
                 if (!success) {
                     Gpu::Atomic::Add(num_failed_d, 1);
@@ -259,9 +263,9 @@ void main_main ()
 #endif
 
     // Write a plotfile
-    int n = 0;
-
     WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
+
+    write_job_info(prefix + name + integrator + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
