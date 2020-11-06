@@ -2,8 +2,12 @@
 #define _vode_rhs_H_
 
 #include <network.H>
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #include <actual_rhs.H>
+#else
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
 #include <burn_type.H>
 #include <extern_parameters.H>
 #include <vode_type.H>

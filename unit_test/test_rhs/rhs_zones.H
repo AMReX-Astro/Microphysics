@@ -14,6 +14,10 @@
 #include <actual_matrix.H>
 #endif
 
+#ifndef NETWORK_HAS_CXX_IMPLEMENTATION
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_rhs (int i, int j, int k, Array4<Real> const& state)
 {

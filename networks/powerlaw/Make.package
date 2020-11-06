@@ -1,6 +1,8 @@
 F90EXE_sources += actual_network.F90
 F90EXE_sources += network_properties.F90
 
+DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
 CEXE_headers += network_properties.H
 CEXE_headers += actual_network.H
 CEXE_sources += actual_network_data.cpp
