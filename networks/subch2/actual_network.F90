@@ -170,7 +170,7 @@ module actual_network
 
   real(rt), allocatable, save :: bion(:), mion(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: bion, mion
 #endif
 
@@ -181,7 +181,7 @@ module actual_network
   integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 317
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: csr_jac_col_index, csr_jac_row_count
 #endif
 #endif

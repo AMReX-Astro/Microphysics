@@ -1195,7 +1195,7 @@ void screen_aprox19 (Real btemp, Real bden,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates (burn_t const& state, rate_t& rr)
+void evaluate_rates (burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
     Array1D<Real, 1, NumRates> ratraw, dratrawdt, dratrawdd;
     Array1D<Real, 1, NumRates> ratdum, dratdumdt, dratdumdd;
@@ -1231,13 +1231,11 @@ void evaluate_rates (burn_t const& state, rate_t& rr)
     // Save the rate data
 
     for (int i = 1; i <= NumRates; ++i) {
-        rr.rates(1, i) = ratdum(i);
-        rr.rates(2, i) = dratdumdt(i);
-        rr.rates(3, i) = dratdumdy1(i);
-        rr.rates(4, i) = dratdumdy2(i);
+        rr(1).rates(i) = ratdum(i);
+        rr(2).rates(i) = dratdumdt(i);
+        rr(3).rates(i) = dratdumdy1(i);
+        rr(4).rates(i) = dratdumdy2(i);
     }
-
-    rr.T_eval = temp;
 
 }
 
@@ -2609,7 +2607,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Isotopes: h1,   he3,  he4,  c12,  n14,  o16,  ne20, mg24, si28, s32,
     //           ar36, ca40, ti44, cr48, fe52, fe54, ni56, neut, prot
     
-    rate_t rr;
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
 
     bool deriva;
 
@@ -2639,8 +2637,8 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Call the RHS to actually get dydt.
 
     for (int i = 1; i <= NumRates; ++i) {
-        r1(i) = rr.rates(1, i);
-        r2(i) = rr.rates(1, i);
+        r1(i) = rr(1).rates(i);
+        r2(i) = rr(1).rates(i);
     }
 
     rhs(y, r1, r2, ydot, deriva);
@@ -2669,7 +2667,7 @@ template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_jac (burn_t& state, MatrixType& jac)
 {
-    rate_t rr;
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
 
     bool deriva;
 
@@ -2700,9 +2698,9 @@ void actual_jac (burn_t& state, MatrixType& jac)
     // Species Jacobian elements with respect to other species
 
     for (int i = 1; i <= NumRates; ++i) {
-        r1(i) = rr.rates(1, i);
-        r2(i) = rr.rates(3, i);
-        r3(i) = rr.rates(4, i);
+        r1(i) = rr(1).rates(i);
+        r2(i) = rr(3).rates(i);
+        r3(i) = rr(4).rates(i);
     }
 
     dfdy_isotopes_aprox19(y, jac, r1, r2, r3);
@@ -2727,8 +2725,8 @@ void actual_jac (burn_t& state, MatrixType& jac)
     // calling the RHS using d(ratdum) / dT
 
     for (int i = 1; i <= NumRates; ++i) {
-        r1(i) = rr.rates(1, i);
-        r2(i) = rr.rates(2, i);
+        r1(i) = rr(1).rates(i);
+        r2(i) = rr(2).rates(i);
     }
 
     rhs(y, r2, r1, yderivs, deriva);

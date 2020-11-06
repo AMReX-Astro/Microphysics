@@ -101,8 +101,6 @@ contains
 
     rr % rates(:,:) = ZERO ! Zero out rates
 
-    rr % T_eval = T9 * 1.e9_rt
-
     call calc_tfactors(T9, tfactors)
 
     ! some common parameters
@@ -132,7 +130,7 @@ contains
 
     ! now the remaining rates -- we'll do screening inline here
 
-    call fill_plasma_state(pstate, rr % T_eval, dens, y)
+    call fill_plasma_state(pstate, T9 * 1.e9_rt, dens, y)
 
     ! 12c(p,g)13n
     call rate_p_c12_to_n13(tfactors,rate,dratedt)

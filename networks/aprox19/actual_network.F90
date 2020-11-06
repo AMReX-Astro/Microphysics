@@ -32,7 +32,7 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: bion, mion
 #endif
 
@@ -183,7 +183,7 @@ contains
     call network_properties_init()
 
 #ifdef NSE
-    call init_nse()
+    call init_nse_F()
 #endif
 
     allocate(bion(nspec))

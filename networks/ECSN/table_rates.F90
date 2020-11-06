@@ -57,7 +57,7 @@ module table_rates
   integer               :: num_header_j_f20_ne20
 
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
 
   attributes(managed) :: rate_table_j_f20_o20, rhoy_table_j_f20_o20, temp_table_j_f20_o20
   attributes(managed) :: num_rhoy_j_f20_o20, num_temp_j_f20_o20, num_vars_j_f20_o20

@@ -1,3 +1,16 @@
+# 20.12
+
+   * An interface has been added for C++ integrators to call the RHS
+     from a network that only has a Fortran implementation. This allows
+     the use of USE_CXX_REACTIONS = TRUE for any network (however, CUDA
+     is not currently supported for this case). (#419)
+
+# 20.11
+
+   * The aprox19 + NSE network was ported to C++ (#362)
+
+   * The simplified-SDC code path was ported to C++ (#389)
+
 # 20.10
 
    * An option to use NSE instead of integrating the reaction

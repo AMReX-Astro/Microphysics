@@ -63,7 +63,7 @@ module eos_type_module
   !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
   !$acc create(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: mintemp
   attributes(managed) :: maxtemp
   attributes(managed) :: mindens
@@ -425,7 +425,7 @@ contains
 
     case default
 
-#ifdef AMREX_USE_CUDA
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
        stop
 #else
        call amrex_error("EOS: invalid independent variable")
