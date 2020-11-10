@@ -163,8 +163,8 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
         eos_state.xn[n] = vode_state.y(SFS+1+n) / state.rho;
     }
 #ifdef NSE_THERMO
-    // we need to manually compute the aux data here to be consistent
-    // with the renormalized abundances
+    // make the aux data here to be consistent with the renormalized
+    // abundances
     set_nse_aux_from_X(eos_state);
 #endif
 
@@ -231,13 +231,10 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
         state.y[n] = vode_state.y(n+1);
     }
 
-    // update rho, rho*u, etc.
+    // update rho, rho*u, ... in the burn_t state
 
     fill_unevolved_variables(time, state, vode_state);
 
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(state);
-#endif
 
     Real rhoInv = 1.0_rt / state.rho;
 
@@ -247,6 +244,16 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
         // vode_state uses 1-based indexing
         eos_state.xn[n] = vode_state.y(SFS+1+n) * rhoInv;
     }
+#ifdef NSE_THERMO
+    // make the aux data consistent with the vode_state X's
+    set_nse_aux_from_X(eos_state);
+
+    // also store it in the burn_t state
+    for (int n = 0; n < NumAux; n++) {
+        state.y[n] = state.rho * eos_state.aux[n];
+    }
+#endif
+
 
 #if defined(SDC_EVOLVE_ENERGY)
 
@@ -295,6 +302,8 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     }
 
 #endif
+
+    // fill the rest of the burn_t state
 
     eos_to_burn(eos_state, state);
 
@@ -531,8 +540,8 @@ void jac_to_vode(const Real time, burn_t& state,
     for (int n = 0; n < NumSpec; n++) {
         eos_state.xn[n] = vode_state.y(SFS+1+n) / state.rho;
     }
-#if NAUX_NET > 0
-    amrex::Error("error: aux support not implemented");
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(eos_state);
 #endif
 
     eos_state.e = vode_state.y(SEINT+1) / state.rho;
@@ -635,9 +644,10 @@ void jac_to_vode(const Real time, burn_t& state,
     for (int n = 0; n < NumSpec; n++) {
         eos_state.xn[n] = vode_state.y(SFS+1+n) / state.rho;
     }
-#if NAUX_NET > 0
-    amrex::Error("error: aux support not implemented");
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(eos_state);
 #endif
+
     eos_state.h = vode_state.y(SENTH+1) / state.rho;
 
     eos(eos_input_rh, eos_state);
