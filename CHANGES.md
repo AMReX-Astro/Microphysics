@@ -1,7 +1,7 @@
 # 20.12
 
    * The default absolute tolerance for species (atol_spec) has been
-     increased to 1.e-10 (from 1.e-12). (#421)
+     increased to 1.e-8 (from 1.e-12). (#422)
 
    * An interface has been added for C++ integrators to call the RHS
      from a network that only has a Fortran implementation. This allows
