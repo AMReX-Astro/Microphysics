@@ -80,8 +80,9 @@ bool in_nse(const burn_t& state) {
 /// After doing a burn via integrating the network, update the composition
 /// aux variables to be consistent with the new X's resulting from the burn.
 ///
+template <class state_t> 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void set_nse_aux_from_X(burn_t& state) {
+void set_nse_aux_from_X(state_t& state) {
 
   using namespace AuxZero;
 
