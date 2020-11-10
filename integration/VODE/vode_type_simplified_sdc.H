@@ -250,7 +250,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
     // also store it in the burn_t state
     for (int n = 0; n < NumAux; n++) {
-        state.y[n] = state.rho * eos_state.aux[n];
+        state.y[SFX+n] = state.rho * eos_state.aux[n];
     }
 #endif
 
