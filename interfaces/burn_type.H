@@ -223,9 +223,12 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
 
 
 
-#ifndef SIMPLIFIED_SDC
-
 // Given a burn type, copy the data relevant to the eos type. 
+// Note that when doing simplified SDC integration, we should
+// avoid using this interface because the energy includes a
+// contribution from the advection term. However this is useful
+// for instantaneous RHS evaluations.
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
 {
@@ -242,8 +245,10 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     }
 #endif
 
+#ifndef SIMPLIFIED_SDC
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
+#endif
 
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;
@@ -251,7 +256,6 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     eos_state.zbar = burn_state.zbar;
 
 }
-#endif
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
