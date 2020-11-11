@@ -70,14 +70,13 @@ namespace RHS {
 
     struct rhs_t {
         Real prefactor;
-        int rateindex;
         int specindex1;
         int specindex2;
         int specindex3;
     };
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr rhs_t rhs_data (int species, int index)
+    constexpr rhs_t rhs_data (int species, int rateindex)
     {
         using namespace Species;
         using namespace Rates;
@@ -85,7 +84,6 @@ namespace RHS {
         rhs_t data{};
 
         data.prefactor  = 0.0_rt;
-        data.rateindex  = -1;
         data.specindex1 = -1;
         data.specindex2 = -1;
         data.specindex3 = -1;
@@ -94,104 +92,89 @@ namespace RHS {
 
         case He4:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case irg3a:
                 data.prefactor  = 3.0_rt;
-                data.rateindex  = irg3a;
                 data.specindex1 = C12;
                 break;
 
-            case 2:
+            case ir3a:
                 data.prefactor  = -0.5_rt;
-                data.rateindex  = ir3a;
                 data.specindex1 = He4;
                 data.specindex2 = He4;
                 data.specindex3 = He4;
                 break;
 
-            case 3:
+            case iroga:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = iroga;
                 data.specindex1 = O16;
                 break;
 
-            case 4:
+            case ircag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = ircag;
                 data.specindex1 = C12;
                 data.specindex2 = He4;
                 break;
 
-            case 5:
+            case ir1212:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1212;
                 data.specindex1 = C12;
                 data.specindex2 = C12;
                 break;
 
-            case 6:
+            case ir1216:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1216;
                 data.specindex1 = C12;
                 data.specindex2 = O16;
                 break;
 
-            case 7:
+            case ir1616:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1616;
                 data.specindex1 = O16;
                 data.specindex2 = O16;
                 break;
 
-            case 8:
+            case iroag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = iroag;
                 data.specindex1 = O16;
                 data.specindex2 = He4;
                 break;
 
-            case 9:
+            case irnega:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irnega;
                 data.specindex1 = Ne20;
                 break;
 
-            case 10:
+            case irmgga:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irmgga;
                 data.specindex1 = Mg24;
                 break;
 
-            case 11:
+            case irneag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irneag;
                 data.specindex1 = Ne20;
                 data.specindex2 = He4;
                 break;
 
-            case 12:
+            case irsiga:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irsiga;
                 data.specindex1 = Si28;
                 break;
 
-            case 13:
+            case irmgag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irmgag;
                 data.specindex1 = Mg24;
                 data.specindex2 = He4;
                 break;
 
-            case 14:
+            case irsi2ni:
                 data.prefactor  = -7.0_rt;
-                data.rateindex  = irsi2ni;
                 data.specindex1 = He4;
                 break;
 
-            case 15:
+            case irni2si:
                 data.prefactor  = 7.0_rt;
-                data.rateindex  = irni2si;
                 data.specindex1 = Ni56;
                 break;
 
@@ -200,46 +183,39 @@ namespace RHS {
 
         case C12:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case ir3a:
                 data.prefactor  = 1.0_rt / 6.0_rt;
-                data.rateindex  = ir3a;
                 data.specindex1 = He4;
                 data.specindex2 = He4;
                 data.specindex3 = He4;
                 break;
 
-            case 2:
+            case irg3a:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irg3a;
                 data.specindex1 = C12;
                 break;
 
-
-            case 3:
+            case iroga:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = iroga;
                 data.specindex1 = O16;
                 break;
 
-            case 4:
+            case ircag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = ircag;
                 data.specindex1 = C12;
                 data.specindex2 = He4;
                 break;
 
-            case 5:
+            case ir1212:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = ir1212;
                 data.specindex1 = C12;
                 data.specindex2 = C12;
                 break;
 
-            case 6:
+            case ir1216:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = ir1216;
                 data.specindex1 = C12;
                 data.specindex2 = O16;
                 break;
@@ -249,45 +225,39 @@ namespace RHS {
 
         case O16:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case iroga:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = iroga;
                 data.specindex1 = O16;
                 break;
 
-            case 2:
+            case ircag:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = ircag;
                 data.specindex1 = C12;
                 data.specindex2 = He4;
                 break;
 
-            case 3:
+            case ir1216:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = ir1216;
                 data.specindex1 = C12;
                 data.specindex2 = O16;
                 break;
 
-            case 4:
+            case ir1616:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = ir1616;
                 data.specindex1 = O16;
                 data.specindex2 = O16;
                 break;
 
-            case 5:
+            case iroag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = iroag;
                 data.specindex1 = O16;
                 data.specindex2 = He4;
                 break;
 
-            case 6:
+            case irnega:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irnega;
                 data.specindex1 = Ne20;
                 break;
 
@@ -296,37 +266,32 @@ namespace RHS {
 
         case Ne20:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case ir1212:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1212;
                 data.specindex1 = C12;
                 data.specindex2 = C12;
                 break;
 
-            case 2:
+            case iroag:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = iroag;
                 data.specindex1 = O16;
                 data.specindex2 = He4;
                 break;
 
-            case 3:
+            case irnega:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irnega;
                 data.specindex1 = Ne20;
                 break;
 
-            case 4:
+            case irmgga:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irmgga;
                 data.specindex1 = Mg24;
                 break;
 
-            case 5:
+            case irneag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irneag;
                 data.specindex1 = Ne20;
                 data.specindex2 = He4;
                 break;
@@ -336,37 +301,32 @@ namespace RHS {
 
         case Mg24:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case ir1216:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1216;
                 data.specindex1 = C12;
                 data.specindex2 = O16;
                 break;
 
-            case 2:
+            case irmgga:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irmgga;
                 data.specindex1 = Mg24;
                 break;
 
-            case 3:
+            case irneag:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irneag;
                 data.specindex1 = Ne20;
                 data.specindex2 = He4;
                 break;
 
-            case 4:
+            case irsiga:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irsiga;
                 data.specindex1 = Si28;
                 break;
 
-            case 5:
+            case irmgag:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irmgag;
                 data.specindex1 = Mg24;
                 data.specindex2 = He4;
                 break;
@@ -376,44 +336,38 @@ namespace RHS {
 
         case Si28:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case ir1216:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1216;
                 data.specindex1 = C12;
                 data.specindex2 = O16;
                 break;
 
-            case 2:
+            case ir1616:
                 data.prefactor  = 0.5_rt;
-                data.rateindex  = ir1616;
                 data.specindex1 = O16;
                 data.specindex2 = O16;
                 break;
 
-            case 3:
+            case irsiga:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irsiga;
                 data.specindex1 = Si28;
                 break;
 
-            case 4:
+            case irmgag:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irmgag;
                 data.specindex1 = Mg24;
                 data.specindex2 = He4;
                 break;
 
-            case 5:
+            case irsi2ni:
                 data.prefactor  = -1.0_rt;
-                data.rateindex  = irsi2ni;
                 data.specindex1 = He4;
                 break;
 
-            case 6:
+            case irni2si:
                 data.prefactor  = 1.0_rt;
-                data.rateindex  = irni2si;
                 data.specindex1 = Ni56;
                 break;
 
@@ -422,17 +376,15 @@ namespace RHS {
 
         case Ni56:
 
-            switch (index) {
+            switch (rateindex) {
 
-            case 1:
+            case irsi2ni:
                 data.prefactor = 1.0_rt;
-                data.rateindex = irsi2ni;
                 data.specindex1 = He4;
                 break;
 
-            case 2:
+            case irni2si:
                 data.prefactor = -1.0_rt;
-                data.rateindex = irni2si;
                 data.specindex1 = Ni56;
                 break;
 
