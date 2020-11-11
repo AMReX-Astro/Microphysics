@@ -692,43 +692,29 @@ constexpr int num_rhs (int species)
 
 template<int spec, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr int nonzero_rate_index()
+constexpr Real rhs_term (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
 {
-    int rateindex = -1;
-
-    // Find the j'th non-zero term in the RHS.
+    // Obtain the j'th term in the RHS (one-indexed).
     // We loop through the rates in order and
     // count up the order in which the rates are
     // used in the RHS (determined by the prefactor
     // being non-zero). We then return the rate
-    // index of that term. If we're looking for an
-    // invalid term, we just return -1, which should
-    // be interpreted to mean that there is nothing to do.
+    // index of that term.
 
+    RHS::rhs_t rhs_data{};
+
+    int rate;
     int num_rates_used = 0;
-    for (int rate = 0; rate < Rates::NumRates; ++rate) {
-        RHS::rhs_t rhs_data = RHS::rhs_data(spec, rate);
+    for (rate = 0; rate < Rates::NumRates; ++rate) {
+        rhs_data = RHS::rhs_data(spec, rate);
         if (std::abs(rhs_data.prefactor) > 0.0) {
             ++num_rates_used;
-            rateindex = rate;
 
-            if (j == num_rates_used) {
+            if (num_rates_used == j) {
                 break;
             }
         }
     }
-
-    return rateindex;
-}
-
-template<int spec, int j>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
-{
-    // Obtain the rate index of the j'th term in the RHS.
-    constexpr int rateindex = nonzero_rate_index<spec, j>();
-
-    constexpr RHS::rhs_t rhs_data = RHS::rhs_data(spec, rateindex);
 
     Real term = rhs_data.prefactor;
 
@@ -744,7 +730,7 @@ constexpr Real rhs_term (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
         term *= y(rhs_data.specindex3);
     }
 
-    term *= rr.rates(rateindex);
+    term *= rr.rates(rate);
 
     return term;
 }
