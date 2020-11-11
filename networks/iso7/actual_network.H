@@ -68,43 +68,6 @@ namespace Rates {
 
 namespace RHS {
 
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr int num_rhs (int species)
-    {
-        using namespace Species;
-
-        int num_rhs = 0;
-
-        switch (species) {
-        case He4:
-            num_rhs = 15;
-            break;
-        case C12:
-            num_rhs = 6;
-            break;
-        case O16:
-            num_rhs = 6;
-            break;
-        case Ne20:
-            num_rhs = 5;
-            break;
-        case Mg24:
-            num_rhs = 5;
-            break;
-        case Si28:
-            num_rhs = 6;
-            break;
-        case Ni56:
-            num_rhs = 2;
-            break;
-        default:
-            num_rhs = 0;
-            break;
-        }
-
-        return num_rhs;
-    }
-
     struct rhs_t {
         Real prefactor;
         int rateindex;

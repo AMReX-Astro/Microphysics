@@ -671,6 +671,25 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int num_rhs (int species)
+{
+    int nrhs = 0;
+
+    // Query how many terms are non-zero. At most
+    // the number of non-zero terms would be the
+    // number of rates, so we have an upper limit
+    // to loop over.
+    for (int n = 0; n < Rates::NumRates; ++n) {
+        RHS::rhs_t rhs_data = RHS::rhs_data(species, n);
+        if (std::abs(rhs_data.prefactor) > 0.0) {
+            ++nrhs;
+        }
+    }
+
+    return nrhs;
+}
+
 template<int spec, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real rhs_term(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
@@ -714,7 +733,7 @@ Array1D<Real, 1, N> make_RHS_Array1D(Array1D<Real, 1, NumSpec> const& y, rate_t 
 template<int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real spec_rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
-    constexpr int nrhs = RHS::num_rhs(spec);
+    constexpr int nrhs = num_rhs(spec);
     Array1D<Real, 1, nrhs> a = make_RHS_Array1D<spec, nrhs>(y, rr);
     return esum<nrhs>(a);
 }
