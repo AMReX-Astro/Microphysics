@@ -12,6 +12,9 @@ constexpr int is_rate_used ()
 {
     constexpr rhs_t rhs_data = RHS::rhs_data(species, rate);
 
+    static_assert(species >= 1 && species <= NumSpec);
+    static_assert(rate >= 1 && rate <= Rates::NumRates);
+
     if (std::abs(rhs_data.prefactor) > 0.0) {
         return 1;
     } else {
