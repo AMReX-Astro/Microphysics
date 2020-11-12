@@ -13,7 +13,7 @@ struct rhs_t {
 // Form a unique numerical identifier from a given
 // (species, rate) combination.
 template<int num_rates>
-constexpr int species_rate(int species, int rate)
+constexpr int rhs_rate(int species, int rate)
 {
     return rate + species * num_rates;
 }
