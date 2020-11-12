@@ -4,23 +4,44 @@
 #include <actual_network.H>
 #include <network_utilities.H>
 
+template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr int num_rhs (int species)
+constexpr int is_rate_used ()
 {
-    int nrhs = 0;
+    constexpr rhs_t rhs_data = RHS::rhs_data(species, rate);
 
-    // Query how many terms are non-zero. At most
-    // the number of non-zero terms would be the
-    // number of rates, so we have an upper limit
-    // to loop over.
-    for (int n = 0; n < Rates::NumRates; ++n) {
-        rhs_t rhs_data = RHS::rhs_data(species, n);
-        if (std::abs(rhs_data.prefactor) > 0.0) {
-            ++nrhs;
-        }
+    if (std::abs(rhs_data.prefactor) > 0.0) {
+        return 1;
+    } else {
+        return 0;
     }
+}
 
-    return nrhs;
+template<int species>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int add_nonzero_rates ()
+{
+    return 0;
+}
+
+template<int species, int rate, int... rates>
+constexpr int add_nonzero_rates ()
+{
+    return is_rate_used<species, rate>() + add_nonzero_rates<species, rates...>();
+}
+
+template<int species, int... rates>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int num_rhs_impl (std::integer_sequence<int, rates...>)
+{
+    return add_nonzero_rates<species, rates...>();
+}
+
+template<int species>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int num_rhs ()
+{
+    return num_rhs_impl<species>(std::make_integer_sequence<int, Rates::NumRates>{});
 }
 
 template<int spec, int j>
@@ -85,7 +106,7 @@ make_RHS_Array1D(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
 template<int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real spec_rhs(Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
-    constexpr int nrhs = num_rhs(spec);
+    constexpr int nrhs = num_rhs<spec>();
     Array1D<Real, 1, nrhs> a = make_RHS_Array1D<spec, nrhs>(y, rr);
     return esum<nrhs>(a);
 }
