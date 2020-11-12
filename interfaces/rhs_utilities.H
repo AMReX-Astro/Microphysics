@@ -31,7 +31,7 @@ constexpr int add_nonzero_rates ()
 template<int species, int rate, int... rates>
 constexpr int add_nonzero_rates ()
 {
-    return is_rate_used<species, rate>() + add_nonzero_rates<species, rates...>();
+    return is_rate_used<species, rate + 1>() + add_nonzero_rates<species, rates...>();
 }
 
 template<int species, int... rates>
@@ -63,10 +63,10 @@ template<int species, int j, int rate, int... rates>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int actual_rhs_term_impl (int count)
 {
-    count += is_rate_used<species, rate>();
+    count += is_rate_used<species, rate + 1>();
 
     if (count == j) {
-        return rate;
+        return rate + 1;
     }
     else {
         return actual_rhs_term_impl<species, j, rates...>(count);
