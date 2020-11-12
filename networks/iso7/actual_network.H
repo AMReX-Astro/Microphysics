@@ -82,307 +82,258 @@ namespace RHS {
         data.specindex2 = -1;
         data.specindex3 = -1;
 
-        switch (species) {
+        switch (species_rate<NumRates>(species, rateindex)) {
 
-        case He4:
-
-            switch (rateindex) {
-
-            case irg3a:
-                data.prefactor  = 3.0_rt;
-                data.specindex1 = C12;
-                break;
-
-            case ir3a:
-                data.prefactor  = -0.5_rt;
-                data.specindex1 = He4;
-                data.specindex2 = He4;
-                data.specindex3 = He4;
-                break;
-
-            case iroga:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = O16;
-                break;
-
-            case ircag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = C12;
-                data.specindex2 = He4;
-                break;
-
-            case ir1212:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = C12;
-                data.specindex2 = C12;
-                break;
-
-            case ir1216:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = C12;
-                data.specindex2 = O16;
-                break;
-
-            case ir1616:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = O16;
-                data.specindex2 = O16;
-                break;
-
-            case iroag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = O16;
-                data.specindex2 = He4;
-                break;
-
-            case irnega:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Ne20;
-                break;
-
-            case irmgga:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Mg24;
-                break;
-
-            case irneag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Ne20;
-                data.specindex2 = He4;
-                break;
-
-            case irsiga:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Si28;
-                break;
-
-            case irmgag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Mg24;
-                data.specindex2 = He4;
-                break;
-
-            case irsi2ni:
-                data.prefactor  = -7.0_rt;
-                data.specindex1 = He4;
-                break;
-
-            case irni2si:
-                data.prefactor  = 7.0_rt;
-                data.specindex1 = Ni56;
-                break;
-
-            }
+        case species_rate<NumRates>(He4, irg3a):
+            data.prefactor  = 3.0_rt;
+            data.specindex1 = C12;
             break;
 
-        case C12:
-
-            switch (rateindex) {
-
-            case ir3a:
-                data.prefactor  = 1.0_rt / 6.0_rt;
-                data.specindex1 = He4;
-                data.specindex2 = He4;
-                data.specindex3 = He4;
-                break;
-
-            case irg3a:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = C12;
-                break;
-
-            case iroga:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = O16;
-                break;
-
-            case ircag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = C12;
-                data.specindex2 = He4;
-                break;
-
-            case ir1212:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = C12;
-                data.specindex2 = C12;
-                break;
-
-            case ir1216:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = C12;
-                data.specindex2 = O16;
-                break;
-
-            }
+        case species_rate<NumRates>(He4, ir3a):
+            data.prefactor  = -0.5_rt;
+            data.specindex1 = He4;
+            data.specindex2 = He4;
+            data.specindex3 = He4;
             break;
 
-        case O16:
-
-            switch (rateindex) {
-
-            case iroga:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = O16;
-                break;
-
-            case ircag:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = C12;
-                data.specindex2 = He4;
-                break;
-
-            case ir1216:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = C12;
-                data.specindex2 = O16;
-                break;
-
-            case ir1616:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = O16;
-                data.specindex2 = O16;
-                break;
-
-            case iroag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = O16;
-                data.specindex2 = He4;
-                break;
-
-            case irnega:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Ne20;
-                break;
-
-            }
+        case species_rate<NumRates>(He4, iroga):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
             break;
 
-        case Ne20:
-
-            switch (rateindex) {
-
-            case ir1212:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = C12;
-                data.specindex2 = C12;
-                break;
-
-            case iroag:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = O16;
-                data.specindex2 = He4;
-                break;
-
-            case irnega:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Ne20;
-                break;
-
-            case irmgga:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Mg24;
-                break;
-
-            case irneag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Ne20;
-                data.specindex2 = He4;
-                break;
-
-            }
+        case species_rate<NumRates>(He4, ircag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = He4;
             break;
 
-        case Mg24:
-
-            switch (rateindex) {
-
-            case ir1216:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = C12;
-                data.specindex2 = O16;
-                break;
-
-            case irmgga:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Mg24;
-                break;
-
-            case irneag:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Ne20;
-                data.specindex2 = He4;
-                break;
-
-            case irsiga:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Si28;
-                break;
-
-            case irmgag:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Mg24;
-                data.specindex2 = He4;
-                break;
-
-            }
+        case species_rate<NumRates>(He4, ir1212):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = C12;
+            data.specindex2 = C12;
             break;
 
-        case Si28:
-
-            switch (rateindex) {
-
-            case ir1216:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = C12;
-                data.specindex2 = O16;
-                break;
-
-            case ir1616:
-                data.prefactor  = 0.5_rt;
-                data.specindex1 = O16;
-                data.specindex2 = O16;
-                break;
-
-            case irsiga:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = Si28;
-                break;
-
-            case irmgag:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Mg24;
-                data.specindex2 = He4;
-                break;
-
-            case irsi2ni:
-                data.prefactor  = -1.0_rt;
-                data.specindex1 = He4;
-                break;
-
-            case irni2si:
-                data.prefactor  = 1.0_rt;
-                data.specindex1 = Ni56;
-                break;
-
-            }
+        case species_rate<NumRates>(He4, ir1216):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
             break;
 
-        case Ni56:
+        case species_rate<NumRates>(He4, ir1616):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = O16;
+            data.specindex2 = O16;
+            break;
 
-            switch (rateindex) {
+        case species_rate<NumRates>(He4, iroag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = He4;
+            break;
 
-            case irsi2ni:
-                data.prefactor = 1.0_rt;
-                data.specindex1 = He4;
-                break;
+        case species_rate<NumRates>(He4, irnega):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ne20;
+            break;
 
-            case irni2si:
-                data.prefactor = -1.0_rt;
-                data.specindex1 = Ni56;
-                break;
+        case species_rate<NumRates>(He4, irmgga):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Mg24;
+            break;
 
-            }
+        case species_rate<NumRates>(He4, irneag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ne20;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(He4, irsiga):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Si28;
+            break;
+
+        case species_rate<NumRates>(He4, irmgag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Mg24;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(He4, irsi2ni):
+            data.prefactor  = -7.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case species_rate<NumRates>(He4, irni2si):
+            data.prefactor  = 7.0_rt;
+            data.specindex1 = Ni56;
+            break;
+
+        case species_rate<NumRates>(C12, ir3a):
+            data.prefactor  = 1.0_rt / 6.0_rt;
+            data.specindex1 = He4;
+            data.specindex2 = He4;
+            data.specindex3 = He4;
+            break;
+
+        case species_rate<NumRates>(C12, irg3a):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            break;
+
+        case species_rate<NumRates>(C12, iroga):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case species_rate<NumRates>(C12, ircag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(C12, ir1212):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = C12;
+            break;
+
+        case species_rate<NumRates>(C12, ir1216):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case species_rate<NumRates>(O16, iroga):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case species_rate<NumRates>(O16, ircag):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(O16, ir1216):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case species_rate<NumRates>(O16, ir1616):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = O16;
+            break;
+
+        case species_rate<NumRates>(O16, iroag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(O16, irnega):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ne20;
+            break;
+
+        case species_rate<NumRates>(Ne20, ir1212):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = C12;
+            data.specindex2 = C12;
+            break;
+
+        case species_rate<NumRates>(Ne20, iroag):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(Ne20, irnega):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ne20;
+            break;
+
+        case species_rate<NumRates>(Ne20, irmgga):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Mg24;
+            break;
+
+        case species_rate<NumRates>(Ne20, irneag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ne20;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(Mg24, ir1216):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case species_rate<NumRates>(Mg24, irmgga):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Mg24;
+            break;
+
+        case species_rate<NumRates>(Mg24, irneag):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ne20;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(Mg24, irsiga):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Si28;
+            break;
+
+        case species_rate<NumRates>(Mg24, irmgag):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Mg24;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(Si28, ir1216):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case species_rate<NumRates>(Si28, ir1616):
+            data.prefactor  = 0.5_rt;
+            data.specindex1 = O16;
+            data.specindex2 = O16;
+            break;
+
+        case species_rate<NumRates>(Si28, irsiga):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Si28;
+            break;
+
+        case species_rate<NumRates>(Si28, irmgag):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Mg24;
+            data.specindex2 = He4;
+            break;
+
+        case species_rate<NumRates>(Si28, irsi2ni):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case species_rate<NumRates>(Si28, irni2si):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ni56;
+            break;
+
+        case species_rate<NumRates>(Ni56, irsi2ni):
+            data.prefactor = 1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case species_rate<NumRates>(Ni56, irni2si):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = Ni56;
             break;
 
         }

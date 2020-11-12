@@ -10,4 +10,12 @@ struct rhs_t {
     int specindex3;
 };
 
+// Form a unique numerical identifier from a given
+// (species, rate) combination.
+template<int num_rates>
+constexpr int species_rate(int species, int rate)
+{
+    return rate + species * num_rates;
+}
+
 #endif
