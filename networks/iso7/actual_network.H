@@ -327,12 +327,12 @@ namespace RHS {
             break;
 
         case rhs_rate<NumRates>(Ni56, irsi2ni):
-            data.prefactor = 1.0_rt;
+            data.prefactor  = 1.0_rt;
             data.specindex1 = He4;
             break;
 
         case rhs_rate<NumRates>(Ni56, irni2si):
-            data.prefactor = -1.0_rt;
+            data.prefactor  = -1.0_rt;
             data.specindex1 = Ni56;
             break;
 
