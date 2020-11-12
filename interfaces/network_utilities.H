@@ -15,7 +15,7 @@ struct rhs_t {
 template<int num_rates>
 constexpr int rhs_rate(int species, int rate)
 {
-    return rate + species * num_rates;
+    return rate + (species - 1) * num_rates;
 }
 
 #endif
