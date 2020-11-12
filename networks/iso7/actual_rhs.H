@@ -690,13 +690,13 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
         dydt(i) = 0.0_rt;
     }
 
-    dydt(He4) = spec_rhs<He4>(y, rr(index_rate));
-    dydt(C12) = spec_rhs<C12>(y, rr(index_rate));
-    dydt(O16) = spec_rhs<O16>(y, rr(index_rate));
-    dydt(Ne20) = spec_rhs<Ne20>(y, rr(index_rate));
-    dydt(Mg24) = spec_rhs<Mg24>(y, rr(index_rate));
-    dydt(Si28) = spec_rhs<Si28>(y, rr(index_rate));
-    dydt(Ni56) = spec_rhs<Ni56>(y, rr(index_rate));
+    dydt(He4) = species_rhs<He4>(y, rr(index_rate));
+    dydt(C12) = species_rhs<C12>(y, rr(index_rate));
+    dydt(O16) = species_rhs<O16>(y, rr(index_rate));
+    dydt(Ne20) = species_rhs<Ne20>(y, rr(index_rate));
+    dydt(Mg24) = species_rhs<Mg24>(y, rr(index_rate));
+    dydt(Si28) = species_rhs<Si28>(y, rr(index_rate));
+    dydt(Ni56) = species_rhs<Ni56>(y, rr(index_rate));
 }
 
 
