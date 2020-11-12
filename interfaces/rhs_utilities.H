@@ -44,31 +44,45 @@ constexpr int num_rhs ()
     return num_rhs_impl<species>(std::make_integer_sequence<int, Rates::NumRates>{});
 }
 
+template<int species, int j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int actual_rhs_term_impl (int count)
+{
+    return -1;
+}
+
+template<int species, int j, int rate, int... rates>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int actual_rhs_term_impl (int count)
+{
+    count += is_rate_used<species, rate>();
+
+    if (count == j) {
+        return rate;
+    }
+    else {
+        return actual_rhs_term_impl<species, j, rates...>(count);
+    }
+}
+
+template<int species, int j, int... rates>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int rhs_term_impl (std::integer_sequence<int, rates...>)
+{
+    // Return the rate corresponding to the j'th contribution to the RHS.
+    // We obtain this by looping through the rates, and counting each one
+    // with a nonzero contribution. We stop when we have hit j of them.
+
+    return actual_rhs_term_impl<species, j, rates...>(0);
+}
+
 template<int spec, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Real rhs_term (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
 {
-    // Obtain the j'th term in the RHS (one-indexed).
-    // We loop through the rates in order and
-    // count up the order in which the rates are
-    // used in the RHS (determined by the prefactor
-    // being non-zero). We then return the rate
-    // index of that term.
+    constexpr int rate = rhs_term_impl<spec, j>(std::make_integer_sequence<int, Rates::NumRates>{});
 
-    rhs_t rhs_data{};
-
-    int rate;
-    int num_rates_used = 0;
-    for (rate = 0; rate < Rates::NumRates; ++rate) {
-        rhs_data = RHS::rhs_data(spec, rate);
-        if (std::abs(rhs_data.prefactor) > 0.0) {
-            ++num_rates_used;
-
-            if (num_rates_used == j) {
-                break;
-            }
-        }
-    }
+    constexpr rhs_t rhs_data = RHS::rhs_data(spec, rate);
 
     Real term = rhs_data.prefactor;
 
