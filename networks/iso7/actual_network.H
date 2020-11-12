@@ -7,6 +7,7 @@
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
+#include <network_utilities.H>
 
 using namespace amrex;
 
@@ -67,13 +68,6 @@ namespace Rates {
 }
 
 namespace RHS {
-
-    struct rhs_t {
-        Real prefactor;
-        int specindex1;
-        int specindex2;
-        int specindex3;
-    };
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr rhs_t rhs_data (int species, int rateindex)
