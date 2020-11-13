@@ -128,7 +128,8 @@ constexpr Real rhs_term (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
 template<int species, int... j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, sizeof...(j)>
-make_RHS_Array1D_impl (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr, std::integer_sequence<int, j...>) {
+make_RHS_Array1D_impl (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr, std::integer_sequence<int, j...>)
+{
     return {{rhs_term<species, j+1>(y, rr)...}};
 }
 
@@ -136,7 +137,8 @@ make_RHS_Array1D_impl (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr, std
 template<int species, int N>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, N>
-make_RHS_Array1D (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
+make_RHS_Array1D (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
+{
     return make_RHS_Array1D_impl<species>(y, rr, std::make_integer_sequence<int, N>{});
 }
 
