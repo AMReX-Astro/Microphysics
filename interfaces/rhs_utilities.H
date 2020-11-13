@@ -122,6 +122,9 @@ constexpr Real rhs_term (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
     return term;
 }
 
+// Implicitly construct an Array1D by expanding the integer sequence.
+// Note that the integer sequence is zero-indexed but the terms are
+// one-indexed.
 template<int species, int... j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, sizeof...(j)>
@@ -129,6 +132,7 @@ make_RHS_Array1D_impl (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr, std
     return {{rhs_term<species, j+1>(y, rr)...}};
 }
 
+// Calculate the set of RHS terms.
 template<int species, int N>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, N>
@@ -136,6 +140,8 @@ make_RHS_Array1D (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
     return make_RHS_Array1D_impl<species>(y, rr, std::make_integer_sequence<int, N>{});
 }
 
+// Calculate the RHS for a given species by constructing the array of terms
+// and then summing them up.
 template<int species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real species_rhs (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
