@@ -686,17 +686,11 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     const int index_rate = for_jacobian_tderiv ? 2 : 1;
 
-    for (int i = 1; i <= neqs; ++i) {
-        dydt(i) = 0.0_rt;
-    }
+    Array1D<Real, 1, NumSpec> species_rhs = construct_species_rhs(y, rr(index_rate));
 
-    dydt(He4) = species_rhs<He4>(y, rr(index_rate));
-    dydt(C12) = species_rhs<C12>(y, rr(index_rate));
-    dydt(O16) = species_rhs<O16>(y, rr(index_rate));
-    dydt(Ne20) = species_rhs<Ne20>(y, rr(index_rate));
-    dydt(Mg24) = species_rhs<Mg24>(y, rr(index_rate));
-    dydt(Si28) = species_rhs<Si28>(y, rr(index_rate));
-    dydt(Ni56) = species_rhs<Ni56>(y, rr(index_rate));
+    for (int i = 1; i <= NumSpec; ++i) {
+        dydt(i) = species_rhs(i);
+    }
 }
 
 

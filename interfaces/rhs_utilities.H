@@ -3,6 +3,8 @@
 
 #include <actual_network.H>
 #include <network_utilities.H>
+#include <rate_type.H>
+#include <burn_type.H>
 
 // Determine if a rate is used in the RHS for a given species
 // by seeing if its prefactor is nonzero.
@@ -146,10 +148,28 @@ make_RHS_Array1D (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
 // and then summing them up.
 template<int species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real species_rhs (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr) {
+Real species_rhs (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
+{
     constexpr int nrhs = num_rhs<species>();
     Array1D<Real, 1, nrhs> a = make_RHS_Array1D<species, nrhs>(y, rr);
     return esum<nrhs>(a);
+}
+
+// Implicitly construct an Array1D by expanding the integer sequence.
+// Note that the integer sequence is zero-indexed but the terms are
+// one-indexed.
+template<int... species>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, NumSpec> construct_species_rhs_impl (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr, std::integer_sequence<int, species...>)
+{
+    return {{species_rhs<species + 1>(y, rr)...}};
+}
+
+// Calculate the array of RHS terms over all species.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, NumSpec> construct_species_rhs (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
+{
+    return construct_species_rhs_impl(y, rr, std::make_integer_sequence<int, NumSpec>{});
 }
 
 #endif
