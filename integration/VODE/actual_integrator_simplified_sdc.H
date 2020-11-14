@@ -1,5 +1,5 @@
-#ifndef _vode_integrator_H_
-#define _vode_integrator_H_
+#ifndef actual_integrator_H
+#define actual_integrator_H
 
 // Common variables and routines for burners
 // that use VODE for their integration.
@@ -14,7 +14,7 @@
 #include <vode_dvode.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void vode_integrator (burn_t& state, Real dt)
+void actual_integrator (burn_t& state, Real dt)
 {
 
     dvode_t vode_state;
