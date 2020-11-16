@@ -63,8 +63,6 @@ public:
 
   int n_plot_comps = 0;
 
-  amrex::Vector<std::string> names;
-
   int next_index(const int num) {
     int next = n_plot_comps;
     n_plot_comps += num;
@@ -74,6 +72,8 @@ public:
 };
 
 plot_t init_variables();
+
+void get_varnames(const plot_t p, amrex::Vector<std::string>& names);
 
 
 #endif
