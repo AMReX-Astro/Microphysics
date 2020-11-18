@@ -12,17 +12,20 @@ plot_t init_variables() {
   p.irodot = p.next_index(NumSpec);
   p.irho_Hnuc = p.next_index(1);
 
-  p.names.resize(p.n_plot_comps);
-
-  p.names[p.irho] = "density";
-  p.names[p.itemp] = "temperature";
-  for (int n = 0; n < NumSpec; n++) {
-    p.names[p.ispec + n] = "Xnew_" + spec_names_cxx[n];
-    p.names[p.ispec_old + n] = "Xold_" + spec_names_cxx[n];
-    p.names[p.irodot + n] = "wdot_" + spec_names_cxx[n];
-  }
-  p.names[p.irho_Hnuc] = "rho_Hnuc";
-
   return p;
 }
 
+void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
+
+  names.resize(p.n_plot_comps);
+
+  names[p.irho] = "density";
+  names[p.itemp] = "temperature";
+  for (int n = 0; n < NumSpec; n++) {
+    names[p.ispec + n] = "Xnew_" + spec_names_cxx[n];
+    names[p.ispec_old + n] = "Xold_" + spec_names_cxx[n];
+    names[p.irodot + n] = "wdot_" + spec_names_cxx[n];
+  }
+  names[p.irho_Hnuc] = "rho_Hnuc";
+
+}

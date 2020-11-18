@@ -11,6 +11,7 @@ contains
 
   subroutine integrator_init()
 
+#ifdef INTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
     use integrator_scaling_module, only: integrator_scaling_init
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator_init
@@ -42,6 +43,7 @@ contains
 #ifdef NONAKA_PLOT
     call nonaka_init()
 #endif
+#endif
 
   end subroutine integrator_init
 
@@ -51,6 +53,7 @@ contains
 
     !$acc routine seq
 
+#ifdef INTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     use vode_integrator_module, only: vode_integrator
 #ifndef CUDA
@@ -60,12 +63,13 @@ contains
     use actual_integrator_module, only: actual_integrator
 #endif
     use amrex_constants_module, only: ZERO, ONE
-    use burn_type_module, only: burn_t
     use integration_data, only: integration_status_t
     use extern_probin_module, only: rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
                                     abort_on_failure, &
                                     retry_burn, retry_burn_factor, retry_burn_max_change
+#endif
+    use burn_type_module, only: burn_t
 
     implicit none
 
@@ -75,6 +79,7 @@ contains
 
     !$gpu
 
+#ifdef INTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
 #if (INTEGRATOR == 0 || INTEGRATOR == 1)
     type (integration_status_t) :: status
     real(rt) :: retry_change_factor
@@ -201,6 +206,7 @@ contains
 
     call actual_integrator(state_in, state_out, dt, time)
 
+#endif
 #endif
 
   end subroutine integrator
